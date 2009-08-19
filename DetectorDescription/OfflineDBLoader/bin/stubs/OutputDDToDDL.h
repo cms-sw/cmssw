@@ -6,10 +6,17 @@
 #include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDTransform.h>
 #include <DetectorDescription/Core/interface/DDsvalues.h>
+#include <DetectorDescription/Core/interface/DDLogicalPart.h>
 
 #include <ostream>
 #include <set>
+
 class DDPartSelection;
+
+/// is sv1 < sv2 
+struct ddsvaluesCmp {
+  bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
+};
 
 class OutputDDToDDL : public edm::EDAnalyzer {
 
@@ -21,19 +28,14 @@ class OutputDDToDDL : public edm::EDAnalyzer {
   virtual void endJob() {};
 
  private:
-  bool doPartSelectionsMatch( DDPartSelection* sp1, DDPartSelection* sp2 );
-  bool doDDsvaluesMatch ( DDsvalues_type* sv1, DDsvalues_type* sv2 );
-  void  addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore );
-  void  addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore );
+  void addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore );
+  void addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore );
+  void addToSpecStore( const DDLogicalPart& lp, std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > & specStore );
 
   int rotNumSeed_;
   std::string fname_;
   std::ostream* xos_;
-  //  int specNameCount_;
+  int specNameCount_;
 
 };
 
-  /// is sv1 < sv2 
-struct ddsvaluesCmp {
-  bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
-};

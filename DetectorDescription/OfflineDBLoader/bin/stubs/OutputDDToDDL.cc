@@ -1,34 +1,38 @@
 #include "OutputDDToDDL.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-// #include <CondCore/DBOutputService/interface/PoolDBOutputService.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
-//#include <DetectorDescription/Core/interface/DDMaterial.h>
-//#include <DetectorDescription/Core/interface/DDTransform.h>
-//#include <DetectorDescription/Core/interface/DDSolid.h>
 #include <DetectorDescription/Core/interface/DDLogicalPart.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
 #include <DetectorDescription/Core/interface/DDRoot.h>
 #include <DetectorDescription/Core/interface/DDName.h>
 #include <DetectorDescription/Core/interface/DDPosData.h>
-//#include <DetectorDescription/Core/interface/DDsvalues.h>
 #include <DetectorDescription/Core/interface/DDPartSelection.h>
-// #include <DetectorDescription/PersistentDDDObjects/interface/DDDToPersFactory.h>
 #include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
 
 // for clhep stuff..
-//#include <DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
-//#include <set>
-//#include <map>
 #include <utility>
+
+bool ddsvaluesCmp::operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 ) {
+  if ( sv1.size() < sv2.size() ) return true;
+  if ( sv2.size() < sv1.size() ) return false;
+  size_t ind = 0;
+  for (; ind < sv1.size(); ++ind) {
+    if ( sv1[ind].first < sv2[ind].first ) return true;
+    if ( sv2[ind].first < sv1[ind].first ) return false;
+    if ( sv1[ind].second < sv2[ind].second ) return true;
+    if ( sv2[ind].second < sv1[ind].second ) return false;
+  }
+  return false;
+}
 
 OutputDDToDDL::OutputDDToDDL(const edm::ParameterSet& iConfig) : fname_()
 {
@@ -68,10 +72,10 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   std::set<DDLogicalPart> lpStore;
   std::set<DDMaterial> matStore;
   std::set<DDSolid> solStore;
-  //  std::vector<DDSpecifics> specStore; // are specs unique? I believe so, or else all sorts of bad things happen.
-  //  std::vector<std::pair< DDPartSelection*, DDsvalues_type* > > specStore;
-  std::map<DDsvalues_type, std::vector<DDPartSelection*>, ddsvaluesCmp > specStore;
-  //  std::set<std::pair< DDPartSelection*, DDsvalues_type* > > specStore;
+  // 2009-08-19: MEC: I've tried this with set<DDPartSelection> and
+  // had to write operator< for DDPartSelection and DDPartSelectionLevel
+  // the output from such an effort is different than this one.
+  std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > specStore;
   std::set<DDRotation> rotStore;
 
   DDCoreToDDXMLOutput out;
@@ -105,35 +109,11 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
     {
       const DDLogicalPart & ddLP = gra.nodeData(git);
       if ( lpStore.find(ddLP) != lpStore.end() ) {
-// 	specStore.reserve(specStore.size()+ddLP.attachedSpecifics().size());
-// 	//      std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::iterator spit(ddLP.attachedSpecifics().begin()), spend (ddLP.attachedSpecifics().end());
-// 	//       while ( spit != spend ) {
-// 	// 	specStore.push_back(std::make_pair(spit->first, spit->second));
-// 	// 	++spit;
-// 	//       }
-// 	std::copy(ddLP.attachedSpecifics().begin(), ddLP.attachedSpecifics().end(), std::back_inserter(specStore));//, specStore.end()); //
-// attached specifics are std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >
-	std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator spit(ddLP.attachedSpecifics().begin()), spend(ddLP.attachedSpecifics().end());
-	for ( ; spit != spend; ++spit ) {
-	  const DDsvalues_type & ds = *spit->second;
-	  std::map<DDsvalues_type, std::vector<DDPartSelection*> >::const_iterator fit = specStore.find(ds);
-	  if ( fit == specStore.end() ) {
-	    std::vector<DDPartSelection*> psv;
-	    psv.push_back(spit->first);
-	    specStore[ds] = psv;
-	  } else {
-	    std::vector<DDPartSelection*> psv(specStore[ds]);
-	    psv.push_back(spit->first);
-	    specStore[ds] = psv;
-	  }
-	}
+	addToSpecStore(ddLP, specStore);
       }
       lpStore.insert(ddLP);
       addToMatStore( ddLP.material(), matStore );
       addToSolStore( ddLP.solid(), solStore, rotStore );
-      //      specStore.insert(ddLP.specifics());
-      //    DDSpecifics specs(ddLP.specifics());
-      //      specStore.push_back(specs);
       ++i;
       if (git->size()) 
 	{
@@ -144,32 +124,18 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
 	    {
 	      const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
 	      if (lpStore.find(ddcurLP) != lpStore.end()) {
-// 		specStore.reserve(specStore.size()+ddcurLP.attachedSpecifics().size());
-// 		std::copy(ddcurLP.attachedSpecifics().begin(), ddcurLP.attachedSpecifics().end(), std::back_inserter(specStore));
-		std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator spit(ddcurLP.attachedSpecifics().begin()), spend(ddcurLP.attachedSpecifics().end());
-		for ( ; spit != spend; ++spit ) {
-		  const DDsvalues_type & ds = *spit->second;
-		  std::map<DDsvalues_type, std::vector<DDPartSelection*> >::const_iterator fit = specStore.find(ds);
-		  if ( fit == specStore.end() ) {
-		    std::vector<DDPartSelection*> psv;
-		    psv.push_back(spit->first);
-		    specStore[ds] = psv;
-		  } else {
-		    std::vector<DDPartSelection*> psv(specStore[ds]);
-		    psv.push_back(spit->first);
-		  }
-		}
+		addToSpecStore(ddcurLP, specStore);
 	      }
 	      lpStore.insert(ddcurLP);
 	      addToMatStore(ddcurLP.material(), matStore);
 	      addToSolStore(ddcurLP.solid(), solStore, rotStore);
 	      rotStore.insert(gra.edgeData(cit->second)->rot_);
-	      //	      specStore.insert(ddcurLP.specifics());
-	      //	      specStore.push_back(ddcurLP.specifics());
 	      out.position(ddLP, ddcurLP, gra.edgeData(cit->second), rotNumSeed_, *xos_);
 	    } // iterate over children
 	} // if (children)
     } // iterate over graph nodes  
+  //  std::cout << "specStore.size() = " << specStore.size() << std::endl;
+
   (*xos_) << "</PosPartSection>" << std::endl;
   
   (*xos_) << std::scientific << std::setprecision(18);
@@ -212,219 +178,13 @@ OutputDDToDDL::beginJob( edm::EventSetup const& es)
   (*xos_) << "</LogicalPartSection>" << std::endl;
 
   (*xos_) << std::fixed << std::setprecision(18);
-//   std::vector<std::string> partSelections;
-//   std::map<std::string, std::vector<std::pair<std::string, double> > > values;
-//   std::map<std::string, int> isEvaluated;
-  
-  //  DDSpecifics::iterator<DDSpecifics> spit(DDSpecifics::begin()), spend(DDSpecifics::end());
-  //  std::set<DDSpecifics>::iterator spit(specStore.begin()), spend (specStore.end());
-  //std::vector<DDSpecifics>::iterator spit(specStore.begin()), spend (specStore.end());
-
-  // prior to output we should somehow clean up the store and use a new store.
-  // the new store should be something like many part-selections to many svalues...
-  // if you have the same svalues and different partselections, store these together.
-
-  // first, remove duplicates.
-  /// LASTMESSWORKING
-//   std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::iterator spit(specStore.begin()), spend (specStore.end());
-//   std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > newSpecStore;
-//   std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::iterator spit2, spend2;
-//   //  std::vector<std::pair<std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator, DDPartSelection*> > specMatches; 
-//   //  std::vector<std::pair<DDsvalues_type*, std::vector<DDPartSelection*> > > specMatches; 
-//   std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > > specMatches; 
-//   //  std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > > spm2;
-//   bool alwaysmatchedboth(true);
-//   bool partselsmatch(false);
-//   bool valuesmatch(false);
-//   bool foundamatch(false);
-//   //  size_t ind = 0;
-//   std::cout << "size of store is " << specStore.size() << std::endl;
-//   while ( spit != spend ) {
-//     if (newSpecStore.size() == 0) {
-//       std::cout << "adding first one!" << std::endl;
-//       newSpecStore.push_back(*spit);
-//     } else {
-//       spit2 = newSpecStore.begin();
-//       spend2 = newSpecStore.end();
-//       foundamatch = false;
-//       while ( spit2 != spend2 ) {
-// 	partselsmatch = doPartSelectionsMatch (spit->first, spit2->first);
-// 	valuesmatch = doDDsvaluesMatch( spit->second, spit2->second);
-// 	if ( spit->first->begin()->lp_.toString() == "muonBase:MUON" ) {
-// 	  std::cout << *(spit->first) << " and " << (valuesmatch ? " values match " : " values don't match ")
-// 		    << (partselsmatch ? " part selections match " : " part selections don't match ") << std::endl;
-// 	  std::cout <<" just what is a DDsvalues_type?" << std::endl;
-// 	  //	std::vector< std::pair<unsigned int, DDValue> > DDsvalues_type;   
-// 	  //	std::vector<std::pair<unsigned int, DDValue> >::const_iterator dsit2(nssit->first->begin()), dsendit2(nssit->first->end());
-// 	  DDsvalues_type::const_iterator dsit2(spit->second->begin()), dsendit2(spit->second->end());
-// 	  for ( ; dsit2 != dsendit2; ++dsit2 ) {
-// 	    std::cout << "  " << dsit2->first << " is " << dsit2->second.name() << " and has " << dsit2->second.strings().size() << " string values and "
-// 		      << (dsit2->second.isEvaluated() ? "is evaluated. " : "is NOT evaluated.") << std::endl;
-// 	    for (size_t i = 0; i < dsit2->second.strings().size(); ++i) {
-// 	      if (dsit2->second.isEvaluated()) {
-// 		std::cout << dsit2->second.doubles()[i] << " ";
-// 	      } else {
-// 		std::cout << dsit2->second.strings()[i] << " ";
-// 	      }
-// 	    }
-// 	    std::cout << std::endl;
-// 	  }
-// 	}
-// 	if  (valuesmatch && !partselsmatch) {
-// 	  alwaysmatchedboth = false;
-// 	  std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > >::iterator bsmit(specMatches.begin()), bsmendit(specMatches.end());
-// 	  while ( bsmit != bsmendit ) {
-// 	    if ( bsmit->first.find(spit->second) != bsmit->first.end() ) {
-// 	      bsmit->second.insert(spit->first);
-// 	      break;
-// 	    }
-// 	    ++bsmit;
-// 	  }
-// 	  if ( bsmit == bsmendit || specMatches.size() == 0 ) {
-// 	    std::set<DDPartSelection*> psvect;
-// 	    psvect.insert(spit->first);
-// 	    std::set<DDsvalues_type*> sval;
-// 	    sval.insert(spit->second);
-// 	    specMatches.push_back( std::make_pair(sval, psvect) );
-// 	  }
-// 	} else if (!valuesmatch && partselsmatch) {
-// 	  std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > >::iterator bsmit(specMatches.begin()), bsmendit(specMatches.end());
-// 	  while ( bsmit != bsmendit ) {
-
-// 	    if ( bsmit->second.find(spit->first) != bsmit->second.end() ) {
-// 	      bsmit->first.insert(spit->second);
-// 	      break;
-// 	    }
-// 	    ++bsmit;
-// 	  }
-// 	  if ( bsmit == bsmendit || specMatches.size() == 0 ) {
-// 	    std::set<DDPartSelection*> psvect;
-// 	    psvect.insert(spit->first);
-// 	    std::set<DDsvalues_type*> sval;
-// 	    sval.insert(spit->second);
-// 	    specMatches.push_back( std::make_pair(sval, psvect) );
-// 	  }
-	  
-// 	  // 	std::set<DDPartSelection*> psvect;
-// 	  // 	psvect.insert(spit->first);
-// 	  // 	specMatches.push_back( std::make_pair(spit->second, psvect) );
-// 	  alwaysmatchedboth = false;
-// 	}
-// 	if (valuesmatch && partselsmatch) {
-// 	  foundamatch = true;
-// 	  break;
-// 	}
-// 	++spit2;
-//       }
-//       if (!foundamatch)
-// 	newSpecStore.push_back(*(spit));
-//     }
-//     ++spit;
-//   }
-//   std::cout << "unduplicated = " << newSpecStore.size() << std::endl;
-//   std::cout << "matches = " << specMatches.size() << std::endl;
-//   if (alwaysmatchedboth) std::cout << "always matched both" << std::endl; else std::cout << "did NOT always match both" << std::endl;
-/// LASTMESSWORKINGEND
-
-//   std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::iterator nssit(newSpecStore.begin()), nssend (newSpecStore.end());
-//   std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > > spm2;
-//   for (; nssit != nssend; ++nssit) {
-//     if  ( spm2.size() == 0 ) {
-//       std::set<DDsvalues_type*> ssvt;
-//       std::set<DDPartSelection*> sps;
-//       ssvt.insert(nssit->second);
-//       sps.insert(nssit->first);
-//       spm2.push_back(std::make_pair(ssvt, sps));
-//       continue;
-//     } 
-//     //else {
-//     std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > >::iterator mit(spm2.begin()), mend (spm2.end()); 
-//     for (; mit != mend; ++mit) {
-//       if (mit->second.size() == 1 && doPartSelectionsMatch(*(mit->second.begin()), nssit->first) ) {
-// 	mit->first.insert(nssit->second);
-// 	std::cout <<" just what is a DDsvalues_type?" << std::endl;
-// 	//	std::vector< std::pair<unsigned int, DDValue> > DDsvalues_type;   
-// 	//	std::vector<std::pair<unsigned int, DDValue> >::const_iterator dsit2(nssit->first->begin()), dsendit2(nssit->first->end());
-// 	DDsvalues_type::const_iterator dsit2(nssit->second->begin()), dsendit2(nssit->second->end());
-// 	for ( ; dsit2 != dsendit2; ++dsit2 ) {
-// 	  std::cout << "  " << dsit2->first << " is " << dsit2->second.name() << " and has " << dsit2->second.strings().size() << " string values and "
-// 		    << (dsit2->second.isEvaluated() ? "is evaluated. " : "is NOT evaluated.") << std::endl;
-// 	  for (size_t i = 0; i < dsit2->second.strings().size(); ++i) {
-// 	    if (dsit2->second.isEvaluated()) {
-// 	      std::cout << dsit2->second.doubles()[i] << " ";
-// 	    } else {
-// 	      std::cout << dsit2->second.strings()[i] << " ";
-// 	    }
-// 	  }
-// 	  std::cout << std::endl;
-// 	}
-// 	break;
-//       }
-//     }
-// //       std::set<DDPartSelection*>::iterator bpsit(mit->second.begin()), bpsitend(mit->second.end());
-// //       for ( ; bpsit != bpsitend ; ++bpsit ) {
-// // 	if ( !doPartSelectionsMatch (nssit->first, bpsit) ) { //mit->second.find(nssit->first) != mit->second.end() ) {
-// // 	  break;
-// // 	}	  
-// //       }
-// //       if (!doPartSelectionsMatch (nssit->first, bpsit)
-// //     }
-
- 
-// //       if ( mit->first.find(nssit->second) != mit->first.end() ) {
-// // 	mit->second.insert(nssit->first);
-// //       }
-// //    }
-//     if ( mit == mend ) {
-//       std::set<DDsvalues_type*> ssvt;
-//       std::set<DDPartSelection*> sps;
-//       ssvt.insert(nssit->second);
-//       sps.insert(nssit->first);
-//       spm2.push_back(std::make_pair(ssvt, sps));
-//       continue;
-//     }
-//   }
-
-//  std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > >::const_iterator mit(specMatches.begin()), mend (specMatches.end()); 
-  // std::vector<std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> > >::const_iterator mit(spm2.begin()), mend (spm2.end()); 
-  //    std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator mit(newSpecStore.begin()), mend (newSpecStore.end());
-  std::map<DDsvalues_type, std::vector<DDPartSelection*> >::const_iterator mit(specStore.begin()), mend (specStore.end());
+  std::map<DDsvalues_type, std::set<DDPartSelection*> >::const_iterator mit(specStore.begin()), mend (specStore.end());
   (*xos_) << "<SpecParSection label=\"" << ns_ << "\">" << std::endl;
   for (; mit != mend; ++mit) {
-    //    if ( !spit->isDefined().second ) continue;
     out.specpar ( *mit, *xos_ );
   } 
   (*xos_) << "</SpecParSection>" << std::endl;
 
-}
-
-bool OutputDDToDDL::doPartSelectionsMatch( DDPartSelection* sp1, DDPartSelection* sp2 ) {
-//       const std::vector<DDPartSelectionLevel>& psl1 (*(spit->first));
-//       const std::vector<DDPartSelectionLevel>& psl2 (*(spit2->first));
-  const std::vector<DDPartSelectionLevel>& psl1 (*sp1);
-  const std::vector<DDPartSelectionLevel>& psl2 (*sp2);
-  bool retval = true;
-  if (psl1.size() != psl2.size()) retval = false;
-  size_t ind = 0;
-  while ( retval && ind < psl1.size() ) {
-    if ( psl1[ind].lp_.toString() != psl2[ind].lp_.toString() ) retval = false;
-    if ( psl1[ind].copyno_ != psl2[ind].copyno_ ) retval = false;
-    if ( psl1[ind].selectionType_ != psl2[ind].selectionType_ ) retval = false;
-    ++ind;
-  }
-  return retval;
-}
-
-bool OutputDDToDDL::doDDsvaluesMatch ( DDsvalues_type* sv1, DDsvalues_type* sv2 ) {
-  bool valuesmatch = true;
-  if ( sv1->size() != sv2->size() ) valuesmatch=false;
-  size_t ind = 0;
-  while ( valuesmatch && ind < sv1->size() ) {
-    if ( (*sv1)[ind].first != (*sv2)[ind].first ) valuesmatch=false;
-    if ( (*sv1)[ind].second != (*sv2)[ind].second ) valuesmatch=false;
-    ++ind;
-  }
-  return valuesmatch;
 }
 
 void  OutputDDToDDL::addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore) {
@@ -455,14 +215,11 @@ void  OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solS
       }
 }
 
-bool ddsvaluesCmp::operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 ) {
-  if ( sv1.size() < sv2.size() ) return true;
-  size_t ind = 0;
-  for (; ind < sv1.size(); ++ind) {
-    if ( sv1[ind].first >= sv2[ind].first ) return false;
-    if ( !(sv1[ind].second < sv2[ind].second) ) return false;
+void OutputDDToDDL::addToSpecStore( const DDLogicalPart& lp, std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > & specStore ) {
+  std::vector<std::pair<DDPartSelection*, DDsvalues_type*> >::const_iterator spit(lp.attachedSpecifics().begin()), spend(lp.attachedSpecifics().end());
+  for ( ; spit != spend; ++spit ) {
+    specStore[*spit->second].insert(spit->first);
   }
-  return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

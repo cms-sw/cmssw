@@ -38,18 +38,9 @@ struct DDCoreToDDXMLOutput {
 		  //		   , PIdealGeometry& geom 
 		   , int& rotNameSeed
 		   , std::ostream& xos );
-
+  // left in for now as legacy...
   void specpar ( const DDSpecifics & sp, std::ostream& xos );
-
-/*   void specpar ( const std::pair<DDPartSelection*, DDsvalues_type*>& pssv, std::ostream& xos ); */
-
-/*   //  void specpar ( const std::pair<DDsvalues_type*, std::vector<DDPartSelection*> > pssv, std::ostream& xos ); */
-/*   void specpar ( const std::pair<std::set<DDsvalues_type*>, std::set<DDPartSelection*> >& pssv, std::ostream& xos ); */
-
-  void specpar ( const std::pair<DDsvalues_type, std::vector<DDPartSelection*> >& pssv, std::ostream& xos );
-  // data
-  //  std::vector<std::string> ddNsName_;
-  //  std::map<int, std::string> newddNsName_; // this int is the index in ddNsName_
+  void specpar ( const std::pair<DDsvalues_type, std::set<DDPartSelection*> >& pssv, std::ostream& xos );
   
   std::string ns_; // default namespace
   double tol_;
