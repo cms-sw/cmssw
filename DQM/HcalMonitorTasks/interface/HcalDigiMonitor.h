@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/07/31 20:32:36 $
-  * $Revision: 1.43 $
+  * $Date: 2009/08/09 12:46:35 $
+  * $Revision: 1.44 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -44,7 +44,8 @@ struct DigiHists
   int count_BQ[DIGI_SUBDET_NUM];
   int count_BQFrac[DIGI_BQ_FRAC_NBINS];
   int count_bad;
-  int count_all;
+  int count_good;
+
   int capIDdiff[8]; // only bins 0-7 used for expected real values of cap ID difference (since cap IDs run from 0-3); bin 8 is overflow
   int dverr[4];
   int capid[4];
@@ -64,16 +65,20 @@ public:
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    const ZDCDigiCollection& zdc,
+		    //const ZDCDigiCollection& zdc,
 		    const HcalDbService& cond,
 		    const HcalUnpackerReport& report);
   void reset();
-  void setSubDetectors(bool hb, bool he, bool ho, bool hf,bool zdc);
-private:  ///Methods
+  void setSubDetectors(bool hb, bool he, bool ho, bool hf);
+  void fill_Nevents();
+
+private:  ///Methods, variables accessible only within class code
 
   void zeroCounters();
-  void fill_Nevents();
   void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
+
+  template<class T> int process_Digi(T& digi, DigiHists& hist, int& firstcap);
+  void UpdateHists(DigiHists& h);
 
   bool doPerChannel_;
   bool doFCpeds_;
@@ -87,19 +92,23 @@ private:  ///Methods
   bool digi_checkadcsum_;
   bool digi_checkdverr_;
 
-private:  
+  int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event
+
   const HcalQIEShape* shape_;
   const HcalQIECoder* channelCoder_;
 
   // Monitoring elements
 
+  EtaPhiHists DigiErrorsByDepth;
   EtaPhiHists DigiErrorsBadCapID;
   EtaPhiHists DigiErrorsBadDigiSize;
   EtaPhiHists DigiErrorsBadADCSum;
   EtaPhiHists DigiErrorsDVErr;
   EtaPhiHists DigiErrorsBadFibBCNOff;
+
+
   MonitorElement* DigiSize;
-  int problemdigis[85][72][4];
+  int baddigis[85][72][4]; // sum of individual digi problems
   int badcapID[85][72][4];
   int baddigisize[85][72][4];
   int badADCsum[85][72][4];
@@ -107,35 +116,44 @@ private:
   int digisize[20][4];
   int digierrorsdverr[85][72][4];
 
+
+  // Digi Occupancy Plots
   EtaPhiHists DigiOccupancyByDepth;
   MonitorElement* DigiOccupancyEta;
   MonitorElement* DigiOccupancyPhi;
   MonitorElement* DigiOccupancyVME;
   MonitorElement* DigiOccupancySpigot;
   
-  
+  // Counters for good and bad digis
   int occupancyEtaPhi[85][72][4];
   int occupancyEta[85];
   int occupancyPhi[72];
   int occupancyVME[40][18];
   int occupancySpigot[40][36];
 
-  //MonitorElement* DigiErrorEtaPhi; //redundant; sample as ProblemDigis
+  // Plots for Digis that are present, but with errors
+  EtaPhiHists DigiErrorOccupancyByDepth;
+  MonitorElement* DigiErrorOccupancyEta;
+  MonitorElement* DigiErrorOccupancyPhi;
   MonitorElement* DigiErrorVME;
   MonitorElement* DigiErrorSpigot;
+
   MonitorElement* DigiBQ;
   MonitorElement* DigiBQFrac;
+  
+  int occupancyErrorEtaPhi[85][72][4];
+  int occupancyErrorEta[85];
+  int occupancyErrorPhi[72];
+  int errorVME[40][18];
+  int errorSpigot[15][36];// 15 is the value of SPIGOT_COUNT; may need to change this in the future?
+  int digiBQ[DIGI_NUM]; 
+  int digiBQfrac[DIGI_BQ_FRAC_NBINS]; 
 
   MonitorElement* HBocc_vs_LB;
   MonitorElement* HEocc_vs_LB;
   MonitorElement* HOocc_vs_LB;
   MonitorElement* HFocc_vs_LB;
 
-
-  int digiBQ[DIGI_NUM]; 
-  int digiBQfrac[DIGI_BQ_FRAC_NBINS]; 
-  int errorVME[40][18];
-  int errorSpigot[15][36];// 15 is the value of SPIGOT_COUNT; may need to change this in the future?
 
 
   MonitorElement* DigiFirstCapID;

@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/08/09 12:46:35 $
-  * $Revision: 1.33 $
+  * $Date: 2009/08/17 09:12:58 $
+  * $Revision: 1.34 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -77,29 +77,12 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   EtaPhiHists  DigiPresentByDepth;
   EtaPhiHists  BelowEnergyThresholdCellsByDepth;
 
-  MonitorElement* NumberOfDeadCells;
-  MonitorElement* NumberOfDeadCellsHB;
-  MonitorElement* NumberOfDeadCellsHE;
-  MonitorElement* NumberOfDeadCellsHO;
-  MonitorElement* NumberOfDeadCellsHF;
+  // Problems vs. lumi block
+  MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
+  MonitorElement *NumberOfNeverPresentCells, *NumberOfNeverPresentCellsHB, *NumberOfNeverPresentCellsHE, *NumberOfNeverPresentCellsHO, *NumberOfNeverPresentCellsHF;
+  MonitorElement *NumberOfUnoccupiedCells, *NumberOfUnoccupiedCellsHB, *NumberOfUnoccupiedCellsHE, *NumberOfUnoccupiedCellsHO, *NumberOfUnoccupiedCellsHF;
+  MonitorElement *NumberOfBelowEnergyCells, *NumberOfBelowEnergyCellsHB, *NumberOfBelowEnergyCellsHE, *NumberOfBelowEnergyCellsHO, *NumberOfBelowEnergyCellsHF;
 
-  MonitorElement* NumberOfNeverPresentCells;
-  MonitorElement* NumberOfNeverPresentCellsHB;
-  MonitorElement* NumberOfNeverPresentCellsHE;
-  MonitorElement* NumberOfNeverPresentCellsHO;
-  MonitorElement* NumberOfNeverPresentCellsHF;
-
-  MonitorElement* NumberOfUnoccupiedCells;
-  MonitorElement* NumberOfUnoccupiedCellsHB;
-  MonitorElement* NumberOfUnoccupiedCellsHE;
-  MonitorElement* NumberOfUnoccupiedCellsHO;
-  MonitorElement* NumberOfUnoccupiedCellsHF;
-
-  MonitorElement* NumberOfBelowEnergyCells;
-  MonitorElement* NumberOfBelowEnergyCellsHB;
-  MonitorElement* NumberOfBelowEnergyCellsHE;
-  MonitorElement* NumberOfBelowEnergyCellsHO;
-  MonitorElement* NumberOfBelowEnergyCellsHF;
 
   bool present[85][72][4];
   unsigned int occupancy[85][72][4];
