@@ -32,7 +32,7 @@
 #include "PhysicsTools/TagAndProbe/interface/FCIntervals.hh"
 #include "PhysicsTools/TagAndProbe/interface/EffTableLoader.h"
 #include "PhysicsTools/TagAndProbe/interface/SideBandSubtraction.hh"
-//#include "PhysicsTools/TagAndProbe/interface/SimultaneousFitter.hh" // Some day
+#include "PhysicsTools/TagAndProbe/interface/SimultaneousFitter.hh"
 
 // Line Shapes
 #include "PhysicsTools/TagAndProbe/interface/ZLineShape.hh"
