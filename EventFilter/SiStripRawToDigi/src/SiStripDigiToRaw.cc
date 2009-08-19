@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.38 2009/08/04 23:37:19 bbetchar Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.39 2009/08/04 23:41:07 bbetchar Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -19,12 +19,10 @@ namespace sistrip {
 
   // -----------------------------------------------------------------------------
   /** */
-  DigiToRaw::DigiToRaw( std::string mode, 
-			int16_t nbytes,
-			bool use_fed_key ) : 
-    readoutMode_(mode),
-    nAppendedBytes_(nbytes),
-    useFedKey_(use_fed_key),
+  DigiToRaw::DigiToRaw( FEDReadoutMode mode, 
+			bool useFedKey ) : 
+    mode_(mode),
+    useFedKey_(useFedKey),
     bufferGenerator_()
   {
     if ( edm::isDebugEnabled() ) {
@@ -32,15 +30,7 @@ namespace sistrip {
 	<< "[sistrip::DigiToRaw::DigiToRaw]"
 	<< " Constructing object...";
     }
-    FEDReadoutMode readoutModeEnum = fedReadoutModeFromString(readoutMode_);
-    if (readoutModeEnum == READOUT_MODE_INVALID) {
-      if ( edm::isDebugEnabled() ) {
-        edm::LogWarning("DigiToRaw")
-          << "[sistrip::DigiToRaw::createFedBuffers]" 
-          << " UNKNOWN readout mode: " << readoutMode_;
-      }
-    }
-    bufferGenerator_.setReadoutMode(readoutModeEnum);
+    bufferGenerator_.setReadoutMode(mode_);
   }
 
   // -----------------------------------------------------------------------------
@@ -68,23 +58,15 @@ namespace sistrip {
 				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
     createFedBuffers_(event, cabling, collection, buffers, true);
   }
-
+  
   void DigiToRaw::createFedBuffers( edm::Event& event,
 				    edm::ESHandle<SiStripFedCabling>& cabling,
 				    edm::Handle< edm::DetSetVector<SiStripRawDigi> >& collection,
 				    std::auto_ptr<FEDRawDataCollection>& buffers ) { 
     createFedBuffers_(event, cabling, collection, buffers, false);
   }
-
-  inline
-  const uint16_t& DigiToRaw::STRIP(const edm::DetSet<SiStripDigi>::const_iterator& it, const edm::DetSet<SiStripDigi>::const_iterator& begin) const  
-  {return it->strip();}
   
-  inline
-  uint16_t DigiToRaw::STRIP(const edm::DetSet<SiStripRawDigi>::const_iterator& it, const edm::DetSet<SiStripRawDigi>::const_iterator& begin) const 
-  {return it-begin;}
-
-template<class Digi_t>
+  template<class Digi_t>
   void DigiToRaw::createFedBuffers_( edm::Event& event,
 				     edm::ESHandle<SiStripFedCabling>& cabling,
 				     edm::Handle< edm::DetSetVector<Digi_t> >& collection,
@@ -111,13 +93,13 @@ template<class Digi_t>
 	  uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
 	
 	  // Determine whether DetId or FED key should be used to index digi containers
-	  uint32_t key = ( useFedKey_ || readoutMode_ == "SCOPE_MODE" ) ? fed_key : iconn->detId();
+	  uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
           
           // Check key is non-zero and valid
 	  if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
 
 	  // Determine APV pair number (needed only when using DetId)
-	  uint16_t ipair = ( useFedKey_ || readoutMode_ == "SCOPE_MODE" ) ? 0 : iconn->apvPairNumber();
+	  uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
           
           FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
 
@@ -180,6 +162,9 @@ template<class Digi_t>
     }
   
   }
+
+  inline uint16_t DigiToRaw::STRIP(const edm::DetSet<SiStripDigi>::const_iterator& it, const edm::DetSet<SiStripDigi>::const_iterator& begin) const {return it->strip();}
+  inline uint16_t DigiToRaw::STRIP(const edm::DetSet<SiStripRawDigi>::const_iterator& it, const edm::DetSet<SiStripRawDigi>::const_iterator& begin) const {return it-begin;}
 
 }
 

@@ -1,8 +1,9 @@
-// Last commit: $Id: SiStripDigiToRawModule.h,v 1.3 2009/03/26 18:54:49 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRawModule.h,v 1.4 2009/03/27 10:22:14 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "boost/cstdint.hpp"
 #include <string>
@@ -34,6 +35,8 @@ namespace sistrip {
 
     std::string inputModuleLabel_;
     std::string inputDigiLabel_;
+    FEDReadoutMode mode_;
+    bool rawdigi_;
     DigiToRaw* digiToRaw_;
     uint32_t eventCounter_;
 
