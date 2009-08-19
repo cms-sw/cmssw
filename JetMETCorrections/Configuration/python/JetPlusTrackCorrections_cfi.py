@@ -23,6 +23,6 @@ JPTZSPCorrectorICone5 = cms.PSet(
     respalgo           = cms.int32(5),
     AddOutOfConeTracks = cms.bool(True),
     # Electrons
-    recoGsfelectrons = cms.InputTag("pixelMatchGsfElectrons"),
-    eIDValueMap      = cms.InputTag("eIDTight"),  
+    recoGsfelectrons = cms.InputTag("gsfElectrons"),
+    eIDValueMap      = cms.InputTag("eidTight"),  
     )
