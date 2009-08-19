@@ -21,10 +21,10 @@ process.GlobalTag.globaltag = 'GR09_31X_V5H::All'
 process.es_omds = cms.ESSource("HcalOmdsCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('ChannelQuality'),
-        tag = cms.string('hcal-quality-test-v1'),
-        version = cms.string('hcal-quality-test-v1'),
+        tag = cms.string('AllChannelsMasked16Jul2009v1'),
+        version = cms.string('AllChannelsMasked16Jul2009v1'),
         subversion = cms.int32(1),
-        iov_begin = cms.int32(100000),
+        iov_begin = cms.int32(180003),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44'),
         query = cms.string('''
         select 
