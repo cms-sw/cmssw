@@ -171,6 +171,8 @@ namespace edm {
     numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents + 1;
     forkedChildIndex_ = iChildIndex;
     numberOfSequentialEvents_ = iNumberOfSequentialEvents;
+    repeat();
+    rewind();
   }
 
   void
