@@ -429,7 +429,7 @@ EOF2
 
 close CONFIGFILE;
 
-$task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; TNS_ADMIN=/etc ; time cmsRun --parameter-set monitor-$runnum.py";
+$task = "source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; TNS_ADMIN=/etc ; time cmsRun monitor-$runnum.py";
 
 if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/logs/$runnum.cmssw.log" ) {
   system("rm -f $config{'ec_mon_master_rundir'}/dqm-data/logs/$runnum.cmssw.log >> /dev/null 2>&1");

@@ -75,6 +75,10 @@ foreach $run ( @daq_done ) {
     exit 0;
   }
 
+  if ( $running == @daq_done ) {
+    exit 0;
+  }
+
   sleep 10;
 }
 
