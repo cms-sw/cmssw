@@ -6,7 +6,7 @@
 #define PHIBINS 72
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
@@ -14,6 +14,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include <map>
@@ -37,8 +38,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/07/21 13:05:54 $
-  * $Revision: 1.30 $
+  * $Date: 2009/07/31 20:32:33 $
+  * $Revision: 1.31 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -60,7 +61,6 @@ public:
 
   bool vetoCell(HcalDetId& id);
   void hideKnownBadCells();
-  bool validDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth); // determine whether ID is valid (disable at some point)
   
   // Set up vectors of Monitors for individual depths
   // 2-D histograms with eta-phi binning assumed
@@ -68,16 +68,7 @@ public:
   void setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units);
   void SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists& hh, std::string Name, std::string Units);
   void SetupEtaPhiHists(EtaPhiHists &hh, std::string Name, std::string Units);
-  void SetEtaPhiLabels(MonitorElement* &h);
 
-  int CalcEtaBin(int subdet, int ieta, int depth);
-  int CalcIeta(int subdet, int eta, int depth);  
-  int CalcIeta(int eta, int depth);
-  bool isSiPM(int ieta, int iphi, int depth);
-  bool isHB(int etabins, int depth);
-  bool isHE(int etabins, int depth);
-  bool isHO(int etabins, int depth);
-  bool isHF(int etabins, int depth);
 
   // Generic 2-D histograms
   void setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
@@ -89,15 +80,12 @@ public:
 			 int nbinsy, int lowboundy, int highboundy);
 
   void setMinMaxHists2D(std::vector<MonitorElement*> &hh, double min, double max);
- 
-
 
   // 1-D histograms
   void setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
   void setupDepthHists1D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins);
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
-  void FillUnphysicalHEHFBins(MonitorElement* hh);
-  void FillUnphysicalHEHFBins(EtaPhiHists &hh);
+
   void processEvent();
   void LumiBlockUpdate(int lb);
 
@@ -112,6 +100,7 @@ protected:
   double phiMax_, phiMin_;
   int etaBins_, phiBins_;
   double minErrorFlag_;
+
   bool checkHB_, checkHE_, checkHO_, checkHF_, checkZDC_;
   int resetNevents_;
   int Nlumiblocks_;
@@ -126,8 +115,8 @@ protected:
   string rootFolder_;
   string baseFolder_;
 
-  static const int binmapd2[];
-  static const int binmapd3[];
+  //static const int binmapd2[];
+  //static const int binmapd3[];
 
   MonitorElement* ProblemCells;
   EtaPhiHists ProblemCellsByDepth;
