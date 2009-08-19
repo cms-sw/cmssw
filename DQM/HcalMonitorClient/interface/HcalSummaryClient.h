@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/07/14 11:30:09 $
- * $Revision: 1.20 $
+ * $Date: 2009/07/14 16:34:16 $
+ * $Revision: 1.21 $
  * \author Jeff Temple
  *
 */
@@ -103,7 +103,7 @@ class HcalSummaryClient : public HcalBaseClient {
   int jevt_;
   int lastupdate_;
 
-  int HBpresent_, HEpresent_, HOpresent_, HFpresent_, ZDCpresent_;
+  int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 
   bool cloneME_;
 
@@ -127,8 +127,11 @@ class HcalSummaryClient : public HcalBaseClient {
   double status_HB_;
   double status_HE_;
   double status_HO_;
+  double status_HO0_;
+  double status_HO12_;
   double status_HF_;
-  double status_ZDC_;
+  double status_HFlumi_;
+  
   double status_global_;
 
   std::vector<MonitorElement *> depthME;

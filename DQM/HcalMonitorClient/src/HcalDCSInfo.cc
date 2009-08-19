@@ -49,8 +49,9 @@ void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
   DCSFractionHE_= dqmStore_->bookFloat("Hcal_HE");  
   DCSFractionHO_= dqmStore_->bookFloat("Hcal_HO");  
   DCSFractionHF_= dqmStore_->bookFloat("Hcal_HF");  
-  DCSFractionZDC_= dqmStore_->bookFloat("Hcal_ZDC");  
-  
+  DCSFractionHO0_= dqmStore_->bookFloat("Hcal_HO0");
+  DCSFractionHO12_= dqmStore_->bookFloat("Hcal_HO12");
+  DCSFractionHFlumi_= dqmStore_->bookFloat("Hcal_HFlumi");
 
   // Fill them with -1 to start with
   DCSFraction_->Fill(-1.0);
@@ -58,7 +59,9 @@ void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
   DCSFractionHE_->Fill(-1.0);
   DCSFractionHO_->Fill(-1.0);
   DCSFractionHF_->Fill(-1.0);
-  DCSFractionZDC_->Fill(-1.0);
+  DCSFractionHO0_->Fill(-1.0);
+  DCSFractionHO12_->Fill(-1.0);
+  DCSFractionHFlumi_->Fill(-1.0);
 } // void HcalDCSInfo::beginJob(...)
 
 //

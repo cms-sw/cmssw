@@ -145,17 +145,21 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
   HcalDaqFraction->Fill(-1);
 
   dbe->setCurrentFolder("Hcal/EventInfo/DAQSummaryContents/");
-  MonitorElement* HBDaqFraction = dbe->bookFloat("Hcal_HB");
-  MonitorElement* HEDaqFraction = dbe->bookFloat("Hcal_HE");
-  MonitorElement* HODaqFraction = dbe->bookFloat("Hcal_HO");
-  MonitorElement* HFDaqFraction = dbe->bookFloat("Hcal_HF");
-  MonitorElement* ZDCDaqFraction = dbe->bookFloat("Hcal_ZDC");
-  
+  MonitorElement* HBDaqFraction  = dbe->bookFloat("Hcal_HB");
+  MonitorElement* HEDaqFraction  = dbe->bookFloat("Hcal_HE");
+  MonitorElement* HODaqFraction  = dbe->bookFloat("Hcal_HO");
+  MonitorElement* HFDaqFraction  = dbe->bookFloat("Hcal_HF");
+  MonitorElement* HO0DaqFraction = dbe->bookFloat("Hcal_HO0");
+  MonitorElement* HO12DaqFraction   = dbe->bookFloat("Hcal_HO12");
+  MonitorElement* HFlumiDaqFraction = dbe->bookFloat("Hcal_HFlumi");
+
   HBDaqFraction->Fill(-1);
   HEDaqFraction->Fill(-1);
   HODaqFraction->Fill(-1);
   HFDaqFraction->Fill(-1);
-  ZDCDaqFraction->Fill(-1);
+  HO0DaqFraction->Fill(-1);
+  HO12DaqFraction->Fill(-1);
+  HFlumiDaqFraction->Fill(-1);
 
   int nevt = (dbe->get("Hcal/EventInfo/processedEvents"))->getIntValue();
   if (debug_>0) std::cout << "HcalDAQInfo::nevt= " << nevt << std::endl;
@@ -177,6 +181,10 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
     HEDaqFraction->Fill(hFEDEntries->Integral(1,18)/(18.*nevt));
     HFDaqFraction->Fill(hFEDEntries->Integral(19,24)/(6.*nevt));
     HODaqFraction->Fill(hFEDEntries->Integral(25,32)/(8.*nevt));
+    // FEDs share HO0, HO12
+    HO0DaqFraction->Fill(hFEDEntries->Integral(25,32)/(8.*nevt));
+    HO12DaqFraction->Fill(hFEDEntries->Integral(25,32)/(8.*nevt));
+    HFlumiDaqFraction->Fill(-1); // leave unknown for now
   }
   else {
     edm::LogInfo("HcalDAQInfo")<<"No DAQ info"<<std::endl;

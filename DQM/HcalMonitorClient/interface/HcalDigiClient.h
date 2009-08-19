@@ -6,6 +6,7 @@
 
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
 struct DigiClientHists
 {
@@ -41,7 +42,7 @@ class HcalDigiClient : public HcalBaseClient {
   void analyze(void);
   
   /// BeginJob
-  void beginJob(void);
+  void beginJob(DQMStore* dbe);
   
   /// EndJob
   void endJob(void);
@@ -68,6 +69,7 @@ class HcalDigiClient : public HcalBaseClient {
   void loadHistograms(TFile* f);
   
   void resetAllME();
+  void calculateProblems();
   void createTests();
 
   // Introduce temporary error/warning checks
@@ -82,8 +84,10 @@ private:
   
 
   // Histograms
-  TH2F* ProblemDigis;
-  TH2F* ProblemDigisByDepth[4];
+  MonitorElement* ProblemCells;
+  EtaPhiHists ProblemCellsByDepth;
+
+  TH2F* BadDigisByDepth[4];
   TH2F* DigiErrorsBadCapID[4];
   TH2F* DigiErrorsBadDigiSize[4];
   TH2F* DigiErrorsBadADCSum[4];

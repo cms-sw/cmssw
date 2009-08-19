@@ -23,6 +23,7 @@
 
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
 #include <memory>
 #include <iostream>
@@ -89,12 +90,16 @@ class HcalBaseClient{
   bool vetoCell(HcalDetId& id);
 
   void getEtaPhiHists( std::string dir, std::string name, TH2F* h[4], std::string units="");
-  int CalcIeta(int hist_eta, int depth);
-  bool isHB(int etabin, int depth);
-  bool isHE(int etabin, int depth);
-  bool isHO(int etabin, int depth);
-  bool isHF(int etabin, int depth);
- 
+  void SetEtaPhiLabels(MonitorElement* x);
+  
+  /*
+    int CalcIeta(int hist_eta, int depth);
+    bool isHB(int etabin, int depth);
+    bool isHE(int etabin, int depth);
+    bool isHO(int etabin, int depth);
+    bool isHF(int etabin, int depth);
+  */
+
  protected:
 
   int ievt_;
@@ -105,6 +110,8 @@ class HcalBaseClient{
   string process_;
   string baseFolder_;
   string clientName_;
+
+  std::string rootfolder_;
   
   bool showTiming_; // controls whether to show timing diagnostic info 
   edm::CPUTimer cpu_timer; //  

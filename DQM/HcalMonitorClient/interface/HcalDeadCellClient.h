@@ -7,7 +7,7 @@
 
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
-
+#include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
 class HcalDeadCellClient : public HcalBaseClient {
   
@@ -22,9 +22,10 @@ class HcalDeadCellClient : public HcalBaseClient {
 
   /// Analyze
   void analyze(void);
-  
+  void calculateProblems(void); // calculates problem histogram contents
+
   /// BeginJob
-  void beginJob(const EventSetup& c);
+  void beginJob(const EventSetup& c, DQMStore* dbe);
   
   /// EndJob
   void endJob(std::map<HcalDetId, unsigned int>& myqual); 
@@ -65,7 +66,6 @@ private:
   double minErrorFlag_;  // minimum error rate which causes problem cells to be dumped in client
   bool deadclient_makeDiagnostics_;
 
-  bool deadclient_test_neverpresent_;
   bool deadclient_test_occupancy_;
   bool deadclient_test_energy_;
   bool dump2database_;
@@ -74,10 +74,10 @@ private:
 
   // Histograms
 
-  TH2F* ProblemDeadCells;
-  TH2F* ProblemDeadCellsByDepth[4];
+  MonitorElement* ProblemCells;
+  EtaPhiHists ProblemCellsByDepth;
   TH2F* UnoccupiedDeadCellsByDepth[4];
-  TH2F* DigiNeverPresentByDepth[4];
+  TH2F* DigiPresentByDepth[4];
   TH2F* BelowEnergyThresholdCellsByDepth[4];
 
   TProfile* NumberOfDeadCells;
@@ -85,28 +85,24 @@ private:
   TProfile* NumberOfDeadCellsHE;
   TProfile* NumberOfDeadCellsHO;
   TProfile* NumberOfDeadCellsHF;
-  TProfile* NumberOfDeadCellsZDC;
 
   TProfile* NumberOfNeverPresentCells;
   TProfile* NumberOfNeverPresentCellsHB;
   TProfile* NumberOfNeverPresentCellsHE;
   TProfile* NumberOfNeverPresentCellsHO;
   TProfile* NumberOfNeverPresentCellsHF;
-  TProfile* NumberOfNeverPresentCellsZDC;
 
   TProfile* NumberOfUnoccupiedCells;
   TProfile* NumberOfUnoccupiedCellsHB;
   TProfile* NumberOfUnoccupiedCellsHE;
   TProfile* NumberOfUnoccupiedCellsHO;
   TProfile* NumberOfUnoccupiedCellsHF;
-  TProfile* NumberOfUnoccupiedCellsZDC;
 
   TProfile* NumberOfBelowEnergyCells;
   TProfile* NumberOfBelowEnergyCellsHB;
   TProfile* NumberOfBelowEnergyCellsHE;
   TProfile* NumberOfBelowEnergyCellsHO;
   TProfile* NumberOfBelowEnergyCellsHF;
-  TProfile* NumberOfBelowEnergyCellsZDC;
 
 };
 

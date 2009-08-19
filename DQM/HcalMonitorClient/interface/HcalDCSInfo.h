@@ -79,7 +79,9 @@ private:
   MonitorElement * DCSFractionHE_;
   MonitorElement * DCSFractionHO_;
   MonitorElement * DCSFractionHF_;
-  MonitorElement * DCSFractionZDC_;
+  MonitorElement * DCSFractionHO0_;
+  MonitorElement * DCSFractionHO12_;
+  MonitorElement * DCSFractionHFlumi_;
 
   unsigned long long m_cacheID_;
 
