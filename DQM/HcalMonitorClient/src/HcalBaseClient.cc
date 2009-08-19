@@ -4,11 +4,16 @@
 #include <math.h>
 #include <iostream>
 
+// This stores the eta binning for depth 2 histograms (with gaps between -15 -> +15)
+/*
 const int HcalBaseClient::binmapd2[]={-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,
-				      -29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,
-				      -16,-15, -9999, 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,
-				      30,31,32,33,34,35,36,37,38,39,40,41,42};
+				       -29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,
+				       -16,-15,-9999, 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,
+				       30,31,32,33,34,35,36,37,38,39,40,41,42};
 
+*/
+
+// This stores eta binning in depth 3 (where HE is only present at a few ieta values)
 
 const int HcalBaseClient::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
 
@@ -72,13 +77,15 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false); 
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
+  process_ = ps.getUntrackedParameter<string>("processName", "");
+  rootfolder_ = ps.getUntrackedParameter<std::string>("rootfolder","Hcal");
 
   //Decide whether or not to fill unphysical iphi cells
   fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi",true);
   
   // Known Bad Cells -- don't count?
   badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" );
+
 
   vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
   for(int i=0; i<4; i++)
@@ -349,7 +356,7 @@ void HcalBaseClient::getSJ6histos(std::string dir, std::string name, TH1F* h[4],
   return;
 } // void HcalBaseClient::getSJ6histos(1D)
 
-
+/*
 int HcalBaseClient::CalcIeta(int eta, int depth)
 {
   // returns ieta value give an eta counter.
@@ -361,6 +368,7 @@ int HcalBaseClient::CalcIeta(int eta, int depth)
       ieta=eta-42; // default shift: bin 0 corresponds to a histogram ieta of -42 (which is offset by 1 from true HF value of -41)
       if (eta<13) ieta++;
       else if (eta>71) ieta--;
+      if (ieta==0) ieta=-9999;
       return ieta;
     }
   else if (depth==2)
@@ -370,6 +378,8 @@ int HcalBaseClient::CalcIeta(int eta, int depth)
 	{
 	  ieta=binmapd2[eta];
 	  if (ieta==-9999) return ieta;
+	  if (ieta==0) return -9999;
+	  if (ieta==17 || ieta == -17) return -9999; // no depth 2 cells at |ieta| = 17
 	  else if (ieta<=-30) ieta++;
 	  else if (ieta>=30) ieta--;
 	  return ieta;
@@ -380,17 +390,18 @@ int HcalBaseClient::CalcIeta(int eta, int depth)
       if (eta>8) return -9999;
       else
 	ieta=binmapd3[eta];
+      if (ieta==0) return -9999;
       return ieta;
     }
   else if (depth==4)
     {
       ieta= eta-15;  // bin 0 is ieta=-15, all bins increment normally from there
       if (abs(ieta)>15) return -9999;
+      if (ieta==0) return -9999;
+      return ieta;
     }
-  if (ieta==0) ieta=-9999; // default value for non-physical regions
-  return ieta;
+  return ieta; // avoids compilation warning
 }
-
 
 bool HcalBaseClient::isHB(int etabin, int depth)
 {
@@ -470,4 +481,34 @@ bool HcalBaseClient::isHO(int etabin, int depth)
   int ieta=CalcIeta(etabin,depth);
   if (ieta!=-9999) return true;
   return false;
+}
+*/
+
+
+void HcalBaseClient::SetEtaPhiLabels(MonitorElement* h)
+{
+  std::stringstream label;
+  for (int i=-41;i<=-29;i=i+2)
+    {
+      label<<i;
+      h->setBinLabel(i+42,label.str().c_str());
+      label.str("");
+    }
+  h->setBinLabel(14,"-29HE");
+    
+  // offset by one for HE
+  for (int i=-27;i<=27;i=i+2)
+    {
+      label<<i;
+      h->setBinLabel(i+43,label.str().c_str());
+      label.str("");
+    }
+  h->setBinLabel(72,"29HE");
+  for (int i=29;i<=41;i=i+2)
+    {
+      label<<i;
+      h->setBinLabel(i+44,label.str().c_str());
+      label.str("");
+    }
+  return;
 }

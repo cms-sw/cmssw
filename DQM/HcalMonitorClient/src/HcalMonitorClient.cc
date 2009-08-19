@@ -304,13 +304,13 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   ievt_ = 0;
   if( summary_client_ )    summary_client_->beginJob(dbe_);
   if( dataformat_client_ ) dataformat_client_->beginJob();
-  if( digi_client_ )       digi_client_->beginJob();
+  if( digi_client_ )       digi_client_->beginJob(dbe_);
   if( rechit_client_ )     rechit_client_->beginJob();
   if( pedestal_client_ )   pedestal_client_->beginJob(c);
   if( led_client_ )        led_client_->beginJob(c);
   if( laser_client_ )      laser_client_->beginJob(c);
   if( hot_client_ )        hot_client_->beginJob(c);
-  if( dead_client_ )       dead_client_->beginJob(c);
+  if( dead_client_ )       dead_client_->beginJob(c,dbe_);
   if( tp_client_ )         tp_client_->beginJob();
   if( ct_client_ )         ct_client_->beginJob();
   if( beam_client_ )       beam_client_->beginJob();
