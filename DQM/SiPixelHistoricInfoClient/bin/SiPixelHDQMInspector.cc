@@ -1,138 +1,81 @@
-#include "DQMServices/Diagnostic/test/HDQMInspector.h"
+#include "DQMServices/Diagnostic/interface/HDQMInspector.h"
 #include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
+#include "DQMServices/Diagnostic/interface/DQMHistoryTrendsConfig.h"
+#include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 #include <string>
+#include <vector>
+#include <memory>
+#include <algorithm>
 
-std::string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
-std::string const BlackList = "";
+using namespace std;
 
-void SiPixelHDQMInspector (const std::string & tagName, std::string const& Password, int const NRuns) {
-/////////////////////////////////////////////////////////////////
-//
-// Extraction of the summary information using 
-// DQMServices/Diagnostic/test/HDQMInspector.
-// The sqlite database should have been filled using the new
-// SiPixelHistoryDQMService.   
-//
-/////////////////////////////////////////////////////////////////
+string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
+string const BlackList = "";
 
-
-  //std::map<int, std::string> pixelTranslator = sipixelsummary::GetMap();
-
-  //pixelTranslator Translator;
-
-  //AutoLibraryLoader::enable();
-
-
+/**
+ * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
+ * The sqlite database should have been filled using the new SiPixelHistoryDQMService.   
+ */
+void runSiPixelInspector( const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
+{
   HDQMInspectorConfigSiPixel PixelConfig;
-  std::vector<std::string> ItemsForIntegration;
-  //ItemsForIntegration.push_back("SUMOFF_nclusters_OffTrack_entries");
-  PixelConfig.computeIntegralList(ItemsForIntegration);
-  HDQMInspector A(&PixelConfig);
-  //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
-  A.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
+  DQMHistoryCreateTrend makeTrend(&PixelConfig);
 
+  // Database and output configuration
+  makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDebug(1);
+  makeTrend.setDoStat(1);
+  makeTrend.setBlackList(BlackList);
 
+  // Definition of trends
+  typedef DQMHistoryTrendsConfig Trend;
+  vector<Trend> config;
+  config.push_back(Trend( "1@SUMOFF_adc@yMean", "adc_yMean_Barrel.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "6@SUMOFF_adc@yMean", "adc_yMean_Endcap.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Barrel.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "6@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Endcap.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, Start, End, nRuns ));
 
-  A.setDebug(1);
-  A.setDoStat(1);
+  // Creation of trends
+  for_each(config.begin(), config.end(), makeTrend);
 
-  A.setBlackList(BlackList);
-
-  A.createTrendLastRuns("1@SUMOFF_adc@yMean", "adc_yMean_Barrel.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("6@SUMOFF_adc@yMean", "adc_yMean_Endcap.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Barrel.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("6@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Endcap.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, NRuns);
-  A.createTrendLastRuns("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, NRuns);
-
-
-
-
-  A.closeFile();
-
-
-  return;
-
-
+  // Close the output file
+  makeTrend.closeFile();
 }
 
-
-void SiPixelHDQMInspector (const std::string &tagName, std::string const& Password, int const Start, int const End) {
-/////////////////////////////////////////////////////////////////
-//
-// Extraction of the summary information using 
-// DQMServices/Diagnostic/test/HDQMInspector.
-// The sqlite database should have been filled using the new
-// SiPixelHistoryDQMService.   
-//
-/////////////////////////////////////////////////////////////////
-
-
-  //std::map<int, std::string> pixelTranslator = sipixelsummary::GetMap();
-
-  //pixelTranslator Translator;
-
-  //AutoLibraryLoader::enable();
-
-  HDQMInspectorConfigSiPixel PixelConfig;
-  //HDQMInspector A(&PixelConfig);
-  HDQMInspector A(&PixelConfig);
-  //A.setDB("sqlite_file:dbfile.db",tagName,"cms_cond_strip","w3807dev","");
-  A.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
-
-
-  A.setDebug(1);
-  A.setDoStat(1);
-
-  A.setBlackList(BlackList);
-
-  A.createTrend("1@SUMOFF_adc@yMean", "adc_yMean_Barrel.gif", 0, Condition, Start, End);
-  A.createTrend("6@SUMOFF_adc@yMean", "adc_yMean_Endcap.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Barrel.gif", 0, Condition, Start, End);
-  A.createTrend("6@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Endcap.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, Start, End);
-  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, Start, End);
-  A.createTrend("0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, Start, End);
-
-  A.closeFile();
-
-
-  return;
-
-
+/// Simple method to create the trends. The actual operations are performed in runSiPixelInspector.
+void SiPixelHDQMInspector( const string &tagName, const string & password, const int start, const int end )
+{
+  runSiPixelInspector( tagName, password, start, end, 0 );
 }
 
-
-
-
-
+/// Simple method to create the trends. The actual operations are performed in runSiPixelInspector.
+void SiPixelHDQMInspector( const string & tagName, const string & password, const int nRuns )
+{
+  runSiPixelInspector( tagName, password, 0, 0, nRuns );
+}
 
 int main (int argc, char* argv[])
 {
   if (argc != 4 && argc != 5) {
-    std::cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << std::endl;
-    std::cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << std::endl;
+    cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << endl;
+    cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << endl;
     return 1;
   }
 
   if (argc == 4) {
-    std::cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << std::endl;
+    cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << endl;
     SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
   } else if(argc == 5) {
-    std::cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << std::endl;
+    cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << endl;
     SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
   }
 
