@@ -94,7 +94,8 @@ namespace edm
   bool
   GeneratorFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
-    
+    hadronizer_.setEDMEvent(ev);
+
     if ( !hadronizer_.generatePartonsAndHadronize() ) return false;
 
     //  this is "fake" stuff

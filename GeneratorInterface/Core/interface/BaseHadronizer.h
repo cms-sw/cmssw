@@ -26,6 +26,11 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// foward declarations
+namespace edm {
+  class Event;
+}
+
 namespace gen {
 
   class BaseHadronizer {
@@ -47,6 +52,10 @@ namespace gen {
     void setLHERunInfo(lhef::LHERunInfo *runInfo) { lheRunInfo_.reset(runInfo); }
     void setLHEEvent(lhef::LHEEvent *event) { lheEvent_.reset(event); }
 
+    // interface for accessing the EDM information from the hadronizer
+    void setEDMEvent(edm::Event &event) { edmEvent_ = &event; }
+    edm::Event &getEDMEvent() const { return *edmEvent_; }
+
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
     std::auto_ptr<HepMC::GenEvent>& event() { return genEvent_; }
@@ -62,6 +71,8 @@ namespace gen {
 
     boost::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
     std::auto_ptr<lhef::LHEEvent>       lheEvent_;
+
+    edm::Event                          *edmEvent_;
   };
 
 } // namespace gen

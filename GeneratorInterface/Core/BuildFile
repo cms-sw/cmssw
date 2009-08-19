@@ -2,6 +2,7 @@
 <use name=FWCore/Utilities>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=GeneratorInterface/LHEInterface>
+<use name=boost>
 <use name=hepmc> 
 <use name=clhep>
 <use name=lhapdf>
@@ -11,6 +12,7 @@
         <use name=FWCore/Utilities>
 	<use name=SimDataFormats/GeneratorProducts>
 	<use name=GeneratorInterface/LHEInterface>
+	<use name=boost>
 	<use name=clhep>
 	<use name=lhapdf>
 	<lib name=GeneratorInterfaceCore>

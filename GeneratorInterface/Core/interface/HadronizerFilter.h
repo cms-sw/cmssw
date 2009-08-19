@@ -6,6 +6,9 @@
 // the hadronizer type HAD to read in external partons and hadronize them, 
 // and decay the resulting particles, in the CMS framework.
 
+#ifndef gen_HadronizerFilter_h
+#define gen_HadronizerFilter_h
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,9 +18,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#ifndef gen_HadronizerFilter_h
-#define gen_HadronizerFilter_h
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -101,7 +101,9 @@ namespace edm
   bool
   HadronizerFilter<HAD>::filter(Event& ev, EventSetup const& /* es */)
   {
-    // get LHE stuff and pass to hadronizer !
+    hadronizer_.setEDMEvent(ev);
+
+    // get LHE stuff and pass to hadronizer!
     //
     edm::Handle<LHEEventProduct> product;
     ev.getByLabel("source", product);
