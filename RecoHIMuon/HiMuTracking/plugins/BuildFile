@@ -29,8 +29,8 @@
 <use name=TrackingTools/TransientTrack>
 <use name=HLTrigger/HLTcore>
 <use name=hepmc>
-<use name=RecoHI/HiMuonAlgos>
-<library file="*.cc" name=RecoHIHiMuonAlgosPlugins>
+<use name=RecoHIMuon/HiMuTracking>
+<library file="*.cc" name=RecoHIMuonHiMuTrackingPlugins>
      <flags EDM_PLUGIN=1>
 
 </library>
