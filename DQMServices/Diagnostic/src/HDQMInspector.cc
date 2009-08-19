@@ -19,6 +19,9 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TAxis.h"
+#include "TMath.h"
+#include "TLegend.h"
+#include "TVirtualPad.h"
 
 #include "DQMServices/Diagnostic/interface/HDQMExpressionEvaluator.h"
 
@@ -293,6 +296,10 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
     vdetId_.insert(vdetId_.end(),vDetIdItemList_[ic].items.size(),vDetIdItemList_[ic].detid);
   }
 
+  // Vector of graphs in this request and DetNames which correspond to them
+  std::vector<TGraphErrors*> VectorOfGraphs;
+  std::vector<std::string> VectorOfDetNames;
+
   for(size_t i=0;i<vlistItems_.size();++i){
     std::cout <<  "TkRegion " << vdetId_[i] << " " << vlistItems_[i] << std::endl;
 
@@ -303,8 +310,10 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
     std::stringstream ss;
     if (fHDQMInspectorConfig != 0x0) {
       ss << fHDQMInspectorConfig->translateDetId( vdetId_[i] ) << vlistItems_[i];
+      VectorOfDetNames.push_back( fHDQMInspectorConfig->translateDetId( vdetId_[i] ));
     } else {
       ss << "Id " << vdetId_[i] << " " << vlistItems_[i];
+      VectorOfDetNames.push_back( "???" );
     }
 
     
@@ -366,6 +375,9 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
     graph->SetName(ss.str().c_str());
     graph->GetXaxis()->SetTitle("Run number");
     graph->Write();
+
+    // put the graph in the vector eh.
+    VectorOfGraphs.push_back(graph);
     
     if (itemForIntegration) 
     {  
@@ -394,6 +406,69 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
   C->SaveAs(CanvasName.c_str());
   // dhidas commented out below because it doesn't seem useful.  uncomment if you like, it was just annoying me.
   //C->SaveAs(CanvasName.replace(CanvasName.find("."),CanvasName.size()-CanvasName.find("."),".C").c_str());//savewith .C
+  // dhidas commented out below because it doesn't seem useful.  uncomment if you like, it was just annoying me.
+  //C->SaveAs(CanvasName.replace(CanvasName.find("."),CanvasName.size()-CanvasName.find("."),".C").c_str());//savewith .C
+
+  // Okay, we wrote the first canvas, not let's try to overlay the graphs on another one..
+  if (VectorOfGraphs.size() > 1) {
+
+    // Create the legend for this overlay graph
+    TLegend OverlayLegend(0.80,0.35,0.99,0.65);
+
+    // Use for storing the global min/max.
+    float max = -9999;
+    float min =  9999;
+
+    // Canvas we'll paint the overlays on
+    TCanvas DeanCan("DeanCan", "DeanCan");
+    TVirtualPad* VPad = DeanCan.cd();
+    VPad->SetRightMargin(0.21);
+    VPad->SetTopMargin(0.23);
+
+    // Let's loop over all graphs in this request
+    for (size_t i = 0; i != VectorOfGraphs.size(); ++i) {
+
+      // Strip off the det name in the i-th hist title
+      TString MyTitle = VectorOfGraphs[i]->GetTitle();
+      MyTitle.Replace(0, VectorOfDetNames[i].size(), "");
+      VectorOfGraphs[i]->SetTitle( MyTitle );
+
+      // Add this to the legend, sure, good
+      OverlayLegend.AddEntry(VectorOfGraphs[i], VectorOfDetNames[i].c_str(), "p");
+
+      // You have to get the min and max by hand because root is completely retarded
+      if (min > findGraphMin(VectorOfGraphs[i]) ) {
+        min = findGraphMin(VectorOfGraphs[i]);
+      }
+      if (max < findGraphMax(VectorOfGraphs[i])) {
+        max = findGraphMax(VectorOfGraphs[i]);
+      }
+
+      // let's use these colors and shapes for now
+      VectorOfGraphs[i]->SetMarkerStyle(20+i);
+      VectorOfGraphs[i]->SetMarkerColor(2+i);
+    }
+    // May as well set the min and max for first graph we'll draw
+    VectorOfGraphs[0]->SetMinimum((min)-((max)-(min))/5.);
+    VectorOfGraphs[0]->SetMaximum((max)+((max)-(min))/5.);
+
+    // Draw the first one with axis (A) and the rest just points (p), draw the legend, and save that canvas
+    VectorOfGraphs[0]->Draw("Ap");
+    for (size_t i = 1; i != VectorOfGraphs.size(); ++i) {
+      VectorOfGraphs[i]->Draw("p");
+    }
+    OverlayLegend.Draw("same");
+    DeanCan.SaveAs(CanvasName.replace(CanvasName.find("."),CanvasName.size()-CanvasName.find("."),"_Overlay.gif").c_str());
+  }
+
+  // While I'm here I may as well try deleting the graphs since people don't like to clean up after themselves
+  for (size_t i = 0; i != VectorOfGraphs.size(); ++i) {
+    delete VectorOfGraphs[i];
+  }
+
+  // Why do people never put a friggin return statement?
+  return;
+
 }
 
 size_t HDQMInspector::unpackItems(std::string& ListItems)
@@ -525,3 +600,25 @@ void HDQMInspector::setItems(std::string itemD)
   else
     vDetIdItemList_.push_back(detiditemlist);
 }
+
+
+double HDQMInspector::findGraphMax(TGraphErrors* g)
+{
+  // GetMaximum() doesn't work ....
+  int n = g->GetN();
+  double* y = g->GetY();
+  int locmax = TMath::LocMax(n,y);
+  return  y[locmax];
+}
+
+
+double HDQMInspector::findGraphMin(TGraphErrors* g)
+{
+  // GetMinimum() doesn't work ....
+  int n = g->GetN();
+  double* y = g->GetY();
+  int locmin = TMath::LocMin(n,y);
+  return  y[locmin];
+}
+
+

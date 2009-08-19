@@ -21,7 +21,8 @@
 #include "CondCore/Utilities/interface/CondCachedIter.h"
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 #include "DQMServices/Diagnostic/interface/HDQMInspectorConfigBase.h"
-#include "TFile.h" 
+#include "TFile.h"
+#include "TGraphErrors.h"
 
 class HDQMInspector
 {
@@ -75,6 +76,9 @@ class HDQMInspector
       fOutFile->Close();
     }
   }
+  double findGraphMax(TGraphErrors*);
+  double findGraphMin(TGraphErrors*);
+
   
   inline std::vector<unsigned int> getRuns() { return vRun_;}
   inline std::vector<float> getSummary()     { return vSummary_;}
