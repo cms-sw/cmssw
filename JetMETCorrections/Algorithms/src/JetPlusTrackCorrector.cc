@@ -12,6 +12,7 @@
 //#include "DataFormats/MuonReco/interface/MuonFwd.h"
 //
 
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 using namespace std;
 
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
@@ -321,7 +322,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	 // muon id here
 	 // track quality requirements are general and should be done elsewhere
 	 if ( muon->innerTrack().isNull() ||
-	      !muon->isGood(reco::Muon::TMLastStationTight) ||
+	      ! muon::isGoodMuon(*muon,muon::TMLastStationTight) ||
 	      muon->innerTrack()->pt()<3.0 ) continue;
 	 if (itV->id() != muon->innerTrack().id())
 	     throw cms::Exception("FatalError") 
@@ -397,7 +398,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 		 // muon id here
 		 // track quality requirements are general and should be done elsewhere
 		 if ( muon->innerTrack().isNull() ||
-		      !muon->isGood(reco::Muon::TMLastStationTight) ||
+		      !muon::isGoodMuon(*muon,muon::TMLastStationTight) ||
 		      muon->innerTrack()->pt()<3.0 ) continue;
 		 if (itC->id() != muon->innerTrack().id())
 		   throw cms::Exception("FatalError") 
