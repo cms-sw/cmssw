@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.6 2009/06/16 11:40:06 edwenger Exp $
+// $Id: CentralityProducer.cc,v 1.7 2009/08/17 18:07:41 yilmaz Exp $
 //
 //
 
@@ -134,7 +134,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        eHF = eHF + rechit.energy();
      }
      std::auto_ptr<CentralityCollection> centOutput(new CentralityCollection);
-     Centrality creco(eHF,eCASTOR,eZDC,cnt);
+     Centrality creco(eHF,"HFTotalEnergy");
      centOutput->push_back(creco);
      iEvent.put(centOutput, "recoBased");
 
@@ -181,7 +181,7 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      
 
-     Centrality c1(eHF,eCASTOR,eZDC,cnt);
+     Centrality c1(eHF,"HFGenParticleEnergy");
 
      std::auto_ptr<CentralityCollection> centOutput(new CentralityCollection);
      centOutput->push_back(c1);
