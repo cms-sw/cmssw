@@ -55,13 +55,20 @@ namespace edm {
     virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     virtual void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
-
+    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);    
+    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
+    
     RootServiceChecker rootServiceChecker_;
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
     boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
 
+    //used when process has been forked
+    unsigned int numberOfEventsBeforeBigSkip_;
+    unsigned int numberOfEventsInBigSkip_;
+    unsigned int numberOfSequentialEvents_;
+    unsigned int forkedChildIndex_;
+    
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

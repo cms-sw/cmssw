@@ -58,7 +58,12 @@ namespace edm {
     rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
-    branchIDsToReplace_() {
+    branchIDsToReplace_(),
+    numberOfEventsBeforeBigSkip_(0),
+    numberOfEventsInBigSkip_(0),
+    numberOfSequentialEvents_(0),
+    forkedChildIndex_(0)  
+  {
     if (secondaryFileSequence_) {
       boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry().productList();
@@ -178,13 +183,38 @@ namespace edm {
 
   InputSource::ItemType
   PoolSource::getNextItemType() {
-    return primaryFileSequence_->getNextItemType();
+    InputSource::ItemType returnValue = primaryFileSequence_->getNextItemType();
+    if(returnValue == InputSource::IsEvent && 0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
+      primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_);
+      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1;
+      returnValue = primaryFileSequence_->getNextItemType();
+    }    
+    return returnValue;
   }
 
+  void 
+  PoolSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents) {
+    numberOfEventsInBigSkip_ = iNumberOfSequentialEvents*(iNumberOfChildren-1);
+    numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents ;
+    forkedChildIndex_ = iChildIndex;
+    numberOfSequentialEvents_ = iNumberOfSequentialEvents;
+    primaryFileSequence_->reset();
+    rewind();
+  }
+   
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
     primaryFileSequence_->rewind_();
+    unsigned int numberToSkip = numberOfSequentialEvents_*forkedChildIndex_;
+    if(0!=numberToSkip) {
+      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ ;
+      if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
+        numberOfEventsBeforeBigSkip_ = numberToSkip+1;
+      }
+      primaryFileSequence_->skipEvents(numberToSkip);
+    }
+    numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1 ;
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
