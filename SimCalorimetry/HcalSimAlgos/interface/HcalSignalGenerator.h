@@ -1,7 +1,7 @@
 #ifndef HcalSimAlgos_HcalSignalGenerator_h
 #define HcalSimAlgos_HcalSignalGenerator_h
 
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalBaseSignalGenerator.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -12,7 +12,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 /** Converts digis back into analog signals, to be used
@@ -22,14 +21,14 @@
 #include <iostream>
 
 template<class HCALDIGITIZERTRAITS>
-class HcalSignalGenerator : public CaloVNoiseSignalGenerator
+class HcalSignalGenerator : public HcalBaseSignalGenerator
 {
 public:
   typedef typename HCALDIGITIZERTRAITS::Digi DIGI;
   typedef typename HCALDIGITIZERTRAITS::DigiCollection COLLECTION;
 
   HcalSignalGenerator(const edm::InputTag & inputTag)
-  : theEvent(0), theEventPrincipal(0), theShape(0), theInputTag(inputTag) {}
+  : HcalBaseSignalGenerator(), theEvent(0), theEventPrincipal(0), theShape(0), theInputTag(inputTag) {}
 
   virtual ~HcalSignalGenerator() {}
 
@@ -38,6 +37,7 @@ public:
     theEvent = event;
     eventSetup->get<HcalDbRecord>().get(theConditions);
     theShape = theConditions->getHcalShape (); // this one is generic
+    theParameterMap->setDbService(theConditions.product());
   }
 
   /// some users use EventPrincipals, not Events.  We support both
@@ -46,6 +46,7 @@ public:
     theEventPrincipal = eventPrincipal;
     eventSetup->get<HcalDbRecord>().get(theConditions);
     theShape = theConditions->getHcalShape (); // this one is generic
+    theParameterMap->setDbService(theConditions.product());
   }
 
   virtual void fill()
@@ -53,7 +54,6 @@ public:
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
     const COLLECTION *  digis = 0;
-
     // try accessing by whatever is set, Event or EventPrincipal
     if(theEvent) 
      {
@@ -70,7 +70,9 @@ public:
     {
        boost::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
           edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag );
-       if(digisPTR) digis = digisPTR->product();
+       if(digisPTR) {
+          digis = digisPTR->product();
+       }
     }
     else
     {
@@ -103,34 +105,20 @@ private:
     fC2pe(result);
     return result;
   }
- 
-
-  void fC2pe(CaloSamples & samples) const
-  {
-    assert(theParameterMap != 0);
-    float factor = 1./theParameterMap->simParameters(samples.id()).photoelectronsToAnalog();
-    samples *= factor;
-  }
 
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
   const edm::EventPrincipal * theEventPrincipal;
   edm::ESHandle<HcalDbService> theConditions;
   const HcalQIEShape* theShape;
-
   /// these come from the ParameterSet
   edm::InputTag theInputTag;
 };
-
 
 typedef HcalSignalGenerator<HBHEDigitizerTraits> HBHESignalGenerator;
 typedef HcalSignalGenerator<HODigitizerTraits>   HOSignalGenerator;
 typedef HcalSignalGenerator<HFDigitizerTraits>   HFSignalGenerator;
 typedef HcalSignalGenerator<ZDCDigitizerTraits>  ZDCSignalGenerator;
 
-
-
 #endif
-
-
 
