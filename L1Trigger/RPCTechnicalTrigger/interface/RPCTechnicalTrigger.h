@@ -126,19 +126,35 @@ private:
       m_trigWheel1(wh1),
       m_trigWheel2(wh2) {;}
     
+    TTUResults( int idx, int bx, int wh1, int wh2 , int wdg ):
+      m_ttuidx(idx),
+      m_bx(bx),
+      m_trigWheel1(wh1),
+      m_trigWheel2(wh2),
+      m_wedge(wdg) {;}
+    
     ~TTUResults() 
     {
       m_ttuidx=0;
       m_bx=0;
       m_trigWheel1=0;
       m_trigWheel2=0;
+      m_wedge=0;
     }
     
     int m_ttuidx;
     int m_bx;
     int m_trigWheel1;
     int m_trigWheel2;
+    int m_wedge;
+  
+    int getTriggerForWheel( int wheel ) 
+    {
+      if( abs(wheel) > 1 ) return m_trigWheel2;
+      else return m_trigWheel1;
+    }
     
+  
   };
   
   struct sortByBx {
@@ -150,6 +166,15 @@ private:
   
   std::vector<TTUResults*> m_serializedInfoLine1;
   std::vector<TTUResults*> m_serializedInfoLine2;
+
+  int convertToMap( const std::vector<TTUResults*> & );
+  
+  bool searchCoincidence( int , int );
+  
+  std::map<int,int> m_WheelTtu;
+  
+  std::map<int,TTUResults*> m_ttuResultsByQuadrant;
+  
   
   
 };

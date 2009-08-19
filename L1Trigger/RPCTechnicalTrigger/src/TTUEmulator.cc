@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.cc,v 1.12 2009/07/04 20:07:40 aosorio Exp $
+// $Id: TTUEmulator.cc,v 1.13 2009/08/09 11:11:37 aosorio Exp $
 // Include files 
 
 
@@ -136,7 +136,7 @@ bool TTUEmulator::initialise()
   for( int k=0; k < m_maxWheels; ++k)
     status = m_Wheels[k].initialise( );
   
-  status = m_ttuconf->initialise( m_line );
+  status = m_ttuconf->initialise( m_line , m_id );
   
   if ( !status ) { 
     if( m_debug ) std::cout << "TTUEmulator> Problem initialising the Configuration \n"; 
@@ -148,14 +148,11 @@ bool TTUEmulator::initialise()
 
 void TTUEmulator::SetLineId( int line )
 {
-  
   m_line = line;
-    
 }
 
 void TTUEmulator::emulate() 
 {
-  
   //... only for testing
   for( int k=0; k < m_maxWheels; ++k ) 
     m_Wheels[k].emulate();
@@ -276,16 +273,16 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
     for( int k=0; k < m_maxWheels; ++k )
     {
       
-      if ( m_Wheels[k].process( (*bxItr) , (*linkboardin) ) ) {
+      if ( m_Wheels[k].process( (*bxItr) , (*linkboardin) ) ) { // <- this process uses the default RBC emulation but need a different logic
         
         m_Wheels[k].createWheelMap();
         
         m_Wheels[k].retrieveWheelMap( (m_ttuin[k]) );
         
         //.. execute selected logic at Ttu level
-        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) );
+        m_ttuconf->m_ttulogic->run( (m_ttuin[k]) , wedgeId );
         
-        //... and produce a Wheel level trigger
+        //... and produce a Wheel-Wedge level trigger
         trg = m_ttuconf->m_ttulogic->isTriggered();
         
         m_trigger.set(k,trg);
@@ -300,22 +297,19 @@ void TTUEmulator::processTtu( RPCInputSignal * signal , int wedgeId )
       
     }
     
-    
-    triggerResponse->setTriggerBits( (*bxItr) , m_trigger );
+    triggerResponse->setTriggerBits( (*bxItr) , wedgeId, m_trigger );
     m_triggerBxVec.push_back( triggerResponse );
     m_triggerBx[ (*bxItr) ] = m_trigger;
     
   }
   
-  
   if( m_debug ) std::cout << "TTUEmulator::processTtu> size of trigger map " 
                           << m_triggerBx.size() << std::endl;
   
-  
   if( m_debug ) std::cout << "TTUEmulator::processTtu> done with this TTU: " << m_id << std::endl;
-
+  
   bxVec.clear();
-    
+  
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: TTUInput.h,v 1.5 2009/06/01 12:57:20 aosorio Exp $
+// $Id: TTUInput.h,v 1.6 2009/06/17 15:27:24 aosorio Exp $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -27,6 +27,7 @@ public:
   TTUInput( const TTUInput & in )
   {
     m_bx = in.m_bx;
+    m_wheelId = in.m_wheelId;
     m_hasHits = in.m_hasHits;
     m_rbcDecision = in.m_rbcDecision;
     input_sec = new std::bitset<6>[12];
@@ -38,6 +39,7 @@ public:
   {
     if (this == &rhs) return (*this);
     (*this).m_bx = rhs.m_bx;
+    (*this).m_wheelId = rhs.m_wheelId;
     (*this).m_hasHits = rhs.m_hasHits;
     (*this).input_sec = new std::bitset<6>[12];
     (*this).m_rbcDecision = rhs.m_rbcDecision;
@@ -49,14 +51,15 @@ public:
   void reset();
   
   int m_bx;
+  
+  int m_wheelId;
+  
   bool m_hasHits;
   
-  std::bitset<6> * input_sec;
-  
+  std::bitset<6>  * input_sec;
   std::bitset<12> m_rbcDecision;
   
   void mask ( const std::vector<int> & );
-  
   void force( const std::vector<int> & );
   
 protected:

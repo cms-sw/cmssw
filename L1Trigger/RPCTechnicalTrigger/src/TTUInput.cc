@@ -1,4 +1,4 @@
-// $Id: TTUInput.cc,v 1.5 2009/06/01 12:57:20 aosorio Exp $
+// $Id: TTUInput.cc,v 1.6 2009/06/17 15:27:24 aosorio Exp $
 // Include files 
 
 
@@ -19,6 +19,7 @@
 TTUInput::TTUInput(  ) {
 
   m_bx = 0;
+  m_wheelId = 0;
   m_hasHits = false;
   input_sec = new std::bitset<6>[12];
   m_rbcDecision.reset();
@@ -44,6 +45,7 @@ void TTUInput::reset()
 {
   
   m_bx = 0;
+  m_wheelId = 0;
   m_hasHits = false;
   
   for(int i=0; i < 12; ++i)

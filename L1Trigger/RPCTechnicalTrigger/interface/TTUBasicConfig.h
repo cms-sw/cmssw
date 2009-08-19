@@ -1,4 +1,4 @@
-// $Id: TTUBasicConfig.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
+// $Id: TTUBasicConfig.h,v 1.2 2009/07/01 22:52:06 aosorio Exp $
 #ifndef INTERFACE_TTUBASICCONFIG_H 
 #define INTERFACE_TTUBASICCONFIG_H 1
 
@@ -24,7 +24,7 @@ public:
   
   virtual ~TTUBasicConfig( ); ///< Destructor
 
-  bool initialise( int );
+  bool initialise( int , int );
 
   void preprocess( TTUInput & );
   

@@ -1,4 +1,4 @@
-// $Id: TTULogicUnit.cc,v 1.4 2009/06/04 11:52:59 aosorio Exp $
+// $Id: TTULogicUnit.cc,v 1.5 2009/08/09 11:11:37 aosorio Exp $
 // Include files 
 
 
@@ -85,6 +85,7 @@ void TTULogicUnit::run( const TTUInput & input )
 
 void TTULogicUnit::run( const TTUInput & input , int option )
 {
+
   m_logic->setOption( option );
   m_logic->process( input );
  

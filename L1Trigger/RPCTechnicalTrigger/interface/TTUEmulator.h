@@ -1,4 +1,4 @@
-// $Id: TTUEmulator.h,v 1.5 2009/07/01 22:52:06 aosorio Exp $
+// $Id: TTUEmulator.h,v 1.6 2009/08/09 11:11:36 aosorio Exp $
 #ifndef TTUEMULATOR_H 
 #define TTUEMULATOR_H 1
 
@@ -88,7 +88,7 @@ public:
   {
   public:
     
-    TriggerResponse() { m_bx = 0; m_trigger.reset(); };
+    TriggerResponse() { m_bx = 0; m_wedge = 0; m_trigger.reset(); };
     ~TriggerResponse() {;};
     
     void setTriggerBits( int bx , const std::bitset<2> & inbits )
@@ -97,7 +97,15 @@ public:
       m_trigger = inbits;
     };
     
+    void setTriggerBits( int bx , int wdg, const std::bitset<2> & inbits )
+    {
+      m_bx = bx;
+      m_wedge = wdg;
+      m_trigger = inbits;
+    };
+    
     int m_bx;
+    int m_wedge;
     std::bitset<2> m_trigger;
     
   };

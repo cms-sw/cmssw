@@ -1,4 +1,4 @@
-// $Id: RPCWheel.cc,v 1.10 2009/07/04 20:07:40 aosorio Exp $
+// $Id: RPCWheel.cc,v 1.11 2009/08/09 11:11:37 aosorio Exp $
 // Include files
 
 
@@ -183,7 +183,7 @@ bool RPCWheel::process( int bx, const std::map<int,RBCInput*> & data )
       }
       
     } else {
-      if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
+      //if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
       status |= false;
     }
     
@@ -220,7 +220,7 @@ bool RPCWheel::process( int bx, const std::map<int,TTUInput*> & data )
     }
 
   } else {
-    if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
+    //if( m_debug ) std::cout << "RPCWheel::process> position not found: " <<  key << std::endl;
     status = false;
   }
   
@@ -277,8 +277,10 @@ void RPCWheel::retrieveWheelMap( TTUInput & output )
     }
   }
   
-  output.m_rbcDecision = m_rbcDecision;
+  output.m_wheelId = m_id;
   
+  output.m_rbcDecision = m_rbcDecision;
+    
   if( m_debug ) print_wheel( output );
   if( m_debug ) std::cout << "RPCWheel::retrieveWheelMap done" << std::endl;
   
@@ -299,7 +301,7 @@ void RPCWheel::printinfo()
 void RPCWheel::print_wheel(const TTUInput & wmap )
 {
 
-  std::cout << "RPCWheel::print_wheel>" << std::endl;
+  std::cout << "RPCWheel::print_wheel> " << wmap.m_wheelId << '\t' << wmap.m_bx << std::endl;
   
   for( int i=0; i < m_maxsectors; ++i) std::cout << '\t' << (i+1);
   std::cout << std::endl;

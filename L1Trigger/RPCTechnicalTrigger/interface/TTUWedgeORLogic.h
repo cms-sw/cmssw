@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUWedgeORLogic.h,v 1.1 2009/08/09 11:11:36 aosorio Exp $
 #ifndef INTERFACE_TTUWEDGEORLOGIC_H 
 #define INTERFACE_TTUWEDGEORLOGIC_H 1
 
@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 
 /** @class TTUWedgeORLogic TTUWedgeORLogic.h interface/TTUWedgeORLogic.h
  *  
@@ -35,6 +36,8 @@ private:
   int m_maxsectors;
 
   int m_maxwedges;
+  
+  std::map< int, int> m_wheelMajority;
   
   std::vector<int> m_wedgeSector;
     

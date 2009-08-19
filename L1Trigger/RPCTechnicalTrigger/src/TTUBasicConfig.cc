@@ -1,4 +1,4 @@
-// $Id: TTUBasicConfig.cc,v 1.5 2009/07/01 22:52:06 aosorio Exp $
+// $Id: TTUBasicConfig.cc,v 1.6 2009/08/09 11:11:37 aosorio Exp $
 // Include files 
 
 
@@ -46,35 +46,45 @@ TTUBasicConfig::~TTUBasicConfig() {
 } 
 
 //=============================================================================
-bool TTUBasicConfig::initialise( int line )
+bool TTUBasicConfig::initialise( int line , int ttuid )
 {
   
   bool status(false);
   
-  //.  read specifications
+  //.  read specifications and set it to the corresponding TTU board
   
   std::vector<TTUBoardSpecs::TTUBoardConfig>::const_iterator itr;
   itr = m_ttuboardspecs->m_boardspecs.begin();
   
+  int pos(0);
+  int maxboards = m_ttuboardspecs->m_boardspecs.size();
+  
+  for( pos=0; pos < maxboards; ++pos) {
+    if ( m_debug ) std::cout << "TTUBasicConfig::initialise> " 
+                             << m_ttuboardspecs->m_boardspecs[pos].m_Wheel1Id 
+                             << std::endl;
+    if ( m_ttuboardspecs->m_boardspecs[pos].m_runId == ttuid ) break;
+    
+  }
+  
   // initialise logic unit
   
   if ( line == 2 ) {
-    //itr+=3; // <- ideally one would select the next three specifications
-    //temporary fix
     m_ttulogic->setlogic( "WedgeORLogic" );
-    
   } else {
-    
     m_ttulogic->setlogic( (*itr).m_LogicType.c_str() );
-    
   }
   
   status = m_ttulogic->initialise();
   
-  m_ttulogic->setBoardSpecs( (*itr) );
+  //itr = m_ttuboardspecs->m_boardspecs.begin();
+  
+  m_ttulogic->setBoardSpecs( m_ttuboardspecs->m_boardspecs[pos] );
   
   // get mask and force vectors
+  
   m_vecmask.assign( (*itr).m_MaskedSectors.begin(), (*itr).m_MaskedSectors.end() );
+  
   m_vecforce.assign( (*itr).m_ForcedSectors.begin(), (*itr).m_ForcedSectors.end() );
   
   if ( !status ) { 

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUWedgeORLogic.cc,v 1.1 2009/08/09 11:11:37 aosorio Exp $
 // Include files 
 
 
@@ -41,7 +41,17 @@ TTUWedgeORLogic::~TTUWedgeORLogic() {}
 //=============================================================================
 void TTUWedgeORLogic::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
 {
+ 
+  m_wheelMajority[ boardspecs.m_Wheel1Id ] = 3;
   
+  if ( (boardspecs.m_MaxNumWheels > 1) && (boardspecs.m_Wheel2Id != 0) )
+    m_wheelMajority[ boardspecs.m_Wheel2Id ] = 3;
+
+  if ( m_debug ) std::cout << "TTUWedgeORLogic::setBoardSpecs> " 
+                           << m_wheelMajority.size() << '\t'
+                           << boardspecs.m_MaxNumWheels << '\t'
+                           << boardspecs.m_Wheel1Id << '\t'
+                           << boardspecs.m_Wheel2Id <<  '\n';
   
 }
 
@@ -51,22 +61,33 @@ bool TTUWedgeORLogic::process( const TTUInput & inmap )
   if( m_debug) std::cout << "TTUWedgeORLogic::process starts" << std::endl;
   
   m_triggersignal = false;
-
+  
   //
   //In this context m_option is the Selected Wedge/Quadrant (1,2,3,4...)
   // for the moment we have 4 quadrants
   // 1=*2-3-4 ; 2=*4-5-6; 3=*8-9-10; 4=*10-11-12
   //
-
-  int firstsector = m_wedgeSector[ m_option ] -1;
+  
+  int nhits(0);
+  int firstsector = m_wedgeSector[ (m_option-1) ] -1;
   
   for(int j = 0; j < m_maxsectors; ++j)  {
-    m_triggersignal |= inmap.m_rbcDecision[ firstsector + j ];
+    nhits += inmap.input_sec[ firstsector + j ].count();
   }
+
+  int majority = m_wheelMajority[ inmap.m_wheelId ];
+
+  if ( m_debug ) std::cout << "TTUWedgeORLogic::setBoardSpecs> majority: " 
+                           << inmap.m_wheelId << '\t' << majority << '\n';
+  
+  if ( nhits >= majority) m_triggersignal = true;
   
   if( m_debug ) 
-    std::cout << "TTUWedgeORLogic wedge decision:" << m_triggersignal << std::endl;
-
+    std::cout << "TTUWedgeORLogic wedge decision:" 
+              << m_option << '\t' 
+              << firstsector << '\t' 
+              << m_triggersignal << std::endl;
+  
   if( m_debug ) std::cout << "TTUWedgeORLogic>process ends" << std::endl;
   
   return true;

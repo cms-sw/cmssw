@@ -62,6 +62,12 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_ttuRbcLine[1] = new TTUEmulator( m_boardIndex[1] , m_nWheels[1] );
   m_ttuRbcLine[2] = new TTUEmulator( m_boardIndex[2] , m_nWheels[2] );
   
+  m_WheelTtu[-2] = 3;
+  m_WheelTtu[-1] = 3;
+  m_WheelTtu[0 ] = 2;
+  m_WheelTtu[1 ] = 1;
+  m_WheelTtu[2 ] = 1;
+  
   //...........................................................................
   
   m_ievt = 0;
@@ -95,6 +101,8 @@ RPCTechnicalTrigger::~RPCTechnicalTrigger()
     
   }
   
+  m_WheelTtu.clear();
+    
   LogDebug("RPCTechnicalTrigger") << "RPCTechnicalTrigger: object deleted" << '\n';
   
 }
@@ -157,16 +165,23 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     m_ttu[k]->processTtu( m_input );
     
-    m_ttuRbcLine[k]->processTtu( m_input );
+    //work out Pointing Logic to Tracker: quad 1 to 4
+    for(int quad=1; quad < 5; ++quad)
+      m_ttuRbcLine[k]->processTtu( m_input , quad );
     
     //...for trigger 1
     for( outItr  = m_ttu[k]->m_triggerBxVec.begin(); outItr != m_ttu[k]->m_triggerBxVec.end(); ++outItr )
       m_serializedInfoLine1.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
     m_ttu[k]->clearTriggerResponse();
-
+    
     //...for trigger 2
     for( outItr  = m_ttuRbcLine[k]->m_triggerBxVec.begin(); outItr != m_ttuRbcLine[k]->m_triggerBxVec.end(); ++outItr )
-      m_serializedInfoLine2.push_back( new TTUResults( k, (*outItr)->m_bx, (*outItr)->m_trigger[0], (*outItr)->m_trigger[1] ) );
+      m_serializedInfoLine2.push_back( new TTUResults( k, 
+                                                       (*outItr)->m_bx, 
+                                                       (*outItr)->m_trigger[0], 
+                                                       (*outItr)->m_trigger[1], 
+                                                       (*outItr)->m_wedge ) );
+    
     m_ttuRbcLine[k]->clearTriggerResponse();
     
   }
@@ -182,11 +197,12 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::sort( m_serializedInfoLine1.begin(), m_serializedInfoLine1.end(), sortByBx() );
   
   for( ttuItr = m_serializedInfoLine1.begin(); ttuItr != m_serializedInfoLine1.end(); ++ttuItr ) {
-    if ( m_verbosity ) std::cout << "RPCTechnicalTrigger> " 
-                                 << (*ttuItr)->m_ttuidx << '\t'
-                                 << (*ttuItr)->m_bx << '\t'
-                                 << (*ttuItr)->m_trigWheel1 << '\t'
-                                 << (*ttuItr)->m_trigWheel2 << '\n';
+    if ( m_verbosity && abs( (*ttuItr)->m_bx ) <= 1 ) 
+      std::cout << "RPCTechnicalTrigger> " 
+                << (*ttuItr)->m_ttuidx << '\t'
+                << (*ttuItr)->m_bx << '\t'
+                << (*ttuItr)->m_trigWheel1 << '\t'
+                << (*ttuItr)->m_trigWheel2 << '\n';
   }
   
   bool has_bx0 = false;
@@ -199,25 +215,21 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       
       m_triggerbits.set(0, m_serializedInfoLine1[k]->m_trigWheel1);
       m_triggerbits.set(1, m_serializedInfoLine1[k]->m_trigWheel2);
-      
       m_triggerbits.set(2, m_serializedInfoLine1[k+1]->m_trigWheel1);
-      
       m_triggerbits.set(3, m_serializedInfoLine1[k+2]->m_trigWheel1);
       m_triggerbits.set(4, m_serializedInfoLine1[k+2]->m_trigWheel2);
       
       bool five_wheels_OR = m_triggerbits.any();
       
-      ttVec.at(0)=L1GtTechnicalTrigger(m_ttNames.at(0), m_ttBits.at(0), bx, five_wheels_OR ) ; // bit 24 = Or 5 wheels in TTU mode
-      
+      ttVec.at(0)=L1GtTechnicalTrigger(m_ttNames.at(0), m_ttBits.at(0), bx, five_wheels_OR ) ;   // bit 24 = Or 5 wheels in TTU mode
       ttVec.at(2)=L1GtTechnicalTrigger(m_ttNames.at(2), m_ttBits.at(2), bx, m_triggerbits[0] ) ; // bit 26 
       ttVec.at(3)=L1GtTechnicalTrigger(m_ttNames.at(3), m_ttBits.at(3), bx, m_triggerbits[1] ) ; // bit 27 
       ttVec.at(4)=L1GtTechnicalTrigger(m_ttNames.at(4), m_ttBits.at(4), bx, m_triggerbits[2] ) ; // bit 28 
       ttVec.at(5)=L1GtTechnicalTrigger(m_ttNames.at(5), m_ttBits.at(5), bx, m_triggerbits[3] ) ; // bit 29
       ttVec.at(6)=L1GtTechnicalTrigger(m_ttNames.at(6), m_ttBits.at(6), bx, m_triggerbits[4] ) ; // bit 30
       
-      
       m_triggerbits.reset();
-  
+      
       has_bx0 = true;
       
       break;
@@ -227,35 +239,63 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   infoSize = m_serializedInfoLine2.size();
+  
   std::sort( m_serializedInfoLine2.begin(), m_serializedInfoLine2.end(), sortByBx() );
   
-  for(int k = 0; k < infoSize; k+=m_maxTtuBoards) {
-  
-    bx = m_serializedInfoLine2[k]->m_bx;
-
-    if ( bx == 0 ) {
-
-      m_triggerbits.set(0, m_serializedInfoLine2[k]->m_trigWheel1);
-      m_triggerbits.set(1, m_serializedInfoLine2[k]->m_trigWheel2);
-      
-      m_triggerbits.set(2, m_serializedInfoLine2[k+1]->m_trigWheel1);
-      
-      m_triggerbits.set(3, m_serializedInfoLine2[k+2]->m_trigWheel1);
-      m_triggerbits.set(4, m_serializedInfoLine2[k+2]->m_trigWheel2);
-      
-      bool five_wheels_OR = m_triggerbits.any();
-      
-      ttVec.at(1)=L1GtTechnicalTrigger(m_ttNames.at(1), m_ttBits.at(1), bx, five_wheels_OR ) ; // bit 25 = Or 5 wheels in RBC mode
-      
-      m_triggerbits.reset();
-      
-      break;
-      
-    } else continue;
-         
-    
+  for( ttuItr = m_serializedInfoLine2.begin(); ttuItr != m_serializedInfoLine2.end(); ++ttuItr ) {
+    if ( m_verbosity && abs ( (*ttuItr)->m_bx ) <= 1 )
+      std::cout << "RPCTechnicalTrigger> " 
+                << (*ttuItr)->m_ttuidx << '\t'
+                << (*ttuItr)->m_bx << '\t'
+                << (*ttuItr)->m_trigWheel1 << '\t'
+                << (*ttuItr)->m_trigWheel2 << '\t'
+                << (*ttuItr)->m_wedge << '\n';
   }
   
+  infoSize = convertToMap( m_serializedInfoLine2 );
+  
+  std::bitset<8> triggerCoincidence;
+  triggerCoincidence.reset();
+  
+  // searchCoincidence( W-2 , W0 )
+  bool result = searchCoincidence( -2, 0 );
+  triggerCoincidence.set(0, result );
+  
+  // searchCoincidence( W-2 , W+1 )
+  result = searchCoincidence( -2, 1 );
+  triggerCoincidence.set(1, result );
+  
+  // searchCoincidence( W-1 , W0  )
+  result = searchCoincidence( -1, 0 );
+  triggerCoincidence.set(2, result );
+  
+  // searchCoincidence( W-1 , W+1 )
+  result = searchCoincidence( -1, 1 );
+  triggerCoincidence.set(3, result );
+  
+  // searchCoincidence( W-1 , W+2 )
+  result = searchCoincidence( -1, 2 );
+  triggerCoincidence.set(4, result );
+  
+  // searchCoincidence( W0  , W0  )
+  result = searchCoincidence( 0 , 0 );
+  triggerCoincidence.set(5, result );
+  
+  // searchCoincidence( W+1 , W0  )
+  result = searchCoincidence( 1, 0 );
+  triggerCoincidence.set(6, result );
+  
+  // searchCoincidence( W+2 , W0  ) 
+  result = searchCoincidence( 2, 0 );
+  triggerCoincidence.set(7, result );
+  
+  bool five_wheels_OR = triggerCoincidence.any();
+
+  if ( m_verbosity ) std::cout << "RPCTechnicalTrigger> pointing trigger: " << five_wheels_OR << '\n';
+  
+  ttVec.at(1)=L1GtTechnicalTrigger(m_ttNames.at(1), m_ttBits.at(1), bx, five_wheels_OR ) ; // bit 25 = Or 5 wheels in RBC mode
+  
+  triggerCoincidence.reset();
   
   //...check that data appeared at bx=0
   
@@ -294,6 +334,7 @@ bool RPCTechnicalTrigger::Reset()
   
   m_serializedInfoLine1.clear();
   m_serializedInfoLine2.clear();
+  m_ttuResultsByQuadrant.clear();
   
   delete m_signal; 
   
@@ -368,8 +409,114 @@ void RPCTechnicalTrigger::beginRun(edm::Run& iRun, const edm::EventSetup& evtSet
     }
   
   }
-  
     
+}
+
+//
+int RPCTechnicalTrigger::convertToMap( const std::vector<TTUResults*> & ttuResults )
+{
+  
+  std::vector<TTUResults*>::const_iterator itr = ttuResults.begin();
+  
+  while ( itr != ttuResults.end() ) {
+    
+    if ( (*itr)->m_bx != 0 ) {
+      ++itr;
+      continue;
+    }
+    
+    int key(0);
+    key = 1000 * ( (*itr)->m_ttuidx + 1 ) + 1*(*itr)->m_wedge;
+    m_ttuResultsByQuadrant[ key ] = (*itr);
+    ++itr;
+    
+  }
+  
+  return m_ttuResultsByQuadrant.size();
+    
+}
+
+//...RBC pointing logic to tracker bit 25: hardwired
+bool RPCTechnicalTrigger::searchCoincidence( int wheel1, int wheel2 )
+{
+  
+  std::map<int, TTUResults*>::iterator itr;
+  bool topRight(false);
+  bool topLeft(false);
+  bool botLeft(false);
+  bool botRight(false);
+  
+  int indxW1 = m_WheelTtu[wheel1];
+  int indxW2 = m_WheelTtu[wheel2];
+
+  int key(0);
+  key = 1000 * ( indxW1 ) + 1;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Top Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topRight = (*itr).second->getTriggerForWheel(wheel1);
+  
+  key = 1000 * ( indxW1 ) + 2;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Top Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topLeft  =  (*itr).second->getTriggerForWheel(wheel1);
+  
+  key = 1000 * ( indxW2 ) + 3;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botLeft   = (*itr).second->getTriggerForWheel(wheel2);
+  
+  key = 1000 * ( indxW2 ) + 4;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botRight   = (*itr).second->getTriggerForWheel(wheel2);
+  
+  //....
+  
+  bool resultOne     = ( topRight && botLeft ) || ( topLeft && botRight );
+     
+  //...........................................
+  
+  key = 1000 * ( indxW2 ) + 1;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Top Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topRight = (*itr).second->getTriggerForWheel(wheel2);
+  
+  key = 1000 * ( indxW2 ) + 2;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Top Wheel B:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    topLeft  =  (*itr).second->getTriggerForWheel(wheel2);
+  
+  key = 1000 * ( indxW1 ) + 3;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botLeft   = (*itr).second->getTriggerForWheel(wheel1);
+  
+  key = 1000 * ( indxW1 ) + 4;
+  itr = m_ttuResultsByQuadrant.find( key );
+  
+  //Bottom Wheel A:
+  if ( itr != m_ttuResultsByQuadrant.end() )
+    botRight   = (*itr).second->getTriggerForWheel(wheel1);
+  
+  bool resultTwo     = ( topRight && botLeft ) || ( topLeft && botRight );
+  
+  bool finalTrigger  = resultOne || resultTwo;
+  
+  return finalTrigger;
   
 }
 
