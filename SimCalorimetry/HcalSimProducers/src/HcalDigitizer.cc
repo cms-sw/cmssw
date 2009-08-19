@@ -200,7 +200,7 @@ void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
 void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
-  theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
+  theZDCDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
