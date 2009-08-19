@@ -23,7 +23,7 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     # n neighbours in ECAL 
     nNeighbours = cms.int32(8),
     # sigma of the shower in ECAL 
-    showerSigma = cms.double(5.0),
+    showerSigma = cms.double(1.5),
     # n crystals for position calculation in ECAL
     posCalcNCrystal = cms.int32(9),
     # use cells with common corner to build topo-clusters

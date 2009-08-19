@@ -406,6 +406,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   // several rechits may be seeds. initialize PFClusters on these seeds. 
   
   vector<reco::PFCluster> curpfclusters;
+  vector<reco::PFCluster> curpfclusterswodepthcor;
   vector< unsigned > seedsintopocluster;
 
 
@@ -416,6 +417,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
     if( seedStates_[rhi] == YES ) {
 
       reco::PFCluster cluster;
+      reco::PFCluster clusterwodepthcor;
 
       double fraction = 1.0; 
       
@@ -426,12 +428,14 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 
     // cluster.addRecHit( rhi, fraction );
       
-      calculateClusterPosition( cluster, 
+      calculateClusterPosition( cluster,
+                                clusterwodepthcor, 
 			        true );    
 
 
 //       cout<<"PFClusterAlgo: 2"<<endl;
       curpfclusters.push_back( cluster );
+      curpfclusterswodepthcor.push_back( clusterwodepthcor );
 #ifdef PFLOW_DEBUG
       if(debug_) {
 	cout << "PFClusterAlgo::buildPFClusters: seed "
@@ -520,8 +524,11 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	bool seedexclusion=true;
 
 	// convert cluster coordinates to xyz
-	math::XYZVector cposxyzclust( tmp[ic].X(), tmp[ic].Y(), tmp[ic].Z() );
-	
+	//math::XYZVector cposxyzclust( tmp[ic].X(), tmp[ic].Y(), tmp[ic].Z() );
+        // cluster position used to compute distance with cell
+	math::XYZVector cposxyzclust;
+        cposxyzclust = curpfclusterswodepthcor[ic].position();
+
 #ifdef PFLOW_DEBUG
 	if(debug_) {
 	  
@@ -546,10 +553,8 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	// in this case, distance is calculated in the xy plane
 	// could also be a large supercluster... 
 #ifdef PFLOW_DEBUG
-	if( d > 6. && debug_ ) { 
-	  for( unsigned jrh=0; jrh<topocluster.size(); jrh++ ) {
-	    paint(jrh, SPECIAL);
-	  }
+	if( d > 10. && debug_ ) { 
+          paint(rhindex, SPECIAL);
 	  cout<<"PFClusterAlgo Warning: distance too large"<<d<<endl;
 	}
 #endif
@@ -628,7 +633,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	// (about 1% of the clusters) need to be studied, as 
 	// they create fake photons, in general.
 	// (PJ, 16/09/08) 
-      	if ( dist[ic] < 6. || frac[ic] > 0.99999 ) { 
+      	if ( dist[ic] < 10. || frac[ic] > 0.99999 ) { 
 	  // if ( dist[ic] > 6. ) cout << "Warning : PCluster is getting very far from its seeding cell" << endl;
 	  reco::PFRecHitRef  recHitRef = createRecHitRef( rechits, rhindex ); 
 	  reco::PFRecHitFraction rhf( recHitRef,frac[ic] );
@@ -645,7 +650,8 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
     // the distance with the previous iteration
     diff = 0.;
     for (  unsigned ic=0; ic<tmp.size(); ++ic ) {
-      calculateClusterPosition(curpfclusters[ic], true, posCalcNCrystal);
+      calculateClusterPosition( curpfclusters[ic], curpfclusterswodepthcor[ic], 
+                                true, posCalcNCrystal );
 #ifdef PFLOW_DEBUG
       if(debug_) cout<<"new iter "<<ic<<endl;
       if(debug_) cout<<curpfclusters[ic]<<endl;
@@ -670,7 +676,8 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   // There we go
   // add all clusters to the list of pfClusters.
   for(unsigned ic=0; ic<curpfclusters.size(); ic++) {
-    calculateClusterPosition(curpfclusters[ic], true, posCalcNCrystal);
+    calculateClusterPosition(curpfclusters[ic], curpfclusterswodepthcor[ic], 
+                             true, posCalcNCrystal);
     pfClusters_->push_back(curpfclusters[ic]); 
   }
 }
@@ -679,6 +686,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 
 void 
 PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
+                                        reco::PFCluster& clusterwodepthcor,
 					bool depcor, 
 					int posCalcNCrystal) {
 
@@ -875,6 +883,8 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
 
   cluster.posrep_ = clusterpos;
   cluster.position_ = clusterposxyz;
+
+  clusterwodepthcor = cluster;
 
 
   // correction of the rechit position, 
