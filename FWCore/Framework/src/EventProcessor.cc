@@ -905,6 +905,7 @@ namespace edm {
       int run = readAndCacheRun();
       
       RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+      std::cout <<" prefetching for run "<<runPrincipal.run()<<std::endl;
       IOVSyncValue ts(EventID(runPrincipal.run(), 0),
                       0,
                       runPrincipal.beginTime());
@@ -919,16 +920,23 @@ namespace edm {
           ++itKey) {
         eventsetup::EventSetupRecord const* recordPtr = es.find(*itKey);
         if(0 != recordPtr) {
+          dataKeys.clear();
           recordPtr->fillRegisteredDataKeys(dataKeys);
           for(std::vector<eventsetup::DataKey>::const_iterator itDataKey = dataKeys.begin(), itDataKeyEnd = dataKeys.end();
               itDataKey != itDataKeyEnd;
               ++itDataKey) {
-            recordPtr->doGet(*itDataKey);
+            //std::cout <<"  "<<itDataKey->type().name()<<" "<<itDataKey->name().value()<<std::endl;
+            try {
+              recordPtr->doGet(*itDataKey);
+            } catch(cms::Exception& e) {
+             edm::LogWarning("EventSetupPreFetching")<<e.what();
+            }
           }
         }
       }
     }
-    
+    std::cout <<"  done prefetching"<<std::endl;
+
     //Now actually do the forking
     actReg_->preForkReleaseResourcesSignal_();
     input_->doPreForkReleaseResources();
@@ -953,10 +961,13 @@ namespace edm {
     }
 
     if(childIndex < kMaxChildren) {
+      //make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
       actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
       input_->doPostForkReacquireResources(childIndex, kMaxChildren, numberOfSequentialEventsPerChild_);
       schedule_->postForkReacquireResources(childIndex, kMaxChildren);
-      rewindInput();
+      //NOTE: sources have to reset themselves by listening to the post fork message
+      //rewindInput();
       return true;
     }
     
