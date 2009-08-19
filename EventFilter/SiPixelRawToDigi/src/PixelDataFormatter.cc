@@ -22,17 +22,25 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-const int PixelDataFormatter::LINK_bits = 6;
-const int PixelDataFormatter::ROC_bits  = 5;
-const int PixelDataFormatter::DCOL_bits = 5;
-const int PixelDataFormatter::PXID_bits = 8;
-const int PixelDataFormatter::ADC_bits  = 8;
+const int LINK_bits = 6;
+const int ROC_bits  = 5;
+const int DCOL_bits = 5;
+const int PXID_bits = 8;
+const int ADC_bits  = 8;
 
-const int PixelDataFormatter::ADC_shift  = 0;
-const int PixelDataFormatter::PXID_shift = ADC_shift + ADC_bits;
-const int PixelDataFormatter::DCOL_shift = PXID_shift + PXID_bits;
-const int PixelDataFormatter::ROC_shift  = DCOL_shift + DCOL_bits;
-const int PixelDataFormatter::LINK_shift = ROC_shift + ROC_bits;
+const int ADC_shift  = 0;
+const int PXID_shift = ADC_shift + ADC_bits;
+const int DCOL_shift = PXID_shift + PXID_bits;
+const int ROC_shift  = DCOL_shift + DCOL_bits;
+const int LINK_shift = ROC_shift + ROC_bits;
+
+const PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
+const PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
+const PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
+const PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
+const PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
+
+const PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
 
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
@@ -50,19 +58,19 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
           <<", send exception" ;
   }
   includeErrors = false;
-  checkOrder = false;
+  allDetDigis = 0;
+  hasDetDigis = 0;
 }
 
-void PixelDataFormatter::setErrorStatus(bool ErrorStatus, bool OrderStatus)
+void PixelDataFormatter::setErrorStatus(bool ErrorStatus)
 {
   includeErrors = ErrorStatus;
-  checkOrder = OrderStatus;
   errorcheck.setErrorStatus(includeErrors);
 }
 
 void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
 {
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  debug = edm::MessageDrop::instance()->debugEnabled;
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
 
@@ -99,7 +107,6 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
     if (debug) LogTrace("")<<"data words: "<< (trailer-header-1);
     for (const Word64* word = header+1; word != trailer; word++) {
       if (debug) LogTrace("")<<"DATA:    " <<  print(*word);
-      static const Word64 WORD32_mask  = 0xffffffff;
       Word32 w1 =  *word       & WORD32_mask;
       Word32 w2 =  *word >> 32 & WORD32_mask;
       if (w1==0) theWordCounter--;
@@ -112,7 +119,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
         if (status1) {
 	    LogDebug("PixelDataFormatter::interpretRawData") 
                     << "status #" <<status1<<" returned for word1";
-          errorsInEvent = true;
+            errorsInEvent = true;
 	    errorcheck.conversionError(fedId, converter, status1, w1, errors);
         }
       }
@@ -122,7 +129,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
         if (status2) {
 	    LogDebug("PixelDataFormatter::interpretRawData") 
                     << "status #" <<status2<<" returned for word2";
-          errorsInEvent = true;
+            errorsInEvent = true;
 	    errorcheck.conversionError(fedId, converter, status2, w2, errors);
         }
       }
@@ -136,8 +143,6 @@ FEDRawData * PixelDataFormatter::formatData(unsigned int lvl1_ID, int fedId, con
 {
   vector<Word32> words;
 
-  static int allDetDigis = 0;
-  static int hasDetDigis = 0;
   SiPixelFrameConverter converter(theCablingTree, fedId);
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
     allDetDigis++;
@@ -238,12 +243,6 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   // do not interpret false digis
   if (word == 0 ) return 0;
 
-  static const Word32 LINK_mask = ~(~Word32(0) << LINK_bits);
-  static const Word32 ROC_mask  = ~(~Word32(0) << ROC_bits);
-  static const Word32 DCOL_mask = ~(~Word32(0) << DCOL_bits);
-  static const Word32 PXID_mask = ~(~Word32(0) << PXID_bits);
-  static const Word32 ADC_mask  = ~(~Word32(0) << ADC_bits);
-
   ElectronicIndex cabling;
   cabling.dcol = (word >> DCOL_shift) & DCOL_mask;
   cabling.pxid = (word >> PXID_shift) & PXID_mask;
@@ -251,23 +250,6 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   cabling.roc  = (word >> ROC_shift) & ROC_mask;
   int adc   = (word >> ADC_shift) & ADC_mask;
 
-  static ElectronicIndex lastcabl;
-  static bool lastcablexists = false;
-
-
-// check to make sure row and dcol values are in order (lowest to highest)
-  if (checkOrder && lastcablexists && (lastcabl.roc == cabling.roc) ) {
-    if ((cabling.dcol < lastcabl.dcol) || (cabling.dcol==lastcabl.dcol && cabling.pxid < lastcabl.pxid)) {
-      LogError("PixelDataFormatter::raw2digi exception") 
-              <<" pixel not in correct order (pxid low to high, dcol low to high)"
-              <<" link: "<<cabling.link<<", ROC: "<<cabling.roc<<", dcol: "
-              <<cabling.dcol<<", pxid: "<<cabling.pxid;
-      return 4;
-    }
-  }
-
-    
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) {
     LocalPixel::DcolPxid pixel = {cabling.dcol,cabling.pxid};
     LocalPixel local(pixel);
@@ -284,12 +266,9 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
 
   PixelDigi pd(detIdx.row, detIdx.col, adc);
   digis[detIdx.rawId].push_back(pd);
-  
+
   theDigiCounter++;
-  if (checkOrder) {
-    lastcabl = cabling;
-    lastcablexists = true;
-  }
+
   if (debug)  LogTrace("") << print(pd);
   return 0;
 }

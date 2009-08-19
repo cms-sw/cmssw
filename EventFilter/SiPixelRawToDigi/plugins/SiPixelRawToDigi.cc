@@ -2,7 +2,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,7 +16,6 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
@@ -37,8 +35,11 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 {
 
   includeErrors = config_.getParameter<bool>("IncludeErrors");
-  checkOrder = config_.getParameter<bool>("CheckPixelOrder");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
+
+  //start counters
+  ndigis = 0;
+  nwords = 0;
 
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
@@ -77,11 +78,10 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
 void SiPixelRawToDigi::produce( edm::Event& ev,
                               const edm::EventSetup& es) 
 {
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
-  static std::vector<unsigned int> fedList;
+  const uint32_t dummydetid = 0xffffffff;
+  debug = edm::MessageDrop::instance()->debugEnabled;
 
 // initialize cabling map or update if necessary
-  static edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   if (recordWatcher.check( es )) {
     edm::ESHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
@@ -93,18 +93,15 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  static edm::InputTag label = config_.getParameter<edm::InputTag>("InputLabel");
+  label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByLabel( label, buffers);
 
 // create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
-  static int ndigis = 0;
-  static int nwords = 0;
-  static uint32_t dummydetid = 0xffffffff;
 
   PixelDataFormatter formatter(cabling_);
-  formatter.setErrorStatus(includeErrors, checkOrder);
+  formatter.setErrorStatus(includeErrors);
 
   if (theTimer) theTimer->start();
   bool errorsInEvent = false;

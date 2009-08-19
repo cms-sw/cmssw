@@ -17,22 +17,32 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-const int ErrorChecker::LINK_bits = 6;
-const int ErrorChecker::ROC_bits  = 5;
-const int ErrorChecker::DCOL_bits = 5;
-const int ErrorChecker::PXID_bits = 8;
-const int ErrorChecker::ADC_bits  = 8;
+const int CRC_bits = 1;
+const int LINK_bits = 6;
+const int ROC_bits  = 5;
+const int DCOL_bits = 5;
+const int PXID_bits = 8;
+const int ADC_bits  = 8;
 
-const int ErrorChecker::ADC_shift  = 0;
-const int ErrorChecker::PXID_shift = ADC_shift + ADC_bits;
-const int ErrorChecker::DCOL_shift = PXID_shift + PXID_bits;
-const int ErrorChecker::ROC_shift  = DCOL_shift + DCOL_bits;
-const int ErrorChecker::LINK_shift = ROC_shift + ROC_bits;
+const int CRC_shift = 2;
+const int ADC_shift  = 0;
+const int PXID_shift = ADC_shift + ADC_bits;
+const int DCOL_shift = PXID_shift + PXID_bits;
+const int ROC_shift  = DCOL_shift + DCOL_bits;
+const int LINK_shift = ROC_shift + ROC_bits;
 
-const uint32_t ErrorChecker::dummyDetId = 0xffffffff;
+const uint32_t dummyDetId = 0xffffffff;
+
+const ErrorChecker::Word64 CRC_mask = ~(~ErrorChecker::Word64(0) << CRC_bits);
+const ErrorChecker::Word32 ERROR_mask = ~(~ErrorChecker::Word32(0) << ROC_bits);
+const ErrorChecker::Word32 LINK_mask = ~(~ErrorChecker::Word32(0) << LINK_bits);
+const ErrorChecker::Word32 ROC_mask  = ~(~ErrorChecker::Word32(0) << ROC_bits);
+const ErrorChecker::Word32 DCOL_mask = ~(~ErrorChecker::Word32(0) << DCOL_bits);
+const ErrorChecker::Word32 PXID_mask = ~(~ErrorChecker::Word32(0) << PXID_bits);
 
 
 ErrorChecker::ErrorChecker() {
+
   includeErrors = false;
 }
 
@@ -43,9 +53,6 @@ void ErrorChecker::setErrorStatus(bool ErrorStatus)
 
 bool ErrorChecker::checkCRC(bool& errorsInEvent, int fedId, const Word64* trailer, Errors& errors)
 {
-  int CRC_bits = 1;
-  int CRC_shift = 2;
-  Word64 CRC_mask = ~(~Word64(0) << CRC_bits);
   int CRC_BIT = (*trailer >> CRC_shift) & CRC_mask;
   if (CRC_BIT == 0) return true;
   errorsInEvent = true;
@@ -103,7 +110,6 @@ bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, cons
 
 bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, Word32& errorWord, Errors& errors)
 {
- static const Word32 ERROR_mask = ~(~Word32(0) << ROC_bits); 
  int errorType = (errorWord >> ROC_shift) & ERROR_mask;
 
  switch (errorType) {
@@ -206,11 +212,6 @@ uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
   if (!converter) return dummyDetId;
 
   ElectronicIndex cabling;
-
-  static const Word32 LINK_mask = ~(~Word32(0) << LINK_bits);
-  static const Word32 ROC_mask  = ~(~Word32(0) << ROC_bits);
-  static const Word32 DCOL_mask = ~(~Word32(0) << DCOL_bits);
-  static const Word32 PXID_mask = ~(~Word32(0) << PXID_bits);
 
   switch (errorType) {
     case  30 : case  31: case  36: {

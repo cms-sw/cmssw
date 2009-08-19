@@ -6,10 +6,12 @@
  *  for pixel subdetector
  */
 
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 class SiPixelFedCabling;
 class TH1D;
@@ -40,6 +42,12 @@ private:
   TH1D *hCPU, *hDigi;
   R2DTimerObserver * theTimer;
   bool includeErrors;
-  bool checkOrder;
+  bool debug;
+  std::vector<unsigned int> fedList;
+  edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  edm::InputTag label;
+  int ndigis;
+  int nwords;
+
 };
 #endif
