@@ -84,7 +84,7 @@ class PFClusterAlgo {
   void setShowerSigma( double sigma ) { showerSigma_ = sigma;}
 
   /// activate use of cells with a common corner to build topo-clusters
-  void setUseCornerCells( double usecornercells ) { useCornerCells_ = usecornercells;}
+  void setUseCornerCells( bool usecornercells ) { useCornerCells_ = usecornercells;}
 
   /// set rechit mask
   void setMask( const std::vector<bool>& mask );
@@ -191,6 +191,7 @@ class PFClusterAlgo {
 
   /// calculate position of a cluster
   void calculateClusterPosition( reco::PFCluster& cluster, 
+                                 reco::PFCluster& clusterwodepthcor,
 				 bool depcor = true,
 				 int posCalcNCrystal=0);
   
