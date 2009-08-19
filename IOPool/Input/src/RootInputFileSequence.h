@@ -60,6 +60,7 @@ namespace edm {
     bool skipEvents(int offset);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact, bool record);
     void rewind_();
+    void reset();
     void readMany_(int number, EventPrincipalVector& result);
     void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);

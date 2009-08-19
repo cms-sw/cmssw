@@ -68,8 +68,8 @@ namespace edm {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
     duplicateChecker_(),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
-
+    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary()))
+  {
     if(!primarySequence_) noEventSort_ = false;
     if(!whichLumisToProcess_.empty() && !whichEventsToProcess_.empty()) {
       throw edm::Exception(errors::Configuration)
@@ -372,6 +372,35 @@ namespace edm {
     skippedToEntry_ = FileIndex::Element::invalidEntry;
   }
 
+  void
+  RootInputFileSequence::reset() {
+    //NOTE: Need to handle duplicate checker
+    // Also what if skipBadFiles_==true and the first time we succeeded but after a reset we fail?
+    if(primary()) {
+      firstFile_=true;
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
+        initFile(skipBadFiles_);
+        if(rootFile_) break;
+      }
+      if(rootFile_) {
+        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
+        if(forcedRunOffset_ < 0) {
+          throw edm::Exception(errors::Configuration)
+          << "The value of the 'setRunNumber' parameter must not be\n"
+          << "less than the first run number in the first input file.\n"
+          << "'setRunNumber' was " << setRun_ <<", while the first run was "
+          << setRun_ - forcedRunOffset_ << ".\n";
+        }
+	if(primarySequence_) {
+          BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+	  if(skipEvents_ != 0) {
+	    skipEvents(skipEvents_);
+	  }
+	}
+      }
+    }    
+  }
+  
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
   RootInputFileSequence::skipEvents(int offset) {
