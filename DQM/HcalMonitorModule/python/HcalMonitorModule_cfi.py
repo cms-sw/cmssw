@@ -25,7 +25,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HcalAnalysis = cms.untracked.bool(False),
                            BadCells = cms.untracked.vstring(),
                            checkNevents = cms.untracked.int32(1000),
-
+                           subSystemFolder = cms.untracked.string("Hcal"),
+                           
                            FEDRawDataCollection = cms.untracked.InputTag("source"),
                            
                            #minimum Error Rate that will cause problem histograms to be filled.  Should normally be 0, or close to it?
@@ -77,9 +78,10 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_makeDiagnosticPlots          = cms.untracked.bool(False),
                            DeadCellMonitor_test_neverpresent            = cms.untracked.bool(True),
                            DeadCellMonitor_test_occupancy               = cms.untracked.bool(True),
-                           DeadCellMonitor_test_energy                  = cms.untracked.bool(True),
+                           # This doesn't seem to do much yet
+                           DeadCellMonitor_test_energy                  = cms.untracked.bool(False),
                            DeadCellMonitor_checkNevents                 = cms.untracked.int32(10000),
-                           DeadCellMonitor_neverpresent_prescale        = cms.untracked.int32(10),
+                           DeadCellMonitor_prescale                     = cms.untracked.int32(10),
                            # Checking for cells consistently below energy threshold
                            DeadCellMonitor_energyThreshold              = cms.untracked.double(-1.),
                            DeadCellMonitor_HB_energyThreshold           = cms.untracked.double(-1.),

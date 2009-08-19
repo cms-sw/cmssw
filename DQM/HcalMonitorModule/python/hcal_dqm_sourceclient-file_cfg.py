@@ -25,21 +25,8 @@ process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring
                             (
-    #'file:/tmp/temple/225B560C-BD4B-DE11-93C9-001D09F24448.root',
-    ##'/store/data/Commissioning09/Test/RAW/v1/000/097/742/225B560C-BD4B-DE11-93C9-001D09F24448.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/2ADB500C-BD4B-DE11-B3F9-001D09F23A61.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/3C16835B-BC4B-DE11-A17B-001D09F2B30B.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/4479FF5A-BC4B-DE11-A7CC-001D09F23174.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/60D38909-BD4B-DE11-B67E-001D09F24664.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/7EACF65A-BC4B-DE11-96AE-001D09F2906A.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/9A3435B8-BD4B-DE11-BFF0-001D09F251B8.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/9EE8FA0D-BD4B-DE11-B493-001D09F2543D.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/B2315105-BD4B-DE11-BE48-001D09F29849.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/C4BA5958-BC4B-DE11-9BF7-0019B9F6C674.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/E2515C5A-BC4B-DE11-ACE7-001D09F2432B.root',
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/E2BA0BB4-BD4B-DE11-8935-001D09F24691.root',
-    '/store/data/Commissioning09/TestEnables/RAW/v3/000/108/478/28FD7000-8978-DE11-8475-000423D98BC4.root'
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/2ADB500C-BD4B-DE11-B3F9-001D09F23A61.root',
+    # CRAFT 09 ZS run
+    '/store/data/CRAFT09/Calo/RAW/v1/000/110/972/FEA7E7DF-E788-DE11-8BAB-001617E30CC8.root',
     # cosmics run with known hot cell in HF
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
@@ -104,11 +91,8 @@ process.dqmSaver.saveByRun = 1
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
 
-#process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
-
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_31X_V6P::All" # should be V2p
-#process.GlobalTag.globaltag = "CRAFT0831X_V1::All" # crashes code?
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
@@ -197,8 +181,8 @@ process.hcalMonitor.HcalAnalysis        = False
 setHcalTaskValues(process.hcalMonitor)
 
 # values are normally 10000, 10
-process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
-process.hcalMonitor.DeadCellMonitor_neverpresent_prescale=1
+#process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
+process.hcalMonitor.subSystemFolder = 'Hcal'
 
 # Set individual Task values here (otherwise they will remain set to the values specified for the hcalMonitor.)
 
@@ -226,6 +210,12 @@ process.options = cms.untracked.PSet(
         'TooManyProducts', 
         'TooFewProducts')
 )
+
+# Allow even bad-quality digis
+process.hcalDigis.FilterDataQuality=False
+# Set expected orbit time to 6
+process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(6)
+
 process.p = cms.Path(process.hcalDigis
                      *process.horeco
                      *process.hfreco

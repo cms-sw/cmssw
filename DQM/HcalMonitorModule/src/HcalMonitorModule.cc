@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/13 13:52:12 $
- * $Revision: 1.124 $
+ * $Date: 2009/08/14 09:42:28 $
+ * $Revision: 1.125 $
  * \author W Fisher
  * \author J Temple
  *
@@ -506,12 +506,22 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if (debug_>0)  
     std::cout <<"HcalMonitorModule::endRun(...) ievt = "<<ievt_<<endl;
 
+  // We should probably call functions here to make a final fill of histograms at the end of a run.
+  // This will ensure that all appropriate histograms get filled at least once.
+  
+
   // Do final pedestal histogram filling
   if (pedMon_!=NULL)
     pedMon_->fillPedestalHistos();
 
   if (deadMon_!=NULL)
     deadMon_->fillDeadHistosAtEndRun();
+
+  // Digi monitor doesn't require any persistent issues (dead for N events, etc)
+  // to mark bad channels; we can simply call the 'fill_Nevents' method at the end of the run.
+  if (digiMon_!=NULL) // try to fill at end of run
+    digiMon_->fill_Nevents();
+
   /////////////////////////////////////////////////////
   if(detDiagLas_!=NULL) detDiagLas_->fillHistos();
   /////////////////////////////////////////////////////
@@ -537,7 +547,7 @@ void HcalMonitorModule::endJob(void) {
   if(ledMon_!=NULL) ledMon_->done();
   if(laserMon_!=NULL) laserMon_->done();
   if(hotMon_!=NULL) hotMon_->done(myquality_);
-  if(deadMon_!=NULL) deadMon_->done(myquality_);
+  if(deadMon_!=NULL) deadMon_->done();
   if(mtccMon_!=NULL) mtccMon_->done();
   if (tpMon_!=NULL) tpMon_->done();
   if (ctMon_!=NULL) ctMon_->done();
@@ -986,8 +996,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
     {
       if (lumiswitch) digiMon_->LumiBlockUpdate(ilumisec_);
-      digiMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_, ZDCpresent_);
-      digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi, *zdc_digi,
+      digiMon_->setSubDetectors(HBpresent_, HEpresent_, HOpresent_, HFpresent_ );
+      digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
+			     //*zdc_digi,
 			     *conditions_,*report);
     }
   if (showTiming_)
