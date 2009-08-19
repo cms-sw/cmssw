@@ -1,9 +1,8 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 
-HPDNoiseGenerator::HPDNoiseGenerator(const edm::ParameterSet & pset, const HcalSimParameterMap * parameterMap)
-: theLibraryReader(pset),
-  theParameterMap(parameterMap)
+HPDNoiseGenerator::HPDNoiseGenerator(const edm::ParameterSet & pset)
+: HcalBaseSignalGenerator(),
+  theLibraryReader(pset)
 {
 }
 
@@ -24,11 +23,5 @@ void HPDNoiseGenerator::fillNoiseSignals()
     fC2pe(newSamples);
     theNoiseSignals.push_back(newSamples);
   }
-}
-
-void HPDNoiseGenerator::fC2pe(CaloSamples & samples) const
-{
-  float factor = 1./theParameterMap->simParameters(samples.id()).photoelectronsToAnalog();
-  samples *= factor;
 }
 
