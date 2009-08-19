@@ -280,10 +280,11 @@ std::vector<SiStripNoises::ratioData> SiStripNoises::operator / ( SiStripNoises 
     Range d_range=d.getRange(iter->detid);
     Range range=Range(v_noises.begin()+iter->ibegin,v_noises.begin()+iter->iend);
 
+    //if denominator is missing, put the ratio value to 0xFFFF (=inf)
     size_t strip=0, stripE= (range.second-range.first)*8/9;
     for (;strip<stripE;++strip){       
       if(d_range.first==d_range.second){
-	value=50.;
+	value=0xFFFF;
       }else{
 	value=getNoise(strip,range)/d.getNoise(strip,d_range);
       }
