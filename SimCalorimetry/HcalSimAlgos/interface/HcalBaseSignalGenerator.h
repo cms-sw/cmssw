@@ -20,7 +20,6 @@ protected:
   {
     assert(theParameterMap != 0);
     float factor = 1./theParameterMap->simParameters(samples.id()).photoelectronsToAnalog(samples.id());
-    std::cout << "fC2PEPU " << factor << std::endl;
     samples *= factor;
   }
 
