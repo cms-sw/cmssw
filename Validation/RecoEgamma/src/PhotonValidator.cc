@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/30 20:02:47 $ 
- **  $Revision: 1.48 $
+ **  $Date: 2009/08/04 18:14:23 $ 
+ **  $Revision: 1.49 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -113,7 +113,7 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
    
     minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");   
     convTrackMinPtCut_ = pset.getParameter<double>("convTrackMinPtCut");   
-
+    likelihoodCut_ = pset.getParameter<double>("likelihoodCut");
 
     trkIsolExtRadius_ = pset.getParameter<double>("trkIsolExtR");   
     trkIsolInnRadius_ = pset.getParameter<double>("trkIsolInnR");   
@@ -1897,8 +1897,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 	reco::ConversionRef aConv=conversions[iConv];
 	double like = theLikelihoodCalc_->calculateLikelihood(aConv);      
-        if ( like < 0.5 ) continue;
-      
+  	if ( like < likelihoodCut_ ) continue;      
+
 	h2_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 	p_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
       
@@ -2362,7 +2362,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
       reco::ConversionRef aConv=conversions[iConv];
       double like = theLikelihoodCalc_->calculateLikelihood(aConv);      
-      if ( like < 0.5 ) continue;
+      if ( like < likelihoodCut_ ) continue;      
       std::vector<reco::TrackRef> tracks = aConv->tracks();
       
       if (tracks.size() < 2 ) continue;

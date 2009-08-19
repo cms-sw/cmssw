@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/07/29 19:49:49 $ 
- **  $Revision: 1.25 $
+ **  $Date: 2009/08/04 18:15:18 $ 
+ **  $Revision: 1.26 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -111,6 +111,7 @@ class PhotonValidator : public edm::EDAnalyzer
 
   double minPhoEtCut_;
   double convTrackMinPtCut_;
+  double likelihoodCut_;
   double trkIsolExtRadius_;
   double trkIsolInnRadius_;
   double trkPtLow_;
