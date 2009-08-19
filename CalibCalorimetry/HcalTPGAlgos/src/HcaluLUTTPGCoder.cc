@@ -471,33 +471,43 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   CaloSamples samples(cell, 1);
 		float ped_ = 0;
 		float gain_ = 0;
+            bool isMasked = false;
+            uint32_t status = 0;
 
 		if (LUTGenerationMode){
 			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
-	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
+	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;
+                  
+                  //Get Channel Quality
+                  const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);
+                  status = channelStatus->getValue();
 
 			//Add HcalL1TriggerObject to its container
-			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_, status);
 			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
 		}
 		else{
 			const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
 			ped_ = myL1TObj->getPedestal();
 			gain_ = myL1TObj->getRespGain();
+                  status = myL1TObj->getFlag();
 			//debug
 			//ofdebug << cell.rawId() << '\t' << ped_ << '\t' << gain_ << '\n';
 		}
 		
 		_ped[id] = ped_;
 		_gain[id] = gain_;
+            isMasked = ( (status & bitToMask) > 0 );
+
 
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
 	     coder.adc2fC(frame,samples);
 	     float adc2fC_ = samples[0];
-	     if (ieta <0 )inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)]/divide)), 0x3FF);
+           if (isMasked) inputLUT[id][j] = 0;
+           else if (ieta <0 )inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)]/divide)), 0x3FF);
 	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+43]/divide)), 0x3FF);
 	   }
 	 }
@@ -519,33 +529,43 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   CaloSamples samples(cell, 1);
 		float ped_ = 0;
 		float gain_ = 0;
+            bool isMasked = false;
+            uint32_t status = 0;
 
 		if (LUTGenerationMode){
 			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
+                  //Get Channel Quality                               
+                  const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);                                           
+                  status = channelStatus->getValue();        
+                  
 			//Add HcalL1TriggerObject to its container
-			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_, status);
 			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
 		}
 		else{
 			const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
 			ped_ = myL1TObj->getPedestal();
 			gain_ = myL1TObj->getRespGain();
+
+                  status = myL1TObj->getFlag();       
 			//debug
 			//ofdebug << cell.rawId() << '\t' << ped_ << '\t' << gain_ << '\n';
 		}
 		
 		_ped[id] = ped_;
 		_gain[id] = gain_;
+            isMasked = ( (status & bitToMask) > 0 );
 
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
 	     coder.adc2fC(frame,samples);
 	     float adc2fC_ = samples[0];
-	     if ( ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+1]/divide)), 0x3FF);
+           if (isMasked) inputLUT[id][j] = 0;
+           else if ( ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+1]/divide)), 0x3FF);
 	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+44]/divide)), 0x3FF);
 	   }
 	 }
@@ -564,26 +584,35 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	   CaloSamples samples(cell, 1);
 		float ped_ = 0;
 		float gain_ = 0;
+            bool isMasked = false;
+            uint32_t status;
 
 		if (LUTGenerationMode){
 			HcalCalibrations calibrations = conditions.getHcalCalibrations(cell);
 	   	ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   	gain_= (calibrations.LUTrespcorrgain(0)+calibrations.LUTrespcorrgain(1)+calibrations.LUTrespcorrgain(2)+calibrations.LUTrespcorrgain(3))/4;          
 
+              //Get Channel Quality                               
+              const HcalChannelStatus* channelStatus = conditions.getHcalChannelStatus(cell);                                           
+              status = channelStatus->getValue();        
+
 			//Add HcalL1TriggerObject to its container
-			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_);
+			HcalL1TriggerObject HcalL1TrigObj(cell.rawId(), ped_, gain_, status);
 			HcalL1TrigObjCol->addValues(HcalL1TrigObj);
 		}
 		else{
 			const HcalL1TriggerObject* myL1TObj = conditions.getHcalL1TriggerObject(cell);
 			ped_ = myL1TObj->getPedestal();
 			gain_ = myL1TObj->getRespGain();
+
+                  status = myL1TObj->getFlag();       
 			//debug
 			//ofdebug << cell.rawId() << '\t' << ped_ << '\t' << gain_ << '\n';
 		}
 		
 		_ped[id] = ped_;
 		_gain[id] = gain_;
+            isMasked = ( (status & bitToMask) > 0 );
 
 				
 			int offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? 1 : 0; // Lumi offset of 1 for the four rings used to measure lumi
@@ -592,7 +621,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 				frame.setSample(0,adc);
 				coder.adc2fC(frame,samples);
 				float adc2fC_ = samples[0];
-				if (ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_ + offset)*Rcalib[abs(ieta)+2]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
+                        if (isMasked) inputLUT[id][j] = 0;
+                        else if (ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_ + offset)*Rcalib[abs(ieta)+2]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
 				else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_ + offset)*Rcalib[abs(ieta)+45]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
 			}
 		}

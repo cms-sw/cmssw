@@ -23,8 +23,8 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2009/03/28 19:12:06 $
-  * $Revision: 1.16 $
+  * $Date: 2009/06/04 12:10:33 $
+  * $Revision: 1.17 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -71,6 +71,10 @@ private:
   bool DumpL1TriggerObjects;
   std::string TagName;
   std::string AlgoName;
+
+  // Hcal Cell status word
+  // https://twiki.cern.ch/twiki/bin/view/CMS/HcalDataValidationWorkflow
+  static const int bitToMask = 0x8000;
 };
 
 #endif

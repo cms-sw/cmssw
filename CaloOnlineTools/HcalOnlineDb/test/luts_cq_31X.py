@@ -24,7 +24,7 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
         tag = cms.string('AllChannelsMasked16Jul2009v1'),
         version = cms.string('AllChannelsMasked16Jul2009v1'),
         subversion = cms.int32(1),
-        iov_begin = cms.int32(180003),
+        iov_begin = cms.int32(180001),
         accessor = cms.string('occi://CMS_HCL_APPUSER_R@anyhost/cms_omds_lb?PASSWORD=HCAL_Reader_44'),
         query = cms.string('''
         select 
@@ -53,7 +53,7 @@ process.es_omds = cms.ESSource("HcalOmdsCalibrations",
                and 
                       cq.VERSION=:2 
                AND 
-                      cq.interval_of_validity_begin<:3 
+                      cq.interval_of_validity_begin<=:3 
                group by 
                       cq.channel_map_id 
                order by 
