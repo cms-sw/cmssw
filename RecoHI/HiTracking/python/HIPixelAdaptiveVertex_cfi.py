@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-heavyIonPrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
+hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
     PVSelParameters = cms.PSet(
         maxDistanceToBeam = cms.double(0.02), ## 200 microns
 
@@ -22,7 +22,7 @@ heavyIonPrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     ),
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     # label of tracks to be used
-    TrackLabel = cms.InputTag("hiProtoTracks"),
+    TrackLabel = cms.InputTag("hiPixel3ProtoTracks"),
     useBeamConstraint = cms.bool(True),
     VtxFinderParameters = cms.PSet(
         ptCut = cms.double(0.0),
