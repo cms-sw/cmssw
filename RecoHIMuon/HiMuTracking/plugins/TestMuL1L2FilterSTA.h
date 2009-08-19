@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2FilterSTA.h,v 1.4 2009/08/15 16:59:53 kodolova Exp $
+// $Id: TestMuL1L2FilterSTA.h,v 1.5 2009/08/19 17:18:10 edwenger Exp $
 //
 //
 
@@ -35,8 +35,8 @@
 
 // HI reco
 
-#include "RecoHIMuon/HiMuTracking/interface/HICConst.h"
-#include "RecoHIMuon/HiMuTracking/interface/FmpConst.h"
+#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
+#include "RecoHIMuon/HiMuPropagator/interface/FmpConst.h"
 #include "RecoHIMuon/HiMuTracking/interface/HITrackVertexMaker.h"
 
 //
