@@ -16,7 +16,7 @@ class HcalAmplifier;
 class HcalCoderFactory;
 class HcalElectronicsSim;
 class HcalHitCorrection;
-class CaloVNoiseSignalGenerator;
+class HcalBaseSignalGenerator;
 
 class HcalDigitizer
 {
@@ -28,10 +28,10 @@ public:
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
-  void setHBHENoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
-  void setHFNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
-  void setHONoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
-  void setZDCNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator);
+  void setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
+  void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
   /// some hits in each subdetector, just for testing purposes

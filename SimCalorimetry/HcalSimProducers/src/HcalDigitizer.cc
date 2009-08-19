@@ -108,7 +108,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
     //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
-    theNoiseGenerator = new HPDNoiseGenerator(ps, theParameterMap); 
+    theNoiseGenerator = new HPDNoiseGenerator(ps); 
     theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
   }
 
@@ -176,28 +176,28 @@ HcalDigitizer::~HcalDigitizer() {
 }
 
 
-void HcalDigitizer::setHBHENoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+void HcalDigitizer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
   theHBHEDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHBHEAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigitizer::setHFNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
   theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigitizer::setHONoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
   theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
 
-void HcalDigitizer::setZDCNoiseSignalGenerator(CaloVNoiseSignalGenerator * noiseGenerator)
+void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
