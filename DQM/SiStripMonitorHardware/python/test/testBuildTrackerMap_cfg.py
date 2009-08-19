@@ -49,6 +49,12 @@ process.MessageLogger = cms.Service(
     )
 
 
+#process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
+#process.GlobalTag.globaltag = "GR09_31X_V1P::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
 process.DQMStore = cms.Service("DQMStore")
 
 #needed to produce tkHistoMap
@@ -57,9 +63,10 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.load('DQM.SiStripMonitorHardware.siStripBuildTrackerMap_cfi')
 process.siStripBuildTrackerMap.InputFileName = '/home/magnan/SOFTWARE/CMS/data/FED/CMAnalysis/69797/CM_69797.root'
+process.siStripBuildTrackerMap.MechanicalView = True
 process.siStripBuildTrackerMap.TkHistoMapNameVec = 'TkHMap_MeanCMAPV0','TkHMap_MeanCMAPV1','TkHMap_MeanCMAPV0minusAPV1','TkHMap_RmsCMAPV0','TkHMap_RmsCMAPV1','TkHMap_RmsCMAPV0minusAPV1'
 process.siStripBuildTrackerMap.HistogramFolderName = 'DQMData/'
-process.siStripBuildTrackerMap.PrintDebugMessages = 1
+process.siStripBuildTrackerMap.PrintDebugMessages = 2
 
 process.p = cms.Path( process.siStripBuildTrackerMap
                       )

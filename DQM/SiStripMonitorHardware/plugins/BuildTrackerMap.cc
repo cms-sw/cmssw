@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: BuildTrackerMap.cc,v 1.1 2009/08/12 16:13:58 amagnan Exp $
+// $Id: BuildTrackerMap.cc,v 1.2 2009/08/14 09:22:06 amagnan Exp $
 //
 
 #include <sstream>
@@ -28,10 +28,13 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "CommonTools/TrackerMap/interface/TmModule.h"
+#include "CommonTools/TrackerMap/interface/TmApvPair.h"
 
 #include "DQM/SiStripCommon/interface/TkHistoMap.h" 
 
@@ -52,7 +55,7 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  void read();
+  void read(bool aMechView);
 
 
 
@@ -60,7 +63,9 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   std::string fileName_;
   //name of the tkHistoMap to extract
   std::vector<std::string> tkHistoMapNameVec_;
-   //folder name for histograms in DQMStore
+  //do mechanical view or not
+  bool mechanicalView_;
+  //folder name for histograms in DQMStore
   std::string folderName_;
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
@@ -68,7 +73,7 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   std::vector<TkHistoMap*> tkHistoMapVec_;
 
   edm::ParameterSet pset_;
-  
+  TrackerMap * tkmap_;
 
 };
 
@@ -80,12 +85,13 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
 BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
   : fileName_(iConfig.getUntrackedParameter<std::string>("InputFileName","DQMStore.root")),
     tkHistoMapNameVec_(iConfig.getUntrackedParameter<std::vector<std::string> >("TkHistoMapNameVec")),
+    mechanicalView_(iConfig.getUntrackedParameter<bool>("MechanicalView",true)),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","DQMData/")),
-    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1))//,
-    //pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
+    printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
+    pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
 {
 
-  read();
+  read(mechanicalView_);
 
 //   for (unsigned int i(0); i<34; i++){
 //     if (i<4) histName_[i] << "TIB/layer_" << i+1 << "/" << tkDetMapName_ << "_TIB_L" << i+1;
@@ -113,14 +119,15 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 //
 
 /*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
-void BuildTrackerMapPlugin::read(){
+void BuildTrackerMapPlugin::read(bool aMechView){
 
   edm::Service<DQMStore>().operator->()->open(fileName_);  
 
   for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
 
     TkHistoMap *tkHistoMap = new TkHistoMap();
-    tkHistoMap->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),true);
+    tkHistoMap->loadTkHistoMap(folderName_,tkHistoMapNameVec_.at(i),aMechView);
+    
     tkHistoMapVec_.push_back(tkHistoMap);
   }
 
@@ -135,7 +142,15 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
 
-  return;
+  static bool firstEvent = true;
+
+  edm::ESHandle<SiStripFedCabling> fedcabling;
+  iSetup.get<SiStripFedCablingRcd>().get(fedcabling );
+  
+  if (firstEvent) tkmap_ = new TrackerMap(pset_,fedcabling);
+
+  firstEvent = false;
+
 }//analyze method
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -150,18 +165,19 @@ BuildTrackerMapPlugin::endJob()
 {
   //edm::ESHandle<SiStripFedCabling> pDD1;
   //iSetup.get<SiStripFedCablingRcd>().get(pDD1);
-  std::cout << "Processing endjob" << std::endl;
+  std::cout << "Processing endjob with " << tkHistoMapNameVec_.size()<< " elements." << std::endl;
 
   for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
 
-    std::cout << "Processing element " << i << std::endl;
-
-    TrackerMap tkmap;//(pset_,pDD1); 
-    tkmap.setPalette(1);
-    tkmap.showPalette(1);
-    tkHistoMapVec_.at(i)->dumpInTkMap(&tkmap);
-    tkmap.save(true,0,0,tkHistoMapNameVec_.at(i)+std::string(".png"));
-    //tkmap.save_as_fedtrackermap(true,0,0,tkHistoMapNameVec_.at(i)+std::string("_FED.png"));
+    std::cout << "Processing element " << i << ": " << tkHistoMapNameVec_.at(i) << std::endl;
+    
+    //(pset_,pDD1); 
+    tkmap_->setPalette(1);
+    tkmap_->showPalette(1);
+    tkHistoMapVec_.at(i)->dumpInTkMap(tkmap_);
+    tkmap_->printall(true,0,255,"tmap");
+    tkmap_->save(true,0,0,tkHistoMapNameVec_.at(i)+std::string(".png"));
+    tkmap_->save_as_fedtrackermap(true,0,0,tkHistoMapNameVec_.at(i)+std::string("_FED.png"));
 
   }
 
