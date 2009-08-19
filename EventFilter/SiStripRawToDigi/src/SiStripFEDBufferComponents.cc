@@ -951,9 +951,9 @@ namespace sistrip {
   bool FEDAPVErrorHeader::checkStatusBits(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const
   {
     //3 bytes per FE unit, channel order is reversed in FE unit data, 2 bits per channel
-    const uint16_t bitNumber = (internalFEDChannelNum/FEDCH_PER_FED)*24 + (FEDCH_PER_FED-1-(internalFEDChannelNum%FEDCH_PER_FED))*2+apvNum;
+    const uint16_t bitNumber = (internalFEDChannelNum/FEDCH_PER_FEUNIT)*24 + (FEDCH_PER_FEUNIT-1-(internalFEDChannelNum%FEDCH_PER_FEUNIT))*2 + apvNum;
     //bit high means no error
-    return (!(header_[bitNumber/8] & (0x01<<(bitNumber%8)) ));
+    return (header_[bitNumber/8] & (0x01<<(bitNumber%8)) );
   }
 
   bool FEDAPVErrorHeader::checkChannelStatusBits(const uint8_t internalFEDChannelNum) const
