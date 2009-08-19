@@ -4,8 +4,7 @@
 
 CaloVNoiseSignalGenerator::CaloVNoiseSignalGenerator()
 : theNoiseSignals(),
-  theDetIds(),
-  theParameterMap(0)
+  theDetIds()
 {
 }
 
