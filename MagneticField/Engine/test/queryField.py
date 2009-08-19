@@ -25,7 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 
 #process.load("Configuration.StandardSequences.MagneticField_35T_cff")
 
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi")
 
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
