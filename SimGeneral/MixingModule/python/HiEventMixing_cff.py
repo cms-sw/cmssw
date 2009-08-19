@@ -99,10 +99,10 @@ noMix.mixObjects.mixVertices.input = cms.VInputTag(cms.InputTag("hiSignalG4SimHi
 
 mixGenHI = cms.EDProducer("HiMixingModule",
                           genEventEmbeddingMixParameters,
-                          signalTag = cms.vstring("signal","signalSIM")
+                          signalTag = cms.vstring("hiSignal","hiSignalG4SimHits")
                           )
 
 mix = cms.EDProducer("HiMixingModule",
                      simEventEmbeddingMixParameters,
-                     signalTag = cms.vstring("signal","signalSIM")
+                     signalTag = cms.vstring("hiSignal","hiSignalG4SimHits")
                      )
