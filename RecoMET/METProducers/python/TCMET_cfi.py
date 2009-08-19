@@ -12,8 +12,7 @@ tcMet = cms.EDProducer("METProducer",
     alias = cms.string('TCMET'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(0.0),
-    InputType = cms.string('CaloMET:Electron:Muon:Track'),  #This parameter does not get used for TCMET  
-#    electronInputTag  = cms.InputTag("pixelMatchGsfElectrons"),
+    InputType = cms.string('CaloMET:Electron:Muon:Track'),  #This parameter does not get used for TCMET
     electronInputTag  = cms.InputTag("gsfElectrons"),
     muonInputTag      = cms.InputTag("muons"),
     trackInputTag     = cms.InputTag("generalTracks"),
@@ -26,7 +25,8 @@ tcMet = cms.EDProducer("METProducer",
     eta_max = cms.double(2.4), 
     chi2_max = cms.double(4),
     nhits_min = cms.double(11),
-    d0_max = cms.double(0.1)      
+    d0_max = cms.double(0.1),
+    isCosmics = cms.bool(False)
 )
 
 
