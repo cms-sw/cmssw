@@ -20,7 +20,8 @@ from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 # HIGH LEVEL RECO
 
 # Tracking
-from RecoHI.HiTracking.HighPtTracking_PbPb_cff import *
+#from RecoHI.HiTracking.HighPtTracking_PbPb_cff import *  # above 1.5 GeV
+from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *    # above 0.9 GeV
 
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
