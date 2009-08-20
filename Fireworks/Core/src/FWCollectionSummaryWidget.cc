@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.14 2009/08/12 22:03:23 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.15 2009/08/14 15:54:22 chrjones Exp $
 //
 
 // system include files
@@ -114,21 +114,29 @@ const TGPicture* filtered_over(bool iBackgroundIsBlack)
    return s;
 }
 
-/*
 static 
-const TGPicture* alert_over()
+const TGPicture* alert_over(bool iBackgroundIsBlack)
 {
-   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"alert-blackbg-over.png");
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-blackbg-over.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-whitebg-over.png");
    return s;
 }
 
 static 
-const TGPicture* alert()
+const TGPicture* alert(bool iBackgroundIsBlack)
 {
-   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"alert-blackbg.png");
+ 
+   if(iBackgroundIsBlack) {
+      static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-blackbg.png");
+      return s;
+   }
+   static const TGPicture* s = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"icon-alert-whitebg.png");
    return s;
 }
-*/
+
 static 
 const TGPicture* unfiltered(bool iBackgroundIsBlack)
 {
@@ -389,14 +397,22 @@ FWCollectionSummaryWidget::itemChanged()
    const TGPicture* picture = 0;
    const TGPicture* down = 0;
    const TGPicture* disabled=0;
-   if(m_collection->filterExpression().size()) {
-      picture = filtered(!m_backgroundIsWhite);
-      down = filtered_over(!m_backgroundIsWhite);
-      disabled = filtered_over(!m_backgroundIsWhite);
+   if(m_collection->hasError()) {
+      picture = alert(!m_backgroundIsWhite);
+      down = alert_over(!m_backgroundIsWhite);
+      disabled = alert_over(!m_backgroundIsWhite);
+      m_stateButton->SetToolTipText(m_collection->errorMessage().c_str());
    } else {
-      picture = unfiltered(!m_backgroundIsWhite);
-      down = unfiltered_over(!m_backgroundIsWhite);
-      disabled = unfiltered_over(!m_backgroundIsWhite);
+      if(m_collection->filterExpression().size()) {
+         picture = filtered(!m_backgroundIsWhite);
+         down = filtered_over(!m_backgroundIsWhite);
+         disabled = filtered_over(!m_backgroundIsWhite);
+      } else {
+         picture = unfiltered(!m_backgroundIsWhite);
+         down = unfiltered_over(!m_backgroundIsWhite);
+         disabled = unfiltered_over(!m_backgroundIsWhite);
+      }
+      m_stateButton->SetToolTipText("select collection and show filter");
    }
    m_stateButton->swapIcons(picture,down,disabled);
 }
