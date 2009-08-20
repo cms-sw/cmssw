@@ -36,7 +36,7 @@ private:
     XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
     const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
     std::string rootNodeName_;
-    bool userNS_,cpvavailable_;
+    bool userNS_;
     GeometryConfiguration geoConfig_;
 
     // 2009-07-09 memory patch
