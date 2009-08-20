@@ -10,6 +10,8 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
+//#include <DetectorDescription/Core/src/DDPartSelection.cc>
+//#include <DetectorDescription/Core/src/StoresInstantiation.cc>
 
 //=================
 #include "DetectorDescription/Base/interface/Singleton.h"
@@ -18,6 +20,7 @@ typedef DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >    ma_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSolid> > >       so_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDRotation> > >    ro_err;
 typedef DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >   sp_err;
+
 //==================
 //*********************************************************************************************************************************
 

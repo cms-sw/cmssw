@@ -6,6 +6,20 @@ namespace std { } using namespace std;
 #include <iostream>
 #include <fstream>
 
+//**** to get rid of compile errors about ambiguous delete of Stores
+#include "DetectorDescription/Core/src/LogicalPart.h"
+#include "DetectorDescription/Core/src/Solid.h"
+#include "DetectorDescription/Core/src/Material.h"
+#include "DetectorDescription/Core/src/Specific.h"
+//***** Explicit template instantiation of Singleton
+#include "DetectorDescription/Base/interface/Singleton.icc"
+template class DDI::Singleton<std::map<std::string,std::set<DDLogicalPart> > >;
+template class DDI::Singleton<std::map<std::string,std::set<DDMaterial> > >;
+template class DDI::Singleton<std::map<std::string,std::set<DDSolid> > >;
+template class DDI::Singleton<std::map<std::string,std::set<DDRotation> > >;
+template class DDI::Singleton<std::map<std::string,std::set<DDSpecifics> > >;
+//*****
+
 DDErrorDetection::DDErrorDetection()
 {
   scan();
