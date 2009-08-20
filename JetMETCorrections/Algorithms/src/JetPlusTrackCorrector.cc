@@ -624,7 +624,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	   //double echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
 	   NewResponse = NewResponse - 2.0;
 	 }
-   float mScale = NewResponse/fJet.energy();
+   double mScale = NewResponse/fJet.energy();
    
    if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<std::endl;
    
