@@ -1,6 +1,6 @@
 #include "CombinedCaloTowers.C"
 
-void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers);
+void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir);
 
 void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname){
 
@@ -20,16 +20,27 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int TTbar_CT_HF_nHistTot = 14;
   
   //RecHits
-  const int TTbar_RH_nHistTot = 91; 
-  const int TTbar_RH_nHist1   = 16;
+  const int TTbar_RH_nHistTot = 95; 
+  const int TTbar_RH_nHist1   = 20;
   const int TTbar_RH_nHist2   = 4;
   const int TTbar_RH_nProfInd = 20;
+
+  TString RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
+
+  //RBX Noise
+  const int RBX_nHistTot = 6;
+  const int RBX_nHist1   = 5;
+
+  TString RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
 
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HB_nHist1, TTbar_CT_HB_nHistTot, ref_vers, val_vers);
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HE_nHist1, TTbar_CT_HE_nHistTot, ref_vers, val_vers);
   ProcessSubDetCT(Ref_File, Val_File, RelValStream, TTbar_CT_HF_nHist1, TTbar_CT_HF_nHistTot, ref_vers, val_vers);
 
-  ProcessRelValRecHit(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nHist2, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers);
+  ProcessRelVal(Ref_File, Val_File, RelValStream, TTbar_RH_nHist1, TTbar_RH_nHist2, TTbar_RH_nProfInd, TTbar_RH_nHistTot, ref_vers, val_vers, RH_HistDir);
+
+  ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, RBX_nHistTot, ref_vers, val_vers, RBX_HistDir);
+
 
   Ref_File.Close();
   Val_File.Close();
@@ -37,7 +48,7 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   return;
 }
 
-void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers){
+void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir){
 
   TCanvas* myc;
 
@@ -61,7 +72,7 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
   int RefCol, ValCol;
   TString HistName, HistName2;
   char xAxisTitle[200];
-  float xAxisRange, yAxisRange, xMin;
+  float xAxisRange, yAxisRange, xMin, yMin;
   TString OutLabel;
   string xTitleCheck;
 
@@ -69,7 +80,7 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
   int nh2 = 0;
   int npr = 0;
   int npi = 0;
-  
+ 
   for (i = 0; i < nHistTot; i++){
     //Read in 1/0 switch saying whether this histogram is used 
     //Skip it if not used, otherwise get output file label, histogram
@@ -100,14 +111,14 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
 
     if (DimSwitch == "1D"){
       //Get histograms from files
-      ref_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
+      ref_file.cd(HistDir);   
       ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
       
-      val_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
+      val_file.cd(HistDir);   
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
       //Rebin histograms -- has to be done first
-      if (Chi2Switch == "Chi2"){
+      if (Chi2Switch == "Chi2" && OutLabel[2] != 'X'){
 	ref_hist1[nh1]->Rebin(10);
 	val_hist1[nh1]->Rebin(10);
       }
@@ -119,7 +130,11 @@ void ProcessRelValRecHit(TFile &ref_file, TFile &val_file, ifstream &recstr, con
 	xMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
 	ref_hist1[nh1]->GetXaxis()->SetRangeUser(xMin,xAxisRange);
       }
-      if (yAxisRange > 0) ref_hist1[nh1]->GetYaxis()->SetRangeUser(0.,yAxisRange);
+      if (yAxisRange > 0){
+	yMin = ref_hist1[nh1]->GetYaxis()->GetXmin();
+	if (yMin <= 0 && LogSwitch == "Log") yMin = 1E-5;
+	ref_hist1[nh1]->GetYaxis()->SetRangeUser(yMin,yAxisRange);
+      }
 
       if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
 

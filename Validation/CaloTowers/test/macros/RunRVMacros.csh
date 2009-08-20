@@ -36,11 +36,14 @@ mkdir TTbar/CalTowHB
 mkdir TTbar/CalTowHE
 mkdir TTbar/CalTowHF
 mkdir TTbar/RecHits
+mkdir TTbar/RBX
 
-cp ../html_indices/RelVal_RecHits_TTBar.html TTbar/RecHits/index.html
-cp ../html_indices/CaloTowers_HB.html        TTbar/CalTowHB/index.html
-cp ../html_indices/CaloTowers_HE.html        TTbar/CalTowHE/index.html
-cp ../html_indices/CaloTowers_HF.html        TTbar/CalTowHF/index.html
+cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/TTbar/ > TTbar/RecHits/index.html
+
+cp ../html_indices/CaloTowers_HB.html   TTbar/CalTowHB/index.html
+cp ../html_indices/CaloTowers_HE.html   TTbar/CalTowHE/index.html
+cp ../html_indices/CaloTowers_HF.html   TTbar/CalTowHF/index.html
+cp ../html_indices/RBX.html             TTbar/RBX/index.html
 
 cp -r TTbar TTbarStartup
 mv    TTbar TTbarMC
@@ -51,11 +54,14 @@ mkdir QCD/CalTowHB
 mkdir QCD/CalTowHE
 mkdir QCD/CalTowHF
 mkdir QCD/RecHits
+mkdir QCD/RBX
 
-cp ../html_indices/RelVal_RecHits_QCD.html QCD/RecHits/index.html
-cp ../html_indices/CaloTowers_HB.html      QCD/CalTowHB/index.html
-cp ../html_indices/CaloTowers_HE.html      QCD/CalTowHE/index.html
-cp ../html_indices/CaloTowers_HF.html      QCD/CalTowHF/index.html
+cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/QCD/ > QCD/RecHits/index.html
+
+cp ../html_indices/CaloTowers_HB.html   QCD/CalTowHB/index.html
+cp ../html_indices/CaloTowers_HE.html   QCD/CalTowHE/index.html
+cp ../html_indices/CaloTowers_HF.html   QCD/CalTowHF/index.html
+cp ../html_indices/RBX.html             QCD/RBX/index.html
 
 cp -r QCD QCDStartup
 mv    QCD QCDMC
@@ -76,6 +82,7 @@ mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CalTowHF/
 rm emean_seq_*.gif  
 
+mv RBX*gif              ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/RBX/
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/RecHits/
 
 #Process MC QCD
@@ -86,6 +93,7 @@ mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CalTowHF/
 rm emean_seq_*.gif
 
+mv RBX*gif              ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/RBX/
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/RecHits/
 
 #Process Startup TTbar
@@ -96,6 +104,7 @@ mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/CalTowHF/
 rm emean_seq_*.gif  
 
+mv RBX*gif              ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/RBX/
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarStartup/RecHits/
 
 #Process Startup QCD
@@ -106,6 +115,7 @@ mv HE_CaloTowers*HE.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHE/
 mv HF_CaloTowers*HF.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/CalTowHF/
 rm emean_seq_*.gif
 
+mv RBX*gif              ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/RBX/
 mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDStartup/RecHits/
 
 root -l -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
