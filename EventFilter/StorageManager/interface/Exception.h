@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.3 2009/07/01 13:48:49 dshpakov Exp $
+// $Id: Exception.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -31,9 +31,9 @@ namespace stor {
   /**
      List of exceptions thrown by the StorageManager
 
-     $Author: dshpakov $
+     $Author: mommsen $
      $Revision: 1.4 $
-     $Date: 2009/07/14 10:34:44 $
+     $Date: 2009/07/20 13:06:10 $
     
      @file: Exception.h
   */
@@ -140,6 +140,10 @@ XCEPT_DEFINE_EXCEPTION( stor, DQMConsumerRegistration )
  */
 XCEPT_DEFINE_EXCEPTION( stor, DiskSpaceAlarm )
 
+/**
+ * Exception for sentinel alarm if problems with SATA beasts
+ */
+XCEPT_DEFINE_EXCEPTION( stor, SataBeast )
 
 /**
  * State transition error
