@@ -61,13 +61,18 @@ class HcalDigiClient : public HcalBaseClient {
   
   ///process report
   void report();
-  
+
   /// WriteDB
   void htmlOutput(int run, string htmlDir, string htmlName);
+  
   void htmlExpertOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
   
+  void getSubdetHists(DigiClientHists& h, std::string subdet);
+  void resetSubdetHists(DigiClientHists& h, std::string subdet);
+  void loadSubdetHists(TFile* infile,DigiClientHists& h, std::string subdet);
+
   void resetAllME();
   void calculateProblems();
   void createTests();

@@ -330,7 +330,7 @@ void HcalHotCellClient::getHistograms()
 
   // Grab individual histograms
   name<<process_.c_str()<<"HotCellMonitor_Hcal/ ProblemHotCells";
-  ProblemHotCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_,1./ievt_);
+  ProblemHotCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
   name.str("");
   if (ievt_>0 && ProblemHotCells!=0) 
     {
