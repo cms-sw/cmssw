@@ -48,6 +48,7 @@ Profiler = {
     'SimpleMemReport'         : 'SimpleMem_Parser',
     'EdmSize'                 : 'Edm_Size',
     'IgProfperf'              : 'IgProf_perf.PERF_TICKS',
+    'IgProfperf @@@ reuse'    : 'IgProf_perf.PERF_TICKS',
     'IgProfMemTotal'          : 'IgProf_mem.MEM_TOTAL',
     'IgProfMemTotal @@@ reuse': 'IgProf_mem.MEM_TOTAL',
     'IgProfMemLive'           : 'IgProf_mem.MEM_LIVE',
@@ -393,10 +394,15 @@ def getProfileArray(ProfileCode):
     if _noprof:
         Profile.append(AllowedProfile[-1])
     else:
+        #FIXME:
+        #Horrible code!
         for i in range(10):
             if str(i) in ProfileCode:
-                firstCase = i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode) or i == 1 and str(2) in ProfileCode
-                secCase   = i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode) or i == 6 and str(7) in ProfileCode
+                firstCase = (i == 0 and (str(1) in ProfileCode or str(2) in ProfileCode)) \
+                            or (i == 1 and str(2) in ProfileCode)
+                secCase   = (i==4 and str(7) in ProfileCode) \
+                            or (i == 5 and (str(6) in ProfileCode or str(7) in ProfileCode)) \
+                            or (i == 6 and str(7) in ProfileCode)
                 
                 if firstCase or secCase:
                     Profile.append(AllowedProfile[i] + ' @@@ reuse')
@@ -762,7 +768,8 @@ def writeCommands(simcandles,
                     #[3-Catch the case of ANALYSE by itself and raise an exception]
                     #4-Catch the case of ANALYSE proper, and do nothing in that case (already taken care by the second lines done after PERF_TICKS, MEM_TOTAL and MEM_LIVE.
                     #print "EEEEEEE %s"%prof
-                    if 'IgProf' in prof and 'perf' not in prof:
+                    #We actually want the analyse to be used also for IgProf!
+                    if 'IgProf' in prof: # and 'perf' not in prof:
                         
                         if 'Analyse' not in prof and (lambda x: 'Analyse' in x,Profile):
                                 

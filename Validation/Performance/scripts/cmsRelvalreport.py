@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 
 r'''
-Relvalreport_v2: a script to run performance tests and produce reports in a automated way.
+cmsRelvalreport.py: a script to run performance tests and produce reports in a automated way.
 '''
 
-import re #Used for IgProf Analyse work with IgProf Mem profile dumps
+import glob,re #Used for IgProf Analyse work with IgProf Mem profile dumps
 # Configuration parameters:#############################################################
 
 # Perfreport 3 and 2 coordinates:
@@ -498,54 +498,72 @@ class Profile:
             
         # Profiler is IgProf:
         if self.profiler.find('IgProf')!=-1:
-            #First the case of regular PerfReport reporting:
+            #First the case of IgProf PERF and MEM reporting:
             if IgProf_option!='ANALYSE':
-                uncompressed_profile_name=self.profile_name[:-3]+'_uncompressed'
-                execute('gzip -d -c %s > %s' %(self.profile_name,uncompressed_profile_name))
-                perfreport_command=''
-                # Switch for filling the db
-                if not fill_db:
-                    os.environ["PERFREPORT_PATH"]='%s/' %PERFREPORT2_PATH
-                    perfreport_command='%s %s -fi -y %s -i %s -o %s' \
-                                    %(PR2,
-                                      tmp_switch,
-                                      IgProf_option,
-                                      uncompressed_profile_name,
-                                      outdir)
-                else:
-                    os.environ["PERFREPORT_PATH"]='%s/' %PERFREPORT3_PATH
-                    perfreport_command='%s %s -n5000 -u%s  -fi -m \'scram_cmssw_version_string,%s\' -y %s -i %s %s -o %s' \
-                                    %(PR3,
-                                      tmp_switch,
-                                      PR3_PRODUCER_PLUGIN,
-                                      metastring,
-                                      IgProf_option,
-                                      uncompressed_profile_name,
-                                      db_option,db_name)            
-                
-                exit=execute(perfreport_command)
-                execute('rm  %s' %uncompressed_profile_name)
+                #Switch to the use of igprof-analyse instead of PerfReport!
+                #Will use the ANALYSE case for regressions between early event dumps and late event dumps of the profiles
+                sqlite_outputfile=outdir+"/"+self.profile_name[:-3]+'.sql3'
+                logger("Executing the report of the IgProf end of job profile")
+                exit=execute('igprof-analyse --sqlite -d -v -g -r %s %s | sqlite3 %s'%(IgProf_option,self.profile_name,sqlite_outputfile)) 
                 return exit
             #Then the "ANALYSE" case that we want to use to add to the same directories (Perf, MemTotal, MemLive)
-            #also some analyses and in particular the dump at different event numbers:
+            #also some other analyses and in particular:
+            #1-the first 7 lines of the ASCII analysis of the IgProf profile dumps (total of the counters)
+            #2-the dump at different event numbers,
+            #3-the diff between the first and last dump,
+            #4-the counters grouped by library using regexp at the last dump:
             else: #We use IgProf Analysis
                 #Add here the handling of the new IgProf.N.gz files so that they will get preserved and not overwritten:
-                localFiles=os.listdir('.')
-                IgProfDumpProfiles=re.compile(r"IgProf.\d+.gz")
-                IgProfDumps=filter(lambda x: IgProfDumpProfiles.search(x),localFiles)
-                if IgProfDumps:
-                    for dump in IgProfDumps:
-                        DumpedProfileName=self.profile_name[:-3]+"."+dump.split(".")[1]+".gz"
-                        execute('mv %s %s'%(dump,DumpedProfileName))
-                        execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,DumpedProfileName))
-                else: #Handle the case of reuse (MEM_LIVE usually re-uses MEM_TOTAL profile, so the IgProf.N.gz files will already have a MemTotal name...
+                logger("Looking for IgProf intermediate event profile dumps")
+                #Check if there are IgProf.N.gz dump files:
+                IgProfDumps=glob.glob("IgProf.*.gz")
+                #in case there are none check if they have already been mv'd to another name to avoid overwriting
+                #(MEM_LIVE usually re-uses MEM_TOTAL, so the IgProf.N.gz files will already have a MemTotal name...)
+                if not IgProfDumps:
+                    localFiles=os.listdir('.')
                     IgProfDumpProfilesPrevious=re.compile(r"\w+.\d+.gz")
                     IgProfDumps=filter(lambda x: IgProfDumpProfilesPrevious.search(x),localFiles)
+                #Now if there are dumps execute the following analyses:
+                if IgProfDumps:
+                    IgProfDumps.sort()
+                    logger("Found the following IgProf intermediate event profile dumps:")
+                    logger(IgProfDumps)
+                    FirstDumpEvent=9999999
+                    LastDumpEvent=0
                     for dump in IgProfDumps:
-                        DumpedProfileName=self.profile_name[:-3]+"."+dump.split(".")[1]+".gz"
-                        execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,DumpedProfileName))
+                        DumpEvent=dump.split(".")[1]
+                        DumpedProfileName=self.profile_name[:-3]+"."+DumpEvent+".gz"
+                        if dump.startswith("IgProf"):
+                            execute('mv %s %s'%(dump,DumpedProfileName))
+                        #Keep a tab of the first and last dump event for the diff analysis
+                        if int(DumpEvent) < FirstDumpEvent:
+                            FirstDumpEvent = int(DumpEvent)
+                        if int(DumpEvent) > LastDumpEvent:
+                            LastDumpEvent = int(DumpEvent)
+                        #First type of analysis: dump first 7 lines of ASCII analysis:
+                        logger("Executing the igprof-analyse analysis to dump the ASCII 7 lines output with the totals for the IgProf counter")
+                        exit=execute('%s -o%s -i%s -t%s' %(IGPROFANALYS,outdir,DumpedProfileName,"ASCII"))
+                        #Second type of analysis: dump the report in sqlite format to be ready to be browsed with igprof-navigator
+                        logger("Executing the igprof-analyse analysis saving into igprof-navigator browseable SQLite3 format")
+                        exit=exit+execute('%s -o%s -i%s -t%s' %(IGPROFANALYS,outdir,DumpedProfileName,"SQLite3"))
+                    FirstDumpProfile=self.profile_name[:-3]+"."+str(FirstDumpEvent)+".gz"
+                    LastDumpProfile=self.profile_name[:-3]+"."+str(LastDumpEvent)+".gz"
+                    #Third type of analysis: execute the diff analysis:
+                    #Check there are at least 2 IgProf intermediate event dump profiles to do a regression!
+                    if len(IgProfDumps)>1:
+                        logger("Executing the igprof-analyse regression between the first IgProf profile dump and the last one")
+                        exit=exit+execute('%s -o%s -i%s -r%s' %(IGPROFANALYS,outdir,LastDumpProfile,FirstDumpProfile))
+                    else:
+                        logger("CANNOT execute any regressions: not enough IgProf intermediate event profile dumps!")
+                    #Fourth type of analysis: execute the grouped by library igprof-analyse:
+                    logger("Executing the igprof-analyse analysis merging the results by library via regexp and saving the result in igprof-navigator browseable SQLite3 format")
+                    exit=exit+execute('%s -o%s -i%s --library' %(IGPROFANALYS,outdir,LastDumpProfile))
+                #If they are not there at all (no dumps)
+                else:
+                    logger("No IgProf intermediate event profile dumps found!")
+                    exit=0
                 
-                return execute('%s -o%s -i%s' %(IGPROFANALYS,outdir,self.profile_name)) #move the modification inside the analysis script.
+                return exit
                 
 
         #####################################################################                     
@@ -647,7 +665,7 @@ def principal(options):
     else:
         logger('List of commands found. Processing %s ...' %options.infile)
         
-        # an objects that represents the cndles file:
+        # an object that represents the candles file:
         candles_file = Candles_file(options.infile)
         
         commands_profilers_meta_list=candles_file.get_commands_profilers_meta_list()
@@ -682,7 +700,7 @@ def principal(options):
             reportdir='%s_%s' %(meta,options.output) #Usually options.output is not used
             reportdir=clean_name(reportdir)          #Remove _
          
-            profile_name=clean_name('%s_%s'%(meta,options.profile_name))
+            profile_name=clean_name('%s_%s'%(meta,options.profile_name)) #Also options.profile_name is usually not used... should clean up...
                     
             # profiler is igprof: we need to disentangle the profiler and the counter
             if profiler_opt.find('.')!=-1 and \
@@ -691,17 +709,6 @@ def principal(options):
                 profiler,IgProf_counter=profiler_opt_split
                 if profile_name[-3:]!='.gz':
                     profile_name+='.gz'
-                    
-            #Think this is obsolete:        
-            #elif profiler_opt.find('MEM_TOTAL')!=-1 or\
-            #     profiler_opt.find('MEM_LIVE')!=-1 or\
-            #     profiler_opt.find('MEM_PEAK')!=-1: 
-            #    profiler='IgProf_mem'
-            #    IgProf_counter=profiler_opt
-            #
-            #
-            #    if profile_name[-3:]!='.gz':
-            #        profile_name+='.gz'
             
             # Profiler is Timereport_Parser
             elif profiler_opt in STDOUTPROFILERS:
@@ -732,8 +739,9 @@ def principal(options):
         if precedent_profile_name!='':
             if os.path.exists(precedent_profile_name):
                 logger('Reusing precedent profile: %s ...' %precedent_profile_name)
-                logger('Copying the old profile to the new name %s ...' %profile_name)
-                execute('cp %s %s' %(precedent_profile_name, profile_name))
+                if profile_name!=precedent_profile_name:
+                    logger('Copying the old profile to the new name %s ...' %profile_name)
+                    execute('cp %s %s' %(precedent_profile_name, profile_name))
                 
         performance_profile=Profile(command,
                                     profiler,

@@ -69,8 +69,8 @@ def customise(process):
 
     #Add the configuration for the Igprof running to dump profile snapshots:
     process.IgProfService = cms.Service("IgProfService",
-        reportFirstEvent            = cms.untracked.int32(0),
-        reportEventInterval         = cms.untracked.int32(25),
+        reportFirstEvent            = cms.untracked.int32(1), #Dump first event for baseline studies
+        reportEventInterval         = cms.untracked.int32(50),#Dump every 50 events (51,101,151,201)->Will run 201 events for Step1, GEN-SIM,DIGI tests (5 profiles + end of job one)
         reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > IgProf.%I.gz")
         )
         

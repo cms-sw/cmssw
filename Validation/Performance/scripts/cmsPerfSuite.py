@@ -724,7 +724,7 @@ class PerfSuite:
     
         profCodes = {"TimeSize" : "0123",
                      "IgProf"   : "4567",
-                     "IgProf_Perf":"4",
+                     "IgProf_Perf":"47", #Added the Analyse to IgProf_Perf #FIXME: At the moment Analyse is always run whether 7 is selected or not! Issue to solve in cmsRelvalreportInput.py... but not really important (it's always been there, not impacting our use-cases).
                      "IgProf_Mem":"567",
                      "Callgrind": "8",
                      "Memcheck" : "9",
