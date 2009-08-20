@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.1 2009/08/13 21:05:07 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.2 2009/08/14 23:06:44 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -136,9 +136,10 @@ bool BeamFitter::runFitter() {
   bool fit_ok = false;
   // default fit to extract beam spot info
   if(fBSvector.size()!=0){
-    std::cout << "Calculating beam spot..." << std::endl;
-    std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
-    
+    if(debug_){
+      std::cout << "Calculating beam spot..." << std::endl;
+      std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
+    }
     BSFitter *myalgo = new BSFitter( fBSvector );
     fbeamspot = myalgo->Fit();
     
@@ -146,7 +147,7 @@ bool BeamFitter::runFitter() {
     fit_ok = true;
   }
   else
-    std::cout << "No good track selected! No beam fit!" << std::endl;
+    if(debug_) std::cout << "No good track selected! No beam fit!" << std::endl;
   return fit_ok;
 }
 
@@ -157,55 +158,61 @@ void BeamFitter::runAllFitter() {
     
     
     // iterative
-    std::cout << " d0-phi Iterative:" << std::endl;
+    if(debug_)
+      std::cout << " d0-phi Iterative:" << std::endl;
     BSFitter *myitealgo = new BSFitter( fBSvector );
     myitealgo->Setd0Cut_d0phi(4.0);
     reco::BeamSpot beam_ite = myitealgo->Fit_ited0phi();
-    std::cout << beam_ite << std::endl;
-    
-    
-    std::cout << "\n Now run tests of the different fits\n";
+    if (debug_){
+      std::cout << beam_ite << std::endl;
+      std::cout << "\n Now run tests of the different fits\n";
+    }
     // from here are just tests
     std::string fit_type = "chi2";
     myalgo->SetFitVariable(std::string("z"));
     myalgo->SetFitType(std::string("chi2"));
     reco::BeamSpot beam_fit_z_chi2 = myalgo->Fit();
-    std::cout << " z Chi2 Fit ONLY:" << std::endl;
-    std::cout << beam_fit_z_chi2 << std::endl;
-    
+    if (debug_){
+      std::cout << " z Chi2 Fit ONLY:" << std::endl;
+      std::cout << beam_fit_z_chi2 << std::endl;
+    }
     
     fit_type = "combined";
     myalgo->SetFitVariable("z");
     myalgo->SetFitType("combined");
     reco::BeamSpot beam_fit_z_lh = myalgo->Fit();
-    std::cout << " z Log-Likelihood Fit ONLY:" << std::endl;
-    std::cout << beam_fit_z_lh << std::endl;
-    
+    if (debug_){
+      std::cout << " z Log-Likelihood Fit ONLY:" << std::endl;
+      std::cout << beam_fit_z_lh << std::endl;
+    }
     
     myalgo->SetFitVariable("d");
     myalgo->SetFitType("d0phi");
     reco::BeamSpot beam_fit_dphi = myalgo->Fit();
-    std::cout << " d0-phi0 Fit ONLY:" << std::endl;
-    std::cout << beam_fit_dphi << std::endl;
-    
+    if (debug_){
+      std::cout << " d0-phi0 Fit ONLY:" << std::endl;
+      std::cout << beam_fit_dphi << std::endl;
+    }
     
 //     myalgo->SetFitVariable(std::string("d*z"));
 //     myalgo->SetFitType(std::string("likelihood"));
 //     reco::BeamSpot beam_fit_dz_lh = myalgo->Fit();
-//     std::cout << " Log-Likelihood Fit:" << std::endl;
-//     std::cout << beam_fit_dz_lh << std::endl;
-    
+//     if (debug_){
+//       std::cout << " Log-Likelihood Fit:" << std::endl;
+//       std::cout << beam_fit_dz_lh << std::endl;
+//     }  
     
 //     myalgo->SetFitVariable(std::string("d*z"));
 //     myalgo->SetFitType(std::string("resolution"));
 //     reco::BeamSpot beam_fit_dresz_lh = myalgo->Fit();
-//     std::cout << " IP Resolution Fit" << std::endl;
-//     std::cout << beam_fit_dresz_lh << std::endl;
+//     if(debug_){
+//       std::cout << " IP Resolution Fit" << std::endl;
+//       std::cout << beam_fit_dresz_lh << std::endl;
     
-//     std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
-//     std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
-    
+//       std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
+//       std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
+//     }
   }
   else
-    std::cout << "No good track selected! No beam fit!" << std::endl;
+    if (debug_) std::cout << "No good track selected! No beam fit!" << std::endl;
 }
