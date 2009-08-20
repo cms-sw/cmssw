@@ -118,6 +118,8 @@ void HcalDigiClient::beginJob(DQMStore* dbe){
 
   stringstream mydir;
   mydir<<rootfolder_<<"/DigiMonitor_Hcal";
+
+  cout <<"DIGI ROOT FOLDER = "<<rootfolder_<<endl;
   dbe->setCurrentFolder(mydir.str().c_str());
   ProblemCells=dbe->book2D(" ProblemDigis",
 			   " Problem Digi Rate for all HCAL;i#eta;i#phi",
@@ -328,8 +330,8 @@ void HcalDigiClient::report()
     }
   if ( debug_ ) std::cout << "HcalDigiClient: report" << std::endl;
   getHistograms();
-  ostringstream name;
-  name<<process_.c_str()<<"Hcal/DigiMonitor_Hcal/Digi Task Event Number";
+  stringstream name;
+  name<<process_.c_str()<<baseFolder_.c_str()<<"/DigiMonitor_Hcal/Digi Task Event Number";
   MonitorElement* me = 0;
   if(dbe_) me = dbe_->get(name.str().c_str());
   if ( me ) 
@@ -379,8 +381,10 @@ void HcalDigiClient::getHistograms()
     }
   if (debug_>0) std::cout <<"HcalDigiClient> getHistograms()"<<std::endl;
 
-  ostringstream name;
-
+  cout <<"ROOTFOLDER = "<<rootfolder_<<endl;
+  cout <<"PROCESS = "<<process_.c_str()<<endl;
+  stringstream name;
+  name<<process_.c_str()<<rootfolder_<<"/DigiMonitor_Hcal/Digi Task Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) 
     {
@@ -396,198 +400,196 @@ void HcalDigiClient::getHistograms()
 
   // Get Histograms
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Shape";  //hbHists.shape
-  hbHists.shape = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.shape = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_ );
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Shape";  //heHists.shape
-  heHists.shape = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.shape = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Shape";  //hoHists.shape
-  hoHists.shape = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.shape = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Shape";  //hfHists.shape
-  hfHists.shape = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.shape = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Shape - over thresh";  //hbHists.shapeThresh
-  hbHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Shape - over thresh";  //heHists.shapeThresh
-  heHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Shape - over thresh";  //hoHists.shapeThresh
-  hoHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Shape - over thresh";  //hfHists.shapeThresh
-  hfHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Presamples";  //hbHists.presample
-  hbHists.presample = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.presample = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Presamples";  //heHists.presample
-  heHists.presample = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.presample = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Presamples";  //hoHists.presample
-  hoHists.presample = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.presample = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Presamples";  //hfHists.presample
-  hfHists.presample = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.presample = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Bad Quality Digis";  //hbHists.BQ
-  hbHists.BQ = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.BQ = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Bad Quality Digis";  //heHists.BQ
-  heHists.BQ = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.BQ = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Bad Quality Digis";  //hoHists.BQ
-  hoHists.BQ = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.BQ = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Bad Quality Digis";  //hfHists.BQ
-  hfHists.BQ = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.BQ = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Bad Quality Digi Fraction";  //hbHists.BQFrac
-  hbHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Bad Quality Digi Fraction";  //heHists.BQFrac
-  heHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Bad Quality Digi Fraction";  //hoHists.BQFrac
-  hoHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Bad Quality Digi Fraction";  //hfHists.BQFrac
-  hfHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.BQFrac = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Capid 1st Time Slice";  //hbHists.DigiFirstCapID
-  hbHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Capid 1st Time Slice";  //heHists.DigiFirstCapID
-  heHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Capid 1st Time Slice";  //hoHists.DigiFirstCapID
-  hoHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Capid 1st Time Slice";  //hfHists.DigiFirstCapID
-  hfHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Data Valid Err Bits";  //hbHists.DVerr
-  hbHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Data Valid Err Bits";  //heHists.DVerr
-  heHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Data Valid Err Bits";  //hoHists.DVerr
-  hoHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Data Valid Err Bits";  //hfHists.DVerr
-  hfHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.DVerr = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB CapID";  //hbHists.CapID
-  hbHists.CapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.CapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE CapID";  //heHists.CapID
-  heHists.CapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.CapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO CapID";  //hoHists.CapID
-  hoHists.CapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.CapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF CapID";  //hfHists.CapID
-  hfHists.CapID = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.CapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB ADC count per time slice";  //hbHists.ADC
-  hbHists.ADC = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.ADC = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE ADC count per time slice";  //heHists.ADC
-  heHists.ADC = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.ADC = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO ADC count per time slice";  //hoHists.ADC
-  hoHists.ADC = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.ADC = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF ADC count per time slice";  //hfHists.ADC
-  hfHists.ADC = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.ADC = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB ADC sum";  //hbHists.ADCsum
-  hbHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hbHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE ADC sum";  //heHists.ADCsum
-  heHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  heHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO ADC sum";  //hoHists.ADCsum
-  hoHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hoHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF ADC sum";  //hfHists.ADCsum
-  hfHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  hfHists.ADCsum = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/baddigisize/Digi Size";   //DigiSize
-  DigiSize = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  DigiSize = getAnyHisto(dummy2D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Eta Occupancy Map";   //DigiOccupancyEta
-  DigiOccupancyEta = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Eta Occupancy Map";   //DigiOccupancyEta
+  DigiOccupancyEta = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Phi Occupancy Map";   //DigiOccupancyPhi
-  DigiOccupancyPhi = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Phi Occupancy Map";   //DigiOccupancyPhi
+  DigiOccupancyPhi = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/# of Digis";   //DigiNum
-  DigiNum = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/# of Good Digis";   //DigiNum
+  DigiNum = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/# Bad Qual Digis";   //DigiBQ
-  DigiBQ = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/# Bad Qual Digis";   //DigiBQ
+  DigiBQ = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Bad Digi Fraction";   //DigiBQFrac
-  DigiBQFrac = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Bad Digi Fraction";   //DigiBQFrac
+  DigiBQFrac = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
 
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi VME Occupancy Map";   //DigiOccupancyVME
-  DigiOccupancyVME = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi VME Occupancy Map";   //DigiOccupancyVME
+  DigiOccupancyVME = getAnyHisto(dummy2D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Spigot Occupancy Map";   //DigiOccupancySpigot
-  DigiOccupancySpigot = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
-  /*
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Geo Error Map";   //DigiErrorEtaPhi
-  DigiErrorEtaPhi = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
-  */
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Spigot Occupancy Map";   //DigiOccupancySpigot
+  DigiOccupancySpigot = getAnyHisto(dummy2D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+
 
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi VME Error Map";   //DigiErrorVME
-  DigiErrorVME = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi VME Error Map";   //DigiErrorVME
+  DigiErrorVME = getAnyHisto(dummy2D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Spigot Error Map";   //DigiErrorSpigot
-  DigiErrorSpigot = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi Spigot Error Map";   //DigiErrorSpigot
+  DigiErrorSpigot = getAnyHisto(dummy2D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
   name.str("");
   for (int i=0;i<9;++i)
     {
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Plus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_plus[i]
-      hbHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      hbHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Plus Time Slices "<<i<<" and "<<i+1;  //heHists.TS_sum_plus[i]
-      heHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      heHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Plus Time Slices "<<i<<" and "<<i+1;  //hoHists.TS_sum_plus[i]
-      hoHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      hoHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Plus Time Slices "<<i<<" and "<<i+1;  //hfHists.TS_sum_plus[i]
-      hfHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      hfHists.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Minus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_minus[i]
-      hbHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      hbHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Minus Time Slices "<<i<<" and "<<i+1;  //heHists.TS_sum_minus[i]
-      heHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      heHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Minus Time Slices "<<i<<" and "<<i+1;  //hoHists.TS_sum_minus[i]
-      hoHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      hoHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Minus Time Slices "<<i<<" and "<<i+1;  //hfHists.TS_sum_minus[i]
-      hfHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+      hfHists.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
       name.str("");
     } // for (int i=0;i<9;++i)
 
-  getEtaPhiHists("DigiMonitor_Hcal/digi_occupancy/"," Digi Eta-Phi Occupancy Map",DigiOccupancyByDepth);
-  getEtaPhiHists("DigiMonitor_Hcal/bad_digis/","Bad Digi Map",BadDigisByDepth);
+  getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/good_digis/digi_occupancy/"," Digi Eta-Phi Occupancy Map",DigiOccupancyByDepth);
+  getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/bad_digis/digi_occupancy/","Bad Digi Map",BadDigisByDepth);
 
-  getEtaPhiHists("DigiMonitor_Hcal/bad_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
-  getEtaPhiHists("DigiMonitor_Hcal/bad_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
-  getEtaPhiHists("DigiMonitor_Hcal/bad_digis/badADCsum/"," Digis with ADC sum below threshold ADC counts",DigiErrorsBadADCSum);
-  //getEtaPhiHists("DigiMonitor_Hcal/bad_digis/nodigis/"," Digis Missing for a Number of Consecutive Events",DigiErrorsNoDigi);
-  getEtaPhiHists("DigiMonitor_Hcal/bad_digis/data_invalid_error/"," Digis with Data Invalid or Error Bit Set",DigiErrorsDVErr);
+  getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/bad_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
+  getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/bad_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
+  // These are more like dead cell checkers -- move to DeadCellMon
+  //getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/bad_digis/badADCsum/"," Digis with ADC sum below threshold ADC counts",DigiErrorsBadADCSum);
+  //getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/bad_digis/nodigis/"," Digis Missing for a Number of Consecutive Events",DigiErrorsNoDigi);
+  
+  getEtaPhiHists(rootfolder_,"DigiMonitor_Hcal/bad_digis/data_invalid_error/"," Digis with Data Invalid or Error Bit Set",DigiErrorsDVErr);
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiClient GET HISTOGRAMS  -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -595,6 +597,56 @@ void HcalDigiClient::getHistograms()
   return;
 } // void HcalDigiClient::getHistograms()
 
+
+void HcalDigiClient::getSubdetHists(DigiClientHists& h, std::string subdet)
+{
+  TH1F* dummy1D = new TH1F();
+  
+  stringstream name;
+  // Get Histograms
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Shape";  //h.shape
+  h.shape = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Shape - over thresh"; 
+  h.shapeThresh = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Presamples";  //h.presample
+  h.presample = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Bad Quality Digis";  //h.BQ
+  h.BQ = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Bad Quality Digi Fraction";  //h.BQFrac
+  h.BQFrac = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Capid 1st Time Slice";  
+  h.DigiFirstCapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Data Valid Err Bits";  //h.DVerr
+  h.DVerr = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" CapID";  //h.CapID
+  h.CapID = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" ADC count per time slice";  //h.ADC
+  h.ADC = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" ADC sum";  //h.ADCsum
+  h.ADCsum = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+  name.str("");
+
+  for (int i=0;i<9;++i)
+    {
+      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Plus Time Slices "<<i<<" and "<<i+1;  
+      h.TS_sum_plus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+      name.str("");
+      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Minus Time Slices "<<i<<" and "<<i+1; 
+      h.TS_sum_minus[i] = getAnyHisto(dummy1D, name.str(), process_, rootfolder_, dbe_, debug_, cloneME_);
+      name.str("");
+    } // for (int i=0;i<9;++i)
+
+  return;
+} // void getSubdetHists(...)
 
 void HcalDigiClient::resetAllME()
 {
@@ -605,198 +657,52 @@ void HcalDigiClient::resetAllME()
       cpu_timer.reset(); cpu_timer.start();
     }
  
-  ostringstream name;
+
+  stringstream name;
+  resetSubdetHists(hbHists, "HB");
+  resetSubdetHists(hbHists, "HE");
+  resetSubdetHists(hbHists, "HO");
+  resetSubdetHists(hbHists, "HF");
+
   // Reset
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Shape";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Shape";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Shape";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Shape";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Shape - over thresh";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Shape - over thresh";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Shape - over thresh";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Shape - over thresh";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Presamples";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Presamples";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Presamples";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Presamples";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Bad Quality Digis";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Bad Quality Digis";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Bad Quality Digis";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Bad Quality Digis";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Bad Quality Digi Fraction";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Bad Quality Digi Fraction";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Bad Quality Digi Fraction";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Bad Quality Digi Fraction";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Capid 1st Time Slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Capid 1st Time Slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Capid 1st Time Slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Capid 1st Time Slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Data Valid Err Bits";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Data Valid Err Bits";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Data Valid Err Bits";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Data Valid Err Bits";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB CapID";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE CapID";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO CapID";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF CapID";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB ADC count per time slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE ADC count per time slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO ADC count per time slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF ADC count per time slice";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB ADC sum";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE ADC sum";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO ADC sum";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF ADC sum";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
+
   name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/baddigisize/ Digis with Bad Size";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Eta Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Eta Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Phi Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Phi Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/# of Digis";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/# of Good Digis";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/# Bad Qual Digis";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/# Bad Qual Digis";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Bad Digi Fraction";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Bad Digi Fraction";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Eta-Phi Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Eta-Phi Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi VME Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi VME Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Spigot Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Spigot Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  /*
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Geo Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi VME Error Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  */
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi VME Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi Spigot Error Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Spigot Error Map";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
-
-  for (int i=0;i<9;++i)
-    {
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Plus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_plus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Plus Time Slices "<<i<<" and "<<i+1;  //heHists.TS_sum_plus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Plus Time Slices "<<i<<" and "<<i+1;  //hoHists.TS_sum_plus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Plus Time Slices "<<i<<" and "<<i+1;  //hfHists.TS_sum_plus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Minus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_minus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Minus Time Slices "<<i<<" and "<<i+1;  //heHists.TS_sum_minus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Minus Time Slices "<<i<<" and "<<i+1;  //hoHists.TS_sum_minus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Minus Time Slices "<<i<<" and "<<i+1;  //hfHists.TS_sum_minus[i]
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
-    } // for (int i=0;i<9;++i)
 
   for (int i=0;i<4;++i)
     {
-      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/"<<subdets_[i]<<"Bad Digi Map";
+      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/"<<subdets_[i]<<"Bad Digi Map";
       resetME(name.str().c_str(),dbe_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/badcapID/"<<subdets_[i]<<" Digis with Bad Cap ID Rotation";
@@ -805,13 +711,10 @@ void HcalDigiClient::resetAllME()
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/baddigisize/"<<subdets_[i]<<" Digis with Bad Size";
       resetME(name.str().c_str(),dbe_);
       name.str(""); 
+      /*
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/badADCsum/"<<subdets_[i]<<" Digis with ADC sum below threshold ADC counts";
       resetME(name.str().c_str(),dbe_);
       name.str(""); 
-      /*
-      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/nodigis/"<<subdets_[i]<<" Digis Missing for a Number of Consecutive Events";
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
       */
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/data_invalid_error/"<<subdets_[i]<<" Digis with Data Invalid or Error Bit Set";
       resetME(name.str().c_str(),dbe_);
@@ -823,6 +726,56 @@ void HcalDigiClient::resetAllME()
     }
   return;
 } // void HcalDigiClient::resetAllME()
+
+void HcalDigiClient::resetSubdetHists(DigiClientHists& h, std::string subdet)
+{
+  stringstream name;
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Shape";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Shape - over thresh";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Presamples";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Bad Quality Digis";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Bad Quality Digi Fraction";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Capid 1st Time Slice";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Data Valid Err Bits";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" CapID";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" ADC count per time slice";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" ADC sum";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/baddigisize/ Digis with Bad Size";
+  resetME(name.str().c_str(),dbe_);
+  name.str("");
+  for (int i=0;i<9;++i)
+    {
+      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Plus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_plus[i]
+      resetME(name.str().c_str(),dbe_);
+      name.str("");
+      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Minus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_minus[i]
+      resetME(name.str().c_str(),dbe_);
+      name.str("");
+    } // for (int i=0;i<9;++i)
+  return;
+
+} // void HcalDigiClient::resetSubdetHists(...)
+
 
 void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName){
   if (showTiming_)
@@ -1240,204 +1193,57 @@ void HcalDigiClient::createTests(){
 void HcalDigiClient::loadHistograms(TFile* infile){
 
   if (debug_>0) std::cout <<"HcalDigiClient> loadHistograms(TFile* infile)"<<std::endl;
-  
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/DigiMonitor_Hcal/Digi Task Event Number");
+
+  stringstream name;
+  name <<"DQMData/"<<rootfolder_<<"DigiMonitor_Hcal/Digi Task Event Number";
+  TNamed* tnd = (TNamed*)infile->Get(name.str().c_str());
   if(tnd){
     string s =tnd->GetTitle();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
   
-  ostringstream name;
+  name.str();
 
-  //Load Histograms
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Shape";
-  hbHists.shape = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Shape";
-  heHists.shape = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Shape";
-  hoHists.shape = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Shape";
-  hfHists.shape = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Shape - over thresh";
-  hbHists.shapeThresh = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Shape - over thresh";
-  heHists.shapeThresh = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Shape - over thresh";
-  hoHists.shapeThresh = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Shape - over thresh";
-  hfHists.shapeThresh = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Digi Presamples";
-  hbHists.presample = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Digi Presamples";
-  heHists.presample = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Digi Presamples";
-  hoHists.presample = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Digi Presamples";
-  hfHists.presample = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Bad Quality Digis";
-  hbHists.BQ = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Bad Quality Digis";
-  heHists.BQ = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Bad Quality Digis";
-  hoHists.BQ = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Bad Quality Digis";
-  hfHists.BQ = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Bad Quality Digi Fraction";
-  hbHists.BQFrac = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Bad Quality Digi Fraction";
-  heHists.BQFrac = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Bad Quality Digi Fraction";
-  hoHists.BQFrac = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Bad Quality Digi Fraction";
-  hfHists.BQFrac = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Capid 1st Time Slice";
-  hbHists.DigiFirstCapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Capid 1st Time Slice";
-  heHists.DigiFirstCapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Capid 1st Time Slice";
-  hoHists.DigiFirstCapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Capid 1st Time Slice";
-  hfHists.DigiFirstCapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Data Valid Err Bits";
-  hbHists.DVerr = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Data Valid Err Bits";
-  heHists.DVerr = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Data Valid Err Bits";
-  hoHists.DVerr = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Data Valid Err Bits";
-  hfHists.DVerr = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB CapID";
-  hbHists.CapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE CapID";
-  heHists.CapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO CapID";
-  hoHists.CapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF CapID";
-  hfHists.CapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB ADC count per time slice";
-  hbHists.ADC = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE ADC count per time slice";
-  heHists.ADC = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO ADC count per time slice";
-  hoHists.ADC = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF ADC count per time slice";
-  hfHists.ADC = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB ADC sum";
-  hbHists.ADCsum = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE ADC sum";
-  heHists.ADCsum = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO ADC sum";
-  hoHists.ADCsum = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF ADC sum";
-  hfHists.ADCsum = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-  name.str("");
+  loadSubdetHists(infile,hbHists,"HB");
+  loadSubdetHists(infile,heHists,"HE");
+  loadSubdetHists(infile,hoHists,"HO");
+  loadSubdetHists(infile,hfHists,"HF");
+
   name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/baddigisize/ Digis with Bad Size";
   DigiSize = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Eta Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Eta Occupancy Map";
   DigiOccupancyEta = static_cast<TH1F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Phi Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Phi Occupancy Map";
   DigiOccupancyPhi = static_cast<TH1F*>(infile->Get(name.str().c_str()));
   name.str("");
   name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/# of Digis";
   DigiNum = static_cast<TH1F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/# Bad Qual Digis";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/# Bad Qual Digis";
   DigiBQ = static_cast<TH1F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Bad Digi Fraction";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Bad Digi Fraction";
   DigiBQFrac = static_cast<TH1F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi VME Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi VME Occupancy Map";
   DigiOccupancyVME = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/Digi Spigot Occupancy Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Spigot Occupancy Map";
   DigiOccupancySpigot = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
-  /*
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Geo Error Map";
-  DigiErrorEtaPhi = static_cast<TH2F*>(infile->Get(name.str().c_str()));
-  name.str("");
-  */
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi VME Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Digi VME Error Map";
   DigiErrorVME = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_errors/Digi Spigot Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Digi Spigot Error Map";
   DigiErrorSpigot = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
 
-  for (int i=0;i<9;++i)
-    {
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Plus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_plus[i]
-      hbHists.TS_sum_plus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Plus Time Slices "<<i<<" and "<<i+1;  //heHists.TS_sum_plus[i]
-      heHists.TS_sum_plus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Plus Time Slices "<<i<<" and "<<i+1;  //hoHists.TS_sum_plus[i]
-      hoHists.TS_sum_plus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Plus Time Slices "<<i<<" and "<<i+1;  //hfHists.TS_sum_plus[i]
-      hfHists.TS_sum_plus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HB/HB Minus Time Slices "<<i<<" and "<<i+1;  //hbHists.TS_sum_minus[i]
-      hbHists.TS_sum_minus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HE/HE Minus Time Slices "<<i<<" and "<<i+1;  //heHists.TS_sum_minus[i]
-      heHists.TS_sum_minus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HO/HO Minus Time Slices "<<i<<" and "<<i+1;  //hoHists.TS_sum_minus[i]
-      hoHists.TS_sum_minus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/HF/HF Minus Time Slices "<<i<<" and "<<i+1;  //hfHists.TS_sum_minus[i]
-      hfHists.TS_sum_minus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
-      name.str("");
-    } // for (int i=0;i<9;++i)
-
   for (int i=0;i<4;++i)
     {
-      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_occupancy/"<<subdets_[i]<<" Digi Eta-Phi Occupancy Map";
+      name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/"<<subdets_[i]<<" Digi Eta-Phi Occupancy Map";
       DigiOccupancyByDepth[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/"<<subdets_[i]<<"Bad Digi Map";
@@ -1453,11 +1259,6 @@ void HcalDigiClient::loadHistograms(TFile* infile){
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/badADCsum/"<<subdets_[i]<<" Digis with ADC sum below threshold ADC counts";
       DigiErrorsBadADCSum[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
       name.str("");
-      /*
-      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/nodigis/"<<subdets_[i]<<" Digis Missing for a Number of Consecutive Events";
-      DigiErrorsNoDigi[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
-      name.str("");
-      */
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/data_invalid_error/"<<subdets_[i]<<" Digis with Data Invalid or Error Bit Set";
       DigiErrorsDVErr[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
       name.str("");
@@ -1467,6 +1268,55 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   return;
 } // void HcalDigiClient::loadHistograms()
 
+
+void HcalDigiClient::loadSubdetHists(TFile* infile,DigiClientHists& h, std::string subdet)
+{
+  stringstream name;
+
+  //Load Histograms
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Shape";
+  h.shape = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Shape - over thresh";
+  h.shapeThresh = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Digi Presamples";
+  h.presample = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Bad Quality Digis";
+  h.BQ = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Bad Quality Digi Fraction";
+  h.BQFrac = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Capid 1st Time Slice";
+  h.DigiFirstCapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Data Valid Err Bits";
+  h.DVerr = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" CapID";
+  h.CapID = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" ADC count per time slice";
+  h.ADC = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+  name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" ADC sum";
+  h.ADCsum = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+  name.str("");
+
+  for (int i=0;i<9;++i)
+    {
+      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Plus Time Slices "<<i<<" and "<<i+1;  //h.TS_sum_plus[i]
+      h.TS_sum_plus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+      name.str("");
+      
+      name<<process_.c_str()<<"DigiMonitor_Hcal/digi_info/"<<subdet<<"/"<<subdet<<" Minus Time Slices "<<i<<" and "<<i+1;  //h.TS_sum_minus[i]
+      h.TS_sum_minus[i] = static_cast<TH1F*>(infile->Get(name.str().c_str()));
+      name.str("");
+    } // for (int i=0;i<9;++i)
+
+} // void HcalDigiClient::loadSubdetHists(...)
 
 
 
@@ -1551,7 +1401,7 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   int ieta,iphi;
 
-  ostringstream name;
+  stringstream name;
   int etabins=0, phibins=0;
   for (unsigned int depth=0;depth<ProblemCellsByDepth.depth.size(); ++depth)
     {

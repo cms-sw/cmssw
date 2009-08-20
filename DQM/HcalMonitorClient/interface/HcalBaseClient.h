@@ -89,7 +89,8 @@ class HcalBaseClient{
 
   bool vetoCell(HcalDetId& id);
 
-  void getEtaPhiHists( std::string dir, std::string name, TH2F* h[4], std::string units="");
+  void getEtaPhiHists( std::string dir, std::string name, TH2F* h[4], std::string units=""); // assumes base directory of "Hcal"
+  void getEtaPhiHists(std::string rootdir, std::string dir, std::string name, TH2F* h[4], std::string units="");
   void SetEtaPhiLabels(MonitorElement* x);
   
   /*

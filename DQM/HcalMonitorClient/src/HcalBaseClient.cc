@@ -78,8 +78,7 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
 
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "");
-  rootfolder_ = ps.getUntrackedParameter<std::string>("rootfolder","Hcal");
-
+  rootfolder_ = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
   //Decide whether or not to fill unphysical iphi cells
   fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi",true);
   
@@ -244,14 +243,55 @@ bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 } // bool  HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
+void HcalBaseClient::getEtaPhiHists(std::string rootdir, std::string dir, std::string name, TH2F* h[4], std::string units)
+{
+  if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
+  TH2F* dummy = new TH2F();
+  stringstream hname;
+
+  cout <<"process_ = "<<process_.c_str()<<endl;
+
+  hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
+  cout <<"HNAME = "<<hname.str().c_str()<<endl;
+  if (!units.empty()) hname<<" "<<units;
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  h[0]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HB HE HF Depth 2 "<<name;
+  if (!units.empty()) hname<<" "<<units;
+  h[1]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  if (!units.empty()) hname<<" "<<units;
+  h[2]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  hname.str("");
+
+  hname <<process_.c_str()<<dir<<"HO Depth 4 "<<name;
+  if (!units.empty()) hname<<" "<<units;
+  h[3]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
+  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  hname.str("");
+
+  if (debug_>2) std::cout <<"Finished with getEtaPhiHists(2D)"<<std::endl;
+  return;
+} // void HcalBaseClient::getEtaPhiHists(...)
+
+
 
 void HcalBaseClient::getEtaPhiHists(std::string dir, std::string name, TH2F* h[4], std::string units)
 {
   if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
   TH2F* dummy = new TH2F();
-  ostringstream hname;
+  stringstream hname;
+
+  cout <<"process_ = "<<process_.c_str()<<endl;
 
   hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
+  cout <<"HNAME = "<<hname.str().c_str()<<endl;
   if (!units.empty()) hname<<" "<<units;
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);

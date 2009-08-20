@@ -45,11 +45,22 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 template <class myHist>
 myHist* getAnyHisto(myHist* hist,
 		    std::string name, std::string process, DQMStore* dbe_,
-		    bool verb, bool clone, float scale=1.)
+		    bool verb, bool clone)
+{
+
+  // If subsystem folder not specified, assume that it's "Hcal"
+  myHist* theHist=getAnyHisto(hist, name, process, "Hcal",dbe_, verb, clone);
+  return theHist;
+}
+
+
+template <class myHist>
+myHist* getAnyHisto(myHist* hist,
+		    std::string name, std::string process, std::string rootfolder, DQMStore* dbe_,
+		    bool verb, bool clone)
 {
   /* 
      Method returns histogram named 'name' from DQMStore dbe_;
@@ -64,20 +75,22 @@ myHist* getAnyHisto(myHist* hist,
 
   if (!dbe_) return NULL;
 
-  char title[150];  // title of histogram to grab from dbe
   char clonehisto[150];
-  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
 
-  MonitorElement* me = dbe_->get(title); // get Monitor Element named 'title'
+  stringstream title;
+  title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
+  //sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
+
+  MonitorElement* me = dbe_->get(title.str().c_str()); // get Monitor Element named 'title'
   
   if (!me) 
     {
-      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title<<"]"<<endl;
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<endl;
       return NULL; // ME not found
     } // if (!me)
 
   if (verb) 
-    cout << "Found '" << title << "'" << endl;
+    cout << "Found '" << title.str().c_str() << "'" << endl;
 
   if (clone)
     sprintf(clonehisto, "ME %s",name.c_str()); // set clone histogram name
@@ -89,11 +102,6 @@ myHist* getAnyHisto(myHist* hist,
   */
 
   std::string histtype = hist->ClassName();
-
-  /*
-    if (scale!=1.)
-    me->scale(scale);
-  */
   
   // return TH1F from ME
   if (histtype=="TH1F")
