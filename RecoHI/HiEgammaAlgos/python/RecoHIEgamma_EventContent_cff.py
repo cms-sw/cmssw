@@ -10,7 +10,7 @@ RecoHIEgammaFEVT = cms.PSet(
     'keep *_ecalGlobalUncalibRecHit_*_*',
     'keep *_hfreco_*_*',
     'keep *_horeco_*_*',
-    'keep *_"hbhereco_*_*',
+    'keep *_hbhereco_*_*',
     'keep *_globalPrimTracks_*_*',
     'keep *_photons_*_*',
     'keep *_photonCore_*_*',
