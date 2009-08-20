@@ -11,7 +11,7 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE(testResourceMonitorCollection);
 
   CPPUNIT_TEST(sataBeasts);
-  CPPUNIT_TEST(sataBeastsOnSpecialNode);
+  //CPPUNIT_TEST(sataBeastsOnSpecialNode);  // can only be used on specially prepared SATA beast host
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -20,7 +20,7 @@ public:
   void tearDown();
 
   void sataBeasts();
-  void sataBeastsOnSpecialNode(); // can only be used on specially perpared SATA beast host
+  void sataBeastsOnSpecialNode();
 
 private:
 
