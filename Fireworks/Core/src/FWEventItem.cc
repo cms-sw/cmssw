@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.36 2009/08/05 13:36:02 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.37 2009/08/12 18:15:12 chrjones Exp $
 //
 
 // system include files
@@ -71,7 +71,6 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
                             defaultMemberFunctionNames()),
    m_filter(iDesc.filterExpression(),""),
-   m_printedNoDataError(false),
    m_printedErrorThisEvent(false),
    m_isSelected(false)
 {
@@ -120,7 +119,6 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
 void
 FWEventItem::setEvent(const fwlite::Event* iEvent)
 {
-   if ( m_event != iEvent ) m_printedNoDataError = false;
    m_printedErrorThisEvent = false;
    m_event = iEvent;
    m_accessor->reset();
@@ -366,6 +364,7 @@ FWEventItem::data(const std::type_info& iInfo) const
 
    //lookup data if we don't already have it
    if(0==m_accessor->data()) {
+      m_errorMessage.clear();
       void* wrapper=0;
       void* temp = &wrapper;
       if(m_event) {
@@ -376,16 +375,20 @@ FWEventItem::data(const std::type_info& iInfo) const
                                 m_processName.size() ? m_processName.c_str() : 0,
                                 temp);
          } catch (std::exception& iException) {
-            if ( !m_printedNoDataError ) {
-               std::cerr << "Failed to get "<<name()<<" because \n" <<iException.what()<<std::endl;
-               m_printedNoDataError = true;
+            if ( !m_printedErrorThisEvent ) {
+               std::ostringstream s;
+               s<< "Failed to get "<<name()<<" because \n" <<iException.what();
+               m_errorMessage=s.str();
+               m_printedErrorThisEvent = true;
             }
             return 0;
          }
          if(0==wrapper) {
-            if ( !m_printedNoDataError ) {
-               std::cerr << "Failed to get "<<name()<<" because branch does not exist in this file"<<std::endl;
-               m_printedNoDataError = true;
+            if ( !m_printedErrorThisEvent ) {
+               std::ostringstream s;
+               s << "Failed to get "<<name()<<" because branch does not exist in this file";
+               m_errorMessage=s.str();
+               m_printedErrorThisEvent = true;
             }
             return 0;
          }
@@ -419,7 +422,9 @@ FWEventItem::data(const std::type_info& iInfo) const
          if(not prod->isPresent()) {
             //not actually in this event
             if(!m_printedErrorThisEvent) {
-               std::cerr <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
+               std::ostringstream s;
+               s <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
+               m_errorMessage=s.str();
                m_printedErrorThisEvent = true;
             }
             return 0;
@@ -658,6 +663,20 @@ bool
 FWEventItem::itemIsSelected() const
 {
    return m_isSelected;
+}
+
+bool 
+FWEventItem::hasError() const {
+   return !errorMessage().empty();
+}
+
+const std::string& 
+FWEventItem::errorMessage() const
+{
+   if(m_errorMessage.empty()) {
+      getPrimaryData();
+   }
+   return m_errorMessage;
 }
 
 //

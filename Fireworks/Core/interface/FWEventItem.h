@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.35 2009/08/05 13:36:02 chrjones Exp $
+// $Id: FWEventItem.h,v 1.36 2009/08/12 18:15:12 chrjones Exp $
 //
 
 // system include files
@@ -140,6 +140,11 @@ public:
    }
 
 
+   ///returns true if failed to get data for this event
+   bool hasError() const;
+   ///returns error string if there was a problem this event
+   const std::string& errorMessage() const;
+   
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -227,9 +232,10 @@ private:
 
    FWModelFilter m_filter;
    sigc::connection m_shouldFilterConnection;
-   mutable bool m_printedNoDataError;
    mutable bool m_printedErrorThisEvent;
    mutable std::string m_fullBranchName;
+   
+   mutable std::string m_errorMessage;
    
    bool m_isSelected;
 };
