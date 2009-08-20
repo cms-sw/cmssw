@@ -1,7 +1,5 @@
-/**
- * $Id: Utils.cc,v 1.5 2009/07/20 13:07:28 mommsen Exp $
+//$Id: Utils.cc,v 1.6 2009/08/18 09:16:49 mommsen Exp $
 /// @file: Utils.cc
- */
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -11,15 +9,6 @@
 
 #include <sys/time.h>
 #include <sys/stat.h>
-
-#include "xdata/InfoSpaceFactory.h"
-#include "xdaq/Application.h"
-#include "xdaq/ApplicationDescriptor.h"
-
-#include "sentinel/utils/version.h"
-#if SENTINELUTILS_VERSION_MAJOR>1
-#include "sentinel/utils/Alarm.h"
-#endif
 
 
 namespace stor
@@ -105,62 +94,6 @@ namespace stor
         msg << "Directory " << path << " does not exist. Error=" << errno;
         XCEPT_RAISE(stor::exception::NoSuchDirectory, msg.str());
       }
-    }
-
-
-    void raiseAlarm
-    (
-      const std::string name,
-      const std::string level,
-      xcept::Exception& exception,
-      xdaq::Application* app
-    )
-    {
-#if SENTINELUTILS_VERSION_MAJOR>1
-  
-      xdata::InfoSpace *is =
-        xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
-
-      sentinel::utils::Alarm *alarm =
-        new sentinel::utils::Alarm(level, exception, app);
-      try
-      {
-        is->fireItemAvailable(name, alarm);
-      }
-      catch(xdata::exception::Exception)
-      {
-        // Alarm is already set
-        return;
-      }
-#endif
-    }
-
-
-    void revokeAlarm
-    (
-      const std::string name,
-      xdaq::Application* app
-    )
-    {
-#if SENTINELUTILS_VERSION_MAJOR>1
-  
-      xdata::InfoSpace *is =
-        xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
-
-      sentinel::utils::Alarm *alarm;
-      try
-      {
-        alarm = dynamic_cast<sentinel::utils::Alarm*>(is->find( name ));
-      }
-      catch(xdata::exception::Exception)
-      {
-        // Alarm has not been set
-        return;
-      }
-      
-      is->fireItemRevoked(name, app);
-      delete alarm;
-#endif
     }
 
   } // namespace utils
