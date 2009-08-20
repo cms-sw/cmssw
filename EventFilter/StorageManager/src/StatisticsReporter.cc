@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.6 2009/08/18 08:55:12 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.7 2009/08/18 09:17:20 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -25,6 +25,7 @@ StatisticsReporter::StatisticsReporter
   const utils::duration_t& monitoringSleepSec
 ) :
 _app(app),
+_alarmHandler(new AlarmHandler(app)),
 _monitoringSleepSec(monitoringSleepSec),
 _runMonCollection(_monitoringSleepSec),
 _fragMonCollection(_monitoringSleepSec),
@@ -32,7 +33,7 @@ _filesMonCollection(5*_monitoringSleepSec),
 _streamsMonCollection(_monitoringSleepSec),
 _dataSenderMonCollection(_monitoringSleepSec),
 _dqmEventMonCollection(5*_monitoringSleepSec),
-_resourceMonCollection(app,60*_monitoringSleepSec),
+_resourceMonCollection(60*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
 _throughputMonCollection(_monitoringSleepSec),
 _monitorWL(0),

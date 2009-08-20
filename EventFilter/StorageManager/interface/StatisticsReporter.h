@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.6 2009/08/18 09:16:35 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -10,6 +10,7 @@
 #include "xdata/InfoSpace.h"
 #include "xdata/UnsignedInteger32.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
@@ -40,8 +41,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/18 09:16:35 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -164,6 +165,7 @@ namespace stor {
     void updateInfoSpace();
 
     xdaq::Application* _app;
+    boost::shared_ptr<AlarmHandler> _alarmHandler;
     utils::duration_t _monitoringSleepSec;
     utils::time_point_t _lastMonitorAction;
 
