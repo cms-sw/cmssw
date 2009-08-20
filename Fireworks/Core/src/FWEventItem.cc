@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.37 2009/08/12 18:15:12 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.38 2009/08/20 00:25:50 chrjones Exp $
 //
 
 // system include files
@@ -624,8 +624,12 @@ FWEventItem::filterExpression() const
 void
 FWEventItem::destroy() const
 {
-   goingToBeDestroyed_(this);
+   //NOTE: need to unselect first before announcing destruction
+   // because some items are listening to the display change and may
+   // not properly release their connection to that signal after they
+   // are destroyed via a connection to goingToBeDestroyed_
    const_cast<FWEventItem*>(this)->unselectItem();
+   goingToBeDestroyed_(this);
    delete this;
 }
 
