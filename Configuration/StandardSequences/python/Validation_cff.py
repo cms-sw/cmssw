@@ -26,9 +26,17 @@ from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.Generator.BasicGenValidation_cff import *
 
-validation = cms.Sequence(cms.SequencePlaceholder("mix")+globaldigisanalyze*globalhitsanalyze*globalrechitsanalyze*globalValidation*hltvalidation)
+validation = cms.Sequence(cms.SequencePlaceholder("mix")
+                         +basicGenTest_seq
+                         *globaldigisanalyze
+                         *globalhitsanalyze
+                         *globalrechitsanalyze
+                         *globalValidation
+                         *hltvalidation)
 
-validation_preprod = cms.Sequence(trackingTruthValid
+validation_preprod = cms.Sequence(
+                          basicGenTest_seq
+                          +trackingTruthValid
                           +tracksValidation
                           +METRelValSequence
                           +recoMuonValidation
