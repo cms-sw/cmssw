@@ -60,13 +60,13 @@ namespace edm {
   void
   RunPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
     if (getExistingGroup(bd.branchID()) == 0) {
-      addGroup(bd, true);
+      addGroup(bd);
     }
   }
 
   void
-  RunPrincipal::addGroup(ConstBranchDescription const& bd, bool dropped) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), dropped));
+  RunPrincipal::addGroup(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID()));
     addOrReplaceGroup(g);
   }
 

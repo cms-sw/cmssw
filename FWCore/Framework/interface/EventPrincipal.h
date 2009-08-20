@@ -127,7 +127,7 @@ namespace edm {
 
     void addGroupSource(ConstBranchDescription const& bd);
 
-    void addGroup(ConstBranchDescription const& bd, bool dropped = false);
+    void addGroup(ConstBranchDescription const& bd);
 
     void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance);

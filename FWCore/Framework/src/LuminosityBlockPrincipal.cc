@@ -63,13 +63,13 @@ namespace edm {
   void
   LuminosityBlockPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
     if (getExistingGroup(bd.branchID()) == 0) {
-      addGroup(bd, true);
+      addGroup(bd);
     }
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd, bool dropped) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), dropped));
+  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, ProductID()));
     addOrReplaceGroup(g);
   }
 

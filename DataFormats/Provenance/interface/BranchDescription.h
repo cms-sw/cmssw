@@ -114,8 +114,8 @@ namespace edm {
       // rather than in a previous process
       bool produced_;
 
-      // Has the branch been dropped from the product tree
-      // in the input files
+      // Has the branch been dropped from the product tree in this file
+      // (or if this is a merged product registry, in the first file).
       bool dropped_;
 
       // Is the class of the branch marked as transient

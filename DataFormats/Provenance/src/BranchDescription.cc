@@ -161,7 +161,6 @@ namespace edm {
     parameterSetIDs().insert(other.parameterSetIDs().begin(), other.parameterSetIDs().end());
     moduleNames().insert(other.moduleNames().begin(), other.moduleNames().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    dropped() = dropped() && other.dropped();
     if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
     if (basketSize() == invalidBasketSize) basketSize() = other.basketSize();
   }
@@ -287,7 +286,7 @@ namespace edm {
       differences << "    in file '" << fileName << "', but '" << a.fullClassName() << "' in previous files.\n";
     }
     if (!b.dropped() && a.dropped()) {
-      differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
+      differences << "Branch '" << a.branchName() << "' was dropped in the first input file but is present in '" << fileName << "'.\n";
     }
     if (m == BranchDescription::Strict) {
 	if (b.parameterSetIDs().size() > 1) {

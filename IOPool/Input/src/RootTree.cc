@@ -78,7 +78,6 @@ namespace edm {
       prod.init();
       //use the translated branch name 
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
-      assert (prod.dropped() == (branch == 0));
       input::BranchInfo info = input::BranchInfo(ConstBranchDescription(prod));
       info.productBranch_ = 0;
       if (prod.present()) {

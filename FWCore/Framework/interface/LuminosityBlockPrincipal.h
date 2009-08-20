@@ -92,7 +92,7 @@ namespace edm {
 
     void addGroupSource(ConstBranchDescription const& bd);
 
-    void addGroup(ConstBranchDescription const& bd, bool dropped = false);
+    void addGroup(ConstBranchDescription const& bd);
 
     void addGroupIfNeeded(ConstBranchDescription const& bd);
 

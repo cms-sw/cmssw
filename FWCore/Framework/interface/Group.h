@@ -26,7 +26,7 @@ namespace edm {
 
     Group(ConstBranchDescription const& bd, ProductID const& pid, ProductStatus const& status);
 
-    Group(ConstBranchDescription const& bd, ProductID const& pid, bool dropped);
+    Group(ConstBranchDescription const& bd, ProductID const& pid);
 
     Group(ConstBranchDescription const& bd,
 	  ProductID const& pid,
@@ -109,7 +109,6 @@ namespace edm {
     mutable ProductID pid_;
     mutable ProductStatus status_;
     mutable boost::shared_ptr<Provenance> prov_;
-    bool    dropped_;
     bool    onDemand_;
   };
 

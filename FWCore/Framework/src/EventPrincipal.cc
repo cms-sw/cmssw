@@ -75,13 +75,13 @@ namespace edm {
   void
   EventPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
     if (getExistingGroup(bd.branchID()) == 0) {
-      addGroup(bd, true);
+      addGroup(bd);
     }
   }
 
   void
-  EventPrincipal::addGroup(ConstBranchDescription const& bd, bool dropped) {
-    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), dropped));
+  EventPrincipal::addGroup(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
     addGroupOrThrow(g);
   }
 

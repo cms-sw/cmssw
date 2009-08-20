@@ -28,14 +28,20 @@ namespace edm {
   RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
     iterator iter = branchIter(k);
     if (!found(iter)) {
-      assert(nextReader_);
-      return nextReader_->getProduct(k, ep);
+      if (nextReader_) {
+        return nextReader_->getProduct(k, ep);
+      } else {
+        return std::auto_ptr<EDProduct>();
+      }
     }
     input::BranchInfo const& branchInfo = getBranchInfo(iter);
     TBranch *br = branchInfo.productBranch_;
     if (br == 0) {
-      assert(nextReader_);
-      return nextReader_->getProduct(k, ep);
+      if (nextReader_) {
+        return nextReader_->getProduct(k, ep);
+      } else {
+        return std::auto_ptr<EDProduct>();
+      }
     }
     setRefCoreStreamer(ep, !fileFormatVersion_.splitProductIDs(), !fileFormatVersion_.productIDIsInt());
     TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());

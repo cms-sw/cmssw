@@ -18,7 +18,6 @@ namespace edm {
     pid_(),
     status_(productstatus::uninitialized()),
     prov_(),
-    dropped_(false),
     onDemand_(false) {}
 
 
@@ -29,9 +28,7 @@ namespace edm {
     pid_(pid),
     status_(productProvenance->productStatus()),
     prov_(new Provenance(branchDescription(), pid_, boost::shared_ptr<ProductProvenance>(productProvenance.release()))),
-    dropped_(false),
     onDemand_(false) {
-        assert(!branchDescription().dropped());
   }
 
   Group::Group(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
@@ -41,9 +38,7 @@ namespace edm {
     pid_(pid),
     status_(productProvenance->productStatus()),
     prov_(new Provenance(branchDescription(), pid_, productProvenance)),
-    dropped_(false),
     onDemand_(false) {
-        assert(!branchDescription().dropped());
   }
 
   Group::Group(ConstBranchDescription const& bd,
@@ -53,7 +48,6 @@ namespace edm {
     pid_(pid),
     status_(productProvenance->productStatus()),
     prov_(new Provenance(branchDescription(), pid_, productProvenance)),
-    dropped_(branchDescription().dropped()),
     onDemand_(false) {
   }
 
@@ -63,18 +57,15 @@ namespace edm {
     pid_(pid),
     status_(status),
     prov_(),
-    dropped_(false),
     onDemand_(productstatus::unscheduledProducerNotRun(status)) {
-        assert(!branchDescription().dropped());
   }
 
-  Group::Group(ConstBranchDescription const& bd, ProductID const& pid, bool dropped) :
+  Group::Group(ConstBranchDescription const& bd, ProductID const& pid) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
-    status_((dropped || bd.dropped()) ? productstatus::dropped() : productstatus::uninitialized()),
+    status_(productstatus::uninitialized()),
     prov_(),
-    dropped_(dropped || bd.dropped()),
     onDemand_(false) {
   }
 
@@ -109,6 +100,8 @@ namespace edm {
       }
     } else if (prov_->productProvenancePtr()) {
       status_ = prov_->productProvenance().productStatus();
+    } else {
+      status_ = productstatus::dropped();
     }
   }
   
@@ -123,7 +116,6 @@ namespace edm {
   bool 
   Group::productUnavailable() const { 
     if (onDemand()) return false;
-    if (dropped_) return true;
     bool unavailable = productstatus::notPresent(status());
     // If this product is from a the current process,
     // the product is available if and only if a product has been put.
@@ -159,7 +151,6 @@ namespace edm {
     std::swap(branchDescription_, other.branchDescription_);
     std::swap(status_, other.status_);
     std::swap(prov_, other.prov_);
-    std::swap(dropped_, other.dropped_);
     std::swap(onDemand_, other.onDemand_);
   }
 

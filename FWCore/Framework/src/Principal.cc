@@ -523,8 +523,10 @@ namespace edm {
     std::auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
 
     // Now fix up the Group
-    g.setProduct(edp);
-    g.updateStatus();
+    if (edp.get() != 0) {
+      g.setProduct(edp);
+      g.updateStatus();
+    }
   }
 
   void
