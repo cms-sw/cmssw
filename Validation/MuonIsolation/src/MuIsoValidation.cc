@@ -65,7 +65,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   
   //  rootfilename = iConfig.getUntrackedParameter<string>("rootfilename"); // comment out for inclusion
   requireCombinedMuon = iConfig.getUntrackedParameter<bool>("requireCombinedMuon");
-  dirName = "MuonIsolationV/";
+  dirName = iConfig.getParameter<std::string>("directory");
   subDirName = iConfig.getParameter<std::string>("@module_label");
   
   dirName += subDirName;
