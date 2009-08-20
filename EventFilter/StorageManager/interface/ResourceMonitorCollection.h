@@ -1,9 +1,10 @@
-// $Id: ResourceMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
 #define StorageManager_ResourceMonitorCollection_h
 
+#include <set>
 #include <vector>
 #include <string>
 
@@ -13,6 +14,7 @@
 #include "toolbox/mem/Pool.h"
 #include "xdata/String.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 
@@ -23,13 +25,16 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/18 08:54:13 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
   {
   public:
+
+    // Allow unit test to access the private methods
+    friend class testResourceMonitorCollection;
 
     struct DiskUsageStats
     {
@@ -37,7 +42,7 @@ namespace stor {
       MonitoredQuantity::Stats relDiskUsageStats;  // percentage of disk space occupied
       size_t diskSize;                             // absolute size of disk in GB
       std::string pathName;                        // path of the disk
-      std::string warningColor;                    // HTML color code for disk usage warning
+      AlarmHandler::ALARM_LEVEL alarmState;        // alarm level of the disk usage
     };
     typedef boost::shared_ptr<DiskUsageStats> DiskUsageStatsPtr;
     typedef std::vector<DiskUsageStatsPtr> DiskUsageStatsPtrList;
@@ -49,10 +54,15 @@ namespace stor {
       MonitoredQuantity::Stats poolUsageStats; // I2O message pool usage in bytes
       MonitoredQuantity::Stats numberOfCopyWorkersStats;
       MonitoredQuantity::Stats numberOfInjectWorkersStats;
+      unsigned int             sataBeastStatus; // status code of SATA beast
     };
 
 
-    explicit ResourceMonitorCollection(xdaq::Application*, const utils::duration_t& updateInterval);
+    explicit ResourceMonitorCollection
+    (
+      const utils::duration_t& updateInterval,
+      boost::shared_ptr<AlarmHandler>
+    );
 
     /**
      * Stores the given memory pool pointer if not yet set.
@@ -79,8 +89,9 @@ namespace stor {
       MonitoredQuantity relDiskUsage;
       size_t diskSize;
       std::string pathName;
-      std::string warningColor;
+      AlarmHandler::ALARM_LEVEL alarmState;
       std::string alarmName;
+      unsigned int sataBeastStatus;
 
       DiskUsage(const utils::duration_t& updateInterval) :
         absDiskUsage(updateInterval,10),
@@ -96,6 +107,7 @@ namespace stor {
     MonitoredQuantity _poolUsage;
     MonitoredQuantity _numberOfCopyWorkers;
     MonitoredQuantity _numberOfInjectWorkers;
+    unsigned int      _sataBeastStatus;
 
 
     //Prevent copying of the ResourceMonitorCollection
@@ -116,12 +128,21 @@ namespace stor {
     void calcNumberOfWorkers();
     int getProcessCount(const std::string processName);
 
-    xdaq::Application* _app;
+    typedef std::set<std::string> SATABeasts;
+    void checkSataBeasts();
+    bool getSataBeasts(SATABeasts& sataBeasts);
+    void checkSataBeast(const std::string& sataBeast);
+    bool checkSataDisks(const std::string& sataBeast, const std::string& hostSuffix);
+    void updateSataBeastStatus(const std::string& sataBeast, const std::string& content);
+
+
+    boost::shared_ptr<AlarmHandler> _alarmHandler;
     toolbox::mem::Pool* _pool;
     double _highWaterMark;     //percentage of disk full when issuing an alarm
 
     // Unused status string from old SM
     xdata::String _progressMarker;
+
   };
   
 } // namespace stor

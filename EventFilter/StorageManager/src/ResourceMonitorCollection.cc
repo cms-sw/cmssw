@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.7 2009/08/18 08:55:12 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -8,7 +8,12 @@
 #include <dirent.h>
 #include <fnmatch.h>
 #include <fstream>
+#include <algorithm>
 
+#include <boost/bind.hpp>
+#include <boost/regex.hpp> 
+
+#include "EventFilter/StorageManager/interface/CurlInterface.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -17,15 +22,15 @@ using namespace stor;
 
 ResourceMonitorCollection::ResourceMonitorCollection
 (
-  xdaq::Application* app,
-  const utils::duration_t& updateInterval
+  const utils::duration_t& updateInterval,
+  boost::shared_ptr<AlarmHandler> ah
 ) :
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
 _poolUsage(updateInterval, 10),
 _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
-_app(app),
+_alarmHandler(ah),
 _pool(0),
 _progressMarker( "unused" )
 {}
@@ -78,6 +83,8 @@ void ResourceMonitorCollection::getStats(Stats& stats) const
   _poolUsage.getStats(stats.poolUsageStats);
   _numberOfCopyWorkers.getStats(stats.numberOfCopyWorkersStats);
   _numberOfInjectWorkers.getStats(stats.numberOfInjectWorkersStats);
+
+  stats.sataBeastStatus = _sataBeastStatus;
 }
 
 
@@ -97,7 +104,7 @@ void  ResourceMonitorCollection::getDiskStats(Stats& stats) const
     (*it)->relDiskUsage.getStats(diskUsageStats->relDiskUsageStats);
     diskUsageStats->diskSize = (*it)->diskSize;
     diskUsageStats->pathName = (*it)->pathName;
-    diskUsageStats->warningColor = (*it)->warningColor;
+    diskUsageStats->alarmState = (*it)->alarmState;
     stats.diskUsageStatsList.push_back(diskUsageStats);
   }
 }
@@ -108,6 +115,7 @@ void ResourceMonitorCollection::do_calculateStatistics()
   calcPoolUsage();
   calcDiskUsage();
   calcNumberOfWorkers();
+  checkSataBeasts();
 }
 
 
@@ -116,6 +124,7 @@ void ResourceMonitorCollection::do_reset()
   _poolUsage.reset();
   _numberOfCopyWorkers.reset();
   _numberOfInjectWorkers.reset();
+  _sataBeastStatus = 0;
 
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
   for ( DiskUsagePtrList::const_iterator it = _diskUsageList.begin(),
@@ -125,7 +134,7 @@ void ResourceMonitorCollection::do_reset()
   {
     (*it)->absDiskUsage.reset();
     (*it)->relDiskUsage.reset();
-    (*it)->warningColor = "#FFFFFF";
+    (*it)->alarmState = AlarmHandler::OKAY;
   }
 }
 
@@ -197,7 +206,7 @@ void ResourceMonitorCollection::calcDiskUsage()
 
 void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
 {
-  diskUsage->warningColor = "#EF5A10";
+  diskUsage->alarmState = AlarmHandler::WARNING;
 
   MonitoredQuantity::Stats relUsageStats, absUsageStats;
   diskUsage->relDiskUsage.getStats(relUsageStats);
@@ -211,15 +220,16 @@ void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
     diskUsage->diskSize << "GB).";
 
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg.str());
-  utils::raiseAlarm(diskUsage->alarmName, "warning", ex, _app);
+  _alarmHandler->raiseAlarm(diskUsage->alarmName, diskUsage->alarmState, ex);
+
 }
 
 
 void ResourceMonitorCollection::revokeDiskUsageAlarm(DiskUsagePtr diskUsage)
 {
-  diskUsage->warningColor = "#FFFFFF";
+  diskUsage->alarmState = AlarmHandler::OKAY;
 
-  utils::revokeAlarm(diskUsage->alarmName, _app);
+  _alarmHandler->revokeAlarm(diskUsage->alarmName);
 }
 
 
@@ -230,6 +240,149 @@ void ResourceMonitorCollection::calcNumberOfWorkers()
   
   _numberOfCopyWorkers.calculateStatistics();
   _numberOfInjectWorkers.calculateStatistics();
+}
+
+
+void ResourceMonitorCollection::checkSataBeasts()
+{
+  SATABeasts sataBeasts;
+  if ( getSataBeasts(sataBeasts) )
+  {
+    for (
+      SATABeasts::const_iterator it = sataBeasts.begin(),
+        itEnd= sataBeasts.end();
+      it != itEnd;
+      ++it
+    )
+    {
+      checkSataBeast(*it);
+    }
+  }
+}
+
+
+bool ResourceMonitorCollection::getSataBeasts(SATABeasts& sataBeasts)
+{
+  std::ifstream in;
+  in.open( "/proc/mounts" );
+  
+  if ( ! in.is_open() ) return false;
+  
+  std::string line;
+  while( getline(in,line) )
+  {
+    size_t pos = line.find("sata");
+    if ( pos != std::string::npos )
+    {
+      std::ostringstream host;
+      host << "satab-c2c"
+           << std::setw(2) << std::setfill('0')
+           << line.substr(pos+4,1)
+           << "-"
+           << std::setw(2) << std::setfill('0')
+           << line.substr(pos+5,1);
+      sataBeasts.insert(host.str());
+    }
+  }
+  return !sataBeasts.empty();
+}
+
+
+void ResourceMonitorCollection::checkSataBeast(const std::string& sataBeast)
+{
+  if ( ! (checkSataDisks(sataBeast,"-00.cms") || checkSataDisks(sataBeast,"-10.cms")) )
+  {
+    XCEPT_DECLARE(stor::exception::SataBeast, ex, 
+      "Failed to connect to SATA beast " + sataBeast);
+    _alarmHandler->raiseAlarm(sataBeast, AlarmHandler::ERROR, ex);
+
+    _sataBeastStatus = 99999;
+  }
+}
+
+
+bool ResourceMonitorCollection::checkSataDisks
+(
+  const std::string& sataBeast,
+  const std::string& hostSuffix
+)
+{
+  stor::CurlInterface curlInterface;
+  std::string content;
+  
+  const CURLcode returnCode =
+    curlInterface.getContent(
+      "http://" + sataBeast + hostSuffix + "/status.asp","", content
+    );
+  
+  if (returnCode == CURLE_OK)
+  {
+    updateSataBeastStatus(sataBeast, content);
+    return true;
+  }
+  else
+  {
+    std::ostringstream msg;
+    msg << "Failed to connect to SATA controller "
+      << sataBeast << hostSuffix << ": " << content;
+    XCEPT_DECLARE(stor::exception::SataBeast, ex, msg.str());
+    _alarmHandler->raiseAlarm(sataBeast, AlarmHandler::WARNING, ex);
+
+    return false;
+  }
+}
+
+void ResourceMonitorCollection::updateSataBeastStatus(
+  const std::string& sataBeast,
+  const std::string& content
+)
+{
+  boost::regex failedEntry(">([^<]* has failed[^<]*)");
+  boost::regex failedDisk("Hard disk([[:digit:]]+)");
+  boost::regex failedController("RAID controller ([[:digit:]]+)");
+  boost::match_results<std::string::const_iterator> matchedEntry, matchedCause;
+  boost::match_flag_type flags = boost::match_default;
+
+  std::string::const_iterator start = content.begin();
+  std::string::const_iterator end = content.end();
+
+  unsigned int newSataBeastStatus = 0;
+
+  while( regex_search(start, end, matchedEntry, failedEntry, flags) )
+  {
+    std::string errorMsg = matchedEntry[1];
+    XCEPT_DECLARE(stor::exception::SataBeast, ex, sataBeast+": "+errorMsg);
+    _alarmHandler->raiseAlarm(sataBeast, AlarmHandler::ERROR, ex);
+
+    // find what failed
+    if ( regex_search(errorMsg, matchedCause, failedDisk) )
+    {
+      // Update the number of failed disks
+      ++newSataBeastStatus;
+    }
+    else if ( regex_search(errorMsg, matchedCause, failedController) )
+    {
+      // Update the number of failed controllers
+      newSataBeastStatus += 100;
+    }
+    else
+    {
+      // Unknown failure
+      newSataBeastStatus += 1000;
+    }
+
+    // update search position:
+    start = matchedEntry[0].second;
+    // update flags:
+    flags |= boost::match_prev_avail;
+    flags |= boost::match_not_bob;
+  }
+
+  _sataBeastStatus = newSataBeastStatus;
+
+  if (_sataBeastStatus == 0) // no more problems
+    _alarmHandler->revokeAlarm(sataBeast);
+
 }
 
 
@@ -248,7 +401,7 @@ namespace {
     
     std::ifstream in;
     in.open( cmdline.str().c_str() );
-
+    
     if ( in.is_open() )
     {
       std::string line;
@@ -262,7 +415,7 @@ namespace {
       }
       in.close();
     }
-
+    
     return match;
   }
 }
@@ -270,15 +423,15 @@ namespace {
 
 int ResourceMonitorCollection::getProcessCount(const std::string processName)
 {
-
+  
   int count(0);
   struct dirent **namelist;
   int n;
   
   n = scandir("/proc", &namelist, filter, 0);
-
+  
   if (n < 0) return -1;
-
+  
   while(n--)
   {
     if ( grep(namelist[n], processName) )
@@ -288,7 +441,7 @@ int ResourceMonitorCollection::getProcessCount(const std::string processName)
     free(namelist[n]);
   }
   free(namelist);
-
+  
   return count;
 }
 
