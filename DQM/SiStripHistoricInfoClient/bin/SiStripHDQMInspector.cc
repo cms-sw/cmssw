@@ -43,6 +43,9 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   // -------------------
 
   HDQMInspectorConfigSiStrip siStripConfig;
+  vector<string> ItemsForIntegration;
+  ItemsForIntegration.push_back("TotalNumberOfClusters_OnTrack_entries");
+  siStripConfig.computeIntegralList(ItemsForIntegration);
   DQMHistoryCreateTrend makeTrend(&siStripConfig);
 
   // Database and output configuration

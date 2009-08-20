@@ -19,6 +19,12 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   // -------------------
 
   HDQMInspectorConfigTracking trackingConfig;
+  // Select quantities you want the integral of
+  vector<string> ItemsForIntegration;
+  ItemsForIntegration.push_back("Chi2overDoF_CosmicTk_entries");
+  ItemsForIntegration.push_back("NumberOfTracks_CosmicTk_entries");
+  trackingConfig.computeIntegralList(ItemsForIntegration);
+  // Create the functor
   DQMHistoryCreateTrend makeTrend(&trackingConfig);
 
   // Database and output configuration
@@ -30,9 +36,6 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   // Definition of trends
   typedef DQMHistoryTrendsConfig Trend;
   vector<Trend> config;
-  // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
-  // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@entries", "NumberOfRecHitsPerTrack_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
-  // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@entries", "NumberOfTracks_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
 
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_CosmicTk@mean", "Chi2overDoF_CosmicTk.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@mean", "Chi2overDoF_CKFTk.gif", 0, condition, Start, End, nRuns ));
@@ -74,7 +77,11 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_RSTk@mean", "DistanceOfClosestApproach_RSTk.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CosmicTk@mean", "DistanceOfClosestApproach_CosmicTk.gif", 0, condition, Start, End, nRuns ));
 
+  // Integral
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_CosmicTk@entries", "Chi2overDoF_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@entries", "NumberOfTracks_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
+  // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
+  // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@entries", "NumberOfRecHitsPerTrack_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
 
   // Creation of trends
   for_each(config.begin(), config.end(), makeTrend);
