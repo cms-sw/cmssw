@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.16 2009/07/20 13:07:28 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.17 2009/08/12 15:27:24 biery Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -9,6 +9,7 @@
 
 #include "boost/lexical_cast.hpp"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
@@ -43,6 +44,11 @@ _smVersion(SMversion)
   
   _specialRowAttr = _rowAttr;
   _specialRowAttr[ "class" ] = "special";
+
+  _alarmColors[ AlarmHandler::OKAY ] = "#FFFFFF";
+  _alarmColors[ AlarmHandler::WARNING ] = "#EF5A10";
+  _alarmColors[ AlarmHandler::ERROR ] = "#E41218";
+  _alarmColors[ AlarmHandler::FATAL ] = "#9A1211";
 
   _tableLabelAttr[ "align" ] = "left";
 
@@ -1039,6 +1045,8 @@ void WebPageHelper::addRowsForWorkers
   XHTMLMaker::AttrMap tableValueAttr = _tableValueAttr;
   tableValueAttr[ "width" ] = "46%";
 
+  XHTMLMaker::AttrMap warningAttr = _rowAttr;
+
   // # copy worker
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
@@ -1052,6 +1060,15 @@ void WebPageHelper::addRowsForWorkers
   maker.addText(tableDiv, "# InjectWorker");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addText(tableDiv, stats.numberOfInjectWorkersStats.getLastSampleValue(), 0);
+  
+  // SATA beast status
+  if ( stats.sataBeastStatus > 0 )
+    warningAttr[ "bgcolor" ] = _alarmColors[ AlarmHandler::ERROR ];
+  tableRow = maker.addNode("tr", table, warningAttr);
+  tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
+  maker.addText(tableDiv, "SATA beast status");
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, stats.sataBeastStatus, 0);
 }
 
 
@@ -1085,7 +1102,7 @@ void WebPageHelper::addTableForDiskUsages
        it != itEnd;
        ++it)
   {
-    warningAttr[ "bgcolor" ] = (*it)->warningColor;
+    warningAttr[ "bgcolor" ] = _alarmColors[ (*it)->alarmState ];
     tableRow = maker.addNode("tr", table, warningAttr);
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, (*it)->pathName);
