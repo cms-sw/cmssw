@@ -14,7 +14,7 @@ MuIsoValidation_inc = cms.EDFilter("MuIsoValidation",
     hcalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
     tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
     hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
-    directory = cms.string("Muons/MuonIsoVal")                             
+    directory = cms.string("Muons/MuonIsolationV_inc")                             
 )
 
 MuIsoValidation_global = cms.EDFilter("MuIsoValidation",
@@ -25,7 +25,7 @@ MuIsoValidation_global = cms.EDFilter("MuIsoValidation",
     hcalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","hcal"),
     tkIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositTk"),
     hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
-    directory = cms.string("Muons/MuonIsoVal")
+    directory = cms.string("Muons/MuonIsolationV_global")
 )
 
 muIsoVal_seq = cms.Sequence(MuIsoValidation_inc+MuIsoValidation_global)

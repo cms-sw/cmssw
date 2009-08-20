@@ -66,9 +66,9 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   //  rootfilename = iConfig.getUntrackedParameter<string>("rootfilename"); // comment out for inclusion
   requireCombinedMuon = iConfig.getUntrackedParameter<bool>("requireCombinedMuon");
   dirName = iConfig.getParameter<std::string>("directory");
-  subDirName = iConfig.getParameter<std::string>("@module_label");
+  //  subDirName = iConfig.getParameter<std::string>("@module_label");
   
-  dirName += subDirName;
+  //  dirName += subDirName;
   
   //--------Initialize tags-------
   Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
