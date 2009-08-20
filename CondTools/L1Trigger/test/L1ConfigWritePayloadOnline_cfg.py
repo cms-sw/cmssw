@@ -30,6 +30,11 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for outputDB")
+options.register('overwriteKeys',
+                 0, #default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Overwrite existing keys")
 options.parseArguments()
 
 # Generate L1TriggerKey from OMDS
@@ -97,6 +102,11 @@ initPayloadWriter( process,
 initPayloadWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:o2o_payload_log.db')
 process.L1CondDBPayloadWriter.logTransactions = True
 
+if options.overwriteKeys == 0:
+    process.L1CondDBPayloadWriter.overwriteKeys = False
+else:
+    process.L1CondDBPayloadWriter.overwriteKeys = True
+                
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
