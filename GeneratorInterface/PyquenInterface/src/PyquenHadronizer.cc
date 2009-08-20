@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenHadronizer.cc,v 1.3 2009/05/28 18:54:16 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.4 2009/07/17 12:59:30 yilmaz Exp $
 */
 
 #include <iostream>
@@ -72,6 +72,8 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
+  if(embedding_) cflag_ = 0;
+
 }
 
 
@@ -121,7 +123,9 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
    // Not possible to retrieve impact paramter and event plane info
    // at this part, need to overwrite filter() in 
    // PyquenGeneratorFilter 
-   /*
+
+   const edm::Event& e = getEDMEvent();
+
    if(embedding_){
       Handle<HepMCProduct> input;
       e.getByLabel("source",input);
@@ -134,7 +138,6 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
 	 LogWarning("EventEmbedding")<<"Background event does not have heavy ion record!";
       }
    }
-   */   
 
    // Generate PYQUEN event
   // generate single partonic PYTHIA jet event
