@@ -1,10 +1,11 @@
-// $Id: WebPageHelper.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
+// $Id: WebPageHelper.h,v 1.3 2009/07/20 13:06:11 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
 #define StorageManager_WebPageHelper_h
 
 #include <string>
+#include <map>
 
 #include "boost/thread/mutex.hpp"
 
@@ -30,9 +31,9 @@ namespace stor {
   /**
    * Helper class to handle web page requests
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:24 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class WebPageHelper
@@ -548,6 +549,8 @@ namespace stor {
     XHTMLMaker::AttrMap _tableLabelAttr;
     XHTMLMaker::AttrMap _tableValueAttr;
     XHTMLMaker::AttrMap _specialRowAttr;
+
+    std::map<unsigned int, std::string> _alarmColors;
 
   };
 
