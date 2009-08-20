@@ -537,7 +537,8 @@ void HcalDeadCellMonitor::processEvent_HBHEdigi(const HBHEDataFrame digi)
 template<class DIGI> 
 void HcalDeadCellMonitor::process_Digi(DIGI& digi)
 {
-  if (!digi.validate()) return; // digi must be good to be counted
+  // Remove the validate check as when we figure out how to access bad digis in digi monitor
+  //if (!digi.validate()) return; // digi must be good to be counted
   int ieta=digi.id().ieta();
   int iphi=digi.id().iphi();
   int depth=digi.id().depth();
