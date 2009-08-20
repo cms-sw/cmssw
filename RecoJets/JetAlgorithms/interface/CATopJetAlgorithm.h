@@ -27,7 +27,6 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
