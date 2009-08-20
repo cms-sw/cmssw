@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.15 2009/08/14 15:54:22 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.16 2009/08/20 00:26:21 chrjones Exp $
 //
 
 // system include files
@@ -42,6 +42,20 @@
 //
 // constants, enums and typedefs
 //
+struct FWCollectionSummaryWidgetConnectionHolder  {
+   std::vector<sigc::connection> m_connections;
+   
+   ~FWCollectionSummaryWidgetConnectionHolder() {
+      for_each(m_connections.begin(),m_connections.end(), boost::bind(&sigc::connection::disconnect,_1));
+   }
+   void push_back(const sigc::connection& iC) {
+      m_connections.push_back(iC);
+   }
+   void reserve(size_t iSize) {
+      m_connections.reserve(iSize);
+   }
+};
+
 
 //
 // static data member definitions
@@ -252,7 +266,8 @@ m_indexForColor(-1),
 m_colorPopup(0),
 m_tableManager(0),
 m_tableWidget(0),
-m_backgroundIsWhite(false)
+m_backgroundIsWhite(false),
+m_connectionHolder( new FWCollectionSummaryWidgetConnectionHolder)
 {
    SetBackgroundColor(kWidgetColor);
    const unsigned int backgroundColor=kBlack;
@@ -317,9 +332,10 @@ m_backgroundIsWhite(false)
    m_infoButton->Connect("Clicked()","FWCollectionSummaryWidget",this,"infoClicked()");
    m_infoButton->SetToolTipText("select collection and show data info");
 
-   m_collection->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWCollectionSummaryWidget::displayChanged, this));
-   m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
-   m_collection->filterChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this));
+   m_connectionHolder->reserve(3);
+   m_connectionHolder->push_back(m_collection->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWCollectionSummaryWidget::displayChanged, this)));
+   m_connectionHolder->push_back(m_collection->itemChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this)));
+   m_connectionHolder->push_back(m_collection->filterChanged_.connect(boost::bind(&FWCollectionSummaryWidget::itemChanged,this)));
    
    MapSubwindows();
    Layout();
@@ -343,6 +359,7 @@ FWCollectionSummaryWidget::~FWCollectionSummaryWidget()
    delete m_infoButton;
     */
    gClient->GetResourcePool()->GetGCPool()->FreeGC(m_graphicsContext->GetGC());
+   delete m_connectionHolder;
 }
 
 //
