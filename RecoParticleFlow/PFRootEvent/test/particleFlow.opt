@@ -207,7 +207,7 @@ clustering posCalc_nCrystal_Ecal        9
 clustering posCalc_p1_Ecal              -1
 
 // width of shower in ecal, cm
-clustering shower_Sigma_Ecal		5
+clustering shower_Sigma_Ecal		1.5
 
 // depth correction flag. 0:off, 1:e/gamma mode 2:hadron mode
 // depth correction is only active in ECAL, which has non pointing cells
