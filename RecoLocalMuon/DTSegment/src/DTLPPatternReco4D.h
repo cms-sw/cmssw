@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 4d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/13 18:43:47 $
- * $Revision: 0.1 $
+ * $Date: 2009/08/14 13:22:56 $
+ * $Revision: 1.1 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  *
  */
@@ -62,13 +62,13 @@ class DTLPPatternReco4D : public DTRecSegment4DBaseAlgo {
  protected:
 
  private:
-  std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<DTHitPairForFit*> &pairPhiOwned);
+  // std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<DTHitPairForFit*> &pairPhiOwned);
   //DTRecSegment4D* segmentSpecialZed(const DTRecSegment4D* seg);
 
 
   bool debug;
-  // DTSegmentUpdator* theUpdator; // the updator and fitter
-  // DTSegmentCleaner* theCleaner; // the cleaner
+  //  DTSegmentUpdator* theUpdator; // the updator and fitter
+  //  DTSegmentCleaner* theCleaner; // the cleaner
     
   edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
 
@@ -88,8 +88,9 @@ class DTLPPatternReco4D : public DTRecSegment4DBaseAlgo {
 
   //  std::vector<DTRecHit1D> the1DPhiHits;
   std::vector<DTSLRecSegment2D> theSegments2DTheta; 
-  std::vector<DTRecHit1DPair> theHitsFromPhi1;
+  //  std::vector<DTRecHit1DPair> theHitsFromPhi1;
+  std::vector<DTRecHit1DPair> theHitsFromPhi;
   std::vector<DTRecHit1DPair> theHitsFromTheta;
-  std::vector<DTRecHit1DPair> theHitsFromPhi2;
+  // std::vector<DTRecHit1DPair> theHitsFromPhi2;
 };
 #endif
