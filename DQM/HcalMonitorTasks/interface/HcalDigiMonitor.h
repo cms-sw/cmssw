@@ -9,12 +9,12 @@
 
 #define DIGI_BQ_FRAC_NBINS 101
 #define DIGI_NUM 9072
-#define DIGI_SUBDET_NUM 3000
+#define DIGI_SUBDET_NUM 2593 
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/08/09 12:46:35 $
-  * $Revision: 1.44 $
+  * $Date: 2009/08/19 19:26:58 $
+  * $Revision: 1.45 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -75,7 +75,7 @@ public:
 private:  ///Methods, variables accessible only within class code
 
   void zeroCounters();
-  void setupHists(DigiHists& hist,  DQMStore* dbe); // enable this feature at some point
+  void setupSubdetHists(DigiHists& hist,  std::string subdet); // enable this feature at some point
 
   template<class T> int process_Digi(T& digi, DigiHists& hist, int& firstcap);
   void UpdateHists(DigiHists& h);
@@ -164,7 +164,7 @@ private:  ///Methods, variables accessible only within class code
   // ZDC stuff
 
 
-  DigiHists hbHists, heHists, hfHists, hoHists, zdcHists;
+  DigiHists hbHists, heHists, hfHists, hoHists;
 
  
 };

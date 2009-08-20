@@ -111,7 +111,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       MonitorElement* shapeT = m_dbe->bookInt("DigiShapeThresh");
       shapeT->Fill(shapeThresh_);
             
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis");
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/digi_occupancy");
       SetupEtaPhiHists(DigiErrorsByDepth,"Bad Digi Map","");
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/1D_digi_plots");
       ProblemsVsLB=m_dbe->bookProfile("BadDigisVsLB","# Bad Digis vs Luminosity block;Lumi block;# of Bad digis",
@@ -142,7 +142,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiSize->setAxisTitle("Subdetector",1);
       DigiSize->setAxisTitle("Digi Size",2);
 
-      m_dbe->setCurrentFolder(baseFolder_+"/1D_digi_plots");
+      m_dbe->setCurrentFolder(baseFolder_+"/good_digis/1D_digi_plots");
       HBocc_vs_LB=m_dbe->bookProfile("HBoccVsLB","HB digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
 				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
 				     100,0,2600);
@@ -162,7 +162,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/data_invalid_error");
       SetupEtaPhiHists(DigiErrorsDVErr," Digis with Data Invalid or Error Bit Set", "");
 
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_occupancy");
+      m_dbe->setCurrentFolder(baseFolder_+"/good_digis/digi_occupancy");
       SetupEtaPhiHists(DigiOccupancyByDepth," Digi Eta-Phi Occupancy Map","");
       DigiOccupancyPhi= m_dbe->book1D("Digi Phi Occupancy Map",
 				      "Digi Phi Occupancy Map;i#phi;# of Events",
@@ -179,7 +179,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
 					  36,-0.5,35.5);
 
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_errors");
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/digi_occupancy");
 
       DigiErrorVME = m_dbe->book2D("Digi VME Error Map",
 				  "Digi VME Error Map",
@@ -212,6 +212,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 			      7600.5, 7700.5, 7800.5, 7900.5, 8000.5, 8100.5, 8200.5, 8300.5,
 			      8400.5, 8500.5, 8600.5, 8700.5, 8800.5, 8900.5, 9000.5, 9100.5};
 
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis");
+
       DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
       
       DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",
@@ -219,159 +221,15 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction",1);  
       DigiBQFrac -> setAxisTitle("# of Events",2);
 
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_info");
-      DigiNum = m_dbe->book1D("# of Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
-      DigiNum -> setAxisTitle("# of Digis",1);  
+      m_dbe->setCurrentFolder(baseFolder_+"/good_digis/");
+      DigiNum = m_dbe->book1D("# of Good Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
+      DigiNum -> setAxisTitle("# of Good Digis",1);  
       DigiNum -> setAxisTitle("# of Events",2);
-      
-      // Individual subdetector histograms
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_info/HB");
-      hbHists.shape = m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
-      hbHists.shapeThresh = m_dbe->book1D("HB Digi Shape - over thresh",
-					  "HB Digi Shape - over thresh",
-					  10,-0.5,9.5);
-      hbHists.shape->setAxisTitle("Time Slice",1);
-      hbHists.shapeThresh->setAxisTitle("Time Slice",1);
 
-      // Create plots of sums of adjacent time slices
-      for (int ts=0;ts<9;++ts)
-	{
-	  name<<"HB Plus Time Slices "<<ts<<" and "<<ts+1;
-	  hbHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	  name<<"HB Minus Time Slices "<<ts<<" and "<<ts+1;
-	  hbHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	}
-      hbHists.presample= m_dbe->book1D("HB Digi Presamples","HB Digi Presamples",50,-0.5,49.5);
-      
-      hbHists.BQ = m_dbe->book1D("HB Bad Quality Digis","HB Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
-      hbHists.BQFrac = m_dbe->book1D("HB Bad Quality Digi Fraction","HB Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
-      hbHists.DigiFirstCapID = m_dbe->book1D("HB Capid 1st Time Slice","HB Capid for 1st Time Slice",7,-3.5,3.5);
-      hbHists.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
-      hbHists.DigiFirstCapID -> setAxisTitle("# of Events",2);
-      hbHists.DVerr = m_dbe->book1D("HB Data Valid Err Bits","HB QIE Data Valid Err Bits",4,-0.5,3.5);
-      hbHists.DVerr ->setBinLabel(1,"Err=0, DV=0",1);
-      hbHists.DVerr ->setBinLabel(2,"Err=0, DV=1",1);
-      hbHists.DVerr ->setBinLabel(3,"Err=1, DV=0",1);
-      hbHists.DVerr ->setBinLabel(4,"Err=1, DV=1",1);
-      hbHists.CapID = m_dbe->book1D("HB CapID","HB CapID",4,-0.5,3.5);
-      hbHists.ADC = m_dbe->book1D("HB ADC count per time slice","HB ADC count per time slice",200,-0.5,199.5);
-      hbHists.ADCsum = m_dbe->book1D("HB ADC sum", "HB ADC sum",200,-0.5,199.5);
-      hbHists.fibBCNOff = m_dbe->book1D("HB Fiber Orbit Message BCN Offset", "HB Fiber Orbit Message BCN Offset",
-					15, -7.5, 7.5);
-      hbHists.fibBCNOff->setAxisTitle("Offset from Expected", 1);
-      
-
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_info/HE");
-      heHists.shape = m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
-      heHists.shapeThresh = m_dbe->book1D("HE Digi Shape - over thresh",
-					  "HE Digi Shape - over thresh",
-					  10,-0.5,9.5);
-      heHists.shape->setAxisTitle("Time Slice",1);
-      heHists.shapeThresh->setAxisTitle("Time Slice",1);
-      // Create plots of sums of adjacent time slices
-      for (int ts=0;ts<9;++ts)
-	{
-	  name<<"HE Plus Time Slices "<<ts<<" and "<<ts+1;
-	  heHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	  name<<"HE Minus Time Slices "<<ts<<" and "<<ts+1;
-	  heHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	}
-
-      heHists.presample= m_dbe->book1D("HE Digi Presamples","HE Digi Presamples",50,-0.5,49.5);
-      ProblemsVsLB_HE=m_dbe->bookProfile("HE Bad Quality Digis vs LB","HE Bad Quality Digis vs Luminosity Block",
-					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-					 100,0,10000);
-
-      heHists.BQ = m_dbe->book1D("HE Bad Quality Digis","HE Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
-      heHists.BQFrac = m_dbe->book1D("HE Bad Quality Digi Fraction","HE Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
-      heHists.DigiFirstCapID = m_dbe->book1D("HE Capid 1st Time Slice","HE Capid for 1st Time Slice",7,-3.5,3.5);
-      heHists.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
-      heHists.DigiFirstCapID -> setAxisTitle("# of Events",2);
-      heHists.DVerr = m_dbe->book1D("HE Data Valid Err Bits","HE QIE Data Valid Err Bits",4,-0.5,3.5);
-      heHists.DVerr ->setBinLabel(1,"Err=0, DV=0",1);
-      heHists.DVerr ->setBinLabel(2,"Err=0, DV=1",1);
-      heHists.DVerr ->setBinLabel(3,"Err=1, DV=0",1);
-      heHists.DVerr ->setBinLabel(4,"Err=1, DV=1",1);
-      heHists.CapID = m_dbe->book1D("HE CapID","HE CapID",4,-0.5,3.5);
-      heHists.ADC = m_dbe->book1D("HE ADC count per time slice","HE ADC count per time slice",200,-0.5,199.5);
-      heHists.ADCsum = m_dbe->book1D("HE ADC sum", "HE ADC sum",200,-0.5,199.5);
-      heHists.fibBCNOff = m_dbe->book1D("HB Fiber Orbit Message BCN Offset", "HB Fiber Orbit Message BCN Offset",
-					15, -7.5, 7.5);
-      heHists.fibBCNOff->setAxisTitle("Offset from Expected", 1);
-
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_info/HO");
-      hoHists.shape = m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
-      hoHists.shapeThresh = m_dbe->book1D("HO Digi Shape - over thresh",
-					  "HO Digi Shape - over thresh",
-					  10,-0.5,9.5);
-      hoHists.shape->setAxisTitle("Time Slice",1);
-      hoHists.shapeThresh->setAxisTitle("Time Slice",1);
-      // Create plots of sums of adjacent time slices
-      for (int ts=0;ts<9;++ts)
-	{
-	  name<<"HO Plus Time Slices "<<ts<<" and "<<ts+1;
-	  hoHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	  name<<"HO Minus Time Slices "<<ts<<" and "<<ts+1;
-	  hoHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	}
-      hoHists.presample= m_dbe->book1D("HO Digi Presamples","HO Digi Presamples",50,-0.5,49.5);
-      hoHists.BQ = m_dbe->book1D("HO Bad Quality Digis","HO Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
-      hoHists.BQFrac = m_dbe->book1D("HO Bad Quality Digi Fraction","HO Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
-      hoHists.DigiFirstCapID = m_dbe->book1D("HO Capid 1st Time Slice","HO Capid for 1st Time Slice",7,-3.5,3.5);
-      hoHists.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
-      hoHists.DigiFirstCapID -> setAxisTitle("# of Events",2);
-      hoHists.DVerr = m_dbe->book1D("HO Data Valid Err Bits","HO QIE Data Valid Err Bits",4,-0.5,3.5);
-      hoHists.DVerr ->setBinLabel(1,"Err=0, DV=0",1);
-      hoHists.DVerr ->setBinLabel(2,"Err=0, DV=1",1);
-      hoHists.DVerr ->setBinLabel(3,"Err=1, DV=0",1);
-      hoHists.DVerr ->setBinLabel(4,"Err=1, DV=1",1);
-      hoHists.CapID = m_dbe->book1D("HO CapID","HO CapID",4,-0.5,3.5);
-      hoHists.ADC = m_dbe->book1D("HO ADC count per time slice","HO ADC count per time slice",200,-0.5,199.5);
-      hoHists.ADCsum = m_dbe->book1D("HO ADC sum", "HO ADC sum",200,-0.5,199.5);
-      hoHists.fibBCNOff = m_dbe->book1D("HB Fiber Orbit Message BCN Offset", "HB Fiber Orbit Message BCN Offset",
-					15, -7.5, 7.5);
-      hoHists.fibBCNOff->setAxisTitle("Offset from Expected", 1);
-
-      m_dbe->setCurrentFolder(baseFolder_+"/digi_info/HF");
-      hfHists.shape = m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
-      hfHists.shapeThresh = m_dbe->book1D("HF Digi Shape - over thresh",
-					  "HF Digi Shape - over thresh",
-					  10,-0.5,9.5);
-      // Create plots of sums of adjacent time slices
-      for (int ts=0;ts<9;++ts)
-	{
-	  name<<"HF Plus Time Slices "<<ts<<" and "<<ts+1;
-	  hfHists.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	  name<<"HF Minus Time Slices "<<ts<<" and "<<ts+1;
-	  hfHists.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
-	  name.str("");
-	}
-      hfHists.shape->setAxisTitle("Time Slice",1);
-      hfHists.shapeThresh->setAxisTitle("Time Slice",1);
-      hfHists.presample= m_dbe->book1D("HF Digi Presamples","HF Digi Presamples",50,-0.5,49.5);
-      hfHists.BQ = m_dbe->book1D("HF Bad Quality Digis","HF Bad Quality Digis",DIGI_SUBDET_NUM,-0.5,DIGI_SUBDET_NUM-0.5);
-      hfHists.BQFrac = m_dbe->book1D("HF Bad Quality Digi Fraction","HF Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
-      hfHists.DigiFirstCapID = m_dbe->book1D("HF Capid 1st Time Slice","HF Capid for 1st Time Slice",7,-3.5,3.5);
-      hfHists.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
-      hfHists.DigiFirstCapID -> setAxisTitle("# of Events",2);
-      hfHists.DVerr = m_dbe->book1D("HF Data Valid Err Bits","HF QIE Data Valid Err Bits",4,-0.5,3.5);
-      hfHists.DVerr ->setBinLabel(1,"Err=0, DV=0",1);
-      hfHists.DVerr ->setBinLabel(2,"Err=0, DV=1",1);
-      hfHists.DVerr ->setBinLabel(3,"Err=1, DV=0",1);
-      hfHists.DVerr ->setBinLabel(4,"Err=1, DV=1",1);
-      hfHists.CapID = m_dbe->book1D("HF CapID","HF CapID",4,-0.5,3.5);
-      hfHists.ADC = m_dbe->book1D("HF ADC count per time slice","HF ADC count per time slice",200,-0.5,199.5);
-      hfHists.ADCsum = m_dbe->book1D("HF ADC sum", "HF ADC sum",200,-0.5,199.5);
-      hfHists.fibBCNOff = m_dbe->book1D("HB Fiber Orbit Message BCN Offset", "HB Fiber Orbit Message BCN Offset",
-					15, -7.5, 7.5);
-      hfHists.fibBCNOff->setAxisTitle("Offset from Expected", 1);
+      setupSubdetHists(hbHists,"HB");
+      setupSubdetHists(heHists,"HE");
+      setupSubdetHists(hoHists,"HO");
+      setupSubdetHists(hfHists,"HF");
 
     } // if (m_dbe) // ends histogram setup
   if (showTiming)
@@ -380,6 +238,53 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     }
 
 } // void HcalDigiMonitor::setup(...)
+
+
+void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
+{
+  if (!m_dbe) return;
+  stringstream name;
+  int nChan=0;
+  if (subdet=="HB" || subdet=="HE") nChan=2592;
+  else if (subdet == "HO") nChan=2160;
+  else if (subdet == "HF") nChan=1728;
+
+  m_dbe->setCurrentFolder(baseFolder_+"/digi_info/"+subdet);
+  hist.shape = m_dbe->book1D(subdet+" Digi Shape",subdet+" Digi Shape",10,-0.5,9.5);
+  hist.shapeThresh = m_dbe->book1D(subdet+" Digi Shape - over thresh",
+				   subdet+" Digi Shape - over thresh",
+				   10,-0.5,9.5);
+  // Create plots of sums of adjacent time slices
+  for (int ts=0;ts<9;++ts)
+    {
+      name<<subdet<<" Plus Time Slices "<<ts<<" and "<<ts+1;
+      hist.TS_sum_plus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+      name.str("");
+      name<<subdet<<" Minus Time Slices "<<ts<<" and "<<ts+1;
+      hist.TS_sum_minus.push_back(m_dbe->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
+      name.str("");
+    }
+  hist.shape->setAxisTitle("Time Slice",1);
+  hist.shapeThresh->setAxisTitle("Time Slice",1);
+  hist.presample= m_dbe->book1D(subdet+" Digi Presamples",subdet+" Digi Presamples",50,-0.5,49.5);
+  hist.BQ = m_dbe->book1D(subdet+" Bad Quality Digis",subdet+" Bad Quality Digis",nChan+1,-0.5,nChan+0.5);
+  hist.BQFrac = m_dbe->book1D(subdet+" Bad Quality Digi Fraction",subdet+" Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
+  hist.DigiFirstCapID = m_dbe->book1D(subdet+" Capid 1st Time Slice",subdet+" Capid for 1st Time Slice",7,-3.5,3.5);
+  hist.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
+  hist.DigiFirstCapID -> setAxisTitle("# of Events",2);
+  hist.DVerr = m_dbe->book1D(subdet+" Data Valid Err Bits",subdet+" QIE Data Valid Err Bits",4,-0.5,3.5);
+  hist.DVerr ->setBinLabel(1,"Err=0, DV=0",1);
+  hist.DVerr ->setBinLabel(2,"Err=0, DV=1",1);
+  hist.DVerr ->setBinLabel(3,"Err=1, DV=0",1);
+  hist.DVerr ->setBinLabel(4,"Err=1, DV=1",1);
+  hist.CapID = m_dbe->book1D(subdet+" CapID",subdet+" CapID",4,-0.5,3.5);
+  hist.ADC = m_dbe->book1D(subdet+" ADC count per time slice",subdet+" ADC count per time slice",200,-0.5,199.5);
+  hist.ADCsum = m_dbe->book1D(subdet+" ADC sum", subdet+" ADC sum",200,-0.5,199.5);
+  hist.fibBCNOff = m_dbe->book1D(subdet+" Fiber Orbit Message BCN Offset", subdet+" Fiber Orbit Message BCN Offset",
+				 15, -7.5, 7.5);
+  hist.fibBCNOff->setAxisTitle("Offset from Expected", 1);
+
+}
 
 
 void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
@@ -418,6 +323,27 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   int firsthecap=-1;
   int firsthocap=-1;
   int firsthfcap=-1;
+
+  //cout <<"BADvalue = "<<report.badQualityDigis()<<endl;
+  // Check report for bad digis
+
+  typedef std::vector<DetId> DetIdVector;
+
+  DetIdVector::const_iterator dummy = report.bad_quality_begin();
+  DetIdVector::const_iterator dumm2 = report.bad_quality_end();
+
+  //if (dummy!=NULL)
+  //cout <<"start = "<<dummy->det()<<endl;
+
+  for ( DetIdVector::const_iterator baddigi_iter=report.bad_quality_begin(); 
+	baddigi_iter != report.bad_quality_end();
+	++baddigi_iter)
+    {
+      cout <<"BAD DIGI!"<<endl;
+      HcalDetId id(baddigi_iter->rawId());
+      cout <<id.subdet()<<"  "<<id.ieta()<<"  "<<id.iphi()<<" "<<id.depth()<<endl;
+    }
+
 
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
@@ -1047,7 +973,7 @@ void HcalDigiMonitor::zeroCounters()
 	  heHists.count_shape[i]=0;
 	  hoHists.count_shape[i]=0;
 	  hfHists.count_shape[i]=0;
-	  zdcHists.count_shape[i]=0;
+	 
 	  hbHists.count_shapeThresh[i]=0;
 	  heHists.count_shapeThresh[i]=0;
 	  hoHists.count_shapeThresh[i]=0;
