@@ -16,6 +16,8 @@ RecoHIEgammaFEVT = cms.PSet(
     'keep *_photonCore_*_*',
     'keep *_genParticles_*_*',
     'keep *_hiGenParticles_*_*'
-  )                                                                 
+    'keep *_pixel3Vertices_*_*'
+
+    )                                                                 
 )
 
