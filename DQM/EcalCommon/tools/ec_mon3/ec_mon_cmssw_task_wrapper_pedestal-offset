@@ -97,8 +97,8 @@ except:  pass
 
 process = cms.Process("ECALDQM")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
