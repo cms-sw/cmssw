@@ -13,6 +13,7 @@
 #include "occi.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
@@ -1504,3 +1505,115 @@ int HcalLutManager::test_direct_xml_parsing( string _filename ){
   */
   return 0;
 }
+
+
+//
+//_____ attempt to include ZDC LUTs _____________________________________
+//
+int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, string _lin_file, bool split_by_crate )
+{
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
+  if ( _lin_file.size() != 0 ){
+    const std::map<int, shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    addLutMap( xml, _lin_lut_ascii_xml );
+  }
+  const std::map<int, shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  addLutMap( xml, _lin_lut_xml );
+  //
+  const std::map<int, shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
+  addLutMap( xml, _comp_lut_xml );
+  //
+  const std::map<int, shared_ptr<LutXml> > _zdc_lut_xml = getZdcLutXml( _tag, split_by_crate );
+  addLutMap( xml, _zdc_lut_xml );
+  
+  writeLutXmlFiles( xml, _tag, split_by_crate );
+  
+  string checksums_file = _tag + "_checksums.xml";
+  lut_checksums_xml -> write( checksums_file . c_str() );
+  
+  return 0;
+}
+
+
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
+								 bool split_by_crate )
+{
+  cout << "Generating ZDC LUTs ...may the Force be with us..." << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  EMap _emap(emap);
+
+  ZdcLut zdc;
+
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " channels" << endl;
+
+  //loop over all EMap channels
+  RooGKCounter _counter;
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    LutXml::Config _cfg;
+
+    // only ZDC channels
+    if ( row->zdc_section . find("ZDC") != string::npos ){
+      if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 && !split_by_crate ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+      }
+      //  FIXME: introduce proper tag names in ZDC bricks for logical channel info
+      _cfg.ieta = row->zdc_channel; // int
+      //_cfg.ieta = row->zdc_zside; // int
+      //_cfg.iphi = row->zdc_section; // string
+      _cfg.depth = row->idepth; // int
+      _cfg.crate = row->crate;
+      _cfg.slot = row->slot;
+      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
+      else cout << "Warning! fpga out of range..." << endl;
+      _cfg.fiber = row->fiber;
+      _cfg.fiberchan = row->fiberchan;
+      _cfg.lut_type = 1;
+      _cfg.creationtag = _tag;
+      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.targetfirmware = "1.0.0";
+      _cfg.formatrevision = "1"; //???
+      _cfg.generalizedindex = 0;
+      
+      //HcalZDCDetId _detid(row->zdc_section, (row->zdc_zside>0), row->zdc_channel);
+      
+      std::vector<int> coder_lut = zdc.getLut(row->zdc_section,
+					      row->zdc_zside,
+					      row->zdc_channel);
+      cout << "***DEBUG: ZDC lut size: " << coder_lut.size() << endl;
+      if (coder_lut.size()!=0){
+	for (std::vector<int>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
+	  unsigned int _temp = (unsigned int)(*_i);
+	  //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	  //unsigned int _temp = 0;
+	  _cfg.lut.push_back(_temp);
+	}
+	//_cfg.lut = _set.lut[lut_index];
+	
+	if (split_by_crate ){
+	  _xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
+	  _counter.count();
+	}
+	else{
+	  _xml[0]->addLut( _cfg, lut_checksums_xml );  
+	  _counter.count();
+	}
+      } //size of lut
+    }
+  }
+  cout << "LUTs generated: " << _counter.getCount() << endl;
+  cout << "Generating ZDC LUTs...DONE" << endl;
+
+  return _xml;
+}
+
+

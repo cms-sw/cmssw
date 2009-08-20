@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.7 2009/08/05 16:23:32 kukartse Exp $
+// $Id: LMap.cc,v 1.8 2009/08/16 21:32:20 kukartse Exp $
 //
 
 // system include files
@@ -205,6 +205,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
 	// fill the map
 	map.push_back(row);
       }
+      // ZDC channels
       else if ( !(_gid.null()) &&
 	   _gid.genericSubdet()==HcalGenericDetId::HcalGenZDC
 	   ){
