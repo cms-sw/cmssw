@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.6 2009/08/18 09:16:49 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.1 2009/08/20 13:45:05 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -18,7 +18,14 @@ AlarmHandler::AlarmHandler(xdaq::Application* app) :
 _app(app)
 {
 #if SENTINELUTILS_VERSION_MAJOR>1
-  _alarmInfoSpace = xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
+  try
+  {
+    _alarmInfoSpace = xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
+  }
+  catch(xdata::exception::Exception)
+  {
+    // sentinel is not available
+  }
 #endif
 }
 
@@ -77,7 +84,7 @@ void AlarmHandler::raiseAlarm
   }
   catch(xdata::exception::Exception)
   {
-    // Alarm is already set
+    // Alarm is already set or sentinel not available
     return;
   }
   
@@ -101,7 +108,7 @@ void AlarmHandler::revokeAlarm
   }
   catch(xdata::exception::Exception)
   {
-    // Alarm has not been set
+    // Alarm has not been set or sentinel not available
     return;
   }
   
