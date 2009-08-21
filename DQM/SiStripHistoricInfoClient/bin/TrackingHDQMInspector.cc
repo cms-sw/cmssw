@@ -45,9 +45,9 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_RSTk@mean", "NumberOfTracks_RSTk.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@mean", "NumberOfTracks_CosmicTk.gif", 0, condition, Start, End, nRuns ));
 
-  // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@entries", "NumberOfRecHitsPerTrack_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
-  // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_RSTk@mean", "NumberOfRecHitsPerTrack_RSTk.gif", 0, condition, Start, End, nRuns ));
-  // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CosmicTk@mean", "NumberOfRecHitsPerTrack_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@mean", "NumberOfRecHitsPerTrack_CKFTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_RSTk@mean", "NumberOfRecHitsPerTrack_RSTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CosmicTk@mean", "NumberOfRecHitsPerTrack_CosmicTk.gif", 0, condition, Start, End, nRuns ));
 
   config.push_back(Trend( siStripTracker+"@TrackPt_CKFTk@mean", "TrackPt_CKFTk.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@TrackPt_RSTk@mean", "TrackPt_RSTk.gif", 0, condition, Start, End, nRuns ));
