@@ -22,7 +22,7 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
   CPPUNIT_TEST(noSataBeasts);
   CPPUNIT_TEST(sataBeastOkay);
   CPPUNIT_TEST(sataBeastFailed);
-  CPPUNIT_TEST(sataBeastsOnSpecialNode);  // can only be used on specially prepared SATA beast host
+  //CPPUNIT_TEST(sataBeastsOnSpecialNode);  // can only be used on specially prepared SATA beast host
 
   CPPUNIT_TEST_SUITE_END();
 
