@@ -92,7 +92,6 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
           dccHeader->getSpigotData(spigot,htr, fedData.size()); 
           
           // check min length, correct wordcount, empty event, or total length if histo event.
-          if ( htr.isUnsuppressed() ) return true ; // KLUGE: take event if any HTR is NZS
           if ( !htr.isUnsuppressed() ) { isZS = true ; hcalIsZS = true ; nZS++ ; }
       }
       if ( hcalIsZS && !isZS )
@@ -102,9 +101,7 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                        << HcalDCCHeader::SPIGOT_COUNT << " HCAL HTRs for FED "
                                        << i << " are zero-suppressed for this event" ;
   }
-  if ( nFEDs != ( FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1 ) )
-       std::cout << "BMD: " << nFEDs << std::endl ;
-  
+
   if ( nFEDs == 0 ) return false ; // No HCAL 
   if ( !hcalIsZS ) eventsNZS_++ ; 
   return ( !hcalIsZS ) ; 
