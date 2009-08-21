@@ -6,7 +6,7 @@ process = cms.Process("CSC HLT DQM")
 # DQM Module Configuration
 #-------------------------------------------------
 
-process.load("DQM.CSCMonitorModule.test.csc_hlt_dqm_sourceclient_cfi")
+process.load("DQM.CSCMonitorModule.csc_hlt_dqm_sourceclient_cfi")
 
 #----------------------------
 # Event Source

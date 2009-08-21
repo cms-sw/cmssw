@@ -6,10 +6,11 @@ process = cms.Process("CSCDQM")
 # DQM Module Configuration
 #-------------------------------------------------
 
-process.load("DQM.CSCMonitorModule.csc_dqm_sourceclient_cfi")
-process.load("DQM.CSCMonitorModule.csc_daq_info_cfi")
-process.load("DQM.CSCMonitorModule.csc_dcs_info_cfi")
-process.load("DQM.CSCMonitorModule.csc_certification_info_cfi")
+process.load("DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff")
+#process.load("DQMServices.Components.MEtoEDMConverter_cff")
+#process.load("DQM.CSCMonitorModule.csc_daq_info_cfi")
+#process.load("DQM.CSCMonitorModule.csc_dcs_info_cfi")
+#process.load("DQM.CSCMonitorModule.csc_certification_info_cfi")
 
 #-------------------------------------------------
 # Offline DQM Module Configuration
@@ -27,8 +28,10 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
-    '/store/data/Commissioning09/Cosmics/RAW/v3/000/108/298/FCCD4FD2-0678-DE11-9092-001D09F2543D.root'
-    #'/store/data/Commissioning09/Cosmics/RAW/v3/000/111/692/F491E525-248D-DE11-AF16-001D09F2932B.root'
+    '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/388/72263AFF-2D84-DE11-A3AE-000423D94700.root'
+    #'/store/data/CRAFT09/Cosmics/RAW/v1/000/110/388/5E41A005-2E84-DE11-8B73-000423D9939C.root',
+    #'/store/data/CRAFT09/Cosmics/RAW/v1/000/110/388/547276FE-2D84-DE11-BFA2-000423D6AF24.root',
+    #'/store/data/CRAFT09/Cosmics/RAW/v1/000/110/388/347EAEF3-2D84-DE11-A28F-000423D6BA18.root'
   ),
   #skipEvents = cms.untracked.uint32(1129)
 )
@@ -64,6 +67,7 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
+
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 #-------------------------------------------------
@@ -133,7 +137,10 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.dqmCSCClient * process.cscDaqInfo * process.cscDcsInfo * process.cscCertificationInfo + process.dqmEnv + process.dqmSaver)
+process.p = cms.Path(
+  process.dqmCSCClient + 
+  process.dqmEnv + 
+  process.dqmSaver) 
 #process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscMonitor * process.dqmCSCClient + process.dqmEnv + process.dqmSaver)
 
 

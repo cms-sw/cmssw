@@ -339,6 +339,7 @@ namespace cscdqm {
             for (adr.chamber = 1; adr.chamber <= detector.NumberOfChambers(adr.station, adr.ring); adr.chamber++) {
               if (ChamberAddressToCoords(adr, x, y)) {
                 bool hit = (op_any ? HWSTATUSANY(GetValue(adr), mask) : HWSTATUSEQUALS(GetValue(adr), mask));
+                // std::cout << "x = " << x << ", y = " << y << ", value = " << GetValue(adr) << std::endl;
                 if (hit) {
                   h2->SetBinContent(x, y, 1.0 * value);
                 } else if (reset) {

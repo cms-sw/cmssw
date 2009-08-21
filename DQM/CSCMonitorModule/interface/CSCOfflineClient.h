@@ -1,12 +1,13 @@
 /*
  * =====================================================================================
  *
- *       Filename:  CSCMonitorModule.h
+ *       Filename:  CSCOfflineClient.h
  *
- *    Description:  Updated CSC Monitor module
+ *    Description:  CSC Offline module that preocess merged histograms and
+ *    creates/updates fractional and efficiency objects.
  *
  *        Version:  1.0
- *        Created:  11/13/2008 01:36:45 PM
+ *        Created:  09/20/2009 01:36:45 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -17,8 +18,8 @@
  */
 
 
-#ifndef CSCMonitorModule_H
-#define CSCMonitorModule_H
+#ifndef CSCOfflineClient_H
+#define CSCOfflineClient_H
 
 /// Global stuff
 #include <iostream>
@@ -45,22 +46,22 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Configuration.h"
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Dispatcher.h"
+#include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
 
 /// Local stuff
 #include "DQM/CSCMonitorModule/interface/CSCMonitorObject.h"
 
 /// Local Constants
-static const char INPUT_TAG_LABEL[]      = "source";
-static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
-static const char DIR_DCSINFO[]          = "CSC/EventInfo/DCSContents/";
-static const char DIR_DAQINFO[]          = "CSC/EventInfo/DAQContents/";
-static const char DIR_CRTINFO[]          = "CSC/EventInfo/CertificationContents/";
+//static const char DIR_EVENTINFO[]        = "CSC/EventInfo/";
+//static const char DIR_DCSINFO[]          = "CSC/EventInfo/DCSContents/";
+//static const char DIR_DAQINFO[]          = "CSC/EventInfo/DAQContents/";
+//static const char DIR_CRTINFO[]          = "CSC/EventInfo/CertificationContents/";
 
 /**
- * @class CSCMonitorModule
- * @brief Common CSC DQM Module that uses CSCDQM Framework  
+ * @class CSCOfflineClient
+ * @brief CSC Offline DQM Client that uses CSCDQM Framework 
  */
-class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProvider {
+class CSCOfflineClient: public edm::EDAnalyzer, public cscdqm::MonitorObjectProvider {
  
   /**
    * Global stuff
@@ -68,19 +69,14 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   public:
 
-    CSCMonitorModule(const edm::ParameterSet& ps);
-    virtual ~CSCMonitorModule();
+    CSCOfflineClient(const edm::ParameterSet& ps);
+    virtual ~CSCOfflineClient();
 
   private:
 
     cscdqm::Configuration     config;
     cscdqm::Dispatcher       *dispatcher;
     DQMStore                 *dbe;
-    edm::InputTag             inputTag;
-    bool                      prebookEffParams;
-
-    /** Pointer to crate mapping from database **/
-    const CSCCrateMap* pcrate;
 
   /**
    * MonitorObjectProvider Implementation
@@ -88,10 +84,8 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
   public:
 
-    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { 
-      return pcrate->detId(crateId, dmbId, 0, 0); 
-    }
-    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req); 
+    const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const { return CSCDetId(); }
+    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req);
 
   /** 
    * EDAnalyzer Implementation
@@ -102,7 +96,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
     void beginJob(const edm::EventSetup& c) { }
     void beginRun(const edm::Run& r, const edm::EventSetup& c);
     void setup() { }
-    void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void analyze(const edm::Event& e, const edm::EventSetup& c) { }
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
     void endRun(const edm::Run& r, const edm::EventSetup& c) { }
     void endJob() { }

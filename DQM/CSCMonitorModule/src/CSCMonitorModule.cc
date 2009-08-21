@@ -27,6 +27,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
   edm::FileInPath fp;
 
   inputTag = ps.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)INPUT_TAG_LABEL);
+  prebookEffParams = ps.getUntrackedParameter<bool>("PREBOOK_EFF_PARAMS", false);
   edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
   config.load(params);
 
@@ -53,7 +54,9 @@ CSCMonitorModule::~CSCMonitorModule() {
  * @param  c Event setup
  */
 void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
-  dispatcher->updateFractionAndEfficiencyHistos();
+  if (prebookEffParams) {
+    dispatcher->updateFractionAndEfficiencyHistos();
+  }
 }
 
 /**
