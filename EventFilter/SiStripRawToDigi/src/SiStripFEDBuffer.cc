@@ -56,7 +56,7 @@ namespace sistrip {
       //if there was a problem either rethrow the exception or just mark channel pointers NULL
       if (!allowBadBuffer) throw;
       else {
-        channels_.insert(channels_.end(),size_t(FEDCH_PER_FED-validChannels_),FEDChannel(payloadPointer_,0));
+        channels_.insert(channels_.end(),size_t(FEDCH_PER_FED-validChannels_),FEDChannel(payloadPointer_,0,0));
       }
     }
   }
@@ -70,8 +70,8 @@ namespace sistrip {
     size_t offsetBeginningOfChannel = 0;
     for (size_t i = 0; i < FEDCH_PER_FED; i++) {
       //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
-      if (!feGood(i/FEDCH_PER_FEUNIT)) {
-	channels_.insert(channels_.end(),size_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0));
+      if ( !(fePresent(i/FEDCH_PER_FEUNIT) && feEnabled(i/FEDCH_PER_FEUNIT)) ) {
+	channels_.insert(channels_.end(),size_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0,0));
 	i += FEDCH_PER_FEUNIT-1;
 	validChannels_ += FEDCH_PER_FEUNIT;
 	continue;

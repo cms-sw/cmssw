@@ -33,12 +33,13 @@ namespace sistrip {
     int16_t trigger_fed_id = pset.getParameter<int>("TriggerFedId");
     bool use_daq_register = pset.getParameter<bool>("UseDaqRegister");
     bool using_fed_key = pset.getParameter<bool>("UseFedKey");
+    bool unpack_bad_channels = pset.getParameter<bool>("UnpackBadChannels");
 
     int16_t fed_buffer_dump_freq = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
     int16_t fed_event_dump_freq = pset.getUntrackedParameter<int>("FedEventDumpFreq",0);
     bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
 
-    rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key );
+    rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels);
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
   

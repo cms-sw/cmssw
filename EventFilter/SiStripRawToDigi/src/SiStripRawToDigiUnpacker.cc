@@ -27,7 +27,7 @@ OldSiStripRawToDigiUnpacker::OldSiStripRawToDigiUnpacker( int16_t appended_bytes
   unpacker_(0),
   fedEvent_(0)
 {
-  unpacker_ = new sistrip::RawToDigiUnpacker(appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key);
+  unpacker_ = new sistrip::RawToDigiUnpacker(appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, false);
   fedEvent_ = new Fed9U::Fed9UEvent();
 }
 
@@ -446,12 +446,14 @@ void OldSiStripRawToDigiUnpacker::updateEventSummary( const Fed9U::Fed9UEvent* c
 
 namespace sistrip {
 
-  RawToDigiUnpacker::RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key  ) :
+  RawToDigiUnpacker::RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id,
+                                        bool using_fed_key, bool unpack_bad_channels ) :
     headerBytes_( appended_bytes ),
     fedBufferDumpFreq_( fed_buffer_dump_freq ),
     fedEventDumpFreq_( fed_event_dump_freq ),
     triggerFedId_( trigger_fed_id ),
     useFedKey_( using_fed_key ),
+    unpackBadChannels_( unpack_bad_channels ),
     event_(0),
     once_(true),
     first_(true),
@@ -462,6 +464,9 @@ namespace sistrip {
       LogTrace("SiStripRawToDigi")
 	<< "[sistrip::RawToDigiUnpacker::"<<__func__<<"]"
 	<<" Constructing object...";
+    }
+    if (unpackBadChannels_) {
+      edm::LogWarning("SiStripRawToDigi") << "Warning: Unpacking of bad channels enabled. Only enable this if you know what you are doing. " << std::endl;
     }
   }
 
@@ -571,7 +576,10 @@ namespace sistrip {
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
-        if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << *ifed << ".";
+        if (!buffer->doChecks()) {
+          if (!unpackBadChannels_ || !buffer->checkNoFEOverflows() )
+            throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << *ifed << ".";
+        }
       }
       catch (const cms::Exception& e) { 
 	if ( edm::isDebugEnabled() ) {
@@ -641,8 +649,10 @@ namespace sistrip {
       
 	// Check FED channel
 	if (!buffer->channelGood(iconn->fedCh())) {
-	  detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
-	  continue;
+          if (!unpackBadChannels_ || !(buffer->fePresent(iconn->fedCh()/FEDCH_PER_FEUNIT) && buffer->feEnabled(iconn->fedCh()/FEDCH_PER_FEUNIT)) ) {
+            detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
+            continue;
+          }
 	}
 
 	// Determine whether FED key is inferred from cabling or channel loop

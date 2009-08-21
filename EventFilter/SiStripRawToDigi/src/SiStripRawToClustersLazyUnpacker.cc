@@ -171,7 +171,7 @@ namespace sistrip {
     clusterizer_(&clustalgo),
     rawAlgos_(&rpAlgos),
     buffers_(),
-    rawToDigi_(0,0,0,0,0),
+    rawToDigi_(0,0,0,0,0,0),
     dump_(dump),
     mode_(sistrip::READOUT_MODE_INVALID)
   {
