@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/08/10 17:52:34 $
- * $Revision: 1.36 $
+ * $Date: 2009/08/13 18:12:39 $
+ * $Revision: 1.37 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -383,11 +383,49 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
   }
 
-  int TTFlags[72][34];
-  for(int ietindex = 0; ietindex < 34; ietindex++ ) {
-    for(int iptindex = 0; iptindex < 72; iptindex++ ) {
-      TTFlags[iptindex][ietindex] = -1;
+  if (!ebSrFlags.isValid()) return;
+
+  // Data Volume
+  double aLowInterest=0;
+  double aHighInterest=0;
+  double aAnyInterest=0;
+
+  Handle<EBDigiCollection> ebDigis;
+  if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
+
+    anaDigiInit();
+
+    for (unsigned int digis=0; digis<ebDigis->size(); ++digis){
+      EBDataFrame ebdf = (*ebDigis)[digis];
+      anaDigi(ebdf, *ebSrFlags);
     }
+
+    //low interest channels:
+    aLowInterest = nEbLI_*bytesPerCrystal/kByte;
+    EBLowInterestPayload_->Fill(aLowInterest);
+
+    //low interest channels:
+    aHighInterest = nEbHI_*bytesPerCrystal/kByte;
+    EBHighInterestPayload_->Fill(aHighInterest);
+
+    //any-interest channels:
+    aAnyInterest = getEbEventSize(nEb_)/kByte;
+    EBEventSize_->Fill(aAnyInterest);
+
+    //event size by tower:
+    for(int ietindex = 0; ietindex < 34; ietindex++ ) {
+      for(int iptindex = 0; iptindex < 72; iptindex++ ) {
+        
+        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+        float xipt = iptindex + 0.5;
+        
+        double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
+        EBTowerSize_->Fill(xipt, xiet, towerSize);
+
+      }
+    }
+  } else {
+    LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
   }
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
@@ -409,12 +447,21 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       nEvtAnyInterest[iptindex][ietindex]++;
 
+      vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
+
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[iptindex][ietindex]++;
 
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[iptindex][ietindex]++;
 
-      TTFlags[iptindex][ietindex] = TPdigi->ttFlag() & 0x3;
+      float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+      float xipt = iptindex + 0.5;
 
+//       if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
+//            && nCryTower[iptindex][ietindex] != (int)crystals.size() ) EBTTFMismatch_->Fill(xipt, xiet); 
+
+      if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
+           && nCryTower[iptindex][ietindex] != 25 ) EBTTFMismatch_->Fill(xipt, xiet); 
+      
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
@@ -460,53 +507,6 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
   }
 
-  if (!ebSrFlags.isValid()) return;
-
-  // Data Volume
-  double aLowInterest=0;
-  double aHighInterest=0;
-  double aAnyInterest=0;
-
-  Handle<EBDigiCollection> ebDigis;
-  if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
-
-    anaDigiInit();
-
-    for (unsigned int digis=0; digis<ebDigis->size(); ++digis){
-      EBDataFrame ebdf = (*ebDigis)[digis];
-      anaDigi(ebdf, *ebSrFlags);
-    }
-
-    //low interest channels:
-    aLowInterest = nEbLI_*bytesPerCrystal/kByte;
-    EBLowInterestPayload_->Fill(aLowInterest);
-
-    //low interest channels:
-    aHighInterest = nEbHI_*bytesPerCrystal/kByte;
-    EBHighInterestPayload_->Fill(aHighInterest);
-
-    //any-interest channels:
-    aAnyInterest = getEbEventSize(nEb_)/kByte;
-    EBEventSize_->Fill(aAnyInterest);
-
-    //event size by tower:
-    for(int ietindex = 0; ietindex < 34; ietindex++ ) {
-      for(int iptindex = 0; iptindex < 72; iptindex++ ) {
-        
-        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
-        float xipt = iptindex + 0.5;
-        
-        double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
-        EBTowerSize_->Fill(xipt, xiet, towerSize);
-
-        if( (TTFlags[iptindex][ietindex]==1 || TTFlags[iptindex][ietindex]==3) && nCryTower[iptindex][ietindex] != 25 )
-          EBTTFMismatch_->Fill(xipt, xiet);
-
-      }
-    }
-  } else {
-    LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
-  }
 
 }
 
