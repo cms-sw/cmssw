@@ -5,16 +5,6 @@
 //COLIN The fit functions are not general and should be specified outside
 //the macro. A function can be passed as a pointer to a function of
 //the Comparator class if needed 
-// this one is just a gaussian, already implemented in ROOT. 
-Double_t fitFunction_g(Double_t *x, Double_t *par)
-{
-  const double PI=2.0*acos(0.);
-  //std::cout << "PI = " << 2.0*acos(0.) << std::endl;
-  const Double_t value=par[2]/(par[0]*sqrt(2*PI))*exp(-(x[0]-par[1])*(x[0]-par[1])/(2*par[0]*par[0]));
-  return value;
-};
-
-// this one is a curve to fit a graph
 // where to put it?? 
 Double_t fitFunction_f(Double_t *x, Double_t *par)
 {
@@ -118,1285 +108,324 @@ public:
     Draw( h0_slice, h1_slice, mode);        
   }
 
-
-  // COLIN 
-  // - This function is more general 
-  // its name should be something like DrawMeanY
-  // - mode is not used ??? mode can be used to decide whether we plot the mean
-  // of a fitted gaussian, or the arithmetic mean (RMS)
-  // - there is code duplication for dir0 and dir1. This function should call
-  // another function, with the argument dir0, and then with the arg dir1
-  // - such functionalities are already provided by ROOT (FitSlicesY and X)
-  void DrawResp(const char* key, int binxmin, int binxmax, Mode mode, double Ymin, double Ymax )
+  // create nbin slices between binxmin and binxmax. In each slice get the mean.
+  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+  void DrawMeanSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+                     const unsigned int nbin, const double Ymin, const double Ymax,
+		     const std::string title, const std::string binning_option)
   {
-
-    //std::cout << "binxmin = " << binxmin << std::endl;
-    //std::cout << "binxmax = " << binxmax << std::endl;
-
     TDirectory* dir = dir1_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2 = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-
-    const unsigned int nbin=100;
-
-    double y[nbin];
-    double ey[nbin];
-    double x[nbin];
-    double ex[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      y[nbinc]= h0_slice->GetMean(1);
-  
-      // calcul des incertitudes:
-      //const double Sum_of_Weights = h0_slice->GetSumOfWeights();
-      //const double Sum_of_Squared_Weights = h0_slice->GetSumw2()->GetSum();
-      //std::cout << "Sum_of_Weights = " << Sum_of_Weights << std::endl;
-      //std::cout << "Sum_of_Squared_Weights = " << Sum_of_Squared_Weights << std::endl;
-      //const double Neq = pow(Sum_of_Weights,2) / Sum_of_Squared_Weights;
-      //const double mean_error = h0_slice->GetRMS() / sqrt(Neq);
-      //std::cout << "mean_error = " << mean_error << std::endl;
-      //std::cout << "GetMeanError(1) = " << h0_slice->GetMeanError(1) << std::endl;
-      //ey[nbinc]=mean_error;
-      ey[nbinc]=h0_slice->GetMeanError(1);
-      delete h0_slice;
-    }
-  
-    TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
-    gr->SetMaximum(Ymax);
-    gr->SetMinimum(Ymin);
-    gr->SetMarkerStyle(21);
-    gr->SetMarkerColor(4);
-    gr->SetTitle("Response");
-    gr->GetXaxis()->SetTitle("trueMET");
-    gr->Draw("AP");
+    //gStyle->SetOptStat("");
+    TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
+    TH1D* meanslice = new TH1D("meanslice","MeanSlice",nbin,binxmin,binxmax);
+    h2->MeanSlice(meanslice,binxmin,binxmax,nbin,binning_option);
+    meanslice->SetTitle(title.c_str());
+    meanslice->SetMaximum(Ymax);
+    meanslice->SetMinimum(Ymin);
+    meanslice->SetMarkerStyle(21);
+    meanslice->SetMarkerColor(4);
+    meanslice->Draw("E1");
 
     dir = dir0_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2b = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-
-    double yb[nbin];
-    double eyb[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-  
-      TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
-      //h0_sliceb->Sumw2();
-      yb[nbinc]= h0_sliceb->GetMean(1);
-  
-      // calcul des incertitudes:
-      //const double Sum_of_Weightsb = h0_sliceb->GetSumOfWeights();
-      //const double Sum_of_Squared_Weightsb = h0_sliceb->GetSumw2()->GetSum();
-      //const double Neqb = pow(Sum_of_Weightsb,2) / Sum_of_Squared_Weightsb;
-      //const double mean_errorb = h0_slice->GetRMS() / sqrt(Neqb);
-      eyb[nbinc]=h0_sliceb->GetMeanError(1);
-      delete h0_sliceb;
-    }
-    TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
-    grb->SetMarkerStyle(21);
-    grb->SetMarkerColor(2);
-    grb->Draw("P");
+    TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
+    TH1D* meanslice2 = new TH1D("meanslice2","MeanSlice",nbin,binxmin,binxmax);
+    h2b->MeanSlice(meanslice2,binxmin,binxmax,nbin,binning_option);
+    meanslice2->SetTitle(title.c_str());
+    meanslice2->SetMaximum(Ymax);
+    meanslice2->SetMinimum(Ymin);
+    meanslice2->SetMarkerStyle(21);
+    meanslice2->SetMarkerColor(2);
+    meanslice2->Draw("E1same");
   }
 
-  //COLIN except for title, this function seems to be the same as 
-  // the preceeding one. Don't duplicate code! 
-  // call this function from the other one, with default title!!!
-  void DrawResp(const char* key, int binxmin, int binxmax, Mode mode, double Ymin, double Ymax, std::string title)
+  // create nbin slices between binxmin and binxmax. In each slice get the RMS.
+  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+  void DrawSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+		      const unsigned int nbin, const double Ymin, const double Ymax,
+		      const std::string title, const std::string binning_option)
   {
-
-    //std::cout << "binxmin = " << binxmin << std::endl;
-    //std::cout << "binxmax = " << binxmax << std::endl;
-
     TDirectory* dir = dir1_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2 = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-
-    const unsigned int nbin=2;
-
-    double y[nbin];
-    double ey[nbin];
-    double x[nbin];
-    double ex[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      y[nbinc]= h0_slice->GetMean(1);
-  
-      // calcul des incertitudes:
-      //const double Sum_of_Weights = h0_slice->GetSumOfWeights();
-      //const double Sum_of_Squared_Weights = h0_slice->GetSumw2()->GetSum();
-      //std::cout << "Sum_of_Weights = " << Sum_of_Weights << std::endl;
-      //std::cout << "Sum_of_Squared_Weights = " << Sum_of_Squared_Weights << std::endl;
-      //const double Neq = pow(Sum_of_Weights,2) / Sum_of_Squared_Weights;
-      //const double mean_error = h0_slice->GetRMS() / sqrt(Neq);
-      //std::cout << "mean_error = " << mean_error << std::endl;
-      //std::cout << "GetMeanError(1) = " << h0_slice->GetMeanError(1) << std::endl;
-      //ey[nbinc]=mean_error;
-      ey[nbinc]=h0_slice->GetMeanError(1);
-      delete h0_slice;
-    }
-  
-    TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
-    gr->SetMaximum(Ymax);
-    gr->SetMinimum(Ymin);
-    gr->SetMarkerStyle(21);
-    gr->SetMarkerColor(4);
-    gr->SetTitle("Response");
-    gr->GetXaxis()->SetTitle(title.c_str());
-    gr->Draw("AP");
+    gStyle->SetOptStat("");
+    TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
+    TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
+    h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
+    sigmaslice->SetTitle(title.c_str());
+    sigmaslice->SetMaximum(Ymax);
+    sigmaslice->SetMinimum(Ymin);
+    sigmaslice->SetMarkerStyle(21);
+    sigmaslice->SetMarkerColor(4);
+    sigmaslice->Draw("E1");
 
     dir = dir0_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2b = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-
-    double yb[nbin];
-    double eyb[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-  
-      TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
-      //h0_sliceb->Sumw2();
-      yb[nbinc]= h0_sliceb->GetMean(1);
-  
-      // calcul des incertitudes:
-      //const double Sum_of_Weightsb = h0_sliceb->GetSumOfWeights();
-      //const double Sum_of_Squared_Weightsb = h0_sliceb->GetSumw2()->GetSum();
-      //const double Neqb = pow(Sum_of_Weightsb,2) / Sum_of_Squared_Weightsb;
-      //const double mean_errorb = h0_slice->GetRMS() / sqrt(Neqb);
-      eyb[nbinc]=h0_sliceb->GetMeanError(1);
-      delete h0_sliceb;
-    }
-    TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
-    grb->SetMarkerStyle(21);
-    grb->SetMarkerColor(2);
-    grb->Draw("P");
+    TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
+    TH1D* sigmaslice2 = new TH1D("sigmaslice2","Sigmaslice",nbin,binxmin,binxmax);
+    h2b->SigmaSlice(sigmaslice2,binxmin,binxmax,nbin,binning_option);
+    sigmaslice2->SetTitle(title.c_str());
+    sigmaslice2->SetMaximum(Ymax);
+    sigmaslice2->SetMinimum(Ymin);
+    sigmaslice2->SetMarkerStyle(21);
+    sigmaslice2->SetMarkerColor(2);
+    sigmaslice2->Draw("E1same");
   }
 
-
-
-  //COLIN this function is not general enough, and should be removed
-  // the code is too long, hinting for code duplication 
-  void DrawSigmaEt_Et(const char* key, int binxmin, int binxmax, Mode mode)
+  // create nbin slices between binxmin and binxmax. In each slice get the RMS and sigma from of gaussian fit.
+  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+  void DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+			   const unsigned int nbin, const double Ymin, const double Ymax,
+			   const std::string title, const std::string binning_option, const unsigned int rebin,
+			   const double fitmin, const double fitmax, const std::string epsname,
+			   const bool doFit)
   {
-    //std::cout << "binxmin = " << binxmin << std::endl;
-    //std::cout << "binxmax = " << binxmax << std::endl;
     TDirectory* dir = dir1_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2 = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
+    gStyle->SetOptStat("");
+    TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
+    TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
+    h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
+    TF1 *fitfcndgssrms3 = new TF1("fitfcndgssrms3",fitFunction_f,binxmin,binxmax,4);
+    if (doFit)
+    {
+      fitfcndgssrms3->SetNpx(500);
+      fitfcndgssrms3->SetLineWidth(3);
+      fitfcndgssrms3->SetLineStyle(2);
+      fitfcndgssrms3->SetLineColor(4);
+      sigmaslice->Fit("fitfcndgssrms3","0R");
+      //sigmaslice->Draw("E1");
+    }
 
-    const unsigned int nbin=9;
+    TH1D* sigmasliceGauss = new TH1D("sigmasliceGauss","Sigmaslice",nbin,binxmin,binxmax);
+    h2->SigmaGaussSlice(sigmasliceGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname);
+    sigmasliceGauss->SetTitle(title.c_str());
+    sigmasliceGauss->SetMaximum(Ymax);
+    sigmasliceGauss->SetMinimum(Ymin);
+    sigmasliceGauss->SetMarkerStyle(21);
+    sigmasliceGauss->SetMarkerColor(4);
 
-    double y[nbin];
-    double ey[nbin];
-    double x[nbin];
-    double ex[nbin];
-  
-    //binning computation
-    // (we want approx. the same number of entries per bin)
-    //TH1D* h0_slice1 = h2->ProjectionY("h0_slice1",0., binxmax, "");
-    TH1D* h0_slice1 = h2->ProjectionY("h0_slice1",binxmin, binxmax, "");
-    const unsigned int totalNumberOfEvents=h0_slice1->GetEntries();
-    //std::cout << "totalNumberOfEvents = " << totalNumberOfEvents << std::endl;
-    unsigned int neventsc=0;
-    for (unsigned int binc=0;binc<nbin;++binc)
+    TF1 *fitfcndgsse3 = new TF1("fitfcndgsse3",fitFunction_f,binxmin,binxmax,4);
+    if (doFit)
     {
-      unsigned int binXmaxc;
-      if (binc==0) binXmaxc=binxmin;
-      else binXmaxc=x[binc-1]+ex[binc-1];
-  
-      //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-      //std::cout << "(binc+1)*totalNumberOfEvents/nbin = " <<
-      // (binc+1)*totalNumberOfEvents/nbin << std::endl;
-      //std::cout << "neventsc = " << neventsc << std::endl;
-  
-      while (static_cast<double>(neventsc)<(binc+1)*totalNumberOfEvents/nbin)
-      {
-        TH1D* h0_slice1c = h2->ProjectionY("h0_slice1",binxmin, binXmaxc, "");
-        neventsc=h0_slice1c->GetEntries();
-        //std::cout << "FL : neventsc = " << neventsc << std::endl;
-        //std::cout << "FL : binXmaxc = " << binXmaxc << std::endl;
-        ++binXmaxc;
-        delete h0_slice1c;
-      }
-      //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-      if (binc==0)
-      {
-        x[binc]=(binXmaxc-1-binxmin)/2.+binxmin;
-        ex[binc]=(binXmaxc-1-binxmin)/2.;
-      }
-      else
-      {
-        x[binc]=(binXmaxc-1-x[binc-1]-ex[binc-1])/2.+x[binc-1]+ex[binc-1];
-        //std::cout << "x[binc-1] = " << x[binc-1] << std::endl;
-        //std::cout << "ex[binc-1] = " << ex[binc-1] << std::endl;
-        //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-        ex[binc]=(binXmaxc-1-x[binc-1]-ex[binc-1])/2.;
-      }
-      //std::cout << "x[" << binc << "] = " << x[binc] << std::endl;
-      //std::cout << "ex[" << binc << "] = " << ex[binc] << std::endl;
-      //std::cout << "neventsc = " << neventsc << std::endl;
+      fitfcndgsse3->SetNpx(500);
+      fitfcndgsse3->SetLineWidth(3);
+      fitfcndgsse3->SetLineStyle(1);
+      fitfcndgsse3->SetLineColor(4);
+      sigmasliceGauss->Fit("fitfcndgsse3","0R");
     }
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      //const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      //const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      h0_slice->Rebin(5);
-      h0_slice->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-100.,100.,3);
-      //fitFcng->SetParameters(50.,0.1,100.);
-      fitFcng->SetParameters(h0_slice->GetRMS(1),0.1,100.);
-      fitFcng->SetLineColor(2);
-      h0_slice->Fit("fitFcng","0R");
-      fitFcng->Draw("same");
-  
-      std::ostringstream oss;
-      oss << nbinc;
-      const std::string plotfitname="Plots/fitbin_DrawSigmaEt_Et_"+oss.str()+".eps";
-      gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcng->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-      y[nbinc]= sigmaG/x[nbinc];
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      ey[nbinc]=y[nbinc]*(fitFcng->GetParError(0)/fitFcng->GetParameter(0)+ex[nbinc]/x[nbinc]);
-      //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
-    gr->SetMaximum(1.1);
-    gr->SetMinimum(0.0);
-    gr->SetMarkerStyle(21);
-    gr->SetMarkerColor(4);
-    gr->SetTitle("Sigma(MET)/trueMET");
-    gr->GetXaxis()->SetTitle("trueMET");
-    gr->Draw("AP");
-  
-    TF1 *fitFcne = new TF1("fitFcne",fitFunction_f,20.,200.,4);
-    fitFcne->SetNpx(500);
-    fitFcne->SetLineWidth(3);
-    fitFcne->SetLineStyle(1);
-    fitFcne->SetLineColor(4);
-    gr->Fit("fitFcne","0R");
-    fitFcne->Draw("same"); 
-  
-  
-    double yrms[nbin];
-    double eyrms[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      //const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      //const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      yrms[nbinc]= h0_slice->GetRMS(1)/x[nbinc];
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-      //std::cout << "x[nbinc] = " << x[nbinc] << std::endl;
-      //std::cout << "yrms[nbinc] = " << yrms[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      eyrms[nbinc]=yrms[nbinc]*(h0_slice->GetRMSError(1)/h0_slice->GetRMS(1)+ex[nbinc]/x[nbinc]);
-      //ey[nbinc]=0.0;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *grrms = new TGraphErrors(nbin,x,yrms,ex,eyrms);
-    grrms->SetMaximum(1.1);
-    grrms->SetMinimum(0.0);
-    grrms->SetMarkerStyle(21);
-    grrms->SetMarkerColor(5);
-    grrms->SetTitle("RMS(MET)/trueMET");
-    grrms->GetXaxis()->SetTitle("trueMET");
-    //grrms->Draw("P");
-  
-    TF1 *fitFcnrms = new TF1("fitFcnrms",fitFunction_f,20.,200.,4);
-    fitFcnrms->SetNpx(500);
-    fitFcnrms->SetLineWidth(3);
-    fitFcnrms->SetLineStyle(2);
-    fitFcnrms->SetLineColor(4);
-    grrms->Fit("fitFcnrms","0R");
-    fitFcnrms->Draw("same"); 
 
     dir = dir0_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2b = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-    double ybg[nbin];
-    double eybg[nbin];
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
+    TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
+    TH1D* sigmasliceb = new TH1D("sigmasliceb","Sigmasliceb",nbin,binxmin,binxmax);
+    h2b->SigmaSlice(sigmasliceb,binxmin,binxmax,nbin,binning_option);
+    TF1 *fitfcndgssrmsb3 = new TF1("fitfcndgssrmsb3",fitFunction_f,binxmin,binxmax,4);
+    if (doFit)
     {
-      //const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      //const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
-      h0_slicebg->Rebin(5);
-      //h0_slice->Sumw2();
-      //h0_slicebg->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-100.,100.,3);
-      //fitFcngbg->SetParameters(50.,0.1,100.);
-      fitFcngbg->SetParameters(h0_slicebg->GetRMS(1),0.1,100.);
-      fitFcngbg->SetLineColor(2);
-      h0_slicebg->Fit("fitFcngbg","0R");
-      //fitFcng->Draw("same");
-  
-      //std::ostringstream oss;
-      //oss << nbinc;
-      //const std::string plotfitname="Plots/fitbin_b_"+oss.str()+".eps";
-      //gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcngbg->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-      ybg[nbinc]= sigmaG/x[nbinc];
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-      //std::cout << "FL: ybg[" << nbinc << "] = " << ybg[nbinc] << std::endl;
-  
-  //    // calcul des incertitudes:
-      eybg[nbinc]=ybg[nbinc]*(fitFcng->GetParError(0)/fitFcng->GetParameter(0)+ex[nbinc]/x[nbinc]);
-  //    //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slicebg;
+      fitfcndgssrmsb3->SetNpx(500);
+      fitfcndgssrmsb3->SetLineWidth(3);
+      fitfcndgssrmsb3->SetLineStyle(2);
+      fitfcndgssrmsb3->SetLineColor(2);
+      sigmasliceb->Fit("fitfcndgssrmsb3","0R");
     }
-  
-    TGraphErrors *grbg = new TGraphErrors(nbin,x,ybg,ex,eybg);
-    grbg->SetMaximum(1.1);
-    grbg->SetMinimum(0.0);
-    grbg->SetMarkerStyle(21);
-    grbg->SetMarkerColor(2);
-    grbg->SetTitle("Sigma(MET)/trueMET");
-    grbg->GetXaxis()->SetTitle("trueMET");
-    grbg->Draw("P");
-  
-    TF1 *fitFcnebg = new TF1("fitFcnebg",fitFunction_f,20.,200.,4);
-    fitFcnebg->SetNpx(500);
-    fitFcnebg->SetLineWidth(3);
-    fitFcnebg->SetLineStyle(1);
-    fitFcnebg->SetLineColor(2);
-    grbg->Fit("fitFcnebg","0R");
-    fitFcnebg->Draw("same"); 
-  
-    double yb[nbin];
-    double eyb[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
+
+    TH1D* sigmaslicebGauss = new TH1D("sigmaslicebGauss","Sigmasliceb",nbin,binxmin,binxmax);
+    h2b->SigmaGaussSlice(sigmaslicebGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname+"b");
+    sigmaslicebGauss->SetTitle(title.c_str());
+    sigmaslicebGauss->SetMaximum(Ymax);
+    sigmaslicebGauss->SetMinimum(Ymin);
+    sigmaslicebGauss->SetMarkerStyle(21);
+    sigmaslicebGauss->SetMarkerColor(2);
+
+    TF1 *fitfcndgsseb3 = new TF1("fitfcndgsseb3",fitFunction_f,binxmin,binxmax,4);
+    if (doFit)
     {
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-  
-      TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
-      //h0_sliceb->Sumw2();
-      yb[nbinc]= h0_sliceb->GetRMS(1)/x[nbinc];
-  
-      // calcul des incertitudes:
-      //eyb[nbinc]=0.0;
-      eyb[nbinc]=yb[nbinc]*(h0_sliceb->GetRMSError(1)/h0_sliceb->GetRMS(1)+ex[nbinc]/x[nbinc]);
-      delete h0_sliceb;
+      fitfcndgsseb3->SetNpx(500);
+      fitfcndgsseb3->SetLineWidth(3);
+      fitfcndgsseb3->SetLineStyle(1);
+      fitfcndgsseb3->SetLineColor(2);
+      sigmaslicebGauss->Fit("fitfcndgsseb3","0R");
     }
-  
-    TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
-    grb->SetMarkerStyle(21);
-    grb->SetMarkerColor(2);
-    //grb->Draw("P");
-  
-    TF1 *fitFcne2 = new TF1("fitFcne2",fitFunction_f,20.,200.,4);
-    fitFcne2->SetNpx(500);
-    fitFcne2->SetLineWidth(3);
-    fitFcne2->SetLineColor(2);
-    fitFcne2->SetLineStyle(2);
-    grb->Fit("fitFcne2","0R");
-    fitFcne2->Draw("same"); 
+    sigmasliceGauss->Draw("E1");
+    if (doFit)
+    {
+      fitfcndgssrms3->DrawClone("same"); 
+      fitfcndgsse3->DrawClone("same"); 
+    }
+    sigmaslicebGauss->Draw("E1same");
+    if (doFit)
+    {
+      fitfcndgssrmsb3->DrawClone("same"); 
+      fitfcndgsseb3->DrawClone("same"); 
+    }
   }
 
-  //COLIN what is this one doing? all functions must be commented 
-  // looks like this one is duplicating the previous one
-  void DrawSigmaEt_var(const char* key, const char* key2, int binxmin, int binxmax, Mode mode)
+  // create nbin slices between binxmin and binxmax. In each slice get the RMS/meanX and sigma/meanX from of gaussian fit.
+  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+  void DrawGaussSigmaOverMeanXSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+				   const unsigned int nbin, const double Ymin, const double Ymax,
+				   const std::string title, const std::string binning_option, const unsigned int rebin,
+				   const double fitmin, const double fitmax, const std::string epsname)
   {
     TDirectory* dir = dir1_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2 = (TH2*) dir->Get(key);
-    TH2F *h2_b = (TH2*) dir->Get(key2);
-    //h2->Draw("colz");
+    gStyle->SetOptStat("");
+    TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
+    TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
+    h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
 
-    const unsigned int nbin=15;
+    TH1D* meanXslice = new TH1D("meanXslice","MeanXslice",nbin,binxmin,binxmax);
+    h2->MeanXSlice(meanXslice,binxmin,binxmax,nbin,binning_option);
+    //meanXslice->Draw("E1");
+    sigmaslice->Divide(meanXslice);
+    //sigmaslice->Draw("E1");
 
-    double y[nbin];
-    double ey[nbin];
-    double x[nbin];
-    double ex[nbin];
-    
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-      x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      //TH1D *h0_slice = new TH1D("h0_slice","titre",3000,-100.,100.);
-      //h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      //if (nbinc<10) h0_slice->Rebin(5);
-      //else h0_slice->Rebin(10);
-      h0_slice->Rebin(10);
-      h0_slice->GetXaxis()->SetRangeUser(-120.,120.);
-      h0_slice->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      //TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-2.,2.,3);
-      TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-100.,100.,3);
-      //fitFcng->SetParameters(1.,0.1,100.);
-      fitFcng->SetParameters(h0_slice->GetRMS(1),0.1,100.);
-      fitFcng->SetLineColor(2);
-      h0_slice->Fit("fitFcng","0R");
-      fitFcng->Draw("same");
-  
-      std::ostringstream oss;
-      oss << nbinc;
-      const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".eps";
-      //const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".C";
-      gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcng->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-
-      TH1D* h0_slice_b = h2_b->ProjectionY("h0_slice_b",binxminc, binxmaxc, "");
-      const double var=h0_slice_b->GetMean();
-      //std::cout << "FL: var[" << nbinc << "] = " << var << std::endl;
-
-      y[nbinc]= sigmaG/var;
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      ey[nbinc]=sigmaG/var*(fitFcng->GetParError(0)/sigmaG+h0_slice_b->GetRMS()/var);
-      //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
-    //gr->SetMaximum(1.3);
-    gr->SetMinimum(0.0);
-    gr->SetMarkerStyle(21);
-    gr->SetMarkerColor(4);
-    gr->SetTitle("Sigma(DeltaMEX) / <recoSet/TrueSet>");
-    gr->GetXaxis()->SetTitle("trueSET");
-    gr->Draw("AP");
-  
-//    TF1 *fitFcne3 = new TF1("fitFcne3",fitFunction_f,20.,200.,4);
-//    fitFcne3->SetNpx(500);
-//    fitFcne3->SetLineWidth(3);
-//    fitFcne3->SetLineStyle(1);
-//    fitFcne3->SetLineColor(4);
-//    gr->Fit("fitFcne3","0R");
-//    fitFcne3->Draw("same"); 
-  
-  
-    double yrms[nbin];
-    double eyrms[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-
-      TH1D* h0_slice_b = h2_b->ProjectionY("h0_slice_b",binxminc, binxmaxc, "");
-      const double var=h0_slice_b->GetMean();
-
-      yrms[nbinc]= h0_slice->GetRMS(1)/var;
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-      //std::cout << "x[nbinc] = " << x[nbinc] << std::endl;
-      //std::cout << "yrms[nbinc] = " << yrms[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      eyrms[nbinc]=yrms[nbinc]*(h0_slice->GetRMSError(1)/h0_slice->GetRMS(1)+h0_slice_b->GetRMS()/var);
-      //ey[nbinc]=0.0;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *grrms = new TGraphErrors(nbin,x,yrms,ex,eyrms);
-    //grrms->SetMaximum(1.3);
-    grrms->SetMinimum(0.0);
-    grrms->SetMarkerStyle(22);
-    grrms->SetMarkerColor(4);
-    grrms->SetTitle("RMS(MET)/trueMET");
-    grrms->GetXaxis()->SetTitle("trueMET");
-    //grrms->Draw("P");
-  
-//    TF1 *fitFcnrms3 = new TF1("fitFcnrms3",fitFunction_f,20.,200.,4);
-//    fitFcnrms3->SetNpx(500);
-//    fitFcnrms3->SetLineWidth(3);
-//    fitFcnrms3->SetLineStyle(2);
-//    fitFcnrms3->SetLineColor(4);
-//    grrms->Fit("fitFcnrms3","0R");
-//    fitFcnrms3->Draw("same"); 
-
-    dir = dir0_;
-    dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2b = (TH2*) dir->Get(key);
-    TH2F *h2b_b = (TH2*) dir->Get(key2);
-    //h2->Draw("colz");
-    double ybg[nbin];
-    double eybg[nbin];
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      h0_slicebg->Rebin(10);
-      //if (nbinc<10) h0_slicebg->Rebin(5);
-      //else h0_slicebg->Rebin(10);
-      //h0_slicebg->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      //TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-2.,2.,3);
-      TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-100.,100.,3);
-      //fitFcngbg->SetParameters(1.,0.1,100.);
-      fitFcngbg->SetParameters(h0_slicebg->GetRMS(1),0.1,100.);
-      fitFcngbg->SetLineColor(2);
-      h0_slicebg->Fit("fitFcngbg","0R");
-      //fitFcng->Draw("same");
-  
-      //std::ostringstream oss;
-      //oss << nbinc;
-      //const std::string plotfitname="Plots/fitbin_b_"+oss.str()+".eps";
-      //gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcngbg->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-
-      TH1D* h0_slice_b = h2b_b->ProjectionY("h0_slice_b",binxminc, binxmaxc, "");
-      const double var=h0_slice_b->GetMean();
-      //std::cout << "var = " << var << std::endl;
-
-      ybg[nbinc]= sigmaG/var;
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-      //std::cout << "FL: ybg[" << nbinc << "] = " << ybg[nbinc] << std::endl;
-  
-  //    // calcul des incertitudes:
-      eybg[nbinc]=ybg[nbinc]*(fitFcngbg->GetParError(0)/sigmaG+h0_slice_b->GetRMS()/var);
-  //    //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slicebg;
-    }
-  
-    TGraphErrors *grbg = new TGraphErrors(nbin,x,ybg,ex,eybg);
-    //grbg->SetMaximum(1.3);
-    grbg->SetMinimum(0.0);
-    grbg->SetMarkerStyle(21);
-    grbg->SetMarkerColor(2);
-    grbg->SetTitle("Sigma(MET)/trueMET");
-    grbg->GetXaxis()->SetTitle("trueMET");
-    grbg->Draw("P");
-  
-//    TF1 *fitFcnebg3 = new TF1("fitFcnebg3",fitFunction_f,20.,200.,4);
-//    fitFcnebg3->SetNpx(500);
-//    fitFcnebg3->SetLineWidth(3);
-//    fitFcnebg3->SetLineStyle(1);
-//    fitFcnebg3->SetLineColor(2);
-//    grbg->Fit("fitFcnebg3","0R");
-//    fitFcnebg3->Draw("same"); 
-  
-    double yb[nbin];
-    double eyb[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-  
-      TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
-      //h0_sliceb->Sumw2();
-
-      TH1D* h0_slice_b = h2b_b->ProjectionY("h0_slice_b",binxminc, binxmaxc, "");
-      const double var=h0_slice_b->GetMean();
-
-      yb[nbinc]= h0_sliceb->GetRMS(1)/var;
-  
-      // calcul des incertitudes:
-      //eyb[nbinc]=0.0;
-      eyb[nbinc]=yb[nbinc]*(h0_sliceb->GetRMSError(1)/h0_sliceb->GetRMS(1)+h0_slice_b->GetRMS()/var);
-      delete h0_sliceb;
-    }
-  
-    TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
-    grb->SetMarkerStyle(22);
-    grb->SetMarkerColor(2);
-    //grb->Draw("P");
-  
-//    TF1 *fitFcne23 = new TF1("fitFcne23",fitFunction_f,20.,200.,4);
-//    fitFcne23->SetNpx(500);
-//    fitFcne23->SetLineWidth(3);
-//    fitFcne23->SetLineColor(2);
-//    fitFcne23->SetLineStyle(2);
-//    grb->Fit("fitFcne23","0R");
-//    fitFcne23->Draw("same"); 
-  }
-
-  //COLIN duplication again, very probably
-  void DrawSigmaEt(const char* key, int binxmin, int binxmax, Mode mode)
-  {
-    //std::cout << "binxmin = " << binxmin << std::endl;
-    //std::cout << "binxmax = " << binxmax << std::endl;
-    TDirectory* dir = dir1_;
-    dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2 = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-
-    const unsigned int nbin=6;
-
-    double y[nbin];
-    double ey[nbin];
-    double x[nbin];
-    double ex[nbin];
-  
-    //binning computation
-    // (we want approx. the same number of entries per bin)
-    //TH1D* h0_slice1 = h2->ProjectionY("h0_slice1",0., binxmax, "");
-    TH1D* h0_slice1 = h2->ProjectionY("h0_slice1",binxmin, binxmax, "");
-    const unsigned int totalNumberOfEvents=h0_slice1->GetEntries();
-    //std::cout << "totalNumberOfEvents = " << totalNumberOfEvents << std::endl;
-    unsigned int neventsc=0;
-    for (unsigned int binc=0;binc<nbin;++binc)
-    {
-      unsigned int binXmaxc;
-      if (binc==0) binXmaxc=binxmin;
-      else binXmaxc=x[binc-1]+ex[binc-1];
-  
-      //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-      //std::cout << "(binc+1)*totalNumberOfEvents/nbin = " <<
-      // (binc+1)*totalNumberOfEvents/nbin << std::endl;
-      //std::cout << "neventsc = " << neventsc << std::endl;
-  
-      while (static_cast<double>(neventsc)<(binc+1)*totalNumberOfEvents/nbin)
-      {
-        TH1D* h0_slice1c = h2->ProjectionY("h0_slice1",binxmin, binXmaxc, "");
-        neventsc=h0_slice1c->GetEntries();
-        //std::cout << "FL : neventsc = " << neventsc << std::endl;
-        //std::cout << "FL : binXmaxc = " << binXmaxc << std::endl;
-        ++binXmaxc;
-        //binXmaxc+=10;
-        delete h0_slice1c;
-      }
-      //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-      if (binc==0)
-      {
-        x[binc]=(binXmaxc-1-binxmin)/2.+binxmin;
-        ex[binc]=(binXmaxc-1-binxmin)/2.;
-      }
-      else
-      {
-        x[binc]=(binXmaxc-1-x[binc-1]-ex[binc-1])/2.+x[binc-1]+ex[binc-1];
-        //std::cout << "x[binc-1] = " << x[binc-1] << std::endl;
-        //std::cout << "ex[binc-1] = " << ex[binc-1] << std::endl;
-        //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-        ex[binc]=(binXmaxc-1-x[binc-1]-ex[binc-1])/2.;
-      }
-      //std::cout << "x[" << binc << "] = " << x[binc] << std::endl;
-      //std::cout << "ex[" << binc << "] = " << ex[binc] << std::endl;
-      //std::cout << "neventsc = " << neventsc << std::endl;
-    }
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      //const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      //const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      h0_slice->Rebin(10);
-      h0_slice->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-2.,2.,3);
-      //TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-100.,100.,3);
-      //fitFcng->SetParameters(1.,0.1,100.);
-      fitFcng->SetParameters(h0_slice->GetRMS(1),0.1,100.);
-      fitFcng->SetParLimits(0, 0.0, 999.);
-      fitFcng->SetLineColor(2);
-      h0_slice->Fit("fitFcng","0R");
-      fitFcng->Draw("same");
-  
-      std::ostringstream oss;
-      oss << nbinc;
-      const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".eps";
-      gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcng->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-      y[nbinc]= sigmaG;
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      ey[nbinc]=fitFcng->GetParError(0);
-      //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
-    gr->SetMaximum(1.3);
-    gr->SetMinimum(0.0);
-    gr->SetMarkerStyle(21);
-    gr->SetMarkerColor(4);
-    gr->SetTitle("Sigma(Phi)");
-    gr->GetXaxis()->SetTitle("trueMET");
-    gr->Draw("AP");
-  
-    TF1 *fitFcne3 = new TF1("fitFcne3",fitFunction_f,20.,200.,4);
-    fitFcne3->SetNpx(500);
-    fitFcne3->SetLineWidth(3);
-    fitFcne3->SetLineStyle(1);
-    fitFcne3->SetLineColor(4);
-    gr->Fit("fitFcne3","0R");
-    fitFcne3->Draw("same"); 
-  
-  
-    double yrms[nbin];
-    double eyrms[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      //const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      //const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      yrms[nbinc]= h0_slice->GetRMS(1);
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-      //std::cout << "x[nbinc] = " << x[nbinc] << std::endl;
-      //std::cout << "yrms[nbinc] = " << yrms[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      eyrms[nbinc]=h0_slice->GetRMSError(1);
-      //ey[nbinc]=0.0;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *grrms = new TGraphErrors(nbin,x,yrms,ex,eyrms);
-    grrms->SetMaximum(1.3);
-    grrms->SetMinimum(0.0);
-    grrms->SetMarkerStyle(21);
-    grrms->SetMarkerColor(5);
-    grrms->SetTitle("RMS(MET)/trueMET");
-    grrms->GetXaxis()->SetTitle("trueMET");
-    //grrms->Draw("P");
-  
-    TF1 *fitFcnrms3 = new TF1("fitFcnrms3",fitFunction_f,20.,200.,4);
+    TF1 *fitFcnrms3 = new TF1("fitFcnrms3",fitFunction_f,binxmin,binxmax,4);
     fitFcnrms3->SetNpx(500);
     fitFcnrms3->SetLineWidth(3);
     fitFcnrms3->SetLineStyle(2);
     fitFcnrms3->SetLineColor(4);
-    grrms->Fit("fitFcnrms3","0R");
-    fitFcnrms3->Draw("same"); 
+    sigmaslice->Fit("fitFcnrms3","0R");
+
+    TH1D* sigmasliceGauss = new TH1D("sigmasliceGauss","Sigmaslice",nbin,binxmin,binxmax);
+    h2->SigmaGaussSlice(sigmasliceGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname);
+    sigmasliceGauss->Divide(meanXslice);
+    sigmasliceGauss->SetTitle(title.c_str());
+    sigmasliceGauss->SetMaximum(Ymax);
+    sigmasliceGauss->SetMinimum(Ymin);
+    sigmasliceGauss->SetMarkerStyle(21);
+    sigmasliceGauss->SetMarkerColor(4);
+
+    TF1 *fitFcne3 = new TF1("fitFcne3",fitFunction_f,binxmin,binxmax,4);
+    fitFcne3->SetNpx(500);
+    fitFcne3->SetLineWidth(3);
+    fitFcne3->SetLineStyle(1);
+    fitFcne3->SetLineColor(4);
+    sigmasliceGauss->Fit("fitFcne3","0R");
 
     dir = dir0_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2b = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-    double ybg[nbin];
-    double eybg[nbin];
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      //const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      //const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      h0_slicebg->Rebin(10);
-      //h0_slicebg->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-2.,2.,3);
-      //TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-100.,100.,3);
-      //fitFcngbg->SetParameters(1.,0.1,100.);
-      fitFcngbg->SetParameters(h0_slicebg->GetRMS(1),0.1,100.);
-      fitFcngbg->SetLineColor(2);
-      h0_slicebg->Fit("fitFcngbg","0R");
-      //fitFcng->Draw("same");
-  
-      //std::ostringstream oss;
-      //oss << nbinc;
-      //const std::string plotfitname="Plots/fitbin_b_"+oss.str()+".eps";
-      //gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcngbg->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-      ybg[nbinc]= sigmaG;
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-      //std::cout << "FL: ybg[" << nbinc << "] = " << ybg[nbinc] << std::endl;
-  
-  //    // calcul des incertitudes:
-      eybg[nbinc]=fitFcngbg->GetParError(0);
-  //    //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slicebg;
-    }
-  
-    TGraphErrors *grbg = new TGraphErrors(nbin,x,ybg,ex,eybg);
-    grbg->SetMaximum(1.3);
-    grbg->SetMinimum(0.0);
-    grbg->SetMarkerStyle(21);
-    grbg->SetMarkerColor(2);
-    grbg->SetTitle("Sigma(MET)/trueMET");
-    grbg->GetXaxis()->SetTitle("trueMET");
-    grbg->Draw("P");
-  
-    TF1 *fitFcnebg3 = new TF1("fitFcnebg3",fitFunction_f,20.,200.,4);
-    fitFcnebg3->SetNpx(500);
-    fitFcnebg3->SetLineWidth(3);
-    fitFcnebg3->SetLineStyle(1);
-    fitFcnebg3->SetLineColor(2);
-    grbg->Fit("fitFcnebg3","0R");
-    fitFcnebg3->Draw("same"); 
-  
-    double yb[nbin];
-    double eyb[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=x[nbinc]-ex[nbinc];
-      double binxmaxc=x[nbinc]+ex[nbinc];
-      if (nbinc==nbin-1) binxmaxc=binxmax;
-  
-      TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
-      //h0_sliceb->Sumw2();
-      yb[nbinc]= h0_sliceb->GetRMS(1);
-  
-      // calcul des incertitudes:
-      //eyb[nbinc]=0.0;
-      eyb[nbinc]=h0_sliceb->GetRMSError(1);
-      delete h0_sliceb;
-    }
-  
-    TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
-    grb->SetMarkerStyle(21);
-    grb->SetMarkerColor(2);
-    //grb->Draw("P");
-  
-    TF1 *fitFcne23 = new TF1("fitFcne23",fitFunction_f,20.,200.,4);
-    fitFcne23->SetNpx(500);
-    fitFcne23->SetLineWidth(3);
-    fitFcne23->SetLineColor(2);
-    fitFcne23->SetLineStyle(2);
-    grb->Fit("fitFcne23","0R");
-    fitFcne23->Draw("same"); 
+    TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
+    TH1D* sigmasliceb = new TH1D("sigmasliceb","Sigmasliceb",nbin,binxmin,binxmax);
+    h2b->SigmaSlice(sigmasliceb,binxmin,binxmax,nbin,binning_option);
+    sigmasliceb->Divide(meanXslice);
+
+    TF1 *fitFcnrmsb3 = new TF1("fitFcnrmsb3",fitFunction_f,binxmin,binxmax,4);
+    fitFcnrmsb3->SetNpx(500);
+    fitFcnrmsb3->SetLineWidth(3);
+    fitFcnrmsb3->SetLineStyle(2);
+    fitFcnrmsb3->SetLineColor(2);
+    sigmasliceb->Fit("fitFcnrmsb3","0R");
+
+    TH1D* sigmaslicebGauss = new TH1D("sigmaslicebGauss","Sigmasliceb",nbin,binxmin,binxmax);
+    h2b->SigmaGaussSlice(sigmaslicebGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname+"b");
+    sigmaslicebGauss->Divide(meanXslice);
+    sigmaslicebGauss->SetTitle(title.c_str());
+    sigmaslicebGauss->SetMaximum(Ymax);
+    sigmaslicebGauss->SetMinimum(Ymin);
+    sigmaslicebGauss->SetMarkerStyle(21);
+    sigmaslicebGauss->SetMarkerColor(2);
+
+    TF1 *fitFcneb3 = new TF1("fitFcneb3",fitFunction_f,binxmin,binxmax,4);
+    fitFcneb3->SetNpx(500);
+    fitFcneb3->SetLineWidth(3);
+    fitFcneb3->SetLineStyle(1);
+    fitFcneb3->SetLineColor(2);
+    sigmaslicebGauss->Fit("fitFcneb3","0R");
+
+    sigmasliceGauss->Draw("E1");
+    fitFcnrms3->DrawClone("same"); 
+    fitFcne3->DrawClone("same"); 
+    sigmaslicebGauss->Draw("E1same");
+    fitFcnrmsb3->DrawClone("same"); 
+    fitFcneb3->DrawClone("same"); 
   }
 
-  //COLIN and again 
-  void DrawSigmaEt2(const char* key, int binxmin, int binxmax, Mode mode)
+  // create nbin slices between binxmin and binxmax. In each slice get the RMS/mean and sigma/mean from of gaussian fit.
+  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+  void DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, const unsigned int binxmin, const unsigned int binxmax,
+				   const unsigned int nbin, const double Ymin, const double Ymax,
+				   const std::string title, const std::string binning_option, const unsigned int rebin,
+				   const double fitmin, const double fitmax, const std::string epsname)
   {
-    //std::cout << "binxmin = " << binxmin << std::endl;
-    //std::cout << "binxmax = " << binxmax << std::endl;
     TDirectory* dir = dir1_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2 = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
+    gStyle->SetOptStat("");
+    TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
+    //TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
+    //h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
 
-    const unsigned int nbin=15;
+    TH2Analyzer *h2_b = (TH2Analyzer*) dir->Get(key2);
+    TH1D* meanslice = new TH1D("meanslice","Meanslice",nbin,binxmin,binxmax);
+    h2_b->MeanSlice(meanslice,binxmin,binxmax,nbin,binning_option);
+    //sigmaslice->Divide(meanslice);
+    //sigmaslice->Draw("E1");
 
-    double y[nbin];
-    double ey[nbin];
-    double x[nbin];
-    double ex[nbin];
-  
-//    //binning computation
-//    // (we want approx. the same number of entries per bin)
-//    //TH1D* h0_slice1 = h2->ProjectionY("h0_slice1",0., binxmax, "");
-//    TH1D* h0_slice1 = h2->ProjectionY("h0_slice1",binxmin, binxmax, "");
-//    const unsigned int totalNumberOfEvents=h0_slice1->GetEntries();
-//    //std::cout << "totalNumberOfEvents = " << totalNumberOfEvents << std::endl;
-//    unsigned int neventsc=0;
-//    for (unsigned int binc=0;binc<nbin;++binc)
-//    {
-//      unsigned int binXmaxc;
-//      if (binc==0) binXmaxc=binxmin;
-//      else binXmaxc=x[binc-1]+ex[binc-1];
-//  
-//      //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-//      //std::cout << "(binc+1)*totalNumberOfEvents/nbin = " <<
-//      // (binc+1)*totalNumberOfEvents/nbin << std::endl;
-//      //std::cout << "neventsc = " << neventsc << std::endl;
-//  
-//      while (static_cast<double>(neventsc)<(binc+1)*totalNumberOfEvents/nbin)
-//      {
-//        TH1D* h0_slice1c = h2->ProjectionY("h0_slice1",binxmin, binXmaxc, "");
-//        neventsc=h0_slice1c->GetEntries();
-//        //std::cout << "FL : neventsc = " << neventsc << std::endl;
-//        //std::cout << "FL : binXmaxc = " << binXmaxc << std::endl;
-//        //++binXmaxc;
-//        binXmaxc+=10;
-//        delete h0_slice1c;
-//      }
-//      //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-//      if (binc==0)
-//      {
-//        x[binc]=(binXmaxc-1-binxmin)/2.+binxmin;
-//        ex[binc]=(binXmaxc-1-binxmin)/2.;
-//      }
-//      else
-//      {
-//        x[binc]=(binXmaxc-1-x[binc-1]-ex[binc-1])/2.+x[binc-1]+ex[binc-1];
-//        //std::cout << "x[binc-1] = " << x[binc-1] << std::endl;
-//        //std::cout << "ex[binc-1] = " << ex[binc-1] << std::endl;
-//        //std::cout << "binXmaxc = " << binXmaxc << std::endl;
-//        ex[binc]=(binXmaxc-1-x[binc-1]-ex[binc-1])/2.;
-//      }
-//      //std::cout << "x[" << binc << "] = " << x[binc] << std::endl;
-//      //std::cout << "ex[" << binc << "] = " << ex[binc] << std::endl;
-//      //std::cout << "neventsc = " << neventsc << std::endl;
-//    }
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-      x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      //TH1D *h0_slice = new TH1D("h0_slice","titre",3000,-100.,100.);
-      //h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      //if (nbinc<10) h0_slice->Rebin(5);
-      //else h0_slice->Rebin(10);
-      h0_slice->Rebin(10);
-      h0_slice->GetXaxis()->SetRangeUser(-120.,120.);
-      h0_slice->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      //TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-2.,2.,3);
-      TF1 *fitFcng = new TF1("fitFcng",fitFunction_g,-100.,100.,3);
-      //fitFcng->SetParameters(1.,0.1,100.);
-      fitFcng->SetParameters(h0_slice->GetRMS(1),0.1,100.);
-      fitFcng->SetLineColor(2);
-      h0_slice->Fit("fitFcng","0R");
-      fitFcng->Draw("same");
-  
-      std::ostringstream oss;
-      oss << nbinc;
-      const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".eps";
-      //const std::string plotfitname="Plots/fitbin_DrawSigmaEt_"+oss.str()+".C";
-      gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcng->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-      y[nbinc]= sigmaG;
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      ey[nbinc]=fitFcng->GetParError(0);
-      //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *gr = new TGraphErrors(nbin,x,y,ex,ey);
-    //gr->SetMaximum(1.3);
-    gr->SetMinimum(0.0);
-    gr->SetMarkerStyle(21);
-    gr->SetMarkerColor(4);
-    gr->SetTitle("Sigma(DeltaMEX)");
-    gr->GetXaxis()->SetTitle("trueSET");
-    gr->Draw("AP");
-  
-//    TF1 *fitFcne3 = new TF1("fitFcne3",fitFunction_f,20.,200.,4);
-//    fitFcne3->SetNpx(500);
-//    fitFcne3->SetLineWidth(3);
-//    fitFcne3->SetLineStyle(1);
-//    fitFcne3->SetLineColor(4);
-//    gr->Fit("fitFcne3","0R");
-//    fitFcne3->Draw("same"); 
-  
-  
-    double yrms[nbin];
-    double eyrms[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slice = h2->ProjectionY("h0_slice",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      yrms[nbinc]= h0_slice->GetRMS(1);
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-      //std::cout << "x[nbinc] = " << x[nbinc] << std::endl;
-      //std::cout << "yrms[nbinc] = " << yrms[nbinc] << std::endl;
-  
-      // calcul des incertitudes:
-      eyrms[nbinc]=h0_slice->GetRMSError(1);
-      //ey[nbinc]=0.0;
-      delete h0_slice;
-    }
-  
-    TGraphErrors *grrms = new TGraphErrors(nbin,x,yrms,ex,eyrms);
-    //grrms->SetMaximum(1.3);
-    grrms->SetMinimum(0.0);
-    grrms->SetMarkerStyle(22);
-    grrms->SetMarkerColor(4);
-    grrms->SetTitle("RMS(MET)/trueMET");
-    grrms->GetXaxis()->SetTitle("trueMET");
-    //grrms->Draw("P");
-  
-//    TF1 *fitFcnrms3 = new TF1("fitFcnrms3",fitFunction_f,20.,200.,4);
-//    fitFcnrms3->SetNpx(500);
-//    fitFcnrms3->SetLineWidth(3);
-//    fitFcnrms3->SetLineStyle(2);
-//    fitFcnrms3->SetLineColor(4);
-//    grrms->Fit("fitFcnrms3","0R");
-//    fitFcnrms3->Draw("same"); 
+    //TF1 *fitFcnrms3 = new TF1("fitFcnrms3",fitFunction_f,binxmin,binxmax,4);
+    //fitFcnrms3->SetNpx(500);
+    //fitFcnrms3->SetLineWidth(3);
+    //fitFcnrms3->SetLineStyle(2);
+    //fitFcnrms3->SetLineColor(4);
+    //sigmaslice->Fit("fitFcnrms3","0R");
+
+    TH1D* sigmasliceGauss = new TH1D("sigmasliceGauss","Sigmaslice",nbin,binxmin,binxmax);
+    h2->SigmaGaussSlice(sigmasliceGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname);
+    sigmasliceGauss->Divide(meanslice);
+    sigmasliceGauss->SetTitle(title.c_str());
+    sigmasliceGauss->SetMaximum(Ymax);
+    sigmasliceGauss->SetMinimum(Ymin);
+    sigmasliceGauss->SetMarkerStyle(21);
+    sigmasliceGauss->SetMarkerColor(4);
+
+    //TF1 *fitFcne3 = new TF1("fitFcne3",fitFunction_f,binxmin,binxmax,4);
+    //fitFcne3->SetNpx(500);
+    //fitFcne3->SetLineWidth(3);
+    //fitFcne3->SetLineStyle(1);
+    //fitFcne3->SetLineColor(4);
+    //sigmasliceGauss->Fit("fitFcne3","0R");
 
     dir = dir0_;
     dir->cd();
-    //gStyle->SetPalette(1);
-    TH2F *h2b = (TH2*) dir->Get(key);
-    //h2->Draw("colz");
-    double ybg[nbin];
-    double eybg[nbin];
-  
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-      //x[nbinc]=(binxmaxc-binxminc)/2.+binxminc;
-      //ex[nbinc]=(binxmaxc-binxminc)/2.;
-  
-      //std::cout << "binxminc = " << binxminc << std::endl;
-      //std::cout << "binxmaxc = " << binxmaxc << std::endl;
-  
-      TH1D* h0_slicebg = h2b->ProjectionY("h0_slicebg",binxminc, binxmaxc, "");
-      //h0_slice->Sumw2();
-      h0_slicebg->Rebin(10);
-      //if (nbinc<10) h0_slicebg->Rebin(5);
-      //else h0_slicebg->Rebin(10);
-      //h0_slicebg->Draw();
-      //std::cout << "GetRMS(1) = " << h0_slice->GetRMS(1) << std::endl;
-  
-      //TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-2.,2.,3);
-      TF1 *fitFcngbg = new TF1("fitFcngbg",fitFunction_g,-100.,100.,3);
-      //fitFcngbg->SetParameters(1.,0.1,100.);
-      fitFcngbg->SetParameters(h0_slicebg->GetRMS(1),0.1,100.);
-      fitFcngbg->SetLineColor(2);
-      h0_slicebg->Fit("fitFcngbg","0R");
-      //fitFcng->Draw("same");
-  
-      //std::ostringstream oss;
-      //oss << nbinc;
-      //const std::string plotfitname="Plots/fitbin_b_"+oss.str()+".eps";
-      //gPad->SaveAs( plotfitname.c_str() );
-  
-      const double sigmaG=fitFcngbg->GetParameter(0);
-      //std::cout << "Sigma = " << sigmaG << std::endl;
-      ybg[nbinc]= sigmaG;
-  
-      //std::cout << "FL: x[" << nbinc << "] = " << x[nbinc] << std::endl;
-      //std::cout << "FL: ybg[" << nbinc << "] = " << ybg[nbinc] << std::endl;
-  
-  //    // calcul des incertitudes:
-      eybg[nbinc]=fitFcngbg->GetParError(0);
-  //    //ey[nbinc]=0.0;
-      //std::cout << "ey[nbinc] = " << ey[nbinc] << std::endl;
-      delete h0_slicebg;
-    }
-  
-    TGraphErrors *grbg = new TGraphErrors(nbin,x,ybg,ex,eybg);
-    //grbg->SetMaximum(1.3);
-    grbg->SetMinimum(0.0);
-    grbg->SetMarkerStyle(21);
-    grbg->SetMarkerColor(2);
-    grbg->SetTitle("Sigma(MET)/trueMET");
-    grbg->GetXaxis()->SetTitle("trueMET");
-    grbg->Draw("P");
-  
-//    TF1 *fitFcnebg3 = new TF1("fitFcnebg3",fitFunction_f,20.,200.,4);
-//    fitFcnebg3->SetNpx(500);
-//    fitFcnebg3->SetLineWidth(3);
-//    fitFcnebg3->SetLineStyle(1);
-//    fitFcnebg3->SetLineColor(2);
-//    grbg->Fit("fitFcnebg3","0R");
-//    fitFcnebg3->Draw("same"); 
-  
-    double yb[nbin];
-    double eyb[nbin];
-    for (unsigned int nbinc=0;nbinc<nbin;++nbinc)
-    {
-      const double binxminc=binxmin+nbinc*(binxmax-binxmin)/nbin;
-      const double binxmaxc=binxminc+(binxmax-binxmin)/nbin;
-      //const double binxminc=x[nbinc]-ex[nbinc];
-      //double binxmaxc=x[nbinc]+ex[nbinc];
-      //if (nbinc==nbin-1) binxmaxc=binxmax;
-  
-      TH1D* h0_sliceb = h2b->ProjectionY("h0_sliceb",binxminc, binxmaxc, "");
-      //h0_sliceb->Sumw2();
-      yb[nbinc]= h0_sliceb->GetRMS(1);
-  
-      // calcul des incertitudes:
-      //eyb[nbinc]=0.0;
-      eyb[nbinc]=h0_sliceb->GetRMSError(1);
-      delete h0_sliceb;
-    }
-  
-    TGraphErrors *grb = new TGraphErrors(nbin,x,yb,ex,eyb);
-    grb->SetMarkerStyle(22);
-    grb->SetMarkerColor(2);
-    //grb->Draw("P");
-  
-//    TF1 *fitFcne23 = new TF1("fitFcne23",fitFunction_f,20.,200.,4);
-//    fitFcne23->SetNpx(500);
-//    fitFcne23->SetLineWidth(3);
-//    fitFcne23->SetLineColor(2);
-//    fitFcne23->SetLineStyle(2);
-//    grb->Fit("fitFcne23","0R");
-//    fitFcne23->Draw("same"); 
+    TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
+    TH2Analyzer *h2b_b = (TH2Analyzer*) dir->Get(key2);
+    TH1D* meansliceb = new TH1D("meansliceb","Meanslice",nbin,binxmin,binxmax);
+    h2b_b->MeanSlice(meansliceb,binxmin,binxmax,nbin,binning_option);
+
+    //TH1D* sigmasliceb = new TH1D("sigmasliceb","Sigmasliceb",nbin,binxmin,binxmax);
+    // h2b->SigmaSlice(sigmasliceb,binxmin,binxmax,nbin,binning_option);
+    //sigmasliceb->Divide(meansliceb);
+
+    //TF1 *fitFcnrmsb3 = new TF1("fitFcnrmsb3",fitFunction_f,binxmin,binxmax,4);
+    //fitFcnrmsb3->SetNpx(500);
+    //fitFcnrmsb3->SetLineWidth(3);
+    //fitFcnrmsb3->SetLineStyle(2);
+    //fitFcnrmsb3->SetLineColor(2);
+    //sigmasliceb->Fit("fitFcnrmsb3","0R");
+
+    TH1D* sigmaslicebGauss = new TH1D("sigmaslicebGauss","Sigmasliceb",nbin,binxmin,binxmax);
+    h2b->SigmaGaussSlice(sigmaslicebGauss,binxmin,binxmax,nbin,binning_option,rebin,fitmin,fitmax,epsname+"b");
+    sigmaslicebGauss->Divide(meansliceb);
+    sigmaslicebGauss->SetTitle(title.c_str());
+    sigmaslicebGauss->SetMaximum(Ymax);
+    sigmaslicebGauss->SetMinimum(Ymin);
+    sigmaslicebGauss->SetMarkerStyle(21);
+    sigmaslicebGauss->SetMarkerColor(2);
+
+    //TF1 *fitFcneb3 = new TF1("fitFcneb3",fitFunction_f,binxmin,binxmax,4);
+    //fitFcneb3->SetNpx(500);
+    //fitFcneb3->SetLineWidth(3);
+    //fitFcneb3->SetLineStyle(1);
+    //fitFcneb3->SetLineColor(2);
+    //sigmaslicebGauss->Fit("fitFcneb3","0R");
+
+    //meanslice->Draw("E1");
+    sigmasliceGauss->Draw("E1");
+    //fitFcnrms3->DrawClone("same"); 
+    //fitFcne3->DrawClone("same"); 
+    sigmaslicebGauss->Draw("E1same");
+    //fitFcnrmsb3->DrawClone("same"); 
+    //fitFcneb3->DrawClone("same"); 
   }
 
   //COLIN mode is not used
@@ -1614,4 +643,3 @@ private:
 
   string path_;
 };
-
