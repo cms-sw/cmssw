@@ -67,6 +67,8 @@ class EtaPhiHists{
 				    (name.str()+" Depth 4 -- HO ("+unittitle.str().c_str()+")"),
 				    31,-15.5,15.5,
 				    72,0.5,72.5));
+      for (unsigned int i=0;i<depth.size();++i)
+	(depth[i]->getTH2F())->SetOption("colz");
       setBinLabels(); // set axis titles, special bins
       
     } // void setup(...)

@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/08/17 09:12:58 $
-  * $Revision: 1.34 $
+  * $Date: 2009/08/19 19:26:58 $
+  * $Revision: 1.35 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -76,17 +76,20 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   EtaPhiHists  UnoccupiedDeadCellsByDepth;
   EtaPhiHists  DigiPresentByDepth;
   EtaPhiHists  BelowEnergyThresholdCellsByDepth;
+  EtaPhiHists  EnergyPresentByDepth;
 
   // Problems vs. lumi block
   MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
   MonitorElement *NumberOfNeverPresentCells, *NumberOfNeverPresentCellsHB, *NumberOfNeverPresentCellsHE, *NumberOfNeverPresentCellsHO, *NumberOfNeverPresentCellsHF;
   MonitorElement *NumberOfUnoccupiedCells, *NumberOfUnoccupiedCellsHB, *NumberOfUnoccupiedCellsHE, *NumberOfUnoccupiedCellsHO, *NumberOfUnoccupiedCellsHF;
   MonitorElement *NumberOfBelowEnergyCells, *NumberOfBelowEnergyCellsHB, *NumberOfBelowEnergyCellsHE, *NumberOfBelowEnergyCellsHO, *NumberOfBelowEnergyCellsHF;
+  MonitorElement *NumberOfEnergyNeverPresentCells, *NumberOfEnergyNeverPresentCellsHB, *NumberOfEnergyNeverPresentCellsHE, *NumberOfEnergyNeverPresentCellsHO, *NumberOfEnergyNeverPresentCellsHF;
 
-
-  bool present[85][72][4];
-  unsigned int occupancy[85][72][4];
-  unsigned int aboveenergy[85][72][4];
+  bool present[85][72][4]; // tests that a good digi was present at least once
+  bool present_energy[85][72][4]; // tests that energy > threshold at least once
+  unsigned int occupancy[85][72][4]; // tests that cells haven't gone missing for long periods
+  unsigned int aboveenergy[85][72][4]; // tests that cells haven't dropped below threshold for long periods
+  
 
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };

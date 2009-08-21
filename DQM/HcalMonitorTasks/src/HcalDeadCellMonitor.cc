@@ -59,8 +59,8 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
      3)  energy -- cell is present, but rechit energy is never above threshold value
   */
   
-  deadmon_test_occupancy_         = ps.getUntrackedParameter<bool>("DeadCellMonitor_test_occupancy", true);
-  deadmon_test_energy_            = ps.getUntrackedParameter<bool>("DeadCellMonitor_test_energy", true);
+  deadmon_test_occupancy_         = ps.getUntrackedParameter<bool>("DeadCellMonitor_test_occupancy", false);
+  deadmon_test_energy_            = ps.getUntrackedParameter<bool>("DeadCellMonitor_test_energy", false);
 
   // Minimum error rate to be considered problematic
   deadmon_minErrorFlag_ = ps.getUntrackedParameter<double>("DeadCellMonitor_minErrorFlag",0.05);
@@ -131,7 +131,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       SetupEtaPhiHists(DigiPresentByDepth,
 		       "Digi Present At Least Once","");
       // 1D plots count number of bad cells
-      NumberOfNeverPresentCells=m_dbe->bookProfile("Problem_TotalNeverPresentCells_HCAL_vs_LS",
+      NumberOfNeverPresentCells=m_dbe->bookProfile("Problem_NeverPresentCells_HCAL_vs_LS",
 						   "Total Number of Never-Present Hcal Cells vs LS;Lumi Section;Dead Cells",
 						   Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
       
@@ -183,7 +183,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
 	  // 1D plots count number of bad cells
 	  name<<"Total Number of Hcal Digis Unoccupied for "<<(deadmon_checkNevents_*deadmon_prescale_)<<" Consecutive Events vs LS;Lumi Section; Dead Cells";
-	  NumberOfUnoccupiedCells=m_dbe->bookProfile("Problem_TotalUnoccupiedCells_HCAL_vs_LS",
+	  NumberOfUnoccupiedCells=m_dbe->bookProfile("Problem_UnoccupiedCells_HCAL_vs_LS",
 						name.str(),
 						Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
@@ -210,6 +210,51 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       
       if (deadmon_test_energy_)
 	{
+	  // test 1:  energy never above threshold
+	  m_dbe->setCurrentFolder(baseFolder_+"/dead_energy_neverpresent");
+	  SetupEtaPhiHists(EnergyPresentByDepth,"RecHit Above Threshold At Least Once","");
+	  // set more descriptive titles for threshold plots
+	  units.str("");
+	  units<<"Cells Above Energy Threshold At Least Once: Depth 1 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
+	  EnergyPresentByDepth.depth[0]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Cells Above Energy Threshold At Least Once: Depth 2 -- HB >="<<HBenergyThreshold_<<" GeV, HE >= "<<HEenergyThreshold_<<", HF >="<<HFenergyThreshold_<<" GeV";
+	  EnergyPresentByDepth.depth[1]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Cells Above Energy Threshold At Least Once: Depth 3 -- HE >="<<HEenergyThreshold_<<" GeV";
+	  EnergyPresentByDepth.depth[2]->setTitle(units.str().c_str());
+	  units.str("");
+	  units<<"Cells Above Energy Threshold At Least Once: Depth 4 -- HO >="<<HOenergyThreshold_<<" GeV";
+	  EnergyPresentByDepth.depth[3]->setTitle(units.str().c_str());
+	  units.str("");
+
+	  // 1D plots count number of bad cells
+	  name<<"Total Number of Hcal RecHits with Consistent Low Energy;Lumi Section;Dead Cells";
+	  NumberOfEnergyNeverPresentCells=m_dbe->bookProfile("Problem_EnergyNeverPresentCells_HCAL_vs_LS",
+						      name.str(),
+						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+	  name.str("");
+	  name<<"Total Number of HB RecHits with Energy Never >= "<<HBenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+	  NumberOfEnergyNeverPresentCellsHB=m_dbe->bookProfile("Problem_EnergyNeverPresentCells_HB_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+	  name.str("");
+	  name<<"Total Number of HE RecHits with Energy Never >= "<<HEenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+	  NumberOfEnergyNeverPresentCellsHE=m_dbe->bookProfile("Problem_EnergyNeverPresentCells_HE_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+	  name.str("");
+	  name<<"Total Number of HO RecHits with Energy Never >= "<<HOenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+	  NumberOfEnergyNeverPresentCellsHO=m_dbe->bookProfile("Problem_EnergyNeverPresentCells_HO_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+	  name.str("");
+	  name<<"Total Number of HF RecHits with Energy Never >= "<<HFenergyThreshold_<<" GeV;Lumi Section;Dead Cells";
+	  NumberOfEnergyNeverPresentCellsHF=m_dbe->bookProfile("Problem_EnergyNeverPresentCells_HF_vs_LS",
+							name.str(),
+							Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+
 	  m_dbe->setCurrentFolder(baseFolder_+"/dead_energytest");
 	  SetupEtaPhiHists(BelowEnergyThresholdCellsByDepth,"Dead Cells Failing Energy Threshold Test","");
 	  // set more descriptive titles for threshold plots
@@ -230,7 +275,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
 	  // 1D plots count number of bad cells
 	  name<<"Total Number of Hcal RecHits with Consistent Low Energy;Lumi Section;Dead Cells";
-	  NumberOfBelowEnergyCells=m_dbe->bookProfile("Problem_TotalBelowEnergyCells_HCAL_vs_LS",
+	  NumberOfBelowEnergyCells=m_dbe->bookProfile("Problem_BelowEnergyCells_HCAL_vs_LS",
 						      name.str(),
 						      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 	  name.str("");
@@ -450,12 +495,15 @@ void HcalDeadCellMonitor::fillDeadHistosAtEndRun()
      problem profile histograms, though -- not enough stats to determine this.
   */
   
-  //JEFF
-
   unsigned int neverpresentHB=0;
   unsigned int neverpresentHE=0;
   unsigned int neverpresentHO=0;
   unsigned int neverpresentHF=0;
+
+  unsigned int energyneverpresentHB=0;
+  unsigned int energyneverpresentHE=0;
+  unsigned int energyneverpresentHO=0;
+  unsigned int energyneverpresentHF=0;
   
   int etabins=0;
   int phibins=0;
@@ -504,6 +552,53 @@ void HcalDeadCellMonitor::fillDeadHistosAtEndRun()
   NumberOfNeverPresentCellsHO->Fill(lumiblock,neverpresentHO);
   NumberOfNeverPresentCellsHF->Fill(lumiblock,neverpresentHF);
   NumberOfNeverPresentCells->Fill(lumiblock,neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF);
+
+  if (!deadmon_test_energy_) return;
+  // Now look for rechits always below threshold energy
+  for (unsigned int depth=0;depth<EnergyPresentByDepth.depth.size();++depth)
+    {
+      if (EnergyPresentByDepth.depth[depth]==0) continue;
+      etabins=EnergyPresentByDepth.depth[depth]->getNbinsX();
+      phibins=EnergyPresentByDepth.depth[depth]->getNbinsY();
+      for (int eta=0;eta<etabins;++eta)
+	{
+	  ieta=CalcIeta(eta,depth);
+	  if (ieta==-9999) continue;
+	  for (int phi=0;phi<phibins;++phi)
+	    {
+	      for (int subdet=1;subdet<=4;++subdet)
+		{
+		  if (!validDetId((HcalSubdetector)subdet, ieta, phi+1, depth+1))
+		    continue;
+		  // Ignore subdetectors that weren't in run
+                  if ((subdet==HcalBarrel && !HBpresent_) || 
+		      (subdet==HcalEndcap &&!HEpresent_)  ||
+		      (subdet==HcalOuter &&!HOpresent_)  ||
+		      (subdet==HcalForward &&!HFpresent_))   continue;
+
+		  if ((!checkHB_ && subdet==HcalBarrel) ||
+		      (!checkHE_ && subdet==HcalEndcap) ||
+		      (!checkHO_ && subdet==HcalOuter) ||
+		      (!checkHF_ && subdet==HcalForward))  continue;
+
+		  // now check which dead cell tests failed; increment counter if any failed
+		  if (present_energy[eta][phi][depth]==0)
+		    {
+		      if (subdet==HcalBarrel) ++energyneverpresentHB;
+		      else if (subdet==HcalEndcap) ++energyneverpresentHE;
+		      else if (subdet==HcalOuter) ++energyneverpresentHO;
+		      else if (subdet==HcalForward) ++energyneverpresentHF;
+		    }
+		} // subdet loop
+	    } // phi loop
+	} //eta loop
+    } // depth loop
+
+  NumberOfEnergyNeverPresentCellsHB->Fill(lumiblock,neverpresentHB);
+  NumberOfEnergyNeverPresentCellsHE->Fill(lumiblock,neverpresentHE);
+  NumberOfEnergyNeverPresentCellsHO->Fill(lumiblock,neverpresentHO);
+  NumberOfEnergyNeverPresentCellsHF->Fill(lumiblock,neverpresentHF);
+  NumberOfEnergyNeverPresentCells->Fill(lumiblock,neverpresentHB+neverpresentHE+neverpresentHO+neverpresentHF);
 
   return;
 
@@ -573,26 +668,47 @@ void HcalDeadCellMonitor::process_RecHit(RECHIT& rechit)
       HBpresent_=true;
       if (!checkHB_) return;
       if (en>=HBenergyThreshold_)
-	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	{
+	  ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  present_energy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	  if (EnergyPresentByDepth.depth[depth-1])
+	    EnergyPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1);
+	}
     }
   else if (id.subdet()==HcalEndcap)
     {
       HEpresent_=true;
       if (!checkHE_) return;
       if (en>=HEenergyThreshold_)
+	{
 	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	present_energy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	if (EnergyPresentByDepth.depth[depth-1])
+	  EnergyPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1);
+	}
     }
   else if (id.subdet()==HcalForward)
     {
       HFpresent_=true;
       if (en>=HFenergyThreshold_)
+	{
+	  ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  present_energy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	  if (EnergyPresentByDepth.depth[depth-1])
+	    EnergyPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1);
+	}
 	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
     }
   else if (id.subdet()==HcalOuter)
     {
       HOpresent_=true;
       if (en>=HOenergyThreshold_)
-	++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	{
+	  ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
+	  present_energy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=true;
+	  if (EnergyPresentByDepth.depth[depth-1])
+	    EnergyPresentByDepth.depth[depth-1]->setBinContent(CalcEtaBin(id.subdet(),ieta,depth)+1,iphi,1); 
+	}
     }
 }
 
@@ -719,6 +835,11 @@ void HcalDeadCellMonitor::fillNevents_energy(int checkN)
 		  if (ieta==-9999) continue;
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
+		  // Skip cells that are already marked as dead by the "neverpresent" test
+		  // require at least one RecHit -- this in turn requires at least once Digi,
+		  // so this test is only run if other dead cell tests have passed (with the exception of 
+		  // persistent digi occupancy test)
+		  if (present_energy[eta][phi][depth]==false) continue;
 		  // Ignore subdetectors that weren't in run
                   if ((subdet==HcalBarrel && !HBpresent_) || 
 		      (subdet==HcalEndcap &&!HEpresent_)  ||
@@ -747,6 +868,7 @@ void HcalDeadCellMonitor::fillNevents_energy(int checkN)
 	} // for (int phi=0;...)
     } // for (int eta=0;...)
 
+  FillUnphysicalHEHFBins(EnergyPresentByDepth);
   FillUnphysicalHEHFBins(BelowEnergyThresholdCellsByDepth);
   if (showTiming)
     {
@@ -793,6 +915,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
   unsigned int belowenergyHO=0;
   unsigned int belowenergyHF=0;
   
+  unsigned int energyneverpresentHB=0;
+  unsigned int energyneverpresentHE=0;
+  unsigned int energyneverpresentHO=0;
+  unsigned int energyneverpresentHF=0;
+  
+
   int etabins=0;
   int phibins=0;
   for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
@@ -848,12 +976,22 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
 		      else if (subdet==HcalOuter) ++unoccupiedHO;
 		      else if (subdet==HcalForward) ++unoccupiedHF;
 		    }
-		  if (deadmon_test_energy_ && aboveenergy[eta][phi][depth]==0 && (ievt_%(checkN*deadmon_prescale_)==0))
+		  if (deadmon_test_energy_)
 		    {
-		      if (subdet==HcalBarrel) ++belowenergyHB;
-		      else if (subdet==HcalEndcap) ++belowenergyHE;
-		      else if (subdet==HcalOuter) ++belowenergyHO;
-		      else if (subdet==HcalForward) ++belowenergyHF;
+		      if (present_energy[eta][phi][depth]==0)
+			{
+			  if (subdet==HcalBarrel) ++energyneverpresentHB;
+			  else if (subdet==HcalEndcap) ++energyneverpresentHE;
+			  else if (subdet==HcalOuter) ++energyneverpresentHO;
+			  else if (subdet==HcalForward) ++energyneverpresentHF;
+			}
+		      if (aboveenergy[eta][phi][depth]==0 && (ievt_%(checkN*deadmon_prescale_)==0))
+			{
+			  if (subdet==HcalBarrel) ++belowenergyHB;
+			  else if (subdet==HcalEndcap) ++belowenergyHE;
+			  else if (subdet==HcalOuter) ++belowenergyHO;
+			  else if (subdet==HcalForward) ++belowenergyHF;
+			}
 		    }
 		} // subdet loop
 	    } // phi loop
@@ -881,6 +1019,12 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
 
       if (deadmon_test_energy_)
 	{
+	  NumberOfEnergyNeverPresentCellsHB->Fill(lumiblock,energyneverpresentHB);
+	  NumberOfEnergyNeverPresentCellsHE->Fill(lumiblock,energyneverpresentHE);
+	  NumberOfEnergyNeverPresentCellsHO->Fill(lumiblock,energyneverpresentHO);
+	  NumberOfEnergyNeverPresentCellsHF->Fill(lumiblock,energyneverpresentHF);
+	  NumberOfEnergyNeverPresentCells->Fill(lumiblock,energyneverpresentHB+energyneverpresentHE+energyneverpresentHO+energyneverpresentHF);
+
 	  NumberOfBelowEnergyCellsHB->Fill(lumiblock,belowenergyHB);
 	  NumberOfBelowEnergyCellsHE->Fill(lumiblock,belowenergyHE);
 	  NumberOfBelowEnergyCellsHO->Fill(lumiblock,belowenergyHO);
@@ -917,6 +1061,7 @@ void HcalDeadCellMonitor::zeroCounters(bool resetpresent)
 	  for (unsigned int k=0;k<4;++k)
 	    {
 	      if (resetpresent) present[i][j][k]=false; // keeps track of whether digi was ever present
+	      if (resetpresent) present_energy[i][j][k]=false;
 	      occupancy[i][j][k]=0; // counts occupancy in last (checkNevents) events
 	      aboveenergy[i][j][k]=0; // counts instances of cell above threshold energy in last (checkNevents)
 	    }

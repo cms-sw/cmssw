@@ -148,6 +148,10 @@ class HcalBaseClient{
   void mapHist2D(string, string, TH2F*[]);
   void mapHistProfile(string, string, TProfile*[]);
 
+  // Monitor Elements for calculating error rates
+  MonitorElement* ProblemCells;
+  EtaPhiHists ProblemCellsByDepth;
+
 };
 
 #endif

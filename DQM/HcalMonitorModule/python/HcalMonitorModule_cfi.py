@@ -104,17 +104,20 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_energyThreshold              = cms.untracked.double(5.),
                            HotCellMonitor_HB_energyThreshold           = cms.untracked.double(5.),
                            HotCellMonitor_HE_energyThreshold           = cms.untracked.double(5.), 
-                           HotCellMonitor_HO_energyThreshold           = cms.untracked.double(5.),
-                           HotCellMonitor_HF_energyThreshold           = cms.untracked.double(5.),
+                           HotCellMonitor_HO_energyThreshold           = cms.untracked.double(10.),
+                           HotCellMonitor_HF_energyThreshold           = cms.untracked.double(10.),
                            HotCellMonitor_ZDC_energyThreshold          = cms.untracked.double(999.), # not yet implemented
                            # Checking for cells consistently babove energy threshold
                            HotCellMonitor_persistentThreshold              = cms.untracked.double(3.),
                            HotCellMonitor_HB_persistentThreshold           = cms.untracked.double(3.),
                            HotCellMonitor_HE_persistentThreshold           = cms.untracked.double(3.), 
-                           HotCellMonitor_HO_persistentThreshold           = cms.untracked.double(3.),
-                           HotCellMonitor_HF_persistentThreshold           = cms.untracked.double(3.),
+                           HotCellMonitor_HO_persistentThreshold           = cms.untracked.double(6.),
+                           HotCellMonitor_HF_persistentThreshold           = cms.untracked.double(6.),
                            HotCellMonitor_ZDC_persistentThreshold          = cms.untracked.double(999.), # not yet implemented
-                           # Check for cells above their neighbors
+
+                           HotCellMonitor_HO_SiPMscalefactor               = cms.untracked.double(1.), # scale factor to apply to energy threshold for SiPMs (when SiPMs weren't properly calibrated)
+                           
+                           # Check for cells above their neighbors -- not currently in use
                            HotCellMonitor_neighbor_deltaIeta           = cms.untracked.int32(1),
                            HotCellMonitor_neighbor_deltaIphi           = cms.untracked.int32(1),
                            HotCellMonitor_neighbor_deltaDepth          = cms.untracked.int32(4),
@@ -172,6 +175,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DigiMonitor_ADCsumThresh                       = cms.untracked.int32(-1),
                            DigMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), # doesn't do anything yet
                            DigiMonitor_DigisPerChannel                    = cms.untracked.bool(False), # not currently used
+                           DigiMonitor_ExpectedOrbitMessageTime           =cms.untracked.int32(6),
 
                            # RECHIT MONITOR
                            RecHitMonitor                                  = cms.untracked.bool(True),
@@ -321,7 +325,6 @@ def setHcalTaskValues(process):
     
     # set pedestalsInFC
     pedestalsInFC = deepcopy(process.pedestalsInFC)
-    #process.DeadCellMonitor_pedestalsInFC = pedestalsInFC
     process.HotCellMonitor_pedestalsInFC  = pedestalsInFC
     process.PedestalMonitor_pedestalsInFC = pedestalsInFC
 
@@ -350,62 +353,6 @@ def setHcalSubdetTaskValues(process):
     process.DeadCellMonitor_ZDC_energyThreshold          = dead_energyThreshold
 
     # Hot Cell Monitor
-    hot_nsigma = deepcopy(process.HotCellMonitor_pedestal_Nsigma)
-    process.HotCellMonitor_pedestal_HB_Nsigma           = hot_nsigma
-    process.HotCellMonitor_pedestal_HE_Nsigma           = hot_nsigma
-    process.HotCellMonitor_pedestal_HO_Nsigma           = hot_nsigma
-    process.HotCellMonitor_pedestal_HF_Nsigma           = hot_nsigma
-    process.HotCellMonitor_pedestal_ZDC_Nsigma          = hot_nsigma
-
-    hot_deltaIeta = deepcopy(process.HotCellMonitor_neighbor_deltaIeta)
-    process.HotCellMonitor_HB_neighbor_deltaIeta           = hot_deltaIeta
-    process.HotCellMonitor_HE_neighbor_deltaIeta           = hot_deltaIeta
-    process.HotCellMonitor_HO_neighbor_deltaIeta           = hot_deltaIeta
-    process.HotCellMonitor_HF_neighbor_deltaIeta           = hot_deltaIeta
-    process.HotCellMonitor_ZDC_neighbor_deltaIeta          = hot_deltaIeta
-    
-    hot_deltaIphi = deepcopy(process.HotCellMonitor_neighbor_deltaIphi)
-    process.HotCellMonitor_HB_neighbor_deltaIphi           = hot_deltaIphi
-    process.HotCellMonitor_HE_neighbor_deltaIphi           = hot_deltaIphi
-    process.HotCellMonitor_HO_neighbor_deltaIphi           = hot_deltaIphi
-    process.HotCellMonitor_HF_neighbor_deltaIphi           = hot_deltaIphi
-    process.HotCellMonitor_ZDC_neighbor_deltaIphi          = hot_deltaIphi
-
-    hot_deltaDepth = deepcopy(process.HotCellMonitor_neighbor_deltaDepth)
-    process.HotCellMonitor_HB_neighbor_deltaDepth           = hot_deltaDepth
-    process.HotCellMonitor_HE_neighbor_deltaDepth           = hot_deltaDepth
-    process.HotCellMonitor_HO_neighbor_deltaDepth           = hot_deltaDepth
-    process.HotCellMonitor_HF_neighbor_deltaDepth           = hot_deltaDepth
-    process.HotCellMonitor_ZDC_neighbor_deltaDepth          = hot_deltaDepth
-
-    hot_minCellEnergy = deepcopy(process.HotCellMonitor_neighbor_minCellEnergy)
-    process.HotCellMonitor_HB_neighbor_minCellEnergy           = hot_minCellEnergy
-    process.HotCellMonitor_HE_neighbor_minCellEnergy           = hot_minCellEnergy
-    process.HotCellMonitor_HO_neighbor_minCellEnergy           = hot_minCellEnergy
-    process.HotCellMonitor_HF_neighbor_minCellEnergy           = hot_minCellEnergy
-    process.HotCellMonitor_ZDC_neighbor_minCellEnergy          = hot_minCellEnergy
-    
-    hot_minNeighborEnergy = deepcopy(process.HotCellMonitor_neighbor_minNeighborEnergy)
-    process.HotCellMonitor_HB_neighbor_minNeighborEnergy           = hot_minNeighborEnergy
-    process.HotCellMonitor_HE_neighbor_minNeighborEnergy           = hot_minNeighborEnergy
-    process.HotCellMonitor_HO_neighbor_minNeighborEnergy           = hot_minNeighborEnergy
-    process.HotCellMonitor_HF_neighbor_minNeighborEnergy           = hot_minNeighborEnergy
-    process.HotCellMonitor_ZDC_neighbor_minNeighborEnergy          = hot_minNeighborEnergy
-
-    hot_maxEnergy = deepcopy(process.HotCellMonitor_neighbor_maxEnergy)
-    process.HotCellMonitor_HB_neighbor_maxEnergy           = hot_maxEnergy
-    process.HotCellMonitor_HE_neighbor_maxEnergy           = hot_maxEnergy
-    process.HotCellMonitor_HO_neighbor_maxEnergy           = hot_maxEnergy
-    process.HotCellMonitor_HF_neighbor_maxEnergy           = hot_maxEnergy
-    process.HotCellMonitor_ZDC_neighbor_maxEnergy          = hot_maxEnergy
-
-    hot_HotEnergyFrac = deepcopy(process.HotCellMonitor_neighbor_HotEnergyFrac)
-    process.HotCellMonitor_HB_neighbor_HotEnergyFrac           = hot_HotEnergyFrac
-    process.HotCellMonitor_HE_neighbor_HotEnergyFrac           = hot_HotEnergyFrac
-    process.HotCellMonitor_HO_neighbor_HotEnergyFrac           = hot_HotEnergyFrac
-    process.HotCellMonitor_HF_neighbor_HotEnergyFrac           = hot_HotEnergyFrac
-    process.HotCellMonitor_ZDC_neighbor_HotEnergyFrac          = hot_HotEnergyFrac
-
     hot_energyThreshold = deepcopy(process.HotCellMonitor_energyThreshold)
     process.HotCellMonitor_HB_energyThreshold           = hot_energyThreshold
     process.HotCellMonitor_HE_energyThreshold           = hot_energyThreshold
@@ -422,9 +369,9 @@ def setHcalSubdetTaskValues(process):
 
     # Rec Hit Monitor
     rechit_energyThreshold = deepcopy(process.RecHitMonitor_energyThreshold)
-    process.DeadCellMonitor_HB_energyThreshold           = rechit_energyThreshold
-    process.DeadCellMonitor_HE_energyThreshold           = rechit_energyThreshold
-    process.DeadCellMonitor_HO_energyThreshold           = rechit_energyThreshold
-    process.DeadCellMonitor_HF_energyThreshold           = rechit_energyThreshold
-    process.DeadCellMonitor_ZDC_energyThreshold          = rechit_energyThreshold
+    process.RecHitMonitor_HB_energyThreshold           = rechit_energyThreshold
+    process.RecHitMonitor_HE_energyThreshold           = rechit_energyThreshold
+    process.RecHitMonitor_HO_energyThreshold           = rechit_energyThreshold
+    process.RecHitMonitor_HF_energyThreshold           = rechit_energyThreshold
+    process.RecHitMonitor_ZDC_energyThreshold          = rechit_energyThreshold
     return 

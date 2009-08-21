@@ -42,7 +42,7 @@ class HcalDigiClient : public HcalBaseClient {
   void analyze(void);
   
   /// BeginJob
-  void beginJob(DQMStore* dbe);
+  void beginJob();
   
   /// EndJob
   void endJob(void);
@@ -89,8 +89,6 @@ private:
   
 
   // Histograms
-  MonitorElement* ProblemCells;
-  EtaPhiHists ProblemCellsByDepth;
 
   TH2F* BadDigisByDepth[4];
   TH2F* DigiErrorsBadCapID[4];

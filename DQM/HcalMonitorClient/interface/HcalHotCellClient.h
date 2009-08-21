@@ -56,6 +56,8 @@ class HcalHotCellClient : public HcalBaseClient {
   void resetAllME();
   void createTests();
 
+  void calculateProblems();
+
   // Introduce temporary error/warning checks
   bool hasErrors_Temp();
   bool hasWarnings_Temp();
@@ -78,8 +80,6 @@ private:
   bool dump2database_;
 
   // Histograms
-  TH2F* ProblemHotCells;
-  TH2F* ProblemHotCellsByDepth[4];
 
   TH2F* AboveNeighborsHotCellsByDepth[4];
   TH2F* AboveEnergyThresholdCellsByDepth[4];
@@ -91,19 +91,16 @@ private:
   TH1F* d_HEnormped;
   TH1F* d_HOnormped;
   TH1F* d_HFnormped;
-  TH1F* d_ZDCnormped;
   
   TH1F* d_HBrechitenergy;
   TH1F* d_HErechitenergy;
   TH1F* d_HOrechitenergy;
   TH1F* d_HFrechitenergy;
-  TH1F* d_ZDCrechitenergy;
 
   TH2F* d_HBenergyVsNeighbor;
   TH2F* d_HEenergyVsNeighbor;
   TH2F* d_HOenergyVsNeighbor;
   TH2F* d_HFenergyVsNeighbor;
-  TH2F* d_ZDCenergyVsNeighbor;
 
   TH2F* d_avgrechitenergymap[4];
   TH2F* d_avgrechitoccupancymap[4];

@@ -25,7 +25,7 @@ class HcalDeadCellClient : public HcalBaseClient {
   void calculateProblems(void); // calculates problem histogram contents
 
   /// BeginJob
-  void beginJob(const EventSetup& c, DQMStore* dbe);
+  void beginJob(const EventSetup& c);
   
   /// EndJob
   void endJob(std::map<HcalDetId, unsigned int>& myqual); 
@@ -74,10 +74,9 @@ private:
 
   // Histograms
 
-  MonitorElement* ProblemCells;
-  EtaPhiHists ProblemCellsByDepth;
   TH2F* UnoccupiedDeadCellsByDepth[4];
   TH2F* DigiPresentByDepth[4];
+  TH2F* RecHitsPresentByDepth[4];
   TH2F* BelowEnergyThresholdCellsByDepth[4];
 
   TProfile* NumberOfDeadCells;
@@ -97,6 +96,13 @@ private:
   TProfile* NumberOfUnoccupiedCellsHE;
   TProfile* NumberOfUnoccupiedCellsHO;
   TProfile* NumberOfUnoccupiedCellsHF;
+
+
+  TProfile* NumberOfEnergyNeverPresentCells;
+  TProfile* NumberOfEnergyNeverPresentCellsHB;
+  TProfile* NumberOfEnergyNeverPresentCellsHE;
+  TProfile* NumberOfEnergyNeverPresentCellsHO;
+  TProfile* NumberOfEnergyNeverPresentCellsHF;
 
   TProfile* NumberOfBelowEnergyCells;
   TProfile* NumberOfBelowEnergyCellsHB;

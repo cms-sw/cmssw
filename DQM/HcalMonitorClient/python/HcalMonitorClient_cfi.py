@@ -65,7 +65,7 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           # Hot Cell Client
                           HotCellClient                                 = cms.untracked.bool(True),
                           HotCellClient_test_persistent                 = cms.untracked.bool(True),
-                          HotCellClient_test_pedestal                   = cms.untracked.bool(True),
+                          #HotCellClient_test_pedestal                   = cms.untracked.bool(True),
                           HotCellClient_test_energy                     = cms.untracked.bool(True),
                           HotCellClient_test_neighbor                   = cms.untracked.bool(False),
                           HotCellClient_checkNevents                    = cms.untracked.int32(100),
@@ -189,15 +189,15 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
         print "Digi Client        = ", client.DigiClient
         print "DeadCell Client    = ", client.DeadCellClient
         print "\t\t Test DeadCell occupancy? ", client.DeadCellClient_test_occupancy
-        print "\t\t Test DeadCell pedestal? ", client.DeadCellClient_test_pedestal
+        #print "\t\t Test DeadCell pedestal? ", client.DeadCellClient_test_pedestal
         print "\t\t Test DeadCell energy? ", client.DeadCellClient_test_energy
-        print "\t\t Test DeadCell neighbor? ", client.DeadCellClient_test_neighbor
+        #print "\t\t Test DeadCell neighbor? ", client.DeadCellClient_test_neighbor
         print "\t\t Min Error Flag  = ",client.DeadCellClient_minErrorFlag
         print "\t\t make diagnostics? ",client.DeadCellClient_makeDiagnosticPlots
 
         print "HotCell Client    = ", client.HotCellClient
         print "\t\t Test HotCell persistently above threshold? ", client.HotCellClient_test_persistent
-        print "\t\t Test HotCell pedestal? ",                     client.HotCellClient_test_pedestal
+        #print "\t\t Test HotCell pedestal? ",                     client.HotCellClient_test_pedestal
         print "\t\t Test HotCell energy? ",                       client.HotCellClient_test_energy
         print "\t\t Test HotCell neighbor? ",                     client.HotCellClient_test_neighbor
         print "\t\t Min Error Flag  = ",                          client.HotCellClient_minErrorFlag

@@ -449,7 +449,8 @@ void HcalDataFormatClient::report(){
     if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
   }
   //else printf("Didn't find %s\n",name.str().c_str());
-  std::cout <<"Didn't find "<<name.str().c_str()<<endl;
+  else if (debug_>0 )
+    std::cout <<"Didn't find "<<name.str().c_str()<<endl;
   getHistograms();
   
   return;

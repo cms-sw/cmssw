@@ -49,7 +49,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
    
   // Set which hot cell checks will be performed
   hotmon_test_persistent_         = ps.getUntrackedParameter<bool>("HotCellMonitor_test_persistent",true);
-  hotmon_test_neighbor_           = ps.getUntrackedParameter<bool>("HotCellMonitor_test_neighbor",true); // deprecated right now
+  hotmon_test_neighbor_           = ps.getUntrackedParameter<bool>("HotCellMonitor_test_neighbor",false); // deprecated right now
   hotmon_test_energy_             = ps.getUntrackedParameter<bool>("HotCellMonitor_test_energy",true);
 
   hotmon_minErrorFlag_ = ps.getUntrackedParameter<double>("HotCellMonitor_minErrorFlag",0.0);
@@ -70,7 +70,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   HFpersistentThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",persistentThreshold_);
   ZDCpersistentThreshold_    = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",-999);
 
-  SiPMscale_                 = ps.getUntrackedParameter<double>("HotCellMonitor_HO_SiPMscalefactor",4.); // default scale factor of 4
+  SiPMscale_                 = ps.getUntrackedParameter<double>("HotCellMonitor_HO_SiPMscalefactor",1.); // default scale factor of 4?
 // neighboring-cell tests
   defaultNeighborParams_.DeltaIphi = ps.getUntrackedParameter<int>("HotCellMonitor_neighbor_deltaIphi", 1);
   defaultNeighborParams_.DeltaIeta = ps.getUntrackedParameter<int>("HotCellMonitor_neighbor_deltaIeta", 1);
@@ -102,15 +102,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
       meTOTALEVT_ = m_dbe->bookInt("Hot Cell Task Total Events Processed");
       meTOTALEVT_->Fill(tevt_);
 
-      // Create problem cell plots
-      // Overall plot gets an initial " " in its name
-      ProblemCells=m_dbe->book2D(" ProblemHotCells",
-                                     " Problem Hot Cell Rate for all HCAL",
-				    85,-42.5,42.5,
-				    72,0.5,72.5);
-      ProblemCells->setAxisTitle("i#eta",1);
-      ProblemCells->setAxisTitle("i#phi",2);
-      SetEtaPhiLabels(ProblemCells);
+      // Create plots of problems vs LB
+
 
       // 1D plots count number of bad cells vs. luminoisty block
       ProblemsVsLB=m_dbe->bookProfile("TotalHotCells_HCAL_vs_LS",
@@ -133,12 +126,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
 					  Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
 
-
-      // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
-      m_dbe->setCurrentFolder(baseFolder_+"/problem_hotcells");
-      SetupEtaPhiHists(ProblemCellsByDepth, " Problem Hot Cell Rate","");
-      
-      //setMinMaxHists2D(ProblemCellsByDepth,0,1.); // set minimum to hotmon_minErrorFlag_?
 
       // Set up plots for each failure mode of hot cells
       stringstream units; // We'll need to set the titles individually, rather than passing units to SetupEtaPhiHists (since this also would affect the name of the histograms)
@@ -372,119 +359,6 @@ void HcalHotCellMonitor::done(std::map<HcalDetId, unsigned int>& myqual)
   if (dump2database==0) // don't do anything special unless specifically asked to dump db file
     return;
 
-  // Dump to ascii file for database -- now handled in Channel Status objects
-  /*
-  char buffer [1024];
-  ofstream fOutput("hcalHotCells.txt", ios::out);
-  sprintf (buffer, "# %15s %15s %15s %15s %8s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
-  fOutput << buffer;
-  */
-
-  int ieta=0;
-  int iphi=0;
-  float binval;
-
-  int subdet;
-  std::string subdetname;
-  if (fVerbosity>1)
-    {
-      std::cout <<"<HcalHotCellMonitor>  Summary of Hot Cells in Run: "<<std::endl;
-      std::cout <<"(Error rate must be >= "<<hotmon_minErrorFlag_*100.<<"% )"<<std::endl;  
-    }
-  int etabins=0;
-  int phibins=0;
-  for (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
-    {
-      etabins=ProblemCellsByDepth.depth[d]->getNbinsX();
-      phibins=ProblemCellsByDepth.depth[d]->getNbinsY();
-      for (int hist_eta=0;etabins;++hist_eta)
-	{
-	  for (int hist_phi=0;hist_phi<phibins;++hist_phi)
-	    {
-	      ieta=CalcIeta(hist_eta,d+1);
-	      if (ieta==-9999) continue;
-	      iphi=hist_phi;
-
-	      binval=ProblemCellsByDepth.depth[d]->getBinContent(ieta,iphi)/ievt_;
-	     
-	        // Set subdetector labels for output
-	      if (d==0)// HB/HE/HF
-		{
-		  // correct for HF offset 
-		  if (hist_eta< 13 || hist_eta>71)
-		    {
-		      subdetname="HF";
-		      subdet=4;
-		    }
-		  else if (abs(ieta)<=16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
-		    {
-		      subdetname="HB";
-		      subdet=1;
-		    }
-		  else // HE at |ieta|=16 is in depth 3; don't worry about it here
-		    {
-		      subdetname="HE";
-		      subdet=2;
-		    }
-		}
-	      else if (d==1) // HB/HE/HF
-		{
-		  if (hist_eta< 13 || hist_eta>42)
-		    {
-		      subdetname="HF";
-		      subdet=4;
-		    }
-		  else if (abs(ieta)<16) // HB extends to |ieta|=16 in depth 1, 15 in depth 2
-		    {
-		      subdetname="HB";
-		      subdet=1;
-		    }
-		  else // HE at |ieta|=16 is in depth 3; don't worry about it here
-		    {
-		      subdetname="HE";
-		      subdet=2;
-		    }
-		}
-	      else if (d==2) // depth 3 is HE only
-		{
-		  subdetname="HE";
-		  subdet=2;
-		}
-	      else // depth 4 is HO only
-		{
-		  subdetname="HO";
-		  subdet=3;
-		}
-
-	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
-	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
-		continue;
-	      if (fVerbosity>0 && binval>hotmon_minErrorFlag_)
-		std::cout <<"Hot Cell "<<subdet<<"("<<ieta<<", "<<iphi<<", "<<d+1<<"):  "<<binval*100.<<"%"<<std::endl;
-	      
-	      if (binval<=hotmon_minErrorFlag_)
-		continue;
-	      // if we've reached here, hot cell condition was met
-	      int value=1;
-
-	      if (myqual.find(myid)==myqual.end())
-		{
-		  myqual[myid]=(value<<BITSHIFT);  // hotcell shifted to bit 6
-		}
-	      else
-		{
-		  int mask=(1<<BITSHIFT);
-		  if (value==1)
-		    myqual[myid] |=mask;
-
-		  else
-		    myqual[myid] &=~mask;
-		}
-
-	    } // for (int hist_phi=1;...)
-	} // for (int hist_eta=1;...)
-    } // for (int d=0;d<ProblemCellsByDepth.depth.size();d++)
-
   return;
 
 } // void HcalHotCellMonitor::done()
@@ -563,28 +437,17 @@ void HcalHotCellMonitor::fillHotHistosAtEndRun()
     Then the occupancy plot would create errors for whichever digis were not found in a single event.
     That's not desired behavior.
     We could just exclude the occupancy test from running here, but I'm not sure that's the best solution either.
-    For now (28 Oct. 2008), just disable this functionality.  We'll come back to it if necessary.
+    For now (Aug. 21, 2009), fill the occupancy plots (used for determining fraction of events > threshold), but do not fill persistent plots
   */
-  return;
-
   
-  if (hotmon_test_persistent_) 
-    {
-      for (unsigned int i=0;i<AbovePersistentThresholdCellsByDepth.depth.size();++i)
-	AbovePersistentThresholdCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
-      if (ievt_%hotmon_checkNevents_>0)
-	fillNevents_persistentenergy();
-    }
-  if (hotmon_test_neighbor_)
-    {
-      for (unsigned int i=0;i<AboveNeighborsHotCellsByDepth.depth.size();++i)
-	AboveNeighborsHotCellsByDepth.depth[i]->setBinContent(0,0,ievt_);
-      if (ievt_%hotmon_checkNevents_ >0) fillNevents_neighbor();
-    }
-  if (hotmon_test_energy_    && ievt_%hotmon_checkNevents_   >0) fillNevents_energy();
-  if (hotmon_test_persistent_ || 
-      hotmon_test_neighbor_  || hotmon_test_energy_)  
-    fillNevents_problemCells();
+   if (hotmon_test_neighbor_)
+      fillNevents_neighbor();
+   
+   if (hotmon_test_energy_)
+     fillNevents_energy();
+
+   fillNevents_problemCells();
+   return;
 }
 
 /* --------------------------------------- */
@@ -1125,7 +988,6 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void)
 		   if (fVerbosity>0) std::cout <<"HOT CELL; PERSISTENT ENERGY at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth<<std::endl;
 		   AbovePersistentThresholdCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
 		   AbovePersistentThresholdCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
-		   //ProblemCellsByDepth.depth[depth]->Fill(ieta,iphi,abovepersistent[eta][phi][depth]);
 		   abovepersistent[eta][phi][depth]=0; // reset counter
 		 } // for (int subdet=1; subdet<=4;++subdet)
 	     } // for (int phi=0;...)
@@ -1190,7 +1052,6 @@ void HcalHotCellMonitor::fillNevents_energy(void)
 		       if (fVerbosity>2) 
 			 std::cout <<"HOT CELL; ABOVE ENERGY THRESHOLD at subdet = "<<subdet<<", eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
 		       AboveEnergyThresholdCellsByDepth.depth[depth]->Fill(ieta,iphi, aboveenergy[eta][phi][depth]);
-		       AboveEnergyThresholdCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
 		       aboveenergy[eta][phi][depth]=0;
 		     } // if (aboveenergy[eta][phi][depth])
 		 } // for (int subdet=0)
@@ -1255,8 +1116,6 @@ void HcalHotCellMonitor::fillNevents_neighbor(void)
 		    {
 		      if (fVerbosity>2) std::cout <<"HOT CELL; ABOVE NEIGHBORS at eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<(depth>4 ? depth+1 : depth-3)<<std::endl;
 		      AboveNeighborsHotCellsByDepth.depth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
-		      AboveNeighborsHotCellsByDepth.depth[depth]->setBinContent(0,0,ievt_);
-		      //ProblemCellsByDepth.depth[depth]->Fill(ieta,iphi,aboveneighbors[eta][phi][depth]);
 		      //reset counter
 		      aboveneighbors[eta][phi][depth]=0;
 		    } // if (aboveneighbors[eta][phi][mydepth]>0)
@@ -1292,7 +1151,6 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
     std::cout <<"<HcalHotCellMonitor::fillNevents_problemCells> FILLING PROBLEM CELL PLOTS"<<std::endl;
 
   int ieta=0;
-  int iphi=0;
   int etabins=0;
   int phibins=0;
   double problemvalue=0;
@@ -1302,81 +1160,80 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   NumBadHE=0;
   NumBadHO=0;
   NumBadHF=0;
-  NumBadZDC=0;
 
-  ProblemCells->Reset();
-  ProblemCells->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
+  unsigned int DEPTH = 0;
+  if (hotmon_test_persistent_)     DEPTH = AbovePersistentThresholdCellsByDepth.depth.size();
+  else if (hotmon_test_neighbor_)  DEPTH = AboveNeighborsHotCellsByDepth.depth.size();
+  else if (hotmon_test_energy_)    DEPTH = AboveEnergyThresholdCellsByDepth.depth.size();
+  if (DEPTH==0) return;
+
   int zside=0;
-  for (unsigned int depth=0;depth<ProblemCellsByDepth.depth.size();++depth)
+  for (unsigned int depth=0;depth<DEPTH;++depth)
     {
-      ProblemCellsByDepth.depth[depth]->Reset();
-      ProblemCellsByDepth.depth[depth]->setBinContent(0,0,ievt_); // set underflow bin to total number of events (used for normalization)
-      etabins=ProblemCellsByDepth.depth[depth]->getNbinsX();
-      phibins=ProblemCellsByDepth.depth[depth]->getNbinsY();
+      if (hotmon_test_persistent_) 
+	{
+	  etabins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsX();
+	  phibins=AbovePersistentThresholdCellsByDepth.depth[depth]->getNbinsY();
+	}
+      else if (hotmon_test_neighbor_)
+	{
+	  etabins=AboveNeighborsHotCellsByDepth.depth[depth]->getNbinsX();
+	  phibins=AboveNeighborsHotCellsByDepth.depth[depth]->getNbinsY();
+	}
+      else if (hotmon_test_energy_)
+	{
+	  etabins=AboveEnergyThresholdCellsByDepth.depth[depth]->getNbinsX();
+	  phibins=AboveEnergyThresholdCellsByDepth.depth[depth]->getNbinsY();
+	}
       for (int eta=0;eta<etabins;++eta)
 	{
 	  ieta=CalcIeta(eta,depth+1);
 	  if (ieta==-9999) continue;
 	  for (int phi=0;phi<phibins;++phi)
 	    {
-	      		  
-	      // Get bad number of events from each problem type
+	      if (abs(ieta)>20 && phi%2==1) continue; //skip non-physical cells
+	      else if (abs(ieta)>39 && (phi+1)%4!=3) continue;
+	      // find problem rate for particular cell
 	      problemvalue=0;
 	      if (hotmon_test_persistent_)
-		{
-		  problemvalue+=AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
-		}
+		problemvalue+=AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      if (hotmon_test_neighbor_)
-		{
-		  problemvalue+=AboveNeighborsHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
-		}
+		problemvalue+=AboveNeighborsHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      if (hotmon_test_energy_)
-		{
-		  problemvalue+=AboveEnergyThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
-		}
+		problemvalue+=AboveEnergyThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1);
 	      problemvalue = min((double)ievt_, problemvalue);
 	      if (problemvalue==0) continue;
-	      iphi=phi+1;
 	      zside=0;
 	  
+	      // Shift HF cells by +/- 1 
 	      if (depth<2)
 		{
 		  if (isHF(eta,depth+1))
 		    ieta<0 ? zside = -1 : zside= 1;
 		}
+
+	      // If problem rate is large enough, count it as problematic
 	      if (problemvalue>hotmon_minErrorFlag_*ievt_)
 		{
 		  if (isHB(eta,depth+1)) ++NumBadHB;
-		  else if (isHE(eta,depth+1)) ++NumBadHE;
+		  else if (isHE(eta,depth+1)) 
+		    ++NumBadHE;
 		  else if (isHO(eta,depth+1)) ++NumBadHO;
 		  else if (isHF(eta,depth+1)) ++NumBadHF;
-		  ProblemCellsByDepth.depth[depth]->Fill(ieta+zside,iphi,problemvalue);
-		  ProblemCells->Fill(ieta+zside,iphi,problemvalue);
+
 		}
 	    } // for (int phi=0;...)
 	} //for (int eta=0;...)
     } // for (int depth=0;...)
   
-  // Make sure summary over depth doesn't include more than ievt_ entries per bin
-  etabins=ProblemCells->getNbinsX();
-  phibins=ProblemCells->getNbinsY();
-  for (int eta=0;eta<etabins;++eta)
-    {
-      for (int phi=0;phi<phibins;++phi)
-	{
-	  if (ProblemCells->getBinContent(eta+1,phi+1)>ievt_)
-	    ProblemCells->setBinContent(eta+1,phi+1,ievt_);
-	}
-    }
+  //cout <<"BAD = "<<NumBadHB<<" "<<NumBadHE<<" "<<NumBadHO<<" "<<NumBadHF<<endl;
+    // Fill number of problem cells
   ProblemsVsLB_HB->Fill(lumiblock,NumBadHB);
   ProblemsVsLB_HE->Fill(lumiblock,NumBadHE);
   ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
   ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
   ProblemsVsLB_ZDC->Fill(lumiblock,NumBadZDC);
   ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
-  
-  FillUnphysicalHEHFBins(ProblemCells);
-  FillUnphysicalHEHFBins(ProblemCellsByDepth);
   
   if (showTiming)
     {

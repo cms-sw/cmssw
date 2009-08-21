@@ -104,6 +104,10 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       meTOTALEVT_ = m_dbe->bookInt("Digi Task Total Events Processed");
       meTOTALEVT_->Fill(tevt_);
 
+      int DigiMonitor_ExpectedOrbitMessageTime=ps.getUntrackedParameter<int>("DigiMonitor_ExpectedOrbitMessageTime",6);
+      MonitorElement* ExpectedOrbit = m_dbe->bookInt("ExpectedOrbitMessageTime");
+      ExpectedOrbit->Fill(DigiMonitor_ExpectedOrbitMessageTime);
+
       MonitorElement* checkN = m_dbe->bookInt("DigiCheckNevents");
       checkN->Fill(digi_checkNevents_);
       MonitorElement* occT = m_dbe->bookInt("DigiOccThresh");
@@ -339,9 +343,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	baddigi_iter != report.bad_quality_end();
 	++baddigi_iter)
     {
-      cout <<"BAD DIGI!"<<endl;
       HcalDetId id(baddigi_iter->rawId());
-      cout <<id.subdet()<<"  "<<id.ieta()<<"  "<<id.iphi()<<" "<<id.depth()<<endl;
+      //cout <<id.subdet()<<"  "<<id.ieta()<<"  "<<id.iphi()<<" "<<id.depth()<<endl;
     }
 
 
@@ -511,6 +514,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   //cout <<"OFFSET = "<<offset<<endl;
   if (offset != -1000) 
     {
+      // increment counters only for non-zero offsets?
       ++h.fibbcnoff[offset + 7];
       if (offset != 0) 
 	{
@@ -671,10 +675,14 @@ void HcalDigiMonitor::fill_Nevents()
 
   for (int i = 0; i < 15; ++i)
     {
-      if (hbHists.fibbcnoff[i]>0) hbHists.fibBCNOff->Fill(i, hbHists.fibbcnoff[i]);
-      if (heHists.fibbcnoff[i]>0) heHists.fibBCNOff->Fill(i, heHists.fibbcnoff[i]);
-      if (hfHists.fibbcnoff[i]>0) hfHists.fibBCNOff->Fill(i, hfHists.fibbcnoff[i]);
-      if (hoHists.fibbcnoff[i]>0) hoHists.fibBCNOff->Fill(i, hoHists.fibbcnoff[i]);
+      if (hbHists.fibbcnoff[i]>0) hbHists.fibBCNOff->Fill(i-7, 
+							  hbHists.fibbcnoff[i]);
+      if (heHists.fibbcnoff[i]>0) heHists.fibBCNOff->Fill(i-7, 
+							  heHists.fibbcnoff[i]);
+      if (hfHists.fibbcnoff[i]>0) hfHists.fibBCNOff->Fill(i-7, 
+							  hfHists.fibbcnoff[i]);
+      if (hoHists.fibbcnoff[i]>0) hoHists.fibBCNOff->Fill(i-7,
+							  hoHists.fibbcnoff[i]);
     }
 
   // Fill plots of bad fraction of digis found

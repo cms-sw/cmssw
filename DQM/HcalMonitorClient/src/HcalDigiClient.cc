@@ -111,30 +111,34 @@ HcalDigiClient::~HcalDigiClient(){
   //cleanup();
 }
 
-void HcalDigiClient::beginJob(DQMStore* dbe){
-  
+void HcalDigiClient::beginJob()
+{
   if ( debug_>0 ) 
     std::cout << "HcalDigiClient: beginJob" << std::endl;
-
-  stringstream mydir;
-  mydir<<rootFolder_<<"/DigiMonitor_Hcal";
-
-  //cout <<"DIGI ROOT FOLDER = "<<rootFolder_<<endl;
-  dbe->setCurrentFolder(mydir.str().c_str());
-  ProblemCells=dbe->book2D(" ProblemDigis",
-			   " Problem Digi Rate for all HCAL;i#eta;i#phi",
-			   85,-42.5,42.5,
-			   72,0.5,72.5);
-  //SetEtaPhiLabels(ProblemCells);
-  mydir<<"/problem_digis";
-  dbe->setCurrentFolder(mydir.str().c_str());
-  ProblemCellsByDepth.setup(dbe," Problem Digi Rate");
-
 
   ievt_ = 0;
   jevt_ = 0;
   setup();
   resetAllME();
+
+  if (!dbe_) return;
+
+  stringstream mydir;
+  mydir<<rootFolder_<<"/DigiMonitor_Hcal";
+
+  //cout <<"DIGI ROOT FOLDER = "<<rootFolder_<<endl;
+  dbe_->setCurrentFolder(mydir.str().c_str());
+  ProblemCells=dbe_->book2D(" ProblemDigis",
+			   " Problem Digi Rate for all HCAL;i#eta;i#phi",
+			   85,-42.5,42.5,
+			   72,0.5,72.5);
+  SetEtaPhiLabels(ProblemCells);
+  mydir<<"/problem_digis";
+  dbe_->setCurrentFolder(mydir.str().c_str());
+  ProblemCellsByDepth.setup(dbe_," Problem Digi Rate");
+
+
+
   return;
 }
 
@@ -269,11 +273,20 @@ void HcalDigiClient::calculateProblems()
 
   // Clear away old problems
   if (ProblemCells!=0)
-    ProblemCells->Reset();
+    {
+      ProblemCells->Reset();
+      (ProblemCells->getTH2F())->SetMinimum(0);
+      (ProblemCells->getTH2F())->SetMaximum(1);
+    }
   for  (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
-    if (ProblemCellsByDepth.depth[d]!=0) 
-      ProblemCellsByDepth.depth[d]->Reset();
-  
+    {
+      if (ProblemCellsByDepth.depth[d]!=0) 
+	{
+	  ProblemCellsByDepth.depth[d]->Reset();
+	  (ProblemCellsByDepth.depth[d]->getTH2F())->SetMinimum(0);
+	  (ProblemCellsByDepth.depth[d]->getTH2F())->SetMaximum(1);
+	}
+    }
   for (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
     {
       // bad digi rate = bad digis/(good+bad)
@@ -320,6 +333,7 @@ void HcalDigiClient::calculateProblems()
 	    ProblemCells->setBinContent(eta+1,phi+1,1);
 	}
     }
+
 } // calculateProblems()
 
 void HcalDigiClient::report()
