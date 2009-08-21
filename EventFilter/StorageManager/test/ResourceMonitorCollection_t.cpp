@@ -3,6 +3,7 @@
 
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
 #include "EventFilter/StorageManager/test/MockAlarmHandler.h"
+#include "EventFilter/StorageManager/test/TestHelper.h"
 
 using namespace stor;
 
@@ -10,7 +11,9 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(testResourceMonitorCollection);
 
-  CPPUNIT_TEST(sataBeasts);
+  CPPUNIT_TEST(noSataBeasts);
+  CPPUNIT_TEST(sataBeastOkay);
+  CPPUNIT_TEST(sataBeastFailed);
   //CPPUNIT_TEST(sataBeastsOnSpecialNode);  // can only be used on specially prepared SATA beast host
 
   CPPUNIT_TEST_SUITE_END();
@@ -19,7 +22,9 @@ public:
   void setUp();
   void tearDown();
 
-  void sataBeasts();
+  void noSataBeasts();
+  void sataBeastOkay();
+  void sataBeastFailed();
   void sataBeastsOnSpecialNode();
 
 private:
@@ -44,11 +49,51 @@ testResourceMonitorCollection::tearDown()
 
 
 void
-testResourceMonitorCollection::sataBeasts()
+testResourceMonitorCollection::noSataBeasts()
 {
+  ResourceMonitorCollection::SATABeasts sataBeasts;
+  bool foundSataBeasts =
+    _rmc->getSataBeasts(sataBeasts);
+  CPPUNIT_ASSERT(! foundSataBeasts );
+  CPPUNIT_ASSERT( sataBeasts.empty() );
+
   _rmc->checkSataBeasts();
   CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 0 );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
+}
+
+
+void
+testResourceMonitorCollection::sataBeastOkay()
+{
+  std::string content;
+  std::string sataBeast("test");
+  CPPUNIT_ASSERT( testhelper::read_file("SATABeast_okay.html", content) );
+  CPPUNIT_ASSERT(! content.empty() );
+  _rmc->updateSataBeastStatus(sataBeast, content);
+
+  CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 0 );
+  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+}
+
+
+void
+testResourceMonitorCollection::sataBeastFailed()
+{
+  std::string content;
+  std::string sataBeast("test");
+  CPPUNIT_ASSERT( testhelper::read_file("SATABeast_failed.html", content) );
+  _rmc->updateSataBeastStatus(sataBeast, content);
+  CPPUNIT_ASSERT(! content.empty() );
+
+  CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 101 );
+  std::vector<MockAlarmHandler::Alarms> alarms;
+  bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
+  CPPUNIT_ASSERT( alarmsAreSet );
+  CPPUNIT_ASSERT( alarms.size() == 2 );
+
+  // verify that we can reset the alarms if all is okay
+  sataBeastOkay();
 }
 
 
