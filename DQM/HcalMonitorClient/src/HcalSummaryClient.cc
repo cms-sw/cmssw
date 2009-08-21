@@ -153,9 +153,9 @@ void HcalSummaryClient::setup(void)
   MonitorElement* me;
   ostringstream histo;
   // set overall status
-  dqmStore_->setCurrentFolder( rootfolder_ + "/EventInfo");
+  dqmStore_->setCurrentFolder( rootFolder_ + "/EventInfo");
   histo<<"reportSummary";
-  me=dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+  me=dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
   me = dqmStore_->bookFloat(histo.str().c_str());
@@ -166,9 +166,9 @@ void HcalSummaryClient::setup(void)
   for (unsigned int i=0;i<7;++i)
     {
       // Create floats showing subtasks status
-      dqmStore_->setCurrentFolder( rootfolder_ + "/EventInfo/reportSummaryContents" );  
+      dqmStore_->setCurrentFolder( rootFolder_ + "/EventInfo/reportSummaryContents" );  
       histo<<"Hcal_"<<subdets[i].c_str();
-      me=dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+      me=dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
       if (me)
 	dqmStore_->removeElement(me->getName());
       me = dqmStore_->bookFloat(histo.str().c_str());
@@ -177,22 +177,22 @@ void HcalSummaryClient::setup(void)
     }
 
   // Make depth 2D histograms
-  dqmStore_->setCurrentFolder(rootfolder_+"/EventInfo/");
+  dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/");
 
   histo<<"HB HE HF Depth 1 Summary Map";
-  me = dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+  me = dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
   histo<<"HB HE HF Depth 2 Summary Map";
-  me = dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+  me = dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
   histo<<"HE Depth 3 Summary Map";
-  me = dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+  me = dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
   histo<<"HO Depth 4 Summary Map";
-  me = dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+  me = dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
 
@@ -214,7 +214,7 @@ void HcalSummaryClient::setup(void)
   // Make new simplified status histogram
   histo.str("");
   histo<<"reportSummaryMap";
-  me=dqmStore_->get(rootfolder_+"/EventInfo/"+histo.str().c_str());
+  me=dqmStore_->get(rootFolder_+"/EventInfo/"+histo.str().c_str());
   if (me)
     dqmStore_->removeElement(me->getName());
   me = dqmStore_->book2D(histo.str().c_str(), histo.str().c_str(), 
@@ -246,9 +246,9 @@ void HcalSummaryClient::setup(void)
   status_global_=-1;
   
   // Set all bins to "unknown" to start
-  if(dqmStore_->get(rootfolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"))
+  if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"))
     {
-      depthME.push_back(dqmStore_->get(rootfolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"));
+      depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 1 Summary Map"));
       (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
       (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
@@ -259,9 +259,9 @@ void HcalSummaryClient::setup(void)
 	}
     }
 
-  if(dqmStore_->get(rootfolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"))
+  if(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"))
     {
-      depthME.push_back(dqmStore_->get(rootfolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"));
+      depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HB HE HF Depth 2 Summary Map"));
       (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
       (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
@@ -272,9 +272,9 @@ void HcalSummaryClient::setup(void)
 	}
     }
 
-  if(dqmStore_->get(rootfolder_+"/EventInfo/HE Depth 3 Summary Map"))
+  if(dqmStore_->get(rootFolder_+"/EventInfo/HE Depth 3 Summary Map"))
     {
-      depthME.push_back(dqmStore_->get(rootfolder_+"/EventInfo/HE Depth 3 Summary Map"));
+      depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HE Depth 3 Summary Map"));
       (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
       (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
@@ -284,9 +284,9 @@ void HcalSummaryClient::setup(void)
 	    depthME[depthME.size()-1]->setBinContent(ieta+1,iphi+1,-1);
 	}
     }
-  if(dqmStore_->get(rootfolder_+"/EventInfo/HO Depth 4 Summary Map"))
+  if(dqmStore_->get(rootFolder_+"/EventInfo/HO Depth 4 Summary Map"))
     {
-      depthME.push_back(dqmStore_->get(rootfolder_+"/EventInfo/HO Depth 4 Summary Map"));
+      depthME.push_back(dqmStore_->get(rootFolder_+"/EventInfo/HO Depth 4 Summary Map"));
       (depthME[depthME.size()-1]->getTH2F())->SetMaximum(1);
       (depthME[depthME.size()-1]->getTH2F())->SetMinimum(-1);
       int etabins=depthME[depthME.size()-1]->getNbinsX();
@@ -297,7 +297,7 @@ void HcalSummaryClient::setup(void)
 	}
     }
 
-  MonitorElement* reportMap = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryMap");
+  MonitorElement* reportMap = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryMap");
   if (!reportMap)
     {
       std::cout <<"<HcalSummaryClient::setup> Could not get reportSummaryMap!"<<std::endl;
@@ -318,7 +318,7 @@ void HcalSummaryClient::cleanup(void)
 
   MonitorElement* me;
 
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummary"); 
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummary"); 
   if (me)
     {
       dqmStore_->removeElement(me->getName());
@@ -346,7 +346,7 @@ void HcalSummaryClient::analyze(void)
 
   // Reset summary map to 'unknown' status 
 
-  MonitorElement* simpleMap = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryMap");
+  MonitorElement* simpleMap = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryMap");
   if (!simpleMap)
     {
       std::cout <<"<HcalSummaryClient::analyze> Could not get reportSummaryMap!"<<std::endl;
@@ -373,25 +373,25 @@ void HcalSummaryClient::analyze(void)
   MonitorElement* temp_present;
   if (HBpresent_==0)
     {
-      temp_present = dqmStore_->get(rootfolder_+"/DQM Job Status/HBpresent");
+      temp_present = dqmStore_->get(rootFolder_+"/DQM Job Status/HBpresent");
       if (temp_present)
 	HBpresent_=temp_present->getIntValue();
     }
   if (HEpresent_==0)
     {
-      temp_present = dqmStore_->get(rootfolder_+"/DQM Job Status/HEpresent");
+      temp_present = dqmStore_->get(rootFolder_+"/DQM Job Status/HEpresent");
       if (temp_present)
 	HEpresent_=temp_present->getIntValue();
     }
   if (HOpresent_==0)
     {
-      temp_present = dqmStore_->get(rootfolder_+"/DQM Job Status/HOpresent");
+      temp_present = dqmStore_->get(rootFolder_+"/DQM Job Status/HOpresent");
       if (temp_present)
 	HOpresent_=temp_present->getIntValue();
     }
   if (HFpresent_==0)
     {
-      temp_present = dqmStore_->get(rootfolder_+"/DQM Job Status/HFpresent");
+      temp_present = dqmStore_->get(rootFolder_+"/DQM Job Status/HFpresent");
       if (temp_present)
 	HFpresent_=temp_present->getIntValue();
     }
@@ -568,52 +568,52 @@ void HcalSummaryClient::analyze(void)
 
   // Now set the status words
   MonitorElement* me;
-  dqmStore_->setCurrentFolder( rootfolder_ + "/EventInfo" );
+  dqmStore_->setCurrentFolder( rootFolder_ + "/EventInfo" );
   
 
   if (debug_>1) std::cout <<"SUMMARY = "<<status_HB_<<"\t"<<status_HE_<<"\t"<<status_HO_<<"\t"<<status_HF_<<"\t"<<status_global_<<std::endl;
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummary");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummary");
   if (me) 
     {
       me->Fill(status_global_);
       //simpleMap->setBinContent(5,1,status_global_);
     }
 
-  dqmStore_->setCurrentFolder( rootfolder_ + "/EventInfo/reportSummaryContents" );
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HB");
+  dqmStore_->setCurrentFolder( rootFolder_ + "/EventInfo/reportSummaryContents" );
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HB");
   if (me)
     {
       me->Fill(status_HB_);
       simpleMap->setBinContent(1,1,status_HB_);
     }
   
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HE");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HE");
   if (me)
     {
       me->Fill(status_HE_);
       simpleMap->setBinContent(2,1,status_HE_);
     }
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HO");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HO");
   if (me)
     {
       me->Fill(status_HO_);
       simpleMap->setBinContent(3,1,status_HO_);
     }
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HF");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HF");
   if (me)
     {
       me->Fill(status_HF_);
       simpleMap->setBinContent(4,1,status_HF_);
     }
 
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HO0");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HO0");
   if (me)
     {
       me->Fill(status_HO0_);
       simpleMap->setBinContent(5,1,status_HO0_);
     }
 
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HO12");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HO12");
   if (me)
     {
       me->Fill(status_HO12_);
@@ -622,14 +622,14 @@ void HcalSummaryClient::analyze(void)
 
   /*
     // Don't fill HF lumi yet; leave unknown
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryContents/Hcal_HFlumi");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HFlumi");
   if (me)
     {
       me->Fill(status_HFlumi_);
       simpleMap->setBinContent(7,1,status_HFlumi_);
     }
   */
-  dqmStore_->setCurrentFolder( rootfolder_);
+  dqmStore_->setCurrentFolder( rootFolder_);
 
  return;
 } // void HcalSummaryClient::analyze(void)
@@ -653,7 +653,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 
   // get overall problem rate histogram for this task
   name.str("");
-  name << rootfolder_<<"/"<<s.summaryName;
+  name << rootFolder_<<"/"<<s.summaryName;
   me=dqmStore_->get(name.str().c_str());
   name.str("");
   double counter=0;
@@ -681,10 +681,10 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       for (int d=0;d<4;++d)
 	{
 	  name.str("");
-	  if (d==0) name<< rootfolder_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 1 "<<s.problemName;
-	  else if (d==1) name<< rootfolder_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 2 "<<s.problemName;
-	  else if (d==2) name<< rootfolder_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
-	  else if (d==3) name<< rootfolder_<<"/"<<s.problemDir<<"/"<<"HO Depth 4 "<<s.problemName;
+	  if (d==0) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 1 "<<s.problemName;
+	  else if (d==1) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 2 "<<s.problemName;
+	  else if (d==2) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
+	  else if (d==3) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HO Depth 4 "<<s.problemName;
 
 	  me=dqmStore_->get(name.str().c_str());
 	  name.str("");
@@ -773,7 +773,7 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
 
 void HcalSummaryClient::resetSummaryPlots()
 {
-  MonitorElement* summary = dqmStore_->get(rootfolder_+"/EventInfo/reportSummaryMap");
+  MonitorElement* summary = dqmStore_->get(rootFolder_+"/EventInfo/reportSummaryMap");
   // if subdetector present, histogram value set to 0; otherwise, set to -1
   (HBpresent_==true)  ? summary->setBinContent(1,0) : summary->setBinContent(1,-1);
   (HEpresent_==true)  ? summary->setBinContent(2,0) : summary->setBinContent(2,-1);
@@ -888,7 +888,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   // Test for now -- let's just dump out global summary histogram
 
   MonitorElement* me;
-  me = dqmStore_->get(rootfolder_ + "/EventInfo/reportSummaryMap");
+  me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryMap");
   TH2F* simple2f = me->getTH2F();
 
   std::vector<int> Ncells;

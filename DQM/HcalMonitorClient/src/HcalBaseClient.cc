@@ -78,7 +78,7 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
 
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "");
-  rootfolder_ = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
+  rootFolder_ = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
   //Decide whether or not to fill unphysical iphi cells
   fillUnphysical_ = ps.getUntrackedParameter<bool>("fillUnphysicalIphi",true);
   

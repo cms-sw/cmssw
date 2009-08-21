@@ -108,11 +108,9 @@ class HcalBaseClient{
   
   bool cloneME_;
   int debug_;
-  string process_;
-  string baseFolder_;
-  string clientName_;
-
-  std::string rootfolder_;
+  std::string process_;
+  std::string rootFolder_;
+  std::string clientName_;
   
   bool showTiming_; // controls whether to show timing diagnostic info 
   edm::CPUTimer cpu_timer; //  
