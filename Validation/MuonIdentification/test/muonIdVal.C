@@ -26,6 +26,9 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
    if (! d1)
       if (f1->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
          d1 = (TDirectoryFile*)gDirectory;
+   if (! d1)
+      if (f1->cd("/DQMData/Run 1/Muons/MuonIdentificationV/Run summary"))
+         d1 = (TDirectoryFile*)gDirectory;
    if (! d1) {
       std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename1 << std::endl;
       return;
@@ -42,6 +45,9 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
       d2 = (TDirectoryFile*)f2->FindObjectAny("MuonIdVal");
       if (! d2)
          if (f2->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
+            d2 = (TDirectoryFile*)gDirectory;
+      if (! d2)
+         if (f2->cd("/DQMData/Run 1/Muons/MuonIdentificationV/Run summary"))
             d2 = (TDirectoryFile*)gDirectory;
       if (! d2) {
          std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename2 << std::endl;
