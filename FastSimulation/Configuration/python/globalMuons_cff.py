@@ -15,6 +15,7 @@ GlbMuKFFitter = cms.ESProducer("KFTrajectoryFitterESProducer",
     Estimator = cms.string('Chi2EstimatorForMuRefit'),
     Propagator = cms.string('SmartPropagatorAny'),
     Updator = cms.string('KFUpdator'),
+    RecoGeometry = cms.string('GlobalDetLayerGeometry'),
     minHits = cms.int32(3)
 )
 
