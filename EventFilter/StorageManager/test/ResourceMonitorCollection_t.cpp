@@ -13,13 +13,16 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(testResourceMonitorCollection);
 
+  CPPUNIT_TEST(diskSize);
+  CPPUNIT_TEST(unknownDisk);
+  CPPUNIT_TEST(notMountedDisk);
   CPPUNIT_TEST(diskUsage);
   CPPUNIT_TEST(processCount);
 
   CPPUNIT_TEST(noSataBeasts);
   CPPUNIT_TEST(sataBeastOkay);
   CPPUNIT_TEST(sataBeastFailed);
-  //CPPUNIT_TEST(sataBeastsOnSpecialNode);  // can only be used on specially prepared SATA beast host
+  CPPUNIT_TEST(sataBeastsOnSpecialNode);  // can only be used on specially prepared SATA beast host
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -27,6 +30,9 @@ public:
   void setUp();
   void tearDown();
 
+  void diskSize();
+  void unknownDisk();
+  void notMountedDisk();
   void diskUsage();
   void processCount();
 
@@ -53,6 +59,56 @@ void
 testResourceMonitorCollection::tearDown()
 {
   delete _rmc;
+}
+
+
+void
+testResourceMonitorCollection::diskSize()
+{
+  ResourceMonitorCollection::DiskUsagePtr
+    diskUsage( new ResourceMonitorCollection::DiskUsage(1) );
+  diskUsage->pathName = ".";
+  CPPUNIT_ASSERT( diskUsage->retrieveDiskSize() );
+
+  struct statfs64 buf;
+  CPPUNIT_ASSERT( statfs64(diskUsage->pathName.c_str(), &buf) == 0 );
+  CPPUNIT_ASSERT( buf.f_blocks );
+  size_t diskSize = buf.f_blocks * buf.f_bsize / 1024 / 1024 / 1024;
+
+  CPPUNIT_ASSERT( diskUsage->diskSize > 0 );
+  CPPUNIT_ASSERT( diskUsage->diskSize == diskSize );
+}
+
+
+void
+testResourceMonitorCollection::unknownDisk()
+{
+  ResourceMonitorCollection::DiskUsagePtr
+    diskUsage( new ResourceMonitorCollection::DiskUsage(1) );
+  diskUsage->pathName = "/aNonExistingDisk";
+
+  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+  CPPUNIT_ASSERT(! diskUsage->retrieveDiskSize() );
+  CPPUNIT_ASSERT( diskUsage->diskSize == 0 );
+}
+
+
+void
+testResourceMonitorCollection::notMountedDisk()
+{
+  const std::string dummyDisk = "/aNonExistingDisk";
+
+  DiskWritingParams dwParams;
+  dwParams._nLogicalDisk = 0;
+  dwParams._filePath = ".";
+  dwParams._ecalCalibPath = dummyDisk;
+  _rmc->configureDisks(dwParams);
+
+  _ah->printActiveAlarms(dummyDisk);
+
+  std::vector<MockAlarmHandler::Alarms> alarms;
+  bool alarmsAreSet = _ah->getActiveAlarms(dummyDisk, alarms);
+  CPPUNIT_ASSERT( alarmsAreSet );
 }
 
 
@@ -181,14 +237,7 @@ testResourceMonitorCollection::sataBeastsOnSpecialNode()
   bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
   CPPUNIT_ASSERT( alarmsAreSet );
 
-  std::cout << "\nActive alarms for " << sataBeast << std::endl;
-  for (std::vector<MockAlarmHandler::Alarms>::iterator it = alarms.begin(),
-         itEnd = alarms.end();
-       it != itEnd;
-       ++it)
-  {
-    std::cout << "   " << it->first << "\t" << it->second.message() << std::endl;
-  }
+  _ah->printActiveAlarms(sataBeast);
 }
 
 // This macro writes the 'main' for this test.
