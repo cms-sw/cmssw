@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/08/10 17:52:35 $
- * $Revision: 1.33 $
+ * $Date: 2009/08/13 18:12:43 $
+ * $Revision: 1.34 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -496,7 +496,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
           EEFullReadoutSRFlagMap_[iz]->setBinContent(binx, biny, fraction);
           EEFullReadoutSRFlagMap_[iz]->setBinError(binx, biny, error);
 
-
           fraction = float(nEvtRUForced[ix][iy][iz] / nEvtAnyReadout[ix][iy][iz]);
           error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[ix][iy][iz]));
 
@@ -509,107 +508,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
           
           EEReadoutUnitForcedBitMap_[iz]->setBinContent(binx, biny, fraction);
           EEReadoutUnitForcedBitMap_[iz]->setBinError(binx, biny, error);
-
-        }
-
-      }
-    }
-  }
-
-  int TTFlags[100][100][2];
-  int TTSize[100][100][2];
-  for(int iz = 0; iz < 2; iz++) {
-    for(int ietindex = 0; ietindex < 100; ietindex++ ) {
-      for(int iptindex = 0; iptindex < 100; iptindex++ ) {
-        TTFlags[iptindex][ietindex][iz] = -1;
-        TTSize[iptindex][ietindex][iz] = 0;
-      }
-    }
-  }
-
-  Handle<EcalTrigPrimDigiCollection> TPCollection;
-  if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
-
-    // Trigger Primitives
-    EcalTrigPrimDigiCollection::const_iterator TPdigi;
-    for ( TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
-
-      if ( Numbers::subDet( TPdigi->id() ) != EcalEndcap ) continue;
-
-      int ismt = Numbers::iSM( TPdigi->id() );
-      
-      vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
-
-      int ncry = crystals.size();
-
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
-        
-        EEDetId id = crystals[i];
-        
-        int ix = id.ix();
-        int iy = id.iy();
-        
-        if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
-        
-        int zside = TPdigi->id().zside();
-        int iz = ( zside < 0 ) ? 0 : 1;
-        
-        nEvtAnyInterest[ix-1][iy-1][iz]++;
-        
-        if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[ix-1][iy-1][iz]++;
-        
-        if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[ix-1][iy-1][iz]++;
-
-        TTFlags[ix-1][iy-1][iz] = TPdigi->ttFlag() & 0x3;
-        TTSize[ix-1][iy-1][iz] = ncry;
-
-      }
-
-    }
-  } else {
-    LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
-  }
-
-  for(int iz = 0; iz < 2; iz++) {
-    for(int ix = 0; ix < 100; ix++ ) {
-      for(int iy = 0; iy < 100; iy++ ) {
-
-        if( nEvtAnyInterest[ix][iy][iz] ) {
-
-          float xix = ix;
-          if ( iz == 0 ) xix = 99 - xix;
-          xix += 0.5;
-
-          float xiy = iy+0.5;
-
-          float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
-          float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
-
-          TH2F *h2d = EEHighInterestTriggerTowerFlagMap_[iz]->getTH2F();
-
-          int binx=0, biny=0;
-          
-          if( h2d ) {
-            binx = h2d->GetXaxis()->FindBin(xix);
-            biny = h2d->GetYaxis()->FindBin(xiy);
-          }
-          
-          EEHighInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
-          EEHighInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
-
-
-          fraction = float(nEvtLowInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
-          error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
-
-          h2d = EELowInterestTriggerTowerFlagMap_[iz]->getTH2F();
-
-          if( h2d ) {
-            binx = h2d->GetXaxis()->FindBin(xix);
-            biny = h2d->GetYaxis()->FindBin(xiy);
-          }
-          
-          EELowInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
-          EELowInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
 
         }
 
@@ -664,7 +562,7 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       for(int iy = 0; iy < 20; iy++ ) {
         for(int iz = 0; iz < 2; iz++) {
 
-          double towerSize =  nCryTower[ix][iy][iz] * bytesPerCrystal;
+          double towerSize =  nCrySC[ix][iy][iz] * bytesPerCrystal;
 
           float xix = ix;
 
@@ -679,25 +577,101 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       }
     }
 
-    for(int iz = 0; iz < 2; iz++) {
-      for(int ix = 0; ix < 100; ix++ ) {
-        for(int iy = 0; iy < 100; iy++ ) {
-
-          float xix = ix;
-          if ( iz == 0 ) xix = 99 - xix;
-          xix += 0.5;
-
-          float xiy = iy+0.5;
-          
-          if( (TTFlags[ix][iy][iz]==1 || TTFlags[ix][iy][iz]==3) && nCryTower[ix][iy][iz] != TTSize[ix][iy][iz] )
-            EETTFMismatch_[iz]->Fill(xix, xiy);
-
-        }
-      }
-    }
-    
   } else {
     LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
+  }
+
+  Handle<EcalTrigPrimDigiCollection> TPCollection;
+  if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
+
+    // Trigger Primitives
+    EcalTrigPrimDigiCollection::const_iterator TPdigi;
+    for ( TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
+
+      if ( Numbers::subDet( TPdigi->id() ) != EcalEndcap ) continue;
+
+      int ismt = Numbers::iSM( TPdigi->id() );
+      
+      vector<DetId> crystals = Numbers::crystals( TPdigi->id() );
+      
+      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+        
+        EEDetId id = crystals[i];
+        
+        int ix = id.ix();
+        int iy = id.iy();
+        int ism = Numbers::iSM( id ); 
+        int itcc = Numbers::iTCC( ism, EcalEndcap, ix, iy );
+        int itt = Numbers::iTT( ism, EcalEndcap, ix, iy );
+        
+        if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+        
+        int zside = TPdigi->id().zside();
+        int iz = ( zside < 0 ) ? 0 : 1;
+        
+        nEvtAnyInterest[ix-1][iy-1][iz]++;
+        
+        if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[ix-1][iy-1][iz]++;
+        
+        if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[ix-1][iy-1][iz]++;
+
+        float xix = ix-0.5;
+        if ( iz == 0 ) xix = 100 - xix;
+        float xiy = iy-0.5;
+
+        if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3) 
+             && nCryTT[itcc-1][itt-1] != (int)crystals.size() ) EETTFMismatch_[iz]->Fill(xix, xiy);
+
+      }
+
+    }
+  } else {
+    LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+  }
+
+  for(int iz = 0; iz < 2; iz++) {
+    for(int ix = 0; ix < 100; ix++ ) {
+      for(int iy = 0; iy < 100; iy++ ) {
+
+        if( nEvtAnyInterest[ix][iy][iz] ) {
+
+          float xix = ix-0.5;
+          if ( iz == 0 ) xix = 100 - xix;
+          float xiy = iy-0.5;
+
+          float fraction = float(nEvtHighInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
+          float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
+
+          TH2F *h2d = EEHighInterestTriggerTowerFlagMap_[iz]->getTH2F();
+
+          int binx=0, biny=0;
+          
+          if( h2d ) {
+            binx = h2d->GetXaxis()->FindBin(xix);
+            biny = h2d->GetYaxis()->FindBin(xiy);
+          }
+          
+          EEHighInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
+          EEHighInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
+
+
+          fraction = float(nEvtLowInterest[ix][iy][iz] / nEvtAnyInterest[ix][iy][iz]);
+          error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[ix][iy][iz]));
+
+          h2d = EELowInterestTriggerTowerFlagMap_[iz]->getTH2F();
+
+          if( h2d ) {
+            binx = h2d->GetXaxis()->FindBin(xix);
+            biny = h2d->GetYaxis()->FindBin(xiy);
+          }
+          
+          EELowInterestTriggerTowerFlagMap_[iz]->setBinContent(binx, biny, fraction);
+          EELowInterestTriggerTowerFlagMap_[iz]->setBinError(binx, biny, error);
+
+        }
+
+      }
+    }
   }
 
 }
@@ -728,27 +702,28 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
       eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
     
-  }
 
-  EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
+    EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
-  if(srf == srFlagColl.end()){
-    return;
-  }
+    if(srf == srFlagColl.end()){
+      return;
+    }
 
-  int ttix = srf->id().ix();
-  int ttiy = srf->id().iy();
+    int ttix = srf->id().ix();
+    int ttiy = srf->id().iy();
 
-  int zside = srf->id().zside();
+    int zside = srf->id().zside();
 
-  int ttiz = ( zside < 0 ) ? 0 : 1;
+    int ttiz = ( zside < 0 ) ? 0 : 1;
 
-  nCryTower[ttix-1][ttiy-1][ttiz]++;
+    nCrySC[ttix-1][ttiy-1][ttiz]++;
 
-  bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-                       == EcalSrFlag::SRF_FULL);
+    int itcc = Numbers::iTCC( ism, EcalEndcap, ix, iy );
+    int itt = Numbers::iTT( ism, EcalEndcap, ix, iy );
+    nCryTT[itcc-1][itt-1]++;
 
-  if(endcap) {
+    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+                         == EcalSrFlag::SRF_FULL);
 
     int dccZsFIRval = dccZsFIR(frame, firWeights_, firstFIRSample_, 0); 
 
@@ -788,9 +763,13 @@ void EESelectiveReadoutTask::anaDigiInit(){
   for(int iz = 0; iz<2; iz++) {
     for(int ix = 0; ix < 20; ix++ ) {
       for(int iy = 0; iy < 20; iy++ ) {
-        nCryTower[ix][iy][iz] = 0;
+        nCrySC[ix][iy][iz] = 0;
       }
     }
+  }
+
+  for (int itcc = 0; itcc < 108; itcc++) {
+    for (int itt = 0; itt < 41; itt++) nCryTT[itcc][itt] = 0;
   }
 
 }
