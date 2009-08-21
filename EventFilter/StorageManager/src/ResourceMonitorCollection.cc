@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.8 2009/08/20 13:46:20 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.9 2009/08/21 07:18:44 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -64,7 +64,7 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
     int retVal = statfs64(diskUsage->pathName.c_str(), &buf);
     if(retVal==0) {
       unsigned int blksize = buf.f_bsize;
-      diskUsage->diskSize = buf.f_blocks * blksize / 1024 / 1024 /1024;
+      diskUsage->diskSize = buf.f_blocks * blksize / 1024 / 1024 / 1024;
     }
     _diskUsageList.push_back(diskUsage);
   }
@@ -89,7 +89,7 @@ void ResourceMonitorCollection::getStats(Stats& stats) const
 }
 
 
-void  ResourceMonitorCollection::getDiskStats(Stats& stats) const
+void ResourceMonitorCollection::getDiskStats(Stats& stats) const
 {
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
 
@@ -185,7 +185,7 @@ void ResourceMonitorCollection::calcDiskUsage()
       unsigned int blksize = buf.f_bsize;
       double absused = 
         (*it)->diskSize -
-        buf.f_bavail  * blksize / 1024 / 1024 /1024;
+        buf.f_bavail * blksize / 1024 / 1024 / 1024;
       double relused = (100 * (absused / (*it)->diskSize)); 
       (*it)->absDiskUsage.addSample(absused);
       (*it)->absDiskUsage.calculateStatistics();
