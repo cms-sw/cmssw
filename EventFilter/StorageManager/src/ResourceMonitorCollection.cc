@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.10 2009/08/21 08:42:30 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.11 2009/08/21 09:28:49 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -29,6 +29,7 @@ MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
 _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
+_sataBeastStatus(0),
 _alarmHandler(ah),
 _progressMarker( "unused" )
 {}
