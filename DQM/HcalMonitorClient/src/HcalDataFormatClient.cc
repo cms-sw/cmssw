@@ -440,7 +440,7 @@ void HcalDataFormatClient::report(){
   if ( debug_>0 ) cout << "HcalDataFormatClient: report" << endl;
   
   stringstream name;
-  name<<process_.c_str()<<rootFolder_.c_str()<<"/DataFormatMonitor_Hcal/Data Format Task Event Number";
+  name<<process_.c_str()<<rootFolder_.c_str()<<"/DataFormatMonitor/Data Format Task Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) {
     string s = me->valueString();
