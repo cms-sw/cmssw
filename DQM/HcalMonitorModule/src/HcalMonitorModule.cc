@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/14 09:42:28 $
- * $Revision: 1.125 $
+ * $Date: 2009/08/19 19:25:30 $
+ * $Revision: 1.126 $
  * \author W Fisher
  * \author J Temple
  *
@@ -993,7 +993,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
 
   // Digi monitor task
-  if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
+  if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_ && report.isValid())
     {
       if (lumiswitch) digiMon_->LumiBlockUpdate(ilumisec_);
       digiMon_->setSubDetectors(HBpresent_, HEpresent_, HOpresent_, HFpresent_ );
