@@ -8,7 +8,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: TrackFullCloneSelectorBase.h,v 1.1 2007/12/13 12:57:23 gpetrucc Exp $
+ * $Id: TrackFullCloneSelectorBase.h,v 1.1 2009/03/04 13:11:28 llista Exp $
  *
  */
 
@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <map>
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"

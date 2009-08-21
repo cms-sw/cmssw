@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.10 2009/04/14 14:07:11 bonato Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.11 2009/05/13 07:20:43 gpetrucc Exp $
  *
  */
 
@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <map>
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: CosmicSplitterValidation.cc,v 1.5 2009/03/03 09:20:18 ntran Exp $
+// $Id: CosmicSplitterValidation.cc,v 1.6 2009/07/01 10:29:32 flucke Exp $
 //
 //
 
@@ -33,7 +33,6 @@
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

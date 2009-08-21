@@ -6,9 +6,9 @@
  * 
  * \author Giovanni Petrucciani 
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: TrackMultiSelector.h,v 1.3 2008/02/20 17:53:22 gpetrucc Exp $
+ * $Id: TrackMultiSelector.h,v 1.4 2008/03/04 09:43:28 paoloa Exp $
  *
  */
 
@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <map>
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"

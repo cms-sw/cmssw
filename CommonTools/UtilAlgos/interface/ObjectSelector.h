@@ -6,14 +6,13 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.25 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectSelector.h,v 1.25 2008/02/04 10:44:27 llista Exp $
+ * $Id: ObjectSelector.h,v 1.1 2009/03/03 13:07:27 llista Exp $
  *
  */
 
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"

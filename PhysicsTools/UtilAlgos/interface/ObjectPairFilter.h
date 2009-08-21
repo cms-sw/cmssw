@@ -6,14 +6,13 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ObjectPairFilter.h,v 1.2 2006/10/03 10:34:20 llista Exp $
+ * $Id: ObjectPairFilter.h,v 1.3 2007/01/31 14:51:37 llista Exp $
  *
  */
 
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
