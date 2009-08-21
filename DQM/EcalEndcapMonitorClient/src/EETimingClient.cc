@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/08/11 07:24:15 $
- * $Revision: 1.84 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  *
 */
@@ -459,7 +459,7 @@ void EETimingClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {

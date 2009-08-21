@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.25 2009/03/01 08:13:09 dellaric Exp $
+// $Id: Numbers.h,v 1.26 2009/08/10 17:52:34 emanuele Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.25 $
-  \date $Date: 2009/03/01 08:13:09 $
+  \version $Revision: 1.26 $
+  \date $Date: 2009/08/10 17:52:34 $
 */
 
 #ifndef Numbers_H
@@ -31,6 +31,7 @@ class EcalScDetId;
 class EcalDCCHeaderBlock;
 
 class EcalElectronicsMapping;
+class EcalTrigTowerConstituentsMap;
 
 class Numbers {
 
@@ -74,11 +75,15 @@ class Numbers {
 
   static int iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error );
 
+  static int iSC( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
+
   static int iTT( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
 
   static int iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
 
-  static int TCCid(const EcalTrigTowerDetId& id) throw( std::runtime_error );
+  static int iTCC(const int ism, const EcalSubdetector subdet, const int i1, const int i2) throw( std::runtime_error );
+
+  static int iTCC(const EcalTrigTowerDetId& id) throw( std::runtime_error );
 
   static int indexEB( const int ism, const int ie, const int ip );
 
@@ -109,6 +114,7 @@ private:
   static bool init;
 
   static const EcalElectronicsMapping* map;
+  static const EcalTrigTowerConstituentsMap* mapTT;
 
 };
 

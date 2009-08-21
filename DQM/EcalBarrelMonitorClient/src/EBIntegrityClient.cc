@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2009/02/05 14:53:03 $
- * $Revision: 1.212 $
+ * $Date: 2009/02/27 13:54:05 $
+ * $Revision: 1.213 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -414,7 +414,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
+          if ( Numbers::iSC(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
@@ -449,7 +449,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
+          int itt = Numbers::iSC(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
 
           if ( econn ) {
             ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt);
@@ -844,7 +844,7 @@ void EBIntegrityClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {

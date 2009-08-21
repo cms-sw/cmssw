@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2009/07/27 10:34:46 $
- * $Revision: 1.205 $
+ * $Date: 2009/08/02 15:46:37 $
+ * $Revision: 1.206 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -949,7 +949,7 @@ void EBPedestalClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {

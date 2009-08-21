@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/08/11 07:24:13 $
- * $Revision: 1.90 $
+ * $Date: 2009/02/27 13:54:06 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  *
 */
@@ -420,7 +420,7 @@ void EBTimingClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {

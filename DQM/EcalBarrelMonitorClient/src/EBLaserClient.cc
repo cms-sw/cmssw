@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2009/08/03 23:44:18 $
- * $Revision: 1.246 $
+ * $Date: 2009/08/04 10:30:15 $
+ * $Revision: 1.247 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2208,7 +2208,7 @@ void EBLaserClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {

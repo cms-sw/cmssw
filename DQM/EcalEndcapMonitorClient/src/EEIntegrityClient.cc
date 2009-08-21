@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/02/05 14:53:03 $
- * $Revision: 1.86 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -458,7 +458,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( Numbers::iTT(ism, EcalEndcap, jxt, jyt) == 1 ) {
+          if ( Numbers::iSC(ism, EcalEndcap, jxt, jyt) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
@@ -493,7 +493,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iTT(ism, EcalEndcap, jxt, jyt);
+          int itt = Numbers::iSC(ism, EcalEndcap, jxt, jyt);
 
           if ( itt == -1 ) continue;
 
@@ -903,7 +903,7 @@ void EEIntegrityClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {

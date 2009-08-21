@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2009/02/27 13:54:06 $
- * $Revision: 1.211 $
+ * $Date: 2009/08/02 15:46:37 $
+ * $Revision: 1.212 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -992,7 +992,7 @@ void EBTestPulseClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
