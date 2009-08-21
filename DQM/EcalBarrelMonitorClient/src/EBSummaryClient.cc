@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/10 15:49:28 $
- * $Revision: 1.187 $
+ * $Date: 2009/08/13 18:12:38 $
+ * $Revision: 1.188 $
  * \author G. Della Ricca
  *
 */
@@ -1431,10 +1431,12 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebtttc ) {
 
-            float num01, mean01, rms01;
-            bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], ie, ip, num01, mean01, rms01);
+            float mean01 = 0;
             
-            if ( update01 ) { 
+            if ( httt01_[ism-1] ) { 
+              
+              mean01 = httt01_[ism-1]->GetBinContent( ie, ip );
+              
               if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
             }
               

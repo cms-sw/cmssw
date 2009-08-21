@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/10 15:50:02 $
- * $Revision: 1.176 $
+ * $Date: 2009/08/13 18:12:42 $
+ * $Revision: 1.177 $
  * \author G. Della Ricca
  *
 */
@@ -1441,8 +1441,8 @@ void EESummaryClient::analyze(void) {
       if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setBinContent( ix, iy, 0. );
       if ( meTriggerTowerEmulError_[0] ) meTriggerTowerEmulError_[0]->setBinContent( ix, iy, 6. );
       if ( meTriggerTowerEmulError_[1] ) meTriggerTowerEmulError_[1]->setBinContent( ix, iy, 6. );
-      if ( meTriggerTowerTiming_[0] ) meTriggerTowerTiming_[0]->setBinContent( ix, iy, -1 );
-      if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setBinContent( ix, iy, -1 );
+      if ( meTriggerTowerTiming_[0] ) meTriggerTowerTiming_[0]->setBinContent( ix, iy, 0. );
+      if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setBinContent( ix, iy, 0. );
       if ( meTriggerTowerNonSingleTiming_[0] ) meTriggerTowerNonSingleTiming_[0]->setBinContent( ix, iy, -1 );
       if ( meTriggerTowerNonSingleTiming_[1] ) meTriggerTowerNonSingleTiming_[1]->setBinContent( ix, iy, -1 );
     }
@@ -1921,10 +1921,12 @@ void EESummaryClient::analyze(void) {
 
           if ( eetttc ) {
 
-            float num01, mean01, rms01;
-            bool update01 = UtilsClient::getBinStatistics(httt01_[ism-1], jx, jy, num01, mean01, rms01);
-            
-            if ( update01 ) {
+            float mean01 = 0;
+
+            if ( httt01_[ism-1] ) {
+
+              mean01 = httt01_[ism-1]->GetBinContent( ix, iy );
+
               if ( ism >= 1 && ism <= 9 ) {
                 if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
               }
