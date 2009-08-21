@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.9 2009/08/21 07:18:44 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.10 2009/08/21 08:42:30 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -27,11 +27,9 @@ ResourceMonitorCollection::ResourceMonitorCollection
 ) :
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
-_poolUsage(updateInterval, 10),
 _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
 _alarmHandler(ah),
-_pool(0),
 _progressMarker( "unused" )
 {}
 
@@ -70,18 +68,11 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
   }
 }
 
-void ResourceMonitorCollection::setMemoryPoolPointer(toolbox::mem::Pool* pool)
-{
-  if ( ! _pool)
-    _pool = pool;
-}
-
 
 void ResourceMonitorCollection::getStats(Stats& stats) const
 {
   getDiskStats(stats);
 
-  _poolUsage.getStats(stats.poolUsageStats);
   _numberOfCopyWorkers.getStats(stats.numberOfCopyWorkersStats);
   _numberOfInjectWorkers.getStats(stats.numberOfInjectWorkersStats);
 
@@ -113,7 +104,6 @@ void ResourceMonitorCollection::getDiskStats(Stats& stats) const
 
 void ResourceMonitorCollection::do_calculateStatistics()
 {
-  calcPoolUsage();
   calcDiskUsage();
   calcNumberOfWorkers();
   checkSataBeasts();
@@ -122,7 +112,6 @@ void ResourceMonitorCollection::do_calculateStatistics()
 
 void ResourceMonitorCollection::do_reset()
 {
-  _poolUsage.reset();
   _numberOfCopyWorkers.reset();
   _numberOfInjectWorkers.reset();
   _sataBeastStatus = 0;
@@ -149,24 +138,6 @@ void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpac
 void ResourceMonitorCollection::do_updateInfoSpaceItems()
 {
   //nothing to do: the progressMarker does not change its value
-}
-
-
-void ResourceMonitorCollection::calcPoolUsage()
-{
-  if (_pool)
-  {
-    try {
-      _pool->lock();
-      _poolUsage.addSample( _pool->getMemoryUsage().getUsed() );
-      _pool->unlock();
-    }
-    catch (...)
-    {
-      _pool->unlock();
-    }
-  }
-  _poolUsage.calculateStatistics();
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.5 2009/08/12 14:58:57 biery Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.6 2009/08/18 08:54:13 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -6,6 +6,8 @@
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include "toolbox/mem/Pool.h"
 
 #include "EventFilter/StorageManager/interface/DQMEventQueue.h"
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
@@ -18,9 +20,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track the flow of data
    * through the storage manager.
    *
-   * $Author: biery $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/12 14:58:57 $
+   * $Author: mommsen $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/18 08:54:13 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -31,8 +33,21 @@ namespace stor {
 
     int getBinCount() const {return _binCount;}
 
+    /**
+     * Stores the given memory pool pointer if not yet set.
+     * If it is already set, the argument is ignored.
+     */
+    void setMemoryPoolPointer(toolbox::mem::Pool*);
+
     void setFragmentQueue(boost::shared_ptr<FragmentQueue> fragmentQueue) {
       _fragmentQueue = fragmentQueue;
+    }
+
+    const MonitoredQuantity& getPoolUsageMQ() const {
+      return _poolUsage;
+    }
+    MonitoredQuantity& getPoolUsageMQ() {
+      return _poolUsage;
     }
 
     const MonitoredQuantity& getFragmentQueueEntryCountMQ() const {
@@ -161,8 +176,11 @@ namespace stor {
     virtual void do_calculateStatistics();
     virtual void do_reset();
 
+    void calcPoolUsage();
+
     const int _binCount;
 
+    MonitoredQuantity _poolUsage;
     MonitoredQuantity _entriesInFragmentQueue;
     MonitoredQuantity _poppedFragmentSize;
     MonitoredQuantity _fragmentProcessorIdleTime;
@@ -183,6 +201,8 @@ namespace stor {
 
     unsigned int _currentFragmentStoreSize;
     mutable boost::mutex _fragmentStoreSizeMutex;
+
+    toolbox::mem::Pool* _pool;
 
   };
   

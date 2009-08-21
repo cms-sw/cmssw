@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.6 2009/08/20 13:42:05 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.7 2009/08/21 07:18:44 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -11,7 +11,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "toolbox/mem/Pool.h"
 #include "xdata/String.h"
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
@@ -25,8 +24,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/20 13:42:05 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/21 07:18:44 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -51,7 +50,6 @@ namespace stor {
     {
       DiskUsageStatsPtrList diskUsageStatsList;
 
-      MonitoredQuantity::Stats poolUsageStats; // I2O message pool usage in bytes
       MonitoredQuantity::Stats numberOfCopyWorkersStats;
       MonitoredQuantity::Stats numberOfInjectWorkersStats;
       unsigned int             sataBeastStatus; // status code of SATA beast
@@ -63,12 +61,6 @@ namespace stor {
       const utils::duration_t& updateInterval,
       boost::shared_ptr<AlarmHandler>
     );
-
-    /**
-     * Stores the given memory pool pointer if not yet set.
-     * If it is already set, the argument is ignored.
-     */
-    void setMemoryPoolPointer(toolbox::mem::Pool*);
 
     /**
      * Configures the disks used to write events
@@ -104,7 +96,6 @@ namespace stor {
 
     const utils::duration_t _updateInterval;
 
-    MonitoredQuantity _poolUsage;
     MonitoredQuantity _numberOfCopyWorkers;
     MonitoredQuantity _numberOfInjectWorkers;
     unsigned int      _sataBeastStatus;
@@ -123,7 +114,6 @@ namespace stor {
     void revokeDiskUsageAlarm(DiskUsagePtr);
 
     void getDiskStats(Stats&) const;
-    void calcPoolUsage();
     void calcDiskUsage();
     void calcNumberOfWorkers();
     int getProcessCount(const std::string processName);
@@ -137,7 +127,6 @@ namespace stor {
 
 
     boost::shared_ptr<AlarmHandler> _alarmHandler;
-    toolbox::mem::Pool* _pool;
     double _highWaterMark;     // percentage of disk full when issuing an alarm
     std::string _sataUser;     // user name to log into SATA controller
 

@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.7 2009/08/17 07:18:45 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.8 2009/08/18 08:55:12 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -8,6 +8,7 @@ using namespace stor;
 ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t& updateInterval) :
   MonitorCollection(updateInterval),
   _binCount(static_cast<int>(300/updateInterval)),
+  _poolUsage(updateInterval, _binCount),
   _entriesInFragmentQueue(updateInterval, _binCount),
   _poppedFragmentSize(updateInterval, _binCount),
   _fragmentProcessorIdleTime(updateInterval, _binCount),
@@ -19,9 +20,16 @@ ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t
   _entriesInDQMEventQueue(updateInterval, _binCount),
   _poppedDQMEventSize(updateInterval, _binCount),
   _dqmEventProcessorIdleTime(updateInterval, _binCount),
-  _currentFragmentStoreSize(0)
+  _currentFragmentStoreSize(0),
+  _pool(0)
 {}
 
+
+void ThroughputMonitorCollection::setMemoryPoolPointer(toolbox::mem::Pool* pool)
+{
+  if ( ! _pool)
+    _pool = pool;
+}
 
 
 void ThroughputMonitorCollection::addPoppedFragmentSample(double dataSize)
@@ -69,8 +77,28 @@ addDQMEventProcessorIdleSample(utils::duration_t idleTime)
 }
 
 
+void ThroughputMonitorCollection::calcPoolUsage()
+{
+  if (_pool)
+  {
+    try {
+      _pool->lock();
+      _poolUsage.addSample( _pool->getMemoryUsage().getUsed() );
+      _pool->unlock();
+    }
+    catch (...)
+    {
+      _pool->unlock();
+    }
+  }
+  _poolUsage.calculateStatistics();
+}
+
+
 void ThroughputMonitorCollection::do_calculateStatistics()
 {
+  calcPoolUsage();
+
   if (_fragmentQueue.get() != 0) {
     _entriesInFragmentQueue.addSample(_fragmentQueue->size());
   }
@@ -98,6 +126,7 @@ void ThroughputMonitorCollection::do_calculateStatistics()
 
 void ThroughputMonitorCollection::do_reset()
 {
+  _poolUsage.reset();
   _entriesInFragmentQueue.reset();
   _poppedFragmentSize.reset();
   _fragmentProcessorIdleTime.reset();

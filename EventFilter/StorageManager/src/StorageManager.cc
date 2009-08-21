@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.107 2009/07/20 13:07:28 mommsen Exp $
+// $Id: StorageManager.cc,v 1.108 2009/08/18 08:55:12 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -28,7 +28,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.107 2009/07/20 13:07:28 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.108 2009/08/18 08:55:12 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -249,9 +249,9 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   I2OChain i2oChain(ref);
 
   // Set the I2O message pool pointer. Only done for init messages.
-  ResourceMonitorCollection& resourceMonCollection =
-    _sharedResources->_statisticsReporter->getResourceMonitorCollection();
-  resourceMonCollection.setMemoryPoolPointer( ref->getBuffer()->getPool() );
+  ThroughputMonitorCollection& throughputMonCollection =
+    _sharedResources->_statisticsReporter->getThroughputMonitorCollection();
+  throughputMonCollection.setMemoryPoolPointer( ref->getBuffer()->getPool() );
 
   FragmentMonitorCollection& fragMonCollection =
     _sharedResources->_statisticsReporter->getFragmentMonitorCollection();
