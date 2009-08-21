@@ -35,7 +35,7 @@ using namespace std;
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.3 2008/11/07 12:10:09 fblekman Exp $
+// $Id: SignCaloSpecificAlgo.cc,v 1.4 2008/11/13 23:13:14 rcr Exp $
 //
 //
 reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalThreshold)
@@ -77,7 +77,7 @@ reco::CaloMET SignCaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > t
   //  std::cout << "number of towers = " << towers->size() << std::endl;
   if( towers->size() == 0 )  // if there are no towers, return specific = 0
     {
-      cout << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " << endl;
+      edm::LogWarning("SignCaloSpecificAlgo") << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " << endl;
       const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
       const Point vtx( 0.0, 0.0, 0.0 );
       CaloMET specificmet( specific, met.sumet, p4, vtx );
@@ -223,7 +223,7 @@ double SignCaloSpecificAlgo::addSignificance(edm::Handle<edm::View<Candidate> > 
 { 
   if( towers->size() == 0 )  // if there are no towers, return specific = 0
     {
-      cout << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate METSignificance"  << endl;
+      edm::LogWarning("SignCaloSpecificAlgo") << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate METSignificance"  << endl;
       return 0.0;
     }
   //retreive calo tower information from candidates
