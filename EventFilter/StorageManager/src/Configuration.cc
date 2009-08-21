@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.9 2009/08/21 07:18:44 mommsen Exp $
+// $Id: Configuration.cc,v 1.10 2009/08/21 13:48:11 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -149,8 +149,10 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
-    _diskWriteParamCopy._lookAreaPath = "/store/lookarea";
-    _diskWriteParamCopy._ecalCalibPath = "/store/calibarea";
+    //_diskWriteParamCopy._lookAreaPath = "/store/lookarea";
+    //_diskWriteParamCopy._ecalCalibPath = "/store/calibarea";
+    _diskWriteParamCopy._lookAreaPath = "";
+    _diskWriteParamCopy._ecalCalibPath = "";
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "mtcc";
     _diskWriteParamCopy._nLogicalDisk = 0;
