@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.6 2009/08/18 08:54:13 mommsen Exp $
+// $Id: Configuration.h,v 1.7 2009/08/21 07:18:44 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -29,6 +29,8 @@ namespace stor
     std::string _streamConfiguration;
     std::string _fileName;
     std::string _filePath;
+    std::string _lookAreaPath;
+    std::string _ecalCalibPath;
     std::string _fileCatalog;
     std::string _setupLabel;
     int _nLogicalDisk;
@@ -124,8 +126,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/21 07:18:44 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -280,6 +282,8 @@ namespace stor
     xdata::String _streamConfiguration;
     xdata::String _fileName;
     xdata::String _filePath;
+    xdata::String _lookAreaPath;
+    xdata::String _ecalCalibPath;
     xdata::String _fileCatalog;
     xdata::String _setupLabel;
     xdata::Integer _nLogicalDisk;

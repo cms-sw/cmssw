@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.8 2009/08/18 08:55:12 mommsen Exp $
+// $Id: Configuration.cc,v 1.9 2009/08/21 07:18:44 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -149,6 +149,8 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
+    _diskWriteParamCopy._lookAreaPath = "/store/lookarea";
+    _diskWriteParamCopy._ecalCalibPath = "/store/calibarea";
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "mtcc";
     _diskWriteParamCopy._nLogicalDisk = 0;
@@ -246,6 +248,8 @@ namespace stor
     _streamConfiguration = _diskWriteParamCopy._streamConfiguration;
     _fileName = _diskWriteParamCopy._fileName;
     _filePath = _diskWriteParamCopy._filePath;
+    _lookAreaPath = _diskWriteParamCopy._lookAreaPath;
+    _ecalCalibPath = _diskWriteParamCopy._ecalCalibPath;
     _fileCatalog = _diskWriteParamCopy._fileCatalog;
     _setupLabel = _diskWriteParamCopy._setupLabel;
     _nLogicalDisk = _diskWriteParamCopy._nLogicalDisk;
@@ -263,6 +267,8 @@ namespace stor
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
     infoSpace->fireItemAvailable("fileName", &_fileName);
     infoSpace->fireItemAvailable("filePath", &_filePath);
+    infoSpace->fireItemAvailable("lookAreaPath", &_lookAreaPath);
+    infoSpace->fireItemAvailable("ecalCalibPath", &_ecalCalibPath);
     infoSpace->fireItemAvailable("fileCatalog", &_fileCatalog);
     infoSpace->fireItemAvailable("setupLabel", &_setupLabel);
     infoSpace->fireItemAvailable("nLogicalDisk", &_nLogicalDisk);
@@ -393,6 +399,8 @@ namespace stor
 
     _diskWriteParamCopy._fileName = _fileName;
     _diskWriteParamCopy._filePath = _filePath;
+    _diskWriteParamCopy._lookAreaPath = _lookAreaPath;
+    _diskWriteParamCopy._ecalCalibPath = _ecalCalibPath;
     _diskWriteParamCopy._fileCatalog = _fileCatalog;
     _diskWriteParamCopy._setupLabel = _setupLabel;
     _diskWriteParamCopy._nLogicalDisk = _nLogicalDisk;
