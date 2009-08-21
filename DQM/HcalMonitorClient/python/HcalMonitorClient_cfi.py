@@ -5,6 +5,7 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),
+                          subSystemFolder           = cms.untracked.string('Hcal'),
                           processName               = cms.untracked.string(''),
                           inputfile                 = cms.untracked.string(''),
                           baseHtmlDir               = cms.untracked.string('.'),
@@ -24,6 +25,8 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
                           debug                     = cms.untracked.int32(0),
                           showTiming                = cms.untracked.bool(False),
                           fillUnphysicalIphi        = cms.untracked.bool(True),
+
+
                           BadCells = cms.untracked.vstring(),
 
                           # Pedestal Client,
@@ -108,12 +111,15 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     #Reads variables from monitor module, and sets the client's copy of those variables to the same value.
     #This way, when you disable the DataFormat Monitor, the DataFormat client is also turned off automatically, etc.
 
+    client.subSystemFolder = monitor.subSystemFolder
+
     # Set update period of client to checkNevents value of monitor 
 
     # This doesn't work, because monitor.checkNevents returns 'cms.untracked.bool(...)'
     #client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
     checkN = deepcopy(client.diagnosticPrescaleEvt)
-    # Beam, RecHit checkNevents not used; we could get rid of them
+
+    # Beam, RecHit checkNevents not used; we could get rid of them?
     client.BeamClient_checkNevents                = checkN
     client.RecHitClient_checkNevents              = checkN
     # Hot and Dead cell values only used for labelling
