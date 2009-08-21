@@ -108,7 +108,7 @@ void testStateMachine::setUp()
     _sr->_registrationQueue.reset(new RegistrationQueue(32));
     _sr->_streamQueue.reset(new StreamQueue(32));
     _sr->_dqmEventQueue.reset(new DQMEventQueue(32));
-    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, 1 ) );
+    _sr->_statisticsReporter.reset( new StatisticsReporter( _app, 0 ) );
     boost::shared_ptr<ConsumerMonitorCollection>
       cmcptr( _sr->_statisticsReporter->getEventConsumerMonitorCollection() );
     _sr->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
