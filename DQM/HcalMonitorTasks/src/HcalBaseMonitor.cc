@@ -132,6 +132,10 @@ void HcalBaseMonitor::LumiBlockUpdate(int lb)
       lumiblock=lb;
       return;
     }
+
+  // The following function would let us 'fill in' missing lumiblock sections.  
+  // I don't think we want that functionality yet.
+  /*
   for (int i=lumiblock+1;i<=lb;++i)
     {
       if (ProblemsVsLB)
@@ -147,6 +151,7 @@ void HcalBaseMonitor::LumiBlockUpdate(int lb)
       if (ProblemsVsLB_ZDC)
 	ProblemsVsLB_ZDC->Fill(i,NumBadZDC);
     }
+  */
   lumiblock=lb;
   return;
 }
