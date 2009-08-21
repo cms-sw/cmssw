@@ -145,8 +145,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   //Tracking Tools
-  iSetup.get<TrackingComponentsRecord>().get(fitterName_, fitter_);
-  iSetup.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
+  iSetup.get<TrajectoryFitter::Record>().get(fitterName_, fitter_);
+  iSetup.get<TrajectoryFitter::Record>().get(smootherName_, smoother_);
 
   //Handle input collections
   //ECAL clusters	      

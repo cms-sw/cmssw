@@ -11,7 +11,8 @@ GsfTrajectoryFitter_forPreId = cms.ESProducer("GsfTrajectoryFitterESProducer",
     Merger = cms.string('CloseComponentsMerger_forPreId'),
     ComponentName = cms.string('GsfTrajectoryFitter_forPreId'),
     MaterialEffectsUpdator = cms.string('ElectronMaterialEffects_forPreId'),
-    GeometricalPropagator = cms.string('fwdAnalyticalPropagator')
+    GeometricalPropagator = cms.string('fwdAnalyticalPropagator'),
+    RecoGeometry = cms.string('GlobalDetLayerGeometry')
 )
 
 GsfTrajectorySmoother_forPreId = cms.ESProducer("GsfTrajectorySmootherESProducer",
@@ -19,7 +20,8 @@ GsfTrajectorySmoother_forPreId = cms.ESProducer("GsfTrajectorySmootherESProducer
     ComponentName = cms.string('GsfTrajectorySmoother_forPreId'),
     MaterialEffectsUpdator = cms.string('ElectronMaterialEffects_forPreId'),
     ErrorRescaling = cms.double(100.0),
-    GeometricalPropagator = cms.string('bwdAnalyticalPropagator')
+    GeometricalPropagator = cms.string('bwdAnalyticalPropagator'),
+    RecoGeometry = cms.string('GlobalDetLayerGeometry')
 )
 
 ElectronMaterialEffects_forPreId.ComponentName = 'ElectronMaterialEffects_forPreId'
