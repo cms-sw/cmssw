@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.18 2009/08/20 13:44:06 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.19 2009/08/21 09:28:49 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1112,6 +1112,7 @@ void WebPageHelper::addTableForDiskUsages
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, (*it)->pathName);
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    if ( (*it)->diskSize > 0 )
     {
       std::ostringstream tmpString;
       tmpString << std::fixed << std::setprecision(0) <<
@@ -1119,6 +1120,10 @@ void WebPageHelper::addTableForDiskUsages
         (*it)->absDiskUsageStats.getLastSampleValue() << " of " << 
         (*it)->diskSize << " GB)";
       maker.addText(tableDiv, tmpString.str());
+    }
+    else
+    {
+      maker.addText(tableDiv, "not mounted");
     }
   }
 }
