@@ -1,4 +1,7 @@
 {
+//gSystem->Load("../../../../../tmp/slc4_ia32_gcc345/src/Validation/RecoParticleFlow/plugins/TH2Analyzer/libTH2Analyzer.so");
+//gSystem->Load("../../../../../tmp/slc4_ia32_gcc345/src/Validation/RecoParticleFlow/plugins/TH2Analyzer/libValidationRecoParticleFlow_plugins.so");
+  gSystem->Load("../../../../../tmp/slc4_ia32_gcc345/src/Validation/RecoParticleFlow/plugins/ValidationRecoParticleFlow_plugins/libValidationRecoParticleFlow_plugins.so");
   gROOT->LoadMacro("../Tools/NicePlot.C");
   InitNicePlot();
   gROOT->LoadMacro("../Tools/Comparator.C");
@@ -89,10 +92,15 @@
   comp.Draw2D_file2("EtRecvsEt", mode);
   SavePlot("Calo_vs_Gen", outdir.c_str() );
 
-  TCanvas c5("c5", "MET response");
-  FormatPad( &c5, false );
-  comp.DrawResp("DeltaEtOverEtvsEt", 0, 200, mode, -0.4, 0.4);
-  SavePlot("MET_Response", outdir.c_str() );
+//TCanvas c5("c5", "MET response");
+//FormatPad( &c5, false );
+//comp.DrawResp("DeltaEtOverEtvsEt", 0, 200, mode, -0.4, 0.4);
+//SavePlot("MET_Response", outdir.c_str() );
+
+  TCanvas c5b("c5b", "MET response");
+  FormatPad( &c5b, false );
+  comp.DrawMeanSlice("DeltaEtOverEtvsEt", 0, 200, 10, -0.4, 0.4,"MET response;trueMET", "cst");
+  SavePlot("MET_Response2", outdir.c_str() );
 
   TCanvas c6("c6", "genMET");
   FormatPad( &c6, false );
@@ -139,15 +147,25 @@
 
   mode = Comparator::NORMAL;
 
+//TCanvas c13("c13", "sigmaMET_MET");
+//FormatPad( &c13, false );
+//comp.DrawSigmaEt_Et("DeltaEtvsEt", 20., 200., mode);
+//SavePlot("sigmaMET_MET", outdir.c_str() );
+
   TCanvas c13("c13", "sigmaMET_MET");
   FormatPad( &c13, false );
-  comp.DrawSigmaEt_Et("DeltaEtvsEt", 20., 200., mode);
+  comp.DrawGaussSigmaOverMeanXSlice("DeltaEtvsEt", 20, 200, 9, 0.0, 1.1, "Sigma(DeltaMET)/MET;trueMET", "var", 5, -100.0,100.0,"SigmaOverMeanGaussSlice");
   SavePlot("sigmaMET_MET", outdir.c_str() );
 
-  TCanvas c14("c14", "sigmaPhi");
-  FormatPad( &c14, false );
-  comp.DrawSigmaEt("DeltaPhivsEt", 20., 200., mode);
-  SavePlot("sigmaPhi", outdir.c_str() );
+//TCanvas c14("c14", "sigmaPhi");
+//FormatPad( &c14, false );
+//comp.DrawSigmaEt("DeltaPhivsEt", 20., 200., mode);
+//SavePlot("sigmaPhi", outdir.c_str() );
+
+  TCanvas c14b("c14b", "sigmaPhi");
+  FormatPad( &c14b, false );
+  comp.DrawGaussSigmaSlice("DeltaPhivsEt", 20, 200, 5, 0.0, 1.3, "Sigma(DeltaPhi);trueMET", "var", 5, -1.0,1.0,"SigmaGaussSlice",true);
+  SavePlot("sigmaPhib", outdir.c_str() );
 
 //// mode = Comparator::SCALE;
 //

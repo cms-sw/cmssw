@@ -1,14 +1,18 @@
 {
+//gSystem->Load("libTH2Analyzer");
+  gSystem->Load("../../../../../tmp/slc4_ia32_gcc345/src/Validation/RecoParticleFlow/plugins/ValidationRecoParticleFlow_plugins/libValidationRecoParticleFlow_plugins.so");
   gROOT->LoadMacro("../Tools/NicePlot.C");
   InitNicePlot();
   gROOT->LoadMacro("../Tools/Comparator.C");
 
-  gStyle->SetOptStat(1111);
+//gStyle->SetOptStat(1111);
 
   string dir1 = "DQMData/PFTask/Benchmarks/pfMet/Gen";
   string dir2 = "DQMData/PFTask/Benchmarks/met/Gen";
-  const char* file1 = "benchmark.root";
-  const char* file2 = "benchmark.root";
+//string dir1 = "PFTask/Benchmarks/PF";
+//string dir2 = "PFTask/Benchmarks/corrCalo";
+  const char* file1 = "benchmark_qcd.root";
+  const char* file2 = "benchmark_qcd.root";
 
   float ptMin = 0;
   float ptMax = 9999;
@@ -158,24 +162,27 @@
 
   TCanvas c14("c14", "SET response");
   FormatPad( &c14, false );
-  comp.DrawResp("DeltaSetOverSetvsSet", 0., 3000., mode, -1., 0.);
+//comp.DrawResp("DeltaSetOverSetvsSet", 0., 3000., mode, -1., 0.);
+  comp.DrawMeanSlice("DeltaSetOverSetvsSet", 0, 3000, 10, -1., 0.,"SET response;trueSET", "cst");
   SavePlot("SET_Response", outdir.c_str() );
 
   TCanvas c15("c15", "sigmaDeltaMEX");
   FormatPad( &c15, false );
-  comp.DrawSigmaEt2("DeltaMexvsSet", 0., 3000., mode);
+////////  comp.DrawSigmaEt2("DeltaMexvsSet", 0., 3000., mode);
+  comp.DrawGaussSigmaSlice("DeltaMexvsSet", 0, 3000, 15, 0.0, 65.0, "Sigma(DeltaMEX);trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX",false);
   SavePlot("sigmaDeltaMEX", outdir.c_str() );
 
   TCanvas c16("c16", "<recoSet/TrueSet>");
   FormatPad( &c16, false );
-  comp.DrawResp("RecSetOverTrueSetvsTrueSet", 0., 3000., mode, 0., 1., "trueSET");
+//  comp.DrawResp("RecSetOverTrueSetvsTrueSet", 0., 3000., mode, 0., 1., "trueSET");
+  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 0, 3000, 10, 0., 1.,"recoSet/TrueSet;trueSET", "cst");
   SavePlot("recSetOverTrueSet", outdir.c_str() );
 
   TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
   FormatPad( &c17, false );
-  comp.DrawSigmaEt_var("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0., 3000., mode);
+////  comp.DrawSigmaEt_var("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0., 3000., mode);
+  comp.DrawGaussSigmaOverMeanSlice("DeltaMexvsSet", "RecSetOverTrueSetvsTrueSet", 0, 3000, 15, 0.0, 80.0, "Sigma(DeltaMEX)/ recoSET/trueSET;trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX_ratio");
   SavePlot("sigmaDeltaMEX_ratio", outdir.c_str() );
-
 
 //  TCanvas c13("c13", "sigmaMET_MET");
 //  FormatPad( &c13, false );
