@@ -1,4 +1,4 @@
-// $Id: MockAlarmHandler.h,v 1.5 2009/08/18 09:15:49 mommsen Exp $
+// $Id: MockAlarmHandler.h,v 1.1 2009/08/20 13:48:46 mommsen Exp $
 /// @file: MockAlarmHandler.h 
 
 #ifndef StorageManager_MockAlarmHandler_h
@@ -52,17 +52,33 @@ namespace stor {
       return _alarmsList.empty();
     }
 
-    bool getActiveAlarms(const std::string name, std::vector<Alarms>& alarms)
+    bool getActiveAlarms(const std::string& name, std::vector<Alarms>& alarms)
     {
-      for (AlarmsList::iterator it = _alarmsList.lower_bound(name),
-             itEnd =  _alarmsList.upper_bound(name);
-           it != itEnd;
+      std::pair<AlarmsList::iterator, AlarmsList::iterator> range;
+      range = _alarmsList.equal_range(name);
+      for (AlarmsList::iterator it = range.first;
+           it != range.second;
            ++it)
       {
         alarms.push_back(it->second);
       }
       return !alarms.empty();
     }
+
+    void printActiveAlarms(const std::string& name)
+    {
+      std::cout << "\nActive alarms for " << name << std::endl;
+      
+      std::pair<AlarmsList::iterator, AlarmsList::iterator> range;
+      range = _alarmsList.equal_range(name);
+      for (AlarmsList::iterator it = range.first;
+           it != range.second;
+           ++it)
+      {
+        std::cout << "   " << it->second.first << "\t" << it->second.second.message() << std::endl;
+      }
+    }
+
 
   private:
 
