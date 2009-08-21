@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.13 2007/12/12 09:30:59 muzaffar Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.14 2009/07/09 20:57:24 case Exp $
 //
 //
 
@@ -114,7 +114,12 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
      iSetup.get<IdealMagneticFieldRecord>().get(label_, pDD );
    }
    if (pDD.description()) {
-     std::cout << pDD.description()->type_ << " label: " << pDD.description()->label_ << std::endl;
+     edm::LogInfo("PerfectGeometryAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
+   } else {
+     edm::LogWarning("PerfectGeometryAnalyzer") << "NO label found pDD.description() returned false.";
+   }
+   if (!pDD.isValid()) {
+     edm::LogError("PerfectGeometryAnalyzer") << "ESHandle<DDCompactView> pDD is not valid!";
    }
    GeometryInfoDump gidump;
    gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD, fname_, nNodes_ );
