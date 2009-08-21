@@ -6,6 +6,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/EcalMapping>
+<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloTopology>
 <use name=rootcore>
 <export>
@@ -17,6 +18,7 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
   <use name=Geometry/EcalMapping>
+  <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloTopology>
   <use name=rootcore>
   <lib name=DQMEcalCommon>
