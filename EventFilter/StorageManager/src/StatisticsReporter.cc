@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.8 2009/08/20 13:46:00 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.9 2009/08/21 09:40:48 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -37,7 +37,7 @@ _resourceMonCollection(900*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
 _throughputMonCollection(_monitoringSleepSec),
 _monitorWL(0),
-_doMonitoring(true)
+_doMonitoring(_monitoringSleepSec>0)
 {
   _eventConsumerMonitorCollection.reset( new ConsumerMonitorCollection(_monitoringSleepSec) );
   _dqmConsumerMonitorCollection.reset( new ConsumerMonitorCollection(_monitoringSleepSec) );
@@ -51,6 +51,8 @@ _doMonitoring(true)
 
 void StatisticsReporter::startWorkLoop(std::string workloopName)
 {
+  if ( !_doMonitoring ) return;
+
   try
   {
     std::string identifier = utils::getIdentifier(_app->getApplicationDescriptor());
