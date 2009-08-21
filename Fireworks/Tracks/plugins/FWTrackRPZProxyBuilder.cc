@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackRPZProxyBuilder.cc,v 1.3 2009/01/06 21:38:40 chrjones Exp $
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.4.10.2 2009/08/20 15:41:56 dmytro Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "Fireworks/Core/src/CmsShowMain.h"
 
 #include "Fireworks/Tracks/interface/prepareTrack.h"
-
+#include "Fireworks/Tracks/interface/CmsMagField.h"
 class FWTrackRPZProxyBuilder : public FWRPZSimpleProxyBuilderTemplate<reco::Track> {
 
 public:
@@ -50,6 +50,7 @@ private:
    // ---------- member data --------------------------------
 
    FWEvePtr<TEveTrackPropagator> m_propagator;
+   CmsMagField* m_cmsMagField;
 };
 
 //
@@ -64,12 +65,13 @@ private:
 // constructors and destructor
 //
 FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder() :
-   m_propagator( new TEveTrackPropagator)
+   m_propagator( new TEveTrackPropagator),
+   m_cmsMagField( new CmsMagField)
 {
-   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
-   m_propagator->SetMaxR(123.0);
-   m_propagator->SetMaxZ(300.0);
-
+   m_cmsMagField->setReverseState( true );
+   m_propagator->SetMagFieldObj( m_cmsMagField );
+   m_propagator->SetMaxR(850);
+   m_propagator->SetMaxZ(1100);
 }
 
 // FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder(const FWTrackRPZProxyBuilder& rhs)
@@ -111,12 +113,19 @@ FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEve
             bool measuredFieldIsOn = estimate > 2.0;
             if(fieldIsOn != measuredFieldIsOn) {
                CmsShowMain::guessFieldIsOn(measuredFieldIsOn);
-               m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
+               m_cmsMagField->setMagnetState( measuredFieldIsOn );
             }
          }
       }
    }
 
+   if ( iData.extra().isAvailable() ){
+     m_propagator->SetMaxR(850);
+     m_propagator->SetMaxZ(1100);
+   } else {
+     m_propagator->SetMaxR(123);
+     m_propagator->SetMaxZ(300);
+   }     
    TEveTrack* trk = fireworks::prepareTrack( iData, m_propagator.get(), &oItemHolder, item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
    oItemHolder.AddElement( trk );

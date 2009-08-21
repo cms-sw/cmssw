@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrack3DProxyBuilder.cc,v 1.3 2009/01/06 21:38:40 chrjones Exp $
+// $Id: FWTrack3DProxyBuilder.cc,v 1.4 2009/01/23 21:35:47 amraktad Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/src/CmsShowMain.h"
 
 #include "Fireworks/Tracks/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/CmsMagField.h"
 
 class FWTrack3DProxyBuilder : public FW3DSimpleProxyBuilderTemplate<reco::Track> {
 
@@ -50,6 +51,7 @@ private:
    // ---------- member data --------------------------------
 
    FWEvePtr<TEveTrackPropagator> m_propagator;
+   CmsMagField* m_cmsMagField;
 };
 
 //
@@ -64,12 +66,13 @@ private:
 // constructors and destructor
 //
 FWTrack3DProxyBuilder::FWTrack3DProxyBuilder() :
-   m_propagator( new TEveTrackPropagator)
+   m_propagator( new TEveTrackPropagator),
+   m_cmsMagField( new CmsMagField)
 {
-   m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
-   m_propagator->SetMaxR(123.0);
-   m_propagator->SetMaxZ(300.0);
-
+   m_cmsMagField->setReverseState( true );
+   m_propagator->SetMagFieldObj( m_cmsMagField );
+   m_propagator->SetMaxR(850);
+   m_propagator->SetMaxZ(1100);
 }
 
 // FWTrack3DProxyBuilder::FWTrack3DProxyBuilder(const FWTrack3DProxyBuilder& rhs)
@@ -111,11 +114,18 @@ FWTrack3DProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEveE
             bool measuredFieldIsOn = estimate > 2.0;
             if(fieldIsOn != measuredFieldIsOn) {
                CmsShowMain::guessFieldIsOn(measuredFieldIsOn);
-               m_propagator->SetMagField( -CmsShowMain::getMagneticField() );
+               m_cmsMagField->setMagnetState( measuredFieldIsOn );
             }
          }
       }
    }
+   if ( iData.extra().isAvailable() ){
+     m_propagator->SetMaxR(850);
+     m_propagator->SetMaxZ(1100);
+   } else {
+     m_propagator->SetMaxR(123);
+     m_propagator->SetMaxZ(300);
+   }     
 
    TEveTrack* trk = fireworks::prepareTrack( iData, m_propagator.get(), &oItemHolder, item()->defaultDisplayProperties().color() );
    trk->MakeTrack();

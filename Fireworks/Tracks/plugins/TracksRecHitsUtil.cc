@@ -61,6 +61,7 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
                            TEveElement* trkList)
 {
    try {
+     std::set<unsigned int> ids;
       for(trackingRecHit_iterator recIt = track.recHitsBegin(); recIt != track.recHitsEnd(); ++recIt){
          if((*recIt)->isValid()){
             DetId detid = (*recIt)->geographicalId();
@@ -105,7 +106,7 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
 		  }
 		break;
 	      }
-
+	    if ( ! ids.insert(detid.rawId()).second ) continue;
             if (iItem->getGeom()) {
                TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
                if(0!=shape) {

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 19:14:22 EST 2008
-// $Id: prepareTrack.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
+// $Id: prepareTrack.cc,v 1.3.2.2 2009/08/20 15:41:56 dmytro Exp $
 //
 
 // system include files
@@ -29,83 +29,112 @@
 // static data member definitions
 //
 namespace fireworks {
-   TEveTrack*
-   prepareSimpleTrack(const reco::Track& track,
-                      TEveTrackPropagator* propagator,
-                      TEveElement* trackList,
-                      Color_t color)
-   {
-      TEveRecTrack t;
-      t.fBeta = 1.;
-      t.fV = TEveVector(track.vx(), track.vy(), track.vz());
-      t.fP = TEveVector(track.px(), track.py(), track.pz());
-      t.fSign = track.charge();
+  TEveTrack*
+  prepareTrack(const reco::Track& track,
+	       TEveTrackPropagator* propagator,
+	       TEveElement* trackList,
+	       Color_t color,
+	       const std::vector<TEveVector>& extraRefPoints)
+  {
+    // To make use of all available information, we have to order states
+    // properly first. Propagator should take care of y=0 transition.
+    
+    std::vector<State> refStates;
+    TEveVector trackMomentum( track.px(), track.py(), track.pz() );
+    refStates.push_back(State(TEveVector(track.vertex().x(),
+					 track.vertex().y(),
+					 track.vertex().z()),
+			      trackMomentum));
+    if ( track.extra().isAvailable() ) {
+      refStates.push_back(State(TEveVector( track.innerPosition().x(),
+					    track.innerPosition().y(),
+					    track.innerPosition().z() ),
+				TEveVector( track.innerMomentum().x(),
+					    track.innerMomentum().y(),
+					    track.innerMomentum().z() )));
+      refStates.push_back(State(TEveVector( track.outerPosition().x(),
+					    track.outerPosition().y(),
+					    track.outerPosition().z() ),
+				TEveVector( track.outerMomentum().x(),
+					    track.outerMomentum().y(),
+					    track.outerMomentum().z() )));
+    }
+    for ( std::vector<TEveVector>::const_iterator point = extraRefPoints.begin();
+	  point != extraRefPoints.end(); ++point )
+      refStates.push_back(State(*point));
+    std::sort( refStates.begin(), refStates.end(), StateOrdering(trackMomentum) );
+    
+    //
+    // * if the first state has non-zero momentum use it as a starting point
+    //   and all other points as PathMarks to follow
+    // * if the first state has only position, try the last state. If it has
+    //   momentum we propagate backword, if not, we look for the first one 
+    //   on left that has momentum and ignore all earlier.
+    // 
+      
+    TEveRecTrack t;
+    t.fBeta = 1.;
+    t.fSign = track.charge();
+    
+    if ( refStates.front().valid ){
+      t.fV = refStates.front().position;
+      t.fP = refStates.front().momentum;
       TEveTrack* trk = new TEveTrack(&t,propagator);
+      trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
       trk->SetMainColor(color);
-      return trk;
-   }
-
-
-
-   TEveTrack*
-   prepareTrack(const reco::Track& track,
-                TEveTrackPropagator* propagator,
-                TEveElement* trackList,
-                Color_t color)
-   {
-      // To make use of all available information, we have to order states
-      // properly first. Propagator should take care of y=0 transition.
-
-      if ( !track.extra().isAvailable() )
-         return prepareSimpleTrack(track,propagator,trackList,color);
-
-      // we have 3 states for sure, bust some of them may overlap.
-      // POCA can be either initial point of trajector if we deal
-      // with normal track or just one more state. So we need first
-      // to decide where is the origin of the track.
-
-      bool outsideIn = ( track.innerPosition().x()*track.innerMomentum().x()+
-                         track.innerPosition().y()*track.innerMomentum().y() < 0 );
-
-      TEveRecTrack t;
-      t.fBeta = 1.;
-      t.fSign = track.charge();
-
-      if ( outsideIn ) {
-         t.fV = TEveVector( track.innerPosition().x(),
-                            track.innerPosition().y(),
-                            track.innerPosition().z() );
-         t.fP = TEveVector( track.innerMomentum().x(),
-                            track.innerMomentum().y(),
-                            track.innerMomentum().z() );
-      } else {
-         t.fV = TEveVector( track.vertex().x(),
-                            track.vertex().y(),
-                            track.vertex().z() );
-         t.fP = TEveVector( track.px(),
-                            track.py(),
-                            track.pz() );
+      for( unsigned int i(1); i<refStates.size()-1; ++i){
+	TEvePathMark mark( TEvePathMark::kDaughter );
+	mark.fV = refStates[i].position;
+	trk->AddPathMark( mark );
       }
+      if ( refStates.size()>1 ){
+	TEvePathMark mark( TEvePathMark::kDecay );
+	mark.fV = refStates.back().position;
+	trk->AddPathMark( mark );
+      }
+      return trk;
+    }
 
+    if ( refStates.back().valid ){
+      t.fV = refStates.back().position;
+      t.fP = refStates.back().momentum * (-1);
       TEveTrack* trk = new TEveTrack(&t,propagator);
-      //if ( outsideIn )
-         trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
+      trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
       trk->SetMainColor(color);
-
-      if ( !outsideIn ) {
-         TEvePathMark mark( TEvePathMark::kDaughter );
-         mark.fV = TEveVector( track.innerPosition().x(),
-                               track.innerPosition().y(),
-                               track.innerPosition().z() );
-         trk->AddPathMark( mark );
+      unsigned int i(refStates.size()-1);
+      for(; i>0; --i){
+	TEvePathMark mark( TEvePathMark::kDaughter );
+	mark.fV = refStates[i].position;
+	trk->AddPathMark( mark );
       }
-
-      TEvePathMark mark1( TEvePathMark::kDecay );
-      mark1.fV = TEveVector( track.outerPosition().x(),
-                             track.outerPosition().y(),
-                             track.outerPosition().z() );
-
-      trk->AddPathMark( mark1 );
+      if ( refStates.size()>1 ){
+	TEvePathMark mark( TEvePathMark::kDecay );
+	mark.fV = refStates.front().position;
+	trk->AddPathMark( mark );
+      }
       return trk;
-   }
+    }
+    
+    unsigned int i(0);
+    while ( i<refStates.size() && !refStates[i].valid ) ++i;
+    assert ( i < refStates.size() );
+
+    t.fV = refStates[i].position;
+    t.fP = refStates[i].momentum;
+    TEveTrack* trk = new TEveTrack(&t,propagator);
+    trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
+    trk->SetMainColor(color);
+    
+    for( unsigned int j(i+1); j<refStates.size()-1; ++j){
+      TEvePathMark mark( TEvePathMark::kDaughter );
+      mark.fV = refStates[j].position;
+      trk->AddPathMark( mark );
+    }
+    if ( i < refStates.size() ){
+      TEvePathMark mark( TEvePathMark::kDecay );
+      mark.fV = refStates.back().position;
+      trk->AddPathMark( mark );
+    }
+    return trk;
+  }
 }

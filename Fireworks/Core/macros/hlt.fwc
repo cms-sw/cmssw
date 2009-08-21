@@ -22,7 +22,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("HLT");
+  topaaa.addValue("");
   topaa.addKeyValue("processName", topaaa);
 }
 {
@@ -71,7 +71,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("HLT");
+  topaaa.addValue("");
   topaa.addKeyValue("processName", topaaa);
 }
 {
@@ -120,7 +120,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("HLT");
+  topaaa.addValue("");
   topaa.addKeyValue("processName", topaaa);
 }
 {
@@ -169,7 +169,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("HLT");
+  topaaa.addValue("");
   topaa.addKeyValue("processName", topaaa);
 }
 {
