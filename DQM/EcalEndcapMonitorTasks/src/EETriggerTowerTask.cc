@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/08/05 10:54:50 $
- * $Revision: 1.49 $
+ * $Date: 2009/08/13 18:12:43 $
+ * $Revision: 1.50 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -294,32 +294,40 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
                                   array1& meVeto,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
-  int readoutCrystalsInTower[41];
-  for(int i=0; i<41; i++) readoutCrystalsInTower[i] = 0;
-
-  Handle<EEDigiCollection> crystalDigis;
-
-  if ( e.getByLabel(EEDigiCollection_, crystalDigis) ) {
-
-    for ( EEDigiCollection::const_iterator cDigiItr = crystalDigis->begin(); cDigiItr != crystalDigis->end(); ++cDigiItr ) {
-
-      EEDetId id = cDigiItr->id();
-
-      int ix = id.ix();
-      int iy = id.iy();
-      int ism = Numbers::iSM( id );
-      int itt = Numbers::iTT( ism, EcalEndcap, ix, iy );
-
-      readoutCrystalsInTower[itt-1]++;
-
-    }
-
-  } else {
-    LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
+  // indexes are: readoutCrystalsInTower[TCCId][iTT]
+  int readoutCrystalsInTower[108][41];
+  for (int itcc = 0; itcc < 108; itcc++) {
+    for (int itt = 0; itt < 41; itt++) readoutCrystalsInTower[itcc][itt] = 0;
   }
 
   bool validCompDigis = false;
   if( compDigis.isValid() ) validCompDigis = true;
+
+  if ( validCompDigis ) {
+
+    Handle<EEDigiCollection> crystalDigis;
+
+    if ( e.getByLabel(EEDigiCollection_, crystalDigis) ) {
+
+      for ( EEDigiCollection::const_iterator cDigiItr = crystalDigis->begin(); cDigiItr != crystalDigis->end(); ++cDigiItr ) {
+
+        EEDetId id = cDigiItr->id();
+
+        int ix = id.ix();
+        int iy = id.iy();
+        int ism = Numbers::iSM( id );
+        int itcc = Numbers::iTCC( ism, EcalEndcap, ix, iy );
+        int itt = Numbers::iTT( ism, EcalEndcap, ix, iy );
+
+        readoutCrystalsInTower[itcc-1][itt-1]++;
+
+      }
+
+    } else {
+      LogWarning("EETriggerTowerTask") << EEDigiCollection_ << " not available";
+    }
+
+  }
 
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
@@ -327,6 +335,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
     int ismt = Numbers::iSM( tpdigiItr->id() );
     int itt = Numbers::iTT( tpdigiItr->id() );
+    int itcc = Numbers::iTCC( tpdigiItr->id() );
 
     float xvalEt = tpdigiItr->compressedEt();
     float xvalVeto = 0.5 + tpdigiItr->fineGrain();
@@ -400,7 +409,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         
       int ix = id.ix();
       int iy = id.iy();
-      
+
       if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
       
       float xix = ix-0.5;
@@ -418,8 +427,8 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         if(!goodVeto) {
           if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
         }
-
-        if(readoutCrystalsInTower[itt-1]==crystalsInTower && compDigiEt > 0) {
+        
+        if(readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
           for(int j=0; j<6; j++) {
             if(matchSample[j]) meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
           }
