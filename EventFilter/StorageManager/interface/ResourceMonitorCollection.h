@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.8 2009/08/21 09:28:27 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.9 2009/08/21 13:47:59 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -25,8 +25,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/21 09:28:27 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/21 13:47:59 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -83,7 +83,6 @@ namespace stor {
       size_t diskSize;
       std::string pathName;
       AlarmHandler::ALARM_LEVEL alarmState;
-      unsigned int sataBeastStatus;
 
       DiskUsage(const utils::duration_t& updateInterval) :
         absDiskUsage(updateInterval,10),
