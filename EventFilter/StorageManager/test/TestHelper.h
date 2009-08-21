@@ -1,4 +1,4 @@
-// $Id$
+// $Id: TestHelper.h,v 1.2 2009/06/10 08:15:30 dshpakov Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -6,6 +6,10 @@
 ///////////////////////////////////////////////////
 // Collection of helper function for test suites //
 ///////////////////////////////////////////////////
+
+#include <fstream>
+#include <sstream>
+#include <string>
 
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
@@ -339,6 +343,26 @@ namespace stor
     outstanding_bytes()
     {
       return g_pool->getMemoryUsage().getUsed();
+    }
+
+
+    // Fills the string with content of file.
+    // Returns false if an error occurred
+    bool
+    read_file(const std::string& filename, std::string& content)
+    {
+      std::ifstream in(filename.c_str());
+      if (!in.is_open())
+        return false;
+      
+      std::string line;
+      while (std::getline(in, line))
+        content.append(line);
+
+      if (!in.eof())
+        return false;
+
+      return true;
     }
 
   } // namespace testhelper
