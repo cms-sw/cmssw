@@ -12,6 +12,8 @@
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TF1.h"
+#include "TROOT.h"
+#include "TStyle.h"
 
 #include <iostream>
 #include <sstream>
@@ -81,6 +83,10 @@ class PaveText
     paveText_->SetTextAlign(12);
     paveText_->Draw(option);
   }
+  void SetTextColor(const int color)
+  {
+    paveText_->SetTextColor(color);
+  }
  protected:
   TPaveText * paveText_;
 };
@@ -106,6 +112,8 @@ void getParameters( const TF1 * func, TString & fit1, TString & fit2 )
 void CompareRecoGenPt( const TString & fileNum1 = "0",
                        const TString & fileNum2 = "1" )
 {
+  TFile * outputFile = new TFile("CompareRecoGenPt.root", "RECREATE");
+
   TProfile * profile1 = getHistogram( fileNum1+"_MuScleFit.root" );
   TProfile * profile2 = getHistogram( fileNum2+"_MuScleFit.root" );
 
@@ -117,6 +125,8 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
 
   // Loop on all bins and fill a histogram with the mean values.
   // Fill also a histogram with the rms values.
+
+  outputFile->cd();
 
   TH1F * meanHisto1 = makeHistogram(profile1, "mean");
   TH1F * meanHisto2 = makeHistogram(profile2, "mean");
@@ -131,10 +141,10 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
     rmsHisto2->SetBinContent( iBin, profile2->GetBinError(iBin) );
   }
 
-  meanHisto1->Fit("pol1", "", "", 5, 100);
+  meanHisto1->Fit("pol1", "", "", 5, 50);
   TF1 * func1 = meanHisto1->GetFunction("pol1");
   func1->SetLineWidth(1);
-  meanHisto2->Fit("pol1", "", "", 5, 100);
+  meanHisto2->Fit("pol1", "", "", 5, 50);
   TF1 * func2 = meanHisto2->GetFunction("pol1");
   func2->SetLineWidth(1);
   func2->SetLineColor(kRed);
@@ -152,21 +162,27 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
   TString fit11("a = ");
   TString fit12("b = ");
   getParameters(func1, fit11, fit12);
-  PaveText pt(0.45, 0.15);
-  pt.AddText("before:");
-  pt.AddText(fit11);
-  pt.AddText(fit12);
-  pt.Draw("same");
+  PaveText pt1(0.45, 0.15);
+  pt1.AddText("before:");
+  pt1.AddText(fit11);
+  pt1.AddText(fit12);
+  pt1.Draw("same");
 
   TString fit21("a = ");
   TString fit22("b = ");
   getParameters(func2, fit21, fit22);
-  PaveText pt(0.65, 0.15);
-  pt.AddText("after:");
-  pt.AddText(fit21);
-  pt.AddText(fit22);
-  pt.Draw("same");
+  PaveText pt2(0.65, 0.15);
+  pt2.SetTextColor(2);
+  pt2.AddText("after:");
+  pt2.AddText(fit21);
+  pt2.AddText(fit22);
+  pt2.Draw("same");
   gStyle->SetOptStat(0);
+
+  canvas->Write();
+
+  outputFile->Write();
+  outputFile->Close();
 
 //   TLegend *leg = new TLegend(0.2,0.4,0.4,0.6);
 //   leg->SetFillColor(0);
