@@ -1,4 +1,4 @@
-// $Id: MonitorCollection.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
+// $Id: MonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
 /// @file: MonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
@@ -43,8 +43,10 @@ void MonitorCollection::updateInfoSpaceItems()
 
 void MonitorCollection::reset(const utils::time_point_t& now)
 {
-  _lastCalculateStatistics = now;
   do_reset();
+  // Assure that the first update happens early.
+  // This is important for long update intervals.
+  _lastCalculateStatistics = now - _updateInterval + 1;
   _infoSpaceUpdateNeeded = true;
 }
 
