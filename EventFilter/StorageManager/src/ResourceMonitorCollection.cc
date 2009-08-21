@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.11 2009/08/21 09:28:49 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.12 2009/08/21 09:56:58 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -45,7 +45,7 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
   int nLogicalDisk = dwParams._nLogicalDisk;
   unsigned int nD = nLogicalDisk ? nLogicalDisk : 1;
   _diskUsageList.clear();
-  _diskUsageList.reserve(nD);
+  _diskUsageList.reserve(nD+2);
 
   for (unsigned int i=0; i<nD; ++i) {
 
@@ -56,16 +56,47 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
       oss << "/" << std::setfill('0') << std::setw(2) << i; 
       diskUsage->pathName += oss.str();
     }
-    diskUsage->alarmName = "stor-diskspace-" + diskUsage->pathName;
-
-    diskUsage->diskSize = 0;
-    struct statfs64 buf;
-    int retVal = statfs64(diskUsage->pathName.c_str(), &buf);
-    if(retVal==0) {
-      unsigned int blksize = buf.f_bsize;
-      diskUsage->diskSize = buf.f_blocks * blksize / 1024 / 1024 / 1024;
-    }
     _diskUsageList.push_back(diskUsage);
+  }
+
+  if ( dwParams._lookAreaPath != "" )
+  {
+    DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
+    diskUsage->pathName = dwParams._lookAreaPath;
+    _diskUsageList.push_back(diskUsage);
+  }
+
+  if ( dwParams._ecalCalibPath != "" )
+  {
+    DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
+    diskUsage->pathName = dwParams._ecalCalibPath;
+    _diskUsageList.push_back(diskUsage);
+  }
+  
+
+  for (DiskUsagePtrList::iterator it = _diskUsageList.begin(),
+         itEnd = _diskUsageList.end();
+       it != itEnd;
+       ++it)
+  {
+    if ( ! (*it)->retrieveDiskSize() ) emitDiskAlarm(*it, errno);
+  }
+}
+
+
+bool ResourceMonitorCollection::DiskUsage::retrieveDiskSize()
+{
+  struct statfs64 buf;
+  int retVal = statfs64(pathName.c_str(), &buf);
+  if(retVal==0) {
+    size_t blksize = buf.f_bsize;
+    diskSize = buf.f_blocks * blksize / 1024 / 1024 / 1024;
+    return true;
+  }
+  else
+  {
+    diskSize = 0;
+    return false;
   }
 }
 
@@ -165,19 +196,45 @@ void ResourceMonitorCollection::calcDiskUsage()
       (*it)->relDiskUsage.calculateStatistics();
       if (relused > _highWaterMark*100)
       {
-        emitDiskUsageAlarm(*it);
+        emitDiskSpaceAlarm(*it);
       }
       else if (relused < _highWaterMark*95)
         // do not change alarm level if we are close to the high water mark
       {
-        revokeDiskUsageAlarm(*it);
+        revokeDiskAlarm(*it);
       }
+    }
+    else
+    {
+      emitDiskAlarm(*it, errno);
     }
   }
 }
 
 
-void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
+void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage, error_t e)
+// do NOT use errno here
+{
+  std::string msg;
+
+  switch(e)
+  {
+    case ENOENT :
+      diskUsage->alarmState = AlarmHandler::ERROR;
+      msg = "Cannot access " + diskUsage->pathName + ". Is it mounted?";
+      break;
+
+    default :
+      diskUsage->alarmState = AlarmHandler::WARNING;
+      msg = "Failed to retrieve disk space information for " + diskUsage->pathName + ".";
+  }
+  
+  XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
+  _alarmHandler->raiseAlarm(diskUsage->pathName, diskUsage->alarmState, ex);
+}
+
+
+void ResourceMonitorCollection::emitDiskSpaceAlarm(DiskUsagePtr diskUsage)
 {
   diskUsage->alarmState = AlarmHandler::WARNING;
 
@@ -193,16 +250,15 @@ void ResourceMonitorCollection::emitDiskUsageAlarm(DiskUsagePtr diskUsage)
     diskUsage->diskSize << "GB).";
 
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg.str());
-  _alarmHandler->raiseAlarm(diskUsage->alarmName, diskUsage->alarmState, ex);
-
+  _alarmHandler->raiseAlarm(diskUsage->pathName, diskUsage->alarmState, ex);
 }
 
 
-void ResourceMonitorCollection::revokeDiskUsageAlarm(DiskUsagePtr diskUsage)
+void ResourceMonitorCollection::revokeDiskAlarm(DiskUsagePtr diskUsage)
 {
   diskUsage->alarmState = AlarmHandler::OKAY;
 
-  _alarmHandler->revokeAlarm(diskUsage->alarmName);
+  _alarmHandler->revokeAlarm(diskUsage->pathName);
 }
 
 

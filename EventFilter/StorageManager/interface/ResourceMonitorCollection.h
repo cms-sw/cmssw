@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.7 2009/08/21 07:18:44 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.8 2009/08/21 09:28:27 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <errno.h>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -24,8 +25,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/08/21 07:18:44 $
+   * $Revision: 1.8 $
+   * $Date: 2009/08/21 09:28:27 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -82,12 +83,13 @@ namespace stor {
       size_t diskSize;
       std::string pathName;
       AlarmHandler::ALARM_LEVEL alarmState;
-      std::string alarmName;
       unsigned int sataBeastStatus;
 
       DiskUsage(const utils::duration_t& updateInterval) :
         absDiskUsage(updateInterval,10),
         relDiskUsage(updateInterval,10) {}
+
+      bool retrieveDiskSize();
     };
     typedef boost::shared_ptr<DiskUsage> DiskUsagePtr;
     typedef std::vector<DiskUsagePtr> DiskUsagePtrList;
@@ -110,8 +112,9 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    void emitDiskUsageAlarm(DiskUsagePtr);
-    void revokeDiskUsageAlarm(DiskUsagePtr);
+    void emitDiskAlarm(DiskUsagePtr, error_t);
+    void emitDiskSpaceAlarm(DiskUsagePtr);
+    void revokeDiskAlarm(DiskUsagePtr);
 
     void getDiskStats(Stats&) const;
     void calcDiskUsage();
