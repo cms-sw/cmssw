@@ -341,6 +341,8 @@ void HcalDigiClient::report()
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
       if ( debug_ ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
     }
+  else
+    std::cout <<"Didn't find "<<name.str().c_str()<<endl;
   name.str("");
 
   if (showTiming_)

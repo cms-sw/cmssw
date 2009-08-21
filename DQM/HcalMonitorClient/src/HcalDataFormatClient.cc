@@ -439,17 +439,17 @@ void HcalDataFormatClient::report(){
   if(!dbe_) return;
   if ( debug_>0 ) cout << "HcalDataFormatClient: report" << endl;
   
-  char name[256];
-  
-  sprintf(name, "%s%s/DataFormatMonitor/Data Format Task Event Number",process_.c_str(),baseFolder_.c_str());
-  MonitorElement* me = dbe_->get(name);
+  stringstream name;
+  name<<process_.c_str()<<baseFolder_.c_str()<<"/DigiMonitor_Hcal/Data Format Task Event Number";
+  MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    if ( debug_>0 ) cout << "Found '" << name << "'" << endl;
+    if ( debug_>0 ) cout << "Found '" << name.str().c_str() << "'" << endl;
   }
-  else printf("Didn't find %s\n",name);
+  //else printf("Didn't find %s\n",name.str().c_str());
+  std::cout <<"Didn't find "<<name.str().c_str()<<endl;
   getHistograms();
   
   return;
