@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.66 2009/08/10 17:52:35 emanuele Exp $
+// $Id: Numbers.cc,v 1.67 2009/08/21 11:52:29 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.66 $
-  \date $Date: 2009/08/10 17:52:35 $
+  \version $Revision: 1.67 $
+  \date $Date: 2009/08/21 11:52:29 $
 */
 
 #include <sstream>
@@ -254,7 +254,7 @@ int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
 
-    EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+    const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
 
     // EB-/EB+
@@ -280,7 +280,7 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
 
-    EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+    const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
     int idcc = eid.dccId();
 
     // EE-
@@ -453,7 +453,7 @@ int Numbers::iSC( const int ism, const EcalSubdetector subdet, const int i1, con
 
       if( Numbers::map ) {
 
-        EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+        const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
 
         return( eid.towerId() );
 
@@ -854,7 +854,7 @@ int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runti
 
     if( Numbers::map ) {
 
-      EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+      const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
 
       int vfe = eid.towerId();
       int strip = eid.stripId();
