@@ -1,3 +1,5 @@
+#include <sys/statfs.h>
+
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -11,6 +13,9 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(testResourceMonitorCollection);
 
+  CPPUNIT_TEST(diskUsage);
+  CPPUNIT_TEST(processCount);
+
   CPPUNIT_TEST(noSataBeasts);
   CPPUNIT_TEST(sataBeastOkay);
   CPPUNIT_TEST(sataBeastFailed);
@@ -21,6 +26,9 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
 public:
   void setUp();
   void tearDown();
+
+  void diskUsage();
+  void processCount();
 
   void noSataBeasts();
   void sataBeastOkay();
@@ -45,6 +53,62 @@ void
 testResourceMonitorCollection::tearDown()
 {
   delete _rmc;
+}
+
+
+void
+testResourceMonitorCollection::diskUsage()
+{
+  DiskWritingParams dwParams;
+  dwParams._nLogicalDisk = 0;
+  dwParams._filePath = ".";
+  dwParams._highWaterMark = 1;
+  _rmc->configureDisks(dwParams);
+  CPPUNIT_ASSERT( _rmc->_diskUsageList.size() == 1 );
+  ResourceMonitorCollection::DiskUsagePtr diskUsagePtr = _rmc->_diskUsageList[0];
+  CPPUNIT_ASSERT( diskUsagePtr.get() != 0 );
+
+  struct statfs64 buf;
+  CPPUNIT_ASSERT( statfs64(dwParams._filePath.c_str(), &buf) == 0 );
+  CPPUNIT_ASSERT( buf.f_blocks );
+  double relDiskUsage = (1 - static_cast<double>(buf.f_bavail) / buf.f_blocks) * 100;
+
+  _rmc->calcDiskUsage();
+  ResourceMonitorCollection::Stats stats;
+  _rmc->getDiskStats(stats);
+  CPPUNIT_ASSERT( stats.diskUsageStatsList.size() == 1 );
+  ResourceMonitorCollection::DiskUsageStatsPtr diskUsageStatsPtr = stats.diskUsageStatsList[0];
+  CPPUNIT_ASSERT( diskUsageStatsPtr.get() != 0 );
+
+  double statRelDiskUsage = diskUsageStatsPtr->relDiskUsageStats.getLastSampleValue();
+  CPPUNIT_ASSERT( (statRelDiskUsage/relDiskUsage) - 1 < 0.01 );
+
+  CPPUNIT_ASSERT( diskUsageStatsPtr->alarmState == AlarmHandler::OKAY );
+  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+
+  _rmc->_highWaterMark = (relDiskUsage-10)/100;
+  _rmc->calcDiskUsage();
+  CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::WARNING );
+  CPPUNIT_ASSERT(! _ah->noAlarmSet() );
+
+  _rmc->_highWaterMark = (relDiskUsage+10)/100;
+  _rmc->calcDiskUsage();
+  CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::OKAY );
+  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+}
+
+
+void
+testResourceMonitorCollection::processCount()
+{
+  const int processes = 2;
+
+  for (int i = 0; i < processes; ++i)
+    system("sleep 2 &");
+
+  int processCount = _rmc->getProcessCount("sleep");
+
+  CPPUNIT_ASSERT( processCount == processes);
 }
 
 
