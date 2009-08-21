@@ -30,6 +30,7 @@ bool HLTDynamicPrescaler::filter(edm::Event & event, edm::EventSetup const & set
   if (m_count % m_scale)
     return false;
 
+  std::cout << "I will pass this event: " << m_count << " vs. " << m_scale << std::endl ; 
   if (m_count == m_scale * 10)
     m_scale = m_count;
   

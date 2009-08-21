@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.2 2009/08/06 07:12:55 fwyzard Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.3 2009/08/06 14:00:55 bdahmes Exp $
 //
 //
 
@@ -92,6 +92,7 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
           dccHeader->getSpigotData(spigot,htr, fedData.size()); 
           
           // check min length, correct wordcount, empty event, or total length if histo event.
+          if ( htr.isUnsuppressed() ) return true ; // KLUGE: take event if any HTR is NZS
           if ( !htr.isUnsuppressed() ) { isZS = true ; hcalIsZS = true ; nZS++ ; }
       }
       if ( hcalIsZS && !isZS )
@@ -101,7 +102,9 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                        << HcalDCCHeader::SPIGOT_COUNT << " HCAL HTRs for FED "
                                        << i << " are zero-suppressed for this event" ;
   }
-
+  if ( nFEDs != ( FEDNumbering::MAXHCALFEDID - FEDNumbering::MINHCALFEDID + 1 ) )
+       std::cout << "BMD: " << nFEDs << std::endl ;
+  
   if ( nFEDs == 0 ) return false ; // No HCAL 
   if ( !hcalIsZS ) eventsNZS_++ ; 
   return ( !hcalIsZS ) ; 
