@@ -249,10 +249,9 @@ void HcalBaseClient::getEtaPhiHists(std::string rootdir, std::string dir, std::s
   TH2F* dummy = new TH2F();
   stringstream hname;
 
-  cout <<"process_ = "<<process_.c_str()<<endl;
+  //cout <<"process_ = "<<process_.c_str()<<endl;
 
   hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
-  cout <<"HNAME = "<<hname.str().c_str()<<endl;
   if (!units.empty()) hname<<" "<<units;
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
@@ -288,10 +287,7 @@ void HcalBaseClient::getEtaPhiHists(std::string dir, std::string name, TH2F* h[4
   TH2F* dummy = new TH2F();
   stringstream hname;
 
-  cout <<"process_ = "<<process_.c_str()<<endl;
-
   hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
-  cout <<"HNAME = "<<hname.str().c_str()<<endl;
   if (!units.empty()) hname<<" "<<units;
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);

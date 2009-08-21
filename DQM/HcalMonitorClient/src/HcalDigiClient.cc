@@ -119,7 +119,7 @@ void HcalDigiClient::beginJob(DQMStore* dbe){
   stringstream mydir;
   mydir<<rootfolder_<<"/DigiMonitor_Hcal";
 
-  cout <<"DIGI ROOT FOLDER = "<<rootfolder_<<endl;
+  //cout <<"DIGI ROOT FOLDER = "<<rootfolder_<<endl;
   dbe->setCurrentFolder(mydir.str().c_str());
   ProblemCells=dbe->book2D(" ProblemDigis",
 			   " Problem Digi Rate for all HCAL;i#eta;i#phi",
@@ -381,8 +381,6 @@ void HcalDigiClient::getHistograms()
     }
   if (debug_>0) std::cout <<"HcalDigiClient> getHistograms()"<<std::endl;
 
-  cout <<"ROOTFOLDER = "<<rootfolder_<<endl;
-  cout <<"PROCESS = "<<process_.c_str()<<endl;
   stringstream name;
   name<<process_.c_str()<<rootfolder_<<"/DigiMonitor_Hcal/Digi Task Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
