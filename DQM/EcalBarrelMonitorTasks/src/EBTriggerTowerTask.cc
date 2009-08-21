@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/02/27 12:31:30 $
- * $Revision: 1.83 $
+ * $Date: 2009/08/13 18:12:39 $
+ * $Revision: 1.84 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -265,7 +265,11 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
                                   array1& meVeto,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
-  map<EcalTrigTowerDetId, int> crystalsInTower;
+  //  map<EcalTrigTowerDetId, int> crystalsInTower;
+  int readoutCrystalsInTower[108][68];
+    for (int itcc = 0; itcc < 108; itcc++) {
+    for (int itt = 0; itt < 68; itt++) readoutCrystalsInTower[itcc][itt] = 0;
+  }
 
   if( compDigis.isValid() ) {
 
@@ -278,10 +282,10 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         EBDetId id = cDigiItr->id();
         EcalTrigTowerDetId towid = id.tower();
 
-        map<EcalTrigTowerDetId, int>::const_iterator itrTower = crystalsInTower.find(towid);
+        int itcc = Numbers::iTCC( towid );
+        int itt = Numbers::iTT( towid );
 
-        if( itrTower==crystalsInTower.end() ) crystalsInTower.insert(std::make_pair(towid,1));
-        else crystalsInTower[towid]++;
+        readoutCrystalsInTower[itcc-1][itt-1]++;
 
       }
 
@@ -312,6 +316,9 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     float xiet = iet-0.5;
     float xipt = ipt-0.5;
 
+    int itt = Numbers::iTT( tpdigiItr->id() );
+    int itcc = Numbers::iTCC( tpdigiItr->id() );
+
     float xvalEt = tpdigiItr->compressedEt();
     if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xiet, xipt, xvalEt);
 
@@ -327,10 +334,6 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         if ( EtTP > maxEt ) maxEt = EtTP;
       }
       if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Fill( maxEt );
-
-      // count the number of readout crystals / TT
-      // do the match emul-real only if ncry/TT=25
-      int nReadoutCrystals=crystalsInTower[tpdigiItr->id()];
 
       bool good = true;
       bool goodVeto = true;
@@ -358,7 +361,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         }
         if(!matchedAny) matchSample[0]=true;
 
-        if(nReadoutCrystals==25 && compDigiItr->compressedEt()>0) {
+        if(readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
           for(int j=0; j<6; j++) {
             if(matchSample[j]) meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
           }
