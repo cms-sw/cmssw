@@ -104,9 +104,9 @@ testResourceMonitorCollection::processCount()
   const int processes = 2;
 
   for (int i = 0; i < processes; ++i)
-    system("sleep 2 &");
+    system("sh ./processCountTest.sh &");
 
-  int processCount = _rmc->getProcessCount("sleep");
+  int processCount = _rmc->getProcessCount("processCountTest.sh");
 
   CPPUNIT_ASSERT( processCount == processes);
 }
