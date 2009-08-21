@@ -10,10 +10,12 @@ PlotDir="CurrentPlots"
 
 rm -rf $PlotDir
 
-if [ $4 ]; then
-$ExeName $TagName $Password $RunStart $RunEnd
+if [ $5 ]; then
+    echo "RUNNING: $ExeName $TagName $Password $RunStart $RunEnd"
+    $ExeName $TagName $Password $RunStart $RunEnd
 else
-$ExeName $TagName $Password $RunStart
+    echo "RUNNING: $ExeName $TagName $Password $RunStart"
+    $ExeName $TagName $Password $RunStart
 fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir

@@ -1,55 +1,79 @@
-#!/bin/sh
+#########################################################################################
+# This function performs the loop on all the files and uses the fillDB_HistoryDQMService
+# function to execute the cmssw cfg.
+#########################################################################################
 
-DetName=$1
-TagName=$2
-Database=$3
-AuthenticationPath=$4
-FirstRun=$5
-LastRun=$6
+source ${BaseDir}/fillDB_HistoryDQMService.sh
 
-SourceDir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/PromptReco/
-
-if [ ! -d ${DetName} ]; then
-    mkdir ${DetName}
-    # if [ ! -e ${DetName}/fillDB_HistoryDQMService.sh ]; then
-    #    cp fillDB_HistoryDQMService.sh ${DetName}
-    # fi
-fi
-
-# For now we copy it back everytime, so that any change done in the main dir is automatically propagated in all subdirs
-cp fillDB_HistoryDQMService.sh ${DetName}
-# The same is true for the template cfg.
-cp Templates/template_${DetName}HistoryDQMService_cfg.py ${DetName}
-cd ${DetName}
+function SubDetScript ()
+{
+    local DetName=$1
+    local TagName=$2
+    local Database=$3
+    local AuthenticationPath=$4
+    local FirstRun=$5
+    local LastRun=$6
+    local CMSSW_version=$7
+    local TemplatesDir=$8
 
 
-ProcessedFileList=HDQMProcessed_${TagName}.txt
-TempProcessed=ToProcess_${DetName}.txt
+    # echo
+    # echo "DetName=${DetName}"
+    # echo "TagName=${TagName}"
+    # echo "Database=${Database}"
+    # echo "AuthenticationPath=${AuthenticationPath}"
+    # echo "FirstRun=${FirstRun}"
+    # echo "LastRun=${LastRun}"
+    # echo "CMSSW_version=${CMSSW_version}"
+    # echo
+    # echo `pwd`
 
-find ${SourceDir} -name "*.root" | awk -F"/" '{a=$0; sub($NF,"",a); print a}' > $TempProcessed
-ListOfDirs=(`cat $ProcessedFileList $TempProcessed | sort | uniq -u | awk -F"/" '{a=$0; sub($NF,"",a); print a}'`)
+    local SourceDir=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/PromptReco/
 
+    if [ ! -d ${DetName} ]; then
+	mkdir ${DetName}
+    fi
 
-k=0
-ListSize=${#ListOfDirs[*]}
+    # For now we copy it back everytime, so that any change done in the main dir is automatically propagated in all subdirs
+    cp ${TemplatesDir}/template_${DetName}HistoryDQMService_cfg.py ${DetName}
+    cd ${DetName}
 
-echo "Number of runs to process: $ListSize"
+    local ProcessedFileList=HDQMProcessed_${TagName}.txt
+    local TempProcessed=ToProcess_${DetName}.txt
 
-# while [ "$k" -lt 2 ]
-while [ "$k" -lt "$ListSize" ]
-  do
-  Dir=${ListOfDirs[$k]}
-  # echo Running on $Dir
+    find ${SourceDir} -name "*.root" | awk -F"/" '{a=$0; sub($NF,"",a); print a}' > $TempProcessed
+    # local ListOfDirs=(`cat $ProcessedFileList $TempProcessed | sort | uniq -u | awk -F"/" '{a=$0; sub($NF,"",a); print a}'`)
+    # Declare this specifically as an array
+    declare -a ListOfDirs
+    local ListOfDirs=($(cat $ProcessedFileList $TempProcessed | sort | uniq -u | awk -F"/" '{a=$0; sub($NF,"",a); print a}'))
 
-  ./fillDB_HistoryDQMService.sh ${DetName} ${TagName} ${Dir} ${Database} ${AuthenticationPath} ${FirstRun} ${LastRun} ${ProcessedFileList}
+    local Update=0
 
-  # echo ${Dir} >> $ProcessedFileList
+    local k=0
+    local ListSize=${#ListOfDirs[*]}
 
-  let "k+=1"
-done
+    echo "Number of runs to process: $ListSize"
 
-rm $TempProcessed
+    # while [ "$k" -lt 2 ]
+    while [ "$k" -lt "$ListSize" ]
+	do
+	Dir=${ListOfDirs[$k]}
 
-echo "All done."
+	# Internally runs that must not be processed are skipped. The return code tells if something has been processed.
+	# Therefore, looking only at the ListSize is not sufficient to decide if to update the histograms.
+	fillDB_HistoryDQMService ${DetName} ${TagName} ${Dir} ${Database} ${AuthenticationPath} ${FirstRun} ${LastRun} ${ProcessedFileList} ${CMSSW_version}
+	local Update=$?
 
+	let "k+=1"
+	# echo "$k/$ListSize"
+    done
 
+    rm $TempProcessed
+
+    echo "All done."
+
+    # Important: revert to the initial dir
+    cd -
+
+    return ${Update}
+}
