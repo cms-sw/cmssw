@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.6 2009/08/20 13:42:05 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -25,8 +25,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/20 13:42:05 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -138,7 +138,8 @@ namespace stor {
 
     boost::shared_ptr<AlarmHandler> _alarmHandler;
     toolbox::mem::Pool* _pool;
-    double _highWaterMark;     //percentage of disk full when issuing an alarm
+    double _highWaterMark;     // percentage of disk full when issuing an alarm
+    std::string _sataUser;     // user name to log into SATA controller
 
     // Unused status string from old SM
     xdata::String _progressMarker;

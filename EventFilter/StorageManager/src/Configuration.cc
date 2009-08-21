@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
+// $Id: Configuration.cc,v 1.8 2009/08/18 08:55:12 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -159,6 +159,7 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._exactFileSizeTest = false;
     _diskWriteParamCopy._useIndexFiles = true;
+    _diskWriteParamCopy._sataUser = "USER:mickey2mouse";
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
 
@@ -256,6 +257,7 @@ namespace stor
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _exactFileSizeTest = _diskWriteParamCopy._exactFileSizeTest;
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
+    _sataUser = _diskWriteParamCopy._sataUser;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
@@ -272,6 +274,7 @@ namespace stor
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("exactFileSizeTest", &_exactFileSizeTest);
     infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
+    infoSpace->fireItemAvailable("sataUser", &_sataUser);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -400,6 +403,7 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
+    _diskWriteParamCopy._sataUser = _sataUser;
 
     _streamConfigurationChanged = false;
   }

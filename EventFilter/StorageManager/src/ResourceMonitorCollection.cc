@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.7 2009/08/18 08:55:12 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.8 2009/08/20 13:46:20 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -41,6 +41,7 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
 
   _highWaterMark = dwParams._highWaterMark;
+  _sataUser = dwParams._sataUser;
 
   int nLogicalDisk = dwParams._nLogicalDisk;
   unsigned int nD = nLogicalDisk ? nLogicalDisk : 1;
@@ -312,7 +313,7 @@ bool ResourceMonitorCollection::checkSataDisks
   
   const CURLcode returnCode =
     curlInterface.getContent(
-      "http://" + sataBeast + hostSuffix + "/status.asp","", content
+      "http://" + sataBeast + hostSuffix + "/status.asp",_sataUser, content
     );
   
   if (returnCode == CURLE_OK)

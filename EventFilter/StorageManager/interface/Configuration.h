@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.5 2009/07/20 13:06:10 mommsen Exp $
+// $Id: Configuration.h,v 1.6 2009/08/18 08:54:13 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -39,6 +39,7 @@ namespace stor
     utils::duration_t _fileClosingTestInterval;
     bool _exactFileSizeTest;
     bool _useIndexFiles;  // not yet used
+    std::string _sataUser; // user name to log into SATA controller
 
     // not mapped to infospace params
     std::string _smInstanceString;
@@ -123,8 +124,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/18 08:54:13 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -289,6 +290,7 @@ namespace stor
     xdata::Integer _fileClosingTestInterval;
     xdata::Boolean _exactFileSizeTest;
     xdata::Boolean _useIndexFiles;
+    xdata::String _sataUser;
 
     xdata::Boolean _pushmode2proxy;
     xdata::Double _maxESEventRate;  // hertz
