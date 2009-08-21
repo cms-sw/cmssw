@@ -65,8 +65,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     TrajectoryFactory = ReferenceTrajectoryFactory, # from TrajectoryFactories
 	# BzeroReferenceTrajectoryFactory,
 	# TwoBodyDecayReferenceTrajectoryFactory,
-    minNumHits = cms.int32(7), ## minimum number of hits (with alignable parameters)
-    max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements in TID/TEC get diagonalized
-    useTrackTsos = cms.bool(False) ## Tsos from track or from reference trajectory for global derivatives
+    minNumHits = cms.uint32(7), ## minimum number of hits (with alignable parameters)
+    max2Dcorrelation = cms.double(0.05) ## if correlation >5% 2D measurements in TID/TEC get diagonalized
 )
 

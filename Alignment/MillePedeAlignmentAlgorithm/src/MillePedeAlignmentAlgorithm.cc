@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.51 $
- *  $Date: 2009/08/18 12:48:48 $
+ *  $Revision: 1.52 $
+ *  $Date: 2009/08/18 13:59:57 $
  *  (last update by $Author: kaschube $)
  */
 
@@ -55,6 +55,7 @@
 #include <TMatrixDSymEigen.h>
 typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
@@ -65,9 +66,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theAlignmentParameterStore(0), theAlignables(), theAlignableNavigator(0),
   theMonitor(0), theMille(0), thePedeLabels(0), thePedeSteer(0),
   theTrajectoryFactory(0),
-  theMinNumHits(cfg.getParameter<int>("minNumHits")),
-  theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
-  theUseTrackTsos(cfg.getParameter<bool>("useTrackTsos"))
+  theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
+  theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -210,85 +210,94 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
   if (!this->isMode(myMilleBit)) return; // no theMille created...
   const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
 
-  typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
-  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks));
-  // Assume that same container size means same order... :-(
-  const bool canUseTrack = (trajectories.size() == tracks.size());
-  const bool useTrackTsosBack = theUseTrackTsos;
-  if (!canUseTrack) theUseTrackTsos = false;
-
-  // Loop over ReferenceTrajectoryCollection and possibly over tracks,
-  // but in case Ref.-Traj. are not parallel to tracks, first fill monitor for tracks:
-  ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
-  if (theMonitor) {
-    for (; iTrajTrack != tracks.end(); ++iTrajTrack) theMonitor->fillTrack((*iTrajTrack).second);
-    iTrajTrack = tracks.begin(); // set back...
+  if (theMonitor) { // monitor input tracks
+    for (ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
+	 iTrajTrack != tracks.end(); ++iTrajTrack) {
+      theMonitor->fillTrack((*iTrajTrack).second);
+    }
   }
-  // Now really loop over ReferenceTrajectoryCollection
-  std::vector<TrajectoryStateOnSurface> trackTsos; // some buffer...
+
+  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks));
+
+  // Now loop over ReferenceTrajectoryCollection
+  unsigned int refTrajCount = 0; // counter for track monitoring if 1 track per trajectory
   for (RefTrajColl::const_iterator iRefTraj = trajectories.begin(), iRefTrajE = trajectories.end();
-       iRefTraj != iRefTrajE; ++iRefTraj) {
+       iRefTraj != iRefTrajE; ++iRefTraj, ++refTrajCount) {
 
     RefTrajColl::value_type refTrajPtr = *iRefTraj; 
     if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
-    if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
-    
-    if (canUseTrack) {
-      if (!this->orderedTsos((*iTrajTrack).first, trackTsos)) continue; // first is Trajectory*
-    } else {
-      trackTsos.clear();
-      trackTsos.resize((*iTrajTrack).second->recHitsSize());
+
+    const std::pair<unsigned int, unsigned int> nHitXy = this->addReferenceTrajectory(refTrajPtr);
+
+    if (theMonitor && (nHitXy.first || nHitXy.second)) {
+      // if track used (i.e. some hits), fill monitoring
+      // track NULL ptr if trajectories and tracks do not match
+      const reco::Track *trackPtr = 
+	(trajectories.size() == tracks.size() ? tracks[refTrajCount].second : 0);
+      theMonitor->fillUsedTrack(trackPtr, nHitXy.first, nHitXy.second);
     }
 
-//     // write special data to the milleBinary.dat
-//     int nPar = 6;
-//     std::vector<int> integers(nPar); // filled with 0.
-//     std::vector<float> floats(nPar);
-//     for (int i = 0; i < nPar; ++i) {
-//       floats[i] = refTrajPtr->globalPars()[i];
-//     }
-//     theMille->special(nPar, &(floats[0]), &(integers[0]));
+  } // end of reference trajectory and track loop
+}
 
-    std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());//to add hits if all fine
-    std::vector<bool> validHitVecY(refTrajPtr->recHits().size()); // collect hit statistics...
-    int nValidHitsX = 0;                                // ...assuming that there are no y-only hits
+
+
+//____________________________________________________
+std::pair<unsigned int, unsigned int>
+MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_type &refTrajPtr)
+{
+  std::pair<unsigned int, unsigned int> hitResultXy(0,0);
+  if (refTrajPtr->isValid()) {
+    
+//  // write special data to the milleBinary.dat
+//  const unsigend int nPar = 6;
+//  std::vector<int> integers(nPar); // filled with 0.
+//  std::vector<float> floats(nPar);
+//  for (int i = 0; i < nPar; ++i) {
+//    floats[i] = refTrajPtr->globalPars()[i];
+//  }
+//  theMille->special(nPar, &(floats[0]), &(integers[0]));
+
+    // to add hits if all fine:
+    std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());
+    // collect hit statistics, assuming that there are no y-only hits
+    std::vector<bool> validHitVecY(refTrajPtr->recHits().size(), false);
     // Use recHits from ReferenceTrajectory (since they have the right order!):
     for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
-      const int flagXY = this->addMeasurementData(refTrajPtr,iHit,trackTsos[iHit],parVec[iHit]);
+      const int flagXY = this->addMeasurementData(refTrajPtr, iHit, parVec[iHit]);
       if (flagXY < 0) { // problem
-        nValidHitsX = -1;
-        break;
+	hitResultXy.first = 0;
+	break;
       } else { // hit is fine, increase x/y statistics
-        if (flagXY >= 1) ++nValidHitsX;
-        validHitVecY[iHit] = (flagXY >= 2);
+	if (flagXY >= 1) ++hitResultXy.first;
+	validHitVecY[iHit] = (flagXY >= 2);
       } 
     } // end loop on hits
-
-    // CHK add breakpoints
-    for (unsigned int iBp = 0; iBp < refTrajPtr->numberOfBreakPoints(); ++iBp) { this->addBreakPoint(refTrajPtr,iBp); }
     
-    if (nValidHitsX >= theMinNumHits) { // enough 'good' alignables hit: increase the hit statistics
-      unsigned int nValidHitsY = 0;
-      for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
-        if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
-        MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
-        mpVar->increaseHitsX(); // every hit has an x-measurement, cf. above...
-        if (validHitVecY[iHit]) {
-	  mpVar->increaseHitsY();
-	  ++nValidHitsY;
-	}
-      }
-      theMille->end();
-      if (theMonitor) {
-        theMonitor->fillUsedTrack((canUseTrack ? iTrajTrack->second : 0), nValidHitsX, nValidHitsY);
-      }
-    } else {
-      theMille->kill();
+    // CHK add breakpoints
+    for (unsigned int iBp = 0; iBp < refTrajPtr->numberOfBreakPoints(); ++iBp) {
+      this->addBreakPoint(refTrajPtr, iBp);
     }
-    if (canUseTrack) ++iTrajTrack;
-  } // end of reference trajectory and track loop
+    
+    // kill or end 'track' for mille, depends on #hits criterion
+    if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
+      theMille->kill();
+    } else {
+      theMille->end();
+      // take care about hit statistics as well
+      for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
+	if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
+	MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
+	mpVar->increaseHitsX(); // every hit has an x-measurement, cf. above...
+	if (validHitVecY[iHit]) {
+	  mpVar->increaseHitsY();
+	  ++hitResultXy.second;
+	}
+      }  
+    }
+  } // end if valid trajectory
 
-  theUseTrackTsos = useTrackTsosBack;
+  return hitResultXy;
 }
 
 //____________________________________________________
@@ -304,15 +313,14 @@ void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo,
 //____________________________________________________
 int MillePedeAlignmentAlgorithm::addMeasurementData
 (const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iHit,
- const TrajectoryStateOnSurface &trackTsos, AlignmentParameters *&params)
+ AlignmentParameters *&params)
 {
   params = 0;
   theFloatBufferX.clear();
   theFloatBufferY.clear();
   theIntBuffer.clear();
  
-  const TrajectoryStateOnSurface &tsos = 
-    (theUseTrackTsos ? trackTsos : refTrajPtr->trajectoryStates()[iHit]);
+  const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
 
   // ignore invalid hits
@@ -656,45 +664,6 @@ bool MillePedeAlignmentAlgorithm::addHits(const std::vector<Alignable*> &alis,
   }
   
   return allOk;
-}
-
-
-//__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::orderedTsos(const Trajectory *traj, 
-                                              std::vector<TrajectoryStateOnSurface> &trackTsos)const
-{
-  trackTsos.clear();
-  // FIXME: if (theUseTrackTsos == false) fill only first/last!
-  Trajectory::DataContainer trajMeas(traj->measurements());
-  PropagationDirection dir = traj->direction();
-  if (dir == oppositeToMomentum) {
-    // why does const_reverse_operator not compile?
-    for (Trajectory::DataContainer::reverse_iterator rMeas = trajMeas.rbegin();
-         rMeas != trajMeas.rend(); ++rMeas) {
-      trackTsos.push_back((*rMeas).updatedState());
-    }
-  } else if (dir == alongMomentum) {
-    for (Trajectory::DataContainer::const_iterator iMeas = trajMeas.begin();
-         iMeas != trajMeas.end(); ++iMeas) {
-      trackTsos.push_back((*iMeas).updatedState());
-    }
-  } else {
-    edm::LogError("Alignment") << "$SUB=MillePedeAlignmentAlgorithm::orderedTsos"
-                               << "Trajectory neither along nor opposite to momentum.";
-    return false;
-  }
-
-  for (std::vector<TrajectoryStateOnSurface>::const_iterator iTraj = trackTsos.begin(),
-	 iEnd = trackTsos.end(); iTraj != iEnd; ++iTraj) {
-    if (!(*iTraj).isValid()) {
-      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::orderedTsos"
-				 << "an invalid  TSOS...?";
-      return false;
-    }
-  }
-  
-
-  return true;
 }
 
 //__________________________________________________________________________________________________
