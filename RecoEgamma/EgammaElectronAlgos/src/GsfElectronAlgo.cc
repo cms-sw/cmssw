@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.76 2009/07/14 12:42:25 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.77 2009/08/21 12:23:34 chamont Exp $
 //
 //
 
@@ -1001,7 +1001,7 @@ void GsfElectronAlgo::computeCharge
 
   // default charge
   if (info.isGsfScPixConsistent||ctf.isNull())
-   { charge = chargeGsf ; }
+   { charge = info.scPixCharge ; }
   else
    { charge = ctf->charge() ; }
  }
