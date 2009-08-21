@@ -110,7 +110,7 @@ class GsfElectronAlgo {
 
     void createElectron
      ( const reco::GsfElectronCoreRef & coreRef,
-       int charge,
+       int charge, const reco::GsfElectron::ChargeInfo & chargeInfo,
        const reco::CaloClusterPtr & elbcRef,
        const reco::TrackRef & ctfTrackRef, const float shFracInnerHits,
        double HoE1, double HoE2,
@@ -145,8 +145,13 @@ class GsfElectronAlgo {
     // intermediate calculations
     bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const
      reco::BeamSpot& bs);
-    int computeCharge(const reco::GsfTrackRef &tk,const reco::SuperClusterRef & sc, const
-     reco::BeamSpot& bs);
+
+    void computeCharge
+     ( const reco::GsfTrackRef & tk,
+       const reco::TrackRef & ctf,
+       const reco::SuperClusterRef & sc,
+       const reco::BeamSpot & bs,
+       int & charge, reco::GsfElectron::ChargeInfo & info ) ;
 
     // preselection parameters (ecal driven electrons)
     // minimum SC Et

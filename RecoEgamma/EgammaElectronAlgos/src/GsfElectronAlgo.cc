@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.75 2009/06/15 22:46:46 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.76 2009/07/14 12:42:25 charlot Exp $
 //
 //
 
@@ -424,12 +424,15 @@ void GsfElectronAlgo::process(
     pair<TrackRef,float> ctfpair = getCtfTrackRef(gsfTrackRef,ctfTracksH) ;
     const TrackRef ctfTrackRef = ctfpair.first ;
     const float fracShHits = ctfpair.second ;
-    int elecharge = computeCharge(gsfTrackRef,scRef,bs);
-    
-    createElectron(coreRef,elecharge,elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
-     hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
-     ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,reducedEBRecHits,
-     reducedEERecHits,mva,outEle) ;
+    int eleCharge ;
+    GsfElectron::ChargeInfo eleChargeInfo ;
+    computeCharge(gsfTrackRef,ctfTrackRef,scRef,bs,eleCharge,eleChargeInfo) ;
+
+    createElectron(coreRef,eleCharge,eleChargeInfo,
+      elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
+      hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
+      ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,reducedEBRecHits,
+      reducedEERecHits,mva,outEle) ;
 
      LogInfo("")<<"Constructed new electron with energy  "<< theClus.energy();
 
@@ -553,7 +556,7 @@ math::XYZVector convert( const GlobalVector & gv )
 // interface to be improved...
 void GsfElectronAlgo::createElectron
  ( const GsfElectronCoreRef & coreRef,
-   int charge,
+   int charge, const reco::GsfElectron::ChargeInfo & chargeInfo,
    const CaloClusterPtr & elbcRef,
    const TrackRef & ctfTrackRef, const float shFracInnerHits,
    double HoE1, double HoE2,
@@ -716,7 +719,7 @@ void GsfElectronAlgo::createElectron
 
   GsfElectron * ele = new
 	GsfElectron
-	 ( momentum,charge,coreRef,
+	 ( momentum,charge,chargeInfo,coreRef,
 	   tcMatching, tkExtra, ctfInfo,
 	   fiducialFlags,showerShape,
 	   fbrem,mva) ;
@@ -976,49 +979,29 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
   return make_pair(ctfTrackRef,maxFracShared) ;
  }
 
-int GsfElectronAlgo::computeCharge(const GsfTrackRef & tk,const SuperClusterRef & sc, const BeamSpot & bs){
-
-  int chargeIn=tk->charge();
-  int charge = chargeIn;
-  bool goodCharge=true; // not transmitted for the moment
-  
+void GsfElectronAlgo::computeCharge
+ ( const GsfTrackRef & gsf, const TrackRef & ctf, const SuperClusterRef & sc, const BeamSpot & bs,
+   int & charge, GsfElectron::ChargeInfo & info )
+ {
   // determine charge from SC
-  int chargeSC;  
-  GlobalPoint orig(bs.position().x(), bs.position().y(), bs.position().z());
-  GlobalPoint scpos(sc->position().x(), sc->position().y(), sc->position().z());
-  GlobalVector scvect(scpos-orig);
-  GlobalPoint inntkpos = innTSOS_.globalPosition();
-  GlobalVector inntkvect = GlobalVector(inntkpos-orig);
+  GlobalPoint orig(bs.position().x(), bs.position().y(), bs.position().z()) ;
+  GlobalPoint scpos(sc->position().x(), sc->position().y(), sc->position().z()) ;
+  GlobalVector scvect(scpos-orig) ;
+  GlobalPoint inntkpos = innTSOS_.globalPosition() ;
+  GlobalVector inntkvect = GlobalVector(inntkpos-orig) ;
+  float dPhiInnEle=normalized_dphi(scvect.phi()-inntkvect.phi()) ;
+  if(dPhiInnEle>0) info.scPixCharge = -1 ;
+  else info.scPixCharge = 1 ;
 
-  float dPhiInnEle=normalized_dphi(scvect.phi() - inntkvect.phi());
+  // flags
+  int chargeGsf = gsf->charge() ;
+  info.isGsfScPixConsistent = ((chargeGsf*info.scPixCharge)>0) ;
+  info.isGsfCtfConsistent = (ctf.isNonnull()&&((chargeGsf*ctf->charge())>0)) ;
+  info.isGsfCtfScPixConsistent = (info.isGsfScPixConsistent&&info.isGsfCtfConsistent) ;
 
-  if(dPhiInnEle>0) chargeSC = -1;
-  else chargeSC = 1;
-
-  // charge from outer momentum
-  int chargeOut = outTSOS_.charge();
-  
-  // then combine
-
-  // need to recompute these, ugly..
-  GlobalVector innMom, outMom ;
-  mtsMode_->momentumFromModeCartesian(innTSOS_,innMom) ;
-  mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
-  float fbrem = (outMom.mag()>0.)?((innMom.mag()-outMom.mag())/innMom.mag()):1.e30 ;
-  float deltaPhiSuperClusterTrackAtVtx = normalized_dphi(sc->phi()-sclPos_.phi()) ;
-
-  if(deltaPhiSuperClusterTrackAtVtx>0.06 && fbrem>0.4 && fbrem<0.7 && sc->clustersSize()>1) {
-    // special case for delta phi_in >0.06 && fbrem > 0.4 && fbrem < 0.7 && n_clus > 1
-    charge = chargeIn;
-  } else {
-    // standard, take majority
-    if(chargeIn*chargeSC>0) charge = chargeIn;
-    else charge = chargeOut;
-  }
-  
-  // flag for bad charge
-  if(chargeIn*chargeSC<0) goodCharge = false;
-
-  return charge;
-
-}
+  // default charge
+  if (info.isGsfScPixConsistent||ctf.isNull())
+   { charge = chargeGsf ; }
+  else
+   { charge = ctf->charge() ; }
+ }

@@ -9,14 +9,16 @@ GsfElectron::GsfElectron()
  : mva_(0), fbrem_(0), class_(UNKNOWN) {}
 
 GsfElectron::GsfElectron
- ( const LorentzVector & p4, int charge,
+ ( const LorentzVector & p4,
+   int charge, const ChargeInfo & chargeInfo,
    const GsfElectronCoreRef & core,
    const TrackClusterMatching & tcm, const TrackExtrapolations & te,
    const ClosestCtfTrack & ctfInfo,
    const FiducialFlags & ff, const ShowerShape & ss, float fbrem,
    float mva
  )
- : core_(core),
+ : chargeInfo_(chargeInfo),
+   core_(core),
    trackClusterMatching_(tcm), trackExtrapolations_(te),
    closestCtfTrack_(ctfInfo),
    fiducialFlags_(ff), showerShape_(ss),
@@ -29,6 +31,40 @@ GsfElectron::GsfElectron
   setPdgId(-11*charge) ;
   if (isEcalDriven()) corrections_.ecalEnergy = superCluster()->energy() ;
 }
+
+GsfElectron::GsfElectron
+ ( const GsfElectron & electron,
+   const GsfElectronCoreRef & core,
+   const CaloClusterPtr & electronCluster,
+   const TrackRef & closestCtfTrack,
+   const GsfTrackRefVector & ambiguousTracks )
+ : RecoCandidate(electron),
+   chargeInfo_(electron.chargeInfo_),
+   core_(core),
+   trackClusterMatching_(electron.trackClusterMatching_),
+   trackExtrapolations_(electron.trackExtrapolations_),
+   closestCtfTrack_(electron.closestCtfTrack_),
+   ambiguousGsfTracks_(ambiguousTracks),
+   fiducialFlags_(electron.fiducialFlags_),
+   showerShape_(electron.showerShape_),
+   dr03_(electron.dr03_),
+   dr04_(electron.dr04_),
+   mva_(electron.mva_),
+   fbrem_(electron.fbrem_),
+   class_(electron.class_),
+   corrections_(electron.corrections_)
+ {
+  trackClusterMatching_.electronCluster = electronCluster ;
+  closestCtfTrack_.ctfTrack = closestCtfTrack ;
+  // TO BE DONE
+  // Check that the new edm references are really
+  // to clones of the former references, and therefore other attributes
+  // stay valid :
+  // * electron.core_ ~ core ?
+  // * electron.trackClusterMatching_.electronCluster ~ electronCluster ?
+  // * electron.closestCtfTrack_.ctfTrack ~ closestCtfTrack ?
+  // * electron.ambiguousGsfTracks_ ~ ambiguousTracks ?
+ }
 
 void GsfElectron::correctEcalEnergy( float newEnergy, float newEnergyError )
  {
@@ -61,10 +97,18 @@ bool GsfElectron::overlap( const Candidate & c ) const {
 	   ( checkOverlap( gsfTrack(), o->gsfTrack() ) ||
 	     checkOverlap( superCluster(), o->superCluster() ) )
 	   );
-  return false;
+  //?? return false;
 }
 
-GsfElectron * GsfElectron::clone() const {
-  return new GsfElectron( * this );
-}
+GsfElectron * GsfElectron::clone() const
+ { return new GsfElectron(*this) ; }
+
+GsfElectron * GsfElectron::clone
+ (
+  const GsfElectronCoreRef & core,
+  const CaloClusterPtr & electronCluster,
+  const TrackRef & closestCtfTrack,
+  const GsfTrackRefVector & ambiguousTracks
+ ) const
+ { return new GsfElectron(*this,core,electronCluster,closestCtfTrack,ambiguousTracks) ; }
 

@@ -5,7 +5,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+//#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -32,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.29 2009/04/06 11:18:05 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.30 2009/07/14 12:41:52 charlot Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.30  2009/07/14 12:41:52  charlot
+// improved electron charge
+//
 // Revision 1.29  2009/04/06 11:18:05  chamont
 // few changes, should not affect users
 //
@@ -76,43 +79,99 @@ class GsfElectron : public RecoCandidate
 
   //=======================================================
   // Constructors
+  //
+  // The clone() method with arguments, and the copy
+  // constructor with edm references is designed for
+  // someone which want to duplicates all
+  // collections.
   //=======================================================
 
   public :
 
     // some nested structures defined later on
-    struct TrackClusterMatching ;
+	struct ChargeInfo ;
+	struct TrackClusterMatching ;
     struct TrackExtrapolations ;
     struct ClosestCtfTrack ;
     struct FiducialFlags ;
     struct ShowerShape ;
     struct IsolationVariables ;
 
-    GsfElectron() ;
     GsfElectron
      (
-      const LorentzVector & p4, int charge, const GsfElectronCoreRef &,
+      const LorentzVector & p4, int charge,
+      const ChargeInfo &,
+      const GsfElectronCoreRef &,
       const TrackClusterMatching &, const TrackExtrapolations &, const ClosestCtfTrack &,
       const FiducialFlags &, const ShowerShape &, float fbrem, float mva
      ) ;
+    GsfElectron
+     (
+      const GsfElectron & electron,
+      const GsfElectronCoreRef & core,
+      const CaloClusterPtr & electronCluster,
+      const TrackRef & closestCtfTrack,
+      const GsfTrackRefVector & ambiguousTracks
+     ) ;
+    GsfElectron() ;
     GsfElectron * clone() const ;
+    GsfElectron * clone
+     (
+      const GsfElectronCoreRef & core,
+      const CaloClusterPtr & electronCluster,
+      const TrackRef & closestCtfTrack,
+      const GsfTrackRefVector & ambiguousTracks
+     ) const ;
     virtual ~GsfElectron() {} ;
 
 
   //=======================================================
-  // Candidate Methods
+  // Candidate methods and charge information
   //
-  // GsfElectron inherits from RecoCandidate, thus it
-  // implements the Candidate methods, such as p4().
+  // The gsf electron producer has tried to best evaluate
+  // the four momentum and charge and given those values to
+  // the GsfElectron constructor, which forwarded them to
+  // the Candidate constructor. Those values can be retreived
+  // with getters inherited from Candidate : p4() and charge().
   //=======================================================
 
   public:
 
-    bool isElectron() const { return true ; }
+	// Inherited from Candidate
+	// const LorentzVector & charge() const ;
+	// const LorentzVector & p4() const ;
 
-  protected :
+	// Complementary struct
+	struct ChargeInfo
+	 {
+	  int scPixCharge ;
+	  bool isGsfCtfScPixConsistent ;
+	  bool isGsfScPixConsistent ;
+	  bool isGsfCtfConsistent ;
+	  ChargeInfo()
+	    : scPixCharge(0), isGsfCtfScPixConsistent(false),
+	      isGsfScPixConsistent(false), isGsfCtfConsistent(false)
+	    {}
+	 } ;
 
+	// Charge info accessors
+    // to get gsf track charge: gsfTrack()->charge()
+    // to get ctf track charge, if closestCtfTrackRef().isNonnull(): closestCtfTrackRef()->charge()
+    int scPixCharge() const { return chargeInfo_.scPixCharge ; }
+    bool isGsfCtfScPixChargeConsistent() const { return chargeInfo_.isGsfCtfScPixConsistent ; }
+    bool isGsfScPixChargeConsistent() const { return chargeInfo_.isGsfScPixConsistent ; }
+    bool isGsfCtfChargeConsistent() const { return chargeInfo_.isGsfCtfConsistent ; }
+    const ChargeInfo & chargeInfo() const { return chargeInfo_ ; }
+
+	// Candidate redefined methods
+    virtual bool isElectron() const { return true ; }
     virtual bool overlap( const Candidate & ) const ;
+
+  private:
+
+    // Complementary attributes
+	ChargeInfo chargeInfo_ ;
+
 
   //=======================================================
   // Core Attributes
@@ -128,12 +187,11 @@ class GsfElectron : public RecoCandidate
     GsfElectronCoreRef core() const { return core_ ; }
 
     // forward core methods
-    SuperClusterRef superCluster() const { return core_->superCluster() ; }
-    GsfTrackRef gsfTrack() const { return core_->gsfTrack() ; }
-    bool isEcalDriven() const { return core_->isEcalDriven() ; }
-    bool isTrackerDriven() const { return core_->isTrackerDriven() ; }
-    SuperClusterRef pflowSuperCluster() const { return core_->pflowSuperCluster() ; }
-    int trackCharge() const { return core_->gsfTrack()->charge() ; }
+    SuperClusterRef superCluster() const { return core()->superCluster() ; }
+    GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
+    bool isEcalDriven() const { return core()->isEcalDriven() ; }
+    bool isTrackerDriven() const { return core()->isTrackerDriven() ; }
+    SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
 
   private:
 
