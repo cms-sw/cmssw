@@ -8,72 +8,95 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.4 2009/06/18 16:03:50 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.5 2009/06/22 14:32:26 amraktad Exp $
 //
 
 // system include files
+#include "TGPack.h"
+#include "TCanvas.h"
+#include "TRootEmbeddedCanvas.h"
+#include "TGLEmbeddedViewer.h"
+#include "TGLViewer.h"
+#include "TEveViewer.h"
+#include "TEveManager.h"
+#include "TEveScene.h"
+
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
-   m_useGL(kTRUE),
-   m_viewer(0),
-   m_viewCanvas(0),
-   m_textCanvas(0),
+   m_eveWindow(0),
    m_helper(iInfo)
 {
 }
 
-// FWDetailViewBase::FWDetailViewBase(const FWDetailViewBase& rhs)
-// {
-//    // do actual copying here;
-// }
-
 FWDetailViewBase::~FWDetailViewBase()
 {
+   // Nothing to do here: DestroyWindowAndSlot clears gui components
+   // detail view scene are set to auto destruct
 }
 
-
-//
-// assignment operators
-//
-// const FWDetailViewBase& FWDetailViewBase::operator=(const FWDetailViewBase& rhs)
-// {
-//   //An exception safe implementation is
-//   FWDetailViewBase temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-TEveElement*
-FWDetailViewBase::build (const FWModelId & iID)
+void
+FWDetailViewBase::build (const FWModelId &iID, TEveWindowSlot* slot)
 {
    m_helper.itemChanged(iID.item());
-   return build(iID, m_helper.offsetObject(iID.item()->modelData(iID.index())));
+   build(iID, m_helper.offsetObject(iID.item()->modelData(iID.index())), slot);
 }
 
-//
-// const member functions
-//
+void
+FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas)
+{
+   TEveWindowPack* wp = slot->MakePack();
+   wp->SetShowTitleBar(kFALSE);
+   TGPack* pack = wp->GetPack();
+   pack->SetVertical(kFALSE);
+   pack->SetUseSplitters(kFALSE);
+   m_eveWindow = wp;
 
-//
-// static member functions
-//
+   // gui frame 
+   guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
+
+   guiFrame->SetCleanup(kLocalCleanup);
+   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),2);
+
+   // 2D canvas
+   TRootEmbeddedCanvas*  ec   = new TRootEmbeddedCanvas("Embeddedcanvas", pack);
+   pack->AddFrameWithWeight(ec, 0, 5);
+   viewCanvas = ec->GetCanvas();
+   viewCanvas->SetHighLightColor(-1);
+   
+   pack->MapSubwindows();
+   pack->Layout();
+   pack->MapWindow();
+}
+
+void
+FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene)
+{
+   TEveWindowPack* wp = slot->MakePack();
+   wp->SetShowTitleBar(kFALSE);
+   TGPack* pack = wp->GetPack();
+   pack->SetVertical(kFALSE);
+   pack->SetUseSplitters(kFALSE);
+   m_eveWindow = wp;
+
+   // gui frame 
+   guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
+   guiFrame->SetCleanup(kLocalCleanup);
+   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),2);
+
+   // viewer GL
+   TGLEmbeddedViewer *egl = new TGLEmbeddedViewer(pack, 0, 0);
+   TEveViewer* eveViewer= new TEveViewer("DetailViewViewer");
+   eveViewer->SetGLViewer(egl, egl->GetFrame());
+   pack->AddFrameWithWeight(egl->GetFrame(),0, 5);
+   viewer = egl;
+   scene = gEve->SpawnNewScene("Detailed view");
+   eveViewer->AddScene(scene);
+
+   pack->MapSubwindows();
+   pack->Layout();
+   pack->MapWindow();
+}

@@ -16,106 +16,48 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:52 EST 2009
-// $Id: FWDetailViewBase.h,v 1.5 2009/06/18 16:03:49 amraktad Exp $
-//
-
+// $Id: FWDetailViewBase.h,v 1.6 2009/06/22 14:32:25 amraktad Exp
 // system include files
-#include "Rtypes.h"
 
-// user include files
+
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
-// forward declarations
-class TEveElement;
-class TGLViewer;
-class FWModelId;
 class TCanvas;
+class TGCompositeFrame;
+class TCanvas;
+class TGPack;
+
+class TGLViewer;
+class TEveScene ;
+class TEveWindowSlot;
+class TEveWindow;
+class TGVerticalFrame;
+
+class FWModelId;
 
 class FWDetailViewBase
 {
 public:
    virtual ~FWDetailViewBase ();
 
-   ///the calling code takes ownership of the returned object
-   TEveElement* build (const FWModelId &);
-   virtual void  clearOverlayElements() {}
-
-   void         setViewer (TGLViewer *v) {
-      m_viewer = v;
-   }
-
-   void         setTextCanvas (TCanvas *v) {
-      m_textCanvas = v;
-   }
-
-   void         setViewCanvas (TCanvas *c) {
-      m_viewCanvas = c;
-   }
-
-
-   void  setUseGL (Bool_t x) {
-      m_useGL = x;
-   }
-
-   Bool_t useGL() const {
-      return m_useGL;
-   }
+   void  build (const FWModelId&, TEveWindowSlot*);
+   TEveWindow*  getEveWindow() { return m_eveWindow; }
 
 protected:
    FWDetailViewBase(const std::type_info&);
 
-   TCanvas*      textCanvas() const {
-      return m_textCanvas;
-   }
+   void makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas);
+   void makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene);
 
-   TGLViewer*       viewer() const {
-      return m_viewer;
-   }
-
-   TCanvas*       viewCanvas () const {
-      return m_viewCanvas;
-   }
-
-   const Double_t*  rotationCenter() const {
-      return m_rotationCenter;
-   }
-   Double_t*        rotationCenter() {
-      return m_rotationCenter;
-   }
-
-   void getCenter( Double_t* vars )
-   {
-      vars[0] = rotationCenter()[0];
-      vars[1] = rotationCenter()[1];
-      vars[2] = rotationCenter()[2];
-   }
-
-   void resetCenter() {
-      rotationCenter()[0] = 0;
-      rotationCenter()[1] = 0;
-      rotationCenter()[2] = 0;
-   }
+   TEveWindow           *m_eveWindow;
 
 private:
    FWDetailViewBase(const FWDetailViewBase&); // stop default
-
    const FWDetailViewBase& operator=(const FWDetailViewBase&); // stop default
 
-   virtual TEveElement* build(const FWModelId&, const void*) = 0;
-
-   Bool_t           m_useGL;
-
-   TGLViewer       *m_viewer;
-   TCanvas         *m_viewCanvas;
-   TCanvas         *m_textCanvas;
-   Double_t         m_rotationCenter[3];
-
+   virtual void build(const FWModelId&, const void*, TEveWindowSlot* slot) = 0;
 
    FWSimpleProxyHelper m_helper;
-
-   // ---------- member data --------------------------------
-
 };
-
 
 #endif

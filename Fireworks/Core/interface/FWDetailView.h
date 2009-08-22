@@ -19,18 +19,17 @@ public:
    static std::string classTypeName() {
       return ROOT::Reflex::Type::ByTypeInfo(typeid(T)).Name(ROOT::Reflex::SCOPED);
    }
-   
+
    static std::string classRegisterTypeName() {
       return typeid(T).name();
    }
 
 private:
-   virtual TEveElement* build(const FWModelId& iID, const void* iData) {
-      return build(iID, reinterpret_cast<const T*> (iData));
+   virtual void build(const FWModelId& iID, const void* iData, TEveWindowSlot* s) {
+      build(iID, reinterpret_cast<const T*> (iData), s);
    }
 
-   virtual TEveElement* build(const FWModelId&, const T*) = 0;
-
+   virtual void build(const FWModelId&, const T*, TEveWindowSlot*) = 0;
 };
 
 #endif
