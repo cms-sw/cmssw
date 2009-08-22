@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMuonDetailView.cc,v 1.5 2009/07/22 15:12:56 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.6 2009/08/22 17:10:26 amraktad Exp $
 //
 
 // system include files
@@ -16,48 +16,26 @@
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TGFrame.h"
+#include "TGLabel.h"
 
-#include "TClass.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
-#include "TGeoBBox.h"
-#include "TGeoArb8.h"
-#include "TGeoTube.h"
-#include "TEveManager.h"
-#include "TH1F.h"
-#include "TColor.h"
-#include "TROOT.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
-#include "TEveSceneInfo.h"
-#include "TEveViewer.h"
-#include "TGLViewer.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-
-// user include files
 #include "Fireworks/Core/interface/FWDetailView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/FWLite/interface/Event.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
-// Don't forget the Muons
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
-// And the BuilderUtils
+
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 
@@ -106,8 +84,6 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
    TGVerticalFrame* ediFrame;
    FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
 
-   m_item = id.item();
-
    /* Here we have the code imported from the Electron variant
     * Differences in implementation for proxy building
     *
@@ -118,21 +94,9 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
     * also want to look into the muon system.  This means drawing in the hit segments
     * in the muon system and the hits in the tracking system.
     *
-    * Johannes is working on an external function for drawing muons instead of electrons,
-    * so now it's up to me to make the other necessary mods.
     */
+   m_item = id.item();
 
-   // printf("calling MuonsProxyPUBuilder::buildRhoZ\n");
-   // get muons, instead of electrons
-   // Original code from the electrons
-   //  using reco::GsfElectronCollection;
-   //  const GsfElectronCollection *electrons = 0;
-   // And my replacement
-
-   // printf("got electrons\n");
-
-   // printf("%d GSF electrons\n", electrons->size());
-   // printf("getting rechits\n");
    const fwlite::Event *ev = m_item->getEvent();
    fwlite::Handle<EcalRecHitCollection> e_hits;
    fwlite::Handle<CaloTowerCollection> towers;
@@ -148,7 +112,7 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
    }
    catch (...)
    {
-      std::cout <<"Well fuck you very much, say the Cal Towers..." << std::endl;
+      std::cout <<"Expected Cal Towers." << std::endl;
    }
 
    try {
@@ -187,29 +151,16 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
    outerPropagator->SetMaxR( 750 );
    outerPropagator->SetMaxZ( 1100 );
 
-   // And leaving the old shite here
-   /*  TEveTrackPropagator *propagator = new TEveTrackPropagator();
-       propagator->SetMagField( -4.0);
-       propagator->SetMaxR( 180 );
-       propagator->SetMaxZ( 430 );
-   */
    int index=0;
    TEveRecTrack innerRecTrack;
-   TEveRecTrack outerRecTrack;
-
-   //      t.fBeta = 1.;
-   //  printf("We have %d muons\n",muons->size());
-
-   //   for(reco::MuonCollection::const_iterator muon = muons->begin();
-   //       muon != muons->end(); ++muon, ++index) {
-   if (const reco::Muon *muon = iMuon) {
+   TEveRecTrack outerRecTrack;   if (const reco::Muon *muon = iMuon) {
 
       std::stringstream s;
       s << "muon" << index;
       //in order to keep muonList having the same number of elements as 'muons' we will always
       // create a list even if it will get no children
       TEveElementList* muonList = new TEveElementList(s.str().c_str());
-      gEve->AddElement( muonList, scene );
+      scene->AddElement( muonList);
 
       // These are the for the Eve side of things
 
@@ -261,20 +212,6 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
       if (el) scene->AddElement(el);
 
 
-      /* Now this is what I WAS going to do for the HCAL, but I think a better idea is to
-         try and get the HCAL towers directly and use that.
-
-         The plan has changed.  Don't have HCAL RecHits.  So now what?
-
-         Now the answer is this: we take the muon's position at the outside of tracker,
-         and draw the CAL towers around that location.  We do have the XYZ coordinate of that
-         from Track.h, if that's included in the .root file input.
-
-         Well then, we have muon eta phi and we can go ahead and grab the towers near that.
-
-      */
-
-      // Big ol' print block to see what's available to us
       std::cout << "Printing Muon related quantities" << std::endl;
       std::cout << "isEnergyValid(): " << (*muon).isEnergyValid() << std::endl;
       std::cout << "isCaloCompatibilityValid(): " << (*muon).isCaloCompatibilityValid() << std::endl;
@@ -374,6 +311,9 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
    viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    viewer->UpdateScene();
    viewer->CurrentCamera().Reset();
-}
+
+   ediFrame->AddFrame( new TGLabel(ediFrame, "Add missing info here."));
+   ediFrame->MapSubwindows();
+ }
 
 REGISTER_FWDETAILVIEW(FWMuonDetailView);
