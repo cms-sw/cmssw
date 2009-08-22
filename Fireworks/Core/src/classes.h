@@ -14,7 +14,6 @@
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
-#include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/src/FWDoubleParameterSetter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"

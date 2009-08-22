@@ -14,7 +14,6 @@
   <class name="FWGUISubviewArea"/>
   <class name="FWConfiguration"/>
   <class name="FWRhoPhiZViewManager"/>
-  <class name="FWDetailViewManager"/>
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
   <class name="FWDoubleParameter"/>
