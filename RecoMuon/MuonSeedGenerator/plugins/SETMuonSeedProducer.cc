@@ -98,6 +98,9 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
     //---- some hits could not belong to a track simultaneously - these will be in a 
     //---- group; two hits from one and the same group will not go to the same track 
     std::vector< MuonRecHitContainer > MuonRecHitContainer_perLayer = theSeedFinder.sortByLayer(MuonRecHitContainer_clusters[cluster]);
+    //---- Add protection against huge memory consumption
+    //---- Delete busy layers if needed (due to combinatorics)
+    theSeedFinder.limitCombinatorics(MuonRecHitContainer_perLayer);
     //---- build all possible combinations (valid sets)
     std::vector <MuonRecHitContainer> allValidSets = theSeedFinder.findAllValidSets(MuonRecHitContainer_perLayer);
     if(apply_prePruning){
