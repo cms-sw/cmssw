@@ -59,11 +59,6 @@ namespace edm {
     RunAuxiliary runAux(eventID_.run(), ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> runPrincipal(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
-    RunPrincipal& rp =
-       const_cast<RunPrincipal&>(*runPrincipal);
-    Run run(rp, moduleDescription());
-    beginRun(run);
-    run.commit_();
     newRun_ = false;
     return runPrincipal;
   }
@@ -76,9 +71,6 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
         new LuminosityBlockPrincipal(
 	    lumiAux, productRegistry(), processConfiguration()));
-    LuminosityBlock lb(*lumiPrincipal, moduleDescription());
-    beginLuminosityBlock(lb);
-    lb.commit_();
     newLumi_ = false;
     return lumiPrincipal;
   }

@@ -369,11 +369,25 @@ namespace edm {
   }
 
   void
+  InputSource::doBeginRun(RunPrincipal& rp) {
+    Run run(rp, moduleDescription());
+    beginRun(run);
+    run.commit_();
+  }
+
+  void
   InputSource::doEndRun(RunPrincipal& rp) {
     rp.setEndTime(time_);
     Run run(rp, moduleDescription());
     endRun(run);
     run.commit_();
+  }
+
+  void
+  InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp) {
+    LuminosityBlock lb(lbp, moduleDescription());
+    beginLuminosityBlock(lb);
+    lb.commit_();
   }
 
   void
@@ -416,7 +430,13 @@ namespace edm {
   InputSource::wakeUp_() {}
 
   void
+  InputSource::beginLuminosityBlock(LuminosityBlock&) {}
+
+  void
   InputSource::endLuminosityBlock(LuminosityBlock&) {}
+
+  void
+  InputSource::beginRun(Run&) {}
 
   void
   InputSource::endRun(Run&) {}

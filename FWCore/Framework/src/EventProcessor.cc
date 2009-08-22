@@ -1683,6 +1683,7 @@ namespace edm {
 
   void EventProcessor::beginRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+    input_->doBeginRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(), 0),
                     0,
                     runPrincipal.beginTime());
@@ -1710,6 +1711,7 @@ namespace edm {
 
   void EventProcessor::beginLumi(int run, int lumi) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+    input_->doBeginLumi(lumiPrincipal);
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), 0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());

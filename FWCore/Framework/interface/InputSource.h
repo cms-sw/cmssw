@@ -178,8 +178,16 @@ namespace edm {
     /// Called by framework at end of job
     void doEndJob();
 
-    /// Called by framework when events are exhausted.
+    /// Called by framework at beginning of lumi block
+    void doBeginLumi(LuminosityBlockPrincipal& lbp);
+
+    /// Called by framework at end of lumi block
     void doEndLumi(LuminosityBlockPrincipal& lbp);
+
+    /// Called by framework at beginning of run
+    void doBeginRun(RunPrincipal& rp);
+
+    /// Called by framework at end of run
     void doEndRun(RunPrincipal& rp);
 
     /// Called by the framework before forking the process
@@ -284,7 +292,9 @@ namespace edm {
     virtual void wakeUp_();
     void preRead();
     void postRead(Event& event);
+    virtual void beginLuminosityBlock(LuminosityBlock&);
     virtual void endLuminosityBlock(LuminosityBlock&);
+    virtual void beginRun(Run&);
     virtual void endRun(Run&);
     virtual void beginJob(EventSetup const&);
     virtual void endJob();
