@@ -10,30 +10,34 @@
 //     views.  The only difference between the two detail views is
 //     whether the track intersections need to be drawn.
 //
-// $Id: FWECALDetailView.h,v 1.6 2009/07/16 19:50:56 amraktad Exp $
+// $Id: FWECALDetailView.h,v 1.7 2009/07/20 14:08:41 amraktad Exp $
 //
+#include "RTypes.h"
+
+#include "Fireworks/Core/interface/FWDetailView.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-#include "Fireworks/Core/interface/FWDetailView.h"
 
+//class TGLViewerBase;
+class TGLOverlayElement;
+class TCanvas;
 class TEveElement;
+class TEveScene;
 class TEveElementList;
 class TEveCaloDataVec;
 class TEveCaloLego;
+class TEveCaloLegoOverlay;
+
 class FWModelId;
-class TGLViewerBase;
-class TGLOverlayElement;
 
 
 template <typename T> class FWECALDetailView : public FWDetailView<T> {
 public:
    FWECALDetailView ();
    virtual ~FWECALDetailView ();
-
-   virtual  void  clearOverlayElements();
 
 protected:
    void setItem (const FWEventItem *iItem) {
@@ -43,9 +47,8 @@ protected:
    virtual math::XYZPoint trackPositionAtCalo (const T &);
    virtual double deltaEtaSuperClusterTrackAtVtx (const T &);
    virtual double deltaPhiSuperClusterTrackAtVtx (const T &);
-   void build_projected (const FWModelId &id, const T *,
-                         TEveElementList *);
-   virtual class TEveElementList *makeLabels (const T &) = 0;
+   virtual void build_projected (const FWModelId &id, const T *, TEveWindowSlot*);
+   virtual void makeLegend(const T &, TCanvas*) = 0;
 
    void fillData (const std::vector< std::pair<DetId, float> > &detids,
                   TEveCaloDataVec *data,
@@ -55,18 +58,15 @@ protected:
    void getEcalCrystalsBarrel (std::vector<DetId> *,
                                int ieta, int iphi);
 
-   std::vector<TGLOverlayElement*> m_overlays;
-
    virtual void drawCrossHair(const T*, int, TEveCaloLego*, TEveElementList*) {}
 
    virtual void addTrackPointsInCaloData(const T*, int, TEveCaloDataVec*) {}
 
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
-   Double_t m_unitCM;
-
 protected:
    // ---------- member data --------------------------------
+   Double_t   m_unitCM;
    const FWEventItem* m_item;
 
    bool  m_coordEtaPhi; // use XY coordinate if EndCap, else EtaPhi
@@ -75,6 +75,10 @@ protected:
    const EcalRecHitCollection *m_endcap_hits;
    const EcalRecHitCollection *m_endcap_reduced_hits;
    std::vector< std::pair<DetId, float> > seed_detids;
+
+   TEveScene       *m_scene;
+   TGLViewer       *m_viewer;
+   TGVerticalFrame *m_ediFrame;
 };
 
 #include "FWECALDetailView.icc"

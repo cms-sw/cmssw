@@ -1,13 +1,11 @@
-// $Id: FWECALDetailView.icc,v 1.19 2009/07/22 15:12:54 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.20 2009/07/23 13:58:37 dmytro Exp $
 
-// system include files
-#include "TLatex.h"
 #include "TAxis.h"
-#include "TGeoBBox.h"
-
 #include "TGLViewer.h"
-#include "TGLOverlayButton.h"
-
+#include "TGButton.h"
+#include "TGSlider.h"
+#include "TCanvas.h"
+#include "TRootEmbeddedCanvas.h"
 #include "TEveManager.h"
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
@@ -16,21 +14,18 @@
 #undef protected
 #include "TEveCaloLegoOverlay.h"
 #include "TEveText.h"
-#include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
+#include "TEveScene.h"
 
-// user include files
+
 #include "Fireworks/Electrons/plugins/FWECALDetailView.h"
 #include "Fireworks/Core/interface/FWDetailView.h"
-
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/Handle.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
+
+#include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -39,34 +34,24 @@
 
 template <typename T>
 FWECALDetailView<T>::FWECALDetailView () :
+
    m_unitCM(0.01),
    m_item(0),
    m_coordEtaPhi(true),
    m_barrel_hits(0),
    m_endcap_hits(0),
-   m_endcap_reduced_hits(0)
+   m_endcap_reduced_hits(0),
+
+   m_scene(0),
+   m_viewer(0),
+   m_ediFrame(0)
 {
 }
 
 template <typename T>
 FWECALDetailView<T>::~FWECALDetailView ()
 {
-
 }
-
-template <typename T>
-void  FWECALDetailView<T>::clearOverlayElements()
-{
-   TGLOverlayElement* ov;
-   for(std::vector<TGLOverlayElement* >::iterator it = m_overlays.begin();  it != m_overlays.end(); it++)
-   {
-      ov = *it;
-      TEveCaloLegoOverlay* lo = dynamic_cast<TEveCaloLegoOverlay*>(ov);
-      if (lo) FWDetailViewBase::viewer()->RemoveOverlayElement(ov);
-   }
-   m_overlays.clear();
-}
-
 
 template <typename T>
 math::XYZPoint FWECALDetailView<T>::trackPositionAtCalo (const T &)
@@ -87,8 +72,7 @@ double FWECALDetailView<T>::deltaPhiSuperClusterTrackAtVtx (const T &)
 }
 
 template <typename T>
-void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
-					   class TEveElementList *tList)
+void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEveWindowSlot* slot)
 {
    // get rechits
    const fwlite::Event *ev = m_item->getEvent();
@@ -103,6 +87,8 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
       std::cout <<"no barrel ECAL rechits are available, "
          "showing crystal location but not energy" << std::endl;
    }
+
+
    fwlite::Handle<EcalRecHitCollection> handle_endcap_hits;
    m_endcap_hits = 0;
    try {
@@ -117,12 +103,12 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
 
    assert(i->superCluster().isNonnull());
 
-   tList->AddElement(makeLabels(*i));
    std::vector< std::pair<DetId, float> > detids = i->superCluster()->hitsAndFractions();
    seed_detids = i->superCluster()->seed()-> hitsAndFractions();
    const unsigned int subdetId = seed_detids.size() != 0 ? seed_detids.begin()->first.subdetId() : 0;
    m_coordEtaPhi = (subdetId == EcalEndcap) ? kFALSE: kTRUE;
 
+   FWDetailViewBase::makePackViewer(slot, m_ediFrame, m_viewer, m_scene);
 
    // points for centroids
    Double_t x(0), y(0), z(0);
@@ -139,7 +125,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
    scposition->AddMarker(0, 0.5);
    scposition->SetMarkerSize(2);
    scposition->SetMarkerColor(kBlue);
-   tList->AddElement(scposition);
+   m_scene->AddElement(scposition);
 
    // points for seed position
    TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
@@ -155,8 +141,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
    seedposition->AddMarker(0, 0.5);
    seedposition->SetMarkerSize(2);
    seedposition->SetMarkerColor(kRed);
-   tList->AddElement(seedposition);
-
+   m_scene->AddElement(seedposition);
 
    // data
    //
@@ -208,37 +193,43 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i,
    lego->SetAutoRebin(kFALSE);
    lego->Set2DMode(TEveCaloLego::kValSize);
    lego->SetProjection(TEveCaloLego::kAuto);
-   lego->SetName("ElectronDetail Lego");
+   lego->SetName("ECALDetail Lego");
    lego->SetFontColor(kGray);
-   gEve->AddElement(lego, tList);
+   m_scene->AddElement(lego);
 
-
-   if (drawTrack()) {
-      drawCrossHair(i, subdetId, lego, tList);
-   }
+   if (drawTrack())
+      drawCrossHair(i, subdetId, lego, m_scene);
 
    // draw axis at the window corners
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   gEve->AddElement(overlay, tList);
-   FWDetailViewBase::viewer()->AddOverlayElement(overlay);
-   m_overlays.push_back(overlay);
+   m_viewer->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   FWDetailViewBase::viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   //   FWDetailViewBase::viewer()->SetGuideState(TGLUtil::kAxesNone, kTRUE, kFALSE, 0);
-   TGLViewer* fwdv =  FWDetailViewBase::viewer();
-   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)fwdv->GetGLWidget(), (TObject*)fwdv);
-   fwdv->SetEventHandler(eh);
+   m_viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer);
+   m_viewer->SetEventHandler(eh);
    eh->Rotate(0, 10000, kFALSE, kFALSE);
+
+   m_viewer->UpdateScene();
+   m_viewer->CurrentCamera().Reset();
+
+   // draw legend in latex
+   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", m_ediFrame, 100, 100, 0);
+   m_ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   m_ediFrame->MapSubwindows();
+   m_ediFrame->Layout();
+   TCanvas* textCanvas = ec->GetCanvas();
+   textCanvas->SetBorderMode(0);
+   makeLegend(*i, textCanvas);
 }
 
 //______________________________________________________________________________
 template <typename T>
 void FWECALDetailView<T>::getEcalCrystalsBarrel (std::vector<DetId> *vv,
-						 int ieta, int iphi)
+                                                 int ieta, int iphi)
 {
    std::vector<DetId> &v = *vv;
    const int n_eta = 10;
@@ -273,11 +264,10 @@ void FWECALDetailView<T>::getEcalCrystalsEndcap (std::vector<DetId> *vv,
    }
 }
 
-//______________________________________________________________________________
 template <typename T>
 void FWECALDetailView<T>::fillData (const std::vector< std::pair<DetId, float> > &detids,
-				    TEveCaloDataVec *data,
-				    double phi_seed)
+                                    TEveCaloDataVec *data,
+                                    double phi_seed)
 {
    for (std::vector< std::pair<DetId, float> >::const_iterator k = detids.begin();
         k != detids.end(); ++k) {
@@ -309,11 +299,11 @@ void FWECALDetailView<T>::fillData (const std::vector< std::pair<DetId, float> >
                  matrix->GetTranslation()[2]);
       int slice = 1;
       for (std::vector< std::pair<DetId, float> >::const_iterator i = seed_detids.begin();
-	   i != seed_detids.end(); ++i){
-	 if ( i->first == k->first) {
-	    slice = 0;
-	    break;
-	 }
+           i != seed_detids.end(); ++i){
+         if ( i->first == k->first) {
+            slice = 0;
+            break;
+         }
       }
 
 
@@ -336,7 +326,6 @@ void FWECALDetailView<T>::fillData (const std::vector< std::pair<DetId, float> >
    data->DataChanged();
 }
 
-//______________________________________________________________________________
 template <typename T>
 Bool_t FWECALDetailView<T>::checkRange(Double_t &em, Double_t& eM, Double_t &pm, Double_t& pM,
                                        Double_t eta, Double_t phi)
@@ -368,4 +357,3 @@ Bool_t FWECALDetailView<T>::checkRange(Double_t &em, Double_t& eM, Double_t &pm,
    }
    return changed;
 }
-

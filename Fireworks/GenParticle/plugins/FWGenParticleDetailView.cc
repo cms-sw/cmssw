@@ -1,8 +1,6 @@
-#include "TEveElement.h"
-#include "TEveGeoNode.h"
-#include "TEveManager.h"
-#include "TEvePointSet.h"
-#include "TEveStraightLineSet.h"
+#include "TEveScene.h"
+#include "TGLViewer.h"
+#include "TGFrame.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 
@@ -20,7 +18,7 @@ public:
    FWGenParticleDetailView();
    virtual ~FWGenParticleDetailView();
 
-   virtual TEveElement* build (const FWModelId &id, const reco::GenParticle*);
+   virtual void build (const FWModelId &id, const reco::GenParticle*, TEveWindowSlot*);
 
 protected:
    void setItem (const FWEventItem *iItem) {
@@ -38,31 +36,29 @@ private:
 
 FWGenParticleDetailView::FWGenParticleDetailView ()
 {
-
 }
 
 FWGenParticleDetailView::~FWGenParticleDetailView ()
 {
-
 }
 
-TEveElement* FWGenParticleDetailView::build (const FWModelId &id, const reco::GenParticle* iParticle)
+void FWGenParticleDetailView::build (const FWModelId &id, const reco::GenParticle* iParticle, TEveWindowSlot* slot)
 {
-   if(0==iParticle) { return 0;}
+   if(0==iParticle) { return;}
+ 
+   TEveScene* scene;
+   TGLViewer* viewer;
+   TGVerticalFrame* ediFrame;
+   makePackViewer(slot, ediFrame, viewer, scene);
+
    m_item = id.item();
    // printf("calling ElectronDetailView::buildRhoZ\n");
-   TEveElementList* tList =   new TEveElementList(m_item->name().c_str(),"Supercluster RhoZ",true);
-   tList->SetMainColor(m_item->defaultDisplayProperties().color());
-
    TEveTrackPropagator* rnrStyle = new TEveTrackPropagator();
    //units are Tesla
    rnrStyle->SetMagField( -4.0);
    //get this from geometry, units are CM
    rnrStyle->SetMaxR(120.0);
    rnrStyle->SetMaxZ(300.0);
-
-   //  Original Commented out here
-   //  TEveTrackPropagator* rnrStyle = tList->GetPropagator();
 
    int index=0;
    //cout <<"----"<<endl;
@@ -78,13 +74,11 @@ TEveElement* FWGenParticleDetailView::build (const FWModelId &id, const reco::Ge
    t.fSign = iParticle->charge();
 
    TEveElementList* genPartList = new TEveElementList(Form("genParticle%d",index));
-   gEve->AddElement(genPartList,tList);
+   scene->AddElement(genPartList);
    TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
    genPart->SetMainColor(m_item->defaultDisplayProperties().color());
    genPart->MakeTrack();
    genPartList->AddElement(genPart);
-
-   return tList;
 }
 
 REGISTER_FWDETAILVIEW(FWGenParticleDetailView);
