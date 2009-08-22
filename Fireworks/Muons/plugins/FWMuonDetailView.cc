@@ -8,11 +8,15 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMuonDetailView.cc,v 1.4 2009/04/16 20:39:57 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.5 2009/07/22 15:12:56 amraktad Exp $
 //
 
 // system include files
 #include "Rtypes.h"
+#include "TEveScene.h"
+#include "TGLViewer.h"
+#include "TGFrame.h"
+
 #include "TClass.h"
 #include "TEveGeoNode.h"
 #include "TEveStraightLineSet.h"
@@ -63,19 +67,13 @@ public:
    FWMuonDetailView();
    virtual ~FWMuonDetailView();
 
-   virtual TEveElement* build (const FWModelId &id, const reco::Muon*);
+   virtual void build(const FWModelId &id, const reco::Muon*, TEveWindowSlot*);
 
 protected:
    void setItem (const FWEventItem *iItem) {
       m_item = iItem;
    }
    void build (TEveElementList **product);
-   void getCenter( Double_t* vars )
-   {
-      vars[0] = rotation_center[0];
-      vars[1] = rotation_center[1];
-      vars[2] = rotation_center[2];
-   }
 
 private:
    FWMuonDetailView(const FWMuonDetailView&); // stop default
@@ -83,47 +81,31 @@ private:
 
    // ---------- member data --------------------------------
    const FWEventItem* m_item;
-   void resetCenter() {
-      rotation_center[0] = 0;
-      rotation_center[1] = 0;
-      rotation_center[2] = 0;
-   }
-
-   Double_t rotation_center[3];
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 FWMuonDetailView::FWMuonDetailView()
 {
-
 }
-
-// FWMuonDetailView::FWMuonDetailView(const FWMuonDetailView& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWMuonDetailView::~FWMuonDetailView()
 {
-   resetCenter();
 }
 
 //
 // member functions
 //
-TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon)
+void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEveWindowSlot* slot)
 {
-   if(0 == iMuon) { return 0;}
+   if(0 == iMuon) { return; }
+
+   TEveScene* scene;
+   TGLViewer* viewer;
+   TGVerticalFrame* ediFrame;
+   FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+
    m_item = id.item();
 
    /* Here we have the code imported from the Electron variant
@@ -141,11 +123,7 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
     */
 
    // printf("calling MuonsProxyPUBuilder::buildRhoZ\n");
-   TEveElementList* tList =   new TEveElementList(m_item->name().c_str(),"trackerMuons",true);
-   tList->SetMainColor(m_item->defaultDisplayProperties().color());
-   gEve->AddElement(tList);
    // get muons, instead of electrons
-   resetCenter();
    // Original code from the electrons
    //  using reco::GsfElectronCollection;
    //  const GsfElectronCollection *electrons = 0;
@@ -211,10 +189,10 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
 
    // And leaving the old shite here
    /*  TEveTrackPropagator *propagator = new TEveTrackPropagator();
-      propagator->SetMagField( -4.0);
-      propagator->SetMaxR( 180 );
-      propagator->SetMaxZ( 430 );
-    */
+       propagator->SetMagField( -4.0);
+       propagator->SetMaxR( 180 );
+       propagator->SetMaxZ( 430 );
+   */
    int index=0;
    TEveRecTrack innerRecTrack;
    TEveRecTrack outerRecTrack;
@@ -231,7 +209,7 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
       //in order to keep muonList having the same number of elements as 'muons' we will always
       // create a list even if it will get no children
       TEveElementList* muonList = new TEveElementList(s.str().c_str());
-      gEve->AddElement( muonList, tList );
+      gEve->AddElement( muonList, scene );
 
       // These are the for the Eve side of things
 
@@ -256,7 +234,7 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
 
       innerTrack->SetMainColor( m_item->defaultDisplayProperties().color() );
       // For this display, we want to see only the "muons" that make it to the chambers
-      if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) < 2 ) return 0;
+      if ( muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration) < 2 ) return;
       innerTrack->MakeTrack();
       muonList->AddElement(innerTrack);
 
@@ -272,15 +250,15 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
 
       Int_t nEtaEcal = 3;
       Int_t nPhiEcal = 3;
-      // Int_t nEtaHcal = 2;
       // Int_t nPhiHcal = 2;
 
       // This is the original from the ElectronsProxySCBuilder.  Mine will be based on
       // the trackref.
 
-      tList->AddElement(fw::getEcalCrystals(ehits, *m_item->getGeom(),
+      TEveElement* el = fw::getEcalCrystals(ehits, *m_item->getGeom(),
                                             (*muon).eta(), (*muon).phi(),
-                                            nEtaEcal, nPhiEcal));
+                                            nEtaEcal, nPhiEcal);
+      if (el) scene->AddElement(el);
 
 
       /* Now this is what I WAS going to do for the HCAL, but I think a better idea is to
@@ -294,7 +272,7 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
 
          Well then, we have muon eta phi and we can go ahead and grab the towers near that.
 
-       */
+      */
 
       // Big ol' print block to see what's available to us
       std::cout << "Printing Muon related quantities" << std::endl;
@@ -306,13 +284,6 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
       std::cout << "Energy in the hcal: " << (*muon).calEnergy().had << std::endl;
       std::cout << "Energy in the outer hcal: " << (*muon).calEnergy().ho << std::endl;
 
-      /* This isn't quite ready yet.  According to Dima, there's a better way to do things that
-         might necessitate a thorough rewrite of both this, and what is called here:
-
-         tList->AddElement(fw::getHcalTowers(hhits, *m_item->getGeom(),
-         (*muon).eta(), (*muon).phi(),
-         nEtaHcal, nPhiHcal));
-       */
       TEveTrack* outerTrack = 0;
 
       // second track only for barrel for now
@@ -400,9 +371,9 @@ TEveElement* FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMu
       if (outerTrack) outerTrack->MakeTrack();
    }
 
-   FWDetailViewBase::viewer()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   // viewer()->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
-   return tList;
+   viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   viewer->UpdateScene();
+   viewer->CurrentCamera().Reset();
 }
 
 REGISTER_FWDETAILVIEW(FWMuonDetailView);
