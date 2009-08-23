@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/08/13 18:12:39 $
- * $Revision: 1.37 $
+ * $Date: 2009/08/21 15:45:38 $
+ * $Revision: 1.38 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -71,14 +71,14 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
   EBLowInterestPayload_ = 0;
   EBHighInterestZsFIR_ = 0;
   EBLowInterestZsFIR_ = 0;
-  
+
   // initialize variable binning for DCC size...
   float ZSthreshold = 0.608; // kBytes of 1 TT fully readout
   float zeroBinSize = ZSthreshold / 20.;
   for(int i=0; i<20; i++) ybins[i] = i*zeroBinSize;
   for(int i=20; i<89; i++) ybins[i] = ZSthreshold * (i-19);
   for(int i=0; i<=36; i++) xbins[i] = i+1;
-  
+
 }
 
 EBSelectiveReadoutTask::~EBSelectiveReadoutTask() {
@@ -112,19 +112,19 @@ void EBSelectiveReadoutTask::setup(void) {
     EBTowerSize_ = dqmStore_->bookProfile2D(histo, histo, 72, 0, 72, 34, -17, 17, 100, 0, 200, "s");
     EBTowerSize_->setAxisTitle("jphi", 1);
     EBTowerSize_->setAxisTitle("jeta", 2);
- 
+
     sprintf(histo, "EBSRT TT flag mismatch");
     EBTTFMismatch_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBTTFMismatch_->setAxisTitle("jphi", 1);
     EBTTFMismatch_->setAxisTitle("jeta", 2);
-    
+
     sprintf(histo, "EBSRT DCC event size");
     EBDccEventSize_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 200., "s");
     EBDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
       EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     sprintf(histo, "EBSRT event size vs DCC");
     EBDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 36, xbins, 88, ybins);
     EBDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
@@ -193,7 +193,7 @@ void EBSelectiveReadoutTask::cleanup(void){
 
     if ( EBTTFMismatch_ ) dqmStore_->removeElement( EBTTFMismatch_->getName() );
     EBTTFMismatch_ = 0;
-    
+
     if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getName() );
     EBDccEventSize_ = 0;
 
@@ -267,7 +267,7 @@ void EBSelectiveReadoutTask::reset(void) {
   if ( EBTowerSize_ ) EBTowerSize_->Reset();
 
   if ( EBTTFMismatch_ ) EBTTFMismatch_->Reset();
-  
+
   if ( EBDccEventSize_ ) EBDccEventSize_->Reset();
 
   if ( EBDccEventSizeMap_ ) EBDccEventSizeMap_->Reset();
@@ -305,13 +305,13 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       EBDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(610+iDcc).size())/kByte );
       EBDccEventSizeMap_->Fill(iDcc+1, ((double)raw->FEDData(610+iDcc).size())/kByte);
-      
+
     }
 
   } else {
     LogWarning("EBSelectiveReadoutTask") << FEDRawDataCollection_ << " not available";
   }
-  
+
   // Selective Readout Flags
   Handle<EBSrFlagCollection> ebSrFlags;
   if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) {
@@ -333,7 +333,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       nEvtAnyReadout[iptindex][ietindex]++;
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
-      
+
       if(flag == EcalSrFlag::SRF_FULL) nEvtFullReadout[iptindex][ietindex]++;
 
       if(it->value() & EcalSrFlag::SRF_FORCED_MASK) nEvtRUForced[iptindex][ietindex]++;
@@ -347,14 +347,14 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     for(int iptindex = 0; iptindex < 72; iptindex++ ) {
       if(nEvtAnyReadout[iptindex][ietindex]) {
 
-        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5; 
+        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
         float xipt = iptindex + 0.5;
-        
+
         float fraction = float(nEvtFullReadout[iptindex][ietindex]) / float(nEvtAnyReadout[iptindex][ietindex]);
         float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
-        
+
         TH2F *h2d = EBFullReadoutSRFlagMap_->getTH2F();
-        
+
         int binet=0, binpt=0;
 
         if ( h2d ) {
@@ -368,9 +368,9 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         fraction = float(nEvtRUForced[iptindex][ietindex]) / float(nEvtAnyReadout[iptindex][ietindex]);
         error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
-        
+
         h2d = EBReadoutUnitForcedBitMap_->getTH2F();
-        
+
         if ( h2d ) {
           binpt = h2d->GetXaxis()->FindBin(xipt);
           binet = h2d->GetYaxis()->FindBin(xiet);
@@ -378,7 +378,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         EBReadoutUnitForcedBitMap_->setBinContent(binpt, binet, fraction);
         EBReadoutUnitForcedBitMap_->setBinError(binpt, binet, error);
-        
+
       }
     }
   }
@@ -415,10 +415,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     //event size by tower:
     for(int ietindex = 0; ietindex < 34; ietindex++ ) {
       for(int iptindex = 0; iptindex < 72; iptindex++ ) {
-        
+
         float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
         float xipt = iptindex + 0.5;
-        
+
         double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
         EBTowerSize_->Fill(xipt, xiet, towerSize);
 
@@ -457,11 +457,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xipt = iptindex + 0.5;
 
 //       if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
-//            && nCryTower[iptindex][ietindex] != (int)crystals.size() ) EBTTFMismatch_->Fill(xipt, xiet); 
+//            && nCryTower[iptindex][ietindex] != (int)crystals.size() ) EBTTFMismatch_->Fill(xipt, xiet);
 
       if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
-           && nCryTower[iptindex][ietindex] != 25 ) EBTTFMismatch_->Fill(xipt, xiet); 
-      
+           && nCryTower[iptindex][ietindex] != 25 ) EBTTFMismatch_->Fill(xipt, xiet);
+
     }
   } else {
     LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
@@ -471,14 +471,14 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     for(int iptindex = 0; iptindex < 72; iptindex++ ) {
       if(nEvtAnyInterest[iptindex][ietindex]) {
 
-        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5; 
+        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
         float xipt = iptindex + 0.5;
-        
+
         float fraction = float(nEvtHighInterest[iptindex][ietindex]) / float(nEvtAnyInterest[iptindex][ietindex]);
         float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[iptindex][ietindex]));
-        
+
         TH2F *h2d = EBHighInterestTriggerTowerFlagMap_->getTH2F();
-        
+
         int binet=0, binpt=0;
 
         if ( h2d ) {
@@ -492,9 +492,9 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         fraction = float(nEvtLowInterest[iptindex][ietindex]) / float(nEvtAnyInterest[iptindex][ietindex]);
         error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[iptindex][ietindex]));
-        
+
         h2d = EBLowInterestTriggerTowerFlagMap_->getTH2F();
-        
+
         if ( h2d ) {
           binpt = h2d->GetXaxis()->FindBin(xipt);
           binet = h2d->GetYaxis()->FindBin(xiet);
@@ -502,7 +502,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
         EBLowInterestTriggerTowerFlagMap_->setBinContent(binpt, binet, fraction);
         EBLowInterestTriggerTowerFlagMap_->setBinError(binpt, binet, error);
-        
+
       }
     }
   }
@@ -521,14 +521,14 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
 
     int ieta = id.ieta();
     int iphi = id.iphi();
-    
+
     int iEta0 = iEta2cIndex(ieta);
     int iPhi0 = iPhi2cIndex(iphi);
     if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
       ++nRuPerDcc_[dccNum(id)-1];
       ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
     }
-    
+
     EcalTrigTowerDetId towid = id.tower();
     int iet = towid.ieta();
     int ietindex = (iet>0) ? iet - 1 : 16 + abs(iet);
@@ -644,11 +644,11 @@ EBSelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
   const int nFIRTaps = 6;
   //FIR filter weights:
   const vector<int>& w = firWeights;
-  
+
   //accumulator used to compute weighted sum of samples
   int acc = 0;
   bool gain12saturated = false;
-  const int gain12 = 0x01; 
+  const int gain12 = 0x01;
   const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
   //LogDebug("DccFir") << "DCC FIR operation: ";
   int iWeight = 0;
@@ -667,7 +667,7 @@ EBSelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
     }
   }
   LogTrace("DccFir") << "\n";
-  //discards the 8 LSBs 
+  //discards the 8 LSBs
   //(shift operator cannot be used on negative numbers because
   // the result depends on compilator implementation)
   acc = (acc>=0)?(acc >> 8):-(-acc >> 8);
@@ -681,7 +681,7 @@ EBSelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
   if(saturated){
     *saturated = gain12saturated;
   }
-  
+
   return gain12saturated?numeric_limits<int>::max():acc;
 }
 
@@ -691,7 +691,7 @@ EBSelectiveReadoutTask::getFIRWeights(const std::vector<double>&
   const int nFIRTaps = 6;
   vector<int> firWeights(nFIRTaps, 0); //default weight: 0;
   const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
-  for(unsigned i=0; i < min((size_t)nFIRTaps,normalizedWeights.size()); ++i){ 
+  for(unsigned i=0; i < min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
     firWeights[i] = lround(normalizedWeights[i] * (1<<10));
     if(abs(firWeights[i])>maxWeight){//overflow
       firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
@@ -726,10 +726,10 @@ EBSelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
   }
 
   log << "Input weights for FIR: ";
-  for(unsigned i = 0; i < weightsForZsFIR.size(); ++i){ 
+  for(unsigned i = 0; i < weightsForZsFIR.size(); ++i){
     log << weightsForZsFIR[i] << "\t";
   }
-  
+
   double s2 = 0.;
   log << "\nActual FIR weights: ";
   for(unsigned i = 0; i < firWeights_.size(); ++i){
@@ -742,7 +742,7 @@ EBSelectiveReadoutTask::configFirWeights(vector<double> weightsForZsFIR){
   for(unsigned i = 0; i < firWeights_.size(); ++i){
     log << firWeights_[i] / (double)(1<<10) << "\t";
   }
-  
+
   log <<"\nFirst FIR sample: " << firstFIRSample_;
 }
 

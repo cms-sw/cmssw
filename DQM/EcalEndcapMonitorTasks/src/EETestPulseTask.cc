@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2009/05/22 08:39:21 $
- * $Revision: 1.51 $
+ * $Date: 2009/08/02 15:46:41 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -371,7 +371,7 @@ void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
       int iy = id.iy();
 
       int ism = Numbers::iSM( id );
- 
+
       if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
                runType[ism-1] == EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 

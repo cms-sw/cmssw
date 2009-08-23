@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2009/05/22 08:39:20 $
- * $Revision: 1.110 $
+ * $Date: 2009/08/10 15:49:11 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  *
 */
@@ -252,10 +252,10 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hitItr->energy();
       if ( xval <= 0. ) xval = 0.0;
-      
+
       LogDebug("EBCosmicTask") << " hit energy " << xval;
 
-      // look for the seeds 
+      // look for the seeds
       float e3x3 = 0.;
       bool isSeed = true;
 

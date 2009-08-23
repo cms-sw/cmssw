@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/08/13 18:12:43 $
- * $Revision: 1.50 $
+ * $Date: 2009/08/21 12:30:22 $
+ * $Revision: 1.51 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -400,26 +400,26 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     }
 
     vector<DetId> crystals = Numbers::crystals( tpdigiItr->id() );
-    
+
     int crystalsInTower = crystals.size();
-    
+
     for ( unsigned int i=0; i<crystals.size(); i++ ) {
-        
+
       EEDetId id = crystals[i];
-        
+
       int ix = id.ix();
       int iy = id.iy();
 
       if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
-      
+
       float xix = ix-0.5;
       float xiy = iy-0.5;
-      
+
       if ( meEtMap[ismt-1] ) meEtMap[ismt-1]->Fill(xix, xiy, xvalEt);
 
       if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xix, xiy, xvalVeto);
 
-      if ( validCompDigis ) { 
+      if ( validCompDigis ) {
 
         if(!good ) {
           if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
@@ -427,7 +427,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         if(!goodVeto) {
           if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
         }
-        
+
         if(readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
           for(int j=0; j<6; j++) {
             if(matchSample[j]) meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
@@ -436,8 +436,8 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       }
 
-    } // loop over crustalsInTower
+    } // loop over crystalsInTower
   } // loop over TPs
-  
+
 }
 

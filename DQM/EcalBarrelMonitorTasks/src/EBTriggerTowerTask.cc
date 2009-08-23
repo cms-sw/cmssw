@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/08/13 18:12:39 $
- * $Revision: 1.84 $
+ * $Date: 2009/08/21 12:29:42 $
+ * $Revision: 1.85 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -51,7 +51,7 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   reserveArray(meEmulError_);
   reserveArray(meEmulMatch_);
   reserveArray(meVetoEmulError_);
-  
+
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
   EBDigiCollection_ = ps.getParameter<InputTag>("EBDigiCollection");
@@ -98,7 +98,7 @@ void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
 }
 
 void EBTriggerTowerTask::reset(void) {
-  
+
   if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Reset();
   if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Reset();
   if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Reset();
@@ -170,7 +170,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
     (*meEtMap)[i]->setAxisTitle("ieta'", 1);
     (*meEtMap)[i]->setAxisTitle("iphi'", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
-    
+
     if(!emulated) {
 
       sprintf(histo, "EBTTT EmulError %s", Numbers::sEB(i+1).c_str());
@@ -381,7 +381,6 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       if(!goodVeto) {
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt);
       }
-    } else { 
     }
 
   }

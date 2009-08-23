@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2009/05/22 08:39:21 $
- * $Revision: 1.48 $
+ * $Date: 2009/08/10 15:49:44 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -216,7 +216,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
     if ( ! e.getByLabel(EcalUncalibratedRecHitCollection_, uhits) ) {
       LogWarning("EECosmicTask") << EcalUncalibratedRecHitCollection_ << " not available";
     }
-    
+
     for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
       EEDetId id = hitItr->id();
@@ -255,7 +255,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       LogDebug("EECosmicTask") << " hit energy " << xval;
 
-      // look for the seeds 
+      // look for the seeds
       float e3x3 = 0.;
       bool isSeed = true;
 

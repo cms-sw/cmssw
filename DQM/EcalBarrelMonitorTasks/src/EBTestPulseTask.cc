@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2009/05/22 08:39:20 $
- * $Revision: 1.108 $
+ * $Date: 2009/08/02 15:46:38 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -192,7 +192,7 @@ void EBTestPulseTask::setup(void){
         meAmplMapG12_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meAmplMapG12_[i], i+1);
       }
-    
+
     }
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN");

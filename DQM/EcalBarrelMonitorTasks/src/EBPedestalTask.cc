@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2009/07/27 10:34:47 $
- * $Revision: 1.94 $
+ * $Date: 2009/08/02 15:46:38 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  *
 */
@@ -49,7 +49,7 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
-  
+
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
   MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
@@ -143,7 +143,7 @@ void EBPedestalTask::setup(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
-      
+
       dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain01");
       for (int i = 0; i < 36; i++) {
         sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
@@ -359,7 +359,7 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       runType[ism-1] = dcchItr->getRunType();
 
-      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD || 
+      if ( dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
            dcchItr->getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
 
     }

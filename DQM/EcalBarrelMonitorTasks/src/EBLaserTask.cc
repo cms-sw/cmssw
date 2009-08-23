@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2009/08/03 23:44:19 $
- * $Revision: 1.124 $
+ * $Date: 2009/08/04 10:30:15 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  *
 */
@@ -154,7 +154,7 @@ void EBLaserTask::reset(void) {
       if ( meAmplPNMapL4_[i] ) meAmplPNMapL4_[i]->Reset();
     }
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {   
+    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( mePnAmplMapG01L1_[i] ) mePnAmplMapG01L1_[i]->Reset();
       if ( mePnPedMapG01L1_[i] ) mePnPedMapG01L1_[i]->Reset();
 
@@ -173,7 +173,7 @@ void EBLaserTask::reset(void) {
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
       if ( mePnAmplMapG01L3_[i] ) mePnAmplMapG01L3_[i]->Reset();
       if ( mePnPedMapG01L3_[i] ) mePnPedMapG01L3_[i]->Reset();
-      
+
       if ( mePnAmplMapG16L3_[i] ) mePnAmplMapG16L3_[i]->Reset();
       if ( mePnPedMapG16L3_[i] ) mePnPedMapG16L3_[i]->Reset();
     }
@@ -181,7 +181,7 @@ void EBLaserTask::reset(void) {
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
       if ( mePnAmplMapG01L4_[i] ) mePnAmplMapG01L4_[i]->Reset();
       if ( mePnPedMapG01L4_[i] ) mePnPedMapG01L4_[i]->Reset();
-      
+
       if ( mePnAmplMapG16L4_[i] ) mePnAmplMapG16L4_[i]->Reset();
       if ( mePnPedMapG16L4_[i] ) mePnPedMapG16L4_[i]->Reset();
     }
@@ -317,7 +317,7 @@ void EBLaserTask::setup(void){
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
       dqmStore_->setCurrentFolder(prefixME_ + "/EBLaserTask/Laser1/PN");
-      
+
       dqmStore_->setCurrentFolder(prefixME_ + "/EBLaserTask/Laser1/PN/Gain01");
       for (int i = 0; i < 36; i++) {
         sprintf(histo, "EBLT PNs amplitude %s G01 L1", Numbers::sEB(i+1).c_str());

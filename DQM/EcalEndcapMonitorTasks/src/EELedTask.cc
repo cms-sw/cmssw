@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2009/08/03 23:44:23 $
- * $Revision: 1.49 $
+ * $Date: 2009/08/04 10:30:17 $
+ * $Revision: 1.50 $
  * \author G. Della Ricca
  *
 */
@@ -128,7 +128,7 @@ void EELedTask::endRun(const Run& r, const EventSetup& c) {
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( mePnAmplMapG01L2_[i] ) mePnAmplMapG01L2_[i]->Reset();
       if ( mePnPedMapG01L2_[i] ) mePnPedMapG01L2_[i]->Reset();
-      
+
       if ( mePnAmplMapG16L2_[i] ) mePnAmplMapG16L2_[i]->Reset();
       if ( mePnPedMapG16L2_[i] ) mePnPedMapG16L2_[i]->Reset();
     }
@@ -235,7 +235,7 @@ void EELedTask::setup(void){
         sprintf(histo, "EELDT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
       }
 
@@ -269,7 +269,7 @@ void EELedTask::setup(void){
         sprintf(histo, "EELDT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
       }
 
