@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2009/08/20 17:20:24 $
- * $Revision: 1.86 $
+ * $Date: 2009/08/21 02:13:06 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -255,8 +255,11 @@ void EETriggerTowerClient::analyze(void) {
             total += sampleEntries;
           }
           if ( max > 0 ) {
-            if ( index == 0 ) me_o01_[ism-1]->setBinContent(ix, iy, -1);
-            else me_o01_[ism-1]->setBinContent(ix, iy, index );
+            if ( index == 0 ) {
+              me_o01_[ism-1]->setBinContent(ix, iy, -1);
+            } else {
+              me_o01_[ism-1]->setBinContent(ix, iy, index );
+            }
           }
           double fraction = (total > 0) ? 1.0 - max/total : 0.;
           if ( me_o02_[ism-1] ) me_o02_[ism-1]->setBinContent(ix, iy, fraction);

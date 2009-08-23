@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2009/02/27 13:54:06 $
- * $Revision: 1.116 $
+ * $Date: 2009/08/13 18:12:38 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -252,8 +252,11 @@ void EBTriggerTowerClient::analyze(void) {
             total += sampleEntries;
           }
           if ( max > 0 ) {
-            if ( index == 0 ) me_o01_[ism-1]->setBinContent(ie, ip, -1);
-            else me_o01_[ism-1]->setBinContent(ie, ip, index );
+            if ( index == 0 ) {
+              me_o01_[ism-1]->setBinContent(ie, ip, -1);
+            } else {
+              me_o01_[ism-1]->setBinContent(ie, ip, index );
+            }
           }
           double fraction = (total > 0) ? 1.0 - max/total : 0.;
           if ( me_o02_[ism-1] ) me_o02_[ism-1]->setBinContent(ie, ip, fraction);
