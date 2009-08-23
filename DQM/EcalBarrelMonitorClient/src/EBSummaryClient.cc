@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/21 02:10:36 $
- * $Revision: 1.189 $
+ * $Date: 2009/08/23 20:07:16 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  *
 */
@@ -1461,7 +1461,7 @@ void EBSummaryClient::analyze(void) {
             }
             
             float xval = 6;
-            if( mean01 <= 0 ) {
+            if( mean01 <= 0. ) {
               xval = 2;
             } else {
 
