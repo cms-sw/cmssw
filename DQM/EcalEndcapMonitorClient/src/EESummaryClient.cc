@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/23 20:39:35 $
- * $Revision: 1.179 $
+ * $Date: 2009/08/23 20:44:31 $
+ * $Revision: 1.180 $
  * \author G. Della Ricca
  *
 */
@@ -1071,12 +1071,14 @@ void EESummaryClient::setup(void) {
   meTriggerTowerTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerTiming_[0]->setAxisTitle("jx", 1);
   meTriggerTowerTiming_[0]->setAxisTitle("jy", 2);
+  meTriggerTowerTiming_[0]->setAxisTitle("TP data matching emulator", 3);
 
   if( meTriggerTowerTiming_[1] ) dqmStore_->removeElement( meTriggerTowerTiming_[1]->getName() );
   sprintf(histo, "EETTT EE + Trigger Primitives Timing summary");
   meTriggerTowerTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
   meTriggerTowerTiming_[1]->setAxisTitle("jx", 1);
   meTriggerTowerTiming_[1]->setAxisTitle("jy", 2);
+  meTriggerTowerTiming_[1]->setAxisTitle("TP data matching emulator", 3);
 
   if( meTriggerTowerNonSingleTiming_[0] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[0]->getName() );
   sprintf(histo, "EETTT EE - Trigger Primitives Non Single Timing summary");
