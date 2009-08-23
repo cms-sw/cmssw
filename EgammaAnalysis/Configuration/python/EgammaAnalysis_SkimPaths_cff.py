@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 #Egamma skims
-from EgammaAnalysis.CSA07Skims.EgammaLooseZPath_cff import *
 from EgammaAnalysis.CSA07Skims.EgammaVeryHighEtPath_cff import *
 from EgammaAnalysis.CSA07Skims.EgammaZPlusEMOrJetPath_cff import *
 from EgammaAnalysis.CSA07Skims.EgammaWPlusEMOrJetPath_cff import *
