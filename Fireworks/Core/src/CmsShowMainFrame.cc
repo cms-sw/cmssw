@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.58 2009/08/13 19:11:15 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.59 2009/08/14 15:39:56 chrjones Exp $
 //
 // hacks
 #define private public
@@ -468,7 +468,7 @@ void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
    if (event.id().event() != static_cast<unsigned int>(m_eventEntry->GetIntNumber()))
       m_eventEntry->SetIntNumber(event.id().event());
 
-   m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
+   m_timeText->SetText( fw::getLocalTime( event ).c_str() );
    char title[128];
    snprintf(title,128,"Lumi block id: %d", event.aux_.luminosityBlock());
    m_lumiBlock->SetText( title );

@@ -194,3 +194,18 @@ fw::getTimeGMT( const fwlite::Event& event )
    text += " GMT";
    return text;
 }
+
+std::string
+fw::getLocalTime( const fwlite::Event& event )
+{
+   time_t t(event.time().value() >> 32);
+   std::string text( asctime( localtime(&t) ) );
+   size_t pos = text.find('\n');
+   if ( pos != std::string::npos ) text = text.substr(0,pos);
+   text += " ";
+   if ( daylight )
+     text += tzname[1];
+   else
+     text += tzname[0];
+   return text;
+}
