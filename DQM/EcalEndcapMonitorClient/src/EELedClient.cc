@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/08/21 11:52:29 $
- * $Revision: 1.97 $
+ * $Date: 2009/08/23 08:40:01 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -144,7 +144,7 @@ EELedClient::EELedClient(const ParameterSet& ps) {
   }
 
   percentVariation_ = 999.; // not used nor not normalized VPTs
-  
+
   amplitudeThreshold_ = 100.;
 
   amplitudeThresholdPnG01_ = 50.;

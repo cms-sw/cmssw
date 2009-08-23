@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/23 20:07:16 $
- * $Revision: 1.190 $
+ * $Date: 2009/08/23 20:31:34 $
+ * $Revision: 1.191 $
  * \author G. Della Ricca
  *
 */
@@ -151,7 +151,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
 
     hpot01_[ism-1] = 0;
     httt01_[ism-1] = 0;
-    
+
   }
 
 }
@@ -338,7 +338,7 @@ void EBSummaryClient::setup(void) {
     meLaserL1_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
     meLaserL1_->setAxisTitle("jphi", 1);
     meLaserL1_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
     sprintf(histo, "EBLT laser quality errors summary L1");
     meLaserL1Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -351,21 +351,21 @@ void EBSummaryClient::setup(void) {
     meLaserL1PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
     meLaserL1PN_->setAxisTitle("jphi", 1);
     meLaserL1PN_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L1");
     meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
     sprintf(histo, "EBLT laser L1 amplitude summary");
     meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
     sprintf(histo, "EBLT laser L1 timing summary");
     meLaserL1Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
@@ -389,7 +389,7 @@ void EBSummaryClient::setup(void) {
     meLaserL2_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
     meLaserL2_->setAxisTitle("jphi", 1);
     meLaserL2_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
     sprintf(histo, "EBLT laser quality errors summary L2");
     meLaserL2Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -402,21 +402,21 @@ void EBSummaryClient::setup(void) {
     meLaserL2PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
     meLaserL2PN_->setAxisTitle("jphi", 1);
     meLaserL2PN_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L2");
     meLaserL2PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meLaserL2PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
     sprintf(histo, "EBLT laser L2 amplitude summary");
     meLaserL2Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
     sprintf(histo, "EBLT laser L2 timing summary");
     meLaserL2Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
@@ -440,7 +440,7 @@ void EBSummaryClient::setup(void) {
     meLaserL3_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
     meLaserL3_->setAxisTitle("jphi", 1);
     meLaserL3_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
     sprintf(histo, "EBLT laser quality errors summary L3");
     meLaserL3Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -453,21 +453,21 @@ void EBSummaryClient::setup(void) {
     meLaserL3PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
     meLaserL3PN_->setAxisTitle("jphi", 1);
     meLaserL3PN_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L3");
     meLaserL3PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meLaserL3PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
     sprintf(histo, "EBLT laser L3 amplitude summary");
     meLaserL3Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
     sprintf(histo, "EBLT laser L3 timing summary");
     meLaserL3Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
@@ -491,7 +491,7 @@ void EBSummaryClient::setup(void) {
     meLaserL4_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
     meLaserL4_->setAxisTitle("jphi", 1);
     meLaserL4_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
     sprintf(histo, "EBLT laser quality errors summary L4");
     meLaserL4Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
@@ -504,21 +504,21 @@ void EBSummaryClient::setup(void) {
     meLaserL4PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
     meLaserL4PN_->setAxisTitle("jphi", 1);
     meLaserL4PN_->setAxisTitle("jeta", 2);
-    
+
     if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L4");
     meLaserL4PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meLaserL4PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
     sprintf(histo, "EBLT laser L4 amplitude summary");
     meLaserL4Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-    
+
     if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
     sprintf(histo, "EBLT laser L4 timing summary");
     meLaserL4Timing_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10., "s");
@@ -724,12 +724,12 @@ void EBSummaryClient::cleanup(void) {
 
     if ( cloneME_ ) {
       if ( hpot01_[ism-1] ) delete hpot01_[ism-1];
-      if ( httt01_[ism-1] ) delete httt01_[ism-1]; 
+      if ( httt01_[ism-1] ) delete httt01_[ism-1];
     }
 
     hpot01_[ism-1] = 0;
     httt01_[ism-1] = 0;
-    
+
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
@@ -1074,7 +1074,7 @@ void EBSummaryClient::analyze(void) {
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
-      
+
       char histo[200];
 
       sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
@@ -1137,14 +1137,14 @@ void EBSummaryClient::analyze(void) {
           }
 
           if ( ebpoc ) {
-            
+
             me = ebpoc->meg03_[ism-1];
 
             if ( me ) {
 
               int iex;
               int ipx;
-              
+
               if ( ism <= 18 ) {
                 iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
@@ -1152,7 +1152,7 @@ void EBSummaryClient::analyze(void) {
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
-            
+
               float xval = me->getBinContent( ie, ip );
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
@@ -1166,10 +1166,10 @@ void EBSummaryClient::analyze(void) {
           bool update01 = UtilsClient::getBinStatistics(hpot01_[ism-1], ie, ip, num01, mean01, rms01);
 
           if ( update01 ) {
-            
+
             int iex;
             int ipx;
-            
+
             if ( ism <= 18 ) {
               iex = 1+(85-ie);
               ipx = ip+20*(ism-1);
@@ -1177,20 +1177,20 @@ void EBSummaryClient::analyze(void) {
               iex = 85+ie;
               ipx = 1+(20-ip)+20*(ism-19);
             }
-            
+
             mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
-            
+
             mePedestalOnlineRMS_->Fill( ism, rms01 );
-            
+
             mePedestalOnlineMean_->Fill( ism, mean01 );
-            
+
           }
-          
+
           if ( eblc ) {
 
             int iex;
             int ipx;
-            
+
             if ( ism <= 18 ) {
               iex = 1+(85-ie);
               ipx = ip+20*(ism-1);
@@ -1198,71 +1198,71 @@ void EBSummaryClient::analyze(void) {
               iex = 85+ie;
               ipx = 1+(20-ip)+20*(ism-19);
             }
-            
+
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg01_[ism-1];
-            
+
               if ( me ) {
-              
+
                 float xval = me->getBinContent( ie, ip );
-                
+
                 if ( me->getEntries() != 0 ) {
                   meLaserL1_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL1Err_->Fill( ism );
                 }
-                
+
               }
-              
+
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg02_[ism-1];
-            
+
               if ( me ) {
 
                 float xval = me->getBinContent( ie, ip );
-              
+
                 if ( me->getEntries() != 0 ) {
                   meLaserL2_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL2Err_->Fill( ism );
                 }
-              
+
               }
 
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg03_[ism-1];
-            
+
               if ( me ) {
 
                 float xval = me->getBinContent( ie, ip );
-              
+
                 if ( me->getEntries() != 0 ) {
                   meLaserL3_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL3Err_->Fill( ism );
                 }
-              
+
               }
 
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg04_[ism-1];
-            
+
               if ( me ) {
 
                 float xval = me->getBinContent( ie, ip );
-                
+
                 if ( me->getEntries() != 0 ) {
                   meLaserL4_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL4Err_->Fill( ism );
                 }
-              
+
               }
 
             }
@@ -1277,7 +1277,7 @@ void EBSummaryClient::analyze(void) {
 
             int iex;
             int ipx;
-            
+
             if ( ism <= 18 ) {
               iex = 1+(85-ie);
               ipx = ip+20*(ism-1);
@@ -1309,7 +1309,7 @@ void EBSummaryClient::analyze(void) {
 
             int iex;
             int ipx;
-            
+
             if ( ism <= 18 ) {
               iex = 1+(85-ie);
               ipx = ip+20*(ism-1);
@@ -1401,7 +1401,7 @@ void EBSummaryClient::analyze(void) {
 
           int iex;
           int ipx;
-          
+
           if ( ism <= 18 ) {
             iex = 1+(17-ie);
             ipx = ip+4*(ism-1);
@@ -1432,21 +1432,26 @@ void EBSummaryClient::analyze(void) {
           if ( ebtttc ) {
 
             float mean01 = 0;
-            
-            if ( httt01_[ism-1] ) { 
-              
+
+            if ( httt01_[ism-1] ) {
+
               mean01 = httt01_[ism-1]->GetBinContent( ie, ip );
-              
-              if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
+
+              if ( mean01 > 0. ) {
+                if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
+              }
+
             }
-              
+
             me = ebtttc->me_o01_[ism-1];
 
             if ( me ) {
 
               float xval = me->getBinContent( ie, ip );
 
-              meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
+              if ( xval > 0. ) {
+                meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
+              }
 
             }
 
@@ -1456,10 +1461,12 @@ void EBSummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ie, ip );
 
-              meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, xval );
+              if ( xval > 0. ) {
+                meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, xval );
+              }
 
             }
-            
+
             float xval = 6;
             if( mean01 <= 0. ) {
               xval = 2;
@@ -1491,7 +1498,7 @@ void EBSummaryClient::analyze(void) {
 
           int iex;
           int ipx;
-          
+
           if(ism<=18) {
             iex = i;
             ipx = j+5*(ism-1);
@@ -1499,7 +1506,7 @@ void EBSummaryClient::analyze(void) {
             iex = i+10;
             ipx = j+5*(ism-19);
           }
-          
+
           if ( ebic ) {
 
             me_04 = ebic->meg02_[ism-1];
@@ -1513,7 +1520,7 @@ void EBSummaryClient::analyze(void) {
             }
 
             if ( h2 ) {
-              
+
               float xval = h2->GetBinContent(i,1);
               meOccupancyPN_->setBinContent( ipx, iex, xval );
 
@@ -1556,14 +1563,13 @@ void EBSummaryClient::analyze(void) {
           if ( eblc ) {
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg09_[ism-1];
-              
+
               if( me ) {
-                
+
                 float xval = me->getBinContent(i,1);
-                
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLaserL1PN_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
@@ -1574,13 +1580,13 @@ void EBSummaryClient::analyze(void) {
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg10_[ism-1];
-              
+
               if( me ) {
-                
+
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLaserL2PN_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL2PNErr_->Fill( ism );
@@ -1591,13 +1597,13 @@ void EBSummaryClient::analyze(void) {
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg11_[ism-1];
-              
+
               if( me ) {
-                
+
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLaserL3PN_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL3PNErr_->Fill( ism );
@@ -1608,13 +1614,13 @@ void EBSummaryClient::analyze(void) {
             }
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-              
+
               me = eblc->meg12_[ism-1];
-              
+
               if( me ) {
-                
+
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLaserL4PN_->setBinContent( ipx, iex, xval );
                   if ( xval == 0 ) meLaserL4PNErr_->Fill( ism );
@@ -1636,7 +1642,7 @@ void EBSummaryClient::analyze(void) {
 
         // laser 1D summaries
         if ( eblc ) {
-          
+
           if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
             MonitorElement *meg = eblc->meg01_[ism-1];
@@ -1645,19 +1651,19 @@ void EBSummaryClient::analyze(void) {
             if ( meg ) xval = meg->getBinContent( ie, ip );
 
             // exclude channels without laser data (yellow in the quality map)
-            if( xval != 2 && xval != 5 ) { 
-          
+            if( xval != 2 && xval != 5 ) {
+
               MonitorElement *mea01 = eblc->mea01_[ism-1];
               MonitorElement *met01 = eblc->met01_[ism-1];
               MonitorElement *meaopn01 = eblc->meaopn01_[ism-1];
-            
+
               if( mea01 && met01 && meaopn01 ) {
                 meLaserL1Ampl_->Fill( ism, mea01->getBinContent( chan+1 ) );
                 meLaserL1Timing_->Fill( ism, met01->getBinContent( chan+1 ) );
                 meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( chan+1 ) );
               }
-            
-            }      
+
+            }
 
           }
 
@@ -1669,19 +1675,19 @@ void EBSummaryClient::analyze(void) {
             if ( meg ) xval = meg->getBinContent( ie, ip );
 
             // exclude channels without laser data (yellow in the quality map)
-            if( xval != 2 && xval != 5 ) { 
-          
+            if( xval != 2 && xval != 5 ) {
+
               MonitorElement *mea02 = eblc->mea02_[ism-1];
               MonitorElement *met02 = eblc->met02_[ism-1];
               MonitorElement *meaopn02 = eblc->meaopn02_[ism-1];
-            
+
               if( mea02 && met02 && meaopn02 ) {
                 meLaserL2Ampl_->Fill( ism, mea02->getBinContent( chan+1 ) );
                 meLaserL2Timing_->Fill( ism, met02->getBinContent( chan+1 ) );
                 meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( chan+1 ) );
               }
-            
-            }      
+
+            }
 
           }
 
@@ -1693,19 +1699,19 @@ void EBSummaryClient::analyze(void) {
             if ( meg ) xval = meg->getBinContent( ie, ip );
 
             // exclude channels without laser data (yellow in the quality map)
-            if( xval != 2 && xval != 5 ) { 
-          
+            if( xval != 2 && xval != 5 ) {
+
               MonitorElement *mea03 = eblc->mea03_[ism-1];
               MonitorElement *met03 = eblc->met03_[ism-1];
               MonitorElement *meaopn03 = eblc->meaopn03_[ism-1];
-            
+
               if( mea03 && met03 && meaopn03 ) {
                 meLaserL3Ampl_->Fill( ism, mea03->getBinContent( chan+1 ) );
                 meLaserL3Timing_->Fill( ism, met03->getBinContent( chan+1 ) );
                 meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( chan+1 ) );
               }
-            
-            }      
+
+            }
 
           }
 
@@ -1717,19 +1723,19 @@ void EBSummaryClient::analyze(void) {
             if ( meg ) xval = meg->getBinContent( ie, ip );
 
             // exclude channels without laser data (yellow in the quality map)
-            if( xval != 2 && xval != 5 ) { 
-          
+            if( xval != 2 && xval != 5 ) {
+
               MonitorElement *mea04 = eblc->mea04_[ism-1];
               MonitorElement *met04 = eblc->met04_[ism-1];
               MonitorElement *meaopn04 = eblc->meaopn04_[ism-1];
-            
+
               if( mea04 && met04 && meaopn04 ) {
                 meLaserL4Ampl_->Fill( ism, mea04->getBinContent( chan+1 ) );
                 meLaserL4Timing_->Fill( ism, met04->getBinContent( chan+1 ) );
                 meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( chan+1 ) );
               }
-            
-            }      
+
+            }
 
           }
 
@@ -1742,57 +1748,57 @@ void EBSummaryClient::analyze(void) {
           MonitorElement *meg03 = ebtpc->meg03_[ism-1];
 
           if ( meg01 ) {
-            
+
             float xval01 = meg01->getBinContent(ie,ip);
 
             if ( xval01 != 2 && xval01 != 5 ) {
 
               me = ebtpc->mea01_[ism-1];
-              
+
               if ( me ) {
-                
+
                 meTestPulseAmplG01_->Fill( ism, me->getBinContent( chan+1 ) );
 
               }
 
             }
-            
+
           }
 
           if ( meg02 ) {
-            
+
             float xval02 = meg02->getBinContent(ie,ip);
 
             if ( xval02 != 2 && xval02 != 5 ) {
 
               me = ebtpc->mea02_[ism-1];
-              
+
               if ( me ) {
-                
+
                 meTestPulseAmplG06_->Fill( ism, me->getBinContent( chan+1 ) );
 
               }
 
             }
-            
+
           }
 
           if ( meg03 ) {
-            
+
             float xval03 = meg03->getBinContent(ie,ip);
 
             if ( xval03 != 2 && xval03 != 5 ) {
 
               me = ebtpc->mea03_[ism-1];
-              
+
               if ( me ) {
-                
+
                 meTestPulseAmplG12_->Fill( ism, me->getBinContent( chan+1 ) );
 
               }
 
             }
-            
+
           }
 
         }
@@ -1846,7 +1852,7 @@ void EBSummaryClient::analyze(void) {
           if ( meLaserL4_ ) val_ls_4 = meLaserL4_->getBinContent(ipx,iex);
           if(val_ls_4==2 || val_ls_4==3 || val_ls_4==4 || val_ls_4==5) val_ls_4=1;
         }
-        
+
         float val_ls = 1;
         if (val_ls_1 == 0 || val_ls_2==0 || val_ls_3==0 || val_ls_4==0) val_ls=0;
 

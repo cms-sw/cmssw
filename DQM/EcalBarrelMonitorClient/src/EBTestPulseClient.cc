@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2009/08/02 15:46:37 $
- * $Revision: 1.212 $
+ * $Date: 2009/08/21 11:52:28 $
+ * $Revision: 1.213 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -115,7 +115,7 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps) {
   RMSThreshold_ = 300.0;
 
   amplitudeThreshold_ = 100.;
-  
+
   amplitudeThresholdPnG01_ = 200./16.;
   amplitudeThresholdPnG16_ = 200.;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2009/08/04 10:30:15 $
- * $Revision: 1.247 $
+ * $Date: 2009/08/21 11:52:28 $
+ * $Revision: 1.248 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -397,7 +397,7 @@ void EBLaserClient::setup(void) {
       met04_[ism-1]->setAxisTitle("channel", 1);
       met04_[ism-1]->setAxisTitle("jitter", 2);
     }
-    
+
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
       if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
       sprintf(histo, "EBLT laser timing mean L1 %s", Numbers::sEB(ism).c_str());

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2009/08/13 18:12:38 $
- * $Revision: 1.117 $
+ * $Date: 2009/08/23 20:07:16 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -219,9 +219,9 @@ void EBTriggerTowerClient::analyze(void) {
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-    
+
     int ism = superModules_[i];
-    
+
     sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT EmulError %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
@@ -231,7 +231,7 @@ void EBTriggerTowerClient::analyze(void) {
     me = dqmStore_->get(histo);
     o01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, o01_[ism-1] );
     meo01_[ism-1] = me;
-    
+
     if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
     if ( me_o02_[ism-1] ) me_o02_[ism-1]->Reset();
 
@@ -261,12 +261,12 @@ void EBTriggerTowerClient::analyze(void) {
           double fraction = (total > 0) ? 1.0 - max/total : 0.;
           if ( me_o02_[ism-1] ) me_o02_[ism-1]->setBinContent(ie, ip, fraction);
         }
-        
+
       }
     }
 
   }
-  
+
 }
 
 void EBTriggerTowerClient::softReset(bool flag) {
