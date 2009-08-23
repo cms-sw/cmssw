@@ -51,7 +51,14 @@ public:
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
   void setParameters( std::string fDataFile1, std::string fDataFile2, std::string fDataFile3);
-  
+ 
+  virtual reco::TrackRefVector jtC_rebuild(
+                                        const reco::JetTracksAssociation::Container&, const reco::Jet& fJet, reco::TrackRefVector& Excl) const;
+
+  virtual reco::TrackRefVector jtC_exclude(
+                                        const reco::JetTracksAssociation::Container&, const reco::Jet& fJet, reco::TrackRefVector& Excl) const;
+
+ 
   /// if correction needs event information
   virtual bool eventRequired () const {return true;}
    
@@ -62,7 +69,8 @@ private:
   //JW:
   edm::InputTag m_recoGsfelectrons; 
   edm::InputTag m_eIDValueMap_;
-
+  // Split/Merge
+  int mSplitMerge;
   // responce algo (will be absolete)
   int theResponseAlgo;
   // add or not out of cone tracks (default: true)

@@ -1,6 +1,8 @@
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 //
 #include <vector>
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 //#include "FWCore/Framework/interface/Event.h"
 //#include "DataFormats/Common/interface/Handle.h"
@@ -31,6 +33,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
   theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
   theUseQuality = iConfig.getParameter<bool>("UseQuality");
   theTrackQuality = iConfig.getParameter<std::string>("TrackQuality");
+  mSplitMerge = iConfig.getParameter<int>("SplitMergeP");
 
   trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
@@ -39,7 +42,8 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
     	   <<" Electron ID "<< m_eIDValueMap_ 
 	   <<" TheNonEfficiencyFile "<< theNonEfficiencyFile
 	   <<" TheNonEfficiencyFileResp "<< theNonEfficiencyFileResp
-	   <<" TheResponseFile "<< theResponseFile <<std::endl;
+	   <<" TheResponseFile "<< theResponseFile 
+           <<" SplitMerge "<<mSplitMerge<<std::endl;
   
              std::string file1="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
              std::string file2="JetMETCorrections/Configuration/data/"+theNonEfficiencyFileResp+".txt";
@@ -272,8 +276,13 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
         } // ptbin
     } // etabin
 
-   const reco::TrackRefVector trAtVertex = reco::JetTracksAssociation::getValue(jtV,fJet);
+   //const reco::TrackRefVector trAtVertex = reco::JetTracksAssociation::getValue(jtV,fJet);
 
+// Track at vertex
+   // std::cout<<"!!!!!!!Tracks at vertex start "<<std::endl;
+   reco::TrackRefVector trAtVertexEx; 
+   reco::TrackRefVector trAtVertex = jtC_rebuild(jtV,fJet,trAtVertexEx);
+   //std::cout<<"!!!!!!!Tracks at vertex end "<<trAtVertexEx.size()<<std::endl;
 // std::cout<<" Get collection of tracks at vertex :: Point 1 "<<std::endl;
 // Look if jet is associated with tracks. If not, return the response of jet.
 
@@ -288,8 +297,13 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    reco::TrackRefVector trAtCalo;
    
    if(jetTracksAtCalo.isValid()) { 
+
      const reco::JetTracksAssociation::Container jtC = *(jetTracksAtCalo.product());
-     trAtCalo = reco::JetTracksAssociation::getValue(jtC,fJet);
+
+     //std::cout<<"!!!!!!!Tracks at calo start "<<std::endl;     
+       trAtCalo = jtC_exclude(jtC,fJet,trAtVertexEx);
+     //std::cout<<"!!!!!!!Tracks at calo end "<<trAtCalo.size()<<std::endl;
+
    }
 
 //   const reco::TrackRefVector trAtCalo = reco::JetTracksAssociation::getValue(jtC,fJet);
@@ -625,8 +639,112 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	   NewResponse = NewResponse - 2.0;
 	 }
    double mScale = NewResponse/fJet.energy();
+// Do nothing if mScale<0.
+   if(mScale <0.) mScale=1;
    
    if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<std::endl;
-   
+
    return mScale;
 }
+
+
+
+reco::TrackRefVector JetPlusTrackCorrector::jtC_rebuild(
+                                        const reco::JetTracksAssociation::Container& jtV0,
+                                        const reco::Jet& fJet,
+                                        reco::TrackRefVector& Excl)
+                                         const
+{
+
+     //std::cout<<" New Merge/Split schema "<<mSplitMerge<<std::endl;
+//
+// Do nothing if schema is not switched on
+//
+
+     reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue(jtV0,fJet);
+
+     if(mSplitMerge<0) return tracks;
+
+     //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+
+     typedef std::vector<reco::JetBaseRef>::iterator JetBaseRefIterator;
+     std::vector<reco::JetBaseRef> theJets = reco::JetTracksAssociation::allJets(jtV0);
+
+     reco::TrackRefVector tracksthis;
+
+     int tr=0;
+
+    for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
+    {
+
+          double dR2this = deltaR2 (fJet.eta(), fJet.phi(), (**it).eta(), (**it).phi());
+          double dfi = fabs(fJet.phi()-(**it).phi());
+          if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
+          double deta = fJet.eta() - (**it).eta();
+          double dR2check = sqrt(dfi*dfi+deta*deta);
+
+
+          double scalethis = dR2this;
+          if(mSplitMerge == 0) scalethis = 1./fJet.et();
+          if(mSplitMerge == 2) scalethis = dR2this/fJet.et();
+          tr++;
+          int flag = 1;
+     for(JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++)
+     {
+        if(&(**ii) == &fJet ) {continue;}
+          double dR2 = deltaR2 ((*ii)->eta(), (*ii)->phi(), (**it).eta(), (**it).phi());
+          double scale = dR2;
+          if(mSplitMerge == 0) scale = 1./fJet.et();
+          if(mSplitMerge == 2) scale = dR2/fJet.et();
+          if(scale < scalethis) flag = 0;
+
+          if(flag == 0) {
+    //       std::cout<<" Track belong to another jet also "<<dR2<<" "<<
+    //      (*ii)->et()<<" "<<(*ii)->eta()<<" "<< (*ii)->phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<" "<<scalethis<<" "<<scale<<" "<<flag<<std::endl;
+          break;
+          }
+     }
+
+//        std::cout<<" Track "<<tr<<" "<<flag<<" "<<dR2this<<" "<<dR2check<<" Jet "<<fJet.eta()<<" "<< fJet.phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+        if(flag == 1) {tracksthis.push_back (*it);}else{Excl.push_back (*it);}
+    }
+
+  //  std::cout<<" The new size of tracks "<<tracksthis.size()<<" Excludede "<<Excl.size()<<std::endl;
+    return tracksthis;
+
+}
+
+reco::TrackRefVector JetPlusTrackCorrector::jtC_exclude(
+                                        const reco::JetTracksAssociation::Container& jtV0,
+                                        const reco::Jet& fJet,
+                                        reco::TrackRefVector& Excl)
+                                         const
+{
+     reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue(jtV0,fJet);
+     if(Excl.size() == 0) return tracks;
+     if(mSplitMerge<0) return tracks;
+
+     //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+
+     reco::TrackRefVector tracksthis;
+
+    for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
+    {
+
+       //std::cout<<" Track at calo surface "
+       //   <<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+       reco::TrackRefVector::iterator itold = find(Excl.begin(),Excl.end(),(*it));
+       if(itold == Excl.end()) {
+                                  tracksthis.push_back (*it);
+                                 } 
+                                 //  else {
+                                 //   std::cout<<"Exclude "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+                                // }
+
+    }
+
+//    std::cout<<" Size of calo tracks "<<tracksthis.size()<<std::endl;
+
+    return tracksthis;
+}
+

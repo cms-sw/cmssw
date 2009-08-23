@@ -25,4 +25,6 @@ JPTZSPCorrectorICone5 = cms.PSet(
     # Electrons
     recoGsfelectrons = cms.InputTag("gsfElectrons"),
     eIDValueMap      = cms.InputTag("eidTight"),  
+    # Split/merge schema: 0-IC, 1-SisCone, 2-anti-Kt
+    SplitMergeP = cms.int32(0)
     )
