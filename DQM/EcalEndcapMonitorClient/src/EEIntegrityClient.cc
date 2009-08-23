@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.87 $
+ * $Date: 2009/08/21 11:52:29 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -191,6 +191,10 @@ void EEIntegrityClient::setup(void) {
 
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
+
+        // non-existing mem
+        if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
+        if ( (ism >= 12 && ism <=  3) || (ism >= 16 && ism <= 18) ) continue;
 
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
@@ -924,6 +928,10 @@ void EEIntegrityClient::analyze(void) {
       for ( int ip = 1; ip <= 5; ip++ ) {
 
         num06 = num07 = num08 = num09 = 0.;
+
+        // non-existing mem
+        if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
+        if ( (ism >= 12 && ism <= 13) || (ism >= 16 && ism <= 18) ) continue;
 
         // initialize summary histo for mem
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
