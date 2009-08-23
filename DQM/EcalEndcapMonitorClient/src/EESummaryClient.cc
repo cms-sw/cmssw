@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/13 18:12:42 $
- * $Revision: 1.177 $
+ * $Date: 2009/08/21 02:10:37 $
+ * $Revision: 1.178 $
  * \author G. Della Ricca
  *
 */
@@ -1613,9 +1613,12 @@ void EESummaryClient::analyze(void) {
               
               float xval = me->getBinContent( ix, iy );
               
-              if ( ism >= 1 && ism <= 9 ) meIntegrity_[0]->setBinContent( 101 - jx, jy, xval );
-              else meIntegrity_[1]->setBinContent( jx, jy, xval );
-              
+              if ( ism >= 1 && ism <= 9 ) {
+                meIntegrity_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                meIntegrity_[1]->setBinContent( jx, jy, xval );
+              }
+
               if ( xval == 0 ) meIntegrityErr_->Fill( ism );
               
             }
@@ -1646,9 +1649,12 @@ void EESummaryClient::analyze(void) {
             
               float xval = me->getBinContent( ix, iy );
               
-              if ( ism >= 1 && ism <= 9 ) mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
-              else mePedestalOnline_[1]->setBinContent( jx, jy, xval );
-              
+              if ( ism >= 1 && ism <= 9 ) {
+                mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                mePedestalOnline_[1]->setBinContent( jx, jy, xval );
+              }
+
               if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism );
               
             }
@@ -1663,8 +1669,11 @@ void EESummaryClient::analyze(void) {
             mePedestalOnlineRMS_->Fill( ism, rms01 );
             mePedestalOnlineMean_->Fill( ism, mean01 );
 
-            if ( ism >= 1 && ism <= 9 ) mePedestalOnlineRMSMap_[0]->setBinContent( 101 - jx, jy, rms01 );
-            else mePedestalOnlineRMSMap_[1]->setBinContent( jx, jy, rms01 );
+            if ( ism >= 1 && ism <= 9 ) {
+              mePedestalOnlineRMSMap_[0]->setBinContent( 101 - jx, jy, rms01 );
+            } else {
+              mePedestalOnlineRMSMap_[1]->setBinContent( jx, jy, rms01 );
+            }
 
           }
 
@@ -1679,8 +1688,11 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
-                  else meLaserL1_[1]->setBinContent( jx, jy, xval );
+                  if ( ism >= 1 && ism <= 9 ) {
+                    meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
+                  } else {
+                    meLaserL1_[1]->setBinContent( jx, jy, xval );
+                  }
 
                   if ( xval == 0 ) meLaserL1Err_->Fill( ism );
                 }
@@ -1698,8 +1710,11 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) meLaserL2_[0]->setBinContent( 101 - jx, jy, xval );
-                  else meLaserL2_[1]->setBinContent( jx, jy, xval );
+                  if ( ism >= 1 && ism <= 9 ) {
+                    meLaserL2_[0]->setBinContent( 101 - jx, jy, xval );
+                  } else {
+                    meLaserL2_[1]->setBinContent( jx, jy, xval );
+                  }
 
                   if ( xval == 0 ) meLaserL2Err_->Fill( ism );
                 }
@@ -1717,8 +1732,11 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) meLaserL3_[0]->setBinContent( 101 - jx, jy, xval );
-                  else meLaserL3_[1]->setBinContent( jx, jy, xval );
+                  if ( ism >= 1 && ism <= 9 ) {
+                    meLaserL3_[0]->setBinContent( 101 - jx, jy, xval );
+                  } else {
+                    meLaserL3_[1]->setBinContent( jx, jy, xval );
+                  }
 
                   if ( xval == 0 ) meLaserL3Err_->Fill( ism );
                 }
@@ -1736,9 +1754,12 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) meLaserL4_[0]->setBinContent( 101 - jx, jy, xval );
-                  else meLaserL4_[1]->setBinContent( jx, jy, xval );
-                  
+                  if ( ism >= 1 && ism <= 9 ) {
+                    meLaserL4_[0]->setBinContent( 101 - jx, jy, xval );
+                  } else {
+                    meLaserL4_[1]->setBinContent( jx, jy, xval );
+                  }
+
                   if ( xval == 0 ) meLaserL4Err_->Fill( ism );
                 }
 
@@ -1759,9 +1780,12 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
                 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
-                  else meLedL1_[1]->setBinContent( jx, jy, xval );
-                  
+                  if ( ism >= 1 && ism <= 9 ) {
+                    meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
+                  } else {
+                    meLedL1_[1]->setBinContent( jx, jy, xval );
+                  }
+
                   if ( xval == 0 ) meLedL1Err_->Fill( ism );
                 }
                 
@@ -1778,8 +1802,11 @@ void EESummaryClient::analyze(void) {
                 float xval = me->getBinContent( ix, iy );
                 
                 if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) meLedL2_[0]->setBinContent( 101 - jx, jy, xval );
-                  else meLedL2_[1]->setBinContent( jx, jy, xval );
+                  if ( ism >= 1 && ism <= 9 ) {
+                    meLedL2_[0]->setBinContent( 101 - jx, jy, xval );
+                  } else {
+                    meLedL2_[1]->setBinContent( jx, jy, xval );
+                  }
 
                   if ( xval == 0 ) meLedL2Err_->Fill( ism );
                 }
@@ -1799,22 +1826,31 @@ void EESummaryClient::analyze(void) {
             if ( me_01 ) {
               float val_01=me_01->getBinContent(ix,iy);
               if ( me_01->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) mePedestalG01_[0]->setBinContent( 101 - jx, jy, val_01 );
-                else mePedestalG01_[1]->setBinContent( jx, jy, val_01 );
+                if ( ism >= 1 && ism <= 9 ) {
+                  mePedestalG01_[0]->setBinContent( 101 - jx, jy, val_01 );
+                } else {
+                  mePedestalG01_[1]->setBinContent( jx, jy, val_01 );
+                }
               }
             }
             if ( me_02 ) {
               float val_02=me_02->getBinContent(ix,iy);
               if ( me_02->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) mePedestalG06_[0]->setBinContent( 101 - jx, jy, val_02 );
-                else mePedestalG06_[1]->setBinContent( jx, jy, val_02 );
+                if ( ism >= 1 && ism <= 9 ) {
+                  mePedestalG06_[0]->setBinContent( 101 - jx, jy, val_02 );
+                } else {
+                  mePedestalG06_[1]->setBinContent( jx, jy, val_02 );
+                }
               }
             }
             if ( me_03 ) {
               float val_03=me_03->getBinContent(ix,iy);
               if ( me_03->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) mePedestalG12_[0]->setBinContent( 101 - jx, jy, val_03 );
-                else mePedestalG12_[1]->setBinContent( jx, jy, val_03 );
+                if ( ism >= 1 && ism <= 9 ) {
+                  mePedestalG12_[0]->setBinContent( 101 - jx, jy, val_03 );
+                } else {
+                  mePedestalG12_[1]->setBinContent( jx, jy, val_03 );
+                }
               }
             }
 
@@ -1829,22 +1865,31 @@ void EESummaryClient::analyze(void) {
             if ( me_01 ) {
               float val_01=me_01->getBinContent(ix,iy);
               if ( me_01->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) meTestPulseG01_[0]->setBinContent( 101 - jx, jy, val_01 );
-                else meTestPulseG01_[1]->setBinContent( jx, jy, val_01 );
+                if ( ism >= 1 && ism <= 9 ) {
+                  meTestPulseG01_[0]->setBinContent( 101 - jx, jy, val_01 );
+                } else {
+                  meTestPulseG01_[1]->setBinContent( jx, jy, val_01 );
+                }
               }
             }
             if ( me_02 ) {
               float val_02=me_02->getBinContent(ix,iy);
               if ( me_02->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) meTestPulseG06_[0]->setBinContent( 101 - jx, jy, val_02 );
-                else meTestPulseG06_[1]->setBinContent( jx, jy, val_02 );
+                if ( ism >= 1 && ism <= 9 ) {
+                  meTestPulseG06_[0]->setBinContent( 101 - jx, jy, val_02 );
+                } else {
+                  meTestPulseG06_[1]->setBinContent( jx, jy, val_02 );
+                }
               }
             }
             if ( me_03 ) {
               float val_03=me_03->getBinContent(ix,iy);
               if ( me_03->getEntries() != 0 ) {
-                if ( ism >= 1 && ism <= 9 ) meTestPulseG12_[0]->setBinContent( 101 - jx, jy, val_03 );
-                else meTestPulseG12_[1]->setBinContent( jx, jy, val_03 );
+                if ( ism >= 1 && ism <= 9 ) {
+                  meTestPulseG12_[0]->setBinContent( 101 - jx, jy, val_03 );
+                } else {
+                  meTestPulseG12_[1]->setBinContent( jx, jy, val_03 );
+                }
               }
             }
 
@@ -1876,8 +1921,11 @@ void EESummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ix, iy );
 
-              if ( ism >= 1 && ism <= 9 ) meTiming_[0]->setBinContent( 101 - jx, jy, xval );
-              else meTiming_[1]->setBinContent( jx, jy, xval );
+              if ( ism >= 1 && ism <= 9 ) {
+                meTiming_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                meTiming_[1]->setBinContent( jx, jy, xval );
+              }
 
             }
 
@@ -1910,14 +1958,26 @@ void EESummaryClient::analyze(void) {
               if ( me->getBinContent( ix, iy ) == 0 ) xval = 1;
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
-              if ( ism >= 1 && ism <= 9 ) meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
-              else meStatusFlags_[1]->setBinContent( jx, jy, xval );
-              
+              if ( ism >= 1 && ism <= 9 ) {
+                meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
+              } else {
+                meStatusFlags_[1]->setBinContent( jx, jy, xval );
+              }
+
               if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
 
             }
 
           }
+
+        }
+      }
+
+      for ( int ix = 1; ix <= 50; ix++ ) {
+        for ( int iy = 1; iy <= 50; iy++ ) {
+
+          int jx = ix + Numbers::ix0EE(ism);
+          int jy = iy + Numbers::iy0EE(ism);
 
           if ( eetttc ) {
 
@@ -1927,12 +1987,14 @@ void EESummaryClient::analyze(void) {
 
               mean01 = httt01_[ism-1]->GetBinContent( ix, iy );
 
-              if ( ism >= 1 && ism <= 9 ) {
-                if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
+              if ( mean01 > 0. ) {
+                if ( ism >= 1 && ism <= 9 ) {
+                  if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
+                } else {
+                  if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setBinContent( jx, jy, mean01 );
+                }
               }
-              else {
-                if ( meTriggerTowerEt_[1] ) meTriggerTowerEt_[1]->setBinContent( jx, jy, mean01 );
-              }
+
             }
 
             me = eetttc->me_o01_[ism-1];
@@ -1941,10 +2003,12 @@ void EESummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ix, iy );
 
-              if ( ism >= 1 && ism <= 9 ) {
-                meTriggerTowerTiming_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                meTriggerTowerTiming_[1]->setBinContent( jx, jy, xval );
+              if ( xval > 0. ) {
+                if ( ism >= 1 && ism <= 9 ) {
+                  meTriggerTowerTiming_[0]->setBinContent( 101 - jx, jy, xval );
+                } else {
+                  meTriggerTowerTiming_[1]->setBinContent( jx, jy, xval );
+                }
               }
 
             }
@@ -1955,17 +2019,20 @@ void EESummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ix, iy );
 
-              if ( ism >= 1 && ism <= 9 ) {
-                meTriggerTowerNonSingleTiming_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                meTriggerTowerNonSingleTiming_[1]->setBinContent( jx, jy, xval );
+              if ( xval > 0. ) {
+                if ( ism >= 1 && ism <= 9 ) {
+                  meTriggerTowerNonSingleTiming_[0]->setBinContent( 101 - jx, jy, xval );
+                } else {
+                  meTriggerTowerNonSingleTiming_[1]->setBinContent( jx, jy, xval );
+                }
               }
 
             }
 
             float xval = 6;
-            if( mean01 <= 0 ) xval = 2;
-            else {
+            if( mean01 <= 0. ) {
+              xval = 2;
+            } else {
 
               h2 = eetttc->l01_[ism-1];
 
