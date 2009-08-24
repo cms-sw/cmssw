@@ -33,3 +33,11 @@ DataFormats/L1GlobalMuonTrigger
 DataFormats/L1CaloTrigger
 DataFormats/MuonData
 FastSimDataFormats/External
+DataFormats/MuonSeed
+DataFormats/L1CSCTrackFinder
+DataFormats/L1CaloTrigger
+DataFormats/L1DTTrackFinder
+DataFormats/L1GlobalCaloTrigger
+DataFormats/L1GlobalMuonTrigger
+DataFormats/L1GlobalTrigger
+DataFormats/L1Trigger
