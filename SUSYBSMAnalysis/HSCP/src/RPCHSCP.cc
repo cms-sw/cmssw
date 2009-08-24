@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo camilo.carrillo AT cern.ch
 //         Created:  Wed Aug  6 17:45:45 CEST 2008
-// $Id: RPCHSCP.cc,v 1.2 2009/05/07 11:25:01 carrillo Exp $
+// $Id: RPCHSCP.cc,v 1.3 2009/08/06 21:04:24 carrillo Exp $
 //
 //
 
@@ -258,9 +258,9 @@ RPCHSCP::beginJob(const edm::EventSetup&){
   observedphi = new TH1F("PhiObserved","Phi Observed",100,-3.1415926,3.1415926); 
   observedbeta = new TH1F("BetaObserved","Beta Observed",100,0,1);                
 
-  residualeta = new TH1F("Residual Eta","Eta Residuals",100,-0.2,0.2);
-  residualphi = new TH1F("Residual Phi","Phi Residuals",100,-0.02,0.02);
-  residualbeta = new TH1F("ResidualBeta","Beta Residuals",100,-3.0,3.0);
+  residualeta = new TH1F("Residual Eta","Eta Residuals",25,-0.2,0.2);
+  residualphi = new TH1F("Residual Phi","Phi Residuals",100,-0.05,0.05);
+  residualbeta = new TH1F("ResidualBeta","Beta Residuals",25,-0.5,0.5);
   
   totalHSCP=0;
 
