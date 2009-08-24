@@ -93,20 +93,22 @@ namespace cond {
       "service = SiteLocalConfigService{}"
       "}";
     */
+    /*
     std::string config =
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('x')\n"
       "JobReportService = cms.Service('JobReportService')\n"
       "SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n"
       ;
-
-    /*
-    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-    boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_, pServiceSets);
+    */
     
-    // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
+    boost::shared_ptr<std::vector<edm::ParameterSet> > psets;
+    edm::ParameterSet pSet;
+    pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+    psets->push_back(pSet);
+
+     // D.  Create the services.
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*psets.get()));
     
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
