@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/19 19:25:30 $
- * $Revision: 1.126 $
+ * $Date: 2009/08/21 10:54:58 $
+ * $Revision: 1.127 $
  * \author W Fisher
  * \author J Temple
  *
@@ -54,6 +54,9 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   inputLabelRecHitZDC_   = ps.getParameter<edm::InputTag>("zdcRecHitLabel");
   inputLabelCaloTower_   = ps.getParameter<edm::InputTag>("caloTowerLabel");
   inputLabelLaser_       = ps.getParameter<edm::InputTag>("hcalLaserLabel");
+
+  //Emulator
+  inputLabelEmulDigi_  = ps.getParameter<edm::InputTag>("emulTPLabel");
 
   checkHB_=ps.getUntrackedParameter<bool>("checkHB", 1); 
   checkHE_=ps.getUntrackedParameter<bool>("checkHE", 1);  
@@ -788,6 +791,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   edm::Handle<HFDigiCollection> hf_digi;
   edm::Handle<ZDCDigiCollection> zdc_digi;
   edm::Handle<HcalTrigPrimDigiCollection> tp_digi;
+  edm::Handle<HcalTrigPrimDigiCollection> emultp_digi;
   edm::Handle<HcalLaserDigi> laser_digi;
 
   if (!(e.getByLabel(inputLabelDigi_,hbhe_digi)))
@@ -872,6 +876,18 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (tpdOK_ && !tp_digi.isValid()) {
     tpdOK_=false;
   }
+
+  //Emulator
+  if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
+    {
+      tpdOK_=false;
+      LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
+    }
+  
+  if (tpdOK_ && !emultp_digi.isValid()) {
+    tpdOK_=false;
+  }
+
   if (!(e.getByLabel(inputLabelLaser_,laser_digi)))
     {laserOK_=false;}
   if (laserOK_&&!laser_digi.isValid()) {
@@ -1128,11 +1144,12 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
 
   // Trigger Primitive monitor task -- may end up using both rec hits and digis?
-  if((tpMon_ != NULL) && rechitOK_ && digiOK_ && tpdOK_) 
+  if((tpMon_ != NULL) && rawOK_ && rechitOK_ && digiOK_ && tpdOK_) 
     {
       if (lumiswitch) tpMon_->LumiBlockUpdate(ilumisec_);
       tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			   *hbhe_digi,*ho_digi,*hf_digi,*tp_digi, *readoutMap_);			     
+			   *hbhe_digi,*ho_digi,*hf_digi,
+			   *tp_digi, *emultp_digi, *rawraw, *readoutMap_);			     
     }
 
   if (showTiming_)

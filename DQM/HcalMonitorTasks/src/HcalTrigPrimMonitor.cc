@@ -1,16 +1,10 @@
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-HcalTrigPrimMonitor::HcalTrigPrimMonitor() {
-  occThresh_=0;
-}
+HcalTrigPrimMonitor::HcalTrigPrimMonitor() {}
 
 HcalTrigPrimMonitor::~HcalTrigPrimMonitor() 
 {
-  for (unsigned int i=tpSpectrum_.size()-1;i>=0;--i)
-    delete tpSpectrum_[i];
-  tpSpectrum_.clear();
- 
 }
 
 void HcalTrigPrimMonitor::reset(){}
@@ -28,222 +22,125 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"TrigPrimMonitor";
 
-  
-  occThresh_ = ps.getUntrackedParameter<double>("TrigPrimMonitor_OccThresh", 1.0);
-  TPThresh_ = ps.getUntrackedParameter<double>("TrigPrimMonitor_Threshold", 1.0);
+  ZSAlarmThreshold_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_ZSAlarmThreshold", 0);
 
-  TPdigi_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_TPdigiTS", 1);
-  ADCdigi_ = ps.getUntrackedParameter<int>("TrigPrimMonitor_ADCdigiTS", 3);
-  
-  if (fVerbosity) cout <<"TP:  CHECKN = "<<checkNevents_<<endl;
-  tp_checkNevents_=ps.getUntrackedParameter<int>("TrigPrimMonitor_checkNevents",checkNevents_);
-  if (fVerbosity) cout <<"tp_check = "<<tp_checkNevents_<<endl;
-  tp_makeDiagnostics_=ps.getUntrackedParameter<bool>("TrigPrimMonitor_makeDiagnostics",makeDiagnostics);
-
-  
   if ( m_dbe !=NULL ) {    
 
     std::string type;
-    //    char name[128];
     m_dbe->setCurrentFolder(baseFolder_);
 
-    //ZZ Expert Plots
-    m_dbe->setCurrentFolder(baseFolder_ + "/ZZ Expert Plots/ZZ DQM Expert Plots");
+    //------------- Summary -------------------------
     type = "TrigPrim Event Number";
     meEVT_ = m_dbe->bookInt(type);
     meEVT_->Fill(ievt_);
     meTOTALEVT_ = m_dbe->bookInt("TrigPrim Total Events Processed");
     meTOTALEVT_->Fill(tevt_);
-
-    // 00 TP Occupancy
-    m_dbe->setCurrentFolder(baseFolder_);
-    type = "00 TP Occupancy";
-    TPOcc_          = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    //setupDepthHists2D(TPOcc_,type,"");
-    //Timing Plots
-    m_dbe->setCurrentFolder(baseFolder_+"/Timing Plots");
-    type = "TP Size";
-    tpSize_ = m_dbe->book1D(type,type,20,-0.5,19.5);
-    type = "TP Timing";
-    TPTiming_       = m_dbe->book1D(type,type,10,0,10);
-    type = "TP Timing (Top wedges)";
-    TPTimingTop_    = m_dbe->book1D(type,type,10,0,10);
-    type = "TP Timing (Bottom wedges)";
-    TPTimingBot_    = m_dbe->book1D(type,type,10,0,10);
-    if (fVerbosity)
-      {
-	std::cout <<"TPTimingBot STARTING POINTER: "<< TPTimingBot_ << std::endl;
-	std::cout <<"\t TPTimingBot type:"<< TPTimingBot_->kind() << std::endl;
-      }
-    type = "TS with max ADC";
-    TS_MAX_         = m_dbe->book1D(type,type,10,0,10);
-
-    //Energy Plots
-    m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots");
-    type = "# TP Digis";
-    tpCount_ = m_dbe->book1D(type,type,500,-0.5,4999.5);
-    type = "# TP Digis over Threshold";
-    tpCountThr_ = m_dbe->book1D(type,type,100,-0.5,999.5);
-    type = "ADC spectrum positive TP";
-    TP_ADC_         = m_dbe->book1D(type,type,200,-0.5,199.5);
-    type = "Max ADC in TP";
-    MAX_ADC_        = m_dbe->book1D(type,type,20,-0.5,19.5);
-    type = "Full TP Spectrum";
-    tpSpectrumAll_ = m_dbe->book1D(type,type,200,-0.5,199.5);
-    type = "TP ET Sum";
-    tpETSumAll_ = m_dbe->book1D(type,type,200,-0.5,199.5);
-    type = "TP SOI ET";
-    tpSOI_ET_ = m_dbe->book1D(type,type,100,-0.5,99.5);
     
-    m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots/TP Spectra by TS");
-    for (int i=0; i<10; ++i) 
-      {
-	type = "TP Spectrum sample ";
-	std::stringstream samp;
-	//std::string teststr;
-	samp << type <<i;
-	//samp >> teststr;
-	//teststr = type + teststr;
-	tpSpectrum_.push_back(m_dbe->book1D(samp.str().c_str(),samp.str().c_str(),100,-0.5,199.5));      
-      }
+    type = "Summary";
+    Summary_ = m_dbe->book2D(type, type, 2, 0, 2, 2, 0, 2);
+    Summary_->setBinLabel(1, "Good");
+    Summary_->setBinLabel(2, "Bad");
+    Summary_->setBinLabel(1, "HBHE", 2);
+    Summary_->setBinLabel(2, "HF", 2);
 
-    //Electronics Plots
-    m_dbe->setCurrentFolder(baseFolder_+"/Electronics Plots");
-    type = "HBHE Sliding Pair Sum Maxes";
-    me_HBHE_ZS_SlidingSum = m_dbe->book1D(type,type,128,0,128);
-    type = "HF Sliding Pair Sum Maxes";
-    me_HF_ZS_SlidingSum   = m_dbe->book1D(type,type,128,0,128);
-    type = "HO Sliding Pair Sum Maxes";
-    me_HO_ZS_SlidingSum   = m_dbe->book1D(type,type,128,0,128);
+    type = "Summary for ZS run";
+    SummaryZS_ = m_dbe->book2D(type, type, 2, 0, 2, 2, 0, 2);
+    SummaryZS_->setBinLabel(1, "Good");
+    SummaryZS_->setBinLabel(2, "Bad");
+    SummaryZS_->setBinLabel(1, "HBHE", 2);
+    SummaryZS_->setBinLabel(2, "HF", 2);
 
-    type = "TP vs Digi";
-    TPvsDigi_       = m_dbe->book2D(type,type,128,0,128,200,0,200);
-    TPvsDigi_->setAxisTitle("lin ADC digi",1);
-    TPvsDigi_->setAxisTitle("TP digi",2);
-    type = "TrigPrim VME Occupancy Map";
-    OCC_ELEC_VME = m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    type = "TrigPrim Spigot Occupancy Map";
-    OCC_ELEC_DCC = m_dbe->book2D(type,type,HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,36,-0.5,35.5);
-    type = "TrigPrim VME Energy Map";
-    EN_ELEC_VME = m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    type = "TrigPrim Spigot Energy Map";
-    EN_ELEC_DCC = m_dbe->book2D(type,type,HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,36,-0.5,35.5);
+    type = "Error Flag";
+    ErrorFlagSummary_ = m_dbe->book2D(type, type, kNErrorFlag, 0, kNErrorFlag, 2, 0, 2);
+    ErrorFlagSummary_->setBinLabel(1, "Matched");
+    ErrorFlagSummary_->setBinLabel(2, "Mismatched E");
+    ErrorFlagSummary_->setBinLabel(3, "Mismatched FG");
+    ErrorFlagSummary_->setBinLabel(4, "Data Only");
+    ErrorFlagSummary_->setBinLabel(5, "Emul Only");
+    ErrorFlagSummary_->setBinLabel(6, "Missing Data");
+    ErrorFlagSummary_->setBinLabel(7, "Missing Emul");
+    ErrorFlagSummary_->setBinLabel(1, "HBHE", 2);
+    ErrorFlagSummary_->setBinLabel(2, "HF", 2);
 
-    //Geometry Plots
-    m_dbe->setCurrentFolder(baseFolder_+"/Geometry Plots");
-    type = "TrigPrim Eta Occupancy Map";
-    OCC_ETA = m_dbe->book1D(type,type,83,-41.5,41.5);
-    type = "TrigPrim Phi Occupancy Map";
-    OCC_PHI = m_dbe->book1D(type,type,72,0.5,72.5);
-    type = "TrigPrim Geo Occupancy Map";
-    OCC_MAP_ETAPHI = m_dbe->book2D(type,type,
-				   83, -41.5, 41.5,
-				   72, 0.5, 72.5);
+    type = "Error Flag for ZS run";
+    ErrorFlagSummaryZS_ = m_dbe->book2D(type, type, kNErrorFlag, 0, kNErrorFlag, 2, 0, 2);
+    ErrorFlagSummaryZS_->setBinLabel(1, "Matched");
+    ErrorFlagSummaryZS_->setBinLabel(2, "Mismatched E");
+    ErrorFlagSummaryZS_->setBinLabel(3, "Mismatched FG");
+    ErrorFlagSummaryZS_->setBinLabel(4, "Data Only");
+    ErrorFlagSummaryZS_->setBinLabel(5, "Emul Only");
+    ErrorFlagSummaryZS_->setBinLabel(6, "Missing Data");
+    ErrorFlagSummaryZS_->setBinLabel(7, "Missing Emul");
+    ErrorFlagSummaryZS_->setBinLabel(1, "HBHE", 2);
+    ErrorFlagSummaryZS_->setBinLabel(2, "HF", 2);
 
-    //setupDepthHists2D(OCC_MAP_ETAPHI,type,"");
-    //type = "old TrigPrim Geo Threshold Map";
-    //OCC_MAP_GEO = m_dbe->book2D(type,type,83,-41.5,41.5,72,0.5,72.5);
-    type = "TrigPrim Geo Threshold Map";
-    OCC_MAP_ETAPHI_THR = m_dbe->book2D(type,type,83,-41.5,41.5,72,0.5,72.5);
+    type = "EtCorr HBHE";
+    EtCorr_[0] = m_dbe->book2D(type,type,50,0,256,50,0,256);
 
-    type = "TrigPrim Eta Energy Map";
-    EN_ETA = m_dbe->book1D(type,type,83, -41.5, 41.5);
-    type = "TrigPrim Phi Energy Map";
-    EN_PHI = m_dbe->book1D(type,type,72,0.5,72.5);
-    type = "TrigPrim Geo Energy Map";
-    EN_MAP_ETAPHI = m_dbe->book2D(type,type,83,-41.5,41.5,72,0.5,72.5);
+    type = "EtCorr HF";
+    EtCorr_[1] = m_dbe->book2D(type,type,50,0,100,50,0,100);
+    //---------------------------------------------
 
-  } // if (m_dbe !=NULL)
+    //-------------- TP Occupancy ----------------
+    m_dbe->setCurrentFolder(baseFolder_ + "/TP Map");
 
-  // set all counters to 0
-  // 1-D counters
+    type = "TP Occupancy";
+    TPOccupancy_= m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Non Zero TP";
+    NonZeroTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Matched TP";
+    MatchedTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Mismatched Et";
+    MismatchedEt_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Mismatched FG";
+    MismatchedFG_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Data Only";
+    DataOnly_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Emul Only";
+    EmulOnly_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Missing Data";
+    MissingData_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "Missing Emul";
+    MissingEmul_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    //---------------------------------------------
 
-  for (unsigned int i=0;i<5000;++i)
-    {
-      val_tpCount_[i]=0;
-      if (i<10)
-	{
-	  val_TPTiming_[i]=0;
-	  val_TPTimingTop_[i]=0;
-	  val_TPTimingBot_[i]=0;
-	  val_TS_MAX_[i]=0;
-	}
+    //------------ Energy Plots ------------------
+    // HBHE
+    m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots/HBHE");
 
-      if (i<20) 
-	{
-	  val_tpSize_[i]=0;
-	  val_MAX_ADC_[i]=0;
-	}
-      if (i<72)
-	{
-	  val_OCC_PHI[i]=0;
-	  val_EN_PHI[i]=0;
-	}
-      if (i<87)
-	{
-	  val_OCC_ETA[i]=0;
-	  val_EN_ETA[i]=0;
-	}
-      if (i<100) val_tpSOI_ET_[i]=0;
-      if (i<128)
-	{
-	  val_HBHE_ZS_SlidingSum[i]=0;
-	  val_HO_ZS_SlidingSum[i]=0;
-	  val_HF_ZS_SlidingSum[i]=0;
-	}
-      if (i<200)
-	{
-	  val_tpSpectrumAll_[i]=0;
-	  val_tpETSumAll_[i]=0;
-	  val_TP_ADC_[i]=0;
-	}
-      if (i<1000) val_tpCountThr_[i]=0;
-    } // for (unsigned int i=0;i<5000;++i)
+    type = "Energy HBHE - All Data";
+    EnergyPlotsAllData_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - All Emul";
+    EnergyPlotsAllEmul_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - Mismatched FG";
+    EnergyPlotsMismatchedFG_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - Data Only";
+    EnergyPlotsDataOnly_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - Emul Only";
+    EnergyPlotsEmulOnly_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - Missing Data";
+    EnergyPlotsMissingData_[0] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HBHE - Missing Emul";
+    EnergyPlotsMissingEmul_[0] = m_dbe->book1D(type, type, 256, 0, 256);
 
-  // 2D counters
-  for (unsigned int i=0;i<10;++i)
-    {
-      for (unsigned int j=0;j<200;++j)
-	{
-	  val_tpSpectrum_[i][j]=0;
-	}
-    }
-  for (unsigned int i=0;i<128;++i)
-    {
-      for (unsigned int j=0;j<200;++j)
-	{
-	  val_TPvsDigi_[i][j]=0;
-	}
-    }
+    // HF
+    m_dbe->setCurrentFolder(baseFolder_ + "/Energy Plots/HF");
 
-  for (unsigned int i=0;i<87;++i)
-    {
-      for (unsigned int j=0;j<72;++j)
-	{
-	  val_TPOcc_[i][j]=0;
-	  val_OCC_MAP_ETAPHI[i][j]=0;
-	  val_OCC_MAP_ETAPHI_THR[i][j]=0;
-	  val_EN_MAP_ETAPHI[i][j]=0;
-	}
-    }
-
-  for (unsigned int i=0;i<40;++i)
-    {
-      for (unsigned int j=0;j<18;++j)
-	{
-	  val_OCC_ELEC_VME[i][j]=0;
-	  val_EN_ELEC_VME[i][j]=0;
-	}
-    }
-
-  for (unsigned int i=0;i<15;++i)
-    {
-      for (unsigned int j=0;j<36;++j)
-	{
-	  val_OCC_ELEC_DCC[i][j]=0;
-	  val_EN_ELEC_DCC[i][j]=0;
-	}
-    }
+    type = "Energy HF - All Data";
+    EnergyPlotsAllData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - All Emul";
+    EnergyPlotsAllEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Mismatched FG";
+    EnergyPlotsMismatchedFG_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Data Only";
+    EnergyPlotsDataOnly_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Emul Only";
+    EnergyPlotsEmulOnly_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Missing Data";
+    EnergyPlotsMissingData_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+    type = "Energy HF - Missing Emul";
+    EnergyPlotsMissingEmul_[1] = m_dbe->book1D(type, type, 256, 0, 256);
+  }
 
   return;
 } // void HcalTrigPrimMonitor::setup(...)
@@ -254,7 +151,9 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HBHEDigiCollection& hbhedigi,
 				       const HODigiCollection& hodigi,
 				       const HFDigiCollection& hfdigi,
-                                       const HcalTrigPrimDigiCollection& tpDigis,
+                               const HcalTrigPrimDigiCollection& tpDigis,
+                               const HcalTrigPrimDigiCollection& emultpDigis,
+                               const FEDRawDataCollection& rawraw,
 				       const HcalElectronicsMap& emap
 				       )
 {
@@ -265,334 +164,211 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   }
 
   HcalBaseMonitor::processEvent();
-  ++val_tpCount_[tpDigis.size()];
 
-  float data[10];
-  ClearEvent();
-
-  edm::Handle<HcalTrigPrimDigiCollection> Tr_hbhe;
-    
-    
-  int TPGsOverThreshold = 0;
-  //int iDepth;
-  int iEta;
-  int iPhi;
-  for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); ++j)
-    {
-      const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
-      
-      
-      // find corresponding rechit and digis
-      HcalTrigTowerDetId tpid=digi.id();
-      //iDepth=digi.id().depth()-1;
-      /*
-	iDepth=0; // HcalTrigTowerDetId only has one depth?
-	if (iDepth<2 && (HcalSubdetector)(digi.id().subdet())==HcalEndcap)
-	iDepth+=4; // shift HE depths 1 and 2
-      */
-      iEta=tpid.ieta();
-      iPhi=tpid.iphi();
-      HcalElectronicsId eid = emap.lookupTrigger(tpid);
-      
-      ++val_tpSOI_ET_[static_cast<int>(digi.SOI_compressedEt())];
-      //if(digi.SOI_compressedEt()>0 || true) // digi.SOI_compressedEt() check does nothing here -- do we only want to fill when SOI_compressedEt >0?
-      {	
-	++val_tpSize_[static_cast<int>(digi.size())];
-	
-	++val_OCC_ETA[static_cast<int>(iEta+(etaBins_-2)/2)];
-	
-	++val_OCC_PHI[iPhi-1];
-	++val_OCC_MAP_ETAPHI[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1];
-
-	val_EN_ETA[static_cast<int>(iEta+(etaBins_-2)/2)]+=digi.SOI_compressedEt();
-	val_EN_PHI[iPhi-1]+=digi.SOI_compressedEt();
-	val_EN_MAP_ETAPHI[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1]+=digi.SOI_compressedEt();
-	
-	float slotnum = eid.htrSlot() + 0.5*eid.htrTopBottom();	
-	++val_OCC_ELEC_VME[static_cast<int>(2*(slotnum))][static_cast<int>(eid.readoutVMECrateId())];
-	++val_OCC_ELEC_DCC[static_cast<int>(eid.spigot())][static_cast<int>(eid.dccid())];
-
-	val_EN_ELEC_VME[static_cast<int>(2*(slotnum))][static_cast<int>(eid.readoutVMECrateId())]+=digi.SOI_compressedEt();
-	val_EN_ELEC_DCC[static_cast<int>(eid.spigot())][static_cast<int>(eid.dccid())]+=digi.SOI_compressedEt();
-	  
-	double etSum = 0;
-	bool threshCond = false;
-	
-	for (int j=0; j<digi.size(); ++j) 
-	  {
-	    etSum += digi.sample(j).compressedEt();
-	    if (digi.sample(j).compressedEt()>occThresh_) threshCond = true;
-	  }
-
-	++val_tpETSumAll_[static_cast<int>(etSum)];
-	if (threshCond)
-	  {
-	    //OCC_MAP_GEO->Fill(tpid.ieta(),tpid.iphi());  // which ieta and iphi positions the TPGs have for overThreshold cut
-	    ++val_OCC_MAP_ETAPHI_THR[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1];
-	    ++TPGsOverThreshold;
-	  }
-      } // if (digi.SOI_compressedEt() || true) -- defunct loop condition
-      
-	/**************/
-      for (int i=0; i<digi.size(); ++i) 
-	{
-	  data[i]=digi.sample(i).compressedEt();
-	  if(digi.sample(i).compressedEt()>TPThresh_)
-	    {
-	      if (digi.sample(i).compressedEt()<=200)
-		{
-		  ++val_tpSpectrum_[i][static_cast<int>(digi.sample(i).compressedEt())];
-		  ++val_tpSpectrumAll_[static_cast<int>(digi.sample(i).compressedEt())];
-		}
-	      ++val_TPTiming_[i];
-	      if(digi.id().iphi()>1  && digi.id().iphi()<36) 
-		{
-		  //TPTimingTop_->Fill(i);
-		  ++val_TPTimingTop_[i];
-		}
-	      if(digi.id().iphi()>37 && digi.id().iphi()<72) 
-		{
-		  //TPTimingBot_->Fill(i);
-		  ++val_TPTimingBot_[i];
-		}
-	      //TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
-	      ++val_TPOcc_[static_cast<int>(iEta+(etaBins_-2)/2)][iPhi-1];
-	    }
-	}
-      set_tp(digi.id().ieta(),digi.id().iphi(),1,data);
-      /*************/
-      
-    } // for (HcalTrigPrimDigiCollection...)
+  buildFrontEndErrMap(rawraw, emap);
+  ErrorFlagPerEvent_[0] = 0;
+  ErrorFlagPerEvent_[1] = 0;
+  ErrorFlagPerEventZS_[0] = 0;
+  ErrorFlagPerEventZS_[1] = 0;
   
-  ++val_tpCountThr_[TPGsOverThreshold];
+  for (HcalTrigPrimDigiCollection::const_iterator data = tpDigis.begin();
+                                                  data != tpDigis.end();
+                                                  ++data){
 
-  for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j)
-    {
-      HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      for(int i=0; i<digi.size(); ++i) {
-	data[i]=digi.sample(i).adc();
-	if (i==0) maxsum = data[i];
-	else if ((data[i] + data[i-1] ) > maxsum) 
-	  maxsum = data[i] + data[i-1];
+
+    int IsHF = (data->id().ietaAbs() >= 29) ? 1 : 0;
+    int ieta = data->id().ieta();
+    int iphi = data->id().iphi();
+
+    TPOccupancy_->Fill(ieta, iphi);
+
+    // Check missing from emulator
+    HcalTrigPrimDigiCollection::const_iterator emul = emultpDigis.find(data->id());
+    if (emul == emultpDigis.end()) {
+      ErrorFlagPerEvent_[IsHF] |= (0x1 << kMissingEmul);
+      MissingEmul_->Fill(ieta, iphi);
+
+      int dataTPmax = 0;
+      for (int i=0; i<data->size(); ++i) {
+        int dataEt = data->sample(i).compressedEt();
+        if (dataEt > dataTPmax) dataTPmax = dataEt;
+        EnergyPlotsMissingEmul_[IsHF]->Fill(dataEt);
       }
-      set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-      if (maxsum>=0 && maxsum<128)
-	++val_HBHE_ZS_SlidingSum[static_cast<int>(maxsum)];
-    } // for (HBHEDigiCollection...)
-  
-
-  for(HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j){
-    HFDataFrame digi = (const HFDataFrame)(*j);
-    for(int i=0; i<digi.size(); ++i) {
-      data[i]=digi.sample(i).adc();
-      if (i==0) maxsum = data[i];
-      else if ((data[i] + data[i-1] ) > maxsum) 
-	maxsum = data[i] + data[i-1];
+      // Check ZS Alarm Threshold
+      if (dataTPmax > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMissingEmul);
+      continue;
     }
-    //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-    if (maxsum>=0 && maxsum<128)
-      ++val_HF_ZS_SlidingSum[static_cast<int>(maxsum)];
-  } // for (HFDigiCollection...)
-
-  for(HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); ++j){
-    HODataFrame digi = (const HODataFrame)(*j);
-    for(int i=0; i<digi.size(); ++i) {
-      data[i]=digi.sample(i).adc();
-      if (i==0) maxsum = data[i];
-      else if ((data[i] + data[i-1] ) > maxsum) 
-	maxsum = data[i] + data[i-1];
+    
+    if (FrontEndErrors.find( data->id().rawId() ) != FrontEndErrors.end()) {
+      //Front End Format Error
+      continue;
     }
-    //set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-    if (maxsum>=0 && maxsum<128)
-      ++val_HO_ZS_SlidingSum[static_cast<int>(maxsum)];
-  } // for (HODigiCollection...)
-  
-  // Correlation plots...
-  int eta,phi;
-  int tempsum;
-  float tpval;
-  for(eta=-16;eta<=16;++eta) 
-    {for(phi=1;phi<=72;++phi)
-	{
-	  //for(int i=1;i<10;++i){ // not sure what this loop was supposed to accomplish
-	  int j1=(int)get_adc(eta,phi,1)[ADCdigi_];
-	  float tmp11 = (TrigMonAdc2fc[j1]+0.5);
-	  int j2=(int)get_adc(eta,phi,1)[ADCdigi_+1];
-	  float tmp21 = (TrigMonAdc2fc[j2]+0.5);
-	  int j3=(int)get_adc(eta,phi,2)[ADCdigi_];
-	  float tmp12 = (TrigMonAdc2fc[j3]+0.5);
-	  int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
-	  float tmp22 = (TrigMonAdc2fc[j4]+0.5);
-	  if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1))
-	    {
-	      if(get_tp(eta,phi)[TPdigi_]>TPThresh_)
-		{ 
-		  tpval=get_tp(eta,phi)[TPdigi_];
-		  tempsum=static_cast<int>(tmp11+tmp21+tmp12+tmp22);
-		  if (tempsum>=0 && tempsum<128 && tpval>=0 && tpval<200)
-		    ++val_TPvsDigi_[static_cast<int>(tmp11+tmp21+tmp12+tmp22)][static_cast<int>(tpval)];
-		  float Energy=0;
-		  int TS = 0;
-		  for(int j=0;j<10;++j)
-		    {
-		      if (get_adc(eta,phi,1)[j]>Energy)
-			{
-			  Energy=get_adc(eta,phi,1)[j];
-			  TS = j;
-			}
-		    } // for (int j=0;j<10;++j)
-		  ++val_MAX_ADC_[static_cast<int>(Energy)];
-		  ++val_MAX_ADC_[static_cast<int>(TS)];
-		  //This may need to continue?
-		  Energy=0; 
-		  for(int j=0;j<10;++j) 
-		    Energy+=get_adc(eta,phi,1)[j]; 
-		  ++val_TP_ADC_[static_cast<int>(Energy)];
-		} // if (get_tp(eta,phi)[TPdigi_]>TPThresh_)
-	    } // if (IsSet_adc(...))
-	} //for (eta=-16;...)
-    } // for (phi=1;...)
 
-  if (ievt_%tp_checkNevents_==0)
-    fill_Nevents();
+
+    for (int i=0; i < data->size(); ++i){
+      int dataEt = data->sample(i).compressedEt();
+      int dataFG = data->sample(i).fineGrain();
+      int emulEt = emul->sample(i).compressedEt();
+      int emulFG = emul->sample(i).fineGrain();
+
+      if (dataEt > 0) NonZeroTP_->Fill(ieta, iphi);
+
+      //Determine Error Flag
+      //Default: kUnkown
+      ErrorFlag errflag = kUnknown;
+      if (dataEt == emulEt){
+        if (dataFG == emulFG){
+          if (dataEt == 0) errflag = kZeroTP; //Matched:  zero TP
+            else errflag = kMatched; //Matched:  non-zeor TP
+          }
+        else errflag = kMismatchedFG; // Mismatched FG bit
+      } //end if (dataEt == emulEt)
+      else{
+        if (dataEt == 0) errflag = kEmulOnly;
+        else if (emulEt == 0 ) errflag = kDataOnly;
+        else errflag = kMismatchedEt;
+      }
+
+      //TODO: Message log Unknown errflag for debug
+      // Fill histogram for non-zero TPs
+      switch (errflag){
+        case kMatched:
+          MatchedTP_->Fill(ieta, iphi);
+          EtCorr_[IsHF]->Fill(dataEt, emulEt);
+          break;
+        case kMismatchedEt:
+          MismatchedEt_->Fill(ieta, iphi);
+          EtCorr_[IsHF]->Fill(dataEt, emulEt);
+          break;
+        case kMismatchedFG:
+          MismatchedFG_->Fill(ieta, iphi);
+          EtCorr_[IsHF]->Fill(dataEt, emulEt);
+          EnergyPlotsMismatchedFG_[IsHF]->Fill(dataEt);
+          break;
+        case kDataOnly:
+          DataOnly_->Fill(ieta, iphi);
+          EnergyPlotsDataOnly_[IsHF]->Fill(dataEt);
+        case kEmulOnly:
+          EmulOnly_->Fill(ieta, iphi);
+          EnergyPlotsEmulOnly_[IsHF]->Fill(emulEt);
+        default:
+          break;
+      }
+
+      // Other plots
+      if (errflag != kZeroTP){
+        // Don't count in ErrorFlagPerEvent_ for matched TP.
+        if (errflag != kMatched) ErrorFlagPerEvent_[IsHF] |= (0x1 << errflag);
+        EnergyPlotsAllData_[IsHF]->Fill(dataEt);
+        EnergyPlotsAllEmul_[IsHF]->Fill(emulEt);
+      }
+    }
+    
+    // Check ZS Alarm Threshold
+    // Check peak shift +/- 1 SOI for HBHE
+    // max(|emul.et - data.et|) for HF
+    if (IsHF){
+      int maxdiff = 0;
+      for (int i=0; i<data->size(); ++i){
+        int diff = abs(data->sample(i).compressedEt() - emul->sample(i).compressedEt());
+        if (diff > maxdiff) maxdiff = diff;
+      }
+      if (maxdiff > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMismatchedEt);
+    }
+    else {
+      int dataEtSOI = data->SOI_compressedEt();
+      int mindiff = 0;
+      for (int i=data->presamples()-1; i<=data->presamples()+1 && i<emul->size(); ++i){
+        if (i<0) continue;
+        int diff = abs(emul->sample(i).compressedEt() - dataEtSOI);
+        if (diff < mindiff) mindiff = diff;
+      }
+      if (mindiff > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMismatchedEt);
+    }
+  }
+
+  // Checking missing from data
+  for (HcalTrigPrimDigiCollection::const_iterator emul = emultpDigis.begin();
+                                                  emul != emultpDigis.end();
+                                                  ++emul){
+
+    int IsHF = (emul->id().ietaAbs() >= 29) ? 1 : 0;
+    int ieta = emul->id().ieta();
+    int iphi = emul->id().iphi();
+
+    HcalTrigPrimDigiCollection::const_iterator data = tpDigis.find(emul->id());
+    if ( data ==  emultpDigis.end() ) {
+      ErrorFlagPerEvent_[IsHF] |= (0x1 << kMissingData);
+      MissingData_->Fill(ieta, iphi);
+      int emulTPmax = 0;
+      for (int i=0; i<emul->size(); ++i){
+        int emulEt = emul->sample(i).compressedEt();
+        if (emulEt > emulTPmax) emulTPmax = emulEt;
+        EnergyPlotsMissingData_[IsHF]->Fill(emulEt);
+      }
+      if (emulTPmax > ZSAlarmThreshold_) ErrorFlagPerEventZS_[IsHF] |= (0x1 << kMissingData);
+    }
+  } //loop emul TP digis
+
+  // Fill Summary (Per Event)
+  for (unsigned int IsHF=0; IsHF<=1; ++IsHF){
+    if (ErrorFlagPerEvent_[IsHF] == 0) {
+      // 0 - Good = No Error Flag per event
+      // 1 - Bad
+      Summary_->Fill(0, IsHF);
+      ErrorFlagSummary_->Fill(kMatched, IsHF);
+    }
+    else Summary_->Fill(1, IsHF);
+    if (ErrorFlagPerEventZS_[IsHF] == 0) {
+      SummaryZS_->Fill(0, IsHF);
+      ErrorFlagSummaryZS_->Fill(kMatched, IsHF);
+    }
+    else SummaryZS_->Fill(1, IsHF);
+    for (unsigned int i=1; i<kNErrorFlag; ++i){
+      if ((ErrorFlagPerEvent_[IsHF] & (0x1 << i)) > 0) ErrorFlagSummary_->Fill(i,IsHF);
+      if ((ErrorFlagPerEventZS_[IsHF] & (0x1 << i)) > 0) ErrorFlagSummaryZS_->Fill(i,IsHF);
+    }
+  } // Fill Summary
   return;
 }
 
+void HcalTrigPrimMonitor::buildFrontEndErrMap(const FEDRawDataCollection& rawraw, const HcalElectronicsMap& emap){
+  //Front End Format Errors
+  FrontEndErrors.clear();
+  for(int i=FEDNumbering::getHcalFEDIds().first; i<=FEDNumbering::getHcalFEDIds().second; ++i) {
+    const FEDRawData& raw = rawraw.FEDData(i);
+    if (raw.size()<12) continue;
+    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+    if(!dccHeader) continue;
+    HcalHTRData htr;
+    for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
+      if (!dccHeader->getSpigotPresent(spigot)) continue;
+      dccHeader->getSpigotData(spigot,htr,raw.size());
+      int dccid = dccHeader->getSourceId();
+      int errWord = htr.getErrorsWord() & 0x1FFFF;
+      //bool HTRError = (!htr.check() || htr.isHistogramEvent() || (errWord ^ 0x8000)!=0);
+      bool HTRError = (!htr.check() || htr.isHistogramEvent() || (errWord & 0x800)!=0);
 
-void HcalTrigPrimMonitor::fill_Nevents()
-{
-  if (fVerbosity)
-    {  
-      std::cout <<"  TP CURRENT POINTER: "<< TPTimingBot_ << std::endl;
-      std::cout <<"\t  TP KIND "<< TPTimingBot_->kind() << std::endl;
+      if(HTRError) {
+        bool valid =false;
+        for(int fchan=0; fchan<3 && !valid; fchan++) {
+          for(int fib=0; fib<9 && !valid; fib++) {
+            HcalElectronicsId eid(fchan,fib,spigot,dccid-FEDNumbering::getHcalFEDIds().first);
+            eid.setHTR(htr.readoutVMECrateId(),htr.htrSlot(),htr.htrTopBottom());
+            DetId detId = emap.lookup(eid);
+            if(detId.null()) continue;
+            HcalSubdetector subdet=(HcalSubdetector(detId.subdetId()));
+            if (detId.det()!=4||
+              (subdet!=HcalBarrel && subdet!=HcalEndcap &&
+              subdet!=HcalForward )) continue;
+            std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(detId);
+            for (std::vector<HcalTrigTowerDetId>::const_iterator triggerId=ids.begin(); triggerId != ids.end(); ++triggerId) {
+              FrontEndErrors.insert(triggerId->rawId());
+            }
+            //valid = true;
+          }
+        }
+      }
     }
-  for (int i=0;i<200;++i)
-    {
-      if (val_tpSpectrumAll_[i])
-	tpSpectrumAll_->setBinContent(i+1,val_tpSpectrumAll_[i]);
-      if (val_tpETSumAll_[i])
-	tpETSumAll_->setBinContent(i+1,val_tpETSumAll_[i]);
-      if (val_TP_ADC_[i])
-	TP_ADC_->setBinContent(i+1,val_TP_ADC_[i]);
-
-      // This caused an "invalid read of size four" when I used a fixed array of pointers.
-      // Swapped to vector of pointers instead.
-      for (int j=0;j<10;++j)
-	{
-	  if (val_tpSpectrum_[j][i])
-	    {
-	      tpSpectrum_[j]->setBinContent(i+1,val_tpSpectrum_[j][i]);
-	    }
-	}
-
-    }
-
-  for (int i=0;i<5000;++i)
-    {
-      if ( val_tpCount_[i])
-	tpCount_->setBinContent(i+1, val_tpCount_[i]);
-    }
-
-  for (int i=0;i<1000;++i)
-    {
-      if ( val_tpCountThr_[i])
-	tpCountThr_->setBinContent(i+1, val_tpCountThr_[i]);
-    }
-
-  for (int i=0;i<20;++i)
-    {
-      if (val_tpSize_[i])
-	tpSize_->setBinContent(i+1,val_tpSize_[i]);
-      if ( val_MAX_ADC_[i])
-	MAX_ADC_->setBinContent(i+1,val_MAX_ADC_[i]);
-    }
-
-  for (int i=0;i<100;++i)
-    {
-      if (val_tpSOI_ET_[i])
-	tpSOI_ET_->setBinContent(i+1,val_tpSOI_ET_[i]);
-    }
-  
-
-  for (int i=0;i<10;++i)
-    {
-      if (val_TPTiming_[i])
-	TPTiming_->setBinContent(i+1,val_TPTiming_[i]);
-      if (val_TPTimingTop_[i])
-	TPTimingTop_->setBinContent(i+1,val_TPTimingTop_[i]);
-      if (val_TPTimingBot_[i]>=0)
-	{
-	  TPTimingBot_->setBinContent(i+1,val_TPTimingBot_[i]);
-	}
-      if (val_TS_MAX_[i])
-	TS_MAX_->setBinContent(i+1,val_TS_MAX_[i]);
-    }
-
-  for (int i=0;i<128;++i)
-    {
-      if (val_HBHE_ZS_SlidingSum[i])
-	me_HBHE_ZS_SlidingSum->setBinContent(i+1,val_HBHE_ZS_SlidingSum[i]);
-      if (val_HO_ZS_SlidingSum[i])
-	me_HO_ZS_SlidingSum->setBinContent(i+1,val_HO_ZS_SlidingSum[i]);
-      if (val_HF_ZS_SlidingSum[i])
-	me_HF_ZS_SlidingSum->setBinContent(i+1,val_HF_ZS_SlidingSum[i]);
-      for (int j=0;j<200;++j)
-	{
-	  if (val_TPvsDigi_[i][j])
-	    TPvsDigi_->setBinContent(i+1,j+1,val_TPvsDigi_[i][j]);
-	}
-    }
-
-  // Eta, phi histograms have extra empty bin on either side, so we
-  // need to add +2 (rather than +1) when setting bin content
-  for (int i=0;i<87;++i)
-    {
-      if (val_OCC_ETA[i])
-	OCC_ETA->setBinContent(i+2,val_OCC_ETA[i]);
-      if (val_EN_ETA[i])
-	EN_ETA->setBinContent(i+2,val_EN_ETA[i]);
-
-      for (int j=0;j<72;++j)
-	{
-	  if (i==0)
-	    {
-	      if (val_OCC_PHI[j])
-		OCC_PHI->setBinContent(j+2,val_OCC_PHI[j]);
-	      if (val_EN_PHI[j])
-		EN_PHI->setBinContent(j+2,val_EN_PHI[j]);
-	    }
-	  if (val_TPOcc_[i][j])
-	    TPOcc_->setBinContent(i+2,j+2,val_TPOcc_[i][j]);
-	  if (val_EN_MAP_ETAPHI[i][j])
-	    EN_MAP_ETAPHI->setBinContent(i+2,j+2,val_EN_MAP_ETAPHI[i][j]);
-	  if (val_OCC_MAP_ETAPHI[i][j])
-	    OCC_MAP_ETAPHI->setBinContent(i+2,j+2,val_OCC_MAP_ETAPHI[i][j]);
-	  if (val_OCC_MAP_ETAPHI_THR[i][j])
-	    OCC_MAP_ETAPHI_THR->setBinContent(i+2,j+2,val_OCC_MAP_ETAPHI_THR[i][j]);
-	}
-    }
-
-  for (int i=0;i<40;++i)
-    {
-      for (int j=0;j<18;++j)
-	{
-	  if (val_OCC_ELEC_VME[i][j])
-	    OCC_ELEC_VME->setBinContent(i+1,j+1,val_OCC_ELEC_VME[i][j]);
-	  if (val_EN_ELEC_VME[i][j])
-	    EN_ELEC_VME->setBinContent(i+1,j+1,val_EN_ELEC_VME[i][j]);
-	}
-    }
-
-
-  // Fill VME plots
-  for (int i=0;i<HcalDCCHeader::SPIGOT_COUNT;++i)
-    {
-        for (int j=0;j<36;++j)
-	{
-	  if (val_OCC_ELEC_DCC[i][j])
-	    OCC_ELEC_DCC->setBinContent(i+1,j+1,val_OCC_ELEC_DCC[i][j]);
-	  if (val_EN_ELEC_DCC[i][j])
-	    EN_ELEC_DCC->setBinContent(i+1,j+1,val_EN_ELEC_DCC[i][j]);
-	}
-    }
-} //void HcalTrigPrimMonitor::Fill_Nevents()
+  }
+}

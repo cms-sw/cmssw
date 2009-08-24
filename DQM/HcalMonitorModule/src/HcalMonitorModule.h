@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/08/06 11:22:17 $
- * $Revision: 1.48 $
+ * $Date: 2009/08/09 12:46:36 $
+ * $Revision: 1.49 $
  * \author W. Fisher
  *
 */
@@ -190,6 +190,7 @@ public:
   edm::InputTag inputLabelRecHitHF_;
   edm::InputTag inputLabelRecHitHO_;
   edm::InputTag inputLabelRecHitZDC_;
+  edm::InputTag inputLabelEmulDigi_;
 
   edm::InputTag inputLabelCaloTower_;
   edm::InputTag inputLabelLaser_;

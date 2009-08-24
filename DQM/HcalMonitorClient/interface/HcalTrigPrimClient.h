@@ -48,36 +48,8 @@ class HcalTrigPrimClient : public HcalBaseClient {
   void createTests();
 
  private:
-  
-  TH1F* tpCount_;
-  TH1F* tpCountThr_;
-  TH1F* tpSize_;
-  TH1F* tpSpectrum_[10];
-  TH1F* tpSpectrumAll_;
-  TH1F* tpETSumAll_;
-  TH1F* tpSOI_ET_;
-  TH1F* OCC_ETA_;
-  TH1F* OCC_PHI_;
-  TH2F* OCC_ELEC_VME_;
-  TH2F* OCC_ELEC_DCC_;
-  TH2F* OCC_MAP_GEO_;
-
-  TH2F* OCC_MAP_THR_;
-  TH1F* EN_ETA_;
-  TH1F* EN_PHI_;
-  TH2F* EN_ELEC_VME_;
-  TH2F* EN_ELEC_DCC_;
-  TH2F* EN_MAP_GEO_;
-  TH1F* TPTiming_;
-  TH1F* TPTimingTop_;
-  TH1F* TPTimingBot_;
-  TH1F* TP_ADC_;
-  TH1F* MAX_ADC_;
-  TH1F* TS_MAX_;
-  TH2F* TPOcc_;
-  TH2F* TPvsDigi_;
-
-
+  std::map< std::string, TH1* > histo1d;
+  std::map< std::string, TH1* > histo2d;
 };
 
 #endif
