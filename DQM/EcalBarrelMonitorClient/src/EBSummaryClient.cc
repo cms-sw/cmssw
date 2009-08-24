@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/23 20:31:34 $
- * $Revision: 1.191 $
+ * $Date: 2009/08/23 20:44:31 $
+ * $Revision: 1.192 $
  * \author G. Della Ricca
  *
 */
@@ -976,8 +976,8 @@ void EBSummaryClient::analyze(void) {
     for ( int ipx = 1; ipx <= 72; ipx++ ) {
       if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, 0. );
       if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setBinContent( ipx, iex, 6. );
-      if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setBinContent( ipx, iex, -1. );
-      if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, 0. );
+      if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setBinContent( ipx, iex, 0. );
+      if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, -1. );
     }
   }
 
