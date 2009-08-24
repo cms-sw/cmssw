@@ -61,6 +61,27 @@ def adaptPFPhotons(process,module):
 def adaptPFJets(process,module):
     module.embedCaloTowers   = False
 
+def adaptPFTaus(process,tauType = 'fixedConePFTau' ): #tauType can be changed only to shrinkig cone one, otherwise request is igonred
+    oldTaus = process.allLayer1Taus.tauSource
+    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
+
+    if tauType == 'shrinkingConePFTau': 
+        print "PF2PAT: tauType changed from default \'fixedConePFTau\' to \'shrinkingConePFTau\'"
+        process.allLayer0TausDiscrimination.PFTauProducer = cms.InputTag(tauType+"Producer")
+        process.allLayer0Taus.src = cms.InputTag(tauType+"Producer")
+        process.pfTauSequence.replace(process.fixedConePFTauProducer,
+                                      process.shrinkingConePFTauProducer)
+        
+    if (tauType != 'shrinkingConePFTau' and tauType != 'fixedConePFTau'):
+        print "PF2PAT: TauType \'"+tauType+"\' is not supported. Default \'fixedConePFTau\' is used instead."
+        tauType = 'fixedConePFTau'
+        
+    redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
+                            process.allLayer1Taus.tauSource,
+                            tauType)
+    switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+
+
 def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import allLayer1PFParticles
     # make modules
@@ -175,13 +196,8 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
     switchToPFJets( process, cms.InputTag('pfNoTau') )
     
     # Taus
-    oldTaus = process.allLayer1Taus.tauSource
-    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-    tauType = 'fixedConePFTau'
-    redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
-                            process.allLayer1Taus.tauSource,
-                            tauType)
-    switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+    adaptPFTaus( process ) #default (i.e. fixedConePFTau)
+    #adaptPFTaus( process, tauType='shrinkingConePFTau' )
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))
