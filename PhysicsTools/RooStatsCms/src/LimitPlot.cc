@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitPlot.cc,v 1.4 2009/04/15 12:11:54 dpiparo Exp $
+// @(#)root/hist:$Id: LimitPlot.cc,v 1.5 2009/05/15 09:55:59 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -114,8 +114,14 @@ LimitPlot::~LimitPlot(){
     if (m_sb_histo)
         delete m_sb_histo;
 
+    if (m_sb_histo_shaded)
+        delete m_sb_histo_shaded;
+
     if (m_b_histo)
         delete m_b_histo;
+
+    if (m_b_histo_shaded)
+        delete m_b_histo_shaded;
 
     if (m_data_m2lnQ_line)
         delete m_data_m2lnQ_line;
