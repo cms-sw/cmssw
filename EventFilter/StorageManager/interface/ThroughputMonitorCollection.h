@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.6 2009/08/18 08:54:13 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.7 2009/08/21 09:28:27 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -8,6 +8,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "toolbox/mem/Pool.h"
+#include "xdata/Double.h"
+#include "xdata/UnsignedInteger32.h"
 
 #include "EventFilter/StorageManager/interface/DQMEventQueue.h"
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
@@ -21,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/21 09:28:27 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -44,42 +46,42 @@ namespace stor {
     }
 
     const MonitoredQuantity& getPoolUsageMQ() const {
-      return _poolUsage;
+      return _poolUsageMQ;
     }
     MonitoredQuantity& getPoolUsageMQ() {
-      return _poolUsage;
+      return _poolUsageMQ;
     }
 
     const MonitoredQuantity& getFragmentQueueEntryCountMQ() const {
-      return _entriesInFragmentQueue;
+      return _entriesInFragmentQueueMQ;
     }
     MonitoredQuantity& getFragmentQueueEntryCountMQ() {
-      return _entriesInFragmentQueue;
+      return _entriesInFragmentQueueMQ;
     }
 
     void addPoppedFragmentSample(double dataSize);
 
     const MonitoredQuantity& getPoppedFragmentSizeMQ() const {
-      return _poppedFragmentSize;
+      return _poppedFragmentSizeMQ;
     }
     MonitoredQuantity& getPoppedFragmentSizeMQ() {
-      return _poppedFragmentSize;
+      return _poppedFragmentSizeMQ;
     }
 
     void addFragmentProcessorIdleSample(utils::duration_t idleTime);
 
     const MonitoredQuantity& getFragmentProcessorIdleMQ() const {
-      return _fragmentProcessorIdleTime;
+      return _fragmentProcessorIdleTimeMQ;
     }
     MonitoredQuantity& getFragmentProcessorIdleMQ() {
-      return _fragmentProcessorIdleTime;
+      return _fragmentProcessorIdleTimeMQ;
     }
 
     const MonitoredQuantity& getFragmentStoreEntryCountMQ() const {
-      return _entriesInFragmentStore;
+      return _entriesInFragmentStoreMQ;
     }
     MonitoredQuantity& getFragmentStoreEntryCountMQ() {
-      return _entriesInFragmentStore;
+      return _entriesInFragmentStoreMQ;
     }
 
     void setStreamQueue(boost::shared_ptr<StreamQueue> streamQueue) {
@@ -87,37 +89,37 @@ namespace stor {
     }
 
     const MonitoredQuantity& getStreamQueueEntryCountMQ() const {
-      return _entriesInStreamQueue;
+      return _entriesInStreamQueueMQ;
     }
     MonitoredQuantity& getStreamQueueEntryCountMQ() {
-      return _entriesInStreamQueue;
+      return _entriesInStreamQueueMQ;
     }
 
     void addPoppedEventSample(double dataSize);
 
     const MonitoredQuantity& getPoppedEventSizeMQ() const {
-      return _poppedEventSize;
+      return _poppedEventSizeMQ;
     }
     MonitoredQuantity& getPoppedEventSizeMQ() {
-      return _poppedEventSize;
+      return _poppedEventSizeMQ;
     }
 
     void addDiskWriterIdleSample(utils::duration_t idleTime);
 
     const MonitoredQuantity& getDiskWriterIdleMQ() const {
-      return _diskWriterIdleTime;
+      return _diskWriterIdleTimeMQ;
     }
     MonitoredQuantity& getDiskWriterIdleMQ() {
-      return _diskWriterIdleTime;
+      return _diskWriterIdleTimeMQ;
     }
 
     void addDiskWriteSample(double dataSize);
 
     const MonitoredQuantity& getDiskWriteMQ() const {
-      return _diskWriteSize;
+      return _diskWriteSizeMQ;
     }
     MonitoredQuantity& getDiskWriteMQ() {
-      return _diskWriteSize;
+      return _diskWriteSizeMQ;
     }
 
     void setDQMEventQueue(boost::shared_ptr<DQMEventQueue> dqmEventQueue) {
@@ -125,28 +127,28 @@ namespace stor {
     }
 
     const MonitoredQuantity& getDQMEventQueueEntryCountMQ() const {
-      return _entriesInDQMEventQueue;
+      return _entriesInDQMEventQueueMQ;
     }
     MonitoredQuantity& getDQMEventQueueEntryCountMQ() {
-      return _entriesInDQMEventQueue;
+      return _entriesInDQMEventQueueMQ;
     }
 
     void addPoppedDQMEventSample(double dataSize);
 
     const MonitoredQuantity& getPoppedDQMEventSizeMQ() const {
-      return _poppedDQMEventSize;
+      return _poppedDQMEventSizeMQ;
     }
     MonitoredQuantity& getPoppedDQMEventSizeMQ() {
-      return _poppedDQMEventSize;
+      return _poppedDQMEventSizeMQ;
     }
 
     void addDQMEventProcessorIdleSample(utils::duration_t idleTime);
 
     const MonitoredQuantity& getDQMEventProcessorIdleMQ() const {
-      return _dqmEventProcessorIdleTime;
+      return _dqmEventProcessorIdleTimeMQ;
     }
     MonitoredQuantity& getDQMEventProcessorIdleMQ() {
-      return _dqmEventProcessorIdleTime;
+      return _dqmEventProcessorIdleTimeMQ;
     }
 
     /**
@@ -175,25 +177,27 @@ namespace stor {
 
     virtual void do_calculateStatistics();
     virtual void do_reset();
+    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
+    virtual void do_updateInfoSpaceItems();
 
     void calcPoolUsage();
 
     const int _binCount;
 
-    MonitoredQuantity _poolUsage;
-    MonitoredQuantity _entriesInFragmentQueue;
-    MonitoredQuantity _poppedFragmentSize;
-    MonitoredQuantity _fragmentProcessorIdleTime;
-    MonitoredQuantity _entriesInFragmentStore;
+    MonitoredQuantity _poolUsageMQ;
+    MonitoredQuantity _entriesInFragmentQueueMQ;
+    MonitoredQuantity _poppedFragmentSizeMQ;
+    MonitoredQuantity _fragmentProcessorIdleTimeMQ;
+    MonitoredQuantity _entriesInFragmentStoreMQ;
 
-    MonitoredQuantity _entriesInStreamQueue;
-    MonitoredQuantity _poppedEventSize;
-    MonitoredQuantity _diskWriterIdleTime;
-    MonitoredQuantity _diskWriteSize;
+    MonitoredQuantity _entriesInStreamQueueMQ;
+    MonitoredQuantity _poppedEventSizeMQ;
+    MonitoredQuantity _diskWriterIdleTimeMQ;
+    MonitoredQuantity _diskWriteSizeMQ;
 
-    MonitoredQuantity _entriesInDQMEventQueue;
-    MonitoredQuantity _poppedDQMEventSize;
-    MonitoredQuantity _dqmEventProcessorIdleTime;
+    MonitoredQuantity _entriesInDQMEventQueueMQ;
+    MonitoredQuantity _poppedDQMEventSizeMQ;
+    MonitoredQuantity _dqmEventProcessorIdleTimeMQ;
 
     boost::shared_ptr<FragmentQueue> _fragmentQueue;
     boost::shared_ptr<StreamQueue> _streamQueue;
@@ -204,6 +208,21 @@ namespace stor {
 
     toolbox::mem::Pool* _pool;
 
+    xdata::UnsignedInteger32 _poolUsage;              //I2O message pool usage in bytes
+    xdata::UnsignedInteger32 _entriesInFragmentQueue; //Instantaneous number of fragments in fragment queue
+    xdata::Double            _fragmentQueueRate;      //Rate of fragments popped from fragment queue
+    xdata::Double            _fragmentQueueBandwidth; //Bandwidth of fragments popped from fragment queue (MB/s)
+    xdata::UnsignedInteger32 _fragmentStoreSize;      //Instantaneous number of fragments in fragment store
+    xdata::UnsignedInteger32 _entriesInStreamQueue;   //Instantaneous number of events in stream queue
+    xdata::Double            _streamQueueRate;        //Rate of events popped from fragment queue
+    xdata::Double            _streamQueueBandwidth;   //Bandwidth of events popped from fragment queue (MB/s)
+    xdata::UnsignedInteger32 _entriesInDQMQueue;      //Instantaneous number of events in dqm event queue
+    xdata::Double            _dqmQueueRate;           //Rate of events popped from dqm event queue
+    xdata::Double            _dqmQueueBandwidth;      //Bandwidth of events popped from dqm event queue (MB/s)
+
+    xdata::Double _fragmentProcessorBusy;             //Fragment processor busy percentage
+    xdata::Double _diskWriterBusy;                    //Disk writer busy percentage
+    xdata::Double _dqmEventProcessorBusy;             //DQM event processor busy percentage
   };
   
 } // namespace stor

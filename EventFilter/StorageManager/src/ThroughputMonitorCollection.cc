@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.8 2009/08/18 08:55:12 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.9 2009/08/21 09:28:49 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -8,18 +8,18 @@ using namespace stor;
 ThroughputMonitorCollection::ThroughputMonitorCollection(const utils::duration_t& updateInterval) :
   MonitorCollection(updateInterval),
   _binCount(static_cast<int>(300/updateInterval)),
-  _poolUsage(updateInterval, _binCount),
-  _entriesInFragmentQueue(updateInterval, _binCount),
-  _poppedFragmentSize(updateInterval, _binCount),
-  _fragmentProcessorIdleTime(updateInterval, _binCount),
-  _entriesInFragmentStore(updateInterval, _binCount),
-  _entriesInStreamQueue(updateInterval, _binCount),
-  _poppedEventSize(updateInterval, _binCount),
-  _diskWriterIdleTime(updateInterval, _binCount),
-  _diskWriteSize(updateInterval, _binCount),
-  _entriesInDQMEventQueue(updateInterval, _binCount),
-  _poppedDQMEventSize(updateInterval, _binCount),
-  _dqmEventProcessorIdleTime(updateInterval, _binCount),
+  _poolUsageMQ(updateInterval, _binCount),
+  _entriesInFragmentQueueMQ(updateInterval, _binCount),
+  _poppedFragmentSizeMQ(updateInterval, _binCount),
+  _fragmentProcessorIdleTimeMQ(updateInterval, _binCount),
+  _entriesInFragmentStoreMQ(updateInterval, _binCount),
+  _entriesInStreamQueueMQ(updateInterval, _binCount),
+  _poppedEventSizeMQ(updateInterval, _binCount),
+  _diskWriterIdleTimeMQ(updateInterval, _binCount),
+  _diskWriteSizeMQ(updateInterval, _binCount),
+  _entriesInDQMEventQueueMQ(updateInterval, _binCount),
+  _poppedDQMEventSizeMQ(updateInterval, _binCount),
+  _dqmEventProcessorIdleTimeMQ(updateInterval, _binCount),
   _currentFragmentStoreSize(0),
   _pool(0)
 {}
@@ -34,46 +34,46 @@ void ThroughputMonitorCollection::setMemoryPoolPointer(toolbox::mem::Pool* pool)
 
 void ThroughputMonitorCollection::addPoppedFragmentSample(double dataSize)
 {
-  _poppedFragmentSize.addSample(dataSize);
+  _poppedFragmentSizeMQ.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::
 addFragmentProcessorIdleSample(utils::duration_t idleTime)
 {
-  _fragmentProcessorIdleTime.addSample(idleTime);
+  _fragmentProcessorIdleTimeMQ.addSample(idleTime);
 }
 
 
 void ThroughputMonitorCollection::addPoppedEventSample(double dataSize)
 {
-  _poppedEventSize.addSample(dataSize);
+  _poppedEventSizeMQ.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::
 addDiskWriterIdleSample(utils::duration_t idleTime)
 {
-  _diskWriterIdleTime.addSample(idleTime);
+  _diskWriterIdleTimeMQ.addSample(idleTime);
 }
 
 
 void ThroughputMonitorCollection::addDiskWriteSample(double dataSize)
 {
-  _diskWriteSize.addSample(dataSize);
+  _diskWriteSizeMQ.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::addPoppedDQMEventSample(double dataSize)
 {
-  _poppedDQMEventSize.addSample(dataSize);
+  _poppedDQMEventSizeMQ.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::
 addDQMEventProcessorIdleSample(utils::duration_t idleTime)
 {
-  _dqmEventProcessorIdleTime.addSample(idleTime);
+  _dqmEventProcessorIdleTimeMQ.addSample(idleTime);
 }
 
 
@@ -83,7 +83,7 @@ void ThroughputMonitorCollection::calcPoolUsage()
   {
     try {
       _pool->lock();
-      _poolUsage.addSample( _pool->getMemoryUsage().getUsed() );
+      _poolUsageMQ.addSample( _pool->getMemoryUsage().getUsed() );
       _pool->unlock();
     }
     catch (...)
@@ -91,7 +91,7 @@ void ThroughputMonitorCollection::calcPoolUsage()
       _pool->unlock();
     }
   }
-  _poolUsage.calculateStatistics();
+  _poolUsageMQ.calculateStatistics();
 }
 
 
@@ -100,46 +100,69 @@ void ThroughputMonitorCollection::do_calculateStatistics()
   calcPoolUsage();
 
   if (_fragmentQueue.get() != 0) {
-    _entriesInFragmentQueue.addSample(_fragmentQueue->size());
+    _entriesInFragmentQueueMQ.addSample(_fragmentQueue->size());
   }
   if (_streamQueue.get() != 0) {
-    _entriesInStreamQueue.addSample(_streamQueue->size());
+    _entriesInStreamQueueMQ.addSample(_streamQueue->size());
   }
   if (_dqmEventQueue.get() != 0) {
-    _entriesInDQMEventQueue.addSample(_dqmEventQueue->size());
+    _entriesInDQMEventQueueMQ.addSample(_dqmEventQueue->size());
   }
-  _entriesInFragmentStore.addSample(getFragmentStoreSize());
+  _entriesInFragmentStoreMQ.addSample(getFragmentStoreSize());
 
-  _entriesInFragmentQueue.calculateStatistics();
-  _poppedFragmentSize.calculateStatistics();
-  _fragmentProcessorIdleTime.calculateStatistics();
-  _entriesInFragmentStore.calculateStatistics();
-  _entriesInStreamQueue.calculateStatistics();
-  _poppedEventSize.calculateStatistics();
-  _diskWriterIdleTime.calculateStatistics();
-  _diskWriteSize.calculateStatistics();
-  _entriesInDQMEventQueue.calculateStatistics();
-  _poppedDQMEventSize.calculateStatistics();
-  _dqmEventProcessorIdleTime.calculateStatistics();
+  _entriesInFragmentQueueMQ.calculateStatistics();
+  _poppedFragmentSizeMQ.calculateStatistics();
+  _fragmentProcessorIdleTimeMQ.calculateStatistics();
+  _entriesInFragmentStoreMQ.calculateStatistics();
+  _entriesInStreamQueueMQ.calculateStatistics();
+  _poppedEventSizeMQ.calculateStatistics();
+  _diskWriterIdleTimeMQ.calculateStatistics();
+  _diskWriteSizeMQ.calculateStatistics();
+  _entriesInDQMEventQueueMQ.calculateStatistics();
+  _poppedDQMEventSizeMQ.calculateStatistics();
+  _dqmEventProcessorIdleTimeMQ.calculateStatistics();
 }
 
 
 void ThroughputMonitorCollection::do_reset()
 {
-  _poolUsage.reset();
-  _entriesInFragmentQueue.reset();
-  _poppedFragmentSize.reset();
-  _fragmentProcessorIdleTime.reset();
-  _entriesInFragmentStore.reset();
-  _entriesInStreamQueue.reset();
-  _poppedEventSize.reset();
-  _diskWriterIdleTime.reset();
-  _diskWriteSize.reset();
-  _entriesInDQMEventQueue.reset();
-  _poppedDQMEventSize.reset();
-  _dqmEventProcessorIdleTime.reset();
+  _poolUsageMQ.reset();
+  _entriesInFragmentQueueMQ.reset();
+  _poppedFragmentSizeMQ.reset();
+  _fragmentProcessorIdleTimeMQ.reset();
+  _entriesInFragmentStoreMQ.reset();
+  _entriesInStreamQueueMQ.reset();
+  _poppedEventSizeMQ.reset();
+  _diskWriterIdleTimeMQ.reset();
+  _diskWriteSizeMQ.reset();
+  _entriesInDQMEventQueueMQ.reset();
+  _poppedDQMEventSizeMQ.reset();
+  _dqmEventProcessorIdleTimeMQ.reset();
 }
 
+
+void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
+{
+  infoSpaceItems.push_back(std::make_pair("poolUsage", &_poolUsage));
+  infoSpaceItems.push_back(std::make_pair("entriesInFragmentQueue", &_entriesInFragmentQueue));
+  infoSpaceItems.push_back(std::make_pair("fragmentQueueRate", &_fragmentQueueRate));
+  infoSpaceItems.push_back(std::make_pair("fragmentQueueBandwidth", &_fragmentQueueBandwidth));
+  infoSpaceItems.push_back(std::make_pair("fragmentStoreSize", &_fragmentStoreSize));
+  infoSpaceItems.push_back(std::make_pair("entriesInStreamQueue", &_entriesInStreamQueue));
+  infoSpaceItems.push_back(std::make_pair("streamQueueRate", &_streamQueueRate));
+  infoSpaceItems.push_back(std::make_pair("streamQueueBandwidth", &_streamQueueBandwidth));
+  infoSpaceItems.push_back(std::make_pair("entriesInDQMQueue", &_entriesInDQMQueue));
+  infoSpaceItems.push_back(std::make_pair("dqmQueueRate", &_dqmQueueRate));
+  infoSpaceItems.push_back(std::make_pair("dqmQueueBandwidth", &_dqmQueueBandwidth));
+  infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &_fragmentProcessorBusy));
+  infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &_diskWriterBusy));
+  infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &_dqmEventProcessorBusy));
+}
+
+
+void ThroughputMonitorCollection::do_updateInfoSpaceItems()
+{
+}
 
 
 
