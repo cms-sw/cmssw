@@ -5,14 +5,17 @@
 echo 'Start'
 #export STAGE_SVCCLASS cmscaf
 
-cmsrel CMSSW_3_1_0_pre10
-cd CMSSW_3_1_0_pre10/src
+#cmsrel CMSSW_3_1_0_pre10
+#cd CMSSW_3_1_0_pre10/src
+cmsrel CMSSW_3_1_2
+cd CMSSW_3_1_2/src
 cmsenv
 cvs co Calibration/HcalCalibAlgos
 scram b
 cd Calibration/HcalCalibAlgos/test
 
-set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/data
+#set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/data
+set respcorrdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/data
 
 # if you want to validate your own calibration, copy it to data/ from your local place: 
 cp $respcorrdir/response_corrections.txt ../data/response_corrections.txt
@@ -23,7 +26,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Validator")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_31X::All"
+#process.GlobalTag.globaltag = "IDEAL_31X::All"
+process.GlobalTag.globaltag = "MC_31X_V5::All"
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 process.load("Configuration.StandardSequences.Generator_cff")
@@ -58,9 +62,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
 
-'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_310pre10/pi50_${1}.root'
-#'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_310pre10/pi50_HEZS8_${1}.root'
+'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_312/pi50_${1}.root'
 
+#'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_310pre10/pi50_${1}.root'
+#'rfio:/castor/cern.ch/user/a/abdullin/pi50_fullproduction_310pre10/pi50_HEZS8_${1}.root'
 #'rfio:/castor/cern.ch/user/a/abdullin/pi300_fullproduction_310pre10/pi300_${1}.root'
 
      )
@@ -79,7 +84,8 @@ process.p = cms.Path(process.seqALCARECOHcalCalIsoTrkNoHLT*process.ValidationIso
 
 cmsRun validator.py
 
-set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/test
+set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_2/src/Calibration/HcalCalibAlgos/test
+#set outdir=/afs/cern.ch/user/a/andrey/scratch1/CMSSW_3_1_0_pre10/src/Calibration/HcalCalibAlgos/test
 #set outdir=/castor/cern.ch/user/a/andrey/pi50_310_pre10
 #set outdir=/castor/cern.ch/user/a/andrey/pi300_310_pre10
 
