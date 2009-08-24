@@ -85,21 +85,31 @@ SiStripCorrelateNoise::checkGainCache(const edm::EventSetup& es){
 
 void 
 SiStripCorrelateNoise::DoPlots(){
+  TCanvas *C=new TCanvas();
+  C->Divide(2,2);
+  
+  char outName[128];
+  sprintf(outName,"Run_%d.png",theRun);
   for(size_t i=0;i<vTH1.size();i++)
-    if(i%100==0 && vTH1[i]!=0 ){
+    if(vTH1[i]!=0){
+      if(i%100==0){
+	C->cd(i/100);
+	vTH1[i]->SetLineColor(i/100);
+	vTH1[i]->Draw();
+	C->cd(i/100)->SetLogy();
+      }
       vTH1[i]->Write();
-      TString outName=TString("Run_")+vTH1[i]->GetTitle()+TString(".png");
-      TCanvas C;
-      vTH1[i]->Draw();
-      C.SetLogy();
-      C.Print(outName);
     }
+  
+  C->Print(outName);
+  delete C;
+  
   vTH1.clear();
   file->cd("");
-  
+
   char dir[128];
   sprintf(dir,"Run_%d_TkMap.png",theRun);
-  tkmap->save(false,0,5,dir);
+  tkmap->save(true,0,5,dir);
   delete tkmap;
   tkmap = new TrackerMap();
 }
@@ -134,8 +144,8 @@ SiStripCorrelateNoise::DoAnalysis(SiStripNoises Noise, SiStripNoises& refNoise){
 	  edm::LogInfo("") << "[Doanalysis] detid " << iter->detid << " strip " << strip << " apvNb " << apvNb;
       }
       //edm::LogInfo("") << "[Doanalysis] detid " << iter->detid << " strip " << strip << " value " << iter->values[strip];
-      value=iter->values[strip];
-      tkmap->fill(iter->detid,value*gainRatio);
+      value=iter->values[strip]*gainRatio;
+      tkmap->fill(iter->detid,value);
       for(size_t i=0;i<histos.size();++i)
 	histos[i]->Fill(value);
     }
