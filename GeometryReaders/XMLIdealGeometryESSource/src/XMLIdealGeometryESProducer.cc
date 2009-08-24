@@ -13,7 +13,7 @@
 //
 // Original Author:  Mike Case
 //         Created:  Fri Jan 16 01:45:49 CET 2009
-// $Id: XMLIdealGeometryESProducer.cc,v 1.2 2009/08/12 01:00:28 case Exp $
+// $Id: XMLIdealGeometryESProducer.cc,v 1.3 2009/08/12 01:13:54 case Exp $
 //
 //
 
@@ -124,6 +124,14 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    parser->getDDLSAX2FileHandler()->setUserNS(true);
    // 2009-07-09 memory patch
    parser->clearFiles();
+
+   // unlock the memory stores
+   DDMaterial::StoreT::instance().setReadOnly(false);
+   DDSolid::StoreT::instance().setReadOnly(false);
+   DDLogicalPart::StoreT::instance().setReadOnly(false);
+   DDSpecifics::StoreT::instance().setReadOnly(false);
+   DDRotation::StoreT::instance().setReadOnly(false);
+
    //std::cout <<"got in produce"<<std::endl;
    DDName ddName(rootDDName_);
    //std::cout <<"ddName \""<<ddName<<"\""<<std::endl;
