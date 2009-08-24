@@ -278,7 +278,8 @@ process.options = cms.untracked.PSet(
 )
 
 # Allow even bad-quality digis
-process.hcalDigis.FilterDataQuality=False
+#process.hcalDigis.FilterDataQuality=False
+
 # Set expected orbit time to 6
 process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(6)
 
