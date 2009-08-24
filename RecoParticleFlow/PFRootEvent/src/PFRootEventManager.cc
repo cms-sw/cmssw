@@ -18,7 +18,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
-#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
+#include "RecoParticleFlow/PFRootEvent/interface/JetMaker.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 

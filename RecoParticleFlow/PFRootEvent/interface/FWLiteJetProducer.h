@@ -8,10 +8,10 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h" 
-#include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
-#include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"
+#include "RecoParticleFlow/PFRootEvent/interface/CMSIterativeConeAlgorithm.h"
+#include "RecoParticleFlow/PFRootEvent/interface/CMSMidpointAlgorithm.h"
 #include "RecoParticleFlow/PFRootEvent/interface/FastJetFWLiteWrapper.h"
-#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
+#include "RecoParticleFlow/PFRootEvent/interface/JetRecoTypes.h"
 
 // #include "FWCore/Framework/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"

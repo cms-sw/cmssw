@@ -28,11 +28,11 @@
  *
  ************************************************************/
 
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
+#include "RecoParticleFlow/PFRootEvent/interface/ProtoJet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
+#include "RecoParticleFlow/PFRootEvent/interface/JetRecoTypes.h"
 #include "fastjet/ActiveAreaSpec.hh"
 
 #include <vector>

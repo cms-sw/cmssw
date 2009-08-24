@@ -8,7 +8,7 @@
 //--------------------------------------------
  
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
+#include "RecoParticleFlow/PFRootEvent/interface/ProtoJet.h"
 #include "RecoParticleFlow/PFRootEvent/interface/FastJetFWLiteWrapper.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
