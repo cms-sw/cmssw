@@ -5,6 +5,8 @@
 <use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripCommon>
 <use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/SiStripLorentzAngle>
+<use name=rootinteractive>
 <library file="*.cc" name=CalibTrackerSiStripLorentzAnglePlugins>
   <flags EDM_PLUGIN=1>
 </library>
