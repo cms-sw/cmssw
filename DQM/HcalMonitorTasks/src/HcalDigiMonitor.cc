@@ -161,7 +161,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 				     100,0,2000);
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badfibBCNoff");
-      SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Offsets", "");
+      SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/data_invalid_error");
       SetupEtaPhiHists(DigiErrorsDVErr," Digis with Data Invalid or Error Bit Set", "");
@@ -220,7 +220,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis");
 
       DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
-      (DigiBQ->getTH1F())->LabelsOption("v");
+      // Can't set until histogram drawn?
+      //(DigiBQ->getTH1F())->LabelsOption("v");
       DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",
 				  DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction",1);  
@@ -230,7 +231,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiNum = m_dbe->book1D("# of Good Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
       DigiNum -> setAxisTitle("# of Good Digis",1);  
       DigiNum -> setAxisTitle("# of Events",2);
-      (DigiNum->getTH1F())->LabelsOption("v");
+      // Can't set until histogram drawn?
+      //(DigiNum->getTH1F())->LabelsOption("v");
 
       setupSubdetHists(hbHists,"HB");
       setupSubdetHists(heHists,"HE");
@@ -274,7 +276,7 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
   hist.shapeThresh->setAxisTitle("Time Slice",1);
   hist.presample= m_dbe->book1D(subdet+" Digi Presamples",subdet+" Digi Presamples",50,-0.5,49.5);
   hist.BQ = m_dbe->book1D(subdet+" Bad Quality Digis",subdet+" Bad Quality Digis",nChan+1,-0.5,nChan+0.5);
-  (hist.BQ->getTH1F())->LabelsOption("v");
+  //(hist.BQ->getTH1F())->LabelsOption("v");
   hist.BQFrac = m_dbe->book1D(subdet+" Bad Quality Digi Fraction",subdet+" Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
   hist.DigiFirstCapID = m_dbe->book1D(subdet+" Capid 1st Time Slice",subdet+" Capid for 1st Time Slice",7,-3.5,3.5);
   hist.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
@@ -287,7 +289,7 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
   hist.CapID = m_dbe->book1D(subdet+" CapID",subdet+" CapID",4,-0.5,3.5);
   hist.ADC = m_dbe->book1D(subdet+" ADC count per time slice",subdet+" ADC count per time slice",200,-0.5,199.5);
   hist.ADCsum = m_dbe->book1D(subdet+" ADC sum", subdet+" ADC sum",200,-0.5,199.5);
-  hist.fibBCNOff = m_dbe->book1D(subdet+" Fiber Orbit Message BCN Offset", subdet+" Fiber Orbit Message BCN Offset",
+  hist.fibBCNOff = m_dbe->book1D(subdet+" Fiber Orbit Message Idle BCN Offset", subdet+" Fiber Orbit Message Idle BCN Offset",
 				 15, -7.5, 7.5);
   hist.fibBCNOff->setAxisTitle("Offset from Expected", 1);
 
