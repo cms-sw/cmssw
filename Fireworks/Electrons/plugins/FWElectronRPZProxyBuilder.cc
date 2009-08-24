@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWElectronRPZProxyBuilder.cc,v 1.6 2009/01/06 20:41:11 chrjones Exp $
+// $Id: FWElectronRPZProxyBuilder.cc,v 1.7 2009/01/23 21:35:46 amraktad Exp $
 //
 
 // system include files
@@ -121,13 +121,11 @@ FWElectronRPZProxyBuilder::buildRhoPhi(const reco::GsfElectron& iData, unsigned 
    if ( iData.gsfTrack().isAvailable() )
       track = fireworks::prepareTrack( *(iData.gsfTrack()),
                                        m_propagator.get(),
-                                       &oItemHolder,
                                        item()->defaultDisplayProperties().color() );
    else
-      track = fireworks::prepareSimpleTrack( iData,
-                                             m_propagator.get(),
-                                             &oItemHolder,
-                                             item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareTrack( iData,
+				       m_propagator.get(),
+				       item()->defaultDisplayProperties().color() );
    track->MakeTrack();
    oItemHolder.AddElement(track);
 }
@@ -144,13 +142,11 @@ FWElectronRPZProxyBuilder::buildRhoZ(const reco::GsfElectron& iData, unsigned in
    if ( iData.gsfTrack().isAvailable() )
       track = fireworks::prepareTrack( *(iData.gsfTrack()),
                                        m_propagator.get(),
-                                       &oItemHolder,
                                        item()->defaultDisplayProperties().color() );
    else
-      track = fireworks::prepareSimpleTrack( iData,
-                                             m_propagator.get(),
-                                             &oItemHolder,
-                                             item()->defaultDisplayProperties().color() );
+      track = fireworks::prepareTrack( iData,
+				       m_propagator.get(),
+				       item()->defaultDisplayProperties().color() );
    track->MakeTrack();
    oItemHolder.AddElement(track);
 

@@ -4,19 +4,7 @@
 //
 // Package:     Core
 // Class  :     prepareTrack
-//
-/**\class prepareTrack prepareTrack.h Fireworks/Core/interface/prepareTrack.h
-
-   Description: <one line class summary>
-
-   Usage:
-    <usage>
-
- */
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Nov 19 19:14:11 EST 2008
-// $Id: prepareTrack.h,v 1.2.10.1 2009/08/20 11:38:44 dmytro Exp $
+// $Id: prepareTrack.h,v 1.3 2009/08/21 16:57:50 dmytro Exp $
 //
 
 // system include files
@@ -28,6 +16,7 @@
 // forward declarations
 namespace reco {
    class Track;
+   class Candidate;
 }
 class TEveElement;
 class TEveTrackPropagator;
@@ -62,9 +51,11 @@ namespace fireworks {
    
   TEveTrack* prepareTrack(const reco::Track& track,
 			  TEveTrackPropagator* propagator,
-			  TEveElement* trackList,
 			  Color_t color,
 			  const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>());
+  TEveTrack* prepareTrack(const reco::Candidate& candidate,
+			  TEveTrackPropagator* propagator,
+			  Color_t color);
 }
 
 #endif

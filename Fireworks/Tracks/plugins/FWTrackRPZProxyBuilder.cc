@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackRPZProxyBuilder.cc,v 1.4.10.2 2009/08/20 15:41:56 dmytro Exp $
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.5 2009/08/21 16:57:50 dmytro Exp $
 //
 
 // system include files
@@ -109,12 +109,8 @@ FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEve
       if ( fabs( iData.eta() ) < 2.0 && iData.pt() > 1 ) {
          double estimate = fw::estimate_field(iData);
          if ( estimate >= 0 ) {
-            bool fieldIsOn = CmsShowMain::getMagneticField() > 0;
-            bool measuredFieldIsOn = estimate > 2.0;
-            if(fieldIsOn != measuredFieldIsOn) {
-               CmsShowMain::guessFieldIsOn(measuredFieldIsOn);
-               m_cmsMagField->setMagnetState( measuredFieldIsOn );
-            }
+	    CmsShowMain::guessFieldIsOn(estimate > 2.0);
+	    m_cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
          }
       }
    }
@@ -126,7 +122,7 @@ FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEve
      m_propagator->SetMaxR(123);
      m_propagator->SetMaxZ(300);
    }     
-   TEveTrack* trk = fireworks::prepareTrack( iData, m_propagator.get(), &oItemHolder, item()->defaultDisplayProperties().color() );
+   TEveTrack* trk = fireworks::prepareTrack( iData, m_propagator.get(), item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
    oItemHolder.AddElement( trk );
 }

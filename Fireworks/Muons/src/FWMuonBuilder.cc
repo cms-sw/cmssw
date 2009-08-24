@@ -2,13 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Nov 19 16:12:27 EST 2008
-// $Id: FWMuonBuilder.cc,v 1.7 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.8 2009/05/14 15:02:12 amraktad Exp $
 //
 
 // system include files
@@ -31,7 +25,7 @@
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 
 #include "Fireworks/Tracks/interface/prepareTrack.h"
-
+#include "Fireworks/Tracks/interface/CmsMagField.h"
 
 //
 // constants, enums and typedefs
@@ -41,79 +35,81 @@
 // static data member definitions
 //
 namespace  {
-   void addMatchInformation( const reco::Muon* muon,
-                             const FWEventItem* iItem,
-                             TEveTrack* track,
-                             TEveElement* parentList,
-                             bool showEndcap,
-                             bool tracksOnly=false)
+  std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
+						   const FWEventItem* iItem )
    {
-      const DetIdToMatrix* geom = iItem->getGeom();
-      const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-      Double_t localTrajectoryPoint[3];
-      Double_t globalTrajectoryPoint[3];
-      //need to use auto_ptr since the segmentSet may not be passed to muonList
-      std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
-      segmentSet->SetLineWidth(4);
-      segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
-      std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
-      for ( ; chamber != matches.end(); ++chamber )
-      {
+     std::vector<TEveVector> points;
+     const DetIdToMatrix* geom = iItem->getGeom();
+     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
+     Double_t localTrajectoryPoint[3];
+     Double_t globalTrajectoryPoint[3];
+     std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
+     for ( ; chamber != matches.end(); ++chamber )
+       {
          // expected track position
          localTrajectoryPoint[0] = chamber->x;
          localTrajectoryPoint[1] = chamber->y;
          localTrajectoryPoint[2] = 0;
 
          DetId id = chamber->id;
-         if ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) {
-            TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
-            if(0!=shape) {
-               shape->SetMainTransparency(65);
-               shape->SetMainColor(iItem->defaultDisplayProperties().color());
-               if (!tracksOnly) parentList->AddElement(shape);
-            }
-         }
          const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
          if ( matrix ) {
-            // make muon segment 20 cm long along local z-axis
-            matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
-
-            // add path marks to force outer propagator to follow the expected
-            // track position
-            if ( track ) {
-               TEvePathMark mark( TEvePathMark::kDaughter );
-               mark.fV = TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
-               if ( mark.fV.Mag() > track->GetVertex().Mag() ) // avoid zigzags
-                  track->AddPathMark( mark );
+	   matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
+	   points.push_back(TEveVector(globalTrajectoryPoint[0],
+				       globalTrajectoryPoint[1],
+				       globalTrajectoryPoint[2]));
+	 }
+       }
+     return points;
+   }
+   void addMatchInformation( const reco::Muon* muon,
+                             const FWEventItem* iItem,
+                             TEveElement* parentList,
+                             bool showEndcap)
+   {
+      const DetIdToMatrix* geom = iItem->getGeom();
+      const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
+      //need to use auto_ptr since the segmentSet may not be passed to muonList
+      std::auto_ptr<TEveStraightLineSet> segmentSet(new TEveStraightLineSet);
+      segmentSet->SetLineWidth(4);
+      segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+      std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
+      for ( ; chamber != matches.end(); ++chamber )
+	{
+	  DetId id = chamber->id;
+	  if ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) {
+            TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
+            if(0!=shape) {
+	      shape->SetMainTransparency(65);
+	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
+	      parentList->AddElement(shape);
             }
-
-            // std::cout << "\t " << " vx " << globalTrajectoryPoint[0] << " vy " << globalTrajectoryPoint[1] <<
-            //  " vz " << globalTrajectoryPoint[2] <<  std::endl;
-
+	  }
+	  const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
+	  if ( matrix ) {
+            // make muon segment 20 cm long along local z-axis
             // add segments
             for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
                   segment != chamber->segmentMatches.end(); ++segment )
-            {
-               Double_t localSegmentInnerPoint[3];
-               Double_t localSegmentOuterPoint[3];
-               Double_t globalSegmentInnerPoint[3];
-               Double_t globalSegmentOuterPoint[3];
-               localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
-               localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
+	      {
+		Double_t localSegmentInnerPoint[3];
+		Double_t localSegmentOuterPoint[3];
+		Double_t globalSegmentInnerPoint[3];
+		Double_t globalSegmentOuterPoint[3];
+		localSegmentOuterPoint[0] = segment->x + segment->dXdZ * 10;
+		localSegmentOuterPoint[1] = segment->y + segment->dYdZ * 10;
+		localSegmentOuterPoint[2] = 10;
+		localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
+		localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
+		localSegmentInnerPoint[2] = -10;
+		matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
+		matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
 
-               localSegmentOuterPoint[2] = 10;
-               localSegmentInnerPoint[0] = segment->x - segment->dXdZ * 10;
-               localSegmentInnerPoint[1] = segment->y - segment->dYdZ * 10;
-
-               localSegmentInnerPoint[2] = -10;
-               matrix->LocalToMaster( localSegmentInnerPoint, globalSegmentInnerPoint );
-               matrix->LocalToMaster( localSegmentOuterPoint, globalSegmentOuterPoint );
-
-               segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-                                   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-            }
-         }
-      }
+		segmentSet->AddLine(globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+				    globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	      }
+	  }
+	}
       if ( !matches.empty() ) parentList->AddElement( segmentSet.release() );
    }
 
@@ -145,107 +141,31 @@ namespace  {
       return false;
    }
 
-
-   TEveVector firstMatch( const reco::Muon* muon,
-                          const FWEventItem* iItem )
-   {
-      const DetIdToMatrix* geom = iItem->getGeom();
-      const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-      Double_t localTrajectoryPoint[3];
-      Double_t globalTrajectoryPoint[3];
-      std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin();
-      for ( ; chamber != matches.end(); ++chamber )
-      {
-         // expected track position
-         localTrajectoryPoint[0] = chamber->x;
-         localTrajectoryPoint[1] = chamber->y;
-         localTrajectoryPoint[2] = 0;
-
-         DetId id = chamber->id;
-         const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
-         if ( matrix ) {
-            matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
-            return TEveVector( globalTrajectoryPoint[0], globalTrajectoryPoint[1], globalTrajectoryPoint[2] );
-         }
-      }
-      return TEveVector();
-   }
-
-
-   TEveVector muonLocation( const reco::Muon* muon,
-                            const FWEventItem* iItem )
-   {
-
-      // stand alone information
-      if (muon->standAloneMuon().isAvailable() &&
-          muon->standAloneMuon()->extra().isAvailable() )
-         return TEveVector ( muon->standAloneMuon()->innerPosition().x(),
-                             muon->standAloneMuon()->innerPosition().y(),
-                             muon->standAloneMuon()->innerPosition().z() );
-      // tracker muon info
-      TEveVector v = firstMatch( muon, iItem );
-      if (v.Mag()>0)
-         return v;
-      else
-         //wild guess
-         return TEveVector ( muon->px(),  muon->py(),  muon->pz() );
-   }
 }
 
 //
 // constructors and destructor
 //
-FWMuonBuilder::FWMuonBuilder()
+FWMuonBuilder::FWMuonBuilder():
+   m_cmsMagField( new CmsMagField)
 {
    //NOTE: We call IncRefCount and IncDenyDestroy since TEveTrackPropagator actually has two reference counts being done on it
    // We only want the one using IncRefCount to actually cause the deletion which is why 'IncDenyDestroy' does not have a matching
    // DecDenyDestroy.  I'm still using a edm::FWEvePtr to hold the Propagator since I want to know if the propagator is deleted
-   m_trackerPropagator.reset(new TEveTrackPropagator()); // propagate within tracker
-   m_trackerPropagator->IncRefCount();
-   m_trackerPropagator->IncDenyDestroy();
-   m_innerPropagator.reset(new TEveTrackPropagator()); // propagate to muon volume
-   m_innerPropagator->IncRefCount();
-   m_innerPropagator->IncDenyDestroy();
-   m_outerPropagator.reset(new TEveTrackPropagator()); // outer muon propagator
-   m_outerPropagator->IncRefCount();
-   m_outerPropagator->IncDenyDestroy();
-   //units are Telsa
-   m_magneticField = CmsShowMain::getMagneticField();
-   m_innerPropagator->SetMagField( -m_magneticField);
-   m_innerPropagator->SetMaxR( 450 );
-   m_innerPropagator->SetMaxZ( 750 );
-   m_trackerPropagator->SetMagField( -m_magneticField);
-   m_trackerPropagator->SetMaxR( 123 );
-   m_trackerPropagator->SetMaxZ( 300 );
-   m_outerPropagator->SetMagField( m_magneticField * 1.5/4);
-   m_outerPropagator->SetMaxR( 850 );
-   m_outerPropagator->SetMaxZ( 1100 );
+   m_propagator.reset(new TEveTrackPropagator()); // propagate within tracker
+   m_propagator->IncRefCount();
+   m_propagator->IncDenyDestroy();
+   m_propagator->SetMaxR( 850 );
+   m_propagator->SetMaxZ( 1100 );
+   m_cmsMagField->setReverseState( true );
+   m_propagator->SetMagFieldObj( m_cmsMagField );
+   // m_propagator->SetMagField( -3.8 );
 }
-
-// FWMuonBuilder::FWMuonBuilder(const FWMuonBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWMuonBuilder::~FWMuonBuilder()
 {
-   m_trackerPropagator->DecRefCount();
-   m_innerPropagator->DecRefCount();
-   m_outerPropagator->DecRefCount();
-
+   m_propagator->DecRefCount();
 }
-
-//
-// assignment operators
-//
-// const FWMuonBuilder& FWMuonBuilder::operator=(const FWMuonBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   FWMuonBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -254,15 +174,18 @@ void
 FWMuonBuilder::calculateField(const reco::Muon& iData)
 {
    // if auto field estimation mode, do extra loop over muons.
+   // use both inner and outer track if available
    if ( CmsShowMain::isAutoField() ) {
-      if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ||
-           !iData.standAloneMuon().isAvailable()) {
-         return;
-      }
-      double estimate = fw::estimate_field(*(iData.standAloneMuon()));
-      if ( estimate >= 0 ) {
-         CmsShowMain::guessFieldIsOn( estimate > 0.5 );
-      }
+     if ( fabs( iData.eta() ) > 2.0 || iData.pt() < 3 ) return;
+     if ( iData.innerTrack().isAvailable() ){
+       double estimate = fw::estimate_field(*(iData.innerTrack()));
+       if ( estimate >= 0 ) CmsShowMain::guessFieldIsOn( estimate > 2.0 );
+     }
+     if ( iData.outerTrack().isAvailable() ){
+       double estimate = fw::estimate_field(*(iData.outerTrack()));
+       if ( estimate >= 0 ) CmsShowMain::guessFieldIsOn( estimate > 0.5 );
+     }
+     m_cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
    }
 }
 
@@ -275,191 +198,82 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
                          bool tracksOnly)
 {
    calculateField(*muon);
-   if(m_magneticField != CmsShowMain::getMagneticField()) {
-      m_magneticField = CmsShowMain::getMagneticField();
-      m_innerPropagator->SetMagField( -m_magneticField);
-      m_trackerPropagator->SetMagField( -m_magneticField);
-      m_outerPropagator->SetMagField( m_magneticField * 1.5/4);
-   }
 
-   TEveRecTrack innerRecTrack;
-   TEveRecTrack outerRecTrack;
-   innerRecTrack.fBeta = 1.;
-   outerRecTrack.fBeta = 1.;
-   // If we deal with tracker muons we use projected inner tracker trajectory
-   // to draw the muon and position of recontructed muon segments as hits. In all
-   // other cases ( stand alone muons first of all ), reco hits, segments, fit
-   // results etc are used to draw the trajectory. No hits are show, but chambers
-   // with hits are visible.
+   TEveRecTrack recTrack;
+   recTrack.fBeta = 1.;
 
-   bool useStandAloneFit = !( muon->isMatchesValid() && (muon->isTrackerMuon()||muon->isGlobalMuon()) ) &&
-                           muon->standAloneMuon().isAvailable() && muon->standAloneMuon()->extra().isAvailable();
+   // If we deal with a tracker muon we use the inner track and guide it
+   // through the trajectory points from the reconstruction. Segments
+   // represent hits. Matching between hits and the trajectory shows
+   // how well the inner track matches with the muon hypothesis.
+   //
+   // In other cases we use a global muon track with a few states from 
+   // the inner and outer tracks or just the outer track if it's the
+   // only option
 
-   if ( !useStandAloneFit && buggyMuon( &*muon, iItem->getGeom() ) )
-      useStandAloneFit = true;
+   if ( muon->isTrackerMuon() && 
+	muon->innerTrack().isAvailable() &&
+	muon->isMatchesValid() &&
+	!buggyMuon( &*muon, iItem->getGeom() ) )
+     {
+       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
+						m_propagator.get(),
+						iItem->defaultDisplayProperties().color(),
+						getRecoTrajectoryPoints(muon,iItem) );
+       trk->MakeTrack();
+       tList->AddElement( trk );
+       if ( ! tracksOnly )
+	 addMatchInformation( &(*muon), iItem, tList, showEndcap );
+       return;
+     } 
 
-   Double_t lastPointVX2(0), lastPointVY2(0), lastPointVZ2(0), lastPointVX1(0), lastPointVY1(0), lastPointVZ1(0);
-   bool useLastPoint = false;
-   bool outerTrackIsInitialized = false;
+   if ( muon->isGlobalMuon() &&
+	muon->globalTrack().isAvailable() )
+     {
+       std::vector<TEveVector> extraPoints;
+       if ( muon->innerTrack().isAvailable() )
+	 extraPoints.push_back( TEveVector(muon->innerTrack()->outerPosition().x(),
+					   muon->innerTrack()->outerPosition().y(),
+					   muon->innerTrack()->outerPosition().z()) );
+       if ( muon->outerTrack().isAvailable() )
+	 extraPoints.push_back( TEveVector(muon->outerTrack()->innerPosition().x(),
+					   muon->outerTrack()->innerPosition().y(),
+					   muon->outerTrack()->innerPosition().z()) );
+       
+       TEveTrack* trk = fireworks::prepareTrack(*(muon->globalTrack()),
+						m_propagator.get(),
+						iItem->defaultDisplayProperties().color(),
+						extraPoints);
+       trk->MakeTrack();
+       tList->AddElement( trk );
+       return;
+     }
 
-   // draw inner track if information is available
-   if ( muon->track().isAvailable() ) {
-      TEveVector location = muonLocation(&*muon, iItem);
-      TEveTrack* trk = fireworks::prepareTrack(*(muon->track()),
-                                               0,
-                                               tList,
-                                               iItem->defaultDisplayProperties().color() );
-      // if track points away from us we use its initial point as
-      // the origin of the outer track with flipped momentum
-      // and propagate to the exit state (decay)
-      if ( location.fX*trk->GetMomentum().fX + location.fY*trk->GetMomentum().fY < 0 ) {
-         trk->SetPropagator( m_trackerPropagator.get() );
-         trk->MakeTrack();
-         tList->AddElement( trk );
+   if ( muon->innerTrack().isAvailable() )
+     {
+       TEveTrack* trk = fireworks::prepareTrack(*(muon->innerTrack()),
+						m_propagator.get(),
+						iItem->defaultDisplayProperties().color());
+       trk->MakeTrack();
+       tList->AddElement( trk );
+       return;
+     }
 
-         if ( muon->track()->extra().isAvailable() ) {
-            outerRecTrack.fP = TEveVector( -muon->track()->innerMomentum().x(),
-                                           -muon->track()->innerMomentum().y(),
-                                           -muon->track()->innerMomentum().z() );
-            outerRecTrack.fV = TEveVector( muon->track()->innerPosition().x(),
-                                           muon->track()->innerPosition().y(),
-                                           muon->track()->innerPosition().z() );
-            outerRecTrack.fSign = muon->charge();
-            outerTrackIsInitialized = true;
-         } else {
-            // bad case since single track is used.
-            outerRecTrack.fP = TEveVector( -muon->track()->px(),
-                                           -muon->track()->py(),
-                                           -muon->track()->pz() );
-            outerRecTrack.fV = TEveVector( muon->track()->vertex().x(),
-                                           muon->track()->vertex().y(),
-                                           muon->track()->vertex().z() );
-            outerRecTrack.fSign = muon->charge();
-            outerTrackIsInitialized = true;
-         }
-      } else {
-         // track points in the right direction
-         // change type of the last point to daughter
-         // and set last points
-         // change last pathmark type
-         if ( !trk->RefPathMarks().empty())
-            trk->RefPathMarks().back().fType = TEvePathMark::kDaughter;
-         if ( useStandAloneFit ) {
-            TEvePathMark mark( TEvePathMark::kDecay );
-            if (  muon->standAloneMuon()->innerPosition().R() >
-                  muon->standAloneMuon()->outerPosition().R() ) {
-               mark.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
-                                     muon->standAloneMuon()->outerPosition().y(),
-                                     muon->standAloneMuon()->outerPosition().z() );
-               mark.fTime = muon->standAloneMuon()->outerPosition().R();
-            } else {
-               mark.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(),
-                                     muon->standAloneMuon()->innerPosition().y(),
-                                     muon->standAloneMuon()->innerPosition().z() );
-               mark.fTime = muon->standAloneMuon()->innerPosition().R();
-            }
-            trk->AddPathMark( mark );
-         } else {
-            // muon match info
-            TEvePathMark mark( TEvePathMark::kDecay );
-            mark.fV = firstMatch( &*muon, iItem );
-            trk->AddPathMark( mark );
-         }
-         trk->SetPropagator( m_innerPropagator.get() );
-         trk->MakeTrack();
-         tList->AddElement( trk );
-         // get last two points of the innerTrack trajectory
-         trk->GetPoint( trk->GetLastPoint(),   lastPointVX2, lastPointVY2, lastPointVZ2);
-         trk->GetPoint( trk->GetLastPoint()-1, lastPointVX1, lastPointVY1, lastPointVZ1);
-         useLastPoint = true;
-      }
-   }
-
-   if ( useLastPoint ) {
-      outerRecTrack.fV = TEveVector(lastPointVX2,lastPointVY2,lastPointVZ2);
-      float scale = muon->p4().P()/sqrt( (lastPointVX2-lastPointVX1)*(lastPointVX2-lastPointVX1) + (lastPointVY2-lastPointVY1)*(lastPointVY2-lastPointVY1) + (lastPointVZ2-lastPointVZ1)*(lastPointVZ2-lastPointVZ1) );
-      outerRecTrack.fP = TEveVector(scale*(lastPointVX2-lastPointVX1), scale*(lastPointVY2-lastPointVY1),scale*(lastPointVZ2-lastPointVZ1));
-      outerTrackIsInitialized = true;
-   }
-
-   if ( muon->isTrackerMuon() && !useStandAloneFit ) {
-      outerRecTrack.fSign = innerRecTrack.fSign;
-      TEveTrack* outerTrack = new TEveTrack( &outerRecTrack, m_outerPropagator.get() );
-      outerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
-      // std::cout << "\tpx " << outerRecTrack.fP.fX << " py " << outerRecTrack.fP.fY << " pz " << outerRecTrack.fP.fZ
-      //  << " lastPointVX " << outerRecTrack.fV.fX << " vy " << outerRecTrack.fV.fY << " vz " << outerRecTrack.fV.fZ
-      //  << " sign " << outerRecTrack.fSign << std::endl;
-      //
-      // add muon segments
-      addMatchInformation( &(*muon), iItem, outerTrack, tList, showEndcap );
-      // change last pathmark type
-      if ( !outerTrack->RefPathMarks().empty())
-         outerTrack->RefPathMarks().back().fType = TEvePathMark::kDecay;
-      outerTrack->MakeTrack();
-      tList->AddElement( outerTrack );
-   }
-
-   if ( useStandAloneFit )
-   {
-      if ( !outerTrackIsInitialized ) {
-         // order points with increasing radius
-         if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() ) {
-            outerRecTrack.fP = TEveVector( muon->standAloneMuon()->innerMomentum().x(),
-                                           muon->standAloneMuon()->innerMomentum().y(),
-                                           muon->standAloneMuon()->innerMomentum().z() );
-            outerRecTrack.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(),
-                                           muon->standAloneMuon()->innerPosition().y(),
-                                           muon->standAloneMuon()->innerPosition().z() );
-            outerRecTrack.fSign = muon->charge();
-         } else {
-            // special case (cosmics)
-            // track points inside, so we assume it points down and flip momentum sign
-            outerRecTrack.fP = TEveVector( -muon->standAloneMuon()->outerMomentum().x(),
-                                           -muon->standAloneMuon()->outerMomentum().y(),
-                                           -muon->standAloneMuon()->outerMomentum().z() );
-            outerRecTrack.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
-                                           muon->standAloneMuon()->outerPosition().y(),
-                                           muon->standAloneMuon()->outerPosition().z() );
-            outerRecTrack.fSign = muon->charge();
-         }
-      }
-
-      TEveTrack* outerTrack = new TEveTrack( &outerRecTrack, m_outerPropagator.get() );
-      outerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
-
-      TEvePathMark mark1( TEvePathMark::kDaughter );
-      TEvePathMark mark2( TEvePathMark::kDecay );
-      if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() ) {
-         mark1.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(),
-                                muon->standAloneMuon()->innerPosition().y(),
-                                muon->standAloneMuon()->innerPosition().z() );
-         mark1.fTime = muon->standAloneMuon()->innerPosition().R();
-         mark2.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
-                                muon->standAloneMuon()->outerPosition().y(),
-                                muon->standAloneMuon()->outerPosition().z() );
-         mark2.fTime = muon->standAloneMuon()->outerPosition().R();
-      } else {
-         mark1.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
-                                muon->standAloneMuon()->outerPosition().y(),
-                                muon->standAloneMuon()->outerPosition().z() );
-         mark1.fTime = muon->standAloneMuon()->outerPosition().R();
-         mark2.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(),
-                                muon->standAloneMuon()->innerPosition().y(),
-                                muon->standAloneMuon()->innerPosition().z() );
-         mark2.fTime = muon->standAloneMuon()->innerPosition().R();
-      }
-      if ( mark1.fV.Perp() > outerTrack->GetVertex().Perp() ) outerTrack->AddPathMark( mark1 );
-      outerTrack->AddPathMark( mark2 );
-
-      outerTrack->MakeTrack();
-      tList->AddElement( outerTrack );
-   }
+   if ( muon->outerTrack().isAvailable() )
+     {
+       TEveTrack* trk = fireworks::prepareTrack(*(muon->outerTrack()),
+						m_propagator.get(),
+						iItem->defaultDisplayProperties().color());
+       trk->MakeTrack();
+       tList->AddElement( trk );
+       return;
+     }
+   
+   // if got that far it means we have nothing but a candidate
+   // show it anyway.
+   TEveTrack* trk = fireworks::prepareTrack(*muon,
+					    m_propagator.get(),
+					    iItem->defaultDisplayProperties().color());
+   trk->MakeTrack();
+   tList->AddElement( trk );
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//

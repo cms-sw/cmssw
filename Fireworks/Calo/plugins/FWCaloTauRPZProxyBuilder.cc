@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWCaloTauRPZProxyBuilder.cc,v 1.1.2.1 2009/08/20 11:38:43 dmytro Exp $
+// $Id: FWCaloTauRPZProxyBuilder.cc,v 1.2 2009/08/21 16:57:50 dmytro Exp $
 //
 
 // include files
@@ -130,7 +130,6 @@ FWCaloTauRPZProxyBuilder::buildTauRhoPhi(const FWEventItem* iItem,
        {
 	 track = fireworks::prepareTrack(**i,
 					 m_propagator.get(),
-					 &container,
 					 item()->defaultDisplayProperties().color() );
        }
      track->MakeTrack();
@@ -198,7 +197,6 @@ FWCaloTauRPZProxyBuilder::buildTauRhoZ(const FWEventItem* iItem,
        {
 	 track = fireworks::prepareTrack(**i,
 					 m_propagator.get(),
-					 &container,
 					 item()->defaultDisplayProperties().color() );
        }
      track->MakeTrack();

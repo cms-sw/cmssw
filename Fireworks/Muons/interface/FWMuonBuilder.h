@@ -5,23 +5,8 @@
 // Package:     Muons
 // Class  :     FWMuonBuilder
 //
-/**\class FWMuonBuilder FWMuonBuilder.h Fireworks/Muons/interface/FWMuonBuilder.h
-
-   Description: <one line class summary>
-
-   Usage:
-    <usage>
-
- */
+// $Id: FWMuonBuilder.h,v 1.3 2009/01/23 21:35:46 amraktad Exp $
 //
-// Original Author:  Chris Jones
-//         Created:  Wed Nov 19 16:05:28 EST 2008
-// $Id: FWMuonBuilder.h,v 1.2 2008/12/05 01:50:34 chrjones Exp $
-//
-
-// system include files
-
-// user include files
 #include "Fireworks/Core/interface/FWEvePtr.h"
 
 // forward declarations
@@ -38,6 +23,7 @@ namespace fw
 class FWEventItem;
 class TEveElementList;
 class TEveTrackPropagator;
+class CmsMagField;
 
 class FWMuonBuilder
 {
@@ -66,11 +52,8 @@ private:
    void calculateField(const reco::Muon& iData);
 
    // ---------- member data --------------------------------
-   FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
-   FWEvePtr<TEveTrackPropagator> m_innerPropagator;
-   FWEvePtr<TEveTrackPropagator> m_outerPropagator;
-   double m_magneticField;
-
+   FWEvePtr<TEveTrackPropagator> m_propagator;
+   CmsMagField* m_cmsMagField;
 };
 
 

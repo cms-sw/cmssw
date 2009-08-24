@@ -2,13 +2,7 @@
 //
 // Package:     Core
 // Class  :     prepareTrack
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Nov 19 19:14:22 EST 2008
-// $Id: prepareTrack.cc,v 1.3.2.2 2009/08/20 15:41:56 dmytro Exp $
+// $Id: prepareTrack.cc,v 1.4 2009/08/21 16:57:51 dmytro Exp $
 //
 
 // system include files
@@ -32,7 +26,6 @@ namespace fireworks {
   TEveTrack*
   prepareTrack(const reco::Track& track,
 	       TEveTrackPropagator* propagator,
-	       TEveElement* trackList,
 	       Color_t color,
 	       const std::vector<TEveVector>& extraRefPoints)
   {
@@ -135,6 +128,20 @@ namespace fireworks {
       mark.fV = refStates.back().position;
       trk->AddPathMark( mark );
     }
+    return trk;
+  }
+  TEveTrack*
+   prepareTrack(const reco::Candidate& track,
+		TEveTrackPropagator* propagator,
+		Color_t color)
+  {
+    TEveRecTrack t;
+    t.fBeta = 1.;
+    t.fP = TEveVector( track.px(), track.py(), track.pz() );
+    t.fV = TEveVector( track.vertex().x(), track.vertex().y(), track.vertex().z() );
+    t.fSign = track.charge();
+    TEveTrack* trk = new TEveTrack(&t,propagator);
+    trk->SetMainColor(color);
     return trk;
   }
 }

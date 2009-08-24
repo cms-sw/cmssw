@@ -10,21 +10,33 @@
 
 class CmsMagField: public TEveMagField
 {
-  bool magnetIsOn;
-  bool reverse;
+  bool m_magnetIsOn;
+  bool m_reverse;
+  bool m_simpleModel;
  public:
  CmsMagField():
-  magnetIsOn(true),
-    reverse(false) {}
+    m_magnetIsOn(true),
+    m_reverse(false),
+    m_simpleModel(true){}
+
   virtual ~CmsMagField(){}
   virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const;
-  virtual Float_t    GetMaxFieldMag() const { return magnetIsOn ? 3.8 : 0.0; }
-  void               setMagnetState( bool state ){ 
-    // std::cout << "Magnet state is changed: " << state << std::endl;
-    magnetIsOn = state; }
-  bool               isMagnetOn(){ return magnetIsOn;}
-  void               setReverseState( bool state ){ reverse = state; }
-  bool               isReverse(){ return reverse;}
+  virtual Float_t    GetMaxFieldMag() const { return m_magnetIsOn ? 3.8 : 0.0; }
+  void               setMagnetState( bool state )
+  { 
+    if ( state != m_magnetIsOn){
+      if ( state )
+	std::cout << "Magnet state is changed to ON" << std::endl;
+      else
+	std::cout << "Magnet state is changed to OFF" << std::endl;
+    }
+    m_magnetIsOn = state; 
+  }
+  bool               isMagnetOn() const { return m_magnetIsOn;}
+  void               setReverseState( bool state ){ m_reverse = state; }
+  bool               isReverse() const { return m_reverse;}
+  void               setSimpleModel( bool simpleModel ){ m_simpleModel = simpleModel; }
+  bool               isSimpleModel() const { return m_simpleModel;}
 };
 
 #endif
