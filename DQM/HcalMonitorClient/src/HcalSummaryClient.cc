@@ -228,7 +228,8 @@ void HcalSummaryClient::setup(void)
   myhist->GetXaxis()->SetBinLabel(6,"H012");
   myhist->GetXaxis()->SetBinLabel(7,"HFlumi");
   myhist->GetYaxis()->SetBinLabel(1,"Status");
-
+  myhist->SetMarkerSize(3);
+  //myhist->SetOption("text90colz");
   myhist->SetBinContent(7,1,-1); // disable lumi for now?
   myhist->SetOption("textcolz");
   //myhist->SetOptStat(0);
@@ -940,7 +941,9 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
     {
       simple2f->SetMinimum(-1.);
       simple2f->SetMaximum(+1.0);
-      simple2f->SetOption("textcolz");
+      simple2f->SetMarkerSize(3);
+      simple2f->SetOption("text90colz");
+      gStyle->SetPaintTextFormat("5.4g");
     }
 
   for( int i=0; i<20; ++i ) 
@@ -968,11 +971,13 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
       TColor* color = gROOT->GetColor( 1101+i );
       if( ! color ) color = new TColor(1101+i, 0, 0, 0, "" );
       color->SetRGB( rgb[i][0], rgb[i][1], rgb[i][2] );
+      color->SetRGB( rgb[i][0], rgb[i][1], rgb[i][2] );
     } // for (int i=0;i<20;++i)
  
   // Doesn't work?  Need to make color change in htmlAnyHisto?  Need to be careful about defining new colors there...
-   gStyle->SetPalette(80, pcol);
-   gStyle->SetOptStat(0);
+  gStyle->SetNumberContours(40);
+  gStyle->SetPalette(40, pcol);
+  gStyle->SetOptStat(0);
    
    if (simple2f)
     {
