@@ -10,9 +10,9 @@
 //     views.  The only difference between the two detail views is
 //     whether the track intersections need to be drawn.
 //
-// $Id: FWECALDetailView.h,v 1.7 2009/07/20 14:08:41 amraktad Exp $
+// $Id: FWECALDetailView.h,v 1.8 2009/08/22 17:10:22 amraktad Exp $
 //
-#include "RTypes.h"
+#include "Rtypes.h"
 
 #include "Fireworks/Core/interface/FWDetailView.h"
 
