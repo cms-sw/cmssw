@@ -174,7 +174,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring
   for(int i=1; i<sect; i++) {
     label.str("");
     label<<"Sec"<<i;
-    cout<<label.str()<<endl;
+    //cout<<label.str()<<endl;
     meMap[os.str()] ->setBinLabel(i, label.str(), 1); // to be corrected !!!!
   }
   
