@@ -244,7 +244,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
 
       os.str("");
       os<<"BxDistribution_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
-      if(meRingMap[os.str()])
+      if(meMap[os.str()])
 	meMap[os.str()]->Fill(bx);
    
       os.str("");
