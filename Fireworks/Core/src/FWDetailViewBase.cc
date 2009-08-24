@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.5 2009/06/22 14:32:26 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.6 2009/08/22 17:10:13 amraktad Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ FWDetailViewBase::build (const FWModelId &iID, TEveWindowSlot* slot)
    build(iID, m_helper.offsetObject(iID.item()->modelData(iID.index())), slot);
 }
 
-void
+TEveWindow*
 FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas)
 {
    TEveWindowPack* wp = slot->MakePack();
@@ -70,9 +70,11 @@ FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
    pack->MapSubwindows();
    pack->Layout();
    pack->MapWindow();
+
+   return wp;
 }
 
-void
+TEveWindow*
 FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene)
 {
    TEveWindowPack* wp = slot->MakePack();
@@ -99,4 +101,6 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
    pack->MapSubwindows();
    pack->Layout();
    pack->MapWindow();
+
+   return wp;
 }

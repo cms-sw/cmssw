@@ -46,8 +46,8 @@ public:
 protected:
    FWDetailViewBase(const std::type_info&);
 
-   void makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas);
-   void makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene);
+   TEveWindow* makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas);
+   TEveWindow* makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene);
 
    TEveWindow           *m_eveWindow;
 
