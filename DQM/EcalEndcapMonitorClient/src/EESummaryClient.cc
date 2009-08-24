@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/23 20:44:31 $
- * $Revision: 1.180 $
+ * $Date: 2009/08/23 22:36:02 $
+ * $Revision: 1.181 $
  * \author G. Della Ricca
  *
 */
@@ -1989,7 +1989,7 @@ void EESummaryClient::analyze(void) {
 
               mean01 = httt01_[ism-1]->GetBinContent( ix, iy );
 
-              if ( mean01 > 0. ) {
+              if ( mean01 != 0. ) {
                 if ( ism >= 1 && ism <= 9 ) {
                   if ( meTriggerTowerEt_[0] ) meTriggerTowerEt_[0]->setBinContent( 101 - jx, jy, mean01 );
                 } else {
@@ -2005,7 +2005,7 @@ void EESummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ix, iy );
 
-              if ( xval > 0. ) {
+              if ( xval != 0. ) {
                 if ( ism >= 1 && ism <= 9 ) {
                   meTriggerTowerTiming_[0]->setBinContent( 101 - jx, jy, xval );
                 } else {
@@ -2021,7 +2021,7 @@ void EESummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ix, iy );
 
-              if ( xval > 0. ) {
+              if ( xval != 0. ) {
                 if ( ism >= 1 && ism <= 9 ) {
                   meTriggerTowerNonSingleTiming_[0]->setBinContent( 101 - jx, jy, xval );
                 } else {

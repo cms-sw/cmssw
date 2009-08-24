@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/23 20:44:31 $
- * $Revision: 1.192 $
+ * $Date: 2009/08/24 21:29:31 $
+ * $Revision: 1.193 $
  * \author G. Della Ricca
  *
 */
@@ -1437,7 +1437,7 @@ void EBSummaryClient::analyze(void) {
 
               mean01 = httt01_[ism-1]->GetBinContent( ie, ip );
 
-              if ( mean01 > 0. ) {
+              if ( mean01 != 0. ) {
                 if ( meTriggerTowerEt_ ) meTriggerTowerEt_->setBinContent( ipx, iex, mean01 );
               }
 
@@ -1449,7 +1449,7 @@ void EBSummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ie, ip );
 
-              if ( xval > 0. ) {
+              if ( xval != 0. ) {
                 meTriggerTowerTiming_->setBinContent( ipx, iex, xval );
               }
 
@@ -1461,7 +1461,7 @@ void EBSummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ie, ip );
 
-              if ( xval > 0. ) {
+              if ( xval != 0. ) {
                 meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, xval );
               }
 
