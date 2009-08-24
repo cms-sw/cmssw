@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: ConsumerMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
 /// @file: ConsumerMonitorCollection.h 
 
 #ifndef StorageManager_ConsumerMonitorCollection_h
@@ -20,8 +20,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/24 14:31:11 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection
@@ -34,22 +34,22 @@ namespace stor {
     /**
        Add queued sample
     */
-    void addQueuedEventSample( QueueID qid, unsigned int data_size );
+    void addQueuedEventSample( const QueueID&, const unsigned int& data_size );
 
     /**
        Add served sample
     */
-    void addServedEventSample( QueueID qid, unsigned int data_size );
+    void addServedEventSample( const QueueID&, const unsigned int& data_size );
 
     /**
        Get queued data size. Return false if consumer ID not found.
     */
-    bool getQueued( QueueID qid, MonitoredQuantity::Stats& result );
+    bool getQueued( const QueueID& qid, MonitoredQuantity::Stats& result );
 
     /**
        Get served data size. Return false if consumer ID not found.
     */
-    bool getServed( QueueID qid, MonitoredQuantity::Stats& result );
+    bool getServed( const QueueID& qid, MonitoredQuantity::Stats& result );
 
     /**
        Reset sizes to zero leaving consumers in
@@ -62,10 +62,13 @@ namespace stor {
     ConsumerMonitorCollection( const ConsumerMonitorCollection& );
     ConsumerMonitorCollection& operator = ( const ConsumerMonitorCollection& );
 
+    typedef std::map< QueueID, boost::shared_ptr<MonitoredQuantity> > ConsStatMap;
+
+    void addEventSampleToMap( const QueueID&, const unsigned int& data_size, ConsStatMap& );
+    bool getValueFromMap( const QueueID&, MonitoredQuantity::Stats&, const ConsStatMap& );
+
     virtual void do_calculateStatistics();
     virtual void do_reset();
-
-    typedef std::map< QueueID, boost::shared_ptr<MonitoredQuantity> > ConsStatMap;
 
     const utils::duration_t _updateInterval;
 
