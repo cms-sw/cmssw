@@ -335,7 +335,8 @@ int first_rbx=0,last_rbx=0;
 	}
 	
         RBXCurrentSummary.reset(sd); 
-        printf("update %i\n",sd); 
+	// disabled output statement
+        //printf("update %i\n",sd); 
      }
   } 
 } 
