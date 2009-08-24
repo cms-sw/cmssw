@@ -22,8 +22,8 @@
 #include "TMath.h"
 #include "TLegend.h"
 #include "TVirtualPad.h"
+#include "TFormula.h"
 
-#include "DQMServices/Diagnostic/interface/HDQMExpressionEvaluator.h"
 
 void HDQMInspector::style()
 {
@@ -548,17 +548,17 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
   // if(cConditions[i] != " ")
   //  stringToEvaluate.push_back(cConditions[i]);
 
-  if(iDebug)
+  if(iDebug) {
     std::cout << "Conditions After SubStitution " << stringToEvaluate << std::endl;
-  int errcode=HDQMExpressionEvaluator::calculateDouble(stringToEvaluate, resultdbl);
-  if(errcode!=0){    
-    std::cout << "Problem in HDQMExpressionEvaluator: errcode " << errcode << " Result " << resultdbl << std::endl;
-    throw 1;
   }
-  if(iDebug)
+  TFormula Formula("condition", stringToEvaluate.c_str());
+  resultdbl = Formula.Eval(0);
+  if(iDebug) {
     std::cout << "Result " << resultdbl << std::endl;
-  if(!resultdbl)
+  }
+  if(!resultdbl) {
     return false;
+  }
   return true;
 }
 
