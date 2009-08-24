@@ -198,6 +198,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiErrorSpigot -> setAxisTitle("Spigot",1);  
       DigiErrorSpigot -> setAxisTitle("DCC Id",2);
       
+      // 
       float bins_cellcount[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5,
 			      11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5,
 			      21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5,
@@ -219,7 +220,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis");
 
       DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
-      
+      (DigiBQ->getTH1F())->LabelsOption("v");
       DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",
 				  DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
       DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction",1);  
@@ -229,6 +230,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiNum = m_dbe->book1D("# of Good Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
       DigiNum -> setAxisTitle("# of Good Digis",1);  
       DigiNum -> setAxisTitle("# of Events",2);
+      (DigiNum->getTH1F())->LabelsOption("v");
 
       setupSubdetHists(hbHists,"HB");
       setupSubdetHists(heHists,"HE");
@@ -272,6 +274,7 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
   hist.shapeThresh->setAxisTitle("Time Slice",1);
   hist.presample= m_dbe->book1D(subdet+" Digi Presamples",subdet+" Digi Presamples",50,-0.5,49.5);
   hist.BQ = m_dbe->book1D(subdet+" Bad Quality Digis",subdet+" Bad Quality Digis",nChan+1,-0.5,nChan+0.5);
+  (hist.BQ->getTH1F())->LabelsOption("v");
   hist.BQFrac = m_dbe->book1D(subdet+" Bad Quality Digi Fraction",subdet+" Bad Quality Digi Fraction",DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
   hist.DigiFirstCapID = m_dbe->book1D(subdet+" Capid 1st Time Slice",subdet+" Capid for 1st Time Slice",7,-3.5,3.5);
   hist.DigiFirstCapID -> setAxisTitle("CapID (T0) - 1st CapId (T0)",1);  
@@ -491,9 +494,9 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
     }
   // Check digi size; if > 20, increment highest bin of digisize array
   if (digi.size()<20)
-    ++digisize[static_cast<int>(digi.size())][3];
+    ++digisize[static_cast<int>(digi.size())][digi.id().subdet()-1];
   else
-    ++digisize[19][3];
+    ++digisize[19][digi.id().subdet()-1];
 
   // loop over time slices of digi to check capID and errors
   ++h.count_presample[digi.presamples()];
