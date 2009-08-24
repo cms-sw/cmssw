@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.8 2009/05/14 15:02:12 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.9 2009/08/24 04:54:33 dmytro Exp $
 //
 
 // system include files
@@ -153,6 +153,7 @@ FWMuonBuilder::FWMuonBuilder():
    // We only want the one using IncRefCount to actually cause the deletion which is why 'IncDenyDestroy' does not have a matching
    // DecDenyDestroy.  I'm still using a edm::FWEvePtr to hold the Propagator since I want to know if the propagator is deleted
    m_propagator.reset(new TEveTrackPropagator()); // propagate within tracker
+   m_propagator->SetStepper(TEveTrackPropagator::kRungeKutta);
    m_propagator->IncRefCount();
    m_propagator->IncDenyDestroy();
    m_propagator->SetMaxR( 850 );
