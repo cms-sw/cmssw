@@ -19,6 +19,7 @@ hlxdqmsource = cms.EDFilter("HLXMonitor",
     SourcePort = cms.untracked.uint32(51001),
     AquireMode = cms.untracked.uint32(0), ## 0 TCP data, 1 constant fake data
     ReconnectionTime = cms.untracked.uint32(60), ## re-try every minute
+    MinLSBeforeSave = cms.untracked.uint32(6),
 
     # History for time vs. Num events
     # Dist for Distribution of Num events

@@ -30,6 +30,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    AquireMode       = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
    Accumulate       = iConfig.getUntrackedParameter< bool         >("Accumulate",  true); // all
    TriggerBX        = iConfig.getUntrackedParameter< unsigned int >("TriggerBX",   50);
+   MinLSBeforeSave  = iConfig.getUntrackedParameter< unsigned int >("MinLSBeforeSsave", 1);
    reconnTime       = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
    DistribIP1       = iConfig.getUntrackedParameter< std::string  >("PrimaryHLXDAQIP", "vmepcs2f17-18");
    DistribIP2       = iConfig.getUntrackedParameter< std::string  >("SecondaryHLXDAQIP", "vmepcs2f17-19");
@@ -491,7 +492,7 @@ HLXMonitor::SetupHists()
    BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeXTitle, 1 );
    BXvsTimeAvgEtSumHFP->setAxisTitle( BXvsTimeYTitle, 2 );
 
-   BXvsTimeAvgEtSumHFM  = dbe_->book2D( "BXvsTimeAvgEtSumHFM", "Average Et Sum: HF+",          
+   BXvsTimeAvgEtSumHFM  = dbe_->book2D( "BXvsTimeAvgEtSumHFM", "Average Et Sum: HF-",          
    MAX_LS, 0.5, (double)MAX_LS+0.5, NBINS, (double)XMIN, (double)XMAX);
    BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeXTitle, 1 );
    BXvsTimeAvgEtSumHFM->setAxisTitle( BXvsTimeYTitle, 2 );
@@ -773,7 +774,12 @@ void HLXMonitor::EndRun( bool saveFile )
    FillReportSummary();
    
    // Do some things that should be done at the end of the run ...
-   if( saveFile && runNumber_ != 0 ) SaveDQMFile();  
+   if( saveFile && runNumber_ != 0 ){
+      if( int(lumiSectionCount/64) >= (int)MinLSBeforeSave ) SaveDQMFile();
+      else std::cout << "Num LS's (" << int(lumiSectionCount/64) << ") "
+		     << "is less than required minumum (" << MinLSBeforeSave
+		     << "). File will not be saved!" << std::endl;
+   }  
    expectedNibbles_ = 0;
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
    

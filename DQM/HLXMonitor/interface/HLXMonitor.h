@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.11 2009/04/08 15:14:38 ahunt Exp $
+// $Id: HLXMonitor.h,v 1.12 2009/08/05 14:38:03 neadam Exp $
 //
 //
 
@@ -195,6 +195,7 @@ class HLXMonitor : public edm::EDAnalyzer
       unsigned int MAX_LS;
       unsigned int AquireMode;
       unsigned int TriggerBX;
+      unsigned int MinLSBeforeSave;
 
       std::string monitorName_;
       int prescaleEvt_;
