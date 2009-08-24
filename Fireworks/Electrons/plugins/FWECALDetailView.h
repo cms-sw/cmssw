@@ -65,6 +65,10 @@ protected:
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
 protected:
+   virtual void build_projectedJohannes (const FWModelId &id, const T *, TEveWindowSlot*);
+   virtual void build_projectedLothar (const FWModelId &id, const T *, TEveWindowSlot*);
+   virtual void build_projectedDave (const FWModelId &id, const T *, TEveWindowSlot*);
+
    // ---------- member data --------------------------------
    Double_t   m_unitCM;
    const FWEventItem* m_item;
@@ -76,9 +80,6 @@ protected:
    const EcalRecHitCollection *m_endcap_reduced_hits;
    std::vector< std::pair<DetId, float> > seed_detids;
 
-   TEveScene       *m_scene;
-   TGLViewer       *m_viewer;
-   TGVerticalFrame *m_ediFrame;
 };
 
 #include "FWECALDetailView.icc"

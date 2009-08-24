@@ -1,12 +1,11 @@
-// $Id: FWECALDetailView.icc,v 1.20 2009/07/23 13:58:37 dmytro Exp $
+// $Id: FWECALDetailView.icc,v 1.21 2009/08/22 17:10:22 amraktad Exp $
 
 #include "TAxis.h"
 #include "TGLViewer.h"
-#include "TGButton.h"
-#include "TGSlider.h"
 #include "TCanvas.h"
 #include "TRootEmbeddedCanvas.h"
 #include "TEveManager.h"
+#include "TEveWindow.h"
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
 #define protected public
@@ -34,17 +33,12 @@
 
 template <typename T>
 FWECALDetailView<T>::FWECALDetailView () :
-
    m_unitCM(0.01),
    m_item(0),
    m_coordEtaPhi(true),
    m_barrel_hits(0),
    m_endcap_hits(0),
-   m_endcap_reduced_hits(0),
-
-   m_scene(0),
-   m_viewer(0),
-   m_ediFrame(0)
+   m_endcap_reduced_hits(0)
 {
 }
 
@@ -71,8 +65,51 @@ double FWECALDetailView<T>::deltaPhiSuperClusterTrackAtVtx (const T &)
    return 0;
 }
 
+
 template <typename T>
-void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEveWindowSlot* slot)
+void FWECALDetailView<T>::build_projected(const FWModelId &id, const T *i, TEveWindowSlot* base)
+{
+   TEveWindowTab* tab = base->MakeTab();
+   tab->SetShowTitleBar(kFALSE);
+   TEveWindowSlot* slot;
+
+   slot = tab->NewSlot();
+   build_projectedJohannes(id, i, slot);
+
+   slot = tab->NewSlot();
+   build_projectedLothar(id, i, slot);
+
+   slot = tab->NewSlot();
+   build_projectedDave(id, i, slot);
+}
+
+//--------------------------------------------------------------------------------
+
+template <typename T>
+void FWECALDetailView<T>::build_projectedLothar(const FWModelId &id, const T *i, TEveWindowSlot* slot)
+{
+   TGVerticalFrame* ediFrame;
+   TGLViewer       *viewer;
+   TEveScene       *scene;
+   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   ew->SetElementName("View B");
+}
+
+//--------------------------------------------------------------------------------
+
+template <typename T>
+void FWECALDetailView<T>::build_projectedDave(const FWModelId &id, const T *i, TEveWindowSlot* slot)
+{
+
+   TGVerticalFrame* ediFrame;
+   TGLViewer       *viewer;
+   TEveScene       *scene;
+   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   ew->SetElementName("View C");
+}
+//--------------------------------------------------------------------------------
+template <typename T>
+void FWECALDetailView<T>::build_projectedJohannes(const FWModelId &id, const T *i, TEveWindowSlot* slot)
 {
    // get rechits
    const fwlite::Event *ev = m_item->getEvent();
@@ -87,7 +124,6 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEve
       std::cout <<"no barrel ECAL rechits are available, "
          "showing crystal location but not energy" << std::endl;
    }
-
 
    fwlite::Handle<EcalRecHitCollection> handle_endcap_hits;
    m_endcap_hits = 0;
@@ -108,7 +144,11 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEve
    const unsigned int subdetId = seed_detids.size() != 0 ? seed_detids.begin()->first.subdetId() : 0;
    m_coordEtaPhi = (subdetId == EcalEndcap) ? kFALSE: kTRUE;
 
-   FWDetailViewBase::makePackViewer(slot, m_ediFrame, m_viewer, m_scene);
+   TGVerticalFrame* ediFrame;
+   TGLViewer       *viewer;
+   TEveScene       *scene;
+   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   ew->SetElementName("View A");
 
    // points for centroids
    Double_t x(0), y(0), z(0);
@@ -125,7 +165,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEve
    scposition->AddMarker(0, 0.5);
    scposition->SetMarkerSize(2);
    scposition->SetMarkerColor(kBlue);
-   m_scene->AddElement(scposition);
+   scene->AddElement(scposition);
 
    // points for seed position
    TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
@@ -141,7 +181,7 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEve
    seedposition->AddMarker(0, 0.5);
    seedposition->SetMarkerSize(2);
    seedposition->SetMarkerColor(kRed);
-   m_scene->AddElement(seedposition);
+   scene->AddElement(seedposition);
 
    // data
    //
@@ -195,32 +235,32 @@ void FWECALDetailView<T>::build_projected (const FWModelId &id, const T *i, TEve
    lego->SetProjection(TEveCaloLego::kAuto);
    lego->SetName("ECALDetail Lego");
    lego->SetFontColor(kGray);
-   m_scene->AddElement(lego);
+   scene->AddElement(lego);
 
    if (drawTrack())
-      drawCrossHair(i, subdetId, lego, m_scene);
+      drawCrossHair(i, subdetId, lego, scene);
 
    // draw axis at the window corners
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   m_viewer->AddOverlayElement(overlay);
+   viewer->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   m_viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer);
-   m_viewer->SetEventHandler(eh);
+   viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)viewer->GetGLWidget(), (TObject*)viewer);
+   viewer->SetEventHandler(eh);
    eh->Rotate(0, 10000, kFALSE, kFALSE);
 
-   m_viewer->UpdateScene();
-   m_viewer->CurrentCamera().Reset();
+   viewer->UpdateScene();
+   viewer->CurrentCamera().Reset();
 
    // draw legend in latex
-   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", m_ediFrame, 100, 100, 0);
-   m_ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   m_ediFrame->MapSubwindows();
-   m_ediFrame->Layout();
+   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
+   ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   ediFrame->MapSubwindows();
+   ediFrame->Layout();
    TCanvas* textCanvas = ec->GetCanvas();
    textCanvas->SetBorderMode(0);
    makeLegend(*i, textCanvas);
