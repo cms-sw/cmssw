@@ -78,12 +78,12 @@ void testEventDistributor::initEventDistributor()
       _sharedResources->_dqmEventQueue.reset(new DQMEventQueue(1024));
       _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app,1));
       _eventDistributor.reset(new EventDistributor(_sharedResources));
-      boost::shared_ptr<ConsumerMonitorCollection>
-        cmcptr( _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection() );
-      _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
-
-      cmcptr = _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
-      _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
+      EventConsumerMonitorCollection& ecmc = 
+        _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
+      _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
+      DQMConsumerMonitorCollection& dcmc = 
+        _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
+      _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
     }
 }
 

@@ -178,7 +178,7 @@ testResourceMonitorCollection::noSataBeasts()
   CPPUNIT_ASSERT( sataBeasts.empty() );
 
   _rmc->checkSataBeasts();
-  CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 0 );
+  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 0 );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
 }
 
@@ -192,7 +192,7 @@ testResourceMonitorCollection::sataBeastOkay()
   CPPUNIT_ASSERT(! content.empty() );
   _rmc->updateSataBeastStatus(sataBeast, content);
 
-  CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 0 );
+  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 0 );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
 }
 
@@ -206,7 +206,7 @@ testResourceMonitorCollection::sataBeastFailed()
   _rmc->updateSataBeastStatus(sataBeast, content);
   CPPUNIT_ASSERT(! content.empty() );
 
-  CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 101 );
+  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 101 );
   std::vector<MockAlarmHandler::Alarms> alarms;
   bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
   CPPUNIT_ASSERT( alarmsAreSet );
@@ -231,7 +231,7 @@ testResourceMonitorCollection::sataBeastsOnSpecialNode()
   CPPUNIT_ASSERT(! _rmc->checkSataDisks(sataBeast,"-00.cms") );
   CPPUNIT_ASSERT( _rmc->checkSataDisks(sataBeast,"-10.cms") );
 
-  CPPUNIT_ASSERT( _rmc->_sataBeastStatus == 101 );
+  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 101 );
 
   std::vector<MockAlarmHandler::Alarms> alarms;
   bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
