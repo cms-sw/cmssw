@@ -10,9 +10,6 @@
 <use name=MagneticField/Engine>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/Common>
-<use name=DataFormats/L1Trigger>
-<use name=DataFormats/MuonReco>
-<use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/DetLayers>
@@ -27,10 +24,8 @@
 <use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/TransientTrack>
-<use name=HLTrigger/HLTcore>
 <use name=hepmc>
 <use name=RecoHI/HiMuonAlgos>
 <library file="*.cc" name=RecoHIHiMuonAlgosPlugins>
      <flags EDM_PLUGIN=1>
-
 </library>
