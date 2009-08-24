@@ -13,7 +13,7 @@
 //
 // Original Author:  "Igor Vodopiyanov"
 //         Created:  Nov-21 2008
-// $Id: HcalDataCertification.cc,v 1.5 2009/07/06 10:51:56 temple Exp $
+// $Id: HcalDataCertification.cc,v 1.6 2009/08/24 11:23:20 temple Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include <sstream>
 #include <fstream>
 #include <exception>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -83,7 +84,7 @@ HcalDataCertification::HcalDataCertification(const edm::ParameterSet& iConfig):c
 {
   // now do what ever initialization is needed
   debug_ = iConfig.getUntrackedParameter<int>("debug",0);
-  rootFolder_ = iConfig.getUntrackedParameter<string>("subSystemFolder","Hcal");
+  rootFolder_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
 }
 
 

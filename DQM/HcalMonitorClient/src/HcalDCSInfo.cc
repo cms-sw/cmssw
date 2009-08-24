@@ -20,7 +20,7 @@
 HcalDCSInfo::HcalDCSInfo(edm::ParameterSet const& pSet) {
 
   debug_ = pSet.getUntrackedParameter<int>("debug",0);
-  rootFolder_ = pSet.getUntrackedParameter<string>("subSystemFolder","Hcal");
+  rootFolder_ = pSet.getUntrackedParameter<std::string>("subSystemFolder","Hcal");
   // Create MessageSender
   edm::LogInfo( "HcalDCSInfo") << "HcalDCSInfo::Creating HcalDCSInfo ";
 
