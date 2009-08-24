@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.108 2009/08/18 08:55:12 mommsen Exp $
+// $Id: StorageManager.cc,v 1.109 2009/08/21 09:28:49 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -28,7 +28,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.108 2009/08/18 08:55:12 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.109 2009/08/21 09:28:49 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -175,11 +175,13 @@ void StorageManager::initializeSharedResources()
                                              getDataSenderMonitorCollection()));
 
   _sharedResources->_registrationCollection.reset( new RegistrationCollection() );
-  boost::shared_ptr<ConsumerMonitorCollection>
-    cmcptr( _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection() );
-  _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
-  cmcptr = _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
-  _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
+  EventConsumerMonitorCollection& ecmc = 
+    _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
+  _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
+
+  DQMConsumerMonitorCollection& dcmc = 
+    _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
+  _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
 }
 
 

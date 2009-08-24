@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.20 2009/08/21 15:04:56 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.21 2009/08/24 13:23:01 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -10,7 +10,8 @@
 #include "boost/lexical_cast.hpp"
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
-#include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/WebPageHelper.h"
@@ -264,7 +265,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     RegistrationCollection::ConsumerRegistrations regs;
     rc->getEventConsumers( regs );
 
-    boost::shared_ptr<ConsumerMonitorCollection> cc =
+    EventConsumerMonitorCollection& eventConsumerCollection =
       resPtr->_statisticsReporter->getEventConsumerMonitorCollection();
 
     boost::shared_ptr<EventQueueCollection> qcoll_ptr = resPtr->_eventConsumerQueueCollection;
@@ -361,7 +362,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         std::ostringstream eq_oss;
         std::ostringstream eq_oss_recent;
         MonitoredQuantity::Stats eq_stats;
-        bool eq_found = cc->getQueued( (*it)->queueId(), eq_stats );
+        bool eq_found = eventConsumerCollection.getQueued( (*it)->queueId(), eq_stats );
         if( eq_found )
           {
             eq_oss << eq_stats.getSampleCount();
@@ -379,7 +380,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         std::ostringstream es_oss_recent;
         std::ostringstream rate_oss_recent;
         MonitoredQuantity::Stats es_stats;
-        bool es_found = cc->getServed( (*it)->queueId(), es_stats );
+        bool es_found = eventConsumerCollection.getServed( (*it)->queueId(), es_stats );
         if( es_found )
           {
             es_oss << es_stats.getSampleCount();
@@ -508,7 +509,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     RegistrationCollection::DQMConsumerRegistrations regs;
     rc->getDQMEventConsumers( regs );
 
-    boost::shared_ptr<ConsumerMonitorCollection> cc =
+    DQMConsumerMonitorCollection& dqmConsumerCollection =
       resPtr->_statisticsReporter->getDQMConsumerMonitorCollection();
 
     boost::shared_ptr<DQMEventQueueCollection> qcoll_ptr = resPtr->_dqmEventConsumerQueueCollection;
@@ -590,7 +591,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         std::ostringstream eq_oss;
         std::ostringstream eq_oss_recent;
         MonitoredQuantity::Stats eq_stats;
-        bool eq_found = cc->getQueued( (*it)->queueId(), eq_stats );
+        bool eq_found = dqmConsumerCollection.getQueued( (*it)->queueId(), eq_stats );
         if( eq_found )
           {
             eq_oss << eq_stats.getSampleCount();
@@ -608,7 +609,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         std::ostringstream es_oss_recent;
         std::ostringstream rate_oss_recent;
         MonitoredQuantity::Stats es_stats;
-        bool es_found = cc->getServed( (*it)->queueId(), es_stats );
+        bool es_found = dqmConsumerCollection.getServed( (*it)->queueId(), es_stats );
         if( es_found )
           {
             es_oss << es_stats.getSampleCount();

@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -87,6 +87,15 @@ void DQMEventMonitorCollection::do_reset()
 }
 
 
+void DQMEventMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
+{
+  infoSpaceItems.push_back(std::make_pair("dqmFoldersPerEP", &_dqmFoldersPerEP));
+}
+
+
+void DQMEventMonitorCollection::do_updateInfoSpaceItems()
+{
+}
 
 
 /// emacs configuration

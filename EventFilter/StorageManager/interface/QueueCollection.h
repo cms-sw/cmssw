@@ -1,4 +1,4 @@
-// $Id: QueueCollection.h,v 1.3 2009/06/19 13:49:12 dshpakov Exp $
+// $Id: QueueCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: QueueCollection.h 
 
 #ifndef StorageManager_QueueCollection_h
@@ -33,9 +33,9 @@ namespace stor {
    * returning a std::vector<QueueID> which gives the list
    * of QueueIDs of queues the class should be added.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.3 $
-   * $Date: 2009/06/19 13:49:12 $
+   * $Author: mommsen $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   template <class T>
@@ -43,12 +43,10 @@ namespace stor {
   {
   public:
 
-    typedef boost::shared_ptr<ConsumerMonitorCollection> ConsCollPtr;
-
     /**
        A default-constructed QueueCollection contains no queues
      */
-    QueueCollection( ConsCollPtr );
+    QueueCollection(ConsumerMonitorCollection&);
 
     /**
        Set or get the time in seconds that the queue with the given id
@@ -132,10 +130,6 @@ namespace stor {
      */
     void clearStaleQueues(std::vector<QueueID>& stale_queues);
 
-    /**
-       Get consumer monitor collection
-    */
-    ConsCollPtr consumerMonitorCollection();
 
   private:
     typedef ExpirableQueue<T, RejectNewest<T> > expirable_discard_new_queue_t;
@@ -162,7 +156,7 @@ namespace stor {
     std::vector<expirable_discard_old_queue_ptr> _discard_old_queues;
     typedef std::map<ConsumerID, QueueID>        map_type;
     map_type                                     _queue_id_lookup;
-    ConsCollPtr _consumer_monitor_collection;
+    ConsumerMonitorCollection& _consumer_monitor_collection;
 
     /*
       These functions are declared private and not implemented to
@@ -202,7 +196,7 @@ namespace stor {
   } // anonymous namespace
 
   template <class T>
-  QueueCollection<T>::QueueCollection( ConsCollPtr ccp ) :
+  QueueCollection<T>::QueueCollection(ConsumerMonitorCollection& ccp ) :
     _protect_discard_new_queues(),
     _protect_discard_old_queues(),
     _protect_lookup(),
@@ -348,7 +342,7 @@ namespace stor {
 
     for( std::vector<QueueID>::iterator i = routes.begin(); i != routes.end(); ++i )
       {
-        _consumer_monitor_collection->addQueuedEventSample( *i, event.totalDataSize() );
+        _consumer_monitor_collection.addQueuedEventSample( *i, event.totalDataSize() );
       }
 
   }
@@ -383,7 +377,7 @@ namespace stor {
 
     if (!result.empty())
       {
-        _consumer_monitor_collection->addServedEventSample( id, result.totalDataSize() );
+        _consumer_monitor_collection.addServedEventSample( id, result.totalDataSize() );
       }
 
     return result;

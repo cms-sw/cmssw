@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.4 2009/07/20 13:07:28 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -40,10 +40,6 @@ void RunMonitorCollection::do_reset()
 void RunMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
   infoSpaceItems.push_back(std::make_pair("runNumber", &_runNumber));
-
-  // These infospace items were defined in the old SM
-  // infoSpaceItems.push_back(std::make_pair("receivedEvents", &_receivedEvents));
-  // infoSpaceItems.push_back(std::make_pair("receivedErrorEvents", &_receivedErrorEvents));
 }
 
 
@@ -53,12 +49,6 @@ void RunMonitorCollection::do_updateInfoSpaceItems()
   
   _runNumbersSeen.getStats(stats);
   _runNumber = static_cast<xdata::UnsignedInteger32>(static_cast<unsigned int>(stats.getLastSampleValue()));
-  
-  // _eventIDsReceived.getStats(stats);
-  // _receivedEvents = static_cast<xdata::UnsignedInteger32>(stats.getSampleCount());
-  
-  // _errorEventIDsReceived.getStats(stats);
-  // _receivedErrorEvents = static_cast<xdata::UnsignedInteger32>(stats.getSampleCount());
 }
 
 

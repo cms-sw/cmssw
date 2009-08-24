@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.6 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.7 2009/08/18 08:54:13 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -22,8 +22,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/18 08:54:13 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -401,6 +401,12 @@ namespace stor {
     mutable boost::mutex _collectionsMutex;
 
     xdata::UnsignedInteger32 _connectedRBs;
+    xdata::UnsignedInteger32 _connectedEPs;
+    xdata::UnsignedInteger32 _activeEPs;
+    xdata::UnsignedInteger32 _outstandingDataDiscards;
+    xdata::UnsignedInteger32 _outstandingDQMDiscards;
+    xdata::UnsignedInteger32 _staleChains;
+    xdata::UnsignedInteger32 _ignoredDiscards;
 
     OutputModuleRecordMap _outputModuleMap;
 

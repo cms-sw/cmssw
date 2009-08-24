@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: FragmentMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
 /// @file: FragmentMonitorCollection.h 
 
 #ifndef StorageManager_FragmentMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/18 08:54:13 $
    */
   
   class FragmentMonitorCollection : public MonitorCollection
@@ -116,27 +116,6 @@ namespace stor {
     xdata::UnsignedInteger32 _receivedFrames; // Total I2O frames received
     xdata::Double _instantBandwidth;          // Recent bandwidth in MB/s
     xdata::Double _instantRate;               // Recent number of frames/s
-
-    // InfoSpace items which were defined in the old SM
-    // xdata::Double _duration;                  // Duration of run in seconds
-    // xdata::UnsignedInteger32 _totalSamples;   // Total number of samples used for measurement
-                                              // (same as receivedFrames)
-    // xdata::UnsignedInteger32 _dqmRecords;     // Total number of DQM records (frames) received
-
-    // xdata::Double _meanBandwidth;    // Total average bandwidth in MB/s
-    // xdata::Double _meanRate;         // Total avarage number of frames/s
-    // xdata::Double _meanLatency;      // Total average latency in micro-seconds/frame
-    // xdata::Double _receivedVolume;   // Total received data in MB
-
-    // xdata::UnsignedInteger32 _receivedPeriod4Stats;  // Time period per recent measurements
-    // xdata::UnsignedInteger32 _receivedSamples4Stats; // Number of recent samples used for measurement
-    // xdata::Double _instantLatency;   // Recent latency in micro-seconds/frame
-    // xdata::Double _maxBandwidth;     // Recent maximum bandwidth in MB/s
-    // xdata::Double _minBandwidth;     // Recent minimum bandwidth in MB/s
-
-    // Why are these put into infospace if none of the DQM related measurements are?
-    // xdata::UnsignedInteger32 _receivedDQMPeriod4Stats;  // Number of recent samples used for DQM measurement
-    // xdata::UnsignedInteger32 _receivedDQMSamples4Stats; // Time period per recent DQMmeasurements
 
   };
   

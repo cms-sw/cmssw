@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.4 2009/07/20 13:07:28 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -87,10 +87,7 @@ void StreamsMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpace
 {
   infoSpaceItems.push_back(std::make_pair("storedEvents",  &_storedEvents));
   infoSpaceItems.push_back(std::make_pair("storedVolume",  &_storedVolume));
-
-  // These infospace items were defined in the old SM
-  // infoSpaceItems.push_back(std::make_pair("namesOfStream", &_namesOfStream));
-  // infoSpaceItems.push_back(std::make_pair("storedEventsInStream", &_storedEventsInStream));
+  infoSpaceItems.push_back(std::make_pair("bandwithToDisk",  &_bandwithToDisk));
 }
 
 
@@ -112,6 +109,7 @@ void StreamsMonitorCollection::do_updateInfoSpaceItems()
   
   _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
   _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
+  _bandwithToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
 }
 
 

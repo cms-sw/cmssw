@@ -149,8 +149,6 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
-    //_diskWriteParamCopy._lookAreaPath = "/store/lookarea";
-    //_diskWriteParamCopy._ecalCalibPath = "/store/calibarea";
     _diskWriteParamCopy._lookAreaPath = "";
     _diskWriteParamCopy._ecalCalibPath = "";
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";

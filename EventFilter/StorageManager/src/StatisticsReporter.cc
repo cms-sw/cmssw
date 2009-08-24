@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.9 2009/08/21 09:40:48 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.10 2009/08/21 14:39:56 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -35,13 +35,12 @@ _dataSenderMonCollection(_monitoringSleepSec),
 _dqmEventMonCollection(5*_monitoringSleepSec),
 _resourceMonCollection(900*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),
+_eventConsumerMonCollection(_monitoringSleepSec),
+_dqmConsumerMonCollection(_monitoringSleepSec),
 _throughputMonCollection(_monitoringSleepSec),
 _monitorWL(0),
 _doMonitoring(_monitoringSleepSec>0)
 {
-  _eventConsumerMonitorCollection.reset( new ConsumerMonitorCollection(_monitoringSleepSec) );
-  _dqmConsumerMonitorCollection.reset( new ConsumerMonitorCollection(_monitoringSleepSec) );
-
   reset();
   createMonitoringInfoSpace();
   collectInfoSpaceItems();
@@ -139,8 +138,8 @@ void StatisticsReporter::collectInfoSpaceItems()
   _dqmEventMonCollection.appendInfoSpaceItems(infoSpaceItems);
   _resourceMonCollection.appendInfoSpaceItems(infoSpaceItems);
   _stateMachineMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _eventConsumerMonitorCollection->appendInfoSpaceItems(infoSpaceItems);
-  _dqmConsumerMonitorCollection->appendInfoSpaceItems(infoSpaceItems);
+  _eventConsumerMonCollection.appendInfoSpaceItems(infoSpaceItems);
+  _dqmConsumerMonCollection.appendInfoSpaceItems(infoSpaceItems);
   _throughputMonCollection.appendInfoSpaceItems(infoSpaceItems);
 
   putItemsIntoInfoSpace(infoSpaceItems);
@@ -252,8 +251,8 @@ void StatisticsReporter::calculateStatistics()
   _dqmEventMonCollection.calculateStatistics(now);
   _resourceMonCollection.calculateStatistics(now);
   _stateMachineMonCollection.calculateStatistics(now);
-  _eventConsumerMonitorCollection->calculateStatistics(now);
-  _dqmConsumerMonitorCollection->calculateStatistics(now);
+  _eventConsumerMonCollection.calculateStatistics(now);
+  _dqmConsumerMonCollection.calculateStatistics(now);
   _throughputMonCollection.calculateStatistics(now);
 }
 
@@ -276,8 +275,8 @@ void StatisticsReporter::updateInfoSpace()
     _dqmEventMonCollection.updateInfoSpaceItems();
     _resourceMonCollection.updateInfoSpaceItems();
     _stateMachineMonCollection.updateInfoSpaceItems();
-    _eventConsumerMonitorCollection->updateInfoSpaceItems();
-    _dqmConsumerMonitorCollection->updateInfoSpaceItems();
+    _eventConsumerMonCollection.updateInfoSpaceItems();
+    _dqmConsumerMonCollection.updateInfoSpaceItems();
     _throughputMonCollection.updateInfoSpaceItems();
 
     _infoSpace->unlock();
@@ -323,8 +322,8 @@ void StatisticsReporter::reset()
   _dataSenderMonCollection.reset(now);
   _dqmEventMonCollection.reset(now);
   _resourceMonCollection.reset(now);
-  _eventConsumerMonitorCollection->reset(now);
-  _dqmConsumerMonitorCollection->reset(now);
+  _eventConsumerMonCollection.reset(now);
+  _dqmConsumerMonCollection.reset(now);
   _throughputMonCollection.reset(now);
 }
 

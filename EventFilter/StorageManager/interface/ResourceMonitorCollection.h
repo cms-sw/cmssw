@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.9 2009/08/21 13:47:59 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.10 2009/08/21 13:54:25 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -12,7 +12,8 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "xdata/String.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/Vector.h"
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -25,8 +26,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2009/08/21 13:47:59 $
+   * $Revision: 1.10 $
+   * $Date: 2009/08/21 13:54:25 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -40,7 +41,7 @@ namespace stor {
     {
       MonitoredQuantity::Stats absDiskUsageStats;  // absolute disk usage in GB
       MonitoredQuantity::Stats relDiskUsageStats;  // percentage of disk space occupied
-      size_t diskSize;                             // absolute size of disk in GB
+      double diskSize;                             // absolute size of disk in GB
       std::string pathName;                        // path of the disk
       AlarmHandler::ALARM_LEVEL alarmState;        // alarm level of the disk usage
     };
@@ -80,7 +81,7 @@ namespace stor {
     {
       MonitoredQuantity absDiskUsage;
       MonitoredQuantity relDiskUsage;
-      size_t diskSize;
+      double diskSize;
       std::string pathName;
       AlarmHandler::ALARM_LEVEL alarmState;
 
@@ -99,7 +100,6 @@ namespace stor {
 
     MonitoredQuantity _numberOfCopyWorkers;
     MonitoredQuantity _numberOfInjectWorkers;
-    unsigned int      _sataBeastStatus;
 
 
     //Prevent copying of the ResourceMonitorCollection
@@ -131,9 +131,15 @@ namespace stor {
     boost::shared_ptr<AlarmHandler> _alarmHandler;
     double _highWaterMark;     // percentage of disk full when issuing an alarm
     std::string _sataUser;     // user name to log into SATA controller
-
-    // Unused status string from old SM
-    xdata::String _progressMarker;
+    unsigned int _latchedSataBeastStatus;
+    unsigned int _latchedNumberOfDisks;
+    
+    xdata::UnsignedInteger32 _copyWorkers;     // number of running copyWorkers
+    xdata::UnsignedInteger32 _injectWorkers;   // number of running injectWorkers
+    xdata::UnsignedInteger32 _sataBeastStatus; // status code of SATA beast
+    xdata::UnsignedInteger32 _numberOfDisks;   // number of disks used for writing
+    xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // disk space for writing disk followed
+    xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // by look area and ecal disk
 
   };
   

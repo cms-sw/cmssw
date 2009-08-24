@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: ConsumerMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
 /// @file: ConsumerMonitorCollection.h 
 
 #ifndef StorageManager_ConsumerMonitorCollection_h
@@ -20,8 +20,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/18 08:54:13 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection
@@ -67,12 +67,14 @@ namespace stor {
 
     typedef std::map< QueueID, boost::shared_ptr<MonitoredQuantity> > ConsStatMap;
 
+    const utils::duration_t _updateInterval;
+
+  protected:
+
     ConsStatMap _qmap; // queued
     ConsStatMap _smap; // served
 
     mutable boost::mutex _mutex;
-
-    const utils::duration_t _updateInterval;
 
   };
 

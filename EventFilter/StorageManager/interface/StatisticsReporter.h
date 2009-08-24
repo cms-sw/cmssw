@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.6 2009/08/18 09:16:35 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.7 2009/08/20 13:41:01 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -11,7 +11,8 @@
 #include "xdata/UnsignedInteger32.h"
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
-#include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
@@ -41,8 +42,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/18 09:16:35 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/20 13:41:01 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -56,8 +57,6 @@ namespace stor {
     );
     
     virtual ~StatisticsReporter();
-
-    typedef boost::shared_ptr<ConsumerMonitorCollection> CMCPtr;
 
     const RunMonitorCollection& getRunMonitorCollection() const
     { return _runMonCollection; }
@@ -115,15 +114,19 @@ namespace stor {
     { return _stateMachineMonCollection; }
 
 
-    CMCPtr getEventConsumerMonitorCollection()
-    {
-      return _eventConsumerMonitorCollection;
-    }
+    const EventConsumerMonitorCollection& getEventConsumerMonitorCollection() const
+    { return _eventConsumerMonCollection; }
 
-    CMCPtr getDQMConsumerMonitorCollection()
-    {
-      return _dqmConsumerMonitorCollection;
-    }
+    EventConsumerMonitorCollection& getEventConsumerMonitorCollection()
+    { return _eventConsumerMonCollection; }
+
+
+    const DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection() const
+    { return _dqmConsumerMonCollection; }
+
+    DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection()
+    { return _dqmConsumerMonCollection; }
+
 
     const ThroughputMonitorCollection& getThroughputMonitorCollection() const
     { return _throughputMonCollection; }
@@ -177,8 +180,8 @@ namespace stor {
     DQMEventMonitorCollection _dqmEventMonCollection;
     ResourceMonitorCollection _resourceMonCollection;
     StateMachineMonitorCollection _stateMachineMonCollection;
-    CMCPtr _eventConsumerMonitorCollection;
-    CMCPtr _dqmConsumerMonitorCollection;
+    EventConsumerMonitorCollection _eventConsumerMonCollection;
+    DQMConsumerMonitorCollection _dqmConsumerMonCollection;
     ThroughputMonitorCollection _throughputMonCollection;
     toolbox::task::WorkLoop* _monitorWL;      
     bool _doMonitoring;

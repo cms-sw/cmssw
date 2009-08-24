@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.12 2009/08/21 09:56:58 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.13 2009/08/21 13:49:56 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -29,9 +29,9 @@ MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
 _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
-_sataBeastStatus(0),
 _alarmHandler(ah),
-_progressMarker( "unused" )
+_latchedSataBeastStatus(0),
+_latchedNumberOfDisks(0)
 {}
 
 
@@ -43,11 +43,11 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
   _sataUser = dwParams._sataUser;
 
   int nLogicalDisk = dwParams._nLogicalDisk;
-  unsigned int nD = nLogicalDisk ? nLogicalDisk : 1;
+  _latchedNumberOfDisks = nLogicalDisk ? nLogicalDisk : 1;
   _diskUsageList.clear();
-  _diskUsageList.reserve(nD+2);
+  _diskUsageList.reserve(_latchedNumberOfDisks+2);
 
-  for (unsigned int i=0; i<nD; ++i) {
+  for (unsigned int i=0; i<_latchedNumberOfDisks; ++i) {
 
     DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
     diskUsage->pathName = dwParams._filePath;
@@ -108,7 +108,7 @@ void ResourceMonitorCollection::getStats(Stats& stats) const
   _numberOfCopyWorkers.getStats(stats.numberOfCopyWorkersStats);
   _numberOfInjectWorkers.getStats(stats.numberOfInjectWorkersStats);
 
-  stats.sataBeastStatus = _sataBeastStatus;
+  stats.sataBeastStatus = _latchedSataBeastStatus;
 }
 
 
@@ -146,7 +146,8 @@ void ResourceMonitorCollection::do_reset()
 {
   _numberOfCopyWorkers.reset();
   _numberOfInjectWorkers.reset();
-  _sataBeastStatus = 0;
+  _latchedSataBeastStatus = 0;
+  _latchedNumberOfDisks = 0;
 
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
   for ( DiskUsagePtrList::const_iterator it = _diskUsageList.begin(),
@@ -163,13 +164,56 @@ void ResourceMonitorCollection::do_reset()
 
 void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
-  infoSpaceItems.push_back(std::make_pair("progressMarker", &_progressMarker));
+  infoSpaceItems.push_back(std::make_pair("copyWorkers", &_copyWorkers));
+  infoSpaceItems.push_back(std::make_pair("injectWorkers", &_injectWorkers));
+  infoSpaceItems.push_back(std::make_pair("sataBeastStatus", &_sataBeastStatus));
+  infoSpaceItems.push_back(std::make_pair("numberOfDisks", &_numberOfDisks));
+  infoSpaceItems.push_back(std::make_pair("totalDiskSpace", &_totalDiskSpace));
+  infoSpaceItems.push_back(std::make_pair("usedDiskSpace", &_usedDiskSpace));
 }
 
 
 void ResourceMonitorCollection::do_updateInfoSpaceItems()
 {
-  //nothing to do: the progressMarker does not change its value
+  Stats stats;
+  getDiskStats(stats);
+
+  _copyWorkers = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>( stats.numberOfCopyWorkersStats.getLastSampleValue() )
+  );
+
+  _injectWorkers = static_cast<xdata::UnsignedInteger32>(
+    static_cast<unsigned int>( stats.numberOfInjectWorkersStats.getLastSampleValue() )
+  );
+
+  _sataBeastStatus = stats.sataBeastStatus;
+  _numberOfDisks = _latchedNumberOfDisks;
+
+  _totalDiskSpace.clear();
+  _usedDiskSpace.clear();
+  // Always report vector all disks plus look area and calib area,
+  // regardless if they are configured or not.
+  _totalDiskSpace.resize(_latchedNumberOfDisks+2);
+  _usedDiskSpace.resize(_latchedNumberOfDisks+2);
+
+
+  for (DiskUsageStatsPtrList::const_iterator
+         it = stats.diskUsageStatsList.begin(),
+         itEnd = stats.diskUsageStatsList.end();
+       it != itEnd;
+       ++it)
+  {
+    _totalDiskSpace.push_back(
+      static_cast<xdata::UnsignedInteger32>(
+        static_cast<unsigned int>( (*it)->diskSize * 1024 )
+      )
+    );
+    _usedDiskSpace.push_back(
+      static_cast<xdata::UnsignedInteger32>( 
+        static_cast<unsigned int>( (*it)->absDiskUsageStats.getLastSampleValue() * 1024 )
+      )
+    );
+  }
 }
 
 
@@ -325,7 +369,7 @@ void ResourceMonitorCollection::checkSataBeast(const std::string& sataBeast)
       "Failed to connect to SATA beast " + sataBeast);
     _alarmHandler->raiseAlarm(sataBeast, AlarmHandler::ERROR, ex);
 
-    _sataBeastStatus = 99999;
+    _latchedSataBeastStatus = 99999;
   }
 }
 
@@ -407,9 +451,9 @@ void ResourceMonitorCollection::updateSataBeastStatus(
     flags |= boost::match_not_bob;
   }
 
-  _sataBeastStatus = newSataBeastStatus;
+  _latchedSataBeastStatus = newSataBeastStatus;
 
-  if (_sataBeastStatus == 0) // no more problems
+  if (_latchedSataBeastStatus == 0) // no more problems
     _alarmHandler->revokeAlarm(sataBeast);
 
 }

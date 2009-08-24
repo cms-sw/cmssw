@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef StorageManager_RunMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/18 08:54:13 $
    */
   
   class RunMonitorCollection : public MonitorCollection
@@ -75,10 +75,6 @@ namespace stor {
     virtual void do_updateInfoSpaceItems();
 
     xdata::UnsignedInteger32 _runNumber;           // The current run number
-
-    // InfoSpace items which were defined in the old SM
-    // xdata::UnsignedInteger32 _receivedEvents;      // Total number of received events
-    // xdata::UnsignedInteger32 _receivedErrorEvents; // Total number of received error events
 
   };
   

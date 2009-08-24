@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.7 2009/08/18 08:55:12 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -452,6 +452,12 @@ void DataSenderMonitorCollection::do_reset()
 void DataSenderMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
   infoSpaceItems.push_back(std::make_pair("connectedRBs", &_connectedRBs));
+  infoSpaceItems.push_back(std::make_pair("connectedEPs", &_connectedEPs));
+  infoSpaceItems.push_back(std::make_pair("activeEPs", &_activeEPs));
+  infoSpaceItems.push_back(std::make_pair("outstandingDataDiscards", &_outstandingDataDiscards));
+  infoSpaceItems.push_back(std::make_pair("outstandingDQMDiscards", &_outstandingDQMDiscards));
+  infoSpaceItems.push_back(std::make_pair("staleChains", &_staleChains));
+  infoSpaceItems.push_back(std::make_pair("ignoredDiscards", &_ignoredDiscards));
 }
 
 

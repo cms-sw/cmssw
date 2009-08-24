@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef StorageManager_StreamsMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:11 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/18 08:54:13 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -116,10 +116,7 @@ namespace stor {
 
     xdata::UnsignedInteger32 _storedEvents;   // number of events stored in all streams
     xdata::Double _storedVolume;              // total volume in MB stored on disk
-
-    // InfoSpace items which were defined in the old SM
-    // xdata::Vector<xdata::String> _namesOfStream;                   // vector of stream names
-    // xdata::Vector<xdata::UnsignedInteger32> _storedEventsInStream; // vector of events stored in stream N
+    xdata::Double _bandwithToDisk;            // total bandwidh in MB/s written to disk
 
   };
   
