@@ -56,7 +56,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            hfRecHitLabel = cms.InputTag("hfreco"),
                            zdcRecHitLabel = cms.InputTag("zdcreco"),                           
                            hcalLaserLabel = cms.InputTag("hcalLaserReco"),                       
-
+                           #Emulator
+                           emulTPLabel = cms.InputTag("valHcalTriggerPrimitiveDigis"),
+                           
                            # PEDESTAL MONITOR
                            PedestalMonitor                              = cms.untracked.bool(True),
                            # Add in a make diagnostic plot variable here somewhere?  Peds don't currently have diagnostic plots
