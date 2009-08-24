@@ -101,6 +101,13 @@ XMLIdealGeometryESSource::produce() {
   DDSpecifics::StoreT::instance().swap(specStore_);
   DDRotation::StoreT::instance().swap(rotStore_);
 
+  // lock the global stores.
+  DDMaterial::StoreT::instance().setReadOnly(false);
+  DDSolid::StoreT::instance().setReadOnly(false);
+  DDLogicalPart::StoreT::instance().setReadOnly(false);
+  DDSpecifics::StoreT::instance().setReadOnly(false);
+  DDRotation::StoreT::instance().setReadOnly(false);
+
   std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
   
   // NOTE TO SELF:  Mike, DO NOT try to fix the memory leak here by going global again!!!
