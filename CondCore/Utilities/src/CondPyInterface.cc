@@ -102,7 +102,7 @@ namespace cond {
       ;
     */
     
-    boost::shared_ptr<std::vector<edm::ParameterSet> > psets;
+    boost::shared_ptr<std::vector<edm::ParameterSet> > psets(new std::vector<edm::ParameterSet>);
     edm::ParameterSet pSet;
     pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
     psets->push_back(pSet);
