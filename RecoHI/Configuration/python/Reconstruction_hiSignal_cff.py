@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoHI.Configuration.Reconstruction_HI_cff import *
 
-hiSignalGlobalPrimTracks = globalPrimTracks.clone()
+hiSignalGlobalPrimTracks = hiGlobalPrimTracks.clone()
 
 hiSignalCorrectedIslandBarrelSuperClusters = correctedIslandBarrelSuperClusters.clone()
 hiSignalCorrectedIslandEndcapSuperClusters = correctedIslandEndcapSuperClusters.clone()
