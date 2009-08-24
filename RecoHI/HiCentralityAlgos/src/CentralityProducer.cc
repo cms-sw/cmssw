@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.7 2009/08/17 18:07:41 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.8 2009/08/19 11:45:05 yilmaz Exp $
 //
 //
 
@@ -155,11 +155,11 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for(HepMC::GenEvent::particle_const_iterator it = begin;it!=end;++it)
        {
 	 HepMC::GenParticle* p = *it;
-	 float status = p->status();
+	 //float status = p->status();
 	 float pdg_id = p->pdg_id();
 	 float eta = p->momentum().eta();
-	 float phi = p->momentum().phi();
-	 float pt = p->momentum().perp();
+	 //float phi = p->momentum().phi();
+	 //float pt = p->momentum().perp();
 	 float e = p->momentum().e();
 	 
 	 

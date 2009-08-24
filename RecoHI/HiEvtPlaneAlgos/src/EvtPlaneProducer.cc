@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.3 2009/01/09 10:23:21 saout Exp $
+// $Id: EvtPlaneProducer.cc,v 1.4 2009/08/17 18:07:53 yilmaz Exp $
 //
 //
 
@@ -122,7 +122,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       double pi = 3.14159;
       int numb;	
 
-      double planeA     =  0.;
+//      double planeA     =  0.;
 
 //       cout << endl << "  Start of the event plane determination." << endl;
 
