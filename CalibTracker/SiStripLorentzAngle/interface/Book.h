@@ -27,10 +27,11 @@ class Book {
   Book(const std::string& t) : _title(t), directory(new TDirectory(t.c_str(),t.c_str())) {}
 
   const std::string& title() const {return _title;}
-  TH1* book(const std::string& name, TH1* hist)  { book_[name]=hist; hist->SetDirectory(directory); hist->Sumw2(); return hist;}
+  TH1* book(const std::string& name, TH1* hist)  { book_[name]=hist; hist->SetDirectory(directory); if(!hist->GetSumw2N()) hist->Sumw2(); return hist;}
   TH1*& operator()(const std::string& name)      { return book_[name]; }
   TH1* operator()(const std::string& name) const { return book_.find(name)->second; }
   bool  contains (const std::string& name) const { return book_.find(name) != book_.end(); }
+  void erase(const std::string& name) { book_t::iterator it = book_.find(name); if(it!=book_.end()) {delete it->second; book_.erase(it); } }
 
   bool empty() const { return book_.empty(); }
   long size () const { return book_.size(); }
