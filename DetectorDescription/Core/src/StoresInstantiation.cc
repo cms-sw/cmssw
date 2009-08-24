@@ -1,4 +1,5 @@
 #include <DetectorDescription/Base/interface/Singleton.h>
+#include <DetectorDescription/Base/interface/Singleton.icc>
 #include <DetectorDescription/Base/interface/Store.h>
 #include <DetectorDescription/Core/interface/DDName.h>
 #include <DetectorDescription/Core/interface/DDRoot.h>
@@ -50,4 +51,3 @@ template class DDI::Singleton<std::vector<std::map<std::pair<std::string, std::s
 
 //DDI::Singleton<std::vector<std::_Rb_tree_const_iterator<std::pair<std::pair<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::basic_string<char, std::char_traits<char>, std::allocator<char> > > const, int> >, std::allocator<std::_Rb_tree_const_iterator<std::pair<std::pair<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::basic_string<char, std::char_traits<char>, std::allocator<char> > > const, int> > > > >
 
-#include <DetectorDescription/Base/interface/Singleton.icc>
