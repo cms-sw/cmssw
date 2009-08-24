@@ -106,15 +106,15 @@ namespace cond {
     edm::ParameterSet pSet;
     pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
     psets->push_back(pSet);
-
-     // D.  Create the services.
+    
+    // D.  Create the services.
     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*psets.get()));
     
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
-    */
+    
   }
-
+  
   //------------------------------------------------------------
 
 

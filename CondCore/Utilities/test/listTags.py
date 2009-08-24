@@ -33,7 +33,12 @@ rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
 
 # cmscond_list_iov -c "frontier://(proxyurl=http://cmst0frontier1.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)(forcereload=short)/CMS_COND_20X_HCAL"
 
-
+for tag in tags:
+    dbname = tag[3][tag[3].rfind('/'):]
+    db_o = rdbms.getDB("oracle://cms_orcoff_prod"+dbname)
+    iov = db_o.iov(tag[2])
+    print tag[0],tag[1],dbname,tag[2]
+    print iov.size(), iov.revision(), iov.comment()
 
 def iovSize(rdbms,conn,tag) :
     try :
@@ -66,7 +71,7 @@ frontiers=[
     ]
 
 for tag in tags:
-    dbname = tag[1][tag[1].rfind('/'):]
+    dbname = tag[3][tag[3].rfind('/'):]
     # db_o = rdbms.getDB(tag[1])
     # db_o = rdbms.getDB("oracle://cms_orcoff_prod"+dbname)
     size_o = iovSize(rdbms,"oracle://cms_orcoff_prod"+dbname,tag[0])
@@ -105,7 +110,7 @@ for db in (dba,dbe) :
 ----------
 
 conn = 'frontier://FrontierProd/CMS_COND_31X_RUN_INFO'
-conn = 'oracle://orcoff_prod/CMS_COND_31X_RUN_INFO'
+conn = 'oracle://cms_orcoff_prod/CMS_COND_31X_RUN_INFO'
 tag = 'lumi83037_v1_iovFrom1'
 db = rdbms.getDB(conn)
 iov = db.iov(tag)
