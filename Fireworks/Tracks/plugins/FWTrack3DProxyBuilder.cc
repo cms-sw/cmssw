@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrack3DProxyBuilder.cc,v 1.5 2009/08/21 16:57:50 dmytro Exp $
+// $Id: FWTrack3DProxyBuilder.cc,v 1.6 2009/08/24 04:54:34 dmytro Exp $
 //
 
 // system include files
@@ -71,6 +71,7 @@ FWTrack3DProxyBuilder::FWTrack3DProxyBuilder() :
 {
    m_cmsMagField->setReverseState( true );
    m_propagator->SetMagFieldObj( m_cmsMagField );
+   m_propagator->SetStepper(TEveTrackPropagator::kRungeKutta);
    m_propagator->SetMaxR(850);
    m_propagator->SetMaxZ(1100);
 }
