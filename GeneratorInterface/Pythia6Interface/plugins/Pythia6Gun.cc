@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/03/27 18:09:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/08/20 22:05:00 $
+ *  $Revision: 1.8 $
  *  \author Julia Yarba
  */
 
@@ -160,10 +160,27 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	    //
 	    // same here with PID - need py6->pdg !!!
 	    //
+	    dstatus = 0;
+	    if ( pyjets.k[0][iprt1] >= 1 && pyjets.k[0][iprt1] <= 10 )  
+	    {
+	       dstatus = 1;
+	    }
+	    else if ( pyjets.k[0][iprt1] >= 11 && pyjets.k[0][iprt1] <= 20 ) 
+	    {
+	       dstatus = 2;
+	    }
+	    else if ( pyjets.k[0][iprt1] >= 21 && pyjets.k[0][iprt1] <= 30 ) 
+	    {
+	       dstatus = 3;
+	    }
+	    else if ( pyjets.k[0][iprt1] >= 31 && pyjets.k[0][iprt1] <= 100 )
+	    {
+	       dstatus = pyjets.k[0][iprt1];
+	    }
 	    HepMC::GenParticle* daughterN = 
 	       new HepMC::GenParticle(pmomN,
 	                              HepPID::translatePythiatoPDT( pyjets.k[1][iprt1] ),
-				      1);
+				      dstatus);
 	    daughterN->suggest_barcode( iprt1+1 );
 	    DecVtx->add_particle_out( daughterN );	     
 	 }
