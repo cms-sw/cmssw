@@ -103,9 +103,10 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_checkNevents                 = cms.untracked.int32(1000),
                            
                            # Checking for cells above energy threshold at any time
-                           HotCellMonitor_energyThreshold              = cms.untracked.double(5.),
-                           HotCellMonitor_HB_energyThreshold           = cms.untracked.double(5.),
-                           HotCellMonitor_HE_energyThreshold           = cms.untracked.double(5.), 
+                           # energies raised due to looser cosmics timing
+                           HotCellMonitor_energyThreshold              = cms.untracked.double(10.),
+                           HotCellMonitor_HB_energyThreshold           = cms.untracked.double(10.),
+                           HotCellMonitor_HE_energyThreshold           = cms.untracked.double(10.), 
                            HotCellMonitor_HO_energyThreshold           = cms.untracked.double(10.),
                            HotCellMonitor_HF_energyThreshold           = cms.untracked.double(10.),
                            HotCellMonitor_ZDC_energyThreshold          = cms.untracked.double(999.), # not yet implemented

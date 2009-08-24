@@ -3,10 +3,20 @@ from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a b
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
 
 
-maxevents=2000
-checkNevents=1000
-
 process = cms.Process("HCALDQM")
+
+#-----------------------------------
+#  variables used in multiple places
+#-----------------------------------                      
+
+maxevents=2000          # maximum number of events to process
+checkNevents=1000       # histograms are filled 'every checkNevents' events
+subsystem="Hcal" # specify subsystem name  (default is "Hcal")
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+# Tone down the logging messages, MessageLogger!
+process.MessageLogger.cerr.FwkReport.reportEvery = 50
+
 #----------------------------
 # Event Source
 #-----------------------------
@@ -92,7 +102,7 @@ process.dqmSaver.saveByRun = 1
 #-----------------------------
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR09_31X_V6P::All" # should be V2p
+process.GlobalTag.globaltag = "GR09_31X_V6P::All" # tags listed at SWGuideFrontierConditions twiki
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
@@ -100,18 +110,61 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Tone down the logging messages, MessageLogger!
 process.MessageLogger.cerr.FwkReport.reportEvery = 50
 
-
-
-
 #-----------------------------
 # Hcal DQM Source, including HitReconstrctor
 #-----------------------------
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
+
+# Make separate process to look at all digis?
+process.hcalAllDigis = cms.EDFilter("HcalRawToDigi",
+                                    # Flag to enable unpacking of ZDC channels (default = false)
+                                    UnpackZDC = cms.untracked.bool(True),
+                                    # Optional filter to remove any digi with "data valid" off, "error" on,
+                                    # or capids not rotating
+                                    FilterDataQuality = cms.bool(False),
+                                    # Do not complain about missing FEDs
+                                    ExceptionEmptyData = cms.untracked.bool(False),
+                                    InputLabel = cms.InputTag("source"),
+                                    # Use the defaults for FED numbers
+                                    # Do not complain about missing FEDs
+                                    ComplainEmptyData = cms.untracked.bool(False),
+                                    # Flag to enable unpacking of calibration channels (default = false)
+                                    UnpackCalib = cms.untracked.bool(True),
+                                    lastSample = cms.int32(9),
+                                    # At most ten samples can be put into a digi, if there are more
+                                    # than ten, firstSample and lastSample select which samples
+                                    # will be copied to the digi
+                                    firstSample = cms.int32(0)
+                                    )
+
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi")
+
+# Cosmics Corrections to reconstruction
+process.hbhereco.firstSample = 1
+process.hbhereco.samplesToAdd = 8
+process.hbhereco.correctForTimeslew = True
+process.hbhereco.correctForPhaseContainment = True
+process.hbhereco.correctionPhaseNS = 10.0
+process.horeco.firstSample = 1
+process.horeco.samplesToAdd = 8
+process.horeco.correctForTimeslew = True
+process.horeco.correctForPhaseContainment = True
+process.horeco.correctionPhaseNS = 10.
+process.hfreco.firstSample = 1
+process.hfreco.samplesToAdd = 8
+process.hfreco.correctForTimeslew = True
+process.hfreco.correctForPhaseContainment = True
+process.hfreco.correctionPhaseNS = 10.
+process.zdcreco.firstSample = 1
+process.zdcreco.samplesToAdd = 8
+process.zdcreco.correctForTimeslew = True
+process.zdcreco.correctForPhaseContainment = True
+process.zdcreco.correctionPhaseNS = 10.
+
 
 process.essourceSev =  cms.ESSource("EmptyESSource",
                                                recordName = cms.string("HcalSeverityLevelComputerRcd"),
@@ -152,8 +205,19 @@ process.hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
 
 
 
+#----------------------------
+# Emulator
+#----------------------------
+process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
+process.valHcalTriggerPrimitiveDigis = process.simHcalTriggerPrimitiveDigis.clone()
+process.valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag('hcalDigis', 'hcalDigis')
+process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 
-# hcalMonitor configurable values -----------------------
+
+
+# -------------------------------
+# hcalMonitor configurable values
+# ------- -----------------------
 process.hcalMonitor.debug = 0
 
 process.hcalMonitor.showTiming      = False
@@ -161,12 +225,14 @@ process.hcalMonitor.checkNevents    = checkNevents
 process.hcalMonitor.dump2database   = False
 process.hcalMonitor.AnalyzeOrbitGap = False
 
-# Turn on/off individual hcalMonitor modules ------------
+#--------------------------------------------
+# Turn on/off individual hcalMonitor modules
+#--------------------------------------------
 process.hcalMonitor.DataFormatMonitor   = True
 process.hcalMonitor.DataIntegrityTask   = True
 process.hcalMonitor.DigiMonitor         = True
 process.hcalMonitor.RecHitMonitor       = True
-process.hcalMonitor.TrigPrimMonitor     = False
+process.hcalMonitor.TrigPrimMonitor     = True
 process.hcalMonitor.DeadCellMonitor     = True
 process.hcalMonitor.HotCellMonitor      = True
 process.hcalMonitor.BeamMonitor         = True
@@ -217,6 +283,8 @@ process.hcalDigis.FilterDataQuality=False
 process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(6)
 
 process.p = cms.Path(process.hcalDigis
+                     #*process.hcalAllDigis  # use all digis in digi monitor?
+                     *process.valHcalTriggerPrimitiveDigis
                      *process.horeco
                      *process.hfreco
                      *process.hbhereco
