@@ -4,6 +4,7 @@
 <use name=EventFilter/HcalRawToDigi>
 <use name=CalibFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
+<use name=Geometry/HcalTowerAlgo>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
