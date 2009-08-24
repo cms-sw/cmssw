@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.19 2009/08/21 09:28:49 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.20 2009/08/21 15:04:56 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -269,12 +269,6 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
     boost::shared_ptr<EventQueueCollection> qcoll_ptr = resPtr->_eventConsumerQueueCollection;
 
-    // Consumer queue size:
-    const int qsize = resPtr->_configuration->getEventServingParams()._consumerQueueSize;
-    std::ostringstream qsize_oss;
-    qsize_oss << qsize;
-    const std::string qsize_str = qsize_oss.str();
-
     //
     //// Loop over consumers: ////
     //
@@ -352,9 +346,9 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         XHTMLMaker::Node* cs_td_policy = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_policy, policy_oss.str() );
 
-        // Queue size (same for everybody):
+        // Queue size:
         XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_q_size, qsize_str );
+        maker.addText( cs_td_q_size, (*it)->queueSize() );
 
         // Events in queue:
         std::ostringstream in_q_oss;
@@ -519,12 +513,6 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
     boost::shared_ptr<DQMEventQueueCollection> qcoll_ptr = resPtr->_dqmEventConsumerQueueCollection;
 
-    // DQM consumer queue size:
-    const int qsize = resPtr->_configuration->getEventServingParams()._DQMconsumerQueueSize;
-    std::ostringstream qsize_oss;
-    qsize_oss << qsize;
-    const std::string qsize_str = qsize_oss.str();
-
     //
     //// Loop over consumers: ////
     //
@@ -587,9 +575,9 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         XHTMLMaker::Node* cs_td_policy = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_policy, policy_oss.str() );
 
-        // Queue size (same for everybody):
+        // Queue size:
         XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_q_size, qsize_str );
+        maker.addText( cs_td_q_size, (*it)->queueSize() );
 
         // Events in queue:
         std::ostringstream in_q_oss;
@@ -1768,37 +1756,37 @@ void WebPageHelper::addDOMforDQMEventStatistics(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::RECENT));
 
-  // Average updates/group
+  // Average updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "Updates/group (average)");
+  maker.addText(tableDiv, "Updates/folder (average)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::FULL));
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::RECENT));
 
-  // Min updates/group
+  // Min updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "Updates/group (min)");
+  maker.addText(tableDiv, "Updates/folder (min)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMin(MonitoredQuantity::FULL));
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMin(MonitoredQuantity::RECENT));
 
-  // Max updates/group
+  // Max updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "Updates/group (max)");
+  maker.addText(tableDiv, "Updates/folder (max)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMax(MonitoredQuantity::FULL));
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMax(MonitoredQuantity::RECENT));
 
-  // RMS updates/group
+  // RMS updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
-  maker.addText(tableDiv, "Updates/group (RMS)");
+  maker.addText(tableDiv, "Updates/folder (RMS)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::FULL));
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
@@ -2820,7 +2808,7 @@ void WebPageHelper::addRowForDQMEventsProcessed
 {
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
-  maker.addText(tableDiv, "DQM groups");
+  maker.addText(tableDiv, "Top level folders");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
   maker.addText(tableDiv, stats.numberOfGroupsStats.getValueSum(dataSet), 0);
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
