@@ -20,7 +20,7 @@
 HcalDCSInfo::HcalDCSInfo(edm::ParameterSet const& pSet) {
 
   debug_ = pSet.getUntrackedParameter<int>("debug",0);
-
+  rootFolder_ = pSet.getUntrackedParameter<string>("subSystemFolder","Hcal");
   // Create MessageSender
   edm::LogInfo( "HcalDCSInfo") << "HcalDCSInfo::Creating HcalDCSInfo ";
 
@@ -40,11 +40,11 @@ HcalDCSInfo::~HcalDCSInfo()
 void HcalDCSInfo::beginJob( const edm::EventSetup &eSetup) {
  
 
-  dqmStore_->setCurrentFolder("Hcal/EventInfo/");
+  dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/");
 
-  // Book MEs for Hcal DAQ fractions
+  // Book MEs for Hcal DCS fractions
   DCSFraction_= dqmStore_->bookFloat("DCSSummary"); 
-  dqmStore_->setCurrentFolder("Hcal/EventInfo/DCSSummaryContents");
+  dqmStore_->setCurrentFolder(rootFolder_+"/EventInfo/DCSSummaryContents");
   DCSFractionHB_= dqmStore_->bookFloat("Hcal_HB");  
   DCSFractionHE_= dqmStore_->bookFloat("Hcal_HE");  
   DCSFractionHO_= dqmStore_->bookFloat("Hcal_HO");  

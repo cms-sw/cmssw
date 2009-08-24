@@ -63,6 +63,7 @@ class HcalDAQInfo : public edm::EDAnalyzer {
    DQMStore * dbe;
    edm::Service<TFileService> fs_;
    int debug_;
+  std::string rootFolder_;
 };
 
 //
@@ -81,6 +82,7 @@ HcalDAQInfo::HcalDAQInfo(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
   // now do what ever initialization is needed
   debug_=iConfig.getUntrackedParameter<int>("debug",0);
+  rootfolder_ = iConfig.getUntrackedParameter<string>("subSystemFolder","Hcal");
 }
 
 
@@ -131,20 +133,20 @@ void
 HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::EventSetup& c)
 {
   if (debug_>0) std::cout <<"<HcalDAQInfo::endLuminosityBlock> "<<endl;
-  dbe->setCurrentFolder("Hcal");
+  dbe->setCurrentFolder(rootFolder_);
   std::string currDir = dbe->pwd();
   if (debug_>0) std::cout << "--- Current Directory " << currDir << std::endl;
   std::vector<MonitorElement*> mes = dbe->getAllContents("");
   if (debug_>0) std::cout << "found " << mes.size() << " monitoring elements:" << std::endl;
 
-  //dbe->setCurrentFolder("Hcal/EventInfo/DAQContents/");
+  //dbe->setCurrentFolder(rootFolder_+"/EventInfo/DAQContents/");
   //MonitorElement* HcalDaqFraction = dbe->bookFloat("Hcal");
 
-  dbe->setCurrentFolder("Hcal/EventInfo/");
+  dbe->setCurrentFolder(rootFolder_+"/EventInfo/");
   MonitorElement* HcalDaqFraction = dbe->bookFloat("DAQSummary");
   HcalDaqFraction->Fill(-1);
 
-  dbe->setCurrentFolder("Hcal/EventInfo/DAQSummaryContents/");
+  dbe->setCurrentFolder(rootFolder_+"/EventInfo/DAQSummaryContents/");
   MonitorElement* HBDaqFraction  = dbe->bookFloat("Hcal_HB");
   MonitorElement* HEDaqFraction  = dbe->bookFloat("Hcal_HE");
   MonitorElement* HODaqFraction  = dbe->bookFloat("Hcal_HO");
@@ -161,7 +163,7 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
   HO12DaqFraction->Fill(-1);
   HFlumiDaqFraction->Fill(-1);
 
-  int nevt = (dbe->get("Hcal/EventInfo/processedEvents"))->getIntValue();
+  int nevt = (dbe->get(rootFolder_+"/EventInfo/processedEvents"))->getIntValue();
   if (debug_>0) std::cout << "HcalDAQInfo::nevt= " << nevt << std::endl;
   if (nevt<1) {
     edm::LogInfo("HcalDAQInfo")<<"Nevents processed ="<<nevt<<" => exit"<<std::endl;
@@ -171,8 +173,8 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
   TH1F *hFEDEntries;
   float nFEDEntries;
 
-  if (dbe->get("Hcal/DataFormatMonitor/HcalFEDChecking/FEDEntries")) {
-    hFEDEntries = (dbe->get("Hcal/DataFormatMonitor/HcalFEDChecking/FEDEntries"))->getTH1F();
+  if (dbe->get(rootFolder_+"/DataFormatMonitor/HcalFEDChecking/FEDEntries")) {
+    hFEDEntries = (dbe->get(rootFolder_+"/DataFormatMonitor/HcalFEDChecking/FEDEntries"))->getTH1F();
     nFEDEntries = hFEDEntries->Integral(); 
     HcalDaqFraction->Fill(nFEDEntries/(32.0*nevt));
     //Subdetector FEDs:  HB/HE:  700-717, HF:  718-723, HO:  724-731

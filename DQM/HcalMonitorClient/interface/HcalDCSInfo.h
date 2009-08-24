@@ -84,6 +84,7 @@ private:
   MonitorElement * DCSFractionHFlumi_;
 
   unsigned long long m_cacheID_;
+  std::string rootFolder_;
 
 };
 #endif
