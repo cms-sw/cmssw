@@ -87,7 +87,7 @@ process.DQM.collectorHost = 'cmsru2'
 process.DQM.collectorPort = 9190
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.producer = 'DQM'
-process.dqmEnv.subSystemFolder = 'Hcal'
+process.dqmEnv.subSystemFolder = subsystem
 # optionally change fileSaving  conditions
 # replace dqmSaver.prescaleLS =   -1
 # replace dqmSaver.prescaleTime = -1 # in minutes
@@ -228,6 +228,8 @@ process.hcalMonitor.AnalyzeOrbitGap = False
 #--------------------------------------------
 # Turn on/off individual hcalMonitor modules
 #--------------------------------------------
+process.hcalMonitor.subSystemFolder = cms.untracked.string(subsystem)
+
 process.hcalMonitor.DataFormatMonitor   = True
 process.hcalMonitor.DataIntegrityTask   = True
 process.hcalMonitor.DigiMonitor         = True
@@ -260,6 +262,8 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 # hcalClient configurable values ------------------------
 # suppresses html output from HCalClient  
 process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
+process.hcalClient.subSystemFolder  = cms.untracked.string(subsystem)
+process.hcalClient.prefixME = cms.untracked.string(subsystem)
 
 # Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
 # Summary Client is also unaffected
