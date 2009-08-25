@@ -77,15 +77,6 @@ int main( int argc, char** argv ){
       std::cout << myopt.visibles() <<std::endl;;
       return 0;
     }
-    if( vm.count("configFile") ){
-      configuration_filename=vm["configFile"].as<std::string>();
-      if (! configuration_filename.empty()){
-	std::fstream configuration_file;
-	configuration_file.open(configuration_filename.c_str(), std::fstream::in);
-	boost::program_options::store(boost::program_options::parse_config_file(configuration_file,myopt.visibles()), vm);
-	configuration_file.close();
-      }
-    }
     if(!vm.count("connect")){
       std::cerr <<"[Error] no connection[c] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
