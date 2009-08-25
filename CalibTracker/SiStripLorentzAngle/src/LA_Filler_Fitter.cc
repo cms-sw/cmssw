@@ -100,9 +100,10 @@ make_and_fit_ratio(Book& book, bool cleanup) {
 void LA_Filler_Fitter::
 make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
   for(Book::const_iterator hist2D = book.begin(".*"+key); hist2D!=book.end(); ++hist2D) {
+    if((*hist2D)->GetEntries() < 300) continue;
+
     std::string name = hist2D.name()+"_profile";
     TH1* p = book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
-    if(p->GetEntries() < 300) continue;
     float min = p->GetMinimum();
     float max = p->GetMaximum();
     float xofmin = p->GetBinCenter(p->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
