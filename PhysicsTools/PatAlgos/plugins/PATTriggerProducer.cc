@@ -1,10 +1,10 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.4 2009/04/01 16:06:39 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.5 2009/04/27 20:45:20 vadler Exp $
 //
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerProducer.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 
 
