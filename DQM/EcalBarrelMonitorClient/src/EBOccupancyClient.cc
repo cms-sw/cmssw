@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2009/02/27 13:54:06 $
- * $Revision: 1.32 $
+ * $Date: 2009/08/10 15:49:28 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -220,7 +220,6 @@ bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
             }
 
           }
-
 
           o.setEventsOverLowThreshold(int(num01));
           o.setEventsOverHighThreshold(int(num02));
