@@ -10,11 +10,11 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-#    'file:/scratch1/cms/data/summer09/aodsim/zmumu/0016/A68B6BD1-FF83-DE11-B579-001E68A99420.root'
-    'file:/scratch1/cms/data/summer09/aodsim/ppMuX/0010/9C519151-5883-DE11-8BC8-001AA0095119.root'
+    'file:/scratch1/cms/data/summer09/aodsim/zmumu/0016/A68B6BD1-FF83-DE11-B579-001E68A99420.root'
+#    'file:/scratch1/cms/data/summer09/aodsim/ppMuX/0010/9C519151-5883-DE11-8BC8-001AA0095119.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -33,7 +33,7 @@ process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu9", "HLT_DoubleMu3"]
 # Muon filter
 process.goodMuons = cms.EDFilter("CandViewSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('isGlobalMuon = 1 & abs(eta) < 2.5 & pt > 15'),
+  cut = cms.string('isGlobalMuon = 1 & abs(eta) < 2.5 & pt > 10'),
   filter = cms.bool(True)                                
 )
 
