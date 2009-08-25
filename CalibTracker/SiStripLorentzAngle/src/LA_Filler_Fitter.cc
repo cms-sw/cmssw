@@ -76,9 +76,8 @@ fill(TTree* tree, Book& book) {
 
 void LA_Filler_Fitter::
 make_and_fit_ratio(Book& book, bool cleanup) {
-  for(Book::const_iterator it = book.begin(".*"+method(RATIO,0)+"_width1"); it!=book.end();) {
+  for(Book::const_iterator it = book.begin(".*"+method(RATIO,0)+"_width1"); it!=book.end(); ++it) {
     std::string base = boost::erase_all_copy(it.name(),"_width1");
-    ++it; // here instead of in the forloop because we delete the element later;
 
     std::string width1 = base+"_width1";
     std::string all    = base+"_all";
@@ -86,10 +85,10 @@ make_and_fit_ratio(Book& book, bool cleanup) {
 
     TH1* p = book.book(ratio, (TH1*) book(width1)->Clone(ratio.c_str()));
     p->Divide(book(all));
-    p->Fit("gaus","Q");
+    p->Fit("gaus","LLQ");
     double mean = p->GetFunction("gaus")->GetParameter(1);
     double sigma = p->GetFunction("gaus")->GetParameter(2);
-    p->Fit("gaus","IMEQ","",mean-sigma,mean+sigma);
+    p->Fit("gaus","LLMEQ","",mean-sigma,mean+sigma);
 
     if(cleanup) {
       book.erase(width1);

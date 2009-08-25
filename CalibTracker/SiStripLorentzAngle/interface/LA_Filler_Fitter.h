@@ -63,7 +63,7 @@ class LA_Filler_Fitter {
     make_and_fit_profile(book,method(WIDTH,0)); 
     make_and_fit_profile(book,method(SQRTVAR,0)); 
   }
-  static void make_and_fit_ratio(Book&, bool cleanup=true);
+  static void make_and_fit_ratio(Book&, bool cleanup=false);
   static void make_and_fit_profile(Book&, const std::string&, bool cleanup=true);
   
   static Result result(Method, const std::string name, const Book&);
