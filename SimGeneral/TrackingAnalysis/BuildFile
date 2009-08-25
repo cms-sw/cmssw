@@ -1,6 +1,7 @@
 <use name=clhep>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
+<use name=CondFormats/CSCObjects>
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiPixelDetId>
@@ -13,13 +14,12 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimTracker/Common>
-
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimGeneralTrackingAnalysis>
    <use name=clhep>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
+   <use name=CondFormats/CSCObjects>
    <use name=DataFormats/DetId>
    <use name=DataFormats/SiStripDetId>
    <use name=DataFormats/SiPixelDetId>
