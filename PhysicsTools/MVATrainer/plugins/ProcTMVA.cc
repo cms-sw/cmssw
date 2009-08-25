@@ -356,7 +356,7 @@ void ProcTMVA::runTMVATrainer()
 					setupCuts.c_str(), setupOptions);
 	else
 		factory->PrepareTrainingAndTestTree(
-				"", nSignal, nBackground, 1, 1,
+				"", 0, 0, 0, 0,
 				"SplitMode=Block:!V");
 
 	for(std::vector<Method>::const_iterator iter = methods.begin();
@@ -376,10 +376,6 @@ void ProcTMVA::trainEnd()
 {
 	switch(iteration) {
 	    case ITER_EXPORT:
-		// work around TMVA issue: fill 1 dummy sig and bkg test event
-		treeSig->Fill();
-		treeBkg->Fill();
-
 		/* ROOT context-safe */ {
 			ROOTContextSentinel ctx;
 			file->cd();
