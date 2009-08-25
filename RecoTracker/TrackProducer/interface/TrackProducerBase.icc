@@ -134,12 +134,14 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track){
     }
     
     //WARNING: we are assuming that the hits were originally sorted along momentum (and therefore oppositeToMomentum after smoothing)
-    if(traj->direction() != oppositeToMomentum){
-      throw cms::Exception("TrackProducer") 
-	<< "ERROR in setSecondHitPattern() logic. Trajectory direction (after smoothing) was not oppositeToMomentum. Bailing out.." << std::endl;
-    }
     PropagationDirection dirForInnerLayers = oppositeToMomentum;
     PropagationDirection dirForOuterLayers = alongMomentum;
+    if(traj->direction() != oppositeToMomentum){
+	dirForInnerLayers = alongMomentum;
+	dirForOuterLayers = oppositeToMomentum;
+       //throw cms::Exception("TrackProducer") 
+	//<< "ERROR in setSecondHitPattern() logic. Trajectory direction (after smoothing) was not oppositeToMomentum. Bailing out.." << std::endl;
+    }
     // ----------- this previous block of code is not very safe. It should rely less on the sorting of the trajectory measurements -----
 
    
