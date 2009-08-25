@@ -66,7 +66,7 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
-  BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName, std::string());
+  BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName, std::string());
   convert_handle(bh, result);  // throws on conversion error
   if(!bh.failedToGet()) {
     addToGotBranchIDs(*bh.provenance());
@@ -83,7 +83,7 @@ edm::Event::getByLabel<GenericObject>(edm::InputTag const& tag,
   if (tag.process().empty()) {
     return this->getByLabel(tag.label(), tag.instance(), result);
   } else {
-    BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), tag.label(), tag.instance(),tag.process());
+    BasicHandle bh = provRecorder_.getByLabel_(TypeID(result.type().TypeInfo()), tag.label(), tag.instance(),tag.process());
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
       addToGotBranchIDs(*bh.provenance());

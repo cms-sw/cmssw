@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb  7 17:21:22 EST 2008
-// $Id: GenericObjectOwner.cc,v 1.1.8.2 2008/11/29 05:23:39 wmtan Exp $
+// $Id: GenericObjectOwner.cc,v 1.3 2008/12/18 04:49:02 wmtan Exp $
 //
 
 // system include files
@@ -99,7 +99,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    maybe_inserter(product.get());
    */
    ConstBranchDescription const& desc =
-   getBranchDescription(TypeID(product->object().TypeOf().TypeInfo()), productInstanceName);
+   provRecorder_.getBranchDescription(TypeID(product->object().TypeOf().TypeInfo()), productInstanceName);
    
    Reflex::Type const wrapperType=Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
    if(wrapperType == Reflex::Type() ) {
@@ -124,7 +124,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
 
    static Reflex::Type s_edproductType(Reflex::Type::ByTypeInfo(typeid(EDProduct)));
    EDProduct *wp(reinterpret_cast<EDProduct*>(oWrapper.CastObject(s_edproductType).Address()));
-   putProducts().push_back(std::make_pair(wp, &desc));
+   provRecorder_.putProducts().push_back(std::make_pair(wp, &desc));
    
    // product.release(); // The object has been copied into the Wrapper.
    // The old copy must be deleted, so we cannot release ownership.
