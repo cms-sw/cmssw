@@ -289,7 +289,11 @@ int main( int argc, char** argv ){
 	  // FIXME should check if mapping already used by other container...
 	  cond::ObjectRelationalMappingUtility mappingUtil(&coralDBs.coralSessionProxy());
 	  stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
-	}  catch (std::exception const & e) { /* throw if already exists */}
+	}  catch (std::exception const & e) { 
+	  if(debug)
+	    std::cout<< e.what << std::endl;
+	  /* do not throw if already exists */
+	}
 	if(debug)
 	  std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
 	coralDBs.commit();
