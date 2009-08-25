@@ -77,8 +77,9 @@ fill(TTree* tree, Book& book) {
 void LA_Filler_Fitter::
 make_and_fit_ratio(Book& book, bool cleanup) {
   for(Book::const_iterator it = book.begin(".*"+method(RATIO,0)+"_width1"); it!=book.end(); ++it) {
-    std::string base = boost::erase_all_copy(it.name(),"_width1");
+    if((*it)->GetEntries() < 30) continue;
 
+    std::string base = boost::erase_all_copy(it.name(),"_width1");
     std::string width1 = base+"_width1";
     std::string all    = base+"_all";
     std::string ratio  = base+"_ratio";
@@ -100,10 +101,10 @@ make_and_fit_ratio(Book& book, bool cleanup) {
 void LA_Filler_Fitter::
 make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
   for(Book::const_iterator hist2D = book.begin(".*"+key); hist2D!=book.end(); ++hist2D) {
-    if((*hist2D)->GetEntries() < 300) continue;
-
+    if((*hist2D)->GetEntries() < 400) continue;
+    
     std::string name = hist2D.name()+"_profile";
-    TH1* p = book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
+    TH1* p = (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str());
     float min = p->GetMinimum();
     float max = p->GetMaximum();
     float xofmin = p->GetBinCenter(p->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
@@ -114,12 +115,10 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
     fit->SetParLimits(1, 0.6*min, 1.25*min );
     fit->SetParLimits(2,0.1,10);
     fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
-    p->Fit(fit,"IMEQ");
-    if( p->GetFunction("LA_profile_fit")->GetChisquare() / p->GetFunction("LA_profile_fit")->GetNDF() > 5 ||
-	p->GetFunction("LA_profile_fit")->GetParError(0) > 0.03)
-      p->Fit(fit,"IMEQ");
-
-    if(cleanup) book.erase(hist2D.name());
+    int badfit = p->Fit(fit,"IMEQ");
+    if( badfit ) badfit = p->Fit(fit,"IMEQ");
+    if(!badfit ) book.book( name, p ); else delete p;
+    if(cleanup)  book.erase(hist2D.name() );
   }
 }
 
