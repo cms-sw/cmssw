@@ -1,5 +1,5 @@
 #include "DQMServices/Diagnostic/interface/HDQMInspector.h"
-#include "DQM/SiStripHistoricInfoClient/test/HDQMInspectorConfigSiStrip.h"
+#include "DQM/SiStripHistoricInfoClient/interface/HDQMInspectorConfigSiStrip.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryTrendsConfig.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

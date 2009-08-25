@@ -1,4 +1,4 @@
-<library file="*.cc" name=DQMSiStripHistoricInfoClient>
+<library name="DQMSiStripHistoricInfoClientPlugin" file="*.cc">
 
 <use name=boost>
 <use name=root> 

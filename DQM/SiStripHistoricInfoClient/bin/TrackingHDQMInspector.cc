@@ -1,5 +1,5 @@
 #include "DQMServices/Diagnostic/interface/HDQMInspector.h"
-#include "DQM/SiStripHistoricInfoClient/test/HDQMInspectorConfigTracking.h"
+#include "DQM/SiStripHistoricInfoClient/interface/HDQMInspectorConfigTracking.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryTrendsConfig.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 #include <string>
