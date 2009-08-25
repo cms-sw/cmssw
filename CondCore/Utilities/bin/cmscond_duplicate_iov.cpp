@@ -44,8 +44,6 @@ int main( int argc, char** argv ){
   cond::CommonOptions myopt("cmscond_duplicate_iov");
   myopt.addConnect();
   myopt.addAuthentication(true);
-  myopt.addDictionary();
-  myopt.addBlobStreamer();
   myopt.addLogDB();
   myopt.visibles().add_options()
     ("tag,t",boost::program_options::value<std::string>(),"tag (required)")
@@ -56,7 +54,6 @@ int main( int argc, char** argv ){
   myopt.description().add( myopt.visibles() );
 
   std::string destConnect;
-  std::string dictionary;
   std::string sourceTag;
   std::string destTag;
   std::string logConnect;
@@ -84,9 +81,7 @@ int main( int argc, char** argv ){
     }else{
       destConnect=vm["connect"].as<std::string>();
     }
-    if(vm.count("dictionary")){
-      dictionary=vm["dictionary"].as<std::string>();
-    }
+
     if(!vm.count("tag")){
       std::cerr <<"[Error] no tag[t] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
@@ -127,20 +122,18 @@ int main( int argc, char** argv ){
     if(vm.count("debug")){
       debug=true;
     }
-    if(vm.count("BlobStreamerName")){
-      blobStreamerName=vm["blobStreamerName"].as<std::string>();
-    }
     boost::program_options::notify(vm);
   }catch(const boost::program_options::error& er) {
-    std::cerr << er.what()<<std::endl;
+    std::cerr << "Error in program options:\n" 
+	      << er.what()<<std::endl;
     return 1;
   }
-  cond::SharedLibraryName s;
+
   if(debug){
     std::cout<<"connection:\t"<<destConnect<<'\n';
     std::cout<<"logDb:\t"<<logConnect<<'\n';
-    std::cout<<"dictionary:\t"<<dictionary<<'\n';
-    std::cout<<"tag:\t"<<destTag<<'\n';
+    std::cout<<"source tag:\t"<<sourceTag<<'\n';
+    std::cout<<"dest tag:\t"<<destTag<<'\n';
     std::cout<<"fromTime:\t"<<from<<'\n';
     std::cout<<"sinceTime:\t"<<since<<'\n';
     std::cout<<"authPath:\t"<<authPath<<'\n';
@@ -151,12 +144,6 @@ int main( int argc, char** argv ){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  if (!dictionary.empty())
-  try {
-    edmplugin::SharedLibrary( s(dictionary) );
-  }catch ( cms::Exception& er) {
-    throw std::runtime_error( er.what() );
-  }
 
   cond::DBSession session;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
@@ -177,7 +164,6 @@ int main( int argc, char** argv ){
   }else{
     session.configuration().setAuthenticationMethod( cond::Env );
   }
-  session.configuration().setBlobStreamer(blobStreamerName);
  
   cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("destdb",destConnect,-1);
