@@ -2,18 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # make simple analysis plots for a comparison
-# between a simple algorithmic and a gen match
-# event hypothesis
+# between a simple algorithmic, a gen match and
+# an MVA discriminator based event hypothesis
 #
 
 # initialize analyzers
-import TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi
-analyzeMaxSumPtWMass = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
-analyzeGenMatch      = TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi.analyzeHypothesis.clone()
+from TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi import *
+analyzeGenMatch      = analyzeHypothesis.clone()
+analyzeMaxSumPtWMass = analyzeHypothesis.clone()
+analyzeMVADisc       = analyzeHypothesis.clone()
 
 # configure analyzers
-analyzeMaxSumPtWMass.hypoClassKey = 'ttSemiLepHypMaxSumPtWMass:Key'
-analyzeGenMatch.hypoClassKey      = 'ttSemiLepHypGenMatch:Key'
+analyzeGenMatch.hypoClassKey      = "ttSemiLepHypGenMatch:Key"
+analyzeMaxSumPtWMass.hypoClassKey = "ttSemiLepHypMaxSumPtWMass:Key"
+analyzeMVADisc.hypoClassKey       = "ttSemiLepHypMVADisc:Key"
 
 # define sequence
-analyzeAllHypotheses = cms.Sequence(analyzeMaxSumPtWMass*analyzeGenMatch)
+analyzeHypotheses = cms.Sequence(analyzeGenMatch *
+                                 analyzeMaxSumPtWMass *
+                                 analyzeMVADisc)

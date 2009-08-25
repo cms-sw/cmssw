@@ -5,7 +5,6 @@ process = cms.Process("TEST")
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
-process.MessageLogger.categories = cms.untracked.vstring('TEST')
 process.MessageLogger.categories.append('TtSemiLeptonicEvent')
 process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
@@ -45,6 +44,8 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 #process.ttSemiLepEvent.verbosity = 1
 ## change maximum number of jets taken into account per event (default: 4)
 #process.ttSemiLepEvent.maxNJets = 5
+## change jet-parton matching algorithm
+#process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 
 ## load HypothesisAnalyzer
 process.load("TopQuarkAnalysis.Examples.HypothesisAnalyzer_cff")
@@ -55,8 +56,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 ## end path   
-process.p1 = cms.Path(process.patDefaultSequence *
-                      process.makeGenEvt *
-                      process.makeTtSemiLepEvent *
-                      process.analyzeAllHypotheses)
-
+process.path = cms.Path(process.patDefaultSequence *
+                        process.makeGenEvt *
+                        process.makeTtSemiLepEvent *
+                        process.analyzeHypotheses)
