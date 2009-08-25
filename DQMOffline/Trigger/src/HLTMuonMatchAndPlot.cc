@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/07/30 15:42:37 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/08/14 13:29:09 $
+ *  $Revision: 1.7 $
  */
 
 
@@ -424,8 +424,8 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
     theTriggerName << ", Event:" << eventNumber <<"\n\n\n";
 
   
-  
-  bool validSelection = selectAndMatchMuons (iEvent, recMatches, hltFakeCands);
+  // Call the selection method with the default selection
+  bool validSelection = selectAndMatchMuons (iEvent, recMatches, hltFakeCands, mySelection);
   if (validSelection) fillPlots (recMatches, hltFakeCands);
 
   eventNumber++;
@@ -433,7 +433,22 @@ void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
 }// end analyze
 
 bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<MatchStruct> & myRecMatches,
-                                               std::vector< std::vector<HltFakeStruct> > & myHltFakeCands){
+                                               std::vector< std::vector<HltFakeStruct> > & myHltFakeCands
+                                               ){
+
+  LogTrace ("HLTMuonVal") << "\n\nInside selectAndMatchMuons, called with no selection argument"
+                          << endl
+                          << "Calling function using mySelection"
+                          << endl;
+
+  return selectAndMatchMuons (iEvent, myRecMatches, myHltFakeCands, mySelection);
+
+}
+
+
+bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<MatchStruct> & myRecMatches,
+                                               std::vector< std::vector<HltFakeStruct> > & myHltFakeCands,
+                                               MuonSelectionStruct muonSelection){
 
   // clear the matches from the last event
   myRecMatches.clear();
@@ -466,7 +481,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
                          << "trigger information stored in the following block "
                          << TriggerResultLabel;
 
-  bool passedRequiredTrigger = applyTriggerSelection ( mySelection, iEvent);
+  bool passedRequiredTrigger = applyTriggerSelection ( muonSelection, iEvent);
 
   if (!passedRequiredTrigger) {
     LogTrace ("HLTMuonVal") << "You didn't pass the required trigger"
@@ -519,12 +534,12 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
         // go towards the muon collection
 
         LogTrace ("HLTMuonVal") << "... Applying selection" << endl;
-        if ( mySelection.recoMuonSelector((*muon)) ) {
+        if ( muonSelection.recoMuonSelector((*muon)) ) {
 
           // now apply cuts to the tracks.
           LogTrace ("HLTMuonVal") << "Passed selection!" << endl;
           
-          if ( applyTrackSelection( mySelection, (*muon) ) ){
+          if ( applyTrackSelection( muonSelection, (*muon) ) ){
 
             
           
@@ -534,7 +549,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
             newMatchStruct.recCand = &*muon;
             myRecMatches.push_back(newMatchStruct);
 
-            LogTrace ("HLTMuonVal") << "\n\nFound a muon track in " << mySelection.customLabel
+            LogTrace ("HLTMuonVal") << "\n\nFound a muon track in " << muonSelection.customLabel
                                     << " with pt = " << pt
                                     << ", eta = " << eta;
             // Take out this eta cut, but still check to see if
@@ -549,7 +564,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
     }
 
     // This loop checks to see that we successfully stored our cands
-    LogTrace ("HLTMuonVal") << "Print out all rec cands for " << mySelection.customLabel
+    LogTrace ("HLTMuonVal") << "Print out all rec cands for " << muonSelection.customLabel
                             << endl;
     
     for (unsigned iMatch = 0; iMatch < myRecMatches.size(); iMatch++) {
@@ -576,7 +591,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   
   LogTrace("HLTMuonVal") << "\n\n\n\ngenMuonPt: " << genMuonPt << ", "  
                          << "recMuonPt: " << recMuonPt
-                         << "\nCustom name = " << mySelection.customLabel << endl
+                         << "\nCustom name = " << muonSelection.customLabel << endl
                          << "\nNow preparing to get trigger objects" 
                          << "\n\n\n\n";
 
@@ -780,13 +795,13 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
         LogTrace ("HLTMuonVal") << "Testing to see if object in key passes selection"
                                 << endl ;
         
-        if (mySelection.hltMuonSelector(foundObject)){
+        if (muonSelection.hltMuonSelector(foundObject)){
         
           LogTrace ("HLTMuonVal") << "OBJECT FOUND!!! - Storing a trigger object with id = "              
                                   << foundObject.id() 
                                   << ", eta = " << foundObject.eta()
                                   << ", pt = " << foundObject.pt()
-                                  << ", custom name = " << mySelection.customLabel
+                                  << ", custom name = " << muonSelection.customLabel
                                   << "\n\n" << endl;
           //l1Particles.push_back( objects[keys[j]].particle().p4() );
           l1Particles.push_back( foundObject );
@@ -855,19 +870,26 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
     
       if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
         const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
+
+        LogTrace ("HLTMuonVal") << "==MULTI== Looked up keys for filter " << (*iHltColl)
+                                << ", index number " << filterIndex
+                                << ", and found " << keys.size() << " keys...   "
+                                << ((keys.size() > 2)? "MULTIMUON": "")
+                                << endl;
+          
         for ( size_t j = 0; j < keys.size(); j++ ){
           TriggerObject foundObject = objects[keys[j]];
 
           LogTrace ("HLTMuonVal") << "Found and Hlt object, checking to "
                                   << "see if passes custom selection ...";
           
-          if (mySelection.hltMuonSelector(foundObject)){
+          if (muonSelection.hltMuonSelector(foundObject)){
         
             LogTrace ("HLTMuonVal") << "HLT OBJECT FOUND!!! - Storing a trigger object with id = "              
                                     << foundObject.id() 
                                     << ", eta = " << foundObject.eta()
                                     << ", pt = " << foundObject.pt()
-                                    << ", custom name = " << mySelection.customLabel
+                                    << ", custom name = " << muonSelection.customLabel
                                     << "\n\n" << endl;
           
           
@@ -2161,5 +2183,31 @@ int HLTMuonMatchAndPlot::getCharge (int pdgId) {
   int resultCharge =  (pdgId > 0) ? POS_CHARGE : NEG_CHARGE;
   
   return resultCharge;
+  
+}
+
+TString HLTMuonMatchAndPlot::calcHistoSuffix (string moduleName) {
+
+  TString level = "L3";
+  TString myLabel = moduleName; // the return value
+
+  
+  if ( myLabel.Contains("L1") ) {
+    level = "L1";
+  } else if (myLabel.Contains("L2")) {
+    level = "L2";
+  } else if (myLabel.Contains("L3")) {
+    level = "L3";
+  }
+
+  if (useOldLabels) {
+    myLabel = myLabel(myLabel.Index(level),myLabel.Length());
+    myLabel = myLabel(0,myLabel.Index("Filtered")+8);
+    
+  } else {
+    myLabel = level + "Filtered";
+  }
+
+  return myLabel;
   
 }

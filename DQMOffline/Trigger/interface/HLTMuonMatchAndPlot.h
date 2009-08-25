@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/07/30 15:42:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/08/14 13:29:13 $
+ *  $Revision: 1.6 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  *  \author  J. Slaunwhite (modified from above
  */
@@ -43,7 +43,7 @@
 #include <vector>
 #include "TFile.h"
 #include "TNtuple.h"
-
+#include "TString.h"
 
 
 typedef math::XYZTLorentzVector LorentzVector;
@@ -112,7 +112,8 @@ public:
   virtual void            finish ( );
   virtual MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
   virtual MonitorElement* bookIt ( TString name, TString title, int nbins, float* xBinLowEdges);
-
+  
+  TString             calcHistoSuffix (std::string moduleName);
 
   // Struct and methods for matching
 
@@ -169,6 +170,14 @@ public:
                                    std::vector<MatchStruct> & myRecMatches,
                                    std::vector< std::vector<HltFakeStruct> > & myHltFakeCands
                                    );
+
+  // does this need to be generalized to work for a given trigger too?
+  bool  selectAndMatchMuons(const edm::Event & iEvent,
+                            std::vector<MatchStruct> & myRecMatches,
+                            std::vector< std::vector<HltFakeStruct> > & myHltFakeCands,
+                            MuonSelectionStruct muonSelection
+                            );
+
   
   void virtual fillPlots(std::vector<MatchStruct> & myRecMatches,
                          std::vector< std::vector<HltFakeStruct> > & myHltFakeCands);
