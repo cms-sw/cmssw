@@ -79,8 +79,8 @@ namespace {
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_session(), 
   lastRun(0),  // for the refresh
+  doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)),
   doDump(iConfig.getUntrackedParameter<bool>("DumpStat",false))
-  doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false))
 {
    Stats s = {0,0,0,0,0};
    stats=s;	

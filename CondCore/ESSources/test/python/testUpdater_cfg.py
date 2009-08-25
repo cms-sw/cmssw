@@ -7,6 +7,7 @@ process.CondDBCommon.connect = 'sqlite_file:Ints.db'
 process.eff = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
     RefreshEachRun=cms.untracked.bool(True),
+    DumpStat=cms.untracked.bool(True),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('OneIntRcd'),
         tag = cms.string('OneInt')
