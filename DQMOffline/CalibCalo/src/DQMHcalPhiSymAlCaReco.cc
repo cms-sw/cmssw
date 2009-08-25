@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/07/21 11:41:40 $
- * $Revision: 1.9 $
+ * $Date: 2009/07/30 08:48:31 $
+ * $Revision: 1.10 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM include files
 

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/16 08:52:08 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/07/16 10:04:19 $
+ *  $Revision: 1.19 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

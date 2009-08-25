@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/20 17:20:54 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/07/08 15:53:12 $
+ *  $Revision: 1.16 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -14,6 +14,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

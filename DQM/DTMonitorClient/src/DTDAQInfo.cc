@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/12 18:04:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/17 16:22:37 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -23,7 +23,7 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 using namespace std;

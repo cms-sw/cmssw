@@ -18,6 +18,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"

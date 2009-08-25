@@ -20,6 +20,8 @@
 //Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //DQMServices
 #include "DQMServices/Core/interface/MonitorElement.h"
 

@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
