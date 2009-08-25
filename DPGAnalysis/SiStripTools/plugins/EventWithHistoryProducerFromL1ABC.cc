@@ -19,12 +19,14 @@
 
 // system include files
 #include <memory>
+#include <map>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -45,13 +47,16 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginRun(edm::Run&, const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endRun(edm::Run&, const edm::EventSetup&) ;
       virtual void endJob() ;
       
       // ----------member data ---------------------------
 
   edm::InputTag _l1abccollection;
-
+  std::map<unsigned int, long long> _offsets;
+  long long _curroffset;
 };
 
 //
@@ -67,7 +72,8 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
 // constructors and destructor
 //
 EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::ParameterSet& iConfig):
-  _l1abccollection(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))
+  _l1abccollection(iConfig.getParameter<edm::InputTag>("l1ABCCollection")),
+  _offsets(), _curroffset(0)
 {
   produces<EventWithHistory>();
    
@@ -98,16 +104,44 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
    Handle<L1AcceptBunchCrossingCollection > pIn;
    iEvent.getByLabel(_l1abccollection,pIn);
 
-   edm::LogInfo("L1ABCCollectionSize") << pIn->size() << " L1ABC found ";
+   // offset computation
 
+   int orbitoffset = 0;
+   int bxoffset = 0;
    for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-     edm::LogVerbatim("L1ABCDebug") << *l1abc;
+     //     edm::LogVerbatim("L1ABCDebug") << *l1abc;
+     if(l1abc->l1AcceptOffset()==0) {
+       orbitoffset = l1abc->orbitNumber() - iEvent.orbitNumber();
+       bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
+     }
    }
 
 
-   std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,*pIn));
+   std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,*pIn,orbitoffset,bxoffset));
    iEvent.put(pOut);
 
+   // monitor offset
+
+   long long absbxoffset = (long long)orbitoffset*3564 + bxoffset;
+
+   if(_offsets.size()==0) {
+     _curroffset = absbxoffset;
+     _offsets[iEvent.id().event()] = absbxoffset;
+   }
+   else {
+     if(_curroffset != absbxoffset) {
+       edm::LogWarning("AbsoluteBXOffsetChanged") << "Absolute BX offset changed from " 
+						  << _curroffset << " to "
+						  << absbxoffset << " at orbit "
+						  << iEvent.orbitNumber() << " and BX "
+						  << iEvent.bunchCrossing();
+       for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
+	 edm::LogPrint("AbsoluteBXOffsetChanged") << *l1abc;
+       }
+       _curroffset = absbxoffset;
+       _offsets[iEvent.id().event()] = absbxoffset;
+     }
+   }
  
 }
 
@@ -115,6 +149,28 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
 void 
 EventWithHistoryProducerFromL1ABC::beginJob(const edm::EventSetup&)
 {
+}
+
+void 
+EventWithHistoryProducerFromL1ABC::beginRun(edm::Run&, const edm::EventSetup&)
+{
+  // reset offset vector
+
+  _offsets.clear();
+  edm::LogInfo("AbsoluteBXOffsetReset") << "Absolute BX offset map reset";
+
+}
+
+void 
+EventWithHistoryProducerFromL1ABC::endRun(edm::Run&, const edm::EventSetup&)
+{
+  // summary of absolute bx offset vector
+
+  edm::LogInfo("AbsoluteBXOffsetSummary") << "Absolute BX offset summary:";
+  for(std::map<unsigned int, long long>::const_iterator offset=_offsets.begin();offset!=_offsets.end();++offset) {
+    edm::LogVerbatim("AbsoluteBXOffsetSummary") << offset->first << " " << offset->second;
+  }
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
