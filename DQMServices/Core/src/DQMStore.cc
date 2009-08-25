@@ -1539,12 +1539,13 @@ DQMStore::readDirectory(TFile *file,
   // Figure out current directory name, but strip out the top
   // directory into which we dump everything.
   std::string dirpart = curdir;
-  if (dirpart.compare(0, s_monitorDirName.size(), s_monitorDirName) == 0)
+  if (dirpart.compare(0, s_monitorDirName.size(), s_monitorDirName) == 0) {
     if (dirpart.size() == s_monitorDirName.size())
       dirpart.clear();
     else if (dirpart[s_monitorDirName.size()] == '/')
       dirpart.erase(0, s_monitorDirName.size()+1);
-      
+  }
+
   // See if we are going to skip this directory.
   bool skip = (! onlypath.empty() && ! isSubdirectory(onlypath, dirpart));
   
