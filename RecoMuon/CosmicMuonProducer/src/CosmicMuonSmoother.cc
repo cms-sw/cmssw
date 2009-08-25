@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2009/04/15 09:41:11 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/07/29 16:40:30 $
+ *  $Revision: 1.16 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -318,23 +318,21 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
         itm != avtm.rend() - 1; ++itm ) {
 
    if (currTsos.isValid())  {
-     LogTrace(category_)<<"current pos "<<currTsos.globalPosition()
-                       <<"mom "<<currTsos.globalMomentum();
+     LogTrace(category_)<<"smooth: current pos "<<currTsos;
     } else {
-      LogTrace(category_)<<"current state invalid";
+      LogTrace(category_)<<"smooth: current state invalid";
     }
 
     predTsos = propagatorOpposite()->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
-      LogTrace(category_)<<"step-propagating from "<<currTsos.globalPosition() <<" to position: "<<(*itm).recHit()->globalPosition();
+      LogTrace(category_)<<"smooth: step-propagating from "<<currTsos.globalPosition() <<" to position: "<<(*itm).recHit()->globalPosition();
       predTsos = theUtilities->stepPropagate(currTsos, (*itm).recHit(), *propagatorOpposite());
     }
    if (predTsos.isValid())  {
-      LogTrace(category_)<<"predicted pos "<<predTsos.globalPosition()
-                       <<"mom "<<predTsos.globalMomentum();
+      LogTrace(category_)<<"smooth: predicted pos "<<predTsos;
     } else {
-      LogTrace(category_)<<"predicted state invalid";
+      LogTrace(category_)<<"smooth: predicted state invalid";
     }
 
     if ( !predTsos.isValid() ) {
@@ -344,22 +342,28 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
     } else if ( (*itm).recHit()->isValid() ) {
       //update
       currTsos = theUpdator->update(predTsos, (*(*itm).recHit()));
+
       if (!currTsos.isValid()){
 	edm::LogWarning(category_)
 	  <<"an updated state is not valid. killing the trajectory.";
 	return vector<Trajectory>();
       }
+
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       if ( !combTsos.isValid() ) {
          LogTrace(category_)<< "Error: smooth: combining pred TSOS failed. ";
          return vector<Trajectory>();
+      } else {
+         LogTrace(category_)<<"combined state "<<combTsos;
       }
 
-      TrajectoryStateOnSurface smooTsos = combiner((*itm).updatedState(), predTsos);
+      TrajectoryStateOnSurface smooTsos = combiner((*itm).forwardPredictedState(), (*itm).updatedState());
 
       if ( !smooTsos.isValid() ) {
          LogTrace(category_)<< "Error: smooth: combining smooth TSOS failed. ";
          return vector<Trajectory>();
+      } else {
+         LogTrace(category_)<<"smoothed combined state "<<smooTsos;
       }
 
       myTraj.push(TrajectoryMeasurement((*itm).forwardPredictedState(),
@@ -369,6 +373,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 		     theEstimator->estimate(combTsos, (*(*itm).recHit())).second//,
 		     /*(*itm).layer()*/),
 		     (*itm).estimate());
+      currTsos = smooTsos; //FIXME?
     } else {
       currTsos = predTsos;
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
