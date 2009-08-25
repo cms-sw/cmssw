@@ -84,7 +84,7 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(-4.0)
     ),
-    photomultipler = cms.string("HPD")
+    photomultiplier = cms.string("HPD")
 )
 
 
