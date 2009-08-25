@@ -5,8 +5,6 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.46 2008/08/22 01:44:37 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
