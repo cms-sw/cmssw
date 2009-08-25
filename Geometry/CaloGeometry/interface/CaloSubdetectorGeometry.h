@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H
 #define GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H 1
 
-#include <ext/hash_map>
 #include <vector>
 #include <set>
 #include "DataFormats/DetId/interface/DetId.h"
@@ -15,8 +14,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2009/01/23 15:03:24 $
-$Revision: 1.21 $
+$Date: 2009/03/24 18:31:04 $
+$Revision: 1.22 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
