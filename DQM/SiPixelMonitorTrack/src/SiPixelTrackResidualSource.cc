@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.7 2009/03/27 11:05:27 wehrlilu Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.8 2009/07/03 09:45:39 merkelp Exp $
 
 
 #include <iostream>
@@ -502,7 +502,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   // get a fitter to refit TrackCandidates, the same fitter as used in standard reconstruction 
   std::string Fitter = pSet_.getParameter<std::string>("Fitter");
   ESHandle<TrajectoryFitter> TF;
-  iSetup.get<TrackingComponentsRecord>().get(Fitter, TF);
+  iSetup.get<TrajectoryFitter::Record>().get(Fitter, TF);
   const TrajectoryFitter* theFitter = TF.product();
 
   // get TrackCandidateCollection in accordance with the fitter, i.e. rs-RS, ckf-KF... 
