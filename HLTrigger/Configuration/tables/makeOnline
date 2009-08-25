@@ -5,9 +5,8 @@
 # usage: ./runMe.sh
 #
 
-MASTER="/dev/CMSSW_3_3_0/pre1/HLT"          # no version, take the latest one
-TARGET="/dev/CMSSW_3_3_0/pre1"              # directory where to store the sub-tables
-TABLES="1E31 8E29 GRun HIon"                # which sub-ytables to create
+MASTER="/dev/CMSSW_3_2_4/HLT"       # no version, take the latest one
+TARGET="/online/cosmic/CRAFT09/HLT" # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"
@@ -23,7 +22,7 @@ PWHASH="7a901914acb45efc107723c6d15c1bbf"
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB HEAD
+  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || cvs co -C $CMSSW_BASE/src EventFilter/ConfigDB
   [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml
 }
 
@@ -41,8 +40,7 @@ function runCreateConfig() {
 }
 
 echo "ConfDB master: $MASTER"
-echo "Subtables:     $TABLES"
-echo "Created under: $TARGET/"
+echo "Online menu:   $TARGET/"
 read -p "Enter password for DB: " -s PASSWORD
 echo
 
@@ -52,7 +50,5 @@ if [ "$(echo "$PASSWORD" | md5sum | cut -c1-32)" != "$PWHASH" ]; then
 fi
 
 makeCreateConfig
-for TABLE in $TABLES; do
-  runCreateConfig "hltdev" "$PASSWORD" "$MASTER" "$TABLE.txt" "$TARGET/$TABLE"
-done
+runCreateConfig "hltdev" "$PASSWORD" "$MASTER" "online.txt" "$TARGET"
 

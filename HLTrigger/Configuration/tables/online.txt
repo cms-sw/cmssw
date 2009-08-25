@@ -1,4 +1,3 @@
-HLTriggerFirstPath
 HLT_L1Jet6U
 HLT_Jet15U
 HLT_Jet30U
@@ -95,7 +94,6 @@ AlCa_HcalNZS
 AlCa_EcalPi0_Cosmics
 AlCa_EcalEta_Cosmics
 HLTriggerFinalPath
-HLTAnalyzerEndpath
 HLTOutput
 AlCaOutput
 ESOutput

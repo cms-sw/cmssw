@@ -1,15 +1,15 @@
-# /dev/CMSSW_3_2_4/HLT/V2 (CMSSW_3_2_4)
-
 import FWCore.ParameterSet.Config as cms
 
+statements = set()
 
-HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_2_4/HLT/V2')
-)
+# the A stream has the HLT default output, with FEDs - strip out the FEDRawDataCollection keep statements
+import HLTrigger.Configuration.hltOutputA_cff
+statements.update( statement for statement in HLTrigger.Configuration.hltOutputA_cff.block_hltOutputA.outputCommands if (statement.find('drop') != 0) or (statement.find('keep FEDRawDataCollection') != 0))
+
+statements = list(statements)
+statements.sort()
 
 block_hltDefaultOutput = cms.PSet(
-outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-  'keep edmTriggerResults_*_*_*',
-  'keep triggerTriggerEvent_*_*_*',
-  'keep *_hltL1GtObjectMap_*_*' )
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*', )
 )
+block_hltDefaultOutput.outputCommands.extend( statements )
