@@ -95,7 +95,7 @@ void PrimaryVertexAnalyzer::beginJob(){
 
   rootFile_->cd();
   // release validation histograms used in DoCompare.C
-  for (std::vector<std::string>::iterator isuffix= suffixSample_.begin(); isuffix!=suffixSample_.end(); ++isuffix++) {
+  for (std::vector<std::string>::iterator isuffix= suffixSample_.begin(); isuffix!=suffixSample_.end(); isuffix++) {
 
     hdir[*isuffix] = rootFile_->mkdir(TString(*isuffix));
     hdir[*isuffix]->cd();
@@ -257,11 +257,6 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
     for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
 	vitr != evt->vertices_end(); ++vitr ) 
       { // loop for vertex ...
-	/*
-	std::cout << "looking at vertex " << idx << std::endl;
-	std::cout << "has parents  " <<(*vitr)->hasParents() << " n= " <<  (*vitr)->numParents()<< std::endl;
-	std::cout << "has children  " << (*vitr)->hasChildren() <<  " n= " <<  (*vitr)->numChildren()<<  std::endl;
-	*/
 	HepMC::FourVector pos = (*vitr)->position();
 	//HepLorentzVector pos = (*vitr)->position();
 	if (pos.t()>0) { continue;}
@@ -277,16 +272,6 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	  if(verbose_)std::cout << "\t";
 	  if(verbose_)(*mother)->print();
 	}
-	/*
-	std::cout << "daughters" << std::endl;
-	for ( HepMC::GenVertex::particle_iterator
-	      daughter  = (*vitr)->particles_begin(HepMC::children);
-	      daughter != (*vitr)->particles_end(HepMC::children);
-              ++daughter ) {
-	  (*daughter)->print();
-	}
-	std::cout << " hasMotherVertex " << hasMotherVertex <<std::endl;
-	*/
 
 	if(hasMotherVertex) {continue;}
 
@@ -439,285 +424,241 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
     Handle<reco::VertexCollection> recVtxs;
     iEvent.getByLabel(vtxSample_[ivtxSample], recVtxs);
 
-  try{
-    iSetup.getData(pdt);
-  }catch(const Exception&){
-    std::cout << "Some problem occurred with the particle data table. This may not work !." <<std::endl;
-  }
-
-  bool MC=false;
-  Handle<HepMCProduct> evtMC;
-  /* 
- try{
-     iEvent.getByLabel("VtxSmeared",evtMC);
-    MC=true;
-    if(verbose_){
-      std::cout << "VtxSmeared HepMCProduct found"<< std::endl;
-    }
-    //if(evtMC->GetEvent()){ evtMC->GetEvent()->print();
-  }catch(const Exception&){
-    // VtxSmeared not found, try source
     try{
-      iEvent.getByLabel("source",evtMC);
-      if(verbose_){
-	std::cout << "source HepMCProduct found"<< std::endl;
-      }
-      MC=true;
-    }catch(const Exception&) {
+      iSetup.getData(pdt);
+    }catch(const Exception&){
+      std::cout << "Some problem occurred with the particle data table. This may not work !." <<std::endl;
+    }
+
+    bool MC=false;
+    Handle<HepMCProduct> evtMC;
+    iEvent.getByLabel("generator",evtMC);
+    if (!evtMC.isValid()) {
       MC=false;
       if(verbose_){
 	std::cout << "no HepMCProduct found"<< std::endl;
       }
-    }
-  }
- */
-  iEvent.getByLabel("source",evtMC);
-  if (!evtMC.isValid()) {
-    MC=false;
-    if(verbose_){
-      std::cout << "no HepMCProduct found"<< std::endl;
-    }
-  } else {
-    if(verbose_){
-      std::cout << "source HepMCProduct found"<< std::endl;
-    }
-    MC=true;
-  }
-
-  /*
-  if(evtMC->GetEvent()->signal_process_vertex()){
-    HepLorentzVector vsig=evtMC->GetEvent()->signal_process_vertex()->position();
-    std::cout <<" signal vertex " << vsig.x() << " " << vsig.z() << std::endl;
-  }else{
-    std::cout <<" no signal vertex"  << std::endl;
-  }
-  */
-
-  if(verbose_){
-    //evtMC->GetEvent()->print();
-    printRecVtxs(recVtxs);
-    //printSimVtxs(simVtxs);
-    //printSimTrks(simTrks);
-  }
-
-  if(MC){
-   // make a list of primary vertices:
-   std::vector<simPrimaryVertex> simpv;
-   //simpv=getSimPVs(evtMC, simVtxs, simTrks);
-   simpv=getSimPVs(evtMC,isuffix);
-
-   /*
-   if(verbose_){
-     for(std::vector<simPrimaryVertex>::const_iterator vsim=simpv.begin();
-	 vsim!=simpv.end(); vsim++){
-       std::cout <<"primary " << vsim->x << " " << vsim->y << " " << vsim->z << " : ";
-       for(unsigned int i=0; i<vsim->simTrackIndex.size(); i++){
-	 std::cout << (*simTrks)[vsim->simTrackIndex[i]].type() << " ";
-       }
-       std::cout << std::endl;
-     }
-   }
-   */
-
-   // vertex matching and efficiency bookkeeping
-   h["nsimvtx"+isuffix]->Fill(simpv.size());
-   int nsimtrk=0;
-   for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin();
-       vsim!=simpv.end(); vsim++){
-
-     hdir[isuffix]->cd();
-	   
-     h["nbsimtksinvtx"+isuffix]->Fill(vsim->nGenTrk);
-     h["xsim"+isuffix]->Fill(vsim->x*simUnit_);
-     h["ysim"+isuffix]->Fill(vsim->y*simUnit_);
-     h["zsim"+isuffix]->Fill(vsim->z*simUnit_);
-     nsimtrk+=vsim->nGenTrk;
-     // look for a matching reconstructed vertex
-     vsim->recVtx=NULL;
-     for(reco::VertexCollection::const_iterator vrec=recVtxs->begin(); 
-	 vrec!=recVtxs->end(); ++vrec){
-       if ( matchVertex(*vsim,*vrec) ){
-	 // if the matching critera are fulfilled, accept the rec-vertex that is closest in z
-	 if(    ((vsim->recVtx) && (fabs(vsim->recVtx->position().z()-vsim->z)>fabs(vrec->z()-vsim->z)))
-		|| (!vsim->recVtx) )
-	   {
-	     vsim->recVtx=&(*vrec);
-	   }
-       }
-     }
-     h["nsimtrk"+isuffix]->Fill(float(nsimtrk));
-     
-       
-     // histogram properties of matched vertices
-     if (vsim->recVtx){
-       
-       if(verbose_){std::cout <<"primary matched " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
-       
-       h["resx"+isuffix]->Fill( vsim->recVtx->x()-vsim->x*simUnit_ );
-       h["resy"+isuffix]->Fill( vsim->recVtx->y()-vsim->y*simUnit_ );
-       h["resz"+isuffix]->Fill( vsim->recVtx->z()-vsim->z*simUnit_ );
-       h["pullx"+isuffix]->Fill( (vsim->recVtx->x()-vsim->x*simUnit_)/vsim->recVtx->xError() );
-       h["pully"+isuffix]->Fill( (vsim->recVtx->y()-vsim->y*simUnit_)/vsim->recVtx->yError() );
-       h["pullz"+isuffix]->Fill( (vsim->recVtx->z()-vsim->z*simUnit_)/vsim->recVtx->zError() );
-       h["eff"+isuffix]->Fill( 1.);
-       if(simpv.size()==1){
-	 if (vsim->recVtx==&(*recVtxs->begin())){
-	   h["efftag"+isuffix]->Fill( 1.); 
-	 }else{
-	   h["efftag"+isuffix]->Fill( 0.); 
-	 }
-       }
-       h["effvseta"+isuffix]->Fill(vsim->ptot.pseudoRapidity(),1.);
-       h["effvsptsq"+isuffix]->Fill(vsim->ptsq,1.);
-       h["effvsntrk"+isuffix]->Fill(vsim->nGenTrk,1.);
-       h["effvsnrectrk"+isuffix]->Fill(recTrks->size(),1.);
-       h["effvsz"+isuffix]->Fill(vsim->z*simUnit_,1.);
-       
-     }else{  // no rec vertex found for this simvertex
-       
-       if(verbose_){std::cout <<"primary not found " << vsim->x << " " << vsim->y << " " << vsim->z << " nGenTrk=" << vsim->nGenTrk << std::endl;}
-
-       h["eff"+isuffix]->Fill( 0.);
-       if(simpv.size()==1){ h["efftag"+isuffix]->Fill( 0.); }
-       h["effvseta"+isuffix]->Fill(vsim->ptot.pseudoRapidity(),0.);
-       h["effvsptsq"+isuffix]->Fill(vsim->ptsq,0.);
-       h["effvsntrk"+isuffix]->Fill(float(vsim->nGenTrk),0.);
-       h["effvsnrectrk"+isuffix]->Fill(recTrks->size(),0.);
-       h["effvsz"+isuffix]->Fill(vsim->z*simUnit_,0.);
-     } // no recvertex for this simvertex
-   }//found MC event
-   // end of sim/rec matching 
-   
-     
-   // purity of event vertex tags
-   if (recVtxs->size()>0){
-     Double_t dz=(*recVtxs->begin()).z() - (*simpv.begin()).z*simUnit_;
-     h["zdistancetag"+isuffix]->Fill(dz);
-     if( fabs(dz)<0.0500){
-       h["puritytag"+isuffix]->Fill(1.);
-     }else{
-       // bad tag: the true primary was more than 500 um away from the tagged primary
-       h["puritytag"+isuffix]->Fill(0.);
-     }
-   }
-
-
-  }// MC event
-
-  // test track links, use reconstructed vertices
-
-  h["nrecvtx"+isuffix]->Fill(recVtxs->size());
-  h["nrectrk"+isuffix]->Fill(recTrks->size());
-  if(recVtxs->size()==0) {h["nrectrk0vtx"+isuffix]->Fill(recTrks->size());}
-
-  for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
-      v!=recVtxs->end(); ++v){
-
-    try {
-      for(reco::Vertex::trackRef_iterator t = v->tracks_begin(); 
-	  t!=v->tracks_end(); t++) {
-	// illegal charge
-        if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
-	  h["tklinks"+isuffix]->Fill(0.);
-        }
-        else {
-	  h["tklinks"+isuffix]->Fill(1.);
-        }
+    } else {
+      if(verbose_){
+	std::cout << "generator HepMCProduct found"<< std::endl;
       }
+      MC=true;
     }
-    catch (...) {
-      // exception thrown when trying to use linked track
-      h["tklinks"+isuffix]->Fill(0.);
+    
+    
+    if(verbose_){
+      //evtMC->GetEvent()->print();
+      printRecVtxs(recVtxs);
+      //printSimVtxs(simVtxs);
+      //printSimTrks(simTrks);
     }
-
-    h["nbvtx"+isuffix]->Fill(recVtxs->size()*1.);
-    h["nbtksinvtx"+isuffix]->Fill(v->tracksSize());
-    h["vtxchi2"+isuffix]->Fill(v->chi2());
-    h["vtxndf"+isuffix]->Fill(v->ndof());
-    h["vtxprob"+isuffix]->Fill(ChiSquaredProbability(v->chi2() ,v->ndof()));
-    h["xrec"+isuffix]->Fill(v->position().x());
-    h["yrec"+isuffix]->Fill(v->position().y());
-    h["zrec"+isuffix]->Fill(v->position().z());
-    if (v==recVtxs->begin()){
-      h["xrectag"+isuffix]->Fill(v->position().x());
-      h["yrectag"+isuffix]->Fill(v->position().y());
-      h["zrectag"+isuffix]->Fill(v->position().z());
-    }
-
-    bool problem = false;
-    h["nans"+isuffix]->Fill(1.,isnan(v->position().x())*1.);
-    h["nans"+isuffix]->Fill(2.,isnan(v->position().y())*1.);
-    h["nans"+isuffix]->Fill(3.,isnan(v->position().z())*1.);
-
-    int index = 3;
-    for (int i = 0; i != 3; i++) {
-      for (int j = i; j != 3; j++) {
-	index++;
-	h["nans"+isuffix]->Fill(index*1., isnan(v->covariance(i, j))*1.);
-	if (isnan(v->covariance(i, j))) problem = true;
-	// in addition, diagonal element must be positive
-	if (j == i && v->covariance(i, j) < 0) {
-	  h["nans"+isuffix]->Fill(index*1., 1.);
-	  problem = true;
+    
+    if(MC){
+      // make a list of primary vertices:
+      std::vector<simPrimaryVertex> simpv;
+      //simpv=getSimPVs(evtMC, simVtxs, simTrks);
+      simpv=getSimPVs(evtMC,isuffix);
+      
+      
+      // vertex matching and efficiency bookkeeping
+      h["nsimvtx"+isuffix]->Fill(simpv.size());
+      int nsimtrk=0;
+      for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin();
+	  vsim!=simpv.end(); vsim++){
+	
+	hdir[isuffix]->cd();
+	
+	h["nbsimtksinvtx"+isuffix]->Fill(vsim->nGenTrk);
+	h["xsim"+isuffix]->Fill(vsim->x*simUnit_);
+	h["ysim"+isuffix]->Fill(vsim->y*simUnit_);
+	h["zsim"+isuffix]->Fill(vsim->z*simUnit_);
+	nsimtrk+=vsim->nGenTrk;
+	// look for a matching reconstructed vertex
+	vsim->recVtx=NULL;
+	for(reco::VertexCollection::const_iterator vrec=recVtxs->begin(); 
+	    vrec!=recVtxs->end(); ++vrec){
+	  if ( matchVertex(*vsim,*vrec) ){
+	    // if the matching critera are fulfilled, accept the rec-vertex that is closest in z
+	    if(    ((vsim->recVtx) && (fabs(vsim->recVtx->position().z()-vsim->z)>fabs(vrec->z()-vsim->z)))
+		   || (!vsim->recVtx) )
+	      {
+		vsim->recVtx=&(*vrec);
+	      }
+	  }
+	}
+	h["nsimtrk"+isuffix]->Fill(float(nsimtrk));
+	
+	
+	// histogram properties of matched vertices
+	if (vsim->recVtx){
+	  
+	  if(verbose_){std::cout <<"primary matched " << vsim->x << " " << vsim->y << " " << vsim->z << std:: endl;}
+	  
+	  h["resx"+isuffix]->Fill( vsim->recVtx->x()-vsim->x*simUnit_ );
+	  h["resy"+isuffix]->Fill( vsim->recVtx->y()-vsim->y*simUnit_ );
+	  h["resz"+isuffix]->Fill( vsim->recVtx->z()-vsim->z*simUnit_ );
+	  h["pullx"+isuffix]->Fill( (vsim->recVtx->x()-vsim->x*simUnit_)/vsim->recVtx->xError() );
+	  h["pully"+isuffix]->Fill( (vsim->recVtx->y()-vsim->y*simUnit_)/vsim->recVtx->yError() );
+	  h["pullz"+isuffix]->Fill( (vsim->recVtx->z()-vsim->z*simUnit_)/vsim->recVtx->zError() );
+	  h["eff"+isuffix]->Fill( 1.);
+	  if(simpv.size()==1){
+	    if (vsim->recVtx==&(*recVtxs->begin())){
+	      h["efftag"+isuffix]->Fill( 1.); 
+	    }else{
+	      h["efftag"+isuffix]->Fill( 0.); 
+	    }
+	  }
+	  h["effvseta"+isuffix]->Fill(vsim->ptot.pseudoRapidity(),1.);
+	  h["effvsptsq"+isuffix]->Fill(vsim->ptsq,1.);
+	  h["effvsntrk"+isuffix]->Fill(vsim->nGenTrk,1.);
+	  h["effvsnrectrk"+isuffix]->Fill(recTrks->size(),1.);
+	  h["effvsz"+isuffix]->Fill(vsim->z*simUnit_,1.);
+	  
+	}else{  // no rec vertex found for this simvertex
+	  
+	  if(verbose_){std::cout <<"primary not found " << vsim->x << " " << vsim->y << " " << vsim->z << " nGenTrk=" << vsim->nGenTrk << std::endl;}
+	  
+	  h["eff"+isuffix]->Fill( 0.);
+	  if(simpv.size()==1){ h["efftag"+isuffix]->Fill( 0.); }
+	  h["effvseta"+isuffix]->Fill(vsim->ptot.pseudoRapidity(),0.);
+	  h["effvsptsq"+isuffix]->Fill(vsim->ptsq,0.);
+	  h["effvsntrk"+isuffix]->Fill(float(vsim->nGenTrk),0.);
+	  h["effvsnrectrk"+isuffix]->Fill(recTrks->size(),0.);
+	  h["effvsz"+isuffix]->Fill(vsim->z*simUnit_,0.);
+	} // no recvertex for this simvertex
+      }//found MC event
+      // end of sim/rec matching 
+      
+      
+      // purity of event vertex tags
+      if (recVtxs->size()>0){
+	Double_t dz=(*recVtxs->begin()).z() - (*simpv.begin()).z*simUnit_;
+	h["zdistancetag"+isuffix]->Fill(dz);
+	if( fabs(dz)<0.0500){
+	  h["puritytag"+isuffix]->Fill(1.);
+	}else{
+	  // bad tag: the true primary was more than 500 um away from the tagged primary
+	  h["puritytag"+isuffix]->Fill(0.);
 	}
       }
-    }
-
-    if (problem) {
-      // analyze track parameter covariance definiteness
-      double data[25];
+      
+      
+    }// MC event
+    
+    // test track links, use reconstructed vertices
+    
+    h["nrecvtx"+isuffix]->Fill(recVtxs->size());
+    h["nrectrk"+isuffix]->Fill(recTrks->size());
+    if(recVtxs->size()==0) {h["nrectrk0vtx"+isuffix]->Fill(recTrks->size());}
+    
+    for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
+	v!=recVtxs->end(); ++v){
+      
       try {
-	int itk = 0;
 	for(reco::Vertex::trackRef_iterator t = v->tracks_begin(); 
 	    t!=v->tracks_end(); t++) {
-	  std::cout << "Track " << itk++ << std::endl;
-	  int i2 = 0;
-	  for (int i = 0; i != 5; i++) {
-	    for (int j = 0; j != 5; j++) {
-	      data[i2] = (**t).covariance(i, j);
-	      std::cout << std:: scientific << data[i2] << " ";
-	      i2++;
-	    }
-	    std::cout << std::endl;
+	  // illegal charge
+	  if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
+	    h["tklinks"+isuffix]->Fill(0.);
 	  }
-	  gsl_matrix_view m 
-	    = gsl_matrix_view_array (data, 5, 5);
-	  
-	  gsl_vector *eval = gsl_vector_alloc (5);
-	  gsl_matrix *evec = gsl_matrix_alloc (5, 5);
-	  
-	  gsl_eigen_symmv_workspace * w = 
-	    gsl_eigen_symmv_alloc (5);
-	  
-	  gsl_eigen_symmv (&m.matrix, eval, evec, w);
-	  
-	  gsl_eigen_symmv_free (w);
-	  
-	  gsl_eigen_symmv_sort (eval, evec, 
-				GSL_EIGEN_SORT_ABS_ASC);
-	  
-	  // print sorted eigenvalues
-	  {
-	    int i;
-	    for (i = 0; i < 5; i++) {
-	      double eval_i 
-		= gsl_vector_get (eval, i);
-	      gsl_vector_view evec_i 
-		= gsl_matrix_column (evec, i);
-	      
-	      printf ("eigenvalue = %g\n", eval_i);
-	      //	      printf ("eigenvector = \n");
-	      //	      gsl_vector_fprintf (stdout, 
-	      //				  &evec_i.vector, "%g");
-	    }
+	  else {
+	    h["tklinks"+isuffix]->Fill(1.);
 	  }
 	}
       }
       catch (...) {
 	// exception thrown when trying to use linked track
-	break;
+	h["tklinks"+isuffix]->Fill(0.);
       }
-    }// if (problem)
-  }
+      
+      h["nbvtx"+isuffix]->Fill(recVtxs->size()*1.);
+      h["nbtksinvtx"+isuffix]->Fill(v->tracksSize());
+      h["vtxchi2"+isuffix]->Fill(v->chi2());
+      h["vtxndf"+isuffix]->Fill(v->ndof());
+      h["vtxprob"+isuffix]->Fill(ChiSquaredProbability(v->chi2() ,v->ndof()));
+      h["xrec"+isuffix]->Fill(v->position().x());
+      h["yrec"+isuffix]->Fill(v->position().y());
+      h["zrec"+isuffix]->Fill(v->position().z());
+      if (v==recVtxs->begin()){
+	h["xrectag"+isuffix]->Fill(v->position().x());
+	h["yrectag"+isuffix]->Fill(v->position().y());
+	h["zrectag"+isuffix]->Fill(v->position().z());
+      }
+      
+      bool problem = false;
+      h["nans"+isuffix]->Fill(1.,isnan(v->position().x())*1.);
+      h["nans"+isuffix]->Fill(2.,isnan(v->position().y())*1.);
+      h["nans"+isuffix]->Fill(3.,isnan(v->position().z())*1.);
+      
+      int index = 3;
+      for (int i = 0; i != 3; i++) {
+	for (int j = i; j != 3; j++) {
+	  index++;
+	  h["nans"+isuffix]->Fill(index*1., isnan(v->covariance(i, j))*1.);
+	  if (isnan(v->covariance(i, j))) problem = true;
+	  // in addition, diagonal element must be positive
+	  if (j == i && v->covariance(i, j) < 0) {
+	    h["nans"+isuffix]->Fill(index*1., 1.);
+	    problem = true;
+	  }
+	}
+      }
+      
+      if (problem) {
+	// analyze track parameter covariance definiteness
+	double data[25];
+	try {
+	  int itk = 0;
+	  for(reco::Vertex::trackRef_iterator t = v->tracks_begin(); 
+	      t!=v->tracks_end(); t++) {
+	    std::cout << "Track " << itk++ << std::endl;
+	    int i2 = 0;
+	    for (int i = 0; i != 5; i++) {
+	      for (int j = 0; j != 5; j++) {
+		data[i2] = (**t).covariance(i, j);
+		std::cout << std:: scientific << data[i2] << " ";
+		i2++;
+	      }
+	      std::cout << std::endl;
+	    }
+	    gsl_matrix_view m 
+	      = gsl_matrix_view_array (data, 5, 5);
+	    
+	    gsl_vector *eval = gsl_vector_alloc (5);
+	    gsl_matrix *evec = gsl_matrix_alloc (5, 5);
+	    
+	    gsl_eigen_symmv_workspace * w = 
+	      gsl_eigen_symmv_alloc (5);
+	  
+	    gsl_eigen_symmv (&m.matrix, eval, evec, w);
+	    
+	    gsl_eigen_symmv_free (w);
+	    
+	    gsl_eigen_symmv_sort (eval, evec, 
+				  GSL_EIGEN_SORT_ABS_ASC);
+	    
+	    // print sorted eigenvalues
+	    {
+	      int i;
+	      for (i = 0; i < 5; i++) {
+		double eval_i 
+		  = gsl_vector_get (eval, i);
+		gsl_vector_view evec_i 
+		  = gsl_matrix_column (evec, i);
+		
+		printf ("eigenvalue = %g\n", eval_i);
+		//	      printf ("eigenvector = \n");
+		//	      gsl_vector_fprintf (stdout, 
+		//				  &evec_i.vector, "%g");
+	      }
+	    }
+	  }
+	}
+	catch (...) {
+	  // exception thrown when trying to use linked track
+	  break;
+	}
+      }// if (problem)
+    }
   } // for vertex loop
 }
