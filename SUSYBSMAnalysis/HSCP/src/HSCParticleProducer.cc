@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.8 2009/05/13 21:55:47 delaer Exp $
+// $Id: HSCParticleProducer.cc,v 1.9 2009/08/06 21:04:24 carrillo Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/MuonDetId/interface/MuonSubdetId.h>
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
+#include "SUSYBSMAnalysis/HSCP/interface/BetaFromRPC.h"
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
@@ -288,16 +289,19 @@ void HSCParticleProducer::addBetaFromRPC(HSCParticle& candidate) {
   }
   // here we go on with the RPC procedure 
   std::sort(result.hits.begin(), result.hits.end());
-  int lastbx=7;
-  bool decreasing = true;
+  int lastbx=-7;
+  bool increasing = true;
   bool outOfTime = false;
   for(std::vector<RPCHit4D>::iterator point = result.hits.begin(); point < result.hits.end(); ++point) {
     outOfTime |= (point->bx!=0); //condition 1: at least one measurement must have BX!=0
-    decreasing &= (point->bx<=lastbx); //condition 2: BX must be decreasing when going inside-out.
+    increasing &= (point->bx>=lastbx); //condition 2: BX must increase when going inside-out.
     lastbx = point->bx;
   }
-  result.isCandidate = (outOfTime&&decreasing);
-  result.beta = 1; // here we should get some pattern-based estimate
+  result.isCandidate = (outOfTime&&increasing);
+ 
+  //result.beta = 1; // here we should get some pattern-based estimate
+  BetaFromRPC BetaClass(result.hits);
+  result.beta = BetaClass.beta();
   candidate.setRpc(result);
 }
 
