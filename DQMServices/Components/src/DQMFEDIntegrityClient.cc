@@ -3,8 +3,8 @@
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
  * Last Update:
- * $Date: 2009/07/26 18:32:58 $
- * $Revision: 1.7 $
+ * $Date: 2009/07/26 22:32:29 $
+ * $Revision: 1.8 $
  * $Author: ameyer $
  *
  * Description: Summing up FED entries from all subdetectors.
@@ -313,7 +313,6 @@ void DQMFEDIntegrityClient::fillHistograms(void){
 
   }
 
-  float fillvalue = 1.;
   if (count > 0) reportSummary->Fill( sum/(float)count );
 
   // FED Non Fatal
