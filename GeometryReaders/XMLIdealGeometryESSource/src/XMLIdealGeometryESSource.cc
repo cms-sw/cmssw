@@ -28,11 +28,9 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
     setWhatProduced(this, &XMLIdealGeometryESSource::produceMagField, 
                     edm::es::Label(p.getParameter<std::string>("@module_label")));
     findingRecord<IdealMagneticFieldRecord>();
-    std::cout <<"finding Mag field" << std::endl;
   } else {
     setWhatProduced(this, &XMLIdealGeometryESSource::produceGeom);
     findingRecord<IdealGeometryRecord>();
-    std::cout << "finding ideal geom" << std::endl;
   }
 }
 
@@ -65,11 +63,8 @@ XMLIdealGeometryESSource::produce() {
   DDRotation::StoreT::instance().setReadOnly(false);
 
   parser->clearFiles();
-  //std::cout <<"got in produce"<<std::endl;
   DDName ddName(rootNodeName_);
-  //std::cout <<"ddName \""<<ddName<<"\""<<std::endl;
   DDLogicalPart rootNode(ddName);
-  //std::cout <<"made the DDLogicalPart"<<std::endl;
   DDRootDef::instance().set(rootNode);
   parser->getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser->parse(geoConfig_);
@@ -81,9 +76,6 @@ XMLIdealGeometryESSource::produce() {
 
   // after parsing the root node should be valid!
 
-  //   if ( !bool(DDLogicalPart( DDName(rootNodeName_) )) ) {
-  //     throw DDException ("XMLIdealGeometryESSource was given a non-existent node name for the root. " + rootNodeName_ );
-  //   }
   if( !rootNode.isValid() ){
     throw cms::Exception("Geometry")<<"There is no valid node named \""
                                     <<rootNodeName_<<"\"";
