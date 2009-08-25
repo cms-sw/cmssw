@@ -19,10 +19,9 @@
 
 
 // Boost parser, spirit, for parsing the std::vector elements.
-#include "boost/spirit/core.hpp"
-//#include <boost/spirit/utility/lists.hpp>
+#include "boost/spirit/include/classic.hpp"
 
-using namespace boost::spirit;
+namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
 struct VectorMakeDouble
 {

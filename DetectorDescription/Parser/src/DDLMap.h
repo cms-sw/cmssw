@@ -12,9 +12,10 @@
 #include <string>
 
 // Boost parser, spirit, for parsing the std::vector elements.
-#include "boost/spirit/core.hpp"
+#include "boost/spirit/include/classic.hpp"
+namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
-class Mapper : public boost::spirit::grammar<Mapper> {
+class Mapper : public grammar<Mapper> {
  public:
   Mapper() { };
   ~Mapper() { };

@@ -4,14 +4,14 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 
-#include "boost/spirit.hpp"
+#include "boost/spirit/include/classic.hpp"
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <map>
 
-namespace boost { namespace spirit {} } using namespace boost::spirit;
+namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
 
 struct DDSelLevelCollector
 {
