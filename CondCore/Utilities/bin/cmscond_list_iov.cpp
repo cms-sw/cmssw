@@ -117,6 +117,8 @@ int main( int argc, char** argv ){
   }else{
     session->configuration().setMessageLevel( cond::Error );
   }
+    session->configuration().setBlobStreamer("COND/Services/TBufferBlobStreamingService" );
+
   //rely on default
   //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
   //session->configuration().connectionConfiguration()->enableConnectionSharing();
