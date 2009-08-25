@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.45 2008/05/12 18:14:07 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.46 2008/08/22 01:44:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,6 +34,7 @@ namespace edm {
   class NoDelayedReader;
   class OutputModule;
   class OutputModuleDescription;
+  class OutputWorker;
   class ParameterSet;
   class Principal;
   class ProcessNameSelector;
@@ -51,6 +52,7 @@ namespace edm {
   struct PathSummary;
   struct TriggerReport;
   template <typename T> class View;
+  template <typename T> class WorkerT;
 }
 
 // The following are trivial enough so that the real headers can be included.

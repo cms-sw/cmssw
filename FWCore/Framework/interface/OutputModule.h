@@ -25,7 +25,6 @@ output stream.
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
-#include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <string>
