@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.26 2009/07/09 14:34:53 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.27 2009/07/30 08:09:57 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -176,8 +176,10 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   //initialise map of fedId/bad channel number
   std::map<unsigned int,std::pair<unsigned short,unsigned short> > badChannelFraction;
 
-  unsigned int lNMonitoring = 0;
-  unsigned int lNUnpacker = 0;
+  unsigned int lNFEDMonitoring = 0;
+  unsigned int lNFEDUnpacker = 0;
+  unsigned int lNChannelMonitoring = 0;
+  unsigned int lNChannelUnpacker = 0;
 
   unsigned int lNTotBadFeds = 0;
   unsigned int lNTotBadChannels = 0;
@@ -208,7 +210,9 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     //check for problems and fill detailed histograms
     lFedErrors.fillFEDErrors(fedData,
 			     lFullDebug,
-			     printDebug_
+			     printDebug_,
+			     lNChannelMonitoring,
+			     lNChannelUnpacker
 			     );
 
 
@@ -222,20 +226,22 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
    
     //sanity check: if something changed in the unpacking code 
     //but wasn't propagated here
-    if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck && printDebug_) {
-      std::ostringstream debugStream;
-      debugStream << " --- WARNING: FED " << fedId << std::endl 
-		  << " ------ Monitoring FED check " ;
-      if (lFailMonitoringFEDcheck) debugStream << "failed." << std::endl;
-      else debugStream << "passed." << std::endl ;
-      debugStream << " ------ Unpacker FED check " ;
-      if (lFailUnpackerFEDcheck) debugStream << "failed." << std::endl;
-      else debugStream << "passed." << std::endl ;
+    //print only the summary, and more info if printDebug>1
+    if (lFailMonitoringFEDcheck != lFailUnpackerFEDcheck) {
+      if (printDebug_>1) {
+	std::ostringstream debugStream;
+	debugStream << " --- WARNING: FED " << fedId << std::endl 
+		    << " ------ Monitoring FED check " ;
+	if (lFailMonitoringFEDcheck) debugStream << "failed." << std::endl;
+	else debugStream << "passed." << std::endl ;
+	debugStream << " ------ Unpacker FED check " ;
+	if (lFailUnpackerFEDcheck) debugStream << "failed." << std::endl;
+	else debugStream << "passed." << std::endl ;
+	edm::LogError("SiStripMonitorHardware") << debugStream.str();
+      }
 
-      if (lFailMonitoringFEDcheck) lNMonitoring++;
-      else if (lFailUnpackerFEDcheck) lNUnpacker++;
-      edm::LogError("SiStripMonitorHardware") << debugStream.str();
-
+      if (lFailMonitoringFEDcheck) lNFEDMonitoring++;
+      else if (lFailUnpackerFEDcheck) lNFEDUnpacker++;
     }
 
 
@@ -261,14 +267,18 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     edm::LogInfo("SiStripMonitorHardware") << debugStream.str();
   }
 
-  if ((lNMonitoring > 0 || lNUnpacker > 0) && printDebug_) {
+  if ((lNFEDMonitoring > 0 || lNFEDUnpacker > 0 || lNChannelMonitoring > 0 || lNChannelUnpacker > 0) && printDebug_) {
     std::ostringstream debugStream;
     debugStream
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
       << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at FED level : " << std::endl 
-      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNMonitoring << std::endl 
-      << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNUnpacker << std::endl
+      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNFEDMonitoring << std::endl 
+      << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNFEDUnpacker << std::endl
+      << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
+      << "[SiStripFEDMonitorPlugin]-- Summary of differences between unpacker and monitoring at Channel level : " << std::endl 
+      << "[SiStripFEDMonitorPlugin] ---- Number of times monitoring fails but not unpacking = " << lNChannelMonitoring << std::endl 
+      << "[SiStripFEDMonitorPlugin] ---- Number of times unpacking fails but not monitoring = " << lNChannelUnpacker << std::endl
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl 
       << "[SiStripFEDMonitorPlugin]-------------------------------------------------------------------------" << std::endl ;
     edm::LogError("SiStripMonitorHardware") << debugStream.str();

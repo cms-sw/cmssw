@@ -105,7 +105,9 @@ public:
 			      const std::string& name,
 			      const std::string& title,
 			      const double minY, 
-			      const double maxY
+			      const double maxY,
+			      const std::string& xAxisTitle,
+			      const std::string& yAxisTitle
 			      );
 
 protected:

@@ -163,12 +163,18 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
     medianAPV0vsTime_[i] = bookProfile("MedianAPV0vsTime",
 				       "MedianAPV0vsTime"+categories_[i],
 				       "median APV0 vs time",
-				       0,1000);
+				       0,1000,
+				       "Time",
+				       "median APV0"
+				       );
 
     medianAPV1vsTime_[i] = bookProfile("MedianAPV1vsTime",
 				       "MedianAPV1vsTime"+categories_[i],
 				       "median APV1 vs time",
-				       0,1000);
+				       0,1000,
+				       "Time",
+				       "median APV1"
+				       );
 
     medianAPV1vsAPV0_[i] = book2DHistogram("MedianAPV1vsAPV0",
 					   "MedianAPV1vsAPV0"+categories_[i],
@@ -185,7 +191,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
     medianAPV1minusAPV0vsTime_[i] = bookProfile("MedianAPV1minusAPV0vsTime",
 						"MedianAPV1minusAPV0vsTime"+categories_[i],
 						"#Delta(medians) vs time",
-						-1000,1000);
+						-1000,1000,
+						"Time",
+						"#Delta(medians)"
+						);
 
     if (i==2){//isShot
       shotMedianAPV0_ = bookHistogram("ShotMedianAPV0","ShotMedianAPV0",

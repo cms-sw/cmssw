@@ -303,83 +303,85 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
   nFEDErrors_ = bookHistogram("nFEDErrors",
 			      "nFEDErrors",
                               "Number of FEDs with errors (exclusing channel status bits) per event",
-			      "");
+			      "# FEDErrors");
 
   nFEDDAQProblems_ = bookHistogram("nFEDDAQProblems",
 				   "nFEDDAQProblems",
                                    "Number of FEDs with DAQ problems per event",
-				   "");
+				   "# FEDDAQProblems");
 
   nFEDsWithFEProblems_ = bookHistogram("nFEDsWithFEProblems",
 				       "nFEDsWithFEProblems",
                                        "Number of FEDs with FE problems per event",
-				       "");
+				       "# FEDs with FE problems");
 
   nFEDCorruptBuffers_ = bookHistogram("nFEDCorruptBuffers",
 				      "nFEDCorruptBuffers",
                                       "Number of FEDs with corrupt buffers per event",
-				      "");
+				      "# FEDs with corrupt buffer");
 
   nBadChannelStatusBits_ = bookHistogram("nBadChannelStatusBits",
 					 "nBadChannelStatusBits",
 					 "Number of channels with bad status bits per event",
-					 "");
+					 "# bad enabled channels");
 
   nBadActiveChannelStatusBits_ = bookHistogram("nBadActiveChannelStatusBits",
 					       "nBadActiveChannelStatusBits",
                                                "Number of active channels with bad status bits per event",
-					       "");
+					       "# bad active channels");
 
   nFEDsWithFEOverflows_ = bookHistogram("nFEDsWithFEOverflows",
 					"nFEDsWithFEOverflows",
                                         "Number FEDs with FE units which overflowed per event",
-					"");
+					"# FEDs with FE overflows");
 
   nFEDsWithFEBadMajorityAddresses_ = bookHistogram("nFEDsWithFEBadMajorityAddresses",
 						   "nFEDsWithFEBadMajorityAddresses",
                                                    "Number of FEDs with FE units with a bad majority address per event",
-						   "");
+						   "# FEDs with bad address");
 
   nFEDsWithMissingFEs_ = bookHistogram("nFEDsWithMissingFEs",
 				       "nFEDsWithMissingFEs",
                                        "Number of FEDs with missing FE unit payloads per event",
-				       "");
+				       "# FEDs with missing FEs");
 
   nUnconnectedChannels_ = bookHistogram("nUnconnectedChannels",
 					"nUnconnectedChannels",
 					"Number of channels not connected per event",
-					"");
+					"# unconnected channels");
 
   nAPVStatusBit_ = bookHistogram("nAPVStatusBit",
 			       "nAPVStatusBit",
 			       "Number of APVs with APVStatusBit error per event",
-			       "");
+			       "# APVs with APVStatusBit error");
 
   nAPVError_ = bookHistogram("nAPVError",
 			   "nAPVError",
 			   "Number of APVs with APVError per event",
-			   "");
+			   "#APVs with APVError");
 
   nAPVAddressError_ = bookHistogram("nAPVAddressError",
 				  "nAPVAddressError",
 				  "Number of APVs with APVAddressError per event",
-				  "");
+				  "#APVs with APVAddressError");
 
   nUnlocked_ = bookHistogram("nUnlocked",
 			   "nUnlocked",
 			   "Number of channels Unlocked per event",
-			   "");
+			   "# channels unlocked");
 
   nOutOfSync_ = bookHistogram("nOutOfSync",
 			    "nOutOfSync",
 			    "Number of channels OutOfSync per event",
-			    "");
+			    "# channels out-of-sync");
 
   nTotalBadChannelsvsTime_ = bookProfile("nTotalBadChannelsvsTime",
 					 "nTotalBadChannelsvsTime",
 					 "Number of channels with any error vs time",
 					 0,
-					 42241 //total number of channels
+					 42241, //total number of channels
+					 "Time",
+					 "Total # bad enabled channels"
 					 );
 
 
@@ -387,7 +389,9 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 						"nTotalBadActiveChannelsvsTime",
 						"Number of active channels with any error vs time",
 						0,
-						42241 //total number of channels
+						42241, //total number of channels
+						"Time",
+						"Total # bad active channels"
 						);
 
 
@@ -395,56 +399,72 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 				  "nFEDErrorsvsTime",
 				  "Number of FEDs with any error vs time",
 				  0,
-				  42241 //total number of channels
+				  42241, //total number of channels
+				  "Time",
+				  "# FEDErrors"
 				  );
 
   nFEDCorruptBuffersvsTime_ = bookProfile("nFEDCorruptBuffersvsTime",
 					  "nFEDCorruptBuffersvsTime",
 					  "Number of FEDs with corrupt buffer vs time",
 					  0,
-					  42241 //total number of channels
+					  42241, //total number of channels
+					  "Time",
+					  "# FEDCorruptBuffer"
 					  );
 
   nFEDsWithFEProblemsvsTime_ = bookProfile("nFEDsWithFEProblemsvsTime",
 					   "nFEDsWithFEProblemsvsTime",
 					   "Number of FEDs with any FE error vs time",
 					   0,
-					   42241 //total number of channels
+					   42241, //total number of channels
+					   "Time",
+					   "# FEDsWithFEProblems"
 					   );
 
   nAPVStatusBitvsTime_ = bookProfile("nAPVStatusBitvsTime",
 				     "nAPVStatusBitvsTime",
 				     "Number of APVs with APVStatusBit error vs time",
 				     0,
-				     42241 //total number of channels
+				     42241, //total number of channels
+				     "Time",
+				     "# APVs with APVStatusBit error"
 				     );
 
   nAPVErrorvsTime_ = bookProfile("nAPVErrorvsTime",
 				 "nAPVErrorvsTime",
 				 "Number of APVs with APVError vs time",
 				 0,
-				 42241 //total number of channels
+				 42241, //total number of channels
+				 "Time",
+				 "# APVs with APVError"
 				 );
 
   nAPVAddressErrorvsTime_ = bookProfile("nAPVAddressErrorvsTime",
 					"nAPVAddressErrorvsTime",
 					"Number of APVs with APVAddressError vs time",
 					0,
-					42241 //total number of channels
+					42241, //total number of channels
+					"Time",
+					"# APVs with APVAddressError"
 					);
 
   nUnlockedvsTime_ = bookProfile("nUnlockedvsTime",
 				 "nUnlockedvsTime",
 				 "Number of channels Unlocked vs time",
 				 0,
-				 42241 //total number of channels
+				 42241, //total number of channels
+				 "Time",
+				 "# channels unlocked "
 				 );
 
   nOutOfSyncvsTime_ = bookProfile("nOutOfSyncvsTime",
 				  "nOutOfSyncvsTime",
 				  "Number of channels OutOfSync vs time",
 				  0,
-				  42241 //total number of channels
+				  42241, //total number of channels
+				  "Time",
+				  "# channels out-of-sync"
 				  );
 
 
