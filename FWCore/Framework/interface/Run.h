@@ -15,8 +15,6 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.15 2008/08/22 01:44:37 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -30,7 +28,7 @@ namespace edm {
   class Run
   {
   public:
-    Run(RunPrincipal& rp, const ModuleDescription& md);
+    Run(RunPrincipal& rp, ModuleDescription const& md);
     ~Run(){}
 
     typedef DataViewImpl Base;
