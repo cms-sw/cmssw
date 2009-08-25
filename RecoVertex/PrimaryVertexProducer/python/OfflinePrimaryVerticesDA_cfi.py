@@ -1,13 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
+offlinePrimaryVerticesDA = cms.EDProducer("PrimaryVertexProducer",
     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(0.02), ## 200 microns
+        maxDistanceToBeam = cms.double(0.05), ## 500 microns
 
-        minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability
+        minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability /NA
 
     ),
-    verbose = cms.untracked.bool(False),
+    verbose = cms.untracked.bool(True),
+#    algorithm = cms.string('DAVertexFitter'),
+#    algorithm = cms.string('MultiVertexFitter'),
     algorithm = cms.string('AdaptiveVertexFitter'),
     TkFilterParameters = cms.PSet(
         maxNormalizedChi2 = cms.double(5.0),
@@ -32,9 +34,17 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
         maxNbOfVertices = cms.int32(0) ## search all vertices in each cluster
 
     ),
+    DAFinderParameters = cms.PSet(
+        ptCut = cms.double(0.0),
+        TMin  = cms.double(10.)
+    ),
     TkClusParameters = cms.PSet(
-        zSeparation = cms.double(-0.1) # Tmin=10
-
+        algorithm   = cms.string("DA"),
+        TkDAClusParameters = cms.PSet( 
+            coolingFactor = cms.double(0.8),  #  rather slow annealing for now
+            Tmin = cms.double(10.),           #  end of annealing
+            zSeparation = cms.double(0.2)            #  minimal allowed cluster separation in cm
+        )
     )
 )
 

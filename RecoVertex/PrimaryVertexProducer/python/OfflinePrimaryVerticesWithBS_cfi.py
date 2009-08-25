@@ -33,7 +33,10 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
 
     ),
     TkClusParameters = cms.PSet(
-        zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
+        algorithm   = cms.string("gap"),
+        TkGapClusParameters = cms.PSet( 
+            zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
+        )
 
     )
 )
