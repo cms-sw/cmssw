@@ -102,6 +102,7 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
   for(Book::const_iterator hist2D = book.begin(".*"+key); hist2D!=book.end(); ++hist2D) {
     std::string name = hist2D.name()+"_profile";
     TH1* p = book.book(name, (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str()));
+    if(p->GetEntries() < 300) continue;
     float min = p->GetMinimum();
     float max = p->GetMaximum();
     float xofmin = p->GetBinCenter(p->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
@@ -114,7 +115,7 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
     fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
     p->Fit(fit,"IMEQ");
     if( p->GetFunction("LA_profile_fit")->GetChisquare() / p->GetFunction("LA_profile_fit")->GetNDF() > 5 ||
-	p->GetFunction("LA_profile_fit")->GetParError(0) > 0.03) 
+	p->GetFunction("LA_profile_fit")->GetParError(0) > 0.03)
       p->Fit(fit,"IMEQ");
 
     if(cleanup) book.erase(hist2D.name());
