@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/04/22 18:42:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/06/03 07:34:59 $
+ *  $Revision: 1.8 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -14,6 +14,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <TH1F.h>
 #include <cmath>
