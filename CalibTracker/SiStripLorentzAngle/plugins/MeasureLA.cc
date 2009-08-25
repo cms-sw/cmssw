@@ -11,7 +11,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   inFileLocation( conf.getParameter<std::string>("InFileLocation")),
   fp_(conf.getParameter<edm::FileInPath>("SiStripDetInfo") ),
   maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0)),
-  reports( conf.getParameter<std::vector<edm::ParameterSet> >("Report")),
+  reports( conf.getParameter<std::vector<edm::ParameterSet> >("Reports")),
   measurementPreferences( conf.getParameter<std::vector<edm::ParameterSet> >("MeasurementPreferences")),
   calibrations( conf.getParameter<std::vector<edm::ParameterSet> >("Calibrations"))
 {
@@ -49,12 +49,11 @@ process_reports() {
     typedef std::pair<std::string,LA_Filler_Fitter::Result> lr_t;
     typedef std::pair<uint32_t,LA_Filler_Fitter::Result> mr_t;
     fstream file((name+".dat").c_str(),std::ios::out);
-    if( byModule )      
-      BOOST_FOREACH(   lr_t result,  LA_Filler_Fitter::layer_results( book, method)) file << result.first << "\t" << result.second << std::endl; 
-    else BOOST_FOREACH(mr_t result, LA_Filler_Fitter::module_results( book, method)) file << result.first << "\t" << result.second << std::endl;
+    if( byModule ) BOOST_FOREACH(mr_t result, LA_Filler_Fitter::module_results( book, method)) file << result.first << "\t" << result.second << std::endl;
+    else           BOOST_FOREACH(lr_t result,  LA_Filler_Fitter::layer_results( book, method)) file << result.first << "\t" << result.second << std::endl; 
     file.close();
     
-    TFile tfile("histograms.root","RECREATE");
+    TFile tfile((name+".root").c_str(),"RECREATE");
     std::string key = ( byModule ? ".*_module.*" : ".*_layer.*") + LA_Filler_Fitter::method(method);
     for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist)
       (*hist)->Write();
