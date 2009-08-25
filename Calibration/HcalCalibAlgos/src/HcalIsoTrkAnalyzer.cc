@@ -15,7 +15,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.13 2009/06/29 22:39:01 anastass Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.14 2009/08/05 12:51:47 andrey Exp $
 //
 //
 
@@ -583,7 +583,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if(AxB_=="3x3") numbercell = 1;
 	      if(AxB_=="5x5") numbercell = 2;
 	      
-	      if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=numbercell+1)) )  {
+	      if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>=20 && abs(DIPHI)<=numbercell+1)) )  {
 		
 		// rof 16.05.2008 start: include the possibility for recalibration
 		float recal = 1;
