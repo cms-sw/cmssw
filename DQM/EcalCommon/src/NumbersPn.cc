@@ -76,13 +76,11 @@ int NumbersPn::iLM( const int ism, const int ix, const int iy ) throw( std::runt
     }
     if( ism == 18 ) return 16;
 
-  } else {
-
-    std::ostringstream s;
-    s << "Wrong LM id determination: iSM = " << ism << " ix = " << ix << " iy = " << iy;
-    throw( std::runtime_error( s.str() ) );
-
   }
+
+  std::ostringstream s;
+  s << "Wrong LM id determination: iSM = " << ism << " ix = " << ix << " iy = " << iy;
+  throw( std::runtime_error( s.str() ) );
 
 }
 
