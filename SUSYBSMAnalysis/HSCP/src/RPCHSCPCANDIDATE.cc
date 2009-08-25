@@ -22,6 +22,9 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "SUSYBSMAnalysis/HSCP/interface/RPCHSCPCANDIDATE.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
+#include "SUSYBSMAnalysis/HSCP/interface/BetaFromRPC.h"
+
 
 typedef struct {
   int id;
@@ -232,75 +235,23 @@ RPCHSCPCANDIDATE::RPCHSCPCANDIDATE(edm::Event& iEvent,const edm::EventSetup& iSe
        std::cout<<"Inside the class"<<"\t \t  r="<<r<<" phi="<<point->gp.phi()<<" eta="<<point->gp.eta()<<" bx="<<point->bx<<" increasing"<<increasing<<" anydifferentzero"<<anydifferentzero<<std::endl;
      }
      
+     std::vector<susybsm::RPCHit4D> HSCPRPCRecHits;
+     
      for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
        std::cout<<point->bx;
-      }
+       susybsm::RPCHit4D ThisHit;
+       ThisHit.bx = point->bx;
+       ThisHit.gp = point->gp;
+       ThisHit.id = 0;
+       HSCPRPCRecHits.push_back(ThisHit);
+     }
       std::cout<<std::endl;
       
      std::cout<<"Inside the class"<<"\t \t \t yes! We found an HSCPs let's try to stimate beta"<<std::endl;
+
      // here we should get some pattern-based estimate
-     
-     //Counting knees
-     lastbx=-7;
-     int knees=0;
-     float maginknee = 0;
-     float maginfirstknee = 0;
-     
-     for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
-       if(lastbx==-7){
-	 maginfirstknee = point->gp.mag();
-       }else if((lastbx!=point->bx)){
-	 std::cout<<"Inside the class"<<"\t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
-	 maginknee=point->gp.mag();
-	 knees++;
-       }
-       lastbx=point->bx;
-     }
-      
-     if(knees==0){
-       std::cout<<"Inside the class"<<"\t \t \t \t knees="<<knees<<std::endl;
-       beta=maginfirstknee/(25+maginfirstknee/30.)/30.;
-     }else if(knees==1){
-       float beta1=0;
-       float beta2=0;
-       std::cout<<"Inside the class"<<"\t \t \t \t knees="<<knees<<std::endl;
-       std::cout<<"Inside the class"<<"\t \t \t \t anydifferentzero="<<anydifferentzero<<" anydifferentone="<<anydifferentone<<std::endl;
-       if(!anydifferentzero){
-	 beta=maginknee/(25+maginknee/30.)/30.;
-       }else if(!anydifferentone){//i.e non zeros and no ones
-	 beta=maginknee/(50+maginknee/30.)/30.;
-       }else{
-	 beta1=maginknee/(25+maginknee/30.)/30.;
-	 float dr =(maginknee-maginfirstknee);
-	 beta2 = dr/(25.+dr/30.);
-	 std::cout<<"Inside the class"<<"\t \t \t \t \t not zero neither ones beta1="<<beta1<<" beta2="<<beta2<<std::endl;
-	 beta = (beta1 + beta2)*0.5;
-       }
-     }else if(knees==2){
-       std::cout<<"Inside the class"<<"\t \t \t \t knees="<<knees<<std::endl;
-       knees=0;
-       float beta1=0;
-       float beta2=0;
-       lastbx=-7;
-       std::cout<<"Inside the class"<<"\t \t \t \t looping again on the RPCRecHits4D="<<knees<<std::endl;
-       for(std::vector<RPC4DHit>::iterator point = BestAngularMatch.begin(); point!=BestAngularMatch.end(); ++point){
-	 if(lastbx==-7){
-	   maginfirstknee = point->gp.mag();
-	 }else if((lastbx!=point->bx)){
-	   std::cout<<"Inside the class"<<"\t \t \t \t \t one knee between"<<lastbx<<point->bx<<std::endl;
-	   knees++;
-	   if(knees==2){
-	     float maginsecondknee=point->gp.mag();
-	     beta1=maginknee/(25+maginknee/30.)/30.;
-	     float dr =(maginknee-maginsecondknee);
-	     beta2 = dr/(25.+dr/30.);
-	     std::cout<<"Inside the class"<<"\t \t \t \t \t beta1="<<beta1<<" beta2="<<beta2<<std::endl;
-	   }
-	 }
-	 lastbx=point->bx;
-       }
-       beta = (beta1 + beta2)*0.5;
-     }
+     BetaFromRPC BetaClass(HSCPRPCRecHits);
+     beta = BetaClass.beta();
      
      betavalue = beta;
      
