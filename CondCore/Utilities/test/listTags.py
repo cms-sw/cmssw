@@ -33,7 +33,7 @@ for tag in tags:
     db = rdbms.getDB(tag[3])
     iov = db.iov(tag[2])
     print tag[0],tag[1],tag[3],tag[2]
-    print iov.size(), iov.revision(), iov.comment()
+    print iov.size(), iov.revision(), time.asctime(time.gmtime(unpackTime(iov.timestamp())[0])), iov.comment()
 
 def iovSize(rdbms,conn,tag) :
     try :

@@ -88,7 +88,7 @@ namespace {
   }
 
   boost::python::tuple unpackTime(cond::Time_t iValue) {
-    cond::UnpackedTime l = cond::unpack(iValue);
+    cond::UnpackedTime l = cond::time::unpack(iValue);
     return boost::python::make_tuple(l.first,l.second);
   }
 

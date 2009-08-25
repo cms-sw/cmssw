@@ -148,7 +148,7 @@ namespace cond {
     return iov().revision();
   }
 
-  cond::Time_t timestamp() const {
+  cond::Time_t IOVProxy::timestamp() const {
     return iov().timestamp();
   }
 
