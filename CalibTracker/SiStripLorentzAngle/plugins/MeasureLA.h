@@ -19,12 +19,14 @@ class MeasureLA : public edm::ESProducer {
   
  private:
 
+  void append_methods_and_granularity(int32_t&, bool&, bool&, const std::vector<edm::ParameterSet>&);
+  void process_reports();
+
   std::vector<std::string> inputFiles;
   std::string inFileLocation;
-  bool byLayer,byModule;
-  float chi2ndof_cut;
-  unsigned maxEvents,nEntries_cut;
   edm::FileInPath fp_;
+  unsigned maxEvents;
+  std::vector<edm::ParameterSet> reports, measurementPreferences, calibrations;
   Book book;
 
 };
