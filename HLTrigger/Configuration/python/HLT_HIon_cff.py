@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre1/HIon/V1 (CMSSW_3_3_X_2009-08-24-1300)
+# /dev/CMSSW_3_3_0/pre1/HIon/V3 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V3')
 )
 
 
@@ -183,6 +183,7 @@ FitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -235,6 +236,7 @@ KFFitterForRefitInsideOut = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SmartPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForRefit" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -254,6 +256,7 @@ KFSmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 10.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -263,6 +266,7 @@ KFSmootherForRefitInsideOut = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForRefit" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -272,6 +276,7 @@ KFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -280,6 +285,7 @@ KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer"
   Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -293,6 +299,7 @@ L3MuKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SmartPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -343,6 +350,8 @@ MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   trajectoryFilterName = cms.string( "muonCkfTrajectoryFilter" ),
   useSeedLayer = cms.bool( False ),
   rescaleErrorIfFail = cms.double( 1.0 ),
+  deltaEta = cms.double( 0.1 ),
+  deltaPhi = cms.double( 0.1 ),
   appendToDataLabel = cms.string( "" ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
@@ -445,6 +454,7 @@ SmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -626,6 +636,7 @@ hltKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "PropagatorWithMaterial" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -645,6 +656,7 @@ hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "PropagatorWithMaterial" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )

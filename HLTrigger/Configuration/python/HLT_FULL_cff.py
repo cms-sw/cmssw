@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre1/HLT/V1 (CMSSW_3_3_X_2009-08-24-1300)
+# /dev/CMSSW_3_3_0/pre1/HLT/V4 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HLT/V1')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HLT/V4')
 )
 
 
@@ -183,6 +183,7 @@ FitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -235,6 +236,7 @@ KFFitterForRefitInsideOut = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SmartPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForRefit" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -254,6 +256,7 @@ KFSmootherForMuonTrackLoader = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 10.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -263,6 +266,7 @@ KFSmootherForRefitInsideOut = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "SmartPropagatorAnyOpposite" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2EstimatorForRefit" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -272,6 +276,7 @@ KFTrajectoryFitterForL2Muon = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "FastSteppingHelixPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -280,6 +285,7 @@ KFTrajectorySmootherForL2Muon = cms.ESProducer( "KFTrajectorySmootherESProducer"
   Propagator = cms.string( "FastSteppingHelixPropagatorOpposite" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -293,6 +299,7 @@ L3MuKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "SmartPropagatorAny" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -343,6 +350,8 @@ MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   trajectoryFilterName = cms.string( "muonCkfTrajectoryFilter" ),
   useSeedLayer = cms.bool( False ),
   rescaleErrorIfFail = cms.double( 1.0 ),
+  deltaEta = cms.double( 0.1 ),
+  deltaPhi = cms.double( 0.1 ),
   appendToDataLabel = cms.string( "" ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
@@ -445,6 +454,7 @@ SmootherRK = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "RungeKuttaTrackerPropagator" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -626,6 +636,7 @@ hltKFFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
   Propagator = cms.string( "PropagatorWithMaterial" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
@@ -645,6 +656,7 @@ hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   Propagator = cms.string( "PropagatorWithMaterial" ),
   Updator = cms.string( "KFUpdator" ),
   Estimator = cms.string( "Chi2" ),
+  RecoGeometry = cms.string( "GlobalDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
@@ -2957,7 +2969,8 @@ hltL3TkTracksFromL2 = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltL3TrackCandidateFromL2" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL3Muons = cms.EDProducer( "L3MuonProducer",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
@@ -4599,7 +4612,8 @@ hltCtfL1IsoLargeWindowWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltCkfL1IsoLargeWindowTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltPixelMatchLargeWindowElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     TrackProducer = cms.InputTag( "hltCtfL1IsoLargeWindowWithMaterialTracks" ),
@@ -4630,7 +4644,8 @@ hltCtfL1NonIsoLargeWindowWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltCkfL1NonIsoLargeWindowTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltPixelMatchLargeWindowElectronsL1NonIso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     TrackProducer = cms.InputTag( "hltCtfL1NonIsoLargeWindowWithMaterialTracks" ),
@@ -5017,7 +5032,8 @@ hltCtfL1IsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltCkfL1IsoTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltPixelMatchElectronsL1Iso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     TrackProducer = cms.InputTag( "hltCtfL1IsoWithMaterialTracks" ),
@@ -5048,7 +5064,8 @@ hltCtfL1NonIsoWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltCkfL1NonIsoTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltPixelMatchElectronsL1NonIso = cms.EDProducer( "EgammaHLTPixelMatchElectronProducers",
     TrackProducer = cms.InputTag( "hltCtfL1NonIsoWithMaterialTracks" ),
@@ -5239,7 +5256,8 @@ hltL1IsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProduce
     src = cms.InputTag( "hltL1IsoElectronsRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL1NonIsoElectronsRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProducers",
     ptMin = cms.double( 1.5 ),
@@ -5282,7 +5300,8 @@ hltL1NonIsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProd
     src = cms.InputTag( "hltL1NonIsoElectronsRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL1IsoElectronTrackIsol = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     electronProducer = cms.InputTag( "hltPixelMatchElectronsL1Iso" ),
@@ -6288,7 +6307,8 @@ hltL1IsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltL1IsoEgammaRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL1NonIsoEgammaRegionalPixelSeedGenerator = cms.EDProducer( "EgammaHLTRegionalPixelSeedGeneratorProducers",
     ptMin = cms.double( 1.5 ),
@@ -6331,7 +6351,8 @@ hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial = cms.EDProducer( "TrackProduce
     src = cms.InputTag( "hltL1NonIsoEgammaRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL1IsoPhotonHollowTrackIsol = cms.EDProducer( "EgammaHLTPhotonTrackIsolationProducersRegional",
     recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
@@ -6963,7 +6984,8 @@ hltCtfWithMaterialTracksMumu = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltCkfTrackCandidatesMumu" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltMuTracks = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltCtfWithMaterialTracksMumu" ),
@@ -7099,7 +7121,8 @@ hltCtfWithMaterialTracksMumuk = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltCkfTrackCandidatesMumuk" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltMumukAllConeTracks = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltCtfWithMaterialTracksMumuk" ),
@@ -7484,12 +7507,14 @@ hltL25TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltL25TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
     tracks = cms.InputTag( "hltL25TauCtfWithMaterialTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltL25TauConeIsolation = cms.EDProducer( "ConeIsolation",
     JetTrackSrc = cms.InputTag( "hltL25TauJetTracksAssociator" ),
@@ -7577,12 +7602,14 @@ hltL3TauCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltL3TauCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL3TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltL25TauLeadingTrackPtCutSelector" ),
     tracks = cms.InputTag( "hltL3TauCtfWithMaterialTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltL3TauConeIsolation = cms.EDProducer( "ConeIsolation",
     JetTrackSrc = cms.InputTag( "hltL3TauJetTracksAssociator" ),
@@ -7737,7 +7764,8 @@ hltBLifetimeL25Jets = cms.EDProducer( "EtMinCaloJetSelector",
 hltBLifetimeL25Associator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL25Jets" ),
     tracks = cms.InputTag( "hltPixelTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltBLifetimeL25TagInfos = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25Associator" ),
@@ -7840,12 +7868,14 @@ hltBLifetimeRegionalCtfWithMaterialTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltBLifetimeRegionalCkfTrackCandidates" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltBLifetimeL3Associator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL3Jets" ),
     tracks = cms.InputTag( "hltBLifetimeRegionalCtfWithMaterialTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltBLifetimeL3TagInfos = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3Associator" ),
@@ -8108,7 +8138,8 @@ hltFilterL2EcalIsolationMuonTau = cms.EDFilter( "HLT1Tau",
 hltL25TauJetPixelTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
     tracks = cms.InputTag( "hltPixelTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltL25TauPixelTracksConeIsolation = cms.EDProducer( "ConeIsolation",
     JetTrackSrc = cms.InputTag( "hltL25TauJetPixelTracksAssociator" ),
@@ -8502,7 +8533,8 @@ hltL2TauIsolationSelectorNoCut = cms.EDProducer( "L2TauIsolationSelector",
 hltL25TauJetPixelTracksAssociatorNoL2 = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
     tracks = cms.InputTag( "hltPixelTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltL25TauPixelTracksConeIsolationNoL2 = cms.EDProducer( "ConeIsolation",
     JetTrackSrc = cms.InputTag( "hltL25TauJetPixelTracksAssociatorNoL2" ),
@@ -8739,7 +8771,8 @@ hltBLifetimeL25JetsStartupU = cms.EDProducer( "EtMinCaloJetSelector",
 hltBLifetimeL25AssociatorStartupU = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL25JetsStartupU" ),
     tracks = cms.InputTag( "hltPixelTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltBLifetimeL25TagInfosStartupU = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorStartupU" ),
@@ -8822,12 +8855,14 @@ hltBLifetimeRegionalCtfWithMaterialTracksStartupU = cms.EDProducer( "TrackProduc
     src = cms.InputTag( "hltBLifetimeRegionalCkfTrackCandidatesStartupU" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltBLifetimeL3AssociatorStartupU = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL3JetsStartupU" ),
     tracks = cms.InputTag( "hltBLifetimeRegionalCtfWithMaterialTracksStartupU" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltBLifetimeL3TagInfosStartupU = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3AssociatorStartupU" ),
@@ -8886,7 +8921,8 @@ hltBLifetimeL25JetsStartup = cms.EDProducer( "EtMinCaloJetSelector",
 hltBLifetimeL25AssociatorStartup = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL25JetsStartup" ),
     tracks = cms.InputTag( "hltPixelTracks" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltBLifetimeL25TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorStartup" ),
@@ -8969,12 +9005,14 @@ hltBLifetimeRegionalCtfWithMaterialTracksStartup = cms.EDProducer( "TrackProduce
     src = cms.InputTag( "hltBLifetimeRegionalCkfTrackCandidatesStartup" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltBLifetimeL3AssociatorStartup = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL3JetsStartup" ),
     tracks = cms.InputTag( "hltBLifetimeRegionalCtfWithMaterialTracksStartup" ),
-    coneSize = cms.double( 0.5 )
+    coneSize = cms.double( 0.5 ),
+    trackQuality = cms.string( "goodIterative" )
 )
 hltBLifetimeL3TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3AssociatorStartup" ),
@@ -9934,7 +9972,8 @@ hltHITCtfWithMaterialTracks8E29 = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHITCkfTrackCandidates8E29" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltHITIPTCorrector8E29 = cms.EDProducer( "IPTCorrector",
     corTracksLabel = cms.InputTag( "hltHITCtfWithMaterialTracks8E29" ),
@@ -10096,7 +10135,8 @@ hltHITCtfWithMaterialTracks1E31 = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHITCkfTrackCandidates1E31" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltHITIPTCorrector1E31 = cms.EDProducer( "IPTCorrector",
     corTracksLabel = cms.InputTag( "hltHITCtfWithMaterialTracks1E31" ),
@@ -10997,7 +11037,8 @@ hltL3TkTracksOIFromL2 = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltL3TrackCandidateOIFromL2" ),
     beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
     TTRHBuilder = cms.string( "WithTrackAngle" ),
-    AlgorithmName = cms.string( "undefAlgorithm" )
+    AlgorithmName = cms.string( "undefAlgorithm" ),
+    NavigationSchool = cms.string( "" )
 )
 hltL3MuonsOI = cms.EDProducer( "L3TkMuonProducer",
     InputObjects = cms.InputTag( "hltL3TkTracksOIFromL2" )
