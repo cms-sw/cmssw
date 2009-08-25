@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo camilo.carrillo AT cern.ch
 //         Created:  Wed Aug  6 17:45:45 CEST 2008
-// $Id: RPCHSCP.cc,v 1.3 2009/08/06 21:04:24 carrillo Exp $
+// $Id: RPCHSCP.cc,v 1.4 2009/08/24 09:20:16 carrillo Exp $
 //
 //
 
@@ -148,6 +148,16 @@ RPCHSCP::RPCHSCP(const edm::ParameterSet& iConfig)
 }
 
 
+float betapm(float p,float m){//beta from mass and 3 momentum
+  float beta = 1./sqrt(1+((m*m)/(p*p)));
+  if(beta<=1 && beta>=0){
+    return beta;
+  }else{
+    std::cout<<"p and m are not relativistic variables=p"<<p<<" m="<<m<<std::endl;
+    return 0;
+  }
+}
+
 RPCHSCP::~RPCHSCP(){
 
 }
@@ -185,6 +195,14 @@ RPCHSCP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       float p=partIt->p();
       float e=partIt->energy();
       float betamc=p/e;
+      float mmc = sqrt(e*e-p*p);
+
+      if(abs(partIt->pdgId()) == 2000015){
+	betamc = betapm(p,303.27); //bug in random gun for kktaus
+	mmc = 303.27;
+	std::cout<<"warning correcting theoretical beta and mass for kktaus due to the error on the mass for the sample"<<std::endl;
+      }
+      
       //betaHisto->Fill(beta);
       //if(hscp)betaMyHisto->Fill(beta);
       float pt = partIt->pt();
@@ -194,7 +212,7 @@ RPCHSCP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       //if(count!=0)bxLayerFile<<"\t"<<" eta="<<partIt->eta()<<" beta="<<beta<<"c";
       //if(count!=0)fileMatrix<<" eta="<<partIt->eta()<<" beta="<<beta<<"c Event "<<iEvent.id().event()<<"\n";
       //if(fabs(partIt->eta()>1.14))etaout++;
-      std::cout<<"\t phimc="<<partIt->phi()<<" etamc="<<partIt->eta()<<"betamc="<<betamc<<" pmc="<<p<<"GeV ptmc="<<pt<<"GeV mmc="<<sqrt(e*e-p*p)<<"GeV"<<std::endl;
+      std::cout<<"\t phimc="<<partIt->phi()<<" etamc="<<partIt->eta()<<"betamc="<<betamc<<" pmc="<<p<<"GeV ptmc="<<pt<<"GeV mmc="<<mmc<<"GeV"<<std::endl;
       
       int event = iEvent.id().event();
       float etamc = partIt->eta();
