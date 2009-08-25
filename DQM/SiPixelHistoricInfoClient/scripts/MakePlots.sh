@@ -17,8 +17,10 @@ fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir
 mv *.eps $PlotDir
-cp diow.pl $PlotDir
+cp DeanConvert.pl $PlotDir
+cp SiPixelHDQMInspector.html $PlotDir/index.html
 cd $PlotDir
-./diow.pl
+./DeanConvert.pl
+
 cd ..
 

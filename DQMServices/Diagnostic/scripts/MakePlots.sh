@@ -20,8 +20,11 @@ fi
 mkdir -pv $PlotDir
 mv *.gif $PlotDir
 mv *.eps $PlotDir
-cp diow.pl $PlotDir
+cp DeanConvert.pl $PlotDir
+cp html/$ExeName.html $PlotDir/index.html
 cd $PlotDir
-./diow.pl
+./DeanConvert.pl
+rm -f DeanConvert.pl
+
 cd ..
 

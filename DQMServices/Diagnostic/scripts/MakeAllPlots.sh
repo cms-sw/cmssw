@@ -5,12 +5,14 @@ source /afs/cern.ch/cms/sw/cmsset_default.sh
 RunStart=$1
 RunEnd=$2
 
-Password=<<!!INSERT_DATABASE_PASSWORD_HERE!!>>
+Password=PPAASSSSWWOORRDDHHEERREE
 
 BasePlotOutDir=`pwd`/./HistoricDQMPlots
 mkdir -pv $BasePlotOutDir
 
 BaseDir=$CMSSW_BASE/src/DQMServices/Diagnostic
+
+cp $BaseDir/scripts/html/ShifterPlots.html $BasePlotOutDir/index.html
 
 ListOfExes=(SiStripHDQMInspector
             TrackingHDQMInspector
