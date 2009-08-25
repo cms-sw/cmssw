@@ -12,4 +12,3 @@
 <use name="FWCore/Utilities">
 <use name="boost_system">
 <use name="rootgpad">
-<flags EDM_PLUGIN="1">
