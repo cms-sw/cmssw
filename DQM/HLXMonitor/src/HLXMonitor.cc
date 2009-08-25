@@ -30,7 +30,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    AquireMode       = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
    Accumulate       = iConfig.getUntrackedParameter< bool         >("Accumulate",  true); // all
    TriggerBX        = iConfig.getUntrackedParameter< unsigned int >("TriggerBX",   50);
-   MinLSBeforeSave  = iConfig.getUntrackedParameter< unsigned int >("MinLSBeforeSsave", 1);
+   MinLSBeforeSave  = iConfig.getUntrackedParameter< unsigned int >("MinLSBeforeSave", 1);
    reconnTime       = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
    DistribIP1       = iConfig.getUntrackedParameter< std::string  >("PrimaryHLXDAQIP", "vmepcs2f17-18");
    DistribIP2       = iConfig.getUntrackedParameter< std::string  >("SecondaryHLXDAQIP", "vmepcs2f17-19");
