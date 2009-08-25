@@ -13,7 +13,7 @@ class LA_Filler_Fitter {
 
  public:
 
-  enum Method { NONE=0, RATIO=1<<0, WIDTH=1<<1, SQRTVAR=1<<2};
+  enum Method { NONE=0, WIDTH=1<<0, RATIO=1<<1,  SQRTVAR=1<<2};
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
     case NONE:   return "none";
