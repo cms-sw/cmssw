@@ -7,6 +7,8 @@
 
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 template<typename RecHitType, typename ClusterRefType>
 void 
 helper::MuonCollectionStoreManager::ClusterHitRecord<RecHitType,ClusterRefType>::
