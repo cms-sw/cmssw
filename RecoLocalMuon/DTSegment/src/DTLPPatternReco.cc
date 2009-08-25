@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/14 14:15:52 $
- * $Revision: 1.2 $
+ * $Date: 2009/08/20 15:27:38 $
+ * $Revision: 1.3 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <map>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 /* Collaborating class headers*/
@@ -50,7 +50,8 @@ DTLPPatternReco::DTLPPatternReco(const edm::ParameterSet& pset): DTRecSegment2DB
   theMinimumQ = pset.getParameter<double>("min_q");
   theMaximumQ = pset.getParameter<double>("max_q");
   theBigM = pset.getParameter<double>("bigM");//"Big M" used in LP
-  theUpdator = new DTSegmentUpdator(pset);  
+  theUpdator = new DTSegmentUpdator(pset);
+  debug = pset.getUntrackedParameter<bool>("debug", false);
   //event counter used by gnuplot macro producer to name the files
   event_counter = 0;
 }
@@ -115,23 +116,36 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const std::vector<DTRe
   ResultLPAlgo theAlgoResults;//datastructure containing all useful results from perform_fit
   
   /*I populate the coordinates lists, in SL or chamber ref frame. */
-  populateCoordinatesLists(pz, px, pex,  sl, chamber, pairPointers, sl_chamber); 
+  populateCoordinatesLists(pz, px, pex,  sl, chamber, pairPointers, sl_chamber);
+
+  if (sl_chamber ==  ReconstructInSL)  std::cout << "DTLPPatternReco::reconstruct in SL: " 
+					       << sl->id() << std::endl; 
+  else if (sl_chamber ==  ReconstructInChamber)  std::cout << "DTLPPatternReco::reconstruct in Ch: " 
+					       << chamber->id() << std::endl;
+ 
+  std::cout << "Finding angle constraints" << std::endl;
+  findAngleConstraints( theMinimumM, theMaximumM, sl, chamber, sl_chamber );
+  std::cout << "M min: " << theMinimumM << " M max: " << theMaximumM << std::endl;
   
   /*lpAlgo returns true as long as it manages to fit meaningful straight lines*/
-  while(lpAlgorithm(theAlgoResults, pz, px, pex, -10, 10, theMinimumQ, theMaximumQ, theBigM, theDeltaFactor) ){
+    while(lpAlgorithm(theAlgoResults, pz, px, pex, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM, theDeltaFactor) ){
     counter++;
     std::cout << "Creating 2Dsegment" << std::endl;
     
     /*Now I create the actual new segment*/ 
     LocalPoint seg2Dposition( (float)theAlgoResults.qVar, 0. , 0. );
-    LocalVector seg2DDirection ((float) theAlgoResults.mVar,  0. , 1.  );//don't know if I need to normalize the vector
+    float normalizer = std::sqrt( (float)theAlgoResults.mVar * (float)theAlgoResults.mVar + 1);
+    LocalVector seg2DDirection (-(float) theAlgoResults.mVar / normalizer,  0. , -1. / normalizer  );
     AlgebraicSymMatrix seg2DCovMatrix;
     double chi2 = theAlgoResults.chi2Var;
     std::vector<DTRecHit1D> hits1D;
     for(unsigned int i = 0; i < theAlgoResults.lambdas.size(); i++){
-      if(theAlgoResults.lambdas[i]%2)
-	hits1D.push_back( * pairPointers[(theAlgoResults.lambdas[i] - 1)/2]->componentRecHit(DTEnums::Right));
-      else hits1D.push_back(* pairPointers[theAlgoResults.lambdas[i]/2]->componentRecHit(DTEnums::Left));
+      if(theAlgoResults.lambdas[i] == 0){
+	if (i%2 == 0)
+	  hits1D.push_back(*pairPointers[i/2]->componentRecHit(DTEnums::Left));
+	else 
+	  hits1D.push_back(*pairPointers[(i-1)/2]->componentRecHit(DTEnums::Right));
+      }
     }
     DTSLRecSegment2D * SLPointer = NULL;
     DTChamberRecSegment2D * chamberPointer = NULL;
@@ -147,6 +161,13 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const std::vector<DTRe
     if (sl_chamber == ReconstructInChamber)
       theUpdator->update(chamberPointer); 
     std::cout << "2D segment update, adding it to the result vector" << std::endl;
+
+    /*DEBUGGING*/
+    /* if (std::atan(SLPointer->localDirection().x()/SLPointer->localDirection().z() > 1.9) ) std::cout
+										  << "###############################"
+										  << std::endl << "Found wrong segment"
+										  << std::endl;*/
+				    
     
     /*I add it to the result vector.*/
     if (sl_chamber == ReconstructInSL)
@@ -171,6 +192,7 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const std::vector<DTRe
   //to disable the gnuplot macros production, just comment these two lines
   //printGnuplot((edm::OwnVector<DTSLRecSegment2D>*)theResults, pairs);
   // event_counter++;
+  std::cout <<  sl->id() << " reconstructed " << counter << " segments" << std::endl;
   return theResults;
 }
 
@@ -203,7 +225,7 @@ void DTLPPatternReco::populateCoordinatesLists(std::list<double>& pz, std::list<
     pex.push_back( (double)std::sqrt(theRecHitPair.first -> localPositionError().xx()));
     pz.push_back( thePosition.z() );
     px.push_back( thePosition.x() );
-    std::cout << pz.back() << " " <<  px.back() << " "<< pex.back() << std::endl;
+    if (debug) std::cout << pz.back() << " " <<  px.back() << " "<< pex.back() << std::endl;
     
     //and right hit
     if(sl_chamber == ReconstructInSL) 
@@ -213,7 +235,7 @@ void DTLPPatternReco::populateCoordinatesLists(std::list<double>& pz, std::list<
     pex.push_back( (double)std::sqrt(theRecHitPair.second-> localPositionError().xx()));
     pz.push_back( thePosition.z() );
     px.push_back( thePosition.x() );
-    std::cout << pz.back() << " " <<  px.back() << " "<< pex.back() << std::endl;
+    if (debug) std::cout << pz.back() << " " <<  px.back() << " "<< pex.back() << std::endl;
   }
 std::cout << "DTLPPatternReco:: : px, pz and pex lists populated " << std::endl;
 }
@@ -229,16 +251,44 @@ void DTLPPatternReco::removeUsedHits(const ResultLPAlgo& theAlgoResults,
   
   std::vector<const DTRecHit1DPair*> temp;  
   for(unsigned int i =0; i !=  pairsPointers.size(); ++i){
-    std::cout << "RemoveUsedHits: Iterating on the " << i << "pair on the pointer vector." <<std::endl;
+    if(debug)std::cout << "RemoveUsedHits: Iterating on the " << i << "pair on the pointer vector." <<std::endl;
     if( theAlgoResults.lambdas[i*2] == 1 &&  theAlgoResults.lambdas[i*2 + 1] == 1 ) temp.push_back(pairsPointers[i]);
     else std::cout << "not copied a pair" << std::endl;
-    std::cout << "We have lambdas: " << theAlgoResults.lambdas[i*2] << " and "
+    if(debug)std::cout << "We have lambdas: " << theAlgoResults.lambdas[i*2] << " and "
 	      << theAlgoResults.lambdas[i*2 + 1] << std::endl;
   }
   pairsPointers = temp;
 }
 	
-    
+void DTLPPatternReco::findAngleConstraints(double & m_min, double & m_max,
+					   const  DTSuperLayer * sl, const DTChamber * chamber,
+					   ReconstructInSLOrChamber sl_chamber){
+  
+  if (sl_chamber == ReconstructInSL){
+    GlobalPoint superLayerPosition = sl->position();//globalpoint and localpoint differ only by a tag
+    if(sl->id().superLayer() == 2){
+      /*We are in a theta SL: compute the tangent of angle at its
+      start and end: the chamber is 260 cm long in z direction */      
+      float firstTan =(std::abs(superLayerPosition.z()) + 150. )/std::sqrt(superLayerPosition.x() * superLayerPosition.x() +
+								      superLayerPosition.y() * superLayerPosition.y());
+      float secondTan =(std::abs(superLayerPosition.z()) - 150.)/std::sqrt( superLayerPosition.x() * superLayerPosition.x() +
+								      superLayerPosition.y() * superLayerPosition.y());
+      m_max = firstTan;
+      m_min = secondTan;
+ 
+      //std::cout << "M min: " << m_min << " M max: " << m_max << std::endl;
+    }
+
+    else if(sl->id().superLayer() == 1 || sl->id().superLayer() == 3 ){
+      m_min = -1.6;//-1 rad
+      m_max =  1.6;// 1 rad 
+    }
+  }	
+  else {     //FIXME placeholder for the 4D (phi supersegment) code
+    m_min = -1.6;//-1 rad
+    m_max =  1.6;// 1 rad 
+  }
+}  
 
 void DTLPPatternReco::printGnuplot( edm::OwnVector<DTSLRecSegment2D> * theResults, const std::vector<DTRecHit1DPair>& pairs)
 {

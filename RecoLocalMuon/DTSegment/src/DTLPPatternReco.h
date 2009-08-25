@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/14 14:15:52 $
- * $Revision: 1.2 $
+ * $Date: 2009/08/20 15:27:38 $
+ * $Revision: 1.3 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -93,10 +93,15 @@ private:
   void removeUsedHits(const ResultLPAlgo& theAlgoResults,
 		      std::vector<const DTRecHit1DPair*>& pairPointersx);
 
+  void findAngleConstraints(double & m_min, double & m_max,
+					     const  DTSuperLayer * sl, const DTChamber * chamber,
+					     ReconstructInSLOrChamber sl_chamber);
+
   edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
   double theDeltaFactor, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM, theMaxAlphaTheta, theMaxAlphaPhi;
   int event_counter;
   DTSegmentUpdator * theUpdator;//the updator which updates the segments once they're reconstructed
+  bool debug;
 
  void  printGnuplot(edm::OwnVector<DTSLRecSegment2D> * theResults, const std::vector<DTRecHit1DPair>& pairs);
 };

@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/18 11:41:52 $
- * $Revision: 1.2 $
+ * $Date: 2009/08/20 15:27:38 $
+ * $Revision: 1.1 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -41,7 +41,10 @@ bool lpAlgorithm(DTLPPatternReco::ResultLPAlgo& theAlgoResults,
     //setting a minimization problem
     glp_set_obj_dir(lp, GLP_MIN);
     
-    std::cout << "Problem Created, n_points = " << pz.size()<< " "  << px.size() << " "  << pex.size() << std::endl;	
+    std::cout << "Problem Created, n_points = " << pz.size()<< " "  << px.size() << " "  << pex.size() << std::endl <<
+      "m_min= " << m_min <<  " m_max= " << m_max << " q_min= " << q_min <<  " q_max= " << q_max << std::endl <<
+      "big_m= " << BIG_M << " delta_fact = " << theDeltaFactor << std::endl;
+    
 
     /*******************COLUMNS DEFINITION********************************
     *                                                                    */ 
@@ -175,6 +178,7 @@ bool lpAlgorithm(DTLPPatternReco::ResultLPAlgo& theAlgoResults,
     glp_init_smcp(&parm1);
     parm.msg_lev = GLP_MSG_ALL; 
     parm1.msg_lev = GLP_MSG_ALL;
+    //parm1.it_lim = 1000;
     //if(!glp_simplex(lp, &parm1)) return false;
     glp_simplex(lp, &parm1);
     std::cout << "simplex returned" <<std::endl;
