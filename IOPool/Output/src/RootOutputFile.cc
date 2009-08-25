@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
