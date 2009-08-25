@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PFCandProducer.ParticleSelectors.pfAllElectrons_cfi  import *
 from PhysicsTools.PFCandProducer.ParticleSelectors.pfElectronsPtGt5_cfi import *
 from PhysicsTools.PFCandProducer.Isolation.pfElectronIsolation_cff import *
-from PhysicsTools.PFCandProducer.ParticleSelectors.pfIsolatedElectrons_cfi import *
+from PhysicsTools.PFCandProducer.Isolation.pfIsolatedElectrons_cfi import *
 
 
 

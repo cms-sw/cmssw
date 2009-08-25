@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-pfMuonIsolationFromDepositsPhotons = cms.EDProducer(
+isoValMuonWithCharged = cms.EDProducer(
     "CandIsolatorFromDeposits",
     deposits = cms.VPSet(
     cms.PSet(
-    src = cms.InputTag("isoMuonWithPhotons"),
+    src = cms.InputTag("isoDepMuonWithCharged"),
     deltaR = cms.double(0.5),
     weight = cms.string('1'),
-    vetos = cms.vstring('0.01',
-                        'Threshold(0.0)'),
+    vetos = cms.vstring(),
     skipDefaultVeto = cms.bool(True),
     mode = cms.string('sum')
     )
