@@ -3,6 +3,7 @@
 #include "CondCore/Utilities/interface/CondPyInterface.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondFormats/Common/interface/TimeConversions.h"
 
 
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
@@ -86,11 +87,18 @@ namespace {
     v.push_back(s);
   }
 
+  boost::python::tuple unpackTime(cond::Time_t iValue) {
+    cond::UnpackedTime l = cond::unpack(iValue);
+    return boost::python::make_tuple(l.first,l.second);
+  }
+
 }
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
 
   def("append2VS",&append2VS);
+
+  def("unpackTime",&unpackTime);
 
   class_<cond::LogDBEntry>("LogDBEntry")
     .def("getState",getState)
@@ -142,6 +150,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("payloadContainerName", &cond::IOVProxy::payloadContainerName)
     .def("comment", &cond::IOVProxy::comment)
     .def("revision",&cond::IOVProxy::revision)
+    .def("timestamp",&cond::IOVProxy::timestamp)
     .add_property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
     ;
   

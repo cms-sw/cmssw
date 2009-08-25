@@ -131,6 +131,8 @@ class Iov :
            return self.__me.comment()
        def revision(self):
            return self.__me.revision()
+       def timestamp(self):
+           return  CondDB.unpackTime(self.__me.timestamp())
        def payloadContainerName(self):
            return self.__me.payloadContainerName()
     

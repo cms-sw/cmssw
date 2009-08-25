@@ -107,6 +107,7 @@ namespace cond {
     std::string payloadContainerName() const;
     std::string comment() const;
     int revision() const;
+    cond::Time_t timestamp() const;
 
     SequenceState state() const {
       return SequenceState(iov());

@@ -148,9 +148,14 @@ namespace cond {
     return iov().revision();
   }
 
+  cond::Time_t timestamp() const {
+    return iov().timestamp();
+  }
+
   cond::PoolTransaction & IOVProxy::db() const {
     return m_iov->pooldb();
   }
+
 
 
 }
