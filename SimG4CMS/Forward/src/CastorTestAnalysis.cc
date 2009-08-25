@@ -138,7 +138,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
 
    // Fill-in ntuple
-//  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
+  //  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
   castorsteparray[ntcastors_evt] = (float)eventIndex;
   castorsteparray[ntcastors_trackid] = (float)theTrackID;
   castorsteparray[ntcastors_charge] = theCharge;
@@ -181,7 +181,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
 
 
  
-//fill ntuple with step level information
+  //fill ntuple with step level information
   castorstepntuple->Fill(castorsteparray);
   }
 }
@@ -198,30 +198,30 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
   
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
   
-//  int CAPLid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTPL");
-//  int CABUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTBU");
-//  int CATUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTTU");
+  //  int CAPLid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTPL");
+  //  int CABUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTBU");
+  //  int CATUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTTU");
     
   CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
-//  CaloG4HitCollection* theCAPL = (CaloG4HitCollection*) allHC->GetHC(CAPLid);
-//  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
-//  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
-
+  //  CaloG4HitCollection* theCAPL = (CaloG4HitCollection*) allHC->GetHC(CAPLid);
+  //  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
+  //  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
+  
   CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
   unsigned int volumeID=0;
   std::map<int,float,std::less<int> > themap;
   double en_in_fi = 0.;
   float totalEnergy = 0;
-//  double en_in_pl = 0.;
-//  double en_in_bu = 0.;
-//  double en_in_tu = 0.;
+  //  double en_in_pl = 0.;
+  //  double en_in_bu = 0.;
+  //  double en_in_tu = 0.;
 
   int nentries = theCAFI->entries();
   
   if (doNTcastorevent) {
     if (nentries > 0) {
-     for (int ihit = 0; ihit < nentries; ihit++) {
+      for (int ihit = 0; ihit < nentries; ihit++) {
 	CaloG4Hit* aHit = (*theCAFI)[ihit];
 	totalEnergy += aHit->getEnergyDeposit();
       }
@@ -231,83 +231,80 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 	volumeID = aHit->getUnitID();
 	double hitEnergy = aHit->getEnergyDeposit();
 	en_in_fi += aHit->getEnergyDeposit();
-//	double enEm = aHit->getEM();
-//	double enHad = aHit->getHadr();
+	//	double enEm = aHit->getEM();
+	//	double enHad = aHit->getHadr();
 	
 	// TPM: this doesn't compile for me
 	//math::XYZPoint hitPoint = aHit->getEntry();
 
 	themap[volumeID] += aHit->getEnergyDeposit();
+	theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
 
-    //    theCastorNumScheme->unpackIndex(volumeID, det, zside, sector,zmodule);
+	//    int index = CaloNumberingPacker::packCastorIndex(det,zside,sector,zmodule);
+	//     float theTotalEnergy = themap[index];
 
-theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
+	castoreventarray[ntcastore_evt] = (float)eventIndex;
+	castoreventarray[ntcastore_ihit] = (float)ihit;
+	castoreventarray[ntcastore_detector] = (float)det;
+	castoreventarray[ntcastore_sector] = (float)sector;
+	castoreventarray[ntcastore_module] = (float)zmodule;
+	castoreventarray[ntcastore_enem] = en_in_fi;
+	castoreventarray[ntcastore_enhad] = totalEnergy;
+	castoreventarray[ntcastore_hitenergy] = hitEnergy;
+	castoreventarray[ntcastore_x] = aHit->getEntry().x();
+	castoreventarray[ntcastore_y] = aHit->getEntry().y();
+	castoreventarray[ntcastore_z] = aHit->getEntry().z();
 
-//    int index = CaloNumberingPacker::packCastorIndex(det,zside,sector,zmodule);
-//     float theTotalEnergy = themap[index];
-
-      castoreventarray[ntcastore_evt] = (float)eventIndex;
-      castoreventarray[ntcastore_ihit] = (float)ihit;
-      castoreventarray[ntcastore_detector] = (float)det;
-      castoreventarray[ntcastore_sector] = (float)sector;
-      castoreventarray[ntcastore_module] = (float)zmodule;
-      castoreventarray[ntcastore_enem] = en_in_fi;
-      castoreventarray[ntcastore_enhad] = totalEnergy;
-      castoreventarray[ntcastore_hitenergy] = hitEnergy;
-      castoreventarray[ntcastore_x] = aHit->getEntry().x();
-      castoreventarray[ntcastore_y] = aHit->getEntry().y();
-      castoreventarray[ntcastore_z] = aHit->getEntry().z();
-
-      castoreventntuple->Fill(castoreventarray);
-    }
-
-// Find Primary info:
-    int trackID = 0;
-    int particleType = 0;
-    G4PrimaryParticle* thePrim=0;
-    G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
-    std::cout << "Event has " << nvertex << " vertex" << std::endl;   
-    if (nvertex==0)
-      std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
-
-    for (int i = 0 ; i<nvertex; i++) {
-	
-      G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-      if (avertex == 0) 
-	std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
-      std::cout << "Vertex number :" <<i << std::endl;
-      int npart = avertex->GetNumberOfParticle();
-      if (npart ==0)
-	std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
-      if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
-    }
-    
-    double px=0.,py=0.,pz=0.;
-    double eta = 0., phi = 0., pInit = 0.;
-    
-    if (thePrim != 0) {
-      px = thePrim->GetPx();
-      py = thePrim->GetPy();
-      pz = thePrim->GetPz();
-      pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
-      if (pInit==0) {
-	std::cout << "CASTORTest End Of Event  ERR: primary has p=0 " << std::endl;
-      } else {   
-	float costheta = pz/pInit;
-	float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
-	eta = -log(tan(theta/2));
-
-	if (px != 0) phi = atan(py/px);  
+	castoreventntuple->Fill(castoreventarray);
       }
-      particleType	= thePrim->GetPDGcode();
-    } else {
-      std::cout << "CASTORTest End Of Event ERR: could not find primary "
-		<< std::endl;
-    }
+
+      // Find Primary info:
+      int trackID = 0;
+      int particleType = 0;
+      G4PrimaryParticle* thePrim=0;
+      G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
+      std::cout << "Event has " << nvertex << " vertex" << std::endl;   
+      if (nvertex==0)
+	std::cout << "CASTORTest End Of Event  ERROR: no vertex" << std::endl;
+
+      for (int i = 0 ; i<nvertex; i++) {
+	
+	G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
+	if (avertex == 0) 
+	  std::cout << "CASTORTest End Of Event ERR: pointer to vertex = 0" << std::endl;
+	std::cout << "Vertex number :" <<i << std::endl;
+	int npart = avertex->GetNumberOfParticle();
+	if (npart ==0)
+	  std::cout << "CASTORTest End Of Event ERR: no primary!" << std::endl;
+	if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
+      }
+    
+      double px=0.,py=0.,pz=0.;
+      double eta = 0., phi = 0., pInit = 0.;
+    
+      if (thePrim != 0) {
+	px = thePrim->GetPx();
+	py = thePrim->GetPy();
+	pz = thePrim->GetPz();
+	pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
+	if (pInit==0) {
+	  std::cout << "CASTORTest End Of Event  ERR: primary has p=0 " << std::endl;
+	} else {   
+	  float costheta = pz/pInit;
+	  float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
+	  eta = -log(tan(theta/2));
+
+	  if (px != 0) phi = atan(py/px);  
+	}
+	particleType	= thePrim->GetPDGcode();
+      } else {
+	std::cout << "CASTORTest End Of Event ERR: could not find primary "
+		  << std::endl;
+      }
     
     
-  } // nentries > 0
-}
+    } // nentries > 0
+  }
 
   int iEvt = (*evt)()->GetEventID();
   if (iEvt < 10) 

@@ -764,7 +764,8 @@ void BscTest::update(const EndOfEvent * evt) {
 
 	int zside, sector;
 	BscNumberingScheme::unpackBscIndex(unitID);
-    zside = (unitID&32)>>5;
+	zside  = (unitID&32)>>5;
+	sector = (unitID&7);
 
 	//
 	//=======================================

@@ -146,7 +146,7 @@ unsigned ZdcNumberingScheme::packZdcIndex(int section, int layer, int fiber,
 void ZdcNumberingScheme::unpackZdcIndex(const unsigned int& idx, int& section,
 					int& layer, int& fiber,
 					int& channel, int& z) {
-  z = 1 + (idx>>20)&1;
+  z = 1 + ((idx>>20)&1);
   channel = (idx>>17)&7;
   fiber = (idx>>9)&255;
   layer = (idx>>2)&127;
