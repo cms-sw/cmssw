@@ -1,5 +1,5 @@
 #include "DQMServices/Diagnostic/interface/HDQMInspector.h"
-#include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
+#include "DQM/SiPixelHistoricInfoClient/interface/HDQMInspectorConfigSiPixel.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryTrendsConfig.h"
 #include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
 #include <string>
