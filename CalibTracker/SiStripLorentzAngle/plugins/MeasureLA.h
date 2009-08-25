@@ -20,10 +20,10 @@ class MeasureLA : public edm::ESProducer {
  private:
 
   std::vector<std::string> inputFiles;
-  std::string outputHistograms;
+  std::string inFileLocation;
   bool byLayer,byModule;
   float chi2ndof_cut;
-  unsigned nEntries_cut;
+  unsigned maxEvents,nEntries_cut;
   edm::FileInPath fp_;
   Book book;
 

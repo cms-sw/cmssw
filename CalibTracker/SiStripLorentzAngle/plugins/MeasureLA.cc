@@ -6,19 +6,20 @@
 namespace sistrip {
 
 MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
-  inputFiles( conf.getParameter<std::vector<std::string> >("inputFiles") ),
-  outputHistograms( conf.getParameter<std::string>("OutputHistograms")),
-  byLayer( conf.getParameter<bool>("byLayer")),
-  byModule( conf.getParameter<bool>("byModule")),
+  inputFiles( conf.getParameter<std::vector<std::string> >("InputFiles") ),
+  inFileLocation( conf.getParameter<std::string>("InFileLocation")),
+  byLayer( conf.getParameter<bool>("ByLayer")),
+  byModule( conf.getParameter<bool>("ByModule")),
   chi2ndof_cut( conf.getParameter<double>("Chi2NDOF_cut") ),
+  maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0)),
   nEntries_cut( conf.getParameter<unsigned>("NEntries_cut") ),
   fp_(conf.getParameter<edm::FileInPath>("SiStripDetInfo") )
 {
-  TChain* chain = new TChain("la_chain");
-  BOOST_FOREACH(std::string file, inputFiles) chain->Add((file+"/calibTree/tree").c_str());
+  TChain* chain = new TChain("la_ensemble"); 
+  BOOST_FOREACH(std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
   
   int method = LA_Filler_Fitter::RATIO|LA_Filler_Fitter::WIDTH|LA_Filler_Fitter::SQRTVAR;
-  LA_Filler_Fitter laff(method, true, byModule);
+  LA_Filler_Fitter laff(method, byLayer, byModule);
   laff.fill(chain, book);
   LA_Filler_Fitter::fit(book);
   

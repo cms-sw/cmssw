@@ -18,8 +18,8 @@ EnsembleCalibrationLA::EnsembleCalibrationLA(const edm::ParameterSet& conf) :
   nbins( conf.getParameter<unsigned>("NBins")),
   lowBin( conf.getParameter<double>("LowBin")),
   highBin( conf.getParameter<double>("HighBin")),
-  useWIDTH( conf.getUntrackedParameter<bool>("useRATIO",true)),
-  useRATIO( conf.getUntrackedParameter<bool>("useWIDTH",true)),
+  useWIDTH( conf.getUntrackedParameter<bool>("useWIDTH",true)),
+  useRATIO( conf.getUntrackedParameter<bool>("useRATIO",true)),
   useSQRTVAR( conf.getUntrackedParameter<bool>("useSQRTVAR",true))
 {std::cout << conf << std::endl;}
 
