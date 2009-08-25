@@ -2,7 +2,7 @@
 
 # ConfDB configurations to use
 MASTER="/dev/CMSSW_3_3_0/pre1/HLT"          # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_2_4/pre1/\$TABLE"      # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_3_0/pre1/\$TABLE"      # no explicit version, take te most recent 
 TABLES="8E29 1E31 GRun HIon"                # $TABLE in the above variable will be expanded to these TABLES
 
 # getHLT.py
