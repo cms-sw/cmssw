@@ -27,16 +27,16 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
       int fedID=FedsInIds[fedItr];     
 
-      if(fedID>=PixelRange.first   &  fedID<=PixelRange.second)    ++FedCount[Pixel]  ;
-      if(fedID>=TrackerRange.first &  fedID<=TrackerRange.second)  ++FedCount[SiStrip];
-      if(fedID>=CSCRange.first     &  fedID<=CSCRange.second)      ++FedCount[CSC]    ;
-      if(fedID>=RPCRange.first     &  fedID<=RPCRange.second)      ++FedCount[RPC]    ;
-      if(fedID>=DTRange.first      &  fedID<=DTRange.second)       ++FedCount[DT]     ;
-      if(fedID>=HcalRange.first    &  fedID<=HcalRange.second)     ++FedCount[Hcal]	;       
-      if(fedID>=ECALBarrRange.first    &  fedID<=ECALBarrRange.second)     ++FedCount[EcalBarrel]   ;      
-      if((fedID>=ECALEndcapRangeLow.first & fedID<=ECALEndcapRangeLow.second)
-	 ||(fedID>=ECALEndcapRangeHigh.first & fedID<=ECALEndcapRangeHigh.second)) ++FedCount[EcalEndcap]   ;
-      if(fedID>=L1TRange.first    &  fedID<=L1TRange.second)     ++FedCount[L1T]   ;
+      if(fedID>=PixelRange.first             &&  fedID<=PixelRange.second)        ++FedCount[Pixel];
+      if(fedID>=TrackerRange.first           &&  fedID<=TrackerRange.second)      ++FedCount[SiStrip];
+      if(fedID>=CSCRange.first               &&  fedID<=CSCRange.second)          ++FedCount[CSC];
+      if(fedID>=RPCRange.first               &&  fedID<=RPCRange.second)          ++FedCount[RPC];
+      if(fedID>=DTRange.first                &&  fedID<=DTRange.second)           ++FedCount[DT];
+      if(fedID>=HcalRange.first              &&  fedID<=HcalRange.second)         ++FedCount[Hcal];       
+      if(fedID>=ECALBarrRange.first          &&  fedID<=ECALBarrRange.second)     ++FedCount[EcalBarrel];      
+      if((fedID>=ECALEndcapRangeLow.first    && fedID<=ECALEndcapRangeLow.second) ||
+	 (fedID>=ECALEndcapRangeHigh.first && fedID<=ECALEndcapRangeHigh.second)) ++FedCount[EcalEndcap];
+      if(fedID>=L1TRange.first               &&  fedID<=L1TRange.second)          ++FedCount[L1T];
     
     }   
     
