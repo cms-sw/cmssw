@@ -23,7 +23,8 @@ duplicateCheckMode = cms.untracked.string("checkEachFile"),
     debugFlag = cms.untracked.bool(True),
     debugVebosity = cms.untracked.uint32(100),
  fileNames = cms.untracked.vstring(
-'rfio:/castor/cern.ch/user/o/ochesanu/CMSSW_310_pre6/pions/output_300_50.00_50.01_1.pool.root'
+#'rfio:/castor/cern.ch/user/o/ochesanu/CMSSW_310_pre6/pions/output_300_50.00_50.01_1.pool.root'
+'file:/afs/cern.ch/user/o/ochesanu/scratch0/CMSSW_3_2_5/src/SimG4CMS/Forward/python/test/sim_pion.root'
 )
 )
 
@@ -84,6 +85,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('digiout_pions50.root')
 )
 
-process.p = cms.Path(process.mix*process.simCastorDigis*process.castorreco)
+process.p = cms.Path(process.mix*process.simCastorDigis)
+#*process.castorreco)
 process.outpath = cms.EndPath(process.o1)
 
