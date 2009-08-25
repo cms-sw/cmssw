@@ -112,6 +112,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    int nsub = subInputs_.size();
 
    for(size_t isub = 0; isub < nsub; ++isub){
+      if(hydroTag_[isub]) continue;
       fjInputs_.clear();
       fjInputs_ = subInputs_[isub];
       runAlgorithm( iEvent, iSetup );
