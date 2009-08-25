@@ -207,6 +207,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         PEPerGeV        = cms.double(0.25),
         TrackEM         = cms.bool(False),
         UseShowerLibrary= cms.bool(True),
+        UseHFGflash     = cms.bool(False),
         EminLibrary     = cms.double(0.0),
         RefIndex        = cms.double(1.459),
         Lambda1         = cms.double(280.0),
@@ -236,6 +237,11 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ApertureTrapped = cms.double(0.22),
         Gain            = cms.double(0.33),
         CheckSurvive    = cms.bool(False)
+    ),
+    HFGflash = cms.PSet(
+        BField          = cms.untracked.double(3.8),
+        WatcherOn       = cms.untracked.bool(True),
+        GetPlots        = cms.untracked.bool(False)
     ),
     CastorSD = cms.PSet(
         useShowerLibrary               = cms.bool(False),
