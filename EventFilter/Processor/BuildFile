@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/PythonParameterSet>
 <use name=FWCore/Utilities>
 <use name=FWCore/PrescaleService>
 <use name=EventFilter/Utilities>
