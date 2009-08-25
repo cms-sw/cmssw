@@ -13,7 +13,7 @@
 #include <iomanip>
 #include <cstring>
 
-#define NSUPERFRAG_MAX   64
+#define NSUPERFRAG_MAX   80
 #define NFED_MAX       1024
 
 

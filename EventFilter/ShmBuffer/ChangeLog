@@ -1,3 +1,11 @@
+2009-08-25  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-04
+	* src/FUShmRawCell.cc (NSUPERFRAG_MAX): set maximum number of
+	superfragments to 80. It used to be 64, but the actual number of
+	superfragments these days exceeds 64 already. The hard limit is
+	80.
+
 2009-04-30  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-07-03 (V00-07-02 undocumented compat change by elmer)
