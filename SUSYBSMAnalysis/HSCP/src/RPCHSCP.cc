@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo camilo.carrillo AT cern.ch
 //         Created:  Wed Aug  6 17:45:45 CEST 2008
-// $Id: RPCHSCP.cc,v 1.4 2009/08/24 09:20:16 carrillo Exp $
+// $Id: RPCHSCP.cc,v 1.5 2009/08/25 10:17:27 carrillo Exp $
 //
 //
 
@@ -207,14 +207,14 @@ RPCHSCP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
       //if(hscp)betaMyHisto->Fill(beta);
       float pt = partIt->pt();
       //float et = partIt->et();
-      float betaT=pt/e;
+      //float betaT=pt/e;
       //betaTHisto->Fill(betaT);
       //if(count!=0)bxLayerFile<<"\t"<<" eta="<<partIt->eta()<<" beta="<<beta<<"c";
       //if(count!=0)fileMatrix<<" eta="<<partIt->eta()<<" beta="<<beta<<"c Event "<<iEvent.id().event()<<"\n";
       //if(fabs(partIt->eta()>1.14))etaout++;
       std::cout<<"\t phimc="<<partIt->phi()<<" etamc="<<partIt->eta()<<"betamc="<<betamc<<" pmc="<<p<<"GeV ptmc="<<pt<<"GeV mmc="<<mmc<<"GeV"<<std::endl;
       
-      int event = iEvent.id().event();
+      //int event = iEvent.id().event();
       float etamc = partIt->eta();
       float phimc = partIt->phi();
       
