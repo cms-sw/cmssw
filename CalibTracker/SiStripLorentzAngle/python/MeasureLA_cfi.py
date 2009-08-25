@@ -11,11 +11,12 @@ SiStripLorentzAngleRcdSource = cms.ESSource( "EmptyESSource",
 MeasurementLA = cms.ESProducer(
     "sistrip::MeasureLA",
     InputFiles = cms.vstring([]),
-    InFileLocaltion = cms.string('/calibrationTree/tree'),
+    InFileLocation = cms.string('/calibrationTree/tree'),
+    SiStripDetInfo = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
     #MaxEvents = cms.untracked.uint32(0),
-    Report = cms.VPSet( LA_Report( METHOD_SQRTVAR, byLayer),
-                        LA_Report( METHOD_RATIO,   byLayer),
-                        LA_Report( METHOD_WIDTH,   byLayer)
+    Report = cms.VPSet( LA_Report( METHOD_SQRTVAR, byLayer, "sqrtvarByLayer"),
+                        LA_Report( METHOD_RATIO,   byLayer, "ratioByLayer"),
+                        LA_Report( METHOD_WIDTH,   byLayer, "widthByLayer")
                         ),
     MeasurementPreference = cms.VPSet(  LA_Measurement( METHOD_SQRTVAR, byModule, 1000, 3.0),
                                         LA_Measurement( METHOD_WIDTH,   byModule, 1000, 3.0),
