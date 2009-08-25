@@ -375,12 +375,15 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   Double_t esum1 = sum1;
   if (difsum1 > difprec && Int_t(ne1) != ncx1)
   {
-    if (h->GetSumw2N() == 0) {
+    if (h->GetSumw2N() == 0)
+    {
       if (verbose_>0) 
         std::cout << "QTest:Comp2RefKolmogorov"
                   << " Weighted events and no Sumw2 for "
 	          << h->GetName() << "\n";
-    } else {
+    }
+    else
+    {
       esum1 = sum1*sum1/w1;  //number of equivalent entries
     }
   }
@@ -389,12 +392,15 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   Double_t esum2   = sum2;
   if (difsum2 > difprec && Int_t(ne2) != ncx1)
   {
-    if (ref_->GetSumw2N() == 0) {
+    if (ref_->GetSumw2N() == 0)
+    {
       if (verbose_>0) 
         std::cout << "QTest:Comp2RefKolmogorov"
                   << " Weighted events and no Sumw2 for "
 	          << ref_->GetName() << "\n";
-    } else {
+    }
+    else
+    {
       esum2 = sum2*sum2/w2;  //number of equivalent entries
     }
   }

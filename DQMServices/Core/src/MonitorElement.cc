@@ -1091,7 +1091,7 @@ MonitorElement::copyFunctions(TH1 *from, TH1 *to)
   {
     TObject *obj = fromf->At(i);
     // not interested in statistics
-    if ( !strcmp(obj->IsA()->GetName(), "TPaveStats") )
+    if (!strcmp(obj->IsA()->GetName(), "TPaveStats"))
       continue;
 
     if(TF1 *fn = dynamic_cast<TF1 *>(obj))
