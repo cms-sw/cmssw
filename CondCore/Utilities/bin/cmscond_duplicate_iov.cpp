@@ -89,7 +89,7 @@ int main( int argc, char** argv ){
     }else
       sourceTag = destTag = vm["tag"].as<std::string>();
 
-    if(!vm.count("destTag"))
+    if(vm.count("destTag"))
       destTag = vm["destTag"].as<std::string>();
 
     
@@ -101,7 +101,7 @@ int main( int argc, char** argv ){
       from = vm["fromTime"].as<cond::Time_t>();
     
     if(!vm.count("sinceTime")){
-      std::cerr <<"[Error] no sinceTime[f] option given \n";
+      std::cerr <<"[Error] no sinceTime[s] option given \n";
       std::cerr<<" please do "<<argv[0]<<" --help \n";
       return 1;
     }else
