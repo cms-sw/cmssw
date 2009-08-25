@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.h
  *
- * $Date: 2008/04/08 15:06:26 $
- * $Revision: 1.7 $
+ * $Date: 2008/04/08 18:32:11 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,6 @@
 class DQMStore;
 
 class MonitorElementsDb;
-class coral::ISessionProxy;
 
 class EcalEndcapMonitorDbModule: public edm::EDAnalyzer{
 

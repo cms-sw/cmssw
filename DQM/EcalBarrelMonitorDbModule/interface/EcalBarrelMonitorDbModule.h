@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2008/04/08 15:06:22 $
- * $Revision: 1.10 $
+ * $Date: 2008/04/08 18:32:10 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,6 @@
 class DQMStore;
 
 class MonitorElementsDb;
-class coral::ISessionProxy;
 
 class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
 
