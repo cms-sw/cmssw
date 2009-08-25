@@ -17,6 +17,8 @@
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondFormats/Common/interface/TimeConversions.h"
+
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 #include "CondCore/Utilities/interface/CommonOptions.h"
@@ -171,7 +173,7 @@ int main( int argc, char** argv ){
 	 std::string payloadContainer=iov.payloadContainerName();
 	 std::cout<<"Tag "<<tag;
 	 if (verbose) std::cout << "\nStamp: " << iov.iov().comment()
-				<< "; time " << iov.iov().timestamp()
+				<< "; time " <<  cond::time::to_boost(iov.iov().timestamp())
 				<< "; revision " << iov.iov().revision();
 	 std::cout <<"\nTimeType " << cond::timeTypeSpecs[iov.timetype()].name
 		   <<"\nPayloadContainerName "<<payloadContainer<<"\n"

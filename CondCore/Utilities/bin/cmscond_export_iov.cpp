@@ -291,7 +291,7 @@ int main( int argc, char** argv ){
 	  stored = mappingUtil.exportMapping(&coralDBd.coralSessionProxy(), payloadContainer);
 	}  catch (std::exception const & e) { 
 	  if(debug)
-	    std::cout<< e.what << std::endl;
+	    std::cout<< e.what() << std::endl;
 	  /* do not throw if already exists */
 	}
 	if(debug)
