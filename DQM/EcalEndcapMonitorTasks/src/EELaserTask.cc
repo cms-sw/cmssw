@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2009/08/03 23:44:23 $
- * $Revision: 1.59 $
+ * $Date: 2009/08/04 10:30:17 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
+#include <DQM/EcalCommon/interface/NumbersPn.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h>
 
@@ -737,12 +738,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  float adcA[18];
-  float adcB[18];
-
-  for ( int i = 0; i < 18; i++ ) {
-    adcA[i] = 0.;
-    adcB[i] = 0.;
+  float adcPN[80];
+  for ( int i = 0; i < 80; i++ ) {
+    adcPN[i] = 0.;
   }
 
   Handle<EcalPnDiodeDigiCollection> pns;
@@ -828,8 +826,9 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
 
-      if ( num == 1 ) adcA[ism-1] = xvalmax;
-      if ( num == 6 ) adcB[ism-1] = xvalmax;
+      int ipn = NumbersPn::ipnEE( ism, num );
+
+      adcPN[ipn] = xvalmax;
 
     }
 
@@ -920,19 +919,10 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       float wval = 0.;
 
-      if ( rtHalf[ism-1] == 0 ) {
+      std::vector<int> PNsInLM = NumbersPn::getPNs( ism, ix, iy );
+      int refPn = PNsInLM[0];
 
-        if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
-
-      } else if ( rtHalf[ism-1] == 1 ) {
-
-        if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
-
-      } else {
-
-        LogWarning("EELaserTask") << " RtHalf = " << rtHalf[ism-1];
-
-      }
+      if ( adcPN[refPn] != 0. ) wval = xval /  adcPN[refPn];
 
       LogDebug("EELaserTask") << " hit amplitude over PN " << wval;
 
