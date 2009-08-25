@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO.cc,v 1.2 2008/12/17 15:44:50 carrillo Exp $
+// $Id: RPCGEO.cc,v 1.3 2009/06/08 09:12:13 carrillo Exp $
 //
 //
 
@@ -295,14 +295,26 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	   bool ok = false;
 
-	   if((rpcId.station()==1&&(rpcId.ring()==2&&seg%2!=0||rpcId.ring()==3)||rpcId.station()==3)
-	      &&orientation*rpcId.region()==1.){
+	   if ( ( ( rpcId.station()==1 
+		    && ( ( rpcId.ring()==2 && seg%2!=0 )
+			 || rpcId.ring()==3 ) )
+		  || rpcId.station()==3 ) 
+		&& orientation*rpcId.region()==1.){
 	     ok=true;
 	   }
-	   if((rpcId.station()==1&&rpcId.ring()==2&&seg%2==0||rpcId.station()==2)
-	      &&orientation*rpcId.region()==-1.){
+	   if ( ( ( rpcId.station()==1 && rpcId.ring()==2 && seg%2==0 ) 
+		  || rpcId.station()==2 )
+		&& orientation*rpcId.region()==-1. ){
 	     ok=true;
 	   }
+// 	   if((rpcId.station()==1&&(rpcId.ring()==2&&seg%2!=0||rpcId.ring()==3)||rpcId.station()==3)
+// 	      &&orientation*rpcId.region()==1.){
+// 	     ok=true;
+// 	   }
+// 	   if((rpcId.station()==1&&rpcId.ring()==2&&seg%2==0||rpcId.station()==2)
+// 	      &&orientation*rpcId.region()==-1.){
+// 	     ok=true;
+// 	   }
 
 	   if(ok) std::cout<<" OK"<<std::endl;
 	   else std::cout<<" WRONG!!!"<<std::endl;

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id: RPCCSC.cc,v 1.2 2009/03/05 00:36:06 carrillo Exp $
+// $Id: RPCCSC.cc,v 1.3 2009/03/09 00:54:28 carrillo Exp $
 //
 //
 
@@ -158,9 +158,9 @@ RPCCSC::beginJob(const edm::EventSetup& iSetup)
 	//std::cout<<"Booking for "<<nameRoll<<std::endl;
 	
 	if(region!=0){
-	  const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
-	  float stripl = topE_->stripLength();
-	  float stripw = topE_->pitch();
+// 	  const TrapezoidalStripTopology* topE_=dynamic_cast<const TrapezoidalStripTopology*>(&((*r)->topology()));
+// 	  float stripl = topE_->stripLength();
+// 	  float stripw = topE_->pitch();
 	  int region=rpcId.region();
           int station=rpcId.station();
           int ring=rpcId.ring();
@@ -240,7 +240,7 @@ RPCCSC::beginJob(const edm::EventSetup& iSetup)
     int cscEndCap = CSCId.endcap();
     int cscStation = CSCId.station();
     int cscRing = CSCId.ring();
-    int cscChamber = CSCId.chamber();
+//     int cscChamber = CSCId.chamber();
     int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
     int rpcRing = cscRing;
     if(cscRing==4)rpcRing =1;

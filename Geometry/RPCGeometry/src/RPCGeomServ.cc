@@ -29,11 +29,12 @@ RPCGeomServ::name()
       {
 	std::stringstream os;
 	os <<"RB"<<_id->station();
-	if (_id->station()<=2)
+	if (_id->station()<=2) {
 	  if (_id->layer()==1)
 	    os<<"in";
 	  else
 	    os<<"out";
+	}
 	//os<<"_";
 	buf += os.str();
       }
