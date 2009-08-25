@@ -161,7 +161,6 @@ namespace edm {
     me() const {return *this;}
 
     typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
-  protected:
 
     Principal& principal() {return principal_;}
     Principal const& principal() const {return principal_;}
@@ -226,7 +225,6 @@ namespace edm {
                                 std::string const& processName,
                                 BasicHandle& result) const;
     
-  protected:
     // Also isolates the DataViewImpl class
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
