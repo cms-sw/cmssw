@@ -239,27 +239,26 @@ int main( int argc, char** argv ){
     
     // find tag in destination
     {
-      try {
-        cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
-        coralDB.start(false);
-	
-	
-        // we need to clean this
-        cond::ObjectRelationalMappingUtility mappingUtil(&(coralDB.coralSessionProxy()) );
-        if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
-          mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
-        }
-        cond::MetaData  metadata(coralDB);
-        if( metadata.hasTag(destTag) ){
-          cond::MetaDataEntry entry;
-          metadata.getEntryByTag(destTag,entry);
-          destiovtoken=entry.iovtoken;
-          if (sourceiovtype!=entry.timetype) {
-            // throw...
-          }
-        }
-        coralDB.commit();
-      } catch(...){ }// throw if no db available...
+      cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
+      coralDB.start(false);
+      
+      
+      // we need to clean this
+      cond::ObjectRelationalMappingUtility mappingUtil(&(coralDB.coralSessionProxy()) );
+      if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
+	mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
+      }
+      
+      cond::MetaData  metadata(coralDB);
+      if( metadata.hasTag(destTag) ){
+	cond::MetaDataEntry entry;
+	metadata.getEntryByTag(destTag,entry);
+	destiovtoken=entry.iovtoken;
+	if (sourceiovtype!=entry.timetype) {
+	  throw std::runtime_error("iov type in source and dest differs"); 
+	}
+      }
+      coralDB.commit();
       if(debug){
         std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
       }
@@ -297,8 +296,10 @@ int main( int argc, char** argv ){
 	coralDBd.commit();
       } catch (std::exception const & e) {
 	std::cout << "Something went wrong with mapping export: " << e.what() << std::endl;
+	throw;
       } catch(...){ 
 	std::cout << "Something went VERY wrong with mapping export" << std::endl;
+	throw;
       } // throw if no db available...
     }
 
