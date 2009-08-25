@@ -16,8 +16,6 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.18 2008/08/22 01:44:37 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -34,7 +32,7 @@ namespace edm {
   class LuminosityBlock
   {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal& lbp, const ModuleDescription& md);
+    LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md);
     ~LuminosityBlock() {}
 
     // AUX functions.
@@ -159,6 +157,51 @@ namespace edm {
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
+  }
+  
+  template <typename PROD>
+  bool 
+  LuminosityBlock::get(SelectorBase const& sel, Handle<PROD>& result) const {
+    return provRecorder_.get(sel,result);
+  }
+  
+  template <typename PROD>
+  bool 
+  LuminosityBlock::getByLabel(std::string const& label, Handle<PROD>& result) const {
+    return provRecorder_.getByLabel(label,result);
+  }
+  
+  template <typename PROD>
+  bool 
+  LuminosityBlock::getByLabel(std::string const& label,
+                  std::string const& productInstanceName, 
+                  Handle<PROD>& result) const {
+    return provRecorder_.getByLabel(label,productInstanceName,result);
+  }
+  
+  /// same as above, but using the InputTag class 	 
+  template <typename PROD> 	 
+  bool 	 
+  LuminosityBlock::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
+    return provRecorder_.getByLabel(tag,result);
+  }
+  
+  template <typename PROD>
+  void 
+  LuminosityBlock::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
+    return provRecorder_.getMany(sel,results);
+  }
+  
+  template <typename PROD>
+  bool
+  LuminosityBlock::getByType(Handle<PROD>& result) const {
+    return provRecorder_.getByType(result);
+  }
+  
+  template <typename PROD>
+  void 
+  LuminosityBlock::getManyByType(std::vector<Handle<PROD> >& results) const {
+    return provRecorder_.getManyByType(results);
   }
   
 }
