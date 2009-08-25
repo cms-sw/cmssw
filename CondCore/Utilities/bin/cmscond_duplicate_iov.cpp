@@ -143,9 +143,6 @@ int main( int argc, char** argv ){
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
   }
   //
-  edmplugin::PluginManager::Config config;
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-
 
   cond::DBSession session;
   std::string userenv(std::string("CORAL_AUTH_USER=")+user);
@@ -221,8 +218,10 @@ int main( int argc, char** argv ){
     
 
     cond::PoolTransaction& destdb=conHandler.getConnection("destdb")->poolTransaction();
+    destdb.start(true);
     cond::IOVService iovmanager(destdb);
     std::string payload = iovmanager.payloadToken(iovtoken,from);
+    destdb.commit();
     if (payload.empty()) {
       std::cerr <<"[Error] no payload found for time " << from << std::endl;
       return 1;
