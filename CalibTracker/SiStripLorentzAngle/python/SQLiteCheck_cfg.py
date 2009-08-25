@@ -26,10 +26,10 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:SiStripLorentzAngle_CalibrationSmear.db'),
+    connect = cms.string('sqlite_file:SiStripLorentzAngle_CalibrationEnsemble.db'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripLorentzAngleRcd'),
-        tag = cms.string('SiStripLorentzAngle_CalibrationSmear_31X')
+        tag = cms.string('SiStripLorentzAngle_CalibrationEnsemble_31X')
     ))
 )
 

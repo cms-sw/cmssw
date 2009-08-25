@@ -25,7 +25,7 @@ process.load("CalibTracker.SiStripESProducers.fake.SiStripLorentzAngleFakeESSour
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripLorentzAngleDummyDBWriter_cfi")
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    connect = cms.string('sqlite_file:SiStripLorentzAngle_CalibrationSmear.db'),
+    connect = cms.string('sqlite_file:SiStripLorentzAngle_CalibrationEnsemble.db'),
     timetype = cms.untracked.string('runnumber'),    
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     DBParameters = cms.PSet(
@@ -35,7 +35,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripLorentzAngleRcd'),
-        tag = cms.string('SiStripLorentzAngle_CalibrationSmear_31X')
+        tag = cms.string('SiStripLorentzAngle_CalibrationEnsemble_31X')
     ))
 )
 
