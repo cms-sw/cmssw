@@ -2,9 +2,6 @@
 
 #include <cassert>
 #include <string>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ParameterSet/interface/parse.h"
 #include <fstream>
 #include <iostream>
 
