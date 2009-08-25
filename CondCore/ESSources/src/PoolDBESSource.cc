@@ -79,6 +79,7 @@ namespace {
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_session(), 
   lastRun(0),  // for the refresh
+  doDump(iConfig.getUntrackedParameter<bool>("DumpStat",false))
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false))
 {
    Stats s = {0,0,0,0,0};
@@ -180,22 +181,22 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 
 
 PoolDBESSource::~PoolDBESSource() {
-
-  std::cout << "PoolDBESSource Statistics" << std::endl
-	    << "Records " << stats.nData
-	    <<" setInterval " << stats.nSet
-	    <<" Runs " << stats.nRun
-	    <<" Refresh " << stats.nRefresh
-	    <<" Actual Refresh " << stats.nActualRefresh;
-  std::cout << std::endl;
-
-   ProxyMap::iterator b= m_proxies.begin();
+  if (doDump) {
+    std::cout << "PoolDBESSource Statistics" << std::endl
+	      << "Records " << stats.nData
+	      <<" setInterval " << stats.nSet
+	      <<" Runs " << stats.nRun
+	      <<" Refresh " << stats.nRefresh
+	      <<" Actual Refresh " << stats.nActualRefresh;
+    std::cout << std::endl;
+    
+    ProxyMap::iterator b= m_proxies.begin();
     ProxyMap::iterator e= m_proxies.end();
     for (;b!=e;b++) {
       dumpInfo(std::cout,(*b).first,*(*b).second);
       std::cout << "\n" << std::endl;
     }
-	
+  }
 }
 
 

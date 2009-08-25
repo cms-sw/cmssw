@@ -69,6 +69,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   };
 
   Stats stats;
+  bool doDump;
 
   int lastRun;
   bool doRefresh;
