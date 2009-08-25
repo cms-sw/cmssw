@@ -191,7 +191,6 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   H2DRecHit3 *histo3 = 0;   
   H2DRecHit4 *histo4 = 0;   
   H2DRecHit5 *histo5 = 0;   
-  TNtuple1 *tt = 0;
  
   // Get sim track information  
   // return  theta_v, theta_p, phi_v, phi_p :  theta and phi of position and momentum 
