@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/Sandbox/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.31 2009/07/14 07:44:58 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.1 2009/08/01 12:10:56 andrey Exp $
 //
 
 // system include files
@@ -560,9 +560,10 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  //if(AxB_=="3x3") numbercell = 1;
 	  //if(AxB_=="5x5") numbercell = 2;
 	  
-	  if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=numbercell+1)) )
+	  if( abs(DIETA)<=numbercell && (abs(DIPHI)<=numbercell || ( abs(MaxHit.ietahitm)>=20 && abs(DIPHI)<=numbercell+1)) )
 	    {
 	            
+	      if (abs(MaxHit.ietahitm==20 && (hhit->id()).ieta())<=20 && abs(DIPHI)>1) continue;
 	      if(passCuts && hhit->energy()>0)
 		{
 		  
