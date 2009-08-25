@@ -16,6 +16,8 @@ public:
 
   virtual void run(MixCollection<PCaloHit> & hits);
 
+  virtual void setRandomEngine(CLHEP::HepRandomEngine & engine);
+
  protected:
 
   virtual CaloSamples makeSiPMSignal(const PCaloHit & inHit, int & integral) const;

@@ -65,6 +65,14 @@ void HcalSiPMHitResponse::run(MixCollection<PCaloHit> & hits) {
   }
 }
 
+
+void HcalSiPMHitResponse::setRandomEngine(CLHEP::HepRandomEngine & engine)
+{
+  theSiPM->initRandomEngine(engine);
+  CaloHitResponse::setRandomEngine(engine);
+}
+
+
 CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit, 
 						int & integral ) const {
   PCaloHit hit = inHit;
