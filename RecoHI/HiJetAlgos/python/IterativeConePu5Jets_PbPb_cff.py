@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.Configuration.CaloTowersRec_cff import *
 
-from RecoJets.JetProducers.CaloJetPileupSubtractionParameters_cfi import *
-from RecoJets.JetProducers.IconeJetParameters_cfi import *
-#from JetMETCorrections.Configuration.MCJetCorrections152_cff import *
+from RecoJets.JetProducers.CaloJetParameters_cfi import *
+from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
 CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilder",
     MapFile = cms.untracked.string('Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz')
@@ -20,12 +19,17 @@ caloTowers = cms.EDFilter("CaloTowerCandidateCreator",
     et = cms.double(0.0)
 )
 
-iterativeConePu5CaloJets = cms.EDProducer("IterativeConePilupSubtractionJetProducer",
-    CaloJetPileupSubtractionParameters,
-    IconeJetParameters,
-    alias = cms.untracked.string('IC5CaloJetPileupSubtraction'),
-    coneRadius = cms.double(0.5)
-)
+iterativeConePu5CaloJets = cms.EDProducer("FastjetJetProducer",
+                                          CaloJetParameters,
+                                          AnomalousCellParameters,
+                                          jetAlgorithm = cms.string("IterativeCone"),
+                                          rParam       = cms.double(0.5),
+                                          )
+
+iterativeConePu5CaloJets.doPUOffsetCorr = True
+iterativeConePu5CaloJets.doPVCorrection = False
+iterativeConePu5CaloJets.jetPtMin = 10
+
 
 # REPLACE with UP-TO-DATE Corrections
 #MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
@@ -43,7 +47,5 @@ iterativeConePu5CaloJets = cms.EDProducer("IterativeConePilupSubtractionJetProdu
 #                                         alias = cms.untracked.string('IC5HiGenJet'),
 #                                         coneRadius = cms.double(0.5)
 #                                         )
-
-CaloJetPileupSubtractionParameters.inputEtJetMin = 10.
 
 runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
