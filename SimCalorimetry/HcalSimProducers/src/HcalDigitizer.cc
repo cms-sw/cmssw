@@ -36,14 +36,14 @@ using namespace std;
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) 
 : theParameterMap(new HcalSimParameterMap(ps)),
-  theHcalShape(new HcalShape()),
+  theHcalShape(0),
   theHFShape(new HFShape()),
   theZDCShape(new ZDCShape()),
-  theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
+  theHcalIntegratedShape(0),
   theHFIntegratedShape(new CaloShapeIntegrator(theHFShape)),
   theZDCIntegratedShape(new CaloShapeIntegrator(theZDCShape)),
-  theHBHEResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),
-  theHOResponse(new CaloHitResponse(theParameterMap, theHcalIntegratedShape)),   
+  theHBHEResponse(0),
+  theHOResponse(0),   
   theHFResponse(new CaloHitResponse(theParameterMap, theHFIntegratedShape)),
   theZDCResponse(new CaloHitResponse(theParameterMap, theZDCIntegratedShape)),
   theHBHEAmplifier(0),
@@ -73,6 +73,27 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   hogeo(true),
   hfgeo(true)
 {
+  std::string photomultiplier(ps.getParameter<std::string>("photomultiplier"));
+  if(photomultiplier == "HPD")
+  {
+    theHcalShape = new HcalShape();
+    theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
+    theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+    theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+  }
+  else if(photomultiplier == "SiPM")
+  {
+    theHcalShape = new HcalShape();
+    theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
+    theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+    theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
+  }
+  else 
+  {
+    throw cms::Exception("HcalDigitizer")
+      << "Bad value for photomultiplier: " << photomultiplier;
+  }
+
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
   theHOResponse->setHitFilter(&theHOHitFilter);
   theHFResponse->setHitFilter(&theHFHitFilter);
