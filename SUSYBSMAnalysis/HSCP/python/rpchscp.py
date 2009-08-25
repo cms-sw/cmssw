@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.rpcHSCP = cms.EDFilter("RPCHSCP",
-    rootFileName = cms.untracked.string('hscp.root'),
+    rootFileName = cms.untracked.string('/tmp/carrillo/hscp.root'),
     fileMatrixname = cms.untracked.string('matrix.txt'),
     partLabel = cms.untracked.string('genParticles')
 )
