@@ -6,19 +6,19 @@
 namespace edm {
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
-	DataViewImpl(lbp, md),
+	provRecorder_(lbp, md),
 	aux_(lbp.aux()),
 	run_(lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0) {
   }
 
   LuminosityBlockPrincipal &
   LuminosityBlock::luminosityBlockPrincipal() {
-    return dynamic_cast<LuminosityBlockPrincipal &>(principal());
+    return dynamic_cast<LuminosityBlockPrincipal &>(provRecorder_.principal());
   }
 
   LuminosityBlockPrincipal const &
   LuminosityBlock::luminosityBlockPrincipal() const {
-    return dynamic_cast<LuminosityBlockPrincipal const&>(principal());
+    return dynamic_cast<LuminosityBlockPrincipal const&>(provRecorder_.principal());
   }
 
   Provenance
@@ -38,8 +38,8 @@ namespace edm {
   LuminosityBlock::commit_() {
     // fill in guts of provenance here
     LuminosityBlockPrincipal & lbp = luminosityBlockPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
+    DataViewImpl::ProductPtrVec::iterator pit(provRecorder_.putProducts().begin());
+    DataViewImpl::ProductPtrVec::iterator pie(provRecorder_.putProducts().end());
 
     while(pit!=pie) {
 	// set provenance
@@ -51,7 +51,12 @@ namespace edm {
     }
 
     // the cleanup is all or none
-    putProducts().clear();
+    provRecorder_.putProducts().clear();
   }
 
+  ProcessHistory const&
+  LuminosityBlock::processHistory() const {
+    return provRecorder_.processHistory();
+  }
+  
 }

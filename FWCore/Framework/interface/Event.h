@@ -70,9 +70,8 @@ namespace edm {
   };
 
 
-  class Event : private DataViewImpl {
+  class Event {
   public:
-    typedef DataViewImpl Base;
     Event(EventPrincipal& ep, ModuleDescription const& md);
     ~Event(){}
 
@@ -86,15 +85,6 @@ namespace edm {
     int bunchCrossing() const {return aux_.bunchCrossing();}
     int orbitNumber() const {return aux_.orbitNumber();}
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
-
-    using Base::get;
-    using Base::getByLabel;
-    using Base::getByType;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::me;
-    using Base::processHistory;
-    using Base::size;
 
     LuminosityBlock const&
     getLuminosityBlock() const {
@@ -210,6 +200,11 @@ namespace edm {
     getProcessParameterSet(std::string const& processName,
 			   ParameterSet& ps) const;
 
+    ProcessHistory const&
+    processHistory() const;
+
+    size_t size() const;
+
   private:
     EventPrincipal const&
     eventPrincipal() const;
@@ -232,11 +227,13 @@ namespace edm {
     friend class EDProducer;
 
      void commit_(std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
-    void commit_aux(Base::ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
+    void commit_aux(DataViewImpl::ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
 
     BasicHandle 
     getByProductID_(ProductID const& oid) const;
 
+     
+    DataViewImpl provRecorder_;
     EventAuxiliary const& aux_;
     boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
 
@@ -306,15 +303,15 @@ namespace edm {
     maybe_inserter(product.get());
 
     ConstBranchDescription const& desc =
-      getBranchDescription(TypeID(*product), productInstanceName);
+      provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD>* wp(new Wrapper<PROD>(product));
 
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
       RecordInParentless<PROD>,
       RecordInParentfull<PROD> >::type parentage_recorder;
-    parentage_recorder.do_it(putProducts(),
-			     putProductsWithoutParents(),
+    parentage_recorder.do_it(provRecorder_.putProducts(),
+			     provRecorder_.putProductsWithoutParents(),
 			     wp,
 			     &desc);
 
@@ -331,10 +328,10 @@ namespace edm {
   Event::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
     ConstBranchDescription const& desc =
-      getBranchDescription(TypeID(*p), productInstanceName);
+      provRecorder_.getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(makeProductID(desc), prodGetter());
+    return RefProd<PROD>(makeProductID(desc), provRecorder_.prodGetter());
   }
 
   template <typename PROD>
@@ -342,7 +339,7 @@ namespace edm {
   Event::get(SelectorBase const& sel,
 		    Handle<PROD>& result) const
   {
-    bool ok = this->Base::get(sel, result);
+    bool ok = provRecorder_.get(sel, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
@@ -353,7 +350,7 @@ namespace edm {
   bool
   Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
-    bool ok = this->Base::getByLabel(tag, result);
+    bool ok = provRecorder_.getByLabel(tag, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
@@ -364,7 +361,7 @@ namespace edm {
   bool
   Event::getByLabel(std::string const& label, Handle<PROD>& result) const
   {
-    bool ok = this->Base::getByLabel(label, result);
+    bool ok = provRecorder_.getByLabel(label, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
@@ -377,7 +374,7 @@ namespace edm {
 			   std::string const& productInstanceName,
 			   Handle<PROD>& result) const
   {
-    bool ok = this->Base::getByLabel(label, productInstanceName, result);
+    bool ok = provRecorder_.getByLabel(label, productInstanceName, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
@@ -389,7 +386,7 @@ namespace edm {
   Event::getMany(SelectorBase const& sel,
 			std::vector<Handle<PROD> >& results) const
   { 
-    this->Base::getMany(sel, results);
+    provRecorder_.getMany(sel, results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
@@ -400,7 +397,7 @@ namespace edm {
   bool
   Event::getByType(Handle<PROD>& result) const
   {
-    bool ok = this->Base::getByType(result);
+    bool ok = provRecorder_.getByType(result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
@@ -411,7 +408,7 @@ namespace edm {
   void 
   Event::getManyByType(std::vector<Handle<PROD> >& results) const
   { 
-    this->Base::getManyByType(results);
+    provRecorder_.getManyByType(results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
@@ -437,10 +434,10 @@ namespace edm {
     TypeID typeID(typeid(ELEMENT));
 
     BasicHandle bh;
-    int nFound = getMatchingSequenceByLabel_(typeID,
-                                             moduleLabel,
-                                             productInstanceName,
-                                             bh);
+    int nFound = provRecorder_.getMatchingSequenceByLabel_(typeID,
+                                                           moduleLabel,
+                                                           productInstanceName,
+                                                           bh);
 
     if (nFound == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
@@ -476,11 +473,11 @@ namespace edm {
       TypeID typeID(typeid(ELEMENT));
       
       BasicHandle bh;
-      int nFound = getMatchingSequenceByLabel_(typeID,
-                                               tag.label(),
-                                               tag.instance(),
-                                               tag.process(),
-                                               bh);
+      int nFound = provRecorder_.getMatchingSequenceByLabel_(typeID,
+                                                             tag.label(),
+                                                             tag.instance(),
+                                                             tag.process(),
+                                                             bh);
       
       if (nFound == 0) {
         boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );

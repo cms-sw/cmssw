@@ -9,7 +9,7 @@
 namespace edm {
 
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-	DataViewImpl(ep, md),
+	provRecorder_(ep, md),
 	aux_(ep.aux()),
         luminosityBlock_(ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
 	gotBranchIDs_(),
@@ -18,12 +18,12 @@ namespace edm {
 
     EventPrincipal &
     Event::eventPrincipal() {
-      return dynamic_cast<EventPrincipal &>(principal());
+      return dynamic_cast<EventPrincipal &>(provRecorder_.principal());
     }
 
     EventPrincipal const &
     Event::eventPrincipal() const {
-      return dynamic_cast<EventPrincipal const&>(principal());
+      return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
     }
 
     ProductID
@@ -57,7 +57,7 @@ namespace edm {
 
   Provenance
   Event::getProvenance(BranchID const& bid) const {
-    return principal().getProvenance(bid);
+    return provRecorder_.principal().getProvenance(bid);
   }
 
   Provenance
@@ -67,7 +67,7 @@ namespace edm {
 
   void
   Event::getAllProvenance(std::vector<Provenance const*> & provenances) const {
-    principal().getAllProvenance(provenances);
+    provRecorder_.principal().getAllProvenance(provenances);
   }
 
   bool
@@ -101,18 +101,18 @@ namespace edm {
 
   void
   Event::commit_(std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
-    commit_aux(putProducts(), true,previousParentage,previousParentageId);
-    commit_aux(putProductsWithoutParents(), false);
+    commit_aux(provRecorder_.putProducts(), true,previousParentage,previousParentageId);
+    commit_aux(provRecorder_.putProductsWithoutParents(), false);
   }
 
   void
-  Event::commit_aux(Base::ProductPtrVec& products, bool record_parents,
+  Event::commit_aux(DataViewImpl::ProductPtrVec& products, bool record_parents,
                     std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
     EventPrincipal & ep = eventPrincipal();
 
-    ProductPtrVec::iterator pit(products.begin());
-    ProductPtrVec::iterator pie(products.end());
+    DataViewImpl::ProductPtrVec::iterator pit(products.begin());
+    DataViewImpl::ProductPtrVec::iterator pie(products.end());
 
     std::vector<BranchID> gotBranchIDVector;
 
@@ -180,4 +180,14 @@ namespace edm {
     gotBranchIDs_.insert(prov.branchID());
   }
 
+  ProcessHistory const&
+  Event::processHistory() const {
+    return provRecorder_.processHistory();
+  }
+  
+  size_t 
+  Event::size() const {
+    return provRecorder_.size();
+  }
+  
 }

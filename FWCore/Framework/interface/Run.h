@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.14 2008/08/14 17:47:15 paterno Exp $
+$Id: Run.h,v 1.15 2008/08/22 01:44:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ $Id: Run.h,v 1.14 2008/08/14 17:47:15 paterno Exp $
 
 namespace edm {
 
-  class Run : private DataViewImpl
+  class Run
   {
   public:
     Run(RunPrincipal& rp, const ModuleDescription& md);
@@ -40,14 +40,37 @@ namespace edm {
     Timestamp const& beginTime() const {return aux_.beginTime();}
     Timestamp const& endTime() const {return aux_.endTime();}
 
-    using Base::get;
-    using Base::getByLabel;
-    using Base::getByType;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::me;
-    using Base::processHistory;
-
+    template <typename PROD>
+    bool 
+    get(SelectorBase const&, Handle<PROD>& result) const;
+    
+    template <typename PROD>
+    bool 
+    getByLabel(std::string const& label, Handle<PROD>& result) const;
+    
+    template <typename PROD>
+    bool 
+    getByLabel(std::string const& label,
+	       std::string const& productInstanceName, 
+	       Handle<PROD>& result) const;
+    
+    /// same as above, but using the InputTag class 	 
+    template <typename PROD> 	 
+    bool 	 
+    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
+    
+    template <typename PROD>
+    void 
+    getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
+    
+    template <typename PROD>
+    bool
+    getByType(Handle<PROD>& result) const;
+    
+    template <typename PROD>
+    void 
+    getManyByType(std::vector<Handle<PROD> >& results) const;
+    
     ///Put a new product.
     template <typename PROD>
     void
@@ -74,6 +97,9 @@ namespace edm {
     getProcessParameterSet(std::string const& processName,
 			   std::vector<ParameterSet>& ps) const;
 
+    ProcessHistory const&
+    processHistory() const;
+
   private:
     RunPrincipal const&
     runPrincipal() const;
@@ -94,6 +120,7 @@ namespace edm {
 
     void commit_();
 
+    DataViewImpl provRecorder_;
     RunAuxiliary const& aux_;
   };
 
@@ -117,15 +144,60 @@ namespace edm {
     maybe_inserter(product.get());
 
     ConstBranchDescription const& desc =
-      getBranchDescription(TypeID(*product), productInstanceName);
+      provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
 
-    putProducts().push_back(std::make_pair(wp, &desc));
+    provRecorder_.putProducts().push_back(std::make_pair(wp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
   }
 
+  template <typename PROD>
+  bool 
+  Run::get(SelectorBase const& sel, Handle<PROD>& result) const {
+    return provRecorder_.get(sel,result);
+  }
+  
+  template <typename PROD>
+  bool 
+  Run::getByLabel(std::string const& label, Handle<PROD>& result) const {
+    return provRecorder_.getByLabel(label,result);
+  }
+  
+  template <typename PROD>
+  bool 
+  Run::getByLabel(std::string const& label,
+                  std::string const& productInstanceName, 
+                  Handle<PROD>& result) const {
+    return provRecorder_.getByLabel(label,productInstanceName,result);
+  }
+  
+  /// same as above, but using the InputTag class 	 
+  template <typename PROD> 	 
+  bool 	 
+  Run::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
+    return provRecorder_.getByLabel(tag,result);
+  }
+  
+  template <typename PROD>
+  void 
+  Run::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
+    return provRecorder_.getMany(sel,results);
+  }
+  
+  template <typename PROD>
+  bool
+  Run::getByType(Handle<PROD>& result) const {
+    return provRecorder_.getByType(result);
+  }
+  
+  template <typename PROD>
+  void 
+  Run::getManyByType(std::vector<Handle<PROD> >& results) const {
+    return provRecorder_.getManyByType(results);
+  }
+  
 }
 #endif

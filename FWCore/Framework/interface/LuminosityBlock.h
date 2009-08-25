@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.17 2008/05/12 18:14:07 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.18 2008/08/22 01:44:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,13 +31,12 @@ $Id: LuminosityBlock.h,v 1.17 2008/05/12 18:14:07 wmtan Exp $
 
 namespace edm {
 
-  class LuminosityBlock : private DataViewImpl
+  class LuminosityBlock
   {
   public:
     LuminosityBlock(LuminosityBlockPrincipal& lbp, const ModuleDescription& md);
     ~LuminosityBlock() {}
 
-    typedef DataViewImpl Base;
     // AUX functions.
     LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
 
@@ -52,14 +51,37 @@ namespace edm {
     Timestamp const& beginTime() const {return aux_.beginTime();}
     Timestamp const& endTime() const {return aux_.endTime();}
 
-    using Base::get;
-    using Base::getByLabel;
-    using Base::getByType;
-    using Base::getMany;
-    using Base::getManyByType;
-    using Base::me;
-    using Base::processHistory;
-
+    template <typename PROD>
+    bool 
+    get(SelectorBase const&, Handle<PROD>& result) const;
+    
+    template <typename PROD>
+    bool 
+    getByLabel(std::string const& label, Handle<PROD>& result) const;
+    
+    template <typename PROD>
+    bool 
+    getByLabel(std::string const& label,
+               std::string const& productInstanceName, 
+               Handle<PROD>& result) const;
+    
+    /// same as above, but using the InputTag class 	 
+    template <typename PROD> 	 
+    bool 	 
+    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
+    
+    template <typename PROD>
+    void 
+    getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
+    
+    template <typename PROD>
+    bool
+    getByType(Handle<PROD>& result) const;
+    
+    template <typename PROD>
+    void 
+    getManyByType(std::vector<Handle<PROD> >& results) const;
+     
     Run const&
     getRun() const {
       return *run_;
@@ -81,6 +103,9 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
 
+    ProcessHistory const&
+    processHistory() const;
+
   private:
     LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
@@ -101,6 +126,7 @@ namespace edm {
 
     void commit_();
 
+    DataViewImpl provRecorder_;
     LuminosityBlockAuxiliary const& aux_;
     boost::shared_ptr<Run const> const run_;
   };
@@ -125,11 +151,11 @@ namespace edm {
     maybe_inserter(product.get());
 
     ConstBranchDescription const& desc =
-      getBranchDescription(TypeID(*product), productInstanceName);
+      provRecorder_.getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
 
-    putProducts().push_back(std::make_pair(wp, &desc));
+    provRecorder_.putProducts().push_back(std::make_pair(wp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.

@@ -10,18 +10,18 @@
 namespace edm {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-	DataViewImpl(rp, md),
+	provRecorder_(rp, md),
 	aux_(rp.aux()) {
   }
 
   RunPrincipal &
   Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal &>(principal());
+    return dynamic_cast<RunPrincipal &>(provRecorder_.principal());
   }
 
   RunPrincipal const &
   Run::runPrincipal() const {
-    return dynamic_cast<RunPrincipal const&>(principal());
+    return dynamic_cast<RunPrincipal const&>(provRecorder_.principal());
   }
 
   Provenance
@@ -77,8 +77,8 @@ namespace edm {
   Run::commit_() {
     // fill in guts of provenance here
     RunPrincipal & rp = runPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
+    DataViewImpl::ProductPtrVec::iterator pit(provRecorder_.putProducts().begin());
+    DataViewImpl::ProductPtrVec::iterator pie(provRecorder_.putProducts().end());
 
     while(pit!=pie) {
 	// set provenance
@@ -90,7 +90,13 @@ namespace edm {
     }
 
     // the cleanup is all or none
-    putProducts().clear();
+    provRecorder_.putProducts().clear();
   }
+  
+  ProcessHistory const&
+  Run::processHistory() const {
+    return provRecorder_.processHistory();
+  }
+  
 
 }
