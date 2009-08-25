@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.7 2009/03/26 20:04:12 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.8 2009/08/14 23:06:44 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -20,22 +20,7 @@ ________________________________________________________________**/
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "TMath.h"
 
@@ -74,14 +59,10 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
    
 //   fBSvector.clear();
 
-  //dump to file
-  fasciiFileName = outputfilename_.replace(outputfilename_.size()-4,outputfilename_.size(),"txt");
-  fasciiFile.open(fasciiFileName.c_str());
-
+  
   // get parameter
   write2DB_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
   runallfitters_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
-  inputBeamWidth_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<double>("InputBeamWidth",-1.);
   
   theBeamFitter = new BeamFitter(iConfig);
   theBeamFitter->resetTrkVector();
@@ -144,92 +125,19 @@ BeamSpotAnalyzer::endJob() {
   std::cout << "\n-------------------------------------\n" << std::endl;
   std::cout << "\n Total number of events processed: "<< ftotalevents << std::endl;
   std::cout << "\n-------------------------------------\n\n" << std::endl;
-
+  
   if(theBeamFitter->runFitter()){
     reco::BeamSpot beam_default = theBeamFitter->getBeamSpot();
     
     std::cout << "\n RESULTS OF DEFAULT FIT:" << std::endl;
     std::cout << beam_default << std::endl;
     
-    // dump to file
-    fasciiFile << "X " << beam_default.x0() << std::endl;
-    fasciiFile << "Y " << beam_default.y0() << std::endl;
-    fasciiFile << "Z " << beam_default.z0() << std::endl;
-    fasciiFile << "sigmaZ " << beam_default.sigmaZ() << std::endl;
-    fasciiFile << "dxdz " << beam_default.dxdz() << std::endl;
-    fasciiFile << "dydz " << beam_default.dydz() << std::endl;
-    if (inputBeamWidth_ > 0 ) {
-      fasciiFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
-      fasciiFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
-    } else {
-      fasciiFile << "BeamWidthX " << beam_default.BeamWidthX() << std::endl;
-      fasciiFile << "BeamWidthY " << beam_default.BeamWidthY() << std::endl;
-    }
-	
-    for (int i = 0; i<6; ++i) {
-      fasciiFile << "Cov("<<i<<",j) ";
-      for (int j=0; j<7; ++j) {
-	fasciiFile << beam_default.covariance(i,j) << " ";
-      }
-      fasciiFile << std::endl;
-    }
-    // beam width error
-    if (inputBeamWidth_ > 0 ) {
-      fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << pow(2.e-4,2) << std::endl;
-    } else {
-      fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << beam_default.covariance(6,6) << std::endl;
-    }
-    fasciiFile << "EmittanceX " << beam_default.emittanceX() << std::endl;
-    fasciiFile << "EmittanceY " << beam_default.emittanceY() << std::endl;
-    fasciiFile << "BetaStar " << beam_default.betaStar() << std::endl;
-	
-	
     if (write2DB_) {
       std::cout << "\n-------------------------------------\n\n" << std::endl;
       std::cout << " write results to DB..." << std::endl;
-      
-      BeamSpotObjects *pBSObjects = new BeamSpotObjects();
-
-      //pBSObjects->Put(beam_default);
-      pBSObjects->SetPosition(beam_default.position().X(),beam_default.position().Y(),beam_default.position().Z());
-      //std::cout << " wrote: x= " << beam_default.position().X() << " y= "<< beam_default.position().Y() << " z= " << beam_default.position().Z() << std::endl;
-      pBSObjects->SetSigmaZ(beam_default.sigmaZ());
-      pBSObjects->Setdxdz(beam_default.dxdz());
-      pBSObjects->Setdydz(beam_default.dydz());
-      if (inputBeamWidth_ > 0 ) {
-	std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
-	pBSObjects->SetBeamWidthX(inputBeamWidth_);
-	pBSObjects->SetBeamWidthY(inputBeamWidth_);
-      } else {
-	// need to fix this
-	std::cout << " using default value, 15e-4, for beam width!!!"<<std::endl;
-	pBSObjects->SetBeamWidthX(15.0e-4);
-	pBSObjects->SetBeamWidthY(15.0e-4);
-
-      }
-		
-      for (int i = 0; i<7; ++i) {
-	for (int j=0; j<7; ++j) {
-	  pBSObjects->SetCovariance(i,j,beam_default.covariance(i,j));
-	}
-      }
-      edm::Service<cond::service::PoolDBOutputService> poolDbService;
-      if( poolDbService.isAvailable() ) {
-	std::cout << "poolDBService available"<<std::endl;
-	if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
-	  std::cout << "new tag requested" << std::endl;
-	  poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->beginOfTime(),poolDbService->endOfTime(),
-							"BeamSpotObjectsRcd"  );
-	}
-	else {
-	  std::cout << "no new tag requested" << std::endl;
-	  poolDbService->appendSinceTime<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),
-							   "BeamSpotObjectsRcd" );
-	}
-
-      }
+      theBeamFitter->write2DB();
     }
-
+    
     if (runallfitters_) {
       theBeamFitter->runAllFitter();
       

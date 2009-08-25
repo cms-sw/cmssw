@@ -7,12 +7,14 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.2 2009/08/14 23:06:44 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.3 2009/08/20 19:03:07 jengbou Exp $
 
  ________________________________________________________________**/
 
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
@@ -37,12 +39,18 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   trk_MaxNormChi2_   = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumNormChi2");
   trk_Algorithm_     = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::vector<std::string> >("TrackAlgorithm");
   trk_Quality_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::vector<std::string> >("TrackQuality");
-
-  for (unsigned int j=0;j<trk_Algorithm_.size();j++) 
+  inputBeamWidth_    = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("InputBeamWidth",-1.);
+  
+  for (unsigned int j=0;j<trk_Algorithm_.size();j++)
     algorithm_.push_back(reco::TrackBase::algoByName(trk_Algorithm_[j]));
-  for (unsigned int j=0;j<trk_Quality_.size();j++) 
+  for (unsigned int j=0;j<trk_Quality_.size();j++)
     quality_.push_back(reco::TrackBase::qualityByName(trk_Quality_[j]));
 
+  //dump to file
+  if (writeTxt_)
+    fasciiFile.open(outputTxt_.c_str());
+  
+  fBSvector.clear();
   ftotal_tracks = 0;
 }
 
@@ -67,7 +75,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     
     double pt = track->pt();
     double eta = track->eta();
-    double phi0 = track->momentum().phi();
+    double phi0 = track->phi();
     double charge = track->charge();
     double normchi2 = track->normalizedChi2();
     
@@ -142,6 +150,8 @@ bool BeamFitter::runFitter() {
     }
     BSFitter *myalgo = new BSFitter( fBSvector );
     fbeamspot = myalgo->Fit();
+
+    if(writeTxt_) dumpTxtFile();
     
     delete myalgo;
     fit_ok = true;
@@ -151,12 +161,85 @@ bool BeamFitter::runFitter() {
   return fit_ok;
 }
 
+void BeamFitter::dumpTxtFile(){
+  fasciiFile << "X " << fbeamspot.x0() << std::endl;
+  fasciiFile << "Y " << fbeamspot.y0() << std::endl;
+  fasciiFile << "Z " << fbeamspot.z0() << std::endl;
+  fasciiFile << "sigmaZ " << fbeamspot.sigmaZ() << std::endl;
+  fasciiFile << "dxdz " << fbeamspot.dxdz() << std::endl;
+  fasciiFile << "dydz " << fbeamspot.dydz() << std::endl;
+  if (inputBeamWidth_ > 0 ) {
+    fasciiFile << "BeamWidthX " << inputBeamWidth_ << std::endl;
+    fasciiFile << "BeamWidthY " << inputBeamWidth_ << std::endl;
+  } else {
+    fasciiFile << "BeamWidthX " << fbeamspot.BeamWidthX() << std::endl;
+    fasciiFile << "BeamWidthY " << fbeamspot.BeamWidthY() << std::endl;
+  }
+	
+  for (int i = 0; i<6; ++i) {
+    fasciiFile << "Cov("<<i<<",j) ";
+    for (int j=0; j<7; ++j) {
+      fasciiFile << fbeamspot.covariance(i,j) << " ";
+    }
+    fasciiFile << std::endl;
+  }
+  // beam width error
+  if (inputBeamWidth_ > 0 ) {
+    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << pow(2.e-4,2) << std::endl;
+  } else {
+    fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << fbeamspot.covariance(6,6) << std::endl;
+  }
+  fasciiFile << "EmittanceX " << fbeamspot.emittanceX() << std::endl;
+  fasciiFile << "EmittanceY " << fbeamspot.emittanceY() << std::endl;
+  fasciiFile << "BetaStar " << fbeamspot.betaStar() << std::endl;
+}
+
+void BeamFitter::write2DB(){
+  BeamSpotObjects *pBSObjects = new BeamSpotObjects();
+  
+  pBSObjects->SetPosition(fbeamspot.position().X(),fbeamspot.position().Y(),fbeamspot.position().Z());
+  //std::cout << " wrote: x= " << fbeamspot.position().X() << " y= "<< fbeamspot.position().Y() << " z= " << fbeamspot.position().Z() << std::endl;
+  pBSObjects->SetSigmaZ(fbeamspot.sigmaZ());
+  pBSObjects->Setdxdz(fbeamspot.dxdz());
+  pBSObjects->Setdydz(fbeamspot.dydz());
+  if (inputBeamWidth_ > 0 ) {
+    std::cout << " beam width value forced to be " << inputBeamWidth_ << std::endl;
+    pBSObjects->SetBeamWidthX(inputBeamWidth_);
+    pBSObjects->SetBeamWidthY(inputBeamWidth_);
+  } else {
+    // need to fix this
+    std::cout << " using default value, 15e-4, for beam width!!!"<<std::endl;
+    pBSObjects->SetBeamWidthX(15.0e-4);
+    pBSObjects->SetBeamWidthY(15.0e-4);
+    
+  }
+		
+  for (int i = 0; i<7; ++i) {
+    for (int j=0; j<7; ++j) {
+      pBSObjects->SetCovariance(i,j,fbeamspot.covariance(i,j));
+    }
+  }
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if( poolDbService.isAvailable() ) {
+    std::cout << "poolDBService available"<<std::endl;
+    if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
+      std::cout << "new tag requested" << std::endl;
+      poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->beginOfTime(),poolDbService->endOfTime(),
+						    "BeamSpotObjectsRcd"  );
+    }
+    else {
+      std::cout << "no new tag requested" << std::endl;
+      poolDbService->appendSinceTime<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),
+						       "BeamSpotObjectsRcd" );
+    }
+  }
+}
+
 void BeamFitter::runAllFitter() {
   if(fBSvector.size()!=0){
     BSFitter *myalgo = new BSFitter( fBSvector );    
     fbeamspot = myalgo->Fit_d0phi();
-    
-    
+        
     // iterative
     if(debug_)
       std::cout << " d0-phi Iterative:" << std::endl;

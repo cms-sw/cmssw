@@ -1,16 +1,27 @@
 #ifndef BeamFitter_H
 #define BeamFitter_H
 
+/**_________________________________________________________________
+   class:   BeamFitter.h
+   package: RecoVertex/BeamSpotProducer
+   
+
+
+ author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
+         Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
+ 
+ version $Id: BeamFitter.h,v 1.2 2009/08/20 19:03:07 jengbou Exp $
+
+ ________________________________________________________________**/
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 
+#include<fstream>
 
 class BeamFitter {
  public:
@@ -24,6 +35,8 @@ class BeamFitter {
   void runAllFitter();
   void resetTrkVector() { fBSvector.clear(); }
   void resetTotTrk() { ftotal_tracks=0; }
+  void dumpTxtFile();
+  void write2DB();
   reco::BeamSpot getBeamSpot() { return fbeamspot; }
   std::vector<BSTrkParameters> getBSvector() { return fBSvector; }
   
@@ -32,6 +45,7 @@ class BeamFitter {
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   BSFitter *fmyalgo;
+  std::ofstream fasciiFile;
 
   bool debug_;
   edm::InputTag tracksLabel_;
@@ -46,6 +60,7 @@ class BeamFitter {
   std::vector<std::string> trk_Quality_;
   std::vector<reco::TrackBase::TrackQuality> quality_;
   std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
+  double inputBeamWidth_;
 
   int ftotal_tracks;
   
