@@ -270,10 +270,6 @@ MuonCSCSeedFromRecHits::createDefaultEndcapSeed(ConstMuonRecHitPointer last,
 				 TrajectorySeed & seed) const {
   //float momentum = computeDefaultPt(last);
   std::vector<double> momentum = thePtExtractor->pT_extract(last, last);
-  // FIXME
-  //  float smomentum = 0.25*momentum; // FIXME!!!!
-  float smomentum = 25; 
-
   seed = createSeed(momentum[0],momentum[1],last);
   return true;
 }
