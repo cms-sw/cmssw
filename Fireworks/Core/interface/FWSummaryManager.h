@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.8 2009/04/09 21:19:34 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.9 2009/08/12 22:04:31 chrjones Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ public:
    virtual ~FWSummaryManager();
 
    // ---------- const member functions ---------------------
-   TGFrame* widget() const;
+   TGCompositeFrame* widget() const;
    
    // ---------- static member functions --------------------
 

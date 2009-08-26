@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.12 2009/08/12 19:21:49 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.13 2009/08/12 22:04:32 chrjones Exp $
 //
 
 // system include files
@@ -201,7 +201,7 @@ FWSummaryManager::requestForController(FWEventItem* iItem)
 //
 // const member functions
 //
-TGFrame*
+TGCompositeFrame*
 FWSummaryManager::widget() const
 {
    return m_pack;
