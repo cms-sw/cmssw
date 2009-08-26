@@ -250,7 +250,7 @@ setHcalTaskValues(process.hcalMonitor)
 
 # values are normally 10000, 10
 process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
-process.hcalMonitor.DeadCellMonitor_neverpresent_prescale=1
+process.hcalMonitor.DeadCellMonitor_prescale=1
 
 process.hcalMonitor.subSystemFolder = subsystem
 
