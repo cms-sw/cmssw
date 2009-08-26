@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/08/02 15:46:40 $
- * $Revision: 1.40 $
+ * $Date: 2009/08/13 18:12:42 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -96,10 +96,12 @@ std::vector<EEClient*> clients_;
 DQMStore* dqmStore_;
 
 MonitorElement* meIntegrity_[2];
+MonitorElement* meIntegrityPN_;
 MonitorElement* meIntegrityErr_;
 MonitorElement* meStatusFlags_[2];
 MonitorElement* meStatusFlagsErr_;
 MonitorElement* meOccupancy_[2];
+MonitorElement* meOccupancyPN_;
 MonitorElement* meOccupancy1D_;
 MonitorElement* mePedestalOnline_[2];
 MonitorElement* mePedestalOnlineErr_;
@@ -108,42 +110,42 @@ MonitorElement* mePedestalOnlineRMS_;
 MonitorElement* mePedestalOnlineRMSMap_[2];
 MonitorElement* meLaserL1_[2];
 MonitorElement* meLaserL1Err_;
-MonitorElement* meLaserL1PN_[2];
+MonitorElement* meLaserL1PN_;
 MonitorElement* meLaserL1PNErr_;
 MonitorElement* meLaserL1Ampl_; 
 MonitorElement* meLaserL1Timing_;
 MonitorElement* meLaserL1AmplOverPN_;
 MonitorElement* meLaserL2_[2];
 MonitorElement* meLaserL2Err_;
-MonitorElement* meLaserL2PN_[2];
+MonitorElement* meLaserL2PN_;
 MonitorElement* meLaserL2PNErr_;
 MonitorElement* meLaserL2Ampl_; 
 MonitorElement* meLaserL2Timing_;
 MonitorElement* meLaserL2AmplOverPN_;
 MonitorElement* meLaserL3_[2];
 MonitorElement* meLaserL3Err_;
-MonitorElement* meLaserL3PN_[2];
+MonitorElement* meLaserL3PN_;
 MonitorElement* meLaserL3PNErr_;
 MonitorElement* meLaserL3Ampl_; 
 MonitorElement* meLaserL3Timing_;
 MonitorElement* meLaserL3AmplOverPN_;
 MonitorElement* meLaserL4_[2];
 MonitorElement* meLaserL4Err_;
-MonitorElement* meLaserL4PN_[2];
+MonitorElement* meLaserL4PN_;
 MonitorElement* meLaserL4PNErr_;
 MonitorElement* meLaserL4Ampl_; 
 MonitorElement* meLaserL4Timing_;
 MonitorElement* meLaserL4AmplOverPN_;
 MonitorElement* meLedL1_[2];
 MonitorElement* meLedL1Err_;
-MonitorElement* meLedL1PN_[2];
+MonitorElement* meLedL1PN_;
 MonitorElement* meLedL1PNErr_;
 MonitorElement* meLedL1Ampl_;
 MonitorElement* meLedL1Timing_;
 MonitorElement* meLedL1AmplOverPN_;
 MonitorElement* meLedL2_[2];
 MonitorElement* meLedL2Err_;
-MonitorElement* meLedL2PN_[2];
+MonitorElement* meLedL2PN_;
 MonitorElement* meLedL2PNErr_;
 MonitorElement* meLedL2Ampl_;
 MonitorElement* meLedL2Timing_;
@@ -151,13 +153,13 @@ MonitorElement* meLedL2AmplOverPN_;
 MonitorElement* mePedestalG01_[2];
 MonitorElement* mePedestalG06_[2];
 MonitorElement* mePedestalG12_[2];
-MonitorElement* mePedestalPNG01_[2];
-MonitorElement* mePedestalPNG16_[2];
+MonitorElement* mePedestalPNG01_;
+MonitorElement* mePedestalPNG16_;
 MonitorElement* meTestPulseG01_[2];
 MonitorElement* meTestPulseG06_[2];
 MonitorElement* meTestPulseG12_[2];
-MonitorElement* meTestPulsePNG01_[2];
-MonitorElement* meTestPulsePNG16_[2];
+MonitorElement* meTestPulsePNG01_;
+MonitorElement* meTestPulsePNG16_;
 MonitorElement* meTestPulseAmplG01_;
 MonitorElement* meTestPulseAmplG06_;
 MonitorElement* meTestPulseAmplG12_;
