@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.11 2009/08/24 14:31:11 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.12 2009/08/26 07:05:54 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -12,6 +12,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "xdata/Integer32.h"
 #include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Vector.h"
@@ -27,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.12 $
+   * $Date: 2009/08/26 07:05:54 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -55,7 +56,7 @@ namespace stor {
 
       MonitoredQuantity::Stats numberOfCopyWorkersStats;
       MonitoredQuantity::Stats numberOfInjectWorkersStats;
-      unsigned int             sataBeastStatus; // status code of SATA beast
+      int                      sataBeastStatus; // status code of SATA beast
     };
 
 
@@ -132,12 +133,12 @@ namespace stor {
     boost::shared_ptr<AlarmHandler> _alarmHandler;
     double _highWaterMark;     // percentage of disk full when issuing an alarm
     std::string _sataUser;     // user name to log into SATA controller
-    unsigned int _latchedSataBeastStatus;
+    int _latchedSataBeastStatus;
     unsigned int _latchedNumberOfDisks;
     
     xdata::UnsignedInteger32 _copyWorkers;     // number of running copyWorkers
     xdata::UnsignedInteger32 _injectWorkers;   // number of running injectWorkers
-    xdata::UnsignedInteger32 _sataBeastStatus; // status code of SATA beast
+    xdata::Integer32 _sataBeastStatus; // status code of SATA beast
     xdata::UnsignedInteger32 _numberOfDisks;   // number of disks used for writing
     xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // disk space for writing disk followed
     xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // by look area and ecal disk
