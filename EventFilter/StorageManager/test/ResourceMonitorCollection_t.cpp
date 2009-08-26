@@ -121,6 +121,7 @@ testResourceMonitorCollection::diskUsage()
   dwParams._highWaterMark = 1;
   _rmc->configureDisks(dwParams);
   CPPUNIT_ASSERT( _rmc->_diskUsageList.size() == 1 );
+  CPPUNIT_ASSERT( _rmc->_latchedNumberOfDisks == 1 );
   ResourceMonitorCollection::DiskUsagePtr diskUsagePtr = _rmc->_diskUsageList[0];
   CPPUNIT_ASSERT( diskUsagePtr.get() != 0 );
 
@@ -131,7 +132,7 @@ testResourceMonitorCollection::diskUsage()
 
   _rmc->calcDiskUsage();
   ResourceMonitorCollection::Stats stats;
-  _rmc->getDiskStats(stats);
+  _rmc->getStats(stats);
   CPPUNIT_ASSERT( stats.diskUsageStatsList.size() == 1 );
   ResourceMonitorCollection::DiskUsageStatsPtr diskUsageStatsPtr = stats.diskUsageStatsList[0];
   CPPUNIT_ASSERT( diskUsageStatsPtr.get() != 0 );
@@ -178,8 +179,12 @@ testResourceMonitorCollection::noSataBeasts()
   CPPUNIT_ASSERT( sataBeasts.empty() );
 
   _rmc->checkSataBeasts();
-  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 0 );
+  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == -1 );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
+
+  ResourceMonitorCollection::Stats stats;
+  _rmc->getStats(stats);
+  CPPUNIT_ASSERT( stats.sataBeastStatus == -1 );
 }
 
 
@@ -194,6 +199,10 @@ testResourceMonitorCollection::sataBeastOkay()
 
   CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 0 );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
+
+  ResourceMonitorCollection::Stats stats;
+  _rmc->getStats(stats);
+  CPPUNIT_ASSERT( stats.sataBeastStatus == 0 );
 }
 
 
@@ -211,6 +220,10 @@ testResourceMonitorCollection::sataBeastFailed()
   bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
   CPPUNIT_ASSERT( alarmsAreSet );
   CPPUNIT_ASSERT( alarms.size() == 2 );
+
+  ResourceMonitorCollection::Stats stats;
+  _rmc->getStats(stats);
+  CPPUNIT_ASSERT( stats.sataBeastStatus == 101 );
 
   // verify that we can reset the alarms if all is okay
   sataBeastOkay();
@@ -232,6 +245,10 @@ testResourceMonitorCollection::sataBeastsOnSpecialNode()
   CPPUNIT_ASSERT( _rmc->checkSataDisks(sataBeast,"-10.cms") );
 
   CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 101 );
+
+  ResourceMonitorCollection::Stats stats;
+  _rmc->getStats(stats);
+  CPPUNIT_ASSERT( stats.sataBeastStatus == 101 );
 
   std::vector<MockAlarmHandler::Alarms> alarms;
   bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
