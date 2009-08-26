@@ -190,7 +190,7 @@ process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
                                                        ,'BeamProfileVtxGenerator'
                                                        )
 
-process.MessageLogger.debugModule = cms.vstring('g4SimHits','VtxSmeared')
+process.MessageLogger.debugModules = cms.untracked.vstring('g4SimHits','VtxSmeared')
 
 #Configuring the G4msg.log output
 process.MessageLogger.G4msg =  cms.untracked.PSet(
