@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.21 2009/08/24 13:23:01 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.22 2009/08/24 14:31:52 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -956,20 +956,14 @@ void WebPageHelper::addDOMforResourceUsage
   MonitoredQuantity::Stats poolUsageStats;
   tmc.getPoolUsageMQ().getStats(poolUsageStats);
 
-  XHTMLMaker::AttrMap colspanAttr;
-  colspanAttr[ "colspan" ] = "2";
-
   XHTMLMaker::AttrMap halfWidthAttr;
   halfWidthAttr[ "width" ] = "50%";
   
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
-  XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
-  XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
-  maker.addText(tableDiv, "Resource Usage");
   
-  tableRow = maker.addNode("tr", table, _rowAttr);
+  XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
 
-  tableDiv = maker.addNode("td", tableRow, halfWidthAttr);
+  XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, halfWidthAttr);
   addTableForResourceUsages(maker, tableDiv, rmcStats, poolUsageStats);
 
   tableDiv = maker.addNode("td", tableRow, halfWidthAttr);
@@ -985,10 +979,17 @@ void WebPageHelper::addTableForResourceUsages
   MonitoredQuantity::Stats const& poolUsageStats
 )
 {
+  XHTMLMaker::AttrMap colspanAttr;
+  colspanAttr[ "colspan" ] = "2";
+
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
+  XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
+  XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
+  maker.addText(tableDiv, "Resource Usage");
   
   addRowsForMemoryUsage(maker, table, poolUsageStats);
   addRowsForWorkers(maker, table, rmcStats);
+  addRowsForSataBeast(maker, table, rmcStats);
 }
 
    
@@ -1039,8 +1040,6 @@ void WebPageHelper::addRowsForWorkers
   XHTMLMaker::AttrMap tableValueAttr = _tableValueAttr;
   tableValueAttr[ "width" ] = "46%";
 
-  XHTMLMaker::AttrMap warningAttr = _rowAttr;
-
   // # copy worker
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
@@ -1054,15 +1053,47 @@ void WebPageHelper::addRowsForWorkers
   maker.addText(tableDiv, "# InjectWorker");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
   maker.addText(tableDiv, stats.numberOfInjectWorkersStats.getLastSampleValue(), 0);
-  
-  // SATA beast status
-  if ( stats.sataBeastStatus > 0 )
-    warningAttr[ "bgcolor" ] = _alarmColors[ AlarmHandler::ERROR ];
-  tableRow = maker.addNode("tr", table, warningAttr);
-  tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
-  maker.addText(tableDiv, "SATA beast status");
-  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, stats.sataBeastStatus, 0);
+}
+
+
+void WebPageHelper::addRowsForSataBeast
+(
+  XHTMLMaker& maker,
+  XHTMLMaker::Node *table,
+  ResourceMonitorCollection::Stats const& stats
+)
+{
+  XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
+  tableLabelAttr[ "width" ] = "54%";
+
+  XHTMLMaker::AttrMap tableValueAttr = _tableValueAttr;
+  tableValueAttr[ "width" ] = "46%";
+
+  XHTMLMaker::Node *tableRow, *tableDiv;
+
+  XHTMLMaker::AttrMap warningAttr = _rowAttr;
+
+  if (stats.sataBeastStatus < 0 )
+  {
+    warningAttr[ "bgcolor" ] = _alarmColors[ AlarmHandler::WARNING ];
+
+    XHTMLMaker::AttrMap colspanAttr = _tableLabelAttr;
+    colspanAttr[ "colspan" ] = "2";
+
+    tableRow = maker.addNode("tr", table, warningAttr);
+    tableDiv = maker.addNode("td", tableRow, colspanAttr);
+    maker.addText(tableDiv, "No SATA disks found");
+  }
+  else
+  {
+    if ( stats.sataBeastStatus > 0 )
+      warningAttr[ "bgcolor" ] = _alarmColors[ AlarmHandler::ERROR ];
+    tableRow = maker.addNode("tr", table, warningAttr);
+    tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
+    maker.addText(tableDiv, "SATA beast status");
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addText(tableDiv, stats.sataBeastStatus, 0);
+  }
 }
 
 
@@ -1086,8 +1117,8 @@ void WebPageHelper::addTableForDiskUsages
 
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
-  XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, colspanAttr);
-  maker.addText(tableDiv, "Disk space usage");
+  XHTMLMaker::Node* tableDiv = maker.addNode("th", tableRow, colspanAttr);
+  maker.addText(tableDiv, "Disk Space Usage");
 
 
   for (ResourceMonitorCollection::DiskUsageStatsPtrList::const_iterator
