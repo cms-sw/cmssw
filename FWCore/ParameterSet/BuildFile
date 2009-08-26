@@ -1,17 +1,9 @@
 <use name=DataFormats/Provenance>
-<use name=FWCore/Utilities>
-<use name=FWCore/PluginManager>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
 <use name=boost>
 <use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
 <export>
- <use name=DataFormats/Provenance>
- <use name=FWCore/Utilities>
- <use name=FWCore/PluginManager>
- <use name=boost_python>
- <use name=boost>
  <lib name=FWCoreParameterSet>
 </export>
-

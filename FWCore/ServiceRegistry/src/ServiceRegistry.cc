@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:19 EDT 2005
-// $Id: ServiceRegistry.cc,v 1.4 2006/06/13 22:32:36 wmtan Exp $
+// $Id: ServiceRegistry.cc,v 1.5 2007/06/29 03:43:25 wmtan Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 
 // user include files
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
 //
 // constants, enums and typedefs

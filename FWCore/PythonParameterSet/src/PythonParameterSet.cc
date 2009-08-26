@@ -1,4 +1,4 @@
-#include "FWCore/ParameterSet/interface/PythonParameterSet.h"
+#include "FWCore/PythonParameterSet/interface/PythonParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 PythonParameterSet::PythonParameterSet()
@@ -44,5 +44,3 @@ void  PythonParameterSet::addNewFileInPath(bool tracked, std::string const & nam
 {
   addParameter(tracked, name, edm::FileInPath(value));
 }
-
-

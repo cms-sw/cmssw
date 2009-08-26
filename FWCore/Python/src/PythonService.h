@@ -18,7 +18,7 @@
 //         Created:  Sun Jul 23 11:31:33 CEST 2006
 //
 
-#include "FWCore/ParameterSet/interface/BoostPython.h"
+#include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 

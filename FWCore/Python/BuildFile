@@ -3,13 +3,10 @@
 <use name=root>
 <use name=python>
 <use name=FWCore/Framework>
+<use name=FWCore/PythonParameterSet>
 <lib name=PyROOT>
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=FWCorePython>
- <use name=boost>
- <use name=root>
- <use name=python>
- <use name=boost_python>
 <lib name=PyROOT>
 </export>

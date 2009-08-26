@@ -17,7 +17,8 @@ it.
 #include <boost/program_options.hpp>
 #include <cstring>
 
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"

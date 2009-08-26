@@ -7,9 +7,9 @@
  *
  */
 
-#include "FWCore/ParameterSet/interface/BoostPython.h"
-#include "FWCore/ParameterSet/interface/pythonFileToConfigure.h"
-#include "FWCore/ParameterSet/src/PythonWrapper.h"
+#include "FWCore/PythonParameterSet/interface/pythonFileToConfigure.h"
+#include "FWCore/PythonParameterSet/interface/BoostPython.h"
+#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
 
 
 std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
@@ -53,4 +53,3 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
   Py_Finalize();
   return returnValue;
 }
-

@@ -1,9 +1,10 @@
-#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/ParameterSet/src/PythonModule.h"
-#include "FWCore/ParameterSet/src/PythonWrapper.h"
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/src/PythonModule.h"
+#include "FWCore/PythonParameterSet/src/PythonWrapper.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include <sstream>
-#include <iostream>
 #include <boost/foreach.hpp>
+
 using namespace boost::python;
 
 bool PythonProcessDesc::initialized_ = false;
@@ -131,5 +132,3 @@ std::string PythonProcessDesc::dump() const
   }
   return os.str();
 }
-
-

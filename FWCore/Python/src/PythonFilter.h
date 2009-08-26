@@ -18,7 +18,7 @@
 #define FWCore_Python_PythonFilter_h
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/BoostPython.h"
+#include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Python/src/PythonManager.h"
 #include "FWCore/Framework/interface/EDFilter.h"

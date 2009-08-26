@@ -1,14 +1,14 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.23 2009/03/10 21:59:06 wmtan Exp $
+ * $Id: ps_t.cppunit.cc,v 1.24 2009/03/27 21:26:19 wdd Exp $
  */
+
+#include <cppunit/extensions/HelperMacros.h>
 
 #include <algorithm>
 #include <iostream>
 #include <limits>
 #include <string>
 #include <assert.h>
-
-#include <cppunit/extensions/HelperMacros.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -515,3 +515,4 @@ void testps::testGetParameterAsString()
   CPPUNIT_ASSERT(vpsetStr == vpsetStr2);
 }
 
+#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

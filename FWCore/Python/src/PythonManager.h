@@ -9,7 +9,7 @@
 #ifndef FWCore_Python_PythonManager_h
 #define FWCore_Python_PythonManager_h
 
-#include "FWCore/ParameterSet/interface/BoostPython.h"
+#include "FWCore/PythonParameterSet/interface/BoostPython.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 extern "C" {

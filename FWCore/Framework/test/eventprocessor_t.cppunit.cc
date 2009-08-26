@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.36 2008/08/08 20:44:38 wdd Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.37 2008/12/19 00:45:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -25,7 +25,7 @@ $Id: eventprocessor_t.cppunit.cc,v 1.36 2008/08/08 20:44:38 wdd Exp $
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 
-#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
