@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/21 10:54:58 $
- * $Revision: 1.127 $
+ * $Date: 2009/08/24 11:21:51 $
+ * $Revision: 1.128 $
  * \author W Fisher
  * \author J Temple
  *
@@ -35,7 +35,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   zdcMon_ = 0;
 
   ////////////////////////////////////
-  detDiagPed_ =0; detDiagLed_ =0; detDiagLas_ =0; detDiagNoise_ =0; 
+  detDiagPed_ =0; detDiagLed_ =0; detDiagLas_ =0; detDiagNoise_ =0; detDiagTiming_=0;
   ///////////////////////////////////// 
 
   // initialize hcal quality object
@@ -194,6 +194,11 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     detDiagNoise_= new HcalDetDiagNoiseMonitor();
     detDiagNoise_->setup(ps, dbe_);
   }
+  if ( ps.getUntrackedParameter<bool>("DetDiagTimingMonitor", false) ) {
+    if(debug_>0) std::cout << "DetDiagTimingMonitor: Hcal Analysis flag is on...." << std::endl;
+    detDiagTiming_= new HcalDetDiagTimingMonitor();
+    detDiagTiming_->setup(ps, dbe_);
+  }
   //////////////////////////////////////////////////////
 
 
@@ -260,6 +265,7 @@ HcalMonitorModule::~HcalMonitorModule()
      if(detDiagLed_!=0){  detDiagLed_->clearME();}
      if(detDiagLas_!=0){  detDiagLas_->clearME();}
      if(detDiagNoise_!=0){  detDiagNoise_->clearME();}
+     if(detDiagTiming_!=0){  detDiagTiming_->clearME();}
      /////////////////////////////////////////////
      
      dbe_->setCurrentFolder(rootFolder_);
@@ -328,6 +334,10 @@ HcalMonitorModule::~HcalMonitorModule()
   if(detDiagNoise_!=0) 
     { delete detDiagNoise_; 
     detDiagNoise_=0; 
+    }
+  if(detDiagNoise_!=0) 
+    { delete detDiagTiming_; 
+    detDiagTiming_=0; 
     }
   ////////////////////////////////////////////  
   
@@ -564,6 +574,7 @@ void HcalMonitorModule::endJob(void) {
   if(detDiagLed_!=NULL) detDiagLed_->done();
   if(detDiagLas_!=NULL) detDiagLas_->done();
   if(detDiagNoise_!=NULL) detDiagNoise_->done();
+  if(detDiagNoise_!=NULL) detDiagTiming_->done();
   /////////////////////////////////////////////////////
 
   if (dump2database_)
@@ -642,6 +653,7 @@ void HcalMonitorModule::reset(){
   if(detDiagLed_!=0) detDiagLed_->reset();
   if(detDiagLas_!=0) detDiagLas_->reset();
   if(detDiagNoise_!=0) detDiagNoise_->reset();
+  if(detDiagTiming_!=0) detDiagNoise_->reset();
   /////////////////////////////////////////////////////
 
 }
@@ -674,7 +686,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if(detDiagPed_!=0) detDiagPed_->processEvent(e,eventSetup,*conditions_);
   if(detDiagLed_!=0) detDiagLed_->processEvent(e,eventSetup,*conditions_);
   if(detDiagLas_!=0) detDiagLas_->processEvent(e,eventSetup,*conditions_);
-  if(detDiagNoise_!=0) detDiagNoise_->processEvent(e,eventSetup,*conditions_);
+  if(detDiagNoise_!=0)  detDiagNoise_->processEvent(e,eventSetup,*conditions_);
+  if(detDiagTiming_!=0) detDiagTiming_->processEvent(e,eventSetup,*conditions_);
   /////////////////////////////////////////////////////
 
   int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON; // add in DO_HCAL_TPMON, DO_HCAL_CTMON?  (in HcalMonitorSelector.h) 

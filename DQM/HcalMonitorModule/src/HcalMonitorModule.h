@@ -5,8 +5,8 @@
  * \file HcalMonitorModule.h
  *
 
- * $Date: 2009/08/09 12:46:36 $
- * $Revision: 1.49 $
+ * $Date: 2009/08/24 11:21:51 $
+ * $Revision: 1.50 $
  * \author W. Fisher
  *
 */
@@ -66,6 +66,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDetDiagLEDMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDetDiagLaserMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDetDiagNoiseMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalDetDiagTimingMonitor.h"
 ////////////////////////////////////////////////////////////////
 
 // Use to hold/get channel status
@@ -239,6 +240,7 @@ public:
   HcalDetDiagLEDMonitor        *detDiagLed_;
   HcalDetDiagLaserMonitor      *detDiagLas_;
   HcalDetDiagNoiseMonitor      *detDiagNoise_;
+  HcalDetDiagTimingMonitor     *detDiagTiming_;
   ////////////////////////////////////////////
 
   edm::ESHandle<HcalDbService> conditions_;
