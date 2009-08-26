@@ -2,7 +2,6 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
-<use name=FWCore/PythonParameterSet>
 <use name=boost>
 <use name=boost_program_options> 
 <use name=CondCore/DBCommon>
