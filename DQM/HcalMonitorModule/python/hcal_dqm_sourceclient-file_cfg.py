@@ -287,9 +287,21 @@ process.options = cms.untracked.PSet(
 # Set expected orbit time to 6
 process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(6)
 
+
+# ----------------------
+# Trigger Unpacker Stuff
+# ----------------------
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("L1Trigger.Configuration.L1DummyConfig_cff")
+process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+process.l1GtUnpack.DaqGtInputTag = 'source'
+
+# Test l1GtUnpack to make sure it's not crashing
+
 process.p = cms.Path(process.hcalDigis
                      #*process.hcalAllDigis  # use all digis in digi monitor?
                      *process.valHcalTriggerPrimitiveDigis
+                     *process.l1GtUnpack
                      *process.horeco
                      *process.hfreco
                      *process.hbhereco
