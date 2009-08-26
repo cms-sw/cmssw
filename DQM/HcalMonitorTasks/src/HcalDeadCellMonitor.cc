@@ -748,8 +748,9 @@ void HcalDeadCellMonitor::fillNevents_occupancy(int checkN)
 		  if (ieta==-9999) continue;
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
-		  // Skip cells that are already marked as dead by the "neverpresent" test
-		  if (present[eta][phi][depth]==false) continue;
+		  // Skip cells that are already marked as dead by the "neverpresent" test?
+		  // Nope!  Gotta keep track of the overall fraction of unoccupied events, in case digi suddenly appears
+		  //if (present[eta][phi][depth]==false) continue;
 		  
 		  // Ignore subdetectors that weren't in run
 		  if ((subdet==HcalBarrel && !HBpresent_) || 
@@ -835,11 +836,8 @@ void HcalDeadCellMonitor::fillNevents_energy(int checkN)
 		  if (ieta==-9999) continue;
 		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
 		    continue;
-		  // Skip cells that are already marked as dead by the "neverpresent" test
-		  // require at least one RecHit -- this in turn requires at least once Digi,
-		  // so this test is only run if other dead cell tests have passed (with the exception of 
-		  // persistent digi occupancy test)
-		  if (present_energy[eta][phi][depth]==false) continue;
+		  if (aboveenergy[eta][phi][depth]>0) continue; // cell exceeded energy at least once, so it's not dead
+
 		  // Ignore subdetectors that weren't in run
                   if ((subdet==HcalBarrel && !HBpresent_) || 
 		      (subdet==HcalEndcap &&!HEpresent_)  ||
@@ -855,9 +853,9 @@ void HcalDeadCellMonitor::fillNevents_energy(int checkN)
 		    {
 		      ieta<0 ? ieta-- : ieta++;
 		    }
-		  if (aboveenergy[eta][phi][depth]>0) continue; // cell exceeded energy at least once, so it's not dead
-		  if (present[eta][phi][depth]==false) continue; // don't mark cells as dead taht are caugh by never-present algorithm
-		  if (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0) continue;  // don't mark cells as dead that are already caught by digi occupancy check
+		  
+		  // Don't think we want to do this -- need to keep track of overall energy occupancy
+		  //if (deadmon_test_occupancy_ && occupancy[eta][phi][depth]==0) continue;  // don't mark cells as dead that are already caught by digi occupancy check
 		  if (fVerbosity>2) 
 		    std::cout <<"DEAD CELL; BELOW ENERGY THRESHOLD = "<<subdet<<" eta = "<<ieta<<", phi = "<<iphi<<" depth = "<<depth+1<<std::endl;
 		  // Cell is below energy for all 'checkNevents_' consecutive events; update histogram
