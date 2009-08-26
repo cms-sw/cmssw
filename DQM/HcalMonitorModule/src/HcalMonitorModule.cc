@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/26 13:56:18 $
- * $Revision: 1.130 $
+ * $Date: 2009/08/26 16:31:45 $
+ * $Revision: 1.131 $
  * \author W Fisher
  * \author J Temple
  *
@@ -551,6 +551,8 @@ void HcalMonitorModule::endJob(void) {
   }
   
   if ( meStatus_ ) meStatus_->Fill(2);
+
+  return; // all other stuff done in client (filling db, etc)?
 
   if(rhMon_!=NULL) rhMon_->done();
   if(digiMon_!=NULL) digiMon_->done();
