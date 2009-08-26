@@ -171,7 +171,7 @@ bool HDQMInspector::setRange(unsigned int& firstRun, unsigned int& lastRun)
 }
 
 void HDQMInspector::createTrendLastRuns(const std::string ListItems, const std::string CanvasName,
-                                        const int logy, const std::string Conditions, const unsigned int nRuns)
+                                        const int logy, const std::string Conditions, const unsigned int nRuns, bool const UseYRange, double const& YMin, double const& YMax)
 {
   unsigned int first,last;
   unsigned int iovListSize = iovList.size();
@@ -193,7 +193,7 @@ void HDQMInspector::createTrendLastRuns(const std::string ListItems, const std::
   return;
 }
 
-void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, int logy, std::string Conditions, unsigned int firstRun, unsigned int lastRun)
+void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, int logy, std::string Conditions, unsigned int firstRun, unsigned int lastRun, bool const UseYRange, double const& YMin, double const& YMax)
 {
   std::cout << "\n****************\nCreateTrend\n****************\n" << std::endl;
   std::cout << "ListItems : " << ListItems << std::endl;

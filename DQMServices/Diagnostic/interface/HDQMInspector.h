@@ -64,9 +64,9 @@ class HDQMInspector
 
   void setDB(std::string DBName, std::string DBTag, std::string DBuser="", std::string DBpasswd="", std::string DBblob="");
   void createTrend(const std::string ListItems, const std::string CanvasName="", const int logy=0, const std::string Conditions="",
-                   const unsigned int firstRun=1, const unsigned int lastRun=0xFFFFFFFE);
+                   const unsigned int firstRun=1, const unsigned int lastRun=0xFFFFFFFE, bool const UseYRange = false, double const& YMin = 999999, double const& YMax = -999999);
   void createTrendLastRuns(const std::string ListItems, const std::string CanvasName="",
-                           const int logy=0, const std::string Conditions="", const unsigned int nRuns=10); 
+                           const int logy=0, const std::string Conditions="", const unsigned int nRuns=10, bool const UseYRange = false, double const& YMin = 999999, double const& YMax = -999999); 
   void setDebug(int i){iDebug=i;}
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
