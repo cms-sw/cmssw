@@ -1,11 +1,12 @@
-# /dev/CMSSW_3_2_2/8E29/V1 (CMSSW_3_2_2_HLT1)
+# /dev/CMSSW_3_3_0/pre1/8E29/V6 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_2_2/8E29/V1')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/8E29/V6')
 )
+
 
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
   searchInTIDTEC = cms.bool( True ),
