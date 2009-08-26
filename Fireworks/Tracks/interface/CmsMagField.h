@@ -17,7 +17,7 @@ class CmsMagField: public TEveMagField
  CmsMagField():
     m_magnetIsOn(true),
     m_reverse(false),
-    m_simpleModel(true){}
+    m_simpleModel(false){}
 
   virtual ~CmsMagField(){}
   virtual TEveVector GetField(Float_t x, Float_t y, Float_t z) const;
