@@ -439,10 +439,13 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
     w = data[i].ph();
     wRaw = data[i].phRaw();
 
-    // Require ADC to be > 0.
+    // (Require ADC to be > 0.)
+    // No later studies suggest that this only do harm
+    /*
     for ( size_t j = 0; j != w.size(); ++j ) {
       if ( w[j] < 0. ) w[j] = 0.001;
     }
+    */
 
     if (i == data.size()/2 -1) stripLeft = w[1];
     if (i == data.size()/2 +1) stripRight = w[1];

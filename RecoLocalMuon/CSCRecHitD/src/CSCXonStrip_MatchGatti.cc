@@ -437,23 +437,25 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
     charge = chargeSignal[0][iTime]*cross_talks_inv(1,1) + chargeSignal[1][iTime]*cross_talks_inv(1,2) + 
       chargeSignal[2][iTime]*cross_talks_inv(1,3);
     //---- Negative charge? According to studies (and logic) - better use 0 charge
-    if(charge<0.){
-      charge = 0.;
-    }
+    //----- Later studies suggest that this only do harm. I am still worried about 
+    // charges of -50 ADC and below (0.5% of the cases) but let see 
+    //if(charge<0.){
+      //charge = 0.;
+    //}
     q_sum+=charge;
     q_sumL+=charge;
     charge = chargeSignal[0][iTime]*cross_talks_inv(2,1) + chargeSignal[1][iTime]*cross_talks_inv(2,2) + 
       chargeSignal[2][iTime]* cross_talks_inv(2,3);
-    if(charge<0.){
-      charge = 0.;
-    }
+    //if(charge<0.){
+      //charge = 0.;
+    //}
     q_sum+=charge;
     q_sumC+=charge;
     charge = chargeSignal[0][iTime]*cross_talks_inv(3,1) + chargeSignal[1][iTime]*cross_talks_inv(3,2) + 
       chargeSignal[2][iTime]*cross_talks_inv(3,3);
-    if(charge<0.){
-      charge = 0.;
-    }
+    //if(charge<0.){
+      //charge = 0.;
+    //}
     q_sum+=charge;
     q_sumR+=charge;
   }
