@@ -281,6 +281,7 @@ public :
   Int_t           L1HfTowerCountNegativeEta;
   Int_t           Run;
   Int_t           Event;
+  Int_t           LumiBlock;
 
   bool ohEleL1Dupl[8000];
   bool ohEleLWL1Dupl[8000];
@@ -779,6 +780,7 @@ public :
   TBranch        *b_L1HfTowerCountNegativeEta;   //!
   TBranch        *b_Run;   //!
   TBranch        *b_Event;   //!
+  TBranch        *b_LumiBlock;  //!
 
   TBranch        *b_L1_DoubleMuTopBottom;   //! 
   TBranch        *b_L1_DoubleEG05_TopBottom;   //! 
@@ -1109,11 +1111,17 @@ public :
   std::map<TString, std::vector<TString> >&
     GetL1SeedsOfHLTPathMap() { return map_L1SeedsOfStandardHLTPath; }; // mapping to all seeds
 
+  int OHltTree::GetNLumiSections() {
+    return nLumiSections;
+  }
 
 private:
 
   int nTrig;
   int nL1Trig;
+  int nLumiSections;
+  int previousLumiSection;
+  int currentLumiSection;
   std::vector<int> triggerBit;
   std::vector<int> previousBitsFired;
   std::vector<int> allOtherBitsFired;
@@ -1150,7 +1158,11 @@ OHltTree::OHltTree(TTree *tree, OHltMenu *menu)
   Init(tree);
 
   nMissingTriggerWarnings = 0;
-  
+
+  currentLumiSection = -999;
+  previousLumiSection = -999;
+  nLumiSections = 0;
+
   nTrig = menu->GetTriggerSize();
   nL1Trig = menu->GetL1TriggerSize();
 
@@ -1467,6 +1479,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1HfTowerCountNegativeEta", &L1HfTowerCountNegativeEta, &b_L1HfTowerCountNegativeEta);
   fChain->SetBranchAddress("Run", &Run, &b_Run);
   fChain->SetBranchAddress("Event", &Event, &b_Event);
+  fChain->SetBranchAddress("LumiBlock", &LumiBlock, &b_LumiBlock); 
   //20X
 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &L1_DoubleMuTopBottom, &b_L1_DoubleMuTopBottom); 

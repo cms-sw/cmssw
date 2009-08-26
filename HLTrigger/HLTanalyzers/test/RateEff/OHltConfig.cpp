@@ -17,6 +17,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("run.nEntries",nEntries);
     cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);
     cfg.lookupValue("run.isRealData",isRealData);
+    omenu->SetIsRealData(isRealData);     
     cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
     cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
     cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
@@ -37,6 +38,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     /**** Real data conditions ****/   
     cfg.lookupValue("data.liveTimeRun",liveTimeRun);
     cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
+    cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
     cout << "Real data conditions...ok"<< endl;
     /******************************/  
@@ -182,7 +184,8 @@ void OHltConfig::print()
     {
       cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
       cout << "liveTimeRun: " << liveTimeRun << endl;
-      cout << "prescaleNormalization: " << prescaleNormalization << endl;
+      cout << "Time of one LumiSection: " << lumiSectionLength << endl;
+      cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;

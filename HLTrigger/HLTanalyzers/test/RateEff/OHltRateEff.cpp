@@ -167,11 +167,16 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       deno = chainEntries;
     }
 
-    if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
+    if(cfg->isRealData == 1 && cfg->lumiSectionLength > 0)
+      {
+	// Effective time = # of lumi sections * length of 1 lumi section / overall prescale factor of the PD being analyzed
+	scaleddeno = (float)((procs[i]->GetNLumiSections()) * (cfg->lumiSectionLength)) / ((float)(cfg->prescaleNormalization));
+      }
+    else if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
       { 
-        scaleddeno = ((float)deno/(float)cfg->nL1AcceptsRun) * (float)cfg->liveTimeRun / (float)cfg->prescaleNormalization; 
+        scaleddeno = ((float)deno/(float)cfg->nL1AcceptsRun) * (float)cfg->liveTimeRun;
       } 
-
+    
     float mu =
       cfg->bunchCrossingTime*cfg->psigmas[i]*cfg->iLumi*(float)cfg->maxFilledBunches
       /(float)cfg->nFilledBunches;

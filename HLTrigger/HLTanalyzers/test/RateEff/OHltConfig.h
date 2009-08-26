@@ -52,6 +52,7 @@ class OHltConfig {
   /**** Real data conditions ****/
   float liveTimeRun;
   int nL1AcceptsRun;
+  float lumiSectionLength;
   int prescaleNormalization;
   /******************************/
 

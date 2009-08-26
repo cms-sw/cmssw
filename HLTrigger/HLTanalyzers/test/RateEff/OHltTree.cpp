@@ -68,6 +68,18 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 
     if ( cfg->pdomucuts[procID] && MCmu3!=0 ) continue;
     if ( cfg->pdoecuts[procID] && MCel3!=0 ) continue;
+
+    // When running on real data, keep track of how many LumiSections have been 
+    // used. Note: this assumes LumiSections are contiguous, and that the user 
+    // uses complete LumiSections
+    if(menu->IsRealData())
+      {
+	currentLumiSection = LumiBlock;
+	if(currentLumiSection != previousLumiSection)
+	  nLumiSections++;
+
+	previousLumiSection = currentLumiSection;	
+      }
  
     SetOpenL1Bits(); 
 
