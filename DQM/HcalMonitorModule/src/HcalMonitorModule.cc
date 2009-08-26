@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/26 16:31:45 $
- * $Revision: 1.131 $
+ * $Date: 2009/08/26 17:44:11 $
+ * $Revision: 1.132 $
  * \author W Fisher
  * \author J Temple
  *
@@ -552,7 +552,8 @@ void HcalMonitorModule::endJob(void) {
   
   if ( meStatus_ ) meStatus_->Fill(2);
 
-  return; // all other stuff done in client (filling db, etc)?
+
+  return; // All of the rest of the endjob stuff (filling db, etc.) should be done in the client, right?
 
   if(rhMon_!=NULL) rhMon_->done();
   if(digiMon_!=NULL) digiMon_->done();
