@@ -32,6 +32,7 @@ if (! open(INPUT,"<$file") ) {
         print OUTFILE "    MaxEta = cms.double(".$eta,"),\n";
         print OUTFILE "    MinPhi = cms.double(".$phi,"),\n";
         print OUTFILE "    MaxPhi = cms.double(".$phi,"),\n";
+        print OUTFILE "    Psi    = cms.double(999.9),\n";
         print OUTFILE "    BeamMeanX = cms.double(0.0),\n";
         print OUTFILE "    BeamMeanY = cms.double(0.0),\n";
         print OUTFILE "    BeamPosition = cms.double(-26733.5)\n";
