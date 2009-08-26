@@ -11,8 +11,10 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 # BeamMonitor
 #-----------------------------
-process.load("DQM.BeamMonitor.BeamMonitor_Cosmics_cff")
-process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
+process.load("DQM.BeamMonitor.BeamMonitor_Cosmics_cff") # need input track collection in the event
+process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff") # need beam spot collection in the event
+
+####  SETUP TRACKING RECONSTRUCTION ####
 
 #-------------------------------------------------
 # GEOMETRY
@@ -50,15 +52,16 @@ process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
 # offline beam spot
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
+#### END OF TRACKING RECONSTRUCTION ####
+
 #----------------------------
 # Event Source
 #-----------------------------
 process.load("DQM.Integration.test.inputsource_playback_cfi")
 
 
-#process.pt = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5)
-process.pt = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5*process.cosmictracksP5)
-process.pp = cms.Path(process.dqmBeamMonitor+process.dqmBeamCondMonitor+process.dqmEnv+process.dqmSaver)
+process.tracking = cms.Path(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5*process.cosmictracksP5)
+process.monitor = cms.Path(process.dqmBeamMonitor+process.dqmBeamCondMonitor+process.dqmEnv+process.dqmSaver)
 
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = 'srv-c2d05-18'
@@ -70,53 +73,21 @@ process.dqmEnv.subSystemFolder = 'BeamMonitor'
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
-# # Message Logger
-# process.load("FWCore.MessageService.MessageLogger_cfi")
-# #process.MessageLogger.categories = ['hltResults']
-# process.MessageLogger.destinations = ['cout', 'detailedInfo', 'critical']
-# process.MessageLogger.cout = cms.untracked.PSet(
-#     #threshold = cms.untracked.string('ERROR'),
-#     #threshold = cms.untracked.string('INFO'),
-#     #INFO = cms.untracked.PSet(
-#     # limit = cms.untracked.int32(-1)
-#     #)#,
-#     threshold = cms.untracked.string('DEBUG'),
-#     DEBUG = cms.untracked.PSet(
-#     limit = cms.untracked.int32(-1) ## DEBUG, all messages
-#     )
-#     )
-# process.MessageLogger.categories = ['Status', 'Parameter']
-# # copy stdout to a file
-# process.MessageLogger.detailedInfo = process.MessageLogger.cout
-# process.MessageLogger.debugModules = ['hltResults']
-# process.MessageLogger.critical = cms.untracked.PSet(
-#     threshold = cms.untracked.string('ERROR'),
-#     #threshold = cms.untracked.string('INFO'),
-#     #INFO = cms.untracked.PSet(
-#     # limit = cms.untracked.int32(-1)
-#     #)#,
-#     #threshold = cms.untracked.string('DEBUG'),
-#     ERROR = cms.untracked.PSet(
-#     limit = cms.untracked.int32(-1) ## all messages
-#     )
-#     )
 # # summary
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
     )
 
-process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string('test.root'),
-			       outputCommands = cms.untracked.vstring(
-				'drop *',
-				'keep *_offlineBeamSpot_*_*',
-				'keep *_ctfWithMaterialTracksP5_*_*',
-				'keep *_cosmictrackfinderP5_*_*'
-			       )
-                              )
+#process.out = cms.OutputModule("PoolOutputModule",
+#                               fileName = cms.untracked.string('test.root'),
+#			       outputCommands = cms.untracked.vstring(
+#				'drop *',
+#				'keep *_offlineBeamSpot_*_*',
+#				'keep *_ctfWithMaterialTracksP5_*_*',
+#				'keep *_cosmictrackfinderP5_*_*'
+#			       )
+#                              )
+#process.end = cms.EndPath(process.out)
 
-process.end = cms.EndPath(process.out)
-
-#process.schedule = cms.Schedule(process.pt,process.pp,process.end)
-process.schedule = cms.Schedule(process.pt,process.pp)
+process.schedule = cms.Schedule(process.tracking, process.monitor)
 
