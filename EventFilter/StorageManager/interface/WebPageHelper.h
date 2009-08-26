@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.4 2009/08/20 13:40:38 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.5 2009/08/21 09:28:27 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -32,8 +32,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/20 13:40:38 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/21 09:28:27 $
    */
   
   class WebPageHelper
@@ -503,6 +503,16 @@ namespace stor {
      * Add a table row for copy/inject workers
      */
     void addRowsForWorkers
+    (
+      XHTMLMaker& maker,
+      XHTMLMaker::Node *table,
+      ResourceMonitorCollection::Stats const&
+    );
+
+    /**
+     * Add a table row for SATA beast status
+     */
+    void addRowsForSataBeast
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node *table,
