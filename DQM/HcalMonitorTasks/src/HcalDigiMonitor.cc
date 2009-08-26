@@ -429,7 +429,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  ++hfHists.count_BQ[static_cast<int>(hfHists.count_bad)];
 	  ++hfHists.count_BQFrac[static_cast<int>(hfHists.count_bad/hfHists.count_good)*DIGI_BQ_FRAC_NBINS];
 	}
-      HFocc_vs_LB->Fill(lumiblock,hoHists.count_good);
+      HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
     } // if (hfHists.check)
   
   if (showTiming)
