@@ -78,7 +78,7 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   baseFolder_ = rootFolder_+"HcalNoiseMonitor";
   //char *name;
-  string name;
+  std::string name;
   if(m_dbe!=NULL){    
      m_dbe->setCurrentFolder(baseFolder_);   
      meEVT_ = m_dbe->bookInt("HcalNoiseMonitor Event Number");

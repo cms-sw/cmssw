@@ -295,14 +295,12 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
 
 }
 
-
 void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HODigiCollection& ho,
 				   const HFDigiCollection& hf,
 				   //const ZDCDigiCollection& zdc,
 				   const HcalDbService& cond,
-				   const HcalUnpackerReport& report,
-				   bool hcalUnsuppressed)
+				   const HcalUnpackerReport& report)
 { 
   if(!m_dbe) 
     { 
@@ -371,21 +369,26 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     }
 
   // Fill good digis vs lumi block; also fill bad errors?
-  if (!hcalUnsuppressed)
-    {
-      HBocc_vs_LB->Fill(lumiblock,hbHists.count_good);
-      HEocc_vs_LB->Fill(lumiblock,heHists.count_good);
-    }
+  HBocc_vs_LB->Fill(lumiblock,hbHists.count_good);
+  HEocc_vs_LB->Fill(lumiblock,heHists.count_good);
+  
+
   // Calculate number of bad quality cells and bad quality fraction
   if (hbHists.check && (hbHists.count_good>0 || hbHists.count_bad>0))
     {
-      ++hbHists.count_BQ[static_cast<int>(hbHists.count_bad)];
-      ++hbHists.count_BQFrac[static_cast<int>(hbHists.count_bad/(hbHists.count_bad+hbHists.count_good))*DIGI_BQ_FRAC_NBINS];
+      int counter=hbHists.count_bad;
+      if (counter<DIGI_SUBDET_NUM)
+	++hbHists.count_BQ[counter];
+      counter = static_cast<int>((hbHists.count_bad/(hbHists.count_bad+hbHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
+      ++hbHists.count_BQFrac[counter];
     }
   if (heHists.check && (heHists.count_good>0 || heHists.count_bad>0))
     {
-      ++heHists.count_BQ[static_cast<int>(heHists.count_bad)];
-      ++heHists.count_BQFrac[static_cast<int>(heHists.count_bad/(heHists.count_bad+heHists.count_good))*DIGI_BQ_FRAC_NBINS];
+      int counter=heHists.count_bad;
+      if (counter<DIGI_SUBDET_NUM)
+	++heHists.count_BQ[counter];
+      counter = static_cast<int>((heHists.count_bad/(heHists.count_bad+heHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
+      ++heHists.count_BQFrac[counter];
     }
 
   if (showTiming)
@@ -406,10 +409,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
    
       if (hoHists.count_bad>0 || hoHists.count_good>0)
 	{
-	  ++hoHists.count_BQ[static_cast<int>(hoHists.count_bad)];
-	  ++hoHists.count_BQFrac[static_cast<int>(hoHists.count_bad/(hoHists.count_bad+hoHists.count_good))*DIGI_BQ_FRAC_NBINS];
+	  int counter=hoHists.count_bad;
+	  if (counter<DIGI_SUBDET_NUM)
+	    ++hoHists.count_BQ[counter];
+	  counter = static_cast<int>((hoHists.count_bad/(hoHists.count_bad+hoHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
+	  ++hoHists.count_BQFrac[counter];
 	}
-      if (!hcalUnsuppressed) HOocc_vs_LB->Fill(lumiblock,hoHists.count_good);
+      HOocc_vs_LB->Fill(lumiblock,hoHists.count_good);
     } // if (hoHists.check)
 
   if (showTiming)
@@ -429,10 +435,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (hfHists.count_bad>0 || hfHists.count_good>0)
 	{
-	  ++hfHists.count_BQ[static_cast<int>(hfHists.count_bad)];
-	  ++hfHists.count_BQFrac[static_cast<int>(hfHists.count_bad/hfHists.count_good)*DIGI_BQ_FRAC_NBINS];
+	  int counter=hfHists.count_bad;
+	  if (counter<DIGI_SUBDET_NUM)
+	    ++hfHists.count_BQ[counter];
+	  counter = static_cast<int>((hfHists.count_bad/(hfHists.count_bad+hfHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
+	  ++hfHists.count_BQFrac[counter];
 	}
-      if (!hcalUnsuppressed) HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
+      HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
     } // if (hfHists.check)
   
   if (showTiming)
@@ -488,8 +497,6 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   int iPhi = digi.id().iphi();
   int iDepth = digi.id().depth();
   int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);
-    
-  ++h.count_good; // digi found; increment counter (used for calculating bad fraction)
 	  
   // Check that digi size is correct
   if (digi.size()<mindigisize_ || digi.size()>maxdigisize_)
