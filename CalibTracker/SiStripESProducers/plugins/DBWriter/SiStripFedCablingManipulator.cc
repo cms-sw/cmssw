@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibTracker/SiStripESProducers/plugins/DBWriter/SiStripFedCablingManipulator.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
