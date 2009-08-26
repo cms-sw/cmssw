@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
