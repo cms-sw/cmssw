@@ -16,6 +16,3 @@ from DQM.Physics.DQMPhysics_cff import *
 
 DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETDQMOfflineSourceCosmic*hcalOfflineDQMSource*triggerCosmicOfflineDQMSource*siPixelOfflineDQM_cosmics_source*egammaCosmicPhotonMonitors*dtSources*cscSources*rpcTier0Source*dqmPhysics)
 
-DQMOfflineCosmics.remove(dqmPhysics)
-
-
