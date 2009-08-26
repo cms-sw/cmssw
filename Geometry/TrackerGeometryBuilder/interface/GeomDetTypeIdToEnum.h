@@ -14,8 +14,8 @@ class GeomDetTypeIdToEnum {
 
   GeomDetTypeIdToEnum();
   
-  GeomDetType::SubDetector& type(int);
-  int detId(GeomDetType::SubDetector);
+  GeomDetType::SubDetector type(int) const;
+  int detId(GeomDetType::SubDetector) const;
 
  private:
   MapEnumType _map;

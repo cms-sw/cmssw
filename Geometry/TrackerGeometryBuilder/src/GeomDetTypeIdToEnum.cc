@@ -17,7 +17,6 @@ GeomDetTypeIdToEnum::GeomDetTypeIdToEnum(){
   _map.insert(std::pair<int, SubDetector>(5,TOB));
   _map.insert(std::pair<int, SubDetector>(6,TEC));
 
-
   //
   // build reverse map
   //
@@ -28,21 +27,22 @@ GeomDetTypeIdToEnum::GeomDetTypeIdToEnum(){
   _reverseMap.insert(std::pair<SubDetector, int>(TID,4));
   _reverseMap.insert(std::pair<SubDetector, int>(TOB,5));
   _reverseMap.insert(std::pair<SubDetector, int>(TEC,6));
-
+  _reverseMap.insert(std::pair<SubDetector, int>(invalidDet,100));// detID(GeomDetTyp::SubDetector t) default was to return 100;
   //
   // done
   //
 }
-GeomDetType::SubDetector& GeomDetTypeIdToEnum::type(int s){
+
+GeomDetType::SubDetector GeomDetTypeIdToEnum::type(int s) const {
   if (_map.find(s) != _map.end())
     return (_map.find(s))->second;
-  //return GeomDetType::unknown;
+  return invalidDet;
 }
 
-int GeomDetTypeIdToEnum::detId(GeomDetType::SubDetector t){
+int GeomDetTypeIdToEnum::detId(GeomDetType::SubDetector t) const {
   if (_reverseMap.find(t) != _reverseMap.end())
     return (_reverseMap.find(t))->second;
-  return 100;
+  return _reverseMap.find(invalidDet)->second;
 }
 
 

@@ -7,8 +7,8 @@
 /** Global enumerators for Det types.
  */
 namespace GeomDetEnumerators {
-  enum Location {barrel, endcap};
-  enum SubDetector {PixelBarrel, PixelEndcap, TIB, TOB, TID, TEC, CSC, DT, RPCBarrel, RPCEndcap};
+  enum Location {barrel, endcap, invalidLoc};
+  enum SubDetector {PixelBarrel, PixelEndcap, TIB, TOB, TID, TEC, CSC, DT, RPCBarrel, RPCEndcap, invalidDet};
 }
 
 /* overload << for correct output of the enumerators 

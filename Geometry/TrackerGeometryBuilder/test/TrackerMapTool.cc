@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.5 2007/02/05 12:56:20 fambrogl Exp $
+// $Id: TrackerMapTool.cc,v 1.6 2007/03/09 00:41:04 wmtan Exp $
 //
 //
 
@@ -105,6 +105,7 @@ int layerno(int subdet,int leftright,int layer){
   if(subdet==1)return(layer+30);
   if(subdet==3)return(layer+33);
   if(subdet==5)return(layer+37);
+  return -1;// this was added.  No checks have been mad where layerno is used.
 }
 // ------------ method called to produce the data  ------------
 void

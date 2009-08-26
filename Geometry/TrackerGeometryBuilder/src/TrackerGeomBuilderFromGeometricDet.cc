@@ -55,7 +55,7 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
 
 void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*>  const & gdv, 
 						    TrackerGeometry* tracker,
-						    GeomDetType::SubDetector& det,
+						    GeomDetType::SubDetector det,
 						    const std::string& part){ 
 
   static std::map<std::string,PixelGeomDetType*> detTypeMap;
@@ -87,7 +87,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
 void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*>  const & gdv, 
 						      TrackerGeometry* tracker,
-						      GeomDetType::SubDetector& det,
+						      GeomDetType::SubDetector det,
 						      const std::string& part)
 { 
   static std::map<std::string,StripGeomDetType*> detTypeMap;
