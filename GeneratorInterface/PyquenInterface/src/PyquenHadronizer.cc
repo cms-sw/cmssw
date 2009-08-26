@@ -2,15 +2,13 @@
  *
  * Generates PYQUEN HepMC events
  *
- * Original Author: Camelia Mironov
- * $Id: PyquenHadronizer.cc,v 1.4 2009/07/17 12:59:30 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.3.2.3 2009/08/20 21:56:28 yilmaz Exp $
 */
 
 #include <iostream>
 #include "time.h"
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
-//#include "GeneratorInterface/PyquenInterface/interface/PYR.h"
 #include "GeneratorInterface/PyquenInterface/interface/PyquenWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -24,10 +22,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "GeneratorInterface/PyquenInterface/interface/HiGenSkimmerFactory.h"
+
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
-
-//#include "CLHEP/Random/RandomEngine.h"
 
 using namespace gen;
 using namespace edm;
@@ -56,14 +54,13 @@ qgptau0_(pset.getParameter<double>("qgpProperTimeFormation")),
 maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 pythiaHepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
 pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
+   filterType_(pset.getUntrackedParameter<string>("filterType","None")),
+   maxTries_(pset.getUntrackedParameter<int>("maxTries",1000)),
    pythia6Service_(new Pythia6Service(pset))
 {
-  // Default constructor
   // Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
-  pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
   LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
-  
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
   LogDebug("HepMCverbosity")  << "Pythia HepMC verbosity = " << pythiaHepMCVerbosity_ << endl; 
@@ -73,7 +70,7 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
   if(embedding_) cflag_ = 0;
-
+  skimmer_ = HiGenSkimmerFactory::get(filterType_,pset);
 }
 
 
@@ -139,38 +136,48 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
       }
    }
 
-   // Generate PYQUEN event
-  // generate single partonic PYTHIA jet event
+   int counter = 0;
+   bool pass = false;
 
-  // Take into account whether it's a nn or pp or pn interaction
-   if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
-  call_pyevnt();
+   HepMC::GenEvent* evt = 0;
+   while(!pass){
+      if(counter == maxTries_) throw edm::Exception(edm::errors::Configuration,"InfiniteLoop")<<"Pyquen tried "<<counter<<" times to generate event with "<<filterType_.data()<<" ."<<endl;
+      
+      // Generate PYQUEN event
+      // generate single partonic PYTHIA jet event
 
-  // call PYQUEN to apply parton rescattering and energy loss 
-  // if doQuench=FALSE, it is pure PYTHIA
-  if( doquench_ ){
-    PYQUEN(abeamtarget_,cflag_,bfixed_,bmin_,bmax_);
-    edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
-  } else {
-    edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
-  }
+      // Take into account whether it's a nn or pp or pn interaction
+      if(doIsospin_) call_pyinit("CMS", nucleon(), nucleon(), comenergy);
+      call_pyevnt();
 
-  // call PYTHIA to finish the hadronization
-  pyexec_();
+      // call PYQUEN to apply parton rescattering and energy loss 
+      // if doQuench=FALSE, it is pure PYTHIA
+      if( doquench_ ){
+	 PYQUEN(abeamtarget_,cflag_,bfixed_,bmin_,bmax_);
+	 edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN("<<abeamtarget_<<","<<cflag_<<","<<bfixed_<<") ####";
+      } else {
+	 edm::LogInfo("PYQUENinAction") << "##### Calling PYQUEN: QUENCHING OFF!! This is just PYTHIA !!!! ####";
+      }
+      
+      // call PYTHIA to finish the hadronization
+      pyexec_();
 
-  // fill the HEPEVT with the PYJETS event record
-  call_pyhepc(1);
+      // fill the HEPEVT with the PYJETS event record
+      call_pyhepc(1);
+      
+      // event information
+      HepMC::GenEvent* evt = hepevtio.read_next_event();
+      pass = skimmer_->filter(evt);
+      counter++;
+   }
 
-  // event information
-  HepMC::GenEvent* evt = hepevtio.read_next_event();
-  evt->set_signal_process_id(pypars.msti[0]);      // type of the process
-
-  evt->set_event_scale(pypars.pari[16]);           // Q^2
-
-  if(embedding_) rotateEvtPlane(evt,evtPlane);
-  add_heavy_ion_rec(evt);
-
-  event().reset(evt);
+   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
+   evt->set_event_scale(pypars.pari[16]);           // Q^2
+   
+   if(embedding_) rotateEvtPlane(evt,evtPlane);
+   add_heavy_ion_rec(evt);
+   
+   event().reset(evt);
 
   return true;
 }

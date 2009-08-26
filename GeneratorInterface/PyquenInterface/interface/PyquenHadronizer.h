@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.2 2009/05/28 17:36:52 yilmaz Exp $
+ * $Id: PyquenHadronizer.h,v 1.3.2.2 2009/08/20 21:56:27 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -12,16 +12,10 @@
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "GeneratorInterface/PyquenInterface/interface/BaseHiGenSkimmer.h"
 #include <map>
 #include <string>
 #include "HepMC/GenEvent.h"
-
-/*
-namespace CLHEP {
-   class HepRandomEngine;
-}
-*/
-
 
 namespace gen
 {
@@ -30,9 +24,7 @@ namespace gen
   class PyquenHadronizer : public BaseHadronizer {
   public:
 
-    /// Constructor
     PyquenHadronizer(const edm::ParameterSet &);
-    /// Destructor
     virtual ~PyquenHadronizer();
 
     bool generatePartonsAndHadronize();
@@ -71,6 +63,8 @@ namespace gen
     bool             docollisionalenloss_;    //! DEFAULT = true       
     bool             doIsospin_;              //! Run n&p with proper ratios; if false, only p+p collisions
     bool             embedding_;
+    std::string      filterType_;
+    int              maxTries_;
     double           pfrac_;                  //! Proton fraction in the nucleus
 
     unsigned int     nquarkflavor_;           //! number of active quark flavors in qgp
@@ -85,7 +79,7 @@ namespace gen
 
     //    CLHEP::HepRandomEngine* fRandomEngine;
     Pythia6Service* pythia6Service_;
-
+    BaseHiGenSkimmer* skimmer_;
   };
 } /*end namespace*/ 
 
