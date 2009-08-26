@@ -6,6 +6,7 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 CSCDigiSuppressor::CSCDigiSuppressor(const edm::ParameterSet& ps)
