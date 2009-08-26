@@ -119,19 +119,19 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       SetupEtaPhiHists(DigiErrorsByDepth,"Bad Digi Map","");
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/1D_digi_plots");
       ProblemsVsLB=m_dbe->bookProfile("BadDigisVsLB","# Bad Digis vs Luminosity block;Lumi block;# of Bad digis",
-				      Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+				      Nlumiblocks_,0.5,Nlumiblocks_+0.5,0,10000);
       ProblemsVsLB_HB=m_dbe->bookProfile("HB Bad Quality Digis vs LB","HB Bad Quality Digis vs Luminosity Block",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-					 100,0,10000);   
+					 0,10000);   
       ProblemsVsLB_HE=m_dbe->bookProfile("HE Bad Quality Digis vs LB","HE Bad Quality Digis vs Luminosity Block",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-					 100,0,10000);
+					 0,10000);
       ProblemsVsLB_HO=m_dbe->bookProfile("HO Bad Quality Digis vs LB","HO Bad Quality Digis vs Luminosity Block",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-					 100,0,10000);
+					 0,10000);
       ProblemsVsLB_HF=m_dbe->bookProfile("HF Bad Quality Digis vs LB","HF Bad Quality Digis vs Luminosity Block",
 					 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-					 100,0,10000);
+					 0,10000);
 
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badcapID");
@@ -149,16 +149,16 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/good_digis/1D_digi_plots");
       HBocc_vs_LB=m_dbe->bookProfile("HBoccVsLB","HB digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
 				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-				     100,0,2600);
+				     0,2600);
       HEocc_vs_LB=m_dbe->bookProfile("HEoccVsLB","HE digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
 				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-				     100,0,2600);
+				     0,2600);
       HOocc_vs_LB=m_dbe->bookProfile("HOoccVsLB","HO digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
 				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-				     100,0,2200);
+				     0,2200);
       HFocc_vs_LB=m_dbe->bookProfile("HFoccVsLB","HF digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
 				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
-				     100,0,2000);
+				     0,1800);
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badfibBCNoff");
       SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
@@ -301,7 +301,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HFDigiCollection& hf,
 				   //const ZDCDigiCollection& zdc,
 				   const HcalDbService& cond,
-				   const HcalUnpackerReport& report)
+				   const HcalUnpackerReport& report,
+				   bool hcalUnsuppressed)
 { 
   if(!m_dbe) 
     { 
@@ -370,9 +371,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     }
 
   // Fill good digis vs lumi block; also fill bad errors?
-  HBocc_vs_LB->Fill(lumiblock,hbHists.count_good);
-  HEocc_vs_LB->Fill(lumiblock,heHists.count_good);
-
+  if (!hcalUnsuppressed)
+    {
+      HBocc_vs_LB->Fill(lumiblock,hbHists.count_good);
+      HEocc_vs_LB->Fill(lumiblock,heHists.count_good);
+    }
   // Calculate number of bad quality cells and bad quality fraction
   if (hbHists.check && (hbHists.count_good>0 || hbHists.count_bad>0))
     {
@@ -406,7 +409,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  ++hoHists.count_BQ[static_cast<int>(hoHists.count_bad)];
 	  ++hoHists.count_BQFrac[static_cast<int>(hoHists.count_bad/(hoHists.count_bad+hoHists.count_good))*DIGI_BQ_FRAC_NBINS];
 	}
-      HOocc_vs_LB->Fill(lumiblock,hoHists.count_good);
+      if (!hcalUnsuppressed) HOocc_vs_LB->Fill(lumiblock,hoHists.count_good);
     } // if (hoHists.check)
 
   if (showTiming)
@@ -429,7 +432,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  ++hfHists.count_BQ[static_cast<int>(hfHists.count_bad)];
 	  ++hfHists.count_BQFrac[static_cast<int>(hfHists.count_bad/hfHists.count_good)*DIGI_BQ_FRAC_NBINS];
 	}
-      HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
+      if (!hcalUnsuppressed) HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
     } // if (hfHists.check)
   
   if (showTiming)
