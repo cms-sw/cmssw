@@ -101,10 +101,10 @@ siStripFEDMonitor.nAPVStatusBitHistogramConfig = cms.untracked.PSet(
   #Max = cms.untracked.double(500)
 )
 siStripFEDMonitor.nAPVErrorHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(False),
-  #NBins = cms.untracked.uint32(250),
-  #Min = cms.untracked.double(0),
-  #Max = cms.untracked.double(500)
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(250),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(500)
 )
 siStripFEDMonitor.nAPVAddressErrorHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
@@ -161,10 +161,10 @@ siStripFEDMonitor.nAPVStatusBitvsTimeHistogramConfig = cms.untracked.PSet(
   #Max = cms.untracked.double(3600)
 )
 siStripFEDMonitor.nAPVErrorvsTimeHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(False),
-  #NBins = cms.untracked.uint32(600),
-  #Min = cms.untracked.double(0),
-  #Max = cms.untracked.double(3600)
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(600),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(3600)
 )
 siStripFEDMonitor.nAPVAddressErrorvsTimeHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
