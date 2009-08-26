@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.143 2009/08/14 15:38:30 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.144 2009/08/26 18:59:23 amraktad Exp $
 //
 
 // system include files
@@ -561,13 +561,6 @@ FWGUIManager::createList(TGSplitFrame *p)
    addLabel->SetTextJustify(kTextLeft);
 
    addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
-   FWCustomIconsButton* addDataButton = new FWCustomIconsButton(addFrame,
-                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign.png"),
-                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign-over.png"),
-                                                                gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"plus-sign-disabled.png"));
-   addDataButton->SetToolTipText("Show additional collections");
-   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
-   addFrame->AddFrame(addDataButton, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
    listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
 
 
@@ -577,7 +570,13 @@ FWGUIManager::createList(TGSplitFrame *p)
                                            this,
                                            m_changeManager,
                                            m_colorManager);
-
+   const unsigned int backgroundColor=0x2f2f2f;
+   TGTextButton* addDataButton = new TGTextButton(m_summaryManager->widget(),"Add Collection");
+   addDataButton->SetBackgroundColor(backgroundColor);
+   addDataButton->SetTextColor(0xFFFFFF);
+   addDataButton->SetToolTipText("Show additional collections");
+   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
+   m_summaryManager->widget()->AddFrame(addDataButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
    listFrame->AddFrame(m_summaryManager->widget(), new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 
    return listFrame;
