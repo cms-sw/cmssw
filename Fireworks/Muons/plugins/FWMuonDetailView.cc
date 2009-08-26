@@ -8,11 +8,12 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMuonDetailView.cc,v 1.6 2009/08/22 17:10:26 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.7 2009/08/22 20:34:11 amraktad Exp $
 //
 
 // system include files
 #include "Rtypes.h"
+#include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
 #include "TGFrame.h"
@@ -80,9 +81,9 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
    if(0 == iMuon) { return; }
 
    TEveScene* scene;
-   TGLViewer* viewer;
+   TEveViewer* eviewer;
    TGVerticalFrame* ediFrame;
-   FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   FWDetailViewBase::makePackViewer(slot, ediFrame, eviewer, scene);
 
    /* Here we have the code imported from the Electron variant
     * Differences in implementation for proxy building
@@ -308,9 +309,8 @@ void FWMuonDetailView::build (const FWModelId &id, const reco::Muon* iMuon, TEve
       if (outerTrack) outerTrack->MakeTrack();
    }
 
-   viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   viewer->UpdateScene();
-   viewer->CurrentCamera().Reset();
+   eviewer->GetGLViewer()->UpdateScene();
+   eviewer->GetGLViewer()->CurrentCamera().Reset();
 
    ediFrame->AddFrame( new TGLabel(ediFrame, "Add missing info here."));
    ediFrame->MapSubwindows();
