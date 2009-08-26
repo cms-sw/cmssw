@@ -168,6 +168,9 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	  else striggers_[trig] += ", " + theTriggerBits[i];
 	}
       }
+      dbe_->setCurrentFolder(monitorName_ + dirname);
+      sprintf(name,"%s triggers",theDirectoryName[trig].c_str());
+      dbe_->bookString(name,striggers_[trig]);
 
       for ( int level = 1; level < 7; ++level ) {
 	if( level < 4 ) sprintf(name,"Level%i",level);
@@ -735,13 +738,6 @@ void HLTMuonDQMSource::beginJob(const EventSetup& context)
 	}
       }
       dbe_->showDirStructure();
-    }
-
-    for( int trig = 0; trig < nTrigs; trig++ ) {
-      dirname = theDirectoryName[trig]+"/";
-      dbe_->setCurrentFolder(monitorName_ + dirname);
-      sprintf(name,"%s triggers",theDirectoryName[trig].c_str());
-      dbe_->bookString(name,striggers_[trig]);
     }
     // Muon det id is 2 pushed in bits 28:31
     const unsigned int detector_id = 2<<28;
