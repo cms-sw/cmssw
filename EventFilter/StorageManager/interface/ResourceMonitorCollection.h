@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.13 2009/08/26 08:50:55 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.14 2009/08/26 09:38:27 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2009/08/26 08:50:55 $
+   * $Revision: 1.14 $
+   * $Date: 2009/08/26 09:38:27 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -136,10 +136,11 @@ namespace stor {
     
     xdata::UnsignedInteger32 _copyWorkers;     // number of running copyWorkers
     xdata::UnsignedInteger32 _injectWorkers;   // number of running injectWorkers
-    xdata::Integer32 _sataBeastStatus; // status code of SATA beast
+    xdata::Integer32 _sataBeastStatus;         // status code of SATA beast
     xdata::UnsignedInteger32 _numberOfDisks;   // number of disks used for writing
-    xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // disk space for writing disk followed
-    xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // by look area and ecal disk
+    xdata::Vector<xdata::String> _diskPaths;   // list of disk paths
+    xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // total disk space
+    xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // used disk space
 
     // Unused status string from old SM
     xdata::String _progressMarker;
