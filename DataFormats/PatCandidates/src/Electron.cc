@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.7 2009/08/11 04:23:31 srappocc Exp $
+// $Id: Electron.cc,v 1.18 2009/08/26 08:37:56 cbern Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -19,6 +19,7 @@ Electron::Electron() :
     dB_(0.0)
 {
 }
+
 
 
 /// constructor from reco::GsfElectron
