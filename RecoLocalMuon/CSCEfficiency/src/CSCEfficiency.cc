@@ -490,22 +490,22 @@ bool CSCEfficiency::checkLocal(double yLocal, double yBoundary, int station, int
     }
     else if(1==ring){
       if(2==station){
-	deadZoneCenter[0]= -95.80 ;
+	deadZoneCenter[0]= -95.94 ;
 	deadZoneCenter[1] = -27.47;
 	deadZoneCenter[2] = 33.67;
-	deadZoneCenter[3] = 90.85;
+	deadZoneCenter[3] = 93.72;
       }
       else if(3==station){
-	deadZoneCenter[0]= -89.305 ;
-	deadZoneCenter[1] = -39.705;
-	deadZoneCenter[2] = 20.195;
-	deadZoneCenter[3] = 77.395;
+	deadZoneCenter[0]= -85.97 ;
+	deadZoneCenter[1] = -36.21;
+	deadZoneCenter[2] = 23.68;
+	deadZoneCenter[3] = 84.04;
       }
       else if(4==station){
-	deadZoneCenter[0]= -75.645;
-	deadZoneCenter[1] = -26.055;
-	deadZoneCenter[2] = 23.855;
-	deadZoneCenter[3] = 70.575;
+	deadZoneCenter[0]= -75.82;
+	deadZoneCenter[1] = -26.14;
+	deadZoneCenter[2] = 23.85;
+	deadZoneCenter[3] = 73.91;
       }
       if(yLocal >yBoundary &&
 	 ((yLocal> deadZoneCenter[0] + cutZone && yLocal< deadZoneCenter[1] - cutZone) ||
