@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/06/02 18:26:35 $
- *  $Revision: 1.34 $
- *  $Date: 2009/06/02 18:26:35 $
- *  $Revision: 1.34 $
+ *  $Date: 2009/07/24 19:44:30 $
+ *  $Revision: 1.34.2.3 $
+ *  $Date: 2009/07/24 19:44:30 $
+ *  $Revision: 1.34.2.3 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -141,7 +141,7 @@ GlobalTrajectoryBuilderBase::~GlobalTrajectoryBuilderBase() {
 // set Event
 //
 void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
-
+  
   theEvent = &event;
   theService->eventSetup().get<TrajectoryFitter::Record>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
@@ -223,21 +223,26 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
                   
     TC refitted0,refitted1;
     MuonCandidate* finalTrajectory = 0;
-    Trajectory *tkTrajectory;
+    Trajectory *tkTrajectory = 0;
 
     // tracker only track
     if ( ! ((*it)->trackerTrajectory() && (*it)->trackerTrajectory()->isValid()) ) { 
       refitted0 = theTrackTransformer->transform((*it)->trackerTrack()) ;
-      tkTrajectory = new Trajectory(*(refitted0.begin())); 
+      if (!refitted0.empty()) tkTrajectory = new Trajectory(*(refitted0.begin())); 
+      else LogWarning(theCategory)<< "Failed to load tracker track trajectory";
     } else tkTrajectory = (*it)->trackerTrajectory();
     if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
                                     
     // full track with all muon hits
     refitted1 = glbTrajectory(tmpSeed, trackerRecHits, muonRecHits,innerTsos);
-    Trajectory *glbTrajectory = new Trajectory(*(refitted1.begin()));
+    Trajectory *glbTrajectory = 0;
+    if (!refitted1.empty()) glbTrajectory = new Trajectory(*(refitted1.begin()));
+    else LogWarning(theCategory)<< "Failed to load global track trajectory"; 
     if (glbTrajectory) glbTrajectory->setSeedRef(tmpSeed);
     
-    finalTrajectory = new MuonCandidate(glbTrajectory, (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*tkTrajectory));
+    finalTrajectory = 0;
+    if(glbTrajectory && tkTrajectory) finalTrajectory = new MuonCandidate(glbTrajectory , (*it)->muonTrack(), (*it)->trackerTrack(), 
+					tkTrajectory? new Trajectory(*tkTrajectory) : 0);
 
     if ( finalTrajectory ) 
       refittedResult.push_back(finalTrajectory);
@@ -258,7 +263,8 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     }
   }
 
-  if ( tmpCand )  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack(), new Trajectory( *(tmpCand->trackerTrajectory()) ) ) );
+  if ( tmpCand )  selectedResult.push_back(new MuonCandidate(new Trajectory(*(tmpCand->trajectory())), tmpCand->muonTrack(), tmpCand->trackerTrack(), 
+							     (tmpCand->trackerTrajectory())? new Trajectory( *(tmpCand->trackerTrajectory()) ):0 ) );
 
   for (CandidateContainer::const_iterator it = refittedResult.begin(); it != refittedResult.end(); ++it) {
     if ( (*it)->trajectory() ) delete (*it)->trajectory();
