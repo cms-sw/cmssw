@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/06/01 20:17:05 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/07/13 13:54:50 $
+ *  $Revision: 1.17 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -147,6 +147,8 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 	else if ( !barrel_a && !barrel_b ) return  fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
 	else if ( barrel_a && !barrel_b  ) return true;
 	else if ( !barrel_a && barrel_b  ) return false;
+	 //shouldn;t really get here in any case (there's some sense to throw here )
+	 return false;
       }
     };
 
