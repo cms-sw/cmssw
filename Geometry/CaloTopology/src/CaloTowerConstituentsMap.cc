@@ -22,11 +22,11 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
   if (tid.null()) {
     if (id.det()==DetId::Hcal) { 
       HcalDetId hid(id);
-      if (hid.subdet()==HcalBarrel && standardHB_ ||
-	  hid.subdet()==HcalEndcap && standardHE_ ||
-	  hid.subdet()==HcalOuter && standardHO_ ||
-	  hid.subdet()==HcalForward && standardHF_) {
-	if (hid.subdet()==HcalForward && hid.ietaAbs()==29)  // special handling for tower 29
+      if ( (hid.subdet()==HcalBarrel && standardHB_ )  ||
+	   (hid.subdet()==HcalEndcap && standardHE_ )  ||
+	   (hid.subdet()==HcalOuter  && standardHO_ )  ||
+	   (hid.subdet()==HcalForward && standardHF_) ) {
+	if ((hid.subdet()==HcalForward) && hid.ietaAbs()==29)  // special handling for tower 29
 	  tid=CaloTowerDetId(30*hid.zside(),hid.iphi());
 	else 
 	  tid=CaloTowerDetId(hid.ieta(),hid.iphi());

@@ -16,22 +16,56 @@ std::vector<DetId> CaloTowerTopology::east(const DetId& id) const {
   int ieta=tid.ieta();
   int iphi=tid.iphi();
 
-  if (ieta==1) ieta=-1;
-  else if (ieta==DoubleHE) {
-    ieta--;
-    dd.push_back(CaloTowerDetId(ieta,iphi+1));    
-  } else if (ieta-1==-DoubleHE) {
-    if ((iphi%2)==0) iphi--;
-    ieta--;
-  } else if (ieta==QuadHF) {
-    ieta--;
-    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
-  } else if (ieta-1==-QuadHF) {
-    if (((iphi-1)%4)==0) 
-      if (iphi==1) iphi=71;
-      else iphi-=2;
-    ieta--;
-  } else ieta--;
+  if (ieta==1)
+  {
+     ieta=-1;
+  }
+  else 
+  {
+     if (ieta==DoubleHE) 
+     {
+	ieta--;
+	dd.push_back(CaloTowerDetId(ieta,iphi+1));    
+     }
+     else 
+     {
+	if (ieta-1==-DoubleHE) 
+	{
+	   if ((iphi%2)==0) iphi--;
+	   ieta--;
+	} 
+	else 
+	{
+	   if (ieta==QuadHF) 
+	   {
+	      ieta--;
+	      dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
+	   } 
+	   else 
+	   {
+	      if (ieta-1==-QuadHF) 
+	      {
+		 if (((iphi-1)%4)==0) 
+		 {
+		    if (iphi==1) 
+		    {
+		       iphi=71;
+		    }
+		    else 
+		    {
+		       iphi-=2;
+		    }
+		    ieta--;
+		 } 
+		 else 
+		 {
+		    ieta--;
+		 }
+	      }
+	   }
+	}
+     }
+  }
 
   if (ieta>=-41) 
     dd.push_back(CaloTowerDetId(ieta,iphi));
@@ -45,22 +79,56 @@ std::vector<DetId> CaloTowerTopology::west(const DetId& id) const {
   int ieta=tid.ieta();
   int iphi=tid.iphi();
 
-  if (ieta==-1) ieta=1;
-  else if (ieta==-DoubleHE) {
-    ieta++;
-    dd.push_back(CaloTowerDetId(ieta,iphi+1));    
-  } else if (ieta+1==DoubleHE) {
-    if ((iphi%2)==0) iphi--;
-    ieta++;
-  } else if (ieta==-QuadHF) {
-    ieta++;
-    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
-  } else if (ieta+1==QuadHF) {
-    if (((iphi-1)%4)==0) 
-      if (iphi==1) iphi=71;
-      else iphi-=2;
-    ieta++;
-  } else ieta++;
+  if (ieta==-1) 
+  {
+     ieta=1;
+  }
+  else 
+  {
+     if (ieta==-DoubleHE) 
+     {
+	ieta++;
+	dd.push_back(CaloTowerDetId(ieta,iphi+1));    
+     }
+     else 
+     {
+	if (ieta+1==DoubleHE) 
+	{
+	   if ((iphi%2)==0) iphi--;
+	   ieta++;
+	} 
+	else 
+	{
+	   if (ieta==-QuadHF) 
+	   {
+	      ieta++;
+	      dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
+	   } 
+	   else 
+	   {
+	      if (ieta+1==QuadHF) 
+	      {
+		 if (((iphi-1)%4)==0) 
+		 {
+		    if (iphi==1) 
+		    {
+		       iphi=71;
+		    }
+		    else 
+		    {
+		       iphi-=2;
+		    }
+		    ieta++;
+		 } 
+		 else 
+		 {
+		    ieta++;
+		 }
+	      }
+	   }
+	}
+     }
+  }
 
   if (ieta<=41) 
     dd.push_back(CaloTowerDetId(ieta,iphi));

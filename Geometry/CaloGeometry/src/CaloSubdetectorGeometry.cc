@@ -102,7 +102,7 @@ CaloSubdetectorGeometry::getClosestCell( const GlobalPoint& r ) const
    }   
    const DetId tid ( m_validIds.front() ) ;
    return ( closest > 0.9e9 ||
-	    ~0 == index       ? DetId(0) :
+	    (uint32_t)(~0) == index       ? DetId(0) :
 	    CaloGenericDetId( tid.det(),
 			      tid.subdetId(),
 			      index           ) ) ;

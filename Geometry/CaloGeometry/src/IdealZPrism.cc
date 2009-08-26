@@ -34,6 +34,11 @@ namespace calogeom
    IdealZPrism::localCorners( const double* pv  ,
 			      HepGeom::Point3D<double> &   ref   )
    {
+      if( false )
+      {
+	 GlobalPoint g1 ( etaPhiR(0,0,0) ) ;
+	 GlobalPoint g2 ( etaPhiPerp(0,0,0) ) ;
+      }
       assert( 0 != pv ) ;
 
       const double dEta ( pv[0] ) ;

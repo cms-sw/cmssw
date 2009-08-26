@@ -65,8 +65,8 @@ EcalEndcapGeometry::initializeParms()
 	const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
 	const unsigned int ix ( myId.ix() ) ;
 	const unsigned int iy ( myId.iy() ) ;
-	if( abs( ix ) > m_nref ) m_nref = abs( ix ) ;
-	if( abs( iy ) > m_nref ) m_nref = abs( iy ) ;
+	if( ix > m_nref ) m_nref = ix ;
+	if( iy > m_nref ) m_nref = iy ;
      }
   }
   if( 0 > nP ) zeP/=(float)nP;
@@ -264,6 +264,7 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
    { 
       return DetId(0);
    }
+   return DetId(0);
 }
 
 CaloSubdetectorGeometry::DetIdSet 
@@ -315,12 +316,12 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 	    for( int kx ( ix_lo ) ; kx <= ix_hi ; ++kx ) 
 	    {
 	       if( kx >  0      && 
-		   kx <= m_nref    )
+		   kx <= (int) m_nref    )
 	       {
 		  for( int ky ( iy_lo ) ; ky <= iy_hi ; ++ky ) 
 		  {
 		     if( ky >  0      && 
-			 ky <= m_nref    )
+			 ky <= (int) m_nref    )
 		     {
 			if( EEDetId::validDetId( kx, ky, iz ) ) // reject invalid ids
 			{

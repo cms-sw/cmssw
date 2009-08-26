@@ -1032,9 +1032,10 @@ void DDEcalBarrelAlgo::execute()
 		     const double phi    ( vecIlyPTMPhi()[ilyPTM] ) ;
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
+		     ++ptmCopy ; 
 		     DDpos( ilyPTMLog,
 			    xilyLog, 
-			    ++ptmCopy, 
+			    ptmCopy, 
 			    DDTranslation(xx,yy, vecIlyPTMZ()[ilyPTM] -ilyLength/2 ),
 			    myrot( ilyPTMLog.name().name() + "_rot" +
 				   int_to_string( ptmCopy ) , CLHEP::HepRotationZ( phi ) )) ;
@@ -1049,9 +1050,10 @@ void DDEcalBarrelAlgo::execute()
 		     const double phi    ( vecIlyFanOutPhi()[ilyFO] ) ;
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
+		     ++fanOutCopy ; 
 		     DDpos( ilyFanOutLog,
 			    xilyLog, 
-			    ++fanOutCopy, 
+			    fanOutCopy, 
 			    DDTranslation(xx,yy, vecIlyFanOutZ()[ilyFO] -ilyLength/2 ),
 			    myrot( ilyFanOutLog.name().name() + "_rot" +
 				   int_to_string( fanOutCopy ) , 
@@ -1064,9 +1066,10 @@ void DDEcalBarrelAlgo::execute()
 		     const double phi    ( vecIlyFEMPhi()[ilyFEM] ) ;
 		     const double yy     ( radius*sin(phi) ) ;
 		     const double xx     ( radius*cos(phi) ) ;
+		     ++femCopy ; 
 		     DDpos( ilyFEMLog,
 			    xilyLog, 
-			    ++femCopy, 
+			    femCopy, 
 			    DDTranslation(xx,yy, vecIlyFEMZ()[ilyFEM] -ilyLength/2 ),
 			    myrot( ilyFEMLog.name().name() + "_rot" +
 				   int_to_string( femCopy ) , CLHEP::HepRotationZ( phi ) )) ;
