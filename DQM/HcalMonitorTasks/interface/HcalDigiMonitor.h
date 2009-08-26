@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/08/20 17:49:22 $
-  * $Revision: 1.46 $
+  * $Date: 2009/08/26 13:56:42 $
+  * $Revision: 1.47 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -67,8 +67,7 @@ public:
 		    const HFDigiCollection& hf,
 		    //const ZDCDigiCollection& zdc,
 		    const HcalDbService& cond,
-		    const HcalUnpackerReport& report,
-		    bool hcalUnsuppressed=false);
+		    const HcalUnpackerReport& report);		
   void reset();
   void setSubDetectors(bool hb, bool he, bool ho, bool hf);
   void fill_Nevents();

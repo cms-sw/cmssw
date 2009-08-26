@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/26 09:38:14 $
- * $Revision: 1.129 $
+ * $Date: 2009/08/26 13:56:18 $
+ * $Revision: 1.130 $
  * \author W Fisher
  * \author J Temple
  *
@@ -748,31 +748,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
   if (rawOK_==true) ++ievt_rawdata_;
 
-  // Check whether data is unsuppressed
-  bool hcalUnsuppressed=false;
-  
-  if (rawOK_)
-    {
-      HcalHTRData htr;
-      for (vector<int>::const_iterator i=fedss.begin();i!=fedss.end(); i++) 
-	{
-	  const FEDRawData& fed = (*rawraw).FEDData(*i);
-	  if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
-	  // get the DCC header 
-	  const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
-	  if(!dccHeader) continue;
-	  
-	  for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) 
-	    {    
-	      if (!dccHeader->getSpigotPresent(spigot)) continue;
-	      dccHeader->getSpigotData(spigot,htr, fed.size()); 
-	      const unsigned short* HTRraw = htr.getRawData();
-	      hcalUnsuppressed=(HTRraw[6]>>15 & 0x0001);
-	      if (hcalUnsuppressed==true) break; // 1 unsuppressed htr means whole event unsuppressed?  Or should we check that all/most htrs are unsuppressed?
-	    }
-	} // loop on fedss
-    } // if (rawOK_)
-
   //Orbit Gap Data Quality Monitoring
   /*Requires 
     cvs co -r 1.1 DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h
@@ -1053,7 +1028,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       digiMon_->setSubDetectors(HBpresent_, HEpresent_, HOpresent_, HFpresent_ );
       digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,
 			     //*zdc_digi,
-			     *conditions_,*report, hcalUnsuppressed);
+			     *conditions_,*report);
     }
   if (showTiming_)
     {

@@ -77,13 +77,14 @@ void HcalDetDiagNoiseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
 
   baseFolder_ = rootFolder_+"HcalNoiseMonitor";
-  char *name;
+  //char *name;
+  string name;
   if(m_dbe!=NULL){    
      m_dbe->setCurrentFolder(baseFolder_);   
      meEVT_ = m_dbe->bookInt("HcalNoiseMonitor Event Number");
      m_dbe->setCurrentFolder(baseFolder_+"/Summary Plots");
      
-     name="RBX Pixel multiplisity";   PixelMult        = m_dbe->book1D(name,name,73,0,73);
+     name="RBX Pixel multiplicity";   PixelMult        = m_dbe->book1D(name,name,73,0,73);
      name="HPD energy";               HPDEnergy        = m_dbe->book1D(name,name,200,0,2500);
      name="RBX energy";               RBXEnergy        = m_dbe->book1D(name,name,200,0,3500);
      name="HB RM Noise Fraction Map"; HB_RBXmapRatio   = m_dbe->book2D(name,name,4,0.5,4.5,36,0.5,36.5);
