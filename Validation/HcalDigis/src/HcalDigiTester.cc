@@ -119,8 +119,12 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
       }
 
+    } // end of SimHits cycle
+    
 
-    }
+    // found highest-energy SimHit for single-particle 
+    if(mode_ != "multi" && emax_Sim > 0.) seedSimHit = 1;
+
   }   // end of SimHits
     
 
