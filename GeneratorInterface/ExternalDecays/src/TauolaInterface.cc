@@ -6,6 +6,9 @@
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaWrapper.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/HEPEVT_Wrapper.h"
@@ -15,6 +18,14 @@
 using namespace gen;
 using namespace edm;
 using namespace std;
+
+
+//
+//   General Note: While there're no explicit calls or otherwise "links" to Pythia6 anywhere,
+//   we're using Pythia6Service here because we run pretauola rather than "core" tauola;
+//   pretauola is an extension on top of tauola, which is tied to Pythia6 via several routines;
+//   most heavily use one is PYR - we can't avoid it (other Pythia6-tied routines we avoid)
+//
 
 TauolaInterface::TauolaInterface( const ParameterSet& pset )
    : fIsInitialized(false)
@@ -53,12 +64,7 @@ void TauolaInterface::init( const edm::EventSetup& es )
    
    fPDGs.push_back( 15 ) ;
    es.getData( fPDGTable ) ;
-/*
-   Service<RandomNumberGenerator> rng;
-   long seed = (long)(rng->mySeed()) ;
-   fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
-   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-*/   
+
 	cout << "----------------------------------------------" << endl;
         cout << "Initializing Tauola" << endl;
 	if ( fPolarization == 0 )
@@ -69,11 +75,24 @@ void TauolaInterface::init( const edm::EventSetup& es )
 	{
 	   cout << "Tauola: Polarization enabled" << endl;
 	}
+
+// FIXME !!!
+// THis is a temporary hack - we're re-using master generator's seed to init RANMAR
+   Service<RandomNumberGenerator> rng;
+   int seed = rng->mySeed() ;
+   int ntot=0, ntot2=0;
+   rmarin_( &seed, &ntot, &ntot2 );
+
    int mode = -2;
    taurep_( &mode ) ;
    mode = -1;
    // tauola_( &mode, &fPolarization );
-   tauola_srs_( &mode, &fPolarization );
+   // tauola_srs_( &mode, &fPolarization );
+   //
+   // We're using the call(...) method here because it'll make sure that Py6 
+   // is initialized, and that's done only once, and will grab exatly that instance
+   //
+   fPy6Service->call( tauola_srs_, &mode, &fPolarization ); 
    
    fIsInitialized = true;
    
@@ -155,7 +174,7 @@ HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
 	 PrntIndx.insert( PrntIndx.begin(), Prnt );
          ip -= HepMC::HEPEVT_Wrapper::number_children(Prnt); // such that we don't go the same part again
       }
-      for ( int iprt=0; iprt<PrntIndx.size(); iprt++ )
+      for ( size_t iprt=0; iprt<PrntIndx.size(); iprt++ )
       {  
           int Indx = PrntIndx[iprt];
 	  int PartID = HepMC::HEPEVT_Wrapper::id( Indx );
@@ -178,7 +197,7 @@ HepMC::GenEvent* TauolaInterface::decay( const HepMC::GenEvent* evt )
 	 double px = HepMC::HEPEVT_Wrapper::px( Indx );
 	 double py = HepMC::HEPEVT_Wrapper::py( Indx );
 	 double pz = HepMC::HEPEVT_Wrapper::pz( Indx );
-	 double pp = std::sqrt( px*px + py*py + pz*pz );
+	 // double pp = std::sqrt( px*px + py*py + pz*pz );
 	 double mass = HepMC::HEPEVT_Wrapper::m( Indx );
 	 //
 	 // this is in py6 terms:
@@ -208,5 +227,7 @@ void TauolaInterface::statistics()
 {
    int mode = 1;
    // tauola_( &mode, &fPolarization ) ;
-   tauola_srs_( &mode, &fPolarization ) ;
+   // tauola_srs_( &mode, &fPolarization ) ;
+   fPy6Service->call( tauola_srs_, &mode, &fPolarization );
+   return;
 }

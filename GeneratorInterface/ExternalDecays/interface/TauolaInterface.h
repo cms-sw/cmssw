@@ -17,7 +17,7 @@ class GenEvent;
 
 namespace gen {
 
-   class Pythia6Service;
+   //class Pythia6Service;
 
    class TauolaInterface
    {

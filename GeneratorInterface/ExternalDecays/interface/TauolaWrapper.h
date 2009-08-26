@@ -33,6 +33,7 @@ extern "C" {
   void tauola_srs_(int*,int*);
   void taurep_(int*);
   void ranmar_(float*,int*);
+  void rmarin_(int*, int*, int*);
 }
 #define tauola tauola_ 
 
