@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.2 2009/08/20 19:03:07 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.3 2009/08/25 18:54:40 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -53,6 +53,7 @@ class BeamFitter {
   std::string outputTxt_;
   double trk_MinpT_;
   double trk_MaxEta_;
+  double trk_MaxIP_;
   int trk_MinNTotLayers_;
   int trk_MinNPixLayers_;
   double trk_MaxNormChi2_;

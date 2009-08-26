@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.3 2009/08/20 19:03:07 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.4 2009/08/25 18:54:40 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -34,6 +34,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
 
   trk_MinpT_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MinimumPt");
   trk_MaxEta_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumEta");
+  trk_MaxIP_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumImpactParameter");
   trk_MinNTotLayers_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumTotalLayers");
   trk_MinNPixLayers_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumPixelLayers");
   trk_MaxNormChi2_   = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumNormChi2");
@@ -124,14 +125,15 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     // Final track selection
     if (nTotLayerMeas >= trk_MinNTotLayers_
         && nPxLayerMeas >= trk_MinNPixLayers_
-	&& normchi2 < trk_MaxNormChi2_
-	&& pt > trk_MinpT_
- 	&& algo_ok
- 	&& quality_ok
+		&& normchi2 < trk_MaxNormChi2_
+		&& pt > trk_MinpT_
+		&& algo_ok
+		&& quality_ok
+		&& std::abs( d0 ) < trk_MaxIP_
         ) {
       if (debug_){
-	std::cout << "Selected track quality = " << track->qualityMask();
-	std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+		  std::cout << "Selected track quality = " << track->qualityMask();
+		  std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
       }
       fBSvector.push_back(BSTrkParameters(z0,sigmaz0,d0,sigmad0,phi0,pt,0.,0.));
     }
