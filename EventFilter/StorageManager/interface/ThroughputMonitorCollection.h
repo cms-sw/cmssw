@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.7 2009/08/21 09:28:27 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.8 2009/08/24 16:39:15 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -23,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/08/21 09:28:27 $
+   * $Revision: 1.8 $
+   * $Date: 2009/08/24 16:39:15 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -216,6 +216,8 @@ namespace stor {
     xdata::UnsignedInteger32 _entriesInStreamQueue;   //Instantaneous number of events in stream queue
     xdata::Double            _streamQueueRate;        //Rate of events popped from fragment queue
     xdata::Double            _streamQueueBandwidth;   //Bandwidth of events popped from fragment queue (MB/s)
+    xdata::Double            _writtenEventsRate;      //Rate of (non-unique) events written to disk
+    xdata::Double            _writtenEventsBandwidth; //Bandwidth of (non-unique) events written to disk
     xdata::UnsignedInteger32 _entriesInDQMQueue;      //Instantaneous number of events in dqm event queue
     xdata::Double            _dqmQueueRate;           //Rate of events popped from dqm event queue
     xdata::Double            _dqmQueueBandwidth;      //Bandwidth of events popped from dqm event queue (MB/s)

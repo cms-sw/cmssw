@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.9 2009/08/21 09:28:49 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.10 2009/08/24 16:39:26 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -151,12 +151,14 @@ void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSp
   infoSpaceItems.push_back(std::make_pair("entriesInStreamQueue", &_entriesInStreamQueue));
   infoSpaceItems.push_back(std::make_pair("streamQueueRate", &_streamQueueRate));
   infoSpaceItems.push_back(std::make_pair("streamQueueBandwidth", &_streamQueueBandwidth));
+  infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &_diskWriterBusy));
+  infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &_dqmEventProcessorBusy));
   infoSpaceItems.push_back(std::make_pair("entriesInDQMQueue", &_entriesInDQMQueue));
   infoSpaceItems.push_back(std::make_pair("dqmQueueRate", &_dqmQueueRate));
   infoSpaceItems.push_back(std::make_pair("dqmQueueBandwidth", &_dqmQueueBandwidth));
+  infoSpaceItems.push_back(std::make_pair("writtenEventsRate", &_writtenEventsRate));
+  infoSpaceItems.push_back(std::make_pair("writtenEventsBandwidth", &_writtenEventsBandwidth));
   infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &_fragmentProcessorBusy));
-  infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &_diskWriterBusy));
-  infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &_dqmEventProcessorBusy));
 }
 
 
