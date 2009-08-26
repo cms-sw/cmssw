@@ -115,10 +115,16 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
     fit->SetParLimits(1, 0.6*min, 1.25*min );
     fit->SetParLimits(2,0.1,10);
     fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
-    int badfit = p->Fit(fit,"IMEQ");
-    if( badfit ) badfit = p->Fit(fit,"IMEQ");
-    if(!badfit ) book.book( name, p ); else delete p;
-    if(cleanup)  book.erase(hist2D.name() );
+
+    int badfit = p->Fit(fit,"IEQ");
+    if( badfit ) badfit = p->Fit(fit,"IEQ");
+    if( badfit ) badfit = p->Fit(fit,"IEQ","", -.5,.3);
+    if( badfit ) badfit = p->Fit(fit,"IEQ","", -.4,.2);
+    if( badfit ) delete p;
+    else 
+      book.book( name, p );
+
+    if(cleanup) book.erase(hist2D.name() );
   }
 }
 
@@ -213,7 +219,6 @@ summarize_ensembles(Book& book) {
 
 std::map<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > LA_Filler_Fitter::
 ensemble_summary(const Book& book) {
-  std::cout << "begin ensemble_summary" << std::endl;
   std::map<std::string, std::vector<EnsembleSummary> > summary;
   for(Book::const_iterator it = book.begin(".*_ensembleReco"); it!=book.end(); ++it) {
     std::string base = boost::erase_all_copy(it.name(),"_ensembleReco");
