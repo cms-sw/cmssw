@@ -1,7 +1,8 @@
-// $Id: Configuration.cc,v 1.10 2009/08/21 13:48:11 mommsen Exp $
+// $Id: Configuration.cc,v 1.12 2009/08/24 14:31:50 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
@@ -149,8 +150,7 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
-    _diskWriteParamCopy._lookAreaPath = "";
-    _diskWriteParamCopy._ecalCalibPath = "";
+    _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "mtcc";
     _diskWriteParamCopy._nLogicalDisk = 0;
@@ -248,8 +248,6 @@ namespace stor
     _streamConfiguration = _diskWriteParamCopy._streamConfiguration;
     _fileName = _diskWriteParamCopy._fileName;
     _filePath = _diskWriteParamCopy._filePath;
-    _lookAreaPath = _diskWriteParamCopy._lookAreaPath;
-    _ecalCalibPath = _diskWriteParamCopy._ecalCalibPath;
     _fileCatalog = _diskWriteParamCopy._fileCatalog;
     _setupLabel = _diskWriteParamCopy._setupLabel;
     _nLogicalDisk = _diskWriteParamCopy._nLogicalDisk;
@@ -263,12 +261,14 @@ namespace stor
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
     _sataUser = _diskWriteParamCopy._sataUser;
 
+    utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
+
+
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
     infoSpace->fireItemAvailable("fileName", &_fileName);
     infoSpace->fireItemAvailable("filePath", &_filePath);
-    infoSpace->fireItemAvailable("lookAreaPath", &_lookAreaPath);
-    infoSpace->fireItemAvailable("ecalCalibPath", &_ecalCalibPath);
+    infoSpace->fireItemAvailable("otherDiskPaths", &_otherDiskPaths);
     infoSpace->fireItemAvailable("fileCatalog", &_fileCatalog);
     infoSpace->fireItemAvailable("setupLabel", &_setupLabel);
     infoSpace->fireItemAvailable("nLogicalDisk", &_nLogicalDisk);
@@ -399,8 +399,6 @@ namespace stor
 
     _diskWriteParamCopy._fileName = _fileName;
     _diskWriteParamCopy._filePath = _filePath;
-    _diskWriteParamCopy._lookAreaPath = _lookAreaPath;
-    _diskWriteParamCopy._ecalCalibPath = _ecalCalibPath;
     _diskWriteParamCopy._fileCatalog = _fileCatalog;
     _diskWriteParamCopy._setupLabel = _setupLabel;
     _diskWriteParamCopy._nLogicalDisk = _nLogicalDisk;
@@ -412,6 +410,9 @@ namespace stor
     _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
     _diskWriteParamCopy._sataUser = _sataUser;
+
+    utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);
+
 
     _streamConfigurationChanged = false;
   }

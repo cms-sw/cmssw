@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.16 2009/08/26 08:50:10 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.17 2009/08/26 09:38:18 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -45,7 +45,7 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
 
   _nLogicalDisks = std::max(dwParams._nLogicalDisk, 1);
   _diskUsageList.clear();
-  _diskUsageList.reserve(_nLogicalDisks+2);
+  _diskUsageList.reserve(_nLogicalDisks+dwParams._otherDiskPaths.size());
 
   for (unsigned int i=0; i<_nLogicalDisks; ++i) {
 
@@ -59,17 +59,14 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
     _diskUsageList.push_back(diskUsage);
   }
 
-  if ( dwParams._lookAreaPath != "" )
+  for ( DiskWritingParams::OtherDiskPaths::const_iterator
+          it = dwParams._otherDiskPaths.begin(),
+          itEnd =  dwParams._otherDiskPaths.end();
+        it != itEnd;
+        ++it)
   {
     DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
-    diskUsage->pathName = dwParams._lookAreaPath;
-    _diskUsageList.push_back(diskUsage);
-  }
-
-  if ( dwParams._ecalCalibPath != "" )
-  {
-    DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
-    diskUsage->pathName = dwParams._ecalCalibPath;
+    diskUsage->pathName = (*it);
     _diskUsageList.push_back(diskUsage);
   }
   
@@ -168,6 +165,7 @@ void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpac
   infoSpaceItems.push_back(std::make_pair("injectWorkers", &_injectWorkers));
   infoSpaceItems.push_back(std::make_pair("sataBeastStatus", &_sataBeastStatus));
   infoSpaceItems.push_back(std::make_pair("numberOfDisks", &_numberOfDisks));
+  infoSpaceItems.push_back(std::make_pair("diskPaths", &_diskPaths));
   infoSpaceItems.push_back(std::make_pair("totalDiskSpace", &_totalDiskSpace));
   infoSpaceItems.push_back(std::make_pair("usedDiskSpace", &_usedDiskSpace));
 }
@@ -189,13 +187,13 @@ void ResourceMonitorCollection::do_updateInfoSpaceItems()
   _sataBeastStatus = stats.sataBeastStatus;
   _numberOfDisks = _nLogicalDisks;
 
+  _diskPaths.clear();
   _totalDiskSpace.clear();
   _usedDiskSpace.clear();
-  // Always report vector all disks plus look area and calib area,
-  // regardless if they are configured or not.
-  _totalDiskSpace.resize(_nLogicalDisks+2);
-  _usedDiskSpace.resize(_nLogicalDisks+2);
 
+  _diskPaths.reserve(stats.diskUsageStatsList.size());
+  _totalDiskSpace.reserve(stats.diskUsageStatsList.size());
+  _usedDiskSpace.resize(stats.diskUsageStatsList.size());
 
   for (DiskUsageStatsPtrList::const_iterator
          it = stats.diskUsageStatsList.begin(),
@@ -203,6 +201,9 @@ void ResourceMonitorCollection::do_updateInfoSpaceItems()
        it != itEnd;
        ++it)
   {
+    _diskPaths.push_back(
+      static_cast<xdata::String>( (*it)->pathName )
+    );
     _totalDiskSpace.push_back(
       static_cast<xdata::UnsignedInteger32>(
         static_cast<unsigned int>( (*it)->diskSize * 1024 )

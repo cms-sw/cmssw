@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.7 2009/08/21 07:18:44 mommsen Exp $
+// $Id: Configuration.h,v 1.8 2009/08/21 13:46:17 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -15,6 +15,7 @@
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Double.h"
 #include "xdata/Boolean.h"
+#include "xdata/Vector.h"
 
 #include "boost/thread/mutex.hpp"
 
@@ -29,8 +30,6 @@ namespace stor
     std::string _streamConfiguration;
     std::string _fileName;
     std::string _filePath;
-    std::string _lookAreaPath;
-    std::string _ecalCalibPath;
     std::string _fileCatalog;
     std::string _setupLabel;
     int _nLogicalDisk;
@@ -42,6 +41,9 @@ namespace stor
     bool _exactFileSizeTest;
     bool _useIndexFiles;  // not yet used
     std::string _sataUser; // user name to log into SATA controller
+
+    typedef std::vector<std::string> OtherDiskPaths;
+    OtherDiskPaths _otherDiskPaths;
 
     // not mapped to infospace params
     std::string _smInstanceString;
@@ -126,8 +128,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/08/21 07:18:44 $
+   * $Revision: 1.8 $
+   * $Date: 2009/08/21 13:46:17 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -282,8 +284,7 @@ namespace stor
     xdata::String _streamConfiguration;
     xdata::String _fileName;
     xdata::String _filePath;
-    xdata::String _lookAreaPath;
-    xdata::String _ecalCalibPath;
+    xdata::Vector<xdata::String> _otherDiskPaths;
     xdata::String _fileCatalog;
     xdata::String _setupLabel;
     xdata::Integer _nLogicalDisk;
@@ -339,7 +340,8 @@ namespace stor
 
 }
 
-#endif
+#endif // EventFilter_StorageManager_Configuration_h
+
 
 /// emacs configuration
 /// Local Variables: -
