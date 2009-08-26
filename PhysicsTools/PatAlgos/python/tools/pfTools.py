@@ -17,14 +17,14 @@ def adaptPFMuons(process,module):
     module.useParticleFlow = True
     module.isolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("isoMuonWithCharged"),
-        pfNeutralHadrons = cms.InputTag("isoMuonWithNeutral"),
-        pfPhotons = cms.InputTag("isoMuonWithPhotons")
+        pfChargedHadrons = cms.InputTag("isoDepMuonWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoDepMuonWithNeutral"),
+        pfPhotons = cms.InputTag("isoDepMuonWithPhotons")
         )
     module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("pfMuonIsolationFromDepositsChargedHadrons"),
-        pfNeutralHadrons = cms.InputTag("pfMuonIsolationFromDepositsNeutralHadrons"),
-        pfPhotons = cms.InputTag("pfMuonIsolationFromDepositsPhotons")
+        pfChargedHadrons = cms.InputTag("isoValMuonWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoValMuonWithNeutral"),
+        pfPhotons = cms.InputTag("isoValMuonWithPhotons")
         )
     # matching the pfMuons, not the standard muons.
     process.muonMatch.src = module.pfMuonSource
@@ -38,22 +38,56 @@ def adaptPFMuons(process,module):
     
 
 def adaptPFElectrons(process,module):
+    # module.useParticleFlow = True
+
+    print "Adapting PF Electrons "
+    print "********************* "
+    warningIsolation()
+    print 
     module.useParticleFlow = True
-    print "Temporarily switching off isolation & isoDeposits for PF Electrons"
     module.isolation   = cms.PSet()
-    module.isoDeposits = cms.PSet()
-    print "Temporarily switching off electron ID for PF Electrons"
-    module.isolation   = cms.PSet()
-    module.addElectronID = False
-    if module.embedTrack.value(): 
-        module.embedTrack = False
-        print "Temporarily switching off electron track embedding"
-    if module.embedGsfTrack.value(): 
-        module.embedGsfTrack = False
-        print "Temporarily switching off electron gsf track embedding"
-    if module.embedSuperCluster.value(): 
-        module.embedSuperCluster = False
-        print "Temporarily switching off electron supercluster embedding"
+    module.isoDeposits = cms.PSet(
+        pfChargedHadrons = cms.InputTag("isoDepElectronWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoDepElectronWithNeutral"),
+        pfPhotons = cms.InputTag("isoDepElectronWithPhotons")
+        )
+    module.isolationValues = cms.PSet(
+        pfChargedHadrons = cms.InputTag("isoValElectronWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoValElectronWithNeutral"),
+        pfPhotons = cms.InputTag("isoValElectronWithPhotons")
+        )
+
+    # COLIN: since we take the egamma momentum for pat Electrons, we must
+    # match the egamma electron to the gen electrons, and not the PFElectron.  
+    # -> do not uncomment the line below.
+    # process.electronMatch.src = module.pfElectronSource
+    # COLIN: how do we depend on this matching choice? 
+
+    print " PF electron source:", module.pfElectronSource
+    print " isolation  :"
+    print module.isolationValues
+    print " isodeposits: "
+    print module.isoDeposits
+    print 
+    
+    
+
+
+##     print "Temporarily switching off isolation & isoDeposits for PF Electrons"
+##     module.isolation   = cms.PSet()
+##     module.isoDeposits = cms.PSet()
+##     print "Temporarily switching off electron ID for PF Electrons"
+##     module.isolation   = cms.PSet()
+##     module.addElectronID = False
+##     if module.embedTrack.value(): 
+##         module.embedTrack = False
+##         print "Temporarily switching off electron track embedding"
+##     if module.embedGsfTrack.value(): 
+##         module.embedGsfTrack = False
+##         print "Temporarily switching off electron gsf track embedding"
+##     if module.embedSuperCluster.value(): 
+##         module.embedSuperCluster = False
+##         print "Temporarily switching off electron supercluster embedding"
 
 def adaptPFPhotons(process,module):
     raise RuntimeError, "Photons are not supported yet"
@@ -125,6 +159,10 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
 
 def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
 
+    # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
+    # CREATE ADDITIONAL FUNCTIONS IF NEEDED. 
+
+
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
     """If 'addElectrons' is True electrons are added and standard PAT cleaning wrt them is performed"""
 
@@ -138,8 +176,8 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
                                            process.allLayer1Objects
                                            )
 
-    if not addElectrons:
-        removeCleaning(process)
+#    if not addElectrons:
+#        removeCleaning(process)
     
     # -------- OBJECTS ------------
     # Muons
@@ -147,45 +185,51 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
 
     
     # Electrons
-#    process.allLayer1Electrons.pfElectronSource = cms.InputTag("isolatedElectrons")
-#    adaptPFElectrons(process,process.allLayer1Electrons)
+    if addElectrons:
+        adaptPFElectrons(process,process.allLayer1Electrons)
+    else:
+        print "PFElectrons switched off for the moment."
+
+#COLIN: the following should be in a specific function, for the ease of understanding and maintenance.
+#       please provide such a function if still needed
+
 #    process.electronMatch.src = process.allLayer1Electrons.pfElectronSource
 #    process.patDefaultSequence.remove(process.patElectronId)
 #    process.patDefaultSequence.remove(process.patElectronIsolation)
-    if not addElectrons:
-        print "Temporarily switching off electrons completely"
-        removeSpecificPATObjects(process,['Electrons'])
-        process.patDefaultSequence.remove(process.patElectronId)
-        process.patDefaultSequence.remove(process.patElectronIsolation)
-        #process.countLayer1Leptons.countElectrons = False
-    else:
-        print "Standard electrons added and then PAT-cleaning wrt electrons switched on"
-        #tune PAT-cleaning
-        process.cleanLayer1Objects.remove(process.cleanLayer1Hemispheres)
-        # store only isolated electrons passing the RobustLoose-ID, without any overlap with muons (to be tuned)
-        electronPresel = 'electronID("eidRobustLoose") > 0 '
-        electronPresel += '&& trackIso < 3 '
-        electronPresel += '&& ecalIso < 5 '
-        electronPresel += '&& hcalIso < 5 '
-        #electronPresel += '&& pt > 10 '
-        print "A \"good electron\" definition for cleaner: "+electronPresel
-        process.cleanLayer1Electrons.checkOverlaps.muons.requireNoOverlaps = True
-        process.cleanLayer1Electrons.finalCut = electronPresel
-        # clean taus wrt electrons
-        process.cleanLayer1Taus.preselection = ''
-        # a trick to remove overlaps wrt other objects than electrons
-        myOverlaps = cms.PSet( electrons = cms.PSet() )
-        myOverlaps.electrons = process.cleanLayer1Taus.checkOverlaps.electrons
-        process.cleanLayer1Taus.checkOverlaps = myOverlaps
-        process.cleanLayer1Taus.checkOverlaps.electrons.preselection = electronPresel # really needed?
-        process.cleanLayer1Taus.checkOverlaps.electrons.requireNoOverlaps = True
-        # clean jets wrt electrons
-        # a trick to remove overlaps wrt other objects than electrons
-        myOverlaps.electrons = process.cleanLayer1Jets.checkOverlaps.electrons
-        process.cleanLayer1Jets.checkOverlaps = myOverlaps
-        process.cleanLayer1Jets.checkOverlaps.electrons.preselection = electronPresel # really needed?
-        process.cleanLayer1Jets.checkOverlaps.electrons.deltaR = 0.3
-        process.cleanLayer1Jets.checkOverlaps.electrons.requireNoOverlaps = True
+#    if not addElectrons:
+#        print "Temporarily switching off electrons completely"
+#        removeSpecificPATObjects(process,['Electrons'])
+#        process.patDefaultSequence.remove(process.patElectronId)
+#        process.patDefaultSequence.remove(process.patElectronIsolation)
+#        #process.countLayer1Leptons.countElectrons = False
+#    else:
+#        print "Standard electrons added and then PAT-cleaning wrt electrons switched on"
+#        #tune PAT-cleaning
+#        process.cleanLayer1Objects.remove(process.cleanLayer1Hemispheres)
+#        # store only isolated electrons passing the RobustLoose-ID, without any overlap with muons (to be tuned)
+#        electronPresel = 'electronID("eidRobustLoose") > 0 '
+#        electronPresel += '&& trackIso < 3 '
+#        electronPresel += '&& ecalIso < 5 '
+#        electronPresel += '&& hcalIso < 5 '
+#        #electronPresel += '&& pt > 10 '
+#        print "A \"good electron\" definition for cleaner: "+electronPresel
+#        process.cleanLayer1Electrons.checkOverlaps.muons.requireNoOverlaps = True
+#        process.cleanLayer1Electrons.finalCut = electronPresel
+#        # clean taus wrt electrons
+#        process.cleanLayer1Taus.preselection = ''
+#        # a trick to remove overlaps wrt other objects than electrons
+#        myOverlaps = cms.PSet( electrons = cms.PSet() )
+#        myOverlaps.electrons = process.cleanLayer1Taus.checkOverlaps.electrons
+#        process.cleanLayer1Taus.checkOverlaps = myOverlaps
+#        process.cleanLayer1Taus.checkOverlaps.electrons.preselection = electronPresel # really needed?
+#        process.cleanLayer1Taus.checkOverlaps.electrons.requireNoOverlaps = True
+#        # clean jets wrt electrons
+#        # a trick to remove overlaps wrt other objects than electrons
+#        myOverlaps.electrons = process.cleanLayer1Jets.checkOverlaps.electrons
+#        process.cleanLayer1Jets.checkOverlaps = myOverlaps
+#        process.cleanLayer1Jets.checkOverlaps.electrons.preselection = electronPresel # really needed?
+#        process.cleanLayer1Jets.checkOverlaps.electrons.deltaR = 0.3
+#        process.cleanLayer1Jets.checkOverlaps.electrons.requireNoOverlaps = True
     
     # Photons
     print "Temporarily switching off photons completely"
