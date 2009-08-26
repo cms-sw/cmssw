@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.6 2009/08/18 09:16:49 mommsen Exp $
+//$Id: Utils.cc,v 1.7 2009/08/20 13:45:05 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -95,6 +95,35 @@ namespace stor
         XCEPT_RAISE(stor::exception::NoSuchDirectory, msg.str());
       }
     }
+
+
+    void getStdVector(xdata::Vector<xdata::String>& x, std::vector<std::string>& s)
+    {
+      s.clear();
+      s.reserve(x.elements());
+      for(xdata::Vector<xdata::String>::iterator it = x.begin(),
+            itEnd = x.end();
+          it != itEnd;
+          ++it)
+      {
+        s.push_back( it->toString() );
+      }
+    }
+
+
+    void getXdataVector(const std::vector<std::string>& v, xdata::Vector<xdata::String>& x)
+    {
+      x.clear();
+      x.reserve(v.size());
+      for(std::vector<std::string>::const_iterator it = v.begin(),
+            itEnd = v.end();
+          it != itEnd;
+          ++it)
+      {
+        x.push_back( static_cast<xdata::String>(*it) );
+      }
+    }
+
 
   } // namespace utils
 

@@ -1,13 +1,16 @@
-// $Id: Utils.h,v 1.5 2009/08/18 09:15:49 mommsen Exp $
+// $Id: Utils.h,v 1.6 2009/08/20 13:40:03 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
 #define StorageManager_Utils_h
 
 #include <string>
+#include <vector>
 
 #include "xcept/Exception.h"
 #include "xdaq/ApplicationDescriptor.h"
+#include "xdata/String.h"
+#include "xdata/Vector.h"
 
 
 namespace stor {
@@ -18,8 +21,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.5 $
-     * $Date: 2009/08/18 09:15:49 $
+     * $Revision: 1.6 $
+     * $Date: 2009/08/20 13:40:03 $
      */
 
     /**
@@ -79,6 +82,11 @@ namespace stor {
      */
     void checkDirectory(const std::string&);
  
+    /**
+       Conversions between std::vector<std::string> and xdata::Vector<xdata::String>
+    */
+    void getStdVector(xdata::Vector<xdata::String>&, std::vector<std::string>&);
+    void getXdataVector(const std::vector<std::string>&, xdata::Vector<xdata::String>&);
 
   } // namespace utils
   
