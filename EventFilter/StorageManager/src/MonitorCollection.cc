@@ -1,4 +1,4 @@
-// $Id: MonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: MonitorCollection.cc,v 1.6 2009/08/21 09:40:19 mommsen Exp $
 /// @file: MonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
@@ -8,7 +8,8 @@ using namespace stor;
 
 
 MonitorCollection::MonitorCollection(const utils::duration_t& updateInterval) :
-_updateInterval(updateInterval)
+_updateInterval(updateInterval),
+_infoSpaceUpdateNeeded(false)
 {}
 
 
