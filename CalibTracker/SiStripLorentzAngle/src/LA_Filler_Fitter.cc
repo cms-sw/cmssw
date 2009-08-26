@@ -66,10 +66,10 @@ fill(TTree* tree, Book& book) {
       if(width==1) A1*="_width1";
 
       if(ensembleBins_==0)   book.fill( fabs(BdotY),                     granular+"_field"            , 101, 1, 5 );
-      float N=2.5;           book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 101, -N*pitch/driftz, N*pitch/driftz          );
-      if(methods_ & RATIO)   book.fill( sign*projection/driftz,          granular+ method(RATIO,0)+A1 , 101, -N*pitch/driftz, N*pitch/driftz          );
-      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH,0)    , 101, -N*pitch/driftz, N*pitch/driftz, 20,0,20 );
-      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR,0)  , 101, -N*pitch/driftz, N*pitch/driftz, 100,0,2 );
+      if(methods_ & RATIO)   book.fill( sign*projection/driftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6          );
+      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH,0)    , 81, -0.6,0.6, 20,0,20 );
+      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR,0)  , 81, -0.6,0.6, 100,0,2 );
+                             book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 81, -0.6,0.6          );
     }
   }
 }
@@ -116,9 +116,7 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
     fit->SetParLimits(2,0.1,10);
     fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
 
-    int badfit = p->Fit(fit,"IEQ");
-    if( badfit ) badfit = p->Fit(fit,"IEQ");
-    if( badfit ) badfit = p->Fit(fit,"IEQ","", -.5,.3);
+    int badfit = p->Fit(fit,"IEQ","",-.5,.3);
     if( badfit ) badfit = p->Fit(fit,"IEQ","", -.4,.2);
     if( badfit ) delete p;
     else 
