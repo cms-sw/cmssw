@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     prepareTrack
-// $Id: prepareTrack.cc,v 1.4 2009/08/21 16:57:51 dmytro Exp $
+// $Id: prepareTrack.cc,v 1.5 2009/08/24 04:54:34 dmytro Exp $
 //
 
 // system include files
@@ -76,19 +76,19 @@ namespace fireworks {
       trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
       trk->SetMainColor(color);
       for( unsigned int i(1); i<refStates.size()-1; ++i){
-	TEvePathMark mark( TEvePathMark::kDaughter );
-	mark.fV = refStates[i].position;
-	trk->AddPathMark( mark );
+	if ( refStates[i].valid )
+	  trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum ) );
+	else
+	  trk->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, refStates[i].position ) );
       }
       if ( refStates.size()>1 ){
-	TEvePathMark mark( TEvePathMark::kDecay );
-	mark.fV = refStates.back().position;
-	trk->AddPathMark( mark );
+	trk->AddPathMark( TEvePathMark( TEvePathMark::kDecay, refStates.back().position ) );
       }
       return trk;
     }
 
     if ( refStates.back().valid ){
+      t.fSign = (-1)*track.charge();
       t.fV = refStates.back().position;
       t.fP = refStates.back().momentum * (-1);
       TEveTrack* trk = new TEveTrack(&t,propagator);
@@ -96,14 +96,13 @@ namespace fireworks {
       trk->SetMainColor(color);
       unsigned int i(refStates.size()-1);
       for(; i>0; --i){
-	TEvePathMark mark( TEvePathMark::kDaughter );
-	mark.fV = refStates[i].position;
-	trk->AddPathMark( mark );
+	if ( refStates[i].valid )
+	  trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum*(-1) ) );
+	else
+	  trk->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, refStates[i].position ) );
       }
       if ( refStates.size()>1 ){
-	TEvePathMark mark( TEvePathMark::kDecay );
-	mark.fV = refStates.front().position;
-	trk->AddPathMark( mark );
+	trk->AddPathMark( TEvePathMark( TEvePathMark::kDecay, refStates.front().position ) );
       }
       return trk;
     }
@@ -119,17 +118,17 @@ namespace fireworks {
     trk->SetMainColor(color);
     
     for( unsigned int j(i+1); j<refStates.size()-1; ++j){
-      TEvePathMark mark( TEvePathMark::kDaughter );
-      mark.fV = refStates[j].position;
-      trk->AddPathMark( mark );
+      if ( refStates[i].valid )
+	trk->AddPathMark( TEvePathMark( TEvePathMark::kReference, refStates[i].position, refStates[i].momentum ) );
+      else
+	trk->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, refStates[i].position ) );
     }
     if ( i < refStates.size() ){
-      TEvePathMark mark( TEvePathMark::kDecay );
-      mark.fV = refStates.back().position;
-      trk->AddPathMark( mark );
+      trk->AddPathMark( TEvePathMark( TEvePathMark::kDecay, refStates.back().position ) );
     }
     return trk;
   }
+
   TEveTrack*
    prepareTrack(const reco::Candidate& track,
 		TEveTrackPropagator* propagator,
