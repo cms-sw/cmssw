@@ -7,11 +7,14 @@
 #include <string>
 #include <vector>
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -39,12 +42,9 @@
 
 namespace cond {
   
-  static int c=0;
   static void topinit(){
-    if(c==0){
+    if(!edmplugin::PluginManager::isAvailable())
       edmplugin::PluginManager::configure(edmplugin::standard::config());
-    }
-    ++c;
     return;
   }
 
@@ -67,9 +67,11 @@ namespace cond {
     //     emptying the buffers.
     boost::shared_ptr<edm::Presence> theMessageServicePresence;
     theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-      makePresence("MessageServicePresence").release());
-
+								 makePresence("MessageServicePresence").release());
+    
     // C.  Manufacture a configuration and establish it.
+
+    /*
     std::string config =
       "process x = {"
       "service = MessageLogger {"
@@ -93,30 +95,38 @@ namespace cond {
       "service = JobReportService{}"
       "service = SiteLocalConfigService{}"
       "}";
+    */
+    /*
+    std::string config =
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('x')\n"
+      "JobReportService = cms.Service('JobReportService')\n"
+      "SiteLocalConfigService = cms.Service('SiteLocalConfigService')\n"
+      ;
+    */
     
-  
-
-  boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-    boost::shared_ptr<edm::ParameterSet>          params_;
-    edm::makeParameterSets(config, params_, pServiceSets);
+    boost::shared_ptr<std::vector<edm::ParameterSet> > psets(new std::vector<edm::ParameterSet>);
+    edm::ParameterSet pSet;
+    pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+    psets->push_back(pSet);
     
     // D.  Create the services.
-    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
+    edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*psets.get()));
     
     // E.  Make the services available.
     magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
     
   }
-
+  
   //------------------------------------------------------------
 
 
   CondDB::CondDB() : me(0){
-    topinit();    
+    //topinit();    
   }
   CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
     me(conn), logger(ilog) {
-    topinit();
+    //topinit();
   }
 
   // move ownership....
@@ -165,16 +175,17 @@ namespace cond {
     return token;
   }
   
+  // fix commit problem....
   IOVProxy CondDB::iov(std::string const & tag) const {
-    return IOVProxy(me->poolTransaction(),iovToken(tag),true);
+    return IOVProxy(*me,iovToken(tag),true,true);
   }
   
   IOVProxy CondDB::iovWithLib(std::string const & tag) const {
-    return IOVProxy(me->poolTransaction(),iovToken(tag),false);
+    return IOVProxy(*me,iovToken(tag),false,true);
   }
 
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
-    return IOVElementProxy(0,0,token,&me->poolTransaction());
+    return IOVElementProxy(0,0,token,me);
 
   }
 
@@ -196,29 +207,34 @@ namespace cond {
 
 
   RDBMS::RDBMS() : session(new DBSession) {
-    topinit();
+    //topinit();
     session->configuration().setAuthenticationMethod( cond::XML );
     session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
   RDBMS::~RDBMS() {}
 
-  RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
-    topinit();
+  RDBMS::RDBMS(std::string const & authPath,  bool debug) : session(new DBSession) {
+    //topinit();
     session->configuration().setAuthenticationPath(authPath);
     session->configuration().setAuthenticationMethod( cond::XML );
-    session->configuration().setMessageLevel( cond::Error );
+    if (debug) session->configuration().setMessageLevel( cond::Debug );
+    else
+      session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
-    topinit();
+    //topinit();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
     session->configuration().setAuthenticationMethod( cond::Env );
     session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
     session->open();
   }
 
