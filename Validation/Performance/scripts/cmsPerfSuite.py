@@ -954,7 +954,8 @@ class PerfSuite:
                     if '/store/relval/' in PUInputFile:
                         copycmd="rfcp"
                         #Accept plain LFNs from DBS for RelVal CASTOR files:
-                        if '/store/relval/' in PUInputFile[0:13]: #Minor fix to allow the case of user using the full path /castor/cern.ch/cms...
+                        #Minor fix to allow the case of user using the full path /castor/cern.ch/cms...
+                        if PUInputFile.startswith('/store/relval/'):
                            PUInputFile="/castor/cern.ch/cms"+PUInputFile
                     #Copy the file locally
                     self.logh.write("Copying the file %s locally to %s\n"%(PUInputFile,PUInputName))

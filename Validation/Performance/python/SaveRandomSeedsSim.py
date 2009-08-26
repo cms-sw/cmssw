@@ -30,7 +30,6 @@ def customise(process):
     process.Timing=cms.Service("Timing")
     
     #Tweak Message logger to dump G4cout and G4cerr messages in G4msg.log
-    #print process.MessageLogger.__dict__
     process.MessageLogger.destinations=cms.untracked.vstring('warnings'
                                                              , 'errors'
                                                              , 'infos'
