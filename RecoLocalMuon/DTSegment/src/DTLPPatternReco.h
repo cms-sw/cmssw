@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/20 15:27:38 $
- * $Revision: 1.3 $
+ * $Date: 2009/08/25 08:20:35 $
+ * $Revision: 1.4 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -30,6 +30,10 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
+}
+
+namespace lpAlgo {
+  class ResultLPAlgo;
 }
 
 
@@ -62,15 +66,6 @@ public:
   edm::OwnVector<DTChamberRecSegment2D>
   reconstructSupersegment(const std::vector<DTRecHit1DPair>& pairs);
 
- class ResultLPAlgo{
-  public:
-    ResultLPAlgo(){ chi2Var =0;};
-    ~ResultLPAlgo(){lambdas.clear();};
-    double mVar;
-    double qVar;
-      double chi2Var;
-    std::vector<int> lambdas;  
-  };
 
  
 private:
@@ -90,7 +85,7 @@ private:
 				const ReconstructInSLOrChamber  sl_chamber);
 
 
-  void removeUsedHits(const ResultLPAlgo& theAlgoResults,
+  void removeUsedHits(const lpAlgo::ResultLPAlgo& theAlgoResults,
 		      std::vector<const DTRecHit1DPair*>& pairPointersx);
 
   void findAngleConstraints(double & m_min, double & m_max,

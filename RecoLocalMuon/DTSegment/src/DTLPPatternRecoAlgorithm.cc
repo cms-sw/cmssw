@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/25 08:20:35 $
- * $Revision: 1.2 $
+ * $Date: 2009/08/25 18:20:55 $
+ * $Revision: 1.3 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -20,7 +20,7 @@ extern "C" {
 
 using namespace std;
 
-bool lpAlgorithm(DTLPPatternReco::ResultLPAlgo& theAlgoResults,
+bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
 		 const list<double>& pz,
 		 const list<double>& px,
 		 const list<double>& pex,

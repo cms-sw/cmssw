@@ -1,7 +1,7 @@
 #include <vector>
 #include <list>
 
-namespace DTLPPatternReco {
+namespace lpAlgo {
   class ResultLPAlgo{
   public:
     ResultLPAlgo(){ chi2Var =0;};
@@ -13,7 +13,7 @@ namespace DTLPPatternReco {
   };
 }
 
-bool lpAlgorithm(DTLPPatternReco::ResultLPAlgo& theAlgoResults,
+bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
 		 const std::list<double>& pz,
 		 const std::list<double>& px,
 		 const std::list<double>& pex,
