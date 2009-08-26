@@ -42,23 +42,32 @@ append_methods_and_granularity(int32_t& methods, bool& byModule, bool& byLayer, 
 void MeasureLA::
 process_reports() {
   BOOST_FOREACH(edm::ParameterSet p, reports) {
-    bool byModule = p.getParameter<bool>("ByModule");
+    bool byMod = p.getParameter<bool>("ByModule");
     std::string name = p.getParameter<std::string>("ReportName");
     LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
 
-    typedef std::pair<std::string,LA_Filler_Fitter::Result> lr_t;
     typedef std::pair<uint32_t,LA_Filler_Fitter::Result> mr_t;
+    typedef std::pair<std::string,LA_Filler_Fitter::Result> lr_t;
     fstream file((name+".dat").c_str(),std::ios::out);
-    if( byModule ) BOOST_FOREACH(mr_t result, LA_Filler_Fitter::module_results( book, method)) file << result.first << "\t" << result.second << std::endl;
-    else           BOOST_FOREACH(lr_t result,  LA_Filler_Fitter::layer_results( book, method)) file << result.first << "\t" << result.second << std::endl; 
+    if(byMod) BOOST_FOREACH(mr_t result, LA_Filler_Fitter::module_results(book,method)) {calibrate(result); file<< result.first <<"\t"<< result.second <<std::endl;}
+    else      BOOST_FOREACH(lr_t result,  LA_Filler_Fitter::layer_results(book,method)) {calibrate(result); file<< result.first <<"\t"<< result.second <<std::endl;}
     file.close();
     
     TFile tfile((name+".root").c_str(),"RECREATE");
-    std::string key = ( byModule ? ".*_module.*" : ".*_layer.*") + LA_Filler_Fitter::method(method);
+    std::string key = ( byMod ? ".*_module.*" : ".*_layer.*") + LA_Filler_Fitter::method(method);
     for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist)
       (*hist)->Write();
     tfile.Close();
   }
+}
+
+void MeasureLA::
+calibrate(std::pair<uint32_t,LA_Filler_Fitter::Result>& r) {
+  
+}
+void MeasureLA::
+calibrate(std::pair<std::string,LA_Filler_Fitter::Result>& r) {
+
 }
 
 boost::shared_ptr<SiStripLorentzAngle> MeasureLA::
