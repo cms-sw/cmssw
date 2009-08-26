@@ -1,13 +1,14 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2009/06/04 15:26:11 $
- *  $Revision: 1.37 $
+ *  $Date: 2009/06/11 13:33:13 $
+ *  $Revision: 1.38 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
+#include "FWCore/Framework/interface/Run.h"
 
 
 

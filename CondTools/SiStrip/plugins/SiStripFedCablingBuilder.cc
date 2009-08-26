@@ -9,6 +9,7 @@
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Run.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
