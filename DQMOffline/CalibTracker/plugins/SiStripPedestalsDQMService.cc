@@ -43,7 +43,14 @@ void SiStripPedestalsDQMService::readPedestals()
   uint32_t stripsPerApv = 128;
 
   // Get the full list of monitoring elements
-  const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
+  // const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
+
+  // Take a copy of the vector
+  vector<MonitorElement*> MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<string>("ME_DIR","DQMData"));
+  // Remove all but the MEs we are using
+  vector<MonitorElement*>::iterator newEnd = remove_if(MEs.begin(), MEs.end(), StringNotMatch("PedsPerStrip__det__"));
+  MEs.erase(newEnd, MEs.end());
+
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos  = reader.getAllData();

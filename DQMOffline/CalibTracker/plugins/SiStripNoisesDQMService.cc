@@ -43,7 +43,13 @@ void SiStripNoisesDQMService::readNoises()
   uint32_t stripsPerApv = 128;
 
   // Get the full list of monitoring elements
-  const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
+  // const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
+
+  // Take a copy of the vector
+  vector<MonitorElement*> MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<string>("ME_DIR","DQMData"));
+  // Remove all but the MEs we are using
+  vector<MonitorElement*>::iterator newEnd = remove_if(MEs.begin(), MEs.end(), StringNotMatch("CMSubNoisePerStrip__det__"));
+  MEs.erase(newEnd, MEs.end());
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos  = reader.getAllData();
@@ -59,7 +65,7 @@ void SiStripNoisesDQMService::readNoises()
 
 
     MonitorElement * mE = 0;
-    string MEname("PedsPerStrip__det__"+boost::lexical_cast<string>(it->first));
+    string MEname("CMSubNoisePerStrip__det__"+boost::lexical_cast<string>(it->first));
     for( vector<MonitorElement*>::const_iterator MEit = MEs.begin();
          MEit != MEs.end(); ++MEit ) {
       if( (*MEit)->getName() == MEname ) {
@@ -98,10 +104,10 @@ void SiStripNoisesDQMService::readNoises()
     else {
       cout << "ERROR: ME = " << mE << endl;
     }
-    // If the ME was absent fill the vector with 0
+    // If the ME was absent fill the vector with 50 (we want a high noise to avoid these modules being considered good by mistake)
     if( theSiStripVector.empty() ) {
       for(unsigned short j=0; j<128*it->second.nApvs; ++j){
-        obj_->setData(0, theSiStripVector);
+        obj_->setData(50, theSiStripVector);
       }
     }
 

@@ -14,6 +14,7 @@
 #include <string>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -59,6 +60,22 @@ class SiStripBaseServiceFromDQM : public SiStripCondObjBuilderBase<T>
   DQMStore* dqmStore_;
   edm::ParameterSet iConfig_;
   boost::shared_ptr<SiStripFolderOrganizer> folderOrganizer_;
+
+  // Simple functor to remove unneeded ME
+  struct StringNotMatch
+  {
+    StringNotMatch(const string & name) :
+      name_(name)
+    {
+    }
+    bool operator()(const MonitorElement * ME) const
+    {
+      return( ME->getName().find(name_) == string::npos );
+    }
+  protected:
+    string name_;
+  };
+
 };
 
 template <class T>
