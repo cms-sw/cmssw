@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2009/08/05 14:45:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/08/25 21:46:35 $
+ *  $Revision: 1.1 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *   
@@ -69,8 +69,9 @@ class BeamMonitor : public edm::EDAnalyzer {
   
   int countEvt_;       //counter
   int countLumi_;      //counter
-  int ftotal_tracks;   //counter
-  
+  int nthBSTrk_;       //
+
+  bool resetHistos_;
   // ----------member data ---------------------------
   
   //   std::vector<BSTrkParameters> fBSvector;

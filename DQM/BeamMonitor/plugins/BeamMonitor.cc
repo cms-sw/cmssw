@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/08/05 14:45:09 $
- * $Revision: 1.10 $
+ * $Date: 2009/08/25 21:46:56 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -25,7 +25,7 @@ using namespace edm;
 // constructors and destructor
 //
 BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
-  countEvt_(0),countLumi_(0)
+  countEvt_(0),countLumi_(0),nthBSTrk_(0),resetHistos_(false)
 {
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
@@ -41,7 +41,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   theBeamFitter = new BeamFitter(parameters_);
   theBeamFitter->resetTrkVector();
 
-  ftotal_tracks = 0;
   //   fBSvector.clear();
 
 }
@@ -80,18 +79,18 @@ void BeamMonitor::beginJob(const EventSetup& context){
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
  
-  h_vx_vy = dbe_->book2D("trk_vx_vy","v_{x} vs. v_{y} (Input Tracks)",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
+  h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of input tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
   h_vx_vy->getTH2F()->SetOption("COLZ");
   //   h_vx_vy->getTH1()->SetBit(TH1::kCanRebin);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
   h_vx_vy->setAxisTitle("y coordinate of input track at PCA (cm)",2);
   
-  h_x0_lumi = dbe_->book1D("x0_lumi","x_{0} vs lumi (Fit)",10,0,10);
+  h_x0_lumi = dbe_->book1D("x0_lumi","x coordinate of beam spot vs lumi (Fit)",10,0,10);
   h_x0_lumi->setAxisTitle("Lumisection",1);
   h_x0_lumi->setAxisTitle("x_{0} (cm)",2);
   h_x0_lumi->getTH1()->SetOption("E1");
 
-  h_y0_lumi = dbe_->book1D("y0_lumi","y_{0} vs lumi (Fit)",10,0,10);
+  h_y0_lumi = dbe_->book1D("y0_lumi","y coordinate of beam spot vs lumi (Fit)",10,0,10);
   h_y0_lumi->setAxisTitle("Lumisection",1);
   h_y0_lumi->setAxisTitle("y_{0} (cm)",2);
   h_y0_lumi->getTH1()->SetOption("E1");
@@ -128,15 +127,27 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   
   if (fitNLumi_ > 0 && countLumi_%fitNLumi_!=0) return;
   
-  for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
-       BSTrk != theBSvector.end();
-       ++BSTrk){
-    h_d0_phi0->Fill( BSTrk->phi0(), BSTrk->d0() );
-    double vx = BSTrk->d0()*sin(BSTrk->phi0());
-    double vy = -1.*BSTrk->d0()*cos(BSTrk->phi0());
-    h_vx_vy->Fill( vx, vy );
+  if (resetHistos_) {
+    h_d0_phi0->Reset();
+    h_vx_vy->Reset();
+    resetHistos_ = false;
   }
   
+  if (debug_) cout << "Fill histos, start from " << nthBSTrk_ + 1 << "th record of input tracks" << endl;
+  int i = 0;
+  for (vector<BSTrkParameters>::const_iterator BSTrk = theBSvector.begin();
+       BSTrk != theBSvector.end();
+       ++BSTrk, ++i){
+    if (i >= nthBSTrk_){
+      h_d0_phi0->Fill( BSTrk->phi0(), BSTrk->d0() );
+      double vx = BSTrk->d0()*sin(BSTrk->phi0());
+      double vy = -1.*BSTrk->d0()*cos(BSTrk->phi0());
+      h_vx_vy->Fill( vx, vy );
+    }
+  }
+  nthBSTrk_ = theBSvector.size();
+  if (debug_) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
+
   if (theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
@@ -149,8 +160,8 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
   }
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
     if (debug_) cout << "Reset track collection for beam fit!!!" <<endl;
-    h_vx_vy->Reset();
-    ftotal_tracks = 0;
+    resetHistos_ = true;
+    nthBSTrk_ = 0;
     theBeamFitter->resetTrkVector();
   }
 }

@@ -5,7 +5,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               beamSpot = cms.untracked.string('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               fitEveryNLumi = cms.untracked.int32(1),
                               resetEveryNLumi = cms.untracked.int32(5),
-                              Debug = cms.untracked.bool(True),
+                              Debug = cms.untracked.bool(False),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('generalTracks'), ## ctfWithMaterialTracksP5 for CRAFT
@@ -16,7 +16,7 @@ dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                                 MinimumTotalLayers = cms.untracked.int32(11),
                                 MinimumPixelLayers = cms.untracked.int32(3),
                                 MaximumNormChi2 = cms.untracked.double(2.0),
-                                TrackAlgorithm = cms.untracked.vstring('iter0'), ## ctf,rs,cosmics,iter0,iter1...; for all algos, leave it blank
+                                TrackAlgorithm = cms.untracked.vstring(), ## ctf,rs,cosmics,iter0,iter1...; for all algos, leave it blank
                                 TrackQuality = cms.untracked.vstring(), ## loose, tight, highPurity...; for all qualities, leave it blank
 			        InputBeamWidth = cms.untracked.double(-1.0) ## if -1 use the value calculated by the analyzer
                                 ),
