@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.9 2009/08/24 04:54:33 dmytro Exp $
+// $Id: FWMuonBuilder.cc,v 1.10 2009/08/24 13:58:12 dmytro Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ namespace  {
                              TEveElement* parentList,
                              bool showEndcap)
    {
+      std::set<unsigned int> ids;
       const DetIdToMatrix* geom = iItem->getGeom();
       const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
       //need to use auto_ptr since the segmentSet may not be passed to muonList
@@ -77,8 +78,10 @@ namespace  {
       for ( ; chamber != matches.end(); ++chamber )
 	{
 	  DetId id = chamber->id;
-	  if ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) {
+	  if ( ids.insert(id.rawId()).second &&  // ensure that we add same chamber only once
+	       ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) ){
             TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
+	    shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
             if(0!=shape) {
 	      shape->SetMainTransparency(65);
 	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
@@ -232,15 +235,22 @@ FWMuonBuilder::buildMuon(const FWEventItem* iItem,
 	muon->globalTrack().isAvailable() )
      {
        std::vector<TEveVector> extraPoints;
-       if ( muon->innerTrack().isAvailable() )
+       if ( muon->innerTrack().isAvailable() ){
+	 extraPoints.push_back( TEveVector(muon->innerTrack()->innerPosition().x(),
+					   muon->innerTrack()->innerPosition().y(),
+					   muon->innerTrack()->innerPosition().z()) );
 	 extraPoints.push_back( TEveVector(muon->innerTrack()->outerPosition().x(),
 					   muon->innerTrack()->outerPosition().y(),
 					   muon->innerTrack()->outerPosition().z()) );
-       if ( muon->outerTrack().isAvailable() )
+       }
+       if ( muon->outerTrack().isAvailable() ){
 	 extraPoints.push_back( TEveVector(muon->outerTrack()->innerPosition().x(),
 					   muon->outerTrack()->innerPosition().y(),
 					   muon->outerTrack()->innerPosition().z()) );
-       
+	 extraPoints.push_back( TEveVector(muon->outerTrack()->outerPosition().x(),
+					   muon->outerTrack()->outerPosition().y(),
+					   muon->outerTrack()->outerPosition().z()) );
+       }
        TEveTrack* trk = fireworks::prepareTrack(*(muon->globalTrack()),
 						m_propagator.get(),
 						iItem->defaultDisplayProperties().color(),
