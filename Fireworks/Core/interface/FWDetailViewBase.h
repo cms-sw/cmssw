@@ -19,7 +19,7 @@
 // $Id: FWDetailViewBase.h,v 1.6 2009/06/22 14:32:25 amraktad Exp
 // system include files
 
-
+#include "Fireworks/Core/interface/CSGActionSupervisor.h"
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
 class TCanvas;
@@ -27,7 +27,7 @@ class TGCompositeFrame;
 class TCanvas;
 class TGPack;
 
-class TGLViewer;
+class TEveViewer;
 class TEveScene ;
 class TEveWindowSlot;
 class TEveWindow;
@@ -35,7 +35,7 @@ class TGVerticalFrame;
 
 class FWModelId;
 
-class FWDetailViewBase
+class FWDetailViewBase : public CSGActionSupervisor
 {
 public:
    virtual ~FWDetailViewBase ();
@@ -47,9 +47,7 @@ protected:
    FWDetailViewBase(const std::type_info&);
 
    TEveWindow* makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TCanvas *&viewCanvas);
-   TEveWindow* makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene);
-
-   TEveWindow           *m_eveWindow;
+   TEveWindow* makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene);
 
 private:
    FWDetailViewBase(const FWDetailViewBase&); // stop default
@@ -57,6 +55,7 @@ private:
 
    virtual void build(const FWModelId&, const void*, TEveWindowSlot* slot) = 0;
 
+   TEveWindow         *m_eveWindow;
    FWSimpleProxyHelper m_helper;
 };
 

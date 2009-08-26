@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.6 2009/08/22 17:10:13 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.7 2009/08/24 16:21:30 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,7 @@ FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
 }
 
 TEveWindow*
-FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TGLViewer *&viewer, TEveScene *&scene)
+FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFrame, TEveViewer *&eveViewer, TEveScene *&scene)
 {
    TEveWindowPack* wp = slot->MakePack();
    wp->SetShowTitleBar(kFALSE);
@@ -91,10 +91,9 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
 
    // viewer GL
    TGLEmbeddedViewer *egl = new TGLEmbeddedViewer(pack, 0, 0);
-   TEveViewer* eveViewer= new TEveViewer("DetailViewViewer");
+   eveViewer= new TEveViewer("DetailViewViewer");
    eveViewer->SetGLViewer(egl, egl->GetFrame());
    pack->AddFrameWithWeight(egl->GetFrame(),0, 5);
-   viewer = egl;
    scene = gEve->SpawnNewScene("Detailed view");
    eveViewer->AddScene(scene);
 
