@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.13 2009/08/21 13:49:56 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.15 2009/08/26 07:05:54 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -30,7 +30,7 @@ _updateInterval(updateInterval),
 _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
 _alarmHandler(ah),
-_latchedSataBeastStatus(0),
+_latchedSataBeastStatus(-1),
 _latchedNumberOfDisks(0),
 _progressMarker( "unused" )
 {}
@@ -178,7 +178,7 @@ void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpac
 void ResourceMonitorCollection::do_updateInfoSpaceItems()
 {
   Stats stats;
-  getDiskStats(stats);
+  getStats(stats);
 
   _copyWorkers = static_cast<xdata::UnsignedInteger32>(
     static_cast<unsigned int>( stats.numberOfCopyWorkersStats.getLastSampleValue() )
