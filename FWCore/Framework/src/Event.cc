@@ -38,7 +38,7 @@ namespace edm {
 
 //   History const& 
 //   Event::history() const {
-//     DataViewImpl const& dvi = me();
+//     PrincipalGetAdapter const& dvi = me();
 //     EDProductGetter const* pg = dvi.prodGetter(); // certain to be non-null
 //     assert(pg);
 //     EventPrincipal const& ep = dynamic_cast<EventPrincipal const&>(*pg);
@@ -101,18 +101,18 @@ namespace edm {
 
   void
   Event::commit_(std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
-    commit_aux(provRecorder_.putProducts(), true,previousParentage,previousParentageId);
-    commit_aux(provRecorder_.putProductsWithoutParents(), false);
+    commit_aux(putProducts(), true,previousParentage,previousParentageId);
+    commit_aux(putProductsWithoutParents(), false);
   }
 
   void
-  Event::commit_aux(DataViewImpl::ProductPtrVec& products, bool record_parents,
+  Event::commit_aux(Event::ProductPtrVec& products, bool record_parents,
                     std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
     EventPrincipal & ep = eventPrincipal();
 
-    DataViewImpl::ProductPtrVec::iterator pit(products.begin());
-    DataViewImpl::ProductPtrVec::iterator pie(products.end());
+    ProductPtrVec::iterator pit(products.begin());
+    ProductPtrVec::iterator pie(products.end());
 
     std::vector<BranchID> gotBranchIDVector;
 
@@ -185,9 +185,9 @@ namespace edm {
     return provRecorder_.processHistory();
   }
   
-  size_t 
+size_t 
   Event::size() const {
-    return provRecorder_.size();
-  }
+    return putProducts().size()+provRecorder_.principal().size()+putProductsWithoutParents().size();
+  } 
   
 }

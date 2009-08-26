@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-#include "FWCore/Framework/interface/DataViewImpl.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -13,40 +13,42 @@
 
 namespace edm {
 
-  DataViewImpl::DataViewImpl(Principal & pcpl,
+  PrincipalGetAdapter::PrincipalGetAdapter(Principal & pcpl,
 	ModuleDescription const& md)  :
-    putProducts_(),
+    //putProducts_(),
     principal_(pcpl),
     md_(md) {
   }
 
-  DataViewImpl::~DataViewImpl() {
+  PrincipalGetAdapter::~PrincipalGetAdapter() {
   }
 
   BranchType const&
-  DataViewImpl::branchType() const {
+  PrincipalGetAdapter::branchType() const {
     return principal_.branchType();
   }
 
+   /*
   size_t
-  DataViewImpl::size() const {
+  PrincipalGetAdapter::size() const {
     return putProducts_.size() + principal_.size();
   }
+    */
 
   BasicHandle
-  DataViewImpl::get_(TypeID const& tid, SelectorBase const& sel) const {
+  PrincipalGetAdapter::get_(TypeID const& tid, SelectorBase const& sel) const {
     return principal_.getBySelector(tid, sel);
   }
 
   void
-  DataViewImpl::getMany_(TypeID const& tid,
+  PrincipalGetAdapter::getMany_(TypeID const& tid,
 		  SelectorBase const& sel,
 		  BasicHandleVec& results) const {
     principal_.getMany(tid, sel, results);
   }
 
   BasicHandle
-  DataViewImpl::getByLabel_(TypeID const& tid,
+  PrincipalGetAdapter::getByLabel_(TypeID const& tid,
                      std::string const& label,
   	             std::string const& productInstanceName,
   	             std::string const& processName) const {
@@ -56,7 +58,7 @@ namespace edm {
   }
 
   BasicHandle
-  DataViewImpl::getByLabel_(TypeID const& tid,
+  PrincipalGetAdapter::getByLabel_(TypeID const& tid,
                      InputTag const& tag) const {
 
     principal_.maybeFlushCache(tid, tag);
@@ -64,18 +66,18 @@ namespace edm {
   }
 
   BasicHandle
-  DataViewImpl::getByType_(TypeID const& tid) const {
+  PrincipalGetAdapter::getByType_(TypeID const& tid) const {
     return principal_.getByType(tid);
   }
 
   void
-  DataViewImpl::getManyByType_(TypeID const& tid,
+  PrincipalGetAdapter::getManyByType_(TypeID const& tid,
 		  BasicHandleVec& results) const {
     principal_.getManyByType(tid, results);
   }
 
   int
-  DataViewImpl::getMatchingSequence_(TypeID const& typeID,
+  PrincipalGetAdapter::getMatchingSequence_(TypeID const& typeID,
                                      SelectorBase const& selector,
                                      BasicHandle& result) const {
     return principal_.getMatchingSequence(typeID,
@@ -84,7 +86,7 @@ namespace edm {
   }
 
   int
-  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
+  PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
                                             std::string const& label,
                                             std::string const& productInstanceName,
                                             BasicHandle& result) const {
@@ -98,7 +100,7 @@ namespace edm {
   }
 
   int
-  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
+  PrincipalGetAdapter::getMatchingSequenceByLabel_(TypeID const& typeID,
                                             std::string const& label,
                                             std::string const& productInstanceName,
                                             std::string const& processName,
@@ -114,12 +116,12 @@ namespace edm {
   }
 
   ProcessHistory const&
-  DataViewImpl::processHistory() const {
+  PrincipalGetAdapter::processHistory() const {
     return principal_.processHistory();
   }
 
   ConstBranchDescription const&
-  DataViewImpl::getBranchDescription(TypeID const& type,
+  PrincipalGetAdapter::getBranchDescription(TypeID const& type,
 				     std::string const& productInstanceName) const {
     TransientProductLookupMap const& tplm = principal_.productRegistry().productLookup();
     std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator> range = 
@@ -157,7 +159,7 @@ namespace edm {
   }
 
   EDProductGetter const*
-  DataViewImpl::prodGetter() const{
+  PrincipalGetAdapter::prodGetter() const{
     return principal_.prodGetter();
   }
 }

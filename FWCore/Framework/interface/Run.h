@@ -10,7 +10,7 @@
 
 Description: This is the primary interface for accessing per run EDProducts and inserting new derived products.
 
-For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
+For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 */
 /*----------------------------------------------------------------------
@@ -20,7 +20,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
-#include "FWCore/Framework/interface/DataViewImpl.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
@@ -31,7 +31,7 @@ namespace edm {
     Run(RunPrincipal& rp, ModuleDescription const& md);
     ~Run(){}
 
-    typedef DataViewImpl Base;
+    typedef PrincipalGetAdapter Base;
     // AUX functions.
     RunID const& id() const {return aux_.id();}
     RunNumber_t run() const {return aux_.run();}
@@ -105,8 +105,12 @@ namespace edm {
     RunPrincipal &
     runPrincipal();
 
+    typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
+    ProductPtrVec & putProducts() {return putProducts_;}
+    ProductPtrVec const& putProducts() const {return putProducts_;}
+    
     // commit_() is called to complete the transaction represented by
-    // this DataViewImpl. The friendships required seems gross, but any
+    // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     friend class ConfigurableInputSource;
@@ -118,7 +122,8 @@ namespace edm {
 
     void commit_();
 
-    DataViewImpl provRecorder_;
+    PrincipalGetAdapter provRecorder_;
+    ProductPtrVec putProducts_;
     RunAuxiliary const& aux_;
   };
 
@@ -146,7 +151,7 @@ namespace edm {
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
 
-    provRecorder_.putProducts().push_back(std::make_pair(wp, &desc));
+    putProducts().push_back(std::make_pair(wp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.

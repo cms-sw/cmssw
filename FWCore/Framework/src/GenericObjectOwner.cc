@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb  7 17:21:22 EST 2008
-// $Id: GenericObjectOwner.cc,v 1.3 2008/12/18 04:49:02 wmtan Exp $
+// $Id: GenericObjectOwner.cc,v 1.4 2009/08/25 22:07:10 chrjones Exp $
 //
 
 // system include files
@@ -124,7 +124,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
 
    static Reflex::Type s_edproductType(Reflex::Type::ByTypeInfo(typeid(EDProduct)));
    EDProduct *wp(reinterpret_cast<EDProduct*>(oWrapper.CastObject(s_edproductType).Address()));
-   provRecorder_.putProducts().push_back(std::make_pair(wp, &desc));
+   putProducts().push_back(std::make_pair(wp, &desc));
    
    // product.release(); // The object has been copied into the Wrapper.
    // The old copy must be deleted, so we cannot release ownership.

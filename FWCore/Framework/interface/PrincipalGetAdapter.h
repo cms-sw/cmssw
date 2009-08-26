@@ -1,12 +1,12 @@
-#ifndef Framework_DataViewImpl_h
-#define Framework_DataViewImpl_h
+#ifndef Framework_PrincipalGetAdapter_h
+#define Framework_PrincipalGetAdapter_h
 
 // -*- C++ -*-
 //
 
-// Class  :     DataViewImpl
+// Class  :     PrincipalGetAdapter
 // 
-/**\class DataViewImpl DataViewImpl.h FWCore/Framework/interface/DataViewImpl.h
+/**\class PrincipalGetAdapter PrincipalGetAdapter.h FWCore/Framework/interface/PrincipalGetAdapter.h
 
 Description: This is the implementation for accessing EDProducts and 
 inserting new EDproducts.
@@ -15,14 +15,14 @@ Usage:
 
 Getting Data
 
-The edm::DataViewImpl class provides many 'get*" methods for getting data
+The edm::PrincipalGetAdapter class provides many 'get*" methods for getting data
 it contains.  
 
 The primary method for getting data is to use getByLabel(). The labels are
 the label of the module assigned in the configuration file and the 'product
 instance label' (which can be omitted in the case the 'product instance label'
 is the default value).  The C++ type of the product plus the two labels
-uniquely identify a product in the DataViewImpl.
+uniquely identify a product in the PrincipalGetAdapter.
 
 We use an event in the examples, but a run or a luminosity block can also
 hold products.
@@ -60,7 +60,7 @@ event.put("apple", pFruits);
 Getting a reference to a product before that product is put into the
 event/lumiBlock/run.
 NOTE: The edm::RefProd returned will not work until after the
-edm::DataViewImpl has been committed (which happens after the
+edm::PrincipalGetAdapter has been committed (which happens after the
 EDProducer::produce method has ended)
 \code
 std::auto_ptr<AppleCollection> pApples( new AppleCollection);
@@ -114,14 +114,14 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 namespace edm {
 
-  class DataViewImpl {
+  class PrincipalGetAdapter {
   public:
-    DataViewImpl(Principal & pcpl,
+    PrincipalGetAdapter(Principal & pcpl,
 		 ModuleDescription const& md);
 
-    ~DataViewImpl();
+    ~PrincipalGetAdapter();
 
-    size_t size() const;
+    //size_t size() const;
 
     template <typename PROD>
     bool 
@@ -157,20 +157,9 @@ namespace edm {
     ProcessHistory const&
     processHistory() const;
 
-    DataViewImpl const&
-    me() const {return *this;}
-
-    typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
-
     Principal& principal() {return principal_;}
     Principal const& principal() const {return principal_;}
 
-    ProductPtrVec & putProducts() {return putProducts_;}
-    ProductPtrVec const& putProducts() const {return putProducts_;}
-
-    ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
-    ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
-    
     ConstBranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
@@ -180,7 +169,7 @@ namespace edm {
     // Protected functions.
     //
 
-    // The following 'get' functions serve to isolate the DataViewImpl class
+    // The following 'get' functions serve to isolate the PrincipalGetAdapter class
     // from the Principal class.
 
     BasicHandle 
@@ -225,15 +214,15 @@ namespace edm {
                                 std::string const& processName,
                                 BasicHandle& result) const;
     
-    // Also isolates the DataViewImpl class
+    // Also isolates the PrincipalGetAdapter class
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
   private:
     //------------------------------------------------------------
-    // Copying and assignment of DataViewImpls is disallowed
+    // Copying and assignment of PrincipalGetAdapters is disallowed
     //
-    DataViewImpl(DataViewImpl const&);                  // not implemented
-    DataViewImpl const& operator=(DataViewImpl const&);   // not implemented
+    PrincipalGetAdapter(PrincipalGetAdapter const&);                  // not implemented
+    PrincipalGetAdapter const& operator=(PrincipalGetAdapter const&);   // not implemented
 
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;
@@ -243,19 +232,12 @@ namespace edm {
     // Data members
     //
 
-    // putProducts_ and putProductsWithoutParents_ are the holding
-    // pens for EDProducts inserted into this DataViewImpl. Pointers
-    // in these collections own the products to which they point.
-    // 
-    ProductPtrVec putProducts_;               // keep parentage info for these
-    ProductPtrVec putProductsWithoutParents_; // ... but not for these
-
-    // Each DataViewImpl must have an associated Principal, used as the
+    // Each PrincipalGetAdapter must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
     Principal & principal_;
 
-    // Each DataViewImpl must have a description of the module executing the
-    // "transaction" which the DataViewImpl represents.
+    // Each PrincipalGetAdapter must have a description of the module executing the
+    // "transaction" which the PrincipalGetAdapter represents.
     ModuleDescription const& md_;
 
   };
@@ -271,7 +253,7 @@ namespace edm {
 
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in
-  // DataViewImpl::put member template.
+  // PrincipalGetAdapter::put member template.
   //
 
   // has_postinsert is a metafunction of one argument, the type T.  As
@@ -329,14 +311,14 @@ namespace edm {
     void operator()(T*) const { }
   };
 
-  // Implementation of  DataViewImpl  member templates. See  DataViewImpl.cc for the
+  // Implementation of  PrincipalGetAdapter  member templates. See  PrincipalGetAdapter.cc for the
   // implementation of non-template members.
   //
 
   template <typename PROD>
   inline
   bool 
-  DataViewImpl::get(SelectorBase const& sel,
+  PrincipalGetAdapter::get(SelectorBase const& sel,
 		    Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
@@ -350,7 +332,7 @@ namespace edm {
   template <typename PROD>
   inline
   bool
-  DataViewImpl::getByLabel(std::string const& label,
+  PrincipalGetAdapter::getByLabel(std::string const& label,
 			   Handle<PROD>& result) const {
     result.clear();
     return getByLabel(label, std::string(), result);
@@ -359,7 +341,7 @@ namespace edm {
   template <typename PROD>
   inline
   bool
-  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
+  PrincipalGetAdapter::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag);
     convert_handle(bh, result);  // throws on conversion error
@@ -372,7 +354,7 @@ namespace edm {
   template <typename PROD>
   inline
   bool
-  DataViewImpl::getByLabel(std::string const& label,
+  PrincipalGetAdapter::getByLabel(std::string const& label,
 			   std::string const& productInstanceName,
 			   Handle<PROD>& result) const {
     result.clear();
@@ -387,7 +369,7 @@ namespace edm {
   template <typename PROD>
   inline
   void 
-  DataViewImpl::getMany(SelectorBase const& sel,
+  PrincipalGetAdapter::getMany(SelectorBase const& sel,
 			std::vector<Handle<PROD> >& results) const { 
     BasicHandleVec bhv;
     this->getMany_(TypeID(typeid(PROD)), sel, bhv);
@@ -421,7 +403,7 @@ namespace edm {
   template <typename PROD>
   inline
   bool
-  DataViewImpl::getByType(Handle<PROD>& result) const {
+  PrincipalGetAdapter::getByType(Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
     convert_handle(bh, result);  // throws on conversion error
@@ -434,7 +416,7 @@ namespace edm {
   template <typename PROD>
   inline
   void 
-  DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const { 
+  PrincipalGetAdapter::getManyByType(std::vector<Handle<PROD> >& results) const { 
     BasicHandleVec bhv;
     this->getManyByType_(TypeID(typeid(PROD)), bhv);
     

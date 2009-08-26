@@ -11,7 +11,7 @@
 Description: This is the primary interface for accessing EDProducts
 from a single collision and inserting new derived products.
 
-For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
+For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 */
 /*----------------------------------------------------------------------
@@ -34,41 +34,13 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#include "FWCore/Framework/interface/DataViewImpl.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
 
   class ConstBranchDescription;
-
-
-  // The following functions objects are used by Event::put, under the
-  // control of a metafunction if, to put the given pair into the
-  // right collection.
-  template <typename PROD>
-  struct RecordInParentless {
-    typedef DataViewImpl::ProductPtrVec ptrvec_t;
-    void do_it(ptrvec_t& ignored,
-	       ptrvec_t& used,
-	       Wrapper<PROD>* wp, 
-	       ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(wp, desc));
-    }
-  };
-
-  template <typename PROD>
-  struct RecordInParentfull {
-    typedef DataViewImpl::ProductPtrVec ptrvec_t;
-
-    void do_it(ptrvec_t& used,
-	       ptrvec_t& ignored,
-	       Wrapper<PROD>* wp, 
-	       ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(wp, desc));
-    }
-  };
-
 
   class Event {
   public:
@@ -216,7 +188,7 @@ namespace edm {
     makeProductID(ConstBranchDescription const& desc) const;
 
     // commit_() is called to complete the transaction represented by
-    // this DataViewImpl. The friendships required seems gross, but any
+    // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     friend class ConfigurableInputSource;
@@ -226,19 +198,34 @@ namespace edm {
     friend class EDFilter;
     friend class EDProducer;
 
-     void commit_(std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
-    void commit_aux(DataViewImpl::ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
+    typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
+    void commit_(std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
+    void commit_aux(ProductPtrVec& products, bool record_parents, std::vector<BranchID>* previousParentage=0, ParentageID* previousParentageId=0);
 
     BasicHandle 
     getByProductID_(ProductID const& oid) const;
 
+    ProductPtrVec & putProducts() {return putProducts_;}
+    ProductPtrVec const& putProducts() const {return putProducts_;}
+    
+    ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
+    ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+    
      
-    DataViewImpl provRecorder_;
+    PrincipalGetAdapter provRecorder_;
+
+    // putProducts_ and putProductsWithoutParents_ are the holding
+    // pens for EDProducts inserted into this PrincipalGetAdapter. Pointers
+    // in these collections own the products to which they point.
+    // 
+    ProductPtrVec putProducts_;               // keep parentage info for these
+    ProductPtrVec putProductsWithoutParents_; // ... but not for these
+    
     EventAuxiliary const& aux_;
     boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
-    // which do not logically modify the DataViewImpl. gotBranchIDs_ is
+    // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
     // merely a cache reflecting what has been retreived from the
     // Principal class.
     typedef std::set<BranchID> BranchIDSet;
@@ -249,6 +236,33 @@ namespace edm {
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
   };
 
+  // The following functions objects are used by Event::put, under the
+  // control of a metafunction if, to put the given pair into the
+  // right collection.
+  template <typename PROD>
+  struct RecordInParentless {
+    typedef Event::ProductPtrVec ptrvec_t;
+    void do_it(ptrvec_t& ignored,
+	       ptrvec_t& used,
+	       Wrapper<PROD>* wp, 
+	       ConstBranchDescription const* desc) const {
+      used.push_back(std::make_pair(wp, desc));
+    }
+  };
+  
+  template <typename PROD>
+  struct RecordInParentfull {
+    typedef Event::ProductPtrVec ptrvec_t;
+    
+    void do_it(ptrvec_t& used,
+	       ptrvec_t& ignored,
+	       Wrapper<PROD>* wp, 
+	       ConstBranchDescription const* desc) const {
+      used.push_back(std::make_pair(wp, desc));
+    }
+  };
+  
+  
   template <typename PROD>
   bool
   Event::get(ProductID const& oid, Handle<PROD>& result) const
@@ -310,8 +324,8 @@ namespace edm {
     typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
       RecordInParentless<PROD>,
       RecordInParentfull<PROD> >::type parentage_recorder;
-    parentage_recorder.do_it(provRecorder_.putProducts(),
-			     provRecorder_.putProductsWithoutParents(),
+    parentage_recorder.do_it(putProducts(),
+			     putProductsWithoutParents(),
 			     wp,
 			     &desc);
 

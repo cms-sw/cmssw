@@ -13,7 +13,7 @@ Forward declarations of types in the EDM.
 namespace edm {
   class ConfigurableInputSource;
   class CurrentProcessingContext;
-  class DataViewImpl;
+  class PrincipalGetAdapter;
   class DelayedReader;
   class EDAnalyzer;
   class EDFilter;

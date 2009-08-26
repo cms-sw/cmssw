@@ -38,8 +38,8 @@ namespace edm {
   LuminosityBlock::commit_() {
     // fill in guts of provenance here
     LuminosityBlockPrincipal & lbp = luminosityBlockPrincipal();
-    DataViewImpl::ProductPtrVec::iterator pit(provRecorder_.putProducts().begin());
-    DataViewImpl::ProductPtrVec::iterator pie(provRecorder_.putProducts().end());
+    ProductPtrVec::iterator pit(putProducts().begin());
+    ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit!=pie) {
 	// set provenance
@@ -51,7 +51,7 @@ namespace edm {
     }
 
     // the cleanup is all or none
-    provRecorder_.putProducts().clear();
+    putProducts().clear();
   }
 
   ProcessHistory const&
