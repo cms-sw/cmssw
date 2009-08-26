@@ -1,9 +1,17 @@
-// $Id: FWECALDetailView.icc,v 1.21 2009/08/22 17:10:22 amraktad Exp $
+// $Id: FWECALDetailView.icc,v 1.22 2009/08/24 16:22:35 amraktad Exp $
 
 #include "TAxis.h"
 #include "TGLViewer.h"
 #include "TCanvas.h"
 #include "TRootEmbeddedCanvas.h"
+#include "TGLabel.h"
+#include "TGSlider.h"
+#include "TGLFontManager.h"
+#include "TGTab.h"
+#include "TMath.h"
+
+#include "TEveViewer.h"
+#include "TEveScene.h"
 #include "TEveManager.h"
 #include "TEveWindow.h"
 #include "TEveCalo.h"
@@ -14,7 +22,7 @@
 #include "TEveCaloLegoOverlay.h"
 #include "TEveText.h"
 #include "TEveStraightLineSet.h"
-#include "TEveScene.h"
+#include "TEveChunkManager.h"
 
 
 #include "Fireworks/Electrons/plugins/FWECALDetailView.h"
@@ -22,6 +30,7 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/CSGAction.h"
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
@@ -45,6 +54,7 @@ FWECALDetailView<T>::FWECALDetailView () :
 template <typename T>
 FWECALDetailView<T>::~FWECALDetailView ()
 {
+
 }
 
 template <typename T>
@@ -69,42 +79,121 @@ double FWECALDetailView<T>::deltaPhiSuperClusterTrackAtVtx (const T &)
 template <typename T>
 void FWECALDetailView<T>::build_projected(const FWModelId &id, const T *i, TEveWindowSlot* base)
 {
-   TEveWindowTab* tab = base->MakeTab();
-   tab->SetShowTitleBar(kFALSE);
+   TEveWindowTab* eveWindow = base->MakeTab();
+   eveWindow->SetShowTitleBar(kFALSE);
    TEveWindowSlot* slot;
 
-   slot = tab->NewSlot();
+   slot = eveWindow->NewSlot();
    build_projectedJohannes(id, i, slot);
 
-   slot = tab->NewSlot();
+   slot = eveWindow->NewSlot();
    build_projectedLothar(id, i, slot);
 
-   slot = tab->NewSlot();
+   slot = eveWindow->NewSlot();
    build_projectedDave(id, i, slot);
+
+   eveWindow->GetTab()->SetTab(1);
 }
 
 //--------------------------------------------------------------------------------
+//
+//  DetailViewB
+//
 
 template <typename T>
 void FWECALDetailView<T>::build_projectedLothar(const FWModelId &id, const T *i, TEveWindowSlot* slot)
 {
    TGVerticalFrame* ediFrame;
-   TGLViewer       *viewer;
-   TEveScene       *scene;
-   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, m_bViewer, m_bScene);
    ew->SetElementName("View B");
+
+   m_bLines = new TEveStraightLineSet();
+   m_bLines->SetMarkerColor(6);
+   m_bLines->SetMarkerStyle(kGreen);
+   m_bScene->AddElement(m_bLines);
+
+   TEveStraightLineSet* a1 = new TEveStraightLineSet();
+   a1->AddLine(3, 3, 3, -3, -3, -3);
+   a1->SetMainColor(kWhite);
+   a1->SetLineStyle(2);
+   m_bScene->AddElement(a1);
+
+   setEtaPhiRange(0); // scale 1 = exp 0
+
+   TGLViewer* viewer = m_bViewer->GetGLViewer();
+   viewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)viewer->GetGLWidget(), (TObject*)viewer);
+   viewer->SetEventHandler(eh);
+   eh->Rotate(0, 10000, kFALSE, kFALSE);
+   makeGUIForDetailViewB(ediFrame);
 }
 
+template <typename T>
+void FWECALDetailView<T>::makeGUIForDetailViewB(TGCompositeFrame* ediFrame)
+{
+   TGVerticalFrame* guiFrame = new TGVerticalFrame(ediFrame);
+   ediFrame->AddFrame(guiFrame, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   guiFrame->SetCleanup(kDeepCleanup);
+
+   TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(guiFrame);
+   guiFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+   sliderFrame->AddFrame(new TGLabel(sliderFrame, "Eta-Phi Range:"));
+
+   CSGAction* actionRange = new CSGAction(this, "Scale eta-phi range");
+   actionRange->createSlider(sliderFrame, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 2, 2, 0, 0), 120, kSlider1);
+   actionRange->intSignal->connect(boost::bind(&FWECALDetailView::setEtaPhiRange,this,_1));
+   TGSlider* slider  = actionRange->getSlider();
+   slider->SetRange(-1000, 2000);
+   slider->SetPosition(0);
+
+   CSGAction* actionRnr = new CSGAction(this, "Render Eta-Phi Rng");
+   actionRnr->createCheckButton(guiFrame, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
+   actionRnr->activated.connect( sigc::mem_fun(this, &FWECALDetailView::buttonCallback));
+     
+   ediFrame->MapSubwindows();
+   ediFrame->Layout();
+}
+
+template <typename T>
+void FWECALDetailView<T>::buttonCallback()
+{
+   bool rnr = m_bLines->GetRnrSelf();
+   m_bLines->SetRnrSelf(!rnr);
+
+   m_bScene->Repaint();
+   m_bViewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   gEve->Redraw3D();
+}
+
+template <typename T>
+void FWECALDetailView<T>::setEtaPhiRange(int x)
+{
+   Float_t val =  TMath::Power(10, x*1e-3);
+   Float_t h = 0;
+   Float_t a = 10*val;
+   m_bLines->GetLinePlex().Reset(sizeof(TEveStraightLineSet::Line_t), 6);
+   m_bLines->AddLine( +a, +a, +h, -a, -a, +h);
+   m_bLines->AddLine( +a, -a, +h, -a, +a, +h);
+   m_bLines->AddLine( -a, -a, +h, -a, +a, +h);
+   m_bLines->AddLine( +a, -a, +h, +a, +a, +h);
+   m_bLines->AddLine( +a, +a, +h, -a, +a, +h);
+   m_bLines->AddLine( +a, -a, +h, -a, -a, +h);
+   m_bLines->ComputeBBox();
+
+   m_bScene->Repaint(true);
+   m_bViewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   gEve->Redraw3D();
+}
 //--------------------------------------------------------------------------------
 
 template <typename T>
 void FWECALDetailView<T>::build_projectedDave(const FWModelId &id, const T *i, TEveWindowSlot* slot)
 {
 
-   TGVerticalFrame* ediFrame;
-   TGLViewer       *viewer;
+   TGVerticalFrame *ediFrame;
+   TEveViewer      *eveViewer;
    TEveScene       *scene;
-   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, eveViewer, scene);
    ew->SetElementName("View C");
 }
 //--------------------------------------------------------------------------------
@@ -144,10 +233,11 @@ void FWECALDetailView<T>::build_projectedJohannes(const FWModelId &id, const T *
    const unsigned int subdetId = seed_detids.size() != 0 ? seed_detids.begin()->first.subdetId() : 0;
    m_coordEtaPhi = (subdetId == EcalEndcap) ? kFALSE: kTRUE;
 
-   TGVerticalFrame* ediFrame;
-   TGLViewer       *viewer;
+   TGVerticalFrame *ediFrame;
+   TEveViewer      *eveViewer;
    TEveScene       *scene;
-   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
+   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, eveViewer, scene);
+   TGLViewer* viewer = eveViewer->GetGLViewer();
    ew->SetElementName("View A");
 
    // points for centroids
@@ -397,3 +487,5 @@ Bool_t FWECALDetailView<T>::checkRange(Double_t &em, Double_t& eM, Double_t &pm,
    }
    return changed;
 }
+
+

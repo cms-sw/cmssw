@@ -10,7 +10,7 @@
 //     views.  The only difference between the two detail views is
 //     whether the track intersections need to be drawn.
 //
-// $Id: FWECALDetailView.h,v 1.8 2009/08/22 17:10:22 amraktad Exp $
+// $Id: FWECALDetailView.h,v 1.10 2009/08/24 16:22:35 amraktad Exp $
 //
 #include "Rtypes.h"
 
@@ -30,9 +30,8 @@ class TEveElementList;
 class TEveCaloDataVec;
 class TEveCaloLego;
 class TEveCaloLegoOverlay;
-
+class TEveStraightLineSet;
 class FWModelId;
-
 
 template <typename T> class FWECALDetailView : public FWDetailView<T> {
 public:
@@ -65,8 +64,19 @@ protected:
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
 protected:
+   // detail view A
    virtual void build_projectedJohannes (const FWModelId &id, const T *, TEveWindowSlot*);
+
+   // detail view B
    virtual void build_projectedLothar (const FWModelId &id, const T *, TEveWindowSlot*);
+   virtual void makeGUIForDetailViewB(TGCompositeFrame* c);
+   virtual void setEtaPhiRange(int);
+   virtual void buttonCallback();
+   TEveScene    *m_bScene;
+   TEveViewer   *m_bViewer;
+   TEveStraightLineSet *m_bLines;
+
+   // detail view C
    virtual void build_projectedDave (const FWModelId &id, const T *, TEveWindowSlot*);
 
    // ---------- member data --------------------------------
@@ -79,7 +89,6 @@ protected:
    const EcalRecHitCollection *m_endcap_hits;
    const EcalRecHitCollection *m_endcap_reduced_hits;
    std::vector< std::pair<DetId, float> > seed_detids;
-
 };
 
 #include "FWECALDetailView.icc"
