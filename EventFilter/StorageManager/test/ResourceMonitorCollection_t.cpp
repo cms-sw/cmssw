@@ -121,7 +121,7 @@ testResourceMonitorCollection::diskUsage()
   dwParams._highWaterMark = 1;
   _rmc->configureDisks(dwParams);
   CPPUNIT_ASSERT( _rmc->_diskUsageList.size() == 1 );
-  CPPUNIT_ASSERT( _rmc->_latchedNumberOfDisks == 1 );
+  CPPUNIT_ASSERT( _rmc->_nLogicalDisks == 1 );
   ResourceMonitorCollection::DiskUsagePtr diskUsagePtr = _rmc->_diskUsageList[0];
   CPPUNIT_ASSERT( diskUsagePtr.get() != 0 );
 

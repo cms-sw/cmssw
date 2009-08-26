@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.12 2009/08/26 07:05:54 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.13 2009/08/26 08:50:55 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/08/26 07:05:54 $
+   * $Revision: 1.13 $
+   * $Date: 2009/08/26 08:50:55 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -99,10 +99,7 @@ namespace stor {
     mutable boost::mutex _diskUsageListMutex;
 
     const utils::duration_t _updateInterval;
-
-    MonitoredQuantity _numberOfCopyWorkers;
-    MonitoredQuantity _numberOfInjectWorkers;
-
+    boost::shared_ptr<AlarmHandler> _alarmHandler;
 
     //Prevent copying of the ResourceMonitorCollection
     ResourceMonitorCollection(ResourceMonitorCollection const&);
@@ -129,12 +126,13 @@ namespace stor {
     bool checkSataDisks(const std::string& sataBeast, const std::string& hostSuffix);
     void updateSataBeastStatus(const std::string& sataBeast, const std::string& content);
 
+    MonitoredQuantity _numberOfCopyWorkers;
+    MonitoredQuantity _numberOfInjectWorkers;
+    unsigned int _nLogicalDisks;
 
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
     double _highWaterMark;     // percentage of disk full when issuing an alarm
     std::string _sataUser;     // user name to log into SATA controller
     int _latchedSataBeastStatus;
-    unsigned int _latchedNumberOfDisks;
     
     xdata::UnsignedInteger32 _copyWorkers;     // number of running copyWorkers
     xdata::UnsignedInteger32 _injectWorkers;   // number of running injectWorkers

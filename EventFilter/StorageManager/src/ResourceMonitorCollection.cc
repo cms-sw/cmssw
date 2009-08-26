@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.15 2009/08/26 07:05:54 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.16 2009/08/26 08:50:10 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -27,11 +27,11 @@ ResourceMonitorCollection::ResourceMonitorCollection
 ) :
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
+_alarmHandler(ah),
 _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
-_alarmHandler(ah),
+_nLogicalDisks(0),
 _latchedSataBeastStatus(-1),
-_latchedNumberOfDisks(0),
 _progressMarker( "unused" )
 {}
 
@@ -43,16 +43,15 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
   _highWaterMark = dwParams._highWaterMark;
   _sataUser = dwParams._sataUser;
 
-  int nLogicalDisk = dwParams._nLogicalDisk;
-  _latchedNumberOfDisks = nLogicalDisk ? nLogicalDisk : 1;
+  _nLogicalDisks = std::max(dwParams._nLogicalDisk, 1);
   _diskUsageList.clear();
-  _diskUsageList.reserve(_latchedNumberOfDisks+2);
+  _diskUsageList.reserve(_nLogicalDisks+2);
 
-  for (unsigned int i=0; i<_latchedNumberOfDisks; ++i) {
+  for (unsigned int i=0; i<_nLogicalDisks; ++i) {
 
     DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
     diskUsage->pathName = dwParams._filePath;
-    if(nLogicalDisk>0) {
+    if( dwParams._nLogicalDisk > 0 ) {
       std::ostringstream oss;
       oss << "/" << std::setfill('0') << std::setw(2) << i; 
       diskUsage->pathName += oss.str();
@@ -147,8 +146,7 @@ void ResourceMonitorCollection::do_reset()
 {
   _numberOfCopyWorkers.reset();
   _numberOfInjectWorkers.reset();
-  _latchedSataBeastStatus = 0;
-  _latchedNumberOfDisks = 0;
+  _latchedSataBeastStatus = -1;
 
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
   for ( DiskUsagePtrList::const_iterator it = _diskUsageList.begin(),
@@ -189,14 +187,14 @@ void ResourceMonitorCollection::do_updateInfoSpaceItems()
   );
 
   _sataBeastStatus = stats.sataBeastStatus;
-  _numberOfDisks = _latchedNumberOfDisks;
+  _numberOfDisks = _nLogicalDisks;
 
   _totalDiskSpace.clear();
   _usedDiskSpace.clear();
   // Always report vector all disks plus look area and calib area,
   // regardless if they are configured or not.
-  _totalDiskSpace.resize(_latchedNumberOfDisks+2);
-  _usedDiskSpace.resize(_latchedNumberOfDisks+2);
+  _totalDiskSpace.resize(_nLogicalDisks+2);
+  _usedDiskSpace.resize(_nLogicalDisks+2);
 
 
   for (DiskUsageStatsPtrList::const_iterator
@@ -332,6 +330,10 @@ void ResourceMonitorCollection::checkSataBeasts()
     {
       checkSataBeast(*it);
     }
+  }
+  else
+  {
+    _latchedSataBeastStatus = -1;
   }
 }
 
