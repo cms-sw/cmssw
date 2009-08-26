@@ -101,7 +101,7 @@ testResourceMonitorCollection::notMountedDisk()
   DiskWritingParams dwParams;
   dwParams._nLogicalDisk = 0;
   dwParams._filePath = ".";
-  dwParams._ecalCalibPath = dummyDisk;
+  dwParams._otherDiskPaths.push_back(dummyDisk);
   _rmc->configureDisks(dwParams);
 
   _ah->printActiveAlarms(dummyDisk);
