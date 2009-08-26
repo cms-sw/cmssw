@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/24 21:29:31 $
- * $Revision: 1.193 $
+ * $Date: 2009/08/24 21:45:30 $
+ * $Revision: 1.194 $
  * \author G. Della Ricca
  *
 */
@@ -263,8 +263,8 @@ void EBSummaryClient::setup(void) {
   if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
   sprintf(histo, "EBIT PN integrity quality summary");
   meIntegrityPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meIntegrityPN_->setAxisTitle("jphi", 1);
-  meIntegrityPN_->setAxisTitle("jeta", 2);
+  meIntegrityPN_->setAxisTitle("jchannel", 1);
+  meIntegrityPN_->setAxisTitle("jpseudo-strip", 2);
 
   if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT digi occupancy summary");
@@ -282,8 +282,8 @@ void EBSummaryClient::setup(void) {
   if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
   sprintf(histo, "EBOT PN digi occupancy summary");
   meOccupancyPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-  meOccupancyPN_->setAxisTitle("jphi", 1);
-  meOccupancyPN_->setAxisTitle("jeta", 2);
+  meOccupancyPN_->setAxisTitle("jchannel", 1);
+  meOccupancyPN_->setAxisTitle("jpseudo-strip", 2);
 
   if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
   sprintf(histo, "EBSFT front-end status summary");
@@ -349,8 +349,8 @@ void EBSummaryClient::setup(void) {
     if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
     sprintf(histo, "EBLT PN laser quality summary L1");
     meLaserL1PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL1PN_->setAxisTitle("jphi", 1);
-    meLaserL1PN_->setAxisTitle("jeta", 2);
+    meLaserL1PN_->setAxisTitle("jchannel", 1);
+    meLaserL1PN_->setAxisTitle("jpseudo-strip", 2);
 
     if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L1");
@@ -400,8 +400,8 @@ void EBSummaryClient::setup(void) {
     if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getName() );
     sprintf(histo, "EBLT PN laser quality summary L2");
     meLaserL2PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL2PN_->setAxisTitle("jphi", 1);
-    meLaserL2PN_->setAxisTitle("jeta", 2);
+    meLaserL2PN_->setAxisTitle("jchannel", 1);
+    meLaserL2PN_->setAxisTitle("jpseudo-strip", 2);
 
     if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L2");
@@ -451,8 +451,8 @@ void EBSummaryClient::setup(void) {
     if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getName() );
     sprintf(histo, "EBLT PN laser quality summary L3");
     meLaserL3PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL3PN_->setAxisTitle("jphi", 1);
-    meLaserL3PN_->setAxisTitle("jeta", 2);
+    meLaserL3PN_->setAxisTitle("jchannel", 1);
+    meLaserL3PN_->setAxisTitle("jpseudo-strip", 2);
 
     if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L3");
@@ -502,8 +502,8 @@ void EBSummaryClient::setup(void) {
     if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getName() );
     sprintf(histo, "EBLT PN laser quality summary L4");
     meLaserL4PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL4PN_->setAxisTitle("jphi", 1);
-    meLaserL4PN_->setAxisTitle("jeta", 2);
+    meLaserL4PN_->setAxisTitle("jchannel", 1);
+    meLaserL4PN_->setAxisTitle("jpseudo-strip", 2);
 
     if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
     sprintf(histo, "EBLT PN laser quality errors summary L4");
@@ -570,8 +570,8 @@ void EBSummaryClient::setup(void) {
     if( mePedestalPNG01_ ) dqmStore_->removeElement( mePedestalPNG01_->getName() );
     sprintf(histo, "EBPT PN pedestal quality G01 summary");
     mePedestalPNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-    mePedestalPNG01_->setAxisTitle("jphi", 1);
-    mePedestalPNG01_->setAxisTitle("jeta", 2);
+    mePedestalPNG01_->setAxisTitle("jchannel", 1);
+    mePedestalPNG01_->setAxisTitle("jpseudo-strip", 2);
 
   }
 
@@ -580,8 +580,8 @@ void EBSummaryClient::setup(void) {
     if( mePedestalPNG16_ ) dqmStore_->removeElement( mePedestalPNG16_->getName() );
     sprintf(histo, "EBPT PN pedestal quality G16 summary");
     mePedestalPNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
-    mePedestalPNG16_->setAxisTitle("jphi", 1);
-    mePedestalPNG16_->setAxisTitle("jeta", 2);
+    mePedestalPNG16_->setAxisTitle("jchannel", 1);
+    mePedestalPNG16_->setAxisTitle("jpseudo-strip", 2);
 
   }
 
@@ -620,8 +620,8 @@ void EBSummaryClient::setup(void) {
     if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
     sprintf(histo, "EBTPT PN test pulse quality G01 summary");
     meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meTestPulsePNG01_->setAxisTitle("jphi", 1);
-    meTestPulsePNG01_->setAxisTitle("jeta", 2);
+    meTestPulsePNG01_->setAxisTitle("jchannel", 1);
+    meTestPulsePNG01_->setAxisTitle("jpseudo-strip", 2);
 
   }
 
@@ -630,8 +630,8 @@ void EBSummaryClient::setup(void) {
     if( meTestPulsePNG16_ ) dqmStore_->removeElement( meTestPulsePNG16_->getName() );
     sprintf(histo, "EBTPT PN test pulse quality G16 summary");
     meTestPulsePNG16_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meTestPulsePNG16_->setAxisTitle("jphi", 1);
-    meTestPulsePNG16_->setAxisTitle("jeta", 2);
+    meTestPulsePNG16_->setAxisTitle("jchannel", 1);
+    meTestPulsePNG16_->setAxisTitle("jpseudo-strip", 2);
 
   }
 
@@ -932,9 +932,7 @@ void EBSummaryClient::analyze(void) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
       if ( meIntegrity_ ) meIntegrity_->setBinContent( ipx, iex, 6. );
-      if ( meIntegrityPN_ ) meIntegrityPN_->setBinContent( ipx, iex, 6. );
       if ( meOccupancy_ ) meOccupancy_->setBinContent( ipx, iex, 0. );
-      if ( meOccupancyPN_ ) meOccupancyPN_->setBinContent( ipx, iex, 0. );
       if ( meStatusFlags_ ) meStatusFlags_->setBinContent( ipx, iex, 6. );
       if ( mePedestalOnline_ ) mePedestalOnline_->setBinContent( ipx, iex, 6. );
       if ( mePedestalOnlineRMSMap_ ) mePedestalOnlineRMSMap_->setBinContent( ipx, iex, -1.);
@@ -960,6 +958,8 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 20; iex++ ) {
     for ( int ipx = 1; ipx <= 90; ipx++ ) {
 
+      if ( meIntegrityPN_ ) meIntegrityPN_->setBinContent( ipx, iex, 6. );
+      if ( meOccupancyPN_ ) meOccupancyPN_->setBinContent( ipx, iex, 0. );
       if ( meLaserL1PN_ ) meLaserL1PN_->setBinContent( ipx, iex, 6. );
       if ( meLaserL2PN_ ) meLaserL2PN_->setBinContent( ipx, iex, 6. );
       if ( meLaserL3PN_ ) meLaserL3PN_->setBinContent( ipx, iex, 6. );
@@ -1496,15 +1496,15 @@ void EBSummaryClient::analyze(void) {
       for( int i = 1; i <= 10; i++ ) {
         for( int j = 1; j <= 5; j++ ) {
 
-          int iex;
-          int ipx;
+          int ichanx;
+          int ipseudostripx;
 
           if(ism<=18) {
-            iex = i;
-            ipx = j+5*(ism-1);
+            ichanx = i;
+            ipseudostripx = j+5*(ism-1);
           } else {
-            iex = i+10;
-            ipx = j+5*(ism-19);
+            ichanx = i+10;
+            ipseudostripx = j+5*(ism-19);
           }
 
           if ( ebic ) {
@@ -1514,15 +1514,15 @@ void EBSummaryClient::analyze(void) {
 
             if( me_04 ) {
 
-              float xval = me_04->getBinContent(i,1);
-              meIntegrityPN_->setBinContent( ipx, iex, xval );
+              float xval = me_04->getBinContent(i,j);
+              meIntegrityPN_->setBinContent( ipseudostripx, ichanx, xval );
 
             }
 
             if ( h2 ) {
 
               float xval = h2->GetBinContent(i,1);
-              meOccupancyPN_->setBinContent( ipx, iex, xval );
+              meOccupancyPN_->setBinContent( ipseudostripx, ichanx, xval );
 
             }
 
@@ -1535,11 +1535,11 @@ void EBSummaryClient::analyze(void) {
 
             if( me_04 ) {
               float val_04=me_04->getBinContent(i,1);
-              if ( me_04->getEntries() != 0 ) mePedestalPNG01_->setBinContent( ipx, iex, val_04 );
+              mePedestalPNG01_->setBinContent( ipseudostripx, ichanx, val_04 );
             }
             if( me_05 ) {
               float val_05=me_05->getBinContent(i,1);
-              if ( me_05->getEntries() != 0 ) mePedestalPNG16_->setBinContent( ipx, iex, val_05 );
+              mePedestalPNG16_->setBinContent( ipseudostripx, ichanx, val_05 );
             }
 
           }
@@ -1551,11 +1551,11 @@ void EBSummaryClient::analyze(void) {
 
             if( me_04 ) {
               float val_04=me_04->getBinContent(i,1);
-              if ( me_04->getEntries() != 0 ) meTestPulsePNG01_->setBinContent( ipx, iex, val_04 );
+              meTestPulsePNG01_->setBinContent( ipseudostripx, ichanx, val_04 );
             }
             if( me_05 ) {
               float val_05=me_05->getBinContent(i,1);
-              if ( me_05->getEntries() != 0 ) meTestPulsePNG16_->setBinContent( ipx, iex, val_05 );
+              meTestPulsePNG16_->setBinContent( ipseudostripx, ichanx, val_05 );
             }
 
           }
@@ -1571,7 +1571,7 @@ void EBSummaryClient::analyze(void) {
                 float xval = me->getBinContent(i,1);
 
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-                  meLaserL1PN_->setBinContent( ipx, iex, xval );
+                  meLaserL1PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
                 }
 
@@ -1588,7 +1588,7 @@ void EBSummaryClient::analyze(void) {
                 float xval = me->getBinContent(i,1);
 
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-                  meLaserL2PN_->setBinContent( ipx, iex, xval );
+                  meLaserL2PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLaserL2PNErr_->Fill( ism );
                 }
 
@@ -1605,7 +1605,7 @@ void EBSummaryClient::analyze(void) {
                 float xval = me->getBinContent(i,1);
 
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-                  meLaserL3PN_->setBinContent( ipx, iex, xval );
+                  meLaserL3PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLaserL3PNErr_->Fill( ism );
                 }
 
@@ -1622,7 +1622,7 @@ void EBSummaryClient::analyze(void) {
                 float xval = me->getBinContent(i,1);
 
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
-                  meLaserL4PN_->setBinContent( ipx, iex, xval );
+                  meLaserL4PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLaserL4PNErr_->Fill( ism );
                 }
 
