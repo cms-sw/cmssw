@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.4 2009/08/25 18:54:40 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.5 2009/08/26 22:06:02 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -145,7 +145,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 bool BeamFitter::runFitter() {
   bool fit_ok = false;
   // default fit to extract beam spot info
-  if(fBSvector.size()!=0){
+  if(fBSvector.size() > 1 ){
     if(debug_){
       std::cout << "Calculating beam spot..." << std::endl;
       std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
