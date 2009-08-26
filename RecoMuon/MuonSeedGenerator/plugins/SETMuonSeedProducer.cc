@@ -5,6 +5,7 @@
 #include "RecoMuon/MuonSeedGenerator/plugins/SETMuonSeedProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"

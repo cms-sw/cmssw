@@ -1,6 +1,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterizer.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "boost/foreach.hpp"
 
 SiStripClusterizer::

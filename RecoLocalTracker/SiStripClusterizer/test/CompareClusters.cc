@@ -8,6 +8,7 @@
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "FWCore/Framework/interface/Event.h"
 #include <functional>
 #include <numeric>
 #include <vector>

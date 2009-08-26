@@ -1,5 +1,6 @@
 
 #include "RecoLocalTracker/SiStripClusterizer/test/StripByStripTestDriver.h"
+#include "FWCore/Framework/interface/Event.h"
 
 StripByStripTestDriver::
 StripByStripTestDriver(const edm::ParameterSet&conf)

@@ -1,5 +1,6 @@
 #include "RecoLocalTracker/SiStripClusterizer/plugins/SiStripClusterProducer.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
+#include "FWCore/Framework/interface/Event.h"
 
 // -----------------------------------------------------------------------------
 //

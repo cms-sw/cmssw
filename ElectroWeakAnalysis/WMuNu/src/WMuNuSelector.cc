@@ -16,6 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "TH1D.h"
 #include "TH2D.h"
