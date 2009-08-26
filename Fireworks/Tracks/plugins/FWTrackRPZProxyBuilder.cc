@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackRPZProxyBuilder.cc,v 1.7 2009/08/24 20:08:12 dmytro Exp $
+// $Id: FWTrackRPZProxyBuilder.cc,v 1.8 2009/08/24 20:38:23 dmytro Exp $
 //
 
 // system include files
@@ -49,7 +49,8 @@ private:
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const;
    // ---------- member data --------------------------------
 
-   FWEvePtr<TEveTrackPropagator> m_propagator;
+   FWEvePtr<TEveTrackPropagator> m_defaultPropagator;
+   FWEvePtr<TEveTrackPropagator> m_trackerPropagator;
    CmsMagField* m_cmsMagField;
 };
 
@@ -65,44 +66,33 @@ private:
 // constructors and destructor
 //
 FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder() :
-   m_propagator( new TEveTrackPropagator),
+   m_defaultPropagator( new TEveTrackPropagator),
+   m_trackerPropagator( new TEveTrackPropagator),
    m_cmsMagField( new CmsMagField)
 {
    m_cmsMagField->setReverseState( true );
-   m_propagator->SetMagFieldObj( m_cmsMagField );
-   // m_propagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-   m_propagator->SetMaxR(850);
-   m_propagator->SetMaxZ(1100);
-}
+   
+   m_defaultPropagator->SetMagFieldObj( m_cmsMagField );
+   // m_defaultPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
+   m_defaultPropagator->IncRefCount();
+   m_defaultPropagator->IncDenyDestroy();
+   m_defaultPropagator->SetMaxR(850);
+   m_defaultPropagator->SetMaxZ(1100);
 
-// FWTrackRPZProxyBuilder::FWTrackRPZProxyBuilder(const FWTrackRPZProxyBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
+   m_trackerPropagator->SetMagFieldObj( m_cmsMagField );
+   // m_trackerPropagator->SetStepper(TEveTrackPropagator::kRungeKutta);
+   m_trackerPropagator->IncRefCount();
+   m_trackerPropagator->IncDenyDestroy();
+   m_trackerPropagator->SetMaxR(123);
+   m_trackerPropagator->SetMaxZ(300);
+}
 
 FWTrackRPZProxyBuilder::~FWTrackRPZProxyBuilder()
 {
+   m_defaultPropagator->DecRefCount();
+   m_trackerPropagator->DecRefCount();
 }
 
-//
-// assignment operators
-//
-// const FWTrackRPZProxyBuilder& FWTrackRPZProxyBuilder::operator=(const FWTrackRPZProxyBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   FWTrackRPZProxyBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
 void
 FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
@@ -115,15 +105,9 @@ FWTrackRPZProxyBuilder::build(const reco::Track& iData, unsigned int iIndex,TEve
          }
       }
    }
-
-   if ( iData.extra().isAvailable() ){
-     m_propagator->SetMaxR(850);
-     m_propagator->SetMaxZ(1100);
-   } else {
-     m_propagator->SetMaxR(123);
-     m_propagator->SetMaxZ(300);
-   }     
-   TEveTrack* trk = fireworks::prepareTrack( iData, m_propagator.get(), item()->defaultDisplayProperties().color() );
+   TEveTrackPropagator* propagator = m_defaultPropagator.get();
+   if ( ! iData.extra().isAvailable() ) propagator = m_trackerPropagator.get();
+   TEveTrack* trk = fireworks::prepareTrack( iData, propagator, item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
    oItemHolder.AddElement( trk );
 }
