@@ -78,6 +78,8 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CosmicTk@mean", "DistanceOfClosestApproach_CosmicTk.gif", 0, condition, Start, End, nRuns ));
 
   // Integral
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@entries", "Chi2overDoF_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_RSTk@entries", "Chi2overDoF_RSTk_entries.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_CosmicTk@entries", "Chi2overDoF_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@entries", "NumberOfTracks_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
   // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));

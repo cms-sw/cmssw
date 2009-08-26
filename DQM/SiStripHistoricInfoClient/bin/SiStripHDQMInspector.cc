@@ -68,14 +68,20 @@ void runTrackingInspector( const string &tagName, const string & Password, const
                           condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterChargeCorr_OnTrack@landauPeak"), "ClusterChargeCorr_OnTrack_landau.gif", 0,
                           condition+"&& 369098752@Summary_ClusterChargeCorr_OnTrack@entries > 10000", Start, End, nRuns ));
+  config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterCharge_OffTrack@mean"), "ClusterCharge_OffTrack.gif", 0,
+                          condition+"&& 369098752@Summary_ClusterCharge_OffTrack@entries > 10000", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterCharge_OffTrack@landauPeak"), "ClusterCharge_OffTrack_landau.gif", 0,
                           condition+"&& 369098752@Summary_ClusterCharge_OffTrack@entries > 10000", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterNoise_OnTrack@gaussMean"), "ClusterNoise_OnTrack_gauss.gif", 0,
                           condition+"&& 369098752@Summary_ClusterNoise_OnTrack@entries > 10000", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterNoise_OffTrack@gaussMean"), "ClusterNoise_OffTrack_gauss.gif", 0,
                           condition+"&& 369098752@Summary_ClusterNoise_OffTrack@entries > 10000", Start, End, nRuns ));
+  config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoNCorr_OnTrack@landauPeak"), "ClusterStoNCorr_OnTrack_landauPeak.gif", 0,
+                          condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak > 0", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoNCorr_OnTrack@mean"), "ClusterStoNCorr_OnTrack.gif", 0,
                           condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", Start, End, nRuns ));
+  config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@landauPeak"), "ClusterStoN_OffTrack_landauPeak.gif", 0,
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@mean"), "ClusterStoN_OffTrack.gif", 0,
                           condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OnTrack@mean"), "ClusterWidth_OnTrack.gif", 0,
