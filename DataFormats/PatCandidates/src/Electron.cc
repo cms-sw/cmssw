@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.16 2009/07/08 08:46:38 salerno Exp $
+// $Id: Electron.cc,v 1.7 2009/08/11 04:23:31 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -14,6 +14,7 @@ Electron::Electron() :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
+    embeddedPFCandidate_(false),
     cachedDB_(false),
     dB_(0.0)
 {
@@ -26,6 +27,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
+    embeddedPFCandidate_(false),
     cachedDB_(false),
     dB_(0.0)
 {
@@ -38,6 +40,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
+    embeddedPFCandidate_(false),
     cachedDB_(false),
     dB_(0.0)
 {
@@ -49,6 +52,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
+    embeddedPFCandidate_(false),
     cachedDB_(false),
     dB_(0.0)
 {
@@ -139,6 +143,7 @@ bool Electron::isElectronIDAvailable(const std::string & name) const {
     }
     return false;
 }
+
 
 /// reference to the source PFCandidates
 reco::PFCandidateRef Electron::pfCandidateRef() const {
