@@ -1,4 +1,4 @@
-// $Id: FWTableViewTableManager.cc,v 1.7 2009/06/03 15:17:05 jmuelmen Exp $
+// $Id: FWTableViewTableManager.cc,v 1.8 2009/06/04 12:55:34 jmuelmen Exp $
 
 #include <math.h>
 #include "TClass.h"
@@ -14,7 +14,8 @@ FWTableViewTableManager::FWTableViewTableManager (const FWTableView *view)
      : m_view(view),
        m_graphicsContext(0),
        m_renderer(0),
-       m_tableFormats(0)
+       m_tableFormats(0),
+       m_caughtExceptionInCellRender(false)
 {
      GCValues_t gc = *(m_view->m_tableWidget->GetWhiteGC().GetAttributes());
      m_graphicsContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&gc,kTRUE);
@@ -77,8 +78,11 @@ FWTableCellRendererBase *FWTableViewTableManager::cellRenderer(int iSortedRowNum
 // 	       printf("iCol %d, size %d\n", iCol, m_evaluators.size());
 	       ret = m_evaluators[iCol].evalExpression(m_view->item()->modelData(realRowNumber));
 	  } catch (...) {
-	       printf("something bad happened\n");
-	       ret = -999;
+	    if (!m_caughtExceptionInCellRender){
+	      printf("Error: caught exception in the cell renderer while evaluating an expression. Return -999. Error is suppressed in future\n");
+	    }
+	    m_caughtExceptionInCellRender = true;
+	    ret = -999;
 	  }
 	  int precision = m_tableFormats->at(iCol).precision;
 	  char s[100];
@@ -178,8 +182,7 @@ namespace {
 // 	       printf("iCol %d, size %d\n", iCol, m_evaluators.size());
 		    ret = evaluators[iCol].evalExpression(iItem.modelData(index));
 	       } catch (...) {
-		    printf("something bad happened\n");
-		    ret = -999;
+		 ret = -999;
 	       }
 	       iMap.insert(std::make_pair(
 				std::make_pair(

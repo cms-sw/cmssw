@@ -11,7 +11,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableViewTableManager.h,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWTableViewTableManager.h,v 1.3 2009/05/08 20:04:41 jmuelmen Exp $
 //
 
 // system include files
@@ -109,6 +109,8 @@ protected:
      // ---------- member data --------------------------------
      // int m_sortColumn;
      // bool m_sortOrder;
+     mutable bool m_caughtExceptionInCellRender;
+
 };
 
 
