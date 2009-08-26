@@ -186,7 +186,7 @@ namespace edm {
     InputSource::ItemType returnValue = primaryFileSequence_->getNextItemType();
     if(returnValue == InputSource::IsEvent && 0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
       primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_);
-      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1;
+      numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
       returnValue = primaryFileSequence_->getNextItemType();
     }    
     return returnValue;
