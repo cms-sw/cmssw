@@ -2,13 +2,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:34:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/25 16:38:34 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
 #include "CalibMuon/DTCalibration/plugins/DTTTrigOffsetCalibration.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
