@@ -31,7 +31,8 @@ _numberOfCopyWorkers(updateInterval, 10),
 _numberOfInjectWorkers(updateInterval, 10),
 _alarmHandler(ah),
 _latchedSataBeastStatus(0),
-_latchedNumberOfDisks(0)
+_latchedNumberOfDisks(0),
+_progressMarker( "unused" )
 {}
 
 
@@ -164,6 +165,7 @@ void ResourceMonitorCollection::do_reset()
 
 void ResourceMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
+  infoSpaceItems.push_back(std::make_pair("progressMarker", &_progressMarker));
   infoSpaceItems.push_back(std::make_pair("copyWorkers", &_copyWorkers));
   infoSpaceItems.push_back(std::make_pair("injectWorkers", &_injectWorkers));
   infoSpaceItems.push_back(std::make_pair("sataBeastStatus", &_sataBeastStatus));

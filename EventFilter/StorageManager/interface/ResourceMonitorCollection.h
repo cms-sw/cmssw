@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.10 2009/08/21 13:54:25 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.11 2009/08/24 14:31:11 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -12,6 +12,7 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Vector.h"
 
@@ -26,8 +27,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/08/21 13:54:25 $
+   * $Revision: 1.11 $
+   * $Date: 2009/08/24 14:31:11 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -140,6 +141,9 @@ namespace stor {
     xdata::UnsignedInteger32 _numberOfDisks;   // number of disks used for writing
     xdata::Vector<xdata::UnsignedInteger32> _totalDiskSpace; // disk space for writing disk followed
     xdata::Vector<xdata::UnsignedInteger32> _usedDiskSpace;  // by look area and ecal disk
+
+    // Unused status string from old SM
+    xdata::String _progressMarker;
 
   };
   
