@@ -19,6 +19,7 @@ const std::string cmsshow::sPaste = "Paste";
 const std::string cmsshow::sShowColorInsp = "Show Color Display Controller";
 const std::string cmsshow::sNextEvent = "Goto Next Event";
 const std::string cmsshow::sPreviousEvent = "Goto Previous Event";
+const std::string cmsshow::sPlayDelay = "PlayDelay";
 const std::string cmsshow::sPlayEvents = "Play Events";
 const std::string cmsshow::sPlayEventsBack = "Play Events Backwards";
 const std::string cmsshow::sPause = "Pause";
