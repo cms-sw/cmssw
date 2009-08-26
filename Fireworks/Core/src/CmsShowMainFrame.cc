@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.59 2009/08/14 15:39:56 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.60 2009/08/23 07:18:57 dmytro Exp $
 //
 // hacks
 #define private public
@@ -142,27 +142,27 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    quit->createMenuEntry(fileMenu);
 
-   openData->createShortcut(kKey_O, "CTRL");
-   loadConfig->createShortcut(kKey_L, "CTRL");
-   saveConfig->createShortcut(kKey_S, "CTRL");
-   saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT");
-   exportImage->createShortcut(kKey_P, "CTRL");
-   quit->createShortcut(kKey_Q, "CTRL");
+   openData->createShortcut(kKey_O, "CTRL", GetId());
+   loadConfig->createShortcut(kKey_L, "CTRL", GetId());
+   saveConfig->createShortcut(kKey_S, "CTRL", GetId());
+   saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
+   exportImage->createShortcut(kKey_P, "CTRL", GetId());
+   quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    undo->createMenuEntry(editMenu);
-   undo->createShortcut(kKey_Z, "CTRL");
+   undo->createShortcut(kKey_Z, "CTRL", GetId());
    redo->createMenuEntry(editMenu);
-   redo->createShortcut(kKey_Z, "CTRL+SHIFT");
+   redo->createShortcut(kKey_Z, "CTRL+SHIFT", GetId());
    editMenu->AddSeparator();
 
    cut->createMenuEntry(editMenu);
-   cut->createShortcut(kKey_X, "CTRL");
+   cut->createShortcut(kKey_X, "CTRL", GetId());
    copy->createMenuEntry(editMenu);
-   copy->createShortcut(kKey_C, "CTRL");
+   copy->createShortcut(kKey_C, "CTRL", GetId());
    paste->createMenuEntry(editMenu);
-   paste->createShortcut(kKey_V, "CTRL");
+   paste->createShortcut(kKey_V, "CTRL", GetId());
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -171,22 +171,22 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    viewMenu->AddSeparator();
 
    nextEvent->createMenuEntry(viewMenu);
-   nextEvent->createShortcut(kKey_Right, "CTRL");
+   nextEvent->createShortcut(kKey_Right, "CTRL", GetId());
    previousEvent->createMenuEntry(viewMenu);
-   previousEvent->createShortcut(kKey_Left, "CTRL");
+   previousEvent->createShortcut(kKey_Left, "CTRL", GetId());
    goToFirst->createMenuEntry(viewMenu);
    goToLast->createMenuEntry(viewMenu);
    playEvents->createMenuEntry(viewMenu);
-   playEvents->createShortcut(kKey_Space, "CTRL");
+   playEvents->createShortcut(kKey_Space, "CTRL", GetId());
    playEventsBack->createMenuEntry(viewMenu);
-   playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT");
+   playEventsBack->createShortcut(kKey_Space, "CTRL+SHIFT", GetId());
    autoRewind->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
 
    showObjInsp->createMenuEntry(windowMenu);
-   showObjInsp->createShortcut(kKey_I, "CTRL");
+   showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
    showEventDisplayInsp->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
    showAddCollection->createMenuEntry(windowMenu);
@@ -266,17 +266,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
 
+   m_playDelay = new CSGAction(this, "PlayDelay");
+
    TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
    TImage *imgSld  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
-   TString sldBtn = FWCheckBoxIcon::coreIcondir() +"slider-button.png";
 
-   m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
-   sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
+   TString sldBtn = FWCheckBoxIcon::coreIcondir() +"slider-button.png";
+   TGLayoutHints *slh =  new TGLayoutHints(kLHintsTop | kLHintsLeft| kLHintsExpandX | kLHintsExpandY , 39, 8, 1, 3);
+   m_playDelay->createSlider(sliderFrame, slh, 109, kSlider1 | kScaleNo, sldBtn.Data());
+   m_delaySlider = m_playDelay->getSlider();
    m_delaySlider->SetRange(0, 10000);
    m_delaySlider->SetPosition(0);
    m_delaySlider->SetBackgroundColor(0x1a1a1a);
-   m_delaySlider->ChangeSliderPic(sldBtn);
 
    controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
@@ -384,8 +386,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
    AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
    SetWindowName("cmsShow");
-   m_delaySliderListener =  new FWIntValueListener();
-   TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 }
 
 // CmsShowMainFrame::CmsShowMainFrame(const CmsShowMainFrame& rhs)
@@ -395,12 +395,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
 CmsShowMainFrame::~CmsShowMainFrame() {
    Cleanup();
-   for(std::vector<CSGAction*>::iterator it= m_actionList.begin(),itEnd = m_actionList.end();
-       it != itEnd;
-       ++it) {
-      delete *it;
-   }
-   //delete m_statBar;
 }
 
 //
@@ -418,9 +412,6 @@ CmsShowMainFrame::~CmsShowMainFrame() {
 //
 // member functions
 //
-void CmsShowMainFrame::addToActionMap(CSGAction *action) {
-   m_actionList.push_back(action);
-}
 
 CSGAction*
 CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
@@ -430,35 +421,7 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
    return action;
 }
 
-Bool_t CmsShowMainFrame::activateMenuEntry(int entry) {
-   std::vector<CSGAction*>::iterator it_act;
-   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-      if (entry == (*it_act)->getMenuEntry()) {
-         (*it_act)->activated.emit();
-         return kTRUE;
-      }
-   }
-   return kFALSE;
-}
 
-Bool_t CmsShowMainFrame::activateToolBarEntry(int entry) {
-   std::vector<CSGAction*>::iterator it_act;
-   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-      if ((*it_act)->getToolBarData() && (*it_act)->getToolBarData()->fId == entry) {
-         (*it_act)->activated.emit();
-         return kTRUE;
-      }
-   }
-   return kFALSE;
-}
-
-Long_t CmsShowMainFrame::getToolTipDelay() const {
-   return m_tooltipDelay;
-}
-
-void CmsShowMainFrame::defaultAction() {
-   printf("Default action!\n");
-}
 
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
 
@@ -493,28 +456,10 @@ void CmsShowMainFrame::quit() {
    getAction(cmsshow::sQuit)->activated();
 }
 
-CSGAction*
-CmsShowMainFrame::getAction(const std::string& name)
-{
-   std::vector<CSGAction*>::iterator it_act;
-   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-      if ((*it_act)->getName() == name)
-         return *it_act;
-   }
-   std::cout << "No action is found with name \"" << name << "\"" << std::endl;
-   return 0;
-}
-
 void
 CmsShowMainFrame::enableActions(bool enable)
 {
-   std::vector<CSGAction*>::iterator it_act;
-   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-      if (enable)
-         (*it_act)->globalEnable();
-      else
-         (*it_act)->globalDisable();
-   }
+   CSGActionSupervisor::enableActions(enable);
 
    m_runEntry->SetEditDisabled(!enable);
    m_eventEntry->SetEditDisabled(!enable);
@@ -598,10 +543,11 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
 
 Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
    if (event->fType == kGKeyPress) {
-      std::vector<CSGAction*>::iterator it_act;
+      const std::vector<CSGAction*>& alist = getListOfActions();
+      std::vector<CSGAction*>::const_iterator it_act;
       Int_t keycode;
       Int_t modcode;
-      for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+      for (it_act = alist.begin(); it_act != alist.end(); ++it_act) {
          keycode = (*it_act)->getKeycode();
          modcode = (*it_act)->getModcode();
          if ((event->fCode == (UInt_t)keycode) &&
@@ -615,19 +561,6 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
       }
    }
    return kFALSE;
-}
-
-void CmsShowMainFrame::resizeMenu(TGPopupMenu *menu) {
-   std::vector<CSGAction*>::iterator it_act;
-   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
-      if ((*it_act)->getMenu() == menu && (*it_act)->getKeycode() != 0) {
-         (*it_act)->resizeMenuEntry();
-      }
-   }
-}
-
-const std::vector<CSGAction *>& CmsShowMainFrame::getListOfActions() const {
-   return m_actionList;
 }
 
 void
