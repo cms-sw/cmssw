@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:16:04 CDT 2008
-// $Id: CSGConnector.h,v 1.3 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CSGConnector.h,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
@@ -26,12 +26,12 @@
 
 // forward declarations
 class CSGAction;
-class CmsShowMainFrame;
+class CSGActionSupervisor;
 
 class CSGConnector : public TQObject {
 
 public:
-   CSGConnector(CSGAction *action, CmsShowMainFrame *frame) : m_action(action), m_frame(frame) {
+   CSGConnector(CSGAction *action, CSGActionSupervisor *supervisor) : m_action(action), m_supervisor(supervisor) {
    };
    //virtual ~CSGConnector();
 
@@ -47,7 +47,7 @@ private:
 
    // ---------- member data --------------------------------
    CSGAction *m_action;
-   CmsShowMainFrame *m_frame;
+   CSGActionSupervisor *m_supervisor;
 
 };
 

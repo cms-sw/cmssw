@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:19:42 EDT 2008
-// $Id: CSGContinuousAction.h,v 1.5 2009/01/23 21:35:40 amraktad Exp $
+// $Id: CSGContinuousAction.h,v 1.6 2009/08/18 19:03:28 amraktad Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 class CSGContinuousAction : public CSGAction {
 
 public:
-   CSGContinuousAction(CmsShowMainFrame *frame, const char *name);
+   CSGContinuousAction(CSGActionSupervisor *sup, const char *name);
    //virtual ~CSGContinuousAction();
 
    // ---------- const member functions ---------------------
@@ -39,11 +39,6 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void createToolBarEntry(TGToolBar *iToolbar, const char *iImageFileName, const char* iRunningImageFileName);
-   /*void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, const TGPicture* iRunningPic,
-                            TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
-    */
-
    void createCustomIconsButton(TGCompositeFrame* p,
                                 const TGPicture* upPic,
                                 const TGPicture* downPic,

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:15 CDT 2008
-// $Id: CSGConnector.cc,v 1.2 2008/11/05 09:19:37 chrjones Exp $
+// $Id: CSGConnector.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
 //
 
 // system include files
@@ -16,7 +16,7 @@
 // user include files
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-#include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 ClassImp(CSGConnector)
 
@@ -60,11 +60,11 @@ ClassImp(CSGConnector)
 // member functions
 //
 void CSGConnector::handleMenu(Int_t entry) {
-   m_frame->activateMenuEntry(entry);
+   m_supervisor->activateMenuEntry(entry);
 }
 
 void CSGConnector::handleToolBar(Int_t entry) {
-   m_frame->activateToolBarEntry(entry);
+   m_supervisor->activateToolBarEntry(entry);
 }
 
 //
