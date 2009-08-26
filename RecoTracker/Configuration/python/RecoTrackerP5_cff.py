@@ -50,7 +50,7 @@ rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidates
 from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
 cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderP5'
 cosmicTrackSplitter.tracks = 'cosmictrackfinderP5'
-splittedTracksP5 = ctfWithMaterialTracksP5.clone(src = cms.InputTag("cosmicTrackSplitter"))
+splittedTracksP5 = cosmictrackfinderP5.clone(src = cms.InputTag("cosmicTrackSplitter"))
     
 cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderP5*cosmicTrackSplitter*splittedTracksP5)
 
