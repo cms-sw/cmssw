@@ -8,7 +8,7 @@ pfIsolatedMuons  = cms.EDProducer(
        cms.InputTag("isoValMuonWithNeutral"),
        cms.InputTag("isoValMuonWithPhotons")
        ),
-    isolationCuts = cms.vdouble(5,
-                                5,
-                                5 )
+    isolationCuts = cms.vdouble(10,
+                                10,
+                                10 )
     )
