@@ -28,13 +28,6 @@ namespace edm {
     return principal_.branchType();
   }
 
-   /*
-  size_t
-  PrincipalGetAdapter::size() const {
-    return putProducts_.size() + principal_.size();
-  }
-    */
-
   BasicHandle
   PrincipalGetAdapter::get_(TypeID const& tid, SelectorBase const& sel) const {
     return principal_.getBySelector(tid, sel);
