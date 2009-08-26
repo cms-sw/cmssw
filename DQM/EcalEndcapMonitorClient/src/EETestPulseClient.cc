@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2009/08/21 11:52:29 $
- * $Revision: 1.98 $
+ * $Date: 2009/08/23 08:40:01 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -309,6 +309,9 @@ void EETestPulseClient::setup(void) {
     }
 
     for ( int i = 1; i <= 10; i++ ) {
+
+      if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 6. );
 
       // non-existing mem
       if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
@@ -1041,6 +1044,9 @@ void EETestPulseClient::analyze(void) {
     }
 
     for ( int i = 1; i <= 10; i++ ) {
+
+      if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 6. );
 
       // non-existing mem
       if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;

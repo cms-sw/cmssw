@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2009/08/21 11:52:29 $
- * $Revision: 1.112 $
+ * $Date: 2009/08/23 08:40:01 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -598,6 +598,15 @@ void EELaserClient::setup(void) {
     }
 
     for ( int i = 1; i <= 10; i++ ) {
+
+        if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent( i, 1, 6. );
+        if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent( i, 1, 6. );
 
         // non-existing mem
         if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
@@ -2317,6 +2326,15 @@ void EELaserClient::analyze(void) {
     }
 
     for ( int i = 1; i <= 10; i++ ) {
+
+      if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent( i, 1, 6. );
+      if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent( i, 1, 6. );
 
       // non-existing mem
       if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
