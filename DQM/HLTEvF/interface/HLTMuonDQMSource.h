@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/06/17 01:02:30 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/07/27 20:12:02 $
+ *  $Revision: 1.17 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -75,7 +75,8 @@ private:
   std::vector<std::string> theTriggerBits;
   std::vector<std::string> theDirectoryName;
   std::vector<std::string> theHLTCollectionLevel;
-
+  std::string striggers_[20];
+ 
   // ----------member data ---------------------------
   bool verbose_;
   static const int NTRIG = 20;
