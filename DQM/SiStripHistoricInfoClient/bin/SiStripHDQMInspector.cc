@@ -51,8 +51,9 @@ void runTrackingInspector( const string &tagName, const string & Password, const
 
   // Database and output configuration
   makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
-  makeTrend.setDebug(1);
+  makeTrend.setDebug(0);
   makeTrend.setDoStat(1);
+  makeTrend.setSkip99s(true);
   makeTrend.setBlackList(blackList);
 
   // Definition of trends

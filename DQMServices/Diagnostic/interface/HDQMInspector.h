@@ -38,6 +38,7 @@ class HDQMInspector
     iDoStat(0)
     {
       fHDQMInspectorConfig = 0x0;
+      fSkip99s = false;
     };
   
   HDQMInspector(const HDQMInspectorConfigBase* InConfig):
@@ -51,6 +52,7 @@ class HDQMInspector
     iDoStat(0)
     {
       fHDQMInspectorConfig = InConfig;
+      fSkip99s = false;
     };
   
   virtual ~HDQMInspector(){
@@ -70,6 +72,10 @@ class HDQMInspector
   void setDebug(int i){iDebug=i;}
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
+  void setSkip99s (bool const in) {
+    fSkip99s = in;
+    return;
+  }
   void closeFile ()
   { 
     if( fOutFile ) {
@@ -115,6 +121,7 @@ private:
 
   int iDebug;
   int iDoStat;
+  bool fSkip99s;
 
   const HDQMInspectorConfigBase* fHDQMInspectorConfig;
 

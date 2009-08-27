@@ -37,6 +37,9 @@ class DQMHistoryCreateTrend
   inline void closeFile() {
     inspector_->closeFile();
   }
+  inline void setSkip99s(bool const in) {
+    inspector_->setSkip99s(in);
+  }
 
  protected:
   // Do not use auto_ptr if you want to use the object with stl algorithms.
