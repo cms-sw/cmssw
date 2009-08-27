@@ -19,7 +19,6 @@
 // $Id: FWDetailViewBase.h,v 1.6 2009/06/22 14:32:25 amraktad Exp
 // system include files
 
-#include "Fireworks/Core/interface/CSGActionSupervisor.h"
 #include "Fireworks/Core/interface/FWSimpleProxyHelper.h"
 
 class TCanvas;
@@ -35,7 +34,7 @@ class TGVerticalFrame;
 
 class FWModelId;
 
-class FWDetailViewBase : public CSGActionSupervisor
+class FWDetailViewBase
 {
 public:
    virtual ~FWDetailViewBase ();
