@@ -19,7 +19,7 @@ def LA_Measurement(method, granularity, minimumEntries, maxChi2ndof) :
 
 def LA_Calibration(method, pitch, slope, offset, pull) :
     return cms.PSet( Method = method,
-                     Pitch = cms.int32(pitch),
+                     Pitch = cms.uint32(pitch),
                      Slope = cms.double(slope),
                      Offset = cms.double(offset),
                      ErrorScaling = cms.double(pull) )
