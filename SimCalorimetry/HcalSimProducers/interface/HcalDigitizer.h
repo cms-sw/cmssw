@@ -48,6 +48,7 @@ private:
  
   HcalSimParameterMap * theParameterMap;
   CaloVShape * theHcalShape;
+  CaloVShape * theSiPMShape;
   CaloVShape * theHFShape;
   CaloVShape * theZDCShape;
   CaloVShape * theHcalIntegratedShape;
@@ -55,7 +56,9 @@ private:
   CaloVShape * theZDCIntegratedShape;
 
   CaloHitResponse * theHBHEResponse;
+  CaloHitResponse * theHBHESiPMResponse;
   CaloHitResponse * theHOResponse;
+  CaloHitResponse * theHOSiPMResponse;
   CaloHitResponse * theHFResponse;
   CaloHitResponse * theZDCResponse;
 
@@ -85,15 +88,17 @@ private:
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
 
   HBHEDigitizer * theHBHEDigitizer;
+  HBHEDigitizer * theHBHESiPMDigitizer;
   HODigitizer* theHODigitizer;
+  HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
 
   std::string hitsProducer_;
-
 };
 
 #endif
+
 
