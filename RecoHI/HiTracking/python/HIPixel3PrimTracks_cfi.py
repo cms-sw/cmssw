@@ -45,12 +45,13 @@ hiPixel3PrimTracks = cms.EDFilter("PixelTrackProducer",
       ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
       nSigmaInvPtTolerance = cms.double( 0.0 ),
       ptMin = cms.double( 1.5 ),
-      tipMax = cms.double( 0.05 ),
+      tipMax = cms.double( 0.2 ),
 	  chi2 = cms.double( 1000.0 )
     ),
 	
 	# Cleaner
     CleanerPSet = cms.PSet(  
-	  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) 
+	  #ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) 
+	  ComponentName = cms.string( "none" )
 	)
 )
