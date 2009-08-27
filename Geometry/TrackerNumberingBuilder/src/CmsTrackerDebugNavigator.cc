@@ -16,7 +16,7 @@ void CmsTrackerDebugNavigator::dump(const GeometricDet* in){
 
 
 void CmsTrackerDebugNavigator::iterate(const GeometricDet*in, int level){
-  static CmsTrackerStringToEnum enumName;
+  //  static CmsTrackerStringToEnum enumName;
     
   numinstances[level]++;
   for (unsigned int k=0; k<(in)->components().size(); k++){
