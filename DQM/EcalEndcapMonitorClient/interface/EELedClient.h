@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2009/06/29 13:27:49 $
- * $Revision: 1.31 $
+ * $Date: 2009/08/03 23:44:21 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -60,11 +60,8 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// SoftReset
-void softReset(bool flag);
-
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

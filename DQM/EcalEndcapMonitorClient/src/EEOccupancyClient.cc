@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2009/02/27 13:54:09 $
- * $Revision: 1.31 $
+ * $Date: 2009/08/10 15:50:01 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -177,11 +177,9 @@ void EEOccupancyClient::cleanup(void) {
 
 }
 
-bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -426,10 +424,6 @@ void EEOccupancyClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT TP digi thr occupancy EE + projection phi").c_str());
   me = dqmStore_->get(histo);
   h02ProjPhi_[1][1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1][1] );
-
-}
-
-void EEOccupancyClient::softReset(bool flag) {
 
 }
 

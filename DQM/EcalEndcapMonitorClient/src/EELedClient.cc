@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2009/08/23 20:44:31 $
- * $Revision: 1.99 $
+ * $Date: 2009/08/26 18:12:24 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -574,11 +574,9 @@ void EELedClient::cleanup(void) {
 
 }
 
-bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -1624,10 +1622,6 @@ void EELedClient::analyze(void) {
     }
 
   }
-
-}
-
-void EELedClient::softReset(bool flag) {
 
 }
 

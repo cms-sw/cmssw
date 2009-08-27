@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/08/13 18:12:42 $
- * $Revision: 1.41 $
+ * $Date: 2009/08/26 18:34:43 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -58,11 +58,8 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// SoftReset
-void softReset(bool flag);
-
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

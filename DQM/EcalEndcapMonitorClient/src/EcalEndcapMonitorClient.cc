@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/08/02 08:09:46 $
- * $Revision: 1.209 $
+ * $Date: 2009/08/05 10:53:15 $
+ * $Revision: 1.210 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1187,7 +1187,7 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
           }
         }
         bool status;
-        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status, flag) ) {
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status) ) {
           taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
           if ( status ) {
             tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
@@ -1207,7 +1207,7 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
   }
 
   bool status;
-  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status, flag);
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status);
 
   EcalLogicID ecid;
   MonRunDat md;
@@ -1664,17 +1664,6 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalEndcapMonitorClient::softReset(bool flag) {
 
-   for ( int i=0; i<int(clients_.size()); i++ ) {
-     bool done = false;
-     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-       if ( runType_ != -1 && runType_ == (*j).second && !done ) {
-         done = true;
-         clients_[i]->softReset(flag);
-       }
-     }
-   }
-
-   summaryClient_->softReset(flag);
 
 }
 

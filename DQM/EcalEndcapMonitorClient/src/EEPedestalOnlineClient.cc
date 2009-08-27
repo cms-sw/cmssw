@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2009/08/14 12:45:38 $
- * $Revision: 1.85 $
+ * $Date: 2009/08/21 11:52:29 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -217,11 +217,9 @@ void EEPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( flag ) this->softReset(false);
 
   EcalLogicID ecid;
 
@@ -304,8 +302,6 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
       cerr << e.what() << endl;
     }
   }
-
-  if ( ! flag ) this->softReset(true);
 
   return true;
 
@@ -433,27 +429,6 @@ void EEPedestalOnlineClient::analyze(void) {
         }
 
       }
-    }
-
-  }
-
-}
-
-void EEPedestalOnlineClient::softReset(bool flag) {
-
-  char histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
- 
-    int ism = superModules_[i];
-
-    sprintf(histo, (prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
-    MonitorElement* me = dqmStore_->get(histo);
-
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset(me);
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset(me);
     }
 
   }

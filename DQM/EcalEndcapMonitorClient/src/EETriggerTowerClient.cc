@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2009/08/21 02:13:06 $
- * $Revision: 1.87 $
+ * $Date: 2009/08/23 20:07:16 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -184,11 +184,9 @@ void EETriggerTowerClient::cleanup(void) {
 
 }
 
-bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -269,10 +267,6 @@ void EETriggerTowerClient::analyze(void) {
     }
 
   }
-
-}
-
-void EETriggerTowerClient::softReset(bool flag) {
 
 }
 

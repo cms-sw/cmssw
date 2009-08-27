@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.65 $
+ * $Date: 2009/08/10 15:50:01 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -143,11 +143,9 @@ void EECosmicClient::cleanup(void) {
 
 }
 
-bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   return true;
 
@@ -185,10 +183,6 @@ void EECosmicClient::analyze(void) {
     meh03_[ism-1] = me;
 
   }
-
-}
-
-void EECosmicClient::softReset(bool flag) {
 
 }
 
