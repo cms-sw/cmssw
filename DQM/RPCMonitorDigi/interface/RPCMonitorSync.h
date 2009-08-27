@@ -5,11 +5,13 @@
  *
  * RPC Synchronization Monitoring Class
  *
- *  $Date: 2008/01/05 16:25:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/01 00:40:14 $
+ *  $Revision: 1.5 $
  *
  * \author Piotr Traczyk (SINS)
- *
+ * 
+ * \modified Anna Cimmino (INFN)
+ *          
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -102,10 +104,10 @@ class RPCMonitorSync : public edm::EDAnalyzer {
 	
     void readRPCDAQStrips(const edm::Event& iEvent);
 
-    MonitorElement *barrelOffsetHist( char *name, char *title );
-    MonitorElement *endcapOffsetHist( char *name, char *title );
-    MonitorElement *barrelWidthHist( char *name, char *title );
-    MonitorElement *endcapWidthHist( char *name, char *title );
+    MonitorElement *barrelOffsetHist( std::string name, std::string title );
+    MonitorElement *endcapOffsetHist( std::string name, std::string title );
+    MonitorElement *barrelWidthHist( std::string name, std::string title );
+    MonitorElement *endcapWidthHist( std::string name, std::string title );
 
     std::map<uint32_t,timing> synchroMap;
     int counter;
