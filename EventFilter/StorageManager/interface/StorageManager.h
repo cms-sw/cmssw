@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.51 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: StorageManager.h,v 1.52 2009/07/20 13:06:11 mommsen Exp $
 /// @file: StorageManager.h 
 
 #ifndef StorageManager_StorageManager_h
@@ -33,9 +33,9 @@ namespace stor {
   /**
    * Main class of the StorageManager XDAQ application
    *
-   * $Author: dshpakov $
-   * $Revision: 1.51 $
-   * $Date: 2009/07/10 11:41:03 $
+   * $Author: mommsen $
+   * $Revision: 1.52 $
+   * $Date: 2009/07/20 13:06:11 $
    */
 
   class StorageManager: public xdaq::Application
@@ -153,6 +153,13 @@ namespace stor {
      * data throughput in the SM.
      */
     void throughputWebPage(xgi::Input *in, xgi::Output *out)
+      throw (xgi::exception::Exception);
+
+    /**
+     * Webinterface callback creating web page showing statistics about the
+     * data throughput in the SM.
+     */
+    void newThroughputWebPage(xgi::Input *in, xgi::Output *out)
       throw (xgi::exception::Exception);
 
     /**
