@@ -4,6 +4,7 @@ import logging
 import random
 import subprocess
 import re
+import struct
 
 from Vispa.Main.Exceptions import *
 try:
@@ -100,7 +101,7 @@ class DotProducer(object):
     classname = self.data.classname(obj)
     pypath = self.data.pypath(obj)
     pyline = self.data.lineNumber(obj)
-    url = self.options['urlbase'].replace('$classname',classname).replace('$pypath',pypath).replace('$py',pyline)
+    url = self.options['urlbase'].replace('$classname',classname).replace('$pypath',pypath).replace('$pyline',pyline)
     return url
     
   def makePath(self,path,endpath=False):
@@ -230,7 +231,7 @@ class DotProducer(object):
       self.nodes[n]['n_fontname']=self.options['font_name']
       self.nodes[n]['n_fontsize']=self.options['font_size']
       if self.options['url']:
-        self.nodes[n]['n_URL']=self.nodeURL(nodes[n]['obj'])
+        self.nodes[n]['n_URL']=self.nodeURL(self.nodes[n]['obj'])
       result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in self.nodes[n].items() if k[0:2]=='n_']))
     return result
     
@@ -285,12 +286,13 @@ class DotExport(FileExportPlugin):
     'color_schedule':('Schedule Color','color','#00ffff'),
     'url':('Include URLs','boolean',False), #this is only purposeful for png+map mode
     'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
-    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#l$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
+    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
     'node_graphs':('Produce individual graphs focussing on each node','boolean',False),
     'node_graphs_restrict':('Select which nodes to make node graphs for','string',''),
     'node_depth':('Search depth for individual node graphs','int',1),
     'font_name':('Font name','string','Times-Roman'),
-    'font_size':('Font size','int',8)
+    'font_size':('Font size','int',8),
+    'png_max_size':('Maximum edge for png image','int',16768)
   }
   plugin_name='DOT Export'
   file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map','stdout')
@@ -470,20 +472,32 @@ class DotExport(FileExportPlugin):
     dot_producer = DotProducer(data,self.options,self.shapes)
     dot = dot_producer()
     
-    if self.options['node_graphs']:
-      nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule')]
-      for n in nodes:
-        if self.options['node_graphs_restrict'] in n:
-          try:
-            node_dot = self.selectNode(dot,n,self.options['node_depth'])
-            self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
-          except:
-            pass
+    if len(dot_producer.nodes)>0:
+    
+      if self.options['node_graphs']:
+        nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule')]
+        for n in nodes:
+          if self.options['node_graphs_restrict'] in n:
+            try:
+              node_dot = self.selectNode(dot,n,self.options['node_depth'])
+              self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
+            except:
+              pass
+      else:
+        dot = self.dotIndenter(dot)
+        self.write_output(dot,filename,filetype)
     else:
-      dot = self.dotIndenter(dot)
-      self.write_output(dot,filename,filetype)
+      print "WARNING: Empty image. Not saved."
     
-    
+  
+  def get_png_size(self,filename):
+    png_header = '\x89PNG\x0d\x0a\x1a\x0a'
+    ihdr = 'IHDR'
+    filedata = open(filename,'r').read(24)
+    png_data = struct.unpack('>8s4s4sII',filedata)
+    if not (png_data[0]==png_header and png_data[2]==ihdr):
+      raise 'PNG header or IHDR not found'
+    return png_data[3],png_data[4]
     
   def write_output(self,dot,filename,filetype):
     #don't use try-except-finally here, we want any errors passed on so the enclosing program can decide how to handle them
@@ -514,10 +528,25 @@ class DotExport(FileExportPlugin):
       mapfile = open('%s.map'%filename,'w')
       mapfile.write(mapdata)
       mapfile.close()
+      filesize = self.get_png_size('%s.png'%filename)
+      if max(filesize) > self.options['png_max_size']:
+        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size'])
+        os.remove('%s.png'%filename)
+        os.remove('%s.map'%filename)
+    elif filetype=='png':
+      dot_p = subprocess.Popen(['dot','-T%s'%(filetype),'-o',filename],stdin=subprocess.PIPE)
+      dot_p.communicate(dot)
+      if not dot_p.returncode==0:
+        raise "dot returned non-zero exit code: %s"%dot_p.returncode
+      filesize = self.get_png_size(filename)
+      if max(filesize) > self.options['png_max_size']:
+        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size'])
+        os.remove(filename)
     else:
       dot_p = subprocess.Popen(['dot','-T%s'%(filetype),'-o',filename],stdin=subprocess.PIPE)
       dot_p.communicate(dot)
       if not dot_p.returncode==0:
         raise "dot returned non-zero exit code: %s"%dot_p.returncode
+    
     
 
