@@ -1,4 +1,6 @@
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -31,9 +33,20 @@ void PixelPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup co
     }
 
     // Create a mix collection from the different psimhit collections
-    std::auto_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
+    std::auto_ptr<MixCollection<PSimHit> > pSimHits( new MixCollection<PSimHit>(cfPSimHitProductPointers) );
+
+    // Accessing dead pixel modules from DB:
+    edm::ESHandle<SiPixelQuality> siPixelBadModule;
+    setup.get<SiPixelQualityRcd>().get(siPixelBadModule);
+
+    // Reading the DB information
+    std::vector<SiPixelQuality::disabledModuleType> badModules( siPixelBadModule->getBadComponentList() );
+    SiPixelQuality pixelQuality(badModules);
 
     // Select only psimhits from alive modules
     for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit)
-        pSimHits_.push_back(*pSimHit);
+    { 
+        if ( !pixelQuality.IsModuleBad(pSimHit->detUnitId()) )	
+            pSimHits_.push_back(*pSimHit);
+    }
 }

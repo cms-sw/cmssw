@@ -38,9 +38,8 @@ void MuonPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup con
     std::auto_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
     // Get CSC Bad Chambers (ME4/2)
-    edm::ESHandle<CSCBadChambers> badChambers;
-    setup.get<CSCBadChambersRcd>().get(badChambers);
-    const CSCBadChambers * cscBadChambers = badChambers.product();
+    edm::ESHandle<CSCBadChambers> cscBadChambers;
+    setup.get<CSCBadChambersRcd>().get(cscBadChambers);
 
     // Select only psimhits from alive modules
     for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit)
@@ -48,7 +47,11 @@ void MuonPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup con
         DetId dId = DetId( pSimHit->detUnitId() );
 
         if (dId.det() == DetId::Muon && dId.subdetId() == MuonSubdetId::CSC)
+        {
             if ( !cscBadChambers->isInBadChamber(CSCDetId(dId)) )
                 pSimHits_.push_back(*pSimHit);
+        }
+        else
+            pSimHits_.push_back(*pSimHit);
     }
 }
