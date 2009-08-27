@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.10 2009/08/24 13:58:12 dmytro Exp $
+// $Id: FWMuonBuilder.cc,v 1.11 2009/08/26 22:24:01 dmytro Exp $
 //
 
 // system include files
@@ -81,8 +81,8 @@ namespace  {
 	  if ( ids.insert(id.rawId()).second &&  // ensure that we add same chamber only once
 	       ( id.subdetId() != MuonSubdetId::CSC || showEndcap ) ){
             TEveGeoShape* shape = geom->getShape( chamber->id.rawId() );
-	    shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
             if(0!=shape) {
+              shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
 	      shape->SetMainTransparency(65);
 	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
 	      parentList->AddElement(shape);
