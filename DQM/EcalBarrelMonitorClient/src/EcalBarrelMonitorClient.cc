@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/08/05 10:53:15 $
- * $Revision: 1.451 $
+ * $Date: 2009/08/27 15:31:32 $
+ * $Revision: 1.452 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -831,6 +831,8 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   }
 
+  this->softReset(false);
+
 }
 
 void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
@@ -1475,6 +1477,7 @@ void EcalBarrelMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
                runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          this->softReset(true);
           last_time_db_ = current_time_;
         }
       }
@@ -1624,14 +1627,17 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalBarrelMonitorClient::softReset(bool flag) { 	 
 
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool done = false;
-    for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-      if ( runType_ != -1 && runType_ == (*j).second && !done ) {
-        done = true;
+  vector<MonitorElement*> mes = dqmStore_->getAllContents("EcalBarrel");
+  vector<MonitorElement*>::const_iterator meitr;
+  for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
+    if ( !strncmp((*meitr)->getName().c_str(), "EB", 2) ) {
+      if ( flag ) {
+        dqmStore_->softReset(*meitr);
+      } else {
+//        dqmStore_->disableSoftReset(*meitr);
       }
     }
   }
- 
+
 }
 
