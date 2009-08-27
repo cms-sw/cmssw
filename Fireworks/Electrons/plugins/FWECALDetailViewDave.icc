@@ -1,0 +1,26 @@
+#include "TEveViewer.h"
+#include "TEveScene.h"
+#include "TEveManager.h"
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+
+template <typename T> class FWECALDetailViewDave {
+public:
+   FWECALDetailViewDave() { }
+   virtual ~FWECALDetailViewDave(){}
+
+   virtual void build(const FWModelId &id, const T *, TGCompositeFrame*, TEveScene*, TEveViewer*);
+
+
+private:
+   FWECALDetailViewDave(const FWECALDetailViewDave&); // stop default
+   const FWECALDetailViewDave& operator=(const FWECALDetailViewDave&); // stop default
+
+};
+
+
+template <typename T>
+void FWECALDetailViewDave<T>::build(const FWModelId &id, const T *i, TGCompositeFrame*, TEveScene*, TEveViewer*)
+{
+
+}

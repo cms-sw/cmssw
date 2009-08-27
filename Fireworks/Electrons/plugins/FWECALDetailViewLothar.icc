@@ -1,0 +1,132 @@
+#include "TGLabel.h"
+#include "TGSlider.h"
+#define protected public
+#include "TEveLegoEventHandler.h"
+#undef protected
+#include "TEveViewer.h"
+#include "TEveScene.h"
+#include "TEveManager.h"
+#include "TEveStraightLineSet.h"
+#include "TEveChunkManager.h"
+
+#include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/CSGActionSupervisor.h"
+
+template <typename T> class FWECALDetailViewLothar : public CSGActionSupervisor {
+public:
+   FWECALDetailViewLothar() { }
+   virtual ~FWECALDetailViewLothar(){}
+
+   virtual void build(const FWModelId &id, const T *, TGCompositeFrame*, TEveScene*, TEveViewer*);
+
+private:
+   FWECALDetailViewLothar(const FWECALDetailViewLothar&); // stop default
+   const FWECALDetailViewLothar& operator=(const FWECALDetailViewLothar&); // stop default
+
+   virtual void makeGUIForDetailViewB(TGCompositeFrame* c);
+   virtual void setEtaPhiRange(int);
+   virtual void buttonCallback();
+
+   TEveScene    *m_scene;
+   TEveViewer   *m_viewer;
+   TEveStraightLineSet *m_lines;
+};
+
+
+//==============================================================================
+
+
+template <typename T>
+void FWECALDetailViewLothar<T>::build(const FWModelId &id, const T *i, TGCompositeFrame *ediFrame, TEveScene *scene, TEveViewer *viewer)
+{
+   m_viewer = viewer;
+   m_scene = scene;
+
+   m_lines = new TEveStraightLineSet();
+   m_lines->SetPickable(false); //no higlight on selection
+   m_lines->SetMarkerColor(6);
+   m_lines->SetMarkerStyle(kGreen);
+   m_scene->AddElement(m_lines);
+
+   TEveStraightLineSet* a1 = new TEveStraightLineSet();
+   a1->AddLine(3, 3, 3, -3, -3, -3);
+   a1->SetMainColor(kWhite);
+   a1->SetLineStyle(2);
+   m_scene->AddElement(a1);
+
+   setEtaPhiRange(0);
+
+   TGLViewer* glViewer = m_viewer->GetGLViewer();
+   glViewer->UpdateScene();
+   glViewer->CurrentCamera().Reset();
+
+   // addaxis (grid in the future)
+   glViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   TGLCameraOverlay* overlay =  glViewer->GetCameraOverlay();
+   overlay->SetShowOrthographic(kTRUE);
+   overlay->SetOrthographicMode(TGLCameraOverlay::kAxis);
+
+   // move perspective <-> orthographic
+   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)glViewer->GetGLWidget(), (TObject*)glViewer);
+   glViewer->SetEventHandler(eh);
+   eh->Rotate(0, 10000, kFALSE, kFALSE);
+
+   makeGUIForDetailViewB(ediFrame);
+}
+
+template <typename T>
+void FWECALDetailViewLothar<T>::makeGUIForDetailViewB(TGCompositeFrame* ediFrame)
+{
+   TGVerticalFrame* guiFrame = new TGVerticalFrame(ediFrame);
+   ediFrame->AddFrame(guiFrame, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   guiFrame->SetCleanup(kDeepCleanup);
+
+   TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(guiFrame);
+   guiFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+   sliderFrame->AddFrame(new TGLabel(sliderFrame, "Eta-Phi Range:"));
+
+   CSGAction* actionRange = new CSGAction(this, "Scale eta-phi range");
+   actionRange->createSlider(sliderFrame, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 2, 2, 0, 0), 120, kSlider1);
+   actionRange->intSignal->connect(boost::bind(&FWECALDetailViewLothar::setEtaPhiRange,this,_1));
+   TGSlider* slider  = actionRange->getSlider();
+   slider->SetRange(-1000, 2000);
+   slider->SetPosition(0);
+
+   CSGAction* actionRnr = new CSGAction(this, "Render Eta-Phi Rng");
+   actionRnr->createCheckButton(guiFrame, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
+   actionRnr->activated.connect( sigc::mem_fun(this, &FWECALDetailViewLothar::buttonCallback));
+
+   ediFrame->MapSubwindows();
+   ediFrame->Layout();
+}
+
+template <typename T>
+void FWECALDetailViewLothar<T>::buttonCallback()
+{
+   bool rnr = m_lines->GetRnrSelf();
+   m_lines->SetRnrSelf(!rnr);
+
+   m_scene->Repaint();
+   m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   gEve->Redraw3D();
+}
+
+template <typename T>
+void FWECALDetailViewLothar<T>::setEtaPhiRange(int x)
+{
+   Float_t val =  TMath::Power(10, x*1e-3);
+   Float_t h = 0;
+   Float_t a = 10*val;
+   m_lines->GetLinePlex().Reset(sizeof(TEveStraightLineSet::Line_t), 6);
+   m_lines->AddLine( +a, +a, +h, -a, -a, +h);
+   m_lines->AddLine( +a, -a, +h, -a, +a, +h);
+   m_lines->AddLine( -a, -a, +h, -a, +a, +h);
+   m_lines->AddLine( +a, -a, +h, +a, +a, +h);
+   m_lines->AddLine( +a, +a, +h, -a, +a, +h);
+   m_lines->AddLine( +a, -a, +h, -a, -a, +h);
+   m_lines->ComputeBBox();
+
+   m_scene->Repaint(true);
+   m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   gEve->Redraw3D();
+}
