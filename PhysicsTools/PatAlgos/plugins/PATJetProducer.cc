@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.39 2009/07/18 08:00:27 srappocc Exp $
+// $Id: PATJetProducer.cc,v 1.40 2009/07/27 15:49:29 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -269,17 +269,17 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             for (size_t k=0; k<jetTagInfos.size(); ++k) {
                 const edm::View<reco::BaseTagInfo> & taginfos = *jetTagInfos[k];
                 // This is not associative, so we have to search the jet
-                const reco::BaseTagInfo * match = 0;
+		edm::Ptr<reco::BaseTagInfo> match;
                 // Try first by 'same index'
                 if ((idx < taginfos.size()) && (taginfos[idx].jet() == jetRef)) {
-                    match = &taginfos[idx];
+ 		  match = taginfos.ptrAt(idx);
                 } else {
                     // otherwise fail back to a simple search
                     for (edm::View<reco::BaseTagInfo>::const_iterator itTI = taginfos.begin(), edTI = taginfos.end(); itTI != edTI; ++itTI) {
-                        if (itTI->jet() == jetRef) { match = &*itTI; break; }
+		      if (itTI->jet() == jetRef) { match = taginfos.ptrAt( itTI - taginfos.begin() ); break; }
                     }
                 }
-		//TODO !!!                if (match != 0) ajet.addTagInfo(tagInfoLabels_[k], *match);
+                if (match.isNonnull()) ajet.addTagInfo(tagInfoLabels_[k], match);
             }
         }    
     }
