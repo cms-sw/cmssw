@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.2 2008/11/14 18:56:33 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.3 2009/02/23 21:45:50 srappocc Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,7 +14,6 @@
 
 using namespace std;
 using namespace reco;
-using namespace JetReco;
 using namespace edm;
 
 

@@ -29,7 +29,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
-#include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
 
