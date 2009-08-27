@@ -41,7 +41,8 @@ hcalSimParameters = cms.PSet(
             217.0),
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
-        timeSmearing = cms.bool(False)
+        timeSmearing = cms.bool(False),
+        siPMCells = cms.vint32()
     ),
     hb = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -57,7 +58,8 @@ hcalSimParameters = cms.PSet(
             134.86),
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
-        timeSmearing = cms.bool(True)
+        timeSmearing = cms.bool(True),
+        siPMCells = cms.vint32()
     ),
     he = cms.PSet(
         readoutFrameSize = cms.int32(10),
@@ -84,7 +86,6 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(-4.0)
     ),
-    photomultiplier = cms.string("HPD")
 )
 
 
