@@ -48,32 +48,11 @@ public:
     //rechits
     edm::Handle<SiPixelRecHitCollection> recHitColl;
     ev.getByLabel(theSiPixelRecHits, recHitColl);
- 
-	/*
-    int numRecHits = 0;
-    //FIXME: this can be optimized quite a bit by looping only on the per-det 'items' of DetSetVector
-    for(SiPixelRecHitCollection::const_iterator recHitIdIterator = recHitColl->begin(), recHitIdIteratorEnd = recHitColl->end();
-        recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
-         SiPixelRecHitCollection::DetSet hits = *recHitIdIterator;
-         DetId detId = DetId(hits.detId()); // Get the Detid object
-         unsigned int detType=detId.det();    // det type, tracker=1
-         unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
-         PXBDetId pdetId = PXBDetId(detId);
-         unsigned int layer=0;
-         layer=pdetId.layer();
-         if(detType==1 && subid==1 && layer==1) {
-             numRecHits += hits.size();
-         }
-    }
-    return numRecHits;
-	 
-	*/ 	 
 	  
-	  std::vector<const TrackingRecHit*> theChosenHits; 	 
-	  TrackerLayerIdAccessor acc; 	 
-	  edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
-	  return theChosenHits.size(); 	 
-	  
+	std::vector<const TrackingRecHit*> theChosenHits; 	 
+	TrackerLayerIdAccessor acc; 	 
+	edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
+	return theChosenHits.size(); 	 
 	 
   }
 
@@ -92,11 +71,11 @@ public:
     LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: hits in the 1. layer:" << estMult << "]";
     LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: estimated number of tracks:" << estTracks << "]";
 
-    float regTracking = 400.;  //if we have more tracks -> regional tracking
+    float regTracking = 1600.;  //if we have more tracks -> regional tracking (was 400)
     float etaB = 10.;
     float phiB = TMath::Pi()/2.;
 
-    float decEta = estTracks/600.;
+    float decEta = estTracks/2400.; // (was 600)
     etaB = 2.5/decEta;
 
     if(estTracks>regTracking) {
