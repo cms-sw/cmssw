@@ -20,16 +20,18 @@ class MeasureLA : public edm::ESProducer {
   
  private:
 
-  void append_methods_and_granularity(int32_t&, bool&, bool&, const std::vector<edm::ParameterSet>&);
+  void append_methods_and_granularity(int32_t&, bool&, bool&, const edm::VParameterSet&);
   void process_reports();
-  void calibrate(std::pair<uint32_t,LA_Filler_Fitter::Result>&);  
-  void calibrate(std::pair<std::string,LA_Filler_Fitter::Result>&);
+  void calibrate(std::pair<uint32_t,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&);
+  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(std::string layer,LA_Filler_Fitter::Method method);
+  std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(uint32_t detid,LA_Filler_Fitter::Method method);
 
   std::vector<std::string> inputFiles;
   std::string inFileLocation;
   edm::FileInPath fp_;
   unsigned maxEvents;
-  std::vector<edm::ParameterSet> reports, measurementPreferences, calibrations;
+  edm::VParameterSet reports, measurementPreferences, calibrations;
+  std::map<std::pair<uint32_t,LA_Filler_Fitter::Method>,float> slope, offset, error_scaling;
   Book book;
 
 };
