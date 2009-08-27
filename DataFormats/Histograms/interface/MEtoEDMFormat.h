@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/07/21 19:31:46 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/08/09 13:09:27 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -26,6 +26,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <stdint.h>
 
 template <class T>
 class MEtoEDM
