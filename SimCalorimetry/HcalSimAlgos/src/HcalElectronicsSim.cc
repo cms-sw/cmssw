@@ -27,6 +27,7 @@ HcalElectronicsSim::~HcalElectronicsSim()
 void HcalElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine & engine)
 {
   theRandFlat = new CLHEP::RandFlat(engine);
+  theAmplifier->setRandomEngine(engine);
 }
 
 
