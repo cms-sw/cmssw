@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Feb 17 17:32:06 EST 2009
-// $Id: HiMixingModule.cc,v 1.1 2009/08/13 14:18:13 yilmaz Exp $
+// $Id: HiMixingModule.cc,v 1.2 2009/08/18 13:54:31 yilmaz Exp $
 //
 //
 
@@ -68,17 +68,17 @@ namespace edm{
 
    class HiMixingModule;
 
-class MixingWorkerBase{
+class HiMixingWorkerBase{
 public:
-   explicit MixingWorkerBase(){;}
+   explicit HiMixingWorkerBase(){;}
 
-   MixingWorkerBase(std::string& object, InputTag &tag1,InputTag &tag2, std::string& label) :
+   HiMixingWorkerBase(std::string& object, InputTag &tag1,InputTag &tag2, std::string& label) :
       object_(object),
       tag1_(tag1),
       tag2_(tag2),
       label_(label)
    {;}
-   virtual ~MixingWorkerBase(){;}
+   virtual ~HiMixingWorkerBase(){;}
    //   virtual void put(edm::Event &e) = 0;
    virtual void addSignals(edm::Event &e) = 0;
 
@@ -90,10 +90,10 @@ public:
 
 
    template <class T>
-   class MixingWorker : public MixingWorkerBase {
+   class HiMixingWorker : public HiMixingWorkerBase {
    public:
-      MixingWorker(std::string& object, InputTag &tag1,InputTag &tag2, std::string& label) : MixingWorkerBase(object,tag1,tag2, label) {;}
-      ~MixingWorker(){;}
+      HiMixingWorker(std::string& object, InputTag &tag1,InputTag &tag2, std::string& label) : HiMixingWorkerBase(object,tag1,tag2, label) {;}
+      ~HiMixingWorker(){;}
      void addSignals(edm::Event &e){
 
 	 cout<<"addSignals Working"<<endl;
@@ -120,7 +120,7 @@ public:
    };
 
 template <>
-void MixingWorker<HepMCProduct>::addSignals(edm::Event &e){
+void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
    Handle<HepMCProduct> handle1;
    Handle<HepMCProduct> handle2;
    bool get1 = e.getByLabel(tag1_,handle1);
@@ -166,7 +166,7 @@ class HiMixingModule : public edm::EDProducer {
       bool verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label);      
       // ----------member data ---------------------------
 
-   std::vector<MixingWorkerBase *> workers_;
+   std::vector<HiMixingWorkerBase *> workers_;
 
 };
 
@@ -207,19 +207,19 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
 	 std::string label;
 	 if (verifyRegistry(object,std::string(""),tag,label)){
 	    if (object=="HepMCProduct"){
-	       workers_.push_back(new MixingWorker<HepMCProduct>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<HepMCProduct>(object,tag,tag2,label));
 	       produces<CrossingFrame<HepMCProduct> >(label);
 	    }else if (object=="SimTrack"){
-	       workers_.push_back(new MixingWorker<SimTrack>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<SimTrack>(object,tag,tag2,label));
 	       produces<CrossingFrame<SimTrack> >(label);
 	    }else if (object=="SimVertex"){
-	       workers_.push_back(new MixingWorker<SimVertex>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<SimVertex>(object,tag,tag2,label));
 	       produces<CrossingFrame<SimVertex> >(label);
 	    }else if (object=="PSimHit"){
-	       workers_.push_back(new MixingWorker<PSimHit>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<PSimHit>(object,tag,tag2,label));
 	       produces<CrossingFrame<PSimHit> >(label);
 	    }else if (object=="PCaloHit"){
-	       workers_.push_back(new MixingWorker<PCaloHit>(object,tag,tag2,label));
+	       workers_.push_back(new HiMixingWorker<PCaloHit>(object,tag,tag2,label));
 	       produces<CrossingFrame<PCaloHit> >(label);
 	    }else LogInfo("Error")<<"What the hell is this object?!";
 	    
