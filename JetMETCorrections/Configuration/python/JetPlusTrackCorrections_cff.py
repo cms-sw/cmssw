@@ -36,24 +36,24 @@ from RecoEgamma.ElectronIdentification.electronIdCutBasedExt_cfi import *
 
 #from RecoEgamma.ElectronIdentification.electronIdSequence_cfi import *
 eidRobustLoose = eidCutBasedExt.clone()
-eidRobustLoose.electronIDType = 'robust'
-eidRobustLoose.electronQuality = 'loose'
+eidRobustLoose.electronIDType = cms.string('robust')
+eidRobustLoose.electronQuality = cms.string('loose')
 
 eidRobustTight = eidCutBasedExt.clone()
-eidRobustTight.electronIDType = 'robust'
-eidRobustTight.electronQuality = 'tight'
+eidRobustTight.electronIDType = cms.string('robust')
+eidRobustTight.electronQuality = cms.string('tight')
 
 eidRobustHighEnergy = eidCutBasedExt.clone()
-eidRobustHighEnergy.electronIDType = 'robust'
-eidRobustHighEnergy.electronQuality = 'highenergy'
+eidRobustHighEnergy.electronIDType = cms.string('robust')
+eidRobustHighEnergy.electronQuality = cms.string('highenergy')
 
 eidLoose = eidCutBasedExt.clone()
-eidLoose.electronIDType = 'classbased'
-eidLoose.electronQuality = 'loose'
+eidLoose.electronIDType = cms.string('classbased')
+eidLoose.electronQuality = cms.string('loose')
 
 eidTight = eidCutBasedExt.clone()
-eidTight.electronIDType = 'classbased'
-eidTight.electronQuality = 'tight'
+eidTight.electronIDType = cms.string('classbased')
+eidTight.electronQuality = cms.string('tight')
 
 eIdSequence = cms.Sequence(eidRobustLoose+eidRobustTight+eidRobustHighEnergy+eidLoose+eidTight)
 #-----------
