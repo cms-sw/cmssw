@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/08/02 08:09:46 $
- * $Revision: 1.450 $
+ * $Date: 2009/08/05 10:53:15 $
+ * $Revision: 1.451 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -771,7 +771,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( subrun_ != -1 ) {
 
-    this->writeDb(true);
+    this->writeDb();
 
     this->endRunDb();
 
@@ -1060,7 +1060,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::writeDb(bool flag) {
+void EcalBarrelMonitorClient::writeDb() {
 
   subrun_++;
 
@@ -1147,7 +1147,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
           }
         }
         bool status;
-        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status, flag) ) {
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status) ) {
           taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
           if ( status ) {
             tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
@@ -1167,7 +1167,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
   }
 
   bool status;
-  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status, flag);
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status);
 
   EcalLogicID ecid;
   MonRunDat md;
@@ -1474,7 +1474,7 @@ void EcalBarrelMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb(false);
+               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
           last_time_db_ = current_time_;
         }
       }
@@ -1624,17 +1624,14 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalBarrelMonitorClient::softReset(bool flag) { 	 
 
-   for ( int i=0; i<int(clients_.size()); i++ ) {
-     bool done = false;
-     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-       if ( runType_ != -1 && runType_ == (*j).second && !done ) {
-         done = true;
-         clients_[i]->softReset(flag);
-       }
-     }
-   }
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool done = false;
+    for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+      if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+        done = true;
+      }
+    }
+  }
  
-   summaryClient_->softReset(flag);
-
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2009/02/27 13:54:05 $
- * $Revision: 1.118 $
+ * $Date: 2009/08/10 15:49:28 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -138,11 +138,9 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
-bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   return true;
 
@@ -180,10 +178,6 @@ void EBCosmicClient::analyze(void) {
     meh03_[ism-1] = me;
 
   }
-
-}
-
-void EBCosmicClient::softReset(bool flag) {
 
 }
 

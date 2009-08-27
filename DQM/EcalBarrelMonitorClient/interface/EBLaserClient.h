@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2009/06/24 16:11:46 $
- * $Revision: 1.86 $
+ * $Date: 2009/08/03 23:44:18 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -60,11 +60,8 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// SoftReset
-void softReset(bool flag);
-
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

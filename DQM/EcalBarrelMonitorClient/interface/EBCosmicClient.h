@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.58 $
+ * $Date: 2009/08/10 15:49:28 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,11 +61,8 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// SoftReset
-void softReset(bool flag);
-
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
