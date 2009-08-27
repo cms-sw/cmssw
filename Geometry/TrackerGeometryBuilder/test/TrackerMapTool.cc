@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.6 2007/03/09 00:41:04 wmtan Exp $
+// $Id: TrackerMapTool.cc,v 1.7 2009/08/26 21:18:55 case Exp $
 //
 //
 
@@ -105,7 +105,11 @@ int layerno(int subdet,int leftright,int layer){
   if(subdet==1)return(layer+30);
   if(subdet==3)return(layer+33);
   if(subdet==5)return(layer+37);
-  return -1;// this was added.  No checks have been mad where layerno is used.
+  // 2009-08-26 Michael Case: to get rid of a compiler warning about control reaching
+  // the end of a non-void function I put return -1 here.  This changed the output
+  // of the test so I changed it to return 0 to match the "before my changes" run
+  // of trackerMap_cfg.py.
+  return 0;// this was added.  No checks have been mad where layerno is used.
 }
 // ------------ method called to produce the data  ------------
 void
