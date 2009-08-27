@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/08/05 10:53:15 $
- * $Revision: 1.210 $
+ * $Date: 2009/08/27 15:41:04 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -810,7 +810,7 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   if ( subrun_ != -1 ) {
 
-    this->writeDb(true);
+    this->writeDb();
 
     this->endRunDb();
 
@@ -1099,7 +1099,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalEndcapMonitorClient::writeDb(bool flag) {
+void EcalEndcapMonitorClient::writeDb() {
 
   subrun_++;
 
@@ -1514,7 +1514,7 @@ void EcalEndcapMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb(false);
+               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
           last_time_db_ = current_time_;
         }
       }
