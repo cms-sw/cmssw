@@ -5,6 +5,7 @@
 //
 #include <vector>
 #include <string>
+#include <cstdio>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
@@ -239,9 +240,6 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObj
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
-
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalValidationCorr); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
 
 
