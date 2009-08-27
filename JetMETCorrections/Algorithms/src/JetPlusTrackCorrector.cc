@@ -195,8 +195,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          const edm::EventSetup& theEventSetup) const 
 {
 
-   bool debug = false;
-   //bool debug = true;
+  bool debug = false;
+  //bool debug = true;
 
    double NewResponse = fJet.energy();
 
@@ -324,7 +324,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    reco::TrackRefVector muOutOfCaloInVertex; 
 
 
-   //cout<<" Number of tracks at vertex "<<trAtVertex.size()<<" Number of tracks at Calo "<<trAtCalo.size()<<endl;
+   if (debug) cout<<" Number of tracks at vertex "<<trAtVertex.size()<<" Number of tracks at Calo "<<trAtCalo.size()<<endl;
      const reco::GsfElectron *matched=NULL;
    for( reco::TrackRefVector::iterator itV = trAtVertex.begin(); itV != trAtVertex.end(); itV++)
      {
@@ -381,7 +381,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	   muInCaloInVertex.push_back(*it);
 	 else 
 	   //JW
-	   if(!iselec)
+ 	   if(!iselec)
 	   trInCaloInVertex.push_back(*it);
        } else { // trAtCalo.end()
 	 if (ismuon)
@@ -642,7 +642,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 // Do nothing if mScale<0.
    if(mScale <0.) mScale=1;
    
-   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<iEvent.id().event()<<std::endl;
+   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<" event "<<iEvent.id().event()<<std::endl;
 
    return mScale;
 }
