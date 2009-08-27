@@ -60,12 +60,16 @@ namespace reco {
     // fills an HcalNoiseRBXArray with various data
     // filldigis() depends on fillrechits() being called first
     //
-    
-    void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
+    void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
     void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filljets(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
+
+    // other helper functions
+    bool isProblematicRBX(const HcalNoiseRBX& rbx) const;
+    void fillOtherSummaryVariables(HcalNoiseSummary& summary, const HcalNoiseRBX& rbx) const;
+
     
     //
     // parameters
@@ -82,16 +86,10 @@ namespace reco {
 
     // These provide the requirements for writing an RBX to the event
     double RBXEnergyThreshold_; // minimum energy to even be considered for writing to edm
+    double minRecHitEnergy_; // Minimum rechit energy to consider
+
     double minHPDEnergy_;    // min HPD Energy
     double minRBXEnergy_;    // min RBX Energy
-    double minRecHitEnergy_; // Minimum rechit energy to consider
-    int minHPDNumRecHit_;    // Minimum number of RecHits in an HPD
-    int minRBXNumZeros_;     // minimum number of zeros in an RBX
-    int minRBXMaxZeros_;     // minimum number of "max zeros" in a pixel in the RBX
-    double maxRBXTime_;      // maximum time in the RBX
-    double minRBXTime_;      // minimum time in the RBX
-    double minHPDRatio_;     // minimum energy ratio in 2 highest timeslices to all 10 timeslices
-    double maxHPDRatio_;     // minimum energy ratio in 2 highest timeslices to all 10 timeslices
     int maxProblemRBXs_;     // maximum number of problematic RBXs to be written to the event record
 
     // parameters for calculating summary variables

@@ -37,16 +37,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig)
   refillRefVectors_ = iConfig.getParameter<bool>("refillRefVectors");
 
   RBXEnergyThreshold_ = iConfig.getParameter<double>("RBXEnergyThreshold");
-  minHPDEnergy_    = iConfig.getParameter<double>("minHPDEnergy");
-  minRBXEnergy_    = iConfig.getParameter<double>("minRBXEnergy");
   minRecHitEnergy_ = iConfig.getParameter<double>("minRecHitEnergy");
-  minHPDNumRecHit_ = iConfig.getParameter<int>("minHPDNumRecHit");
-  minRBXNumZeros_  = iConfig.getParameter<int>("minRBXNumZeros");
-  minRBXMaxZeros_  = iConfig.getParameter<int>("minRBXMaxZeros");
-  minRBXTime_      = iConfig.getParameter<double>("minRBXTime");
-  maxRBXTime_      = iConfig.getParameter<double>("maxRBXTime");
-  minHPDRatio_     = iConfig.getParameter<double>("minHPDRatio");
-  maxHPDRatio_     = iConfig.getParameter<double>("maxHPDRatio");
   maxProblemRBXs_  = iConfig.getParameter<int>("maxProblemRBXs");
 
   maxJetEmFraction_   = iConfig.getParameter<double>("maxJetEmFraction");
@@ -104,7 +95,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     
     // fill them with the various components
     // digi assumes that rechit information is available
-    if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
+    if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray);
     if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray);
     if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
     if(fillJets_)       filljets(iEvent, iSetup, summary);    
@@ -113,17 +104,14 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // select those RBXs which are interesting
     // also look for the highest energy RBX
     HcalNoiseRBXArray::iterator maxit=rbxarray.begin();
-    double maxenergy=maxit->recHitEnergy();
+    double maxenergy=maxit->recHitEnergy(minRecHitEnergy_);
     bool maxwritten=false;
     for(HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit!=rbxarray.end(); ++rit) {
       HcalNoiseRBX &rbx=(*rit);
-      
-      // calculate certain quantities once and once only
-      double hpdenergy=rbx.maxHPD()->recHitEnergy();
-      double rbxenergy=rbx.recHitEnergy();
-      double bigcharge2ts = rbx.maxHPD()->bigChargeHighest2TS();
-      double bigchargetotal = rbx.maxHPD()->bigChargeTotal();
-      double bigratio = bigchargetotal==0 ? -999 : bigcharge2ts/bigchargetotal;
+
+      // require that the RBX have a minimum energy
+      double rbxenergy=rit->recHitEnergy(minRecHitEnergy_);
+      if(rbxenergy<RBXEnergyThreshold_) continue;
 
       // find the highest energy rbx
       if(rbxenergy>maxenergy) {
@@ -132,28 +120,23 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	maxwritten=false;
       }
 
-      // skip RBXs unless they meet some basic threshold energy
-      if(rbxenergy<RBXEnergyThreshold_) continue;
+      // find out if the rbx is problematic/noisy/interesting
+      bool problem=isProblematicRBX(rbx);
 
-      // select certain RBXs to be written
-      if(rbxenergy>=minRBXEnergy_ ||
-         hpdenergy>=minHPDEnergy_ ||
-	 ((bigratio<minHPDRatio_ || bigratio>maxHPDRatio_) && bigratio!=-999) ||
-	 rbx.maxHPD()->numRecHits(minRecHitEnergy_) >=minHPDNumRecHit_ ||
-	 rbx.totalZeros()>=minRBXNumZeros_ ||
-	 rbx.maxZeros()>=minRBXMaxZeros_ ||
-	 rbx.minRecHitTime()<minRBXTime_ ||
-	 rbx.maxRecHitTime()>maxRBXTime_) {
+      // fill variables in the summary object not filled elsewhere
+      fillOtherSummaryVariables(summary, rbx);
 
-	// drop the ref vectors if we need to
-	if(dropRefVectors_) {
-	  for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
-	    hit->rechits_.clear();
-	    hit->calotowers_.clear();
-	  }
+      // drop the ref vectors if we need to
+      // make sure we do this after we calculate quantities with the RBX
+      if(dropRefVectors_) {
+	for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
+	  hit->rechits_.clear();
+	  hit->calotowers_.clear();
 	}
+      }
 
-	// add the RBX to the event
+      // if the rbx is problematic write it
+      if(problem) {
 	summary.nproblemRBXs_++;
 	if(summary.nproblemRBXs_<=maxProblemRBXs_) {
 	  result1->push_back(rbx);
@@ -166,25 +149,13 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     if(!maxwritten) {
       HcalNoiseRBX &rbx=(*maxit);
       
-      // drop the ref vectors if we need to
-      if(dropRefVectors_) {
-	for(std::vector<HcalNoiseHPD>::iterator hit = rbx.hpds_.begin(); hit != rbx.hpds_.end(); ++hit) {
-	  hit->rechits_.clear();
-	  hit->calotowers_.clear();
-	}
-      }
-
       // add the RBX to the event
       result1->push_back(rbx);
     }
   
-    // determine if the event is noisy
-    summary.filterstatus_=0;
-    
     // put the rbxcollection and summary into the EDM
     iEvent.put(result1);
     iEvent.put(result2);
-
 
   } else {
 
@@ -196,7 +167,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     HcalNoiseSummary summary;
     
     // fill them with the various components
-    if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
+    if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray);
     if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
 
     // this is what we're going to actually write to the EDM
@@ -300,6 +271,100 @@ HcalNoiseInfoProducer::endRun(edm::Run&, const edm::EventSetup&)
   return;
 }
 
+// ------------ returns whether the rbx is problematic
+bool
+HcalNoiseInfoProducer::isProblematicRBX(const HcalNoiseRBX& rbx) const
+{
+  double allcharge2ts = rbx.allChargeHighest2TS();
+  double allchargetotal = rbx.allChargeTotal();
+  double allratio = allchargetotal==0 ? 999 : allcharge2ts/allchargetotal;
+
+  if(rbx.recHitEnergy(minRecHitEnergy_)>=200.) return true;
+  if(rbx.maxHPD()->recHitEnergy(minRecHitEnergy_)>=100.) return true;
+  if(allratio<0.7 && allchargetotal!=0) return true;
+  if(rbx.maxHPD()->numRecHits(minRecHitEnergy_) >=10) return true;
+  if(rbx.totalZeros()>=5) return true;
+  if(rbx.maxZeros()>=4) return true;
+  if(rbx.minRecHitTime()<-6.) return true;
+  if(rbx.maxRecHitTime()>6.) return true;
+  return false;
+}
+
+
+// ------------ here we fill specific variables in the summary object not already accounted for earlier
+void 
+HcalNoiseInfoProducer::fillOtherSummaryVariables(HcalNoiseSummary& summary, const HcalNoiseRBX& rbx) const
+{
+  // E2TS/E10TS for the RBX
+  double allcharge2ts = rbx.allChargeHighest2TS();
+  double allchargetotal = rbx.allChargeTotal();
+  double allratio = allchargetotal==0 ? 999 : allcharge2ts/allchargetotal;
+  if(allratio<summary.minE2Over10TS()) {
+    summary.mine2ts_=allcharge2ts;
+    summary.mine10ts_=allchargetotal;
+  }
+
+  // # of zeros in RBX
+  int maxzeros=rbx.totalZeros();
+  if(maxzeros>summary.maxZeros()) {
+    summary.maxzeros_=maxzeros;
+  }
+
+  // # of RBX hits
+  int nrbxhits=rbx.numRecHits(minRecHitEnergy_);
+  if(nrbxhits>summary.maxRBXHits()) summary.maxrbxhits_=nrbxhits;
+  
+  // RBX EMF
+  float rbxemf=rbx.caloTowerEmFraction();
+  if(rbxemf<summary.minRBXEMF()) summary.minrbxemf_=rbxemf;
+
+  // # of HPD hits, HPD EMF, and timing: done together for speed
+  // loop over the HPDs in the RBX
+  for(std::vector<HcalNoiseHPD>::const_iterator it1=rbx.hpds_.begin(); it1!=rbx.hpds_.end(); ++it1) {
+    int nhits=it1->numRecHits(minRecHitEnergy_);
+    float emf=it1->caloTowerEmFraction();
+    if(nhits>summary.maxHPDHits()) summary.maxhpdhits_=nhits;
+    if(emf<summary.minHPDEMF()) summary.minhpdemf_=emf;
+    
+    // loop over the hits in the HPD
+    for(edm::RefVector<HBHERecHitCollection>::const_iterator it2=it1->rechits_.begin(); it2!=it1->rechits_.end(); ++it2) {
+      float energy=(*it2)->energy();
+      float time=(*it2)->time();
+      if(energy>=10.) {
+	if(time<summary.min10GeVHitTime()) summary.min10_=time;
+	if(time>summary.max10GeVHitTime()) summary.max10_=time;
+	summary.rms10_ += time*time;
+	summary.cnthit10_++;
+      }
+      if(energy>=25.) {
+	if(time<summary.min25GeVHitTime()) summary.min25_=time;
+	if(time>summary.max25GeVHitTime()) summary.max25_=time;
+	summary.rms25_ += time*time;
+	summary.cnthit25_++;
+      }
+    }
+  }
+
+  // loose cuts
+  if(summary.minE2Over10TS()<0.7)   summary.filterstatus_ |= 0x1;
+  if(summary.min25GeVHitTime()<-7.) summary.filterstatus_ |= 0x2;
+  if(summary.max25GeVHitTime()>6.)  summary.filterstatus_ |= 0x4;
+  if(summary.maxZeros()>8)          summary.filterstatus_ |= 0x8;
+
+  // tight cuts
+  if(summary.minE2Over10TS()<0.8)   summary.filterstatus_ |= 0x100;
+  if(summary.min25GeVHitTime()<-5.) summary.filterstatus_ |= 0x200;
+  if(summary.max25GeVHitTime()>4.)  summary.filterstatus_ |= 0x400;
+  if(summary.maxZeros()>7)          summary.filterstatus_ |= 0x800;
+  if(summary.maxHPDHits()>16)       summary.filterstatus_ |= 0x1000;
+
+  // high level cuts
+  if(summary.minHPDEMF()<0.01)      summary.filterstatus_ |= 0x10000;
+  if(summary.minRBXEMF()<0.01)      summary.filterstatus_ |= 0x20000;
+
+  return;
+}
+
 
 // ------------ fill the array with digi information
 void
@@ -325,6 +390,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     double pedestal = (pedestalit != pedestalmap_.end()) ? pedestalit->second : nominalPedestal_;
 
     // determine if the digi is one the highest energy hits in the HPD
+    // this works because the rechits are sorted by energy (see fillrechits() below)
     bool isBig=false, isBig5=false, isRBX=false;
     int counter=0;
     for(edm::RefVector<HBHERecHitCollection>::const_iterator rit=rechits.begin();
@@ -332,7 +398,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       if((*rit)->id() == digi.id()) {
 	if(counter==0) isBig=isBig5=true;  // digi is also the highest energy rechit
 	if(counter<5) isBig5=true;         // digi is one of 5 highest energy rechits
-	isRBX=true;                        // digi has rechit energy>1.5 GeV
+	isRBX=true;                        // digi has rechit energy>minRecHitEnergy_ GeV
       }
     }
 
@@ -368,7 +434,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ fill the array with rec hit information
 void
-HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array, HcalNoiseSummary& summary) const
+HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array) const
 {
   // get the rechits
   edm::Handle<HBHERecHitCollection> handle;
@@ -379,21 +445,15 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     return;
   }
 
-  summary.min10_=summary.min25_=99999.;
-  summary.max10_=summary.max25_=-99999.;
-  summary.rms10_=summary.rms25_=0.0;
-  int cnt10=0, cnt25=0;
-
   // loop over all of the rechit information
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
 
     // calculate energy, time
     float energy=rechit.energy();
-    float time=rechit.time();
 
     // if the energy is too low, we skip it
-    if(energy<1.5) continue;
+    if(energy<minRecHitEnergy_) continue;
 
     // find the hpd that the rechit is in
     HcalNoiseHPD& hpd=(*array.findHPD(rechit));
@@ -404,38 +464,20 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     // store it in a place so that it remains sorted by energy
     hpd.refrechitset_.insert(myRef);
 
-    // calculate summary objects
-    if(energy>=10. && summary.min10_>time) summary.min10_=time;
-    if(energy>=25. && summary.min25_>time) summary.min25_=time;
-    if(energy>=10. && summary.max10_<time) summary.max10_=time;
-    if(energy>=25. && summary.max25_<time) summary.max25_=time;
-    if(energy>=10.) {
-      summary.rms10_ += time*time;
-      ++cnt10;
-    }
-    if(energy>=25.) {
-      summary.rms25_ += time*time;
-      ++cnt25;
-    }
-
   } // end loop over rechits
 
-  // finish calculation of rms
-  summary.rms10_= cnt10>0 ? sqrt(summary.rms10_/cnt10) : -999.;
-  summary.rms25_= cnt25>0 ? sqrt(summary.rms25_/cnt25) : -999.;
-
-  // now loop over all HPDs and transfer the information from refrechitset_ to rechits_;
+  // loop over all HPDs and transfer the information from refrechitset_ to rechits_;
   for(HcalNoiseRBXArray::iterator rbxit=array.begin(); rbxit!=array.end(); ++rbxit) {
     for(std::vector<HcalNoiseHPD>::iterator hpdit=rbxit->hpds_.begin(); hpdit!=rbxit->hpds_.end(); ++hpdit) {
       
-      // now loop over all of the entries in the set
-      // and add them to rechits_
+      // loop over all of the entries in the set and add them to rechits_
       for(std::set<edm::Ref<HBHERecHitCollection>, RefHBHERecHitEnergyComparison>::const_iterator
 	    it=hpdit->refrechitset_.begin(); it!=hpdit->refrechitset_.end(); ++it) {
 	hpdit->rechits_.push_back(*it);
       }
     }
   }
+  // now the rechits in all the HPDs are sorted by energy!
 
   return;
 }
@@ -474,15 +516,17 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
 	it!=hpditervec.end(); ++it)
       (*it)->calotowers_.push_back(myRef);
 
-    // include the emenergy and hadenergy
-    summary.emenergy_ += twr.emEnergy();
-    summary.hadenergy_ += twr.hadEnergy();
+    // include the emenergy and hadenergy if it points to an HPD
+    if(hpditervec.size()>0) {
+      summary.emenergy_ += twr.emEnergy();
+      summary.hadenergy_ += twr.hadEnergy();
+    }
   }
 
   return;
 }
 
-// ------------ fill the array with calo tower information
+// ------------ fill the summary with jet information
 void
 HcalNoiseInfoProducer::filljets(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
 {
@@ -515,6 +559,7 @@ HcalNoiseInfoProducer::filljets(edm::Event& iEvent, const edm::EventSetup& iSetu
   return;
 }
 
+// ------------ fill the summary with track information
 void
 HcalNoiseInfoProducer::filltracks(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
 {
