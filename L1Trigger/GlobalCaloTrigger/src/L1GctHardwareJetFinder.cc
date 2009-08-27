@@ -268,7 +268,7 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
       ovrFlowOr |= m_inputRegions.at(index).overFlow();
       if (m_useImprovedTauAlgo) {
 
-	if ((row==(localEta+1)) && (column==localPhi)) {
+	if ((row==(localEta+N_EXTRA_REGIONS_ETA00)) && (column==localPhi)) {
 	  // central region - check the tau veto
 	  tauVetoOr |= m_inputRegions.at(index).tauVeto();
 	} else {
