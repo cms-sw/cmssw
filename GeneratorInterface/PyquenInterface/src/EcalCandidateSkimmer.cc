@@ -36,14 +36,20 @@ EcalCandidateSkimmer::EcalCandidateSkimmer(const edm::ParameterSet& pset) : Base
 bool EcalCandidateSkimmer::filter(HepMC::GenEvent *evt){
    HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
-   for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
+
+   bool foundParticle = false;
+   bool foundParton = false;
+   
+   HepMC::GenEvent::particle_const_iterator it = begin;
+   while((!foundParton || !foundParticle) && it != end){
       for(int i = 0; i < partonId_.size(); ++i){
-	 if(selectParticle(*it, partonStatus_[i], partonId_[i], partonPt_[i], etaMax_)) return true;
+	 if(selectParticle(*it, partonStatus_[i], partonId_[i], partonPt_[i], etaMax_)) foundParton = true;
       }
       for(int i = 0; i < particleId_.size(); ++i){
-         if(selectParticle(*it, particleStatus_[i], particleId_[i], particlePt_[i], etaMax_)) return true;
+         if(selectParticle(*it, particleStatus_[i], particleId_[i], particlePt_[i], etaMax_)) foundParticle = true;
       }
+      ++it;
    }
 
-   return false;
+   return (foundParton && foundParticle);
 }
