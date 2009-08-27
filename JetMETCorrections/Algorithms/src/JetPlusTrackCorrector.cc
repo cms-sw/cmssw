@@ -642,7 +642,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 // Do nothing if mScale<0.
    if(mScale <0.) mScale=1;
    
-   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<std::endl;
+   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<iEvent.id().event()<<std::endl;
 
    return mScale;
 }
