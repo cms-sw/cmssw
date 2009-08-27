@@ -10,27 +10,25 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.h,v 1.2 2009/04/23 17:06:49 jmuelmen Exp $
+// $Id: FWPhotonDetailView.h,v 1.3 2009/08/22 17:10:22 amraktad Exp $
 //
 
 // user include files
-#include "FWECALDetailView.h"
+#include "Fireworks/Core/interface/FWDetailView.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
+#include "TEveWindow.h"
+
 class TEveWindowSlot;
 
-class FWPhotonDetailView : public FWECALDetailView<reco::Photon> {
+class FWPhotonDetailView : public FWDetailView<reco::Photon> {
 
 public:
    FWPhotonDetailView();
    virtual ~FWPhotonDetailView();
 
    virtual void build (const FWModelId &id, const reco::Photon*, TEveWindowSlot*);
-
-protected:
-   virtual bool	drawTrack () { return false; }
-   virtual void makeLegend (const reco::Photon &, TCanvas*);
 
 private:
    FWPhotonDetailView(const FWPhotonDetailView&); // stop default

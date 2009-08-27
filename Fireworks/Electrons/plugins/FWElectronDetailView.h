@@ -11,38 +11,41 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.9 2009/07/20 14:08:47 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.10 2009/08/22 17:10:22 amraktad Exp $
 //
 
 // user include files
-#include "FWECALDetailView.h"
+#include "Fireworks/Core/interface/FWDetailView.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+
+#include "TEveWindow.h"
 
 class TEveCaloDataVec;
 class TEveCaloLego;
 
-class FWElectronDetailView : public FWECALDetailView<reco::GsfElectron> {
+class FWElectronDetailView : public FWDetailView<reco::GsfElectron> {
 
 public:
    FWElectronDetailView();
    virtual ~FWElectronDetailView();
 
    virtual void build (const FWModelId &id, const reco::GsfElectron*, TEveWindowSlot*);
-protected:
-   virtual bool	drawTrack () { return true; }
-   virtual math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
-   virtual double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
-   virtual double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
-   virtual void  makeLegend (const reco::GsfElectron &, TCanvas*);
-
-   void fillReducedData (const std::vector<DetId> &detids, TEveCaloDataVec *data);
-   virtual void drawCrossHair(const reco::GsfElectron*, int, TEveCaloLego*, TEveElementList*);
-   virtual void addTrackPointsInCaloData(const reco::GsfElectron*, int, TEveCaloDataVec*);
 
 private:
    FWElectronDetailView(const FWElectronDetailView&); // stop default
    const FWElectronDetailView& operator=(const FWElectronDetailView&); // stop default
+   void makeLegend(const reco::GsfElectron &electron, TCanvas* textCanvas);
+   virtual double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
+   virtual double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
+   virtual math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
+
+   void  makeExtraLegend (const reco::GsfElectron*, TCanvas*);
+   Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
+
+   void drawCrossHair(const reco::GsfElectron*, int, TEveCaloLego*, TEveElementList*);
+
+   Float_t m_unitCM;
 };
 
 #endif
