@@ -23,7 +23,7 @@ class EventWithHistory: public TinyEvent {
   explicit EventWithHistory(const edm::Event& event);
   EventWithHistory(const std::vector<edm::EventAuxiliary>& he);
   EventWithHistory(const edm::Event& event, const L1AcceptBunchCrossingCollection& l11bcc, 
-		   const int orbitoffset=0, const int bxoffset=0);
+		   const long long orbitoffset=0, const int bxoffset=0);
   EventWithHistory(const EventWithHistory& he);
 
   EventWithHistory& operator=(const EventWithHistory& he);

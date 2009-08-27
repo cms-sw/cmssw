@@ -57,6 +57,7 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
   edm::InputTag _l1abccollection;
   std::map<unsigned int, long long> _offsets;
   long long _curroffset;
+  unsigned int _curroffevent;
 };
 
 //
@@ -73,7 +74,7 @@ class EventWithHistoryProducerFromL1ABC : public edm::EDProducer {
 //
 EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::ParameterSet& iConfig):
   _l1abccollection(iConfig.getParameter<edm::InputTag>("l1ABCCollection")),
-  _offsets(), _curroffset(0)
+  _offsets(), _curroffset(0), _curroffevent(0)
 {
   produces<EventWithHistory>();
    
@@ -101,48 +102,64 @@ EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventS
 {
    using namespace edm;
 
-   Handle<L1AcceptBunchCrossingCollection > pIn;
-   iEvent.getByLabel(_l1abccollection,pIn);
+   if(iEvent.run() < 110878 ) {
 
-   // offset computation
+     L1AcceptBunchCrossingCollection dummycoll;
 
-   int orbitoffset = 0;
-   int bxoffset = 0;
-   for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-     //     edm::LogVerbatim("L1ABCDebug") << *l1abc;
-     if(l1abc->l1AcceptOffset()==0) {
-       orbitoffset = l1abc->orbitNumber() - iEvent.orbitNumber();
-       bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
-     }
-   }
+     std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,dummycoll));
+     iEvent.put(pOut);
 
-
-   std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,*pIn,orbitoffset,bxoffset));
-   iEvent.put(pOut);
-
-   // monitor offset
-
-   long long absbxoffset = (long long)orbitoffset*3564 + bxoffset;
-
-   if(_offsets.size()==0) {
-     _curroffset = absbxoffset;
-     _offsets[iEvent.id().event()] = absbxoffset;
    }
    else {
-     if(_curroffset != absbxoffset) {
-       edm::LogWarning("AbsoluteBXOffsetChanged") << "Absolute BX offset changed from " 
-						  << _curroffset << " to "
-						  << absbxoffset << " at orbit "
-						  << iEvent.orbitNumber() << " and BX "
-						  << iEvent.bunchCrossing();
-       for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-	 edm::LogPrint("AbsoluteBXOffsetChanged") << *l1abc;
+
+     Handle<L1AcceptBunchCrossingCollection > pIn;
+     iEvent.getByLabel(_l1abccollection,pIn);
+     
+     // offset computation
+     
+     long long orbitoffset = 0;
+     int bxoffset = 0;
+     for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
+       //     edm::LogVerbatim("L1ABCDebug") << *l1abc;
+       if(l1abc->l1AcceptOffset()==0) {
+	 orbitoffset = (long long)l1abc->orbitNumber() - (long long)iEvent.orbitNumber();
+	 bxoffset = l1abc->bunchCrossing() - iEvent.bunchCrossing();
        }
+     }
+     
+     
+     std::auto_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent,*pIn,orbitoffset,bxoffset));
+     iEvent.put(pOut);
+     
+     // monitor offset
+     
+     long long absbxoffset = orbitoffset*3564 + bxoffset;
+     
+     if(_offsets.size()==0) {
        _curroffset = absbxoffset;
+       _curroffevent = iEvent.id().event();
        _offsets[iEvent.id().event()] = absbxoffset;
      }
+     else {
+       if(_curroffset != absbxoffset || iEvent.id().event() < _curroffevent ) {
+
+	 if( _curroffset != absbxoffset) {
+	   edm::LogWarning("AbsoluteBXOffsetChanged") << "Absolute BX offset changed from " 
+						      << _curroffset << " to "
+						      << absbxoffset << " at orbit "
+						      << iEvent.orbitNumber() << " and BX "
+						      << iEvent.bunchCrossing();
+	   for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
+	     edm::LogPrint("AbsoluteBXOffsetChanged") << *l1abc;
+	   }
+	 }
+
+	 _curroffset = absbxoffset;
+	 _curroffevent = iEvent.id().event();
+	 _offsets[iEvent.id().event()] = absbxoffset;
+       }
+     }
    }
- 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
