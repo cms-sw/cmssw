@@ -22,9 +22,14 @@ public:
     yMin(yMinIn), yMax(yMaxIn)
   {
     // Do not use the range if the defaults were changed
-    if( yMin == 999999 && yMax == -999999 ) useYrange = 0;
-    else if( yMax == -999999 ) useYrange = 1;
-    else useYrange = 2;
+    useYrange = 0;
+    if ( yMin != 999999 && yMax != -999999) {
+      useYrange = 3;
+    } else if ( yMin != 999999) {
+      useYrange = 1;
+    } else if( yMax != -999999 ) {
+      useYrange = 2;
+    }
   }
 
   /// Used to pass only nRuns

@@ -37,50 +37,101 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   typedef DQMHistoryTrendsConfig Trend;
   vector<Trend> config;
 
-  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CosmicTk@mean", "Chi2overDoF_CosmicTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@mean", "Chi2overDoF_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@Chi2overDoF_RSTk@mean", "Chi2overDoF_RSTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@mean,"
+                         +siStripTracker+"@Chi2overDoF_RSTk@mean,"
+                         +siStripTracker+"@Chi2overDoF_CsmicTk@mean",
+                         "Chi2overDoF_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@mean", "Chi2overDoF_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_RSTk@mean", "Chi2overDoF_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CosmicTk@mean", "Chi2overDoF_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@mean,"
+                         +siStripTracker+"@NumberOfTracks_RSTk@mean,"
+                         +siStripTracker+"@NumberOfTracks_CosmicTk@mean",
+                         "NumberOfTracks_mean.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@mean", "NumberOfTracks_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@NumberOfTracks_RSTk@mean", "NumberOfTracks_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@mean", "NumberOfTracks_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_RSTk@mean", "NumberOfTracks_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@mean", "NumberOfTracks_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@mean", "NumberOfRecHitsPerTrack_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_RSTk@mean", "NumberOfRecHitsPerTrack_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CosmicTk@mean", "NumberOfRecHitsPerTrack_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@mean,"
+                         +siStripTracker+"@NumberOfRecHitsPerTrack_RSTk@mean,"
+                         +siStripTracker+"@NumberOfRecHitsPerTrack_CosmicTk@mean",
+                         "NumberOfRecHitsPerTrack_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@mean", "NumberOfRecHitsPerTrack_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_RSTk@mean", "NumberOfRecHitsPerTrack_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CosmicTk@mean", "NumberOfRecHitsPerTrack_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@TrackPt_CKFTk@mean", "TrackPt_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPt_RSTk@mean", "TrackPt_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPt_CosmicTk@mean", "TrackPt_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPt_CKFTk@mean,"
+                         +siStripTracker+"@TrackPt_RSTk@mean,"
+                         +siStripTracker+"@TrackPt_CosmicTk@mean",
+                         "TrackPt_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPt_CKFTk@mean", "TrackPt_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPt_RSTk@mean", "TrackPt_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPt_CosmicTk@mean", "TrackPt_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@TrackPx_CKFTk@mean", "TrackPx_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPx_RSTk@mean", "TrackPx_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPx_CosmicTk@mean", "TrackPx_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPx_CKFTk@mean,"
+                         +siStripTracker+"@TrackPx_RSTk@mean,"
+                         +siStripTracker+"@TrackPx_CosmicTk@mean",
+                         "TrackPx_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPx_CKFTk@mean", "TrackPx_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPx_RSTk@mean", "TrackPx_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPx_CosmicTk@mean", "TrackPx_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@TrackPy_CKFTk@mean", "TrackPy_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPy_RSTk@mean", "TrackPy_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPy_CosmicTk@mean", "TrackPy_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPy_CKFTk@mean,"
+                         +siStripTracker+"@TrackPy_RSTk@mean,"
+                         +siStripTracker+"@TrackPy_CosmicTk@mean",
+                         "TrackPy_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPy_CKFTk@mean", "TrackPy_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPy_RSTk@mean", "TrackPy_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPy_CosmicTk@mean", "TrackPy_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@TrackPz_CKFTk@mean", "TrackPz_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPz_RSTk@mean", "TrackPz_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPz_CosmicTk@mean", "TrackPz_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPz_CKFTk@mean,"
+                         +siStripTracker+"@TrackPz_RSTk@mean,"
+                         +siStripTracker+"@TrackPz_CosmicTk@mean",
+                         "TrackPz_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPz_CKFTk@mean", "TrackPz_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPz_RSTk@mean", "TrackPz_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPz_CosmicTk@mean", "TrackPz_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@TrackPhi_CKFTk@mean", "TrackPhi_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPhi_RSTk@mean", "TrackPhi_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackPhi_CosmicTk@mean", "TrackPhi_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPhi_CKFTk@mean,"
+                         +siStripTracker+"@TrackPhi_RSTk@mean,"
+                         +siStripTracker+"@TrackPhi_CosmicTk@mean",
+                         "TrackPhi_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPhi_CKFTk@mean", "TrackPhi_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPhi_RSTk@mean", "TrackPhi_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackPhi_CosmicTk@mean", "TrackPhi_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@TrackEta_CKFTk@mean", "TrackEta_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackEta_RSTk@mean", "TrackEta_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@TrackEta_CosmicTk@mean", "TrackEta_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackEta_CKFTk@mean,"
+                         +siStripTracker+"@TrackEta_RSTk@mean,"
+                         +siStripTracker+"@TrackEta_CosmicTk@mean",
+                         "TrackEta_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackEta_CKFTk@mean", "TrackEta_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackEta_RSTk@mean", "TrackEta_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@TrackEta_CosmicTk@mean", "TrackEta_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
-  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CKFTk@mean", "DistanceOfClosestApproach_CKFTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_RSTk@mean", "DistanceOfClosestApproach_RSTk.gif", 0, condition, Start, End, nRuns ));
-  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CosmicTk@mean", "DistanceOfClosestApproach_CosmicTk.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CKFTk@mean,"
+                         +siStripTracker+"@DistanceOfClosestApproach_RSTk@mean,"
+                         +siStripTracker+"@DistanceOfClosestApproach_CosmicTk@mean",
+                         "DistanceOfClosestApproach_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CKFTk@mean", "DistanceOfClosestApproach_CKFTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_RSTk@mean", "DistanceOfClosestApproach_RSTk_mean.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@DistanceOfClosestApproach_CosmicTk@mean", "DistanceOfClosestApproach_CosmicTk_mean.gif", 0, condition, Start, End, nRuns ));
 
   // Integral
+  config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@entries,"
+                         +siStripTracker+"@Chi2overDoF_RSTk@entries,"
+                         +siStripTracker+"@Chi2overDoF_CosmicTk@entries",
+                         "Chi2overDoF_entries.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_CKFTk@entries", "Chi2overDoF_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_RSTk@entries", "Chi2overDoF_RSTk_entries.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@Chi2overDoF_CosmicTk@entries", "Chi2overDoF_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
+
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries,"
+                         +siStripTracker+"@NumberOfTracks_RSTk@entries,"
+                         +siStripTracker+"@NumberOfTracks_CosmicTk@entries",
+                         "NumberOfTracks_entries.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
+  config.push_back(Trend( siStripTracker+"@NumberOfTracks_RSTk@entries", "NumberOfTracks_RSTk_entries.gif", 0, condition, Start, End, nRuns ));
   config.push_back(Trend( siStripTracker+"@NumberOfTracks_CosmicTk@entries", "NumberOfTracks_CosmicTk_entries.gif", 0, condition, Start, End, nRuns ));
   // config.push_back(Trend( siStripTracker+"@NumberOfTracks_CKFTk@entries", "NumberOfTracks_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));
   // config.push_back(Trend( siStripTracker+"@NumberOfRecHitsPerTrack_CKFTk@entries", "NumberOfRecHitsPerTrack_CKFTk_entries.gif", 0, condition, Start, End, nRuns ));

@@ -43,12 +43,13 @@ void HDQMInspector::style()
   theStyle->SetPalette(1);
   theStyle->SetMarkerStyle(20);
   theStyle->SetMarkerColor(2);
-  theStyle->SetLabelSize(0.09,"y");
+  theStyle->SetLabelSize(0.05,"y");
   theStyle->SetLabelSize(0.04,"x");
   theStyle->SetTitleFontSize(0.2);
   theStyle->SetTitleW(0.9);
+  theStyle->SetTitleH(0.06);
   theStyle->SetPadLeftMargin(0.12);   
-  theStyle->SetPadTopMargin(0.34);
+  theStyle->SetPadTopMargin(0.13);
   theStyle->cd();
 }
 
@@ -171,7 +172,7 @@ bool HDQMInspector::setRange(unsigned int& firstRun, unsigned int& lastRun)
 }
 
 void HDQMInspector::createTrendLastRuns(const std::string ListItems, const std::string CanvasName,
-                                        const int logy, const std::string Conditions, const unsigned int nRuns, bool const UseYRange, double const& YMin, double const& YMax)
+                                        const int logy, const std::string Conditions, const unsigned int nRuns, int const UseYRange, double const& YMin, double const& YMax)
 {
   unsigned int first,last;
   unsigned int iovListSize = iovList.size();
@@ -188,12 +189,12 @@ void HDQMInspector::createTrendLastRuns(const std::string ListItems, const std::
   }
   else return;
 
-  createTrend(ListItems,CanvasName,logy,Conditions,first,last);
+  createTrend(ListItems,CanvasName,logy,Conditions,first,last, UseYRange, YMin, YMax);
 
   return;
 }
 
-void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, int logy, std::string Conditions, unsigned int firstRun, unsigned int lastRun, bool const UseYRange, double const& YMin, double const& YMax)
+void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, int logy, std::string Conditions, unsigned int firstRun, unsigned int lastRun, int const UseYRange, double const& YMin, double const& YMax)
 {
   std::cout << "\n****************\nCreateTrend\n****************\n" << std::endl;
   std::cout << "ListItems : " << ListItems << std::endl;
@@ -240,15 +241,17 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
       if(iDebug){
         std::cout << ListItems  << " run " << vRun_.back() << " values \n" ;
         DetIdItemList detiditemlist=vDetIdItemList_[ij];
-        for(size_t i=0;i<detiditemlist.items.size();++i)
+        for(size_t i=0;i<detiditemlist.items.size();++i) {
           std::cout << "\t" << detiditemlist.items[i] << " " << detiditemlist.values[i] <<" " << i << " \n";
+        }
         std::cout << "\n" << std::endl;
       }
     }
   }
 
-  if(vRun_.size())
-    plot(nPads, CanvasName, logy);    
+  if(vRun_.size()) {
+    plot(nPads, CanvasName, logy, UseYRange, YMin, YMax);
+  }
    
      
   std::cout << "\n****** Ignore this error *****\n" << std::endl;
@@ -256,7 +259,7 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
   std::cout << "\n******************************\n" << std::endl;
 }
 
-void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
+void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, int const UseYRange, double const YMin, double const YMax)
 {
   std::cout << "\n********\nplot\n*****\n"<< std::endl;
 
@@ -368,9 +371,30 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
 
     C->cd(++padCount);
     gPad->SetLogy(logy);
+
+    // Loop over all values and correct them for user defined range
+    if (UseYRange != 0) {
+      for (size_t iRun = 0; iRun != vRun_.size(); ++iRun) {
+        if (UseYRange % 2 == 1 && Y[iRun] < YMin) {
+          Y[iRun] = YMin;
+          EY[iRun] = 0;
+        }
+        if (UseYRange >= 2  && Y[iRun] > YMax) {
+          Y[iRun] = YMax;
+          EY[iRun] = 0;
+        }
+      }
+    }
     
     graph = new TGraphErrors((int) vRun_.size(),X,Y,EX,EY);
     graph->SetTitle(ss.str().c_str());
+    if (UseYRange % 2 == 1) {
+      graph->SetMinimum(YMin);
+    }
+    if (UseYRange >= 2) {
+      graph->SetMaximum(YMax);
+    }
+
     graph->Draw("Ap");
     graph->SetName(ss.str().c_str());
     graph->GetXaxis()->SetTitle("Run number");
@@ -423,7 +447,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
     TCanvas DeanCan("DeanCan", "DeanCan");
     TVirtualPad* VPad = DeanCan.cd();
     VPad->SetRightMargin(0.21);
-    VPad->SetTopMargin(0.23);
+    VPad->SetTopMargin(0.13);
 
     // Let's loop over all graphs in this request
     for (size_t i = 0; i != VectorOfGraphs.size(); ++i) {
@@ -451,8 +475,15 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy)
     // May as well set the min and max for first graph we'll draw
     VectorOfGraphs[0]->SetMinimum((min)-((max)-(min))/5.);
     VectorOfGraphs[0]->SetMaximum((max)+((max)-(min))/5.);
+    if (UseYRange % 2 == 1) {
+      VectorOfGraphs[0]->SetMinimum(YMin);
+    }
+    if (UseYRange >= 2) {
+      VectorOfGraphs[0]->SetMaximum(YMax);
+    }
 
     // Draw the first one with axis (A) and the rest just points (p), draw the legend, and save that canvas
+    
     VectorOfGraphs[0]->Draw("Ap");
     for (size_t i = 1; i != VectorOfGraphs.size(); ++i) {
       VectorOfGraphs[i]->Draw("p");
