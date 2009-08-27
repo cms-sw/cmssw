@@ -17,6 +17,9 @@
 // srand rand
 #include <cstdlib>
 
+// perror
+#include <cstdio>
+
 // tcp
 #include <sys/types.h>
 #include <sys/socket.h>
