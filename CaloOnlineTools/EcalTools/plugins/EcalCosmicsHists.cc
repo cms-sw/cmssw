@@ -58,6 +58,7 @@ using namespace std;
 // constructors and destructor
 //
 EcalCosmicsHists::EcalCosmicsHists(const edm::ParameterSet& iConfig) :
+  ecalRawDataColl_(iConfig.getParameter<edm::InputTag>("ecalRawDataColl")),
   ecalRecHitCollectionEB_ (iConfig.getParameter<edm::InputTag>("ecalRecHitCollectionEB")),
   ecalRecHitCollectionEE_ (iConfig.getParameter<edm::InputTag>("ecalRecHitCollectionEE")),
   barrelClusterCollection_ (iConfig.getParameter<edm::InputTag>("barrelClusterCollection")),
@@ -179,7 +180,7 @@ EcalCosmicsHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   
   Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel("ecalEBunpacker", DCCHeaders);
+  iEvent.getByLabel(ecalRawDataColl_, DCCHeaders);
   if(!DCCHeaders.isValid())
     LogWarning("EcalCosmicsHists") << "DCC headers not available";
 

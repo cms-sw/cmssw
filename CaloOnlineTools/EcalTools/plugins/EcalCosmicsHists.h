@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalCosmicsHists.h,v 1.16 2008/10/17 13:23:03 scooper Exp $
+// $Id: EcalCosmicsHists.h,v 1.2 2008/12/12 02:37:41 scooper Exp $
 //
 //
 
@@ -84,6 +84,7 @@ class EcalCosmicsHists : public edm::EDAnalyzer {
 
   // ----------member data ---------------------------
   
+  edm::InputTag ecalRawDataColl_;
   edm::InputTag ecalRecHitCollectionEB_;
   edm::InputTag ecalRecHitCollectionEE_;
   edm::InputTag barrelClusterCollection_;
