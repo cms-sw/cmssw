@@ -250,8 +250,17 @@ void L1GctGlobalEnergyAlgos::process()
     ExSum = m_exValPlusWheel + m_exVlMinusWheel;
     EySum = m_eyValPlusWheel + m_eyVlMinusWheel;
     // Execute the missing Et algorithm
-    m_metComponents.setComponents(-ExSum, -EySum);
+//     m_metComponents.setComponents(-ExSum, -EySum);
+//     EtMissing = m_metComponents.metVector();
+    // Rotate by pi to evaluate MISSING Et. 
+    // Implement this in the same way as the firmware
+    m_metComponents.setComponents(ExSum, EySum);
     EtMissing = m_metComponents.metVector();
+    if (EtMissing.phi.value() > 35) {
+      EtMissing.phi.setValue(EtMissing.phi.value() - 36);
+    } else {
+      EtMissing.phi.setValue(EtMissing.phi.value() + 36);
+    }
 
     m_outputEtMiss.store    (EtMissing.mag, bxRel());
     m_outputEtMissPhi.store (EtMissing.phi, bxRel());
