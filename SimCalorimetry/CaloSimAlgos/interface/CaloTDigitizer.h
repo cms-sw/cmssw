@@ -39,6 +39,7 @@ public:
   ~CaloTDigitizer() {}
 
   /// tell the digitizer which cells exist
+  std::vector<DetId>  detIds() const {return theDetIds;}
   void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
 
   void setNoiseHitGenerator(CaloVNoiseHitGenerator * generator) 
@@ -51,6 +52,11 @@ public:
     theNoiseSignalGenerator = generator;
   }
 
+  void setRandomEngine(CLHEP::HepRandomEngine & engine)
+  {
+    theHitResponse->setRandomEngine(engine);
+    theElectronicsSim->setRandomEngine(engine);
+  }
 
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
