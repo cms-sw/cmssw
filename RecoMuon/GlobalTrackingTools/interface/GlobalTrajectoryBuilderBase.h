@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/07/13 13:54:50 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/07/23 09:17:22 $
+ *  $Revision: 1.16.2.1 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -30,6 +30,7 @@
 class RectangularEtaPhiTrackingRegion;
 class TrajectoryStateOnSurface;
 class GlobalMuonTrackMatcher;
+class MuonDetLayerMeasurements;
 class MuonServiceProxy;
 class Trajectory;
 class TrackTransformer;
@@ -92,6 +93,16 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
     /// define region of interest with tracker
     RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
+
+    /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
+    void checkMuonHits(const reco::Track&, 
+                       ConstRecHitContainer&, 
+                       ConstRecHitContainer&, 
+                       std::vector<int>&) const;
+ 
+    /// select muon hits compatible with trajectory; check hits in chambers with showers
+    ConstRecHitContainer selectMuonHits(const Trajectory&, 
+                                        const std::vector<int>&) const;
 
     /// select tracker hits; exclude some tracker hits in the global trajectory 
     ConstRecHitContainer selectTrackerHits(const ConstRecHitContainer&) const;
@@ -160,6 +171,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
   private:
 
     GlobalMuonTrackMatcher* theTrackMatcher;
+    MuonDetLayerMeasurements* theLayerMeasurements;
     TrackTransformer* theTrackTransformer;
     MuonTrackingRegionBuilder* theRegionBuilder;
     const MuonServiceProxy* theService;
@@ -168,9 +180,14 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     unsigned long long theCacheId_TRH;
     bool theRPCInTheFit;
   
+    int   theMuonHitsOption;
     float theTECxScale;
     float theTECyScale;
     float theProbCut;
+    int   theHitThreshold;
+    float theDTChi2Cut;
+    float theCSCChi2Cut;
+    float theRPCChi2Cut;
     std::string theKFFitterName;
     std::string theTrackerPropagatorName;
  

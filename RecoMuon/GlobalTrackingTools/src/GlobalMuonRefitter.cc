@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/07/03 09:12:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/07/21 08:20:50 $
+ *  $Revision: 1.6.2.3 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -73,6 +73,7 @@ using namespace edm;
 
 GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 				       const MuonServiceProxy* service) : 
+  theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
   theService(service) {
@@ -86,7 +87,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   // Refit direction
   string refitDirectionName = par.getParameter<string>("RefitDirection");
-  
+
   if (refitDirectionName == "insideOut" ) theRefitDirection = insideOut;
   else if (refitDirectionName == "outsideIn" ) theRefitDirection = outsideIn;
   else 
@@ -109,7 +110,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
-  theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
+  theCacheId_TRH = 0;
 
 }
 
@@ -296,7 +297,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
     LogTrace(theCategory) <<" Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i] <<endl; 
 
   LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
-  
+
   // check order of muon measurements
   if ( (all.size() > 1) &&
        ( all.front()->globalPosition().mag() >
@@ -314,7 +315,7 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 				       ConstRecHitContainer& all,
 				       ConstRecHitContainer& first) const {
 
-  LogTrace(theCategory) << " GlobalMuonRefitter::getFirstHits " << endl;
+  LogTrace(theCategory) << " GlobalMuonRefitter::getFirstHits\nall rechits length:" << all.size() << endl;
   first.clear();
 
   int station_to_keep = 999;
@@ -339,10 +340,11 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
     if (use_it && station > 0 && station < station_to_keep) station_to_keep = station;
     stations.push_back(station);
 
+    LogTrace(theCategory) << "rawId: " << raw_id << " station = " << station << " station_to_keep is now " << station_to_keep;
   }
 
   if (station_to_keep <= 0 || station_to_keep > 4 || stations.size() != all.size())
-    LogInfo(theCategory) << " getFirstHits error! station_to_keep = " << station_to_keep << " stations.size " << stations.size() << " all.size " << all.size();
+    LogWarning(theCategory) << " getFirstHits error! station_to_keep = " << station_to_keep << " stations.size " << stations.size() << " all.size " << all.size();
 
   for (unsigned i = 0; i < stations.size(); ++i)
     if (stations[i] >= 0 && stations[i] <= station_to_keep) first.push_back(all[i]);
@@ -445,8 +447,9 @@ void GlobalMuonRefitter::printHits(const ConstRecHitContainer& hits) const {
       << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
       << "  z = " << pos.z()
       << "  dimension = " << (*ir)->dimension()
-      << "  " << (*ir)->det()->geographicalId().det()
-      << "  " << (*ir)->det()->subDetector();
+      << "  det = " << (*ir)->det()->geographicalId().det()
+      << "  subdet = " << (*ir)->det()->subDetector()
+      << "  raw id = " << (*ir)->det()->geographicalId().rawId();
   }
 
 }
@@ -486,11 +489,18 @@ GlobalMuonRefitter::checkRecHitsOrdering(const TransientTrackingRecHit::ConstRec
 vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
 						 const reco::TransientTrack track,
 						 TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const {
-  
+
+  LogTrace(theCategory) << "GlobalMuonRefitter::transform: " << recHitsForReFit.size() << " hits:";
+  printHits(recHitsForReFit);
+
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
 
   // Check the order of the rechits
   RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit);
+
+  LogTrace(theCategory) << "checkRecHitsOrdering() returned " << recHitsOrder
+			<< ", theRefitDirection is " << theRefitDirection
+			<< " (insideOut == " << insideOut << ", outsideIn == " << outsideIn << ")";
 
   // Reverse the order in the case of inconsistency between the fit direction and the rechit order
   if(theRefitDirection != recHitsOrder) reverse(recHitsForReFit.begin(),recHitsForReFit.end());
@@ -503,20 +513,27 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   unsigned int innerId, outerId;
   bool order_swapped = track.outermostMeasurementState().globalPosition().mag() < track.innermostMeasurementState().globalPosition().mag();
   bool inner_is_first;
+  LogTrace(theCategory) << "order swapped? " << order_swapped;
 
+  // Fill the starting state, depending on the ordering above.
   if ((theRefitDirection == insideOut && !order_swapped) || (theRefitDirection == outsideIn && order_swapped)) {
     innerId   = newTrack.innerDetId();
     outerId   = newTrack.outerDetId();
     firstTSOS = track.innermostMeasurementState();
     lastTSOS  = track.outermostMeasurementState();
     inner_is_first = true;
-  } else {
+  }
+  else {
     innerId   = newTrack.outerDetId();
     outerId   = newTrack.innerDetId();
     firstTSOS = track.outermostMeasurementState();
     lastTSOS  = track.innermostMeasurementState();
     inner_is_first = false;
   } 
+
+  LogTrace(theCategory) << "firstTSOS: inner_is_first? " << inner_is_first
+			<< " globalPosition is " << firstTSOS.globalPosition()
+			<< " innerId is " << innerId;
 
   if(!firstTSOS.isValid()){
     LogWarning(theCategory) << "Error wrong initial state!" << endl;
@@ -531,19 +548,56 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   PropagationDirection propDir = 
     (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
+  // These lines cause the code to ignore completely what was set
+  // above, and force propDir for tracks from collisions!
 //  if(propDir == alongMomentum && theRefitDirection == outsideIn)  propDir=oppositeToMomentum;
 //  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
 
   const TrajectoryStateOnSurface& tsosForDir = inner_is_first ? lastTSOS : firstTSOS;
   propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+  LogTrace(theCategory) << "propDir based on firstTSOS x dot p is " << propDir
+			<< " (alongMomentum == " << alongMomentum << ", oppositeToMomentum == " << oppositeToMomentum << ")";
 
-  PropagationDirection propDir_first = (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector()) > 0) ? alongMomentum : oppositeToMomentum;
-  PropagationDirection propDir_last  = (lastTSOS .globalPosition().basicVector().dot(lastTSOS .globalMomentum().basicVector()) > 0) ? alongMomentum : oppositeToMomentum;
+  // Additional propagation diretcion determination logic for cosmic muons
+  if (theCosmicFlag) {
+    PropagationDirection propDir_first = (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector()) > 0) ? alongMomentum : oppositeToMomentum;
+    PropagationDirection propDir_last  = (lastTSOS .globalPosition().basicVector().dot(lastTSOS .globalMomentum().basicVector()) > 0) ? alongMomentum : oppositeToMomentum;
+    LogTrace(theCategory) << "propDir_first " << propDir_first << ", propdir_last " << propDir_last
+			  << " : they " << (propDir_first == propDir_last ? "agree" : "disagree");
+
+    int y_count = 0;
+    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForReFit.begin(); it != recHitsForReFit.end(); ++it) {
+      if ((*it)->globalPosition().y() > 0) ++y_count;
+      else --y_count;
+    }
+    
+    PropagationDirection propDir_ycount = alongMomentum;
+    if (y_count > 0) {
+      if      (theRefitDirection == insideOut) propDir_ycount = oppositeToMomentum;
+      else if (theRefitDirection == outsideIn) propDir_ycount = alongMomentum;
+    }
+    else {
+      if      (theRefitDirection == insideOut) propDir_ycount = alongMomentum;
+      else if (theRefitDirection == outsideIn) propDir_ycount = oppositeToMomentum;
+    }
+    
+    LogTrace(theCategory) << "y_count = " << y_count
+			  << "; based on geometrically-outermost TSOS, propDir is " << propDir << ": "
+			  << (propDir == propDir_ycount ? "agrees" : "disagrees")
+			  << " with ycount determination";
+    
+    if (propDir_first != propDir_last) {
+      LogTrace(theCategory) << "since first/last disagreed, using y_count propDir";
+      propDir = propDir_ycount;
+    }
+  }
 
   TrajectorySeed seed(garbage1,garbage2,propDir);
 
   if(recHitsForReFit.front()->geographicalId() != DetId(innerId)){
     LogDebug(theCategory)<<"Propagation occured"<<endl;
+    LogTrace(theCategory) << "propagating firstTSOS at " << firstTSOS.globalPosition()
+			  << " to first rechit with surface pos " << recHitsForReFit.front()->det()->surface().toGlobal(LocalPoint(0,0,0));
     firstTSOS = theService->propagator(thePropagatorName)->propagate(firstTSOS, recHitsForReFit.front()->det()->surface());
     if(!firstTSOS.isValid()){
       LogDebug(theCategory)<<"Propagation error!"<<endl;
