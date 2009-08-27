@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.h,v 1.1 2009/08/03 20:15:41 bdahmes Exp $
+// $Id: HLTHcalNZSFilter.h,v 1.2 2009/08/06 07:12:54 fwyzard Exp $
 //
 //
 
@@ -44,9 +44,9 @@ private:
   
   // ----------member data ---------------------------
   
-  std::string dataLabel_;
-  bool        summary_;
-  int         eventsNZS_; 
+  edm::InputTag dataInputTag_;
+  bool          summary_;
+  int           eventsNZS_; 
 
 };
 

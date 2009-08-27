@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.h,v 1.3 2009/05/04 13:46:39 fwyzard Exp $
+// $Id: HLTHcalCalibTypeFilter.h,v 1.4 2009/08/06 11:21:56 fwyzard Exp $
 //
 //
 
@@ -44,8 +44,8 @@ private:
   
   // ----------member data ---------------------------
   
-  std::string DataLabel_ ;
-  bool        Summary_ ;
+  edm::InputTag DataInputTag_ ;
+  bool          Summary_ ;
   std::vector<int> CalibTypes_ ;   
   std::vector<int> eventsByType ; 
 

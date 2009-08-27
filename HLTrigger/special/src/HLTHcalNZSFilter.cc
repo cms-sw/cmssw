@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.3 2009/08/06 14:00:55 bdahmes Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.5 2009/08/21 09:03:37 fwyzard Exp $
 //
 //
 
@@ -48,8 +48,8 @@ HLTHcalNZSFilter::HLTHcalNZSFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
 
-  dataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
-  summary_    = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
+  dataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
+  summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
 }
 
 
@@ -73,7 +73,7 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(dataLabel_,rawdata);
+  iEvent.getByLabel(dataInputTag_,rawdata);
 
   bool hcalIsZS = false ; int nFEDs = 0 ; 
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {

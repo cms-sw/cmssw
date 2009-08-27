@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.6 2009/08/06 09:05:46 bdahmes Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.7 2009/08/06 11:21:56 fwyzard Exp $
 //
 //
 
@@ -47,9 +47,9 @@ HLTHcalCalibTypeFilter::HLTHcalCalibTypeFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
 
-  DataLabel_  = iConfig.getParameter<std::string>("InputLabel") ;
-  Summary_    = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
-  CalibTypes_ = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
+  DataInputTag_ = iConfig.getParameter<edm::InputTag>("InputTag") ;
+  Summary_      = iConfig.getUntrackedParameter<bool>("FilterSummary",false) ;
+  CalibTypes_   = iConfig.getParameter< std::vector<int> >("CalibTypes") ; 
 }
 
 
@@ -73,7 +73,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   using namespace edm;
   
   edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByLabel(DataLabel_,rawdata);
+  iEvent.getByLabel(DataInputTag_,rawdata);
   
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 
