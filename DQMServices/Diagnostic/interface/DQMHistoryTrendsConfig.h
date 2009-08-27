@@ -15,10 +15,10 @@ class DQMHistoryTrendsConfig
 public:
   /// Used to pass firstRuns, lastRun and eventually nRuns
   DQMHistoryTrendsConfig(const string & inputItem, const string & inputCanvasName, const int inputLogY,
-                         const string & inputConditions, const int inputFirstRun, const int inputLastRun, const int inputNruns = 0,
+                         const string & inputConditions, const std::string& inputLabels, const int inputFirstRun, const int inputLastRun, const int inputNruns = 0,
                          const double & yMinIn = 999999, const double & yMaxIn = -999999) :
     item(inputItem), canvasName(inputCanvasName), logY(inputLogY),
-    conditions(inputConditions), firstRun(inputFirstRun), lastRun(inputLastRun), nRuns(inputNruns),
+    conditions(inputConditions), Labels(inputLabels), firstRun(inputFirstRun), lastRun(inputLastRun), nRuns(inputNruns),
     yMin(yMinIn), yMax(yMaxIn)
   {
     // Do not use the range if the defaults were changed
@@ -34,10 +34,10 @@ public:
 
   /// Used to pass only nRuns
   DQMHistoryTrendsConfig(const string & inputItem, const string & inputCanvasName, const int inputLogY,
-                         const string & inputConditions, const int inputNruns,
+                         const string & inputConditions, const std::string& inputLabels, const int inputNruns,
                          const double & yMinIn = 999999, const double & yMaxIn = -999999) :
     item(inputItem), canvasName(inputCanvasName), logY(inputLogY),
-    conditions(inputConditions), firstRun(0), lastRun(0), nRuns(inputNruns),
+    conditions(inputConditions), Labels(inputLabels), firstRun(0), lastRun(0), nRuns(inputNruns),
     yMin(yMinIn), yMax(yMaxIn)
   {
     useYrange = 0;
@@ -55,6 +55,7 @@ public:
   string canvasName;
   int logY;
   string conditions;
+  std::string Labels;
   int firstRun;
   int lastRun;
   int nRuns;

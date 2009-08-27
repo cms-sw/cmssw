@@ -23,6 +23,8 @@
 #include "TLegend.h"
 #include "TVirtualPad.h"
 #include "TFormula.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 
 
 void HDQMInspector::style()
@@ -172,7 +174,7 @@ bool HDQMInspector::setRange(unsigned int& firstRun, unsigned int& lastRun)
 }
 
 void HDQMInspector::createTrendLastRuns(const std::string ListItems, const std::string CanvasName,
-                                        const int logy, const std::string Conditions, const unsigned int nRuns, int const UseYRange, double const& YMin, double const& YMax)
+                                        const int logy, const std::string Conditions, std::string const& Labels, const unsigned int nRuns, int const UseYRange, double const& YMin, double const& YMax)
 {
   unsigned int first,last;
   unsigned int iovListSize = iovList.size();
@@ -189,12 +191,12 @@ void HDQMInspector::createTrendLastRuns(const std::string ListItems, const std::
   }
   else return;
 
-  createTrend(ListItems,CanvasName,logy,Conditions,first,last, UseYRange, YMin, YMax);
+  createTrend(ListItems,CanvasName,logy,Conditions,Labels,first,last, UseYRange, YMin, YMax);
 
   return;
 }
 
-void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, int logy, std::string Conditions, unsigned int firstRun, unsigned int lastRun, int const UseYRange, double const& YMin, double const& YMax)
+void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, int logy, std::string Conditions, std::string const& Labels, unsigned int firstRun, unsigned int lastRun, int const UseYRange, double const& YMin, double const& YMax)
 {
   std::cout << "\n****************\nCreateTrend\n****************\n" << std::endl;
   std::cout << "ListItems : " << ListItems << std::endl;
@@ -250,7 +252,7 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
   }
 
   if(vRun_.size()) {
-    plot(nPads, CanvasName, logy, UseYRange, YMin, YMax);
+    plot(nPads, CanvasName, logy, Labels, UseYRange, YMin, YMax);
   }
    
      
@@ -259,7 +261,7 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
   std::cout << "\n******************************\n" << std::endl;
 }
 
-void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, int const UseYRange, double const YMin, double const YMax)
+void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::string const& Labels, int const UseYRange, double const YMin, double const YMax)
 {
   std::cout << "\n********\nplot\n*****\n"<< std::endl;
 
@@ -441,6 +443,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, int co
   // dhidas commented out below because it doesn't seem useful.  uncomment if you like, it was just annoying me.
   //C->SaveAs(CanvasName.replace(CanvasName.find("."),CanvasName.size()-CanvasName.find("."),".C").c_str());//savewith .C
 
+
   // Okay, we wrote the first canvas, not let's try to overlay the graphs on another one..
   if (VectorOfGraphs.size() > 1) {
 
@@ -456,6 +459,20 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, int co
     TVirtualPad* VPad = DeanCan.cd();
     VPad->SetRightMargin(0.21);
     VPad->SetTopMargin(0.13);
+
+    // Replace default legend names with labels if they exist
+    TString const LNames = Labels;
+    TObjArray* MyArrayPtr = LNames.Tokenize(",");
+    if (MyArrayPtr) {
+      MyArrayPtr->SetOwner(kTRUE);
+      for (int i = 0; i <= MyArrayPtr->GetLast(); ++i) {
+        if (i < VectorOfDetNames.size()) {
+          VectorOfDetNames[i] = ((TObjString*) MyArrayPtr->At(i) )->GetString().Data();
+        }
+      }
+      MyArrayPtr->Delete();
+    }
+        
 
     // Let's loop over all graphs in this request
     for (size_t i = 0; i != VectorOfGraphs.size(); ++i) {

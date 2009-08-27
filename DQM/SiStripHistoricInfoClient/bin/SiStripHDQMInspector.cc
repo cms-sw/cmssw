@@ -60,63 +60,63 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   typedef DQMHistoryTrendsConfig Trend;
   vector<Trend> config;
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OnTrack@mean"), "OnTrackClusters_mean.gif", 0,
-                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OnTrack@mean > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OnTrack@mean > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OnTrack@entries"), "OnTrackClusters_entries.gif", 0,
-                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OnTrack@entries > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OffTrack@mean"), "TotalNumberOfClusters_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@mean > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_TotalNumberOfClusters_OffTrack@entries"), "TotalNumberOfClusters_OffTrack_entries.gif", 0,
-                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterChargeCorr_OnTrack@landauPeak"), "ClusterChargeCorr_OnTrack_landau.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterChargeCorr_OnTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterChargeCorr_OnTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterCharge_OffTrack@mean"), "ClusterCharge_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterCharge_OffTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterCharge_OffTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterCharge_OffTrack@landauPeak"), "ClusterCharge_OffTrack_landau.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterCharge_OffTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterCharge_OffTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterNoise_OnTrack@gaussMean"), "ClusterNoise_OnTrack_gauss.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterNoise_OnTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterNoise_OnTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterNoise_OffTrack@gaussMean"), "ClusterNoise_OffTrack_gauss.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterNoise_OffTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterNoise_OffTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoNCorr_OnTrack@landauPeak"), "ClusterStoNCorr_OnTrack_landauPeak.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@landauPeak > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoNCorr_OnTrack@mean"), "ClusterStoNCorr_OnTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterStoNCorr_OnTrack@mean > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@landauPeak"), "ClusterStoN_OffTrack_landauPeak.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterStoN_OffTrack@mean"), "ClusterStoN_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterStoN_OffTrack@entries > 10000", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OnTrack@mean"), "ClusterWidth_OnTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterWidth_OnTrack@mean > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterWidth_OnTrack@mean > 0", "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "Summary_ClusterWidth_OffTrack@mean"), "ClusterWidth_OffTrack_mean.gif", 0,
-                          condition+"&& 369098752@Summary_ClusterWidth_OffTrack@mean > 0", Start, End, nRuns ));
+                          condition+"&& 369098752@Summary_ClusterWidth_OffTrack@mean > 0", "", Start, End, nRuns ));
 
   // FED errors entries
   config.push_back(Trend( multiItems(subDetectors, "nFEDErrors@entries"), "nFEDErrors.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nBadActiveChannelStatusBits@entries"), "nBadActiveChannelStatusBits.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nBadChannelStatusBits@entries"), "nBadChannelStatusBits.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nAPVAddressError@entries"), "nAPVAddressError.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nUnlocked@entries"), "nUnlocked.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nOutOfSync@entries"), "nOutOfSync.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
 
   // FED errors means
   config.push_back(Trend( multiItems(subDetectors, "nFEDErrors@mean"), "nFEDErrors_mean.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nBadActiveChannelStatusBits@mean"), "nBadActiveChannelStatusBits_mean.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nBadChannelStatusBits@mean"), "nBadChannelStatusBits_mean.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nAPVAddressError@mean"), "nAPVAddressError_mean.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nUnlocked@mean"), "nUnlocked_mean.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
   config.push_back(Trend( multiItems(subDetectors, "nOutOfSync@mean"), "nOutOfSync_mean.gif", 0,
-                          condition, Start, End, nRuns ));
+                          condition, "", Start, End, nRuns ));
 
 
   // Creation of trends

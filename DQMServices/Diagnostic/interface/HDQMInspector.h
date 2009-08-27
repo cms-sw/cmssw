@@ -66,9 +66,9 @@ class HDQMInspector
 
   void setDB(std::string DBName, std::string DBTag, std::string DBuser="", std::string DBpasswd="", std::string DBblob="");
   void createTrend(const std::string ListItems, const std::string CanvasName="", const int logy=0, const std::string Conditions="",
-                   const unsigned int firstRun=1, const unsigned int lastRun=0xFFFFFFFE, int const UseYRange = 0, double const& YMin = 999999, double const& YMax = -999999);
+                   std::string const& Labels="", const unsigned int firstRun=1, const unsigned int lastRun=0xFFFFFFFE, int const UseYRange = 0, double const& YMin = 999999, double const& YMax = -999999);
   void createTrendLastRuns(const std::string ListItems, const std::string CanvasName="",
-                           const int logy=0, const std::string Conditions="", const unsigned int nRuns=10, int const UseYRange = 0, double const& YMin = 999999, double const& YMax = -999999); 
+                           const int logy=0, const std::string Conditions="", std::string const& Labels="", const unsigned int nRuns=10, int const UseYRange = 0, double const& YMin = 999999, double const& YMax = -999999); 
   void setDebug(int i){iDebug=i;}
   void setDoStat(int i){iDoStat=i;}
   void setBlackList(std::string const& ListItems);
@@ -95,7 +95,7 @@ class HDQMInspector
 private:
 
   void style();
-  void plot(size_t& nPads, std::string CanvasName, int logy=0, int const UseYRange = 0, double const XMin = 999999, double const YMin = -999999);
+  void plot(size_t& nPads, std::string CanvasName, int logy=0, std::string const& Labels = "", int const UseYRange = 0, double const XMin = 999999, double const YMin = -999999);
   void accessDB();
   void InitializeIOVList();
   bool setRange(unsigned int& firstRun, unsigned int& lastRun);

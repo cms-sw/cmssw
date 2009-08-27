@@ -31,19 +31,19 @@ void runSiPixelInspector( const string &tagName, const string & Password, const 
   // Definition of trends
   typedef DQMHistoryTrendsConfig Trend;
   vector<Trend> config;
-  config.push_back(Trend( "1@SUMOFF_adc@yMean", "adc_yMean_Barrel.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "6@SUMOFF_adc@yMean", "adc_yMean_Endcap.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Barrel.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "6@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Endcap.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, Start, End, nRuns ));
-  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "1@SUMOFF_adc@yMean", "adc_yMean_Barrel.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "6@SUMOFF_adc@yMean", "adc_yMean_Endcap.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Barrel.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "6@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Endcap.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, "", Start, End, nRuns ));
 
   // Creation of trends
   for_each(config.begin(), config.end(), makeTrend);
