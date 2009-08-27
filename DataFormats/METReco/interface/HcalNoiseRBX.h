@@ -78,17 +78,17 @@ namespace reco {
     double recHitEnergy(double theshold=1.5) const;
 
     // minimum and maximum time for rechits in the RBX with E>threshold
-    double minRecHitTime(double threshold=10.0) const;
-    double maxRecHitTime(double threshold=10.0) const;
+    double minRecHitTime(double threshold=20.0) const;
+    double maxRecHitTime(double threshold=20.0) const;
 
     // total number of rechits above some threshold in the RBX
     int numRecHits(double threshold=1.5) const;
     
     // calotower properties integrated over the entire RBX
-    //    double caloTowerHadE(void) const;
-    //    double caloTowerEmE(void) const;
-    //    double caloTowerTotalE(void) const;
-    //    double caloTowerEmFraction(void) const;
+    double caloTowerHadE(void) const;
+    double caloTowerEmE(void) const;
+    double caloTowerTotalE(void) const;
+    double caloTowerEmFraction(void) const;
     
   private:
     
@@ -100,6 +100,9 @@ namespace reco {
 
     // the charge
     std::vector<float> allCharge_;
+
+    // helper function to get the unique calotowers
+    void uniqueTowers(std::set<CaloTower*>& twrs_) const;
   };
   
 } // end of namespace

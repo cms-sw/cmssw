@@ -194,5 +194,5 @@ double HcalNoiseHPD::caloTowerEmFraction(void) const
     e += (*it)->emEnergy();
     h += (*it)->hadEnergy();
   }
-  return (e+h)!=0 ? e/(e+h) : -999.;
+  return (e+h)!=0 ? e/(e+h) : 999.;
 }

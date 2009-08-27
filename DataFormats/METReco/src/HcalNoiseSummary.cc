@@ -11,9 +11,13 @@
 
 // default constructor
 HcalNoiseSummary::HcalNoiseSummary()
-  : filterstatus_(0), emenergy_(0.0), hadenergy_(0.0), trackenergy_(0.0),
-    min10_(0.0), max10_(0.0), rms10_(0.0),
-    min25_(0.0), max25_(0.0), rms25_(0.0),
+  : filterstatus_(0), noisetype_(0), emenergy_(0.0), hadenergy_(0.0), trackenergy_(0.0),
+    min10_(999999.), max10_(-999999.), rms10_(0.0),
+    min25_(999999.), max25_(-999999.), rms25_(0.0),
+    cnthit10_(0), cnthit25_(0),
+    mine2ts_(0.), mine10ts_(0.), maxzeros_(0),
+    maxhpdhits_(0), maxrbxhits_(0),
+    minhpdemf_(999999.), minrbxemf_(999999.),
     nproblemRBXs_(0)
 {
 }
@@ -24,9 +28,24 @@ HcalNoiseSummary::~HcalNoiseSummary()
 }
 
 // accessors
-bool HcalNoiseSummary::passNoiseFilter(void) const
+bool HcalNoiseSummary::passLooseNoiseFilter(void) const
 {
-  return (filterstatus_==0);
+  return (filterstatus_ & 0xFF)==0;
+}
+
+bool HcalNoiseSummary::passTightNoiseFilter(void) const
+{
+  return (filterstatus_ & 0xFF00)==0;
+}
+
+bool HcalNoiseSummary::passHighLevelNoiseFilter(void) const
+{
+  return (filterstatus_ & 0xFF0000)==0;
+}
+
+int HcalNoiseSummary::noiseType(void) const
+{
+  return noisetype_;
 }
 
 int HcalNoiseSummary::noiseFilterStatus(void) const
@@ -73,7 +92,7 @@ float HcalNoiseSummary::max10GeVHitTime(void) const
 
 float HcalNoiseSummary::rms10GeVHitTime(void) const
 {
-  return rms10_;
+  return cnthit10_>0 ? sqrt(rms10_/cnthit10_) : 999;
 }
 
 float HcalNoiseSummary::min25GeVHitTime(void) const
@@ -88,9 +107,59 @@ float HcalNoiseSummary::max25GeVHitTime(void) const
  
 float HcalNoiseSummary::rms25GeVHitTime(void) const
 {
-  return rms25_;
+  return cnthit25_>0 ? sqrt(rms25_/cnthit25_) : 999;
 }
-  
+
+int HcalNoiseSummary::num10GeVHits(void) const
+{
+  return cnthit10_;
+}
+
+int HcalNoiseSummary::num25GeVHits(void) const
+{
+  return cnthit25_;
+}
+
+float HcalNoiseSummary::minE2TS(void) const
+{
+  return mine2ts_;
+}
+
+float HcalNoiseSummary::minE10TS(void) const
+{
+  return mine10ts_;
+}
+
+float HcalNoiseSummary::minE2Over10TS(void) const
+{
+  return mine10ts_==0 ? 999999. : mine2ts_/mine10ts_;
+}
+
+int HcalNoiseSummary::maxZeros(void) const
+{
+  return maxzeros_;
+}
+
+int HcalNoiseSummary::maxHPDHits(void) const
+{
+  return maxhpdhits_;
+}
+
+int HcalNoiseSummary::maxRBXHits(void) const
+{
+  return maxrbxhits_;
+}
+
+float HcalNoiseSummary::minHPDEMF(void) const
+{
+  return minhpdemf_;
+}
+
+float HcalNoiseSummary::minRBXEMF(void) const
+{
+  return minrbxemf_;
+}
+
 int HcalNoiseSummary::numProblematicRBXs(void) const
 {
   return nproblemRBXs_;

@@ -137,23 +137,60 @@ int HcalNoiseRBX::numRecHits(double threshold) const
   return total;
 }
 
-/*double HcalNoiseRBX::caloTowerHadE(void) const
+double HcalNoiseRBX::caloTowerHadE(void) const
 {
-  return twrHadE_;
+  double h=0;
+  std::set<CaloTower*> twrs;
+  uniqueTowers(twrs);
+  for(std::set<CaloTower*>::const_iterator it=twrs.begin(); it!=twrs.end(); ++it) {
+    h += (*it)->hadEnergy();
+  }
+  return h;
 }
 
 double HcalNoiseRBX::caloTowerEmE(void) const
 {
-  return twrEmE_;
+  double e=0;
+  std::set<CaloTower*> twrs;
+  uniqueTowers(twrs);
+  for(std::set<CaloTower*>::const_iterator it=twrs.begin(); it!=twrs.end(); ++it) {
+    e += (*it)->emEnergy();
+  }
+  return e;
 }
 
 double HcalNoiseRBX::caloTowerTotalE(void) const
 {
-  return twrEmE_+twrHadE_;
+  double e=0;
+  std::set<CaloTower*> twrs;
+  uniqueTowers(twrs);
+  for(std::set<CaloTower*>::const_iterator it=twrs.begin(); it!=twrs.end(); ++it) {
+    e += (*it)->hadEnergy() + (*it)->emEnergy();
+  }
+  return e;
 }
 
 double HcalNoiseRBX::caloTowerEmFraction(void) const
 {
-  return caloTowerTotalE()!=0.0 ? twrEmE_/caloTowerTotalE() : -999.;
+  double e=0, h=0;
+  std::set<CaloTower*> twrs;
+  uniqueTowers(twrs);
+  for(std::set<CaloTower*>::const_iterator it=twrs.begin(); it!=twrs.end(); ++it) {
+    h += (*it)->hadEnergy();
+    e += (*it)->emEnergy();
+  }
+  return (e+h)==0 ? 999 : e/(e+h);
 }
-*/
+
+void HcalNoiseRBX::uniqueTowers(std::set<CaloTower*>& twrs_) const
+{
+  twrs_.clear();
+  for(std::vector<HcalNoiseHPD>::const_iterator it1=hpds_.begin(); it1!=hpds_.end(); ++it1) {
+    edm::RefVector<CaloTowerCollection> twrsref=it1->caloTowers();
+    for(edm::RefVector<CaloTowerCollection>::const_iterator it2=twrsref.begin(); it2!=twrsref.end(); ++it2) {
+      CaloTower twr=**it2;
+      twrs_.insert(&twr);
+    }
+  }
+  return;
+}

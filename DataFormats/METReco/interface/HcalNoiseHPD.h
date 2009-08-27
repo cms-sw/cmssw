@@ -66,7 +66,7 @@ namespace reco {
     // Detector ID accessors
     //
     
-    // unique integer specifier for the hpd [1,NUM_HPDS]
+    // unique integer specifier for the hpd [0,NUM_HPDS-1]
     // correlates roughly with the detector phi slice
     int idnumber(void) const;
     
