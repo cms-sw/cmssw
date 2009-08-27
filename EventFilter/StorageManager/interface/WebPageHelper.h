@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.5 2009/08/21 09:28:27 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.6 2009/08/26 15:15:32 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -32,8 +32,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/21 09:28:27 $
+   * $Revision: 1.6 $
+   * $Date: 2009/08/26 15:15:32 $
    */
   
   class WebPageHelper
@@ -112,6 +112,15 @@ namespace stor {
      * Generates the throughput monitoring webpage
      */
     void throughputWebPage
+    (
+      xgi::Output*,
+      const SharedResourcesPtr
+    );
+
+    /**
+     * Generates the throughput monitoring webpage
+     */
+    void newThroughputWebPage
     (
       xgi::Output*,
       const SharedResourcesPtr
@@ -220,6 +229,16 @@ namespace stor {
      * Adds throughput statistics to the parent DOM element
      */
     void addDOMforThroughputStatistics
+    (
+      XHTMLMaker& maker,
+      XHTMLMaker::Node *parent,
+      ThroughputMonitorCollection const&
+    );
+
+    /**
+     * Adds new throughput statistics to the parent DOM element
+     */
+    void addDOMforNewThroughputStatistics
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,

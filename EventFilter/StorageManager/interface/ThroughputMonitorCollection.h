@@ -1,11 +1,11 @@
-// $Id: ThroughputMonitorCollection.h,v 1.8 2009/08/24 16:39:15 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.9 2009/08/26 15:17:15 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
 #define StorageManager_ThroughputMonitorCollection_h
 
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include "toolbox/mem/Pool.h"
 #include "xdata/Double.h"
@@ -23,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/24 16:39:15 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/26 15:17:15 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -154,20 +154,60 @@ namespace stor {
     /**
      * Sets the current number of events in the fragment store.
      */
-    void setFragmentStoreSize(unsigned int size) {
-      // do we really need this lock?
-      boost::mutex::scoped_lock sl(_fragmentStoreSizeMutex);
+    inline void setFragmentStoreSize(unsigned int size) {
       _currentFragmentStoreSize = size;
     }
 
     /**
      * Returns the current number of events in the fragment store.
      */
-    unsigned int getFragmentStoreSize() {
-      // do we really need this lock?
-      boost::mutex::scoped_lock sl(_fragmentStoreSizeMutex);
+    inline unsigned int getFragmentStoreSize() {
       return _currentFragmentStoreSize;
     }
+
+    struct Stats
+    {
+
+      struct Snapshot
+      {
+        double relativeTime; //s since first entry
+        double poolUsage; //bytes
+        double entriesInFragmentQueue;
+        double fragmentQueueRate; //Hz
+        double fragmentQueueBandwidth; //MB/s
+        double fragmentStoreSize;
+        double entriesInStreamQueue;
+        double streamQueueRate; //Hz
+        double streamQueueBandwidth; //MB/s
+        double writtenEventsRate; //Hz
+        double writtenEventsBandwidth; //MB/s
+        double entriesInDQMQueue;
+        double dqmQueueRate; //Hz
+        double dqmQueueBandwidth; //MB/s
+        
+        double fragmentProcessorBusy; //%
+        double diskWriterBusy; //%
+        double dqmEventProcessorBusy; //%
+
+        Snapshot();
+        Snapshot operator=(const Snapshot&);
+        Snapshot operator+=(const Snapshot&);
+        Snapshot operator/=(const double&);
+
+      };
+      
+      typedef std::vector<Snapshot> Snapshots;
+      Snapshots snapshots; // time sorted with newest entry first
+      Snapshot average;
+
+      void reset();
+    };
+
+    /**
+     * Write all our collected statistics into the given Stats struct.
+     */
+    void getStats(Stats&) const;
+
 
   private:
 
@@ -180,9 +220,34 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
+    void smoothIdleTimes(MonitoredQuantity::Stats&) const;
+
+    int smoothIdleTimesHelper
+    (
+      std::vector<double>& idleTimes,
+      std::vector<utils::duration_t>& durations,
+      int firstIndex, int lastIndex
+    ) const;
+
+    void getRateAndBandwidth
+    (
+      MonitoredQuantity::Stats& stats,
+      const int& idx,
+      double& rate,
+      double& bandwidth
+    ) const;
+
+    double calcBusyPercentage(
+      MonitoredQuantity::Stats&,
+      const int& idx,
+      const double& binDuration,
+      const double& relativeTime
+    ) const;
+
     void calcPoolUsage();
 
     const int _binCount;
+    mutable boost::mutex _statsMutex;
 
     MonitoredQuantity _poolUsageMQ;
     MonitoredQuantity _entriesInFragmentQueueMQ;
@@ -204,7 +269,6 @@ namespace stor {
     boost::shared_ptr<DQMEventQueue> _dqmEventQueue;
 
     unsigned int _currentFragmentStoreSize;
-    mutable boost::mutex _fragmentStoreSizeMutex;
 
     toolbox::mem::Pool* _pool;
 
