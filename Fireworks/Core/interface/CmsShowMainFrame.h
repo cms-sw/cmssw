@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.25 2009/08/14 15:39:56 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.26 2009/08/26 18:59:19 amraktad Exp $
 //
 
 // system include files
@@ -93,6 +93,7 @@ protected:
    TGTextEntry*         m_filterEntry;
    TGNumberEntryField*  m_runEntry;
    TGNumberEntryField*  m_eventEntry;
+   FWIntValueListener*  m_delaySliderListener;
 
 private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default

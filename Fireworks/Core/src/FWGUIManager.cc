@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.144 2009/08/26 18:59:23 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.145 2009/08/26 19:30:34 chrjones Exp $
 //
 
 // system include files
@@ -183,7 +183,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sKeyboardShort)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createShortcutPopup));
 
       // toolbar special widget with non-void actions
-      getAction(cmsshow::sPlayDelay)->intSignal->connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
+      m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
 
       TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");

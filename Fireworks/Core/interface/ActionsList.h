@@ -19,7 +19,6 @@ namespace cmsshow {
    extern const std::string sPaste;
    extern const std::string sShowColorInsp;
    extern const std::string sDefaultBrightness;
-   extern const std::string sPlayDelay;
    extern const std::string sNextEvent;
    extern const std::string sPreviousEvent;
    extern const std::string sPlayEvents;

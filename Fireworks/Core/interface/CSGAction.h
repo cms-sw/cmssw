@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.13 2009/04/20 18:20:38 chrjones Exp $
+// $Id: CSGAction.h,v 1.14 2009/08/26 18:59:20 amraktad Exp $
 //
 
 // system include files
@@ -32,7 +32,6 @@
 // forward declarations
 class TGMenuBar;
 class TString;
-class TGSlider;
 class CSGActionSupervisor;
 class CSGConnector;
 class FWCustomIconsButton;
@@ -50,7 +49,6 @@ public:
    Int_t getKeycode() const;
    Int_t getModcode() const;
    TGPopupMenu *getMenu() const;
-   TGSlider *getSlider() const;
    int getMenuEntry() const;
    ToolBarData_t *getToolBarData() const;
    TGToolBar *getToolBar() const;
@@ -76,8 +74,6 @@ public:
                                                 UInt_t option = 0);
    void createShortcut(UInt_t key, const char *mod, int windowID);
    void createMenuEntry(TGPopupMenu *menu);
-   void createSlider(TGCompositeFrame* p, TGLayoutHints* l=0, int len=100, UInt_t option=0, const char* pic=0);
-
    void enable();
    void disable();
 
@@ -91,7 +87,6 @@ public:
    }
 
    sigc::signal<void> activated;
-   sigc::signal<void,Int_t> *intSignal;
 
 private:
    CSGAction(const CSGAction&); // stop default
@@ -109,7 +104,6 @@ private:
    Int_t m_keycode;
    Int_t m_modcode;
    TGPopupMenu *m_menu;
-   TGSlider* m_slider;
    int m_entry;
    TGToolBar *m_toolBar;
    ToolBarData_t *m_tools;

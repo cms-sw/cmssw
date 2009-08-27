@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.60 2009/08/23 07:18:57 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.61 2009/08/26 18:59:19 amraktad Exp $
 //
 // hacks
 #define private public
@@ -205,6 +205,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
    
+   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0,backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
@@ -266,23 +268,24 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    /**************************************************************************/
 
-   m_playDelay = new CSGAction(this, "PlayDelay");
-
    TGHorizontalFrame* sliderFrame = new TGHorizontalFrame(controlFrame, 10, 10, 0, backgroundColor);
-   TImage *imgSld  = TImage::Open(FWCheckBoxIcon::coreIcondir()+"slider-bg-down.png");
+   TImage *imgSld  = TImage::Open(coreIcondir+"slider-bg-down.png");
    sliderFrame->SetBackgroundPixmap(imgSld->GetPixmap());
+   TString sldBtn = coreIcondir +"slider-button.png";
 
-   TString sldBtn = FWCheckBoxIcon::coreIcondir() +"slider-button.png";
-   TGLayoutHints *slh =  new TGLayoutHints(kLHintsTop | kLHintsLeft| kLHintsExpandX | kLHintsExpandY , 39, 8, 1, 3);
-   m_playDelay->createSlider(sliderFrame, slh, 109, kSlider1 | kScaleNo, sldBtn.Data());
-   m_delaySlider = m_playDelay->getSlider();
+   m_delaySlider = new TGHSlider(sliderFrame, 109, kSlider1 | kScaleNo);
+   sliderFrame->AddFrame(m_delaySlider, new TGLayoutHints(kLHintsTop | kLHintsLeft, 39, 8, 1, 3));
    m_delaySlider->SetRange(0, 10000);
    m_delaySlider->SetPosition(0);
    m_delaySlider->SetBackgroundColor(0x1a1a1a);
+   m_delaySlider->ChangeSliderPic(sldBtn);
 
    controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
 
    fullbar->AddFrame(controlFrame, new TGLayoutHints(kLHintsLeft, 2, 2, 5, 5));
+
+   m_delaySliderListener =  new FWIntValueListener();
+   TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 
    /**************************************************************************/
    // delay label

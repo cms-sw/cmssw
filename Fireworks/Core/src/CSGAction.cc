@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.22 2009/04/20 18:20:38 chrjones Exp $
+// $Id: CSGAction.cc,v 1.23 2009/08/26 18:59:20 amraktad Exp $
 //
 
 // system include files
@@ -198,20 +198,6 @@ void CSGAction::createMenuEntry(TGPopupMenu *menu) {
    if (m_keycode != 0) addSCToMenu();
 }
 
-void CSGAction::createSlider(TGCompositeFrame* p, TGLayoutHints* l, int len,  UInt_t option,  const char* pic)
-{
-   m_slider = new TGHSlider(p, len, option);
-   p->AddFrame(m_slider, l);
-   if(pic)
-   {
-      m_slider->ChangeSliderPic(pic);
-   }
-   FWIntValueListener* intListener = new FWIntValueListener();
-   TQObject::Connect(m_slider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  intListener, "setValue(Int_t)");
-   intSignal = &intListener->valueChanged_;
-}
-
-
 void CSGAction::addSCToMenu() {
    Bool_t widthChanged = resizeMenuEntry();
    if (widthChanged) m_supervisor->resizeMenu(m_menu);
@@ -271,10 +257,6 @@ ToolBarData_t* CSGAction::getToolBarData() const {
 
 TGToolBar* CSGAction::getToolBar() const {
    return m_toolBar;
-}
-
-TGSlider* CSGAction::getSlider() const {
-   return m_slider;
 }
 
 void CSGAction::enable() {

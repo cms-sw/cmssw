@@ -10,6 +10,7 @@
 #include "TEveChunkManager.h"
 
 #include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 template <typename T> class FWECALDetailViewLothar : public CSGActionSupervisor {
@@ -30,6 +31,8 @@ private:
    TEveScene    *m_scene;
    TEveViewer   *m_viewer;
    TEveStraightLineSet *m_lines;
+
+   FWIntValueListener* m_intListener;
 };
 
 
@@ -85,12 +88,11 @@ void FWECALDetailViewLothar<T>::makeGUIForDetailViewB(TGCompositeFrame* ediFrame
    guiFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
    sliderFrame->AddFrame(new TGLabel(sliderFrame, "Eta-Phi Range:"));
 
-   CSGAction* actionRange = new CSGAction(this, "Scale eta-phi range");
-   actionRange->createSlider(sliderFrame, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 2, 2, 0, 0), 120, kSlider1);
-   actionRange->intSignal->connect(boost::bind(&FWECALDetailViewLothar::setEtaPhiRange,this,_1));
-   TGSlider* slider  = actionRange->getSlider();
-   slider->SetRange(-1000, 2000);
-   slider->SetPosition(0);
+   TGSlider*  slider = new TGHSlider(sliderFrame, 120, kSlider1);
+   sliderFrame->AddFrame(slider, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 2, 2, 0, 0));
+   m_intListener = new FWIntValueListener();
+   TQObject::Connect(slider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_intListener, "setValue(Int_t)");
+   m_intListener->valueChanged_.connect(boost::bind(&FWECALDetailViewLothar::setEtaPhiRange,this,_1));
 
    CSGAction* actionRnr = new CSGAction(this, "Render Eta-Phi Rng");
    actionRnr->createCheckButton(guiFrame, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
