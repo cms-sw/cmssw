@@ -40,9 +40,14 @@ public:
     conditions(inputConditions), firstRun(0), lastRun(0), nRuns(inputNruns),
     yMin(yMinIn), yMax(yMaxIn)
   {
-    if( yMin == 999999 && yMax == -999999 ) useYrange = 0;
-    else if( yMax == -999999 ) useYrange = 1;
-    else useYrange = 2;
+    useYrange = 0;
+    if ( yMin != 999999 && yMax != -999999) {
+      useYrange = 3;
+    } else if ( yMin != 999999) {
+      useYrange = 1;
+    } else if( yMax != -999999 ) {
+      useYrange = 2;
+    }
   }
 
   // All public data members
