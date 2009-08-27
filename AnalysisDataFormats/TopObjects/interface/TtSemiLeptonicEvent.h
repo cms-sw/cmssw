@@ -11,9 +11,9 @@ namespace TtSemiLepDaughter{
 }
 
 /**
-   \class   TtFullLeptonicEvent TtFullLeptonicEvent.h "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
+   \class   TtSemiLeptonicEvent TtSemiLeptonicEvent.h "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 
-   \brief   Class derived from the TtEvent for the full leptonic decay channel
+   \brief   Class derived from the TtEvent for the semileptonic decay channel
 
    The structure holds information on the leptonic decay channels, 
    all event hypotheses of different classes (user defined during
