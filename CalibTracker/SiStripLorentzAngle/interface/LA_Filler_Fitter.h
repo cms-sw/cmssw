@@ -25,9 +25,9 @@ class LA_Filler_Fitter {
   }
 
   struct Result { 
-    float reco,measure,recoErr,measureErr,chi2,field; 
+    float reco,measure,recoErr,measureErr,chi2,field, calibratedMeasurement,calibratedError; 
     unsigned ndof,entries; 
-    Result() : reco(0), measure(0), recoErr(0), measureErr(0), chi2(0), field(0), ndof(0), entries(0) {}
+    Result() : reco(0), measure(0), recoErr(0), measureErr(0), chi2(0), field(0), calibratedMeasurement(0), calibratedError(0), ndof(0), entries(0) {}
   };
   
   struct EnsembleSummary {
@@ -71,6 +71,9 @@ class LA_Filler_Fitter {
   static std::map<    uint32_t,                      Result  >   module_results(const Book&, const Method);
   static std::map< std::string,          std::vector<Result> > ensemble_results(const Book&, const Method );
   static std::map< std::string, std::vector<EnsembleSummary> > ensemble_summary(const Book& );
+
+  static std::pair<std::pair<float,float>, std::pair<float,float> > offset_slope(const std::vector<EnsembleSummary>&);
+  static float pull(const std::vector<EnsembleSummary>&);
 
  private:
   

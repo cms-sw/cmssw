@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <TF1.h>
 #include <TTree.h>
+#include <TGraphErrors.h>
 
 void LA_Filler_Fitter::
 fill(TTree* tree, Book& book) {
@@ -117,7 +118,7 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
     fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
 
     int badfit = p->Fit(fit,"IEQ","",-.5,.3);
-    if( badfit ) badfit = p->Fit(fit,"IEQ","", -.4,.2);
+    if( badfit ) badfit = p->Fit(fit,"IEQ","", -.46,.26);
     if( badfit ) delete p;
     else 
       book.book( name, p );
@@ -240,9 +241,39 @@ ensemble_summary(const Book& book) {
   return summary;
 }
 
+std::pair<std::pair<float,float>, std::pair<float,float> > LA_Filler_Fitter::
+offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
+  std::vector<float> x,y,xerr,yerr;
+  BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
+    x.push_back(ensemble.truth);
+    xerr.push_back(0);
+    y.push_back(ensemble.meanMeasured);
+    yerr.push_back(ensemble.SDmeanMeasured);
+  }
+  TGraphErrors graph(x.size(),&(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
+  graph.Fit("pol1");
+  TF1* fit = graph.GetFunction("pol1");
+
+  return std::make_pair( std::make_pair(fit->GetParameter(0), fit->GetParError(0)),
+			 std::make_pair(fit->GetParameter(1), fit->GetParError(1)) );
+}
+
+float LA_Filler_Fitter::
+pull(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
+  float p(0),w(0);
+  BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
+    float unc = ensemble.SDmeanUncertainty / ensemble.sigmaMeasured;
+    p+=       (   ensemble.meanUncertainty / ensemble.sigmaMeasured ) / (unc*unc);
+    w+= unc*unc;
+  }
+  return p/w;
+}
+
+
 std::ostream& operator<<(std::ostream& strm, const LA_Filler_Fitter::Result& r) { 
   return strm << r.reco    <<"\t"<< r.recoErr <<"\t"
 	      << r.measure <<"\t"<< r.measureErr <<"\t"
+	      << r.calibratedMeasurement <<"\t"<< r.calibratedError <<"\t"
 	      << r.field <<"\t"
 	      << r.chi2 <<"\t"
 	      << r.ndof <<"\t"

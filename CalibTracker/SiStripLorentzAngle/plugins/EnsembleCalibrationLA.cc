@@ -45,9 +45,15 @@ endJob()
     fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
     BOOST_FOREACH(LA_Filler_Fitter::EnsembleSummary summary, ensemble.second)
       file << summary << std::endl;
-    file.close();
-  }
 
+    std::pair<std::pair<float,float>,std::pair<float,float> > line = LA_Filler_Fitter::offset_slope(ensemble.second);
+    file << std::endl << std::endl
+	 << "# Best Fit Line: "	 << line.first.first <<"("<< line.first.second<<")   +   x* "
+	                         << line.second.first<<"("<< line.second.second<<")"           << std::endl
+	 << "# Mean Reported Uncertainty / Sigma: " << LA_Filler_Fitter::pull(ensemble.second) << std::endl;
+    file.close();
+ }
+  
   { 
     TFile file((Prefix+"sampleFits.root").c_str(),"RECREATE");
     for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction)"); hist!=book.end(); ++hist)
@@ -61,7 +67,7 @@ endJob()
       (*hist)->Write();
     file.Close();
   }
-
+  
 }
 
 }
