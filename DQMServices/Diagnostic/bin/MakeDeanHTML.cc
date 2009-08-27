@@ -15,7 +15,7 @@
 //    After any '#'s:
 //      All lines are of the format: PlotName: Caption
 //      There must be exactly the number of entries corresponding
-//      to the number of rows followed by a blank line.  Lines can be
+//      to the number of cols followed by a blank line.  Lines can be
 //      blank where you don't want a plot (for formatting reasons)
 //
 //    Example of valid input file:
