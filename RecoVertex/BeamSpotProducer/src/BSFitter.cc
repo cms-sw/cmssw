@@ -6,7 +6,8 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.cc,v 1.5 2009/03/18 14:39:41 yumiceva Exp $
+
+ version $Id: BSFitter.cc,v 1.6 2009/05/27 07:07:59 fabiocos Exp $
 
 ________________________________________________________________**/
 
@@ -30,6 +31,7 @@ ________________________________________________________________**/
 // ROOT
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
+#include "TDecompBK.h"
 #include "TH1.h"
 #include "TF1.h"
 
@@ -309,13 +311,13 @@ reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 	}
 		
 	return reco::BeamSpot( reco::BeamSpot::Point(0.,
-									 0.,
-									 fmin.Parameters().Vec()(2)),
-					 fmin.Parameters().Vec()(3),
-						   0.,
-						   0.,
-						   0.,
-						   matrix );
+						     0.,
+						     fmin.Parameters().Vec()(2)),
+			       fmin.Parameters().Vec()(3),
+			       0.,
+			       0.,
+			       0.,
+			       matrix );
 }
 
 //______________________________________________________________________
@@ -347,13 +349,13 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	delete h1z;
 
 	return reco::BeamSpot( reco::BeamSpot::Point(0.,
-												 0.,
-												 fpar[0]),
-						   fpar[1],
-						   0.,
-						   0.,
-						   0.,
-						   matrix );	
+						     0.,
+						     fpar[0]),
+			       fpar[1],
+			       0.,
+			       0.,
+			       0.,
+			       matrix );	
 
 	
 }
@@ -364,8 +366,8 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 	this->d0phi_Init();
 	reco::BeamSpot theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
 	fnthite++;
-	//std::cout << theanswer << std::endl;
-	reco::BeamSpot preanswer;
+   	//std::cout << "Initial tempanswer (iteration 0): " << theanswer << std::endl;
+	reco::BeamSpot preanswer = theanswer;
 	
 	while ( ftmprow > 0.5 * fBSvector.size()  ) {
 		
@@ -373,12 +375,23 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 		fd0cut /= 1.5;
 		fchi2cut /= 1.5;
 		if (ftmprow > 0.5 * fBSvector.size() ) {
-			preanswer = theanswer;
-			fnthite++;
+		  preanswer = theanswer;
+  		  //std::cout << "Iteration " << fnthite << ": " << preanswer << std::endl;
+		  fnthite++;
 		}
-		//std::cout << preanswer << std::endl;
+		else {
+		  if (goodfit) {
+  		    //std::cout << "Last iteration, theanswer: " << theanswer << std::endl;
+		  }
+		  else {
+		    theanswer = preanswer;
+		    fnthite--;
+  		    //std::cout << "Use previous results from iteration " << fnthite << "; theanswer: " << theanswer << std::endl;
+		  }
+		}
+
 	}
-	std::cout << " total number of iterations = " << fnthite << std::endl;
+	std::cout << "Total number of good iterations = " << fnthite << std::endl;
 	
 	return theanswer;
 }
@@ -388,7 +401,7 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 reco::BeamSpot BSFitter::Fit_d0phi() {
 
 	//LogDebug ("BSFitter") << " we will use " << fBSvector.size() << " tracks.";
-	std::cout << " number of tracks used: " << ftmprow << std::endl;
+        if (fnthite > 0) std::cout << " number of tracks used: " << ftmprow << std::endl;
 	//std::cout << " ftmp = matrix("<<ftmp.GetNrows()<<","<<ftmp.GetNcols()<<")"<<std::endl;
 	//std::cout << " ftmp(0,0)="<<ftmp(0,0)<<std::endl;
 	//std::cout << " ftmp(1,0)="<<ftmp(1,0)<<std::endl;
@@ -402,7 +415,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	TMatrixDSym Vint(4);
 	TMatrixD b(4,1);
 	
-//Double_t weightsum = 0;
+	//Double_t weightsum = 0;
 	
 	Vint.Zero();
 	b.Zero();
@@ -476,10 +489,27 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 
 		
 	}
-	Double_t determinant;
-	V_result = Vint.InvertFast(&determinant);
-	x_result = V_result  * b;
 
+	Double_t determinant;
+	TDecompBK bk(Vint);
+	if (!bk.Decompose()) {
+	  goodfit = false;
+	  std::cout << "Decomposition failed, matrix singular ?" << std::endl;
+	  std::cout << "condition number = " << bk.Condition() << std::endl;
+	}
+	else {
+	  V_result = Vint.InvertFast(&determinant);
+	  x_result = V_result  * b;
+	}
+
+	//     	for(int j = 0 ; j < 4 ; ++j) {
+	// 	  for(int k = 0 ; k < 4 ; ++k) {
+	// 	    std::cout<<"V_result("<<j<<","<<k<<")="<<V_result(j,k)<<std::endl;
+	// 	  }
+	//     	}
+	//         for (int j=0;j<4;++j){
+	// 	  std::cout<<"x_result("<<j<<",0)="<<x_result(j,0)<<std::endl;
+	// 	}
 	//LogDebug ("BSFitter") << " d0-phi fit done.";
 	//std::cout<< " d0-phi fit done." << std::endl;
 	
@@ -500,13 +530,13 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	ftmp = x_result;
 	
 	return reco::BeamSpot( reco::BeamSpot::Point(x_result(0,0),
-												 x_result(1,0),
-												 0.0),
-						   0.,
-						   x_result(2,0),
-						   x_result(3,0),
-			                           0.,
-						   matrix );
+						     x_result(1,0),
+						     0.0),
+			       0.,
+			       x_result(2,0),
+			       x_result(3,0),
+			       0.,
+			       matrix );
 	
 }
 

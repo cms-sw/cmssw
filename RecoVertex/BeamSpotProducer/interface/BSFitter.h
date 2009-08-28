@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.2 2007/01/22 23:36:07 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.3 2007/03/29 16:32:33 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -68,6 +68,7 @@ class BSFitter {
 		ftmp.ResizeTo(4,1);
 		ftmp.Zero();
 		fnthite=0;
+		goodfit=true;
 	}
 	std::vector < BSTrkParameters > GetData() { return fBSvector; }
 	
@@ -130,7 +131,8 @@ class BSFitter {
 	double fchi2cut;
 	int ftmprow;
 	int fnthite;
-	
+	bool goodfit;
+
 };
 
 #endif
