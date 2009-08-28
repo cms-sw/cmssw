@@ -2,6 +2,7 @@
 #define DataFormats_Provenance_BranchType_h
 
 #include <string>
+#include <iosfwd>
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
@@ -28,12 +29,8 @@ namespace edm {
 
   std::string const& BranchTypeToMinorIndexName(BranchType const& branchType);
 
-  inline
   std::ostream&
-  operator<<(std::ostream& os, BranchType const& branchType) {
-    os << BranchTypeToString(branchType);
-    return os;
-  }
+  operator<<(std::ostream& os, BranchType const& branchType);
 
   namespace poolNames {
     //------------------------------------------------------------------

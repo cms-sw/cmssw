@@ -1,7 +1,14 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include <iostream>
 
 namespace edm {
+  std::ostream&
+  operator<<(std::ostream& os, BranchType const& branchType) {
+    os << BranchTypeToString(branchType);
+    return os;
+  }
   namespace {
+     
     // Suffixes
     std::string const metaData = "MetaData";
     std::string const auxiliary = "Auxiliary";
