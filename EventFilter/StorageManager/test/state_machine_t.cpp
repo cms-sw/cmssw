@@ -10,11 +10,15 @@
 #include <boost/shared_ptr.hpp>
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
+#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
 #include "EventFilter/StorageManager/test/MockApplication.h"
 #include "EventFilter/StorageManager/test/MockDiskWriterResources.h"

@@ -2,12 +2,18 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
+#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 #include "EventFilter/StorageManager/test/TestHelper.h"
 #include "EventFilter/StorageManager/test/MockApplication.h"
