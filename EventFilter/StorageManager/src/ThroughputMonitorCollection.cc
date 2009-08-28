@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.11 2009/08/26 15:21:18 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.12 2009/08/27 14:41:31 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -99,7 +99,19 @@ void ThroughputMonitorCollection::calcPoolUsage()
 void ThroughputMonitorCollection::getStats(Stats& stats) const
 {
   boost::mutex::scoped_lock sl(_statsMutex);
+  do_getStats(stats, _binCount);
+}
 
+
+void ThroughputMonitorCollection::getStats(Stats& stats, const unsigned int sampleCount) const
+{
+  boost::mutex::scoped_lock sl(_statsMutex);
+  do_getStats(stats, sampleCount);
+}
+
+
+void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int sampleCount) const
+{
   MonitoredQuantity::Stats fqEntryCountMQ, fragSizeMQ, fpIdleMQ, fsEntryCountMQ;
   MonitoredQuantity::Stats sqEntryCountMQ, eventSizeMQ, dwIdleMQ, diskWriteMQ;
   MonitoredQuantity::Stats dqEntryCountMQ, dqmEventSizeMQ, dqmIdleMQ, poolUsageMQ;
@@ -123,14 +135,15 @@ void ThroughputMonitorCollection::getStats(Stats& stats) const
   smoothIdleTimes(dqmIdleMQ);
 
   utils::duration_t relativeTime = fqEntryCountMQ.recentDuration;
-  for (int idx = (_binCount - 1); idx >= 0; --idx)
+  const int lowestBin = sampleCount<_binCount ? _binCount-sampleCount : 0;
+  for (int idx = (_binCount - 1); idx >= lowestBin; --idx)
   {
     utils::duration_t binDuration = fqEntryCountMQ.recentBinnedDurations[idx];
+    relativeTime -= binDuration;
     if (binDuration < 0.01) continue; //avoid very short durations
 
     Stats::Snapshot snapshot;
 
-    relativeTime -= binDuration;
     snapshot.relativeTime = relativeTime;
 
     // memory pool usage
@@ -162,21 +175,21 @@ void ThroughputMonitorCollection::getStats(Stats& stats) const
 
     // fragment processor thread busy percentage
     snapshot.fragmentProcessorBusy =
-      calcBusyPercentage(fpIdleMQ, idx, binDuration, relativeTime);
+      calcBusyPercentage(fpIdleMQ, idx);
 
     // disk writer thread busy percentage
     snapshot.diskWriterBusy =
-      calcBusyPercentage(dwIdleMQ, idx, binDuration, relativeTime);
+      calcBusyPercentage(dwIdleMQ, idx);
 
     // DQMEvent processor thread busy percentage
     snapshot.dqmEventProcessorBusy =
-      calcBusyPercentage(dqmIdleMQ, idx, binDuration, relativeTime);
+      calcBusyPercentage(dqmIdleMQ, idx);
 
     stats.average += snapshot;
     stats.snapshots.push_back(snapshot);
   }
 
-  stats.average /= stats.snapshots.size();
+  if (sampleCount > 1) stats.average /= sampleCount;
 }
 
 
@@ -251,24 +264,33 @@ void ThroughputMonitorCollection::getRateAndBandwidth
 double ThroughputMonitorCollection::calcBusyPercentage
 (
   MonitoredQuantity::Stats& stats,
-  const int& idx,
-  const double& binDuration,
-  const double& relativeTime
+  const int& idx
 ) const
 {
-  double busyPercentage = 0.0;
-//   if (relativeTime > 5.0 &&
-//     stats.recentBinnedDurations[idx] > (0.95 * binDuration))
-//   {
-//     busyPercentage = 100.0;
-//   }
-  if (stats.recentBinnedSampleCounts[idx] > 0 &&
-    (stats.recentBinnedValueSums[idx] <=
-      stats.recentBinnedDurations[idx]))
+  double busyPercentage;
+  if (stats.recentBinnedSampleCounts[idx] == 0)
   {
+    // the thread did not log any idle time
+    busyPercentage = 100;
+  }
+  else if (stats.recentBinnedSampleCounts[idx] == 1)
+  {
+    // only one sample means that we waited a whole second on a queue
+    // this should only happen if deq_timed_wait timeout >= statistics calculation period
+    busyPercentage = 0;
+  }
+  else if (stats.recentBinnedValueSums[idx] <= stats.recentBinnedDurations[idx])
+  {
+    // the thread was busy while it was not idle during the whole reporting duration
     busyPercentage = 100.0 * (1.0 - (stats.recentBinnedValueSums[idx] /
         stats.recentBinnedDurations[idx]));
     busyPercentage += 0.5;
+  }
+  else
+  {
+    // the process logged more idle time than the whole reporting duration
+    // this can happen due to rounding issues.
+    busyPercentage = 0;
   }
 
   return busyPercentage;
@@ -345,7 +367,7 @@ void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSp
 void ThroughputMonitorCollection::do_updateInfoSpaceItems()
 {
   Stats stats;
-  getStats(stats);
+  getStats(stats, 1);
   if ( stats.snapshots.empty() ) return;
 
   Stats::Snapshots::const_iterator it = stats.snapshots.begin();
