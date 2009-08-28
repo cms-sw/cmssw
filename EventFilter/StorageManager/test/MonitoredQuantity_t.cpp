@@ -56,7 +56,7 @@ private:
 };
 
 testMonitoredQuantity::testMonitoredQuantity() :
-_quantity(1,2), //Only 2 bins deep history for testing
+_quantity(0.001,0.002), //Only 2 bins deep history for testing, allow fast updates
 
 _multiplier(drand48()*100)
 {
@@ -78,6 +78,7 @@ void testMonitoredQuantity::accumulateSamples
   {
     _quantity.addSample(i*_multiplier);
     squareSum += pow(i*_multiplier,2);
+    ::usleep(1000);
   }
   _quantity.calculateStatistics();
 }
