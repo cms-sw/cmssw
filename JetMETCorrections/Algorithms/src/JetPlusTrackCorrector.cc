@@ -678,10 +678,10 @@ reco::TrackRefVector JetPlusTrackCorrector::jtC_rebuild(
     {
 
           double dR2this = deltaR2 (fJet.eta(), fJet.phi(), (**it).eta(), (**it).phi());
-          double dfi = fabs(fJet.phi()-(**it).phi());
-          if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
-          double deta = fJet.eta() - (**it).eta();
-          double dR2check = sqrt(dfi*dfi+deta*deta);
+          //double dfi = fabs(fJet.phi()-(**it).phi());
+          //if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
+          //double deta = fJet.eta() - (**it).eta();
+          //double dR2check = sqrt(dfi*dfi+deta*deta);
 
 
           double scalethis = dR2this;
