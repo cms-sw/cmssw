@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.10 2009/08/22 17:10:22 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.11 2009/08/27 17:54:22 amraktad Exp $
 //
 
 // user include files
@@ -39,11 +39,12 @@ private:
    virtual double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
    virtual double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
    virtual math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
+   virtual void addTrackPointsInCaloData(const reco::GsfElectron*, int, TEveCaloLego*);
+   void drawCrossHair(const reco::GsfElectron*, int, TEveCaloLego*, TEveElementList*);
 
    void  makeExtraLegend (const reco::GsfElectron*, TCanvas*);
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
-
-   void drawCrossHair(const reco::GsfElectron*, int, TEveCaloLego*, TEveElementList*);
+ 
 
    Float_t m_unitCM;
 };

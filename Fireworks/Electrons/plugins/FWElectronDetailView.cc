@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.30 2009/08/22 17:10:22 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.31 2009/08/27 17:54:22 amraktad Exp $
 //
 
 #include "TLatex.h"
@@ -47,27 +47,35 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    eveWindow->SetShowTitleBar(kFALSE);
 
 
-   TEveWindowSlot* slot;
    TEveWindow* ew;
+   TEveWindowSlot* slot;
    TEveScene*      scene;
    TEveViewer*     viewer;
    TGVerticalFrame* ediFrame;
 
+
+   // tab 1
    slot = eveWindow->NewSlot();
    ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
    ew->SetElementName("View A");
    FWECALDetailViewJohannes<reco::GsfElectron>* viewJohannes =  new  FWECALDetailViewJohannes<reco::GsfElectron>();
    viewJohannes->build(id, iElectron, ediFrame, scene, viewer);
-   drawCrossHair(iElectron, viewJohannes->getSubdetId(), viewJohannes->getLego(), scene);
+   TEveCaloLego *lego = viewJohannes->getLego();
+   addTrackPointsInCaloData( iElectron, viewJohannes->getSubdetId(), lego);
+   drawCrossHair(iElectron, viewJohannes->getSubdetId(), lego, scene);
    makeExtraLegend(iElectron, viewJohannes->getTextCanvas()) ;
+   scene->Repaint(true);
+   viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   gEve->Redraw3D();
 
+   // tab 2
    slot = eveWindow->NewSlot();
    ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
    ew->SetElementName("View B");
    FWECALDetailViewLothar<reco::GsfElectron>* viewLothar = new  FWECALDetailViewLothar<reco::GsfElectron>();
    viewLothar->build(id, iElectron, ediFrame, scene, viewer);
 
-   // dave
+   // tab 3
    slot = eveWindow->NewSlot();
    ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
    ew->SetElementName("View C");
@@ -145,44 +153,30 @@ FWElectronDetailView::makeExtraLegend(const reco::GsfElectron *electron, TCanvas
 void
 FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, int subdetId, TEveCaloLego *lego, TEveElementList* tList)
 {
-
+   double ymax = lego->GetPhiMax();
+   double ymin = lego->GetPhiMin();
+   double xmax = lego->GetEtaMax();
+   double xmin = lego->GetEtaMin();
 
    // draw crosshairs for track intersections
    //
    {
-      double ymax = lego->GetPhiMax();
-      double ymin = lego->GetPhiMin();
-      double xmax = lego->GetEtaMax();
-      double xmin = lego->GetEtaMin();
-
       const double eta = i->superCluster()->seed()->position().eta() -
          i->deltaEtaSeedClusterTrackAtCalo();
       const double phi = i->superCluster()->seed()->position().phi() -
          i->deltaPhiSeedClusterTrackAtCalo();
 
       TEveStraightLineSet *trackpositionAtCalo = new TEveStraightLineSet("sc trackpositionAtCalo");
-      trackpositionAtCalo->SetMarkerStyle(2);
       if (subdetId == EcalBarrel)
       {
-         if (checkRange(xmin, xmax, ymin, ymax, eta, phi))
-         {
-            trackpositionAtCalo->AddLine(eta, phi, 0, eta, phi, 0);
-            trackpositionAtCalo->AddMarker(0, 0.5);
-            trackpositionAtCalo->SetMarkerSize(0.05*TMath::Min(xmax-xmin, ymax-ymin));
-         }
-         else
-         {
-            trackpositionAtCalo->AddLine(eta, ymin, 0, eta, ymax, 0);
-            trackpositionAtCalo->AddLine(xmin, phi, 0, xmax, phi, 0);
-         }
-
+         trackpositionAtCalo->AddLine(eta, ymin, 0, eta, ymax, 0);
+         trackpositionAtCalo->AddLine(xmin, phi, 0, xmax, phi, 0);
       }
       else if (subdetId == EcalEndcap)
       {
          TVector3 pos;
          pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(), eta, phi);
          pos *= m_unitCM;
-         checkRange(xmin, xmax, ymin, ymax, pos.X(), pos.Y());
          trackpositionAtCalo->AddLine(pos.X(), ymin, 0, pos.X(), ymax, 0);
          trackpositionAtCalo->AddLine(xmin, pos.Y(), 0, xmax,pos.Y(),0);
       }
@@ -195,36 +189,20 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, int subdetId, T
    // pin position
    //
    {
-      double ymax = lego->GetPhiMax();
-      double ymin = lego->GetPhiMin();
-      double xmax = lego->GetEtaMax();
-      double xmin = lego->GetEtaMin();
-
       TEveStraightLineSet *pinposition = new TEveStraightLineSet("pin position");
       Double_t eta = i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i);
       Double_t phi = i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i);
 
       if (subdetId == EcalBarrel)
       {
-         if (checkRange(xmin, xmax, ymin, ymax, eta, phi))
-         {
-            pinposition->SetMarkerStyle(2);
-            pinposition->SetMarkerSize(0.05*TMath::Min(xmax-xmin, ymax-ymin));
-            pinposition->AddLine(eta, phi, 0, eta, phi, 0);
-            pinposition->AddMarker(0, 0.5);
-         }
-         else
-         {
-            pinposition->AddLine(eta, ymax, 0, eta, ymin, 0);
-            pinposition->AddLine(xmin, phi, 0, xmax, phi, 0);
-         }
+         pinposition->AddLine(eta, ymax, 0, eta, ymin, 0);
+         pinposition->AddLine(xmin, phi, 0, xmax, phi, 0);
       }
       else if (subdetId == EcalEndcap)
       {
          TVector3 pos;
          pos.SetPtEtaPhi(i->caloPosition().rho(), eta, phi);
          pos *= m_unitCM;
-         checkRange(xmin, xmax, ymin, ymax, pos.X(), pos.Y());
          pinposition->AddLine(pos.X(),ymin, 0, pos.X(), ymax, 0);
          pinposition->AddLine(xmin, pos.Y(), 0, xmax, pos.Y(), 0);
       }
@@ -279,6 +257,69 @@ Bool_t FWElectronDetailView::checkRange(Double_t &em, Double_t& eM, Double_t &pm
       changed = kTRUE;
    }
    return changed;
+}
+
+void
+FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, int subdetId, TEveCaloLego* lego)
+{
+   TEveCaloDataVec* data = (TEveCaloDataVec*)lego->GetData();
+   Double_t em, eM, pm, pM;
+   data->GetEtaLimits(em, eM);
+   data->GetPhiLimits(pm, pM);
+
+   Bool_t changed = kFALSE;
+   // add cells in third layer if necessary
+
+   //   trackpositionAtCalo
+   {
+      double eta = i->superCluster()->seed()->position().eta() -
+         i->deltaEtaSeedClusterTrackAtCalo();
+      double phi = i->superCluster()->seed()->position().phi() -
+         i->deltaPhiSeedClusterTrackAtCalo();
+
+      if (subdetId == EcalBarrel)
+      {
+         if (checkRange(em, eM, pm, pM, eta, phi))
+            changed = kTRUE;
+      }
+      else if (subdetId == EcalEndcap) {
+         TVector3 pos;
+         pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(),eta, phi);
+         pos *= m_unitCM;
+         if (checkRange(em, eM, pm, pM, pos.X(), pos.Y()))
+            changed = kTRUE;
+
+      }
+   }
+   // pinposition
+   {
+      double eta = i->caloPosition().eta() - deltaEtaSuperClusterTrackAtVtx(*i);
+      double phi = i->caloPosition().phi() - deltaPhiSuperClusterTrackAtVtx(*i);
+      if (subdetId == EcalBarrel)
+      {
+         if (checkRange(em, eM, pm, pM, eta, phi))
+            changed = kTRUE;
+      }
+      else if (subdetId == EcalEndcap) {
+         TVector3 pos;
+         pos.SetPtEtaPhi(i->caloPosition().rho(), eta, phi);
+         pos *= m_unitCM;
+         if (checkRange(em, eM, pm, pM, pos.X(), pos.Y()))
+            changed = kTRUE;
+      }
+   }
+   if (changed)
+   {
+      data->AddTower(em, eM, pm, pM);
+      data->FillSlice(2, 0);   data->DataChanged();
+
+      lego->ComputeBBox();
+      Double_t legoScale = ((eM - em) < (pM - pm)) ? (eM - em) : (pM - pm);
+      lego->InitMainTrans();
+      lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale*0.5);
+      lego->RefMainTrans().SetPos((eM+em)*0.5, (pM+pm)*0.5, 0);
+      lego->ElementChanged(true);
+   }
 }
 
 REGISTER_FWDETAILVIEW(FWElectronDetailView);
