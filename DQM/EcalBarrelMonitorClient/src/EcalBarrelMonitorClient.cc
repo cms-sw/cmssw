@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/08/27 15:31:32 $
- * $Revision: 1.452 $
+ * $Date: 2009/08/27 18:08:35 $
+ * $Revision: 1.453 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1634,7 +1634,7 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);
       } else {
-//        dqmStore_->disableSoftReset(*meitr);
+        dqmStore_->disableSoftReset(*meitr);
       }
     }
   }
