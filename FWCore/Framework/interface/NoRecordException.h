@@ -39,6 +39,8 @@
 namespace edm {
    namespace eventsetup {
       class EventSetupRecordKey;
+      void no_record_exception_message_builder(cms::Exception&,const char*);
+      void no_dependent_record_exception_message_builder(cms::Exception&, const EventSetupRecordKey&, const char*);
 //NOTE: when EDM gets own exception hierarchy, will need to change inheritance
 template <class T>
 class NoRecordException : public cms::Exception
@@ -47,21 +49,13 @@ class NoRecordException : public cms::Exception
   // ---------- Constructors and destructor ----------------
   NoRecordException():cms::Exception("NoRecord")
   {
-    (*this)
-      << "No \"" 
-      << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()
-      << "\" record found in the EventSetup.\n Please add an ESSource or ESProducer that delivers such a record.\n";
+    no_record_exception_message_builder(*this,heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className());
   }
 
 
   NoRecordException(const EventSetupRecordKey& iKey):cms::Exception("NoRecordFromDependentRecord")
   {
-    (*this)
-      << "No \"" 
-      << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()
-      << "\" record found in the dependent record \""<<iKey.type().name()
-      << "\".\n Please add an ESSource or ESProducer that delivers the \""
-      << heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className()<<"\" record.";
+    no_dependent_record_exception_message_builder(*this,iKey,heterocontainer::HCTypeTagTemplate<T,EventSetupRecordKey>::className());
   }
       virtual ~NoRecordException() throw() {}
 
