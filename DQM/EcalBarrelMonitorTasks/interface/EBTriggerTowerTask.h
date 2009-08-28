@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2009/02/27 12:31:30 $
- * $Revision: 1.23 $
+ * $Date: 2009/08/13 18:12:39 $
+ * $Revision: 1.24 $
  * \author C. Bernet
  *
 */
@@ -143,6 +143,10 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   MonitorElement* meEtSpectrumReal_;
   MonitorElement* meEtSpectrumEmul_;
   MonitorElement* meEtSpectrumEmulMax_;
+
+  /// number and ET average of TP vs bx
+  MonitorElement* meEtBxReal_;
+  MonitorElement* meOccupancyBxReal_;
 
 };
 

@@ -1,9 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/08/21 12:30:22 $
- * $Revision: 1.51 $
- * \author C. Bernet
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -48,6 +47,10 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   meEtSpectrumEmul_[1] = 0;
   meEtSpectrumEmulMax_[0] = 0;
   meEtSpectrumEmulMax_[1] = 0;
+  meEtBxReal_[0] = 0;
+  meEtBxReal_[1] = 0;
+  meOccupancyBxReal_[0] = 0;
+  meOccupancyBxReal_[1] = 0;
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -108,6 +111,8 @@ void EETriggerTowerTask::reset(void) {
     if ( meEtSpectrumReal_[iside] ) meEtSpectrumReal_[iside]->Reset();
     if ( meEtSpectrumEmul_[iside] ) meEtSpectrumEmul_[iside]->Reset();
     if ( meEtSpectrumEmulMax_[iside] ) meEtSpectrumEmulMax_[iside]->Reset();
+    if ( meEtBxReal_[iside] ) meEtBxReal_[iside]->Reset();
+    if ( meOccupancyBxReal_[iside] ) meOccupancyBxReal_[iside]->Reset();
   }
 
   for (int i = 0; i < 18; i++) {
@@ -164,6 +169,35 @@ void EETriggerTowerTask::setup( const char* nameext,
     sprintf(histo, "EETTT Et spectrum %s EE +", nameext);
     meEtSpectrumReal_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
     meEtSpectrumReal_[1]->setAxisTitle("energy (ADC)", 1);
+
+    double xbins[51];
+    for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
+    // abort gap in presence of calibration: [3381-3500]
+    // abort gap in absence of calibration: [3444-3500]
+    // uing the wider abort gap always, start finer binning at bx=3371
+    for ( int i=12; i<=22; i++) xbins[i] = 3371+i-12;
+    // use 29 bins for the abort gap
+    for ( int i=23; i<=51; i++) xbins[i] = 3382+(i-23)*6;
+
+    sprintf(histo, "EETTT Et vs bx %s EE -", nameext);
+    meEtBxReal_[0] = dqmStore_->bookProfile(histo, histo, 50, xbins, 256, 0, 256);
+    meEtBxReal_[0]->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_[0]->setAxisTitle("energy (ADC)", 2);
+
+    sprintf(histo, "EETTT Et vs bx %s EE +", nameext);
+    meEtBxReal_[1] = dqmStore_->bookProfile(histo, histo, 50, xbins, 256, 0, 256);
+    meEtBxReal_[1]->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_[1]->setAxisTitle("energy (ADC)", 2);
+
+    sprintf(histo, "EETTT TP occupancy vs bx %s EE -", nameext);
+    meEtBxReal_[0] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meEtBxReal_[0]->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_[0]->setAxisTitle("TP number", 2);
+
+    sprintf(histo, "EETTT TP occupancy vs bx %s EE +", nameext);
+    meEtBxReal_[1] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meEtBxReal_[1]->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_[1]->setAxisTitle("TP number", 2);
 
   } else {
     sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
@@ -294,6 +328,10 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
                                   array1& meVeto,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis ) {
 
+  int bx = e.bunchCrossing();
+  int nTP[2];
+  nTP[0] = nTP[1] = 0;
+
   // indexes are: readoutCrystalsInTower[TCCId][iTT]
   int readoutCrystalsInTower[108][41];
   for (int itcc = 0; itcc < 108; itcc++) {
@@ -371,9 +409,21 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
         compDigiEt = compDigiItr->compressedEt();
         if ( ismt >= 1 && ismt <= 9 ) {
+
           if ( meEtSpectrumReal_[0] ) meEtSpectrumReal_[0]->Fill( compDigiEt );
+
+          if ( meEtBxReal_[0] && compDigiItr->compressedEt() > 0 ) meEtBxReal_[0]->Fill( bx, compDigiItr->compressedEt() );
+
+          if ( compDigiItr->compressedEt() > 0 ) nTP[0]++;
+
         } else {
+
           if ( meEtSpectrumReal_[1] ) meEtSpectrumReal_[1]->Fill( compDigiEt );
+          
+          if ( meEtBxReal_[1] && compDigiItr->compressedEt() > 0 ) meEtBxReal_[1]->Fill( bx, compDigiItr->compressedEt() );
+
+          if ( compDigiItr->compressedEt() > 0 ) nTP[1]++;
+
         }
         if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
           //          LogDebug("EETriggerTowerTask") << "but it is different...";
@@ -438,6 +488,9 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
     } // loop over crystalsInTower
   } // loop over TPs
+
+  if ( meOccupancyBxReal_[0] ) meOccupancyBxReal_[0]->Fill( bx, nTP[0] );
+  if ( meOccupancyBxReal_[1] ) meOccupancyBxReal_[1]->Fill( bx, nTP[1] );
 
 }
 

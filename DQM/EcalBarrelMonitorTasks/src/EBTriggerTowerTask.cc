@@ -1,9 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/08/21 12:29:42 $
- * $Revision: 1.85 $
- * \author C. Bernet
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -43,7 +42,9 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   meEtSpectrumReal_ = 0;
   meEtSpectrumEmul_ = 0;
   meEtSpectrumEmulMax_ = 0;
-
+  meEtBxReal_ = 0;
+  meOccupancyBxReal_ = 0;
+  
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meEtMapEmul_);
@@ -102,7 +103,9 @@ void EBTriggerTowerTask::reset(void) {
   if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Reset();
   if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Reset();
   if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Reset();
-
+  if ( meEtBxReal_ ) meEtBxReal_->Reset();
+  if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Reset();
+  
   for (int i = 0; i < 36; i++) {
 
     if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
@@ -153,6 +156,26 @@ void EBTriggerTowerTask::setup( const char* nameext,
     sprintf(histo, "EBTTT Et spectrum %s", nameext);
     meEtSpectrumReal_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
     meEtSpectrumReal_->setAxisTitle("energy (ADC)", 1);
+
+    double xbins[51];
+    for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
+    // abort gap in presence of calibration: [3381-3500]
+    // abort gap in absence of calibration: [3444-3500]
+    // uing the wider abort gap always, start finer binning at bx=3371
+    for ( int i=12; i<=22; i++) xbins[i] = 3371+i-12;
+    // use 29 bins for the abort gap
+    for ( int i=23; i<=51; i++) xbins[i] = 3382+(i-23)*6;
+
+    sprintf(histo, "EBTTT Et vs bx %s", nameext);
+    meEtBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 256, 0, 256);
+    meEtBxReal_->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_->setAxisTitle("energy (ADC)", 2);
+
+    sprintf(histo, "EBTTT TP occupancy vs bx %s", nameext);
+    meEtBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meEtBxReal_->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_->setAxisTitle("TP number", 2);
+
   } else {
     sprintf(histo, "EBTTT Et spectrum %s", nameext);
     meEtSpectrumEmul_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
@@ -295,6 +318,9 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
   }
 
+  int bx = e.bunchCrossing();
+  int nTP = 0;
+
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
@@ -340,10 +366,14 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
       if( compDigiItr != compDigis->end() ) {
-//        LogDebug("EBTriggerTowerTask") << "found corresponding digi! " << *compDigiItr;
+
+        if ( compDigiItr->compressedEt() > 0 ) nTP++;
+
         if ( meEtSpectrumReal_ ) meEtSpectrumReal_->Fill( compDigiItr->compressedEt() );
+
+        if ( meEtBxReal_ && compDigiItr->compressedEt() > 0 ) meEtBxReal_->Fill( bx, compDigiItr->compressedEt() );
+
         if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
-//          LogDebug("EBTriggerTowerTask") << "but it is different...";
           good = false;
         }
 
@@ -384,5 +414,8 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     }
 
   }
+
+  if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Fill( bx, nTP );
+
 }
 

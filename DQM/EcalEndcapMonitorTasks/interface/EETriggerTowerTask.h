@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2009/02/27 12:31:33 $
- * $Revision: 1.19 $
+ * $Date: 2009/08/13 18:12:42 $
+ * $Revision: 1.20 $
  * \author C. Bernet
  *
 */
@@ -143,6 +143,10 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   MonitorElement* meEtSpectrumReal_[2];
   MonitorElement* meEtSpectrumEmul_[2];
   MonitorElement* meEtSpectrumEmulMax_[2];
+
+  /// number and ET average of TP vs bx for the whole EE+/-
+  MonitorElement* meEtBxReal_[2];
+  MonitorElement* meOccupancyBxReal_[2];
 
 };
 
