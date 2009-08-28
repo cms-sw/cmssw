@@ -168,7 +168,7 @@ module_results(const Book& book, const Method m) {
   for(Book::const_iterator it = book.begin(".*module.*"+method(m)); it!=book.end(); ++it ) {
     uint32_t detid = boost::lexical_cast<uint32_t>( boost::regex_replace( it.name(),
 									  boost::regex(".*_module(\\d*)_.*"),
-									  std::string("\1")));
+									  std::string("\\1")));
     results[detid] = result(m,it.name(),book);
   }
   return results;
