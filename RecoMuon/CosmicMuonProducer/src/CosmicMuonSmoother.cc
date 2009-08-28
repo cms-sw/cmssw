@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2009/07/29 16:40:30 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/08/25 18:48:58 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -350,6 +350,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
       }
 
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
+
       if ( !combTsos.isValid() ) {
          LogTrace(category_)<< "Error: smooth: combining pred TSOS failed. ";
          return vector<Trajectory>();
@@ -357,7 +358,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
          LogTrace(category_)<<"combined state "<<combTsos;
       }
 
-      TrajectoryStateOnSurface smooTsos = combiner((*itm).forwardPredictedState(), (*itm).updatedState());
+      TrajectoryStateOnSurface smooTsos = combiner((*itm).updatedState(), predTsos);
 
       if ( !smooTsos.isValid() ) {
          LogTrace(category_)<< "Error: smooth: combining smooth TSOS failed. ";
