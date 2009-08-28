@@ -16,11 +16,11 @@ class EcalSeverityLevelAlgo {
 
                 enum EcalSeverityLevel { kGood, kProblematic, kRecovered, kBad };
                 
-                int severityLevel( const DetId , const EcalRecHitCollection &, const EcalChannelStatus & ) const;
-                int severityLevel( const EcalRecHit &, const EcalChannelStatus & ) const;
-                int severityLevel( uint32_t rhFlag, uint16_t dbStatus ) const;
+                static int severityLevel( const DetId , const EcalRecHitCollection &, const EcalChannelStatus & );
+                static int severityLevel( const EcalRecHit &, const EcalChannelStatus & );
+                static int severityLevel( uint32_t rhFlag, uint16_t dbStatus );
         private:
-                uint16_t retrieveDBStatus( const DetId , const EcalChannelStatus &chStatus ) const;
+                static uint16_t retrieveDBStatus( const DetId , const EcalChannelStatus &chStatus );
 };
 
 #endif

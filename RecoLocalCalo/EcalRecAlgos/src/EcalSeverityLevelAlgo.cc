@@ -4,7 +4,7 @@
 
 int EcalSeverityLevelAlgo::severityLevel( const DetId id, 
                 const EcalRecHitCollection &recHits, 
-                const EcalChannelStatus &chStatus ) const
+                const EcalChannelStatus &chStatus )
 {
         // get DB flag
         uint16_t dbStatus = retrieveDBStatus( id, chStatus );
@@ -30,7 +30,7 @@ int EcalSeverityLevelAlgo::severityLevel( const DetId id,
 }
 
 int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit, 
-                const EcalChannelStatus &chStatus ) const
+                const EcalChannelStatus &chStatus )
 {
         // the channel is there, check its flags
         // and combine with DB (not needed at the moment)
@@ -39,7 +39,7 @@ int EcalSeverityLevelAlgo::severityLevel( const EcalRecHit &recHit,
         return severityLevel( rhFlag, dbStatus );
 }
 
-int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus ) const
+int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus )
 {
         // DB info currently not used at this level
         if ( rhFlag > EcalRecHit::kGood && rhFlag <= EcalRecHit::kPoorCalib ) {
@@ -56,7 +56,7 @@ int EcalSeverityLevelAlgo::severityLevel( uint32_t rhFlag, uint16_t chStatus ) c
         return 0;
 }
 
-uint16_t EcalSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChannelStatus &chStatus ) const
+uint16_t EcalSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChannelStatus &chStatus )
 {
         EcalChannelStatus::const_iterator chIt = chStatus.find( id );
         uint16_t dbStatus = 0;
