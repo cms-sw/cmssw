@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.12 2009/08/27 14:41:31 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.13 2009/08/28 13:08:33 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -189,7 +189,7 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
     stats.snapshots.push_back(snapshot);
   }
 
-  if (sampleCount > 1) stats.average /= sampleCount;
+  stats.average /= stats.snapshots.size();
 }
 
 
