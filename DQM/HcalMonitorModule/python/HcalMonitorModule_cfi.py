@@ -221,6 +221,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            TrigPrimMonitor_ADCdigiTS                      = cms.untracked.int32(3),
                            TrigPrimMonitor_checkNevents                   = cms.untracked.int32(1000),
                            TrigPrimMonitor_makeDiagnostics                = cms.untracked.bool(False),
+                           TrigPrimMonitor_ZSAlarmThreshold               = cms.untracked.int32(12),
                            gtLabel = cms.InputTag("l1GtUnpack"),
                            
                            # LED MONITOR
