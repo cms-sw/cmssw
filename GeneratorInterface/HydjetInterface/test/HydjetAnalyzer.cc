@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.13 2009/02/19 02:32:14 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.14 2009/05/20 23:15:31 yilmaz Exp $
 //
 //
 
@@ -77,6 +77,7 @@ struct HydjetEvent{
    float ptav[ETABINS];
 
    int mult;
+   int st[MAXPARTICLES];
    float pt[MAXPARTICLES];
    float eta[MAXPARTICLES];
    float phi[MAXPARTICLES];
@@ -103,15 +104,8 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-   std::ofstream out_b;
-   std::string fBFileName;
-
-   std::ofstream out_n;
-   std::string fNFileName;
-
-   std::ofstream out_m;
-   std::string fMFileName;
-
+  edm::InputTag src_;
+  edm::InputTag src2_;
   
    TTree* hydjetTree_;
    HydjetEvent hev_;
@@ -122,6 +116,7 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
  
    bool doAnalysis_;
    bool printLists_;
+   bool doMixed_;
    bool doCF_;
    bool doVertex_;
    double etaMax_;
@@ -147,12 +142,13 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
 HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
-   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
-   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
+  src_ = iConfig.getUntrackedParameter<edm::InputTag>("bkg",edm::InputTag("generator"));
+  src2_ = iConfig.getUntrackedParameter<edm::InputTag>("signal",edm::InputTag("hiSignal"));
+
    doAnalysis_ = iConfig.getUntrackedParameter<bool>("doAnalysis", true);
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
-   doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
+   doCF_ = iConfig.getUntrackedParameter<bool>("useCrossingFrame", false);
+   doMixed_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
    doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
 
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
@@ -247,12 +243,14 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
       
    Handle<HepMCProduct> mc;
-   iEvent.getByLabel("generator",mc);
+   iEvent.getByLabel(src_,mc);
    evt = mc->GetEvent();
       
-      Handle<HepMCProduct> mc2;
-      iEvent.getByLabel("generator",mc2);
-      evt2 = mc2->GetEvent();
+   if(doMixed_){
+     Handle<HepMCProduct> mc2;
+     iEvent.getByLabel(src2_,mc2);
+     evt2 = mc2->GetEvent();
+   }
    
    const HeavyIon* hi = evt->heavy_ion();
    if(hi){
@@ -262,20 +260,17 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       nhard = hi->Ncoll_hard();
       phi0 = hi->event_plane_angle();
       
-      if(printLists_){
-	 out_b<<b<<endl;
-	 out_n<<npart<<endl;
-      }
    }
    
    src = evt->particles_size();
-   sig = evt2->particles_size();
+   if(doMixed_) sig = evt2->particles_size();
    
    
    HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
    for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-      if((*it)->status() == 1){
+
+	int st = (*it)->status();
 	 int pdg_id = (*it)->pdg_id();
 	 float eta = (*it)->momentum().eta();
 	 float phi = (*it)->momentum().phi();
@@ -283,24 +278,27 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 const ParticleData * part = pdt->particle(pdg_id );
 	 int charge = part->charge();
 
+         hev_.st[hev_.mult] = st;
 	 hev_.pt[hev_.mult] = pt;
 	 hev_.eta[hev_.mult] = eta;
 	 hev_.phi[hev_.mult] = phi;
 	 hev_.pdg[hev_.mult] = pdg_id;
 	 hev_.chg[hev_.mult] = charge;
 	 
+
+	 if((*it)->status() != 1) continue;
+
 	 eta = fabs(eta);
 	 int etabin = 0;
 	 if(eta > 0.5) etabin = 1; 
 	 if(eta > 1.) etabin = 2;
 	 if(eta < 2.){
-	    hev_.ptav[etabin] += pt;
-	    ++(hev_.n[etabin]);
+	   hev_.ptav[etabin] += pt;
+	   ++(hev_.n[etabin]);
 	 }
 	 ++(hev_.mult);
-      }
+	 
    }
-   //   }
    
    if(doVertex_){
       edm::Handle<edm::SimVertexContainer> simVertices;
@@ -345,18 +343,6 @@ HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
    iSetup.getData(pdt);
 
-   if(printLists_){
-      out_b.open(fBFileName.c_str());
-      if(out_b.good() == false)
-	 throw cms::Exception("BadFile") << "Can\'t open file " << fBFileName;
-      out_n.open(fNFileName.c_str());
-      if(out_n.good() == false)
-	 throw cms::Exception("BadFile") << "Can\'t open file " << fNFileName;
-      out_m.open(fMFileName.c_str());
-      if(out_m.good() == false)
-	 throw cms::Exception("BadFile") << "Can\'t open file " << fMFileName;
-   }   
-   
    if(doAnalysis_){
       nt = f->make<TNtuple>("nt","Mixing Analysis","mix:np:src:sig");
 
@@ -372,6 +358,7 @@ HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
       hydjetTree_->Branch("ptav",hev_.ptav,"ptav[3]/F");
       
       hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
+      hydjetTree_->Branch("st",hev_.st,"st[mult]/I");
       hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
       hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
       hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");
