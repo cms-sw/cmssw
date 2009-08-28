@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.7 2009/08/20 13:41:01 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.8 2009/08/24 14:31:11 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -10,7 +10,6 @@
 #include "xdata/InfoSpace.h"
 #include "xdata/UnsignedInteger32.h"
 
-#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -35,6 +34,8 @@
 
 namespace stor {
 
+  class AlarmHandler;
+
   /**
    * Singleton to keep track of all monitoring and statistics issues
    *
@@ -42,8 +43,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/08/20 13:41:01 $
+   * $Revision: 1.8 $
+   * $Date: 2009/08/24 14:31:11 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener

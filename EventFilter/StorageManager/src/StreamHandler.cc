@@ -1,12 +1,12 @@
-// $Id: StreamHandler.cc,v 1.5 2009/07/16 11:41:46 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
 #include <iomanip>
 
+#include "EventFilter/StorageManager/interface/FileHandler.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StreamHandler.h"
-#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 
 #include "boost/bind.hpp"
 

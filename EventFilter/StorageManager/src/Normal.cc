@@ -1,8 +1,9 @@
-// $Id: Normal.cc,v 1.5 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Normal.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
 /// @file: Normal.cc
 
-#include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
 

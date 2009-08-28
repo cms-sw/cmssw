@@ -1,7 +1,9 @@
-// $Id: ConsumerMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: ConsumerMonitorCollection.cc,v 1.6 2009/08/24 15:07:40 mommsen Exp $
 /// @file: ConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 
 using namespace stor;
 

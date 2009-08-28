@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.8 2009/08/28 13:48:25 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.9 2009/08/28 14:35:33 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -15,25 +15,28 @@
 
 #include "EventFilter/Utilities/interface/Css.h"
 
-#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
-#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
 
+
 namespace stor {
+
+  class DQMEventMonitorCollection;
+  class FilesMonitorCollection;
+  class FragmentMonitorCollection;
+  class ResourceMonitorCollection;
+  class RunMonitorCollection;
+  class StreamsMonitorCollection;
+
 
   /**
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/28 13:48:25 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/28 14:35:33 $
    */
   
   class WebPageHelper

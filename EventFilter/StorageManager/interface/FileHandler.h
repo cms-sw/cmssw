@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.3 2009/07/03 11:08:05 mommsen Exp $
+// $Id: FileHandler.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -6,7 +6,6 @@
 
 #include <EventFilter/StorageManager/interface/Configuration.h>
 #include <EventFilter/StorageManager/interface/FilesMonitorCollection.h>
-#include <EventFilter/StorageManager/interface/I2OChain.h>
 #include <EventFilter/StorageManager/interface/Utils.h>
 #include <IOPool/Streamer/interface/MsgHeader.h>
 
@@ -17,12 +16,14 @@
 
 namespace stor {
 
+  class I2OChain;
+
   /**
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/03 11:08:05 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class FileHandler

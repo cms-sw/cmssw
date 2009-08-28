@@ -1,7 +1,8 @@
-// $Id: DQMConsumerMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: DQMConsumerMonitorCollection.cc,v 1.1 2009/08/24 14:31:50 mommsen Exp $
 /// @file: DQMConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 
 using namespace stor;
 

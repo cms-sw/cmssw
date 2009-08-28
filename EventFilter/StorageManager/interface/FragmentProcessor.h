@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: FragmentProcessor.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: FragmentProcessor.h 
 
 #ifndef StorageManager_FragmentProcessor_h
@@ -13,13 +13,16 @@
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
-#include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/WrapperNotifier.h"
 
+
 namespace stor {
+
+  class I2OChain;
+  class QueueID;
+  class StateMachine;
+
 
   /**
    * Processes I2O event fragments
@@ -28,9 +31,9 @@ namespace stor {
    * FragmentStore. If this completes the event, it hands it to the 
    * EventDistributor.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class FragmentProcessor : public toolbox::lang::Class

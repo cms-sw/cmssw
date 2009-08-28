@@ -1,7 +1,8 @@
-// $Id: FRDFileHandler.cc,v 1.3 2009/07/03 11:08:46 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
+#include <EventFilter/StorageManager/interface/I2OChain.h>
 #include <IOPool/Streamer/interface/FRDEventMessage.h>
 
 #include <iostream>

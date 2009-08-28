@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.3 2009/07/16 11:41:30 mommsen Exp $
+// $Id: StreamHandler.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -6,21 +6,24 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "EventFilter/StorageManager/interface/FileHandler.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
-#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 
 
 namespace stor {
+
+  class FileHandler;
+  class I2OChain;
+
 
   /**
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/16 11:41:30 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class StreamHandler

@@ -1,10 +1,10 @@
-// $Id: ConsumerUtils.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: ConsumerUtils.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
+#include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
-#include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
-#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "IOPool/Streamer/interface/OtherMessage.h"

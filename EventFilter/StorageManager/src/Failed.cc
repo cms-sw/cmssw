@@ -1,9 +1,10 @@
-// $Id: Failed.cc,v 1.9 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Failed.cc,v 1.10 2009/07/20 13:07:27 mommsen Exp $
 /// @file: Failed.cc
 
-#include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
 

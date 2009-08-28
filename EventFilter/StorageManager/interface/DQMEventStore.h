@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DQMEventStore.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef StorageManager_DQMEventStore_h
@@ -12,23 +12,25 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
-#include "EventFilter/StorageManager/interface/DQMKey.h"
-#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventRecord.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/DQMKey.h"
 
 
 namespace stor {
   
+  class DQMEventMonitorCollection;
+  class I2OChain;
+
+
   /**
    * Stores and collates DQM events
    * Note that this code is not thread safe as it uses a
    * class wide temporary buffer to convert I2OChains
    * into DQMEventMsgViews.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class DQMEventStore

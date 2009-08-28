@@ -1,13 +1,16 @@
-// $Id: StorageManager.cc,v 1.111 2009/08/27 14:40:51 mommsen Exp $
+// $Id: StorageManager.cc,v 1.112 2009/08/28 14:35:04 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
+#include "EventFilter/StorageManager/interface/DiskWriter.h"
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
+#include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/FragmentProcessor.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SoapUtils.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
@@ -33,7 +36,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.111 2009/08/27 14:40:51 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.112 2009/08/28 14:35:04 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 

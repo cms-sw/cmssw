@@ -1,7 +1,9 @@
-// $Id: DQMEventRecord.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DQMEventRecord.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DQMEventRecord.cc
 
+#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventRecord.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"

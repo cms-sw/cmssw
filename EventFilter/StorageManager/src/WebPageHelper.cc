@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.25 2009/08/28 13:48:01 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.26 2009/08/28 14:35:04 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -10,10 +10,16 @@
 #include "boost/lexical_cast.hpp"
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
-#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
+#include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/WebPageHelper.h"
 #include "EventFilter/StorageManager/interface/XHTMLMonitor.h"
 

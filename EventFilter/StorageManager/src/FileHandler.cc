@@ -1,8 +1,9 @@
-// $Id: FileHandler.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
+// $Id: FileHandler.cc,v 1.5 2009/07/25 02:30:03 wmtan Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
 #include <EventFilter/StorageManager/interface/FileHandler.h>
+#include <EventFilter/StorageManager/interface/I2OChain.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Version/interface/GetReleaseVersion.h>

@@ -1,8 +1,12 @@
-// $Id: DiscardManager.cc,v 1.3 2009/06/24 19:11:21 biery Exp $
+// $Id: DiscardManager.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DiscardManager.cc
 
+#include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/FUProxy.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 #include "toolbox/mem/MemoryPoolFactory.h"

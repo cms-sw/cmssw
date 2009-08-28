@@ -1,7 +1,9 @@
-// $Id: EventStreamHandler.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: EventStreamHandler.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
+#include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/EventFileHandler.h"
+#include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamHandler.h"
 
 

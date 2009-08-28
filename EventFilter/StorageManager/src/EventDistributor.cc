@@ -1,7 +1,21 @@
-// $Id: EventDistributor.cc,v 1.3 2009/06/24 19:11:22 biery Exp $
+// $Id: EventDistributor.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: EventDistributor.cc
 
+#include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
+#include "EventFilter/StorageManager/interface/DQMEventSelector.h"
+#include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
+#include "EventFilter/StorageManager/interface/ErrorStreamSelector.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
+#include "EventFilter/StorageManager/interface/EventConsumerSelector.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
+#include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
+#include "EventFilter/StorageManager/interface/EventStreamSelector.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 using namespace stor;
 

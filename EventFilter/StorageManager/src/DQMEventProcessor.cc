@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+// $Id: DQMEventProcessor.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -6,6 +6,9 @@
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
+#include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 using namespace stor;
 

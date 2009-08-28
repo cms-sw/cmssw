@@ -1,13 +1,16 @@
-// $Id: DiskWriter.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+// $Id: DiskWriter.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
+#include "EventFilter/StorageManager/interface/DiskWriterResources.h"
+#include "EventFilter/StorageManager/interface/EventStreamHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FRDStreamHandler.h"
-#include "EventFilter/StorageManager/interface/EventStreamHandler.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/StreamHandler.h"
 
 
 using namespace stor;

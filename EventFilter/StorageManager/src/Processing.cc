@@ -1,12 +1,15 @@
-// $Id: Processing.cc,v 1.11 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Processing.cc,v 1.12 2009/08/12 15:25:18 biery Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
 #include <sstream>

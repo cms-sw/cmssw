@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DiskWriter.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -14,13 +14,14 @@
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/StreamHandler.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 
 namespace stor {
+
+  class I2OChain;
+  class StreamHandler;
 
   /**
    * Writes events to disk
@@ -28,9 +29,9 @@ namespace stor {
    * It gets the next event from the StreamQueue and writes it
    * to the appropriate stream file(s) on disk. 
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class DiskWriter : public toolbox::lang::Class

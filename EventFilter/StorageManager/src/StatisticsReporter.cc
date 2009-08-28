@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.10 2009/08/21 14:39:56 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.11 2009/08/24 14:31:52 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -11,8 +11,10 @@
 #include "xdata/Event.h"
 #include "xdata/InfoSpaceFactory.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 

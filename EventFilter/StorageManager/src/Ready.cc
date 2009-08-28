@@ -1,12 +1,15 @@
-// $Id: Ready.cc,v 1.7 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Ready.cc,v 1.8 2009/07/20 13:07:28 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
