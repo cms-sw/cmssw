@@ -53,10 +53,10 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
     eventNum = dbe_->book1D("Number of Events","Number of Events", 1000,0,1E7);
 
-    physTrig = dbe_->book1D("Physics Triggers","Physics Triggers", 101,-0.5,100.5);
+    physTrig = dbe_->book1D("Physics Triggers","Physics Triggers", 401,-0.5,400.5);
     physTrig->setAxisTitle("Lumisection", 1);
 
-    randTrig = dbe_->book1D("Random Triggers","Random Triggers", 101,-0.5,100.5);
+    randTrig = dbe_->book1D("Random Triggers","Random Triggers", 401,-0.5,400.5);
     randTrig->setAxisTitle("Lumisection", 1);
 
     numberResets = dbe_->book1D("Number Resets","Number Resets", 1000,0,1000);
@@ -67,24 +67,24 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates");
 
     physRate = dbe_->book1D("Physics Trigger Rate","Physics Trigger Rate", 
-			    101,-0.5,100.5);
+			    401,-0.5,400.5);
     physRate->setAxisTitle("Lumisection", 1);
 
     randRate = dbe_->book1D("Random Trigger Rate","Random Trigger Rate", 
-			    101,-0.5,100.5);
+			    401,-0.5,400.5);
     randRate->setAxisTitle("Lumisection", 1);
 
     deadTimePercent = dbe_->book1D("Deadtime Percent","Deadtime Percent", 
-    				   101,-0.5,100.5);
+    				   401,-0.5,400.5);
     deadTimePercent->setAxisTitle("Lumisection", 1);
 
     lostPhysRate = dbe_->book1D("Lost Physics Trigger Rate","Lost Physics Trigger Rate", 
-				101,-0.5,100.5);
+				401,-0.5,400.5);
     lostPhysRate->setAxisTitle("Lumisection", 1);
 
     lostPhysRateBeamActive = dbe_->book1D("Lost Physics Trigger Rate - Beam Active",
 					  "Lost Physics Trigger Rate - Beam Active", 
-					  101,-0.5,100.5);
+					  401,-0.5,400.5);
     lostPhysRateBeamActive->setAxisTitle("Lumisection", 1);
 
     
@@ -103,7 +103,7 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
       sprintf(hname, "Rate_AlgoBit_%03d", i);
       sprintf(mename, "Rate_AlgoBit _%03d", i);
 
-      algoRate[i] = dbe_->book1D(hname, mename,101,-0.5,100.5);
+      algoRate[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
       algoRate[i]->setAxisTitle("Lumi Section" ,1);
     }    				     
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/Level1TriggerRates/TechnicalRates");
@@ -112,7 +112,7 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
       sprintf(hname, "Rate_TechBit_%03d", i);
       sprintf(mename, "Rate_TechBit _%03d", i);
 
-      techRate[i] = dbe_->book1D(hname, mename,101,-0.5,100.5);
+      techRate[i] = dbe_->book1D(hname, mename,401,-0.5,400.5);
       techRate[i]->setAxisTitle("Lumi Section" ,1);
     }    				     
 
