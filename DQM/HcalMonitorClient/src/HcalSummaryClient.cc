@@ -444,7 +444,7 @@ void HcalSummaryClient::analyze(void)
 		 else if (isHO(eta,d+1)) 
 		   {
 		     ++status_HO_;
-		     if (abs(eta)<5) ++status_HO0_;
+		     if (abs(ieta)<5) ++status_HO0_;
 		     else ++status_HO12_;
 		   }
 		 else if (isHF(eta,d+1)) 

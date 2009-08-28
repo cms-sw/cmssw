@@ -66,7 +66,9 @@ class HcalDigiClient : public HcalBaseClient {
   void htmlOutput(int run, string htmlDir, string htmlName);
   
   void htmlExpertOutput(int run, string htmlDir, string htmlName);
+
   void getHistograms();
+  void getProblemHistograms();
   void loadHistograms(TFile* f);
   
   void getSubdetHists(DigiClientHists& h, std::string subdet);

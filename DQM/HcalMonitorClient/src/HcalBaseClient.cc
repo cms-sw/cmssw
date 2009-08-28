@@ -246,33 +246,34 @@ bool HcalBaseClient::validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 void HcalBaseClient::getEtaPhiHists(std::string rootdir, std::string dir, std::string name, TH2F* h[4], std::string units)
 {
   if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
-  TH2F* dummy = new TH2F();
+
+  MonitorElement *me;
   stringstream hname;
 
   //cout <<"process_ = "<<process_.c_str()<<endl;
 
-  hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
+  hname <<process_.c_str()<<rootdir<<"/"<<dir<<"HB HE HF Depth 1 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
+  me= dbe_->get(hname.str().c_str());
+  if (me!=0) h[0]=me->getTH2F();
   hname.str("");
 
-  hname <<process_.c_str()<<dir<<"HB HE HF Depth 2 "<<name;
+  hname <<process_.c_str()<<rootdir<<"/"<<dir<<"HB HE HF Depth 2 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  me= dbe_->get(hname.str().c_str());
+  if (me!=0) h[1]=me->getTH2F();
   hname.str("");
 
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
+  hname <<process_.c_str()<<rootdir<<"/"<<dir<<"HE Depth 3 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  me= dbe_->get(hname.str().c_str());
+  if (me!=0) h[2]=me->getTH2F();
   hname.str("");
 
-  hname <<process_.c_str()<<dir<<"HO Depth 4 "<<name;
+  hname <<process_.c_str()<<rootdir<<"/"<<dir<<"HO Depth 4 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,rootdir,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
+  me= dbe_->get(hname.str().c_str());
+  if (me!=0) h[3]=me->getTH2F();
   hname.str("");
 
   if (debug_>2) std::cout <<"Finished with getEtaPhiHists(2D)"<<std::endl;
@@ -284,34 +285,8 @@ void HcalBaseClient::getEtaPhiHists(std::string rootdir, std::string dir, std::s
 void HcalBaseClient::getEtaPhiHists(std::string dir, std::string name, TH2F* h[4], std::string units)
 {
   if (debug_>2) std::cout <<"HcalBaseClient::getting EtaPhiHists (2D)"<<std::endl;
-  TH2F* dummy = new TH2F();
-  stringstream hname;
-
-  hname <<process_.c_str()<<dir<<"HB HE HF Depth 1 "<<name;
-  if (!units.empty()) hname<<" "<<units;
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  hname.str("");
-
-  hname <<process_.c_str()<<dir<<"HB HE HF Depth 2 "<<name;
-  if (!units.empty()) hname<<" "<<units;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  hname.str("");
-
-  hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
-  if (!units.empty()) hname<<" "<<units;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  hname.str("");
-
-  hname <<process_.c_str()<<dir<<"HO Depth 4 "<<name;
-  if (!units.empty()) hname<<" "<<units;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
-  if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  hname.str("");
-
-  if (debug_>2) std::cout <<"Finished with getEtaPhiHists(2D)"<<std::endl;
+  // If rootdir not specified, set it to "Hcal" by default
+  getEtaPhiHists("Hcal",dir, name, h, units);
   return;
 } // void HcalBaseClient::getEtaPhiHists(...)
 
@@ -320,42 +295,41 @@ void HcalBaseClient::getEtaPhiHists(std::string dir, std::string name, TH2F* h[4
 void HcalBaseClient::getSJ6histos(std::string dir, std::string name, TH2F* h[6], std::string units)
 {
   if (debug_>2) std::cout <<"HcalBaseClient::getting SJ6histos (2D)"<<std::endl;
-  TH2F* dummy = new TH2F();
   ostringstream hname;
 
   hname <<process_.c_str()<<dir<<"HB HF Depth 1 "<<name;
   if (!units.empty()) hname<<" "<<units;
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[0]=getTH2F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HB HF Depth 2 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[1]=getTH2F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 3 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[2]=getTH2F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HO ZDC "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[3]=getTH2F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 1 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[4]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[4]=getTH2F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE Depth 2 "<<name;
   if (!units.empty()) hname<<" "<<units;
-  h[5]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[5]=getTH2F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   if (debug_>3) std::cout <<"name = "<<hname.str()<<std::endl;
   hname.str("");
 
@@ -367,27 +341,26 @@ void HcalBaseClient::getSJ6histos(std::string dir, std::string name, TH2F* h[6],
 
 void HcalBaseClient::getSJ6histos(std::string dir, std::string name, TH1F* h[4], std::string units)
 {
-  TH1F* dummy = new TH1F();
   ostringstream hname;
 
   hname <<process_.c_str()<<dir<<"HB "<<name;
   if (!units.empty()) hname << " "<<units;
-  h[0]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[0]=getTH1F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HE "<<name;
   if (!units.empty()) hname << " "<<units;
-  h[1]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[1]=getTH1F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HO "<<name;
   if (!units.empty()) hname << " "<<units;
-  h[2]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[2]=getTH1F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   hname.str("");
 
   hname <<process_.c_str()<<dir<<"HF "<<name;
   if (!units.empty()) hname << " "<<units;
-  h[3]=getAnyHisto(dummy, hname.str(),process_,dbe_,debug_,cloneME_);
+  h[3]=getTH1F( hname.str(),process_, rootFolder_, dbe_,debug_,cloneME_);
   hname.str("");
   return;
 } // void HcalBaseClient::getSJ6histos(1D)

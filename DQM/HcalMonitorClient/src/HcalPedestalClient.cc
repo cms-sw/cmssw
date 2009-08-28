@@ -244,9 +244,8 @@ void HcalPedestalClient::getHistograms()
   }
   name.str("");
 
-  TH2F* dummy2D = new TH2F();
   name<<process_.c_str()<<"BaselineMonitor_Hcal/ ProblemPedestals";
-  ProblemPedestals = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  ProblemPedestals = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   for (int i=0;i<4;++i)

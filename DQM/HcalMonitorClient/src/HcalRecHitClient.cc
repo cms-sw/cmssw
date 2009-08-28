@@ -316,40 +316,36 @@ void HcalRecHitClient::getHistograms()
     }
   name.str("");
 
-  // dummy histograms
-  TH2F* dummy2D = new TH2F();
-  TH1F* dummy1D = new TH1F();
-
   // Grab individual histograms
   name<<process_.c_str()<<"RecHitMonitor_Hcal/ ProblemRecHits";
-  ProblemRecHits = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  ProblemRecHits = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   if (ievt_>0)
     ProblemRecHits->Scale(1./ievt_);
 
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HB_energy_1D";
-  h_HBEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HBEnergy_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HE_energy_1D";
-  h_HEEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HEEnergy_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_1D";
-  h_HOEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HOEnergy_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_1D";
-  h_HFEnergy_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HFEnergy_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HB_energy_RMS_1D";
-  h_HBEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HBEnergyRMS_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HE_energy_RMS_1D";
-  h_HEEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HEEnergyRMS_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HO_energy_RMS_1D";
-  h_HOEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HOEnergyRMS_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"RecHitMonitor_Hcal/rechit_1D_plots/HF_energy_RMS_1D";
-  h_HFEnergyRMS_1D=getAnyHisto(dummy1D, name.str(),process_, dbe_, debug_, cloneME_);
+  h_HFEnergyRMS_1D=getTH1F( name.str(),process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   getEtaPhiHists("RecHitMonitor_Hcal/problem_rechits/", " Problem RecHit Rate", ProblemRecHitsByDepth);
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/","Rec Hit Occupancy", OccupancyByDepth);
@@ -358,18 +354,7 @@ void HcalRecHitClient::getHistograms()
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Energy", EnergyThreshByDepth, "GeV");
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/","Rec Hit Average Time", TimeByDepth, "nS");
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/","Above Threshold Rec Hit Average Time", TimeThreshByDepth, "nS");
-  if (ievt_>0)
-    {
-      for (int i=0;i<4;++i)
-	{
-	  ProblemRecHitsByDepth[i]->Scale(1./ievt_);
-	  OccupancyByDepth[i]->Scale(1./ievt_);
-	  EnergyByDepth[i]->Scale(1./ievt_);
-	  EnergyThreshByDepth[i]->Scale(1./ievt_);
-	  TimeByDepth[i]->Scale(1./ievt_);
-	  TimeThreshByDepth[i]->Scale(1./ievt_);
-	}
-    }
+
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Energy", SumEnergyByDepth, "GeV");
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info_threshold/sumplots/","Above Threshold Rec Hit Summed Energy", SumEnergyThreshByDepth, "GeV");
   getEtaPhiHists("RecHitMonitor_Hcal/rechit_info/sumplots/","Rec Hit Summed Time", SumTimeByDepth, "nS");
@@ -378,103 +363,103 @@ void HcalRecHitClient::getHistograms()
   if (rechitclient_makeDiagnostics_)
     {
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_energy";
-      d_HBEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_total_energy";
-      d_HBTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_time";
-      d_HBTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_occupancy";
-      d_HBOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_energy_thresh";
-      d_HBThreshEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBThreshEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_total_energy_thresh";
-      d_HBThreshTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBThreshTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_time_thresh";
-      d_HBThreshTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBThreshTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hb/HB_occupancy_thresh";
-      d_HBThreshOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HBThreshOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
 
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_energy";
-      d_HEEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HEEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_total_energy";
-      d_HETotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HETotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_time";
-      d_HETime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HETime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_occupancy";
-      d_HEOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HEOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_energy_thresh";
-      d_HEThreshEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HEThreshEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_total_energy_thresh";
-      d_HEThreshTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HEThreshTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_time_thresh";
-      d_HEThreshTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HEThreshTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/he/HE_occupancy_thresh";
-      d_HEThreshOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HEThreshOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
 
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_energy";
-      d_HOEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_total_energy";
-      d_HOTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_time";
-      d_HOTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_occupancy";
-      d_HOOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_energy_thresh";
-      d_HOThreshEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOThreshEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_total_energy_thresh";
-      d_HOThreshTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOThreshTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_time_thresh";
-      d_HOThreshTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOThreshTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/ho/HO_occupancy_thresh";
-      d_HOThreshOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HOThreshOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
 
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_energy";
-      d_HFEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_total_energy";
-      d_HFTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_time";
-      d_HFTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_occupancy";
-      d_HFOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_energy_thresh";
-      d_HFThreshEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFThreshEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_total_energy_thresh";
-      d_HFThreshTotalEnergy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFThreshTotalEnergy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_time_thresh";
-      d_HFThreshTime=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFThreshTime=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
       name<<process_.c_str()<<"RecHitMonitor_Hcal/diagnostics/hf/HF_occupancy_thresh";
-      d_HFThreshOccupancy=getAnyHisto(dummy1D, name.str(),process_,dbe_,debug_,cloneME_);
+      d_HFThreshOccupancy=getTH1F( name.str(),process_,rootFolder_,dbe_,debug_,cloneME_);
       name.str("");
     } // if (rechitclient_makeDiagnostics_)
 

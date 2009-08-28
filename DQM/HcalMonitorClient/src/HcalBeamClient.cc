@@ -295,33 +295,29 @@ void HcalBeamClient::getHistograms()
   if(!dbe_) return;
 
   ostringstream name;  
- // dummy histograms
-  TH2F* dummy2D = new TH2F();
-  TH1F* dummy1D = new TH1F();
-  TProfile* dummyProf = new TProfile();
-
+ 
   name<<process_.c_str()<<"BeamMonitor_Hcal/ ProblemBeamCells";
 
-  ProblemBeamCells = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  ProblemBeamCells = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   getSJ6histos("BeamMonitor_Hcal/problem_beammonitor/", " Problem BeamMonitor Rate", ProblemBeamCellsByDepth);
 
   name<<process_.c_str()<<"BeamMonitor_Hcal/CenterOfEnergyRadius";
-  CenterOfEnergyRadius = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  CenterOfEnergyRadius = getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/CenterOfEnergy";
-  CenterOfEnergy = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  CenterOfEnergy = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/COEradiusVSeta";
-  COEradiusVSeta = getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  COEradiusVSeta = getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   name<<process_.c_str()<<"BeamMonitor_Hcal/HB/HBCenterOfEnergyRadius";
-  HBCenterOfEnergyRadius = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HBCenterOfEnergyRadius = getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/HB/HBCenterOfEnergy";
-  HBCenterOfEnergy = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  HBCenterOfEnergy = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   
   if (beamclient_makeDiagnostics_)
@@ -330,15 +326,15 @@ void HcalBeamClient::getHistograms()
 	{
 	  if (i==0) continue;
 	  name<<process_.c_str()<<"BeamMonitor_Hcal/HB/HB_CenterOfEnergyRadius_ieta"<<i;
-	  HB_CenterOfEnergyRadius[i+16]= getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+	  HB_CenterOfEnergyRadius[i+16]= getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
 	  name.str("");
 	}
     }
   name<<process_.c_str()<<"BeamMonitor_Hcal/HE/HECenterOfEnergyRadius";
-  HECenterOfEnergyRadius = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HECenterOfEnergyRadius = getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/HE/HECenterOfEnergy";
-  HECenterOfEnergy = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  HECenterOfEnergy = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   if (beamclient_makeDiagnostics_)
@@ -347,15 +343,15 @@ void HcalBeamClient::getHistograms()
 	{
 	  if (abs(i)<17) continue;
 	  name<<process_.c_str()<<"BeamMonitor_Hcal/HE/HE_CenterOfEnergyRadius_ieta"<<i;
-	  HE_CenterOfEnergyRadius[i+29]= getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+	  HE_CenterOfEnergyRadius[i+29]= getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
 	  name.str("");
 	}
     }
   name<<process_.c_str()<<"BeamMonitor_Hcal/HO/HOCenterOfEnergyRadius";
-  HOCenterOfEnergyRadius = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HOCenterOfEnergyRadius = getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/HO/HOCenterOfEnergy";
-  HOCenterOfEnergy = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  HOCenterOfEnergy = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   
   if (beamclient_makeDiagnostics_)
@@ -364,15 +360,15 @@ void HcalBeamClient::getHistograms()
 	{
 	  if (i==0) continue;
 	  name<<process_.c_str()<<"BeamMonitor_Hcal/HO/HO_CenterOfEnergyRadius_ieta"<<i;
-	  HO_CenterOfEnergyRadius[i+15]= getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+	  HO_CenterOfEnergyRadius[i+15]= getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
 	  name.str("");
 	}
     }
   name<<process_.c_str()<<"BeamMonitor_Hcal/HF/HFCenterOfEnergyRadius";
-  HFCenterOfEnergyRadius = getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFCenterOfEnergyRadius = getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/HF/HFCenterOfEnergy";
-  HFCenterOfEnergy = getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFCenterOfEnergy = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   
   if (beamclient_makeDiagnostics_)
@@ -381,91 +377,91 @@ void HcalBeamClient::getHistograms()
 	{
 	  if (abs(i)<29) continue;
 	  name<<process_.c_str()<<"BeamMonitor_Hcal/HF/HF_CenterOfEnergyRadius_ieta"<<i;
-	  HF_CenterOfEnergyRadius[i+41]= getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+	  HF_CenterOfEnergyRadius[i+41]= getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
 	  name.str("");
 	}
     }
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Et Sum vs Eta Long Fiber";
-  Etsum_eta_L=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_eta_L=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Et Sum vs Eta Short Fiber";
-  Etsum_eta_S=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_eta_S=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Et Sum vs Phi Long Fiber";
-  Etsum_phi_L=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_phi_L=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Et Sum vs Phi Short Fiber";
-  Etsum_phi_S=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_phi_S=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs fm HF+";
-  Etsum_ratio_p=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_ratio_p=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs Energy";
-  Energy_Occ=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  Energy_Occ=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs fm HF-";
-  Etsum_ratio_m=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_ratio_m=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/EtSum 2D phi and eta Long Fiber";
-  Etsum_map_L=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_map_L=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/EtSum 2D phi and eta Short Fiber";
-  Etsum_map_S=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_map_S=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/EtSum 2D phi and radius Long Fiber";
-  Etsum_rphi_L=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_rphi_L=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/EtSum 2D phi and radius Short Fiber";
-  Etsum_rphi_S=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_rphi_S=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Abnormal fm";
-  Etsum_ratio_map=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Etsum_ratio_map=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ 2D phi and radius Short Fiber";
-  Occ_rphi_S=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_rphi_S=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ 2D phi and radius Long Fiber";
-  Occ_rphi_L=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_rphi_L=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs Eta Short Fiber";
-  Occ_eta_S=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_eta_S=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs Eta Long Fiber";
-  Occ_eta_L=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_eta_L=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs Phi Short Fiber";
-  Occ_phi_S=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_phi_S=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ vs Phi Long Fiber";
-  Occ_phi_L=getAnyHisto(dummyProf, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_phi_L=getTProfile( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ_map Long Fiber";
-  Occ_map_L=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_map_L=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/Occ_map Short Fiber";
-  Occ_map_S=getAnyHisto(dummy2D, name.str(), process_, dbe_, debug_, cloneME_);
+  Occ_map_S=getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi ET-sum per wedge";
-  HFlumi_ETsum_perwedge=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_ETsum_perwedge=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi Occupancy above threshold ring1";
-  HFlumi_Occupancy_above_thr_r1=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_Occupancy_above_thr_r1=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi Occupancy between thresholds ring1";
-  HFlumi_Occupancy_between_thrs_r1=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_Occupancy_between_thrs_r1=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi Occupancy below threshold ring1";
-  HFlumi_Occupancy_below_thr_r1=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_Occupancy_below_thr_r1=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi Occupancy above threshold ring2";
-  HFlumi_Occupancy_above_thr_r2=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_Occupancy_above_thr_r2=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi Occupancy between thresholds ring2";
-  HFlumi_Occupancy_between_thrs_r2=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_Occupancy_between_thrs_r2=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   name<<process_.c_str()<<"BeamMonitor_Hcal/Lumi/HF lumi Occupancy below threshold ring2";
-  HFlumi_Occupancy_below_thr_r2=getAnyHisto(dummy1D, name.str(), process_, dbe_, debug_, cloneME_);
+  HFlumi_Occupancy_below_thr_r2=getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
 
   return;

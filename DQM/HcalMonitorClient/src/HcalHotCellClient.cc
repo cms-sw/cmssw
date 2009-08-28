@@ -329,13 +329,6 @@ void HcalHotCellClient::getHistograms()
   }
   name.str("");
 
-  // dummy histograms
-  TH2F* dummy2D = new TH2F();
-  TH1F* dummy1D = new TH1F();
-
-  // Set Problem cell palette (green = 0 = good, red = 1 = bad)
-
-
   // Grab individual histograms
 
   if (hotclient_test_persistent_) getEtaPhiHists(rootFolder_,"HotCellMonitor_Hcal/hot_rechit_always_above_threshold/",   "Hot Cells Persistently Above Energy Threshold", AbovePersistentThresholdCellsByDepth);
@@ -349,18 +342,18 @@ void HcalHotCellClient::getHistograms()
       getEtaPhiHists(rootFolder_,"HotCellMonitor_Hcal/diagnostics/rechitenergy/","Rec hit occupancy per cell",d_avgrechitoccupancymap);
 
       // At some point, clean these up so that histograms are only retrieved if corresponding process ran in Task
-      d_HBnormped=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HBrechitenergy=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/rechitenergy/HB_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HBenergyVsNeighbor=getAnyHisto(dummy2D,"HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HEnormped=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HErechitenergy=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/rechitenergy/HE_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HEenergyVsNeighbor=getAnyHisto(dummy2D,"HotCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HOnormped=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HOrechitenergy=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/rechitenergy/HO_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HOenergyVsNeighbor=getAnyHisto(dummy2D,"HotCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HFnormped=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HFrechitenergy=getAnyHisto(dummy1D,"HotCellMonitor_Hcal/diagnostics/rechitenergy/HF_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
-      d_HFenergyVsNeighbor=getAnyHisto(dummy2D,"HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HBnormped=getTH1F("HotCellMonitor_Hcal/diagnostics/pedestal/HB_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HBrechitenergy=getTH1F("HotCellMonitor_Hcal/diagnostics/rechitenergy/HB_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HBenergyVsNeighbor=getTH2F("HotCellMonitor_Hcal/diagnostics/neighborcells/HB_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HEnormped=getTH1F("HotCellMonitor_Hcal/diagnostics/pedestal/HE_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HErechitenergy=getTH1F("HotCellMonitor_Hcal/diagnostics/rechitenergy/HE_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HEenergyVsNeighbor=getTH2F("HotCellMonitor_Hcal/diagnostics/neighborcells/HE_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HOnormped=getTH1F("HotCellMonitor_Hcal/diagnostics/pedestal/HO_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HOrechitenergy=getTH1F("HotCellMonitor_Hcal/diagnostics/rechitenergy/HO_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HOenergyVsNeighbor=getTH2F("HotCellMonitor_Hcal/diagnostics/neighborcells/HO_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HFnormped=getTH1F("HotCellMonitor_Hcal/diagnostics/pedestal/HF_normped", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HFrechitenergy=getTH1F("HotCellMonitor_Hcal/diagnostics/rechitenergy/HF_rechitenergy", process_, rootFolder_, dbe_, debug_, cloneME_);
+      d_HFenergyVsNeighbor=getTH2F("HotCellMonitor_Hcal/diagnostics/neighborcells/HF_energyVsNeighbor", process_, rootFolder_, dbe_, debug_, cloneME_);
     } // if (hotclient_makeDiagnostics_)
 
 
@@ -368,8 +361,6 @@ void HcalHotCellClient::getHistograms()
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellClient GETHISTOGRAMS -> "<<cpu_timer.cpuTime()<<std::endl;
     }
-  delete dummy2D;
-  delete dummy1D;
   return;
 } //void HcalHotCellClient::getHistograms()
 

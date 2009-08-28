@@ -278,11 +278,6 @@ void HcalDeadCellClient::getHistograms()
     if ( debug_>1 ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
   }
 
-  // dummy histograms -- used for checking histogram types
-  TH2F* dummy2D = new TH2F();
-  TH1F* dummy1D = new TH1F();
-  TProfile* dummyProfile = new TProfile();
-  
   // Grab individual histograms
   name.str("");
 
@@ -296,77 +291,73 @@ void HcalDeadCellClient::getHistograms()
     }
 
   // Summary of all dead cells
-  NumberOfDeadCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/TotalDeadCells_HCAL_vs_LS",
+  NumberOfDeadCells=getTProfile("DeadCellMonitor_Hcal/TotalDeadCells_HCAL_vs_LS",
 				process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/TotalDeadCells_HB_vs_LS",
+  NumberOfDeadCellsHB=getTProfile("DeadCellMonitor_Hcal/TotalDeadCells_HB_vs_LS",
 				  process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/TotalDeadCells_HE_vs_LS",
+  NumberOfDeadCellsHE=getTProfile("DeadCellMonitor_Hcal/TotalDeadCells_HE_vs_LS",
 				  process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/TotalDeadCells_HO_vs_LS",
+  NumberOfDeadCellsHO=getTProfile("DeadCellMonitor_Hcal/TotalDeadCells_HO_vs_LS",
 				  process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfDeadCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/TotalDeadCells_HF_vs_LS",
+  NumberOfDeadCellsHF=getTProfile("DeadCellMonitor_Hcal/TotalDeadCells_HF_vs_LS",
 				  process_,rootFolder_,dbe_,debug_,cloneME_);
 
   // Dead cells -- never present
-  NumberOfNeverPresentCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HCAL_vs_LS",
+  NumberOfNeverPresentCells=getTProfile("DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HCAL_vs_LS",
 					process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HB_vs_LS",
+  NumberOfNeverPresentCellsHB=getTProfile("DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HB_vs_LS",
 					  process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HE_vs_LS",
+  NumberOfNeverPresentCellsHE=getTProfile("DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HE_vs_LS",
 					  process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HO_vs_LS",
+  NumberOfNeverPresentCellsHO=getTProfile("DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HO_vs_LS",
 					  process_,rootFolder_,dbe_,debug_,cloneME_);
-  NumberOfNeverPresentCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HF_vs_LS",
+  NumberOfNeverPresentCellsHF=getTProfile("DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HF_vs_LS",
 					  process_,rootFolder_,dbe_,debug_,cloneME_);
 
   // Dead cells -- low occupancy
   if (deadclient_test_occupancy_)
     {
-      NumberOfUnoccupiedCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HCAL_vs_LS",
+      NumberOfUnoccupiedCells=getTProfile("DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HCAL_vs_LS",
 					  process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfUnoccupiedCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HB_vs_LS",
+      NumberOfUnoccupiedCellsHB=getTProfile("DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HB_vs_LS",
 					    process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfUnoccupiedCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HE_vs_LS",
+      NumberOfUnoccupiedCellsHE=getTProfile("DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HE_vs_LS",
 					    process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfUnoccupiedCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HO_vs_LS",
+      NumberOfUnoccupiedCellsHO=getTProfile("DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HO_vs_LS",
 					    process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfUnoccupiedCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HF_vs_LS",
+      NumberOfUnoccupiedCellsHF=getTProfile("DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HF_vs_LS",
 					    process_,rootFolder_,dbe_,debug_,cloneME_);
     }
 
   // Dead cells -- low energy
   if (deadclient_test_energy_)
     {
-      NumberOfBelowEnergyCells=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HCAL_vs_LS",
+      NumberOfBelowEnergyCells=getTProfile("DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HCAL_vs_LS",
 					   process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfBelowEnergyCellsHB=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HB_vs_LS",
+      NumberOfBelowEnergyCellsHB=getTProfile("DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HB_vs_LS",
 					     process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfBelowEnergyCellsHE=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HE_vs_LS",
+      NumberOfBelowEnergyCellsHE=getTProfile("DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HE_vs_LS",
 					     process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfBelowEnergyCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HO_vs_LS",
+      NumberOfBelowEnergyCellsHO=getTProfile("DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HO_vs_LS",
 					     process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfBelowEnergyCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HF_vs_LS",
+      NumberOfBelowEnergyCellsHF=getTProfile("DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HF_vs_LS",
 					     process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfEnergyNeverPresentCells=getAnyHisto(dummyProfile,
+      NumberOfEnergyNeverPresentCells=getTProfile(
 						  "DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HCAL_vs_LS",
 						  process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfEnergyNeverPresentCellsHB=getAnyHisto(dummyProfile,
+      NumberOfEnergyNeverPresentCellsHB=getTProfile(
 						    "DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HB_vs_LS",
 						    process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfEnergyNeverPresentCellsHE=getAnyHisto(dummyProfile,
+      NumberOfEnergyNeverPresentCellsHE=getTProfile(
 						    "DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HE_vs_LS",
 						    process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfEnergyNeverPresentCellsHO=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HO_vs_LS",
+      NumberOfEnergyNeverPresentCellsHO=getTProfile("DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HO_vs_LS",
 					     process_,rootFolder_,dbe_,debug_,cloneME_);
-      NumberOfEnergyNeverPresentCellsHF=getAnyHisto(dummyProfile,"DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HF_vs_LS",
+      NumberOfEnergyNeverPresentCellsHF=getTProfile("DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HF_vs_LS",
 					     process_,rootFolder_,dbe_,debug_,cloneME_);
 
     }
 
-
-  delete dummy1D;
-  delete dummy2D;
-  delete dummyProfile;
   return;
 } //void HcalDeadCellClient::getHistograms()
 

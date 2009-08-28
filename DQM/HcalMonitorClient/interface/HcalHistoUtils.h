@@ -45,6 +45,161 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+// Template class 'getAnyHisto' functions contain memory leaks somewhere.  Re-introduce getTH1F, getTH2F, getTProfile
+
+inline TH1F* getTH1F(std::string name, std::string process, std::string rootfolder, DQMStore* dbe_, bool verb, bool clone)
+{
+  using std::cout;
+  using std::endl;
+  
+  if (!dbe_) return NULL;
+  stringstream title;
+  title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
+
+  MonitorElement* me = dbe_->get(title.str().c_str()); // get Monitor Element named 'title'
+  
+  if (!me) 
+    {
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<endl;
+      return NULL; // ME not found
+    } // if (!me)
+
+  if (verb) 
+    cout << "Found '" << title.str().c_str() << "'" << endl;
+
+  stringstream clonehisto;
+  if (clone)
+    {
+      clonehisto<<"ME "<<name.c_str();
+      TH1F *out = dynamic_cast<TH1F*>(me->getTH1F()->Clone(clonehisto.str().c_str()));
+      return out;
+    }
+  else return (me->getTH1F());
+}
+
+inline TH2F* getTH2F(std::string name, std::string process, std::string rootfolder, DQMStore* dbe_, bool verb, bool clone)
+{
+  using std::cout;
+  using std::endl;
+  
+  if (!dbe_) return NULL;
+  stringstream title;
+  title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
+
+  MonitorElement* me = dbe_->get(title.str().c_str()); // get Monitor Element named 'title'
+  
+  if (!me) 
+    {
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<endl;
+      return NULL; // ME not found
+    } // if (!me)
+
+  if (verb) 
+    cout << "Found '" << title.str().c_str() << "'" << endl;
+
+  stringstream clonehisto;
+  if (clone)
+    {
+      clonehisto<<"ME "<<name.c_str();
+      TH2F *out = dynamic_cast<TH2F*>(me->getTH2F()->Clone(clonehisto.str().c_str()));
+      return out;
+    }
+  else return (me->getTH2F());
+}
+
+
+inline TH3F* getTH3F(std::string name, std::string process, std::string rootfolder, DQMStore* dbe_, bool verb, bool clone)
+{
+  using std::cout;
+  using std::endl;
+  
+  if (!dbe_) return NULL;
+  stringstream title;
+  title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
+
+  MonitorElement* me = dbe_->get(title.str().c_str()); // get Monitor Element named 'title'
+  
+  if (!me) 
+    {
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<endl;
+      return NULL; // ME not found
+    } // if (!me)
+
+  if (verb) 
+    cout << "Found '" << title.str().c_str() << "'" << endl;
+
+  stringstream clonehisto;
+  if (clone)
+    {
+      clonehisto<<"ME "<<name.c_str();
+      TH3F *out = dynamic_cast<TH3F*>(me->getTH3F()->Clone(clonehisto.str().c_str()));
+      return out;
+    }
+  else return (me->getTH3F());
+}
+
+inline TProfile* getTProfile(std::string name, std::string process, std::string rootfolder, DQMStore* dbe_, bool verb, bool clone)
+{
+  using std::cout;
+  using std::endl;
+  
+  if (!dbe_) return NULL;
+  stringstream title;
+  title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
+
+  MonitorElement* me = dbe_->get(title.str().c_str()); // get Monitor Element named 'title'
+  
+  if (!me) 
+    {
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<endl;
+      return NULL; // ME not found
+    } // if (!me)
+
+  if (verb) 
+    cout << "Found '" << title.str().c_str() << "'" << endl;
+
+  stringstream clonehisto;
+  if (clone)
+    {
+      clonehisto<<"ME "<<name.c_str();
+      TProfile *out = dynamic_cast<TProfile*>(me->getTProfile()->Clone(clonehisto.str().c_str()));
+      return out;
+    }
+  else return (me->getTProfile());
+}
+
+inline TProfile2D* getTProfile2D(std::string name, std::string process, std::string rootfolder, DQMStore* dbe_, bool verb, bool clone)
+{
+  using std::cout;
+  using std::endl;
+  
+  if (!dbe_) return NULL;
+  stringstream title;
+  title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
+
+  MonitorElement* me = dbe_->get(title.str().c_str()); // get Monitor Element named 'title'
+  
+  if (!me) 
+    {
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<endl;
+      return NULL; // ME not found
+    } // if (!me)
+
+  if (verb) 
+    cout << "Found '" << title.str().c_str() << "'" << endl;
+
+  stringstream clonehisto;
+  if (clone)
+    {
+      clonehisto<<"ME "<<name.c_str();
+      TProfile2D *out = dynamic_cast<TProfile2D*>(me->getTProfile2D()->Clone(clonehisto.str().c_str()));
+      return out;
+    }
+  else return (me->getTProfile2D());
+}
+
+
+
 template <class myHist>
 myHist* getAnyHisto(myHist* hist,
 		    std::string name, std::string process, DQMStore* dbe_,
@@ -75,8 +230,8 @@ myHist* getAnyHisto(myHist* hist,
 
   if (!dbe_) return NULL;
 
-  char clonehisto[150];
 
+  stringstream clonehisto;
   stringstream title;
   title <<process.c_str()<<rootfolder.c_str()<<"/"<<name.c_str();
   //sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
@@ -93,8 +248,7 @@ myHist* getAnyHisto(myHist* hist,
     cout << "Found '" << title.str().c_str() << "'" << endl;
 
   if (clone)
-    sprintf(clonehisto, "ME %s",name.c_str()); // set clone histogram name
-
+    clonehisto<<"ME "<<name.c_str(); // set clone histogram name
 
   /* As of 25 April 2008, there are 5 histogram types associated with 
      Monitor Elements (TH1F, TH2F, TH3F, TProfile, and TProfile2D).
@@ -107,7 +261,7 @@ myHist* getAnyHisto(myHist* hist,
   if (histtype=="TH1F")
     {
       TH1F* out;
-      if (clone) out = dynamic_cast<TH1F*>(me->getTH1F()->Clone(clonehisto));
+      if (clone) out = dynamic_cast<TH1F*>(me->getTH1F()->Clone(clonehisto.str().c_str()));
       else out = me->getTH1F();
       if (verb) std::cout <<"Got histogram!  Max = "<<out->GetMaximum()<<std::endl;
       return dynamic_cast<myHist*>(out);
@@ -117,7 +271,7 @@ myHist* getAnyHisto(myHist* hist,
   else if (histtype=="TH2F")
     {
       TH2F* out;
-      if (clone) out = dynamic_cast<TH2F*>(me->getTH2F()->Clone(clonehisto));
+      if (clone) out = dynamic_cast<TH2F*>(me->getTH2F()->Clone(clonehisto.str().c_str()));
       else out = me->getTH2F();
 
       if (verb) std::cout <<"Got histogram!  Max = "<<out->GetMaximum()<<std::endl;
@@ -128,7 +282,7 @@ myHist* getAnyHisto(myHist* hist,
   else if (histtype=="TH3F")
     {
       TH3F* out;
-      if (clone) out = dynamic_cast<TH3F*>(me->getTH3F()->Clone(clonehisto));
+      if (clone) out = dynamic_cast<TH3F*>(me->getTH3F()->Clone(clonehisto.str().c_str()));
       else out = me->getTH3F();
       return dynamic_cast<myHist*>(out);
     }
@@ -137,7 +291,7 @@ myHist* getAnyHisto(myHist* hist,
   else if (histtype=="TProfile")
     {
       TProfile* out;
-      if (clone) out = dynamic_cast<TProfile*>(me->getTProfile()->Clone(clonehisto));
+      if (clone) out = dynamic_cast<TProfile*>(me->getTProfile()->Clone(clonehisto.str().c_str()));
       else out = me->getTProfile();
       return dynamic_cast<myHist*>(out);
     }
@@ -146,7 +300,7 @@ myHist* getAnyHisto(myHist* hist,
   else if (histtype=="TProfile2D")
     {
       TProfile2D* out;
-      if (clone) out = dynamic_cast<TProfile2D*>(me->getTProfile2D()->Clone(clonehisto));
+      if (clone) out = dynamic_cast<TProfile2D*>(me->getTProfile2D()->Clone(clonehisto.str().c_str()));
       else out = me->getTProfile2D();
       return dynamic_cast<myHist*>(out);
     }
