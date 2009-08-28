@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.3 2009/07/20 13:07:28 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.4 2009/08/18 08:55:12 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
@@ -54,6 +54,7 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
 {
   if (! _enabled) {return;}
   if (_lastCalculationTime <= 0.0) {return;}
+  if (currentTime - _lastCalculationTime < _expectedCalculationInterval) {return;}
 
   // create local copies of the working values to minimize the
   // time that we could block a thread trying to add a sample.
@@ -199,7 +200,7 @@ void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
 
 void MonitoredQuantity::_reset_accumulators()
 {
-  _lastCalculationTime = -1.0;
+  _lastCalculationTime = 0;
   _workingSampleCount = 0;
   _workingValueSum = 0.0;
   _workingValueSumOfSquares = 0.0;
