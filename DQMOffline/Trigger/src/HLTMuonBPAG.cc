@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/05/22 09:07:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/08/25 10:03:21 $
+ *  $Revision: 1.1 $
  */
 
 
@@ -339,7 +339,7 @@ void HLTMuonBPAG::begin()
     massVsPtBins.push_back(5); // pt from 0 to 20 in 5 bins
     massVsPtBins.push_back(0.0);
     massVsPtBins.push_back(20.0);
-    massVsPtBins.push_back(10); // mass: 10 bins from 0 to 6
+    massVsPtBins.push_back(50); // mass: 10 bins from 0 to 6
     massVsPtBins.push_back(0.0);
     massVsPtBins.push_back(6.0);
 
@@ -347,7 +347,7 @@ void HLTMuonBPAG::begin()
     massVsEtaBins.push_back(5); // |eta| < 2.1 in 5 bins
     massVsEtaBins.push_back(-2.1);
     massVsEtaBins.push_back(2.1);
-    massVsEtaBins.push_back(10);
+    massVsEtaBins.push_back(50);
     massVsEtaBins.push_back(0.0); // mass: 10 bins from 0 to 6
     massVsEtaBins.push_back(6.0);
 
@@ -355,14 +355,14 @@ void HLTMuonBPAG::begin()
     massVsPhiBins.push_back(5); // -pi < phi < pi  in 5 bins
     massVsPhiBins.push_back(-3.14);
     massVsPhiBins.push_back(3.14);
-    massVsPhiBins.push_back(10);
+    massVsPhiBins.push_back(50);
     massVsPhiBins.push_back(0.0); // mass: 10 bins from 0 to 6
     massVsPhiBins.push_back(6.0);
 
     
 
     vector<double> massBins;
-    massBins.push_back(20);
+    massBins.push_back(50);
     massBins.push_back(0);
     massBins.push_back(6);
 
@@ -464,8 +464,8 @@ bool HLTMuonBPAG::selectAndMatchMuons(const edm::Event & iEvent,
   StringCutObjectSelector<Muon> tempRecoSelector("pt > 1 && abs(eta) < 1.4");
   StringCutObjectSelector<TriggerObject> tempHltSelector("pt > 1 && abs(eta) < 1.4");
   string customName = "bpagTag";
-  double d0Cut = 2.0;
-  double z0Cut = 50;
+  //double d0Cut = 2.0;
+  //double z0Cut = 50;
   string trkCol = "innerTrack";
   std::vector<std::string> reqTrigs;
 
