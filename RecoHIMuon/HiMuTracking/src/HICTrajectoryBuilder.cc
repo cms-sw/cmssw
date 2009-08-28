@@ -81,8 +81,8 @@ HICTrajectoryBuilder::
 HICTrajectoryBuilder::~HICTrajectoryBuilder()
 {
   delete theLayerMeasurements;
-  delete theMinPtCondition;
-  delete theMaxHitsCondition;
+//  delete theMinPtCondition;
+//  delete theMaxHitsCondition;
 }
 
 void HICTrajectoryBuilder::setEvent(const edm::Event& event) const

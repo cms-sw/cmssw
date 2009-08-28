@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.16 2009/07/09 14:50:49 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.17 2009/08/17 07:13:50 kodolova Exp $
 //
 //
  
@@ -202,6 +202,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
    es1.get<TrackingComponentsRecord>().get(propagatorAlongName,propagatorAlongHandle);
    es1.get<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
    es1.get<TrackingComponentsRecord>().get(updatorName,updatorHandle);
+// Try here
+//   std::cout<<" Before return "<<std::endl;
+//   return dimuon;
 
 // Initialization of navigation school
 
@@ -244,7 +247,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 #ifdef DEBUG
   std::cout<<" After first tracker update "<<std::endl;
 #endif
-
+//   return dimuon;
 
 // For trajectory builder   
    int  theLowMult = 1;
@@ -259,7 +262,14 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 //    StateOnTrackerBound state(theFmp);  
       
     FastMuPropagator theFmp(&(*magfield),theFmpConst);
+//    std::cout<<" FastMuonPropagator "<<std::endl;
+//    return dimuon;
+    
+
     StateOnTrackerBound state(&theFmp); 
+
+//    std::cout<<" StateOnTrackerBound "<<std::endl;
+//    return dimuon;
 
     TrajectoryStateOnSurface tsos;
     
@@ -269,7 +279,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     
     int NumOfSigma=4;
     HICTkOuterStartingLayerFinder TkOSLF(NumOfSigma, &(*magfield), &(*tracker), theHICConst);
-   
+  
+    
+ 
     int mult = 1;
     DiMuonSeedGeneratorHIC Seed(rphirecHitsTag,&(*magfield),&(*tracker), theHICConst, builderName, mult);
 
@@ -291,6 +303,9 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 
    vector<FreeTrajectoryState*> theFoundFts;
    map<FreeTrajectoryState*, vector<Trajectory> >  theMapFtsTraj;
+
+//   std::cout<<" Before FTS cycle "<<std::endl;
+//   return dimuon;
 
 
    for(vector<FreeTrajectoryState>::iterator ifts=theFts.begin(); ifts!=theFts.end(); ifts++)
@@ -366,6 +381,7 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
          theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
          theV[0].updatedState().freeTrajectoryState()->parameters().momentum().z()<<std::endl;
 #endif
+//         continue;
 
 	 vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder.trajectories(*iseed); 
     
@@ -512,6 +528,11 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
     if(theFoundFts.size()<2)  return dimuon;
 
 // Look for vertex constraints
+
+#ifdef DEBUG
+    std::cout<<" Try to find vertex "<<std::endl;
+#endif
+//    return dimuon;
 
     edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
     es1.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
