@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyClient.h
  *
- * $Date: 2009/08/10 15:50:01 $
- * $Revision: 1.17 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,7 +86,7 @@ std::vector<int> superModules_;
 
 DQMStore* dqmStore_;
 
-TH1F* i01_[18];
+TH2F* i01_[18];
 TProfile2D* i02_[18];
 
 TH2F* h01_[2][3];

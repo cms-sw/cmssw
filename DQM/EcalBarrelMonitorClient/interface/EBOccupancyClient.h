@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2009/08/10 15:49:28 $
- * $Revision: 1.16 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,7 +86,7 @@ std::vector<int> superModules_;
 
 DQMStore* dqmStore_;
 
-TH1F* i01_[36];
+TH2F* i01_[36];
 TProfile2D* i02_[36];
 
 TH2F* h01_[3];
