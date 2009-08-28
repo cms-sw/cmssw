@@ -37,7 +37,7 @@ void CopyDir(TDirectory *source) {
 void CopySubdir(const char * oldfile, const char * newfile){
 
   TFile *oldf = TFile::Open(oldfile);
-  oldf->cd("DQMData/Run 1/RecoTrackV");
+  oldf->cd("DQMData/Run 1/Tracking");
   TDirectory *dirtracking=gDirectory;
   oldf->cd("DQMData/Run 1/TrackerHitsV");
   TDirectory *dirsimhit=gDirectory;
@@ -45,7 +45,7 @@ void CopySubdir(const char * oldfile, const char * newfile){
   TDirectory *dirrechits=gDirectory;
   oldf->cd("DQMData/Run 1/TrackerDigisV");
   TDirectory *dirdigis=gDirectory;
-  oldf->cd("DQMData/Run 1/TrackingMCTruthV");
+  oldf->cd("DQMData/Run 1/Tracking");
   TDirectory *dirTP=gDirectory;
   TFile *newf =new TFile(newfile,"RECREATE");
   TDirectory *dirnew=newf->mkdir("DQMData");
