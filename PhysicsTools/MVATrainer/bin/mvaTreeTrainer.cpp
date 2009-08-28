@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <memory>
 
@@ -91,6 +92,7 @@ int main(int argc, char **argv)
 	bool monitoring = true;
 	bool weights = true;
 	bool useXSLT = false;
+	double crossValidation = -1.0;
 	const char *styleSheet = 0;
 	char **args = argv + 1;
 	argc--;
@@ -111,9 +113,29 @@ int main(int argc, char **argv)
 			useXSLT = true;
 			styleSheet = *args + 7;
 		} else if (!std::strcmp(*args, "-x") || 
-		         !std::strcmp(*args, "--xslt"))
+		           !std::strcmp(*args, "--xslt"))
 			useXSLT = true;
-		else
+		else if (!std::strcmp(*args, "-v") ||
+		         !std::strcmp(*args, "--cross-validation")) {
+			args++;
+			argc--;
+			if (argc < 1) {
+				std::cerr << "Option " << *args
+				          << " needs a parameter."
+				          << std::endl;
+				continue;
+			}
+			std::istringstream ss(*args);
+			ss >> crossValidation;
+			if (!(crossValidation > 0.0 &&
+			      crossValidation < 1.0)) {
+				crossValidation = -1.0;
+				std::cerr << "Option " << args[-1]
+				          << " has an invalid argument."
+				          << std::endl;
+				continue;
+			}
+		} else
 			std::cerr << "Unsupported option " << *args
 			          << "." << std::endl;
 		args++;
@@ -130,7 +152,9 @@ int main(int argc, char **argv)
 		             "\t-s / --no-save\t\tDon't save training data.\n"
 		             "\t-m / --no-monitoring\tDon't write monitoring plots.\n"
 		             "\t-w / --no-weights\tIgnore __WEIGHT__ branches.\n"
-		             "\t-x / --xslt\t\tUse MVATrainer XSLT parsing.\n\n";
+		             "\t-x / --xslt\t\tUse MVATrainer XSLT parsing.\n"
+		             "\t-v <arg> / --cross-validation <arg>\n"
+		             "\t\t\t\tUse <arg> test/train sample split ratio (0..1).\n\n";
 		std::cerr << "Trees can be selected as "
 		             "(<tree name>@)<file name>" << std::endl;
 		return 1;
@@ -172,6 +196,8 @@ int main(int argc, char **argv)
 		MVATrainer trainer(args[0], useXSLT, styleSheet);
 		trainer.setMonitoring(monitoring);
 		trainer.setAutoSave(save);
+		if (crossValidation > 0.0)
+			trainer.setCrossValidation(crossValidation);
 		if (load)
 			trainer.loadState();
 
