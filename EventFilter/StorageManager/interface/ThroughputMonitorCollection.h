@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.9 2009/08/26 15:17:15 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.10 2009/08/27 14:41:53 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -23,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2009/08/26 15:17:15 $
+   * $Revision: 1.10 $
+   * $Date: 2009/08/27 14:41:53 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -208,6 +208,11 @@ namespace stor {
      */
     void getStats(Stats&) const;
 
+    /**
+     * Write only the sampleCount most recent snapshots into the given Stats struct.
+     */
+    void getStats(Stats&, const unsigned int sampleCount) const;
+
 
   private:
 
@@ -219,6 +224,8 @@ namespace stor {
     virtual void do_reset();
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
+
+    void do_getStats(Stats&, const unsigned int sampleCount) const;
 
     void smoothIdleTimes(MonitoredQuantity::Stats&) const;
 
@@ -239,14 +246,12 @@ namespace stor {
 
     double calcBusyPercentage(
       MonitoredQuantity::Stats&,
-      const int& idx,
-      const double& binDuration,
-      const double& relativeTime
+      const int& idx
     ) const;
 
     void calcPoolUsage();
 
-    const int _binCount;
+    const unsigned int _binCount;
     mutable boost::mutex _statsMutex;
 
     MonitoredQuantity _poolUsageMQ;
