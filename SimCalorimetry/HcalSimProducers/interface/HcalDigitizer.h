@@ -52,6 +52,7 @@ private:
   CaloVShape * theHFShape;
   CaloVShape * theZDCShape;
   CaloVShape * theHcalIntegratedShape;
+  CaloVShape * theSiPMIntegratedShape;
   CaloVShape * theHFIntegratedShape;
   CaloVShape * theZDCIntegratedShape;
 

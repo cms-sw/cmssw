@@ -86,6 +86,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHFShape(new HFShape()),
   theZDCShape(new ZDCShape()),
   theHcalIntegratedShape(0),
+  theSiPMIntegratedShape(0),
   theHFIntegratedShape(new CaloShapeIntegrator(theHFShape)),
   theZDCIntegratedShape(new CaloShapeIntegrator(theZDCShape)),
   theHBHEResponse(0),
@@ -152,6 +153,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(doHBHESiPM || doHOSiPM )
   {
     theSiPMShape = new HcalSiPMShape();
+    theSiPMIntegratedShape = new CaloShapeIntegrator(theSiPMShape);
   }
 
   if(doHBHEHPD)
@@ -169,13 +171,13 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
 
   if(doHBHESiPM)
   {
-    theHBHESiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMShape);
+    theHBHESiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMIntegratedShape);
     theHBHESiPMResponse->setHitFilter(&theHBHEHitFilter);
     theHBHESiPMDigitizer = new HBHEDigitizer(theHBHESiPMResponse, theHBHEElectronicsSim, doEmpty);
   }
   if(doHOSiPM)
   {
-    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMShape);
+    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMIntegratedShape);
     theHOSiPMResponse->setHitFilter(&theHOHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
@@ -262,6 +264,7 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHFShape;
   delete theZDCShape;
   delete theHcalIntegratedShape;
+  delete theSiPMIntegratedShape;
   delete theHFIntegratedShape;
   delete theZDCIntegratedShape;
   delete theHBHEResponse;
