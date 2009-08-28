@@ -40,7 +40,7 @@ TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   src_ =  conf.getParameter<edm::InputTag>( "src" );
   
   dbe_  = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
+  dbe_->setCurrentFolder("Tracking/TrackingMCTruth/TrackingParticle");
   
 
   meTPMass = dbe_->book1D("TPMass","Tracking Particle Mass",100, -1,+5.);

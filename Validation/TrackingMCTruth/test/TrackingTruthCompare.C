@@ -17,11 +17,13 @@ void TrackingTruthCompare()
  TDirectory * sdir=gDirectory; 
 
  if(rfile->cd("DQMData/Run 1/TrackingMCTruthV"))rfile->cd("DQMData/Run 1/TrackingMCTruthV/Run summary/TrackingMCTruth/TrackingParticle");
- else rfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
+ else if(rfile->cd("DQMData/TrackingMCTruthV"))rfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
+ else if(rfile->cd("DQMData/Run 1/Tracking"))rfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingMCTruth/TrackingParticle");
+ else if(rfile->cd("DQMData/Tracking"))rfile->cd("DQMData/Tracking/TrackingMCTruth/TrackingParticle");
  rdir=gDirectory;
  
- if(sfile->cd("DQMData/Run 1/TrackingMCTruthV"))sfile->cd("DQMData/Run 1/TrackingMCTruthV/Run summary/TrackingMCTruth/TrackingParticle");
- else sfile->cd("DQMData/TrackingMCTruthV/TrackingMCTruth/TrackingParticle");
+ if(sfile->cd("DQMData/Run 1/Tracking"))sfile->cd("DQMData/Run 1/Tracking/Run summary/TrackingMCTruth/TrackingParticle");
+ else sfile->cd("DQMData/Tracking/TrackingMCTruth/TrackingParticle");
  sdir=gDirectory; 
 
   TLegend leg(0.3, 0.83, 0.55, 0.90);
