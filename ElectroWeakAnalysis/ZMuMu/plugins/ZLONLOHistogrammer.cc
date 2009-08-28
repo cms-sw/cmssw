@@ -8,7 +8,7 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
   virtual void endJob();
-  edm::InputTag  RecZ_, gen_, weights_;
+  edm::InputTag   gen_, weights_;
   size_t nbinsMass_, nbinsPt_, nbinsAng_;
   double massMax_, ptMax_, angMax_;
   double  accPtMin_,accMassMin_,accMassMax_, accEtaMin_, accEtaMax_;
@@ -17,7 +17,7 @@ private:
   TH1F *hardpt, *softpt, * hardeta, *softeta;
   TH1F * h_weight_histo; 
   bool isMCatNLO_; 
-  size_t nAcc_;
+  size_t nAcc_, nBothMuHasZHasGrandMa_;
 };
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -42,7 +42,6 @@ using namespace reco;
 using namespace edm;
 
 ZLONLOHistogrammer::ZLONLOHistogrammer(const ParameterSet& pset) :
-  RecZ_(pset.getParameter<InputTag>("RecZ")),
   gen_(pset.getParameter<InputTag>("genParticles")),
   weights_(pset.getParameter<InputTag>("weights")),
   nbinsMass_(pset.getUntrackedParameter<size_t>("nbinsMass")),
@@ -79,24 +78,24 @@ ZLONLOHistogrammer::ZLONLOHistogrammer(const ParameterSet& pset) :
   h_phiZMC_ = ZMCHisto.make<TH1F>("ZMCPhi", "Z MC #phi", nbinsAng_,  -angMax_, angMax_);
   h_thetaZMC_ = ZMCHisto.make<TH1F>("ZMCTheta", "Z MC #theta", nbinsAng_,  0, angMax_);
   h_etaZMC_ = ZMCHisto.make<TH1F>("ZMCEta", "Z MC #eta", nbinsAng_,  -angMax_, angMax_);
-  h_rapidityZMC_ = ZMCHisto.make<TH1F>("ZMCRapidity", "Z MC #rapidity", nbinsAng_,  -angMax_, angMax_);
+  h_rapidityZMC_ = ZMCHisto.make<TH1F>("ZMCRapidity", "Z MC y", nbinsAng_,  -angMax_, angMax_);
 
   hardeta = ZMCHisto.make<TH1F>("hard muon eta", "hard muon #eta", nbinsAng_,  -angMax_, angMax_);
   softeta = ZMCHisto.make<TH1F>("soft muon eta", "soft muon #eta", nbinsAng_,  -angMax_, angMax_);
   nAcc_=0;
-  
+  nBothMuHasZHasGrandMa_=0;
   
 }
 
 void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup& setup) { 
   cout << ">>> Z Histogrammer analyze" << endl;
-  Handle<CandidateView> RecZ;
+
   Handle<GenParticleCollection> gen;
   Handle<double> weights;
-  event.getByLabel(RecZ_, RecZ);
+
   event.getByLabel(gen_, gen);
  event.getByLabel(weights_, weights );
-  h_nZ_->Fill(RecZ->size());
+
  
 
    // get weight and fill it to histogram
@@ -105,21 +104,12 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
   if(!weight) weight=1.;
   h_weight_histo->Fill(weight); 
   
-  if(isMCatNLO_) {
+   if(isMCatNLO_) {
     weight > 0 ?  weight=1. : weight=-1.;
   }
 
-  for(size_t i = 0; i < RecZ->size(); ++i) {
-    const Candidate &zCand = (*RecZ)[i];
-    h_mZ_->Fill(zCand.mass(),weight );
-    
-    h_ptZ_->Fill(zCand.pt(),weight);
-    h_phiZ_->Fill(zCand.phi(),weight);
-    h_thetaZ_->Fill(zCand.theta(),weight);
-    h_etaZ_->Fill(zCand.eta(),weight);
-    h_rapidityZ_->Fill(zCand.rapidity(),weight);
-  }
   
+
   std::vector<GenParticle> muons;
   if (!isMCatNLO_){
     // LO....
@@ -172,6 +162,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
    double Zrapidity_ = 0.0;
   
    if(muons.size()>1) {
+     if (muons[0].mother()->mother()->pdgId()==23 && muons[1].mother()->mother()->pdgId()==23) nBothMuHasZHasGrandMa_ ++;
      math::XYZTLorentzVector tot_momentum(muons[0].p4());
      math::XYZTLorentzVector mom2(muons[1].p4());
      tot_momentum += mom2;
@@ -186,7 +177,8 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
      
      // IMPORTANT: use the weight of the event ...
      
-     double weight_sign = (weight > 0) ? 1. : -1.;
+      double weight_sign = (weight > 0) ? 1. : -1.;
+      //double weight_sign = 1.    ;
       h_mZMC_->Fill(inv_mass,weight_sign);
       h_ptZMC_->Fill(Zpt_,weight_sign);
       h_etaZMC_->Fill(Zeta_,weight_sign);
@@ -215,7 +207,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
    
 
    //evaluating the geometric acceptance  
-   if ( pt1 > accPtMin_  && pt2 > accPtMin_ &&  fabs(eta1)> accEtaMin_  && fabs(eta2) > accEtaMin_ && fabs(eta1)< accEtaMax_  && fabs(eta2) < accEtaMax_ && inv_mass> accMassMin_ && inv_mass< accMassMax_) nAcc_++;
+   if ( pt1 >= accPtMin_  && pt2 >= accPtMin_ &&  fabs(eta1)>= accEtaMin_  && fabs(eta2) >= accEtaMin_ && fabs(eta1)<= accEtaMax_  && fabs(eta2) <= accEtaMax_ && inv_mass>= accMassMin_ && inv_mass<= accMassMax_) nAcc_++;
    
 	  
    }
@@ -226,6 +218,7 @@ void ZLONLOHistogrammer::analyze(const edm::Event& event, const edm::EventSetup&
 void ZLONLOHistogrammer::endJob() {
   cout << " number of events accepted :" << nAcc_ << endl;
   cout << " number of total events :" << h_mZMC_->GetEntries()  << endl;
+   cout << " number of cases in which BothMuHasZHasGrandMa :" << nBothMuHasZHasGrandMa_  << endl;
   double eff = (double)nAcc_ / (double) h_mZMC_->GetEntries();
   double err = sqrt( eff * (1. - eff) / (double) h_mZMC_->GetEntries() );
   cout << " geometric acceptance: " << eff << "+/-" << err << endl; 
