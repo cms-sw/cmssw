@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.6 2009/08/26 15:15:32 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.7 2009/08/27 14:41:53 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -32,8 +32,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/26 15:15:32 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/27 14:41:53 $
    */
   
   class WebPageHelper
@@ -233,6 +233,16 @@ namespace stor {
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,
       ThroughputMonitorCollection const&
+    );
+
+    /**
+     * Add table row using the snapshot values
+     */
+    void addRowForThroughputStatistics
+    (
+      XHTMLMaker& maker,
+      XHTMLMaker::Node* table,
+      const ThroughputMonitorCollection::Stats::Snapshot&
     );
 
     /**
