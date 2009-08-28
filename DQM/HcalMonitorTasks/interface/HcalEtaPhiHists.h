@@ -73,6 +73,22 @@ class EtaPhiHists{
       
     } // void setup(...)
   
+  int getEtaBins(int depth)
+  {
+    if (depth==1) return 85;
+    if (depth==2) return 57;
+    if (depth==3) return 9;
+    if (depth==4) return 31;
+    return 0;
+  }
+  
+  int getPhiBins(int depth)
+  {
+    if (depth>0 && depth<5)
+      return 72;
+    return 0;
+  }
+
   void setBinLabels()
     {
       // Set labels for all depth histograms
