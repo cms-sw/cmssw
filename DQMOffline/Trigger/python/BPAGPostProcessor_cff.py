@@ -134,4 +134,4 @@ JpsiTrigEff = cms.EDAnalyzer("DQMGenericTnPClient",
   )
 )
 
-BPAGPostProcessor = cms.Sequence(JpsiTrigEff)
+bPAGPostProcessor = cms.Sequence(JpsiTrigEff)
