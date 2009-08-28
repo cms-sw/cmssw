@@ -1,4 +1,4 @@
-// $Id: MonitorCollection.cc,v 1.6 2009/08/21 09:40:19 mommsen Exp $
+// $Id: MonitorCollection.cc,v 1.7 2009/08/26 08:50:31 mommsen Exp $
 /// @file: MonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
@@ -9,6 +9,7 @@ using namespace stor;
 
 MonitorCollection::MonitorCollection(const utils::duration_t& updateInterval) :
 _updateInterval(updateInterval),
+_lastCalculateStatistics(0),
 _infoSpaceUpdateNeeded(false)
 {}
 
@@ -45,6 +46,7 @@ void MonitorCollection::updateInfoSpaceItems()
 void MonitorCollection::reset(const utils::time_point_t& now)
 {
   do_reset();
+
   // Assure that the first update happens early.
   // This is important for long update intervals.
   _lastCalculateStatistics = now - _updateInterval + 1;
