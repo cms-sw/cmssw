@@ -1,5 +1,3 @@
-<export></export>
-<library name=SimTrackerTrackAssociation_plugins file=*.cc>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/RecoCandidate>
@@ -9,5 +7,12 @@
   <use name=SimTracker/TrackAssociation>
   <use name=DataFormats/TrackReco>
   <use name=SimDataFormats/TrackingAnalysis>
+  <use name=Geometry/Records>
+  <use name=Geometry/TrackerGeometryBuilder>
+  <use name=MagneticField/Records>
+
+
+<library name=SimTrackerTrackAssociation_plugins file=*.cc>
+	<flags EDM_PLUGIN=1>
 </library>
 
