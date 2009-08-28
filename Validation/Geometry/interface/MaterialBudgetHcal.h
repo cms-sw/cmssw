@@ -2,6 +2,7 @@
 #define Validation_Geometry_MaterialBudgetHcal_h
 
 #include "Validation/Geometry/interface/MaterialBudgetHcalHistos.h"
+#include "Validation/Geometry/interface/MaterialBudgetCastorHistos.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -37,8 +38,9 @@ private:
 
   bool stopAfter(const G4Step*);
   
-  MaterialBudgetHcalHistos* theHistos;
-  double                    rMax, zMax;
+  MaterialBudgetHcalHistos*   theHistoHcal;
+  MaterialBudgetCastorHistos* theHistoCastor;
+  double                      rMax, zMax;
 };
 
 #endif

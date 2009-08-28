@@ -17,19 +17,23 @@
 
 #include <iostream>
 
-MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p) {
+MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p): 
+  theHistoHcal(0), theHistoCastor(0) {
   
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
-  rMax = m_p.getUntrackedParameter<double>("RMax", 4.5)*m;
-  zMax = m_p.getUntrackedParameter<double>("ZMax", 13.0)*m;
+  rMax        = m_p.getUntrackedParameter<double>("RMax", 4.5)*m;
+  zMax        = m_p.getUntrackedParameter<double>("ZMax", 13.0)*m;
+  bool doHcal = m_p.getUntrackedParameter<bool>("DoHCAL", true);
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcal initialized with rMax "
-				 << rMax << " mm and zMax " << zMax << " mm";
-  theHistos   = new MaterialBudgetHcalHistos(m_p);
-
+				 << rMax << " mm and zMax " << zMax << " mm"
+				 << " doHcal is set to " << doHcal;
+  if (theHistoHcal)   theHistoHcal   = new MaterialBudgetHcalHistos(m_p);
+  else                theHistoCastor = new MaterialBudgetCastorHistos(m_p);
 }
 
 MaterialBudgetHcal::~MaterialBudgetHcal() {
-  delete theHistos;
+  if (theHistoHcal)   delete theHistoHcal;
+  if (theHistoCastor) delete theHistoCastor;
 }
 
 void MaterialBudgetHcal::update(const BeginOfJob* job)
@@ -38,20 +42,22 @@ void MaterialBudgetHcal::update(const BeginOfJob* job)
   // Numbering From DDD
   edm::ESHandle<DDCompactView> pDD;
   (*job)()->get<IdealGeometryRecord>().get(pDD);
-  theHistos->fillBeginJob((*pDD));
+  if (theHistoHcal)   theHistoHcal->fillBeginJob((*pDD));
 
 }
 
 void MaterialBudgetHcal::update(const BeginOfTrack* trk) {
 
   const G4Track * aTrack = (*trk)(); // recover G4 pointer if wanted
-  theHistos->fillStartTrack(aTrack);
+  if (theHistoHcal)   theHistoHcal->fillStartTrack(aTrack);
+  if (theHistoCastor) theHistoCastor->fillStartTrack(aTrack);
 }
  
 void MaterialBudgetHcal::update(const G4Step* aStep) {
 
   //---------- each step
-  theHistos->fillPerStep(aStep);
+  if (theHistoHcal)   theHistoHcal->fillPerStep(aStep);
+  if (theHistoCastor) theHistoCastor->fillPerStep(aStep);
 
   //----- Stop tracking after selected position
   if (stopAfter(aStep)) {
@@ -63,7 +69,8 @@ void MaterialBudgetHcal::update(const G4Step* aStep) {
 
 void MaterialBudgetHcal::update(const EndOfTrack* trk) {
 
-  theHistos->fillEndTrack();
+  if (theHistoHcal)   theHistoHcal->fillEndTrack();
+  if (theHistoCastor) theHistoCastor->fillEndTrack();
 }
 
 bool MaterialBudgetHcal::stopAfter(const G4Step* aStep) {

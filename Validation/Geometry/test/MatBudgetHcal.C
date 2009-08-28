@@ -1042,6 +1042,89 @@ void plotHE(int flag=0, int logy=0, int save=0) {
 
 
 }
+
+void etaPhiCastorPlot(TString fileName="matbdg_Castor.root", 
+		      TString plot="IntLen", TString type="All",
+		      bool etaPlus=true, int drawLeg=1, bool ifEta=true,
+		      bool debug=true) {
+
+  TFile* hcalFile = new TFile(fileName);
+  hcalFile->cd("g4SimHits");
+  setStyle();
+  if (debug) std::cout << fileName << " is opened at " << hcalFile << std::endl;
+
+  TString xtit = TString("#eta");
+  char ytit[80], ytpart[10];
+  int ymin = 0, ymax = 20, istart = 200, ifirst=0;
+  double xh = 0.90;
+  if (!etaPlus) ifirst = 10;
+  if (type.CompareTo("EC") == 0) {
+    sprintf (ytpart, "(EC)"); ifirst += 2;
+  } else if (type.CompareTo("HC") == 0) {
+    sprintf (ytpart, "(HC)"); ifirst += 4;
+  } else if (type.CompareTo("ED") == 0) {
+    sprintf (ytpart, "(Dead EC)"); ifirst += 6;
+  } else if (type.CompareTo("HD") == 0) {
+    sprintf (ytpart, "(Dead HC)"); ifirst += 8;
+  } else {
+    sprintf (ytpart, "(All)");
+  }
+  if (debug) std::cout << type << " Gives " << ifirst << " Title " << ytpart << std::endl;
+  if (plot.CompareTo("RadLen") == 0) {
+    sprintf(ytit, "Castor %s Material Budget (X_{0})", ytpart);
+    ymin = 0;  ymax = 200; istart = 100;
+  } else if (plot.CompareTo("StepLen") == 0) {
+    sprintf(ytit, "Castor %s Material Budget (Step Length)", ytpart);
+    ymin = 0;  ymax = 15000; istart = 300; xh = 0.70;
+  } else {
+    sprintf(ytit, "Castor %s Material Budget (#lambda)", ytpart);
+    ymin = 0;  ymax = 20; istart = 200;
+  }
+  if (!ifEta) {
+    istart += 400;
+    xtit    = TString("#phi"); 
+  }
+  if (debug) std::cout << "Title (x) " << xtit << " (y) " << ytit << " First " << ifirst << ":" << istart << std::endl;
+  
+  TLegend *leg = new TLegend(xh-0.13, 0.80, xh, 0.90);
+  leg->SetBorderSize(1); leg->SetFillColor(10); leg->SetMargin(0.25);
+  leg->SetTextSize(0.025);
+
+  int nplots=0;
+  TProfile *prof[2];
+  for (int ii=ifirst+1; ii>=ifirst; ii--) {
+    char hname[10], title[50];
+    sprintf(hname, "%i", istart+ii);
+    if (debug) std::cout << "[" << nplots << "] " << ii << " " << hname << "\n";
+    gDirectory->GetObject(hname,prof[nplots]);
+    if (debug) std::cout << "Histogram[" << nplots << "] : " << hname << " at " << prof[nplots] << std::endl;
+    prof[nplots]->GetXaxis()->SetTitle(xtit);
+    prof[nplots]->GetYaxis()->SetTitle(ytit);
+    prof[nplots]->GetYaxis()->SetRangeUser(ymin, ymax);
+    prof[nplots]->SetLineColor(colorLayer[nplots]);
+    prof[nplots]->SetFillColor(colorLayer[nplots]);
+    if (xh < 0.8) 
+      prof[nplots]->GetYaxis()->SetTitleOffset(1.7);
+    if (ii == ifirst) {
+      sprintf(title, "Front");
+    } else {
+      sprintf(title, "End");
+    }
+    leg->AddEntry(prof[nplots], title, "lf");
+    nplots++;
+  }
+
+  TString cname = "c_" + plot + xtit;
+  TCanvas *cc1 = new TCanvas(cname, cname, 700, 600);
+  if (xh < 0.8) {
+    cc1->SetLeftMargin(0.15); cc1->SetRightMargin(0.05);
+  }
+
+  prof[0]->Draw("h");
+  for(int i=1; i<nplots; i++)
+    prof[i]->Draw("h sames");
+  if (drawLeg > 0) leg->Draw("sames");
+}
   
 void setStyle () {
 
