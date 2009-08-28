@@ -21,17 +21,20 @@
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
 			     edm::ParameterSet const & p) : showerLibrary(0),
-							    fibre(0) {
+							    fibre(0), 
+							    gflash(0) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
   trackEM                 = m_HF.getParameter<bool>("TrackEM");
   bool useShowerLibrary   = m_HF.getParameter<bool>("UseShowerLibrary");
+  bool useGflash          = m_HF.getParameter<bool>("UseHFGflash");
   edMin                   = m_HF.getParameter<double>("EminLibrary");
   onlyLong                = m_HF.getParameter<bool>("OnlyLong");
   ref_index               = m_HF.getParameter<double>("RefIndex");
   edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
-			   << useShowerLibrary << " P.E. per GeV " << pePerGeV
+			   << useShowerLibrary << " Use of Gflash is set to "
+			   << useGflash << " P.E. per GeV " << pePerGeV
 			   << ", ref. index of fibre " << ref_index 
 			   << ", Track EM Flag " << trackEM << ", edMin "
 			   << edMin << " GeV and use of Short fibre info in"
@@ -63,11 +66,13 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   }
   
   if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
+  if (useGflash)        gflash        = new HFGflash(p);
   fibre = new HFFibre(name, cpv, p);
 }
 
 HFShowerParam::~HFShowerParam() {
   if (fibre)         delete fibre;
+  if (gflash)        delete gflash;
   if (showerLibrary) delete showerLibrary;
 }
 
@@ -89,7 +94,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
   G4Track *     track    = aStep->GetTrack();   
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
-  G4ThreeVector localPoint = (preStepPoint->GetTouchable()->GetHistory()->GetTopTransform()).TransformPoint(hitPoint);
+  double        zv = std::abs(hitPoint.z()) - gpar[4] - 0.5*gpar[1];
+  G4ThreeVector localPoint = G4ThreeVector(hitPoint.x(),hitPoint.y(),zv);
 
   double pin    = (preStepPoint->GetTotalEnergy())/GeV;
   double zint   = hitPoint.z(); 
@@ -101,7 +107,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 		       << " of energy " << pin << " GeV" 
                        << " Pos x,y,z = " << hitPoint.x() << "," 
 		       << hitPoint.y() << "," << zint << " (" << zz << ","
-		       << localPoint.z() << ", " << (localPoint.z()+0.5*gpar[1]) << ")";
+		       << localPoint.z() << ", " <<(localPoint.z()+0.5*gpar[1])
+		       << ") Local " << localPoint;
 #endif
   std::vector<HFShowerParam::Hit> hits;
   HFShowerParam::Hit hit;
@@ -128,17 +135,46 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	       pBeta > (1/ref_index)) {
       edep = (aStep->GetTotalEnergyDeposit())/GeV;
     }
+    std::string path = "ShowerLibrary";
     if (edep > 0) {
-      if (showerLibrary && kill && pin > edMin && (!other)) {
-	std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill, onlyLong);
-	for (unsigned int i=0; i<hitSL.size(); i++) {
-	  hit.position = hitSL[i].position;
-	  hit.depth    = hitSL[i].depth;
-	  hit.time     = hitSL[i].time;
-	  hit.edep     = 1;
-	  hits.push_back(hit);
+      if ((showerLibrary || gflash) && kill && pin > edMin && (!other)) {
+	if (showerLibrary) {
+	  std::vector<HFShowerLibrary::Hit> hitSL = showerLibrary->getHits(aStep,kill, onlyLong);
+	  for (unsigned int i=0; i<hitSL.size(); i++) {
+	    hit.position = hitSL[i].position;
+	    hit.depth    = hitSL[i].depth;
+	    hit.time     = hitSL[i].time;
+	    hit.edep     = 1;
+	    hits.push_back(hit);
+#ifdef DebugLog
+	    LogDebug("HFShower") << "HFShowerParam: Hit at depth " << hit.depth
+				 << " with edep " << hit.edep << " Time " 
+				 << hit.time;
+#endif
+	  }
+	} else {
+	  std::vector<HFGflash::Hit>  hitSL = gflash->gfParameterization(*track, pin);
+	  for (unsigned int i=0; i<hitSL.size(); i++) {
+	    bool ok = true;
+	    double zv  = std::abs(hitSL[i].position.z()) - gpar[4];
+	    if (zv < 0 || zv > gpar[1]) ok = false;
+	    if (hitSL[i].depth == 2 && zv < gpar[0]) ok = false;
+	    if (ok) {
+	      hit.position = hitSL[i].position;
+	      hit.depth    = hitSL[i].depth;
+	      hit.time     = hitSL[i].time;
+	      hit.edep     = hitSL[i].edep;
+	      hits.push_back(hit);
+#ifdef DebugLog
+	      LogDebug("HFShower") << "HFShowerParam: Hit at depth " << hit.depth
+				   << " with edep " << hit.edep << " Time " 
+				   << hit.time;
+#endif
+	    }
+	  }
 	}
       } else {
+	path          = "Rest";
 	edep         *= pePerGeV;
 	double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
 	double time = fibre->tShift(localPoint,1,0); // remaining part
@@ -146,12 +182,32 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
 	hit.time    = tSlice+time;
 	hit.edep    = edep;
 	hits.push_back(hit);
+#ifdef DebugLog
+	LogDebug("HFShower") << "HFShowerParam: Hit at depth 1 with edep " 
+			     << edep << " Time " << tSlice << ":" << time
+			     << ":" << hit.time;
+#endif
 	if (zz >= gpar[0]) {
-	  time      = fibre->tShift(hitPoint,2,0);
+	  time      = fibre->tShift(localPoint,2,0);
 	  hit.depth = 2;
 	  hit.time  = tSlice+time;
 	  hits.push_back(hit);
+#ifdef DebugLog
+	  LogDebug("HFShower") << "HFShowerParam: Hit at depth 2 with edep " 
+			       << edep << " Time " << tSlice << ":" << time
+			       << hit.time;
+#endif
 	}
+      }
+      for (unsigned int ii=0; ii<hits.size(); ii++) {
+	double zv = std::abs(hits[ii].position.z());
+	if (zv > 12790)
+	edm::LogInfo("HFShower") << "HFShowerParam: Abnormal hit along " <<path
+				 << " in " << preStepPoint->GetPhysicalVolume()->GetLogicalVolume()->GetName()
+				 << " at " << hits[ii].position << " zz " 
+				 << zv << " Edep " << edep << " due to " 
+				 << track->GetDefinition()->GetParticleName()
+				 << " time " << hit.time;
       }
       if (kill) {
 	track->SetTrackStatus(fStopAndKill);

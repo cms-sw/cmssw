@@ -278,7 +278,8 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
       double zz = -pex*stheta + zv*ctheta;
 
       G4ThreeVector pos  = hitPoint + G4ThreeVector(xx,yy,zz);
-      G4ThreeVector lpos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(pos);
+      zv = std::abs(pos.z()) - gpar[4] - 0.5*gpar[1];
+      G4ThreeVector lpos = G4ThreeVector(pos.x(),pos.y(),zv);
 
       zv = 0.5*gpar[1] - lpos.z();     // remaining distance to PMT !
 
@@ -329,7 +330,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #ifdef DebugLog
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			     <<" position " << (hit[nHit].position) <<" Depth "
-			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
+			     << (hit[nHit].depth) <<" Time " << tSlice << ":"
+			     << pe[i].t() << ":" <<fibre->tShift(lpos,depth,1)
+			     << ":" << (hit[nHit].time);
 #endif
 	nHit++;
       }
@@ -347,7 +350,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #ifdef DebugLog
 	  LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			       <<" position " << (hit[nHit].position) <<" Depth "
-			       <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
+			       << (hit[nHit].depth) <<" Time " << tSlice << ":"
+			       << pe[i].t() << ":" << fibre->tShift(lpos,2,1)
+			       << ":" << (hit[nHit].time);
 #endif
 	  nHit++;
 	}

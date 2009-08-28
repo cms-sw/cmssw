@@ -1,5 +1,6 @@
 <use name=FWCore/PluginManager>
 <use name=SimG4Core/Watcher>
+<use name=SimG4Core/GFlash>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
 <use name=SimG4Core/Application>

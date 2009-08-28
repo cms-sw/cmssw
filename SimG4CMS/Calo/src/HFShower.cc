@@ -102,8 +102,9 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
   G4ThreeVector     globalPos    = preStepPoint->GetPosition();
   G4String          name         = 
     preStepPoint->GetTouchable()->GetSolid(0)->GetName();
-  G4ThreeVector     localPos     = preStepPoint->GetTouchable()->GetHistory()->
-    GetTopTransform().TransformPoint(globalPos);
+  double            zv = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
+  G4ThreeVector     localPos     = G4ThreeVector(globalPos.x(),globalPos.y(),
+						 zv);
   G4ThreeVector     localMom     = preStepPoint->GetTouchable()->GetHistory()->
     GetTopTransform().TransformAxis(momentumDir);
   int               depth        = 

@@ -12,7 +12,6 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "Geometry/EcalCommonData/interface/EcalBaseNumber.h"
@@ -187,17 +186,17 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
     const std::vector<double> & paras = sol.parameters();
-    G4String name = DDSplit(sol.name()).first;
     G4LogicalVolume* lv=0;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
-      if ((*lvcite)->GetName() == name) {
+      if (!strcmp((*lvcite)->GetName().c_str(), sol.name().name().c_str())) {
 	lv = (*lvcite);
 	break;
       }
 #ifdef DebugLog
-    LogDebug("EcalSim") << "ECalSD::initMap (for " << sd << "): Solid " << name
-			<< " Shape " << sol.shape() << " Parameter 0 = " 
-			<< paras[0] << " Logical Volume " << lv;
+    LogDebug("EcalSim") << "ECalSD::initMap (for " << sd << "): Solid " 
+			<< sol.name().name() << " Shape " << sol.shape() 
+			<< " Parameter 0 = "<< paras[0] << " Logical Volume " 
+			<< lv;
 #endif
     if (sol.shape() == ddtrap) {
       double dz = 2*paras[0];
@@ -208,24 +207,21 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 #ifdef DebugLog
   LogDebug("EcalSim") << "ECalSD: Length Table for " << attribute << " = " 
 		      << sd << ":";   
-#endif
   std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.begin();
   int i=0;
   for (; ite != xtalLMap.end(); ite++, i++) {
     G4String name = "Unknown";
     if (ite->first != 0) name = (ite->first)->GetName();
-#ifdef DebugLog
     LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
 			<< " L = " << ite->second;
-#endif
   }
+#endif
 }
 
 double ECalSD::curve_LY(G4Step* aStep) {
 
   G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
   G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  G4String         nameVolume= lv->GetName();
 
   double weight = 1.;
   G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
@@ -238,14 +234,14 @@ double ECalSD::curve_LY(G4Step* aStep) {
   } else {
     edm::LogWarning("EcalSim") << "ECalSD: light coll curve : wrong distance "
 			       << "to APD " << dapd << " crlength = " 
-			       << crlength << " crystal name = " << nameVolume 
+			       << crlength <<" crystal name = " <<lv->GetName()
 			       << " z of localPoint = " << localPoint.z() 
 			       << " take weight = " << weight;
   }
 #ifdef DebugLog
   LogDebug("EcalSim") << "ECalSD, light coll curve : " << dapd 
 		      << " crlength = " << crlength
-		      << " crystal name = " << nameVolume 
+		      << " crystal name = " << lv->GetName()
 		      << " z of localPoint = " << localPoint.z() 
 		      << " take weight = " << weight;
 #endif

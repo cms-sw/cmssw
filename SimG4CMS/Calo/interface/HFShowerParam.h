@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
+#include "SimG4CMS/Calo/interface/HFGflash.h"
 
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
@@ -47,6 +48,7 @@ private:
 
   HFShowerLibrary*      showerLibrary;
   HFFibre*              fibre;
+  HFGflash*             gflash;
   double                pePerGeV, edMin, ref_index;
   bool                  trackEM, onlyLong;
   G4int                 emPDG, epPDG, gammaPDG;

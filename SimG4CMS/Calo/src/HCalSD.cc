@@ -11,7 +11,6 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -207,20 +206,25 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   std::vector<G4Material*>::const_iterator matite;
   while (dodet) {
     const DDLogicalPart & log = fv2.logicalPart();
-    G4String namx = DDSplit(log.name()).first;
+    G4String namx = log.name().name();
     if (!isItHF(namx) && !isItFibre(namx)) {
-      namx = DDSplit(log.material().name()).first;
       bool notIn = true;
-      for (unsigned int i=0; i<matNames.size(); i++)
-	if (namx == matNames[i]) notIn = false;
+      for (unsigned int i=0; i<matNames.size(); i++) {
+	if (!strcmp(matNames[i].c_str(),log.material().name().name().c_str())){
+	  notIn = false;
+	  break;
+	}
+      }
       if (notIn) {
+	namx = log.material().name().name();
 	matNames.push_back(namx);
 	G4Material* mat;
-	for (matite = matTab->begin(); matite != matTab->end(); matite++) 
+	for (matite = matTab->begin(); matite != matTab->end(); matite++) {
 	  if ((*matite)->GetName() == namx) {
 	    mat = (*matite);
 	    break;
 	  }
+	}
 	materials.push_back(mat);
       }
     }
@@ -506,11 +510,14 @@ std::vector<G4String> HCalSD::getNames(DDFilteredView& fv) {
   bool dodet = fv.firstChild();
   while (dodet) {
     const DDLogicalPart & log = fv.logicalPart();
-    G4String namx = DDSplit(log.name()).first;
     bool ok = true;
-    for (unsigned int i=0; i<tmp.size(); i++)
-      if (namx == tmp[i]) ok = false;
-    if (ok) tmp.push_back(namx);
+    for (unsigned int i=0; i<tmp.size(); i++) {
+      if (!strcmp(tmp[i].c_str(),log.name().name().c_str())) {
+	ok = false;
+	break;
+      }
+    }
+    if (ok) tmp.push_back(log.name().name());
     dodet = fv.next();
   }
   return tmp;
