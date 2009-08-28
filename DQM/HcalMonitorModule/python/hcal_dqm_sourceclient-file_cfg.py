@@ -13,7 +13,7 @@ maxevents=2000          # maximum number of events to process
 checkNevents=1000       # histograms are filled 'every checkNevents' events
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
-
+memcheck =False         # run memory check
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Tone down the logging messages, MessageLogger!
@@ -109,6 +109,35 @@ process.prefer("GlobalTag")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Tone down the logging messages, MessageLogger!
 process.MessageLogger.cerr.FwkReport.reportEvery = 50
+
+#----------------------
+# ValGrind/Igprof Memory Check
+#----------------------
+
+# Valgrind -- run with:
+'''
+ valgrind --tool=memcheck --leak-check=yes --show-reachable=yes \
+  `cmsvgsupp` --num-callers=50 --track-fds=yes cmsRun hcal_dqm_sourceclient-file_cfg.py
+  '''
+# \ >& out.valgrind.txt < /dev/null &
+
+
+#Igprof -- run with:
+'''
+igprof -d -t cmsRun -pp -mp -z -o igprof.myprof.gz cmsRun \
+hcal_dqm_sourceclient-file_cfg.py > & out.myprof.txt < /dev/null &
+'''
+#Analyze igprof results with:
+'''
+igprof-analyse -g -d -v -p -r MEM_MAX igprof.myprof.gz | less
+'''
+
+if (memcheck):
+    process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+                                            ignoreTotal=cms.untracked.int32(1),
+                                            oncePerEventMode=cms.untracked.bool(False)
+                                            )
+
 
 #-----------------------------
 # Hcal DQM Source, including HitReconstrctor
