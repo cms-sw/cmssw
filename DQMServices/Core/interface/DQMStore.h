@@ -151,8 +151,9 @@ public:
   std::vector<MonitorElement *> getContents(const std::string &path, unsigned int tag) const;
   void				getContents(std::vector<std::string> &into, bool showContents = true) const;
 
-  // ---------------------- temporarily public for Ecal/Hcal/ -------------
+  // ---------------------- softReset methods -------------------------------
   void				softReset(MonitorElement *me);
+  void				disableSoftReset(MonitorElement *me);
 
   // ---------------------- Public deleting ---------------------------------
   void				rmdir(const std::string &fullpath);
@@ -193,9 +194,6 @@ public:
   int				getStatus(const std::string &path = "") const;
 
 private:
-  // ------------ Operations for MEs that are normally never reset ---------
-  void				disableSoftReset(MonitorElement *me);
-
   // ---------------- Navigation -----------------------
   bool				cdInto(const std::string &path) const;
 
