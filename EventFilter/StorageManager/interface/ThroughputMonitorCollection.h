@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.h,v 1.10 2009/08/27 14:41:53 mommsen Exp $
+// $Id: ThroughputMonitorCollection.h,v 1.11 2009/08/28 13:08:58 mommsen Exp $
 /// @file: ThroughputMonitorCollection.h 
 
 #ifndef StorageManager_ThroughputMonitorCollection_h
@@ -23,8 +23,8 @@ namespace stor {
    * through the storage manager.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/08/27 14:41:53 $
+   * $Revision: 1.11 $
+   * $Date: 2009/08/28 13:08:58 $
    */
   
   class ThroughputMonitorCollection : public MonitorCollection
@@ -227,6 +227,13 @@ namespace stor {
 
     void do_getStats(Stats&, const unsigned int sampleCount) const;
 
+    /**
+     * Smooth out binned idle times for the throughput display.
+     * Returns the index to be used for the next section to smooth.
+     * Note that this method works on the idleTimes and durations
+     * lists in *reverse* order.  So, the initial indices should be
+     * idleTimes.size()-1.
+     */
     void smoothIdleTimes(MonitoredQuantity::Stats&) const;
 
     int smoothIdleTimesHelper

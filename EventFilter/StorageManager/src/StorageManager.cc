@@ -1,13 +1,18 @@
-// $Id: StorageManager.cc,v 1.110 2009/08/24 14:31:52 mommsen Exp $
+// $Id: StorageManager.cc,v 1.111 2009/08/27 14:40:51 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
+#include "EventFilter/StorageManager/interface/DiskWriterResources.h"
+#include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SoapUtils.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
@@ -28,7 +33,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.110 2009/08/24 14:31:52 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.111 2009/08/27 14:40:51 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -119,7 +124,6 @@ void StorageManager::bindWebInterfaceCallbacks()
   xgi::bind(this,&StorageManager::consumerStatisticsPage,   "consumerStatistics" );
   xgi::bind(this,&StorageManager::consumerListWebPage,      "consumerList");
   xgi::bind(this,&StorageManager::throughputWebPage,        "throughputStatistics");
-  xgi::bind(this,&StorageManager::newThroughputWebPage,     "newThroughputStatistics");
 }
 
 
@@ -538,37 +542,6 @@ void StorageManager::throughputWebPage(xgi::Input *in, xgi::Output *out)
   try
   {
     _webPageHelper.throughputWebPage(
-      out,
-      _sharedResources
-    );
-  }
-  catch(std::exception &e)
-  {
-    errorMsg += ": ";
-    errorMsg += e.what();
-    
-    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
-    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
-  }
-  catch(...)
-  {
-    errorMsg += ": Unknown exception";
-    
-    LOG4CPLUS_ERROR(getApplicationLogger(), errorMsg);
-    XCEPT_RAISE(xgi::exception::Exception, errorMsg);
-  }
-
-}
-
-
-void StorageManager::newThroughputWebPage(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  std::string errorMsg = "Failed to create the new throughput statistics webpage";
-
-  try
-  {
-    _webPageHelper.newThroughputWebPage(
       out,
       _sharedResources
     );

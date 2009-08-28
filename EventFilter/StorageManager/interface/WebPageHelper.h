@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.h,v 1.7 2009/08/27 14:41:53 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.8 2009/08/28 13:48:25 mommsen Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
@@ -32,8 +32,8 @@ namespace stor {
    * Helper class to handle web page requests
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/08/27 14:41:53 $
+   * $Revision: 1.8 $
+   * $Date: 2009/08/28 13:48:25 $
    */
   
   class WebPageHelper
@@ -112,15 +112,6 @@ namespace stor {
      * Generates the throughput monitoring webpage
      */
     void throughputWebPage
-    (
-      xgi::Output*,
-      const SharedResourcesPtr
-    );
-
-    /**
-     * Generates the throughput monitoring webpage
-     */
-    void newThroughputWebPage
     (
       xgi::Output*,
       const SharedResourcesPtr
@@ -243,16 +234,6 @@ namespace stor {
       XHTMLMaker& maker,
       XHTMLMaker::Node* table,
       const ThroughputMonitorCollection::Stats::Snapshot&
-    );
-
-    /**
-     * Adds new throughput statistics to the parent DOM element
-     */
-    void addDOMforNewThroughputStatistics
-    (
-      XHTMLMaker& maker,
-      XHTMLMaker::Node *parent,
-      ThroughputMonitorCollection const&
     );
 
     /**
@@ -556,20 +537,6 @@ namespace stor {
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,
       ResourceMonitorCollection::Stats const&
-    );
-
-    /**
-     * Smooth out binned idle times for the throughput display.
-     * Returns the index to be used for the next section to smooth.
-     * Note that this method works on the idleTimes and durations
-     * lists in *reverse* order.  So, the initial indices should be
-     * idleTimes.size()-1.
-     */
-    int smoothIdleTimes
-    (
-      std::vector<double>& idleTimes,
-      std::vector<utils::duration_t>& durations,
-      int firstIndex, int lastIndex
     );
 
 
