@@ -31,6 +31,7 @@
 */
 
 #include "InputGenJetsParticleSelector.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include <iostream>
 #include <memory>
@@ -290,3 +291,6 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
 }
       
       
+  
+//define this as a plug-in
+DEFINE_FWK_MODULE(InputGenJetsParticleSelector);
