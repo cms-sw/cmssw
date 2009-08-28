@@ -5269,11 +5269,11 @@ hltAlCaHcalFEDSelector = cms.EDProducer( "SubdetFEDSelector",
 )
 hltPreHcalNZS = cms.EDFilter( "HLTPrescaler" )
 hltHcalNoPedestals = cms.EDFilter( "HLTHcalCalibTypeFilter",
-    InputLabel = cms.string( "source" ),
+    InputLabel = cms.string( "rawDataCollector" ),
     CalibTypes = cms.vint32( 0, 2, 3, 4, 5, 6 )
 )
 hltHcalNZSFilter = cms.EDFilter( "HLTHcalNZSFilter",
-    InputLabel = cms.string( "source" )
+    InputLabel = cms.string( "rawDataCollector" )
 )
 hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -5597,7 +5597,7 @@ hltEcalCalibrationRaw = cms.EDProducer( "SubdetFEDSelector",
     rawInputLabel = cms.InputTag( "rawDataCollector" )
 )
 hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
-    InputLabel = cms.string( "source" ),
+    InputLabel = cms.string( "rawDataCollector" ),
     CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 )
 )
 hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler" )
