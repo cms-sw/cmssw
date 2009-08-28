@@ -22,7 +22,7 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
     ),
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     # label of tracks to be used
-    TrackLabel = cms.InputTag("hiPixel3ProtoTracks"),
+    TrackLabel = cms.InputTag("hiSelectedProtoTracks"),
     useBeamConstraint = cms.bool(True),
     VtxFinderParameters = cms.PSet(
         ptCut = cms.double(0.0),
