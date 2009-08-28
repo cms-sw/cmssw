@@ -238,7 +238,13 @@ void Pythia6Hadronizer::finalizeEvent()
 
    event()->set_pdf_info( pdf ) ;
 
+   // this is "standard" Py6 event weight (corresponds to PYINT1/VINT(97)
+   //
    event()->weights().push_back( pyint1.vint[96] );
+   //
+   // this is event weight as returned by the PYEVWT routine (corresponds to PYINT1/VINT(99) 
+   //
+   event()->weights().push_back( pyint1.vint[98] );
 
    // now create the GenEventInfo product from the GenEvent and fill
    // the missing pieces
