@@ -95,7 +95,8 @@ def adaptPFPhotons(process,module):
 def adaptPFJets(process,module):
     module.embedCaloTowers   = False
 
-def adaptPFTaus(process,tauType = 'fixedConePFTau' ): #tauType can be changed only to shrinkig cone one, otherwise request is igonred
+def adaptPFTaus(process,tauType = 'fixedConePFTau' ):
+# MICHAL: tauType can be changed only to shrinkig cone one, otherwise request is igonred
     oldTaus = process.allLayer1Taus.tauSource
     process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
 
@@ -144,7 +145,6 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     oldMETSource = process.layer1METs.metSource
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
-    #process.patJetMETCorrections.remove(process.patMETCorrections)
     process.patDefaultSequence.remove(process.patMETCorrections)
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
@@ -157,14 +157,13 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
 
-def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
+def usePF2PAT(process,runPF2PAT=True):
 
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED. 
 
 
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
-    """If 'addElectrons' is True electrons are added and standard PAT cleaning wrt them is performed"""
 
     # -------- CORE ---------------
     if runPF2PAT:
@@ -176,8 +175,7 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
                                            process.allLayer1Objects
                                            )
 
-#    if not addElectrons:
-#        removeCleaning(process)
+    removeCleaning(process)
     
     # -------- OBJECTS ------------
     # Muons
@@ -185,52 +183,8 @@ def usePF2PAT(process,runPF2PAT=True,addElectrons=False):
 
     
     # Electrons
-    if addElectrons:
-        adaptPFElectrons(process,process.allLayer1Electrons)
-    else:
-        print "PFElectrons switched off for the moment."
+    adaptPFElectrons(process,process.allLayer1Electrons)
 
-#COLIN: the following should be in a specific function, for the ease of understanding and maintenance.
-#       please provide such a function if still needed
-
-#    process.electronMatch.src = process.allLayer1Electrons.pfElectronSource
-#    process.patDefaultSequence.remove(process.patElectronId)
-#    process.patDefaultSequence.remove(process.patElectronIsolation)
-#    if not addElectrons:
-#        print "Temporarily switching off electrons completely"
-#        removeSpecificPATObjects(process,['Electrons'])
-#        process.patDefaultSequence.remove(process.patElectronId)
-#        process.patDefaultSequence.remove(process.patElectronIsolation)
-#        #process.countLayer1Leptons.countElectrons = False
-#    else:
-#        print "Standard electrons added and then PAT-cleaning wrt electrons switched on"
-#        #tune PAT-cleaning
-#        process.cleanLayer1Objects.remove(process.cleanLayer1Hemispheres)
-#        # store only isolated electrons passing the RobustLoose-ID, without any overlap with muons (to be tuned)
-#        electronPresel = 'electronID("eidRobustLoose") > 0 '
-#        electronPresel += '&& trackIso < 3 '
-#        electronPresel += '&& ecalIso < 5 '
-#        electronPresel += '&& hcalIso < 5 '
-#        #electronPresel += '&& pt > 10 '
-#        print "A \"good electron\" definition for cleaner: "+electronPresel
-#        process.cleanLayer1Electrons.checkOverlaps.muons.requireNoOverlaps = True
-#        process.cleanLayer1Electrons.finalCut = electronPresel
-#        # clean taus wrt electrons
-#        process.cleanLayer1Taus.preselection = ''
-#        # a trick to remove overlaps wrt other objects than electrons
-#        myOverlaps = cms.PSet( electrons = cms.PSet() )
-#        myOverlaps.electrons = process.cleanLayer1Taus.checkOverlaps.electrons
-#        process.cleanLayer1Taus.checkOverlaps = myOverlaps
-#        process.cleanLayer1Taus.checkOverlaps.electrons.preselection = electronPresel # really needed?
-#        process.cleanLayer1Taus.checkOverlaps.electrons.requireNoOverlaps = True
-#        # clean jets wrt electrons
-#        # a trick to remove overlaps wrt other objects than electrons
-#        myOverlaps.electrons = process.cleanLayer1Jets.checkOverlaps.electrons
-#        process.cleanLayer1Jets.checkOverlaps = myOverlaps
-#        process.cleanLayer1Jets.checkOverlaps.electrons.preselection = electronPresel # really needed?
-#        process.cleanLayer1Jets.checkOverlaps.electrons.deltaR = 0.3
-#        process.cleanLayer1Jets.checkOverlaps.electrons.requireNoOverlaps = True
-    
     # Photons
     print "Temporarily switching off photons completely"
     removeSpecificPATObjects(process,['Photons'])
