@@ -39,6 +39,8 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   SRThreshold_ = RecHitsParameters.getParameter<double> ("SRThreshold");
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
+  noiseADC_ = RecHitsParameters.getParameter<double>("NoiseADC");
+
   theCalorimeterHits_.resize(EEDetId::kSizeForDenseIndexing,0.);
   towerOf_.resize(EEDetId::kSizeForDenseIndexing);
   theTTDetIds_.resize(1440);
@@ -458,7 +460,7 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 	  if(noise_==-1.)
 	    {
 	      // presumably the calib factor should not be counted twice, so remove it
-	      noisesigma_[ic]=2.87*agc->getEEValue()*ICMC[ic] / calibfactor_;
+	      noisesigma_[ic]=noiseADC_*agc->getEEValue()*ICMC[ic] / calibfactor_;
 	      meanNoiseSigmaEt_ += noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf];
 	      EEDetId myDetId(EEDetId::unhashIndex(ic));
 	      //	      std::cout << " BB " <<  myDetId.ix() << " " << myDetId.iy() << " " <<  noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf] << std::endl;;

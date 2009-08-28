@@ -108,7 +108,8 @@ class EcalEndcapRecHitsMaker
   // the cell-dependant noise sigma 
   std::vector<float> noisesigma_;
   double meanNoiseSigmaEt_ ;
-
+  // noise in ADC counts
+  double noiseADC_;
   // selective readout threshold
   float SRThreshold_;
 };
