@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.23 2009/08/26 15:19:47 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.24 2009/08/27 14:41:31 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1866,9 +1866,6 @@ void WebPageHelper::addDOMforNewThroughputStatistics(XHTMLMaker& maker,
   XHTMLMaker::AttrMap tableLabelAttr = _tableLabelAttr;
   tableLabelAttr[ "align" ] = "center";
 
-  XHTMLMaker::AttrMap tableAverageAttr = _tableValueAttr;
-  tableAverageAttr[ "style" ] = "background-color: yellow;";
-
   XHTMLMaker::Node* table = maker.addNode("table", parent, _tableAttr);
 
   XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
@@ -1915,157 +1912,109 @@ void WebPageHelper::addDOMforNewThroughputStatistics(XHTMLMaker& maker,
   ThroughputMonitorCollection::Stats stats;
   tmc.getStats(stats);
 
+  addRowForThroughputStatistics(maker, table, stats.average);
+ 
   for (ThroughputMonitorCollection::Stats::Snapshots::const_iterator
          it = stats.snapshots.begin(),
          itEnd = stats.snapshots.end();
        it != itEnd;
        ++it)
   {
-    tableRow = maker.addNode("tr", table, _rowAttr);
-
-    // relative time
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->relativeTime, 2);
-
-    // memory pool usage
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->poolUsage, 0);
-
-    // number of fragments in fragment queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->entriesInFragmentQueue, 0);
-
-    // number of fragments popped from fragment queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->fragmentQueueRate, 0);
-
-    // data rate popped from fragment queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->fragmentQueueBandwidth, 1);
-
-    // fragment processor thread busy percentage
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->fragmentProcessorBusy, 0);
-
-    // number of events in fragment store
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->fragmentStoreSize, 0);
-
-    // number of events in stream queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->entriesInStreamQueue, 0);
-
-    // number of events popped from stream queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->streamQueueRate, 0);
-
-    // data rate popped from stream queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->streamQueueBandwidth, 1);
-
-    // disk writer thread busy percentage
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->diskWriterBusy, 0);
-
-    // number of events written to disk
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->writtenEventsRate, 0);
-
-    // date rate written to disk
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->writtenEventsBandwidth, 1);
-
-    // number of dqm events in DQMEvent queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->entriesInDQMQueue, 0);
-
-    // number of dqm events popped from DQMEvent queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->dqmQueueRate, 0);
-
-    // data rate popped from DQMEvent queue
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->dqmQueueBandwidth, 3);
-
-    // DQMEvent processor thread busy percentage
-    tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, it->dqmEventProcessorBusy, 0);
+    addRowForThroughputStatistics(maker, table, (*it));
   }
 
-  // display the averages
-  {
-    tableRow = maker.addNode("tr", table, _rowAttr);
-
-    // relative time
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, "Avg");
-
-    // memory pool usage
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.poolUsage, 0);
-
-    // number of fragments in fragment queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.entriesInFragmentQueue, 1);
-
-    // number of fragments popped from fragment queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.fragmentQueueRate, 1);
-
-    // data rate popped from fragment queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.fragmentQueueBandwidth, 1);
-
-    // fragment processor thread busy percentage
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.fragmentProcessorBusy, 1);
-
-    // number of events in fragment store
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.fragmentStoreSize, 1);
-
-    // number of events in stream queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.entriesInStreamQueue, 1);
-
-    // number of events popped from stream queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.streamQueueRate, 1);
-
-    // data rate popped from stream queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.streamQueueBandwidth, 1);
-
-    // disk writer thread busy percentage
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.diskWriterBusy, 1);
-
-    // number of events written to disk
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.writtenEventsRate, 1);
-
-    // date rate written to disk
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.writtenEventsBandwidth, 1);
-
-    // number of dqm events in DQMEvent queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.entriesInDQMQueue, 1);
-
-    // number of dqm events popped from DQMEvent queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.dqmQueueRate, 1);
-
-    // data rate popped from DQMEvent queue
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.dqmQueueBandwidth, 1);
-
-    // DQMEvent processor thread busy percentage
-    tableDiv = maker.addNode("td", tableRow, tableAverageAttr);
-    maker.addText(tableDiv, stats.average.dqmEventProcessorBusy, 1);
-  }
-
+  addRowForThroughputStatistics(maker, table, stats.average);
 }
+
+
+void WebPageHelper::addRowForThroughputStatistics
+(
+  XHTMLMaker& maker,
+  XHTMLMaker::Node* table,
+  const ThroughputMonitorCollection::Stats::Snapshot& snapshot
+)
+{
+  XHTMLMaker::Node* tableRow = maker.addNode("tr", table, _rowAttr);
+  XHTMLMaker::Node* tableDiv;
+  XHTMLMaker::AttrMap tableValueAttr = _tableValueAttr;
+
+  if (snapshot.relativeTime < 0)
+  {
+    tableValueAttr[ "style" ] = "background-color: yellow;";
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addText(tableDiv, "Avg");
+  }
+  else
+  {
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+    maker.addText(tableDiv, snapshot.relativeTime, 2);
+  }
+
+  // memory pool usage
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.poolUsage, 0);
+  
+  // number of fragments in fragment queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.entriesInFragmentQueue, 1);
+  
+  // number of fragments popped from fragment queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.fragmentQueueRate, 1);
+  
+  // data rate popped from fragment queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.fragmentQueueBandwidth, 1);
+  
+  // fragment processor thread busy percentage
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.fragmentProcessorBusy, 1);
+  
+  // number of events in fragment store
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.fragmentStoreSize, 1);
+  
+  // number of events in stream queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.entriesInStreamQueue, 1);
+  
+  // number of events popped from stream queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.streamQueueRate, 1);
+  
+  // data rate popped from stream queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.streamQueueBandwidth, 1);
+  
+  // disk writer thread busy percentage
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.diskWriterBusy, 1);
+  
+  // number of events written to disk
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.writtenEventsRate, 1);
+  
+  // date rate written to disk
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.writtenEventsBandwidth, 1);
+  
+  // number of dqm events in DQMEvent queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.entriesInDQMQueue, 1);
+  
+  // number of dqm events popped from DQMEvent queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.dqmQueueRate, 1);
+  
+  // data rate popped from DQMEvent queue
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.dqmQueueBandwidth, 1);
+  
+  // DQMEvent processor thread busy percentage
+  tableDiv = maker.addNode("td", tableRow, tableValueAttr);
+  maker.addText(tableDiv, snapshot.dqmEventProcessorBusy, 1);
+}
+
 
 void WebPageHelper::addDOMforThroughputStatistics(XHTMLMaker& maker,
                                                   XHTMLMaker::Node *parent,
