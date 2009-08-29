@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.9 2009/05/25 12:46:03 fabiocos Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.10 2009/08/06 20:42:41 heltsley Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -70,7 +70,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
 				  << "beam along eta = " << fEta 
 				  << " (Theta = " << fTheta/deg 
 				  << ") phi = " << fPhi/deg 
-				  << ") psi = " << fPhi/deg 
+				  << ") psi = " << fPsi/deg 
 				  << " centred at (" << fMeanX << ", " 
 				  << fMeanY << ", "  << fMeanZ << ") "
 				  << "and spread (" << fSigmaX << ", "

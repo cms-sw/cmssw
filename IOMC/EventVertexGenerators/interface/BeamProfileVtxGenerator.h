@@ -7,7 +7,7 @@
  * Attention: Units are assumed to be cm and radian!
  * \author Sunanda Banerjee
  *
- * $Id: BeamProfileVtxGenerator.h,v 1.6 2008/04/04 21:38:24 yumiceva Exp $
+ * $Id: BeamProfileVtxGenerator.h,v 1.7 2009/08/06 20:42:29 heltsley Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -64,7 +64,7 @@ private:
   double      fMeanX,  fMeanY, fMeanZ;
   double      fEta,    fPhi,   fTheta;
 
-      double      fPsi;
+  double      fPsi;
 
   bool        fType,   ffile;
   int         nBinx,   nBiny;
