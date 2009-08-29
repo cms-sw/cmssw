@@ -67,6 +67,12 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     sourceSeed = cms.untracked.uint32(135799753)
 )
 
+process.common_heavy_suppression1 = cms.PSet(
+    NeutronThreshold = cms.double(30.0),
+    ProtonThreshold = cms.double(30.0),
+    IonThreshold = cms.double(30.0)
+)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
@@ -87,6 +93,7 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     BeamMeanY       = cms.double(0.0),
     BeamSigmaX      = cms.double(0.0001),
     BeamSigmaY      = cms.double(0.0001),
+    Psi             = cms.double(999.9),
     GaussianProfile = cms.bool(False),
     BinX            = cms.int32(50),
     BinY            = cms.int32(50),
