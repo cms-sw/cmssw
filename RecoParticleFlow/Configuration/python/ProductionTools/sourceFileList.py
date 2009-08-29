@@ -22,6 +22,7 @@ source = cms.Source(
 parser = OptionParser()
 parser.usage = "%prog <dir> <regexp> : format a set of root files matching a regexp in a directory, as an input to the PoolSource."
 
+
 (options,args) = parser.parse_args()
 
 if len(args) != 2:
@@ -33,8 +34,12 @@ regexp = args[1]
 
 castor = castortools.isCastorDir( dir )
 
+protocol = 'file'
+if castor:
+    protocol = 'rfio'
+
 files = castortools.matchingFiles( dir, regexp,
-                                    protocol=True, castor=castor)
+                                   protocol=protocol, castor=castor)
 
 print '''
 import FWCore.ParameterSet.Config as cms
@@ -44,7 +49,7 @@ source = cms.Source(
 '''
 print "\tfileNames = cms.untracked.vstring("
 for file in files:
-    fileLine = "\t\t%s'," % file
+    fileLine = "\t\t'%s'," % file
     print fileLine
 print "\t)"
 print ")"
