@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.7 2008/04/26 03:35:20 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.8 2008/08/11 20:24:19 pivarski Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 // user include files
 #include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TProfile.h"
 #include "TTree.h"
 
@@ -82,6 +83,7 @@ class AlignmentMonitorBase {
       /// collector (parallel-processing) job)
       TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
       TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., char *option="s");
+      TH2F *book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
       TFileDirectory *directory(std::string dir);
       
       int                     iteration()    { return m_iteration; };

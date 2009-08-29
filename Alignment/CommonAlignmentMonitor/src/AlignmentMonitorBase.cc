@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.7 2008/04/26 03:09:32 pivarski Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.8 2008/08/11 20:24:19 pivarski Exp $
 //
 
 // system include files
@@ -140,6 +140,10 @@ TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, s
    else {
       return directory(dir)->make<TProfile>(name.c_str(), title.c_str(), nchX, lowX, highX, lowY, highY, option);
    }
+}
+
+TH2F *AlignmentMonitorBase::book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY) {
+   return directory(dir)->make<TH2F>(name.c_str(), title.c_str(), nchX, lowX, highX, nchY, lowY, highY);
 }
 
 //
