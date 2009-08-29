@@ -37,11 +37,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   std::string subd=conf.getParameter<std::string>("Subdetector");
   hbheFlagSetter_=0;
   hbheHSCPFlagSetter_=0;
+  hbheTimingShapedFlagSetter_ = 0;
   hfdigibit_=0;
   hfrechitbit_=0;
   saturationFlagSetter_=0;
   HFTimingTrustFlagSetter_=0;
-
+  
   if (setSaturationFlags_)
     {
       const edm::ParameterSet& pssat      = conf.getParameter<edm::ParameterSet>("saturationParameters");
@@ -50,6 +51,13 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
+    bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
+    if (timingShapedCutsFlags)
+      {
+	const edm::ParameterSet& psTshaped = conf.getParameter<edm::ParameterSet>("timingshapedcutsParameters");
+	hbheTimingShapedFlagSetter_ = new HBHETimingShapedFlagSetter(psTshaped.getParameter<std::vector<double> >("tfilterEnvelope"));
+      }
+      
     if (setNoiseFlags_)
       {
 	const edm::ParameterSet& psdigi    =conf.getParameter<edm::ParameterSet>("flagParameters");
@@ -179,6 +187,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	HcalCoderDb coder (*channelCoder, *shape);
 	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
 	(rec->back()).setFlags(0);
+	if (hbheTimingShapedFlagSetter_!=0)
+	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
 	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i);
 	if (setSaturationFlags_)

@@ -18,13 +18,14 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2009/03/27 15:56:31 $
-    $Revision: 1.4 $
+    $Date: 2009/08/14 19:42:03 $
+    $Revision: 1.5 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -39,6 +40,7 @@
       HFTimingTrustFlag* HFTimingTrustFlagSetter_;
       HBHEStatusBitSetter* hbheFlagSetter_;
       HBHETimeProfileStatusBitSetter* hbheHSCPFlagSetter_;
+      HBHETimingShapedFlagSetter* hbheTimingShapedFlagSetter_;
       HcalHFStatusBitFromRecHits* hfrechitbit_;
       HcalHFStatusBitFromDigis*   hfdigibit_;
  

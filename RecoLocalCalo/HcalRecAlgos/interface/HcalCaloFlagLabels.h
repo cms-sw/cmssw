@@ -15,7 +15,10 @@ namespace HcalCaloFlagLabels
 		      HSCP_R1R2=2,
 		      HSCP_FracLeader=3,
 		      HSCP_OuterEnergy=4,
-		      HSCP_ExpFit=5};
+		      HSCP_ExpFit=5,
+                      HBHETimingTrustBits=6, // 2-bit counter; not yet in use
+                      HBHETimingShapedCutsBits=8 // 3-bit counter
+  };
 
   enum HFTimingTrustFlag{HFTimingTrustBits=6};
 

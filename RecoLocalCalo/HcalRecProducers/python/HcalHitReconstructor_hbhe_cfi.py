@@ -12,11 +12,12 @@ hbhereco = cms.EDFilter(
     dropZSmarkedPassed = cms.bool(True),
 
     # Tags for calculating status flags
-    correctTiming      = cms.bool(True),
-    setNoiseFlags      = cms.bool(True),
-    setHSCPFlags       = cms.bool(True),
-    setSaturationFlags = cms.bool(True),
-    setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
+    correctTiming             = cms.bool(True),
+    setNoiseFlags             = cms.bool(True),
+    setHSCPFlags              = cms.bool(True),
+    setSaturationFlags        = cms.bool(True),
+    setTimingShapedCutsFlags  = cms.bool(True),
+    setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
     
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(2.0), #GeV
@@ -38,5 +39,17 @@ hbhereco = cms.EDFilter(
                                     slopeMax      = cms.double(-0.6),
                                     outerMin      = cms.double(0.9),
                                     outerMax      = cms.double(1.0),
-                                    TimingEnergyThreshold = cms.double(30.))
+                                    TimingEnergyThreshold = cms.double(30.)),
+    # shaped cut parameters are pairs of (energy, time threshold) values
+    # These must be ordered by increaseing energy!
+    timingshapedcutsParameters = cms.PSet(tfilterEnvelope=cms.vdouble(4.00,12.04,
+                                                                      13.00,10.56,
+                                                                      23.50,8.82,
+                                                                      37.00,7.38,
+                                                                      56.00,6.30,
+                                                                      81.00,5.64,
+                                                                      114.50,5.44,
+                                                                      175.50,5.38,
+                                                                      350.50,5.14))
+
     )

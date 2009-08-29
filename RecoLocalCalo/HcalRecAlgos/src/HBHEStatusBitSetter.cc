@@ -85,7 +85,7 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, const HBHEDataFrame
     if (charge_total<pulseShapeParameters_[iCut].at(0) || charge_total>=pulseShapeParameters_[iCut].at(1)) continue;
     if ( charge_late3< (pulseShapeParameters_[iCut].at(2)+charge_total*pulseShapeParameters_[iCut].at(3)) ) continue;
     if ( charge_late3>=(pulseShapeParameters_[iCut].at(4)+charge_total*pulseShapeParameters_[iCut].at(5)) ) continue;
-    hbhe.setFlags(hbhe.flags()|(1<<1));
+    hbhe.setFlagField(HcalCaloFlagLabels::HBHEPulseShape, 1);
     return;
   }
   
@@ -95,6 +95,6 @@ void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
   for (HBHERecHitCollection::iterator iHBHE=rec.begin();iHBHE!=rec.end();++iHBHE) {
     int index=logicalMap_->getHcalFrontEndId(iHBHE->detid()).rmIndex();
     if (hpdMultiplicity_.at(index)<hitMultiplicityThreshold_) continue;
-    iHBHE->setFlags(iHBHE->flags()|(1<<0));
+    iHBHE->setFlagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity, 1);
   }
 }
