@@ -32,23 +32,23 @@ public:
     }
   }
 
-  /// Used to pass only nRuns
-  DQMHistoryTrendsConfig(const string & inputItem, const string & inputCanvasName, const int inputLogY,
-                         const string & inputConditions, const std::string& inputLabels, const int inputNruns,
-                         const double & yMinIn = 999999, const double & yMaxIn = -999999) :
-    item(inputItem), canvasName(inputCanvasName), logY(inputLogY),
-    conditions(inputConditions), Labels(inputLabels), firstRun(0), lastRun(0), nRuns(inputNruns),
-    yMin(yMinIn), yMax(yMaxIn)
-  {
-    useYrange = 0;
-    if ( yMin != 999999 && yMax != -999999) {
-      useYrange = 3;
-    } else if ( yMin != 999999) {
-      useYrange = 1;
-    } else if( yMax != -999999 ) {
-      useYrange = 2;
-    }
-  }
+//   /// Used to pass only nRuns
+//   DQMHistoryTrendsConfig(const string & inputItem, const string & inputCanvasName, const int inputLogY,
+//                          const string & inputConditions, const std::string& inputLabels, const int inputNruns,
+//                          const double & yMinIn = 999999, const double & yMaxIn = -999999) :
+//     item(inputItem), canvasName(inputCanvasName), logY(inputLogY),
+//     conditions(inputConditions), Labels(inputLabels), firstRun(0), lastRun(0), nRuns(inputNruns),
+//     yMin(yMinIn), yMax(yMaxIn)
+//   {
+//     useYrange = 0;
+//     if ( yMin != 999999 && yMax != -999999) {
+//       useYrange = 3;
+//     } else if ( yMin != 999999) {
+//       useYrange = 1;
+//     } else if( yMax != -999999 ) {
+//       useYrange = 2;
+//     }
+//   }
 
   // All public data members
   string item;
