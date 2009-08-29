@@ -6,7 +6,7 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id: MallocOpts.cc,v 1.7 2008/11/11 11:27:34 elmer Exp $
+// $Id: MallocOpts.cc,v 1.8 2008/11/11 16:01:06 dsr Exp $
 //
 // ------------------ resetting malloc options -----------------------
 
@@ -48,7 +48,7 @@ namespace edm
       static volatile int ans[4];
 
 // Still some problem on x86_64, so only i386 for now    
-#if defined(__x86_64__)
+#if defined(__x86_64__) && !defined(__APPLE__)
 
       __asm__ __volatile__ ("pushq %%rdx;\
  pushq %%rcx;				 \
@@ -68,7 +68,7 @@ namespace edm
                             : "a"(op)
 			    );
 
-#elif defined(__i386__)
+#elif defined(__i386__) && !defined(__APPLE__)
 
 
       __asm__ __volatile__ ("pushl %%edx;\
