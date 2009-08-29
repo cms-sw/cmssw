@@ -1,6 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
 
 /*
 v1.0 by Jeff Temple
@@ -29,10 +28,7 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
   // need at least two values to make comparison, and must
   // always have energy, time pair; otherwise, assume "in time" and don't set bits
   if (tfilterEnvelope_.size()<2 || tfilterEnvelope_.size()%2!=0)
-    {
-      std::cout <<"ERROR!  size = "<<tfilterEnvelope_.size()<<std::endl;
       return;
-    }
 
   double twinmin, twinmax;
   double rhtime=hbhe.time();
@@ -40,7 +36,7 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
   unsigned int i=0;
 
   if (energy<tfilterEnvelope_[0])
-    twinmax=tfilterEnvelope_[0];
+    twinmax=tfilterEnvelope_[1];
   else
     {
       for (i=0;i<2*(tfilterEnvelope_.size()/2);i+=2)
@@ -50,8 +46,8 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
 	    break;
 	}
 
-      if (i==2*(tfilterEnvelope_.size()/2))
-	twinmax=tfilterEnvelope_[i-2];
+      if (i==tfilterEnvelope_.size())
+	twinmax=tfilterEnvelope_[i-1];
       else
 	{
 	  // Perform linear interpolation between energy boundaries
@@ -68,10 +64,9 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
     }
   twinmax=0+twinmax*1;  // add offset and gain at some point?
   twinmin=0-twinmax*1;  // add offset and gain at some point?
-  
-  if (rhtime<twinmax || rhtime >= twinmax)
+   if (rhtime<=twinmin || rhtime >= twinmax)
     status=1; // set status to 1
-  // Though we're only using a single bit right now, 3 bits are reserved for these cuts
+   // Though we're only using a single bit right now, 3 bits are reserved for these cuts
   hbhe.setFlagField(status,HcalCaloFlagLabels::HBHETimingShapedCutsBits,3);
   return;
 }
