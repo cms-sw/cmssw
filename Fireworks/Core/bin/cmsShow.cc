@@ -83,7 +83,8 @@ void run_app(TApplication &app, int argc, char **argv)
 
 int main (int argc, char **argv)
 {
-   char* dummyArgv[] = {"cmsShow"};
+   const char* dummyArgvArray[] = {"cmsShow"};
+   char** dummyArgv = const_cast<char**>(dummyArgvArray);
    int dummyArgc = 1;
    gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
 
