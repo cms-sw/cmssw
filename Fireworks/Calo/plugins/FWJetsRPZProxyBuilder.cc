@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWJetsRPZProxyBuilder.cc,v 1.4 2009/04/16 03:08:11 dmytro Exp $
+// $Id: FWJetsRPZProxyBuilder.cc,v 1.5 2009/05/03 21:54:54 dmytro Exp $
 //
 
 // include files
@@ -28,6 +28,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Calo/interface/FW3DEveJet.h"
 
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
@@ -106,6 +107,12 @@ FWJetsRPZProxyBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
    marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    container.AddElement(marker);
+
+   FW3DEveJet* cone = new FW3DEveJet(*jet,"jetcone","jetcone");
+   cone->SetPickable(kTRUE);
+   cone->SetMainColor( iItem->defaultDisplayProperties().color() );
+   cone->SetMainTransparency(75);
+   container.AddElement(cone);
 }
 
 
@@ -153,6 +160,11 @@ FWJetsRPZProxyBuilder::buildJetRhoZ(const FWEventItem* iItem,
    container.AddElement( marker );
    fw::addRhoZEnergyProjection( &container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
                                 jet->phi(), iItem->defaultDisplayProperties().color() );
+   FW3DEveJet* cone = new FW3DEveJet(*jet,"jetcone","jetcone");
+   cone->SetPickable(kTRUE);
+   cone->SetMainColor( iItem->defaultDisplayProperties().color() );
+   cone->SetMainTransparency(75);
+   container.AddElement(cone);
 }
 
 std::pair<int,int>
