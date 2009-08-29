@@ -1,5 +1,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimingShapedFlag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
 
 /*
 v1.0 by Jeff Temple
@@ -22,18 +23,55 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
 {
   int status=0;  // 3 bits reserved;status can range from 0-7
 
-  // tfilterEnvelope stores energy/time pairs; make sure we're checking over an even number of values
+  // tfilterEnvelope stores doubles of energy and time; make sure we're checking over an even number of values
   // energies are also assumed to appear in increasing order
-  for (unsigned int i=0;i<2*(tfilterEnvelope_.size()/2);i=i+2)
+
+  // need at least two values to make comparison, and must
+  // always have energy, time pair; otherwise, assume "in time" and don't set bits
+  if (tfilterEnvelope_.size()<2 || tfilterEnvelope_.size()%2!=0)
     {
-      // Continue on if energy is greater than threshold value
-      if (hbhe.energy()>tfilterEnvelope_[i]) continue;
-      // rechit energy is now below threshold; compare its time to the threshold time
-      if (hbhe.time()>tfilterEnvelope_[i+1])
-	status=1;
-      // right now, status can be 0 or 1, but 3 bits have been reserved for this flag
-      hbhe.setFlagField(status,HcalCaloFlagLabels::HBHETimingShapedCutsBits,3);
-      break;
+      std::cout <<"ERROR!  size = "<<tfilterEnvelope_.size()<<std::endl;
+      return;
     }
+
+  double twinmin, twinmax;
+  double rhtime=hbhe.time();
+  double energy=hbhe.energy();
+  unsigned int i=0;
+
+  if (energy<tfilterEnvelope_[0])
+    twinmax=tfilterEnvelope_[0];
+  else
+    {
+      for (i=0;i<2*(tfilterEnvelope_.size()/2);i+=2)
+	{
+	  // Identify tfilterEnvelope index for this rechit energy
+	  if (tfilterEnvelope_[i]>energy)
+	    break;
+	}
+
+      if (i==2*(tfilterEnvelope_.size()/2))
+	twinmax=tfilterEnvelope_[i-2];
+      else
+	{
+	  // Perform linear interpolation between energy boundaries
+
+	  // i-2...i+1 are ensured to exist by our earlier requirement
+	  // that envelope size be >=2 and even
+	  double energy1  = tfilterEnvelope_[i-2];
+	  double lim1     = tfilterEnvelope_[i-1];
+	  double energy2  = tfilterEnvelope_[i];
+	  double lim2     = tfilterEnvelope_[i+1];
+	
+	  twinmax=lim1+((lim2-lim1)*(energy-energy1)/(energy2-energy1));
+	}
+    }
+  twinmax=0+twinmax*1;  // add offset and gain at some point?
+  twinmin=0-twinmax*1;  // add offset and gain at some point?
+  
+  if (rhtime<twinmax || rhtime >= twinmax)
+    status=1; // set status to 1
+  // Though we're only using a single bit right now, 3 bits are reserved for these cuts
+  hbhe.setFlagField(status,HcalCaloFlagLabels::HBHETimingShapedCutsBits,3);
   return;
 }
