@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.6 2009/05/27 07:07:59 fabiocos Exp $
+ version $Id: BSFitter.cc,v 1.7 2009/08/28 00:05:03 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -324,15 +324,17 @@ reco::BeamSpot BSFitter::Fit_z_likelihood(double *inipar) {
 reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 
 	//std::cout << "Fit_z_chi2() called" << std::endl;
-
-	TH1F *h1z = new TH1F("h1z","z distribution",100,-50.,50.);
+        // FIXME: include whole tracker z length for the time being
+        // ==> add protection and z0 cut
+	TH1F *h1z = new TH1F("h1z","z distribution",100,-300.,300.);
 	
 	std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
-		
+	
 	for( iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
 		
 		 h1z->Fill(iparam->z0(), iparam->sigz0());
-    }
+		 //std::cout<<"z0="<<iparam->z0()<<"; sigZ0="<<iparam->sigz0()<<std::endl;
+	}
 
 	h1z->Fit("gaus","Q0");
 	//std::cout << "fitted "<< std::endl;
@@ -340,7 +342,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	TF1 *fgaus = h1z->GetFunction("gaus");
 	//std::cout << "got function" << std::endl;
 	double fpar[2] = {fgaus->GetParameter(1), fgaus->GetParameter(2) };
-
+	//std::cout<<"Debug fpar[2] = (" <<fpar[0]<<","<<fpar[1]<<")"<<std::endl;
 	reco::BeamSpot::CovarianceMatrix matrix;
 	// add matrix values.
 	matrix(2,2) = fgaus->GetParError(1);
@@ -365,33 +367,29 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 
 	this->d0phi_Init();
 	reco::BeamSpot theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
-	fnthite++;
-   	//std::cout << "Initial tempanswer (iteration 0): " << theanswer << std::endl;
+	if ( goodfit ) fnthite++;
+	//std::cout << "Initial tempanswer (iteration 0): " << theanswer << std::endl;
+   	std::cout << " number of tracks used: " << fBSvector.size() << std::endl;
 	reco::BeamSpot preanswer = theanswer;
 	
-	while ( ftmprow > 0.5 * fBSvector.size()  ) {
+	while ( goodfit && ftmprow > 0.5 * fBSvector.size()  ) {
 		
 		theanswer = Fit_d0phi();
 		fd0cut /= 1.5;
 		fchi2cut /= 1.5;
-		if (ftmprow > 0.5 * fBSvector.size() ) {
-		  preanswer = theanswer;
-  		  //std::cout << "Iteration " << fnthite << ": " << preanswer << std::endl;
-		  fnthite++;
+		if ( goodfit && ftmprow > 0.5 * fBSvector.size() ) {
+		   preanswer = theanswer;
+  		   //std::cout << "Iteration " << fnthite << ": " << preanswer << std::endl;
+		   fnthite++;
 		}
-		else {
-		  if (goodfit) {
-  		    //std::cout << "Last iteration, theanswer: " << theanswer << std::endl;
-		  }
-		  else {
-		    theanswer = preanswer;
-		    fnthite--;
-  		    //std::cout << "Use previous results from iteration " << fnthite << "; theanswer: " << theanswer << std::endl;
-		  }
-		}
-
 	}
-	std::cout << "Total number of good iterations = " << fnthite << std::endl;
+	// FIXME: return fit results from previous iteration for both bad fit and for >50% tracks thrown away
+	//std::cout << "The last iteration, theanswer: " << theanswer << std::endl;
+	theanswer = preanswer;
+	//std::cout << "Use previous results from iteration #" << ( fnthite > 0 ? fnthite-1 : 0 ) << std::endl;
+	//if ( fnthite > 1 ) std::cout << theanswer << std::endl;
+	
+	std::cout << "Total number of successful iterations = " << ( goodfit ? (fnthite+1) : fnthite ) << std::endl;
 	
 	return theanswer;
 }
@@ -439,7 +437,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 		//if (ftmprow==0) {
 		//std::cout << "d0=" << iparam->d0() << " sigd0=" << iparam->sigd0()
-		//<< " phi0="<< iparam->sigd0() << " z0=" << iparam->z0() << std::endl;
+		//<< " phi0="<< iparam->phi0() << " z0=" << iparam->z0() << std::endl;
 		//std::cout << "d0phi_d0=" << iparam->d0phi_d0() << " d0phi_chi2="<<iparam->d0phi_chi2() << std::endl; 
 		//}
 		g(0,0) = sin(iparam->phi0());
@@ -492,6 +490,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 
 	Double_t determinant;
 	TDecompBK bk(Vint);
+	bk.SetTol(1e-11); //FIXME: find a better way to solve x_result
 	if (!bk.Decompose()) {
 	  goodfit = false;
 	  std::cout << "Decomposition failed, matrix singular ?" << std::endl;

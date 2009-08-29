@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.5 2009/08/26 22:06:02 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.6 2009/08/26 22:25:09 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -159,7 +159,7 @@ bool BeamFitter::runFitter() {
     fit_ok = true;
   }
   else
-    if(debug_) std::cout << "No good track selected! No beam fit!" << std::endl;
+    if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
   return fit_ok;
 }
 
