@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.21 2009/07/26 17:18:19 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.22 2009/07/26 23:15:31 chrjones Exp $
 //
 
 // system include files
@@ -514,11 +514,11 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
          m_name->SetText(m_moduleLabel.c_str());
       }
       m_apply->SetEnabled(true);
-      if(m_lastProcessNameInFile == m_processName) {
-         m_doNotUseProcessName->SetEnabled(true);
-      } else {
-         m_doNotUseProcessName->SetEnabled(false);
-      }
+      //if(m_lastProcessNameInFile == m_processName) {
+      //   m_doNotUseProcessName->SetEnabled(true);
+      //} else {
+      //   m_doNotUseProcessName->SetEnabled(false);
+      //}
       //std::set<int> selectedRows;
       //selectedRows.insert(m_tableManager->selectedRow());
       //m_tableWidget->SelectRows(selectedRows);
