@@ -8,15 +8,18 @@ process.Tracer = cms.Service("Tracer",sourceSeed = cms.untracked.string("$$"))
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
+process.GlobalTag.globaltag = cms.string('STARTUP31X_V2::All')
 
-# Input files: RelVal QCD 80-120 GeV, 5000 events, from CMSSW_3_1_2
+# Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_1_2
 process.source = cms.Source(
     "PoolSource", 
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V3-v2/0011/F605AE2E-D990-DE11-BFCB-001D09F2545B.root',
-    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V3-v2/0011/441FC5C8-4C91-DE11-BC78-000423D6BA18.root',
-    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V3-v2/0011/1210F6E7-D990-DE11-A327-001D09F2545B.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/DCAE40E8-CA78-DE11-8F20-001D09F2305C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/D099AB85-CA78-DE11-9A5E-001D09F2503C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/B2E190DF-CA78-DE11-9F35-001D09F2532F.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/90A07B7B-CA78-DE11-A4B7-001D09F26C5C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/4C5F86D1-CB78-DE11-8650-000423D6B42C.root',
+    '/store/relval/CMSSW_3_1_2/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V2-v1/0007/2247873A-B378-DE11-8F5B-001D09F24664.root',
     ),
     )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
