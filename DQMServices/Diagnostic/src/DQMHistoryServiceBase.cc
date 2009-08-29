@@ -7,7 +7,7 @@
 #include <cctype>
 #include <time.h>
 #include <boost/cstdint.hpp>
-#
+#include <boost/regex.hpp>
 
 DQMHistoryServiceBase::DQMHistoryServiceBase(const edm::ParameterSet& iConfig,const edm::ActivityRegistry& aReg):
  iConfig_(iConfig)
@@ -119,45 +119,55 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
   std::vector<MonitorElement*>::const_iterator iterMes = MEs.begin(); 
   std::vector<MonitorElement*>::const_iterator iterMesEnd = MEs.end(); 
   std::stringstream ss;
+
+  // Use boost regex for more flexibility
+  boost::regex re;
+  try {
+    re.assign(keyName);
+  }
+  catch( boost::regex_error& e ) {
+    std::cout << "Error: " << keyName << " is not a valid regular expression: \""
+              << e.what() << "\"" << std::endl;
+    std::cout << "Skip search for matches" << std::endl;
+    return;
+  }
   for (; iterMes!=iterMesEnd; ++iterMes){
-    std::string me_name = (*iterMes)->getName();  
-    if (me_name.find(keyName) == 0){ 
+    // Name including path
+    std::string me_name = (*iterMes)->getFullname();
+    // regex_search has grep-like behaviour
+    if( boost::regex_search(me_name, re) ) {
 
       HDQMSummary::InputVector values;
       std::vector<std::string> userDBContent;
-      
+
       ss << "\nFound compatible ME " << me_name << " for key " << keyName << std::endl;
-      
-      for(size_t i=0;i<Quantities.size();++i){
-	
 
-	if(Quantities[i]  == "landau"){
-	  setDBLabelsForLandau(keyName, userDBContent);
-	  setDBValuesForLandau(iterMes,values);
-	}
-	else if(Quantities[i]  == "gauss"){
-	  setDBLabelsForGauss(keyName, userDBContent);
-	  setDBValuesForGauss(iterMes,values);
-	}
-	else if(Quantities[i]  == "stat"){
-	  setDBLabelsForStat(keyName, userDBContent);
-  	  setDBValuesForStat(iterMes,values);
-	}
-	else{
-	  setDBLabelsForUser(keyName, userDBContent,Quantities[i]);
-	  setDBValuesForUser(iterMes,values,Quantities[i]);
-	}
-      }  
-      
+      for(size_t i=0;i<Quantities.size();++i) {
 
+        if(Quantities[i]  == "landau"){
+          setDBLabelsForLandau(keyName, userDBContent);
+          setDBValuesForLandau(iterMes,values);
+        }
+        else if(Quantities[i]  == "gauss"){
+          setDBLabelsForGauss(keyName, userDBContent);
+          setDBValuesForGauss(iterMes,values);
+        }
+        else if(Quantities[i]  == "stat"){
+          setDBLabelsForStat(keyName, userDBContent);
+          setDBValuesForStat(iterMes,values);
+        }
+        else{
+          setDBLabelsForUser(keyName, userDBContent,Quantities[i]);
+          setDBValuesForUser(iterMes,values,Quantities[i]);
+        }
+      }
       uint32_t detid=returnDetComponent(*iterMes);
 
       ss << "detid " << detid << " \n";
       for(size_t i=0;i<values.size();++i)
-	ss << "Quantity " << userDBContent[i] << " value " << values[i] << std::endl;
+        ss << "Quantity " << userDBContent[i] << " value " << values[i] << std::endl;
       
       summary->put(detid,values,userDBContent);
-
     }
   }
   edm::LogInfo("DQMHistoryServiceBase") <<  "[DQMHistoryServiceBase::scanTreeAndFillSummary] " << ss.str();
