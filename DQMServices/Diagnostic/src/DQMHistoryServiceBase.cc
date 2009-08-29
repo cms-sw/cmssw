@@ -128,8 +128,6 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
   catch( boost::regex_error& e ) {
     std::cout << "Error: " << keyName << " is not a valid regular expression: \""
               << e.what() << "\"" << std::endl;
-    std::cout << "Note that if you are not matching with the UseFullDir option == true, a ^"
-              << "is automatically added to match the start of the line" << std::endl;
     std::cout << "Skip search for matches" << std::endl;
     return;
   }
@@ -140,8 +138,11 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
       me_name = (*iterMes)->getFullname();
     }
     else {
-      // Match at line start
-      me_name = "^"+(*iterMes)->getName();
+      me_name = (*iterMes)->getName();
+      // If the line does not start with a "^" add it
+      if( me_name.find("^") != 0 ) {
+        me_name = "^" + me_name;
+      }
     }
     // regex_search has grep-like behaviour
     if( boost::regex_search(me_name, re) ) {
