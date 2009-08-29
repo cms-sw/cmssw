@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.31 2009/08/11 04:28:39 srappocc Exp $
+// $Id: PATElectronProducer.cc,v 1.32 2009/08/26 08:34:05 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -239,7 +239,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  Matched=true;
 	  
 	  // ptr needed for finding the matched gen particle
-	  reco::CandidatePtr ptrToGsfElectron(electrons,index);
+	  reco::CandidatePtr ptrToGsfElectron(electrons,idx);
 
 	  // ref to base needed for the construction of the pat object
 	  const edm::RefToBase<reco::GsfElectron>& elecsRef = electrons->refAt(idx);
@@ -249,6 +249,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  if( embedPFCandidate_ ) anElectron.embedPFCandidate();
 
 	  //Electron Id
+
 	  if (addElecID_) {
 	    //STANDARD EL ID 
 	    for (size_t i = 0; i < elecIDSrcs_.size(); ++i) {
@@ -408,13 +409,9 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
 
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     if(useParticleFlow_) {
-      cerr<<1<<endl;
+
       reco::PFCandidateRef pfcandref =  anElectron.pfCandidateRef();
-      cerr<<2<<endl;
       assert(!pfcandref.isNull());
-      cerr<<3<<endl;
-      cerr<<pfcandref->pt()<<endl;
-      cerr<<4<<endl;
       reco::CandidatePtr source = pfcandref->sourceCandidatePtr(0);      
       anElectron.setIsoDeposit(isoDepositLabels_[j].first, 
 			  (*deposits[j])[source]);
@@ -459,6 +456,7 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   if (embedTrack_) anElectron.embedTrack();
 
   // store the match to the generated final state muons
+
   if (addGenMatch_) {
     for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
       reco::GenParticleRef genElectron = (*genMatches[i])[candPtrForGenMatch];
