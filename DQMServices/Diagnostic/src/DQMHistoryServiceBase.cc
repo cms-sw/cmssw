@@ -136,7 +136,7 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
   for (; iterMes!=iterMesEnd; ++iterMes){
     // Name including path
     std::string me_name;
-    if( iConfig_.getUntrackedParameter<bool>("UseFullPath", true) ) {
+    if( iConfig_.getUntrackedParameter<bool>("useFullPath", false) ) {
       me_name = (*iterMes)->getFullname();
     }
     else {
