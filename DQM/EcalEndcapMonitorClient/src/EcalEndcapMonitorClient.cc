@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/08/27 18:08:36 $
- * $Revision: 1.213 $
+ * $Date: 2009/08/28 09:06:36 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1667,7 +1667,7 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalEndcapMonitorClient::softReset(bool flag) {
 
-  vector<MonitorElement*> mes = dqmStore_->getAllContents("EcalEndcap");
+  vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
   vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EE", 2) ) {
@@ -1676,6 +1676,15 @@ void EcalEndcapMonitorClient::softReset(bool flag) {
       } else {
          dqmStore_->disableSoftReset(*meitr);
       }
+    }
+  }
+
+  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
+  if ( me ) {
+    if ( flag ) {
+      dqmStore_->softReset(me);
+    } else {
+      dqmStore_->disableSoftReset(me);
     }
   }
 

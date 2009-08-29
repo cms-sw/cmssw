@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/08/27 18:08:35 $
- * $Revision: 1.453 $
+ * $Date: 2009/08/28 09:06:36 $
+ * $Revision: 1.454 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1627,7 +1627,7 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalBarrelMonitorClient::softReset(bool flag) { 	 
 
-  vector<MonitorElement*> mes = dqmStore_->getAllContents("EcalBarrel");
+  vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
   vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EB", 2) ) {
@@ -1636,6 +1636,15 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
       } else {
         dqmStore_->disableSoftReset(*meitr);
       }
+    }
+  }
+
+  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
+  if ( me ) {
+    if ( flag ) {
+      dqmStore_->softReset(me);
+    } else {
+      dqmStore_->disableSoftReset(me);
     }
   }
 
