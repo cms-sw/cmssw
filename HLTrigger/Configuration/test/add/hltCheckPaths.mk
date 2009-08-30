@@ -166,7 +166,8 @@ $(TABLE_PYS): .database_$$(LUMI)
 	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $(LUMI)_GlobalTable.py
 	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $(LUMI)_GlobalTable.py
 	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $(LUMI)_GlobalTable.py
-	@echo -e "process.GlobalTag.globaltag = \"$(HLT_$(LUMI)_GLOBALTAG)\"" >> $(LUMI)_GlobalTable.py
+	@echo -e "process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'" >> $(LUMI)_GlobalTable.py
+	@echo -e "process.GlobalTag.globaltag = '$(HLT_$(LUMI)_GLOBALTAG)'"                       >> $(LUMI)_GlobalTable.py
 
 $(LIST_OF_PYS): .database_$$(LUMI)
 	@echo -e "ConfDB [$(BLUE)$(HLT_$(LUMI)_CONFIG)$(NORMAL)] path $(BOLD)$(NAME)$(NORMAL)$(CLEAR)"
@@ -174,7 +175,8 @@ $(LIST_OF_PYS): .database_$$(LUMI)
 	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $@
 	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $@
 	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $@
-	@echo -e "process.GlobalTag.globaltag = \"$(HLT_$(LUMI)_GLOBALTAG)\"" >> $@
+	@echo -e "process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'" >> $@
+	@echo -e "process.GlobalTag.globaltag = '$(HLT_$(LUMI)_GLOBALTAG)'"                       >> $@
 
 # rules to run cmsRun and produce log files
 $(TABLE_LOGS): %.log: %.py
