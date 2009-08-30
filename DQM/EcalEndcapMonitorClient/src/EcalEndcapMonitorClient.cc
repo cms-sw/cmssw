@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/08/28 09:06:36 $
- * $Revision: 1.214 $
+ * $Date: 2009/08/29 20:12:49 $
+ * $Revision: 1.215 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1674,7 +1674,7 @@ void EcalEndcapMonitorClient::softReset(bool flag) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);
       } else {
-         dqmStore_->disableSoftReset(*meitr);
+        dqmStore_->disableSoftReset(*meitr);
       }
     }
   }
