@@ -15,7 +15,20 @@ HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter()
 
 HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter(std::vector<double> tfilterEnvelope)
 {
-  tfilterEnvelope_=tfilterEnvelope;
+  // Transform vector of doubles into a vector of <energy,time> pairs
+  // Add extra protection in case vector of doubles is not a multiple of 2?
+  if (tfilterEnvelope.size()%2==0)
+    {
+      for (unsigned int i=0;i<tfilterEnvelope.size();i+=2)
+	tfilterEnvelope_.push_back(std::pair<double,double>(tfilterEnvelope[i],
+							    tfilterEnvelope[i+1]));
+    }
+  
+  //sort in order of increasing energy -- unnecessary?
+  std::sort(tfilterEnvelope_.begin(),
+	    tfilterEnvelope_.end(),
+	    compareEnergyTimePair<std::pair<double,double> >());
+
   ignorelowest_=false;
   ignorehighest_=false;
   win_offset_=0.;
@@ -24,7 +37,20 @@ HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter(std::vector<double> tfilt
 
 HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter(std::vector<double> tfilterEnvelope, bool ignorelowest, bool ignorehighest, double win_offset, double win_gain)
 {
-  tfilterEnvelope_=tfilterEnvelope; // gives energy/time threshold
+  // Transform vector of doubles into a vector of <energy,time> pairs
+  // Add extra protection in case vector of doubles is not a multiple of 2?
+  if (tfilterEnvelope.size()%2==0)
+    {
+      for (unsigned int i=0;i<tfilterEnvelope.size();i+=2)
+	tfilterEnvelope_.push_back(std::pair<double,double>(tfilterEnvelope[i],
+							    tfilterEnvelope[i+1]));
+    }
+
+  //sort in order of increasing energy -- unnecessary?
+  std::sort(tfilterEnvelope_.begin(),
+	    tfilterEnvelope_.end(),
+	    compareEnergyTimePair<std::pair<double,double> >());
+
   ignorelowest_=ignorelowest; // can ignore flagging hits below lowest energy threshold
   ignorehighest_=ignorehighest; // can ignore flagging hits above highest energy threshold
   win_offset_=win_offset; // timing offset
@@ -38,34 +64,32 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
   // tfilterEnvelope stores doubles of energy and time; 
   //make sure we're checking over an even number of values
   // energies are also assumed to appear in increasing order
-  // Split vector with make_pair and add a sort command in the future?
 
   // need at least two values to make comparison, and must
   // always have energy, time pair; otherwise, assume "in time" and don't set bits
-  if (tfilterEnvelope_.size()<2 || tfilterEnvelope_.size()%2!=0)
-      return;
+  if (tfilterEnvelope_.size()==0)
+    return;
 
   double twinmin, twinmax;  // min, max 'good' time; values outside this range have flag set
   double rhtime=hbhe.time();
   double energy=hbhe.energy();
   unsigned int i=0; // index to track envelope index
 
-  std::cout <<"RECHIT"<<std::endl;
-  if (energy<tfilterEnvelope_[0]) // less than lowest energy threshold
+  if (energy<tfilterEnvelope_[0].first) // less than lowest energy threshold
     {
       // Can skip timing test on cells below lowest threshold if so desired
       if (ignorelowest_) 
 	return;
       else
-	twinmax=tfilterEnvelope_[1];
+	twinmax=tfilterEnvelope_[0].second;
     }
   else
     {
       // Loop over energies in tfilterEnvelope
-      for (i=0;i<2*(tfilterEnvelope_.size()/2);i+=2)
+      for (i=0;i<tfilterEnvelope_.size();++i)
 	{
 	  // Identify tfilterEnvelope index for this rechit energy
-	  if (tfilterEnvelope_[i]>energy)
+	  if (tfilterEnvelope_[i].first>energy)
 	    break;
 	}
 
@@ -75,18 +99,16 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
 	  if (ignorehighest_)
 	    return;
 	  else
-	    twinmax=tfilterEnvelope_[i-1];
+	    twinmax=tfilterEnvelope_[i-1].second;
 	}
       else
 	{
 	  // Perform linear interpolation between energy boundaries
 
-	  // i-2...i+1 are ensured to exist by our earlier requirement
-	  // that envelope size be >=2 and even
-	  double energy1  = tfilterEnvelope_[i-2];
-	  double lim1     = tfilterEnvelope_[i-1];
-	  double energy2  = tfilterEnvelope_[i];
-	  double lim2     = tfilterEnvelope_[i+1];
+	  double energy1  = tfilterEnvelope_[i-1].first;
+	  double lim1     = tfilterEnvelope_[i-1].second;
+	  double energy2  = tfilterEnvelope_[i].first;
+	  double lim2     = tfilterEnvelope_[i].second;
 	
 	  twinmax=lim1+((lim2-lim1)*(energy-energy1)/(energy2-energy1));
 	}

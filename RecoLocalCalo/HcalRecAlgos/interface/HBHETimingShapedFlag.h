@@ -6,6 +6,18 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
 
+// Use this class to compare Energies
+template <class T>
+class compareEnergyTimePair {
+public:
+  bool operator()(const T& h1,
+                  const T& h2) const {
+    return (h1.first < h2.first);
+  }
+};
+
+
+
 class HBHETimingShapedFlagSetter {
  public:
   HBHETimingShapedFlagSetter();
@@ -19,7 +31,7 @@ class HBHETimingShapedFlagSetter {
   void Clear();
   void SetTimingShapedFlags(HBHERecHit& hbhe);
  private:
-  std::vector<double> tfilterEnvelope_;
+  std::vector<std::pair<double,double> > tfilterEnvelope_;
   bool ignorelowest_;
   bool ignorehighest_;
   double win_offset_;
