@@ -38,7 +38,7 @@ HLT_1E31_SOURCE     := file:RelVal_DigiL1Raw_1E31.root
 
 # more configuration, useful to debug the Makefile itself
 CMSRUN    := cmsRun
-GETCONFIG := edmConfigFromDB
+GETCONFIG := hltConfigFromDB
 
 # check for cmsRun environmnt
 ifeq (,$(CMSSW_RELEASE_BASE))
