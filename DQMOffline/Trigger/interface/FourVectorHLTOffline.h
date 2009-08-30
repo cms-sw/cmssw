@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.26 2009/07/10 01:16:37 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.27 2009/08/05 16:31:24 rekovic Exp $
 //
 //
 
@@ -167,6 +167,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       std::string dirname_;
       std::string processname_;
+      std::string muonRecoCollectionName_;
       bool monitorDaemon_;
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;

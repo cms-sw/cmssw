@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.38 2009/07/10 01:16:38 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.39 2009/08/05 16:31:24 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -65,6 +65,8 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  muonRecoCollectionName_ = 
+	  iConfig.getUntrackedParameter("muonRecoCollectionName", std::string("muons"));
 
   electronEtaMax_ = iConfig.getUntrackedParameter<double>("electronEtaMax",2.5);
   electronEtMin_ = iConfig.getUntrackedParameter<double>("electronEtMin",3.0);
@@ -182,12 +184,31 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   edm::Handle<reco::MuonCollection> muonHandle;
-  iEvent.getByLabel("muons",muonHandle);
+  //iEvent.getByLabel("muons",muonHandle);
+  iEvent.getByLabel(muonRecoCollectionName_,muonHandle);
   if(!muonHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTOffline") << "muonHandle not found, ";
     //  "skipping event"; 
     //  return;
-   }
+	}
+  if(muonHandle.isValid()) { 
+    for( reco::MuonCollection::const_iterator iter = muonHandle->begin(), iend = muonHandle->end(); iter != iend; ++iter )
+   {
+
+
+    LogTrace("FourVectorHLTOffline")<< "Found a reco muon" << endl;
+    if (iter->isStandAloneMuon()) {
+		 LogTrace("FourVectorHLTOffline") << "This muon is STA" <<endl;
+		}
+		else if (iter->isGlobalMuon()){ 
+	   LogTrace("FourVectorHLTOffline") << "This muon is Global" <<endl;
+		}
+		else if (iter->isTrackerMuon()){ 
+	   LogTrace("FourVectorHLTOffline") << "This muon is Tracker" <<endl;
+		}
+
+	 } // end for
+	}
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel("gsfElectrons",gsfElectrons); 
