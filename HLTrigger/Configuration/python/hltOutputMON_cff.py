@@ -351,3 +351,4 @@ outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
   'keep triggerTriggerEventWithRefs_*_*_*',
   'keep *_hltL1GtObjectMap_*_*' )
 )
+

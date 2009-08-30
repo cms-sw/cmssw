@@ -45,3 +45,4 @@ outputCommands = cms.untracked.vstring( 'drop *',
   'keep L1MuGMTReadoutCollection_hltGtDigis_*_*',
   'keep *_hltMuonRPCDigis_*_*' )
 )
+
