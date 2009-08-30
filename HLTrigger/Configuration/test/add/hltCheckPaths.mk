@@ -163,11 +163,18 @@ endif
 $(TABLE_PYS): .database_$$(LUMI)
 	@echo -e "ConfDB [$(BLUE)$(HLT_$(LUMI)_CONFIG)$(NORMAL)] menu $(BOLD)$(LUMI)_GlobalTable$(NORMAL)$(CLEAR)"
 	@$(GETCONFIG) --configName $(HLT_$(LUMI)_CONFIG) --input $(HLT_$(LUMI)_SOURCE) --nooutput --services -PrescaleService --format python | sed -e's/^process = cms.Process(.*)/process = cms.Process( "$(PROCESS)" )/' -e's/^process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( $(EVENTS) ) )/process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( 100 ) )/' > $(LUMI)_GlobalTable.py
+	# FIXME - these should be integrated in some upstream tool
+	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $(LUMI)_GlobalTable.py
+	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $(LUMI)_GlobalTable.py
+	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $(LUMI)_GlobalTable.py
 	@echo -e "process.GlobalTag.globaltag = \"$(HLT_$(LUMI)_GLOBALTAG)\"" >> $(LUMI)_GlobalTable.py
 
 $(LIST_OF_PYS): .database_$$(LUMI)
 	@echo -e "ConfDB [$(BLUE)$(HLT_$(LUMI)_CONFIG)$(NORMAL)] path $(BOLD)$(NAME)$(NORMAL)$(CLEAR)"
 	@$(GETCONFIG) --configName $(HLT_$(LUMI)_CONFIG) --input $(HLT_$(LUMI)_SOURCE) --paths HLTriggerFirstPath,$(NAME),HLTriggerFinalPath --services -PrescaleService --format python | sed -e's/^process = cms.Process(.*)/process = cms.Process( "$(PROCESS)" )/' -e's/^process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( $(EVENTS) ) )/process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( 100 ) )/' > $@
+	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $@
+	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $@
+	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $@
 	@echo -e "process.GlobalTag.globaltag = \"$(HLT_$(LUMI)_GLOBALTAG)\"" >> $@
 
 # rules to run cmsRun and produce log files
