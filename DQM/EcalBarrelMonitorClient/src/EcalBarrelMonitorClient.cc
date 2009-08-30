@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/08/28 09:06:36 $
- * $Revision: 1.454 $
+ * $Date: 2009/08/29 20:12:49 $
+ * $Revision: 1.455 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -202,7 +202,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
   if ( verbose_ ) {
     cout << " prefixME path is '" << prefixME_ << "'" << endl;
-  } 
+  }
 
   // enableCleanup switch
 
@@ -368,7 +368,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
 
     clients_.push_back( new EBOccupancyClient(ps) );
     clientsNames_.push_back( "Occupancy" );
-    
+
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
     clientsRuns_.insert(pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
@@ -646,12 +646,12 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     dqmStore_ = mui_->getBEInterface();
 
   } else {
-    
+
     // get hold of back-end interface
 
     mui_ = 0;
     dqmStore_ = Service<DQMStore>().operator->();
-  
+
   }
 
   if ( ! enableMonitorDaemon_ ) {
@@ -1045,7 +1045,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   if ( econn ) {
     try {
@@ -1222,7 +1222,7 @@ void EcalBarrelMonitorClient::writeDb() {
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
 }
 
@@ -1625,7 +1625,7 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 }
 
-void EcalBarrelMonitorClient::softReset(bool flag) { 	 
+void EcalBarrelMonitorClient::softReset(bool flag) {
 
   vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
   vector<MonitorElement*>::const_iterator meitr;
