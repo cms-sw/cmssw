@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/08/29 20:12:49 $
- * $Revision: 1.215 $
+ * $Date: 2009/08/30 13:57:44 $
+ * $Revision: 1.216 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1517,7 +1517,7 @@ void EcalEndcapMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
                runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
-          //          this->softReset(true);
+          this->softReset(true);
           last_time_db_ = current_time_;
         }
       }
