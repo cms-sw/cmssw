@@ -64,4 +64,4 @@ CLASSPATH=$CONFDBDIR/ext/ojdbc14.jar:$CONFDBDIR/lib/cmssw-evf-confdb-gui.jar
 [ -f $CONFDBDIR/lib/cmssw-evf-confdb-gui.jar ] || ant -f $CONFDBDIR/build.xml converter
 
 # FIXME - the pipe through sed removes the definition of streams and primary datasets from the dump - this should be done directly by the converter
-java -cp $CLASSPATH confdb.converter.OfflineConverter -s 'convertme!' "$@" | grep -v '^TIMING' | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d'
+java -cp $CLASSPATH confdb.converter.OfflineConverter -s 'convertme!' "$@" 2> /dev/null | grep -v '^TIMING' | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d'
