@@ -197,35 +197,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 				  36,-0.5,35.5);
       DigiErrorSpigot -> setAxisTitle("Spigot",1);  
       DigiErrorSpigot -> setAxisTitle("DCC Id",2);
-      
-      // 
-      float bins_cellcount[]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5,
-			      11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5,
-			      21.5, 22.5, 23.5, 24.5, 25.5, 26.5, 27.5, 28.5, 29.5, 30.5,
-			      31.5, 32.5, 33.5, 34.5, 35.5, 36.5, 37.5, 38.5, 39.5, 40.5,
-			      41.5, 42.5, 43.5, 44.5, 45.5, 46.5, 47.5, 48.5, 49.5, 50.5,
-			      60.5, 70.5, 80.5, 90.5, 100.5, 150.5, 200.5, 250.5, 300.5,
-			      400.5, 500.5, 600.5, 700.5, 800.5, 900.5, 1000.5, 1100.5,
-			      1200.5, 1300.5, 1400.5, 1500.5, 1600.5, 1700.5, 1800.5, 1900.5,
-			      2000.5, 2100.5, 2200.5, 2300.5, 2400.5, 2500.5, 2600.5, 2700.5,
-			      2800.5, 2900.5, 3000.5, 3100.5, 3200.5, 3300.5, 3400.5, 3500.5,
-			      3600.5, 3700.5, 3800.5, 3900.5, 4000.5, 4100.5, 4200.5, 4300.5,
-			      4400.5, 4500.5, 4600.5, 4700.5, 4800.5, 4900.5, 5000.5, 5100.5,
-			      5200.5, 5300.5, 5400.5, 5500.5, 5600.5, 5700.5, 5800.5, 5900.5,
-			      6000.5, 6100.5, 6200.5, 6300.5, 6400.5, 6500.5, 6600.5, 6700.5,
-			      6800.5, 6900.5, 7000.5, 7100.5, 7200.5, 7300.5, 7400.5, 7500.5,
-			      7600.5, 7700.5, 7800.5, 7900.5, 8000.5, 8100.5, 8200.5, 8300.5,
-			      8400.5, 8500.5, 8600.5, 8700.5, 8800.5, 8900.5, 9000.5, 9100.5};
+
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis");
 
-      DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis",148, bins_cellcount);
+      DigiBQ = m_dbe->book1D("# Bad Qual Digis","# Bad Qual Digis within Digi Collection",148, bins_cellcount);
       // Can't set until histogram drawn?
       //(DigiBQ->getTH1F())->LabelsOption("v");
       DigiBQFrac =  m_dbe->book1D("Bad Digi Fraction","Bad Digi Fraction",
-				  DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
-      DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction",1);  
+				  1118, bins_fraccount);
+				  //DIGI_BQ_FRAC_NBINS,(0-0.5/(DIGI_BQ_FRAC_NBINS-1)),1+0.5/(DIGI_BQ_FRAC_NBINS-1));
+      DigiBQFrac -> setAxisTitle("Bad Quality Digi Fraction for digis in Digi Collection",1);  
       DigiBQFrac -> setAxisTitle("# of Events",2);
+
+      DigiUnpackerErrorCount = m_dbe->book1D("Unpacker Error Count", "Number of Bad Digis from Unpacker; Bad Unpacker Digis; # of Events",148, bins_cellcount);
+      DigiUnpackerErrorFrac = m_dbe->book1D("Unpacker Bad Digi Fraction", 
+					    "Bad Digis From Unpacker/ (Bad Digis From Unpacker + Good Digis); Bad Unpacker Fraction; # of Events",
+					    1118,bins_fraccount);
 
       m_dbe->setCurrentFolder(baseFolder_+"/good_digis/");
       DigiNum = m_dbe->book1D("# of Good Digis","# of Digis",DIGI_NUM+1,-0.5,DIGI_NUM+1-0.5);
@@ -334,6 +322,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   //cout <<"BADvalue = "<<report.badQualityDigis()<<endl;
   // Check report for bad digis
+  
+
+  // Bad digi quality detid info does not yet exist in report.bad_quality objects.
+  // Need to look at raw data directly?
+  /*
 
   typedef std::vector<DetId> DetIdVector;
 
@@ -348,9 +341,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	++baddigi_iter)
     {
       HcalDetId id(baddigi_iter->rawId());
-      //cout <<id.subdet()<<"  "<<id.ieta()<<"  "<<id.iphi()<<" "<<id.depth()<<endl;
     }
-
+  */
 
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
@@ -380,7 +372,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       if (counter<DIGI_SUBDET_NUM)
 	++hbHists.count_BQ[counter];
       counter = static_cast<int>((hbHists.count_bad/(hbHists.count_bad+hbHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-      ++hbHists.count_BQFrac[counter];
+      if (counter<DIGI_SUBDET_NUM) ++hbHists.count_BQFrac[counter];
     }
   if (heHists.check && (heHists.count_good>0 || heHists.count_bad>0))
     {
@@ -388,7 +380,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       if (counter<DIGI_SUBDET_NUM)
 	++heHists.count_BQ[counter];
       counter = static_cast<int>((heHists.count_bad/(heHists.count_bad+heHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-      ++heHists.count_BQFrac[counter];
+      if (counter<DIGI_SUBDET_NUM) ++heHists.count_BQFrac[counter];
     }
 
   if (showTiming)
@@ -413,17 +405,17 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  if (counter<DIGI_SUBDET_NUM)
 	    ++hoHists.count_BQ[counter];
 	  counter = static_cast<int>((hoHists.count_bad/(hoHists.count_bad+hoHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-	  ++hoHists.count_BQFrac[counter];
+	  if (counter<DIGI_SUBDET_NUM) ++hoHists.count_BQFrac[counter];
 	}
       HOocc_vs_LB->Fill(lumiblock,hoHists.count_good);
     } // if (hoHists.check)
-
+  
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HO -> "<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-
+  
   /////////////////////////////////////// Loop over HF collection
   if (hfHists.check)
     {
@@ -439,7 +431,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  if (counter<DIGI_SUBDET_NUM)
 	    ++hfHists.count_BQ[counter];
 	  counter = static_cast<int>((hfHists.count_bad/(hfHists.count_bad+hfHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-	  ++hfHists.count_BQFrac[counter];
+	  if (counter<DIGI_SUBDET_NUM) ++hfHists.count_BQFrac[counter];
 	}
       HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
     } // if (hfHists.check)
@@ -454,19 +446,29 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   int count_good=hbHists.count_good+heHists.count_good+hoHists.count_good+hfHists.count_good;
   int count_bad=hbHists.count_bad+heHists.count_bad+hoHists.count_bad+hfHists.count_bad;
 
-  ++digiBQ[count_bad];
-  ++diginum[count_good];
-  if (count_good>0)
-    ++digiBQfrac[static_cast<int>(count_bad/count_good)*DIGI_BQ_FRAC_NBINS];
+  if (count_good<DIGI_NUM)
+    ++diginum[count_good];
 
+  // Fill bad quality histograms
+  DigiUnpackerErrorCount->Fill(report.badQualityDigis());
+  DigiUnpackerErrorFrac->Fill(1.*report.badQualityDigis()/(report.badQualityDigis()+count_good));
+  DigiBQ->Fill(count_bad);
+  if (count_bad>0 || count_good>0)
+    DigiBQFrac->Fill(1.*count_bad/(count_bad+count_good));
 
-  
-  
-  //Jeff's dummy fills to make sure plots update.  Hmm...
+  // Call 'update' on all histograms so that they update in online DQM  
   UpdateHists(hbHists);
   UpdateHists(heHists);
   UpdateHists(hoHists);
   UpdateHists(hfHists);
+
+  // Now update global (non-subdetector-specific) histograms
+  DigiNum->update();
+  DigiOccupancyEta->update();
+  DigiOccupancyPhi->update();
+  DigiOccupancyVME->update();
+  DigiOccupancySpigot->update();
+  DigiSize->update();
 
   // Fill problems vs. lumi block plots
   ProblemsVsLB->Fill(lumiblock,count_bad);
@@ -651,7 +653,6 @@ void HcalDigiMonitor::fill_Nevents()
   for (int i=0;i<DIGI_NUM;++i)
     {
       if (diginum[i]>0) DigiNum->Fill(i, diginum[i]);
-      if (digiBQ[i]>0) DigiBQ->Fill(i, digiBQ[i]);
       if (i>=DIGI_SUBDET_NUM) continue;
 
       if (hbHists.count_BQ[i]>0) hbHists.BQ->Fill(i, hbHists.count_BQ[i]);
@@ -703,7 +704,6 @@ void HcalDigiMonitor::fill_Nevents()
   // Fill plots of bad fraction of digis found
   for (int i=0;i<DIGI_BQ_FRAC_NBINS;++i)
     {
-      if (digiBQfrac[i]>0) DigiBQFrac->Fill(i, digiBQfrac[i]);
       if (hbHists.count_BQFrac[i]>0) hbHists.BQFrac->Fill(i, hbHists.count_BQFrac[i]);
       if (heHists.count_BQFrac[i]>0) heHists.BQFrac->Fill(i, heHists.count_BQFrac[i]);
       if (hoHists.count_BQFrac[i]>0) hoHists.BQFrac->Fill(i, hoHists.count_BQFrac[i]);
@@ -965,9 +965,6 @@ void HcalDigiMonitor::zeroCounters()
 
   for (int i=0;i<DIGI_NUM;++i)
     {
-      if (i<DIGI_BQ_FRAC_NBINS)
-	digiBQfrac[i]=0;
-      digiBQ[i]=0;
       diginum[i]=0;
       
       // set all DigiHists counters to 0
