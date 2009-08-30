@@ -26,7 +26,7 @@ from SimTracker.TrackHistory.CategorySelectors_cff import *
 
 process.trackSelector = TrackCategorySelector(
     src = cms.InputTag('generalTracks'),
-    cut = cms.string("is('Xi') || is('Omega')")
+    cut = cms.string("is('XiDecay') || is('OmegaDecay')")
 )
 
 process.trackHistoryAnalyzer = cms.EDAnalyzer("TrackHistoryAnalyzer",

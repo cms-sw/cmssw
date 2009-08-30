@@ -163,11 +163,11 @@ void VertexClassifier::processesAtGenerator()
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
-                    update(flags_[Jpsi], pdgid == 443);
-                    update(flags_[Xi], pdgid == 3312);
-                    update(flags_[Omega], pdgid == 3334);
-                    update(flags_[SigmaPlus], pdgid == 3222);
-                    update(flags_[SigmaMinus], pdgid == 3112);
+                    update(flags_[JpsiDecay], pdgid == 443);
+                    update(flags_[XiDecay], pdgid == 3312);
+                    update(flags_[OmegaDecay], pdgid == 3334);
+                    update(flags_[SigmaPlusDecay], pdgid == 3222);
+                    update(flags_[SigmaMinusDecay], pdgid == 3112);
                 }
             }
         }
@@ -250,11 +250,11 @@ void VertexClassifier::processesAtSimulation()
                             update(flags_[TauDecay], pdgid == 15);
                             update(flags_[KsDecay], pdgid == 310);
                             update(flags_[LambdaDecay], pdgid == 3122);
-                            update(flags_[Jpsi], pdgid == 443);
-                            update(flags_[Xi], pdgid == 3312);
-                            update(flags_[Omega], pdgid == 3334);
-                            update(flags_[SigmaPlus], pdgid == 3222);
-                            update(flags_[SigmaMinus], pdgid == 3112);
+                            update(flags_[JpsiDecay], pdgid == 443);
+                            update(flags_[XiDecay], pdgid == 3312);
+                            update(flags_[OmegaDecay], pdgid == 3334);
+                            update(flags_[SigmaPlusDecay], pdgid == 3222);
+                            update(flags_[SigmaMinusDecay], pdgid == 3112);
                         }
                     }
                     update(
@@ -265,11 +265,11 @@ void VertexClassifier::processesAtSimulation()
                         !flags_[TauDecay] &&
                         !flags_[KsDecay] &&
                         !flags_[LambdaDecay] &&
-                        !flags_[Jpsi] &&
-                        !flags_[Xi] &&
-                        !flags_[Omega] &&
-                        !flags_[SigmaPlus] &&
-                        !flags_[SigmaMinus]
+                        !flags_[JpsiDecay] &&
+                        !flags_[XiDecay] &&
+                        !flags_[OmegaDecay] &&
+                        !flags_[SigmaPlusDecay] &&
+                        !flags_[SigmaMinusDecay]
                     );
                 }
                 else
