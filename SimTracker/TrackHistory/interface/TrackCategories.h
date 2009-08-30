@@ -15,6 +15,8 @@ public:
         Fake = 0,
         Reconstructed = Fake,
         Bad,
+        BadInnerHits,
+        SharedInnerHits,        
         SignalEvent,
         Bottom,
         Charm,
@@ -36,8 +38,6 @@ public:
         SecondaryVertex,
         TertiaryVertex,
         TierciaryVertex = TertiaryVertex,
-        BadInnerHits,
-        SharedInnerHits,
         Unknown
     };
 
