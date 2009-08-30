@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 inputfiles = os.environ["ALIGNMENT_INPUTFILES"].split(" ")
 iteration = int(os.environ["ALIGNMENT_ITERATION"])
 jobnumber = int(os.environ["ALIGNMENT_JOBNUMBER"])
+mapplots = (os.environ["ALIGNMENT_MAPPLOTS"] == "True")
 globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 trackerconnect = os.environ["ALIGNMENT_TRACKERCONNECT"]
@@ -43,16 +44,24 @@ process.looper.algoConfig.allowTIDTEC = allowTIDTEC
 process.looper.algoConfig.twoBin = twoBin
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 
+if mapplots:
+    process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonSystemMap1D_cfi")
+    process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring("AlignmentMonitorMuonSystemMap1D"),
+                                            AlignmentMonitorMuonSystemMap1D = process.AlignmentMonitorMuonSystemMap1D)
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
 process.looper.applyDbAlignment = True
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
+process.OnlyGlobalCSCs = cms.EDFilter("OnlyGlobalCSCs")
+process.MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("globalCosmicMuons")
+
 if iscosmics:
-    process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
+    process.Path = cms.Path(process.offlineBeamSpot * process.OnlyGlobalCSCs * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalCosmicRefit:Refitted")
 else:
-    process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+    process.Path = cms.Path(process.offlineBeamSpot * process.OnlyGlobalCSCs * process.MuonAlignmentFromReferenceGlobalMuonRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")
 
 process.MuonAlignmentFromReferenceInputDB.connect = cms.string("sqlite_file:%s" % inputdb)

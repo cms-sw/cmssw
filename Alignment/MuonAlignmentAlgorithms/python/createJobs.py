@@ -2,6 +2,8 @@
 
 import os, sys, optparse, math
 
+commandline = " ".join(sys.argv)
+
 usage = """%prog DIRNAME ITERATIONS INITIALGEOM INPUTFILES [options]
 
 Creates (overwrites) a directory for each of the iterations and creates (overwrites) submitJobs.sh with the submission sequence and dependencies.
@@ -26,6 +28,19 @@ parser.add_option("-j", "--jobs",
                    type="int",
                    default=50,
                    dest="subjobs")
+parser.add_option("-s", "--submitJobs",
+                   help="Alternate name of submitJobs.sh script (please include .sh extension)",
+                   type="string",
+                   default="submitJobs.sh",
+                   dest="submitJobs")
+parser.add_option("-b", "--big",
+                  help="If invoked, even subjobs are so big that they must be run on cmscaf1nd",
+                  action="store_true",
+                  dest="big")
+parser.add_option("--mapplots",
+                  help="Make map plots",
+                  action="store_true",
+                  dest="mapplots")
 parser.add_option("--globalTag",
                   help="GlobalTag for conditions not otherwise overridden",
                   type="string",
@@ -100,6 +115,7 @@ parser.add_option("--minAlignmentHits",
                   dest="minAlignmentHits")
 
 options, args = parser.parse_args(sys.argv[5:])
+mapplots = options.mapplots
 globaltag = options.globaltag
 trackerconnect = options.trackerconnect
 trackeralignment = options.trackeralignment
@@ -145,8 +161,13 @@ for iteration in range(1, ITERATIONS+1):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
         inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
 
+        if mapplots == True: copyplots = "plotting*.root"
+        else: copyplots = ""
+
         if len(inputfiles) > 0:
             file(gather_fileName, "w").write("""#/bin/sh
+# %(commandline)s
+
 export ALIGNMENT_CAFDIR=`pwd`
 
 cd %(pwd)s
@@ -156,6 +177,7 @@ export ALIGNMENT_AFSDIR=`pwd`
 export ALIGNMENT_INPUTFILES='%(inputfiles)s'
 export ALIGNMENT_ITERATION=%(iteration)d
 export ALIGNMENT_JOBNUMBER=%(jobnumber)d
+export ALIGNMENT_MAPPLOTS=%(mapplots)s
 export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
@@ -178,18 +200,23 @@ cd $ALIGNMENT_CAFDIR/
 ls -l
 cmsRun gather_cfg.py
 ls -l
-cp -f *.tmp $ALIGNMENT_AFSDIR/%(directory)s
+cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
 """ % vars())
             os.system("chmod +x %s" % gather_fileName)
             bsubfile.append("echo %sgather%03d.sh" % (directory, jobnumber))
 
             if last_align is None: waiter = ""
-            else: waiter = "-w \"ended(%s)\"" % last_align
-            bsubfile.append("bsub -q cmscaf1nh -J \"%s_gather%03d\" %s gather%03d.sh" % (director, jobnumber, waiter, jobnumber))
+            else: waiter = "-w \"ended(%s)\"" % last_align            
+            if options.big: queue = "cmscaf1nd"
+            else: queue = "cmscaf1nh"
+
+            bsubfile.append("bsub -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
+# %(commandline)s
+
 export ALIGNMENT_CAFDIR=`pwd`
 
 cd %(pwd)s
@@ -233,5 +260,5 @@ cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(
     bsubnames = []
     last_align = "%s_align" % director
 
-file("submitJobs.sh", "w").write("\n".join(bsubfile))
-os.system("chmod +x submitJobs.sh")
+file(options.submitJobs, "w").write("\n".join(bsubfile))
+os.system("chmod +x %s" % options.submitJobs)
