@@ -50,6 +50,10 @@ hbhereco = cms.EDFilter(
                                                                       81.00,5.64,
                                                                       114.50,5.44,
                                                                       175.50,5.38,
-                                                                      350.50,5.14))
+                                                                      350.50,5.14),
+                                          ignorelowest  = cms.bool(True), # ignores hits with energies below lowest envelope threshold
+                                          ignorehighest = cms.bool(False), # ignores hits with energies above highest envelope threshold
+                                          win_offset    = cms.double(0.),
+                                          win_gain      = cms.double(1.))
 
     )

@@ -55,7 +55,11 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     if (timingShapedCutsFlags)
       {
 	const edm::ParameterSet& psTshaped = conf.getParameter<edm::ParameterSet>("timingshapedcutsParameters");
-	hbheTimingShapedFlagSetter_ = new HBHETimingShapedFlagSetter(psTshaped.getParameter<std::vector<double> >("tfilterEnvelope"));
+	hbheTimingShapedFlagSetter_ = new HBHETimingShapedFlagSetter(psTshaped.getParameter<std::vector<double> >("tfilterEnvelope"),
+								     psTshaped.getParameter<bool>("ignorelowest"),
+								     psTshaped.getParameter<bool>("ignorehighest"),
+								     psTshaped.getParameter<double>("win_offset"),
+								     psTshaped.getParameter<double>("win_gain"));
       }
       
     if (setNoiseFlags_)
