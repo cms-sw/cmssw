@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.39 2009/08/05 16:31:24 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.40 2009/08/30 23:31:56 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -387,6 +387,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 { 
 
     //LogTrace("FourVectorHLTOffline") << " path " << v->getPath() << endl;
+
 	      if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
 				else btagMon = btagMuMon;
 
@@ -426,9 +427,20 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       bool l1accept = false;
       edm::InputTag l1testTag(v->getl1Path(),"",processname_);
       const int l1index = triggerObj->filterIndex(l1testTag);
+      int  sizeFilters = triggerObj->sizeFilters();
+
+			/*
+			edm::LogTrace("FourVectorHLTOffline") << "TestTag = " << l1testTag << endl;
+			
+			for (int i=0;i<sizeFilters; i++) {
+			
+			 edm::LogTrace("FourVectorHLTOffline") << "FilterTag = " << triggerObj->filterTag(i) << endl;
+
+			}
+			*/
       if ( l1index >= triggerObj->sizeFilters() ) {
         edm::LogInfo("FourVectorHLTOffline") << "no index "<< l1index << " of that name " << v->getl1Path() << "\t" << "\t" << l1testTag;
-	continue; // not in this event
+	      continue; // not in this event
       }
 
       const trigger::Vids & idtype = triggerObj->filterIds(l1index);
