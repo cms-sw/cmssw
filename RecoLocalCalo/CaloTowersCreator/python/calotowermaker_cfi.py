@@ -13,16 +13,16 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     EESumThreshold = cms.double(0.45),
     # Energy threshold for HO cell inclusion [GeV]
     HOThreshold0 = cms.double(1.1),
-    HOThresholdPlus1 = cms.double(1.1),
-    HOThresholdMinus1 = cms.double(1.1),
-    HOThresholdPlus2 = cms.double(1.1),
-    HOThresholdMinus2 = cms.double(1.1),
+    HOThresholdPlus1 = cms.double(3.5),
+    HOThresholdMinus1 = cms.double(3.5),
+    HOThresholdPlus2 = cms.double(3.5),
+    HOThresholdMinus2 = cms.double(3.5),
     HBGrid = cms.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy threshold for HB cell inclusion [GeV]
-    HBThreshold = cms.double(0.9),
+    HBThreshold = cms.double(0.7),
     EEWeights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Energy threshold for long-fiber HF readout inclusion [GeV]
-    HF1Threshold = cms.double(1.2),
+    HF1Threshold = cms.double(0.5),
     HF2Weights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     HOWeights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     EEGrid = cms.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
@@ -45,16 +45,16 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     HOWeight = cms.double(1.0),
                               
     # Energy threshold for EB crystal inclusion [GeV]
-    EBThreshold = cms.double(0.09),
+    EBThreshold = cms.double(0.07),
     # Energy threshold for EE crystal inclusion [GeV]
-    EEThreshold = cms.double(0.45),
+    EEThreshold = cms.double(0.3),
     # Flags specifying if the above thresholds
     # should be applied to Et (UseEtEXTreshold='True') or E ('False')
     # Flags for use of symmetric thresholds: |e|>threshold                          
     UseEtEBTreshold = cms.bool(False),
-    UseSymEBTreshold = cms.bool(False),
+    UseSymEBTreshold = cms.bool(True),
     UseEtEETreshold = cms.bool(False),
-    UseSymEETreshold = cms.bool(False),
+    UseSymEETreshold = cms.bool(True),
 
 
     # Label of HBHERecHitCollection to use
@@ -62,10 +62,10 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     # Global energy threshold on Hcal [GeV]
     HcalThreshold = cms.double(-1000.0),
     # Energy threshold for short-fiber HF readout inclusion [GeV]
-    HF2Threshold = cms.double(1.8),
+    HF2Threshold = cms.double(0.85),
 
     # Energy threshold for 5-degree (phi) HE cell inclusion [GeV]
-    HESThreshold = cms.double(1.4),
+    HESThreshold = cms.double(0.8),
     HF1Weights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Label of HORecHitCollection to use
     hoInput = cms.InputTag("horeco"),
@@ -73,7 +73,7 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     #
     HESWeights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Energy threshold for 10-degree (phi) HE cel inclusion [GeV]
-    HEDThreshold = cms.double(1.4),
+    HEDThreshold = cms.double(0.8),
     # Global energy threshold on tower [GeV]
     EcutTower = cms.double(-1000.0),
     HEDGrid = cms.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
