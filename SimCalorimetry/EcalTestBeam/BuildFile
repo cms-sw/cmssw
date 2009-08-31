@@ -6,7 +6,6 @@
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/EcalTestBeam>
-<use name=Geometry/CaloEventSetup>
 <use name=CondFormats/DataRecord>
 <use name=TBDataFormats/EcalTBObjects>
 
@@ -18,7 +17,6 @@
    <use name=SimGeneral/NoiseGenerators>
    <use name=SimDataFormats/CrossingFrame>
    <use name=SimDataFormats/EcalTestBeam>
-   <use name=Geometry/CaloEventSetup>
    <use name=CondFormats/DataRecord>
    <use name=TBDataFormats/EcalTBObjects>
    <use name=FWCore/Framework>
