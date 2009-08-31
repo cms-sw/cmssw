@@ -397,7 +397,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     graph = new TGraphErrors((int) vRun_.size(),X,Y,EX,EY);
     if (fSkip99s) {
       for (size_t ipt = 0; ipt != vRun_.size(); ++ipt) {
-        if (Y[ipt] == -10 || Y[ipt] == -9999 || Y[ipt] == -99) {
+        if (Y[ipt] == -10 || Y[ipt] == -9999 || Y[ipt] == -999 || Y[ipt] == -99) {
           graph->RemovePoint(ipt);
         }
       }
