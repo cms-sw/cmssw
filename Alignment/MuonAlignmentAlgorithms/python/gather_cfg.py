@@ -54,14 +54,11 @@ process.GlobalTag.globaltag = cms.string(globaltag)
 process.looper.applyDbAlignment = True
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
-process.OnlyGlobalCSCs = cms.EDFilter("OnlyGlobalCSCs")
-process.MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("globalCosmicMuons")
-
 if iscosmics:
-    process.Path = cms.Path(process.offlineBeamSpot * process.OnlyGlobalCSCs * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
+    process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalCosmicRefit:Refitted")
 else:
-    process.Path = cms.Path(process.offlineBeamSpot * process.OnlyGlobalCSCs * process.MuonAlignmentFromReferenceGlobalMuonRefit)
+    process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")
 
 process.MuonAlignmentFromReferenceInputDB.connect = cms.string("sqlite_file:%s" % inputdb)
@@ -73,8 +70,12 @@ if trackerconnect != "":
     process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
                                                    CondDBSetup,
                                                    connect = cms.string(trackerconnect),
-                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment)),
-                                                                     cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE))))
+                                                   toGet = cms.VPSet())
+    if trackeralignment != "":
+        process.TrackerAlignmentInputDB.toGet.append(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment)))
+    if trackerAPE != "":
+        process.TrackerAlignmentInputDB.toGet.append(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE))))
+
     process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
 
 process.looper.saveToDB = False
