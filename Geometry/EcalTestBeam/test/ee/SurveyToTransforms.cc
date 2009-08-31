@@ -141,7 +141,7 @@ SurveyToTransforms::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);     
 
-   const CaloSubdetectorGeometry* geom ( pG->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
+   pG->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) ;
 }
 
 //define this as a plug-in

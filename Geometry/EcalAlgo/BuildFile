@@ -1,7 +1,6 @@
 <export>
   <lib name=GeometryEcalAlgo>
   <use name=Geometry/CaloGeometry>
-  <use name=Geometry/CaloEventSetup>
   <use name=CondFormats/Alignment>
   <use name=DataFormats/EcalDetId>
   <use name=FWCore/Framework>
@@ -14,7 +13,6 @@
 <use name=FWCore/Framework>
 <use name=Geometry/Records>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
 <use name=CondFormats/Alignment>
 <use name=DataFormats/EcalDetId>
 <use name=DetectorDescription/Core>

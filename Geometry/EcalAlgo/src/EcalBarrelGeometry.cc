@@ -312,8 +312,8 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 	    const double fr    ( dR*scale    ) ; // # crystal widths in dR
 	    const double frp   ( 1.05*fr + 1. ) ; // conservatively above fr 
 	    const double frm   ( 0.95*fr - 1. ) ; // conservatively below fr
-	    const int    idr   ( frp          ) ; // integerize
-	    const int    idr2p ( frp*frp      ) ;
+	    const int    idr   ( (int)frp        ) ; // integerize
+	    const int    idr2p ( (int)(frp*frp)     ) ;
 	    const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
 
 	    for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
