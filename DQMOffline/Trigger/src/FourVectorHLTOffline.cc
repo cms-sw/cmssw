@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.40 2009/08/30 23:31:56 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.41 2009/08/31 11:37:29 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -427,9 +427,9 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       bool l1accept = false;
       edm::InputTag l1testTag(v->getl1Path(),"",processname_);
       const int l1index = triggerObj->filterIndex(l1testTag);
+			/*
       int  sizeFilters = triggerObj->sizeFilters();
 
-			/*
 			edm::LogTrace("FourVectorHLTOffline") << "TestTag = " << l1testTag << endl;
 			
 			for (int i=0;i<sizeFilters; i++) {
