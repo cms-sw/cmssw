@@ -232,7 +232,7 @@ void TrackingTruthProducer::associator(
             vertexId[iterator->eventId()] = 0;        
         EncodedTruthId objectId = EncodedTruthId(iterator->eventId(), vertexId[iterator->eventId()]++);
 
-        std::cout << "Vertex : " << objectId << std::endl;
+        // std::cout << "Vertex : " << objectId << std::endl;
 
         association.insert( make_pair(objectId, index) );
     }

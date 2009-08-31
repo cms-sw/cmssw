@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('rackingTruthOutputTest')
+process = cms.Process('TrackingTruthOutputTest')
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 
