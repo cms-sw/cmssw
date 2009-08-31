@@ -36,7 +36,7 @@ ProjectMissingFlags = -lGeom -lGuiHtml
 
 ifeq ($(shell uname), Linux)
         MAKESHAREDLIB := -shared
-        ExecLibs =  -lNet -L./ -l$(LibProject)
+        ExecLibs = -lRIO -lNet -L./ -l$(LibProject)
         ExtraProjectLibs = -L./ -l$(LibCore) 
 else 
    ifeq ($(shell uname), Darwin)
