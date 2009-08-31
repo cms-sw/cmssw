@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.86 $
+ * $Date: 2009/08/28 13:33:07 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -172,9 +172,9 @@ void EBTriggerTowerTask::setup( const char* nameext,
     meEtBxReal_->setAxisTitle("energy (ADC)", 2);
 
     sprintf(histo, "EBTTT TP occupancy vs bx %s", nameext);
-    meEtBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
-    meEtBxReal_->setAxisTitle("bunch crossing", 1);
-    meEtBxReal_->setAxisTitle("TP number", 2);
+    meOccupancyBxReal_ = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meOccupancyBxReal_->setAxisTitle("bunch crossing", 1);
+    meOccupancyBxReal_->setAxisTitle("TP number", 2);
 
   } else {
     sprintf(histo, "EBTTT Et spectrum %s", nameext);

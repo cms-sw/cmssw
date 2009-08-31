@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.52 $
+ * $Date: 2009/08/28 13:33:09 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -190,14 +190,14 @@ void EETriggerTowerTask::setup( const char* nameext,
     meEtBxReal_[1]->setAxisTitle("energy (ADC)", 2);
 
     sprintf(histo, "EETTT TP occupancy vs bx %s EE -", nameext);
-    meEtBxReal_[0] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
-    meEtBxReal_[0]->setAxisTitle("bunch crossing", 1);
-    meEtBxReal_[0]->setAxisTitle("TP number", 2);
+    meOccupancyBxReal_[0] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meOccupancyBxReal_[0]->setAxisTitle("bunch crossing", 1);
+    meOccupancyBxReal_[0]->setAxisTitle("TP number", 2);
 
     sprintf(histo, "EETTT TP occupancy vs bx %s EE +", nameext);
-    meEtBxReal_[1] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
-    meEtBxReal_[1]->setAxisTitle("bunch crossing", 1);
-    meEtBxReal_[1]->setAxisTitle("TP number", 2);
+    meOccupancyBxReal_[1] = dqmStore_->bookProfile(histo, histo, 50, xbins, 2448, 0, 2448);
+    meOccupancyBxReal_[1]->setAxisTitle("bunch crossing", 1);
+    meOccupancyBxReal_[1]->setAxisTitle("TP number", 2);
 
   } else {
     sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
