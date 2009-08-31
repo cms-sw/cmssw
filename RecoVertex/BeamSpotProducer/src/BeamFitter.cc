@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.6 2009/08/26 22:25:09 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.7 2009/08/29 00:17:32 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -35,11 +35,14 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   trk_MinpT_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MinimumPt");
   trk_MaxEta_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumEta");
   trk_MaxIP_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumImpactParameter");
+  trk_MaxZ_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
   trk_MinNTotLayers_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumTotalLayers");
   trk_MinNPixLayers_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumPixelLayers");
   trk_MaxNormChi2_   = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumNormChi2");
   trk_Algorithm_     = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::vector<std::string> >("TrackAlgorithm");
   trk_Quality_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::vector<std::string> >("TrackQuality");
+  min_Ntrks_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
+  convergence_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("FractionOfFittedTrks");
   inputBeamWidth_    = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("InputBeamWidth",-1.);
   
   for (unsigned int j=0;j<trk_Algorithm_.size();j++)
@@ -130,6 +133,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 		&& algo_ok
 		&& quality_ok
 		&& std::abs( d0 ) < trk_MaxIP_
+		&& std::abs( z0 ) < trk_MaxZ_
         ) {
       if (debug_){
 		  std::cout << "Selected track quality = " << track->qualityMask();
@@ -151,6 +155,8 @@ bool BeamFitter::runFitter() {
       std::cout << "We will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
     }
     BSFitter *myalgo = new BSFitter( fBSvector );
+	myalgo->SetMaximumZ( trk_MaxZ_ );
+	myalgo->SetConvergence( convergence_ );
     fbeamspot = myalgo->Fit();
 
     if(writeTxt_) dumpTxtFile();

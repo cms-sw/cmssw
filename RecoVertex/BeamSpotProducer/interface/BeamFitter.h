@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.4 2009/08/26 22:06:01 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.5 2009/08/31 22:27:07 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -65,7 +65,7 @@ class BeamFitter {
   double inputBeamWidth_;
   double convergence_;
   int ftotal_tracks;
-  
+  int min_Ntrks_;
 };
 
 #endif

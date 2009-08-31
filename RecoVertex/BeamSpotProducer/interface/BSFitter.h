@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.4 2009/08/28 00:05:03 jengbou Exp $
+ version $Id: BSFitter.h,v 1.5 2009/08/31 22:27:07 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -135,7 +135,7 @@ class BSFitter {
 	int ftmprow;
 	int fnthite;
 	bool goodfit;
-	double fmaxZ;
+	double fMaxZ;
 	double fconvergence;
 	int fminNtrks;
 };
