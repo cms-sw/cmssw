@@ -35,7 +35,7 @@ process.genParticlesForJets.ignoreParticleIDs = cms.vuint32(
 process.genParticlesForJets.excludeFromResonancePids = cms.vuint32(12, 14, 16)
 
 # Build reco::GenJets from GenParticles
-from RecoJets.JetProducers.iterativeCone5GenJets_cff import iterativeCone5GenJets
+from RecoJets.JetProducers.ic5GenJets_cfi import iterativeCone5GenJets
 process.iterativeCone5GenJetsNoNuBSM = iterativeCone5GenJets.clone()
 
 # Jet-track association
