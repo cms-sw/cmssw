@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  9 14:43:09 CDT 2009
-// $Id$
+// $Id: PrintEventSetupDataRetrieval.h,v 1.1 2009/07/12 20:07:16 chrjones Exp $
 //
 
 // system include files
@@ -55,6 +55,7 @@ namespace edm {
       typedef std::map<eventsetup::EventSetupRecordKey, std::pair<unsigned long long, std::map<eventsetup::DataKey,bool> > > RetrievedDataMap;
       RetrievedDataMap m_retrievedDataMap;
       std::vector<eventsetup::EventSetupRecordKey> m_recordKeys;
+      bool m_printProviders;
 };
 
    }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  9 14:30:13 CDT 2009
-// $Id$
+// $Id: PrintEventSetupDataRetrieval.cc,v 1.1 2009/07/12 20:07:16 chrjones Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 
 namespace edm {
 //
@@ -33,7 +34,8 @@ namespace edm {
 // constructors and destructor
 //
    PrintEventSetupDataRetrieval::PrintEventSetupDataRetrieval(const ParameterSet& iPS,
-                                                              ActivityRegistry&iRegistry)
+                                                              ActivityRegistry&iRegistry):
+   m_printProviders(iPS.getUntrackedParameter<bool>("printProviders",false))
    {
       if(iPS.getUntrackedParameter<bool>("checkAfterBeginRun",false)) {
          iRegistry.watchPostBeginRun(this, &PrintEventSetupDataRetrieval::postBeginRun);
@@ -124,7 +126,14 @@ namespace edm {
             //std::cout <<"     "<<itDatum->first.type().name()<<" "<<wasGotten<<std::endl;
             if(wasGotten != itDatum->second) {
                itDatum->second = wasGotten;
-               edm::LogSystem("PrintEventSetupDataRetrieval")<<"Retrieved> Record:"<<it->name()<<" data:"<<itDatum->first.type().name()<<" '"<<itDatum->first.name().value()<<"'";
+               if(m_printProviders) {
+                  const edm::eventsetup::ComponentDescription* d = r->providerDescription(itDatum->first);
+                  assert(0!=d);
+                  edm::LogSystem("PrintEventSetupDataRetrieval")<<"Retrieved> Record:"<<it->name()<<" data:"<<itDatum->first.type().name()<<" '"<<itDatum->first.name().value()
+                  <<"' provider:"<<d->type_<<" '"<<d->label_<<"'";
+               } else {
+                  edm::LogSystem("PrintEventSetupDataRetrieval")<<"Retrieved> Record:"<<it->name()<<" data:"<<itDatum->first.type().name()<<" '"<<itDatum->first.name().value()<<"'";
+               }
                //std::cout <<"CHANGED"<<std::endl;
             }
          }
