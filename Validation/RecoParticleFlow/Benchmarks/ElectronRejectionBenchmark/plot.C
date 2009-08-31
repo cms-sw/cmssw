@@ -28,8 +28,8 @@ bool normHists= true;
 TString plotDir = "./";
 TString plotName = plotDir+"tauBenchmarkElecRej";
 
-TFile f1("tauBenchmarkElecRejection_zee.root");
-TFile f2("tauBenchmarkElecRejection_ztt.root");
+TFile f1("tauBenchmarkElecRejection_ztt.root");
+TFile f2("tauBenchmarkElecRejection_zee.root");
 
 TString dir = "DQMData/PFTask/Benchmarks/PFTauElecRejection/Gen";
 
@@ -330,6 +330,7 @@ c3->Divide(2,1);
 c3->cd(1);
 gPad->SetLogy(0);
 gPad->DrawFrame(0.58,0.,1.,0.102);
+//gPad->DrawFrame(0.,0.,1.,1.);
 
 /*
 emfracPerf->SetLineColor(kBlack);
@@ -348,11 +349,11 @@ eopPerf->SetMarkerColor(kBlack);
 eopPerf->SetMarkerStyle(20);
 eopPerf->Draw("LP");
 
-mvaPerf->SetLineColor(kBlue);
-mvaPerf->SetLineWidth(2);
-mvaPerf->SetMarkerColor(kBlack);
-mvaPerf->SetMarkerStyle(21);
-mvaPerf->Draw("LP same");
+//mvaPerf->SetLineColor(kBlue);
+//mvaPerf->SetLineWidth(2);
+//mvaPerf->SetMarkerColor(kBlack);
+//mvaPerf->SetMarkerStyle(21);
+//mvaPerf->Draw("LP same");
 
 h3x3Perf->SetLineColor(kGreen);
 h3x3Perf->SetLineWidth(2);
@@ -398,13 +399,13 @@ c3->cd(2);
 
 TLegend* leg = new TLegend(0.1,0.1,0.89,0.89);
 leg->SetHeader("Electron vs. tau efficiency");
-leg->AddEntry(discriminantPerf,"Discriminant","p");
+leg->AddEntry(discriminantPerf,"Discriminant (MVA>-0.1)","p");
 //leg->AddEntry(epreidPerf,"Electron Pre-ID","p");
 //leg->AddEntry(d2test1Perf,"Emfrac-E/p","p");
 //leg->AddEntry(emfracPerf,"EM fraction","pl");
 leg->AddEntry(eopPerf,"E/p < [0.7,0.75,0.8,0.85,0.9]","lp");
 leg->AddEntry(h3x3Perf,"H_{3x3}/p > [0.25,0.2,0.15,0.1,0.05]","lp");
-leg->AddEntry(mvaPerf,"MVA < [-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.]","pl");
+//leg->AddEntry(mvaPerf,"MVA < [-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.]","pl");
 gPad->Clear();
 gPad->SetLogy(0);
 leg->Draw();
