@@ -277,11 +277,13 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 0, 1, 0);
-    if (physics) {
-      pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0x80, 0);
-    } else {
-      pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
-    }
+    // setting the mode, we should always stay in the CAL mode
+    // since the EventNumberClear Mode does not work correctly
+    //if (physics) {  // comment out, stau always in the CAL mode,  d.k. 27/09/09
+    //pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0x80, 0);
+    //} else {
+    pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
+    //}
     //Enable token and analog output
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 4, 0x0, 0);
 
@@ -298,7 +300,7 @@ void PixelTBMSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
     //setting speed to 40MHz
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 0, 1, 0);
-    //pre-calibration FIXME can not be used for data taking
+    //pre-calibration, stay always in this mode
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 1, 0xc0, 0);
     //Reset TBM and reset ROC
     pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannelB, hubaddress, 4, 2, 0x14, 0);
