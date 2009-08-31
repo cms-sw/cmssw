@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.10 2009/02/17 16:29:40 muzaffar Exp $
+// $Id: EcalDigiToRaw.cc,v 1.14 2009/08/31 00:29:48 franzoni Exp $
 //
 //
 
@@ -117,9 +117,14 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   runnumber_ = iEvent.id().run();
 
-  bx_ = (counter_ % BXMAX);
-  orbit_number_ = counter_ / BXMAX;
-  counter_ ++;
+  //bx_ = (counter_ % BXMAX);
+  //orbit_number_ = counter_ / BXMAX;
+  //counter_ ++;
+
+  counter_ = iEvent.id().event();
+  bx_ = iEvent.bunchCrossing();
+  orbit_number_ = iEvent.orbitNumber();
+
   lv1_ = counter_ % (0x1<<24);
 
   auto_ptr<FEDRawDataCollection> productRawData(new FEDRawDataCollection);
