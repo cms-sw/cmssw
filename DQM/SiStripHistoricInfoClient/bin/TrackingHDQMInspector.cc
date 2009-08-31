@@ -21,6 +21,10 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   HDQMInspectorConfigTracking trackingConfig;
   // Select quantities you want the integral of
   vector<string> ItemsForIntegration;
+  ItemsForIntegration.push_back("Chi2overDoF_CKFTk_entries");
+  ItemsForIntegration.push_back("NumberOfTracks_CKFTk_entries");
+  ItemsForIntegration.push_back("Chi2overDoF_RSTk_entries");
+  ItemsForIntegration.push_back("NumberOfTracks_RSTk_entries");
   ItemsForIntegration.push_back("Chi2overDoF_CosmicTk_entries");
   ItemsForIntegration.push_back("NumberOfTracks_CosmicTk_entries");
   trackingConfig.computeIntegralList(ItemsForIntegration);
