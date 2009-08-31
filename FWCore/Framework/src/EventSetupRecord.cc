@@ -164,7 +164,16 @@ EventSetupRecord::wasGotten(const DataKey& aKey) const {
    }
    return false;
 }
-   
+
+edm::eventsetup::ComponentDescription const* 
+EventSetupRecord::providerDescription(const DataKey& aKey) const {
+   const DataProxy* proxy = find(aKey);
+   if(0 != proxy) {
+      return proxy->providerDescription();
+   }
+   return 0;
+}
+
 void 
 EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
 {

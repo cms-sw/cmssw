@@ -89,6 +89,12 @@ class EventSetupRecord
        */
       bool wasGotten(const DataKey& aKey) const;
    
+      /**returns the ComponentDescription for the module which creates the data or 0
+       if no module has been registered for the data. This does not cause the data to 
+       actually be constructed.
+       */
+      ComponentDescription const* providerDescription(const DataKey& aKey) const;
+   
       virtual EventSetupRecordKey key() const = 0;
       
       /**If you are caching data from the Record, you should also keep
