@@ -242,9 +242,9 @@ void Pythia6Hadronizer::finalizeEvent()
    //
    event()->weights().push_back( pyint1.vint[96] );
    //
-   // this is event weight as returned by the PYEVWT routine (corresponds to PYINT1/VINT(99) 
+   // this is event weight as 1./VINT(99) (PYINT1/VINT(99) is returned by the PYEVWT) 
    //
-   event()->weights().push_back( pyint1.vint[98] );
+   event()->weights().push_back( 1./(pyint1.vint[98]) );
 
    // now create the GenEventInfo product from the GenEvent and fill
    // the missing pieces

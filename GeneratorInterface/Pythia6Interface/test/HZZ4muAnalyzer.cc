@@ -74,6 +74,10 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
   double evt_weight2 = GenInfoHandle->weights()[1]; // in case you run in CSA mode or otherwise
                                                     // use PYEVWT routine, this will be weight
 						    // as returned by PYEVWT, i.e. PYINT1/VINT(99)
+  //std::cout << " evt_weight1 = " << evt_weight1 << std::endl;
+  //std::cout << " evt_weight2 = " << evt_weight2 << std::endl;
+  double weight = GenInfoHandle->weight();
+  //std::cout << " as returned by the weight() method, integrated event weight = " << weight << std::endl;
   
   // here's an example of accessing particles in the event record (HepMCProduct)
   //
