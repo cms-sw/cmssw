@@ -178,73 +178,74 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
    ievt_++;
 
    Handle<ESRawDataCollection> dccs;
-   if ( e.getByLabel(dccCollections_, dccs) ) {
-   } else {
-      LogWarning("ESIntegrityTask") << "Error! can't get ES raw data collection !" << std::endl;
-   }
-
    Handle<ESLocalRawDataCollection> kchips;
-   if ( e.getByLabel(kchipCollections_, kchips) ) {
-   } else {
-      LogWarning("ESIntegrityTask") << "Error! can't get ES local raw data collection !" << std::endl;
-   }
 
    // DCC 
    vector<int> fiberStatus;
-   for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-      ESDCCHeaderBlock dcc = (*dccItr);
-
-      meFED_->Fill(dcc.fedId());
-
-      meDCCErr_->Fill(dcc.fedId(), dcc.getDCCErrors());
-
-      // SLink CRC error
-      if (dcc.getDCCErrors() == 101) meSLinkCRCErr_->Fill(dcc.fedId());
-
-      if (dcc.getOptoRX0() == 129) {
-	meOptoRX_->Fill(dcc.fedId(), 0);
-	if (((dcc.getOptoBC0()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
-      }
-      if (dcc.getOptoRX1() == 129) {
-	meOptoRX_->Fill(dcc.fedId(), 1);
-	if (((dcc.getOptoBC1()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
-      }
-      if (dcc.getOptoRX2() == 129) {
-	meOptoRX_->Fill(dcc.fedId(), 2);
-	if (((dcc.getOptoBC2()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
-      }
-
-      if (dcc.getOptoRX0() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 0);
-      if (dcc.getOptoRX1() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 1);
-      if (dcc.getOptoRX2() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 2);
-
-      fiberStatus = dcc.getFEChannelStatus();
-
-      for (unsigned int i=0; i<fiberStatus.size(); ++i) {
-	if (fiberStatus[i]==0 || fiberStatus[i]==7 || fiberStatus[i]==13 || fiberStatus[i]==14 || fiberStatus[i]==9) 
-	  meFiberStatus_->Fill(dcc.fedId(), 1);
-	else if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
-	  meFiberStatus_->Fill(dcc.fedId(), 0);
-      }
-
-      runtype_   = dcc.getRunType();
-      seqtype_   = dcc.getSeqType();
-      dac_       = dcc.getDAC();
-      gain_      = dcc.getGain();
-      precision_ = dcc.getPrecision();
-
-      meGain_->Fill(gain_);
+   if ( e.getByLabel(dccCollections_, dccs) ) {
+     
+     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+       ESDCCHeaderBlock dcc = (*dccItr);
+       
+       meFED_->Fill(dcc.fedId());
+       
+       meDCCErr_->Fill(dcc.fedId(), dcc.getDCCErrors());
+       
+       // SLink CRC error
+       if (dcc.getDCCErrors() == 101) meSLinkCRCErr_->Fill(dcc.fedId());
+       
+       if (dcc.getOptoRX0() == 129) {
+	 meOptoRX_->Fill(dcc.fedId(), 0);
+	 if (((dcc.getOptoBC0()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 0);
+       }
+       if (dcc.getOptoRX1() == 129) {
+	 meOptoRX_->Fill(dcc.fedId(), 1);
+	 if (((dcc.getOptoBC1()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 1);
+       }
+       if (dcc.getOptoRX2() == 129) {
+	 meOptoRX_->Fill(dcc.fedId(), 2);
+	 if (((dcc.getOptoBC2()-15) & 0x0fff) != dcc.getBX()) meOptoBC_->Fill(dcc.fedId(), 2);
+       }
+       
+       if (dcc.getOptoRX0() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 0);
+       if (dcc.getOptoRX1() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 1);
+       if (dcc.getOptoRX2() == 128) meDCCCRCErr_->Fill(dcc.fedId(), 2);
+       
+       fiberStatus = dcc.getFEChannelStatus();
+       
+       for (unsigned int i=0; i<fiberStatus.size(); ++i) {
+	 if (fiberStatus[i]==0 || fiberStatus[i]==7 || fiberStatus[i]==13 || fiberStatus[i]==14 || fiberStatus[i]==9) 
+	   meFiberStatus_->Fill(dcc.fedId(), 1);
+	 else if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
+	   meFiberStatus_->Fill(dcc.fedId(), 0);
+       }
+       
+       runtype_   = dcc.getRunType();
+       seqtype_   = dcc.getSeqType();
+       dac_       = dcc.getDAC();
+       gain_      = dcc.getGain();
+       precision_ = dcc.getPrecision();
+       
+       meGain_->Fill(gain_);
+     }
+   } else {
+     LogWarning("ESIntegrityTask") << dccCollections_  << " not available";
    }
 
    // KCHIP's
-   for (ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
-
-      ESKCHIPBlock kchip = (*kItr);
-
-      meKF1_->Fill(kchip.id(), kchip.getFlag1());
-      meKF2_->Fill(kchip.id(), kchip.getFlag2());
-      if (kchip.getBC() != kchip.getOptoBC()) meKBC_->Fill(kchip.id());
-      if (kchip.getEC() != kchip.getOptoEC()) meKEC_->Fill(kchip.id());
+   if ( e.getByLabel(kchipCollections_, kchips) ) {
+     
+     for (ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
+       
+       ESKCHIPBlock kchip = (*kItr);
+       
+       meKF1_->Fill(kchip.id(), kchip.getFlag1());
+       meKF2_->Fill(kchip.id(), kchip.getFlag2());
+       if (kchip.getBC() != kchip.getOptoBC()) meKBC_->Fill(kchip.id());
+       if (kchip.getEC() != kchip.getOptoEC()) meKEC_->Fill(kchip.id());
+     }
+   } else {
+     LogWarning("ESIntegrityTask") << kchipCollections_  << " not available";
    }
 
 }
