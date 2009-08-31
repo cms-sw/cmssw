@@ -1,750 +1,1195 @@
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
-//
-#include <vector>
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-
-//#include "FWCore/Framework/interface/Event.h"
-//#include "DataFormats/Common/interface/Handle.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "JetMETCorrections/Algorithms/interface/SingleParticleJetResponse.h"
-//#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-//#include "DataFormats/MuonReco/interface/Muon.h"
-//#include "DataFormats/TrackReco/interface/Track.h"
-//#include "DataFormats/MuonReco/interface/MuonFwd.h"
-//
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+//#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
+//#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
+//#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include <fstream>
+#include <sstream>
+#include <vector>
+
 using namespace std;
+using namespace jpt;
 
-JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
-{
-  m_JetTracksAtVertex = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtVertex");
-  m_JetTracksAtCalo = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtCalo");
-  m_muonsSrc = iConfig.getParameter<edm::InputTag>("muonSrc");
-  //JW electron ID
-   m_recoGsfelectrons= iConfig.getParameter<edm::InputTag>("recoGsfelectrons" ); 
-  m_eIDValueMap_= iConfig.getParameter<edm::InputTag>("eIDValueMap" );
-  theResponseAlgo = iConfig.getParameter<int>("respalgo");
-  theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
-  theNonEfficiencyFile = iConfig.getParameter<std::string>("NonEfficiencyFile");
-  theNonEfficiencyFileResp = iConfig.getParameter<std::string>("NonEfficiencyFileResp");
-  theResponseFile = iConfig.getParameter<std::string>("ResponseFile"); 			  
-  theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
-  theUseQuality = iConfig.getParameter<bool>("UseQuality");
-  theTrackQuality = iConfig.getParameter<std::string>("TrackQuality");
-  mSplitMerge = iConfig.getParameter<int>("SplitMergeP");
-
-  trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
-
-  std::cout<<" BugFix JetPlusTrackCorrector::JetPlusTrackCorrector::response algo "<< theResponseAlgo
-	   <<" TheAddOutOfConeTracks " << theAddOutOfConeTracks
-    	   <<" Electron ID "<< m_eIDValueMap_ 
-	   <<" TheNonEfficiencyFile "<< theNonEfficiencyFile
-	   <<" TheNonEfficiencyFileResp "<< theNonEfficiencyFileResp
-	   <<" TheResponseFile "<< theResponseFile 
-           <<" SplitMerge "<<mSplitMerge<<std::endl;
-  
-             std::string file1="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
-             std::string file2="JetMETCorrections/Configuration/data/"+theNonEfficiencyFileResp+".txt";
-	     std::string file3="JetMETCorrections/Configuration/data/"+theResponseFile+".txt";
-
-             std::cout<< " Try to open files "<<std::endl;
-
-             edm::FileInPath f1(file1);
-             edm::FileInPath f2(file2);
-	     edm::FileInPath f3(file3);
-          //   std::cout<< " Before the set of parameters "<<std::endl;			  
-	     setParameters(f1.fullPath(),f2.fullPath(),f3.fullPath());
-	     theSingle = new SingleParticleJetResponse();
-			  
-}
-
-JetPlusTrackCorrector::~JetPlusTrackCorrector()
-{
-//    cout<<" JetPlusTrack destructor "<<endl;
-}
-
-void JetPlusTrackCorrector::setParameters(std::string fDataFile1,std::string fDataFile2, std::string fDataFile3)
-{ 
-  //bool debug = true;
-  bool debug = false;
-  
-  if(debug) std::cout<<" JetPlusTrackCorrector::setParameters "<<std::endl;
-  // Read efficiency map
-  netabin1 = 0;
-  nptbin1  = 0;
-  if(debug) std::cout <<" Read efficiency map " << std::endl;
-  if(debug) std::cout <<" =================== " << std::endl;
-  std::ifstream in1( fDataFile1.c_str() );
-  string line1;
-  int ietaold = -1; 
-  while( std::getline( in1, line1)){
-    if(!line1.size() || line1[0]=='#') continue;
-    istringstream linestream(line1);
-    double eta, pt, eff;
-    int ieta, ipt;
-    linestream>>ieta>>ipt>>eta>>pt>>eff;
-    
-    if(debug) std::cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" eff = " << eff << std::endl;
-    if(ieta != ietaold)
-      {
-	etabin1.push_back(eta);
-	ietaold = ieta;
-	netabin1 = ieta+1;
-	if(debug) std::cout <<"   netabin1 = " << netabin1 <<" eta = " << eta << std::endl; 
-      }
-    
-    if(ietaold == 0) 
-      {
-	ptbin1.push_back(pt); 
-	nptbin1 = ipt+1;
-	if(debug) std::cout <<"   nptbin1 = " << nptbin1 <<" pt = " << pt << std::endl; 
-      }
-
-    trkeff.push_back(eff);
-  }
-  if(debug) std::cout <<" ====> netabin1 = " << netabin1 <<" nptbin1 = " << nptbin1 << std::endl;
-  // ==========================================    
-
-  // Read leakage map
-  netabin2 = 0;
-  nptbin2  = 0;
-  if(debug) std::cout <<" Read leakage map " << std::endl;
-  if(debug) std::cout <<" ================ " << std::endl;
-  std::ifstream in2( fDataFile2.c_str() );
-  string line2;
-  ietaold = -1; 
-  while( std::getline( in2, line2)){
-    if(!line2.size() || line2[0]=='#') continue;
-    istringstream linestream(line2);
-    double eta, pt, eleak;
-    int ieta, ipt;
-    linestream>>ieta>>ipt>>eta>>pt>>eleak;
-    
-    if(debug) std::cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" eff = " << eleak << std::endl;
-    if(ieta != ietaold)
-      {
-	etabin2.push_back(eta);
-	ietaold = ieta;
-	netabin2 = ieta+1;
-	if(debug) std::cout <<"   netabin2 = " << netabin2 <<" eta = " << eta << std::endl; 
-      }
-    
-    if(ietaold == 0) 
-      {
-	ptbin2.push_back(pt); 
-	nptbin2 = ipt+1;
-	if(debug) std::cout <<"   nptbin2 = " << nptbin2 <<" pt = " << pt << std::endl; 
-      }
-
-    eleakage.push_back(eleak);
-  }
-  if(debug) std::cout <<" ====> netabin2 = " << netabin1 <<" nptbin2 = " << nptbin2 << std::endl;
-  // ==========================================    
-  // Read efficiency map
-  netabin3 = 0;
-  nptbin3  = 0;
-  if(debug) std::cout <<" Read response map " << std::endl;
-  if(debug) std::cout <<" =================== " << std::endl;
-  std::ifstream in3( fDataFile3.c_str() );
-  string line3;
-  ietaold = -1; 
-  while( std::getline( in3, line3)){
-    if(!line3.size() || line3[0]=='#') continue;
-    istringstream linestream(line3);
-    double eta, pt, resp;
-    int ieta, ipt;
-    linestream>>ieta>>ipt>>eta>>pt>>resp;
-    
-    if(debug) std::cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" resp = " << resp << std::endl;
-    if(ieta != ietaold)
-      {
-	etabin3.push_back(eta);
-	ietaold = ieta;
-	netabin3 = ieta+1;
-	if(debug) std::cout <<"   netabin3 = " << netabin3 <<" eta = " << eta << std::endl; 
-      }
-    
-    if(ietaold == 0) 
-      {
-	ptbin3.push_back(pt); 
-	nptbin3 = ipt+1;
-	if(debug) std::cout <<"   nptbin3 = " << nptbin3 <<" pt = " << pt << std::endl; 
-      }
-
-    response.push_back(resp);
-  }
-  if(debug) std::cout <<" ====> netabin3 = " << netabin3 <<" nptbin3 = " << nptbin3 << std::endl;
-  // ==========================================    
-   
-}
-
-double JetPlusTrackCorrector::correction( const LorentzVector& fJet) const 
-{
-  throw cms::Exception("Invalid correction use") << "JetPlusTrackCorrector can be run on entire event only";
-}
-
-double JetPlusTrackCorrector::correction( const reco::Jet& fJet) const 
-{
-  throw cms::Exception("Invalid correction use") << "JetPlusTrackCorrector can be run on entire event only";
-}
-
-double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
-                                         const edm::Event& iEvent,
-                                         const edm::EventSetup& theEventSetup) const 
-{
-
-  bool debug = false;
-  //bool debug = true;
-
-   double NewResponse = fJet.energy();
-
-// Jet with |eta|>2.1 is not corrected
-
-   if(fabs(fJet.eta())>2.1) {return NewResponse/fJet.energy();}
-
-   // Get muons
-   edm::Handle<reco::MuonCollection> muons;
-   reco::MuonCollection::const_iterator muon;
-   iEvent.getByLabel(m_muonsSrc, muons);
-   
-   //JW:  Get electrons
-   edm::Handle<reco::GsfElectronCollection>  elecs;
-   iEvent.getByLabel( m_recoGsfelectrons, elecs);
-   reco::GsfElectronCollection::const_iterator elec;  
-   //JW: map for electronID
-   edm::Handle<edm::ValueMap<float> >  eIDValueMap;
-   iEvent.getByLabel( m_eIDValueMap_ , eIDValueMap );
-    const edm::ValueMap<float> & eIdmapCuts = * eIDValueMap;
-   
-
-   if(debug){
-   cout <<" muon collection size = " << muons->size() << endl;   
-
-   if(muons->size() != 0) {
-     for (muon = muons->begin(); muon != muons->end(); ++muon) {
-       //reco::TrackRef glbTrack = muon->combinedMuon();
-       cout <<" muon pT = " << muon->pt() 
-	    <<" muon eta = " << muon->eta()
-	    <<" muon phi = " << muon->phi() << endl;  
-     }
-   }
-   // JW: Electron debug   
-   if(elecs->size() != 0) {
-     for (elec= elecs->begin(); elec != elecs->end(); ++elec) {
-       //reco::TrackRef glbTrack = muon->combinedMuon();
-       cout <<" electron pT = " << elec->pt() 
-	    <<" electron eta = " << elec->eta()
-	    <<" electron  phi = " << elec->phi() << endl;  
-     }   
-   }
-   } //debug 
-
-   // Get Jet-track association at Vertex
-   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
-   iEvent.getByLabel(m_JetTracksAtVertex,jetTracksAtVertex);
-   
+// -----------------------------------------------------------------------------
 //
-// No tracks at Vertex - no Corrections
-// 
-  
-   if(!jetTracksAtVertex.isValid()) {return NewResponse/fJet.energy();}
-    
-   // std::cout<<" Get collection of tracks at vertex "<<m_JetTracksAtVertex<<std::endl;
-   
-   const reco::JetTracksAssociation::Container jtV = *(jetTracksAtVertex.product());
-   
-  //std::cout<<" Get collection of tracks at vertex :: Point 0 "<<jtV.size()<<std::endl;
-  // std::cout<<" E, eta, phi "<<fJet.energy()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;  
-
-  vector<double> emean_incone;
-  vector<double> netracks_incone;
-  vector<double> emean_outcone;
-  vector<double> netracks_outcone;
-
-  // cout<< " netabin = "<<netabin<<" nptbin= "<<nptbin<<endl;
-
-  for(int i=0; i < netabin1; i++)
-    {
-      for(int j=0; j < nptbin1; j++)
-        {
-          emean_incone.push_back(0.);
-          netracks_incone.push_back(0.);
-          emean_outcone.push_back(0.);
-          netracks_outcone.push_back(0.);
-        } // ptbin
-    } // etabin
-
-   //const reco::TrackRefVector trAtVertex = reco::JetTracksAssociation::getValue(jtV,fJet);
-
-// Track at vertex
-   // std::cout<<"!!!!!!!Tracks at vertex start "<<std::endl;
-   reco::TrackRefVector trAtVertexEx; 
-   reco::TrackRefVector trAtVertex = jtC_rebuild(jtV,fJet,trAtVertexEx);
-   //std::cout<<"!!!!!!!Tracks at vertex end "<<trAtVertexEx.size()<<std::endl;
-// std::cout<<" Get collection of tracks at vertex :: Point 1 "<<std::endl;
-// Look if jet is associated with tracks. If not, return the response of jet.
-
-   if( trAtVertex.size() == 0 ) {return NewResponse/fJet.energy();}
-
-// Get Jet-track association at Calo
-   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
-   iEvent.getByLabel(m_JetTracksAtCalo,jetTracksAtCalo);
-   
-   // std::cout<<" Get collection of tracks at Calo "<<std::endl;
-   
-   reco::TrackRefVector trAtCalo;
-   
-   if(jetTracksAtCalo.isValid()) { 
-
-     const reco::JetTracksAssociation::Container jtC = *(jetTracksAtCalo.product());
-
-     //std::cout<<"!!!!!!!Tracks at calo start "<<std::endl;     
-       trAtCalo = jtC_exclude(jtC,fJet,trAtVertexEx);
-     //std::cout<<"!!!!!!!Tracks at calo end "<<trAtCalo.size()<<std::endl;
-
-   }
-
-//   const reco::TrackRefVector trAtCalo = reco::JetTracksAssociation::getValue(jtC,fJet);
-
-
-   // tracks in vertex cone and in calo cone 
-   reco::TrackRefVector trInCaloInVertex;
-   // tracks in calo cone, but out of vertex cone 
-   reco::TrackRefVector trInCaloOutOfVertex;
-   // tracks in vertex cone but out of calo cone
-   reco::TrackRefVector trOutOfCaloInVertex; 
-
-   // muon in vertex cone and in calo cone 
-   reco::TrackRefVector muInCaloInVertex;
-   // muon in calo cone, but out of vertex cone 
-   reco::TrackRefVector muInCaloOutOfVertex;
-   // muon in vertex cone but out of calo cone
-   reco::TrackRefVector muOutOfCaloInVertex; 
-
-
-   if (debug) cout<<" Number of tracks at vertex "<<trAtVertex.size()<<" Number of tracks at Calo "<<trAtCalo.size()<<endl;
-     const reco::GsfElectron *matched=NULL;
-   for( reco::TrackRefVector::iterator itV = trAtVertex.begin(); itV != trAtVertex.end(); itV++)
-     {
-       if(theUseQuality && (!(**itV).quality(trackQuality_))) continue;
-       double ptV = (*itV)->pt();
-       // check if it is muon
-       bool ismuon(false);
-       for (muon = muons->begin(); muon != muons->end(); ++muon) {
-	 // muon id here
-	 // track quality requirements are general and should be done elsewhere
-	 if ( muon->innerTrack().isNull() ||
-	      ! muon::isGoodMuon(*muon,muon::TMLastStationTight) ||
-	      muon->innerTrack()->pt()<3.0 ) continue;
-	 if (itV->id() != muon->innerTrack().id())
-	     throw cms::Exception("FatalError") 
-	       << "Product id of the tracks associated to the jet " << itV->id() 
-	       <<" is different from the product id of the inner track used for muons " << muon->innerTrack().id()
-	       << "\nCannot compare tracks from different collection. Configuration Error\n";
-	   if (*itV == muon->innerTrack()) {
-	     ismuon = true;
-	     break;
-	   }
-       }
-       // JW: Look for electrons
-       bool iselec(false); 
-       int  i=0;
-       //	 cout <<" track id " <<itV->id() << endl;  
-       //	 cout  <<" track phi/eta/pt = " <<(**itV).momentum().phi()<< "/"<< (**itV).momentum().eta() << "/"<< (**itV).pt()  << endl;
-      	double deltaR=999.;
-	double deltaRMIN=999.;
-
-       for (elec = elecs->begin(); elec != elecs->end(); ++elec) {
-	 // elec id here
-	 edm::Ref<reco::GsfElectronCollection> electronRef(elecs,i);
-	 i++;
-	 bool eleid = false;
-	 if( eIdmapCuts[electronRef] > 0) eleid = true;
-	 if(eleid) {
-	   double deltaphi=fabs(elec->phi()- (**itV).momentum().phi() );
-	   if (deltaphi > 6.283185308) deltaphi -= 6.283185308;
-	   if (deltaphi > 3.141592654) deltaphi = 6.283185308-deltaphi;
-	   deltaR= abs(sqrt(pow((elec->eta()-(**itV).momentum().eta()),2) +  pow(deltaphi ,2 ))); 
-	   if(deltaR<deltaRMIN)  { deltaRMIN=deltaR;	matched= &(*elec);}
-	 } 
-       }
-       if(deltaR < 0.02) iselec = true;
-
-       reco::TrackRefVector::iterator it = find(trAtCalo.begin(),trAtCalo.end(),(*itV));
-       if(it != trAtCalo.end()) {
-	 if(debug)  cout<<" Track in cone at Calo in Vertex "<<
-		      ptV << " " <<(**itV).momentum().eta()<<
-		      " "<<(**itV).momentum().phi()<<endl;
-	 if (ismuon) 
-	   muInCaloInVertex.push_back(*it);
-	 else 
-	   //JW
- 	   if(!iselec)
-	   trInCaloInVertex.push_back(*it);
-       } else { // trAtCalo.end()
-	 if (ismuon)
-	   muOutOfCaloInVertex.push_back(*itV);
-	 else 
-	   trOutOfCaloInVertex.push_back(*itV);
-	 
-	 if(debug) cout<<" Track out of cone at Calo in Vertex "<<ptV << " " <<(**itV).momentum().eta()<<
-		     " "<<(**itV).momentum().phi()<<endl;
-       } // trAtCalo.end()
-     } // in Vertex
-   
-   
-   for ( reco::TrackRefVector::iterator itC = trAtCalo.begin(); itC != trAtCalo.end(); itC++)
-     {
-       if(theUseQuality && (!(**itC).quality(trackQuality_))) continue;
-       if( trInCaloInVertex.size() > 0 )
-	 {
-
-	   reco::TrackRefVector::iterator it = find(trInCaloInVertex.begin(),trInCaloInVertex.end(),(*itC));
-	   reco::TrackRefVector::iterator im = find(muInCaloInVertex.begin(),muInCaloInVertex.end(),(*itC));
-
-	   if( it == trInCaloInVertex.end() && im == muInCaloInVertex.end())
-	     {
-	       // check if it is muon
-	       bool ismuon(false);
-	       for (muon = muons->begin(); muon != muons->end(); ++muon) {
-		 // muon id here
-		 // track quality requirements are general and should be done elsewhere
-		 if ( muon->innerTrack().isNull() ||
-		      !muon::isGoodMuon(*muon,muon::TMLastStationTight) ||
-		      muon->innerTrack()->pt()<3.0 ) continue;
-		 if (itC->id() != muon->innerTrack().id())
-		   throw cms::Exception("FatalError") 
-		     << "Product id of the tracks associated to the jet " << itC->id() 
-		     <<" is different from the product id of the inner track used for muons " << muon->innerTrack().id()
-		     << "\nCannot compare tracks from different collection. Configuration Error\n";
-		 if (*itC == muon->innerTrack()) {
-		   ismuon = true;
-		   break;
-		 }
-	       }
-	     
-	       if (ismuon)
-		 muInCaloOutOfVertex.push_back(*itC);
-	       else 
-		 trInCaloOutOfVertex.push_back(*itC);
-	     }
-	 }
-     } 
-   
-   if(debug) {
-     std::cout<<" Size of theRecoTracksInConeInVertex " << trInCaloInVertex.size()<<std::endl;  
-     std::cout<<" Size of theRecoTracksOutOfConeInVertex " << trOutOfCaloInVertex.size()<<std::endl;
-     std::cout<<" Size of theRecoTracksInConeOutOfVertex " << trInCaloOutOfVertex.size()<<std::endl; 
-     std::cout<<" Size of theRecoMuonTracksInConeInVertex " << muInCaloInVertex.size()<<std::endl;  
-     std::cout<<" Size of theRecoMuonTracksOutOfConeInVertex " << muOutOfCaloInVertex.size()<<std::endl;
-     std::cout<<" Size of theRecoMuonTracksInConeOutOfVertex " << muInCaloOutOfVertex.size()<<std::endl; 
-     std::cout <<" muon collection size = " << muons->size() << std::endl;  
-   }
-   //
-   // If track is out of cone at Vertex level but come in at Calo cone subtract response but do not add
-   // The energy of track
-   //
-   if(trInCaloOutOfVertex.size() > 0)
-     {
-       for( reco::TrackRefVector::iterator itV = trInCaloOutOfVertex.begin(); itV != trInCaloOutOfVertex.end(); itV++)
-	 {
-	   double echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.14*0.14);
-	   /*
-	     double x = 0.;
-	     vector<double> resp=theSingle->response(echar,x,theResponseAlgo);
-	     NewResponse =  NewResponse - resp.front() - resp.back();
-	   */
-	   for(int i=0; i < netabin1-1; i++)
-	     {
-	       for(int j=0; j < nptbin1-1; j++)
-		 {
-		   if(fabs((**itV).eta())>etabin1[i] && fabs((**itV).eta())<etabin1[i+1])
-		     {
-		       if(fabs((**itV).pt())>ptbin1[j] && fabs((**itV).pt())<ptbin1[j+1])
-			 {
-			   int k = i*nptbin1+j;
-			   NewResponse =  NewResponse - response[k]*echar;
-			   if(debug) cout <<"        k eta/pT index = " << k
-					  <<" netracks_incone[k] = " << NewResponse << endl;
-			 }
-		     }
-		 }
-	     }   
-	 }
-     }
-
-   // Track is in cone at the Calo and in cone at the vertex
-   
-   double echar = 0.;
-   if( trInCaloInVertex.size() > 0 ){ 
-     for( reco::TrackRefVector::iterator itV = trInCaloInVertex.begin(); itV != trInCaloInVertex.end(); itV++)
-       {
-	 
-// Temporary solution>>>>>> Remove tracks with pt>50 GeV
-         if( (**itV).pt() >= 50. ) continue;
-// >>>>>>>>>>>>>>
-
-	 echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.14*0.14);
-
-	 NewResponse = NewResponse + echar;
-	 
-         if(debug) cout<<" New response in Calo in Vertex sum "<<NewResponse<<" "<<echar<<endl;
-
-	 /*
-	 double x = 0.;
-	 vector<double> resp=theSingle->response(echar,x,theResponseAlgo);
-	 NewResponse =  NewResponse - resp.front() - resp.back();
-	 */
-	 //
-	 // Calculate the number of in cone tracks and response subtruction
-	 //
-	 
-	 for(int i=0; i < netabin1-1; i++)
-	   {
-	     for(int j=0; j < nptbin1-1; j++)
-	       {
-		 if(fabs((**itV).eta())>etabin1[i] && fabs((**itV).eta())<etabin1[i+1])
-		   {
-		     if(fabs((**itV).pt())>ptbin1[j] && fabs((**itV).pt())<ptbin1[j+1])
-		       {
-			 int k = i*nptbin1+j;
-			 netracks_incone[k]++;
-			 emean_incone[k] = emean_incone[k] + echar;
-			 
-                         if( debug ) cout<<" Before subtraction "<<NewResponse<<" echar "<<echar<<" "<<
-                         response[k]*echar<<endl;
-			 
-			 
-			 NewResponse =  NewResponse - response[k]*echar;
-			 if(debug) cout <<"        k eta/pT index = " << k
-					<<" netracks_incone[k] = " << netracks_incone[k]
-					<<" emean_incone[k] = " << emean_incone[k]
-                                        <<" i,j "<<i<<" "<<j<<" "<<response[k] 
-                                        <<" echar "<<echar<<" "<<response[k]*echar
-                                        <<" New Response "<< NewResponse 
-					<< endl;
-		       }
-		   }
-	       }
-	   }
-       } // in cone, in vertex tracks
-     
-     // cout <<"         Correct for tracker inefficiency for in cone tracks" << endl;
-     
-     double corrinef = 0.;
-     // for in cone tracks
-     for (int etatr = 0; etatr < netabin1-1; etatr++ )
-       {
-	 for (int pttr = 0; pttr < nptbin1-1; pttr++ )
-	   {
-	     int k = nptbin1*etatr + pttr;
-	     if(netracks_incone[k]>0.) {
-	       emean_incone[k] = emean_incone[k]/netracks_incone[k];
-	       /*
-	       double ee = 0.;
-	       vector<double> resp=theSingle->response(emean_incone[k],ee,theResponseAlgo);
-	       corrinef = corrinef + netracks_incone[k]*((1.-trkeff[k])/trkeff[k])*(emean_incone[k] - eleakage[etatr]*(resp.front() + resp.back()));
-	       */
-	       corrinef = corrinef + netracks_incone[k] * ((1.-trkeff[k])/trkeff[k]) * emean_incone[k] * (1.-eleakage[k]*response[k]);
-	       if(debug) cout <<" k eta/pt index = " << k
-			      <<" trkeff[k] = " << trkeff[k]
-			      <<" netracks_incone[k] = " <<  netracks_incone[k]
-			      <<" emean_incone[k] = " << emean_incone[k]
-			      <<" resp = " << response[k]
-			      <<" resp_suppr = "<<eleakage[etatr]  
-			      <<" corrinef = " << corrinef << endl;
-	     }
-	   }
-       }
-     
-     NewResponse = NewResponse + corrinef;
-     
-   } // theRecoTracksInConeInVertex.size() > 0
-   
-   // Track is out of cone at the Calo and in cone at the vertex
-   if (theAddOutOfConeTracks) {
-     echar = 0.;
-     double corrinef = 0.; 
-     if( trOutOfCaloInVertex.size() > 0 ){
-       for( reco::TrackRefVector::iterator itV = trOutOfCaloInVertex.begin(); itV != trOutOfCaloInVertex.end(); itV++)
-	 {
-	   echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.14*0.14);
-	   NewResponse = NewResponse + echar;
-	   for(int i=0; i < netabin1-1; i++)
-	     {
-	       for(int j=0; j < nptbin1-1; j++)
-		 {
-		   if(fabs((**itV).eta())>etabin1[i] && fabs((**itV).eta())<etabin1[i+1])
-		     {
-		       if(fabs((**itV).pt())>ptbin1[j] && fabs((**itV).pt())<ptbin1[j+1])
-			 {
-			   int k = i*nptbin1+j;
-			   netracks_outcone[k]++;
-			   emean_outcone[k] = emean_outcone[k] + echar;
-			   
-			   if(debug) cout <<"         k eta/pT index = " << k
-					  <<" netracks_outcone[k] = " << netracks_outcone[k]
-					  <<" emean_outcone[k] = " << emean_outcone[k] << endl;
-			   
-			 } // pt
-		     } // eta
-		 } // pt
-	     } // eta
-	 } // out-of-cone tracks
-       
-       // correct of inefficiency of out of cone tracks
-       for (int etatr = 0; etatr < netabin1-1; etatr++ )
-         {
-           for (int pttr = 0; pttr < nptbin1-1; pttr++ )
-             {
-	       int k = nptbin1*etatr + pttr;
-	       if(netracks_outcone[k]>0.) {
-		 emean_outcone[k] = emean_outcone[k]/netracks_outcone[k];
-		 corrinef = corrinef + netracks_outcone[k] * ((1.-trkeff[k])/trkeff[k]) * emean_outcone[k];
-		 if(debug) cout <<" k eta/pt index = " << k
-				<<" trkeff[k] = " << trkeff[k]
-				<<" netracks_outcone[k] = " <<  netracks_outcone[k]
-				<<" emean_outcone[k] = " << emean_outcone[k]
-				<<" corrinef = " << corrinef << endl;
-	       }
-	     } // pt
-         } // eta
-       
-       
-       NewResponse = NewResponse + corrinef; 
-     } // if we have out-of-cone tracks
-   } // if we need out-of-cone tracks
-   
-   // muon treatment:
-   //    for in vertex , in calo cone muons add muon p and subtract 2 GeV
-     for( reco::TrackRefVector::iterator itV = muInCaloInVertex.begin(); itV != muInCaloInVertex.end(); itV++)
-       {
-	 echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
-	 NewResponse = NewResponse + echar - 2.0;
-       }
-   //    for in vertex, out of calo cone muons add muon pt
-     if( trOutOfCaloInVertex.size() > 0 ){
-       for( reco::TrackRefVector::iterator itV = muOutOfCaloInVertex.begin(); itV != muOutOfCaloInVertex.end(); itV++)
-	 {
-	   echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
-	   NewResponse = NewResponse + echar;
-	 }
-     }
-   //    for out of vertex, in cone muons suntract 2 GeV  
-       for( reco::TrackRefVector::iterator itV = muInCaloOutOfVertex.begin(); itV != muInCaloOutOfVertex.end(); itV++)
-	 {
-	   //double echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
-	   NewResponse = NewResponse - 2.0;
-	 }
-   double mScale = NewResponse/fJet.energy();
-// Do nothing if mScale<0.
-   if(mScale <0.) mScale=1;
-   
-   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<" event "<<iEvent.id().event()<<std::endl;
-
-   return mScale;
-}
-
-
-
-reco::TrackRefVector JetPlusTrackCorrector::jtC_rebuild(
-                                        const reco::JetTracksAssociation::Container& jtV0,
-                                        const reco::Jet& fJet,
-                                        reco::TrackRefVector& Excl)
-                                         const
+JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset ) 
+  : verbose_( pset.getParameter<bool>("Verbose") ),
+    useInConeTracks_( pset.getParameter<bool>("UseInConeTracks") ),
+    useOutOfConeTracks_( pset.getParameter<bool>("UseOutOfConeTracks") ),
+    useOutOfVertexTracks_( pset.getParameter<bool>("UseOutOfVertexTracks") ),
+    useMuons_( pset.getParameter<bool>("UseMuons") ),
+    useElectrons_( pset.getParameter<bool>("UseElectrons") ),
+    usePat_( pset.getParameter<bool>("UsePatCollections") ),
+    allowOnTheFly_( pset.getParameter<bool>("AllowOnTheFly") ),
+    useTrackQuality_( pset.getParameter<bool>("UseTrackQuality") ),
+    jetTracksAtVertex_( pset.getParameter<edm::InputTag>("JetTracksAssociationAtVertex") ),
+    jetTracksAtCalo_( pset.getParameter<edm::InputTag>("JetTracksAssociationAtCaloFace") ),
+    jetSplitMerge_( pset.getParameter<int>("JetSplitMerge") ),
+    tracks_( pset.getParameter<edm::InputTag>("Tracks") ),
+    propagator_( pset.getParameter<std::string>("Propagator") ),
+    coneSize_( pset.getParameter<double>("ConeSize") ),
+    muons_( pset.getParameter<edm::InputTag>("Muons") ),
+    electrons_( pset.getParameter<edm::InputTag>("Electrons") ),
+    electronIds_( pset.getParameter<edm::InputTag>("ElectronIds") ),
+    trackQuality_( reco::TrackBase::qualityByName( pset.getParameter<std::string>("TrackQuality") ) ),
+    response_( new Map( pset.getParameter<std::string>("ResponseMap"), verbose_ ) ),
+    efficiency_( new Map( pset.getParameter<std::string>("EfficiencyMap"), verbose_ ) ),
+    leakage_( new Map( pset.getParameter<std::string>("LeakageMap"), verbose_ ) )
 {
 
-     //std::cout<<" New Merge/Split schema "<<mSplitMerge<<std::endl;
+  if ( !response_ ) {
+    edm::LogError("JetPlusTrackCorrector")
+      << "[JetPlusTrackCorrector::" << __func__ << "]"
+      << " NULL pointer to response map!";
+  }
+
+  if ( !efficiency_ ) {
+    edm::LogError("JetPlusTrackCorrector")
+      << "[JetPlusTrackCorrector::" << __func__ << "]"
+      << " NULL pointer to efficiency map!";
+  }
+
+  if ( !leakage_ ) {
+    edm::LogError("JetPlusTrackCorrector")
+      << "[JetPlusTrackCorrector::" << __func__ << "]"
+      << " NULL pointer to leakage map!";
+  }
+  
+  if ( !useInConeTracks_ || 
+       !useOutOfConeTracks_ ||
+       !useOutOfVertexTracks_ ) {
+    std::stringstream ss;
+    ss << "[JetPlusTrackCorrector::" << __func__ << "]"
+       << " You are using JPT algorithm in a non-standard way!" << std::endl
+       << " UseInConeTracks      : " << ( useInConeTracks_ ? "true" : "false" ) << std::endl
+       << " UseOutOfConeTracks   : " << ( useOutOfConeTracks_ ? "true" : "false" ) << std::endl
+       << " UseOutOfVertexTracks : " << ( useOutOfVertexTracks_ ? "true" : "false" );
+    edm::LogWarning("JetPlusTrackCorrector") << ss.str();
+  }
+
+}
+
+// -----------------------------------------------------------------------------
 //
-// Do nothing if schema is not switched on
+JetPlusTrackCorrector::~JetPlusTrackCorrector() {
+  if ( response_ ) { delete response_; } 
+  if ( efficiency_ ) { delete efficiency_; }
+  if ( leakage_ ) { delete leakage_; }
+}
+
+// -----------------------------------------------------------------------------
 //
+double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
+				 const edm::Event& event,
+				 const edm::EventSetup& setup ) const 
+{
+  
+  // Jet energy to correct
+  double jet_energy = fJet.energy();
+  
+  // Check that jet falls within |eta| < 2.1
+  if ( fabs( fJet.eta() ) > 2.1 ) { return jet_energy / fJet.energy(); }
+  
+  // Associate tracks to jet at both the Vertex and CaloFace
+  AssociatedTracks associated_tracks;
+  bool ok = jetTrackAssociation( fJet, event, setup, associated_tracks ); 
+  if ( !ok ) { return ( jet_energy / fJet.energy() ); }
 
-     reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue(jtV0,fJet);
+  // Track collections propagated to Vertex and CaloFace for "pions", muons and electrons
+  ParticleTracks pions;
+  ParticleTracks muons;
+  ParticleTracks electrons;
+  particles( associated_tracks, event, setup, pions, muons, electrons );
 
-     if(mSplitMerge<0) return tracks;
+  // -------------------- Pions --------------------
+  
+  ParticleResponse in_cone;
+  ParticleResponse out_of_cone;
+  ParticleResponse out_of_vertex;
+  double corr_pions_in_cone = 0.;
+  double corr_pions_out_of_cone = 0.;
+  double corr_pions_out_of_vertex = 0.;
+  
+  if ( useInConeTracks_ ) { 
+    corr_pions_in_cone = correction( pions.inVertexInCalo_, in_cone, true, true ); 
+    jet_energy += corr_pions_in_cone;
+  }
+  
+  if ( useOutOfConeTracks_ ) {
+    corr_pions_out_of_cone = correction( pions.inVertexOutOfCalo_, out_of_cone, true, false );
+    jet_energy += corr_pions_out_of_cone;
+  }
 
-     //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+  if ( useOutOfVertexTracks_ ) {
+    corr_pions_out_of_vertex = correction( pions.outOfVertexInCalo_, out_of_vertex, false, true );
+    jet_energy += corr_pions_out_of_vertex;
+  }
 
-     typedef std::vector<reco::JetBaseRef>::iterator JetBaseRefIterator;
-     std::vector<reco::JetBaseRef> theJets = reco::JetTracksAssociation::allJets(jtV0);
+  // -------------------- Efficiency --------------------
+  
+  double corr_pion_eff_in_cone = 0.;
+  double corr_pion_eff_out_of_cone = 0.;
+  
+  if ( useInConeTracks_ ) { 
+    corr_pion_eff_in_cone = correction( in_cone, true );
+    jet_energy += corr_pion_eff_in_cone;
+  }
 
-     reco::TrackRefVector tracksthis;
+  if ( useOutOfConeTracks_ ) {
+    corr_pion_eff_out_of_cone = correction( out_of_cone, false );
+    jet_energy += corr_pion_eff_out_of_cone;
+  }
+  
+  // -------------------- Muons --------------------
+  
+  ParticleResponse not_used1;
+  ParticleResponse not_used2;
+  ParticleResponse not_used3;
+  double corr_muons_in_cone = 0.;
+  double corr_muons_out_of_cone = 0.;
+  double corr_muons_out_of_vertex = 0.;
+  
+  if ( useInConeTracks_ ) { 
+    corr_muons_in_cone = correction( muons.inVertexInCalo_, not_used1, true, true, 0.105, 2. );
+    jet_energy += corr_muons_in_cone;
+  }  
+  
+  if ( useOutOfConeTracks_ ) {
+    if ( !pions.inVertexOutOfCalo_.empty() ) { //@@ bug?
+      corr_muons_out_of_cone = correction( muons.inVertexOutOfCalo_, not_used2, true, false, 0.105, 2. );
+      jet_energy += corr_muons_out_of_cone;
+    }
+  }    
+  
+  if ( useOutOfVertexTracks_ ) {
+    corr_muons_out_of_vertex = correction( muons.outOfVertexInCalo_, not_used3, false, true, 0.105, 2. );
+    jet_energy += corr_muons_out_of_vertex;
+  }
+  
+  // -------------------- Return corrected energy -------------------- 
 
-     int tr=0;
+  if ( verbose_ ) {
+    std::stringstream ss;
+    ss << "[JetPlusTrackCorrector::" << __func__ << "] Corrections summary:" << std::endl 
+       << "Number of tracks:" << std::endl
+       << " In-cone at Vertex   : " << associated_tracks.atVertex_.size() << std::endl
+       << " In-cone at CaloFace : " << associated_tracks.atCaloFace_.size() << std::endl
+       << "Individual corrections (and number of tracks):" << std::endl
+       << " In-cone at Vertex and in-cone at CaloFace (subtract response, add track momentum):" << std::endl  
+       << "  Pions      : " << "(" << pions.inVertexInCalo_.size() << ") " << corr_pions_in_cone << std::endl  
+       << "  Muons      : " << "(" << muons.inVertexInCalo_.size() << ") " << corr_muons_in_cone << std::endl  
+       << "  Electrons  : " << "(" << electrons.inVertexInCalo_.size() << ") " << double(0.) << std::endl  
+       << "  Efficiency : " << "(" << pions.inVertexInCalo_.size() << ") " << corr_pion_eff_in_cone << std::endl  
+       << " In-cone at Vertex and out-of-cone at CaloFace (add track momentum):" << std::endl  
+       << "  Pions      : " << "(" << pions.inVertexOutOfCalo_.size() << ") " << corr_pions_out_of_cone << std::endl  
+       << "  Muons      : " << "(" << muons.inVertexOutOfCalo_.size() << ") " << corr_muons_out_of_cone << std::endl  
+       << "  Electrons  : " << "(" << electrons.inVertexOutOfCalo_.size() << ") " << double(0.) << std::endl  
+       << "  Efficiency : " << "(" << pions.inVertexOutOfCalo_.size() << ") " << corr_pion_eff_out_of_cone << std::endl  
+       << " Out-of-cone at Vertex and in-cone at CaloFace (subtract response):" << std::endl  
+       << "  Pions      : " << "(" << pions.outOfVertexInCalo_.size() << ") " << corr_pions_out_of_vertex << std::endl  
+       << "  Muons      : " << "(" << muons.outOfVertexInCalo_.size() << ") " << corr_muons_out_of_vertex << std::endl 
+       << "  Electrons  : " << "(" << electrons.outOfVertexInCalo_.size() << ") " << double(0.) << std::endl  
+       << "Total correction:"
+       << " Uncorrected energy : " << fJet.energy() << std::endl
+       << " Correction factor  : " << jet_energy / fJet.energy() << std::endl
+       << " Corrected energy   : " << jet_energy;
+    edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
+  }
+  
+  // Check if scale is negative
+  double scale = jet_energy / fJet.energy();
+  if ( scale < 0. ) { scale = 1.; } 
 
-    for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
+//   LogTrace("test") << " mScale= " << scale
+//    		   << " NewResponse " << jet_energy 
+//    		   << " Jet energy " << fJet.energy()
+//    		   << " event " << event.id().event();
+  
+  return scale;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+double JetPlusTrackCorrector::correction( const reco::Jet& jet ) const {
+  edm::LogError("JetPlusTrackCorrector")
+    << "JetPlusTrackCorrector can be run on entire event only";
+  return 1.;
+}
+
+// -----------------------------------------------------------------------------
+//
+double JetPlusTrackCorrector::correction( const reco::Particle::LorentzVector& jet ) const {
+  edm::LogError("JetPlusTrackCorrector")
+    << "JetPlusTrackCorrector can be run on entire event only";
+  return 1.;
+}
+
+// -----------------------------------------------------------------------------
+//
+bool JetPlusTrackCorrector::jetTrackAssociation( const reco::Jet& fJet,
+					const edm::Event& event, 
+					const edm::EventSetup& setup,
+					AssociatedTracks& trks ) const {
+  
+  // Some init
+  trks.clear();
+  
+  // Check whether to retrieve JTA object from Event or construct "on-the-fly"
+  if ( !jetTracksAtVertex_.label().empty() && 
+       !jetTracksAtCalo_.label().empty() ) { 
+    
+    // Get Jet-track association at Vertex
+    edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
+    event.getByLabel( jetTracksAtVertex_, jetTracksAtVertex ); 
+    if ( !jetTracksAtVertex.isValid() || jetTracksAtVertex.failedToGet() ) {
+      if ( verbose_ && edm::isDebugEnabled() ) {
+	edm::LogWarning("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to reco::JetTracksAssociation::Container (for Vertex)"
+	  << " with InputTag (label:instance:process) \"" 
+	  << jetTracksAtVertex_.label() << ":"
+	  << jetTracksAtVertex_.instance() << ":"
+	  << jetTracksAtVertex_.process() << "\"" << std::endl
+	  << " Attempting to use JTA \"on-the-fly\" mode...";
+      }
+      return jtaOnTheFly( fJet, event, setup, trks );
+    }
+    
+    // Retrieve jet-tracks association for given jet
+    const reco::JetTracksAssociation::Container jtV = *( jetTracksAtVertex.product() );
+    reco::TrackRefVector excluded; 
+    if ( jetSplitMerge_ < 0 ) { trks.atVertex_ = reco::JetTracksAssociation::getValue( jtV, fJet ); }
+    else { rebuildJta( fJet, jtV, trks.atVertex_, excluded ); }
+    
+    // Check if any tracks are associated to jet at vertex
+    if ( trks.atVertex_.empty() ) { return false; }
+
+    // Get Jet-track association at Calo
+    edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
+    event.getByLabel( jetTracksAtCalo_, jetTracksAtCalo ); 
+    if ( !jetTracksAtCalo.isValid() || jetTracksAtCalo.failedToGet() ) {
+      if ( verbose_ && edm::isDebugEnabled() ) {
+	edm::LogWarning("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to reco::JetTracksAssociation::Container (for CaloFace)"
+	  << " with InputTag (label:instance:process) \"" 
+	  << jetTracksAtCalo_.label() << ":"
+	  << jetTracksAtCalo_.instance() << ":"
+	  << jetTracksAtCalo_.process() << "\"" << std::endl
+	  << " Attempting to use JTA \"on-the-fly\" mode...";
+      }
+      return jtaOnTheFly( fJet, event, setup, trks );
+    }
+    
+    // Retrieve jet-tracks association for given jet
+    const reco::JetTracksAssociation::Container jtC = *( jetTracksAtCalo.product() );
+    if ( jetSplitMerge_ < 0 ) { trks.atCaloFace_ = reco::JetTracksAssociation::getValue( jtC, fJet ); }
+    else { excludeJta( fJet, jtC, trks.atCaloFace_, excluded ); }
+    
+    // Successful
+    return true;
+    
+  } else { return jtaOnTheFly( fJet, event, setup, trks ); }
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool JetPlusTrackCorrector::jtaOnTheFly( const reco::Jet& fJet,
+				const edm::Event& event, 
+				const edm::EventSetup& setup,
+				AssociatedTracks& trks ) const {
+
+  edm::LogWarning("JetPlusTrackCorrector") 
+    << "[JetPlusTrackCorrector::" << __func__ << "]"
+    << " \"On-the-fly\" mode not yet implemented!...";
+  return false;
+  
+//   // Construct objects that perform association 
+//   static JetTracksAssociationDRVertex vrtx(coneSize_);
+//   static JetTracksAssociationDRCalo   calo(coneSize_);
+  
+//   // Container for propagated tracks
+//   static JetTracksAssociationDR::TrackRefs propagated;
+    
+//   // Perform once per event
+//   static uint32_t last_event = 0;
+//   if ( event.id().event() != last_event ) {
+//     last_event = event.id().event();
+
+//     // Retrieve magnetic field and track propagator
+//     edm::ESHandle<MagneticField> field;
+//     setup.get<IdealMagneticFieldRecord>().get( field );
+//     edm::ESHandle<Propagator> propagator;
+//     setup.get<TrackingComponentsRecord>().get( propagator_, propagator );
+
+//     // Retrieve global tracks 
+//     edm::Handle<reco::TrackCollection> tracks;
+//     event.getByLabel( tracks_, tracks );
+//     if ( !tracks.isValid() || tracks.failedToGet() ) {
+//       edm::LogError("JetPlusTrackCorrector")
+// 	<< "[JetPlusTrackCorrector::" << __func__ << "]"
+// 	<< " Invalid handle to \"reco::TrackCollection\""
+// 	<< " with InputTag (label:instance:process) \"" 
+// 	<< tracks_.label() << ":"
+// 	<< tracks_.instance() << ":"
+// 	<< tracks_.process() << "\"";
+//       return false;
+//     }
+
+//     // Propagate tracks for to calo face 
+//     JetTracksAssociationDR::createTrackRefs( propagated, tracks, trackQuality_ );
+//     vrtx.propagateTracks( propagated ); //@@ needed?
+//     calo.propagateTracks( propagated, *field, *propagator );
+      
+//   } 
+
+//   // Associate tracks to jets at both vertex and calo face
+//   vrtx.associateTracksToJet( trks.atVertex_, fJet, propagated );
+//   calo.associateTracksToJet( trks.atCaloFace_, fJet, propagated );
+    
+//   // Check if any tracks are associated to jet at vertex
+//   if ( trks.atVertex_.empty() ) { return false; }
+    
+//   return true;
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void JetPlusTrackCorrector::rebuildJta( const reco::Jet& fJet, 
+			       const JetTracksAssociations& jtV0, 
+			       reco::TrackRefVector& tracksthis,
+			       reco::TrackRefVector& Excl ) const {
+  
+  //std::cout<<" NEW1 Merge/Split schema "<<jetSplitMerge_<<std::endl;
+
+  tracksthis = reco::JetTracksAssociation::getValue(jtV0,fJet);
+
+  if(jetSplitMerge_<0) return;
+
+  typedef std::vector<reco::JetBaseRef>::iterator JetBaseRefIterator;
+  std::vector<reco::JetBaseRef> theJets = reco::JetTracksAssociation::allJets(jtV0);
+
+  reco::TrackRefVector tracks = tracksthis;
+  tracksthis.clear();
+
+  //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+
+  int tr=0;
+
+  for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
     {
 
-          double dR2this = deltaR2 (fJet.eta(), fJet.phi(), (**it).eta(), (**it).phi());
-          //double dfi = fabs(fJet.phi()-(**it).phi());
-          //if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
-          //double deta = fJet.eta() - (**it).eta();
-          //double dR2check = sqrt(dfi*dfi+deta*deta);
-
-
-          double scalethis = dR2this;
-          if(mSplitMerge == 0) scalethis = 1./fJet.et();
-          if(mSplitMerge == 2) scalethis = dR2this/fJet.et();
-          tr++;
-          int flag = 1;
-     for(JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++)
-     {
-        if(&(**ii) == &fJet ) {continue;}
+      double dR2this = deltaR2 (fJet.eta(), fJet.phi(), (**it).eta(), (**it).phi());
+//       double dfi = fabs(fJet.phi()-(**it).phi());
+//       if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
+//       double deta = fJet.eta() - (**it).eta();
+//       double dR2check = sqrt(dfi*dfi+deta*deta);
+      
+      double scalethis = dR2this;
+      if(jetSplitMerge_ == 0) scalethis = 1./fJet.et();
+      if(jetSplitMerge_ == 2) scalethis = dR2this/fJet.et();
+      tr++;
+      int flag = 1;
+      for(JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++)
+	{
+	  if(&(**ii) == &fJet ) {continue;}
           double dR2 = deltaR2 ((*ii)->eta(), (*ii)->phi(), (**it).eta(), (**it).phi());
           double scale = dR2;
-          if(mSplitMerge == 0) scale = 1./fJet.et();
-          if(mSplitMerge == 2) scale = dR2/fJet.et();
+          if(jetSplitMerge_ == 0) scale = 1./fJet.et();
+          if(jetSplitMerge_ == 2) scale = dR2/fJet.et();
           if(scale < scalethis) flag = 0;
 
           if(flag == 0) {
-    //       std::cout<<" Track belong to another jet also "<<dR2<<" "<<
-    //      (*ii)->et()<<" "<<(*ii)->eta()<<" "<< (*ii)->phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<" "<<scalethis<<" "<<scale<<" "<<flag<<std::endl;
-          break;
+	    //std::cout<<" Track belong to another jet also "<<dR2<<" "<<
+	    //(*ii)->et()<<" "<<(*ii)->eta()<<" "<< (*ii)->phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<" "<<scalethis<<" "<<scale<<" "<<flag<<std::endl;
+	    break;
           }
-     }
+	}
 
-//        std::cout<<" Track "<<tr<<" "<<flag<<" "<<dR2this<<" "<<dR2check<<" Jet "<<fJet.eta()<<" "<< fJet.phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
-        if(flag == 1) {tracksthis.push_back (*it);}else{Excl.push_back (*it);}
+      //std::cout<<" Track "<<tr<<" "<<flag<<" "<<dR2this<<" "<<dR2check<<" Jet "<<fJet.eta()<<" "<< fJet.phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+      if(flag == 1) {tracksthis.push_back (*it);}else{Excl.push_back (*it);}
     }
 
-  //  std::cout<<" The new size of tracks "<<tracksthis.size()<<" Excludede "<<Excl.size()<<std::endl;
-    return tracksthis;
-
+  //std::cout<<" The new size of tracks "<<tracksthis.size()<<" Excludede "<<Excl.size()<<std::endl;
+  return;
+  
 }
 
-reco::TrackRefVector JetPlusTrackCorrector::jtC_exclude(
-                                        const reco::JetTracksAssociation::Container& jtV0,
-                                        const reco::Jet& fJet,
-                                        reco::TrackRefVector& Excl)
-                                         const
-{
-     reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue(jtV0,fJet);
-     if(Excl.size() == 0) return tracks;
-     if(mSplitMerge<0) return tracks;
+// -----------------------------------------------------------------------------
+//
+void JetPlusTrackCorrector::excludeJta( const reco::Jet& fJet, 
+			       const JetTracksAssociations& jtV0, 
+			       reco::TrackRefVector& tracksthis,
+			       const reco::TrackRefVector& Excl ) const {
+  
+  //std::cout<<" NEW2" << std::endl;
 
-     //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+  tracksthis = reco::JetTracksAssociation::getValue(jtV0,fJet);
+  if(Excl.size() == 0) return;
+  if(jetSplitMerge_<0) return;
 
-     reco::TrackRefVector tracksthis;
+  reco::TrackRefVector tracks = tracksthis;
+  tracksthis.clear();
+  
+  //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
 
-    for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
+  for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
     {
 
-       //std::cout<<" Track at calo surface "
-       //   <<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
-       reco::TrackRefVector::iterator itold = find(Excl.begin(),Excl.end(),(*it));
-       if(itold == Excl.end()) {
-                                  tracksthis.push_back (*it);
-                                 } 
-                                 //  else {
-                                 //   std::cout<<"Exclude "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
-                                // }
+      //std::cout<<" Track at calo surface "
+      //<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+      reco::TrackRefVector::iterator itold = find(Excl.begin(),Excl.end(),(*it));
+      if(itold == Excl.end()) {
+	tracksthis.push_back (*it);
+      } 
+      //else { std::cout<<"Exclude "<<(**it).eta()<<" "<<(**it).phi()<<std::endl; }
 
     }
 
-//    std::cout<<" Size of calo tracks "<<tracksthis.size()<<std::endl;
+  //std::cout<<" Size of calo tracks "<<tracksthis.size()<<std::endl;
 
-    return tracksthis;
+  return;
+
 }
 
+// -----------------------------------------------------------------------------
+//
+void JetPlusTrackCorrector::particles( const AssociatedTracks& associated_tracks, 
+			      const edm::Event& event, 
+			      const edm::EventSetup& setup,
+			      ParticleTracks& pions, 
+			      ParticleTracks& muons,
+			      ParticleTracks& electrons ) const { 
+  
+  // Some init  
+  pions.clear(); 
+  muons.clear(); 
+  electrons.clear(); 
+
+  // Get muons
+  bool found_reco_muons = true;
+  bool found_pat_muons  = true;
+  edm::Handle<RecoMuons> reco_muons;
+  edm::Handle<PatMuons> pat_muons;
+  if ( useMuons_ ) { 
+
+    if ( !usePat_ ) {
+
+      // Get RECO muons
+      event.getByLabel( muons_, reco_muons ); 
+      if ( !reco_muons.isValid() || reco_muons.failedToGet() ) {
+	found_reco_muons = false;
+	edm::LogError("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to reco::GsfMuon collection"
+	  << " with InputTag (label:instance:process) \"" 
+	  << muons_.label() << ":"
+	  << muons_.instance() << ":"
+	  << muons_.process() << "\"";
+      }
+
+    } else { 
+      
+      // Get PAT muons
+      event.getByLabel( muons_, pat_muons ); 
+      if ( !pat_muons.isValid() || pat_muons.failedToGet() ) {
+	found_pat_muons = false;
+	edm::LogError("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to pat::Muon collection"
+	  << " with InputTag (label:instance:process) \"" 
+	  << muons_.label() << ":"
+	  << muons_.instance() << ":"
+	  << muons_.process() << "\"";
+      } 
+
+    }
+
+  } 
+  
+  // Get electrons
+  bool found_reco_electrons    = true;
+  bool found_reco_electron_ids = true;
+  bool found_pat_electrons     = true;
+  edm::Handle<RecoElectrons> reco_electrons;
+  edm::Handle<RecoElectronIDs> reco_electron_ids;
+  edm::Handle<PatElectrons> pat_electrons;
+  if ( useElectrons_ ) { 
+
+    if ( !usePat_ ) {
+
+      // Get RECO electrons
+      event.getByLabel( electrons_, reco_electrons ); 
+      if ( !reco_electrons.isValid() || reco_electrons.failedToGet() ) {
+	found_reco_electrons = false;
+	edm::LogError("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to reco::GsfElectron collection"
+	  << " with InputTag (label:instance:process) \"" 
+	  << electrons_.label() << ":"
+	  << electrons_.instance() << ":"
+	  << electrons_.process() << "\"";
+      }
+
+      // Get RECO electron IDs
+      event.getByLabel( electronIds_, reco_electron_ids ); 
+      if ( !reco_electron_ids.isValid() || reco_electron_ids.failedToGet() ) {
+	found_reco_electron_ids = false;
+	edm::LogError("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to reco::GsfElectron collection"
+	  << " with InputTag (label:instance:process) \"" 
+	  << electronIds_.label() << ":"
+	  << electronIds_.instance() << ":"
+	  << electronIds_.process() << "\"";
+      }
+
+    } else { 
+      
+      // Get PAT electrons
+      event.getByLabel( electrons_, pat_electrons ); 
+      if ( !pat_electrons.isValid() || pat_electrons.failedToGet() ) {
+	found_pat_electrons = false;
+	edm::LogError("JetPlusTrackCorrector")
+	  << "[JetPlusTrackCorrector::" << __func__ << "]"
+	  << " Invalid handle to pat::Electron collection"
+	  << " with InputTag (label:instance:process) \"" 
+	  << electrons_.label() << ":"
+	  << electrons_.instance() << ":"
+	  << electrons_.process() << "\"";
+      }
+
+    }
+
+  } 
+  
+  // Check
+  bool found_reco = found_reco_muons && found_reco_electrons && found_reco_electron_ids;
+  bool found_pat  = found_pat_muons && found_pat_electrons;
+  if ( !found_reco && !found_pat ) {
+    edm::LogError("JetPlusTrackCorrector")
+      << "[JetPlusTrackCorrector::" << __func__ << "]"
+      << " Unable to access RECO or PAT collections for muons and electrons";
+    return;
+  }
+  
+  // Loop through tracks at "Vertex"
+  {
+    reco::TrackRefVector::const_iterator itrk = associated_tracks.atVertex_.begin();
+    reco::TrackRefVector::const_iterator jtrk = associated_tracks.atVertex_.end();
+    for ( ; itrk != jtrk; ++itrk ) {
+
+      if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { continue; }
+      
+      reco::TrackRefVector::iterator it = find( associated_tracks.atCaloFace_.begin(),
+						associated_tracks.atCaloFace_.end(),
+						*itrk );
+      
+      bool is_muon = false;
+      bool is_ele  = false;
+      if ( !usePat_ && found_reco ) { 
+	is_muon = useMuons_     && matching( itrk, reco_muons );
+	is_ele  = useElectrons_ && matching( itrk, reco_electrons, reco_electron_ids );
+      } else if ( usePat_ && found_pat ) { 
+	is_muon = useMuons_     && matching( itrk, pat_muons ); 
+	is_ele  = useElectrons_ && matching( itrk, pat_electrons );
+      }
+
+      //@@ bug? 
+      if ( it != associated_tracks.atCaloFace_.end() ) { 
+	if ( is_muon )     { muons.inVertexInCalo_.push_back(*it); }
+	else if ( is_ele ) { electrons.inVertexInCalo_.push_back(*it); } 
+	else               { pions.inVertexInCalo_.push_back(*it); } 
+      } else { 
+	if ( is_muon )     { muons.inVertexOutOfCalo_.push_back(*itrk); }
+	//else if ( is_ele ) { electrons.inVertexOutOfCalo_.push_back(*itrk); } 
+	else               { pions.inVertexOutOfCalo_.push_back(*itrk); }
+      } 
+      
+    } 
+    
+  }
+  
+  // Loop through tracks at "CaloFace"
+  {
+    reco::TrackRefVector::iterator itrk = associated_tracks.atCaloFace_.begin(); 
+    reco::TrackRefVector::iterator jtrk = associated_tracks.atCaloFace_.end(); 
+
+    for ( ; itrk != jtrk; ++itrk ) {
+      
+      if ( useTrackQuality_ && !(*itrk)->quality(trackQuality_) ) { continue; }
+      
+      //@@ bug?
+      if( !pions.inVertexInCalo_.empty() ) { //||
+	//!muons.inVertexInCalo_.empty() || 
+	//!electrons.inVertexInCalo_.empty() ) { 
+	
+	reco::TrackRefVector::iterator it = find( pions.inVertexInCalo_.begin(),
+						  pions.inVertexInCalo_.end(),
+						  *itrk );
+	
+	reco::TrackRefVector::iterator im = find( muons.inVertexInCalo_.begin(),
+						  muons.inVertexInCalo_.end(),
+						  *itrk );
+	
+	//@@ bug?
+	// 	reco::TrackRefVector::iterator ie = find( electrons.inVertexInCalo_.begin(),
+	// 						  electrons.inVertexInCalo_.end(),
+	// 						  *itrk );
+
+	//@@ bug?	
+	if ( it == pions.inVertexInCalo_.end() && 
+	     im == muons.inVertexInCalo_.end() ) { //&&
+	  //ie == electrons.inVertexInCalo_.end() ) {
+
+	  //@@ bug?
+	  bool is_muon = false;
+	  bool is_ele  = false;
+	  if ( !usePat_ && found_reco ) { 
+	    is_muon = useMuons_ && matching( itrk, reco_muons );
+	    is_ele  = false; //useElectrons_ && matching( itrk, reco_electrons, reco_electron_ids );
+	  } else if ( usePat_ && found_pat ) { 
+	    is_muon = useMuons_ && matching( itrk, pat_muons ); 
+	    is_ele  = false; //useElectrons_ && matching( itrk, pat_electrons );
+	  }
+	  
+	  if ( is_muon )     { muons.outOfVertexInCalo_.push_back(*itrk); } 
+	  else if ( is_ele ) { electrons.outOfVertexInCalo_.push_back(*itrk); } //@@ bug?
+	  else               { pions.outOfVertexInCalo_.push_back(*itrk); }
+	  
+	}
+      }
+    } 
+    
+  }
+  
+  if ( verbose_ && edm::isDebugEnabled() ) {
+    std::stringstream ss;
+    ss << "[JetPlusTrackCorrector::" << __func__ << "] Number of tracks:" << std::endl 
+       << " In-cone at Vertex and in-cone at CaloFace:" << std::endl  
+       << "  Pions      : " << pions.inVertexInCalo_.size() << std::endl
+       << "  Muons      : " << muons.inVertexInCalo_.size() << std::endl
+       << "  Electrons  : " << electrons.inVertexInCalo_.size() << std::endl
+       << " In-cone at Vertex and out-of-cone at CaloFace:" << std::endl  
+       << "  Pions      : " << pions.inVertexOutOfCalo_.size() << std::endl
+       << "  Muons      : " << muons.inVertexOutOfCalo_.size() << std::endl
+       << "  Electrons  : " << electrons.inVertexOutOfCalo_.size() << std::endl
+       << " Out-of-cone at Vertex and in-cone at CaloFace:" << std::endl  
+       << "  Pions      : " << pions.outOfVertexInCalo_.size() << std::endl
+       << "  Muons      : " << muons.outOfVertexInCalo_.size() << std::endl
+       << "  Electrons  : " << electrons.outOfVertexInCalo_.size() << std::endl;
+    LogTrace("JetPlusTrackCorrector") << ss.str();
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool JetPlusTrackCorrector::matching( reco::TrackRefVector::const_iterator itrk, 
+			     const edm::Handle<RecoMuons>& muons ) const {
+  
+  if ( muons->empty() ) { return false; }
+
+  RecoMuons::const_iterator imuon = muons->begin(); 
+  RecoMuons::const_iterator jmuon = muons->end(); 
+  for ( ; imuon != jmuon; ++imuon ) {
+    
+    if ( imuon->innerTrack().isNull() ||
+	 !muon::isGoodMuon(*imuon,muon::TMLastStationTight) ||
+	 imuon->innerTrack()->pt() < 3.0 ) { continue; }
+    
+    if ( itrk->id() != imuon->innerTrack().id() ) {
+      edm::LogError("JetPlusTrackCorrector")
+	<< "Product id of the tracks associated to the jet " << itrk->id() 
+	<<" is different from the product id of the inner track used for muons " << imuon->innerTrack().id()
+	<< "!" << std::endl
+	<< "Cannot compare tracks from different collection. Configuration Error!";
+      return false;
+    }
+    
+    if ( *itrk == imuon->innerTrack() ) { return true; }
+  }
+  
+  return false;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool JetPlusTrackCorrector::matching( reco::TrackRefVector::const_iterator itrk, 
+			     const edm::Handle<PatMuons>& muons ) const {
+  
+  if ( muons->empty() ) { return false; }
+  
+  PatMuons::const_iterator imuon = muons->begin(); 
+  PatMuons::const_iterator jmuon = muons->end(); 
+  for ( ; imuon != jmuon; ++imuon ) {
+
+    if ( imuon->innerTrack().isNull() ||
+	 !muon::isGoodMuon(*imuon,muon::TMLastStationTight) ||
+	 imuon->innerTrack()->pt() < 3.0 ) { continue; }
+    
+    if ( itrk->id() != imuon->innerTrack().id() ) {
+      edm::LogError("JetPlusTrackCorrector")
+	<< "Product id of the tracks associated to the jet " << itrk->id() 
+	<<" is different from the product id of the inner track used for muons " << imuon->innerTrack().id()
+	<< "!" << std::endl
+	<< "Cannot compare tracks from different collection. Configuration Error!";
+      return false;
+    }
+    
+    if ( *itrk == imuon->innerTrack() ) { return true; }
+  }
+  
+  return false;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool JetPlusTrackCorrector::matching( reco::TrackRefVector::const_iterator itrk, 
+			     const edm::Handle<RecoElectrons>& electrons,
+			     const edm::Handle<RecoElectronIDs>& electron_ids ) const {
+
+  if ( electrons->empty() ) { return false; }
+  
+  double deltaR = 999.;
+  double deltaRMIN = 999.;
+	
+  uint32_t electron_index = 0;
+  RecoElectrons::const_iterator ielec = electrons->begin(); 
+  RecoElectrons::const_iterator jelec = electrons->end(); 
+  for ( ; ielec != jelec; ++ielec ) {
+    
+    edm::Ref<RecoElectrons> electron_ref( electrons, electron_index );
+    electron_index++;
+    
+    if ( (*electron_ids)[electron_ref] < 1.e-6 ) { continue; } //@@ Check for null value 
+    
+    // DR matching b/w electron and track
+    double deltaphi = fabs( ielec->phi() - (*itrk)->momentum().phi() );
+    if ( deltaphi > 6.283185308 ) deltaphi -= 6.283185308;
+    if ( deltaphi > 3.141592654 ) deltaphi = 6.283185308 - deltaphi;
+    deltaR = abs( sqrt( pow( (ielec->eta() - (*itrk)->momentum().eta()), 2 ) + 
+			pow( deltaphi , 2 ) ) ); 
+    if ( deltaR < deltaRMIN ) { deltaRMIN = deltaR; }
+    
+  }
+  
+  if ( deltaR < 0.02 ) return true;
+  else return false;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+bool JetPlusTrackCorrector::matching( reco::TrackRefVector::const_iterator itrk, 
+			     const edm::Handle<PatElectrons>& electrons ) const {
+
+  if ( electrons->empty() ) { return false; }
+  
+  double deltaR = 999.;
+  double deltaRMIN = 999.;
+  
+  PatElectrons::const_iterator ielec = electrons->begin(); 
+  PatElectrons::const_iterator jelec = electrons->end(); 
+  for ( ; ielec != jelec; ++ielec ) {
+    
+    if ( ielec->electronID( electronIds_.label() ) < 1.e-6 ) { continue; } //@@ Check for null value 
+    
+    // DR matching b/w electron and track
+    double deltaphi = fabs( ielec->phi() - (*itrk)->momentum().phi() );
+    if ( deltaphi > 6.283185308 ) deltaphi -= 6.283185308;
+    if ( deltaphi > 3.141592654 ) deltaphi = 6.283185308 - deltaphi;
+    deltaR = abs( sqrt( pow( (ielec->eta() - (*itrk)->momentum().eta()), 2 ) + 
+			pow( deltaphi , 2 ) ) ); 
+    if ( deltaR < deltaRMIN ) { deltaRMIN = deltaR; }
+    
+  }
+  
+  if ( deltaR < 0.02 ) return true;
+  else return false;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+double JetPlusTrackCorrector::correction( const reco::TrackRefVector& tracks, 
+				 ParticleResponse& track_response,
+				 bool in_cone_at_vertex,
+				 bool in_cone_at_calo_face,
+				 double mass, 
+				 double mip ) const { 
+
+  // Correction to be applied
+  double correction = 0.;
+  
+  // Clear and reset the response matrix
+  track_response.clear();
+  track_response.resize( response().nEtaBins(), 
+			 response().nPtBins() );
+
+  // Iterate through tracks
+  if ( !tracks.empty() ) {
+    reco::TrackRefVector::iterator itrk = tracks.begin();
+    reco::TrackRefVector::iterator jtrk = tracks.end();
+    for ( ; itrk != jtrk; ++itrk ) {
+
+      // Ignore high-pt tracks 
+      if ( in_cone_at_calo_face && //@@ only when in-cone
+	   mip < 0. &&          //@@ only when not a mip
+	   (*itrk)->pt() >= 50. ) { continue; }
+      
+      // Track momentum
+      double momentum = sqrt( (*itrk)->px() * (*itrk)->px() + 
+			      (*itrk)->py() * (*itrk)->py() + 
+			      (*itrk)->pz() * (*itrk)->pz() + 
+			      mass * mass );
+      
+      // Add track momentum (if in-cone at vertex)
+      if ( in_cone_at_vertex ) { correction += momentum; }
+
+      // Check if particle is mip or not
+      if ( mip > 0. ) { 
+	if ( in_cone_at_calo_face ) { correction -= mip; }
+      } else { 
+	// Find appropriate eta/pt bin for given track
+	for ( uint32_t ieta = 0; ieta < response().nEtaBins()-1; ++ieta ) {
+	  for ( uint32_t ipt = 0; ipt < response().nPtBins()-1; ++ipt ) {
+	    double eta = fabs( (*itrk)->eta() );
+	    if ( eta > response().eta(ieta) && ( ieta+1 == response().nEtaBins() || eta < response().eta(ieta+1) ) ) {
+	      double pt = fabs( (*itrk)->pt() );
+	      if ( pt > response().pt(ipt) && ( ipt+1 == response().nPtBins() || pt < response().pt(ipt+1) ) ) {
+		
+		// Subtract expected response (if appropriate)
+		if ( in_cone_at_calo_face ) { correction -= ( momentum * response().value(ieta,ipt) ); } 
+		
+		// Record track momentum for efficiency correction
+		track_response.addE( ieta, ipt, momentum );
+		
+		// Debug
+		if ( verbose_ && edm::isDebugEnabled() ) {
+		  std::stringstream temp; 
+		  temp << " Response[" << ieta << "," << ipt << "]";
+		  std::stringstream ss;
+		  ss << "[JetPlusTrackCorrector::" << __func__ << "]" << std::endl
+		     << " Track eta / pt    : " << eta << " / " << pt << std::endl
+		     << temp.str() << std::setw(21-temp.str().size()) << " : " 
+		     << response().value(ieta,ipt) << std::endl
+		     << " Track momentum    : " << momentum << std::endl
+		     << " Energy subtracted : " << momentum * response().value(ieta,ipt) << std::endl
+		     << " Energy correction : " << correction;
+		  // 		  int k = ieta*response().nPtBins()+ipt;
+		  // 		  ss << "        k eta/pT index = " << k
+		  // 		     << " netracks_incone[k] = " << track_response.nTrks( ieta, ipt )
+		  // 		     << " emean_incone[k] = " << track_response.sumE( ieta, ipt )
+		  // 		     << " i,j "<<ieta<<" "<<ipt<<" "<<response().value(ieta,ipt)
+		  // 		     << " echar "<<momentum<<" "<<response().value(ieta,ipt)*momentum;
+		  LogTrace("JetPlusTrackCorrector") << ss.str();
+		}
+		
+	      }
+	    }
+	  }
+	}
+      }
+
+    }
+  }
+
+  return correction;
+
+}
+
+// -----------------------------------------------------------------------------
+//
+double JetPlusTrackCorrector::correction( ParticleResponse& track_response,
+				 bool in_cone_at_calo_face ) const { 
+  
+  // Correction to be applied
+  double correction = 0.;
+  
+  // Iterate through eta/pt bins
+  for ( uint32_t ieta = 0; ieta < response().nEtaBins()-1; ++ieta ) {
+    for ( uint32_t ipt = 0; ipt < response().nPtBins()-1; ++ipt ) {
+      uint16_t ntrks = track_response.nTrks(ieta,ipt);
+      if ( !ntrks ) { continue; }
+      double mean  = track_response.meanE(ieta,ipt);
+      double eff   = ( 1. - efficiency().value(ieta,ipt) ) / efficiency().value(ieta,ipt);
+      double corr  = ntrks * eff * mean;
+      correction  += corr;
+      if ( in_cone_at_calo_face ) { correction -= corr * leakage().value(ieta,ipt) * response().value(ieta,ipt); }
+    }
+  }
+  
+  return correction;
+
+}
+
+
+// -----------------------------------------------------------------------------
+//
+Map::Map( std::string input, bool verbose )
+  : eta_(),
+    pt_(),
+    data_()
+{ 
+
+  // Some init
+  clear();
+  std::vector<Element> data;
+
+  // Parse file
+  std::string file = edm::FileInPath(input).fullPath();
+  std::ifstream in( file.c_str() );
+  string line;
+  uint32_t ieta_old = 0; 
+  while ( std::getline( in, line ) ) {
+    if ( !line.size() || line[0]=='#' ) { continue; }
+    std::istringstream ss(line);
+    Element temp;
+    ss >> temp.ieta_ >> temp.ipt_ >> temp.eta_ >> temp.pt_ >> temp.val_;
+    data.push_back(temp);
+    if ( !ieta_old || temp.ieta_ != ieta_old ) { 
+      if ( eta_.size() < temp.ieta_+1 ) { eta_.resize(temp.ieta_+1,0.); }
+      eta_[temp.ieta_] = temp.eta_;
+      ieta_old = temp.ieta_;
+    }
+    if ( pt_.size() < temp.ipt_+1 ) { pt_.resize(temp.ipt_+1,0.); }
+    pt_[temp.ipt_] = temp.pt_;
+  }
+  
+  // Populate container
+  data_.resize( eta_.size(), VDouble( pt_.size(), 0. ) );
+  std::vector<Element>::const_iterator idata = data.begin();
+  std::vector<Element>::const_iterator jdata = data.end();
+  for ( ; idata != jdata; ++idata ) { data_[idata->ieta_][idata->ipt_] = idata->val_; }
+
+  // Check
+  if ( data_.empty() || data_[0].empty() ) {
+    std::stringstream ss;
+    ss << "[jpt::Map::Map]"
+       << " Problem parsing map in location \"" 
+       << file << "\"! ";
+    edm::LogError("JetPlusTrackCorrector") << ss.str();
+  }
+
+  // Check
+  if ( eta_.size() != data_.size() || 
+       pt_.size() != ( data_.empty() ? 0 : data_[0].size() ) ) {
+    std::stringstream ss;
+    ss << "[jpt::Map::Map]"
+       << " Discrepancy b/w number of bins!";
+    edm::LogError("JetPlusTrackCorrector") << ss.str();
+  }
+
+  // Debug
+  if ( verbose && edm::isDebugEnabled() ) {
+    std::stringstream ss;
+    ss << "[jpt::Map::Map]"
+       << " Parsed contents of map at location:" << std::endl
+       << "\"" << file << "\"" << std::endl
+       << " Number of bins in eta : " << data_.size() << std::endl 
+       << " Number of bins in pt  : " << ( data_.empty() ? 0 : data_[0].size() ) << std::endl;
+    VVDouble::const_iterator ieta = data_.begin();
+    VVDouble::const_iterator jeta = data_.end();
+    for ( ; ieta != jeta; ++ieta ) {
+      VDouble::const_iterator ipt = ieta->begin();
+      VDouble::const_iterator jpt = ieta->end();
+      for ( ; ipt != jpt; ++ipt ) {
+	uint32_t eta_bin = static_cast<uint32_t>( ieta - data_.begin() );
+	uint32_t pt_bin  = static_cast<uint32_t>( ipt - ieta->begin() );
+	ss << " EtaBinNumber: " << eta_bin 
+	   << " PtBinNumber: " << pt_bin 
+	   << " EtaValue: " << eta_[ eta_bin ]
+	   << " PtValue: " << pt_[ pt_bin ]
+	   << " Value: " << data_[eta_bin][pt_bin]
+	   << std::endl;
+      }
+    }
+    LogTrace("JetPlusTrackCorrector") << ss.str();
+  }
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+Map::Map() 
+  : eta_(),
+    pt_(),
+    data_()
+{ 
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+Map::~Map() {
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+void Map::clear() {
+  eta_.clear();
+  pt_.clear();
+  data_.clear();
+}
+ 
+// -----------------------------------------------------------------------------
+//
+double Map::eta( uint32_t eta_bin ) const {
+  if ( eta_bin < eta_.size() ) { return eta_[eta_bin]; }
+  else { 
+    edm::LogWarning("JetPlusTrackCorrector") 
+      << "[jpt::Map::eta]"
+      << " Trying to access element " << eta_bin
+      << " of a vector with size " << eta_.size()
+      << "!";
+    return -1.; 
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+double Map::pt( uint32_t pt_bin ) const {
+  if ( pt_bin < pt_.size() ) { return pt_[pt_bin]; }
+  else { 
+    edm::LogWarning("JetPlusTrackCorrector") 
+      << "[jpt::Map::pt]"
+      << " Trying to access element " << pt_bin
+      << " of a vector with size " << pt_.size()
+      << "!";
+    return -1.; 
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+double Map::value( uint32_t eta_bin, uint32_t pt_bin ) const {
+  if ( eta_bin < data_.size() && 
+       pt_bin < ( data_.empty() ? 0 : data_[0].size() ) ) { return data_[eta_bin][pt_bin]; }
+  else { 
+    edm::LogWarning("JetPlusTrackCorrector") 
+      << "[jpt::Map::value]"
+      << " Trying to access element (" << eta_bin << "," << pt_bin << ")"
+      << " of a vector with size (" << data_.size() << "," << ( data_.empty() ? 0 : data_[0].size() ) << ")"
+      << "!";
+    return 1.; 
+  }
+}
+ 
+// -----------------------------------------------------------------------------
+//
+ParticleTracks::ParticleTracks() 
+  : inVertexInCalo_(),
+    outOfVertexInCalo_(),
+    inVertexOutOfCalo_()
+{ 
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+ParticleTracks::~ParticleTracks() {
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+void ParticleTracks::clear() {
+  inVertexInCalo_.clear();
+  outOfVertexInCalo_.clear();
+  inVertexOutOfCalo_.clear();
+}
+ 
+// -----------------------------------------------------------------------------
+//
+AssociatedTracks::AssociatedTracks() 
+  : atVertex_(),
+    atCaloFace_()
+{ 
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+AssociatedTracks::~AssociatedTracks() {
+  clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+void AssociatedTracks::clear() {
+  atVertex_.clear();
+  atCaloFace_.clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+uint16_t ParticleResponse::nTrks( uint32_t eta_bin, uint32_t pt_bin ) const {
+  if ( check(eta_bin,pt_bin) ) { 
+    return data_[eta_bin][pt_bin].first; 
+  } else { return 0; }
+}
+
+// -----------------------------------------------------------------------------
+//
+double ParticleResponse::sumE( uint32_t eta_bin, uint32_t pt_bin ) const {
+  if ( check(eta_bin,pt_bin) ) { 
+    return data_[eta_bin][pt_bin].second; 
+  } else { return 0.; }
+}
+
+// -----------------------------------------------------------------------------
+//
+double ParticleResponse::meanE( uint32_t eta_bin, uint32_t pt_bin ) const {
+  if ( check(eta_bin,pt_bin) ) { 
+    Pair tmp = data_[eta_bin][pt_bin]; 
+    if ( tmp.first ) { return tmp.second / tmp.first; }
+    else { return 0.; }
+  } else { return 0.; }
+}
+
+// -----------------------------------------------------------------------------
+//
+void ParticleResponse::addE( uint32_t eta_bin, uint32_t pt_bin, double energy ) {
+  if ( check(eta_bin,pt_bin) ) { 
+    data_[eta_bin][pt_bin].first++; 
+    data_[eta_bin][pt_bin].second += energy;
+  } 
+}
+
+// -----------------------------------------------------------------------------
+//
+bool ParticleResponse::check( uint32_t eta_bin, uint32_t pt_bin ) const {
+  if ( eta_bin < data_.size() && pt_bin < ( data_.empty() ? 0 : data_[0].size() ) ) { return true; }
+  else { 
+    edm::LogWarning("JetPlusTrackCorrector") 
+      << "[jpt::ParticleResponse::check]"
+      << " Trying to access element (" << eta_bin << "," << pt_bin << ")"
+      << " of a vector with size (" << data_.size() << "," << ( data_.empty() ? 0 : data_[0].size() ) << ")"
+      << "!";
+    return false; 
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+void ParticleResponse::clear() { 
+  data_.clear();
+}
+
+// -----------------------------------------------------------------------------
+//
+void ParticleResponse::resize( uint32_t eta_bins, uint32_t pt_bins, Pair value ) {
+  data_.resize( eta_bins, VPair( pt_bins, value ) );
+}
