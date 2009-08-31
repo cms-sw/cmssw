@@ -14,4 +14,5 @@ dtDataIntegrityUnpacker.inputLabel = 'rawDataCollector'
 hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag('rawDataCollector')
 l1tfed.rawTag = 'rawDataCollector'
 ecalPreshowerFEDIntegrityTask.FEDRawDataCollection = 'rawDataCollector'
+ecalPreshowerRawDataTask.FEDRawDataCollection = 'rawDataCollector'
 
