@@ -17,7 +17,7 @@
 using namespace std;
 
 int edm::BMixingModule::vertexoffset = 0;
-const unsigned int edm::BMixingModule::maxNbSources_ =5;
+const unsigned int edm::BMixingModule::maxNbSources_ =4;
 
 namespace
 {
@@ -69,7 +69,6 @@ namespace edm {
   // Constructor 
   BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
-    checktof_(pset.getParameter<bool>("checktof")),
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
     maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
     mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
@@ -93,7 +92,6 @@ namespace edm {
     cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_);
     beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_);
     beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_);
-    fwdDet_=maybeMakePileUp(pset,"forwardDetectors",minBunch_,maxBunch_,playback_);
 
     //prepare playback info structures
     fileSeqNrs_.resize(maxBunch_-minBunch_+1);
@@ -180,21 +178,6 @@ namespace edm {
       }
     }
 
-    if (fwdDet_) {
-      if (playback_) {
-	getEventStartInfo(e,4);
-	fwdDet_->readPileUp(pileup_[4],eventIDs_, fileSeqNrs_, nrEvents_);
-      } else {
-	fwdDet_->readPileUp(pileup_[4],eventIDs_, fileSeqNrs_, nrEvents_);
-	setEventStartInfo(4);
-      }
-
-      if (fwdDet_->doPileup()) {  
-	LogDebug("MixingModule") <<"\n\n==============================>Adding fwd detector source  to signal event "<<e.id();
-	doit_[4]=true;
-      }  
-    }
-
     doPileUp(e,setup);
 
     // Put output into event (here only playback info)
@@ -220,7 +203,6 @@ namespace edm {
       if (cosmics_) cosmics_->dropUnwantedBranches(wantedBranches);
       if (beamHalo_p_) beamHalo_p_->dropUnwantedBranches(wantedBranches);
       if (beamHalo_m_) beamHalo_m_->dropUnwantedBranches(wantedBranches);
-      if (fwdDet_) fwdDet_->dropUnwantedBranches(wantedBranches);
   }
 
   void BMixingModule::endJob() {
@@ -228,7 +210,6 @@ namespace edm {
       if (cosmics_) cosmics_->endJob();
       if (beamHalo_p_) beamHalo_p_->endJob();
       if (beamHalo_m_) beamHalo_m_->endJob();
-      if (fwdDet_) fwdDet_->endJob();
   }
 
 } //edm

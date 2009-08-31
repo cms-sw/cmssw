@@ -5,7 +5,7 @@
 using namespace edm;
 
 template <> 
-void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *simtracks, unsigned int evtNr, int vertexoffset) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simtracks->size();++i){
@@ -17,7 +17,7 @@ void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *s
 }
 
 template <> 
-void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *simvertices, unsigned int evtNr, int vertexoffset) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<simvertices->size();++i) {
@@ -28,31 +28,19 @@ void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> 
 }
 
 template <> 
-void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *simhits, unsigned int evtNr, int vertexoffset) { 
 
   EncodedEventId id(bcr,evtNr);
 
-  int count=0;
   for (unsigned int i=0;i<simhits->size();++i) {
-    bool accept=true;
-    float newtof;
-    if (checkTof) {
-      newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
-      accept=high ? newtof>= getlimHighLowTof() : newtof < getlimHighLowTof();
-    }
-    if (!checkTof || accept) {
-      (*simhits)[i].setEventId(id);
-      // For simhits a container may be used twice (high+low)
-      // and the acceptance depends on ToF
-      // Therefore we transform only at the end.
-      pileups_.push_back(&((*simhits)[i]));
-      count++;
-    }  
+    (*simhits)[i].setEventId(id);
+    (*simhits)[i].setTof((*simhits)[i].timeOfFlight() + bcr*bunchSpace_);
+    pileups_.push_back(&((*simhits)[i]));
   }
 }
 
 template <> 
-void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset,bool checkTof,bool high) { 
+void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *calohits, unsigned int evtNr, int vertexoffset) { 
 
   EncodedEventId id(bcr,evtNr);
   for (unsigned int i=0;i<calohits->size();++i) {
@@ -62,12 +50,3 @@ void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *c
     pileups_.push_back(&((*calohits)[i]));
   }
 }
-
-template <> 
-void  CrossingFrame<PSimHit>::setTof() {
-  // does something only for simhits: containers may be used twice, and result depends on ToF
-  // that is why we have to do the ToF transformation right at the end
-  for (unsigned int i=0;i<pileups_.size();++i) {
-    const_cast<PSimHit *>(pileups_[i])->setTof(pileups_[i]->timeOfFlight() + getBunchCrossing(i)*bunchSpace_);
-  } 
-} 

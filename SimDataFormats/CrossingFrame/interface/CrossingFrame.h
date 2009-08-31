@@ -58,9 +58,9 @@ class CrossingFrame
   void addSignals(const T * vec,edm::EventID id);
  
   // standard version
-  void addPileups(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
+  void addPileups(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0);
   // version for HepMCProduct
-  void addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
+  void addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset=0);
 
   void setTof( );
 
@@ -109,9 +109,6 @@ class CrossingFrame
   int getBunchCrossing(unsigned int ip) const;
 
   int getSourceType(unsigned int ip) const;
-
-  // limits for tof to be considered for trackers
-  static const int getlimHighLowTof() { return 36;}
 
   // get object in pileup when position in the vector is known (for DigiSimLink typically)
 
@@ -279,29 +276,29 @@ void CrossingFrame<T>::setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFram
 
 //==================== template specializations  ===========================================
 template <class T>
-void CrossingFrame<T>::addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset,bool checkTof,bool high) {
+void CrossingFrame<T>::addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset) {
   // default, valid for HepMCProduct
   pileups_.push_back(product);
 }
 
 template <class T>
-void CrossingFrame<T>::addPileups(const int bcr, std::vector<T> * product, unsigned int evtId,int vertexoffset,bool checkTof,bool high){
+void CrossingFrame<T>::addPileups(const int bcr, std::vector<T> * product, unsigned int evtId,int vertexoffset){
   // default, in fact never called since special implementations exist for all possible types
   // of this signature, i.e. PSimHit, PCaloHit, SimTrack, SimVertex
   // But needs to be present for HepMCProduct
 }
 
 template <>
-void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *, unsigned int evtId,int vertexoffset);
 
 template <>
-void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *, unsigned int evtId,int vertexoffset);
 
 template <>
-void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *, unsigned int evtId,int vertexoffset);
 
 template <>
-void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset);
 
 template <class T> 
 void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
@@ -321,9 +318,5 @@ void CrossingFrame<T>::addSignals(const T * product,edm::EventID id){
 
 template <class T>
 void CrossingFrame<T>::setTof() {;}
-
-template <>
-void CrossingFrame<PSimHit>::setTof();
-
 
 #endif 

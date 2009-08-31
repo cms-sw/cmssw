@@ -76,8 +76,8 @@ namespace edm {
       std::vector<int> fileSeqNrs_;
       std::vector<unsigned int> nrEvents_;
       const static unsigned int maxNbSources_;
-      bool doit_[5];//FIXME
-      std::vector<EventPrincipalVector> pileup_[5];//FIXME
+      bool doit_[4];//FIXME
+      std::vector<EventPrincipalVector> pileup_[4];//FIXME
 
   private:
 
@@ -85,7 +85,6 @@ namespace edm {
       boost::shared_ptr<PileUp> cosmics_;
       boost::shared_ptr<PileUp> beamHalo_p_;
       boost::shared_ptr<PileUp> beamHalo_m_;
-      boost::shared_ptr<PileUp> fwdDet_;
 
       unsigned int eventId_;
   };
