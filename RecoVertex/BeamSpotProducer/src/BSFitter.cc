@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.7 2009/08/28 00:05:03 jengbou Exp $
+ version $Id: BSFitter.cc,v 1.8 2009/08/29 00:17:32 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -80,6 +80,9 @@ BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 	ftmp.ResizeTo(4,1);
 	ftmp.Zero();
 	fnthite=0;
+	fMaxZ = 50.; //cm
+	fconvergence = 0.5; // stop fit when 50% of the input collection has been removed.
+	fminNtrks = 100;
 }
 
 //______________________________________________________________________
@@ -175,7 +178,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			  for(int k = j ; k < 6 ; ++k) {
 			    matrix(j,k) = tmp_d0phi.covariance()(j,k);
 			  }
-                        }
+			}
 
 		
 			// put everything into one object
@@ -326,9 +329,11 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 	//std::cout << "Fit_z_chi2() called" << std::endl;
         // FIXME: include whole tracker z length for the time being
         // ==> add protection and z0 cut
-	TH1F *h1z = new TH1F("h1z","z distribution",100,-300.,300.);
+	TH1F *h1z = new TH1F("h1z","z distribution",200,-fMaxZ, fMaxZ);
 	
 	std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
+
+	// HERE check size of track vector
 	
 	for( iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
 		
@@ -366,21 +371,34 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 reco::BeamSpot BSFitter::Fit_ited0phi() {
 
 	this->d0phi_Init();
-	reco::BeamSpot theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
+	std::cout << " number of tracks used: " << fBSvector.size() << std::endl;
+	
+	reco::BeamSpot theanswer;
+
+	if ( fBSvector.size() <= fminNtrks ) {
+		std::cout << "[BSFitter] need at least " << fminNtrks << " tracks to run beamline fitter." << std::endl;
+		return theanswer;
+	}
+	
+	theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
 	if ( goodfit ) fnthite++;
 	//std::cout << "Initial tempanswer (iteration 0): " << theanswer << std::endl;
-   	std::cout << " number of tracks used: " << fBSvector.size() << std::endl;
+   	
 	reco::BeamSpot preanswer = theanswer;
 	
-	while ( goodfit && ftmprow > 0.5 * fBSvector.size()  ) {
+	while ( goodfit &&
+			ftmprow > fconvergence * fBSvector.size() &&
+			ftmprow > fminNtrks  ) {
 		
 		theanswer = Fit_d0phi();
 		fd0cut /= 1.5;
 		fchi2cut /= 1.5;
-		if ( goodfit && ftmprow > 0.5 * fBSvector.size() ) {
-		   preanswer = theanswer;
-  		   //std::cout << "Iteration " << fnthite << ": " << preanswer << std::endl;
-		   fnthite++;
+		if ( goodfit &&
+			 ftmprow > fconvergence * fBSvector.size() &&
+			ftmprow > fminNtrks ) {
+			preanswer = theanswer;
+			//std::cout << "Iteration " << fnthite << ": " << preanswer << std::endl;
+			fnthite++;
 		}
 	}
 	// FIXME: return fit results from previous iteration for both bad fit and for >50% tracks thrown away
@@ -390,7 +408,7 @@ reco::BeamSpot BSFitter::Fit_ited0phi() {
 	//if ( fnthite > 1 ) std::cout << theanswer << std::endl;
 	
 	std::cout << "Total number of successful iterations = " << ( goodfit ? (fnthite+1) : fnthite ) << std::endl;
-	
+			
 	return theanswer;
 }
 

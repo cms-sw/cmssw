@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.3 2007/03/29 16:32:33 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.4 2009/08/28 00:05:03 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -60,6 +60,9 @@ class BSFitter {
 	
 	// Fit only d0-phi distribution with a chi2
 	reco::BeamSpot Fit_d0phi();
+	void SetMaximumZ(double z) { fMaxZ = z; }
+	void SetConvergence(double val) { fconvergence = val; }
+	void SetMinimumNTrks(int n) { fminNtrks = n; }
 	void Setd0Cut_d0phi(double d0cut);
 	void SetChi2Cut_d0phi(double chi2cut);
 	int GetAcceptedTrks() { return ftmprow; }
@@ -132,7 +135,9 @@ class BSFitter {
 	int ftmprow;
 	int fnthite;
 	bool goodfit;
-
+	double fmaxZ;
+	double fconvergence;
+	int fminNtrks;
 };
 
 #endif

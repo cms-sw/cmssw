@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.3 2009/08/25 18:54:40 jengbou Exp $
+ version $Id: BeamFitter.h,v 1.4 2009/08/26 22:06:01 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -52,6 +52,7 @@ class BeamFitter {
   bool writeTxt_;
   std::string outputTxt_;
   double trk_MinpT_;
+  double trk_MaxZ_;
   double trk_MaxEta_;
   double trk_MaxIP_;
   int trk_MinNTotLayers_;
@@ -62,7 +63,7 @@ class BeamFitter {
   std::vector<reco::TrackBase::TrackQuality> quality_;
   std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
   double inputBeamWidth_;
-
+  double convergence_;
   int ftotal_tracks;
   
 };
