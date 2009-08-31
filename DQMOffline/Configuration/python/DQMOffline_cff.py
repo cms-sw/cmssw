@@ -13,8 +13,9 @@ from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
+from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
 
 from DQM.Physics.DQMPhysics_cff import *
 
-DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonMonitors*jetMETDQMOfflineSource*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaDQMOffline*pvMonitor*bTagPlots*dtSources*cscSources*rpcTier0Source*dqmPhysics)
+DQMOffline = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonMonitors*jetMETDQMOfflineSource*hcalOfflineDQMSource*triggerOfflineDQMSource*siPixelOfflineDQM_source*egammaDQMOffline*pvMonitor*bTagPlots*dtSources*cscSources*rpcTier0Source*es_dqm_source_offline*dqmPhysics)
 

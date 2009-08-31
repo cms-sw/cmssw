@@ -11,8 +11,9 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cosmics_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
+from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cosmic_cff import *
 
 from DQM.Physics.DQMPhysics_cff import *
 
-DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETDQMOfflineSourceCosmic*hcalOfflineDQMSource*triggerCosmicOfflineDQMSource*siPixelOfflineDQM_cosmics_source*egammaCosmicPhotonMonitors*dtSources*cscSources*rpcTier0Source*dqmPhysics)
+DQMOfflineCosmics = cms.Sequence(SiStripDQMTier0*ecal_dqm_source_offline*muonCosmicMonitors*jetMETDQMOfflineSourceCosmic*hcalOfflineDQMSource*triggerCosmicOfflineDQMSource*siPixelOfflineDQM_cosmics_source*egammaCosmicPhotonMonitors*dtSources*cscSources*rpcTier0Source*es_dqm_source_offline*dqmPhysics)
 
