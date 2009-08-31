@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.MessageLogger.destinations = cms.untracked.vstring(
     "cerr",
-    "DigiToRawToClusters",
+    "debug",
     "info",
     "warning",
     "error"

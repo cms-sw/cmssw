@@ -172,8 +172,7 @@ namespace sistrip {
     rawAlgos_(&rpAlgos),
     buffers_(),
     rawToDigi_(0,0,0,0,0,0),
-    dump_(dump),
-    mode_(sistrip::READOUT_MODE_INVALID)
+    dump_(dump)
   {
     buffers_.assign(1024,static_cast<sistrip::FEDBuffer*>(0));
   }
@@ -265,10 +264,7 @@ namespace sistrip {
 	    LogTrace(mlRawToDigi_) 
 	      << ss.str();
 	  }
-
-	  // record readout mode
-	  mode_ = buffer->readoutMode();
-	}
+        }
 
 	// check channel
         const uint8_t fedCh = iconn->fedCh();
@@ -284,8 +280,8 @@ namespace sistrip {
 	// Determine APV std::pair number
 	uint16_t ipair = iconn->apvPairNumber();
 
-
-	if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+        const sistrip::FEDReadoutMode mode = buffer->readoutMode();
+	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
 	
 	  // create unpacker
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
@@ -297,7 +293,7 @@ namespace sistrip {
 	  }
 	}
 
-	else if (mode_ == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
 	
 	  // create unpacker
 	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
@@ -309,7 +305,7 @@ namespace sistrip {
 	  }
 	}
 
-	else if (mode_ == sistrip::READOUT_MODE_VIRGIN_RAW ) {
+	else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
 
 	  // create unpacker
 	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh));
@@ -332,7 +328,7 @@ namespace sistrip {
 	  }
 	}
 
-	else if (mode_ == sistrip::READOUT_MODE_PROC_RAW ) {
+	else if (mode == sistrip::READOUT_MODE_PROC_RAW ) {
 
 	  // create unpacker
 	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(fedCh));
@@ -359,7 +355,7 @@ namespace sistrip {
 	    << "[sistrip::RawToClustersLazyGetter::" 
 	    << __func__ << "]"
 	    << " FEDRawData readout mode "
-	    << mode_
+	    << mode
 	    << " from FED id "
 	    << fedId 
 	    << " not supported."; 

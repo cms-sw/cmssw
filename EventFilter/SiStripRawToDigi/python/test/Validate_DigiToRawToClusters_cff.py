@@ -11,7 +11,7 @@ Tracer = cms.Service(
 
 # Conditions
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = "MC_31X_V2::All" 
+GlobalTag.globaltag = "MC_31X_V6::All" 
 
 # Region cabling
 from Configuration.StandardSequences.Geometry_cff import *
@@ -36,8 +36,8 @@ SiStripDigiToRaw = cms.EDProducer(
     "OldSiStripDigiToRawModule", ### WARNING: this is "old" DigiToRaw!!!
     InputModuleLabel = cms.string('simSiStripDigis'),
     InputDigiLabel = cms.string('ZeroSuppressed'),
-    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
-    UseFedKey = cms.untracked.bool(False)
+    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.bool(False)
     )
 
 # RawToDigi (reference "common")
@@ -65,8 +65,9 @@ newSiStripDigiToRaw = cms.EDProducer(
     "SiStripDigiToRawModule",
     InputModuleLabel = cms.string('simSiStripDigis'),
     InputDigiLabel = cms.string('ZeroSuppressed'),
-    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
-    UseFedKey = cms.untracked.bool(False)
+    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.bool(False),
+    UseWrongDigiType = cms.bool(False)
     )
 
 # RawToClusters (new)
