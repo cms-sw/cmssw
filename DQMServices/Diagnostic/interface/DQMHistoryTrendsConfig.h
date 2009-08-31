@@ -9,6 +9,9 @@ using namespace std;
  * Holds the configuration of all the requested trends. <br>
  * Since it is a very small class used only to store and pass back
  * configuration date, all its data memeber are public.
+ *
+ * inputLabels us a string of legend labels you wish to give the overlay plots.
+ * Comma seperated and must be in same order as the onput quantities
  */
 class DQMHistoryTrendsConfig
 {

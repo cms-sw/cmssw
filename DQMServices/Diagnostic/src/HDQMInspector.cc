@@ -134,7 +134,9 @@ void HDQMInspector::InitializeIOVList()
   const HDQMSummary* reference;
   while(reference = Iterator->next()) {
     iovList.push_back(Iterator->getStartTime());
-    std::cout << "iovList " << iovList.back() << std::endl;
+    if (iDebug) {
+      std::cout << "iovList " << iovList.back() << std::endl;
+    }
   } 
   Iterator->rewind();
 }
@@ -143,8 +145,11 @@ bool HDQMInspector::setRange(unsigned int& firstRun, unsigned int& lastRun)
 {
   unsigned int first,last;
 
-  for(size_t i=0;i<iovList.size();++i)
-    std::cout << iovList.at(i)<< std::endl;
+  for(size_t i=0;i<iovList.size();++i) {
+    if (iDebug) {
+      std::cout << iovList.at(i)<< std::endl;
+    }
+  }
 
   std::vector<unsigned int>::iterator iter;
 
@@ -367,8 +372,9 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
       // dhidas HACK for now
       EY[j] = 0;
 
-      if(iDebug)
+      if(iDebug) {
         std::cout << index-j*vlistItems_.size() <<  " " << j  << " " << X[j]  << " " << Y[j] << " " << EY[j] << std::endl;
+      }
     }
 
     C->cd(++padCount);
@@ -479,7 +485,11 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
 
       // Strip off the det name in the i-th hist title
       TString MyTitle = VectorOfGraphs[i]->GetTitle();
-      MyTitle.Replace(0, VectorOfDetNames[i].size(), "");
+      std::cout << "dhidas " << MyTitle << " : " << VectorOfDetNames[i] << std::endl;
+      MyTitle.ReplaceAll(VectorOfDetNames[i]+"_", "");
+      MyTitle.ReplaceAll("_"+VectorOfDetNames[i], "");
+      MyTitle.ReplaceAll(VectorOfDetNames[i], "");
+      std::cout << "dhidas " << MyTitle << std::endl;
       VectorOfGraphs[i]->SetTitle( MyTitle );
 
       // Add this to the legend, sure, good
@@ -557,7 +567,9 @@ void HDQMInspector::unpackConditions( std::string& Conditions, std::vector<DetId
       std::string itemD(pch);
       detiditemlist.detid=atol(itemD.substr(0,itemD.find("@")).c_str());
       detiditemlist.items.push_back(itemD.substr(itemD.find("@")+1));
-      std::cout << "Found a Condition " << detiditemlist.items.back() << " for detId " << detiditemlist.detid << std::endl;
+      if (iDebug) {
+        std::cout << "Found a Condition " << detiditemlist.items.back() << " for detId " << detiditemlist.detid << std::endl;
+      }
       
       if(vdetIdItemList.size())
         if(vdetIdItemList.back().detid==detiditemlist.detid)
@@ -579,7 +591,9 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
   char condCVal[1024];   
 
   sprintf(cConditions,"%s",Conditions.c_str());
-  std::cout << "Conditions " << cConditions << std::endl;
+  if (iDebug) {
+    std::cout << "Conditions " << cConditions << std::endl;
+  }
   for(size_t ic=0;ic<vdetIdItemList.size();++ic)
     for(size_t jc=0;jc<vdetIdItemList[ic].items.size();++jc){
       //scientific precision doesn't work in HDQMExpressionEvaluator...
@@ -648,13 +662,17 @@ void HDQMInspector::setItems(std::string itemD)
       std::cout << "Found new item " << detiditemlist.items.back() << std::endl;
   }
 
-  if(vDetIdItemList_.size())
-    if(vDetIdItemList_.back().detid==detiditemlist.detid)
+  if(vDetIdItemList_.size()) {
+    if(vDetIdItemList_.back().detid==detiditemlist.detid) {
       vDetIdItemList_.back().items.insert(vDetIdItemList_.back().items.end(),detiditemlist.items.begin(),detiditemlist.items.end());
-    else
+    } else {
       vDetIdItemList_.push_back(detiditemlist);
-  else
+    }
+  } else {
     vDetIdItemList_.push_back(detiditemlist);
+  }
+
+  return;
 }
 
 
