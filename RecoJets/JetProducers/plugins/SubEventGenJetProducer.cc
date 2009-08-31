@@ -123,14 +123,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    }
 
    //Finalize
-   fjInputs_.clear();
-   for(size_t isub = 0; isub < nsub; ++isub){
-      //      if(ignoreHydro_ && hydroTag_[isub]) continue;
-      fjInputs_.insert(fjInputs_.end(),subInputs_[isub].begin(),subInputs_[isub].end());
-   }
-   
-
-   LogDebug("VirtualJetProducer") << "Wrote jets\n";
+   LogDebug("SubEventJetProducer") << "Wrote jets\n";
 
    iEvent.put(jets);  
    return;
