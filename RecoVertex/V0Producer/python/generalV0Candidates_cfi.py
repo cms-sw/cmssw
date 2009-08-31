@@ -7,7 +7,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     # set to true, uses tracks refit by the KVF for V0Candidate kinematics
     #  NOTE: useSmoothing and storeSmoothed...Vertex are set to FALSE
     #  if using the AdaptiveVertexFitter
-    useSmoothing = cms.bool(False),
+    useSmoothing = cms.bool(True),
 
     # set to true, stores tracks refit by KVF in reco::Vertex object
     #  that is contained in the produced reco::V0Candidate 
