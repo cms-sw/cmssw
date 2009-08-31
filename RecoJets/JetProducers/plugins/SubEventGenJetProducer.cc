@@ -61,7 +61,7 @@ void SubEventGenJetProducer::inputTowers( )
       LogDebug("SubEventContainers")<<"SubEvent is : "<<subevent<<endl;
       LogDebug("SubEventContainers")<<"SubSize is : "<<subInputs_.size()<<endl;
 
-      if(subevent >= subInputs_.size()){ 
+      if(subevent >= (int)subInputs_.size()){ 
 	 hydroTag_.resize(subevent+1, -1);
 	 //	 hydroTag_[subevent] = -1;
          subInputs_.resize(subevent+1);
@@ -112,7 +112,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
 
    LogDebug("VirtualJetProducer") << "Inputted towers\n";
 
-   int nsub = subInputs_.size();
+   size_t nsub = subInputs_.size();
 
    for(size_t isub = 0; isub < nsub; ++isub){
       if(ignoreHydro_ && hydroTag_[isub]) continue;
