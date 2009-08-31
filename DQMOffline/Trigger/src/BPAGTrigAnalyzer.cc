@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.6 2009/05/22 09:07:41 slaunwhj Exp $
+// $Id: BPAGTrigAnalyzer.cc,v 1.1 2009/08/25 10:03:20 slaunwhj Exp $
 //
 //
 
@@ -142,8 +142,10 @@ BPAGTrigAnalyzer::BPAGTrigAnalyzer(const ParameterSet& pset)
     string tagTargetTrackCollection = iPSet->getUntrackedParameter<string> ("tagTrackCollection");
     double  tagCustomD0Cut = iPSet->getUntrackedParameter<double> ("tagD0cut");
     double tagCustomZ0Cut = iPSet->getUntrackedParameter<double> ("tagZ0cut");
-    double tagCustomChi2Cut = iPSet->getUntrackedParameter<double> ("tagChi2cut");
-    int tagCustomNHitsCut = iPSet->getUntrackedParameter<int> ("tagNHits");  
+		// not used (VR)
+    //double tagCustomChi2Cut = iPSet->getUntrackedParameter<double> ("tagChi2cut");
+		// not used (VR)
+    //int tagCustomNHitsCut = iPSet->getUntrackedParameter<int> ("tagNHits");  
     string tagObjectTrigger = iPSet->getUntrackedParameter< string > ("tagObjectTrigger");
 
     // re-use this variable
