@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWJetsRPZProxyBuilder.cc,v 1.5 2009/05/03 21:54:54 dmytro Exp $
+// $Id: FWJetsRPZProxyBuilder.cc,v 1.6 2009/08/29 21:01:15 dmytro Exp $
 //
 
 // include files
@@ -41,7 +41,8 @@ public:
    }
 
    static std::pair<int,int>        getiEtaRange( const reco::Jet& jet );
-   static std::pair<double,double>  getPhiRange( const reco::Jet& jet );
+   static std::pair<double,double>  getPhiRangeByConstituents( const reco::Jet& jet );
+   static std::pair<double,double>  getPhiRangeByMoments( const reco::Jet& jet );
    static double getTheta( double eta ) {
       return 2*atan(exp(-eta));
    }
@@ -84,7 +85,8 @@ FWJetsRPZProxyBuilder::buildJetRhoPhi(const FWEventItem* iItem,
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    const double r_ecal = 126;
-   std::pair<double,double> phiRange = getPhiRange( *jet );
+   // std::pair<double,double> phiRange = getPhiRangeByConstituents( *jet );
+   std::pair<double,double> phiRange = getPhiRangeByMoments( *jet );
    
    double min_phi = phiRange.first-M_PI/36/2;
    double max_phi = phiRange.second+M_PI/36/2;
@@ -95,8 +97,32 @@ FWJetsRPZProxyBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    }
 
    double size = jet->et();
-   TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-   TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+
+   // TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
+   // TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+   // element->SetPickable(kTRUE);
+   // container.AddElement(element);
+   
+   // TGeoSphere* shape = new TGeoSphere(double(0),r_ecal, 89.99, 90.01, min_phi * 180 / M_PI, max_phi * 180 / M_PI );
+   // shape->SetNumberOfDivisions(1);
+
+   Double_t points[16];
+   points[0] = jet->vertex().x();
+   points[1] = jet->vertex().y();
+   points[2] = r_ecal*cos(min_phi);
+   points[3] = r_ecal*sin(min_phi);
+   points[4] = r_ecal*cos(max_phi);
+   points[5] = r_ecal*sin(max_phi);
+   points[6] = jet->vertex().x();
+   points[7] = jet->vertex().y();
+   for( int i = 0; i<8; ++i ){
+     points[i+8] = points[i];
+   }
+
+   TEveGeoShape *element = fw::getShape( "cone", 
+					 new TGeoArb8(0,points),
+					 iItem->defaultDisplayProperties().color() );
+   element->SetMainTransparency(90);
    element->SetPickable(kTRUE);
    container.AddElement(element);
 
@@ -108,11 +134,11 @@ FWJetsRPZProxyBuilder::buildJetRhoPhi(const FWEventItem* iItem,
    marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    container.AddElement(marker);
 
-   FW3DEveJet* cone = new FW3DEveJet(*jet,"jetcone","jetcone");
-   cone->SetPickable(kTRUE);
-   cone->SetMainColor( iItem->defaultDisplayProperties().color() );
-   cone->SetMainTransparency(75);
-   container.AddElement(cone);
+   // FW3DEveJet* cone = new FW3DEveJet(*jet,"jetcone","jetcone");
+   // cone->SetPickable(kTRUE);
+   // cone->SetMainColor( iItem->defaultDisplayProperties().color() );
+   // cone->SetMainTransparency(75);
+   // container.AddElement(cone);
 }
 
 
@@ -121,6 +147,7 @@ FWJetsRPZProxyBuilder::buildJetRhoZ(const FWEventItem* iItem,
                                     const reco::Jet* jet,
                                     TEveElement& container)
 {
+   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    // NOTE:
    //      We derive eta bin size from xbins array used for LEGO assuming that all 82
    //      eta bins are accounted there.
@@ -131,11 +158,6 @@ FWJetsRPZProxyBuilder::buildJetRhoZ(const FWEventItem* iItem,
    const double z_ecal = 306; // ECAL endcap inner surface
    const double r_ecal = 126;
    const double transition_angle = atan(r_ecal/z_ecal);
-
-   std::pair<int,int> iEtaRange = getiEtaRange( *jet );
-
-   double max_theta = thetaBins[iEtaRange.first].first;
-   double min_theta = thetaBins[iEtaRange.second].second;;
 
    double theta = jet->theta();
 
@@ -150,6 +172,7 @@ FWJetsRPZProxyBuilder::buildJetRhoZ(const FWEventItem* iItem,
       r = r_ecal/sin(theta);
 
    double size = jet->et();
+   double etaSize = sqrt(jet->etaetaMoment());
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
@@ -158,13 +181,74 @@ FWJetsRPZProxyBuilder::buildJetRhoZ(const FWEventItem* iItem,
    marker->AddLine(0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
                    0., (jet->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
    container.AddElement( marker );
-   fw::addRhoZEnergyProjection( &container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
-                                jet->phi(), iItem->defaultDisplayProperties().color() );
-   FW3DEveJet* cone = new FW3DEveJet(*jet,"jetcone","jetcone");
-   cone->SetPickable(kTRUE);
-   cone->SetMainColor( iItem->defaultDisplayProperties().color() );
-   cone->SetMainTransparency(75);
-   container.AddElement(cone);
+
+   double min_theta = getTheta(jet->eta()+etaSize);
+   double max_theta = getTheta(jet->eta()-etaSize);
+   Double_t points[16];
+   points[0] = jet->vertex().z();
+   points[1] = jet->phi()>0 ? jet->vertex().rho() : -jet->vertex().rho();
+      
+   if ( max_theta > M_PI - transition_angle )
+     {
+       points[6] = -z_ecal;
+       points[7] = jet->phi()>0 ? z_ecal*fabs(tan(max_theta)) : -z_ecal*fabs(tan(max_theta));
+     } else 
+     if ( max_theta < transition_angle ) {
+       points[6] = z_ecal;
+       points[7] = jet->phi()>0 ? z_ecal*fabs(tan(max_theta)) : -z_ecal*fabs(tan(max_theta));
+     } else {
+       points[6] = r_ecal/tan(max_theta);
+       points[7] = jet->phi()>0 ? r_ecal : -r_ecal;
+     }
+      
+   if ( min_theta > M_PI - transition_angle )
+     {
+       points[2] = -z_ecal;
+       points[3] = jet->phi()>0 ? z_ecal*fabs(tan(min_theta)) : -z_ecal*fabs(tan(min_theta));
+     } else 
+     if ( min_theta < transition_angle ) {
+       points[2] = z_ecal;
+       points[3] = jet->phi()>0 ? z_ecal*fabs(tan(min_theta)) : -z_ecal*fabs(tan(min_theta));
+     } else {
+       points[2] = r_ecal/tan(min_theta);
+       points[3] = jet->phi()>0 ? r_ecal : -r_ecal;
+     }
+      
+   if ( min_theta < M_PI - transition_angle && max_theta > M_PI - transition_angle )
+     {
+       points[4] = -z_ecal;
+       points[5] = jet->phi()>0 ? r_ecal : -r_ecal;
+     } else
+     if ( min_theta < transition_angle && max_theta > transition_angle ) {
+       points[4] = z_ecal;
+       points[5] = jet->phi()>0 ? r_ecal : -r_ecal;
+     } else {
+       points[4] = points[2];
+       points[5] = points[3];
+     }
+      
+   for( int i = 0; i<8; ++i ){
+     points[i+8] = points[i];
+   }
+   TEveGeoShape *element = fw::getShape( "cone2", 
+					 new TGeoArb8(0,points),
+					 iItem->defaultDisplayProperties().color() );
+   element->RefMainTrans().RotateLF(1,3,M_PI/2 );
+   element->SetMainTransparency(90);
+   element->SetPickable(kTRUE);
+   container.AddElement(element);
+
+   // std::pair<int,int> iEtaRange = getiEtaRange( *jet );
+   // double max_theta = thetaBins[iEtaRange.first].first;
+   // double min_theta = thetaBins[iEtaRange.second].second;;
+   // fw::addRhoZEnergyProjection( &container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
+   //                               jet->phi(), iItem->defaultDisplayProperties().color() );
+
+   // FW3DEveJet* cone = new FW3DEveJet(*jet,"jetcone","jetcone");
+   // cone->SetPickable(kTRUE);
+   // cone->SetMainColor( iItem->defaultDisplayProperties().color() );
+   // cone->SetMainTransparency(75);
+   // container.AddElement(cone);
 }
 
 std::pair<int,int>
@@ -204,7 +288,7 @@ FWJetsRPZProxyBuilder::getiEtaRange( const reco::Jet& jet )
 }
 
 std::pair<double,double>
-FWJetsRPZProxyBuilder::getPhiRange( const reco::Jet& jet )
+FWJetsRPZProxyBuilder::getPhiRangeByConstituents( const reco::Jet& jet )
 {
    std::vector<CaloTowerPtr> towers;
    try {
@@ -225,6 +309,16 @@ FWJetsRPZProxyBuilder::getPhiRange( const reco::Jet& jet )
          tower != towers.end(); ++tower )
       phis.push_back( (*tower)->phi() );
 
+   return fw::getPhiRange( phis, jet.phi() );
+}
+std::pair<double,double>
+FWJetsRPZProxyBuilder::getPhiRangeByMoments( const reco::Jet& jet )
+{
+   std::vector<double> phis;
+   double phiSize = sqrt(jet.phiphiMoment());
+   phis.push_back(jet.phi()+phiSize);
+   phis.push_back(jet.phi()-phiSize);
+   
    return fw::getPhiRange( phis, jet.phi() );
 }
 

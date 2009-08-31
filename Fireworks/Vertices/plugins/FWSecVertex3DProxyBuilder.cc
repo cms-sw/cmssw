@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FW3DProxyBuilder.template,v 1.1 2008/12/10 13:58:53 dmytro Exp $
+// $Id: FWSecVertex3DProxyBuilder.cc,v 1.1 2009/08/29 21:00:18 dmytro Exp $
 //
 
 // include files
@@ -49,13 +49,13 @@ private:
 void 
 FWSecVertex3DProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex,TEveElement& oItemHolder) const
 {
-   //// Just an example that creates a bunch of points
+  TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
     TEvePointSet* pointSet = new TEvePointSet();
     pointSet->SetMainColor(item()->defaultDisplayProperties().color());
     for(unsigned int i=0;i<iData.nVertices();i++)
     {
       const reco::Vertex & v = iData.secondaryVertex(i);
-
+      // do we need this stuff?
       TGeoSphere * sphere = new TGeoSphere(0, 0.06); //would that leak?
       TGeoTranslation position(v.x(), v.y(), v.z() );
       TEveGeoShape * shape = new TEveGeoShape();
