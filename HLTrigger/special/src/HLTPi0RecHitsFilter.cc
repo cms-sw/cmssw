@@ -1008,7 +1008,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 
 	if( etClus[i]>selePtGammaEta_ && etClus[j]>selePtGammaEta_ && s4s9Clus[i]>seleS4S9GammaEta_ && s4s9Clus[j]>seleS4S9GammaEta_
-	    & s9s25Clus[i]>seleS9S25GammaEta_ && s9s25Clus[j]>seleS9S25GammaEta_
+	    && s9s25Clus[i]>seleS9S25GammaEta_ && s9s25Clus[j]>seleS9S25GammaEta_
 	    ){
 	  float p0x = etClus[i] * cos(phiClus[i]);
 	  float p1x = etClus[j] * cos(phiClus[j]);
