@@ -6,6 +6,7 @@ OHltRateCounter::OHltRateCounter(unsigned int size) {
     iCount.push_back(0);
     sPureCount.push_back(0);
     pureCount.push_back(0);
+    prescaleCount.push_back(0);
 
     itmp.push_back(0);
   }

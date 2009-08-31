@@ -4,6 +4,38 @@
 OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
 {
 
+
+  // init
+    /**** General Menu & Run conditions ****/
+  nEntries = -1;
+  nPrintStatusEvery = 10000;
+  isRealData= false;
+  menuTag = "";
+  alcaCondition = "";
+  versionTag = "";
+  doPrintAll = true;
+  doDeterministicPrescale = false;
+  dsList = "";
+  iLumi = 1.E31;
+  bunchCrossingTime = 25.0E-09;
+  maxFilledBunches = 3564;
+  nFilledBunches = 156;
+  cmsEnergy = 10.;
+  liveTimeRun = 100.;
+  nL1AcceptsRun = 100;
+  lumiSectionLength = 93.;
+  prescaleNormalization = 1;
+  isL1Menu = false;
+  doL1preloop = true;  
+  doSelectBranches = false;
+  selectBranchL1 = true;
+  selectBranchHLT = true;
+  selectBranchOpenHLT = true;
+  selectBranchReco = true;
+  selectBranchL1extra = true;
+  selectBranchMC = true;
+
+  
   try {
     /* Load the configuration.. */
     cout << "Loading "<<cfgfile;
@@ -23,6 +55,7 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
     cfg.lookupValue("run.doPrintAll",doPrintAll);
     cfg.lookupValue("run.dsList",stmp); dsList= TString(stmp);
+    cfg.lookupValue("run.doDeterministicPrescale",doDeterministicPrescale);
     cout << "General Menu & Run conditions...ok"<< endl;
     /**********************************/
   
@@ -189,6 +222,7 @@ void OHltConfig::print()
     }
   cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
+  cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
   cout << "---------------------------------------------" <<  endl;
   cout << "iLumi: " << iLumi << endl;
   cout << "bunchCrossingTime: " << bunchCrossingTime << endl;

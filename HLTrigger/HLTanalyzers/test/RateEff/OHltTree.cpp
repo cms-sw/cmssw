@@ -15,8 +15,8 @@
 using namespace std;
 
 void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procID
-										,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4 
-										,SampleDiagnostics& primaryDatasetsDiagnostics)
+		    ,float &Den,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4 
+		    ,SampleDiagnostics& primaryDatasetsDiagnostics)
 {
   cout<<"Start looping on sample "<<procID<<endl;
   if (fChain == 0) {cerr<<"Error: no tree!"<<endl; return;}
@@ -89,7 +89,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     // Triggernames are assigned to trigger cuts in unambigous way!
     // If you define a new trigger also define a new unambigous name!
     if(menu->DoL1preLoop() && menu->IsHltMenu()) {
-      ApplyL1Prescales(menu);
+      ApplyL1Prescales(menu,cfg,rc);
     }
 
     //SetMapL1BitOfStandardHLTPath(menu);
@@ -149,11 +149,11 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	// Prefixes reserved for Standard HLT&L1	
 	if ( (map_BitOfStandardHLTPath.find(st)->second==1) ) {	
 	  if (map_L1BitOfStandardHLTPath.find(st)->second>0) {
-	    if (GetIntRandom() % menu->GetPrescale(i) == 0) { triggerBit[i] = true; }
+	    if (prescaleResponse(menu,cfg,rc,i)) { triggerBit[i] = true; }
 	  }
 	}
       } else {
-	CheckOpenHlt(cfg,menu,i);
+	CheckOpenHlt(cfg,menu,rc,i);
       }
     }
     primaryDatasetsDiagnostics.fill(triggerBit);  //SAK -- record primary datasets decisions
@@ -196,3 +196,14 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
   //}
 };
 
+
+
+
+bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
+  if (cfg->doDeterministicPrescale) {
+    (rc->prescaleCount[i])++;
+    return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) != 0); //
+  } else {
+    return (GetIntRandom() % menu->GetL1Prescale(i) != 0);
+  }
+};

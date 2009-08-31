@@ -1068,7 +1068,7 @@ public :
   inline void	   SetMapL1BitOfStandardHLTPath(OHltMenu *menu);
   inline void	   SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu);
   inline void      SetMapL1BitOfStandardHLTPathUsingLogicParser(OHltMenu *menu, int nentry);
-  inline void ApplyL1Prescales(OHltMenu *menu);
+  inline void ApplyL1Prescales(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc);
   inline void RemoveEGOverlaps();
   inline void SetL1MuonQuality();
   inline void SetOpenL1Bits();
@@ -1078,7 +1078,7 @@ public :
 						,SampleDiagnostics& primaryDatasetsDiagnostics);
 
   void PlotOHltEffCurves(OHltConfig *cfg,TString hlteffmode,TString ohltobject,TH1F* &h1,TH1F* &h2,TH1F* &h3,TH1F* &h4);
-  void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,int it);
+  void CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rc,int it);
   void PrintOhltVariables(int level, int type);
   int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
   int OHltTree::OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso);
@@ -1135,6 +1135,8 @@ private:
   TRandom3 random; // for random prescale method
   inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
 
+  bool prescaleResponse(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
+  
   int nMissingTriggerWarnings;
 
   enum e_objType {muon,electron,tau,photon,jet};
@@ -1979,14 +1981,14 @@ void OHltTree::SetMapL1SeedsOfStandardHLTPath(OHltMenu *menu) {
   map_L1SeedsOfStandardHLTPath = menu->GetL1SeedsOfHLTPathMap();
 }
 
-void OHltTree::ApplyL1Prescales(OHltMenu *menu)
+void OHltTree::ApplyL1Prescales(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc)
 {
   TString st;
   unsigned int tt = menu->GetL1TriggerSize();
   for (unsigned int i=0;i<tt;i++) {
     st = menu->GetL1TriggerName(i);
     if (map_BitOfStandardHLTPath.find(st)->second == 1) {
-      if (GetIntRandom() % menu->GetL1Prescale(i) != 0) {
+      if (prescaleResponse(menu,cfg,rc,i)) {
 	map_BitOfStandardHLTPath[st] = 0;	
       }
     }

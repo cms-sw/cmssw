@@ -38,6 +38,7 @@ class OHltConfig {
   TString alcaCondition;
   TString versionTag;
   bool doPrintAll;
+  bool doDeterministicPrescale; // default is random prescale
   TString dsList;
   /*************************/
 
