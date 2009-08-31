@@ -34,6 +34,7 @@ Modifications:
 #include <vector>
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 #include "SimDataFormats/HiGenData/interface/SubEventMap.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 namespace cms
 {
@@ -48,6 +49,7 @@ namespace cms
     
   protected:
    std::vector<std::vector<fastjet::PseudoJet> > subInputs_;
+   std::vector<reco::GenJet>* subJets_;
    const edm::SubEventMap* subEvMap_;
    std::vector<int> hydroTag_;
    std::vector<int> nSubParticles_;

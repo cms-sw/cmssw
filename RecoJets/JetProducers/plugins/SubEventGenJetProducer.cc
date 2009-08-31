@@ -4,8 +4,6 @@
 #include "RecoJets/JetProducers/plugins/SubEventGenJetProducer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-
 
 using namespace std;
 using namespace reco;
@@ -32,7 +30,8 @@ namespace {
 	 m1 = m;
 	 if(!m1) LogDebug("SubEventMothers")<<"No Mother, particle is : "<<pdg<<" with status "<<st<<endl;
       }
-      return true;
+      //      return true;
+      return true; // Debugging - to be changed
    }
 }
 
@@ -75,10 +74,11 @@ void SubEventGenJetProducer::inputTowers( )
 
       subInputs_[subevent].push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
 						input->energy()));
-      subInputs_[subevent].back().set_user_index(subInputs_[subevent].size() - 1);
 
+      subInputs_[subevent].back().set_user_index(i - inBegin);
 
    }
+
 }
 
 void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
@@ -107,33 +107,74 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
 
    ////////////////
 
+   std::auto_ptr<std::vector<GenJet> > jets(new std::vector<GenJet>() );
+   subJets_ = jets.get();
+
    LogDebug("VirtualJetProducer") << "Inputted towers\n";
 
    int nsub = subInputs_.size();
 
    for(size_t isub = 0; isub < nsub; ++isub){
-      if(hydroTag_[isub]) continue;
+      if(ignoreHydro_ && hydroTag_[isub]) continue;
+      fjJets_.clear();
       fjInputs_.clear();
       fjInputs_ = subInputs_[isub];
       runAlgorithm( iEvent, iSetup );
    }
 
-   output( iEvent, iSetup );
+   //Finalize
+   fjInputs_.clear();
+   for(size_t isub = 0; isub < nsub; ++isub){
+      //      if(ignoreHydro_ && hydroTag_[isub]) continue;
+      fjInputs_.insert(fjInputs_.end(),subInputs_[isub].begin(),subInputs_[isub].end());
+   }
+   
+
    LogDebug("VirtualJetProducer") << "Wrote jets\n";
-  
+
+   iEvent.put(jets);  
    return;
 }
 
 void SubEventGenJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iSetup)
 {
    // run algorithm
-   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
-   std::vector<fastjet::PseudoJet> newJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
-   
-   fjJets_.insert(fjJets_.end(),newJets_.begin(),newJets_.end());
-   
-}
+   fjJets_.clear();
 
+   fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
+   fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
+   
+   using namespace reco;
+
+   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
+      
+      GenJet jet;
+      const fastjet::PseudoJet& fjJet = fjJets_[ijet];
+
+      std::vector<fastjet::PseudoJet> fjConstituents =
+	 sorted_by_pt(fjClusterSeq_->constituents(fjJet));
+
+      std::vector<CandidatePtr> constituents =
+	 getConstituents(fjConstituents);
+
+    double px=fjJet.px();
+    double py=fjJet.py();
+    double pz=fjJet.pz();
+    double E=fjJet.E();
+    double jetArea=0.0;
+    double pu=0.;
+
+    writeSpecific( jet,
+		   Particle::LorentzVector(px, py, pz, E),
+		   vertex_,
+		   constituents, iSetup);
+    
+    jet.setJetArea (jetArea);
+    jet.setPileup (pu);
+    
+    subJets_->push_back(jet);
+   }   
+}
 
 DEFINE_FWK_MODULE(SubEventGenJetProducer);
 
