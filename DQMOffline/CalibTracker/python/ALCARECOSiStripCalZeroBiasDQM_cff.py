@@ -4,44 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # SiStripMonitorCluster #
 #------------------------
 
-import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
-
-SiStripCalZeroBiasMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-
-SiStripCalZeroBiasMonitorCluster.OutputMEsInRootFile                     = False 
-SiStripCalZeroBiasMonitorCluster.SelectAllDetectors                      = True 
-SiStripCalZeroBiasMonitorCluster.StripQualityLabel                       = 'unbiased'
-
-SiStripCalZeroBiasMonitorCluster.TH1ClusterDigiPos.moduleswitchon        = True
-SiStripCalZeroBiasMonitorCluster.TH1ClusterDigiPos.layerswitchon         = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterPos.moduleswitchon            = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterPos.layerswitchon             = False
-SiStripCalZeroBiasMonitorCluster.TH1nClusters.moduleswitchon             = False
-SiStripCalZeroBiasMonitorCluster.TH1nClusters.layerswitchon              = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterStoN.moduleswitchon           = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterStoN.layerswitchon            = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterStoNVsPos.moduleswitchon      = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterStoNVsPos.layerswitchon       = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise.moduleswitchon          = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise.layerswitchon           = False
-SiStripCalZeroBiasMonitorCluster.TH1NrOfClusterizedStrips.moduleswitchon = False
-SiStripCalZeroBiasMonitorCluster.TH1NrOfClusterizedStrips.layerswitchon  = False
-SiStripCalZeroBiasMonitorCluster.TH1ModuleLocalOccupancy.moduleswitchon  = False
-SiStripCalZeroBiasMonitorCluster.TH1ModuleLocalOccupancy.layerswitchon   = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterCharge.moduleswitchon         = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterCharge.layerswitchon          = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterWidth.moduleswitchon          = False
-SiStripCalZeroBiasMonitorCluster.TH1ClusterWidth.layerswitchon           = False
-SiStripCalZeroBiasMonitorCluster.TProfNumberOfCluster.moduleswitchon     = False
-SiStripCalZeroBiasMonitorCluster.TProfNumberOfCluster.layerswitchon      = False
-SiStripCalZeroBiasMonitorCluster.TProfClusterWidth.moduleswitchon        = False
-SiStripCalZeroBiasMonitorCluster.TProfClusterWidth.layerswitchon         = False
-SiStripCalZeroBiasMonitorCluster.TkHistoMap_On                           = False
-SiStripCalZeroBiasMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
-SiStripCalZeroBiasMonitorCluster.Mod_On                                  = True
-SiStripCalZeroBiasMonitorCluster.TH2ClustersApvCycle.subdetswitchon      = True
-SiStripCalZeroBiasMonitorCluster.TH2ClustersApvCycle.yfactor             = 0.0002
-SiStripCalZeroBiasMonitorCluster.ClusterProducer                         = 'calZeroBiasClusters'
+from DQM.SiStripMonitorCluster.SiStripMonitorClusterAlca_cfi import *
+SiStripCalZeroBiasMonitorCluster.TopFolderName = cms.string('AlCaReco/SiStrip')
 
 #---------------------------------------------
 # Filters to remove APV induced noisy events #
