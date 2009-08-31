@@ -65,7 +65,8 @@ process.maxEvents = cms.untracked.PSet(
 # Digi + Reconstruction
 
 process.load("Configuration.StandardSequences.RawToDigi_cff")
-process.load("RecoHI.Configuration.Reconstruction_HI_cff")
+#process.load("RecoHI.Configuration.Reconstruction_HI_cff")
+process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
 
 ##############################################################################
 # Output EDM File
