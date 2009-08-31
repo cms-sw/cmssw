@@ -51,8 +51,12 @@ if trackerconnect != "":
     process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
                                                    CondDBSetup,
                                                    connect = cms.string(trackerconnect),
-                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment)),
-                                                                     cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE))))
+                                                   toGet = cms.VPSet())
+    if trackeralignment != "":
+        process.TrackerAlignmentInputDB.toGet.append(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment)))
+    if trackerAPE != "":
+        process.TrackerAlignmentInputDB.toGet.append(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE))))
+
     process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
 
 process.looper.saveToDB = True
