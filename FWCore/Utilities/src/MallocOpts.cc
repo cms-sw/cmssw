@@ -6,7 +6,6 @@
 // Class  :     MallocOpts
 // 
 // Original Author:  Jim Kowalkowski
-// $Id: MallocOpts.cc,v 1.8 2008/11/11 16:01:06 dsr Exp $
 //
 // ------------------ resetting malloc options -----------------------
 
