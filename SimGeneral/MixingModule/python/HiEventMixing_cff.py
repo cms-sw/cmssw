@@ -13,8 +13,7 @@ eventEmbeddingMixParameters = cms.PSet(
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),
     Label = cms.string(''),
-    bunchspace = cms.int32(125),
-    checktof = cms.bool(False)
+    bunchspace = cms.int32(125)
 )
 simEventEmbeddingMixParameters = cms.PSet(
     eventEmbeddingMixParameters,

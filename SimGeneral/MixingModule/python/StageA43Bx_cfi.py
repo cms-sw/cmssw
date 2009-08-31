@@ -13,7 +13,6 @@ mix = cms.EDProducer("MixingModule",
 
     bunchspace = cms.int32(1632), ## ns
 
-    checktof = cms.bool(False),
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
     
