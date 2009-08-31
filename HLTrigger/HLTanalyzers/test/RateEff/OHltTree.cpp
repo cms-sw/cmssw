@@ -202,6 +202,15 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
 bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCount[i])++;
+    return ((rc->prescaleCount[i]) % menu->GetPrescale(i) != 0); //
+  } else {
+    return (GetIntRandom() % menu->GetPrescale(i) != 0);
+  }
+};
+
+bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
+  if (cfg->doDeterministicPrescale) {
+    (rc->prescaleCount[i])++;
     return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) != 0); //
   } else {
     return (GetIntRandom() % menu->GetL1Prescale(i) != 0);

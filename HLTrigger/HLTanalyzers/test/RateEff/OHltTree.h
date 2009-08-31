@@ -1136,6 +1136,7 @@ private:
   inline int GetIntRandom() { return (int)(9999999.*random.Rndm()); }
 
   bool prescaleResponse(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
+  bool prescaleResponseL1(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter *rc,int i);
   
   int nMissingTriggerWarnings;
 
@@ -1988,7 +1989,7 @@ void OHltTree::ApplyL1Prescales(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter
   for (unsigned int i=0;i<tt;i++) {
     st = menu->GetL1TriggerName(i);
     if (map_BitOfStandardHLTPath.find(st)->second == 1) {
-      if (prescaleResponse(menu,cfg,rc,i)) {
+      if (prescaleResponseL1(menu,cfg,rc,i)) {
 	map_BitOfStandardHLTPath[st] = 0;	
       }
     }
