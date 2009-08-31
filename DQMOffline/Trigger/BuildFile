@@ -19,7 +19,6 @@
 <use name=CondFormats/DataRecord>
 <use name=DQM/HLTEvF>
 <use name=root>
-<use name=rootroofit>
 <use name=boost>
 <flags EDM_PLUGIN=1>
 <export>
@@ -44,6 +43,5 @@
   <use name=HLTrigger/HLTcore>
   <use name=CondFormats/DataRecord>
   <use name=root>
-  <use name=rootroofit>
   <use name=boost>
 </export>
