@@ -7,7 +7,7 @@ CaloJetParameters = cms.PSet(
     # minimum jet pt
     jetPtMin       = cms.double(1.0),
     # minimum calo tower input et
-    inputEtMin     = cms.double(0.5),
+    inputEtMin     = cms.double(0.3),
     # minimum calo tower input energy
     inputEMin      = cms.double(0.0),
     # primary vertex correction
