@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/07/28 13:48:13 $ 
+ **  $Date: 2009/07/28 13:56:47 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -121,7 +121,8 @@ void PhotonOfflineClient::runClient()
       currentFolder_.str("");	
       currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV/Conversions";
       dbe_->setCurrentFolder(currentFolder_.str());
-      
+
+      p_convFractionVsPhi_isol_.push_back(dbe_->book1D("convFractionVsPhi","Fraction of Converted Photons  vs. Phi;#phi",phiBin,phiMin, phiMax));      
       p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
       p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
 
@@ -131,6 +132,8 @@ void PhotonOfflineClient::runClient()
     p_convFractionVsEt_isol_.clear();
     p_convFractionVsEta_.push_back(p_convFractionVsEta_isol_);
     p_convFractionVsEta_isol_.clear(); 
+    p_convFractionVsPhi_.push_back(p_convFractionVsPhi_isol_);
+    p_convFractionVsPhi_isol_.clear(); 
     
  
   }
@@ -216,6 +219,7 @@ void PhotonOfflineClient::runClient()
       //making conversion fraction plots
 
       dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEta"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(currentFolder_.str() + "phoEta"));
+      dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsPhi"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvPhi"),dbe_->get(currentFolder_.str() + "phoPhi"));
       dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEt"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(currentFolder_.str() + "phoEtAllEcal"));
 
       dividePlots(dbe_->get(currentFolder_.str()+"badChannelsFractionVsEt"),dbe_->get(currentFolder_.str() +  "phoEtBadChannels"),dbe_->get(currentFolder_.str() +  "phoEtAllEcal"));

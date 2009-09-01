@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/07/09 12:16:04 $ 
+ **  $Date: 2009/07/28 13:47:45 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -89,6 +89,8 @@ class PhotonOfflineClient : public edm::EDAnalyzer
 
   std::vector<MonitorElement*> p_convFractionVsEta_isol_;
   std::vector<std::vector<MonitorElement*> > p_convFractionVsEta_;
+  std::vector<MonitorElement*> p_convFractionVsPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > p_convFractionVsPhi_;
   std::vector<MonitorElement*> p_convFractionVsEt_isol_;
   std::vector<std::vector<MonitorElement*> > p_convFractionVsEt_;
 
