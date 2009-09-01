@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/08/30 14:09:13 $
- * $Revision: 1.218 $
+ * $Date: 2009/08/31 08:10:52 $
+ * $Revision: 1.219 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1153,18 +1153,50 @@ void EcalEndcapMonitorClient::writeDb() {
 
   startSubRun.setToCurrentGMTime();
 
-  // setup the MonIOV
+  // fetch the MonIOV from the DB
 
-  moniov_.setRunIOV(runiov_);
-  moniov_.setSubRunNumber(subrun_);
+  bool foundMonIOV = false;
 
-  if ( enableMonitorDaemon_ || subrun_ > 1 ) {
-    moniov_.setSubRunStart(startSubRun);
-  } else {
-    moniov_.setSubRunStart(runiov_.getRunStart());
+  if ( econn ) {
+    try {
+      if ( verbose_ ) cout << "Fetching MonIOV ..." << endl;
+      RunTag runtag = runiov_.getRunTag();
+      moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+      if ( verbose_ ) cout << "done." << endl;
+      foundMonIOV = true;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+      try {
+        if ( verbose_ ) cout << "Fetching MonIOV (again) ..." << endl;
+        RunTag runtag = runiov_.getRunTag();
+        moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+        if ( verbose_ ) cout << "done." << endl;
+        foundMonIOV = true;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+        foundMonIOV = false;
+      }
+    }
   }
 
-  moniov_.setMonRunTag(montag);
+  // begin - setup the MonIOV
+
+  if ( !foundMonIOV ) {
+
+    moniov_.setRunIOV(runiov_);
+    moniov_.setSubRunNumber(subrun_);
+
+    if ( enableMonitorDaemon_ || subrun_ > 1 ) {
+      moniov_.setSubRunStart(startSubRun);
+    } else {
+      moniov_.setSubRunStart(runiov_.getRunStart());
+    }
+
+    moniov_.setMonRunTag(montag);
+
+  }
+
+  // end - setup the MonIOV
 
   if ( verbose_ ) {
     cout << endl;
