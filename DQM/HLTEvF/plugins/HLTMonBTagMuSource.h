@@ -1,12 +1,12 @@
-#ifndef DQM_HLTEvF_HLTBJetMuDQMSource_H
-#define DQM_HLTEvF_HLTBJetMuDQMSource_H
+#ifndef DQM_HLTEvF_HLTMonBTagMuSource_H
+#define DQM_HLTEvF_HLTMonBTagMuSource_H
 
-/** \class HLTBJetMuDQMSource
+/** \class HLTMonBTagMuSource
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/26 16:15:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/01 15:25:25 $
+ *  $Revision: 1.1 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -26,10 +26,10 @@ class edm::Run;
 // class declaration
 //
 
-class HLTBJetMuDQMSource : public edm::EDAnalyzer {
+class HLTMonBTagMuSource : public edm::EDAnalyzer {
 public:
-  HLTBJetMuDQMSource(const edm::ParameterSet & config);
-  ~HLTBJetMuDQMSource();
+  HLTMonBTagMuSource(const edm::ParameterSet & config);
+  ~HLTMonBTagMuSource();
 
 protected:
   void beginJob(const edm::EventSetup & setup) {
@@ -108,4 +108,4 @@ private:
   MonitorElement * m_plotL3Discriminator;
 };
 
-#endif // DQM_HLTEvF_HLTBJetMuDQMSource_H
+#endif // DQM_HLTEvF_HLTMonBTagMuSource_H

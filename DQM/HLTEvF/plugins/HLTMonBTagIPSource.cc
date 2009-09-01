@@ -1,9 +1,9 @@
-/** \class HLTBJetIPDQMSource
+/** \class HLTMonBTagIPSource
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/26 16:15:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/09/01 15:25:25 $
+ *  $Revision: 1.1 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -25,7 +25,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "HLTMonBTagIPSource.h"
 
-HLTBJetIPDQMSource::HLTBJetIPDQMSource(const edm::ParameterSet & config) :
+HLTMonBTagIPSource::HLTMonBTagIPSource(const edm::ParameterSet & config) :
   m_lifetimeL2Jets(         config.getParameter<edm::InputTag>("lifetimeL2Jets") ),
   m_lifetimeL25TagInfo(     config.getParameter<edm::InputTag>("lifetimeL25TagInfo") ),
   m_lifetimeL25JetTags(     config.getParameter<edm::InputTag>("lifetimeL25JetTags") ),
@@ -87,10 +87,10 @@ HLTBJetIPDQMSource::HLTBJetIPDQMSource(const edm::ParameterSet & config) :
 {
 }
 
-HLTBJetIPDQMSource::~HLTBJetIPDQMSource(void) {
+HLTMonBTagIPSource::~HLTMonBTagIPSource(void) {
 }
 
-void HLTBJetIPDQMSource::beginJob() {
+void HLTMonBTagIPSource::beginJob() {
   if (not m_dbe.isAvailable())
     return;
 
@@ -144,24 +144,24 @@ void HLTBJetIPDQMSource::beginJob() {
   m_plotL3Discriminator             = book("L3_discriminator",       "L3 b-tag discriminator",            80, -30.,   50.);
 }
 
-void HLTBJetIPDQMSource::endJob() { 
+void HLTMonBTagIPSource::endJob() { 
   if (m_dbe.isAvailable() and m_storeROOT)
     m_dbe->save(m_outputFile);
 }
 
-void HLTBJetIPDQMSource::beginRun(const edm::Run & run, const edm::EventSetup & setup) {
+void HLTMonBTagIPSource::beginRun(const edm::Run & run, const edm::EventSetup & setup) {
 }
 
-void HLTBJetIPDQMSource::endRun(const edm::Run & run, const edm::EventSetup & setup) {
+void HLTMonBTagIPSource::endRun(const edm::Run & run, const edm::EventSetup & setup) {
 }
 
-void HLTBJetIPDQMSource::beginLuminosityBlock(const edm::LuminosityBlock & lumi, const edm::EventSetup & setup) {
+void HLTMonBTagIPSource::beginLuminosityBlock(const edm::LuminosityBlock & lumi, const edm::EventSetup & setup) {
 }
 
-void HLTBJetIPDQMSource::endLuminosityBlock(const edm::LuminosityBlock & lumi, const edm::EventSetup & setup) {
+void HLTMonBTagIPSource::endLuminosityBlock(const edm::LuminosityBlock & lumi, const edm::EventSetup & setup) {
 }
 
-void HLTBJetIPDQMSource::analyze(const edm::Event & event, const edm::EventSetup & setup) {
+void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup & setup) {
   if (not m_dbe.isAvailable())
     return;
   
@@ -275,14 +275,14 @@ void HLTBJetIPDQMSource::analyze(const edm::Event & event, const edm::EventSetup
   }
 }
 
-MonitorElement * HLTBJetIPDQMSource::book(const std::string & name, const std::string & title , int x_bins, double x_min, double x_max, const char * x_axis) {
+MonitorElement * HLTMonBTagIPSource::book(const std::string & name, const std::string & title , int x_bins, double x_min, double x_max, const char * x_axis) {
   MonitorElement * element = m_dbe->book1D(name, title, x_bins, x_min, x_max);
   if (x_axis)
     element->setAxisTitle(x_axis, 1);
   return element;
 }
 
-MonitorElement * HLTBJetIPDQMSource::book(const std::string & name, const std::string & title , int x_bins, double x_min, double x_max, int y_bins, double y_min, double y_max, const char * x_axis, const char * y_axis) {
+MonitorElement * HLTMonBTagIPSource::book(const std::string & name, const std::string & title , int x_bins, double x_min, double x_max, int y_bins, double y_min, double y_max, const char * x_axis, const char * y_axis) {
   MonitorElement * element = m_dbe->book2D(name, title, x_bins, x_min, x_max, y_bins, y_min, y_max);
   if (x_axis)
     element->setAxisTitle(x_axis, 1);
@@ -293,4 +293,4 @@ MonitorElement * HLTBJetIPDQMSource::book(const std::string & name, const std::s
 
 // register as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(HLTBJetIPDQMSource); 
+DEFINE_FWK_MODULE(HLTMonBTagIPSource); 

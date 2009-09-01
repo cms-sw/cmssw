@@ -1,12 +1,12 @@
-#ifndef DQM_HLTEvF_HLTBJetIPDQMClient_H
-#define DQM_HLTEvF_HLTBJetIPDQMClient_H
+#ifndef DQM_HLTEvF_HLTMonBTagIPClient_H
+#define DQM_HLTEvF_HLTMonBTagIPClient_H
 
-/** \class HLTBJetIPDQMClient
+/** \class HLTMonBTagIPClient
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/26 16:15:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/01 15:25:52 $
+ *  $Revision: 1.1 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -26,10 +26,10 @@ class edm::Run;
 // class declaration
 //
 
-class HLTBJetIPDQMClient : public edm::EDAnalyzer {
+class HLTMonBTagIPClient : public edm::EDAnalyzer {
 public:
-  HLTBJetIPDQMClient(const edm::ParameterSet & config);
-  ~HLTBJetIPDQMClient();
+  HLTMonBTagIPClient(const edm::ParameterSet & config);
+  ~HLTMonBTagIPClient();
 
 protected:
   void beginJob(const edm::EventSetup & setup) {
@@ -118,4 +118,4 @@ private:
   // MonitorElement's (plots) filled by the client
 };
 
-#endif // DQM_HLTEvF_HLTBJetIPDQMClient_H
+#endif // DQM_HLTEvF_HLTMonBTagIPClient_H

@@ -1,12 +1,12 @@
 #ifndef DQM_HLTEvF_HLTBJetIPDQMSource_H
 #define DQM_HLTEvF_HLTBJetIPDQMSource_H
 
-/** \class HLTBJetIPDQMSource
+/** \class HLTMonBTagIPSource
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/26 16:15:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/01 15:25:25 $
+ *  $Revision: 1.1 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -26,10 +26,10 @@ class edm::Run;
 // class declaration
 //
 
-class HLTBJetIPDQMSource : public edm::EDAnalyzer {
+class HLTMonBTagIPSource : public edm::EDAnalyzer {
 public:
-  HLTBJetIPDQMSource(const edm::ParameterSet & config);
-  ~HLTBJetIPDQMSource();
+  HLTMonBTagIPSource(const edm::ParameterSet & config);
+  ~HLTMonBTagIPSource();
 
 protected:
   void beginJob(const edm::EventSetup & setup) {
