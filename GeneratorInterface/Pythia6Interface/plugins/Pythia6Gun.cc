@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/03/27 18:09:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/08/26 19:33:24 $
+ *  $Revision: 1.10 $
  *  \author Julia Yarba
  */
 
@@ -127,10 +127,27 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	 HepMC::FourVector  pmom(pyjets.p[0][iprt],pyjets.p[1][iprt],
 	                         pyjets.p[2][iprt],pyjets.p[3][iprt] );
 	 
+	 int dstatus = 0;
+	 if ( pyjets.k[0][iprt] >= 1 && pyjets.k[0][iprt] <= 10 )  
+	 {
+	    dstatus = 1;
+	 }
+	 else if ( pyjets.k[0][iprt] >= 11 && pyjets.k[0][iprt] <= 20 ) 
+	 {
+	    dstatus = 2;
+	 }
+	 else if ( pyjets.k[0][iprt] >= 21 && pyjets.k[0][iprt] <= 30 ) 
+	 {
+	    dstatus = 3;
+	 }
+	 else if ( pyjets.k[0][iprt] >= 31 && pyjets.k[0][iprt] <= 100 )
+	 {
+	    dstatus = pyjets.k[0][iprt];
+	 }
 	 HepMC::GenParticle* daughter = 
 	    new HepMC::GenParticle(pmom,
 	                           HepPID::translatePythiatoPDT( pyjets.k[1][iprt] ),
-				   1);
+				   dstatus);
 	 daughter->suggest_barcode( iprt+1 );
 	 DecVtx->add_particle_out( daughter );
 	 // give particle barcode as well !
@@ -144,10 +161,27 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 	    //
 	    // same here with PID - need py6->pdg !!!
 	    //
+	    dstatus = 0;
+	    if ( pyjets.k[0][iprt1] >= 1 && pyjets.k[0][iprt1] <= 10 )  
+	    {
+	       dstatus = 1;
+	    }
+	    else if ( pyjets.k[0][iprt1] >= 11 && pyjets.k[0][iprt1] <= 20 ) 
+	    {
+	       dstatus = 2;
+	    }
+	    else if ( pyjets.k[0][iprt1] >= 21 && pyjets.k[0][iprt1] <= 30 ) 
+	    {
+	       dstatus = 3;
+	    }
+	    else if ( pyjets.k[0][iprt1] >= 31 && pyjets.k[0][iprt1] <= 100 )
+	    {
+	       dstatus = pyjets.k[0][iprt1];
+	    }
 	    HepMC::GenParticle* daughterN = 
 	       new HepMC::GenParticle(pmomN,
 	                              HepPID::translatePythiatoPDT( pyjets.k[1][iprt1] ),
-				      1);
+				      dstatus);
 	    daughterN->suggest_barcode( iprt1+1 );
 	    DecVtx->add_particle_out( daughterN );	     
 	 }
