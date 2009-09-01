@@ -1,12 +1,13 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.4 2008/02/25 10:57:44 elmer Exp $
+# $Id: checkdeps,v 1.5 2008/03/12 17:59:09 dlange Exp $
 #
 # Created by: David Lange
 #             LLNL
 #             12 September 207
 #
 use strict;
+use warnings;
 use Getopt::Long;
 use Cwd;
 
@@ -98,6 +99,7 @@ if ( $isaddpkg =~ /Command not found/) {
 my @changedFiles;
 
 foreach my $package (@packages) {
+    next if ($package =~/^UserCode.*/);
     chdir("$maindir");
     chdir("$package");
     my $reltag=`addpkg -q $package`;
