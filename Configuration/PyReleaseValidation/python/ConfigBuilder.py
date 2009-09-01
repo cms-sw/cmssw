@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.137 $"
+__version__ = "$Revision: 1.138 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -394,6 +394,11 @@ class ConfigBuilder(object):
    	    self.RECODefaultSeq='reconstructionCosmics'
 	    self.DQMDefaultSeq='DQMOfflineCosmics'
 	    self.eventcontent='FEVT'
+
+        if self._options.scenario=='HeavyIons':
+            self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
+   	    self.RECODefaultSeq='reconstructionHeavyIons'
+
 	    
         # the magnetic field
 	if self._options.magField=='Default':
@@ -766,7 +771,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.137 $"),
+              (version=cms.untracked.string("$Revision: 1.138 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
