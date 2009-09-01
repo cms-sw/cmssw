@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.8 2009/03/26 19:39:02 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.9 2009/08/31 23:01:12 yumiceva Exp $
  *
  */
 
@@ -55,6 +55,7 @@ namespace reco {
       error_ = error;
 	  type_ = type;
 	  emittanceX_ = emittanceY_ = 0;
+	  betaStar_ = 0;
     };
 
 	
