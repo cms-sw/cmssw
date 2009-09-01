@@ -22,8 +22,6 @@
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
@@ -59,7 +57,7 @@ namespace edm {
       pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
     newRun_(true),
     newLumi_(true),
-    ep_(),
+    eventCached_(false),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
@@ -128,30 +126,30 @@ namespace edm {
     }
   }
 
-  boost::shared_ptr<RunPrincipal>
-  StreamerInputSource::readRun_() {
+  boost::shared_ptr<RunAuxiliary>
+  StreamerInputSource::readRunAuxiliary_() {
     assert(newRun_);
-    assert(runPrincipal());
+    assert(runAuxiliary());
     newRun_ = false;
-    return runPrincipal();
+    return runAuxiliary();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  StreamerInputSource::readLuminosityBlock_() {
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  StreamerInputSource::readLuminosityBlockAuxiliary_() {
     assert(!newRun_);
     assert(newLumi_);
-    assert(luminosityBlockPrincipal());
+    assert(luminosityBlockAuxiliary());
     newLumi_ = false;
-    return luminosityBlockPrincipal();
+    return luminosityBlockAuxiliary();
   }
 
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal*
   StreamerInputSource::readEvent_() {
     assert(!newRun_);
     assert(!newLumi_);
-    assert(ep_.get() != 0);
-    // This copy resets ep_.
-    return ep_;
+    assert(eventCached_);
+    eventCached_ = false;
+    return eventPrincipalCache();
   }
 
   InputSource::ItemType 
@@ -159,21 +157,21 @@ namespace edm {
     if (runEndingFlag_) {
       return IsStop;
     }
-    if(newRun_ && runPrincipal()) {
+    if(newRun_ && runAuxiliary()) {
       return IsRun;
     }
-    if(newLumi_ && luminosityBlockPrincipal()) {
+    if(newLumi_ && luminosityBlockAuxiliary()) {
       return IsLumi;
     }
-    if (ep_.get() != 0) {
+    if (eventCached_) {
       return IsEvent;
     }
     if (inputFileTransitionsEachEvent_) {
-      resetRunPrincipal();
-      resetLuminosityBlockPrincipal();
+      resetRunAuxiliary();
+      resetLuminosityBlockAuxiliary();
     }
-    ep_ = read();
-    if (ep_.get() == 0) {
+    read();
+    if (!eventCached_) {
       return IsStop;
     } else {
       runEndingFlag_ = false;
@@ -253,7 +251,7 @@ namespace edm {
   /**
    * Deserializes the specified event message into an EventPrincipal object.
    */
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal*
   StreamerInputSource::deserializeEvent(EventMsgView const& eventView)
   {
     if(eventView.code() != Header::EVENT)
@@ -308,31 +306,25 @@ namespace edm {
     ProcessHistoryRegistry::instance()->insertMapped(sd->processHistory());
 
     FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;
-    if(!runPrincipal() || runPrincipal()->run() != sd->aux().run()) {
-	newRun_ = newLumi_ = true;
-	RunAuxiliary runAux(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp());
-	setRunPrincipal(boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(runAux,
-			   productRegistry(),
-			   processConfiguration())));
-        resetLuminosityBlockPrincipal();
+    if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sd->aux().run()) {
+      newRun_ = newLumi_ = true;
+      setRunAuxiliary(new RunAuxiliary(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp()));
+      readAndCacheRun();
+      setRunPrematurelyRead();
     }
-    if(!luminosityBlockPrincipal() || luminosityBlockPrincipal()->luminosityBlock() != eventView.lumi()) {
+    if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
       
-      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp());
-      setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(lumiAux,
-				     productRegistry(),
-				     processConfiguration())));
+      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp()));
       newLumi_ = true;
+      readAndCacheLumi();
+      setLumiPrematurelyRead();
     }
 
     boost::shared_ptr<History> history (new History(sd->history()));
-    std::auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->aux(),
-                                                   productRegistry(),
-                                                   processConfiguration(),
-                                                   history));
-    productGetter_.setEventPrincipal(ep.get());
+    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(sd->aux()));
+    eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal(), history);
+    productGetter_.setEventPrincipal(eventPrincipalCache());
+    eventCached_ = true;
 
     // no process name list handling
 
@@ -349,28 +341,27 @@ namespace edm {
 
 	ConstBranchDescription branchDesc(*spi->desc());
 	// This ProductProvenance constructor inserts into the entry description registry
-        boost::shared_ptr<ProductProvenance> productProvenance(
+        std::auto_ptr<ProductProvenance> productProvenance(
 	     new ProductProvenance(spi->branchID(),
 				spi->status(),
 				*spi->parents()));
 
-	ep->branchMapperPtr()->insert(*productProvenance);
         if(spi->prod() != 0) {
           boost::shared_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
-          ep->addGroup(aprod, branchDesc, productProvenance);
+          eventPrincipalCache()->putOnRead(branchDesc, aprod, productProvenance);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
-          ep->addGroup(branchDesc, productProvenance);
+          eventPrincipalCache()->putOnRead(branchDesc, boost::shared_ptr<EDProduct>(), productProvenance);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();
     }
 
-    FDEBUG(10) << "Size = " << ep->size() << std::endl;
+    FDEBUG(10) << "Size = " << eventPrincipalCache()->size() << std::endl;
 
-    return ep;     
+    return eventPrincipalCache();     
   }
 
   /**
@@ -423,7 +414,10 @@ namespace edm {
   {
      // called from an online streamer source to reset after a stop command
      // so an enable command will work
-     assert(ep_.get() == 0);
+     resetLuminosityBlockAuxiliary();
+     resetRunAuxiliary();
+     newRun_ = newLumi_ = true;
+     assert(!eventCached_);
      reset();
      runEndingFlag_ = false;
   }

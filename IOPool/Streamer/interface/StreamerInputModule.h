@@ -40,7 +40,7 @@ namespace edm
     explicit StreamerInputModule(ParameterSet const& pset,
                  InputSourceDescription const& desc);
     virtual ~StreamerInputModule();
-    virtual std::auto_ptr<EventPrincipal> read();
+    virtual EventPrincipal* read();
 
   private:
     //ProductRegistry const* prod_reg_;
@@ -63,7 +63,7 @@ namespace edm
   }
 
   template <typename Producer>
-  std::auto_ptr<EventPrincipal> StreamerInputModule<Producer>::read() {
+  EventPrincipal* StreamerInputModule<Producer>::read() {
 
     EventMsgView const* eview = pr_->getNextEvent();
 
@@ -75,10 +75,9 @@ namespace edm
         deserializeAndMergeWithRegistry(*header, true);
     } 
     if (eview == 0) {
-        return  std::auto_ptr<EventPrincipal>();
+        return  0;
     }
-    std::auto_ptr<EventPrincipal> pEvent(deserializeEvent(*eview));
-    return pEvent;
+    return(deserializeEvent(*eview));
   }
 
 } // end of namespace-edm

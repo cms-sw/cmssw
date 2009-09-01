@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2008/07/31 23:11:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/10/17 10:42:35 $
+ *  $Revision: 1.10 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -28,6 +28,7 @@ namespace edm {
   class Timestamp;
   class InputSourceDescription;
   class EventPrincipal;
+  class LuminosityBlockAuxiliary;
 
 
   class DaqSource : public InputSource, private evf::ModuleWeb {
@@ -40,10 +41,10 @@ namespace edm {
     
    private:
   
-    virtual std::auto_ptr<EventPrincipal> readEvent_();
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
+    virtual EventPrincipal* readEvent_();
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
+    virtual EventPrincipal* readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void setRun(RunNumber_t r);
@@ -65,7 +66,7 @@ namespace edm {
     bool noMoreEvents_;
     bool newRun_;
     bool newLumi_;
-    std::auto_ptr<EventPrincipal> ep_;
+    bool eventCached_;
     
     pthread_mutex_t mutex_;
     pthread_cond_t cond_;

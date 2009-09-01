@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2009/07/07 16:33:33 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/07/08 13:54:55 $
+ *  $Revision: 1.33 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -15,6 +15,7 @@
 #include "IORawData/DaqSource/interface/DaqReaderPluginFactory.h"
 
 #include "DataFormats/Provenance/interface/Timestamp.h" 
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -22,8 +23,6 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 
 #include <string>
 #include <iostream>
@@ -62,7 +61,7 @@ namespace edm {
     , noMoreEvents_(false)
     , newRun_(true)
     , newLumi_(true)
-    , ep_()
+    , eventCached_(false)
     , lumiSectionIndex_(1)
     , prescaleSetIndex_(0)
     , lsTimedOut_(false)
@@ -130,10 +129,10 @@ namespace edm {
     if (newRun_) {
       return IsRun;
     }
-    if (newLumi_ && luminosityBlockPrincipal()) {
+    if (newLumi_ && luminosityBlockAuxiliary()) {
       return IsLumi;
     }
-    if (ep_.get() != 0) {
+    if (eventCached_) {
       return IsEvent;
     }
     if(reader_ == 0) {
@@ -189,7 +188,7 @@ namespace edm {
 	pthread_mutex_unlock(&mutex_);
         newLumi_ = true;
 	lumiSectionIndex_.value_ = luminosityBlockNumber_;
-	resetLuminosityBlockPrincipal();
+	resetLuminosityBlockAuxiliary();
     }
     else if(!fakeLSid_){ 
 
@@ -208,7 +207,7 @@ namespace edm {
 	  pthread_mutex_unlock(&mutex_);
 	  newLumi_ = true;
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
-	  resetLuminosityBlockPrincipal();
+	  resetLuminosityBlockAuxiliary();
 	}
       }
       else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
@@ -225,7 +224,6 @@ namespace edm {
 	  pthread_mutex_unlock(&mutex_);
 	  newLumi_ = true;
 	  lumiSectionIndex_.value_ = luminosityBlockNumber_;
-	  resetLuminosityBlockPrincipal();
 	}
       }
     }
@@ -243,27 +241,32 @@ namespace edm {
     eventId = EventID(runNumber_, eventId.event());
     
     // If there is no luminosity block principal, make one.
-    if (luminosityBlockPrincipal().get() == 0 || luminosityBlockPrincipal()->luminosityBlock() != luminosityBlockNumber_) {
+    if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
       newLumi_ = true;
-      LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(),
-        luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
-      setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(lumiAux,
-                                     productRegistry(),
-                                     processConfiguration())));
+      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
+	runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
 
+      readAndCacheLumi();
+      setLumiPrematurelyRead();
     }
+
     // make a brand new event
-    EventAuxiliary eventAux(eventId,
-      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, evttype, bunchCrossing, EventAuxiliary::invalidStoreNumber,
-			    orbitNumber);
-    ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
+    std::auto_ptr<EventAuxiliary> eventAux(
+      new EventAuxiliary(eventId, processGUID(),
+			 timestamp(),
+			 luminosityBlockNumber_,
+			 true,
+			 evttype,
+			 bunchCrossing,
+			 EventAuxiliary::invalidStoreNumber,
+			 orbitNumber));
+    eventPrincipalCache()->fillEventPrincipal(eventAux, luminosityBlockPrincipal());
+    eventCached_ = true;
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
 
-    std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
+    std::auto_ptr<Event> e(new Event(*eventPrincipalCache(), moduleDescription()));
     // put the fed collection into the transient event store
     e->put(bare_product);
     // The commit is needed to complete the "put" transaction.
@@ -276,47 +279,42 @@ namespace edm {
 
   void
   DaqSource::setRun(RunNumber_t r) {
-    assert(ep_.get() == 0);
+    assert(!eventCached_);
     reset();
     newRun_ = newLumi_ = true;
     runNumber_ = r;
     if (reader_) reader_->setRunNumber(runNumber_);
     noMoreEvents_ = false;
-    resetLuminosityBlockPrincipal();
-    resetRunPrincipal();
+    resetLuminosityBlockAuxiliary();
   }
 
-  boost::shared_ptr<RunPrincipal>
-  DaqSource::readRun_() {
+  boost::shared_ptr<RunAuxiliary>
+  DaqSource::readRunAuxiliary_() {
     assert(newRun_);
     assert(!noMoreEvents_);
     newRun_ = false;
-    RunAuxiliary runAux(runNumber_, timestamp(), Timestamp::invalidTimestamp());
-    return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(runAux,
-			 productRegistry(),
-			 processConfiguration()));
+    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(runNumber_, timestamp(), Timestamp::invalidTimestamp()));
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  DaqSource::readLuminosityBlock_() {
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  DaqSource::readLuminosityBlockAuxiliary_() {
     assert(!newRun_);
     assert(newLumi_);
     assert(!noMoreEvents_);
-    assert(luminosityBlockPrincipal());
-    assert(ep_.get() != 0);
+    assert(luminosityBlockAuxiliary());
+    assert(eventCached_);
     newLumi_ = false;
-    return luminosityBlockPrincipal();
+    return luminosityBlockAuxiliary();
   }
 
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal*
   DaqSource::readEvent_() {
     assert(!newRun_);
     assert(!newLumi_);
     assert(!noMoreEvents_);
-    assert(ep_.get() != 0);
-    std::auto_ptr<EventPrincipal> result = ep_;
-    return result;
+    assert(eventCached_);
+    eventCached_ = false;
+    return eventPrincipalCache();
   }
 
   void
@@ -326,7 +324,7 @@ namespace edm {
         << "Contact a Framework developer.\n";
   }
 
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal*
   DaqSource::readIt(EventID const&) {
       throw edm::Exception(errors::LogicError,"DaqSource::readIt(EventID const& eventID)")
         << "Random access read cannot be used for DaqSource.\n"

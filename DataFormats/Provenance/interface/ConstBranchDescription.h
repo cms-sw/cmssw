@@ -43,6 +43,7 @@ namespace edm {
     std::string const& productInstanceName() const {return ptr_->productInstanceName();} 
     bool const& produced() const {return ptr_->produced();}
     bool const& dropped() const {return ptr_->dropped();}
+    bool const& onDemand() const {return ptr_->onDemand();}
     bool present() const {return ptr_->present();}
     bool const& transient() const {return ptr_->transient();}
     Reflex::Type const& type() const {return ptr_->type();}

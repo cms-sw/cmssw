@@ -36,7 +36,7 @@ namespace edm {
 
     void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
-    std::auto_ptr<EventPrincipal> deserializeEvent(EventMsgView const& eventView);
+    EventPrincipal* deserializeEvent(EventMsgView const& eventView);
 
     static
     void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, bool subsequent);
@@ -77,13 +77,13 @@ namespace edm {
       EventPrincipal const* eventPrincipal_;
     };
 
-    virtual std::auto_ptr<EventPrincipal> read() = 0;
+    virtual EventPrincipal* read() = 0;
 
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
 
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
 
-    virtual std::auto_ptr<EventPrincipal>
+    virtual EventPrincipal*
     readEvent_();
 
     virtual ItemType getNextItemType();
@@ -94,7 +94,7 @@ namespace edm {
 
     bool newRun_;
     bool newLumi_;
-    std::auto_ptr<EventPrincipal> ep_;
+    bool eventCached_;
 
     TClass* tc_;
     std::vector<unsigned char> dest_;

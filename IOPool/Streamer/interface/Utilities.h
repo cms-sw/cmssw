@@ -79,12 +79,12 @@ namespace edm
   {
   public:
     explicit EventExtractor(EventBuffer& b):buf_(&b) { }
-    std::auto_ptr<EventPrincipal> extract()
+    EventPrincipal* extract()
     {
       EventBuffer::ConsumerBuffer b(*buf_);
 	  FDEBUG(2) << "Extract: " << b.buffer() << " " << b.size() << std::endl;
-      std::auto_ptr<EventPrincipal> p(*(EventPrincipal**)b.buffer());
-	  FDEBUG(2) << "Extract: event ptr = " << (void*)p.get() << std::endl;
+      EventPrincipal* p(*(EventPrincipal**)b.buffer());
+	  FDEBUG(2) << "Extract: event ptr = " << (void*)p << std::endl;
       return p;
     }
   private:

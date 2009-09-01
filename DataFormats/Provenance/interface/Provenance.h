@@ -93,6 +93,10 @@ namespace edm {
 
     ProductID const& productID() const {return productID_;}
 
+    void setProductProvenance(boost::shared_ptr<ProductProvenance> prov) const {
+      productProvenancePtr_ = prov;
+    }
+
   private:
     ConstBranchDescription const branchDescription_;
     ProductID productID_;

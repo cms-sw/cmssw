@@ -37,15 +37,22 @@ namespace edm {
     ProcessIndex processIndex() const {return processIndex_;}
     ProcessIndex productIndex() const {return productIndex_;}
     ProductIndex id() const {return productIndex_;} // backward compatibility
+    void reset() {processIndex_ = productIndex_ = 0;}
 
     unsigned int oldID() const {return oldID_;}
     unsigned int & oldID() {return oldID_;}
+    void swap(ProductID& other);
 
   private:
     ProcessIndex processIndex_;
     ProductIndex productIndex_;
     unsigned int oldID_;
   };
+
+  inline
+  void swap(ProductID& a, ProductID& b) {
+    a.swap(b);
+  }
 
   inline
   bool operator==(ProductID const& lh, ProductID const& rh) {

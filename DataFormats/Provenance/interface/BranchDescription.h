@@ -2,9 +2,9 @@
 #define DataFormats_Provenance_BranchDescription_h
 
 /*----------------------------------------------------------------------
-  
+
 BranchDescription: The full description of a Branch.
-This description also applies to every product instance on the branch.  
+This description also applies to every product instance on the branch.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>
@@ -41,11 +41,11 @@ namespace edm {
     BranchDescription();
 
     BranchDescription(BranchType const& branchType,
-		      std::string const& mdLabel, 
-		      std::string const& procName, 
-		      std::string const& name, 
-		      std::string const& fName, 
-		      std::string const& pin, 
+		      std::string const& mdLabel,
+		      std::string const& procName,
+		      std::string const& name,
+		      std::string const& fName,
+		      std::string const& pin,
 		      ModuleDescription const& modDesc,
 		      std::set<std::string> const& aliases = std::set<std::string>());
 
@@ -64,14 +64,15 @@ namespace edm {
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
-    std::string const& productInstanceName() const {return productInstanceName_;} 
-    bool & produced() const {return transients_.get().produced_;}
+    std::string const& productInstanceName() const {return productInstanceName_;}
+    bool& produced() const {return transients_.get().produced_;}
     bool present() const {return !transients_.get().dropped_;}
-    bool & dropped() const {return transients_.get().dropped_;}
-    bool & transient() const {return transients_.get().transient_;}
-    Reflex::Type & type() const {return transients_.get().type_;}
-    int & splitLevel() const {return transients_.get().splitLevel_;}
-    int & basketSize() const {return transients_.get().basketSize_;}
+    bool& dropped() const {return transients_.get().dropped_;}
+    bool& onDemand() const {return transients_.get().onDemand_;}
+    bool& transient() const {return transients_.get().transient_;}
+    Reflex::Type& type() const {return transients_.get().type_;}
+    int& splitLevel() const {return transients_.get().splitLevel_;}
+    int& basketSize() const {return transients_.get().basketSize_;}
 
     ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
     std::string const& moduleName() const {return transients_.get().moduleName_;}
@@ -85,23 +86,24 @@ namespace edm {
     ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return parameterSetIDs().size() == 1;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
-    std::set<std::string> & branchAliases() {return branchAliases_;}
-    std::string & branchName() const {return transients_.get().branchName_;}
+    std::set<std::string>& branchAliases() {return branchAliases_;}
+    std::string& branchName() const {return transients_.get().branchName_;}
     BranchType const& branchType() const {return branchType_;}
-    std::string & wrappedName() const {return transients_.get().wrappedName_;}
+    std::string& wrappedName() const {return transients_.get().wrappedName_;}
 
     void setDropped() const {dropped() = true;}
+    void setOnDemand() const {onDemand() = true;}
     void updateFriendlyClassName();
 
     struct Transients {
       Transients();
 
       // The parameter set id of the producer.
-      // This is initialized if and only if produced_ is true.
+      // This is set if and only if produced_ is true.
       ParameterSetID parameterSetID_;
 
       // The module name of the producer.
-      // This is initialized if and only if produced_ is true.
+      // This is set if and only if produced_ is true.
       std::string moduleName_;
 
       // The branch name, which is currently derivable fron the other attributes.
@@ -110,12 +112,16 @@ namespace edm {
       // The wrapped class name, which is currently derivable fron the other attributes.
       std::string wrappedName_;
 
-      // Was this branch produced in this process
-      // rather than in a previous process
+      // Was this branch produced in this process rather than in a previous process
       bool produced_;
+
+      // Was this branch produced in this current process and by unscheduled production
+      // This item is set only in the framework, not by FWLite.
+      bool onDemand_;
 
       // Has the branch been dropped from the product tree in this file
       // (or if this is a merged product registry, in the first file).
+      // This item is set only in the framework, not by FWLite.
       bool dropped_;
 
       // Is the class of the branch marked as transient
@@ -162,7 +168,7 @@ namespace edm {
 
     // An ID uniquely identifying the branch
     // This field is obsolete and is needed only for backward compatibility
-    // with file format 7 and earlier.  
+    // with file format 7 and earlier.
     ProductID productID_;
 
     // the full name of the type of product this is
@@ -180,7 +186,7 @@ namespace edm {
 
     mutable Transient<Transients> transients_;
   };
-  
+
   inline
   std::ostream&
   operator<<(std::ostream& os, BranchDescription const& p) {

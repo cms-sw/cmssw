@@ -18,6 +18,7 @@ namespace edm {
     branchName_(),
     wrappedName_(),
     produced_(false),
+    onDemand_(false),
     dropped_(false),
     transient_(false),
     type_(),
@@ -64,6 +65,7 @@ namespace edm {
   {
     dropped() = false;
     produced() = true;
+    onDemand() = false;
     transients_.get().parameterSetID_ = modDesc.parameterSetID();
     transients_.get().moduleName_ = modDesc.moduleName();
     init();

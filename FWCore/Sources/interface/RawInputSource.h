@@ -2,7 +2,7 @@
 #define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.10 2008/07/03 02:07:06 wmtan Exp $
+$Id: RawInputSource.h,v 1.11 2008/07/31 23:11:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -25,10 +25,10 @@ namespace edm {
     virtual std::auto_ptr<Event> readOneEvent() = 0;
 
   private:
-    virtual std::auto_ptr<EventPrincipal> readEvent_();
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
+    virtual EventPrincipal* readEvent_();
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
+    virtual EventPrincipal* readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual ItemType getNextItemType();
     
@@ -36,7 +36,7 @@ namespace edm {
     LuminosityBlockNumber_t luminosityBlockNumber_;
     bool newRun_;
     bool newLumi_;
-    std::auto_ptr<EventPrincipal> ep_;
+    bool eventCached_;
   };
 }
 #endif
