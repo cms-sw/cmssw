@@ -574,7 +574,15 @@ namespace edm {
     ParameterSet forking = optionsPset.getUntrackedParameter<ParameterSet>("multiProcesses", ParameterSet());
     numberOfForkedChildren_ = forking.getUntrackedParameter<int>("maxChildProcesses", 0);
     numberOfSequentialEventsPerChild_ = forking.getUntrackedParameter<unsigned int>("maxSequentialEventsPerChild", 1);
-
+    std::vector<ParameterSet> excluded = forking.getUntrackedParameter<std::vector<ParameterSet> >("eventSetupDataToExcludeFromPrefetching",std::vector<ParameterSet>());
+    for(std::vector<ParameterSet>::const_iterator itPS=excluded.begin(),itPSEnd=excluded.end();
+        itPS != itPSEnd;
+        ++itPS) {
+      eventSetupDataToExcludeFromPrefetching_[itPS->getUntrackedParameter<std::string>("record")].insert(
+                                                std::make_pair(itPS->getUntrackedParameter<std::string>("type","*"),
+                                                               itPS->getUntrackedParameter<std::string>("label","")));
+    }
+    
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
 
@@ -920,6 +928,16 @@ namespace edm {
           itKey != itEnd;
           ++itKey) {
         eventsetup::EventSetupRecord const* recordPtr = es.find(*itKey);
+        //see if this is on our exclusion list
+        ExcludedDataMap::const_iterator itExcludeRec = eventSetupDataToExcludeFromPrefetching_.find(itKey->type().name());
+        const ExcludedData* excludedData(0);
+        if(itExcludeRec != eventSetupDataToExcludeFromPrefetching_.end()) {
+          excludedData=&(itExcludeRec->second);
+          if (excludedData->size()==0 || excludedData->begin()->first=="*") {
+            //skip all items in this record
+            continue;
+          }
+        }
         if(0 != recordPtr) {
           dataKeys.clear();
           recordPtr->fillRegisteredDataKeys(dataKeys);
@@ -927,6 +945,10 @@ namespace edm {
               itDataKey != itDataKeyEnd;
               ++itDataKey) {
             //std::cout <<"  "<<itDataKey->type().name()<<" "<<itDataKey->name().value()<<std::endl;
+            if (0!=excludedData && excludedData->find(std::make_pair(itDataKey->type().name(),itDataKey->name().value()))!=excludedData->end()) {
+              std::cout <<"   excluding:"<<itDataKey->type().name()<<" "<<itDataKey->name().value()<<std::endl;
+              continue;
+            }
             try {
               recordPtr->doGet(*itDataKey);
             } catch(cms::Exception& e) {

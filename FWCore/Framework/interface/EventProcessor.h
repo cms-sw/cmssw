@@ -421,6 +421,9 @@ namespace edm {
 
     int                                           numberOfForkedChildren_;
     unsigned int                                  numberOfSequentialEventsPerChild_;
+    typedef std::set<std::pair<std::string,std::string> > ExcludedData;
+    typedef std::map<std::string, ExcludedData> ExcludedDataMap;
+    ExcludedDataMap                               eventSetupDataToExcludeFromPrefetching_;
     friend class event_processor::StateSentry;
   }; // class EventProcessor
 
