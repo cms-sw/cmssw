@@ -1,7 +1,7 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
-// $Id$
+// $Id: EventStreamHttpReader.h,v 1.19 2009/06/10 08:15:26 dshpakov Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
@@ -26,12 +26,12 @@ namespace edm
 		 edm::InputSourceDescription const& desc);
     virtual ~EventStreamHttpReader();
 
-    virtual std::auto_ptr<edm::EventPrincipal> read();
+    virtual edm::EventPrincipal* read();
     void readHeader();
     void registerWithEventServer();
 
   private:  
-    std::auto_ptr<edm::EventPrincipal> getOneEvent();
+    edm::EventPrincipal* getOneEvent();
 
     std::string sourceurl_;
     char eventurl_[256];
