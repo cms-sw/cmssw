@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 //  fclose(dati);
   
  int  deltaFactor = 4;
-  DTLPPatternReco::ResultLPAlgo theAlgoResult;
+  lpAlgo::ResultLPAlgo theAlgoResult;
   lpAlgorithm(theAlgoResult, pz, px, pex, -1.6, 1.6, -300., 300., 100. , 4.);//1.e9 means one billion 
   printf("m = %f  q = %f\n", theAlgoResult.mVar,theAlgoResult.qVar);
   
