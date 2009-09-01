@@ -68,11 +68,11 @@ fill(TTree* tree, Book& book) {
       if(width==1) A1*="_width1";
 
       if(ensembleBins_==0)   book.fill( fabs(BdotY),                     granular+"_field"            , 101, 1, 5 );
-      if(methods_ & RATIO)   book.fill( sign*projection/driftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6          );
-      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH,0)    , 81, -0.6,0.6,  20,0.0,20.0 );
-      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR,0)  , 81, -0.6,0.6, 100,0.0,2.0 );
-      if(methods_ & SYMM)    book.fillP(sign*projection/driftz,sqrtVar, granular+ method(SYMM)        ,128, -1.0,1.0,     0.0,2.0 );
-                             book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 81, -0.6,0.6              );
+      if(methods_ & RATIO)   book.fill( sign*projection/driftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
+      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
+      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
+      if(methods_ & SYMM)    book.fill( sign*projection/driftz, sqrtVar, granular+ method(SYMM)        ,128,-1.0,1.0 );
+                             book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 81, -0.6,0.6 );
     }
   }
 }
@@ -102,16 +102,14 @@ make_and_fit_ratio(Book& book, bool cleanup) {
 }
 
 void LA_Filler_Fitter::
-make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
-  for(Book::const_iterator hist2D = book.begin(".*"+key); hist2D!=book.end(); ++hist2D) {
-    if((*hist2D)->GetEntries() < 400) continue;
+fit_profile(Book& book, const std::string& key) {
+  for(Book::const_iterator p = book.begin(".*"+key); p!=book.end(); ++p) {
+    if((*p)->GetEntries() < 400) continue;
     
-    std::string name = hist2D.name()+"_profile";
-    TH1* p = (TH1*) ((TH2*)(*hist2D))->ProfileX(name.c_str());
-    float min = p->GetMinimum();
-    float max = p->GetMaximum();
-    float xofmin = p->GetBinCenter(p->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
-    float xofmax = p->GetBinCenter(p->GetMaximumBin());
+    float min = (*p)->GetMinimum();
+    float max = (*p)->GetMaximum();
+    float xofmin = (*p)->GetBinCenter((*p)->GetMinimumBin()); if( xofmin>0.0 || xofmin<-0.15) xofmin = -0.05;
+    float xofmax = (*p)->GetBinCenter((*p)->GetMaximumBin());
 
     TF1* fit = new TF1("LA_profile_fit","[2]*(TMath::Abs(x-[0]))+[1]",-1,1);
     fit->SetParLimits(0,-0.15,0.01);
@@ -119,13 +117,9 @@ make_and_fit_profile(Book& book, const std::string& key, bool cleanup) {
     fit->SetParLimits(2,0.1,10);
     fit->SetParameters( xofmin, min, (max-min) / fabs( xofmax - xofmin ) );
 
-    int badfit = p->Fit(fit,"IEQ","",-.5,.3);
-    if( badfit ) badfit = p->Fit(fit,"IEQ","", -.46,.26);
-    if( badfit ) delete p;
-    else 
-      book.book( name, p );
-
-    if(cleanup) book.erase(hist2D.name() );
+    int badfit = (*p)->Fit(fit,"IEQ","",-.5,.3);
+    if( badfit ) badfit = (*p)->Fit(fit,"IEQ","", -.46,.26);
+    if( badfit ) book.erase(p.name());
   }
 }
 

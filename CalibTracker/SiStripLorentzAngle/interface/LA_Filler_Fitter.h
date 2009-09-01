@@ -17,10 +17,10 @@ class LA_Filler_Fitter {
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
     case NONE:   return "none";
-    case RATIO:  return              std::string("_tanLA")+(fit?  "_ratio":"");
-    case WIDTH:  return        std::string("_width-tanLA")+(fit?"_profile":"");
-    case SQRTVAR:return std::string("_sqrtVariance-tanLA")+(fit?"_profile":"");
-    case SYMM:   return std::string("_symm");
+    case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
+    case WIDTH:  return "_width-tanLA_profile";
+    case SQRTVAR:return "_sqrtVariance-tanLA_profile";
+    case SYMM:   return "_symm";
     default: return "_UNKNOWN";
     }
   }
@@ -61,11 +61,11 @@ class LA_Filler_Fitter {
   
   static void fit(Book& book) { 
     make_and_fit_ratio(book); 
-    make_and_fit_profile(book,method(WIDTH,0)); 
-    make_and_fit_profile(book,method(SQRTVAR,0)); 
+    fit_profile(book,method(WIDTH)); 
+    fit_profile(book,method(SQRTVAR)); 
   }
   static void make_and_fit_ratio(Book&, bool cleanup=false);
-  static void make_and_fit_profile(Book&, const std::string&, bool cleanup=true);
+  static void fit_profile(Book&, const std::string&);
   
   static Result result(Method, const std::string name, const Book&);
   static std::map< std::string,                      Result  >    layer_results(const Book&, const Method);
