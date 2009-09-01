@@ -78,7 +78,7 @@ void DDLAlgorithm::processElement (const std::string& name, const std::string& n
   atts = getAttributeSet();
   DDLVector* tv= dynamic_cast<DDLVector*> (myVector);
   DDLMap* tm= dynamic_cast<DDLMap*> (myMap);
-  handler.initialize( algoName, lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors() );
+  handler.initialize( algoName.fullname(), lp, nArgs, tv->getMapOfVectors(), tm->getMapOfMaps(), sArgs, tv->getMapOfStrVectors() );
   handler.execute();
 
   // clear used/referred to elements.

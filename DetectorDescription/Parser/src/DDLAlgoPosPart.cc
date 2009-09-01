@@ -69,9 +69,9 @@ void DDLAlgoPosPart::processElement (const std::string& type, const std::string&
   if (!(algo.isDefined().second)) 
     {
       std::string  msg = std::string("\n\tDDLParser, algo requested is not defined.  Either AlgoInit() or check algo spelling.\n ")
-	+ "\n\t\talgo=" + std::string(getDDName(nmspace, "algo" ))
-	+ "\n\t\tparent=" + std::string(myParent->getDDName(nmspace))
-	+ "\n\t\tself=" + std::string(myChild->getDDName(nmspace));
+	+ "\n\t\talgo=" + getDDName(nmspace, "algo" ).fullname();
+	+ "\n\t\tparent=" + myParent->getDDName(nmspace).fullname()
+	+ "\n\t\tself=" + myChild->getDDName(nmspace).fullname();
       throwError(msg);
     }
 
