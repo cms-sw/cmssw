@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 15:25:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/01 16:50:45 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -26,11 +26,11 @@
 #include "HLTMonBTagIPSource.h"
 
 HLTMonBTagIPSource::HLTMonBTagIPSource(const edm::ParameterSet & config) :
-  m_lifetimeL2Jets(         config.getParameter<edm::InputTag>("lifetimeL2Jets") ),
-  m_lifetimeL25TagInfo(     config.getParameter<edm::InputTag>("lifetimeL25TagInfo") ),
-  m_lifetimeL25JetTags(     config.getParameter<edm::InputTag>("lifetimeL25JetTags") ),
-  m_lifetimeL3TagInfo(      config.getParameter<edm::InputTag>("lifetimeL3TagInfo") ),
-  m_lifetimeL3JetTags(      config.getParameter<edm::InputTag>("lifetimeL3JetTags") ),
+  m_lifetimeL2Jets(         config.getParameter<edm::InputTag>("L2Jets") ),
+  m_lifetimeL25TagInfo(     config.getParameter<edm::InputTag>("L25TagInfo") ),
+  m_lifetimeL25JetTags(     config.getParameter<edm::InputTag>("L25JetTags") ),
+  m_lifetimeL3TagInfo(      config.getParameter<edm::InputTag>("L3TagInfo") ),
+  m_lifetimeL3JetTags(      config.getParameter<edm::InputTag>("L3JetTags") ),
   m_pathName(               config.getParameter<std::string>("pathName") ),
   m_monitorName(            config.getParameter<std::string>("monitorName" ) ),
   m_outputFile(             config.getUntrackedParameter<std::string>("outputFile", "HLTBJetDQM.root") ),
