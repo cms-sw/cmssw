@@ -82,17 +82,18 @@ HcalNoiseInfoProducer::~HcalNoiseInfoProducer()
 void
 HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // this is what we're going to actually write to the EDM
+  std::auto_ptr<HcalNoiseRBXCollection> result1(new HcalNoiseRBXCollection);
+  std::auto_ptr<HcalNoiseSummary> result2(new HcalNoiseSummary);
+  
+  // define an empty HcalNoiseRBXArray that we're going to fill
+  HcalNoiseRBXArray rbxarray;
+  HcalNoiseSummary &summary=*result2;
+
+
+  // we're creating HcalNoiseRBXs for the first time
   if(!refillRefVectors_) {
-    // we're creating HcalNoiseRBXs for the first time
 
-    // this is what we're going to actually write to the EDM
-    std::auto_ptr<HcalNoiseRBXCollection> result1(new HcalNoiseRBXCollection);
-    std::auto_ptr<HcalNoiseSummary> result2(new HcalNoiseSummary);
-
-    // define an empty HcalNoiseRBXArray that we're going to fill
-    HcalNoiseRBXArray rbxarray;
-    HcalNoiseSummary &summary=*result2;
-    
     // fill them with the various components
     // digi assumes that rechit information is available
     if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray);
@@ -153,25 +154,15 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       result1->push_back(rbx);
     }
   
-    // put the rbxcollection and summary into the EDM
-    iEvent.put(result1);
-    iEvent.put(result2);
-
+    
   } else {
-
     // we're taking HcalNoiseRBXs that are already present, and creating a new set with RefVector information stored
 
-    // define an empty HcalNoiseRBXArray that we're going to fill
-    // the summary object is a dummy placeholder
-    HcalNoiseRBXArray rbxarray;
-    HcalNoiseSummary summary;
-    
     // fill them with the various components
     if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray);
     if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
-
-    // this is what we're going to actually write to the EDM
-    std::auto_ptr<HcalNoiseRBXCollection> result(new HcalNoiseRBXCollection);
+    if(fillJets_)       filljets(iEvent, iSetup, summary);    
+    if(fillTracks_)     filltracks(iEvent, iSetup, summary);
 
     // get the old HcalNoiseRBX's
     edm::Handle<HcalNoiseRBXCollection> handle;
@@ -197,12 +188,17 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	hit1->big5Charge_ = hit2->big5Charge_;
       }
 
-      result->push_back(newrbx);
-    }
+      // fill variables in the summary object not filled elsewhere
+      fillOtherSummaryVariables(summary, newrbx);
 
-    // put the rbxcollection into the EDM
-    iEvent.put(result);
+      result1->push_back(newrbx);
+    }
   }
+
+  // put the rbxcollection and summary into the EDM
+  iEvent.put(result1);
+  iEvent.put(result2);
+
   return;
 }
 
