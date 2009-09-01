@@ -300,6 +300,8 @@ public:
     TH1F * EfficientWireGroups;
     std::vector<TH1F *> Y_InefficientRecHits_inSegment;
     std::vector<TH1F *> Y_EfficientRecHits_inSegment;
+    std::vector<TH1F *> Phi_InefficientRecHits_inSegment;
+    std::vector<TH1F *> Phi_EfficientRecHits_inSegment;
     //
     TH1F * SimRechits;
     TH1F * SimSimhits;
