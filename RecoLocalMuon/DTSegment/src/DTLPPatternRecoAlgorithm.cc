@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/25 18:20:55 $
- * $Revision: 1.3 $
+ * $Date: 2009/08/26 08:39:42 $
+ * $Revision: 1.4 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -179,53 +179,65 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
      *                                                         */
 
     // define the control parameters
-    glp_iocp parm;
-    glp_smcp parm1;
-    glp_init_iocp(&parm);
-    glp_init_smcp(&parm1);
+    glp_iocp paramIocp;
+    glp_smcp paramSmplx;
+    glp_init_iocp(&paramIocp);
+    glp_init_smcp(&paramSmplx);
     if(debug) { // set the GLPK verbosity level 
-      parm.msg_lev = GLP_MSG_ALL; 
-      parm1.msg_lev = GLP_MSG_ALL; 
+      paramIocp.msg_lev = GLP_MSG_ALL; 
+      paramSmplx.msg_lev = GLP_MSG_ALL; 
     } else {
-      parm.msg_lev = GLP_MSG_OFF; 
-      parm1.msg_lev = GLP_MSG_OFF; 
+      paramIocp.msg_lev = GLP_MSG_OFF; 
+      paramSmplx.msg_lev = GLP_MSG_OFF; 
     }
-    parm1.it_lim = 1000; // set the max # of iterations // FIXME: this is arbitrary
-    //if(!glp_simplex(lp, &parm1)) return false;
-    int retSimplex = glp_simplex(lp, &parm1);
-//     if(debug) cout << "simplex returned: " << retSimplex <<endl;
-    // check the return value of the algo
-    if(retSimplex != 0) {
-      cout << "[lpAlgorithm]***Warning: glp_simplex return code" << endl;
-      if(debug) printGLPReturnCode(retSimplex);
-      return false;
-    }
+    paramSmplx.it_lim = 1000; // set the max # of iterations // FIXME: this is arbitrary
+    paramIocp.tm_lim = 60000; // set the max # of iterations // FIXME: this is arbitrary
+    // try optimization
+    paramSmplx.presolve = GLP_ON;
+    paramSmplx.meth = GLP_DUALP;
+    paramIocp.presolve = GLP_ON;
+//     paramIocp.gmi_cuts = GLP_ON;
+//      paramIocp.clq_cuts = GLP_ON;
+    paramIocp.cov_cuts = GLP_ON;
+  //mir_cuts
 
-    // Check the status of the simplex solution
-    int statusSimplSol = glp_get_status(lp);
-    if(statusSimplSol != GLP_OPT) {
-      cout << "[lpAlgorithm]***Warning: wrong simplex solution status" << endl;
-      if(debug) printGLPSolutionStatus(statusSimplSol);
-      return false;
-    }
 
-    //if(!glp_intopt(lp, &parm)) return false;
-    int retGlpIntopt = glp_intopt(lp, &parm);
+//     //if(!glp_simplex(lp, &paramSmplx)) return false;
+//     int retSimplex = glp_simplex(lp, &paramSmplx);
+// //     if(debug) cout << "simplex returned: " << retSimplex <<endl;
+//     // check the return value of the algo
+//     if(retSimplex != 0) {
+//       cout << "[lpAlgorithm]***Warning: glp_simplex return code" << endl;
+//       printGLPReturnCode(retSimplex);
+//       return false;
+//     }
+
+//     // Check the status of the simplex solution
+//     int statusSimplSol = glp_get_status(lp);
+//     if(statusSimplSol != GLP_OPT) {
+//       cout << "[lpAlgorithm]***Warning: wrong simplex solution status" << endl;
+//       printGLPSolutionStatus(statusSimplSol);
+//       return false;
+//     }
+
+    //if(!glp_intopt(lp, &paramIocp)) return false;
+    int retGlpIntopt = glp_intopt(lp, &paramIocp);
 //     if(debug) cout << "intopt returned: " << retGlpIntopt <<endl;
     // check the return value of the algo
     if(retGlpIntopt != 0) {
       cout << "[lpAlgorithm]***Warning: glp_intopt return code " << endl;
-      if(debug) printGLPReturnCode(retGlpIntopt);
-      int retLpxIntopt = lpx_intopt(lp); // FIXME: experimental, maybe we can move to this one by default
-      if(debug) printLPXReturnCode(retLpxIntopt);
-      if(retLpxIntopt != LPX_E_OK) return false;
+      printGLPReturnCode(retGlpIntopt);
+//       int retLpxIntopt = lpx_intopt(lp); // FIXME: experimental, maybe we can move to this one by default
+//       if(debug) printLPXReturnCode(retLpxIntopt);
+//       if(retLpxIntopt != LPX_E_OK) return false;
+      return false;
     }
 
     // check the status of the MIP solution 
     int statusMIPSol = glp_mip_status(lp);
     if(statusMIPSol != GLP_OPT) {
       cout << "[lpAlgorithm]***Warning: wrong MIP solution status" << endl;
-      if(debug) printGLPSolutionStatus(statusMIPSol);
+      printGLPSolutionStatus(statusMIPSol);
       return false;
     }
 
