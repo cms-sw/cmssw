@@ -408,7 +408,7 @@
 <!--  -->
 <!-- main CASTOR volume inside polycone "forward:Castor" -->
 <!--  -->
- <PosPart copyNumber="1">
+ <PosPart copyNumber="2">
    <rParent name="forward:CastorB"/>
    <rChild name="castor:CAST"/>
   <rRotation name="rotations:000D"/>
