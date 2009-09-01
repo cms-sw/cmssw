@@ -89,8 +89,9 @@ public:
   
   const N & ddname() const { return prep_->name(); }
   
-  std::string toString() const { return prep_->name(); }
+  std::string toString() const { return prep_->name().fullname(); }
     
+
   const typename DDI::rep_traits<N,C>::reference rep() const 
     { return *(prep_->second); }
   

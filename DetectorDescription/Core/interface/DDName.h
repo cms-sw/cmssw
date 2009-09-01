@@ -50,8 +50,14 @@ public:
   //! Returns the \a namespace
   const std::string & ns() const;
   
+  /** Returns a string complete of the \a namespace and \a name separated by ":". 
+      Most likely you want to use ns() and / or name() methods instead.
+   */
+  const std::string fullname() const { return ns() + ":" + name(); }
+
+  // DEPRECATED!!!
   operator std::string() const { return ns() + ":" + name(); }
-  
+
   id_type id() const { return id_;}
     
   bool operator<(const DDName & rhs) const { return id_ < rhs.id_; }

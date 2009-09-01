@@ -112,7 +112,7 @@ namespace {
       for (; lpit != lped; ++lpit) {
 	// std::cout << " " << std::string(lpit->name());
 	if (!lpit->isDefined().second) {
-	  message = message + "LogicalPart " + std::string(lpit->name()) + " not (yet) defined!\n";
+	  message = message + "LogicalPart " + lpit->name().fullname() + " not (yet) defined!\n";
 	  flag = false;
 	}
       }

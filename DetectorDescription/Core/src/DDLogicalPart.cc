@@ -401,7 +401,7 @@ std::pair<bool,std::string> DDIsValid(const std::string & ns, const std::string 
     for (; lpit != lped; ++lpit) { 
       // std::cout << "VI- " << std::string(lpit->name()) << std::endl;
       if (!lpit->isDefined().second) {
-         message = message + "LogicalPart " + std::string(lpit->name()) + " not (yet) defined!\n";
+         message = message + "LogicalPart " + lpit->name().fullname() + " not (yet) defined!\n";
 	 flag = false;
       }
     }

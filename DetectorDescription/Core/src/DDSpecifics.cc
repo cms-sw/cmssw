@@ -41,7 +41,7 @@ DDSpecifics::DDSpecifics(const DDName & name,
     }
     else {
       std::string serr("Definition of LogicalPart missing! name=");
-      serr+= std::string(it->first.ddname());
+      serr+= it->first.ddname().fullname();
       throw DDException(serr);
     }
   }
