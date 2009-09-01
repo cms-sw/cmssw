@@ -114,6 +114,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , maxInputs_(99999999)
   , doPUFastjet_   (iConfig.getParameter<bool>         ("doPUFastjet"))
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
+  , geo_(0)
   , maxBadEcalCells_        (iConfig.getParameter<unsigned>("maxBadEcalCells"))
   , maxRecoveredEcalCells_  (iConfig.getParameter<unsigned>("maxRecoveredEcalCells"))
   , maxProblematicEcalCells_(iConfig.getParameter<unsigned>("maxProblematicEcalCells"))
@@ -586,10 +587,12 @@ void VirtualJetProducer::subtractPedestal(vector<fastjet::PseudoJet> & coll)
     math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
 				   input_object->pz()*mScale, input_object->e()*mScale);
     
+    int cshist = pseudojetTMP->cluster_hist_index();
     input_object->reset ( towP4.px(),
 			  towP4.py(),
 			  towP4.pz(),
 			  towP4.energy() );
+    pseudojetTMP->set_cluster_hist_index(cshist);
   }
 }
 
@@ -702,9 +705,10 @@ void VirtualJetProducer::offsetCorrectJets(vector<fastjet::PseudoJet> & orphanIn
     ///
     ///!!! Change towers to rescaled towers///
     ///      
+    int index = input_object->user_index();
     pseudojetTMP->reset(pseudojetTMP->px()*mScale, pseudojetTMP->py()*mScale,
 			pseudojetTMP->pz()*mScale, pseudojetTMP->e()*mScale);
-     
+    input_object->set_user_index(index);     
   }    
 }
 
