@@ -50,7 +50,7 @@ namespace edm
       os << "\n<InputFile>";
       formatFile(f, os);
       os << "\n<InputType>" << f.inputType << "</InputType>";
-      os << "\n<InputSourceClass>" << f.inputSourceClassName
+      os << "\n<InputSourceClass>" << TiXmlText(f.inputSourceClassName)
 	 << "</InputSourceClass>";
       os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
       return os;
@@ -62,16 +62,16 @@ namespace edm
     print (S& os, JobReport::OutputFile const& f) {
       formatFile(f, os);
       os << "\n<OutputModuleClass>"
-			<< f.outputModuleClassName
+			<< TiXmlText(f.outputModuleClassName)
 			<< "</OutputModuleClass>";
       os << "\n<TotalEvents>"
 			<< f.numEventsWritten
 			<< "</TotalEvents>\n";
       os << "\n<DataType>"
-			<< f.dataType
+			<< TiXmlText(f.dataType)
 			<< "</DataType>\n";
       os << "\n<BranchHash>"
-			<< f.branchHash
+			<< TiXmlText(f.branchHash)
 			<< "</BranchHash>\n";
 
       return os;
@@ -81,19 +81,19 @@ namespace edm
     S&
     print (S& os,
 	   JobReport::RunReport const& rep){
-    os << "\n<Run ID=\"" 
+    os << "\n<Run ID=\""
        <<rep.runNumber
        << "\">\n";
-    
+
     std::set<unsigned int>::iterator il;
     for (il = rep.lumiSections.begin(); il != rep.lumiSections.end();
 	 ++il){
       os << "   <LumiSection ID=\"" << *il << "\"/>\n";
-      
+
     }
-    
+
     os << "</Run>\n";
-    
+
 
 	return os;
      }
@@ -269,8 +269,8 @@ namespace edm
  	     iInput != f.contributingInputs.end(); iInput++) {
  	    JobReport::InputFile inpFile = inputFiles_[*iInput];
  	    *ost_ <<"\n<Input>";
- 	    *ost_ <<"\n  <LFN>" << inpFile.logicalFileName << "</LFN>";
- 	    *ost_ <<"\n  <PFN>" << inpFile.physicalFileName << "</PFN>";
+ 	    *ost_ <<"\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
+ 	    *ost_ <<"\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
  	    *ost_ <<"\n</Input>";
  	}
  	*ost_ << "\n</Inputs>";
@@ -322,10 +322,10 @@ namespace edm
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
       JobReport::OutputFile & theFile = outputFiles_[*iToken];
-      
+
       //
       // check run is known to file
-      // if not, add a run report for that run     
+      // if not, add a run report for that run
       if (theFile.runReports.count(runNumber) == 0){
 	JobReport::RunReport newReport = JobReport::RunReport();
 	newReport.runNumber = runNumber;
@@ -333,7 +333,7 @@ namespace edm
 		 std::make_pair(runNumber, newReport)
 		 );
       }
-      
+
     }
   }
 
@@ -342,11 +342,11 @@ namespace edm
     std::vector<Token>::iterator iToken;
     for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
       JobReport::InputFile & theFile = inputFiles_[*iToken];
-	
-      
+
+
       //
       // check run is known to file
-      // if not, add a run report for that run     
+      // if not, add a run report for that run
       if (theFile.runReports.count(runNumber) == 0){
 	JobReport::RunReport newReport = JobReport::RunReport();
 	newReport.runNumber = runNumber;
@@ -354,7 +354,7 @@ namespace edm
 		 std::make_pair(runNumber, newReport)
 		 );
       }
-      
+
 
     }
   }
@@ -368,12 +368,12 @@ namespace edm
       // Loop over all open output files
       //
       JobReport::OutputFile & theFile = outputFiles_[*iToken];
-      
-	
-      
+
+
+
       //
       // check run is known to file
-      // if not, add a run report for that run     
+      // if not, add a run report for that run
       if (theFile.runReports.count(runNumber) == 0){
 	JobReport::RunReport newReport = JobReport::RunReport();
 	newReport.runNumber = runNumber;
@@ -381,16 +381,16 @@ namespace edm
 		 std::make_pair(runNumber, newReport)
 		 );
       }
-      
+
       //
       // Get the run report for this run, now that it either was created
       // or already existed
       std::map<JobReport::RunNumber, JobReport::RunReport>::iterator finder;
       finder = theFile.runReports.find(runNumber);
-      
+
       //
       // add the lumi section to the report, the lumi list is a Set
-      // so duplicates dont matter 
+      // so duplicates dont matter
       (finder->second).lumiSections.insert(lumiSect);
     }
   }
@@ -407,7 +407,7 @@ namespace edm
 
       //
       // check run is known to file
-      // if not, add a run report for that run     
+      // if not, add a run report for that run
       if (theFile.runReports.count(runNumber) == 0){
 	JobReport::RunReport newReport = JobReport::RunReport();
 	newReport.runNumber = runNumber;
@@ -415,16 +415,16 @@ namespace edm
 		 std::make_pair(runNumber, newReport)
 		 );
       }
-      
+
       //
       // Get the run report for this run, now that it either was created
       // or already existed
       std::map<JobReport::RunNumber, JobReport::RunReport>::iterator finder;
       finder = theFile.runReports.find(runNumber);
-      
+
       //
       // add the lumi section to the report, the lumi list is a Set
-      // so duplicates dont matter 
+      // so duplicates dont matter
       (finder->second).lumiSections.insert(lumiSect);
     }
   }
@@ -647,7 +647,7 @@ namespace edm
       std::ostream& msg = *(impl_->ost_);
       //std::ostringstream msg;
       msg << "<AnalysisFile>\n"
-	  << "  <FileName>" << fileName <<"</FileName>\n";
+	  << "  <FileName>" << TiXmlText(fileName) <<"</FileName>\n";
 
       std::map<std::string, std::string>::const_iterator pos;
       for (pos = fileData.begin(); pos != fileData.end(); ++pos){
@@ -688,8 +688,10 @@ namespace edm
 
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
-      msg << "<SkippedFile Pfn=\"" << pfn << "\"";
-      msg << " Lfn=\"" << lfn << "\" />\n";
+      TiXmlElement skipped("SkippedFile");
+      skipped.SetAttribute("Pfn", pfn);
+      skipped.SetAttribute("Lfn", lfn);
+      msg << skipped << "\n";
       msg <<std::flush;
       //LogInfo("FwkJob") << msg.str();
 
@@ -827,7 +829,7 @@ namespace edm
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       msg << "<RandomServiceStateFile>\n"
-        << name << "\n"
+        << TiXmlText(name) << "\n"
 	<<  "</RandomServiceStateFile>\n";
       //LogInfo("FwkJob") << msg.str();
       msg << std::flush;
@@ -921,8 +923,8 @@ namespace edm
 	   iInput != f->contributingInputs.end(); iInput++) {
 	JobReport::InputFile inpFile = impl_->inputFiles_[*iInput];
 	msg <<"\n<Input>";
-	msg <<"\n  <LFN>" << inpFile.logicalFileName << "</LFN>";
-	msg <<"\n  <PFN>" << inpFile.physicalFileName << "</PFN>";
+	msg <<"\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
+	msg <<"\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
 	msg <<"\n</Input>";
       }
       msg << "\n</Inputs>";
