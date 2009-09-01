@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.16 2008/09/24 23:32:28 case Exp $
+// $Id: DumpGeom.cc,v 1.17 2009/05/25 15:53:26 fabiocos Exp $
 //
 //
 
@@ -343,9 +343,9 @@ DumpGeom::createShape(const std::string& iName,
 	       throw cms::Exception("GeomConvert") <<"conversion to DDBooleanSolid failed";
 	    }
 	    
-	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name(),
+	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name().fullname(),
 						       boolSolid.solidA()) );
-	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name(),
+	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
 	    if( 0 != left.get() &&
 		0 != right.get() ) {
@@ -366,9 +366,9 @@ DumpGeom::createShape(const std::string& iName,
 	       throw cms::Exception("GeomConvert") <<"conversion to DDBooleanSolid failed";
 	    }
 	    
-	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name(),
+	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name().fullname(),
 						       boolSolid.solidA()) );
-	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name(),
+	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
 	    //DEBUGGING
 	    //break;
@@ -391,9 +391,9 @@ DumpGeom::createShape(const std::string& iName,
 	       throw cms::Exception("GeomConvert") <<"conversion to DDBooleanSolid failed";
 	    }
 	    
-	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name(),
+	    std::auto_ptr<TGeoShape> left( createShape(boolSolid.solidA().name().fullname(),
 						       boolSolid.solidA()) );
-	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name(),
+	    std::auto_ptr<TGeoShape> right( createShape(boolSolid.solidB().name().fullname(),
 							boolSolid.solidB()));
 	    if( 0 != left.get() &&
 		0 != right.get() ) {
@@ -427,7 +427,7 @@ DumpGeom::createVolume(const std::string& iName,
    TGeoVolume* v=nameToVolume_[iName];
    if( 0==v) {
    
-      TGeoShape* solid = createShape(iSolid.name(),
+      TGeoShape* solid = createShape(iSolid.name().fullname(),
 				     iSolid);
       if (solid) {
 	 v = new TGeoVolume(iName.c_str(),
@@ -933,7 +933,7 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // geometry AND the magnetic field volumes!
    walker.firstChild();
 
-   TGeoVolume* top = createVolume(std::string(info.first.name()),
+   TGeoVolume* top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),vacuum);
 
    if(0==top) {
@@ -962,8 +962,8 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   << DDSolidShapesName::name(info.first.solid().shape())<<std::endl;
       }
 
-      bool childAlreadyExists = (0 != nameToVolume_[info.first.name()]);
-      TGeoVolume* child = createVolume(std::string(info.first.name()),
+      bool childAlreadyExists = (0 != nameToVolume_[info.first.name().fullname()]);
+      TGeoVolume* child = createVolume(info.first.name().fullname(),
 				       info.first.solid(),
 				       vacuum);
       //mikes debug output
