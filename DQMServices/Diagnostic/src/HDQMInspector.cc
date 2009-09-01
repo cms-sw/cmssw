@@ -335,12 +335,13 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
       X[j]=vRun_[j];
       EX[j]=0;
       Y[j]=vSummary_[index];
-      if (Y[j]==-10 || Y[j]==-9999 || Y[j] ==-99) {EY[j] = 0; Y[j] = 0;}
+      //if (Y[j]==-10 || Y[j]==-9999 || Y[j] ==-99) {EY[j] = 0; Y[j] = 0;}
        
       // -9999 : existing HDQMSummary object in DB but part of the information not uploaded
       // -99   : HDQMSummary object not existing for this detId, informations are missing for all quantities 
       // -10 bad fit ?
-      
+
+      //std::cout << "dhidas " << vlistItems_[i] << "  " << vRun_[j] << "  " << vSummary_[index] << std::endl;
      
       if(vlistItems_[i].find("mean")!=std::string::npos){
         //if the quantity requested is mean, the error is evaluated as the error on the mean=rms/sqrt(entries)
