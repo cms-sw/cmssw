@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.7 2009/08/29 00:17:32 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.8 2009/08/31 22:27:09 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -157,6 +157,7 @@ bool BeamFitter::runFitter() {
     BSFitter *myalgo = new BSFitter( fBSvector );
 	myalgo->SetMaximumZ( trk_MaxZ_ );
 	myalgo->SetConvergence( convergence_ );
+	myalgo->SetMinimumNTrks(min_Ntrks_);
     fbeamspot = myalgo->Fit();
 
     if(writeTxt_) dumpTxtFile();
