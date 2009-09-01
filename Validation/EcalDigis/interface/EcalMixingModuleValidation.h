@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2008/05/05 10:45:21 $
- * $Revision: 1.7 $
+ * $Date: 2008/12/11 12:27:21 $
+ * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -72,6 +72,9 @@ void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 // BeginJob
 void beginJob(const edm::EventSetup& c);
+
+// EndRun
+void endRun(const edm::Run& r, const edm::EventSetup& c);
 
 // EndJob
 void endJob(void);

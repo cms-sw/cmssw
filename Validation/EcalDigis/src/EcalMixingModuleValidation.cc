@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2008/07/03 20:32:04 $
- * $Revision: 1.20 $
+ * $Date: 2008/10/29 10:54:11 $
+ * $Revision: 1.21 $
  * \author F. Cossutti
  *
 */
@@ -202,6 +202,9 @@ void EcalMixingModuleValidation::beginJob(const EventSetup& c){
 }
 
 void EcalMixingModuleValidation::endJob(){
+}
+
+void EcalMixingModuleValidation::endRun(const edm::Run& run, const edm::EventSetup& c){
 
   // add shapes for each bunch crossing and divide the digi by the result
   
