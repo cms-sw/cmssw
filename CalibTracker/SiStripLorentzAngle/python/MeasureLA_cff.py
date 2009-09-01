@@ -5,6 +5,7 @@ byModule = cms.bool(True)
 METHOD_WIDTH = cms.int32(1)
 METHOD_RATIO = cms.int32(2)
 METHOD_SQRTVAR = cms.int32(4)
+METHOD_SYMM = cms.int32(8)
 
 def LA_Report(method, granularity, filename) :
     return cms.PSet( Method = method,
@@ -24,8 +25,11 @@ def LA_Calibration(method, pitch, slope, offset, pull) :
                      Offset = cms.double(offset),
                      ErrorScaling = cms.double(pull) )
 
-
 LorentzAngleCalibrations_PeakMode = cms.VPSet(
+    LA_Calibration( METHOD_SYMM, 183, 1, 0., 1),
+    LA_Calibration( METHOD_SYMM, 122, 1, 0., 1),
+    LA_Calibration( METHOD_SYMM, 120, 1, 0., 1),
+    LA_Calibration( METHOD_SYMM,  80, 1, 0., 1),
     LA_Calibration( METHOD_SQRTVAR, 183, 1.0289, -0.000320368, 0.876556),
     LA_Calibration( METHOD_SQRTVAR, 122, 0.992503, -0.000829539, 0.755962),
     LA_Calibration( METHOD_SQRTVAR, 120, 1.01791, 0.00587959, 0.745295),

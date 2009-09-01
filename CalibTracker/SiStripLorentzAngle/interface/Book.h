@@ -9,6 +9,7 @@
 #include "TH1.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TProfile.h"
 #include "TH3D.h"
 
 class Book {
@@ -57,6 +58,16 @@ class Book {
 	if( current == book_.end() )
 	  static_cast<TH2*>(book(name, new TH2D(name.c_str(), "", NbinsX, Xlow, Xup, NbinsY, Ylow, Yup)))->Fill(X,Y,W);
 	else static_cast<TH2*>(current->second)->Fill(X,Y,W);
+      }
+    }
+  void fillP( double_t X, double_t Y,              const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,
+                                                                                                  double_t Ylow, double_t Yup, double_t W=1 )
+    { 
+      BOOST_FOREACH(std::string name, std::make_pair(names.begin(),names.end())) {
+	book_t::const_iterator current = book_.find(name);
+	if( current == book_.end() )
+	  static_cast<TProfile*>(book(name, new TProfile(name.c_str(), "", NbinsX, Xlow, Xup, Ylow, Yup)))->Fill(X,Y,W);
+	else static_cast<TProfile*>(current->second)->Fill(X,Y,W);
       }
     }
   void fill( double_t X, double_t Y, double_t Z,  const poly<std::string>& names, uint_t NbinsX, double_t Xlow, double_t Xup,

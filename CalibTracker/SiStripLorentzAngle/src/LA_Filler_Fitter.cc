@@ -1,6 +1,7 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/TTREE_FOREACH_ENTRY.hh"
 #include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
+#include "CalibTracker/SiStripLorentzAngle/interface/SymmetryFit.h"
 
 #include <cmath>
 #include <boost/foreach.hpp>
@@ -68,9 +69,10 @@ fill(TTree* tree, Book& book) {
 
       if(ensembleBins_==0)   book.fill( fabs(BdotY),                     granular+"_field"            , 101, 1, 5 );
       if(methods_ & RATIO)   book.fill( sign*projection/driftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6          );
-      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH,0)    , 81, -0.6,0.6, 20,0,20 );
-      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR,0)  , 81, -0.6,0.6, 100,0,2 );
-                             book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 81, -0.6,0.6          );
+      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH,0)    , 81, -0.6,0.6,  20,0.0,20.0 );
+      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR,0)  , 81, -0.6,0.6, 100,0.0,2.0 );
+      if(methods_ & SYMM)    book.fillP(sign*projection/driftz,sqrtVar, granular+ method(SYMM)        ,128, -1.0,1.0,     0.0,2.0 );
+                             book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 81, -0.6,0.6              );
     }
   }
 }
@@ -155,8 +157,16 @@ result(Method m, const std::string name, const Book& book) {
       p.chi2 = f->GetChisquare();
       p.ndof = f->GetNDF();
       break;
-    case NONE: break;
     }
+    case SYMM: {
+      sistrip::SymmetryFit f = sistrip::SymmetryFit::fromTProfile((TProfile*)(book(name)));
+      if(f.fitStatus()) break;
+      p.measure = f.result().first;
+      p.measureErr = f.result().second;
+      p.chi2 = f.minChi2();
+      p.ndof = f.NDF();
+    }
+    case NONE: break;
     }
   }
   return p;
@@ -198,6 +208,7 @@ void LA_Filler_Fitter::
 summarize_ensembles(Book& book) {
   typedef std::map<std::string, std::vector<Result> > results_t;
   results_t results;
+  if(methods_ & SYMM)    { results_t g = ensemble_results(book,SYMM);    results.insert(g.begin(),g.end());}
   if(methods_ & SQRTVAR) { results_t g = ensemble_results(book,SQRTVAR); results.insert(g.begin(),g.end());}
   if(methods_ & RATIO)   { results_t g = ensemble_results(book,RATIO);   results.insert(g.begin(),g.end());}
   if(methods_ & WIDTH)   { results_t g = ensemble_results(book,WIDTH);   results.insert(g.begin(),g.end());}

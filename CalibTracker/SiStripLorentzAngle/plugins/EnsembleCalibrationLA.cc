@@ -1,8 +1,6 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/EnsembleCalibrationLA.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
 #include <TChain.h>
-#include <TStyle.h>
-#include <TCanvas.h>
 #include <TFile.h>
 #include <boost/foreach.hpp>
 #include <fstream>
@@ -20,7 +18,8 @@ EnsembleCalibrationLA::EnsembleCalibrationLA(const edm::ParameterSet& conf) :
   highBin( conf.getParameter<double>("HighBin")),
   useWIDTH( conf.getUntrackedParameter<bool>("useWIDTH",true)),
   useRATIO( conf.getUntrackedParameter<bool>("useRATIO",true)),
-  useSQRTVAR( conf.getUntrackedParameter<bool>("useSQRTVAR",true))
+  useSQRTVAR( conf.getUntrackedParameter<bool>("useSQRTVAR",true)),
+  useSYMM( conf.getUntrackedParameter<bool>("useSYMM",true))
 {std::cout << conf << std::endl;}
 
 void EnsembleCalibrationLA::
@@ -34,10 +33,11 @@ endJob()
   if(useWIDTH)   methods|= LA_Filler_Fitter::WIDTH;
   if(useRATIO)   methods|= LA_Filler_Fitter::RATIO;
   if(useSQRTVAR) methods|= LA_Filler_Fitter::SQRTVAR;
+  if(useSYMM) methods|= LA_Filler_Fitter::SYMM;
 
   LA_Filler_Fitter laff(methods,samples,nbins,lowBin,highBin,maxEvents);
   laff.fill(chain,book);
-  laff.fit(book);
+  laff.fit(book);  
   laff.summarize_ensembles(book);
 
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
@@ -56,7 +56,7 @@ endJob()
   
   { 
     TFile file((Prefix+"sampleFits.root").c_str(),"RECREATE");
-    for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction)"); hist!=book.end(); ++hist)
+    for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction|symm)"); hist!=book.end(); ++hist)
       (*hist)->Write();
     file.Close();
   }
