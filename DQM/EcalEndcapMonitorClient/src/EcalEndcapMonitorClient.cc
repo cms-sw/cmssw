@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2009/09/01 08:19:25 $
- * $Revision: 1.220 $
+ * $Date: 2009/09/01 08:30:16 $
+ * $Revision: 1.221 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1184,6 +1184,28 @@ void EcalEndcapMonitorClient::writeDb() {
     }
 
     moniov_.setMonRunTag(montag);
+
+    if ( econn ) {
+      try {
+        if ( verbose_ ) cout << "Inserting MonIOV ..." << endl;
+//        econn->insertMonRunIOV(&runiov_);
+        RunTag runtag = runiov_.getRunTag();
+        moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+        if ( verbose_ ) cout << "done." << endl;
+      } catch (runtime_error &e) {
+        cerr << e.what() << endl;
+        try {
+          if ( verbose_ ) cout << "Fetching MonIOV (again) ..." << endl;
+          RunTag runtag = runiov_.getRunTag();
+          moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
+          if ( verbose_ ) cout << "done." << endl;
+          foundMonIOV = true;
+        } catch (runtime_error &e) {
+          cerr << e.what() << endl;
+          foundMonIOV = false;
+        }
+      }
+    }
 
   }
 
