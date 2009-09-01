@@ -32,8 +32,9 @@ class MuonSeedPtExtractor {
   void fillParametersForCombo(const std::string & name, const edm::ParameterSet&pset);
   void fillScalesForCombo(const std::string & name, const edm::ParameterSet&pset);
 
-  double scaledPhi( double dphi, const std::string & combination, const DTChamberId & outerDetId) const;
   std::vector<double> getPt(const std::vector<double> & vPara, double eta, double dPhi ) const;
+ 
+  std::vector<double> getPt(const std::vector<double> & vPara, double eta, double dPhi, const std::string & combination, const DTChamberId & outerDetId ) const;
 
 
 
