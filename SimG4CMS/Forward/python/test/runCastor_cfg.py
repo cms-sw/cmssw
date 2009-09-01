@@ -7,7 +7,9 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 # process.load("Configuration.StandardSequences.GeometryExtended_cff")
-process.load("SimG4CMS.Forward.castorGeometryXML_cfi")
+#process.load("SimG4CMS.Forward.castorGeometryXML_cfi")
+process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
@@ -18,7 +20,18 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout')
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('ForwardSim'),
+    debugModules = cms.untracked.vstring('*'),
+    cout = cms.untracked.PSet(
+#        threshold = cms.untracked.string('DEBUG'),
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        ForwardSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        )
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -29,32 +42,25 @@ process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(11),
-        MinEta = cms.double(5.9),
-        MaxEta = cms.double(5.9),
-        MinPhi = cms.double(0.0),
-        MaxPhi = cms.double(0.392),
+        PartID = cms.vint32(211),
+        MinEta = cms.double(-6.6),
+        MaxEta = cms.double(-5.2),
+        MinPhi = cms.double(-3.14),
+        MaxPhi = cms.double(3.14),
         MinE = cms.double(50.00),
         MaxE = cms.double(50.00)
     ),
-    AddAntiParticle = cms.bool(True),
-    Verbosity = cms.untracked.int32(0)
-)
+    AddAntiParticle = cms.bool(False),
+    Verbosity = cms.untracked.int32(1)
 
-process.CaloSD = cms.PSet(
-    DetailedTiming = cms.bool(False),
-    EminTrack = cms.double(1.0),
-    Verbosity = cms.int32(0),
-    UseMap = cms.bool(True),
-    CheckHits = cms.int32(25)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('sim_electron.root')
+    fileName = cms.untracked.string('sim_pion.root')
 )
 
 process.common_maximum_timex = cms.PSet( # need to be localy redefined
-   MaxTrackTime  = cms.double(10000.0),  # need to be localy redefined
+   MaxTrackTime  = cms.double(500.0),  # need to be localy redefined
    MaxTimeNames  = cms.vstring(), # need to be localy redefined
    MaxTrackTimes = cms.vdouble()  # need to be localy redefined
 )
@@ -62,9 +68,8 @@ process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.DefaultCutValue = 10. 
-process.g4SimHits.Generator.MinEtaCut = -7.0
-process.g4SimHits.Generator.MaxEtaCut = 7.0
+process.g4SimHits.Physics.DefaultCutValue = 10.
+process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.CaloTrkProcessing.TestBeam = True
 
 process.g4SimHits.StackingAction = cms.PSet(
@@ -92,11 +97,10 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type = cms.string('CastorTestAnalysis'),
     CastorTestAnalysis = cms.PSet(
-        EventNtupleFileName = cms.string('eventNtuple_electron.root'),
+        EventNtupleFileName = cms.string('eventNtuple_pion.root'),
         Verbosity = cms.int32(0),
-        StepNtupleFileName = cms.string('stepNtuple_electron.root'),
+        StepNtupleFileName = cms.string('stepNtuple_pion.root'),
         StepNtupleFlag = cms.int32(0),
         EventNtupleFlag = cms.int32(1)
     )
 ))
-
