@@ -40,6 +40,9 @@ process.load("Validation.EcalDigis.ecalDigisValidationSequence_cff")
 # ECAL Mixing Module specific validation
 process.load("Validation.EcalDigis.ecalMixingModuleValidation_cfi")
 
+# End of process
+process.load("Configuration.StandardSequences.EndOfProcess_cff")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(300)
 )
@@ -72,8 +75,9 @@ process.digis = cms.Sequence(process.mix*process.ecalDigiSequence*process.ecalDi
 process.p1 = cms.Path(process.simhits)
 process.p2 = cms.Path(process.digis)
 process.p4 = cms.Path(process.randomEngineStateProducer)
+process.p5 = cms.Path(process.endOfProcess)
 process.outpath = cms.EndPath(process.o1)
-process.schedule = cms.Schedule(process.p1,process.p2,process.p4,process.outpath)
+process.schedule = cms.Schedule(process.p1,process.p2,process.p4,process.p5,process.outpath)
 
 process.DQM.collectorHost = ''
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
