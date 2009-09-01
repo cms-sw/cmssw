@@ -1,14 +1,16 @@
 #include "DataFormats/HcalDetId/interface/HcalFrontEndId.h"
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 #include <cstdlib>
+
 
 HcalFrontEndId::HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfiber,int fiberchannel,int qie,int adc)
 {
   hcalFrontEndId_=0;
 
   if (rbx.size()<5) return;
-  if (rm<1 || rm>4) return;
+  if (rm<1 || rm>5) return; //changed to 5 to incorporate CALIB channels which define RM = 5
   if (pixel<0 || pixel>19) return;
   if (rmfiber<1 || rmfiber>8) return;
   if (fiberchannel<0 || fiberchannel>2) return;
@@ -34,8 +36,8 @@ HcalFrontEndId::HcalFrontEndId(const std::string& rbx,int rm,int pixel,int rmfib
   hcalFrontEndId_|=(fiberchannel&0x3)<<5;
   hcalFrontEndId_|=((rmfiber-1)&0x7)<<7;
   hcalFrontEndId_|=(pixel&0x1F)<<10;
-  hcalFrontEndId_|=((rm-1)&0x3)<<15;
-  hcalFrontEndId_|=(num&0xFF)<<17;
+  hcalFrontEndId_|=((rm-1)&0x7)<<15;
+  hcalFrontEndId_|=(num&0xFF)<<18;
 }
 
 HcalFrontEndId::~HcalFrontEndId()
@@ -46,7 +48,7 @@ std::string HcalFrontEndId::rbx() const
 {
   std::string subdets[11]={"HBM","HBP","HEM","HEP","HO2M","HO1M","HO0","HO1P","HO2P","HFM","HFP"};
 
-  int box=hcalFrontEndId_>>17;
+  int box=hcalFrontEndId_>>18;
   int num=-1;
   int subdet_index=-1;
   if (box<18*4) {

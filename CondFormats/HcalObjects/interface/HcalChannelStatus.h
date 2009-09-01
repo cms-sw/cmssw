@@ -15,12 +15,18 @@ class HcalChannelStatus
  public:
   // contains the defined bits for easy access, see https://twiki.cern.ch/twiki/bin/view/CMS/HcalDataValidationWorkflow
   enum StatusBit {       
-    HcalCellOff=0,      // 1=Hcal cell is off
-    HcalCellL1Mask=1,   // 1=Hcal cell is masked/to be masked by L1 trigger
-    HcalCellDead=5,     // 1=Hcal cell is dead (from DQM algo)
-    HcalCellHot=6,      // 1=Hcal cell is hot (from DQM algo)
-    HcalCellStabErr=7,  // 1=Hcal cell has stability error
-    HcalCellTimErr=8    // 1=Hcal cell has timing error
+    HcalCellOff=0,             // 1=Hcal cell is off
+    HcalCellMask=1,            // 1=Hcal cell is masked/to be masked at RecHit Level
+    // Quality Bits
+    HcalCellDead=5,            // 1=Hcal cell is dead (from DQM algo)
+    HcalCellHot=6,             // 1=Hcal cell is hot (from DQM algo)
+    HcalCellStabErr=7,         // 1=Hcal cell has stability error
+    HcalCellTimErr=8,          // 1=Hcal cell has timing error
+    // Trigger Bits
+    HcalCellTrigMask=15,       // 1=cell is masked from the Trigger 
+    // CaloTower Bits
+    HcalCellCaloTowerMask=18,  // 1=cell is always excluded from the CaloTower, regardless of other bit settings.
+    HcalCellCaloTowerProb=19   // 1=cell is counted as problematic within the tower.
   };
 
   HcalChannelStatus(): mId(0), mStatus(0) {}

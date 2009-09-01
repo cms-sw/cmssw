@@ -64,9 +64,9 @@ char* HBHEHFLogicalMapEntry::printLMapLine() {
   static char myline[512];
 
   HcalElectronicsId hcaleid(hcalEID_);
-  HcalDetId hcaldid(hcalDetID_);
-  HcalGenericDetId hcalgenid(hcalDetID_);
-  HcalFrontEndId rbxid(hcalFrontEndID_);
+  HcalDetId         hcaldid(hcalDetID_);
+  HcalGenericDetId  hcalgenid(hcalDetID_);
+  HcalFrontEndId    rbxid(hcalFrontEndID_);
 
   int mydcc_sl = 0;
   int mydcc    = 0;
@@ -211,9 +211,7 @@ CALIBLogicalMapEntry::CALIBLogicalMapEntry(
   myside_   = in_sid;
   mydphi_   = in_dph;
   mywedge_  = in_wed;
-  myrm_fi_  = in_rm_fi;
   // string data members
-  myrbx_         = in_s_rbx;
   mycalibsubdet_ = in_s_subdet;
 
   //create the hcal electronics id
@@ -226,11 +224,21 @@ CALIBLogicalMapEntry::CALIBLogicalMapEntry(
   else if (in_s_det=="HE") mysubdet = HcalEndcap;
   else if (in_s_det=="HO") mysubdet = HcalOuter;
   else if (in_s_det=="HF") mysubdet = HcalForward;
+
   HcalCalibDetId hcalibdid( mysubdet, in_et, in_ph, in_ch_ty );
+
+  int in_rm, in_pix, in_qie, in_adc;
+  in_rm  = 5;
+  in_pix = 0;
+  in_qie = 1;
+  in_adc = in_fi_ch + ( 3 * ( in_rm_fi - 1 ) );
+
+  HcalFrontEndId hrbx( in_s_rbx, in_rm, in_pix, in_rm_fi, in_fi_ch, in_qie, in_adc );
+
   //store the different ids
   hcalEID_        = heid.rawId();
   hcalCalibDetID_ = hcalibdid.rawId();
-
+  hcalFrontEndID_ = hrbx.rawId();
 }
 
 char* CALIBLogicalMapEntry::printLMapLine() {
@@ -238,9 +246,10 @@ char* CALIBLogicalMapEntry::printLMapLine() {
   static char myline[512];
 
   HcalElectronicsId hcaleid(hcalEID_);
-  HcalCalibDetId hcalcalibid(hcalCalibDetID_);
-  HcalGenericDetId hcalgenid(hcalCalibDetID_);
- 
+  HcalCalibDetId    hcalcalibid(hcalCalibDetID_);
+  HcalGenericDetId  hcalgenid(hcalCalibDetID_);
+  HcalFrontEndId    rbxid(hcalFrontEndID_);
+
   int mydcc_sl = 0;
   int mydcc    = 0;
   if ((hcaleid.dccid()%2)==1) {
@@ -262,8 +271,8 @@ char* CALIBLogicalMapEntry::printLMapLine() {
               mydet = "invalid")));
   (hcaleid.htrTopBottom()==0) ? myfpga = "bot" : myfpga = "top";
 
-  sprintf(myline,"%1d %6d %6d %6d %6d %6s %7s",0,myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),myrbx_.c_str());
-  sprintf(myline+strlen(myline),"%8d %6d %6d %6d %4d %5s",mywedge_,myrm_fi_,hcaleid.fiberChanId(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
+  sprintf(myline,"%1d %6d %6d %6d %6d %6s %7s",0,myside_,hcalcalibid.ieta(),hcalcalibid.iphi(),mydphi_,mydet.c_str(),rbxid.rbx().c_str());
+  sprintf(myline+strlen(myline),"%8d %6d %6d %6d %4d %5s",mywedge_,rbxid.rmFiber(),hcaleid.fiberChanId(),hcaleid.readoutVMECrateId(),hcaleid.htrSlot(),myfpga.c_str());
   sprintf(myline+strlen(myline),"%8d %7d %6d %4d %6d %8d %9s\n",hcaleid.fiberIndex(),mydcc_sl,hcaleid.spigot(),mydcc,hcaleid.dccid()+700, hcalcalibid.cboxChannel(), mycalibsubdet_.c_str());
 
   return myline;
@@ -416,4 +425,3 @@ char* HTLogicalMapEntry::printLMapLine() {
 
   return myline;
 }
-

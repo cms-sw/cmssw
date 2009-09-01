@@ -19,7 +19,7 @@ class HcalFrontEndId {
   bool null() const { return hcalFrontEndId_==0; }
 
   std::string rbx() const;
-  int rm() const {return ((hcalFrontEndId_>>15)&0x3)+1;}
+  int rm() const {return ((hcalFrontEndId_>>15)&0x7)+1;}
   int pixel() const {return (hcalFrontEndId_>>10)&0x1F;}
   int rmFiber() const {return ((hcalFrontEndId_>>7)&0x7)+1;}
   int fiberChannel() const {return (hcalFrontEndId_>>5)&0x3;}

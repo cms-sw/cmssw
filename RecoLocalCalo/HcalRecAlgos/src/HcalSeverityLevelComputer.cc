@@ -10,11 +10,14 @@ void HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef,
 					   const std::string& mybit)
 {
   if (mybit == "HcalCellOff") setBit(HcalChannelStatus::HcalCellOff, mydef.chStatusMask);
-  else if (mybit == "HcalCellL1Mask") setBit(HcalChannelStatus::HcalCellL1Mask, mydef.chStatusMask);
+  else if (mybit == "HcalCellMask") setBit(HcalChannelStatus::HcalCellMask, mydef.chStatusMask);
   else if (mybit == "HcalCellDead") setBit(HcalChannelStatus::HcalCellDead, mydef.chStatusMask);
   else if (mybit == "HcalCellHot") setBit(HcalChannelStatus::HcalCellHot, mydef.chStatusMask);
   else if (mybit == "HcalCellStabErr") setBit(HcalChannelStatus::HcalCellStabErr, mydef.chStatusMask);
   else if (mybit == "HcalCellTimErr") setBit(HcalChannelStatus::HcalCellTimErr, mydef.chStatusMask);
+  else if (mybit == "HcalCellTrigMask=15") setBit(HcalChannelStatus::HcalCellTrigMask, mydef.chStatusMask);
+  else if (mybit == "HcalCellCaloTowerMask=18") setBit(HcalChannelStatus::HcalCellCaloTowerMask, mydef.chStatusMask);
+  else if (mybit == "HcalCellCaloTowerProb=19") setBit(HcalChannelStatus::HcalCellCaloTowerProb, mydef.chStatusMask);
   else 
     { // error: unrecognized channel status name
       edm::LogWarning  ("HcalSeverityLevelComputer") 

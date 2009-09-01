@@ -11,8 +11,6 @@
 
 
 
-
-
 /*****************************Classes****************************/
 
 class HBHEHFLogicalMapEntry {
@@ -114,15 +112,17 @@ class CALIBLogicalMapEntry {
   const uint32_t getLinearIndex() const {return HcalElectronicsId(hcalEID_).linearIndex();}
   const HcalElectronicsId getHcalElectronicsId() const {return HcalElectronicsId(hcalEID_);}
   const DetId getDetId() const {return DetId(hcalCalibDetID_);}
-  
+  const HcalFrontEndId getHcalFrontEndId() const {return HcalFrontEndId(hcalFrontEndID_);}
+
  private:
   
   uint32_t hcalEID_;
   uint32_t hcalCalibDetID_;
-  
+  uint32_t hcalFrontEndID_;
+
   // input data members
-  int myside_, mydphi_, mywedge_, myrm_fi_;
-  std::string myrbx_, mycalibsubdet_;
+  int myside_, mydphi_, mywedge_;
+  std::string mycalibsubdet_;
   
 };
 

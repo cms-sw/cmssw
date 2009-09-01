@@ -13,7 +13,7 @@
 //
 // Original Author:  Jared Todd Sturdy
 //         Created:  Thu Oct 23 18:16:33 CEST 2008
-// $Id$
+// $Id: MapTester.cc,v 1.2 2009/05/19 16:05:57 rofierzy Exp $
 //
 //
 
@@ -60,7 +60,6 @@ class MapTester : public edm::EDAnalyzer {
 };
 
 MapTester::MapTester(const edm::ParameterSet& iConfig)
-
 {
   mapIOV_            = iConfig.getParameter<unsigned int>("mapIOV");
   generateTextfiles_ = iConfig.getParameter<bool>("generateTextfiles");
@@ -85,6 +84,13 @@ MapTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 MapTester::beginJob(const edm::EventSetup&)
 {
+  char tempbuff[128];
+
+  time_t myTime;
+  time(&myTime);
+
+  strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
+
   HcalLogicalMapGenerator mygen;
   HcalLogicalMap mymap=mygen.createMap(mapIOV_);
 
@@ -100,11 +106,14 @@ MapTester::beginJob(const edm::EventSetup&)
     else if (mapIOV_==2) file<<"version_B_emap.txt";
     else                 file<<"version_C_emap.txt";
     std::ofstream outStream( file.str().c_str() );
-    
+    char buf [1024];
+    sprintf(buf,"#file creation series : %s",tempbuff);
+    outStream<<buf<< std::endl;
+
     HcalElectronicsMap myemap;
-    std::cout<<"generating the emap..."<<std::endl;
+    edm::LogInfo( "MapTester") <<"generating the emap..."<<std::endl;
     myemap = mymap.generateHcalElectronicsMap();
-    std::cout<<"dumping the emap..."<<std::endl;
+    edm::LogInfo( "MapTester") <<"dumping the emap..."<<std::endl;
     HcalDbASCIIIO::dumpObject(outStream,myemap);}
 }
 

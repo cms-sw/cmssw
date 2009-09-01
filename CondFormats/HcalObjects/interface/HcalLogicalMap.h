@@ -35,27 +35,23 @@ class HcalLogicalMap {
     HcalElectronicsMap generateHcalElectronicsMap();
     const DetId getDetId(const HcalElectronicsId&);
     const HcalFrontEndId getHcalFrontEndId(const DetId&);
-    //const HcalElectronicsId getHcalElectronicsId(const HcalDetId&);
     uint32_t static makeEntryNumber(bool,int,int);
-    //HBHEHFLogicalMapEntry GetHBHEHFLogicalMapEntry(HcalElectronicsId*);
-    //HOHXLogicalMapEntry   GetHOHXLogicalMapEntry  (HcalElectronicsId*);    
-    //CALIBLogicalMapEntry  GetCALIBLogicalMapEntry (HcalElectronicsId*);    
-    //ZDCLogicalMapEntry    GetZDCLogicalMapEntry   (HcalElectronicsId*);    
 
   private:
-    void printHBEFMap( FILE* hbefmapfile );
-    void printHOXMap( FILE* hoxmapfile );
+
+    void printHBEFMap(  FILE* hbefmapfile );
+    void printHOXMap(   FILE* hoxmapfile );
     void printCalibMap( FILE* calibmapfile );
-    void printZDCMap( FILE* zdcmapfile );
-    void printHTMap( FILE* htmapfile );
+    void printZDCMap(   FILE* zdcmapfile );
+    void printHTMap(    FILE* htmapfile );
 
     unsigned int mapIOV_;
 
     std::vector<HBHEHFLogicalMapEntry> HBHEHFEntries_;
-    std::vector<HOHXLogicalMapEntry> HOHXEntries_;
-    std::vector<CALIBLogicalMapEntry> CALIBEntries_;
-    std::vector<ZDCLogicalMapEntry> ZDCEntries_;
-    std::vector<HTLogicalMapEntry> HTEntries_;
+    std::vector<HOHXLogicalMapEntry>   HOHXEntries_;
+    std::vector<CALIBLogicalMapEntry>  CALIBEntries_;
+    std::vector<ZDCLogicalMapEntry>    ZDCEntries_;
+    std::vector<HTLogicalMapEntry>     HTEntries_;
     std::vector<uint32_t> LinearIndex2Entry_;
     std::vector<uint32_t> HbHash2Entry_;
     std::vector<uint32_t> HeHash2Entry_;
@@ -65,6 +61,5 @@ class HcalLogicalMap {
     std::vector<uint32_t> HxCalibHash2Entry_;
     std::vector<uint32_t> ZdcHash2Entry_;
 };
-
 
 #endif

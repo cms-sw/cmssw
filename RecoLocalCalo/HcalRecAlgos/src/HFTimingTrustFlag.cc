@@ -1,4 +1,4 @@
-#include "../interface/HFTimingTrustFlag.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
 namespace HFTimingTrust 

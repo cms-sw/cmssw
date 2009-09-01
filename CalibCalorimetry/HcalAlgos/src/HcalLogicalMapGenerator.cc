@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -50,6 +51,7 @@ HcalLogicalMap HcalLogicalMapGenerator::createMap( unsigned int mapIOV ) {
   std::vector <uint32_t> HtHash2Entry;
   std::vector <uint32_t> HoHash2Entry;
   std::vector <uint32_t> HxCalibHash2Entry;
+  //std::vector <uint32_t> CalibHash2Entry;
   std::vector <uint32_t> ZdcHash2Entry;
 
   int HbHalf = 1296;
@@ -78,7 +80,7 @@ HcalLogicalMap HcalLogicalMapGenerator::createMap( unsigned int mapIOV ) {
 
   return HcalLogicalMap(HBHEHFEntries,HOHXEntries,CALIBEntries,ZDCEntries,HTEntries,
 			LinearIndex2Entry,HbHash2Entry,HeHash2Entry,HfHash2Entry,HtHash2Entry,
-			HoHash2Entry,HxCalibHash2Entry,ZdcHash2Entry);
+			HoHash2Entry,HxCalibHash2Entry,/*CalibHash2Entry,*/ZdcHash2Entry);
 } 
 
 void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>& HBHEHFEntries,
@@ -89,7 +91,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
 					    std::vector <uint32_t>& HfHash2Entry,
 					    std::vector <uint32_t>& HtHash2Entry) {
 
-  /********************/
+  /******************************/
   /* HBHE crate numbering */
   int hbhecrate_loc[NHBHECR]={0,1,4,5,10,11,14,15,17};
   memcpy( hbhecrate, hbhecrate_loc, sizeof(int)*NHBHECR );
@@ -399,7 +401,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
     }
   }
 
-  /***************/
+  /********************/
   /* HF crate numbering */
   int hfcrate_loc[NHFCR]={2,9,12};
   memcpy( hfcrate, hfcrate_loc, sizeof(int)*NHFCR );
@@ -498,7 +500,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&
                   else if (iphi == 71)    iphi = 1;
                   else if (iphi % 4 == 1) iphi -= 2;
                   else if (iphi % 4 == 3) iphi += 2;
-                  else                    cout<<"Even iphi in HFM"<<endl;
+                  else                    edm::LogInfo( "HcalLogicalMapGenerator") <<"Even iphi in HFM"<<endl;
                 }
               }
               else{
@@ -740,31 +742,27 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
     int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { 14, 15, 14, 13, 12, 11 }, // ring +2 phi = 5, inverted
       { 14, 15, 14, 13, 12, 11 }, // ring +2 phi = 67, inverted
-      { 10, 9, 8, 7, 6, 5 }, // ring -1 phi = 57, inverted
-      { 10, 9, 8, 7, 6, 5 }, // ring -1 phi = 65, inverted
-      { 14, 15, 14, 13, 12, 11 },  // ring -2 phi = 16, inverted
+      { 10, 9, 8, 7, 6, 5 },      // ring -1 phi = 57, inverted
+      { 10, 9, 8, 7, 6, 5 },      // ring -1 phi = 65, inverted
+      { 14, 15, 14, 13, 12, 11 }, // ring -2 phi = 16, inverted
       { 14, 15, 14, 13, 12, 11 }  // ring -2 phi = 31, inverted
     };
 
     std::string rmspeciallet_code_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { "X", "B", "C", "D", "E", "F" },  // ring +2 phi = 5, inverted
-      //{ "X", "E", "D", "C", "B", "A" },  // ring +2 phi = 5, inverted old
       { "X", "P", "Q", "R", "S", "T" },  // ring +2 phi = 67, inverted
-      //{ "X", "S", "R", "Q", "P", "N" },  // ring +2 phi = 67, inverted old
       { "G", "H", "J", "K", "L", "M" },  // ring -1 phi = 57, inverted
       { "A", "B", "C", "D", "E", "F" },  // ring -1 phi = 65, inverted
       { "X", "B", "C", "D", "E", "F" },  // ring -2 phi = 16, inverted
-      //{ "X", "E", "D", "C", "B", "A" },  // ring -2 phi = 16, inverted old
       { "X", "P", "Q", "R", "S", "T" }   // ring -2 phi = 31, inverted
-      //{ "X", "S", "R", "Q", "P", "N" }   // ring -2 phi = 31, inverted old
     };
 
     std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 5, inverted
       { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring +2 phi = 67, inverted
-      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57, inverted
-      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65, inverted
-      { "HOX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16, inverted
+      { "HO", "HO", "HO", "HO", "HO", "HO" },  // ring -1 phi = 57, inverted
+      { "HO", "HO", "HO", "HO", "HO", "HO" },  // ring -1 phi = 65, inverted
+      { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring -2 phi = 16, inverted
       { "HOX", "HO", "HO", "HO", "HO", "HO" }  // ring -2 phi = 31, inverted
     };
 
@@ -784,10 +782,9 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
     int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 5
       { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 67
-      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 57
-      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 65
-      //{ 11, 12, 13, 14, 15, 15 },  // ring -2 phi = 16
-      { 14, 15, 14, 13, 12, 11 },  // ring -2 phi = 16, still inverted
+      { 5, 6, 7, 8, 9, 10 },      // ring -1 phi = 57
+      { 5, 6, 7, 8, 9, 10 },      // ring -1 phi = 65
+      { 14, 15, 14, 13, 12, 11 }, // ring -2 phi = 16, still inverted
       { 11, 12, 13, 14, 15, 15 }  // ring -2 phi = 31
     };
 
@@ -796,19 +793,16 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
       { "T", "S", "R", "Q", "P", "X" },  // ring +2 phi = 67
       { "M", "L", "K", "J", "H", "G" },  // ring -1 phi = 57
       { "F", "E", "D", "C", "B", "A" },  // ring -1 phi = 65
-      //{ "F", "E", "D", "C", "B", "X" },  // ring -2 phi = 16
       { "X", "B", "C", "D", "E", "F" },  // ring -2 phi = 16,still  inverted
-      //{ "X", "E", "D", "C", "B", "A" },  // ring -2 phi = 16, still old inverted
       { "T", "S", "R", "Q", "P", "X" }   // ring -2 phi = 31
     };
 
     std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 5
       { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 67
-      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
-      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
-      //{ "HO", "HO", "HO", "HO", "HO", "HOX" },  // ring -2 phi = 16
-      { "HOX", "HO", "HO", "HO", "HO", "HO" },  // ring -2 phi = 16, still inverted
+      { "HO", "HO", "HO", "HO", "HO", "HO" },  // ring -1 phi = 57
+      { "HO", "HO", "HO", "HO", "HO", "HO" },  // ring -1 phi = 65
+      { "HOX", "HO", "HO", "HO", "HO", "HO" }, // ring -2 phi = 16, still inverted
       { "HO", "HO", "HO", "HO", "HO", "HOX" }  // ring -2 phi = 31
     };
 
@@ -828,9 +822,9 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
     int rmspecialeta_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 5
       { 11, 12, 13, 14, 15, 15 }, // ring +2 phi = 67
-      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 57
-      { 5, 6, 7, 8, 9, 10 }, // ring -1 phi = 65
-      { 11, 12, 13, 14, 15, 15 },  // ring -2 phi = 16
+      { 5, 6, 7, 8, 9, 10 },      // ring -1 phi = 57
+      { 5, 6, 7, 8, 9, 10 },      // ring -1 phi = 65
+      { 11, 12, 13, 14, 15, 15 }, // ring -2 phi = 16
       { 11, 12, 13, 14, 15, 15 }  // ring -2 phi = 31
     };
 
@@ -846,9 +840,9 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
     std::string rmspecialdet_loc[6][6] = { //there are 6 special cases, corresponding to 6 values of phi
       { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 5
       { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring +2 phi = 67
-      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 57
-      { "HO", "HO", "HO", "HO", "HO", "HO" }, // ring -1 phi = 65
-      { "HO", "HO", "HO", "HO", "HO", "HOX" },  // ring -2 phi = 16
+      { "HO", "HO", "HO", "HO", "HO", "HO" },  // ring -1 phi = 57
+      { "HO", "HO", "HO", "HO", "HO", "HO" },  // ring -1 phi = 65
+      { "HO", "HO", "HO", "HO", "HO", "HOX" }, // ring -2 phi = 16
       { "HO", "HO", "HO", "HO", "HO", "HOX" }  // ring -2 phi = 31
     };
 
@@ -908,7 +902,7 @@ void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOH
         else if ((ieta == 5 && iside > 0) || ieta == 4)   fpga = "top";
         else if ((ieta == 5 || ieta >= 10) && iside < 0)  fpga = "bot";
         else if ((ieta < 10 && ieta >= 6) && iside < 0)   fpga = "top";
-        else    cout<<"Bad fpga code"<<endl;
+        else    edm::LogInfo( "HcalLogicalMapGenerator") <<"Bad fpga code"<<endl;
         
         //dphi
         if      (ieta <= 20) idphi = 1;
@@ -1190,6 +1184,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
 					    std::vector <uint32_t>& LinearIndex2Entry,
 					    std::vector <uint32_t>& HxCalibHash2Entry) {
   
+  /******************************/
   /* CALIB crate numbering in order of FEDID*/
   int calibcrate_loc[NCALIBCR]={4,0,1,5,11,15,17,14,10,9,7,6,13};//HBHE,HF,HO
   memcpy( calibcrate, calibcrate_loc, sizeof(int)*NCALIBCR );
@@ -1337,6 +1332,10 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
 					      );
 	  CALIBEntries.push_back(caliblmapentry);
 	  LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+
+	  const HcalGenericDetId hgdi(caliblmapentry.getDetId());
+	  const int hashedId=hgdi.hashedId(false);
+	  if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
         }
       }
     }
@@ -1387,6 +1386,10 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
 					    );
 	CALIBEntries.push_back(caliblmapentry);
 	LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+
+	const HcalGenericDetId hgdi(caliblmapentry.getDetId());
+	const int hashedId=hgdi.hashedId(false);
+	if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();  
       }
     }
   }
@@ -1460,6 +1463,10 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
 						);
 	    CALIBEntries.push_back(caliblmapentry);
 	    LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
+
+	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());
+	    const int hashedId=hgdi.hashedId(false);
+	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
 	  } while (ifb!=ifb);
         }
       }
@@ -1470,10 +1477,11 @@ void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& 
 void HcalLogicalMapGenerator::buildZDCMap(std::vector <ZDCLogicalMapEntry>& ZDCEntries,
 					  std::vector <uint32_t>& LinearIndex2Entry,
 					  std::vector <uint32_t>& ZdcHash2Entry) {
-  //Stream variable
-
-  stringstream mystream;
+  /******************************/
   /*ZDC channels*/
+  //Stream variable
+  stringstream mystream;
+
   ifed=722;
   iy=1;
   ihtr=8;

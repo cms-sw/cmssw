@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.47 2009/07/30 20:08:15 kukartse Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.49 2009/08/27 07:25:20 elmer Exp $
 //
 #include <vector>
 #include <string>
@@ -349,8 +349,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()==0) continue; // blank line
-    if (items.size () < 5) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 8 items: eta, phi, depth, subdet, value" << std::endl;
+    if (items.size () < 6) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, depth, subdet, base - either (hex) or (dec), value" << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -360,7 +360,16 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
 //    else
 //      {
     uint32_t mystatus;
-    sscanf(items[4].c_str(),"%X", &mystatus);
+    if (items[4] == "(hex)")
+      sscanf(items[4].c_str(),"%X", &mystatus);
+    else if (items[4] == "(dec)")
+      sscanf(items[4].c_str(),"%u", &mystatus);
+    else
+      {
+	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n value field must contain the base: one of (hex), (dec)" << std::endl;
+	continue;
+      }
+
     HcalChannelStatus* fCondObject = new HcalChannelStatus(id, mystatus); //atoi (items [4].c_str()) );
     fObject->addValues(*fCondObject);
     delete fCondObject;
@@ -372,7 +381,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalChannelQuality* fObject
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality& fObject) {
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %15s %15s %15s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
+  sprintf (buffer, "# %15s %15s %15s %15s %15s %10s\n", "eta", "phi", "dep", "det", "(base) value", "DetId");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
@@ -381,7 +390,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality&
        channel++) {
     const int value = fObject.getValues (*channel)->getValue ();
     dumpId (fOutput, *channel);
-    sprintf (buffer, " %15X %10X\n",
+    sprintf (buffer, "%6s %15X %10X\n", "(hex)",
 	     value, channel->rawId ());
     fOutput << buffer;
   }

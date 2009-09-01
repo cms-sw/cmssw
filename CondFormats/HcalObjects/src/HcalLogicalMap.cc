@@ -4,6 +4,7 @@
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -86,24 +87,13 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   string date;
   string IOVlabel;
   
-  if (true) {
-    time_t myTime = time(NULL);
-    tm *myUsableTime = localtime(&myTime);
-    int day, mon, year;
-    day = myUsableTime->tm_mday;
-    mon = myUsableTime->tm_mon+1;
-    year = myUsableTime->tm_year +1900;
-    string month;
-    (mon==1) ? month = "Jan":((mon==2) ? month = "Feb":((mon==3) ? month = "Mar":
-	  ((mon==4) ? month = "Apr":((mon==5) ? month = "May":((mon==6) ? month = "Jun":
-	  ((mon==7) ? month = "Jul":((mon==8) ? month = "Aug":((mon==9) ? month = "Sep":
-	  ((mon==10) ? month = "Oct":((mon==11) ? month = "Nov": month = "Dec"))))))))));
+  time_t myTime;
+  time(&myTime);
   
-    if ( day < 10 ) sprintf (tempbuff, "%s.%1i%1i.%4i%c", month.c_str(), 0, day, year,'\0');
-    else sprintf (tempbuff, "%s.%1i.%4i%c", month.c_str(), day, year,'\0');
-    mystream<<tempbuff;
-    date= mystream.str();
-  }
+  strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
+  mystream<<tempbuff;
+  date= mystream.str();
+
   mystream.str("");
   if      (mapIOV==1) IOVlabel = "A";
   else if (mapIOV==2) IOVlabel = "B";
@@ -123,19 +113,19 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   /**********************/
 
   if(HBEFmap) printHBEFMap(HBEFmap);
-  else cout<<HBEFmapstr<<" not found!"<<endl;
+  else cout <<HBEFmapstr<<" not found!"<<endl;
 
   if(HOXmap) printHOXMap(HOXmap);
-  else cout<<HOXmapstr<<" not found!"<<endl;
+  else cout <<HOXmapstr<<" not found!"<<endl;
 
   if(CALIBmap) printCalibMap(CALIBmap);
-  else cout<<CALIBmapstr<<" not found!"<<endl;
+  else cout <<CALIBmapstr<<" not found!"<<endl;
 
   if(ZDCmap) printZDCMap(ZDCmap);
-  else cout<<ZDCmapstr<<" not found!"<<endl;
+  else cout <<ZDCmapstr<<" not found!"<<endl;
 
   if(HTmap) printHTMap(HTmap);
-  else cout<<HTmapstr<<" not found!"<<endl;
+  else cout <<HTmapstr<<" not found!"<<endl;
 
 }
 
@@ -274,6 +264,10 @@ const HcalFrontEndId HcalLogicalMap::getHcalFrontEndId(const DetId& did)
       const uint32_t entry=HxCalibHash2Entry_.at(hashedId)-1;
       return HOHXEntries_.at(entry).getHcalFrontEndId();
     }
+    else if (hcid.calibFlavor()==HcalCalibDetId::CalibrationBox) {
+      const uint32_t entry=HxCalibHash2Entry_.at(hashedId)-1;
+      return CALIBEntries_.at(entry).getHcalFrontEndId();
+    }
   }
   return HcalFrontEndId(0);
 }
@@ -292,6 +286,8 @@ void HcalLogicalMap::checkIdFunctions() {
   int HBHEHF_FEID_fail=0;
   int HOHX_FEID_pass=0;
   int HOHX_FEID_fail=0;
+  int CALIB_FEID_pass=0;
+  int CALIB_FEID_fail=0;
 
   cout << "\nRunning the id function checker..." << endl;
 
@@ -325,6 +321,11 @@ void HcalLogicalMap::checkIdFunctions() {
     const DetId did1=getDetId(heid);
     if (did0==did1) CALIB_EID_pass++;
     else CALIB_EID_fail++;
+
+    const HcalFrontEndId hfeid0=it->getHcalFrontEndId();
+    const HcalFrontEndId hfeid1=getHcalFrontEndId(did0);
+    if (hfeid0==hfeid1) CALIB_FEID_pass++;
+    else CALIB_FEID_fail++;
   }
   for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
     const HcalElectronicsId heid=it->getHcalElectronicsId();
@@ -343,6 +344,7 @@ void HcalLogicalMap::checkIdFunctions() {
   cout << "Checking frontEndIds from electronics ids..." << endl;
   cout << "HBHEHF FEID (pass,fail) = (" << HBHEHF_FEID_pass << "," << HBHEHF_FEID_fail << ")" << endl;
   cout << "HOHX FEID (pass,fail) = (" << HOHX_FEID_pass << "," << HOHX_FEID_fail << ")" << endl;
+  cout << "CALIB FEID (pass,fail) = (" << CALIB_FEID_pass << "," << CALIB_FEID_fail << ")" << endl;
 }
 
 
@@ -371,15 +373,6 @@ void HcalLogicalMap::checkHashIds() {
       HF_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
     }
   }
-  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
-    ZDC_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
-  }
-  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
-    HT_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
-  }
-  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
-    CALIBHX_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
-  }
   for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
     if (HcalGenericDetId(it->getDetId().rawId()).isHcalCalibDetId() ) {
       CALIBHX_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
@@ -387,6 +380,15 @@ void HcalLogicalMap::checkHashIds() {
     else {
       HO_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
     }
+  }
+  for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
+    CALIBHX_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+  }
+  for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
+    ZDC_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+  }
+  for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
+    HT_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
   }
 
   sort(HB_Hashes_.begin()     , HB_Hashes_.end());
@@ -443,7 +445,7 @@ void HcalLogicalMap::checkHashIds() {
   cout << "HE HashIds (pass, collisions, non-dense) = (" << numpass[1] << "," << numfails[1] << "," << numnotdense[1] << ")" << endl;
   cout << "HF HashIds (pass, collisions, non-dense) = (" << numpass[2] << "," << numfails[2] << "," << numnotdense[2] << ")" << endl;
   cout << "HO HashIds (pass, collisions, non-dense) = (" << numpass[3] << "," << numfails[3] << "," << numnotdense[3] << ")" << endl;
-  cout << "CALIB_HX HashIds (pass, collisions, non-dense) = (" << numpass[4] << "," << numfails[4] << "," << numnotdense[4] << ")" << endl;
+  cout << "CALIB/HX HashIds (pass, collisions, non-dense) = (" << numpass[4] << "," << numfails[4] << "," << numnotdense[4] << ")" << endl;
   cout << "ZDC HashIds (pass, collisions, non-dense) = (" << numpass[5] << "," << numfails[5] << "," << numnotdense[5] << ")" << endl;
   cout << "HT HashIds (pass, collisions, non-dense) = (" << numpass[6] << "," << numfails[6] << "," << numnotdense[6] << ")" << endl;
 }
