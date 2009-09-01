@@ -446,15 +446,15 @@ G4VSolid * DDG4SolidConverter::trunctubs(const DDSolid & s)
 
   // check the parameters
   if (rIn <= 0 || rOut <=0 || cutAtStart <=0 || cutAtDelta <= 0) {
-    string s = "TruncTubs " + string(tt.name()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
+    string s = "TruncTubs " + string(tt.name().fullname()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
     throw DDException(s);
   }
   if (rIn >= rOut) {
-    string s = "TruncTubs " + string(tt.name()) + ": rIn<rOut violated!";
+    string s = "TruncTubs " + string(tt.name().fullname()) + ": rIn<rOut violated!";
     throw DDException(s);
   }
   if (startPhi != 0.) {
-    string s= "TruncTubs " + string(tt.name()) + ": startPhi != 0 not supported!";
+    string s= "TruncTubs " + string(tt.name().fullname()) + ": startPhi != 0 not supported!";
     throw DDException(s);
   }
   //     if (cutInside != false) {
