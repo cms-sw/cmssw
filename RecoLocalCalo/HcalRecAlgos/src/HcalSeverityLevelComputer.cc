@@ -15,9 +15,9 @@ void HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef,
   else if (mybit == "HcalCellHot") setBit(HcalChannelStatus::HcalCellHot, mydef.chStatusMask);
   else if (mybit == "HcalCellStabErr") setBit(HcalChannelStatus::HcalCellStabErr, mydef.chStatusMask);
   else if (mybit == "HcalCellTimErr") setBit(HcalChannelStatus::HcalCellTimErr, mydef.chStatusMask);
-  else if (mybit == "HcalCellTrigMask=15") setBit(HcalChannelStatus::HcalCellTrigMask, mydef.chStatusMask);
-  else if (mybit == "HcalCellCaloTowerMask=18") setBit(HcalChannelStatus::HcalCellCaloTowerMask, mydef.chStatusMask);
-  else if (mybit == "HcalCellCaloTowerProb=19") setBit(HcalChannelStatus::HcalCellCaloTowerProb, mydef.chStatusMask);
+  else if (mybit == "HcalCellTrigMask") setBit(HcalChannelStatus::HcalCellTrigMask, mydef.chStatusMask);
+  else if (mybit == "HcalCellCaloTowerMask") setBit(HcalChannelStatus::HcalCellCaloTowerMask, mydef.chStatusMask);
+  else if (mybit == "HcalCellCaloTowerProb") setBit(HcalChannelStatus::HcalCellCaloTowerProb, mydef.chStatusMask);
   else 
     { // error: unrecognized channel status name
       edm::LogWarning  ("HcalSeverityLevelComputer") 
