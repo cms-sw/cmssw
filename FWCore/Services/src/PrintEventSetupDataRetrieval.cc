@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  9 14:30:13 CDT 2009
-// $Id: PrintEventSetupDataRetrieval.cc,v 1.1 2009/07/12 20:07:16 chrjones Exp $
 //
 
 // system include files

@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  9 14:43:09 CDT 2009
-// $Id: PrintEventSetupDataRetrieval.h,v 1.1 2009/07/12 20:07:16 chrjones Exp $
 //
 
 // system include files
