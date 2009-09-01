@@ -144,7 +144,7 @@ bool DDHtmlRoDetails::details(ostream & os, const DDName & nm)
   }
   DD3Vector x, y, z;
   ddr.matrix()->GetComponents(x, y, z);
-  os << f_.h2("Rotation: " + (string)nm);
+  os << f_.h2("Rotation: " + nm.fullname());
   os << f_.h3("GEANT3 style:"); 
   os << "<table border=\"0\">" << endl
      << "<tr><td>thetaX =</td><td>" << x.Theta()/deg << " deg</td><tr>" << endl
@@ -203,7 +203,7 @@ bool DDHtmlMaDetails::details(ostream & os, const DDName & nm)
 	    elem = "yes";
       }
       os << f_.tr() << "<td>" << frac << "</td>" 
-         << f_.td(f_.lnk("../" + m.ddname().ns() + "/" + m.ddname().name() + ".html", m.ddname(), "_popup"))
+         << f_.td(f_.lnk("../" + m.ddname().ns() + "/" + m.ddname().name() + ".html", m.ddname().fullname(), "_popup"))
 	  << f_.td(elem) << f_.trEnd();
     }
     os << f_.tableEnd();
@@ -223,7 +223,7 @@ bool DDHtmlMaDetails::details(ostream & os, const DDName & nm)
   }
   for (; it != ed; ++it ) {
     const DDName & n = it->ddname();
-    os << f_.link("../../lp/" + n.ns() + "/" + n.name() + ".html", n, "_popup" );
+    os << f_.link("../../lp/" + n.ns() + "/" + n.name() + ".html", n.fullname(), "_popup" );
   }
   os << "</p>" << endl;
   return true;
@@ -277,7 +277,7 @@ bool DDHtmlLpDetails::details(ostream & os, const DDName & nm)
     set<DDSpecifics>::const_iterator it(lpspit->second.begin()), ed(lpspit->second.end());
     os << "<p>" << endl;
     for (; it != ed; ++it) {
-      os << f_.link("../../sp/" + it->ddname().ns() + "/" + it->ddname().name() + ".html", it->ddname(), "_popup")
+      os << f_.link("../../sp/" + it->ddname().ns() + "/" + it->ddname().name() + ".html", it->ddname().fullname(), "_popup")
          << " " << endl;
     }
     os << "</p>" << endl;

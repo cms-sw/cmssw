@@ -96,7 +96,7 @@ bool findNameSpaces(T dummy, ns_nm_type & m)
      result = it->isDefined().second;
      if (!result) 
        DDI::Singleton<std::map<std::string,std::set<T> > >::instance()[it->name().ns()].insert(*it);
-     m[it->name().ns()].insert(it->name());
+     m[it->name().ns()].insert(it->name().name());
    }
    return result;
 }

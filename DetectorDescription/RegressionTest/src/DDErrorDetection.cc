@@ -74,10 +74,10 @@ const map<string, set<DDLogicalPart> > & DDErrorDetection::lp_cpv()
       const DDLogicalPart & lp = *sit;
       DDCompactView::graph_type::const_edge_range er = g.edges(lp);
       if (g.nodeIndex(lp).second) {
-        result_.insert(make_pair(string(lp.ddname()), set<DDLogicalPart>()));  
+        result_.insert(make_pair(lp.ddname().fullname(), set<DDLogicalPart>()));  
       }
       for (; er.first != er.second; ++er.first) {
-         result_[lp.ddname()].insert(g.nodeData(er.first->first));
+         result_[lp.ddname().fullname()].insert(g.nodeData(er.first->first));
       }
     }						       
   }		
