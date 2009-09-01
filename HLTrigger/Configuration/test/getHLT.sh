@@ -34,9 +34,9 @@ function getContentForCVS() {
   local CONFIG="$1"
   local OUTPUT_ALCA="hltOutputALCAPHISYM hltOutputALCAPHISYMHCAL hltOutputALCAP0 hltOutputRPCMON"
   local OUTPUT_MON="hltOutputDQM hltOutputHLTDQM hltOutputHLTMON hltOutput8E29 hltOutput1E31 hltOutputHIon"
-  hltConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands "hltOutputA") --format python > hltOutputA_cff.py
-  hltConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_MON)  --format python > hltOutputMON_cff.py
-  hltConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_ALCA) --format python > hltOutputALCA_cff.py
+  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands "hltOutputA") --format python > hltOutputA_cff.py
+  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_MON)  --format python > hltOutputMON_cff.py
+  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_ALCA) --format python > hltOutputALCA_cff.py
 }
 
 function getConfigForOnline() {

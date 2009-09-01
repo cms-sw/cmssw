@@ -1,12 +1,28 @@
-# /dev/CMSSW_3_3_0/pre1/HIon/V10 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
+# /dev/CMSSW_3_3_0/pre1/HIon/V11 (CMSSW_3_3_X_2009-09-01-0500_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V10')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V11')
 )
 
+streams = cms.untracked.PSet( 
+  ALCAP0 = cms.untracked.vstring( 'AlCaP0' ),
+  ALCAPHISYM = cms.untracked.vstring( 'AlCaPhiSymEcal' ),
+  A = cms.untracked.vstring( 'HcalHPDNoise',
+    'MinimumBiasNoCalo',
+    'Cosmics',
+    'RandomTriggers',
+    'Calo' ),
+  Express = cms.untracked.vstring( 'ExpressMuon' ),
+  ALCAPHISYMHCAL = cms.untracked.vstring( 'AlCaPhiSymHcal' ),
+  Calibration = cms.untracked.vstring( 'TestEnables' ),
+  EcalCalibration = cms.untracked.vstring( 'EcalLaser' ),
+  RPCMON = cms.untracked.vstring( 'RPCMonitor' ),
+  HLTMON = cms.untracked.vstring( 'OfflineMonitor' ),
+  FEDErrors = cms.untracked.vstring( 'FEDMonitor' )
+)
 
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
@@ -1041,27 +1057,6 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HF2Weights = cms.vdouble(  ),
     ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
-hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "IterativeConePilupSubtractionJetProducer",
-    seedThreshold = cms.double( 1.0 ),
-    coneRadius = cms.double( 0.5 ),
-    src = cms.InputTag( "hltTowerMakerForAll" ),
-    verbose = cms.untracked.bool( False ),
-    inputEtMin = cms.double( 0.5 ),
-    nSigmaPU = cms.double( 1.0 ),
-    radiusPU = cms.double( 0.5 ),
-    alias = cms.untracked.string( "IC5PUCaloJet" ),
-    debugLevel = cms.untracked.int32( 0 ),
-    jetType = cms.untracked.string( "CaloJetPileupSubtraction" ),
-    inputEMin = cms.double( 0.0 ),
-    inputEtJetMin = cms.double( 10.0 ),
-    maxRecoveredHcalCells = cms.uint32( 9999999 ),
-    jetPtMin = cms.double( 0.0 ),
-    maxBadHcalCells = cms.uint32( 9999999 ),
-    maxBadEcalCells = cms.uint32( 9999999 ),
-    maxRecoveredEcalCells = cms.uint32( 9999999 ),
-    maxProblematicHcalCells = cms.uint32( 9999999 ),
-    maxProblematicEcalCells = cms.uint32( 9999999 )
-)
 hltMCJetCorJetIcone5PU = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltIterativeCone5PileupSubtractionCaloJets" ),
     verbose = cms.untracked.bool( False ),
@@ -1708,7 +1703,7 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 HLTBeginSequence = cms.Sequence( hltTriggerType + hltEventNumber + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
 HLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + HLTDoLocalHcalSequence + hltTowerMakerForAll )
-HLTDoHIJetRecoSequence = cms.Sequence( HLTDoCaloSequence + hltIterativeCone5PileupSubtractionCaloJets + hltMCJetCorJetIcone5PU )
+HLTDoHIJetRecoSequence = cms.Sequence( HLTDoCaloSequence + hltMCJetCorJetIcone5PU )
 HLTEndSequence = cms.Sequence( hltBoolEnd )
 HLTDoHIEcalClusSequence = cms.Sequence( hltIslandBasicClustersHI + hltIslandSuperClustersHI + hltCorrectedIslandBarrelSuperClustersHI + hltCorrectedIslandEndcapSuperClustersHI + hltRecoHIEcalCandidate )
 HLTL2muonrecoNocandSequence = cms.Sequence( hltMuonDTDigis + hltDt1DRecHits + hltDt4DSegments + hltMuonCSCDigis + hltCsc2DRecHits + hltCscSegments + hltMuonRPCDigis + hltRpcRecHits + hltL2MuonSeeds + hltL2Muons )
@@ -1730,4 +1725,3 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
 HLTSchedule = cms.Schedule( HLTriggerFirstPath, HLT_HIJet50U, HLT_HIJet75U, HLT_HIJet90U, HLT_HIPhoton10, HLT_HIPhoton20, HLT_HIPhoton30, HLT_HIDoubleMu, HLTriggerFinalPath, HLTAnalyzerEndpath )
-
