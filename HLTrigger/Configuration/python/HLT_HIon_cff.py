@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre1/HIon/V9 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
+# /dev/CMSSW_3_3_0/pre1/HIon/V10 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V10')
 )
 
 
@@ -690,7 +690,7 @@ mixedlayerpairs = cms.ESProducer( "SeedingLayersESProducer",
     'TEC1_neg+TEC2_neg',
     'TEC2_neg+TEC3_neg' ),
   BPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.006 ),
+    hitErrorRZ = cms.double( 0.0060 ),
     hitErrorRPhi = cms.double( 0.0027 ),
     TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
@@ -746,7 +746,7 @@ pixellayerpairs = cms.ESProducer( "SeedingLayersESProducer",
     'FPix1_pos+FPix2_pos',
     'FPix1_neg+FPix2_neg' ),
   BPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.006 ),
+    hitErrorRZ = cms.double( 0.0060 ),
     hitErrorRPhi = cms.double( 0.0027 ),
     TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
@@ -770,7 +770,7 @@ pixellayertriplets = cms.ESProducer( "SeedingLayersESProducer",
     'BPix1+FPix1_pos+FPix2_pos',
     'BPix1+FPix1_neg+FPix2_neg' ),
   BPix = cms.PSet( 
-    hitErrorRZ = cms.double( 0.006 ),
+    hitErrorRZ = cms.double( 0.0060 ),
     hitErrorRPhi = cms.double( 0.0027 ),
     TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
@@ -1375,7 +1375,7 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     ConstSyst_ME1a = cms.double( 0.022 ),
     NoiseLevel_ME1b = cms.double( 8.0 ),
     XTasymmetry_ME1b = cms.double( 0.0 ),
-    ConstSyst_ME1b = cms.double( 0.007 ),
+    ConstSyst_ME1b = cms.double( 0.0070 ),
     NoiseLevel_ME12 = cms.double( 9.0 ),
     XTasymmetry_ME12 = cms.double( 0.0 ),
     ConstSyst_ME12 = cms.double( 0.0 ),
@@ -1397,8 +1397,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME41 = cms.double( 9.0 ),
     XTasymmetry_ME41 = cms.double( 0.0 ),
     ConstSyst_ME41 = cms.double( 0.0 ),
-    readBadChannels = cms.bool( False ),
-    readBadChambers = cms.bool( False ),
+    readBadChannels = cms.bool( True ),
+    readBadChambers = cms.bool( True ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
     UseFourPoleFit = cms.bool( True ),
