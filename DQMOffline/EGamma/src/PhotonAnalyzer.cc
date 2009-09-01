@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/07/28 12:08:28 $ 
+ **  $Date: 2009/07/28 13:48:06 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -1085,8 +1085,11 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  }
 
 	
-	  fill2DHistoVector(h_phoConvEta_,aConv->caloCluster()[0]->eta(),cut,type);
-	  fill2DHistoVector(h_phoConvPhi_,aConv->caloCluster()[0]->phi(),cut,type);
+	  //fill2DHistoVector(h_phoConvEta_,aConv->caloCluster()[0]->eta(),cut,type);
+	  //fill2DHistoVector(h_phoConvPhi_,aConv->caloCluster()[0]->phi(),cut,type);
+	  
+	  fill2DHistoVector(h_phoConvEta_,aConv->pairMomentum().eta(),cut,type);
+	  fill2DHistoVector(h_phoConvPhi_,aConv->pairMomentum().phi(),cut,type);
 
 
 	  if ( aConv->conversionVertex().isValid() ) {
@@ -1098,7 +1101,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	    double convR= sqrt(aConv->conversionVertex().position().perp2());
 	    double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
-	    if ( scalar < 0 ) convR= -sqrt(aConv->conversionVertex().position().perp2());
+	    if ( scalar < 0 ) convR= -convR;
 
 
 	    fill2DHistoVector(h_convVtxRvsZ_,fabs( aConv->conversionVertex().position().z() ), convR,cut,type);
