@@ -273,7 +273,7 @@ DDEcalEndcapAlgo::execute()
 		   eeQuaName(),
 		   100*isctype + 10*(icol-1) + (irow-1),
 		   scrys.centrePos(),
-		   myrot( rname, scrys.rotation() ) ) ;
+		   myrot( rname.fullname(), scrys.rotation() ) ) ;
 	 }
       }
    }
@@ -496,7 +496,7 @@ DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName,
 		      pName,
 		      100*iSCType + 10*( icol - 1 ) + ( irow - 1 ),
 		      crystal.centrePos(),
-		      myrot( rname, crystal.rotation() ) ) ;
+		      myrot( rname.fullname(), crystal.rotation() ) ) ;
 	    }
 	 }
       }

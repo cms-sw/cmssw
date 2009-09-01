@@ -280,7 +280,7 @@ void DDTECModuleAlgo::execute() {
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
   DDName  parentName = parent().name(); 
-  idName = DDSplit(parentName).first;
+  idName = parentName.name();
   LogDebug("TECGeom") << "==>> " << idName << " parent " << parentName << " namespace " << idNameSpace;
   DDSolid solid;
 

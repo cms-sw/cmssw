@@ -179,7 +179,7 @@ void DDTIBLayerAlgo::execute() {
   LogDebug("TIBGeom") << "==>> Constructing DDTIBLayerAlgo...";
 
   DDName  parentName = parent().name(); 
-  std::string idName = DDSplit(parentName).first;
+  const std::string &idName = parentName.name();
 
   double rmin = MFRingInR;
   double rmax = MFRingOutR;

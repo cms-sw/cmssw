@@ -181,7 +181,7 @@ void DDTIBLayerAlgo_MTCC::execute() {
 		      << redgc1	<< ", " << redgc2;
   
   DDName parentName = parent().name(); 
-  std::string idName = DDSplit(parentName).first;
+  const std::string &idName = parentName.name();
   double rmin = radiusLo + roffDetLo - redgd1 - detectorTol;
   double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
 		     redgd2*redgd2) + detectorTol;

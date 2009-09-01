@@ -62,7 +62,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
   for(u_int32_t i=0; i<gdv.size(); i++){
 
-    std::string const & detName = gdv[i]->name();
+    std::string const & detName = gdv[i]->name().fullname();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
 
       PixelTopology* t = 
@@ -94,7 +94,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
   
   for(u_int32_t i=0;i<gdv.size();i++){
 
-    std::string const & detName = gdv[i]->name();
+    std::string const & detName = gdv[i]->name().fullname();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
 
        StripTopology* t =

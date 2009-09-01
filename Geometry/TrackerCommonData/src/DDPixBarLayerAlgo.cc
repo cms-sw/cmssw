@@ -70,7 +70,7 @@ void DDPixBarLayerAlgo::initialize(const DDNumericArguments & nArgs,
 void DDPixBarLayerAlgo::execute() {
 
   DDName      mother = parent().name();
-  std::string idName = DDSplit(mother).first;
+  const std::string &idName = mother.name();
 
   double dphi = CLHEP::twopi/number;
   double d2   = 0.5*coolWidth;

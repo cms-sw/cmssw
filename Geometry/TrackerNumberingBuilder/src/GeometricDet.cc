@@ -97,7 +97,7 @@ GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navt
   //  _weight  = (ev.logicalPart()).weight();
   _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
   _copy     = ev.copyno();
-  _material = ((ev.logicalPart()).material()).name();
+  _material = ((ev.logicalPart()).material()).name().fullname();
   _radLength = getDouble("TrackerRadLength",ev);
   _xi = getDouble("TrackerXi",ev);
   _pixROCRows = getDouble("PixelROCRows",ev);
@@ -128,7 +128,7 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   //  _weight   = (fv->logicalPart()).weight();  
   _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
   _copy     = fv->copyno();
-  _material = ((fv->logicalPart()).material()).name();
+  _material = ((fv->logicalPart()).material()).name().fullname();
   _radLength = getDouble("TrackerRadLength",*fv);
   _xi = getDouble("TrackerXi",*fv);
   _pixROCRows = getDouble("PixelROCRows",*fv);
@@ -159,7 +159,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   //  _weight   = (fv->logicalPart()).weight();
   _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
   _copy     = fv->copyno();
-  _material = ((fv->logicalPart()).material()).name();
+  _material = ((fv->logicalPart()).material()).name().fullname();
   _radLength = getDouble("TrackerRadLength",*fv);
   _xi = getDouble("TrackerXi",*fv);
   _pixROCRows = getDouble("PixelROCRows",*fv);

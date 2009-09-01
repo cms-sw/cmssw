@@ -63,7 +63,6 @@ void DDHCalForwardAlgo::execute() {
   LogDebug("HCalGeom") << "==>> Constructing DDHCalForwardAlgo...";
 
   DDName parentName = parent().name(); 
-  string idName     = DDSplit(parentName).first;
   double ypos       = startY;
   int    box        = 0;
 
@@ -72,7 +71,7 @@ void DDHCalForwardAlgo::execute() {
     int    indx = type[i];
     for (int j=0; j<number[i]; j++) {
       box++;
-      string name = idName + dbl_to_string(box);
+      string name = parentName.name() + dbl_to_string(box);
       DDSolid solid = DDSolidFactory::box(DDName(name, idNameSpace),
 					  dx, cellDy, cellDz);
       LogDebug("HCalGeom") << "DDHCalForwardAlgo test: " 

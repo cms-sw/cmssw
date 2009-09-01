@@ -95,7 +95,7 @@ void DDTIDRingAlgo::execute() {
     DDTranslation trmod(xpos, ypos, zpos);
     double phideg = phiz/CLHEP::deg;
     DDRotation rotation;
-    std::string rotstr = DDSplit(mother).first + dbl_to_string(phideg*10.);
+    std::string rotstr = mother.name() + dbl_to_string(phideg*10.);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
     if (!rotation) {
       LogDebug("TIDGeom") << "DDTIDRingAlgo test: Creating a new rotation "

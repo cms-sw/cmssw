@@ -496,7 +496,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_IlyFEMLength    = nArgs["IlyFEMLength"] ;
    m_IlyFEMHeight    = nArgs["IlyFEMHeight"] ;
    m_vecIlyFEMZ      = vArgs["IlyFEMZ"] ;
-   m_vecIlyFEMPhi    = vArgs["IlyFEMPhi"] ;
+   m_vecIlyFEMPhi    = vArgs["IlyFEMPhi"];
 
    m_HawRName   = sArgs["HawRName"] ;
    m_FawName    = sArgs["FawName"] ;
@@ -2758,7 +2758,7 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
       0                                     // y15
       ) ;
    const DDName        webPlDDName  ( webPlName() + int_to_string( iWeb ) ) ;
-   const DDSolid       webPlSolid   ( mytrap( webPlDDName, trapWebPl ) ) ;
+   const DDSolid       webPlSolid   ( mytrap( webPlDDName.fullname(), trapWebPl ) ) ;
    const DDLogicalPart webPlLog     ( webPlDDName, webPlMat(), webPlSolid ) ;
 
    DDpos( webPlLog,     // place plate inside clearance volume
