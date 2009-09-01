@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/09/01 08:30:15 $
- * $Revision: 1.459 $
+ * $Date: 2009/09/01 09:50:13 $
+ * $Revision: 1.460 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1146,7 +1146,7 @@ void EcalBarrelMonitorClient::writeDb() {
     if ( econn ) {
       try {
         if ( verbose_ ) cout << "Inserting MonIOV ..." << endl;
-//        econn->insertMonRunIOV(&runiov_);
+//        econn->insertMonRunIOV(&moniov_);
         RunTag runtag = runiov_.getRunTag();
         moniov_ = econn->fetchMonRunIOV(&runtag, &montag, run_, subrun_);
         if ( verbose_ ) cout << "done." << endl;
