@@ -104,7 +104,7 @@ make_and_fit_ratio(Book& book, bool cleanup) {
 void LA_Filler_Fitter::
 fit_profile(Book& book, const std::string& key) {
   for(Book::const_iterator p = book.begin(".*"+key); p!=book.end(); ++p) {
-    if((*p)->GetEntries() < 400) continue;
+    if((*p)->GetEntries() < 400) {book.erase(p.name()); continue;}
     
     float min = (*p)->GetMinimum();
     float max = (*p)->GetMaximum();
