@@ -24,6 +24,7 @@ DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('EEDigiCollectionDM')
 DMEcalDigis.digiProducer = cms.string('mixData')
 DMEcalDigis.EBdigiCollection = cms.string('EBDigiCollectionDM')
 DMEcalDigis.EEdigiCollection = cms.string('EEDigiCollectionDM')
+DMEcalDigis.trigPrimProducer = cms.string('DMEcalTriggerPrimitiveDigis')
 
 ecalDigiSequenceDM = cms.Sequence(DMEcalTriggerPrimitiveDigis*DMEcalDigis)
 
