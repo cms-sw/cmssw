@@ -1,7 +1,3 @@
-
-
-// $Id: PrincipalCache.cc,v 1.3 2009/04/26 16:00:34 chrjones Exp $
-
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -142,20 +138,35 @@ namespace edm {
     return currentLumiPrincipal_;
   }
 
-  bool PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
-    int run = rp->run();
+  bool PrincipalCache::merge(boost::shared_ptr<RunAuxiliary> aux) {
+    int run = aux->run();
     RunIterator iter = runPrincipals_.find(run); 
     if (iter == runPrincipals_.end()) {
-      runPrincipals_[run] = rp;
-      currentRunPrincipal_ = rp;
-      return true;
+      return false;
     }
-    //the new RunPrincipal has the structure which matches the updated ProductRegistry
-    // we must swap the objects because the pointer to the object is used elsewhere
-    iter->second->swap(*rp);
-    iter->second->mergeRun(rp);
+    iter->second->mergeAuxiliary(*aux);
     currentRunPrincipal_ = iter->second;
-    
+    return true;
+  }
+
+  bool PrincipalCache::merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux) {
+    int run = aux->run();
+    int lumi = aux->luminosityBlock();
+    LumiKey key(run, lumi);
+    LumiIterator iter = lumiPrincipals_.find(key); 
+    if (iter == lumiPrincipals_.end()) {
+      return false;
+    }
+    iter->second->mergeAuxiliary(*aux);
+    currentLumiPrincipal_ = iter->second;
+    return true;
+  }
+
+  bool PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
+    int run = rp->run();
+    assert(runPrincipals_.find(run) == runPrincipals_.end());
+    runPrincipals_[run] = rp;
+    currentRunPrincipal_ = rp;
     return true;
   }
 
@@ -163,19 +174,9 @@ namespace edm {
     int run = lbp->run();
     int lumi = lbp->luminosityBlock();
     LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key); 
-    if (iter == lumiPrincipals_.end()) {
-      lumiPrincipals_[key] = lbp;
-      currentLumiPrincipal_ = lbp;
-      return true;
-    }
-
-    //the new LuminosityBlockPrincipal has the structure which matches the updated ProductRegistry
-    // we must swap the objects because the pointer to the object is used elsewhere
-    iter->second->swap(*lbp);
-    iter->second->mergeLuminosityBlock(lbp);
-    currentLumiPrincipal_ = iter->second;
-    
+    assert(lumiPrincipals_.find(key) == lumiPrincipals_.end());
+    lumiPrincipals_[key] = lbp;
+    currentLumiPrincipal_ = lbp;
     return true;
   }
 

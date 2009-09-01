@@ -124,7 +124,6 @@ namespace edm {
     total_passed_(),
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     unscheduled_(new UnscheduledCallProducer),
-    demandBranches_(),
     endpathsAreActive_(true) {
 
     ParameterSet opts(pset_->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
@@ -221,6 +220,18 @@ namespace edm {
 	  << "\n";
       }
     }
+    if (!unscheduledLabels.empty()) {
+      for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
+          itEnd = preg.productList().end();
+          it != itEnd;
+          ++it) {
+        if (it->second.produced() &&
+            it->second.branchType() == InEvent &&
+            unscheduledLabels.end() != unscheduledLabels.find(it->second.moduleLabel())) {
+	  it->second.setOnDemand();
+        }
+      }
+    }
 
     pset_->registerIt();
     pset::Registry::instance()->extra().setID(pset_->id());
@@ -244,28 +255,6 @@ namespace edm {
     limitOutput();
 
     prod_reg_->setFrozen();
-
-    //Now that these have been set, we can create the list of Branches we need.
-    std::string const source("source");
-    ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
-    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-	  itProdInfoEnd = prodsList.end();
-	itProdInfo != itProdInfoEnd;
-	++itProdInfo) {
-      boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-      if (bd->produced()) {
-	if (bd->moduleLabel() == source) {
-	  sourceBranches_[bd->branchType()].push_back(bd);
-	} else if(bd->branchType() == InEvent &&
-          unscheduledLabels.end() != unscheduledLabels.find(bd->moduleLabel())) {
-	  demandBranches_.push_back(bd);
-        } else {
-	  scheduledBranches_[bd->branchType()].push_back(bd);
-	}
-      } else {
-	inputBranches_[bd->branchType()].push_back(bd);
-      }
-    }
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on all_workers_ being full.
@@ -930,17 +919,10 @@ namespace edm {
   }
 
   void 
-  Schedule::setupOnDemandSystem(EventPrincipal& ep,
-				EventSetup const& es) {
+  Schedule::setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es) {
     // NOTE: who owns the productdescrption?  Just copied by value
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
-    typedef std::vector<boost::shared_ptr<ConstBranchDescription const> > branches;
-    for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
-      ep.addOnDemandGroup(**itBranch);
-    }
   }
 
 }

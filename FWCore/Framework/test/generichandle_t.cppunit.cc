@@ -79,14 +79,13 @@ void testGenericHandle::failgetbyLabelTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
-  edm::RunAuxiliary runAux(id.run(), time, time);
+  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(id.run(), time, time));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc));
-  lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
-  edm::EventPrincipal ep(eventAux, preg, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(id, uuid, time, lbp->luminosityBlock(), true));
+  edm::EventPrincipal ep(preg, pc);
+  ep.fillEventPrincipal(eventAux, lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -166,14 +165,13 @@ void testGenericHandle::getbyLabelTest() {
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
-  lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
-  edm::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, lbp->luminosityBlock(), true));
+  edm::EventPrincipal ep(pregc, pc);
+  ep.fillEventPrincipal(eventAux, lbp);
   const edm::BranchDescription& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
@@ -181,7 +179,7 @@ void testGenericHandle::getbyLabelTest() {
                               edm::productstatus::present(),
                               entryDescriptionPtr));
   edm::ConstBranchDescription const desc(branchFromRegistry);
-  ep.put(pprod, desc, branchEntryInfoPtr);
+  ep.put(desc, pprod, branchEntryInfoPtr);
   
   edm::GenericHandle h("edmtest::DummyProduct");
   try {

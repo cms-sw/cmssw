@@ -356,7 +356,6 @@ namespace edm {
     StatusCode doneAsync(event_processor::Msg m);
     
     bool doOneEvent(EventID const& id);
-    void procOneEvent(EventPrincipal *pep);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
@@ -380,7 +379,7 @@ namespace edm {
     ParameterSet			          maxEventsPset_;
     ParameterSet			          maxLumisPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
-    SignallingProductRegistry                     preg_;
+    boost::shared_ptr<SignallingProductRegistry>  preg_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
     std::auto_ptr<eventsetup::EventSetupProvider> esp_;    
@@ -407,7 +406,7 @@ namespace edm {
 
     std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;
-    std::auto_ptr<EventPrincipal>                 sm_evp_;
+    EventPrincipal*				  eventPrincipal_;
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;

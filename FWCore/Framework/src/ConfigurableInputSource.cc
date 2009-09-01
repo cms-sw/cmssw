@@ -6,8 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -35,9 +33,9 @@ namespace edm {
     origLuminosityBlockNumber_t_(luminosityBlock_),
     newRun_(true),
     newLumi_(true),
+    eventCached_(false),
     lumiSet_(false),
     eventSet_(false),
-    ep_(0),
     isRealData_(realData),
     eType_(EventAuxiliary::Undefined),
     numberOfEventsBeforeBigSkip_(0),
@@ -53,49 +51,41 @@ namespace edm {
   ConfigurableInputSource::~ConfigurableInputSource() {
   }
 
-  boost::shared_ptr<RunPrincipal>
-  ConfigurableInputSource::readRun_() {
+  boost::shared_ptr<RunAuxiliary>
+  ConfigurableInputSource::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
-    RunAuxiliary runAux(eventID_.run(), ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<RunPrincipal> runPrincipal(
-        new RunPrincipal(runAux, productRegistry(), processConfiguration()));
     newRun_ = false;
-    return runPrincipal;
+    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(eventID_.run(), ts, Timestamp::invalidTimestamp()));
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  ConfigurableInputSource::readLuminosityBlock_() {
-    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockPrincipal>();
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  ConfigurableInputSource::readLuminosityBlockAuxiliary_() {
+    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
     Timestamp ts = Timestamp(presentTime_);
-    LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), luminosityBlock_, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
-        new LuminosityBlockPrincipal(
-	    lumiAux, productRegistry(), processConfiguration()));
     newLumi_ = false;
-    return lumiPrincipal;
+    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), luminosityBlock_, ts, Timestamp::invalidTimestamp()));
   }
 
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal *
   ConfigurableInputSource::readEvent_() {
-    assert(ep_.get() != 0 || processingMode() != RunsLumisAndEvents);
-    return ep_;
+    assert(eventCached_ || processingMode() != RunsLumisAndEvents);
+    eventCached_ = false;
+    return eventPrincipalCache();
   }
 
   void
   ConfigurableInputSource::reallyReadEvent(LuminosityBlockNumber_t lumi) {
     if (processingMode() != RunsLumisAndEvents) return;
     EventSourceSentry sentry(*this);
-    EventAuxiliary eventAux(eventID_,
-      processGUID(), Timestamp(presentTime_), lumi, isRealData_, eType_);
-    std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
-    Event e(*result, moduleDescription());
+    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventID_, processGUID(), Timestamp(presentTime_), lumi, isRealData_, eType_));
+    eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal());
+    Event e(*eventPrincipalCache(), moduleDescription());
     if (!produce(e)) {
-      ep_.reset(); 
+      eventCached_ = false;
       return;
     }
     e.commit_();
-    ep_ = result;
+    eventCached_ = true;
   }
 
   void
@@ -120,8 +110,6 @@ namespace edm {
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
       newRun_ = newLumi_ = true;
-      resetLuminosityBlockPrincipal();
-      resetRunPrincipal();
     }
   }
 
@@ -152,7 +140,6 @@ namespace edm {
       luminosityBlock_ = lb;
       numberEventsInThisLumi_ = 0;
       newLumi_ = true;
-      resetLuminosityBlockPrincipal();
     }
     lumiSet_ = true;
   }
@@ -183,15 +170,13 @@ namespace edm {
     skip(numberToSkip);
     numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_ + 1;
     newRun_ = newLumi_ = true;
-    resetLuminosityBlockPrincipal();
-    resetRunPrincipal();
   }
     
   InputSource::ItemType 
   ConfigurableInputSource::getNextItemType() {
     if (newRun_) {
       if (eventID_.run() == RunNumber_t()) {
-        ep_.reset();
+        eventCached_ = false;
         return IsStop;
       }
       return IsRun;
@@ -199,7 +184,7 @@ namespace edm {
     if (newLumi_) {
       return IsLumi;
     }
-    if(ep_.get() != 0) {
+    if(eventCached_) {
       return IsEvent;
     }
     EventID oldEventID = eventID_;
@@ -210,7 +195,7 @@ namespace edm {
       eventSet_ = true;
     }
     if (eventID_.run() == RunNumber_t()) {
-      ep_.reset();
+      eventCached_ = false;
       return IsStop;
     }
     if (oldEventID.run() != eventID_.run()) {
@@ -221,21 +206,18 @@ namespace edm {
 	luminosityBlock_ = origLuminosityBlockNumber_t_;
       }
       newRun_ = newLumi_ = true;
-      resetLuminosityBlockPrincipal();
-      resetRunPrincipal();
       return IsRun;
     }
       // Same Run
     if (oldLumi != luminosityBlock_) {
       // New Lumi
       newLumi_ = true;
-      resetLuminosityBlockPrincipal();
       if (processingMode() != Runs) {
         return IsLumi;
       }
     }
     reallyReadEvent(luminosityBlock_);
-    if (ep_.get() == 0) {
+    if(!eventCached_) {
       return IsStop;
     }
     eventSet_ = false;

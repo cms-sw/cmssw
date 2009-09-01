@@ -50,9 +50,9 @@ namespace edm {
     virtual void endRun(Run&);
     virtual void beginLuminosityBlock(LuminosityBlock&);
     virtual void endLuminosityBlock(LuminosityBlock&);
-    virtual std::auto_ptr<EventPrincipal> readEvent_();
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
+    virtual EventPrincipal* readEvent_();
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
@@ -78,9 +78,9 @@ namespace edm {
     LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
     bool newRun_;
     bool newLumi_;
+    bool eventCached_;
     bool lumiSet_;
     bool eventSet_;
-    std::auto_ptr<EventPrincipal> ep_;
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
      

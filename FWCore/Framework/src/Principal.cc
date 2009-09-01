@@ -1,4 +1,5 @@
 /**----------------------------------------------------------------------
+    clearPrincipal();
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -22,32 +23,129 @@
 namespace edm {
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
-		       ProcessConfiguration const& pc,
-                       BranchType bt,
-		       ProcessHistoryID const& hist,
-		       boost::shared_ptr<BranchMapper> mapper,
-		       boost::shared_ptr<DelayedReader> rtrv) :
+                       ProcessConfiguration const& pc,
+                       BranchType bt) :
     EDProductGetter(),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(&pc),
     processHistoryModified_(false),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
-    size_(0),
     preg_(reg),
-    branchMapperPtr_(mapper),
-    store_(rtrv),
+    branchMapperPtr_(),
+    store_(),
     branchType_(bt) {
+    //Now that these have been set, we can create the list of Branches we need.
+    std::string const source("source");
+    ProductRegistry::ProductList const& prodsList = reg->productList();
+    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+          itProdInfoEnd = prodsList.end();
+        itProdInfo != itProdInfoEnd;
+        ++itProdInfo) {
+      if (itProdInfo->second.branchType() == branchType_) {
+        boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
+        if (bd->produced()) {
+          if (bd->moduleLabel() == source) {
+            addGroupSource(bd);
+          } else if(bd->onDemand()) {
+            assert(bt == InEvent);
+            addOnDemandGroup(bd);
+          } else {
+            addGroupScheduled(bd);
+          }
+        } else {
+          addGroupInput(bd);
+        }
+      }
+    }
+  }
+
+  Principal::~Principal() {
+  }
+
+  // Number of products in the Principal.
+  // For products in an input file and not yet read in due to delayed read,
+  // this routine assumes a real product is there.
+  size_t
+  Principal::size() const {
+    size_t size = 0U;
+    for(const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
+      Group const& g = **it;
+      if (!g.productUnavailable() && !g.onDemand() && !g.branchDescription().dropped()) {
+	++size;
+      }
+    }
+    return size;
+  }
+
+  //Reset provenance for input groups after new input file has been merged
+  void
+  Principal::reinitializeGroups(boost::shared_ptr<ProductRegistry const> reg) {
+    ProductRegistry::ProductList const& prodsList = reg->productList();
+    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+          itProdInfoEnd = prodsList.end();
+        itProdInfo != itProdInfoEnd;
+        ++itProdInfo) {
+      if (!itProdInfo->second.produced() && (itProdInfo->second.branchType() == branchType_)) {
+        boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
+        Group *g = getExistingGroup(itProdInfo->second.branchID());
+        if(g != 0) {
+	   g->resetBranchDescription(bd);
+        } else {
+          addGroupInput(bd);
+        }
+      }
+    }
+  }
+
+  void
+  Principal::addGroupScheduled(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<Group> g(new ScheduledGroup(bd));
+    addGroupOrThrow(g);
+  }
+
+  void
+  Principal::addGroupSource(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<Group> g(new SourceGroup(bd));
+    addGroupOrThrow(g);
+  }
+
+  void
+  Principal::addGroupInput(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<Group> g(new InputGroup(bd));
+    addGroupOrThrow(g);
+  }
+
+  void
+  Principal::addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<Group> g(new UnscheduledGroup(bd));
+    addGroupOrThrow(g);
+  }
+
+  void
+  Principal::clearPrincipal() {
+    processHistoryModified_ = false;
+    processHistoryPtr_.reset(new ProcessHistory);
+    branchMapperPtr_.reset();
+    store_.reset();
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      (*i)->resetGroupData();
+    }
+  }
+
+  void
+  Principal::fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, boost::shared_ptr<DelayedReader> rtrv) {
+    branchMapperPtr_ = mapper;
+    store_ = rtrv;
     if (hist.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
       assert(history.notEmpty());
       bool found = history.getMapped(hist, *processHistoryPtr_);
       assert(found);
     }
-    reg->productLookup().reorderIfNecessary(bt,*processHistoryPtr_,pc.processName());
-    reg->elementLookup().reorderIfNecessary(bt,*processHistoryPtr_,pc.processName());
-  }
-
-  Principal::~Principal() {
+    preg_->productLookup().reorderIfNecessary(branchType_, *processHistoryPtr_,
+					 processConfiguration_->processName());
+    preg_->elementLookup().reorderIfNecessary(branchType_, *processHistoryPtr_,
+					 processConfiguration_->processName());
   }
 
   Group*
@@ -77,9 +175,6 @@ namespace edm {
     ProductTransientIndex index = preg_->indexFrom(bd.branchID());
     assert(index != ProductRegistry::kInvalidIndex);
     groups_[index] = g;
-    if(bool(g)) {
-      ++size_;
-    }
   }
 
   void
@@ -97,31 +192,6 @@ namespace edm {
 	  << ")\n";
     }
     addGroup_(group);
-  }
-
-  void
-  Principal::addGroupOrNoThrow(std::auto_ptr<Group> group) {
-    Group const* g = getExistingGroup(*group);
-    if (g == 0) {
-      addGroup_(group);
-    }
-  }
-
-  void 
-  Principal::replaceGroup(Group& group) {
-    ConstBranchDescription const& bd = group.branchDescription();
-    assert (!bd.className().empty());
-    assert (!bd.friendlyClassName().empty());
-    assert (!bd.moduleLabel().empty());
-    assert (!bd.processName().empty());
-    ProductTransientIndex index = preg_->indexFrom(bd.branchID());
-    assert(index!=ProductRegistry::kInvalidIndex);
-    if (!groups_[index]) {
-      // If the group is not there, we add it;
-      groups_[index].reset(new Group);
-      ++size_;
-    }
-    groups_[index]->replace(group);
   }
 
   void
@@ -310,26 +380,6 @@ namespace edm {
                      result);
   }
 
-  void
-  Principal::readImmediate() const {
-    readProvenanceImmediate();
-    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (!(*i)->productUnavailable()) {
-        resolveProduct(*(*i), false);
-      }
-    }
-  }
-
-  void
-  Principal::readProvenanceImmediate() const {
-    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if ((*i)->provenanceAvailable()) {
-	resolveProvenance(**i);
-      }
-    }
-    branchMapperPtr_->setDelayedRead(false);
-  }
-
   size_t
   Principal::findGroups(TypeID const& typeID,
 			TransientProductLookupMap const& typeLookup,
@@ -504,40 +554,6 @@ namespace edm {
     return false;
   }
 
-  void
-  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
-    // Try unscheduled production.
-    if (g.onDemand()) {
-      if (fillOnDemand) {
-        unscheduledFill(g.branchDescription().moduleLabel());
-      }
-      return;
-    }
-
-    if (g.product()) return; // nothing to do.
-    if (g.productUnavailable()) return; // nothing to do.
-    if (g.branchDescription().produced()) return; // nothing to do.
-
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(g.branchDescription());
-    std::auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
-
-    // Now fix up the Group
-    if (edp.get() != 0) {
-      g.setProduct(edp);
-      g.updateStatus();
-    }
-  }
-
-  void
-  Principal::resolveProvenance(Group const& g) const {
-    if (!g.branchDescription().produced()) {
-      g.provenance()->setStore(branchMapperPtr_);
-      g.provenance()->resolve();
-      g.updateStatus();
-    }
-  }
-
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
     SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
@@ -639,7 +655,6 @@ namespace edm {
     std::swap(processConfiguration_,iOther.processConfiguration_);
     std::swap(processHistoryModified_,iOther.processHistoryModified_);
     std::swap(groups_,iOther.groups_);
-    std::swap(size_, iOther.size_);
     std::swap(preg_, iOther.preg_);
     std::swap(branchMapperPtr_,iOther.branchMapperPtr_);
     std::swap(store_,iOther.store_);

@@ -2,8 +2,6 @@
 #define FWCore_Framework_PrincipalCache_h
 
 /*
-$Id$
-
 Designed to save RunPrincipal's and LuminosityBlockPrincipal's
 in memory.  Manages merging of products in those principals
 when there is more than one principal from the same run
@@ -61,6 +59,9 @@ namespace edm {
     LuminosityBlockPrincipal & lumiPrincipal();
     LuminosityBlockPrincipal const& lumiPrincipal() const;
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr();
+
+    bool merge(boost::shared_ptr<RunAuxiliary> aux);
+    bool merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux);
 
     bool insert(boost::shared_ptr<RunPrincipal> rp);
     bool insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);

@@ -188,15 +188,14 @@ void test_ep::setUp() {
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    edm::RunAuxiliary runAux(eventID_.run(), now, now);
+    boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID_.run(), now, now));
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process));
-    edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
-    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process));
-    lbp->setRunPrincipal(rp);
-    edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->luminosityBlock(), true);
-    pEvent_.reset(new edm::EventPrincipal(eventAux, pProductRegistry_, *process));
-    pEvent_->setLuminosityBlockPrincipal(lbp);
-    pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
+    boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, now, now));
+    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process, rp));
+    std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(eventID_, uuid, now, lbp->luminosityBlock(), true));
+    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, *process));
+    pEvent_->fillEventPrincipal(eventAux, lbp);
+    pEvent_->put(branchFromRegistry, product, branchEntryInfoPtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
   

@@ -35,6 +35,8 @@ namespace edm {
   class OutputWorker;
   class ParameterSet;
   class Principal;
+  class PrincipalCache;
+  class PrincipalGetAdaptor;
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Run;

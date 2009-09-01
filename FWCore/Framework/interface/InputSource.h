@@ -35,7 +35,7 @@ Some examples of InputSource subclasses may be:
  2) PoolSource: creates EventPrincipals which "contain" the data
     read from a POOL file. This source should provide for delayed loading
     of data, thus the quotation marks around contain.
- 3) DAQInputSource: creats EventPrincipals which contain raw data, as
+ 3) DAQSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
 ----------------------------------------------------------------------*/
@@ -48,6 +48,8 @@ Some examples of InputSource subclasses may be:
 #include "sigc++/signal.h"
 
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -58,6 +60,7 @@ namespace edm {
   class ParameterSet;
   class ConfigurationDescriptions;
   class ActivityRegistry;
+  class EventPrincipal;
 
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
   public:
@@ -90,17 +93,31 @@ namespace edm {
     ItemType nextItemType();
 
     /// Read next event
-    /// Indicate inability to get a new event by returning a null auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    /// Indicate inability to get a new event by returning a null ptr.
+    EventPrincipal* readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
 
     /// Read a specific event
-    std::auto_ptr<EventPrincipal> readEvent(EventID const&);
+    EventPrincipal* readEvent(EventID const&, EventPrincipal& epCache);
 
-    /// Read next luminosity block
-    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
+    /// Read next luminosity block Auxilary
+    boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary() {
+      return readLuminosityBlockAuxiliary_(); 
+    }
+
+    /// Read next run Auxiliary
+    boost::shared_ptr<RunAuxiliary> readRunAuxiliary() {return readRunAuxiliary_();}
 
     /// Read next run
-    boost::shared_ptr<RunPrincipal> readRun();
+    void readAndCacheRun();
+
+    /// Mark run as read
+    int markRun();
+
+    /// Read next luminosity block
+    void readAndCacheLumi();
+
+    /// Mark lumi as read
+    int markLumi();
 
     /// Read next file
     boost::shared_ptr<FileBlock> readFile();
@@ -209,6 +226,15 @@ namespace edm {
     /// Accessor for Activity Registry
     boost::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
+    /// set a pointer to the reusable event principal.
+    void setEventPrincipalCache(EventPrincipal& ep) {eventPrincipalCache_ = &ep;}
+
+    /// Called by the framework to merge or insert run in principal cache.
+    boost::shared_ptr<RunAuxiliary> runAuxiliary() const {return runAuxiliary_;}
+
+    /// Called by the framework to merge or insert lumi in principal cache.
+    boost::shared_ptr<LuminosityBlockAuxiliary> luminosityBlockAuxiliary() const {return lumiAuxiliary_;}
+
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
@@ -262,27 +288,39 @@ namespace edm {
 
     ProductRegistry& productRegistryUpdate() const {return const_cast<ProductRegistry&>(*productRegistry_);}
     ItemType state() const{return state_;}
-    boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal() const {return lumiPrincipal_;}
-    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
-    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {lumiPrincipal_ = lbp;}
-    void resetRunPrincipal() {runPrincipal_.reset();}
-    void resetLuminosityBlockPrincipal() {lumiPrincipal_.reset();}
+    void setRunAuxiliary(RunAuxiliary *rp) {runAuxiliary_.reset(rp);}
+    void setLuminosityBlockAuxiliary(LuminosityBlockAuxiliary* lbp) {lumiAuxiliary_.reset(lbp);}
+    void resetRunAuxiliary() const {
+      runAuxiliary_.reset();
+    }
+    void resetLuminosityBlockAuxiliary() const {
+      lumiAuxiliary_.reset();
+    }
     void reset() const {
+      resetLuminosityBlockAuxiliary();
+      resetRunAuxiliary();
       doneReadAhead_ = false;
       state_ = IsInvalid;
     }
+    EventPrincipal* const eventPrincipalCache() const {return eventPrincipalCache_;}
+    boost::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
+    boost::shared_ptr<RunPrincipal> const runPrincipal() const;
 
+    void setRunPrematurelyRead() {runPrematurelyRead_ = true;}
+    void setLumiPrematurelyRead() {lumiPrematurelyRead_ = true;}
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
     bool lumiLimitReached() const {return remainingLumis_ == 0;}
     bool limitReached() const {return eventLimitReached() || lumiLimitReached();}
     virtual ItemType getNextItemType() = 0;
     ItemType nextItemType_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_() = 0;
-    virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
+    virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
+    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(
+	boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
+    virtual EventPrincipal* readEvent_() = 0;
+    virtual EventPrincipal* readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
@@ -305,6 +343,7 @@ namespace edm {
   private:
 
     boost::shared_ptr<ActivityRegistry> actReg_;
+    PrincipalCache* principalCache_;
     int maxEvents_;
     int remainingEvents_;
     int maxLumis_;
@@ -318,8 +357,11 @@ namespace edm {
     Timestamp time_;
     mutable bool doneReadAhead_;
     mutable ItemType state_;
-    mutable boost::shared_ptr<RunPrincipal>  runPrincipal_;
-    mutable boost::shared_ptr<LuminosityBlockPrincipal>  lumiPrincipal_;
+    mutable boost::shared_ptr<RunAuxiliary> runAuxiliary_;
+    mutable boost::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
+    bool runPrematurelyRead_;
+    bool lumiPrematurelyRead_;
+    EventPrincipal* eventPrincipalCache_;
   };
 }
 

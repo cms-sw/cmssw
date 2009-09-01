@@ -61,12 +61,23 @@ namespace edm {
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
-              BranchType bt,
-	      ProcessHistoryID const& hist = ProcessHistoryID(),
-              boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-              boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+              BranchType bt);
 
     virtual ~Principal();
+
+    void reinitializeGroups(boost::shared_ptr<ProductRegistry const> reg);
+
+    void addGroupScheduled(boost::shared_ptr<ConstBranchDescription> bd);
+
+    void addGroupSource(boost::shared_ptr<ConstBranchDescription> bd);
+
+    void addGroupInput(boost::shared_ptr<ConstBranchDescription> bd);
+
+    void addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd);
+
+    void fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, boost::shared_ptr<DelayedReader> rtrv);
+
+    void clearPrincipal();
 
     EDProductGetter const* prodGetter() const {return this;}
 
@@ -101,21 +112,11 @@ namespace edm {
 			        SelectorBase const& selector,
 			        BasicHandle& result) const;
 
-    void
-    readImmediate() const;
-
-    void
-    readProvenanceImmediate() const;
-
     ProcessHistory const& processHistory() const;    
 
     ProcessConfiguration const& processConfiguration() const {return *processConfiguration_;}
 
     ProductRegistry const& productRegistry() const {return *preg_;}
-
-    boost::shared_ptr<DelayedReader> store() const {return store_;}
-
-    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
     // ----- Mark this Principal as having been updated in the
     // current Process.
@@ -124,18 +125,19 @@ namespace edm {
     // merge Principals containing different groups.
     void recombine(Principal & other, std::vector<BranchID> const& bids);
 
-    size_t size() const { return size_; }
+    size_t size() const;
 
+    // These iterators skip over any null shared pointers
     const_iterator begin() const {return boost::make_filter_iterator<FilledGroupPtr>(groups_.begin(), groups_.end());}
     const_iterator end() const {return  boost::make_filter_iterator<FilledGroupPtr>(groups_.end(), groups_.end());}
 
-    Provenance
-    getProvenance(BranchID const& bid) const;
+    Provenance getProvenance(BranchID const& bid) const;
 
-    void
-    getAllProvenance(std::vector<Provenance const*> & provenances) const;
+    void getAllProvenance(std::vector<Provenance const*> & provenances) const;
 
     BranchType const& branchType() const {return branchType_;}
+
+    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
@@ -145,10 +147,8 @@ namespace edm {
     // data.
     void addGroup_(std::auto_ptr<Group> g);
     void addGroupOrThrow(std::auto_ptr<Group> g);
-    void addGroupOrNoThrow(std::auto_ptr<Group> g);
     Group* getExistingGroup(BranchID const& branchID);
     Group* getExistingGroup(Group const& g);
-    void replaceGroup(Group& g);
 
     //deprecated
     SharedConstGroupPtr const getGroup(BranchID const& oid,
@@ -160,7 +160,16 @@ namespace edm {
                                         bool resolveProv,
                                         bool fillOnDemand) const;
      
-    void resolveProvenance(Group const& g) const;
+    boost::shared_ptr<DelayedReader> store() const {return store_;}
+
+    // Make my DelayedReader get the EDProduct for a Group or
+    // trigger unscheduled execution if required.  The Group is
+    // a cache, and so can be modified through the const reference.
+    // We do not change the *number* of groups through this call, and so
+    // *this is const.
+    void resolveProduct(Group const& g, bool fillOnDemand) const {resolveProduct_(g, fillOnDemand);}
+
+    void resolveProvenance(Group const& g) const {resolveProvenance_(g);}
 
     void swapBase(Principal&);
   private:
@@ -194,12 +203,12 @@ namespace edm {
 		      SelectorBase const& selector,
 		      BasicHandleVec& results) const;
 
-    // Make my DelayedReader get the EDProduct for a Group or
-    // trigger unscheduled execution if required.  The Group is
-    // a cache, and so can be modified through the const reference.
-    // We do not change the *number* of groups through this call, and so
-    // *this is const.
-    void resolveProduct(Group const& g, bool fillOnDemand) const;
+    // defaults to no-op unless overridden in derived class.
+    virtual void resolveProduct_(Group const& g, bool fillOnDemand) const {}
+
+    // defaults to no-op unless overridden in derived class.
+    virtual void resolveProvenance_(Group const& g) const {}
+
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
@@ -209,8 +218,6 @@ namespace edm {
 
     // A vector of groups.
     GroupCollection groups_; // products and provenances are persistent
-    //how many non-null group pointers are in groups_
-    size_t size_;
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.

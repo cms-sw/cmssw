@@ -12,6 +12,7 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 #include <vector>
 
@@ -27,15 +28,18 @@ namespace edm {
     typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
 
-    RunPrincipal(RunAuxiliary const& aux,
+    RunPrincipal(
+        boost::shared_ptr<RunAuxiliary> aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+	ProcessConfiguration const& pc);
     ~RunPrincipal() {}
 
+    void fillRunPrincipal(
+	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+
     RunAuxiliary const& aux() const {
-      return aux_;
+      return *aux_;
     }
 
     RunNumber_t run() const {
@@ -55,40 +59,34 @@ namespace edm {
     }
 
     void setEndTime(Timestamp const& time) {
-      aux_.setEndTime(time);
+      aux_->setEndTime(time);
+    }
+
+    bool mergeAuxiliary(RunAuxiliary const& aux) {
+      return aux_->mergeAuxiliary(aux);
     }
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeRun(boost::shared_ptr<RunPrincipal> rp);
+    void put(
+	ConstBranchDescription const& bd,
+	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<ProductProvenance> productProvenance);
 
-    void put(boost::shared_ptr<EDProduct> edp,
-	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
-
-    void addGroupScheduled(ConstBranchDescription const& bd);
-
-    void addGroupSource(ConstBranchDescription const& bd);
-
-    void addGroup(ConstBranchDescription const& bd);
-
-    void addGroupIfNeeded(ConstBranchDescription const& bd);
-
-    void addToGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+    void readImmediate() const;
 
     void swap(RunPrincipal&);
 
   private:
-
-    void addOrReplaceGroup(std::auto_ptr<Group> g);
-
     virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
     virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
-    RunAuxiliary aux_;
+    void resolveProductImmediate(Group const& g) const;
+
+    boost::shared_ptr<RunAuxiliary> aux_;
   };
 }
 #endif

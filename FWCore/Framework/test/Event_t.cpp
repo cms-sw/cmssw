@@ -320,20 +320,15 @@ void testEvent::setUp() {
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
-  RunAuxiliary runAux(id.run(), time, time);
+  boost::shared_ptr<RunAuxiliary> runAux(new RunAuxiliary(id.run(), time, time));
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
-  LuminosityBlockAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc));
-  lbp->setRunPrincipal(rp);
-  EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
+  boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
+  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new EventAuxiliary(id, uuid, time, lbp->luminosityBlock(), true));
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
-  principal_.reset(new EventPrincipal(eventAux,
-				   preg,
-                                   pc,
-                                   history));
-
-  principal_->setLuminosityBlockPrincipal(lbp);
+  principal_.reset(new edm::EventPrincipal(preg, pc));
+  principal_->fillEventPrincipal(eventAux, lbp, history);
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
 
 }
@@ -622,7 +617,6 @@ void testEvent::getByLabel() {
   boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
   CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
-
 
 void testEvent::getByType() {
   typedef edmtest::IntProduct product_t;

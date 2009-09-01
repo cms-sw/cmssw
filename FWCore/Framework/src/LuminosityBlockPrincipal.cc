@@ -6,107 +6,73 @@
 
 namespace edm {
 
-  LuminosityBlockPrincipal::LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<BranchMapper> mapper, 
-	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, InLumi, aux.processHistoryID_, mapper, rtrv),
-	  runPrincipal_(),
-          aux_(aux) {
-      if (reg->productProduced(InLumi)) {
-        addToProcessHistory();
-      }
-      mapper->processHistoryID() = processHistoryID();
+  LuminosityBlockPrincipal::LuminosityBlockPrincipal(
+      boost::shared_ptr<LuminosityBlockAuxiliary> aux,
+      boost::shared_ptr<ProductRegistry const> reg,
+      ProcessConfiguration const& pc,
+      boost::shared_ptr<RunPrincipal> rp) :
+        Base(reg, pc, InLumi),
+        runPrincipal_(rp),
+        aux_(aux) {
   }
 
   void
-  LuminosityBlockPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
-
-    Group* group = getExistingGroup(*g);
-    if (group == 0) {
-      addGroup_(g);
-    } else if (group->productUnavailable() && group->branchDescription().produced()) {
-      // In this case, group is for the current process, and the existing group is just
-      // a placeholder. Just replace the existing group.
-      assert(g->branchDescription().produced());
-      replaceGroup(*g);
-    } else {
-      if (!group->productUnavailable()) {
-        assert(group->product() != 0);
-      }
-      if (!g->productUnavailable()) {
-        assert(g->product() != 0);
-      }
-      if(static_cast<bool> (g.get())) {
-         //PrincipalCache holds onto the 'newest' version of a LumiPrincipal for a given lumi
-         // but our behavior is to keep the 'old' group and merge in the new one because if there
-         // is no way to merge we keep the 'old' group
-         edm::swap(*group,*g);
-      }
-      group->mergeGroup(g.get());
+  LuminosityBlockPrincipal::fillLuminosityBlockPrincipal(
+      boost::shared_ptr<BranchMapper> mapper,
+      boost::shared_ptr<DelayedReader> rtrv) {
+    fillPrincipal(aux_->processHistoryID_, mapper, rtrv);
+    if (productRegistry().productProduced(InLumi)) {
+      addToProcessHistory();
     }
-  }
-
-  void
-  LuminosityBlockPrincipal::addGroupScheduled(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerNotRun()));
-    addGroupOrNoThrow(g);
-  }
-
-  void
-  LuminosityBlockPrincipal::addGroupSource(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerDidNotPutProduct()));
-    addGroupOrNoThrow(g);
-  }
-
-  void
-  LuminosityBlockPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
-    if (getExistingGroup(bd.branchID()) == 0) {
-      addGroup(bd);
-    }
-  }
-
-  void
-  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID()));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  LuminosityBlockPrincipal::addToGroup(boost::shared_ptr<EDProduct> prod,
-	ConstBranchDescription const& bd,
-	std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
-    addOrReplaceGroup(g);
+    mapper->processHistoryID() = processHistoryID();
   }
 
   void 
-  LuminosityBlockPrincipal::put(boost::shared_ptr<EDProduct> edp,
-		ConstBranchDescription const& bd,
-		std::auto_ptr<ProductProvenance> productProvenance) {
+  LuminosityBlockPrincipal::put(
+	ConstBranchDescription const& bd,
+	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<ProductProvenance> productProvenance) {
 
+    assert(bd.produced());
     if (edp.get() == 0) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
+    Group *g = getExistingGroup(bd.branchID());
+    assert(g);
     // Group assumes ownership
-    this->addToGroup(edp, bd, productProvenance);
+    g->putOrMergeProduct(edp, productProvenance);
   }
 
   void
-  LuminosityBlockPrincipal::mergeLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  LuminosityBlockPrincipal::readImmediate() const {
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      Group const& g = **i;
+      if (!g.branchDescription().produced()) {
+        if (g.provenanceAvailable()) {
+	  g.resolveProvenance(branchMapperPtr());
+        }
+        if (!g.productUnavailable()) {
+          resolveProductImmediate(g);
+        }
+      }
+    }
+    branchMapperPtr()->setDelayedRead(false);
+  }
 
-    aux_.mergeAuxiliary(lbp->aux());
+  void
+  LuminosityBlockPrincipal::resolveProductImmediate(Group const& g) const {
+    if (g.branchDescription().produced()) return; // nothing to do.
 
-    for (Base::const_iterator i = lbp->begin(), iEnd = lbp->end(); i != iEnd; ++i) {
- 
-      std::auto_ptr<Group> g(new Group());
-      g->swap(*(*i));
+    // must attempt to load from persistent store
+    BranchKey const bk = BranchKey(g.branchDescription());
+    boost::shared_ptr<EDProduct> edp(store()->getProduct(bk, this));
 
-      addOrReplaceGroup(g);
+    // Now fix up the Group
+    if (edp.get() != 0) {
+      g.putOrMergeProduct(edp);
     }
   }
 
@@ -114,7 +80,7 @@ namespace edm {
   LuminosityBlockPrincipal::swap(LuminosityBlockPrincipal& iOther) {
     swapBase(iOther);
     std::swap(runPrincipal_,iOther.runPrincipal_);
-    std::swap(aux_,iOther.aux_);
+    std::swap(aux_, iOther.aux_);
   }
 }
 

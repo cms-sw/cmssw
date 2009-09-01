@@ -12,6 +12,7 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 #include <vector>
 
@@ -28,29 +29,24 @@ namespace edm {
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
-    LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
+    LuminosityBlockPrincipal(
+	boost::shared_ptr<LuminosityBlockAuxiliary> aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+	boost::shared_ptr<RunPrincipal> rp);
 
     ~LuminosityBlockPrincipal() {}
+
+    void fillLuminosityBlockPrincipal(
+	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
     }
 
-    RunPrincipal & runPrincipal() {
+    RunPrincipal& runPrincipal() {
       return *runPrincipal_;
-    }
-
-    boost::shared_ptr<RunPrincipal>
-    runPrincipalSharedPtr() {
-      return runPrincipal_;
-    }
-
-    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {
-      runPrincipal_ = rp;
     }
 
     LuminosityBlockID id() const {
@@ -66,7 +62,7 @@ namespace edm {
     }
 
     void setEndTime(Timestamp const& time) {
-      aux_.setEndTime(time);
+      aux_->setEndTime(time);
     }
 
     LuminosityBlockNumber_t luminosityBlock() const {
@@ -74,44 +70,40 @@ namespace edm {
     }
 
     LuminosityBlockAuxiliary const& aux() const {
-      return aux_;
+      return *aux_;
     }
 
     RunNumber_t run() const {
       return aux().run();
     }
 
+    bool mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
+      return aux_->mergeAuxiliary(aux);
+    }
+
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    void put(
+	ConstBranchDescription const& bd,
+	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<ProductProvenance> productProvenance);
 
-    void put(boost::shared_ptr<EDProduct> edp,
-	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
-
-    void addGroupScheduled(ConstBranchDescription const& bd);
-
-    void addGroupSource(ConstBranchDescription const& bd);
-
-    void addGroup(ConstBranchDescription const& bd);
-
-    void addGroupIfNeeded(ConstBranchDescription const& bd);
-
-    void addToGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+    void readImmediate() const;
 
     void swap(LuminosityBlockPrincipal&);
 
   private:
-    void addOrReplaceGroup(std::auto_ptr<Group> g);
-
     virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
     virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
+    void resolveProductImmediate(Group const& g) const;
+
     boost::shared_ptr<RunPrincipal> runPrincipal_;
-    LuminosityBlockAuxiliary aux_;
+
+    boost::shared_ptr<LuminosityBlockAuxiliary> aux_;
   };
 }
 #endif

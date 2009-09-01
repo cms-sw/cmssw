@@ -87,7 +87,6 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/array.hpp"
 
 #include <map>
 #include <memory>
@@ -287,17 +286,6 @@ namespace edm {
 
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
 
-    typedef std::vector<boost::shared_ptr<ConstBranchDescription const> > Branches;
-    // Vectors of (shared pointers to) branches of objects. 
-    // This one is branches for products to be read from source files.
-    boost::array<Branches, NumBranchTypes> inputBranches_;
-    // This one is branches for products whose production is scheduled.
-    boost::array<Branches, NumBranchTypes> scheduledBranches_;
-    // This one is branches for products to be produced by sources.
-    boost::array<Branches, NumBranchTypes> sourceBranches_;
-    // This one is branches for event products whose production is unscheduled.
-    Branches  demandBranches_;
-
     volatile bool       endpathsAreActive_;
   };
 
@@ -379,25 +367,6 @@ namespace edm {
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
-    typedef std::vector<boost::shared_ptr<ConstBranchDescription const> >::const_iterator Citer; 
-    for(Citer itBranch = inputBranches_[T::branchType_].begin(),
-	      itBranchEnd = inputBranches_[T::branchType_].end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
-      ep.addGroupIfNeeded(**itBranch);
-    }
-    for(Citer itBranch = scheduledBranches_[T::branchType_].begin(),
-	      itBranchEnd = scheduledBranches_[T::branchType_].end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
-      ep.addGroupScheduled(**itBranch);
-    }
-    for(Citer itBranch = sourceBranches_[T::branchType_].begin(),
-	      itBranchEnd = sourceBranches_[T::branchType_].end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
-      ep.addGroupSource(**itBranch);
-    }
     if (T::isEvent_) {
       ++total_events_;
       setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);

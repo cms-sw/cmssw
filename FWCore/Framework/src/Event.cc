@@ -11,7 +11,7 @@ namespace edm {
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
 	provRecorder_(ep, md),
 	aux_(ep.aux()),
-        luminosityBlock_(ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
+        luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
 	gotBranchIDs_(),
 	gotViews_() {
     }
@@ -167,7 +167,7 @@ namespace edm {
                                                                                       productstatus::present(),
                                                                                       *previousParentageId));
       }
-      ep.put(pit->first, *pit->second, productProvenancePtr);
+      ep.put(*pit->second, pit->first, productProvenancePtr);
       ++pit;
     }
 

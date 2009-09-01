@@ -169,8 +169,6 @@ namespace edm {
       whyNotFastClonable_(0),
       reportToken_(0),
       eventAux_(),
-      lumiAux_(),
-      runAux_(),
       eventTree_(filePtr_, InEvent),
       lumiTree_(filePtr_, InLumi),
       runTree_(filePtr_, InRun),
@@ -623,22 +621,22 @@ namespace edm {
     // Loop over event entries and fill the index from the event auxiliary branch
     while(eventTree_.next()) {
       fillEventAuxiliary();
-      fileIndex_.addEntry(eventAux_.run(),
-			  eventAux_.luminosityBlock(),
-			  eventAux_.event(),
+      fileIndex_.addEntry(eventAux().run(),
+			  eventAux().luminosityBlock(),
+			  eventAux().event(),
 			  eventTree_.entryNumber());
       // If the lumi tree is invalid, use the event tree to add lumi index entries.
       if(!lumiTree_.isValid()) {
-	if(lastLumi != eventAux_.luminosityBlock()) {
-	  lastLumi = eventAux_.luminosityBlock();
-          fileIndex_.addEntry(eventAux_.run(), eventAux_.luminosityBlock(), 0U, FileIndex::Element::invalidEntry);
+	if(lastLumi != eventAux().luminosityBlock()) {
+	  lastLumi = eventAux().luminosityBlock();
+          fileIndex_.addEntry(eventAux().run(), eventAux().luminosityBlock(), 0U, FileIndex::Element::invalidEntry);
 	}
       }
       // If the run tree is invalid, use the event tree to add run index entries.
       if(!runTree_.isValid()) {
-	if(lastRun != eventAux_.run()) {
-	  lastRun = eventAux_.run();
-          fileIndex_.addEntry(eventAux_.run(), 0U, 0U, FileIndex::Element::invalidEntry);
+	if(lastRun != eventAux().run()) {
+	  lastRun = eventAux().run();
+          fileIndex_.addEntry(eventAux().run(), 0U, 0U, FileIndex::Element::invalidEntry);
         }
       }
     }
@@ -647,8 +645,8 @@ namespace edm {
     // Loop over luminosity block entries and fill the index from the lumi auxiliary branch
     if(lumiTree_.isValid()) {
       while(lumiTree_.next()) {
-        fillLumiAuxiliary();
-        fileIndex_.addEntry(lumiAux_.run(), lumiAux_.luminosityBlock(), 0U, lumiTree_.entryNumber());
+        boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
+        fileIndex_.addEntry(lumiAux->run(), lumiAux->luminosityBlock(), 0U, lumiTree_.entryNumber());
       }
       lumiTree_.setEntryNumber(-1);
     }
@@ -656,8 +654,7 @@ namespace edm {
     // Loop over run entries and fill the index from the run auxiliary branch
     if(runTree_.isValid()) {
       while(runTree_.next()) {
-        fillRunAuxiliary();
-        fileIndex_.addEntry(runAux_.run(), 0U, 0U, runTree_.entryNumber());
+        fileIndex_.addEntry(fillRunAuxiliary()->run(), 0U, 0U, runTree_.entryNumber());
       }
       runTree_.setEntryNumber(-1);
     }
@@ -722,7 +719,7 @@ namespace edm {
       eventTree_.fillAux<EventAux>(pEvAux);
       conversion(eventAux, eventAux_);
     }
-    if(eventAux_.luminosityBlock_ == 0 && !fileFormatVersion().runsAndLumis()) {
+    if(eventAux().luminosityBlock_ == 0 && !fileFormatVersion().runsAndLumis()) {
       eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
     } else if(!fileFormatVersion().lumiNumbers()) {
       eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
@@ -746,12 +743,12 @@ namespace edm {
     } else {
       // for backward compatibility.
       if(eventProcessHistoryIDs_.empty()) {
-	history_->setProcessHistoryID(eventAux_.processHistoryID());
+	history_->setProcessHistoryID(eventAux().processHistoryID());
       } else {
-        if(eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
-          EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
+        if(eventProcessHistoryIter_->eventID_ != eventAux().id()) {
+          EventProcessHistoryID target(eventAux().id(), ProcessHistoryID());
           eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);	
-          assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
+          assert(eventProcessHistoryIter_->eventID_ == eventAux().id());
         }
 	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);
         ++eventProcessHistoryIter_;
@@ -770,39 +767,43 @@ namespace edm {
     }
   }
 
-  void
+  boost::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::fillLumiAuxiliary() {
+    boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary(new LuminosityBlockAuxiliary);
     if(fileFormatVersion().newAuxiliary()) {
-      LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
+      LuminosityBlockAuxiliary *pLumiAux = lumiAuxiliary.get();
       lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
     } else {
       LuminosityBlockAux lumiAux;
       LuminosityBlockAux *pLumiAux = &lumiAux;
       lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
-      conversion(lumiAux, lumiAux_);
+      conversion(lumiAux, *lumiAuxiliary);
     }
     if(provenanceAdaptor_) {
-      lumiAux_.processHistoryID_ = provenanceAdaptor_->convertID(lumiAux_.processHistoryID_);
+      lumiAuxiliary->processHistoryID_ = provenanceAdaptor_->convertID(lumiAuxiliary->processHistoryID_);
     }
-    if(lumiAux_.luminosityBlock() == 0 && !fileFormatVersion().runsAndLumis()) {
-      lumiAux_.id_ = LuminosityBlockID(lumiAux_.run(), LuminosityBlockNumber_t(1));
+    if(lumiAuxiliary->luminosityBlock() == 0 && !fileFormatVersion().runsAndLumis()) {
+      lumiAuxiliary->id_ = LuminosityBlockID(RunNumber_t(1), LuminosityBlockNumber_t(1));
     }
+    return lumiAuxiliary;
   }
 
-  void
+  boost::shared_ptr<RunAuxiliary>
   RootFile::fillRunAuxiliary() {
+    boost::shared_ptr<RunAuxiliary> runAuxiliary(new RunAuxiliary);
     if(fileFormatVersion().newAuxiliary()) {
-      RunAuxiliary *pRunAux = &runAux_;
+      RunAuxiliary *pRunAux = runAuxiliary.get();
       runTree_.fillAux<RunAuxiliary>(pRunAux);
     } else {
       RunAux runAux;
       RunAux *pRunAux = &runAux;
       runTree_.fillAux<RunAux>(pRunAux);
-      conversion(runAux, runAux_);
+      conversion(runAux, *runAuxiliary);
     }
     if(provenanceAdaptor_) {
-      runAux_.processHistoryID_ = provenanceAdaptor_->convertID(runAux_.processHistoryID_);
+      runAuxiliary->processHistoryID_ = provenanceAdaptor_->convertID(runAuxiliary->processHistoryID_);
     }
+    return runAuxiliary;
   }
 
   int
@@ -843,18 +844,18 @@ namespace edm {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  std::auto_ptr<EventPrincipal>
-  RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
+  EventPrincipal*
+  RootFile::readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_); 
-    std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
+    EventPrincipal* ep = readCurrentEvent(cache, lb);
 
-    assert(ep.get() != 0);
-    assert(eventAux_.run() == fileIndexIter_->run_ + forcedRunOffset_);
-    assert(eventAux_.luminosityBlock() == fileIndexIter_->lumi_);
-    assert(eventAux_.event() == fileIndexIter_->event_);
+    assert(ep != 0);
+    assert(eventAux().run() == fileIndexIter_->run_ + forcedRunOffset_);
+    assert(eventAux().luminosityBlock() == fileIndexIter_->lumi_);
+    assert(eventAux().event() == fileIndexIter_->event_);
 
     ++fileIndexIter_;
     return ep;
@@ -862,32 +863,27 @@ namespace edm {
 
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
-  std::auto_ptr<EventPrincipal>
-  RootFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg) {
+  EventPrincipal*
+  RootFile::readCurrentEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
     if(!eventTree_.current()) {
-      return std::auto_ptr<EventPrincipal>(0);
+      return 0;
     }
     fillEventAuxiliary();
     fillHistory();
-    overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
+    overrideRunNumber(eventAux_.id_, eventAux().isRealData());
 
-
+    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventAux()));
     // We're not done ... so prepare the EventPrincipal
-    std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-		eventAux_,
-		pReg,
-		processConfiguration_,
-		history_,
-		makeBranchMapper(eventTree_, InEvent),
-		eventTree_.makeDelayedReader(fileFormatVersion())));
-
-    // Create a group in the event for each product
-    eventTree_.fillGroups(*thisEvent);
+    cache.fillEventPrincipal(aux,
+			     lb,
+			     history_,
+			     makeBranchMapper(eventTree_, InEvent),
+			     eventTree_.makeDelayedReader(fileFormatVersion()));
 
     // report event read from file
     Service<JobReport> reportSvc;
     reportSvc->eventReadFromFile(reportToken_, eventID().run(), eventID().event());
-    return thisEvent;
+    return &cache;
   }
 
   void
@@ -895,8 +891,8 @@ namespace edm {
     eventTree_.setEntryNumber(entry);
   }
 
-  boost::shared_ptr<RunPrincipal>
-  RootFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
+  boost::shared_ptr<RunAuxiliary>
+  RootFile::readRunAuxiliary_() {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
     // Begin code for backward compatibility before the exixtence of run trees.
@@ -910,46 +906,47 @@ namespace edm {
       }
       RunID run = RunID(fileIndexIter_->run_);
       overrideRunNumber(run);
-      ++fileIndexIter_;
-      RunAuxiliary runAux(run.run(), eventAux_.time(), Timestamp::invalidTimestamp());
-      return boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(runAux,
-	  pReg,
-	  processConfiguration_));
+      return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(run.run(), eventAux().time(), Timestamp::invalidTimestamp()));
     }
     // End code for backward compatibility before the exixtence of run trees.
     runTree_.setEntryNumber(fileIndexIter_->entry_); 
-    fillRunAuxiliary();
-    assert(runAux_.run() == fileIndexIter_->run_);
-    overrideRunNumber(runAux_.id_);
+    boost::shared_ptr<RunAuxiliary> runAuxiliary = fillRunAuxiliary();
+    assert(runAuxiliary->run() == fileIndexIter_->run_);
+    overrideRunNumber(runAuxiliary->id_);
     Service<JobReport> reportSvc;
-    reportSvc->reportInputRunNumber(runAux_.run());
-    if(runAux_.beginTime() == Timestamp::invalidTimestamp()) {
+    reportSvc->reportInputRunNumber(runAuxiliary->run());
+    if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
       if(eventTree_.next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
         eventTree_.previous();
       }
-      runAux_.beginTime_ = eventAux_.time(); 
-      runAux_.endTime_ = Timestamp::invalidTimestamp();
+      runAuxiliary->beginTime_ = eventAux().time(); 
+      runAuxiliary->endTime_ = Timestamp::invalidTimestamp();
     }
-    boost::shared_ptr<RunPrincipal> thisRun(
-	new RunPrincipal(runAux_,
-			 pReg,
-			 processConfiguration_,
-		         makeBranchMapper(runTree_, InRun),
-			 runTree_.makeDelayedReader(fileFormatVersion())));
-    // Create a group in the run for each product
-    runTree_.fillGroups(*thisRun);
-    // Read in all the products now.
-    thisRun->readImmediate();
-    ++fileIndexIter_;
-    return thisRun;
+    return runAuxiliary;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootFile::readLumi(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
+  boost::shared_ptr<RunPrincipal>
+  RootFile::readRun_(boost::shared_ptr<RunPrincipal> rpCache) {
+    assert(fileIndexIter_ != fileIndexEnd_);
+    assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
+    // Begin code for backward compatibility before the exixtence of run trees.
+    if(!runTree_.isValid()) {
+      ++fileIndexIter_;
+      return rpCache;
+    }
+    // End code for backward compatibility before the exixtence of run trees.
+    rpCache->fillRunPrincipal(makeBranchMapper(runTree_, InRun), runTree_.makeDelayedReader(fileFormatVersion()));
+    // Read in all the products now.
+    rpCache->readImmediate();
+    ++fileIndexIter_;
+    return rpCache;
+  }
+
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  RootFile::readLuminosityBlockAuxiliary_() {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kLumi);
     // Begin code for backward compatibility before the exixtence of lumi trees.
@@ -962,44 +959,47 @@ namespace edm {
 
       LuminosityBlockID lumi = LuminosityBlockID(fileIndexIter_->run_, fileIndexIter_->lumi_);
       overrideRunNumber(lumi);
-      ++fileIndexIter_;
-      LuminosityBlockAuxiliary lumiAux(rp->run(), lumi.luminosityBlock(), eventAux_.time_, Timestamp::invalidTimestamp());
-      return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(lumiAux,
-				     pReg,
-				     processConfiguration_));
+      return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(lumi.run(), lumi.luminosityBlock(), eventAux().time_, Timestamp::invalidTimestamp()));
     }
     // End code for backward compatibility before the exixtence of lumi trees.
     lumiTree_.setEntryNumber(fileIndexIter_->entry_); 
-    fillLumiAuxiliary();
-    assert(lumiAux_.run() == fileIndexIter_->run_);
-    assert(lumiAux_.luminosityBlock() == fileIndexIter_->lumi_);
-    overrideRunNumber(lumiAux_.id_);
-    assert(lumiAux_.run() == rp->run());
+    boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary = fillLumiAuxiliary();
+    assert(lumiAuxiliary->run() == fileIndexIter_->run_);
+    assert(lumiAuxiliary->luminosityBlock() == fileIndexIter_->lumi_);
+    overrideRunNumber(lumiAuxiliary->id_);
     Service<JobReport> reportSvc;
-    reportSvc->reportInputLumiSection(lumiAux_.run(), lumiAux_.luminosityBlock());
+    reportSvc->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
 
-    if(lumiAux_.beginTime() == Timestamp::invalidTimestamp()) {
+    if(lumiAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
       // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.
       if(eventTree_.next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
         eventTree_.previous();
       }
-      lumiAux_.beginTime_ = eventAux_.time();
-      lumiAux_.endTime_ = Timestamp::invalidTimestamp();
+      lumiAuxiliary->beginTime_ = eventAux().time();
+      lumiAuxiliary->endTime_ = Timestamp::invalidTimestamp();
     }
-    boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiAux_,
-				     pReg, processConfiguration_,
-				     makeBranchMapper(lumiTree_, InLumi),
-				     lumiTree_.makeDelayedReader(fileFormatVersion())));
-    // Create a group in the lumi for each product
-    lumiTree_.fillGroups(*thisLumi);
+    return lumiAuxiliary;
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal>
+  RootFile::readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
+    assert(fileIndexIter_ != fileIndexEnd_);
+    assert(fileIndexIter_->getEntryType() == FileIndex::kLumi);
+    // Begin code for backward compatibility before the exixtence of lumi trees.
+    if(!lumiTree_.isValid()) {
+      ++fileIndexIter_;
+      return lbCache;
+    }
+    // End code for backward compatibility before the exixtence of lumi trees.
+    lumiTree_.setEntryNumber(fileIndexIter_->entry_); 
+    lbCache->fillLuminosityBlockPrincipal(makeBranchMapper(lumiTree_, InLumi),
+					 lumiTree_.makeDelayedReader(fileFormatVersion()));
     // Read in all the products now.
-    thisLumi->readImmediate();
+    lbCache->readImmediate();
     ++fileIndexIter_;
-    return thisLumi;
+    return lbCache;
   }
 
   bool
@@ -1082,7 +1082,7 @@ namespace edm {
     if(duplicateChecker_.get() != 0) {
       if(eventTree_.next()) {
         fillEventAuxiliary();
-        duplicateChecker_->inputFileOpened(eventAux_.isRealData(),
+        duplicateChecker_->inputFileOpened(eventAux().isRealData(),
                                            fileIndex_,
                                            fileIndexes,
                                            currentFileIndex);

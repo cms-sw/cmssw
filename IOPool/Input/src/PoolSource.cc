@@ -35,21 +35,18 @@ namespace edm {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
       }
-      checkHistoryConsistency(primary, secondary);
     }
-    void checkConsistency(LuminosityBlockPrincipal const& primary, LuminosityBlockPrincipal const& secondary) {
+    void checkConsistency(LuminosityBlockAuxiliary const& primary, LuminosityBlockAuxiliary const& secondary) {
       if (primary.id() != secondary.id()) {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent LuminosityBlockAuxiliary data in the primary and secondary file\n";
       }
-      checkHistoryConsistency(primary, secondary);
     }
-    void checkConsistency(RunPrincipal const& primary, RunPrincipal const& secondary) {
+    void checkConsistency(RunAuxiliary const& primary, RunAuxiliary const& secondary) {
       if (primary.id() != secondary.id()) {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
       }
-      checkHistoryConsistency(primary, secondary);
     }
   }
 
@@ -57,7 +54,8 @@ namespace edm {
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
-    secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
+    secondaryFileSequence_(catalog(1).empty() ? 0 :
+			   new RootInputFileSequence(pset, *this, catalog(1), false)),
     branchIDsToReplace_(),
     numberOfEventsBeforeBigSkip_(0),
     numberOfEventsInBigSkip_(0),
@@ -66,8 +64,8 @@ namespace edm {
   {
     if (secondaryFileSequence_) {
       boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
-      ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry().productList();
-      ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry().productList();
+      ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
+      ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
       typedef ProductRegistry::ProductList::const_iterator const_iterator;
       for (const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
 	if (it->second.present()) idsToReplace[it->second.branchType()].insert(it->second.branchID());
@@ -100,27 +98,38 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   PoolSource::readFile_() {
+    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_(eventPrincipalCache());
     if (secondaryFileSequence_) {
-        boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
 	fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
-        return fb;
     }
-    return primaryFileSequence_->readFile_();
+    return fb;
   }
 
   void PoolSource::closeFile_() {
     primaryFileSequence_->closeFile_();
   }
 
+  boost::shared_ptr<RunAuxiliary>
+  PoolSource::readRunAuxiliary_() {
+    return primaryFileSequence_->readRunAuxiliary_();
+  }
+
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  PoolSource::readLuminosityBlockAuxiliary_() {
+    return primaryFileSequence_->readLuminosityBlockAuxiliary_();
+  }
+
   boost::shared_ptr<RunPrincipal>
-  PoolSource::readRun_() {
-    RunSourceSentry(*this);
+  PoolSource::readRun_(boost::shared_ptr<RunPrincipal> rpCache) {
     if (secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
-      boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_();
+      boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_(rpCache);
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), 0U, 0U, true, false);
       if (found) {
-        boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readRun_();
-        checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
+        boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
+        checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);      
+	boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration()));
+        boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readRun_(rp);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
@@ -129,18 +138,21 @@ namespace edm {
       }
       return primaryPrincipal;
     }
-    return primaryFileSequence_->readRun_();
+    return primaryFileSequence_->readRun_(rpCache);
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  PoolSource::readLuminosityBlock_() {
-    LumiSourceSentry(*this);
+  PoolSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
     if (secondaryFileSequence_ && !branchIDsToReplace_[InLumi].empty()) {
-      boost::shared_ptr<LuminosityBlockPrincipal> primaryPrincipal = primaryFileSequence_->readLuminosityBlock_();
+      boost::shared_ptr<LuminosityBlockPrincipal> primaryPrincipal = primaryFileSequence_->readLuminosityBlock_(lbCache);
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), primaryPrincipal->luminosityBlock(), 0U, true, false);
       if (found) {
-        boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readLuminosityBlock_();
-        checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
+        boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
+        checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);      
+	// Temporary Lumi principal does not need a run principal
+	boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), boost::shared_ptr<RunPrincipal>()));
+        boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readLuminosityBlock_(lbp);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
@@ -150,32 +162,32 @@ namespace edm {
       }
       return primaryPrincipal;
     }
-    return primaryFileSequence_->readLuminosityBlock_();
+    return primaryFileSequence_->readLuminosityBlock_(lbCache);
   }
 
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal*
   PoolSource::readEvent_() {
     EventSourceSentry(*this);
+    EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(*eventPrincipalCache(), luminosityBlockPrincipal());
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
-      std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(),
-						       primaryPrincipal->luminosityBlock(),
-						       primaryPrincipal->id().event(),
-						       true, false);
+						      primaryPrincipal->luminosityBlock(),
+						      primaryPrincipal->id().event(),
+						      true, false);
       if (found) {
-        std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readEvent_();
+	EventPrincipal ep(secondaryFileSequence_->fileProductRegistry(), processConfiguration());
+        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(ep);
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
-      return primaryPrincipal;
     }
-    return primaryFileSequence_->readEvent_();
+    return primaryPrincipal;
   }
 
-  std::auto_ptr<EventPrincipal>
+  EventPrincipal*
   PoolSource::readIt(EventID const& id) {
     primaryFileSequence_->skipToItem(id.run(), 0U, id.event(), false, true);
     return readEvent_();
@@ -185,7 +197,7 @@ namespace edm {
   PoolSource::getNextItemType() {
     InputSource::ItemType returnValue = primaryFileSequence_->getNextItemType();
     if(returnValue == InputSource::IsEvent && 0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
-      primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_);
+      primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_, eventPrincipalCache());
       numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
       returnValue = primaryFileSequence_->getNextItemType();
     }    
@@ -212,7 +224,7 @@ namespace edm {
       if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
         numberOfEventsBeforeBigSkip_ = numberToSkip+1;
       }
-      primaryFileSequence_->skipEvents(numberToSkip);
+      primaryFileSequence_->skipEvents(numberToSkip, eventPrincipalCache());
     }
     numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1 ;
   }
@@ -220,31 +232,31 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   PoolSource::skip(int offset) {
-    primaryFileSequence_->skipEvents(offset);
+    primaryFileSequence_->skipEvents(offset, eventPrincipalCache());
   }
 
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
     assert (!secondaryFileSequence_);
-    primaryFileSequence_->readMany_(number, result);
+    primaryFileSequence_->readMany(number, result);
   }
 
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber) {
     assert (!secondaryFileSequence_);
-    primaryFileSequence_->readMany_(number, result, id, fileSeqNumber);
+    primaryFileSequence_->readMany(number, result, id, fileSeqNumber);
   }
 
   void
   PoolSource::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     assert (!secondaryFileSequence_);
-    primaryFileSequence_->readManyRandom_(number, result, fileSeqNumber);
+    primaryFileSequence_->readManyRandom(number, result, fileSeqNumber);
   }
 
   void
   PoolSource::readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     assert (!secondaryFileSequence_);
-    primaryFileSequence_->readManySequential_(number, result, fileSeqNumber);
+    primaryFileSequence_->readManySequential(number, result, fileSeqNumber);
   }
 
   void

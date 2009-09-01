@@ -12,6 +12,7 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 #include <vector>
 
@@ -38,29 +39,25 @@ namespace edm {
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
-    EventPrincipal(EventAuxiliary const& aux,
+    EventPrincipal(
 	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
+	ProcessConfiguration const& pc);
+    ~EventPrincipal() {}
+
+    void fillEventPrincipal(std::auto_ptr<EventAuxiliary> aux,
+	boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
 	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
-    ~EventPrincipal() {}
+
+    void clearEventPrincipal();
 
     LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
       return *luminosityBlockPrincipal_;
     }
 
-    LuminosityBlockPrincipal & luminosityBlockPrincipal() {
+    LuminosityBlockPrincipal& luminosityBlockPrincipal() {
       return *luminosityBlockPrincipal_;
-    }
-
-    boost::shared_ptr<LuminosityBlockPrincipal>
-    luminosityBlockPrincipalSharedPtr() {
-      return luminosityBlockPrincipal_;
-    }
-
-    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-      luminosityBlockPrincipal_ = lbp;
     }
 
     EventID const& id() const {
@@ -88,7 +85,7 @@ namespace edm {
     }
 
     EventAuxiliary const& aux() const {
-      return aux_;
+      return *aux_;
     }
 
     LuminosityBlockNumber_t const& luminosityBlock() const {
@@ -118,27 +115,15 @@ namespace edm {
     BasicHandle
     getByProductID(ProductID const& oid) const;
 
-    void put(boost::shared_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+    void put(
+	ConstBranchDescription const& bd,
+	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addOnDemandGroup(ConstBranchDescription const& desc);
-
-    void addGroupScheduled(ConstBranchDescription const& bd);
-
-    void addGroupSource(ConstBranchDescription const& bd);
-
-    void addGroup(ConstBranchDescription const& bd);
-
-    void addGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 boost::shared_ptr<ProductProvenance> productProvenance);
-
-    void addGroup(ConstBranchDescription const& bd,
-	 boost::shared_ptr<ProductProvenance> productProvenance);
-
-    void addGroupIfNeeded(ConstBranchDescription const& bd);
-
-    void addToGroup(boost::shared_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+    void putOnRead(
+	ConstBranchDescription const& bd,
+	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<ProductProvenance> productProvenance);
 
     virtual EDProduct const* getIt(ProductID const& pid) const;
 
@@ -158,7 +143,14 @@ namespace edm {
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
-    EventAuxiliary aux_;
+    virtual void resolveProduct_(Group const& g, bool fillOnDemand) const;
+
+    virtual void resolveProvenance_(Group const& g) const;
+
+  private:
+
+    boost::scoped_ptr<EventAuxiliary> aux_;
+
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 
     // Handler for unscheduled modules

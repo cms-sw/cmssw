@@ -84,23 +84,24 @@ namespace edm {
     ~RootFile();
     void reportOpened(std::string const& inputType);
     void close(bool reallyClose);
-    std::auto_ptr<EventPrincipal> readCurrentEvent(
-	boost::shared_ptr<ProductRegistry const> pReg);
-    std::auto_ptr<EventPrincipal> readEvent(
-	boost::shared_ptr<ProductRegistry const> pReg);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(
-	boost::shared_ptr<ProductRegistry const> pReg,
-	boost::shared_ptr<RunPrincipal> rp);
+    EventPrincipal* readCurrentEvent(EventPrincipal& cache,
+		 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
+    EventPrincipal* readEvent(EventPrincipal& cache,
+		 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
+
+    boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
+    boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
+    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
+    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
     std::string const& file() const {return file_;}
-    boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
+    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache, boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     EventNumber_t const& eventNumber() const {return fileIndexIter_->event_;}
     FileIndex::EntryNumber_t const& entryNumber() const {return fileIndexIter_->entry_;}
-    LuminosityBlockAuxiliary const& luminosityBlockAux() const {return lumiAux_;}
     LuminosityBlockNumber_t const& luminosityBlockNumber() const {return fileIndexIter_->lumi_;}
-    RunAuxiliary const& runAux() const {return runAux_;}
     RunNumber_t const& runNumber() const {return fileIndexIter_->run_;}
     EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
@@ -144,8 +145,8 @@ namespace edm {
     void fillFileIndex();
     void fillEventAuxiliary();
     void fillHistory();
-    void fillLumiAuxiliary();
-    void fillRunAuxiliary();
+    boost::shared_ptr<LuminosityBlockAuxiliary> fillLumiAuxiliary();
+    boost::shared_ptr<RunAuxiliary> fillRunAuxiliary();
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(LuminosityBlockID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
@@ -180,8 +181,6 @@ namespace edm {
     int whyNotFastClonable_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
-    LuminosityBlockAuxiliary lumiAux_;
-    RunAuxiliary runAux_;
     RootTree eventTree_;
     RootTree lumiTree_;
     RootTree runTree_;

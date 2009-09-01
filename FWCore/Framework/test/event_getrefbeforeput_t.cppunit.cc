@@ -66,14 +66,13 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
-  lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
-  edm::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, lbp->luminosityBlock(), true));
+  edm::EventPrincipal ep(pregc, pc);
+  ep.fillEventPrincipal(eventAux, lbp);
   try {
      edm::ParameterSet pset;
      pset.registerIt();
@@ -135,14 +134,13 @@ void testEventGetRefBeforePut::getRefTest() {
   boost::shared_ptr<edm::ProcessConfiguration> pcPtr(new edm::ProcessConfiguration(processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
   edm::ProcessConfiguration& pc = *pcPtr;
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
-  lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
-  edm::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, lbp->luminosityBlock(), true));
+  edm::EventPrincipal ep(pregc, pc);
+  ep.fillEventPrincipal(eventAux, lbp);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

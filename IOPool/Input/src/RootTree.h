@@ -48,8 +48,6 @@ namespace edm {
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
-    template <typename T>
-    void fillGroups(T& item);
     boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
@@ -94,15 +92,5 @@ namespace edm {
     TTree * infoTree_; // backward compatibility
     TBranch * statusBranch_; // backward compatibility
   };
-
-  template <typename T>
-  void
-  RootTree::fillGroups(T& item) {
-    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
-    // Loop over provenance
-    for (BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end(); pit != pitEnd; ++pit) {
-      item.addGroup(pit->second.branchDescription_);
-    }
-  }
 }
 #endif

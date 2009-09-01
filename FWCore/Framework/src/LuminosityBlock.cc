@@ -8,7 +8,7 @@ namespace edm {
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
 	provRecorder_(lbp, md),
 	aux_(lbp.aux()),
-	run_(lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0) {
+	run_(new Run(lbp.runPrincipal(), md)) {
   }
 
   LuminosityBlockPrincipal &
@@ -46,7 +46,7 @@ namespace edm {
 	std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	lbp.put(pit->first, *pit->second, lumiEntryInfoPtr);
+	lbp.put(*pit->second, pit->first, lumiEntryInfoPtr);
 	++pit;
     }
 

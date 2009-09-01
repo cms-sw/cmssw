@@ -85,7 +85,7 @@ namespace edm {
 	std::auto_ptr<ProductProvenance> runEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	rp.put(pit->first, *pit->second, runEntryInfoPtr);
+	rp.put(*pit->second, pit->first, runEntryInfoPtr);
 	++pit;
     }
 

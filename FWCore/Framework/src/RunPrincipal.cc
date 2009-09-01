@@ -4,112 +4,77 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
-  RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
+  RunPrincipal::RunPrincipal(
+    boost::shared_ptr<RunAuxiliary> aux,
     boost::shared_ptr<ProductRegistry const> reg,
-    ProcessConfiguration const& pc,
-    boost::shared_ptr<BranchMapper> mapper,
-    boost::shared_ptr<DelayedReader> rtrv) :
-      Base(reg, pc, InRun, aux.processHistoryID_, mapper, rtrv),
+    ProcessConfiguration const& pc) :
+      Base(reg, pc, InRun),
       aux_(aux) {
-    if (reg->productProduced(InRun)) {
+  }
+
+  void
+  RunPrincipal::fillRunPrincipal(
+    boost::shared_ptr<BranchMapper> mapper,
+    boost::shared_ptr<DelayedReader> rtrv) {
+    fillPrincipal(aux_->processHistoryID_, mapper, rtrv);
+    if (productRegistry().productProduced(InRun)) {
       addToProcessHistory();
     }
     mapper->processHistoryID() = processHistoryID();
   }
 
-  void
-  RunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
-
-    Group* group = getExistingGroup(*g);
-    if (group == 0) {
-      addGroup_(g);
-    } else if (group->productUnavailable() && group->branchDescription().produced()) {
-      // In this case, group is for the current process, and the existing group is just
-      // a placeholder. Just replace the existing group.
-      assert(g->branchDescription().produced());
-      replaceGroup(*g);
-    } else {
-      if (!group->productUnavailable()) {
-        assert(group->product() != 0);
-      }
-      if (!g->productUnavailable()) {
-        assert(g->product() != 0);
-      }
-      if(static_cast<bool> (g.get())) {
-         //PrincipalCache holds onto the 'newest' version of a RunPrincipal for a given run
-         // but our behavior is to keep the 'old' group and merge in the new one because if there
-         // is no way to merge we keep the 'old' group
-         edm::swap(*group,*g);
-      }
-      group->mergeGroup(g.get());
-    }
-  }
-
-  void
-  RunPrincipal::addGroupScheduled(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerNotRun()));
-    addGroupOrNoThrow(g);
-  }
-
-  void
-  RunPrincipal::addGroupSource(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productstatus::producerDidNotPutProduct()));
-    addGroupOrNoThrow(g);
-  }
-
-  void
-  RunPrincipal::addGroupIfNeeded(ConstBranchDescription const& bd) {
-    if (getExistingGroup(bd.branchID()) == 0) {
-      addGroup(bd);
-    }
-  }
-
-  void
-  RunPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID()));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  RunPrincipal::addToGroup(boost::shared_ptr<EDProduct> prod,
-	ConstBranchDescription const& bd,
-	std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
   void 
-  RunPrincipal::put(boost::shared_ptr<EDProduct> edp,
-		ConstBranchDescription const& bd,
-		std::auto_ptr<ProductProvenance> productProvenance) {
+  RunPrincipal::put(
+	ConstBranchDescription const& bd,
+	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<ProductProvenance> productProvenance) {
 
+    assert(bd.produced());
     if (edp.get() == 0) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
+    Group *g = getExistingGroup(bd.branchID());
+    assert(g);
     // Group assumes ownership
-    this->addToGroup(edp, bd, productProvenance);
+    g->putOrMergeProduct(edp, productProvenance);
   }
 
   void
-  RunPrincipal::mergeRun(boost::shared_ptr<RunPrincipal> rp) {
+  RunPrincipal::readImmediate() const {
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      Group const& g = **i;
+      if (!g.branchDescription().produced()) {
+        if (g.provenanceAvailable()) {
+	  g.resolveProvenance(branchMapperPtr());
+        }
+        if (!g.productUnavailable()) {
+          resolveProductImmediate(g);
+        }
+      }
+    }
+    branchMapperPtr()->setDelayedRead(false);
+  }
 
-    aux_.mergeAuxiliary(rp->aux());
+  void
+  RunPrincipal::resolveProductImmediate(Group const& g) const {
+    if (g.branchDescription().produced()) return; // nothing to do.
 
-    for (Base::const_iterator i = rp->begin(), iEnd = rp->end(); i != iEnd; ++i) {
+    // must attempt to load from persistent store
+    BranchKey const bk = BranchKey(g.branchDescription());
+    boost::shared_ptr<EDProduct> edp(store()->getProduct(bk, this));
 
-      std::auto_ptr<Group> g(new Group());
-      g->swap(**i);
-
-      addOrReplaceGroup(g);
+    // Now fix up the Group
+    if (edp.get() != 0) {
+      g.putOrMergeProduct(edp);
     }
   }
 
   void
   RunPrincipal::swap(RunPrincipal& iOther) {
     swapBase(iOther);
-    std::swap(aux_,iOther.aux_);
+    std::swap(aux_, iOther.aux_);
   }
 }

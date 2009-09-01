@@ -219,6 +219,7 @@ namespace edm {
   makeInput(ParameterSet& params,
 	    EventProcessor::CommonParams const& common,
 	    ProductRegistry& preg,
+	    PrincipalCache& pCache,
             boost::shared_ptr<ActivityRegistry> areg,
 	    boost::shared_ptr<ProcessConfiguration> processConfiguration) {
     ParameterSet * main_input = params.getPSetForUpdate("@main_input");
@@ -239,7 +240,7 @@ namespace edm {
 		         "source",
 		         processConfiguration);
 
-    InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
+    InputSourceDescription isdesc(md, preg, pCache, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
     boost::shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
     areg->postSourceConstructionSignal_(md);
@@ -409,7 +410,7 @@ namespace edm {
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
-    preg_(),
+    preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
@@ -448,7 +449,7 @@ namespace edm {
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
-    preg_(),
+    preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
@@ -487,7 +488,7 @@ namespace edm {
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
-    preg_(),
+    preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
@@ -521,7 +522,7 @@ namespace edm {
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
-    preg_(),
+    preg_(new SignallingProductRegistry),
     serviceToken_(),
     input_(),
     esp_(),
@@ -599,7 +600,7 @@ namespace edm {
     //add the ProductRegistry as a service ONLY for the construction phase
     typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
     boost::shared_ptr<w_CPR>
-      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
+      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(*preg_))));
     ServiceToken tempToken2(ServiceRegistry::createContaining(reg, 
 							      tempToken, 
 							      kOverlapIsError));
@@ -636,12 +637,12 @@ namespace edm {
     if (looper_) looper_->setActionTable(&act_table_);
     
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
-    input_ = makeInput(*parameterSet, common, preg_, actReg_, processConfiguration_);
+    input_ = makeInput(*parameterSet, common, *preg_, principalCache_, actReg_, processConfiguration_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
-		    preg_,
+		    *preg_,
 		    act_table_,
 		    actReg_,
 		    processConfiguration_));
@@ -650,7 +651,7 @@ namespace edm {
     FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration_);
-    BranchIDListHelper::updateRegistries(preg_);
+    BranchIDListHelper::updateRegistries(*preg_);
   }
 
   EventProcessor::~EventProcessor() {
@@ -709,9 +710,10 @@ namespace edm {
 
   bool
   EventProcessor::doOneEvent(EventID const& id) {
-    std::auto_ptr<EventPrincipal> pep;
+    EventPrincipal ep(preg_, *processConfiguration_);
+    EventPrincipal* pep = 0;
     try {
-      pep = input_->readEvent(id);
+      pep = input_->readEvent(id, ep);
     }
     catch(cms::Exception& e) {
       actions::ActionCodes action = act_table_.find(e.rootCause());
@@ -724,21 +726,16 @@ namespace edm {
         return true;
       }
     }
-    procOneEvent(pep.get());
-    return (pep.get() != 0);
-  }
-
-  void
-  EventProcessor::procOneEvent(EventPrincipal *pep) {
-    if(0 != pep) {
-      IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
+    if (pep != 0) {
+      IOVSyncValue ts(ep.id(), ep.luminosityBlock(), ep.time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
+      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(ep, es);
     }
+    return (pep != 0);
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(int numberEventsToProcess, bool repeatable) {
+  EventProcessor::run(int numberEventsToProcess, bool) {
     return runEventCount(numberEventsToProcess);
   }
   
@@ -1381,6 +1378,10 @@ namespace edm {
   EventProcessor::StatusCode
   EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
 
+    // Reusable event principal
+    EventPrincipal ep(preg_, *processConfiguration_);
+    input_->setEventPrincipalCache(ep);
+
     beginJob(); //make sure this was called
 
     if (!onlineStateTransitions) changeState(mRunCount);
@@ -1763,15 +1764,13 @@ namespace edm {
   }
 
   int EventProcessor::readAndCacheRun() {
-    principalCache_.insert(input_->readRun());
-    FDEBUG(1) << "\treadAndCacheRun " << "\n";
-    return principalCache_.runPrincipal().run();
+    input_->readAndCacheRun();
+    return input_->markRun();
   }
 
   int EventProcessor::readAndCacheLumi() {
-    principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
-    FDEBUG(1) << "\treadAndCacheLumi " << "\n";
-    return principalCache_.lumiPrincipal().luminosityBlock();
+    input_->readAndCacheLumi();
+    return input_->markLumi();
   }
 
   void EventProcessor::writeRun(int run) {
@@ -1795,8 +1794,9 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
+    EventPrincipal *pep = 0;
     try {
-      sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
+      pep = input_->readEvent(principalCache_.lumiPrincipalPtr());
       FDEBUG(1) << "\treadEvent\n";
     }
     catch(cms::Exception& e) {
@@ -1810,17 +1810,19 @@ namespace edm {
         return;
       }
     }
+    assert(pep != 0);
 
-    IOVSyncValue ts(sm_evp_->id(), sm_evp_->luminosityBlock(), sm_evp_->time());
+    IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_, es);
+    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
  
     if (looper_) {
-      EDLooper::Status status = looper_->doDuringLoop(*sm_evp_, esp_->eventSetup());
+      EDLooper::Status status = looper_->doDuringLoop(*pep, esp_->eventSetup());
       if (status != EDLooper::kContinue) shouldWeStop_ = true;
     }
 
     FDEBUG(1) << "\tprocessEvent\n";
+    pep->clearEventPrincipal();
   }
 
   bool EventProcessor::shouldWeStop() const {
