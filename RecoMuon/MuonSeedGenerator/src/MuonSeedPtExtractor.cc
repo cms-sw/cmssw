@@ -314,7 +314,6 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     {
        pTestimate = getPt(parametersItr->second, eta, dPhi);
     }
-    std::cout << "GETPT " << combination << " " << fabs(pTestimate[0]) << " ETA " << eta << " DPHI " << dPhi<<  std::endl;
 
     if(singleSegment){
       pTestimate[0] = fabs(pTestimate[0]);
