@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_3_0/pre1/1E31/V7 (CMSSW_3_3_X_2009-08-24-1300_HLT3)
+# /dev/CMSSW_3_3_0/pre1/1E31/V11 (CMSSW_3_3_X_2009-09-01-0500_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/1E31/V7')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/1E31/V11')
 )
 
 
@@ -820,8 +820,8 @@ hltDiJetAve15U1E31 = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
     minEtAve = cms.double( 15.0 ),
-    minEtJet3 = cms.double( 3000.0 ),
-    minDphi = cms.double( 0.0 )
+    minEtJet3 = cms.double( 99999.9 ),
+    minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve30U1E31 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -837,8 +837,8 @@ hltDiJetAve30U1E31 = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
     minEtAve = cms.double( 30.0 ),
-    minEtJet3 = cms.double( 3000.0 ),
-    minDphi = cms.double( 0.0 )
+    minEtJet3 = cms.double( 99999.9 ),
+    minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve50U = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -854,8 +854,8 @@ hltDiJetAve50U = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
     minEtAve = cms.double( 50.0 ),
-    minEtJet3 = cms.double( 3000.0 ),
-    minDphi = cms.double( 0.0 )
+    minEtJet3 = cms.double( 99999.9 ),
+    minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve70U = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -871,8 +871,8 @@ hltDiJetAve70U = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
     minEtAve = cms.double( 70.0 ),
-    minEtJet3 = cms.double( 3000.0 ),
-    minDphi = cms.double( 0.0 )
+    minEtJet3 = cms.double( 99999.9 ),
+    minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve130U = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -888,8 +888,8 @@ hltDiJetAve130U = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
     minEtAve = cms.double( 130.0 ),
-    minEtJet3 = cms.double( 3000.0 ),
-    minDphi = cms.double( 0.0 )
+    minEtJet3 = cms.double( 99999.9 ),
+    minDphi = cms.double( -1.0 )
 )
 hltL1sQuadJet30 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -1272,8 +1272,8 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME41 = cms.double( 9.0 ),
     XTasymmetry_ME41 = cms.double( 0.0 ),
     ConstSyst_ME41 = cms.double( 0.0 ),
-    readBadChannels = cms.bool( False ),
-    readBadChambers = cms.bool( False ),
+    readBadChannels = cms.bool( True ),
+    readBadChambers = cms.bool( True ),
     UseAverageTime = cms.bool( False ),
     UseParabolaFit = cms.bool( False ),
     UseFourPoleFit = cms.bool( True ),
@@ -4019,8 +4019,7 @@ hltFilterL2EcalIsolationSingleIsoTau30Trk5 = cms.EDFilter( "HLT1Tau",
 hltL25TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( 'hltL2TauRelaxingIsolationSelector','Isolated' ),
     tracks = cms.InputTag( "hltL25TauCtfWithMaterialTracks" ),
-    coneSize = cms.double( 0.5 ),
-    trackQuality = cms.string( "goodIterative" )
+    coneSize = cms.double( 0.5 )
 )
 hltL25TauConeIsolation = cms.EDProducer( "ConeIsolation",
     JetTrackSrc = cms.InputTag( "hltL25TauJetTracksAssociator" ),
@@ -4060,8 +4059,7 @@ hltFilterL25LeadingTrackPtCutSingleIsoTau30Trk5 = cms.EDFilter( "HLT1Tau",
 hltL3TauJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltL25TauLeadingTrackPtCutSelector" ),
     tracks = cms.InputTag( "hltL3TauCtfWithMaterialTracks" ),
-    coneSize = cms.double( 0.5 ),
-    trackQuality = cms.string( "goodIterative" )
+    coneSize = cms.double( 0.5 )
 )
 hltL3TauConeIsolation = cms.EDProducer( "ConeIsolation",
     JetTrackSrc = cms.InputTag( "hltL3TauJetTracksAssociator" ),
@@ -4168,8 +4166,7 @@ hltBLifetimeL25JetsStartup = cms.EDProducer( "EtMinCaloJetSelector",
 hltBLifetimeL25AssociatorStartup = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL25JetsStartup" ),
     tracks = cms.InputTag( "hltPixelTracks" ),
-    coneSize = cms.double( 0.5 ),
-    trackQuality = cms.string( "goodIterative" )
+    coneSize = cms.double( 0.5 )
 )
 hltBLifetimeL25TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorStartup" ),
@@ -4204,8 +4201,7 @@ hltBLifetimeL3JetsStartup = cms.EDProducer( "GetJetsFromHLTobject",
 hltBLifetimeL3AssociatorStartup = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltBLifetimeL3JetsStartup" ),
     tracks = cms.InputTag( "hltBLifetimeRegionalCtfWithMaterialTracksStartup" ),
-    coneSize = cms.double( 0.5 ),
-    trackQuality = cms.string( "goodIterative" )
+    coneSize = cms.double( 0.5 )
 )
 hltBLifetimeL3TagInfosStartup = cms.EDProducer( "TrackIPProducer",
     jetTracks = cms.InputTag( "hltBLifetimeL3AssociatorStartup" ),
