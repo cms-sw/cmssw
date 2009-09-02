@@ -142,10 +142,10 @@ def runBTagging(process,
     setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
     setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
-    setattr( process, 'softElectronBJetTags'+label, btag.softElectronBJetTags.clone(tagInfos = vit(seTILabel)) )
+    setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronBJetTags.clone(tagInfos = vit(seTILabel)) )
     setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
     setattr( process, 'softMuonBJetTags'+label, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
-    setattr( process, 'softMuonNoIPBJetTags'+label, btag.softMuonNoIPBJetTags.clone(tagInfos = vit(smTILabel)) )
+    setattr( process, 'softMuonByPtBJetTags'+label, btag.softMuonNoIPBJetTags.clone(tagInfos = vit(smTILabel)) )
     setattr( process, 'softMuonByIP3dBJetTags'+label, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
     
     ## define vector of (output) labels
@@ -158,10 +158,10 @@ def runBTagging(process,
                                                     'simpleSecondaryVertexBJetTags',
                                                     'combinedSecondaryVertexBJetTags',
                                                     'combinedSecondaryVertexMVABJetTags',
-                                                    'softElectronBJetTags',
+                                                    'softElectronByPtBJetTags',
                                                     'softElectronByIP3dBJetTags',
                                                     'softMuonBJetTags',
-                                                    'softMuonNoIPBJetTags',
+                                                    'softMuonByPtBJetTags',
                                                     'softMuonByIP3dBJetTags'
                                                     )
                               ]
