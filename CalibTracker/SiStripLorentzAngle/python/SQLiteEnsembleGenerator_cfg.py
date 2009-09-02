@@ -48,12 +48,12 @@ process.siStripLorentzAngleDummyDBWriter.record=process.PoolDBOutputService.toPu
 
 BField = 3.8
 # TIB min and max
-process.SiStripLorentzAngleGenerator.TIB_EstimatedValuesMin = cms.vdouble(0.03/BField, 0.03/BField, 0.03/BField, 0.03/BField)
+process.SiStripLorentzAngleGenerator.TIB_EstimatedValuesMin = cms.vdouble(0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField)
 process.SiStripLorentzAngleGenerator.TIB_EstimatedValuesMax = cms.vdouble(0.10/BField, 0.10/BField, 0.10/BField, 0.10/BField)
 # TIB errors
 process.SiStripLorentzAngleGenerator.TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.)
 # TOB min and max
-process.SiStripLorentzAngleGenerator.TOB_EstimatedValuesMin = cms.vdouble(0.05/BField, 0.05/BField, 0.05/BField, 0.05/BField, 0.05/BField, 0.05/BField)
+process.SiStripLorentzAngleGenerator.TOB_EstimatedValuesMin = cms.vdouble(0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField, 0.0/BField)
 process.SiStripLorentzAngleGenerator.TOB_EstimatedValuesMax = cms.vdouble(0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField, 0.12/BField)
 # TOB errors
 process.SiStripLorentzAngleGenerator.TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.)
