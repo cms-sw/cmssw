@@ -1,7 +1,7 @@
 # PYTHON configuration file for class: JetCorExample
 # Description:  Example of simple EDAnalyzer for correcting jets on the fly.
 # Author: K. Kousouris
-# Date:  25 - August - 2008
+# Date:  02 - September - 2009
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Ana")
@@ -12,17 +12,23 @@ process.maxEvents = cms.untracked.PSet(
 )
 #############   Define the source file ###############
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Summer08/QCDDiJetPt80to120/GEN-SIM-RECO/IDEAL_V9_v1/0000/009AC3E3-BF97-DD11-93B5-00093D13BB43.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V3-v1/0007/9E83A122-E978-DE11-9D04-001D09F23C73.root')
 )
 #############   Include the jet corrections ##########
-process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08_cff")
+process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff")
 # set the record's IOV. Must be defined once. Choose ANY correction service. #
-process.prefer("L2L3JetCorrectorIC5Calo") 
+process.prefer("L2L3JetCorrectorSC5Calo") 
 #############   Correct Calo Jets on the fly #########
 process.calo = cms.EDAnalyzer("CaloJetCorExample",
-    JetAlgorithm         = cms.string('iterativeCone5CaloJets'),
-    HistoFileName        = cms.string('CaloJetCorOnTheFlyExample.root'),
-    JetCorrectionService = cms.string('L2L3JetCorrectorIC5Calo')
+    JetAlgorithm         = cms.string('sisCone5CaloJets'),
+    HistoFileName        = cms.string('CaloJetCorOnTheFlyExample_SC5Calo.root'),
+    JetCorrectionService = cms.string('L2L3JetCorrectorSC5Calo')
+)
+#############   Correct PF Jets on the fly #########
+process.calo = cms.EDAnalyzer("PFJetCorExample",
+    JetAlgorithm         = cms.string('sisCone5PFJets'),
+    HistoFileName        = cms.string('PFJetCorOnTheFlyExample_SC5PF.root'),
+    JetCorrectionService = cms.string('L2L3JetCorrectorSC5PF')
 )
 #############   Path       ###########################
 process.p = cms.Path(process.calo)

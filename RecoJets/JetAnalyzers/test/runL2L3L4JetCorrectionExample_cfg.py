@@ -1,7 +1,7 @@
 # PYTHON configuration file.
 # Description:  Example of applying L2+L3+L4 jet corrections.
 # Author: K. Kousouris
-# Date:  25 - August - 2008
+# Date:  02 - September - 2009
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Ana")
@@ -12,21 +12,21 @@ process.maxEvents = cms.untracked.PSet(
 )
 #############   Define the source file ###############
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Summer08/QCDDiJetPt80to120/GEN-SIM-RECO/IDEAL_V9_v1/0000/009AC3E3-BF97-DD11-93B5-00093D13BB43.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_2/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_31X_V3-v1/0007/9E83A122-E978-DE11-9D04-001D09F23C73.root')
 )
 #############   Define the L2 correction service #####
 process.L2RelativeJetCorrector = cms.ESSource("L2RelativeCorrectionService", 
-    tagName = cms.string('Summer08_L2Relative_IC5Calo'),
+    tagName = cms.string('Summer09_L2Relative_SC5Calo'),
     label = cms.string('L2RelativeJetCorrector')
 )
 #############   Define the L3 correction service #####
 process.L3AbsoluteJetCorrector = cms.ESSource("L3AbsoluteCorrectionService", 
-    tagName = cms.string('Summer08_L3Absolute_IC5Calo'),
+    tagName = cms.string('Summer09_L3Absolute_SC5Calo'),
     label = cms.string('L3AbsoluteJetCorrector')
 )
 #############   Define the EMF correction service ####
 process.L4JetCorrector = cms.ESSource("L4EMFCorrectionService", 
-    tagName = cms.string('CMSSW_152_L4EMF'),
+    tagName = cms.string('L4EMF_IC5'), # IMPORTANT: the L4 correction was derived from IC5 but it is the same for all algos
     label = cms.string('L4EMFJetCorrector')
 )
 #############   Define the chain corrector service ###
@@ -36,7 +36,7 @@ process.L2L3L4JetCorrector = cms.ESSource("JetCorrectionServiceChain",
 )
 #############   Define the chain corrector module ####
 process.L2L3L4CorJet = cms.EDProducer("CaloJetCorrectionProducer",
-    src = cms.InputTag("iterativeCone5CaloJets"),
+    src = cms.InputTag("sisCone5CaloJets"),
     correctors = cms.vstring('L2L3L4JetCorrector')
 )
 # set the record's IOV. Must be defined once. Choose ANY correction service. #

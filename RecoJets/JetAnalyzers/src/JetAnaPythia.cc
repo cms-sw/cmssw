@@ -1,6 +1,6 @@
 // Name: JetAnaPythia
 // Description:  Example of analysis of Pythia produced partons & jets
-//               Based on Kostas Kosouris' templated JetPlotsExample.
+//               Based on Kostas Kousouris' templated JetPlotsExample.
 //               Plots are tailored to needs of dijet mass and ratio analysis.
 // Author: R. Harris
 // Date:  28 - Oct - 2008
@@ -12,7 +12,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -144,9 +144,9 @@ void JetAnaPythia<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iS
       
     // Process Info
     if(anaLevel != "generating"){  //We are not generating events, so xsec is there
-      edm::Handle< GenInfoProduct > genInfoProduct;
+      edm::Handle< GenRunInfoProduct > genInfoProduct;
       evt.getRun().getByLabel("source", genInfoProduct );
-      xsec = genInfoProduct->cross_section();
+      xsec = genInfoProduct->internalXSec();
       if(debug)std::cout << "cross section=" <<xsec << " mb" << std::endl;
     }
     else
