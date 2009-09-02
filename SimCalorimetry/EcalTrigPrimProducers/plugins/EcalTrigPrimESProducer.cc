@@ -273,7 +273,7 @@ std::auto_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const Ec
   for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
     
     EcalTPGCrystalStatusCode badXValue;
-    badXValue.setStatusCode(1);
+    badXValue.setStatusCode(0);
     prod->setValue(it->first,badXValue) ;
   }
   return prod;
@@ -288,12 +288,12 @@ std::auto_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const Eca
   //Barrel
   for (it = mapTower_[0].begin() ; it != mapTower_[0].end() ; it++) {
     //set the BadTT status to 0
-    prod->setValue(it->first,1) ;
+    prod->setValue(it->first,0) ;
   }
   //Endcap
   for (it = mapTower_[1].begin() ; it != mapTower_[1].end() ; it++) {
     //set the BadTT status to 0
-    prod->setValue(it->first,1) ;
+    prod->setValue(it->first,0) ;
   }
   
   return prod; 
