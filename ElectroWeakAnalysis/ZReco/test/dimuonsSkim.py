@@ -8,7 +8,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    "file:mycollection.root"
+    'file:mycollection.root'
     )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
@@ -22,7 +22,7 @@ process.load("ElectroWeakAnalysis.ZReco.dimuons_SkimPaths_cff")
 
 # Output module configuration
 process.load("ElectroWeakAnalysis.ZReco.dimuonsOutputModule_cfi")
-process.dimuonsOutputModule.fileName = 'file:/tmp/fabozzi/testSkim.root'
+process.dimuonsOutputModule.fileName = 'file:testSkim.root'
 
 process.outpath = cms.EndPath(process.dimuonsOutputModule)
 
