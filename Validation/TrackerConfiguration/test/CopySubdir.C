@@ -1,6 +1,6 @@
 void CopyDir(TDirectory *source) {
    //copy all objects and subdirs of directory source as a subdir of the current directory   
-   source->ls();
+  //   source->ls();
    TDirectory *savdir = gDirectory;
    TDirectory *adir = savdir->mkdir(source->GetName());
    adir->cd();
