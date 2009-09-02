@@ -7,7 +7,7 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
     vertexDistanceCut = cms.double(0.003),
     volumeZ = cms.double(3000.0),
     mergedBremsstrahlung = cms.bool(True),
-    removeDeadModules = cms.bool(True),
+    removeDeadModules = cms.bool(False),
 
     HepMCDataLabels = cms.vstring('VtxSmeared', 
         'generator', 
