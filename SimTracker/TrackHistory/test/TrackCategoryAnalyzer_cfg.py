@@ -26,12 +26,7 @@ process.add_(
 )
 
 process.trackCategoriesAnalyzer = cms.EDFilter("TrackCategoriesAnalyzer",
-    process.trackClassifier,
-    minimumNumberOfHits = cms.untracked.int32(8),
-    minimumTransverseMomentum = cms.untracked.double(1.),
-    minimumNumberOfPixelHits = cms.untracked.int32(2),
-    maximumChiSquared = cms.untracked.double(5.),
-    trackQualityClass = cms.untracked.string('loose')
+    process.trackClassifier
 )
 
 # Other statements
