@@ -19,15 +19,15 @@ fill(TTree* tree, Book& book) {
 		      std::vector<unsigned>* LEAF( clusterwidth )
 		      std::vector<float>*    LEAF( clustervariance )
 		      std::vector<unsigned>* LEAF( tsostrackmulti )
-		      std::vector<int>*      LEAF( tsostrackindex )
+		      std::vector<int>*      LEAF( tsostrackindex ) //should move track filters to CMSSW, loose track leaves
 		      std::vector<float>*    LEAF( tsosdriftx )
 		      std::vector<float>*    LEAF( tsosdriftz )
 		      std::vector<float>*    LEAF( tsoslocalpitch )
 		      std::vector<float>*    LEAF( tsoslocaltheta )
 		      std::vector<float>*    LEAF( tsoslocalphi )
 		      std::vector<float>*    LEAF( tsosBdotY )
-		      std::vector<double>*   LEAF( trackchi2ndof )
-		      std::vector<unsigned>* LEAF( trackhitsvalid )
+		      std::vector<double>*   LEAF( trackchi2ndof ) //should move track filters to CMSSW, loose track leaves
+		      std::vector<unsigned>* LEAF( trackhitsvalid )//should move track filters to CMSSW, loose track leaves
 		      ) {
     if(maxEvents_) TTREE_FOREACH_ENTRY_total = std::min(maxEvents_,TTREE_FOREACH_ENTRY_total);
     for(unsigned i=0; i< clusterwidth->size() ; i++) {  
@@ -35,26 +35,24 @@ fill(TTree* tree, Book& book) {
       SiStripDetId detid((*clusterdetid)[i]);
 
       if( (*tsostrackmulti)[i] != 1 ||
-	  (*trackchi2ndof)[(*tsostrackindex)[i]] > 10 ||
-	  (*trackhitsvalid)[(*tsostrackindex)[i]] < 7 ||
+	  (*trackchi2ndof)[(*tsostrackindex)[i]] > 10 || //should move track filters to CMSSW, loose track leaves
+	  (*trackhitsvalid)[(*tsostrackindex)[i]] < 7 || //should move track filters to CMSSW, loose track leaves
 	  detid.subDetector()!=SiStripDetId::TIB && 
 	  detid.subDetector()!=SiStripDetId::TOB        ) 
 	continue;
       
-      float BdotY = (*tsosBdotY)[i];
       float driftx = (*tsosdriftx)[i];
       float driftz = (*tsosdriftz)[i];
 
       int sign = driftx < 0  ?  1  :  -1 ;
-      double projection = driftz * tan((*tsoslocaltheta)[i]) * cos((*tsoslocalphi)[i]);
+      double projectionByDriftz = tan((*tsoslocaltheta)[i]) * cos((*tsoslocalphi)[i]);
       unsigned width = (*clusterwidth)[i];
       float sqrtVar = sqrt((*clustervariance)[i]);
-      float pitch = (*tsoslocalpitch)[i];
 
       poly<std::string> granular;
       if(ensembleBins_) {
 	granular+= "ensembleBin"+boost::lexical_cast<std::string>((int)(ensembleBins_*(sign*driftx/driftz-ensembleLow_)/(ensembleUp_-ensembleLow_)));
-	granular+= "_pitch"+boost::lexical_cast<std::string>((int)(pitch*10000));
+	granular+= "_pitch"+boost::lexical_cast<std::string>((int)(10000* (*tsoslocalpitch)[i] ));
 	granular+= "";
 	if(ensembleSize_) granular*= "_sample"+boost::lexical_cast<std::string>(TTREE_FOREACH_ENTRY_index % ensembleSize_);
       } else {
@@ -67,12 +65,12 @@ fill(TTree* tree, Book& book) {
       poly<std::string> A1("_all"); 
       if(width==1) A1*="_width1";
 
-      if(ensembleBins_==0)   book.fill( fabs(BdotY),                     granular+"_field"            , 101, 1, 5 );
-      if(methods_ & RATIO)   book.fill( sign*projection/driftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
-      if(methods_ & WIDTH)   book.fill( sign*projection/driftz,   width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
-      if(methods_ & SQRTVAR) book.fill( sign*projection/driftz, sqrtVar, granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
-      if(methods_ & SYMM)    book.fill( sign*projection/driftz, sqrtVar, granular+ method(SYMM)        ,128,-1.0,1.0 );
-                             book.fill( sign*driftx/driftz,              granular+"_reconstruction"   , 81, -0.6,0.6 );
+                             book.fill( sign*driftx/driftz,               granular+"_reconstruction"   , 81, -0.6,0.6 );
+      if(methods_ & RATIO)   book.fill( sign*projectionByDriftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
+      if(methods_ & WIDTH)   book.fill( sign*projectionByDriftz,   width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
+      if(methods_ & SQRTVAR) book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
+      if(methods_ & SYMM)    book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SYMM)        ,128,-1.0,1.0 );
+      if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),            granular+"_field"            , 101, 1, 5 );
     }
   }
 }
@@ -160,7 +158,7 @@ result(Method m, const std::string name, const Book& book) {
       p.chi2 = f.minChi2();
       p.ndof = f.NDF();
     }
-    case NONE: break;
+    default:break;
     }
   }
   return p;
@@ -202,22 +200,21 @@ void LA_Filler_Fitter::
 summarize_ensembles(Book& book) {
   typedef std::map<std::string, std::vector<Result> > results_t;
   results_t results;
-  if(methods_ & SYMM)    { results_t g = ensemble_results(book,SYMM);    results.insert(g.begin(),g.end());}
-  if(methods_ & SQRTVAR) { results_t g = ensemble_results(book,SQRTVAR); results.insert(g.begin(),g.end());}
-  if(methods_ & RATIO)   { results_t g = ensemble_results(book,RATIO);   results.insert(g.begin(),g.end());}
-  if(methods_ & WIDTH)   { results_t g = ensemble_results(book,WIDTH);   results.insert(g.begin(),g.end());}
+  for(int m = FIRST_METHOD; m <= LAST_METHOD; m<<=1)
+    if(methods_ & m) { results_t g = ensemble_results(book,(Method)(m)); results.insert(g.begin(),g.end());}
   
   BOOST_FOREACH(const results_t::value_type group, results) {
     const std::string name = group.first;
     BOOST_FOREACH(const Result p, group.second) {
-      if( p.chi2/p.ndof > 5 ) continue;
       float pad = (ensembleUp_-ensembleLow_)/10;
       book.fill( p.reco,       name+"_ensembleReco", 12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
       book.fill( p.measure,    name+"_measure",      12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
       book.fill( p.measureErr, name+"_merr",         500, 0, 0.1);
+      book.fill( (p.measure-p.reco)/p.measureErr, name+"_pull", 500, -10,10);
     }
     book(name+"_measure")->Fit("gaus","LMEQ");
     book(name+"_merr")->Fit("gaus","LMEQ");
+    book(name+"_pull")->Fit("gaus","LMEQ");
   }
 }
 
@@ -230,6 +227,7 @@ ensemble_summary(const Book& book) {
     TH1* reco = *it;
     TH1* measure = book(base+"_measure");
     TH1* merr = book(base+"_merr");
+    TH1* pull = book(base+"_pull");
 
     EnsembleSummary s;
     s.truth = reco->GetMean();
@@ -239,6 +237,8 @@ ensemble_summary(const Book& book) {
     s.SDsigmaMeasured = measure->GetFunction("gaus")->GetParError(2);
     s.meanUncertainty = merr->GetFunction("gaus")->GetParameter(1);
     s.SDmeanUncertainty = merr->GetFunction("gaus")->GetParError(1);
+    s.pull = pull->GetFunction("gaus")->GetParameter(2);
+    s.SDpull = pull->GetFunction("gaus")->GetParError(2);
 
     std::string name = boost::regex_replace(base,boost::regex("ensembleBin\\d*_"),"");
     summary[name].push_back(s);
@@ -289,7 +289,8 @@ std::ostream& operator<<(std::ostream& strm, const LA_Filler_Fitter::EnsembleSum
   return strm << e.truth <<"\t"
 	      << e.meanMeasured    <<"\t"<< e.SDmeanMeasured <<"\t"
 	      << e.sigmaMeasured   <<"\t"<< e.SDsigmaMeasured <<"\t"
-	      << e.meanUncertainty <<"\t"<< e.SDmeanUncertainty;
+	      << e.meanUncertainty <<"\t"<< e.SDmeanUncertainty << "\t"
+	      << e.pull            <<"\t"<< e.SDpull;
 }
 
 

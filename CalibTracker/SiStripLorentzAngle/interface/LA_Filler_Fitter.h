@@ -13,12 +13,14 @@ class LA_Filler_Fitter {
 
  public:
 
-  enum Method { NONE=0, WIDTH=1<<0, RATIO=1<<1,  SQRTVAR=1<<2, SYMM=1<<3};
+  enum Method { WIDTH  =1<<0, FIRST_METHOD=1<<0, 
+		RATIO  =1<<1,  
+		SQRTVAR=1<<2, 
+		SYMM   =1<<3, LAST_METHOD=1<<3};
   static std::string method(Method m,bool fit=true) { 
     switch(m) {
-    case NONE:   return "none";
-    case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
     case WIDTH:  return "_width-tanLA_profile";
+    case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
     case SQRTVAR:return "_sqrtVariance-tanLA_profile";
     case SYMM:   return "_symm";
     default: return "_UNKNOWN";
@@ -26,9 +28,12 @@ class LA_Filler_Fitter {
   }
 
   struct Result { 
-    float reco,measure,recoErr,measureErr,chi2,field, calibratedMeasurement,calibratedError; 
+    float reco,recoErr,measure,measureErr,calibratedMeasurement,calibratedError,field,chi2; 
     unsigned ndof,entries; 
-    Result() : reco(1000), measure(1000), recoErr(0), measureErr(0), chi2(0), field(0), calibratedMeasurement(0), calibratedError(0), ndof(0), entries(0) {}
+    Result() : reco(1000), recoErr(0), 
+	       measure(1000), measureErr(0), 
+	       calibratedMeasurement(0), calibratedError(0), 
+	       field(0), chi2(0), ndof(0), entries(0) {}
   };
   
   struct EnsembleSummary {
@@ -36,8 +41,13 @@ class LA_Filler_Fitter {
     float truth, 
       meanMeasured,   SDmeanMeasured,
       sigmaMeasured,  SDsigmaMeasured,
-      meanUncertainty,SDmeanUncertainty;
-    EnsembleSummary() : samples(0),truth(0),meanMeasured(0),SDmeanMeasured(0),sigmaMeasured(0),SDsigmaMeasured(0),meanUncertainty(0),SDmeanUncertainty(0) {}
+      meanUncertainty,SDmeanUncertainty,
+      pull,           SDpull;
+    EnsembleSummary() : samples(0),truth(0),
+			meanMeasured(0),SDmeanMeasured(0),
+			sigmaMeasured(0),SDsigmaMeasured(0),
+			meanUncertainty(0),SDmeanUncertainty(0),
+			pull(0),SDpull(0) {}
   };
   
   LA_Filler_Fitter(int methods, int M, int N, double low, double up, unsigned max=0) :
