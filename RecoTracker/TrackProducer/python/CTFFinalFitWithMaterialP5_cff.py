@@ -21,7 +21,7 @@ FittingSmootherRKP5.EstimateCut = cms.double(20.0)
 FittingSmootherRKP5.BreakTrajWith2ConsecutiveMissing = cms.bool(False)
 
 import RecoTracker.TrackProducer.TrackProducer_cfi
-ctfWithMaterialTracksP5 = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+ctfWithMaterialTracksCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'ckfTrackCandidatesP5',
     Fitter = 'FittingSmootherRKP5',
     TTRHBuilder = 'WithTrackAngle',

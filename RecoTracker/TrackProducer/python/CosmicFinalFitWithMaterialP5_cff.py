@@ -29,10 +29,10 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 import RecoTracker.TrackProducer.TrackProducer_cfi
 
 # include TrackProducer and clone with new module label
-cosmictrackfinderP5 = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
+cosmictrackfinderCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone()
 
-cosmictrackfinderP5.src = 'cosmicCandidateFinderP5'
-cosmictrackfinderP5.TTRHBuilder = 'WithTrackAngle'
-cosmictrackfinderP5.AlgorithmName = 'cosmic'
-cosmictrackfinderP5.Fitter = 'RKFittingSmoother'
+cosmictrackfinderCosmics.src = 'cosmicCandidateFinderP5'
+cosmictrackfinderCosmics.TTRHBuilder = 'WithTrackAngle'
+cosmictrackfinderCosmics.AlgorithmName = 'cosmic'
+cosmictrackfinderCosmics.Fitter = 'RKFittingSmoother'
 
