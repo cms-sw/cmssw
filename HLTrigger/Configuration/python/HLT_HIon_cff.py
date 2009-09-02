@@ -7,22 +7,6 @@ HLTConfigVersion = cms.PSet(
   tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V11')
 )
 
-streams = cms.untracked.PSet( 
-  ALCAP0 = cms.untracked.vstring( 'AlCaP0' ),
-  ALCAPHISYM = cms.untracked.vstring( 'AlCaPhiSymEcal' ),
-  A = cms.untracked.vstring( 'HcalHPDNoise',
-    'MinimumBiasNoCalo',
-    'Cosmics',
-    'RandomTriggers',
-    'Calo' ),
-  Express = cms.untracked.vstring( 'ExpressMuon' ),
-  ALCAPHISYMHCAL = cms.untracked.vstring( 'AlCaPhiSymHcal' ),
-  Calibration = cms.untracked.vstring( 'TestEnables' ),
-  EcalCalibration = cms.untracked.vstring( 'EcalLaser' ),
-  RPCMON = cms.untracked.vstring( 'RPCMonitor' ),
-  HLTMON = cms.untracked.vstring( 'OfflineMonitor' ),
-  FEDErrors = cms.untracked.vstring( 'FEDMonitor' )
-)
 
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
