@@ -340,6 +340,7 @@ namespace sistrip {
     }
     if ( (readoutModeString == "READOUT_MODE_PROC_RAW") ||
          (readoutModeString == "PROC_RAW") ||
+         (readoutModeString == "PROCESSED_RAW") ||
          (readoutModeString == "Processed raw") ) {
       return READOUT_MODE_PROC_RAW;
     }

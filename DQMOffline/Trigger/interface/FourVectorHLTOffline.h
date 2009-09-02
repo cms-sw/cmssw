@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.25 2009/06/28 23:28:50 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.27 2009/08/05 16:31:24 rekovic Exp $
 //
 //
 
@@ -154,8 +154,12 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       double trackEtaMax_;
       double trackEtMin_;
       double trackDRMatch_;
+      double metEtaMax_;
       double metMin_;
+      double metDRMatch_;
+      double htEtaMax_;
       double htMin_;
+      double htDRMatch_;
       double sumEtMin_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
@@ -163,6 +167,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       std::string dirname_;
       std::string processname_;
+      std::string muonRecoCollectionName_;
       bool monitorDaemon_;
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;

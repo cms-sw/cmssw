@@ -25,9 +25,8 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
   string::size_type endOfExpr = name.find_last_of(' ');
   if(endOfExpr != string::npos)
     name.erase(endOfExpr, name.size());
-  //std::cerr << "Pushed [" << name << "] with " << args.size() << " args." << std::endl;
-  if (lazy_) lazyMethStack_.push_back(LazyInvoker(name, args)); // for lazy parsing we just push method name and arguments
-  else push(name, args,begin);  // otherwise we really have to resolve the method
+  //std::cout << "\nPushing '" << name << "', #args = " << args.size() << ", begin=[" << begin << "]" << std::endl; 
+  push(name, args,begin);
 }
 
 void MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args, const char* begin) const {

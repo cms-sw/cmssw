@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2008/04/08 15:32:08 $
- * $Revision: 1.30 $
+ * $Date: 2008/05/11 09:35:08 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -70,6 +70,8 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 MonitorElement* meShapeMapG01_[36];
 MonitorElement* meShapeMapG06_[36];

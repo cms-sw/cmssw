@@ -105,12 +105,13 @@ void HLTMonMuonClient::analyze(const Event& e, const EventSetup& context){
     if(hSubFilterCount[n]){
       refhisto = hSubFilterCount[n]->getTH1F();
       nbin_sub = refhisto->GetNbinsX();
-      for( int i = 0; i < nbin_sub; i++ ) {
-	double denominator = refhisto->GetBinContent(1); 
-	double numerator = refhisto->GetBinContent(i+1);
-	double eff = 1.0;
+      for( int i = 1; i <= nbin_sub; i++ ) {
+	double denominator = refhisto->GetBinContent(0); 
+	double numerator = refhisto->GetBinContent(i);
+	//cout << refhisto->GetXaxis()->GetBinLabel(i) << " " << numerator << " " << denominator << endl;
+	double eff = 0.0;
 	if( denominator != 0 ) eff = numerator/denominator;
-	hSubFilterEfficiency[n]->setBinContent(i+1, eff);
+	hSubFilterEfficiency[n]->setBinContent(i, eff);
 	//hSubFilterEfficiency[n]->Fill(i, eff);
       }
     }
@@ -122,7 +123,7 @@ void HLTMonMuonClient::analyze(const Event& e, const EventSetup& context){
     for( int i = 0; i < nbin_sub; i++ ) {
       double denominator = refhisto->GetBinContent(1); // HLT_L1MuOpen usually. If not , the lowest threshold HLT_L1Mu*
       double numerator = refhisto->GetBinContent(i+1);
-      double eff = 1.0;
+      double eff = 0.0;
       if( denominator != 0 ) eff = numerator/denominator;
       hEffSummary->setBinContent(i+1, eff);
     }

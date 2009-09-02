@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/06/25 15:08:19 $
- * $Revision: 1.36 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -214,11 +214,9 @@ void EEBeamHodoClient::cleanup(void) {
 
 }
 
-bool EEBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EEBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   return true;
 
@@ -325,10 +323,6 @@ void EEBeamHodoClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/EEBeamHodoTask/EEBHT TimeMax TDC-Calo %s").c_str(), Numbers::sEE(smId).c_str());
   me = dqmStore_->get(histo);
   he03_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
-
-}
-
-void EEBeamHodoClient::softReset(bool flag) {
 
 }
 

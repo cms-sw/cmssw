@@ -1,22 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("DQMServices.Core.DQM_cfg")
-process.load("RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff")
 
 process.source = cms.Source("EmptyIOVSource",
      lastValue = cms.uint64(100),
      timetype = cms.string('runnumber'),
      firstValue = cms.uint64(1),
      interval = cms.uint64(90)
- )
-
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -34,9 +34,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
+        #FwkJob = cms.untracked.PSet(
+        #    limit = cms.untracked.int32(0)
+        #),
         resolution = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
@@ -50,6 +50,7 @@ process.qTester = cms.EDFilter("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
     qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests_ttrig.xml')
 )
+
 process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
 process.modulo1=process.resolutionTest.clone()
 process.modulo1.histoTag2D = 'hResDistVsDist_STEP1' 
@@ -81,5 +82,3 @@ process.modulo3.OutputFileName = cms.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_M
 process.secondStep = cms.Sequence(process.modulo1*process.modulo2*process.modulo3*process.qTester)
 process.p = cms.Path(process.secondStep)
 process.DQM.collectorHost = ''
-
-

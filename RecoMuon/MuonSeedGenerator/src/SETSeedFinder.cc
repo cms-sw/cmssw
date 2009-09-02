@@ -10,6 +10,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "TMath.h"
@@ -73,22 +74,23 @@ SETSeedFinder::sortByLayer(MuonRecHitContainer & cluster) const
 
       //---- hits from DT and CSC  could be very close in angle but incosistent with
       //---- belonging to a common track (and these are different surfaces);
-      //---- also DT hits from a station (in a pre-cluster) should be always in a group together;
+      //---- also DT (and CSC now - 090822) hits from a station (in a pre-cluster) should be always in a group together;
       //---- take this into account and put such hits in a group together
 
-      bool specialCase = ( detId.subdetId()   == MuonSubdetId::DT &&
-                           detId_2.subdetId() == MuonSubdetId::DT    );
-
-
-
-      if(specialCase){
-        //if(detId.subdetId() != MuonSubdetId::DT || detId_2.subdetId() != MuonSubdetId::DT) {
-	//std::cout<<"IBL ALARM 0000"<<std::endl;
-        //}
+      bool specialCase = false;
+      if( detId.subdetId()   == MuonSubdetId::DT &&
+          detId_2.subdetId() == MuonSubdetId::DT    ){
         DTChamberId dtCh(detId);
         DTChamberId dtCh_2(detId_2);
         specialCase =  (dtCh.station() == dtCh_2.station());
       }
+      else if(detId.subdetId()   == MuonSubdetId::CSC &&
+              detId_2.subdetId()   == MuonSubdetId::CSC){
+        CSCDetId cscCh(detId);
+        CSCDetId cscCh_2(detId_2);
+        specialCase = (cscCh.station() == cscCh_2.station() && cscCh.ring() == cscCh_2.ring());
+      } 
+
       if(distanceToDetector<0.001 || true==specialCase){ // hardcoded value - remove!
         hitsInThisLayer.push_back(cluster[iHit+1]);
       }
@@ -123,8 +125,36 @@ SETSeedFinder::sortByLayer(MuonRecHitContainer & cluster) const
   }
   return MuonRecHitContainer_perLayer;
 }
-
-
+//
+void SETSeedFinder::limitCombinatorics(std::vector< MuonRecHitContainer > & MuonRecHitContainer_perLayer){
+  const int maximumNumberOfCombinations = 1000000;
+  unsigned nLayers = MuonRecHitContainer_perLayer.size();
+  if(1==nLayers){
+    return ;
+  }
+  std::vector <double> sizeOfLayer(nLayers);
+  //std::cout<<" nLayers = "<<nLayers<<std::endl;
+  double nAllCombinations = 1.;
+  for(uint i = 0;i<nLayers;++i ){
+    //std::cout<<" i = "<<i<<" size = "<<MuonRecHitContainer_perLayer.at(i).size()<<std::endl;
+    sizeOfLayer.at(i) = MuonRecHitContainer_perLayer.at(i).size();
+    nAllCombinations*=MuonRecHitContainer_perLayer.at(i).size();
+  }
+  //std::cout<<"nAllCombinations = "<<nAllCombinations<<std::endl;
+  //---- Erase most busy detector layers until we get less than maximumNumberOfCombinations combinations
+  int iCycle = 0;
+  while(nAllCombinations > float(maximumNumberOfCombinations)){
+    ++iCycle;
+    std::vector <double>::iterator maxEl_it = max_element(sizeOfLayer.begin(),sizeOfLayer.end());
+    int maxEl = maxEl_it - sizeOfLayer.begin();
+    nAllCombinations/=MuonRecHitContainer_perLayer.at(maxEl).size();
+    //std::cout<<" iCycle = "<<iCycle<<" nAllCombinations = "<<nAllCombinations<<std::endl;
+    MuonRecHitContainer_perLayer.erase(MuonRecHitContainer_perLayer.begin()+maxEl);
+    sizeOfLayer.erase(sizeOfLayer.begin()+maxEl);
+  }
+  return;
+}
+//
 std::vector<SETSeedFinder::MuonRecHitContainer>
 SETSeedFinder::findAllValidSets(const std::vector<SETSeedFinder::MuonRecHitContainer> & MuonRecHitContainer_perLayer)
 {

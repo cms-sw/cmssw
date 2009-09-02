@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2009/02/05 14:53:03 $
- * $Revision: 1.212 $
+ * $Date: 2009/08/21 11:52:28 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -252,11 +252,9 @@ void EBIntegrityClient::cleanup(void) {
 
 }
 
-bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( flag ) this->softReset(false);
 
   EcalLogicID ecid;
 
@@ -414,7 +412,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
+          if ( Numbers::iSC(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1)) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
@@ -449,7 +447,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iTT(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
+          int itt = Numbers::iSC(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
 
           if ( econn ) {
             ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt);
@@ -629,8 +627,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       cerr << e.what() << endl;
     }
   }
-
-  if ( ! flag ) this->softReset(true);
 
   return true;
 
@@ -844,7 +840,7 @@ void EBIntegrityClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
@@ -965,116 +961,6 @@ void EBIntegrityClient::analyze(void) {
     }  // end loop on mem channels
 
   }// end loop on supermodules
-
-}
-
-void EBIntegrityClient::softReset(bool flag) {
-
-  char histo[200];
-
-  MonitorElement* me;
-
-  sprintf(histo, (prefixME_ + "/EBIntegrityTask/EBIT DCC size error").c_str());
-  me = dqmStore_->get(histo);
-  if ( flag ) {
-    if ( me ) dqmStore_->softReset( me );
-  } else {
-    //      if ( me ) dqmStore_->disableSoftReset( me );
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-    
-    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT MEM digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/Gain/EBIT gain %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/ChId/EBIT ChId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/GainSwitch/EBIT gain switch %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/TTId/EBIT TTId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemChId/EBIT MemChId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemGain/EBIT MemGain %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemTTId/EBIT MemTTId %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemSize/EBIT MemSize %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-  }
 
 }
 

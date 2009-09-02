@@ -95,8 +95,6 @@ namespace sistrip {
       void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
       //add the ZS cluster data for the channel to the end of the vector
       void fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
-      //add data for a cluster to the buffer
-      void writeClusterToBuffer(std::vector<uint8_t>* buffer, const uint8_t address, const std::list<uint8_t> adcCounts) const;
       std::vector<bool> feUnitsEnabled_;
       std::vector<bool> channelsEnabled_;
     };
@@ -210,7 +208,7 @@ namespace sistrip {
   
   inline const uint16_t& FEDStripData::ChannelData::operator [] (const size_t sampleNumber) const
     {
-      return data_.at(sampleNumber);
+      return data_[sampleNumber];
     }
   
   //re-use const method
@@ -218,6 +216,31 @@ namespace sistrip {
     {
       return const_cast<uint16_t&>(static_cast<const ChannelData&>(*this)[sampleNumber]);
     }
+  
+  inline uint16_t FEDStripData::ChannelData::getSample(const uint16_t sampleNumber) const
+  {
+    //try {
+    //  return data_.at(sampleNumber);
+    //} catch (const std::out_of_range&) {
+    //  std::ostringstream ss;
+    //  ss << "Sample index out of range. "
+    //     << "Requesting sample " << sampleNumber
+    //     << " when channel has only " << data_.size() << " samples.";
+    //  throw cms::Exception("FEDBufferGenerator") << ss.str();
+    //}
+    return data_[sampleNumber];
+  }
+  
+  inline uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber) const
+  {
+    if (dataIs8Bit_) return (0xFF & getSample(sampleNumber));
+    else {
+      const uint16_t sample = getSample(sampleNumber);
+      if (sample < 0xFE) return sample;
+      else if (sample == 0x3FF) return 0xFF;
+      else return 0xFE;
+    }
+  }
   
   inline std::pair<uint16_t,uint16_t> FEDStripData::ChannelData::getMedians() const
     {

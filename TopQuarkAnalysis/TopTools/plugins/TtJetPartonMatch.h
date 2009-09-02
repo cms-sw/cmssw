@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
@@ -43,6 +43,11 @@
 template <typename C>
 class TtJetPartonMatch : public edm::EDProducer {
 
+ private:
+  
+  /// typedef for simplified reading
+  typedef std::vector<pat::Jet> TopJetCollection;
+  
  public:
 
   /// default conructor  
@@ -115,7 +120,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<TtGenEvent> genEvt;
   evt.getByLabel("genEvt", genEvt);
   
-  edm::Handle<edm::View<reco::Jet> > topJets;
+  edm::Handle<TopJetCollection> topJets;
   evt.getByLabel(jets_, topJets);
 
   // fill vector of partons in the order of
@@ -125,7 +130,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::vector<const reco::Candidate*> partons = partons_.vec(*genEvt);
 
   // prepare vector of jets
-  std::vector<const reco::Candidate*> jets;
+  std::vector<pat::Jet> jets;
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
     // take all jets if maxNJets_ == -1; otherwise use
     // maxNJets_ if maxNJets_ is big enough or use same
@@ -139,7 +144,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 	if(ij==partons.size()) break;
       }
     }
-    jets.push_back( (const reco::Candidate*) &(*topJets)[ij] );
+    jets.push_back( (*topJets)[ij] );
   }
 
   // do the matching with specified parameters

@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2009/06/03 15:01:15 $
- *  $Revision: 1.62 $
+ *  $Date: 2009/08/12 04:04:29 $
+ *  $Revision: 1.64 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.62 2009/06/03 15:01:15 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.64 2009/08/12 04:04:29 slava77 Exp $
 //
 //
 
@@ -65,6 +65,10 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   sendLogWarning_ = false;
   useTuningForL2Speed_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
+    svBuf_[i].p3 = Vector(0,0,0);
+    svBuf_[i].r3 = Point(0,0,0);
+    svBuf_[i].bf = Vector(0,0,0);
+    svBuf_[i].bfGradLoc =  Vector(0,0,0);
     svBuf_[i].cov = AlgebraicSymMatrix66();
     svBuf_[i].matDCov = AlgebraicSymMatrix66();
     svBuf_[i].isComplete = true;
@@ -337,7 +341,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     svCurrent->isValid_ = false;
     svCurrent->field = field_;
     if (sendLogWarning_){
-      edm::LogWarning(metname)<<" Failed after first refToDest check with status "
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Failed after first refToDest check with status "
 			      <<SteppingHelixStateInfo::ResultName[result]
 			      <<std::endl;
     }
@@ -406,7 +410,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     } else {
       tanDist  = tanDist > 0. ? tanDist - oldDStep : tanDist + oldDStep; 
       refDirection = oldRefDirection;
-      if (debug_) LogTrace(metname)<<"Skipped refToDest: guess tanDist = "<<tanDist
+      if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Skipped refToDest: guess tanDist = "<<tanDist
 				   <<" next check at "<<tanDistNextCheck<<std::endl;
     }
     //! define a fast-skip distance: should be the shortest of a possible step or distance
@@ -419,7 +423,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       if (fabs(tanDist)<0.1 && refDirection != dir ){
 	//how did it get here?	nOsc++;
 	dir = refDirection;
-	if (debug_) LogTrace(metname)<<"NOTE: overstepped last time: switch direction (can do it if within 1 mm)"<<std::endl;
+	if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"NOTE: overstepped last time: switch direction (can do it if within 1 mm)"<<std::endl;
       }
     }    
 
@@ -440,7 +444,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       } else {
 	//	resultToMag = SteppingHelixStateInfo::OK;
 	tanDistMag  = tanDistMag > 0. ? tanDistMag - oldDStep : tanDistMag + oldDStep; 
-	if (debug_) LogTrace(metname)<<"Skipped refToMag: guess tanDistMag = "<<tanDistMag
+	if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Skipped refToMag: guess tanDistMag = "<<tanDistMag
 				     <<" next check at "<<tanDistMagNextCheck;
       }
     }
@@ -462,7 +466,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       } else {
 	//	resultToMat = SteppingHelixStateInfo::OK;
 	tanDistMat  = tanDistMat > 0. ? tanDistMat - oldDStep : tanDistMat + oldDStep; 
-	if (debug_) LogTrace(metname)<<"Skipped refToMat: guess tanDistMat = "<<tanDistMat
+	if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Skipped refToMat: guess tanDistMat = "<<tanDistMat
 				     <<" next check at "<<tanDistMatNextCheck;
       }
     }
@@ -533,7 +537,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     }
 
     if (nOsc>1 && fabs(dStep)>epsilon){
-      if (debug_) LogTrace(metname)<<"Ooops"<<std::endl;
+      if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Ooops"<<std::endl;
     }
 
     if (fabs(dist) < fabs(epsilon)  ) result = SteppingHelixStateInfo::OK;
@@ -552,13 +556,13 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	nPoints_--;      svCurrent = &svBuf_[cIndex_(nPoints_-1)];
 	result = SteppingHelixStateInfo::OK;
 	if (debug_){
-	  LogTrace(metname)<<"Found real local minimum in PCA"<<std::endl;
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Found real local minimum in PCA"<<std::endl;
 	}
       } else {
 	//keep this trial point and continue
 	dStep = defaultStep_;
 	if (debug_){
-	  LogTrace(metname)<<"Found branch point in PCA"<<std::endl;
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Found branch point in PCA"<<std::endl;
 	}
       }
     }
@@ -582,21 +586,21 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   }
 
   if (sendLogWarning_ && result != SteppingHelixStateInfo::OK){
-    edm::LogWarning(metname)<<" Propagation failed with status "
+    edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Propagation failed with status "
 			    <<SteppingHelixStateInfo::ResultName[result]
 			    <<std::endl;
     if (result == SteppingHelixStateInfo::RANGEOUT)
-      edm::LogWarning(metname)<<" Momentum at last point is too low (<0.1) p_last = "
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Momentum at last point is too low (<0.1) p_last = "
 			      <<svCurrent->p3.mag()
 			      <<std::endl;
     if (result == SteppingHelixStateInfo::INACC)
-      edm::LogWarning(metname)<<" Went too far: the last point is at "<<svCurrent->r3
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Went too far: the last point is at "<<svCurrent->r3
 			      <<std::endl;
     if (result == SteppingHelixStateInfo::FAULT && nOsc > 6)
-      edm::LogWarning(metname)<<" Infinite loop condidtion detected: going in cycles. Break after 6 cycles"
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Infinite loop condidtion detected: going in cycles. Break after 6 cycles"
 			      <<std::endl;
     if (result == SteppingHelixStateInfo::FAULT && nPoints_ > MAX_STEPS*1./defaultStep_)
-      edm::LogWarning(metname)<<" Tired to go farther. Made too many steps: more than "
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Tired to go farther. Made too many steps: more than "
 			      <<MAX_STEPS*1./defaultStep_
 			      <<std::endl;
     
@@ -605,39 +609,39 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   if (debug_){
     switch (type) {
     case RADIUS_DT:
-      LogTrace(metname)<<"going to radius "<<pars[RADIUS_P]<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to radius "<<pars[RADIUS_P]<<std::endl;
       break;
     case Z_DT:
-      LogTrace(metname)<<"going to z "<<pars[Z_P]<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to z "<<pars[Z_P]<<std::endl;
       break;
     case PATHL_DT:
-      LogTrace(metname)<<"going to pathL "<<pars[PATHL_P]<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to pathL "<<pars[PATHL_P]<<std::endl;
       break;
     case PLANE_DT:
       {
 	Point rPlane(pars[0], pars[1], pars[2]);
 	Vector nPlane(pars[3], pars[4], pars[5]);
-	LogTrace(metname)<<"going to plane r0:"<<rPlane<<" n:"<<nPlane<<std::endl;
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to plane r0:"<<rPlane<<" n:"<<nPlane<<std::endl;
       }
       break;
     case POINT_PCA_DT:
       {
 	Point rDest(pars[0], pars[1], pars[2]);
-	LogTrace(metname)<<"going to PCA to point "<<rDest<<std::endl;
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to PCA to point "<<rDest<<std::endl;
       }
       break;
     case LINE_PCA_DT:
       {
 	Point rDest1(pars[0], pars[1], pars[2]);
 	Point rDest2(pars[3], pars[4], pars[5]);
-	LogTrace(metname)<<"going to PCA to line "<<rDest1<<" - "<<rDest2<<std::endl;
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to PCA to line "<<rDest1<<" - "<<rDest2<<std::endl;
       }
       break;
     default:
-      LogTrace(metname)<<"going to NOT IMPLEMENTED"<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to NOT IMPLEMENTED"<<std::endl;
       break;
     }
-    LogTrace(metname)<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<" nOsc "<<nOsc<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<" nOsc "<<nOsc<<std::endl;
   }
   
   return result;
@@ -660,7 +664,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
   GlobalPoint gPointNorZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z());
 
-  GlobalVector bf;
+  GlobalVector bf(0,0,0);
   // = field_->inTesla(gPoint);
   if (useMagVolumes_){
     if (vbField_ ){
@@ -678,19 +682,33 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 	}
       }
     } else {
-      edm::LogWarning(metname)<<"Failed to cast into VolumeBasedMagneticField: fall back to the default behavior"<<std::endl;
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Failed to cast into VolumeBasedMagneticField: fall back to the default behavior"<<std::endl;
       svCurrent.magVol = 0;
     }
     if (debug_){
-      LogTrace(metname)<<"Got volume at "<<svCurrent.magVol<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Got volume at "<<svCurrent.magVol<<std::endl;
     }
   }
   
   if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
     if (vbField_->isZSymmetric()){
       bf = svCurrent.magVol->inTesla(gPointNegZ);
+      if (debug_){
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield  float: "<<bf
+			 <<" at global float "<< gPointNegZ<<" double "<< svCurrent.r3<<std::endl;
+	LocalPoint lPoint(svCurrent.magVol->toLocal(gPointNegZ));
+	LocalVector lbf = svCurrent.magVol->fieldInTesla(lPoint);
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
+      }
     } else {
       bf = svCurrent.magVol->inTesla(gPointNorZ);
+      if (debug_){
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield float: "<<bf
+			 <<" at global float "<< gPointNorZ<<" double "<< svCurrent.r3<<std::endl;
+	LocalPoint lPoint(svCurrent.magVol->toLocal(gPointNorZ));
+	LocalVector lbf = svCurrent.magVol->fieldInTesla(lPoint);
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
+      }
     }
     if (r3.z() > 0 && vbField_->isZSymmetric() ){
       svCurrent.bf.set(-bf.x(), -bf.y(), bf.z());
@@ -703,7 +721,10 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
     svCurrent.bf.set(bf.x(), bf.y(), bf.z());
   }
   if (svCurrent.bf.mag() < 1e-6) svCurrent.bf.set(0., 0., 1e-6);
-
+  if (debug_){
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield double: "<<svCurrent.bf<<"  from float: "<<bf
+		     <<" at float "<< gPointNorZ<<" "<<gPointNegZ<<" double "<< svCurrent.r3<<std::endl;
+  }
 
 
   double dEdXPrime = 0;
@@ -721,14 +742,14 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.isValid_ = true;
 
   if (debug_){
-    LogTrace(metname)<<"Loaded at  path: "<<svCurrent.path()<<" radPath: "<<svCurrent.radPath()
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded at  path: "<<svCurrent.path()<<" radPath: "<<svCurrent.radPath()
 		     <<" p3 "<<" pt: "<<svCurrent.p3.perp()<<" phi: "<<svCurrent.p3.phi()
 		     <<" eta: "<<svCurrent.p3.eta()
 		     <<" "<<svCurrent.p3
 		     <<" r3: "<<svCurrent.r3
 		     <<" bField: "<<svCurrent.bf.mag()
 		     <<std::endl;
-    LogTrace(metname)<<"Input Covariance in Global RF "<<cov<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Input Covariance in Global RF "<<cov<<std::endl;
   }
 }
 
@@ -750,7 +771,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), -fabs(svNext.r3.z()));
   GlobalPoint gPointNorZ(svNext.r3.x(), svNext.r3.y(), svNext.r3.z());
 
-  GlobalVector bf; 
+  GlobalVector bf(0,0,0); 
 
   if (useMagVolumes_){
     if (vbField_ != 0){
@@ -768,19 +789,33 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
 	}
       }
     } else {
-      LogTrace(metname)<<"Failed to cast into VolumeBasedMagneticField"<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Failed to cast into VolumeBasedMagneticField"<<std::endl;
       svNext.magVol = 0;
     }
     if (debug_){
-      LogTrace(metname)<<"Got volume at "<<svNext.magVol<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Got volume at "<<svNext.magVol<<std::endl;
     }
   }
 
   if (useMagVolumes_ && svNext.magVol != 0 && ! useInTeslaFromMagField_){
     if (vbField_->isZSymmetric()){
       bf = svNext.magVol->inTesla(gPointNegZ);
+      if (debug_){
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield  float: "<<bf
+			 <<" at global float "<< gPointNegZ<<" double "<< svNext.r3<<std::endl;
+	LocalPoint lPoint(svNext.magVol->toLocal(gPointNegZ));
+	LocalVector lbf = svNext.magVol->fieldInTesla(lPoint);
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
+      }
     } else {
       bf = svNext.magVol->inTesla(gPointNorZ);
+      if (debug_){
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded bfield float: "<<bf
+			 <<" at global float "<< gPointNorZ<<" double "<< svNext.r3<<std::endl;
+	LocalPoint lPoint(svNext.magVol->toLocal(gPointNorZ));
+	LocalVector lbf = svNext.magVol->fieldInTesla(lPoint);
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"\t cf in local locF: "<<lbf<<" at "<<lPoint<<std::endl;
+      }
     }
     if (svNext.r3.z() > 0  && vbField_->isZSymmetric() ){
       svNext.bf.set(-bf.x(), -bf.y(), bf.z());
@@ -793,6 +828,10 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
     svNext.bf.set(bf.x(), bf.y(), bf.z());
   }
   if (svNext.bf.mag() < 1e-6) svNext.bf.set(0., 0., 1e-6);
+  if (debug_){
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Loaded next bfield double: "<<svNext.bf<<"  from float: "<<bf
+		     <<" at float "<< gPointNorZ<<" "<<gPointNegZ<<" double "<< svNext.r3<<std::endl;
+  }
   
   
   double dEdXPrime = 0;
@@ -818,7 +857,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   }
 
   if (debug_){
-    LogTrace(metname)<<"Now at  path: "<<svNext.path()<<" radPath: "<<svNext.radPath()
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Now at  path: "<<svNext.path()<<" radPath: "<<svNext.radPath()
 		     <<" p3 "<<" pt: "<<svNext.p3.perp()<<" phi: "<<svNext.p3.phi()
 		     <<" eta: "<<svNext.p3.eta()
 		     <<" "<<svNext.p3
@@ -827,8 +866,8 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
 		     <<" bField: "<<svNext.bf.mag()
 		     <<" dedx: "<<svNext.dEdx
 		     <<std::endl;
-    LogTrace(metname)<<"New Covariance "<<svNext.cov<<std::endl;
-    LogTrace(metname)<<"Transf by dCovTransform "<<dCovTransform<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"New Covariance "<<svNext.cov<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Transf by dCovTransform "<<dCovTransform<<std::endl;
   }
 }
 
@@ -847,13 +886,13 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 					   SteppingHelixPropagator::Fancy fancy) const{
   static const std::string metname = "SteppingHelixPropagator";
   if (debug_){
-    LogTrace(metname)<<"Make atom step "<<svCurrent.path()<<" with step "<<dS<<" in direction "<<dir<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Make atom step "<<svCurrent.path()<<" with step "<<dS<<" in direction "<<dir<<std::endl;
   }
 
   double dP = 0;
   Vector tau = svCurrent.p3; tau *= 1./tau.mag();
   Vector tauNext(tau);
-  Vector drVec;
+  Vector drVec(0,0,0);
 
   dS = dir == alongMomentum ? fabs(dS) : -fabs(dS);
 
@@ -899,8 +938,8 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
     //improve with above values:
     drVec += svCurrent.r3;
-    GlobalVector bfGV;
-    Vector bf; //(bfGV.x(), bfGV.y(), bfGV.z());
+    GlobalVector bfGV(0,0,0);
+    Vector bf(0,0,0); //(bfGV.x(), bfGV.y(), bfGV.z());
     // = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
     if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
       // this negative-z business will break at some point
@@ -924,14 +963,14 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       bf.set(0., 0., 1e-6);
     }
     if (debug_){
-      LogTrace(metname)<<"Improved b "<<b0
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Improved b "<<b0
 		       <<" at r3 "<<drVec<<std::endl;
     }
 
     if (fabs((b0-svCurrent.bf.mag())*dS) > 1){
       //missed the mag volume boundary?
       if (debug_){
-	LogTrace(metname)<<"Large bf*dS change "<<fabs((b0-svCurrent.bf.mag())*dS)
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Large bf*dS change "<<fabs((b0-svCurrent.bf.mag())*dS)
 			 <<" --> recalc dedx"<<std::endl;
       }
       svNext.r3 = drVec;
@@ -942,7 +981,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       dEdx = getDeDx(svNext, dEdXPrime, radX0, rzTmp);
       dP = dEdx*dS;      
       if (debug_){
-	LogTrace(metname)<<"New dEdX= "<<dEdx
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"New dEdX= "<<dEdx
 			 <<" dP= "<<dP
 			 <<" for p0 "<<p0<<std::endl;
       }
@@ -951,15 +990,18 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     p0 += dP/2.; p0 = p0 < 1e-2 ? 1e-2 : p0;
 
     phi = 0.0029979*svCurrent.q*b0/p0*dS;
-    phiSmall = fabs(phi) < 3e-8;
+    phiSmall = fabs(phi) < 1e-4;
 
     if (phiSmall){
-      sinPhi = phi;
-      cosPhi = 1. -phi*phi/2;
-      oneLessCosPhi = 0.5*phi*phi;//*(1.- phi*phi/12.); //<-- ~below double-precision for phi<3e-8
-      oneLessCosPhiOPhi = 0.5*phi;//*(1.- phi*phi/12.);
-      sinPhiOPhi = 1. - phi*phi/6.;
-      phiLessSinPhiOPhi = phi*phi/6.;//*(1. - phi*phi/20.);
+      double phi2 = phi*phi;
+      double phi3 = phi2*phi;
+      double phi4 = phi3*phi;
+      sinPhi = phi - phi3/6. + phi4*phi/120.;
+      cosPhi = 1. -phi2/2. + phi4/24.;
+      oneLessCosPhi = phi2/2. - phi4/24. + phi2*phi4/720.; // 0.5*phi*phi;//*(1.- phi*phi/12.); //<-- ~below double-precision for phi<3e-8
+      oneLessCosPhiOPhi = 0.5*phi - phi3/24. + phi2*phi3/720.;//*(1.- phi*phi/12.);
+      sinPhiOPhi = 1. - phi*phi/6. + phi4/120.;
+      phiLessSinPhiOPhi = phi*phi/6. - phi4/120. + phi4*phi2/5040.;//*(1. - phi*phi/20.);
     }else {
       cosPhi = cos(phi); 
       sinPhi = sin(phi);
@@ -971,10 +1013,11 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
     bHat = bf; bHat *= 1./bHat.mag();
     btVec = bHat.cross(tau);
-    bbtVec = bHat.cross(btVec);
+    double tauB = tau.dot(bf);
+    bbtVec = bHat*tauB - tau;//bHat.cross(btVec);
 
-    tauNext = tau; tauNext += bbtVec*oneLessCosPhi; tauNext -= btVec*sinPhi;
-    drVec = tau; drVec += bbtVec*phiLessSinPhiOPhi; drVec -= btVec*oneLessCosPhiOPhi;
+    tauNext = bbtVec*oneLessCosPhi; tauNext -= btVec*sinPhi;     tauNext += tau; 
+    drVec   = bbtVec*phiLessSinPhiOPhi; drVec -= btVec*oneLessCosPhiOPhi;  drVec += tau; 
     drVec *= dS;
     
     
@@ -999,73 +1042,112 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
       double dsp = dS/p0;
 
-      Vector tbtVec(tau.cross(btVec));
+      Vector tbtVec(bHat - tauB*tau);
 
       dCTransform_ = unit66_;
       //make everything in global
       //case I: no "spatial" derivatives |--> dCtr({1,2,3,4,5,6}{1,2,3}) = 0    
-      dCTransform_(0,3) = dsp*(bHat.x()*tbtVec.x() 
-			       + cosPhi*tau.x()*bbtVec.x()
-			       + ((1.-bHat.x()*bHat.x()) + phi*tau.x()*btVec.x())*sinPhiOPhi);
+      double tmpVal=0;
+      tmpVal = dsp*bHat.x()*(phiLessSinPhiOPhi*bHat.x() - oneLessCosPhi*tauB*tau.x()) ;
+      tmpVal += dsp*sinPhi*btVec.x()*tau.x() ;
+      tmpVal += dsp*(sinPhiOPhi - cosPhi*tau.x()*tau.x()); 
+      dCTransform_(0,3) = tmpVal;
+      //      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific
+      //		       <<"dsp "<<dsp<<" (1-sphi/phi) "<<phiLessSinPhiOPhi<<" (1-cPhi) "<<oneLessCosPhi<<" sinPhi "<<sinPhi
+      //		       <<" tauB "<<tauB
+      //		       <<" bhat "<<bHat<<" tau "<<tau<<" btVec "<<btVec;
 
-      dCTransform_(0,4) = dsp*(bHat.z()*oneLessCosPhiOPhi + bHat.x()*tbtVec.y()
-			       + cosPhi*tau.y()*bbtVec.x() 
-			       + (-bHat.x()*bHat.y() + phi*tau.y()*btVec.x())*sinPhiOPhi);
-      dCTransform_(0,5) = dsp*(-bHat.y()*oneLessCosPhiOPhi + bHat.x()*tbtVec.z()
-			       + cosPhi*tau.z()*bbtVec.x()
-			       + (-bHat.x()*bHat.z() + phi*tau.z()*btVec.x())*sinPhiOPhi);
+      tmpVal = dsp*bHat.x()*(phiLessSinPhiOPhi*bHat.y() - oneLessCosPhi*tauB*tau.y());
+      tmpVal += dsp*(bHat.z()*oneLessCosPhiOPhi + sinPhi*btVec.x()*tau.y());
+      tmpVal += dsp*( - cosPhi*tau.x()*tau.y());
+      dCTransform_(0,4) = tmpVal;
 
-      dCTransform_(1,3) = dsp*(-bHat.z()*oneLessCosPhiOPhi + bHat.y()*tbtVec.x()
-			       + cosPhi*tau.x()*bbtVec.y()
-			       + (-bHat.x()*bHat.y() + phi*tau.x()*btVec.y())*sinPhiOPhi);
-      dCTransform_(1,4) = dsp*(bHat.y()*tbtVec.y() 
-			       + cosPhi*tau.y()*bbtVec.y()
-			       + ((1.-bHat.y()*bHat.y()) + phi*tau.y()*btVec.y())*sinPhiOPhi);
-      dCTransform_(1,5) = dsp*(bHat.x()*oneLessCosPhiOPhi + bHat.y()*tbtVec.z()
-			       + cosPhi*tau.z()*bbtVec.y() 
-			       + (-bHat.y()*bHat.z() + phi*tau.z()*btVec.y())*sinPhiOPhi);
+      tmpVal = dsp*bHat.x()*(phiLessSinPhiOPhi*bHat.z() - oneLessCosPhi*tauB*tau.z());
+      tmpVal += dsp*(-bHat.y()*oneLessCosPhiOPhi + sinPhi*btVec.x()*tau.z());
+      tmpVal += dsp*( - cosPhi*tau.x()*tau.z());
+      dCTransform_(0,5)  = tmpVal;
 
-      dCTransform_(2,3) = dsp*(bHat.y()*oneLessCosPhiOPhi + bHat.z()*tbtVec.x()
-			       + cosPhi*tau.x()*bbtVec.z() 
-			       + (-bHat.x()*bHat.z() + phi*tau.x()*btVec.z())*sinPhiOPhi);
-      dCTransform_(2,4) = dsp*(-bHat.x()*oneLessCosPhiOPhi + bHat.z()*tbtVec.y()
-			       + cosPhi*tau.y()*bbtVec.z()
-			       + (-bHat.y()*bHat.z() + phi*tau.y()*btVec.z())*sinPhiOPhi);
-      dCTransform_(2,5) = dsp*(bHat.z()*tbtVec.z() 
-			       + cosPhi*tau.z()*bbtVec.z()
-			       + ((1.-bHat.z()*bHat.z()) + phi*tau.z()*btVec.z())*sinPhiOPhi);
+      tmpVal = dsp*bHat.y()*(phiLessSinPhiOPhi*bHat.x() - oneLessCosPhi*tauB*tau.x()) ;
+      tmpVal += dsp*(-bHat.z()*oneLessCosPhiOPhi + sinPhi*btVec.y()*tau.x()) ;
+      tmpVal += dsp*( - cosPhi*tau.y()*tau.x()); 
+      dCTransform_(1,3) = tmpVal;
+ 
+      tmpVal = dsp*bHat.y()*(phiLessSinPhiOPhi*bHat.y() - oneLessCosPhi*tauB*tau.y()) ;
+      tmpVal += dsp*sinPhi*btVec.y()*tau.y() ;
+      tmpVal += dsp*(sinPhiOPhi - cosPhi*tau.y()*tau.y()); 
+      dCTransform_(1,4)  = tmpVal;
 
 
-      dCTransform_(3,3) = epsilonP0*(1. - oneLessCosPhi*(1.-bHat.x()*bHat.x())
-				     + phi*tau.x()*(cosPhi*btVec.x() - sinPhi*bbtVec.x()))
-	+ omegaP0*tau.x()*tauNext.x();
-      dCTransform_(3,4) = epsilonP0*(bHat.x()*bHat.y()*oneLessCosPhi + bHat.z()*sinPhi
-				     + phi*tau.y()*(cosPhi*btVec.x() - sinPhi*bbtVec.x()))
-	+ omegaP0*tau.y()*tauNext.x();
-      dCTransform_(3,5) = epsilonP0*(bHat.x()*bHat.z()*oneLessCosPhi - bHat.y()*sinPhi
-				     + phi*tau.z()*(cosPhi*btVec.x() - sinPhi*bbtVec.x()))
-	+ omegaP0*tau.z()*tauNext.x();
+      tmpVal = dsp*bHat.y()*(phiLessSinPhiOPhi*bHat.z() - oneLessCosPhi*tauB*tau.z())  ;
+      tmpVal += dsp*(bHat.x()*oneLessCosPhiOPhi + sinPhi*btVec.y()*tau.z());
+      tmpVal += dsp*( - cosPhi*tau.y()*tau.z());  
+      dCTransform_(1,5)  = tmpVal;
+      
+      tmpVal = dsp*bHat.z()*(phiLessSinPhiOPhi*bHat.x() - oneLessCosPhi*tauB*tau.x()) ;
+      tmpVal += dsp*(bHat.y()*oneLessCosPhiOPhi + sinPhi*btVec.z()*tau.x()) ;
+      tmpVal += dsp*( - cosPhi*tau.z()*tau.x()); 
+      dCTransform_(2,3)  = tmpVal;
+      
+      tmpVal = dsp*bHat.z()*(phiLessSinPhiOPhi*bHat.y() - oneLessCosPhi*tauB*tau.y())   ;
+      tmpVal += dsp*(-bHat.x()*oneLessCosPhiOPhi + sinPhi*btVec.z()*tau.y()) ;
+      tmpVal += dsp*( - cosPhi*tau.z()*tau.y());   
+      dCTransform_(2,4) = tmpVal;
 
-      dCTransform_(4,3) = epsilonP0*(bHat.x()*bHat.y()*oneLessCosPhi - bHat.z()*sinPhi
-				     + phi*tau.x()*(cosPhi*btVec.y() - sinPhi*bbtVec.y()))
-	+ omegaP0*tau.x()*tauNext.y();
-      dCTransform_(4,4) = epsilonP0*(1. - oneLessCosPhi*(1.-bHat.y()*bHat.y())
-				     + phi*tau.y()*(cosPhi*btVec.y() - sinPhi*bbtVec.y()))
-	+ omegaP0*tau.y()*tauNext.y();
-      dCTransform_(4,5) = epsilonP0*(bHat.y()*bHat.z()*oneLessCosPhi + bHat.x()*sinPhi
-				     + phi*tau.z()*(cosPhi*btVec.y() - sinPhi*bbtVec.y()))
-	+ omegaP0*tau.z()*tauNext.y();
+
+      tmpVal  = dsp*bHat.z()*(phiLessSinPhiOPhi*bHat.z() - oneLessCosPhi*tauB*tau.z())  ;
+      tmpVal += dsp*sinPhi*btVec.z()*tau.z()  ;
+      tmpVal += dsp*(sinPhiOPhi - cosPhi*tau.z()*tau.z());  
+      dCTransform_(2,5) = tmpVal;
+
+
+      tmpVal= epsilonP0*(- (oneLessCosPhi*(1.-bHat.x()*bHat.x()) + phi*sinPhi*tau.x()*bbtVec.x()));
+      tmpVal += epsilonP0* phi*tau.x()*(cosPhi*btVec.x());
+      tmpVal += epsilonP0;
+      tmpVal += omegaP0*tau.x()*tauNext.x();
+      dCTransform_(3,3)  = tmpVal;
+
+      tmpVal = epsilonP0*(bHat.x()*bHat.y()*oneLessCosPhi -phi*sinPhi*tau.y()*bbtVec.x());
+      tmpVal += epsilonP0*( bHat.z()*sinPhi + phi*tau.y()*(cosPhi*btVec.x()));
+      tmpVal += omegaP0*tau.y()*tauNext.x();
+      dCTransform_(3,4) = tmpVal;
+
+      tmpVal = epsilonP0*(bHat.x()*bHat.z()*oneLessCosPhi - phi*sinPhi*tau.z()*bbtVec.x());
+      tmpVal += epsilonP0*(- bHat.y()*sinPhi + phi*tau.z()*(cosPhi*btVec.x()));
+      tmpVal += omegaP0*tau.z()*tauNext.x();
+      dCTransform_(3,5) = tmpVal;
+
+
+      tmpVal = epsilonP0*(bHat.x()*bHat.y()*oneLessCosPhi -phi*sinPhi*tau.x()*bbtVec.y());
+      tmpVal += epsilonP0*(- bHat.z()*sinPhi + phi*tau.x()*(cosPhi*btVec.y()));
+      tmpVal += omegaP0*tau.x()*tauNext.y();
+      dCTransform_(4,3) = tmpVal;
+
+      tmpVal = epsilonP0*( - (oneLessCosPhi*(1.-bHat.y()*bHat.y()) + phi*sinPhi*tau.y()*bbtVec.y()));
+      tmpVal += epsilonP0*phi*tau.y()*(cosPhi*btVec.y());
+      tmpVal += epsilonP0;
+      tmpVal += omegaP0*tau.y()*tauNext.y();
+      dCTransform_(4,4) = tmpVal;
+
+      tmpVal = epsilonP0*(bHat.y()*bHat.z()*oneLessCosPhi - phi*sinPhi*tau.z()*bbtVec.y());
+      tmpVal += epsilonP0*( bHat.x()*sinPhi + phi*tau.z()*(cosPhi*btVec.y()));
+      tmpVal += omegaP0*tau.z()*tauNext.y();
+      dCTransform_(4,5) = tmpVal;
     
-      dCTransform_(5,3) = epsilonP0*(bHat.x()*bHat.z()*oneLessCosPhi + bHat.y()*sinPhi
-				     + phi*tau.x()*(cosPhi*btVec.z() - sinPhi*bbtVec.z()))
-	+ omegaP0*tau.x()*tauNext.z();
-      dCTransform_(5,4) = epsilonP0*(bHat.y()*bHat.z()*oneLessCosPhi - bHat.x()*sinPhi
-				     + phi*tau.y()*(cosPhi*btVec.z() - sinPhi*bbtVec.z()))
-	+ omegaP0*tau.y()*tauNext.z();
-      dCTransform_(5,5) = epsilonP0*(1. - oneLessCosPhi*(1.-bHat.z()*bHat.z())
-				     + phi*tau.z()*(cosPhi*btVec.z() - sinPhi*bbtVec.z()))
-	+ omegaP0*tau.z()*tauNext.z();
-    
+      tmpVal = epsilonP0*(bHat.x()*bHat.z()*oneLessCosPhi - phi*sinPhi*tau.x()*bbtVec.z());
+      tmpVal += epsilonP0*( bHat.y()*sinPhi + phi*tau.x()*(cosPhi*btVec.z()));
+      tmpVal += omegaP0*tau.x()*tauNext.z();
+      dCTransform_(5,3) = tmpVal;
+
+      tmpVal = epsilonP0*(bHat.y()*bHat.z()*oneLessCosPhi - phi*sinPhi*tau.y()*bbtVec.z());
+      tmpVal += epsilonP0*(- bHat.x()*sinPhi + phi*tau.y()*(cosPhi*btVec.z()));
+      tmpVal += omegaP0*tau.y()*tauNext.z();
+      dCTransform_(5,4) = tmpVal;
+
+      tmpVal = epsilonP0*(- (oneLessCosPhi*(1.-bHat.z()*bHat.z()) + phi*sinPhi*tau.z()*bbtVec.z()));
+      tmpVal += epsilonP0*phi*tau.z()*(cosPhi*btVec.z());
+      tmpVal += epsilonP0;
+      tmpVal += omegaP0*tau.z()*tauNext.z();
+      dCTransform_(5,5) = tmpVal;
 
       Basis rep; setRep(rep, tauNext);
       //mind the sign of dS and dP (dS*dP < 0 allways)
@@ -1560,13 +1642,19 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	double bVal = lVec.dot(nPlane)/tN;
 	if (fabs(aVal*bVal)< 0.3){
 	  double cVal = - sv.bf.cross(lVec).dot(nPlane)/b0/tN; //1- bHat_n*bHat_tau/tau_n;
-	  double tanDCorr = bVal/2. + (bVal*bVal/2. + cVal/6)*aVal; 
-	  tanDCorr *= aVal;
-	  //+ (-bVal/24. + 0.625*bVal*bVal*bVal + 5./12.*bVal*cVal)*aVal*aVal*aVal
-	  if (debug_) LogTrace(metname)<<tanDist<<" vs "<<tanDist*(1.+tanDCorr)<<" corr "<<tanDist*tanDCorr<<std::endl;
-	  tanDist *= (1.+tanDCorr);
+	  double aacVal = cVal*aVal*aVal;
+	  if (fabs(aacVal)<1){
+	    double tanDCorr = bVal/2. + (bVal*bVal/2. + cVal/6)*aVal; 
+	    tanDCorr *= aVal;
+	    //+ (-bVal/24. + 0.625*bVal*bVal*bVal + 5./12.*bVal*cVal)*aVal*aVal*aVal
+	    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<tanDist<<" vs "<<tanDist*(1.+tanDCorr)<<" corr "<<tanDist*tanDCorr<<std::endl;
+	    tanDist *= (1.+tanDCorr);
+	  } else {
+	    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"AACVal "<< fabs(aacVal)
+					 <<" = "<<aVal<<"**2 * "<<cVal<<" too large:: will not converge"<<std::endl;
+	  }
 	} else {
-	  if (debug_) LogTrace(metname)<<"ABVal "<< fabs(aVal*bVal)
+	  if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"ABVal "<< fabs(aVal*bVal)
 				       <<" = "<<aVal<<" * "<<bVal<<" too large:: will not converge"<<std::endl;
 	}
       }
@@ -1592,7 +1680,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	  ( isInside ? 1.5*Geom::pi()  - theta : theta - Geom::pi()/2. )
 	  : ( isInside ? Geom::pi()/2. - theta : theta + Geom::pi()/2 );
 	//this is a normVector from the cone to the point
-	Vector norm; norm.setRThetaPhi(fabs(dist), normTheta, normPhi);
+	Vector norm(0,0,0); norm.setRThetaPhi(fabs(dist), normTheta, normPhi);
 	double sineConeP = sin(theta - sv.p3.theta());
 
 	double sinSolid = norm.dot(sv.p3)/fabs(dist)/sv.p3.mag();
@@ -1602,7 +1690,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	refDirection = sinSolid > 0 ?
 	  oppositeToMomentum : alongMomentum;
 	if (debug_){
-	  LogTrace(metname)<<"Cone pars: theta "<<theta
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Cone pars: theta "<<theta
 			   <<" normTheta "<<norm.theta()
 			   <<" p3Theta "<<sv.p3.theta()
 			   <<" sinD: "<< sineConeP
@@ -1613,7 +1701,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	  break;
 	}
 	if (debug_){
-	  LogTrace(metname)<<"refToDest:toCone the point is "
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"refToDest:toCone the point is "
 			   <<(isInside? "in" : "out")<<"side the cone"
 			   <<std::endl;
 	}
@@ -1649,7 +1737,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
         double kVal = 0.0029979*sv.q/p0*b0;
         double aVal = fabs(dist*kVal);
         tanDist *= 1./(1.+ aVal);
-	if (debug_) LogTrace(metname)<<"corrected by aVal "<<aVal<<" to "<<tanDist;
+	if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"corrected by aVal "<<aVal<<" to "<<tanDist;
       }
       refDirection = tanDist < 0 ?
 	alongMomentum : oppositeToMomentum;
@@ -1661,10 +1749,10 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       Point rLine(pars[0], pars[1], pars[2]);
       Vector dLine(pars[3], pars[4], pars[5]);
       dLine = (dLine - rLine);
-      dLine *= 1./dLine.mag(); if (debug_) LogTrace(metname)<<"dLine "<<dLine;
+      dLine *= 1./dLine.mag(); if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"dLine "<<dLine;
 
       Vector dR = sv.r3 - rLine;
-      Vector dRPerp = dR - dLine*(dR.dot(dLine)); if (debug_) LogTrace(metname)<<"dRperp "<<dRPerp;
+      Vector dRPerp = dR - dLine*(dR.dot(dLine)); if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"dRperp "<<dRPerp;
       dist = dRPerp.mag() + 1e-24;//add a small number to avoid 1/0
       tanDist = dRPerp.dot(sv.p3)/sv.p3.mag();
       //angle wrt line
@@ -1678,7 +1766,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
         double kVal = 0.0029979*sv.q/p0*b0;
         double aVal = fabs(dist*kVal);
 	tanDist *= 1./(1.+ aVal);
-	if (debug_) LogTrace(metname)<<"corrected by aVal "<<aVal<<" to "<<tanDist;
+	if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"corrected by aVal "<<aVal<<" to "<<tanDist;
       }
       refDirection = tanDist < 0 ?
 	alongMomentum : oppositeToMomentum;
@@ -1700,12 +1788,12 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
   if (fabs(tanDist/(fabs(dist)+1e-24)) > 4) tanDistConstrained *= tanDist == 0 ? 0 : fabs(dist/tanDist*4.);
 
   if (debug_){
-    LogTrace(metname)<<"refToDest input: dest"<<dest<<" pars[]: ";
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"refToDest input: dest"<<dest<<" pars[]: ";
     for (int i = 0; i < 6; i++){
-      LogTrace(metname)<<", "<<i<<" "<<pars[i];
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<", "<<i<<" "<<pars[i];
     }
-    LogTrace(metname)<<std::endl;
-    LogTrace(metname)<<"refToDest output: "
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"refToDest output: "
 		     <<"\t dist" << dist
 		     <<"\t tanDist "<< tanDist      
 		     <<"\t tanDistConstr "<< tanDistConstrained      
@@ -1742,16 +1830,16 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   uint nearParallels = 0;
 
   if (debug_){
-    LogTrace(metname)<<"Trying volume "<<DDSolidShapesName::name(cVol->shapeType())
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Trying volume "<<DDSolidShapesName::name(cVol->shapeType())
 		     <<" with "<<cVolFaces.size()<<" faces"<<std::endl;
   }
 
   for (uint iFace = 0; iFace < cVolFaces.size(); iFace++){
     if (iFace > 5){
-      LogTrace(metname)<<"Too many faces"<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Too many faces"<<std::endl;
     }
     if (debug_){
-      LogTrace(metname)<<"Start with face "<<iFace<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Start with face "<<iFace<<std::endl;
     }
 //     const Plane* cPlane = dynamic_cast<const Plane*>(&cVolFaces[iFace].surface());
 //     const Cylinder* cCyl = dynamic_cast<const Cylinder*>(&cVolFaces[iFace].surface());
@@ -1766,12 +1854,12 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cone&)){
       cCone = dynamic_cast<const Cone*>(&cVolFaces[iFace].surface());
     } else {
-      edm::LogWarning(metname)<<"Could not cast a volume side surface to a known type"<<std::endl;
+      edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Could not cast a volume side surface to a known type"<<std::endl;
     }
     
     if (debug_){
-      if (cPlane!=0) LogTrace(metname)<<"The face is a plane at "<<cPlane<<std::endl;
-      if (cCyl!=0) LogTrace(metname)<<"The face is a cylinder at "<<cCyl<<std::endl;
+      if (cPlane!=0) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The face is a plane at "<<cPlane<<std::endl;
+      if (cCyl!=0) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The face is a cylinder at "<<cCyl<<std::endl;
     }
 
     double pars[6] = {0,0,0,0,0,0};
@@ -1791,7 +1879,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       dType = PLANE_DT;
     } else if (cCyl != 0){
       if (debug_){
-	LogTrace(metname)<<"Cylinder at "<<cCyl->position()
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Cylinder at "<<cCyl->position()
 			 <<" rorated by "<<cCyl->rotation()
 			 <<std::endl;
       }
@@ -1799,7 +1887,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       dType = RADIUS_DT;
     } else if (cCone != 0){
       if (debug_){
-	LogTrace(metname)<<"Cone at "<<cCone->position()
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Cone at "<<cCone->position()
 			 <<" rorated by "<<cCone->rotation()
 			 <<" vertex at "<<cCone->vertex()
 			 <<" angle of "<<cCone->openingAngle()
@@ -1816,7 +1904,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       }
       dType = CONE_DT;
     } else {
-      LogTrace(metname)<<"Unknown surface"<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Unknown surface"<<std::endl;
       resultToFace[iFace] = SteppingHelixStateInfo::UNDEFINED;
       continue;
     }
@@ -1848,7 +1936,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       else if (fabs(distToFace[iFace]) < fabs(distToFace[iDistMin])) iDistMin = iFace;
     }
     if (debug_) 
-      LogTrace(metname)<<cVol<<" "<<iFace<<" "
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<cVol<<" "<<iFace<<" "
 		       <<tanDistToFace[iFace]<<" "<<distToFace[iFace]<<" "<<refDirectionToFace[iFace]<<" "<<dir<<std::endl;
     
   }
@@ -1867,7 +1955,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 
   if (debug_){
     for (uint i=0;i<nDestSorted;++i){
-      LogTrace(metname)<<cVol<<" "<<i<<" "<<iFDestSorted[i]<<" "<<tanDistToFace[iFDestSorted[i]]<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<cVol<<" "<<i<<" "<<iFDestSorted[i]<<" "<<tanDistToFace[iFDestSorted[i]]<<std::endl;
     }
   }
 
@@ -1881,7 +1969,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     Vector lDelta(sv.p3); lDelta *= 1./sv.p3.mag()*sign*fabs(distToFace[iFDest]);
     gPointEst += lDelta;
     if (debug_){
-      LogTrace(metname)<<"Linear est point "<<gPointEst
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Linear est point "<<gPointEst
 		       <<" for iFace "<<iFDest<<std::endl;
     }
     GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
@@ -1889,14 +1977,14 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     if (  (vbField_->isZSymmetric() && cVol->inside(gPointEstNegZ))
 	  || ( !vbField_->isZSymmetric() && cVol->inside(gPointEstNorZ) )  ){
       if (debug_){
-	LogTrace(metname)<<"The point is inside the volume"<<std::endl;
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The point is inside the volume"<<std::endl;
       }
       
       result = SteppingHelixStateInfo::OK;
       dist = distToFace[iFDest];
       tanDist = tanDistToFace[iFDest];
       if (debug_){
-	LogTrace(metname)<<"Got a point near closest boundary -- face "<<iFDest<<std::endl;
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Got a point near closest boundary -- face "<<iFDest<<std::endl;
       }
       break;
     }
@@ -1915,7 +2003,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       Vector lDelta(sv.p3); lDelta *= 1./sv.p3.mag()*sign*lDist;
       gPointEst += lDelta;
       if (debug_){
-	LogTrace(metname)<<"Linear est point to shortest dist "<<gPointEst
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Linear est point to shortest dist "<<gPointEst
 			 <<" for iFace "<<iDistMin<<" at distance "<<lDist*sign<<std::endl;
       }
       GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
@@ -1923,7 +2011,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       if (  (vbField_->isZSymmetric() && cVol->inside(gPointEstNegZ))
 	  || ( !vbField_->isZSymmetric() && cVol->inside(gPointEstNorZ) ) ){
 	if (debug_){
-	  LogTrace(metname)<<"The point is inside the volume"<<std::endl;
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The point is inside the volume"<<std::endl;
 	}
 	
       }else {
@@ -1935,17 +2023,17 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       dist = sign*0.05;
       tanDist = dist*1.01;
       if( debug_){
-	LogTrace(metname)<<"Wrong volume located: return small dist, tandist"<<std::endl;
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Wrong volume located: return small dist, tandist"<<std::endl;
       }
     }
   }
 
   if (result == SteppingHelixStateInfo::INACC){
-    if (debug_) LogTrace(metname)<<"All faces are too far"<<std::endl;
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"All faces are too far"<<std::endl;
   } else if (result == SteppingHelixStateInfo::WRONG_VOLUME){
-    if (debug_) LogTrace(metname)<<"Appear to be in a wrong volume"<<std::endl;
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Appear to be in a wrong volume"<<std::endl;
   } else if (result != SteppingHelixStateInfo::OK){
-    if (debug_) LogTrace(metname)<<"Something else went wrong"<<std::endl;
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Something else went wrong"<<std::endl;
   }
 
   
@@ -1974,7 +2062,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
   
   for (uint iFace = 0; iFace < 4; iFace++){
     if (debug_){
-      LogTrace(metname)<<"Start with mat face "<<iFace<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Start with mat face "<<iFace<<std::endl;
     }
 
     double pars[6] = {0,0,0,0,0,0};
@@ -2020,7 +2108,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
       Vector lDelta(sv.p3); lDelta *= sign*fabs(distToFace[iFace])/sv.p3.mag();
       gPointEst += lDelta;
       if (debug_){
-	LogTrace(metname)<<"Linear est point "<<gPointEst
+	LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Linear est point "<<gPointEst
 			 <<std::endl;
       }
       double lZ = fabs(gPointEst.z());
@@ -2029,7 +2117,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 	   && (lZ - parLim[3]) < lR*tan(parLim[5])  
 	   && lR > parLim[0] && lR < parLim[1]){
 	if (debug_){
-	  LogTrace(metname)<<"The point is inside the volume"<<std::endl;
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The point is inside the volume"<<std::endl;
 	}
 	//OK, guessed a point still inside the volume
 	if (iFDest == -1){
@@ -2041,7 +2129,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 	}
       } else {
 	if (debug_){
-	  LogTrace(metname)<<"The point is NOT inside the volume"<<std::endl;
+	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"The point is NOT inside the volume"<<std::endl;
 	}
       }
     }
@@ -2052,11 +2140,11 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
     dist = distToFace[iFDest];
     tanDist = tanDistToFace[iFDest];
     if (debug_){
-      LogTrace(metname)<<"Got a point near closest boundary -- face "<<iFDest<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Got a point near closest boundary -- face "<<iFDest<<std::endl;
     }
   } else {
     if (debug_){
-      LogTrace(metname)<<"Failed to find a dest point inside the volume"<<std::endl;
+      LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Failed to find a dest point inside the volume"<<std::endl;
     }
   }
 
@@ -2081,18 +2169,18 @@ bool SteppingHelixPropagator::isYokeVolume(const MagVolume* vol) const {
 
   bool result = false;
   if (mag2VCen > 0.6 && mag2VZLeft > 0.6 && mag2VZRight > 0.6){
-    if (debug_) LogTrace(metname)<<"Volume is magnetic, located at "<<vol->position()<<std::endl;    
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Volume is magnetic, located at "<<vol->position()<<std::endl;    
     result = true;
   } else {
-    if (debug_) LogTrace(metname)<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
   }
 
   */
   bool result = vol->isIron();
   if (result){
-    if (debug_) LogTrace(metname)<<"Volume is magnetic, located at "<<vol->position()<<std::endl;
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Volume is magnetic, located at "<<vol->position()<<std::endl;
   } else {
-    if (debug_) LogTrace(metname)<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
+    if (debug_) LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
   }
 
   return result;

@@ -1,6 +1,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
+
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
@@ -33,8 +33,7 @@ namespace cond {
   std::string
   PayLoadInspector<EcalADCToGeVConstant>::dump() const {
     std::stringstream ss;
-    EcalCondHeader h;
-    ss<<EcalADCToGeVXMLTranslator::dumpXML(h,object());
+    object().print(ss);
     return ss.str();
     
   }

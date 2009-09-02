@@ -66,15 +66,31 @@ class SiStripCertificationInfo: public edm::EDAnalyzer {
 
 private:
 
-  DQMStore* dqmStore_;
-  MonitorElement * CertificationBit_;
-  MonitorElement * CertificationBitTIB_;
-  MonitorElement * CertificationBitTOB_;
-  MonitorElement * CertificationBitTIDF_;
-  MonitorElement * CertificationBitTIDB_;
-  MonitorElement * CertificationBitTECF_;
-  MonitorElement * CertificationBitTECB_;
+  void bookSiStripCertificationMEs();
+  void resetSiStripCertificationMEs();
+  void fillSiStripCertificationMEs();
 
+  void bookTrackingCertificationMEs();
+  void resetTrackingCertificationMEs();
+  void fillTrackingCertificationMEs();
+
+  DQMStore* dqmStore_;
+  MonitorElement * SiStripCertification;
+  MonitorElement * SiStripCertificationTIB;
+  MonitorElement * SiStripCertificationTOB;
+  MonitorElement * SiStripCertificationTIDF;
+  MonitorElement * SiStripCertificationTIDB;
+  MonitorElement * SiStripCertificationTECF;
+  MonitorElement * SiStripCertificationTECB;
+
+  
+  MonitorElement * TrackingCertification;  
+  MonitorElement * TrackingCertificationRate;
+  MonitorElement * TrackingCertificationChi2overDoF;
+  MonitorElement * TrackingCertificationRecHits;
+
+  bool trackingCertificationBooked_;
+  bool sistripCertificationBooked_;
   unsigned long long m_cacheID_;
 
 };

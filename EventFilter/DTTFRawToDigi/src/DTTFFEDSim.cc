@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2008/08/05 11:12:08 $
-//   $Revision: 1.10 $
+//   $Date: 2009/06/01 06:56:32 $
+//   $Revision: 1.11 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -53,7 +53,7 @@ void DTTFFEDSim::produce(edm::Event& e, const edm::EventSetup& c) {
 bool DTTFFEDSim::fillRawData(edm::Event& e,
                              FEDRawDataCollection& data) {
 
-  eventNum++;
+  eventNum = e.id().event();
 
   int lines = 2;
 

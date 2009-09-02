@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.18 2009/04/15 21:54:10 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.19 2009/05/27 15:40:12 chrjones Exp $
 //
 
 // system include file
@@ -29,13 +29,11 @@
 // user include files
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
-#include "Fireworks/Core/src/FWListModel.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-//#include "Fireworks/Core/src/FWListModel.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"

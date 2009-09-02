@@ -17,7 +17,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.12 2009/07/25 11:34:10 demattia Exp $
+// $Id: SiStripQuality.h,v 1.13 2009/07/27 16:51:46 demattia Exp $
 //
 
 
@@ -123,6 +123,7 @@ class SiStripQuality: public SiStripBadStrip {
   void compact(unsigned int&,std::vector<unsigned int>&);
 
   inline void setPrintDebugOutput(const bool printDebug) { printDebug_ = printDebug; }
+  inline void setUseEmptyRunInfo(const bool useEmptyRunInfo) { useEmptyRunInfo_ = useEmptyRunInfo; }
 
  private:
 
@@ -153,6 +154,7 @@ class SiStripQuality: public SiStripBadStrip {
 
   const SiStripDetCabling *SiStripDetCabling_;  
   bool printDebug_;
+  bool useEmptyRunInfo_;
 };
 
 #endif

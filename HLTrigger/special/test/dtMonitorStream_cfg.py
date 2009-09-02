@@ -13,12 +13,12 @@ process.source = cms.Source("PoolSource",
     '/store/data/Commissioning09/Cosmics/RAW/v2/000/102/173/8C905A66-4E67-DE11-9A59-000423D6A6F4.root',
     '/store/data/Commissioning09/Cosmics/RAW/v2/000/102/173/20221969-4E67-DE11-915E-000423D99BF2.root'
    ),
-                            skipEvents = cms.untracked.uint32(95000)                       
+   skipEvents = cms.untracked.uint32(95000)                       
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(5000)
-    )
+)
 
 
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -27,22 +27,8 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
 process.GlobalTag.globaltag = "GR09_31X_V2P::All"
-#process.prefer("GlobalTag")
 
 process.load("HLTrigger.special.hltDTROMonitorFilter_cfi")
-# process.dtmonitorfilterCached = cms.EDFilter("HLTDTROMonitorFilter")
-
-process.fedSelector = cms.EDProducer("SubdetFEDSelector",
-                                     rawInputLabel = cms.InputTag("source"),
-                                     getECAL = cms.bool(False),
-                                     getSiStrip = cms.bool(False),
-                                     getSiPixel = cms.bool(False),
-                                     getHCAL = cms.bool(False),
-                                     getMuon = cms.bool(True),
-                                     getTrigger = cms.bool(False)
-                                     )
-
-
 
 # # message logger
 process.MessageLogger = cms.Service("MessageLogger",
@@ -52,11 +38,11 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'),
                                                               noLineBreaks = cms.untracked.bool(False),
                                                               DEBUG = cms.untracked.PSet(
-    limit = cms.untracked.int32(0)),
+                                                                limit = cms.untracked.int32(0)),
                                                               INFO = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)),
+                                                                limit = cms.untracked.int32(-1)),
                                                               DTDataIntegrityTask = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1))
+                                                                limit = cms.untracked.int32(-1))
                                                               )
                                     )
 
@@ -85,9 +71,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 # -------------------------------------------------------------------------
 
-# process.dtROMonitorSelection = cms.Path(process.hltDTROMonitorFilter + process.dtmonitorfilterCached + process.pts + process.fedSelector)
-
-process.dtROMonitorSelection = cms.Path(process.hltDTROMonitorFilter + process.fedSelector)
+process.dtROMonitorSelection = cms.Path(process.hltDTROMonitorFilter)
 
 
 process.options = cms.untracked.PSet(

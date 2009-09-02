@@ -95,8 +95,6 @@ process.SiStripHistoryDQMService = cms.Service("SiStripHistoryDQMService",
     # Summary Cluster Properties
     ,
     cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OnTrack"),  quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau","user"))
 
     # Summary Cluster properties @ layer level
     ,

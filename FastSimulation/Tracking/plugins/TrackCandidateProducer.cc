@@ -425,7 +425,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  if ( theNumberOfCrossedLayers >= maxNumberOfCrossedLayers ) continue;
 	  
 	  // Get current and previous rechits
-	  thePreviousRecHit = theCurrentRecHit;
+	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
 	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
 	  
 	  // Check that the first rechit is indeed the first seeding hit
@@ -468,13 +468,21 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 		addSplitHits(theCurrentRecHit,theTrackerRecHits);
 	      }
 	      // No splitting   
-	      else 		theTrackerRecHits.back() = theCurrentRecHit; // Replace the previous hit by the current hit
-	    } 
+	      else {
+		theTrackerRecHits.back() = theCurrentRecHit; // Replace the previous hit by the current hit
+	      }
+	      
+	    } else {
+	      
+	      //keep the older rechit as a reference if the error of the new one is worse
+	      theCurrentRecHit = thePreviousRecHit;
+	    }  
 	  }
 	}
+	
 	// End of loop over the track rechits
       }//no collection of track already existed. adding the hits by hand.
-      
+    
       LogDebug("TrackCandidateProducer")<<" number of hits: " << theTrackerRecHits.size()<<" after counting overlaps and splitting.";
 
       // 1) Create the OwnWector of TrackingRecHits

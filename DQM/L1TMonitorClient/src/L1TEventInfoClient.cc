@@ -57,9 +57,36 @@ void L1TEventInfoClient::initialize(){
   
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
   if(verbose_) cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
-  
 
-      
+  std::vector<string> emptyMask;
+
+  dataMask = parameters_.getUntrackedParameter<std::vector<string> >("dataMaskedSystems", emptyMask);
+  emulMask = parameters_.getUntrackedParameter<std::vector<string> >("emulatorMaskedSystems", emptyMask);
+
+  s_mapDataValues["EMPTY"]    = data_empty;
+  s_mapDataValues["ALL"]      = data_all;
+  s_mapDataValues["GT"]       = data_gt;
+  s_mapDataValues["MUONS"]    = data_muons;
+  s_mapDataValues["JETS"]     = data_jets;
+  s_mapDataValues["TAUJETS"]  = data_taujets;
+  s_mapDataValues["ISOEM"]    = data_isoem;
+  s_mapDataValues["NONISOEM"] = data_nonisoem;
+  s_mapDataValues["MET"]      = data_met;
+
+  s_mapEmulValues["EMPTY"]  = emul_empty;
+  s_mapEmulValues["ALL"]    = emul_all;
+  s_mapEmulValues["DTTF"]   = emul_dtf;
+  s_mapEmulValues["DTTPG"]  = emul_dtp;
+  s_mapEmulValues["CSCTF"]  = emul_ctf;
+  s_mapEmulValues["CSCTPG"] = emul_ctp;
+  s_mapEmulValues["RPC"]    = emul_rpc;
+  s_mapEmulValues["GMT"]    = emul_gmt;
+  s_mapEmulValues["ECAL"]   = emul_etp;
+  s_mapEmulValues["HCAL"]   = emul_htp;
+  s_mapEmulValues["RCT"]    = emul_rct;
+  s_mapEmulValues["GCT"]    = emul_gct;
+  s_mapEmulValues["GLT"]    = emul_glt;
+
 }
 
 //--------------------------------------------------------
@@ -77,8 +104,6 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
 
-  int nSubsystems = 18;
-
   //initialize reportSummary to 1
   if (reportSummary_) reportSummary_->Fill(1);
 
@@ -87,9 +112,8 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   char histo[100];
   
-  for (int n = 0; n < nSubsystems; n++) {    
+  for (int n = 0; n < nsys_; n++) {    
 
-    
     switch(n){
     case 0 :   sprintf(histo,"L1T_MET");      break;
     case 1 :   sprintf(histo,"L1T_NonIsoEM"); break;
@@ -109,20 +133,13 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
     case 15:   sprintf(histo,"L1TEMU_ETP");   break;
     case 16:   sprintf(histo,"L1TEMU_GCT");   break;
     case 17:   sprintf(histo,"L1TEMU_RCT");   break;
-
     }  
-    
-  
-    //    if( reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo) ) 
-    //  {
-    //	dbe_->removeElement(reportSummaryContent_[i]->getName());
-    //  }
     
     reportSummaryContent_[n] = dbe_->bookFloat(histo);
   }
 
   //initialize reportSummaryContents to 0
-  for (int k = 0; k < nSubsystems; k++) {
+  for (int k = 0; k < nsys_; k++) {
     summaryContent[k] = 0;
     reportSummaryContent_[k]->Fill(0.);
   }  
@@ -178,8 +195,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 
 
-  int nSubsystems = 18;
-  for (int k = 0; k < nSubsystems; k++) {
+  for (int k = 0; k < nsys_; k++) {
     summaryContent[k] = 0;
     reportSummaryContent_[k]->Fill(0.);
   }
@@ -234,9 +250,6 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // 00  MET Quality Tests
   //
 
-  // Set MET to -1 for now
-  summaryContent[0] = -1;
-
 
 
   // GCT uninstrumented regions for IsoEm, NonIsoEm, and TauJets
@@ -273,8 +286,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_NonIsoEm total efficiency = " << 1 - (float)GCT_NonIsoEm_nBadCh/(float)GCT_NonIsoEm_nCh << std::endl;
 
-    summaryContent[1] = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
-    reportSummaryContent_[1]->Fill( summaryContent[1] );
+    float nonisoResult = 1 - (float)(GCT_NonIsoEm_nBadCh-nCh_no_inst)/(float)(GCT_NonIsoEm_nCh-nCh_no_inst);
+    summaryContent[1] = ( nonisoResult < (1.0+1e-10) ) ? nonisoResult : 1.0;
   }
 
 
@@ -311,8 +324,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_IsoEm total efficiency = " << 1 - (float)GCT_IsoEm_nBadCh/(float)GCT_IsoEm_nCh << std::endl;
 
-    summaryContent[2] = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
-    reportSummaryContent_[2]->Fill( summaryContent[2] );
+    float isoResult = 1 - (float)(GCT_IsoEm_nBadCh-nCh_no_inst)/(float)(GCT_IsoEm_nCh-nCh_no_inst);
+    summaryContent[2] = ( isoResult < (1.0+1e-10) ) ? isoResult : 1.0;
   }
 
 
@@ -349,8 +362,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_TauJets total efficiency = " << 1 - (float)GCT_TauJets_nBadCh/(float)GCT_TauJets_nCh << std::endl;
 
-    summaryContent[3] = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
-    reportSummaryContent_[3]->Fill( summaryContent[3] );
+    float taujetsResult = 1 - (float)(GCT_TauJets_nBadCh-nCh_no_inst)/(float)(GCT_TauJets_nCh-nCh_no_inst);
+    summaryContent[3] = ( taujetsResult < (1.0+1e-10) ) ? taujetsResult : 1.0;
   }
 
 
@@ -387,8 +400,8 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GCT_AllJets total efficiency = " << 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh << std::endl;
 
-    summaryContent[4] = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
-    reportSummaryContent_[4]->Fill( summaryContent[4] );
+    float jetsResult = 1 - (float)GCT_AllJets_nBadCh/(float)GCT_AllJets_nCh;
+    summaryContent[4] = ( jetsResult < (1.0+1e-10) ) ? jetsResult : 1.0;
   }
 
 
@@ -397,6 +410,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   //
   // 05  Muon Quality Tests
   //
+
   if (GMT_QHist){
     const QReport *GMT_DeadCh_QReport = GMT_QHist->getQReport("DeadChannels_GMT_2D");
     const QReport *GMT_HotCh_QReport  = GMT_QHist->getQReport("HotChannels_GMT_2D");
@@ -425,10 +439,9 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     if( verbose_ ) std::cout << "    GMT total efficiency = " << 1 - (float)GMT_nBadCh/(float)GMT_nCh << std::endl;
 
-    summaryContent[5] = 1 - (float)GMT_nBadCh/(float)GMT_nCh;
-    reportSummaryContent_[5]->Fill( summaryContent[5] );
+    float muonResult = 1.5*(1 - (float)GMT_nBadCh/(float)GMT_nCh);
+    summaryContent[5] = ( muonResult < (1.0+1e-10) ) ? muonResult : 1.0;
   }
-
 
 
 
@@ -452,7 +465,6 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if( gt_algobits_prob!=-1 && gt_techbits_prob!=-1 ) summaryContent[6] = 0.5*( gt_algobits_prob + gt_techbits_prob );
   else if( GT_AlgoBits_QHist && GT_TechBits_QHist  ) summaryContent[6] = 1;
   else summaryContent[6] = 0;
-  reportSummaryContent_[6]->Fill( summaryContent[6] );
 
 
 
@@ -461,19 +473,137 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   // 07 - 17  L1T EMU Quality Tests
   //
 
-  // For now, set all L1TEMU summaryContent to -1
-  for( int m=7; m<nSubsystems; m++ ) summaryContent[m] = -1;
+
+
+  //
+  // Apply masks for data and emulator
+  //
+
+  //  Data Mask
+  unsigned int NumDataMask = dataMask.size();
+  std::vector<string> maskedData;
+  for( unsigned int i=0; i<NumDataMask; i++ ){
+    std::string mask_sys_tmp  = dataMask[i];
+    std::string mask_sys = StringToUpper(mask_sys_tmp);
+    switch(s_mapDataValues[mask_sys])
+      {
+      case data_empty:
+	break;
+      case data_all:
+	for( int m=0; m<7; m++ ) summaryContent[m] = -1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_gt:
+	summaryContent[6]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_muons:
+	summaryContent[5]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_jets:
+	summaryContent[4]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_taujets:
+	summaryContent[3]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_isoem:
+	summaryContent[2]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_nonisoem:
+	summaryContent[1]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      case data_met:
+	summaryContent[0]=-1;
+	maskedData.push_back(mask_sys_tmp);
+	break;
+      default:
+	if( verbose_ ) cout << "   User input mask '" << mask_sys_tmp << "' is not recognized." << endl;
+	break;
+      }
+  }
+
+  //  Emulator Mask
+  unsigned int NumEmulMask = emulMask.size();
+  std::vector<string> maskedEmul;
+  for( unsigned int i=0; i<NumEmulMask; i++ ){
+    std::string mask_sys_tmp  = emulMask[i];
+    std::string mask_sys = StringToUpper(mask_sys_tmp);
+    switch(s_mapEmulValues[mask_sys])
+      {
+      case emul_empty:
+	break;
+      case emul_all:
+	for( int m=7; m<18; m++ ) summaryContent[m] = -1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_glt:
+	summaryContent[7]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_gmt:
+	summaryContent[8]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_rpc:
+	summaryContent[9]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_ctp:
+	summaryContent[10]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_ctf:
+	summaryContent[11]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_dtp:
+	summaryContent[12]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_dtf:
+	summaryContent[13]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_htp:
+	summaryContent[14]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_etp:
+	summaryContent[15]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_gct:
+	summaryContent[16]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      case emul_rct:
+	summaryContent[17]=-1;
+	maskedEmul.push_back(mask_sys_tmp);
+	break;
+      default:
+	if( verbose_ ) cout << "   User input mask '" << mask_sys_tmp << "' is not recognized." << endl;
+	break;
+      }
+  }
 
 
   int numUnMaskedSystems = 0;
-  for( int m=0; m<nSubsystems; m++ ){
-    if( summaryContent[m]!=-1 ){
+  for( int m=0; m<nsys_; m++ ){
+    if( summaryContent[m]!=-1){
       if( m<7 ){
 	summarySum += summaryContent[m];
 	numUnMaskedSystems++;
       }
+
+      reportSummaryContent_[m]->Fill( summaryContent[m] );
     }
   }
+
 
 
   // For now, only use L1T for reportSummary value
@@ -505,6 +635,29 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 
   if( verbose_ ){
+    if( maskedData.size()>0 ){
+      std::cout << "  Masked Data Systems = ";
+      for( unsigned int i=0; i<maskedData.size(); i++ ){
+	if( i!=maskedData.size()-1 ){
+	  std::cout << maskedData[i] << ", ";
+	}
+	else {
+	  std::cout << maskedData[i] << std::endl;
+	}
+      }
+    }
+    if( maskedEmul.size()>0 ){
+      std::cout << "  Masked Emul Systems = ";
+      for( unsigned int i=0; i<maskedEmul.size(); i++ ){
+	if( i!=maskedEmul.size()-1 ){
+	  std::cout << maskedEmul[i] << ", ";
+	}
+	else {
+	  std::cout << maskedEmul[i] << std::endl;
+	}
+      }
+    }
+
     std::cout << "  L1T " << std::endl;
     std::cout << "     summaryContent[0]  = MET      = " << summaryContent[0] << std::endl;
     std::cout << "     summaryContent[1]  = NonIsoEM = " << summaryContent[1] << std::endl;
@@ -616,6 +769,14 @@ TProfile *  L1TEventInfoClient::get1DProfile(string meName, DQMStore * dbi)
   return me_->getTProfile();
 }
 
+string L1TEventInfoClient::StringToUpper(string strToConvert)
+{//change each element of the string to upper case
+   for(unsigned int i=0;i<strToConvert.length();i++)
+   {
+      strToConvert[i] = toupper(strToConvert[i]);
+   }
+   return strToConvert;//return the converted string
+}
 
 
 

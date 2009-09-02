@@ -49,12 +49,10 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
 
   //allowed energy range
   pmin_min = 3.;
-  //pmin_max = 100.;
-  pmin_max = 3000.;
+  pmin_max = 100.;
   pmax = 3000.;
   //allowed angular range
-  //cmax_max = -0.1,
-  cmax_max = -0.01,
+  cmax_max = -0.1,
   cmax_min = -0.9999;
 
  if(TIFOnly_const == true || TIFOnly_lin == true) pmin_min = 0.; //forTIF
@@ -261,7 +259,7 @@ int CMSCGEN::generate()
       std::cout << " >>> CMSCGEN <<< warning: not initialized" << std::endl;
       return -1;
     }
-  
+
   // note: use historical notation (fortran version l3cgen.f)
 
   //
@@ -492,16 +490,15 @@ double CMSCGEN::flux()
 
 
 
-int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, double ProdAlt_in, CLHEP::HepRandomEngine *rnd)
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, CLHEP::HepRandomEngine *rnd)
 {
   if (delRanGen)
     delete RanGen2;
   RanGen2 = rnd;
   delRanGen = false;
-
-  ProdAlt = ProdAlt_in;
-
+  
   Rnunubar = 1.2;
+  ProdAlt = 7.5e6; //mm
 
   sigma = (0.72*Rnunubar+0.09)/(1+Rnunubar)*1.e-38; //cm^2GeV^-1
 
@@ -564,19 +561,18 @@ int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, 
 
 } 
 
-int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, double ProdAlt_in, int RanSeed)
+int CMSCGEN::initializeNuMu(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, double Enumin_in, double Enumax_in, double Phimin_in, double Phimax_in, int RanSeed)
 {
   CLHEP::HepRandomEngine *rnd = new CLHEP::HepJamesRandom;
   //set seed for Random Generator (seed can be controled by config-file), P.Biallass 2006
   rnd->setSeed(RanSeed, 0);
   delRanGen = true;
-  return initializeNuMu(pmin_in, pmax_in, thetamin_in, thetamax_in, Enumin_in, Enumax_in, Phimin_in, Phimax_in, ProdAlt_in, rnd);
+  return initializeNuMu(pmin_in, pmax_in, thetamin_in, thetamax_in, Enumin_in, Enumax_in, Phimin_in, Phimax_in, rnd);
 }
 
 
 double CMSCGEN::dNdEmudEnu(double Enu, double Emu, double ctheta) {
-  double cthetaNu = 1. + ctheta; //swap cos(theta) from down to up range
-  double thetas = asin(sin(acos(cthetaNu))*(Rearth-SurfaceOfEarth)/(Rearth+ProdAlt));
+  double thetas = asin(sin(acos(ctheta))*(Rearth-SurfaceOfEarth)/(Rearth+ProdAlt));
   double costhetas = cos(thetas);
   double dNdEnudW = 0.0286*pow(Enu,-2.7)*(1./(1.+(6.*Enu*costhetas)/115.)+0.213/(1.+(1.44*Enu*costhetas)/850.)); //cm^2*s*sr*GeV
   double dNdEmudEnu = N_A*sigma/alpha*dNdEnudW*1./(1.+Emu/epsilon)*

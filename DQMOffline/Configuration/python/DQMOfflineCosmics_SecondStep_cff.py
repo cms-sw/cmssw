@@ -10,8 +10,12 @@ from DQM.DTMonitorClient.dtDQMOfflineClients_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQM.RPCMonitorClient.RPCTier0Client_cff import *
 from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
+from DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff import *
+from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cosmic_cff import *
 
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
-DQMOfflineCosmics_SecondStep = cms.Sequence(ecal_dqm_client_offline*cosmicMuonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*dqmFEDIntegrityClient)
+from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
+
+DQMOfflineCosmics_SecondStep = cms.Sequence(dqmRefHistoRootFileGetter*ecal_dqm_client_offline*cosmicMuonQualityTests*hcalOfflineDQMClient*sipixelEDAClient*triggerOfflineDQMClient*SiStripOfflineDQMClient*dtClients*hltOfflineDQMClient*rpcTier0Client*photonOfflineDQMClient*cscOfflineCosmicsClients*es_dqm_client_offline*dqmFEDIntegrityClient)
 

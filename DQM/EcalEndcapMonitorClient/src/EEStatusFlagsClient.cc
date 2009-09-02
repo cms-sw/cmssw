@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/06/25 15:08:20 $
- * $Revision: 1.25 $
+ * $Date: 2009/02/27 13:54:09 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -133,11 +133,9 @@ void EEStatusFlagsClient::cleanup(void) {
 
 }
 
-bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -186,10 +184,6 @@ void EEStatusFlagsClient::analyze(void) {
     meh02_[ism-1] = me;
 
   }
-
-}
-
-void EEStatusFlagsClient::softReset(bool flag) {
 
 }
 

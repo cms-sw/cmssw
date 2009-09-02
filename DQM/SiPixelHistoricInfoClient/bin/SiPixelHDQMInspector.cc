@@ -1,85 +1,83 @@
-#include "DQMServices/Diagnostic/test/HDQMInspector.h"
+#include "DQMServices/Diagnostic/interface/HDQMInspector.h"
 #include "DQM/SiPixelHistoricInfoClient/test/HDQMInspectorConfigSiPixel.h"
+#include "DQMServices/Diagnostic/interface/DQMHistoryTrendsConfig.h"
+#include "DQMServices/Diagnostic/interface/DQMHistoryCreateTrend.h"
+#include <string>
+#include <vector>
+#include <memory>
+#include <algorithm>
 
-void SiPixelHDQMInspector (int const NRuns) {
-/////////////////////////////////////////////////////////////////
-//
-// Extraction of the summary information using 
-// DQMServices/Diagnostic/test/HDQMInspector.
-// The sqlite database should have been filled using the new
-// SiPixelHistoryDQMService.   
-//
-/////////////////////////////////////////////////////////////////
+using namespace std;
 
+string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
+string const BlackList = "";
 
-  //std::map<int, std::string> pixelTranslator = sipixelsummary::GetMap();
-
-  //pixelTranslator Translator;
-
-  //AutoLibraryLoader::enable();
-
+/**
+ * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
+ * The sqlite database should have been filled using the new SiPixelHistoryDQMService.   
+ */
+void runSiPixelInspector( const string &tagName, const string & Password, const int Start, const int End, const int nRuns )
+{
   HDQMInspectorConfigSiPixel PixelConfig;
-  //HDQMInspector A(&PixelConfig);
-  HDQMInspector A(&PixelConfig);
-  A.setDB("sqlite_file:dbfile.db","HDQM_SiPixel","cms_cond_strip","w3807dev","");
+  DQMHistoryCreateTrend makeTrend(&PixelConfig);
 
+  // Database and output configuration
+  makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDebug(1);
+  makeTrend.setDoStat(1);
+  makeTrend.setBlackList(BlackList);
 
-  A.setDebug(1);
-  A.setDoStat(1);
+  // Definition of trends
+  typedef DQMHistoryTrendsConfig Trend;
+  vector<Trend> config;
+  config.push_back(Trend( "1@SUMOFF_adc@yMean", "adc_yMean_Barrel.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "6@SUMOFF_adc@yMean", "adc_yMean_Endcap.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_charge_OffTrack@yMean", "charge_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "1@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Barrel.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "6@SUMOFF_charge_OnTrack@yMean", "charge_OnTrack_yMean_Endcap.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nclusters_OffTrack@yMean", "nclusters_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_nclusters_OnTrack@yMean", "nclusters_OnTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_size_OffTrack@yMean", "size_OffTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@SUMOFF_size_OnTrack@yMean", "size_OnTrack_yMean.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, Start, End, nRuns ));
+  config.push_back(Trend( "0@ntracks_rsWithMaterialTracksP5@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, Start, End, nRuns ));
 
-  //A.setBlackList("68286");
+  // Creation of trends
+  for_each(config.begin(), config.end(), makeTrend);
 
-  A.createTrendLastRuns("1@SUMOFF_ClustX@yMean", "1ClusterXsize_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ClustY@yMean", "1ClusterYsize_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_charge@yMean", "charge_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_nclusters@yMean", "nclusters_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_sizeX@yMean", "sizeX_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_sizeY@yMean", "sizeY_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_x@yMean", "x_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_y@yMean", "y_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_maxrow@yMean", "maxrow_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_minrow@yMean", "minrow_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_maxcol@yMean", "maxcol_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("1@SUMOFF_mincol@yMean", "mincol_yMean.gif", 0, "", NRuns);
-
-  A.createTrendLastRuns("2@SUMOFF_ClustX@yMean", "1ClusterXsize_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_ClustY@yMean", "1ClusterYsize_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_adc@yMean", "adc_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_charge@yMean", "charge_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_nRecHits@yMean", "nRecHits_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_nclusters@yMean", "nclusters_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_ndigis@yMean", "ndigis_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_sizeX@yMean", "sizeX_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_sizeY@yMean", "sizeY_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_x@yMean", "x_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_y@yMean", "y_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_maxrow@yMean", "maxrow_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_minrow@yMean", "minrow_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_maxcol@yMean", "maxcol_yMean.gif", 0, "", NRuns);
-  A.createTrendLastRuns("2@SUMOFF_mincol@yMean", "mincol_yMean.gif", 0, "", NRuns);
-
-  A.closeFile();
-
-
-  return;
-
-
+  // Close the output file
+  makeTrend.closeFile();
 }
 
+/// Simple method to create the trends. The actual operations are performed in runSiPixelInspector.
+void SiPixelHDQMInspector( const string &tagName, const string & password, const int start, const int end )
+{
+  runSiPixelInspector( tagName, password, start, end, 0 );
+}
 
-
+/// Simple method to create the trends. The actual operations are performed in runSiPixelInspector.
+void SiPixelHDQMInspector( const string & tagName, const string & password, const int nRuns )
+{
+  runSiPixelInspector( tagName, password, 0, 0, nRuns );
+}
 
 int main (int argc, char* argv[])
 {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " [NRuns]" << std::endl;
+  if (argc != 4 && argc != 5) {
+    cerr << "Usage: " << argv[0] << " [TagName] [Password] [NRuns] " << endl;
+    cerr << "Or:    " << argv[0] << " [TagName] [Password] [FirstRun] [LastRun] " << endl;
     return 1;
   }
 
-  SiPixelHDQMInspector( atoi(argv[1]) );
+  if (argc == 4) {
+    cout << "Creating trends for NRuns = " << argv[3] << " for tag: " << argv[1] << endl;
+    SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]) );
+  } else if(argc == 5) {
+    cout << "Creating trends for range:  " << argv[3] << " " << argv[4] << " for tag: " << argv[1] << endl;
+    SiPixelHDQMInspector( argv[1], argv[2], atoi(argv[3]), atoi(argv[4]) );
+  }
 
   return 0;
 }

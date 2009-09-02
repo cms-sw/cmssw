@@ -58,22 +58,47 @@ uint32_t SiPixelHistoryDQMService::returnDetComponent(const MonitorElement* ME){
 
 
 //Example on how to define an user function for the statistic extraction
-bool SiPixelHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent){
-  userDBContent.push_back(keyName+std::string("@")+std::string("yMean"));
-  userDBContent.push_back(keyName+std::string("@")+std::string("yError"));
+bool SiPixelHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity){
+  if (quantity == "user_ymean") {
+    userDBContent.push_back(keyName+std::string("@")+std::string("yMean"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("yError"));
+  } else if (quantity == "user_A") {
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksPixOverAll"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksPixOverAllError"));
+  } else if (quantity == "user_B") {
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksFPixOverBPix"));
+    userDBContent.push_back(keyName+std::string("@")+std::string("NTracksFPixOverBPixError"));
+  } else {
+    edm::LogError("SiPixelHistoryDQMService") << "ERROR: quantity does not exist in SiPixelHistoryDQMService::setDBValuesForUser(): " << quantity;
+    return false;
+  }
   return true;
 }
-bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  ){
-  TH1F* Hist = (TH1F*) (*iterMes)->getTH1F()->Clone();
-  Hist->Fit("pol0");
-  TF1* Fit = Hist->GetFunction("pol0");
-  float FitValue = Fit ? Fit->GetParameter(0) : 0;
-  float FitError = Fit ? Fit->GetParError(0) : 0;
-  std::cout << "FITERROR: " << FitError << std::endl;
+bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity  ){
 
-  values.push_back( FitValue );
-  values.push_back( 1.0 );
-  //values.push_back( FitError );
+  if (quantity == "user_ymean") {
+    TH1F* Hist = (TH1F*) (*iterMes)->getTH1F()->Clone();
+    Hist->Fit("pol0");
+    TF1* Fit = Hist->GetFunction("pol0");
+    float FitValue = Fit ? Fit->GetParameter(0) : 0;
+    float FitError = Fit ? Fit->GetParError(0) : 0;
+    std::cout << "FITERROR: " << FitError << std::endl;
+
+    values.push_back( FitValue );
+    values.push_back( FitError );
+  } else if (quantity == "user_A") {
+    TH1F* Hist = (TH1F*) (*iterMes)->getTH1F();
+    values.push_back( Hist->GetBinContent(2) / Hist->GetBinContent(1) );
+    values.push_back( TMath::Abs(Hist->GetBinContent(2) / Hist->GetBinContent(1)) * TMath::Sqrt( ( TMath::Power( Hist->GetBinError(1)/Hist->GetBinContent(1), 2) + TMath::Power( Hist->GetBinError(2)/Hist->GetBinContent(2), 2) )) );
+  } else if (quantity == "user_B") {
+    TH1F* Hist = (TH1F*) (*iterMes)->getTH1F();
+    values.push_back( Hist->GetBinContent(4) / Hist->GetBinContent(3) );
+    values.push_back( TMath::Abs(Hist->GetBinContent(4) / Hist->GetBinContent(3)) * TMath::Sqrt( ( TMath::Power( Hist->GetBinError(3)/Hist->GetBinContent(3), 2) + TMath::Power( Hist->GetBinError(4)/Hist->GetBinContent(4), 2) )) );
+  } else {
+    edm::LogError("SiPixelHistoryDQMService") << "ERROR: quantity does not exist in SiPixelHistoryDQMService::setDBValuesForUser(): " << quantity;
+    return false;
+  }
+
   return true;
 }
 

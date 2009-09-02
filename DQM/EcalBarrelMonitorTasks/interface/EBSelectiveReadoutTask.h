@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2009/05/05 10:02:31 $
- * $Revision: 1.13 $
+ * $Date: 2009/07/17 17:14:23 $
+ * $Revision: 1.14 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -312,6 +312,7 @@ float ybins[89];
 MonitorElement* EBDccEventSize_;
 MonitorElement* EBDccEventSizeMap_;
 MonitorElement* EBTowerSize_;
+MonitorElement* EBTTFMismatch_;
 MonitorElement* EBReadoutUnitForcedBitMap_;
 MonitorElement* EBFullReadoutSRFlagMap_;
 MonitorElement* EBHighInterestTriggerTowerFlagMap_;

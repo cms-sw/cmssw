@@ -60,9 +60,6 @@ class CSCRecoConditions
   /// Is a neighbour bad?
   bool nearBadStrip( const CSCDetId& id, int geomStrip ) const;
 
-  /// Is the strip bad?
-  bool badStrip( const CSCDetId& id, int geomStrip ) const;
-
   /// Get bad wiregroup word
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
 

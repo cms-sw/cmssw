@@ -50,6 +50,8 @@ DTPreCalibrationTask::DTPreCalibrationTask(const edm::ParameterSet& ps){
   saveFile = ps.getUntrackedParameter<bool>("SaveFile",false); 
   // output file name
   outputFileName = ps.getUntrackedParameter<string>("outputFileName"); 
+  // get the histo folder name
+  folderName = ps.getUntrackedParameter<string>("folderName");
 
 }
 
@@ -62,7 +64,9 @@ void DTPreCalibrationTask::beginJob(const edm::EventSetup& context){
   for(int wheel=-2; wheel<=2; wheel++){
    for(int sector=1; sector<=14; sector++){
      LogTrace("DTPreCalibSummary") <<"[DTPrecalibrationTask]: Book histos for wheel "<<wheel<<", sector "<<sector<<endl;
+     dbe->setCurrentFolder(folderName+"/TimeBoxes");  
      bookTimeBoxes(wheel, sector);
+     dbe->setCurrentFolder(folderName+"/OccupancyHistos");
      if(sector<13) bookOccupancyPlot(wheel, sector);
     }
   }
@@ -125,7 +129,6 @@ void DTPreCalibrationTask::bookTimeBoxes(int wheel, int sector) {
   stringstream sec; sec << sector;
 
   // book the time boxes
-  dbe->setCurrentFolder("DTCalib/TimeBoxes");  
   TimeBoxes[make_pair(wheel, sector)]= dbe->book1D("TimeBox_W"+wh.str()+"_Sec"+sec.str(), "Time Box W"+wh.str()+"_Sec"+sec.str(),(maxTriggerWidth-minTriggerWidth)/50, minTriggerWidth, maxTriggerWidth);
   TimeBoxes[make_pair(wheel, sector)]->setAxisTitle("TDC counts");
 
@@ -139,7 +142,6 @@ void DTPreCalibrationTask::bookOccupancyPlot(int wheel, int sector) {
   stringstream sec; sec << sector;
 
   // book the occpancy plot
-  dbe->setCurrentFolder("DTCalib/OccupancyHistos");
   if(sector==4 || sector==10)
     OccupancyHistos[make_pair(wheel, sector)]= dbe->book2D("Occupancy_W"+wh.str()+"_Sec"+sec.str(), "Occupancy W"+wh.str()+"_Sec"+sec.str(),100,1,100,52,1,53);
   else

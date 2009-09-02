@@ -164,7 +164,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       if (preciseHit->isValid() == false){
 	LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	currTsos = predTsos;
-	myTraj.push(TM(predTsos, hit, 0, theGeometry->idToLayer(hit->geographicalId()) ));
+	myTraj.push(TM(predTsos, hit ));//why no estimate? if the hit is valid it should contribute to chi2...
       }else{
 	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	
@@ -205,8 +205,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		       predTsos,
 		       smooTsos,
 		       preciseHit,
-		       estimate,
-		       theGeometry->idToLayer(preciseHit->geographicalId()) ),
+		       estimate),
 		    estimator()->estimate(predTsos,*preciseHit).second);
 	            //itm->estimate());
       }
@@ -230,9 +229,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       myTraj.push(TM(itm->forwardPredictedState(),
     		     predTsos,
     		     combTsos,
-    		     hit,
-		     0,
-		     theGeometry->idToLayer(hit->geographicalId()) ));
+    		     hit));
     }
   } // for loop
 

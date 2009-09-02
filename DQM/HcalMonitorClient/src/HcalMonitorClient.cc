@@ -351,7 +351,8 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 //--------------------------------------------------------
 void HcalMonitorClient::endJob(void) {
 
-  if( debug_>0 ) std::cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
+  if( debug_>0 ) 
+    std::cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
 
   if (summary_client_)         summary_client_->endJob();
   if( dataformat_client_ )     dataformat_client_->endJob();
@@ -824,7 +825,7 @@ void HcalMonitorClient::htmlOutput(void){
 
   if (debug_>0) std::cout << "Preparing HcalMonitorClient html output ..." << endl;
 
-  char tmp[10];
+  char tmp[20];
   if(irun_!=-1) sprintf(tmp, "DQM_Hcal_R%09d", irun_);
   else sprintf(tmp, "DQM_Hcal_R%09d", 0);
   string htmlDir = baseHtmlDir_ + "/" + tmp + "/";

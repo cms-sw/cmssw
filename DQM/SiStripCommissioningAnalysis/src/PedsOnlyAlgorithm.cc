@@ -13,7 +13,7 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-PedsOnlyAlgorithm::PedsOnlyAlgorithm( const edm::ParameterSet & pset, PedsOnlyAnalysis* const anal ) 
+PedsOnlyAlgorithm::PedsOnlyAlgorithm( PedsOnlyAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
     hPeds_(0,""),
     hNoise_(0,"")

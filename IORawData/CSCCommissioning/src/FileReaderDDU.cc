@@ -116,12 +116,10 @@ size_t FileReaderDDU::read(const unsigned short* &buf) throw (std::runtime_error
 	return (eventStatus&FFFF?event-raw_event-4:event-raw_event);
 }
 
-size_t FileReaderDDU::next(const unsigned short* &buf, int prescaling) throw(std::runtime_error) {
+size_t FileReaderDDU::next(const unsigned short* &buf) throw(std::runtime_error) {
 	size_t size=0;
-	for(int i=0; i<prescaling; i++){
-		do {
-			if( (size = read(buf)) == 0 ) break;
-		} while( rejectCriteria&eventStatus || !(acceptCriteria&eventStatus) || (selectCriteria?selectCriteria!=eventStatus:0) );
-	}
+	do {
+		if( (size = read(buf)) == 0 ) break;
+	} while( rejectCriteria&eventStatus || !(acceptCriteria&eventStatus) || (selectCriteria?selectCriteria!=eventStatus:0) );
 	return size;
 }

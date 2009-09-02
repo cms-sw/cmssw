@@ -203,7 +203,7 @@ EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& 
 void 
 EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException, const char* iName, const ComponentDescription* iDescription, const DataKey& iKey) const
 {
-   iException<<"cms::Exception going through EventSetup component "
+   iException<<"\ncms::Exception going through EventSetup component "
    <<iDescription->type_
    <<"/\""<<iDescription->label_<<"\"\n"
    <<"  while making data "<< iKey.type().name()<<"/\""<<iName

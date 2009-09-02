@@ -8,6 +8,9 @@ ahunt@princeton.edu
 
 */
 
+#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
 
 #include <string>
@@ -17,8 +20,6 @@ class TTree;
 
 namespace HCAL_HLX{
   
-  struct LUMI_SECTION;
-
   class ROOTFileWriter: public ROOTFileBase{
     
   public:

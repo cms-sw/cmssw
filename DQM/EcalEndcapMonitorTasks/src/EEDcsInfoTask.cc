@@ -64,7 +64,7 @@ void EEDcsInfoTask::beginJob(const EventSetup& c){
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEE(i+1).c_str());
+      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
       meEEDcsActive_[i] = dqmStore_->bookFloat(histo);
       meEEDcsActive_[i]->Fill(0.0);
     }

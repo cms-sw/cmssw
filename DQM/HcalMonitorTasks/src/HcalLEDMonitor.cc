@@ -44,13 +44,14 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     sigS0_=0; sigS1_=9;
   }
 
-  ievt_=0;
 
   if ( m_dbe ) {
 
     m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("LED Task Event Number");    
     meEVT_->Fill(ievt_);
+    meTOTALEVT_ = m_dbe->bookInt("LED Task Total Events Processed");
+    meTOTALEVT_->Fill(tevt_);
 
     MEAN_MAP_TIME_L1= m_dbe->book2D("LED Mean Time Depth 1","LED Mean Time Depth 1",etaBins_,etaMin_,etaMax_,
 			       phiBins_,phiMin_,phiMax_);
@@ -238,14 +239,16 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				  const HFDigiCollection& hf,
 				  const HcalDbService& cond){
 
-  ievt_++;
-  meEVT_->Fill(ievt_);
 
-  if(!m_dbe) { 
-    if(fVerbosity) cout <<"HcalLEDMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
-    return; }
+  if(!m_dbe) 
+    { 
+      if(fVerbosity) cout <<"HcalLEDMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
+      return; 
+    }
+  
+  HcalBaseMonitor::processEvent();
+
   float vals[10];
-
 
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++)
     {

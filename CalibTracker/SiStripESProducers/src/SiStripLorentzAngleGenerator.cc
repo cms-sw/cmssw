@@ -36,13 +36,13 @@ void SiStripLorentzAngleGenerator::setHallMobility(const double & meanMin, const
   else hallMobility_ = meanMin;
 }
 
-void SiStripLorentzAngleGenerator::setUniform(const vector<double> & TIB_EstimatedValuesMin, const vector<double> & TIB_EstimatedValuesMax, vector<bool> & uniformTIB) {
-  if( TIB_EstimatedValuesMax.size() != 0 ) {
-    vector<double>::const_iterator min = TIB_EstimatedValuesMin.begin();
-    vector<double>::const_iterator max = TIB_EstimatedValuesMax.begin();
-    vector<bool>::iterator uniform = uniformTIB.begin();
-    for( ; min != TIB_EstimatedValuesMin.end(); ++min, ++max ) {
-      if( *min != *max ) *uniform = true;
+void SiStripLorentzAngleGenerator::setUniform(const vector<double> & estimatedValuesMin, const vector<double> & estimatedValuesMax, vector<bool> & uniform) {
+  if( estimatedValuesMax.size() != 0 ) {
+    vector<double>::const_iterator min = estimatedValuesMin.begin();
+    vector<double>::const_iterator max = estimatedValuesMax.begin();
+    vector<bool>::iterator uniformIt = uniform.begin();
+    for( ; min != estimatedValuesMin.end(); ++min, ++max, ++uniformIt ) {
+      if( *min != *max ) *uniformIt = true;
     }
   }
 }

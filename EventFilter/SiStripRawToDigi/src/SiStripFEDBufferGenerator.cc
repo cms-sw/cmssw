@@ -30,30 +30,6 @@ namespace sistrip {
     }
   }
   
-  uint16_t FEDStripData::ChannelData::getSample(const uint16_t sampleNumber) const
-  {
-    try {
-      return data_.at(sampleNumber);
-    } catch (const std::out_of_range&) {
-      std::ostringstream ss;
-      ss << "Sample index out of range. "
-         << "Requesting sample " << sampleNumber
-         << " when channel has only " << data_.size() << " samples.";
-      throw cms::Exception("FEDBufferGenerator") << ss.str();
-    }
-  }
-  
-  uint8_t FEDStripData::ChannelData::get8BitSample(const uint16_t sampleNumber) const
-  {
-    if (dataIs8Bit_) return (0xFF & getSample(sampleNumber));
-    else {
-      const uint16_t sample = getSample(sampleNumber);
-      if (sample < 0xFE) return sample;
-      else if (sample == 0x3FF) return 0xFF;
-      else return 0xFE;
-    }
-  }
-  
   void FEDStripData::ChannelData::setSample(const uint16_t sampleNumber, const uint16_t value)
   {
     if (value > 0x3FF) {
@@ -145,7 +121,7 @@ namespace sistrip {
       fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW,data,channelEnabled,true);
       break;
     case READOUT_MODE_PROC_RAW:
-      fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,true);
+      fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,false);
       break;
     case READOUT_MODE_ZERO_SUPPRESSED:
       fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
@@ -167,18 +143,19 @@ namespace sistrip {
                                                     const bool channelEnabled,
                                                     const bool reorderData) const
   {
-    const uint16_t channelLength = data.size();
+    const uint16_t nSamples = data.size();
     //2 bytes per sample + packet code + 2 bytes for length
-    channelBuffer->reserve(channelLength*2 + 3);
+    const uint16_t channelLength = nSamples*2 + 3;
+    channelBuffer->reserve(channelLength);
     //length (max length is 0xFFF)
     channelBuffer->push_back( channelLength & 0xFF );
     channelBuffer->push_back( (channelLength & 0xF00) >> 8 );
     //packet code
     channelBuffer->push_back(packetCode);
     //channel samples
-    for (uint16_t sampleNumber = 0; sampleNumber < channelLength; sampleNumber++) {
+    for (uint16_t sampleNumber = 0; sampleNumber < nSamples; sampleNumber++) {
       const uint16_t sampleIndex = ( reorderData ? FEDStripOrdering::physicalOrderForStripInChannel(sampleNumber) : sampleNumber );
-      uint16_t sampleValue = (channelEnabled ? data.getSample(sampleIndex) : 0);
+      const uint16_t sampleValue = (channelEnabled ? data.getSample(sampleIndex) : 0);
       channelBuffer->push_back(sampleValue & 0xFF);
       channelBuffer->push_back((sampleValue & 0x300) >> 8);
     }
@@ -223,6 +200,7 @@ namespace sistrip {
                                                                    const FEDStripData::ChannelData& data,
                                                                    const bool channelEnabled) const
   {
+    channelBuffer->reserve(50);
     //if channel is disabled then create empty channel header and return
     if (!channelEnabled) {
       //min length 2
@@ -243,42 +221,32 @@ namespace sistrip {
   
   void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
   {
-    //current cluster info
-    uint8_t clusterAddress = 0;
-    std::list<uint8_t> clusterADCCounts;
-    //loop over samples creating clusters
-    for (size_t strip = 0; strip < data.size(); strip++) {
+    uint16_t clusterSize = 0;
+    const uint16_t nSamples = data.size();
+    for( uint16_t strip = 0; strip < nSamples; ++strip) {
       const uint8_t adc = data.get8BitSample(strip);
-      //check if strip is compatible with previous cluster
-      if ( adc && (strip!=STRIPS_PER_APV) ) {
-        //if this is the first strip in the cluster then update the address
-        if (!clusterADCCounts.size()) clusterAddress = strip;
-        clusterADCCounts.push_back(adc);
+
+      if(adc) {
+	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
+	  if(clusterSize) { 
+	    *(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	    clusterSize = 0; 
+	  }
+	  channelBuffer->push_back(strip); 
+	  channelBuffer->push_back(0); //clustersize	  
+	}
+	channelBuffer->push_back(adc);
+	++clusterSize;
       }
-      //if strip is not compatible with old cluster then write the old one to the buffer and start a new one
-      else {
-        writeClusterToBuffer(channelBuffer,clusterAddress,clusterADCCounts);
-        clusterADCCounts.clear();
-        if (adc) {
-          if (!clusterADCCounts.size()) clusterAddress = strip;
-          clusterADCCounts.push_back(adc);
-        }
+
+      else if(clusterSize) { 
+	*(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	clusterSize = 0; 
       }
     }
-    //write last cluster
-    writeClusterToBuffer(channelBuffer,clusterAddress,clusterADCCounts);
+    if(clusterSize) *(channelBuffer->end() - clusterSize - 1) = clusterSize ;
   }
-  
-  void FEDBufferPayloadCreator::writeClusterToBuffer(std::vector<uint8_t>* buffer, const uint8_t address,
-                                                     const std::list<uint8_t> adcCounts) const
-  {
-    if (adcCounts.size()) {
-      buffer->push_back(address);
-      buffer->push_back(adcCounts.size());
-      buffer->insert(buffer->end(),adcCounts.begin(),adcCounts.end());
-    }
-  }
-  
+
   //FEDBufferGenerator
   
   FEDBufferGenerator::FEDBufferGenerator(const uint32_t l1ID, const uint16_t bxID,

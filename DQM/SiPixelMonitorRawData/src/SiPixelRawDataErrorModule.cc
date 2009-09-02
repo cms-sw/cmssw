@@ -83,13 +83,6 @@ SiPixelRawDataErrorModule::~SiPixelRawDataErrorModule() {}
 // Book histograms for errors with detId
 //
 void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool reducedSet, int type) {
-  bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
-  bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
-  bool isHalfModule = false;
-  if(barrel){
-    isHalfModule = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).isHalfModule(); 
-  }
-
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
@@ -105,7 +98,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorType_->setAxisTitle("Type of errors",1);
     // Number of errors
     hid = theHistogramId->setHistoId("NErrors",id_);
-    meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,-0.5,499.5);
+    meNErrors_ = theDMBE->book1D(hid,"Number of errors",10,0.,10.);
     meNErrors_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -121,28 +114,26 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
       hid = theHistogramId->setHistoId("EvtNbr",id_);
-      meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbr_->setAxisTitle("Event number",1);
+      meEvtNbr_ = theDMBE->bookInt(hid);
       // For error type 36, the invalid ROC number
       hid = theHistogramId->setHistoId("ROCId",id_);
-      meROCId_ = theDMBE->book1D(hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCId_->setAxisTitle("ROC Id",1);
+      meROCId_ = theDMBE->bookInt(hid);
       // For error type 37, the invalid dcol values
       hid = theHistogramId->setHistoId("DCOLId",id_);
-      meDCOLId_ = theDMBE->book1D(hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLId_->setAxisTitle("DCOL address",1);
+      meDCOLId_ = theDMBE->bookInt(hid);
       // For error type 37, the invalid ROC values
       hid = theHistogramId->setHistoId("PXId",id_);
-      mePXId_ = theDMBE->book1D(hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXId_->setAxisTitle("Pixel address",1);
+      mePXId_ = theDMBE->bookInt(hid);
       // For error type 38, the ROC that is being read out of order
       hid = theHistogramId->setHistoId("ROCNmbr",id_);
-      meROCNmbr_ = theDMBE->book1D(hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbr_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbr_ = theDMBE->bookInt(hid);
     }
     delete theHistogramId;
   }
   
+  //////////////////////
+  //NO HIGHER LEVEL HISTOS FOR ERRORS
+  /* 
   if(type==1 && barrel){
     uint32_t DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
@@ -153,7 +144,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorTypeLad_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
     meErrorTypeLad_->setAxisTitle("Type of errors",1);
     // Number of errors
-    meNErrorsLad_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsLad_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",10,0.,10.);
     meNErrorsLad_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -166,20 +157,15 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meTBMTypeLad_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      meEvtNbrLad_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbrLad_->setAxisTitle("Event number",1);
+      meEvtNbrLad_ = theDMBE->bookInt("EvtNbr_" + hid);
       // For error type 36, the invalid ROC number
-      meROCIdLad_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCIdLad_->setAxisTitle("ROC Id",1);
+      meROCIdLad_ = theDMBE->bookInt("ROCId_" + hid);
       // For error type 37, the invalid dcol values
-      meDCOLIdLad_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLIdLad_->setAxisTitle("DCOL address",1);
+      meDCOLIdLad_ = theDMBE->bookInt("DCOLId_" + hid);
       // For error type 37, the invalid ROC values
-      mePXIdLad_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXIdLad_->setAxisTitle("Pixel address",1);
+      mePXIdLad_ = theDMBE->bookInt("PXId_" + hid);
       // For error type 38, the ROC that is being read out of order
-      meROCNmbrLad_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbrLad_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbrLad_ = theDMBE->bookInt("ROCNmbr_" + hid);
     }
   }
   
@@ -191,7 +177,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorTypeLay_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
     meErrorTypeLay_->setAxisTitle("Type of errors",1);
     // Number of errors
-    meNErrorsLay_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsLay_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",10,0.,10.);
     meNErrorsLay_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -204,20 +190,15 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meTBMTypeLay_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      meEvtNbrLay_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbrLay_->setAxisTitle("Event number",1);
+      meEvtNbrLay_ = theDMBE->bookInt("EvtNbr_" + hid);
       // For error type 36, the invalid ROC number
-      meROCIdLay_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCIdLay_->setAxisTitle("ROC Id",1);
+      meROCIdLay_ = theDMBE->bookInt("ROCId_" + hid);
       // For error type 37, the invalid dcol values
-      meDCOLIdLay_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLIdLay_->setAxisTitle("DCOL address",1);
+      meDCOLIdLay_ = theDMBE->bookInt("DCOLId_" + hid);
       // For error type 37, the invalid ROC values
-      mePXIdLay_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXIdLay_->setAxisTitle("Pixel address",1);
+      mePXIdLay_ = theDMBE->bookInt("PXId_" + hid);
       // For error type 38, the ROC that is being read out of order
-      meROCNmbrLay_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbrLay_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbrLay_ = theDMBE->bookInt("ROCNmbr_" + hid);
     }
   }
   
@@ -229,7 +210,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorTypePhi_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
     meErrorTypePhi_->setAxisTitle("Type of errors",1);
     // Number of errors
-    meNErrorsPhi_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsPhi_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",10,0.,10.);
     meNErrorsPhi_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -242,20 +223,15 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meTBMTypePhi_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      meEvtNbrPhi_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbrPhi_->setAxisTitle("Event number",1);
+      meEvtNbrPhi_ = theDMBE->bookInt("EvtNbr_" + hid);
       // For error type 36, the invalid ROC number
-      meROCIdPhi_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCIdPhi_->setAxisTitle("ROC Id",1);
+      meROCIdPhi_ = theDMBE->bookInt("ROCId_" + hid);
       // For error type 37, the invalid dcol values
-      meDCOLIdPhi_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLIdPhi_->setAxisTitle("DCOL address",1);
+      meDCOLIdPhi_ = theDMBE->bookInt("DCOLId_" + hid);
       // For error type 37, the invalid ROC values
-      mePXIdPhi_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXIdPhi_->setAxisTitle("Pixel address",1);
+      mePXIdPhi_ = theDMBE->bookInt("PXId_" + hid);
       // For error type 38, the ROC that is being read out of order
-      meROCNmbrPhi_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbrPhi_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbrPhi_ = theDMBE->bookInt("ROCNmbr_" + hid);
     }
   }
   
@@ -267,7 +243,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorTypeBlade_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
     meErrorTypeBlade_->setAxisTitle("Type of errors",1);
     // Number of errors
-    meNErrorsBlade_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsBlade_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",10,0.,10.);
     meNErrorsBlade_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -280,20 +256,15 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meTBMTypeBlade_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      meEvtNbrBlade_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbrBlade_->setAxisTitle("Event number",1);
+      meEvtNbrBlade_ = theDMBE->bookInt("EvtNbr_" + hid);
       // For error type 36, the invalid ROC number
-      meROCIdBlade_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCIdBlade_->setAxisTitle("ROC Id",1);
+      meROCIdBlade_ = theDMBE->bookInt("ROCId_" + hid);
       // For error type 37, the invalid dcol values
-      meDCOLIdBlade_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLIdBlade_->setAxisTitle("DCOL address",1);
+      meDCOLIdBlade_ = theDMBE->bookInt("DCOLId_" + hid);
       // For error type 37, the invalid ROC values
-      mePXIdBlade_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXIdBlade_->setAxisTitle("Pixel address",1);
+      mePXIdBlade_ = theDMBE->bookInt("PXId_" + hid);
       // For error type 38, the ROC that is being read out of order
-      meROCNmbrBlade_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbrBlade_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbrBlade_ = theDMBE->bookInt("ROCNmbr_" + hid);
     }
   }
   
@@ -305,7 +276,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorTypeDisk_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
     meErrorTypeDisk_->setAxisTitle("Type of errors",1);
     // Number of errors
-    meNErrorsDisk_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsDisk_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",10,0.,10.);
     meNErrorsDisk_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -318,20 +289,15 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meTBMTypeDisk_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      meEvtNbrDisk_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbrDisk_->setAxisTitle("Event number",1);
+      meEvtNbrDisk_ = theDMBE->bookInt("EvtNbr_" + hid);
       // For error type 36, the invalid ROC number
-      meROCIdDisk_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCIdDisk_->setAxisTitle("ROC Id",1);
+      meROCIdDisk_ = theDMBE->bookInt("ROCId_" + hid);
       // For error type 37, the invalid dcol values
-      meDCOLIdDisk_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLIdDisk_->setAxisTitle("DCOL address",1);
+      meDCOLIdDisk_ = theDMBE->bookInt("DCOLId_" + hid);
       // For error type 37, the invalid ROC values
-      mePXIdDisk_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXIdDisk_->setAxisTitle("Pixel address",1);
+      mePXIdDisk_ = theDMBE->bookInt("PXId_" + hid);
       // For error type 38, the ROC that is being read out of order
-      meROCNmbrDisk_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbrDisk_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbrDisk_ = theDMBE->bookInt("ROCNmbr_" + hid);
     }
   }
   
@@ -344,7 +310,7 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meErrorTypeRing_ = theDMBE->book1D("errorType_" + hid,"Type of errors",15,24.5,39.5);
     meErrorTypeRing_->setAxisTitle("Type of errors",1);
     // Number of errors
-    meNErrorsRing_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",500,-0.5,499.5);
+    meNErrorsRing_ = theDMBE->book1D("NErrors_" + hid,"Number of errors",10,0.,10.);
     meNErrorsRing_->setAxisTitle("Number of errors",1);
     // For error type 30, the type of problem encoded in the TBM trailer
     // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -357,23 +323,18 @@ void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, bool redu
     meTBMTypeRing_->setAxisTitle("FSM Type",1);
     if(!reducedSet){
       // For error type 31, the event number of the TBM header with the error
-      meEvtNbrRing_ = theDMBE->book1D("EvtNbr_" + hid,"Event number for error type 31",256,-0.5,255.5);
-      meEvtNbrRing_->setAxisTitle("Event number",1);
+      meEvtNbrRing_ = theDMBE->bookInt("EvtNbr_" + hid);
       // For error type 36, the invalid ROC number
-      meROCIdRing_ = theDMBE->book1D("ROCId_" + hid,"ROC number for error type 36",25,-0.5,24.5);
-      meROCIdRing_->setAxisTitle("ROC Id",1);
+      meROCIdRing_ = theDMBE->bookInt("ROCId_" + hid);
       // For error type 37, the invalid dcol values
-      meDCOLIdRing_ = theDMBE->book1D("DCOLId_" + hid,"DCOL address for error type 37",32,-0.5,31.5);
-      meDCOLIdRing_->setAxisTitle("DCOL address",1);
+      meDCOLIdRing_ = theDMBE->bookInt("DCOLId_" + hid);
       // For error type 37, the invalid ROC values
-      mePXIdRing_ = theDMBE->book1D("PXId_" + hid,"Pixel address for error type 37",256,-0.5,255.5);
-      mePXIdRing_->setAxisTitle("Pixel address",1);
+      mePXIdRing_ = theDMBE->bookInt("PXId_" + hid);
       // For error type 38, the ROC that is being read out of order
-      meROCNmbrRing_ = theDMBE->book1D("ROCNmbr_" + hid,"ROC number for error type 38",25,-0.5,24.5);
-      meROCNmbrRing_->setAxisTitle("ROC number on DetUnit",1);
+      meROCNmbrRing_ = theDMBE->bookInt("ROCNmbr_" + hid);
     }
   }
-  
+  */
   
 }
 //
@@ -393,7 +354,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
   meErrorType_->setAxisTitle("Type of errors",1);
   // Number of errors
   hid = theHistogramId->setHistoId("NErrors",id_);
-  meNErrors_ = theDMBE->book1D(hid,"Number of errors",500,-0.5,499.5);
+  meNErrors_ = theDMBE->book1D(hid,"Number of errors",36,0.,36.);
   meNErrors_->setAxisTitle("Number of errors",1);
   // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
   // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
@@ -403,7 +364,7 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
   meFullType_->setAxisTitle("FIFO type",1);
   // For errorType = 29, channel with timeout error (0 indicates unexpected result)
   hid = theHistogramId->setHistoId("chanNmbr",id_);
-  meChanNmbr_ = theDMBE->book1D(hid,"Timeout Channel",37,-0.5,36.5);
+  meChanNmbr_ = theDMBE->book1D(hid,"Timeout Channel",36,1.,37.);
   meChanNmbr_->setAxisTitle("Channel number",1);
   // For error type 30, the type of problem encoded in the TBM trailer
   // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
@@ -418,19 +379,17 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
   meTBMType_->setAxisTitle("TBM Type",1);
   // For error type 31, the event number of the TBM header with the error
   hid = theHistogramId->setHistoId("EvtNbr",id_);
-  meEvtNbr_ = theDMBE->book1D(hid,"Event number for error type 31",256,-0.5,255.5);
-  meEvtNbr_->setAxisTitle("Event number",1);
+  meEvtNbr_ = theDMBE->bookInt(hid);
   // For errorType = 34, datastream size according to error word
   hid = theHistogramId->setHistoId("evtSize",id_);
-  meEvtSize_ = theDMBE->book1D(hid,"Trailer Datastream Size",500,-0.5,499.5);
-  meEvtSize_->setAxisTitle("Number of words",1);
+  meEvtSize_ = theDMBE->bookInt(hid);
   // For errorType = 35, the bad channel number
   hid = theHistogramId->setHistoId("linkId",id_);
-  meLinkId_ = theDMBE->book1D(hid,"Invalid Channel Number",35,0.5,35.5);
+  meLinkId_ = theDMBE->book1D(hid,"Invalid Channel Number",36,1.,37.);
   meLinkId_->setAxisTitle("FED Channel number",1);
   // For error type 36, the invalid ROC number matched to FED Channel
   hid = theHistogramId->setHistoId("Type36Hitmap",id_);
-  meInvROC_ = theDMBE->book2D(hid,"Invalid ROC by Channel Number",35,1.,36.,25,0.,25.);
+  meInvROC_ = theDMBE->book2D(hid,"Invalid ROC by Channel Number",36,1.,37.,16,0.,16.);
   meInvROC_->setAxisTitle("FED Channel Number",1);
   meInvROC_->setAxisTitle("ROC Number",2);
   
@@ -466,7 +425,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSize_)->Fill((float)evtSize); 
+	    (meEvtSize_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -520,21 +479,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCId_)->Fill((float)ROCId);
+	      (meROCId_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLId_)->Fill((float)DCOLId);
+	      (meDCOLId_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXId_)->Fill((float)PXId);
+	      (mePXId_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbr_)->Fill((float)ROCNmbr);
+	      (meROCNmbr_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -548,7 +507,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSizeLad_)->Fill((float)evtSize); 
+	    (meEvtSizeLad_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -602,21 +561,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCIdLad_)->Fill((float)ROCId);
+	      (meROCIdLad_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLIdLad_)->Fill((float)DCOLId);
+	      (meDCOLIdLad_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXIdLad_)->Fill((float)PXId);
+	      (mePXIdLad_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbrLad_)->Fill((float)ROCNmbr);
+	      (meROCNmbrLad_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -630,7 +589,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSizeLay_)->Fill((float)evtSize); 
+	    (meEvtSizeLay_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -684,21 +643,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCIdLay_)->Fill((float)ROCId);
+	      (meROCIdLay_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLIdLay_)->Fill((float)DCOLId);
+	      (meDCOLIdLay_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXIdLay_)->Fill((float)PXId);
+	      (mePXIdLay_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbrLay_)->Fill((float)ROCNmbr);
+	      (meROCNmbrLay_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -712,7 +671,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSizePhi_)->Fill((float)evtSize); 
+	    (meEvtSizePhi_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -766,21 +725,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCIdPhi_)->Fill((float)ROCId);
+	      (meROCIdPhi_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLIdPhi_)->Fill((float)DCOLId);
+	      (meDCOLIdPhi_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXIdPhi_)->Fill((float)PXId);
+	      (mePXIdPhi_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbrPhi_)->Fill((float)ROCNmbr);
+	      (meROCNmbrPhi_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -794,7 +753,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSizeBlade_)->Fill((float)evtSize); 
+	    (meEvtSizeBlade_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -848,21 +807,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCIdBlade_)->Fill((float)ROCId);
+	      (meROCIdBlade_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLIdBlade_)->Fill((float)DCOLId);
+	      (meDCOLIdBlade_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXIdBlade_)->Fill((float)PXId);
+	      (mePXIdBlade_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbrBlade_)->Fill((float)ROCNmbr);
+	      (meROCNmbrBlade_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -876,7 +835,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSizeDisk_)->Fill((float)evtSize); 
+	    (meEvtSizeDisk_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -930,21 +889,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCIdDisk_)->Fill((float)ROCId);
+	      (meROCIdDisk_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLIdDisk_)->Fill((float)DCOLId);
+	      (meDCOLIdDisk_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXIdDisk_)->Fill((float)PXId);
+	      (mePXIdDisk_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbrDisk_)->Fill((float)ROCNmbr);
+	      (meROCNmbrDisk_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -958,7 +917,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSizeRing_)->Fill((float)evtSize); 
+	    (meEvtSizeRing_)->Fill((int)evtSize); 
 	  }
         } else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
@@ -1012,21 +971,21 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  case(36) : {
             if(!reducedSet){
 	      int ROCId = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCIdRing_)->Fill((float)ROCId);
+	      (meROCIdRing_)->Fill((int)ROCId);
 	    }
 	    break; }
 	  case(37) : {
             if(!reducedSet){
 	      int DCOLId = (errorWord >> DCOL_shift) & DCOL_mask;
-	      (meDCOLIdRing_)->Fill((float)DCOLId);
+	      (meDCOLIdRing_)->Fill((int)DCOLId);
 	      int PXId = (errorWord >> PXID_shift) & PXID_mask;
-	      (mePXIdRing_)->Fill((float)PXId);
+	      (mePXIdRing_)->Fill((int)PXId);
 	    }
 	    break; }
 	  case(38) : {
             if(!reducedSet){
 	      int ROCNmbr = (errorWord >> ROC_shift) & ROC_mask;
-	      (meROCNmbrRing_)->Fill((float)ROCNmbr);
+	      (meROCNmbrRing_)->Fill((int)ROCNmbr);
 	    }
 	    break; }
 	  default : break;
@@ -1035,13 +994,13 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       }
     }//for loop
     
-    if(modon) (meNErrors_)->Fill((float)numberOfErrors);
-    if(ladon && barrel) (meNErrorsLad_)->Fill((float)numberOfErrors);
-    if(layon && barrel) (meNErrorsLay_)->Fill((float)numberOfErrors);
-    if(phion && barrel) (meNErrorsPhi_)->Fill((float)numberOfErrors);
-    if(bladeon && endcap) (meNErrorsBlade_)->Fill((float)numberOfErrors);
-    if(diskon && endcap) (meNErrorsDisk_)->Fill((float)numberOfErrors);
-    if(ringon && endcap) (meNErrorsRing_)->Fill((float)numberOfErrors);
+    if(modon && numberOfErrors>0) (meNErrors_)->Fill((float)numberOfErrors);
+    if(ladon && barrel && numberOfErrors>0) (meNErrorsLad_)->Fill((float)numberOfErrors);
+    if(layon && barrel && numberOfErrors>0) (meNErrorsLay_)->Fill((float)numberOfErrors);
+    if(phion && barrel && numberOfErrors>0) (meNErrorsPhi_)->Fill((float)numberOfErrors);
+    if(bladeon && endcap && numberOfErrors>0) (meNErrorsBlade_)->Fill((float)numberOfErrors);
+    if(diskon && endcap && numberOfErrors>0) (meNErrorsDisk_)->Fill((float)numberOfErrors);
+    if(ringon && endcap && numberOfErrors>0) (meNErrorsRing_)->Fill((float)numberOfErrors);
     //std::cout<<"number of errors="<<numberOfErrors<<std::endl;
     
   }
@@ -1071,7 +1030,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    (meEvtSize_)->Fill((float)evtSize); }
+	    (meEvtSize_)->Fill((int)evtSize); }
 	} else {
 	  uint32_t errorWord = di->getWord32();      // for 32-bit error words
 	  switch(errorType) {  // fill in the appropriate monitorables based on the information stored in the error word
@@ -1168,7 +1127,7 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
       }
     }
     
-    (meNErrors_)->Fill((float)numberOfErrors);
+    if(numberOfErrors>0) (meNErrors_)->Fill((float)numberOfErrors);
     //std::cout<<"number of errors="<<numberOfErrors<<std::endl;meROCId_
     
   }

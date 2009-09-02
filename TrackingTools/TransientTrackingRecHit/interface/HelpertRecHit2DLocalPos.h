@@ -15,13 +15,13 @@ class HelpertRecHit2DLocalPos //: public TransientTrackingRecHit
 {
 public:
 
-  static AlgebraicSymMatrix parError( const LocalError& le, const GeomDet& det);
+  AlgebraicSymMatrix parError( const LocalError& le, const GeomDet& det) const;
 
   /// Fills in KFComponents delegating to hit2dLocalPos, plus adding APE if available
   /// hit2dLocalPos MUST BE a 2D rechit measuring local position (e.g. BaseSiTrackerRecHit2DLocalPos)
-  static void getKfComponents( KfComponentsHolder & holder, 
+  void getKfComponents( KfComponentsHolder & holder, 
                         const TrackingRecHit &hit2dLocalPos,
-                        const GeomDet& det);
+                        const GeomDet& det) const ;
 
   static void updateWithAPE(LocalError& le, const GeomDet& det) ;
   

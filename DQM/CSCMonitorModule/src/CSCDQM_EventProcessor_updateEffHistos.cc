@@ -27,163 +27,167 @@ namespace cscdqm {
 
     MonitorObject *me = 0, *me1 = 0;
 
-    if (getEMUHisto(h::EMU_CSC_REPORTING, me)) {
+    if (config->getNEvents() > 0) {
 
-      const TH2* rep = dynamic_cast<const TH2*>(me->getTH1());
-
-      /**  Get CSC Reporting reference histogram */
-      const TObject *tobj = me->getRefRootObject();
-       
-      /** If reference for CSC_Reporting is defined - use it
-       *  Else - do it flat way */
-       
-      if (tobj) {
-        const TH2* ref = dynamic_cast<const TH2*>(tobj);
-        summary.ReadReportingChambersRef(rep, ref, config->getEFF_COLD_THRESHOLD(), config->getEFF_COLD_SIGFAIL(), config->getEFF_HOT_THRESHOLD(), config->getEFF_HOT_SIGFAIL());
-      } else {
-        summary.ReadReportingChambers(rep, 1.0);
-      }
-
-      if (getEMUHisto(h::EMU_CSC_FORMAT_ERRORS, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, FORMAT_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_L1A_OUT_OF_SYNC, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, L1SYNC_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_DMB_INPUT_FIFO_FULL, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_DMB_INPUT_TIMEOUT, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, INPUTTO_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_WO_ALCT, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, NODATA_ALCT, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_WO_CLCT, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, NODATA_CLCT, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_WO_CFEB, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, NODATA_CFEB, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
-      }
-
-      if (getEMUHisto(h::EMU_CSC_FORMAT_WARNINGS, me1)) {
-        const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
-        summary.ReadErrorChambers(rep, err, CFEB_BWORDS, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
-      }
-
-    }
-
-    const int COLOR_GREEN = 3;
-    const int COLOR_RED   = 2;
-    const int COLOR_BLUE  = 4;
-
-    if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x1, COLOR_GREEN, true, false);
-      summary.WriteChamberState(tmp, HWSTATUSERRORBITS, COLOR_RED, false, true);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_OCCUPANCY, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x4, COLOR_RED, true, false);
-      summary.WriteChamberState(tmp, 0x8, COLOR_BLUE, false, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_FORMAT_ERR, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x10, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_L1SYNC_ERR, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x20, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_FIFOFULL_ERR, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x40, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_INPUTTO_ERR, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x80, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_WO_ALCT, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x100, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_WO_CLCT, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x200, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_WO_CFEB, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x400, COLOR_RED, true, false);
-    }
-
-    if (getEMUHisto(h::EMU_CSC_STATS_CFEB_BWORDS, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteChamberState(tmp, 0x800, COLOR_RED, true, false);
-    }
-    
-    /**
-     * Write summary information
-     */
-
-    if (getEMUHisto(h::EMU_PHYSICS_ME1, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.Write(tmp, 1);
-    }
+      if (getEMUHisto(h::EMU_CSC_REPORTING, me)) {
   
-    if (getEMUHisto(h::EMU_PHYSICS_ME2, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.Write(tmp, 2);
-    }
+        const TH2* rep = dynamic_cast<const TH2*>(me->getTH1());
+  
+        /**  Get CSC Reporting reference histogram */
+        const TObject *tobj = me->getRefRootObject();
+         
+        /** If reference for CSC_Reporting is defined - use it
+         *  Else - do it flat way */
+         
+        if (tobj) {
+          const TH2* ref = dynamic_cast<const TH2*>(tobj);
+          summary.ReadReportingChambersRef(rep, ref, config->getEFF_COLD_THRESHOLD(), config->getEFF_COLD_SIGFAIL(), config->getEFF_HOT_THRESHOLD(), config->getEFF_HOT_SIGFAIL());
+        } else {
+          summary.ReadReportingChambers(rep, 1.0);
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_FORMAT_ERRORS, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, FORMAT_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_L1A_OUT_OF_SYNC, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, L1SYNC_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_DMB_INPUT_FIFO_FULL, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, FIFOFULL_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_DMB_INPUT_TIMEOUT, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, INPUTTO_ERR, config->getEFF_ERR_THRESHOLD(), config->getEFF_ERR_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_WO_ALCT, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, NODATA_ALCT, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_WO_CLCT, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, NODATA_CLCT, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_WO_CFEB, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, NODATA_CFEB, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
+        }
+  
+        if (getEMUHisto(h::EMU_CSC_FORMAT_WARNINGS, me1)) {
+          const TH2* err = dynamic_cast<const TH2*>(me1->getTH1());
+          summary.ReadErrorChambers(rep, err, CFEB_BWORDS, config->getEFF_NODATA_THRESHOLD(), config->getEFF_NODATA_SIGFAIL());
+        }
+  
+      }
+  
+      const int COLOR_GREEN = 3;
+      const int COLOR_RED   = 2;
+      const int COLOR_BLUE  = 4;
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x1, COLOR_GREEN, true, false);
+        summary.WriteChamberState(tmp, HWSTATUSERRORBITS, COLOR_RED, false, true);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_OCCUPANCY, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x4, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x8, COLOR_BLUE, false, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_FORMAT_ERR, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x10, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_L1SYNC_ERR, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x20, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_FIFOFULL_ERR, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x40, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_INPUTTO_ERR, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x80, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_WO_ALCT, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x100, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_WO_CLCT, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x200, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_WO_CFEB, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x400, COLOR_RED, true, false);
+      }
+  
+      if (getEMUHisto(h::EMU_CSC_STATS_CFEB_BWORDS, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteChamberState(tmp, 0x800, COLOR_RED, true, false);
+      }
+      
+      /**
+       * Write summary information
+       */
+  
+      if (getEMUHisto(h::EMU_PHYSICS_ME1, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.Write(tmp, 1);
+      }
+    
+      if (getEMUHisto(h::EMU_PHYSICS_ME2, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.Write(tmp, 2);
+      }
+  
+      if (getEMUHisto(h::EMU_PHYSICS_ME3, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.Write(tmp, 3);
+      }
+  
+      if (getEMUHisto(h::EMU_PHYSICS_ME4, me)){
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.Write(tmp, 4);
+      }
+  
+      if (getEMUHisto(h::EMU_PHYSICS_EMU, me)) {
+        LockType lock(me->mutex);
+        TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
+        summary.WriteMap(tmp);
+      }
 
-    if (getEMUHisto(h::EMU_PHYSICS_ME3, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.Write(tmp, 3);
-    }
-
-    if (getEMUHisto(h::EMU_PHYSICS_ME4, me)){
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.Write(tmp, 4);
-    }
-
-    if (getEMUHisto(h::EMU_PHYSICS_EMU, me)) {
-      LockType lock(me->mutex);
-      TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
-      summary.WriteMap(tmp);
     }
 
     /** Looping via addresses (scope: side->station->ring) and
@@ -227,36 +231,50 @@ namespace cscdqm {
           h::PAR_CSC_SIDEPLUS
         };
 
-        unsigned int parameter = 0;
+        if (config->getNEvents() == 0) {
+          e_detector = e_side = e_station = e_ring = -1.0;
+        }
 
+        unsigned int parameter = 0;
         for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
-          e_side = 0;
+          if (config->getNEvents() > 0) {
+            e_side = 0;
+          }
           adr.mask.station = true;
           for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-            e_station = 0;
+            if (config->getNEvents() > 0) {
+              e_station = 0;
+            }
             adr.mask.ring = true;
             for (adr.ring = 1; adr.ring <= summary.getDetector().NumberOfRings(adr.station); adr.ring++) {
-              e_ring = summary.GetEfficiencyHW(adr);
-              e_station += e_ring;
+              if (config->getNEvents() > 0) {
+                e_ring = summary.GetEfficiencyHW(adr);
+                e_station += e_ring;
+              }
               if (summary.getDetector().NumberOfRings(adr.station) > 1) {
                 if (getParHisto(parameters[parameter++], me)) me->Fill(e_ring);
               }
             }
             adr.mask.ring = false;
-            e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
+            if (config->getNEvents() > 0) {
+              e_station = e_station / summary.getDetector().NumberOfRings(adr.station);
+              e_side += e_station;
+            }
             if (getParHisto(parameters[parameter++], me)) me->Fill(e_station);
-            e_side += e_station;
           }
           adr.mask.station = false;
-          e_side = e_side / N_STATIONS;
+          if (config->getNEvents() > 0) {
+            e_side = e_side / N_STATIONS;
+            e_detector += e_side; 
+          }
           if (getParHisto(parameters[parameter++], me)) me->Fill(e_side);
-          e_detector += e_side; 
         }
-        e_detector = e_detector / N_SIDES;
+        if (config->getNEvents() > 0) {
+          e_detector = e_detector / N_SIDES;
+        }
         if (getParHisto(h::PAR_REPORT_SUMMARY, me)) me->Fill(e_detector);
 
       }
-
 
     }
 

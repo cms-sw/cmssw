@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.17 2009/07/27 08:57:17 demattia Exp $
+// $Id: SiStripQuality.cc,v 1.18 2009/07/27 16:51:21 demattia Exp $
 //
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -21,12 +21,13 @@ SiStripQuality::SiStripQuality():
   toCleanUp(false),
   FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"),
   SiStripDetCabling_(NULL),
-  printDebug_(false)
+  printDebug_(false),
+  useEmptyRunInfo_(false)
 {
   reader=new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
 
-SiStripQuality::SiStripQuality(edm::FileInPath& file):toCleanUp(false),FileInPath_(file),SiStripDetCabling_(NULL), printDebug_(false)
+SiStripQuality::SiStripQuality(edm::FileInPath& file):toCleanUp(false),FileInPath_(file),SiStripDetCabling_(NULL), printDebug_(false), useEmptyRunInfo_(false)
 {
   reader=new SiStripDetInfoFileReader(FileInPath_.fullPath());
 }
@@ -41,6 +42,7 @@ SiStripQuality::SiStripQuality(const SiStripQuality& other)
   BadComponentVect=other.BadComponentVect;
   SiStripDetCabling_=other.SiStripDetCabling_;
   printDebug_=other.printDebug_;
+  useEmptyRunInfo_=other.useEmptyRunInfo_;
 }
 
 
@@ -131,53 +133,68 @@ void SiStripQuality::add(const SiStripDetVOff *Voff)
 
 void SiStripQuality::add(const RunInfo *runInfo)
 {
-  // Take the list of active feds from fedCabling
-  std::vector<uint16_t> activeFedsFromCabling = SiStripDetCabling_->fedCabling()->feds();
+  bool allFedsEmpty = runInfo->m_fed_in.empty();
+  if( allFedsEmpty ) {
+    std::stringstream ss;
+    ss << "WARNING: the full list of feds in RunInfo is empty. ";
+    if( useEmptyRunInfo_ ) {
+      ss << " SiStripQuality will still use it and all tracker will be off." << std::endl;
+    }
+    else {
+      ss << " SiStripQuality will not use it." << std::endl;
+    }
+    edm::LogInfo("SiStripQuality") << ss.str();
+  }
 
-  // Take the list of active feds from RunInfo
-  std::vector<int> activeFedsFromRunInfo;
-  // Take only Tracker feds (remove all non Tracker)
-  std::remove_copy_if( runInfo->m_fed_in.begin(),
-                       runInfo->m_fed_in.end(),
-                       std::back_inserter(activeFedsFromRunInfo),
-                       !boost::bind(std::logical_and<bool>(),
-                                    boost::bind(std::greater_equal<int>(), _1, int(FEDNumbering::MINSiStripFEDID)),
-                                    boost::bind(std::less_equal<int>(), _1, int(FEDNumbering::MAXSiStripFEDID))) );
+  if( !allFedsEmpty || useEmptyRunInfo_ ) {
+    // Take the list of active feds from fedCabling
+    std::vector<uint16_t> activeFedsFromCabling = SiStripDetCabling_->fedCabling()->feds();
 
-  // Compare the two. If a fedId from RunInfo is not present in the fedCabling we need to
-  // get all the corresponding fedChannels and then the single apv pairs and use them to
-  // turn off the corresponding strips (apvNumber*256).
-  // set_difference returns the set of elements that are in the first and not in the second
-  std::sort(activeFedsFromCabling.begin(), activeFedsFromCabling.end());
-  std::sort(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end());
-  std::vector<int> differentFeds;
-  // Take the feds active for cabling but not for runInfo
-  std::set_difference(activeFedsFromCabling.begin(), activeFedsFromCabling.end(),
-                      activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
-                      std::back_inserter(differentFeds));
+    // Take the list of active feds from RunInfo
+    std::vector<int> activeFedsFromRunInfo;
+    // Take only Tracker feds (remove all non Tracker)
+    std::remove_copy_if( runInfo->m_fed_in.begin(),
+                         runInfo->m_fed_in.end(),
+                         std::back_inserter(activeFedsFromRunInfo),
+                         !boost::bind(std::logical_and<bool>(),
+                                      boost::bind(std::greater_equal<int>(), _1, int(FEDNumbering::MINSiStripFEDID)),
+                                      boost::bind(std::less_equal<int>(), _1, int(FEDNumbering::MAXSiStripFEDID))) );
 
-  printActiveFedsInfo(activeFedsFromCabling, activeFedsFromRunInfo, differentFeds, printDebug_);
+    // Compare the two. If a fedId from RunInfo is not present in the fedCabling we need to
+    // get all the corresponding fedChannels and then the single apv pairs and use them to
+    // turn off the corresponding strips (apvNumber*256).
+    // set_difference returns the set of elements that are in the first and not in the second
+    std::sort(activeFedsFromCabling.begin(), activeFedsFromCabling.end());
+    std::sort(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end());
+    std::vector<int> differentFeds;
+    // Take the feds active for cabling but not for runInfo
+    std::set_difference(activeFedsFromCabling.begin(), activeFedsFromCabling.end(),
+                        activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
+                        std::back_inserter(differentFeds));
 
-  // Feds in the differentFeds vector are now to be turned off as they are off according to runInfo
-  // but were not in cabling and thus are still active for the SiStripQuality
-  // The "true" means that the strips are to be set as bad.
-  turnOffFeds(differentFeds, true, printDebug_);
+    printActiveFedsInfo(activeFedsFromCabling, activeFedsFromRunInfo, differentFeds, printDebug_);
 
-  // Consistency check
-  // -----------------
-  std::vector<int> check;
-  std::set_difference(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
-                      activeFedsFromCabling.begin(), activeFedsFromCabling.end(),
-                      std::back_inserter(check));
-  // This must not happen
-  if( !check.empty() ) {
-    // throw cms::Exception("LogicError")
-    edm::LogWarning("SiStripQuality") 
-      << "The cabling should always include the active feds in runInfo and possibly have some more"
-      << "there are instead " << check.size() << " feds only active in runInfo";
-    // The "false" means that we are only printing the output, but not setting the strips as bad.
-    // The second bool means that we always want the debug output in this case.
-    turnOffFeds(check, false, true);
+    // Feds in the differentFeds vector are now to be turned off as they are off according to RunInfo
+    // but were not off in cabling and thus are still active for the SiStripQuality.
+    // The "true" means that the strips are to be set as bad.
+    turnOffFeds(differentFeds, true, printDebug_);
+
+    // Consistency check
+    // -----------------
+    std::vector<int> check;
+    std::set_difference(activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
+                        activeFedsFromCabling.begin(), activeFedsFromCabling.end(),
+                        std::back_inserter(check));
+    // This must not happen
+    if( !check.empty() ) {
+      // throw cms::Exception("LogicError")
+      edm::LogWarning("SiStripQuality") 
+        << "The cabling should always include the active feds in runInfo and possibly have some more"
+        << "there are instead " << check.size() << " feds only active in runInfo";
+      // The "false" means that we are only printing the output, but not setting the strips as bad.
+      // The second bool means that we always want the debug output in this case.
+      turnOffFeds(check, false, true);
+    }
   }
 }
 

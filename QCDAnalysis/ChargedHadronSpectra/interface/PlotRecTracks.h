@@ -11,9 +11,6 @@ class TrackerHitAssociator;
 class FreeTrajectoryState;
 class MagneticField;
 class Propagator;
-
-class TrajectoryFitter;
-
 namespace reco { class Track; }
 
 class PlotRecTracks
@@ -40,7 +37,6 @@ class PlotRecTracks
     const TrackerGeometry* theTracker;
     const MagneticField* theMagField;
     const Propagator*  thePropagator;
-    const TrajectoryFitter* theFitter;
 
     TrackerHitAssociator * theHitAssociator;
 };

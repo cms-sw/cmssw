@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/05/05 10:04:27 $
- * $Revision: 1.13 $
+ * $Date: 2009/08/13 18:12:42 $
+ * $Revision: 1.15 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -108,8 +108,12 @@ static const int nTtPhi = 72;
 ///Number of bytes per crystal
 static const int bytesPerCrystal = 24;
 
-///To store the readout crystals / tower
-int nCryTower[20][20][2];
+///To store the readout crystals / SC
+int nCrySC[20][20][2];
+
+///To store the readout crystals / iTT
+/// indexes are [iTTC][iTT] 
+int nCryTT[108][41];
 
 ///To store the events with full readout
 int nEvtFullReadout[20][20][2];
@@ -308,6 +312,7 @@ float ybins[133];
 MonitorElement* EEDccEventSize_;
 MonitorElement* EEDccEventSizeMap_;
 MonitorElement* EETowerSize_[2];
+MonitorElement* EETTFMismatch_[2];
 MonitorElement* EETowerFullReadoutFrequency_[2];
 MonitorElement* EEReadoutUnitForcedBitMap_[2];
 MonitorElement* EEFullReadoutSRFlagMap_[2];

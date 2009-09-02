@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2009/04/16 20:49:00 $
- * $Revision: 1.51 $
+ * $Date: 2009/04/17 07:17:33 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -84,7 +84,7 @@ void softReset(bool flag);
 void beginRunDb(void);
 
 /// WriteDB
-void writeDb(bool flag);
+void writeDb();
 
 /// EndRunDB
 void endRunDb(void);

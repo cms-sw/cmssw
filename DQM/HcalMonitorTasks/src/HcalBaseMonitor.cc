@@ -6,11 +6,13 @@
 #define PHIMAX 73.5
 #define PHIMIN -0.5
 
+// This stores the eta binning for depth 2 histograms (with gaps between -15 -> +15)
 const int HcalBaseMonitor::binmapd2[]={-42,-41,-40,-39,-38,-37,-36,-35,-34,-33,-32,-31,-30,
 				       -29,-28,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,-17,
 				       -16,-15,-9999, 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,
 				       30,31,32,33,34,35,36,37,38,39,40,41,42};
 
+// This stores eta binning in depth 3 (where HE is only present at a few ieta values)
 const int HcalBaseMonitor::binmapd3[]={-28,-27,-9999,-16,-9999,16,-9999,27,28};
 
 HcalBaseMonitor::HcalBaseMonitor() {
@@ -44,13 +46,16 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   checkHO_ = ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_ = ps.getUntrackedParameter<bool>("checkHF",true);
   checkZDC_ = ps.getUntrackedParameter<bool>("checkZDC",true);
-  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",1000);
-
+  checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",1000); // specify how often to run checks
+  Nlumiblocks_ = ps.getUntrackedParameter<int>("Nlumiblocks",1000); //  number of luminosity blocks to include in time plots 
+  if (Nlumiblocks_<=0) Nlumiblocks_=1000;
+  resetNevents_ = ps.getUntrackedParameter<int>("resetNevents",-1); // how often to reset histograms
 
   // Minimum error rate that will caused the problem histogram to be filled
   minErrorFlag_ = ps.getUntrackedParameter<double>("minErrorFlag",0.05);
   
   // Set eta, phi boundaries
+  // We can remove these variables once we move completely to EtaPhiHists from the old 2D SJ6hists
   etaMax_ = ps.getUntrackedParameter<double>("MaxEta", ETAMAX);
   etaMin_ = ps.getUntrackedParameter<double>("MinEta", ETAMIN);
     
@@ -76,9 +81,72 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", PHIMIN);
   phiBins_ = (int)(phiMax_ - phiMin_);
 
-
+  ProblemsVsLB=0;
+  ProblemsVsLB_HB=0;
+  ProblemsVsLB_HE=0;
+  ProblemsVsLB_HO=0;
+  ProblemsVsLB_HF=0;
+  ProblemsVsLB_ZDC=0;
+  
+  meEVT_=0;
+  meTOTALEVT_=0;
+  ievt_=0;
+  tevt_=0;
+  lumiblock=0;
+  NumBadHB=0;
+  NumBadHE=0;
+  NumBadHO=0;
+  NumBadHF=0;
+  NumBadZDC=0;
   return;
 } //void HcalBaseMonitor::setup()
+
+void HcalBaseMonitor::processEvent()
+{
+  // increment event counters
+  ++ievt_;
+  ++tevt_;
+  // Fill MonitorElements
+  if (m_dbe)
+    {
+      if (meEVT_) meEVT_->Fill(ievt_);
+      if (meTOTALEVT_) meTOTALEVT_->Fill(tevt_);
+    }
+  return;
+}
+
+void HcalBaseMonitor::LumiBlockUpdate(int lb)
+{
+  if (lb<=lumiblock) // protect against mis-ordered LBs.  Handle differently in the future?
+    return;
+  if (lumiblock==0) // initial lumiblock call; don't fill histograms, because nothing has been determined yet
+    {
+      lumiblock=lb;
+      return;
+    }
+  if (lb>Nlumiblocks_) // don't fill plots if lumiblock is beyond range
+    {
+      lumiblock=lb;
+      return;
+    }
+  for (int i=lumiblock+1;i<=lb;++i)
+    {
+      if (ProblemsVsLB)
+	ProblemsVsLB->Fill(i,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
+      if (ProblemsVsLB_HB)
+	ProblemsVsLB_HB->Fill(i,NumBadHB);
+      if (ProblemsVsLB_HE)
+	ProblemsVsLB_HE->Fill(i,NumBadHE);
+      if (ProblemsVsLB_HO)
+	ProblemsVsLB_HO->Fill(i,NumBadHO);
+      if (ProblemsVsLB_HF)
+	ProblemsVsLB_HF->Fill(i,NumBadHF);
+      if (ProblemsVsLB_ZDC)
+	ProblemsVsLB_ZDC->Fill(i,NumBadZDC);
+    }
+  lumiblock=lb;
+  return;
+}
 
 void HcalBaseMonitor::done(){}
 
@@ -139,7 +207,7 @@ void HcalBaseMonitor::hideKnownBadCells()
       if (ProblemCellsByDepth.depth[id.depth()-1]!=0)
 	ProblemCellsByDepth.depth[id.depth()-1]->setBinContent(etabin+1,id.iphi(),0);
     } // for (unsigned int i=0;...)
-
+  return;
 } // void HcalBaseMonitor::hideKnownBadCells()
 
 
@@ -229,11 +297,13 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std
   h->setAxisTitle("i#phi",2);
   
   SetupEtaPhiHists(hh, Name, Units);
+  return;
 }
 
 void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, std::string Name, std::string Units)
 {
   hh.setup(m_dbe, Name, Units);
+  return;
 }
 
 void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
@@ -940,7 +1010,7 @@ void HcalBaseMonitor::SetEtaPhiLabels(MonitorElement* &h)
       h->setBinLabel(i+44,label.str().c_str());
       label.str("");
     }
-
+  return;
 }
 
 void HcalBaseMonitor::periodicReset()
@@ -952,4 +1022,5 @@ void HcalBaseMonitor::periodicReset()
       if (ProblemCellsByDepth.depth[i]!=0) 
 	ProblemCellsByDepth.depth[i]->Reset();
     }
+  return;
 }

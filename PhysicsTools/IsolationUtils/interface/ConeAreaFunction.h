@@ -17,23 +17,21 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaFunction.h,v 1.2 2009/01/14 10:53:14 hegner Exp $
+// $Id: ConeAreaFunction.h,v 1.1 2007/05/23 20:23:08 veelken Exp $
 //
 //
 
 // ROOT include files
-#include <Math/IFunction.h>
-#include <Math/IFunctionfwd.h>
+#include <Math/ParamFunction.h>
 #include <Math/Integrator.h>
 
-// CMSSW include files
-#include "PhysicsTools/IsolationUtils/interface/IntegrandThetaFunction.h"
+class IntegrandThetaFunction;
 
 //
 // class declaration
 //
 
-class ConeAreaFunction : public ROOT::Math::IGenFunction
+class ConeAreaFunction : public ROOT::Math::ParamFunction<ROOT::Math::IParametricGradFunctionOneDim>
 {
  public:
   ConeAreaFunction();
@@ -50,16 +48,29 @@ class ConeAreaFunction : public ROOT::Math::IGenFunction
   virtual ROOT::Math::IGenFunction* Clone () const { return new ConeAreaFunction(*this); }
 
  protected:
+  void SetParameters(double* param);
+  virtual double DoEvalPar(double , const double *) const;
   double DoEval(double x) const;
+  double DoDerivative(double x) const;
+  void DoParameterGradient(double x, double* paramGradient) const;
+  virtual double DoParameterDerivative(double, const double*, unsigned int) const;
+
+// !!! ONLY FOR TESTING
+mutable double theta0_; // polar angle of cone axis
+mutable double phi0_; // azimuth angle of cone axis
+
+mutable double etaMax_; // maximum pseudo-rapidity at which particles used for tau cone isolation can be detected (etaMax = 2.5 for charged particles; etaMax ~ 4.0 for neutrals)
+// !!! ONLY FOR TESTING
 
  private:
+/*
   double theta0_; // polar angle of cone axis
   double phi0_; // azimuth angle of cone axis
 
   double etaMax_; // maximum pseudo-rapidity at which particles used for tau cone isolation can be detected (etaMax = 2.5 for charged particles; etaMax ~ 4.0 for neutrals)
-
-  mutable IntegrandThetaFunction fTheta_;
-  ROOT::Math::Integrator* integrator_;
+*/
+  mutable IntegrandThetaFunction* fTheta_;
+  mutable ROOT::Math::Integrator* integrator_;
 
   static const unsigned int debugLevel_ = 0;
 };

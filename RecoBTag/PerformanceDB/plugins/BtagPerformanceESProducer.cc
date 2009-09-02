@@ -25,24 +25,24 @@ BtagPerformanceESProducer::~BtagPerformanceESProducer() {}
 
 boost::shared_ptr<BtagPerformance> 
 BtagPerformanceESProducer::produce(const BTagPerformanceRecord & iRecord){ 
-   ESHandle<BtagPerformancePayload> pl;
+   ESHandle<PerformancePayload> pl;
    //ESHandle<PhysicsPerformancePayload> pl;
-   ESHandle<BtagWorkingPoint> wp;
-   iRecord.getRecord<BTagPerformancePayloadRecord>().get(mypl,pl);
-
-   //   std::cout <<"HERE "<<std::endl;
-   iRecord.getRecord<BTagPerformanceWPRecord>().get(mywp,wp);
-   //   std::cout <<"HERE "<<std::endl;
+   ESHandle<PerformanceWorkingPoint> wp;
+   iRecord.getRecord<PerformancePayloadRecord>().get(mypl,pl);
+   
+   std::cout <<"HERE "<<std::endl;
+   iRecord.getRecord<PerformanceWPRecord>().get(mywp,wp);
+   std::cout <<"HERE "<<std::endl;
    
    std::cout <<" Got the payload, which is a  "<<typeid(*(pl.product())).name()<<std::endl;
    
    //    BtagWorkingPoint wp;
-
-
-
+   
+   
+   
    _perf  = boost::shared_ptr<BtagPerformance>(new BtagPerformance(*((pl.product())), *((wp.product()))));
    //    _perf  = boost::shared_ptr<BtagPerformance>(new BtagPerformance(*((pl.product())), wp));
-  return _perf;
+   return _perf;
 }
 
 

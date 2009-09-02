@@ -31,7 +31,7 @@ using namespace std;
 EcalPreshowerMonitorClient::EcalPreshowerMonitorClient(const edm::ParameterSet& ps){
 
 
-   verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
    outputFile_	= ps.getUntrackedParameter<string>("OutputFile","");
    inputFile_	= ps.getUntrackedParameter<string>("InputFile","");
    prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower");

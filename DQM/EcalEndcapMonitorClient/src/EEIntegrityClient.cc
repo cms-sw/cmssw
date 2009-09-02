@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2009/02/05 14:53:03 $
- * $Revision: 1.86 $
+ * $Date: 2009/08/26 18:26:07 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -192,6 +192,12 @@ void EEIntegrityClient::setup(void) {
     for ( int ie = 1; ie <= 10; ie++ ) {
       for ( int ip = 1; ip <= 5; ip++ ) {
 
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 6. );
+
+        // non-existing mem
+        if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
+        if ( (ism >= 12 && ism <=  3) || (ism >= 16 && ism <= 18) ) continue;
+
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
       }
@@ -261,11 +267,9 @@ void EEIntegrityClient::cleanup(void) {
 
 }
 
-bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( flag ) this->softReset(false);
 
   EcalLogicID ecid;
 
@@ -458,7 +462,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( update0 || update1 ) {
 
-          if ( Numbers::iTT(ism, EcalEndcap, jxt, jyt) == 1 ) {
+          if ( Numbers::iSC(ism, EcalEndcap, jxt, jyt) == 1 ) {
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
@@ -493,7 +497,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
           c2.setTaskStatus(val);
 
-          int itt = Numbers::iTT(ism, EcalEndcap, jxt, jyt);
+          int itt = Numbers::iSC(ism, EcalEndcap, jxt, jyt);
 
           if ( itt == -1 ) continue;
 
@@ -675,8 +679,6 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       cerr << e.what() << endl;
     }
   }
-
-  if ( ! flag ) this->softReset(true);
 
   return true;
 
@@ -903,7 +905,7 @@ void EEIntegrityClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits02 ) {
@@ -926,6 +928,12 @@ void EEIntegrityClient::analyze(void) {
         num06 = num07 = num08 = num09 = 0.;
 
         // initialize summary histo for mem
+        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 6. );
+
+        // non-existing mem
+        if ( (ism >=  3 && ism <=  4) || (ism >=  7 && ism <=  9) ) continue;
+        if ( (ism >= 12 && ism <= 13) || (ism >= 16 && ism <= 18) ) continue;
+
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
 
         bool update1 = false;
@@ -1024,116 +1032,6 @@ void EEIntegrityClient::analyze(void) {
     }  // end loop on mem channels
 
   }// end loop on supermodules
-
-}
-
-void EEIntegrityClient::softReset(bool flag) {
-
-  char histo[200];
-
-  MonitorElement* me;
-
-  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT DCC size error").c_str());
-  me = dqmStore_->get(histo);
-  if ( flag ) {
-    if ( me ) dqmStore_->softReset( me );
-  } else {
-    //      if ( me ) dqmStore_->disableSoftReset( me );
-  }
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT MEM digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/Gain/EEIT gain %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/ChId/EEIT ChId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/GainSwitch/EEIT gain switch %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemSize/EEIT MemSize %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset( me );
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset( me );
-    }
-
-  }
 
 }
 

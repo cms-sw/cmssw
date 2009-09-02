@@ -5,6 +5,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
 <use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloEventSetup>
 <use name=DataFormats/MuonReco>
 <use name=JetMETCorrections/Objects>
 <use name=CondFormats/JetMETObjects>

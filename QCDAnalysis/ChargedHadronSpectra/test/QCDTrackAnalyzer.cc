@@ -257,7 +257,6 @@ bool QCDTrackAnalyzer::isAccepted
     if(filled[i] == true) fLayers++;
   
   // FIXME, should be in different layers, at least 2/3
-  // fIXME FIEMX
   if(fLayers >= 3) return true;
               else return false;
 }
@@ -294,7 +293,7 @@ bool QCDTrackAnalyzer::isPrimary(const edm::RefToBase<reco::Track> & recTrack)
 
   if(dt > min(0.2, 5 * st)) return false;
 
-  // Longitudinal impact parameter (0.2 cm or 5*sigma)
+  // Longitudinal impact paramter (0.2 cm or 5*sigma)
   // but only if there are vertices
   if(vertices->size() > 0)
   {
@@ -308,8 +307,8 @@ bool QCDTrackAnalyzer::isPrimary(const edm::RefToBase<reco::Track> & recTrack)
        dzmin = dz ;
     }
 
-//    if(dzmin > 0.3) return false;
-    if(dzmin > min(0.2, 5 * recTrack->dzError())) return false;
+    if(dzmin > 0.3) return false;
+// !!!   if(dzmin > min(0.2, 5 * recTrack->dzError())) return false;
   }
 
   return true;
@@ -386,12 +385,9 @@ TrackingParticleRef QCDTrackAnalyzer::getAssociatedSimTrack
 {
   TrackingParticleRef associatedSimTrack;
 
-//cerr << "   a1" << endl;
   try
   {
-//cerr << "   a2" << endl;
     vector<pair<TrackingParticleRef, double> > simTracks = recoToSim[recTrack];
-//cerr << "   a3" << endl;
 
     for(vector<pair<TrackingParticleRef, double> >::const_iterator
           it = simTracks.begin(); it != simTracks.end(); ++it)
@@ -399,14 +395,11 @@ TrackingParticleRef QCDTrackAnalyzer::getAssociatedSimTrack
       TrackingParticleRef simTrack = it->first;
       float fraction               = it->second;
 
-//cerr << "   a4 " << fraction << endl;
-
       // If more than half is shared
       if(fraction > 0.5)
       {
         associatedSimTrack = simTrack; nSim++;
       }
-//cerr << "   a5 " << nSim << endl;
     }
   }
   catch (cms::Exception& event)
@@ -474,19 +467,10 @@ int QCDTrackAnalyzer::processSimTracks()
 
     // sim
     s.ids = simTrack->pdgId();               // ids
-
-    s.prim = (simTrack->parentVertex()->position().perp2() < 0.2*0.2); // prim
+    s.prim = (simTrack->parentVertex()->position().T() == 0.); // prim
 
     s.etas = simTrack->eta();                 // etas
     s.pts  = simTrack->pt();                  // pts
-
-/*
-cerr << " simtrack"
-     << " " << simTrack->pdgId()
-     << " " << sqrt(simTrack->parentVertex()->position().perp2())
-     << " " <<      simTrack->parentVertex()->position().z()
-     << endl;
-*/
 
     bool acc;
     
@@ -524,6 +508,7 @@ cerr << " simtrack"
     {
       edm::RefToBase<reco::Track> aRecTrack = 
         getAssociatedRecTrack(simTrack, nRec, true);
+//        getAssociatedRecTrack(simTrack, nRec, true);
 
       if(nRec > 0)
       {
@@ -531,22 +516,6 @@ cerr << " simtrack"
         eta    = aRecTrack->eta();
         pt     = aRecTrack->pt();
         dxy    = aRecTrack->dxy(theBeamSpot->position());
-
-/*
-if(nRec == 1)
-{
-  // for TrackFitter.cc
-  cerr << " dz "
-       << " " << simTrack->eta()
-       << " " << simTrack->pt()
-       << " " << simTrack->parentVertex()->position().z()
-       << " " << aRecTrack->dz(theBeamSpot->position()) +
-                               theBeamSpot->position().z()
-       << " " << aRecTrack->dz()
-       << " " << theBeamSpot->position()
-       << endl;
-}
-*/
       }
 
 #ifndef DEBUG
@@ -770,7 +739,6 @@ int QCDTrackAnalyzer::processRecTracks()
   for(edm::View<reco::Track>::size_type i=0;
           i < recCollection.product()->size(); ++i)
   {
-//cerr << " rect " << i << endl;
     RecTrack_t r;
 
     edm::RefToBase<reco::Track> recTrack(recCollection, i);
@@ -809,8 +777,7 @@ int QCDTrackAnalyzer::processRecTracks()
 #ifndef DEBUG
   if(nSim == 0)
     LogTrace("MinBiasTracking")
-      << " \033[22;35m" << "[TrackAnalyzer] fake track: #" << i << ","
-      << " (eta=" << r.etar << ", pt="  << r.ptr << ")"
+      << " \033[22;32m" << "[TrackAnalyzer] fake track: #" << i << ","
       << " d0=" << recTrack->d0() << " cm" << "\033[22;0m";
 #endif
 
@@ -859,6 +826,20 @@ void QCDTrackAnalyzer::analyze
   }
   else proc = 0;
 
+  // Get HF info
+/*
+  edm::Handle<vector<L1GctJetCounts> >  jetCountDigi; 
+  ev.getByLabel("hltGctDigis",          jetCountDigi);
+
+  LogTrace("MinBiasTracking") << " [TrackAnalyzer] trigger(" 
+    << jetCountDigi.product()->size()
+    << ") :" 
+    << " HF+("
+    << jetCountDigi.product()->at(0).hfTowerCountPositiveEta() << ")"
+    << " HF-("
+    << jetCountDigi.product()->at(0).hfTowerCountNegativeEta() << ")";
+*/
+
   // Get reconstructed tracks
   ev.getByLabel(trackProducer, recCollection);
   LogTrace("MinBiasTracking") << " [TrackAnalyzer] recTracks    = "
@@ -896,11 +877,8 @@ void QCDTrackAnalyzer::analyze
 
   // Get vertices
   edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByLabel("pixel3Vertices",vertexCollection);
+  ev.getByLabel("pixelVertices",vertexCollection);
   vertices = vertexCollection.product();
-
-  LogTrace("MinBiasTracking")
-    << " [TrackAnalyzer] vertices = " << vertices->size();
 
   // Proocess eventInfo
   ntrk = recCollection.product()->size();

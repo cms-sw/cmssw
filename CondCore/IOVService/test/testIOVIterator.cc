@@ -10,57 +10,14 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-#include "CondCore/DBCommon/interface/TypedRef.h"
-#include "CondCore/IOVService/interface/PayloadProxy.h"
-
-
 namespace {
-
-  std::string oid(std::string token) {
-    int pos = token.rfind('[');
-    if (pos<0) return "[]";
-    return token.substr(pos);
-  }
-
   void print(cond::IOVElementProxy const & e) {
-    std::cout<<"oid "<< oid(e.wrapperToken())
+    std::cout<<"payloadToken "<< e.wrapperToken()
 	     <<", since "<< e.since()
 	     <<", till "<< e.till()
 	     << std::endl;
   }
-  
-  void print(cond::PayloadProxy<cond::IOVElement> & data, cond::Time_t time) {
-    cond::ValidityInterval iov = data.setIntervalFor(time);
-    data.make();
-    std::cout << "for " << time
-	     <<": since "<< iov.first
-	     <<", till "<< iov.second;
-    if (data.isValid()) 
-      std::cout    <<". Message "<< data().wrapperToken()
-		   <<", since "<< data().sinceTime();
-    else 
-      std::cout << ". No data";
-    std::cout << std::endl;
-  }
-
 }
-
-struct Add {
-
-  Add( cond::PoolTransaction& db,  cond::IOVEditor & e) :
-    pooldb(db), editor(e){}
-
-
-  cond::PoolTransaction& pooldb;
-  cond::IOVEditor & editor;
-
-  void operator()(int i, std::string mess) {
-    cond::TypedRef<cond::IOVElement> ref(pooldb,new cond::IOVElement(i,mess));
-    ref.markWrite("SomeWhere");
-    editor.append(i,ref.token());
-  }
-
-};
 
 int main(){
   try{
@@ -73,10 +30,9 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     editor->create(cond::timestamp,60);
-    Add add(pooldb,*editor);
-    add(1,"pay1");
-    add(21,"pay2");
-    add(41,"pay3");
+    editor->append(1,"pay1tok");
+    editor->append(21,"pay2tok");
+    editor->append(41,"pay3tok");
     pooldb.commit();
     std::string iovtok=editor->token();
     ///test iterator
@@ -87,7 +43,7 @@ int main(){
     std::cout << "size " << it->size()
 	      <<", Time Type " << it->timetype() << std::endl;
     while( it->next() ){
-      std::cout<<"payloadToken "<< oid(it->payloadToken());
+      std::cout<<"payloadToken "<<it->payloadToken();
       std::cout<<", since "<<it->validity().first;
       std::cout<<", till "<<it->validity().second<<std::endl;
     }
@@ -96,7 +52,7 @@ int main(){
     it=iovmanager.newIOVIterator(iovtok,cond::IOVService::backwardIter);
     std::cout<<"test reverse iterator "<<std::endl;
     while( it->next() ){
-      std::cout<<"payloadToken "<< oid(it->payloadToken());
+      std::cout<<"payloadToken "<<it->payloadToken();
       std::cout<<", since "<<it->validity().first;
       std::cout<<", till "<<it->validity().second<<std::endl;
     }
@@ -112,7 +68,7 @@ int main(){
     // use Proxy
     {
       std::cout<<"test proxy "<<std::endl;
-      cond::IOVProxy iov(myconnection,iovtok, true, false);
+      cond::IOVProxy iov(pooldb,iovtok, true);
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
@@ -129,56 +85,7 @@ int main(){
       iov.setRange(45,47);
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
     }
-    {
-      // test "copy shallow"
-      cond::IOVProxy iov(myconnection,iovtok, true, false);
-      myconnection.disconnect();
-      std::cout << "size " << iov.size()
-		<<", Time Type " << iov.timetype() << std::endl;
-      iov.head(2);
-      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
-      std::cout << "range 3,23,43,63" << std::endl;
-      print(*iov.find(3));
-      print(*iov.find(23));
-      print(*iov.find(43));
-      print(*iov.find(63));
-      iov.setRange(1,90);
-      print(*iov.find(63));
-    }
-    {
-      // test PayloadProxy
-      cond::PayloadProxy<cond::IOVElement> data(myconnection,iovtok,false);
-      print(data,3);
-      print(data,21);
-      print(data,33);
-      print(data,43);
-      print(data,21);
-      print(data,63);
-      std::cout << "test refresh" << std::endl;
-      // test refresh
-      if (data.refresh()) std::cout << "error!, what refresh..." << std::endl;
-      std::cout << " size " << data.iov().size() << std::endl;
-      {
-	myconnection.connect(session);
-	cond::PoolTransaction& pooldb2=myconnection.poolTransaction();
-	pooldb2.start(false);
-	cond::IOVService iovmanager2(pooldb2);
-	cond::IOVEditor* editor=iovmanager2.newIOVEditor(iovtok);
-	Add add(pooldb2,*editor);
-	add(54,"pay54");
-	delete editor;
-	pooldb2.commit();
-      }
-      if (!data.refresh()) std::cout << "error!, NO refresh..." << std::endl;
-      std::cout << " size " << data.iov().size() << std::endl;
-      print(data,3);
-      print(data,21);
-      print(data,33);
-      print(data,43);
-      print(data,54);
-      print(data,57);
-      print(data,63);
-    }
+    myconnection.disconnect();
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;

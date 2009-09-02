@@ -80,33 +80,33 @@ private:
   TH2F* DigiNeverPresentByDepth[4];
   TH2F* BelowEnergyThresholdCellsByDepth[4];
 
-  TH1F* NumberOfDeadCells;
-  TH1F* NumberOfDeadCellsHB;
-  TH1F* NumberOfDeadCellsHE;
-  TH1F* NumberOfDeadCellsHO;
-  TH1F* NumberOfDeadCellsHF;
-  TH1F* NumberOfDeadCellsZDC;
+  TProfile* NumberOfDeadCells;
+  TProfile* NumberOfDeadCellsHB;
+  TProfile* NumberOfDeadCellsHE;
+  TProfile* NumberOfDeadCellsHO;
+  TProfile* NumberOfDeadCellsHF;
+  TProfile* NumberOfDeadCellsZDC;
 
-  TH1F* NumberOfNeverPresentCells;
-  TH1F* NumberOfNeverPresentCellsHB;
-  TH1F* NumberOfNeverPresentCellsHE;
-  TH1F* NumberOfNeverPresentCellsHO;
-  TH1F* NumberOfNeverPresentCellsHF;
-  TH1F* NumberOfNeverPresentCellsZDC;
+  TProfile* NumberOfNeverPresentCells;
+  TProfile* NumberOfNeverPresentCellsHB;
+  TProfile* NumberOfNeverPresentCellsHE;
+  TProfile* NumberOfNeverPresentCellsHO;
+  TProfile* NumberOfNeverPresentCellsHF;
+  TProfile* NumberOfNeverPresentCellsZDC;
 
-  TH1F* NumberOfUnoccupiedCells;
-  TH1F* NumberOfUnoccupiedCellsHB;
-  TH1F* NumberOfUnoccupiedCellsHE;
-  TH1F* NumberOfUnoccupiedCellsHO;
-  TH1F* NumberOfUnoccupiedCellsHF;
-  TH1F* NumberOfUnoccupiedCellsZDC;
+  TProfile* NumberOfUnoccupiedCells;
+  TProfile* NumberOfUnoccupiedCellsHB;
+  TProfile* NumberOfUnoccupiedCellsHE;
+  TProfile* NumberOfUnoccupiedCellsHO;
+  TProfile* NumberOfUnoccupiedCellsHF;
+  TProfile* NumberOfUnoccupiedCellsZDC;
 
-  TH1F* NumberOfBelowEnergyCells;
-  TH1F* NumberOfBelowEnergyCellsHB;
-  TH1F* NumberOfBelowEnergyCellsHE;
-  TH1F* NumberOfBelowEnergyCellsHO;
-  TH1F* NumberOfBelowEnergyCellsHF;
-  TH1F* NumberOfBelowEnergyCellsZDC;
+  TProfile* NumberOfBelowEnergyCells;
+  TProfile* NumberOfBelowEnergyCellsHB;
+  TProfile* NumberOfBelowEnergyCellsHE;
+  TProfile* NumberOfBelowEnergyCellsHO;
+  TProfile* NumberOfBelowEnergyCellsHF;
+  TProfile* NumberOfBelowEnergyCellsZDC;
 
 };
 

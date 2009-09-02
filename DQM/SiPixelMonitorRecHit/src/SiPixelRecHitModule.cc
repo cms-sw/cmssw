@@ -73,7 +73,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
     meClustX_ = theDMBE->book1D(hid, "RecHit X size", 10, 0., 10.);
     meClustX_->setAxisTitle("RecHit size X dimension", 1);
     hid = theHistogramId->setHistoId("ClustY",id_);
-    meClustY_ = theDMBE->book1D(hid, "RecHit Y size", 25, 0., 25.);
+    meClustY_ = theDMBE->book1D(hid, "RecHit Y size", 15, 0., 15.);
     meClustY_->setAxisTitle("RecHit size Y dimension", 1); 
 
     hid = theHistogramId->setHistoId("ErrorX",id_);
@@ -84,7 +84,7 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
     meErrorY_->setAxisTitle("RecHit error Y", 1);
 
     hid = theHistogramId->setHistoId("nRecHits",id_);
-    menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 50, 0, 50);
+    menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 8, 0, 8);
     menRecHits_->setAxisTitle("number of rechits",1);  
     delete theHistogramId;
   }
@@ -112,13 +112,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	}
     meClustXLad_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXLad_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYLad_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 25, 0.,25.);
+    meClustYLad_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYLad_->setAxisTitle("RecHit size Y dimension", 1);
     meErrorXLad_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXLad_->setAxisTitle("RecHit error X", 1);
     meErrorYLad_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYLad_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsLad_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
+    menRecHitsLad_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsLad_->setAxisTitle("number of rechits",1);
 
   }
@@ -147,13 +147,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
     meClustXLay_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXLay_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYLay_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 25, 0.,25.);
+    meClustYLay_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYLay_->setAxisTitle("RecHit size Y dimension", 1);
     meErrorXLay_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXLay_->setAxisTitle("RecHit error X", 1);
     meErrorYLay_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYLay_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsLay_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
+    menRecHitsLay_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsLay_->setAxisTitle("number of rechits",1);
 
   }
@@ -180,13 +180,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	}
     meClustXPhi_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXPhi_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYPhi_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 25, 0.,25.);
+    meClustYPhi_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYPhi_->setAxisTitle("RecHit size Y dimension", 1);
     meErrorXPhi_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXPhi_->setAxisTitle("RecHit error X", 1);
     meErrorYPhi_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYPhi_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsPhi_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
+    menRecHitsPhi_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsPhi_->setAxisTitle("number of rechits",1);
 
   }
@@ -202,13 +202,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
     meClustXBlade_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXBlade_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYBlade_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 25, 0.,25.);
+    meClustYBlade_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYBlade_->setAxisTitle("RecHit size Y dimension", 1);
     meErrorXBlade_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXBlade_->setAxisTitle("RecHit error X", 1);
     meErrorYBlade_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYBlade_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsBlade_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
+    menRecHitsBlade_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsBlade_->setAxisTitle("number of rechits",1);
 
   }
@@ -223,13 +223,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 
     meClustXDisk_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXDisk_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYDisk_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 25, 0.,25.);
+    meClustYDisk_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYDisk_->setAxisTitle("RecHit size Y dimension", 1);
     meErrorXDisk_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXDisk_->setAxisTitle("RecHit error X", 1);
     meErrorYDisk_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYDisk_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsDisk_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
+    menRecHitsDisk_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsDisk_->setAxisTitle("number of rechits",1);
 
   }
@@ -257,13 +257,13 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	}
     meClustXRing_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXRing_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYRing_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 25, 0.,25.);
+    meClustYRing_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYRing_->setAxisTitle("RecHit size Y dimension", 1);
     meErrorXRing_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXRing_->setAxisTitle("RecHit error X", 1);
     meErrorYRing_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYRing_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsRing_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 50, 0, 50);
+    menRecHitsRing_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsRing_->setAxisTitle("number of rechits",1);
 
   }

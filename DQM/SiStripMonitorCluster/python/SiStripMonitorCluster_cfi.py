@@ -20,6 +20,8 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
 
     TkHistoMap_On = cms.bool(True),
                                      
+    TopFolderName = cms.string('SiStrip'),
+                                     
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
         Nbins = cms.int32(600),
