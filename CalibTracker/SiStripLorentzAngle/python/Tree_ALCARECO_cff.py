@@ -43,23 +43,20 @@ from UserCode.ShallowTools.ShallowClustersProducer_cfi import *
 from UserCode.ShallowTools.ShallowTrackClustersProducer_cfi import *
 from UserCode.ShallowTools.ShallowTracksProducer_cfi import *
 calibrationTree = cms.EDAnalyzer("ShallowTree",
-                             outputCommands = cms.untracked.vstring(
+                                 outputCommands = cms.untracked.vstring(
     'drop *',
     'keep *_*_run_*',
     'keep *_*_clusterdetid_*',
     'keep *_*_clusterwidth_*',
     'keep *_*_clustervariance_*',
     'keep *_*_tsostrackmulti_*',
-    'keep *_*_tsostrackindex_*',
     'keep *_*_tsosdriftx_*',
     'keep *_*_tsosdriftz_*',
     'keep *_*_tsoslocalpitch_*',
     'keep *_*_tsoslocaltheta_*',
     'keep *_*_tsoslocalphi_*',
     'keep *_*_tsosBdotY_*',
-    'keep *_*_tsosglobalZofunitlocalY_*',
-    'keep *_*_trackchi2ndof_*',
-    'keep *_*_trackhitsvalid_*'
+    'keep *_*_tsosglobalZofunitlocalY_*'
     ))
 shallowTracks.Tracks = "LorentzAngleTracks"
 shallowTrackClusters.Tracks = "LorentzAngleTracksRefit"
