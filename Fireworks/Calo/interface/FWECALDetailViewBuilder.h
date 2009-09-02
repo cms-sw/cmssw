@@ -41,6 +41,10 @@ class FWECALDetailViewBuilder {
 		// set colors of some predefined detids
 		void setColor(Color_t color, const std::vector<DetId> &detIds);
 					  
+		// show superclusters in different colors
+		// ... this uses the above method to set colors...
+		void showSuperClusters(Color_t color);
+
 		// fill data
 		void fillData(const EcalRecHitCollection *hits, 
 						TEveCaloDataVec *data);

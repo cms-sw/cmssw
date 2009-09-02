@@ -20,12 +20,10 @@
 
 TEveCaloLego* FWECALDetailViewBuilder::build()
 {
+		
+	// get the hits from the event
 	
 	fwlite::Handle<EcalRecHitCollection> handle_hits;
-	
-	// get the superclusters from the event 
-	// to set the coloring for their det ids
-	const fwlite::Event *ev = id.item()->getEvent();
 	const EcalRecHitCollection *hits = 0;
 	
 	if (fabs(m_eta) < 1.5) {
@@ -115,12 +113,15 @@ void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &
 void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 {
 
+	// get the superclusters from the event
+
+	fwlite::Handle<reco::SuperClusterCollection> handle_superclusters;
    	const reco::SuperClusterCollection *superclusters = 0;
 	
 	if (fabs(m_eta) < 1.5) {
 		try {
 			handle_superclusters.getByLabel(*m_event, "correctedHybridSuperClusters");
-			superclusters = handle_superclusters.ptr());
+			superclusters = handle_superclusters.ptr();
 		}
 		catch ( ...)
 		{
@@ -129,7 +130,7 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 	} else {
 		try {
 			handle_superclusters.getByLabel(*m_event, "correctedMulti5x5SuperClustersWithPreshower");
-			superclusters = handle_superclusters.ptr());
+			superclusters = handle_superclusters.ptr();
 		}
 		catch ( ...)
 		{
@@ -138,9 +139,8 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 	} 	
 	
 	// set the colors for the super clusters
-	// 'superclusters' is a vector containing the eb and ee collections
 	std::vector<DetId> scDetIds;
-	for (size_t i = 0; i < superclusters[k]->size(); ++i)
+	for (size_t i = 0; i < superclusters->size(); ++i)
 	{
 		scDetIds.clear();
 		const std::vector<std::pair<DetId, float> > &hitsAndFractions = (*superclusters)[i].hitsAndFractions();
