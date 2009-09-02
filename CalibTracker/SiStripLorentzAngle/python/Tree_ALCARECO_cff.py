@@ -41,7 +41,6 @@ trackFilterRefitter = cms.Sequence( LorentzAngleTracks + oneplustracks + offline
 from UserCode.ShallowTools.ShallowEventDataProducer_cfi import *
 from UserCode.ShallowTools.ShallowClustersProducer_cfi import *
 from UserCode.ShallowTools.ShallowTrackClustersProducer_cfi import *
-from UserCode.ShallowTools.ShallowTracksProducer_cfi import *
 calibrationTree = cms.EDAnalyzer("ShallowTree",
                                  outputCommands = cms.untracked.vstring(
     'drop *',
@@ -58,12 +57,12 @@ calibrationTree = cms.EDAnalyzer("ShallowTree",
     'keep *_*_tsosBdotY_*',
     'keep *_*_tsosglobalZofunitlocalY_*'
     ))
-shallowTracks.Tracks = "LorentzAngleTracks"
 shallowTrackClusters.Tracks = "LorentzAngleTracksRefit"
+shallowTrackClusters.Clusters = 'LorentzAngleTracks'
+shallowClusters.Clusters = 'LorentzAngleTracks'
 
 ntuple = cms.Sequence( (shallowEventRun+
                         shallowClusters +
-                        shallowTracks +
                         shallowTrackClusters) *
                        calibrationTree
                        )
