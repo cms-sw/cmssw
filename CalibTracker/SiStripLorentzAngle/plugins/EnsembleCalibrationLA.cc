@@ -36,23 +36,23 @@ endJob()
   if(useSYMM) methods|= LA_Filler_Fitter::SYMM;
 
   LA_Filler_Fitter laff(methods,samples,nbins,lowBin,highBin,maxEvents);
-  laff.fill(chain,book);
-  laff.fit(book);  
-  laff.summarize_ensembles(book);
+  laff.fill(chain,book);            std::cout << "Fill complete" << std::endl;
+  laff.fit(book);                   std::cout << "Fit complete" << std::endl;
+  laff.summarize_ensembles(book);   std::cout << "Summarization complete" << std::endl;
 
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   BOOST_FOREACH(ensemble, laff.ensemble_summary(book)) {
     fstream file((Prefix+ensemble.first+".dat").c_str(),std::ios::out);
     BOOST_FOREACH(LA_Filler_Fitter::EnsembleSummary summary, ensemble.second)
       file << summary << std::endl;
-
+    
     std::pair<std::pair<float,float>,std::pair<float,float> > line = LA_Filler_Fitter::offset_slope(ensemble.second);
     file << std::endl << std::endl
 	 << "# Best Fit Line: "	 << line.first.first <<"("<< line.first.second<<")   +   x* "
 	                         << line.second.first<<"("<< line.second.second<<")"           << std::endl
 	 << "# Mean Reported Uncertainty / Sigma: " << LA_Filler_Fitter::pull(ensemble.second) << std::endl;
     file.close();
- }
+  }
   
   { 
     TFile file((Prefix+"sampleFits.root").c_str(),"RECREATE");
@@ -63,7 +63,7 @@ endJob()
   
   {
     TFile file((Prefix+"ensembleFits.root").c_str(),"RECREATE");
-    for(Book::const_iterator hist = book.begin(".*(measure|merr|ensembleReco)"); hist!=book.end(); ++hist)
+    for(Book::const_iterator hist = book.begin(".*(measure|merr|ensembleReco|pull)"); hist!=book.end(); ++hist)
       (*hist)->Write();
     file.Close();
   }
