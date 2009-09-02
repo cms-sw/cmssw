@@ -9,14 +9,14 @@ from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import globalCombinedSe
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import MeasurementTracker
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import GroupedCkfTrajectoryBuilderP5
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import ckfTrackCandidatesP5
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import ctfWithMaterialTracksP5
+from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import ctfWithMaterialTracksCosmics
 from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import cosmicseedfinderP5
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import cosmicCandidateFinderP5
-from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import cosmictrackfinderP5
+from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import cosmictrackfinderCosmics
 from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsP5_cff import roadSearchSeedsP5
 from RecoTracker.RoadSearchCloudMaker.RoadSearchCloudsP5_cff import roadSearchCloudsP5
 from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidatesP5_cff import rsTrackCandidatesP5
-from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import rsWithMaterialTracksP5
+from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import rsWithMaterialTracksCosmics
 
 siPixelRecHitsTop = siPixelRecHits.clone(src = cms.InputTag("siPixelClustersTop"))
 siPixelRecHitsBottom = siPixelRecHits.clone(src = cms.InputTag("siPixelClustersBottom"))
@@ -105,7 +105,7 @@ ckfTrackCandidatesP5Top.NavigationSchool   = 'CosmicNavigationSchool'
 ckfTrackCandidatesP5Top.src       = 'combinedP5SeedsForCTFTop' #ok for 32X
 #ckfTrackCandidatesP5Top.SeedProducer       = 'combinedP5SeedsForCTFTop' #ok for 22X
 ckfTrackCandidatesP5Top.useHitsSplitting = True
-ctfWithMaterialTracksP5Top = copy.deepcopy(ctfWithMaterialTracksP5)
+ctfWithMaterialTracksP5Top = copy.deepcopy(ctfWithMaterialTracksCosmics)
 ctfWithMaterialTracksP5Top.src    = 'ckfTrackCandidatesP5Top'
 ctfWithMaterialTracksP5Top.Fitter = 'FittingSmootherRKP5'
 ctfWithMaterialTracksP5Top.clusterRemovalInfo = "topBottomClusterInfoProducerTop"
@@ -189,7 +189,7 @@ ckfTrackCandidatesP5Bottom.NavigationSchool   = 'CosmicNavigationSchool'
 ckfTrackCandidatesP5Bottom.src       = 'combinedP5SeedsForCTFBottom' #ok for 32X
 #ckfTrackCandidatesP5Bottom.SeedProducer       = 'combinedP5SeedsForCTFBottom' #ok for 22X
 ckfTrackCandidatesP5Bottom.useHitsSplitting = True
-ctfWithMaterialTracksP5Bottom = copy.deepcopy(ctfWithMaterialTracksP5)
+ctfWithMaterialTracksP5Bottom = copy.deepcopy(ctfWithMaterialTracksCosmics)
 ctfWithMaterialTracksP5Bottom.src    = 'ckfTrackCandidatesP5Bottom'
 ctfWithMaterialTracksP5Bottom.Fitter = 'FittingSmootherRKP5'
 ctfWithMaterialTracksP5Bottom.clusterRemovalInfo = "topBottomClusterInfoProducerBottom"
@@ -200,7 +200,7 @@ ctftracksP5Bottom = cms.Sequence(combinatorialcosmicseedfinderP5Bottom*simpleCos
 #COSMIC TOP
 cosmicseedfinderP5Top       = copy.deepcopy(cosmicseedfinderP5)
 cosmicCandidateFinderP5Top  = copy.deepcopy(cosmicCandidateFinderP5)
-cosmictrackfinderP5Top      = copy.deepcopy(cosmictrackfinderP5)
+cosmictrackfinderP5Top      = copy.deepcopy(cosmictrackfinderCosmics)
 cosmicseedfinderP5Top.stereorecHits = cms.InputTag("siStripMatchedRecHitsTop","stereoRecHit")
 cosmicseedfinderP5Top.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
 cosmicseedfinderP5Top.rphirecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
@@ -221,7 +221,7 @@ cosmictracksP5Top = cms.Sequence(cosmicseedfinderP5Top*cosmicCandidateFinderP5To
 #COSMIC BOTTOM
 cosmicseedfinderP5Bottom       = copy.deepcopy(cosmicseedfinderP5)
 cosmicCandidateFinderP5Bottom  = copy.deepcopy(cosmicCandidateFinderP5)
-cosmictrackfinderP5Bottom      = copy.deepcopy(cosmictrackfinderP5)
+cosmictrackfinderP5Bottom      = copy.deepcopy(cosmictrackfinderCosmics)
 cosmicseedfinderP5Bottom.stereorecHits = cms.InputTag("siStripMatchedRecHitsBottom","stereoRecHit")
 cosmicseedfinderP5Bottom.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
 cosmicseedfinderP5Bottom.rphirecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
@@ -243,7 +243,7 @@ cosmictracksP5Bottom = cms.Sequence(cosmicseedfinderP5Bottom*cosmicCandidateFind
 roadSearchSeedsP5Top      = copy.deepcopy(roadSearchSeedsP5)
 roadSearchCloudsP5Top     = copy.deepcopy(roadSearchCloudsP5)
 rsTrackCandidatesP5Top    = copy.deepcopy(rsTrackCandidatesP5)
-rsWithMaterialTracksP5Top = copy.deepcopy(rsWithMaterialTracksP5)
+rsWithMaterialTracksP5Top = copy.deepcopy(rsWithMaterialTracksCosmics)
 roadSearchSeedsP5Top.AllPositiveOnly = True
 roadSearchSeedsP5Top.pixelRecHits = cms.InputTag("siPixelRecHitsTop")
 roadSearchSeedsP5Top.rphiStripRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
@@ -268,7 +268,7 @@ rstracksP5Top = cms.Sequence(roadSearchSeedsP5Top*roadSearchCloudsP5Top*
 roadSearchSeedsP5Bottom      = copy.deepcopy(roadSearchSeedsP5)
 roadSearchCloudsP5Bottom     = copy.deepcopy(roadSearchCloudsP5)
 rsTrackCandidatesP5Bottom    = copy.deepcopy(rsTrackCandidatesP5)
-rsWithMaterialTracksP5Bottom = copy.deepcopy(rsWithMaterialTracksP5)
+rsWithMaterialTracksP5Bottom = copy.deepcopy(rsWithMaterialTracksCosmics)
 roadSearchSeedsP5Bottom.AllNegativeOnly = True
 roadSearchSeedsP5Bottom.pixelRecHits = cms.InputTag("siPixelRecHitsBottom")
 roadSearchSeedsP5Bottom.rphiStripRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")

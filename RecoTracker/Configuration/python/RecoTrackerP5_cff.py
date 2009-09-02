@@ -9,6 +9,9 @@ from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 # COSMIC TRACK FINDER
 from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import *
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import *
+# Final Track Selector for CosmicTF
+from RecoTracker.FinalTrackSelectors.CosmicTFFinalTrackSelectorP5_cff import *
+
 #chi2 set to 40!!
 # CTF
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cff import *
@@ -30,29 +33,35 @@ ckfTrackCandidatesP5.src = cms.InputTag('combinedP5SeedsForCTF')
 
 #import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff import *
+# Final Track Selector for CTF
+from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
+
 # ROACH SEARCH
 from RecoTracker.RoadSearchSeedFinder.RoadSearchSeedsP5_cff import *
 from RecoTracker.RoadSearchCloudMaker.RoadSearchCloudsP5_cff import *
 from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidatesP5_cff import *
 from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import *
+# Final Track Selector for RS
+from RecoTracker.FinalTrackSelectors.RSFinalTrackSelectorP5_cff import *
+
 # TRACK INFO
 #include "AnalysisAlgos/TrackInfoProducer/data/TrackInfoProducerP5.cff"
 
 ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = cms.string('SimpleNavigationSchool'))
-ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksP5.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
+ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
 
 ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
-                           ckfTrackCandidatesP5*ctfWithMaterialTracksP5+
+                           ckfTrackCandidatesP5*ctfWithMaterialTracksCosmics*ctfWithMaterialTracksP5+
                            ckfTrackCandidatesP5LHCNavigation*ctfWithMaterialTracksP5LHCNavigation)
 
-rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksP5)
+rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksCosmics*rsWithMaterialTracksP5)
 
 from RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi import *
-cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderP5'
-cosmicTrackSplitter.tracks = 'cosmictrackfinderP5'
-splittedTracksP5 = cosmictrackfinderP5.clone(src = cms.InputTag("cosmicTrackSplitter"))
+cosmicTrackSplitter.tjTkAssociationMapTag = 'cosmictrackfinderCosmics'
+cosmicTrackSplitter.tracks = 'cosmictrackfinderCosmics'
+splittedTracksP5 = cosmictrackfinderCosmics.clone(src = cms.InputTag("cosmicTrackSplitter"))
     
-cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderP5*cosmicTrackSplitter*splittedTracksP5)
+cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmicCandidateFinderP5*cosmictrackfinderCosmics*cosmictrackfinderP5*cosmicTrackSplitter*splittedTracksP5)
 
 
 #Top/Bottom tracks NEW
