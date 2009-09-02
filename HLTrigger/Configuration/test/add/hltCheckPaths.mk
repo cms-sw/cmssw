@@ -162,7 +162,7 @@ endif
 # rules to write the python configurations
 $(TABLE_PYS): .database_$$(LUMI)
 	@echo -e "ConfDB [$(BLUE)$(HLT_$(LUMI)_CONFIG)$(NORMAL)] menu $(BOLD)$(LUMI)_GlobalTable$(NORMAL)$(CLEAR)"
-	@$(GETCONFIG) --configName $(HLT_$(LUMI)_CONFIG) --input $(HLT_$(LUMI)_SOURCE) --nopsets --nooutput --services -PrescaleService --format python | sed -e's/^process = cms.Process(.*)/process = cms.Process( "$(PROCESS)" )/' -e's/^process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( $(EVENTS) ) )/process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( 100 ) )/' > $(LUMI)_GlobalTable.py
+	@$(GETCONFIG) --configName $(HLT_$(LUMI)_CONFIG) --input $(HLT_$(LUMI)_SOURCE) --nopsets --nooutput --services -PrescaleService --esmodules -l1GtTriggerMenuXml,-L1GtTriggerMaskAlgoTrigTrivialProducer --format python | sed -e's/^process = cms.Process(.*)/process = cms.Process( "$(PROCESS)" )/' -e's/^process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( $(EVENTS) ) )/process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( 100 ) )/' > $(LUMI)_GlobalTable.py
 	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $(LUMI)_GlobalTable.py
 	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $(LUMI)_GlobalTable.py
 	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $(LUMI)_GlobalTable.py
@@ -172,7 +172,7 @@ $(TABLE_PYS): .database_$$(LUMI)
 
 $(LIST_OF_PYS): .database_$$(LUMI)
 	@echo -e "ConfDB [$(BLUE)$(HLT_$(LUMI)_CONFIG)$(NORMAL)] path $(BOLD)$(NAME)$(NORMAL)$(CLEAR)"
-	@$(GETCONFIG) --configName $(HLT_$(LUMI)_CONFIG) --input $(HLT_$(LUMI)_SOURCE) --nopsets --paths HLTriggerFirstPath,$(NAME),HLTriggerFinalPath --services -PrescaleService --format python | sed -e's/^process = cms.Process(.*)/process = cms.Process( "$(PROCESS)" )/' -e's/^process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( $(EVENTS) ) )/process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( 100 ) )/' > $@
+	@$(GETCONFIG) --configName $(HLT_$(LUMI)_CONFIG) --input $(HLT_$(LUMI)_SOURCE) --nopsets --paths HLTriggerFirstPath,$(NAME),HLTriggerFinalPath --services -PrescaleService --esmodules -l1GtTriggerMenuXml,-L1GtTriggerMaskAlgoTrigTrivialProducer --format python | sed -e's/^process = cms.Process(.*)/process = cms.Process( "$(PROCESS)" )/' -e's/^process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( $(EVENTS) ) )/process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32( 100 ) )/' > $@
 	@sed -e 's/cms.InputTag( "source" )/cms.InputTag( "rawDataCollector" )/' -i $@
 	@sed -e 's/cms.string( "source" )/cms.string( "rawDataCollector" )/'     -i $@
 	@sed -e '/DTUnpackingModule/a\ \ \ \ inputLabel = cms.untracked.InputTag( "rawDataCollector" ),' -i $@
