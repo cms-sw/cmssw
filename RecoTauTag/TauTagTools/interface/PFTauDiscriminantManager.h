@@ -30,11 +30,13 @@ class PFTauDiscriminantManager {
       /// connect to an MVA computer
       void buildMVAComputerLink(std::vector<PhysicsTools::Variable::Value>&);
       /// set objects for this discriminant
-      bool setEventData(const reco::PFTauDecayMode& theTau, const edm::Event& iEvent, 
-                        const double& eventWeight = 1., bool prePass = false, bool preFail = false);
+      bool setTau(const reco::PFTauDecayMode& theTau, bool prePass = false, bool preFail = false);
       /// in case there is no tau but you wish to fill anyway (for example, to see situations 
       /// where one cone algorithm fails to find a tau but another does not
-      bool setNullResult(const edm::Event& iEvent, const double& eventWeight = 1.);
+      bool setNullResult();
+      /// set the current event.  Must be called (once per event) before setTau or setNullResult
+      void setEvent(const edm::Event&, double eventWeight);
+
       void setSignalFlag(bool isSignal) { iAmSignal_ = isSignal; };
 
       //TODO: Discriminant should be a friend and these should be private...

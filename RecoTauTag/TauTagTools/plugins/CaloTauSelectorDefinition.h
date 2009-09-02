@@ -1,10 +1,10 @@
-#ifndef PhysicsTools_PFCandProducer_CaloTauSelectorDefinition
-#define PhysicsTools_PFCandProducer_CaloTauSelectorDefinition
+#ifndef RecoTauTag_TauTagTools_CaloTauSelectorDefinition
+#define RecoTauTag_TauTagTools_CaloTauSelectorDefinition
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <iostream>
 

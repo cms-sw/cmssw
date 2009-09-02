@@ -15,7 +15,7 @@ Description: Produces reco::PFTauDecayModes corresponding to MonteCarlo objects
 //
 // Original Author:  Evan K. Friis, UC Davis (friis@physics.ucdavis.edu)
 //         Created:  Thu Sep 1 06:19:05 PST 2008
-// $Id: TruthTauDecayModeProducer.cc,v 1.3 2008/11/29 00:42:19 friis Exp $
+// $Id: TruthTauDecayModeProducer.cc,v 1.4 2009/05/05 13:35:51 friis Exp $
 //
 //
 
@@ -35,7 +35,7 @@ Description: Produces reco::PFTauDecayModes corresponding to MonteCarlo objects
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include <vector>
 

@@ -13,7 +13,7 @@ Description: Generates ROOT trees used to train PhysicsTools::MVAComputers
 //
 // Original Author:  Evan K.Friis, UC Davis  (friis@physics.ucdavis.edu)
 //         Created:  Fri Aug 15 11:22:14 PDT 2008
-// $Id: TauMVATrainer.cc,v 1.3 2008/10/22 20:49:09 friis Exp $
+// $Id: TauMVATrainer.cc,v 1.4 2009/05/05 13:35:51 friis Exp $
 //
 //
 
@@ -156,6 +156,8 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<PFTauDecayModeCollection> truthObjects;
    iEvent.getByLabel(mcTruthSource_, truthObjects);
 
+   discriminantManager_.setEvent(iEvent, 1.0); // unit weight for now
+
    size_t numberOfTruthObjects = truthObjects->size();
    // loop over true MCTaus and find matched reco objects for each producer
    for(size_t iTrueTau = 0; iTrueTau < numberOfTruthObjects; ++iTrueTau)
@@ -163,7 +165,7 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       PFTauDecayModeRef theTrueTau = PFTauDecayModeRef(truthObjects, iTrueTau);
 
       // compute quantities for the truth object and fill associated tree
-      discriminantManager_.setEventData(*theTrueTau, iEvent);
+      discriminantManager_.setTau(*theTrueTau);
       theTruthTree_->Fill();
 
       // loop over the reco object collections
@@ -209,11 +211,11 @@ TauMVATrainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                prePass = true;
             }
 
-            discriminantManager_.setEventData(theAssociatedDecayMode, iEvent, 1.0, prePass, preFail);
+            discriminantManager_.setTau(theAssociatedDecayMode, prePass, preFail);
          }
          else 
             // if not, set the null flag
-            discriminantManager_.setNullResult(iEvent);
+            discriminantManager_.setNullResult();
          treeToFill->Fill();
       }
    }

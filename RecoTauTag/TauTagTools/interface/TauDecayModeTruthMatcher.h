@@ -1,10 +1,10 @@
 #ifndef RecoTauTag_TauTagTools_PFTauDecayModeTruthMatcher
 #define RecoTauTag_TauTagTools_PFTauDecayModeTruthMatcher
 
-#include "PhysicsTools/UtilAlgos/interface/PhysObjectMatcher.h"
-#include "PhysicsTools/UtilAlgos/interface/MCMatchSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/DummyMatchSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/MatchByDRDPt.h"
+#include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
+#include "CommonTools/UtilAlgos/interface/MCMatchSelector.h"
+#include "CommonTools/UtilAlgos/interface/DummyMatchSelector.h"
+#include "CommonTools/UtilAlgos/interface/MatchByDRDPt.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 #include "DataFormats/TauReco/interface/PFTauDecayModeFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"

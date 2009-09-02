@@ -21,9 +21,10 @@ def UpdateCuts(TheProducer, TheCuts):
       aComputer.cut = cms.double(TheCut)
 
 TauDecayModeCutMutliplexerPrototype = cms.EDProducer("PFTauDecayModeCutMultiplexer",
+      PFTauProducer                = cms.InputTag("shrinkingConePFTauProducer"),
       PFTauDecayModeSrc            = cms.InputTag("shrinkingConePFTauDecayModeIndexProducer"),
       PFTauDiscriminantToMultiplex = cms.InputTag('shrinkingConePFTauDiscriminationByTaNC'),
-      preDiscriminants             = cms.VInputTag("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),
+      Prediscriminants             = shrinkingConeLeadTrackFinding,
       computers                    = TaNC,
       RemapOutput                  = cms.bool(True)
 )

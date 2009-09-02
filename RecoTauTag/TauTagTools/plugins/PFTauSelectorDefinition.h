@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_PFTauSelectorDefinition
-#define PhysicsTools_PFCandProducer_PFTauSelectorDefinition
+#ifndef RecoTauTag_TauTagTools_PFTauSelectorDefinition
+#define RecoTauTag_TauTagTools_PFTauSelectorDefinition
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"

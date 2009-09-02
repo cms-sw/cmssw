@@ -39,11 +39,9 @@ PFTauDiscriminantManager::clearCache()
 }
 
 bool
-PFTauDiscriminantManager::setEventData(const reco::PFTauDecayMode& theTau, const edm::Event& iEvent, const double& eventWeight, bool prePass, bool preFail)
+PFTauDiscriminantManager::setTau(const reco::PFTauDecayMode& theTau, bool prePass, bool preFail)
 {
    currentTauDecayMode_ = &theTau;
-   eventData_           = &iEvent;
-   eventWeight_         = eventWeight;
    iAmNull_             = false;
    prePass_             = prePass;
    preFail_             = preFail;
@@ -66,12 +64,17 @@ PFTauDiscriminantManager::setEventData(const reco::PFTauDecayMode& theTau, const
    return true;
 }
 
-bool
-PFTauDiscriminantManager::setNullResult(const edm::Event& iEvent, const double& eventWeight)
+void 
+PFTauDiscriminantManager::setEvent(const edm::Event& iEvent, double eventWeight)
 {
-   currentTauDecayMode_ = NULL;
    eventData_           = &iEvent;
    eventWeight_         = eventWeight;
+}
+
+bool
+PFTauDiscriminantManager::setNullResult()
+{
+   currentTauDecayMode_ = NULL;
    iAmNull_             = true;
    prePass_             = false;
    preFail_             = false;
