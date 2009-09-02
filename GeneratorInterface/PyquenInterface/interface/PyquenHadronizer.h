@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.3.2.2 2009/08/20 21:56:27 yilmaz Exp $
+ * $Id: PyquenHadronizer.h,v 1.4 2009/08/26 08:45:37 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -12,6 +12,7 @@
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "GeneratorInterface/PyquenInterface/interface/BaseHiGenSkimmer.h"
 #include <map>
 #include <string>
@@ -78,6 +79,7 @@ namespace gen
     unsigned int     pythiaPylistVerbosity_;  //! Pythia PYLIST Verbosity flag 
 
     //    CLHEP::HepRandomEngine* fRandomEngine;
+    edm::InputTag   src_;
     Pythia6Service* pythia6Service_;
     BaseHiGenSkimmer* skimmer_;
   };

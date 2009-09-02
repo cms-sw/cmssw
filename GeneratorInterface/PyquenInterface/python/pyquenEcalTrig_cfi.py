@@ -30,8 +30,8 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          maxEventsToPrint = cms.untracked.int32(0), ## events to print if pythiaPylistVerbosit
                          aBeamTarget = cms.double(208.0), ## beam/target atomic number
                          doCollisionalEnLoss = cms.bool(True), ## if true, perform partonic collisional en loss
-                         embeddingMode = cms.bool(False)
-                         
+                         embeddingMode = cms.bool(True),
+                         backgroundLabel = cms.InputTag("generator")
                          )
 
 

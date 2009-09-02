@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.3.2.3 2009/08/20 21:56:28 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.6 2009/08/26 08:45:37 yilmaz Exp $
 */
 
 #include <iostream>
@@ -69,7 +69,11 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
-  if(embedding_) cflag_ = 0;
+  if(embedding_){ 
+     cflag_ = 0;
+     src_ = pset.getParameter<InputTag>("backgroundLabel");
+  }
+
   skimmer_ = HiGenSkimmerFactory::get(filterType_,pset);
 }
 
@@ -125,7 +129,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
 
    if(embedding_){
       Handle<HepMCProduct> input;
-      e.getByLabel("source",input);
+      e.getByLabel(src_,input);
       const HepMC::GenEvent * inev = input->GetEvent();
       HepMC::HeavyIon* hi = inev->heavy_ion();
       if(hi){
@@ -166,7 +170,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
       call_pyhepc(1);
       
       // event information
-      HepMC::GenEvent* evt = hepevtio.read_next_event();
+      evt = hepevtio.read_next_event();
       pass = skimmer_->filter(evt);
       counter++;
    }
