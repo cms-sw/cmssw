@@ -8,31 +8,22 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-RECO/STARTUP31X_V1-v2/0002/C8CEE598-CB6B-DE11-871F-001D09F2905B.root'
-#    'file:/scratch1/users/fabozzi/zmm20_fastsim.root'
+    'file:/scratch1/cms/data/summer09/aodsim/ppMuX/0010/9C519151-5883-DE11-8BC8-001AA0095119.root'
+#    'file:/data1/home/fabozzi/cmsrel/skim3_1/CMSSW_3_1_2/src/ElectroWeakAnalysis/Skimming/test/testEWKMuSkim_HLTFilterAndGlobalMuonAndPt10AndEta25.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("ElectroWeakAnalysis.ZReco.dimuons_SkimPaths_cff")
 
-## Necessary fixes to run 2.2.X on 2.1.X data
-#from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run22XonSummer08AODSIM
-#run22XonSummer08AODSIM(process)
-#process.source.inputCommands = cms.untracked.vstring(
-#        'keep *',
-#        'drop *_particleFlow_*_*',
-#        #'drop *_particleFlowBlock_*_*',
-#)
-
 # Output module configuration
 process.load("ElectroWeakAnalysis.ZReco.dimuonsOutputModule_cfi")
-process.dimuonsOutputModule.fileName = 'file:/tmp/fabozzi/testSkim_311.root'
+process.dimuonsOutputModule.fileName = 'file:testSkim_fromOriginal.root'
 
 process.outpath = cms.EndPath(process.dimuonsOutputModule)
 

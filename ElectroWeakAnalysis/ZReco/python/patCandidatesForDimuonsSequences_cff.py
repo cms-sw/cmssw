@@ -76,6 +76,12 @@ selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
+# to access 8E29 menus
+#patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT8E29" )
+#patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT8E29" )
+# to access 1E31 menus
+patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
+patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
 #muonTriggerMatchHLTMu15 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 #    src     = cms.InputTag( "selectedLayer1Muons" ),
