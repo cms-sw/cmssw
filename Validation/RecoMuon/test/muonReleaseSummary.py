@@ -7,8 +7,8 @@ import string
 
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
-NewRelease='CMSSW_3_2_3'
-RefRelease='CMSSW_3_2_2'
+NewRelease='CMSSW_3_3_0_pre1'
+RefRelease='CMSSW_3_2_5'
 
 samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
 #samples= ['RelValTTbar','RelValZMM']
@@ -41,10 +41,10 @@ if (NewFastSim):
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'_31X_V3-v1'
+    NewLabel=NewCondition+'_31X_V5-v1'
 #    NewLabel=NewCondition+'31X_V3_preproduction_312-v1'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'31X_V2-v1'
+        NewLabel=NewCondition+'31X_V4-v1'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):
@@ -53,10 +53,10 @@ if (RefFastSim):
     RefFormat='GEN-SIM-DIGI-RECO'
 else:
     RefTag = RefCondition+'_noPU_ootb'
-    RefLabel=RefCondition+'_31X_V3-v1'
+    RefLabel=RefCondition+'_31X_V5-v1'
 #    RefLabel=RefCondition+'_31X_V2_preproduction_311-v1'
     if (RefCondition=='STARTUP'):
-        RefLabel=RefCondition+'31X_V2-v1'
+        RefLabel=RefCondition+'31X_V4-v1'
     RefFormat='GEN-SIM-RECO'
 
 

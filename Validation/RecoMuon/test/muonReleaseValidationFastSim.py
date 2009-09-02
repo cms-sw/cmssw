@@ -13,11 +13,11 @@ import string
 FastSimUse="False"
 
 #Reference release
-NewRelease='CMSSW_3_2_3'
+NewRelease='CMSSW_3_3_0_pre1'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
-startupsamples= ['RelValTTbar','RelValZMM', 'RelValCosmics']
+startupsamples= ['RelValTTbar','RelValZMM']
 #startupsamples= ['RelValCosmics']
 
 #idealsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
@@ -55,8 +55,8 @@ OneAtATime=False
 IdealTag='MC'
 StartupTag='STARTUP'
 
-IdealTagUse='MC_31X_V1'
-StartupTagUse='STARTUP31X_V1'
+IdealTagUse='MC_31X_V5'
+StartupTagUse='STARTUP31X_V4'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
 ReferenceSelection='IDEAL_31X__noPU'
