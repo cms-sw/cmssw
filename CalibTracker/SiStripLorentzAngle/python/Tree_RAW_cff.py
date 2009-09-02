@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibTracker.SiStripLorentzAngle.Tree_RECO_cff import *
+from CalibTracker.SiStripLorentzAngle.Tree_ALCARECO_cff import *
+LorentzAngleTracks.src = 'generalTracks'
 
 #local reconstruction
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
@@ -12,6 +13,13 @@ recolocal = cms.Sequence( siPixelDigis*siPixelClusters*
                           siStripDigis*siStripZeroSuppression*siStripClusters)
 siPixelDigis.InputLabel = 'rawDataCollector'
 
+#tracking
+from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
+from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
+from RecoTracker.Configuration.RecoTracker_cff import *
+from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
+recotrack = cms.Sequence( offlineBeamSpot + siPixelRecHits*siStripMatchedRecHits*recopixelvertexing*ckftracks)
+
 #Schedule
-recolocal_step  = cms.Path( recolocal )
-schedule = cms.Schedule( recolocal_step, recotrack_step, ntuple_step )
+reconstruction_step = cms.Path( recolocal + recotrack )
+schedule = cms.Schedule( reconstruction_step, filter_refit_ntuplize_step )

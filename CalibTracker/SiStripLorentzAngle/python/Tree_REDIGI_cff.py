@@ -43,6 +43,7 @@ SiStripLorentzAngleSim = cms.ESSource("PoolDBESSource",
                                       )
 es_prefer_SiStripLorentzAngleSim = cms.ESPrefer("PoolDBESSource","SiStripLorentzAngleSim")
 
+
 #Schedule
 digi_step       = cms.Path( pdigi )
-schedule = cms.Schedule( digi_step, recolocal_step, recotrack_step, ntuple_step )
+schedule = cms.Schedule( digi_step, reconstruction_step, filter_refit_ntuplize_step )

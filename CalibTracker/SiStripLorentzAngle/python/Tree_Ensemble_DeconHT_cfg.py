@@ -2,12 +2,18 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('CALIB')
 process.load('CalibTracker.SiStripLorentzAngle.Tree_REDIGI_cff')
+process.load('Configuration.StandardSequences.GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'DESIGN_31X_V4::All'
 process.simSiStripDigis.APVpeakmode = False
 process.siStripClusters.Clusterizer.ChannelThreshold=5.0
 process.siStripClusters.Clusterizer.SeedThreshold=6.0
 process.siStripClusters.Clusterizer.ClusterThreshold=7.0
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.Services_cff')
 process.add_( cms.Service( "TFileService",
                            fileName = cms.string( 'calibTree_decon_highThresh.root' ),
                            closeFileFast = cms.untracked.bool(True)  ) )
