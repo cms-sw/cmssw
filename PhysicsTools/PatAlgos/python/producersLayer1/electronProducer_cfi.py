@@ -69,11 +69,9 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
     ),
 
-    #COLIN: test embedding on/off. 
-
     # mc matching
     addGenMatch      = cms.bool(True),
-    embedGenMatch    = cms.bool(False),
+    embedGenMatch    = cms.bool(True),
     genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
     
     # efficiencies

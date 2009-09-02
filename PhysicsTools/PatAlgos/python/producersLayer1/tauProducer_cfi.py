@@ -87,10 +87,10 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
 
     # mc matching configurables
     addGenMatch      = cms.bool(True),
-    embedGenMatch    = cms.bool(False),
+    embedGenMatch    = cms.bool(True),
     genParticleMatch = cms.InputTag("tauMatch"),
     addGenJetMatch   = cms.bool(True),
-    embedGenJetMatch = cms.bool(False),    
+    embedGenJetMatch = cms.bool(True),    
     genJetMatch      = cms.InputTag("tauGenJetMatch"),
 
     # efficiencies

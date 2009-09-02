@@ -82,7 +82,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
 
     # mc matching
     addGenPartonMatch   = cms.bool(True),                 ## switch on/off matching to quarks from hard scatterin
-    embedGenPartonMatch = cms.bool(False),                ## switch on/off embedding of the GenParticle parton for this jet
+    embedGenPartonMatch = cms.bool(True),                 ## switch on/off embedding of the GenParticle parton for this jet
     genPartonMatch      = cms.InputTag("jetPartonMatch"), ## particles source to be used for the matching
     addGenJetMatch      = cms.bool(True),                 ## switch on/off matching to GenJet's
     genJetMatch         = cms.InputTag("jetGenJetMatch"), ## GenJet source to be used for the matching
