@@ -85,7 +85,7 @@ for i in range(0, len(splittedList), 2):
         print ", end date = ", endDate
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
         fileName="DetVOffPrint"+fullDates+"_cfg.py"
-        os.system("cat template_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" > "+fileName)
+        os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" > "+fileName)
         # run = os.popen("cmsRun "+fileName+" > /dev/null")
         os.system("cmsRun "+fileName+" > /dev/null")
 
