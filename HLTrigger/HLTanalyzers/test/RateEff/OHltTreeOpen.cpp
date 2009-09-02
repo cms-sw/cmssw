@@ -566,7 +566,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 			for(int j=0;j<NohEleLW && j != i;j++) { 
 			  if(ohEleEtLW[j] > 10.) { 
 			    if(TMath::Abs(ohEleEtaLW[j]) < 2.65) {
-			      rc++;        
+			      if(ohEleEt[i] != ohEleEt[j])
+				rc++;        
 			    }
 			  }
 			}
@@ -1026,7 +1027,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_TrackIso_L1R") == 0) {     
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonPassed(15.,0,2,2.,999.,999.)>=1) { // added track iso! 
+      if(OpenHlt1PhotonPassed(15.,0,0.05,999.,999.,999.)>=1) { // added track iso! 
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }      
     }      
@@ -1986,7 +1987,7 @@ int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso,
     if ( ohPhotEt[i] > Et) { 
       if( TMath::Abs(ohPhotEta[i]) < 2.65 ) { 
 	if ( ohPhotL1iso[i] >= L1iso ) { 
-	  if( ohPhotTiso[i]<Tiso ) { 
+	  if( (ohPhotTiso[i]/ohPhotEt[i]) < Tiso ) {
 	    if( ohPhotEiso[i] < Eiso ) { 
 	      if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		  (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) || 

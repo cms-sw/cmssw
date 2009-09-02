@@ -204,7 +204,7 @@ bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *
     (rc->prescaleCount[i])++;
     return ((rc->prescaleCount[i]) % menu->GetPrescale(i) != 0); //
   } else {
-    return (GetIntRandom() % menu->GetPrescale(i) != 0);
+    return (GetIntRandom() % menu->GetPrescale(i) == 0);
   }
 };
 
