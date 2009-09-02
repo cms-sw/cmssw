@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.cc,v 1.31 2009/08/27 17:54:22 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.32 2009/08/28 12:22:31 amraktad Exp $
 //
 
 #include "TLatex.h"
@@ -28,8 +28,7 @@
 //
 // constructors and destructor
 //
-FWElectronDetailView::FWElectronDetailView():
-   m_unitCM(0.01)
+FWElectronDetailView::FWElectronDetailView()
 {
 }
 
@@ -60,6 +59,7 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    ew->SetElementName("View A");
    FWECALDetailViewJohannes<reco::GsfElectron>* viewJohannes =  new  FWECALDetailViewJohannes<reco::GsfElectron>();
    viewJohannes->build(id, iElectron, ediFrame, scene, viewer);
+
    TEveCaloLego *lego = viewJohannes->getLego();
    addTrackPointsInCaloData( iElectron, viewJohannes->getSubdetId(), lego);
    drawCrossHair(iElectron, viewJohannes->getSubdetId(), lego, scene);
@@ -176,7 +176,6 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, int subdetId, T
       {
          TVector3 pos;
          pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(), eta, phi);
-         pos *= m_unitCM;
          trackpositionAtCalo->AddLine(pos.X(), ymin, 0, pos.X(), ymax, 0);
          trackpositionAtCalo->AddLine(xmin, pos.Y(), 0, xmax,pos.Y(),0);
       }
@@ -202,7 +201,6 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, int subdetId, T
       {
          TVector3 pos;
          pos.SetPtEtaPhi(i->caloPosition().rho(), eta, phi);
-         pos *= m_unitCM;
          pinposition->AddLine(pos.X(),ymin, 0, pos.X(), ymax, 0);
          pinposition->AddLine(xmin, pos.Y(), 0, xmax, pos.Y(), 0);
       }
@@ -285,7 +283,6 @@ FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, int 
       else if (subdetId == EcalEndcap) {
          TVector3 pos;
          pos.SetPtEtaPhi(i->superCluster()->seed()->position().rho(),eta, phi);
-         pos *= m_unitCM;
          if (checkRange(em, eM, pm, pM, pos.X(), pos.Y()))
             changed = kTRUE;
 
@@ -303,7 +300,6 @@ FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, int 
       else if (subdetId == EcalEndcap) {
          TVector3 pos;
          pos.SetPtEtaPhi(i->caloPosition().rho(), eta, phi);
-         pos *= m_unitCM;
          if (checkRange(em, eM, pm, pM, pos.X(), pos.Y()))
             changed = kTRUE;
       }

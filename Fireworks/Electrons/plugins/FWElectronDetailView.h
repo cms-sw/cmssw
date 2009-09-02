@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.11 2009/08/27 17:54:22 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.12 2009/08/28 12:22:31 amraktad Exp $
 //
 
 // user include files
@@ -44,9 +44,6 @@ private:
 
    void  makeExtraLegend (const reco::GsfElectron*, TCanvas*);
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
- 
-
-   Float_t m_unitCM;
 };
 
 #endif
