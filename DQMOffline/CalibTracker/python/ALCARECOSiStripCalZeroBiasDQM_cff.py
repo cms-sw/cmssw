@@ -19,24 +19,25 @@ apvPhases = DPGAnalysis.SiStripTools.configurableapvcyclephaseproducer_GR09_cfi.
 apvPhases.defaultPhases = cms.vint32(30,30,30,30)
 
 from DPGAnalysis.SiStripTools.apvlatency.fakeapvlatencyessource_cff import *
-fakeapvlatency.APVLatency = cms.untracked.int32(144)
+fakeapvlatency.APVLatency = cms.untracked.int32(143)
 
 import DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_cfi
 PotentialTIBTECHugeEvents = DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_cfi.potentialTIBTECHugeEvents.clone()
-PotentialTIBTECHugeEvents.partitionName  = cms.untracked.string("TM")
-PotentialTIBTECHugeEvents.historyProduct = cms.untracked.InputTag("ConsecutiveHEs")
-PotentialTIBTECHugeEvents.APVPhaseLabel  = cms.untracked.string("apvPhases")
+PotentialTIBTECHugeEvents.partitionName              = cms.untracked.string("TM")
+PotentialTIBTECHugeEvents.absBXInCycleRangeLtcyAware = cms.untracked.vint32(8,11)
+PotentialTIBTECHugeEvents.historyProduct             = cms.untracked.InputTag("ConsecutiveHEs")
+PotentialTIBTECHugeEvents.APVPhaseLabel              = cms.untracked.string("apvPhases")
 
 import DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi
 PotentialTIBTECFrameHeaderEventsFPeak = DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi.potentialTIBTECFrameHeaderEventsFPeak.clone()
 PotentialTIBTECFrameHeaderEventsFPeak.partitionName              = cms.untracked.string("TM")
-PotentialTIBTECFrameHeaderEventsFPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,21)
+PotentialTIBTECFrameHeaderEventsFPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,22)
 PotentialTIBTECFrameHeaderEventsFPeak.historyProduct             = cms.untracked.InputTag("ConsecutiveHEs")
 PotentialTIBTECFrameHeaderEventsFPeak.APVPhaseLabel              = cms.untracked.string("apvPhases")
 
 PotentialTIBTECFrameHeaderEventsAdditionalPeak = DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi.potentialTIBTECFrameHeaderEventsFPeak.clone()
 PotentialTIBTECFrameHeaderEventsAdditionalPeak.partitionName              = cms.untracked.string("TI")
-PotentialTIBTECFrameHeaderEventsAdditionalPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,25)
+PotentialTIBTECFrameHeaderEventsAdditionalPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,26)
 PotentialTIBTECFrameHeaderEventsAdditionalPeak.historyProduct             = cms.untracked.InputTag("ConsecutiveHEs")
 PotentialTIBTECFrameHeaderEventsAdditionalPeak.APVPhaseLabel              = cms.untracked.string("apvPhases")
 
