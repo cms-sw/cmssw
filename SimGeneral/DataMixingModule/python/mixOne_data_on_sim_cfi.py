@@ -1,6 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 
+# temporary fixes for sample size mismatch in HF (Data vs MC).
+
+hcalSimBlock.hf1.readoutFrameSize = 10
+hcalSimBlock.hf2.readoutFrameSize = 10
+hcalSimBlock.hf1.binOfMaximum = 5
+hcalSimBlock.hf2.binOfMaximum = 5
+
+##################################
+
+
 mixData = cms.EDFilter("DataMixingModule",
                    hcalSimBlock,
     input = cms.SecSource("PoolRASource",
@@ -11,7 +21,8 @@ mixData = cms.EDFilter("DataMixingModule",
         type = cms.string('fixed'),
 #        fileNames = cms.untracked.vstring('dcap://cmsdca.fnal.gov:24137/pnfs/fnal.gov/usr/cms/WAX/11/store/mc/CSA08/JetET30/GEN-SIM-RECO/CSA08_S156_v1/0002/000250F6-A72B-DD11-8904-00145E1D6204.root')
 #        fileNames = cms.untracked.vstring('file:/uscms/home/mikeh/work/CMSSW_3_1_0_pre1/src/SimGeneral/DataMixingModule/python/promptrecoCosmicsDigis.root')
-         fileNames = cms.untracked.vstring('file:/uscms_data/d1/mikeh/promptRecoHCalNoise.root')
+#         fileNames = cms.untracked.vstring('file:/uscms_data/d1/mikeh/promptRecoHCalNoise.root')
+         fileNames = cms.untracked.vstring('file:/uscms_data/d1/mikeh/DMPreProcess_RAW2DIGI_SuperPointing_3_1_X.root')
     ),
     # Mixing Module parameters
     Label = cms.string(''),

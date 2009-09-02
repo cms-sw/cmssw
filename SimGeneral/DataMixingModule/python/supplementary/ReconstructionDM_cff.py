@@ -23,9 +23,9 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 #
 # please understand that division global,highlevel is completely fake !
 #
-#local reconstruction
-from SimGeneral.DataMixingModule.RecoLocalTracker_cff import *
-#from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+#local reconstruction --NOTE: modified version of RecoLocalTracker in /supplementary directory is needed
+#from SimGeneral.DataMixingModule.RecoLocalTracker_cff import *
+from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 #
 # new tau configuration
