@@ -7,16 +7,9 @@ LorentzAngleTracks = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cf
     #src = 'generalTracks',            ## for beam
     filter = True,
     applyBasicCuts = True,
-    ptMin = 2., ##10
-    ptMax = 99999.,
-    etaMin = -99., ##-2.4 keep also what is going through...
-    etaMax = 99., ## 2.4 ...both TEC with flat slope
-    nHitMin = 7,
-    nHitMin2D = 2,
-    chi2nMax = 10, #999999.,
-    applyNHighestPt = False, ## no pT measurement -> sort meaningless
-    nHighestPt = 1,
-    applyMultiplicityFilter = False
+    ptMin = 1.5,
+    nHitMin = 4,
+    chi2nMax = 10.,
     )
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
@@ -34,9 +27,7 @@ LorentzAngleTracksRefit = cms.EDFilter("TrackRefitter",
                                        Propagator = cms.string('RungeKuttaTrackerPropagator')
                                        )
 
-oneplustracks = cms.EDFilter( "TrackCountFilter", src = cms.InputTag("LorentzAngleTracks"), minNumber = cms.uint32(1) )
-
-trackFilterRefitter = cms.Sequence( LorentzAngleTracks + oneplustracks + offlineBeamSpot + LorentzAngleTracksRefit )
+trackFilterRefitter = cms.Sequence( LorentzAngleTracks + offlineBeamSpot + LorentzAngleTracksRefit )
 
 from UserCode.ShallowTools.ShallowEventDataProducer_cfi import *
 from UserCode.ShallowTools.ShallowClustersProducer_cfi import *
@@ -44,7 +35,6 @@ from UserCode.ShallowTools.ShallowTrackClustersProducer_cfi import *
 calibrationTree = cms.EDAnalyzer("ShallowTree",
                                  outputCommands = cms.untracked.vstring(
     'drop *',
-    'keep *_*_run_*',
     'keep *_*_clusterdetid_*',
     'keep *_*_clusterwidth_*',
     'keep *_*_clustervariance_*',
