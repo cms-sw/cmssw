@@ -26,6 +26,7 @@ void setEmTauVeto(bool emTauVeto){m_EmTauVeto = emTauVeto;}
 void setHadTauVeto(bool hadTauVeto){m_HadTauVeto = hadTauVeto;}
 void setIsolationVeto(bool isolationVeto){m_IsolationVeto = isolationVeto;}
 void setPartialIsolationVeto(bool pisolationVeto){m_PartialIsolationVeto = pisolationVeto;}
+void setTauVetoForPartIso(bool tauVeto){m_TauVetoForPartIso = tauVeto;}
 void setSumEtBelowThres(bool sumEtBelowThres){m_SumEtBelowThres = sumEtBelowThres;}
 void setMaxEt(bool MaxEt){m_maxEt = MaxEt;}
 void setSoft(bool Soft){m_soft = Soft;}
@@ -47,6 +48,7 @@ bool getTauVeto() const {return m_TauVeto;}
 bool getEmTauVeto() const {return m_EmTauVeto;}
 bool getHadTauVeto() const {return m_HadTauVeto;}
 bool getIsolationVeto() const {return m_IsolationVeto;}
+bool getTauVetoForPartIso() const {return m_TauVetoForPartIso;}
 bool getPartialIsolationVeto() const {return m_PartialIsolationVeto;}
 bool getSumEtBelowThres() const {return m_SumEtBelowThres;}
 bool getMaxEt() const {return m_maxEt;}
@@ -72,6 +74,7 @@ private:
   bool m_EmTauVeto;
   bool m_HadTauVeto;
   bool m_IsolationVeto;
+  bool m_TauVetoForPartIso;
   bool m_PartialIsolationVeto;
   bool m_SumEtBelowThres;
   bool m_maxEt;
