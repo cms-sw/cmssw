@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import RecoJets.JetProducers.iterativeCone5PFJets_cff
+import RecoJets.Configuration.ic5PFJets_cfi
 from PhysicsTools.PFCandProducer.ParticleSelectors.ptMinPFJetSelector_cfi import ptMinPFJets as pfJets
 
 
-allPfJets = RecoJets.JetProducers.iterativeCone5PFJets_cff.iterativeCone5PFJets.clone()
+allPfJets = RecoJets.Configuration.iterativeCone5PFJets_cff.iterativeCone5PFJets.clone()
 allPfJets.src = 'pfNoElectron'
 
 pfJets.src = 'allPfJets'
