@@ -52,7 +52,7 @@ subDirName = ""
 subDirName += "%s_%s" % (options.eventType, options.dataSource)
 
 if options.conditions != "whatever":
-   subDirName += "_%s" % options.conditions
+   subDirName += "_%s" % options.conditions.replace('::', '_')
 
 if (options.label != "none"):
    subDirName += "_" + options.label
@@ -116,6 +116,13 @@ if options.dataSource.find('recoFiles') != -1:
       process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
       process.runPFTau = cms.Path(process.PFTau)
       process.schedule.append(process.runPFTau)
+   if options.dataSource.find('PFTau') != -1:
+      process.load("Configuration.StandardSequences.Geometry_cff")
+      process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+      process.load("Configuration.StandardSequences.MagneticField_cff")
+      process.load("RecoTauTag.Configuration.RecoTauTag_cff")
+      process.runCaloTau = cms.Path(process.tautagging)
+      process.schedule.append(process.runCaloTau)
 
 # Run on DIGI files and re-RECO
 elif options.dataSource == 'digiFiles':
@@ -258,6 +265,12 @@ if options.myModifications != ['none']:
 #       CFG dump                     #
 #                                    #
 ######################################
+process.Timing = cms.Service("Timing",
+         useJobReport = cms.untracked.bool(True)
+	 )
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+         useJobReport = cms.untracked.bool(True)
+	 )
 
 dumpFileName = "cfgDump"
 if options.batchNumber >= 0:
