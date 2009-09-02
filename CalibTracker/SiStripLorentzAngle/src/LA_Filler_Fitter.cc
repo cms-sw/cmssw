@@ -2,6 +2,7 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/TTREE_FOREACH_ENTRY.hh"
 #include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/SymmetryFit.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cmath>
 #include <boost/foreach.hpp>
@@ -85,13 +86,14 @@ make_and_fit_ratio(Book& book, bool cleanup) {
     std::string all    = base+"_all";
     std::string ratio  = base+"_ratio";
 
-    TH1* p = book.book(ratio, (TH1*) book(width1)->Clone(ratio.c_str()));
+    TH1* p = (TH1*) book(width1)->Clone(ratio.c_str());
     p->Divide(book(all));
     p->Fit("gaus","LLQ");
     double mean = p->GetFunction("gaus")->GetParameter(1);
     double sigma = p->GetFunction("gaus")->GetParameter(2);
     p->Fit("gaus","LLMEQ","",mean-sigma,mean+sigma);
-
+    book.book(ratio, p);
+    
     if(cleanup) {
       book.erase(width1);
       book.erase(all);
@@ -205,16 +207,24 @@ summarize_ensembles(Book& book) {
   
   BOOST_FOREACH(const results_t::value_type group, results) {
     const std::string name = group.first;
-    BOOST_FOREACH(const Result p, group.second) {
-      float pad = (ensembleUp_-ensembleLow_)/10;
-      book.fill( p.reco,       name+"_ensembleReco", 12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
-      book.fill( p.measure,    name+"_measure",      12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
-      book.fill( p.measureErr, name+"_merr",         500, 0, 0.1);
-      book.fill( (p.measure-p.reco)/p.measureErr, name+"_pull", 500, -10,10);
+    try {
+      BOOST_FOREACH(const Result p, group.second) {
+	float pad = (ensembleUp_-ensembleLow_)/10;
+	book.fill( p.reco,       name+"_ensembleReco", 12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
+	book.fill( p.measure,    name+"_measure",      12*ensembleBins_, ensembleLow_-pad, ensembleUp_+pad );
+	book.fill( p.measureErr, name+"_merr",         500, 0, 0.1);
+	book.fill( (p.measure-p.reco)/p.measureErr, name+"_pull", 500, -10,10);
+      }
+      book(name+"_measure")->Fit("gaus","LMEQ");
+      book(name+"_merr")->Fit("gaus","LMEQ");
+      book(name+"_pull")->Fit("gaus","LMEQ");
+    } catch (edm::Exception e) {
+      std::cerr << "Fit summary failed " << std::endl << e << std::endl;
+      book.erase(name+"_ensembleReco");
+      book.erase(name+"_measure");
+      book.erase(name+"_merr");
+      book.erase(name+"_pull");
     }
-    book(name+"_measure")->Fit("gaus","LMEQ");
-    book(name+"_merr")->Fit("gaus","LMEQ");
-    book(name+"_pull")->Fit("gaus","LMEQ");
   }
 }
 
@@ -247,20 +257,25 @@ ensemble_summary(const Book& book) {
 }
 
 std::pair<std::pair<float,float>, std::pair<float,float> > LA_Filler_Fitter::
-offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
-  std::vector<float> x,y,xerr,yerr;
-  BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
-    x.push_back(ensemble.truth);
-    xerr.push_back(0);
-    y.push_back(ensemble.meanMeasured);
-    yerr.push_back(ensemble.SDmeanMeasured);
+offset_slope(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) { 
+  try {
+    std::vector<float> x,y,xerr,yerr;
+    BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
+      x.push_back(ensemble.truth);
+      xerr.push_back(0);
+      y.push_back(ensemble.meanMeasured);
+      yerr.push_back(ensemble.SDmeanMeasured);
+    }
+    TGraphErrors graph(x.size(),&(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
+    graph.Fit("pol1");
+    TF1* fit = graph.GetFunction("pol1");
+    
+    return std::make_pair( std::make_pair(fit->GetParameter(0), fit->GetParError(0)),
+			   std::make_pair(fit->GetParameter(1), fit->GetParError(1)) );
+  } catch(edm::Exception e) { 
+    std::cerr << "Fitting Line Failed " << std::endl << e << std::endl;
+    return std::make_pair( std::make_pair(0,0), std::make_pair(0,0));
   }
-  TGraphErrors graph(x.size(),&(x[0]),&(y[0]),&(xerr[0]),&(yerr[0]));
-  graph.Fit("pol1");
-  TF1* fit = graph.GetFunction("pol1");
-
-  return std::make_pair( std::make_pair(fit->GetParameter(0), fit->GetParError(0)),
-			 std::make_pair(fit->GetParameter(1), fit->GetParError(1)) );
 }
 
 float LA_Filler_Fitter::
