@@ -1,3 +1,14 @@
+// -*- C++ -*-
+//
+// Package:     Electron
+// Class  :     FWDetailViewJohannes
+//
+// Implementation:
+//     <Notes on implementation>
+//
+// Original Author:  Johannes Muelmenstaedt
+//         Created:  Mon Feb 11 11:06:40 EST 2008
+//
 #include "TAxis.h"
 #include "TGLViewer.h"
 #include "TCanvas.h"
@@ -55,7 +66,6 @@ private:
    const EcalRecHitCollection *m_endcap_reduced_hits;
    std::vector< std::pair<DetId, float> > m_seedDetIds;
 
-   Double_t   m_unitCM;
    const FWEventItem* m_item;
    bool  m_coordEtaPhi; // use XY coordinate if EndCap, else EtaPhi
    TCanvas* m_textCanvas;
@@ -108,8 +118,8 @@ void FWECALDetailViewJohannes<T>::build(const FWModelId &id, const T *i, TGCompo
       x = i->caloPosition().eta();
       y = i->caloPosition().phi();
    } else if (subdetId == EcalEndcap) {
-      x = i->caloPosition().x()*m_unitCM;
-      y = i->caloPosition().y()*m_unitCM;
+      x = i->caloPosition().x();
+      y = i->caloPosition().y();
    }
    scposition->AddLine(x, y, z, x, y, z);
    scposition->AddMarker(0, 0.5);
@@ -124,8 +134,8 @@ void FWECALDetailViewJohannes<T>::build(const FWModelId &id, const T *i, TGCompo
       x  = i->superCluster()->seed()->position().eta();
       y  = i->superCluster()->seed()->position().phi();
    } else if (subdetId == EcalEndcap) {
-      x  = i->superCluster()->seed()->position().x()*m_unitCM;
-      y  = i->superCluster()->seed()->position().y()*m_unitCM;
+     x  = i->superCluster()->seed()->position().x();
+     y  = i->superCluster()->seed()->position().y();
    }
    seedposition->AddLine(x, y, z, x, y, z);
    seedposition->AddMarker(0, 0.5);
@@ -136,6 +146,7 @@ void FWECALDetailViewJohannes<T>::build(const FWModelId &id, const T *i, TGCompo
    // data
    //
    TEveCaloDataVec* data = new TEveCaloDataVec(3);
+   data->SetWrapTwoPi(m_coordEtaPhi);
    data->RefSliceInfo(0).Setup("seed cluster", 0.0, kMagenta+2);
    data->RefSliceInfo(1).Setup("other clusters", 0.0, kMagenta-5);
    data->RefSliceInfo(2).Setup("track intersections", 0.0, kWhite);
@@ -149,13 +160,17 @@ void FWECALDetailViewJohannes<T>::build(const FWModelId &id, const T *i, TGCompo
    data->GetPhiLimits(pm, pM);
    data->SetAxisFromBins((eM-em)*0.05, (pM-pm)*0.05); // 5% percision
    if (detids.size() > 0 && detids.begin()->first.subdetId() == EcalEndcap) {
-      data->GetEtaBins()->SetTitle("X[m]");
-      data->GetPhiBins()->SetTitle("Y[m]");
+      data->GetEtaBins()->SetTitle("X[cm]");
+      data->GetPhiBins()->SetTitle("Y[cm]");
+      data->GetEtaBins()->SetTitleSize(0.03); 
+      data->GetPhiBins()->SetTitleSize(0.03); 
    } else {
       data->GetEtaBins()->SetTitleFont(122);
       data->GetEtaBins()->SetTitle("h");
       data->GetPhiBins()->SetTitleFont(122);
       data->GetPhiBins()->SetTitle("f");
+      data->GetEtaBins()->SetTitleSize(0.03); 
+      data->GetPhiBins()->SetTitleSize(0.03); 
    }
    // add offset
    if (0)
@@ -267,8 +282,8 @@ void FWECALDetailViewJohannes<T>::fillData (const std::vector< std::pair<DetId, 
          data->FillSlice(slice, size);
       } else if (k->first.subdetId() == EcalEndcap) {
          // switch from cm to m
-         data->AddTower((v.X() - 2.9 / 2)*m_unitCM, (v.X() + 2.9 / 2)*m_unitCM,
-                        (v.Y() - 2.9 / 2)*m_unitCM, (v.Y() + 2.9 / 2)*m_unitCM);
+         data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
+                        (v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
          data->FillSlice(slice, size);
       }
    }
