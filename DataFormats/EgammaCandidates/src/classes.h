@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.32 2009/03/24 18:04:00 nancy Exp $
+// $Id: classes.h,v 1.33 2009/06/15 22:44:16 chamont Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -106,6 +106,7 @@ namespace {
     reco::GsfElectron::ShowerShape gess ;
     reco::GsfElectron::IsolationVariables geiv ;
     reco::GsfElectron::Corrections gec ;
+    reco::GsfElectron::ChargeInfo geci ;
 
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;

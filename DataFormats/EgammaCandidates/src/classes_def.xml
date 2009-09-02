@@ -80,6 +80,7 @@
   <class name="reco::GsfElectron::ShowerShape"/>
   <class name="reco::GsfElectron::IsolationVariables"/>
   <class name="reco::GsfElectron::Corrections"/>
+  <class name="reco::GsfElectron::ChargeInfo"/>
   
   <class name="reco::GsfElectron"/>
   <class name="std::vector<reco::GsfElectron>"/>  
