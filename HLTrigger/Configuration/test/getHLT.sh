@@ -31,12 +31,13 @@ function getOutputCommands() {
 }
 
 function getContentForCVS() {
+  # FIXME - the pipe through sed removes the definition of streams and primary datasets from the dump - this should be done directly by edmConfigFromDB
   local CONFIG="$1"
   local OUTPUT_ALCA="hltOutputALCAPHISYM hltOutputALCAPHISYMHCAL hltOutputALCAP0 hltOutputRPCMON"
   local OUTPUT_MON="hltOutputDQM hltOutputHLTDQM hltOutputHLTMON hltOutput8E29 hltOutput1E31 hltOutputHIon"
-  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands "hltOutputA") --format python > hltOutputA_cff.py
-  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_MON)  --format python > hltOutputMON_cff.py
-  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_ALCA) --format python > hltOutputALCA_cff.py
+  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands "hltOutputA") --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > hltOutputA_cff.py
+  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_MON)  --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > hltOutputMON_cff.py
+  edmConfigFromDB --configName $CONFIG --noedsources --nopaths --noes --nopsets --noservices --cff --blocks $(getOutputCommands $OUTPUT_ALCA) --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > hltOutputALCA_cff.py
 }
 
 function getConfigForOnline() {
