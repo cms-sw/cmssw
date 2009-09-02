@@ -358,7 +358,8 @@ const char* TiXmlBase::SkipWhiteSpace( const char* p, TiXmlEncoding encoding )
 	}
 	else
 	{
-		while ( *p && IsWhiteSpace( *p ) || *p == '\n' || *p =='\r' )
+		// Code altered by user.  An extra pair of () was added to eliminate a compiler warning.
+		while ( ( *p && IsWhiteSpace( *p ) ) || *p == '\n' || *p =='\r' )
 			++p;
 	}
 
