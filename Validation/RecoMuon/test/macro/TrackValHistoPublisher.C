@@ -21,7 +21,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  char* refLabel("REF_LABEL, REF_RELEASE REFSELECTION");
  char* newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION");
 
- Float_t maxPT=1025.;
+ Float_t maxPT=1500.;
 
 
  //=============================================
