@@ -4,7 +4,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
-
+#include <algorithm>
 #include <string>
 #include <vector>
 
