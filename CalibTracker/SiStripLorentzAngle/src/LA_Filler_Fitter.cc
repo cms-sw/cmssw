@@ -267,9 +267,9 @@ float LA_Filler_Fitter::
 pull(const std::vector<LA_Filler_Fitter::EnsembleSummary>& ensembles) {
   float p(0),w(0);
   BOOST_FOREACH(EnsembleSummary ensemble, ensembles) {
-    float unc = ensemble.SDmeanUncertainty / ensemble.sigmaMeasured;
-    p+=       (   ensemble.meanUncertainty / ensemble.sigmaMeasured ) / (unc*unc);
-    w+= 1/(unc*unc);
+    float unc2 = pow(ensemble.SDpull,2);
+    p+=  ensemble.pull / unc2;
+    w+= 1/unc2;
   }
   return p/w;
 }

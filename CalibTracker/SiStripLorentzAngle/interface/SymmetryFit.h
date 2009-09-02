@@ -54,8 +54,6 @@ class SymmetryFit {
     unsigned imin = x.size()/5+(std::min_element(X2.begin(),X2.end())-X2.begin())/2;
     if( std::min(imin-3, x.size()-imin-3) > 3)
       ndf_ = fill_chi2_array(std::make_pair(imin-3,imin+3));
-    else if (std::min(imin-2, x.size()-imin-2) > 2)
-      ndf_ = fill_chi2_array(std::make_pair(imin-2,imin+2));
     else {status_=4; return;}
     
     TGraph graph(X2.size(), &(xX2[0]), &(X2[0]));
@@ -63,6 +61,7 @@ class SymmetryFit {
     p0_ = graph.GetFunction("pol2")->GetParameter(0);
     p1_ = graph.GetFunction("pol2")->GetParameter(1);
     p2_ = graph.GetFunction("pol2")->GetParameter(2);
+    if(p2_<0) status_=4;
   }
 
   unsigned fill_chi2_array(std::pair<unsigned,unsigned> window) {
