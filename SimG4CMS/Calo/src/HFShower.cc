@@ -25,8 +25,6 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
 							   chkFibre(chk) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
-  //static SimpleConfigurable<double> cf1(0.5, "HFShower:CFibre");
-  //static SimpleConfigurable<float>  pPr(0.7268,"VCalShowerLibrary:ProbMax");
   probMax          = m_HF.getParameter<double>("ProbMax");
 
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
@@ -162,6 +160,80 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
   return hits;
 
 } 
+
+std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
+
+  std::vector<HFShower::Hit> hits;
+  int    nHit    = 0;
+
+  double edep    = aStep->GetTotalEnergyDeposit();
+  double stepl   = 0.;
+
+  if (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.)
+    stepl = aStep->GetStepLength();
+  if ((edep == 0.) || (stepl == 0.)) {
+#ifdef DebugLog
+    LogDebug("HFShower") << "HFShower::getHits: Number of Hits " << nHit;
+#endif
+    return hits;
+  }
+
+  G4Track *aTrack = aStep->GetTrack();
+  const G4DynamicParticle *aParticle = aTrack->GetDynamicParticle();
+
+  HFShower::Hit hit;
+  double energy   = aParticle->GetTotalEnergy();
+  double momentum = aParticle->GetTotalMomentum();
+  double pBeta    = momentum / energy;
+  double dose     = 0.;
+  int    npeDose  = 0;
+
+  G4ThreeVector momentumDir = aParticle->GetMomentumDirection();
+  G4ParticleDefinition *particleDef = aTrack->GetDefinition();
+
+  G4StepPoint *     preStepPoint = aStep->GetPreStepPoint();
+  G4ThreeVector     globalPos    = preStepPoint->GetPosition();
+  G4String          name         = preStepPoint->GetTouchable()->GetSolid(0)->GetName();
+  double            zv = std::abs(globalPos.z()) - gpar[4] - 0.5*gpar[1];
+  G4ThreeVector     localPos     = G4ThreeVector(globalPos.x(),globalPos.y(),
+						 zv);
+  G4ThreeVector     localMom     = preStepPoint->GetTouchable()->GetHistory()->
+    GetTopTransform().TransformAxis(momentumDir);
+  int               depth        = (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10;
+  G4ThreeVector     translation  = preStepPoint->GetTouchable()->GetVolume(1)->GetObjectTranslation();
+
+  double u        = localMom.x();
+  double v        = localMom.y();
+  double w        = localMom.z();
+  double zCoor    = localPos.z();
+  double zFibre   = (0.5*gpar[1]-zCoor-translation.z());
+  double tSlice   = (aStep->GetPostStepPoint()->GetGlobalTime());
+  double time     = fibre->tShift(localPos, depth, chkFibre);
+
+#ifdef DebugLog
+  LogDebug("HFShower") << "HFShower::getHits: in " << name << " Z " << zCoor
+		       << "(" << globalPos.z() << ") " << zFibre << " Trans "
+		       << translation << " Time " << tSlice  << " " << time
+		       << "\n                  Direction " << momentumDir
+		       << " Local " << localMom;
+#endif
+  int npe = cherenkov->computeNPE(particleDef, pBeta, u, v, w, stepl, zFibre,
+				  dose, npeDose);
+  std::vector<double> wavelength = cherenkov->getWL();
+  std::vector<double> momz       = cherenkov->getMom();
+
+  for (int i = 0; i<npe; ++i) {
+    hit.time = tSlice+time;
+    hit.wavelength = wavelength[i];
+    hit.momentum   = momz[i];
+    hit.position   = globalPos;
+    hits.push_back(hit);
+    nHit++;
+  }
+
+  return hits;
+
+}
 
 std::vector<double> HFShower::getDDDArray(const std::string & str, 
 					  const DDsvalues_type & sv, 

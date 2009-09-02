@@ -37,6 +37,7 @@ public:
   };
 
   std::vector<Hit>           getHits(G4Step * aStep);
+  std::vector<Hit>           getHits(G4Step * aStep, bool forLibrary);
 
 private:    
 

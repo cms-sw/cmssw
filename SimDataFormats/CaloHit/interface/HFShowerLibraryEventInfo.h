@@ -31,5 +31,5 @@ private:
   float                   fHFShowerLibVers, fPhyListVers;
   std::vector<double>     fEnergies;
 };
-
+typedef std::vector<HFShowerLibraryEventInfo> HFShowerLibraryEventInfoCollection;
 #endif
