@@ -47,8 +47,6 @@ def timeStamptoDate(i):
 It is recommended to redirect the output to a file.
 """
 
-print "Reading all IOVs"
-
 import os
 import re
 import sys
@@ -58,6 +56,8 @@ if len(sys.argv) < 3:
     print "Please provide the name of the sqlite file and the tag as in: ",
     print "./CheckAllIOVs.py Example1a.db SiStripDetVOff_Fake_31X"
     sys.exit(1)
+
+print "Reading all IOVs"
 
 # Example1a.db
 # SiStripDetVOff_Fake_31X
