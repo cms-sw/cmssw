@@ -3,17 +3,21 @@
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+class HcalElectronicsSim;
 
 class HcalBaseSignalGenerator : public CaloVNoiseSignalGenerator
 {
 public:
   HcalBaseSignalGenerator()
-  : theParameterMap(0) {}
+  : theParameterMap(0), theElectronicsSim(0) {}
 
   virtual ~HcalBaseSignalGenerator() {}
 
   void setParameterMap(HcalSimParameterMap * map) {theParameterMap = map;}
 
+  // can be needed to set starting cap ID
+  void setElectronicsSim(HcalElectronicsSim * electronicsSim) {std::cout << "SELESIM " << std::endl;theElectronicsSim = electronicsSim;}
+  
 protected:
 
   void fC2pe(CaloSamples & samples) const
@@ -24,6 +28,7 @@ protected:
   }
 
   HcalSimParameterMap * theParameterMap;
+  HcalElectronicsSim * theElectronicsSim;
 };
 
 #endif
