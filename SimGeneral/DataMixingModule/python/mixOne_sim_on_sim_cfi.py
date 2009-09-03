@@ -16,7 +16,6 @@ mixData = cms.EDFilter("DataMixingModule",
     maxBunch = cms.int32(0),
     bunchspace = cms.int32(25),
     minBunch = cms.int32(0),
-    checktof = cms.bool(False), 
     #
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
