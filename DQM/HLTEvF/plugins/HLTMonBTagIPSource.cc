@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 16:50:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/01 16:52:48 $
+ *  $Revision: 1.3 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -115,11 +115,11 @@ void HLTMonBTagIPSource::beginJob() {
   m_plotL25TrackEtaPT               = book("L25_track_eta_pt",       "L2.5 pixel tracks eta vs. pT",      60,  -3.0,   3.0,  50,  0.,   50.,  "#eta", "GeV");
   m_plotL25IP2ndTrack2d             = book("L25_IP_2ndTrack_2d",     "L2.5 2nd pixel track 2D IP",        25,  -0.05, 0.20, "cm");
   m_plotL25IP2ndTrack2dSig          = book("L25_IP_2ndTrack_2dSig",  "L2.5 2nd pixel track 2D SIP",       80, -30.,   50.);
-  m_plotL25IP2ndTrack3d             = book("L25_IP_2ndTrack_3d",     "L2.5 2nd pixel track 3D IP",        60,  -1.0,  5.0,  "cm");
+  m_plotL25IP2ndTrack3d             = book("L25_IP_2ndTrack_3d",     "L2.5 2nd pixel track 3D IP",        60,  -0.20, 1.00, "cm");
   m_plotL25IP2ndTrack3dSig          = book("L25_IP_2ndTrack_3dSig",  "L2.5 2nd pixel track 3D SIP",       80, -30.,   50.);
   m_plotL25IP3ndTrack2d             = book("L25_IP_3ndTrack_2d",     "L2.5 3rd pixel track 2D IP",        25,  -0.05, 0.20, "cm");
   m_plotL25IP3ndTrack2dSig          = book("L25_IP_3ndTrack_2dSig",  "L2.5 3rd pixel track 2D SIP",       80, -30.,   50.);
-  m_plotL25IP3ndTrack3d             = book("L25_IP_3ndTrack_3d",     "L2.5 3rd pixel track 3D IP",        60,  -1.0,  5.0,  "cm");
+  m_plotL25IP3ndTrack3d             = book("L25_IP_3ndTrack_3d",     "L2.5 3rd pixel track 3D IP",        60,  -0.20, 1.00, "cm");
   m_plotL25IP3ndTrack3dSig          = book("L25_IP_3ndTrack_3dSig",  "L2.5 3rd pixel track 3D SIP",       80, -30.,   50.);
   m_plotL25Discriminator            = book("L25_discriminator",      "L2.5 b-tag discriminator",          80, -30.,   50.);
   m_plotL3JetsEnergy                = book("L3_jet_energy",          "L3 jet Energy",                    300,   0.,  300.,  "GeV");
@@ -135,11 +135,11 @@ void HLTMonBTagIPSource::beginJob() {
   m_plotL3TrackEtaPT                = book("L3_track_eta_pt",        "L3 tracks eta vs. pT",              60,  -3.0,   3.0,  50,  0.,   50.,  "#eta", "GeV");
   m_plotL3IP2ndTrack2d              = book("L3_IP_2ndTrack_2d",      "L3 2nd track 2D IP",                25,  -0.05, 0.20, "cm");
   m_plotL3IP2ndTrack2dSig           = book("L3_IP_2ndTrack_2dSig",   "L3 2nd track 2D SIP",               80, -30.,   50.);
-  m_plotL3IP2ndTrack3d              = book("L3_IP_2ndTrack_3d",      "L3 2nd track 3D IP",                60,  -1.0,  5.0,  "cm");
+  m_plotL3IP2ndTrack3d              = book("L3_IP_2ndTrack_3d",      "L3 2nd track 3D IP",                60,  -0.20, 1.00, "cm");
   m_plotL3IP2ndTrack3dSig           = book("L3_IP_2ndTrack_3dSig",   "L3 2nd track 3D SIP",               80, -30.,   50.);
   m_plotL3IP3ndTrack2d              = book("L3_IP_3ndTrack_2d",      "L3 3rd track 2D IP",                25,  -0.05, 0.20, "cm");
   m_plotL3IP3ndTrack2dSig           = book("L3_IP_3ndTrack_2dSig",   "L3 3rd track 2D SIP",               80, -30.,   50.);
-  m_plotL3IP3ndTrack3d              = book("L3_IP_3ndTrack_3d",      "L3 3rd track 3D IP",                60,  -1.0,  5.0,  "cm");
+  m_plotL3IP3ndTrack3d              = book("L3_IP_3ndTrack_3d",      "L3 3rd track 3D IP",                60,  -0.20, 1.00, "cm");
   m_plotL3IP3ndTrack3dSig           = book("L3_IP_3ndTrack_3dSig",   "L3 3rd track 3D SIP",               80, -30.,   50.);
   m_plotL3Discriminator             = book("L3_discriminator",       "L3 b-tag discriminator",            80, -30.,   50.);
 }
