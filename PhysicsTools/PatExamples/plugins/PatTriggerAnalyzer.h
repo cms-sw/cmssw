@@ -37,8 +37,14 @@ namespace pat {
       edm::InputTag muons_;
       std::string   muonMatch_;
 
+      unsigned minID_;
+      unsigned maxID_;
+
       std::map< std::string, TH1D* > histos1D_;
       std::map< std::string, TH2D* > histos2D_;
+
+      std::map< unsigned, unsigned > sumN_;
+      std::map< unsigned, double >   sumPt_;
   };
 
 }
