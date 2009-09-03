@@ -55,6 +55,7 @@ SimDigiDumper::SimDigiDumper( const edm::ParameterSet& iPSet )
   ECalEESrc_ = iPSet.getParameter<edm::InputTag>("ECalEESrc");
   ECalESSrc_ = iPSet.getParameter<edm::InputTag>("ECalESSrc");
   HCalDigi_ = iPSet.getParameter<edm::InputTag>("HCalDigi");
+  ZdcDigi_ = iPSet.getParameter<edm::InputTag>("ZdcDigi"); 
   SiStripSrc_ = iPSet.getParameter<edm::InputTag>("SiStripSrc"); 
   SiPxlSrc_ = iPSet.getParameter<edm::InputTag>("SiPxlSrc");
   MuDTSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSrc");
@@ -74,6 +75,8 @@ SimDigiDumper::SimDigiDumper( const edm::ParameterSet& iPSet )
     << ":" << ECalESSrc_.instance() << "\n"
     << "    HCalDigi       = " << HCalDigi_.label()
     << ":" << HCalDigi_.instance() << "\n"
+    << "    ZdcDigi       = " << ZdcDigi_.label()
+    << ":" << ZdcDigi_.instance() << "\n"
     << "    SiStripSrc    = " << SiStripSrc_.label()
     << ":" << SiStripSrc_.instance() << "\n"
     << "    SiPixelSrc    = " << SiPxlSrc_.label()
@@ -242,7 +245,27 @@ SimDigiDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
     }
   }
 
-
+  // ZDC
+  bool isZDC = true;
+  edm::Handle<ZDCDigiCollection> zdc;
+  const ZDCDigiCollection *ZDCdigis = 0;
+  iEvent.getByLabel(ZdcDigi_,zdc);
+  if (!zdc.isValid()) {
+    std::cout << "Unable to find ZDCDataFrame in event!" << std::endl;
+  }
+  else {
+    ZDCdigis = zdc.product();
+    if ( zdc->size() == 0 ) isZDC = false;
+    std::cout << "ZDC, digi multiplicity = " << zdc->size() << std::endl;
+    
+    if (isZDC) {
+      //loop over digis
+      for (unsigned int digis=0; digis<zdc->size(); ++digis) {	
+        ZDCDataFrame hodf = (*ZDCdigis)[digis];
+        std::cout << hodf << std::endl;
+      }
+    }
+  }
 
   // Strip Tracker
   bool isStrip = true;

@@ -27,6 +27,8 @@ class SimDigiDumper : public edm::EDAnalyzer{
 
   edm::InputTag HCalDigi_;
 
+  edm::InputTag ZdcDigi_;
+
   edm::InputTag SiStripSrc_;
 
   edm::InputTag SiPxlSrc_;
