@@ -20,15 +20,13 @@ fill(TTree* tree, Book& book) {
 		      std::vector<unsigned>* LEAF( clusterwidth )
 		      std::vector<float>*    LEAF( clustervariance )
 		      std::vector<unsigned>* LEAF( tsostrackmulti )
-		      std::vector<int>*      LEAF( tsostrackindex ) //should move track filters to CMSSW, loose track leaves
 		      std::vector<float>*    LEAF( tsosdriftx )
 		      std::vector<float>*    LEAF( tsosdriftz )
 		      std::vector<float>*    LEAF( tsoslocalpitch )
 		      std::vector<float>*    LEAF( tsoslocaltheta )
 		      std::vector<float>*    LEAF( tsoslocalphi )
 		      std::vector<float>*    LEAF( tsosBdotY )
-		      std::vector<double>*   LEAF( trackchi2ndof ) //should move track filters to CMSSW, loose track leaves
-		      std::vector<unsigned>* LEAF( trackhitsvalid )//should move track filters to CMSSW, loose track leaves
+		      std::vector<float>*    LEAF( tsosglobalZofunitlocalY )
 		      ) {
     if(maxEvents_) TTREE_FOREACH_ENTRY_total = std::min(maxEvents_,TTREE_FOREACH_ENTRY_total);
     for(unsigned i=0; i< clusterwidth->size() ; i++) {  
@@ -36,8 +34,6 @@ fill(TTree* tree, Book& book) {
       SiStripDetId detid((*clusterdetid)[i]);
 
       if( (*tsostrackmulti)[i] != 1 ||
-	  (*trackchi2ndof)[(*tsostrackindex)[i]] > 10 || //should move track filters to CMSSW, loose track leaves
-	  (*trackhitsvalid)[(*tsostrackindex)[i]] < 7 || //should move track filters to CMSSW, loose track leaves
 	  detid.subDetector()!=SiStripDetId::TIB && 
 	  detid.subDetector()!=SiStripDetId::TOB        ) 
 	continue;
