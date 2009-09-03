@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/26 08:39:42 $
- * $Revision: 1.4 $
+ * $Date: 2009/09/01 09:03:55 $
+ * $Revision: 1.5 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -21,30 +21,39 @@ extern "C" {
 using namespace std;
 
 bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
-		 const list<double>& pz,
-		 const list<double>& px,
-		 const list<double>& pex,
+		 const list<double>& pzl,
+		 const list<double>& pxl,
+		 const list<double>& pexl,
 		 const double m_min, const double m_max,
 		 const double q_min, const double q_max,
 		 const double BIG_M, const double theDeltaFactor)
-    {
-      bool debug = false;
-    const unsigned int n_points = pz.size();
-    if (n_points <= 4) return false;
-    //the data struct representing the problem
-    glp_prob *lp = 0;
-    //the vectors that will contain indices over rows and columns to load in the problem matrix
-    vector<int> ia, ja;
-    //the vector that will contain coefficients to load in the problem matrix
-    vector<double> ar;
-    lp = glp_create_prob();
-
-    // glp_set_class(lp, GLP_MIP);//mixed integer prog.
-    glp_set_prob_name(lp, "trackFit");
-    //setting a minimization problem
-    glp_set_obj_dir(lp, GLP_MIN);
-    
-    if(debug)
+{
+  bool debug =false;
+  //FIXME
+  vector<double> pz, px, pex;
+  pz.resize(pzl.size());
+  copy(pzl.begin(), pzl.end(), pz.begin());
+  px.resize(pxl.size());
+  copy(pxl.begin(), pxl.end(), px.begin());
+  pex.resize(pexl.size());
+  copy(pexl.begin(), pexl.end(), pex.begin());
+  //
+  const unsigned int n_points = pz.size();
+  if (n_points <= 4) return false;
+  //the data struct representing the problem
+  glp_prob *lp = 0;
+  //the vectors that will contain indices over rows and columns to load in the problem matrix
+  vector<int> ia, ja;
+  //the vector that will contain coefficients to load in the problem matrix
+  vector<double> ar;
+  lp = glp_create_prob();
+  
+  // glp_set_class(lp, GLP_MIP);//mixed integer prog.
+  glp_set_prob_name(lp, "trackFit");
+  //setting a minimization problem
+  glp_set_obj_dir(lp, GLP_MIN);
+  
+  if(debug)
     cout << "[lpAlgorithm] LP-MIP Problem Created, # points = " << pz.size()<< " "  << px.size() << " "  << pex.size() << endl
 	 << "              m_min= " << m_min <<  " m_max= " << m_max
 	 << " q_min= " << q_min <<  " q_max= " << q_max << endl
@@ -64,8 +73,8 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
     glp_set_col_bnds(lp, 3, GLP_LO, 0.0, 0.0); // q+ >=0
     glp_set_col_bnds(lp, 4, GLP_LO, 0.0, 0.0); // m- >=0
     for (unsigned int i=0; i<n_points; i++) {
-        // sigmas >= 0
-        glp_set_col_bnds(lp, 4 + i + 1, GLP_LO, 0.0, 0.0);
+        // 0 <= sigmas <= Di
+        glp_set_col_bnds(lp, 4 + i + 1, GLP_DB, 0.0, pex[i] * theDeltaFactor);
         // 0 <= lambdas <= 1 
         glp_set_col_bnds(lp, n_points + 4 + i + 1, GLP_DB, 0., 1.);
         // lambdas are integer (binary)
@@ -75,33 +84,28 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
     if(debug) cout << "Columns defined" << endl;
     /*******************ROWS DEFINITION*****************************
      *                                                             */		
-	//rows are auxiliary variables (those not appearing in the objective func)
-	// 4 are needed by the inequalities for each point (at page 3 of the note)
-	// n/2 are the constraints over each pair of points, i.e. only one at most can be used 
-	// 2 are m and q
-	const int n_rows = 4 * n_points + n_points/2 + 2; 
-	glp_add_rows(lp, n_rows);
-	//set rows boundaries
-	//constraints over the first four inequalites
-	int i = 0;
-	for (list<double>::const_iterator it = px.begin(); it != px.end(); it++) {
-	  glp_set_row_bnds(lp, i + 1, GLP_UP, 0., *it); //a1 <= Xi
-	  glp_set_row_bnds(lp, n_points + i + 1, GLP_LO, *it, 0.); //a2 >= Xi
-	  i++;
-	}
-	i =0;
-	for (list<double>::const_iterator it = pex.begin(); it != pex.end(); it++) {
-        glp_set_row_bnds(lp, 2 * n_points + i + 1, GLP_UP, 0., (*it) * theDeltaFactor ); //a3 <= Di
-        glp_set_row_bnds(lp, 3 * n_points + i + 1, GLP_UP, 0., BIG_M - ((*it) * theDeltaFactor)); //a4 <= M-Di
-	i ++;
-	}
-        // Constraints on lambda pairs
-	for (unsigned int i=0; i<n_points; i++) if (i%2==0) glp_set_row_bnds(lp, 4 * n_points + i/2 + 1, GLP_LO, 1., 0.);			
-	// Constraints on m and q
-	glp_set_row_bnds(lp, n_rows-1, GLP_DB, m_min, m_max);// m_min <= m <= m_max
-	glp_set_row_bnds(lp, n_rows, GLP_DB, q_min, q_max);// q_min <= q <= q_max
+    //rows are auxiliary variables (those not appearing in the objective func)
+    // 4 are needed by the inequalities for each point (at page 3 of the note)
+    // n/2 are the constraints over each pair of points, i.e. only one at most can be used 
+    // 2 are m and q
     
-	if(debug) cout << "Rows defined" << endl;
+    const int n_rows = 3 * n_points + n_points/2 + 2; 
+    glp_add_rows(lp, n_rows);
+    //set rows boundaries
+    //constraints over the first three inequalites
+    
+    for (unsigned int i =0; i<n_points; i++){
+      glp_set_row_bnds(lp, i + 1, GLP_UP, 0., px[i]); //a1 <= Xi
+      glp_set_row_bnds(lp, n_points + i + 1, GLP_LO, px[i], 0.); //a2 >= Xi
+      glp_set_row_bnds(lp, 2 * n_points + i + 1, GLP_UP, 0., 0.); //a4 <= 0
+    }
+    // Constraints on lambda pairs
+    for (unsigned int i=0; i<n_points; i++) if (i%2==0) glp_set_row_bnds(lp, 3 * n_points + i/2 + 1, GLP_LO, 1., 0.);			
+    // Constraints on m and q
+    glp_set_row_bnds(lp, n_rows-1, GLP_DB, m_min, m_max);// m_min <= m <= m_max
+    glp_set_row_bnds(lp, n_rows, GLP_DB, q_min, q_max);// q_min <= q <= q_max
+    
+    if(debug) cout << "Rows defined" << endl;
 	
     /******************OBJECTIVE FUNCTION*********************************
      *                                                                   */
@@ -112,14 +116,12 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
     glp_set_obj_coef(lp, 3, 0.);//q+
     glp_set_obj_coef(lp, 4, 0.);//q-
     // for the next structural variables (sigmas) the coefficient is 1/delta
-    i = 0;
-    for (list<double>::const_iterator it = pex.begin(); it != pex.end(); it++){
-      glp_set_obj_coef(lp, i+5, 1./( theDeltaFactor * (*it))); // sigma_i / Delta_i
-      i++;
-    }
     // than we have the coefficients for lambda: M (to maximize number of points, 
     //because we are minimizing the objective function)
-    for (unsigned int i=0; i<n_points; i++) glp_set_obj_coef(lp, n_points + 5 + i,  BIG_M );
+    for (unsigned int i=0; i<n_points; i++){
+      glp_set_obj_coef(lp, i+5, 1./( theDeltaFactor * pex[i])); // sigma_i / Delta_i
+      glp_set_obj_coef(lp, n_points + 5 + i,  BIG_M );//coefficient for lambdas
+    }
     
     if(debug) cout << "Objective funct. defined" << endl;
 
@@ -127,46 +129,40 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
      *                                                                            */
     // a good thing to know is that only non-zero elements need to be passed to the loader (we can safely skip the zeros)
     //ia indexes rows, ja columns ar contains the coefficient for given row and col.
-    i = 0;
-    for (list<double>::const_iterator it = pz.begin(); it != pz.end(); it++) {//FIXME use static arrays
-   
-        //first equation(row): m * Zi + q - sigma_i - lambda_i * M
-        ia.push_back(i + 1), ja.push_back(1), ar.push_back(*it);//m+ * Zi
-        ia.push_back(i + 1), ja.push_back(2), ar.push_back(-(*it));//m- * -Zi
-        ia.push_back(i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
-        ia.push_back(i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
-        ia.push_back(i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
-        ia.push_back(i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(-BIG_M);// -M * lambda_i       
+    for(unsigned int i=0; i < n_points; i++)
+    {
+      //first equation(row): m * Zi + q - sigma_i - lambda_i * M
+      ia.push_back(i + 1), ja.push_back(1), ar.push_back(pz[i]);//m+ * Zi
+      ia.push_back(i + 1), ja.push_back(2), ar.push_back(-pz[i]);//m- * -Zi
+      ia.push_back(i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
+      ia.push_back(i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
+      ia.push_back(i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
+      ia.push_back(i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(-BIG_M);// -M * lambda_i       
         
-        //second equation: m * Zi + q + sigma_i + lambda_i * M
-        ia.push_back(n_points + i + 1), ja.push_back(1), ar.push_back(*it);//m+ * Zi
-        ia.push_back(n_points + i + 1), ja.push_back(2), ar.push_back(-(*it));//m- * -Zi
-        ia.push_back(n_points + i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
-        ia.push_back(n_points + i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
-        ia.push_back(n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(1);// +1 * sigma_i
-        ia.push_back(n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(BIG_M);// M * lambda_i        
+      //second equation: m * Zi + q + sigma_i + lambda_i * M
+      ia.push_back(n_points + i + 1), ja.push_back(1), ar.push_back(pz[i]);//m+ * Zi
+      ia.push_back(n_points + i + 1), ja.push_back(2), ar.push_back(-pz[i]);//m- * -Zi
+      ia.push_back(n_points + i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
+      ia.push_back(n_points + i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
+      ia.push_back(n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(1);// +1 * sigma_i
+      ia.push_back(n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(BIG_M);// M * lambda_i        
         
-        //third equation: sigma_i - M * lambda_i
-        ia.push_back(2 * n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(1);// +1 * sigma_i
-        ia.push_back(2 * n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(-BIG_M);// -M * lambda_i        
+      //third equation:  lambda_i * Di - sigma_i //ENZO
+      ia.push_back(2 * n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
+      ia.push_back(2 * n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(pex[i]*theDeltaFactor);// Di * lambda_i        
         
-        //fourth equation: -sigma_i + M * lambda_i  
-        ia.push_back(3 * n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
-        ia.push_back(3 * n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(BIG_M);// M * lambda_i        
-        
-        // exclusivity of pairs
-        if (i%2==0) {
-            ia.push_back(4 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 ), ar.push_back(1);// +1 * lambda_i
-            ia.push_back(4 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 + 1 ), ar.push_back(1);// +1 * lambda_i+1
+      // exclusivity of pairs
+      if (i%2==0) {
+	ia.push_back(3 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 ), ar.push_back(1);// +1 * lambda_i
+	ia.push_back(3 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 + 1 ), ar.push_back(1);// +1 * lambda_i+1
             }
-	i++;
-        }
+    }
     // constraints on m: m = m+ - m-
-    ia.push_back(4 * n_points + n_points/2 + 1), ja.push_back(1 ), ar.push_back(1);// +1 * m+
-    ia.push_back(4 * n_points + n_points/2 + 1), ja.push_back(2 ), ar.push_back(-1);// -1 * m-
+    ia.push_back(n_rows - 1), ja.push_back(1 ), ar.push_back(1);// +1 * m+
+    ia.push_back(n_rows - 1), ja.push_back(2 ), ar.push_back(-1);// -1 * m-
     // constraints on q: q = q+ - q-
-    ia.push_back(4 * n_points + n_points/2 + 2), ja.push_back(3 ), ar.push_back(1);// +1 * q+
-    ia.push_back(4 * n_points + n_points/2 + 2), ja.push_back(4 ), ar.push_back(-1);// -1 * m-	
+    ia.push_back(n_rows), ja.push_back(3 ), ar.push_back(1);// +1 * q+
+    ia.push_back(n_rows), ja.push_back(4 ), ar.push_back(-1);// -1 * m-	
 
     glp_load_matrix(lp, ia.size(), (int*)(&ia[0]-1), (int*)(&ja[0]-1), (double*)(&ar[0]-1));
     ia.clear();
@@ -178,11 +174,15 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
     /******************SOLUTION*********************************
      *                                                         */
 
+    // routine to save an mps file with the problem
+    // glp_write_mps(lp, GLP_MPS_FILE, NULL, "mps.txt");
+    
     // define the control parameters
     glp_iocp paramIocp;
     glp_smcp paramSmplx;
     glp_init_iocp(&paramIocp);
     glp_init_smcp(&paramSmplx);
+
     if(debug) { // set the GLPK verbosity level 
       paramIocp.msg_lev = GLP_MSG_ALL; 
       paramSmplx.msg_lev = GLP_MSG_ALL; 
@@ -190,46 +190,26 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
       paramIocp.msg_lev = GLP_MSG_OFF; 
       paramSmplx.msg_lev = GLP_MSG_OFF; 
     }
-    paramSmplx.it_lim = 1000; // set the max # of iterations // FIXME: this is arbitrary
+    //    paramSmplx.it_lim = 1000; // set the max # of iterations // FIXME: this is arbitrary
     paramIocp.tm_lim = 60000; // set the max # of iterations // FIXME: this is arbitrary
     // try optimization
-    paramSmplx.presolve = GLP_ON;
-    paramSmplx.meth = GLP_DUALP;
+    // paramSmplx.presolve = GLP_ON;
+    // paramSmplx.meth = GLP_DUALP;
     paramIocp.presolve = GLP_ON;
+    paramIocp.br_tech = GLP_BR_MFV;
 //     paramIocp.gmi_cuts = GLP_ON;
 //      paramIocp.clq_cuts = GLP_ON;
-    paramIocp.cov_cuts = GLP_ON;
-  //mir_cuts
+//    paramIocp.cov_cuts = GLP_ON;
 
 
-//     //if(!glp_simplex(lp, &paramSmplx)) return false;
-//     int retSimplex = glp_simplex(lp, &paramSmplx);
-// //     if(debug) cout << "simplex returned: " << retSimplex <<endl;
-//     // check the return value of the algo
-//     if(retSimplex != 0) {
-//       cout << "[lpAlgorithm]***Warning: glp_simplex return code" << endl;
-//       printGLPReturnCode(retSimplex);
-//       return false;
-//     }
+    //experimental
+    // _glp_order_matrix(lp);
 
-//     // Check the status of the simplex solution
-//     int statusSimplSol = glp_get_status(lp);
-//     if(statusSimplSol != GLP_OPT) {
-//       cout << "[lpAlgorithm]***Warning: wrong simplex solution status" << endl;
-//       printGLPSolutionStatus(statusSimplSol);
-//       return false;
-//     }
-
-    //if(!glp_intopt(lp, &paramIocp)) return false;
     int retGlpIntopt = glp_intopt(lp, &paramIocp);
-//     if(debug) cout << "intopt returned: " << retGlpIntopt <<endl;
-    // check the return value of the algo
     if(retGlpIntopt != 0) {
       cout << "[lpAlgorithm]***Warning: glp_intopt return code " << endl;
-      printGLPReturnCode(retGlpIntopt);
-//       int retLpxIntopt = lpx_intopt(lp); // FIXME: experimental, maybe we can move to this one by default
-//       if(debug) printLPXReturnCode(retLpxIntopt);
-//       if(retLpxIntopt != LPX_E_OK) return false;
+      if(debug) printGLPReturnCode(retGlpIntopt);
+      glp_delete_prob(lp);
       return false;
     }
 
@@ -238,35 +218,29 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
     if(statusMIPSol != GLP_OPT) {
       cout << "[lpAlgorithm]***Warning: wrong MIP solution status" << endl;
       printGLPSolutionStatus(statusMIPSol);
+      glp_delete_prob(lp);
       return false;
     }
-
-    //glp_integer(lp);    
-    //lpx_intopt(lp);
-    //for (int i=0; i<n_cols; i++) printf("%d --> %f\n",i,lpx_mip_col_val(lp, i+1));
     //I must return the m and q values found, and all values af lambdas (to know which point has been used)
     theAlgoResults.mVar = glp_mip_col_val(lp, 1) - glp_mip_col_val(lp, 2);//push back m
     theAlgoResults.qVar =  glp_mip_col_val(lp, 3) - glp_mip_col_val(lp, 4);//push back q
     theAlgoResults.lambdas.clear();
-    i = 0;
     int control = 0;
-    for (list<double>::const_iterator it = pex.begin(); it != pex.end(); ++it){
+    for (unsigned int i =0; i < n_points; i++){
       // theAlgoResults.lambdas.push_back( lpx_mip_col_val(lp, n_points + 4 + i + 1) );//push back lambdas
       if (!glp_mip_col_val(lp, n_points + 4 + i + 1)) {
 // 	if(debug) cout << "found a lambda = 0" << endl;
 	theAlgoResults.lambdas.push_back(0);
 	control ++;
-	theAlgoResults.chi2Var += ((glp_mip_col_val(lp, 4 + i + 1) - *it))*((glp_mip_col_val(lp, 4 + i + 1) - *it)) / ((*it) * (*it));
+	theAlgoResults.chi2Var += (glp_mip_col_val(lp, 4 + i + 1) - pex[i])*(glp_mip_col_val(lp, 4 + i + 1) - pex[i]) / (pex[i]*pex[i]);
       }
       else theAlgoResults.lambdas.push_back(1);
-      i++;
     }
     // check that we used more than 2 hits 
     if (control < 3) { 
       glp_delete_prob(lp);
       return false;
     }
-
 
     // delete the problem and free the memory  
     glp_delete_prob(lp);
@@ -282,7 +256,7 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
 
 void printGLPReturnCode(int returnCode) {
   cout << "   GLP return code is: ";
-  switch(returnCode) {
+ switch(returnCode) {
   case GLP_EBADB: {
     cout << " invalid basis" << endl;
     break;
