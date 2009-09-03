@@ -10,12 +10,24 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/FWLite/interface/Event.h"
 
 #include <map>
 #include <vector>
-#include <utility>
+#include <algorithm>
 
+// Less than operator for sorting clusters according to eta
+class superClsterEtaLess : public std::binary_function<const reco::CaloCluster&, const reco::CaloCluster&, bool>
+{
+public:
+	bool operator()(const reco::CaloCluster &lhs, const reco::CaloCluster &rhs)
+    {
+		return ( lhs.eta() < rhs.eta()) ;
+    }
+};
+
+// builder class for ecal detail view
 class FWECALDetailViewBuilder {
 	
 	public:
@@ -65,4 +77,10 @@ class FWECALDetailViewBuilder {
 		// stuff copied from JM.  Not sure what it all is.
 		TCanvas* m_textCanvas;
 
+		// sorting function to sort super clusters by eta.
+		static bool superClusterEtaLess(const reco::CaloCluster &lhs, const reco::CaloCluster &rhs)
+		{
+			return ( lhs.eta() < rhs.eta()) ;
+		}
+	
 };

@@ -6,6 +6,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+#include "TColor.h"
 #include "TAxis.h"
 #include "TGLViewer.h"
 #include "TEveCaloLegoOverlay.h"
@@ -17,6 +18,8 @@
 
 #include "TGeoMatrix.h"
 #include "TEveTrans.h"
+
+#include <utility>
 
 TEveCaloLego* FWECALDetailViewBuilder::build()
 {
@@ -137,18 +140,31 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 			std::cout <<"no endcap superclusters are available" << std::endl;
 		}	
 	} 	
-	
-	// set the colors for the super clusters
+		
+	// set the colors for the super clusters that are in the viewing
+	// range that will be drawn.
 	std::vector<DetId> scDetIds;
-	for (size_t i = 0; i < superclusters->size(); ++i)
+	unsigned int colorIndex = 0;
+	// sort clusters in eta so neighboring clusters have distinct colors
+	reco::SuperClusterCollection sorted = *superclusters;
+	std::sort(sorted.begin(), sorted.end(), superClusterEtaLess);
+	
+	for (size_t i = 0; i < sorted.size(); ++i)
 	{
+		if (! (fabs(sorted[i].eta() - m_eta) < (m_size*0.0172) 
+			&& fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
+			continue;
+		
 		scDetIds.clear();
-		const std::vector<std::pair<DetId, float> > &hitsAndFractions = (*superclusters)[i].hitsAndFractions();
+		const std::vector<std::pair<DetId, float> > &hitsAndFractions = sorted[i].hitsAndFractions();
 		for (size_t j = 0; j < hitsAndFractions.size(); ++j)
 		{
 			scDetIds.push_back(hitsAndFractions[j].first);
 		}
-		setColor(color + i, scDetIds);
+		
+		if (colorIndex %2 == 0) setColor(color, scDetIds);
+		else setColor(color + 4, scDetIds);
+		++colorIndex;
 	}
 	
 }
