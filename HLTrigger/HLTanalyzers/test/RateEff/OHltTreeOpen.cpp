@@ -2123,53 +2123,55 @@ int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double d
 
             if ( (fabs(ohMuL2Eta[j])<2.5) ) {  // L2 eta cut
               if( ohMuL2Pt[j] > ptl2 ) { // L2 pT cut
-                rcL2++;
+		if(ohMuL2Iso[j] >= iso) { // L2 isolation
+		  rcL2++;
 
-                // Begin L1 muons here.
-                // Require there be an L1Extra muon Delta-R
-                // matched to the L2 candidate, and that it have 
-                // good quality and pass nominal L1 pT cuts 
-                for(int k = 0;k < NL1Mu;k++) {
-                  if( (L1MuPt[k] < ptl1) ) // L1 pT cut
-                    continue;
-
-                  double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]); 
-                  if(deltaphi > 3.14159) 
-                    deltaphi = (2.0 * 3.14159) - deltaphi; 
-
-                  double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +   
-					   (deltaphi*deltaphi)); 
-                  if(deltarl1l2 < bestl1l2drmatch)  
-		    {  
-		      bestl1l2drmatchind = k;  
-		      bestl1l2drmatch = deltarl1l2;  
-		    }  
-                } // End loop over L1Extra muons
-
-                if(doL1L2matching == 1) 
-		  {
-		    // Cut on L1<->L2 matching and L1 quality
-		    if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality))  
+		  // Begin L1 muons here.
+		  // Require there be an L1Extra muon Delta-R
+		  // matched to the L2 candidate, and that it have 
+		  // good quality and pass nominal L1 pT cuts 
+		  for(int k = 0;k < NL1Mu;k++) {
+		    if( (L1MuPt[k] < ptl1) ) // L1 pT cut
+		      continue;
+		    
+		    double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]); 
+		    if(deltaphi > 3.14159) 
+		      deltaphi = (2.0 * 3.14159) - deltaphi; 
+		    
+		    double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +   
+					     (deltaphi*deltaphi)); 
+		    if(deltarl1l2 < bestl1l2drmatch)  
 		      {  
-			rcL1 = 0; 
-			cout << "Failed L1-L2 match/quality" << endl;
-			cout << "L1-L2 delta-eta = " << L1MuEta[bestl1l2drmatchind] << ", " << ohMuL2Eta[j] << endl; 
-			cout << "L1-L2 delta-pho = " << L1MuPhi[bestl1l2drmatchind] << ", " << ohMuL2Phi[j] << endl;  
-			cout << "L1-L2 delta-R = " << bestl1l2drmatch << endl;
-		      }
-		    else
-		      {
-			cout << "Passed L1-L2 match/quality" << endl;
-			rcL1++;
-			rcL1L2L3++;
-		      } // End L1 matching and quality cuts	      
-		  }
-                else
-		  {
-		    rcL1L2L3++;
-		  }
-              } // End L2 pT cut 
-            } // End L2 eta cut
+			bestl1l2drmatchind = k;  
+			bestl1l2drmatch = deltarl1l2;  
+		      }  
+		  } // End loop over L1Extra muons
+		  
+		  if(doL1L2matching == 1) 
+		    {
+		      // Cut on L1<->L2 matching and L1 quality
+		      if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality))  
+			{  
+			  rcL1 = 0; 
+			  cout << "Failed L1-L2 match/quality" << endl;
+			  cout << "L1-L2 delta-eta = " << L1MuEta[bestl1l2drmatchind] << ", " << ohMuL2Eta[j] << endl; 
+			  cout << "L1-L2 delta-pho = " << L1MuPhi[bestl1l2drmatchind] << ", " << ohMuL2Phi[j] << endl;  
+			  cout << "L1-L2 delta-R = " << bestl1l2drmatch << endl;
+			}
+		      else
+			{
+			  cout << "Passed L1-L2 match/quality" << endl;
+			  rcL1++;
+			  rcL1L2L3++;
+			} // End L1 matching and quality cuts	      
+		    }
+		  else
+		    {
+		      rcL1L2L3++;
+		    }
+		} // End L2 isolation cut 
+	      } // End L2 eta cut
+	    } // End L2 pT cut
           } // End L3 isolation cut
         } // End L3 DR cut
       } // End L3 pT cut
@@ -2214,48 +2216,50 @@ int OHltTree::OpenHlt2MuonPassed(double ptl1, double ptl2, double ptl3, double d
 
             if ( (fabs(ohMuL2Eta[j])<2.5) ) {  // L2 eta cut 
               if( ohMuL2Pt[j] > ptl2 ) { // L2 pT cut 
-                rcL2++; 
-
-                // Begin L1 muons here. 
-                // Require there be an L1Extra muon Delta-R 
-                // matched to the L2 candidate, and that it have  
-                // good quality and pass nominal L1 pT cuts  
-                for(int k = 0;k < NL1Mu;k++) { 
-                  if( (L1MuPt[k] < ptl1) ) // L1 pT cut 
-                    continue; 
-
-                  double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);  
-                  if(deltaphi > 3.14159)  
-                    deltaphi = (2.0 * 3.14159) - deltaphi;  
-
-                  double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +    
-					   (deltaphi*deltaphi));  
-                  if(deltarl1l2 < bestl1l2drmatch)   
-		    {   
-		      bestl1l2drmatchind = k;   
-		      bestl1l2drmatch = deltarl1l2;   
-		    }   
-                } // End loop over L1Extra muons 
-
-		if(doL1L2matching == 1)  
-		  { 
-		    // Cut on L1<->L2 matching and L1 quality 
-		    if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality))   
+		if(ohMuL2Iso[i] >= iso) {  // L2 isolation  
+		  rcL2++; 
+		  
+		  // Begin L1 muons here. 
+		  // Require there be an L1Extra muon Delta-R 
+		  // matched to the L2 candidate, and that it have  
+		  // good quality and pass nominal L1 pT cuts  
+		  for(int k = 0;k < NL1Mu;k++) { 
+		    if( (L1MuPt[k] < ptl1) ) // L1 pT cut 
+		      continue; 
+		    
+		    double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);  
+		    if(deltaphi > 3.14159)  
+		      deltaphi = (2.0 * 3.14159) - deltaphi;  
+		    
+		    double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +    
+					     (deltaphi*deltaphi));  
+		    if(deltarl1l2 < bestl1l2drmatch)   
 		      {   
-			rcL1 = 0;  
-		      } 
-		    else 
-		      { 
-			rcL1++; 
-			rcL1L2L3++; 
-		      } // End L1 matching and quality cuts        
-		  }
-		else
-		  {
-		    rcL1L2L3++;  
-		  }
-              } // End L2 pT cut 
-            } // End L2 eta cut 
+			bestl1l2drmatchind = k;   
+			bestl1l2drmatch = deltarl1l2;   
+		      }   
+		  } // End loop over L1Extra muons 
+		  
+		  if(doL1L2matching == 1)  
+		    { 
+		      // Cut on L1<->L2 matching and L1 quality 
+		      if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality))   
+			{   
+			  rcL1 = 0;  
+			} 
+		      else 
+			{ 
+			  rcL1++; 
+			  rcL1L2L3++; 
+			} // End L1 matching and quality cuts        
+		    }
+		  else
+		    {
+		      rcL1L2L3++;  
+		    }
+		} // End L2 isolation cut 
+	      } // End L2 eta cut
+	    } // End L2 pT cut 
           } // End L3 isolation cut 
         } // End L3 DR cut 
       } // End L3 pT cut 
