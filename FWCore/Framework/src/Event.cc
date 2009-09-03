@@ -190,4 +190,13 @@ size_t
     return putProducts().size()+provRecorder_.principal().size()+putProductsWithoutParents().size();
   } 
   
+  BasicHandle 
+  Event::getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const {
+    BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
+    if (h.isValid()) {
+      addToGotBranchIDs(*(h.provenance()));
+    }
+    return h;
+  }
+
 }
