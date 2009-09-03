@@ -17,21 +17,31 @@
 #   is the default base name of the files containing the histograms ; it is
 #   also used to build some default value for other variables.
 # $3 : eventual third command-line argument, immediatly duplicated into VAL_WEB_SUB_DIR,
-#   it is the name of the web subdirectory. Default is ${DBS_SAMPLE}_Ideal
+#   it is the name of the web subdirectory. Default is close to ${DBS_SAMPLE}_{DBS_COND}.
+#
+# VAL_NEW_RELEASE : chosen name for the new release to validate ; used in web pages
+#   and used to build the path where the web pages will be stored.
+# VAL_REF_RELEASE : chosen name of the old release to compare with ; used in web pages,
+#   for default reference file path, and used to build the path where the web pages will
+#   be stored.
 #
 # VAL_NEW_FILE : complete path of the file containing the new histograms.
+#   If not set, a default value is computed, based on 1st command line argument,
+#   2nd command line argument and current directory.
 # VAL_REF_FILE : complete path of the file containing the old histograms to compare with.
+#   If not set, a default value is computed, based on 1st command line argument,
+#   2nd command line argument and VAL_REF_RELEASE.
 # 
 # VAL_ANALYZER : name of the analyzer used to do the histograms ; it is used to know
 #   which histograms must be searched for. The value must be one of GsfElectronMCAnalyzer,
 #   GsfElectronDataAnalyzer,  GsfElectronFakeAnalyzer or SimplePhotonAnalyzer.
 #
-# VAL_NEW_RELEASE : chosen name for the new release to validate ; used in web pages
-#   and used to build the path where the web pages will be stored.
-# VAL_REF_RELEASE : chosen name of the old release to compare with ; used in web pages
-#   and used to build the path where the web pages will be stored.
 # DBS_SAMPLE : short chosen name for the current dataset ; used in web pages
-#   and used to build the path where the web pages will be stored.
+#   and used to build the subdirectory where the web pages will be
+#   stored ($VAL_WEB_SUB_DIR) unless it was given as the 3rd command line argument.
+# DBS_COND : expresion for the current cpnditions tag ; used to build the subdirectory
+#   where the web pages will be stored ($VAL_WEB_SUB_DIR) unless it was given as the
+#   3rd command line argument.
 #=========================================================================================
 
 
