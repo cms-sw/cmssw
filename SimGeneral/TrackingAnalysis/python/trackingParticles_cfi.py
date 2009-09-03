@@ -15,6 +15,8 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
         'source'
     ),
 
+    useMultipleHepMCLabels = cms.bool(False),
+
     simHitCollections = cms.PSet(
         pixel = cms.vstring (
             'g4SimHitsTrackerHitsPixelBarrelLowTof',

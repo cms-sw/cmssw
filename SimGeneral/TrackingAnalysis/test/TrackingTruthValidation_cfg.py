@@ -37,8 +37,8 @@ from SimTracker.TrackHistory.CategorySelectors_cff import *
 
 process.multiTrackValidator.outputFile = 'TrackingTruthValidation.root'
 process.multiTrackValidator.associators = ['TrackAssociatorByHits']
-process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
-process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
+process.multiTrackValidator.skipHistoFit = cms.untracked.bool(False)
+process.multiTrackValidator.useLogPt = cms.untracked.bool(True)
 process.multiTrackValidator.minpT = cms.double(-1)
 process.multiTrackValidator.maxpT = cms.double(3)
 process.multiTrackValidator.nintpT = cms.int32(40)
@@ -61,7 +61,7 @@ process.add_(
 
 process.trackCategorySelector = TrackingParticleCategorySelector(
     src = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
-    cut = cms.string("is('SignalEvent')")
+    cut = cms.string("!is('SignalEvent')")
 )
 
 process.trackingParticleCategoriesAnalyzer = cms.EDFilter("TrackingParticleCategoriesAnalyzer",
@@ -83,7 +83,7 @@ process.validation = cms.Sequence(
 process.p = cms.Path(process.trackingTruth * process.validation)
 
 # Input definition
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)

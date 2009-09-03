@@ -36,8 +36,8 @@ class TrackingTruthProducer : public edm::EDProducer
 {
 
 public:
+
     explicit TrackingTruthProducer( const edm::ParameterSet & );
-//  ~TrackingTruthProducer() { TimingReport::current()->dump(std::cout); }
 
 private:
 
@@ -47,12 +47,13 @@ private:
 
     edm::ParameterSet conf_;
 
-    double                   distanceCut_;
     std::vector<std::string> dataLabels_;
+    bool                     useMultipleHepMCLabels_;
+    double                   distanceCut_;
     std::vector<std::string> hitLabelsVector_;
     double                   volumeRadius_;
     double                   volumeZ_;
-    bool					 mergedBremsstrahlung_;
+    bool                     mergedBremsstrahlung_;
     bool                     removeDeadModules_;
     std::string              simHitLabel_;
 
@@ -60,14 +61,14 @@ private:
 
     // Related to production
 
+    std::vector<edm::HepMCProduct const *>    hepMCProducts_;
+
     std::vector<PSimHit>                      pSimHits_;
 
     PSimHitSelector                           pSimHitSelector_;
     PixelPSimHitSelector                      pixelPSimHitSelector_;
     TrackerPSimHitSelector                    trackerPSimHitSelector_;
     MuonPSimHitSelector                       muonPSimHitSelector_;
-
-    edm::Handle<edm::HepMCProduct>            hepmc_;
 
     std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
     std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;

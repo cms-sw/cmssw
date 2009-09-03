@@ -23,17 +23,20 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
 typedef math::XYZTLorentzVectorD    LorentzVector;
 typedef math::XYZPoint Vector;
 
-TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) : 
-    pSimHitSelector_(config), pixelPSimHitSelector_(config), trackerPSimHitSelector_(config), muonPSimHitSelector_(config)
+TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
+        pSimHitSelector_(config), pixelPSimHitSelector_(config), trackerPSimHitSelector_(config), muonPSimHitSelector_(config)
 {
     // Initialize global parameters
-    distanceCut_           = config.getParameter<double>("vertexDistanceCut");
-    dataLabels_            = config.getParameter<vector<string> >("HepMCDataLabels");
-    volumeRadius_          = config.getParameter<double>("volumeRadius");
-    volumeZ_               = config.getParameter<double>("volumeZ");
-    mergedBremsstrahlung_  = config.getParameter<bool>("mergedBremsstrahlung");
-    removeDeadModules_     = config.getParameter<bool>("removeDeadModules");
-    simHitLabel_           = config.getParameter<string>("simHitLabel");
+    dataLabels_             = config.getParameter<vector<string> >("HepMCDataLabels");
+    useMultipleHepMCLabels_ = config.getParameter<bool>("useMultipleHepMCLabels");
+
+    distanceCut_            = config.getParameter<double>("vertexDistanceCut");
+    dataLabels_             = config.getParameter<vector<string> >("HepMCDataLabels");
+    volumeRadius_           = config.getParameter<double>("volumeRadius");
+    volumeZ_                = config.getParameter<double>("volumeZ");
+    mergedBremsstrahlung_   = config.getParameter<bool>("mergedBremsstrahlung");
+    removeDeadModules_      = config.getParameter<bool>("removeDeadModules");
+    simHitLabel_            = config.getParameter<string>("simHitLabel");
 
     // Initialize selection for building TrackingParticles
     if ( config.exists("select") )
@@ -62,6 +65,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
     edm::LogInfo (MessageCategory_) << "Volume radius set to "       << volumeRadius_ << " mm";
     edm::LogInfo (MessageCategory_) << "Volume Z      set to "       << volumeZ_      << " mm";
 
+    if (useMultipleHepMCLabels_) edm::LogInfo (MessageCategory_) << "Collecting generator information from pileup.";
     if (mergedBremsstrahlung_) edm::LogInfo (MessageCategory_) << "Merging electrom bremsstralung";
     if (removeDeadModules_) edm::LogInfo (MessageCategory_) << "Removing psimhit from dead modules";
 
@@ -82,18 +86,24 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
 {
-    bool foundHepMC = false;
+	// Clean the list of hepmc products
+    hepMCProducts_.clear();
+
+    // Collect all the HepMCProducts
+    edm::Handle<edm::HepMCProduct> hepMCHandle;
+    
     for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source)
     {
-        foundHepMC = event.getByLabel(*source, hepmc_);
-        if (foundHepMC)
+        edm::Handle<edm::HepMCProduct> hepMCHandle;
+        if ( event.getByLabel(*source, hepMCHandle) )
         {
+            hepMCProducts_.push_back(hepMCHandle.product());
             edm::LogInfo (MessageCategory_) << "Using HepMC source " << *source;
-            break;
+            if (!useMultipleHepMCLabels_) break;
         }
     }
 
-    if (!foundHepMC)
+    if ( hepMCProducts_.empty() )
     {
         edm::LogWarning (MessageCategory_) << "No HepMC source found";
         return;
@@ -105,6 +115,22 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
 
     // Create a mix collection from one simtrack collection
     simTracks_ = std::auto_ptr<MixCollection<SimTrack> >( new MixCollection<SimTrack>(cfSimTracks.product()) );
+
+    // Check if number of HepMCProducts matches number of events in CrossingFrame, if useMultipleHepMCLabels = true
+    // Should really use CrossingFrame<HepMCProduct>, but all CrossingFrames have same number of signal/pileup events
+    if (useMultipleHepMCLabels_ && (hepMCProducts_.size() != (cfSimTracks->getNrSignals() + cfSimTracks->getNrPileups()) ) )
+    {
+        edm::LogWarning (MessageCategory_) << "Mismatch between number of HepMCProduct labels and events in CrossingFrame.";
+        edm::LogWarning (MessageCategory_) << "useMultipleHepMCLabels = true, number of HepMCProducts = " << hepMCProducts_.size(); 
+        edm::LogWarning (MessageCategory_) << " number of events in CrossingFrame = " << (cfSimTracks->getNrSignals() + cfSimTracks->getNrPileups());
+        return;
+    }
+    else if (hepMCProducts_.size() > 1)
+    {
+        edm::LogInfo (MessageCategory_) << "You are using more than one HepMC source.";
+        edm::LogInfo (MessageCategory_) << "If the labels are not in the same order as the events in the crossing frame (i.e. signal, pileup(s) ) ";
+        edm::LogInfo (MessageCategory_) << MessageCategory_ << " may try to access data in the wrong HepMCProduct and crash.";
+    }
 
     // Collect all the simvertex from the crossing frame
     edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
@@ -123,15 +149,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
 
     // Create a list of psimhits
     if (removeDeadModules_)
-    { 
+    {
         pixelPSimHitSelector_.newEvent(event, setup);
         pSimHits_ = pixelPSimHitSelector_.pSimHits();
-                
+
         trackerPSimHitSelector_.newEvent(event, setup);
         pSimHits_.insert(
             pSimHits_.end(), trackerPSimHitSelector_.pSimHits().begin(), trackerPSimHitSelector_.pSimHits().end()
         );
-        
+
         muonPSimHitSelector_.newEvent(event, setup);
         pSimHits_.insert(
             pSimHits_.end(), muonPSimHitSelector_.pSimHits().begin(), muonPSimHitSelector_.pSimHits().end()
@@ -142,7 +168,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
         pSimHitSelector_.newEvent(event, setup);
         pSimHits_ = pSimHitSelector_.pSimHits();
     }
-            
+
     // Create a multimap between trackId and hit indices
     associator(pSimHits_, trackIdToHits_);
 
@@ -229,11 +255,8 @@ void TrackingTruthProducer::associator(
     for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
         if ( vertexId.find(iterator->eventId()) == vertexId.end() )
-            vertexId[iterator->eventId()] = 0;        
+            vertexId[iterator->eventId()] = 0;
         EncodedTruthId objectId = EncodedTruthId(iterator->eventId(), vertexId[iterator->eventId()]++);
-
-        // std::cout << "Vertex : " << objectId << std::endl;
-
         association.insert( make_pair(objectId, index) );
     }
 }
@@ -620,10 +643,16 @@ bool TrackingTruthProducer::setTrackingParticle(
 
     // In the case of a existing generated particle and track
     // event is signal redefine status a pdgId
-    if (genParticleIndex >= 0 && signalEvent)
+
+    edm::HepMCProduct const * hepmc = 0;
+
+    if (genParticleIndex >= 0 && (signalEvent || useMultipleHepMCLabels_) )
     {
         // Get the generated particle
-        const HepMC::GenParticle * genParticle = hepmc_->GetEvent()->barcode_to_particle(genParticleIndex);
+        hepmc = (useMultipleHepMCLabels_) ? hepMCProducts_.at(trackEventId.rawId()) : hepmc = hepMCProducts_.at(0);
+
+        const HepMC::GenParticle * genParticle = hepmc->GetEvent()->barcode_to_particle(genParticleIndex);
+
         if (genParticle)
         {
             status = genParticle->status();
@@ -698,8 +727,8 @@ bool TrackingTruthProducer::setTrackingParticle(
     trackingParticle.addG4Track(simTrack);
 
     // Add the generator information
-    if (genParticleIndex >= 0 && signalEvent)
-        trackingParticle.addGenParticle( GenParticleRef(hepmc_, genParticleIndex) );
+    if ( genParticleIndex >= 0 && (signalEvent || useMultipleHepMCLabels_) )
+        trackingParticle.addGenParticle( GenParticleRef(hepmc, genParticleIndex) );
 
     if (selectorFlag_) return selector_(trackingParticle);
 
@@ -761,7 +790,8 @@ int TrackingTruthProducer::setTrackingVertex(
 void TrackingTruthProducer::addCloseGenVertexes(TrackingVertex & trackingVertex)
 {
     // Get the generated particle
-    const HepMC::GenEvent * genEvent = hepmc_->GetEvent();
+    edm::HepMCProduct const * hepmc = (useMultipleHepMCLabels_) ? hepMCProducts_.at(trackingVertex.eventId().rawId()) : hepMCProducts_.at(0);
+    const HepMC::GenEvent * genEvent = hepmc->GetEvent();
 
     // Get the postion of the tv
     Vector tvPosition(trackingVertex.position().x(), trackingVertex.position().y(), trackingVertex.position().z());
@@ -783,7 +813,7 @@ void TrackingTruthProducer::addCloseGenVertexes(TrackingVertex & trackingVertex)
         double distance = sqrt( (tvPosition - genPosition).mag2() );
 
         if (distance <= distanceCut_)
-            trackingVertex.addGenVertex( GenVertexRef(hepmc_, (*iGenVertex)->barcode()) );
+            trackingVertex.addGenVertex( GenVertexRef(hepmc, (*iGenVertex)->barcode()) );
     }
 }
 
