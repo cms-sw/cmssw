@@ -34,7 +34,7 @@
 
 // get rid of this damn TLorentzVector!
 //#include "DataFormats/Candidate/interface/Particle.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 //#include "TLorentzVector.h"
 
 // Include DQM core
