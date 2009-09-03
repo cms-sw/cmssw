@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.17 2009/04/03 16:11:53 lowette Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.18 2009/04/06 16:57:28 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -344,7 +344,8 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	  psuVersion_.second = (*istate)->getDcuPsuMapVersionMinorId(); 
 	}
 #ifdef USING_DATABASE_MASKING
-	if ( !maskVersion_.first &&
+	if ( !forceVersions_ &&
+	     !maskVersion_.first &&
 	     !maskVersion_.second ) { 
 	  maskVersion_.first = (*istate)->getMaskVersionMajorId();
 	  maskVersion_.second = (*istate)->getMaskVersionMinorId(); 
