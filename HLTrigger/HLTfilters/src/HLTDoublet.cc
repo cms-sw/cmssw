@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/09 13:04:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/10 07:59:10 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -153,9 +153,9 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
 	 p=p1+p2;
 	 double Minv(abs(p.mass()));
 	 
-	 if ( ( (!cutdphi_) || (min_Dphi_ <= Dphi) && (Dphi <= max_Dphi_) ) &&
-	      ( (!cutdeta_) || (min_Deta_ <= Deta) && (Deta <= max_Deta_) ) &&
-	      ( (!cutminv_) || (min_Minv_ <= Minv) && (Minv <= max_Minv_) ) ) {
+	 if ( ( (!cutdphi_) || ((min_Dphi_<=Dphi) && (Dphi<=max_Dphi_)) ) &&
+	      ( (!cutdeta_) || ((min_Deta_<=Deta) && (Deta<=max_Deta_)) ) &&
+	      ( (!cutminv_) || ((min_Minv_<=Minv) && (Minv<=max_Minv_)) ) ) {
 	   n++;
 	   filterobject->addObject(Tid1,r1);
 	   filterobject->addObject(Tid2,r2);
