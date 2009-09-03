@@ -9,7 +9,8 @@ genMetIC5GenJetsAnalyzer = cms.EDFilter(
     "METTester",
     InputMETLabel = cms.InputTag("genMetIC5GenJets"),
     METType = cms.untracked.string('MET'),
-    FineBinning = cms.untracked.bool(False)
+    FineBinning = cms.untracked.bool(False),
+    FolderName = cms.untracked.string("RecoMETV/MET_Global/")
     )
 
 
