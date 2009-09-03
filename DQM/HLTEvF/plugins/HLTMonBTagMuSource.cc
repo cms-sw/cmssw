@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 16:50:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/03 11:03:30 $
+ *  $Revision: 1.3 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -37,7 +37,7 @@ HLTMonBTagMuSource::HLTMonBTagMuSource(const edm::ParameterSet & config) :
   m_outputFile(     config.getUntrackedParameter<std::string>("outputFile", "HLTBJetDQM.root") ),
   m_storeROOT(      config.getUntrackedParameter<bool>("storeROOT", false) ),
   m_dbe(),
-  m_size(           config.getUntrackedParameter<unsigned int>("interestingJets", 4) ),
+  m_size(           config.getParameter<unsigned int>("interestingJets") ),
   // MonitorElement's (plots) filled by the source
   m_plotL2JetsEnergy(0),
   m_plotL2JetsET(0),
