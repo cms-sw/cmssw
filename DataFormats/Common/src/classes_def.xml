@@ -89,4 +89,5 @@
  <class name="std::vector<edm::EventAuxiliary>"/>
  <class name="edm::Wrapper<std::vector<edm::EventAuxiliary> >"/>
  <class name="edm::Wrapper<std::vector<edm::ErrorSummaryEntry> >"/>
+ <class name="edm::EventBase"/>
 </lcgdict>

@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/EventBase.h"
 
 #include <vector>
 
