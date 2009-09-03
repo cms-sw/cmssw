@@ -52,6 +52,7 @@
 #include <cmath>
 #include <memory>
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "TMath.h"
 
 METTester::METTester(const edm::ParameterSet& iConfig)
 {
@@ -87,7 +88,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",500,-999.5,499.5);
 	    //        me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
 	    me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",25,-0.5,24.5);
-	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",1200,-0.5,1199.5);
+	    me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",1000,-0.5,1999.5);
 	    me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
 	    me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",800,-0.5,7999.5);   //10GeV
 	    me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",600,-0.5,2999.5);   //5GeV
@@ -101,6 +102,15 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",100, -0.5, 99.5);   //5GeV
 	    me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",100,0,199.5);    //5GeV
 	    me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",1200,0, 5999.5);   //5GeV
+
+
+	    
+	    me["hCaloMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_CaloMETResolution_GenMETTrue","METTask_CaloMETResolution_GenMETTrue", 500,-500,500); 
+	    me["hCaloMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_CaloMETResolution_GenMETCalo","METTask_CaloMETResolution_GenMETCalo", 500,-500,500); 
+
+	    me["hCaloMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_CaloMETPhiResolution_GenMETTrue","METTask_CaloMETPhiResolution_GenMETTrue", 80,0,4); 
+	    me["hCaloMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_CaloMETPhiResolution_GenMETCalo","METTask_CaloMETPhiResolution_GenMETCalo", 80,0,4); 
+	    
 	  }
 	else
 	  {
@@ -126,6 +136,12 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",4001,0,4001);
 	    me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",4001,0,4001);
 	    me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",8001,0,8001);
+
+	    me["hCaloMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_CaloMETResolution_GenMETTrue","METTask_CaloMETResolution_GenMETTrue", 2000,-1000,1000); 
+	    me["hCaloMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_CaloMETResolution_GenMETCalo","METTask_CaloMETResolution_GenMETCalo", 2000,-1000,1000); 
+	    
+	    me["hCaloMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_CaloMETPhiResolution_GenMETTrue","METTask_CaloMETPhiResolution_GenMETTrue", 80,0,4); 
+	    me["hCaloMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_CaloMETPhiResolution_GenMETCalo","METTask_CaloMETPhiResolution_GenMETCalo", 80,0,4); 
 	  }
       }
     
@@ -175,7 +191,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",1000,-999.5,999.5);
 	    //me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",1000,-999.5,999.5);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",50,-0.5,49.5);
-	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2000,-0.5,1999.5);
+	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",1000,-0.5,1999.5);
 	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,0,9999.5);   
 	    
@@ -203,10 +219,16 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",1000,-999.5,999.5);
 	    //        me["hEz"]                 = dbe_->book1D("METTask_Ez","METTask_Ez",2001,-500,501);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
-	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2000,-0.5,1999.5);
+	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",1000,-0.5,1999.5);
 	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,-0.50,9999.5);     
 	    
+	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue", 500,-500,500); 
+	    me["hMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_METResolution_GenMETCalo","METTask_METResolution_GenMETCalo", 500,-500,500); 
+
+	    me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
+	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
+
 	   }
 	else
 	  {
@@ -219,6 +241,13 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2001,0,2001);
 	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",4001,0,4001);
+
+	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue",2000,-1000,1000);
+	    me["hMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_METResolution_GenMETCalo","METTask_METResolution_GenMETCalo",2000,-1000,1000);
+
+	    me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
+	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
+
 	    
 	  }
       }
@@ -231,13 +260,20 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMEx"]                = dbe_->book1D("METTask_MEx","METTask_MEx",1000,-999.5,999.5);
 	    me["hMEy"]                = dbe_->book1D("METTask_MEy","METTask_MEy",1000,-999.5,999.5);
 	    me["hMETSig"]             = dbe_->book1D("METTask_METSig","METTask_METSig",51,0,51);
-	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",2000,-0.5,1999.5);
+	    me["hMET"]                = dbe_->book1D("METTask_MET","METTask_MET",1000,-0.5,1999.5);
 	    me["hMETPhi"]             = dbe_->book1D("METTask_METPhi","METTask_METPhi",80,-4,4);
 	    me["hSumET"]              = dbe_->book1D("METTask_SumET","METTask_SumET",1000,-0.50,9999.5);     
 	   
 	    me["hMExCorrection"]       = dbe_->book1D("METTask_MExCorrection","METTask_MExCorrection", 1000, -500.0,500.0);
 	    me["hMEyCorrection"]       = dbe_->book1D("METTask_MEyCorrection","METTask_MEyCorrection", 1000, -500.0,500.0);
 	    me["hMuonCorrectionFlag"]      = dbe_->book1D("METTask_CorrectionFlag", "METTask_CorrectionFlag", 5, -0.5, 4.5);
+
+	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue", 500,-500,500); 
+	    me["hMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_METResolution_GenMETCalo","METTask_METResolution_GenMETCalo", 500,-500,500); 
+
+	    me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
+	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
+	    
 	   }
 	else
 	  {
@@ -252,6 +288,13 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMExCorrection"]      = dbe_->book1D("METTask_MExCorrection","METTask_MExCorrection", 2000, -500.0,500.0);
 	    me["hMEyCorrection"]      = dbe_->book1D("METTask_MEyCorrection","METTask_MEyCorrection", 2000, -500.0,500.0);
 	    me["hMuonCorrectionFlag"]     = dbe_->book1D("METTask_CorrectionFlag", "METTask_CorrectionFlag", 5, -0.5, 4.5);	  	   
+	    
+	    me["hMETResolution_GenMETTrue"]      = dbe_->book1D("METTask_METResolution_GenMETTrue","METTask_METResolution_GenMETTrue",2000,-1000,1000);
+	    me["hMETResolution_GenMETCalo"]      = dbe_->book1D("METTask_METResolution_GenMETCalo","METTask_METResolution_GenMETCalo",2000,-1000,1000);
+	    
+	    me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
+	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
+
 	  }
 	
 	if(METType_ == "TCMET")
@@ -336,7 +379,42 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hCaloEmEtInEB"]->Fill(caloEmEtInEB);
       me["hCaloEmEtInEE"]->Fill(caloEmEtInEE);
       me["hCaloEmEtInHF"]->Fill(caloEmEtInHF);
+
+      
+      // Get Generated MET for Resolution plots
+
+      edm::Handle<GenMETCollection> genTrue;
+      iEvent.getByLabel("genMetTrue", genTrue);
+      if (genTrue.isValid()) {
+	const GenMETCollection *genmetcol = genTrue.product();
+	const GenMET *genMetTrue = &(genmetcol->front());
+	double genMET = genMetTrue->pt();
+	double genMETPhi = genMetTrue->phi();
+	
+	me["hCaloMETResolution_GenMETTrue"]->Fill( caloMET - genMET );
+	me["hCaloMETPhiResolution_GenMETTrue"]->Fill( TMath::ACos( TMath::Cos( caloMETPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
+      }    
+
+
+      edm::Handle<GenMETCollection> genCalo;
+      iEvent.getByLabel("genMetCalo", genCalo);
+      if (genCalo.isValid()) {
+	const GenMETCollection *genmetcol = genCalo.product();
+	const GenMET  *genMetCalo = &(genmetcol->front());
+	double genMET = genMetCalo->pt();
+	double genMETPhi = genMetCalo->phi();
+	
+	me["hCaloMETResolution_GenMETCalo"]->Fill( caloMET - genMET );
+	me["hCaloMETPhiResolution_GenMETCalo"]->Fill( TMath::ACos( TMath::Cos( caloMETPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
+      }    
+
+
     }
+
   
   else if (METType_ == "GenMET")
     {
@@ -409,6 +487,38 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hSumET"]->Fill(SumET);
       me["hMETSig"]->Fill(METSig);
       me["hNevents"]->Fill(0.5);
+
+      edm::Handle<GenMETCollection> genTrue;
+      iEvent.getByLabel("genMetTrue", genTrue);
+      if (genTrue.isValid()) {
+	const GenMETCollection *genmetcol = genTrue.product();
+	const GenMET *genMetTrue = &(genmetcol->front());
+	double genMET = genMetTrue->pt();
+	double genMETPhi = genMetTrue->phi();
+	
+	me["hMETResolution_GenMETTrue"]->Fill( MET - genMET );
+	me["hMETPhiResolution_GenMETTrue"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
+      }    
+
+
+      edm::Handle<GenMETCollection> genCalo;
+      iEvent.getByLabel("genMetCalo", genCalo);
+      if (genCalo.isValid()) {
+	const GenMETCollection *genmetcol = genCalo.product();
+	const GenMET  *genMetCalo = &(genmetcol->front());
+	double genMET = genMetCalo->pt();
+	double genMETPhi = genMetCalo->phi();
+	
+	me["hMETResolution_GenMETCalo"]->Fill( MET - genMET );
+	me["hMETPhiResolution_GenMETCalo"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
+      }    
+      
+
+
     }
   else if (METType_ == "MET")
     {
@@ -490,7 +600,40 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
 	}
 
+      
+      edm::Handle<GenMETCollection> genTrue;
+      iEvent.getByLabel("genMetTrue", genTrue);
+      if (genTrue.isValid()) {
+	const GenMETCollection *genmetcol = genTrue.product();
+	const GenMET *genMetTrue = &(genmetcol->front());
+	double genMET = genMetTrue->pt();
+	double genMETPhi = genMetTrue->phi();
+	
+	me["hMETResolution_GenMETTrue"]->Fill( MET - genMET );
+	me["hMETPhiResolution_GenMETTrue"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
+      }    
+
+
+      edm::Handle<GenMETCollection> genCalo;
+      iEvent.getByLabel("genMetCalo", genCalo);
+      if (genCalo.isValid()) {
+	const GenMETCollection *genmetcol = genCalo.product();
+	const GenMET  *genMetCalo = &(genmetcol->front());
+	double genMET = genMetCalo->pt();
+	double genMETPhi = genMetCalo->phi();
+	
+	me["hMETResolution_GenMETCalo"]->Fill( MET - genMET );
+	me["hMETPhiResolution_GenMETCalo"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
+      }    
+      
+
     }
+
+
   else if( inputMETLabel_.label() == "corMetGlobalMuons" )
     {
       const CaloMET *corMetGlobalMuons;
@@ -538,6 +681,37 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  me["hMEyCorrection"] -> Fill(muCorrData.corrX());
 	  me["hMuonCorrectionFlag"]-> Fill(muCorrData.type());
 	}
+
+           edm::Handle<GenMETCollection> genTrue;
+      iEvent.getByLabel("genMetTrue", genTrue);
+      if (genTrue.isValid()) {
+	const GenMETCollection *genmetcol = genTrue.product();
+	const GenMET *genMetTrue = &(genmetcol->front());
+	double genMET = genMetTrue->pt();
+	double genMETPhi = genMetTrue->phi();
+	
+	me["hMETResolution_GenMETTrue"]->Fill( MET - genMET );
+	me["hMETPhiResolution_GenMETTrue"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
+      }    
+
+
+      edm::Handle<GenMETCollection> genCalo;
+      iEvent.getByLabel("genMetCalo", genCalo);
+      if (genCalo.isValid()) {
+	const GenMETCollection *genmetcol = genCalo.product();
+	const GenMET  *genMetCalo = &(genmetcol->front());
+	double genMET = genMetCalo->pt();
+	double genMETPhi = genMetCalo->phi();
+	
+	me["hMETResolution_GenMETCalo"]->Fill( MET - genMET );
+	me["hMETPhiResolution_GenMETCalo"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+      } else {
+	edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
+      }    
+      
+
 
     }
 
