@@ -67,7 +67,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    connect = cms.string('sqlite_file:Example1a.db'),
+    connect = cms.string('DATABASE'),
     toGet = cms.VPSet(cms.PSet(
     timetype = cms.untracked.string('timestamp'),
         record = cms.string('SiStripDetVOffRcd'),

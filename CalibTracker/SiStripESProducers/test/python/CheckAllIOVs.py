@@ -62,7 +62,8 @@ print "Reading all IOVs"
 # Example1a.db
 # SiStripDetVOff_Fake_31X
 
-iovs = os.popen("cmscond_list_iov -c sqlite_file:"+sys.argv[1]+" -t "+sys.argv[2])
+database = sys.argv[1]
+iovs = os.popen("cmscond_list_iov -c sqlite_file:"+database+" -t "+sys.argv[2])
 iovsList = iovs.read()
 splittedList = re.split("payloadToken",iovsList)
 splittedList = re.split("Total",splittedList[1])
@@ -85,7 +86,7 @@ for i in range(0, len(splittedList), 2):
         print ", end date = ", endDate
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
         fileName="DetVOffPrint"+fullDates+"_cfg.py"
-        os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" > "+fileName)
+        os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" | sed -e \"s/DATABASE/sqlite_file:"+database+"/g\" > "+fileName)
         # run = os.popen("cmsRun "+fileName+" > /dev/null")
         os.system("cmsRun "+fileName+" > /dev/null")
 
