@@ -54,9 +54,11 @@ class FWECALDetailViewBuilder {
 		void setColor(Color_t color, const std::vector<DetId> &detIds);
 					  
 		// show superclusters in different colors
-		// ... this uses the above method to set colors...
 		void showSuperClusters(Color_t color);
 
+		// show a specific supercluster in a specific color
+		void showSuperCluster(const reco::SuperCluster &cluster, Color_t color);
+	
 		// fill data
 		void fillData(const EcalRecHitCollection *hits, 
 						TEveCaloDataVec *data);
@@ -64,23 +66,23 @@ class FWECALDetailViewBuilder {
 	
 	private:
 
-		const FWEventItem* m_item;
-		float m_eta;
-		float m_phi;
-		int m_size;
-		Color_t m_defaultColor;
-		const fwlite::Event *m_event;
+		const FWEventItem* m_item;		
+		float m_eta;					// eta position view centred on
+		float m_phi;					// phi position view centred on
+		int m_size;						// view half width in number of crystals
+		Color_t m_defaultColor;			// default color for crystals
+		const fwlite::Event *m_event;	// the event
 
+		// for keeping track of what det id goes in what slice
 		std::map<DetId, int> m_detIdsToColor; 
+	
+		// for keeping track of the colors to use for each slice
 		std::vector<Color_t> m_colors;
-
-		// stuff copied from JM.  Not sure what it all is.
-		TCanvas* m_textCanvas;
 
 		// sorting function to sort super clusters by eta.
 		static bool superClusterEtaLess(const reco::CaloCluster &lhs, const reco::CaloCluster &rhs)
 		{
-			return ( lhs.eta() < rhs.eta()) ;
+			return ( lhs.eta() < rhs.eta());
 		}
 	
 };

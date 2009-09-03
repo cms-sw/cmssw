@@ -103,14 +103,27 @@ void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &
 	
 	// get the slice for this group of detIds
 	// note that the zeroth slice is the default one (all else)
-	int slice = m_colors.size();
-	
+	int slice = m_colors.size();	
 	// take a note of which slice these detids are going to go into
 	for (size_t i = 0; i < detIds.size(); ++i)
 	{
 		m_detIdsToColor.insert(std::make_pair<DetId, int>(detIds[i], slice));
 	}
 							  
+}
+
+void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster, Color_t color)
+{
+	
+	std::vector<DetId> clusterDetIds;	
+	const std::vector<std::pair<DetId, float> > &hitsAndFractions = cluster.hitsAndFractions();
+	for (size_t j = 0; j < hitsAndFractions.size(); ++j)
+	{
+		clusterDetIds.push_back(hitsAndFractions[j].first);
+	}
+		
+	setColor(color, clusterDetIds);
+	
 }
 
 void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
@@ -141,30 +154,20 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 		}	
 	} 	
 		
-	// set the colors for the super clusters that are in the viewing
-	// range that will be drawn.
-	std::vector<DetId> scDetIds;
 	unsigned int colorIndex = 0;
 	// sort clusters in eta so neighboring clusters have distinct colors
 	reco::SuperClusterCollection sorted = *superclusters;
 	std::sort(sorted.begin(), sorted.end(), superClusterEtaLess);
-	
 	for (size_t i = 0; i < sorted.size(); ++i)
 	{
 		if (! (fabs(sorted[i].eta() - m_eta) < (m_size*0.0172) 
 			&& fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
 			continue;
-		
-		scDetIds.clear();
-		const std::vector<std::pair<DetId, float> > &hitsAndFractions = sorted[i].hitsAndFractions();
-		for (size_t j = 0; j < hitsAndFractions.size(); ++j)
-		{
-			scDetIds.push_back(hitsAndFractions[j].first);
-		}
-		
-		if (colorIndex %2 == 0) setColor(color, scDetIds);
-		else setColor(color + 4, scDetIds);
+
+		if (colorIndex %2 == 0) showSuperCluster(sorted[i], color);
+		else showSuperCluster(sorted[i], color + 4);
 		++colorIndex;
+		
 	}
 	
 }
