@@ -18,7 +18,7 @@ process.out.fileName        = 'edmPatTrigger.root'
 process.options.wantSummary = False # to suppress the long output at the end of the job
 
 # PAT trigger
-process.muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+process.muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRLessByR",
     src     = cms.InputTag( "selectedLayer1Muons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
