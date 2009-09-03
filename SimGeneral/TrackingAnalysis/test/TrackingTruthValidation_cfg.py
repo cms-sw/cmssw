@@ -61,7 +61,7 @@ process.add_(
 
 process.trackCategorySelector = TrackingParticleCategorySelector(
     src = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
-    cut = cms.string("!is('SignalEvent')")
+    cut = cms.string("is('SignalEvent')")
 )
 
 process.trackingParticleCategoriesAnalyzer = cms.EDFilter("TrackingParticleCategoriesAnalyzer",
