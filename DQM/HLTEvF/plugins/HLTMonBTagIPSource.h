@@ -1,12 +1,12 @@
-#ifndef DQM_HLTEvF_HLTBJetIPDQMSource_H
-#define DQM_HLTEvF_HLTBJetIPDQMSource_H
+#ifndef DQM_HLTEvF_HLTMonBTagIPSource_H
+#define DQM_HLTEvF_HLTMonBTagIPSource_H
 
 /** \class HLTMonBTagIPSource
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 16:50:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/03 17:34:23 $
+ *  $Revision: 1.3 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -128,4 +128,4 @@ private:
   MonitorElement * m_plotL3Discriminator;
 };
 
-#endif // DQM_HLTEvF_HLTBJetIPDQMSource_H
+#endif // DQM_HLTEvF_HLTMonBTagIPSource_H

@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 16:50:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/03 11:03:30 $
+ *  $Revision: 1.3 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -51,21 +51,35 @@ private:
   MonitorElement * book(const std::string & name, const std::string & title, int x_bins, double x_min, double x_max, const char * x_axis = 0);
   MonitorElement * book(const std::string & name, const std::string & title, int x_bins, double x_min, double x_max, int y_bins, double y_min, double y_max, const char * x_axis = 0, const char * y_axis = 0);
 
+  edm::InputTag m_L1Filter;
+  edm::InputTag m_L2Filter;
+  edm::InputTag m_L25Filter;
+  edm::InputTag m_L3Filter;
   edm::InputTag m_L2Jets;
   edm::InputTag m_L25TagInfo;
   edm::InputTag m_L25JetTags;
   edm::InputTag m_L3TagInfo;
   edm::InputTag m_L3JetTags;
 
+  edm::InputTag m_triggerResults;
+  std::string m_processName;
   std::string m_pathName;
   std::string m_monitorName;
   std::string m_outputFile;
   bool m_storeROOT;
+  unsigned int m_size;
   edm::Service<DQMStore> m_dbe;
 
-  unsigned int m_size;
-
+  // tool to access the HLT confioguration
+  unsigned int m_pathIndex;
+  unsigned int m_L1FilterIndex;
+  unsigned int m_L2FilterIndex;
+  unsigned int m_L25FilterIndex;
+  unsigned int m_L3FilterIndex;
+  
   // MonitorElement's (plots) filled by the source
+  MonitorElement * m_plotRates;
+
   MonitorElement * m_plotL2JetsEnergy;
   MonitorElement * m_plotL2JetsET;
   MonitorElement * m_plotL2JetsEta;
