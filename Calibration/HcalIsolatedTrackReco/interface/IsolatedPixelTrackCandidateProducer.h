@@ -53,6 +53,9 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   double tauUnbiasCone_;
   double minPTrackValue_;
   double maxPForIsolationValue_;
+  double bfield_;
+  double ecDistEB_;
+  double ecDistEE_;
 
 };
 

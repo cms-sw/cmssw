@@ -48,6 +48,9 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   vtxCutSeed_=config.getParameter<double>("MaxVtxDXYSeed");
   vtxCutIsol_=config.getParameter<double>("MaxVtxDXYIsol");
   vertexLabel_=config.getParameter<edm::InputTag>("VertexLabel");
+  bfield_=config.getParameter<double>("BField");
+  ecDistEB_=config.getParameter<double>("IPtoEBdistance");
+  ecDistEE_=config.getParameter<double>("IPtoEEdistance");
   //Sb add parameter to remove hardcoded cuts  
   minPTrackValue_=config.getParameter<double>("minPTrack");
   maxPForIsolationValue_=config.getParameter<double>("maxPTrackForIsolation");
@@ -236,8 +239,8 @@ double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1
   double dR, Rec;
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
-  if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
-  else Rec=317; //distance from IP to ECAL endcap
+  if (fabs(eta1)<1.479) Rec=ecDistEB_; //radius of ECAL barrel
+  else Rec=ecDistEE_; //distance from IP to ECAL endcap
   //|vect| times tg of acos(scalar product)
   dR=fabs((Rec/sin(theta1))*tan(acos(sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2))));
   return dR;
@@ -250,9 +253,9 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(double etaIP, double phiIP,
   double deltaPhi;
   double etaEC=100;
   double phiEC=100;
-  double Rcurv=pT*33.3*100/38; //r(m)=pT(GeV)*33.3/B(kG)
-  double ecDist=317;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
-  double ecRad=129;  //radius of ECAL barrel (cm)
+  double Rcurv=pT*33.3*100/(bfield_*10); //r(m)=pT(GeV)*33.3/B(kG)
+  double ecDist=ecDistEE_;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
+  double ecRad=ecDistEB_;  //radius of ECAL barrel (cm)
   double theta=2*atan(exp(-etaIP));
   double zNew;
   if (theta>0.5*acos(-1)) theta=acos(-1)-theta;

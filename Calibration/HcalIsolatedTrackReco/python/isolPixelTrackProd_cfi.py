@@ -12,6 +12,9 @@ isolPixelTrackProd = cms.EDProducer("IsolatedPixelTrackCandidateProducer",
     MaxVtxDXYSeed = cms.double( 101.0 ),
     MaxVtxDXYIsol = cms.double( 101.0 ),
     VertexLabel = cms.InputTag( "hltPixelVertices" ),
+    IPtoEBdistance=cms.double(129),
+    IPtoEEdistance=cms.double(317),
+    BField=cms.double(3.8),
     minPTrack = cms.double( 5.0 ),
     maxPTrackForIsolation = cms.double( 3.0 )
 )
