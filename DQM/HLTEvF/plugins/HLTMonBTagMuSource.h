@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 15:25:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/01 16:50:45 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -83,8 +83,8 @@ private:
   MonitorElement * m_plotL25MuonChi2;
   MonitorElement * m_plotL25MuonEtaPhi;
   MonitorElement * m_plotL25MuonEtaPT;
-  MonitorElement * m_plotL25MuonIP2d;
-  MonitorElement * m_plotL25MuonIP3d;
+  MonitorElement * m_plotL25MuonIP2dSig;
+  MonitorElement * m_plotL25MuonIP3dSig;
   MonitorElement * m_plotL25MuonPtRel;
   MonitorElement * m_plotL25MuonDeltaR;
   MonitorElement * m_plotL25Discriminator;
@@ -99,9 +99,7 @@ private:
   MonitorElement * m_plotL3MuonChi2;
   MonitorElement * m_plotL3MuonEtaPhi;
   MonitorElement * m_plotL3MuonEtaPT;
-  MonitorElement * m_plotL3MuonIP2d;
   MonitorElement * m_plotL3MuonIP2dSig;
-  MonitorElement * m_plotL3MuonIP3d;
   MonitorElement * m_plotL3MuonIP3dSig;
   MonitorElement * m_plotL3MuonPtRel;
   MonitorElement * m_plotL3MuonDeltaR;

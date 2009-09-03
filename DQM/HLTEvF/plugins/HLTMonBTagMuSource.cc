@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 15:25:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/01 16:50:45 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -56,8 +56,8 @@ HLTMonBTagMuSource::HLTMonBTagMuSource(const edm::ParameterSet & config) :
   m_plotL25MuonChi2(0),
   m_plotL25MuonEtaPhi(0),
   m_plotL25MuonEtaPT(0),
-  m_plotL25MuonIP2d(0),
-  m_plotL25MuonIP3d(0),
+  m_plotL25MuonIP2dSig(0),
+  m_plotL25MuonIP3dSig(0),
   m_plotL25MuonPtRel(0),
   m_plotL25MuonDeltaR(0),
   m_plotL25Discriminator(0),
@@ -72,8 +72,8 @@ HLTMonBTagMuSource::HLTMonBTagMuSource(const edm::ParameterSet & config) :
   m_plotL3MuonChi2(0),
   m_plotL3MuonEtaPhi(0),
   m_plotL3MuonEtaPT(0),
-  m_plotL3MuonIP2d(0),
-  m_plotL3MuonIP3d(0),
+  m_plotL3MuonIP2dSig(0),
+  m_plotL3MuonIP3dSig(0),
   m_plotL3MuonPtRel(0),
   m_plotL3MuonDeltaR(0),
   m_plotL3Discriminator(0)
@@ -106,8 +106,8 @@ void HLTMonBTagMuSource::beginJob() {
   m_plotL25MuonChi2         = book("L25_muon_chi2",         "L2.5 muons chi2/DoF",               20,   0.,   20.,  "#chi^2/DoF");
   m_plotL25MuonEtaPhi       = book("L25_muon_eta_phi",      "L2.5 muons eta vs. phi",            60,  -3.0,   3.0,  64, -3.2,   3.2, "#eta", "#phi");
   m_plotL25MuonEtaPT        = book("L25_muon_eta_pt",       "L2.5 muons eta vs. pT",             60,  -3.0,   3.0,  50,  0.,   50.,  "#eta", "GeV");
-  m_plotL25MuonIP2d         = book("L25_muon_IP2dSig",      "L2.5 muons 2D SIP",                 80, -30.,   50.);
-  m_plotL25MuonIP3d         = book("L25_muon_IP3dSig",      "L2.5 muons 3D SIP",                 80, -30.,   50.);
+  m_plotL25MuonIP2dSig      = book("L25_muon_IP2dSig",      "L2.5 muons 2D SIP",                 80, -30.,   50.);
+  m_plotL25MuonIP3dSig      = book("L25_muon_IP3dSig",      "L2.5 muons 3D SIP",                 80, -30.,   50.);
   m_plotL25MuonPtRel        = book("L25_muon_PtRel",        "L2.5 muons pT_rel",                 40,   0.,   20.,  "GeV");
   m_plotL25MuonDeltaR       = book("L25_muon_DeltaR",       "L2.5 muons DeltaR",                 50,   0.,    0.5);
   m_plotL25Discriminator    = book("L25_discriminator",     "L2.5 b-tag discriminator",          80, -30.,   50.);
@@ -122,8 +122,8 @@ void HLTMonBTagMuSource::beginJob() {
   m_plotL3MuonChi2          = book("L3_muon_chi2",          "L3 muons chi2/DoF",                 20,   0.,   20.,  "#chi^2/DoF");
   m_plotL3MuonEtaPhi        = book("L3_muon_eta_phi",       "L3 muons eta vs. phi",              60,  -3.0,   3.0,  64, -3.2,   3.2, "#eta", "#phi");
   m_plotL3MuonEtaPT         = book("L3_muon_eta_pt",        "L3 muons eta vs. pT",               60,  -3.0,   3.0,  50,  0.,   50.,  "#eta", "GeV");
-  m_plotL3MuonIP2d          = book("L3_muon_IP2dSig",       "L3 muons 2D SIP",                   80, -30.,   50.);
-  m_plotL3MuonIP3d          = book("L3_muon_IP3dSig",       "L3 muons 3D SIP",                   80, -30.,   50.);
+  m_plotL3MuonIP2dSig       = book("L3_muon_IP2dSig",       "L3 muons 2D SIP",                   80, -30.,   50.);
+  m_plotL3MuonIP3dSig       = book("L3_muon_IP3dSig",       "L3 muons 3D SIP",                   80, -30.,   50.);
   m_plotL3MuonPtRel         = book("L3_muon_PtRel",         "L3 muons pT_rel",                   40,   0.,   20.,  "GeV");
   m_plotL3MuonDeltaR        = book("L3_muon_DeltaR",        "L3 muons DeltaR",                   50,   0.,    0.5);
   m_plotL3Discriminator     = book("L3_discriminator",      "L3 b-tag discriminator",            80, -30.,   50.);
@@ -192,8 +192,8 @@ void HLTMonBTagMuSource::analyze(const edm::Event & event, const edm::EventSetup
         m_plotL25MuonChi2->Fill(    info.lepton(t)->normalizedChi2() );
         m_plotL25MuonEtaPhi->Fill(  info.lepton(t)->eta(), info.lepton(t)->phi() );
         m_plotL25MuonEtaPT->Fill(   info.lepton(t)->eta(), info.lepton(t)->pt() );
-        m_plotL25MuonIP2d->Fill(    info.properties(t).sip2d );
-        m_plotL25MuonIP3d->Fill(    info.properties(t).sip3d );
+        m_plotL25MuonIP2dSig->Fill( info.properties(t).sip2d );
+        m_plotL25MuonIP3dSig->Fill( info.properties(t).sip3d );
         m_plotL25MuonPtRel->Fill(   info.properties(t).ptRel );
         m_plotL25MuonDeltaR->Fill(  info.properties(t).deltaR );
       }
@@ -218,8 +218,8 @@ void HLTMonBTagMuSource::analyze(const edm::Event & event, const edm::EventSetup
         m_plotL3MuonChi2->Fill(    info.lepton(t)->normalizedChi2() );
         m_plotL3MuonEtaPhi->Fill(  info.lepton(t)->eta(), info.lepton(t)->phi() );
         m_plotL3MuonEtaPT->Fill(   info.lepton(t)->eta(), info.lepton(t)->pt() );
-        m_plotL3MuonIP2d->Fill(    info.properties(t).sip2d );
-        m_plotL3MuonIP3d->Fill(    info.properties(t).sip3d );
+        m_plotL3MuonIP2dSig->Fill( info.properties(t).sip2d );
+        m_plotL3MuonIP3dSig->Fill( info.properties(t).sip3d );
         m_plotL3MuonPtRel->Fill(   info.properties(t).ptRel );
         m_plotL3MuonDeltaR->Fill(  info.properties(t).deltaR );
       }
