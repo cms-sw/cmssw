@@ -30,7 +30,9 @@ public:
   void analogToDigital(CaloSamples & linearFrame, ZDCDataFrame & result);
 
   /// Things that need to be initialized every event
+  /// sets starting CapID randomly
   void newEvent();
+  void setStartingCapId(int startingCapId);
 
 private:
   template<class Digi> void convert(CaloSamples & frame, Digi & result);
@@ -40,6 +42,7 @@ private:
   CLHEP::RandFlat * theRandFlat;
 
   int theStartingCapId;
+  bool theStartingCapIdIsRandom;
 };
 
   
