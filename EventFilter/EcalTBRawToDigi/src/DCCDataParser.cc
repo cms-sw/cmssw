@@ -89,7 +89,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
     
     //fill buffer data with data from file lines
     for(uint32_t i = 1; i <= dataVector.size() ; i++, myData_++ ){
-      sscanf((dataVector[i-1]).c_str(),"%x",(uint16_t *)myData_);
+      sscanf((dataVector[i-1]).c_str(),"%x",(unsigned int *)myData_);
       
       //for debug purposes
       //cout << endl << "Data position: " << dec << i << " val = " << getHexString(*myData_);
@@ -223,7 +223,7 @@ std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(uint32_t *pointer
   //check begin of event (BOE bits field) 
   //(Note: we have to add one to read the 2nd 32 bit word where BOE is written)
   uint32_t *boePointer = pointerToEvent + 1;
-  if( ((*boePointer)>>BOEBEGIN)& BOEMASK != BOE ) { 
+  if( (  ((*boePointer)>>BOEBEGIN)& BOEMASK  )  != BOE ) { 
     (errors_["DCC::BOE"])++; errorMask = 1; 
   }
 	
@@ -266,7 +266,7 @@ std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(uint32_t *pointer
   //check end of event (EOE bits field) 
   //(Note: event length is multiplied by 2 because its written as 32 bit words and not 64 bit words)
   uint32_t *endOfEventPointer = pointerToEvent + eventLength*2 -1;
-  if (((*endOfEventPointer) >> EOEBEGIN & EOEMASK != EOEMASK) && !eoeError ){ 
+  if ( (  ((*endOfEventPointer) >> EOEBEGIN & EOEMASK )  != EOEMASK) && !eoeError ){ 
     (errors_["DCC::EOE"])++; 
     errorMask = errorMask | (1<<2); 
   }
@@ -287,7 +287,8 @@ std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(uint32_t *pointer
 std::string DCCTBDataParser::index(uint32_t position){
 
   char indexBuffer[20];
-  sprintf(indexBuffer,"W[%08lu]",position);        //build an index string for display purposes, p.e.  W[15] 
+  long unsigned int pos = position;
+  sprintf(indexBuffer,"W[%08lu]",pos);        //build an index string for display purposes, p.e.  W[15] 
 
   return std::string(indexBuffer);	
 }
@@ -297,9 +298,10 @@ std::string DCCTBDataParser::index(uint32_t position){
 /* DCCTBDataParser::getDecString                   */
 /* print decimal data to a string                */
 /*-----------------------------------------------*/
-std::string DCCTBDataParser::getDecString(uint32_t data){
+std::string DCCTBDataParser::getDecString(uint32_t dat){
 	
   char buffer[10];
+  long unsigned int data = dat;
   sprintf(buffer,"%lu",data);
 
   return std::string(buffer);	
