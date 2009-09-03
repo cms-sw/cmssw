@@ -32,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.30 2009/07/14 12:41:52 charlot Exp $
+ * \version $Id: GsfElectron.h,v 1.31 2009/08/21 12:22:57 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.31  2009/08/21 12:22:57  chamont
+// new charge info
+//
 // Revision 1.30  2009/07/14 12:41:52  charlot
 // improved electron charge
 //
@@ -215,9 +218,9 @@ class GsfElectron : public RecoCandidate
       float deltaEtaSuperClusterAtVtx ; // the supercluster eta - track eta position at calo extrapolated from innermost track state
       float deltaEtaSeedClusterAtCalo ; // the seed cluster eta - track eta position at calo extrapolated from the outermost track state
       float deltaEtaEleClusterAtCalo ;  // the electron cluster eta - track eta position at calo extrapolated from the outermost state
-      float deltaPhiEleClusterAtCalo ;  // the supercluster phi - track phi position at calo extrapolated from the innermost track state
-      float deltaPhiSuperClusterAtVtx ; // the seed cluster phi - track phi position at calo extrapolated from the outermost track state
-      float deltaPhiSeedClusterAtCalo ; // the electron cluster phi - track phi position at calo extrapolated from the outermost track state
+      float deltaPhiEleClusterAtCalo ;  // the electron cluster phi - track phi position at calo extrapolated from the outermost track state
+      float deltaPhiSuperClusterAtVtx ; // the supercluster phi - track phi position at calo extrapolated from the innermost track state
+      float deltaPhiSeedClusterAtCalo ; // the seed cluster phi - track phi position at calo extrapolated from the outermost track state
      } ;
 
     // accessors
