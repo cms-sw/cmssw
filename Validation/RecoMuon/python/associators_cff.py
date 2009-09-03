@@ -18,8 +18,7 @@ OnlineTrackAssociatorByHits.ThreeHitTracksAreSpecial = False
 
 TrackAssociatorByPosDeltaR = SimTracker.TrackAssociation.TrackAssociatorByPosition_cfi.TrackAssociatorByPosition.clone()
 TrackAssociatorByPosDeltaR.ComponentName = 'TrackAssociatorByDeltaR'
-#TrackAssociatorByPosDeltaR.method = cms.string('momdr')
-TrackAssociatorByPosDeltaR.method = cms.string('posdr')
+TrackAssociatorByPosDeltaR.method = cms.string('momdr')
 TrackAssociatorByPosDeltaR.QCut = cms.double(0.5)
 TrackAssociatorByPosDeltaR.ConsiderAllSimHits = cms.bool(True)
     
