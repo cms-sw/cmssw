@@ -27,37 +27,37 @@ class DCCTBBlockPrototype{
 		DCCTBBlockPrototype(
 			DCCTBDataParser * parser, 
 			std::string name, 
-			ulong * buffer,
-			ulong numbBytes, 
-			ulong wordsToEndOfEvent, 
-			ulong wordEventOffset = 0 
+			uint32_t* buffer,
+			uint32_t numbBytes, 
+			uint32_t wordsToEndOfEvent, 
+			uint32_t wordEventOffset = 0 
 		);
 
 		virtual ~ DCCTBBlockPrototype(){}
 
 		virtual void   parseData();		
-		virtual void   increment(ulong numb, std::string msg="");
-		virtual void   seeIfIsPossibleToIncrement(ulong numb, std::string msg="");		
-		virtual ulong  getDataWord(ulong wordPosition, ulong bitPosition, ulong mask);
-		virtual ulong  getDataField(std::string name);
-		virtual void   setDataField(std::string name, ulong data);
+		virtual void   increment(uint32_t numb, std::string msg="");
+		virtual void   seeIfIsPossibleToIncrement(uint32_t numb, std::string msg="");		
+		virtual uint32_t  getDataWord(uint32_t wordPosition, uint32_t bitPosition, uint32_t mask);
+		virtual uint32_t  getDataField(std::string name);
+		virtual void   setDataField(std::string name, uint32_t data);
 		
-		virtual std::pair<bool,std::string> checkDataField(std::string name, ulong data);
+		virtual std::pair<bool,std::string> checkDataField(std::string name, uint32_t data);
 		virtual void displayData(std::ostream & os=std::cout);
 		virtual std::pair<bool,std::string> compare(DCCTBBlockPrototype * block);
 	
-		std::map<std::string,ulong> & errorCounters(){ return errors_; }
+		std::map<std::string,uint32_t> & errorCounters(){ return errors_; }
 		
 		// Block Name
 		std::string name(){ return name_;}
 
 		// Block Size in Bytes
-		ulong size(){ return blockSize_;  }
+		uint32_t size(){ return blockSize_;  }
 		
 		std::string & errorString(){ return errorString_;}	
 		
 		//Word Block Offest inside event
-		ulong wOffset(){ return wordEventOffset_;}
+		uint32_t wOffset(){ return wordEventOffset_;}
 	
 		bool blockError(){return blockError_;}
 
@@ -68,15 +68,15 @@ class DCCTBBlockPrototype{
 		
 	protected :
 		
-		std::string formatString(std::string myString,ulong minPositions);
+		std::string formatString(std::string myString,uint32_t minPositions);
 		
-		ulong * dataP_;
-		ulong * beginOfBuffer_;
+		uint32_t * dataP_;
+		uint32_t * beginOfBuffer_;
 		
-		ulong blockSize_;
-		ulong wordCounter_;
-		ulong wordEventOffset_;
-		ulong wordsToEndOfEvent_;
+		uint32_t blockSize_;
+		uint32_t wordCounter_;
+		uint32_t wordEventOffset_;
+		uint32_t wordsToEndOfEvent_;
 	
 		bool blockError_;
 		
@@ -87,8 +87,8 @@ class DCCTBBlockPrototype{
 		
 		DCCTBDataParser * parser_;
 		
-		std::map<std::string,ulong> dataFields_;
-		std::map<std::string,ulong> errors_;
+		std::map<std::string,uint32_t> dataFields_;
+		std::map<std::string,uint32_t> errors_;
 		
 		std::set<DCCTBDataField *,DCCTBDataFieldComparator> * mapperFields_;
 		

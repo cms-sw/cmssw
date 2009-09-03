@@ -23,7 +23,7 @@ public :
   /**
      Class constructor (sets data field's characteristics)
   */
-  DCCTBDataField(std::string name, ulong wordPosition, ulong bitPosition, ulong mask){
+  DCCTBDataField(std::string name, uint32_t wordPosition, uint32_t bitPosition, uint32_t mask){
     name_=name; wordPosition_ = wordPosition; bitPosition_= bitPosition; mask_= mask;
   }
 		
@@ -32,12 +32,12 @@ public :
   */
   void setName(std::string namestr)        { name_.clear(); name_ = namestr; }
   std::string name()                       { return name_;                   }
-  void setWordPosition(ulong wordpos) { wordPosition_ = wordpos;        }
-  ulong wordPosition()                { return wordPosition_;           }
-  void setBitPosition(ulong bitpos)   { bitPosition_ = bitpos;          }
-  ulong bitPosition()                 { return bitPosition_;            }
-  void setMask(ulong maskvalue)       { mask_=maskvalue;                }
-  ulong mask()                        { return mask_;                   }
+  void setWordPosition(uint32_t wordpos) { wordPosition_ = wordpos;        }
+  uint32_t wordPosition()                { return wordPosition_;           }
+  void setBitPosition(uint32_t bitpos)   { bitPosition_ = bitpos;          }
+  uint32_t bitPosition()                 { return bitPosition_;            }
+  void setMask(uint32_t maskvalue)       { mask_=maskvalue;                }
+  uint32_t mask()                        { return mask_;                   }
 
   /**
      Class destructor
@@ -46,9 +46,9 @@ public :
 		
 protected :
   std::string name_;
-  ulong wordPosition_;
-  ulong bitPosition_;
-  ulong mask_;
+  uint32_t wordPosition_;
+  uint32_t bitPosition_;
+  uint32_t mask_;
 };
 
 

@@ -20,11 +20,11 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 		
 		DCCTBEventBlock(
 			DCCTBDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes, 
-			ulong wordsToEnd, 
-			ulong wordBufferOffset = 0 , 
-			ulong wordEventOffset = 0 
+			uint32_t * buffer, 
+			uint32_t numbBytes, 
+			uint32_t wordsToEnd, 
+			uint32_t wordBufferOffset = 0 , 
+			uint32_t wordEventOffset = 0 
 		);
 		
 		~DCCTBEventBlock();
@@ -35,7 +35,7 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 		std::vector< DCCTBTCCBlock *   > & tccBlocks();
 		DCCTBSRPBlock               * srpBlock();
 		DCCTBTrailerBlock           * trailerBlock();
-		std::vector< DCCTBTowerBlock * >   towerBlocksById(ulong towerId);
+		std::vector< DCCTBTowerBlock * >   towerBlocksById(uint32_t towerId);
 		std::pair<bool,std::string> compare(DCCTBEventBlock * );
 
 		bool eventHasErrors();
@@ -73,7 +73,7 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 		std::vector< DCCTBTCCBlock   * > tccBlocks_        ;
 		DCCTBTrailerBlock       *   dccTrailerBlock_  ;
 		DCCTBSRPBlock           *   srpBlock_;
-		ulong wordBufferOffset_;
+		uint32_t wordBufferOffset_;
 		bool emptyEvent;
 };
 

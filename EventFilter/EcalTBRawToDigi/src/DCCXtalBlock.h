@@ -13,12 +13,12 @@ class DCCTBXtalBlock : public DCCTBBlockPrototype {
 		
 		DCCTBXtalBlock(
 			DCCTBDataParser * parser, 
-			ulong * buffer,
-			ulong numbBytes,
-			ulong wordsToEnd,  
-			ulong wordEventOffset,
-			ulong expectedXtalID ,
-			ulong expectedStripID 
+			uint32_t * buffer,
+			uint32_t numbBytes,
+			uint32_t wordsToEnd,  
+			uint32_t wordEventOffset,
+			uint32_t expectedXtalID ,
+			uint32_t expectedStripID 
 		);
 		
 		void dataCheck(); 
@@ -28,12 +28,12 @@ class DCCTBXtalBlock : public DCCTBBlockPrototype {
 
 	protected :
 		
-		void increment(ulong numb);
+		void increment(uint32_t numb);
 		
 		enum xtalBlockFields{ BPOSITION_BLOCKID = 30, BLOCKID = 3};
 		
-		ulong expectedXtalID_;
-		ulong expectedStripID_;
+		uint32_t expectedXtalID_;
+		uint32_t expectedStripID_;
 
 
 };

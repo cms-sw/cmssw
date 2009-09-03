@@ -25,10 +25,10 @@ class DCCTBSRPBlock : public DCCTBBlockPrototype {
 		DCCTBSRPBlock(
 			DCCTBEventBlock * dccBlock,
 			DCCTBDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes,
-			ulong wordsToEnd, 
-			ulong wordEventOffset
+			uint32_t * buffer, 
+			uint32_t numbBytes,
+			uint32_t wordsToEnd, 
+			uint32_t wordEventOffset
 		);
 	
 		
@@ -37,7 +37,7 @@ class DCCTBSRPBlock : public DCCTBBlockPrototype {
 		
 		void dataCheck();
 		
-		void  increment(ulong numb);
+		void  increment(uint32_t numb);
 		
 		enum srpFields{ 
 			BXMASK = 0xFFF,

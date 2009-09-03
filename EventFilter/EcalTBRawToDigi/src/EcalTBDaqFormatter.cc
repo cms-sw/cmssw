@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2007/12/10 19:55:42 $
- *  $Revision: 1.71 $
+ *  $Date: 2008/01/21 11:21:01 $
+ *  $Revision: 1.72 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -33,7 +33,7 @@
 EcalTBDaqFormatter::EcalTBDaqFormatter () {
 
   LogDebug("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter";
-  std::vector<ulong> parameters;
+  std::vector<uint32_t> parameters;
   parameters.push_back(10); // parameters[0] is the xtal samples 
   parameters.push_back(1);  // parameters[1] is the number of trigger time samples for TPG's
   parameters.push_back(68); // parameters[2] is the number of TT
@@ -78,7 +78,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
   pnAllocated = false;
   
 
-  theParser_->parseBuffer( reinterpret_cast<ulong*>(const_cast<unsigned char*>(pData)), static_cast<ulong>(length), shit );
+  theParser_->parseBuffer( reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(pData)), static_cast<uint32_t>(length), shit );
   
   std::vector< DCCTBEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
@@ -207,7 +207,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     theDCCheader.setFEStatus(theTTstatus);
     
     EcalDCCTBHeaderRuntypeDecoder theRuntypeDecoder;
-    ulong DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
+    uint32_t DCCruntype = (*itEventBlock)->getDataField("RUN TYPE");
     theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
     //DCCHeader filled!
     DCCheaderCollection.push_back(theDCCheader);

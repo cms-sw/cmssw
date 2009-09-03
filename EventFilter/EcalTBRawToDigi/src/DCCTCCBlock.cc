@@ -13,11 +13,11 @@
 DCCTBTCCBlock::DCCTBTCCBlock(
 	DCCTBEventBlock * dccBlock,
 	DCCTBDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,  
-	ulong wordsToEnd,
-	ulong wordEventOffset,
-	ulong expectedId) : 
+	uint32_t * buffer, 
+	uint32_t numbBytes,  
+	uint32_t wordsToEnd,
+	uint32_t wordEventOffset,
+	uint32_t expectedId) : 
   DCCTBBlockPrototype(parser,"TCC", buffer, numbBytes, wordsToEnd, wordEventOffset),dccBlock_(dccBlock), expectedId_(expectedId){
 
   //Reset error counters
@@ -69,7 +69,7 @@ void DCCTBTCCBlock::dataCheck(){
   if(checkErrors!=""){
   	 blockError_=true;
     errorString_ +="\n ======================================================================\n"; 
-	 errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((ulong)(expectedId_))+std::string(" ) errors : ") ;
+	 errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((uint32_t)(expectedId_))+std::string(" ) errors : ") ;
 	 errorString_ += checkErrors ;
 	 errorString_ += "\n ======================================================================";
   }
@@ -83,15 +83,15 @@ void DCCTBTCCBlock::dataCheck(){
 /* increment a TCC block                            */
 /*--------------------------------------------------*/
 
-void  DCCTBTCCBlock::increment(ulong numb){
+void  DCCTBTCCBlock::increment(uint32_t numb){
   //if no debug is required increments the number of blocks
   //otherwise checks if block id is really B'011'=3
   if(!parser_->debug()){ 
     DCCTBBlockPrototype::increment(numb); 
   }
   else {
-    for(ulong counter=0; counter<numb; counter++, dataP_++, wordCounter_++){
-      ulong blockID = (*dataP_) >> BPOSITION_BLOCKID;
+    for(uint32_t counter=0; counter<numb; counter++, dataP_++, wordCounter_++){
+      uint32_t blockID = (*dataP_) >> BPOSITION_BLOCKID;
       if( blockID != BLOCKID ){
 	(errors_["TCC::BLOCKID"])++;
 	//errorString_ += std::string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);

@@ -3,12 +3,12 @@
 #include "DCCDataMapper.h"
 DCCTBTrailerBlock::DCCTBTrailerBlock(
 	DCCTBDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,  
-	ulong wToEnd,
-	ulong wordEventOffset,
-	ulong expectedLength,
-	ulong expectedCRC
+	uint32_t * buffer, 
+	uint32_t numbBytes,  
+	uint32_t wToEnd,
+	uint32_t wordEventOffset,
+	uint32_t expectedLength,
+	uint32_t expectedCRC
 ) : DCCTBBlockPrototype(parser,"DCCTRAILER", buffer, numbBytes,wToEnd, wordEventOffset),
 expectedLength_(expectedLength){
 	

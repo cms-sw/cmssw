@@ -7,7 +7,7 @@
 #include <sstream>
 
 
-DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser * parser, std::string name, ulong * buffer, ulong numbBytes, ulong wordsToEndOfEvent,  ulong wordEventOffset ){
+DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser * parser, std::string name, uint32_t * buffer, uint32_t numbBytes, uint32_t wordsToEndOfEvent,  uint32_t wordEventOffset ){
 			
 	blockError_        = false;
 	parser_            = parser;
@@ -55,7 +55,7 @@ void DCCTBBlockPrototype::parseData(){
 	*/	
 		
     try{
-      ulong data = getDataWord( (*it)->wordPosition() , (*it)->bitPosition(),(*it)->mask());
+      uint32_t data = getDataWord( (*it)->wordPosition() , (*it)->bitPosition(),(*it)->mask());
       dataFields_[(*it)->name()]= data;
       	
     }catch( ECALTBParserBlockException & e){
@@ -95,7 +95,7 @@ void DCCTBBlockPrototype::parseData(){
 
 
 
-ulong DCCTBBlockPrototype::getDataWord(ulong wordPosition, ulong bitPosition, ulong mask){
+uint32_t DCCTBBlockPrototype::getDataWord(uint32_t wordPosition, uint32_t bitPosition, uint32_t mask){
 	
 	/*
 	std::cout<<"\n DEBUG::DCCTBBlockPrototype getDataWord method "
@@ -111,7 +111,7 @@ ulong DCCTBBlockPrototype::getDataWord(ulong wordPosition, ulong bitPosition, ul
 
 
 
-void DCCTBBlockPrototype::increment(ulong numb,std::string msg){
+void DCCTBBlockPrototype::increment(uint32_t numb,std::string msg){
 	
 	seeIfIsPossibleToIncrement(numb,msg);
 	dataP_ += numb; wordCounter_ += numb;
@@ -119,7 +119,7 @@ void DCCTBBlockPrototype::increment(ulong numb,std::string msg){
 
 
 
-void DCCTBBlockPrototype::seeIfIsPossibleToIncrement(ulong numb, std::string msg){
+void DCCTBBlockPrototype::seeIfIsPossibleToIncrement(uint32_t numb, std::string msg){
 	
 	/*
 	std::cout<<"\n See if is possible to increment numb ="<<std::dec<<numb<<" msg "<<msg<<std::endl;
@@ -180,12 +180,12 @@ void DCCTBBlockPrototype::displayData(  std::ostream & os  ){
 
 
 
-std::pair<bool,std::string> DCCTBBlockPrototype::checkDataField(std::string name, ulong data){
+std::pair<bool,std::string> DCCTBBlockPrototype::checkDataField(std::string name, uint32_t data){
 
 	std::string output("");
 	std::pair<bool,std::string> res;
 	bool errorFound(false);
-	ulong parsedData =  getDataField(name);
+	uint32_t parsedData =  getDataField(name);
 	if( parsedData != data){
 		output += std::string("\n Field : ")+name+(" has value ")+parser_->getDecString( parsedData )+ std::string(", while ")+parser_->getDecString(data)+std::string(" is expected"); 	
 		
@@ -203,9 +203,9 @@ std::pair<bool,std::string> DCCTBBlockPrototype::checkDataField(std::string name
 
 
 
-ulong DCCTBBlockPrototype::getDataField(std::string name){
+uint32_t DCCTBBlockPrototype::getDataField(std::string name){
 	
-	std::map<std::string,ulong>::iterator it = dataFields_.find(name);
+	std::map<std::string,uint32_t>::iterator it = dataFields_.find(name);
 	if(it == dataFields_.end()){		
 		throw ECALTBParserBlockException( std::string("\n field named : ")+name+std::string(" was not found in block ")+name_ );
 		blockError_=true;
@@ -217,11 +217,11 @@ ulong DCCTBBlockPrototype::getDataField(std::string name){
 
 
 
-std::string DCCTBBlockPrototype::formatString(std::string myString,ulong minPositions){
+std::string DCCTBBlockPrototype::formatString(std::string myString,uint32_t minPositions){
 	std::string ret(myString);
-	ulong stringSize = ret.size();
+	uint32_t stringSize = ret.size();
 	if( minPositions > stringSize ){
-		for(ulong i=0;i< minPositions-stringSize;i++){ ret+=" ";}
+		for(uint32_t i=0;i< minPositions-stringSize;i++){ ret+=" ";}
 	}
 	return  ret;
 
@@ -232,7 +232,7 @@ std::string DCCTBBlockPrototype::formatString(std::string myString,ulong minPosi
 
 
 
-void DCCTBBlockPrototype::setDataField(std::string name, ulong data){
+void DCCTBBlockPrototype::setDataField(std::string name, uint32_t data){
   std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it;          //iterator for data fields
   bool fieldFound(false);
   for(it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
@@ -296,7 +296,7 @@ std::pair<bool,std::string> DCCTBBlockPrototype::compare(DCCTBBlockPrototype * b
 		
 		dataFieldName    =  (*it)->name();
 		
-		ulong aValue, bValue;
+		uint32_t aValue, bValue;
 			
 		//Access original block data fields /////////////////////////////////////////////////////
 		try{ aValue = getDataField(dataFieldName); }

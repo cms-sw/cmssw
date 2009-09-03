@@ -29,11 +29,11 @@ public :
   */
   DCCTBTCCBlock(DCCTBEventBlock * dccBlock,
 	      DCCTBDataParser * parser, 
-	      ulong * buffer, 
-	      ulong numbBytes, 
-	      ulong wordsToEnd,
-	      ulong wordEventOffset,
-	      ulong expectedId );     
+	      uint32_t * buffer, 
+	      uint32_t numbBytes, 
+	      uint32_t wordsToEnd,
+	      uint32_t wordEventOffset,
+	      uint32_t expectedId );     
   
   
 
@@ -50,7 +50,7 @@ protected :
   /**
      Adds a new TCC block
   */
-  void  increment(ulong numb);
+  void  increment(uint32_t numb);
   
   /**
      Define TCC block fields
@@ -69,7 +69,7 @@ protected :
   };
   
   DCCTBEventBlock * dccBlock_;
-  ulong expectedId_;
+  uint32_t expectedId_;
 };
 
 #endif

@@ -39,7 +39,7 @@ public :
      5 - SR id
      [6-9] - TCC[6-9] id
   */
-  DCCTBDataParser( std::vector<ulong> parserParameters , bool parseInternalData = true, bool debug = true);
+  DCCTBDataParser( std::vector<uint32_t> parserParameters , bool parseInternalData = true, bool debug = true);
   
   /**
     Parse data from file 
@@ -49,7 +49,7 @@ public :
   /**
      Parse data from a buffer
   */
-  void parseBuffer( ulong * buffer, ulong bufferSize, bool singleEvent = false);
+  void parseBuffer( uint32_t * buffer, uint32_t bufferSize, bool singleEvent = false);
 
   /**
      Get method for DCCTBDataMapper
@@ -60,35 +60,35 @@ public :
      Check if EVENT LENGTH is coeherent and if BOE/EOE are correctly written
      returns 3 bits code with the error found + event length
   */
-  std::pair<ulong,ulong> checkEventLength(ulong * pointerToEvent, ulong bytesToEnd, bool singleEvent = false);
+  std::pair<uint32_t,uint32_t> checkEventLength(uint32_t * pointerToEvent, uint32_t bytesToEnd, bool singleEvent = false);
   
   /**
      Get methods for parser parameters;
   */
-  std::vector<ulong> parserParameters(); 
-  ulong numbXtalSamples();
-  ulong numbTriggerSamples();
-  ulong numbTTs();
-  ulong numbSRF();
-  ulong dccId();
-  ulong srpId();
-  ulong tcc1Id();
-  ulong tcc2Id();
-  ulong tcc3Id();
-  ulong tcc4Id();
+  std::vector<uint32_t> parserParameters(); 
+  uint32_t numbXtalSamples();
+  uint32_t numbTriggerSamples();
+  uint32_t numbTTs();
+  uint32_t numbSRF();
+  uint32_t dccId();
+  uint32_t srpId();
+  uint32_t tcc1Id();
+  uint32_t tcc2Id();
+  uint32_t tcc3Id();
+  uint32_t tcc4Id();
   
 
   /**
      Set method for parser parameters
   */
-  void  setParameters( std::vector<ulong> newParameters );
+  void  setParameters( std::vector<uint32_t> newParameters );
 
 
   /**
      Get methods for block sizes
   */
-  ulong srpBlockSize();
-  ulong tccBlockSize();
+  uint32_t srpBlockSize();
+  uint32_t tccBlockSize();
 
   /**
      Get methods for debug flag
@@ -103,12 +103,12 @@ public :
   /**
      Get method for error counters map
   */
-  std::map<std::string,ulong> & errorCounters();
+  std::map<std::string,uint32_t> & errorCounters();
 
   /**
    * Get method for events
    */
-  std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > events();
+  std::vector< std::pair< uint32_t, std::pair<uint32_t *, uint32_t> > > events();
 
 
   /**
@@ -120,15 +120,15 @@ public :
   /**
      Methods to get data strings formatted as decimal/hexadecimal, indexes and indexed data
   */
-  std::string getDecString(ulong data);		
-  std::string getHexString(ulong data);
-  std::string index(ulong position);
-  std::string getIndexedData( ulong indexed, ulong * pointer);
+  std::string getDecString(uint32_t data);		
+  std::string getHexString(uint32_t data);
+  std::string index(uint32_t position);
+  std::string getIndexedData( uint32_t indexed, uint32_t * pointer);
 
   /**
    * Retrieves a pointer to the data buffer
    */
-  ulong *getBuffer() { return buffer_;}
+  uint32_t *getBuffer() { return buffer_;}
   
   /**
      Class destructor
@@ -142,25 +142,25 @@ public :
 protected :
   void computeBlockSizes();
 
-  ulong *buffer_;                //data buffer
-  ulong bufferSize_;             //buffer size
+  uint32_t *buffer_;                //data buffer
+  uint32_t bufferSize_;             //buffer size
 
-  ulong srpBlockSize_;           //SR block size
-  ulong tccBlockSize_;           //TCC block size
+  uint32_t srpBlockSize_;           //SR block size
+  uint32_t tccBlockSize_;           //TCC block size
 
-  ulong processedEvent_;
+  uint32_t processedEvent_;
   std::string eventErrors_;
   DCCTBDataMapper *mapper_;
   
   std::vector<DCCTBEventBlock *> dccEvents_;
   
   // std::pair< errorMask, std::pair< pointer to event, event size (number of DW)> >
-  std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > events_;
+  std::vector< std::pair< uint32_t, std::pair<uint32_t *, uint32_t> > > events_;
   
   bool parseInternalData_;          //parse internal data flag
   bool debug_;                      //debug flag
-  std::map<std::string,ulong> errors_;        //errors map
-  std::vector<ulong> parameters;         //parameters vector
+  std::map<std::string,uint32_t> errors_;        //errors map
+  std::vector<uint32_t> parameters;         //parameters vector
 
   enum DCCTBDataParserFields{
     EVENTLENGTHMASK = 0xFFFFFF,
@@ -178,27 +178,27 @@ protected :
 
 inline DCCTBDataMapper *DCCTBDataParser::mapper() { return mapper_;}
 
-inline std::vector<ulong> DCCTBDataParser::parserParameters() { return parameters; }
-inline ulong DCCTBDataParser::numbXtalSamples()     { return parameters[0]; }
-inline ulong DCCTBDataParser::numbTriggerSamples()  { return parameters[1]; }
-inline ulong DCCTBDataParser::numbTTs()             { return parameters[2]; }
-inline ulong DCCTBDataParser::numbSRF()             { return parameters[3]; }
-inline ulong DCCTBDataParser::dccId()               { return parameters[4]; }
-inline ulong DCCTBDataParser::srpId()               { return parameters[5]; }
-inline ulong DCCTBDataParser::tcc1Id()              { return parameters[6]; } 
-inline ulong DCCTBDataParser::tcc2Id()              { return parameters[7]; } 
-inline ulong DCCTBDataParser::tcc3Id()              { return parameters[8]; } 
-inline ulong DCCTBDataParser::tcc4Id()              { return parameters[9]; }
+inline std::vector<uint32_t> DCCTBDataParser::parserParameters() { return parameters; }
+inline uint32_t DCCTBDataParser::numbXtalSamples()     { return parameters[0]; }
+inline uint32_t DCCTBDataParser::numbTriggerSamples()  { return parameters[1]; }
+inline uint32_t DCCTBDataParser::numbTTs()             { return parameters[2]; }
+inline uint32_t DCCTBDataParser::numbSRF()             { return parameters[3]; }
+inline uint32_t DCCTBDataParser::dccId()               { return parameters[4]; }
+inline uint32_t DCCTBDataParser::srpId()               { return parameters[5]; }
+inline uint32_t DCCTBDataParser::tcc1Id()              { return parameters[6]; } 
+inline uint32_t DCCTBDataParser::tcc2Id()              { return parameters[7]; } 
+inline uint32_t DCCTBDataParser::tcc3Id()              { return parameters[8]; } 
+inline uint32_t DCCTBDataParser::tcc4Id()              { return parameters[9]; }
 
-inline void  DCCTBDataParser::setParameters( std::vector<ulong> newParameters ){ parameters = newParameters; computeBlockSizes();}
+inline void  DCCTBDataParser::setParameters( std::vector<uint32_t> newParameters ){ parameters = newParameters; computeBlockSizes();}
 
-inline ulong DCCTBDataParser::srpBlockSize()        { return srpBlockSize_; } 
-inline ulong DCCTBDataParser::tccBlockSize()        { return tccBlockSize_; } 
+inline uint32_t DCCTBDataParser::srpBlockSize()        { return srpBlockSize_; } 
+inline uint32_t DCCTBDataParser::tccBlockSize()        { return tccBlockSize_; } 
 
 inline bool DCCTBDataParser::debug()                          { return debug_;     }
 inline std::vector<DCCTBEventBlock *> &DCCTBDataParser::dccEvents()  { return dccEvents_;    }
-inline std::map<std::string,ulong> &DCCTBDataParser::errorCounters()    { return errors_;       }
-inline std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > DCCTBDataParser::events() { return events_;   }
+inline std::map<std::string,uint32_t> &DCCTBDataParser::errorCounters()    { return errors_;       }
+inline std::vector< std::pair< uint32_t, std::pair<uint32_t *, uint32_t> > > DCCTBDataParser::events() { return events_;   }
 
 
 #endif

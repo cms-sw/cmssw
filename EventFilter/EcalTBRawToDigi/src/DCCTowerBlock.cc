@@ -11,11 +11,11 @@
 DCCTBTowerBlock::DCCTBTowerBlock(
  	DCCTBEventBlock * dccBlock, 
 	DCCTBDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,
-	ulong wordsToEnd,
-	ulong wordEventOffset,
-	ulong expectedTowerID
+	uint32_t * buffer, 
+	uint32_t numbBytes,
+	uint32_t wordsToEnd,
+	uint32_t wordEventOffset,
+	uint32_t expectedTowerID
 )
 : DCCTBBlockPrototype(parser,"TOWERHEADER", buffer, numbBytes,wordsToEnd, wordEventOffset ) 
  , dccBlock_(dccBlock), expectedTowerID_(expectedTowerID)
@@ -38,17 +38,17 @@ DCCTBTowerBlock::DCCTBTowerBlock(
  
  void DCCTBTowerBlock::parseXtalData(){
 	
-	ulong numbBytes = blockSize_;
-	ulong wordsToEnd =wordsToEndOfEvent_;
+	uint32_t numbBytes = blockSize_;
+	uint32_t wordsToEnd =wordsToEndOfEvent_;
 	
 	// See if we can construct the correct number of XTAL Blocks////////////////////////////////////////////////////////////////////////////////
-	ulong numbDWInXtalBlock = ( parser_->numbXtalSamples() )/4 + 1;
-	ulong length            = getDataField("BLOCK LENGTH");
-	ulong numbOfXtalBlocks  = 0 ;
+	uint32_t numbDWInXtalBlock = ( parser_->numbXtalSamples() )/4 + 1;
+	uint32_t length            = getDataField("BLOCK LENGTH");
+	uint32_t numbOfXtalBlocks  = 0 ;
 	
 	if( length > 0 ){ numbOfXtalBlocks = (length-1)/numbDWInXtalBlock; }
-	ulong xtalBlockSize     =  numbDWInXtalBlock*8;
-	//ulong pIncrease         =  numbDWInXtalBlock*2;
+	uint32_t xtalBlockSize     =  numbDWInXtalBlock*8;
+	//uint32_t pIncrease         =  numbDWInXtalBlock*2;
 	
 	//std::cout<<"\n DEBUG::numbDWInXtal Block "<<dec<<numbDWInXtalBlock<<std::endl;
 	//std::cout<<"\n DEBUG::length             "<<length<<std::endl;
@@ -65,7 +65,7 @@ DCCTBTowerBlock::DCCTBTowerBlock(
 		errorString_ += "\n ======================================================================\n"; 		
 		errorString_ += std::string(" ") + name_ + std::string(" ZS is not active, error in the Tower Length !") ;
 		errorString_ += "\n Tower Length is : " + (parser_->getDecString(numbBytes/8))+std::string(" , while it should be : ");
-		std::string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
+		std::string myString = parser_->getDecString((uint32_t)(25*numbDWInXtalBlock+1));
 		errorString_ += "\n It was only possible to build : " + parser_->getDecString( numbOfXtalBlocks)+ std::string(" XTAL blocks");
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;
@@ -75,7 +75,7 @@ DCCTBTowerBlock::DCCTBTowerBlock(
 		errorString_ += "\n ======================================================================\n"; 		
 		errorString_ += std::string(" ") + name_ + std::string(" Tower Length is larger then expected...!") ;
 		errorString_ += "\n Tower Length is : " + parser_->getDecString(numbBytes/8)+std::string(" , while it should be at maximum : ");
-		std::string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
+		std::string myString = parser_->getDecString((uint32_t)(25*numbDWInXtalBlock+1));
 		errorString_ += "\n Action -> data after the xtal 25 is ignored... "; 
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;
@@ -86,10 +86,10 @@ DCCTBTowerBlock::DCCTBTowerBlock(
 	blockSize_     += length*8;  //??????????????????????
 	
 	// Get XTAL Data //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	ulong stripID, xtalID;
+	uint32_t stripID, xtalID;
 	
 	
-	for(ulong numbXtal=1; numbXtal <= numbOfXtalBlocks && numbXtal <=25 ; numbXtal++){
+	for(uint32_t numbXtal=1; numbXtal <= numbOfXtalBlocks && numbXtal <=25 ; numbXtal++){
 	
 		increment(1);
 		
@@ -149,7 +149,7 @@ void DCCTBTowerBlock::dataCheck(){
 		std::string myTowerId;
 		
 		errorString_ +="\n ======================================================================\n"; 
-		errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((ulong)(expectedTowerID_))+std::string(" ) errors : ") ;
+		errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((uint32_t)(expectedTowerID_))+std::string(" ) errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	
@@ -157,7 +157,7 @@ void DCCTBTowerBlock::dataCheck(){
 } 
 
 
-std::vector< DCCTBXtalBlock * > DCCTBTowerBlock::xtalBlocksById(ulong stripId, ulong xtalId){
+std::vector< DCCTBXtalBlock * > DCCTBTowerBlock::xtalBlocksById(uint32_t stripId, uint32_t xtalId){
 	std::vector<DCCTBXtalBlock *> myVector;	
 	std::vector<DCCTBXtalBlock *>::iterator it;
 	

@@ -25,11 +25,11 @@ class DCCTBTowerBlock : public DCCTBBlockPrototype {
 		DCCTBTowerBlock(
 			DCCTBEventBlock * dccBlock,
 			DCCTBDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes, 
-			ulong wordsToEnd,
-			ulong wordEventOffset,
-			ulong expectedTowerID
+			uint32_t * buffer, 
+			uint32_t numbBytes, 
+			uint32_t wordsToEnd,
+			uint32_t wordEventOffset,
+			uint32_t expectedTowerID
 		);
 		
 		~DCCTBTowerBlock();
@@ -39,7 +39,7 @@ class DCCTBTowerBlock : public DCCTBBlockPrototype {
 
 		std::vector< DCCTBXtalBlock * > & xtalBlocks();
 		
-		std::vector< DCCTBXtalBlock * > xtalBlocksById(ulong stripId, ulong xtalId);
+		std::vector< DCCTBXtalBlock * > xtalBlocksById(uint32_t stripId, uint32_t xtalId);
 		
 	protected :
 		
@@ -49,7 +49,7 @@ class DCCTBTowerBlock : public DCCTBBlockPrototype {
 		
 		std::vector<DCCTBXtalBlock * > xtalBlocks_;
 		DCCTBEventBlock * dccBlock_;
-		ulong expectedTowerID_;
+		uint32_t expectedTowerID_;
 		
 		
 };

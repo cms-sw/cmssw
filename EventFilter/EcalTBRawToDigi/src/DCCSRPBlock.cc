@@ -6,10 +6,10 @@
 DCCTBSRPBlock::DCCTBSRPBlock(
 	DCCTBEventBlock * dccBlock,
 	DCCTBDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes,
-	ulong wordsToEnd,
-	ulong wordEventOffset
+	uint32_t * buffer, 
+	uint32_t numbBytes,
+	uint32_t wordsToEnd,
+	uint32_t wordEventOffset
 ) : DCCTBBlockPrototype(parser,"SRP", buffer, numbBytes,wordsToEnd,wordEventOffset), dccBlock_(dccBlock){
 	
 	//Reset error counters ///////
@@ -60,11 +60,11 @@ void DCCTBSRPBlock::dataCheck(){
 }
 
 
-void  DCCTBSRPBlock::increment(ulong numb){
+void  DCCTBSRPBlock::increment(uint32_t numb){
 	if(!parser_->debug()){ DCCTBBlockPrototype::increment(numb); }
 	else {
-		for(ulong counter=0; counter<numb; counter++, dataP_++,wordCounter_++){
-			ulong blockID = (*dataP_)>>BPOSITION_BLOCKID;
+		for(uint32_t counter=0; counter<numb; counter++, dataP_++,wordCounter_++){
+			uint32_t blockID = (*dataP_)>>BPOSITION_BLOCKID;
 			if( blockID != BLOCKID ){
 				(errors_["SRP::BLOCKID"])++;
 				//errorString_ += std::string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);

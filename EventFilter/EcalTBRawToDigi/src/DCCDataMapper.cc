@@ -134,7 +134,7 @@ void DCCTBDataMapper::buildDCCFields(){
   
 
   //add Headers Qualifiers: 8 words with 6 bits each written on the 2nd 32bit words
-  for(ulong i=1;i<=8;i++){
+  for(uint32_t i=1;i<=8;i++){
     std::string header = std::string("H") + parser_->getDecString(i);
     dccFields_->insert( new DCCTBDataField(header,HD_WPOSITION + (i-1)*2 ,HD_BPOSITION,HD_MASK));		
 
@@ -144,16 +144,16 @@ void DCCTBDataMapper::buildDCCFields(){
 
 
   //add FE_CHSTATUS: 5 words each having 14 FE_CHSTATUS
-  for(ulong wcount = 1; wcount<=5; wcount++){
+  for(uint32_t wcount = 1; wcount<=5; wcount++){
 
     //1st word 32 bit
-    for(ulong i=1;i<=8;i++){
+    for(uint32_t i=1;i<=8;i++){
       std::string chStatus = std::string("FE_CHSTATUS#") + parser_->getDecString( (wcount-1)*14 + i );
       dccFields_->insert( new DCCTBDataField(chStatus, FE_CHSTATUS_WPOSITION +(wcount-1)*2, 4*(i-1),FE_CHSTATUS_MASK));	
     }
 
     //2nd word 32 bit
-    for(ulong i=9;i<=14;i++){
+    for(uint32_t i=9;i<=14;i++){
       std::string chStatus = std::string("FE_CHSTATUS#") + parser_->getDecString((wcount-1)*14 + i);
       dccFields_->insert( new DCCTBDataField(chStatus, FE_CHSTATUS_WPOSITION + (wcount-1)*2 + 1,4*(i-9),FE_CHSTATUS_MASK));	
     }
@@ -185,17 +185,17 @@ void DCCTBDataMapper::buildTCCFields(){
     (pVector[i])->insert( new DCCTBDataField("LE1",TCCLE1_WPOSITION, TCCLE1_BPOSITION, TCCLE1_MASK));	
   }
   
-  ulong nTSamples = parser_->numbTriggerSamples();
+  uint32_t nTSamples = parser_->numbTriggerSamples();
 	
-  ulong totalTT   = 68*nTSamples; 
+  uint32_t totalTT   = 68*nTSamples; 
   
-  ulong filter1 = 16*nTSamples;
-  ulong filter2 = 32*nTSamples;
+  uint32_t filter1 = 16*nTSamples;
+  uint32_t filter2 = 32*nTSamples;
 	
-  ulong count(2) ;
+  uint32_t count(2) ;
 	
   // Fill block with TT definition 
-  for(ulong tt=1; tt<=totalTT; tt++){
+  for(uint32_t tt=1; tt<=totalTT; tt++){
     std::string tpg    = std::string("TPG#") + parser_->getDecString(tt);
     std::string ttFlag = std::string("TTF#") + parser_->getDecString(tt);
 
@@ -235,10 +235,10 @@ void DCCTBDataMapper::buildSRPFields(){
     (pVector[i])->insert( new DCCTBDataField("LE1",SRPLE1_WPOSITION, SRPLE1_BPOSITION, SRPLE1_MASK));	
   }
   
-  ulong srpFlags(68); 
+  uint32_t srpFlags(68); 
   
-  ulong count1(1), count2(1), srSize(3), factor(0), wcount(0);
-  for(ulong nsr =1; nsr<=srpFlags; nsr++){
+  uint32_t count1(1), count2(1), srSize(3), factor(0), wcount(0);
+  for(uint32_t nsr =1; nsr<=srpFlags; nsr++){
     
     std::string sr = std::string("SR#") + parser_->getDecString(nsr);
     
@@ -297,14 +297,14 @@ void DCCTBDataMapper::buildXtalFields(){
   xtalFields_->insert(new DCCTBDataField("ADC#1",ADC_WPOSITION,ADCBOFFSET,ADC_MASK));
 	
   //add the rest of the ADCs 
-  for(ulong i=2; i <= parser_->numbXtalSamples();i++){
+  for(uint32_t i=2; i <= parser_->numbXtalSamples();i++){
     std::string adc = std::string("ADC#") + parser_->getDecString(i);
     if(i%2){ xtalFields_->insert(new DCCTBDataField(adc,ADC_WPOSITION + i/2, ADCBOFFSET,ADC_MASK)); }
     else   { xtalFields_->insert(new DCCTBDataField(adc,ADC_WPOSITION + i/2, 0,ADC_MASK)); }
   }
 
   //the last word has written the test zero suppression flag and the gain decision bit
-  ulong tzsOffset_ = parser_->numbXtalSamples()/2;
+  uint32_t tzsOffset_ = parser_->numbXtalSamples()/2;
   xtalFields_->insert(new DCCTBDataField("TZS",XTAL_TZS_WPOSITION+tzsOffset_,XTAL_TZS_BPOSITION,XTAL_TZS_MASK));
   xtalFields_->insert(new DCCTBDataField("GDECISION",XTAL_GDECISION_WPOSITION+tzsOffset_,XTAL_GDECISION_BPOSITION,XTAL_GDECISION_MASK));
 }

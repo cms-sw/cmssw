@@ -14,12 +14,12 @@ class DCCTBTrailerBlock : public DCCTBBlockPrototype {
 		
 		DCCTBTrailerBlock(
 			DCCTBDataParser * parser, 
-			ulong * buffer, 
-			ulong numbBytes,
-			ulong wToEnd, 
-			ulong wordEventOffset,
-			ulong expectedLength,
-			ulong expectedCRC
+			uint32_t * buffer, 
+			uint32_t numbBytes,
+			uint32_t wToEnd, 
+			uint32_t wordEventOffset,
+			uint32_t expectedLength,
+			uint32_t expectedCRC
 		);
 		
 		void dataCheck(); 
@@ -28,8 +28,8 @@ class DCCTBTrailerBlock : public DCCTBBlockPrototype {
 	protected :
 		
 		enum traillerFields{ EOE = 0xA};
-		ulong expectedLength_;
-		ulong expectedCRC_;
+		uint32_t expectedLength_;
+		uint32_t expectedCRC_;
 
 
 };

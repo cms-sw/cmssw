@@ -14,11 +14,11 @@
 
 DCCTBEventBlock::DCCTBEventBlock(
 	DCCTBDataParser * parser, 
-	ulong * buffer, 
-	ulong numbBytes, 
-	ulong wordsToEnd, 
-	ulong wordBufferOffset , 
-	ulong wordEventOffset 
+	uint32_t * buffer, 
+	uint32_t numbBytes, 
+	uint32_t wordsToEnd, 
+	uint32_t wordBufferOffset , 
+	uint32_t wordEventOffset 
 ) : 
 DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 ,dccTrailerBlock_(0),srpBlock_(0),wordBufferOffset_(wordBufferOffset) {
@@ -29,7 +29,7 @@ DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 	errors_["DCC::EVENT LENGTH"] = 0;
 	///////////////////////////
 	
-	ulong wToEnd(0);
+	uint32_t wToEnd(0);
 	
 	try{ 
 	
@@ -60,7 +60,7 @@ DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			// Build the SRP block ////////////////////////////////////////////////////////////////////////////////////
 		
 			bool srp(false);
-			ulong sr_ch = getDataField("SR_CHSTATUS");
+			uint32_t sr_ch = getDataField("SR_CHSTATUS");
 			if( sr_ch!=CH_TIMEOUT  && sr_ch != CH_DISABLED ){ 			
 				
 				//Go to the begining of the block
@@ -79,8 +79,8 @@ DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 
 
 			// Build TCC blocks ////////////////////////////////////////////////////////////////////////////////////////
-			for(ulong i=1; i<=4;i++){
-			  ulong tcc_ch=0;  ulong  tccId=0;
+			for(uint32_t i=1; i<=4;i++){
+			  uint32_t tcc_ch=0;  uint32_t  tccId=0;
 				if( i == 1){ tccId = parser_->tcc1Id();}
 				if( i == 2){ tccId = parser_->tcc2Id();}
 				if( i == 3){ tccId = parser_->tcc3Id();}	
@@ -115,8 +115,8 @@ DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			// Build channel data //////////////////////////////////////////////////////////////////////////////////////////////////////	
 			// See number of channels that we need according to the trigger type //
 			// TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE
-			ulong triggerType = getDataField("TRIGGER TYPE");			
-			ulong numbChannels;
+			uint32_t triggerType = getDataField("TRIGGER TYPE");			
+			uint32_t numbChannels;
 			if( triggerType == PHYSICTRIGGER )          { numbChannels = 68; }
 			else if (triggerType == CALIBRATIONTRIGGER ){ numbChannels = 70; }
 			// TODO :: implement other triggers
@@ -129,14 +129,14 @@ DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			
 			
 			
-//			ulong chStatus;
-			ulong srFlag;
+//			uint32_t chStatus;
+			uint32_t srFlag;
 			bool suppress(false);
 			
-			for( ulong i=1; i<=numbChannels; i++){
+			for( uint32_t i=1; i<=numbChannels; i++){
 				
 			  std::string chStatusId = std::string("FE_CHSTATUS#") + parser_->getDecString(i);
-				ulong chStatus = getDataField(chStatusId);
+				uint32_t chStatus = getDataField(chStatusId);
 				
 				// If srp is on, we need to check if channel was suppressed ////////////////////
 				if(srp){ 
@@ -182,7 +182,7 @@ DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 	
 	}catch( ECALTBParserException & e){}
 	catch( ECALTBParserBlockException & e){
-	  // ulong nEv = (parser_->dccEvents()).size() +1;
+	  // uint32_t nEv = (parser_->dccEvents()).size() +1;
 	  errorString_ += std::string(e.what());
 	  blockError_=true;
 	  //std::cout<<"cout"<<e.what();
@@ -231,12 +231,12 @@ void DCCTBEventBlock::dataCheck(){
 	
 	
 	// Check Headers //////////////////////////////////////////////////////////
-	ulong dccHeaderWords;
+	uint32_t dccHeaderWords;
 	
 	if(emptyEvent){ dccHeaderWords = 2;}
 	else if(!emptyEvent){ dccHeaderWords = 7;}
 
-	for(ulong i = 1; i<=dccHeaderWords ; i++){
+	for(uint32_t i = 1; i<=dccHeaderWords ; i++){
 
 		std::string header= std::string("H") + parser_->getDecString(i);
 		res = checkDataField(header,i);
@@ -545,7 +545,7 @@ std::string DCCTBEventBlock::eventErrorString(){
 
 
 
-std::vector< DCCTBTowerBlock * > DCCTBEventBlock::towerBlocksById(ulong towerId){
+std::vector< DCCTBTowerBlock * > DCCTBEventBlock::towerBlocksById(uint32_t towerId){
 	std::vector<DCCTBTowerBlock *> myVector;	
 	std::vector<DCCTBTowerBlock *>::iterator it;
 	
