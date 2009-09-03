@@ -760,8 +760,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	  if( TMath::Abs(ohEleEta[i]) < 2.65 ) {
 	    if (ohEleNewSC[i]==1) {  
 	      if (ohElePixelSeeds[i]>0) {  
-		if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||   
-		     (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) ) { 
+		if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||   
+		     (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) ) { 
 		  if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) ) { 
 		    for(int j=0;j<NohEle && j != i;j++) {  
 		      if(ohEleEt[j] > 15.) {  
@@ -834,8 +834,8 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
               if (ohElePixelSeeds[i]>0)   
                 if ( (ohEleTiso[i] < Tisoratio || (ohEleTiso[i]*ohEleEt[i]) < Tiso) && ohEleTiso[i] != -999.)   
                   if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1   
-                    if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||   
-                         (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )    
+                    if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||   
+                         (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )    
                       if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )   
                         if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs     
                           rc++;         
@@ -1890,10 +1890,13 @@ int OHltTree::OpenHlt1EleIdLWElectronPassed(float Et, int L1iso, float Tiso, flo
 	      if ( (ohEleTisoLW[i] < Tiso && ohEleTisoLW[i] != -999.) || (Tiso == 9999.) ) 
 	      if ( ohEleL1isoLW[i] >= L1iso )   // L1iso is 0 or 1 
 		if( ohEleLWL1Dupl[i] == false) // remove double-counted L1 SCs
-		  if ( ohEleDetaLW[i] < 0.01 && ohEleDphiLW[i] < 0.09 )
+		  //		  if ( ohEleDetaLW[i] < 0.01 && ohEleDphiLW[i] < 0.09 ) Old definitiion
+		  if ( ohEleDetaLW[i] < 0.008 && ohEleDphiLW[i] < 0.1 ) 
 		    if (
-			(ohEleClusShapLW[i] < 0.014 && ohEleEtaLW[i] < 1.475) ||
-			(ohEleClusShapLW[i] < 0.0275 && ohEleEtaLW[i] >= 1.475)
+			(ohEleClusShapLW[i] < 0.015 && TMath::Abs(ohEleEtaLW[i]) < 1.475) ||
+			(ohEleClusShapLW[i] < 0.04 && TMath::Abs(ohEleEtaLW[i]) >= 1.475) 
+			//			(ohEleClusShapLW[i] < 0.014 && ohEleEtaLW[i] < 1.475) || Old definition
+			//			(ohEleClusShapLW[i] < 0.0275 && ohEleEtaLW[i] >= 1.475)
 			 )
 		      rc++;       
       } 
@@ -1915,8 +1918,8 @@ int OHltTree::OpenHlt1ElectronEleIDPassed(float Et,int L1iso,float Tiso,float Hi
 	    if (ohElePixelSeeds[i]>0)  
 	      if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.) )  
 		if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1  
-		  if ( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohEleClusShap[i] < 0.015) ||  
-		       (1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )   
+		  if ( (TMath::Abs(ohEleEta[i]) < 1.475 && ohEleClusShap[i] < 0.015) ||  
+		       (1.475 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.5 && ohEleClusShap[i] < 0.04) )   
 		    if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )  
 		      if( ohEleL1Dupl[i] == false) // remove double-counted L1 SCs    
 			rc++;        
