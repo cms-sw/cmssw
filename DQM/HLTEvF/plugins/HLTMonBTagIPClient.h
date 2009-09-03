@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 15:25:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/01 16:50:45 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -51,23 +51,15 @@ private:
   MonitorElement * book(const std::string & name, const std::string & title, int x_bins, double x_min, double x_max, const char * x_axis = 0);
   MonitorElement * book(const std::string & name, const std::string & title, int x_bins, double x_min, double x_max, int y_bins, double y_min, double y_max, const char * x_axis = 0, const char * y_axis = 0);
 
-  edm::InputTag m_lifetimeL2Jets;
-  edm::InputTag m_lifetimeL25TagInfo;
-  edm::InputTag m_lifetimeL25JetTags;
-  edm::InputTag m_lifetimeL3TagInfo;
-  edm::InputTag m_lifetimeL3JetTags;
-
   std::string m_pathName;
   std::string m_monitorName;
   std::string m_outputFile;
   bool m_storeROOT;
   edm::Service<DQMStore> m_dbe;
 
-  unsigned int m_size;
-  unsigned int m_counterEvent;
-  unsigned int m_prescaleEvent;
-
   // MonitorElement's (plots) filled by the source
+  MonitorElement * m_plotRates;
+
   MonitorElement * m_plotL2JetsEnergy;
   MonitorElement * m_plotL2JetsET;
   MonitorElement * m_plotL2JetsEta;

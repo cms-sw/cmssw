@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 16:52:48 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/03 17:30:35 $
+ *  $Revision: 1.4 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -27,20 +27,13 @@
 #include "HLTMonBTagIPClient.h"
 
 HLTMonBTagIPClient::HLTMonBTagIPClient(const edm::ParameterSet & config) :
-  m_lifetimeL2Jets(         config.getParameter<edm::InputTag>("L2Jets") ),
-  m_lifetimeL25TagInfo(     config.getParameter<edm::InputTag>("L25TagInfo") ),
-  m_lifetimeL25JetTags(     config.getParameter<edm::InputTag>("L25JetTags") ),
-  m_lifetimeL3TagInfo(      config.getParameter<edm::InputTag>("L3TagInfo") ),
-  m_lifetimeL3JetTags(      config.getParameter<edm::InputTag>("L3JetTags") ),
   m_pathName(               config.getParameter<std::string>("pathName") ),
   m_monitorName(            config.getParameter<std::string>("monitorName" ) ),
   m_outputFile(             config.getUntrackedParameter<std::string>("outputFile", "HLTBJetDQM.root") ),
   m_storeROOT(              config.getUntrackedParameter<bool>("storeROOT", false) ),
   m_dbe(),
-  m_size(                   config.getParameter<unsigned int>("interestingJets") ),
-  m_counterEvent(0),
-  m_prescaleEvent(          config.getUntrackedParameter<unsigned int>("prescale", 0) ),
   // MonitorElement's (plots) filled by the source
+  m_plotRates(0),
   m_plotL2JetsEnergy(0),
   m_plotL2JetsET(0),
   m_plotL2JetsEta(0),
@@ -100,6 +93,7 @@ void HLTMonBTagIPClient::beginJob() {
 
   m_dbe->setVerbose(0);
   m_dbe->setCurrentFolder(m_monitorName + "/" + m_pathName);
+  m_plotRates                       = book("Rates",                  "Rates",                              6,  0.,     6);
   m_plotL2JetsEnergy                = book("L2_jet_energy",          "L2 jet energy",                    300,   0.,  300.,  "GeV");
   m_plotL2JetsET                    = book("L2_jet_eT",              "L2 jet eT",                        300,   0.,  300.,  "GeV");
   m_plotL2JetsEta                   = book("L2_jet_eta",             "L2 jet eta",                        60,  -3.0,   3.0, "#eta");
