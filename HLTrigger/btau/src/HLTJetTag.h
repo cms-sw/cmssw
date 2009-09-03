@@ -7,8 +7,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2008/04/22 14:58:44 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/23 11:57:53 $
+ *  $Revision: 1.1 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -17,12 +17,9 @@
 
 #include <string>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
-
-class edm::Event;
-class edm::EventSetup;
-class edm::ParameterSet;
 
 //
 // class declaration
