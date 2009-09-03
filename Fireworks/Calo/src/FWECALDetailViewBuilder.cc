@@ -1,20 +1,29 @@
+#include "TEveViewer.h"
+#include "TEveScene.h"
+#include "TEveManager.h"
+#include "TEveCaloData.h"
+#include "TEveCalo.h"
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/FWLite/interface/Event.h"
 
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
 #include "TColor.h"
 #include "TAxis.h"
 #include "TGLViewer.h"
 #include "TEveCaloLegoOverlay.h"
 
-// this is temporary until a fix is made in root
-#define protected public
-#include "TEveLegoEventHandler.h"
-#undef protected
+#include <utility>
+
 
 #include "TGeoMatrix.h"
 #include "TEveTrans.h"
@@ -63,34 +72,62 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 	fillData(hits, data);	
 	
 	// make grid
-	Double_t em, eM, pm, pM;
-	data->GetEtaLimits(em, eM);
-	data->GetPhiLimits(pm, pM);
-	data->SetAxisFromBins((eM-em)*0.05, (pM-pm)*0.05); // 5% percision
+	Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
+	data->GetEtaLimits(etaMin, etaMax);
+	data->GetPhiLimits(phiMin, phiMax);
+	
+	// make tower grid
+	std::vector<double> etaBinsWithinLimits;
+	etaBinsWithinLimits.push_back(etaMin);
+	for (unsigned int i=0; i<83; ++i)
+	  if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax ) 
+	    etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
+	etaBinsWithinLimits.push_back(etaMax);
+	Double_t* eta_bins = new Double_t[etaBinsWithinLimits.size()];
+	for (unsigned int i=0; i<etaBinsWithinLimits.size(); ++i)
+	  eta_bins[i] = etaBinsWithinLimits[i];
+
+	std::vector<double> phiBinsWithinLimits;
+	phiBinsWithinLimits.push_back(phiMin);
+	for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
+	  if ( phi > phiMin && phi < phiMax )  // it's stupid, I know, but I'm lazy right now
+	    phiBinsWithinLimits.push_back(phi);
+	phiBinsWithinLimits.push_back(phiMax);
+	Double_t* phi_bins = new Double_t[phiBinsWithinLimits.size()];
+	for (unsigned int i=0; i<phiBinsWithinLimits.size(); ++i)
+	  phi_bins[i] = phiBinsWithinLimits[i];
+	
 	if (fabs(m_eta) > 1.5) {
+		data->SetAxisFromBins((etaMax-etaMin)*0.05, (phiMax-phiMin)*0.05); // 5% percision
 		data->GetEtaBins()->SetTitle("X[cm]");
 		data->GetPhiBins()->SetTitle("Y[cm]");
 	} else {
+		data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
+		data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
 		data->GetEtaBins()->SetTitleFont(122);
 		data->GetEtaBins()->SetTitle("h");
 		data->GetPhiBins()->SetTitleFont(122);
 		data->GetPhiBins()->SetTitle("f");
 	}
-	
+	delete [] eta_bins;
+	delete [] phi_bins;
+
 	// lego
 	TEveCaloLego *lego = new TEveCaloLego(data);
 	// scale and translate to real world coordinates
-	lego->SetEta(em, eM);
-	lego->SetPhiWithRng((pm+pM)*0.5, (pM-pm)*0.5); // phi range = 2* phiOffset
-	Double_t legoScale = ((eM - em) < (pM - pm)) ? (eM - em) : (pM - pm);
+	lego->SetEta(etaMin, etaMax);
+	lego->SetPhiWithRng((phiMin+phiMax)*0.5, (phiMax-phiMin)*0.5); // phi range = 2* phiOffset
+	Double_t legoScale = ((etaMax - etaMin) < (phiMax - phiMin)) ? (etaMax - etaMin) : (phiMax - phiMin);
 	lego->InitMainTrans();
 	lego->RefMainTrans().SetScale(legoScale, legoScale, legoScale*0.5);
-	lego->RefMainTrans().SetPos((eM+em)*0.5, (pM+pm)*0.5, 0);
+	lego->RefMainTrans().SetPos((etaMax+etaMin)*0.5, (phiMax+phiMin)*0.5, 0);
 	lego->SetAutoRebin(kFALSE);
 	lego->Set2DMode(TEveCaloLego::kValSize);
 	lego->SetProjection(TEveCaloLego::kAuto);
 	lego->SetName("ECALDetail Lego");
+	lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
 	lego->SetFontColor(kGray);
+	// lego->SetFontColor(kWhite);
 		
 	return lego;
 	
@@ -106,10 +143,7 @@ void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &
 	int slice = m_colors.size();	
 	// take a note of which slice these detids are going to go into
 	for (size_t i = 0; i < detIds.size(); ++i)
-	{
-		m_detIdsToColor.insert(std::make_pair<DetId, int>(detIds[i], slice));
-	}
-							  
+	  m_detIdsToColor[detIds[i]] = slice;
 }
 
 void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster, Color_t color)
@@ -126,7 +160,7 @@ void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster
 	
 }
 
-void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
+void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
 {
 
 	// get the superclusters from the event
@@ -164,8 +198,8 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 			&& fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
 			continue;
 
-		if (colorIndex %2 == 0) showSuperCluster(sorted[i], color);
-		else showSuperCluster(sorted[i], color + 4);
+		if (colorIndex %2 == 0) showSuperCluster(sorted[i], color1);
+		else showSuperCluster(sorted[i], color2);
 		++colorIndex;
 		
 	}
@@ -173,14 +207,14 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color)
 }
 
 void FWECALDetailViewBuilder::fillData (const EcalRecHitCollection *hits, 
-										TEveCaloDataVec *data)
+					TEveCaloDataVec *data)
 {
 	
 	 // loop on all the detids
 	 for (EcalRecHitCollection::const_iterator k = hits->begin();
 		  k != hits->end(); ++k) {
 	
-		 const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->id().rawId());
+		 const TGeoHMatrix *matrix = m_geom->getMatrix(k->id().rawId());
 		 if ( matrix == 0 ) {
 			 printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
 			 continue;
@@ -217,7 +251,8 @@ void FWECALDetailViewBuilder::fillData (const EcalRecHitCollection *hits,
 			 data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
 							phi - 0.0172 / 2, phi + 0.0172 / 2);
 			 data->FillSlice(slice, size);
-			 
+			 if (size>10)
+			   std::cout << k->id().rawId() << "\t Et:" << size << std::endl;
 		// otherwise in the EE
 		 } else if (k->id().subdetId() == EcalEndcap) {
 			 			 
