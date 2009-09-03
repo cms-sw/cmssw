@@ -1,7 +1,7 @@
 #ifndef GUARD_HDQMInspectorConfigBase_h
 #define GUARD_HDQMInspectorConfigBase_h
 
-
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
