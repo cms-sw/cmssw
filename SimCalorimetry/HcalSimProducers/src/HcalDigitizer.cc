@@ -216,6 +216,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
     theNoiseGenerator = new HPDNoiseGenerator(ps); 
     if(theHBHEDigitizer) theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
+    if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
   }
 
   if(ps.getParameter<bool>("injectTestHits") ){
@@ -290,6 +291,7 @@ HcalDigitizer::~HcalDigitizer() {
 void HcalDigitizer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
+  noiseGenerator->setElectronicsSim(theHBHEElectronicsSim);
   theHBHEDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHBHEAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -297,6 +299,7 @@ void HcalDigitizer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseG
 void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
+  noiseGenerator->setElectronicsSim(theHFElectronicsSim);
   theHFDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHFAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -304,6 +307,7 @@ void HcalDigitizer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
 void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
+  noiseGenerator->setElectronicsSim(theHOElectronicsSim);
   theHODigitizer->setNoiseSignalGenerator(noiseGenerator);
   theHOAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
@@ -311,6 +315,7 @@ void HcalDigitizer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGen
 void HcalDigitizer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator)
 {
   noiseGenerator->setParameterMap(theParameterMap);
+  noiseGenerator->setElectronicsSim(theZDCElectronicsSim);
   theZDCDigitizer->setNoiseSignalGenerator(noiseGenerator);
   theZDCAmplifier->setNoiseSignalGenerator(noiseGenerator);
 }
