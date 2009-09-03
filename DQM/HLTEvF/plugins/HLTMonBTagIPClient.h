@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/01 16:50:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/03 18:25:56 $
+ *  $Revision: 1.3 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -108,6 +108,7 @@ private:
   MonitorElement * m_plotL3Discriminator;
 
   // MonitorElement's (plots) filled by the client
+  MonitorElement * m_plotEfficiencies;
 };
 
 #endif // DQM_HLTEvF_HLTMonBTagIPClient_H

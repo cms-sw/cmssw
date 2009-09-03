@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/03 17:30:35 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/03 18:25:56 $
+ *  $Revision: 1.5 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -79,8 +79,9 @@ HLTMonBTagIPClient::HLTMonBTagIPClient(const edm::ParameterSet & config) :
   m_plotL3IP3ndTrack2dSig(0),
   m_plotL3IP3ndTrack3d(0),
   m_plotL3IP3ndTrack3dSig(0),
-  m_plotL3Discriminator(0)
+  m_plotL3Discriminator(0),
   // MonitorElement's (plots) filled by the client
+  m_plotEfficiencies(0)
 {
 }
 
@@ -93,6 +94,7 @@ void HLTMonBTagIPClient::beginJob() {
 
   m_dbe->setVerbose(0);
   m_dbe->setCurrentFolder(m_monitorName + "/" + m_pathName);
+  // MonitorElement's (plots) filled by the source
   m_plotRates                       = book("Rates",                  "Rates",                              6,  0.,     6);
   m_plotL2JetsEnergy                = book("L2_jet_energy",          "L2 jet energy",                    300,   0.,  300.,  "GeV");
   m_plotL2JetsET                    = book("L2_jet_eT",              "L2 jet eT",                        300,   0.,  300.,  "GeV");
@@ -140,6 +142,7 @@ void HLTMonBTagIPClient::beginJob() {
   m_plotL3IP3ndTrack3d              = book("L3_IP_3ndTrack_3d",      "L3 3rd track 3D IP",                60,  -1.0,  5.0,  "cm");
   m_plotL3IP3ndTrack3dSig           = book("L3_IP_3ndTrack_3dSig",   "L3 3rd track 3D SIP",               80, -30.,   50.);
   m_plotL3Discriminator             = book("L3_discriminator",       "L3 b-tag discriminator",            80, -30.,   50.);
+  // MonitorElement's (plots) filled by the client
 }
 
 void HLTMonBTagIPClient::endJob() {
