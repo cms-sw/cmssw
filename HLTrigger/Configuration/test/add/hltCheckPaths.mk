@@ -25,15 +25,15 @@ EVENTS  := 100
 MENUS := 8E29 1E31 GRun
 
 HLT_GRun_CONFIG     := /dev/CMSSW_3_3_0/pre1/GRun
-HLT_GRun_GLOBALTAG  := STARTUP31X_V5::All
+HLT_GRun_GLOBALTAG  := STARTUP31X_V6::All
 HLT_GRun_SOURCE     := file:RelVal_DigiL1Raw_8E29.root
 
 HLT_8E29_CONFIG     := /dev/CMSSW_3_3_0/pre1/8E29
-HLT_8E29_GLOBALTAG  := STARTUP31X_V5::All
+HLT_8E29_GLOBALTAG  := STARTUP31X_V6::All
 HLT_8E29_SOURCE     := file:RelVal_DigiL1Raw_8E29.root
 
 HLT_1E31_CONFIG     := /dev/CMSSW_3_3_0/pre1/1E31
-HLT_1E31_GLOBALTAG  := MC_31X_V6::All
+HLT_1E31_GLOBALTAG  := MC_31X_V7::All
 HLT_1E31_SOURCE     := file:RelVal_DigiL1Raw_1E31.root
 
 # more configuration, useful to debug the Makefile itself
@@ -131,7 +131,6 @@ summary: | check
 	  for P in $$MISS; do echo -e "\t$(YELLOW)$$P$(NORMAL)$(CLEAR)"; done; \
 	  echo; \
 	fi
-	
 
 # these are kinda tricky: we need rules based on the file content, not on its modification date
 DB_GRun_NEW:=$(shell echo -e "CONFIG=$(HLT_GRun_CONFIG)\nSOURCE=$(HLT_GRun_SOURCE)\nGLOBALTAG=$(HLT_GRun_GLOBALTAG)" | md5sum | cut -c -32)
