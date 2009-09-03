@@ -1,5 +1,5 @@
 //
-// $Id: MatcherUsingTracks.cc,v 1.1 2009/06/24 08:47:01 gpetrucc Exp $
+// $Id: MatcherUsingTracks.cc,v 1.2 2009/08/02 08:33:19 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracks.cc,v 1.1 2009/06/24 08:47:01 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracks.cc,v 1.2 2009/08/02 08:33:19 gpetrucc Exp $
 */
 
 
@@ -77,8 +77,8 @@ pat::MatcherUsingTracks::MatcherUsingTracks(const edm::ParameterSet & iConfig) :
         produces<edm::ValueMap<float> >("deltaR");
         produces<edm::ValueMap<float> >("deltaLocalPos");
         produces<edm::ValueMap<float> >("deltaPtRel");
-        if (algo_.hasPull()) {
-            produces<edm::ValueMap<float> >("pull");
+        if (algo_.hasChi2()) {
+            produces<edm::ValueMap<float> >("chi2");
         }
     } else {
         produces<edm::ValueMap<int> >("matched");
@@ -106,13 +106,13 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     vector<float> deltaRs(nsrc, 999);
     vector<float> deltaPtRel(nsrc, 999);
     vector<float> deltaLocalPos(nsrc, 999);
-    vector<float> pull(nsrc, 999999);
+    vector<float> chi2(nsrc, 999999);
 
     // don't try matching if the input collection is missing and the module is configured to fail silently
     if (!(matched.failedToGet() && dontFailOnMissingInput_)) {
         // loop on the source collection, and request for the match
         for (itsrc = src->begin(), edsrc = src->end(), isrc = 0; itsrc != edsrc; ++itsrc, ++isrc) {
-            match[isrc] = algo_.match(*itsrc, *matched, deltaRs[isrc], deltaLocalPos[isrc], deltaPtRel[isrc], pull[isrc]); 
+            match[isrc] = algo_.match(*itsrc, *matched, deltaRs[isrc], deltaLocalPos[isrc], deltaPtRel[isrc], chi2[isrc]); 
         }
     }
 
@@ -145,8 +145,8 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
         storeValueMap<float>(iEvent, src, deltaRs, "deltaR");
         storeValueMap<float>(iEvent, src, deltaLocalPos, "deltaLocalPos");
         storeValueMap<float>(iEvent, src, deltaPtRel,    "deltaPtRel");
-        if (algo_.hasPull()) {
-            storeValueMap<float>(iEvent, src, pull, "pull");
+        if (algo_.hasChi2()) {
+            storeValueMap<float>(iEvent, src, chi2, "chi2");
         }
     } else  {
         std::vector<int> ismatched(nsrc, 0);
