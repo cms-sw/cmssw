@@ -2,6 +2,8 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollectionFast.h" 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
+#include <algorithm>
+
 CaloDualConeSelector::CaloDualConeSelector(double dRmin, double dRmax, const CaloGeometry* geom) :
   geom_(geom),deltaRmin_(dRmin),deltaRmax_(dRmax),detector_(DetId::Detector(0)),subdet_(0) {
 }
