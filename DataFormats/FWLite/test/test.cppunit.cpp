@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: test.cppunit.cpp,v 1.8 2008/11/11 15:57:34 dsr Exp $
+$Id: test.cppunit.cpp,v 1.9 2009/03/02 20:24:27 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -35,6 +35,7 @@ class testRefInROOT: public CppUnit::TestFixture
    CPPUNIT_TEST(testHandleErrors);
    CPPUNIT_TEST(testMissingRef);
    CPPUNIT_TEST(testMissingData);
+   CPPUNIT_TEST(testEventBase);
 
   // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
@@ -72,6 +73,7 @@ public:
   void testHandleErrors();
    void testMissingRef();
    void testMissingData();
+   void testEventBase();
   // void failChainWithMissingFile();
   //void failDidNotCallGetEntryForEvents();
 
@@ -144,6 +146,43 @@ void testRefInROOT::testAllLabels()
     fwlite::Handle<edmtest::OtherThingCollection> pOthers;
     pOthers.getByLabel(events,"OtherThing","testUserTag","TEST");
   }
+}
+
+void testRefInROOT::testEventBase()
+{
+   TFile file("good.root");
+   fwlite::Event events(&file);
+   edm::InputTag tagFull("OtherThing","testUserTag","TEST");
+   edm::InputTag tag("OtherThing","testUserTag");
+   edm::InputTag tagNotHere("NotHereOtherThing");
+   edm::EventBase* eventBase = &events;
+   
+   for(events.toBegin(); not events.atEnd(); ++events) {
+
+      {
+         edm::Handle<edmtest::OtherThingCollection> pOthers;
+         eventBase->getByLabel(tagFull,pOthers);
+         CPPUNIT_ASSERT(pOthers.isValid());
+         pOthers->size();
+      }
+      {
+         edm::Handle<edmtest::OtherThingCollection> pOthers;
+         eventBase->getByLabel(tag,pOthers);
+         CPPUNIT_ASSERT(pOthers.isValid());
+         pOthers->size();
+      }
+
+      {
+         edm::Handle<edmtest::OtherThingCollection> pOthers;
+         eventBase->getByLabel(tagNotHere,pOthers);
+         
+         CPPUNIT_ASSERT(not pOthers.isValid());
+         CPPUNIT_ASSERT(pOthers.failedToGet());
+         CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+      }
+      
+   }
+   
 }
 
 void testRefInROOT::testRefFirst()

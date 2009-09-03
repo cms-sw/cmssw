@@ -603,7 +603,14 @@ void testEvent::getByLabel() {
   InputTag inputTag("modMulti", "int1");
   CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
   CPPUNIT_ASSERT(h->value == 200);
-
+  {
+    handle_t h;
+    edm::EventBase* baseEvent = currentEvent_.get();
+    CPPUNIT_ASSERT(baseEvent->getByLabel(inputTag, h));
+    CPPUNIT_ASSERT(h->value == 200);
+    
+  }
+   
   size_t cachedOffset = 0;
   int fillCount = -1;
 
