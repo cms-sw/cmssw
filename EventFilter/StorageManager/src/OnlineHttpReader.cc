@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: OnlineHttpReader.cc,v 1.7 2009/07/20 13:07:28 mommsen Exp $
+  $Id: OnlineHttpReader.cc,v 1.8 2009/09/01 23:47:34 wmtan Exp $
 /// @file: OnlineHttpReader.cc
 */
 
@@ -109,13 +109,17 @@ namespace edm
   {
   }
 
-  void OnlineHttpReader::setRun(RunNumber_t) {
+  void OnlineHttpReader::setRun(RunNumber_t r) {
      // We do not actually set the run number, just use this hook
      // to do the needed resetting of flags in the EP and this source
      resetAfterEndRun();
+     // I think we need the 2 of the 3 lines below as in DAQ source
+     //newRun_ = newLumi_ = true;
+     resetLuminosityBlockPrincipal();
+     resetRunPrincipal();
    }
 
-  edm::EventPrincipal* OnlineHttpReader::read()
+  std::auto_ptr<edm::EventPrincipal> OnlineHttpReader::read()
   {
     // on a stop and enable reregister but don't get the header as
     // we cannot change the product registry
@@ -136,18 +140,18 @@ namespace edm
     // re-registration if the SM is halted or stopped
 
     bool gotEvent = false;
-    EventPrincipal* result = 0;
+    std::auto_ptr<EventPrincipal> result(0);
     while ((!gotEvent) && (!runEnded_) && (!edm::shutdown_flag))
     {
        result = getOneEvent();
-       if(result != 0) gotEvent = true;
+       if(result.get() != NULL) gotEvent = true;
     }
     // need next line so we only return a null pointer once for each end of run
     if(runEnded_) runEnded_ = false;
     return result;
   }
 
-  edm::EventPrincipal* OnlineHttpReader::getOneEvent()
+  std::auto_ptr<edm::EventPrincipal> OnlineHttpReader::getOneEvent()
   {
     // repeat a http get every N seconds until we get an event
     // wait for Storage Manager event server buffer to not be empty
@@ -239,7 +243,7 @@ namespace edm
       }
     } while (data.d_.length() == 0 && !edm::shutdown_flag);
     if (edm::shutdown_flag) {
-	return 0;
+	return std::auto_ptr<edm::EventPrincipal>();
     }
 
     int len = data.d_.length();
@@ -271,7 +275,7 @@ namespace edm
         runEnded_ = true;
         alreadyRegistered_ = false;
       }
-      return 0;
+      return std::auto_ptr<edm::EventPrincipal>();
     } else {
       // reset need-to-set-end-run flag when we get the first event (here any event)
       endRunAlreadyNotified_ = false;
@@ -280,7 +284,7 @@ namespace edm
       // 29-Jan-2008, KAB:  catch (and re-throw) any exceptions decoding
       // the event data so that we can display the returned HTML and
       // (hopefully) give the user a hint as to the cause of the problem.
-      EventPrincipal* evtPtr = 0;
+      std::auto_ptr<edm::EventPrincipal> evtPtr;
       try {
         HeaderView hdrView(&buf_[0]);
         if (hdrView.code() != Header::EVENT) {
