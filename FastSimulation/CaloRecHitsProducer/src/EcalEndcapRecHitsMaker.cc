@@ -57,8 +57,6 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   edm::ParameterSet CalibParameters=RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1 = CalibParameters.getParameter<double>("EEs25notContainment");
   calibfactor_= 1./c1;
-
-
 }
   
 
@@ -149,8 +147,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	    theCalorimeterHits_[icell]=sat_;
 	  }
       if(energy!=0.)
-	ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
-      //      std::cout << "AA " << myDetId.ix() << " " << myDetId.iy() << " " << energy << std::endl;
+	{
+	  ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
+	}
     }
   noisified_ = true;
 
@@ -171,15 +170,18 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 
       unsigned hashedindex = EEDetId(cficalo->id()).hashedIndex();      
       // Check if the hit already exists
+      float calib=(doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
 	  theFiredCells_.push_back(hashedindex); 
 	  float noise=(noise_==-1.) ? noisesigma_[hashedindex] : noise_ ;
-	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise); 
+	  if (!noisified_ ) {
+	    theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise*calib); 
+	  }
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
       // the miscalibration is applied here:
-      float calib=(doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
+
       // cficalo->energy can be 0 (a 7x7 grid is always built), in this case, one should not kill the cell (for later noise injection), but it should
       // be added only once.  This is a dirty trick. 
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
@@ -458,11 +460,12 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 
 	  // the miscalibration on the noise will be applied later one; so it is really ICMC here
 	  if(noise_==-1.)
-	    {
-	      noisesigma_[ic]=noiseADC_*agc->getEEValue()*ICMC[ic];
+	    { 
+	      // the calibfactor will be applied later on 
+	      noisesigma_[ic]=noiseADC_*adcToGeV_*ICMC[ic]/calibfactor_;
 	      meanNoiseSigmaEt_ += noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf];
-	      EEDetId myDetId(EEDetId::unhashIndex(ic));
-	      //	      std::cout << " BB " <<  myDetId.ix() << " " << myDetId.iy() << " " <<  noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf] << std::endl;;
+	      //	      EEDetId myDetId(EEDetId::unhashIndex(ic));
+	      //	      std::cout << " DDD " <<  myDetId << " " << myDetId.ix() << " " << myDetId.iy() <<  " " << ic << " " << noiseADC_ << " " << agc->getEEValue() << " " << ICMC[ic] << " " << noisesigma_[ic] << std::endl;
 	    }
 	  ++ncells;	
 	}
