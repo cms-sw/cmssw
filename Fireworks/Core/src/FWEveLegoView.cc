@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.42 2009/05/13 20:26:05 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.43 2009/07/15 15:10:00 amraktad Exp $
 //
 
 // system include files
@@ -139,7 +139,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->GetAttAxis()->SetLabelSize(0.02);
          ev->AddOverlayElement(m_overlay);
          m_overlay->SetCaloLego(m_lego);
-         gEve->AddElement(m_overlay, ns);
       }
    }
    setCameras();
