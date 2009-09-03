@@ -427,109 +427,101 @@ bool Herwig6Hadronizer::hadronize()
 
 void Herwig6Hadronizer::finalizeEvent()
 {
-	lhef::LHEEvent::fixHepMCEventTimeOrdering(event().get());
+  lhef::LHEEvent::fixHepMCEventTimeOrdering(event().get());
+  
+  HepMC::PdfInfo pdfInfo;
+  if(externalPartons) {
+    lheEvent()->fillEventInfo( event().get() );
+    lheEvent()->fillPdfInfo( &pdfInfo );
 
-	HepMC::PdfInfo pdfInfo;
-	if(externalPartons) {
-	  lheEvent()->fillEventInfo( event().get() );
-	  lheEvent()->fillPdfInfo( &pdfInfo );
-	}
-	
-	if(!externalPartons) {
+  } else {
+    
+    HepMC::GenParticle* incomingParton = NULL;
+    HepMC::GenParticle* targetParton = NULL;
+    
+    HepMC::GenParticle* incomingProton = NULL;
+    HepMC::GenParticle* targetProton = NULL;
+    
+    // find incoming parton (first entry with IST=121)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && incomingParton==NULL); it++)
+      if((*it)->status()==121) incomingParton = (*it);
+    
+    // find target parton (first entry with IST=122)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && targetParton==NULL); it++)
+      if((*it)->status()==122) targetParton = (*it);
+    
+    // find incoming Proton (first entry ID=2212, IST=101)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && incomingProton==NULL); it++)
+      if((*it)->status()==101 && (*it)->pdg_id()==2212) incomingProton = (*it);
+    
+    // find target Proton (first entry ID=2212, IST=102)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && targetProton==NULL); it++)
+      if((*it)->status()==102 && (*it)->pdg_id()==2212) targetProton = (*it);
+    
+    
+    // find hard scale Q (computed from colliding partons)
+    if( incomingParton && targetParton ) {
+      math::XYZTLorentzVector totMomentum(0,0,0,0);
+      totMomentum+=incomingParton->momentum();
+      totMomentum+=targetParton->momentum();
+      double evScale = totMomentum.mass(); 
+      double evScale2 = evScale*evScale; 
+      
+      // find alpha_QED & alpha_QCD	  
+      int one=1;
+      double alphaQCD=hwualf_(&one,&evScale);
+      double alphaQED=hwuaem_(&evScale2);
+      
+      // fill the infos into the event      
+      event()->set_event_scale(evScale);
+      event()->set_alphaQCD(alphaQCD);
+      event()->set_alphaQED(alphaQED);
+      
+      // get the PDF information
+      pdfInfo.set_id1( incomingParton->pdg_id()==21 ? 0 : incomingParton->pdg_id());
+      pdfInfo.set_id2( targetParton->pdg_id()==21 ? 0 : targetParton->pdg_id());
+      if( incomingProton && targetProton ) {
+	double x1 = incomingParton->momentum().pz()/incomingProton->momentum().pz();
+	double x2 = targetParton->momentum().pz()/targetProton->momentum().pz();	
+	pdfInfo.set_x1(x1);
+	pdfInfo.set_x2(x2);	  
+      }
 
-	  HepMC::GenParticle* incomingParton = NULL;
-	  HepMC::GenParticle* targetParton = NULL;
-
-	  HepMC::GenParticle* incomingProton = NULL;
-	  HepMC::GenParticle* targetProton = NULL;
-
-	  // find incoming parton (first entry with IST=121)
-	  for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-	      (it != event()->particles_end() && incomingParton==NULL); it++)
-	    if((*it)->status()==121) incomingParton = (*it);
+      // we do not fill pdf1 & pdf2, since they are not easily available (what are they needed for anyways???)
+      pdfInfo.set_scalePDF(evScale); // the same as Q above... does this make sense?
+    } 
+    
+    // add event weight & PDF information
+    event()->weights().push_back( hwevnt.EVWGT );
+    event()->set_pdf_info( pdfInfo );
+    
+    // find final parton (first entry with IST=123)
+    HepMC::GenParticle* finalParton = NULL;
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && finalParton==NULL); it++)
+      if((*it)->status()==123) finalParton = (*it);
 	  
-	  // find target parton (first entry with IST=122)
-	  for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-	      (it != event()->particles_end() && targetParton==NULL); it++)
-	    if((*it)->status()==122) targetParton = (*it);
-
-	  // find incoming Proton (first entry ID=2212, IST=101)
-	  for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-	      (it != event()->particles_end() && incomingProton==NULL); it++)
-	    if((*it)->status()==101 && (*it)->pdg_id()==2212) incomingProton = (*it);
-
-	  // find target Proton (first entry ID=2212, IST=102)
-	  for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-	      (it != event()->particles_end() && targetProton==NULL); it++)
-	    if((*it)->status()==102 && (*it)->pdg_id()==2212) targetProton = (*it);
-
-	  if(!incomingParton || !targetParton) {
-	    throw cms::Exception("Herwig6Error")
-	      <<"No colliding partons in event."<<std::endl;
-	  } 
-
-	  if(!incomingProton || !targetProton) {
-	    throw cms::Exception("Herwig6Error")
-	      <<"No colliding protons in event."<<std::endl;
-	  } 
-	  
-	  // find hard scale Q (computed from colliding partons)
-	  math::XYZTLorentzVector totMomentum(0,0,0,0);
-	  totMomentum+=incomingParton->momentum();
-	  totMomentum+=targetParton->momentum();
-	  double evScale = totMomentum.mass(); 
-	  double evScale2 = evScale*evScale; 
-	  
-	  // find alpha_QED & alpha_QCD	  
-	  int one=1;
-	  double alphaQCD=hwualf_(&one,&evScale);
-	  double alphaQED=hwuaem_(&evScale2);
-	  
-	  // fill the infos into the event
-	  event()->set_signal_process_id(hwproc.IPROC);
-	  event()->set_event_scale(evScale);
-	  event()->set_alphaQCD(alphaQCD);
-	  event()->set_alphaQED(alphaQED);
-
-	  // get the PDF information
-	  pdfInfo.set_id1( incomingParton->pdg_id()==21 ? 0 : incomingParton->pdg_id());
-	  pdfInfo.set_id2( targetParton->pdg_id()==21 ? 0 : targetParton->pdg_id());
-	  double x1 = incomingParton->momentum().pz()/incomingProton->momentum().pz();
-	  double x2 = targetParton->momentum().pz()/targetProton->momentum().pz();
-	  if(x1 < 0.0 || x1 > 1.0 || x2 < 0.0 || x2 > 1.0) {
-	    throw cms::Exception("Herwig6Error")
-	      <<"Bjorken-x outside allowed range [0,1]."<<std::endl;
-	  } 
-	  pdfInfo.set_x1(x1);
-	  pdfInfo.set_x2(x2);	  
-	  pdfInfo.set_scalePDF(evScale); // the same as Q above... does this make sense?
-
-	  // we do not fill pdf1 & pdf2, since they are not easily available (what are they needed for anyways???)
-	} 
-	  
-	// add event weight & PDF information
-	event()->weights().push_back( hwevnt.EVWGT );
-	event()->set_pdf_info( pdfInfo );
-
-	// find final parton (first entry with IST=123)
-	HepMC::GenParticle* finalParton = NULL;
-	for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-	    (it != event()->particles_end() && finalParton==NULL); it++)
-	  if((*it)->status()==123) finalParton = (*it);
-	
-	// add GenEventInfo & binning Values
-	eventInfo().reset(new GenEventInfoProduct(event().get()));	
-	if(finalParton) {
-	  double thisPt=finalParton->momentum().perp();
-	  eventInfo()->setBinningValues(std::vector<double>(1, thisPt));
-	}
-	
-	// emulate PY6 status codes, if switched on...
-	if (emulatePythiaStatusCodes)
-	  pythiaStatusCodes();
-	
-	
+    event()->set_signal_process_id(hwproc.IPROC);
+    // add GenEventInfo & binning Values
+    eventInfo().reset(new GenEventInfoProduct(event().get()));	
+    if(finalParton) {
+      double thisPt=finalParton->momentum().perp();
+      eventInfo()->setBinningValues(std::vector<double>(1, thisPt));
+    }
+    
+    // emulate PY6 status codes, if switched on...
+    if (emulatePythiaStatusCodes)
+      pythiaStatusCodes();    	  
+    
+    std::cout<<"IPROC = "<<hwproc.IPROC<<std::endl;
+    std::cout<<"IPROC = "<<event()->signal_process_id()<<std::endl;
+  }
 }
+
 
 bool Herwig6Hadronizer::decay()
 {
