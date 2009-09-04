@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.TrackingParticleSelectionForEfficiency_cfi import *
+
 multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     # selection of TP for evaluation of efficiency
     TrackingParticleSelectionForEfficiency,
@@ -15,6 +16,10 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     beamSpot = cms.InputTag("offlineBeamSpot"),
     sim = cms.string('g4SimHits'),
     outputFile = cms.string(''),
+    # collision like tracks
+    parametersDefiner = cms.string('LhcParametersDefinerForTP'),
+    # cosmics tracks
+    # parametersDefiner = cms.string('CosmicParametersDefinerForTP'), 
     # set true if you do not want that MTV launch an exception
     # if the track collectio is missing (e.g. HLT):
     ignoremissingtrackcollection=cms.untracked.bool(False),
@@ -59,13 +64,21 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     maxPhi = cms.double(3.15),
     nintPhi = cms.int32(36),
     #
-    minDxy = cms.double(0),
-    maxDxy = cms.double(5),
-    nintDxy = cms.int32(50),
+    minDxy = cms.double(-3),
+    maxDxy = cms.double(3),
+    nintDxy = cms.int32(100),
     #
     minDz = cms.double(-10),
     maxDz = cms.double(10),
-    nintDz = cms.int32(100),    
+    nintDz = cms.int32(100),
+    # TP originating vertical position
+    minVertpos = cms.double(0),
+    maxVertpos = cms.double(5),
+    nintVertpos = cms.int32(100),
+    # TP originating z position
+    minZpos = cms.double(-10),
+    maxZpos = cms.double(10),
+    nintZpos = cms.int32(100),                               
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(True),
     useLogPt=cms.untracked.bool(False),
