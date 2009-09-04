@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.10 2009/08/06 20:42:41 heltsley Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.11 2009/08/29 00:12:38 sunanda Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -122,7 +122,7 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
   }
   else // for endcap testbeam, use 3rd angle psi
   {
-     const HepVector3D av ( aX, aY, fMeanZ ) ;
+     const HepGeom::Vector3D<double>  av ( aX, aY, fMeanZ ) ;
 
 /*
      static const double kRadToDeg ( 180./M_PI ) ;
@@ -131,11 +131,11 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
 	      << fPhi*kRadToDeg <<", PSI="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
 	      <<fPsi*kRadToDeg<<std::endl ;
 */
-     const HepRotateZ3D R1 ( fPhi - M_PI ) ;
-     const HepPoint3D xUnit ( 0,1,0 ) ;
-     const HepPoint3D zUnit ( 0,0,1 ) ;
-     const HepTransform3D RXRZ ( HepRotate3D( -fTheta, R1*xUnit )*R1 ) ;
-     const HepTransform3D TRF ( HepRotate3D(fPsi,RXRZ*zUnit)*RXRZ ) ;
+     const HepGeom::RotateZ3D R1 ( fPhi - M_PI ) ;
+     const HepGeom::Point3D<double>  xUnit ( 0,1,0 ) ;
+     const HepGeom::Point3D<double>  zUnit ( 0,0,1 ) ;
+     const HepGeom::Transform3D RXRZ ( HepGeom::Rotate3D( -fTheta, R1*xUnit )*R1 ) ;
+     const HepGeom::Transform3D TRF ( HepGeom::Rotate3D(fPsi,RXRZ*zUnit)*RXRZ ) ;
 /*
      std::cout<<"\n\n$$$$$$$$$$$Transform="
 	      <<" thetaZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
@@ -153,7 +153,7 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
 	      <<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
 	      <<TRF.getTranslation()<<std::endl ;
 */
-     const HepVector3D pv ( TRF*av ) ;
+     const HepGeom::Vector3D<double>  pv ( TRF*av ) ;
 
      xp = pv.x() ;
      yp = pv.y() ;

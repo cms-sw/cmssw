@@ -118,18 +118,18 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 				       const unsigned int      id     )
 {
    static const double kRadToDeg ( 180/M_PI ) ;
-   static const HepPoint3D PIVOT ( 13533.35, -000.02, 0 ) ;//-152.23 ) ;
-   static const HepPoint3D FLOOR ( 13533.35, -000.02, -152.23 ) ;//-152.23 ) ;
+   static const HepGeom::Point3D<double>  PIVOT ( 13533.35, -000.02, 0 ) ;//-152.23 ) ;
+   static const HepGeom::Point3D<double>  FLOOR ( 13533.35, -000.02, -152.23 ) ;//-152.23 ) ;
 
-   static const HepPoint3D IP    ( 0, 0, 0 ) ;//-152.23 ) ;
-   static HepPoint3D AA0 ;
-   static HepPoint3D BB0 ;
-   static HepPoint3D CC0 ;
-   static HepPoint3D DD0 ;
-   static HepPoint3D EE0 ;
-   static HepPoint3D FF0 ;
-   static HepPoint3D GG0 ;
-   static HepPoint3D HH0 ;
+   static const HepGeom::Point3D<double>  IP    ( 0, 0, 0 ) ;//-152.23 ) ;
+   static HepGeom::Point3D<double>  AA0 ;
+   static HepGeom::Point3D<double>  BB0 ;
+   static HepGeom::Point3D<double>  CC0 ;
+   static HepGeom::Point3D<double>  DD0 ;
+   static HepGeom::Point3D<double>  EE0 ;
+   static HepGeom::Point3D<double>  FF0 ;
+   static HepGeom::Point3D<double>  GG0 ;
+   static HepGeom::Point3D<double>  HH0 ;
 
    std::vector<double> pv ;
    pv.reserve( vv.size() ) ;
@@ -166,28 +166,28 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       <<"\n "<<corners[7]
 	       <<std::endl ;*/
 
-      if( 160 == id ) AA0 = HepPoint3D( corners[3].x(),
+      if( 160 == id ) AA0 = HepGeom::Point3D<double> ( corners[3].x(),
 				       corners[3].y(),
 				       corners[3].z() ) ;
-      if( 164 == id ) BB0 = HepPoint3D( corners[2].x(),
+      if( 164 == id ) BB0 = HepGeom::Point3D<double> ( corners[2].x(),
 				       corners[2].y(),
 				       corners[2].z() ) ;
-      if( 134 == id ) CC0 = HepPoint3D( corners[1].x(),
+      if( 134 == id ) CC0 = HepGeom::Point3D<double> ( corners[1].x(),
 				       corners[1].y(),
 				       corners[1].z() ) ;
-      if( 130 == id ) DD0 = HepPoint3D( corners[0].x(),
+      if( 130 == id ) DD0 = HepGeom::Point3D<double> ( corners[0].x(),
 				       corners[0].y(),
 				       corners[0].z() ) ;
-      if( 150 == id ) EE0 = HepPoint3D( corners[2].x(),
+      if( 150 == id ) EE0 = HepGeom::Point3D<double> ( corners[2].x(),
 					corners[2].y(),
 					corners[2].z() ) ;
-      if( 153 == id ) FF0 = HepPoint3D( corners[2].x(),
+      if( 153 == id ) FF0 = HepGeom::Point3D<double> ( corners[2].x(),
 					corners[2].y(),
 					corners[2].z() ) ;
-      if( 133 == id ) GG0 = HepPoint3D( corners[2].x(),
+      if( 133 == id ) GG0 = HepGeom::Point3D<double> ( corners[2].x(),
 					corners[2].y(),
 					corners[2].z() ) ;
-      if( 130 == id ) HH0 = HepPoint3D( corners[2].x(),
+      if( 130 == id ) HH0 = HepGeom::Point3D<double> ( corners[2].x(),
 					corners[2].y(),
 					corners[2].z() ) ;
    }
@@ -200,15 +200,15 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
    {
       done = true ;
 
-      const HepTransform3D H4ToBeamLine ( PIVOT + HepPoint3D( 0, 1, 0),
-					  PIVOT + HepPoint3D( 0, 0, 1),
-					  PIVOT + HepPoint3D( 1, 0, 0),
-					  HepPoint3D( -1,  0, 0),
-					  HepPoint3D(  0, -1, 0),
-					  HepPoint3D(  0,  0, 1) ) ;
-/*					  HepPoint3D( 0, -1, 0),
-					  HepPoint3D( 1,  0, 0),
-					  HepPoint3D( 0,  0, 1) ) ;*/
+      const HepGeom::Transform3D H4ToBeamLine ( PIVOT + HepGeom::Point3D<double> ( 0, 1, 0),
+					  PIVOT + HepGeom::Point3D<double> ( 0, 0, 1),
+					  PIVOT + HepGeom::Point3D<double> ( 1, 0, 0),
+					  HepGeom::Point3D<double> ( -1,  0, 0),
+					  HepGeom::Point3D<double> (  0, -1, 0),
+					  HepGeom::Point3D<double> (  0,  0, 1) ) ;
+/*					  HepGeom::Point3D<double> ( 0, -1, 0),
+					  HepGeom::Point3D<double> ( 1,  0, 0),
+					  HepGeom::Point3D<double> ( 0,  0, 1) ) ;*/
 
 
 
@@ -226,7 +226,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 
       std::cout<<"pivot to beamline="<<H4ToBeamLine*PIVOT<<std::endl ;
-      std::cout<<"endcap to beamline="<<H4ToBeamLine*HepPoint3D(PIVOT.x()+316,0,50)
+      std::cout<<"endcap to beamline="<<H4ToBeamLine*HepGeom::Point3D<double> (PIVOT.x()+316,0,50)
 	       <<std::endl ;
 
 
@@ -236,63 +236,63 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       <<"\nD0 = "<<DD0
 	       << std::endl ;
 
-      const HepPoint3D A0 (AA0) ;
-      const HepPoint3D B0 (BB0) ;
-      const HepPoint3D C0 (CC0) ;
-      const HepPoint3D D0 (DD0) ;
+      const HepGeom::Point3D<double>  A0 (AA0) ;
+      const HepGeom::Point3D<double>  B0 (BB0) ;
+      const HepGeom::Point3D<double>  C0 (CC0) ;
+      const HepGeom::Point3D<double>  D0 (DD0) ;
 
       const double angle ( (C0-B0).angle( A0-B0 ) ) ;
 
-      static std::vector< HepPoint3D > extra ;
-      extra.push_back( HepPoint3D(  13859.05,  005.79, -002.66 ) ) ;
-      extra.push_back( HepPoint3D(  13860.98, -038.39, -002.11 ) ) ;
-      extra.push_back( HepPoint3D(  13853.19, -039.25, -030.77 ) ) ;
-      extra.push_back( HepPoint3D(  13851.23,  004.99, -031.39 ) ) ;
+      static std::vector< HepGeom::Point3D<double>  > extra ;
+      extra.push_back( HepGeom::Point3D<double> (  13859.05,  005.79, -002.66 ) ) ;
+      extra.push_back( HepGeom::Point3D<double> (  13860.98, -038.39, -002.11 ) ) ;
+      extra.push_back( HepGeom::Point3D<double> (  13853.19, -039.25, -030.77 ) ) ;
+      extra.push_back( HepGeom::Point3D<double> (  13851.23,  004.99, -031.39 ) ) ;
 
 
 
-      static std::vector< HepPoint3D > sur ;
-      sur.push_back( HepPoint3D( 13862.30,  20.68, 11.60 ) ) ;
-      sur.push_back( HepPoint3D( 13865.69, -52.85, 12.64) ) ;
-      sur.push_back( HepPoint3D( 13851.53, -54.27, -44.75 ) ) ;
-      sur.push_back( HepPoint3D( 13848.21,  19.18, -45.89 ) ) ;
+      static std::vector< HepGeom::Point3D<double>  > sur ;
+      sur.push_back( HepGeom::Point3D<double> ( 13862.30,  20.68, 11.60 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13865.69, -52.85, 12.64) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13851.53, -54.27, -44.75 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13848.21,  19.18, -45.89 ) ) ;
 
-      sur.push_back( HepPoint3D( 13861.72,   28.62,   11.61 ) ) ;
-      sur.push_back( HepPoint3D( 13866.88,  -44.81,   12.64 ) ) ;
-      sur.push_back( HepPoint3D( 13852.76,  -46.56,  -44.73 ) ) ;
-      sur.push_back( HepPoint3D( 13847.67,   26.79,  -45.88 ) ) ;
-      sur.push_back( HepPoint3D( 13856.82,   63.41,   11.60 ) ) ;
-      sur.push_back( HepPoint3D( 13869.76,   -9.06,   12.64 ) ) ;
-      sur.push_back( HepPoint3D( 13855.90,  -12.31,  -44.73 ) ) ;
-      sur.push_back( HepPoint3D( 13843.04,   60.08,  -45.89 ) ) ;
-      sur.push_back( HepPoint3D( 13860.86,  -36.96,   11.60 ) ) ;
-      sur.push_back( HepPoint3D( 13851.38, -109.96,   12.63 ) ) ;
-      sur.push_back( HepPoint3D( 13837.21, -108.89,  -44.73 ) ) ;
-      sur.push_back( HepPoint3D( 13846.73,  -35.98,  -45.88 ) ) ;
-      sur.push_back( HepPoint3D( 13854.03,  -76.21,   11.60 ) ) ;
-      sur.push_back( HepPoint3D( 13835.82, -147.53,   12.64 ) ) ;
-      sur.push_back( HepPoint3D( 13821.88, -144.76,  -44.73 ) ) ;
-      sur.push_back( HepPoint3D( 13840.13,  -73.54,  -45.88 ) ) ;
-      sur.push_back( HepPoint3D( 13861.10,   35.48,   09.88 ) ) ;
-      sur.push_back( HepPoint3D( 13867.78,  -37.82,   11.07 ) ) ;
-      sur.push_back( HepPoint3D( 13853.42,  -40.01,  -46.22 ) ) ;
-      sur.push_back( HepPoint3D( 13846.80,   33.21,  -47.52 ) ) ;
-      sur.push_back( HepPoint3D( 13860.68,   35.23,   19.89 ) ) ;
-      sur.push_back( HepPoint3D( 13867.35,  -38.08,   20.23 ) ) ;
-      sur.push_back( HepPoint3D( 13854.67,  -39.43,  -37.48 ) ) ;
-      sur.push_back( HepPoint3D( 13848.07,   33.79,  -37.92 ) ) ;
-      sur.push_back( HepPoint3D( 13859.95,   34.97,   29.87 ) ) ;
-      sur.push_back( HepPoint3D( 13866.62,  -38.34,   29.33 ) ) ;
-      sur.push_back( HepPoint3D( 13855.61,  -38.88,  -28.76 ) ) ;
-      sur.push_back( HepPoint3D( 13849.00,   34.34,  -28.32 ) ) ;
-      sur.push_back( HepPoint3D( 13858.93,   34.41,   39.81 ) ) ;
-      sur.push_back( HepPoint3D( 13865.65,  -38.90,   38.40 ) ) ;
-      sur.push_back( HepPoint3D( 13856.34,  -38.58,  -19.97 ) ) ;
-      sur.push_back( HepPoint3D( 13849.70,   34.65,  -18.68 ) ) ;
-      sur.push_back( HepPoint3D( 13857.67,   33.69,   49.76 ) ) ;
-      sur.push_back( HepPoint3D( 13864.43,  -39.60,   47.48 ) ) ;
-      sur.push_back( HepPoint3D( 13856.81,  -38.43,  -11.13 ) ) ;
-      sur.push_back( HepPoint3D( 13850.14,   34.78,   -8.95 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13861.72,   28.62,   11.61 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13866.88,  -44.81,   12.64 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13852.76,  -46.56,  -44.73 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13847.67,   26.79,  -45.88 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13856.82,   63.41,   11.60 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13869.76,   -9.06,   12.64 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13855.90,  -12.31,  -44.73 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13843.04,   60.08,  -45.89 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13860.86,  -36.96,   11.60 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13851.38, -109.96,   12.63 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13837.21, -108.89,  -44.73 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13846.73,  -35.98,  -45.88 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13854.03,  -76.21,   11.60 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13835.82, -147.53,   12.64 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13821.88, -144.76,  -44.73 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13840.13,  -73.54,  -45.88 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13861.10,   35.48,   09.88 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13867.78,  -37.82,   11.07 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13853.42,  -40.01,  -46.22 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13846.80,   33.21,  -47.52 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13860.68,   35.23,   19.89 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13867.35,  -38.08,   20.23 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13854.67,  -39.43,  -37.48 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13848.07,   33.79,  -37.92 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13859.95,   34.97,   29.87 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13866.62,  -38.34,   29.33 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13855.61,  -38.88,  -28.76 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13849.00,   34.34,  -28.32 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13858.93,   34.41,   39.81 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13865.65,  -38.90,   38.40 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13856.34,  -38.58,  -19.97 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13849.70,   34.65,  -18.68 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13857.67,   33.69,   49.76 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13864.43,  -39.60,   47.48 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13856.81,  -38.43,  -11.13 ) ) ;
+      sur.push_back( HepGeom::Point3D<double> ( 13850.14,   34.78,   -8.95 ) ) ;
       
       double fsumx  ( 0 ) ;
       double fsumy  ( 0 ) ;
@@ -320,46 +320,46 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 				      "V1", "V2",  "V3",  "V4",  "V5" } ;
 
 
-      HepTransform3D V3Transform ;
+      HepGeom::Transform3D V3Transform ;
 
       for( unsigned int i ( 0 ) ; i != nsur ; ++i )
       {
-	 const HepPoint3D SA ( sur[4*i] ) ;
-	 const HepPoint3D SB ( sur[4*i+1] ) ;
-	 const HepPoint3D SC ( sur[4*i+2] ) ;
-	 const HepPoint3D SD ( sur[4*i+3] ) ;
-/*	 const HepPoint3D SD ( sur[4*i] ) ;
-	 const HepPoint3D SA ( sur[4*i+1] ) ;
-	 const HepPoint3D SB ( sur[4*i+2] ) ;
-	 const HepPoint3D SC ( sur[4*i+3] ) ;*/
+	 const HepGeom::Point3D<double>  SA ( sur[4*i] ) ;
+	 const HepGeom::Point3D<double>  SB ( sur[4*i+1] ) ;
+	 const HepGeom::Point3D<double>  SC ( sur[4*i+2] ) ;
+	 const HepGeom::Point3D<double>  SD ( sur[4*i+3] ) ;
+/*	 const HepGeom::Point3D<double>  SD ( sur[4*i] ) ;
+	 const HepGeom::Point3D<double>  SA ( sur[4*i+1] ) ;
+	 const HepGeom::Point3D<double>  SB ( sur[4*i+2] ) ;
+	 const HepGeom::Point3D<double>  SC ( sur[4*i+3] ) ;*/
 
-	 const HepPoint3D aa ( SA ) ;
-	 const HepPoint3D bb ( SA + ( SB-SA ).unit()*(B0-A0).mag() ) ;
+	 const HepGeom::Point3D<double>  aa ( SA ) ;
+	 const HepGeom::Point3D<double>  bb ( SA + ( SB-SA ).unit()*(B0-A0).mag() ) ;
 
-	 const HepPlane3D plane ( aa, bb, SC ) ;
+	 const HepGeom::Plane3D<double>  plane ( aa, bb, SC ) ;
 
 
-	 const HepPoint3D cc ( bb + ( HepRotate3D( -angle, plane.normal() )*
-				      HepVector3D( aa-bb ) ).unit()*( C0-B0 ).mag() ) ;
+	 const HepGeom::Point3D<double>  cc ( bb + ( HepGeom::Rotate3D( -angle, plane.normal() )*
+				      HepGeom::Vector3D<double> ( aa-bb ) ).unit()*( C0-B0 ).mag() ) ;
 
-	 const HepTransform3D trform ( A0, B0, C0,
+	 const HepGeom::Transform3D trform ( A0, B0, C0,
 				       aa, bb, cc ) ;
 
-	 const HepTransform3D trforminv ( aa, bb, cc,
+	 const HepGeom::Transform3D trforminv ( aa, bb, cc,
 					  A0, B0, C0 ) ;
 
-	 const HepPoint3D dd ( trform*D0 ) ;
+	 const HepGeom::Point3D<double>  dd ( trform*D0 ) ;
 
 
-	 const HepTransform3D BeamLineToCMS ( H4ToBeamLine*aa,
+	 const HepGeom::Transform3D BeamLineToCMS ( H4ToBeamLine*aa,
 					      H4ToBeamLine*bb,
 					      H4ToBeamLine*cc,
 					      A0, B0, C0 ) ;
 
 	 if( 7 == i ) V3Transform = BeamLineToCMS ;
 
-	 const HepRotation blcmsrot ( BeamLineToCMS.getRotation() ) ;
-	 const HepVector3D blcmstra ( BeamLineToCMS.getTranslation() ) ;
+	 const CLHEP::HepRotation blcmsrot ( BeamLineToCMS.getRotation() ) ;
+	 const HepGeom::Vector3D<double>  blcmstra ( BeamLineToCMS.getTranslation() ) ;
 
 	 std::cout<<"\n********* Name is " << names[i] ;
 
@@ -389,10 +389,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	 if( 0 == i )
 	 {
-	    const HepPoint3D ee ( trform*EE0 ) ;
-	    const HepPoint3D ff ( trform*FF0 ) ;
-	    const HepPoint3D gg ( trform*GG0 ) ;
-	    const HepPoint3D hh ( trform*HH0 ) ;
+	    const HepGeom::Point3D<double>  ee ( trform*EE0 ) ;
+	    const HepGeom::Point3D<double>  ff ( trform*FF0 ) ;
+	    const HepGeom::Point3D<double>  gg ( trform*GG0 ) ;
+	    const HepGeom::Point3D<double>  hh ( trform*HH0 ) ;
 
 	    std::cout<<"\n\n E discrepancy is "<< (ee-extra[0])<<", "<< (ee-extra[0]).mag()
 		     <<"\n\n F discrepancy is "<< (ff-extra[1])<<", "<< (ff-extra[1]).mag()
@@ -404,14 +404,14 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	    std::cout<<"\n Point SA in CMS coord = "<<trforminv*SA<<std::endl ;
 
 	 }
-	 const HepPoint3D cmsPiv ( trforminv*PIVOT ) ;
+	 const HepGeom::Point3D<double>  cmsPiv ( trforminv*PIVOT ) ;
 	 psumx += cmsPiv.x() ;
 	 psumy += cmsPiv.y() ;
 	 psumz += cmsPiv.z() ;
 	 psumx2 += cmsPiv.x()*cmsPiv.x() ;
 	 psumy2 += cmsPiv.y()*cmsPiv.y() ;
 	 psumz2 += cmsPiv.z()*cmsPiv.z() ;
-	 const HepPoint3D cmsFlr ( trforminv*FLOOR ) ;
+	 const HepGeom::Point3D<double>  cmsFlr ( trforminv*FLOOR ) ;
 	 fsumx += cmsFlr.x() ;
 	 fsumy += cmsFlr.y() ;
 	 fsumz += cmsFlr.z() ;
@@ -419,7 +419,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	 fsumy2 += cmsFlr.y()*cmsFlr.y() ;
 	 fsumz2 += cmsFlr.z()*cmsFlr.z() ;
 
-	 const HepRotation rotInv ( trforminv.getRotation() ) ; 
+	 const CLHEP::HepRotation rotInv ( trforminv.getRotation() ) ; 
 
 	 std::cout<<"\n CMS IP in H4 coord = "<<trform*IP<<std::endl ;
 	 std::cout<<"\n Pivot point in CMS coord = "<<cmsPiv<<std::endl ;
@@ -429,14 +429,14 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 
 /*	 std::cout<<"\n"<<names[i]
-		  <<"   Theta_x == "<<(blcmsrot*HepPoint3D(1,0,0)).theta()*kRadToDeg
-		  <<",  Theta_y == "<<(blcmsrot*HepPoint3D(0,1,0)).theta()*kRadToDeg
-		  <<",  Theta_z == "<<(blcmsrot*HepPoint3D(0,0,1)).theta()*kRadToDeg<<std::endl ;
+		  <<"   Theta_x == "<<(blcmsrot*HepGeom::Point3D<double> (1,0,0)).theta()*kRadToDeg
+		  <<",  Theta_y == "<<(blcmsrot*HepGeom::Point3D<double> (0,1,0)).theta()*kRadToDeg
+		  <<",  Theta_z == "<<(blcmsrot*HepGeom::Point3D<double> (0,0,1)).theta()*kRadToDeg<<std::endl ;
 
 	 std::cout<<"\n"<<names[i]
-		  <<"   Phi_x == "<<(blcmsrot*HepPoint3D(1,0,0)).phi()*kRadToDeg
-		  <<",  Phi_y == "<<(blcmsrot*HepPoint3D(0,1,0)).phi()*kRadToDeg
-		  <<",  Phi_z == "<<(blcmsrot*HepPoint3D(0,0,1)).phi()*kRadToDeg<<std::endl ;
+		  <<"   Phi_x == "<<(blcmsrot*HepGeom::Point3D<double> (1,0,0)).phi()*kRadToDeg
+		  <<",  Phi_y == "<<(blcmsrot*HepGeom::Point3D<double> (0,1,0)).phi()*kRadToDeg
+		  <<",  Phi_z == "<<(blcmsrot*HepGeom::Point3D<double> (0,0,1)).phi()*kRadToDeg<<std::endl ;
 */
 
 	 std::cout<<"\n"<<names[i]
@@ -488,16 +488,16 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
       std::cout<<"\n====== Mean y of floor = "<< fsumy <<" +- "<<fsumy2 ;
       std::cout<<"\n====== Mean z of floor = "<< fsumz <<" +- "<<fsumz2 <<std::endl ;
 
-      const HepVector3D hpl[] = { HepPlane3D( sur[16], sur[0], sur[8] ).normal(),
-				  HepPlane3D( sur[17], sur[1], sur[9] ).normal(),
-				  HepPlane3D( sur[18], sur[2], sur[10]).normal(),
-				  HepPlane3D( sur[19], sur[3], sur[11]).normal(),
-				  HepPlane3D( sur[16], sur[12], sur[8] ).normal(),
-				  HepPlane3D( sur[17], sur[13], sur[9] ).normal(),
-				  HepPlane3D( sur[18], sur[14], sur[10]).normal(),
-				  HepPlane3D( sur[19], sur[15], sur[11]).normal()   } ;
+      const HepGeom::Vector3D<double>  hpl[] = { HepGeom::Plane3D<double> ( sur[16], sur[0], sur[8] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[17], sur[1], sur[9] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[18], sur[2], sur[10]).normal(),
+				  HepGeom::Plane3D<double> ( sur[19], sur[3], sur[11]).normal(),
+				  HepGeom::Plane3D<double> ( sur[16], sur[12], sur[8] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[17], sur[13], sur[9] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[18], sur[14], sur[10]).normal(),
+				  HepGeom::Plane3D<double> ( sur[19], sur[15], sur[11]).normal()   } ;
 
-      const HepVector3D hplavr ( 0.125*( hpl[0] + hpl[1] + hpl[2] + hpl[3] +
+      const HepGeom::Vector3D<double>  hplavr ( 0.125*( hpl[0] + hpl[1] + hpl[2] + hpl[3] +
 					 hpl[4] + hpl[5] + hpl[6] + hpl[7]  ) ) ; 
 
       std::cout<<"\n\n+++ HNormal for A ="<< hpl[0].theta()*kRadToDeg <<", "<<hpl[0].phi()*kRadToDeg
@@ -511,28 +511,28 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       <<  "\n+++ HAverage      ="<< hplavr.theta()*kRadToDeg <<", "<<hplavr.phi()*kRadToDeg
 	       << std::endl; 
 
-      const HepVector3D vpl[] = { HepPlane3D( sur[20], sur[28], sur[36] ).normal(),
-				  HepPlane3D( sur[21], sur[29], sur[37] ).normal(),
-				  HepPlane3D( sur[22], sur[30], sur[38]).normal(),
-				  HepPlane3D( sur[23], sur[31], sur[39]).normal(),
+      const HepGeom::Vector3D<double>  vpl[] = { HepGeom::Plane3D<double> ( sur[20], sur[28], sur[36] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[21], sur[29], sur[37] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[22], sur[30], sur[38]).normal(),
+				  HepGeom::Plane3D<double> ( sur[23], sur[31], sur[39]).normal(),
 
-				  HepPlane3D( sur[20], sur[24], sur[36] ).normal(),
-				  HepPlane3D( sur[21], sur[25], sur[37] ).normal(),
-				  HepPlane3D( sur[22], sur[26], sur[38]).normal(),
-				  HepPlane3D( sur[23], sur[27], sur[39]).normal(),
+				  HepGeom::Plane3D<double> ( sur[20], sur[24], sur[36] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[21], sur[25], sur[37] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[22], sur[26], sur[38]).normal(),
+				  HepGeom::Plane3D<double> ( sur[23], sur[27], sur[39]).normal(),
 
-				  HepPlane3D( sur[20], sur[32], sur[36] ).normal(),
-				  HepPlane3D( sur[21], sur[33], sur[37] ).normal(),
-				  HepPlane3D( sur[22], sur[34], sur[38]).normal(),
-				  HepPlane3D( sur[23], sur[35], sur[39]).normal(),
+				  HepGeom::Plane3D<double> ( sur[20], sur[32], sur[36] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[21], sur[33], sur[37] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[22], sur[34], sur[38]).normal(),
+				  HepGeom::Plane3D<double> ( sur[23], sur[35], sur[39]).normal(),
 
-				  HepPlane3D( sur[20], sur[32], sur[36] ).normal(),
-				  HepPlane3D( sur[21], sur[33], sur[37] ).normal(),
-				  HepPlane3D( sur[22], sur[34], sur[38]).normal(),
-				  HepPlane3D( sur[23], sur[35], sur[39]).normal()
+				  HepGeom::Plane3D<double> ( sur[20], sur[32], sur[36] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[21], sur[33], sur[37] ).normal(),
+				  HepGeom::Plane3D<double> ( sur[22], sur[34], sur[38]).normal(),
+				  HepGeom::Plane3D<double> ( sur[23], sur[35], sur[39]).normal()
       } ;
 
-      const HepVector3D vplavr ( 0.0625*( vpl[0] + vpl[1] + vpl[2] + vpl[3] +
+      const HepGeom::Vector3D<double>  vplavr ( 0.0625*( vpl[0] + vpl[1] + vpl[2] + vpl[3] +
 					  vpl[4] + vpl[5] + vpl[6] + vpl[7] +
 					  vpl[8] + vpl[9] + vpl[10] + vpl[11] +
 					  vpl[12] + vpl[13] + vpl[14] + vpl[15]  ) ) ; 
@@ -600,17 +600,17 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       // calculate transform parameters ================================================
 
 
-	       const HepPlane3D plaV ( sur[20], sur[28], sur[36] ) ;
+	       const HepGeom::Plane3D<double>  plaV ( sur[20], sur[28], sur[36] ) ;
 
-	       const HepPoint3D projPiv ( plaV.point( PIVOT ) ) ;
+	       const HepGeom::Point3D<double>  projPiv ( plaV.point( PIVOT ) ) ;
 
 	       const double angleVPerUnit (
 		  ( plaV.point( sur[36] ) - projPiv ).angle(
 		     plaV.point( sur[20] ) - projPiv )/16000. ) ;
 
-	       const HepPlane3D plaH ( sur[16], sur[0], sur[8] ) ;
+	       const HepGeom::Plane3D<double>  plaH ( sur[16], sur[0], sur[8] ) ;
 
-	       const HepPoint3D projPivH ( plaH.point( PIVOT ) ) ;
+	       const HepGeom::Point3D<double>  projPivH ( plaH.point( PIVOT ) ) ;
 
 	       const double angleHPerUnit (
 		  ( plaH.point( sur[8] ) - projPivH ).angle(
@@ -649,24 +649,24 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 
 	       const double vAngle ( ( 1.*Vinput -  16000. )*angleVPerUnit ) ;
 
-	       const HepRotate3D  vRotate ( -vAngle, H4ToBeamLine*vpl[0] ) ;
-	       const HepRotateY3D hRotate (  hAngle ) ;
+	       const HepGeom::Rotate3D  vRotate ( -vAngle, H4ToBeamLine*vpl[0] ) ;
+	       const HepGeom::RotateY3D hRotate (  hAngle ) ;
 
-	       const HepTransform3D myTrf ( V3Transform*vRotate*hRotate ) ;
+	       const HepGeom::Transform3D myTrf ( V3Transform*vRotate*hRotate ) ;
 
-	       const HepRotation myRot  ( myTrf.getRotation()    ) ;
-	       const HepVector3D myTran ( myTrf.getTranslation() ) ;
+	       const CLHEP::HepRotation myRot  ( myTrf.getRotation()    ) ;
+	       const HepGeom::Vector3D<double>  myTran ( myTrf.getTranslation() ) ;
 
-	       const HepRotateZ3D R1 ( myRot.phiZ() - M_PI ) ;
-	       const HepPoint3D xUnit ( 0,1,0 ) ;
-	       const HepPoint3D yUnit (-1,0,0 ) ;
-	       const HepPoint3D zUnit ( 0,0,1 ) ;
+	       const HepGeom::RotateZ3D R1 ( myRot.phiZ() - M_PI ) ;
+	       const HepGeom::Point3D<double>  xUnit ( 0,1,0 ) ;
+	       const HepGeom::Point3D<double>  yUnit (-1,0,0 ) ;
+	       const HepGeom::Point3D<double>  zUnit ( 0,0,1 ) ;
 
-	       const HepTransform3D RXRZ ( HepRotate3D( -myRot.thetaZ(), R1*xUnit )*R1 ) ;
+	       const HepGeom::Transform3D RXRZ ( HepGeom::Rotate3D( -myRot.thetaZ(), R1*xUnit )*R1 ) ;
 
-	       const HepPoint3D zzUnit ( RXRZ*zUnit ) ;
-	       const HepPoint3D yyUnit ( RXRZ*yUnit ) ;
-	       const HepPoint3D xxUnit ( RXRZ*xUnit ) ;
+	       const HepGeom::Point3D<double>  zzUnit ( RXRZ*zUnit ) ;
+	       const HepGeom::Point3D<double>  yyUnit ( RXRZ*yUnit ) ;
+	       const HepGeom::Point3D<double>  xxUnit ( RXRZ*xUnit ) ;
 /*
 	       std::cout<<"new z axis = theta "
 			<< zzUnit.theta()*kRadToDeg 
@@ -682,10 +682,10 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 			<< xxUnit.phi()*kRadToDeg 
 			<< std::endl ;
 */
-	       const HepTransform3D RPSI ( HepTransform3D( myRot, HepPoint3D(0,0,0) )*
+	       const HepGeom::Transform3D RPSI ( HepGeom::Transform3D( myRot, HepGeom::Point3D<double> (0,0,0) )*
 					   (RXRZ.inverse()) ) ;
 
-	       Hep3Vector axis ;
+	       CLHEP::Hep3Vector axis ;
 	       double     psi ;
 	       RPSI.getRotation().getAngleAxis( psi , axis ) ;
 
@@ -709,8 +709,8 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       std::cout<<"RPSI="<<RPSI.getRotation()<<", "<<RPSI.getTranslation()<<std::endl;
 
 //HepRotateZ3D(-0.75*M_PI)*
-	       const HepTransform3D TEMP1 ( HepRotateX3D(-myRot.thetaZ())*HepRotateZ3D(M_PI/2.-myRot.phiZ()) ) ;
-	       const HepTransform3D TEMP ( HepTransform3D(myTrf.getRotation(),HepVector3D(0,0,0) )*TEMP1.inverse() ) ;
+	       const HepGeom::Transform3D TEMP1 ( HepGeom::RotateX3D(-myRot.thetaZ())*HepGeom::RotateZ3D(M_PI/2.-myRot.phiZ()) ) ;
+	       const HepGeom::Transform3D TEMP ( HepGeom::Transform3D(myTrf.getRotation(),HepGeom::Vector3D<double> (0,0,0) )*TEMP1.inverse() ) ;
 	       std::cout<<"TEMP="<<TEMP.getRotation()<<", "<<TEMP.getTranslation()<<std::endl;
 
 	       std::cout<<"Trot="<<myTrf.getRotation()<<", "<<myTrf.getTranslation()<<std::endl;
