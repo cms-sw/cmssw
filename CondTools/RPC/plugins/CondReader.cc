@@ -30,8 +30,8 @@ private:
 
 
 CondReader::CondReader(const edm::ParameterSet& iConfig) : 
-  since(iConfig.getUntrackedParameter<unsigned long long>("since",0)),
-  till(iConfig.getUntrackedParameter<unsigned long long>("till",0))
+  since(iConfig.getUntrackedParameter<uint64_t>("since",0)),
+  till(iConfig.getUntrackedParameter<uint64_t>("till",0))
 {}
 
 CondReader::~CondReader(){}

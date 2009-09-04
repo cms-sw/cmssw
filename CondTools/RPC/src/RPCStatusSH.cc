@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2009/06/05 14:34:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/06/19 12:21:05 $
+ *  $Revision: 1.6 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -18,8 +18,8 @@ popcon::RpcDataS::RpcDataS(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
-  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
+  m_since(pset.getUntrackedParameter<uint64_t>("since",5)),
+  m_till(pset.getUntrackedParameter<uint64_t>("till",0)){
 }
 
 popcon::RpcDataS::~RpcDataS()

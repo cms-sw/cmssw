@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2009/02/13 11:40:19 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/06/05 14:33:38 $
+ *  $Revision: 1.14 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -19,8 +19,8 @@ popcon::RpcObGasData::RpcObGasData(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
-  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
+  m_since(pset.getUntrackedParameter<uint64_t>("since",5)),
+  m_till(pset.getUntrackedParameter<uint64_t>("till",0)){
 }
 
 popcon::RpcObGasData::~RpcObGasData()
