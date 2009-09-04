@@ -689,7 +689,7 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       double     psi ;
 	       RPSI.getRotation().getAngleAxis( psi , axis ) ;
 
-	       const double zdiff ( axis.angle(zzUnit-HepPoint3D(0,0,0)) ) ;
+	       const double zdiff ( axis.angle(zzUnit-HepGeom::Point3D<double>(0,0,0)) ) ;
 
 	       if( 0.95*M_PI < fabs( zdiff ) ) psi = -psi ;
 /*
