@@ -109,7 +109,7 @@ SiStripCorrelateNoise::DoPlots(){
 
   char dir[128];
   sprintf(dir,"Run_%d_TkMap.png",theRun);
-  tkmap->save(true,0,5,dir);
+  tkmap->save(false,0,5,dir);
   delete tkmap;
   tkmap = new TrackerMap();
 }
