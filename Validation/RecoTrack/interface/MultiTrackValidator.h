@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/12/19 17:26:18 $
- *  $Revision: 1.46 $
+ *  $Date: 2009/07/23 09:04:27 $
+ *  $Revision: 1.47 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,6 +31,15 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
 					  pset.getParameter<bool>("signalOnlyTP"),
 					  pset.getParameter<bool>("chargedOnlyTP"),
 					  pset.getParameter<std::vector<int> >("pdgIdTP"));
+    cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
+						      pset.getParameter<double>("minRapidityTP"),
+						      pset.getParameter<double>("maxRapidityTP"),
+						      pset.getParameter<double>("tipTP"),
+						      pset.getParameter<double>("lipTP"),
+						      pset.getParameter<int>("minHitTP"),
+						      pset.getParameter<bool>("chargedOnlyTP"),
+						      pset.getParameter<std::vector<int> >("pdgIdTP"));
+
     minPhi = pset.getParameter<double>("minPhi"); 
     maxPhi = pset.getParameter<double>("maxPhi");
     nintPhi = pset.getParameter<int>("nintPhi");
@@ -72,7 +81,7 @@ private:
   // select tracking particles 
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
-
+  CosmicTrackingParticleSelector cosmictpSelector;
   //1D
   std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
 
