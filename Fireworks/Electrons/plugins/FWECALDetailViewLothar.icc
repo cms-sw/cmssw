@@ -1,8 +1,6 @@
 #include "TGLabel.h"
 #include "TGSlider.h"
-#define protected public
 #include "TEveLegoEventHandler.h"
-#undef protected
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
@@ -64,7 +62,7 @@ void FWECALDetailViewLothar<T>::build(const FWModelId &id, const T *i, TGComposi
    glViewer->CurrentCamera().Reset();
 
    // addaxis (grid in the future)
-   glViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   glViewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TGLCameraOverlay* overlay =  glViewer->GetCameraOverlay();
    overlay->SetShowOrthographic(kTRUE);
    overlay->SetOrthographicMode(TGLCameraOverlay::kAxis);
@@ -72,7 +70,6 @@ void FWECALDetailViewLothar<T>::build(const FWModelId &id, const T *i, TGComposi
    // move perspective <-> orthographic
    TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)glViewer->GetGLWidget(), (TObject*)glViewer);
    glViewer->SetEventHandler(eh);
-   eh->Rotate(0, 10000, kFALSE, kFALSE);
 
    makeGUIForDetailViewB(ediFrame);
 }

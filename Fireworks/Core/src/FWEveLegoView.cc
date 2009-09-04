@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.43 2009/07/15 15:10:00 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.44 2009/09/03 21:26:16 amraktad Exp $
 //
 
 // system include files
@@ -25,9 +25,7 @@
 #include "TGLOrthoCamera.h"
 #undef private
 
-#define protected public
 #include "TEveLegoEventHandler.h"
-#undef protected
 
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
@@ -111,7 +109,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    //
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev);
-   eh->fMode = TEveLegoEventHandler::kLocked;
    ev->SetEventHandler(eh);
 
 
@@ -195,11 +192,6 @@ FWEveLegoView::setCameras()
       *m_cameraMatrixBaseRef = *m_cameraMatrixBase;
       *m_orthoCameraMatrixRef = *m_orthoCameraMatrix;
       *m_orthoCameraZoomRef = m_orthoCameraZoom;
-      TEveLegoEventHandler* eh =
-         dynamic_cast<TEveLegoEventHandler*>(m_viewer->GetGLViewer()->GetEventHandler());
-      if ( m_topView && eh ) {
-         eh->Rotate(0,10000,kFALSE, kFALSE);
-      }
    }
    m_cameraSet = true;
 }

@@ -179,10 +179,9 @@ void FWECALDetailViewDave<T>::build(const FWModelId &id, const T *i, TGComposite
    glv->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   glv->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
    glv->SetEventHandler(eh);
-   eh->Rotate(0, 10000, kFALSE, kFALSE);
 
    glv->UpdateScene();
    glv->CurrentCamera().Reset();

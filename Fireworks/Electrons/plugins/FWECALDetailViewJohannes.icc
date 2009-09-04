@@ -22,9 +22,7 @@
 #include "TEveCaloData.h"
 #include "TEveCalo.h"
 #include "TEveCaloLegoOverlay.h"
-#define protected public
 #include "TEveLegoEventHandler.h"
-#undef protected
 #include "TEveStraightLineSet.h"
 
 
@@ -213,7 +211,6 @@ void FWECALDetailViewJohannes<T>::build(const FWModelId &id, const T *i, TGCompo
    glv->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
    TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego",(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
    glv->SetEventHandler(eh);
-   eh->Rotate(0, 10000, kFALSE, kFALSE);
 
    glv->UpdateScene();
    glv->CurrentCamera().Reset();
