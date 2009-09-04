@@ -18,7 +18,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        HcalSim = cms.untracked.PSet(
+        ZdcSim = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
     ),
