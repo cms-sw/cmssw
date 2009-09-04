@@ -2363,7 +2363,8 @@ int OHltTree::OpenHltDiJetAvePassed(double pt)
   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
   for (int i=0;i<NrecoJetCal;i++) { 
     for (int j=0;j<NrecoJetCal && j!=i;j++) {      
-      if((recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt) {  // Jet pT cut 
+      //if((recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt) {  // Jet pT cut 
+      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
         rc++; 
       }
     } 
@@ -2378,7 +2379,8 @@ int OHltTree::OpenHltCorDiJetAvePassed(double pt)
   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold 
   for (int i=0;i<NrecoJetCorCal;i++) {  
     for (int j=0;j<NrecoJetCorCal && j!=i;j++) {       
-      if((recoJetCorCalPt[i]+recoJetCorCalPt[j])/2.0 > pt) {  // Jet pT cut  
+      //if((recoJetCorCalPt[i]+recoJetCorCalPt[j])/2.0 > pt) {  // Jet pT cut  
+      if((recoJetCorCalE[i]/cosh(recoJetCorCalEta[i])+recoJetCorCalE[j]/cosh(recoJetCorCalEta[j]))/2.0 > pt) {
         rc++;  
       } 
     }  
@@ -2422,7 +2424,7 @@ int OHltTree::OpenHltQuadJetPassed(double pt)
   
   // Loop over all oh jets
   for (int i=0;i<NrecoJetCal;i++) {
-      if(recoJetCalPt[i] > pt) {  // Jet pT cut
+      if(recoJetCalPt[i] > pt && recoJetCalEta[i] < 5.0) {  // Jet pT cut
 	njet++;
     }
   }
