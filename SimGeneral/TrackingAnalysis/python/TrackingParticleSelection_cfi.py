@@ -15,7 +15,7 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
         'source'
     ),
 
-    genPileupInfo = cms.bool(False),
+    useMultipleHepMCLabels = cms.bool(False), 
  
     simHitCollections = cms.PSet(
         pixel = cms.vstring (
