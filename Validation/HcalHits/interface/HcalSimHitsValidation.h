@@ -136,15 +136,6 @@ class HcalSimHitsValidation : public edm::EDAnalyzer {
   MonitorElement* emean_vs_ieta_HF1;
   MonitorElement* emean_vs_ieta_HF2;
 
-  MonitorElement* Energy_vs_ieta_HB1;
-  MonitorElement* Energy_vs_ieta_HB2;
-  MonitorElement* Energy_vs_ieta_HE1;
-  MonitorElement* Energy_vs_ieta_HE2;
-  MonitorElement* Energy_vs_ieta_HE3;
-  MonitorElement* Energy_vs_ieta_HO;
-  MonitorElement* Energy_vs_ieta_HF1;
-  MonitorElement* Energy_vs_ieta_HF2;
-
   MonitorElement* RMS_vs_ieta_HB1;
   MonitorElement* RMS_vs_ieta_HB2;
   MonitorElement* RMS_vs_ieta_HE1;
@@ -245,10 +236,10 @@ class HcalSimHitsValidation : public edm::EDAnalyzer {
   MonitorElement* meTimeHF;
 
   // energy of rechits
-  MonitorElement* meRecHitsEnergyHB;
-  MonitorElement* meRecHitsEnergyHE;
-  MonitorElement* meRecHitsEnergyHO;
-  MonitorElement* meRecHitsEnergyHF;
+  MonitorElement* meSimHitsEnergyHB;
+  MonitorElement* meSimHitsEnergyHE;
+  MonitorElement* meSimHitsEnergyHO;
+  MonitorElement* meSimHitsEnergyHF;
 
   MonitorElement* meTE_HB;
   MonitorElement* meTE_HB1;

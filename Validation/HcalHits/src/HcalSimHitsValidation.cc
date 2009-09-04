@@ -6,8 +6,7 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   // DQM ROOT output
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
-  if ( outputFile_.size() != 0 ) {
-    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+  if ( outputFile_.size() != 0 ) {    edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
     edm::LogInfo("OutputInfo") << " Hcal SimHit Task histograms will NOT be saved";
   }
@@ -33,31 +32,63 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
     sprintf  (histo, "N_HF" );
     Nhf = dbe_->book1D(histo, histo, 1800,0., 1800.);
 
-    sprintf  (histo, "Energy_vs_ieta_HB1" );
-    Energy_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HB2" );
-    Energy_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HE1" );
-    Energy_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HE2" );
-    Energy_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HE3" );
-    Energy_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HO" );
-    Energy_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HF1" );
-    Energy_vs_ieta_HF1 = dbe_->book1D(histo, histo, 82, -41., 41.);
-    sprintf  (histo, "Energy_vs_ieta_HF2" );
-    Energy_vs_ieta_HF2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    //Mean energy vs iEta TProfiles
+    sprintf  (histo, "emean_vs_ieta_HB1" );
+    emean_vs_ieta_HB1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_HB2" );
+    emean_vs_ieta_HB2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_HE1" );
+    emean_vs_ieta_HE1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HE2" );
+    emean_vs_ieta_HE2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
+    sprintf  (histo, "emean_vs_ieta_HE3" );
+    emean_vs_ieta_HE3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HO" );
+    emean_vs_ieta_HO = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HF1" );
+    emean_vs_ieta_HF1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
+    sprintf  (histo, "emean_vs_ieta_HF2" );
+    emean_vs_ieta_HF2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
 
-    sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths");
+    //Occupancy vs. iEta TH1Fs
+    sprintf  (histo, "occupancy_vs_ieta_HB1" );
+    occupancy_vs_ieta_HB1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HB2" );
+    occupancy_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HE1" );
+    occupancy_vs_ieta_HE1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HE2" );
+    occupancy_vs_ieta_HE2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HE3" );
+    occupancy_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HO" );
+    occupancy_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HF1" );
+    occupancy_vs_ieta_HF1 = dbe_->book1D(histo, histo, 82, -41., 41.);
+    sprintf  (histo, "occupancy_vs_ieta_HF2" );
+    occupancy_vs_ieta_HF2 = dbe_->book1D(histo, histo, 82, -41., 41.);
+
+    //Energy spectra
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HB" ) ;
+    meSimHitsEnergyHB = dbe_->book1D(histo, histo, 510 , -0.1 , 5.); 
+
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HE" ) ;
+    meSimHitsEnergyHE = dbe_->book1D(histo, histo, 510, -0.02, 2.); 
+
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HO" ) ;
+    meSimHitsEnergyHO = dbe_->book1D(histo, histo, 510 , -0.1 , 5.); 
+    
+    sprintf (histo, "HcalSimHitTask_energy_of_simhits_HF" ) ;
+    meSimHitsEnergyHF = dbe_->book1D(histo, histo, 1010 , -5. , 500.); 
+
+    //Energy in Cone
+    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths");
     meEnConeEtaProfile = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
     
-    sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E");
+    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E");
     meEnConeEtaProfile_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
-    
-    
-    sprintf (histo, "HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH");
+      
+    sprintf (histo, "HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH");
     meEnConeEtaProfile_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 210, -10., 200.);  
     
    }  //end-of if(_dbe) 
@@ -74,12 +105,52 @@ void HcalSimHitsValidation::endJob() {
   if( dbe_ )
     {
       // check existence of first histo in the list
-      if (! dbe_->get("HcalRecHitsV/HcalRecHitTask/N_HB")) return;
+      if (! dbe_->get("HcalSimHitsV/HcalSimHitTask/N_HB")) return;
     }
   else
     return;
   
-  //======================================  
+  //======================================
+
+  for (int i = 1; i <= occupancy_vs_ieta_HB1->getNbinsX(); i++){
+
+    int ieta = i - 42;        // -41 -1, 0 40 
+    if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
+
+    float phi_factor;
+
+    if      (fabs(ieta) <= 20) phi_factor = 72.;
+    else if (fabs(ieta) <  40) phi_factor = 36.;
+    else                       phi_factor = 18.;
+    
+    float cnorm;
+    int ibin;
+
+    if (ieta > 0) ibin = i + 1;
+    else          ibin = i;
+  
+    cnorm = occupancy_vs_ieta_HB1->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HB1->setBinContent(i, cnorm);
+    cnorm = occupancy_vs_ieta_HB2->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HB2->setBinContent(i, cnorm);
+
+    cnorm = occupancy_vs_ieta_HE1->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HE1->setBinContent(i, cnorm);
+    cnorm = occupancy_vs_ieta_HE2->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HE2->setBinContent(i, cnorm);
+    cnorm = occupancy_vs_ieta_HE3->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HE3->setBinContent(i, cnorm);
+
+    cnorm = occupancy_vs_ieta_HO->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HO->setBinContent(i, cnorm);
+
+    cnorm = occupancy_vs_ieta_HF1->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HF1->setBinContent(i, cnorm);
+    cnorm = occupancy_vs_ieta_HF2->getBinContent(ibin) / (phi_factor * nevtot); 
+    occupancy_vs_ieta_HF2->setBinContent(i, cnorm);
+  }
+
+
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
@@ -90,8 +161,6 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   using namespace edm;
   using namespace std;
-
-  cout<<nevtot<<endl;
 
   //===========================================================================
   // Getting SimHits
@@ -116,32 +185,24 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	p != myGenEvent->particles_end(); ++p ) {
     double phip = (*p)->momentum().phi();
     double etap = (*p)->momentum().eta();
-    //    phi_MC = phip;
-    //    eta_MC = etap;
-    double pt  = (*p)->momentum().perp();
+    double pt   = (*p)->momentum().perp();
     if(pt > maxPt) {npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
   }
 
   double partR   = 0.3;
-//   double searchR = 1.0; 
 
-//   double maxES = -9999.;
-//   double etaHotS = 1000.;
-//   double phiHotS = 1000.;
+
+  //Hcal SimHits
+
+  //Approximate calibration constants
+  const float calib_HB = 120.;
+  const float calib_HE = 190.;
+  const float calib_HF = 3.;
   
   edm::Handle<PCaloHitContainer> hcalHits;
   ev.getByLabel("g4SimHits","HcalHits",hcalHits);
   const PCaloHitContainer * SimHitResult = hcalHits.product () ;
     
-//   double enSimHits    = 0.;
-//   double enSimHitsHB  = 0.;
-//   double enSimHitsHE  = 0.;
-//   double enSimHitsHO  = 0.;
-//   double enSimHitsHF  = 0.;
-//   double enSimHitsHFL = 0.;
-//   double enSimHitsHFS = 0.;
-  // sum of SimHits in the cone 
-
   float eta_diff;
   float etaMax  = 9999;
   int ietaMax = 0;
@@ -152,14 +213,18 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin () ; SimHits != SimHitResult->end(); ++SimHits) {
     HcalDetId cell(SimHits->id());
-    int sub =  cell.subdet();
-    const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+    const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
     double en   = SimHits->energy();    
-   
+    
+    int sub     = cell.subdet();
+    int depth   = cell.depth();
+    double ieta = cell.ieta();
+
+    //Energy in Cone 
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
-       
+    
     if ( r < partR ){ // just energy in the small cone
       // alternative: ietamax -> closest to MC eta  !!!
       eta_diff = fabs(eta_MC - etaS);
@@ -167,14 +232,110 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	etaMax  = eta_diff; 
 	ietaMax = cell.ieta(); 
       }
-      HcalCone += en;
+      //Approximation of calibration
+      if      (sub == 1) HcalCone += en*calib_HB;
+      else if (sub == 2) HcalCone += en*calib_HE;
+      else if (sub == 4) HcalCone += en*calib_HF;
+      else               HcalCone += en;
+    }
+    
+    //HB
+    if (sub == 1){
+      meSimHitsEnergyHB->Fill(en);
+      if (depth == 1){
+	emean_vs_ieta_HB1->Fill(double(ieta), en);
+	occupancy_vs_ieta_HB1->Fill(double(ieta));
+      }
+      if (depth == 2){
+	emean_vs_ieta_HB2->Fill(double(ieta), en);
+	occupancy_vs_ieta_HB2->Fill(double(ieta));
+      }
+    }
+    //HE
+    if (sub == 2){
+      meSimHitsEnergyHE->Fill(en);
+      if (depth == 1){
+	emean_vs_ieta_HE1->Fill(double(ieta), en);
+	occupancy_vs_ieta_HE1->Fill(double(ieta));
+      }
+      if (depth == 2){
+	emean_vs_ieta_HE2->Fill(double(ieta), en);
+	occupancy_vs_ieta_HE2->Fill(double(ieta));
+      }
+      if (depth == 3){
+	emean_vs_ieta_HE3->Fill(double(ieta), en);
+	occupancy_vs_ieta_HE3->Fill(double(ieta));
+      }
+    }
+    //HO
+    if (sub == 3){
+      meSimHitsEnergyHO->Fill(en);
+      emean_vs_ieta_HO->Fill(double(ieta), en);
+      occupancy_vs_ieta_HO->Fill(double(ieta));
+    }
+    //HF
+    if (sub == 4){
+      meSimHitsEnergyHF->Fill(en);
+      if (depth == 1){
+	emean_vs_ieta_HF1->Fill(double(ieta), en);
+	occupancy_vs_ieta_HF1->Fill(double(ieta));
+      }
+      if (depth == 2){
+	emean_vs_ieta_HF2->Fill(double(ieta), en);
+	occupancy_vs_ieta_HF2->Fill(double(ieta));
+      }
+    }     
+  }
+
+  //Ecal EB SimHits
+  edm::Handle<PCaloHitContainer> ecalEBHits;
+  ev.getByLabel("g4SimHits","EcalHitsEB",ecalEBHits);
+  const PCaloHitContainer * SimHitResultEB = ecalEBHits.product () ;
+
+  double EcalCone = 0;
+
+  for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin () ; SimHits != SimHitResultEB->end(); ++SimHits) {
+
+    EBDetId EBid = EBDetId(SimHits->id());
+
+    const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (EBid)->getGeometry (EBid) ;
+    double etaS = cellGeometry->getPosition().eta () ;
+    double phiS = cellGeometry->getPosition().phi () ;
+    double en   = SimHits->energy();    
+  
+    double r  = dR(eta_MC, phi_MC, etaS, phiS);
+       
+    if ( r < partR ){ // just energy in the small cone
+      // alternative: ietamax -> closest to MC eta  !!!
+      EcalCone += en;
     }
   }
-  cout<<HcalCone<<endl;
 
-  meEnConeEtaProfile       ->Fill(double(ietaMax),  HcalCone);    
-//   meEnConeEtaProfile_E     ->Fill(double(ietaMax), eEcalCone);   
-//   meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+eEcalCone); 
+  //Ecal EE SimHits
+  edm::Handle<PCaloHitContainer> ecalEEHits;
+  ev.getByLabel("g4SimHits","EcalHitsEE",ecalEEHits);
+  const PCaloHitContainer * SimHitResultEE = ecalEEHits.product () ;
+
+  for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin () ; SimHits != SimHitResultEE->end(); ++SimHits) {
+
+    EEDetId EEid = EEDetId(SimHits->id());
+
+    const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (EEid)->getGeometry (EEid) ;
+    double etaS = cellGeometry->getPosition().eta () ;
+    double phiS = cellGeometry->getPosition().phi () ;
+    double en   = SimHits->energy();    
+  
+    double r  = dR(eta_MC, phi_MC, etaS, phiS);
+       
+    if ( r < partR ){ // just energy in the small cone
+      // alternative: ietamax -> closest to MC eta  !!!
+      EcalCone += en;
+    }
+  }
+   
+  meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
+  meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
+  meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
 
   
   nevtot++;
