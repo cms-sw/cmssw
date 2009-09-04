@@ -79,8 +79,10 @@ ptdat CSCTFPtLUT::Pt(const ptadd& address) const
 {
   ptdat result;
   if(read_pt_lut)
-    result = pt_lut[address.toint()];
-  else
+  {
+    int shortAdd = (address.toint()& 0x1fffff);
+    result = pt_lut[shortAdd];
+  } else
     result = calcPt(address);
   return result;
 }
