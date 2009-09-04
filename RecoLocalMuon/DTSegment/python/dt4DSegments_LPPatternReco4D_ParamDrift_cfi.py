@@ -7,7 +7,7 @@ dt4DSegments = cms.EDProducer("DTRecSegment4DProducer",
     # The reconstruction algo and its parameter set
     DTLPPatternReco4DAlgo_ParamDrift,
     # debuggin opt
-    debug = cms.untracked.bool(True),
+    debug = cms.untracked.bool(False),
     # name of the rechit 1D collection in the event
     recHits1DLabel = cms.InputTag("dt1DRecHits"),
     # name of the rechit 2D collection in the event

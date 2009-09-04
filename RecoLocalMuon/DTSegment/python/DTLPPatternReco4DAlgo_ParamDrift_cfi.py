@@ -21,7 +21,7 @@ DTLPPatternReco4DAlgo_ParamDrift = cms.PSet(
         segmCleanerMode = cms.int32(1),
         # Parameters for the cleaner
         nSharedHitsMax = cms.int32(2),
-        debug = cms.untracked.bool(True),
+        debug = cms.untracked.bool(False),
         nUnSharedHitsMin = cms.int32(2),
         # the input type. 
         # If true the instructions in setDTRecSegment2DContainer will be skipped and the 

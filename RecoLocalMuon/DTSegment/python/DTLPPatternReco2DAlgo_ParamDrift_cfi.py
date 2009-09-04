@@ -18,7 +18,7 @@ DTLPPatternReco2DAlgo_ParamDrift = cms.PSet(
         performT0SegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03),
         performT0_vdriftSegCorrection = cms.bool(False),
-        debug = cms.untracked.bool(True),
+        debug = cms.untracked.bool(False),
         #these are the parameters for the 2D algo
         DeltaFactor = cms.double(4.0),
         maxAlphaTheta = cms.double(0.1),
