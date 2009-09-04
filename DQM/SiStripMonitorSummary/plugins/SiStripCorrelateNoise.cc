@@ -231,7 +231,6 @@ SiStripCorrelateNoise::getHisto(const size_t& index){
 
 void 
 SiStripCorrelateNoise::endJob() {
-  DoPlots();
   file->Write();
   file->Close();
 
