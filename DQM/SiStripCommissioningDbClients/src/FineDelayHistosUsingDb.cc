@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.14 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.15 2009/06/18 20:52:37 lowette Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -181,6 +181,9 @@ void FineDelayHistosUsingDb::computeDelays() {
                                iconn->fecRing(),
                                iconn->ccuAddr(),
                                iconn->ccuChan(), 0 ).key()] = delay;
+        edm::LogVerbatim(mlDqmClient_)
+            << "[FineDelayHistosUsingDb::" << __func__ << "] Computed Delay to be added to PLL: "
+            << bestDelay_ << " " << tof << " " << delay << std::endl;
       } else {
         edm::LogError(mlDqmClient_)
 	  << "[FineDelayHistosUsingDb::" << __func__ << "]"
