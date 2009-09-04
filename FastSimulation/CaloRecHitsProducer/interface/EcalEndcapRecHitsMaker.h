@@ -112,6 +112,8 @@ class EcalEndcapRecHitsMaker
   double noiseADC_;
   // selective readout threshold
   float SRThreshold_;
+  // need to keep the address of ICMC
+  const std::vector<float> * ICMC_;
 };
 
 #endif

@@ -133,7 +133,8 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
       // is afterwards put in this cell which would not be correct. 
       float energy=theCalorimeterHits_[icell];
       
-      if ( energy<threshold_ && !isHighInterest(myDetId)) 
+      // the threshold is in amplitude, so the intercalibration constant should be injected 
+      if ( energy<threshold_*((*ICMC_)[icell]) && !isHighInterest(myDetId)) 
 	{
 	  theCalorimeterHits_[icell]=0.;
 	  //	  int TThashedindex=towerOf_[icell];
@@ -439,6 +440,9 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       const EcalIntercalibConstantsMC* jcal = pJcal.product(); 
       const std::vector<float>& ICMC = jcal->endcapItems();
 
+      // should be saved, used by the zero suppression
+      ICMC_ = &ICMC;
+
       // Intercalib constants IC_i 
       // IC = IC_MC * (1+delta)
       // where delta is the miscalib
@@ -446,6 +450,7 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
       const EcalIntercalibConstants* ical = pIcal.product();
       const std::vector<float>& IC = ical->endcapItems();
+
 
       unsigned nic = IC.size();
       meanNoiseSigmaEt_ = 0.;
