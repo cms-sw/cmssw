@@ -149,11 +149,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //rh6->GetXaxis()->SetRangeUser(0,10);
    //sh6->GetXaxis()->SetRangeUser(0,10);
 
+   TH1F * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
-   plotBuilding(canvas,
-		sh1,rh1,sh2,rh2,
-		sh3,rh3,sh4,rh4,
-		sh5,rh5,sh6,rh6,
+   plotBuilding(canvas,s, r,6,
 		te,"UU",-1);
 
    canvas->cd();
@@ -596,7 +595,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
 
 
-    //===== building
+    //===== building 2
    rdir->GetObject(collname1+"/effic_vs_phi",rh1);
    sdir->GetObject(collname2+"/effic_vs_phi",sh1);
    rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
@@ -605,8 +604,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh1->GetYaxis()->SetTitle("efficiency vs #phi");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
-//   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
-//   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
    rdir->GetObject(collname1+"/fakerate_vs_phi",rh2);
    sdir->GetObject(collname2+"/fakerate_vs_phi",sh2);
    rh2->GetXaxis()->SetTitle("#phi");
@@ -615,8 +612,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
    rh2->GetYaxis()->SetTitleSize(0.05);
    rh2->GetYaxis()->SetTitleOffset(1.2);
-//   rh2->GetYaxis()->SetRangeUser(0.,.70);
-//   sh2->GetYaxis()->SetRangeUser(0.,.70);
 
 
 
@@ -657,35 +652,15 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh6->GetYaxis()->SetTitleSize(0.05);
    rh6->GetYaxis()->SetTitleOffset(1.2);
 
-   //rdir->GetObject(collname1+"/num_reco_pT",rh6);
-   //sdir->GetObject(collname2+"/num_reco_pT",sh6);
-
- 
-
-
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1400);
 
+   TH1F * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
-   //NormalizeHistograms(rh2,sh2);
-   //NormalizeHistograms(rh6,sh6);
-   //rh1->GetYaxis()->SetRangeUser(8,24);
-   //sh1->GetYaxis()->SetRangeUser(8,24);
-
-   //rh6->GetXaxis()->SetRangeUser(0,10);
-   //sh6->GetXaxis()->SetRangeUser(0,10);
-
-
-   plotBuilding(canvas,
-		sh1,rh1,sh2,rh2,
-		sh3,rh3,sh4,rh4,
-		sh5,rh5,sh6,rh6,
+   plotBuilding(canvas,s, r,6,
 		te,"UU",-1, 1, false, false);
 
    canvas->cd();
-   //TPaveText* text = new TPaveText(0.25,0.72,0.75,0.77,"prova");
-   //text->SetFillColor(0);
-   //text->SetTextColor(1);
-   //text->Draw();
    l = new TLegend(0.10,0.64,0.90,0.69);
    l->SetTextSize(0.016);
    l->SetLineColor(1);
@@ -697,6 +672,48 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->AddEntry(sh1,newLabel,"LPF");
    l->Draw();
    canvas->Print("building2.pdf");   
+   delete l;
+
+    //===== building 3
+   rdir->GetObject(collname1+"/effic_vs_vertpos",rh1);
+   sdir->GetObject(collname2+"/effic_vs_vertpos",sh1);
+   rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   rh1->GetXaxis()->SetTitle("TP vert xy pos");
+   rh1->GetYaxis()->SetTitle("efficiency vs vert xy pos");
+   rh1->GetYaxis()->SetTitleSize(0.05);
+   rh1->GetYaxis()->SetTitleOffset(1.2);
+
+   rdir->GetObject(collname1+"/effic_vs_zpos",rh2);
+   sdir->GetObject(collname2+"/effic_vs_zpos",sh2);
+   rh2->GetXaxis()->SetTitle("TP vert z pos");
+   rh2->GetYaxis()->SetTitle("efficiency vs  vert z pos");
+   rh2->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   sh2->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
+   rh2->GetYaxis()->SetTitleSize(0.05);
+   rh2->GetYaxis()->SetTitleOffset(1.2);
+   rh2->SetTitle("");
+
+   canvas = new TCanvas("Tracks9","Tracks: efficiency & fakerate",1000,1400);
+
+   TH1F * r[2]={rh1,rh2};
+   TH1F * s[2]={sh1,sh2};
+
+   plotBuilding(canvas,s, r,2,
+		te,"UU",-1, 1, false, false);
+
+   canvas->cd();
+   l = new TLegend(0.10,0.14,0.90,0.19);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print("building3.pdf");   
    delete l;
  }
 }
@@ -798,110 +815,60 @@ void plot4histos(TCanvas *canvas,
 
 }
 
-void plotBuilding(TCanvas *canvas, 
-		  TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 
-		  TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
-		  TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
-		  TText* te,
+void plotBuilding(TCanvas *canvas, TH1F **s, TH1F **r, int n,TText* te,
 		  char * option, double startingY, double startingX = .1,bool fit = false, bool logx=true){
-  canvas->Divide(2,3);
+  canvas->Divide(2,(n+1)/2); //this should work also for odd n
+  for(int i=0; i<n;i++){
+    s[i]->SetMarkerStyle(20);
+    r[i]->SetMarkerStyle(21);
+    s[i]->SetMarkerColor(2);
+    r[i]->SetMarkerColor(4);
+    s[i]->SetMarkerSize(0.7);
+    r[i]->SetMarkerSize(0.7);
+    s[i]->SetLineColor(1);
+    r[i]->SetLineColor(1);
+    s[i]->SetLineWidth(1);
+    r[i]->SetLineWidth(1);
 
-  s1->SetMarkerStyle(20);
-  r1->SetMarkerStyle(21);
-  s1->SetMarkerColor(2);
-  r1->SetMarkerColor(4);
-  s1->SetMarkerSize(0.7);
-  r1->SetMarkerSize(0.7);
-  s1->SetLineColor(1);
-  r1->SetLineColor(1);
+    canvas->cd(i+1);
+    setStats(s[i],r[i], -1, 0, false);
+    if(logx)gPad->SetLogx();
+    r[i]->Draw();
+    s[i]->Draw("sames");
+  }
 
-  s2->SetMarkerStyle(20);
-  r2->SetMarkerStyle(21);
-  s2->SetMarkerColor(2);
-  r2->SetMarkerColor(4);
-  s2->SetMarkerSize(0.7);
-  r2->SetMarkerSize(0.7);
-  s2->SetLineColor(1);
-  r2->SetLineColor(1);
+//   //setStats(r1,s1, startingY, startingX, fit);
+//   canvas->cd(1);
+//   setStats(s1,r1, -1, 0, false);
+//   r1->Draw();
+//   s1->Draw("sames");
 
-  s3->SetMarkerStyle(20);
-  r3->SetMarkerStyle(21);
-  s3->SetMarkerColor(2);
-  r3->SetMarkerColor(4);
-  s3->SetMarkerSize(0.7);
-  r3->SetMarkerSize(0.7);
-  s3->SetLineColor(1);
-  r3->SetLineColor(1);
-  s3->SetLineWidth(1);
-  r3->SetLineWidth(1);
+//   canvas->cd(2);
+//   setStats(s2,r2, -1, 0, false);
+//   r2->Draw();
+//   s2->Draw("sames");
 
-  s4->SetMarkerStyle(20);
-  r4->SetMarkerStyle(21);
-  s4->SetMarkerColor(2);
-  r4->SetMarkerColor(4);
-  s4->SetMarkerSize(0.7);
-  r4->SetMarkerSize(0.7);
-  s4->SetLineColor(2);
-  r4->SetLineColor(4);
-  s4->SetLineWidth(2);
-  r4->SetLineWidth(2);
+//   canvas->cd(3);
+//   setStats(r3,s3, -1, 0, false);
+//   r3->Draw();
+//   s3->Draw("sames");
 
+//   canvas->cd(4);
+//   if(logx)gPad->SetLogx();
+//   setStats(s4,r4, 0.6, 0.65, false);
+//   r4->Draw();
+//   s4->Draw("sames");
 
-  s5->SetMarkerStyle(20);
-  r5->SetMarkerStyle(21);
-  s5->SetMarkerColor(2);
-  r5->SetMarkerColor(4);
-  s5->SetMarkerSize(0.7);
-  r5->SetMarkerSize(0.7);
-  s5->SetLineColor(1);
-  r5->SetLineColor(1);
-
-  s6->SetMarkerStyle(20);
-  r6->SetMarkerStyle(21);
-  s6->SetMarkerColor(2);
-  r6->SetMarkerColor(4);
-  s6->SetMarkerSize(0.7);
-  r6->SetMarkerSize(0.7);
-  s6->SetLineColor(2);
-  r6->SetLineColor(4);
-  s6->SetLineWidth(2);
-  r6->SetLineWidth(2);
+//   canvas->cd(5);
+//   setStats(r5,s5, -1, 0, false);
+//   r5->Draw();
+//   s5->Draw("sames");
 
 
-
-  //setStats(r1,s1, startingY, startingX, fit);
-  canvas->cd(1);
-  setStats(s1,r1, -1, 0, false);
-  r1->Draw();
-  s1->Draw("sames");
-
-  canvas->cd(2);
-  setStats(s2,r2, -1, 0, false);
-  r2->Draw();
-  s2->Draw("sames");
-
-  canvas->cd(3);
-  if(logx)gPad->SetLogx();
-  setStats(r3,s3, -1, 0, false);
-  r3->Draw();
-  s3->Draw("sames");
-
-  canvas->cd(4);
-  if(logx)gPad->SetLogx();
-  setStats(s4,r4, 0.6, 0.65, false);
-  r4->Draw();
-  s4->Draw("sames");
-
-  canvas->cd(5);
-  setStats(r5,s5, -1, 0, false);
-  r5->Draw();
-  s5->Draw("sames");
-
-
-  canvas->cd(6);
-  setStats(s6,r6, 0.6, 0.65, false);
-  r6->Draw();
-  s6->Draw("sames");
+//   canvas->cd(6);
+//   setStats(s6,r6, 0.6, 0.65, false);
+//   r6->Draw();
+//   s6->Draw("sames");
 }
 
 void plotPulls(TCanvas *canvas, 
