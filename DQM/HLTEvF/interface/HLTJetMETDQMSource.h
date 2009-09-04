@@ -4,7 +4,8 @@
 //
 // Package:    HLTJetMETDQMSource
 // Class:      HLTJetMETDQMSource
-// 
+// Code for HLT JetMET DQ monitoring. Based on FourVectorOnline code.
+
 
  
 
