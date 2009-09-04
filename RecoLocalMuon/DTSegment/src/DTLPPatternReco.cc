@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/25 08:20:35 $
- * $Revision: 1.4 $
+ * $Date: 2009/08/26 08:39:42 $
+ * $Revision: 1.5 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -114,10 +114,11 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
   list<double> pz; //positions of hits along z
   list<double> px; //along x (left and right the wires)
   list<double> pex; //errors (sigmas) on x
+  list<int> layers;
   ResultLPAlgo theAlgoResults;//datastructure containing all useful results from perform_fit
   
   /*I populate the coordinates lists, in SL or chamber ref frame. */
-  populateCoordinatesLists(pz, px, pex,  sl, chamber, pairPointers, sl_chamber);
+  populateCoordinatesLists(pz, px, pex, layers,  sl, chamber, pairPointers, sl_chamber);
 
   if(debug) {
     if (sl_chamber ==  ReconstructInSL)
@@ -129,7 +130,7 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
   findAngleConstraints( theMinimumM, theMaximumM, sl, chamber, sl_chamber );
   
   /*lpAlgo returns true as long as it manages to fit meaningful straight lines*/
-    while(lpAlgorithm(theAlgoResults, pz, px, pex, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM, theDeltaFactor) ){
+  while(lpAlgorithm(theAlgoResults, pz, px, pex, layers, theMinimumM, theMaximumM, theMinimumQ, theMaximumQ, theBigM, theDeltaFactor) ){
     counter++;
     if(debug) cout << "Creating 2Dsegment" << endl;
     
@@ -180,7 +181,7 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
 
     /*And again populate the coordinates list*/
     // FIXME: can this operation be merged with removeUsedHits to gain on # of loops?
-    populateCoordinatesLists(pz, px, pex,  sl, chamber, pairPointers, sl_chamber); 
+    populateCoordinatesLists(pz, px, pex, layers,  sl, chamber, pairPointers, sl_chamber); 
     theAlgoResults.lambdas.clear();     
   }
   //px.clear();
@@ -196,7 +197,7 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
 
 
 
-void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& px, list<double>& pex,
+void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& px, list<double>& pex, list<int>& layers,
 					       const DTSuperLayer* sl, const DTChamber* chamber,
 					       const vector<const DTRecHit1DPair*>& pairsPointers,
 					       const ReconstructInSLOrChamber sl_chamber) {
@@ -204,7 +205,7 @@ void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& p
   /*Populate the pz, px and pex lists with coordinates taken from the actual rec hit pairs.
     The sl_chamber flag tells this function to use SL or chamber coordinate ref. frame. */
 
-  px.clear(); pex.clear(); pz.clear();
+  px.clear(); pex.clear(); pz.clear(); layers.clear();
   //iterate on pairs of rechits
   for (vector<const DTRecHit1DPair*>::const_iterator it = pairsPointers.begin(); it!=pairsPointers.end(); ++it){
     
@@ -223,16 +224,20 @@ void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& p
     pex.push_back( (double)sqrt(theRecHitPair.first -> localPositionError().xx()));
     pz.push_back( thePosition.z() );
     px.push_back( thePosition.x() );
+    layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10);
+
     if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back() << endl;
     
     //and right hit
-    if(sl_chamber == ReconstructInSL) 
+    if(sl_chamber == ReconstructInSL)
       thePosition = sl -> toLocal(theLayer->toGlobal(theRecHitPair.second->localPosition()));
-    if(sl_chamber == ReconstructInChamber)
+     if(sl_chamber == ReconstructInChamber)
       thePosition = chamber -> toLocal(theLayer->toGlobal(theRecHitPair.second -> localPosition()));
     pex.push_back( (double)sqrt(theRecHitPair.second-> localPositionError().xx()));
     pz.push_back( thePosition.z() );
     px.push_back( thePosition.x() );
+    layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10);
+ 
     if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back() << endl;
   }
   if(debug) cout << "DTLPPatternReco:: : px, pz and pex lists populated " << endl;

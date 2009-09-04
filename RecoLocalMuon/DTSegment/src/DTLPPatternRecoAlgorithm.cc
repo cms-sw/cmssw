@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/09/01 09:03:55 $
- * $Revision: 1.5 $
+ * $Date: 2009/09/03 13:30:39 $
+ * $Revision: 1.6 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -12,6 +12,7 @@
 
 #include <list>
 #include <iostream>
+#include <set>
 
 // Linear Programming Header
 extern "C" {
@@ -24,19 +25,28 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
 		 const list<double>& pzl,
 		 const list<double>& pxl,
 		 const list<double>& pexl,
+		 const list<int>& layersl,
 		 const double m_min, const double m_max,
 		 const double q_min, const double q_max,
 		 const double BIG_M, const double theDeltaFactor)
 {
   bool debug =false;
   //FIXME
-  vector<double> pz, px, pex;
+  //this part will be changed soon, after changing interface with DTLPPatternReco.cc
+  vector<double> pz, px, pex, layers;
   pz.resize(pzl.size());
   copy(pzl.begin(), pzl.end(), pz.begin());
   px.resize(pxl.size());
   copy(pxl.begin(), pxl.end(), px.begin());
   pex.resize(pexl.size());
   copy(pexl.begin(), pexl.end(), pex.begin());
+  layers.resize(layersl.size());
+  copy(layersl.begin(), layersl.end(), layers.begin());
+  //i need to discover how many layers we have
+  set<int> layerSet(layersl.begin(), layersl.end());
+  vector<int> layerSetVector(layerSet.begin(), layerSet.end());
+  const unsigned int n_layers = layerSet.size();
+  if(debug) cout << "There are hits in " << n_layers << " different(s) layer(s)" << endl;
   //
   const unsigned int n_points = pz.size();
   if (n_points <= 4) return false;
@@ -60,152 +70,180 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
 	 << "              big_m= " << BIG_M << " delta_fact = " << theDeltaFactor << endl;
     
 
-    /*******************COLUMNS DEFINITION********************************
-    *                                                                    */ 
-    //columns are the structural variables
-    //for each point there is sigma and lambda
-    //than we have the m and q (m+, m- ...)
-    const int n_cols = 2 * n_points + 4;
-    glp_add_cols(lp, n_cols);
-    // set columns boundaries	
-    glp_set_col_bnds(lp, 1, GLP_LO, 0.0, 0.0); // m+ >=0
-    glp_set_col_bnds(lp, 2, GLP_LO, 0.0, 0.0); // m- >=0
-    glp_set_col_bnds(lp, 3, GLP_LO, 0.0, 0.0); // q+ >=0
-    glp_set_col_bnds(lp, 4, GLP_LO, 0.0, 0.0); // m- >=0
-    for (unsigned int i=0; i<n_points; i++) {
-        // 0 <= sigmas <= Di
-        glp_set_col_bnds(lp, 4 + i + 1, GLP_DB, 0.0, pex[i] * theDeltaFactor);
-        // 0 <= lambdas <= 1 
-        glp_set_col_bnds(lp, n_points + 4 + i + 1, GLP_DB, 0., 1.);
-        // lambdas are integer (binary)
-        glp_set_col_kind(lp, n_points + 4 + i + 1, GLP_IV);
-        }     
-     
-    if(debug) cout << "Columns defined" << endl;
-    /*******************ROWS DEFINITION*****************************
-     *                                                             */		
-    //rows are auxiliary variables (those not appearing in the objective func)
-    // 4 are needed by the inequalities for each point (at page 3 of the note)
-    // n/2 are the constraints over each pair of points, i.e. only one at most can be used 
-    // 2 are m and q
+  /*******************COLUMNS DEFINITION********************************
+   *                                                                    */ 
+  //columns are the structural variables
+  //for each point there is sigma and lambda
+  //than we have the m and q (m+, m- ...)
+  const int n_cols = 2 * n_points + 4;
+  glp_add_cols(lp, n_cols);
+  // set columns boundaries
+  glp_set_col_bnds(lp, 1, GLP_LO, 0.0, 0.0); // m+ >=0
+  glp_set_col_bnds(lp, 2, GLP_LO, 0.0, 0.0); // m- >=0
+  glp_set_col_bnds(lp, 3, GLP_LO, 0.0, 0.0); // q+ >=0
+  glp_set_col_bnds(lp, 4, GLP_LO, 0.0, 0.0); // m- >=0
+
+//   if (m_max > 0) glp_set_col_bnds(lp, 1, GLP_DB, 0.0, m_max);//0<= m+ <= m_max
+//   else glp_set_col_bnds(lp, 1, GLP_DB, 0.0, 0.0);//m_max = 0
+//   if (m_min > 0) glp_set_col_bnds(lp, 2, GLP_DB, 0.0, 0.0);//m_min = 0
+//   else glp_set_col_bnds(lp, 2, GLP_DB, 0.0, - m_min); //0<= m- <= m_min
+
+//   if (q_max > 0) glp_set_col_bnds(lp, 1, GLP_DB, 0.0, q_max);//0<= q+ <= q_max
+//   else glp_set_col_bnds(lp, 1, GLP_DB, 0.0, 0.0);//q_max = 0
+//   if (q_min > 0) glp_set_col_bnds(lp, 2, GLP_DB, 0.0, 0.0);//q_min = 0
+//   else glp_set_col_bnds(lp, 2, GLP_DB, 0.0, - q_min); //0<= q- <= q_min
+
+  for (unsigned int i=0; i<n_points; i++) {
+    glp_set_col_bnds(lp, 4 + i + 1, GLP_DB, 0.0, pex[i] * theDeltaFactor);// 0 <= sigmas <= Di
+    glp_set_col_bnds(lp, n_points + 4 + i + 1, GLP_DB, 0., 1.);   // 0 <= lambdas <= 1 
+    glp_set_col_kind(lp, n_points + 4 + i + 1, GLP_IV);    // lambdas are integer (binary)
+  }     
+  
+  if(debug) cout << "Columns defined" << endl;
+
+  /*******************ROWS DEFINITION*****************************
+   *                                                             */		
+  //rows are auxiliary variables (those not appearing in the objective func)
+  // 4 are needed by the inequalities for each point (at page 3 of the note)
+  // n/2 are the constraints over each pair of points, i.e. only one at most can be used 
+  // 2 are m and q
+  
+  const int n_rows = 3 * n_points + n_layers +2; 
+  //const int n_rows = 3 * n_points + n_points/2 +2;
+
+  glp_add_rows(lp, n_rows);
+  //set rows boundaries
+  //constraints over the first three inequalites
+  
+  for (unsigned int i =0; i<n_points; i++){
+    glp_set_row_bnds(lp, i + 1, GLP_UP, 0., px[i]); //a1 <= Xi
+    glp_set_row_bnds(lp, n_points + i + 1, GLP_LO, px[i], 0.); //a2 >= Xi
+    glp_set_row_bnds(lp, 2 * n_points + i + 1, GLP_UP, 0., 0.); //a4 <= 0
+  }
+  // Constraints on lambda pairs, 
+  //for (unsigned int i=0; i<n_points; i++) if (i%2==0) glp_set_row_bnds(lp, 3 * n_points + i/2 + 1, GLP_LO, 1., 0.);
+
+  // Constraints on m and q
+  glp_set_row_bnds(lp, n_rows-1, GLP_DB, m_min, m_max);// m_min <= m <= m_max
+  glp_set_row_bnds(lp, n_rows, GLP_DB, q_min, q_max);// q_min <= q <= q_max
+			
+  if(debug) cout << "Rows defined" << endl;
+  
+  /******************OBJECTIVE FUNCTION*********************************
+   *                                                                   */
+  // set the objective function coefficients
+  //first four are 0 because the m+ m- q+ q- do not appear in the objective function
+  glp_set_obj_coef(lp, 1, 0.);//m+
+  glp_set_obj_coef(lp, 2, 0.);//m-
+  glp_set_obj_coef(lp, 3, 0.);//q+
+  glp_set_obj_coef(lp, 4, 0.);//q-
+  // for the next structural variables (sigmas) the coefficient is 1/delta
+  // than we have the coefficients for lambda: M (to maximize number of points, 
+  //because we are minimizing the objective function)
+  for (unsigned int i=0; i<n_points; i++){
+    glp_set_obj_coef(lp, i+5, 1./( theDeltaFactor * pex[i])); // sigma_i / Delta_i
+    glp_set_obj_coef(lp, n_points + 5 + i,  BIG_M );//coefficient for lambdas
+  }
+  
+  if(debug) cout << "Objective funct. defined" << endl;
+  
+  /******************SETTING MATRIX COEFFICIENTS*********************************
+   *                                                                            */
+  // a good thing to know is that only non-zero elements need to be passed to the loader (we can safely skip the zeros)
+  //ia indexes rows, ja columns ar contains the coefficient for given row and col.
+  for(unsigned int i=0; i < n_points; i++) {
+    //first equation(row): m * Zi + q - sigma_i - lambda_i * M
+    ia.push_back(i + 1), ja.push_back(1), ar.push_back(pz[i]);//m+ * Zi
+    ia.push_back(i + 1), ja.push_back(2), ar.push_back(-pz[i]);//m- * -Zi
+    ia.push_back(i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
+    ia.push_back(i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
+    ia.push_back(i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
+    ia.push_back(i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(-20);// -M * lambda_i FIXME     
     
-    const int n_rows = 3 * n_points + n_points/2 + 2; 
-    glp_add_rows(lp, n_rows);
-    //set rows boundaries
-    //constraints over the first three inequalites
+    //second equation: m * Zi + q + sigma_i + lambda_i * M
+    ia.push_back(n_points + i + 1), ja.push_back(1), ar.push_back(pz[i]);//m+ * Zi
+    ia.push_back(n_points + i + 1), ja.push_back(2), ar.push_back(-pz[i]);//m- * -Zi
+    ia.push_back(n_points + i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
+    ia.push_back(n_points + i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
+    ia.push_back(n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(1);// +1 * sigma_i
+    ia.push_back(n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(20);// M * lambda_i FIXME     
     
-    for (unsigned int i =0; i<n_points; i++){
-      glp_set_row_bnds(lp, i + 1, GLP_UP, 0., px[i]); //a1 <= Xi
-      glp_set_row_bnds(lp, n_points + i + 1, GLP_LO, px[i], 0.); //a2 >= Xi
-      glp_set_row_bnds(lp, 2 * n_points + i + 1, GLP_UP, 0., 0.); //a4 <= 0
-    }
-    // Constraints on lambda pairs
-    for (unsigned int i=0; i<n_points; i++) if (i%2==0) glp_set_row_bnds(lp, 3 * n_points + i/2 + 1, GLP_LO, 1., 0.);			
-    // Constraints on m and q
-    glp_set_row_bnds(lp, n_rows-1, GLP_DB, m_min, m_max);// m_min <= m <= m_max
-    glp_set_row_bnds(lp, n_rows, GLP_DB, q_min, q_max);// q_min <= q <= q_max
-    
-    if(debug) cout << "Rows defined" << endl;
+    //third equation:  lambda_i * Di - sigma_i //ENZO
+    ia.push_back(2 * n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
+    ia.push_back(2 * n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(pex[i]*theDeltaFactor);// Di * lambda_i
+
+ //         if (i%2==0) {
+//              ia.push_back(3 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 ), ar.push_back(1);// +1 * lambda_i
+//              ia.push_back(3 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 + 1 ), ar.push_back(1);// +1 * lambda_i+1
+//              } 
 	
-    /******************OBJECTIVE FUNCTION*********************************
-     *                                                                   */
-    // set the objective function coefficients
-    //first four are 0 because the m+ m- q+ q- do not appear in the objective function
-    glp_set_obj_coef(lp, 1, 0.);//m+
-    glp_set_obj_coef(lp, 2, 0.);//m-
-    glp_set_obj_coef(lp, 3, 0.);//q+
-    glp_set_obj_coef(lp, 4, 0.);//q-
-    // for the next structural variables (sigmas) the coefficient is 1/delta
-    // than we have the coefficients for lambda: M (to maximize number of points, 
-    //because we are minimizing the objective function)
-    for (unsigned int i=0; i<n_points; i++){
-      glp_set_obj_coef(lp, i+5, 1./( theDeltaFactor * pex[i])); // sigma_i / Delta_i
-      glp_set_obj_coef(lp, n_points + 5 + i,  BIG_M );//coefficient for lambdas
-    }
+  }
     
-    if(debug) cout << "Objective funct. defined" << endl;
 
-    /******************SETTING MATRIX COEFFICIENTS*********************************
-     *                                                                            */
-    // a good thing to know is that only non-zero elements need to be passed to the loader (we can safely skip the zeros)
-    //ia indexes rows, ja columns ar contains the coefficient for given row and col.
-    for(unsigned int i=0; i < n_points; i++)
-    {
-      //first equation(row): m * Zi + q - sigma_i - lambda_i * M
-      ia.push_back(i + 1), ja.push_back(1), ar.push_back(pz[i]);//m+ * Zi
-      ia.push_back(i + 1), ja.push_back(2), ar.push_back(-pz[i]);//m- * -Zi
-      ia.push_back(i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
-      ia.push_back(i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
-      ia.push_back(i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
-      ia.push_back(i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(-BIG_M);// -M * lambda_i       
-        
-      //second equation: m * Zi + q + sigma_i + lambda_i * M
-      ia.push_back(n_points + i + 1), ja.push_back(1), ar.push_back(pz[i]);//m+ * Zi
-      ia.push_back(n_points + i + 1), ja.push_back(2), ar.push_back(-pz[i]);//m- * -Zi
-      ia.push_back(n_points + i + 1), ja.push_back(3), ar.push_back(1);//+1 * q+
-      ia.push_back(n_points + i + 1), ja.push_back(4), ar.push_back(-1);//-1 * q-
-      ia.push_back(n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(1);// +1 * sigma_i
-      ia.push_back(n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(BIG_M);// M * lambda_i        
-        
-      //third equation:  lambda_i * Di - sigma_i //ENZO
-      ia.push_back(2 * n_points + i + 1), ja.push_back(4 + i + 1), ar.push_back(-1);// -1 * sigma_i
-      ia.push_back(2 * n_points + i + 1), ja.push_back(n_points + 4 + i + 1), ar.push_back(pex[i]*theDeltaFactor);// Di * lambda_i        
-        
-      // exclusivity of pairs
-      if (i%2==0) {
-	ia.push_back(3 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 ), ar.push_back(1);// +1 * lambda_i
-	ia.push_back(3 * n_points + i/2 + 1), ja.push_back( n_points + 4 + i + 1 + 1 ), ar.push_back(1);// +1 * lambda_i+1
-            }
+  // exclusivity of hits from same layer
+  for (unsigned int i =0; i < n_layers; ++i){
+   if (debug) cout << "Defining constraints for layer " << layerSetVector[i] << endl;
+   int num_hits_this_layer = 0;
+   for(unsigned int j = 0; j < n_points; ++j){
+     if (layers[j] == layerSetVector[i]){
+  	ia.push_back(3 * n_points + i + 1), ja.push_back( n_points + 4 + j + 1 ), ar.push_back(1);// +1 * lambda_j
+  	if(debug) cout<<"Added lambda " << j << " to the inequality." <<endl;
+  	num_hits_this_layer ++;
     }
-    // constraints on m: m = m+ - m-
-    ia.push_back(n_rows - 1), ja.push_back(1 ), ar.push_back(1);// +1 * m+
-    ia.push_back(n_rows - 1), ja.push_back(2 ), ar.push_back(-1);// -1 * m-
-    // constraints on q: q = q+ - q-
-    ia.push_back(n_rows), ja.push_back(3 ), ar.push_back(1);// +1 * q+
-    ia.push_back(n_rows), ja.push_back(4 ), ar.push_back(-1);// -1 * m-	
+   }
+   if (debug) cout << "We have stored " <<  num_hits_this_layer << " hits." << endl;
+  glp_set_row_bnds(lp, 3 * n_points + i + 1, GLP_LO,num_hits_this_layer - 1, 0.);//sum(lambdas) >= n-1
+  }
+   
+  //constraint on m: m = m+ - m
+  ia.push_back(n_rows - 1), ja.push_back(1 ), ar.push_back(1);// +1 * m+
+  ia.push_back(n_rows - 1), ja.push_back(2 ), ar.push_back(-1);// -1 * m-
+  // constraints on q: q = q+ - q-
+  ia.push_back(n_rows), ja.push_back(3 ), ar.push_back(1);// +1 * q+
+  ia.push_back(n_rows), ja.push_back(4 ), ar.push_back(-1);// -1 * m-	
 
-    glp_load_matrix(lp, ia.size(), (int*)(&ia[0]-1), (int*)(&ja[0]-1), (double*)(&ar[0]-1));
-    ia.clear();
-    ja.clear();
-    ar.clear();
-    
-    if(debug) cout << "Matrix coeff. set" << endl;
-
-    /******************SOLUTION*********************************
-     *                                                         */
-
-    // routine to save an mps file with the problem
-    // glp_write_mps(lp, GLP_MPS_FILE, NULL, "mps.txt");
-    
-    // define the control parameters
-    glp_iocp paramIocp;
-    glp_smcp paramSmplx;
-    glp_init_iocp(&paramIocp);
-    glp_init_smcp(&paramSmplx);
-
-    if(debug) { // set the GLPK verbosity level 
-      paramIocp.msg_lev = GLP_MSG_ALL; 
-      paramSmplx.msg_lev = GLP_MSG_ALL; 
-    } else {
-      paramIocp.msg_lev = GLP_MSG_OFF; 
-      paramSmplx.msg_lev = GLP_MSG_OFF; 
-    }
-    //    paramSmplx.it_lim = 1000; // set the max # of iterations // FIXME: this is arbitrary
-    paramIocp.tm_lim = 60000; // set the max # of iterations // FIXME: this is arbitrary
-    // try optimization
-    // paramSmplx.presolve = GLP_ON;
-    // paramSmplx.meth = GLP_DUALP;
-    paramIocp.presolve = GLP_ON;
-    paramIocp.br_tech = GLP_BR_MFV;
-//     paramIocp.gmi_cuts = GLP_ON;
-//      paramIocp.clq_cuts = GLP_ON;
-//    paramIocp.cov_cuts = GLP_ON;
-
-
-    //experimental
-    // _glp_order_matrix(lp);
-
-    int retGlpIntopt = glp_intopt(lp, &paramIocp);
+  glp_load_matrix(lp, ia.size(), (int*)(&ia[0]-1), (int*)(&ja[0]-1), (double*)(&ar[0]-1));
+  ia.clear();
+  ja.clear();
+  ar.clear();
+  
+  if(debug) cout << "Matrix coeff. set" << endl;
+  
+  /******************SOLUTION*********************************
+   *                                                         */
+  
+  // routine to save an mps file with the problem
+  // glp_write_mps(lp, GLP_MPS_FILE, NULL, "mps.txt");
+  
+  // define the control parameters
+  glp_iocp paramIocp;
+  glp_smcp paramSmplx;
+  glp_init_iocp(&paramIocp);
+  glp_init_smcp(&paramSmplx);
+  
+  if(debug) { // set the GLPK verbosity level 
+    paramIocp.msg_lev = GLP_MSG_ALL; 
+    paramSmplx.msg_lev = GLP_MSG_ALL; 
+  } else {
+    paramIocp.msg_lev = GLP_MSG_OFF; 
+    paramSmplx.msg_lev = GLP_MSG_OFF; 
+  }
+  //    paramSmplx.it_lim = 1000; // set the max # of iterations // FIXME: this is arbitrary
+  paramIocp.tm_lim = 60000; // set the max # of iterations // FIXME: this is arbitrary
+  // try optimization
+  // paramSmplx.presolve = GLP_ON;
+  // paramSmplx.meth = GLP_DUALP;
+  paramIocp.presolve = GLP_ON;
+  paramIocp.br_tech = GLP_BR_MFV;
+  //     paramIocp.gmi_cuts = GLP_ON;
+  //      paramIocp.clq_cuts = GLP_ON;
+  //    paramIocp.cov_cuts = GLP_ON;
+  
+  
+  //experimental
+  // _glp_order_matrix(lp);
+  
+  int retGlpIntopt = glp_intopt(lp, &paramIocp);
     if(retGlpIntopt != 0) {
       cout << "[lpAlgorithm]***Warning: glp_intopt return code " << endl;
       if(debug) printGLPReturnCode(retGlpIntopt);
@@ -250,7 +288,7 @@ bool lpAlgorithm(lpAlgo::ResultLPAlgo& theAlgoResults,
       cout << "              m = " << theAlgoResults.mVar << " q = " << theAlgoResults.qVar << endl;
     }
     return true;
-}
+  }
 
 
 
