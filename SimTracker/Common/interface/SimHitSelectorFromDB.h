@@ -15,10 +15,10 @@ public:
   ~SimHitSelectorFromDB(){};
   
   //  std::vector<PSimHit> getSimHit(std::auto_ptr<MixCollection<PSimHit> >&,std::map<uint32_t, std::vector<int> >& );
-  std::vector<std::pair<PSimHit,int > > getSimHit(std::auto_ptr<MixCollection<PSimHit> >&,std::map<uint32_t, std::vector<int> >& );
+  std::vector<std::pair<const PSimHit*,int > > getSimHit(std::auto_ptr<MixCollection<PSimHit> >&,std::map<uint32_t, std::vector<int> >& );
 private:
   //  std::vector<PSimHit> theNewSimHitList;
-  std::vector<std::pair<PSimHit, int > > theNewSimHitList;
+  std::vector<std::pair<const PSimHit*, int > > theNewSimHitList;
 
 };
 
