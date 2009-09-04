@@ -17,7 +17,8 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-
+#include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
+#include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
 
 #include "TMath.h"
 #include <TF1.h>
@@ -79,7 +80,8 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_effic_vs_phi.push_back( dbe_->book1D("effic_vs_phi","effic vs phi",nintPhi,minPhi,maxPhi) );
       h_effic_vs_dxy.push_back( dbe_->book1D("effic_vs_dxy","effic vs dxy",nintDxy,minDxy,maxDxy) );
       h_effic_vs_dz.push_back( dbe_->book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
-
+      h_effic_vs_vertpos.push_back( dbe_->book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
+      h_effic_vs_zpos.push_back( dbe_->book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
 
       h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
       h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintpT,minpT,maxpT) );
@@ -286,6 +288,10 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_ptpullphi.push_back( dbe_->book1D("h_ptpullphi_Sigma","#sigma of p_{t} pull vs #phi",nintPhi,minPhi,maxPhi) ); 
       h_phipullphi.push_back( dbe_->book1D("h_phipullphi_Sigma","#sigma of #phi pull vs #phi",nintPhi,minPhi,maxPhi) );
       h_thetapullphi.push_back( dbe_->book1D("h_thetapullphi_Sigma","#sigma of #theta pull vs #phi",nintPhi,minPhi,maxPhi) );
+  
+      
+      nrecHit_vs_nsimHit_sim2rec.push_back( dbe_->book2D("nrecHit_vs_nsimHit_sim2rec","nrecHit vs nsimHit (Sim2RecAssoc)",nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
+      nrecHit_vs_nsimHit_rec2sim.push_back( dbe_->book2D("nrecHit_vs_nsimHit_rec2sim","nrecHit vs nsimHit (Rec2simAssoc)",nintHit,minHit,maxHit, nintHit,minHit,maxHit ));
 
       if(useLogPt){
       BinLogX(dzres_vs_pt[j]->getTH2F());
@@ -333,6 +339,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
+  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP; 
+  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);    
   
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByLabel(label_tp_effic,TPCollectionHeff);
@@ -407,11 +415,37 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 	TrackingParticleRef tpr(TPCollectionHeff, i);
 	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
-	if( (! tpSelector(*tp))) continue;
+	ParticleBase::Vector momentumTP; 
+	ParticleBase::Point vertexTP;
+	double dxySim = 0;
+	double dzSim = 0; 
+
+	//If the TrackingParticle is collison like, get the momentum and vertex at production state
+	if(parametersDefiner=="LhcParametersDefinerForTP")
+	  {
+	    if(! tpSelector(*tp)) continue;
+	    momentumTP = tp->momentum();
+	    vertexTP = tp->vertex();
+	    //Calcualte the impact parameters w.r.t. PCA
+	    ParticleBase::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
+	    ParticleBase::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
+	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
+	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
+	  }
+	//If the TrackingParticle is comics, get the momentum and vertex at PCA
+	if(parametersDefiner=="CosmicParametersDefinerForTP")
+	  {
+	    if(! cosmictpSelector(*tp,&bs,event,setup)) continue;	
+	    momentumTP = parametersDefinerTP->momentum(event,setup,*tp);
+	    vertexTP = parametersDefinerTP->vertex(event,setup,*tp);
+	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
+	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
+	  }
 	st++;
-	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
-	h_etaSIM[w]->Fill(tp->momentum().eta());
-	h_vertposSIM[w]->Fill(sqrt(tp->vertex().perp2()));
+
+	h_ptSIM[w]->Fill(sqrt(momentumTP.perp2()));
+	h_etaSIM[w]->Fill(momentumTP.eta());
+	h_vertposSIM[w]->Fill(sqrt(vertexTP.perp2()));
 	
 	std::vector<std::pair<RefToBase<Track>, double> > rt;
 	if(simRecColl.find(tpr) != simRecColl.end()){
@@ -419,22 +453,22 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  if (rt.size()!=0) {
 	    ats++;
 	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
-					       << " with pt=" << sqrt(tp->momentum().perp2()) 
+					       << " with pt=" << sqrt(momentumTP.perp2()) 
 					       << " associated with quality:" << rt.begin()->second <<"\n";
 	  }
 	}else{
 	  edm::LogVerbatim("TrackValidator") 
 	    << "TrackingParticle #" << st
 	    << " with pt,eta,phi: " 
-	    << sqrt(tp->momentum().perp2()) << " , "
-	    << tp->momentum().eta() << " , "
-	    << tp->momentum().phi() << " , "
+	    << sqrt(momentumTP.perp2()) << " , "
+	    << momentumTP.eta() << " , "
+	    << momentumTP.phi() << " , "
 	    << " NOT associated to any reco::Track" << "\n";
 	}
 	
 	for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-	  if (getEta(tp->momentum().eta())>etaintervals[w][f]&&
-	      getEta(tp->momentum().eta())<etaintervals[w][f+1]) {
+	  if (getEta(momentumTP.eta())>etaintervals[w][f]&&
+	      getEta(momentumTP.eta())<etaintervals[w][f+1]) {
 	    totSIMeta[w][f]++;
 	    if (rt.size()!=0) {
 	      totASSeta[w][f]++;
@@ -443,8 +477,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	} // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 	
 	for (unsigned int f=0; f<phiintervals[w].size()-1; f++){
-	  if (tp->momentum().phi() > phiintervals[w][f]&&
-	      tp->momentum().phi() <phiintervals[w][f+1]) {
+	  if (momentumTP.phi() > phiintervals[w][f]&&
+	      momentumTP.phi() <phiintervals[w][f+1]) {
 	    totSIM_phi[w][f]++;
 	    if (rt.size()!=0) {
 	      totASS_phi[w][f]++;
@@ -454,8 +488,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-          if (getPt(sqrt(tp->momentum().perp2()))>pTintervals[w][f]&&
-              getPt(sqrt(tp->momentum().perp2()))<pTintervals[w][f+1]) {
+          if (getPt(sqrt(momentumTP.perp2()))>pTintervals[w][f]&&
+              getPt(sqrt(momentumTP.perp2()))<pTintervals[w][f+1]) {
             totSIMpT[w][f]++;
 	    if (rt.size()!=0) {
 	      totASSpT[w][f]++;
@@ -464,29 +498,57 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
 	
  	for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
-	  if (sqrt(tp->vertex().perp2())>dxyintervals[w][f]&&
-	      sqrt(tp->vertex().perp2())<dxyintervals[w][f+1]) {
+	  if (dxySim>dxyintervals[w][f]&&
+	      dxySim<dxyintervals[w][f+1]) {
 	    totSIM_dxy[w][f]++;
 	    if (rt.size()!=0) {
 	      totASS_dxy[w][f]++;
 	    }
 	  }
-	}
+	} // END for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
+
 	for (unsigned int f=0; f<dzintervals[w].size()-1; f++){
-	  if (tp->vertex().z()>dzintervals[w][f]&&
-	      tp->vertex().z()<dzintervals[w][f+1]) {
+	  if (dzSim>dzintervals[w][f]&&
+	      dzSim<dzintervals[w][f+1]) {
 	    totSIM_dz[w][f]++;
  	    if (rt.size()!=0) {
  	      totASS_dz[w][f]++;
  	    }
  	  }
- 	}
+ 	} // END for (unsigned int f=0; f<dzintervals[w].size()-1; f++){
+
+	for (unsigned int f=0; f<vertposintervals[w].size()-1; f++){
+	  if (sqrt(vertexTP.perp2())>vertposintervals[w][f]&&
+	      sqrt(vertexTP.perp2())<vertposintervals[w][f+1]) {
+	    totSIM_vertpos[w][f]++;
+	    if (rt.size()!=0) {
+	      totASS_vertpos[w][f]++;
+	    }
+	  }
+	} // END for (unsigned int f=0; f<vertposintervals[w].size()-1; f++){
+
+	for (unsigned int f=0; f<zposintervals[w].size()-1; f++){
+	  if (vertexTP.z()>zposintervals[w][f]&&
+	      vertexTP.z()<zposintervals[w][f+1]) {
+	    totSIM_zpos[w][f]++;
+ 	    if (rt.size()!=0) {
+ 	      totASS_zpos[w][f]++;
+ 	    }
+ 	  }
+ 	} // END for (unsigned int f=0; f<zposintervals[w].size()-1; f++){
+
 	std::vector<PSimHit> simhits=tp->trackPSimHit(DetId::Tracker);
         int tmp = std::min((int)(simhits.end()-simhits.begin()),int(maxHit-1));
 
 	totSIM_hit[w][tmp]++;
 	if (rt.size()!=0) totASS_hit[w][tmp]++;
-      }
+
+	if (rt.size()!=0)  
+	  {
+	    RefToBase<Track> assoctrack = rt.begin()->first; 
+	    nrecHit_vs_nsimHit_sim2rec[w]->Fill( assoctrack->numberOfValidHits(),(int)(simhits.end()-simhits.begin() ));
+	  }
+      } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
       if (st!=0) h_tracksSIM[w]->Fill(st);
       
 
@@ -526,7 +588,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      totASS2eta[w][f]++;
 	    }		
 	  }
-	}
+	} // End for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 
 	for (unsigned int f=0; f<phiintervals[w].size()-1; f++){
 	  if (track->momentum().phi()>phiintervals[w][f]&&
@@ -536,7 +598,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      totASS2_phi[w][f]++;
 	    }		
 	  }
-	}
+	} // End for (unsigned int f=0; f<phiintervals[w].size()-1; f++){
 
 	
 	for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
@@ -547,17 +609,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      totASS2pT[w][f]++;
 	    }	      
 	  }
-	}
+	} // End for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
 
 	for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
-	  if (fabs(track->dxy(bs.position()))>dxyintervals[w][f]&&
-	      fabs(track->dxy(bs.position()))<dxyintervals[w][f+1]) {
+	  if (track->dxy(bs.position())>dxyintervals[w][f]&&
+	      track->dxy(bs.position())<dxyintervals[w][f+1]) {
 	    totREC_dxy[w][f]++; 
 	    if (tp.size()!=0) {
 	      totASS2_dxy[w][f]++;
 	    }	      
 	  }
-	}
+	} // End for (unsigned int f=0; f<dxyintervals[w].size()-1; f++){
 
 	for (unsigned int f=0; f<dzintervals[w].size()-1; f++){
 	  if (track->dz(bs.position())>dzintervals[w][f]&&
@@ -567,7 +629,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      totASS2_dz[w][f]++;
 	    }	      
 	  }
-	}
+	} // End for (unsigned int f=0; f<dzintervals[w].size()-1; f++){
 
 	int tmp = std::min((int)track->found(),int(maxHit-1));
  	totREC_hit[w][tmp]++;
@@ -578,7 +640,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  if (tp.size()==0) continue;
 	
 	  TrackingParticleRef tpr = tp.begin()->first;
-	  const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 	
 	  if (associators[ww]=="TrackAssociatorByChi2"){
 	    //association chi2
@@ -599,27 +660,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  h_losthits[w]->Fill(track->numberOfLostHits());
 	  chi2_vs_nhits[w]->Fill(track->numberOfValidHits(),track->normalizedChi2());
 	  h_charge[w]->Fill( track->charge() );
-	
-	  //compute tracking particle parameters at point of closest approach to the beamline
-	  edm::ESHandle<MagneticField> theMF;
-	  setup.get<IdealMagneticFieldRecord>().get(theMF);
-	  FreeTrajectoryState 
-	    ftsAtProduction(GlobalPoint(tpr->vertex().x(),tpr->vertex().y(),tpr->vertex().z()),
-			    GlobalVector(assocTrack->momentum().x(),assocTrack->momentum().y(),assocTrack->momentum().z()),
-			    TrackCharge(tpr->charge()),
-			    theMF.product());
-	  TSCBLBuilderNoMaterial tscblBuilder;
-	  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,bs);//as in TrackProducerAlgorithm
-	  GlobalPoint v1 = tsAtClosestApproach.trackStateAtPCA().position();
-	  GlobalVector p = tsAtClosestApproach.trackStateAtPCA().momentum();
-	  GlobalPoint v(v1.x()-bs.x0(),v1.y()-bs.y0(),v1.z()-bs.z0());
-
-	  double qoverpSim = tsAtClosestApproach.trackStateAtPCA().charge()/p.mag();
-	  double lambdaSim = M_PI/2-p.theta();
-	  double phiSim    = p.phi();
-	  double dxySim    = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
-	  double dzSim     = v.z() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.perp();
-
+	  
+	  //Get tracking particle parameters at point of closest approach to the beamline
+	  ParticleBase::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
+	  ParticleBase::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));
+	  double qoverpSim = tpr->charge()/sqrt(momentumTP.x()*momentumTP.x()+momentumTP.y()*momentumTP.y()+momentumTP.z()*momentumTP.z());
+	  double lambdaSim = M_PI/2-momentumTP.theta();
+	  double phiSim    = momentumTP.phi();
+	  double dxySim    = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
+	  double dzSim     = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
+	  
 	  TrackBase::ParameterVector rParameters = track->parameters();
 
 	  double qoverpRec(0);
@@ -653,8 +703,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	 
 	  double ptError = ptErrorRec;
 
-	  double ptres=ptRec-sqrt(assocTrack->momentum().perp2()); 
-	  double etares=track->eta()-assocTrack->momentum().Eta();
+	  double ptres=ptRec-sqrt(momentumTP.perp2()); 
+	  double etares=track->eta()-momentumTP.Eta();
+	  
+	  //std::cout<<"sqrt(momentumTP.perp2()) - sqrt(momentumTP.perp2()) = "
+	  //<<sqrt(momentumTP.perp2()) - sqrt(momentumTP.perp2())
+	  //<< std::endl;
 	  
 // 	  double qoverpRec = rParameters[0];
 // 	  double lambdaRec = rParameters[1];
@@ -693,8 +747,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << "thetaError()=" << lambdaErrorRec << "\n"
 					 << "phiError()=" << phiErrorRec << "\n"
 					 << "" <<  "\n"
-					 << "ptSIM=" << sqrt(assocTrack->momentum().perp2()) << "\n"
-					 << "etaSIM=" << assocTrack->momentum().Eta() << "\n"    
+					 << "ptSIM=" << sqrt(momentumTP.perp2()) << "\n"
+					 << "etaSIM=" << momentumTP.Eta() << "\n"    
 					 << "qoverpSIM=" << qoverpSim << "\n"
 					 << "dxySIM=" << dxySim << "\n"
 					 << "dzSIM=" << dzSim << "\n"
@@ -746,14 +800,14 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  //resolution of track params: fill 2D histos
 	  dxyres_vs_eta[w]->Fill(getEta(track->eta()),dxyRec-dxySim);
-	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(ptRec-sqrt(assocTrack->momentum().perp2()))/ptRec);
+	  ptres_vs_eta[w]->Fill(getEta(track->eta()),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
 	  dzres_vs_eta[w]->Fill(getEta(track->eta()),dzRec-dzSim);
 	  phires_vs_eta[w]->Fill(getEta(track->eta()),phiRec-phiSim);
 	  cotThetares_vs_eta[w]->Fill(getEta(track->eta()),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));         
-
+	  
 	  //same as before but vs pT
 	  dxyres_vs_pt[w]->Fill(getPt(ptRec),dxyRec-dxySim);
-	  ptres_vs_pt[w]->Fill(getPt(ptRec),(ptRec-sqrt(assocTrack->momentum().perp2()))/ptRec);
+	  ptres_vs_pt[w]->Fill(getPt(ptRec),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
 	  dzres_vs_pt[w]->Fill(getPt(ptRec),dzRec-dzSim);
 	  phires_vs_pt[w]->Fill(getPt(ptRec),phiRec-phiSim);
 	  cotThetares_vs_pt[w]->Fill(getPt(ptRec),1/tan(1.570796326794896558-lambdaRec)-1/tan(1.570796326794896558-lambdaSim));  	 
@@ -770,15 +824,20 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  chi2_vs_phi[w]->Fill(phiRec,track->normalizedChi2());
 	  ptmean_vs_eta_phi[w]->Fill(phiRec,getEta(track->eta()),ptRec);
 	  phimean_vs_eta_phi[w]->Fill(phiRec,getEta(track->eta()),phiRec);
-	  ptres_vs_phi[w]->Fill(phiRec,(ptRec-sqrt(assocTrack->momentum().perp2()))/ptRec);
+	  ptres_vs_phi[w]->Fill(phiRec,(ptRec-sqrt(momentumTP.perp2()))/ptRec);
 	  phires_vs_phi[w]->Fill(phiRec,phiRec-phiSim); 
 	  ptpull_vs_phi[w]->Fill(phiRec,ptres/ptError);
 	  phipull_vs_phi[w]->Fill(phiRec,phiPull); 
 	  thetapull_vs_phi[w]->Fill(phiRec,thetaPull); 
-	} catch (cms::Exception e){
+
+	  std::vector<PSimHit> simhits=tpr.get()->trackPSimHit(DetId::Tracker);
+	  nrecHit_vs_nsimHit_rec2sim[w]->Fill(track->numberOfValidHits(), (int)(simhits.end()-simhits.begin() ));
+
+	} // End of try{
+	catch (cms::Exception e){
 	  LogTrace("TrackValidator") << "exception found: " << e.what() << "\n";
 	}
-      }
+      } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
       if (at!=0) h_tracks[w]->Fill(at);
       h_fakes[w]->Fill(rT-at);
       edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
@@ -788,8 +847,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << "Total Fakes: " << rT-at << "\n";
       nrec_vs_nsim[w]->Fill(rT,st);
       w++;
-    }
-  }
+    } // End of  for (unsigned int www=0;www<label.size();www++){
+  } //END of for (unsigned int ww=0;ww<associators.size();ww++){
 }
 
 void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
@@ -908,6 +967,8 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVectors(h_fake_vs_dxy[w],totASS2_dxy[w],totREC_dxy[w],"fakerate");
       fillPlotFromVectors(h_effic_vs_dz[w],totASS_dz[w],totSIM_dz[w],"effic");
       fillPlotFromVectors(h_fake_vs_dz[w],totASS2_dz[w],totREC_dz[w],"fakerate");
+      fillPlotFromVectors(h_effic_vs_vertpos[w],totASS_vertpos[w],totSIM_vertpos[w],"effic");
+      fillPlotFromVectors(h_effic_vs_zpos[w],totASS_zpos[w],totSIM_zpos[w],"effic");
       }
 
       fillPlotFromVector(h_recoeta[w],totRECeta[w]);
