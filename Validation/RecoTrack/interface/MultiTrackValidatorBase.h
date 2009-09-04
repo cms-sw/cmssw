@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2009/06/15 18:33:58 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/06/19 13:29:34 $
+ *  $Revision: 1.23 $
  *  \author cerati
  */
 
@@ -26,7 +26,7 @@
 
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
-
+#include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 
 #include <iostream>
 #include <sstream>
@@ -45,6 +45,7 @@ class MultiTrackValidatorBase {
     label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
     out(pset.getParameter<std::string>("outputFile")),   
+    parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
@@ -64,6 +65,12 @@ class MultiTrackValidatorBase {
     minDz(pset.getParameter<double>("minDz")),
     maxDz(pset.getParameter<double>("maxDz")),
     nintDz(pset.getParameter<int>("nintDz")),
+    minVertpos(pset.getParameter<double>("minVertpos")),
+    maxVertpos(pset.getParameter<double>("maxVertpos")),
+    nintVertpos(pset.getParameter<int>("nintVertpos")),
+    minZpos(pset.getParameter<double>("minZpos")),
+    maxZpos(pset.getParameter<double>("maxZpos")),
+    nintZpos(pset.getParameter<int>("nintZpos")),
     useInvPt(pset.getParameter<bool>("useInvPt")),
     //
     ptRes_rangeMin(pset.getParameter<double>("ptRes_rangeMin")),
@@ -166,13 +173,15 @@ class MultiTrackValidatorBase {
     std::vector<double> pTintervalsv;
     std::vector<double> dxyintervalsv;
     std::vector<double> dzintervalsv;
+    std::vector<double> vertposintervalsv;
+    std::vector<double> zposintervalsv;
     std::vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
     std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
     std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
     std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
     std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy;
     std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz;
-
+    std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos; 
 
     double step=(max-min)/nint;
     std::ostringstream title,name;
@@ -269,6 +278,30 @@ class MultiTrackValidatorBase {
     totASS2_dz.push_back(totASS2v_dz);
     totREC_dz.push_back(totRECv_dz);
 
+    double stepVertpos = (maxVertpos-minVertpos)/nintVertpos;
+    vertposintervalsv.push_back(minVertpos);
+    for (int k=1;k<nintVertpos+1;k++) {
+      double d=minVertpos+k*stepVertpos;
+      vertposintervalsv.push_back(d);
+      totSIMv_vertpos.push_back(0);
+      totASSv_vertpos.push_back(0);
+    }
+    vertposintervals.push_back(vertposintervalsv);
+    totSIM_vertpos.push_back(totSIMv_vertpos);
+    totASS_vertpos.push_back(totASSv_vertpos);
+      
+    double stepZpos = (maxZpos-minZpos)/nintZpos;
+    zposintervalsv.push_back(minZpos);
+    for (int k=1;k<nintZpos+1;k++) {
+      double d=minZpos+k*stepZpos;
+      zposintervalsv.push_back(d);
+      totSIMv_zpos.push_back(0);
+      totASSv_zpos.push_back(0);
+    }
+    zposintervals.push_back(zposintervalsv);
+    totSIM_zpos.push_back(totSIMv_zpos);
+    totASS_zpos.push_back(totASSv_zpos);
+
   }
 
  protected:
@@ -282,7 +315,8 @@ class MultiTrackValidatorBase {
   edm::InputTag label_tp_fake;
   std::vector<std::string> associators;
   std::string out;
-        
+  std::string parametersDefiner;
+       
   double  min, max;
   int nint;
   bool useFabs;
@@ -296,6 +330,10 @@ class MultiTrackValidatorBase {
   int nintDxy;
   double minDz, maxDz;
   int nintDz;
+  double minVertpos, maxVertpos;
+  int nintVertpos;
+  double minZpos, maxZpos;
+  int nintZpos;
   bool useInvPt;
   //
   double ptRes_rangeMin,ptRes_rangeMax,
@@ -320,10 +358,13 @@ class MultiTrackValidatorBase {
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
   std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy;
   std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
+  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
 
   //2D  
   std::vector<MonitorElement*> nrec_vs_nsim;
+  std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
+  std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
 
   //assoc hits
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
@@ -350,12 +391,15 @@ class MultiTrackValidatorBase {
   std::vector< std::vector<double> > phiintervals;
   std::vector< std::vector<double> > dxyintervals;
   std::vector< std::vector<double> > dzintervals;
+  std::vector< std::vector<double> > vertposintervals;
+  std::vector< std::vector<double> > zposintervals;
   std::vector< std::vector<int> > totSIMeta,totRECeta,totASSeta,totASS2eta;
   std::vector< std::vector<int> > totSIMpT,totRECpT,totASSpT,totASS2pT;
   std::vector< std::vector<int> > totSIM_hit,totREC_hit,totASS_hit,totASS2_hit;
   std::vector< std::vector<int> > totSIM_phi,totREC_phi,totASS_phi,totASS2_phi;
   std::vector< std::vector<int> > totSIM_dxy,totREC_dxy,totASS_dxy,totASS2_dxy;
   std::vector< std::vector<int> > totSIM_dz,totREC_dz,totASS_dz,totASS2_dz;
+  std::vector< std::vector<int> > totSIM_vertpos,totASS_vertpos,totSIM_zpos,totASS_zpos;
 };
 
 
