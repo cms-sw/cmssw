@@ -26,7 +26,7 @@ namespace Exhume{
     inline double GetC(){
       return(C);
     };
-    inline complex<double> GetPropagator(){
+    inline std::complex<double> GetPropagator(){
       return(Propagator());
     };
 
@@ -38,19 +38,19 @@ namespace Exhume{
 
     void SetC();
 
-    inline complex<double> Propagator(){
+    inline std::complex<double> Propagator(){
       //See hep-ph 9505211
 
       return(I * (1.0 + I * HiggsWidth/HiggsMass)/
 	     (sHat - HiggsMass2 + I * HiggsWidth * sHat/HiggsMass));
     };
 
-    inline complex<double> GluGlu2HiggsAmp(){
+    inline std::complex<double> GluGlu2HiggsAmp(){
       return(GGHConst * sHat * AlphaS_ * 
 	     (Fsf(sHat * FsfTop) + Fsf(sHat * FsfBottom)));
     };
     
-    complex<double> GGHConst;
+    std::complex<double> GGHConst;
     double AlphaS_, FsfTop, FsfBottom,  NLOConst;
     double HiggsMass2, HiggsWidth, TotWidth;
     double C, One;

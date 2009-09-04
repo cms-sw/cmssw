@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:/tmp/antoniov/ExHuME_CEPDijetsGG_M100_10TeV_cff_py_GEN.root")
+    fileNames = cms.untracked.vstring("file:ExHuME_CEPHiggsTobb_14TeV_cff_py_GEN.root")
 )
 
 process.analyzer = cms.EDAnalyzer("ExhumeAnalyzer",

@@ -7,7 +7,7 @@
 #define CROSSSECTION_HH
 
 #include <cmath>
-#include <complex.h>
+#include <complex>
 #include <cstdlib>
 #include <iostream>
 #include <map>
@@ -238,9 +238,9 @@ namespace Exhume{
 
     std::string Name;
 
-    complex<double> F0(const double&);
-    complex<double> f(const double&);
-    complex<double> Fsf(const double&);
+    std::complex<double> F0(const double&);
+    std::complex<double> f(const double&);
+    std::complex<double> Fsf(const double&);
 
     //PPhi is azimuthal angle between protons.  
     //InvSqrtsHat = 1/sHat

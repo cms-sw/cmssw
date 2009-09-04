@@ -54,6 +54,7 @@ extern struct {
 #define pydat2 pydat2_
 */
 
+
 /////////////////////////////////////////////////////////////////////////////
 
 Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset)
@@ -1129,26 +1130,26 @@ double Exhume::CrossSection::Txg(const double &Qt2_, const double &x_){
 
 }*/
 /////////////////////////////////////////////////////////////////////////////
-complex<double> Exhume::CrossSection::Fsf(const double &Tau_){
+std::complex<double> Exhume::CrossSection::Fsf(const double &Tau_){
     double InvTau = 1.0/Tau_;
     return(InvTau*(1.0+(1.0-InvTau)*f(Tau_)));
 }
 //////////////////////////////////////////////////////////////////////////////
-complex<double> Exhume::CrossSection::F0(const double &Tau_){
+std::complex<double> Exhume::CrossSection::F0(const double &Tau_){
     double InvTau = 1.0/Tau_;
     return(InvTau*(-1.0 + InvTau*f(Tau_)));
 }
 //////////////////////////////////////////////////////////////////////////////
-complex<double> Exhume::CrossSection::f(const double &Tau_){
-    complex<double> Sqrtf;
-    complex<double> f;
+std::complex<double> Exhume::CrossSection::f(const double &Tau_){
+    std::complex<double> Sqrtf;
+    std::complex<double> f;
 
     if(Tau_<=1.0){
         Sqrtf = asin(sqrt(Tau_));
         f = Sqrtf*Sqrtf;
     }
     if(Tau_>1.0){
-        complex<double> SqrtTau = sqrt(Tau_),
+        std::complex<double> SqrtTau = sqrt(Tau_),
             SqrtTau_1 = sqrt(Tau_-1.0);
         Sqrtf = log((SqrtTau + SqrtTau_1)/
                     (SqrtTau - SqrtTau_1)) - I*PI;
