@@ -1,17 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
-pfRecoTauDiscriminationByTrackIsolation = cms.EDFilter("PFRecoTauDiscriminationByIsolation",
-    ApplyDiscriminationByECALIsolation         = cms.bool(False),
-    maxGammaPt                                 = cms.double(1.50),
-    PFTauProducer                              = cms.InputTag('pfRecoTauProducer'),
-    ManipulateTracks_insteadofChargedHadrCands = cms.bool(False),
-    TrackerIsolAnnulus_Tracksmaxn              = cms.int32(0),
-    ApplyDiscriminationByTrackerIsolation      = cms.bool(True),
-    maxChargedPt                               = cms.double(1.0),
-    TrackerIsolAnnulus_Candsmaxn               = cms.int32(0),
-    ECALIsolAnnulus_Candsmaxn                  = cms.int32(0),
-    TrackIsolationOverTauPt                    = cms.bool(False),
-    SumOverCandidates                          = cms.bool(False)                                              
-)
+from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import *
+from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
+pfRecoTauDiscriminationByTrackIsolation = cms.EDFilter("PFRecoTauDiscriminationByIsolation",
+
+    PFTauProducer = cms.InputTag('pfRecoTauProducer'), #tau collection to discriminate
+
+    # Require leading pion ensures that:
+    #  1) these is at least one track above threshold (0.5 GeV) in the signal cone
+    #  2) a track in the signal cone has pT > 5 GeV
+    Prediscriminants = requireLeadTrack,
+
+    # Select which collections to use for isolation.  You can select one or both
+    ApplyDiscriminationByECALIsolation    = cms.bool(False),  # use PFGammas when isolating
+    ApplyDiscriminationByTrackerIsolation = cms.bool(True),   # use PFChargedHadr when isolating
+
+    applyOccupancyCut                     = cms.bool(True),  # apply a cut on number of isolation objects
+    maximumOccupancy                      = cms.uint32(0),   # no tracks > 1 GeV allowed
+
+    applySumPtCut                         = cms.bool(False), # apply a cut on the sum Pt of the isolation objects
+    maximumSumPtCut                       = cms.double(6.0),
+
+    applyRelativeSumPtCut                 = cms.bool(False), # apply a cut on IsoPt/TotalPt
+    relativeSumPtCut                      = cms.double(0.0),
+
+    qualityCuts                           = PFTauQualityCuts,# set the standard quality cuts
+    PVProducer                            = cms.InputTag('offlinePrimaryVertices'), # needed for quality cuts
+)
 

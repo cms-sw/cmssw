@@ -37,7 +37,8 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       HCALIsolConeSize_max = cms.double(0.6),
 
       # Cut on the number of tracker hits on isolation PF charged hadrons
-      ChargedHadrCand_IsolAnnulus_minNhits = cms.uint32(8),
+      #ChargedHadrCand_IsolAnnulus_minNhits = cms.uint32(8), # this cut is now applied in the PFTauDiscriminator
+      ChargedHadrCand_IsolAnnulus_minNhits = cms.uint32(0),
 
       #Electron rejection parameters
       ElectronPreIDProducer                = cms.InputTag("elecpreid"),

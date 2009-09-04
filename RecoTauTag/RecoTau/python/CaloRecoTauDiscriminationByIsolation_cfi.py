@@ -1,9 +1,14 @@
 import FWCore.ParameterSet.Config as cms
+from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrackCalo
 
 caloRecoTauDiscriminationByIsolation = cms.EDFilter("CaloRecoTauDiscriminationByIsolation",
-    ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+
     CaloTauProducer = cms.InputTag('caloRecoTauProducer'),
-    TrackerIsolAnnulus_Tracksmaxn = cms.int32(0)
+
+    Prediscriminants = requireLeadTrackCalo,
+
+    ApplyDiscriminationByTrackerIsolation = cms.bool(True),
+    TrackerIsolAnnulus_Tracksmaxn         = cms.int32(0)
 )
 
 

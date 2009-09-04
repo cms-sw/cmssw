@@ -1,15 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-pfRecoTauDiscriminationByIsolationUsingLeadingPion = cms.EDProducer("PFRecoTauDiscriminationByIsolationUsingLeadingPion",
-    ApplyDiscriminationByECALIsolation         = cms.bool(True),
-    maxGammaPt                                 = cms.double(1.50),
-    PFTauProducer                              = cms.InputTag('pfRecoTauProducer'),
-    ManipulateTracks_insteadofChargedHadrCands = cms.bool(False),
-    TrackerIsolAnnulus_Tracksmaxn              = cms.int32(0),
-    ApplyDiscriminationByTrackerIsolation      = cms.bool(True),
-    maxChargedPt                               = cms.double(1.0),
-    TrackerIsolAnnulus_Candsmaxn               = cms.int32(0),
-    ECALIsolAnnulus_Candsmaxn                  = cms.int32(0)
-)
+import copy
 
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import pfRecoTauDiscriminationByIsolation 
+from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadPion
 
+pfRecoTauDiscriminationByIsolationUsingLeadingPion = copy.deepcopy(pfRecoTauDiscriminationByIsolation)
+
+# Require a lead pion (charged OR neutral) instead of strictly a leading track
+pfRecoTauDiscriminationByIsolationUsingLeadingPion.Prediscriminants = requireLeadPion

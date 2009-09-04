@@ -22,7 +22,6 @@
 <use name=RecoMuon/MuonIdentification>
 <use name=RecoVertex/KalmanVertexFit>
 <use name=PhysicsTools/CandUtils>
-<flags EDM_PLUGIN=1>
 <export>
   <use name=SimDataFormats/Vertex>
   <use name=DataFormats/TauReco>
