@@ -32,7 +32,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   virtual ~SiLinearChargeDivider();
 
   // main method: divide the charge (from the PSimHit) into several energy deposits in the bulk
-  SiChargeDivider::ionization_type divide(const PSimHit&, const LocalVector&, double, const StripGeomDetUnit& det);
+  SiChargeDivider::ionization_type divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det);
 
   // set the ParticleDataTable (used to fluctuate the charge properly)
   void setParticleDataTable(const ParticleDataTable * pdt) { theParticleDataTable = pdt; }
@@ -58,13 +58,13 @@ class SiLinearChargeDivider : public SiChargeDivider{
   // fluctuate the Eloss
   void fluctuateEloss(int particleId, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);
   // time response (from the pulse shape)
-  inline float TimeResponse( const PSimHit& hit, const StripGeomDetUnit& det) {
+  inline float TimeResponse( const PSimHit* hit, const StripGeomDetUnit& det) {
     return (peakMode ? PeakShape(hit,det) : DeconvolutionShape(hit,det));
   } 
   // pulse shape in peak mode
-  float PeakShape(const PSimHit&, const StripGeomDetUnit& det);
+  float PeakShape(const PSimHit*, const StripGeomDetUnit& det);
   // pulse shape in deconvolution mode
-  float DeconvolutionShape( const PSimHit&, const StripGeomDetUnit& det);
+  float DeconvolutionShape( const PSimHit*, const StripGeomDetUnit& det);
   // data table for pulse shape in peak mode
   static float peakValues[921];
   // data table for pulse shape in deconvolution mode

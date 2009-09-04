@@ -21,6 +21,9 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
   int truncateRaw(float in_adc);
   
   float electronperADC;
+  SiDigitalConverter::DigitalVecType _temp;
+  SiDigitalConverter::DigitalRawVecType _tempRaw;
+
 };
  
 #endif

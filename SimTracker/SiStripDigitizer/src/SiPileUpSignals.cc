@@ -8,10 +8,10 @@ void SiPileUpSignals::resetLink(){
 
 void SiPileUpSignals::add(const std::vector<double>& locAmpl,
 			  const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal,
-			  const PSimHit& hit,const int& counter){
+			  const PSimHit* hit,const int& counter){
   for (size_t iChannel=firstChannelWithSignal-1; iChannel<lastChannelWithSignal; ++iChannel) {
-    theMapLink[iChannel].push_back(std::pair < const PSimHit*, Amplitude >(&hit,Amplitude(locAmpl[iChannel])));
-    theCounterMapLink[iChannel].push_back(std::make_pair(&hit, counter));
+    theMapLink[iChannel].push_back(std::pair < const PSimHit*, Amplitude >(hit,Amplitude(locAmpl[iChannel])));
+    theCounterMapLink[iChannel].push_back(std::make_pair(hit, counter));
   }
 }
 

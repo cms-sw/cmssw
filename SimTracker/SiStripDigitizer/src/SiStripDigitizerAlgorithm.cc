@@ -41,6 +41,8 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold,rndEngine);
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
+
+  pedOffset = 128;
 }
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
@@ -56,7 +58,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 
 void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				    edm::DetSet<SiStripRawDigi>& outrawdigi,
-				    const std::vector<std::pair<PSimHit, int > > &input,
+				    const std::vector<std::pair<const PSimHit*, int > > &input,
 				    StripGeomDetUnit *det,
 				    GlobalVector bfield,float langle, 
 				    edm::ESHandle<SiStripGain> & gainHandle,
@@ -78,30 +80,30 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   pedValue = pedestalHandle->getPed(strip,detPedestalRange);
 
   // local amplitude of detector channels (from processed PSimHit)
-  std::vector<double> locAmpl(numStrips,0.);
+  locAmpl.clear();
+  detAmpl.clear();
+  locAmpl.insert(locAmpl.begin(),numStrips,0.);
   // total amplitude of detector channels
-  std::vector<double> detAmpl(locAmpl);
+  detAmpl.insert(detAmpl.begin(),numStrips,0.);
 
   // to speed-up vector filling (only for channels with signal)
   //  the size_t corresponds to the channel number
   //  and NOT to the vector position (which is channel-1)
-  size_t firstChannelWithSignal = numStrips+1;
-  size_t lastChannelWithSignal  = 0;
+  firstChannelWithSignal = numStrips+1;
+  lastChannelWithSignal  = 0;
 
   // First: loop on the SimHits
-  std::vector<std::pair<PSimHit, int > >::const_iterator simHitIter = input.begin();
-  std::vector<std::pair<PSimHit, int > >::const_iterator simHitIterEnd = input.end();
+  std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIter = input.begin();
+  std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIterEnd = input.end();
   if(CLHEP::RandFlat::shoot()>inefficiency) {
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       // check TOF
-      const PSimHit & ihit = (*simHitIter).first;
-      float t0 = det->surface().toGlobal(ihit.localPosition()).mag()/30.;
-      if ( std::fabs( ihit.tof() - cosmicShift - t0) < tofCut && ihit.energyLoss()>0) {
-        size_t localFirstChannel = numStrips+1;
-        size_t localLastChannel  = 0;
+      if ( std::fabs( ((*simHitIter).first)->tof() - cosmicShift - det->surface().toGlobal(((*simHitIter).first)->localPosition()).mag()/30.) < tofCut && ((*simHitIter).first)->energyLoss()>0) {
+        localFirstChannel = numStrips+1;
+        localLastChannel  = 0;
         // process the hit
-        theSiHitDigitizer->processHit(ihit,*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
-        theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ihit, (*simHitIter).second);
+        theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
+        theSiPileUpSignals->add(locAmpl, localFirstChannel, localLastChannel, ((*simHitIter).first), (*simHitIter).second);
         // sum signal on strips
         for (size_t iChannel=localFirstChannel; iChannel<=localLastChannel; iChannel++) {
           if(locAmpl[iChannel]>0.) {             
@@ -115,8 +117,8 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
     }
   }
   
-  const SiPileUpSignals::HitToDigisMapType& theLink = theSiPileUpSignals->dumpLink();  
-  const SiPileUpSignals::HitCounterToDigisMapType& theCounterLink = theSiPileUpSignals->dumpCounterLink();  
+  const SiPileUpSignals::HitToDigisMapType& theLink(theSiPileUpSignals->dumpLink());  
+  const SiPileUpSignals::HitCounterToDigisMapType& theCounterLink(theSiPileUpSignals->dumpCounterLink());  
   
   if(zeroSuppression){
     if(noise) 
@@ -142,7 +144,6 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
       //   them has negative adc value. The pedOffset is
       //   treated as a constant component in the CMN
       //   estimation and subtracted as CMN.
-      float pedOffset = 128.; // ADC counts
       pedValue += pedOffset;
       theSiNoiseAdder->createRaw(detAmpl,firstChannelWithSignal,lastChannelWithSignal,
                                  numStrips,noiseRMS*theElectronPerADC,pedValue*theElectronPerADC);

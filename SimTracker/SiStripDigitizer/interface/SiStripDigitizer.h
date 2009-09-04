@@ -44,7 +44,7 @@ public:
   
 private:
   typedef std::vector<std::string> vstring;
-  typedef std::map<unsigned int, std::vector<std::pair<PSimHit, int> >,std::less<unsigned int> > simhit_map;
+  typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int> >,std::less<unsigned int> > simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
 
   SiStripDigitizerAlgorithm * theDigiAlgo;

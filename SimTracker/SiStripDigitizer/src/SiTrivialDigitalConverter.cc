@@ -4,13 +4,14 @@
 
 SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in){
   electronperADC = in;
+  _temp.reserve(800);
+  _tempRaw.reserve(800);
 }
 
 SiDigitalConverter::DigitalVecType
 SiTrivialDigitalConverter::convert(const std::vector<double>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
   
-  SiDigitalConverter::DigitalVecType _temp;
-  _temp.reserve(analogSignal.size());
+  _temp.clear();
   
   if(gainHandle.isValid()) {
     SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
@@ -34,26 +35,25 @@ SiTrivialDigitalConverter::convert(const std::vector<double>& analogSignal, edm:
 SiDigitalConverter::DigitalRawVecType
 SiTrivialDigitalConverter::convertRaw(const std::vector<double>& analogSignal, edm::ESHandle<SiStripGain> & gainHandle, unsigned int detid){
   
-  SiDigitalConverter::DigitalRawVecType _temp;
-  _temp.reserve(analogSignal.size());
+  _tempRaw.clear();
 
   if(gainHandle.isValid()) {
     SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
     for ( size_t i=0; i<analogSignal.size(); i++) {
-      if (analogSignal[i]<=0) { _temp.push_back(SiStripRawDigi(0)); continue; }
+      if (analogSignal[i]<=0) { _tempRaw.push_back(SiStripRawDigi(0)); continue; }
       // convert analog amplitude to digital
       int adc = convertRaw( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]));
-      _temp.push_back(SiStripRawDigi(adc));
+      _tempRaw.push_back(SiStripRawDigi(adc));
     }
   } else {
     for ( size_t i=0; i<analogSignal.size(); i++) {
-      if (analogSignal[i]<=0) { _temp.push_back(SiStripRawDigi(0)); continue; }
+      if (analogSignal[i]<=0) { _tempRaw.push_back(SiStripRawDigi(0)); continue; }
       // convert analog amplitude to digital
       int adc = convertRaw( analogSignal[i] );
-      _temp.push_back(SiStripRawDigi(adc));
+      _tempRaw.push_back(SiStripRawDigi(adc));
     }
   }
-  return _temp;
+  return _tempRaw;
 }
 
 int SiTrivialDigitalConverter::truncate(float in_adc) {

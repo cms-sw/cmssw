@@ -33,16 +33,16 @@ SiLinearChargeDivider::~SiLinearChargeDivider(){
 }
 
 SiChargeDivider::ionization_type 
-SiLinearChargeDivider::divide(const PSimHit& hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
+SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
 
   // computes the number of segments from number of segments per strip times number of strips.
   int NumberOfSegmentation =  
-    (int)(1 + chargedivisionsPerStrip*fabs(driftXPos(hit.exitPoint(), driftdir, moduleThickness)-
-                                           driftXPos(hit.entryPoint(), driftdir, moduleThickness) )
-                                     /det.specificTopology().localPitch(hit.localPosition())         ); 
+    (int)(1 + chargedivisionsPerStrip*fabs(driftXPos(hit->exitPoint(), driftdir, moduleThickness)-
+                                           driftXPos(hit->entryPoint(), driftdir, moduleThickness) )
+                                     /det.specificTopology().localPitch(hit->localPosition())         ); 
  
   // Eloss in GeV
-  float eLoss = hit.energyLoss();
+  float eLoss = hit->energyLoss();
 
   // signal after pulse shape correction
   float decSignal = TimeResponse(hit, det);
@@ -52,22 +52,22 @@ SiLinearChargeDivider::divide(const PSimHit& hit, const LocalVector& driftdir, d
   _ionization_points.resize(NumberOfSegmentation);
 
   // Fluctuate charge in track subsegments
-  LocalVector direction = hit.exitPoint() - hit.entryPoint();  
+  LocalVector direction = hit->exitPoint() - hit->entryPoint();  
   float* eLossVector = new float[NumberOfSegmentation];
   if( fluctuateCharge ) {
-    fluctuateEloss(hit.particleType(), hit.pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
+    fluctuateEloss(hit->particleType(), hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
     // Save the energy of each segment
     for ( int i = 0; i != NumberOfSegmentation; i++) {
       // take energy value from vector eLossVector, 
       _ionization_points[i] = EnergyDepositUnit(eLossVector[i]*decSignal/eLoss,
-                                                hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+                                                hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
     }
   } else {
     // Save the energy of each segment
     for ( int i = 0; i != NumberOfSegmentation; i++) {
       // take energy value from eLoss average over n.segments.
       _ionization_points[i] = EnergyDepositUnit(decSignal/float(NumberOfSegmentation),
-                                                hit.entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
+                                                hit->entryPoint()+float((i+0.5)/NumberOfSegmentation)*direction);
     }
   }
  
@@ -116,20 +116,20 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   return;
 }
 
-float SiLinearChargeDivider::PeakShape(const PSimHit& hit, const StripGeomDetUnit& det){
+float SiLinearChargeDivider::PeakShape(const PSimHit* hit, const StripGeomDetUnit& det){
   // x is difference between the tof and the tof for a photon (reference)
   // converted into a bin number
-  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) + cosmicShift - hit.tof())*2)+120;
+  int x = int(((det.surface().toGlobal(hit->localPosition()).mag()/30.) + cosmicShift - hit->tof())*2)+120;
   if(x < 0 || x > 920) return 0;
-  return hit.energyLoss()*peakValues[x];
+  return hit->energyLoss()*peakValues[x];
 }
 
-float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripGeomDetUnit& det){
+float SiLinearChargeDivider::DeconvolutionShape(const PSimHit* hit, const StripGeomDetUnit& det){
   // x is difference between the tof and the tof for a photon (reference)
   // converted into a bin number
-  int x = int(((det.surface().toGlobal(hit.localPosition()).mag()/30.) + cosmicShift - hit.tof())*10)+300;
+  int x = int(((det.surface().toGlobal(hit->localPosition()).mag()/30.) + cosmicShift - hit->tof())*10)+300;
   if(x < 0 || x > 650) return 0;
-  return hit.energyLoss()*decoValues[x];
+  return hit->energyLoss()*decoValues[x];
 }
 
 // Automatically generated using parametrizePulse::generateCode(low=-30, high=35, step=0.1)

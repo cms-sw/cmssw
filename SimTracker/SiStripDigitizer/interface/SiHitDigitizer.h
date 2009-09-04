@@ -50,7 +50,7 @@ class SiHitDigitizer {
     theSiChargeDivider->setParticleDataTable(pdt); 
   }
 
-  void processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector,float,
+  void processHit(const PSimHit*, const StripGeomDetUnit&, GlobalVector,float,
 		  std::vector<double>&, size_t&, size_t&);
   
  private:

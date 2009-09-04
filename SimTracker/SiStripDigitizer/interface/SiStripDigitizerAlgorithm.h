@@ -52,7 +52,7 @@ class SiStripDigitizerAlgorithm {
 
   // Runs the algorithm
   void  run(edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripRawDigi>&,
-            const std::vector<std::pair<PSimHit, int > >  &, 
+            const std::vector<std::pair<const PSimHit*, int > >  &, 
             StripGeomDetUnit *, GlobalVector, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
             edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &);
@@ -80,6 +80,19 @@ class SiStripDigitizerAlgorithm {
   float pedValue;
   float cosmicShift;
   float inefficiency;
+  float pedOffset;
+
+  size_t firstChannelWithSignal;
+  size_t lastChannelWithSignal;
+  size_t localFirstChannel;
+  size_t localLastChannel;
+
+  // local amplitude of detector channels (from processed PSimHit)
+  std::vector<double> locAmpl;
+  // total amplitude of detector channels
+  std::vector<double> detAmpl;
+
+
 
   SiHitDigitizer* theSiHitDigitizer;
   SiPileUpSignals* theSiPileUpSignals;
