@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2009/07/20 09:50:23 $
- *  $Revision: 1.5.2.1 $
+ *  $Date: 2009/08/27 17:15:53 $
+ *  $Revision: 1.6 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -72,11 +72,17 @@ class GlobalMuonRefitter {
     /// build combined trajectory from sta Track and tracker RecHits
     std::vector<Trajectory> refit(const reco::Track& globalTrack, const int theMuonHitsOption) const;
 
+    /// build combined trajectory from subset of sta Track and tracker RecHits
+    std::vector<Trajectory> refit(const reco::Track& globalTrack,
+				  const reco::TransientTrack track,
+				  TransientTrackingRecHit::ConstRecHitContainer allRecHitsTemp,
+				  const int theMuonHitsOption) const;
+
     /// refit the track with a new set of RecHits
     std::vector<Trajectory> transform(const reco::Track& newTrack,
                                       const reco::TransientTrack track,
                                       TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const;
-
+    
     // get rid of selected station RecHits
     ConstRecHitContainer getRidOfSelectStationHits(ConstRecHitContainer hits) const;
 

@@ -5,21 +5,14 @@ from RecoMuon.GlobalTrackingTools.GlobalMuonTrackMatcher_cff import *
 
 from RecoMuon.TransientTrackingRecHit.MuonTransientTrackingRecHitBuilder_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
+
 GlobalTrajectoryBuilderCommon = cms.PSet(
     MuonTrackingRegionCommon,
     GlobalMuonTrackMatcher,
-    Chi2ProbabilityCut = cms.double(30.0),
     Direction = cms.int32(0),
-    Chi2CutCSC = cms.double(150.0),
-    HitThreshold = cms.int32(1),
     MuonHitsOption = cms.int32(1),
     ScaleTECxFactor = cms.double(-1.0),
     ScaleTECyFactor = cms.double(-1.0),
-    TrackRecHitBuilder = cms.string('WithTrackAngle'),
-    DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
-    Chi2CutRPC = cms.double(1.0),
-    CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-    Chi2CutDT = cms.double(10.0),
     TrackerRecHitBuilder = cms.string('WithTrackAngle'),
     MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
     RefitRPCHits = cms.bool(True),
@@ -34,5 +27,37 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     ),
     PtCut = cms.double(1.0),
     TrackerPropagator = cms.string('SteppingHelixPropagatorAny'),
-    RPCRecSegmentLabel = cms.InputTag("rpcRecHits")
+    GlbRefitterParameters = cms.PSet(
+        DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
+        CSCRecSegmentLabel = cms.InputTag("cscSegments"),
+        RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
+        
+        MuonHitsOption = cms.int32(1),
+        PtCut = cms.double(1.0),
+        Chi2ProbabilityCut = cms.double(30.0),
+        Chi2CutCSC = cms.double(150.0),
+        Chi2CutDT = cms.double(10.0),
+        Chi2CutRPC = cms.double(1.0),
+        HitThreshold = cms.int32(1),
+        
+        #Fitter = cms.string('KFFitterForRefitInsideOut'),
+        Fitter = cms.string('GlbMuKFFitter'),
+        Smoother = cms.string('KFSmootherForRefitInsideOut'),
+        Propagator = cms.string('SmartPropagatorAnyRK'),
+        TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+        MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+        DoPredictionsOnly = cms.bool(False),
+        RefitDirection = cms.string('insideOut'),
+        PropDirForCosmics = cms.bool(False),
+        RefitRPCHits = cms.bool(True),
+        
+        # muon station to be skipped
+        SkipStation		= cms.int32(-1),
+        
+        # PXB = 1, PXF = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6
+        TrackerSkipSystem	= cms.int32(-1),
+        
+        # layer, wheel, or disk depending on the system
+        TrackerSkipSection	= cms.int32(-1)
+        ),
 )

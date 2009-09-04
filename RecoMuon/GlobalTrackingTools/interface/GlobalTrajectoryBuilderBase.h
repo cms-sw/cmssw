@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/07/23 09:17:22 $
- *  $Revision: 1.16.2.1 $
+ *  $Date: 2009/08/27 17:15:53 $
+ *  $Revision: 1.19 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -37,6 +37,7 @@ class TrackTransformer;
 class TrajectoryFitter;
 class MuonTrackingRegionBuilder;
 class TransientTrackingRecHitBuilder;
+class GlobalMuonRefitter;
 
 namespace edm {class ParameterSet; class Event;}
 namespace reco {class TransientTrack;}
@@ -127,12 +128,6 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     /// check order of RechIts on a trajectory
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
-    /// build a global trajectory from tracker and muon hits
-    std::vector<Trajectory> glbTrajectory(const edm::RefToBase<TrajectorySeed>& seed,
-                                          const ConstRecHitContainer& trackerhits,
-                                          const ConstRecHitContainer& muonhits,
-                                          const TrajectoryStateOnSurface& firstPredTsos) const;
-
     /// get transient RecHits of a Track
     TransientTrackingRecHit::ConstRecHitContainer
     getTransientRecHits(const reco::Track&) const;
@@ -175,20 +170,13 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     TrackTransformer* theTrackTransformer;
     MuonTrackingRegionBuilder* theRegionBuilder;
     const MuonServiceProxy* theService;
-    edm::ESHandle<TrajectoryFitter> theKFFitter;
-
+    GlobalMuonRefitter* theGlbRefitter;
     unsigned long long theCacheId_TRH;
     bool theRPCInTheFit;
   
     int   theMuonHitsOption;
     float theTECxScale;
     float theTECyScale;
-    float theProbCut;
-    int   theHitThreshold;
-    float theDTChi2Cut;
-    float theCSCChi2Cut;
-    float theRPCChi2Cut;
-    std::string theKFFitterName;
     std::string theTrackerPropagatorName;
  
     const edm::Event* theEvent;

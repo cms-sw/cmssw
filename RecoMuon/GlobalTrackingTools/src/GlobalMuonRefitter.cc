@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/07/21 08:20:50 $
- *  $Revision: 1.6.2.3 $
+ *  $Date: 2009/08/27 17:15:56 $
+ *  $Revision: 1.9 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -150,26 +150,13 @@ void GlobalMuonRefitter::setServices(const EventSetup& setup) {
 // build a combined tracker-muon trajectory
 //
 vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack, 
-                   const int theMuonHitsOption) const {
-
-  // MuonHitsOption: 0 - tracker only
-  //                 1 - include all muon hits
-  //                 2 - include only first muon hit(s)
-  //                 3 - include only selected muon hits
-
-  vector<int> stationHits(4,0);
-
-  ConstRecHitContainer allRecHits; // all muon rechits
-  ConstRecHitContainer allRecHitsTemp; // all muon rechits temp
-  ConstRecHitContainer fmsRecHits; // only first muon rechits
-  ConstRecHitContainer selectedRecHits; // selected muon rechits
-
+					     const int theMuonHitsOption) const {
   LogTrace(theCategory) << " *** GlobalMuonRefitter *** option " << theMuonHitsOption << endl;
-
-  LogTrace(theCategory) << " Track momentum before refit: " << globalTrack.pt() << endl;
+    
+  ConstRecHitContainer allRecHitsTemp; // all muon rechits temp
 
   reco::TransientTrack track(globalTrack,&*(theService->magneticField()),theService->trackingGeometry());
-
+  
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if((*hit)->isValid())
       if ( (*hit)->geographicalId().det() == DetId::Tracker )
@@ -181,7 +168,34 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 	}
 	allRecHitsTemp.push_back(theMuonRecHitBuilder->build(&**hit));
       }
+  vector<Trajectory> refitted = refit(globalTrack,track,allRecHitsTemp,theMuonHitsOption);
+  return refitted;
+}
 
+//
+// build a combined tracker-muon trajectory
+//
+vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
+					     const reco::TransientTrack track,
+					     TransientTrackingRecHit::ConstRecHitContainer allRecHitsTemp,
+					     const int theMuonHitsOption) const {
+
+  // MuonHitsOption: 0 - tracker only
+  //                 1 - include all muon hits
+  //                 2 - include only first muon hit(s)
+  //                 3 - include only selected muon hits
+
+  vector<int> stationHits(4,0);
+
+  ConstRecHitContainer allRecHits; // all muon rechits
+  ConstRecHitContainer fmsRecHits; // only first muon rechits
+  ConstRecHitContainer selectedRecHits; // selected muon rechits
+
+   LogTrace(theCategory) << " *** GlobalMuonRefitter *** option " << theMuonHitsOption << endl;
+
+   LogTrace(theCategory) << " Track momentum before refit: " << globalTrack.pt() << endl;
+
+  LogTrace(theCategory) << " Hits size before : " << allRecHitsTemp.size() << endl;
   allRecHits = getRidOfSelectStationHits(allRecHitsTemp);  
   //    printHits(allRecHits);
   LogTrace(theCategory) << " Hits size: " << allRecHits.size() << endl;
@@ -203,7 +217,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     if (theMuonHitsOption == 1 )
       outputTraj.push_back(globalTraj.front());
     
-    if (theMuonHitsOption == 3 ) { 
+    if (theMuonHitsOption == 3 ) {
       checkMuonHits(globalTrack, allRecHits, stationHits);
       selectedRecHits = selectMuonHits(globalTraj.front(),stationHits);
       LogTrace(theCategory) << " Selected hits size: " << selectedRecHits.size() << endl;  
