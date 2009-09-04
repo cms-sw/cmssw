@@ -73,6 +73,8 @@ namespace {
   std::pair<edm::BranchID, std::set<edm::BranchID> > dummyPairSetBranchID;
   std::vector<std::basic_string<char> > dummyVectorString;
   std::set<std::basic_string<char> > dummySetString;
+  std::set<std::basic_string<char> >::iterator dummySetStringIterator;
+  std::set<std::basic_string<char> >::const_iterator dummySetStringConstIterator;
   std::vector<edm::EventID> dummyVectorEventID;
   std::vector<std::vector<edm::EventID> > dummyVectorVectorEventID;
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;

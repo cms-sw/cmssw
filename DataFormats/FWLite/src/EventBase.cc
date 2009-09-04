@@ -12,11 +12,20 @@
 //
 
 // system include files
+#include <vector>
+#include <map>
 #include <iostream>
 #include "Reflex/Type.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
+#include "DataFormats/FWLite/interface/TriggerNames.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -36,6 +45,10 @@ namespace {
    
 namespace fwlite
 {
+   typedef std::map<edm::ParameterSetID, fwlite::TriggerNames> TriggerNamesMap;
+   static TriggerNamesMap triggerNamesMap;
+   static TriggerNamesMap::const_iterator previousTriggerName;
+
    EventBase::EventBase()
    {
    }
@@ -44,6 +57,73 @@ namespace fwlite
    {
    }
    
+   TriggerNames const*
+   EventBase::triggerNames_(edm::TriggerResults const& triggerResults) {
+
+      if (!triggerNamesMap.empty() &&
+          previousTriggerName->first == triggerResults.parameterSetID()) {
+         return &previousTriggerName->second;
+      }
+
+      // If TriggerNames was already created and cached here, then return that one
+      TriggerNamesMap::const_iterator iter =
+         triggerNamesMap.find(triggerResults.parameterSetID());
+      if (iter != triggerNamesMap.end()) {
+         previousTriggerName = iter;
+         return &iter->second;
+      }
+
+      // Look for the parameter set containing the trigger names in the parameter
+      // set registry using the ID from TriggerResults as the key used to find it.
+      edm::ParameterSet pset;
+      edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
+      if (psetRegistry->getMapped(triggerResults.parameterSetID(),
+                                  pset)) {
+
+	 if (pset.existsAs<std::vector<std::string> >("@trigger_paths", true)) {
+            TriggerNames triggerNames(pset);
+
+            // This should never happen
+            if (triggerNames.size() != triggerResults.size()) {
+               throw cms::Exception("LogicError")
+                  << "fwlite::EventBase::triggerNames_ Encountered vector\n"
+                     "of trigger names and a TriggerResults object with\n"
+                     "different sizes.  This should be impossible.\n"
+                     "Please send information to reproduce this problem to\n"
+                     "the fwlite developers.\n";
+            }
+
+            std::pair<TriggerNamesMap::iterator, bool> ret =
+               triggerNamesMap.insert(std::pair<edm::ParameterSetID, fwlite::TriggerNames>(triggerResults.parameterSetID(), triggerNames));
+            previousTriggerName = ret.first;
+            return &(ret.first->second);
+         }
+      }
+      // For backward compatibility to very old data
+      if (triggerResults.getTriggerNames().size() > 0U) {
+	 edm::ParameterSet fakePset;
+         fakePset.addParameter<std::vector<std::string> >("@trigger_paths", triggerResults.getTriggerNames());
+         fakePset.registerIt();
+         TriggerNames triggerNames(fakePset);
+
+         // This should never happen
+         if (triggerNames.size() != triggerResults.size()) {
+            throw cms::Exception("LogicError")
+               << "fwlite::EventBase::triggerNames_ Encountered vector\n"
+                  "of trigger names and a TriggerResults object with\n"
+                  "different sizes.  This should be impossible.\n"
+                  "Please send information to reproduce this problem to\n"
+                  "the fwlite developers (2).\n";
+         }
+
+         std::pair<TriggerNamesMap::iterator, bool> ret =
+            triggerNamesMap.insert(std::pair<edm::ParameterSetID, fwlite::TriggerNames>(fakePset.id(), triggerNames));
+         previousTriggerName = ret.first;
+         return &(ret.first->second);
+      }
+      return 0;
+   }
+
    edm::BasicHandle 
    EventBase::getByLabelImpl(const std::type_info& iWrapperInfo, const std::type_info& /*iProductInfo*/, const edm::InputTag& iTag) const 
    {
@@ -70,5 +150,4 @@ namespace fwlite
       edm::BasicHandle value(boost::shared_ptr<edm::EDProduct>(prod,null_deleter()),&s_prov);
       return value;
    }
-
 }

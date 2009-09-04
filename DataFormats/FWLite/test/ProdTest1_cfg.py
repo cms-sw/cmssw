@@ -29,4 +29,10 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.p = cms.Path(process.Thing*process.OtherThing)
+
+# These are here for the TriggerNames test, they do not
+# do anything other than add a couple more path names
+process.p1 = cms.Path(process.Thing*process.OtherThing)
+process.p2 = cms.Path(process.Thing*process.OtherThing)
+
 process.outp = cms.EndPath(process.out)

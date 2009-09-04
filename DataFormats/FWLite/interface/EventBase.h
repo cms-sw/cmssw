@@ -29,8 +29,14 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/EventBase.h"
 
+namespace edm {
+   class TriggerResults;
+}
+
 namespace fwlite 
 {
+   class TriggerNames;
+
    class EventBase : public edm::EventBase
    {
       public:
@@ -55,13 +61,17 @@ namespace fwlite
 
          virtual const EventBase& toBegin() = 0;
 
+	 virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) = 0;
+
+      protected:
+
+         static TriggerNames const* triggerNames_(edm::TriggerResults const& triggerResults);
+
       private:
       
-      virtual edm::BasicHandle getByLabelImpl(const std::type_info&, const std::type_info&, const edm::InputTag&) const;
- 
+         virtual edm::BasicHandle getByLabelImpl(const std::type_info&, const std::type_info&, const edm::InputTag&) const;
    };
 } // fwlite namespace
-
 
 #endif /*__CINT__ */
 #endif

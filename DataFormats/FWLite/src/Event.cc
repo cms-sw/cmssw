@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.27 2009/07/22 16:14:35 cplager Exp $
+// $Id: Event.cc,v 1.28 2009/08/18 17:56:59 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,13 @@
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 
 //used for backwards compatability
 #include "DataFormats/Provenance/interface/EventAux.h"
@@ -73,7 +80,8 @@ private:
   branchMap_(iFile),
   pAux_(&aux_),
   pOldAux_(0),
-  fileVersion_(-1)
+  fileVersion_(-1),
+  parameterSetRegistryFilled_(false)
 {
     if(0==iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
@@ -624,6 +632,73 @@ Event::getByProductID(edm::ProductID const& iID) const
   }
   //std::cout <<"finished getByProductID"<<std::endl;
   return itFound->second->pProd_;
+}
+
+TriggerNames const&
+Event::triggerNames(edm::TriggerResults const& triggerResults)
+{
+  TriggerNames const* names = triggerNames_(triggerResults);
+  if (names != 0) return *names;
+
+  if (!parameterSetRegistryFilled_) {
+    fillParameterSetRegistry();
+    names = triggerNames_(triggerResults);
+  }
+  if (names != 0) return *names;
+
+  throw cms::Exception("TriggerNamesNotFound")
+    << "TriggerNames not found in ParameterSet registry";
+  return *names;
+}
+
+void
+Event::fillParameterSetRegistry()
+{
+  if (parameterSetRegistryFilled_) return;
+  parameterSetRegistryFilled_ = true;
+
+  TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
+  if (0==meta) {
+    throw cms::Exception("NoMetaTree") << "The TFile does not contain a TTree named "
+      << edm::poolNames::metaDataTreeName();
+  }
+
+  edm::FileFormatVersion fileFormatVersion;  
+  edm::FileFormatVersion *fftPtr = &fileFormatVersion;
+  if(meta->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+    TBranch *fft = meta->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
+    fft->SetAddress(&fftPtr);
+    fft->GetEntry(0);
+  }
+
+  if (meta->FindBranch(edm::poolNames::parameterSetMapBranchName().c_str()) != 0) {
+    typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
+    PsetMap psetMap;
+    PsetMap *psetMapPtr = &psetMap;
+    TBranch* b = meta->GetBranch(edm::poolNames::parameterSetMapBranchName().c_str());
+    b->SetAddress(&psetMapPtr);
+    b->GetEntry(0);
+
+    edm::ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
+    if(!fileFormatVersion.triggerPathsTracked()) {
+      edm::ParameterSetConverter converter(psetMap, psetIdConverter, fileFormatVersion.parameterSetsByReference());
+    } else {
+      // Merge into the parameter set registry.
+      edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
+      for(PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
+          i != iEnd; ++i) {
+        edm::ParameterSet pset(i->second.pset_);
+        pset.setID(i->first);
+        pset.setFullyTracked();
+        psetRegistry.insertMapped(pset);
+      } 
+    }
+  }
+  else {
+    throw cms::Exception("NoParameterSetMapBranch")
+      << "The TTree does not contain a TBranch named "
+      << edm::poolNames::parameterSetMapBranchName();
+  }
 }
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.cc,v 1.4 2009/07/22 16:14:35 cplager Exp $
+// $Id: MultiChainEvent.cc,v 1.5 2009/08/18 17:56:59 chrjones Exp $
 //
 
 // system include files
@@ -228,6 +228,27 @@ MultiChainEvent::size() const
   return event1_->size();
 }
 
+TriggerNames const&
+MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults)
+{
+  TriggerNames const* names = triggerNames_(triggerResults);
+  if (names != 0) return *names;
+
+  event1_->fillParameterSetRegistry();
+  names = triggerNames_(triggerResults);
+  if (names != 0) return *names;
+
+  // If we cannot find it in the primary file, this probably will
+  // not help but try anyway
+  event2_->to( event1_->id() );
+  event2_->fillParameterSetRegistry();
+  names = triggerNames_(triggerResults);
+  if (names != 0) return *names;
+
+  throw cms::Exception("TriggerNamesNotFound")
+    << "TriggerNames not found in ParameterSet registry";
+  return *names;
+}
 
 //
 // static member functions

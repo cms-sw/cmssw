@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.20 2009/07/22 16:14:35 cplager Exp $
+// $Id: Event.h,v 1.21 2009/08/18 17:56:59 chrjones Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -49,9 +49,13 @@ namespace edm {
    class EDProductGetter;
    class EventAux;
    class Timestamp;
+   class TriggerResults;
 }
 
 namespace fwlite {
+
+   class TriggerNames;
+
    namespace internal {
       class DataKey {
          public:
@@ -168,6 +172,9 @@ namespace fwlite {
 
          edm::EDProduct const* getByProductID(edm::ProductID const&) const;
 
+         virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults);
+         void fillParameterSetRegistry();
+
          // ---------- static member functions --------------------
          static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
@@ -208,6 +215,7 @@ namespace fwlite {
          edm::EventAux* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
+         bool parameterSetRegistryFilled_;
       
          //references data in data_;
          mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_; 
