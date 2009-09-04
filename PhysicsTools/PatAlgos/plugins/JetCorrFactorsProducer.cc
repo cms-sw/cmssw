@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.8 2009/07/20 17:12:49 rwolf Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.9 2009/07/21 08:34:42 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -130,12 +130,12 @@ JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, Comb
   // get the jet energy correction factors depending on whether emf should be used or not;
   double correction;
   if( !useEMF_ ){
-    correction = (corrector->getSubCorrections(jet->pt(), jet->eta()))[idx];
+    correction = (corrector->getSubCorrections(jet->pt(), jet->eta(), jet->energy()))[idx];
   }
   else{
     // to have the emf accessible to the corrector the jet needs to 
     // be a CaloJet
-    correction = (corrector->getSubCorrections(jet->pt(), jet->eta()))[idx];
+    correction = (corrector->getSubCorrections(jet->pt(), jet->eta(), jet->energy()))[idx];
   }
   return correction;
 }
