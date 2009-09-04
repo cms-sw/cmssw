@@ -5,21 +5,70 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/23 10:37:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/02/23 10:52:59 $
+ *  $Revision: 1.2 $
  *  \author Andreas Meyer CERN
+ *  \author Jan Olzem DESY
  *   
  */
+
+#include <string>
+#include <vector>
+#include <iostream>
+#include <iomanip>
+
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 //
-// class declaration
+// class declarations
 //
 
+
+///
+/// DQMStoreStats helper class for
+/// storing subsystem results
+///
+class DQMStoreStatsSubfolder {
+ public:
+  DQMStoreStatsSubfolder() { totalBins_ = 0; totalMemory_ = 0; }
+  std::string subfolderName_;
+  unsigned int totalHistos_;
+  unsigned int totalBins_;
+  unsigned int totalMemory_;
+  void AddBinsF( unsigned int nBins ) { ++totalHistos_; totalBins_ += nBins; totalMemory_ += ( nBins *= sizeof( float ) ); }
+  void AddBinsS( unsigned int nBins ) { ++totalHistos_; totalBins_ += nBins; totalMemory_ += ( nBins *= sizeof( short ) ); }
+  void AddBinsD( unsigned int nBins ) { ++totalHistos_; totalBins_ += nBins; totalMemory_ += ( nBins *= sizeof( double ) ); }
+};
+
+///
+/// DQMStoreStats helper class for
+/// storing subsystem results
+///
+class DQMStoreStatsSubsystem : public std::vector<DQMStoreStatsSubfolder> {
+ public:
+  DQMStoreStatsSubsystem() {}
+  std::string subsystemName_;
+};
+
+
+///
+/// DQMStoreStats helper class for
+/// storing subsystem results
+///
+class DQMStoreStatsTopLevel : public std::vector<DQMStoreStatsSubsystem> {
+ public:
+  DQMStoreStatsTopLevel() {}
+};
+
+
+
+
+///
+/// DQMStoreStats itself
+///
 class DQMStoreStats : public edm::EDAnalyzer {
 public:
   DQMStoreStats( const edm::ParameterSet& );
