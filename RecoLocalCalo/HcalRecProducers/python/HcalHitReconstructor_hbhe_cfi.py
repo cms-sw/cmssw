@@ -20,9 +20,9 @@ hbhereco = cms.EDFilter(
     setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
     
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
-                             hitEnergyMinimum=cms.double(2.0), #GeV
+                             hitEnergyMinimum=cms.double(1.0), #GeV
                              hitMultiplicityThreshold=cms.int32(17),
-                             pulseShapeParameterSets = cms.VPSet(
+                             pulseShapeParameterSets = cms.VPSet(    
     cms.PSet(pulseShapeParameters=cms.vdouble(-100.0, 20.0,-50.0,0.0,-15.0,0.0)),
     cms.PSet(pulseShapeParameters=cms.vdouble( 100.0,2.0e3,-50.0,0.0,-15.0,0.05)),
     cms.PSet(pulseShapeParameters=cms.vdouble( 2.0e3,1.0e6,-50.0,0.0, 85.0,0.0))
