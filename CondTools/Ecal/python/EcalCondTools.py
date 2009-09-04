@@ -4,8 +4,11 @@
 # id: $Id: EcalCondTools.py,v 1.8 2009/07/16 08:25:49 argiro Exp $
 #
 #
+# WARNING: we assume that the list of iovs for a given tag
+#          contains one element only, the case of several elements
+#          will need to be addressed
 
-
+#from pluginCondDBPyInterface import *
 from CondCore.Utilities import iovInspector as inspect
 from ROOT import TCanvas,TH1F, TH2F, gStyle
 import EcalPyUtils
@@ -112,26 +115,59 @@ def compare(tag1,db1,since1,
       coeff_2_b,coeff_2_e = EcalPyUtils.fromXML(tag2)
 
   gStyle.SetPalette(1)    
-  diff_distro_can = TCanvas("difference","difference")
-  diff_distro_can.Divide(2,3)
  
-  ebhisto,ebmap= compareBarrel(coeff_1_b,coeff_2_b)
+
+  ebhisto,ebmap, profx, profy= compareBarrel(coeff_1_b,coeff_2_b)
   eephisto,eepmap,eemhisto,eemmap=compareEndcap(coeff_1_e,coeff_2_e)
- 
+
+  diff_distro_can = TCanvas("difference","difference")
+  diff_distro_can.Divide(2,4)
+
+#  profx.SetMarkerType(3)
+#  profy.SetMarkerType(3)
   diff_distro_can.cd(1)
   ebhisto.Draw()
   diff_distro_can.cd(2)
   ebmap.Draw("colz")
   diff_distro_can.cd(3)
-  eephisto.Draw()
+  profx.Draw()
   diff_distro_can.cd(4)
-  eepmap.Draw("colz")
+  profy.Draw()
   diff_distro_can.cd(5)
-  eemhisto.Draw()
+  eephisto.Draw()
   diff_distro_can.cd(6)
+  eepmap.Draw("colz")
+  diff_distro_can.cd(7)
+  eemhisto.Draw()
+  diff_distro_can.cd(8)
   eemmap.Draw("colz")
-  
+
   diff_distro_can.SaveAs(filename)
+
+  eeborderphisto,eeborderpmap,eebordermhisto,eebordermmap=compareEndcapBorder(coeff_1_e,coeff_2_e)
+  ebborderhisto,ebbordermap = compareBarrelBorder(coeff_1_b,coeff_2_b)
+
+  border_diff_distro_can = TCanvas("border_difference","borders difference")
+  border_diff_distro_can.Divide(2,3)
+
+  border_diff_distro_can.cd(1)
+  ebborderhisto.Draw()
+  border_diff_distro_can.cd(2)
+  ebbordermap.Draw("colz")
+  border_diff_distro_can.cd(3)
+  eeborderphisto.Draw()
+  border_diff_distro_can.cd(4)
+  eeborderpmap.Draw("colz")
+  border_diff_distro_can.cd(5)
+  eebordermhisto.Draw()
+  border_diff_distro_can.cd(6)
+  eebordermmap.Draw("colz")
+
+  bordersfilename = "borders_"+filename
+  prof_filename = "profiles_"+filename
+  
+  border_diff_distro_can.SaveAs(bordersfilename)
+
 
 
 
@@ -172,12 +208,9 @@ def histo (db, tag,since,filename='histo.root'):
     eb = TH1F("EB","EB",100, -2,4)
     ee = TH1F("EE","EE",100, -2,4)
 
-    for cb in coeff_barl:
+    for cb,ce in zip(coeff_barl,coeff_endc):
         eb.Fill(cb)
-
-    for ce in coeff_endc:    
         ee.Fill(ce)
-
 
     c.cd(1)  
     eb.Draw()
@@ -237,7 +270,27 @@ def compareBarrel(coeff_barl_1,coeff_barl_2) :
       diff_distro_h.Fill(diff) 
       diff_distro_m.Fill(ieta,iphi,diff)
 
-  return diff_distro_h, diff_distro_m 
+  prof_x_h = diff_distro_m.ProfileX()
+  prof_y_h = diff_distro_m.ProfileY()
+          
+  return diff_distro_h, diff_distro_m, prof_x_h, prof_y_h
+
+def compareBarrelBorder(coeff_barl_1,coeff_barl_2) :
+  '''Return an histogram and a map of the differences '''
+
+  diff_distro_border_h   = TH1F("diffborderh","diffh",100,-2,2)
+  diff_distro_border_m   = TH2F("diffborderm","diffm",171,-85,86,360,1,361)
+  diff_distro_border_m.SetStats(0)
+  
+  for i,c in enumerate(coeff_barl_1):  
+      diff = c - coeff_barl_2[i]      
+      ieta,iphi= EcalPyUtils.unhashEBIndex(i)
+      if (abs(ieta)==85 or abs(ieta)==65 or abs(ieta)==64 or abs(ieta)==45 or abs(ieta)==44 or abs(ieta)==25 or abs(ieta)==24 or abs(ieta)==1 or iphi%20==1 or iphi%20==0):
+          diff_distro_border_h.Fill(diff) 
+      if (abs(ieta)==85 or abs(ieta)==65 or abs(ieta)==64 or abs(ieta)==45 or abs(ieta)==44 or abs(ieta)==25 or abs(ieta)==24 or abs(ieta)==1 or iphi%20==0 or iphi%20==1): 
+          diff_distro_border_m.Fill(ieta,iphi,diff)
+          
+  return diff_distro_border_h, diff_distro_border_m 
 
 
 
@@ -271,3 +324,37 @@ def compareEndcap(coeff_endc_1, coeff_endc_2) :
            diff_distro_m_eep, \
            diff_distro_h_eem, \
            diff_distro_m_eem
+
+
+
+def compareEndcapBorder(coeff_endc_1, coeff_endc_2) :
+    ''' Return an histogram and a map of the differences for each endcap'''
+
+    border_diff_distro_h_eep   = TH1F("borderdiff EE+","diff EE+",100,-2,2)
+    border_diff_distro_h_eem   = TH1F("borderdiff EE-","diff EE-",100,-2,2)
+
+    
+    border_diff_distro_m_eep   = TH2F("bordermap EE+","map EE+",100,1,101,100,1,101)
+    border_diff_distro_m_eem   = TH2F("bordermap EE-","map EE-",100,1,101,100,1,101)
+    
+    border_diff_distro_m_eep.SetStats(0)
+    border_diff_distro_m_eem.SetStats(0)
+
+
+    for i,c in enumerate(coeff_endc_1):  
+      diff = c - coeff_endc_2[i]
+      ix,iy,iz = EcalPyUtils.unhashEEIndex(i)
+      Rsq = ((ix-50.0)**2+(iy-50.0)**2)
+      
+      if (iz >0 and (Rsq<144.0 or Rsq>2500.0)):
+          border_diff_distro_h_eep.Fill(diff)
+          border_diff_distro_m_eep.Fill(ix,iy,diff)
+      elif (iz<0 and (Rsq<144.0 or Rsq>2500.0)):
+          border_diff_distro_h_eem.Fill(diff)
+          border_diff_distro_m_eem.Fill(ix,iy,diff)
+      
+
+    return border_diff_distro_h_eep, \
+           border_diff_distro_m_eep, \
+           border_diff_distro_h_eem, \
+           border_diff_distro_m_eem
