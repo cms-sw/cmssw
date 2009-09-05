@@ -2,19 +2,15 @@
 //
 // Package:     Core
 // Class  :     fw3dlego_xbins
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Dec  3 13:55:45 EST 2008
-// $Id: fw3dlego_xbins.cc,v 1.1 2008/12/03 20:48:07 chrjones Exp $
-//
-
-// system include files
-
-// user include files
+// $Id: fw3dlego_xbins.cc,v 1.2 2009/01/23 21:35:44 amraktad Exp $
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
+
+// Information is extracted from:
+// CERN/LHCC 2006-001
+// CMS Physics TDR Vol1
+// CMS TDR 8.1
+// 02 February 2006
+// Chapter 5, Table 5.1
 
 namespace fw3dlego
 {
