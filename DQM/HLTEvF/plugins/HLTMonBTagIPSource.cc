@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/03 10:51:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/03 17:34:23 $
+ *  $Revision: 1.5 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -248,7 +248,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
   if (accept)
     m_plotRates->Fill( 5. );    // HLT accepted
 
-  if ((latest > m_L2FilterIndex) and h_L2Jets.isValid()) {
+  if ((latest > m_L1FilterIndex) and h_L2Jets.isValid()) {
     unsigned int size = std::min(h_L2Jets->size(), m_size);
     for (unsigned int i = 0; i < size; ++i) {
       const reco::Jet & jet = (*h_L2Jets)[i];
@@ -302,7 +302,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
       m_plotL25Discriminator->Fill( tag.second );
     }
   }
-  if ((latest > m_L3FilterIndex) and h_L3TagInfo.isValid() and h_L3JetTags.isValid()) {
+  if ((latest > m_L25FilterIndex) and h_L3TagInfo.isValid() and h_L3JetTags.isValid()) {
     unsigned int size = std::min(h_L3TagInfo->size(), m_size);
     for (unsigned int i = 0; i < size; ++i) {
       const reco::TrackIPTagInfo & info   = (*h_L3TagInfo)[i];
