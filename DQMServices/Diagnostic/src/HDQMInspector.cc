@@ -396,10 +396,27 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     }
     
     graph = new TGraphErrors((int) vRun_.size(),X,Y,EX,EY);
-    if (fSkip99s) {
+    if( fSkip99s || fSkip0s ) {
+      int iptTGraph = 0;
       for (size_t ipt = 0; ipt != vRun_.size(); ++ipt) {
-        if (Y[ipt] == -10 || Y[ipt] == -9999 || Y[ipt] == -999 || Y[ipt] == -99) {
-          graph->RemovePoint(ipt);
+        // skip 99s or 0s when requested
+        // std::cout << "point = " << Y[ipt] << std::endl;
+        // if( Y[ipt] == 0 ) {
+        //   std::cout << "fSkip0s = " << fSkip0s << std::endl;
+        // }
+        // if( (Y[ipt] == -10 || Y[ipt] == -9999 || Y[ipt] == -999 || Y[ipt] == -99) ) {
+        //   std::cout << "fSkip99s = " << fSkip99s << std::endl;
+        // }
+        if( ((Y[ipt] == -10 || Y[ipt] == -9999 || Y[ipt] == -999 || Y[ipt] == -99) && fSkip99s) || (Y[ipt] == 0 && fSkip0s) ) {
+          // std::cout << "removing point Y["<<ipt<<"] = " << Y[ipt] << ", when graph->GetN() = " << graph->GetN() << " and iptTGraph = " << iptTGraph << std::endl;
+          // Int_t point = graph->RemovePoint(iptTGraph);
+          // std::cout << "point removed = " << point << std::endl;
+          Int_t point = graph->RemovePoint(iptTGraph);
+        }
+        else {
+          // The TGraph is shrinked everytime a point is removed. We use another counter that
+          // is increased only when not removing elements from the TGraph.
+          ++iptTGraph;
         }
       }
     }
@@ -419,14 +436,15 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
 
     // put the graph in the vector eh.
     VectorOfGraphs.push_back(graph);
-    
-    if (itemForIntegration) 
+
+    if (itemForIntegration)
     {  
-      std::stringstream ss2; std::stringstream ss3; 
+      std::stringstream ss2; std::stringstream ss3; std::stringstream ss4;
       std::string title =  vlistItems_.at(i);
      
       ss2 << title << "_Integral";
       ss3 << title << "_Integrated.gif";
+      ss4 << title << "_Integrated.root";
 
       TCanvas* C2 = new TCanvas(ss2.str().c_str(),"");
       TGraphErrors* graph2 = new TGraphErrors((int) vRun_.size(),X,YCumul,EX,EX);
@@ -438,6 +456,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
       graph2->Write();
       C2->Write();
       C2->SaveAs(ss3.str().c_str());
+      C2->SaveAs(ss4.str().c_str());
       // dhidas commented out below because it doesn't seem useful.  uncomment if you like, it was just annoying me.
       //C2->SaveAs(ss3.str().replace(ss3.str().find("."),ss3.str().size()-ss3.str().find("."),".C").c_str());
       }

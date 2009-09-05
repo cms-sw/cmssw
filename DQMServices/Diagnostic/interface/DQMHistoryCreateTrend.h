@@ -40,6 +40,9 @@ class DQMHistoryCreateTrend
   inline void setSkip99s(bool const in) {
     inspector_->setSkip99s(in);
   }
+  inline void setSkip0s(bool const in) {
+    inspector_->setSkip0s(in);
+  }
 
  protected:
   // Do not use auto_ptr if you want to use the object with stl algorithms.

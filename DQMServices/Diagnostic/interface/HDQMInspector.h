@@ -35,10 +35,11 @@ class HDQMInspector
     DBblob_(""),
     Iterator(0),
     iDebug(0),
-    iDoStat(0)
+    iDoStat(0),
+    fSkip99s(false),
+    fSkip0s(false),
+    fHDQMInspectorConfig(0x0)
     {
-      fHDQMInspectorConfig = 0x0;
-      fSkip99s = false;
     };
   
   HDQMInspector(const HDQMInspectorConfigBase* InConfig):
@@ -49,10 +50,11 @@ class HDQMInspector
     DBblob_(""),
     Iterator(0),
     iDebug(0),
-    iDoStat(0)
+    iDoStat(0),
+    fSkip99s(false),
+    fSkip0s(false),
+    fHDQMInspectorConfig(InConfig)
     {
-      fHDQMInspectorConfig = InConfig;
-      fSkip99s = false;
     };
   
   virtual ~HDQMInspector(){
@@ -74,6 +76,10 @@ class HDQMInspector
   void setBlackList(std::string const& ListItems);
   void setSkip99s (bool const in) {
     fSkip99s = in;
+    return;
+  }
+  void setSkip0s (bool const in) {
+    fSkip0s = in;
     return;
   }
   void closeFile ()
@@ -122,6 +128,7 @@ private:
   int iDebug;
   int iDoStat;
   bool fSkip99s;
+  bool fSkip0s;
 
   const HDQMInspectorConfigBase* fHDQMInspectorConfig;
 
