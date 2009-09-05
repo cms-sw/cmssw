@@ -33,4 +33,5 @@ L1AnalyzerMergedJetsReco = cms.EDAnalyzer("L1Analyzer",
 )
 
 # Define analysis sequence
-L1MergedJetRecoAnalysis = cms.Sequence(RecoCenJetSelection+L1MergedJetSelection*MatchMergedJetsReco+MatchRecoMergedJets*L1AnalyzerMergedJetsReco)
+#L1MergedJetRecoAnalysis = cms.Sequence(RecoCenJetSelection+L1MergedJetSelection*MatchMergedJetsReco+MatchRecoMergedJets*L1AnalyzerMergedJetsReco)
+L1MergedJetRecoAnalysis = cms.Sequence(RecoCenJetSelection+MatchMergedJetsReco+MatchRecoMergedJets*L1AnalyzerMergedJetsReco)
