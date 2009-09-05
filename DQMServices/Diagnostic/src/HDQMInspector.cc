@@ -411,7 +411,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
           // std::cout << "removing point Y["<<ipt<<"] = " << Y[ipt] << ", when graph->GetN() = " << graph->GetN() << " and iptTGraph = " << iptTGraph << std::endl;
           // Int_t point = graph->RemovePoint(iptTGraph);
           // std::cout << "point removed = " << point << std::endl;
-          Int_t point = graph->RemovePoint(iptTGraph);
+          graph->RemovePoint(iptTGraph);
         }
         else {
           // The TGraph is shrinked everytime a point is removed. We use another counter that
