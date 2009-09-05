@@ -153,7 +153,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
    plotBuilding(canvas,s, r,6,
-		te,"UU",-1);
+		te,"UU",-1, 1, false, 0xC);
 
    canvas->cd();
    //TPaveText* text = new TPaveText(0.25,0.72,0.75,0.77,"prova");
@@ -658,7 +658,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
    plotBuilding(canvas,s, r,6,
-		te,"UU",-1, 1, false, false);
+		te,"UU",-1);
 
    canvas->cd();
    l = new TLegend(0.10,0.64,0.90,0.69);
@@ -700,7 +700,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    TH1F * s[2]={sh1,sh2};
 
    plotBuilding(canvas,s, r,2,
-		te,"UU",-1, 1, false, false);
+		te,"UU",-1);
 
    canvas->cd();
    l = new TLegend(0.10,0.14,0.90,0.19);
@@ -816,7 +816,7 @@ void plot4histos(TCanvas *canvas,
 }
 
 void plotBuilding(TCanvas *canvas, TH1F **s, TH1F **r, int n,TText* te,
-		  char * option, double startingY, double startingX = .1,bool fit = false, bool logx=true){
+		  char * option, double startingY, double startingX = .1,bool fit = false, unsigned int logx=0){
   canvas->Divide(2,(n+1)/2); //this should work also for odd n
   for(int i=0; i<n;i++){
     s[i]->SetMarkerStyle(20);
@@ -830,9 +830,9 @@ void plotBuilding(TCanvas *canvas, TH1F **s, TH1F **r, int n,TText* te,
     s[i]->SetLineWidth(1);
     r[i]->SetLineWidth(1);
 
-    canvas->cd(i+1);
+    TPad *pad=canvas->cd(i+1);
     setStats(s[i],r[i], -1, 0, false);
-    if(logx)gPad->SetLogx();
+    if((logx>>i)&1)pad->SetLogx();
     r[i]->Draw();
     s[i]->Draw("sames");
   }
