@@ -222,7 +222,10 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT300_MHT100") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(recoHTCal > 200. && (OpenHltSumHTPassed(300., 30.) == 1)) { 
+      //if(recoHTCal > 100. && (OpenHltSumHTPassed(300., 30.) == 1)) {
+      //std:: cout << "OpenHltMHT(100., 30.) = " << OpenHltMHT(100., 30.) << std::endl;
+      //std:: cout << "OpenHltSumHTPassed(300., 30.) = " << OpenHltSumHTPassed(300., 30.) << std::endl;
+      if(OpenHltMHT(100., 30.)==1 && (OpenHltSumHTPassed(300., 30.) == 1)) {
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
       } 
     } 
@@ -2361,10 +2364,11 @@ int OHltTree::OpenHltDiJetAvePassed(double pt)
   int rc = 0;
 
   // Loop over all oh jets, select events where the *average* pT of a pair is above threshold
+  //std::cout << "FL: NrecoJetCal = " << NrecoJetCal << std::endl;
   for (int i=0;i<NrecoJetCal;i++) { 
     for (int j=0;j<NrecoJetCal && j!=i;j++) {      
-      //if((recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt) {  // Jet pT cut 
-      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
+      if((recoJetCalPt[i]+recoJetCalPt[j])/2.0 > pt) {  // Jet pT cut 
+	//      if((recoJetCalE[i]/cosh(recoJetCalEta[i])+recoJetCalE[j]/cosh(recoJetCalEta[j]))/2.0 > pt) {
         rc++; 
       }
     } 
@@ -2394,26 +2398,18 @@ int OHltTree::OpenHltQuadCorJetPassed(double pt)
   int rc = 0;
   
   // Loop over all oh jets
-  //std::cout << "FL: NrecoJetCorCal = " << NrecoJetCorCal << std::endl;
   for (int i=0;i<NrecoJetCorCal;i++) {
-    //std::cout << "FL: jet pt = " << recoJetCorCalPt[i] << std::endl;
-    //std::cout << "FL: jet eta = " << recoJetCorCalEta[i] << std::endl;
-    //std::cout << "FL: jet phi = " << recoJetCorCalPhi[i] << std::endl;
-    //std::cout << "FL: jet E = " << recoJetCorCalE[i] << std::endl;
       if(recoJetCorCalPt[i] > pt && recoJetCorCalEta[i] < 5.0) {  // Jet pT cut
 	//std::cout << "FL: fires the jet pt cut" << std::endl;
 	njet++;
       }
-      //else if (recoJetCorCalPt[i] == pt) std::cout << "FL: ==" << std::endl;
   }
-  //std::cout << "FL: njet = " << njet << std::endl;
 
   if(njet >= 4)
   {
     rc = 1;
-    //std::cout << "FL: quad!!" << std::endl;
   }
-  //std::cout << "FL: rc = " << rc << std::endl;
+
   return rc;
 }
 
@@ -2478,20 +2474,41 @@ int OHltTree::OpenHltFwdJetPassed(double esum)
   return rc;  
 }
 
+
+int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold)
+{
+  int rc = 0; 
+  double mhtx=0., mhty=0.;
+  for (int i=0;i<NrecoJetCorCal;++i)
+  {     
+    if(recoJetCorCalPt[i] >= jetthreshold)
+    { 
+      mhtx-=recoJetCorCalPt[i]*cos(recoJetCorCalPhi[i]);   
+      mhty-=recoJetCorCalPt[i]*sin(recoJetCorCalPhi[i]);   
+    }     
+  }
+  if (sqrt(mhtx*mhtx+mhty*mhty)>MHTthreshold) rc = 1;
+  else rc = 0; 
+  //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
+  return rc;  
+}
+
 int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) 
 { 
   int rc = 0;   
   double sumHT = 0.;   
-  
+
+
   // Loop over all oh jets, sum up the energy  
-  for (int i=0;i<NrecoJetCorCal;i++) {     
+  for (int i=0;i<NrecoJetCorCal;++i) {     
     if(recoJetCorCalPt[i] >= jetthreshold) { 
-      sumHT+=recoJetCorCalPt[i];   
+      //sumHT+=recoJetCorCalPt[i];
+
+      sumHT+=(recoJetCorCalE[i]/cosh(recoJetCorCalEta[i]));
     }     
   }      
    
-  if(sumHT >= sumHTthreshold) 
-    rc = 1; 
-   
+  if(sumHT >= sumHTthreshold) rc = 1;
+
   return rc;    
 } 
