@@ -45,15 +45,19 @@ MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet
         if (whichTrack1_ == None || whichTrack2_ == None) throw cms::Exception("Configuration") << "Algorithm 'byTrackRef' needs tracks not to be 'none'.\n";
     } else if (algo_ == ByPropagatingSrc || algo_ == ByPropagatingMatched || algo_ == ByDirectComparison) {
         // read matching cuts
-        maxLocalPosDiff_    = iConfig.getParameter<double>("maxDeltaLocalPos");
-        maxGlobalMomDeltaR_ = iConfig.getParameter<double>("maxDeltaR");
-        maxGlobalDPtRel_    = iConfig.getParameter<double>("maxDeltaPtRel");
+        maxLocalPosDiff_      = iConfig.getParameter<double>("maxDeltaLocalPos");
+        maxGlobalMomDeltaR_   = iConfig.getParameter<double>("maxDeltaR");
+        maxGlobalMomDeltaEta_ = iConfig.existsAs<double>("maxDeltaEta") ? iConfig.getParameter<double>("maxDeltaEta") : maxGlobalMomDeltaR_;
+        maxGlobalMomDeltaPhi_ = iConfig.existsAs<double>("maxDeltaPhi") ? iConfig.getParameter<double>("maxDeltaPhi") : maxGlobalMomDeltaR_;
+        maxGlobalDPtRel_      = iConfig.getParameter<double>("maxDeltaPtRel");
 
         // choice of sorting variable
         std::string sortBy = iConfig.getParameter<std::string>("sortBy");
         if      (sortBy == "deltaLocalPos") sortBy_ = LocalPosDiff;
         else if (sortBy == "deltaPtRel")    sortBy_ = GlobalDPtRel;
         else if (sortBy == "deltaR")        sortBy_ = GlobalMomDeltaR;
+        //else if (sortBy == "deltaEta")      sortBy_ = GlobalMomDeltaEta;
+        //else if (sortBy == "deltaPhi")      sortBy_ = GlobalMomDeltaPhi;
         else if (sortBy == "chi2")          sortBy_ = Chi2;
         else throw cms::Exception("Configuration") << "Parameter 'sortBy' must be one of: deltaLocalPos, deltaPtRel, deltaR, chi2.\n";
         // validate the config
@@ -295,10 +299,14 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
     if (tsos.isValid()) {
         float thisLocalPosDiff = (tsos.localPosition()-target.localPosition()).mag();
         float thisGlobalMomDeltaR = deltaR(tsos.globalMomentum(), target.globalMomentum());
+        float thisGlobalMomDeltaPhi = fabs(deltaPhi(tsos.globalMomentum().phi(), target.globalMomentum().phi()));
+        float thisGlobalMomDeltaEta = fabs(tsos.globalMomentum().eta() - target.globalMomentum().eta());
         float thisGlobalDPtRel = (tsos.globalMomentum().perp() - target.globalMomentum().perp())/target.globalMomentum().perp();
 
         if ((thisLocalPosDiff       < maxLocalPosDiff_) &&
             (thisGlobalMomDeltaR    < maxGlobalMomDeltaR_) &&
+            (thisGlobalMomDeltaEta  < maxGlobalMomDeltaEta_) &&
+            (thisGlobalMomDeltaPhi  < maxGlobalMomDeltaPhi_) &&
             (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
             float thisChi2         = useChi2_ ? getChi2(target, tsos, chi2DiagonalOnly_, chi2UseVertex_) : 0;
             if (thisChi2 >= maxChi2_) return false;
@@ -336,11 +344,15 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
     
     bool isBest = false;
     float thisLocalPosDiff = (tscp.position()-target.position()).mag();
-    float thisGlobalMomDeltaR = deltaR(tscp.momentum(), target.momentum());
+    float thisGlobalMomDeltaR   = deltaR(tscp.momentum(), target.momentum());
+    float thisGlobalMomDeltaPhi = fabs(deltaPhi(tscp.momentum().phi(), target.momentum().phi()));
+    float thisGlobalMomDeltaEta = fabs(tscp.momentum().eta() - target.momentum().eta());
     float thisGlobalDPtRel = (tscp.momentum().perp() - target.momentum().perp())/target.momentum().perp();
 
     if ((thisLocalPosDiff       < maxLocalPosDiff_) &&
             (thisGlobalMomDeltaR    < maxGlobalMomDeltaR_) &&
+            (thisGlobalMomDeltaEta  < maxGlobalMomDeltaEta_) &&
+            (thisGlobalMomDeltaPhi  < maxGlobalMomDeltaPhi_) &&
             (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
         float thisChi2         = useChi2_ ? getChi2(target, tscp, chi2DiagonalOnly_, chi2UseVertex_) : 0;
         if (thisChi2 >= maxChi2_) return false;
@@ -375,11 +387,15 @@ MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &
 
     bool isBest = false;
     float thisLocalPosDiff = (start.position()-target.position()).mag();
-    float thisGlobalMomDeltaR = deltaR(start.momentum(), target.momentum());
+    float thisGlobalMomDeltaR   = deltaR(start.momentum(), target.momentum());
+    float thisGlobalMomDeltaPhi = fabs(deltaPhi(start.momentum().phi(), target.momentum().phi()));
+    float thisGlobalMomDeltaEta = fabs(start.momentum().eta() - target.momentum().eta());
     float thisGlobalDPtRel = (start.momentum().perp() - target.momentum().perp())/target.momentum().perp();
 
     if ((thisLocalPosDiff       < maxLocalPosDiff_) &&
             (thisGlobalMomDeltaR    < maxGlobalMomDeltaR_) &&
+            (thisGlobalMomDeltaEta  < maxGlobalMomDeltaEta_) &&
+            (thisGlobalMomDeltaPhi  < maxGlobalMomDeltaPhi_) &&
             (fabs(thisGlobalDPtRel) < maxGlobalDPtRel_)) {
         float thisChi2 = useChi2_ ? getChi2(start, target, chi2DiagonalOnly_, chi2UseVertex_, chi2FirstMomentum_) : 0;
         if (thisChi2 >= maxChi2_) return false;

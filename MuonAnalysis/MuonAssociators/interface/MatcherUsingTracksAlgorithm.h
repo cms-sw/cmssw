@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 #define MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 //
-// $Id: MatcherUsingTracksAlgorithm.h,v 1.2 2009/08/02 08:33:19 gpetrucc Exp $
+// $Id: MatcherUsingTracksAlgorithm.h,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.2 2009/08/02 08:33:19 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
 */
 
 
@@ -85,6 +85,8 @@ class MatcherUsingTracksAlgorithm {
         // Matching cuts
         float maxLocalPosDiff_;
         float maxGlobalMomDeltaR_;
+        float maxGlobalMomDeltaEta_;
+        float maxGlobalMomDeltaPhi_;
         float maxGlobalDPtRel_;
         float maxChi2_;
         bool  useChi2_, chi2UseVertex_, chi2DiagonalOnly_, chi2FirstMomentum_;
