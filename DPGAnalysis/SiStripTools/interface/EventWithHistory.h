@@ -19,7 +19,8 @@ class EventWithHistory: public TinyEvent {
   
   EventWithHistory();
   explicit EventWithHistory(const TinyEvent& se);
-  explicit EventWithHistory(const int event,const int orbit,const int bx);
+  explicit EventWithHistory(const unsigned int event,const int orbit,const int bx);
+  explicit EventWithHistory(const unsigned int event,const unsigned int orbit,const int bx);
   explicit EventWithHistory(const edm::Event& event);
   EventWithHistory(const std::vector<edm::EventAuxiliary>& he);
   EventWithHistory(const edm::Event& event, const L1AcceptBunchCrossingCollection& l11bcc, 
@@ -34,8 +35,8 @@ class EventWithHistory: public TinyEvent {
   int add(const EventWithHistory& he, const int idepth);  // return false if depth limit reached or not consecutive
   int add(const TinyEvent& he, const int idepth);  // return false if depth limit reached or not consecutive
 
-  const int event() const;
-  const int orbit() const;
+  const unsigned int event() const;
+  const unsigned int orbit() const;
   const int bx() const;
 
   const TinyEvent* get(const unsigned int ev) const;

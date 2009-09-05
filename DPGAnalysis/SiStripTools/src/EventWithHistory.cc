@@ -9,7 +9,10 @@ EventWithHistory::EventWithHistory(): TinyEvent(), _prevse() { }
 
 EventWithHistory::EventWithHistory(const TinyEvent& se): TinyEvent(se), _prevse() { }
 
-EventWithHistory::EventWithHistory(const int event, const int orbit, const int bx): 
+EventWithHistory::EventWithHistory(const unsigned int event, const int orbit, const int bx): 
+  TinyEvent(event,orbit,bx), _prevse() { }
+
+EventWithHistory::EventWithHistory(const unsigned int event, const unsigned int orbit, const int bx): 
   TinyEvent(event,orbit,bx), _prevse() { }
 
 EventWithHistory::EventWithHistory(const edm::Event& event): 
@@ -33,8 +36,8 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
   std::map<int,TinyEvent> tmpmap;
   
   for(L1AcceptBunchCrossingCollection::const_iterator l1abc=l1abcc.begin();l1abc!=l1abcc.end();++l1abc) {
-    int evnumb = event.id().event()+l1abc->l1AcceptOffset();
-    if(evnumb>0) {
+    if(event.id().event() > (unsigned int)(-1*l1abc->l1AcceptOffset()) ) {
+      unsigned int evnumb = event.id().event()+l1abc->l1AcceptOffset();
       if(orbitoffset < (long long)l1abc->orbitNumber()) {
 	unsigned int neworbit = l1abc->orbitNumber() - orbitoffset;
 	int newbx = l1abc->bunchCrossing() - bxoffset;
@@ -177,8 +180,8 @@ int EventWithHistory::add(const TinyEvent& se, const int idepth) {
   return 0;
 }
 
-const int EventWithHistory::event() const { return TinyEvent::_event; } 
-const int EventWithHistory::orbit() const { return TinyEvent::_orbit; } 
+const unsigned int EventWithHistory::event() const { return TinyEvent::_event; } 
+const unsigned int EventWithHistory::orbit() const { return TinyEvent::_orbit; } 
 const int EventWithHistory::bx() const { return TinyEvent::_bx; } 
 
 const TinyEvent* EventWithHistory::get(const unsigned int ev) const {

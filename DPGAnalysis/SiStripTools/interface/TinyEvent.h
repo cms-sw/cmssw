@@ -12,12 +12,12 @@ namespace edm {
 
 struct TinyEvent {
 
-  TinyEvent():_event(-1), _orbit(0), _bx(0) { }
+  TinyEvent():_event(0), _orbit(0), _bx(0) { }
 
-  explicit TinyEvent(const int event,const int orbit,const int bx):
+  explicit TinyEvent(const unsigned int event,const int orbit,const int bx):
     _event(event), _orbit(orbit<0 ? 0 : orbit ), _bx(bx<0 ? 0 : bx) { }
 
-  explicit TinyEvent(const int event,const unsigned int orbit,const int bx):
+  explicit TinyEvent(const unsigned int event,const unsigned int orbit,const int bx):
     _event(event), _orbit(orbit), _bx(bx<0 ? 0 : bx) { }
 
   TinyEvent(const TinyEvent& se):
@@ -84,7 +84,7 @@ struct TinyEvent {
 
   }
 
-  int _event;
+  unsigned int _event;
   unsigned int _orbit;
   unsigned int _bx;
 
