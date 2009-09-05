@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.5 2009/04/27 20:45:20 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.6 2009/08/25 20:48:01 hegner Exp $
 //
 
 
@@ -200,14 +200,12 @@ void PATTriggerProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
     for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
       if ( iM->first == iO ) {
+        triggerObjectStandAlone.addFilterLabel( iM->second );
         for ( std::multimap< std::string, std::string >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
           if ( iP->first == iM->second ) {
             triggerObjectStandAlone.addPathName( iP->second );
-            break;
           }
         }
-        triggerObjectStandAlone.addFilterLabel( iM->second );
-        break;
       }
     }
 
