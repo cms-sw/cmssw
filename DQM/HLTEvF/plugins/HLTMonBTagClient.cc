@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/03 18:33:51 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/09/05 17:32:38 $
+ *  $Revision: 1.1 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -131,13 +131,13 @@ void HLTMonBTagClient::endLuminosityBlock(const edm::LuminosityBlock & lumi, con
 
   // compute efficiencies (bin 0 is underflow, bin 7 is overflow)
   TH1F * rates    = m_plotRates->getTH1F();
-  TH1F * relative = m_plotAbsEfficiencies->getTH1F(); 
-  TH1F * absolute = m_plotRelEfficiencies->getTH1F(); 
+  TH1F * absolute = m_plotAbsEfficiencies->getTH1F(); 
+  TH1F * relative = m_plotRelEfficiencies->getTH1F(); 
   float total = rates->GetBinContent(1);
   if (total) {
-    relative->SetBinContent(0, 1.);
-    absolute->SetBinContent(0, 1.);
-    for (size_t i = 1; i < 7; i++) {
+    relative->SetBinContent(1, 1.);
+    absolute->SetBinContent(1, 1.);
+    for (size_t i = 2; i < 7; i++) {
       float n = rates->GetBinContent(i);
       float d = rates->GetBinContent(i-1);
       relative->SetBinContent(i, (d > 0) ? (n / d) : 0.);
