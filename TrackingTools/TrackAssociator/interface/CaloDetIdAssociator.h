@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.8 2008/05/15 17:04:49 heltsley Exp $
+// $Id: CaloDetIdAssociator.h,v 1.10.2.1 2009/07/01 09:57:27 dmytro Exp $
 //
 //
 
@@ -101,6 +101,11 @@ class CaloDetIdAssociator: public DetIdAssociator{
       return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 
+   virtual bool crossedElement(const GlobalPoint&, 
+			       const GlobalPoint&, 
+			       const DetId& id,
+			       const double tolerance = -1,
+			       const SteppingHelixStateInfo* = 0 ) const;
    const CaloGeometry* geometry_;
 };
 #endif
