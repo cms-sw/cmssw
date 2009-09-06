@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/03/09 20:20:11 $
- * $Revision: 1.19 $
+ * $Date: 2009/07/29 21:18:36 $
+ * $Revision: 1.20 $
  * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
@@ -106,8 +106,9 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
   i1        = dbe_->bookInt("int1");
   f1        = dbe_->bookFloat("float1");
   s1        = dbe_->bookString("s1", "My string");
-  h1        = dbe_->book1D("histo1", "Example 1 1D histogram.", NBINS2, XMIN, XMAX);
-  h2        = dbe_->book1D("histo2", "Example 2 1D histogram.", NBINS, XMIN, XMAX);
+  h1        = dbe_->book1D("h1f", "Example TH1F 1D histogram.", NBINS2, XMIN, XMAX);
+  h2        = dbe_->book1S("h1s", "Example TH1S histogram.", NBINS, XMIN, XMAX);
+//  h3        = dbe_->book1DD("h1d", "Example TH1D histogram.", NBINS, XMIN, XMAX);
   p1        = dbe_->bookProfile(  "prof1", "My profile 1D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   p2        = dbe_->bookProfile2D("prof2", "My profile 2D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   h1hist    = dbe_->book1D("history 1D","Example 1 1D history plot", 30, 0.,30.);
@@ -164,7 +165,8 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //  cout << " processing conterEvt_: " << counterEvt_ <<endl;
 
   // fill integer and float
-  i1->Fill(4);
+// number exceeding 32 bits
+//  i1->Fill((int64_t)0xffff00000000); // FIXME use double
   f1->Fill(-3.14);
  
   //----------------------------------------
@@ -194,6 +196,7 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   deadTrue->Fill(  gRandom->Gaus(20, 10), 2.);
   deadFalse->Fill( gRandom->Gaus(20,  4), 1.);
   h2->Fill(  gRandom->Gaus(20,  4), 1.);
+//  h3->Fill(  XMIN, (double)0xffff00000000); // FIXME use double
   
   //h1hist->Print();
   //h1hist->Print();

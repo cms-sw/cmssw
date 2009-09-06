@@ -6,18 +6,56 @@ process.source = cms.Source("EmptySource")
 
 ### set number of events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
     )
 
+######################################################################################
 ### include to get DQM histogramming services
 process.load("DQMServices.Core.DQM_cfg")
+process.DQMStore.verbose = 0
 
+### include to get DQM environment (file saver and eventinfo module)
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+
+### replace YourSubsystemName by the name of your source ###
+### use it for dqmEnv, dqmSaver ###
+process.dqmEnv.subSystemFolder = 'SubS'
+
+### optional parameters (defaults are different) ###
+
+### Online environment
+process.dqmSaver.convention = 'Online'
+process.DQM.collectorHost = ''
+process.DQM.collectorPort = 9190
+
+### path where to save the output file
+### optionally change fileSaving conditions
+process.dqmSaver.dirName = '.'
+process.dqmSaver.saveByTime = 4
+process.dqmSaver.saveByLumiSection = -1
+process.dqmSaver.saveByMinute = 8
+process.dqmSaver.saveByRun = 1
+process.dqmSaver.saveAtJobEnd = True
+
+######################################################################################
 ### include your reference file
-#process.DQMStore.referenceFileName = 'ref.root'
-### set the verbose
-process.DQMStore.verbose = 2
-process.DQMStore.collateHistograms = cms.untracked.bool(True)
+process.DQMStore.referenceFileName = 'ref.root'
+### set 
+#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
+
+######################################################################################
+### loading of root files into DQMStore (stripping out Run and RunSummary)
+process.load("DQMServices.Components.DQMFileReader_cfi")
+process.dqmFileReader.FileNames = cms.untracked.vstring ( 
+       "file:ref.root",
+       "file:ref.root",
+       "file:ref.root"
+       )
+### set collateHistograms to true if you want identical histograms added
+#process.DQMStore.collateHistograms = cms.untracked.bool(True)
+
+######################################################################################
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
 process.dqmSource   = cms.EDFilter("DQMSourceExample",
         monitorName = cms.untracked.string('YourSubsystemName'),
@@ -25,6 +63,7 @@ process.dqmSource   = cms.EDFilter("DQMSourceExample",
         prescaleLS  =  cms.untracked.int32(1)                    
 )
 
+######################################################################################
 ### run the quality tests as defined in QualityTests.xml
 ### by default: the quality tests run at the end of each lumisection
 process.qTester    = cms.EDFilter("QualityTester",
@@ -34,9 +73,11 @@ process.qTester    = cms.EDFilter("QualityTester",
     verboseQT =  cms.untracked.bool(True)                 
 )
 
+######################################################################################
 ### include to get DQM histogramming services
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
+######################################################################################
 ### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
 ### by default: the client runs at the end of each lumisection
 process.dqmClient = cms.EDFilter("DQMClientExample",
@@ -47,9 +88,10 @@ process.dqmClient = cms.EDFilter("DQMClientExample",
     clientOnEachEvent = cms.untracked.bool(False) #run client on each event
 )
 
-# MessageLogger
+######################################################################################
+### MessageLogger
 process.MessageLogger = cms.Service("MessageLogger",
-                #suppressWarning = cms.untracked.vstring('qTester')      
+               #suppressWarning = cms.untracked.vstring('qTester')      
                destinations = cms.untracked.vstring('detailedInfo'),
                #debugModules = cms.untracked.vstring('*'),
                #detailedInfo = cms.untracked.PSet(
@@ -57,41 +99,20 @@ process.MessageLogger = cms.Service("MessageLogger",
                #                )
 )
 
-#### BEGIN DQM Online Environment #######################
-    
-### replace YourSubsystemName by the name of your source ###
-### use it for dqmEnv, dqmSaver
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQM.collectorHost = ''
-process.DQM.collectorPort = 9190
-
-### path where to save the output file
-process.dqmSaver.dirName = '.'
-
-### the filename prefix 
-process.dqmSaver.producer = 'DQM'
-
-### possible conventions are "Online" and "Offline"
-process.dqmSaver.convention = 'Online'
-
-process.dqmEnv.subSystemFolder = 'SubS'
-
-### optionally change fileSaving  conditions
-process.dqmSaver.convention = 'Online'
-process.dqmSaver.dirName = '.'
-process.dqmSaver.producer = 'DQM'
-process.dqmSaver.saveByTime = 4
-process.dqmSaver.saveByLumiSection = -1
-process.dqmSaver.saveByMinute = 8
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveAtJobEnd = True
+######################################################################################
+### LogError Histogramming
+process.load("FWCore.Modules.logErrorHarvester_cfi")
+process.load("DQMServices.Components.DQMLogError_cfi")
 
 
-### FIX YOUR  PATH TO INCLUDE dqmEnv and dqmSaver
-process.p = cms.Path(process.dqmSource
-#                    *process.qTester
-		    *process.dqmStoreStats
-#		    *process.dqmClient
-		    *process.dqmEnv
-		    *process.dqmSaver)
-
+######################################################################################
+process.p = cms.Path(
+                     process.dqmFileReader*
+		     process.dqmEnv*
+                     process.dqmSource*
+                     process.qTester*
+		     process.dqmStoreStats*
+		     process.dqmClient*
+		     process.logErrorHarvester*process.logErrorDQM*
+		     process.dqmSaver
+		    )
