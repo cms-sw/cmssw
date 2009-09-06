@@ -1,7 +1,6 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
-// hope not... #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "TGeoManager.h"
 #include "TFile.h"
@@ -14,6 +13,8 @@
 #include <sstream>
 #include "TPRegexp.h"
 #include "TSystem.h"
+#include "TGeoArb8.h"
+#include "TEveVSDStructs.h"
 DetIdToMatrix::~DetIdToMatrix()
 {
    // ATTN: not sure I own the manager
@@ -228,5 +229,108 @@ TEveElementList* DetIdToMatrix::getAllShapes(const char* elementListName /*= "CM
    for ( std::map<unsigned int, std::string>::const_iterator itr = idToPath_.begin(); itr != idToPath_.end(); ++itr )
       container->AddElement( getShape(itr->first) );
    return container;
+}
+
+
+void DetIdToMatrix::printEtaPhiRange(unsigned int id) const
+{
+   Range range = getEtaPhiRange(id);
+   printf("eta: [%0.3f,%0.3f], phi: [%0.3f,%0.3f]\n",
+	  range.min1, range.max1, range.min2, range.max2);
+}
+
+DetIdToMatrix::Range DetIdToMatrix::getEtaPhiRange(unsigned int id) const
+{
+   Range range;
+   // get shape with corrected matrix (not sure if it helps)
+   TEveGeoShape* eveshape = getShape(id,true);
+   const TGeoHMatrix* matrix = getMatrix(id);
+   if ( !eveshape || !matrix ) return range;
+   if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(eveshape->GetShape()) )
+     {
+	if ( shape->GetH1() > shape->GetH2() ) {
+	   updateEtaPhiRange(matrix, +shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
+	   updateEtaPhiRange(matrix, -shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
+	   updateEtaPhiRange(matrix, +shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
+	   updateEtaPhiRange(matrix, -shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
+	}else{
+	   updateEtaPhiRange(matrix, +shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
+	   updateEtaPhiRange(matrix, -shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
+	   updateEtaPhiRange(matrix, +shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
+	   updateEtaPhiRange(matrix, -shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
+	}
+     }
+   return range;
+}
+
+DetIdToMatrix::Range DetIdToMatrix::getXYRange(unsigned int id) const
+{
+   Range range;
+   // get shape with corrected matrix (not sure if it helps)
+   TEveGeoShape* eveshape = getShape(id,true);
+   const TGeoHMatrix* matrix = getMatrix(id);
+   if ( !eveshape || !matrix ) return range;
+   if ( const TGeoTrap* shape = dynamic_cast<const TGeoTrap*>(eveshape->GetShape()) )
+     {
+	if ( shape->GetH1() > shape->GetH2() ) {
+	   updateXYRange(matrix, +shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
+	   updateXYRange(matrix, -shape->GetTl2(), +shape->GetH2(), +shape->GetDz(), range);
+	   updateXYRange(matrix, +shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
+	   updateXYRange(matrix, -shape->GetBl2(), -shape->GetH2(), +shape->GetDz(), range);
+	}else{
+	   updateXYRange(matrix, +shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
+	   updateXYRange(matrix, -shape->GetTl1(), +shape->GetH1(), -shape->GetDz(), range);
+	   updateXYRange(matrix, +shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
+	   updateXYRange(matrix, -shape->GetBl1(), -shape->GetH1(), -shape->GetDz(), range);
+	}
+     }
+   return range;
+}
+
+
+void DetIdToMatrix::updateXYRange(const TGeoHMatrix* matrix,
+				      double local_x,
+				      double local_y,
+				      double local_z,
+				      Range& range) const
+{
+   Double_t local[3];
+   Double_t global[3];
+   local[0]=local_x;
+   local[1]=local_y;
+   local[2]=local_z;
+   matrix->LocalToMaster(local,global);
+   TEveVector v(global[0],global[1],global[2]);
+   // printf("local_x: %0.2f, \tlocal_y: %0.2f, \tlocal_z: %0.2f\n",local_x,local_y,local_z);
+   // printf("\tglobal_x: %0.2f, \tglobal_y: %0.2f, \tglobal_z: %0.2f\n",
+   //        global[0],global[1],global[2]);
+   // printf("\teta: %0.5f, \tphi: %0.5f\n", v.Eta(), v.Phi());
+   if ( range.min1 > v.fX ) range.min1 = v.fX;
+   if ( range.max1 < v.fX ) range.max1 = v.fX;
+   if ( range.min2 > v.fY ) range.min2 = v.fY;
+   if ( range.max2 < v.fY ) range.max2 = v.fY;
+}
+
+void DetIdToMatrix::updateEtaPhiRange(const TGeoHMatrix* matrix,
+				      double local_x,
+				      double local_y,
+				      double local_z,
+				      Range& range) const
+{
+   Double_t local[3];
+   Double_t global[3];
+   local[0]=local_x;
+   local[1]=local_y;
+   local[2]=local_z;
+   matrix->LocalToMaster(local,global);
+   TEveVector v(global[0],global[1],global[2]);
+   // printf("local_x: %0.2f, \tlocal_y: %0.2f, \tlocal_z: %0.2f\n",local_x,local_y,local_z);
+   // printf("\tglobal_x: %0.2f, \tglobal_y: %0.2f, \tglobal_z: %0.2f\n",
+   //        global[0],global[1],global[2]);
+   // printf("\teta: %0.5f, \tphi: %0.5f\n", v.Eta(), v.Phi());
+   if ( range.min1 > v.Eta() ) range.min1 = v.Eta();
+   if ( range.max1 < v.Eta() ) range.max1 = v.Eta();
+   if ( range.min2 > v.Phi() ) range.min2 = v.Phi();
+   if ( range.max2 < v.Phi() ) range.max2 = v.Phi();
 }
 

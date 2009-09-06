@@ -4,6 +4,7 @@
   <class name="FWEventItem"/>
   <class name="FWDisplayProperties"/>
   <class name="DetIdToMatrix"/>
+  <class name="DetIdToMatrix::Range"/>
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
   <class name="CmsShowEDI"/>
