@@ -1,7 +1,11 @@
+// hack
+#define protected public
+#include "TEveCaloData.h"
+#undef protected
+
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
-#include "TEveCaloData.h"
 #include "TEveCalo.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -71,11 +75,22 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 	// fill
 	fillData(hits, data);	
 	
-	// make grid
-	Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-	data->GetEtaLimits(etaMin, etaMax);
-	data->GetPhiLimits(phiMin, phiMax);
-	
+        // make grid
+        Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
+	if (fabs(m_eta) < 1.5) {
+	   etaMin = m_eta-m_size*0.0172;
+	   etaMax = m_eta+m_size*0.0172;
+	   phiMin = m_phi-m_size*0.0172;
+	   phiMax = m_phi+m_size*0.0172;
+	   data->fEtaMin = etaMin;
+	   data->fEtaMax = etaMax;
+	   data->fPhiMin = phiMin;
+	   data->fPhiMax = phiMax;
+	}else{
+	   data->GetEtaLimits(etaMin, etaMax);
+	   data->GetPhiLimits(phiMin, phiMax);
+	}
+   
 	// make tower grid
 	std::vector<double> etaBinsWithinLimits;
 	etaBinsWithinLimits.push_back(etaMin);
@@ -114,6 +129,7 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
 	// lego
 	TEveCaloLego *lego = new TEveCaloLego(data);
+	lego->SetDrawNumberCellPixels(20);
 	// scale and translate to real world coordinates
 	lego->SetEta(etaMin, etaMax);
 	lego->SetPhiWithRng((phiMin+phiMax)*0.5, (phiMax-phiMin)*0.5); // phi range = 2* phiOffset
@@ -206,70 +222,75 @@ void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
 	
 }
 
-void FWECALDetailViewBuilder::fillData (const EcalRecHitCollection *hits, 
+void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits, 
 					TEveCaloDataVec *data)
 {
 	
-	 // loop on all the detids
-	 for (EcalRecHitCollection::const_iterator k = hits->begin();
-		  k != hits->end(); ++k) {
-	
-		 const TGeoHMatrix *matrix = m_geom->getMatrix(k->id().rawId());
-		 if ( matrix == 0 ) {
-			 printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
-			 continue;
-		 }
+   // loop on all the detids
+   for (EcalRecHitCollection::const_iterator k = hits->begin();
+	k != hits->end(); ++k) {
+      
+      const TGeoHMatrix *matrix = m_geom->getMatrix(k->id().rawId());
+      if ( matrix == 0 ) {
+	 printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
+	 continue;
+      }
+      
+      TVector3 v(matrix->GetTranslation()[0],
+		 matrix->GetTranslation()[1],
+		 matrix->GetTranslation()[2]);
+      
+      // set the et
+      double size = k->energy()/cosh(v.Eta());
+      
+      // check what slice to put in
+      int slice = 0;
+      std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
+      if (itr != m_detIdsToColor.end()) slice = itr->second;
+      
+      // if in the EB
+      if (k->id().subdetId() == EcalBarrel) {
 	 
-		 TVector3 v(matrix->GetTranslation()[0],
-					matrix->GetTranslation()[1],
-					matrix->GetTranslation()[2]);
+	 // do phi wrapping
+	 double phi = v.Phi();
+	 if (v.Phi() > m_phi + M_PI)
+	   phi -= 2 * M_PI;
+	 if (v.Phi() < m_phi - M_PI)
+	   phi += 2 * M_PI;
+			 
+	 // check if the hit is in the window to be drawn
+	 if (! (fabs(v.Eta() - m_eta) < (m_size*0.0172) 
+		&& fabs(phi - m_phi) < (m_size*0.0172)))
+	   continue;
 	 
-		 // set the et
-		 double size = k->energy()/cosh(v.Eta());
-		 
-		 // check what slice to put in
-		 int slice = 0;
-		 std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
-		 if (itr != m_detIdsToColor.end()) slice = itr->second;
-
-		// if in the EB
-		 if (k->id().subdetId() == EcalBarrel) {
-			 
-			 // do phi wrapping
-			 double phi = v.Phi();
-			 if (v.Phi() > m_phi + M_PI)
-			    phi -= 2 * M_PI;
-			 if (v.Phi() < m_phi - M_PI)
-			    phi += 2 * M_PI;
-			 
-			 // check if the hit is in the window to be drawn
-			 if (! (fabs(v.Eta() - m_eta) < (m_size*0.0172) 
-					&& fabs(phi - m_phi) < (m_size*0.0172)))
-				 continue;
-			 
-			 // if in the window to be drawn then draw it
-			 data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
-							phi - 0.0172 / 2, phi + 0.0172 / 2);
-			 data->FillSlice(slice, size);
-			 if (size>10)
-			   std::cout << k->id().rawId() << "\t Et:" << size << std::endl;
-		// otherwise in the EE
-		 } else if (k->id().subdetId() == EcalEndcap) {
-			 			 
-			 // check if the hit is in the window to be drawn
-			 if (! (fabs(v.Eta() - m_eta) < (m_size*0.0172) 
-					&& fabs(v.Phi() - m_phi) < (m_size*0.0172)))
-				 continue;			 
-			 
-			 // if in the window to be drawn then draw it
-			 data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
-							(v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
-			 data->FillSlice(slice, size);
-		 }
+	 // if in the window to be drawn then draw it
+	 // data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
+	 // 				phi - 0.0172 / 2, phi + 0.0172 / 2);
+	 DetIdToMatrix::Range range = m_geom->getEtaPhiRange(k->id().rawId());
+	 data->AddTower(range.min1, range.max1, range.min2, range.max2);
+	 data->FillSlice(slice, size);
+	 // if (size>0.5)
+	 // std::cout << k->id().rawId() << "\t Et:" << size << std::endl;
 	 
-	} // end loop on hits
+      // otherwise in the EE
+      } else if (k->id().subdetId() == EcalEndcap) {
 	 
-	 data->DataChanged();
+	 // check if the hit is in the window to be drawn
+	 if (! (fabs(v.Eta() - m_eta) < (m_size*0.0172) 
+		&& fabs(v.Phi() - m_phi) < (m_size*0.0172)))
+	   continue;			 
+	 
+	 // if in the window to be drawn then draw it
+	 DetIdToMatrix::Range range = m_geom->getXYRange(k->id().rawId());
+	 data->AddTower(range.min1, range.max1, range.min2, range.max2);
+	 // data->AddTower((v.X() - 2.9 / 2), (v.X() + 2.9 / 2),
+	 // 		(v.Y() - 2.9 / 2), (v.Y() + 2.9 / 2));
+	 data->FillSlice(slice, size);
+      }
+      
+   } // end loop on hits
+	 
+   data->DataChanged();
 	
 }
 
