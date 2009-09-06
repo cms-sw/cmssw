@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.35 2009/09/04 18:23:48 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.9 2009/09/06 12:57:21 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -59,8 +59,9 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    // prepare window
    slot = eveWindow->NewSlot();
    ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("ECAL based view");
-   
+   ew->SetElementName("Muon based view");
+   FWDetailViewBase::setEveWindow(ew);
+
    // build ECAL objects
    double eta = iMuon->eta();
    double phi = iMuon->phi();

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.7 2009/08/24 16:21:30 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.8 2009/08/26 18:59:21 amraktad Exp $
 //
 
 // system include files
@@ -53,7 +53,6 @@ FWDetailViewBase::makePackCanvas(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
    TGPack* pack = wp->GetPack();
    pack->SetVertical(kFALSE);
    pack->SetUseSplitters(kFALSE);
-   m_eveWindow = wp;
 
    // gui frame 
    guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);
@@ -82,7 +81,6 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
    TGPack* pack = wp->GetPack();
    pack->SetVertical(kFALSE);
    pack->SetUseSplitters(kFALSE);
-   m_eveWindow = wp;
 
    // gui frame 
    guiFrame = new TGVerticalFrame(pack, 10, 10, kSunkenFrame|kDoubleBorder);

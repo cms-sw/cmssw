@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.12 2009/08/27 17:54:22 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.13 2009/09/06 12:54:23 dmytro Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -56,7 +56,8 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    // prepare window
    slot = eveWindow->NewSlot();
    ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("ECAL based view");
+   ew->SetElementName("Photon based view");
+   FWDetailViewBase::setEveWindow(ew);
    
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),

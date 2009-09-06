@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.35 2009/09/04 18:23:48 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.36 2009/09/06 12:53:44 dmytro Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -64,6 +64,7 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    slot = eveWindow->NewSlot();
    ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
    ew->SetElementName("ECAL based view");
+   FWDetailViewBase::setEveWindow(ew);
    
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),

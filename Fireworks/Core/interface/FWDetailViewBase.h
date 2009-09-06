@@ -41,6 +41,7 @@ public:
 
    void  build (const FWModelId&, TEveWindowSlot*);
    TEveWindow*  getEveWindow() { return m_eveWindow; }
+   void         setEveWindow(TEveWindow* w) { m_eveWindow = w;} 
 
 protected:
    FWDetailViewBase(const std::type_info&);

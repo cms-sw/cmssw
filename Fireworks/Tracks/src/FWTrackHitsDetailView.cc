@@ -45,6 +45,8 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 
    TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
    ew->SetElementName("Track hit view");
+   FWDetailViewBase::setEveWindow(ew);
+
    TracksRecHitsUtil::addHits(*track, id.item(), scene);
    CmsMagField* cmsMagField = new CmsMagField;
    cmsMagField->setReverseState( true );
