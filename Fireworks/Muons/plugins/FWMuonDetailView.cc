@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.9 2009/09/06 12:57:21 dmytro Exp $
+// $Id: FWMuonDetailView.cc,v 1.10 2009/09/06 19:35:44 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -235,18 +235,18 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
    TEveStraightLineSet *lines = new TEveStraightLineSet("Muon trajectory in ECAL","Muon trajectory in ECAL");
    lines->SetPickable(kTRUE);
    if ( barrel ) {
-      lines->AddLine(x = i->calEnergy().ecal_position.eta(),
-		     y = i->calEnergy().ecal_position.phi(),
+      lines->AddLine(i->calEnergy().ecal_position.eta(),
+		     i->calEnergy().ecal_position.phi(),
 		     0,
-		     x = i->calEnergy().hcal_position.eta(),
-		     y = i->calEnergy().hcal_position.phi(),
+		     i->calEnergy().hcal_position.eta(),
+		     i->calEnergy().hcal_position.phi(),
 		     0);
    } else {
-      lines->AddLine(x = i->calEnergy().ecal_position.x(),
-		     y = i->calEnergy().ecal_position.y(),
+      lines->AddLine(i->calEnergy().ecal_position.x(),
+		     i->calEnergy().ecal_position.y(),
 		     0,
-		     x = i->calEnergy().hcal_position.x(),
-		     y = i->calEnergy().hcal_position.y(),
+		     i->calEnergy().hcal_position.x(),
+		     i->calEnergy().hcal_position.y(),
 		     0);
    }
    lines->SetLineColor(kRed);
