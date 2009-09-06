@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.34 2009/09/03 22:14:15 dmytro Exp $
+// $Id: FWElectronDetailView.cc,v 1.35 2009/09/04 18:23:48 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -11,6 +11,7 @@
 #include "TLatex.h"
 #include "TEveCalo.h"
 #include "TEveStraightLineSet.h"
+#include "TEvePointSet.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
@@ -49,13 +50,11 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    TEveWindowPack* eveWindow = base->MakePack();
    eveWindow->SetShowTitleBar(kFALSE);
 
-
    TEveWindow* ew(0);
    TEveWindowSlot* slot(0);
    TEveScene*      scene(0);
    TEveViewer*     viewer(0);
    TGVerticalFrame* ediFrame(0);
-
 
    ////////////////////////////////////////////////////////////////////////
    //                              Sub-view 1
@@ -68,7 +67,7 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    
    // build ECAL objects
    FWECALDetailViewBuilder builder(id.item()->getEvent(), id.item()->getGeom(),
-				   iElectron->eta(), iElectron->phi(), 25);
+				   iElectron->caloPosition().eta(), iElectron->caloPosition().phi(), 25);
    builder.showSuperClusters(kGreen+2, kGreen+4);
    if ( iElectron->superCluster().isAvailable() )
      builder.showSuperCluster(*(iElectron->superCluster()), kYellow);
@@ -78,7 +77,7 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    // add Electron specific details
    addTrackPointsInCaloData( iElectron, lego);
    drawCrossHair(iElectron, lego, scene);
-   addClusterObjects(iElectron, scene);
+   addInfo(iElectron, scene);
 
    // draw legend in latex
    TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
@@ -89,11 +88,13 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    makeLegend(iElectron, id, ec->GetCanvas());
    
    // draw axis at the window corners
+   // std::cout << "TEveViewer: " << viewer << std::endl;
    TGLViewer* glv =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
+   overlay->SetShowScales(0); // temporary
    glv->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
@@ -140,9 +141,7 @@ FWElectronDetailView::makeLegend(const reco::GsfElectron *electron,
 				 TCanvas* textCanvas)
 {
    textCanvas->cd();
-   /////////////////////////////////////////////////////////////////////
-   // BASE
-   
+
    TLatex* latex = new TLatex(0.02, 0.970, "");
    const double textsize(0.05);
    latex->SetTextSize(2*textsize);
@@ -189,6 +188,7 @@ FWElectronDetailView::makeLegend(const reco::GsfElectron *electron,
    y -= 2*fontsize;
    
    // legend
+   /* it should be clear from the tool tip pop-up what a user is looking at
    latex->SetTextSize(1.5*textsize);
    latex->DrawLatex(x, y, "Legend:"); y -= fontsize*1.5;
    latex->SetTextSize(textsize);
@@ -208,6 +208,7 @@ FWElectronDetailView::makeLegend(const reco::GsfElectron *electron,
    y -= fontsize;
    latex->DrawLatex(x, y, " #color[4]{+} extrapolating from outermost state");
    y -= fontsize;
+    */
 }
 
 void
@@ -275,7 +276,7 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
       pinposition->SetLineColor(kRed);
       tList->AddElement(pinposition);
    }
-
+/*
    printf("TrackPositionAtCalo: %f %f\n",
           trackPositionAtCalo(*i).eta(), trackPositionAtCalo(*i).phi());
    printf("TrackPositionAtCalo: %f %f\n",
@@ -290,6 +291,7 @@ FWElectronDetailView::drawCrossHair (const reco::GsfElectron* i, TEveCaloLego *l
           i->caloPosition().eta(),
           deltaEtaSuperClusterTrackAtVtx(*i),
           trackPositionAtCalo(*i).eta());
+ */
 }
 
 Bool_t FWElectronDetailView::checkRange(Double_t &em, Double_t& eM, Double_t &pm, Double_t& pM,
@@ -389,7 +391,7 @@ FWElectronDetailView::addTrackPointsInCaloData (const reco::GsfElectron *i, TEve
 }
 
 void
-FWElectronDetailView::addClusterObjects(const reco::GsfElectron *i, TEveElementList* tList)
+FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList)
 {
    unsigned int subdetId(0);
    if ( ! i->superCluster()->seed()->hitsAndFractions().empty() )
@@ -397,10 +399,9 @@ FWElectronDetailView::addClusterObjects(const reco::GsfElectron *i, TEveElementL
   
    // points for centroids
    Double_t x(0), y(0), z(0);
-   TEveStraightLineSet *scposition = new TEveStraightLineSet("sc position");
+   TEvePointSet *scposition = new TEvePointSet("sc position");
    scposition->SetPickable(kTRUE);
    scposition->SetTitle("Super cluster centroid");
-   scposition->SetDepthTest(kFALSE);
    if (subdetId == EcalBarrel) {
       x = i->caloPosition().eta();
       y = i->caloPosition().phi();
@@ -408,29 +409,51 @@ FWElectronDetailView::addClusterObjects(const reco::GsfElectron *i, TEveElementL
       x = i->caloPosition().x();
       y = i->caloPosition().y();
    }
-   scposition->AddLine(x, y, z, x, y, z);
-   scposition->AddMarker(0, 0.5);
-   scposition->SetMarkerSize(2);
+   scposition->SetNextPoint(x,y,z);
+   scposition->SetMarkerSize(1);
+   scposition->SetMarkerStyle(4);
    scposition->SetMarkerColor(kBlue);
    tList->AddElement(scposition);
 
    // points for seed position
-   TEveStraightLineSet *seedposition = new TEveStraightLineSet("seed position");
-   seedposition->SetTitle("Basic cluster seeded the super cluster");
+   TEvePointSet *seedposition = new TEvePointSet("seed position");
+   seedposition->SetTitle("Seed cluster centroid");
    seedposition->SetPickable(kTRUE);
-   seedposition->SetDepthTest(kFALSE);
    if (subdetId == EcalBarrel) {
       x  = i->superCluster()->seed()->position().eta();
       y  = i->superCluster()->seed()->position().phi();
+      seedposition->SetMarkerSize(0.01);
    } else if (subdetId == EcalEndcap) {
-     x  = i->superCluster()->seed()->position().x();
-     y  = i->superCluster()->seed()->position().y();
+      x  = i->superCluster()->seed()->position().x();
+      y  = i->superCluster()->seed()->position().y();
+      seedposition->SetMarkerSize(1);
    }
-   seedposition->AddLine(x, y, z, x, y, z);
-   seedposition->AddMarker(0, 0.5);
-   seedposition->SetMarkerSize(2);
+   seedposition->SetNextPoint(x, y, z);
+   seedposition->SetMarkerStyle(2);
    seedposition->SetMarkerColor(kRed);
    tList->AddElement(seedposition);
+   
+   // electron direction (show it if it's within
+   // the area of interest)
+   if ( fabs(i->phi()-i->caloPosition().phi())< 25*0.0172 &&
+	fabs(i->eta()-i->caloPosition().eta())< 25*0.0172 )
+     {
+	TEvePointSet *eldirection = new TEvePointSet("seed position");
+	eldirection->SetTitle("Electron direction at vertex");
+	eldirection->SetPickable(kTRUE);
+	eldirection->SetMarkerStyle(2);
+	if (subdetId == EcalBarrel) {
+	   eldirection->SetNextPoint(i->eta(), i->phi(), z);
+	   eldirection->SetMarkerSize(0.01);
+	}else{
+	   eldirection->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()), 
+				     310*fabs(tan(i->theta()))*sin(i->phi()),
+				     z);
+	   eldirection->SetMarkerSize(1);
+	}
+	eldirection->SetMarkerColor(kYellow);
+	tList->AddElement(eldirection);
+     }
 }
 
 REGISTER_FWDETAILVIEW(FWElectronDetailView);
