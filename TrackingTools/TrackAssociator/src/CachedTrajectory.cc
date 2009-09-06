@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.18 2008/08/07 02:06:23 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.19.2.1 2009/07/01 04:43:46 dmytro Exp $
 //
 //
 
@@ -418,6 +418,7 @@ void CachedTrajectory::reset_trajectory() {
    ecalTrajectory_.clear();
    hcalTrajectory_.clear();
    hoTrajectory_.clear();
+   preshowerTrajectory_.clear();
    wideEcalTrajectory_.clear();   
    wideHcalTrajectory_.clear();
    wideHOTrajectory_.clear();
@@ -430,8 +431,18 @@ void CachedTrajectory::findEcalTrajectory( const FiducialVolume& volume ) {
    LogTrace("TrackAssociator") << "# of points in ECAL trajectory:" << ecalTrajectory_.size();
 }
 
+void CachedTrajectory::findPreshowerTrajectory( const FiducialVolume& volume ) {
+   LogTrace("TrackAssociator") << "getting trajectory in Preshower";
+   getTrajectory(preshowerTrajectory_, volume, 4 );
+   LogTrace("TrackAssociator") << "# of points in Preshower trajectory:" << preshowerTrajectory_.size();
+}
+
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getEcalTrajectory() {
    return ecalTrajectory_;
+}
+
+const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getPreshowerTrajectory() {
+   return preshowerTrajectory_;
 }
 
 void CachedTrajectory::findHcalTrajectory( const FiducialVolume& volume ) {
@@ -555,6 +566,14 @@ SteppingHelixStateInfo CachedTrajectory::getStateAtEcal()
      return SteppingHelixStateInfo();
    else 
      return ecalTrajectory_.front();
+}
+
+SteppingHelixStateInfo CachedTrajectory::getStateAtPreshower()
+{
+   if ( preshowerTrajectory_.empty() )
+     return SteppingHelixStateInfo();
+   else 
+     return preshowerTrajectory_.front();
 }
 
 SteppingHelixStateInfo CachedTrajectory::getStateAtHcal()

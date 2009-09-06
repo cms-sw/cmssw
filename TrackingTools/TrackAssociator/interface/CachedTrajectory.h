@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.11 2008/08/07 02:06:23 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.12.2.1 2009/07/01 04:38:08 dmytro Exp $
 //
 //
 
@@ -66,15 +66,18 @@ class CachedTrajectory {
    void findEcalTrajectory(const FiducialVolume&);
    void findHcalTrajectory(const FiducialVolume&);
    void findHOTrajectory(const FiducialVolume&);
+   void findPreshowerTrajectory(const FiducialVolume&);
 
    const std::vector<SteppingHelixStateInfo>& getEcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHOTrajectory();
+   const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory();
 
    std::vector<GlobalPoint>* getWideTrajectory(const std::vector<SteppingHelixStateInfo>&,
                                                      WideTrajectoryType);
 
    SteppingHelixStateInfo getStateAtEcal();
+   SteppingHelixStateInfo getStateAtPreshower();
    SteppingHelixStateInfo getStateAtHcal();
    SteppingHelixStateInfo getStateAtHO();
    
@@ -121,6 +124,7 @@ class CachedTrajectory {
    std::vector<SteppingHelixStateInfo> ecalTrajectory_;
    std::vector<SteppingHelixStateInfo> hcalTrajectory_;
    std::vector<SteppingHelixStateInfo> hoTrajectory_;
+   std::vector<SteppingHelixStateInfo> preshowerTrajectory_;
    std::vector<GlobalPoint> wideEcalTrajectory_; 
    std::vector<GlobalPoint> wideHcalTrajectory_;
    std::vector<GlobalPoint> wideHOTrajectory_;
