@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.19.2.1 2008/08/07 00:45:13 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.22.2.1 2009/07/01 10:04:17 dmytro Exp $
 //
 //
 
@@ -80,6 +80,9 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "Utilities/Timing/interface/TimerStack.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 class TestTrackAssociator : public edm::EDAnalyzer {
  public:
    explicit TestTrackAssociator(const edm::ParameterSet&);
@@ -108,43 +111,40 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
    using namespace edm;
 
    // get list of tracks and their vertices
-   Handle<SimTrackContainer> simTracks;
-   iEvent.getByType<SimTrackContainer>(simTracks);
-   
-   Handle<SimVertexContainer> simVertices;
-   iEvent.getByType<SimVertexContainer>(simVertices);
-   if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
-   
-   // loop over simulated tracks
-   LogVerbatim("TrackAssociator") << "Number of simulated tracks found in the event: " << simTracks->size() ;
-   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin(); 
-       tracksCI != simTracks->end(); tracksCI++){
+   Handle<reco::MuonCollection> muons;
+   iEvent.getByLabel("muons",muons);
+      
+   // loop 
+   LogVerbatim("TrackAssociator") << "Number of muons found in the event: " << muons->size() ;
+   for(reco::MuonCollection::const_iterator muon = muons->begin(); 
+       muon != muons->end(); ++muon){
       
       // skip low Pt tracks
-      if (tracksCI->momentum().pt() < 5) {
-	 LogVerbatim("TrackAssociator") << "Skipped low Pt track (Pt: " << tracksCI->momentum().pt() << ")" ;
+      if (muon->pt() < 2) {
+	 LogVerbatim("TrackAssociator") << "Skipped low Pt muon (Pt: " << muon->pt() << ")" ;
 	 continue;
       }
-      
-      // get vertex
-      int vertexIndex = tracksCI->vertIndex();
-      // uint trackIndex = tracksCI->genpartIndex();
-      
-      SimVertex vertex(math::XYZVectorD(0.,0.,0.),0);
-      if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
       
       // skip tracks originated away from the IP
-      if (vertex.position().rho() > 50) {
-	 LogVerbatim("TrackAssociator") << "Skipped track originated away from IP: " <<vertex.position().rho();
+      if (fabs(muon->vertex().rho()) > 50) {
+	 LogVerbatim("TrackAssociator") << "Skipped track with large impact parameter: " <<muon->vertex().rho();
 	 continue;
       }
       
-      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().pt() << " , " <<
-	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
+      LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " 
+	<< muon->pt() << " , " << muon->eta() << " , " << muon->phi() ;
       
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
-							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
-							  parameters_);
+      TrackDetMatchInfo info;
+      if (muon->innerTrack().isAvailable()) 
+	info = trackAssociator_.associate(iEvent, iSetup, *muon->innerTrack(), parameters_);
+      else {
+	 if (!muon->outerTrack().isAvailable()) {
+	    LogVerbatim("TrackAssociator") << "No refernced tracks are available, skim the muon";
+	    continue;
+	 }
+	 info = trackAssociator_.associate(iEvent, iSetup, *muon->outerTrack(), parameters_);
+      }
+	   
       LogVerbatim("TrackAssociator") << "===========================================================================" ;
       LogVerbatim("TrackAssociator") << "ECAL RecHit energy: crossed, 3x3(max), 5x5(max), 3x3(direction), 5x5(direction), cone R0.5, generator";
       DetId centerId = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
@@ -182,6 +182,14 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	{
 	   GlobalPoint point = info.getPosition((*hit)->detid());
 	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
+	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
+	}
+      LogVerbatim("TrackAssociator") << "Preshower crossed DetIds: (id, z, perp, eta, phi)";
+      for(std::vector<DetId>::const_iterator id = info.crossedPreshowerIds.begin(); 
+	  id != info.crossedPreshowerIds.end(); ++id)
+	{
+	   GlobalPoint point = info.getPosition(*id);
+	   LogVerbatim("TrackAssociator") << "\t" << id->rawId() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
 
