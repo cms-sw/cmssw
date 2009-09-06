@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.18.6.1 2007/10/06 05:50:13 jribnik Exp $
+// $Id: DetIdAssociator.cc,v 1.19.4.1 2009/07/01 04:50:44 dmytro Exp $
 //
 //
 
@@ -70,14 +70,6 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
    LogTrace("TrackAssociator") << "(ieta,iphi): " << ieta << "," << iphi << "\n";
    if (ieta>=0 && ieta<nEta_ && iphi>=0 && iphi<nPhi_){
       set = theMap_[ieta][iphi];
-      /* 
-	for( std::set<DetId>::const_iterator itr=set.begin();
-	     itr!=set.end(); itr++)
-	  {
-	     GlobalPoint point = getPosition(*itr);
-	     LogTrace("TrackAssociator") << "\t\tDetId: " <<itr->rawId()<<" \t(eta,phi): " << point.eta() << "," << point.phi() <<std::endl;
-	  }
-       */
       // dumpMapContent(ieta,iphi);
       // check if any neighbor bin is requested
       if (iNEtaPlus + iNEtaMinus + iNPhiPlus + iNPhiMinus >0 ){
@@ -187,6 +179,8 @@ void DetIdAssociator::buildMap()
       // this is a bit overkill, but it should be 100% proof (when debugged :)
       for(std::vector<GlobalPoint>::const_iterator iter = points.begin(); iter != points.end(); iter++)
 	{
+	   LogTrace("TrackAssociatorVerbose")<< "\tpoint (rho,phi,z): " << iter->perp() << ", " <<
+	     iter->phi() << ", " << iter->z();
 	   // FIX ME: this should be a fatal error
 	   if(isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
 	      edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
@@ -229,7 +223,7 @@ void DetIdAssociator::buildMap()
 	   }
 	}
       if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
-	 LogTrace("TrackAssociator")<<"Out of range or no geometry: DetId:" << id_itr->rawId() <<
+	 LogTrace("TrackAssociatorVerbose")<<"Out of range or no geometry: DetId:" << id_itr->rawId() <<
 	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
 	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
 	   "\nTower id: " << id_itr->rawId() << "\n";
@@ -270,40 +264,45 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
    return outset;
 }
 
-std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
-						  const std::vector<GlobalPoint>& trajectory) const
-{
-   check_setup();
-   std::set<DetId> outset;
-   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) 
-     for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
-       if (insideElement(*point_iter, *id_iter))  {
-	  outset.insert(*id_iter);
-	  break;
-       }
-   return outset;
-}
-
-std::vector<DetId> DetIdAssociator::getCrossedDetIdsOrdered(const std::set<DetId>& inset,
-							   const std::vector<GlobalPoint>& trajectory) const
+std::vector<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
+						     const std::vector<GlobalPoint>& trajectory) const
 {
    check_setup();
    std::vector<DetId> output;
    std::set<DetId> ids(inset);
-   for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); 
-       point_iter != trajectory.end(); point_iter++)
-     {
-	std::set<DetId>::const_iterator id_iter = ids.begin();
-	while ( id_iter != ids.end() ) {
-	   if (insideElement(*point_iter, *id_iter)) {
-	      output.push_back(*id_iter);
-	      ids.erase(id_iter++);
-	   }else
-	     id_iter++;
-	}
-     }
+   for ( unsigned int i=0; i+1 < trajectory.size(); ++i ) {
+      std::set<DetId>::const_iterator id_iter = ids.begin();
+      while ( id_iter != ids.end() ) {
+	 if ( crossedElement(trajectory[i],trajectory[i+1],*id_iter) ){
+	    output.push_back(*id_iter);
+	    ids.erase(id_iter++);
+	 }else
+	   id_iter++;
+      }
+   }
    return output;
 }
+
+std::vector<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
+						     const std::vector<SteppingHelixStateInfo>& trajectory,
+						     const double tolerance) const
+{
+   check_setup();
+   std::vector<DetId> output;
+   std::set<DetId> ids(inset);
+   for ( unsigned int i=0; i+1 < trajectory.size(); ++i ) {
+      std::set<DetId>::const_iterator id_iter = ids.begin();
+      while ( id_iter != ids.end() ) {
+	 if ( crossedElement(trajectory[i].position(),trajectory[i+1].position(),*id_iter,tolerance,&trajectory[i]) ){
+	    output.push_back(*id_iter);
+	    ids.erase(id_iter++);
+	 }else
+	   id_iter++;
+      }
+   }
+   return output;
+}
+
 
 void DetIdAssociator::dumpMapContent(int ieta, int iphi) const
 {

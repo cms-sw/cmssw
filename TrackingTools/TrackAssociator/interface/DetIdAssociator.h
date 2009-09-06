@@ -21,7 +21,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.13 2007/10/08 13:04:31 dmytro Exp $
+// $Id$
 //
 //
 
@@ -85,12 +85,16 @@ class DetIdAssociator{
 					    const std::vector<GlobalPoint>& trajectory,
 					    const double dR) const;
    /// - DetIds crossed by the track
-   virtual std::set<DetId> getCrossedDetIds(const std::set<DetId>&,
-					    const std::vector<GlobalPoint>& trajectory) const;
+   ///   tolerance is the radius of the trajectory used for matching
+   ///   -1 is default and represent the case with no uncertainty
+   ///   on the trajectory direction. It's the fastest option
    /// - DetIds crossed by the track, ordered according to the order
    ///   that they were crossed by the track flying outside the detector
-   virtual std::vector<DetId> getCrossedDetIdsOrdered(const std::set<DetId>&,
-						      const std::vector<GlobalPoint>& trajectory) const;
+   virtual std::vector<DetId> getCrossedDetIds(const std::set<DetId>&,
+					       const std::vector<GlobalPoint>& trajectory) const;
+   virtual std::vector<DetId> getCrossedDetIds(const std::set<DetId>&,
+					       const std::vector<SteppingHelixStateInfo>& trajectory,
+					       const double toleranceInSigmas = -1) const;
    /// look-up map eta index
    virtual int iEta (const GlobalPoint&) const;
    /// look-up map phi index
@@ -130,12 +134,15 @@ class DetIdAssociator{
    virtual std::vector<GlobalPoint> getDetIdPoints(const DetId&) const = 0;
    
    virtual bool insideElement(const GlobalPoint&, const DetId&) const = 0;
+   virtual bool crossedElement(const GlobalPoint&, 
+			       const GlobalPoint&, 
+			       const DetId&,
+			       const double toleranceInSigmas = -1,
+			       const SteppingHelixStateInfo* = 0 ) const { return false; }
    virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance) const {
      GlobalPoint center = getPosition(id);
-
      double deltaPhi(fabs(point.phi()-center.phi()));
      if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
-
      return (point.eta()-center.eta())*(point.eta()-center.eta()) + deltaPhi*deltaPhi < distance*distance;
    };
    
@@ -149,12 +156,6 @@ class DetIdAssociator{
    double minTheta_;
    
    Propagator *ivProp_;
-   // struct greater_energy : public binary_function<const CaloRecHit, const CaloRecHit, bool>
-   //  {
-   //	bool operator()(const CaloRecHit& x, const CaloRecHit& y) const
-   //	  {  return x.energy() > y.energy();  }
-   //  };
-   // sort(v.begin(),v.end(), greater_energy())
    
    // Detector fiducial volume 
    // approximated as a closed cylinder with non-zero width.
