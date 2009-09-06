@@ -349,6 +349,15 @@ DetId TrackDetMatchInfo::findMaxDeposition( EnergyType type )
 	     }
 	}
       break;
+    case HORecHits:
+	{
+	   for(std::vector<const HORecHit*>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++)
+	     if ( (*hit)->energy() > maxEnergy ) {
+		maxEnergy = (*hit)->energy();
+		id = (*hit)->detid();
+	     }
+	}
+      break;
     case TowerTotal:
     case TowerEcal:
     case TowerHcal:
