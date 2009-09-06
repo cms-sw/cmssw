@@ -21,10 +21,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/PatCandidates/interface/Muon.h" 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
@@ -256,16 +256,18 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuMuCand.mass();
 
       // HLT match
-      const std::vector<pat::TriggerPrimitive> & trig0 =muonDau0.triggerMatches();//vector of triggerPrimitive
-      const std::vector<pat::TriggerPrimitive> & trig1 =muonDau1.triggerMatches();
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
+
       bool trig0found = false;
       bool trig1found = false;
-      for (unsigned int j=0; j<trig0.size();j++) {
-	if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
-      }
-      for (unsigned int j=0; j<trig1.size();j++) {
-	if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
-      }
+      if( mu0HLTMatches.size()>0 )
+	trig0found = true;
+      if( mu1HLTMatches.size()>0 )
+	trig1found = true;
+
       // cynematical selection
       if ((trig0found || trig1found) && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass > massMin_) {
 	if (trkiso0<isoMax_ && trkiso1<isoMax_) {  // zmumu both isolated
@@ -340,16 +342,18 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuStandAloneCand.mass();
 
       // HLT match 
-      const std::vector<pat::TriggerPrimitive> & trig0 =muonDau0.triggerMatches();//vector of triggerPrimitive
-      const std::vector<pat::TriggerPrimitive> & trig1 =muonDau1.triggerMatches();//vector of triggerPrimitive
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
+
       bool trig0found = false;
       bool trig1found = false;
-      for (unsigned int j=0; j<trig0.size();j++) {
-	if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
-      }
-      for (unsigned int j=0; j<trig1.size();j++) {
-	if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
-      }
+      if( mu0HLTMatches.size()>0 )
+	trig0found = true;
+      if( mu1HLTMatches.size()>0 )
+	trig1found = true;
+
       // check the global muon ... trigger is required just on global muon
       bool trigfound = false;
       if (muonDau0.isGlobalMuon()) trigfound = trig0found;
@@ -406,11 +410,12 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuTrackCand.mass();
 
       // HLT match (check just dau0 the global)
-      const std::vector<pat::TriggerPrimitive> & trig0 =muonDau0.triggerMatches();//vector of triggerPrimitive
+       const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
+
       bool trig0found = false;
-      for (unsigned int j=0; j<trig0.size();j++) {
-	if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
-      }
+      if( mu0HLTMatches.size()>0 )
+	trig0found = true;
 
       // cynematical selection
       if (trig0found && pt0>ptmin_ && pt1>ptmin_ && abs(eta0)<etamax_ && abs(eta1)<etamax_ && mass>massMin_ && trkiso0<isoMax_ && trkiso1<isoMax_) {

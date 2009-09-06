@@ -25,7 +25,7 @@ private:
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "HepMC/WeightContainer.h"
 #include "HepMC/GenEvent.h"

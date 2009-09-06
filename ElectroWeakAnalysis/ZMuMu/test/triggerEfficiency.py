@@ -48,9 +48,9 @@ process.goodZToMuMu = cms.EDFilter(
 
 process.testAnalyzer = cms.EDAnalyzer(
     "testAnalyzer",
-    selectMuon = cms.InputTag("selectedLayer1Muons"),
+    selectMuon = cms.InputTag("selectedLayer1MuonsTriggerMatch"),
     ZMuMu = cms.InputTag("goodZToMuMu"),
-    filterName = cms.string("hltSingleMuNoIsoL3PreFiltered"),
+    pathName = cms.string("HLT_Mu9"),
     EtaBins = cms.int32(40),
     minEta = cms.double(-2.),
     maxEta = cms.double(2.),

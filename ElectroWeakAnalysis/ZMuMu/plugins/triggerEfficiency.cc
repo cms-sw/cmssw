@@ -12,7 +12,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@ private:
   virtual void endJob();
   int SingleTrigger_ ,DoubleTrigger_ ,  NoTrigger_ , zmumuIncrement_ ;
   InputTag selectMuon_, zMuMu_ ;
-  string filterName_;
+  string pathName_;
   int  nbinsEta_;
   double minEta_ , maxEta_;
   int  nbinsPt_;
@@ -52,7 +52,7 @@ private:
 testAnalyzer::testAnalyzer(const edm::ParameterSet& pset) : 
   selectMuon_( pset.getParameter<InputTag>( "selectMuon" ) ),
   zMuMu_( pset.getParameter<InputTag>( "ZMuMu" ) ),
-  filterName_( pset.getParameter<string>( "filterName" ) ),
+  pathName_( pset.getParameter<string>( "pathName" ) ),
   nbinsEta_( pset.getParameter<int>( "EtaBins" ) ),
   minEta_( pset.getParameter<double>( "minEta" ) ),
   maxEta_( pset.getParameter<double>( "maxEta" ) ),
@@ -89,8 +89,10 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
       CandidateBaseRef dau1 = zMuMuCand.daughter(1)->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);//cast in patMuon
       const pat::Muon& mu1 = dynamic_cast<const pat::Muon&>(*dau1);
-      const std::vector<pat::TriggerPrimitive> & trig0 =mu0.triggerMatches();//vector of triggerPrimitive
-      const std::vector<pat::TriggerPrimitive> & trig1 =mu1.triggerMatches();
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	mu0.triggerObjectMatchesByPath( pathName_ );
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+	mu1.triggerObjectMatchesByPath( pathName_ );
       double EtaPatMu0 = mu0.eta();
       double EtaPatMu1 = mu1.eta();
       double PtPatMu0 = mu0.pt();
@@ -99,26 +101,16 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
       h_numberMuon_->Fill(EtaPatMu1);
       h_numberMuon_ptStudy_->Fill(PtPatMu0);
       h_numberMuon_ptStudy_->Fill(PtPatMu1);
-      int dimTrig0 = trig0.size();
-      int dimTrig1 = trig1.size();
+      int dimTrig0 = mu0HLTMatches.size();
+      int dimTrig1 = mu1HLTMatches.size();
       if(dimTrig0 !=0){
 	for(int j = 0; j < dimTrig0 ; ++j){
-	  const string  filtername = trig0[j].filterName();
-	  int triggerObjId = trig0[j].triggerObjectId();
-	  cout<<"triggerPrimitive["<< j << "] :  filterName = " << filtername <<" , triggerObjId = "<< triggerObjId << endl;
-	  if(filtername == filterName_){ 
-	    singleTrigFlag0 = true;
-	    h_numberTrigMuon_->Fill(EtaPatMu0);
-	    h_numberTrigMuon_ptStudy_->Fill(PtPatMu0);
-	    double PtTrig = trig0[j].pt();
-	    double PtDif = PtTrig-PtPatMu0;
-	    h_pt_distribution_->Fill(PtDif);
-	    //double PtCand = dau0->pt();
-	    //double PtPatMu = mu0.pt();
-	    //double EtaTrig = trig0[j].eta();
-	    //double EtaCand = dau0->eta();
-	    //double EtaPatMu = mu0.eta();
-	  }
+	singleTrigFlag0 = true;
+	h_numberTrigMuon_->Fill(EtaPatMu0);
+	h_numberTrigMuon_ptStudy_->Fill(PtPatMu0);
+	double PtTrig = mu0HLTMatches[j].pt();
+	double PtDif = PtTrig-PtPatMu0;
+	h_pt_distribution_->Fill(PtDif);
 	}
       }
       else{
@@ -129,19 +121,13 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
 	}
       }
       if(dimTrig1 !=0){
-	cout<<"Muon1 : "<< endl;
 	for(int j = 0; j < dimTrig1 ; ++j){
-	  const string  filtername = trig1[j].filterName();
-	  int triggerObjId = trig1[j].triggerObjectId(); 
-	  cout<<"triggerPrimitive["<< j << "] :  filterName = " << filtername <<" , triggerObjId = "<< triggerObjId << endl;	  
-	  if(filtername == filterName_){ 
-	    singleTrigFlag1 = true;
-	    h_numberTrigMuon_->Fill(EtaPatMu1);
-	    h_numberTrigMuon_ptStudy_->Fill(PtPatMu1);
-	    double PtTrig = trig1[j].pt();
-	    double PtDif = PtTrig-PtPatMu1;
-	    h_pt_distribution_->Fill(PtDif);
-	  }
+	  singleTrigFlag1 = true;
+	  h_numberTrigMuon_->Fill(EtaPatMu1);
+	  h_numberTrigMuon_ptStudy_->Fill(PtPatMu1);
+	  double PtTrig = mu0HLTMatches[j].pt();
+	  double PtDif = PtTrig-PtPatMu1;
+	  h_pt_distribution_->Fill(PtDif);
 	}
       }	 
       else{

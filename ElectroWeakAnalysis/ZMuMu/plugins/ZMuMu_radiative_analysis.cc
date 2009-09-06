@@ -18,7 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h" 
 #include "DataFormats/PatCandidates/interface/Lepton.h" 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
@@ -40,7 +40,7 @@
 #include <cmath>
 #include <vector>
 #include "TH1.h"
-//#include "TH2.h"
+#include "TH2.h"
 #include "TH3.h"
 
 
@@ -186,14 +186,14 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  //trigger study 
 	  trig0found = false;
 	  trig1found = false;
-	  const std::vector<pat::TriggerPrimitive> & trig0 =mu0.triggerMatches();//vector of triggerPrimitive
-	  const std::vector<pat::TriggerPrimitive> & trig1 =mu1.triggerMatches();
-	  for (unsigned int j=0; j<trig0.size();j++) {
-	    if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
-	  }
-	  for (unsigned int j=0; j<trig1.size();j++) {
-	    if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
-	  }
+	  const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	    mu0.triggerObjectMatchesByPath( "HLT_Mu9" );
+	  const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+	    mu1.triggerObjectMatchesByPath( "HLT_Mu9" );
+	  if( mu0HLTMatches.size()>0 )
+	    trig0found = true;
+	  if( mu1HLTMatches.size()>0 )
+	    trig1found = true;
       
 	  //MonteCarlo Study
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
@@ -340,18 +340,17 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
 	  double  Tracker_isovalue_mu1 = mu1TrackIso->sumWithin(dRTrk_,vetos_mu1);
 
 	  // HLT match (check just dau0 the global)
-	  const std::vector<pat::TriggerPrimitive> & trig0 =mu0.triggerMatches();//vector of triggerPrimitive
-	  const std::vector<pat::TriggerPrimitive> & trig1 =mu1.triggerMatches();
+	  const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+	    mu0.triggerObjectMatchesByPath( "HLT_Mu9" );
+	  const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+	    mu1.triggerObjectMatchesByPath( "HLT_Mu9" );
 	  trig0found = false;
 	  trig1found = false;
-	  for (unsigned int j=0; j<trig0.size();j++) {
-	    if (trig0[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig0found = true;
-	  }
-	  for (unsigned int j=0; j<trig1.size();j++) {
-	    if (trig1[j].filterName()=="hltSingleMuNoIsoL3PreFiltered") trig1found = true;
-	  }
-
-
+	  if( mu0HLTMatches.size()>0 )
+	    trig0found = true;
+	  if( mu1HLTMatches.size()>0 )
+	    trig1found = true;
+	  
 	  //MonteCarlo Study
 	  const reco::GenParticle * muMc0 = mu0.genLepton();
 	  const reco::GenParticle * muMc1 = mu1.genLepton();

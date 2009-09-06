@@ -41,15 +41,9 @@ namespace modules {
 	const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
 	  mu0->triggerObjectMatchesByPath( hltPath_ );
 
-	//	const std::vector<pat::TriggerPrimitive> & trig0 =mu0->triggerMatches();//vector of triggerPrimitive
 	int dimTrig0 = mu0HLTMatches.size();
 	if(dimTrig0 !=0 ){
-	  //	  for(int j = 0; j < dimTrig0 ; ++j){
-	    //	    const std::string  filtername = trig0[j].filterName();
-	    //	    if(filtername == hltPath_){ 
 	  singleTrigFlag0 = true;
-	      //	    }
-	    //	  }
 	}
       }
       const reco::Candidate* dau1 = z.daughter(1);
@@ -62,15 +56,9 @@ namespace modules {
 	const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
 	  mu1->triggerObjectMatchesByPath( hltPath_ );
 
-	//	const std::vector<pat::TriggerPrimitive> & trig1 =mu1->triggerMatches();
 	int dimTrig1 = mu1HLTMatches.size();
 	if(dimTrig1 !=0){
-	  //	  for(int j = 0; j < dimTrig1 ; ++j){
-	  //	    const std::string  filtername = trig1[j].filterName();
-	  //	    if(filtername == hltPath_){ 
 	  singleTrigFlag1 = true;
-	  //	    }
-	  //	  }
 	}
       }
       if(!singleTrigFlag0 && !singleTrigFlag1)return false;

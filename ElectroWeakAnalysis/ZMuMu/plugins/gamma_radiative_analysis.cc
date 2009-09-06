@@ -18,7 +18,6 @@
 #include "DataFormats/PatCandidates/interface/Muon.h" 
 #include "DataFormats/PatCandidates/interface/Lepton.h" 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
