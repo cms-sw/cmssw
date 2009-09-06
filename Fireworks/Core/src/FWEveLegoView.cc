@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.44 2009/09/03 21:26:16 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.45 2009/09/04 18:23:48 amraktad Exp $
 //
 
 // system include files
@@ -131,11 +131,13 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
       m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
       if (m_lego) {
          m_overlay = new TEveCaloLegoOverlay();
+	 // std::cout << "TEveCaloLegoOverlay: " << m_overlay << std::endl;
          m_overlay->SetShowPlane(kFALSE);
          m_overlay->SetShowPerspective(kFALSE);
          m_overlay->GetAttAxis()->SetLabelSize(0.02);
          ev->AddOverlayElement(m_overlay);
          m_overlay->SetCaloLego(m_lego);
+	 m_overlay->SetShowScales(0); //temporary
       }
    }
    setCameras();
