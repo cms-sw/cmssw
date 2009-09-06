@@ -64,6 +64,7 @@ class TrackDetMatchInfo {
    std::vector<DetId>      crossedHcalIds;
    std::vector<DetId>      crossedHOIds;
    std::vector<DetId>      crossedTowerIds;
+   std::vector<DetId>      crossedPreshowerIds;
    
    std::vector<TAMuonChamberMatch> chambers;
 
