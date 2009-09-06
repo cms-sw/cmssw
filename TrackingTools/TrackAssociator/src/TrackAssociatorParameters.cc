@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.cc,v 1.5 2008/08/07 02:06:23 dmytro Exp $
+// $Id: TrackAssociatorParameters.cc,v 1.6.2.1 2009/07/01 04:35:27 dmytro Exp $
 //
 //
 
@@ -26,6 +26,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    dREcalPreselection = iConfig.getParameter<double>("dREcalPreselection");
    dRHcalPreselection = iConfig.getParameter<double>("dRHcalPreselection");
    dRMuonPreselection = iConfig.getParameter<double>("dRMuonPreselection");
+   dRPreshowerPreselection = iConfig.getParameter<double>("dRPreshowerPreselection");
    
    muonMaxDistanceX = iConfig.getParameter<double>("muonMaxDistanceX");
    muonMaxDistanceY = iConfig.getParameter<double>("muonMaxDistanceY");
@@ -37,6 +38,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    useHO   = iConfig.getParameter<bool>("useHO");
    useCalo = iConfig.getParameter<bool>("useCalo");
    useMuon = iConfig.getParameter<bool>("useMuon");
+   usePreshower = iConfig.getParameter<bool>("usePreshower");
    
    theEBRecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
    theEERecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
@@ -50,15 +52,7 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
    
    truthMatch = iConfig.getParameter<bool>("truthMatch");
-   std::string type = iConfig.getParameter<std::string>("crossedEnergyType");
-   
-   crossedEnergyType = SinglePointAlongTrajectory;    // default
-   if ( type == "FivePointTwoSigmaElipseAlongTrajectory" )  
-     crossedEnergyType = FivePointTwoSigmaElipseAlongTrajectory;
-   else
-     if ( type != "SinglePointAlongTrajectory" ) 
-       throw cms::Exception("ConfigurationError") << "Uknown algorithm type: " << type << "\n";
-   // propagateAllDirections = iConfig.getParameter<bool>("propagateAllDirections");
+   muonMaxDistanceSigmaY = iConfig.getParameter<double>("trajectoryUncertaintyTolerance");
 }
 
 TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig )

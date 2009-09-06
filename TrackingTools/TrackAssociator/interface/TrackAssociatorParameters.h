@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.h,v 1.5 2008/08/07 02:06:23 dmytro Exp $
+// $Id: TrackAssociatorParameters.h,v 1.6.2.1 2009/07/01 04:35:27 dmytro Exp $
 //
 //
 
@@ -21,7 +21,6 @@
 
 class TrackAssociatorParameters {
  public:
-   enum CrossedEnergyAlgorithmType { SinglePointAlongTrajectory, FivePointTwoSigmaElipseAlongTrajectory };
    TrackAssociatorParameters(){}
    TrackAssociatorParameters( const edm::ParameterSet& );
    void loadParameters( const edm::ParameterSet& );
@@ -33,6 +32,7 @@ class TrackAssociatorParameters {
    double dREcalPreselection;
    double dRHcalPreselection;
    double dRMuonPreselection;
+   double dRPreshowerPreselection;
    
    /// account for trajectory change for calorimeters.
    /// allows to compute energy around original track direction 
@@ -58,6 +58,7 @@ class TrackAssociatorParameters {
    bool useHcal;
    bool useHO;
    bool useCalo;
+   bool usePreshower;
    bool useMuon;
    bool truthMatch;
    
@@ -70,7 +71,12 @@ class TrackAssociatorParameters {
    edm::InputTag theDTRecSegment4DCollectionLabel;
    edm::InputTag theCSCSegmentCollectionLabel;
    
-   CrossedEnergyAlgorithmType crossedEnergyType;
-   // bool propagateAllDirections; // needs TrackExtra if set true
+   // Specify if we want to widen the search pass of the crossed
+   // calorimeter elements taking into account uncertainty
+   // of the track trajectory. The parameter below
+   // specifies how many standard deviations
+   // to account for. Negative numbers are ignored
+   // and trajectory is assumed to be known perfectly
+   double trajectoryUncertaintyTolerance;
 };
 #endif
