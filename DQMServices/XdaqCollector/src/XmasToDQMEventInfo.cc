@@ -2,8 +2,8 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/10/13 13:00:47 $
- * $Revision: 1.1 $
+ * $Date: 2008/10/23 14:37:27 $
+ * $Revision: 1.2 $
  * $Author: vpatras $
  *
  */
@@ -73,7 +73,7 @@ XmasToDQMEventInfo::XmasToDQMEventInfo(const ParameterSet& ps){
   processName_= dbe_->bookString("processName",subsystemname);
   workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
   cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
-  dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
+//  dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
  
   // Folder to be populated by sub-systems' code
   string subfolder = currentfolder + "/reportSummaryContents" ;

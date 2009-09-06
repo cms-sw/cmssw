@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2008/07/06 17:32:30 $
- * $Revision: 1.11 $
+ * $Date: 2008/10/13 13:01:43 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -85,7 +85,7 @@ private:
   MonitorElement * processName_;       ///DQM "name" of the job (eg, Hcal or DT)
   MonitorElement * workingDir_;        ///Current working directory of the job
   MonitorElement * cmsswVer_;          ///CMSSW version run for this job
-  MonitorElement * dqmPatch_;          ///DQM patch version for this job
+//  MonitorElement * dqmPatch_;          ///DQM patch version for this job
   MonitorElement * errSummary_;        ///Subdetector-specific error summary (float)
   MonitorElement * errSummaryEtaPhi_;     ///Subdetector-specific etaPhi summary (float)
   MonitorElement * errSummarySegment_[10];
