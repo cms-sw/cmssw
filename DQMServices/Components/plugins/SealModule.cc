@@ -16,6 +16,8 @@ DEFINE_ANOTHER_FWK_MODULE(DQMFEDIntegrityClient);
 DEFINE_ANOTHER_FWK_MODULE(DQMStoreStats);
 #include "DQMServices/Components/src/DQMLogError.h"
 DEFINE_ANOTHER_FWK_MODULE(DQMLogError);
+#include "DQMServices/Components/src/DQMFileReader.h"
+DEFINE_ANOTHER_FWK_MODULE(DQMFileReader);
 
 // Data Certification module for DAQ info
 #include "DQMServices/Components/src/DQMDaqInfo.h"
