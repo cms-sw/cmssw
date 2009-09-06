@@ -10,7 +10,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPhotonDetailView.h,v 1.3 2009/08/22 17:10:22 amraktad Exp $
+// $Id: FWPhotonDetailView.h,v 1.4 2009/08/27 17:54:22 amraktad Exp $
 //
 
 // user include files
@@ -33,6 +33,8 @@ public:
 private:
    FWPhotonDetailView(const FWPhotonDetailView&); // stop default
    const FWPhotonDetailView& operator=(const FWPhotonDetailView&); // stop default
+   void makeLegend(const reco::Photon*, const FWModelId&, TCanvas*);
+   void addInfo(const reco::Photon*, TEveElementList*);
 };
 
 #endif
