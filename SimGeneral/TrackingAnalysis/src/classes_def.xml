@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="EncodedTruthId"/>
+  <class name="std::vector<EncodedTruthId>"/>
+  <class name="std::map<EncodedTruthId, unsigned int>"/>
+  <class name="edm::Wrapper<std::map<EncodedTruthId, unsigned int> >"/>
+</lcgdict>
