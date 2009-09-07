@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id: CaloMuonProducer.cc,v 1.2 2007/10/08 12:55:37 dmytro Exp $
+// $Id: CaloMuonProducer.cc,v 1.3 2008/08/07 02:36:44 dmytro Exp $
 //
 //
 
@@ -44,6 +44,7 @@ CaloMuonProducer::CaloMuonProducer(const edm::ParameterSet& iConfig)
    inputMuons_ = iConfig.getParameter<edm::InputTag>("inputMuons");
    inputTracks_ = iConfig.getParameter<edm::InputTag>("inputTracks");
    caloCut_ = iConfig.getParameter<double>("minCaloCompatibility");
+   minPt_ = iConfig.getParameter<double>("minPt");
 
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -108,6 +109,7 @@ void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    for ( reco::TrackCollection::const_iterator track = tracks->begin();
 	 track != tracks->end(); ++track, ++i )
      {
+	if (track->pt() < minPt_) continue;
 	bool usedTrack = false;
 	if ( muons.isValid() )
 	  for ( reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon )

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id$
+// $Id: CaloMuonProducer.h,v 1.1 2007/10/07 17:18:29 dmytro Exp $
 //
 //
 
@@ -46,6 +46,7 @@ class CaloMuonProducer : public edm::EDProducer {
 			      const reco::TrackRef& track );
 
    double caloCut_;
+   double minPt_;
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
    MuonCaloCompatibility muonCaloCompatibility_;

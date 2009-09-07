@@ -20,7 +20,7 @@ muons = cms.EDProducer("MuonIdProducer",
     maxAbsEta = cms.double(3.0),
     #
     # Selection parameters
-    minPt = cms.double(1.5),
+    minPt = cms.double(1.0),
     inputCollectionTypes = cms.vstring('inner tracks', 
         'links', 
         'outer tracks'),
