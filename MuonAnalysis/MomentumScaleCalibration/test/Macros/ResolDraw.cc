@@ -54,20 +54,20 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false, cons
 
   TFile *Target;
 
-  vecNames.push_back(mainNamePt + "_ResoVSPt");
+//   vecNames.push_back(mainNamePt + "_ResoVSPt");
   vecNames.push_back(mainNamePt + "_ResoVSEta");
-  vecNames.push_back(mainNamePt + "_ResoVSPhiMinus");
-  vecNames.push_back(mainNamePt + "_ResoVSPhiPlus");
+//   vecNames.push_back(mainNamePt + "_ResoVSPhiMinus");
+//   vecNames.push_back(mainNamePt + "_ResoVSPhiPlus");
 
-  vecNames.push_back(mainNameCotgTheta + "_ResoVSPt");
-  vecNames.push_back(mainNameCotgTheta + "_ResoVSEta");
-  vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiMinus");
-  vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiPlus");
+//   vecNames.push_back(mainNameCotgTheta + "_ResoVSPt");
+//   vecNames.push_back(mainNameCotgTheta + "_ResoVSEta");
+//   vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiMinus");
+//   vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiPlus");
 
-  vecNames.push_back(mainNamePhi + "_ResoVSPt");
-  vecNames.push_back(mainNamePhi + "_ResoVSEta");
-  vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
-  vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
+//   vecNames.push_back(mainNamePhi + "_ResoVSPt");
+//   vecNames.push_back(mainNamePhi + "_ResoVSEta");
+//   vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
+//   vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
 
   gROOT->SetBatch(true);
 //   gROOT->SetStyle("Plain");
@@ -219,9 +219,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
               TString fitName(*namesIt);
               fitName += "_fit_";
               TH1D * temp = h2->ProjectionY(fitName+fitNum.str(),x,x);
-
               if( temp->GetEntries() > minEntries ) {
-
                 fitHistograms[*namesIt].push_back(temp);
                 temp->Fit("gaus");
 
@@ -267,7 +265,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
     else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       // it's a subdirectory
 
-      cout << "Found subdirectory " << obj->GetName() << endl;
+      // cout << "Found subdirectory " << obj->GetName() << endl;
 
       // create a new subdir of same name and title in the target file
       target->cd();
@@ -276,12 +274,12 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
       // newdir is now the starting point of another round of merging
       // newdir still knows its depth within the target file via
       // GetPath(), so we can still figure out where we are in the recursion
-      draw( newdir, sourcelist, vecNames, doHalfEta );
+      draw( newdir, sourcelist, vecNames, doHalfEta, minEntries );
     }
     else {
       // object is of no type that we know or can handle
-      cout << "Unknown object type, name: "
-           << obj->GetName() << " title: " << obj->GetTitle() << endl;
+      // cout << "Unknown object type, name: "
+      //      << obj->GetName() << " title: " << obj->GetTitle() << endl;
     }
 
     // now write the compared histograms (which are "in" obj) to the target file
