@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# include standard file
-from Configuration.EventContent.EventContent_cff import *
-
-# include from RecoHI packages
+# include event content from RecoHI packages
 from RecoHI.HiTracking.RecoHiTracker_EventContent_cff import *
 from RecoHI.HiJetAlgos.RecoHiJets_EventContent_cff import *
 from RecoHI.HiEgammaAlgos.RecoHiEgamma_EventContent_cff import *
@@ -11,68 +8,39 @@ from RecoHI.HiCentralityAlgos.RecoHiCentrality_EventContent_cff import *
 from RecoHI.HiEvtPlaneAlgos.RecoHiEvtPlane_EventContent_cff import *
 #from RecoHI.HiMuonAlgos.RecoHiMuon_EventContent_cff import *
 
-########################################################################
-#
-#  RAW , RECO, AOD: 
-#    include reconstruction content
-#
-#  RAWSIM, RECOSIM, AODSIM: 
-#    include reconstruction and simulation
-#
-#  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
-#
-#  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), 
-#  FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
-#
-########################################################################
 
-# extend existing data tiers with HI-specific content
-RECOEventContent.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
-RECOEventContent.outputCommands.extend(RecoHiJetsRECO.outputCommands)
-RECOEventContent.outputCommands.extend(RecoHiEgammaRECO.outputCommands)
-RECOEventContent.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
-RECOEventContent.outputCommands.extend(RecoHiCentralityRECO.outputCommands)
+# combine RECO, AOD, FEVT content from all RecoHI packages
+# RecoHI event contents to be included by Configuration.EventContent.EventContentHeavyIons_cff
 
-RECOSIMEventContent.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoHiJetsRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoHiEgammaRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoHiCentralityRECO.outputCommands)
+RecoHIRECO = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+    )
 
-RECODEBUGEventContent.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
-RECODEBUGEventContent.outputCommands.extend(RecoHiJetsRECO.outputCommands)
-RECODEBUGEventContent.outputCommands.extend(RecoHiEgammaRECO.outputCommands)
-RECODEBUGEventContent.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
-RECODEBUGEventContent.outputCommands.extend(RecoHiCentralityRECO.outputCommands)
+RecoHIAOD = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+    )
 
+RecoHIFEVT = cms.PSet(
+    outputCommands = cms.untracked.vstring()
+    )
 
-AODEventContent.outputCommands.extend(RecoHiTrackerAOD.outputCommands)
-AODEventContent.outputCommands.extend(RecoHiJetsRECO.outputCommands)
-AODEventContent.outputCommands.extend(RecoHiEgammaAOD.outputCommands)
-AODEventContent.outputCommands.extend(RecoHiEvtPlaneAOD.outputCommands)
-AODEventContent.outputCommands.extend(RecoHiCentralityAOD.outputCommands)
+RecoHIRECO.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
+RecoHIRECO.outputCommands.extend(RecoHiJetsRECO.outputCommands)
+RecoHIRECO.outputCommands.extend(RecoHiEgammaRECO.outputCommands)
+RecoHIRECO.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
+RecoHIRECO.outputCommands.extend(RecoHiCentralityRECO.outputCommands)
+#RecoHIRECO.outputCommands.extend(RecoHiMuonRECO.outputCommands)
 
-AODSIMEventContent.outputCommands.extend(RecoHiTrackerAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(RecoHiJetsRECO.outputCommands)
-AODSIMEventContent.outputCommands.extend(RecoHiEgammaAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(RecoHiEvtPlaneAOD.outputCommands)
-AODSIMEventContent.outputCommands.extend(RecoHiCentralityAOD.outputCommands)
+RecoHIAOD.outputCommands.extend(RecoHiTrackerAOD.outputCommands)
+RecoHIAOD.outputCommands.extend(RecoHiJetsRECO.outputCommands)
+RecoHIAOD.outputCommands.extend(RecoHiEgammaAOD.outputCommands)
+RecoHIAOD.outputCommands.extend(RecoHiEvtPlaneAOD.outputCommands)
+RecoHIAOD.outputCommands.extend(RecoHiCentralityAOD.outputCommands)
+#RecoHIAOD.outputCommands.extend(RecoHiMuonAOD.outputCommands)
 
-
-FEVTEventContent.outputCommands.extend(RecoHiTrackerFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoHiJetsFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
-
-FEVTSIMEventContent.outputCommands.extend(RecoHiTrackerFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoHiJetsFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
-
-FEVTDEBUGEventContent.outputCommands.extend(RecoHiTrackerFEVT.outputCommands)
-FEVTDEBUGEventContent.outputCommands.extend(RecoHiJetsFEVT.outputCommands)
-FEVTDEBUGEventContent.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
-FEVTDEBUGEventContent.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
-FEVTDEBUGEventContent.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
+RecoHIFEVT.outputCommands.extend(RecoHiTrackerFEVT.outputCommands)
+RecoHIFEVT.outputCommands.extend(RecoHiJetsFEVT.outputCommands)
+RecoHIFEVT.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
+RecoHIFEVT.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
+RecoHIFEVT.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
+#RecoHIFEVT.outputCommands.extend(RecoHiMuonFEVT.outputCommands)
