@@ -54,20 +54,20 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false, cons
 
   TFile *Target;
 
-//   vecNames.push_back(mainNamePt + "_ResoVSPt");
+  vecNames.push_back(mainNamePt + "_ResoVSPt");
   vecNames.push_back(mainNamePt + "_ResoVSEta");
-//   vecNames.push_back(mainNamePt + "_ResoVSPhiMinus");
-//   vecNames.push_back(mainNamePt + "_ResoVSPhiPlus");
+  vecNames.push_back(mainNamePt + "_ResoVSPhiMinus");
+  vecNames.push_back(mainNamePt + "_ResoVSPhiPlus");
 
-//   vecNames.push_back(mainNameCotgTheta + "_ResoVSPt");
-//   vecNames.push_back(mainNameCotgTheta + "_ResoVSEta");
-//   vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiMinus");
-//   vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiPlus");
+  vecNames.push_back(mainNameCotgTheta + "_ResoVSPt");
+  vecNames.push_back(mainNameCotgTheta + "_ResoVSEta");
+  vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiMinus");
+  vecNames.push_back(mainNameCotgTheta + "_ResoVSPhiPlus");
 
-//   vecNames.push_back(mainNamePhi + "_ResoVSPt");
-//   vecNames.push_back(mainNamePhi + "_ResoVSEta");
-//   vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
-//   vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
+  vecNames.push_back(mainNamePhi + "_ResoVSPt");
+  vecNames.push_back(mainNamePhi + "_ResoVSEta");
+  vecNames.push_back(mainNamePhi + "_ResoVSPhiMinus");
+  vecNames.push_back(mainNamePhi + "_ResoVSPhiPlus");
 
   gROOT->SetBatch(true);
 //   gROOT->SetStyle("Plain");
