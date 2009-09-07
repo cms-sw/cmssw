@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.18 $ by $Author: parenti $
-#     $Date: 2009/07/31 09:53:21 $
+#     $Revision: 1.19 $ by $Author: parenti $
+#     $Date: 2009/09/07 14:22:59 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -36,6 +36,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $cputime = -1;
   $pedeAbend = 0;
   $pedeLogErr = 0;
+  $pedeLogWrn = 0;
   $exceptionCaught = 0;
   $timeout = 0;
   $cfgerr = 0;
@@ -44,6 +45,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $cmdNotFound = 0;
 
   $pedeLogErrStr = "";
+  $pedeLogWrnStr = "";
   $remark = "";
 
   if (@JOBSTATUS[$i] eq "FETCH") {
@@ -179,8 +181,11 @@ for ($i=0; $i<@JOBID; ++$i) {
         open INFILE,"$eazeLog";
       # scan records in input file
         while ($line = <INFILE>) {
+# Checks for Pede Errors:
 	  if (($line =~ m/step no descending/) eq 1) {$pedeLogErr = 1; $pedeLogErrStr .= $line;}
 	  if (($line =~ m/Constraint equation discrepancies:/) eq 1) {$pedeLogErr = 1; $pedeLogErrStr .= $line;}
+# AP 07.09.2009 - Checks for Pede Warnings:
+	  if (($line =~ m/insufficient constraint equations/) eq 1) {$pedeLogWrn = 1; $pedeLogWrnStr .= $line;}
         }
         close INFILE;
         if ($logZipped eq "true") {
@@ -273,6 +278,12 @@ for ($i=0; $i<@JOBID; ++$i) {
 	print $pedeLogErrStr;
 	$remark = "pede error";
 	$okStatus = "FAIL";
+    }
+    if ($pedeLogWrn eq 1) {
+# AP 07.09.2009 - Reports Pede Warnings (but do _not_ set job status to FAIL)
+	print "@JOBDIR[$i] @JOBID[$i] Warnings in running Pede:\n";
+	print $pedeLogWrnStr;
+	$remark = "pede warnings";
     }
     if ($endofjob ne 1) {
 	print "@JOBDIR[$i] @JOBID[$i] Job not ended\n";
