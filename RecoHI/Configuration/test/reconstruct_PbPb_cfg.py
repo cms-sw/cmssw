@@ -43,9 +43,7 @@ options = VarParsing.VarParsing ('standard')
 
 # setup any defaults you want
 options.output = 'test_output_RECO.root'
-#options.files= 'dcache:/pnfs/cmsaf.mit.edu/t2bat/cms/store/mc/Summer09/Hydjet_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V3-GaussianVtx_312_ver1/0005/FECC5F18-1982-DE11-ACF9-001EC94BA3AE.root'
-options.files= 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_2_4/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V3-v1/0010/D62F586C-4E84-DE11-80D3-000423D98E54.root'
-#options.files= 'rfio:/castor/cern.ch/cms/store/relval/CMSSW_3_2_4/RelValHydjetQ_B0_4TeV/GEN-SIM-RAW/MC_31X_V3-v1/0010/FC70A0E1-6A84-DE11-AE66-000423D98DB4.root'
+options.files = '/store/relval/CMSSW_3_3_0_pre1/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V5-v1/0012/ECD0FB45-6796-DE11-B075-001D09F28D54.root'
 options.maxEvents = 1 
 
 # get and parse the command line arguments
@@ -65,12 +63,11 @@ process.maxEvents = cms.untracked.PSet(
 # Digi + Reconstruction
 
 process.load("Configuration.StandardSequences.RawToDigi_cff")
-#process.load("RecoHI.Configuration.Reconstruction_HI_cff")
 process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
 
 ##############################################################################
 # Output EDM File
-process.load("RecoHI.Configuration.RecoHI_EventContent_cff")
+process.load("Configuration.EventContent.EventContentHeavyIons_cff")
 process.output = cms.OutputModule("PoolOutputModule",
     process.RECODEBUGEventContent,
     compressionLevel = cms.untracked.int32(2),
