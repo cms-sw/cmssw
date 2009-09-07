@@ -31,7 +31,6 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
     useMultipleHepMCLabels_ = config.getParameter<bool>("useMultipleHepMCLabels");
 
     distanceCut_            = config.getParameter<double>("vertexDistanceCut");
-    dataLabels_             = config.getParameter<vector<string> >("HepMCDataLabels");
     volumeRadius_           = config.getParameter<double>("volumeRadius");
     volumeZ_                = config.getParameter<double>("volumeZ");
     mergedBremsstrahlung_   = config.getParameter<bool>("mergedBremsstrahlung");
@@ -94,10 +93,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
     
     for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source)
     {
-        edm::Handle<edm::HepMCProduct> hepMCHandle;
         if ( event.getByLabel(*source, hepMCHandle) )
         {
-            hepMCProducts_.push_back(hepMCHandle.product());
+            hepMCProducts_.push_back(hepMCHandle);
             edm::LogInfo (MessageCategory_) << "Using HepMC source " << *source;
             if (!useMultipleHepMCLabels_) break;
         }
@@ -108,6 +106,13 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
         edm::LogWarning (MessageCategory_) << "No HepMC source found";
         return;
     }
+    else if (hepMCProducts_.size() > 1 || useMultipleHepMCLabels_)
+    {
+        edm::LogInfo (MessageCategory_) << "You are using more than one HepMC source.";
+        edm::LogInfo (MessageCategory_) << "If the labels are not in the same order as the events in the crossing frame (i.e. signal, pileup(s) ) ";
+        edm::LogInfo (MessageCategory_) << "or there are fewer labels than events in the crossing frame";
+        edm::LogInfo (MessageCategory_) << MessageCategory_ << " may try to access data in the wrong HepMCProduct and crash.";
+    }
 
     // Collect all the simtracks from the crossing frame
     edm::Handle<CrossingFrame<SimTrack> > cfSimTracks;
@@ -115,22 +120,6 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
 
     // Create a mix collection from one simtrack collection
     simTracks_ = std::auto_ptr<MixCollection<SimTrack> >( new MixCollection<SimTrack>(cfSimTracks.product()) );
-
-    // Check if number of HepMCProducts matches number of events in CrossingFrame, if useMultipleHepMCLabels = true
-    // Should really use CrossingFrame<HepMCProduct>, but all CrossingFrames have same number of signal/pileup events
-    if (useMultipleHepMCLabels_ && (hepMCProducts_.size() != (cfSimTracks->getNrSignals() + cfSimTracks->getNrPileups()) ) )
-    {
-        edm::LogWarning (MessageCategory_) << "Mismatch between number of HepMCProduct labels and events in CrossingFrame.";
-        edm::LogWarning (MessageCategory_) << "useMultipleHepMCLabels = true, number of HepMCProducts = " << hepMCProducts_.size(); 
-        edm::LogWarning (MessageCategory_) << " number of events in CrossingFrame = " << (cfSimTracks->getNrSignals() + cfSimTracks->getNrPileups());
-        return;
-    }
-    else if (hepMCProducts_.size() > 1)
-    {
-        edm::LogInfo (MessageCategory_) << "You are using more than one HepMC source.";
-        edm::LogInfo (MessageCategory_) << "If the labels are not in the same order as the events in the crossing frame (i.e. signal, pileup(s) ) ";
-        edm::LogInfo (MessageCategory_) << MessageCategory_ << " may try to access data in the wrong HepMCProduct and crash.";
-    }
 
     // Collect all the simvertex from the crossing frame
     edm::Handle<CrossingFrame<SimVertex> > cfSimVertexes;
@@ -644,7 +633,7 @@ bool TrackingTruthProducer::setTrackingParticle(
     // In the case of a existing generated particle and track
     // event is signal redefine status a pdgId
 
-    edm::HepMCProduct const * hepmc = 0;
+    edm::Handle<edm::HepMCProduct> hepmc;
 
     if (genParticleIndex >= 0 && (signalEvent || useMultipleHepMCLabels_) )
     {
@@ -790,7 +779,7 @@ int TrackingTruthProducer::setTrackingVertex(
 void TrackingTruthProducer::addCloseGenVertexes(TrackingVertex & trackingVertex)
 {
     // Get the generated particle
-    edm::HepMCProduct const * hepmc = (useMultipleHepMCLabels_) ? hepMCProducts_.at(trackingVertex.eventId().rawId()) : hepMCProducts_.at(0);
+    edm::Handle<edm::HepMCProduct> hepmc = (useMultipleHepMCLabels_) ? hepMCProducts_.at(trackingVertex.eventId().rawId()) : hepMCProducts_.at(0);
     const HepMC::GenEvent * genEvent = hepmc->GetEvent();
 
     // Get the postion of the tv

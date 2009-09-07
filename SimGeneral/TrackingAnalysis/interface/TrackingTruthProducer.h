@@ -61,7 +61,7 @@ private:
 
     // Related to production
 
-    std::vector<edm::HepMCProduct const *>    hepMCProducts_;
+    std::vector<edm::Handle<edm::HepMCProduct> >    hepMCProducts_;
 
     std::vector<PSimHit>                      pSimHits_;
 
