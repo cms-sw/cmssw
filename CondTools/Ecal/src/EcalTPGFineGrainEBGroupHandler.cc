@@ -169,26 +169,6 @@ void popcon::EcalTPGFineGrainEBGroupHandler::getNewObjects()
                 fgrMap->setValue(towerEBId, rd_fgr.getFgrGroupId());
 	        ++itowers;
 	      }
-	      else if (ecid_name=="EE_trigger_tower"){
-	        // EE data
-		
-		// SM number
-	        int tccid=ecid_xt.getID1();
-	        // TT number
-	        int towerid=ecid_xt.getID2();
-                
-		char identTT[10];
-		sprintf(identTT,"%d%d", tccid, towerid);
-	        
-		std::string S="";
-		S.insert(0,identTT);
-		
-		unsigned int towerEEId = 0;
-		towerEEId = atoi(S.c_str());
-				
-                fgrMap->setValue(towerEEId, rd_fgr.getFgrGroupId());
-	        ++itowers;
-	      }
 	    }
 	    	
 	    edm::LogInfo("EcalTPGFineGrainEBGroupHandler") << "found " << itowers << "towers.";
