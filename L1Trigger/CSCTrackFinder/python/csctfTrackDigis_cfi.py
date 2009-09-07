@@ -50,20 +50,19 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 				
 				EtaMin = cms.vuint32(22, 22, 14, 14, 14, 14, 10, 22),
 				
-				mindeta12_accp = cms.uint32(8),
-    		mindeta13_accp = cms.uint32(19),
-    		mindeta112_accp = cms.uint32(19),
-    		mindeta113_accp = cms.uint32(30),
+				mindeta12_accp = cms.uint32(7),
+    		mindeta13_accp = cms.uint32(13),
+    		mindeta112_accp = cms.uint32(18),
+    		mindeta113_accp = cms.uint32(28),
         
 				EtaMax = cms.vuint32(127, 127, 127, 127, 127, 24, 24, 127),
 				
-				maxdeta12_accp = cms.uint32(14),
-				maxdeta13_accp = cms.uint32(25),
+				maxdeta12_accp = cms.uint32(16),
+				maxdeta13_accp = cms.uint32(27),
 				maxdeta112_accp = cms.uint32(25),
-				maxdeta113_accp = cms.uint32(36),
+				maxdeta113_accp = cms.uint32(30),
 				
-				
-        EtaWindows = cms.vuint32(4, 4, 4, 4, 4, 4, 4), #would like to increase to 6
+        EtaWindows = cms.vuint32(6, 6, 6, 6, 6, 6, 6), 
 				
 				maxdphi12_accp = cms.uint32(64),
 				maxdphi13_accp = cms.uint32(64),
