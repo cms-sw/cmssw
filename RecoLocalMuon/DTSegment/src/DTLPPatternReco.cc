@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/26 08:39:42 $
- * $Revision: 1.5 $
+ * $Date: 2009/09/04 08:27:56 $
+ * $Revision: 1.6 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -55,6 +55,9 @@ DTLPPatternReco::DTLPPatternReco(const edm::ParameterSet& pset): DTRecSegment2DB
   //event counter used by gnuplot macro producer to name the files
   event_counter = 0;
   if(debug) cout << "DTLPPatternReco Constructor Called" << endl; 
+  //FIXME
+  debug=true;
+ 
 }
 
 
@@ -108,8 +111,14 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
   
   /*Create the pairPointers array, and fill it with pointers to the RecHitPair objects*/ 
   vector<const DTRecHit1DPair *> pairPointers;
-  for (vector<DTRecHit1DPair>::const_iterator it = pairs.begin(); it != pairs.end(); ++it)
-    pairPointers.push_back(&(*it));
+  for (vector<DTRecHit1DPair>::const_iterator it = pairs.begin(); it != pairs.end(); ++it){
+    DTWireId theWireId = it->wireId();
+    const DTLayer * theLayer = (DTLayer*)theDTGeometry->layer(theWireId.layerId());
+    LocalPoint uno  = sl -> toLocal(theLayer->toGlobal(it->componentRecHits().first->localPosition()));
+    LocalPoint due = sl -> toLocal(theLayer->toGlobal(it->componentRecHits().second->localPosition()));
+    if(uno.x() != due.x())//FIXME we have to change this!! FIXME
+      pairPointers.push_back(&(*it));
+  }
   
   list<double> pz; //positions of hits along z
   list<double> px; //along x (left and right the wires)
@@ -226,7 +235,7 @@ void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& p
     px.push_back( thePosition.x() );
     layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10);
 
-    if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back() << endl;
+    if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back() <<" " << layers.back()<< endl;
     
     //and right hit
     if(sl_chamber == ReconstructInSL)
@@ -238,7 +247,7 @@ void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& p
     px.push_back( thePosition.x() );
     layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10);
  
-    if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back() << endl;
+    if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back()<< " " << layers.back() << endl;
   }
   if(debug) cout << "DTLPPatternReco:: : px, pz and pex lists populated " << endl;
 }
@@ -356,6 +365,7 @@ void DTLPPatternReco::printGnuplot( edm::OwnVector<DTSLRecSegment2D> * theResult
   void DTLPPatternReco::createSegment(void * theResults, ResultLPAlgo& theAlgoResults, const vector<const DTRecHit1DPair*>& pairPointers,const  DTSuperLayer * sl, const DTChamber * chamber, ReconstructInSLOrChamber sl_chamber ){
   //cout << "Creating 2Dsegment" << endl;
   LocalPoint seg2Dposition( (float)theAlgoResults.qVar, 0. , 0. );
+
   LocalVector seg2DDirection ((float) theAlgoResults.mVar,  0. , 1.  );//don't know if I need to normalize the vector
   AlgebraicSymMatrix seg2DCovMatrix;
   vector<DTRecHit1D> hits1D;
