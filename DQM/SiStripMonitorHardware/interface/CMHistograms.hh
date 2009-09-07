@@ -37,6 +37,7 @@ public:
     uint16_t Length;
     std::pair<uint16_t,uint16_t> Medians;
     std::pair<float,float> ShotMedians;
+    std::pair<uint16_t,uint16_t> PreviousMedians;
   };
 
   CMHistograms();
@@ -92,7 +93,19 @@ private:
   MonitorElement *medianAPV1minusAPV0minusShotMedianAPV1_;
   MonitorElement *medianAPV0minusAPV1minusShotMedianAPV1_;
 
-  
+  MonitorElement *prevmedianAPV0vsAPV0_[3];
+  MonitorElement *prevmedianAPV0vsAPV1_[3];
+  MonitorElement *prevmedianAPV1vsAPV0_[3];
+  MonitorElement *prevmedianAPV1vsAPV1_[3];
+  MonitorElement *prevmedianAPV0minusAPV0_[3];
+  MonitorElement *prevmedianAPV0minusAPV1_[3];
+  MonitorElement *prevmedianAPV1minusAPV0_[3];
+  MonitorElement *prevmedianAPV1minusAPV1_[3];
+  MonitorElement *prevmedianAPV0minusAPV1minusShotMedianAPV1_;
+  MonitorElement *prevmedianAPV1minusAPV1minusShotMedianAPV1_;
+  MonitorElement *medianAPV1minusprevAPV1minusShotMedianAPV1_;
+  MonitorElement *medianAPV1minusprevAPV0minusShotMedianAPV1_;
+
   std::map<unsigned int,MonitorElement*> medianAPV1vsAPV0perFED_[3];
   std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0perFED_[3];
   //std::map<unsigned int,MonitorElement*> medianAPV1minusAPV0vsTimeperFED_[3];

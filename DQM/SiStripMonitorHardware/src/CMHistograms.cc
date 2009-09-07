@@ -47,6 +47,19 @@ void CMHistograms::initialise(const edm::ParameterSet& iConfig,
   getConfigForHistogram("MedianAPV1minusAPV0minusShotMedianAPV1",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV0minusAPV1minusShotMedianAPV1",iConfig,pDebugStream);
 
+  getConfigForHistogram("PrevmedianAPV0vsAPV0",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV0vsAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV1vsAPV0",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV1vsAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV0minusAPV0",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV0minusAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV1minusAPV0",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV1minusAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV0minusAPV1minusShotMedianAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("PrevmedianAPV1minusAPV1minusShotMedianAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV1minusprevAPV1minusShotMedianAPV1",iConfig,pDebugStream);
+  getConfigForHistogram("MedianAPV1minusprevAPV0minusShotMedianAPV1",iConfig,pDebugStream);
+
   getConfigForHistogram("MedianAPV1vsAPV0perFED",iConfig,pDebugStream);
   getConfigForHistogram("MedianAPV1minusAPV0perFED",iConfig,pDebugStream);
 
@@ -82,14 +95,21 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
     }
 
 
-
-
     if (lVal.IsShot) {
       fillHistogram(shotChannels_,lVal.ChannelID,aFedId);
       fillHistogram(shotMedianAPV0_,lVal.ShotMedians.first);
       fillHistogram(shotMedianAPV1_,lVal.ShotMedians.second);
       fillHistogram(medianAPV1minusAPV0minusShotMedianAPV1_,lVal.Medians.second-lVal.Medians.first-lVal.ShotMedians.second);
       fillHistogram(medianAPV0minusAPV1minusShotMedianAPV1_,lVal.Medians.first-lVal.Medians.second-lVal.ShotMedians.second);
+
+      if (lVal.PreviousMedians.first != 0 || lVal.PreviousMedians.second != 0) {
+	fillHistogram(prevmedianAPV0minusAPV1minusShotMedianAPV1_,lVal.PreviousMedians.first-lVal.Medians.second-lVal.ShotMedians.second);
+	fillHistogram(prevmedianAPV1minusAPV1minusShotMedianAPV1_,lVal.PreviousMedians.second-lVal.Medians.second-lVal.ShotMedians.second);
+	fillHistogram(medianAPV1minusprevAPV0minusShotMedianAPV1_,lVal.Medians.second-lVal.PreviousMedians.first-lVal.ShotMedians.second);
+	fillHistogram(medianAPV1minusprevAPV1minusShotMedianAPV1_,lVal.Medians.second-lVal.PreviousMedians.second-lVal.ShotMedians.second);
+      }
+
+
     }
 
     bool lCat[3] = {
@@ -110,6 +130,15 @@ void CMHistograms::fillHistograms(std::vector<CMvalues> aVec, float aTime, unsig
 	fillHistogram(medianAPV1vsAPV0_[i],lVal.Medians.first,lVal.Medians.second);
 	fillHistogram(medianAPV1minusAPV0_[i],lVal.Medians.second-lVal.Medians.first);
 	fillHistogram(medianAPV1minusAPV0vsTime_[i],aTime,lVal.Medians.second-lVal.Medians.first);
+
+	fillHistogram(prevmedianAPV0vsAPV0_[i],lVal.PreviousMedians.first,lVal.Medians.first);
+	fillHistogram(prevmedianAPV0minusAPV0_[i],lVal.PreviousMedians.first-lVal.Medians.first);
+	fillHistogram(prevmedianAPV0vsAPV1_[i],lVal.PreviousMedians.first,lVal.Medians.second);
+	fillHistogram(prevmedianAPV0minusAPV1_[i],lVal.PreviousMedians.first-lVal.Medians.second);
+	fillHistogram(prevmedianAPV1vsAPV0_[i],lVal.PreviousMedians.second,lVal.Medians.first);
+	fillHistogram(prevmedianAPV1minusAPV0_[i],lVal.PreviousMedians.second-lVal.Medians.first);
+	fillHistogram(prevmedianAPV1vsAPV1_[i],lVal.PreviousMedians.second,lVal.Medians.second);
+	fillHistogram(prevmedianAPV1minusAPV1_[i],lVal.PreviousMedians.second-lVal.Medians.second);
 
 	if (doFed_[aFedId]) {
 	  fillHistogram(medianAPV1vsAPV0perFED_[i][aFedId],lVal.Medians.first,lVal.Medians.second);
@@ -196,6 +225,54 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
 						"#Delta(medians)"
 						);
 
+    prevmedianAPV0vsAPV0_[i] = book2DHistogram("PrevmedianAPV0vsAPV0",
+					       "PrevmedianAPV0vsAPV0"+categories_[i],
+					       "Prevmedian APV0 vs APV0",
+					       250,0,500,250,0,500,
+					       "median APV0","Prevmedian APV0");
+
+    prevmedianAPV0minusAPV0_[i] = bookHistogram("PrevmedianAPV0minusAPV0",
+						"PrevmedianAPV0minusAPV0"+categories_[i],
+						"Prevmedian APV0 - median APV0",
+						500,-500,500,
+						"Prevmedian APV0 - median APV0");
+
+    prevmedianAPV0vsAPV1_[i] = book2DHistogram("PrevmedianAPV0vsAPV1",
+					       "PrevmedianAPV0vsAPV1"+categories_[i],
+					       "Prevmedian APV0 vs APV1",
+					       250,0,500,250,0,500,
+					       "median APV1","Prevmedian APV0");
+
+    prevmedianAPV0minusAPV1_[i] = bookHistogram("PrevmedianAPV0minusAPV1",
+						"PrevmedianAPV0minusAPV1"+categories_[i],
+						"Prevmedian APV0 - median APV1",
+						500,-500,500,
+						"Prevmedian APV0 - median APV1");
+
+    prevmedianAPV1vsAPV0_[i] = book2DHistogram("PrevmedianAPV1vsAPV0",
+					       "PrevmedianAPV1vsAPV0"+categories_[i],
+					       "Prevmedian APV1 vs APV0",
+					       250,0,500,250,0,500,
+					       "median APV0","Prevmedian APV1");
+
+    prevmedianAPV1minusAPV0_[i] = bookHistogram("PrevmedianAPV1minusAPV0",
+						"PrevmedianAPV1minusAPV0"+categories_[i],
+						"Prevmedian APV1 - median APV0",
+						500,-500,500,
+						"Prevmedian APV1 - median APV0");
+
+    prevmedianAPV1vsAPV1_[i] = book2DHistogram("PrevmedianAPV1vsAPV1",
+					       "PrevmedianAPV1vsAPV1"+categories_[i],
+					       "Prevmedian APV1 vs APV1",
+					       250,0,500,250,0,500,
+					       "median APV1","Prevmedian APV1");
+
+    prevmedianAPV1minusAPV1_[i] = bookHistogram("PrevmedianAPV1minusAPV1",
+						"PrevmedianAPV1minusAPV1"+categories_[i],
+						"Prevmedian APV1 - median APV1",
+						500,-500,500,
+						"Prevmedian APV1 - median APV1");
+
     if (i==2){//isShot
       shotMedianAPV0_ = bookHistogram("ShotMedianAPV0","ShotMedianAPV0",
 				      "median shot APV0",
@@ -217,6 +294,37 @@ void CMHistograms::bookTopLevelHistograms(DQMStore* dqm)
 						     "(median APV0 - median APV1)-shot median APV1",
 						     500,-50,50,
 						     "(median APV0 - median APV1)-shot median APV1");
+
+      prevmedianAPV0minusAPV1minusShotMedianAPV1_ = 
+	bookHistogram("PrevmedianAPV0minusAPV1minusShotMedianAPV1",
+		      "PrevmedianAPV0minusAPV1minusShotMedianAPV1",
+		      "(Prevmedian APV0 - median APV1)-shot median APV1",
+		      500,-50,50,
+		      "(Prevmedian APV0 - median APV1)-shot median APV1");
+ 
+      prevmedianAPV1minusAPV1minusShotMedianAPV1_ = 
+	bookHistogram("PrevmedianAPV1minusAPV1minusShotMedianAPV1",
+		      "PrevmedianAPV1minusAPV1minusShotMedianAPV1",
+		      "(Prevmedian APV1 - median APV1)-shot median APV1",
+		      500,-50,50,
+		      "(Prevmedian APV1 - median APV1)-shot median APV1");
+      
+      medianAPV1minusprevAPV0minusShotMedianAPV1_ = 
+	bookHistogram("MedianAPV1minusprevAPV0minusShotMedianAPV1",
+		      "MedianAPV1minusprevAPV0minusShotMedianAPV1",
+		      "(median APV1 - Prevmedian APV0)-shot median APV1",
+		      500,-50,50,
+		      "(median APV1 - Prevmedian APV0)-shot median APV1");
+ 
+      medianAPV1minusprevAPV1minusShotMedianAPV1_ = 
+	bookHistogram("MedianAPV1minusprevAPV1minusShotMedianAPV1",
+		      "MedianAPV1minusprevAPV1minusShotMedianAPV1",
+		      "(median APV1 - Prevmedian APV1)-shot median APV1",
+		      500,-50,50,
+		      "(median APV1 - Prevmedian APV1)-shot median APV1");
+ 
+
+
     }
 
   }
