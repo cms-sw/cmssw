@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.139 $"
+__version__ = "$Revision: 1.140 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -284,6 +284,7 @@ class ConfigBuilder(object):
 
         # set the global tag
         self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditions)+"'")
+        self.process.GlobalTag.globalTag = cms.string(str(conditions))
                         
     def addCustomise(self):
         """Include the customise code """
@@ -771,7 +772,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.139 $"),
+              (version=cms.untracked.string("$Revision: 1.140 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -859,6 +860,8 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "\n# Schedule definition\n"
         result = "process.schedule = cms.Schedule("
 
+        # handling of the schedule
+	self.process.schedule = cms.Schedule(*(self.schedule))  
 	if hasattr(self.process,"HLTSchedule"):
    	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)] 
 	    afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
