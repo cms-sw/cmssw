@@ -162,7 +162,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.9 $'),
+            version = cms.untracked.string('$Revision: 1.10 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -307,7 +307,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.9 $'),
+            version = cms.untracked.string('$Revision: 1.10 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -448,16 +448,15 @@ class Cosmics(Scenario):
         options.gflash = False
         options.customisation_file = ""
 
+ 
         process = cms.Process("HARVESTING")
         process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
-
         #
         # customise process for particular job
         #
-        process.GlobalTag.globaltag = globalTag
         process.source.processingMode = cms.untracked.string('RunsAndLumis')
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
