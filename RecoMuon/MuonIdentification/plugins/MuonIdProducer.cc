@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.37 2009/04/08 16:34:36 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.38 2009/06/16 13:57:46 bellan Exp $
 //
 //
 
@@ -570,7 +570,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       aMuon.setCalEnergy( muonEnergy );
    }
-   if ( ! fillMatching_ ) return;
+   if ( ! fillMatching_ && ! aMuon.isTrackerMuon() ) return;
    
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
