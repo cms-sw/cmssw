@@ -5,40 +5,29 @@
 #  More information here:
 #  https://twiki.cern.ch/twiki/bin/view/CMS/SusyPatLayer1DefV6 
 #
-import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PAT")
+# Starting with a skeleton process which gets imported with the following line
+from PhysicsTools.PatAlgos.patTemplate_cfg import *
+
 
 #-- Message Logger ------------------------------------------------------------
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold  = 'INFO'
 process.MessageLogger.categories.append('PATSummaryTables')
 process.MessageLogger.cerr = cms.untracked.PSet(
     default          = cms.untracked.PSet( limit = cms.untracked.int32(-1)  ),
     PATSummaryTables = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
-process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(100),
-    limit = cms.untracked.int32(10000000)
-)
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-
 
 #-- Input Source --------------------------------------------------------------
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
+process.source.fileNames = [
     'rfio://?svcclass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/fronga/V6production/PYTHIA6_SUSY_LM0_sftsht_10TeV_cff_py_RAW2DIGI_RECO_1.root'
-    ),
-    # Due to problem in local production
-    duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
-)
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+    ]
+process.maxEvents.input = -1
+# Due to problem in production of LM samples
+process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
-#-- Geometry ------------------------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
-process.load("Configuration.StandardSequences.MagneticField_cff")
+#-- Calibration tag -----------------------------------------------------------
+# Should match input file's tag
+process.GlobalTag.globaltag = 'STARTUP31X_V1::All'
 
 #-- PAT standard config -------------------------------------------------------
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -107,19 +96,11 @@ for jetName in ( '', 'IC5PF', 'SC5', 'IC5JPT' ):
 
 #-- Output module configuration -----------------------------------------------
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-process.out = cms.OutputModule(
-    "PoolOutputModule",
-    fileName = cms.untracked.string(
-    'rfio://?svcclass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/fronga/V6production/LM0-312-SUSYPAT-V6a.root'
-    ),
-    splitLevel = cms.untracked.int32(99),
-    overrideInputFileSplitLevels = cms.untracked.bool(True),
-    SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
-    dropMetaData = cms.untracked.string('DROPPED'),
-    # save PAT Layer 1 output
-    outputCommands = cms.untracked.vstring('drop *' )
-    )
-process.outpath = cms.EndPath(process.out)
+process.out.fileName = 'rfio://?svcclass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/fronga/V6production/LM0-312-SUSYPAT-V6a.root'
+process.out.splitLevel = cms.untracked.int32(99)  # Turn on split level (smaller files)
+process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
+process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metadata related to dropped collections
+process.out.outputCommands = [ 'drop *' ]
 
 # Explicit list of collections to keep (basis is default PAT event content)
 process.out.outputCommands.extend( [ # PAT Objects
