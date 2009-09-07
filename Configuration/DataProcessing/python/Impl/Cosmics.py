@@ -162,7 +162,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.8 $'),
+            version = cms.untracked.string('$Revision: 1.9 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -173,7 +173,6 @@ class Cosmics(Scenario):
         process.source = cms.Source(
             "NewEventStreamFileReader",
             fileNames = cms.untracked.vstring()
-            
         )
         
         
@@ -308,7 +307,7 @@ class Cosmics(Scenario):
         process.load('Configuration/EventContent/EventContentCosmics_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.8 $'),
+            version = cms.untracked.string('$Revision: 1.9 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -459,6 +458,7 @@ class Cosmics(Scenario):
         # customise process for particular job
         #
         process.GlobalTag.globaltag = globalTag
+        process.source.processingMode = cms.untracked.string('RunsAndLumis')
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
