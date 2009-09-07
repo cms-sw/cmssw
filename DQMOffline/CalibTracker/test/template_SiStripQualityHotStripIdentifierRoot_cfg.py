@@ -6,7 +6,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
+        threshold = cms.untracked.string('INFO')
     ),
     destinations = cms.untracked.vstring('cout')
 )
@@ -25,10 +25,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V3P::All"
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
+#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+#process.GlobalTag.globaltag = "CRAFT_V3P::All"
 #process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
 
 #to read offline info from the first step of the analysis
 process.a = cms.ESSource("PoolDBESSource",
@@ -40,7 +43,7 @@ process.a = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadFiberRcd'),
-        tag = cms.string('SiStripBadChannel_v1')
+        tag = cms.string('SiStripHotAPVs')
     )),
     connect = cms.string('sqlite_file:dbfile.db')
 )
@@ -67,6 +70,8 @@ process.a = cms.ESSource("PoolDBESSource",
 #to produce ESetup based on o2o and cabling and offline
 process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
     PrintDebug = cms.untracked.bool(True),
+    PrintDebugOutput = cms.bool(False),
+    UseEmptyRunInfo = cms.bool(False),
     appendToDataLabel = cms.string('test'),
     ReduceGranularity = cms.bool(True),
     ThresholdForReducedGranularity = cms.double(0.3),
@@ -106,7 +111,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
     cms.PSet(
       record = cms.string('SiStripBadStrip'),
-      tag = cms.string('HotStrips')
+      tag = cms.string('SiStripHotStrips')
     ))
 )
 
@@ -132,7 +137,7 @@ process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
     IOVMode = cms.string('Run'),
     Record = cms.string('SiStripBadStrip'),
     rootDirPath = cms.untracked.string(''),
-    rootFilename = cms.untracked.string('insertInputDQMfile'),
+    rootFilename = cms.untracked.string('insertCastorPath/insertDataset/insertDQMFile'),
     doStoreOnDB = cms.bool(True),
     OccupancyH_Nbin = cms.untracked.uint32(1001)
 )

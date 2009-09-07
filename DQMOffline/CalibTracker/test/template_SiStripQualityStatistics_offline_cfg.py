@@ -9,8 +9,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(1),
-    lastValue = cms.uint64(100000),
+    firstValue = cms.uint64(insertRun),
+    lastValue = cms.uint64(insertRun),
     timetype = cms.string('runnumber'),
     interval = cms.uint64(1)
 )
@@ -26,31 +26,41 @@ process.a = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadModuleRcd'),
-        tag = cms.string('inputTag')
+        tag = cms.string('SiStripHotAPVs')
+    ),
+                      cms.PSet(
+        record = cms.string('SiStripBadFiberRcd'),
+        tag = cms.string('SiStripHotStrips')
     )),
     connect = cms.string('sqlite_file:dbfile.db')
 )
 
 process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
     PrintDebug = cms.untracked.bool(True),
+    PrintDebugOutput = cms.bool(False),
+    UseEmptyRunInfo = cms.bool(False),
     appendToDataLabel = cms.string('test'),
-    ReduceGranularity = cms.bool(True),
+    ReduceGranularity = cms.bool(False),
     ThresholdForReducedGranularity = cms.double(0.3),
     ListOfRecordToMerge = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadModuleRcd'),
+        tag = cms.string('')
+    ),
+                                    cms.PSet(
+        record = cms.string('SiStripBadFiberRcd'),
         tag = cms.string('')
     ))
 )
 
 #### Add these lines to produce a tracker map
-#process.load("DQMServices.Core.DQMStore_cfg")
-#process.TkDetMap = cms.Service("TkDetMap")
-#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQMServices.Core.DQMStore_cfg")
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 ####
 
 process.stat = cms.EDFilter("SiStripQualityStatistics",
-    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
-    TkMapFileName = cms.untracked.string(''),
+    TkMapFileName = cms.untracked.string('TkMapBadComponents_offline.png'),
+    #TkMapFileName = cms.untracked.string(''),
     dataLabel = cms.untracked.string('test')
 )
 

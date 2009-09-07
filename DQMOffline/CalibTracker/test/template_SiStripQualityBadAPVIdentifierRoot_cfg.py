@@ -24,9 +24,12 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRAFT_V3P::All"
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
+#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
+#process.GlobalTag.globaltag = "CRAFT_V3P::All"
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -37,7 +40,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStrip'),
-        tag = cms.string('SiStripBadChannel_v1')
+        tag = cms.string('SiStripHotAPVs')
     ))
 )
 
@@ -59,7 +62,7 @@ process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
     IOVMode = cms.string('Run'),
     Record = cms.string('SiStripBadStrip'),
     rootDirPath = cms.untracked.string(''),
-    rootFilename = cms.untracked.string('insertInputDQMfile'),
+    rootFilename = cms.untracked.string('insertCastorPath/insertDataset/insertDQMFile'),
     doStoreOnDB = cms.bool(True)
 )
 
