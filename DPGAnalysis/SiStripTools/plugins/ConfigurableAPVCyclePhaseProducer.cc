@@ -55,8 +55,8 @@ private:
   
       // ----------member data ---------------------------
 
-  std::vector<std::string> _defpartnames;
-  std::vector<int> _defphases;
+  const std::vector<std::string> _defpartnames;
+  const std::vector<int> _defphases;
 
   std::map<int,std::vector<std::string> > _runpartnames;
   std::map<int,std::vector<int> > _runphases;
@@ -134,16 +134,19 @@ ConfigurableAPVCyclePhaseProducer::beginRun(edm::Run& iRun, const edm::EventSetu
   
   // fill phase map
 
-  std::map<int,std::vector<int> >::const_iterator trphases = _runphases.find(iRun.run());
-  std::map<int,std::vector<std::string> >::const_iterator trpartnames = _runpartnames.find(iRun.run());
+  const std::map<int,std::vector<std::string> >& _crunpartnames = _runpartnames;
+  const std::map<int,std::vector<int> >& _crunphases = _runphases;
 
-  std::vector<int>& phases = _defphases;
-  std::vector<std::string>& partnames = _defpartnames;
+  std::map<int,std::vector<int> >::const_iterator trphases = _crunphases.find(iRun.run());
+  std::map<int,std::vector<std::string> >::const_iterator trpartnames = _crunpartnames.find(iRun.run());
 
-  if(trphases != _runphases.end()) {
+  std::vector<int> phases = _defphases;
+  std::vector<std::string> partnames = _defpartnames;
+
+  if(trphases != _crunphases.end()) {
     phases = trphases->second;
   }
-  if(trpartnames != _runpartnames.end()) {
+  if(trpartnames != _crunpartnames.end()) {
     partnames = trpartnames->second;
   }
 
