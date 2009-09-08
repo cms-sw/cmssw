@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -53,9 +54,9 @@ namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
-    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
+    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), principalCache(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 :
-			   new RootInputFileSequence(pset, *this, catalog(1), false)),
+			   new RootInputFileSequence(pset, *this, catalog(1), principalCache(), false)),
     branchIDsToReplace_(),
     numberOfEventsBeforeBigSkip_(0),
     numberOfEventsInBigSkip_(0),
@@ -98,7 +99,7 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   PoolSource::readFile_() {
-    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_(eventPrincipalCache());
+    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_(principalCache());
     if (secondaryFileSequence_) {
 	fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
@@ -197,7 +198,7 @@ namespace edm {
   PoolSource::getNextItemType() {
     InputSource::ItemType returnValue = primaryFileSequence_->getNextItemType();
     if(returnValue == InputSource::IsEvent && 0 != numberOfEventsInBigSkip_ && 0 == --numberOfEventsBeforeBigSkip_) {
-      primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_, eventPrincipalCache());
+      primaryFileSequence_->skipEvents(numberOfEventsInBigSkip_, principalCache());
       numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_;
       returnValue = primaryFileSequence_->getNextItemType();
     }    
@@ -210,7 +211,7 @@ namespace edm {
     numberOfEventsBeforeBigSkip_ = iNumberOfSequentialEvents ;
     forkedChildIndex_ = iChildIndex;
     numberOfSequentialEvents_ = iNumberOfSequentialEvents;
-    primaryFileSequence_->reset();
+    primaryFileSequence_->reset(principalCache());
     rewind();
   }
    
@@ -224,7 +225,7 @@ namespace edm {
       if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
         numberOfEventsBeforeBigSkip_ = numberToSkip+1;
       }
-      primaryFileSequence_->skipEvents(numberToSkip, eventPrincipalCache());
+      primaryFileSequence_->skipEvents(numberToSkip, principalCache());
     }
     numberOfEventsBeforeBigSkip_ = numberOfSequentialEvents_+1 ;
   }
@@ -232,7 +233,7 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   PoolSource::skip(int offset) {
-    primaryFileSequence_->skipEvents(offset, eventPrincipalCache());
+    primaryFileSequence_->skipEvents(offset, principalCache());
   }
 
   void

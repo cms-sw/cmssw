@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -32,6 +33,7 @@ namespace edm {
 		ParameterSet const& pset,
 		PoolSource const& input,
 		InputFileCatalog const& catalog,
+		PrincipalCache& cache,
 		bool primarySequence) :
     input_(input),
     catalog_(catalog),
@@ -110,7 +112,7 @@ namespace edm {
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
 	if(primarySequence_) {
 	  if(skipEvents_ != 0) {
-	    skipEvents(skipEvents_, 0);
+	    skipEvents(skipEvents_, cache);
 	  }
 	}
       }
@@ -136,7 +138,7 @@ namespace edm {
   }
 
   boost::shared_ptr<FileBlock>
-  RootInputFileSequence::readFile_(EventPrincipal *cache) {
+  RootInputFileSequence::readFile_(PrincipalCache& cache) {
     if(firstFile_) {
       // The first input file has already been opened.
       firstFile_ = false;
@@ -220,7 +222,7 @@ namespace edm {
     return rootFile_->productRegistry();
   }
 
-  bool RootInputFileSequence::nextFile(EventPrincipal* cache) {
+  bool RootInputFileSequence::nextFile(PrincipalCache& cache) {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
       if(primarySequence_) {
@@ -241,12 +243,12 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
-      cache->reinitializeGroups(productRegistry());
+      cache.adjustToNewProductRegistry(*productRegistry());
     }
     return true;
   }
 
-  bool RootInputFileSequence::previousFile(EventPrincipal* cache) {
+  bool RootInputFileSequence::previousFile(PrincipalCache& cache) {
     if(fileIter_ == fileIterBegin_) {
       if(primarySequence_) {
 	return false;
@@ -267,7 +269,7 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
-      cache->reinitializeGroups(productRegistry());
+      cache.adjustToNewProductRegistry(*productRegistry());
     }
     if(rootFile_) rootFile_->setToLastEntry();
     return true;
@@ -377,7 +379,7 @@ namespace edm {
   }
 
   void
-  RootInputFileSequence::reset() {
+  RootInputFileSequence::reset(PrincipalCache& cache) {
     //NOTE: Need to handle duplicate checker
     // Also what if skipBadFiles_==true and the first time we succeeded but after a reset we fail?
     if(primary()) {
@@ -397,7 +399,7 @@ namespace edm {
         }
 	if(primarySequence_) {
 	  if(skipEvents_ != 0) {
-	    skipEvents(skipEvents_, 0);
+	    skipEvents(skipEvents_, cache);
 	  }
 	}
       }
@@ -406,7 +408,7 @@ namespace edm {
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
-  RootInputFileSequence::skipEvents(int offset, EventPrincipal* cache) {
+  RootInputFileSequence::skipEvents(int offset, PrincipalCache& cache) {
     assert (skipEvents_ == 0 || skipEvents_ == offset);
     skipEvents_ = offset;
     while(skipEvents_ != 0) {

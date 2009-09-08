@@ -42,7 +42,7 @@ namespace edm {
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, bool primarySequence);
+    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, bool primarySequence);
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
@@ -53,16 +53,16 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
-    boost::shared_ptr<FileBlock> readFile_(EventPrincipal* cache);
+    boost::shared_ptr<FileBlock> readFile_(PrincipalCache& cache);
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
     boost::shared_ptr<LuminosityBlockPrincipal> readIt(LuminosityBlockID const& id);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
-    bool skipEvents(int offset, EventPrincipal* cache);
+    bool skipEvents(int offset, PrincipalCache& cache);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact, bool record);
     void rewind_();
-    void reset();
+    void reset(PrincipalCache& cache);
     void readMany(int number, EventPrincipalVector& result);
     void readMany(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
@@ -71,8 +71,8 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
   private:
     void initFile(bool skipBadFiles);
-    bool nextFile(EventPrincipal* cache);
-    bool previousFile(EventPrincipal* cache);
+    bool nextFile(PrincipalCache& cache);
+    bool previousFile(PrincipalCache& cache);
     void rewindFile();
     void setSkipInfo();
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
