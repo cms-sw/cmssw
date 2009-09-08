@@ -29,18 +29,10 @@ public:
     //! Virtual destructor.
     virtual ~PSimHitSelector() {}
 
-    //! Pre-process event information
-    virtual void newEvent(edm::Event const &, edm::EventSetup const &);
-
-    //! Return a constant reference to psimhit final selection
-    PSimHitCollection const & pSimHits() const
-    {
-        return pSimHits_;
-    }
+    //! Select the psimhit add them to a PSimHitCollection
+    virtual void select(PSimHitCollection &, edm::Event const &, edm::EventSetup const &) const;
 
 protected:
-
-    PSimHitCollection pSimHits_;
 
     typedef std::map<std::string, std::vector<std::string> > PSimHitCollectionMap;
 

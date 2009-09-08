@@ -61,9 +61,9 @@ private:
 
     // Related to production
 
-    std::vector<edm::Handle<edm::HepMCProduct> >    hepMCProducts_;
+    std::vector<edm::Handle<edm::HepMCProduct> > hepMCProducts_;
 
-    std::vector<PSimHit>                      pSimHits_;
+    PSimHitSelector::PSimHitCollection        pSimHits_;
 
     PSimHitSelector                           pSimHitSelector_;
     PixelPSimHitSelector                      pixelPSimHitSelector_;

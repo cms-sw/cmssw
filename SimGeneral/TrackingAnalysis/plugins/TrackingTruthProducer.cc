@@ -85,12 +85,12 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
 
 void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
 {
-	// Clean the list of hepmc products
+    // Clean the list of hepmc products
     hepMCProducts_.clear();
 
     // Collect all the HepMCProducts
     edm::Handle<edm::HepMCProduct> hepMCHandle;
-    
+
     for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source)
     {
         if ( event.getByLabel(*source, hepMCHandle) )
@@ -139,23 +139,15 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
     // Create a list of psimhits
     if (removeDeadModules_)
     {
-        pixelPSimHitSelector_.newEvent(event, setup);
-        pSimHits_ = pixelPSimHitSelector_.pSimHits();
-
-        trackerPSimHitSelector_.newEvent(event, setup);
-        pSimHits_.insert(
-            pSimHits_.end(), trackerPSimHitSelector_.pSimHits().begin(), trackerPSimHitSelector_.pSimHits().end()
-        );
-
-        muonPSimHitSelector_.newEvent(event, setup);
-        pSimHits_.insert(
-            pSimHits_.end(), muonPSimHitSelector_.pSimHits().begin(), muonPSimHitSelector_.pSimHits().end()
-        );
+        pSimHits_.clear();
+        pixelPSimHitSelector_.select(pSimHits_, event, setup);
+        trackerPSimHitSelector_.select(pSimHits_, event, setup);
+        muonPSimHitSelector_.select(pSimHits_, event, setup);
     }
     else
     {
-        pSimHitSelector_.newEvent(event, setup);
-        pSimHits_ = pSimHitSelector_.pSimHits();
+        pSimHits_.clear();
+        pSimHitSelector_.select(pSimHits_, event, setup);
     }
 
     // Create a multimap between trackId and hit indices

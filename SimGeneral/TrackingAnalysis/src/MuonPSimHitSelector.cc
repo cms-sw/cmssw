@@ -12,11 +12,8 @@
 // #include "SimTracker/Common/interface/SimHitSelectorFromDB.h"
 
 
-void MuonPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup const & setup)
+void MuonPSimHitSelector::select(PSimHitCollection & selection, edm::Event const & event, edm::EventSetup const & setup) const
 {
-    // Clear all the psimhit in the list
-    pSimHits_.clear();
-
     // Look for psimhit collection associated to the muon system
     PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("muon");
 
@@ -49,9 +46,9 @@ void MuonPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup con
         if (dId.det() == DetId::Muon && dId.subdetId() == MuonSubdetId::CSC)
         {
             if ( !cscBadChambers->isInBadChamber(CSCDetId(dId)) )
-                pSimHits_.push_back(*pSimHit);
+                selection.push_back(*pSimHit);
         }
         else
-            pSimHits_.push_back(*pSimHit);
+            selection.push_back(*pSimHit);
     }
 }
