@@ -10,11 +10,8 @@
 #include "SimGeneral/TrackingAnalysis/interface/PixelPSimHitSelector.h"
 
 
-void PixelPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup const & setup)
+void PixelPSimHitSelector::select(PSimHitCollection & selection, edm::Event const & event, edm::EventSetup const & setup) const
 {
-    // Clear all the psimhit in the list
-    pSimHits_.clear();
-
     // Look for psimhit collection associated o the tracker
     PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("pixel");
 
@@ -45,8 +42,8 @@ void PixelPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup co
 
     // Select only psimhits from alive modules
     for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit)
-    { 
-        if ( !pixelQuality.IsModuleBad(pSimHit->detUnitId()) )	
-            pSimHits_.push_back(*pSimHit);
+    {
+        if ( !pixelQuality.IsModuleBad(pSimHit->detUnitId()) )
+            selection.push_back(*pSimHit);
     }
 }

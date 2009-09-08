@@ -13,11 +13,8 @@
 #include "SimTracker/Common/interface/SimHitSelectorFromDB.h"
 
 
-void TrackerPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup const & setup)
+void TrackerPSimHitSelector::select(PSimHitCollection & selection, edm::Event const & event, edm::EventSetup const & setup) const
 {
-    // Clear all the psimhit in the list
-    pSimHits_.clear();
-
     // Look for psimhit collection associated o the tracker
     PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("tracker");
 
@@ -49,5 +46,5 @@ void TrackerPSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup 
 
     // Add the selected psimhit to the main list
     for (std::size_t i = 0; i < psimhits.size(); ++i)
-        pSimHits_.push_back( psimhits[i].first );
+        selection.push_back( psimhits[i].first );
 }

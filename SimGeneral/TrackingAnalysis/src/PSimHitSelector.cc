@@ -23,11 +23,8 @@ PSimHitSelector::PSimHitSelector(edm::ParameterSet const & config)
 }
 
 
-void PSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup const & setup)
+void PSimHitSelector::select(PSimHitCollection & selection, edm::Event const & event, edm::EventSetup const & setup) const
 {
-    // Clear all the psimhit in the list
-    pSimHits_.clear();
-
     // Look for all psimhit collections
     PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.begin();
 
@@ -51,5 +48,5 @@ void PSimHitSelector::newEvent(edm::Event const & event, edm::EventSetup const &
 
     // Select all psimhits
     for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit)
-        pSimHits_.push_back(*pSimHit);
+        selection.push_back(*pSimHit);
 }
