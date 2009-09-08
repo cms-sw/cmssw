@@ -4,8 +4,6 @@
 ESShape::ESShape(int Gain):
   theGain_(Gain)
 {
-  setTpeak(20.0);
-
   if (theGain_==0) {
     A_ = 6.;
     Qcf_ = 4./350.;

@@ -28,27 +28,31 @@ int main() {
 
   // standard display of the implemented shape function
 
-  const int csize = 500;
+  const int csize = EcalShapeBase::k1NSecBinsTotal;
   TCanvas * showShape = new TCanvas("showShape","showShape",2*csize,csize);
 
-  int nsamp = 500;
-  int tconv = 10;
+  const int nsamp = EcalShapeBase::k1NSecBinsTotal;
+  const int tconv = EcalShapeBase::kNBinsPerNSec;
 
-  unsigned int histsiz = nsamp*tconv;
+  const unsigned int histsiz = nsamp*tconv;
 
-  const std::vector<double>& nt = theShape.getTimeTable();
-  const std::vector<double>& ntd = theShape.getDerivTable();
+//  const std::vector<double>& nt = theShape.getTimeTable();
+//  const std::vector<double>& ntd = theShape.getDerivTable();
 
   TH1F* shape1 = new TH1F("shape1","Tabulated Ecal MGPA shape",histsiz,0.,(float)(histsiz));
   TH1F* deriv1 = new TH1F("deriv1","Tabulated Ecal MGPA derivative",histsiz,0.,(float)(histsiz));
   
   std::cout << "interpolated ECAL pulse shape and its derivative \n" << std::endl;
-  for ( unsigned int i = 0; i < histsiz; ++i ) {
-    shape1->Fill((float)(i+0.5),(float)nt[i]);
-    deriv1->Fill((float)(i+0.5),(float)ntd[i]);
-    std::cout << " time (ns) = " << std::fixed << std::setw(6) << std::setprecision(2) << (double)i/tconv+0.05 
-              << " shape = " << std::setw(11) << std::setprecision(8) << nt[i] 
-              << " derivative = " << std::setw(11) << std::setprecision(8) << ntd[i] << std::endl;
+  for ( unsigned int i = 0; i < histsiz; ++i ) 
+  {
+     const double time ( (i+0.5)*0.1 ) ;
+     const double myShape ( theShape( time ) ) ;
+     const double myDeriv ( theShape.derivative( time ) ) ;
+     shape1->Fill((float)(i+0.5),(float)myShape );
+     deriv1->Fill((float)(i+0.5),(float)myDeriv );
+     std::cout << " time (ns) = " << std::fixed << std::setw(6) << std::setprecision(2) << time
+	       << " shape = " << std::setw(11) << std::setprecision(8) << myShape 
+	       << " derivative = " << std::setw(11) << std::setprecision(8) << myDeriv << std::endl;
   }
 
   showShape->Divide(2,1);
@@ -62,9 +66,9 @@ int main() {
   delete shape1;
   delete deriv1;
 
-  double ToM = theShape.computeTimeOfMaximum();
-  double T0 = theShape.computeT0();
-  double risingTime = theShape.computeRisingTime();
+  double ToM = theShape.timeOfMax();
+  double T0 = theShape.timeOfThr();
+  double risingTime = theShape.timeToRise();
 
   std::cout << "\n Maximum time from tabulated values = " << std::setprecision(2) << ToM << std::endl;
   std::cout << "\n Tzero from tabulated values        = " << std::setprecision(2) << T0 << std::endl;
@@ -73,8 +77,8 @@ int main() {
   // signal used with the nominal parameters and no jitter
 
   std::cout << "\n computed ECAL pulse shape and its derivative (LHC timePhaseShift = 1) \n" << std::endl;
-  double x = risingTime-(parameterMap.simParameters(barrel).binOfMaximum()-1.)*25.;
-  double startx = x;
+  double tzero = risingTime-(parameterMap.simParameters(barrel).binOfMaximum()-1.)*25.;
+  double x = tzero ;
 
   TH1F* shape2 = new TH1F("shape2","Computed Ecal MGPA shape",nsamp,0.,(float)(nsamp));
   TH1F* deriv2 = new TH1F("deriv2","Computed Ecal MGPA derivative",nsamp,0.,(float)(nsamp));
@@ -83,17 +87,16 @@ int main() {
   for ( unsigned int i = 0; i < histsiz; ++i ) {
     y  = (theShape)(x);
     dy = theShape.derivative(x);
-    shape2->Fill((float)(x-startx),(float)y);
-    deriv2->Fill((float)(x-startx),(float)dy);
-    std::cout << " time (ns) = "  << std::fixed    << std::setw(6)         << std::setprecision(2) << x-startx 
+    shape2->Fill((float)(x-tzero),(float)y);
+    deriv2->Fill((float)(x-tzero),(float)dy);
+    std::cout << " time (ns) = "  << std::fixed    << std::setw(6)         << std::setprecision(2) << x-tzero 
               << " shape = "      << std::setw(11) << std::setprecision(8) << y
               << " derivative = " << std::setw(11) << std::setprecision(8) << dy << std::endl;
     x = x+1./(double)tconv;
   }
 
-  double tzero = risingTime-(parameterMap.simParameters(barrel).binOfMaximum()-1.)*25.;
   for (int iSample = 0; iSample < 10; iSample++) 
-    std::cout << (theShape)(tzero + iSample*25.0) << std::endl; 
+     std::cout << (theShape)(tzero + iSample*25.0) << std::endl; 
 
   showShape->Divide(2,1);
   showShape->cd(1);
