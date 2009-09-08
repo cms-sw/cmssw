@@ -25,14 +25,14 @@ namespace pat {
       int centralityBin();
 
    private:
+      reco::CentralityCollection cents_;
+      reco::EvtPlaneCollection planes_;
       bool isMC_;
       double b_;
       int npart_;
       int ncoll_;
       int nhard_;
       double phi_;
-      reco::CentralityCollection cents_;
-      reco::EvtPlaneCollection planes_;
    };
 
 }

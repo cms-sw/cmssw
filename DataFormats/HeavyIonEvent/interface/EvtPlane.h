@@ -1,6 +1,6 @@
 
 //
-// $Id: EvtPlane.h,v 1.2 2009/08/17 18:08:14 yilmaz Exp $
+// $Id: EvtPlane.h,v 1.3 2009/09/08 10:50:57 edwenger Exp $
 //
 
 #ifndef DataFormats_EvtPlane_h
@@ -14,18 +14,19 @@ public:
    EvtPlane(double planeA=0,double sumSin=0, double sumCos=0,  std::string label="");
   virtual ~EvtPlane();
 
-  std::string label()   const { return label_; }
   double      angle()   const { return angle_; }
   double      sumSin()  const { return sumSin_;}
   double      sumCos()  const { return sumCos_;}
+  std::string label()   const { return label_; }
+
  
 
 private:
 
-  std::string   label_;
   double        angle_  ;
   double        sumSin_;
   double        sumCos_;
+  std::string   label_;
 
 
 };

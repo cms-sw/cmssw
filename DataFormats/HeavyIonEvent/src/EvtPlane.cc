@@ -1,5 +1,5 @@
 // //
-// // $Id: EvtPlane.cc,v 1.2 2009/08/17 18:08:14 yilmaz Exp $
+// // $Id: EvtPlane.cc,v 1.3 2009/09/08 10:50:57 edwenger Exp $
 // //
 // 
 // #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
@@ -23,7 +23,7 @@
 
 
 //
-// $Id: EvtPlane.cc,v 1.2 2009/08/17 18:08:14 yilmaz Exp $
+// $Id: EvtPlane.cc,v 1.3 2009/09/08 10:50:57 edwenger Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
@@ -33,9 +33,9 @@ using namespace reco;
 EvtPlane::EvtPlane(double planeA,double sumSin, double sumCos, std::string label)
   : 
    angle_(planeA),
-   label_(label),
    sumSin_(sumSin),
-   sumCos_(sumCos)
+   sumCos_(sumCos),
+   label_(label)
 {
   // default constructor
 }

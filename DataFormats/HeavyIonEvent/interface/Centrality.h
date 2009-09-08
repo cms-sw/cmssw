@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.h,v 1.3 2009/08/17 18:08:14 yilmaz Exp $
+// $Id: Centrality.h,v 1.4 2009/08/18 14:45:31 yilmaz Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -13,12 +13,12 @@ public:
   Centrality(double d=0, std::string label = "");
   virtual ~Centrality();
 
-  std::string label()           const { return label_; }
   double    raw()               const { return value_; }
+  std::string label()           const { return label_; }
 
 private:
-  std::string label_;
   double value_;
+  std::string label_;
 
 };
 
