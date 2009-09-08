@@ -20,6 +20,31 @@
 #include <vector>
 #include <string>
 
+// For Tracker Map
+enum funcType {EachBinContent, Entries, Mean, Sum, WeightedSum, Offline};
+#define PI_12 0.261799
+#define PI    3.141592
+#define PI_2  1.570796
+
+#define NLev1		4		// Number of HalfCylinders in Endcap or number of Shells in Barrel, which is bigger
+#define NLev2		3		// Number of Disks in Endcap or number of Layers in Barrel, which is bigger
+#define NLev3		22		// Number of Blades in Endcap or number of Ladders in Barrel, which is bigger
+#define NLev4		7		// Number of Modules - different for Endcap and Barrel, which is bigger
+
+#define NCyl		4
+#define NDisk		2
+#define NBlade		12
+#define NModuleE	7
+
+#define NShell		4
+#define NLayer		3
+//#define NLadders	LayNum * 6 + 4		// where LayNum is number of interesting Layer => 10, 16, 22
+#define NModuleB	4
+
+#define NPoints		5
+
+// End for Tracker Map
+
 class SiPixelActionExecutor {
 
  public:
@@ -60,7 +85,7 @@ class SiPixelActionExecutor {
                                     edm::EventSetup const        & eSetup);
  void dumpEndcapModIds(             DQMStore     		 * bei,
                                     edm::EventSetup const        & eSetup);
- 
+ void createMaps(DQMStore* bei, std::string type, funcType ff);
 
 
 private:
@@ -71,7 +96,7 @@ private:
   MonitorElement* getFEDSummaryME(  DQMStore     		 * bei, 
                                     std::string 	     	   me_name);
   void GetBladeSubdirs(DQMStore* bei, std::vector<std::string>& blade_subdirs); 
-   void fillSummary(           	    DQMStore     		 * bei, 
+  void fillSummary(           	    DQMStore     		 * bei, 
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names,
 				    bool isbarrel);
@@ -109,6 +134,13 @@ private:
   MonitorElement * OccupancyMap;
   MonitorElement * PixelOccupancyMap;
   
+  int createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff);
+  void getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k);
+  void prephistosB(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string type, Double_t min, Double_t max);
+  void prephistosE(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string type, Double_t min, Double_t max);
+  Double_t mapMax(const Double_t map[][NLev2][NLev3][NLev4], bool isBarrel); 
+  Double_t mapMin(const Double_t map[][NLev2][NLev3][NLev4], bool isBarrel);
+
   TH2F * temp_H;
   TH2F * temp_1x2;
   TH2F * temp_1x5;

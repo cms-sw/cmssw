@@ -88,7 +88,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+#process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ##----## Global tag and input data:
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -233,7 +233,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(5000)
 )
 
 ##----## Sequences and Paths:
@@ -243,7 +243,7 @@ process.RecoStrips = cms.Sequence(process.siStripDigis*process.siStripClusters)
 process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
 process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
 process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
-process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.tracksP5) #*process.rstracks *process.ctftracksP5
+process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.ctftracksP5) #*process.rstracks *process.ctftracksP5
 
 #put proces.dump in the path where you want to print all event content
 #process.dump=cms.EDAnalyzer('EventContentAnalyzer')

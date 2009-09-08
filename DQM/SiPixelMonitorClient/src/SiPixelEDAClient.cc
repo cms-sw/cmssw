@@ -200,7 +200,7 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
 // -- End Luminosity Block
 //
 void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+//  cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
 
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
 
@@ -228,6 +228,13 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
+    // cout << "*** Creating Tracker Map Histos for End Run ***" << endl;
+    if (Tier0Flag_) {
+    	    sipixelActionExecutor_->createMaps(bei_, "SUMOFF_ndigis", EachBinContent);
+    } else {
+    	    sipixelActionExecutor_->createMaps(bei_, "SUMDIG_ndigis", EachBinContent);
+    }
+    // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
   }   
          
   // -- Create TrackerMap  according to the frequency
@@ -245,13 +252,13 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //  }
 
 
-  //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
+//  cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
 // -- End Run
 //
 void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  //cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
+//  cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
 
   //edm::LogVerbatim ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of Run, saving  DQM output ";
   //int iRun = run.run();
@@ -275,13 +282,23 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
+    // cout << "*** Creating Tracker Map Histos for End Run ***" << endl;
+    if (Tier0Flag_) {
+    	    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", Mean);
+    	    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", Mean);
+    	    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", WeightedSum);
+    	    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", WeightedSum);
+    } else {
+    	    sipixelActionExecutor_->createMaps(bei_, "SUMDIG_ndigis", EachBinContent);
+    }
+    // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
 
     // On demand, dump module ID's and stuff on the screen:
     //sipixelActionExecutor_->dumpModIds(bei_,eSetup);
   
   }
   
-  //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
+//  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 
 //
