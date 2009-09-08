@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.9 2009/08/31 23:01:12 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.10 2009/09/01 21:50:17 yumiceva Exp $
  *
  */
 
@@ -118,6 +118,8 @@ namespace reco {
     };
 	/// return beam type
 	BeamType type() const { return type_; }
+	/// set beam type
+	void setType( BeamType type ) { type_ = type; }
 	///
     Covariance3DMatrix rotatedCovariance3D() const;
 
