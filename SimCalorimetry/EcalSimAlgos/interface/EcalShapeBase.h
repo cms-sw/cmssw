@@ -16,19 +16,19 @@ class EcalShapeBase : public CaloVShape
       typedef std::vector<double> DVec ;
   
       EcalShapeBase( double aTimePhase ,
-		     bool   aSaveDerivative = false ) ;
+		     bool   aSaveDerivative ) ;
 
       virtual ~EcalShapeBase() ;
-  
+
       double operator() ( double aTime ) const ;
 
       double timeOfThr()  const { return m_firstTimeOverThreshold ; }
       double timeOfMax()  const { return m_timeOfMax              ; }
       double timeToRise() const { return timeOfMax() - timeOfThr(); }
 
-      virtual void   fillShape( DVec& aVec ) const ;
+      virtual void   fillShape( DVec& aVec ) const = 0 ;
 
-      virtual double threshold()             const ;
+      virtual double threshold()             const = 0 ;
   
       double derivative ( double time ) const ; // appears to not be used anywhere
 
@@ -43,10 +43,13 @@ class EcalShapeBase : public CaloVShape
 
    protected:
 
+      void buildMe() ;
+
       unsigned int timeIndex( double aTime ) const ;
 
    private:
 
+      const double m_timePhase ;
       unsigned int m_firstIndexOverThreshold ;
       double       m_firstTimeOverThreshold  ;
       unsigned int m_indexOfMax ;

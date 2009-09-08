@@ -19,7 +19,8 @@ int main() {
 
   EBDetId barrel(1,1);
   double thisPhase = parameterMap.simParameters(barrel).timePhase();
-  EcalShape theShape(thisPhase);
+
+  EcalShape theShape(thisPhase, true );
 
   std::cout << "Parameters for the ECAL MGPA shape \n" << std::endl;
 
@@ -41,16 +42,22 @@ int main() {
 
   TH1F* shape1 = new TH1F("shape1","Tabulated Ecal MGPA shape",histsiz,0.,(float)(histsiz));
   TH1F* deriv1 = new TH1F("deriv1","Tabulated Ecal MGPA derivative",histsiz,0.,(float)(histsiz));
+
+
+  const double ToM = theShape.timeOfMax();
+  const double T0 = theShape.timeOfThr();
+  const double risingTime = theShape.timeToRise();
+
   
   std::cout << "interpolated ECAL pulse shape and its derivative \n" << std::endl;
   for ( unsigned int i = 0; i < histsiz; ++i ) 
   {
-     const double time ( (i+0.5)*0.1 ) ;
+     const double time ( (i-0.5)*0.1 - T0 ) ;
      const double myShape ( theShape( time ) ) ;
      const double myDeriv ( theShape.derivative( time ) ) ;
      shape1->Fill((float)(i+0.5),(float)myShape );
      deriv1->Fill((float)(i+0.5),(float)myDeriv );
-     std::cout << " time (ns) = " << std::fixed << std::setw(6) << std::setprecision(2) << time
+     std::cout << " time (ns) = " << std::fixed << std::setw(6) << std::setprecision(2) << time + T0 + 0.1
 	       << " shape = " << std::setw(11) << std::setprecision(8) << myShape 
 	       << " derivative = " << std::setw(11) << std::setprecision(8) << myDeriv << std::endl;
   }
@@ -65,10 +72,6 @@ int main() {
 
   delete shape1;
   delete deriv1;
-
-  double ToM = theShape.timeOfMax();
-  double T0 = theShape.timeOfThr();
-  double risingTime = theShape.timeToRise();
 
   std::cout << "\n Maximum time from tabulated values = " << std::setprecision(2) << ToM << std::endl;
   std::cout << "\n Tzero from tabulated values        = " << std::setprecision(2) << T0 << std::endl;
@@ -90,8 +93,8 @@ int main() {
     shape2->Fill((float)(x-tzero),(float)y);
     deriv2->Fill((float)(x-tzero),(float)dy);
     std::cout << " time (ns) = "  << std::fixed    << std::setw(6)         << std::setprecision(2) << x-tzero 
-              << " shape = "      << std::setw(11) << std::setprecision(8) << y
-              << " derivative = " << std::setw(11) << std::setprecision(8) << dy << std::endl;
+              << " shape = "      << std::setw(11) << std::setprecision(5) << y
+              << " derivative = " << std::setw(11) << std::setprecision(5) << dy << std::endl;
     x = x+1./(double)tconv;
   }
 

@@ -7,7 +7,8 @@ class EBShape : public EcalShapeBase
 {
    public:
   
-      EBShape( double aTimePhase ) ;
+      EBShape( double aTimePhase ,
+	       bool   aSaveDerivative = false ) ;
 
       virtual ~EBShape() ;
   

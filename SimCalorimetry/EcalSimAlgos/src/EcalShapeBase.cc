@@ -8,20 +8,6 @@
 
 const double EcalShapeBase::qNSecPerBin = 1./(1.*kNBinsPerNSec) ;
 
-void 
-EcalShapeBase::fillShape( DVec& aVector ) const
-{
-   assert( false ) ; // dummy base class version
-}
-
-double
-EcalShapeBase::threshold() const
-{
-   assert( false ) ;
-   return 0.0 ;
-}
-
-
 EcalShapeBase::~EcalShapeBase()
 {
    delete m_derivPtr ;
@@ -29,12 +15,18 @@ EcalShapeBase::~EcalShapeBase()
 
 EcalShapeBase::EcalShapeBase( double aTimePhase ,
 			      bool   aSaveDerivative ) :
-   m_firstIndexOverThreshold ( 0 ) ,
+   m_timePhase               ( aTimePhase ) ,
+   m_firstIndexOverThreshold ( 0   ) ,
    m_firstTimeOverThreshold  ( 0.0 ) ,
-   m_indexOfMax              ( 0 ) ,
+   m_indexOfMax              ( 0   ) ,
    m_timeOfMax               ( 0.0 ) ,
    m_shape                   ( DVec( kNBinsStored, 0.0 ) ) ,
    m_derivPtr                ( aSaveDerivative ? new DVec( kNBinsStored, 0.0 ) : 0 )
+{
+}
+
+void
+EcalShapeBase::buildMe()
 {
    DVec shapeArray( k1NSecBinsTotal , 0.0 ) ;
 
@@ -76,7 +68,7 @@ EcalShapeBase::EcalShapeBase( double aTimePhase ,
       }
 
       m_shape[ j ] = value;
-      if( aSaveDerivative ) (*m_derivPtr)[ j ] = deriv;
+      if( 0 != m_derivPtr ) (*m_derivPtr)[ j ] = deriv;
 
       if( 0           <  j                         &&
 	  threshold() <  value                     &&
@@ -93,14 +85,14 @@ EcalShapeBase::EcalShapeBase( double aTimePhase ,
 
       LogDebug("EcalShapeBase") << " time (ns) = " << ( j + 1.0 )*qNSecPerBin - delta 
 				<< " interpolated ECAL pulse shape = " << m_shape[ j ] 
-				<< " derivative = " << ( aSaveDerivative ? (*m_derivPtr)[ j ] : 0 ) ;
+				<< " derivative = " << ( 0 != m_derivPtr ? (*m_derivPtr)[ j ] : 0 ) ;
    }
    m_timeOfMax = m_indexOfMax*qNSecPerBin ;
 
 
    /// Consistency check on the peak time and calculation of the bin where rise starts
 
-   if(  qNSecPerBin < fabs( timeToRise() - aTimePhase ) ) 
+   if(  qNSecPerBin < fabs( timeToRise() - m_timePhase ) ) 
    {
       throw( std::runtime_error( "EcalShapeBase: computed rising time does not match with input" ) ) ;
    }
@@ -109,17 +101,17 @@ EcalShapeBase::EcalShapeBase( double aTimePhase ,
 unsigned int
 EcalShapeBase::timeIndex( double aTime ) const
 {
-   unsigned int index ( m_firstIndexOverThreshold +
-			(unsigned int) ( aTime*kNBinsPerNSec + 0.5 ) ) ;
+   const int index ( m_firstIndexOverThreshold +
+		     (unsigned int) ( aTime*kNBinsPerNSec + 0.5 ) ) ;
 
-   const bool bad ( 0            >  aTime || 
-		    kNBinsStored <= index    ) ;
+   const bool bad ( m_firstIndexOverThreshold >  index || 
+		    kNBinsStored              <= index    ) ;
 
    if( bad )
    {
       LogDebug("EcalShapeBase") << " ECAL MGPA shape requested for out of range time " << aTime ;
    }
-   return ( bad ? kNBinsStored : index ) ;
+   return ( bad ? kNBinsStored : (unsigned int) index ) ;
 }
 
 double 

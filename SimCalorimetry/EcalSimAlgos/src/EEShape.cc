@@ -6,9 +6,11 @@ EEShape::~EEShape()
 {
 }
 
-EEShape::EEShape( double aTimePhase ) :
-   EcalShapeBase( aTimePhase )
+EEShape::EEShape( double aTimePhase ,
+		  bool   aSaveDerivative ) :
+   EcalShapeBase( aTimePhase, aSaveDerivative )
 {
+   buildMe() ;
 }
 
 double
