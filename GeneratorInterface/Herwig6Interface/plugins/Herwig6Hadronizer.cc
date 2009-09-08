@@ -462,7 +462,6 @@ void Herwig6Hadronizer::finalizeEvent()
 	(it != event()->particles_end() && targetProton==NULL); it++)
       if((*it)->status()==102 && (*it)->pdg_id()==2212) targetProton = (*it);
     
-    
     // find hard scale Q (computed from colliding partons)
     if( incomingParton && targetParton ) {
       math::XYZTLorentzVector totMomentum(0,0,0,0);
@@ -489,6 +488,7 @@ void Herwig6Hadronizer::finalizeEvent()
 	double x2 = targetParton->momentum().pz()/targetProton->momentum().pz();	
 	pdfInfo.set_x1(x1);
 	pdfInfo.set_x2(x2);	  
+
       }
 
       // we do not fill pdf1 & pdf2, since they are not easily available (what are they needed for anyways???)
@@ -517,8 +517,6 @@ void Herwig6Hadronizer::finalizeEvent()
     if (emulatePythiaStatusCodes)
       pythiaStatusCodes();    	  
     
-    std::cout<<"IPROC = "<<hwproc.IPROC<<std::endl;
-    std::cout<<"IPROC = "<<event()->signal_process_id()<<std::endl;
   }
 }
 
@@ -573,7 +571,7 @@ void Herwig6Hadronizer::upInit()
 	  if(hIter->tag()==mcnloHeader){
 	    readMCatNLOfile=true;
 	    for(lhef::LHERunInfo::Header::const_iterator lIter=hIter->begin(); lIter != hIter->end(); ++lIter) {
-	      if((lIter->c_str())[1]!='#') {   // it's not a comment
+	      if((lIter->c_str())[0]!='#' && (lIter->c_str())[0]!='\n') {   // it's not a comment) 
 		if (!give(*lIter))
 		  throw edm::Exception(edm::errors::Configuration)
 		    << "Herwig 6 did not accept the following: \""
