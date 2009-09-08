@@ -24,12 +24,4 @@ pat::HeavyIon::HeavyIon(const reco::CentralityCollection & c, const reco::EvtPla
    phi_(phi) {;}
 
 
-bool pat::HeavyIon::initializeCentrality(){
-   // Get Bin Values from "DataBase"
-   return false;
-}
-
-int pat::HeavyIon::centralityBin(){
-   return 0;
-}
 
