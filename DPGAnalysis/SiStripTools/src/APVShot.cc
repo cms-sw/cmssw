@@ -43,7 +43,7 @@ void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& de
   std::sort(charge.begin(),charge.end()); 
   std::reverse(charge.begin(),charge.end());
 
-  if(charge.size()> 64) { _median = float(charge[63]+charge[64])/2.; }
+  if(charge.size()> 64) { _median = float(charge[64]); }
 
 }
 
