@@ -85,13 +85,15 @@ public:
       for(typename COLLECTION::const_iterator it  = digis->begin();
           it != digis->end(); ++it) 
       {
-        theNoiseSignals.push_back(samplesInPE(*it));
         // for the first signal, set the starting cap id
         if((it == digis->begin()) && theElectronicsSim)
         {
           int startingCapId = (*it)[0].capid();
           theElectronicsSim->setStartingCapId(startingCapId);
+          theParameterMap->setFrameSize(it->id(), it->size());
         }
+
+        theNoiseSignals.push_back(samplesInPE(*it));
       }
     }
   }
@@ -111,6 +113,7 @@ private:
     return result;
   }
 
+    
   /// these fields are set in initializeEvent()
   const edm::Event * theEvent;
   const edm::EventPrincipal * theEventPrincipal;
