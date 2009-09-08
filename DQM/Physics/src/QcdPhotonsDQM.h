@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2009/07/13 14:52:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/07/14 10:31:23 $
+ *  $Revision: 1.7 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -52,7 +52,8 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   // Variables from config file
   std::string   theTriggerPathToPass;
   std::vector<std::string> thePlotTheseTriggersToo;
-  edm::InputTag theTriggerResultsCollection;
+  std::string   theHltMenu;
+  std::string   theTriggerResultsCollection;
   edm::InputTag thePhotonCollectionLabel;
   edm::InputTag theCaloJetCollectionLabel;
   int    theMinCaloJetEt;
