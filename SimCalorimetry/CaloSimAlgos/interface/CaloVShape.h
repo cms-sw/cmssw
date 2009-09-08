@@ -10,21 +10,15 @@
 
 class CaloVShape 
 {
-public:
-  CaloVShape() : tpeak_(0.) {}
-  virtual ~CaloVShape(){}
+   public:
+      CaloVShape() {}
+      virtual ~CaloVShape() {}
 
-  virtual double operator () (double) const=0;
+      virtual double operator () (double) const=0;
 
-  //virtual double derivative (double) const = 0;
+   protected:
 
-  double getTpeak () const{return tpeak_;}
-
-  void setTpeak (double value){tpeak_=value;}
-
-private:
-
-  double tpeak_;
+   private:
 };
 
 #endif
