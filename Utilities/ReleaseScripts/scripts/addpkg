@@ -3,9 +3,10 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.14 2009/01/04 18:50:36 dlange Exp $
+#  $Id: addpkg,v 1.15 2009/09/08 08:30:09 andreasp Exp $
 #
 use strict;
+use warnings;
 use Getopt::Long;
 use Cwd;
 
@@ -79,7 +80,7 @@ chdir("$ENV{'CMSSW_BASE'}/src");
 
 while(my $line = <INFILE>) {
     chomp $line;
-	$line =~ s/#.*//;
+    $line =~ s/#.*//;
     my ($tag, $package);
     $tag="";
     my @tpS=split(' ',$line);
@@ -137,7 +138,7 @@ exit 0;
 }
 
 sub isPackage {
-    my $name=@_[0];
+    my $name=$_[0];
     my $tname=$name;
     my @sp1=split('/',$name);
     my $len=@sp1;
@@ -154,7 +155,7 @@ sub isPackage {
 }
 
 sub getPackageName {
-    my $name=@_[0];
+    my $name=$_[0];
     my $tname=$name;
     my @sp1=split('/',$name);
     my $len=@sp1;
@@ -165,7 +166,7 @@ sub getPackageName {
 }
 
 sub isSubsystem {
-    my $name=@_[0];
+    my $name=$_[0];
 #allow one number at most... 
     if ($name =~ m#^([a-zA-Z]*)([a-zA-Z0-9])([a-zA-Z]*)$#) {
 	return 1;
