@@ -78,6 +78,7 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
   case ( 9 ): return ( new resolutionFunctionType9<double *> ); break;
   case ( 10 ): return ( new resolutionFunctionType10<double *> ); break;
   case ( 11 ): return ( new resolutionFunctionType11<double *> ); break;
+  case ( 12 ): return ( new resolutionFunctionType12<double *> ); break;
   default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
   }
 }
@@ -97,6 +98,7 @@ resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const in
   case ( 9 ): return ( new resolutionFunctionType9<vector<double> > ); break;
   case ( 10 ): return ( new resolutionFunctionType10<vector<double> > ); break;
   case ( 11 ): return ( new resolutionFunctionType11<vector<double> > ); break;
+  case ( 12 ): return ( new resolutionFunctionType12<vector<double> > ); break;
   default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
   }
 }
