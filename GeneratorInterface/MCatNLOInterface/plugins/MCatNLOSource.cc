@@ -116,7 +116,8 @@ void MCatNLOSource::beginRun(edm::Run &run)
   std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
 
   LHERunInfoProduct::Header hw6header("herwig6header");
-  hw6header.addLine("\n# Herwig6 parameters\n");
+  hw6header.addLine("\n");
+  hw6header.addLine("# Herwig6 parameters\n");
   hw6header.addLine(makeConfigLine("IPROC", processCode));
   // add lines for parameter that have been touched by UPINIT
   if(mcpars_.emmins) 
