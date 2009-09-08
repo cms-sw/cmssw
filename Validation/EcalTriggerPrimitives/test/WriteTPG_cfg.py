@@ -15,6 +15,8 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 # IdealGeometryRecord
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
+process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
+
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_with_suppressed_cff")
 
 
