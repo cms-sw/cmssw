@@ -13,7 +13,7 @@
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.4 2009/08/17 18:07:53 yilmaz Exp $
+// $Id: EvtPlaneProducer.cc,v 1.5 2009/08/24 14:54:53 edwenger Exp $
 //
 //
 
@@ -45,6 +45,10 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
 #include <iostream>
 
 using namespace std;
@@ -67,6 +71,9 @@ class EvtPlaneProducer : public edm::EDProducer {
 
   bool useECAL_;
   bool useHCAL_;
+  bool useTrackMidEta_;
+  bool useTrackPosEta_;
+  bool useTrackNegEta_;
 
 };
 
@@ -88,6 +95,12 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig)
   
   useECAL_ = iConfig.getUntrackedParameter<bool>("useECAL",true);
   useHCAL_ = iConfig.getUntrackedParameter<bool>("useHCAL",true);
+  useTrackMidEta_ = iConfig.getUntrackedParameter<bool>("useTrackMidEta",true);
+  useTrackPosEta_ = iConfig.getUntrackedParameter<bool>("useTrackPosEta",true);
+  useTrackNegEta_ = iConfig.getUntrackedParameter<bool>("useTrackNegEta",true);
+
+
+
 
   produces<reco::EvtPlaneCollection>("recoLevel");
 
@@ -114,6 +127,8 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
   using namespace HepMC;
+
+  //calorimetry part
 
       double ugol[9], ugol2[9];
       double tower_eta, tower_phi, tower_energy, tower_energy_e, tower_energy_h;
@@ -237,16 +252,87 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 */
 
-      std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
-      EvtPlane ecalPlane(ugol2[6],"Ecal");
-      EvtPlane hcalPlane(ugol2[3],"Hcal");
-      EvtPlane caloPlane(ugol2[0],"Calo");
 
-      if(useECAL_) evtplaneOutput->push_back(ecalPlane);
-      if(useHCAL_) evtplaneOutput->push_back(hcalPlane);
-      if(useECAL_ && useHCAL_) evtplaneOutput->push_back(caloPlane);
+//Tracking part
 
-      iEvent.put(evtplaneOutput, "recoLevel");
+   double track_eta;
+   double track_phi;
+   double track_pt;
+
+   double trackPsi_eta_mid;
+   double trackPsi_eta_pos;
+   double trackPsi_eta_neg;
+
+
+   Handle<reco::TrackCollection> tracks;
+   iEvent.getByLabel("hiSelectedTracks", tracks);
+
+   // cout << " TRACKS Size " << tracks->size() << endl;
+
+   if(!tracks.isValid()){
+     cout << "Error! Can't get selectTracks!" << endl;
+     return ;
+   }
+   double trackSin_eta_mid = 0;
+   double trackCos_eta_mid = 0;
+   double trackSin_eta_pos = 0;
+   double trackCos_eta_pos = 0;
+   double trackSin_eta_neg = 0;
+   double trackCos_eta_neg = 0;
+
+   for(reco::TrackCollection::const_iterator j = tracks->begin(); j != tracks->end(); j++){
+     track_eta = j->eta();
+     track_phi = j->phi();
+     track_pt = j->pt();
+    
+     if(fabs(track_eta)<0.75){
+       trackSin_eta_mid+=sin(2*track_phi);
+       trackCos_eta_mid+=cos(2*track_phi);
+     }
+   
+     if((track_eta >= 0.75) && (track_eta < 2.0)){
+       trackSin_eta_pos+=sin(2*track_phi);
+       trackCos_eta_pos+=cos(2*track_phi);
+     }
+     if((track_eta <= -0.75) && (track_eta > -2.0)){
+       trackSin_eta_neg+=sin(2*track_phi);
+       trackCos_eta_neg+=cos(2*track_phi);
+     }
+
+    }
+
+
+   trackPsi_eta_mid = 0.5*atan2(trackSin_eta_mid,trackCos_eta_mid);
+   trackPsi_eta_pos = 0.5*atan2(trackSin_eta_pos,trackCos_eta_pos);
+   trackPsi_eta_neg = 0.5*atan2(trackSin_eta_neg,trackCos_eta_neg);
+
+
+
+
+   std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
+      
+
+   EvtPlane ecalPlane(ugol2[6],s1[6],s2[6],"Ecal");
+   EvtPlane hcalPlane(ugol2[3],s1[3],s2[3],"Hcal");
+   EvtPlane caloPlane(ugol2[0],s1[0],s2[0],"Calo");
+
+   EvtPlane EvtPlaneFromTracksMidEta(trackPsi_eta_mid,trackSin_eta_mid,trackCos_eta_mid,"EvtPlaneFromTracksMidEta");
+   EvtPlane EvtPlaneFromTracksPosEta(trackPsi_eta_pos,trackSin_eta_pos,trackCos_eta_pos,"EvtPlaneFromTracksPosEta");
+   EvtPlane EvtPlaneFromTracksNegEta(trackPsi_eta_neg,trackSin_eta_neg,trackCos_eta_neg,"EvtPlaneFromTracksNegEta");
+  
+   if(useTrackMidEta_) evtplaneOutput->push_back(EvtPlaneFromTracksMidEta);
+   if(useTrackPosEta_) evtplaneOutput->push_back(EvtPlaneFromTracksPosEta);
+   if(useTrackNegEta_) evtplaneOutput->push_back(EvtPlaneFromTracksNegEta);
+
+
+
+   
+   if(useECAL_) evtplaneOutput->push_back(ecalPlane);
+   if(useHCAL_) evtplaneOutput->push_back(hcalPlane);
+   if(useECAL_ && useHCAL_) evtplaneOutput->push_back(caloPlane);
+
+
+   iEvent.put(evtplaneOutput, "recoLevel");
 
 
 // cout << "  "<< planeA << endl;
