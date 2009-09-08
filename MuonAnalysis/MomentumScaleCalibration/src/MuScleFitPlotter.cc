@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/05/12 12:43:42 $
-//  $Revision: 1.5 $
+//  $Date: 2009/06/04 16:05:03 $
+//  $Revision: 1.6 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -93,8 +93,8 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
 
 // Find and store in histograms the generated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
-  
+void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
+{
   //Loop on generated particles
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes; 

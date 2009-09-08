@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/08/07 11:41:16 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/08/14 12:05:22 $
+ *  $Revision: 1.17 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -339,7 +339,8 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
   return recMuFromBestRes;
 }
 
-pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<HepMCProduct> & evtMC ){
+pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<HepMCProduct> & evtMC )
+{
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   pair<lorentzVector,lorentzVector> muFromRes;
   //Loop on generated particles
@@ -375,9 +376,8 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
   return muFromRes;
 }
 
-
-pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<GenParticleCollection> & genParticles){
-
+pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Handle<GenParticleCollection> & genParticles)
+{
   pair<lorentzVector,lorentzVector> muFromRes;
 
   //Loop on generated particles
@@ -399,11 +399,10 @@ pair <lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const Hand
     }
   }
   return muFromRes;
-
 }
 
-
-pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Handle<HepMCProduct> & evtMC, const Handle<SimTrackContainer> & simTracks ){
+pair <lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const Handle<HepMCProduct> & evtMC, const Handle<SimTrackContainer> & simTracks )
+{
   //Loop on simulated tracks
   pair<lorentzVector, lorentzVector> simMuFromRes;
   for (SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack) {
@@ -912,6 +911,13 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
   int iSigmaLeft = (int)(fracSigma*(double)nbins);
   int iSigmaRight = iSigmaLeft+1;
   double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
+  // cout << "massResol = " << massResol << endl;
+  // cout << "ResMaxSigma["<<iRes<<"] = " << ResMaxSigma[iRes] << endl;
+  // cout << "fracSigma = " << fracSigma << endl;
+  // cout << "nbins = " << nbins << endl;
+  // cout << "ISIGMALEFT = " << iSigmaLeft << endl;
+  // cout << "ISIGMARIGHT = " << iSigmaRight << endl;
+  // cout << "fracSigmaStep = " << fracSigmaStep << endl;
 
   // Simple protections for the time being: they should not affect convergence, since
   // ResMaxSigma is set to very large values, and if massResol exceeds them the fit 

@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/08/14 12:07:34 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/08/26 12:16:20 $
+ *  $Revision: 1.14 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -218,12 +218,12 @@ protected:
 // -----------------------------------------------------
 class HParticle : public Histograms {
  public:
-  HParticle (const TString & name, const double & minMass = 0., const double & maxMass = 200.) :
+  HParticle (const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100.) :
     Histograms(name),
     // Kinematical variables
-    hPt_(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, 100) ),
-    hPtVsEta_( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, 100, 100, -3.2, 3.2) ),
-    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 60, -6, 6) ),
+    hPt_(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, maxPt) ),
+    hPtVsEta_( new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.2, 3.2) ),
+    hEta_(     new TH1F (name+"_Eta",     "pseudorapidity", 60, -3.2, 3.2) ),
     hPhi_(     new TH1F (name+"_Phi",     "phi angle", 64, -3.2, 3.2) ),
     hMass_(    new TH1F (name+"_Mass",    "mass", 10000, minMass, maxMass) ),
     // hMass_fine_ = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
@@ -231,19 +231,19 @@ class HParticle : public Histograms {
   {}
 
   /// Constructor that puts the histograms inside a TDirectory
-  HParticle (TFile* outputFile, const TString & name, const double & minMass = 0., const double & maxMass = 200.) :
+  HParticle (TFile* outputFile, const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100.) :
     Histograms(outputFile, name)
   {
     // Kinematical variables
-    hPt_ =      new TH1F (name+"_Pt", "transverse momentum", 100, 0, 100);
-    hPtVsEta_ = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, 100, 100, -3.2, 3.2);
-    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 60, -6, 6);
+    hPt_ =      new TH1F (name+"_Pt", "transverse momentum", 100, 0, maxPt);
+    hPtVsEta_ = new TH2F (name+"_PtVsEta", "transverse momentum vs #eta", 100, 0, maxPt, 100, -3.2, 3.2);
+    hEta_ =     new TH1F (name+"_Eta", "pseudorapidity", 60, -3.2, 3.2);
     hPhi_ =     new TH1F (name+"_Phi", "phi angle", 64, -3.2, 3.2);
     hMass_ =    new TH1F (name+"_Mass", "mass", 40000, minMass, maxMass);
     // hMass_fine_ = new TH1F (name+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
     hNumber_ = new TH1F (name+"_Number", "number", 20, -0.5, 19.5);
   }
-  
+
   HParticle (const TString & name, TFile* file) :
     Histograms(name),
     hPt_(      (TH1F *) file->Get(name_+"_Pt") ),
@@ -255,7 +255,8 @@ class HParticle : public Histograms {
     hNumber_( (TH1F *) file->Get(name_+"_Number") )
   {}
 
-  ~HParticle() {
+  ~HParticle()
+  {
     delete hPt_;
     delete hPtVsEta_;
     delete hEta_;
@@ -265,11 +266,13 @@ class HParticle : public Histograms {
     delete hNumber_;
   }
 
-  virtual void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+  virtual void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.)
+  {
     Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill (CLHEP::HepLorentzVector momentum, const double & weight = 1.) {
+  virtual void Fill (CLHEP::HepLorentzVector momentum, const double & weight = 1.)
+  {
     hPt_->Fill(momentum.perp(), weight);
     hPtVsEta_->Fill(momentum.perp(), momentum.eta(), weight);
     hEta_->Fill(momentum.eta(), weight);
@@ -278,13 +281,14 @@ class HParticle : public Histograms {
     //hMass_fine_->Fill(momentum.m(), weight);
   }
   
-  virtual void Fill (int number) {
+  virtual void Fill (int number)
+  {
     hNumber_->Fill (number);
   }
 
-  virtual void Write() {
+  virtual void Write()
+  {
     if(histoDir_ != 0) histoDir_->cd();
-
     hPt_->Write();
     hPtVsEta_->Write();
     hEta_->Write();    
@@ -294,7 +298,8 @@ class HParticle : public Histograms {
     hNumber_->Write();
   }
   
-  virtual void Clear() {
+  virtual void Clear()
+  {
     hPt_->Clear();
     hPtVsEta_->Clear();
     hEta_->Clear();    
@@ -421,19 +426,19 @@ class HDelta : public Histograms
 class HPartVSEta : public Histograms
 {
  public:
-  HPartVSEta(const TString & name)
+  HPartVSEta(const TString & name, const double & minMass = 0., const double & maxMass = 100., const double & maxPt = 100.)
   {
     name_ = name;
     hPtVSEta_ = new TH2F( name+"_PtVSEta", "transverse momentum vs pseudorapidity", 
-                          12, -6, 6, 200, 0, 200 );
+                          64, -3.2, 3.2, 200, 0, maxPt );
     hMassVSEta_ = new TH2F( name+"_MassVSEta", "mass vs pseudorapidity", 
-                            12, -6, 6, 40, 70, 110 );
+                            64, -3.2, 3.2, 40, minMass, maxMass );
     // TD profile histograms
     // ---------------------
     hPtVSEta_prof_ = new TProfile( name+"_PtVSEta_prof", "mass vs pseudorapidity", 
-                                   12, -3, 3, 0, 200 );
+                                   12, -3, 3, 0, maxPt );
     hMassVSEta_prof_ = new TProfile( name+"_MassVSEta_prof", "mass vs pseudorapidity", 
-                                     12, -3, 3, 86, 116 );
+                                     12, -3, 3, minMass, maxMass );
   }
 
   ~HPartVSEta() {
@@ -681,12 +686,12 @@ class HPartVSPt : public Histograms
 class HMassVSPart : public Histograms
 {
  public:
-  HMassVSPart( const TString & name, const double & minMass = 0., const double & maxMass = 150. ) {
+  HMassVSPart( const TString & name, const double & minMass = 0., const double & maxMass = 150., const double maxPt = 100. ) {
     name_ = name;
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt_       = new TH2F( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., 200., 6000, minMass, maxMass );
+    hMassVSPt_       = new TH2F( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass );
     hMassVSEta_      = new TH2F( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
     hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
     hMassVSPhiMinus_ = new TH2F( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
@@ -777,7 +782,7 @@ class HMassVSPart : public Histograms
 class HResolutionVSPart : public Histograms
 {
  public:
-  HResolutionVSPart(TFile * outputFile, const TString & name,
+  HResolutionVSPart(TFile * outputFile, const TString & name, const double maxPt = 100,
                     const double & yMinEta = -1, const double & yMaxEta = 1,
                     const double & yMinPt = -1, const double & yMaxPt = 1) : Histograms(outputFile, name) {
 
@@ -799,9 +804,9 @@ class HResolutionVSPart : public Histograms
     // hAbsResoVSPhi   = new TH2F (name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1);
 
     hReso_           = new TH1F( name+"_Reso", "resolution", 200, -1, 1 );
-    hResoVSPtEta_    = new TH2F( name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, 200, 60, -3, 3 );
-    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 400, yMinPt, yMaxPt );
-    //hResoVSPt_prof_  = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1 );
+    hResoVSPtEta_    = new TH2F( name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, maxPt, 60, -3, 3 );
+    hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, maxPt, 400, yMinPt, yMaxPt );
+    //hResoVSPt_prof_  = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, -1, 1 );
     hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 400, yMinEta, yMaxEta );
     hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 400, -1, 1 );
     //hResoVSEta_prof_ = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1 );
@@ -809,7 +814,7 @@ class HResolutionVSPart : public Histograms
     hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 400, -1, 1 );
     //hResoVSPhi_prof_ = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
     hAbsReso_        = new TH1F( name+"_AbsReso", "resolution", 100, 0, 1 );
-    hAbsResoVSPt_    = new TH2F( name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1 );
+    hAbsResoVSPt_    = new TH2F( name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, maxPt, 100, 0, 1 );
     hAbsResoVSEta_   = new TH2F( name+"_AbsResoVSEta", "Abs resolution VS eta", 60, -3, 3, 100, 0, 1 );
     hAbsResoVSPhi_   = new TH2F( name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1 );
   }
@@ -1013,7 +1018,7 @@ class HLikelihoodVSPart : public Histograms
 class HFunctionResolution : public Histograms
 {
  public:
-  HFunctionResolution(TFile * outputFile, const TString & name, const double ptMax = 200) : Histograms(outputFile, name) {
+  HFunctionResolution(TFile * outputFile, const TString & name, const double ptMax = 100) : Histograms(outputFile, name) {
     name_ = name;
     totBinsX_ = 100;
     totBinsY_ = 60;
