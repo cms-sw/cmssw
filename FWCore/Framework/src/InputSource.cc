@@ -68,8 +68,7 @@ namespace edm {
       runAuxiliary_(),
       lumiAuxiliary_(),
       runPrematurelyRead_(false),
-      lumiPrematurelyRead_(false),
-      eventPrincipalCache_(0) {
+      lumiPrematurelyRead_(false) {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
@@ -110,6 +109,11 @@ namespace edm {
   std::string
   InputSource::baseType() {
     return std::string("Source");
+  }
+
+  EventPrincipal* const
+  InputSource::eventPrincipalCache() {
+    return &principalCache().eventPrincipal();
   }
 
   // This next function is to guarantee that "runs only" mode does not return events or lumis,
@@ -330,8 +334,7 @@ namespace edm {
   }
 
   EventPrincipal*
-  InputSource::readEvent(EventID const& eventID, EventPrincipal& epCache) {
-    eventPrincipalCache_ = &epCache;
+  InputSource::readEvent(EventID const& eventID) {
     EventPrincipal* result = 0;
 
     if (!limitReached()) {

@@ -1,7 +1,11 @@
 #include "FWCore/Framework/src/PrincipalCache.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "boost/bind.hpp"
 
 namespace edm {
 
@@ -212,5 +216,15 @@ namespace edm {
 
   void PrincipalCache::deleteLumi(int run, int lumi) {
     lumiPrincipals_.erase(lumiPrincipals_.find(LumiKey(run, lumi)));
+  }
+
+  void PrincipalCache::adjustToNewProductRegistry(ProductRegistry const& reg) {
+    eventPrincipal_->adjustToNewProductRegistry(reg);
+    for (LumiIterator i = lumiPrincipals_.begin(), iEnd = lumiPrincipals_.end(); i != iEnd; ++i) {
+      i->second->adjustToNewProductRegistry(reg);
+    }
+    for (RunIterator i = runPrincipals_.begin(), iEnd = runPrincipals_.end(); i != iEnd; ++i) {
+      i->second->adjustToNewProductRegistry(reg);
+    }
   }
 }

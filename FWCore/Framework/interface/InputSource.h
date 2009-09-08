@@ -97,7 +97,7 @@ namespace edm {
     EventPrincipal* readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
 
     /// Read a specific event
-    EventPrincipal* readEvent(EventID const&, EventPrincipal& epCache);
+    EventPrincipal* readEvent(EventID const&);
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary() {
@@ -226,9 +226,6 @@ namespace edm {
     /// Accessor for Activity Registry
     boost::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
-    /// set a pointer to the reusable event principal.
-    void setEventPrincipalCache(EventPrincipal& ep) {eventPrincipalCache_ = &ep;}
-
     /// Called by the framework to merge or insert run in principal cache.
     boost::shared_ptr<RunAuxiliary> runAuxiliary() const {return runAuxiliary_;}
 
@@ -302,7 +299,9 @@ namespace edm {
       doneReadAhead_ = false;
       state_ = IsInvalid;
     }
-    EventPrincipal* const eventPrincipalCache() const {return eventPrincipalCache_;}
+    EventPrincipal* const eventPrincipalCache();
+    PrincipalCache const& principalCache() const {return *principalCache_;}
+    PrincipalCache& principalCache() {return *principalCache_;}
     boost::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
     boost::shared_ptr<RunPrincipal> const runPrincipal() const;
 
@@ -361,7 +360,6 @@ namespace edm {
     mutable boost::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
     bool runPrematurelyRead_;
     bool lumiPrematurelyRead_;
-    EventPrincipal* eventPrincipalCache_;
   };
 }
 

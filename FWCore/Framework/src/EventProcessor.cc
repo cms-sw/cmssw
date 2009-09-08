@@ -711,9 +711,10 @@ namespace edm {
   bool
   EventProcessor::doOneEvent(EventID const& id) {
     EventPrincipal ep(preg_, *processConfiguration_);
+    principalCache_.insert(ep);
     EventPrincipal* pep = 0;
     try {
-      pep = input_->readEvent(id, ep);
+      pep = input_->readEvent(id);
     }
     catch(cms::Exception& e) {
       actions::ActionCodes action = act_table_.find(e.rootCause());
@@ -1380,7 +1381,7 @@ namespace edm {
 
     // Reusable event principal
     EventPrincipal ep(preg_, *processConfiguration_);
-    input_->setEventPrincipalCache(ep);
+    principalCache_.insert(ep);
 
     beginJob(); //make sure this was called
 

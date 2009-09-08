@@ -79,8 +79,11 @@ namespace edm {
 
   //Reset provenance for input groups after new input file has been merged
   void
-  Principal::reinitializeGroups(boost::shared_ptr<ProductRegistry const> reg) {
-    ProductRegistry::ProductList const& prodsList = reg->productList();
+  Principal::adjustToNewProductRegistry(ProductRegistry const& reg) {
+    if(reg.constProductList().size() > groups_.size()) {
+      groups_.resize(reg.constProductList().size(), SharedGroupPtr());
+    }
+    ProductRegistry::ProductList const& prodsList = reg.productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
           itProdInfoEnd = prodsList.end();
         itProdInfo != itProdInfoEnd;
@@ -89,7 +92,7 @@ namespace edm {
         boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
         Group *g = getExistingGroup(itProdInfo->second.branchID());
         if(g != 0) {
-	   g->resetBranchDescription(bd);
+          g->resetBranchDescription(bd);
         } else {
           addGroupInput(bd);
         }
@@ -152,7 +155,7 @@ namespace edm {
   Principal::getExistingGroup(BranchID const& branchID) {
     ProductTransientIndex index = preg_->indexFrom(branchID);
     assert(index != ProductRegistry::kInvalidIndex);
-    SharedGroupPtr ptr = groups_[index];
+    SharedGroupPtr ptr = groups_.at(index);
     return ptr.get();
   }
 

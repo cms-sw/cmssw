@@ -65,7 +65,7 @@ namespace edm {
 
     virtual ~Principal();
 
-    void reinitializeGroups(boost::shared_ptr<ProductRegistry const> reg);
+    void adjustToNewProductRegistry(ProductRegistry const& reg);
 
     void addGroupScheduled(boost::shared_ptr<ConstBranchDescription> bd);
 

@@ -406,7 +406,6 @@ namespace edm {
 
     std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;
-    EventPrincipal*				  eventPrincipal_;
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;

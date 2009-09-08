@@ -7,6 +7,8 @@ in memory.  Manages merging of products in those principals
 when there is more than one principal from the same run
 or luminosity block.
 
+Also contains a non-owning pointer the EventPrincipal, which is reused each event.
+
 Original Author: W. David Dagenhart
 */
 
@@ -35,36 +37,40 @@ namespace edm {
     int lumi_;
   };
 
-  class PrincipalCache
-  {
+  class PrincipalCache {
   public:
 
     PrincipalCache();
     ~PrincipalCache();
 
-    RunPrincipal & runPrincipal(int run);
+    RunPrincipal& runPrincipal(int run);
     RunPrincipal const& runPrincipal(int run) const;
     boost::shared_ptr<RunPrincipal> runPrincipalPtr(int run);
 
     // Current run (most recently read and inserted run)
-    RunPrincipal & runPrincipal();
+    RunPrincipal& runPrincipal();
     RunPrincipal const& runPrincipal() const;
     boost::shared_ptr<RunPrincipal> runPrincipalPtr();
 
-    LuminosityBlockPrincipal & lumiPrincipal(int run, int lumi);
+    LuminosityBlockPrincipal& lumiPrincipal(int run, int lumi);
     LuminosityBlockPrincipal const& lumiPrincipal(int run, int lumi) const;
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr(int run, int lumi);
 
     // Current luminosity block (most recently read and inserted luminosity block)
-    LuminosityBlockPrincipal & lumiPrincipal();
+    LuminosityBlockPrincipal& lumiPrincipal();
     LuminosityBlockPrincipal const& lumiPrincipal() const;
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr();
+
+    // Event
+    EventPrincipal& eventPrincipal() {return *eventPrincipal_;}
+    EventPrincipal const& eventPrincipal() const {return *eventPrincipal_;}
 
     bool merge(boost::shared_ptr<RunAuxiliary> aux);
     bool merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux);
 
     bool insert(boost::shared_ptr<RunPrincipal> rp);
     bool insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    void insert(EventPrincipal& ep) {eventPrincipal_ = &ep;}
 
     bool noMoreRuns();
     bool noMoreLumis();
@@ -78,6 +84,8 @@ namespace edm {
     void deleteRun(int run);
     void deleteLumi(int run, int lumi);
 
+    void adjustToNewProductRegistry(ProductRegistry const& reg);
+
   private:
 
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
@@ -88,6 +96,7 @@ namespace edm {
     std::map<int, boost::shared_ptr<RunPrincipal> > runPrincipals_;
     std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> > lumiPrincipals_;
 
+    EventPrincipal* eventPrincipal_;
     boost::shared_ptr<RunPrincipal> currentRunPrincipal_;
     boost::shared_ptr<LuminosityBlockPrincipal> currentLumiPrincipal_;
   };
