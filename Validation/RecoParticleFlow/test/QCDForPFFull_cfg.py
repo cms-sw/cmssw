@@ -29,7 +29,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V3::All"
+process.GlobalTag.globaltag = "MC_31X_V8::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -103,6 +103,11 @@ process.display = cms.OutputModule("PoolOutputModule",
 )
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
+
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+process.PixelCPEGenericESProducer.LoadTemplatesFromDB = False
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi")
+process.templates.LoadTemplatesFromDB = False
 
 #process.electronChi2.MaxChi2 = 100000
 #process.electronChi2.nSigma = 3
