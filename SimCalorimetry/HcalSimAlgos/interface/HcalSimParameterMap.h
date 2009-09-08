@@ -29,7 +29,11 @@ public:
 
   void setDbService(const HcalDbService * service);
 
+  void setFrameSize(const DetId & detId, int frameSize);
+  
 private:
+  void setFrameSize(CaloSimParameters & parameters, int frameSize);
+
   HcalSimParameters theHBParameters;
   HcalSimParameters theHEParameters;
   HcalSimParameters theHOParameters;
