@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/08/12 10:40:39 $
-//  $Revision: 1.54 $
+//  $Date: 2009/09/07 13:18:30 $
+//  $Revision: 1.55 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -834,46 +834,47 @@ void MuScleFit::checkParameters() {
     abort();
   }
 
-  // Resol fit parameters: dimension check
-  // -------------------------------------
-  if ((MuScleFitUtils::ResolFitType==1 && MuScleFitUtils::parResol.size()!=3) ||
-      (MuScleFitUtils::ResolFitType==2 && MuScleFitUtils::parResol.size()!=4) ||
-      (MuScleFitUtils::ResolFitType==3 && MuScleFitUtils::parResol.size()!=5) ||
-      (MuScleFitUtils::ResolFitType==4 && MuScleFitUtils::parResol.size()!=6) ||
-      (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
-      (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
-      (MuScleFitUtils::ResolFitType==7 && MuScleFitUtils::parResol.size()!=12) ||
-      (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=12) ||
-      (MuScleFitUtils::ResolFitType==9 && MuScleFitUtils::parResol.size()!=31) ||
-      (MuScleFitUtils::ResolFitType==10 && MuScleFitUtils::parResol.size()!=21) ||
-      (MuScleFitUtils::ResolFitType==11 && MuScleFitUtils::parResol.size()!=8) ||
-      MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>11) {
-    cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
-    abort();
-  }
-  // Scale fit parameters: dimension check
-  // -------------------------------------
-  if ((MuScleFitUtils::ScaleFitType==1  && MuScleFitUtils::parScale.size()!=2) || // linear in pt
-      (MuScleFitUtils::ScaleFitType==2  && MuScleFitUtils::parScale.size()!=2) || // linear in |eta|
-      (MuScleFitUtils::ScaleFitType==3  && MuScleFitUtils::parScale.size()!=2) || // sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==4  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and |eta|
-      (MuScleFitUtils::ScaleFitType==5  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==6  && MuScleFitUtils::parScale.size()!=3) || // linear in |eta| and sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==7  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and |eta| and sinusoidal in phi
-      (MuScleFitUtils::ScaleFitType==8  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and parabolic in |eta|
-      (MuScleFitUtils::ScaleFitType==9  && MuScleFitUtils::parScale.size()!=2) || // exponential in pt
-      (MuScleFitUtils::ScaleFitType==10 && MuScleFitUtils::parScale.size()!=3) || // parabolic in pt
-      (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
-      (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta plus sin in phi with chg
-      (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
-      (MuScleFitUtils::ScaleFitType==14 && MuScleFitUtils::parScale.size()!=10) || // cubic in pt and 6th grade polynomial in |eta|
-      (MuScleFitUtils::ScaleFitType==15 && MuScleFitUtils::parScale.size()!=5) || // two different slopes in pt and parabolic in |eta|
-      (MuScleFitUtils::ScaleFitType==16 && MuScleFitUtils::parScale.size()!=5) || 
-      (MuScleFitUtils::ScaleFitType==17 && MuScleFitUtils::parScale.size()!=4) || 
-      MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>17) {
-    cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
-    abort();
-  }
+//   // Resol fit parameters: dimension check
+//   // -------------------------------------
+//   if ((MuScleFitUtils::ResolFitType==1 && MuScleFitUtils::parResol.size()!=3) ||
+//       (MuScleFitUtils::ResolFitType==2 && MuScleFitUtils::parResol.size()!=4) ||
+//       (MuScleFitUtils::ResolFitType==3 && MuScleFitUtils::parResol.size()!=5) ||
+//       (MuScleFitUtils::ResolFitType==4 && MuScleFitUtils::parResol.size()!=6) ||
+//       (MuScleFitUtils::ResolFitType==5 && MuScleFitUtils::parResol.size()!=7) ||
+//       (MuScleFitUtils::ResolFitType==6 && MuScleFitUtils::parResol.size()!=15) ||
+//       (MuScleFitUtils::ResolFitType==7 && MuScleFitUtils::parResol.size()!=12) ||
+//       (MuScleFitUtils::ResolFitType==8 && MuScleFitUtils::parResol.size()!=12) ||
+//       (MuScleFitUtils::ResolFitType==9 && MuScleFitUtils::parResol.size()!=31) ||
+//       (MuScleFitUtils::ResolFitType==10 && MuScleFitUtils::parResol.size()!=21) ||
+//       (MuScleFitUtils::ResolFitType==11 && MuScleFitUtils::parResol.size()!=8) ||
+//       (MuScleFitUtils::ResolFitType==12 && MuScleFitUtils::parResol.size()!=11) ||
+//       MuScleFitUtils::ResolFitType<1 || MuScleFitUtils::ResolFitType>12) {
+//     cout << "[MuScleFit-Constructor]: Wrong Resol fit type or number of parameters: aborting!" << endl;
+//     abort();
+//   }
+//   // Scale fit parameters: dimension check
+//   // -------------------------------------
+//   if ((MuScleFitUtils::ScaleFitType==1  && MuScleFitUtils::parScale.size()!=2) || // linear in pt
+//       (MuScleFitUtils::ScaleFitType==2  && MuScleFitUtils::parScale.size()!=2) || // linear in |eta|
+//       (MuScleFitUtils::ScaleFitType==3  && MuScleFitUtils::parScale.size()!=2) || // sinusoidal in phi
+//       (MuScleFitUtils::ScaleFitType==4  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and |eta|
+//       (MuScleFitUtils::ScaleFitType==5  && MuScleFitUtils::parScale.size()!=3) || // linear in pt and sinusoidal in phi
+//       (MuScleFitUtils::ScaleFitType==6  && MuScleFitUtils::parScale.size()!=3) || // linear in |eta| and sinusoidal in phi
+//       (MuScleFitUtils::ScaleFitType==7  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and |eta| and sinusoidal in phi
+//       (MuScleFitUtils::ScaleFitType==8  && MuScleFitUtils::parScale.size()!=4) || // linear in pt and parabolic in |eta|
+//       (MuScleFitUtils::ScaleFitType==9  && MuScleFitUtils::parScale.size()!=2) || // exponential in pt
+//       (MuScleFitUtils::ScaleFitType==10 && MuScleFitUtils::parScale.size()!=3) || // parabolic in pt
+//       (MuScleFitUtils::ScaleFitType==11 && MuScleFitUtils::parScale.size()!=4) || // linear in pt and sin in phi w/ chg
+//       (MuScleFitUtils::ScaleFitType==12 && MuScleFitUtils::parScale.size()!=6) || // linear in pt and para in eta plus sin in phi with chg
+//       (MuScleFitUtils::ScaleFitType==13 && MuScleFitUtils::parScale.size()!=8) || // linear in pt and para in eta plus sin in phi with chg
+//       (MuScleFitUtils::ScaleFitType==14 && MuScleFitUtils::parScale.size()!=10) || // cubic in pt and 6th grade polynomial in |eta|
+//       (MuScleFitUtils::ScaleFitType==15 && MuScleFitUtils::parScale.size()!=5) || // two different slopes in pt and parabolic in |eta|
+//       (MuScleFitUtils::ScaleFitType==16 && MuScleFitUtils::parScale.size()!=5) || 
+//       (MuScleFitUtils::ScaleFitType==17 && MuScleFitUtils::parScale.size()!=4) || 
+//       MuScleFitUtils::ScaleFitType<1 || MuScleFitUtils::ScaleFitType>17) {
+//     cout << "[MuScleFit-Constructor]: Wrong fit type or number of parameters: aborting!" << endl;
+//     abort();
+//   }
 //   // Bgr fit parameters: dimension check
 //   // -----------------------------------
 //   if ((MuScleFitUtils::BgrFitType==1 && MuScleFitUtils::parBgr.size()!=1) ||
