@@ -1079,7 +1079,6 @@ class resolutionFunctionType10 : public resolutionFunctionBase<T> {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
-protected:
 };
 
 /// This is resolution function where sigmaPt/Pt is described by f(Pt) = a + b/pt + pt/(pt+c)and f(Eta) = 2 parabolas for fabsEta<1.2 or fabsEta>1.2
@@ -1106,19 +1105,75 @@ class resolutionFunctionType11 : public resolutionFunctionBase<T> {
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
 
-    double thisStep[] = { 0.00001, 0.00001, 0.0000001, 0.00000001, 0.00000001, 0.00000001, 0.00000001 };
+    double thisStep[] = { 0.00001, 0.00001, 0.0000001, 0.00000001,
+                          0.00000001, 0.00000001, 0.00000001, 0.00000001 };
     TString thisParName[] = { "offsetEtaCentral", "offsetEtaHigh", "coeffOverPt", "coeffHighPt", "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh" };
     double thisMini[] = { -1.1,  -1.1,   -0.1,           -0.1  ,     0.0001,      0.0005,     0.0005,     0.001};
     if( muonType == 1 ) {
-      double thisMaxi[] = { 1., 1., 1., 1., 1.,
-                            1., 1.};
+      double thisMaxi[] = { 1., 1., 1., 1.,
+                            1., 1., 1., 1.};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
       double thisMaxi[] = { -0.8,   -0.8,   -0.001,     -0.001 ,     0.005,        0.05,      0.05,    0.05};
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
-protected:
+};
+
+/// This resolution function is the same as type11 but in addition allows a parabolic shape to be fitted for Pt in [2.1, 3.5]GeV
+// Resolution Type 12
+template <class T>
+class resolutionFunctionType12 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType12() { this->parNum_ = 11; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    double fabsEta = fabs(eta);
+    double ptPart = 0.;
+    if( pt > 2.1 && pt < 3.5 ) {
+      // parabolic
+      ptPart = parval[8] + parval[9]*pt + parval[10]*pt*pt;
+    }
+    else {
+      ptPart = parval[2]*1./pt + pt/(pt+parval[3]);
+    }
+    if(fabsEta<1.2)
+      return (parval[0] + ptPart + parval[4]*fabsEta + parval[5]*eta*eta);
+    else 
+      return (parval[1] + ptPart + parval[6]*fabs((fabsEta-1.6)) + parval[7]*(fabsEta-1.6)*(fabsEta-1.6)); 
+
+   }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( 0.004 );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( 0.001 );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.00001, 0.00001, 0.0000001, 0.00000001,
+                          0.00000001, 0.00000001, 0.00000001, 0.00001,
+                          0.000001, 0.0000001, 0.0000001 };
+    TString thisParName[] = { "offsetEtaCentral", "offsetEtaHigh", "coeffOverPt", "coeffHighPt",
+                              "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh",
+                              "offsetBump", "linearBump", "parabBump"};
+    double thisMini[] = { -1.1, -1.1, -0.1, -0.1,
+                          0.0001, 0.0005, 0.0005, 0.001,
+                          -1.1, -1.1, -1.1};
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            2., 1., 1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { -0.8, -0.8, -0.001, -0.001,
+                            0.005, 0.05, 0.05, 0.05,
+                            1., 1., 1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
 };
 
 
