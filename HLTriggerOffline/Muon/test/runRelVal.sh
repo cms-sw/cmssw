@@ -43,9 +43,8 @@ else
 fi
 
 echo "Using dataset(s): "
-echo $HLTDEBUGPATH
-echo $RECOPATH
-
+if [[ ! -z "$HLTDEBUGPATH" ]] ; then echo $HLTDEBUGPATH; fi
+if [[ ! -z "$RECOPATH"     ]] ; then echo $RECOPATH    ; fi
 
 if [ "$DBSCMD_HOME" ] ; then 
     DBS_CMD="python $DBSCMD_HOME/dbsCommandLine.py -c " 
@@ -79,8 +78,9 @@ else
       sed "s:\(secondaryFileNames.*\)vstring():\1vstring($SECFILES):" > ana.py
     cmsRun ana.py
     cmsRun PostProcessor_cfg.py
-    LONGNAME=$HLTDEBUGPATH
+    LONGNAME=$RECOPATH
 fi
 
 SHORTNAME=`echo $LONGNAME | sed "s/\/RelVal\(.*\)\/CMSSW_\(.*\)\/.*/\1_\2/"`
 mv PostProcessor.root $SHORTNAME.root
+echo "Produced $SHORTNAME.root"
