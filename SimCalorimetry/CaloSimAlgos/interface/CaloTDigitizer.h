@@ -62,10 +62,10 @@ public:
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
     assert(theDetIds.size() != 0);
 
-    theHitResponse->run(input);
-
     if(theNoiseHitGenerator != 0) addNoiseHits();
     if(theNoiseSignalGenerator != 0) addNoiseSignals();
+
+    theHitResponse->run(input);
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
