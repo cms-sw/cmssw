@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.51 2009/03/27 15:45:23 dmytro Exp $
+ * \version $Id: Muon.h,v 1.52 2009/06/29 20:02:44 elmer Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -99,7 +99,24 @@ namespace reco {
     const MuonIsolation& isolationR05() const { return isolationR05_; }
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
-     
+
+    ///
+    /// ====================== Global Track Qualities ====================
+    ///
+    /// chi2 of STA and TK stubs relative to GLB track
+    void setTrkKink(float kink) {trkKink_ = kink;}
+    void setGlbKink(float kink) {glbKink_ = kink;}
+    void setKinkR(float r) {kinkR_ = r;}
+    void setKinkZ(float z) {kinkZ_ = z;}
+    void setTrkRelChi2(float a) {trkRelChi2_ = a;}
+    void setStaRelChi2(float a) {staRelChi2_ = a;}
+    float trkKink() const { return trkKink_; }
+    float glbKink() const { return glbKink_; }
+    float kinkR() const { return kinkR_; }
+    float kinkZ() const { return kinkZ_; }
+    float trkRelChi2() const { return trkRelChi2_; }
+    float staRelChi2() const { return staRelChi2_; }
+         
     /// define arbitration schemes
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
     
@@ -162,6 +179,14 @@ namespace reco {
     MuonIsolation isolationR05_;
     /// muon type mask
     unsigned int type_;
+    /// muon track qualities
+    float trkKink_;
+    float glbKink_;
+    float kinkR_;
+    float kinkZ_;
+    float trkRelChi2_;
+    float staRelChi2_;
+
 
     // FixMe: Still missing trigger information
 

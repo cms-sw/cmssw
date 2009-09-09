@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: MuonSelectors.h,v 1.5 2009/05/28 12:27:16 jribnik Exp $
+// $Id: MuonSelectors.h,v 1.6 2009/06/19 15:46:15 jribnik Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -28,7 +28,10 @@ namespace muon {
 	TMOneStationLoose,        // require one well matched segment
 	TMOneStationTight,        // require one well matched segment
 	TMLastStationOptimizedLowPtLoose, // combination of TMLastStation and TMOneStation
-	TMLastStationOptimizedLowPtTight  // combination of TMLastStation and TMOneStation
+	TMLastStationOptimizedLowPtTight,  // combination of TMLastStation and TMOneStation
+	GMTkChiCompatibility,  // require tk stub have good chi2 relative to glb track
+	GMStaChiCompatibility,    // require sta stub have good chi2 compatibility relative to glb track
+	GMTkKinkTight             // require a small kink value in the tracker stub
    };
 
    /// a lightweight "map" for selection type string label and enum value

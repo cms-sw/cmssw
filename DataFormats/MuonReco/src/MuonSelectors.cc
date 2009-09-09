@@ -20,6 +20,9 @@ SelectionType selectionTypeFromString( const std::string &label )
       { "TMOneStationTight", TMOneStationTight },
       { "TMLastStationOptimizedLowPtLoose", TMLastStationOptimizedLowPtLoose },
       { "TMLastStationOptimizedLowPtTight", TMLastStationOptimizedLowPtTight },
+      { "GMTkChiCompatibility", GMTkChiCompatibility },
+      { "GMStaChiCompatibility", GMStaChiCompatibility},
+      { "GMTkKinkTight", GMTkKinkTight},
       { 0, (SelectionType)-1 }
    };
 
@@ -499,71 +502,80 @@ bool muon::isGoodMuon( const reco::Muon& muon,
 bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
 {
   switch (type)
-     {
-      case muon::All:
-	return true;
-	break;
-      case muon::AllGlobalMuons:
-	return muon.isGlobalMuon();
-	break;
-      case muon::AllTrackerMuons:
-	return muon.isTrackerMuon();
-	break;
-      case muon::AllStandAloneMuons:
-	return muon.isStandAloneMuon();
-	break;
-      case muon::TrackerMuonArbitrated:
-	return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
-	break;
-      case muon::AllArbitrated:
-	return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
-	break;
-      case muon::GlobalMuonPromptTight:
-	return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. && muon.outerTrack()->numberOfValidHits() >0;
-	break;
-   // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
-   // 9999 as before.  We do this because the muon methods return 999999 (note
-   // there are six 9's) when the requested information is not available.  For
-   // example, if a muon fails to traverse the z measuring superlayer in a station
-   // in the DT, then all methods involving segmentY in this station return
-   // 999999 to demonstrate that the information is missing.  In order to not
-   // penalize muons for missing y information in Loose algorithms where we do
-   // not care at all about y information, we raise these limits.  In the
-   // TMLastStation and TMOneStation algorithms we actually use this huge number
-   // to determine whether to consider y information at all.
-      case muon::TMLastStationLoose:
-	return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
-	break;
-      case muon::TMLastStationTight:
-	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
-	break;
-      case muon::TMOneStationLoose:
+    {
+    case muon::All:
+      return true;
+      break;
+    case muon::AllGlobalMuons:
+      return muon.isGlobalMuon();
+      break;
+    case muon::AllTrackerMuons:
+      return muon.isTrackerMuon();
+      break;
+    case muon::AllStandAloneMuons:
+      return muon.isStandAloneMuon();
+      break;
+    case muon::TrackerMuonArbitrated:
+      return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
+      break;
+    case muon::AllArbitrated:
+      return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
+      break;
+    case muon::GlobalMuonPromptTight:
+      return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. && muon.outerTrack()->numberOfValidHits() >0;
+      break;
+      // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
+      // 9999 as before.  We do this because the muon methods return 999999 (note
+      // there are six 9's) when the requested information is not available.  For
+      // example, if a muon fails to traverse the z measuring superlayer in a station
+      // in the DT, then all methods involving segmentY in this station return
+      // 999999 to demonstrate that the information is missing.  In order to not
+      // penalize muons for missing y information in Loose algorithms where we do
+      // not care at all about y information, we raise these limits.  In the
+      // TMLastStation and TMOneStation algorithms we actually use this huge number
+      // to determine whether to consider y information at all.
+    case muon::TMLastStationLoose:
+      return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      break;
+    case muon::TMLastStationTight:
+      return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      break;
+    case muon::TMOneStationLoose:
+      return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+      break;
+    case muon::TMOneStationTight:
+      return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
+      break;
+    case muon::TMLastStationOptimizedLowPtLoose:
+      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
 	return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
-	break;
-      case muon::TMOneStationTight:
+      else
+	return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      break;
+    case muon::TMLastStationOptimizedLowPtTight:
+      if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
 	return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
-	break;
-      case muon::TMLastStationOptimizedLowPtLoose:
-   if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	   return isGoodMuon(muon,TMOneStation,1,3,3,1E9,1E9,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
-   else
-	   return isGoodMuon(muon,TMLastStation,2,3,3,1E9,1E9,-3,-3,reco::Muon::SegmentAndTrackArbitration);
-	break;
-      case muon::TMLastStationOptimizedLowPtTight:
-   if (muon.pt() < 8. && fabs(muon.eta()) < 1.2)
-	   return isGoodMuon(muon,TMOneStation,1,3,3,3,3,1E9,1E9,reco::Muon::SegmentAndTrackArbitration);
-   else
-	   return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
-	break;
-	//compatibility loose
-      case muon::TM2DCompatibilityLoose:
-	return isGoodMuon(muon,TM2DCompatibility,0.7);
-	break;
-	//compatibility tight
-      case muon::TM2DCompatibilityTight:
-	return isGoodMuon(muon,TM2DCompatibility,1.0);
-	break;
-      default:
-	return false;
-     }
+      else
+	return isGoodMuon(muon,TMLastStation,2,3,3,3,3,-3,-3,reco::Muon::SegmentAndTrackArbitration);
+      break;
+      //compatibility loose
+    case muon::TM2DCompatibilityLoose:
+      return isGoodMuon(muon,TM2DCompatibility,0.7);
+      break;
+      //compatibility tight
+    case muon::TM2DCompatibilityTight:
+      return isGoodMuon(muon,TM2DCompatibility,1.0);
+      break;
+    case muon::GMTkChiCompatibility:
+      return muon.isGlobalMuon() && fabs(muon.trkRelChi2() - muon.innerTrack()->normalizedChi2()) < 20.0;
+      break;
+    case muon::GMStaChiCompatibility:
+      return muon.isGlobalMuon() && fabs(muon.staRelChi2() - muon.outerTrack()->normalizedChi2()) < 20.0;
+      break;
+    case muon::GMTkKinkTight:
+      return muon.isGlobalMuon() && muon.trkKink() < 100.0;
+      break;
+    default:
+      return false;
+    }
 }
