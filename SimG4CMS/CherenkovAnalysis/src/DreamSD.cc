@@ -204,7 +204,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
     std::vector<double> paras(sol.parameters());
-    G4String name = DDSplit(sol.name()).first;
+    G4String name = sol.name().name();
     G4LogicalVolume* lv=0;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
       if ((*lvcite)->GetName() == name) {
