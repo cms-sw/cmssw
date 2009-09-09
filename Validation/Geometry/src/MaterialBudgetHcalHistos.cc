@@ -351,7 +351,7 @@ std::vector<std::string> MaterialBudgetHcalHistos::getNames(DDFilteredView& fv) 
   bool dodet = fv.firstChild();
   while (dodet) {
     const DDLogicalPart & log = fv.logicalPart();
-    std::string namx = DDSplit(log.name()).first;
+    std::string namx = log.name().name();
     bool ok = true;
     for (unsigned int i=0; i<tmp.size(); i++)
       if (namx == tmp[i]) ok = false;

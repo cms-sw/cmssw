@@ -92,7 +92,7 @@ void PrintGeomInfoAction::update(const BeginOfJob * job)
 
 	    while (dodet) {
 	        const DDLogicalPart & log = fv.logicalPart();
-		std::string lvname = DDSplit(log.name()).first;
+		std::string lvname = log.name().name();
 		DDTranslation tran = fv.translation();
 		std::vector<int> copy = fv.copyNumbers();
 

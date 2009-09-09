@@ -120,9 +120,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
   OpticalAlignInfo oaInfo;
   oaInfo.ID_ = 0;
   //--- substract file name to object name
-  oaInfo.name_ = lv.name();
-  int icol = oaInfo.name_.find(":");
-  oaInfo.name_ = oaInfo.name_.substr(icol+1,oaInfo.name_.length());
+  oaInfo.name_ = lv.name().name();
   oaInfo.parentName_ = "";
   oaInfo.x_.quality_  = 0;    
   oaInfo.x_.value_ = 0.;
@@ -189,9 +187,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     size_t ii;
     for(ii = 0; ii < history.size()-1;ii++ ) {
       if( ii != 0 ) oaInfo.parentName_ += "/";
-      std::string name = history[ii].logicalPart().name();
-      icol = name.find(":");
-      name = name.substr(icol+1,name.length());
+      std::string name = history[ii].logicalPart().name().name();
       oaInfo.parentName_ += name;
  //    oaInfo.parentName_ = (fv.geoHistory()[fv.geoHistory().size()-2]).logicalPart().name();
 //    icol = oaInfo.parentName_.find(":");
@@ -199,10 +195,8 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     }
 
     //--- build object name (= parent name + object name)
-    std::string name = history[ii].logicalPart().name();
+    std::string name = history[ii].logicalPart().name().name();
     //--- substract file name to object name
-    int icol = name.find(":");
-    name = name.substr(icol+1,name.length());
     oaInfo.name_ = oaInfo.parentName_ + "/" + name;
     if(ALIUtils::debug >= 5) {
       std::cout << " @@ Name built= " << oaInfo.name_ << " short_name= " << name << " parent= " << oaInfo.parentName_ << std::endl; 

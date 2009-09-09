@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id: HcalTB02SD.cc,v 1.3 2007/05/08 21:37:20 sunanda Exp $
+// $Id: HcalTB02SD.cc,v 1.4 2008/05/13 07:18:37 sunanda Exp $
 //
   
 // system include files
@@ -130,7 +130,7 @@ void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
   while (dodet) {
     const DDSolid & sol  = fv.logicalPart().solid();
     const std::vector<double> & paras = sol.parameters();
-    G4String name = DDSplit(sol.name()).first;
+    G4String name = sol.name().name();
     LogDebug("HcalTBSim") << "HcalTB02SD::initMap (for " << sd << "): Solid " 
 			  << name << " Shape " << sol.shape() 
 			  << " Parameter 0 = " << paras[0];

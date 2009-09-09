@@ -76,7 +76,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   std::vector<int>      nocc;
   while (dodet) {
     const DDLogicalPart & log = fv2.logicalPart();
-    matName = DDSplit(log.material().name()).first;
+    matName = log.material().name().name();
     bool notIn = true;
     for (unsigned int i=0; i<matNames.size(); i++) 
       if (matName == matNames[i]) {notIn = false; nocc[i]++;}
@@ -178,7 +178,7 @@ std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
   bool dodet = fv.firstChild();
   while (dodet) {
     const DDLogicalPart & log = fv.logicalPart();
-    G4String name = DDSplit(log.name()).first;
+    G4String name = log.name().name();
     bool ok = true;
     for (unsigned int i=0; i<tmp.size(); i++)
       if (name == tmp[i]) ok = false;
