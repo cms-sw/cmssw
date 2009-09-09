@@ -7,10 +7,11 @@ import string
 
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
-NewRelease='CMSSW_3_3_0_pre1'
-RefRelease='CMSSW_3_2_5'
+NewRelease='CMSSW_3_3_0_pre2'
+RefRelease='CMSSW_3_3_0_pre1'
 
-samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
+samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
+#samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
 #samples= ['RelValTTbar','RelValZMM']
 #samples= ['RelValCosmics']
 
@@ -20,10 +21,10 @@ samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','Rel
 Submit=True
 Publish=False
 
-NewFastSim=False
-RefFastSim=False
+NewFastSim=True
+RefFastSim=True
 
-GetFilesFromCastor=False
+GetFilesFromCastor=True
 CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 #CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
 #CastorRepository = '/castor/cern.ch/user/j/jhegeman/preproduction_summer09/3_1_2'
@@ -37,7 +38,7 @@ RefCondition='MC'
 
 if (NewFastSim):
     NewTag = NewCondition+'_noPU_ootb_FSIM'
-    NewLabel=NewCondition+'_31X_FastSim_v1'
+    NewLabel=NewCondition+'_31X_V8_FastSim-v1'
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
