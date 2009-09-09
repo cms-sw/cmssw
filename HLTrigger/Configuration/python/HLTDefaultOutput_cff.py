@@ -4,7 +4,7 @@ statements = set()
 
 # the A stream has the HLT default output, with FEDs - strip out the FEDRawDataCollection keep statements
 import HLTrigger.Configuration.hltOutputA_cff
-statements.update( statement for statement in HLTrigger.Configuration.hltOutputA_cff.block_hltOutputA.outputCommands if (statement.find('drop') != 0) or (statement.find('keep FEDRawDataCollection') != 0))
+statements.update( statement for statement in HLTrigger.Configuration.hltOutputA_cff.block_hltOutputA.outputCommands if (statement.find('drop') != 0) and (statement.find('keep FEDRawDataCollection') != 0))
 
 statements = list(statements)
 statements.sort()
