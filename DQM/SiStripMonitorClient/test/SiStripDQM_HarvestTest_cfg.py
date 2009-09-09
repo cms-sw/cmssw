@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EDMtoMEConvert")
@@ -27,7 +26,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 #    dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("RunsLumisAndEvents"),
-    fileNames = cms.untracked.vstring('file:sistrip_reco1.root', 'file:sistrip_reco2.root')
+    fileNames = cms.untracked.vstring('file:sistrip_reco2.root')
 )
 
 process.maxEvents.input = -1
@@ -43,6 +42,13 @@ process.dqmEnvTr = cms.EDFilter("DQMEventInfo",
                                 )
 
 
+#----------------------- 
+# output module
+#----------------------
+#process.myOut = cms.OutputModule("PoolOutputModule",
+#                                  fileName = cms.untracked.string('sistrip_reco_merged.root'),
+#                                  outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*')
+#                                )
 
 #process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
 
@@ -58,3 +64,5 @@ process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
 #process.load('DQM.SiStripCommon.MessageLogger_cfi')
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmEnvTr*process.dqmSaver*process.dqmStoreStats)
+
+#process.outpath = cms.EndPath(process.myOut)
