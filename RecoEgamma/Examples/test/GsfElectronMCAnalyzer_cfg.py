@@ -1,7 +1,7 @@
 
 import sys
 import os
-sys.path.append('.')
+#sys.path.append('.')
 import dbs_discovery
 
 import FWCore.ParameterSet.Config as cms
