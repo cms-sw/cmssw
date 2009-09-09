@@ -262,7 +262,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->hitsAndFractions(),hits,subDetGeometry,geometryES);
 
-    static std::pair<DetId, float> maxXtal = EcalClusterTools::getMaximum (*(scRef->seed()), &(*hits) );
+
+    float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)); 
     float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
@@ -311,7 +312,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.e2x5= e2x5;
     showerShape.e3x3= e3x3;
     showerShape.e5x5= e5x5;
-    showerShape.maxEnergyXtal =  maxXtal.second;
+    showerShape.maxEnergyXtal =  maxXtal;
     showerShape.sigmaEtaEta =    sigmaEtaEta;
     showerShape.sigmaIetaIeta =  sigmaIetaIeta;
     showerShape.hcalDepth1OverEcal = HoE1;
