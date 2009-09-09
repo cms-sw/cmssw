@@ -1,5 +1,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include <string.h>
+#include <cstdio>
 
 HcalCaloFlagTool::HcalCaloFlagTool(const std::string& releaseName) : 
   releaseName_(releaseName),
