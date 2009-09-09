@@ -36,6 +36,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+
+
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
    
   l1eTauJetsSource_=config.getParameter<edm::InputTag>("L1eTauJetsSource");
@@ -48,7 +53,7 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   vtxCutSeed_=config.getParameter<double>("MaxVtxDXYSeed");
   vtxCutIsol_=config.getParameter<double>("MaxVtxDXYIsol");
   vertexLabel_=config.getParameter<edm::InputTag>("VertexLabel");
-  bfield_=config.getParameter<double>("BField");
+  bfield_=config.getParameter<std::string>("MagFieldRecordName");
   ecDistEB_=config.getParameter<double>("IPtoEBdistance");
   ecDistEE_=config.getParameter<double>("IPtoEEdistance");
   //Sb add parameter to remove hardcoded cuts  
@@ -176,9 +181,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       //propagate seed track to ECAL surface:
       std::pair<double,double> seedCooAtEC;
       // in case vertex is found:
-      if (minDZ!=100) seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSeed]->pt(), pixelTrackRefs[iSeed]->charge(), vitSel->z());
+      if (minDZ!=100) seedCooAtEC=GetEtaPhiAtEcal(theEventSetup, pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSeed]->pt(), pixelTrackRefs[iSeed]->charge(), vitSel->z());
       //in case vertex is not found:
-      else seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSeed]->pt(), pixelTrackRefs[iSeed]->charge(), 0);
+      else seedCooAtEC=GetEtaPhiAtEcal(theEventSetup, pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSeed]->pt(), pixelTrackRefs[iSeed]->charge(), 0);
 
       //calculate isolation
       double maxP=0;
@@ -204,9 +209,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 	  //propagate to ECAL surface:
 	  std::pair<double,double> cooAtEC;
 	  // in case vertex is found:
-	  if (minDZ2!=100) cooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iSurr]->eta(), pixelTrackRefs[iSurr]->phi(), pixelTrackRefs[iSurr]->pt(), pixelTrackRefs[iSurr]->charge(), vitSel2->z());
+	  if (minDZ2!=100) cooAtEC=GetEtaPhiAtEcal(theEventSetup, pixelTrackRefs[iSurr]->eta(), pixelTrackRefs[iSurr]->phi(), pixelTrackRefs[iSurr]->pt(), pixelTrackRefs[iSurr]->charge(), vitSel2->z());
 	  // in case vertex is not found:
-	  else cooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iSurr]->eta(), pixelTrackRefs[iSurr]->phi(), pixelTrackRefs[iSurr]->pt(), pixelTrackRefs[iSurr]->charge(), 0);
+	  else cooAtEC=GetEtaPhiAtEcal(theEventSetup, pixelTrackRefs[iSurr]->eta(), pixelTrackRefs[iSurr]->phi(), pixelTrackRefs[iSurr]->pt(), pixelTrackRefs[iSurr]->charge(), 0);
 	  
 	  //calculate distance at ECAL surface and update isolation: 
 	  if (getDistInCM(seedCooAtEC.first, seedCooAtEC.second, cooAtEC.first, cooAtEC.second)<pixelIsolationConeSizeAtEC_)
@@ -248,12 +253,21 @@ double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1
 
 
 std::pair<double,double>
-IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ)
+IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(const edm::EventSetup& iSetup, double etaIP, double phiIP, double pT, int charge, double vtxZ)
 {
+  edm::ESHandle<MagneticField> vbfField;
+  iSetup.get<IdealMagneticFieldRecord>().get(vbfField);
+  const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
+  GlobalVector BField=vbfCPtr->inTesla(GlobalPoint(0,0,0));
+ //test
+  int curvSgn=int(BField.z()/fabs(BField.z())); 
+
+  double bfVal=BField.mag();
+
   double deltaPhi;
   double etaEC=100;
   double phiEC=100;
-  double Rcurv=pT*33.3*100/(bfield_*10); //r(m)=pT(GeV)*33.3/B(kG)
+  double Rcurv=pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
   double ecDist=ecDistEE_;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
   double ecRad=ecDistEB_;  //radius of ECAL barrel (cm)
   double theta=2*atan(exp(-etaIP));
@@ -261,7 +275,7 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(double etaIP, double phiIP,
   if (theta>0.5*acos(-1)) theta=acos(-1)-theta;
   if (fabs(etaIP)<1.479)
     {
-      deltaPhi=-charge*asin(0.5*ecRad/Rcurv);
+      deltaPhi=-curvSgn*charge*asin(0.5*ecRad/Rcurv);
       double alpha1=2*asin(0.5*ecRad/Rcurv);
       double z=ecRad/tan(theta);
       if (etaIP>0) zNew=z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
@@ -270,7 +284,7 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(double etaIP, double phiIP,
       if (zAbs<ecDist)
         {
           etaEC=-log(tan(0.5*atan(ecRad/zAbs)));
-          deltaPhi=-charge*asin(0.5*ecRad/Rcurv);
+          deltaPhi=-curvSgn*charge*asin(0.5*ecRad/Rcurv);
         }
       if (zAbs>ecDist)
         {
@@ -278,7 +292,7 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(double etaIP, double phiIP,
           double Zflight=fabs(zAbs-vtxZ);
           double alpha=(Zflight*ecRad)/(z*Rcurv);
           double Rec=2*Rcurv*sin(alpha/2);
-          deltaPhi=-charge*alpha/2;
+          deltaPhi=-curvSgn*charge*alpha/2;
           etaEC=-log(tan(0.5*atan(Rec/ecDist)));
         }
     }
@@ -288,7 +302,7 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(double etaIP, double phiIP,
       double Zflight=fabs(zNew-vtxZ);
       double Rvirt=fabs(Zflight*tan(theta));
       double Rec=2*Rcurv*sin(Rvirt/(2*Rcurv));
-      deltaPhi=-(charge)*(Rvirt/(2*Rcurv));
+      deltaPhi=-curvSgn*charge*(Rvirt/(2*Rcurv));
       etaEC=-log(tan(0.5*atan(Rec/ecDist)));
     }
 
