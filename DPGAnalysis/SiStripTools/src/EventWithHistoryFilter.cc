@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -72,16 +71,16 @@ const bool EventWithHistoryFilter::selected(const EventWithHistory& he, const ed
 
 }
 
-const bool EventWithHistoryFilter::selected(const EventWithHistory& he, const edm::Run& iRun, const edm::EventSetup& iSetup) const {
+const bool EventWithHistoryFilter::selected(const EventWithHistory& he, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
-  const int apvphase = getAPVPhase(iRun);
+  const int apvphase = getAPVPhase(iEvent);
   return is_selected(he,iSetup,apvphase);
 
 }
 
 const bool EventWithHistoryFilter::selected(const edm::Event& event, const edm::EventSetup& iSetup) const {
 
-  const int apvphase = getAPVPhase(event.getRun());
+  const int apvphase = getAPVPhase(event);
 
   edm::Handle<EventWithHistory> hEvent;
   event.getByLabel(_historyProduct,hEvent);
@@ -144,12 +143,12 @@ const int EventWithHistoryFilter::getAPVLatency(const edm::EventSetup& iSetup) c
 
 }
 
-const int EventWithHistoryFilter::getAPVPhase(const edm::Run& iRun) const {
+const int EventWithHistoryFilter::getAPVPhase(const edm::Event& iEvent) const {
 
   if(_noAPVPhase) return -1;
 
   edm::Handle<APVCyclePhaseCollection> apvPhases;
-  iRun.getByLabel(_APVPhaseLabel,apvPhases);
+  iEvent.getByLabel(_APVPhaseLabel,apvPhases);
 
   //  if(!apvPhases.failedToGet() && apvPhases.isValid()) {
 

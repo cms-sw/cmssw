@@ -8,7 +8,6 @@
 namespace edm {
   class ParameterSet;
   class Event;
-  class Run;
 }
 class EventWithHistory;
 
@@ -20,14 +19,14 @@ class EventWithHistoryFilter {
 
   void set(const edm::ParameterSet& iConfig);
   const bool selected(const EventWithHistory& he, const edm::EventSetup& iSetup) const;
-  const bool selected(const EventWithHistory& he, const edm::Run& iRun, const edm::EventSetup& iSetup) const;
+  const bool selected(const EventWithHistory& he, const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
   const bool selected(const edm::Event& event, const edm::EventSetup& iSetup) const;
 
  private:
 
   const bool is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const int apvphase) const;
   const int getAPVLatency( const edm::EventSetup& iSetup) const;
-  const int getAPVPhase(const edm::Run& iRun) const;
+  const int getAPVPhase(const edm::Event& iEvent) const;
   const bool isAPVLatencyNotNeeded() const;
   const bool isAPVPhaseNotNeeded() const;
   const bool isCutInactive(const std::vector<int>& range) const;

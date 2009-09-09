@@ -61,6 +61,7 @@ private:
   std::map<int,std::vector<std::string> > _runpartnames;
   std::map<int,std::vector<int> > _runphases;
 
+  APVCyclePhaseCollection _currapvphases;
 };
 
 //
@@ -77,10 +78,11 @@ private:
 //
 ConfigurableAPVCyclePhaseProducer::ConfigurableAPVCyclePhaseProducer(const edm::ParameterSet& iConfig):
   _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
-  _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases"))
+  _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
+  _currapvphases()
 {
 
-  produces<APVCyclePhaseCollection,edm::InRun>();
+  produces<APVCyclePhaseCollection,edm::InEvent>();
 
    //now do what ever other initialization is needed
 
@@ -130,8 +132,8 @@ ConfigurableAPVCyclePhaseProducer::beginRun(edm::Run& iRun, const edm::EventSetu
 
   using namespace edm;
   
-  std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection() );
-  
+  _currapvphases.get().clear();
+
   // fill phase map
 
   const std::map<int,std::vector<std::string> >& _crunpartnames = _runpartnames;
@@ -159,25 +161,30 @@ ConfigurableAPVCyclePhaseProducer::beginRun(edm::Run& iRun, const edm::EventSetu
 
   for(unsigned int ipart=0;ipart<partnames.size();++ipart) {
     if(phases[ipart]>=0) {
-      apvphases->get()[partnames[ipart]] = phases[ipart];
+      _currapvphases.get()[partnames[ipart]] = phases[ipart];
     }
   }
 
   
-  for(std::map<std::string,int>::const_iterator it=apvphases->get().begin(); it!=apvphases->get().end();it++) {
+  for(std::map<std::string,int>::const_iterator it=_currapvphases.get().begin(); it!=_currapvphases.get().end();it++) {
     
     edm::LogInfo("APVCyclePhaseProducerDebug") << "partition " << it->first << " phase " << it->second;
 
   }
   
-
-  iRun.put(apvphases);
-
-
 }
 
 void
-ConfigurableAPVCyclePhaseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {}
+ConfigurableAPVCyclePhaseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
+{
+
+  using namespace edm;
+  
+  std::auto_ptr<APVCyclePhaseCollection> apvphases(new APVCyclePhaseCollection(_currapvphases) );
+  
+  iEvent.put(apvphases);
+
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

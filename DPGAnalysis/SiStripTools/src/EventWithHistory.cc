@@ -69,9 +69,9 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
       }
     }
     else {
-      edm::LogWarning("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
+      edm::LogInfo("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
       for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
-	edm::LogPrint("L1AcceptBunchCrossingNegativeEvent") << *debu;
+	edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << *debu;
       }
     }
   }
