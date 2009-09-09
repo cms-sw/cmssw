@@ -56,11 +56,11 @@ std::vector<DetId> CaloTowerTopology::east(const DetId& id) const {
 		       iphi-=2;
 		    }
 		    ieta--;
-		 } 
-		 else 
-		 {
-		    ieta--;
 		 }
+	      } 
+	      else 
+	      {
+		 ieta--;
 	      }
 	   }
 	}
@@ -120,10 +120,10 @@ std::vector<DetId> CaloTowerTopology::west(const DetId& id) const {
 		    }
 		    ieta++;
 		 } 
-		 else 
-		 {
-		    ieta++;
-		 }
+	      }
+	      else 
+	      {
+		 ieta++;
 	      }
 	   }
 	}
