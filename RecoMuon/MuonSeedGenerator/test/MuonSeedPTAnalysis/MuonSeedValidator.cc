@@ -5,8 +5,8 @@
 // for MuonSeedBuilder
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+//#include "MagneticField/Engine/interface/MagneticField.h"
+//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 // Framework
@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-/* #include "PluginManager/ModuleDef.h" */
+//#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -79,7 +79,6 @@ MuonSeedValidator::MuonSeedValidator(const ParameterSet& pset){
   theFile->mkdir("UnRelated");
   theFile->cd();
   // TTree test
-  tr_muon = new TNtuple1();
 
   h_all     = new H2DRecHit1("AllMu_");
   h_NoSeed  = new H2DRecHit2("NoSeed");
@@ -116,7 +115,6 @@ MuonSeedValidator::~MuonSeedValidator(){
   h_UnRel->Write();
   // for tree
   theFile->cd();
-  tr_muon->Write();
 
   // Release the memory ...
   delete h_all;
@@ -124,7 +122,6 @@ MuonSeedValidator::~MuonSeedValidator(){
   delete h_NoSta;
   delete h_Scope;
   delete h_UnRel;
-  delete tr_muon;
 
   theFile->Close();
   if (debug) cout << "************* Finished writing histograms to file" << endl;
@@ -138,6 +135,9 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
 {
   //Get the CSC Geometry :
   theService->update(eventSetup);
+
+  //ESHandle<GlobalTrackingGeometry> globalGeometry;
+  //eventSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
   ESHandle<CSCGeometry> cscGeom;
   eventSetup.get<MuonGeometryRecord>().get(cscGeom);
@@ -183,8 +183,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   event.getByLabel(glbTrackLabel, globalMuons);
 
   // Magnetic field
-  ESHandle<MagneticField> field;
-  eventSetup.get<IdealMagneticFieldRecord>().get(field);
+  //ESHandle<MagneticField> field;
+  //eventSetup.get<IdealMagneticFieldRecord>().get(field);
 
   H2DRecHit1 *histo1 = 0;   
   H2DRecHit2 *histo2 = 0;   
@@ -206,8 +206,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   // 3. Get muon track information ; sta=0, glb=1
   StaTrackReader(standAloneMuons, 0);
   
-  //// associate seeds with sim tracks 
-  //// seed_trk => the simtrack number j associate with seed i 
+  // 4. Associate seeds with sim tracks 
+  //    seed_trk => the simtrack number j associate with seed i 
   std::vector<int> seeds_simtrk(seed_gp.size(), -1);
   for (unsigned int i=0; i < seed_gp.size(); i++) {
     double dR1= 99.0 ;
@@ -226,8 +226,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
     seeds_simtrk[i] = preferTrack ;
   }
 
-  //// associate sta with sim tracks  
-  //// sta_simtrk => the simtrack number j associate with sta  i 
+  // 5. Associate sta with sim tracks  
+  //    sta_simtrk => the simtrack number j associate with sta  i 
   std::vector<int> sta_simtrk(sta_thetaV.size(), -1);
   for (unsigned int i=0; i < sta_thetaV.size(); i++) {
     double dR1 = 99.0 ;
@@ -250,14 +250,18 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   histo1 = h_all;
   int sta_Evt  =0;
   int seed_Evt =0;
+  std::vector<int> nuSTA; 
+  std::vector<int> nuSEED; 
   for (size_t i=0; i < theta_p.size(); i++) {
 
+      // 1. statistic for seeds
       int nu_seeds_trk =0;
       for(size_t j=0; j < seeds_simtrk.size(); j++){
          if ( seeds_simtrk[j]== static_cast<int>(i) ) nu_seeds_trk++;
          if ( nu_seeds_trk > 19 ) nu_seeds_trk = 19;
       }
 
+      // 2. statistic for sta
       int nu_sta_trk =0;
       for(size_t j=0; j < sta_simtrk.size(); j++){
          if ( sta_simtrk[j]== static_cast<int>(i) ) nu_sta_trk++;
@@ -266,11 +270,90 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
       histo1->Fill1b( getEta(theta_p[i]), nu_seeds_trk, nu_sta_trk, pt_trk[i],
                       theQ[i]/pt_trk[i], theQ[i]/pa_tmp[0] );
 
-      if (nu_seeds_trk > 0) { seed_Evt++ ; }
-      if (nu_sta_trk > 0)   { sta_Evt++  ; } 
+      nuSTA.push_back(nu_sta_trk);
+      nuSEED.push_back(nu_seeds_trk);
+
+      if (nu_seeds_trk > 0)  seed_Evt++ ; 
+      if (nu_sta_trk > 0)    sta_Evt++  ; 
+
+      // 3. statistics for segment 
+      std::vector<SimSegment>   sCSC_v= recsegSelector->Sim_CSCSegments(trackID[i], csimHits, cscGeom);
+      std::vector<SimSegment>   sDT_v = recsegSelector->Sim_DTSegments(trackID[i], dsimHits, dtGeom);
+      std::vector<CSCSegment>     cscseg_V= recsegSelector->Select_CSCSeg(cscSegments,cscGeom, sCSC_v);
+      std::vector<DTRecSegment4D> dtseg_V = recsegSelector->Select_DTSeg(dt4DSegments,dtGeom, sDT_v);
+
+      // 4. check # of segments and rechits in each chambers for this track
+      CSCsegment_stat(cscSegments, cscGeom, theta_p[i], phi_p[i]);
+      DTsegment_stat(dt4DSegments, dtGeom, theta_p[i], phi_p[i]);
+      Simsegment_stat(sCSC_v,sDT_v);
+      // 5. if less than 1 segment, check the # of rechits in each chambers for this track
+      if ( (cscseg_stat[5] < 2)&&(dtseg_stat[5] < 2) ) {
+         CSCRecHit_Stat(csc2DRecHits, cscGeom, getEta(theta_p[i]), phi_p[i]);
+         DTRecHit_Stat(dt1DRecHits, dtGeom, getEta(theta_p[i]), phi_p[i]);
+      }
+
+      // 6. look at all information
+      // seg_stat[0] = total segments in all stations
+      // seg_stat[5] = the number of stations which have segments
+      // seg_stat1[x] = the number of stations/segments which only count segments w/ more than 4 rechits
+      int layer_sum      = cscseg_stat[5]  + dtseg_stat[5];
+      int goodlayer_sum  = cscseg_stat1[5] + dtseg_stat1[5];
+      int seg_sum        = cscseg_stat[0]  + dtseg_stat[0];
+      int leftrh_sum     = cscrh_sum[5]    + dtrh_sum[5];
+      std::vector<double> pa1 = palayer[i];
+      histo1->Fill1(layer_sum, goodlayer_sum, seg_sum, simseg_sum, getEta(theta_p[i]) );
+      histo1->Fill1c(pt_trk[i], pa1[0], cscseg_stat[0]+dtseg_stat[0]);
+
+      // 7. look at those events without any reco segments => no seed can be produced!!
+      if ((cscseg_stat[5]==0)&&(dtseg_stat[5]==0)) { 
+
+	 histo1->Fill1a(leftrh_sum, getEta(theta_p[i]));
+         if (cscrh_sum[0] !=0 ) {
+            histo2 = h_NoSeed;
+            histo2 -> Fill2b(getEta(theta_p[i]), cscrh_sum[0]);
+         }
+         if (dtrh_sum[0] !=0 ) {
+            histo2 = h_NoSeed;
+            histo2 -> Fill2c(getEta(theta_p[i]), dtrh_sum[0]);
+         }
+      }
+      bool hasSeed = false;
+      for(unsigned int j=0; j < seeds_simtrk.size(); j++){
+         if ( seeds_simtrk[j] == static_cast<int>(i) ) hasSeed = true;
+      }
+      if ( !hasSeed ) {
+         histo2 = h_NoSeed;
+         histo2->Fill2a( getEta(theta_p[i]), layer_sum, seg_sum , simseg_sum, 
+                          simseg_sum - seg_sum, simseg_sum - layer_sum );
+      }
+      // 8. Read out reco segments
+      //    return : the ave_phi, ave_eta, phi_resid, eta_resid, dx_error, dy_error, x_error, y_error 
+      int types = RecSegReader(cscSegments,dt4DSegments,cscGeom,dtGeom,theta_p[i],phi_p[i]);
+      if (debug) cout<<" seed type = "<<types<<endl;
+
   }
- 
   histo1->Fill1o( sta_mT.size(), seed_mT.size() );
+
+  /// showering study 
+  for (unsigned int i=0; i < theta_p.size(); i++) {
+      if (theQ[i] < 0.0 ) continue; 
+      std::vector<int> showers = IdentifyShowering( cscSegments ,cscGeom, dt4DSegments, dtGeom,theta_p[i], phi_p[i] );
+
+      double maxR = 0. ;
+      for (size_t j =0; j< muCone.size(); j++) {
+         if ( muCone[j] > maxR ) maxR = muCone[j];
+      }
+ 
+      double aveShower = 0;
+      if ( maxR > 0 ) { 
+         aveShower = static_cast<double>(showers[0])/maxR ; 
+      }
+
+      if ( fabs(theta_p[i]) >  0.78 ) histo1->Fill1d1(pt_trk[i], showers[0], showers[1], showers[2], aveShower, maxR);
+      if ( fabs(theta_p[i]) <= 0.78 && fabs(theta_p[i]) > 0.36 ) histo1->Fill1d2(pt_trk[i], showers[0], showers[1], showers[2], aveShower, maxR);
+      if ( fabs(theta_p[i]) <= 0.36 ) histo1->Fill1d3(pt_trk[i], showers[0], showers[1], showers[2], aveShower, maxR);
+  }
+
 
   // look at those un-associated seeds and sta
   histo5 = h_UnRel;
@@ -301,15 +384,20 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
  
   /// B. seeds  Q/PT pulls
   if (nu_seed > 0) {
-    int bestSeed = -1;
-    double dSeedPT = 99999.9 ;
     // look the seed for every sta tracks
     for (unsigned int i=0; i < eta_trk.size(); i++) {
 
+	int bestSeed = -1;
+	double dSeedPT = 99999.9 ;
+
+	// get the correponding sim p and sim pt
+	std::vector<double> pa1 = palayer[i];
+	std::vector<double> pt1 = ptlayer[i];
+
         // find the best seed whose pt is closest to a simTrack which associate with 
         for(unsigned int j=0; j < seeds_simtrk.size(); j++){
-           if ( ( seeds_simtrk[j] == static_cast<int>(i) ) && ( fabs(seed_mT[j] - pt_trk[i]) < dSeedPT ) ){
-              dSeedPT = fabs( seed_mT[j] - pt_trk[i] );
+           if ( ( seeds_simtrk[j] == static_cast<int>(i) ) && ( fabs(seed_mT[j] - pt1[1]) < dSeedPT ) ){
+              dSeedPT = fabs( seed_mT[j] - pt1[1] );
               bestSeed = static_cast<int>(j);
            }
         }
@@ -322,19 +410,21 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
            double bestSeedPt = 99999.9;
            if (bestSeed == static_cast<int>(j) ) {
               bestSeedPt = seed_mT[j];
+
+	      // look at pull and resolution
+	      double pull_qbp   = ( qbp[j]  - (theQ[i]/pa1[ seed_layer[j] ]) ) / err_qbp[j] ;
+	      double pull_qbpt  = ( qbpt[j] - (theQ[i]/pt1[ seed_layer[j] ]) ) / err_qbpt[j] ;
+	      //double resol_qbpt = ( qbpt[j] - (theQ[j]/pt_trk[j]) ) / (theQ[j]/pt_trk[j]) ;
+	      double resol_qbpt = ( qbpt[j] - (theQ[i]/pt1[1]) ) / (theQ[i]/pt1[1]) ;
+	      //cout<<"resol = "<<resol_qbpt <<" = "<<qbpt[j] <<" - "<< theQ[j]/pt1[1] 
+	      histo1->Fill1i( pull_qbp, seed_gp[j].eta(), qbpt[j], pull_qbpt, err_qbp[j], err_qbpt[j], resol_qbpt);
+
            }else {
               bestSeedPt = -1.0*seed_mT[j];
            }
 
-           std::vector<double> pa1 = palayer[i];
-           std::vector<double> pt1 = ptlayer[i];
-	   double pull_qbp   = ( qbp[j]  - (theQ[j]/pa1[ seed_layer[j] ]) ) / err_qbp[j] ;
-	   double pull_qbpt  = ( qbpt[j] - (theQ[j]/pt1[ seed_layer[j] ]) ) / err_qbpt[j] ;
-           //double resol_qbpt = ( qbpt[j] - (theQ[j]/pt_trk[j]) ) / (theQ[j]/pt_trk[j]) ;
-           double resol_qbpt = ( qbpt[j] - (theQ[j]/pt1[ seed_layer[j] ]) ) / (theQ[j]/pt1[ seed_layer[j] ]) ;
            double ptLoss =  pt1[ seed_layer[j] ] / pt1[0] ;
 	   histo1->Fill1g( seed_mT[j], seed_mA[j], bestSeedPt, seed_gp[j].eta(), ptLoss , pt1[0]) ;
-	   histo1->Fill1i( pull_qbp, seed_gp[j].eta(), qbpt[j], pull_qbpt, err_qbp[j], err_qbpt[j], resol_qbpt);
 	   histo1->Fill1f( seed_gp[j].eta(), err_dx[j], err_dy[j], err_x[j], err_y[j]);
 
         }
@@ -344,23 +434,25 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
 
   /// C. sta track information
   if (nu_sta > 0 ) {
-    double dPT = 9999999.9 ;
-    int best = 0;
-    double expectPT = -1.0;
     for (unsigned int i=0; i < eta_trk.size(); i++) {
+
+        double dPT = 999999. ;
+	int best = 0;
+	double expectPT = -1.0;
         // find the best sta whose pt is closest to a simTrack which associate with 
         for(unsigned int j=0; j < sta_simtrk.size(); j++){
            if ( ( sta_simtrk[j]==static_cast<int>(i) ) && ( fabs(sta_mT[j] - pt_trk[i]) < dPT ) ){
-              dPT = fabs( seed_mT[j] - pt_trk[i] );
-              best = j;
               std::vector<double> pt1 = ptlayer[i];
+              dPT = fabs( sta_mT[j] - pt_trk[i] );
+              //dPT = fabs( sta_mT[j] - pt1[1] );
+              best = j;
               //expectPT = pt1[1];
               expectPT = pt_trk[i];
            }
         }
        // looking for the sta muon which is closest to simTrack pt 
        if (expectPT > 0) {
-          double sim_qbpt = theQ[best]/expectPT;
+          double sim_qbpt = theQ[i]/expectPT;
           double resol_qbpt = (sta_qbpt[best] - sim_qbpt ) / sim_qbpt ;
           /*
           double sta_q = 1.0;
@@ -468,118 +560,49 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   }
 
   // D. fail sta cases
-  if (nu_sta == 0 && nu_seed!=0) {
-     double sim_eta = -9.0 ; 
-     for (int i=0; i < nu_seed; i++) {
+  for (size_t i=0; i<nuSEED.size(); i++ ) {
+      if(nuSEED[i] == 0) continue; 
+      if(nuSTA[i]  != 0) continue; 
 
-         histo3 = h_NoSta;
-         double pull_qbpt = ( qbpt[i] - (theQ[0]/pt_trk[0]) ) / err_qbpt[i] ;
-         double pt_err = err_qbpt[i]*seed_mT[i]*seed_mT[i];
-         //if (seeds_simtrk[i] != -1 )  sim_eta = eta_trk[ seeds_simtrk[i] ] ; 
-         if (seeds_simtrk[i] != -1 )  sim_eta = getEta( theta_p[ seeds_simtrk[i] ] ) ; 
-         histo3->Fill3a( sim_eta , seed_gp[i].eta(), nu_seed, seed_mT[i] , pt_err, pull_qbpt);
-    
-         CSCsegment_stat(cscSegments, cscGeom, seed_gp[i].theta(), seed_gp[i].phi() );
-         DTsegment_stat(dt4DSegments, dtGeom,  seed_gp[i].theta(), seed_gp[i].phi() );
-         // compare segments of seed with seed itself
-         SegOfRecSeed(muonseeds,i); 
+      histo3 = h_NoSta;
+      double sim_eta = getEta( theta_p[i] ) ; 
 
-         int allseg1 = cscseg_stat1[5]+dtseg_stat1[5]; // # of stations which have good segments
-         int allseg  = cscseg_stat[0]+dtseg_stat[0];   // # of segments
-         histo3->Fill3b(sim_eta,allseg1,allseg );
+      for (size_t j=0; j < seeds_simtrk.size(); j++ ) {
 
-         for (unsigned j=0; j<d_h.size(); j++) {
-             histo3->Fill3d(sim_eta,d_h[j],d_f[j]);
-         }
+          if (seeds_simtrk[j] != static_cast<int>(i) ) continue;
+          seeds_simtrk[j] = static_cast<int>(i) ;
+          double pull_qbpt = ( qbpt[j] - (theQ[i]/pt_trk[i]) ) / err_qbpt[j] ;
+          double pt_err = err_qbpt[j]*seed_mT[j]*seed_mT[j];
 
-         int types = RecSegReader(cscSegments,dt4DSegments,cscGeom,dtGeom, seed_gp[i].eta(), seed_gp[i].phi());
-         if (debug) cout<<" seed type for fail STA= "<<types<<endl;
-         for (unsigned i=0; i< phi_resid.size(); i++) {
-             histo3->Fill3c(phi_resid[i],eta_resid[i]);
-         }
-     }
-     
+	  histo3->Fill3a( sim_eta , seed_gp[j].eta(), seed_mT[j] , pt_err, pull_qbpt);
+
+	  CSCsegment_stat(cscSegments, cscGeom, seed_gp[j].theta(), seed_gp[j].phi() );
+	  DTsegment_stat(dt4DSegments, dtGeom,  seed_gp[j].theta(), seed_gp[j].phi() );
+
+	  int allseg1 = cscseg_stat1[5]+dtseg_stat1[5]; // # of stations which have good segments
+	  int allseg  = cscseg_stat[0]+dtseg_stat[0];   // # of segments
+	  histo3->Fill3b(sim_eta,allseg1,allseg );
+
+	  // compare segments of seed with seed itself
+	  SegOfRecSeed(muonseeds,j); 
+	  for (unsigned k=0; k<d_h.size(); k++) {
+		  histo3->Fill3d(sim_eta,d_h[k],d_f[k]);
+	  }
+
+	  int types = RecSegReader(cscSegments,dt4DSegments,cscGeom,dtGeom, seed_gp[j].eta(), seed_gp[j].phi());
+	  if (debug) cout<<" seed type for fail STA= "<<types<<endl;
+	  for (unsigned k=0; k< phi_resid.size(); k++) {
+		  histo3->Fill3c(phi_resid[k],eta_resid[k]);
+	  }
+      }
+
+      int nu_seed_trk =0;
+      for(size_t j=0; j < seeds_simtrk.size(); j++){
+         if ( seeds_simtrk[j]== static_cast<int>(i) ) nu_seed_trk++;
+      }
+      histo3->Fill3f( sim_eta ,nu_seed_trk); 
+
   }
-  
-  //cout <<" ================================================== "<<endl; 
-  //cout <<" # of seeds: "<<nu_seed<<" # of STA: "<<nu_sta<<endl;
-  // Basic simulation and reco information
-  int idx=0;
-  for (SimTrackContainer::const_iterator stk = simTracks->begin(); stk != simTracks->end(); stk++)
-  {
-
-      bool rechitSize = (dsimHits->size() < 8 && csimHits->size() < 4 )? true:false ;
-      if (abs((*stk).type())!=13 || rechitSize || (*stk).vertIndex() != 0 ) continue;
-
-      // 1. Run the class SegSelector
-      int trkId = static_cast<int>( (*stk).trackId() );
-      std::vector<SimSegment>     sCSC_v = recsegSelector->Sim_CSCSegments( trkId, csimHits, cscGeom);
-      std::vector<SimSegment>     sDT_v = recsegSelector->Sim_DTSegments( trkId, dsimHits, dtGeom);
-      std::vector<CSCSegment>     cscseg_V = recsegSelector->Select_CSCSeg(cscSegments,cscGeom, sCSC_v);
-      std::vector<DTRecSegment4D> dtseg_V = recsegSelector->Select_DTSeg(dt4DSegments,dtGeom, sDT_v);
-
-      // 2. Reading the reco segmenst
-      //   get the appropriate eta and phi to select reco-segments
-      double px = ((*stk).momentum()).x();
-      double py = ((*stk).momentum()).y();
-      double pz = ((*stk).momentum()).z();
-      double pt = sqrt(px*px + py*py);
-      double pa = sqrt(px*px + py*py + pz*pz);
-       
-      //cout<<" <<<<< Idx : "<<idx<<" >>>>>>>>>>>>>>>>>>>>> "<<endl;
-      //cout<<"  eta from SimTrack= "<<getEta(px,py,pz)<<"  theta = "<<theta<<"("<<(180.0*theta)/3.1415 <<")"<<endl;
- 
-      // 3. Read out reco segments
-      //   return : the ave_phi, ave_eta, phi_resid, eta_resid, dx_error, dy_error, x_error, y_error 
-      int types = RecSegReader(cscSegments,dt4DSegments,cscGeom,dtGeom,theta_p[idx],phi_p[idx]);
-
-      // 4. Check # of segments and rechits in each chambers for this track
-      CSCsegment_stat(cscSegments, cscGeom, theta_p[idx], phi_p[idx]);
-      DTsegment_stat(dt4DSegments, dtGeom, theta_p[idx], phi_p[idx]);
-      Simsegment_stat(sCSC_v,sDT_v);
-      // 5. if less than 1 segment, check the # of rechits in each chambers for this track
-      if ( (cscseg_stat[5] < 2)&&(dtseg_stat[5] < 2) ) {
-         CSCRecHit_Stat(csc2DRecHits, cscGeom, getEta(theta_p[idx]), phi_p[idx]);
-         DTRecHit_Stat(dt1DRecHits, dtGeom, getEta(theta_p[idx]), phi_p[idx]);
-      }
-
-      // seg_stat[0] = total segments in all stations
-      // seg_stat[5] = the number of stations which have segments
-      // seg_stat1[x] = the number of stations/segments which only count segments w/ more than 4 rechits
-      int layer_sum  = cscseg_stat1[5] + dtseg_stat1[5];
-      int seg_sum    = cscseg_stat[0]  + dtseg_stat[0];
-      int leftrh_sum = cscrh_sum[5]    + dtrh_sum[5];
-      //cout <<"  sims:"<<simseg_sum<<" seg:"<<seg_sum<<" layer:"<<layer_sum<<endl;
-
-      histo1 = h_all;
-      // look at all information
-      histo1->Fill1(layer_sum, simseg_sum, getEta(theta_p[idx]) );
-      // 6. pt vs. # of segments in a event
-      histo1->Fill1c(pt, pa, cscseg_stat[0]+dtseg_stat[0]);
-      // 7. look at those events without any reco segments => no seed can be produced!!
-      if ((cscseg_stat[5]==0)&&(dtseg_stat[5]==0)) { 
-
-	 histo1->Fill1a(leftrh_sum, getEta(theta_p[idx]));
-         if (cscrh_sum[0] !=0 ) {
-            histo2 = h_NoSeed;
-            histo2 -> Fill2b(getEta(theta_p[idx]), cscrh_sum[0]);
-         }
-         if (dtrh_sum[0] !=0 ) {
-            histo2 = h_NoSeed;
-            histo2 -> Fill2c(getEta(theta_p[idx]), dtrh_sum[0]);
-         }
-      }
-
-      if ( nu_seed == 0 ) {
-         //cout<<" seed type for no seed : "<<types<<" h: "<< getEta(px,py,pz) <<" w/ seg# "<<layer_sum<<endl; 
-         //cout<<" idx : "<<idx<<endl;
-         histo2 = h_NoSeed;
-         histo2->Fill2a( getEta(px,py,pz), layer_sum, seg_sum , simseg_sum, 
-                        simseg_sum - seg_sum, simseg_sum - layer_sum );
-      }
-      idx++;
-  }
-
 
 }
 
@@ -604,8 +627,11 @@ void MuonSeedValidator::CSCsegment_stat( Handle<CSCSegmentCollection> cscSeg , E
 	GlobalVector gv = cscchamber->toGlobal((*seg_It).localDirection() );
         if (( fabs(gp.theta()- trkTheta) > dtMax  ) || ( fabs(gv.phi()- trkPhi) > dfMax ) ) continue;
 
+        double dof = static_cast<double>( (*seg_It).degreesOfFreedom() ) ;
+        double chi2_dof = (*seg_It).chi2()/dof ;
+
         cscseg_stat[DetId.station()] += 1;
-        if ((*seg_It).nRecHits() > 3 ) {
+        if ((*seg_It).nRecHits() > 4 && chi2_dof < 200.0 ) {
            cscseg_stat1[DetId.station()] += 1;
         }
      }
@@ -626,28 +652,32 @@ void MuonSeedValidator::DTsegment_stat( Handle<DTRecSegment4DCollection> dtSeg, 
      }
      for(DTRecSegment4DCollection::const_iterator seg_It = dtSeg->begin(); seg_It != dtSeg->end(); seg_It++)
      { 
-        if ( !(*seg_It).hasPhi() || !(*seg_It).hasZed()  ) continue;
+        //if ( !(*seg_It).hasPhi() || !(*seg_It).hasZed()  ) continue;
+        if ( !(*seg_It).hasPhi()  ) continue;
+
         DTChamberId DetId = (*seg_It).chamberId();
         const DTChamber* dtchamber = dtGeom->chamber( DetId );
         GlobalPoint  gp = dtchamber->toGlobal( (*seg_It).localPosition() );
         GlobalVector gv = dtchamber->toGlobal( (*seg_It).localDirection() );
+
         if ( ( fabs(gp.theta()- trkTheta) > dtMax  ) || ( fabs(gv.phi()- trkPhi) > dfMax ) ) continue;
 
         dtseg_stat[DetId.station()] += 1;
+
         int n_phiHits = ((*seg_It).phiSegment())->specificRecHits().size();
-        if ( (*seg_It).hasZed() && (n_phiHits > 4) ) {
+        //if ( DetId.station() < 4 && (*seg_It).hasZed() && (n_phiHits > 4) ) {
+        if ( DetId.station() < 4 && (*seg_It).dimension() == 4 ) {
+           dtseg_stat1[DetId.station()] += 1;
+        }
+        if ( DetId.station() == 4 && (n_phiHits > 4) ) {
            dtseg_stat1[DetId.station()] += 1;
         }
      }
      dtseg_stat[0]  = dtseg_stat[1] +dtseg_stat[2] +dtseg_stat[3] +dtseg_stat[4];
      dtseg_stat1[0] = dtseg_stat1[1]+dtseg_stat1[2]+dtseg_stat1[3]+dtseg_stat1[4];
      for (int i =1; i<5; i++){
-         if(dtseg_stat[i]!=0)  { dtseg_stat[5]++ ;}
-         if(dtseg_stat1[i]!=0) {
-            if ( i !=4 ) { dtseg_stat1[5]++ ;}
-            // because no eta/Z measurement at station 4
-            if ((i==4)&&(dtseg_stat[4]!=0)) { dtseg_stat1[5]++ ;} 
-         }
+         if(dtseg_stat[i]!=0)  { dtseg_stat[5]++  ;}
+         if(dtseg_stat1[i]!=0) { dtseg_stat1[5]++ ;}
      }
 }
 
@@ -1028,18 +1058,18 @@ void MuonSeedValidator::StaTrackReader( Handle<reco::TrackCollection> sta_trk, i
          // get the inner poistion( eta & phi )
          math::XYZPoint staPos = (*iTrk).innerPosition();
          double posMag = sqrt( staPos.x()*staPos.x() + staPos.y()*staPos.y() + staPos.z()*staPos.z() );
-         math::XYZVector staMom = (*iTrk).innerMomentum();
-         double innerMt = sqrt( (staMom.x()*staMom.x()) + (staMom.y()*staMom.y()) );
+         //math::XYZVector staMom = (*iTrk).innerMomentum();
+         //double innerMt = sqrt( (staMom.x()*staMom.x()) + (staMom.y()*staMom.y()) );
 
          sta_phiP.push_back( atan2( staPos.y(), staPos.x() ) );
          sta_thetaP.push_back( acos( staPos.z()/posMag ) );
 
-         cout<<" momentum= "<<(*iTrk).momentum()<<"  pt= "<<(*iTrk).pt()<<endl;
-         cout<<" innerMom= "<<(*iTrk).innerMomentum()<<" iMt= "<<innerMt<<endl;
+         //cout<<" momentum= "<<(*iTrk).momentum()<<"  pt= "<<(*iTrk).pt()<<endl;
+         //cout<<" innerMom= "<<(*iTrk).innerMomentum()<<" iMt= "<<innerMt<<endl;
 
          sta_mA.push_back( (*iTrk).p() );
-         //sta_mT.push_back( (*iTrk).pt() );
-         sta_mT.push_back( innerMt );
+         sta_mT.push_back( (*iTrk).pt() );
+         //sta_mT.push_back( innerMt );
          sta_thetaV.push_back( (*iTrk).theta() );
          sta_phiV.push_back( (*iTrk).phi() );
          sta_qbp.push_back( (*iTrk).qoverp() );
@@ -1157,8 +1187,8 @@ void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
 
       ptlayer.push_back(pt1);
       palayer.push_back(pa1);
-      cout<<" simTrk momentum= "<<(*simTk_It).momentum()<<" pa= "<<pa1[0]<<" pt= "<<pt1[0]<<endl;
-      cout<<" simhit momentum= "<< pa1[1] <<" pt= "<<pt1[1]<<endl;
+      //cout<<" simTrk momentum= "<<(*simTk_It).momentum()<<" pa= "<<pa1[0]<<" pt= "<<pt1[0]<<endl;
+      //cout<<" simhit momentum= "<< pa1[1] <<" pt= "<<pt1[1]<<endl;
   }
 }
 
@@ -1266,3 +1296,178 @@ double MuonSeedValidator::getEta(double theta ) {
       double eta = (-1.0)*log( tan(theta/2.0) )  ;
       return eta;
 }
+
+std::vector<int> MuonSeedValidator::IdentifyShowering(Handle<CSCSegmentCollection> cscSeg, ESHandle<CSCGeometry> cscGeom,
+                                           Handle<DTRecSegment4DCollection> dtSeg, ESHandle<DTGeometry> dtGeom, 
+                                           double trkTheta, double trkPhi) {
+   muCone.clear();
+
+   std::vector<double> csch1;
+   std::vector<double> csch2;
+   std::vector<double> csch3;
+   std::vector<double> csch4;
+
+   std::vector<double> cscf1;
+   std::vector<double> cscf2;
+   std::vector<double> cscf3;
+   std::vector<double> cscf4;
+
+   std::vector<int> showers(4,0); 
+   int CSC1 = 0; 
+   int CSC2 = 0; 
+   int CSC3 = 0; 
+   int CSC4 = 0;
+   for(CSCSegmentCollection::const_iterator i1 = cscSeg->begin(); i1 != cscSeg->end(); i1++)
+   { 
+      if (trkTheta > 0.87 ) continue;
+      CSCDetId DId = (CSCDetId)(*i1).cscDetId();
+      const CSCChamber* cscchamber = cscGeom->chamber( DId );
+      GlobalPoint  gp = cscchamber->toGlobal((*i1).localPosition() );
+      double dh = gp.eta() - getEta(trkTheta) ;
+      double df = gp.phi() - trkPhi ;
+      double dR = sqrt( (dh*dh) + (df*df) ); 
+
+      if ( DId.station() == 1 && dR < 0.5 ) {
+         CSC1++ ;
+         csch1.push_back( gp.eta() );
+         cscf1.push_back( gp.phi() );
+      }
+      if ( DId.station() == 2 && dR < 0.5 ) {
+         CSC2++ ;
+         csch2.push_back( gp.eta() );
+         cscf2.push_back( gp.phi() );
+      }
+      if ( DId.station() == 3 && dR < 0.5 ) {
+         CSC3++ ;
+         csch3.push_back( gp.eta() );
+         cscf3.push_back( gp.phi() );
+      }
+      if ( DId.station() == 4 && dR < 0.5 ) {
+         CSC4++ ;
+         csch4.push_back( gp.eta() );
+         cscf4.push_back( gp.phi() );
+      } 
+   }
+
+   if ( CSC1 > 2 ) { 
+      showers[0]+= CSC1 ;
+      showers[3]+= 1 ;
+      muCone.push_back( getdR(csch1,cscf1) );
+   }
+   if ( CSC2 > 2 ) { 
+      showers[0]+= CSC2 ;
+      showers[1]+= CSC2 ;
+      showers[2]+= 1 ;
+      showers[3]+= 1 ;
+      muCone.push_back( getdR(csch1,cscf1) );
+   }
+   if ( CSC3 > 2 ) {
+      showers[0]+= CSC3 ;
+      showers[1]+= CSC3 ;
+      showers[2]+= 1 ;
+      showers[3]+= 1 ;
+      muCone.push_back( getdR(csch1,cscf1) );
+   }
+   if ( CSC4 > 2 ) { 
+      showers[0]+= CSC4 ;
+      showers[1]+= CSC4 ;
+      showers[2]+= 1 ;
+      showers[3]+= 1 ;
+      muCone.push_back( getdR(csch1,cscf1) );
+   }
+
+
+   std::vector<double> dth1;
+   std::vector<double> dth2;
+   std::vector<double> dth3;
+
+   std::vector<double> dtf1;
+   std::vector<double> dtf2;
+   std::vector<double> dtf3;
+
+   int DT1 = 0;
+   int DT2 = 0;
+   int DT3 = 0;
+   for(DTRecSegment4DCollection::const_iterator i1 = dtSeg->begin(); i1 != dtSeg->end(); i1++)
+   {
+      if (trkTheta < 0.52 ) continue;
+      DTChamberId DId = (*i1).chamberId();
+      const DTChamber* dtchamber = dtGeom->chamber( DId );
+      GlobalPoint  gp = dtchamber->toGlobal( (*i1).localPosition() );
+      
+      double dh = gp.eta() - getEta(trkTheta) ;
+      double df = gp.phi() - trkPhi ;
+      double dR = sqrt( (dh*dh) + (df*df) ); 
+
+      if ( DId.station() == 1 && dR < 0.5 ) {
+         DT1++ ;
+         dth1.push_back( gp.eta() );
+         dtf1.push_back( gp.phi() );
+      }
+      if ( DId.station() == 2 && dR < 0.5 ) {
+         DT2++ ;
+         dth2.push_back( gp.eta() );
+         dtf2.push_back( gp.phi() );
+      }
+      if ( DId.station() == 3 && dR < 0.5 ) { 
+         DT3++ ;
+         dth3.push_back( gp.eta() );
+         dtf3.push_back( gp.phi() );
+      }
+
+   }
+   if ( DT1 > 2 ) { 
+      showers[0]+= DT1 ;
+      muCone.push_back( getdR(dth1,dtf1) );
+      showers[3]+= 1 ;
+   }
+   if ( DT2 > 2 ) {
+      showers[0]+= DT2 ;
+      showers[1]+= DT2 ;
+      showers[2]+= 1 ;
+      showers[3]+= 1 ;
+      muCone.push_back( getdR(dth2,dtf2) );
+   }
+   if ( DT3 > 2 ) { 
+      showers[0]+= DT3 ;
+      showers[1]+= DT3 ;
+      showers[2]+= 1 ;
+      showers[3]+= 1 ;
+      muCone.push_back( getdR(dth3,dtf3) );
+   }
+
+   return showers;
+
+}
+
+double MuonSeedValidator::getdR( std::vector<double> etav, std::vector<double> phiv ) {
+
+   if ( etav.size() < 3 ) return -1.0;
+
+   double avh = 0.;
+   double avf = 0.;
+   double sz = 0.; 
+   for (size_t i=0; i< etav.size(); i++) {
+       avh += etav[i] ;
+       avf += phiv[i] ;
+       sz  += 1.;
+   }
+   avh = avh/sz ;  
+   avf = avf/sz ;
+ 
+   double maxdh = 0.;
+   double maxdf = 0.;
+   for (size_t i=0; i< etav.size(); i++) {
+       
+        double dh = fabs( etav[i] - avh ); 
+        double df = fabs( phiv[i] - avf ); 
+        if ( dh > maxdh ) maxdh = dh;
+        if ( df > maxdf ) maxdf = df;
+        //cout <<" df:"<<df<<"  dh:"<<dh<<endl;
+   }
+   //double maxdR = sqrt( (maxdh*maxdh) + (maxdf*maxdf)  ) ;
+   //return maxdR ;
+   return maxdf ;
+
+}
+

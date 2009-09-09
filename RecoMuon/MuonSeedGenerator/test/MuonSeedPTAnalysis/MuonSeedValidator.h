@@ -8,7 +8,6 @@
 
 //#include "RecoMuon/SeedGenerator/test/MuonSeedPTAnalysis/SegSelector.h"
 #include "MuonSeedValidatorHisto.h"
-#include "MuonSeedValidatorNtuple.h"
 #include "SegSelector.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -45,8 +44,8 @@
 #include <Geometry/DTGeometry/interface/DTChamber.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
+//#include <Geometry/Records/interface/GlobalTrackingGeometryRecord.h>
 #include <RecoMuon/TrackingTools/interface/MuonServiceProxy.h>
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -126,6 +125,11 @@ private:
   double getEta(double vx, double vy, double vz);
   double getEta(double theta);
 
+  std::vector<int> IdentifyShowering( edm::Handle<CSCSegmentCollection> cscSeg , edm::ESHandle<CSCGeometry> cscGeom,
+                                      edm::Handle<DTRecSegment4DCollection> dtSeg, edm::ESHandle<DTGeometry> dtGeom,
+                                      double trkTheta, double trkPhi) ;
+  double getdR(std::vector<double> etav , std::vector<double> phiv );
+
 
   // Histograms
   H2DRecHit1 *h_all;
@@ -133,7 +137,6 @@ private:
   H2DRecHit3 *h_NoSta;
   H2DRecHit4 *h_Scope;
   H2DRecHit5 *h_UnRel;
-  TNtuple1 *tr_muon;
 
   // The file which will store the histos
   TFile *theFile;
@@ -227,6 +230,9 @@ private:
   std::vector<layer_pt> ptlayer;
   std::vector<layer_pa> palayer;
   std::vector<int> trackID;
+
+  // showering info
+  std::vector<double> muCone ;
 
   // Switch for debug output
   std::string rootFileName;

@@ -6,9 +6,10 @@
  *  Author: S.C. Kao  - UC Riverside
  */
 
-#include "RecoMuon/MuonSeedGenerator/test/MuonSeedPTAnalysis/SegSelector.h"
+#include "SegSelector.h"
 #include "MuonSeedParameterHisto.h"
-#include "MuonSeedParameterNtuple.h"
+#include "MuonSeedParaFillHisto.h"
+#include "MuonSeeddPhiScale.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +23,8 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
 #include <DataFormats/DTRecHit/interface/DTRecSegment4D.h>
-//#include <DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h>
-//#include <DataFormats/DTRecHit/interface/DTRecSegment2D.h>
+#include <DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h>
+#include <DataFormats/DTRecHit/interface/DTRecSegment2D.h>
 #include <DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h>
 #include <DataFormats/DTRecHit/interface/DTRecHitCollection.h>
 #include <DataFormats/DTRecHit/interface/DTRecHit1D.h>
@@ -66,6 +67,8 @@ class DTLayerId;
 class DTSuperLayerId;
 class DTChamberId;
 class SegSelector;
+class MuonSeedParaFillHisto;
+class MuonSeeddPhiScale;
 
 class MuonSeedParametrization : public edm::EDAnalyzer {
 public:
@@ -86,6 +89,8 @@ protected:
 private:
  
   SegSelector* recsegSelector;
+  MuonSeedParaFillHisto* HistoFill;
+  MuonSeeddPhiScale* ScaledPhi;
 
   // Utility functions
   void CSCsegment_stat(edm::Handle<CSCSegmentCollection> cscSeg);
@@ -120,7 +125,6 @@ private:
   H2DRecHit6 *hME2[8];
   H2DRecHit7 *hMB2[12];
   H2DRecHit10 *hOL1[6];
-  TNtuple1 *tr_muon;
 
   // The file which will store the histos
   TFile *theFile;
@@ -169,10 +173,10 @@ private:
   // dPhi and dEta for DT
   double PhiV3[2][5];
   double EtaV3[2][5];
-  double PhiP3[2][5];
-  double EtaP3[2][5];
   double dPhiV3[2][5][5];
   double dEtaV3[2][5][5];
+  double PhiP3[2][5];
+  double EtaP3[2][5];
   double dPhiP3[2][5][5];
   double dEtaP3[2][5][5];
   double chi2_dof3[5];
@@ -190,12 +194,13 @@ private:
 
   // Switch for debug output
   bool debug;
+  bool scale;
 
   std::string rootFileName;
   std::string cscSegmentLabel;
   std::string recHitLabel;
   std::string dtSegmentLabel;
-  //std::string dt2DSegmentLabel;
+  std::string dt2DSegmentLabel;
   std::string dtrecHitLabel;
   std::string simHitLabel;
   std::string simTrackLabel;

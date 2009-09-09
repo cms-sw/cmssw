@@ -23,8 +23,10 @@ public:
     TString N1 = name_.c_str();
     name=N1;
 
-    heta_mu3 = new TH2F(N1+"_heta_mu3", " Rec Seg vs eta from track", 59, -2.95, 2.95, 20, -0.25, 9.75);
-    heta_mu2 = new TH2F(N1+"_heta_mu2", " Sim Seg vs eta from track", 59, -2.95, 2.95, 20, -0.25, 9.75);
+    heta_mu4 = new TH2F(N1+"_heta_mu4", " Seg multiplicity vs eta_of_track", 59, -2.95, 2.95, 40, -0.25, 19.75);
+    heta_mu3 = new TH2F(N1+"_heta_mu3", " good Rec Seg vs eta_of_track", 59, -2.95, 2.95, 20, -0.25, 9.75);
+    heta_mu2 = new TH2F(N1+"_heta_mu2", " Rec Seg vs eta_of_track", 59, -2.95, 2.95, 20, -0.25, 9.75);
+    heta_mu1 = new TH2F(N1+"_heta_mu1", " Sim Seg vs eta_of_track", 59, -2.95, 2.95, 20, -0.25, 9.75);
 
     heta_rh  = new TH2F(N1+"_heta_rh",  " All rechits vs eta ", 250, 0.0, 2.5, 20, -0.25, 9.75);
 
@@ -39,12 +41,13 @@ public:
     heta_pa  = new  TH2F(N1+"_heta_pa",  " eta vs seed p  ", 59, -2.95, 2.95, 2500, 0.0, 2500.0);
     heta_bestPt  = new  TH2F(N1+"_heta_bestPt"," eta vs best seed pt ", 59, -2.95, 2.95, 5000, -2500.0, 2500.0);
 
-    heta_pullQP = new  TH2F(N1+"_heta_pullQP",  " eta vs pull of Q/P ", 59, -2.95, 2.95, 1000, -10.0, 10.0);
-    heta_pullQPt= new  TH2F(N1+"_heta_pullQPt",  " eta vs pull of Q/Pt ", 59, -2.95, 2.95,1000, -10.0, 10.0);
-    heta_QPt    = new  TH2F(N1+"_heta_QPt",  " eta vs  Q/Pt ", 59, -2.95, 2.95, 1000, -0.4, 0.4);
-    heta_errQP  = new  TH2F(N1+"_heta_errQP",   " eta vs Q/P  error", 59, -2.95, 2.95, 500, -0.01, 0.24);
-    heta_errQPt = new  TH2F(N1+"_heta_errQPt",  " eta vs Q/Pt error", 59, -2.95, 2.95, 500, -0.01, 0.24);
-    heta_resolSd= new  TH2F(N1+"_heta_resolSd",  " eta vs Q/Pt resol", 59, -2.95, 2.95, 500, -1., 1.);
+    heta_pullQP = new  TH2F(N1+"_heta_pullQP",  "eta vs best pull of Q/P ", 59, -2.95, 2.95, 1000, -10.0, 10.0);
+    heta_pullQPt= new  TH2F(N1+"_heta_pullQPt", "eta vs best pull of Q/Pt ", 59, -2.95, 2.95,1000, -10.0, 10.0);
+    heta_QPt    = new  TH2F(N1+"_heta_QPt",     "eta vs best Q/Pt ", 59, -2.95, 2.95, 1000, -0.4, 0.4);
+    heta_errQP  = new  TH2F(N1+"_heta_errQP",   "eta vs best Q/P  error", 59, -2.95, 2.95, 500, -0.01, 0.24);
+    heta_errQPt = new  TH2F(N1+"_heta_errQPt",  "eta vs best Q/Pt error", 59, -2.95, 2.95, 500, -0.01, 0.24);
+    heta_resolSd= new  TH2F(N1+"_heta_resolSd", "eta vs best Q/Pt resol", 59, -2.95, 2.95, 500, -1., 1.);
+
     Tpt_ptLoss  = new  TH2F(N1+"_Tpt_ptLoss",  " trk pt vs ptLoss ratio ", 250, 0., 250., 80, 0.3, 1.1);
     Mpt_ptLoss  = new  TH2F(N1+"_Mpt_ptLoss",  " seed pt vs ptLoss ratio ", 250, 0., 250., 80, 0.3, 1.1);
 
@@ -66,19 +69,39 @@ public:
     h_dx_st = new TH2F(N1+"_h_dx_st", " dx from position vs station", 19, -4.75, 4.75,400,-4.0,4.0);
     h_dy_st = new TH2F(N1+"_h_dy_st", " dy from position vs station", 19, -4.75, 4.75,400,-4.0,4.0);
 
-
     h_Nsta_Nseed = new TH2F(N1+"_h_Nsta_Nseed", " N_STA vs N_Seed ", 30, -0.25, 14.75, 30, -0.25, 14.75);
 
     hPt = new TH1F(N1+"_hPt", " Pt of Tracks ", 100,5.,205.);
     hPa_Pt     = new TH2F(N1+"_hPa_Pt", "P vs Pt", 50, 5., 205., 100, 0., 1000.);
     hPa_nSeg = new TH2F(N1+"_hPa_nSeg", "Pt vs total CSC segments number", 40, 5., 205., 40, -0.25, 19.75);
 
+    hP_Showers1 = new TH2F(N1+"_hP_Showers1", "Pt vs # of Showering segments 1", 600, 0., 1200., 50, -0.5, 49.5);
+    hP_Showers2 = new TH2F(N1+"_hP_Showers2", "Pt vs # of Showering segments 2", 600, 0., 1200., 50, -0.5, 49.5);
+    hP_Showers3 = new TH2F(N1+"_hP_Showers3", "Pt vs # of Showering segments 3", 600, 0., 1200., 50, -0.5, 49.5);
+
+    hP_Showers1a = new TH2F(N1+"_hP_Showers1a", "Pt vs # of Showering segs w/o st1 1", 600, 0., 1200., 50, -0.5, 49.5);
+    hP_Showers2a = new TH2F(N1+"_hP_Showers2a", "Pt vs # of Showering segs w/o st1 2", 600, 0., 1200., 50, -0.5, 49.5);
+    hP_Showers3a = new TH2F(N1+"_hP_Showers3a", "Pt vs # of Showering segs w/o st1 3", 600, 0., 1200., 50, -0.5, 49.5);
+
+    hP_Showers1b = new TH2F(N1+"_hP_Showers1b", "Pt vs # of Showering  1", 600, 0., 1200., 5, -0.5, 4.5);
+    hP_Showers2b = new TH2F(N1+"_hP_Showers2b", "Pt vs # of Showering  2", 600, 0., 1200., 5, -0.5, 4.5);
+    hP_Showers3b = new TH2F(N1+"_hP_Showers3b", "Pt vs # of Showering  3", 600, 0., 1200., 5, -0.5, 4.5);
+
+    hP_avShower1 = new TH2F(N1+"_hP_avShower1", "Pt vs ave. Showering segments 1", 600, 0., 1200., 500, -0.5, 999.5);
+    hP_avShower2 = new TH2F(N1+"_hP_avShower2", "Pt vs ave. Showering segments 2", 600, 0., 1200., 500, -0.5, 999.5);
+    hP_avShower3 = new TH2F(N1+"_hP_avShower3", "Pt vs ave. Showering segments 3", 600, 0., 1200., 500, -0.5, 999.5);
+
+    hP_maxR1 = new TH2F(N1+"_hP_maxR1", "Pt vs max dR of the cone 1", 600, 0., 1200., 300, -0.5, 1.);
+    hP_maxR2 = new TH2F(N1+"_hP_maxR2", "Pt vs max dR of the cone 2", 600, 0., 1200., 300, -0.5, 1.);
+    hP_maxR3 = new TH2F(N1+"_hP_maxR3", "Pt vs max dR of the cone 3", 600, 0., 1200., 300, -0.5, 1.);
  } 
 
  H2DRecHit1(TString name_, TFile* file) {
     name=name_;
+    heta_mu4 = (TH2F *) file->Get(name+"_heta_mu4");
     heta_mu3 = (TH2F *) file->Get(name+"_heta_mu3");
     heta_mu2 = (TH2F *) file->Get(name+"_heta_mu2");
+    heta_mu1 = (TH2F *) file->Get(name+"_heta_mu1");
 
     heta_rh  = (TH2F *) file->Get(name+"_heta_rh");
 
@@ -126,12 +149,34 @@ public:
     hPt = (TH1F *) file->Get(name+"_hPt");
     hPa_Pt     = (TH2F *) file->Get(name+"_hPa_Pt");
     hPa_nSeg = (TH2F *) file->Get(name+"_hPa_nSeg");
+
+    hP_Showers1 = (TH2F *) file->Get(name+"_hP_Showers1");
+    hP_Showers2 = (TH2F *) file->Get(name+"_hP_Showers2");
+    hP_Showers3 = (TH2F *) file->Get(name+"_hP_Showers3");
+
+    hP_Showers1a = (TH2F *) file->Get(name+"_hP_Showers1a");
+    hP_Showers2a = (TH2F *) file->Get(name+"_hP_Showers2a");
+    hP_Showers3a = (TH2F *) file->Get(name+"_hP_Showers3a");
+
+    hP_Showers1b = (TH2F *) file->Get(name+"_hP_Showers1b");
+    hP_Showers2b = (TH2F *) file->Get(name+"_hP_Showers2b");
+    hP_Showers3b = (TH2F *) file->Get(name+"_hP_Showers3b");
+
+    hP_avShower1 = (TH2F *) file->Get(name+"_hP_avShower1");
+    hP_avShower2 = (TH2F *) file->Get(name+"_hP_avShower2");
+    hP_avShower3 = (TH2F *) file->Get(name+"_hP_avShower3");
+
+    hP_maxR1 = (TH2F *) file->Get(name+"_hP_maxR1");
+    hP_maxR2 = (TH2F *) file->Get(name+"_hP_maxR2");
+    hP_maxR3 = (TH2F *) file->Get(name+"_hP_maxR3");
  }
 
  /// Destructor
  virtual ~H2DRecHit1() {
+    delete heta_mu4;
     delete heta_mu3;
     delete heta_mu2;
+    delete heta_mu1;
 
     delete heta_rh;
 
@@ -145,6 +190,26 @@ public:
     delete hPt;
     delete hPa_Pt;
     delete hPa_nSeg;
+
+    delete hP_Showers1;
+    delete hP_Showers2;
+    delete hP_Showers3;
+
+    delete hP_Showers1a;
+    delete hP_Showers2a;
+    delete hP_Showers3a;
+
+    delete hP_Showers1b;
+    delete hP_Showers2b;
+    delete hP_Showers3b;
+
+    delete hP_avShower1;
+    delete hP_avShower2;
+    delete hP_avShower3;
+
+    delete hP_maxR1;
+    delete hP_maxR2;
+    delete hP_maxR3;
 
     delete heta_pt;
     delete heta_pa;
@@ -181,9 +246,11 @@ public:
 
  }
 
- void Fill1(int all_nu, int sim_nu, double eta_simtrk) {
-      heta_mu3->Fill(eta_simtrk,all_nu);
-      heta_mu2->Fill(eta_simtrk,sim_nu);
+ void Fill1(int layer_nu, int goodlayer_nu, int seg_sum, int sim_nu, double eta_simtrk) {
+      heta_mu4->Fill(eta_simtrk,seg_sum);
+      heta_mu3->Fill(eta_simtrk,goodlayer_nu);
+      heta_mu2->Fill(eta_simtrk,layer_nu);
+      heta_mu1->Fill(eta_simtrk,sim_nu);
  }
  void Fill1a(int rh_nu, double eta_a) {
       heta_rh->Fill(eta_a,rh_nu);
@@ -201,6 +268,30 @@ public:
       hPt->Fill(Pt);
       hPa_Pt->Fill(Pt,Pa);
       hPa_nSeg->Fill(Pa,nu_seg);
+ }
+ void Fill1d1(double P, int showers, int showersa, int showersb, double ave, double maxR )
+ {
+      hP_Showers1->Fill(P, showers);
+      hP_Showers1a->Fill(P, showersa);
+      hP_Showers1b->Fill(P, showersb);
+      hP_avShower1->Fill(P, ave);
+      hP_maxR1->Fill(P, maxR);
+ }
+ void Fill1d2(double P, int showers, int showersa, int showersb, double ave, double maxR )
+ {
+      hP_Showers2->Fill(P, showers);
+      hP_Showers2a->Fill(P, showersa);
+      hP_Showers2b->Fill(P, showersb);
+      hP_avShower2->Fill(P, ave);
+      hP_maxR2->Fill(P, maxR);
+ }
+ void Fill1d3(double P, int showers, int showersa, int showersb, double ave, double maxR )
+ {
+      hP_Showers3->Fill(P, showers);
+      hP_Showers3a->Fill(P, showersa);
+      hP_Showers3b->Fill(P, showersb);
+      hP_avShower3->Fill(P, ave);
+      hP_maxR3->Fill(P, maxR);
  }
  void Fill1f(double eta, double err_dx, double err_dy, double err_x, double err_y) {
       heta_errdx->Fill(eta,err_dx);
@@ -243,8 +334,10 @@ public:
  }
 
  void Write() {
+      heta_mu4->Write();
       heta_mu3->Write();
       heta_mu2->Write();
+      heta_mu1->Write();
 
       heta_rh->Write();
 
@@ -291,10 +384,32 @@ public:
       hPt->Write();
       hPa_Pt->Write();
       hPa_nSeg->Write();
+
+      hP_Showers1->Write();
+      hP_Showers2->Write();
+      hP_Showers3->Write();
+
+      hP_Showers1a->Write();
+      hP_Showers2a->Write();
+      hP_Showers3a->Write();
+
+      hP_Showers1b->Write();
+      hP_Showers2b->Write();
+      hP_Showers3b->Write();
+
+      hP_avShower1->Write();
+      hP_avShower2->Write();
+      hP_avShower3->Write();
+
+      hP_maxR1->Write();
+      hP_maxR2->Write();
+      hP_maxR3->Write();
  }
 
+ TH2F *heta_mu4;
  TH2F *heta_mu3;
  TH2F *heta_mu2;
+ TH2F *heta_mu1;
 
  TH2F *heta_rh;
 
@@ -341,6 +456,26 @@ public:
  TH1F *hPt;
  TH2F *hPa_Pt;
  TH2F *hPa_nSeg;
+
+ TH2F *hP_Showers1;
+ TH2F *hP_Showers2;
+ TH2F *hP_Showers3;
+
+ TH2F *hP_Showers1a;
+ TH2F *hP_Showers2a;
+ TH2F *hP_Showers3a;
+
+ TH2F *hP_Showers1b;
+ TH2F *hP_Showers2b;
+ TH2F *hP_Showers3b;
+
+ TH2F *hP_avShower1;
+ TH2F *hP_avShower2;
+ TH2F *hP_avShower3;
+
+ TH2F *hP_maxR1;
+ TH2F *hP_maxR2;
+ TH2F *hP_maxR3;
 
  TString name;
 
@@ -446,8 +581,9 @@ public:
     name=N3;
 
     // for fail sta tracking!
-    hsimEta_seedEta = new TH2F(N3+"_hsimEta_seedEta", "No sta, sim_eta vs seed_eta", 59, -2.95, 2.95, 59, -2.95, 2.95);
     hsimEta_NSeed   = new TH2F(N3+"_hsimEta_NSeed", "No sta, sim_eta vs NSeed", 59, -2.95, 2.95, 20, -0.25, 9.75);
+
+    hsimEta_seedEta = new TH2F(N3+"_hsimEta_seedEta", "No sta, sim_eta vs seed_eta", 59, -2.95, 2.95, 59, -2.95, 2.95);
     hsimEta_seedPt = new  TH2F(N3+"_hsimEta_seedPt",  "NO sta, sim_eta vs seed pt ", 59, -2.95, 2.95, 500, 0.0, 500.0);
     hsimEta_errPt  = new  TH2F(N3+"_hsimEta_errPt", "No sta, sim_eta vs Pt error", 59, -2.95, 2.95, 500, 0.0, 500.0);
     hsimEta_pullQPt  = new  TH2F(N3+"_hsimEta_pullQPt", "No sta, sim_eta vs q/pt pull", 59, -2.95, 2.95,1000, -10.0, 10.0);
@@ -465,8 +601,9 @@ public:
  H2DRecHit3(TString name_, TFile* file) {
     name=name_;
 
-    hsimEta_seedEta = (TH2F *) file->Get(name+"_hsimEta_seedEta");
     hsimEta_NSeed   = (TH2F *) file->Get(name+"_hsimEta_NSeed");
+
+    hsimEta_seedEta = (TH2F *) file->Get(name+"_hsimEta_seedEta");
     hsimEta_seedPt  = (TH2F *) file->Get(name+"_hsimEta_seedPt");
     hsimEta_errPt   = (TH2F *) file->Get(name+"_hsimEta_errPt");
     hsimEta_pullQPt = (TH2F *) file->Get(name+"_hsimEta_pullQPt");
@@ -481,8 +618,8 @@ public:
   /// Destructor
   virtual ~H2DRecHit3() {
 
-    delete hsimEta_seedEta; 
     delete hsimEta_NSeed;
+    delete hsimEta_seedEta; 
     delete hsimEta_seedPt;
     delete hsimEta_errPt;
     delete hsimEta_pullQPt;
@@ -494,9 +631,8 @@ public:
     delete hEta_resid;
   }
 
-  void Fill3a(double simEta, double seedEta, int nu_seed, double seed_mT, double ptErr, double pullQPt) {
+  void Fill3a(double simEta, double seedEta, double seed_mT, double ptErr, double pullQPt) {
        hsimEta_seedEta->Fill(simEta, seedEta); 
-       hsimEta_NSeed->Fill(simEta, nu_seed);
        hsimEta_seedPt->Fill(simEta, seed_mT);
        hsimEta_errPt->Fill(simEta, ptErr);
        hsimEta_pullQPt->Fill(simEta, pullQPt);
@@ -513,11 +649,14 @@ public:
        hsimEta_dh->Fill(sim_eta, dEta);
        hsimEta_df->Fill(sim_eta, dPhi);
   }
+  void Fill3f(double simEta, int nu_seed) {
+       hsimEta_NSeed->Fill(simEta, nu_seed);
+  }
 
   void Write() {
 
-       hsimEta_seedEta->Write(); 
        hsimEta_NSeed->Write();
+       hsimEta_seedEta->Write(); 
        hsimEta_seedPt->Write();
        hsimEta_errPt->Write();
        hsimEta_pullQPt->Write();
@@ -530,8 +669,8 @@ public:
 
   }
 
-  TH2F *hsimEta_seedEta; 
   TH2F *hsimEta_NSeed;
+  TH2F *hsimEta_seedEta; 
   TH2F *hsimEta_seedPt;
   TH2F *hsimEta_errPt;
   TH2F *hsimEta_pullQPt;

@@ -1,15 +1,6 @@
 // Class Header
-#include "MuonSeedParametrization.h"
 #include "SegSelector.h"
-
-// for MuonSeedBuilder
-/*
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-*/
+#include "MuonSeedParametrization.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -18,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-/* #include "PluginManager/ModuleDef.h" */
+//#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TFile.h"
@@ -41,6 +32,7 @@ using namespace edm;
 MuonSeedParametrization::MuonSeedParametrization(const ParameterSet& pset){ 
 
   debug             = pset.getUntrackedParameter<bool>("debug");
+  scale             = pset.getUntrackedParameter<bool>("scale");
   rootFileName      = pset.getUntrackedParameter<string>("rootFileName");
   recHitLabel       = pset.getUntrackedParameter<string>("recHitLabel");
   cscSegmentLabel   = pset.getUntrackedParameter<string>("cscSegmentLabel");
@@ -51,8 +43,8 @@ MuonSeedParametrization::MuonSeedParametrization(const ParameterSet& pset){
   simTrackLabel     = pset.getUntrackedParameter<string>("simTrackLabel");
 
   recsegSelector    = new SegSelector(pset); 
-  //muonSeedBuilder_  = new MuonSeedBuilder( pset );
-  //SeedBuilder_      = new SeedBuilder( pset );
+  HistoFill         = new MuonSeedParaFillHisto(); 
+  if ( scale ) ScaledPhi = new MuonSeeddPhiScale(pset); 
 
   // Create the root file
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -68,7 +60,6 @@ MuonSeedParametrization::MuonSeedParametrization(const ParameterSet& pset){
   theFile->cd();
   theFile->mkdir("OL_All");
   // TTree test
-  tr_muon = new TNtuple1();
 
   // The dphi between chamber by chamber
   // All possible segment pair in CSC 
@@ -132,8 +123,8 @@ MuonSeedParametrization::~MuonSeedParametrization(){
 
   if (debug) cout << "[SeedQualityAnalysis] Destructor called" << endl;
   delete recsegSelector;
-  //delete muonSeedBuilder_; 
-  //delete SeedBuilder_; 
+  delete HistoFill;
+  if (scale) delete ScaledPhi;
   // Write the histos to file
   theFile->cd();
   theFile->cd("AllMuonSys");
@@ -172,7 +163,6 @@ MuonSeedParametrization::~MuonSeedParametrization(){
   }
   // for tree
   theFile->cd();
-  tr_muon->Write();
 
   // Release the memory ...
   for (int i=0; i<15; i++) {
@@ -193,7 +183,6 @@ MuonSeedParametrization::~MuonSeedParametrization(){
   delete h_all;
   delete h_csc;
   delete h_dt;
-  delete tr_muon;
 
   theFile->Close();
   if (debug) cout << "************* Finished writing histograms to file" << endl;
@@ -245,12 +234,6 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
   H2DRecHit1 *histo1 = 0;   
   H2DRecHit2 *histo2 = 0;   
   H2DRecHit3 *histo3 = 0;   
-  H2DRecHit4 *histo4 = 0;   
-  H2DRecHit5 *histo5 = 0;   
-  H2DRecHit6 *histo6 = 0;   
-  H2DRecHit7 *histo7 = 0;   
-  H2DRecHit10 *histo10 = 0;   
-  //  TNtuple1 *tt = 0;
  
   // 0. Run the class SegSelector
   //SegSelector recsegSelector();
@@ -261,7 +244,7 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
 
   // 1. Get the track information  
   SimInfo(simTracks,dsimHits,csimHits,dtGeom,cscGeom);
-
+ 
   // 2. Check # of segments in each chambers
   CSCsegment_stat(cscSegments);
   DTsegment_stat(dt4DSegments);
@@ -386,173 +369,36 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
       histo3->Fill3c( chi2_dof3[i] );
   }
 
-
+  // Scale the dphi 
+  if (scale) { 
+    ScaledPhi->ScaleCSCdPhi(dPhiP1, EtaP1);
+    ScaledPhi->ScaleDTdPhi(dPhiP3, EtaP3);
+    ScaledPhi->ScaleOLdPhi(dPhiP2, MBPath, MEPath);
+    ScaledPhi->ScaleMBSingle( MB_phi, MBPath );
+    ScaledPhi->ScaleMESingle( ME_phi, MEPath );
+  }
   // fill the information for CSC pT parameterization from segment pair
   histo2 = h_csc;
-  if (dPhiP1[1][0][1]!=99.0 && chi2_dof1[0] < 2000.0 && chi2_dof1[1] < 2000.0){
-     histo2->Fill5_0( dPhiP1[0][0][1],dPhiP1[1][0][1],pt1[1]*dPhiP1[0][0][1],pt1[1]*dPhiP1[1][0][1],
-		     fabs(EtaP1[0][0]),fabs(EtaP1[1][0]) );
-  }
-  if (dPhiP1[1][0][2]!=99.0 && chi2_dof1[0] < 2000.0 && chi2_dof1[2] < 2000.0){
-     histo2->Fill5_1( dPhiP1[0][0][2],dPhiP1[1][0][2],pt1[1]*dPhiP1[0][0][2],pt1[1]*dPhiP1[1][0][2],
-		     fabs(EtaP1[0][0]),fabs(EtaP1[1][0]) );
-  }
-  if (dPhiP1[1][0][3]!=99.0 && chi2_dof1[0] < 2000.0 && chi2_dof1[3] < 2000.0){
-     histo2->Fill5_2( dPhiP1[0][0][3],dPhiP1[1][0][3],pt1[1]*dPhiP1[0][0][3],pt1[1]*dPhiP1[1][0][3],
-		     fabs(EtaP1[0][0]),fabs(EtaP1[1][0]) );
-  }
-  if (dPhiP1[1][0][4]!=99.0 && chi2_dof1[0] < 2000.0 && chi2_dof1[4] < 2000.0){
-     histo2->Fill5_3( dPhiP1[0][0][4],dPhiP1[1][0][4],pt1[1]*dPhiP1[0][0][4],pt1[1]*dPhiP1[1][0][4],
-		     fabs(EtaP1[0][0]),fabs(EtaP1[1][0]) );
-  }
-  if (dPhiP1[1][1][2]!=99.0 && chi2_dof1[1] < 2000.0 && chi2_dof1[2] < 2000.0){
-     histo2->Fill5_1( dPhiP1[0][1][2],dPhiP1[1][1][2],pt1[1]*dPhiP1[0][1][2],pt1[1]*dPhiP1[1][1][2],
-		     fabs(EtaP1[0][1]),fabs(EtaP1[1][1]) );
-  }
-  if (dPhiP1[1][1][3]!=99.0 && chi2_dof1[1] < 2000.0 && chi2_dof1[3] < 2000.0){
-     histo2->Fill5_2( dPhiP1[0][1][3],dPhiP1[1][1][3],pt1[1]*dPhiP1[0][1][3],pt1[1]*dPhiP1[1][1][3],
-		     fabs(EtaP1[0][1]),fabs(EtaP1[1][1]) );
-  }
-  if (dPhiP1[1][1][4]!=99.0 && chi2_dof1[1] < 2000.0 && chi2_dof1[4] < 2000.0){
-     histo2->Fill5_3( dPhiP1[0][1][4],dPhiP1[1][1][4],pt1[1]*dPhiP1[0][1][4],pt1[1]*dPhiP1[1][1][4],
-		     fabs(EtaP1[0][1]),fabs(EtaP1[1][1]) );
-  }
-  if (dPhiP1[1][2][3]!=99.0 && chi2_dof1[2] < 2000.0 && chi2_dof1[3] < 2000.0){
-     histo2->Fill5_4( dPhiP1[0][2][3],dPhiP1[1][2][3],pt1[1]*dPhiP1[0][2][3],pt1[1]*dPhiP1[1][2][3],
-		     fabs(EtaP1[0][2]),fabs(EtaP1[1][2]) );
-  }
-  if (dPhiP1[1][2][4]!=99.0 && chi2_dof1[2] < 2000.0 && chi2_dof1[4] < 2000.0){
-     histo2->Fill5_5( dPhiP1[0][2][4],dPhiP1[1][2][4],pt1[1]*dPhiP1[0][2][4],pt1[1]*dPhiP1[1][2][4],
-		     fabs(EtaP1[0][2]),fabs(EtaP1[1][2]) );
-  }
-  if (dPhiP1[1][3][4]!=99.0 && chi2_dof1[3] < 2000.0 && chi2_dof1[4] < 2000.0){
-     histo2->Fill5_6( dPhiP1[0][3][4],dPhiP1[1][3][4],pt1[1]*dPhiP1[0][3][4],pt1[1]*dPhiP1[1][3][4],
-		     fabs(EtaP1[0][3]),fabs(EtaP1[1][3]) );
-  }
-
+  HistoFill->FillCSCSegmentPair(histo2, pt1, chi2_dof1, dPhiP1, EtaP1 );
 
   /// For DT
   //  fill the information for DT pT parameterization from segment pair
   histo3 = h_dt;
-  if (dPhiP3[1][1][2]!=99.0 && chi2_dof3[1] < 2000.0 && chi2_dof3[2] < 2000.0){
-     histo3->Fill6_1( dPhiP3[0][1][2],dPhiP3[1][1][2],pt1[1]*dPhiP3[0][1][2],pt1[1]*dPhiP3[1][1][2],
-		     fabs(EtaP3[0][1]),fabs(EtaP3[1][1]) );
-  }
-  if (dPhiP3[1][1][3]!=99.0 && chi2_dof3[1] < 2000.0 && chi2_dof3[3] < 2000.0){
-     histo3->Fill6_2( dPhiP3[0][1][3],dPhiP3[1][1][3],pt1[1]*dPhiP3[0][1][3],pt1[1]*dPhiP3[1][1][3],
-		     fabs(EtaP3[0][1]),fabs(EtaP3[1][1]) );
-  }
-  if (dPhiP3[1][1][4]!=99.0 && chi2_dof3[1] < 2000.0 && chi2_dof3[4] < 2000.0){
-     histo3->Fill6_3( dPhiP3[0][1][4],dPhiP3[1][1][4],pt1[1]*dPhiP3[0][1][4],pt1[1]*dPhiP3[1][1][4],
-		     fabs(EtaP3[0][1]),fabs(EtaP3[1][1]) );
-  }
-  if (dPhiP3[1][2][3]!=99.0 && chi2_dof3[2] < 2000.0 && chi2_dof3[3] < 2000.0){
-     histo3->Fill6_4( dPhiP3[0][2][3],dPhiP3[1][2][3],pt1[1]*dPhiP3[0][2][3],pt1[1]*dPhiP3[1][2][3],
-		     fabs(EtaP3[0][2]),fabs(EtaP3[1][2]) );
-  }
-  if (dPhiP3[1][2][4]!=99.0 && chi2_dof3[2] < 2000.0 && chi2_dof3[4] < 2000.0){
-     histo3->Fill6_5( dPhiP3[0][2][4],dPhiP3[1][2][4],pt1[1]*dPhiP3[0][2][4],pt1[1]*dPhiP3[1][2][4],
-		     fabs(EtaP3[0][2]),fabs(EtaP3[1][2]) );
-  }
-  if (dPhiP3[1][3][4]!=99.0 && chi2_dof3[3] < 2000.0 && chi2_dof3[4] < 2000.0){
-     histo3->Fill6_6( dPhiP3[0][3][4],dPhiP3[1][3][4],pt1[1]*dPhiP3[0][3][4],pt1[1]*dPhiP3[1][3][4],
-		     fabs(EtaP3[0][3]),fabs(EtaP3[1][3]) );
-  }
-
-
-  //  Look at different Bxdl btw. stations & rings
-  /// All possible segment pairs in CSC 
-  ///                 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14   
-  int csc1[2][15]= {{ 1, 1,12,12,13, 1, 1,12,13, 1,21,21,22,21,31},
-                    {12,21,21,22,22,31,32,32,32,41,31,32,32,41,41}}; 
-  for (int l=0; l<15; l++) {
-      int s1 = csc1[0][l]/10; // 0 0 1 1 1 0 0 1 1 0 2 2 2 2 3
-      int r1 = csc1[0][l]%10; // 1 1 2 2 3 1 1 2 3 1 1 1 2 1 1
-      int s2 = csc1[1][l]/10; 
-      int r2 = csc1[1][l]%10;
-      if ( MEPath[1][s1][r1] && MEPath[1][s2][r2] && MEPath[0][s1][r1] && MEPath[0][s2][r2] ) {
-         double ME_Resol = dPhiP1[0][s1][s2]-dPhiP1[1][s1][s2];
-         histo4 = hME1[l];
-         histo4->Fill8(  (pt1[1]*dPhiP1[0][s1][s2]) ,dPhiP1[0][s1][s2] ,dEtaP1[0][s1][s2], fabs(EtaP1[0][s2]), pt1[1] );
-         histo4->Fill8a( (pt1[1]*dPhiP1[1][s1][s2]) ,dPhiP1[1][s1][s2] ,dEtaP1[1][s1][s2], fabs(EtaP1[1][s2]), pt1[1], ME_Resol );
-      }
-  }
+  HistoFill->FillDTSegmentPair(histo3, pt1, chi2_dof3, dPhiP3, EtaP3 );
   
   //  Look at different Bxdl btw. stations & rings
-  /// All possible segment pair in DT 
-  ///               0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
-  int dt1[2][26]={{10,10,10,10,10,11,11,11,11,11,11,12,12,20,20,20,21,21,21,21,22,22,30,31,31,32}
-                 ,{20,30,31,40,41,21,22,31,32,41,42,22,32,30,40,41,31,32,41,42,32,42,40,41,42,42}};
-  for (int l=0; l<26; l++) {
-      int s1 = dt1[0][l]/10;
-      int w1 = dt1[0][l]%10;
-      int s2 = dt1[1][l]/10;
-      int w2 = dt1[1][l]%10;
-       
-      if ( MBPath[1][s1][w1] && MBPath[1][s2][w2] && MBPath[0][s1][w1] && MBPath[0][s2][w2] ) {
-         double MB_Resol = dPhiP3[0][s1][s2]-dPhiP3[1][s1][s2];
-         if (s2!=4 ){
-            histo5 = hMB1[l];
-            histo5->Fill9( (pt1[1]*dPhiP3[0][s1][s2]), dPhiP3[0][s1][s2], dEtaP3[0][s1][s2], fabs(EtaP3[0][s2]), pt1[1] );
-            histo5->Fill9a((pt1[1]*dPhiP3[1][s1][s2]), dPhiP3[1][s1][s2], dEtaP3[1][s1][s2], fabs(EtaP3[1][s2]), pt1[1], MB_Resol );
-         }
-         if (s2==4 ){
-            histo5 = hMB1[l];
-            histo5->Fill9( (pt1[1]*dPhiP3[0][s1][s2]), dPhiP3[0][s1][s2], dEtaP3[0][s1][s2], fabs(EtaP3[0][s1]), pt1[1] );
-            histo5->Fill9a((pt1[1]*dPhiP3[1][s1][s2]), dPhiP3[1][s1][s2], dEtaP3[1][s1][s2], fabs(EtaP3[1][s1]), pt1[1], MB_Resol );
-         }
-      }
-  }
+  HistoFill->FillCSCSegmentPairByChamber(hME1, pt1, dPhiP1, EtaP1, MEPath, dEtaP1 );
 
-  //  Look at different Bxdl in overlap region
-  /// All possible segment pairs in overlap region 
-  ///              0  1  2  3  4  5   
-  int olp[2][6]={{12,12,12,22,22,32} 
-                ,{13,22,32,13,22,13}};
-  for (int l=0; l<6; l++) {
-      int s1 = olp[0][l]/10;
-      int w1 = olp[0][l]%10;
-      int s2 = olp[1][l]/10;
-      int w2 = olp[1][l]%10; 
-      if ( MBPath[1][s1][w1] && MEPath[1][s2][w2] ) {
-         double OL_Resol = dPhiP2[s1][s2]-dPhiP2[s1][s2];
-         histo10 = hOL1[l];
-         histo10->Fill12( (pt1[1]*dPhiP2[0][s1][s2]), dPhiP2[0][s1][s2], dEtaP2[0][s1][s2], fabs(EtaP3[0][s1]), pt1[1] );
-         histo10->Fill12a((pt1[1]*dPhiP2[1][s1][s2]), dPhiP2[1][s1][s2], dEtaP2[1][s1][s2], fabs(EtaP3[1][s1]), pt1[1], OL_Resol );
-      }
-  }
-  
-  // Fill  the 1 segment case for CSC and DT
-  int csc2[8] ={ 1,12,13,21,22,31,32,41};
-  for (int l=0; l<8; l++) {
-      int s1 = csc2[l]/10;
-      int r1 = csc2[l]%10;
-      if ( MEPath[1][s1][r1] && MEPath[0][s1][r1]) {
-         double dME_phi = ME_phi[1][s1][r1] - ME_phi[0][s1][r1];
-         double dME_eta = ME_eta[1][s1][r1] - ME_eta[0][s1][r1];
-         histo6 = hME2[l];
-         histo6->Fill8b( (pt1[1]*ME_phi[0][s1][r1]) ,ME_phi[0][s1][r1], ME_eta[0][s1][r1], pt1[1]);
-         histo6->Fill8c( (pt1[1]*ME_phi[1][s1][r1]) ,ME_phi[1][s1][r1], dME_phi , dME_eta, ME_eta[1][s1][r1] ,pt1[1]);
-      
-      }
-  }
+  HistoFill->FillDTSegmentPairByChamber(hMB1, pt1, dPhiP3, EtaP3, MBPath, dEtaP3 );
 
-  int dt2[12] ={10,11,12,20,21,22,30,31,32,40,41,42};
-  for (int l=0; l<12; l++) {
-      int s1 = dt2[l]/10;
-      int w1 = dt2[l]%10;
-      if ( MBPath[1][s1][w1] && MBPath[0][s1][w1] ) {
-         double dMB_phi = MB_phi[1][s1][w1] - MB_phi[0][s1][w1];
-         double dMB_eta = MB_eta[1][s1][w1] - MB_eta[0][s1][w1];
-         histo7 = hMB2[l];
-         histo7->Fill9b( (pt1[1]*MB_phi[0][s1][w1]) , MB_phi[0][s1][w1], MB_eta[0][s1][w1], pt1[1]);
-         histo7->Fill9c( (pt1[1]*MB_phi[1][s1][w1]) , MB_phi[1][s1][w1], dMB_phi , dMB_eta, MB_eta[1][s1][w1], pt1[1]);
+  HistoFill->FillOLSegmentPairByChamber(hOL1, pt1, dPhiP2, EtaP3, MBPath, MEPath, dEtaP2 ); 
 
-      }
-  }
+  HistoFill->FillCSCSegmentSingle(hME2, pt1, ME_phi, ME_eta, MEPath );
 
-  /// For reco-segment treea
+  HistoFill->FillDTSegmentSingle(hMB2, pt1, MB_phi, MB_eta, MBPath );
+
   /*
+  /// For reco-segment treea
   tt = tr_muon;
   if ( MEPath[1][1] && MEPath[1][2] && MEPath[1][3] ) {
       tt->Fill_b1(fabs(EtaP1[1][1]),fabs(EtaP1[1][2]),fabs(EtaP1[1][3]),fabs(EtaP1[1][4]), 
@@ -736,6 +582,7 @@ void MuonSeedParametrization::SimInfo(Handle<edm::SimTrackContainer> simTracks,
          theQ = 1.0;
       }
 
+
       float px = ((*simTk_It).momentum()).x();
       float py = ((*simTk_It).momentum()).y();
       float pz = ((*simTk_It).momentum()).z();
@@ -801,6 +648,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
                                            std::vector<SimSegment> seg) {
      
      /// get the global dphi from recHits for CSC
+     double Theta[2][5] ;
      for (int l=0; l<10; l++) {
         int i = l/2; // 0 0 1 1 2 2 3 3 4 4 
         int k = l%2; // 0 1 0 1 0 1 0 1 0 1
@@ -808,6 +656,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
 	EtaV1[k][i]=99.;
 	PhiP1[k][i]=99.;
 	EtaP1[k][i]=99.;
+        Theta[k][i]=99.;
         chi2_dof1[i]= -1.0;
         for (int j=0; j<5; j++) {
             dPhiV1[k][i][j]=99.;
@@ -826,12 +675,13 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
 	 GlobalVector gv = cscchamber->toGlobal( (*it).localDirection() );
 	 int st = DetId.station();
 	 int rg = DetId.ring();
-  
+
          if (st==1 && (rg ==1 || rg==4) ) {
             PhiV1[1][0] = gv.phi();
             EtaV1[1][0] = gv.eta();
             PhiP1[1][0] = gp.phi();
             EtaP1[1][0] = gp.eta();
+            Theta[1][0] = gp.theta();
             layer[0] =true;
             chi2_dof1[st] = (*it).chi2() / static_cast<double>((*it).degreesOfFreedom()); 
          }
@@ -840,6 +690,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
             EtaV1[1][st] = gv.eta();
             PhiP1[1][st] = gp.phi();
             EtaP1[1][st] = gp.eta();
+            Theta[1][st] = gp.theta();
             layer[st]=true;
             chi2_dof1[st] = (*it).chi2() / static_cast<double>((*it).degreesOfFreedom()); 
          }
@@ -850,17 +701,20 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
          GlobalVector gv = (*it).sGlobalVec;
          int st = (*it).csc_DetId.station();
          int rg = (*it).csc_DetId.ring();
+
          if (st==1 && (rg ==1 || rg==4) ) {
             PhiV1[0][0] = gv.phi();
             EtaV1[0][0] = gv.eta();
             PhiP1[0][0] = gp.phi();
             EtaP1[0][0] = gp.eta();
+            Theta[0][0] = gp.theta();
          }
          else {
             PhiV1[0][st] = gv.phi();
             EtaV1[0][st] = gv.eta();
             PhiP1[0][st] = gp.phi();
             EtaP1[0][st] = gp.eta();
+            Theta[0][st] = gp.theta();
          }
      }
      
@@ -870,9 +724,9 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
            int s1 = (l%4);    // 0  0,1  0,1,2  0,1,2,3
            int s2 = (l/4)+1;  // 1  2,2  3,3,3  4,4,4,4
            if ( layer[s1] && layer[s2] && (s1<s2) ) {
-  	      dPhiV1[m][s1][s2] = PhiV1[m][s1]-PhiV1[m][s2];  
+  	      dPhiV1[m][s1][s2] = (PhiV1[m][s1]-PhiV1[m][s2]);  
 	      dEtaV1[m][s1][s2] = EtaV1[m][s1]-EtaV1[m][s2];
-	      dPhiP1[m][s1][s2] = PhiP1[m][s1]-PhiP1[m][s2];  
+	      dPhiP1[m][s1][s2] = (PhiP1[m][s1]-PhiP1[m][s2]) ;  
 	      dEtaP1[m][s1][s2] = EtaP1[m][s1]-EtaP1[m][s2];
            }
         }
@@ -903,20 +757,20 @@ void MuonSeedParametrization::FromDTSeg( std::vector<DTRecSegment4D> dtSeg, ESHa
      // Fill the phi and eta of segment direction in different station
      for (std::vector<DTRecSegment4D>::const_iterator it = dtSeg.begin(); it != dtSeg.end(); it++) {
 
+         if ( !(*it).hasPhi() ) continue;
          DetId geoId = (*it).geographicalId();
 
          if ( (*it).hasPhi() && !(*it).hasZed() ) {
             const DTChamberRecSegment2D *phiSeg = (*it).phiSegment();
             geoId = (phiSeg)->geographicalId();
          }
-         if ( !(*it).hasPhi() ) continue;
 
-         DTChamberId DetId = DTChamberId( geoId );
-         const DTChamber* dtchamber = dtGeom->chamber( DetId );
+         DTChamberId cbId = DTChamberId( geoId );
+         const DTChamber* dtchamber = dtGeom->chamber( cbId );
 
          GlobalPoint  gp = dtchamber->toGlobal( (*it).localPosition() );
          GlobalVector gv = dtchamber->toGlobal( (*it).localDirection() );
-	 int st = DetId.station();
+	 int st = cbId.station();
 	 PhiV3[1][st] = gv.phi();
 	 EtaV3[1][st] = gv.eta();
 	 PhiP3[1][st] = gp.phi();
@@ -944,7 +798,7 @@ void MuonSeedParametrization::FromDTSeg( std::vector<DTRecSegment4D> dtSeg, ESHa
 	       dEtaV3[m][s1][s2] = EtaV3[m][s1]-EtaV3[m][s2];
 	       dPhiP3[m][s1][s2] = PhiP3[m][s1]-PhiP3[m][s2];  
 	       dEtaP3[m][s1][s2] = EtaP3[m][s1]-EtaP3[m][s2];
-               //cout <<" ---------------------- DT  ------------------------------------------------"<<endl;
+               //cout <<" ---------------------- DT "<<s1<<"_"<<s2<<"-------------------------------------"<<endl;
                //cout <<"dPhi from P = "<< PhiP3[m][s1] <<" - "<<PhiP3[m][s2]<<" = "<<dPhiP3[m][s1][s2]<<endl;
                //cout <<"dPhi from V = "<< PhiV3[m][s1] <<" - "<<PhiV3[m][s2]<<" = "<<dPhiV3[m][s1][s2]<<endl;
             }
