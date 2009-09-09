@@ -16,9 +16,6 @@ from DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff import *
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 SiStripMonitorDigi.Mod_On = False
 SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
-SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
-SiStripMonitorDigi.TProfTotalNumberOfDigis.xmin = 3600.0
-SiStripMonitorDigi.TProfTotalNumberOfDigis.xmax = 7200.0
 
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi import *
