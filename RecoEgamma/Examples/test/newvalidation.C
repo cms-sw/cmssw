@@ -8,6 +8,9 @@ TString val_ref_release = gSystem->Getenv("VAL_REF_RELEASE") ;
 TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
 TString val_analyzer = gSystem->Getenv("VAL_ANALYZER") ;
 
+TString val_web = gSystem->Getenv("VAL_WEB") ;
+TString val_web_url = gSystem->Getenv("VAL_WEB_URL") ;
+
 // style:
 TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
 eleStyle->SetCanvasBorderMode(0); 
@@ -50,68 +53,102 @@ eleStyle->cd();
   
 gROOT->ForceStyle();
 
+TString val_ref_file_url ;
 TFile * file_old = 0 ;
 if ( val_ref_file_name != "" )
- { file_old = TFile::Open(val_ref_file_name) ; }
+ {
+  file_old = TFile::Open(val_ref_file_name) ;
+  if ((file_old!=0)&&(val_ref_file_name.BeginsWith(val_web)==kTRUE))
+   {
+    val_ref_file_url = val_ref_file_name ;
+	val_ref_file_url.Remove(0,val_web.Length()) ;
+	val_ref_file_url.Prepend(val_web_url) ;
+   }
+ }
+TString val_new_file_url ;
 TFile * file_new = 0 ;
 if ( val_new_file_name != "" )
- { file_new = TFile::Open(val_new_file_name) ; }
+ {
+  file_new = TFile::Open(val_new_file_name) ;
+  if ((file_new!=0)&&(val_new_file_name.BeginsWith(val_web)==kTRUE))
+   {
+    val_new_file_url = val_new_file_name ;
+	val_new_file_url.Remove(0,val_web.Length()) ;
+	val_new_file_url.Prepend(val_web_url) ;
+   }
+ }
 
 TCanvas * canvas ;
 TH1 * histo_old, * histo_new ;
 Double_t nold, nnew ;
 
-std::ofstream web_page("validation.html") ;
+std::ofstream web_page("index.html") ;
+
 web_page
   <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n"
   <<"<html>\n"
   <<"<head>\n"
   <<"<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n"
-  <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<"<br>"<<DBS_SAMPLE<<"</title>\n"
+  <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<"</title>\n"
   <<"</head>\n"
-  <<"<h1>"<<val_new_release<<" vs "<<val_ref_release<<"<br>"<<DBS_SAMPLE<<"</h1>\n"
-  <<"<p>The following plots were made using analyzer "
-  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc\">"
-  <<"RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc"
-  <<"</a>\n"
-  <<"and configuration "
-  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py\">"
-  <<"RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py"
-  <<"</a>, with dataset "<<DBS_SAMPLE<<" as input.\n"
-  <<"<p>The script used to make the plots is "
-  <<"<a href=\"newvalidation.C\">here</a>.\n"
-  <<"<p>The list of histograms is <a href=\"histos.txt\">here</a>.\n" ;
-
+  <<"<h1><a href=\"../\">"<<val_new_release<<" vs "<<val_ref_release<<"</a> / "<<DBS_SAMPLE<<"</h1>\n" ;
+  
+web_page<<"<p>" ;
 if (file_old==0)
  {
   web_page
-	  <<"<p>In all plots below, "
-		<<" there was no "<<val_ref_release<<" histograms to compare with, "
-		<<" and the "<<val_new_release<<" histograms are in red.</p>\n" ;
+	 <<"In all plots below"
+	 <<", there was no "<<val_ref_release<<" histograms to compare with"
+     <<", and the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
+	 <<"." ;
  }
 else
  {
   web_page
-	  <<"<p>In all plots below, "
-		<<" there "<<val_ref_release<<" histograms are in blue, "
-		<<" and the "<<val_new_release<<" histograms are in red.</p>\n" ;
+	 <<"In all plots below"
+     <<", the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
+	 <<", and the <a href=\""<<val_ref_file_url<<"\">"<<val_ref_release<<" histograms</a> are in blue"
+	 <<"." ;
  }
+web_page
+  <<" They were made using analyzer "
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc\">"
+  <<"RecoEgamma/Examples/plugins/"<<val_analyzer<<".cc"
+  <<"</a> and configuration "
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py\">"
+  <<"RecoEgamma/Examples/test/"<<val_analyzer<<"_cfg.py"
+  <<"</a>, with dataset "<<DBS_SAMPLE<<" as input." ;
+web_page
+  <<" Some more details"
+  <<": <a href=\"newvalidation.C\">script</a> used to make the plots"
+  <<", <a href=\"histos.txt\">specification</a> of histograms"
+  <<", <a href=\"gifs/\">images</a> of histograms"
+  <<"." ;
+web_page<<"</p>\n" ;
 
 std::string histo_name, gif_name, canvas_name ;
+TString short_histo_name ;
 int scaled, log, err ;
 int divide;
 std::string num, denom;
 
-web_page<<"<br><br><hr><ul>" ;
 std::ifstream histo_file1("histos.txt") ;
+web_page<<"<br><hr><table cellpadding=\"5\" width=\"100%\"><tr valign=\"top\"><td width=\"20%\">\n" ;
+int histo_num = 0 ;
 while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
- { web_page<<"<li><a href=\"#"<<histo_name<<"\">"<<histo_name<<"</a></li>" ; }
+ {
+  if ((histo_num!=0)&&((histo_num%24)==0))
+   { web_page<<"</td><td width=\"20%\">\n" ; }
+  histo_num++ ;
+  short_histo_name = histo_name ;
+  short_histo_name.Remove(0,2) ;
+  web_page<<"<a href=\"#"<<short_histo_name<<"\">"<<short_histo_name<<"</a><br>\n" ;
+ }
+web_page<<"</td></tr></table><hr>\n" ;
 histo_file1.close() ;
-web_page<<"</ul>" ;
 
-web_page<<"<br><br><hr>" ;
 std::ifstream histo_file2("histos.txt") ;
-std::string histo_name, gif_name, canvas_name ;
+std::string gif_name, canvas_name ;
 int scaled, log, err ;
 int divide;
 std::string num, denom;
@@ -121,7 +158,9 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
   canvas_name = std::string("c")+histo_name ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
-  web_page<<"<br><br><a id=\""<<histo_name<<"\" name=\""<<histo_name<<"\"></a><p>" ;
+  short_histo_name = histo_name ;
+  short_histo_name.Remove(0,2) ;
+  web_page<<"<br><br><a id=\""<<short_histo_name<<"\" name=\""<<short_histo_name<<"\"></a><p>" ;
 
   if ( file_old != 0 )
    {

@@ -523,8 +523,8 @@ EOF
 endif
 
 
-#================= Generate the gifs and validation.html =====================
+#================= Generate the gifs and index.html =====================
 
 root -b -l -q newvalidation.C
 echo "You can view your validation plots here:"
-echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/validation.html"
+echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"
