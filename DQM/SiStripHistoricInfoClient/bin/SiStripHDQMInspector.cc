@@ -35,7 +35,7 @@ void runTrackingInspector( const string &tagName, const string & Password, const
   string condition = "369098752@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 436207616@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 402653184@Summary_TotalNumberOfClusters_OffTrack@entries > 10000 || 469762048@Summary_TotalNumberOfClusters_OffTrack@entries > 10000";
   string blackList = "109468";
 
-  // string siStripTracker = "268435456";
+  string siStripTracker = "268435456";
   vector<string> subDetectors;
   subDetectors.push_back("369098752"); // TIB (check)
   subDetectors.push_back("436207616"); // TOB (check)
@@ -91,33 +91,32 @@ void runTrackingInspector( const string &tagName, const string & Password, const
                           condition+"", "", Start, End, nRuns, 0, 7 ));
 
   // FED errors entries
-  config.push_back(Trend( multiItems(subDetectors, "nFEDErrors@entries"), "nFEDErrors.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nFEDErrors@entries", "nFEDErrors.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nBadActiveChannelStatusBits@entries"), "nBadActiveChannelStatusBits.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nBadActiveChannelStatusBits@entries", "nBadActiveChannelStatusBits.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nBadChannelStatusBits@entries"), "nBadChannelStatusBits.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nBadChannelStatusBits@entries", "nBadChannelStatusBits.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nAPVAddressError@entries"), "nAPVAddressError.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nAPVAddressError@entries", "nAPVAddressError.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nUnlocked@entries"), "nUnlocked.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nUnlocked@entries", "nUnlocked.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nOutOfSync@entries"), "nOutOfSync.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nOutOfSync@entries", "nOutOfSync.gif", 0,
                           condition, "", Start, End, nRuns ));
 
   // FED errors means
-  config.push_back(Trend( multiItems(subDetectors, "nFEDErrors@mean"), "nFEDErrors_mean.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nFEDErrors@mean", "nFEDErrors_mean.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nBadActiveChannelStatusBits@mean"), "nBadActiveChannelStatusBits_mean.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nBadActiveChannelStatusBits@mean", "nBadActiveChannelStatusBits_mean.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nBadChannelStatusBits@mean"), "nBadChannelStatusBits_mean.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nBadChannelStatusBits@mean", "nBadChannelStatusBits_mean.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nAPVAddressError@mean"), "nAPVAddressError_mean.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nAPVAddressError@mean", "nAPVAddressError_mean.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nUnlocked@mean"), "nUnlocked_mean.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nUnlocked@mean", "nUnlocked_mean.gif", 0,
                           condition, "", Start, End, nRuns ));
-  config.push_back(Trend( multiItems(subDetectors, "nOutOfSync@mean"), "nOutOfSync_mean.gif", 0,
+  config.push_back(Trend( siStripTracker+"@nOutOfSync@mean", "nOutOfSync_mean.gif", 0,
                           condition, "", Start, End, nRuns ));
-
 
   // Creation of trends
   for_each(config.begin(), config.end(), makeTrend);
