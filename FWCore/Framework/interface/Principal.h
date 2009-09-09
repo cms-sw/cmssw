@@ -2,7 +2,7 @@
 #define FWCore_Framework_Principal_h
 
 /*----------------------------------------------------------------------
-  
+
 Principal: This is the implementation of the classes responsible
 for management of EDProducts. It is not seen by reconstruction code.
 
@@ -19,6 +19,7 @@ pointer to a Group, when queried.
 ----------------------------------------------------------------------*/
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -46,7 +47,7 @@ namespace edm {
    struct FilledGroupPtr {
       bool operator()(boost::shared_ptr<Group> const& iObj) { return bool(iObj);}
    };
-   
+
   class Principal : public EDProductGetter {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupCollection;
@@ -65,7 +66,7 @@ namespace edm {
 
     virtual ~Principal();
 
-    void adjustToNewProductRegistry(ProductRegistry const& reg);
+    bool adjustToNewProductRegistry(ProductRegistry const& reg);
 
     void addGroupScheduled(boost::shared_ptr<ConstBranchDescription> bd);
 
@@ -93,13 +94,13 @@ namespace edm {
 			    size_t& cachedOffset,
 			    int& fillCount) const;
 
-    void getMany(TypeID const& tid, 
+    void getMany(TypeID const& tid,
 		 SelectorBase const&,
 		 BasicHandleVec& results) const;
 
     BasicHandle  getByType(TypeID const& tid) const;
 
-    void getManyByType(TypeID const& tid, 
+    void getManyByType(TypeID const& tid,
 		 BasicHandleVec& results) const;
 
     // Return a BasicHandle to the product which:
@@ -112,7 +113,7 @@ namespace edm {
 			        SelectorBase const& selector,
 			        BasicHandle& result) const;
 
-    ProcessHistory const& processHistory() const;    
+    ProcessHistory const& processHistory() const;
 
     ProcessConfiguration const& processConfiguration() const {return *processConfiguration_;}
 
@@ -123,7 +124,7 @@ namespace edm {
     void addToProcessHistory() const;
 
     // merge Principals containing different groups.
-    void recombine(Principal & other, std::vector<BranchID> const& bids);
+    void recombine(Principal& other, std::vector<BranchID> const& bids);
 
     size_t size() const;
 
@@ -133,7 +134,7 @@ namespace edm {
 
     Provenance getProvenance(BranchID const& bid) const;
 
-    void getAllProvenance(std::vector<Provenance const*> & provenances) const;
+    void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     BranchType const& branchType() const {return branchType_;}
 
@@ -159,7 +160,7 @@ namespace edm {
                                         bool resolveProd,
                                         bool resolveProv,
                                         bool fillOnDemand) const;
-     
+
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
     // Make my DelayedReader get the EDProduct for a Group or
@@ -172,6 +173,10 @@ namespace edm {
     void resolveProvenance(Group const& g) const {resolveProvenance_(g);}
 
     void swapBase(Principal&);
+
+    // throws if the pointed to product is already in the Principal.
+    void checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, Group const* group) const;
+
   private:
     virtual EDProduct const* getIt(ProductID const&) const;
 
@@ -209,7 +214,6 @@ namespace edm {
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProvenance_(Group const& g) const {}
 
-
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
     ProcessConfiguration const* processConfiguration_;
@@ -230,13 +234,16 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
-     
+
+    // Used to check for duplicates.  The same product instance must not be in more than one group.
+    mutable std::set<EDProduct *> productPtrs_;
+
     BranchType branchType_;
   };
 
   template <typename PROD>
   inline
-  boost::shared_ptr<Wrapper<PROD> const> 	 
+  boost::shared_ptr<Wrapper<PROD> const>
   getProductByTag(Principal const& ep, InputTag const& tag) {
     TypeID tid = TypeID(typeid(PROD));
     ep.maybeFlushCache(tid, tag);

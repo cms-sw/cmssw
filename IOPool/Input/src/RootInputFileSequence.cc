@@ -243,7 +243,7 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
-      cache.adjustToNewProductRegistry(*productRegistry());
+      cache.adjustEventToNewProductRegistry(productRegistry());
     }
     return true;
   }
@@ -269,7 +269,7 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
-      cache.adjustToNewProductRegistry(*productRegistry());
+      cache.adjustEventToNewProductRegistry(productRegistry());
     }
     if(rootFile_) rootFile_->setToLastEntry();
     return true;

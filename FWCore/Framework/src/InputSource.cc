@@ -247,7 +247,7 @@ namespace edm {
       return;
     }
     RunSourceSentry(*this);
-    bool merged = principalCache_->merge(runAuxiliary());
+    bool merged = principalCache_->merge(runAuxiliary(), productRegistry_);
     if (!merged) {
       boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration()));
       principalCache_->insert(rp);
@@ -271,7 +271,7 @@ namespace edm {
       return;
     }
     LumiSourceSentry(*this);
-    bool merged = principalCache_->merge(luminosityBlockAuxiliary());
+    bool merged = principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
     if (!merged) {
       boost::shared_ptr<LuminosityBlockPrincipal> lb(
 	new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),

@@ -11,6 +11,16 @@ namespace edm {
 	run_(new Run(lbp.runPrincipal(), md)) {
   }
 
+  struct deleter {
+    void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const {delete p.first;}
+  };
+
+  LuminosityBlock::~LuminosityBlock() {
+    // anything left here must be the result of a failure
+    // let's record them as failed attempts in the event principal
+    for_all(putProducts_, deleter());
+  }
+
   LuminosityBlockPrincipal &
   LuminosityBlock::luminosityBlockPrincipal() {
     return dynamic_cast<LuminosityBlockPrincipal &>(provRecorder_.principal());
@@ -46,7 +56,10 @@ namespace edm {
 	std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	lbp.put(*pit->second, pit->first, lumiEntryInfoPtr);
+        std::auto_ptr<EDProduct> pr(pit->first);
+        // Ownership has passed, so clear the pointer.
+        pit->first = 0;
+	lbp.put(*pit->second, pr, lumiEntryInfoPtr);
 	++pit;
     }
 

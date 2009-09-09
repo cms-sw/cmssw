@@ -117,12 +117,12 @@ namespace edm {
 
     void put(
 	ConstBranchDescription const& bd,
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	std::auto_ptr<ProductProvenance> productProvenance);
 
     void putOnRead(
 	ConstBranchDescription const& bd,
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	std::auto_ptr<ProductProvenance> productProvenance);
 
     virtual EDProduct const* getIt(ProductID const& pid) const;

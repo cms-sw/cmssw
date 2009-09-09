@@ -80,7 +80,7 @@ namespace edm {
   void 
   EventPrincipal::put(
 	ConstBranchDescription const& bd,
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
@@ -92,6 +92,7 @@ namespace edm {
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
+    checkUniquenessAndType(edp, g);
     // Group assumes ownership
     g->putProduct(edp, productProvenance);
   }
@@ -99,16 +100,18 @@ namespace edm {
   void 
   EventPrincipal::putOnRead(
 	ConstBranchDescription const& bd,
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(!bd.produced());
-    ProductID pid = branchIDToProductID(bd.branchID());
     branchMapperPtr()->insert(*productProvenance);
-    Group *g = getExistingGroup(bd.branchID());
-    assert(g);
-    // Group assumes ownership
-    g->putProduct(edp, productProvenance);
+    if (edp.get() != 0) {
+      Group *g = getExistingGroup(bd.branchID());
+      assert(g);
+      checkUniquenessAndType(edp, g);
+      // Group assumes ownership
+      g->putProduct(edp, productProvenance);
+    }
   }
 
   void
@@ -127,10 +130,11 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    boost::shared_ptr<EDProduct> edp(store()->getProduct(bk, this));
+    std::auto_ptr<EDProduct> edp(store()->getProduct(bk, this));
 
     // Now fix up the Group
     if (edp.get() != 0) {
+      checkUniquenessAndType(edp, &g);
       g.putProduct(edp);
     }
   }

@@ -142,18 +142,27 @@ namespace edm {
     return currentLumiPrincipal_;
   }
 
-  bool PrincipalCache::merge(boost::shared_ptr<RunAuxiliary> aux) {
+  bool PrincipalCache::merge(boost::shared_ptr<RunAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg) {
     int run = aux->run();
     RunIterator iter = runPrincipals_.find(run); 
     if (iter == runPrincipals_.end()) {
       return false;
     }
-    iter->second->mergeAuxiliary(*aux);
+    bool runOK = iter->second->adjustToNewProductRegistry(*reg);
+    if (runOK) {
+      iter->second->mergeAuxiliary(*aux);
+    } else {
+      boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(aux, reg, iter->second->processConfiguration()));
+      rp->fillFrom(*iter->second);
+      iter->second = rp;
+      runOK = iter->second->adjustToNewProductRegistry(*reg);
+      assert(runOK);
+    }
     currentRunPrincipal_ = iter->second;
     return true;
   }
 
-  bool PrincipalCache::merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux) {
+  bool PrincipalCache::merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg) {
     int run = aux->run();
     int lumi = aux->luminosityBlock();
     LumiKey key(run, lumi);
@@ -161,7 +170,20 @@ namespace edm {
     if (iter == lumiPrincipals_.end()) {
       return false;
     }
-    iter->second->mergeAuxiliary(*aux);
+    bool lumiOK = iter->second->adjustToNewProductRegistry(*reg);
+    if (lumiOK) {
+      iter->second->mergeAuxiliary(*aux);
+    } else {
+      boost::shared_ptr<LuminosityBlockPrincipal> lbp(
+        new LuminosityBlockPrincipal(aux,
+				     reg,
+				     iter->second->processConfiguration(),
+				     currentRunPrincipal_));
+        lbp->fillFrom(*iter->second);
+        iter->second = lbp;
+        lumiOK = iter->second->adjustToNewProductRegistry(*reg);
+	assert(lumiOK);
+    }
     currentLumiPrincipal_ = iter->second;
     return true;
   }
@@ -218,13 +240,10 @@ namespace edm {
     lumiPrincipals_.erase(lumiPrincipals_.find(LumiKey(run, lumi)));
   }
 
-  void PrincipalCache::adjustToNewProductRegistry(ProductRegistry const& reg) {
-    eventPrincipal_->adjustToNewProductRegistry(reg);
-    for (LumiIterator i = lumiPrincipals_.begin(), iEnd = lumiPrincipals_.end(); i != iEnd; ++i) {
-      i->second->adjustToNewProductRegistry(reg);
-    }
-    for (RunIterator i = runPrincipals_.begin(), iEnd = runPrincipals_.end(); i != iEnd; ++i) {
-      i->second->adjustToNewProductRegistry(reg);
+  void PrincipalCache::adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
+    bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
+    if (!eventOK) {
+      eventPrincipal_.reset(new EventPrincipal(reg, eventPrincipal_->processConfiguration()));
     }
   }
 }

@@ -5,7 +5,7 @@
 //
 // Package:     Framework
 // Class  :     LuminosityBlock
-// 
+//
 /**\class LuminosityBlock LuminosityBlock.h FWCore/Framework/interface/LuminosityBlock.h
 
 Description: This is the primary interface for accessing per luminosity block EDProducts
@@ -29,11 +29,10 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 namespace edm {
 
-  class LuminosityBlock
-  {
+  class LuminosityBlock {
   public:
     LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md);
-    ~LuminosityBlock() {}
+    ~LuminosityBlock();
 
     // AUX functions.
     LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
@@ -50,36 +49,36 @@ namespace edm {
     Timestamp const& endTime() const {return aux_.endTime();}
 
     template <typename PROD>
-    bool 
+    bool
     get(SelectorBase const&, Handle<PROD>& result) const;
-    
+
     template <typename PROD>
-    bool 
+    bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
-    
+
     template <typename PROD>
-    bool 
+    bool
     getByLabel(std::string const& label,
-               std::string const& productInstanceName, 
+               std::string const& productInstanceName,
                Handle<PROD>& result) const;
-    
-    /// same as above, but using the InputTag class 	 
-    template <typename PROD> 	 
-    bool 	 
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
-    
+
+    /// same as above, but using the InputTag class 	
+    template <typename PROD> 	
+    bool 	
+    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	
+
     template <typename PROD>
-    void 
+    void
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
-    
+
     template <typename PROD>
     bool
     getByType(Handle<PROD>& result) const;
-    
+
     template <typename PROD>
-    void 
+    void
     getManyByType(std::vector<Handle<PROD> >& results) const;
-     
+
     Run const&
     getRun() const {
       return *run_;
@@ -99,7 +98,7 @@ namespace edm {
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*> &provenances) const;
+    getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     ProcessHistory const&
     processHistory() const;
@@ -108,13 +107,13 @@ namespace edm {
     LuminosityBlockPrincipal const&
     luminosityBlockPrincipal() const;
 
-    LuminosityBlockPrincipal &
+    LuminosityBlockPrincipal&
     luminosityBlockPrincipal();
 
-    typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
-    ProductPtrVec & putProducts() {return putProducts_;}
+    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+    ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
-    
+
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -136,8 +135,7 @@ namespace edm {
 
   template <typename PROD>
   void
-  LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
-  {
+  LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       throw edm::Exception(edm::errors::NullPointerError)
@@ -148,8 +146,8 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value, 
-      DoPostInsert<PROD>, 
+    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
+      DoPostInsert<PROD>,
       DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
@@ -163,51 +161,51 @@ namespace edm {
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.
   }
-  
+
   template <typename PROD>
-  bool 
+  bool
   LuminosityBlock::get(SelectorBase const& sel, Handle<PROD>& result) const {
     return provRecorder_.get(sel,result);
   }
-  
+
   template <typename PROD>
-  bool 
+  bool
   LuminosityBlock::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label,result);
   }
-  
+
   template <typename PROD>
-  bool 
+  bool
   LuminosityBlock::getByLabel(std::string const& label,
-                  std::string const& productInstanceName, 
+                  std::string const& productInstanceName,
                   Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label,productInstanceName,result);
   }
-  
-  /// same as above, but using the InputTag class 	 
-  template <typename PROD> 	 
-  bool 	 
+
+  /// same as above, but using the InputTag class 	
+  template <typename PROD> 	
+  bool 	
   LuminosityBlock::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(tag,result);
   }
-  
+
   template <typename PROD>
-  void 
+  void
   LuminosityBlock::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getMany(sel,results);
   }
-  
+
   template <typename PROD>
   bool
   LuminosityBlock::getByType(Handle<PROD>& result) const {
     return provRecorder_.getByType(result);
   }
-  
+
   template <typename PROD>
-  void 
+  void
   LuminosityBlock::getManyByType(std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getManyByType(results);
   }
-  
+
 }
 #endif

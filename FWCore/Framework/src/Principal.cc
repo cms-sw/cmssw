@@ -1,5 +1,4 @@
 /**----------------------------------------------------------------------
-    clearPrincipal();
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -33,6 +32,7 @@ namespace edm {
     preg_(reg),
     branchMapperPtr_(),
     store_(),
+    productPtrs_(),
     branchType_(bt) {
     //Now that these have been set, we can create the list of Branches we need.
     std::string const source("source");
@@ -77,27 +77,27 @@ namespace edm {
     return size;
   }
 
-  //Reset provenance for input groups after new input file has been merged
-  void
+  //adjust provenance for input groups after new input file has been merged
+  bool
   Principal::adjustToNewProductRegistry(ProductRegistry const& reg) {
     if(reg.constProductList().size() > groups_.size()) {
-      groups_.resize(reg.constProductList().size(), SharedGroupPtr());
+      return false;
     }
     ProductRegistry::ProductList const& prodsList = reg.productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
           itProdInfoEnd = prodsList.end();
         itProdInfo != itProdInfoEnd;
         ++itProdInfo) {
-      if (!itProdInfo->second.produced() && (itProdInfo->second.branchType() == branchType_)) {
+    if (!itProdInfo->second.produced() && (itProdInfo->second.branchType() == branchType_)) {
         boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
         Group *g = getExistingGroup(itProdInfo->second.branchID());
-        if(g != 0) {
-          g->resetBranchDescription(bd);
-        } else {
-          addGroupInput(bd);
+	if (g == 0 || g->branchDescription().branchName() != bd->branchName()) {
+	    return false;
         }
+        g->resetBranchDescription(bd);
       }
     }
+    return true;
   }
 
   void
@@ -124,6 +124,7 @@ namespace edm {
     addGroupOrThrow(g);
   }
 
+  // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
     processHistoryModified_ = false;
@@ -133,8 +134,10 @@ namespace edm {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       (*i)->resetGroupData();
     }
+    productPtrs_.clear();
   }
 
+  // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, boost::shared_ptr<DelayedReader> rtrv) {
     branchMapperPtr_ = mapper;
@@ -166,7 +169,7 @@ namespace edm {
     return g;
   }
 
-  void 
+  void
   Principal::addGroup_(std::auto_ptr<Group> group) {
     ConstBranchDescription const& bd = group->branchDescription();
     assert (!bd.className().empty());
@@ -174,7 +177,7 @@ namespace edm {
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     SharedGroupPtr g(group);
-    
+
     ProductTransientIndex index = preg_->indexFrom(bd.branchID());
     assert(index != ProductRegistry::kInvalidIndex);
     groups_[index] = g;
@@ -233,12 +236,12 @@ namespace edm {
     if(index == ProductRegistry::kInvalidIndex){
        return SharedConstGroupPtr();
     }
-    return getGroupByIndex(index, resolveProd, resolveProv, fillOnDemand); 
+    return getGroupByIndex(index, resolveProd, resolveProv, fillOnDemand);
   }
-   
+
   Principal::SharedConstGroupPtr const
   Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
-    
+
     SharedConstGroupPtr const& g = groups_[index];
     if (0 == g.get()) {
       return g;
@@ -261,7 +264,7 @@ namespace edm {
   }
 
   BasicHandle
-  Principal::getBySelector(TypeID const& productType, 
+  Principal::getBySelector(TypeID const& productType,
 			   SelectorBase const& sel) const {
     BasicHandle result;
 
@@ -294,7 +297,7 @@ namespace edm {
 			int& fillCount) const {
 
     BasicHandle result;
-    
+
     bool found = findGroupByLabel(productType,
                                   preg_->productLookup(),
                                   label,
@@ -316,10 +319,10 @@ namespace edm {
     }
     return result;
   }
- 
 
-  void 
-  Principal::getMany(TypeID const& productType, 
+
+  void
+  Principal::getMany(TypeID const& productType,
 		     SelectorBase const& sel,
 		     BasicHandleVec& results) const {
 
@@ -357,8 +360,8 @@ namespace edm {
     return result;
   }
 
-  void 
-  Principal::getManyByType(TypeID const& productType, 
+  void
+  Principal::getManyByType(TypeID const& productType,
 			   BasicHandleVec& results) const {
 
     MatchAllSelector sel;
@@ -400,11 +403,11 @@ namespace edm {
     }
 
     results.reserve(range.second - range.first);
-    
+
     for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
-        
+
       if(selector.match(*(it->branchDescription()))) {
-        
+
         //now see if the data is actually available
         SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
         // Skip product if not available.
@@ -448,9 +451,9 @@ namespace edm {
         //this is for a less recent process and we've already found a match for a more recent process
         continue;
       }
-        
+
       if(selector.match(*(it->branchDescription()))) {
-        
+
         //now see if the data is actually available
         SharedConstGroupPtr const& group = getGroupByIndex(it->index(), false, false, false);
         // Skip product if not available.
@@ -489,7 +492,7 @@ namespace edm {
     assert(!result.isValid());
 
     typedef TransientProductLookupMap TypeLookup;
-    bool isCached = (fillCount > 0  && fillCount == typeLookup.fillCount());
+    bool isCached = (fillCount > 0 && fillCount == typeLookup.fillCount());
     bool toBeCached = (fillCount >= 0 && !isCached);
 
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> range =
@@ -607,7 +610,7 @@ namespace edm {
   // No attempt to trigger on demand execution
   // Skips provenance when the EDProduct is not there
   void
-  Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
+  Principal::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if ((*i)->provenanceAvailable()) {
@@ -621,7 +624,7 @@ namespace edm {
   }
 
   void
-  Principal::recombine(Principal & other, std::vector<BranchID> const& bids) {
+  Principal::recombine(Principal& other, std::vector<BranchID> const& bids) {
     for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
       ProductTransientIndex index= preg_->indexFrom(*it);
       assert(index!=ProductRegistry::kInvalidIndex);
@@ -650,6 +653,18 @@ namespace edm {
       tag.branchType() = branchType();
       tag.productRegistry() = &productRegistry();
     }
+  }
+
+  void
+  Principal::checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, Group const* g) const {
+/*
+    bool alreadyPresent = !productPtrs_.insert(prod.get()).second;
+    if (alreadyPresent) {
+      g->checkType(*prod.release());
+      throw 0;
+    }
+    g->checkType(*prod);
+*/
   }
 
   void

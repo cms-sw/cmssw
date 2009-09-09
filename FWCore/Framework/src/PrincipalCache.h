@@ -65,12 +65,12 @@ namespace edm {
     EventPrincipal& eventPrincipal() {return *eventPrincipal_;}
     EventPrincipal const& eventPrincipal() const {return *eventPrincipal_;}
 
-    bool merge(boost::shared_ptr<RunAuxiliary> aux);
-    bool merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux);
+    bool merge(boost::shared_ptr<RunAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
+    bool merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
 
     bool insert(boost::shared_ptr<RunPrincipal> rp);
     bool insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
-    void insert(EventPrincipal& ep) {eventPrincipal_ = &ep;}
+    void insert(boost::shared_ptr<EventPrincipal> ep) {eventPrincipal_ = ep;}
 
     bool noMoreRuns();
     bool noMoreLumis();
@@ -84,7 +84,7 @@ namespace edm {
     void deleteRun(int run);
     void deleteLumi(int run, int lumi);
 
-    void adjustToNewProductRegistry(ProductRegistry const& reg);
+    void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
 
   private:
 
@@ -96,7 +96,7 @@ namespace edm {
     std::map<int, boost::shared_ptr<RunPrincipal> > runPrincipals_;
     std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> > lumiPrincipals_;
 
-    EventPrincipal* eventPrincipal_;
+    boost::shared_ptr<EventPrincipal> eventPrincipal_;
     boost::shared_ptr<RunPrincipal> currentRunPrincipal_;
     boost::shared_ptr<LuminosityBlockPrincipal> currentLumiPrincipal_;
   };

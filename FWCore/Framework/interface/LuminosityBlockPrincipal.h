@@ -41,6 +41,8 @@ namespace edm {
 	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
+    void fillFrom(LuminosityBlockPrincipal& lbp);
+
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
     }
@@ -85,7 +87,7 @@ namespace edm {
 
     void put(
 	ConstBranchDescription const& bd,
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	std::auto_ptr<ProductProvenance> productProvenance);
 
     void readImmediate() const;

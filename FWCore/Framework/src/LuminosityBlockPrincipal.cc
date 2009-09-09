@@ -27,10 +27,22 @@ namespace edm {
     mapper->processHistoryID() = processHistoryID();
   }
 
+  void
+  LuminosityBlockPrincipal::fillFrom(LuminosityBlockPrincipal& lbp) {
+    fillLuminosityBlockPrincipal(lbp.branchMapperPtr(), lbp.store());
+    mergeAuxiliary(lbp.aux());
+     for(const_iterator i = lbp.begin(), iEnd = lbp.end(); i != iEnd; ++i) {
+       Group& group = **i;
+       Group *g = getExistingGroup(group);
+       assert(g);
+       g->swap(group);
+     }
+  }
+
   void 
   LuminosityBlockPrincipal::put(
 	ConstBranchDescription const& bd,
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
@@ -42,6 +54,7 @@ namespace edm {
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
+    checkUniquenessAndType(edp, g);
     // Group assumes ownership
     g->putOrMergeProduct(edp, productProvenance);
   }
@@ -68,10 +81,11 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.branchDescription());
-    boost::shared_ptr<EDProduct> edp(store()->getProduct(bk, this));
+    std::auto_ptr<EDProduct> edp(store()->getProduct(bk, this));
 
     // Now fix up the Group
     if (edp.get() != 0) {
+      checkUniquenessAndType(edp, &g);
       g.putOrMergeProduct(edp);
     }
   }

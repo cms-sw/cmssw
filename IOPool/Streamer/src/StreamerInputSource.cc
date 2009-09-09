@@ -7,6 +7,7 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
@@ -234,6 +235,9 @@ namespace edm {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
      ProcessConfigurationVector const& pcv = sd->processConfigurations();
      mergeIntoRegistry(*sd, productRegistryUpdate(), subsequent);
+     if (subsequent) {
+       principalCache().adjustEventToNewProductRegistry(productRegistry());
+     }
      SendJobHeader::ParameterSetMap const & psetMap = sd->processParameterSet();
      pset::Registry& psetRegistry = *pset::Registry::instance();
      for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
@@ -347,13 +351,13 @@ namespace edm {
 				*spi->parents()));
 
         if(spi->prod() != 0) {
-          boost::shared_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
+          std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
           eventPrincipalCache()->putOnRead(branchDesc, aprod, productProvenance);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
-          eventPrincipalCache()->putOnRead(branchDesc, boost::shared_ptr<EDProduct>(), productProvenance);
+          eventPrincipalCache()->putOnRead(branchDesc, std::auto_ptr<EDProduct>(), productProvenance);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();

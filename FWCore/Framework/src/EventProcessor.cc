@@ -710,7 +710,7 @@ namespace edm {
 
   bool
   EventProcessor::doOneEvent(EventID const& id) {
-    EventPrincipal ep(preg_, *processConfiguration_);
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_));
     principalCache_.insert(ep);
     EventPrincipal* pep = 0;
     try {
@@ -728,9 +728,9 @@ namespace edm {
       }
     }
     if (pep != 0) {
-      IOVSyncValue ts(ep.id(), ep.luminosityBlock(), ep.time());
+      IOVSyncValue ts(ep->id(), ep->luminosityBlock(), ep->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(ep, es);
+      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*ep, es);
     }
     return (pep != 0);
   }
@@ -1380,7 +1380,7 @@ namespace edm {
   EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
 
     // Reusable event principal
-    EventPrincipal ep(preg_, *processConfiguration_);
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_));
     principalCache_.insert(ep);
 
     beginJob(); //make sure this was called

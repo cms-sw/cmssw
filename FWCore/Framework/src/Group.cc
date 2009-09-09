@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using Reflex::Type;
@@ -22,10 +23,10 @@ namespace edm {
 
   void
   ProducedGroup::putProduct_(
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(branchDescription().produced());
-    assert(edp);
+    assert(edp.get() != 0);
     assert(!product());
     assert(!productProvenancePtr());
     assert(status() != Present);
@@ -38,7 +39,7 @@ namespace edm {
 
   void
   ProducedGroup::putOrMergeProduct_(
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
     if (productUnavailable()) {
       putProduct_(edp, productProvenance);
@@ -52,12 +53,12 @@ namespace edm {
   }
 
   void
-  ProducedGroup::putOrMergeProduct_(boost::shared_ptr<EDProduct> edp) const {
+  ProducedGroup::putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const {
     assert(0);
   }
 
   void
-  ProducedGroup::putProduct_(boost::shared_ptr<EDProduct> edp) const {
+  ProducedGroup::putProduct_(std::auto_ptr<EDProduct> edp) const {
     assert(0);
   }
 
@@ -67,7 +68,7 @@ namespace edm {
 
   void
   InputGroup::putProduct_(
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(!product());
     assert(!productProvenancePtr());
@@ -80,18 +81,13 @@ namespace edm {
 
   void
   InputGroup::putOrMergeProduct_(
-	boost::shared_ptr<EDProduct> edp,
+	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
-    if (branchDescription().branchType() == InEvent || productUnavailable()) {
-      putProduct_(edp, productProvenance);
-    } else {
-      mergeProduct(edp);
-    }
-    updateStatus();
+    assert(0);
   }
 
   void
-  InputGroup::putOrMergeProduct_(boost::shared_ptr<EDProduct> edp) const {
+  InputGroup::putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const {
     if (!product()) {
       setProduct(edp);
     } else {
@@ -101,7 +97,7 @@ namespace edm {
   }
 
   void
-  InputGroup::putProduct_(boost::shared_ptr<EDProduct> edp) const {
+  InputGroup::putProduct_(std::auto_ptr<EDProduct> edp) const {
     assert(!product());
     setProduct(edp);
     updateStatus();
@@ -117,9 +113,7 @@ namespace edm {
   }
 
   void
-  Group::mergeProduct(boost::shared_ptr<EDProduct> edp) const {
-  assert(product());
-  assert(edp);
+  Group::mergeProduct(std::auto_ptr<EDProduct> edp) const {
   if (product()->isMergeable()) {
     product()->mergeProduct(edp.get());
   } else if (product()->hasIsProductEqual()) {
@@ -146,15 +140,20 @@ namespace edm {
   }
 
   void
-  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
-    assert (!product());
-    groupData().product_.reset(prod.release());  // Group takes ownership
+  GroupData::checkType(EDProduct const& prod) const {
+    if(TypeID(prod).className() != branchDescription_->wrappedName()) {
+	std::string name(TypeID(prod).className());
+	throw edm::Exception(errors::EventCorruption)
+	  << "Product on branch " << branchDescription_->branchName() << " is of wrong type.\n"
+	  << "It is supposed to be of type " << branchDescription_->wrappedName() << ".\n"
+	  << "It is actually of type " << name << ".\n";
+    }
   }
 
   void
-  Group::setProduct(boost::shared_ptr<EDProduct> prod) const {
+  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
     assert (!product());
-    groupData().product_ = prod;  // Group takes ownership
+    groupData().product_.reset(prod.release());  // Group takes ownership
   }
 
   void

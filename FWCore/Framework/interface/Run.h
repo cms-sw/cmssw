@@ -5,7 +5,7 @@
 //
 // Package:     Framework
 // Class  :     Run
-// 
+//
 /**\class Run Run.h FWCore/Framework/interface/Run.h
 
 Description: This is the primary interface for accessing per run EDProducts and inserting new derived products.
@@ -25,11 +25,10 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 
 namespace edm {
 
-  class Run
-  {
+  class Run {
   public:
     Run(RunPrincipal& rp, ModuleDescription const& md);
-    ~Run(){}
+    ~Run();
 
     typedef PrincipalGetAdapter Base;
     // AUX functions.
@@ -39,36 +38,36 @@ namespace edm {
     Timestamp const& endTime() const {return aux_.endTime();}
 
     template <typename PROD>
-    bool 
+    bool
     get(SelectorBase const&, Handle<PROD>& result) const;
-    
+
     template <typename PROD>
-    bool 
+    bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;
-    
+
     template <typename PROD>
-    bool 
+    bool
     getByLabel(std::string const& label,
-	       std::string const& productInstanceName, 
+	       std::string const& productInstanceName,
 	       Handle<PROD>& result) const;
-    
-    /// same as above, but using the InputTag class 	 
-    template <typename PROD> 	 
-    bool 	 
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
-    
+
+    /// same as above, but using the InputTag class
     template <typename PROD>
-    void 
+    bool
+    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+
+    template <typename PROD>
+    void
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
-    
+
     template <typename PROD>
     bool
     getByType(Handle<PROD>& result) const;
-    
+
     template <typename PROD>
-    void 
+    void
     getManyByType(std::vector<Handle<PROD> >& results) const;
-    
+
     ///Put a new product.
     template <typename PROD>
     void
@@ -83,7 +82,7 @@ namespace edm {
     getProvenance(BranchID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*> &provenances) const;
+    getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     // Return true if this Run has been subjected to a process with
     // the given processName, and false otherwise.
@@ -102,13 +101,13 @@ namespace edm {
     RunPrincipal const&
     runPrincipal() const;
 
-    RunPrincipal &
+    RunPrincipal&
     runPrincipal();
 
-    typedef std::vector<std::pair<boost::shared_ptr<EDProduct>, ConstBranchDescription const*> >  ProductPtrVec;
-    ProductPtrVec & putProducts() {return putProducts_;}
+    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const*> > ProductPtrVec;
+    ProductPtrVec& putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
-    
+  
     // commit_() is called to complete the transaction represented by
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
@@ -141,8 +140,8 @@ namespace edm {
 
     // The following will call post_insert if T has such a function,
     // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value, 
-      DoPostInsert<PROD>, 
+    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
+      DoPostInsert<PROD>,
       DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
@@ -158,49 +157,49 @@ namespace edm {
   }
 
   template <typename PROD>
-  bool 
+  bool
   Run::get(SelectorBase const& sel, Handle<PROD>& result) const {
     return provRecorder_.get(sel,result);
   }
-  
+
   template <typename PROD>
-  bool 
+  bool
   Run::getByLabel(std::string const& label, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label,result);
   }
-  
+
   template <typename PROD>
-  bool 
+  bool
   Run::getByLabel(std::string const& label,
-                  std::string const& productInstanceName, 
+                  std::string const& productInstanceName,
                   Handle<PROD>& result) const {
     return provRecorder_.getByLabel(label,productInstanceName,result);
   }
-  
-  /// same as above, but using the InputTag class 	 
-  template <typename PROD> 	 
-  bool 	 
+
+  /// same as above, but using the InputTag class
+  template <typename PROD>
+  bool
   Run::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(tag,result);
   }
-  
+
   template <typename PROD>
-  void 
+  void
   Run::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getMany(sel,results);
   }
-  
+
   template <typename PROD>
   bool
   Run::getByType(Handle<PROD>& result) const {
     return provRecorder_.getByType(result);
   }
-  
+
   template <typename PROD>
-  void 
+  void
   Run::getManyByType(std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getManyByType(results);
   }
-  
+
 }
 #endif

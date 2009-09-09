@@ -14,12 +14,22 @@ namespace edm {
 	aux_(rp.aux()) {
   }
 
-  RunPrincipal &
-  Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal &>(provRecorder_.principal());
+  struct deleter {
+    void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const {delete p.first;}
+  };
+
+  Run::~Run() {
+    // anything left here must be the result of a failure
+    // let's record them as failed attempts in the event principal
+    for_all(putProducts_, deleter());
   }
 
-  RunPrincipal const &
+  RunPrincipal&
+  Run::runPrincipal() {
+    return dynamic_cast<RunPrincipal&>(provRecorder_.principal());
+  }
+
+  RunPrincipal const&
   Run::runPrincipal() const {
     return dynamic_cast<RunPrincipal const&>(provRecorder_.principal());
   }
@@ -31,7 +41,7 @@ namespace edm {
   }
 
   void
-  Run::getAllProvenance(std::vector<Provenance const*> & provenances) const
+  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const
   {
     runPrincipal().getAllProvenance(provenances);
   }
@@ -43,7 +53,7 @@ namespace edm {
     // Get the relevant ProcessHistoryIDs
     ProcessHistoryRegistry* phreg = ProcessHistoryRegistry::instance();
     std::vector<ProcessHistoryID> historyIDs;
-    
+
 
     // Get the relevant ParameterSetIDs.
     std::vector<ParameterSetID> psetIdsUsed;
@@ -59,7 +69,7 @@ namespace edm {
 
     // Look up the ParameterSets for these IDs.
     pset::Registry* psreg = pset::Registry::instance();
-    for (std::vector<ParameterSetID>::const_iterator 
+    for (std::vector<ParameterSetID>::const_iterator
 	   i = psetIdsUsed.begin(),
 	   e = psetIdsUsed.end();
 	 i != e;
@@ -67,7 +77,7 @@ namespace edm {
       {
 	ParameterSet temp;
 	psreg->getMapped(*i, temp);
-	psets.push_back(temp);	  
+	psets.push_back(temp);
       }
 
     return false;
@@ -76,27 +86,30 @@ namespace edm {
   void
   Run::commit_() {
     // fill in guts of provenance here
-    RunPrincipal & rp = runPrincipal();
+    RunPrincipal& rp = runPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
-    while(pit!=pie) {
+    while(pit != pie) {
 	// set provenance
 	std::auto_ptr<ProductProvenance> runEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	rp.put(*pit->second, pit->first, runEntryInfoPtr);
+        std::auto_ptr<EDProduct> pr(pit->first);
+        // Ownership has passed, so clear the pointer.
+        pit->first = 0;
+	rp.put(*pit->second, pr, runEntryInfoPtr);
 	++pit;
     }
 
     // the cleanup is all or none
     putProducts().clear();
   }
-  
+
   ProcessHistory const&
   Run::processHistory() const {
     return provRecorder_.processHistory();
   }
-  
+
 
 }

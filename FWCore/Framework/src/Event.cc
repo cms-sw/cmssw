@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 namespace edm {
 
@@ -16,12 +17,22 @@ namespace edm {
 	gotViews_() {
     }
 
-    EventPrincipal &
-    Event::eventPrincipal() {
-      return dynamic_cast<EventPrincipal &>(provRecorder_.principal());
+    struct deleter {
+      void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const {delete p.first;}
+    };
+
+    Event::~Event() {
+     // anything left here must be the result of a failure
+     // let's record them as failed attempts in the event principal
+      for_all(putProducts_, deleter());
     }
 
-    EventPrincipal const &
+    EventPrincipal&
+    Event::eventPrincipal() {
+      return dynamic_cast<EventPrincipal&>(provRecorder_.principal());
+    }
+
+    EventPrincipal const&
     Event::eventPrincipal() const {
       return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
     }
@@ -36,7 +47,7 @@ namespace edm {
       return getLuminosityBlock().getRun();
     }
 
-//   History const& 
+//   History const&
 //   Event::history() const {
 //     PrincipalGetAdapter const& dvi = me();
 //     EDProductGetter const* pg = dvi.prodGetter(); // certain to be non-null
@@ -66,7 +77,7 @@ namespace edm {
   }
 
   void
-  Event::getAllProvenance(std::vector<Provenance const*> & provenances) const {
+  Event::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provRecorder_.principal().getAllProvenance(provenances);
   }
 
@@ -77,7 +88,7 @@ namespace edm {
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
     if (!phr->getMapped(processHistoryID(), ph)) {
-      throw Exception(errors::NotFound) 
+      throw Exception(errors::NotFound)
 	<< "ProcessHistoryID " << processHistoryID()
 	<< " is claimed to describe " << id()
 	<< "\nbut is not found in the ProcessHistoryRegistry.\n"
@@ -109,7 +120,7 @@ namespace edm {
   Event::commit_aux(Event::ProductPtrVec& products, bool record_parents,
                     std::vector<BranchID>* previousParentage, ParentageID* previousParentageId) {
     // fill in guts of provenance here
-    EventPrincipal & ep = eventPrincipal();
+    EventPrincipal& ep = eventPrincipal();
 
     ProductPtrVec::iterator pit(products.begin());
     ProductPtrVec::iterator pie(products.end());
@@ -139,7 +150,7 @@ namespace edm {
           }
         }
       }
-      if(!sameAsPrevious && 0!=previousParentage) {
+      if(!sameAsPrevious && 0 != previousParentage) {
         previousParentage->assign(gotBranchIDVector.begin(),gotBranchIDVector.end());
       }
     }
@@ -167,7 +178,10 @@ namespace edm {
                                                                                       productstatus::present(),
                                                                                       *previousParentageId));
       }
-      ep.put(*pit->second, pit->first, productProvenancePtr);
+      std::auto_ptr<EDProduct> pr(pit->first);
+      // Ownership has passed, so clear the pointer.
+      pit->first = 0;
+      ep.put(*pit->second, pr, productProvenancePtr);
       ++pit;
     }
 
@@ -184,13 +198,13 @@ namespace edm {
   Event::processHistory() const {
     return provRecorder_.processHistory();
   }
-  
-size_t 
+
+size_t
   Event::size() const {
     return putProducts().size()+provRecorder_.principal().size()+putProductsWithoutParents().size();
-  } 
-  
-  BasicHandle 
+  }
+
+  BasicHandle
   Event::getByLabelImpl(const std::type_info& iWrapperType, const std::type_info& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType),iTag);
     if (h.isValid()) {
