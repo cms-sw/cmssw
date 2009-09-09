@@ -113,7 +113,7 @@ secWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
 
 secStepVtxLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'secWithMaterialTracks',
@@ -143,7 +143,7 @@ secStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.cl
     dz_par2 = ( 1.5, 4.0 )
     )
 
-secStepLoose = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
+secStepLoose = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
     TrackProducer1 = 'secStepVtxLoose',
     TrackProducer2 = 'secStepTrkLoose'
     )
@@ -181,7 +181,7 @@ secStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.cl
     dz_par2 = ( 1.0, 4.0 )
     )
 
-secStepTight = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
+secStepTight = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
     TrackProducer1 = 'secStepVtxTight',
     TrackProducer2 = 'secStepTrkTight'
     )
@@ -219,7 +219,7 @@ secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPuri
     dz_par2 = ( 0.9, 4.0 )
     )
 
-secStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone(
+secStep = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
     TrackProducer1 = 'secStepVtx',
     TrackProducer2 = 'secStepTrk'
     )

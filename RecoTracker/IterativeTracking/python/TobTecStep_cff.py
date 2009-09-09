@@ -169,7 +169,7 @@ fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
 
 tobtecStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'fifthWithMaterialTracks',

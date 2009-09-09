@@ -126,7 +126,7 @@ fourthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProd
 import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 import RecoTracker.FinalTrackSelectors.selectTight_cfi
 import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
+import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
 
 pixellessStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
     src = 'fourthWithMaterialTracks',
