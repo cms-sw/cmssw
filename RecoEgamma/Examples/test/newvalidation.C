@@ -97,19 +97,31 @@ else
 		<<" and the "<<val_new_release<<" histograms are in red.</p>\n" ;
  }
 
-web_page<<"<br><br><hr>" ;
-std::ifstream histo_file("histos.txt") ;
 std::string histo_name, gif_name, canvas_name ;
 int scaled, log, err ;
 int divide;
 std::string num, denom;
-while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
+
+web_page<<"<br><br><hr><ul>" ;
+std::ifstream histo_file1("histos.txt") ;
+while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
+ { web_page<<"<li><a href=\"#"<<histo_name<<"\">"<<histo_name<<"</a></li>" ; }
+histo_file1.close() ;
+web_page<<"</ul>" ;
+
+web_page<<"<br><br><hr>" ;
+std::ifstream histo_file2("histos.txt") ;
+std::string histo_name, gif_name, canvas_name ;
+int scaled, log, err ;
+int divide;
+std::string num, denom;
+while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
  {
   gif_name = std::string("gifs/")+histo_name+".gif" ;
   canvas_name = std::string("c")+histo_name ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
-  web_page<<"<br><br><p>" ;
+  web_page<<"<br><br><a id=\""<<histo_name<<"\" name=\""<<histo_name<<"\"></a><p>" ;
 
   if ( file_old != 0 )
    {
@@ -118,22 +130,23 @@ while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
      {
       histo_old->SetLineColor(4) ;
       histo_old->SetLineWidth(3) ;
-      if (divide==0) {
-        histo_old->Draw("hist") ;
-      } else {
-	// special for efficiencies
-	TH1F *h_num = (TH1F *)file_old->Get(num.c_str()) ;
+      if (divide==0)
+       { histo_old->Draw("hist") ; }
+	  else
+       {
+	    // special for efficiencies
+	    TH1F *h_num = (TH1F *)file_old->Get(num.c_str()) ;
         TH1F *h_res = (TH1F*)h_num->Clone("res");
         h_res->Reset();
-	TH1F *h_denom = (TH1F *)file_old->Get(denom.c_str()) ;
+	    TH1F *h_denom = (TH1F *)file_old->Get(denom.c_str()) ;
         std::cout << "DIVIDING "<< num.c_str() << " by " << denom.c_str() << std::endl;
-	h_res->Divide(h_num,h_denom,1,1,"b");
+	    h_res->Divide(h_num,h_denom,1,1,"b");
         h_res->GetXaxis()->SetTitle(h_num->GetXaxis()->GetTitle());
         h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
         h_res->SetLineColor(4) ;
         h_res->SetLineWidth(3) ;
         h_res ->Draw("hist") ;    
-      }
+       }
      }
     else
      {
@@ -144,21 +157,27 @@ while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
   histo_new = (TH1 *)file_new->Get(histo_name.c_str()) ;
   if (histo_new!=0)
    {
-    if (log==1)canvas->SetLogy(1);
+    if (log==1) canvas->SetLogy(1);
     histo_new->SetLineColor(2) ;
     histo_new->SetMarkerColor(2) ;
     histo_new->SetLineWidth(3) ;
     if ((scaled==1)&&(file_old!=0)&&(histo_old!=0)&&(histo_new->GetEntries()!=0))
      { if (histo_old!=0) histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }   
-    if (divide==0) {
-    if (err==1) {
-      if (histo_old!=0) histo_new->Draw("same E1 P") ;
-      else histo_new->Draw("E1 P") ; 
-    } else {
-      if (histo_old!=0) histo_new->Draw("same hist") ;
-      else histo_new->Draw("hist") ;
-    }  
-    } else {
+    if (divide==0)
+     {
+      if (err==1)
+       {
+        if (histo_old!=0) histo_new->Draw("same E1 P") ;
+        else histo_new->Draw("E1 P") ;
+       }
+      else
+       {
+        if (histo_old!=0) histo_new->Draw("same hist") ;
+        else histo_new->Draw("hist") ;
+       }  
+     }
+	else
+     {
       // special for efficiencies
       TH1F *h_num = (TH1 *)file_new->Get(num.c_str()) ;
       TH1F *h_res = (TH1F*)h_num->Clone("res");
@@ -171,7 +190,7 @@ while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
       h_res->SetLineWidth(3) ;
       if (err==1) h_res ->Draw("same E1 P") ;   
       else  h_res ->Draw("same hist") ;    
-    }
+     }
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
       <<" of mean value "<<histo_new->GetMean()
@@ -192,6 +211,7 @@ while (histo_file>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
    }
   web_page<<"</p>\n" ;
  }
+histo_file2.close() ;
 
 // cumulated efficiencies
 
