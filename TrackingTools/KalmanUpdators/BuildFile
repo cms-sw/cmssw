@@ -5,7 +5,7 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/PatternTools>
 <use name=Geometry/CommonDetUnit>
-
+<use name=Geometry/CommonTopologies>
 <export>
  <lib name=TrackingToolsKalmanUpdators>
  <use name=TrackingTools/PatternTools>

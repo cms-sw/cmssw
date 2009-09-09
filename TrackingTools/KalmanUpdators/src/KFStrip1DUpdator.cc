@@ -32,7 +32,7 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit)
 //   AlgebraicMatrix M((I - K * H)*C);            // already commented when CLHEP was in use
 //   AlgebraicSymMatrix fse(5,0); fse.assign(M);  // already commented when CLHEP was in use
 
-  return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()));  
+  return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()), aTsos.surfaceSide() );  
 }
 
 

@@ -80,6 +80,7 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   // Compute covariance matrix of local filtered state vector
   AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
 
+
   /*
   // expanded similariy
   AlgebraicSymMatrix55 fse; 
@@ -91,7 +92,7 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 
   if (ok) {
     return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
-				     LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
+				     LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()), tsos.surfaceSide() );
   }else {
     edm::LogError("KFUpdator")<<" could not invert martix:\n"<< (V+VMeas);
     return TrajectoryStateOnSurface();
@@ -139,6 +140,6 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
   AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
 
   return TrajectoryStateOnSurface( LocalTrajectoryParameters(fsv, pzSign),
-				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()));
+				   LocalTrajectoryError(fse), tsos.surface(),&(tsos.globalParameters().magneticField()), tsos.surfaceSide() );
 }
 #endif
