@@ -92,15 +92,12 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
     LogDebug("TrackProducer") << "pos=" << v << " mom=" << p << " pt=" << p.perp() << " mag=" << p.mag();
 
-    algoName_ = conf_.getParameter<std::string>( "AlgorithmName" );  
-    reco::TrackBase::TrackAlgorithm Algo = reco::TrackBase::algoByName(algoName_);
-    
     theTrack = new reco::Track(theTraj->chiSquared(),
 			       int(ndof),//FIXME fix weight() in TrackingRecHit
 			       pos, mom, tscbl.trackStateAtPCA().charge(), 
 			       tscbl.trackStateAtPCA().curvilinearError(),
-			       Algo);
-    
+			       algo_);
+   
     theTrack->setQualityMask(qualityMask);
     
     LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
