@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.30 2009/06/14 23:45:25 fischler Exp $
+// $Id: MessageLogger.cc,v 1.31 2009/07/08 20:26:38 fischler Exp $
 //
 // Change log
 //
@@ -51,6 +51,8 @@
 //
 //14 mf   7/1/09	Establish pseudo-module name and set up 
 //			enables/suppresses for other calls from framework
+//15 mf   9/8/09	Clean up erroneous assignments of some callbacks
+//			for specific watch routines (eg PreXYZ called postXYZ)
 
 // system include files
 // user include files
@@ -211,25 +213,26 @@ MessageLogger( ParameterSet const & iPS
   iRegistry.watchPostCloseFile(this,&MessageLogger::postFile);
   
 							// change log 13:
+							// change log 15
   iRegistry.watchPreModuleBeginJob(this,&MessageLogger::preModuleBeginJob);
-  iRegistry.watchPostModuleBeginJob(this,&MessageLogger::preModuleBeginJob);
-  iRegistry.watchPreModuleEndJob(this,&MessageLogger::preModuleBeginJob);
-  iRegistry.watchPostModuleEndJob(this,&MessageLogger::preModuleBeginJob);
+  iRegistry.watchPostModuleBeginJob(this,&MessageLogger::postModuleBeginJob);
+  iRegistry.watchPreModuleEndJob(this,&MessageLogger::preModuleEndJob);
+  iRegistry.watchPostModuleEndJob(this,&MessageLogger::postModuleEndJob);
   iRegistry.watchPreModuleBeginRun(this,&MessageLogger::preModuleBeginRun);
-  iRegistry.watchPostModuleBeginRun(this,&MessageLogger::preModuleBeginRun);
-  iRegistry.watchPreModuleEndRun(this,&MessageLogger::preModuleBeginRun);
-  iRegistry.watchPostModuleEndRun(this,&MessageLogger::preModuleBeginRun);
+  iRegistry.watchPostModuleBeginRun(this,&MessageLogger::postModuleBeginRun);
+  iRegistry.watchPreModuleEndRun(this,&MessageLogger::preModuleEndRun);
+  iRegistry.watchPostModuleEndRun(this,&MessageLogger::postModuleEndRun);
   iRegistry.watchPreModuleBeginLumi(this,&MessageLogger::preModuleBeginLumi);
-  iRegistry.watchPostModuleBeginLumi(this,&MessageLogger::preModuleBeginLumi);
-  iRegistry.watchPreModuleEndLumi(this,&MessageLogger::preModuleBeginLumi);
-  iRegistry.watchPostModuleEndLumi(this,&MessageLogger::preModuleBeginLumi);
+  iRegistry.watchPostModuleBeginLumi(this,&MessageLogger::postModuleBeginLumi);
+  iRegistry.watchPreModuleEndLumi(this,&MessageLogger::preModuleEndLumi);
+  iRegistry.watchPostModuleEndLumi(this,&MessageLogger::postModuleEndLumi);
 
   iRegistry.watchPreProcessEvent(this,&MessageLogger::preEventProcessing);
   iRegistry.watchPostProcessEvent(this,&MessageLogger::postEventProcessing);
 							// change log 14:
   iRegistry.watchPreBeginRun(this,&MessageLogger::preBeginRun);
   iRegistry.watchPostBeginRun(this,&MessageLogger::postBeginRun);
-  iRegistry.watchPreEndRun(this,&MessageLogger::preBeginRun);
+  iRegistry.watchPreEndRun(this,&MessageLogger::preEndRun); // change log 15
   iRegistry.watchPostEndRun(this,&MessageLogger::postEndRun);
   iRegistry.watchPreBeginLumi(this,&MessageLogger::preBeginLumi);
   iRegistry.watchPostBeginLumi(this,&MessageLogger::postBeginLumi);

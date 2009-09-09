@@ -989,8 +989,8 @@ MessageLogger Summary
 
  type     category        sev    module        subroutine        count    total
  ---- -------------------- -- ---------------- ----------------  -----    -----
-    1 FwkReport            -i AfterSource                           15       15
-    2 FwkReport            -i TriggerResultIns                       1        1
+    1 FwkReport            -i AfterModBeginLum                       1        1
+    2 FwkReport            -i AfterSource                           15       15
     3 summary              -i UTC_T2:ssm_2a                          6        6
     4 summary              -i UTC_T2:ssm_2b                          6        6
     5 summary              -i UTC_T2:ssm_2c                          6        6
@@ -1015,8 +1015,8 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            PostProcessEvent PostProcessEvent PostProcessEvent
-    2 FwkReport            PostBeginLumi                     
+    1 FwkReport            PostBeginLumi                     
+    2 FwkReport            PostProcessEvent PostProcessEvent PostProcessEvent
     3 summary              1/10             1/10             1/16
     4 summary              1/10             1/10             1/16
     5 summary              1/10             1/10             1/16
