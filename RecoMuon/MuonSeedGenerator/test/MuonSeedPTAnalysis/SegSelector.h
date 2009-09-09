@@ -70,7 +70,6 @@ struct SimSegment {
 } ;
 
 
-//class SegSelector : public edm::EDAnalyzer{
 class SegSelector {
 public:
 

@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "TFile.h"
@@ -46,58 +47,6 @@ SegSelector::~SegSelector(){
 
 }
 
-// The Main...Aanlysis...
-
-/*
-void SegSelector::analyze(const Event& event, const EventSetup& eventSetup)
-//void SegSelector::analyze()
-{
-  //Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
-
-  //Get the DT Geometry :
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
-
-  // Get the RecHits collection :
-  Handle<CSCRecHit2DCollection> csc2DRecHits; 
-  event.getByLabel(recHitLabel, csc2DRecHits);
-
-  // Get the CSC Segments collection :
-  Handle<CSCSegmentCollection> cscSegments; 
-  event.getByLabel(cscSegmentLabel, cscSegments);
-
-  // Get the DT RecHits collection :
-  Handle<DTRecHitCollection> dt1DRecHits; 
-  event.getByLabel(dtrecHitLabel, dt1DRecHits);
-
-  // Get the DT Segments collection :
-  Handle<DTRecSegment4DCollection> dt4DSegments;
-  event.getByLabel(dtSegmentLabel, dt4DSegments);
-
-  // Get the SimHit collection :
-  Handle<PSimHitContainer> csimHits;
-  event.getByLabel(simHitLabel,"MuonCSCHits", csimHits);  
-  Handle<PSimHitContainer> dsimHits;
-  event.getByLabel(simHitLabel,"MuonDTHits", dsimHits);  
- 
-  // Get the SimTrack
-  Handle<SimTrackContainer> simTracks;
-  event.getByLabel(simTrackLabel, simTracks); 
-
-
-  // 1. build the simulated segments
-  //    output sCSC_v & sDT_v 
-  //std::vector<SimSegment> csc_sim_seg = Sim_CSCSegments(csimHits,cscGeom);
-  //std::vector<SimSegment> dt_sim_seg = Sim_DTSegments(dsimHits,dtGeom);
-  
-  // 2. match the sim-segment and rec-segment
-  //    output cscseg_V & dtseg_V
-  //Select_CSCSeg(cscSegments,cscGeom, csc_sim_seg);
-  //Select_DTSeg(dt4DSegments,dtGeom, dt_sim_seg);
-}
-*/
 
 // ********************************************
 // ***********  Utility functions  ************
@@ -177,6 +126,7 @@ std::vector<SimSegment> SegSelector::Sim_CSCSegments(int trkId, Handle<edm::PSim
      {
          if ( static_cast<int>((*sh_i).trackId())!= trkId ) continue; 
          if ( abs((*sh_i).particleType())!= 13 ) continue;     
+         //if ( (*sh_i).particleType()!= -13 ) continue;
          CSCDetId detId = CSCDetId((*sh_i).detUnitId());
 
          int d2=(1000*detId.station()) + (100*detId.ring()) + detId.chamber();
@@ -233,10 +183,13 @@ std::vector<DTRecSegment4D> SegSelector::Select_DTSeg( Handle<DTRecSegment4DColl
          segtemp.clear();
          for(DTRecSegment4DCollection::const_iterator it2 = dtSeg->begin(); it2 != dtSeg->end(); it2++)
          {
-            if ( (*it2).dimension() != 4 ) continue;
-            if( (*it1).dt_DetId == (*it2).chamberId() ) { 
-              segtemp.push_back(*it2);
-            }
+            //if ( (*it2).dimension() != 4 ) continue;
+            if ( !(*it2).hasPhi()  )  continue;
+            if ( (*it2).chamberId().station() < 4 && !(*it2).hasZed() ) continue; 
+
+            if( (*it1).dt_DetId != (*it2).chamberId()  ) continue;
+
+            segtemp.push_back(*it2);
          }
          if (segtemp.size() ==1){
             dtseg_V.push_back(segtemp[0]);

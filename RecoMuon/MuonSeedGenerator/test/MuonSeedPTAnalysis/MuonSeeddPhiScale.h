@@ -7,7 +7,6 @@
  */
 
 #include "MuonSeedParameterHisto.h"
-#include "MuonSeedParameterNtuple.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
