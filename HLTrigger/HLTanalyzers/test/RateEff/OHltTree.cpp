@@ -124,9 +124,9 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     //////////////////////////////////////////////////////////////////
     TString hlteffmode;
     TString ohltobject;
-    hlteffmode="GEN";
+    //    hlteffmode="GEN";
     //    hlteffmode="L1";
-    //    hlteffmode="RECO";
+    hlteffmode="RECO";
     ohltobject="None";
     if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
     if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
@@ -213,6 +213,6 @@ bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter
     (rc->prescaleCount[i])++;
     return ((rc->prescaleCount[i]) % menu->GetL1Prescale(i) != 0); //
   } else {
-    return (GetIntRandom() % menu->GetL1Prescale(i) != 0);
+    return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
   }
 };

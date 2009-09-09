@@ -479,6 +479,7 @@ public :
   Int_t           HLT_HT100U;
   Int_t           HLT_L1Mu20;
   Int_t           HLT_L2Mu11;
+  Int_t           HLT_Mu3; 
   Int_t           HLT_IsoMu3;
   Int_t           HLT_L1DoubleMuOpen;
   Int_t           HLT_DoubleMu0;
@@ -969,6 +970,7 @@ public :
   TBranch        *b_HLT_HT100U;   //!
   TBranch        *b_HLT_L1Mu20;   //!
   TBranch        *b_HLT_L2Mu11;   //!
+  TBranch        *b_HLT_Mu3;   //! 
   TBranch        *b_HLT_IsoMu3;   //!
   TBranch        *b_HLT_L1DoubleMuOpen;   //!
   TBranch        *b_HLT_DoubleMu0;   //!
@@ -1681,6 +1683,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_HT100U", &HLT_HT100U, &b_HLT_HT100U);
   fChain->SetBranchAddress("HLT_L1Mu20", &HLT_L1Mu20, &b_HLT_L1Mu20);
   fChain->SetBranchAddress("HLT_L2Mu11", &HLT_L2Mu11, &b_HLT_L2Mu11);
+  fChain->SetBranchAddress("HLT_Mu3", &HLT_Mu3, &b_HLT_Mu3); 
   fChain->SetBranchAddress("HLT_IsoMu3", &HLT_IsoMu3, &b_HLT_IsoMu3);
   fChain->SetBranchAddress("HLT_L1DoubleMuOpen", &HLT_L1DoubleMuOpen, &b_HLT_L1DoubleMuOpen);
   fChain->SetBranchAddress("HLT_DoubleMu0", &HLT_DoubleMu0, &b_HLT_DoubleMu0);
@@ -1927,6 +1930,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("HLT_HT100U", &map_BitOfStandardHLTPath["HLT_HT100U"], &b_HLT_HT100U);
   fChain->SetBranchAddress("HLT_L1Mu20", &map_BitOfStandardHLTPath["HLT_L1Mu20"], &b_HLT_L1Mu20);
   fChain->SetBranchAddress("HLT_L2Mu11", &map_BitOfStandardHLTPath["HLT_L2Mu11"], &b_HLT_L2Mu11);
+  fChain->SetBranchAddress("HLT_Mu3", &map_BitOfStandardHLTPath["HLT_Mu3"], &b_HLT_Mu3); 
   fChain->SetBranchAddress("HLT_IsoMu3", &map_BitOfStandardHLTPath["HLT_IsoMu3"], &b_HLT_IsoMu3);
   fChain->SetBranchAddress("HLT_L1DoubleMuOpen", &map_BitOfStandardHLTPath["HLT_L1DoubleMuOpen"], &b_HLT_L1DoubleMuOpen);
   fChain->SetBranchAddress("HLT_DoubleMu0", &map_BitOfStandardHLTPath["HLT_DoubleMu0"], &b_HLT_DoubleMu0);
@@ -1999,7 +2003,7 @@ void OHltTree::ApplyL1Prescales(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter
     st = menu->GetL1TriggerName(i);
     if (map_BitOfStandardHLTPath.find(st)->second == 1) {
       if (prescaleResponseL1(menu,cfg,rc,i)) {
-	map_BitOfStandardHLTPath[st] = 0;	
+	map_BitOfStandardHLTPath[st] = 1;	
       }
     }
   }
