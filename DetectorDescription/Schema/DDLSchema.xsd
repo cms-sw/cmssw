@@ -722,21 +722,21 @@
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
           </xsd:sequence>
-          <xsd:sequence>
+          <!--xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
-          </xsd:sequence>
-          <xsd:sequence>
+          </xsd:sequence-->
+          <!--xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
-          </xsd:sequence>
-          <xsd:sequence>
+          </xsd:sequence-->
+          <!--xsd:sequence>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
-          </xsd:sequence>
+          </xsd:sequence-->
          </xsd:choice>
          <xsd:attributeGroup ref="BooleanSolidAttributes"/>
       </xsd:extension>
@@ -1274,11 +1274,11 @@
     </xsd:annotation>
 
     <xsd:choice>
-      <xsd:sequence>
+      <!--xsd:sequence>
           <xsd:group ref="PCOptions"/>
           <xsd:group ref="RotationOptions" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="Translation" minOccurs="0" maxOccurs="1"/>
-      </xsd:sequence>
+      </xsd:sequence-->
 
       <xsd:sequence>
           <xsd:group ref="PCOptions"/>
@@ -1386,7 +1386,7 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
   </xsd:sequence>
-  <xsd:sequence>
+  <!--xsd:sequence>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
       <xsd:element ref="Parameter"/>
       <xsd:element ref="String"/>
@@ -1395,7 +1395,7 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
     <xsd:element ref="PartSelector" minOccurs="1" maxOccurs="unbounded"/>
-  </xsd:sequence>
+  </xsd:sequence-->
   </xsd:choice>
   <xsd:attributeGroup ref="SpecParAttributes"/>
 </xsd:complexType>
