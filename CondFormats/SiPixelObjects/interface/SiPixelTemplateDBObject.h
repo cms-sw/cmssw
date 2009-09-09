@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <stdint.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // ******************************************************************************************
