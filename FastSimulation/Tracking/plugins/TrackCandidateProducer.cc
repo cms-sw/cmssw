@@ -532,7 +532,10 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       //stabilize the fit with the true simtrack state
       //in case of zero hits
       TrajectoryStateTransform tsTransform;
-      PTSOD = *tsTransform.persistentState(seedStates[simTrackId],aSeed->startingState().detId());
+      //PTSOD = *tsTransform.persistentState(seedStates[simTrackId],aSeed->startingState().detId());
+      PTrajectoryStateOnDet * aPointer = tsTransform.persistentState(seedStates[simTrackId],aSeed->startingState().detId()); 
+      PTSOD = *aPointer;
+      delete aPointer;
     }
     TrackCandidate  
       newTrackCandidate(recHits, 
