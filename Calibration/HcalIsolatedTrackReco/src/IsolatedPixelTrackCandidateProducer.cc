@@ -54,14 +54,15 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   vtxCutIsol_=config.getParameter<double>("MaxVtxDXYIsol");
   vertexLabel_=config.getParameter<edm::InputTag>("VertexLabel");
   bfield_=config.getParameter<std::string>("MagFieldRecordName");
-  ecDistEB_=config.getParameter<double>("IPtoEBdistance");
-  ecDistEE_=config.getParameter<double>("IPtoEEdistance");
   //Sb add parameter to remove hardcoded cuts  
   minPTrackValue_=config.getParameter<double>("minPTrack");
   maxPForIsolationValue_=config.getParameter<double>("maxPTrackForIsolation");
 
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
+
+  ecDistEB_=129;  //(cm) - radius of ECAL barrel from TDR
+  ecDistEE_=317;  //(cm) - distance from IP to ECAL endcap from TDR
 
 }
 
