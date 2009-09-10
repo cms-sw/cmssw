@@ -32,13 +32,6 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-/*
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
-*/
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
 
@@ -564,11 +557,11 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
    f << "  geoManager->SetTopVolume(world); " << std::endl;
    f << "  TGeoVolume* box; " << std::endl;
    int n=0;
-   std::vector< DetId > ids ( geom->getValidDetIds( det, subdetn ) ) ;
+   const std::vector< DetId >& ids ( geom->getValidDetIds( det, subdetn ) ) ;
 
    std::cout<<"***************total number = "<<ids.size()<<std::endl ;
 
-   for( std::vector<DetId>::iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
+   for( std::vector<DetId>::const_iterator i ( ids.begin() ) ; i != ids.end(); ++i ) 
    {
       ++n;
       const CaloCellGeometry* cell ( geom->getGeometry(*i) ) ;

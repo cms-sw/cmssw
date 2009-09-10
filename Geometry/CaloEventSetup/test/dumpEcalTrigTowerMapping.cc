@@ -142,7 +142,7 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       
       h->GetXaxis()->CenterTitle(1);
       h->GetYaxis()->CenterTitle(1);  
-      std::vector<DetId> eeDetIds= cg.getValidDetIds(det,subdetn);
+      const std::vector<DetId>& eeDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
       for (unsigned int i=0;i<eeDetIds.size();i++)
@@ -203,7 +203,7 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       
       h->GetXaxis()->CenterTitle(1);
       h->GetYaxis()->CenterTitle(1);  
-      std::vector<DetId> ebDetIds= cg.getValidDetIds(det,subdetn);
+      const std::vector<DetId>& ebDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;
       for (unsigned int i=0;i<ebDetIds.size();i++)
