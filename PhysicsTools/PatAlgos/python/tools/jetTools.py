@@ -19,10 +19,15 @@ def switchJECSet(process,
     switchJECSet_(process.jetCorrFactors, newName, oldName)
 
     
+#def switchJECSet_(jetCorrFactors,
+#                  newName,
+#                  oldName,
+#                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE', 'L7Parton']
+#                  ):
 def switchJECSet_(jetCorrFactors,
                   newName,
                   oldName,
-                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE', 'L7Parton']
+                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE']
                   ):
     """
     ------------------------------------------------------------------    
@@ -34,6 +39,8 @@ def switchJECSet_(jetCorrFactors,
     steps          : correction steps in the module
     ------------------------------------------------------------------    
     """
+
+    print """NOTE TO USER: The L7Parton correction is currently disabled until the anti-kT correction is implemented."""
     found = False
     for k in steps:
         ## loop jet correction steps
@@ -66,7 +73,9 @@ def switchJECParameters(jetCorrFactors,
     oldType        : label of old jet type [Calo, Pflow, Jpt, ...]
     ------------------------------------------------------------------    
     """    
-    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
+    print """NOTE TO USER: The L7Parton correction is currently disabled until the anti-kT correction is implemented."""
+#    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
+    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE']:
         ## loop jet correction steps; the L5Flavor step
         ## is not in the list as as it is said not to
         ## dependend on the specific jet algorithm
