@@ -42,8 +42,8 @@ class EventSetupRecordImplementation : public EventSetupRecord
       // ---------- const member functions ---------------------
       template< typename HolderT>
          void get(HolderT& iHolder) const {
-            const typename HolderT::value_type* value;
-            const ComponentDescription* desc;
+            const typename HolderT::value_type* value = 0;
+            const ComponentDescription* desc = 0;
             this->getImplementation(value, "",desc);
                                                       
             iHolder = HolderT(value,desc);
@@ -51,23 +51,23 @@ class EventSetupRecordImplementation : public EventSetupRecord
 
       template< typename HolderT>
       void get(const char* iName, HolderT& iHolder) const {
-         const typename HolderT::value_type* value;
-         const ComponentDescription* desc;
+         const typename HolderT::value_type* value = 0;
+         const ComponentDescription* desc = 0;
          this->getImplementation(value, iName,desc);
          iHolder = HolderT(value,desc);
       }
       template< typename HolderT>
       void get(const std::string& iName, HolderT& iHolder) const {
-         const typename HolderT::value_type* value;
-         const ComponentDescription* desc;
+         const typename HolderT::value_type* value = 0;
+         const ComponentDescription* desc = 0;
          this->getImplementation(value, iName.c_str(),desc);
          iHolder = HolderT(value,desc);
       }
       
       template< typename HolderT>
       void get(const edm::ESInputTag& iTag, HolderT& iHolder) const {
-         const typename HolderT::value_type* value;
-         const ComponentDescription* desc;
+         const typename HolderT::value_type* value = 0;
+         const ComponentDescription* desc = 0;
          this->getImplementation(value, iTag.data().c_str(),desc);
          validate(desc,iTag);
          iHolder = HolderT(value,desc);
