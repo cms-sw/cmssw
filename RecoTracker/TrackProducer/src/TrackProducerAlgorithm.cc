@@ -200,6 +200,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 				  //			       0, //FIXME no corresponding method in trajectory.h
 				  //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
 				  pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());    
+    theTrack->setAlgorithm(algo_);
 
     LogDebug("GsfTrackProducer") <<"track done\n";
 

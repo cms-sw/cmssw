@@ -10,7 +10,8 @@ GsfTrackRefitter = cms.EDFilter("GsfTrackRefitter",
     Propagator = cms.string('fwdGsfElectronPropagator'),
     constraint = cms.string(''),
     #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)                               
-    NavigationSchool = cms.string('')                                                              
+    NavigationSchool = cms.string(''),
+    AlgorithmName = 'gsf'
 )
 
 
