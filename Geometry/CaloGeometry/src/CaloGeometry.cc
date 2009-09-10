@@ -2,68 +2,116 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+const std::vector<DetId> CaloGeometry::k_emptyVec ( 0 ) ;
 
-CaloGeometry::CaloGeometry() {
+CaloGeometry::CaloGeometry() :
+   m_geos ( kLength, 0 )
+{
 }
 
-int CaloGeometry::makeIndex(DetId::Detector det, int subdet) const {
-  return (int(det)<<4) | (subdet&0xF);
+unsigned int 
+CaloGeometry::makeIndex( DetId::Detector det    , 
+			 int             subdet ,
+			 bool&           ok       ) const 
+{
+   const unsigned int idet ( det ) ;
+
+   ok = ( kMinDet <= idet   &&
+	  kMaxDet >= idet   &&
+	  0       <  subdet &&
+	  kMaxSub >= subdet    ) ;
+
+   return ( ( det - kMinDet )*kMaxDet + subdet - 1 ) ;
 }
 
-void CaloGeometry::setSubdetGeometry(DetId::Detector det, int subdet, const CaloSubdetectorGeometry* geom) {
-  int index=makeIndex(det,subdet);
-  theGeometries_[index]=geom;
+void 
+CaloGeometry::setSubdetGeometry( DetId::Detector                det    , 
+				 int                            subdet , 
+				 const CaloSubdetectorGeometry* geom     ) 
+{
+   bool ok ;
+   const unsigned int index = makeIndex( det, subdet, ok ) ;
+   if( ok ) m_geos[index] = geom ;
+   assert( ok ) ;
 }
 
+const CaloSubdetectorGeometry* 
+CaloGeometry::getSubdetectorGeometry( const DetId& id ) const 
+{
+   bool ok ;
 
-const CaloSubdetectorGeometry* CaloGeometry::getSubdetectorGeometry(const DetId& id) const {
-  std::map<int, const CaloSubdetectorGeometry*>::const_iterator i=theGeometries_.find(makeIndex(id.det(),id.subdetId()));
-  return (i==theGeometries_.end())?(0):(i->second);
+   const unsigned int index ( makeIndex( id.det(),
+					 id.subdetId(),
+					 ok             ) ) ;
+   return ( ok ? m_geos[ index ] : 0 ) ;
 }
 
-const CaloSubdetectorGeometry* CaloGeometry::getSubdetectorGeometry(DetId::Detector det, int subdet) const {
-    std::map<int, const CaloSubdetectorGeometry*>::const_iterator i=theGeometries_.find(makeIndex(det,subdet));
-    return (i==theGeometries_.end())?(0):(i->second);
+const CaloSubdetectorGeometry* 
+CaloGeometry::getSubdetectorGeometry( DetId::Detector det    , 
+				      int             subdet  ) const 
+{
+   bool ok ;
+
+   const unsigned int index ( makeIndex( det,
+					 subdet,
+					 ok             ) ) ;
+   return ( ok ? m_geos[ index ] : 0 ) ;
 }
 
 static const GlobalPoint notFound(0,0,0);
 
-const GlobalPoint& CaloGeometry::getPosition(const DetId& id) const {
-    const CaloSubdetectorGeometry* geom=getSubdetectorGeometry(id);
-    const CaloCellGeometry* cell=(geom==0)?(0):(geom->getGeometry(id));
-    return (cell==0)?(notFound):(cell->getPosition());
+const GlobalPoint& 
+CaloGeometry::getPosition( const DetId& id ) const 
+{
+   const CaloSubdetectorGeometry* geom=getSubdetectorGeometry( id ) ;
+   const CaloCellGeometry* cell ( ( 0 == geom ? 0 : geom->getGeometry( id ) ) ) ;
+   return ( 0 == cell ?  notFound : cell->getPosition() ) ;
 }
 
-const CaloCellGeometry* CaloGeometry::getGeometry(const DetId& id) const {
-  const CaloSubdetectorGeometry* geom=getSubdetectorGeometry(id);
-  const CaloCellGeometry* cell=(geom==0)?(0):(geom->getGeometry(id));
-  return cell;
+const CaloCellGeometry* 
+CaloGeometry::getGeometry( const DetId& id ) const 
+{
+   const CaloSubdetectorGeometry* geom ( getSubdetectorGeometry( id ) ) ;
+   const CaloCellGeometry* cell ( 0 == geom ? 0 : geom->getGeometry( id ) ) ;
+   return cell ;
 }
 
-bool CaloGeometry::present(const DetId& id) const {
-  const CaloSubdetectorGeometry* geom=getSubdetectorGeometry(id);
-  return (geom==0)?(false):(geom->present(id));
-  }
-
-std::vector<DetId> CaloGeometry::getValidDetIds() const {
-  std::vector<DetId> theList;
-  std::map<int, const CaloSubdetectorGeometry*>::const_iterator i;
-  for (i=theGeometries_.begin(); i!=theGeometries_.end(); i++) {
-    DetId::Detector det=(DetId::Detector)(i->first>>4);
-    int subdet=i->first&0xF;
-    std::vector<DetId> aList=i->second->getValidDetIds(det,subdet);
-    theList.insert(theList.end(),aList.begin(),aList.end());
-  }
-  return theList;
+bool 
+CaloGeometry::present( const DetId& id ) const 
+{
+   const CaloSubdetectorGeometry* geom ( getSubdetectorGeometry( id ) ) ;
+   return ( 0 == geom ? false : geom->present( id ) ) ;
 }
 
-std::vector<DetId> CaloGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
-  std::vector<DetId> theList;
-  std::map<int, const CaloSubdetectorGeometry*>::const_iterator i=theGeometries_.find(makeIndex(det,subdet));
-  if (i!=theGeometries_.end()) {
-    theList=i->second->getValidDetIds(det,subdet);
-  }
-  return theList;
+std::vector<DetId> CaloGeometry::getValidDetIds() const
+{
+   std::vector<DetId> returnValue ;
+   returnValue.reserve( kLength ) ;
+
+   for( unsigned int i ( 0 ) ; i != m_geos.size() ; ++i ) 
+   {
+      if( 0 != m_geos[i] )
+      {
+	 const std::vector< DetId >& aVec ( m_geos[i]->getValidDetIds() ) ;
+	 returnValue.insert( returnValue.end(), aVec.begin(), aVec.end() ) ;
+      }
+   }
+   return returnValue ;
+}
+
+const std::vector<DetId>&
+CaloGeometry::getValidDetIds( DetId::Detector det    , 
+			      int             subdet  ) const 
+{
+   bool ok ;
+
+   const unsigned int index ( makeIndex( det,
+					 subdet,
+					 ok             ) ) ;
+
+   return ( ok && ( 0 != m_geos[ index ] ) ?
+	    m_geos[ index ]->getValidDetIds( det, subdet ) :
+	    k_emptyVec ) ;
 }
   
 
