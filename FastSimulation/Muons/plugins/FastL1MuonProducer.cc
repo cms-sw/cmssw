@@ -67,7 +67,9 @@ double FastL1MuonProducer::muonMassGeV_ = 0.105658369 ; // PDG06
 //
 // constructors and destructor
 //
-FastL1MuonProducer::FastL1MuonProducer(const edm::ParameterSet& iConfig)
+FastL1MuonProducer::FastL1MuonProducer(const edm::ParameterSet& iConfig):
+  myL1EfficiencyHandler(0),
+  myL1PtSmearer(0)
 {
 
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"));
@@ -494,8 +496,8 @@ FastL1MuonProducer::beginRun(edm::Run & run,
 void 
 FastL1MuonProducer::endJob() {
 
-  delete myL1EfficiencyHandler;
-  delete myL1PtSmearer;
+  if (myL1EfficiencyHandler) delete myL1EfficiencyHandler;
+  if ( myL1PtSmearer) delete myL1PtSmearer;
   std::cout << " ===> FastL1MuonProducer , final report." << std::endl;
   std::cout << " ===> Number of total -> L1 muons in the whole job : "
             <<   nMuonTot << " -> " << nL1MuonTot << std::endl;
