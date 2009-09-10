@@ -494,8 +494,10 @@ FastL1MuonProducer::beginRun(edm::Run & run,
 void 
 FastL1MuonProducer::endJob() {
 
+  delete myL1EfficiencyHandler;
+  delete myL1PtSmearer;
   std::cout << " ===> FastL1MuonProducer , final report." << std::endl;
-  std::cout << " ===> Number of total -> L1 muons in the whole run : "
+  std::cout << " ===> Number of total -> L1 muons in the whole job : "
             <<   nMuonTot << " -> " << nL1MuonTot << std::endl;
 }
 
