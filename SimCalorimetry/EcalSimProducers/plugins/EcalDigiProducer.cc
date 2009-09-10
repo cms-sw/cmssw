@@ -1,5 +1,6 @@
 
 #include "EcalDigiProducer.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -331,9 +332,12 @@ void EcalDigiProducer::updateGeometry() {
   theEcalResponse->setGeometry(theGeometry);
   theESResponse->setGeometry(theGeometry);
 
-  const std::vector<DetId>& theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
-  const std::vector<DetId>& theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
-  const std::vector<DetId>& theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
+  const std::vector<DetId>& theBarrelDets 
+     ( theGeometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel   )->getValidDetIds() ) ;
+  const std::vector<DetId>& theEndcapDets 
+     ( theGeometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap   )->getValidDetIds() ) ;
+  const std::vector<DetId>& theESDets     
+     ( theGeometry->getSubdetectorGeometry( DetId::Ecal, EcalPreshower)->getValidDetIds() ) ;
 
   edm::LogInfo("EcalDigi") << "deb geometry: " << "\n" 
                       << "\t barrel: " << theBarrelDets.size () << "\n"
