@@ -76,8 +76,8 @@ void testClosestCells()
    testClosestCell( forwardDet1, g );
    testClosestCell( forwardDet3, g );
 
-   std::vector<DetId> ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
-   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+   const std::vector<DetId>& ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
+   for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
    {
       testClosestCell( HcalDetId(*i), g );
    }
@@ -94,8 +94,8 @@ int main() {
   HcalHardcodeGeometryLoader::ReturnType f=l.load(DetId::Hcal,HcalForward);
 
   std::cout << std::endl << " BARREL : " << std::endl;
-  std::vector<DetId> ids=b->getValidDetIds(DetId::Hcal,HcalBarrel);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& idshb=b->getValidDetIds(DetId::Hcal,HcalBarrel);
+  for (std::vector<DetId>::const_iterator i=idshb.begin(); i!=idshb.end(); i++) {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1) continue;
     const CaloCellGeometry* geom=b->getGeometry(hid);
@@ -107,8 +107,8 @@ int main() {
   }
 
   std::cout << std::endl << " FORWARD : " << std::endl;
-  ids=f->getValidDetIds(DetId::Hcal,HcalForward);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& idshf=f->getValidDetIds(DetId::Hcal,HcalForward);
+  for (std::vector<DetId>::const_iterator i=idshf.begin(); i!=idshf.end(); i++) {
     HcalDetId hid=(*i);
     //  if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
@@ -121,8 +121,8 @@ int main() {
   }
 
   std::cout << std::endl << " ENDCAP : " << std::endl;
-  ids=e->getValidDetIds(DetId::Hcal,HcalEndcap);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& idshe=e->getValidDetIds(DetId::Hcal,HcalEndcap);
+  for (std::vector<DetId>::const_iterator i=idshe.begin(); i!=idshe.end(); i++) {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
@@ -135,8 +135,8 @@ int main() {
   }
 
   std::cout << std::endl << " OUTER : " << std::endl;
-  ids=o->getValidDetIds(DetId::Hcal,HcalEndcap);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& idsho=o->getValidDetIds(DetId::Hcal,HcalOuter);
+  for (std::vector<DetId>::const_iterator i=idsho.begin(); i!=idsho.end(); i++) {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
