@@ -300,6 +300,10 @@ FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(l1ExtraOut);
   iEvent.put(l1ReadOut);
 
+  L1mu = mySimpleL1MuonCandsTemp.rbegin();
+  for ( ; L1mu!=lastL1mu; ++L1mu ) {
+    delete L1mu->second;
+  }
 }
 
 
