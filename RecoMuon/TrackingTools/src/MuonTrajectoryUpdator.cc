@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/07/07 13:38:41 $
- *  $Revision: 1.31 $
+ *  $Date: 2009/07/27 18:13:29 $
+ *  $Revision: 1.32 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -166,15 +166,16 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	  // FIXME: check!
 	  trajectory.push(updatedMeasurement, thisChi2.second);	  
 	}
-	else if(useInvalidHits) {
-          LogTrace(metname) << "  Compatible RecHit with too large chi2"
+	else {
+          if(useInvalidHits) {
+            LogTrace(metname) << "  Compatible RecHit with too large chi2"
 			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
 
-	  MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit).get() );
-	  invalidRhPtr->invalidateHit();
-	  TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
-	  trajectory.push(invalidRhMeasurement, thisChi2.second);	  
-
+	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
+	    invalidRhPtr->invalidateHit();
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
+	    trajectory.push(invalidRhMeasurement, thisChi2.second);	  
+          }
 	}
       }
     }
