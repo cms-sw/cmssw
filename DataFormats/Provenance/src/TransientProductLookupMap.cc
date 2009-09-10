@@ -237,6 +237,9 @@ namespace edm {
      if(processNameOrdering.end() != std::find(processNameOrdering.begin(), processNameOrdering.end(), iNewProcessName)) {
         *itR = iNewProcessName;
         ++itR;
+	if (iNewProcessName == itRH->processName()) {
+	  ++itRH;
+	}
      }
      for(; itRH != itRHEnd; ++itRH) {
         if(processNameOrdering.end() != std::find(processNameOrdering.begin(), processNameOrdering.end(), itRH->processName())) {
