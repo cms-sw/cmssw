@@ -118,7 +118,10 @@ except ImportError:
         variable,value=l[7:len(l)-3].strip().split("=",1)
         environment[variable]=value[1:]
     env.close()
-    os.chdir("../../")
+    if cwd=="":
+        os.chdir("../")
+    else:
+        os.chdir("../../")
     #running again the program
     if execute:
         runcmd2(environment,"./compare.py",tuple(sys.argv[1:]))#works only if compare.py is located in the pwd
@@ -131,14 +134,15 @@ else:
     histo=[]
     canvas=[]
     legend=TLegend(.89,0.8,1,.2)
-    histonames=["eventEnergyEB","eventEnergyEE","iEtaDistributionEB","iphiDistributionEB","meanEnergyEB","meanEnergyEE","nRechitsEB","nRechitsEE","rhEnergyEB","rhEnergyEE"]
-    colornames=[kBlack,kRed,kBlue,kGreen,kCyan,kMagenta,kYellow,kOrange,kPink,kViolet,kAzure,kTeal,kSpring]
+    histonames=["eventEnergyEB","eventEnergyEE","iEtaDistributionEB","iphiDistributionEB","meanEnergyEB","meanEnergyEE","nRechitsEB","nRechitsEE","rhEnergyEB","rhEnergyEE","iEtaDistributionEE"]
+    colornames=[kRed,kBlue,kGreen,kCyan,kMagenta,kYellow,kOrange,kPink,kViolet,kAzure,kTeal,kSpring]
+#kBlack,
     for nv,v in enumerate(ver):
         histo.append([])#a list for every version: "version list"
         for nf,f in enumerate(fil):
             if not nv:
                 canvas.append(TCanvas(f[:len(f)-5],f[:len(f)-5]))
-                canvas[nf].Divide(2,5)
+                canvas[nf].Divide(2,6)
             histo[nv].append([])#a list for every file in each version: "file list"
             histo[nv][nf].append(TFile(v+"/"+f))#the first element of the "file list" is the file itself
             histo[nv][nf].append([])#the second element of the "file list" is the "histo list"
@@ -197,7 +201,7 @@ else:
                 except OSError,inst:
                     if inst.errno==errno.EEXIST:
                         print "Possibly overwriting images"
-                os.system("cp "+cwd+"/temp.html "+f[:len(f)-5]+"/index.html")
+                os.system("cp "+cwd+"temp.html "+f[:len(f)-5]+"/index.html")
                 os.chdir(f[:len(f)-5])
                 canvas[nf].cd()
                 canvas[nf].SetWindowSize(1050,780)

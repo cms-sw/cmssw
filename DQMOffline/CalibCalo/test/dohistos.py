@@ -19,6 +19,7 @@ Options:\n\
 --dbs    use dbs access to retrieve file paths, edit directly the source code to modify the query, while in --dbs mode don't use -f option\n\
 --condition [IDEAL,STARTUP]    permits to specify the conditions when in dbs mode; if not specified IDEAL is default; must be coherent with --query option if specified\n\
 -n [1000]   specify the number of events\n\
+--like   additional like statement in the dbs query to narrow the number of dataset returned\n\
 Example:\n\
 ./dohistos.py Folder01 -v CMSSW_X_Y_Z CMSSW_J_K_W -f file:/file1.root file:/file2.root"
     sys.exit()
@@ -50,17 +51,19 @@ else: help_message()
 
 #read and parse the input
 state="n"
+like_query=""
 num_evts="1000"
 cvs=False
 dbs=False
 use_manual_num=False
 anon=False#only for debug purposes
-conditions='IDEAL'
+conditions='IDEAL_31X'
+conditions_file='IDEAL'
 #query_list=[]    #not useful
 ver=[]
 fil=[]
 out_root="histo.root"
-#used state letters (please keep updated): cfnqrv
+#used state letters (please keep updated): cflnqrv
 for arg in sys.argv:
     if arg=="-v" or arg=="-V":
         state="v"
@@ -80,18 +83,25 @@ for arg in sys.argv:
         dbs=True
     elif arg=="-a":#only for debug purposes
         anon=True
+    elif arg=="--like":
+        state="l"
+############################################## state handling
     elif state=="v":
         ver.append(arg)
     elif state=="f":
         fil.append(arg)
     elif state=="r":
         out_root=arg
+    elif state=="l":
+        like_query=arg
     elif state=="c":
-        if arg=='IDEAL' or arg=='STARTUP':
-            conditions=arg
-        else:
-            print 'Error: conditions must be either "IDEAL" or "STARTUP"'
-            sys.exit()
+        conditions=arg
+        usn=0
+        for ncondt,condt in enumerate(arg):
+            if condt=='_':
+                usn=ncondt
+                break
+        conditions_file=conditions[:usn]
     elif state=="n":
         num_evts=arg
         use_manual_num=True
@@ -105,7 +115,8 @@ if len(fil)>0 and dbs:
 
 ###dbs query to retrieve the data with option --dbs
 ###|||||||||||||||||||||||||||||||||||||||||||||||||
-dbsstr='python $DBSCMD_HOME/dbsCommandLine.py -c search --query="find dataset where phygrp=RelVal and primds=RelValMinBias and dataset.tier=GEN-SIM-DIGI-RAW-HLTDEBUG and file.name like *'+conditions+'* and file.release='
+dbsstr='python $DBSCMD_HOME/dbsCommandLine.py -c search --query="find dataset where phygrp=RelVal and primds=RelValMinBias and dataset.tier=GEN-SIM-DIGI-RAW-HLTDEBUG and file.name like *'+conditions+'* and file.name like *'+like_query+'* and file.release='
+#dbsstr='dbs -c search --query="find dataset where phygrp=RelVal and primds=RelValMinBias and dataset.tier=GEN-SIM-DIGI-RAW-HLTDEBUG and file.name like *'+conditions+'* and file.release='
 ###|||||||||||||||||||||||||||||||||||||||||||||||||
 dbsdataset=[]
 dbsfile=[]
@@ -140,17 +151,21 @@ for nv,v in enumerate(ver):
         inifil=False
         ris=os.popen(dbsstr+v+'"')
         for lnris in ris.readlines():
+            print lnris
             if inifil:
                 dbsdataset.append(lnris)
             else:
-                if lnris[:3]=="___":
+                #if lnris[:3]=="___":
+                if lnris[:3]=="---":
                     inifil=True
         ris.close()
-        dbsdataset.pop()
-        dbsdataset[0]=dbsdataset[0][:-2]
+        dbsdataset=dbsdataset[2:]
+        dbsdataset[0]=dbsdataset[0][0:-1]
+        for lnris2 in dbsdataset:        
+            print lnris2
         if len(dbsdataset)>1 or len(dbsdataset)==0:
             #print dbsdataset
-            print "dbs search returned more than one or no dataset, please modify the query so only one dataset is returned"
+            print "dbs search returned ",len(dbsdataset)," records, please modify the query so only one dataset is returned"
             sys.exit()
         else:
             #extracting the file names relative to the selected dataset
@@ -160,12 +175,12 @@ for nv,v in enumerate(ver):
                 if inifil:
                     dbsfile.append(lnris)
                 else:
-                    if lnris[:3]=="___":
+                    if lnris[:3]=="---":
                         inifil=True
             ris.close()
-            dbsfile.pop()
+            dbsfile=dbsfile[2:]
             for dbsfn,dbsf in enumerate(dbsfile):
-                dbsfile[dbsfn]=dbsfile[dbsfn][:-2]
+                dbsfile[dbsfn]=dbsfile[dbsfn][:-1]
             
             #extracting the total number of events    #not very useful at the moment, it is better to use manual extraction
             #if not use_manual_num:
@@ -188,14 +203,14 @@ for nv,v in enumerate(ver):
 
     #for f in fil: remember indentation if uncommenting this
     if not dbs:
-        runcmd(environment,"cmsDriver.py","testALCA","-s","ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPhiSym_cff:EcalCalPhiSym+DQM","-n",num_evts,"--filein",fil[nv],"--fileout","file:dqm.root","--eventcontent","FEVT","--conditions","FrontierConditions_GlobalTag,"+conditions+"_31X::All")#,"--no_exec")
+        runcmd(environment,"cmsDriver.py","testALCA","-s","ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPhiSym_cff:EcalCalPhiSym+DQM","-n",num_evts,"--filein",fil[nv],"--fileout","file:dqm.root","--eventcontent","FEVT","--conditions","FrontierConditions_GlobalTag,"+conditions+"::All")#,"--no_exec")
     else:
         sfl=""
         for fl in dbsfile:
             sfl=sfl+','+fl
         sfl=sfl[1:]
-        runcmd(environment,"cmsDriver.py","testALCA","-s","ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPhiSym_cff:EcalCalPhiSym+DQM","-n",num_evts,"--filein",sfl,"--fileout","file:dqm.root","--eventcontent","FEVT","--conditions","FrontierConditions_GlobalTag,"+conditions+"_31X::All","--no_exec")
-        alcareco=open("testALCA_ALCA_IDEAL.py",'r')
+        runcmd(environment,"cmsDriver.py","testALCA","-s","ALCA:Configuration/StandardSequences/AlCaRecoStream_EcalCalPhiSym_cff:EcalCalPhiSym+DQM","-n",num_evts,"--filein",sfl,"--fileout","file:dqm.root","--eventcontent","FEVT","--conditions","FrontierConditions_GlobalTag,"+conditions+"::All","--no_exec")
+        alcareco=open("testALCA_ALCA_"+conditions_file+".py",'r')
         alcarecoln=alcareco.readlines()
         alcareco.close()
         arnum=0
@@ -203,15 +218,16 @@ for nv,v in enumerate(ver):
             if sfl in arl:
                 arnum=arln
         alcarecoln[arnum]=alcarecoln[arnum].replace(",","','")
-        alcareco=open("testALCA_ALCA_"+conditions+".py",'w')
+        alcareco=open("testALCA_ALCA_"+conditions_file+".py",'w')
         for arln in alcarecoln:
             alcareco.write(arln)
         alcareco.close()
-        runcmd(environment,"cmsRun","testALCA_ALCA_"+conditions+".py")
+        runcmd(environment,"cmsRun","testALCA_ALCA_"+conditions_file+".py")
     os.system("mv ALCARECOEcalCalPhiSym.root dqm.root")
     if cvs:
         runcmd(environment,"cmsRun","src/DQMOffline/CalibCalo/test/edm2me_cfg.py")
     else:
         runcmd(environment,"cmsRun",environment["CMSSW_RELEASE_BASE"]+"/src/DQMOffline/CalibCalo/test/edm2me_cfg.py")
     os.system("mv DQM_V0001_R000000001__A__B__C.root "+out_root)
+    os.system("rm dqm.root")
     os.chdir("../")
