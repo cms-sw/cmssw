@@ -9,22 +9,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 #define HCAL_HLX_MAX_BUNCHES 4096
 #define HCAL_HLX_MAX_HLXS 36
 
 //#define HCAL_HLX_NUM_BUNCHES 3564
 //#define HCAL_HLX_NUM_HLXS 36
-
-#ifdef __CINT__
-typedef char      int8_t;
-typedef short int int16_t;
-typedef int       int32_t;
-
-typedef unsigned char      uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int       uint32_t;
-#endif
 
 // Changes
 // Namespace for the HCAL HLX
