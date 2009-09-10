@@ -9,6 +9,7 @@ class TBranch;
 class TFile;
 class TTree;
 class TTreeCache;
+class TClass;
 
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
@@ -23,11 +24,13 @@ namespace edm {
       BranchInfo(ConstBranchDescription const& prod) :
         branchDescription_(prod),
 	productBranch_(0),
-	provenanceBranch_(0) {}
+	provenanceBranch_(0),
+        classCache_(0) {}
       ConstBranchDescription branchDescription_;
       TBranch * productBranch_;
       // The rest are for backward compatibility
       TBranch * provenanceBranch_;
+      mutable TClass * classCache_;
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     typedef Long64_t EntryNumber;

@@ -44,7 +44,11 @@ namespace edm {
       }
     }
     setRefCoreStreamer(ep, !fileFormatVersion_.splitProductIDs(), !fileFormatVersion_.productIDIsInt());
-    TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
+    TClass *cp = branchInfo.classCache_;
+    if(0==cp) {
+      branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
+      cp = branchInfo.classCache_;
+    }
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);
