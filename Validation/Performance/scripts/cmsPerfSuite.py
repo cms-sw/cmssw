@@ -1306,7 +1306,7 @@ class PerfSuite:
                #the IB case the AvailableCores will always consist of only 1 single core..
                OriginalAvailableCores=list(AvailableCores) #Tricky list copy bug! without the list() OriginalAvalaibleCores would point to AvailableCores!
                #Print this out in the log for debugging reasons
-               self.printFlush("Original available cores list:", AvailableCores)
+               self.printFlush("Original available cores list: %s"%AvailableCores)
 
                #Create a dictionary to keep track of running threads on the various cores:
                activePerfTestThreads={}
