@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2006/08/28 14:27:10 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/07/03 10:08:57 $
+ *  $Revision: 1.14 $
  *
  *   \author   C. Liu            Purdue University
  */
@@ -66,6 +66,8 @@ public:
   static MuonRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
     return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
+
+  inline void invalidateHit() { setType(bad); }
 
  private:
 
