@@ -99,8 +99,8 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
   
   int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+  const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
+  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
     n++;
     const CaloCellGeometry* cell=geom->getGeometry(*i);
     if (det == DetId::Ecal)
