@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id: ChainEvent.cc,v 1.12 2009/08/18 17:56:59 chrjones Exp $
+// $Id: ChainEvent.cc,v 1.13 2009/09/04 21:34:20 wdd Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TROOT.h"
 
 namespace fwlite {
 //
@@ -44,14 +45,16 @@ namespace fwlite {
         itEnd = iFileNames.end();
         it!=itEnd;
         ++it) {
-      file_ = boost::shared_ptr<TFile>(TFile::Open(it->c_str()));
-      TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
-      if(0==tree) {
-        throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
-      }
-      
-      summedSize += tree->GetEntries();
-      accumulatedSize_.push_back(summedSize);
+       TFile *tfilePtr = TFile::Open(it->c_str());
+       file_ = boost::shared_ptr<TFile>(tfilePtr);
+       gROOT->GetListOfFiles()->Remove(tfilePtr);
+       TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
+       if(0==tree) {
+          throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
+       }
+       
+       summedSize += tree->GetEntries();
+       accumulatedSize_.push_back(summedSize);
     }
     if ( iFileNames.size() > 0 ) 
       switchToFile(0);
@@ -189,9 +192,12 @@ void
 ChainEvent::switchToFile(Long64_t iIndex)
 {
   eventIndex_= iIndex;
-  file_ = boost::shared_ptr<TFile>(TFile::Open(fileNames_[iIndex].c_str()));
+  TFile *tfilePtr = TFile::Open(fileNames_[iIndex].c_str());
+  file_ = boost::shared_ptr<TFile>(tfilePtr);
+  gROOT->GetListOfFiles()->Remove(tfilePtr);
   event_ = boost::shared_ptr<Event>( new Event(file_.get()));
 }
+  
 //
 // const member functions
 //

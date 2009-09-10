@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.11 2009/08/18 17:56:59 chrjones Exp $
+// $Id: ChainEvent.h,v 1.12 2009/09/04 21:34:19 wdd Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -75,7 +75,7 @@ namespace fwlite {
       bool isValid() const;
       operator bool () const;
       virtual bool atEnd() const;
-      
+
       Long64_t size() const;
 
       virtual edm::EventAuxiliary const& eventAuxiliary() const;
@@ -89,7 +89,7 @@ namespace fwlite {
       Long64_t eventIndex() const { return eventIndex_; }
 
       void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ){
-	event_->setGetter( getter );
+         event_->setGetter( getter );
       }
 
       Event const * event() const { return &*event_; }
