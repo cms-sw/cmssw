@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.8 2009/08/16 21:32:20 kukartse Exp $
+// $Id: LMap.cc,v 1.9 2009/08/20 16:54:10 kukartse Exp $
 //
 
 // system include files
@@ -231,6 +231,8 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       row.slot      = eId->htrSlot();
       row.dcc       = eId->dccid();
       row.spigot    = eId->spigot();
+      row.fiber     = eId->slbSiteNumber();
+      row.fiberchan = eId->slbChannelIndex();
       if (eId->htrTopBottom()==1) row.topbottom = "t";
       else row.topbottom = "b";
       //

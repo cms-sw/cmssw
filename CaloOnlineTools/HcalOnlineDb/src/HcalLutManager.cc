@@ -13,7 +13,7 @@
 #include "occi.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
+//#include "CaloOnlineTools/HcalOnlineDb/interface/ZdcLut.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
@@ -1547,6 +1547,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
 
   EMap _emap(emap);
 
+  /* FIXME: implement ZDC luts
   ZdcLut zdc;
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
@@ -1612,7 +1613,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
   }
   cout << "LUTs generated: " << _counter.getCount() << endl;
   cout << "Generating ZDC LUTs...DONE" << endl;
-
+  */
   return _xml;
 }
 
