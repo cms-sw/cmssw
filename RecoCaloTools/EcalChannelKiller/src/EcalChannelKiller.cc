@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.2 2007/05/09 14:21:16 beaucero Exp $
+// $Id: EcalChannelKiller.cc,v 1.3 2009/04/30 13:09:17 beaucero Exp $
 //
 //
 
@@ -36,7 +36,8 @@
 
 #include "RecoCaloTools/EcalChannelKiller/interface/EcalChannelKiller.h"
 
-#include<string>
+#include <string>
+#include <cstdio>
 using namespace cms;
 using namespace std;
 
