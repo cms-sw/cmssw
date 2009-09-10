@@ -657,14 +657,38 @@ namespace edm {
 
   void
   Principal::checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, Group const* g) const {
-/*
+    if (prod.get() == 0) return;
     bool alreadyPresent = !productPtrs_.insert(prod.get()).second;
     if (alreadyPresent) {
       g->checkType(*prod.release());
-      throw 0;
+      throw edm::Exception(errors::EventCorruption)
+	  << "Product on branch " << g->branchDescription().branchName() << " occurs twice in the same event.\n";
     }
     g->checkType(*prod);
-*/
+  }
+
+  void
+  Principal::putOrMerge(std::auto_ptr<EDProduct> prod, Group const* g) const {
+    bool willBePut = g->putOrMergeProduct();
+    if (willBePut) {
+      checkUniquenessAndType(prod, g);
+      g->putProduct(prod);
+    } else {
+      g->checkType(*prod);
+      g->mergeProduct(prod);
+    }
+  }
+
+  void
+  Principal::putOrMerge(std::auto_ptr<EDProduct> prod, std::auto_ptr<ProductProvenance> prov, Group* g) {
+    bool willBePut = g->putOrMergeProduct();
+    if (willBePut) {
+      checkUniquenessAndType(prod, g);
+      g->putProduct(prod, prov);
+    } else {
+      g->checkType(*prod);
+      g->mergeProduct(prod, prov);
+    }
   }
 
   void

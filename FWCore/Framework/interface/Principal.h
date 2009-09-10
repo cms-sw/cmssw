@@ -177,6 +177,10 @@ namespace edm {
     // throws if the pointed to product is already in the Principal.
     void checkUniquenessAndType(std::auto_ptr<EDProduct>& prod, Group const* group) const;
 
+    void putOrMerge(std::auto_ptr<EDProduct> prod, Group const* group) const;
+
+    void putOrMerge(std::auto_ptr<EDProduct> prod, std::auto_ptr<ProductProvenance> prov, Group* group);
+
   private:
     virtual EDProduct const* getIt(ProductID const&) const;
 

@@ -38,22 +38,23 @@ namespace edm {
   }
 
   void
-  ProducedGroup::putOrMergeProduct_(
+  ProducedGroup::mergeProduct_(
 	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
-    if (productUnavailable()) {
-      putProduct_(edp, productProvenance);
-    } else {
-      assert(productProvenancePtr());
-      assert(status() == Present);
-      assert (productProvenancePtr()->productStatus() == productProvenance->productStatus());
-      productProvenancePtr() = productProvenance;
-      mergeProduct(edp);
-    }
+    assert(productProvenancePtr());
+    assert(status() == Present);
+    assert (productProvenancePtr()->productStatus() == productProvenance->productStatus());
+    productProvenancePtr() = productProvenance;
+    mergeTheProduct(edp);
+  }
+
+  bool
+  ProducedGroup::putOrMergeProduct_() const {
+    return productUnavailable();
   }
 
   void
-  ProducedGroup::putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const {
+  ProducedGroup::mergeProduct_(std::auto_ptr<EDProduct> edp) const {
     assert(0);
   }
 
@@ -80,20 +81,21 @@ namespace edm {
   }
 
   void
-  InputGroup::putOrMergeProduct_(
+  InputGroup::mergeProduct_(
 	std::auto_ptr<EDProduct> edp,
 	boost::shared_ptr<ProductProvenance> productProvenance) {
     assert(0);
   }
 
   void
-  InputGroup::putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const {
-    if (!product()) {
-      setProduct(edp);
-    } else {
-      mergeProduct(edp);
-    }
+  InputGroup::mergeProduct_(std::auto_ptr<EDProduct> edp) const {
+    mergeTheProduct(edp);
     updateStatus();
+  }
+
+  bool
+  InputGroup::putOrMergeProduct_() const {
+    return (!product());
   }
 
   void
@@ -113,7 +115,7 @@ namespace edm {
   }
 
   void
-  Group::mergeProduct(std::auto_ptr<EDProduct> edp) const {
+  Group::mergeTheProduct(std::auto_ptr<EDProduct> edp) const {
   if (product()->isMergeable()) {
     product()->mergeProduct(edp.get());
   } else if (product()->hasIsProductEqual()) {

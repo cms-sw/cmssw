@@ -54,9 +54,8 @@ namespace edm {
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
-    checkUniquenessAndType(edp, g);
     // Group assumes ownership
-    g->putOrMergeProduct(edp, productProvenance);
+    putOrMerge(edp, productProvenance, g);
   }
 
   void
@@ -85,8 +84,7 @@ namespace edm {
 
     // Now fix up the Group
     if (edp.get() != 0) {
-      checkUniquenessAndType(edp, &g);
-      g.putOrMergeProduct(edp);
+      putOrMerge(edp, &g);
     }
   }
 

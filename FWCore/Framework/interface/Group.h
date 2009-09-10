@@ -129,9 +129,6 @@ namespace edm {
     // Sets the product ID of the product.
     void setProductID(ProductID const& pid) {groupData().pid_ = pid;};
 
-    // Merges two instances of the product.
-    void mergeProduct(std::auto_ptr<EDProduct> edp) const;
-
     // Puts the product and its per event(lumi)(run) provenance into the Group.
     void putProduct(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) {
       putProduct_(edp, productProvenance);
@@ -145,18 +142,25 @@ namespace edm {
       putProduct_(edp);
     }
 
-    // Puts the product and its per event(lumi)(run) provenance into the Group, or merges it with the pre-existing product
-    void putOrMergeProduct(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) {
-      putOrMergeProduct_(edp, productProvenance);
-    }
-    void putOrMergeProduct(std::auto_ptr<EDProduct> edp, std::auto_ptr<ProductProvenance> productProvenance) {
-      putOrMergeProduct_(edp, boost::shared_ptr<ProductProvenance>(productProvenance.release()));
+    // This returns true if it will be put, false if it will be merged
+    bool putOrMergeProduct() const {
+      return putOrMergeProduct_();
     }
 
-    // Puts the product into the Group, or merges it with the pre-existing product
-    void putOrMergeProduct(std::auto_ptr<EDProduct> edp) const {
-      putOrMergeProduct_(edp);
+    // merges the product with the pre-existing product
+    void mergeProduct(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) {
+      mergeProduct_(edp, productProvenance);
     }
+    void mergeProduct(std::auto_ptr<EDProduct> edp, std::auto_ptr<ProductProvenance> productProvenance) {
+      mergeProduct_(edp, boost::shared_ptr<ProductProvenance>(productProvenance.release()));
+    }
+
+    void mergeProduct(std::auto_ptr<EDProduct> edp) const {
+      mergeProduct_(edp);
+    }
+
+    // Merges two instances of the product.
+    void mergeTheProduct(std::auto_ptr<EDProduct> edp) const;
 
     // Resolves the per event(lumi)(run) provenance (read from input).
     void resolveProvenance(boost::shared_ptr<BranchMapper> store) const {
@@ -176,8 +180,9 @@ namespace edm {
     virtual bool productUnavailable_() const = 0;
     virtual void putProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
     virtual void putProduct_(std::auto_ptr<EDProduct> edp) const = 0;
-    virtual void putOrMergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
-    virtual void putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const = 0;
+    virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance) = 0;
+    virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const = 0;
+    virtual bool putOrMergeProduct_() const = 0;
     virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const = 0;
     virtual void resetStatus() = 0;
     virtual GroupData const& groupData() const = 0;
@@ -221,8 +226,9 @@ namespace edm {
       }
       virtual void putProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
-      virtual void putOrMergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
-      virtual void putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual bool putOrMergeProduct_() const;
       virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const;
       virtual void resetStatus() {theStatus_ = Uninitialized;}
       virtual bool onDemand_() const {return false;}
@@ -258,8 +264,9 @@ namespace edm {
     private:
       virtual void putProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
       virtual void putProduct_(std::auto_ptr<EDProduct> edp) const;
-      virtual void putOrMergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
-      virtual void putOrMergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp, boost::shared_ptr<ProductProvenance> productProvenance);
+      virtual void mergeProduct_(std::auto_ptr<EDProduct> edp) const;
+      virtual bool putOrMergeProduct_() const;
       virtual void resolveProvenance_(boost::shared_ptr<BranchMapper> store) const;
       virtual GroupStatus const& status_() const = 0;
       virtual GroupStatus& status_() = 0;
