@@ -6,7 +6,7 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticle.h,v 1.4 2007/11/30 09:22:06 llista Exp $
+ * \version $Id: GenParticle.h,v 1.5.2.1 2009/09/03 15:15:05 srappocc Exp $
  */
 #include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -35,10 +35,13 @@ namespace reco {
     virtual ~GenParticle();
     /// return a clone
     GenParticle * clone() const;
+    void setCollisionId(int s) {collisionId_ = s;}
+    int collisionId() const {return collisionId_;}
 
   private:
     /// checp overlap with another candidate
     bool overlap(const Candidate &) const;
+    int collisionId_;
  };
 
 }
