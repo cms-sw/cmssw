@@ -5,6 +5,7 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cfi import *
 HLTTauDQMOffline = cms.Sequence(TauRefProducer+
                                 hltTauOfflineMonitor_PFTaus
                                 +hltTauOfflineMonitor_Photons
+                                +hltTauOfflineMonitor_HPD
                                 )
 
                                 

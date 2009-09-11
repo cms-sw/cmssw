@@ -19,7 +19,10 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
+//CaloTower includes
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 
 using namespace edm;
@@ -68,6 +71,11 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   doJets_ = jets.getUntrackedParameter<bool>("doJets");
   ptMinJet_= jets.getUntrackedParameter<double>("etMin");
 
+  ParameterSet  towers = iConfig.getUntrackedParameter<edm::ParameterSet>("Towers");
+  Towers_ = towers.getUntrackedParameter<InputTag>("TowerCollection");
+  doTowers_ = towers.getUntrackedParameter<bool>("doTowers");
+  ptMinTower_= towers.getUntrackedParameter<double>("etMin");
+
   ParameterSet  photons = iConfig.getUntrackedParameter<edm::ParameterSet>("Photons");
   Photons_ = photons.getUntrackedParameter<InputTag>("PhotonCollection");
   doPhotons_ = photons.getUntrackedParameter<bool>("doPhotons");
@@ -85,6 +93,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   produces<LorentzVectorCollection>("Muons");
   produces<LorentzVectorCollection>("Jets");
   produces<LorentzVectorCollection>("Photons");
+  produces<LorentzVectorCollection>("Towers");
 
 }
 
@@ -104,6 +113,8 @@ void HLTTauRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     doJets(iEvent,iES);
   if(doPhotons_)
     doPhotons(iEvent,iES);
+  if(doTowers_)
+    doTowers(iEvent,iES);
 
 }
 
@@ -277,6 +288,25 @@ HLTTauRefProducer::doJets(edm::Event& iEvent,const edm::EventSetup& iES)
 	}
       iEvent.put(product_Jets,"Jets");
 }
+
+void 
+HLTTauRefProducer::doTowers(edm::Event& iEvent,const edm::EventSetup& iES)
+{
+      auto_ptr<LorentzVectorCollection> product_Towers(new LorentzVectorCollection);
+      //Retrieve the collection
+      edm::Handle<CaloTowerCollection> towers;
+      if(iEvent.getByLabel(Towers_,towers))
+      for(size_t i = 0 ;i<towers->size();++i)
+	{
+	     if((*towers)[i].pt()>ptMinTower_&&fabs((*towers)[i].eta())<etaMax)
+	      {
+		LorentzVector vec((*towers)[i].px(),(*towers)[i].py(),(*towers)[i].pz(),(*towers)[i].energy());
+		product_Towers->push_back(vec);
+	      }
+	}
+      iEvent.put(product_Towers,"Towers");
+}
+
 
 void 
 HLTTauRefProducer::doPhotons(edm::Event& iEvent,const edm::EventSetup& iES)
