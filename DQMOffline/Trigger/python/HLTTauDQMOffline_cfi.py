@@ -40,7 +40,7 @@ TauRefProducer = cms.EDFilter("HLTTauRefProducer",
                             ),
                    Towers = cms.untracked.PSet(
                             TowerCollection = cms.untracked.InputTag("towerMaker"),
-                            etMin = cms.untracked.double(20.0),
+                            etMin = cms.untracked.double(10.0),
                             doTowers = cms.untracked.bool(True)
                             ),
 
