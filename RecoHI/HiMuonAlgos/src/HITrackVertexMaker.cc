@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.2 2009/08/15 07:31:44 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.3 2009/08/15 16:59:53 kodolova Exp $
 //
 //
  
@@ -63,6 +63,7 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+
 // Geometry includes
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -109,7 +110,6 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
    rphirecHitsTag      = ps1.getParameter< edm::InputTag > ("rphiRecHits");
    builderName         = ps1.getParameter< std::string >   ("TTRHBuilder");
    primaryVertexTag    = ps1.getParameter< edm::InputTag > ("PrimaryVertexTag");
-
 #ifdef DEBUG
    std::cout<<" Start HI TrackVertexMaker constructor "<<std::endl;
 #endif

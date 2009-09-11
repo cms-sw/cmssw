@@ -70,8 +70,10 @@ HICTrajectoryBuilder::
   theMinimumNumberOfHits  = 5;
   theAlwaysUseInvalidHits = false;
   es1.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
-  es1.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterTrack);
-  es1.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
+//  es1.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterTrack);
+//  es1.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
+  es1.get<TrajectoryFitter::Record>().get("KFFitterForRefitInsideOut",theFitterTrack); 
+  es1.get<TrajectoryFitter::Record>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
   es1.get<TrackingComponentsRecord>().get("SmartPropagatorAny",thePropagatorTrack);
   
 #ifdef DEBUG  
@@ -82,8 +84,8 @@ HICTrajectoryBuilder::
 HICTrajectoryBuilder::~HICTrajectoryBuilder()
 {
   delete theLayerMeasurements;
-  delete theMinPtCondition;
-  delete theMaxHitsCondition;
+//  delete theMinPtCondition;
+//  delete theMaxHitsCondition;
 }
 
 void HICTrajectoryBuilder::setEvent(const edm::Event& event) const
