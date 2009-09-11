@@ -22,7 +22,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
   // put TP-s in the output
   // on request also in TcpFormat    
   // for famos version we have to write dummies except for the middle
-
+  
   int myEt;
   if (famos_) {
     for (unsigned int i=0; i<out.size();++i) {
@@ -34,7 +34,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
 	// badTTStatus_ ==0 if the TT works
 	// badTTStatus_ !=0 if there are some problems
 	int lut_out;
-	if (badTTStatus_!=0){
+	if (*badTTStatus_!=0){
 	  lut_out = 0;
 	}
 	else
@@ -55,7 +55,7 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
       if (isInInnerRings) myEt = myEt /2 ;  
          
 	int lut_out;
-	if (badTTStatus_!=0){
+	if (*badTTStatus_!=0){
 	  lut_out = 0;
 	}
 	else
