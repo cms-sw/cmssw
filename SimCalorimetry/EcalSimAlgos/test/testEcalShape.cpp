@@ -19,8 +19,8 @@ int main()
 
    const EcalSimParameterMap parameterMap ;
 
-   const EBShape theEBShape( true );
-   const EEShape theEEShape( true );
+   const EBShape theEBShape ;
+   const EEShape theEEShape ;
 
    const int nsamp = EcalShapeBase::k1NSecBinsTotal;
    const int tconv = EcalShapeBase::kNBinsPerNSec;

@@ -6,8 +6,8 @@ EEShape::~EEShape()
 {
 }
 
-EEShape::EEShape( bool   aSaveDerivative ) :
-   EcalShapeBase( aSaveDerivative )
+EEShape::EEShape() :
+   EcalShapeBase( true )
 {
    buildMe() ;
 }
