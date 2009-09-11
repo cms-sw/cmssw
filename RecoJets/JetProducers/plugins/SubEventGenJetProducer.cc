@@ -1,9 +1,9 @@
 
-//#include <iostream>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/SubEventGenJetProducer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 using namespace std;
 using namespace reco;
@@ -38,7 +38,7 @@ namespace {
 SubEventGenJetProducer::SubEventGenJetProducer(edm::ParameterSet const& conf):
   VirtualJetProducer( conf )
 {
-   mapSrc_ = conf.getParameter<edm::InputTag>( "srcMap");
+   //   mapSrc_ = conf.getParameter<edm::InputTag>( "srcMap");
    ignoreHydro_ = conf.getUntrackedParameter<bool>("ignoreHydro", true);
    produces<reco::BasicJetCollection>();
   // the subjet collections are set through the config file in the "jetCollInstanceName" field.
@@ -57,13 +57,12 @@ void SubEventGenJetProducer::inputTowers( )
       if (isAnomalousTower(input))      continue;
 
       GenParticleRef pref = inputs_.refAt(i - inBegin).castTo<GenParticleRef>();
-      int subevent = (*subEvMap_)[pref];
+      int subevent = pref->collisionId();
       LogDebug("SubEventContainers")<<"SubEvent is : "<<subevent<<endl;
       LogDebug("SubEventContainers")<<"SubSize is : "<<subInputs_.size()<<endl;
 
       if(subevent >= (int)subInputs_.size()){ 
 	 hydroTag_.resize(subevent+1, -1);
-	 //	 hydroTag_[subevent] = -1;
          subInputs_.resize(subevent+1);
       LogDebug("SubEventContainers")<<"SubSize is : "<<subInputs_.size()<<endl;
       LogDebug("SubEventContainers")<<"HydroTagSize is : "<<hydroTag_.size()<<endl;
@@ -84,7 +83,6 @@ void SubEventGenJetProducer::inputTowers( )
 void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
    LogDebug("VirtualJetProducer") << "Entered produce\n";
 
-   subEvMap_ = 0;
    fjJets_.clear();
    subInputs_.clear();
    nSubParticles_.clear();
@@ -96,10 +94,6 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    inputs_ = *inputsHandle;
    LogDebug("VirtualJetProducer") << "Got inputs\n";
 
-   edm::Handle<edm::SubEventMap> subs;
-   iEvent.getByLabel(mapSrc_,subs);
-   subEvMap_ = subs.product();
- 
    inputTowers();
    // Convert candidates to fastjet::PseudoJets.
    // Also correct to Primary Vertex. Will modify fjInputs_
