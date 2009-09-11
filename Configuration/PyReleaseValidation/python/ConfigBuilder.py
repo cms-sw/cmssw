@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.140 $"
+__version__ = "$Revision: 1.143 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -58,7 +58,6 @@ class ConfigBuilder(object):
 	self.define_Configs()
 	self.with_output = with_output
 	self.with_input = with_input
-		
 	if process == None:
             self.process = cms.Process(self._options.name)
         else:
@@ -75,6 +74,7 @@ class ConfigBuilder(object):
         self.additionalObjects = []
         self.additionalOutputs = {}
         self.productionFilterSequence = None
+        self.imports = []
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
@@ -231,7 +231,7 @@ class ConfigBuilder(object):
                 print "Geometry option",self._options.geometry,"unknown."
                 raise 
 
-        self.imports.append(self.magFieldCFF)
+        self.loadAndRemember(self.magFieldCFF)
 
    
         # what steps are provided by this class?
@@ -286,6 +286,7 @@ class ConfigBuilder(object):
 
         # set the global tag
         self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditions)+"'")
+        self.process.GlobalTag.globaltag = cms.string(str(conditions))
                         
     def addCustomise(self):
         """Include the customise code """
@@ -317,8 +318,8 @@ class ConfigBuilder(object):
 		print defaultOptions.scenarioOptions
 		sys.exit(-1)
 		
-        self.imports=['Configuration/StandardSequences/Services_cff',
-		      'FWCore/MessageService/MessageLogger_cfi']
+        self.executeAndRemember('Configuration/StandardSequences/Services_cff')
+	self.executeAndRemember('FWCore/MessageService/MessageLogger_cfi')
 
 	self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"    
 	self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
@@ -401,7 +402,7 @@ class ConfigBuilder(object):
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
    	    self.RECODefaultSeq='reconstructionHeavyIons'
 
-	    
+
         # the magnetic field
 	if self._options.magField=='Default':
 	    self._options.magField=self.defaultMagField	
@@ -649,6 +650,7 @@ class ConfigBuilder(object):
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
             self.additionalCommands.append("process.mix.playback = True")      
+            self.process.mix.playback = True 
         return
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
@@ -773,7 +775,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.140 $"),
+              (version=cms.untracked.string("$Revision: 1.143 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -861,6 +863,8 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "\n# Schedule definition\n"
         result = "process.schedule = cms.Schedule("
 
+        # handling of the schedule
+	self.process.schedule = cms.Schedule(*(self.schedule))  
 	if hasattr(self.process,"HLTSchedule"):
    	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)] 
 	    afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
