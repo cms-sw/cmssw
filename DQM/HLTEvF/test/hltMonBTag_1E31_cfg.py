@@ -16,6 +16,9 @@ process.hltMonBTagIPSource.L3JetTags  = 'hltBLifetimeL3BJetTagsStartup'
 process.hltMonBTagIPSource.L3Filter   = 'hltBLifetimeL3FilterStartup'
 process.hltMonBTagIPSource.storeROOT  = True
 
+process.hltMonBTagESSource = process.hltMonBTagIPSource.clone()
+process.hltMonBTagESSource.pathName   = 'HLT_BTagIP_Jet120'
+
 process.load("DQM.HLTEvF.hltMonBTagMuSource_cfi")
 process.hltMonBTagMuSource.pathName   = 'HLT_BTagMu_Jet20'
 process.hltMonBTagMuSource.L1Filter   = 'hltL1sBTagMuJet20'
@@ -30,11 +33,14 @@ process.hltMonBTagMuSource.L3Filter   = 'hltBSoftMuonL3FilterByDR'
 process.hltMonBTagMuSource.storeROOT  = True
 
 process.load("DQM.HLTEvF.hltMonBTagIPClient_cfi")
-process.hltMonBTagIPSource.pathName  = 'HLT_BTagIP_Jet80'
+process.hltMonBTagIPClient.pathName  = 'HLT_BTagIP_Jet80'
 process.hltMonBTagIPClient.storeROOT = True
 
+process.hltMonBTagESClient = process.hltMonBTagIPClient.clone()
+process.hltMonBTagESClient.pathName   = 'HLT_BTagIP_Jet120'
+
 process.load("DQM.HLTEvF.hltMonBTagMuClient_cfi")
-process.hltMonBTagMuSource.pathName   = 'HLT_BTagMu_Jet20'
+process.hltMonBTagMuClient.pathName   = 'HLT_BTagMu_Jet20'
 process.hltMonBTagMuClient.storeROOT  = True
 
 process.maxEvents = cms.untracked.PSet(
@@ -61,4 +67,4 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.dqm = cms.Path( process.hltMonBTagIPSource + process.hltMonBTagMuSource  + process.hltMonBTagIPClient + process.hltMonBTagMuClient )
+process.dqm = cms.Path( process.hltMonBTagIPSource + process.hltMonBTagMuSource  + process.hltMonBTagESSource +process.hltMonBTagIPClient + process.hltMonBTagMuClient + process.hltMonBTagESClient )
