@@ -5,8 +5,8 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2009/03/24 15:31:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/30 08:48:25 $
+ *  $Revision: 1.3 $
  *  \author Stefano Argiro'
  *          Andrea Gozzelino - Universita  e INFN Torino
  *   
@@ -71,6 +71,7 @@ private:
   MonitorElement * hiDistrHBHEsize1D_;
   MonitorElement * hiDistrHFsize1D_;
 
+  MonitorElement* hFEDsize;
   
   int hiDistr_y_nbin_;
   int hiDistr_x_nbin_;
@@ -93,6 +94,8 @@ private:
   edm::InputTag  hbherecoNoise;
   edm::InputTag  horecoNoise;
   edm::InputTag  hfrecoNoise;
+
+  edm::InputTag rawInLabel_;
   
   /// DQM folder name
   std::string folderName_; 

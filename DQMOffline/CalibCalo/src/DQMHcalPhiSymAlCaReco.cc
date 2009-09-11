@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/07/30 08:48:31 $
- * $Revision: 1.10 $
+ * $Date: 2009/08/25 21:32:49 $
+ * $Revision: 1.11 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -28,6 +28,10 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/CalibCalo/src/DQMHcalPhiSymAlCaReco.h"
@@ -56,6 +60,8 @@ eventCounter_(0)
   horecoNoise   = ps.getParameter<edm::InputTag>("hoInputNoise");
   hfrecoNoise   = ps.getParameter<edm::InputTag>("hfInputNoise");
 
+  rawInLabel_=ps.getParameter<edm::InputTag>("rawInputLabel");
+
   saveToFile_=ps.getUntrackedParameter<bool>("SaveToFile",false);
   fileName_=  ps.getUntrackedParameter<string>("FileName","MonitorAlCaHcalPhiSym.root");
 
@@ -83,6 +89,11 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
  
   // create and cd into new folder
   dbe_->setCurrentFolder(folderName_);
+
+  eventCounter_ = 0;
+
+  hFEDsize=dbe_->book1D("hFEDsize","HCAL FED size (kB)",200,-0.5,20.5);
+  hFEDsize->setAxisTitle("kB",1);
 
   // book some histograms 1D
   double xmin = 0.1;
@@ -118,11 +129,11 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 
   hiDistrNoisePl2D_ = 
     dbe_->book2D("NoisedepthPl1", "iphi-ieta noise distribution at depth1",
-		 hiDistr_x_nbin_, 
-		 hiDistr_x_min_,
+		 hiDistr_x_nbin_+1, 
+		 hiDistr_x_min_-1.,
 		 hiDistr_x_max_,
-		 hiDistr_y_nbin_, 
-		 hiDistr_y_min_,
+		 hiDistr_y_nbin_+1, 
+		 hiDistr_y_min_-1.,
 		 hiDistr_y_max_
 		 );
 
@@ -273,7 +284,7 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::beginRun(const edm::Run& r, const EventSetup& context) {
-   eventCounter_ = 0;
+//   eventCounter_ = 0;
 }
 
 //--------------------------------------------------------
@@ -289,7 +300,34 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
  
 
    eventCounter_++;
-  
+ 
+  edm::Handle<FEDRawDataCollection> rawIn;
+  iEvent.getByLabel(rawInLabel_,rawIn);
+
+  if(!rawIn.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+      return ;
+  }
+
+  //get HCAL FEDs:
+  std::vector<int> selFEDs;
+  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++)
+    {
+      selFEDs.push_back(i);
+    }
+
+//  std::cout<<" Size of FED "<<selFEDs.size()<<std::endl;
+
+  const FEDRawDataCollection *rdc=rawIn.product(); 
+
+  for (unsigned int k=0; k<selFEDs.size(); k++)
+    {
+      const FEDRawData & fedData = rdc->FEDData(selFEDs[k]);
+//      std::cout<<fedData.size()*pow(1024.,-1)<<std::endl;
+      hFEDsize->Fill(fedData.size()*pow(1024.,-1),1);
+    }
+
+ 
    edm::Handle<HBHERecHitCollection> hbheNS;
    iEvent.getByLabel(hbherecoNoise, hbheNS);
 
@@ -298,8 +336,30 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
       return ;
    }
    
-  
-   
+   edm::Handle<HBHERecHitCollection> hbheMB;
+   iEvent.getByLabel(hbherecoMB, hbheMB);
+
+   if(!hbheMB.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+     return ;
+   }
+
+   edm::Handle<HFRecHitCollection> hfNS;
+   iEvent.getByLabel(hfrecoNoise, hfNS);
+
+   if(!hfNS.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+     return ;
+   }
+
+   edm::Handle<HFRecHitCollection> hfMB;
+   iEvent.getByLabel(hfrecoMB, hfMB);
+
+   if(!hfMB.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+      return ;
+   }
+
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
   
   hiDistrHBHEsize1D_->Fill(HithbheNS.size()/ihbhe_size_);
@@ -321,14 +381,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 }
         }
 
-   edm::Handle<HBHERecHitCollection> hbheMB;
-   iEvent.getByLabel(hbherecoMB, hbheMB);
-
-   if(!hbheMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     return ;
-   }
-
   const HBHERecHitCollection HithbheMB = *(hbheMB.product());
 
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); hbheItr++)
@@ -347,13 +399,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 }
 
         }
-   edm::Handle<HFRecHitCollection> hfNS;
-   iEvent.getByLabel(hfrecoNoise, hfNS);
 
-   if(!hfNS.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     return ;
-   }
   const HFRecHitCollection HithfNS = *(hfNS.product());
 
   hiDistrHFsize1D_->Fill(HithfNS.size()/ihf_size_);
@@ -375,13 +421,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 		 }
 	
         }
-   edm::Handle<HFRecHitCollection> hfMB;
-   iEvent.getByLabel(hfrecoMB, hfMB);
-
-   if(!hfMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      return ;
-   }
 
   const HFRecHitCollection HithfMB = *(hfMB.product());
  
@@ -413,7 +452,37 @@ void DQMHcalPhiSymAlCaReco::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endRun(const Run& r, const EventSetup& context){
-  hiDistrNoisePl2D_->Fill(0.,0.,(float)eventCounter_);
+// Keep Variances
+  if(eventCounter_ > 0) {
+  for(int k=0; k<=hiDistr_x_nbin_;k++)
+  {
+    for(int j=0; j<=hiDistr_y_nbin_;j++)
+    {
+// First moment
+       float cc1=hiDistrMBPl2D_->getBinContent(k,j);
+       cc1 = cc1 * 1./eventCounter_;
+       float cc2=hiDistrNoisePl2D_->getBinContent(k,j);
+       cc2 = cc2 * 1./eventCounter_;
+       float cc3=hiDistrMBMin2D_->getBinContent(k,j);
+       cc3 = cc3 * 1./eventCounter_;
+       float cc4=hiDistrNoiseMin2D_->getBinContent(k,j);
+       cc4 = cc4 * 1./eventCounter_;
+// Second moment
+       float cc11=hiDistrMB2Pl2D_->getBinContent(k,j);
+       cc11 = cc11 * 1./eventCounter_;
+       hiDistrVarMBPl2D_->setBinContent(k,j,cc11-cc1*cc1);
+       float cc22=hiDistrNoise2Pl2D_->getBinContent(k,j);
+       cc22 = cc22 * 1./eventCounter_;
+       hiDistrVarNoisePl2D_->setBinContent(k,j,cc22-cc2*cc2);
+       float cc33=hiDistrMB2Min2D_->getBinContent(k,j);
+       cc33 = cc33 * 1./eventCounter_;
+       hiDistrVarMBMin2D_->setBinContent(k,j,cc33-cc3*cc3);
+       float cc44=hiDistrNoise2Min2D_->getBinContent(k,j);
+       cc44 = cc44 * 1./eventCounter_;
+       hiDistrVarNoiseMin2D_->setBinContent(k,j,cc44-cc4*cc4);
+    }     
+  }
+  }
 }
 //--------------------------------------------------------
 void DQMHcalPhiSymAlCaReco::endJob(){
