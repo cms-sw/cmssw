@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2008/12/11 18:05:57 $
- * $Revision: 1.1 $
+ * $Date: 2009/06/04 18:39:33 $
+ * $Revision: 1.2 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -112,8 +112,11 @@ public:
       return getPSInputDigiPointer(tccId, tTandPs_[tccId-1][psCounter-1][0],tTandPs_[tccId-1][psCounter-1][1]);}
 
     
-  // this getter method needs be clarified
-  EcalSrFlag * getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
+  // this getter method needs be clarified.
+  // Changed by Ph.G. on July 1, 09: return a vector instead of a single
+  // element. One SRF can be associated to two  supercrystals, because of
+  // channel grouping.
+  std::vector<EcalSrFlag*> getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
   
   std::vector<uint> * getTccs(uint smId){ return mapSmIdToTccIds_[smId];}
 	
@@ -203,7 +206,7 @@ private:
   EcalTrigTowerDetId        * ttDetIds_[NUMB_TCC][NUMB_FE];
   EcalElectronicsId         * ttEleIds_[NUMB_TCC][NUMB_FE];
   EcalTriggerPrimitiveDigi  * ttTPIds_[NUMB_TCC][NUMB_FE];
-  EcalSrFlag                * srFlags_[NUMB_SM][NUMB_FE];
+  std::vector<EcalSrFlag*>  srFlags_[NUMB_SM][NUMB_FE];
   EcalPseudoStripInputDigi  * psInput_[NUMB_TCC][TCC_EB_NUMBTTS][NUMB_STRIP];
     
   short tTandPs_[NUMB_TCC][5*EcalTrigTowerDetId::kEBTowersPerSM][2];

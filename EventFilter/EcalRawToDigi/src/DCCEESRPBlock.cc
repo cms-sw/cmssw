@@ -30,15 +30,13 @@ void DCCEESRPBlock::addSRFlagToCollection(){
      ushort srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
      srFlags_[n] = srFlag;
      if(unpackInternalData_){
-       EESrFlag * sr = (EESrFlag*) mapper_->getSrFlagPointer(n+1);
-       if(sr){
-         sr->setValue(srFlag); 
-         (*eeSrFlagsDigis_)->push_back(*sr);
+       std::vector<EcalSrFlag*> srs = mapper_->getSrFlagPointer(n+1);
+       for(size_t i = 0; i < srs.size(); ++i){
+         srs[i]->setValue(srFlag); 
+         (*eeSrFlagsDigis_)->push_back(*((EESrFlag*)srs[i]));
        } 
-    }
-     
+     }  
   }
-   
 }
 
 bool DCCEESRPBlock::checkSrpIdAndNumbSRFlags(){
@@ -52,7 +50,4 @@ bool DCCEESRPBlock::checkSrpIdAndNumbSRFlags(){
   return true;
 
 } 
-
-
-
 
