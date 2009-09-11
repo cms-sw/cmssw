@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/08/27 17:15:56 $
- *  $Revision: 1.38 $
- *  $Date: 2009/08/27 17:15:56 $
- *  $Revision: 1.38 $
+ *  $Date: 2009/09/04 19:47:20 $
+ *  $Revision: 1.39 $
+ *  $Date: 2009/09/04 19:47:20 $
+ *  $Revision: 1.39 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -61,6 +61,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
+#include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
@@ -88,7 +89,7 @@ using namespace edm;
 //----------------
 GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet& par,
                                                          const MuonServiceProxy* service) : 
- theService(service) {
+  theTrackMatcher(0),theLayerMeasurements(0),theTrackTransformer(0),theRegionBuilder(0), theService(service),theGlbRefitter(0) {
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
 
@@ -110,6 +111,12 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
 
+  // TrackRefitter parameters
+  ParameterSet refitterParameters = par.getParameter<ParameterSet>("GlbRefitterParameters");
+  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+
+  theMuonHitsOption = refitterParameters.getParameter<int>("MuonHitsOption");
+
   theTrackerRecHitBuilderName = par.getParameter<string>("TrackerRecHitBuilder");
   theMuonRecHitBuilderName = par.getParameter<string>("MuonRecHitBuilder");  
 
@@ -118,7 +125,6 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
   theTECxScale = par.getParameter<double>("ScaleTECxFactor");
   theTECyScale = par.getParameter<double>("ScaleTECyFactor");
   thePtCut = par.getParameter<double>("PtCut");
-  theKFFitterName = par.getParameter<string>("KFFitter");
 
   theCacheId_TRH = 0;
 
@@ -133,7 +139,7 @@ GlobalTrajectoryBuilderBase::~GlobalTrajectoryBuilderBase() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theRegionBuilder) delete theRegionBuilder;
   if (theTrackTransformer) delete theTrackTransformer;
-
+  if (theGlbRefitter) delete theGlbRefitter;
 }
 
 
@@ -143,9 +149,12 @@ GlobalTrajectoryBuilderBase::~GlobalTrajectoryBuilderBase() {
 void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
   
   theEvent = &event;
-  theService->eventSetup().get<TrajectoryFitter::Record>().get(theKFFitterName,theKFFitter);
+
   theTrackTransformer->setServices(theService->eventSetup());
   theRegionBuilder->setEvent(event);
+
+  theGlbRefitter->setEvent(event);
+  theGlbRefitter->setServices(theService->eventSetup());
 
   unsigned long long newCacheId_TRH = theService->eventSetup().get<TransientRecHitRecord>().cacheIdentifier();
   if ( newCacheId_TRH != theCacheId_TRH ) {
@@ -232,21 +241,24 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       else LogWarning(theCategory)<< "Failed to load tracker track trajectory";
     } else tkTrajectory = (*it)->trackerTrajectory();
     if (tkTrajectory) tkTrajectory->setSeedRef(tmpSeed);
-                                    
-    // full track with all muon hits
-    refitted1 = glbTrajectory(tmpSeed, trackerRecHits, muonRecHits,innerTsos);
-    Trajectory *glbTrajectory = 0;
-    if (!refitted1.empty()) glbTrajectory = new Trajectory(*(refitted1.begin()));
-    else LogWarning(theCategory)<< "Failed to load global track trajectory"; 
-    if (glbTrajectory) glbTrajectory->setSeedRef(tmpSeed);
+
+    // full track with all muon hits using theGlbRefitter    
+    ConstRecHitContainer allRecHits = trackerRecHits;
+    allRecHits.insert(allRecHits.end(), muonRecHits.begin(),muonRecHits.end());
+    refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption);
+    Trajectory *glbTrajectory1 = 0;
+    if (!refitted1.empty()) glbTrajectory1 = new Trajectory(*(refitted1.begin()));
+    else LogDebug(theCategory)<< "Failed to load global track trajectory 1"; 
+    if (glbTrajectory1) glbTrajectory1->setSeedRef(tmpSeed);
     
     finalTrajectory = 0;
-    if(glbTrajectory && tkTrajectory) finalTrajectory = new MuonCandidate(glbTrajectory , (*it)->muonTrack(), (*it)->trackerTrack(), 
+    if(glbTrajectory1 && tkTrajectory) finalTrajectory = new MuonCandidate(glbTrajectory1, (*it)->muonTrack(), (*it)->trackerTrack(), 
 					tkTrajectory? new Trajectory(*tkTrajectory) : 0);
 
     if ( finalTrajectory ) 
       refittedResult.push_back(finalTrajectory);
-    if(tkTrajectory) delete tkTrajectory;  
+     
+    if(tkTrajectory) delete tkTrajectory;
   }
 
   // choose the best global fit for this Standalone Muon based on the track probability
@@ -271,7 +283,6 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
     if ( *it ) delete (*it);
   }
-
   refittedResult.clear();
 
   return selectedResult;
@@ -410,38 +421,6 @@ GlobalTrajectoryBuilderBase::checkRecHitsOrdering(const TransientTrackingRecHit:
     LogError(theCategory) << "Impossible to determine the rechits order" << endl;
     return undetermined;
   }
-}
-
-
-//
-//  build a global trajectory from tracker and muon hits
-//
-vector<Trajectory> 
-GlobalTrajectoryBuilderBase::glbTrajectory(const edm::RefToBase<TrajectorySeed>& seed,
-                                           const ConstRecHitContainer& tkhits,
-                                           const ConstRecHitContainer& muonhits,
-                                           const TrajectoryStateOnSurface& firstPredTsos) const {
-
-  ConstRecHitContainer hits = tkhits;
-  hits.insert(hits.end(), muonhits.begin(), muonhits.end());
-
-  if ( hits.empty() ) return vector<Trajectory>();
-  LogDebug(theCategory) << seed.isNull();
-  PTrajectoryStateOnDet PTSOD = ( !seed.isNull() ) ? seed->startingState() : PTrajectoryStateOnDet();
-
-  edm::OwnVector<TrackingRecHit> garbage2;
-
-  RefitDirection recHitDir = checkRecHitsOrdering(hits);
-  PropagationDirection refitDir = (recHitDir == outToIn) ? oppositeToMomentum : alongMomentum ;
-  TrajectorySeed newSeed(PTSOD,garbage2,refitDir);
-
-  TrajectoryStateOnSurface firstTsos = firstPredTsos;
-  firstTsos.rescaleError(10.);
-
-  vector<Trajectory> theTrajs = theKFFitter->fit(newSeed,hits,firstTsos);
-
-  return theTrajs;
-
 }
 
 
