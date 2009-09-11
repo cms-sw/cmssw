@@ -16,8 +16,10 @@ hcalMonitor.DataFormatMonitor      = True
 hcalMonitor.DigiMonitor            = True
 hcalMonitor.RecHitMonitor          = True
 hcalMonitor.BeamMonitor            = True
-hcalMonitor.TrigPrimMonitor        = True
+# Disable until emulated trigger digis are included in sequence
+hcalMonitor.TrigPrimMonitor        = False
 hcalMonitor.DetDiagNoiseMonitor    = True
+hcalMonitor.DetDiagTimingMonitor   = True
 hcalMonitor.DeadCellMonitor        = True
 hcalMonitor.HotCellMonitor         = True
 hcalMonitor.LEDMonitor             = False

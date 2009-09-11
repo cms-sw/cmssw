@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/26 17:44:11 $
- * $Revision: 1.132 $
+ * $Date: 2009/08/26 18:05:03 $
+ * $Revision: 1.133 $
  * \author W Fisher
  * \author J Temple
  *
@@ -530,6 +530,9 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   if (deadMon_!=NULL)
     deadMon_->fillDeadHistosAtEndRun();
 
+  if (hotMon_!=NULL)
+    hotMon_->fillHotHistosAtEndRun();
+
   // Digi monitor doesn't require any persistent issues (dead for N events, etc)
   // to mark bad channels; we can simply call the 'fill_Nevents' method at the end of the run.
   if (digiMon_!=NULL) // try to fill at end of run
@@ -716,6 +719,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   bool calotowerOK_ = true;
   bool laserOK_  = true;
 
+  // disable attempt to grab trigger/sim TP digis if trigger primitive monitor not enabled
+  if (tpMon_==NULL) tpdOK_=false;
+
   // try to get raw data and unpacker report
   edm::Handle<FEDRawDataCollection> rawraw;  
 
@@ -883,26 +889,30 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       return;
     }
 
-  if (!(e.getByLabel(inputLabelDigi_,tp_digi)))
+  // Only try to get trigger info if tpmon enabled
+  if (tpdOK_)
     {
-      tpdOK_=false;
-      LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" tp_digi not available"; 
-    }
+      if (!(e.getByLabel(inputLabelDigi_,tp_digi)))
+	{
+	  tpdOK_=false;
+	  LogWarning("HcalMonitorModule")<< inputLabelDigi_<<" tp_digi not available"; 
+	}
 
-  if (tpdOK_ && !tp_digi.isValid()) {
-    tpdOK_=false;
-  }
-
-  //Emulator
-  if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
-    {
-      tpdOK_=false;
-      LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
+      if (tpdOK_ && !tp_digi.isValid()) {
+	tpdOK_=false;
+      }
+      //Emulator
+      
+      if (!(e.getByLabel(inputLabelEmulDigi_,emultp_digi)))
+	{
+	  tpdOK_=false;
+	  LogWarning("HcalMonitorModule")<< inputLabelEmulDigi_<<" emultp_digi not available";
+	}
+      
+      if (tpdOK_ && !emultp_digi.isValid()) {
+	tpdOK_=false;
+      }
     }
-  
-  if (tpdOK_ && !emultp_digi.isValid()) {
-    tpdOK_=false;
-  }
 
   if (!(e.getByLabel(inputLabelLaser_,laser_digi)))
     {laserOK_=false;}
