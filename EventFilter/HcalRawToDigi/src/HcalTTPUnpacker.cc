@@ -1,6 +1,6 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
 
-void HcalTTPUnpacker::unpack(HcalHTRData& theData, HcalTTPDigi& theDigi) {
+bool HcalTTPUnpacker::unpack(const HcalHTRData& theData, HcalTTPDigi& theDigi) {
 
     // Get the base information for the TTP Digi
     int theID    = theData.getSubmodule() ;
@@ -29,5 +29,6 @@ void HcalTTPUnpacker::unpack(HcalHTRData& theData, HcalTTPDigi& theDigi) {
         int relativeSample = i - nPresamples ;
         theDigi.setSample(relativeSample,inputContent,algoDep,trigOutput) ;
     }
+    return true;
 }
 
