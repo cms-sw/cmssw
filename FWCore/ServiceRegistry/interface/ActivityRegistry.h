@@ -330,13 +330,26 @@ namespace edm {
          sl.push_front(iSlot);
       }  
       AR_WATCH_USING_METHOD_2(watchPostPathEndLumi)
-        
+
+	/* Note M:
+	   Concerning use of address of module descriptor
+	   during functions called before/after module or source construction:
+	       Unlike the case in the Run, Lumi, and Event loops,
+	       the Module descriptor (often passed by pointer or reference
+	       as an argument named desc) in the construction phase is NOT
+	       at some permanent fixed address during the construction phase.  
+	       Therefore, any optimization of caching the module name keying 
+	       off of address of the descriptor will NOT be valid during 
+               such functions.  mf / cj 9/11/09
+	*/
+	
       /// signal is emitted before the module is constructed
       typedef sigc::signal<void, ModuleDescription const&> PreModuleConstruction;
       PreModuleConstruction preModuleConstructionSignal_;
       void watchPreModuleConstruction(PreModuleConstruction::slot_type const& iSlot) {
          preModuleConstructionSignal_.connect(iSlot);
       }
+      // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPreModuleConstruction)
          
       /// signal is emitted after the module was construction
@@ -346,6 +359,7 @@ namespace edm {
          PostModuleConstruction::slot_list_type sl = postModuleConstructionSignal_.slots();
          sl.push_front(iSlot);
       }
+      // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPostModuleConstruction)
 
       /// signal is emitted before the module does beginJob
@@ -473,6 +487,7 @@ namespace edm {
       void watchPreSourceConstruction(PreSourceConstruction::slot_type const& iSlot) {
         preSourceConstructionSignal_.connect(iSlot);
       }
+      // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPreSourceConstruction)
         
       /// signal is emitted after the source was construction
@@ -482,6 +497,7 @@ namespace edm {
          PostSourceConstruction::slot_list_type sl = postSourceConstructionSignal_.slots();
          sl.push_front(iSlot);
       }
+      // WARNING - ModuleDescription is not in fixed place.  See note M above.
       AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
 
       /// signal is emitted before we fork the processes
