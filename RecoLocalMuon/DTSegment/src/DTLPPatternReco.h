@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/08/26 08:39:42 $
- * $Revision: 1.5 $
+ * $Date: 2009/09/04 08:27:56 $
+ * $Revision: 1.6 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -76,14 +76,14 @@ private:
   void * reconstructSegmentOrSupersegment( const std::vector<DTRecHit1DPair>& pairs,
 					ReconstructInSLOrChamber & sl_chamber);
 
-  void populateCoordinatesLists(std::list<double>& pz,
-				std::list<double>& px,
-				std::list<double>& pex,
-				std::list<int>& layers,
-				const DTSuperLayer* sl,
-				const DTChamber* chamber,
-				const std::vector<const DTRecHit1DPair*>& pairPointers,
-				const ReconstructInSLOrChamber  sl_chamber);
+  void populateCoordinatesVectors(std::vector<double>& pz,
+				  std::vector<double>& px,
+				  std::vector<double>& pex,
+				  std::vector<int>& layers,
+				  const DTSuperLayer* sl,
+				  const DTChamber* chamber,
+				  const std::vector<const DTRecHit1DPair*>& pairPointers,
+				  const ReconstructInSLOrChamber  sl_chamber);
 
 
   void removeUsedHits(const lpAlgo::ResultLPAlgo& theAlgoResults,

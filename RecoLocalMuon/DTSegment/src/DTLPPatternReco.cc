@@ -2,8 +2,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a linear programming approach
  *  
- * $Date: 2009/09/04 08:27:56 $
- * $Revision: 1.6 $
+ * $Date: 2009/09/07 10:24:09 $
+ * $Revision: 1.7 $
  * \author Enzo Busseti - SNS Pisa <enzo.busseti@sns.it>
  * 
  */
@@ -72,7 +72,7 @@ void DTLPPatternReco::setES(const edm::EventSetup& setup){
   /* Get the DT Geometry */
 
   setup.get<MuonGeometryRecord>().get(theDTGeometry);
-  theUpdator->setES(setup);
+  theUpdator->setES(setup);//important!! otherwise it crashes in very strange ways 
   
   }
 
@@ -120,14 +120,14 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
       pairPointers.push_back(&(*it));
   }
   
-  list<double> pz; //positions of hits along z
-  list<double> px; //along x (left and right the wires)
-  list<double> pex; //errors (sigmas) on x
-  list<int> layers;
+  vector<double> pz; //positions of hits along z
+  vector<double> px; //along x (left and right the wires)
+  vector<double> pex; //errors (sigmas) on x
+  vector<int> layers; //layer of each hit
   ResultLPAlgo theAlgoResults;//datastructure containing all useful results from perform_fit
   
   /*I populate the coordinates lists, in SL or chamber ref frame. */
-  populateCoordinatesLists(pz, px, pex, layers,  sl, chamber, pairPointers, sl_chamber);
+  populateCoordinatesVectors(pz, px, pex, layers,  sl, chamber, pairPointers, sl_chamber);
 
   if(debug) {
     if (sl_chamber ==  ReconstructInSL)
@@ -190,7 +190,7 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
 
     /*And again populate the coordinates list*/
     // FIXME: can this operation be merged with removeUsedHits to gain on # of loops?
-    populateCoordinatesLists(pz, px, pex, layers,  sl, chamber, pairPointers, sl_chamber); 
+    populateCoordinatesVectors(pz, px, pex, layers,  sl, chamber, pairPointers, sl_chamber); 
     theAlgoResults.lambdas.clear();     
   }
   //px.clear();
@@ -206,26 +206,29 @@ void *  DTLPPatternReco::reconstructSegmentOrSupersegment(const vector<DTRecHit1
 
 
 
-void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& px, list<double>& pex, list<int>& layers,
+void DTLPPatternReco::populateCoordinatesVectors(vector<double>& pz, vector<double>& px, vector<double>& pex, vector<int>& layers,
 					       const DTSuperLayer* sl, const DTChamber* chamber,
 					       const vector<const DTRecHit1DPair*>& pairsPointers,
 					       const ReconstructInSLOrChamber sl_chamber) {
 
-  /*Populate the pz, px and pex lists with coordinates taken from the actual rec hit pairs.
+  /*Populate the pz, px and pex vectors with coordinates taken from the actual rec hit pairs.
     The sl_chamber flag tells this function to use SL or chamber coordinate ref. frame. */
 
-  px.clear(); pex.clear(); pz.clear(); layers.clear();
-  //iterate on pairs of rechits
+  px.clear(); pex.clear(); pz.clear(); layers.clear();//I clear the coordinate vectors
+  //int n_points = pairsPointers.size() * 2;//this is the number of hits
+  
+  /*Iteration on pairsPointers vector, which points to all pairs of rechits we want to use*/
   for (vector<const DTRecHit1DPair*>::const_iterator it = pairsPointers.begin(); it!=pairsPointers.end(); ++it){
     
+    /*Get the geometry objects*/
     DTWireId theWireId = (*it)->wireId();
     const DTLayer * theLayer = (DTLayer*)theDTGeometry->layer(theWireId.layerId());
     LocalPoint thePosition;
 
-    //extract a pair of rechits from the pairs vector
+    /*Extract a pair of rechits from the pairs vector*/
     pair<const DTRecHit1D*, const DTRecHit1D*> theRecHitPair = (*it) -> componentRecHits();
 
-    //left hit
+    /*Populate coordinates for left hit*/
     if(sl_chamber == ReconstructInSL)
       thePosition = sl -> toLocal(theLayer->toGlobal(theRecHitPair.first-> localPosition()));
     if(sl_chamber == ReconstructInChamber)
@@ -234,10 +237,9 @@ void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& p
     pz.push_back( thePosition.z() );
     px.push_back( thePosition.x() );
     layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10);
-
     if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back() <<" " << layers.back()<< endl;
     
-    //and right hit
+    /*Populate coordinates for right hit*/
     if(sl_chamber == ReconstructInSL)
       thePosition = sl -> toLocal(theLayer->toGlobal(theRecHitPair.second->localPosition()));
      if(sl_chamber == ReconstructInChamber)
@@ -245,11 +247,10 @@ void DTLPPatternReco::populateCoordinatesLists(list<double>& pz, list<double>& p
     pex.push_back( (double)sqrt(theRecHitPair.second-> localPositionError().xx()));
     pz.push_back( thePosition.z() );
     px.push_back( thePosition.x() );
-    layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10);
- 
+    layers.push_back(theWireId.layer()+ theWireId.superlayer() * 10); 
     if (debug) cout << pz.back() << " " <<  px.back() << " "<< pex.back()<< " " << layers.back() << endl;
   }
-  if(debug) cout << "DTLPPatternReco:: : px, pz and pex lists populated " << endl;
+  if(debug) cout << "DTLPPatternReco:: : px, pz and pex vectors populated " << endl;
 }
 
 
