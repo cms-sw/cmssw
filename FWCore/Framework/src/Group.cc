@@ -143,12 +143,15 @@ namespace edm {
 
   void
   GroupData::checkType(EDProduct const& prod) const {
-    if(TypeID(prod).className() != branchDescription_->wrappedName()) {
+    // transient products might not have a dictionary for the wrapped product. So, bypass the check.
+    if(!branchDescription_->transient()) {
+      if(TypeID(prod).className() != branchDescription_->wrappedName()) {
 	std::string name(TypeID(prod).className());
 	throw edm::Exception(errors::EventCorruption)
 	  << "Product on branch " << branchDescription_->branchName() << " is of wrong type.\n"
 	  << "It is supposed to be of type " << branchDescription_->wrappedName() << ".\n"
 	  << "It is actually of type " << name << ".\n";
+      }
     }
   }
 
