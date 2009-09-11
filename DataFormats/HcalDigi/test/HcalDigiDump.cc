@@ -9,8 +9,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2008/01/22 19:12:09 $
-$Revision: 1.13 $
+$Date: 2008/02/12 19:19:45 $
+$Revision: 1.14 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -33,6 +33,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
   std::vector<edm::Handle<HOTrigPrimDigiCollection> > hotp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
+  std::vector<edm::Handle<HcalTTPDigiCollection> > ttp;
 
   try {
     e.getManyByType(hbhe);
@@ -133,6 +134,18 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
       const CastorDigiCollection& c=*(*i);
       
       for (CastorDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
+	cout << *j << std::endl;
+    }
+  } catch (...) {
+  }
+
+  try {
+    e.getManyByType(ttp);
+    std::vector<edm::Handle<HcalTTPDigiCollection> >::iterator i;
+    for (i=ttp.begin(); i!=ttp.end(); i++) {
+      const HcalTTPDigiCollection& c=*(*i);
+      
+      for (HcalTTPDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
 	cout << *j << std::endl;
     }
   } catch (...) {

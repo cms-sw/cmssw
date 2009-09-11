@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace {
@@ -21,6 +22,7 @@ namespace {
     edm::SortedCollection<HcalCalibDataFrame> vHC_;
     edm::SortedCollection<HcalTriggerPrimitiveDigi> vHTP_;
     edm::SortedCollection<HcalHistogramDigi> vHH_;
+    edm::SortedCollection<HcalTTPDigi> vTTP_;
 
     HBHEDigiCollection theHBHE_;
     HODigiCollection theHO_;
@@ -31,7 +33,8 @@ namespace {
     ZDCDigiCollection theZDC_;
     CastorDigiCollection theCastor_;
     HOTrigPrimDigiCollection theHOTP_;
-
+    HcalTTPDigiCollection theTTP_;
+      
     edm::Wrapper<edm::SortedCollection<HBHEDataFrame> > anotherHBHE_;
     edm::Wrapper<edm::SortedCollection<HODataFrame> > anotherHO_;
     edm::Wrapper<edm::SortedCollection<HFDataFrame> > anotherHF_;
@@ -41,6 +44,7 @@ namespace {
     edm::Wrapper<edm::SortedCollection<ZDCDataFrame> > anotherZDC_;
     edm::Wrapper<edm::SortedCollection<CastorDataFrame> > anotherCastor_;
     edm::Wrapper<edm::SortedCollection<HOTriggerPrimitiveDigi> > anotherHOTP_;
+    edm::Wrapper<edm::SortedCollection<HcalTTPDigi> > anotherTTP_;
 
     edm::Wrapper<HBHEDigiCollection> theHBHEw_;
     edm::Wrapper<HODigiCollection> theHOw_;
@@ -51,6 +55,7 @@ namespace {
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;
     edm::Wrapper<HcalLaserDigi> theLaserw_;
+    edm::Wrapper<HcalTTPDigiCollection> theTTPw_;
   };
 }
 
