@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.31 2009/07/08 20:26:38 fischler Exp $
+// $Id: MessageLogger.cc,v 1.32 2009/09/09 19:35:50 fischler Exp $
 //
 // Change log
 //
@@ -53,6 +53,8 @@
 //			enables/suppresses for other calls from framework
 //15 mf   9/8/09	Clean up erroneous assignments of some callbacks
 //			for specific watch routines (eg PreXYZ called postXYZ)
+//16 mf   9/8/09	Eliminate caching by descrptor address during ctor
+//			phases (since addresses are not yet permanent then)
 
 // system include files
 // user include files
@@ -300,6 +302,41 @@ MessageLogger::establishModule(ModuleDescription const & desc,
 } // establishModule
 
 void
+MessageLogger::establishModuleCtor(ModuleDescription const & desc, 
+			       std::string const & whichPhase)	// ChangeLog 16
+{
+  MessageDrop* messageDrop = MessageDrop::instance();
+  nonModule_debugEnabled   = messageDrop->debugEnabled;
+  nonModule_infoEnabled    = messageDrop->infoEnabled;
+  nonModule_warningEnabled = messageDrop->warningEnabled;
+
+  // Cannot cache the value to improve performance
+  curr_module_ = desc.moduleName() + ":" + desc.moduleLabel();
+  messageDrop->moduleName = curr_module_ + whichPhase;  
+
+  if (!anyDebugEnabled_) {
+    messageDrop->debugEnabled = false;
+  } else if (everyDebugEnabled_) {
+    messageDrop->debugEnabled = true;
+  } else {
+    messageDrop->debugEnabled = 
+    			debugEnabledModules_.count(desc.moduleLabel());
+  }
+
+  std::map<const std::string,ELseverityLevel>::const_iterator it =
+       suppression_levels_.find(desc.moduleLabel());
+  if ( it != suppression_levels_.end() ) {
+    messageDrop->debugEnabled  = messageDrop->debugEnabled 
+                                           && (it->second < ELseverityLevel::ELsev_success );
+    messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
+    messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+  } else {
+    messageDrop->infoEnabled    = true;
+    messageDrop->warningEnabled = true;
+  }
+} // establishModuleCtor
+
+void
 MessageLogger::unEstablishModule(ModuleDescription const & desc, 
 			         std::string const & state)
 {
@@ -362,7 +399,7 @@ MessageLogger::preModuleConstruction(const ModuleDescription& desc)
     }
     messageServicePSetHasBeenValidated_ = true;
   } 
-  establishModule (desc,"@ctor");				// ChangeLog 13
+  establishModuleCtor (desc,"@ctor");				// ChangeLog 16
 }
 void MessageLogger::postModuleConstruction(const ModuleDescription& iDescription)
 { unEstablishModule (iDescription, "AfterModConstruction"); }
@@ -387,7 +424,7 @@ MessageLogger::preSourceConstruction(const ModuleDescription& desc)
     }
     messageServicePSetHasBeenValidated_ = true;
   } 
-  establishModule (desc,"@sourceConstruction");			// ChangeLog 13
+  establishModuleCtor (desc,"@sourceConstruction");		// ChangeLog 16
 }
 void MessageLogger::postSourceConstruction(const ModuleDescription& iDescription)
 { unEstablishModule (iDescription, "AfterSourceConstruction"); }

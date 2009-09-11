@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.11 2009/06/14 23:45:25 fischler Exp $
+// $Id: MessageLogger.h,v 1.12 2009/07/08 20:26:38 fischler Exp $
 //
 
 // system include files
@@ -120,12 +120,14 @@ public:
 private:
 
   // set up the module name in the message drop, and the enable/suppress info
-  void  establishModule   ( const ModuleDescription& desc,
-  		            std::string const & whichPhase );
-  void  unEstablishModule ( const ModuleDescription& desc,
-  		            std::string const & whichPhase );
-  void  establish         ( std::string const & whichPhase ); 
-  void  unEstablish       ( std::string const & whichPhase ); 
+  void  establishModule       ( const ModuleDescription& desc,
+  		                std::string const & whichPhase );
+  void  establishModuleCtor   ( const ModuleDescription& desc,
+  		                std::string const & whichPhase );
+  void  unEstablishModule     ( const ModuleDescription& desc,
+  		                std::string const & whichPhase );
+  void  establish             ( std::string const & whichPhase ); 
+  void  unEstablish           ( std::string const & whichPhase ); 
   
  // put an ErrorLog object here, and maybe more
 
