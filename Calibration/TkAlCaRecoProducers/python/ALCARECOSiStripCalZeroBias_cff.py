@@ -48,6 +48,22 @@ ZeroBiasClusterizer = cms.PSet(
 calZeroBiasClusters = RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi.siStripClusters.clone()
 calZeroBiasClusters.Clusterizer = ZeroBiasClusterizer
 
+# Not persistent collections needed by the filters in the AlCaReco DQM
+import DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi
+ConsecutiveHEs = DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi.consecutiveHEs.clone()
+
+import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi
+apvPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1abc_GR09_cfi.APVPhases.clone()
+
+import DPGAnalysis.SiStripTools.apvlatency.fakeapvlatencyessource_cfi
+fakeApvLatency = DPGAnalysis.SiStripTools.apvlatency.fakeapvlatencyessource_cfi.fakeapvlatency.clone()
+fakeApvLatency.APVLatency = cms.untracked.int32(143)
+
+essapvlatency = cms.ESSource("EmptyESSource",
+                              recordName = cms.string("APVLatencyRcd"),
+                              firstValid = cms.vuint32(1),
+                              iovIsRunNotTime = cms.bool(True)
+                              )
 
 # SiStripQuality (only to test the different data labels)#
 qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
@@ -56,4 +72,4 @@ qualityStatistics = cms.EDFilter("SiStripQualityStatistics",
 )
 
 # Sequence #
-seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*calZeroBiasClusters)
+seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*calZeroBiasClusters*apvPhases*ConsecutiveHEs)
