@@ -1,4 +1,4 @@
-// $Id: ErrorStreamConfigurationInfo.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: ErrorStreamConfigurationInfo.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: ErrorStreamConfigurationInfo.h 
 
 #ifndef StorageManager_ErrorStreamConfigurationInfo_h
@@ -10,7 +10,7 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
+#include <iosfwd>
 
 namespace stor
 {
@@ -18,9 +18,9 @@ namespace stor
   /**
      Configuration information for the error stream
 
-     $Author: dshpakov $
-     $Revision: 1.4 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.3 $
+     $Date: 2009/07/20 13:06:10 $
   */
 
   class ErrorStreamConfigurationInfo
@@ -63,6 +63,8 @@ namespace stor
 
   typedef std::vector<ErrorStreamConfigurationInfo> ErrStrConfigList;
   typedef boost::shared_ptr<ErrStrConfigList> ErrStrConfigListPtr;
+
+  std::ostream& operator << ( std::ostream&, const ErrorStreamConfigurationInfo& );
 }
 
 #endif // StorageManager_ErrorStreamConfigurationInfo_h
