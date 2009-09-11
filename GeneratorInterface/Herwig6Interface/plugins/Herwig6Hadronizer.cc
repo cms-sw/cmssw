@@ -434,6 +434,10 @@ void Herwig6Hadronizer::finalizeEvent()
     lheEvent()->fillEventInfo( event().get() );
     lheEvent()->fillPdfInfo( &pdfInfo );
 
+    // for MC@NLO: IDWRUP is not filled...
+    if(event()->signal_process_id()==0)
+      event()->set_signal_process_id( abs(hwproc.IPROC) );
+
   } else {
     
     HepMC::GenParticle* incomingParton = NULL;
@@ -495,29 +499,32 @@ void Herwig6Hadronizer::finalizeEvent()
       pdfInfo.set_scalePDF(evScale); // the same as Q above... does this make sense?
     } 
     
-    // add event weight & PDF information
-    event()->weights().push_back( hwevnt.EVWGT );
+    event()->set_signal_process_id( abs(hwproc.IPROC) );
     event()->set_pdf_info( pdfInfo );
-    
-    // find final parton (first entry with IST=123)
-    HepMC::GenParticle* finalParton = NULL;
-    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-	(it != event()->particles_end() && finalParton==NULL); it++)
-      if((*it)->status()==123) finalParton = (*it);
-	  
-    event()->set_signal_process_id(hwproc.IPROC);
-    // add GenEventInfo & binning Values
-    eventInfo().reset(new GenEventInfoProduct(event().get()));	
-    if(finalParton) {
-      double thisPt=finalParton->momentum().perp();
-      eventInfo()->setBinningValues(std::vector<double>(1, thisPt));
-    }
-    
-    // emulate PY6 status codes, if switched on...
-    if (emulatePythiaStatusCodes)
-      pythiaStatusCodes();    	  
-    
   }
+
+  // add event weight & PDF information
+  event()->weights().push_back( hwevnt.EVWGT );
+
+    
+  // find final parton (first entry with IST=123)
+  HepMC::GenParticle* finalParton = NULL;
+  for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+      (it != event()->particles_end() && finalParton==NULL); it++)
+    if((*it)->status()==123) finalParton = (*it);
+  
+  
+  // add GenEventInfo & binning Values
+  eventInfo().reset(new GenEventInfoProduct(event().get()));	
+  if(finalParton) {
+    double thisPt=finalParton->momentum().perp();
+    eventInfo()->setBinningValues(std::vector<double>(1, thisPt));
+  }
+  
+  // emulate PY6 status codes, if switched on...
+  if (emulatePythiaStatusCodes)
+    pythiaStatusCodes();    	  
+  
 }
 
 
