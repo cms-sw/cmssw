@@ -100,7 +100,7 @@ void PrimaryVertexAnalyzer::beginJob(){
     hdir[*isuffix] = rootFile_->mkdir(TString(*isuffix));
     hdir[*isuffix]->cd();
     h["nbvtx"+ *isuffix]        = new TH1F(TString("nbvtx"+ *isuffix),"Reconstructed Vertices in Event",20,-0.5,19.5);
-    h["nbtksinvtx"+ *isuffix]   = new TH1F(TString("nbtksinvtx"+ *isuffix),"Reconstructed Tracks in Vertex",40,-0.5,39.5); 
+    h["nbtksinvtx"+ *isuffix]   = new TH1F(TString("nbtksinvtx"+ *isuffix),"Reconstructed Tracks in Vertex",200,-0.5,199.5); 
     h["resx"+ *isuffix]         = new TH1F(TString("resx"+ *isuffix),"Residual X",100,-0.04,0.04);
     h["resy"+ *isuffix]         = new TH1F(TString("resy"+ *isuffix),"Residual Y",100,-0.04,0.04);
     h["resz"+ *isuffix]         = new TH1F(TString("resz"+ *isuffix),"Residual Z",100,-0.1,0.1);
@@ -117,26 +117,26 @@ void PrimaryVertexAnalyzer::beginJob(){
     h["efftag"+ *isuffix]       = new TH1F(TString("efftag"+ *isuffix),"efficiency tagged vertex",2, -0.5, 1.5);
     h["effvseta"+ *isuffix]     = new TProfile(TString("effvseta"+ *isuffix),"efficiency vs eta",20, -2.5, 2.5, 0, 1.);
     h["effvsptsq"+ *isuffix]    = new TProfile(TString("effvsptsq"+ *isuffix),"efficiency vs ptsq",20, 0., 10000., 0, 1.);
-    h["effvsntrk"+ *isuffix]    = new TProfile(TString("effvsntrk"+ *isuffix),"efficiency vs # tracks",50, 0., 50., 0, 1.);
-    h["effvsnrectrk"+ *isuffix] = new TProfile(TString("effvsnrectrk"+ *isuffix),"efficiency vs # rectracks",50, 0., 50., 0, 1.);
+    h["effvsntrk"+ *isuffix]    = new TProfile(TString("effvsntrk"+ *isuffix),"efficiency vs # tracks",200, 0., 200., 0, 1.);
+    h["effvsnrectrk"+ *isuffix] = new TProfile(TString("effvsnrectrk"+ *isuffix),"efficiency vs # rectracks",200, 0., 200., 0, 1.);
     h["effvsz"+ *isuffix]       = new TProfile(TString("effvsz"+ *isuffix),"efficiency vs z",40, -20., 20., 0, 1.);
     h["nbsimtksinvtx"+ *isuffix]= new TH1F(TString("nbsimtksinvtx"+ *isuffix),"simulated tracks in vertex",100,-0.5,99.5); 
-    h["xrec"+ *isuffix]         = new TH1F(TString("xrec"+ *isuffix),"reconstructed x",100,-0.01,0.01);
-    h["yrec"+ *isuffix]         = new TH1F(TString("yrec"+ *isuffix),"reconstructed y",100,-0.01,0.01);
+    h["xrec"+ *isuffix]         = new TH1F(TString("xrec"+ *isuffix),"reconstructed x",100,-0.1,0.1);
+    h["yrec"+ *isuffix]         = new TH1F(TString("yrec"+ *isuffix),"reconstructed y",100,-0.1,0.1);
     h["zrec"+ *isuffix]         = new TH1F(TString("zrec"+ *isuffix),"reconstructed z",100,-20.,20.);
-    h["xsim"+ *isuffix]         = new TH1F(TString("xsim"+ *isuffix),"simulated x",100,-0.01,0.01); // 0.01cm = 100 um
-    h["ysim"+ *isuffix]         = new TH1F(TString("ysim"+ *isuffix),"simulated y",100,-0.01,0.01);
+    h["xsim"+ *isuffix]         = new TH1F(TString("xsim"+ *isuffix),"simulated x",100,-0.1,0.1);
+    h["ysim"+ *isuffix]         = new TH1F(TString("ysim"+ *isuffix),"simulated y",100,-0.1,0.1);
     h["zsim"+ *isuffix]         = new TH1F(TString("zsim"+ *isuffix),"simulated z",100,-20.,20.);
     h["nrecvtx"+ *isuffix]      = new TH1F(TString("nrecvtx"+ *isuffix),"# of reconstructed vertices", 50, -0.5, 49.5);
     h["nsimvtx"+ *isuffix]      = new TH1F(TString("nsimvtx"+ *isuffix),"# of simulated vertices", 50, -0.5, 49.5);
-    h["nrectrk"+ *isuffix]      = new TH1F(TString("nrectrk"+ *isuffix),"# of reconstructed tracks", 50, -0.5, 49.5);
-    h["nsimtrk"+ *isuffix]      = new TH1F(TString("nsimtrk"+ *isuffix),"# of simulated tracks", 50, -0.5, 49.5);
-    h["xrectag"+ *isuffix]      = new TH1F(TString("xrectag"+ *isuffix),"reconstructed x, signal vtx",100,-0.01,0.01);
-    h["yrectag"+ *isuffix]      = new TH1F(TString("yrectag"+ *isuffix),"reconstructed y, signal vtx",100,-0.01,0.01);
+    h["nrectrk"+ *isuffix]      = new TH1F(TString("nrectrk"+ *isuffix),"# of reconstructed tracks", 200, -0.5, 199.5);
+    h["nsimtrk"+ *isuffix]      = new TH1F(TString("nsimtrk"+ *isuffix),"# of simulated tracks", 200, -0.5, 199.5);
+    h["xrectag"+ *isuffix]      = new TH1F(TString("xrectag"+ *isuffix),"reconstructed x, signal vtx",100,-0.1,0.1);
+    h["yrectag"+ *isuffix]      = new TH1F(TString("yrectag"+ *isuffix),"reconstructed y, signal vtx",100,-0.1,0.1);
     h["zrectag"+ *isuffix]      = new TH1F(TString("zrectag"+ *isuffix),"reconstructed z, signal vtx",100,-20.,20.);
     h["rapidity"+ *isuffix] = new TH1F(TString("rapidity"+ *isuffix),"rapidity ",100,-10., 10.);
     h["pt"+ *isuffix] = new TH1F(TString("pt"+ *isuffix),"pt ",100,0., 20.);
-    h["nrectrk0vtx"+ *isuffix] = new TH1F(TString("nrectrk0vtx"+ *isuffix),"# rec tracks no vertex ",50,0., 50.);
+    h["nrectrk0vtx"+ *isuffix] = new TH1F(TString("nrectrk0vtx"+ *isuffix),"# rec tracks no vertex ",200,0., 200.);
     h["zdistancetag"+ *isuffix] = new TH1F(TString("zdistancetag"+ *isuffix),"z-distance between tagged and generated",100, -0.1, 0.1);
     h["puritytag"+ *isuffix]    = new TH1F(TString("puritytag"+ *isuffix),"purity of primary vertex tags",2, -0.5, 1.5);
   }
@@ -145,19 +145,14 @@ void PrimaryVertexAnalyzer::beginJob(){
 
 
 void PrimaryVertexAnalyzer::endJob() {
-  
- rootFile_->cd();
+  rootFile_->cd();
   // save all histograms created in beginJob()
-
-//   for(std::map<std::string,TDirectory*>::const_iterator idir=hdir.begin(); idir!=hdir.end(); ++idir){
-//     idir->second->Write(); 
-//     idir->second->Close();
-//     }
-//   rootFile_->Write();
-  for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
-     hist->second->Write();
-   }
-  
+  for (std::map<std::string, TDirectory*>::const_iterator idir=hdir.begin(); idir!=hdir.end(); idir++){
+    idir->second->cd();
+    for(std::map<std::string,TH1*>::const_iterator hist=h.begin(); hist!=h.end(); hist++){
+      if (TString(hist->first).Contains(idir->first)) hist->second->Write();
+    }
+  }
 }
 
 
@@ -259,16 +254,18 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
       { // loop for vertex ...
 	HepMC::FourVector pos = (*vitr)->position();
 	//HepLorentzVector pos = (*vitr)->position();
-	if (pos.t()>0) { continue;}
 
 	bool hasMotherVertex=false;
-	if(verbose_)std::cout << "mothers" << std::endl;
+	if(verbose_) std::cout << "mothers of vertex[" << ++idx << "]: " << std::endl;
 	for ( HepMC::GenVertex::particle_iterator
 	      mother  = (*vitr)->particles_begin(HepMC::parents);
 	      mother != (*vitr)->particles_end(HepMC::parents);
               ++mother ) {
 	  HepMC::GenVertex * mv=(*mother)->production_vertex();
-	  if (mv) {hasMotherVertex=true;}
+	  if (mv) {
+	    hasMotherVertex=true;
+	    if(!verbose_) break; //if verbose_, print all particles of gen vertices
+	  }
 	  if(verbose_)std::cout << "\t";
 	  if(verbose_)(*mother)->print();
 	}
@@ -289,11 +286,11 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 
 	if(!vp){
 	  // this is a new vertex
-	  if(verbose_)std::cout << "this is a new vertex" << sv.x << " " << sv.y << " " << sv.z <<std::endl;
+	  if(verbose_)std::cout << "this is a new vertex " << sv.x << " " << sv.y << " " << sv.z << std::endl;
 	  simpv.push_back(sv);
 	  vp=&simpv.back();
 	}else{
-	  if(verbose_)std::cout << "this is not new vertex" << std::endl;
+	  if(verbose_)std::cout << "this is not new vertex " << sv.x << " " << sv.y << " " << sv.z << std::endl;
 	}
 	vp->genVertex.push_back((*vitr)->barcode());
 	// collect final state descendants
@@ -322,7 +319,6 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	    }
 	  }
 	}
-	idx++;
       }
   }
   return simpv;
@@ -531,7 +527,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
       
       
       // purity of event vertex tags
-      if (recVtxs->size()>0){
+      if (recVtxs->size()>0 && simpv.size()>0){
 	Double_t dz=(*recVtxs->begin()).z() - (*simpv.begin()).z*simUnit_;
 	h["zdistancetag"+isuffix]->Fill(dz);
 	if( fabs(dz)<0.0500){
