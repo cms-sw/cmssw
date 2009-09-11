@@ -7,10 +7,10 @@
 // 
 /**\class EventBase EventBase.h DataFormats/FWLite/interface/EventBase.h
 
- Description: <one line class summary>
+   Description: <one line class summary>
 
- Usage:
-    <usage>
+   Usage:
+   <usage>
 
 */
 //
@@ -28,6 +28,8 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/EventBase.h"
+
+#include "Rtypes.h"
 
 namespace edm {
    class TriggerResults;
@@ -61,9 +63,12 @@ namespace fwlite
 
          virtual const EventBase& toBegin() = 0;
 
-	 virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) = 0;
+         virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) = 0;
 
-      protected:
+         virtual Long64_t fileIndex()          const { return -1; }
+         virtual Long64_t secondaryFileIndex() const { return -1; }
+
+         protected:
 
          static TriggerNames const* triggerNames_(edm::TriggerResults const& triggerResults);
 

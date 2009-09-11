@@ -180,11 +180,24 @@ class Events:
         return self._next()
 
 
-    def eventIndex (self):
-        if 'chain' == self._mode:
-            return self._event.eventIndex()
+    def fileIndex (self):
+        if self._event:
+            return self._event.fileIndex()
         else:
-            return 0
+            # default non-existant value is -1.  Return something else
+            return -2
+
+
+    def secondaryFileIndex (self):
+        if self._event:
+            return self._event.secondaryFileIndex()
+        else:
+            # default non-existant value is -1.  Return something else
+            return -2
+
+
+    def fileIndicies (self):
+        return (self.fileIndex(), self.secondaryFileIndex())
 
 
     ## Private Member Functions ##

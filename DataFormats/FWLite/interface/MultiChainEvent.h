@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.6 2009/08/18 17:56:59 chrjones Exp $
+// $Id: MultiChainEvent.h,v 1.7 2009/09/04 21:34:19 wdd Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -93,8 +93,12 @@ class MultiChainEvent: public EventBase
         return event2_->getTFile();
       }
 
-      Long64_t eventIndex() const { return event1_->eventIndex(); }
+      Long64_t eventIndex()    const { return event1_->eventIndex(); }
       Long64_t eventIndexSec() const { return event2_->eventIndex(); }
+      virtual Long64_t fileIndex()          const 
+      { return event1_->eventIndex(); }
+      virtual Long64_t secondaryFileIndex() const 
+      { return event2_->eventIndex(); }
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults);
 

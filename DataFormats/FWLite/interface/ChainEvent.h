@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: ChainEvent.h,v 1.12 2009/09/04 21:34:19 wdd Exp $
+// $Id: ChainEvent.h,v 1.13 2009/09/10 20:36:33 cplager Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -87,6 +87,7 @@ namespace fwlite {
       }
 
       Long64_t eventIndex() const { return eventIndex_; }
+      virtual Long64_t fileIndex() const { return eventIndex_; }
 
       void setGetter( boost::shared_ptr<edm::EDProductGetter> getter ){
          event_->setGetter( getter );
