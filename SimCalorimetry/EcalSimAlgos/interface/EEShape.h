@@ -7,8 +7,7 @@ class EEShape : public EcalShapeBase
 {
    public:
   
-      EEShape( double aTimePhase ,
-	       bool   aSaveDerivative = false ) ;
+      EEShape( bool   aSaveDerivative = false ) ;
 
       virtual ~EEShape() ;
   

@@ -1,6 +1,8 @@
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<iostream>
 #include<iomanip>
@@ -11,31 +13,36 @@
 #include "TCanvas.h"
 #include "TF1.h"
 
-int main() {
+int main() 
+{
+   edm::MessageDrop::instance()->debugEnabled = false;
 
-  edm::MessageDrop::instance()->debugEnabled = false;
+   const EcalSimParameterMap parameterMap ;
 
-  EcalSimParameterMap parameterMap;
+   const EBShape theEBShape( true );
+   const EEShape theEEShape( true );
 
-  EBDetId barrel(1,1);
-  double thisPhase = parameterMap.simParameters(barrel).timePhase();
+   const int nsamp = EcalShapeBase::k1NSecBinsTotal;
+   const int tconv = EcalShapeBase::kNBinsPerNSec;
 
-  EcalShape theShape(thisPhase, true );
+   const unsigned int histsiz = nsamp*tconv;
 
-  std::cout << "Parameters for the ECAL MGPA shape \n" << std::endl;
+   for( unsigned int i ( 0 ) ; i != 2 ; ++i )
+   {
 
-  std::cout << "Rising time for ECAL shape (timePhase) = " << parameterMap.simParameters(barrel).timePhase() << std::endl;
-  std::cout << "Bin of maximum = " << parameterMap.simParameters(barrel).binOfMaximum() << std::endl;
+      const DetId id ( 0 == i ? (DetId) EBDetId(1,1) : (DetId) EEDetId(1,50,1) ) ;
 
-  // standard display of the implemented shape function
+      const EcalShapeBase* theShape ( 0 == i ? (EcalShapeBase*) &theEBShape : (EcalShapeBase*) &theEEShape ) ;
 
-  const int csize = EcalShapeBase::k1NSecBinsTotal;
-  TCanvas * showShape = new TCanvas("showShape","showShape",2*csize,csize);
+      const double ToM ( theShape->timeOfMax()  ) ;
+      const double T0  ( theShape->timeOfThr()  ) ;
+      const double rT  ( theShape->timeToRise() ) ;
 
-  const int nsamp = EcalShapeBase::k1NSecBinsTotal;
-  const int tconv = EcalShapeBase::kNBinsPerNSec;
 
-  const unsigned int histsiz = nsamp*tconv;
+      // standard display of the implemented shape function
+      const int csize = EcalShapeBase::k1NSecBinsTotal;
+      TCanvas * showShape = new TCanvas("showShape","showShape",2*csize,csize);
+/*
 
 //  const std::vector<double>& nt = theShape.getTimeTable();
 //  const std::vector<double>& ntd = theShape.getDerivTable();
@@ -43,10 +50,6 @@ int main() {
   TH1F* shape1 = new TH1F("shape1","Tabulated Ecal MGPA shape",histsiz,0.,(float)(histsiz));
   TH1F* deriv1 = new TH1F("deriv1","Tabulated Ecal MGPA derivative",histsiz,0.,(float)(histsiz));
 
-
-  const double ToM = theShape.timeOfMax();
-  const double T0 = theShape.timeOfThr();
-  const double risingTime = theShape.timeToRise();
 
   
   std::cout << "interpolated ECAL pulse shape and its derivative \n" << std::endl;
@@ -72,52 +75,77 @@ int main() {
 
   delete shape1;
   delete deriv1;
+*/
 
-  std::cout << "\n Maximum time from tabulated values = " << std::setprecision(2) << ToM << std::endl;
-  std::cout << "\n Tzero from tabulated values        = " << std::setprecision(2) << T0 << std::endl;
-  std::cout << "\n Rising time from tabulated values  = " << std::setprecision(2) << risingTime << std::endl;
+      const std::string name ( 0 == i ? "Barrel" : "Endcap" ) ;
 
-  // signal used with the nominal parameters and no jitter
+      std::cout << "\n ********************* "
+		<< name 
+		<< "************************" ; 
 
-  std::cout << "\n computed ECAL pulse shape and its derivative (LHC timePhaseShift = 1) \n" << std::endl;
-  double tzero = risingTime-(parameterMap.simParameters(barrel).binOfMaximum()-1.)*25.;
-  double x = tzero ;
+      std::cout << "\n Maximum time from tabulated values = " 
+		<< std::fixed    << std::setw(6)   
+		<< std::setprecision(2) << ToM << std::endl ;
 
-  TH1F* shape2 = new TH1F("shape2","Computed Ecal MGPA shape",nsamp,0.,(float)(nsamp));
-  TH1F* deriv2 = new TH1F("deriv2","Computed Ecal MGPA derivative",nsamp,0.,(float)(nsamp));
-  double y = 0.;
-  double dy = 0.;
-  for ( unsigned int i = 0; i < histsiz; ++i ) {
-    y  = (theShape)(x);
-    dy = theShape.derivative(x);
-    shape2->Fill((float)(x-tzero),(float)y);
-    deriv2->Fill((float)(x-tzero),(float)dy);
-    std::cout << " time (ns) = "  << std::fixed    << std::setw(6)         << std::setprecision(2) << x-tzero 
-              << " shape = "      << std::setw(11) << std::setprecision(5) << y
-              << " derivative = " << std::setw(11) << std::setprecision(5) << dy << std::endl;
-    x = x+1./(double)tconv;
-  }
+      std::cout << "\n Tzero from tabulated values        = " 
+		<< std::fixed    << std::setw(6)   
+		<< std::setprecision(2) << T0 << std::endl ;
 
-  for (int iSample = 0; iSample < 10; iSample++) 
-     std::cout << (theShape)(tzero + iSample*25.0) << std::endl; 
+      std::cout << "\n Rising time from tabulated values  = " 
+		<< std::fixed    << std::setw(6)   
+		<< std::setprecision(2) << rT << std::endl;
 
-  showShape->Divide(2,1);
-  showShape->cd(1);
-  gPad->SetGrid();
-  shape2->GetXaxis()->SetNdivisions(10,kFALSE);
-  shape2->Draw();
+      // signal used with the nominal parameters and no jitter
 
-  showShape->cd(2);
-  gPad->SetGrid();
-  deriv2->GetXaxis()->SetNdivisions(10,kFALSE);
-  deriv2->Draw();
+      std::cout << "\n computed ECAL " << name 
+		<< " pulse shape and its derivative (LHC timePhaseShift = 1) \n" << std::endl;
+      const double tzero = rT - ( parameterMap.simParameters( id ).binOfMaximum() - 1. )*25. ;
+      double x = tzero ;
 
-  showShape->SaveAs("EcalShapeUsed.jpg");
+      const std::string title1 ( "Computed Ecal " + name + " MGPA shape" ) ;
+      const std::string title2 ( "Computed Ecal " + name + " MGPA derivative" ) ;
 
-  delete shape2;
-  delete deriv2;
-  delete showShape;
+      TH1F* shape2 = new TH1F( "shape2", title1.c_str(), nsamp, 0., (float) nsamp ) ;
+      TH1F* deriv2 = new TH1F( "deriv2", title2.c_str(), nsamp, 0., (float) nsamp ) ;
+      double y = 0.;
+      double dy = 0.;
 
-  return 0;
+      for( unsigned int i ( 0 ) ; i != histsiz ; ++i ) 
+      {
+	 y  = (*theShape)(x);
+	 dy = theShape->derivative(x);
+	 shape2->Fill((float)(x-tzero),(float)y);
+	 deriv2->Fill((float)(x-tzero),(float)dy);
+	 std::cout << " time (ns) = "  << std::fixed    << std::setw(6)         << std::setprecision(2) << x-tzero 
+		   << " shape = "      << std::setw(11) << std::setprecision(5) << y
+		   << " derivative = " << std::setw(11) << std::setprecision(5) << dy << std::endl;
+	 x = x+1./(double)tconv;
+      }
 
+      for( unsigned int iSample ( 0 ) ; iSample != 10 ; ++iSample ) 
+      {
+	 std::cout << (*theShape)(tzero + iSample*25.0) << std::endl; 
+      }
+
+      showShape->Divide(2,1);
+      showShape->cd(1);
+      gPad->SetGrid();
+      shape2->GetXaxis()->SetNdivisions(10,kFALSE);
+      shape2->Draw();
+
+      showShape->cd(2);
+      gPad->SetGrid();
+      deriv2->GetXaxis()->SetNdivisions(10,kFALSE);
+      deriv2->Draw();
+
+      const std::string fname ( name + "EcalShapeUsed.jpg" ) ;
+      showShape->SaveAs( fname.c_str() );
+
+      delete shape2;
+      delete deriv2;
+      delete showShape;
+
+   }
+
+   return 0;
 } 

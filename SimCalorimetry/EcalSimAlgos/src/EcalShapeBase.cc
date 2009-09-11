@@ -4,7 +4,6 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <stdexcept>
 
 const double EcalShapeBase::qNSecPerBin = 1./(1.*kNBinsPerNSec) ;
 
@@ -13,9 +12,7 @@ EcalShapeBase::~EcalShapeBase()
    delete m_derivPtr ;
 }
 
-EcalShapeBase::EcalShapeBase( double aTimePhase ,
-			      bool   aSaveDerivative ) :
-   m_timePhase               ( aTimePhase ) ,
+EcalShapeBase::EcalShapeBase( bool   aSaveDerivative ) :
    m_firstIndexOverThreshold ( 0   ) ,
    m_firstTimeOverThreshold  ( 0.0 ) ,
    m_indexOfMax              ( 0   ) ,
@@ -88,14 +85,6 @@ EcalShapeBase::buildMe()
 				<< " derivative = " << ( 0 != m_derivPtr ? (*m_derivPtr)[ j ] : 0 ) ;
    }
    m_timeOfMax = m_indexOfMax*qNSecPerBin ;
-
-
-   /// Consistency check on the peak time and calculation of the bin where rise starts
-
-   if(  qNSecPerBin < fabs( timeToRise() - m_timePhase ) ) 
-   {
-      throw( std::runtime_error( "EcalShapeBase: computed rising time does not match with input" ) ) ;
-   }
 }
 
 unsigned int

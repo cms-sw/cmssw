@@ -6,9 +6,8 @@ EBShape::~EBShape()
 {
 }
 
-EBShape::EBShape( double aTimePhase ,
-		  bool   aSaveDerivative ) :
-   EcalShapeBase( aTimePhase, aSaveDerivative )
+EBShape::EBShape( bool   aSaveDerivative ) :
+   EcalShapeBase( aSaveDerivative )
 {
    buildMe() ;
 }

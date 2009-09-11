@@ -15,8 +15,7 @@ class EcalShapeBase : public CaloVShape
 
       typedef std::vector<double> DVec ;
   
-      EcalShapeBase( double aTimePhase ,
-		     bool   aSaveDerivative ) ;
+      EcalShapeBase( bool   aSaveDerivative ) ;
 
       virtual ~EcalShapeBase() ;
 
@@ -49,7 +48,6 @@ class EcalShapeBase : public CaloVShape
 
    private:
 
-      const double m_timePhase ;
       unsigned int m_firstIndexOverThreshold ;
       double       m_firstTimeOverThreshold  ;
       unsigned int m_indexOfMax ;
