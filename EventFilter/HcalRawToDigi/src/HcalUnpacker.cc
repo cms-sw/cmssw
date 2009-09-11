@@ -4,6 +4,7 @@
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
 
 namespace HcalUnpacker_impl {
   template <class DigiClass>
@@ -105,8 +106,14 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       if (!silent) edm::LogWarning("Invalid Data") << "Histogram data passed to non-histogram unpacker on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
     }
-    if (htr.getFirmwareFlavor()==0x81) {
-      LogDebug("HcalTechTrigProcessor") << "Skipping data on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId() << " which is from the TechTrigProcessor (use separate unpacker!)";
+    if ((htr.getFirmwareFlavor()&0xE0)==0x80) { // some kind of TTP data
+      if (colls.ttp!=0) {
+	HcalTTPUnpacker ttpUnpack;
+	colls.ttp->push_back(HcalTTPDigi());
+	ttpUnpack.unpack(htr,colls.ttp->back());
+      } else {
+	LogDebug("HcalTechTrigProcessor") << "Skipping data on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId() << " which is from the TechTrigProcessor (use separate unpacker!)";
+      }
       continue;
     }
     if (htr.getFirmwareFlavor()>=0x80) {
@@ -163,7 +170,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 		unrolled[linear].iphi=hid.iphi();
 	      }
 	    } else {
-	      report.countUnmappedTPDigi();
+	      report.countUnmappedTPDigi(eid);
 	    }
 	  }
 	  if (unrolled[linear].valid) {
@@ -192,7 +199,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
 	  DetId did=emap.lookupTrigger(eid);
 	  if (did.null()) {
-	    report.countUnmappedTPDigi();
+	    report.countUnmappedTPDigi(eid);
 	    if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
 	      if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
 	      unknownIdsTrig_.insert(eid);
@@ -287,7 +294,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  }
 	}
       } else {
-	report.countUnmappedDigi();
+	report.countUnmappedDigi(eid);
 	if (unknownIds_.find(eid)==unknownIds_.end()) {
 	  if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
 	  unknownIds_.insert(eid);
@@ -307,6 +314,7 @@ HcalUnpacker::Collections::Collections() {
   tpCont=0;
   zdcCont=0;
   calibCont=0;
+  ttp=0;
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HBHEDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {

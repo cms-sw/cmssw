@@ -20,6 +20,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID)),
   unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
   unpackZDC_(conf.getUntrackedParameter<bool>("UnpackZDC",false)),
+  unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
@@ -46,6 +47,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalCalibDigiCollection>();
   if (unpackZDC_)
     produces<ZDCDigiCollection>();
+  if (unpackTTP_)
+    produces<HcalTTPDigiCollection>();
 
   memset(&stats_,0,sizeof(stats_));
 
@@ -72,6 +75,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HcalTriggerPrimitiveDigi> htp;
   std::vector<HcalCalibDataFrame> hc;
   std::vector<ZDCDataFrame> zdc;
+  std::vector<HcalTTPDigi> ttp;
   std::vector<HOTriggerPrimitiveDigi> hotp;
   std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
 
@@ -94,6 +98,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   colls.tphoCont=&hotp;
   colls.calibCont=&hc;
   colls.zdcCont=&zdc;
+  if (unpackTTP_) colls.ttp=&ttp;
  
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
@@ -201,6 +206,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
       prod->swap(filtered_zdc);
     }
 
+    prod->sort();
+    e.put(prod);
+  }
+
+  if (unpackTTP_) {
+    std::auto_ptr<HcalTTPDigiCollection> prod(new HcalTTPDigiCollection());
+    prod->swap_contents(ttp);
+    
     prod->sort();
     e.put(prod);
   }

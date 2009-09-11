@@ -4,11 +4,11 @@ import FWCore.ParameterSet.Config as cms
 hcalDigis = cms.EDFilter("HcalRawToDigi",
     # Flag to enable unpacking of ZDC channels (default = false)
     UnpackZDC = cms.untracked.bool(True),
+    # Flag to enable unpacking of TTP channels (default = false)
+    UnpackTTP = cms.untracked.bool(True),
     # Optional filter to remove any digi with "data valid" off, "error" on, 
     # or capids not rotating
     FilterDataQuality = cms.bool(True),
-    # Do not complain about missing FEDs
-    ExceptionEmptyData = cms.untracked.bool(False),
     InputLabel = cms.InputTag("source"),
     # Use the defaults for FED numbers
     # Do not complain about missing FEDs

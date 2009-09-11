@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2008/10/24 12:50:58 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/02/12 17:29:24 $
+ *  $Revision: 1.13 $
  *  \author J. Mans - UMD
  */
 
@@ -52,7 +52,7 @@ class HcalHTRData {
   void dataPointers(const unsigned short** daq_first,
 		    const unsigned short** daq_last,
 		    const unsigned short** tp_first,
-		    const unsigned short** tp_last);
+		    const unsigned short** tp_last) const;
   
   
   /** \brief Unpack the HTR data into TP and DAQ data sorted by channel

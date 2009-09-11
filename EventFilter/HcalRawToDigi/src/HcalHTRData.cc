@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2008/10/24 12:50:58 $
- *  $Revision: 1.10 $
+ *  $Date: 2009/02/12 17:29:24 $
+ *  $Revision: 1.11 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -125,7 +125,7 @@ void HcalHTRData::determineStaticLengths(int& headerWords, int& trailerWords) co
 void HcalHTRData::dataPointers(const unsigned short** daq_first, 
 			       const unsigned short** daq_last, 
 			       const unsigned short** tp_first, 
-			       const unsigned short** tp_last) {
+			       const unsigned short** tp_last) const {
   int tp_words_total, daq_words_total, headerLen, trailerLen;
   determineSectionLengths(tp_words_total,daq_words_total,headerLen,trailerLen);
 

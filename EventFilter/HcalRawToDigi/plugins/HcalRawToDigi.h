@@ -36,7 +36,7 @@ private:
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
-  bool unpackCalib_, unpackZDC_;
+  bool unpackCalib_, unpackZDC_, unpackTTP_;
   bool silent_,complainEmptyData_;
   int expectedOrbitMessageTime_;
 

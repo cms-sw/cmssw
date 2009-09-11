@@ -38,7 +38,7 @@ HBHEDigiCollection HcalDataFrameFilter::filter(const HBHEDigiCollection& incol, 
   HBHEDigiCollection output;
   for (HBHEDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_)) 
-      r.countBadQualityDigi();
+      r.countBadQualityDigi(i->id());
     else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);
   }
@@ -50,7 +50,7 @@ HODigiCollection HcalDataFrameFilter::filter(const HODigiCollection& incol, Hcal
   HODigiCollection output;
   for (HODigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
-      r.countBadQualityDigi();
+      r.countBadQualityDigi(i->id());
     else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);
     
@@ -62,7 +62,7 @@ HcalCalibDigiCollection HcalDataFrameFilter::filter(const HcalCalibDigiCollectio
   HcalCalibDigiCollection output;
   for (HcalCalibDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
-      r.countBadQualityDigi();
+      r.countBadQualityDigi(i->id());
     else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);
     
@@ -74,7 +74,7 @@ HFDigiCollection HcalDataFrameFilter::filter(const HFDigiCollection& incol, Hcal
   HFDigiCollection output;
   for (HFDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
-      r.countBadQualityDigi();
+      r.countBadQualityDigi(i->id());
     else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);    
   }
@@ -85,7 +85,7 @@ ZDCDigiCollection HcalDataFrameFilter::filter(const ZDCDigiCollection& incol, Hc
   ZDCDigiCollection output;
   for (ZDCDigiCollection::const_iterator i=incol.begin(); i!=incol.end(); i++) {
     if (!HcalDataFrameFilter_impl::check(*i,requireCapid_,requireDVER_))
-      r.countBadQualityDigi();
+      r.countBadQualityDigi(i->id());
     else if (!energyFilter_ || minimumAmplitude_<HcalDataFrameFilter_impl::energySum(*i,firstSample_,lastSample_))
       output.push_back(*i);    
   }

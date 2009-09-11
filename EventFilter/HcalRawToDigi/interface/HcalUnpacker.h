@@ -13,6 +13,7 @@
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include <set>
 
 class HcalUnpacker {
@@ -27,6 +28,7 @@ public:
     std::vector<ZDCDataFrame>* zdcCont;
     std::vector<HcalTriggerPrimitiveDigi>* tpCont;
     std::vector<HOTriggerPrimitiveDigi>* tphoCont;
+    std::vector<HcalTTPDigi>* ttp;
   };
 
   /// for normal data
