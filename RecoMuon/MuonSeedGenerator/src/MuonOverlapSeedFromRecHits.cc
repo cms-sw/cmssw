@@ -44,7 +44,12 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
   {
     if((*iter)->isDT())
     {
-      barrelHits.push_back(*iter);
+      DTChamberId dtId((**iter).geographicalId().rawId());
+      // try not doing seeds that start in station 2
+      if(dtId.station() == 1)
+      {
+        barrelHits.push_back(*iter);
+      }
     }
     else
     {
@@ -82,7 +87,6 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
 {
   DTChamberId dtId(barrelHit->geographicalId().rawId());
   int dtStation = dtId.station();
-
 
   CSCDetId cscId(endcapHit->geographicalId().rawId());
   int cscChamberType = CSCChamberSpecs::whatChamberType(cscId.station(), cscId.ring());
