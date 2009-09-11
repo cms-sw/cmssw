@@ -16,7 +16,11 @@
  * =====================================================================================
  */
 
+#ifdef CSC_RENDER_PLUGIN
+#include "CSCDQM_Detector.h"
+#else
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Detector.h"
+#endif
 
 namespace cscdqm {
 
@@ -162,7 +166,7 @@ namespace cscdqm {
     if (station == 1) return 3;
     if (station == 2) return 2;
     if (station == 3) return 2;
-    if (station == 4) return 1;
+    if (station == 4) return 2;
     return 0;
   }
   
@@ -181,6 +185,7 @@ namespace cscdqm {
     if(station == 3 && ring == 1) return 18;
     if(station == 3 && ring == 2) return 36;
     if(station == 4 && ring == 1) return 18;
+    if(station == 4 && ring == 2) return 36;
     return 0;
   }
   
@@ -199,6 +204,7 @@ namespace cscdqm {
     if(station == 3 && ring == 1) return 5;
     if(station == 3 && ring == 2) return 5;
     if(station == 4 && ring == 1) return 5;
+    if(station == 4 && ring == 2) return 5;
     return 0;
   }
   
@@ -217,6 +223,7 @@ namespace cscdqm {
     if(station == 3 && ring == 1) return 3;
     if(station == 3 && ring == 2) return 5;
     if(station == 4 && ring == 1) return 3;
+    if(station == 4 && ring == 2) return 5;
     return 0;
   }
   

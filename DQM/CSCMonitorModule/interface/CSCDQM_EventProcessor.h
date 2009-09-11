@@ -78,6 +78,7 @@ namespace cscdqm {
       void init();
       void updateFractionHistos();
       void updateEfficiencyHistos();
+      unsigned int maskHWElements(std::vector<std::string>& tokens);
 
     private:
       

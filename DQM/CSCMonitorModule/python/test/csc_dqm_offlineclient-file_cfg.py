@@ -32,7 +32,8 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.reader = cms.EDFilter("DQMReadFileExample",
-  RootFileName = cms.untracked.string('Playback_V0001_CSC_R000110388.root')
+  #RootFileName = cms.untracked.string('Playback_V0001_CSC_R000110388.root')
+  RootFileName = cms.untracked.string('Playback_V0001_CSC_R000112389.root')
 )
 
 

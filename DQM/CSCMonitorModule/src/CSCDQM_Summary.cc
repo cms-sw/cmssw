@@ -37,7 +37,7 @@ namespace cscdqm {
    */
   void Summary::Reset() {
     Address adr;
-  
+
     /**  Setting Zeros (no data) for each HW element (and beyond) */
     adr.mask.side = adr.mask.station = adr.mask.layer = false;
     adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
@@ -231,19 +231,23 @@ namespace cscdqm {
       HWStatusBitSet status = GetValue(tadr);
   
       float area_box = fabs((box->xmax - box->xmin) * (box->ymax - box->ymin));
-      area_all += area_box;
   
-      if (HWSTATUSANYERROR(status)) {
-        h2->SetBinContent(x, y, -1.0);
+      if (status.test(MASKED)) {
+          h2->SetBinContent(x, y, 2.0);
       } else {
-        area_rep += area_box;
-        if (status.test(DATA)) {
-          h2->SetBinContent(x, y, 1.0);
+        area_all += area_box;
+        if (HWSTATUSANYERROR(status)) {
+          h2->SetBinContent(x, y, -1.0);
         } else {
-          h2->SetBinContent(x, y, 0.0);
+          area_rep += area_box;
+          if (status.test(DATA)) {
+            h2->SetBinContent(x, y, 1.0);
+          } else {
+            h2->SetBinContent(x, y, 0.0);
+          }
         }
       }
-  
+
     }
   
     TString title = Form("ME%d Status: Physics Efficiency %.2f%%", station, (area_rep / area_all) * 100.0);
@@ -340,6 +344,7 @@ namespace cscdqm {
               if (ChamberAddressToCoords(adr, x, y)) {
                 bool hit = (op_any ? HWSTATUSANY(GetValue(adr), mask) : HWSTATUSEQUALS(GetValue(adr), mask));
                 // std::cout << "x = " << x << ", y = " << y << ", value = " << GetValue(adr) << std::endl;
+                // std::cout << "adr = " << detector.AddressName(adr) << ", x = " << x << ", y = " << y << ", value = " << GetValue(adr) << std::endl;
                 if (hit) {
                   h2->SetBinContent(x, y, 1.0 * value);
                 } else if (reset) {
@@ -725,6 +730,7 @@ namespace cscdqm {
    */
   const unsigned int Summary::setMaskedHWElements(std::vector<std::string>& tokens) {
     unsigned int applied = 0;
+
     for (unsigned int r = 0; r < tokens.size(); r++) {
       std::string token = (std::string) tokens.at(r);
       Address adr;

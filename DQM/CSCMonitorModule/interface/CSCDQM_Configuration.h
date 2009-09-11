@@ -246,6 +246,7 @@ namespace cscdqm {
 
       /** Get MO Globally */
       boost::function< bool (const HistoDef& histoT, MonitorObject*&) > fnGetHisto;
+
       /** Pointers to Cache Functions */
       boost::function< bool (const HistoId id, MonitorObject*& mo) > fnGetCacheEMUHisto;
       boost::function< bool (const HistoId id, const HwId& id1, MonitorObject*& mo) > fnGetCacheDDUHisto;
@@ -255,8 +256,10 @@ namespace cscdqm {
       boost::function< bool (unsigned int&, unsigned int&, unsigned int&) > fnNextBookedCSC;
       boost::function< bool (unsigned int&, unsigned int&) > fnIsBookedCSC;
       boost::function< bool (unsigned int&) > fnIsBookedDDU;
+
       /** Pointer to Collection Book Function */
       boost::function< MonitorObject* (const HistoBookRequest&) > fnBook;
+
       /** Pointer to CSC Det Id function */
       boost::function< CSCDetId (const unsigned int, const unsigned int) > fnGetCSCDetId;
 

@@ -27,7 +27,10 @@
 #include <stdint.h>
 #include <math.h>
 
+#ifndef CSC_RENDER_PLUGIN
 #include <xercesc/util/XMLString.hpp>
+#endif
+
 #include <boost/shared_ptr.hpp>
 #include <TString.h>
 #include <TPRegexp.h>
@@ -91,6 +94,8 @@ namespace cscdqm {
   };
 
 
+#ifndef CSC_RENDER_PLUGIN
+
 #define XERCES_TRANSCODE(str) cscdqm::XercesStringTranscoder(str).unicodeForm()
 
   /**
@@ -119,6 +124,8 @@ namespace cscdqm {
       XMLCh* fUnicodeForm;
 
   };
+
+#endif  
 
 }
 

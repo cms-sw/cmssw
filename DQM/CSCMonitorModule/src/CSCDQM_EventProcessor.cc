@@ -146,4 +146,16 @@ namespace cscdqm {
 
   }
 
+  /**
+   * @brief  Mask HW elements from the efficiency calculations. Can be applied
+   * on runtime!
+   * @param  tokens String tokens of the HW elements
+   * @return elements masked
+   */
+  unsigned int EventProcessor::maskHWElements(std::vector<std::string>& tokens) {
+    unsigned int masked = summary.setMaskedHWElements(tokens);
+    LOG_INFO << masked << " HW Elements masked";
+    return masked;
+  }
+
 }

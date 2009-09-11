@@ -65,6 +65,15 @@ namespace cscdqm {
   }
 
   /**
+   * @brief  Mask HW elements from the efficiency calculations. Can be applied on runtime!
+   * @param  tokens String tokens of the HW elements
+   * @return elements masked
+   */
+  unsigned int Dispatcher::maskHWElements(std::vector<std::string>& tokens) {
+    return processorFract.maskHWElements(tokens);
+  }
+
+  /**
    * @brief  Global get MO function. If request has reached this function it means that histo is not in cache!
    * @param  histoD Histogram Definition to get
    * @param  me MO to return

@@ -39,6 +39,11 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
   dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCMonitorModule*>(this));
   dispatcher->init();
 
+  if (ps.exists("MASKEDHW")) {
+    std::vector<std::string> maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
+    dispatcher->maskHWElements(maskedHW);
+  }
+
 }
 
 /**
@@ -54,9 +59,11 @@ CSCMonitorModule::~CSCMonitorModule() {
  * @param  c Event setup
  */
 void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
   if (prebookEffParams) {
     dispatcher->updateFractionAndEfficiencyHistos();
   }
+
 }
 
 /**
@@ -70,7 +77,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<CSCCrateMap> hcrate;
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
-    
+
   dispatcher->processEvent(e, inputTag);
 
 }

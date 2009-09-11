@@ -75,6 +75,15 @@ namespace cscdqm {
         }
       }
 
+      /**
+        * @brief  Mask HW elements from the efficiency calculations. Can be applied on runtime!
+        * @param  tokens String tokens of the HW elements
+        * @return elements masked
+        */
+      unsigned int maskHWElements(std::vector<std::string>& tokens) {
+        return processor.maskHWElements(tokens);
+      }
+
   };
 
   /**
@@ -99,6 +108,8 @@ namespace cscdqm {
       void init();
       void updateFractionAndEfficiencyHistos();
       const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
+      unsigned int maskHWElements(std::vector<std::string>& tokens);
+
 
     private:
 

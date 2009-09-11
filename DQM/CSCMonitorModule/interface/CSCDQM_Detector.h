@@ -27,7 +27,11 @@
 #include <sstream>
 #include <iomanip>
 
+#ifdef CSC_RENDER_PLUGIN
+#include "CSCDQM_Utility.h"
+#else
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Utility.h"
+#endif
 
 namespace cscdqm {
 
@@ -47,7 +51,8 @@ namespace cscdqm {
 #define ADDR_SIZE  7
 
 /** Number of addressing elements in detector */
-#define N_ELEMENTS 7740
+#define N_ELEMENTS 9540
+//(7740 + 1800)
 
 /**
  * Partition function shortcuts

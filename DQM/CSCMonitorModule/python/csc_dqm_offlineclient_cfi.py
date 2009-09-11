@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQM.CSCMonitorModule.csc_dqm_masked_hw_cfi import *
+
 dqmCSCOfflineClient = cms.EDFilter("CSCOfflineClient",
+
+  MASKEDHW = CSCMaskedHW,
 
   EventProcessor = cms.untracked.PSet(
     PROCESS_DDU = cms.untracked.bool(True),

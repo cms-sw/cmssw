@@ -32,6 +32,11 @@ CSCOfflineClient::CSCOfflineClient(const edm::ParameterSet& ps) {
   dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCOfflineClient*>(this));
   dispatcher->init();
 
+  if (ps.exists("MASKEDHW")) {
+    std::vector<std::string> maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
+    dispatcher->maskHWElements(maskedHW);
+  }
+
 }
 
 /**

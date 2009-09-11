@@ -88,70 +88,82 @@ namespace cscdqm {
   
       }
   
-      const int COLOR_GREEN = 3;
+      //const int COLOR_WHITE = 0;
+      const int COLOR_GREEN = 1;
       const int COLOR_RED   = 2;
-      const int COLOR_BLUE  = 4;
+      const int COLOR_BLUE  = 3;
+      const int COLOR_GREY  = 4;
   
       if (getEMUHisto(h::EMU_CSC_STATS_SUMMARY, me)) {
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x1, COLOR_GREEN, true, false);
         summary.WriteChamberState(tmp, HWSTATUSERRORBITS, COLOR_RED, false, true);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false);
       }
-  
+
       if (getEMUHisto(h::EMU_CSC_STATS_OCCUPANCY, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x4, COLOR_RED, true, false);
         summary.WriteChamberState(tmp, 0x8, COLOR_BLUE, false, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_FORMAT_ERR, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x10, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_L1SYNC_ERR, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x20, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_FIFOFULL_ERR, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x40, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_INPUTTO_ERR, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x80, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_WO_ALCT, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x100, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_WO_CLCT, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x200, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_WO_CFEB, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x400, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
   
       if (getEMUHisto(h::EMU_CSC_STATS_CFEB_BWORDS, me)){
         LockType lock(me->mutex);
         TH2* tmp = dynamic_cast<TH2*>(me->getTH1Lock());
         summary.WriteChamberState(tmp, 0x800, COLOR_RED, true, false);
+        summary.WriteChamberState(tmp, 0x2, COLOR_GREY, false, false);
       }
       
       /**
@@ -215,6 +227,8 @@ namespace cscdqm {
           h::PAR_CSC_SIDEMINUS_STATION03_RING01,
           h::PAR_CSC_SIDEMINUS_STATION03_RING02,
           h::PAR_CSC_SIDEMINUS_STATION03,
+          h::PAR_CSC_SIDEMINUS_STATION04_RING01,
+          h::PAR_CSC_SIDEMINUS_STATION04_RING02,
           h::PAR_CSC_SIDEMINUS_STATION04,
           h::PAR_CSC_SIDEMINUS,
           h::PAR_CSC_SIDEPLUS_STATION01_RING01,
@@ -227,6 +241,8 @@ namespace cscdqm {
           h::PAR_CSC_SIDEPLUS_STATION03_RING01,
           h::PAR_CSC_SIDEPLUS_STATION03_RING02,
           h::PAR_CSC_SIDEPLUS_STATION03,
+          h::PAR_CSC_SIDEPLUS_STATION04_RING01,
+          h::PAR_CSC_SIDEPLUS_STATION04_RING02,
           h::PAR_CSC_SIDEPLUS_STATION04,
           h::PAR_CSC_SIDEPLUS
         };

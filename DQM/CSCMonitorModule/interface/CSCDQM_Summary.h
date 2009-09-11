@@ -29,7 +29,7 @@
 #include "DQM/CSCMonitorModule/interface/CSCDQM_Logger.h"
 
 #define HWSTATUSBITSETSIZE    12
-#define HWSTATUSERRORBITS     0xffe
+#define HWSTATUSERRORBITS     0xffc
 #define HWSTATUSEQUALS(s, m)  (((std::bitset<HWSTATUSBITSETSIZE>) m & s) == m)
 #define HWSTATUSANY(s, m)     (((std::bitset<HWSTATUSBITSETSIZE>) m & s).any())
 #define HWSTATUSANYERROR(s)   (HWSTATUSANY(s, HWSTATUSERRORBITS))

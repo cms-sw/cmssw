@@ -274,6 +274,8 @@ namespace h {
   (( PAR_CSC_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
   (( PAR_CSC_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
   (( PAR_CSC_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_CSC_SIDEMINUS_STATION04_RING01, "CSC_SideMinus_Station04_Ring01" )) \
+  (( PAR_CSC_SIDEMINUS_STATION04_RING02, "CSC_SideMinus_Station04_Ring02" )) \
   (( PAR_CSC_SIDEPLUS, "CSC_SidePlus" )) \
   (( PAR_CSC_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
   (( PAR_CSC_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
@@ -286,6 +288,8 @@ namespace h {
   (( PAR_CSC_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
   (( PAR_CSC_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
   (( PAR_CSC_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
+  (( PAR_CSC_SIDEPLUS_STATION04_RING01, "CSC_SidePlus_Station04_Ring01" )) \
+  (( PAR_CSC_SIDEPLUS_STATION04_RING02, "CSC_SidePlus_Station04_Ring02" )) \
   (( PAR_CRT_SIDEMINUS, "CSC_SideMinus" )) \
   (( PAR_CRT_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
   (( PAR_CRT_SIDEMINUS_STATION01_RING01, "CSC_SideMinus_Station01_Ring01" )) \
@@ -298,6 +302,8 @@ namespace h {
   (( PAR_CRT_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
   (( PAR_CRT_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
   (( PAR_CRT_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_CRT_SIDEMINUS_STATION04_RING01, "CSC_SideMinus_Station04_Ring01" )) \
+  (( PAR_CRT_SIDEMINUS_STATION04_RING02, "CSC_SideMinus_Station04_Ring02" )) \
   (( PAR_CRT_SIDEPLUS, "CSC_SidePlus" )) \
   (( PAR_CRT_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
   (( PAR_CRT_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
@@ -310,6 +316,8 @@ namespace h {
   (( PAR_CRT_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
   (( PAR_CRT_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
   (( PAR_CRT_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
+  (( PAR_CRT_SIDEPLUS_STATION04_RING01, "CSC_SidePlus_Station04_Ring01" )) \
+  (( PAR_CRT_SIDEPLUS_STATION04_RING02, "CSC_SidePlus_Station04_Ring02" )) \
   (( PAR_DAQ_SIDEMINUS, "CSC_SideMinus" )) \
   (( PAR_DAQ_SIDEMINUS_STATION01, "CSC_SideMinus_Station01" )) \
   (( PAR_DAQ_SIDEMINUS_STATION01_RING01, "CSC_SideMinus_Station01_Ring01" )) \
@@ -322,6 +330,8 @@ namespace h {
   (( PAR_DAQ_SIDEMINUS_STATION03_RING01, "CSC_SideMinus_Station03_Ring01" )) \
   (( PAR_DAQ_SIDEMINUS_STATION03_RING02, "CSC_SideMinus_Station03_Ring02" )) \
   (( PAR_DAQ_SIDEMINUS_STATION04, "CSC_SideMinus_Station04" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION04_RING01, "CSC_SideMinus_Station04_Ring01" )) \
+  (( PAR_DAQ_SIDEMINUS_STATION04_RING02, "CSC_SideMinus_Station04_Ring02" )) \
   (( PAR_DAQ_SIDEPLUS, "CSC_SidePlus" )) \
   (( PAR_DAQ_SIDEPLUS_STATION01, "CSC_SidePlus_Station01" )) \
   (( PAR_DAQ_SIDEPLUS_STATION01_RING01, "CSC_SidePlus_Station01_Ring01" )) \
@@ -334,6 +344,8 @@ namespace h {
   (( PAR_DAQ_SIDEPLUS_STATION03_RING01, "CSC_SidePlus_Station03_Ring01" )) \
   (( PAR_DAQ_SIDEPLUS_STATION03_RING02, "CSC_SidePlus_Station03_Ring02" )) \
   (( PAR_DAQ_SIDEPLUS_STATION04, "CSC_SidePlus_Station04" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION04_RING01, "CSC_SidePlus_Station04_Ring01" )) \
+  (( PAR_DAQ_SIDEPLUS_STATION04_RING02, "CSC_SidePlus_Station04_Ring02" )) \
   \
   \
 
