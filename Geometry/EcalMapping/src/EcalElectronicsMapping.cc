@@ -1,8 +1,9 @@
+// -*- Mode: C++; c-basic-offset: 8;  -*-
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
+
 
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
@@ -311,6 +312,7 @@ EcalTrigTowerDetId EcalElectronicsMapping::getTrigTowerDetId(int TCCid, int iTT)
 
         int tower_i = abs(ieta);
         int tower_j = iphi;
+	
 	EcalTrigTowerDetId tdetid(zIndex, EcalEndcap, tower_i, tower_j,EcalTrigTowerDetId::SUBDETIJMODE);
 	return tdetid;
 
@@ -834,24 +836,79 @@ std::pair<int, int> EcalElectronicsMapping::getDCCandSC(EcalScDetId id) const {
 
 
 
-EcalScDetId EcalElectronicsMapping::getEcalScDetId(int DCCid, int DCC_Channel) const {
+std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid, int DCC_Channel, bool ignoreSingleCrystal) const {
+	//Debug output switch:
+	const bool debug = false;
+	
+        // For unpacking of ST flags.
+	//result: SCs readout by the DCC channel DCC_channel of DCC DCCid.
+	//Vector of 1 or 2 elements: most of the time there is only
+	//one SC read-out by the DCC channel, but for some channels
+	//there are 2 partial SCs which were grouped.
+	std::vector<EcalScDetId> scDetIds;
 
-// For unpacking of ST flags.
-
+	//There are 4 SCs in each endcap whose one crystal is read out
+	//by a different DCC channel than the others.
+	//Number of crystals of the SC read out by the DCC channel:
+	std::vector<int> nReadoutXtals;
+	
 	std::vector<DetId> xtals = dccTowerConstituents(DCCid, DCC_Channel);
+
+	if(debug){
+		std::cout << __FILE__ << ":" << __LINE__ << ": " << xtals.size()
+			  << " crystals read out by channel " <<  DCC_Channel << " of DCC "
+			  << DCCid << ": ";
+		for(size_t i = 0; i < xtals.size(); ++i){
+			std::cout << EEDetId(xtals[i]) << " ";
+		}
+		std::cout << "\n";
+	}
+	
 	if (xtals.size() == 0) throw cms::Exception("InvalidDetId") << 
-		"EcalElectronicsMapping : can not create EcalScDetId for DCC " << DCCid << 
-		" and DCC_Channel " << DCC_Channel << ".";
-
-	EEDetId eedetid = xtals[0];
-	int ix = eedetid.ix();
-	int iy = eedetid.iy();
-	int iz = eedetid.zside();
-	int ix_SC = (ix-1)/5 + 1;
-	int iy_SC = (iy-1)/5 + 1;
-	EcalScDetId scdetid(ix_SC,iy_SC,iz);
-	return scdetid;
-
+				       "EcalElectronicsMapping : can not create EcalScDetId for DCC " << DCCid << 
+				       " and DCC_Channel " << DCC_Channel << ".";
+	
+	for(size_t iXtal = 0; iXtal < xtals.size(); ++iXtal){
+		EEDetId eedetid = xtals[iXtal];
+		int ix = eedetid.ix();
+		int iy = eedetid.iy();
+		int iz = eedetid.zside();
+		int ix_SC = (ix-1)/5 + 1;
+		int iy_SC = (iy-1)/5 + 1;
+		//Supercrystal (SC) the crystal belongs to:
+		EcalScDetId scdetid(ix_SC,iy_SC,iz);
+		size_t iSc = 0;
+		//look if the SC was already included:
+		while(iSc < scDetIds.size() && scDetIds[iSc] != scdetid) ++iSc;
+		if(iSc==scDetIds.size()){//SC not yet included
+			scDetIds.push_back(scdetid);
+			nReadoutXtals.push_back(1); //crystal counter of the added SC
+		} else{//SC already included
+			++nReadoutXtals[iSc];// counting crystals in the SC
+		}
+	}
+	
+	if(ignoreSingleCrystal){
+		//For simplification, SC read out by two different DCC channels
+		//will be associated to the DCC channel reading most of the crystals,
+		//the other DCC channel which read only one crystal is discarded.
+		//Discards SC with only one crystal read out by the considered,
+		//DCC channel:
+		assert(scDetIds.size()==nReadoutXtals.size());
+		for(size_t iSc = 0; iSc < scDetIds.size(); /*NOOP*/){
+			if(nReadoutXtals[iSc]<=1){
+				if(debug) std::cout << "EcalElectronicsMapping::getEcalScDetId: Ignore SC "
+						    << scDetIds[iSc] << " whose only one channel is read out by "
+						  "the DCC channel (DCC " << DCCid << ", ch " << DCC_Channel<< ").\n";
+				scDetIds.erase(scDetIds.begin()+iSc);
+				nReadoutXtals.erase(nReadoutXtals.begin()+iSc);
+			} else{
+				++iSc; //next SC;
+			}
+		}
+	}
+	 
+	return scDetIds;
 }
 
 

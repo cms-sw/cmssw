@@ -25,7 +25,7 @@
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.5 2007/08/20 19:35:13 eperez Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.6 2007/12/07 19:08:12 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
@@ -75,11 +75,37 @@ class EcalElectronicsMapping {
   /// set the association between a DetId and a tower
   void assign(const DetId& cell, const EcalElectronicsId&, const EcalTriggerElectronicsId& tower);
 
-  /// returns the DCC and DCC_channel of an EcalScDetId
+  /** Retrieves the DCC channel that reads the crystals constituting an ECAL supercystal (SC).
+   * For standard 5x5 complete SCs, there is a one-to-one matching between DCC channel and
+   * SC. For partial SCs, the relation from SC to DCC channel is N-to-N.
+   * The 3-2-1 partial SC type has 1 crystal read by a DCC channel and the others read by
+   * another DCC channel. If the former crystal is ignored for the DCC channel matching,
+   * then the SC-to-DCC channel association is simplified to 1-to-N relation.
+   * This method uses this prescription and therefore returns a single DCC channel.
+   * @param id SC identifier
+   * @return DCC channel. .first: DCC ID (from 1 to 54); .second: channel within the DCC (from 1 to 68).
+   * See http://hepwww.rl.ac.uk/CMSecal/Dee-layout.html, https://twiki.cern.ch/twiki/bin/view/CMS/EcalIndices,
+   * and references thereby.
+   */
   std::pair<int, int> getDCCandSC(EcalScDetId id) const;
 
-  /// builds an EcalScDetId from (DCC, DCC_channel)
-  EcalScDetId getEcalScDetId(int DCCid, int DCC_Channel) const;
+  /** builds EcalScDetId's from (DCC, DCC_channel)
+   *  Most of the time there is only one SC read-out by the DCC channel,
+   * but few DCC channels read VPTs coming from two different partial SCs.
+   * There are also 4 SCs per endcap whose one crystal is read out
+   * by a different DCC channel than the others. In such case, the SC will be
+   * assiociated to the DCC channel reading most of the crystals,
+   * the DCC channel reading only one crystal being ignored.
+   * @param ignoreSingleCrystal. There are four partial SCs per endcap
+   * whose one crystal is read out by a different DCC channel than for the
+   * other crystals. If this parameter is true these single crystals will
+   * be ignored: if a SC has only one crystal read out by the DCC channel,
+   * then the SC will not be included in the returned list.
+   * a differentsimplification, SC read out by two different DCC channels
+   * @return vector of SCs associated to the DCC channel.
+   */
+  std::vector<EcalScDetId> getEcalScDetId(int DCCid, int DCC_Channel,
+					  bool ignoreSingleCrystal = true) const;
 
   /// returns the DCC of an EBDetId
   int DCCid(const EBDetId& id) const;
