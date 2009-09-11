@@ -567,13 +567,13 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type )
       return isGoodMuon(muon,TM2DCompatibility,1.0);
       break;
     case muon::GMTkChiCompatibility:
-      return muon.isGlobalMuon() && fabs(muon.trkRelChi2() - muon.innerTrack()->normalizedChi2()) < 20.0;
+      return muon.isGlobalMuon() && muon.isQualityValid() && fabs(muon.combinedQuality().trkRelChi2 - muon.innerTrack()->normalizedChi2()) < 2.0;
       break;
     case muon::GMStaChiCompatibility:
-      return muon.isGlobalMuon() && fabs(muon.staRelChi2() - muon.outerTrack()->normalizedChi2()) < 20.0;
+      return muon.isGlobalMuon() && muon.isQualityValid() && fabs(muon.combinedQuality().staRelChi2 - muon.outerTrack()->normalizedChi2()) < 2.0;
       break;
     case muon::GMTkKinkTight:
-      return muon.isGlobalMuon() && muon.trkKink() < 100.0;
+      return muon.isGlobalMuon() && muon.isQualityValid() && muon.combinedQuality().trkKink < 100.0;
       break;
     default:
       return false;

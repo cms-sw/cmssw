@@ -32,6 +32,8 @@
 
   <class name="reco::MuonIsolation"/>
 
+  <class name="reco::MuonQuality"/>
+
   <class name="reco::CaloMuon"/>
   <class name="std::vector<reco::CaloMuon>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloMuon> >"/>

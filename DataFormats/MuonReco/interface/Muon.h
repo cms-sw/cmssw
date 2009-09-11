@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.52 2009/06/29 20:02:44 elmer Exp $
+ * \version $Id: Muon.h,v 1.53 2009/09/09 20:55:46 aeverett Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -18,6 +18,7 @@
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
+#include "DataFormats/MuonReco/interface/MuonQuality.h"
 
 namespace reco {
  
@@ -63,6 +64,16 @@ namespace reco {
     void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
     
     ///
+    /// ====================== Quality BLOCK ===========================
+    ///
+    /// energy deposition
+    bool isQualityValid() const { return qualityValid_; }
+    /// get energy deposition information
+    MuonQuality combinedQuality() const { return combinedQuality_; }
+    /// set energy deposition information
+    void setCombinedQuality( const MuonQuality& combinedQuality ) { combinedQuality_ = combinedQuality; qualityValid_ = true; }
+
+    ///
     /// ====================== TIMING BLOCK ===========================
     ///
     /// timing information
@@ -100,23 +111,6 @@ namespace reco {
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
 
-    ///
-    /// ====================== Global Track Qualities ====================
-    ///
-    /// chi2 of STA and TK stubs relative to GLB track
-    void setTrkKink(float kink) {trkKink_ = kink;}
-    void setGlbKink(float kink) {glbKink_ = kink;}
-    void setKinkR(float r) {kinkR_ = r;}
-    void setKinkZ(float z) {kinkZ_ = z;}
-    void setTrkRelChi2(float a) {trkRelChi2_ = a;}
-    void setStaRelChi2(float a) {staRelChi2_ = a;}
-    float trkKink() const { return trkKink_; }
-    float glbKink() const { return glbKink_; }
-    float kinkR() const { return kinkR_; }
-    float kinkZ() const { return kinkZ_; }
-    float trkRelChi2() const { return trkRelChi2_; }
-    float staRelChi2() const { return staRelChi2_; }
-         
     /// define arbitration schemes
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
     
@@ -164,6 +158,8 @@ namespace reco {
     TrackRef globalTrack_;
     /// energy deposition 
     MuonEnergy calEnergy_;
+    /// quality block
+    MuonQuality combinedQuality_;
     /// Information on matching between tracks and segments
     std::vector<MuonChamberMatch> muMatches_;
     /// timing
@@ -172,6 +168,7 @@ namespace reco {
     bool energyValid_;
     bool matchesValid_;
     bool isolationValid_;
+    bool qualityValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
     float caloCompatibility_;
     /// Isolation information for two cones with dR=0.3 and dR=0.5
@@ -179,14 +176,6 @@ namespace reco {
     MuonIsolation isolationR05_;
     /// muon type mask
     unsigned int type_;
-    /// muon track qualities
-    float trkKink_;
-    float glbKink_;
-    float kinkR_;
-    float kinkZ_;
-    float trkRelChi2_;
-    float staRelChi2_;
-
 
     // FixMe: Still missing trigger information
 
