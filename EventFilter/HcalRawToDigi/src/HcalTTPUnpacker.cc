@@ -1,32 +1,33 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalTTPUnpacker.h"
 
-bool HcalTTPUnpacker::unpack(const HcalHTRData& data, HcalTTPDigi& digi) {
-  int id=data.getSubmodule();
-  int samples=data.getNDD();
-  int presamples=data.getNPS();
-  int algo=data.getFirmwareFlavor()&0x1F;
+void HcalTTPUnpacker::unpack(HcalHTRData& theData, HcalTTPDigi& theDigi) {
 
-  digi=HcalTTPDigi(id,samples,presamples,algo);
+    // Get the base information for the TTP Digi
+    int theID    = theData.getSubmodule() ;
+    int nSamples = theData.getNDD() ;
+    int nPresamples = theData.getNPS() ;
+    int algorithm = theData.getFirmwareFlavor()&0x1F ;
+    unsigned int fwVersion = theData.getFirmwareRevision() ;
+    unsigned int lPipe = theData.getPipelineLength() ; 
 
-  if (samples==0) {
-    const unsigned short* rd=data.getRawData();
-    int len=data.getRawLength();
-    for (int i=0; i<len; i++)
-      printf("%3d %04X\n",i,rd[i]);
-  }
+    theDigi = HcalTTPDigi(theID,nSamples,nPresamples,fwVersion,algorithm,lPipe) ;
 
-  const unsigned short* daq_first, *daq_last, *tp_first, *tp_last;
-  data.dataPointers(&daq_first,&daq_last,&tp_first,&tp_last);
+    // Get the data pointers
+    const unsigned short *daq_first, *daq_last, *tp_first, *tp_last ;
+    theData.dataPointers(&daq_first,&daq_last,&tp_first,&tp_last) ;
 
-  for (int i=0; i<samples; i++) {
-    const uint16_t* work=(daq_first+6*i);
-    if (work>daq_last) break;
-    uint32_t algo=((*(work+4))>>8)&0xFF;
-    algo|=((*(work+5))&0xFFF)<<8;    
-    uint8_t trig=((*(work+5))>>12)&0xF;
-    
-    digi.setSample(i-presamples,work,algo,trig);
-  }
-  
-  return true;
+    // Each TTP data sample is 96 bits: 72 (input) + 20 (algo) + output (4)
+    for (int i=0; i<nSamples; i++) {
+
+        const uint16_t* daq_start = (daq_first+6*i) ;
+        if ( daq_start > daq_last ) break ;
+
+        const uint16_t* inputContent = daq_start ; 
+        const uint32_t algoDep = (daq_start[4]>>8)|((uint32_t(daq_start[5])&0xFFF)<<8) ; 
+        const uint8_t trigOutput = (daq_start[5]>>12)&0xF ;
+        
+        int relativeSample = i - nPresamples ;
+        theDigi.setSample(relativeSample,inputContent,algoDep,trigOutput) ;
+    }
 }
+
