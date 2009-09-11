@@ -1,11 +1,11 @@
-#ifndef src_PhysicsTools_TrgMatchedMuonRefProducer_h
-#define src_PhysicsTools_TrgMatchedMuonRefProducer_h
+#ifndef src_PhysicsTools_MuonRefProducer_h
+#define src_PhysicsTools_MuonRefProducer_h
 // -*- C++ -*-
 //
 // Package:     PhysicsTools
-// Class  :     TrgMatchedMuonRefProducer
+// Class  :     MuonRefProducer
 // 
-/**\class TrgMatchedMuonRefProducer TrgMatchedMuonRefProducer.h src/PhysicsTools/interface/TrgMatchedMuonRefProducer.h
+/**\class MuonRefProducer MuonRefProducer.h src/PhysicsTools/interface/MuonRefProducer.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,6 @@
 //
 // Original Author:  Valerie Halyo
 //         Created:  Wed Oct  8 11:08:22 CDT 2008
-// $Id: TrgMatchedMuonRefProducer.h,v 1.3 2009/03/24 19:32:37 ahunt Exp $
 //
 
 // system include files
@@ -39,14 +38,14 @@
 // class decleration
 //
 
-class TrgMatchedMuonRefProducer : public edm::EDProducer 
+class MuonRefProducer : public edm::EDProducer 
 {
    public:
-      explicit TrgMatchedMuonRefProducer(const edm::ParameterSet&);
-      ~TrgMatchedMuonRefProducer();
+      explicit MuonRefProducer(const edm::ParameterSet&);
+      ~MuonRefProducer();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
@@ -55,16 +54,15 @@ class TrgMatchedMuonRefProducer : public edm::EDProducer
       
       edm::InputTag probeCollection_;
 
-      edm::InputTag triggerEventTag_;
-      std::vector<edm::InputTag> muonFilterTags_;
-
-      // Matching parameters
-      double delRMatchingCut_;
-      double delPtRelMatchingCut_;
-
-      // Some details about the matching
-      bool usePtMatching_;
-
+      bool   useCharge_;
+      double ptMin_;
+      int    charge_;
+      int    nhits_;
+      double nchi2_;
+      double d0_;
+      double z0_;
+      double dz0_;
+ 
       // ----------member data ---------------------------
 };
 
