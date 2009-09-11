@@ -22,7 +22,7 @@ met = cms.EDProducer(
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMET'),
     noHF = cms.bool(False),
-    globalThreshold = cms.double(0.5),
+    globalThreshold = cms.double(0.3),
     InputType = cms.string('CandidateCollection'),
     
     )
@@ -54,7 +54,7 @@ metNoHF = cms.EDProducer(
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETNoHF'),
     noHF = cms.bool(True),
-    globalThreshold = cms.double(0.5),
+    globalThreshold = cms.double(0.3),
     InputType = cms.string('CandidateCollection'),
 
 )
