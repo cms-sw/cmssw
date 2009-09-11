@@ -6,6 +6,7 @@
   <use name=DataFormats/HcalDigi>
   <use name=CalibFormats/CaloTPG>
   <use name=Geometry/HcalTowerAlgo>
+  <use name=EventFilter/HcalRawToDigi>
 </export>
 
 <use name=CondFormats/HcalObjects>
@@ -14,5 +15,5 @@
 <use name=DataFormats/HcalDigi>
 <use name=CalibFormats/CaloTPG>
 <use name=Geometry/HcalTowerAlgo>
+<use name=EventFilter/HcalRawToDigi>
 <use name=clhep>
-
