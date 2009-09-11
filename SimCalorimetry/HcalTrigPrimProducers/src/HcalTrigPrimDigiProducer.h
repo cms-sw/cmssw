@@ -20,6 +20,8 @@ public:
 private:
   HcalTriggerPrimitiveAlgo theAlgo;
   std::vector<edm::InputTag> inputLabel_;
+  bool runFrontEndFormatError;
+  bool runZS;
 };
 
 #endif

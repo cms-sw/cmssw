@@ -7,9 +7,11 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     #vdouble weights = { -1, -1, 1, 1} //low lumi algo
     peakFilter = cms.bool(True),
     # Input digi label (_must_ be without zero-suppression!)
-    firstTPSample = cms.int32(2),
-    TPSize = cms.int32(4),
+    numberOfSamples = cms.int32(4),
+    numberOfPresamples = cms.int32(2),
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),cms.InputTag('simHcalUnsuppressedDigis')),
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
-    ZS_threshold = cms.uint32(1) ## threshold for setting fine grain bit
+    ZS_threshold = cms.uint32(1), ## threshold for setting fine grain bit
+    RunZS = cms.untracked.bool(False),
+    FrontEndFormatError = cms.untracked.bool(False) # Front End Format Error, for real data only
 )
