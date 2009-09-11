@@ -19,7 +19,6 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.12 2009/07/08 20:26:38 fischler Exp $
 //
 
 // system include files

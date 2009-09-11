@@ -8,7 +8,6 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.32 2009/09/09 19:35:50 fischler Exp $
 //
 // Change log
 //
