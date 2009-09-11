@@ -2,9 +2,9 @@
  * \file DQMStoreStats.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2009/02/24 13:56:25 $
- * $Revision: 1.3 $
- * $Author: ameyer $
+ * $Date: 2009/09/04 08:29:06 $
+ * $Revision: 1.4 $
+ * $Author: olzem $
  *
  * Description: Print out statistics of histograms in DQMStore
 */
@@ -34,17 +34,22 @@ DQMStoreStats::DQMStoreStats( const edm::ParameterSet& ps )
     verbose_ (0)
 {
   parameters_ = ps;
-  pathnamematch_ = ps.getUntrackedParameter<std::string>("pathNameMatch", pathnamematch_);
-  statsdepth_ = ps.getUntrackedParameter<int>("statsDepth", statsdepth_);
-  verbose_ = ps.getUntrackedParameter<int>("verbose", verbose_);
-  runonendrun_    = ps.getUntrackedParameter<bool>("runOnEndRun",true);
-  runonendjob_    = ps.getUntrackedParameter<bool>("runOnEndJob",false);
-  runonendlumi_   = ps.getUntrackedParameter<bool>("runOnEndLumi",false);
-  runineventloop_ = ps.getUntrackedParameter<bool>("runInEventLoop",false);
+  pathnamematch_ = ps.getUntrackedParameter<std::string>( "pathNameMatch", pathnamematch_ );
+  statsdepth_ = ps.getUntrackedParameter<int>( "statsDepth", statsdepth_ );
+  verbose_ = ps.getUntrackedParameter<int>( "verbose", verbose_ );
+  dumpMemHistory_ = ps.getUntrackedParameter<bool>( "dumpMemoryHistory", false );
+  runonendrun_    = ps.getUntrackedParameter<bool>( "runOnEndRun", true );
+  runonendjob_    = ps.getUntrackedParameter<bool>( "runOnEndJob", false );
+  runonendlumi_   = ps.getUntrackedParameter<bool>( "runOnEndLumi", false );
+  runineventloop_ = ps.getUntrackedParameter<bool>( "runInEventLoop", false );
+
+  startingTime_ = time( 0 );
+
 }
 
 DQMStoreStats::~DQMStoreStats(){
 }
+
 
 //==================================================================//
 //======================= calcstats  ===============================//
@@ -61,17 +66,6 @@ int DQMStoreStats::calcstats() {
   std::string subfoldername = "";
   size_t subsysStringEnd = 0, subfolderStringEnd  = 0;
 
-//   std::cout << " DQMStoreStats::calcstats ==============================" << std::endl;  
-  //    cout << "  running " ; 
-//     if (runonendrun_) cout << "on run end " << endl;
-//     if (runonendlumi_) cout << "on lumi end " << endl;
-//     if (runonendjob_) cout << "on job end " << endl;
-//     if (runineventloop_) cout << "in event loop " << endl;
-
-//     if (verbose_) { 
-//       cout << "  pathNameMatch = " << pathnamematch_ << endl;
-//       cout << "  statsDepth = " << statsdepth_ << endl;
-//     }
 
   std::vector<MonitorElement*> melist;
   melist = dbe_->getMatchingContents( pathnamematch_ );
@@ -148,6 +142,7 @@ int DQMStoreStats::calcstats() {
     }
       
   } 
+
 
 
   // OUTPUT
@@ -240,7 +235,43 @@ int DQMStoreStats::calcstats() {
 
   }
 
-    // dump folder structure
+  // determine virtual memory maximum
+  std::pair<time_t, unsigned int> maxItem;
+  for( std::vector<std::pair<time_t, unsigned int> >::const_iterator it = memoryHistoryVector_.begin();
+       it < memoryHistoryVector_.end(); ++it ) {
+    if( it->second > maxItem.second ) {
+      maxItem = *it;
+    }
+  }
+
+
+  std::stringstream rootOutputFileName;
+  rootOutputFileName << "dqmStoreStats_memProfile_" << getpid() << ".root";
+
+  // dump memory history to root file
+  if( dumpMemHistory_ && isOpenProcFileSuccessful_ ) {
+
+    TFile outputFile( rootOutputFileName.str().c_str(), "RECREATE" );
+
+    int aTime;
+    float aMb;
+
+    TTree memHistoryTree( "dqmstorestats_memhistory", "memory history" );
+    memHistoryTree.Branch( "seconds", &aTime, "seconds/I" );
+    memHistoryTree.Branch( "megabytes", &aMb, "megabytes/F" );
+    for( std::vector<std::pair<time_t, unsigned int> >::const_iterator it = memoryHistoryVector_.begin();
+	 it < memoryHistoryVector_.end(); ++it ) {
+      aTime = it->first - startingTime_;
+      aMb = it->second / 1000.;
+      memHistoryTree.Fill();
+    }
+
+    outputFile.Write();
+    outputFile.Close();
+
+  }
+
+  // dump folder structure
   std::cout << std::endl;
   std::cout << "------------------------------------------------------------------------------------------" << std::endl;
   std::cout << "Grand total:" << std::endl;
@@ -248,6 +279,17 @@ int DQMStoreStats::calcstats() {
   std::cout << "Number of subsystems: " << dqmStoreStatsTopLevel.size() << std::endl;
   std::cout << "Total number of histograms: " << overallNHistograms << " with: " << overallNBins << " bins alltogether" << std::endl;
   std::cout << "Total memory occupied by histograms (excl. overhead): " << overallNBytes / 1024. / 1000. << " MB" << std::endl;
+  std::cout << "Maximum total virtual memory size of job: ";
+  if( isOpenProcFileSuccessful_ ) {
+    std::cout << maxItem.second / 1000.
+	      << " MB (reached " << maxItem.first - startingTime_ << " sec. after constructor called)" << std::endl;
+    std::cout << "(memory history written to: " << rootOutputFileName.str() << ")" << std::endl;
+  } else {
+    std::cout << "(could not be determined)" << std::endl;
+  }
+
+
+    
 
   std::cout << endl;
   std::cout << "===========================================================================================" << std::endl;
@@ -276,6 +318,41 @@ void DQMStoreStats::print(){
 		                         maxbinssubsys_ << " bins." <<  std::endl;
 }
 
+
+
+
+///
+/// read virtual memory size from /proc/<pid>/status file
+///
+std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( void ) const {
+  
+  // see if initial test reading was successful
+  if( isOpenProcFileSuccessful_ ) {
+
+    std::ifstream procFile( procFileName_.str().c_str(), ios::in );
+
+    std::string readBuffer( "" );
+    unsigned int memSize = 0;
+
+    // scan procfile
+    while( !procFile.eof() ) {
+      procFile >> readBuffer;
+      if( std::string( "VmSize:" ) == readBuffer ) {
+	procFile >> memSize;
+	break;
+      }
+    }
+
+    procFile.close();
+    return std::pair<time_t, unsigned int>( time( 0 ), memSize );
+  }
+
+  return std::pair<time_t, unsigned int>( 0, 0 );
+
+}
+
+
+
 //==================================================================//
 //========================= beginJob ===============================//
 //==================================================================//
@@ -283,6 +360,23 @@ void DQMStoreStats::beginJob(const EventSetup& context) {
 
   ////---- get DQM store interface
   dbe_ = Service<DQMStore>().operator->();
+
+  // access the proc/ folder for memory information
+  procFileName_ << "/proc/" << getpid() << "/status";
+
+  // open for a test
+  std::ifstream procFile( procFileName_.str().c_str(), ios::in );
+
+  if( procFile.good() ) {
+    isOpenProcFileSuccessful_ = true;
+  }
+  else {
+    std::cerr << " [DQMStoreStats::beginJob] ** WARNING: could not open file: " << procFileName_.str() << std::endl;
+    std::cerr << "  Total memory profile will not be available." << std::endl;
+    isOpenProcFileSuccessful_ = false;
+  }
+
+  procFile.close();
 
 }
 
@@ -305,8 +399,14 @@ void DQMStoreStats::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 //==================== analyse (takes each event) ==================//
 //==================================================================//
 void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
-   if (runineventloop_) calcstats();
+
+  //now read virtual memory size from proc folder
+  memoryHistoryVector_.push_back( readMemoryEntry() );
+  
+  if (runineventloop_) calcstats();
+
 }
+
 
 //==================================================================//
 //========================= endLuminosityBlock =====================//

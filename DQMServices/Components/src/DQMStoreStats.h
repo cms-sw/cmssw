@@ -5,17 +5,23 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/02/23 10:52:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/04 08:29:06 $
+ *  $Revision: 1.3 $
  *  \author Andreas Meyer CERN
  *  \author Jan Olzem DESY
  *   
  */
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include <utility>
+#include <fstream>
+
+#include "TFile.h"
+#include "TTree.h"
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -101,11 +107,11 @@ protected:
 private:
 
   int calcstats();
+  std::pair<unsigned int, unsigned int> readMemoryEntry( void ) const;
   void print();
   
   DQMStore* dbe_;
   edm::ParameterSet parameters_;
-
 
   std::string subsystem_;
   std::string subfolder_;
@@ -121,11 +127,17 @@ private:
   int statsdepth_ ;
   std::string pathnamematch_ ;
   int verbose_ ;
+  
+  std::vector<std::pair<time_t, unsigned int> > memoryHistoryVector_;
+  time_t startingTime_;
+  bool isOpenProcFileSuccessful_;
+  std::stringstream procFileName_;
 
   bool runonendrun_ ;
   bool runonendjob_ ;
   bool runonendlumi_ ;
   bool runineventloop_ ;
+  bool dumpMemHistory_;
 
   // ---------- member data ----------
 
