@@ -13,7 +13,7 @@ higgsToTauTauMuonTauFilter = cms.EDFilter("HiggsToTauTauMuonTauSkim",
     minDRFromMuon = cms.double(0.5),
     jetEtaMin = cms.double(-2.6),
     jetEtaMax = cms.double(2.6),
-    minNumberOfJets = cms.int32(1),
+    minNumberOfJets = cms.int32(0),
     jetEtMin = cms.double(20.0),
     JetTagCollection = cms.InputTag("iterativeCone5CaloJets")
 )
