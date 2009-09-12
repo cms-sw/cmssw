@@ -45,7 +45,11 @@ muons = cms.EDProducer("MuonIdProducer",
     #
     # global fit for candidate p4 requirements
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double(200.0),
-    sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double(2.0)
+    sigmaThresholdToFillCandidateP4WithGlobalFit = cms.double(2.0),
+    # 
+    # global quality
+    fillGlobalTrackQuality = cms.bool(False), #input depends on external module output --> set to True where the sequence is defined
+    globalTrackQualityInputTag = cms.InputTag('glbTrackQual')
 )
 
 

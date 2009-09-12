@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.15 2009/03/27 02:23:58 ptraczyk Exp $
+// $Id: MuonIdProducer.h,v 1.16 2009/04/07 17:49:50 dmytro Exp $
 //
 //
 
@@ -65,6 +65,7 @@ class MuonIdProducer : public edm::EDProducer {
 			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );
    void          fillArbitrationInfo( reco::MuonCollection* );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
+   void          fillGlbQuality( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon );
    void          init( edm::Event&, const edm::EventSetup& );
    
    // make a muon based on a track ref
@@ -129,5 +130,8 @@ class MuonIdProducer : public edm::EDProducer {
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorJet_;
+
+   bool          fillGlobalTrackQuality_;
+   edm::InputTag globalTrackQualityInputTag_;
 };
 #endif

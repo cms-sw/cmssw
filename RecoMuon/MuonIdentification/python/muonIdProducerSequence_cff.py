@@ -14,6 +14,10 @@ from RecoMuon.MuonIdentification.isolation_cff import *
 from RecoMuon.MuonIdentification.muons_cfi import *
 from RecoMuon.MuonIdentification.muonTiming_cfi import *
 from RecoMuon.MuonIdentification.calomuons_cfi import *
-muonIdProducerSequence = cms.Sequence(muons*muontiming*calomuons)
+# Glb Track Quality
+from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
+
+muons.fillGlobalTrackQuality = True
+muonIdProducerSequence = cms.Sequence(glbTrackQual*muons*muontiming*calomuons)
 
 

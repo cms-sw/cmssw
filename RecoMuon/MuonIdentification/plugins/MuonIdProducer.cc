@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.39 2009/09/07 01:42:25 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.40 2009/09/07 04:49:15 dmytro Exp $
 //
 //
 
@@ -48,6 +48,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
@@ -67,6 +69,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    fillEnergy_              = iConfig.getParameter<bool>("fillEnergy");
    fillMatching_            = iConfig.getParameter<bool>("fillMatching");
    fillIsolation_           = iConfig.getParameter<bool>("fillIsolation");
+   fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
    sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
    
@@ -112,6 +115,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
      << "========================================================================\n" 
      << "Debugging mode with truth matching is turned on!!! Make sure you understand what you are doing!\n"
      << "========================================================================\n";
+   if (fillGlobalTrackQuality_){
+     globalTrackQualityInputTag_ = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
+   }
 }
 
 
@@ -469,7 +475,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		fillMuonId(iEvent, iSetup, *muon);
 	     }
 	  }
-	
+
+	if (fillGlobalTrackQuality_){
+	  // Fill global quality information
+	  fillGlbQuality(iEvent, iSetup, *muon);
+	}
+	LogDebug("MuonIdentification");
+
 	// timers.push("MuonIdProducer::produce::fillCaloCompatibility");
 	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
 	// timers.pop();
@@ -877,3 +889,15 @@ double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) con
    return sectorPhi(muon.matches().at(0).id);
 }
 
+void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
+{
+  edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualH;
+  iEvent.getByLabel(globalTrackQualityInputTag_, glbQualH);
+
+  if(aMuon.isGlobalMuon() && !glbQualH.failedToGet()) {
+    aMuon.setCombinedQuality((*glbQualH)[aMuon.combinedMuon()]);
+  }
+
+  LogDebug("MuonIdentification") << "tkChiVal " << aMuon.combinedQuality().trkRelChi2;
+
+}
