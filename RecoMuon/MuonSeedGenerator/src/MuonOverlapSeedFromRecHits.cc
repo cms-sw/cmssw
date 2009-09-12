@@ -45,8 +45,8 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
     if((*iter)->isDT())
     {
       DTChamberId dtId((**iter).geographicalId().rawId());
-      // try not doing seeds that start in station 2
-      if(dtId.station() == 1)
+      // try not doing seeds that start in DT station 2, if there'as a good single segment seed
+      if(dtId.station() == 1 || (dtId.station()==2 && (*iter)->dimension() == 2))
       {
         barrelHits.push_back(*iter);
       }
