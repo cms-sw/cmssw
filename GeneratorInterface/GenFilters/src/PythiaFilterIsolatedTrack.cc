@@ -11,194 +11,166 @@
 //using namespace edm;
 //using namespace std;
 
-namespace{
-
-  double deltaR2(double eta0, double phi0, double eta, double phi){
-    double dphi=phi-phi0;
-    if(dphi>M_PI) dphi-=2*M_PI;
-    else if(dphi<=-M_PI) dphi+=2*M_PI;
-    return dphi*dphi+(eta-eta0)*(eta-eta0);
-  }
-
-  double deltaPhi(double phi0, double phi){
-    double dphi=phi-phi0;
-    if(dphi>M_PI) dphi-=2*M_PI;
-    else if(dphi<=-M_PI) dphi+=2*M_PI;
-    return dphi;
-  }
-
-  class ParticlePtGreater{
-  public:
-    int operator()(const HepMC::GenParticle * p1, 
-		   const HepMC::GenParticle * p2) const{
-      return p1->momentum().perp() > p2->momentum().perp();
+std::pair<double,double> PythiaFilterIsolatedTrack::GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ)
+{
+  double deltaPhi;
+  double etaEC=100;
+  double phiEC=100;
+  double Rcurv=pT*33.3*100/38; //r(m)=pT(GeV)*33.3/B(kG)
+  double ecDist=317;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
+  double ecRad=129;  //radius of ECAL barrel (cm)
+  double theta=2*atan(exp(-etaIP));
+  double zNew;
+  if (theta>0.5*acos(-1)) theta=acos(-1)-theta;
+  if (fabs(etaIP)<1.479) {
+    deltaPhi=-charge*asin(0.5*ecRad/Rcurv);
+    double alpha1=2*asin(0.5*ecRad/Rcurv);
+    double z=ecRad/tan(theta);
+    if (etaIP>0) zNew=z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+    else  zNew=-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+    double zAbs=fabs(zNew);
+    if (zAbs<ecDist) {
+      etaEC=-log(tan(0.5*atan(ecRad/zAbs)));
+      deltaPhi=-charge*asin(0.5*ecRad/Rcurv);
     }
-  };
+    if (zAbs>ecDist) {
+      zAbs=(fabs(etaIP)/etaIP)*ecDist;
+      double Zflight=fabs(zAbs-vtxZ);
+      double alpha=(Zflight*ecRad)/(z*Rcurv);
+      double Rec=2*Rcurv*sin(alpha/2);
+      deltaPhi=-charge*alpha/2;
+      etaEC=-log(tan(0.5*atan(Rec/ecDist)));
+    }
+  } else {
+    zNew=(fabs(etaIP)/etaIP)*ecDist;
+    double Zflight=fabs(zNew-vtxZ);
+    double Rvirt=fabs(Zflight*tan(theta));
+    double Rec=2*Rcurv*sin(Rvirt/(2*Rcurv));
+    deltaPhi=-(charge)*(Rvirt/(2*Rcurv));
+    etaEC=-log(tan(0.5*atan(Rec/ecDist)));
+  }
+  
+  if (zNew<0) etaEC=-etaEC;
+  phiEC=phiIP+deltaPhi;
+  
+  if (phiEC<-acos(-1)) phiEC=2*acos(-1)+phiEC;
+  if (phiEC>acos(-1)) phiEC=-2*acos(-1)+phiEC;
+  
+  std::pair<double,double> retVal(etaEC,phiEC);
+  return retVal;
 }
 
+double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double eta2, double phi2)
+{
+  double dR, Rec;
+  if (fabs(eta1)<1.479) Rec=129;
+  else Rec=317;
+  double ce1=cosh(eta1);
+  double ce2=cosh(eta2);
+  double te1=tanh(eta1);
+  double te2=tanh(eta2);
+  
+  double z=cos(phi1-phi2)/ce1/ce2+te1*te2;
+  if(z!=0) dR=fabs(Rec*ce1*sqrt(1./z/z-1.));
+  else     dR=999999.;
+  return dR;
+}
 
 PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
-etaMax(iConfig.getUntrackedParameter<double>("MaxChargedHadronEta", 2.3)),
-ptSeed(iConfig.getUntrackedParameter<double>("ChargedHadronSeedPt", 10.)),
-cone(iConfig.getUntrackedParameter<double>("isoCone", 0.5)),
-ebEtaMax(1.479)
+  ModuleLabel_(iConfig.getUntrackedParameter("ModuleLabel",std::string("generator"))),
+  MaxSeedEta_(iConfig.getUntrackedParameter<double>("MaxSeedEta", 2.3)),
+  MinSeedMom_(iConfig.getUntrackedParameter<double>("MinSeedMom", 20.)),
+  MinIsolTrackMom_(iConfig.getUntrackedParameter<double>("MinIsolTrackMom",2.0)),
+  IsolCone_(iConfig.getUntrackedParameter<double>("IsolCone", 40.0)),
+  PixelEfficiency_(iConfig.getUntrackedParameter<double>("PixelEfficiency", 0.8))
 { 
-  
-  deltaEB=0.01745/2  *5; // delta_eta, delta_phi
-  deltaEE=2.93/317/2 *5; // delta_x/z, delta_y/z
-  ebEtaMax=1.479;
-  theNumberOfSelected = 0;
+
+  // initialize the random number generator service
+  if(!rng_.isAvailable()) {
+    throw cms::Exception("Configuration") << "PythiaFilterIsolatedTrack requires the RandomNumberGeneratorService\n";
+  }
+  CLHEP::HepRandomEngine& engine = rng_->getEngine();
+  flatDistribution_ = new CLHEP::RandFlat(engine, 0.0, 1.0);
 }
 
 
-PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack(){}
+PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack()
+{
+  delete flatDistribution_;
+}
 
 
 // ------------ method called to produce the data  ------------
 bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-//  if(theNumberOfSelected>=maxnumberofeventsinrun)   {
-//    throw cms::Exception("endJob")<<"we have reached the maximum number of events ";
-//  }
-//  std::cout<<" Start PythiaFilterIsolatedTrack::filter "<<std::endl;
-  
   edm::ESHandle<ParticleDataTable> pdt;
   iSetup.getData( pdt );
 
-  bool accepted = false;
   edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByLabel(ModuleLabel_, evt);
 
-  std::list<const HepMC::GenParticle *> seeds;
-  const HepMC::GenEvent * myGenEvent = evt->GetEvent();
+  const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 
-   std::vector<HepMC::GenEvent::particle_const_iterator> seed_itr;
-   
-  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();   p != myGenEvent->particles_end(); ++p ) {
-  
-    if (abs((*p)->pdg_id())>11 && abs((*p)->pdg_id()) <21) continue;
-    
-    int charge3 = ((pdt->particle((*p)->pdg_id()))->ID().threeCharge());
-    if ( abs(charge3) == 3 && (*p)->status()==1
-	 && (*p)->momentum().perp() > ptSeed 
-	 && std::abs((*p)->momentum().eta()) < etaMax  ) { 
-	        // std::cout<<" Pid "<<(*p)->pdg_id()<<" "<<(*p)->momentum().eta()<<" "<<(*p)->momentum().phi()
-	        //                                          <<" "<<(*p)->momentum().perp()<<std::endl;
-							   seeds.push_back(*p);seed_itr.push_back(p);
-							 }
+  // all of the stable, charged particles with momentum>MinIsolTrackMom_ and |eta|<MaxSeedEta_+0.5
+  std::vector<const HepMC::GenParticle *> chargedParticles;
+
+  // all of the stable, charged particles with momentum>MinSeedMom_ and |eta|<MaxSeedEta_
+  std::vector<const HepMC::GenParticle *> seeds;
+
+  // fill the vector of charged particles and seeds in the event
+  for(HepMC::GenEvent::particle_const_iterator iter=myGenEvent->particles_begin(); iter!=myGenEvent->particles_end(); ++iter) {
+    const HepMC::GenParticle *p=*iter;
+    int charge3 = pdt->particle(p->pdg_id())->ID().threeCharge();
+    int status = p->status();
+    double momentum = p->momentum().mag();
+    double abseta = fabs(p->momentum().eta());
+
+    // only consider stable, charged particles
+    if(abs(charge3)==3 && status==1 && momentum>MinIsolTrackMom_ && abseta<MaxSeedEta_+0.5) {
+      chargedParticles.push_back(p);
+      if(momentum>MinSeedMom_ && abseta<MaxSeedEta_) {
+	seeds.push_back(p);
+      }
+    }
   }
 
-  seeds.sort(ParticlePtGreater());
-  
-//  for(std::list<const HepMC::GenParticle *>::const_iterator is=
-//	seeds.begin(); is!=seeds.end(); is++){
-  for( std::vector<HepMC::GenEvent::particle_const_iterator>::iterator is=seed_itr.begin(); 
-                                                             is != seed_itr.end(); 
-							     is++){
-     
-     
- 
-    double etaChargedHadron=(**is)->momentum().eta();
-    double phiChargedHadron=(**is)->momentum().phi();
+  // loop over all the seeds and see if any of them are isolated
+  for(std::vector<const HepMC::GenParticle *>::const_iterator it1=seeds.begin(); it1!=seeds.end(); ++it1) {
+    const HepMC::GenParticle *p1=*it1;
 
-    bool inEB(0);
-    double tgx(0);
-    double tgy(0);
-    if( std::abs(etaChargedHadron)<ebEtaMax) inEB=1;
-    else{
-      tgx=(**is)->momentum().px()/(**is)->momentum().pz();
-      tgy=(**is)->momentum().py()/(**is)->momentum().pz();
-    }
+    std::pair<double,double> EtaPhi1=GetEtaPhiAtEcal(p1->momentum().eta(),
+						     p1->momentum().phi(),
+						     p1->momentum().perp(),
+						     (pdt->particle(p1->pdg_id()))->ID().threeCharge()/3,
+						     0.0);
 
-    double etChargedHadron=(**is)->momentum().perp();
-    double etChargedHadronCharged=0;
-    double etCone=0;
-    double etConeCharged=0;
-    double ptMaxHadron=0;
+    // loop over all of the other charged particles in the event, and see if any are close by
+    bool failsIso=false;
+    for(std::vector<const HepMC::GenParticle *>::const_iterator it2=chargedParticles.begin(); it2!=chargedParticles.end(); ++it2) {
+      const HepMC::GenParticle *p2=*it2;
 
-//    std::cout<<" Start seed "<< (**is)->pdg_id()<<" pt "<<(**is)->momentum().perp()<<std::endl;  
-//    if(abs((**is)->pdg_id()) == 11)
-//    {
-//        HepMC::GenVertex::particles_in_const_iterator inbegin =  (**is)->production_vertex()->particles_in_const_begin();
-//        HepMC::GenVertex::particles_in_const_iterator inend = (**is)->production_vertex()->particles_in_const_end();
-//	for(HepMC::GenVertex::particles_in_const_iterator ii = inbegin; ii != inend; ii++)
-//	{
-//	  std::cout<<" Parent for electron "<<(*ii)->pdg_id()<<std::endl;
-//	}
-//    }  
-    
-    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();   p != myGenEvent->particles_end(); ++p ) {
-    
-    
-      if ( (*p)->status()!=1 ) continue; 
-      int pid= (*p)->pdg_id();
-      int apid= std::abs(pid);
-      if (apid>11 &&  apid<21) continue; //get rid of muons and neutrinos
-      double eta=(*p)->momentum().eta();
-      double phi=(*p)->momentum().phi();
-      if (deltaR2(etaChargedHadron, phiChargedHadron, eta, phi)>cone*cone) continue;
-      
-      double pt=(*p)->momentum().perp();
-      
-      //***
-      
-            
-      int charge3 = ((pdt->particle((*p)->pdg_id()))->ID().threeCharge());
-      //***
+      // don't consider the seed particle among the other charge particles
+      if(p1==p2) continue;
 
-      etCone+=pt;
+      std::pair<double,double> EtaPhi2=GetEtaPhiAtEcal(p2->momentum().eta(),
+						       p2->momentum().phi(),
+						       p2->momentum().perp(),
+						       (pdt->particle(p2->pdg_id()))->ID().threeCharge()/3,
+						       0.0);
 
-      if(charge3 && pt<2) {etConeCharged+=pt;}
-
-       // Calculate the max Pt hadron in the cone (except pre-selected)
-       
-      if( (*is) == p)
-      {
-// Do not take seed for calculation ptMaxHadron      
-//         std::cout<<"Found id "<<(*p)->pdg_id()<<" "<<(*p)->momentum().perp() <<std::endl;
-	 continue;
+      // find out how far apart the particles are
+      // if the seed fails the isolation requirement, try a different seed
+      // occasionally allow a seed to pass to isolation requirement
+      if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_ &&
+	 flatDistribution_->fire() < PixelEfficiency_) {
+	failsIso=true;
+	break;
       }
-      
-      if(apid>100 && apid!=310 && pt>ptMaxHadron) {
-          ptMaxHadron=pt; 
-//	  std::cout<<" PtMax "<<pid<<" "<<pt<<" "<<deltaR2(etaChargedHadron, phiChargedHadron, eta, phi)<<std::endl;
-	  }
-
     }
 
-    //isolation cuts
-
-    double isocut1 = 5+etChargedHadron/20-etChargedHadron*etChargedHadron/1e4;
-    double isocut2 = 3+etChargedHadron/20-etChargedHadron*etChargedHadron*etChargedHadron/1e6;
-    double isocut3 = 4.5+etChargedHadron/40;
-    if (etChargedHadron>165.)
-    {
-      isocut1 = 5.+165./20.-165.*165./1e4;
-      isocut2 = 3.+165./20.-165.*165.*165./1e6;
-      isocut3 = 4.5+165./40.;
-    }
-
-//    std::cout<<" etCone "<<etCone<<" "<<etChargedHadron<<" "<<etCone-etChargedHadron<<" "<<isocut1<<std::endl;
-//    std::cout<<"Second cut on iso "<<etCone-etChargedHadron-(etConeCharged-etChargedHadronCharged)<<" cut value "<<isocut2<<" etChargedHadron "<<etChargedHadron<<std::endl;
-//    std::cout<<" PtHadron "<<ptMaxHadron<<" "<<4.5+etChargedHadron/40<<std::endl;
-    
-    if(etCone-etChargedHadron > isocut1) continue;
-    if(ptMaxHadron > isocut3) continue;
-    
-//    std::cout<<"Accept event "<<abs((**is)->pdg_id())<<" pt "<<(**is)->momentum().perp()<<std::endl;
-    accepted=true;
-    break;
+    if(!failsIso) return true;
 
   } //loop over seeds
-  
-  
-  if (accepted) {
-    theNumberOfSelected++;
-    std::cout<<" Event preselected "<<theNumberOfSelected<<" Proccess ID "<<myGenEvent->signal_process_id()<<std::endl;
-    return true; 
-  }
-  else return false;
 
+  return false;
 }
-

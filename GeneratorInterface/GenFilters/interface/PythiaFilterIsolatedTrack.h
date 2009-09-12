@@ -9,6 +9,9 @@
  * 
  * \author O.Kodolova, SINP
  *
+ * Cleaned up code, and added pixel efficiency functionality
+ * \author J.P. Chou, Brown University
+ *
  ************************************************************/
 
 // system include files
@@ -23,6 +26,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandFlat.h"
 
 class PythiaFilterIsolatedTrack : public edm::EDFilter {
    public:
@@ -31,16 +37,23 @@ class PythiaFilterIsolatedTrack : public edm::EDFilter {
 
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
+
+      // helper functions
+      static std::pair<double,double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);
+      static double getDistInCM(double eta1, double phi1, double eta2, double phi2);
+
    private:
       
-       std::string label_;
-       double etaMax;
-       double ptSeed;
-       double cone;
-       double ebEtaMax;
-       double deltaEB;
-       double deltaEE;
-       int theNumberOfSelected;
+      // parameters
+      std::string ModuleLabel_; // label to get the generated particles
+      double MaxSeedEta_;       // maximum eta of the isolated track seed
+      double MinSeedMom_;       // minimum momentum of the isolated track seed
+      double MinIsolTrackMom_;  // minimum prohibited momentum of a nearby track
+      double IsolCone_;         // cone size (in mm) around the seed to consider a track "nearby"
+      double PixelEfficiency_;  // efficiency to reconstruct a pixel track (used to throw out nearby tracks, randomly)
 
+      // to get a random number
+      edm::Service<edm::RandomNumberGenerator> rng_;
+      CLHEP::RandFlat *flatDistribution_;
 };
 #endif
