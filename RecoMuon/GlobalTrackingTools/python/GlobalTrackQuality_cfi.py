@@ -7,6 +7,7 @@ glbTrackQual = cms.EDProducer(
     "GlobalTrackQualityProducer",
     MuonServiceProxy,
     InputCollection = cms.InputTag("globalMuons"),
+#not used for now
     BaseLabel = cms.string('GLB'),
     RefitterParameters = cms.PSet(
     GlobalMuonRefitter

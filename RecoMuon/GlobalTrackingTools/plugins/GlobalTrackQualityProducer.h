@@ -34,7 +34,6 @@ class GlobalTrackQualityProducer : public edm::EDProducer {
   virtual std::pair<double,double> newChi2(Trajectory& muon) const;
   
   edm::InputTag inputCollection_;
-  std::string baseLabel_;
   MuonServiceProxy* theService;
   GlobalMuonRefitter* theGlbRefitter;
   MeasurementEstimator *theEstimator;

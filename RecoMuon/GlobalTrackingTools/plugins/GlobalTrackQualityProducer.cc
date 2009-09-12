@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: $
+// $Id: GlobalTrackQualityProducer.cc,v 1.1 2009/09/11 19:55:23 aeverett Exp $
 //
 //
 
@@ -20,11 +20,13 @@
 #include "RecoMuon/GlobalTrackingTools/plugins/GlobalTrackQualityProducer.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <TrackingTools/PatternTools/interface/TrajectoryMeasurement.h>
-#include <TrackingTools/PatternTools/interface/Trajectory.h>
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/MuonReco/interface/MuonQuality.h"
+
 
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig):
-  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),baseLabel_(iConfig.getParameter<std::string>("BaseLabel")),theService(0),theGlbRefitter(0)
+  inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),theService(0),theGlbRefitter(0)
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -38,10 +40,7 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
   double nSigma = iConfig.getParameter<double>("nSigma");
   theEstimator = new Chi2MeasurementEstimator(maxChi2,nSigma);
  
-  produces<edm::ValueMap<float> >("muqual"+baseLabel_+"GlbKink");
-  produces<edm::ValueMap<float> >("muqual"+baseLabel_+"TkKink");
-  produces<edm::ValueMap<float> >("muqual"+baseLabel_+"StaRelChi2");
-  produces<edm::ValueMap<float> >("muqual"+baseLabel_+"TkRelChi2");
+  produces<edm::ValueMap<reco::MuonQuality> >();
 }
 
 GlobalTrackQualityProducer::~GlobalTrackQualityProducer() {
@@ -66,14 +65,8 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(inputCollection_,glbMuons);
   
   // reserve some space
-  std::vector<float> valuesGlbKink;
-  valuesGlbKink.reserve(glbMuons->size());
-  std::vector<float> valuesTkKink;
-  valuesTkKink.reserve(glbMuons->size());
-  std::vector<float> valuesStaRelChi2;
-  valuesStaRelChi2.reserve(glbMuons->size());
-  std::vector<float> valuesTkRelChi2;
-  valuesTkRelChi2.reserve(glbMuons->size());
+  std::vector<reco::MuonQuality> valuesQual;
+  valuesQual.reserve(glbMuons->size());
 
   int trackIndex = 0;
   for (reco::TrackCollection::const_iterator track = glbMuons->begin(); track!=glbMuons->end(); track++ , ++trackIndex) {
@@ -90,15 +83,17 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     if(refitted.size()>0) {
       thisKink = kink(refitted.front()) ;      
       std::pair<double,double> chi = newChi2(refitted.front());
-      relative_muon_chi2 = chi.second; //chi.second/staTrack->ndof();
-      relative_tracker_chi2 = chi.first; // chi.first/tkTrack->ndof();
+      relative_muon_chi2 = chi.second; //normalized inside to /sum(muHits.dimension)
+      relative_tracker_chi2 = chi.first; //normalized inside to /sum(tkHits.dimension)
     }
     LogDebug(theCategory)<<"Kink " << thisKink.first << " " << thisKink.second;
     LogDebug(theCategory)<<"Rel Chi2 " << relative_tracker_chi2 << " " << relative_muon_chi2;
-    valuesTkKink.push_back(thisKink.first);
-    valuesGlbKink.push_back(thisKink.second);
-    valuesTkRelChi2.push_back(relative_tracker_chi2);
-    valuesStaRelChi2.push_back(relative_muon_chi2);
+    reco::MuonQuality muQual;
+    muQual.trkKink    = thisKink.first;
+    muQual.glbKink    = thisKink.second;
+    muQual.trkRelChi2 = relative_tracker_chi2;
+    muQual.staRelChi2 = relative_muon_chi2;
+    valuesQual.push_back(muQual);
   }
 
   /*
@@ -108,31 +103,13 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   */
 
   // create and fill value maps
-  std::auto_ptr<edm::ValueMap<float> > outTkKink(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerTkKink(*outTkKink);
-  fillerTkKink.insert(glbMuons, valuesTkKink.begin(), valuesTkKink.end());
-  fillerTkKink.fill();
-  
-  std::auto_ptr<edm::ValueMap<float> > outGlbKink(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerGlbKink(*outGlbKink);
-  fillerGlbKink.insert(glbMuons, valuesGlbKink.begin(), valuesGlbKink.end());
-  fillerGlbKink.fill();
-
-  std::auto_ptr<edm::ValueMap<float> > outTkRelChi2(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerTkRelChi2(*outTkRelChi2);
-  fillerTkRelChi2.insert(glbMuons, valuesTkRelChi2.begin(), valuesTkRelChi2.end());
-  fillerTkRelChi2.fill();
-
-  std::auto_ptr<edm::ValueMap<float> > outStaRelChi2(new edm::ValueMap<float>());
-  edm::ValueMap<float>::Filler fillerStaRelChi2(*outStaRelChi2);
-  fillerStaRelChi2.insert(glbMuons, valuesStaRelChi2.begin(), valuesStaRelChi2.end());
-  fillerStaRelChi2.fill();
+  std::auto_ptr<edm::ValueMap<reco::MuonQuality> > outQual(new edm::ValueMap<reco::MuonQuality>());
+  edm::ValueMap<reco::MuonQuality>::Filler fillerQual(*outQual);
+  fillerQual.insert(glbMuons, valuesQual.begin(), valuesQual.end());
+  fillerQual.fill();
   
   // put value map into event
-  iEvent.put(outTkKink,"muqual"+baseLabel_+"TkKink");
-  iEvent.put(outGlbKink,"muqual"+baseLabel_+"GlbKink");
-  iEvent.put(outTkRelChi2,"muqual"+baseLabel_+"TkRelChi2");
-  iEvent.put(outStaRelChi2,"muqual"+baseLabel_+"StaRelChi2");
+  iEvent.put(outQual);
 }
 
 std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) const {
@@ -156,7 +133,7 @@ std::pair<double,double> GlobalTrackQualityProducer::kink(Trajectory& muon) cons
   for ( TMI m = meas.begin(); m != meas.end(); m++ ) {
     TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
 
-    double estimate = 0.0;
+    //not used    double estimate = 0.0;
 
     RecHit rhit = (*m).recHit();
     bool ok = false;
@@ -208,7 +185,8 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
 
   double muChi2 = 0.0;
   double tkChi2 = 0.0;
-
+  unsigned int muNdof = 0;
+  unsigned int tkNdof = 0;
   
   typedef TransientTrackingRecHit::ConstRecHitPointer 	ConstRecHitPointer;
   typedef ConstRecHitPointer RecHit;
@@ -231,13 +209,20 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
     if ( hit->isValid() &&  (hit->geographicalId().det()) == DetId::Tracker ) {
       tkChi2 += estimate;
       tkDiff = estimate - m->estimate();
+      tkNdof += hit->dimension();
     }
     if ( hit->isValid() &&  (hit->geographicalId().det()) == DetId::Muon ) {
       muChi2 += estimate;
       staDiff = estimate - m->estimate();
+      muNdof += hit->dimension();
     }
   }
   
+  if (tkNdof < 6 ) tkChi2 = tkChi2; // or should I set it to  a large number ?
+  else tkChi2 /= (tkNdof-5.);
+
+  if (muNdof < 6 ) muChi2 = muChi2; // or should I set it to  a large number ?
+  else muChi2 /= (muNdof-5.);
 
   return std::pair<double,double>(tkChi2,muChi2);
        

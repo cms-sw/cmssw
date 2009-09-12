@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2009/08/27 17:15:56 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/09/04 19:47:20 $
+ *  $Revision: 1.10 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -358,7 +358,8 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
   }
 
   if (station_to_keep <= 0 || station_to_keep > 4 || stations.size() != all.size())
-    LogWarning(theCategory) << " getFirstHits error! station_to_keep = " << station_to_keep << " stations.size " << stations.size() << " all.size " << all.size();
+    LogInfo(theCategory) << "failed to getFirstHits (all muon hits are outliers/bad ?)! station_to_keep = " 
+			    << station_to_keep << " stations.size " << stations.size() << " all.size " << all.size();
 
   for (unsigned i = 0; i < stations.size(); ++i)
     if (stations[i] >= 0 && stations[i] <= station_to_keep) first.push_back(all[i]);
