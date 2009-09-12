@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2009/08/25 18:48:58 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/08/28 19:06:40 $
+ *  $Revision: 1.18 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -374,7 +374,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 		     theEstimator->estimate(combTsos, (*(*itm).recHit())).second//,
 		     /*(*itm).layer()*/),
 		     (*itm).estimate());
-      currTsos = smooTsos; //FIXME?
+//      currTsos = smooTsos; //FIXME?
     } else {
       currTsos = predTsos;
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
