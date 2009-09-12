@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2009/07/29 12:49:00 $
- *  $Revision: 1.21 $
+ *  $Date: 2009/07/29 12:49:39 $
+ *  $Revision: 1.22 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -253,6 +253,8 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
        ihit != muonHits.end() - 1; ihit++ ) {
     GlobalPoint ipos = (*ihit)->globalPosition();
     GlobalPoint nextpos = (*(ihit+1))->globalPosition();
+    if ( (ipos-nextpos).mag() < 100.0 ) continue;
+
     GlobalPoint middle((ipos.x()+nextpos.x())/2, (ipos.y()+nextpos.y())/2, (ipos.z()+nextpos.z())/2);
     LogTrace(category_)<<"ipos "<<ipos<<"nextpos"<<nextpos<<" middle "<<middle<<endl;
     if ( (middle.perp() < ipos.perp()) && (middle.perp() < nextpos.perp() ) ) {
