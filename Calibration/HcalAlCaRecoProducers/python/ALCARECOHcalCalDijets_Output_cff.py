@@ -9,7 +9,8 @@ OutALCARECOHcalCalDijets_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalDijets')
     ),
     outputCommands = cms.untracked.vstring( 
-        'keep *_DiJProd_*_*')
+        'keep *_DiJProd_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy

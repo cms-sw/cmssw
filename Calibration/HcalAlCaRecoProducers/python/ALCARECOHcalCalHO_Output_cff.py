@@ -8,7 +8,8 @@ OutALCARECOHcalCalHO_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalHO')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_hoCalibProducer_*_*')
+        'keep *_hoCalibProducer_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
 
