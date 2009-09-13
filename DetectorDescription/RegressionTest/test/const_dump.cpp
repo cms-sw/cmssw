@@ -21,9 +21,6 @@
 // in DetectorDescription/Core/src/tutorial.cc
 // Please have a look to all the commentary therein.
 
-// #include "Utilities/Notification/interface/TimingReport.h"
-// #include "Utilities/Notification/interface/TimerProxy.h"
-
 // BLOCK copy from cmsRun.cpp
 #include <boost/shared_ptr.hpp>
 #include "FWCore/Utilities/interface/Exception.h"

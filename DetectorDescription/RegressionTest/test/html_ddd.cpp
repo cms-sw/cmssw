@@ -26,9 +26,6 @@
 // html generator
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 
-#include "Utilities/Notification/interface/TimingReport.h"
-#include "Utilities/Notification/interface/TimerProxy.h"
-
 using namespace std;
 int main(int argc, char *argv[])
 {
