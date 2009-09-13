@@ -91,6 +91,15 @@ namespace fwlite
 
          const EventContainer& toBegin();
 
+         
+         TriggerNames const& triggerNames (edm::TriggerResults const& triggerResults) 
+         { return m_eventBasePtr->triggerNames (triggerResults); }
+
+         Long64_t fileIndex()          const 
+         { return m_eventBasePtr->fileIndex(); }
+         Long64_t secondaryFileIndex() const 
+         { return m_eventBasePtr->secondaryFileIndex(); }
+
          bool atEnd() const;
       
          /////////////////////////////

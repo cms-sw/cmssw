@@ -7,7 +7,7 @@
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
 #include "PhysicsTools/FWLite/interface/dout.h"
-#include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/FWLite/interface/MultiChainEvent.h"
 
 #include "TH1.h"
 
@@ -42,8 +42,17 @@ EventContainer::EventContainer (optutl::CommandLineParser &parser,
       sm_autoloaderCalled = true;      
    }
 
-   m_eventBasePtr = 
-      new fwlite::ChainEvent( parser.stringVector ("inputFiles") );
+   const optutl::CommandLineParser::SVec &secondaryInputFiles = 
+      parser.stringVector ("secondaryInputFiles");
+   if (secondaryInputFiles.size())
+   {
+      m_eventBasePtr = 
+         new fwlite::MultiChainEvent( parser.stringVector ("inputFiles"), 
+                                      secondaryInputFiles );
+   } else {
+      m_eventBasePtr = 
+         new fwlite::ChainEvent( parser.stringVector ("inputFiles") );
+   }
 
    // get whatever other info you want
    m_outputName  = parser.stringValue  ("outputFile");

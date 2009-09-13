@@ -52,6 +52,8 @@ CommandLineParser::CommandLineParser (const string &usage,
       // String vector options
       addOption ("inputFiles",    kStringVector,
                  "List of input files");
+      addOption ("secondaryInputFiles",    kStringVector,
+                 "List of secondary input files (a.k.a. two-file-solution");
       return;
    }
    // If we're still here, we have a type I don't understand.
