@@ -13,7 +13,7 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -37,7 +37,9 @@ process.ALCARECOStreamEcalCalPi0Calib = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*', 
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*', 
-        'keep *_hltAlCaPi0RegRecHits*_pi0EcalRecHitsES_*'),
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaPi0RegRecHits_pi0EcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('ALCARECOEcalCalPi0Calib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalPi0Calib'),
@@ -51,7 +53,9 @@ process.ALCARECOStreamEcalCalEtaCalib = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*', 
         'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*', 
-        'keep *_hltAlCaEtaRegRecHits*_etaEcalRecHitsES_*'),
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaEtaRegRecHits_etaEcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('ALCARECOEcalCalEtaCalib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalEtaCalib'),

@@ -13,7 +13,7 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,7 +40,8 @@ process.ALCARECOStreamHcalCalMinBias = cms.OutputModule("PoolOutputModule",
         'keep HFRecHitsSorted_hfrecoMB_*_*', 
         'keep HBHERecHitsSorted_hbherecoNoise_*_*', 
         'keep HORecHitsSorted_horecoNoise_*_*', 
-        'keep HFRecHitsSorted_hfrecoNoise_*_*'),
+        'keep HFRecHitsSorted_hfrecoNoise_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('ALCARECOHcalCalMinBias.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOHcalCalMinBias'),

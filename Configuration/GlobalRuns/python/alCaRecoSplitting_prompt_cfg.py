@@ -13,7 +13,7 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -44,7 +44,8 @@ process.ALCARECOStreamMuAlStandAloneCosmics = cms.OutputModule("PoolOutputModule
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*'),
+        'keep *_rpcRecHits_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('MuAlStandAloneCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlStandAloneCosmics'),
@@ -56,7 +57,8 @@ process.ALCARECOStreamHcalCalHOCosmics = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.vstring('pathALCARECOHcalCalHOCosmics:RECO')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep HOCalibVariabless_*_*_*'),
+        'keep HOCalibVariabless_*_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('HcalCalHOCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('HcalCalHOCosmics'),
@@ -119,7 +121,8 @@ process.ALCARECOStreamMuAlGlobalCosmics = cms.OutputModule("PoolOutputModule",
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*'),
+        'keep *_rpcRecHits_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('MuAlGlobalCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlGlobalCosmics'),
@@ -140,7 +143,8 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*'),
+        'keep *_rpcRecHits_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('MuAlCalIsolatedMu.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlCalIsolatedMu'),
