@@ -1088,7 +1088,7 @@ void TagProbeEDMAnalysis::TPEffFitter( std::string &fileName, std::string &bvar,
    for (unsigned int iBin=0; iBin<bnbins; ++iBin ) 
    {
      
-     doFit( bvar, bins, iBin, bvar2, bins2, 0, eff, loerr, hierr, chi2Val, quality, false );
+     performFit( bvar, bins, iBin, bvar2, bins2, 0, eff, loerr, hierr, chi2Val, quality, false );
      
      xval = (bins[iBin + 1] + bins[iBin])/2;
      xerr = (bins[iBin + 1] - bins[iBin])/2;
@@ -1142,7 +1142,7 @@ const std::string &bvar2, std::vector<double> &bins2 )
       {
         double eff, loerr, hierr, chi2Val, quality;
 
-        doFit(bvar1, bins1, bin1, bvar2, bins2, bin2, eff, loerr, hierr, chi2Val, quality, true);
+        performFit(bvar1, bins1, bin1, bvar2, bins2, bin2, eff, loerr, hierr, chi2Val, quality, true);
         // Fill the efficiency hist
         effhist.SetBinContent(bin1+1,bin2+1,eff);
         effhist.SetBinError(bin1+1,bin2+1, (loerr > hierr)? loerr : hierr);
@@ -1437,7 +1437,7 @@ void TagProbeEDMAnalysis::cleanFitVariables()
 }
 
 // ****************** Function to perform the efficiency fit ************ //
-void TagProbeEDMAnalysis::doFit(const std::string &bvar1, const std::vector< double >& bins1, const int bin1,
+void TagProbeEDMAnalysis::performFit(const std::string &bvar1, const std::vector< double >& bins1, const int bin1,
 				const std::string &bvar2, const std::vector< double >& bins2, const int bin2,
 				double &eff, double &loerr, double &hierr, double &chi2Val, 
 				double& quality, const bool is2D){

@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.19 2009/06/01 21:57:25 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.20 2009/08/04 21:54:50 ahunt Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -64,7 +64,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       void makeSignalPdf();
       void makeBkgPdf();
 
-      void doFit( const std::string &bvar1, const std::vector< double >& bins1, const int bin1,
+      void performFit( const std::string &bvar1, const std::vector< double >& bins1, const int bin1,
 		  const std::string &bvar2, const std::vector< double >& bins2, const int bin2,
 		  double &eff, double &hierr, double &loerr, double &chi2Val, double& quality, const bool is2D = false );
 
