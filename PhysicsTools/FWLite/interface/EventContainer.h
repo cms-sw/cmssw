@@ -91,6 +91,8 @@ namespace fwlite
 
          const EventContainer& toBegin();
 
+         bool atEnd() const;
+      
          
          TriggerNames const& triggerNames (edm::TriggerResults const& triggerResults) 
          { return m_eventBasePtr->triggerNames (triggerResults); }
@@ -99,9 +101,10 @@ namespace fwlite
          { return m_eventBasePtr->fileIndex(); }
          Long64_t secondaryFileIndex() const 
          { return m_eventBasePtr->secondaryFileIndex(); }
+         
+         edm::EventAuxiliary const& eventAuxiliary() const
+         { return m_eventBasePtr->eventAuxiliary(); }
 
-         bool atEnd() const;
-      
          /////////////////////////////
          // Static Member Functions //
          /////////////////////////////
