@@ -7,12 +7,9 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 #include "OnlineDB/EcalCondDB/interface/RunTPGConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/FEConfigMainInfo.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigSlidingInfo.h"
-#include "OnlineDB/EcalCondDB/interface/FEConfigSlidingDat.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -21,7 +18,7 @@
 popcon::EcalTPGFineGrainStripEEHandler::EcalTPGFineGrainStripEEHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGFineGrainStripEEHandler")) {
 
-        edm::LogInfo("EcalTPGFineGrainStripEEHandler") << "EcalTPGSlidingWindow Source handler constructor";
+        edm::LogInfo("EcalTPGFineGrainStripEEHandler") << "EcalTPGFineGrainStripEEHandler Source handler constructor";
         m_firstRun=(unsigned long)atoi( ps.getParameter<std::string>("firstRun").c_str());
         m_lastRun=(unsigned long)atoi( ps.getParameter<std::string>("lastRun").c_str());
         m_sid= ps.getParameter<std::string>("OnlineDBSID");
@@ -184,7 +181,7 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
 	      	item.? = (unsigned int)rd_fgr.getRatioLow();
 	      	item.? = (unsigned int)rd_fgr.getRatioHigh();
 	      	*/
-		item.lut = (unsigned int)rd_fgr.getLUTConfId();
+		item.lut = (unsigned int)rd_fgr.getLUTValue();
 		
 	        fgrStripEE->setValue(stripEEId,item);
 	        ++icells;
