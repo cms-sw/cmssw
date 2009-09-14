@@ -15,45 +15,6 @@
 #include <vector>
 #include <list>
 
-/// tkonlinesw headers
-#include "Fed9UUtils.hh"
-
-class OldSiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
-
- public:
-
-  typedef edm::DetSet<SiStripCluster> DetSet;
-
-  OldSiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&, const SiStripClusterizerFactory&, const FEDRawDataCollection&); 
-  
-  virtual ~OldSiStripRawToClustersLazyUnpacker();
-
-  virtual void fill(const uint32_t&, record_type&); 
-
- private:
-
-  OldSiStripRawToClustersLazyUnpacker();
-
-  /// raw data
-  const FEDRawDataCollection* raw_;
-
-  /// cabling
-  const SiStripRegionCabling::Cabling* regions_;
-
-  /// clusterizer factory
-  const SiStripClusterizerFactory* clusterizer_;
-
-  /// Fed9UEvent cache
-  std::vector< Fed9U::Fed9UEvent* > fedEvents_;
-
-  /// raw-to-digi
-  OldSiStripRawToDigiUnpacker rawToDigi_;
-
-  /// Cache of buffers pointed to by FED9UEvent
-  std::list<FEDRawData> fedRawData_;
-
-};
-
 namespace sistrip {
   
   class RawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {

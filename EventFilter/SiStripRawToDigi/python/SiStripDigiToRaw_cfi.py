@@ -9,6 +9,8 @@ SiStripDigiToRaw = cms.EDProducer(
     UseFedKey = cms.bool(False),
     UseWrongDigiType = cms.bool(False)
     )
+<<<<<<< SiStripDigiToRaw_cfi.py
+=======
 
 #SiStripDigiToRaw = cms.EDProducer(
 #    "OldSiStripDigiToRawModule",
@@ -17,4 +19,5 @@ SiStripDigiToRaw = cms.EDProducer(
 #    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
 #    UseFedKey = cms.untracked.bool(False)
 #    )
+>>>>>>> 1.8
 

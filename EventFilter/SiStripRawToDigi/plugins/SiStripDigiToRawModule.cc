@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.8 2009/03/27 10:22:16 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.9 2009/08/19 13:39:21 bbetchar Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -108,70 +108,3 @@ namespace sistrip {
 
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-//@@@ TO BE DEPRECATED BELOW!!!
-
-
-// -----------------------------------------------------------------------------
-/** 
-    Creates instance of DigiToRaw converter, defines EDProduct type.
-*/
-OldSiStripDigiToRawModule::OldSiStripDigiToRawModule( const edm::ParameterSet& pset ) :
-  inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
-  inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
-  digiToRaw_(0),
-  eventCounter_(0)
-{
-  if ( edm::isDebugEnabled() ) {
-    LogDebug("DigiToRaw") 
-      << "[OldSiStripDigiToRawModule::OldSiStripDigiToRawModule]"
-      << " Constructing object...";
-  }
-
-  // Create instance of DigiToRaw formatter
-  std::string mode = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
-  int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
-  bool use_fed_key = pset.getUntrackedParameter<bool>("UseFedKey",false);
-  digiToRaw_ = new OldSiStripDigiToRaw( mode, nbytes, use_fed_key );
-  
-  produces<FEDRawDataCollection>();
-
-}
-
-// -----------------------------------------------------------------------------
-/** */
-OldSiStripDigiToRawModule::~OldSiStripDigiToRawModule() {
-  if ( edm::isDebugEnabled() ) {
-    LogDebug("DigiToRaw")
-      << "[OldSiStripDigiToRawModule::~OldSiStripDigiToRawModule]"
-      << " Destructing object...";
-  }
-  if ( digiToRaw_ ) delete digiToRaw_;
-}
-
-// -----------------------------------------------------------------------------
-/** 
-    Retrieves cabling map from EventSetup, retrieves a DetSetVector of
-    SiStripDigis from Event, creates a FEDRawDataCollection
-    (EDProduct), uses DigiToRaw converter to fill
-    FEDRawDataCollection, attaches FEDRawDataCollection to Event.
-*/
-void OldSiStripDigiToRawModule::produce( edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup ) {
-
-  eventCounter_++; 
-  
-  edm::ESHandle<SiStripFedCabling> cabling;
-  iSetup.get<SiStripFedCablingRcd>().get( cabling );
-
-  edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
-  iEvent.getByLabel( inputModuleLabel_, inputDigiLabel_, digis );
-
-  std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
-  
-  digiToRaw_->createFedBuffers( iEvent, cabling, digis, buffers );
-
-  iEvent.put( buffers );
-  
-}

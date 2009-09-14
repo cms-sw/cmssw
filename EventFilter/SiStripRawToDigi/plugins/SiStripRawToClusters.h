@@ -14,7 +14,7 @@ class SiStripRegionCabling;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToClusters.h
-   @class OldSiStripRawToClusters
+   @class sistrip::RawToClusters
 */
 
 namespace sistrip {
@@ -47,33 +47,6 @@ namespace sistrip {
   };
   
 }
-
-class OldSiStripRawToClusters : public edm::EDProducer {
-  
- public:
-  
-  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::RefGetter<SiStripCluster> RefGetter;
-  typedef OldSiStripRawToClustersLazyUnpacker LazyUnpacker;
-  typedef SiStripRegionCabling::SubDet SubDet;
-  
-  OldSiStripRawToClusters( const edm::ParameterSet& );
-  ~OldSiStripRawToClusters();
-  
-  virtual void beginJob( const edm::EventSetup& );
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void produce( edm::Event&, const edm::EventSetup& );
-  
- private: 
-  
-  void updateCabling( const edm::EventSetup& setup );
-  
-  edm::InputTag productLabel_;
-  const SiStripRegionCabling* cabling_;
-  uint32_t cacheId_;
-  SiStripClusterizerFactory* clusterizer_;
-  
-};
 
 #endif //  EventFilter_SiStripRawToDigi_SiStripRawToClusters_H
 

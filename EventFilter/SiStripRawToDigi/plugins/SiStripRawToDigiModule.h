@@ -10,7 +10,6 @@
 
 namespace sistrip { class RawToDigiModule; }
 namespace sistrip { class RawToDigiUnpacker; }
-class OldSiStripRawToDigiUnpacker;
 class SiStripFedCabling;
 
 /**
@@ -45,29 +44,6 @@ namespace sistrip {
   };
   
 }
-
-class OldSiStripRawToDigiModule : public edm::EDProducer {
-  
- public:
-  
-  OldSiStripRawToDigiModule( const edm::ParameterSet& );
-  ~OldSiStripRawToDigiModule();
-  
-  virtual void beginRun( edm::Run&, const edm::EventSetup& );
-  virtual void produce( edm::Event&, const edm::EventSetup& );
-  
- private: 
-
-  void updateCabling( const edm::EventSetup& );
-  
-  OldSiStripRawToDigiUnpacker* rawToDigi_;
-  edm::InputTag productLabel_;
-  const SiStripFedCabling* cabling_;
-  uint32_t cacheId_;
-
-};
-
-
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 

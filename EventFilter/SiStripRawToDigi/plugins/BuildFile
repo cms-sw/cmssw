@@ -19,7 +19,6 @@
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
   <use name=RecoLocalTracker/SiStripClusterizer>
-  <use name=tkonlinesw>
   <use name=boost>
   <flags EDM_PLUGIN=1>
 </library>

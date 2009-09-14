@@ -12,11 +12,7 @@
 #include <string>
 #include <vector>
  
-/// Fed9U classes
-namespace Fed9U { class Fed9UEvent; }
-
 /// sistrip classes
-class OldSiStripRawToClustersLazyUnpacker; 
 namespace sistrip { class RawToClustersLazyUnpacker; }
 namespace sistrip { class RawToDigiUnpacker; }
 
@@ -28,50 +24,11 @@ class SiStripRawDigi;
 class SiStripEventSummary;
 class SiStripFedCabling;
 
-/**
-   @file EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h
-   @class sistrip::RawToDigiUnpacker 
-   @brief Takes collection of FEDRawData as input and creates digis.
-*/
-
-class OldSiStripRawToDigiUnpacker {
-  
- public:
-  
-  typedef edm::DetSetVector<SiStripDigi> Digis;
-  typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
-  
-  /// constructor
-  OldSiStripRawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key );
-  
-  /// default constructor
-  ~OldSiStripRawToDigiUnpacker();
-  
-  /// creates digis
-  void createDigis( const SiStripFedCabling&, const FEDRawDataCollection&, SiStripEventSummary&, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr );
-  
-  /// sets the SiStripEventSummary 
-  void updateEventSummary( const Fed9U::Fed9UEvent* const, SiStripEventSummary& );
-  
-  /// retrieve unpacker
-  inline sistrip::RawToDigiUnpacker* unpacker();
-  
- private:
-  
-  sistrip::RawToDigiUnpacker* unpacker_;
-  Fed9U::Fed9UEvent* fedEvent_;
-
-};
-
-inline sistrip::RawToDigiUnpacker* OldSiStripRawToDigiUnpacker::unpacker() { return unpacker_; }
-
 namespace sistrip {
   
   class RawToDigiUnpacker {
     
-    friend class ::OldSiStripRawToDigiUnpacker;
     friend class RawToClustersLazyUnpacker;
-    friend class ::OldSiStripRawToClustersLazyUnpacker;
     
   public:
     
