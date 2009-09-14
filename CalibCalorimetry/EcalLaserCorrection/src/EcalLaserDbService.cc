@@ -151,8 +151,6 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
                   << " is greater than t3=" << t_f << ". Extrapolating...";
   }
 
-  std::cout << "test: " << t << " " << t_i << " " << t_f << " " << p_i << " " << p_f << "\n";
-
   if ( apdpnref != 0 && (t_i - t_f) != 0) {
     float interpolatedLaserResponse = p_i/apdpnref + (t-t_i)*(p_f-p_i)/apdpnref/(t_f-t_i);
     if ( interpolatedLaserResponse <= 0 ) {
