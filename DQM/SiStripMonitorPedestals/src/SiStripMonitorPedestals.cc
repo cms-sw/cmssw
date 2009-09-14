@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.33 2008/04/12 14:19:41 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.34 2008/04/12 15:16:05 dutta Exp $
 //
 //
 
@@ -150,6 +150,21 @@ void SiStripMonitorPedestals::createMEs() {
   
     if( newDetId ) {
       ModMEs local_modmes;
+      local_modmes.PedsPerStrip = 0;
+      local_modmes.PedsDistribution = 0;      
+      local_modmes.PedsEvolution = 0;
+      local_modmes.CMSubNoisePerStrip = 0;
+      local_modmes.RawNoisePerStrip = 0;
+      local_modmes.CMSubNoiseProfile = 0;
+      local_modmes.RawNoiseProfile = 0;
+      local_modmes.NoisyStrips = 0;
+      local_modmes.NoisyStripDistribution = 0;
+      local_modmes.CMDistribution = 0;
+      local_modmes.CMSlopeDistribution = 0;
+      local_modmes.PedsPerStripDB = 0;
+      local_modmes.CMSubNoisePerStripDB = 0;
+      local_modmes.BadStripsDB = 0;
+
       std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
       folder_organizer.setDetectorFolder(detid); // pass the detid to this method
