@@ -10,10 +10,9 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -153,7 +152,6 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
 )
 
 # Path and EndPath definitions
-process.endjob_step = cms.Path(process.endOfProcess)
 process.ALCARECOStreamMuAlStandAloneCosmicsOutPath = cms.EndPath(process.ALCARECOStreamMuAlStandAloneCosmics)
 process.ALCARECOStreamHcalCalHOCosmicsOutPath = cms.EndPath(process.ALCARECOStreamHcalCalHOCosmics)
 process.ALCARECOStreamTkAlCosmics0TOutPath = cms.EndPath(process.ALCARECOStreamTkAlCosmics0T)
@@ -162,4 +160,4 @@ process.ALCARECOStreamMuAlGlobalCosmicsOutPath = cms.EndPath(process.ALCARECOStr
 process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStreamMuAlCalIsolatedMu)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamRpcCalHLTOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamRpcCalHLTOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath)
