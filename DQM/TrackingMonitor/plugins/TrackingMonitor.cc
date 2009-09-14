@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/21 19:12:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/08 13:22:02 $
+ *  $Revision: 1.5 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -169,7 +169,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     totalRecHits += track->found();
     totalLayers += track->hitPattern().trackerLayersWithMeasurement();
 
-    theTrackAnalyzer->analyze(iEvent, iSetup, *track);
+    theTrackAnalyzer->analyze(iEvent, iSetup, *track, bs);
   }
 
   double meanrechits = 0, meanlayers = 0;

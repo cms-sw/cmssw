@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.1 2008/12/11 11:54:10 giorgia Exp $
+// $Id: TrackAnalyzer.h,v 1.2 2009/06/11 18:15:03 boudoul Exp $
 
 #include <memory>
 #include <fstream>
@@ -28,7 +28,7 @@ class TrackAnalyzer {
   virtual ~TrackAnalyzer();
   virtual void beginJob(edm::EventSetup const& iSetup,DQMStore * dqmStore_);
   
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track, const reco::BeamSpot& bs);
   
  private:
 
@@ -66,11 +66,15 @@ class TrackAnalyzer {
   MonitorElement * nChi2Prob;
   MonitorElement * Chi2overDoF;
   MonitorElement * DistanceOfClosestApproach;
+  MonitorElement * DistanceOfClosestApproachToBS;
   MonitorElement * DistanceOfClosestApproachVsTheta;
   MonitorElement * DistanceOfClosestApproachVsPhi;
+  MonitorElement * DistanceOfClosestApproachToBSVsPhi;
   MonitorElement * DistanceOfClosestApproachVsEta;
   MonitorElement * xPointOfClosestApproach;
+  MonitorElement * xPointOfClosestApproachVsZ0;
   MonitorElement * yPointOfClosestApproach;
+  MonitorElement * yPointOfClosestApproachVsZ0;
   MonitorElement * zPointOfClosestApproach;
  
   
@@ -113,6 +117,7 @@ class TrackAnalyzer {
  bool createHistosForState_;
  bool doTrackerSpecific_;
  bool doAllPlots_;
+ bool doBSPlots_;
  
 };
 #endif

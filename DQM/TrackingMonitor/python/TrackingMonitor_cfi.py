@@ -15,11 +15,13 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     OutputFileName = cms.string('MonitorTrack.root'),
 
     FolderName = cms.string('Track/GlobalParameters'),
+    BSFolderName = cms.string('Track/BeamSpotParameters'),
 
     MeasurementState = cms.string('default'),
 
     doTrackerSpecific = cms.bool(True),
     doAllPlots = cms.bool(False),                    
+    doBeamSpotPlots = cms.bool(True),
     doSeedParameterHistos = cms.bool(False),
 
     TkSizeBin = cms.int32(500),
@@ -81,6 +83,18 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     VZBin = cms.int32(50),
     VZMin = cms.double(-100.0),
     VZMax = cms.double(100.0),
+
+    X0Bin = cms.int32(100),
+    X0Min = cms.double(-3.0),
+    X0Max = cms.double(3.0),
+
+    Y0Bin = cms.int32(100),
+    Y0Min = cms.double(-3.0),
+    Y0Max = cms.double(3.0),
+
+    Z0Bin = cms.int32(60),
+    Z0Min = cms.double(-30.0),
+    Z0Max = cms.double(30.0),
 
     TrackPzBin = cms.int32(1000),
     TrackPzMin = cms.double(-500.0),
