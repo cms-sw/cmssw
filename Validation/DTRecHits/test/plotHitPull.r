@@ -503,7 +503,7 @@ void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) 
 
   if (ThreeIn1) c1->cd(i++);
   else c1 = newCanvas(N2+"_hPull",form);
-  drawGFit(h2->hPull, -5,5,-5,5);
+  //drawGFit(h2->hPull, -5,5,-5,5);
 
   if (ThreeIn1) c1->cd(i++);
   else c1 = newCanvas(N3+"_hPull",form);
@@ -525,7 +525,7 @@ void plot1DPullsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * 
 
     if (ThreeIn1) c1->cd(i++);
     else c1 = newCanvas("c_1D_S2"+name+"_hPullVsPos",form);
-    plotAndProfileXSpread(h2->hPullVsPos, min, max, profile);
+    //plotAndProfileXSpread(h2->hPullVsPos, min, max, profile);
 
     if (ThreeIn1) c1->cd(i++);
     else c1 = newCanvas("c_1D_S3"+name+"_hPullVsPos",form);
@@ -546,7 +546,7 @@ void plot1DPullsVsAngle(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit 
 
     if (ThreeIn1) c1->cd(i++);
     else c1 = newCanvas("c_1D_S2"+name+"_hPullVsAngle",form);
-    plotAndProfileXSpread(h2->hPullVsAngle, min, max, profile);
+    //plotAndProfileXSpread(h2->hPullVsAngle, min, max, profile);
 
     if (ThreeIn1) c1->cd(i++);
     else c1 = newCanvas("c_1D_S3"+name+"_hPullVsAngle",form);

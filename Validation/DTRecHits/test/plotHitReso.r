@@ -281,7 +281,7 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RPhi->hResVsEta,min,max);
 
     c1 = newCanvas("c_1D_S2RPhi_hResVsEta",form);
-    plotAndProfileX(h2RPhi->hResVsEta,min,max);
+    //plotAndProfileX(h2RPhi->hResVsEta,min,max);
 
     c1 = newCanvas("c_1D_S3RPhi_hResVsEta",form);
     plotAndProfileX(h3RPhi->hResVsEta,min,max);
@@ -290,7 +290,7 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RZ->hResVsEta,min,max);
 
     c1 = newCanvas("c_1D_S2RZ_hResVsEta",form);
-    plotAndProfileX(h2RZ->hResVsEta,min,max);
+    //plotAndProfileX(h2RZ->hResVsEta,min,max);
 
     c1 = newCanvas("c_1D_S3RZ_hResVsEta",form);
     plotAndProfileX(h3RZ->hResVsEta,min,max);
@@ -355,7 +355,7 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RPhi->hResVsPhi,min, max);
 
     c1 = newCanvas("c_1D_S2RPhi_hResVsPhi",form);
-    plotAndProfileX(h2RPhi->hResVsPhi,min, max);
+    //plotAndProfileX(h2RPhi->hResVsPhi,min, max);
 
     c1 = newCanvas("c_1D_S3RPhi_hResVsPhi",form);
     plotAndProfileX(h3RPhi->hResVsPhi,min, max);
@@ -364,7 +364,7 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RZ->hResVsPhi,min, max);
 
     c1 = newCanvas("c_1D_S2RZ_hResVsPhi",form);
-    plotAndProfileX(h2RZ->hResVsPhi,min, max);
+    //plotAndProfileX(h2RZ->hResVsPhi,min, max);
 
     c1 = newCanvas("c_1D_S3RZ_hResVsPhi",form);
     plotAndProfileX(h3RZ->hResVsPhi,min, max);
@@ -432,7 +432,7 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RPhi->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RPhi_hResVsPos",form);
-    plotAndProfileX(h2RPhi->hResVsPos, min, max, profile);
+    //plotAndProfileX(h2RPhi->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S3RPhi_hResVsPos",form);
     plotAndProfileX(h3RPhi->hResVsPos, min, max, profile);
@@ -450,16 +450,16 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RZ_W2->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_hResVsPos",form);
-    plotAndProfileX(h2RZ->hResVsPos, min, max, profile);
+    //plotAndProfileX(h2RZ->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_W0_hResVsPos",form);
-    plotAndProfileX(h2RZ_W0->hResVsPos, min, max, profile);
+    //plotAndProfileX(h2RZ_W0->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_W1_hResVsPos",form);
-    plotAndProfileX(h2RZ_W1->hResVsPos, min, max, profile);
+    //plotAndProfileX(h2RZ_W1->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_W2_hResVsPos",form);
-    plotAndProfileX(h2RZ_W2->hResVsPos, min, max, profile);
+    //plotAndProfileX(h2RZ_W2->hResVsPos, min, max, profile);
 
     c1 = newCanvas("c_1D_S3RZ_hResVsPos",form);
     plotAndProfileX(h3RZ->hResVsPos, min, max, profile);
@@ -485,7 +485,7 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RPhi->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RPhi_hResVsAngle",form);
-    plotAndProfileX(h2RPhi->hResVsAngle, min, max, profile);
+    //plotAndProfileX(h2RPhi->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S3RPhi_hResVsAngle",form);
     plotAndProfileX(h3RPhi->hResVsAngle, min, max, profile);
@@ -503,16 +503,16 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileX(h1RZ_W2->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_hResVsAngle",form);
-    plotAndProfileX(h2RZ->hResVsAngle, min, max, profile);
+    //plotAndProfileX(h2RZ->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_W0_hResVsAngle",form);
-    plotAndProfileX(h2RZ_W0->hResVsAngle, min, max, profile);
+    //plotAndProfileX(h2RZ_W0->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_W1_hResVsAngle",form);
-    plotAndProfileX(h2RZ_W1->hResVsAngle, min, max, profile);
+    //plotAndProfileX(h2RZ_W1->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_W2_hResVsAngle",form);
-    plotAndProfileX(h2RZ_W2->hResVsAngle, min, max, profile);
+    //plotAndProfileX(h2RZ_W2->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S3RZ_hResVsAngle",form);
     plotAndProfileX(h3RZ->hResVsAngle, min, max, profile);
@@ -572,7 +572,7 @@ void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeI
 
   if (ThreeIn1) c1->cd(i++);
   else c1 = newCanvas(N2+"_hRes",form);
-  drawGFit(h2->hRes, -0.2,0.2,-0.1,0.1);
+  //drawGFit(h2->hRes, -0.2,0.2,-0.1,0.1);
 
   if (ThreeIn1) c1->cd(i++);
   else c1 = newCanvas(N3+"_hRes",form);

@@ -30,7 +30,7 @@
   cin >> nameDir;
 
   // Load 1D RecHits histos
-  TFile *file = new TFile("Cosmics_V0001_CMSSW_3_2_0.root");
+  TFile *file = new TFile("DQM_V0001_R000000001__Cosmics__CMSSW_2_2_X-Testing__RECO.root");
   gROOT->LoadMacro("plotHitReso.r"); 
   gROOT->LoadMacro("plotHitPull.r"); 
   
