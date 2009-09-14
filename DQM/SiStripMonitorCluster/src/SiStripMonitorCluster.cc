@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.64 2009/07/18 18:37:13 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.65 2009/08/29 08:45:19 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -172,6 +172,17 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
       if (Mod_On_) {
 	ModMEs mod_single;
+        mod_single.NumberOfClusters = 0;
+        mod_single.ClusterPosition = 0;
+        mod_single.ClusterDigiPosition = 0;
+        mod_single.ClusterWidth = 0;
+        mod_single.ClusterCharge = 0;
+        mod_single.ClusterNoise = 0;
+        mod_single.ClusterSignalOverNoise = 0;
+        mod_single.ClusterSignalOverNoiseVsPos = 0;
+        mod_single.ModuleLocalOccupancy = 0;
+        mod_single.NrOfClusterizedStrips = 0; 
+
 	// set appropriate folder using SiStripFolderOrganizer
 	folder_organizer.setDetectorFolder(detid); // pass the detid to this method
 	if (reset_each_run) ResetModuleMEs(detid);
@@ -581,7 +592,18 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets) {
   if(iLayerME==LayerMEMap.end()){
     SiStripHistoId hidmanager;
     LayerMEs layerMEs; 
-
+    layerMEs.LayerClusterStoN = 0;
+    layerMEs.LayerClusterStoNTrend = 0;
+    layerMEs.LayerClusterCharge = 0;
+    layerMEs.LayerClusterChargeTrend = 0;
+    layerMEs.LayerClusterNoise = 0;
+    layerMEs.LayerClusterNoiseTrend = 0;
+    layerMEs.LayerClusterWidth = 0;
+    layerMEs.LayerClusterWidthTrend = 0;
+    layerMEs.LayerLocalOccupancy = 0;
+    layerMEs.LayerLocalOccupancyTrend = 0;
+    layerMEs.LayerNumberOfClusterProfile = 0;
+    layerMEs.LayerClusterWidthProfile = 0;
 
     //Cluster Width
     if(layerswitchcluswidthon) {
@@ -637,7 +659,12 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 
   std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find(label);
   if(iSubDetME==SubDetMEsMap.end()){
-    SubDetMEs subdetMEs; 
+    SubDetMEs subdetMEs;
+    subdetMEs.SubDetTotClusterProf = 0;
+    subdetMEs.SubDetClusterApvProf = 0;
+    subdetMEs.SubDetTotClusterTH1 = 0;
+    subdetMEs.SubDetClusterApvTH2 = 0;
+ 
     std::string HistoName;
 
   if (subdetswitchtotclusterprofon){

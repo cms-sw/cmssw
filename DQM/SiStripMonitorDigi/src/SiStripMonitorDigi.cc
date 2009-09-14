@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.49 2009/07/01 17:53:14 borrell Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.50 2009/07/18 18:40:53 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -149,6 +149,13 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       uint32_t detid = (*detid_iterator);
 
       ModMEs local_modmes;
+      local_modmes.NumberOfDigis = 0;
+      local_modmes.NumberOfDigisPerStrip = 0;
+      local_modmes.ADCsHottestStrip = 0;
+      local_modmes.ADCsCoolestStrip = 0;
+      local_modmes.DigiADCs = 0;
+      local_modmes.StripOccupancy = 0;
+
       local_modmes.nStrip = tkmechstruct->nApvPairs(detid) * 2 * 128;
 
       if (Mod_On_) {
@@ -512,6 +519,19 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
   if(iLayerME==LayerMEsMap.end()){
     SiStripHistoId hidmanager;
     LayerMEs layerMEs; 
+    layerMEs.LayerNumberOfDigis = 0;
+    layerMEs.LayerNumberOfDigisTrend = 0;
+    layerMEs.LayerADCsHottestStrip = 0;
+    layerMEs.LayerADCsHottestStripTrend = 0;
+    layerMEs.LayerADCsCoolestStrip = 0;
+    layerMEs.LayerADCsCoolestStripTrend = 0;
+    layerMEs.LayerDigiADCs = 0;
+    layerMEs.LayerDigiADCsTrend = 0;
+    layerMEs.LayerStripOccupancy = 0;
+    layerMEs.LayerStripOccupancyTrend = 0;
+    layerMEs.LayerNumberOfDigisProfile = 0;
+    layerMEs.LayerDigiADCProfile = 0;
+    
 
     //#Digis
     if(layerswitchnumdigison) {
@@ -566,6 +586,10 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find(label);
   if(iSubDetME==SubDetMEsMap.end()){
     SubDetMEs subdetMEs; 
+    subdetMEs.SubDetTotDigiProf = 0;
+    subdetMEs.SubDetDigiApvProf = 0;
+    subdetMEs.SubDetDigiApvTH2 = 0;
+    
     std::string HistoName;
 
     // Total Number of Digi - Profile

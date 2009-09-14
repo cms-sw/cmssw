@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.28 2009/06/30 08:18:52 borrell Exp $
+// $Id: SiStripMonitorCluster.h,v 1.29 2009/08/29 08:45:19 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -50,7 +50,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   };
 
   struct LayerMEs{ // MEs for Layer Level
-    // MEs at subdetector level
     MonitorElement* LayerClusterStoN;
     MonitorElement* LayerClusterStoNTrend;
     MonitorElement* LayerClusterCharge;
