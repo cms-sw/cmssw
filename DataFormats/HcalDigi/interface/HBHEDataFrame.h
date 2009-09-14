@@ -30,6 +30,8 @@ public:
   bool zsMarkAndPass() const { return (hcalPresamples_&0x10); }
   /// was ZS unsuppressed?
   bool zsUnsuppressed() const { return (hcalPresamples_&0x20); }
+  /// zs crossing mask (which sums considered)
+  uint32_t zsCrossingMask() const { return (hcalPresamples_&0x3FF000)>>12; }
  
   /// access a sample
   const HcalQIESample& operator[](int i) const { return data_[i]; }
@@ -44,7 +46,7 @@ public:
   
   void setSize(int size);
   void setPresamples(int ps);
-  void setZSInfo(bool unsuppressed, bool markAndPass);
+  void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0x3FF);
   void setSample(int i, const HcalQIESample& sam) { data_[i]=sam; }
   void setReadoutIds(const HcalElectronicsId& eid);
   void setFiberIdleOffset(int offset);
