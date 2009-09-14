@@ -40,7 +40,6 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -260,8 +259,9 @@ Bool_t
 TFWLiteSelectorBasic::Process(Long64_t iEntry) { 
    //std::cout <<"Process start"<<std::endl;
    if(everythingOK_) {
-      edm::EventAuxiliary aux;
-      edm::EventAuxiliary* pAux= &aux;
+      std::auto_ptr<edm::EventAuxiliary> eaux(new edm::EventAuxiliary());
+      edm::EventAuxiliary& aux = *eaux;
+      edm::EventAuxiliary* pAux= eaux.get();
       TBranch* branch = m_->tree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
 
       branch->SetAddress(&pAux);
@@ -294,25 +294,16 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
 	 boost::shared_ptr<edm::ProductRegistry const> reg(m_->reg_);
-	 edm::RunAuxiliary runAux(aux.run(), aux.time(), aux.time());
+	 boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(aux.run(), aux.time(), aux.time()));
 	 boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, reg, pc));
-	 edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, aux.time(), aux.time());
+	 boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(
+		new edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
 	 boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
-	    new edm::LuminosityBlockPrincipal(lumiAux, reg, pc));
-	 lbp->setRunPrincipal(rp);
+	    new edm::LuminosityBlockPrincipal(lumiAux, reg, pc, rp));
 	 boost::shared_ptr<edm::BranchMapper> mapper(new edm::BranchMapper);
-	 edm::EventPrincipal ep(aux, reg, pc, history_, mapper, m_->reader_);
-	 ep.setLuminosityBlockPrincipal(lbp);
+	 edm::EventPrincipal ep(reg, pc);
+	 ep.fillEventPrincipal(eaux, lbp, history_, mapper, m_->reader_);
          m_->processNames_ = ep.processHistory();
-
-	 using namespace edm;
-         edm::ProductRegistry::ProductList const& prodList = m_->reg_->productList();
-         for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-            it != itEnd; ++it)  {
-	    edm::BranchDescription const& product = it->second;
-            //std::cout<<"it->second "<<it->second.branchName()<<std::endl;
-	    ep.addGroup(edm::ConstBranchDescription(product));
-	 }
 
 	 edm::ModuleDescription md;
 	 edm::Event event(ep,md);
@@ -462,7 +453,9 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
     if( prod.branchType() == edm::InEvent) {
       prod.init();
       //NEED to do this and check to see if branch exists
-      prod.setPresent(m_->tree_->GetBranch(prod.branchName().c_str())!=0); 
+      if (m_->tree_->GetBranch(prod.branchName().c_str())==0) {
+        prod.setDropped(); 
+      }
       m_->productMap_.insert(std::make_pair(it->second.oldProductID(), it->second));
 
       //std::cout <<"id "<<it->first<<" branch "<<it->second<<std::endl;
