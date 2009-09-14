@@ -13,7 +13,7 @@
 //
 // Original Authors:  Nadia Adam, Valerie Halyo
 //         Created:  Wed Oct  8 11:06:35 CDT 2008
-// $Id: MuonRefProducer.cc,v 1.1 2008/10/13 20:45:39 neadam Exp $
+// $Id: MuonRefProducer.cc,v 1.1 2009/09/11 19:34:22 valerieh Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 //
 // constants, enums and typedefs
@@ -145,7 +145,7 @@ MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 // Require TMLastStationOptimizedLowPtTight is true
 	 //if( !probeRef->isGood(reco::Muon::TMLastStationOptimizedLowPtTight) ) continue;
-	 if( !probeRef->isGood(reco::Muon::TMOneStationTight) ) continue;
+	 if( !(muon::isGoodMuon(*(probeRef),muon::TMLastStationOptimizedLowPtTight)) ) continue;
 
 	 muonCollection->push_back(probeRef);		      
       }
