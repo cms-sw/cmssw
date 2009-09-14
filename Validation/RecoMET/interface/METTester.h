@@ -43,6 +43,10 @@ public:
   std::string METType_;
   std::string FolderName_;
   edm::InputTag inputMETLabel_;
+  edm::InputTag inputTrackLabel_;
+  edm::InputTag inputMuonLabel_;
+  edm::InputTag inputElectronLabel_;
+  edm::InputTag inputBeamSpotLabel_;
   bool finebinning_;
 
 };
