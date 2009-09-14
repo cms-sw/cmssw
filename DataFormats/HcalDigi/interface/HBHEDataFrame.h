@@ -46,7 +46,7 @@ public:
   
   void setSize(int size);
   void setPresamples(int ps);
-  void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0x3FF);
+  void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0);
   void setSample(int i, const HcalQIESample& sam) { data_[i]=sam; }
   void setReadoutIds(const HcalElectronicsId& eid);
   void setFiberIdleOffset(int offset);
