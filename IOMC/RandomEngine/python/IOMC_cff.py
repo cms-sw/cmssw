@@ -1,18 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    theSource = cms.PSet(
-        initialSeed = cms.untracked.uint32(123456789),
-        engineName = cms.untracked.string('HepJamesRandom')
-    ),
+#
+#  seed for a source no longer needed - replaces by "generator"
+#
+#    theSource = cms.PSet(
+#        initialSeed = cms.untracked.uint32(123456789),
+#        engineName = cms.untracked.string('HepJamesRandom')
+#    ),
     generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    evtgenproducer = cms.PSet( 
-        initialSeed = cms.untracked.uint32(93278151),
-        engineName = cms.untracked.string('HepJamesRandom') 
-    ),
+#
+# EvtGenProducer discontinued, replaced by funtionalities in ExternalDecays,
+# altogether wrapped with "generator"
+#
+#    evtgenproducer = cms.PSet( 
+#        initialSeed = cms.untracked.uint32(93278151),
+#        engineName = cms.untracked.string('HepJamesRandom') 
+#    ),
     VtxSmeared = cms.PSet(
         initialSeed = cms.untracked.uint32(98765432),
         engineName = cms.untracked.string('HepJamesRandom')
@@ -63,6 +70,18 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     ),
     simCastorDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(12345678),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+#
+# HI generation & simulation is a special processing/chain,
+# integrated since 330 cycle
+#
+   hiSignal = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+   hiSignalG4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(11),
         engineName = cms.untracked.string('HepJamesRandom')
     )
     # to save the status of the last event (useful for crashes)
