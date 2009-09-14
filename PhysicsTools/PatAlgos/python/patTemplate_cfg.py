@@ -20,6 +20,25 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('STARTUP31X_V1::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+
+# load the standard PAT config 
+process.load("PhysicsTools.PatAlgos.patSequences_cff")
+
+from PhysicsTools.PatAlgos.tools.jetTools import *
+print "*********************************************************************"
+print "Switching all processes to use the anti-kT algorithm by default."
+print "Switch the jet collection to your desired algorithm if this is not"
+print "what you want to use."
+print "*********************************************************************"
+switchJetCollection(process, 
+                    cms.InputTag('ak5CaloJets'),   
+                    doJTA            = True,            
+                    doBTagging       = True,            
+                    jetCorrLabel     = ('AK5','Calo'),  
+                    doType1MET       = True,            
+                    genJetCollection = cms.InputTag("ak5GenJets")
+                    ) 
+
 # Output module configuration
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
 process.out = cms.OutputModule("PoolOutputModule",

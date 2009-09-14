@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Jets = cms.EDProducer("PATJetProducer",
     # input
-    jetSource = cms.InputTag("iterativeCone5CaloJets"),
+    jetSource = cms.InputTag("ak5CaloJets"),
                                
     # add user data
     userData = cms.PSet(
@@ -43,6 +43,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
         cms.InputTag("jetBProbabilityBJetTags"),
         cms.InputTag("jetProbabilityBJetTags"),
         cms.InputTag("simpleSecondaryVertexBJetTags"),
+        cms.InputTag("simpleSecondaryVertexNegativeBJetTags"),
         cms.InputTag("softElectronByPtBJetTags"),                
         cms.InputTag("softElectronByIP3dBJetTags"),
         cms.InputTag("softMuonBJetTags"),
@@ -57,6 +58,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     addTagInfos     = cms.bool(True),
     tagInfoSources  = cms.VInputTag(
         cms.InputTag("secondaryVertexTagInfos"),
+        cms.InputTag("secondaryVertexNegativeTagInfos"),
         cms.InputTag("softElectronTagInfos"), 
         cms.InputTag("softMuonTagInfos"),
         cms.InputTag("impactParameterTagInfos"),
@@ -64,7 +66,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
 
     # track association
     addAssociatedTracks    = cms.bool(True),
-    trackAssociationSource = cms.InputTag("ic5JetTracksAssociatorAtVertex"),
+    trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertex"),
 
     # jet charge
     addJetCharge    = cms.bool(True),

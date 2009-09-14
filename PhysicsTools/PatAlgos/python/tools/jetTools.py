@@ -27,7 +27,7 @@ def switchJECSet(process,
 def switchJECSet_(jetCorrFactors,
                   newName,
                   oldName,
-                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE']
+                  steps=['L1Offset', 'L2Relative', 'L3Absolute']
                   ):
     """
     ------------------------------------------------------------------    
@@ -40,7 +40,7 @@ def switchJECSet_(jetCorrFactors,
     ------------------------------------------------------------------    
     """
 
-    print """NOTE TO USER: The L7Parton correction is currently disabled until the anti-kT correction is implemented."""
+    print """NOTE TO USER: All but L1+L2+L3 corrections are currently disabled."""
     found = False
     for k in steps:
         ## loop jet correction steps
@@ -59,7 +59,7 @@ def switchJECSet_(jetCorrFactors,
 def switchJECParameters(jetCorrFactors,
                         newAlgo,
                         newType="Calo",
-                        oldAlgo="IC5",
+                        oldAlgo="AK5",
                         oldType="Calo"
                         ):
     """
@@ -67,22 +67,22 @@ def switchJECParameters(jetCorrFactors,
     replace tags in the JetCorrFactorsProducer
 
     jetCorrFactors : jetCorrFactors module
-    newAlgo        : label of new jet algo [IC5,  SC5,   KT6, ...]
+    newAlgo        : label of new jet algo [AK5,  SC5,   KT6, ...]
     newType        : label of new jet type [Calo, Pflow, Jpt, ...]
-    oldAlgo        : label of old jet alog [IC5,  SC5,   KT6, ...]
+    oldAlgo        : label of old jet alog [AK5,  SC5,   KT6, ...]
     oldType        : label of old jet type [Calo, Pflow, Jpt, ...]
     ------------------------------------------------------------------    
     """    
-    print """NOTE TO USER: The L7Parton correction is currently disabled until the anti-kT correction is implemented."""
+    print """NOTE TO USER: All but L1+L2+L3 corrections are currently disabled."""
 #    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
-    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE']:
+    for k in ['L1Offset', 'L2Relative', 'L3Absolute']:
         ## loop jet correction steps; the L5Flavor step
         ## is not in the list as as it is said not to
         ## dependend on the specific jet algorithm
         vv = getattr(jetCorrFactors, k).value();
         if (vv != "none"):
-            ## the first replace is for '*_IC5Calo'
-            ## types, the second for '*_IC5' types            
+            ## the first replace is for '*_AK5Calo'
+            ## types, the second for '*_AK5' types            
             setattr(jetCorrFactors, k, vv.replace(oldAlgo+oldType,newAlgo+newType).replace(oldAlgo,newAlgo) )
 
 
@@ -114,10 +114,13 @@ def runBTagging(process,
         raise ValueError, "label for re-running b tagging is not allowed to be empty"        
 
     ## import track associator & b tag configuration
-    process.load("RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi")
-    from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import ic5JetTracksAssociatorAtVertex
+    process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+    from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
     process.load("RecoBTag.Configuration.RecoBTag_cff")
     import RecoBTag.Configuration.RecoBTag_cff as btag
+
+    # add negative tag infos
+    import PhysicsTools.PatAlgos.recoLayer0.bTagging_cff as nbtag
     
     ## define jetTracksAssociator; for switchJetCollection
     ## the label is 'AOD' as empty labels will lead to crashes
@@ -131,12 +134,14 @@ def runBTagging(process,
     ## define tag info labels (compare with jetProducer_cfi.py)        
     ipTILabel = 'impactParameterTagInfos'     + label
     svTILabel = 'secondaryVertexTagInfos'     + label
+#    nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
     seTILabel = 'softElectronTagInfos'        + label
     smTILabel = 'softMuonTagInfos'            + label
     
     ## produce tag infos
     setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
     setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
+#    setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
     setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
     setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
 
@@ -149,6 +154,7 @@ def runBTagging(process,
     setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
+#    setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
     setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
@@ -165,6 +171,7 @@ def runBTagging(process,
                                                     'trackCountingHighPurBJetTags',
                                                     'trackCountingHighEffBJetTags',
                                                     'simpleSecondaryVertexBJetTags',
+#                                                    'simpleSecondaryVertexNegativeBJetTags',
                                                     'combinedSecondaryVertexBJetTags',
                                                     'combinedSecondaryVertexMVABJetTags',
                                                     'softElectronByPtBJetTags',
@@ -199,7 +206,7 @@ def switchJetCollection(process,
                         doBTagging       = True,
                         jetCorrLabel     = None,
                         doType1MET       = True,
-                        genJetCollection = cms.InputTag("iterativeCone5GenJets")
+                        genJetCollection = cms.InputTag("ak5GenJets")
                         ):
     """
     ------------------------------------------------------------------        
@@ -214,7 +221,7 @@ def switchJetCollection(process,
                        it to the new pat jet collection (will autom.
                        be true if doBTagging is set to true)
     jetCorrLabel     : algorithm and type of JEC; use 'None' for no
-                       JEC; examples are ('IC5','Calo'), ('SC7',
+                       JEC; examples are ('AK5','Calo'), ('SC7',
                        'Calo'), ('KT4','PF')
     doType1MET       : if jetCorrLabel is not 'None', set this to
                        'True' to redo the Type1 MET correction for
@@ -244,9 +251,9 @@ def switchJetCollection(process,
 
     if (doJTA or doBTagging):
         ## replace jet track association
-        process.load("RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi")
-        from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import ic5JetTracksAssociatorAtVertex
-        process.jetTracksAssociatorAtVertex = ic5JetTracksAssociatorAtVertex.clone(jets = jetCollection)
+        process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+        from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+        process.jetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)
         process.makeAllLayer1Jets.replace(process.patJetCharge, process.jetTracksAssociatorAtVertex+process.patJetCharge)
         process.patJetCharge.src = 'jetTracksAssociatorAtVertex'
         process.allLayer1Jets.trackAssociationSource = 'jetTracksAssociatorAtVertex'
@@ -283,12 +290,12 @@ def switchJetCollection(process,
         if (jetCorrLabel == "None"):
             raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
         ## check for the correct format
-        if (type(jetCorrLabel)!=type(('IC5','Calo'))): 
+        if (type(jetCorrLabel)!=type(('AK5','Calo'))): 
             raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
         ## switch JEC parameters to the new jet collection
         process.jetCorrFactors.jetSource = jetCollection            
-        switchJECParameters(process.jetCorrFactors, jetCorrLabel[0], jetCorrLabel[1], oldAlgo='IC5',oldType='Calo')
+        switchJECParameters(process.jetCorrFactors, jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo')
 
         ## redo the type1MET correction for the new jet collection
         if (doType1MET):
@@ -306,8 +313,8 @@ def switchJetCollection(process,
             ## configure the type1MET correction the following muonMET
             ## corrections have the corMetType1Icone5 as input and are
             ## automatically correct  
-            process.metJESCorIC5CaloJet.inputUncorJetsLabel = jetCollection.value()
-            process.metJESCorIC5CaloJet.corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
+            process.metJESCorAK5CaloJet.inputUncorJetsLabel = jetCollection.value()
+            process.metJESCorAK5CaloJet.corrector = 'L2L3JetCorrector%s%s' % jetCorrLabel
     else:
         ## remove the jetCorrFactors from the std sequence
         process.patJetMETCorrections.remove(process.jetCorrFactors)
@@ -325,7 +332,7 @@ def addJetCollection(process,
                      doType1MET   = True,
                      doL1Cleaning = True,                     
                      doL1Counters = False,
-                     genJetCollection=cms.InputTag("iterativeCone5GenJets")
+                     genJetCollection=cms.InputTag("ak5GenJets")
                      ):
     """
     ------------------------------------------------------------------        
@@ -341,7 +348,7 @@ def addJetCollection(process,
                        it to the new pat jet collection (will autom.
                        be true if doBTagging is set to true)
     jetCorrLabel     : algorithm and type of JEC; use 'None' for no
-                       JEC; examples are ('IC5','Calo'), ('SC7',
+                       JEC; examples are ('AK5','Calo'), ('SC7',
                        'Calo'), ('KT4','PF')
     doType1MET       : make also a new MET collection (not yet
                        implemented?)
@@ -415,11 +422,11 @@ def addJetCollection(process,
 
     if (doJTA or doBTagging):
         ## add clone of jet track association        
-        process.load("RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi")
-        from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import ic5JetTracksAssociatorAtVertex
+        process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
+        from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
         ## add jet track association module to processes
         jtaLabel = 'jetTracksAssociatorAtVertex'+postfixLabel
-        setattr( process, jtaLabel, ic5JetTracksAssociatorAtVertex.clone(jets = jetCollection) )
+        setattr( process, jtaLabel, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection) )
         process.makeAllLayer1Jets.replace(process.patJetCharge, getattr(process,jtaLabel)+process.patJetCharge)
         l1Jets.trackAssociationSource = cms.InputTag(jtaLabel)
         addClone('patJetCharge', src=cms.InputTag(jtaLabel)),
@@ -452,12 +459,12 @@ def addJetCollection(process,
         if (jetCorrLabel == "None"):
             raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
         ## check for the correct format
-        if type(jetCorrLabel) != type(('IC5','Calo')): 
+        if type(jetCorrLabel) != type(('AK5','Calo')): 
             raise ValueError, "In switchJetCollection 'jetCorrLabel' must be 'None', or of type ('Algo','Type')"
 
         ## add clone of jetCorrFactors
         addClone('jetCorrFactors', jetSource = jetCollection)
-        switchJECParameters( getattr(process,'jetCorrFactors'+postfixLabel), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='IC5',oldType='Calo' )
+        switchJECParameters( getattr(process,'jetCorrFactors'+postfixLabel), jetCorrLabel[0], jetCorrLabel[1], oldAlgo='AK5',oldType='Calo' )
         fixVInputTag(l1Jets.jetCorrFactorsSource)
 
         ## add a clone of the type1MET correction for the new jet collection
@@ -475,11 +482,11 @@ def addJetCollection(process,
                          )
             ## add a clone of the type1MET correction
             ## and the following muonMET correction  
-            addClone('metJESCorIC5CaloJet', inputUncorJetsLabel = jetCollection.value(),
+            addClone('metJESCorAK5CaloJet', inputUncorJetsLabel = jetCollection.value(),
                      corrector = cms.string('L2L3JetCorrector%s%s' % jetCorrLabel)
                      )
-            addClone('metJESCorIC5CaloJetMuons', uncorMETInputTag = cms.InputTag("metJESCorIC5CaloJet"+postfixLabel))
-            addClone('layer1METs', metSource = cms.InputTag("metJESCorIC5CaloJetMuons"+postfixLabel))
+            addClone('metJESCorAK5CaloJetMuons', uncorMETInputTag = cms.InputTag("metJESCorAK5CaloJet"+postfixLabel))
+            addClone('layer1METs', metSource = cms.InputTag("metJESCorAK5CaloJetMuons"+postfixLabel))
             l1MET = getattr(process, 'layer1METs'+postfixLabel)
 
             ## find potential triggers for trigMatch             

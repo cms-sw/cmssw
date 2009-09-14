@@ -5,7 +5,7 @@ jetPartons = cms.EDFilter("PartonSelector",
 )
 
 jetPartonAssociation = cms.EDFilter("JetPartonMatcher",
-    jets    = cms.InputTag("iterativeCone5CaloJets"),
+    jets    = cms.InputTag("ak5CaloJets"),
     partons = cms.InputTag("jetPartons"),
     coneSizeToAssociate = cms.double(0.3),
 )
