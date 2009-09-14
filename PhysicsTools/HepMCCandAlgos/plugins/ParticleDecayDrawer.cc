@@ -106,11 +106,12 @@ void ParticleDecayDrawer::analyze( const Event & event, const EventSetup & es ) 
       for( size_t n = 0; n < nodes.size(); ++ n ) {    
 	skip.remove( nodes[ n ] );
 	string dec = decay( * nodes[ n ], skip );
-	if ( ! dec.empty() ) 
+	if ( ! dec.empty() ) {
 	  if ( dec.find( "->", 0 ) != string::npos )
 	    cout << " ( " << dec << " )";
 	  else 
 	    cout << " " << dec;
+        }
       }
     } else {
       skip.remove( nodes[ 0 ] );
