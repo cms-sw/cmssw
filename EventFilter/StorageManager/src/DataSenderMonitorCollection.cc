@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.7 2009/08/18 08:55:12 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.8 2009/08/24 14:31:51 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -17,6 +17,12 @@ using namespace stor;
 DataSenderMonitorCollection::DataSenderMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
 _connectedRBs(0),
+_connectedEPs(0),
+_activeEPs(0),
+_outstandingDataDiscards(0),
+_outstandingDQMDiscards(0),
+_staleChains(0),
+_ignoredDiscards(0),
 _updateInterval(updateInterval)
 {}
 
@@ -444,6 +450,12 @@ void DataSenderMonitorCollection::do_reset()
   boost::mutex::scoped_lock sl(_collectionsMutex);
 
   _connectedRBs = 0;
+  _connectedEPs = 0;
+  _activeEPs = 0;
+  _outstandingDataDiscards = 0;
+  _outstandingDQMDiscards = 0;
+  _staleChains = 0;
+  _ignoredDiscards = 0;
   _resourceBrokerMap.clear();
   _outputModuleMap.clear();
 }
@@ -466,6 +478,23 @@ void DataSenderMonitorCollection::do_updateInfoSpaceItems()
   boost::mutex::scoped_lock sl(_collectionsMutex);
 
   _connectedRBs = static_cast<xdata::UnsignedInteger32>(_resourceBrokerMap.size());
+
+  unsigned int localEPCount = 0;
+  std::map<UniqueResourceBrokerID_t, RBRecordPtr>::const_iterator rbMapIter;
+  std::map<UniqueResourceBrokerID_t, RBRecordPtr>::const_iterator rbMapEnd =
+    _resourceBrokerMap.end();
+  for (rbMapIter = _resourceBrokerMap.begin(); rbMapIter != rbMapEnd; ++rbMapIter)
+  {
+    RBRecordPtr rbRecordPtr = rbMapIter->second;
+    localEPCount += rbRecordPtr->filterUnitMap.size();
+  }
+  _connectedEPs = static_cast<xdata::UnsignedInteger32>(localEPCount);
+
+  //    xdata::UnsignedInteger32 _activeEPs;
+  //    xdata::UnsignedInteger32 _outstandingDataDiscards;
+  //    xdata::UnsignedInteger32 _outstandingDQMDiscards;
+  //    xdata::UnsignedInteger32 _staleChains;
+  //    xdata::UnsignedInteger32 _ignoredDiscards;
 }
 
 
