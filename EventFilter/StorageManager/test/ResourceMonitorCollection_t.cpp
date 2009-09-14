@@ -138,7 +138,10 @@ testResourceMonitorCollection::diskUsage()
   CPPUNIT_ASSERT( diskUsageStatsPtr.get() != 0 );
 
   double statRelDiskUsage = diskUsageStatsPtr->relDiskUsageStats.getLastSampleValue();
-  CPPUNIT_ASSERT( (statRelDiskUsage/relDiskUsage) - 1 < 0.01 );
+  if (relDiskUsage > 0)
+    CPPUNIT_ASSERT( (statRelDiskUsage/relDiskUsage) - 1 < 0.01 );
+  else
+    CPPUNIT_ASSERT( statRelDiskUsage == relDiskUsage );
 
   CPPUNIT_ASSERT( diskUsageStatsPtr->alarmState == AlarmHandler::OKAY );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
