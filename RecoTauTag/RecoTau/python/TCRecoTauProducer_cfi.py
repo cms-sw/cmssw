@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tcRecoTauProducer = cms.EDProducer("TCRecoTauProducer",
+tcCaloRecoTauProducer = cms.EDProducer("TCRecoTauProducer",
 	CaloRecoTauProducer = cms.InputTag("caloRecoTauProducer"),
         ## TauJet jet energy correction parameters
         src            = cms.InputTag("iterativeCone5CaloJets"),
