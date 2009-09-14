@@ -3,6 +3,7 @@
 import ROOT
 import inspect
 import sys
+import optparse
 
 ROOT.gSystem.Load("libFWCoreFWLite.so")
 ROOT.AutoLibraryLoader.enable()
@@ -34,6 +35,29 @@ def warn (*args, **kwargs):
         print
     else:
         print "%s (%s):" % (filename, lineNum)
+
+
+def createParser (mode='', progName=''):
+    """Create a parser that has options useful for FWLite"""
+    parser = optparse.OptionParser ('Usage: %prog [options]')
+    parser.add_option ('--inputFiles', dest='inputFiles',
+                       action='append', type='string', default=[],
+                       help='Input files')
+    parser.add_option ('--inputFiles_load', dest='inputFiles_load',
+                       action='append', type='string', default=[],
+                       help='Name of text file to load input files')
+    parser.add_option ('--secondaryInputFiles', dest='secondaryInputFiles',
+                       action='append', type='string', default=[],
+                       help='Secondary input files'
+                       ' (a.k.a. "Two file solution")')
+    parser.add_option ('--secondaryInputFiles_load',
+                       dest='secondaryInputFiles_load',
+                       action='append', type='string', default=[],
+                       help='Name of text file to load secondary input files')
+    parser.add_options ('--maxEvents', type='integer', default=0,
+                        help='Maximum number of events to process '
+                        '(0 for all events; default)')
+    return parser
 
 
 class Handle:
@@ -123,7 +147,7 @@ class Events:
         self._event         = 0
         self._eventCounts   = 0
         self._maxEvents     = 0
-        self._forceEvent    = True
+        self._forceEvent    = False
         self._mode          = None
         if kwargs.has_key ('maxEvents'):
             self._maxEvents = kwargs['maxEvents']
@@ -131,6 +155,10 @@ class Events:
         if kwargs.has_key ('forceEvent'):
             self._forceEvent = kwargs['forceEvent']
             del kwargs['forceEvent']
+        if kwargs.has_key ('options'):
+            self._parseOptions (kwargs['options'])
+            del wkargs['options']
+        
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
         # somebody passed in an argument that we're not using and we
@@ -142,12 +170,17 @@ class Events:
         else:
             self._filenames = [inputFiles]
         if not self._filenames:
-            raise RuntimeError, "No input files given"
+            raise RuntimeError, "No input files given"        
 
         
     def toBegin (self):
         """Called to reset event loop to first event."""
         self._toBegin = True
+
+
+    def object (self):
+        """Returns event object"""
+        return self._event
 
 
     def getByLabel (self, *args):
@@ -201,6 +234,10 @@ class Events:
 
 
     ## Private Member Functions ##
+
+
+    def _parseOptions (self, options):
+        """(Internal) Parse options"""
 
 
     def _toBeginCode (self):
