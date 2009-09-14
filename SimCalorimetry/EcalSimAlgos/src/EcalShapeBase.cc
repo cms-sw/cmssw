@@ -93,8 +93,8 @@ EcalShapeBase::timeIndex( double aTime ) const
    const int index ( m_firstIndexOverThreshold +
 		     (unsigned int) ( aTime*kNBinsPerNSec + 0.5 ) ) ;
 
-   const bool bad ( m_firstIndexOverThreshold >  index || 
-		    kNBinsStored              <= index    ) ;
+   const bool bad ( (int) m_firstIndexOverThreshold >  index || 
+		    (int) kNBinsStored              <= index    ) ;
 
    if( bad )
    {
