@@ -4,7 +4,7 @@ C*********************************************************************
       FUNCTION KLU(I,J)
 
 C...Purpose: to provide various integer-valued event related data.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -197,7 +197,7 @@ C*********************************************************************
       SUBROUTINE LU1ENT(IP,KF,PE,THE,PHI)
 
 C...Purpose: to store one parton/particle in commonblock LUJETS.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -244,7 +244,7 @@ C*********************************************************************
 
 C...Purpose: to store two partons/particles in their CM frame,
 C...with the first along the +z axis.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -327,7 +327,7 @@ C*********************************************************************
 C...Purpose: to store three partons or particles in their CM frame,
 C...with the first along the +z axis and the third in the (x,z)
 C...plane with x > 0.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -440,7 +440,7 @@ C*********************************************************************
 C...Purpose: to store four partons or particles in their CM frame, with
 C...the first along the +z axis, the last in the xz plane with x > 0
 C...and the second having y < 0 and y > 0 with equal probability.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -599,7 +599,7 @@ C...Purpose: to modify event so as to approximately take into account
 C...Bose-Einstein effects according to a simple phenomenological
 C...parametrization.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       SAVE /LUJETS/,/LUDAT1/
       DIMENSION DPS(4),KFBE(9),NBE(0:9),BEI(100)
@@ -738,7 +738,7 @@ C*********************************************************************
 
 C...Purpose: to provide a simple way of jet finding in an eta-phi-ET
 C...coordinate frame, as used for calorimeters at hadron colliders.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -951,7 +951,7 @@ C*********************************************************************
 
 C...Purpose: to subdivide the particle content of an event into
 C...jets/clusters.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -1379,7 +1379,7 @@ C...decay data.
 
 C...LUDAT1, containing status codes and most parameters.
       DATA MSTU/
-     &    0,    0,    0, 450000,20000,  500, 2000,    0,    0,    2,
+     &    0,    0,    0, 150000,20000,  500, 2000,    0,    0,    2,
      1    6,    1,    1,    0,    1,    1,    0,    0,    0,    0,
      2    2,   10,    0,    0,    1,   10,    0,    0,    0,    0,
      3    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -1793,7 +1793,7 @@ C*********************************************************************
       SUBROUTINE LUDECY(IP)
 
 C...Purpose: to handle the decay of unstable particles.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)
@@ -2512,7 +2512,7 @@ C*********************************************************************
 
 C...Purpose: to perform global manipulations on the event record,
 C...in particular to exclude unstable or undetectable partons/particles.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -2727,7 +2727,7 @@ C*********************************************************************
 
 C...Purpose: to handle the generation of an e+e- annihilation jet event.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -2875,7 +2875,7 @@ C*********************************************************************
       SUBROUTINE LUERRM(MERR,CHMESS)
 
 C...Purpose: to inform user of errors in program execution.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       SAVE /LUJETS/,/LUDAT1/
       CHARACTER CHMESS*(*)
@@ -2924,7 +2924,7 @@ C*********************************************************************
       SUBROUTINE LUEXEC
 
 C...Purpose: to administrate the fragmentation and decay chain.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)
@@ -3040,7 +3040,7 @@ C*********************************************************************
       SUBROUTINE LUFOWO(H10,H20,H30,H40)
 
 C...Purpose: to calculate the first few Fox-Wolfram moments.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -3116,7 +3116,7 @@ C*********************************************************************
       SUBROUTINE LUGIVE(CHIN)
 
 C...Purpose: to set values of commonblock variables (also in PYTHIA!).
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)
@@ -3517,7 +3517,7 @@ C*********************************************************************
 C...Purpose: to handle the fragmentation of a jet system (or a single
 C...jet) according to independent fragmentation models.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -3947,7 +3947,7 @@ C*********************************************************************
 
 C...Purpose: to determine, approximately, the two jet masses that
 C...minimize the sum m_H^2 + m_L^2, a la Clavelli and Wyler.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -4097,7 +4097,7 @@ C*********************************************************************
 
 C...Purpose: to connect a sequence of partons with colour flow indices,
 C...as required for subsequent shower evolution (or other operations).
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -4470,7 +4470,7 @@ C*********************************************************************
 
 C...Purpose: to give program heading, or list an event, or particle
 C...data, or current parameter values.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)
@@ -4865,7 +4865,7 @@ C*********************************************************************
 
 C...Purpose: to generate Upsilon and toponium decays into three
 C...gluons or two gluons and a photon.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -5017,7 +5017,7 @@ C*********************************************************************
 C...Purpose: to rearrange partons along strings, to allow small systems
 C...to collapse into one or two particles and to check flavours.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)
@@ -5440,7 +5440,7 @@ C*********************************************************************
 
 C...Purpose: to perform rotations and boosts.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       SAVE /LUJETS/,/LUDAT1/
       DIMENSION ROT(3,3),PR(3),VR(3),DP(4),DV(4)
@@ -5542,7 +5542,7 @@ C*********************************************************************
 
 C...Purpose: to generate timelike parton showers from given partons.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -6420,7 +6420,7 @@ C*********************************************************************
 
 C...Purpose: to perform sphericity tensor analysis to give sphericity,
 C...aplanarity and the related event axes.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -6546,7 +6546,7 @@ C*********************************************************************
 C...Purpose: to handle the fragmentation of an arbitrary colour singlet
 C...jet system according to the Lund string fragmentation model.
       IMPLICIT DOUBLE PRECISION(D)
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -7588,7 +7588,7 @@ C*********************************************************************
 C...Purpose: to evaluate various properties of an event, with
 C...statistics accumulated during the course of the run and
 C...printed at the end.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON/LUDAT3/MDCY(500,3),MDME(2000,2),BRAT(2000),KFDP(2000,5)
@@ -8276,7 +8276,7 @@ C*********************************************************************
 
 C...Purpose: to provide a simple program (disguised as subroutine) to
 C...run at installation as a check that the program works as intended.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       SAVE /LUJETS/,/LUDAT1/
       DIMENSION PSUM(5),PINI(6),PFIN(6)
@@ -8485,7 +8485,7 @@ C*********************************************************************
 
 C...Purpose: to perform thrust analysis to give thrust, oblateness
 C...and the related event axes.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -9253,7 +9253,7 @@ C*********************************************************************
       SUBROUTINE LUXDIF(NC,NJET,KFL,ECM,CHI,THE,PHI)
 
 C...Purpose: to give the angular orientation of events.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/
@@ -9890,7 +9890,7 @@ C*********************************************************************
       FUNCTION PLU(I,J)
 
 C...Purpose: to provide various real-valued event related data.
-      COMMON/LUJETS/N,K(450000,5),P(450000,5),V(450000,5)
+      COMMON/LUJETS/N,K(150000,5),P(150000,5),V(150000,5)
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/LUDAT2/KCHG(500,3),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /LUJETS/,/LUDAT1/,/LUDAT2/

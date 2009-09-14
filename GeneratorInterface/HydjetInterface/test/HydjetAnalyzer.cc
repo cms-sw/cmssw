@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.15 2009/08/28 15:51:11 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.14 2009/05/20 23:15:31 yilmaz Exp $
 //
 //
 
@@ -56,7 +56,7 @@
 
 using namespace std;
 
-static const int MAXPARTICLES = 2000000;
+static const int MAXPARTICLES = 5000000;
 static const int MAXVTX = 1000;
 static const int ETABINS = 3; // Fix also in branch string
 
@@ -77,7 +77,6 @@ struct HydjetEvent{
    float ptav[ETABINS];
 
    int mult;
-   int st[MAXPARTICLES];
    float pt[MAXPARTICLES];
    float eta[MAXPARTICLES];
    float phi[MAXPARTICLES];
@@ -104,8 +103,15 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  edm::InputTag src_;
-  edm::InputTag src2_;
+   std::ofstream out_b;
+   std::string fBFileName;
+
+   std::ofstream out_n;
+   std::string fNFileName;
+
+   std::ofstream out_m;
+   std::string fMFileName;
+
   
    TTree* hydjetTree_;
    HydjetEvent hev_;
@@ -116,7 +122,6 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
  
    bool doAnalysis_;
    bool printLists_;
-   bool doMixed_;
    bool doCF_;
    bool doVertex_;
    double etaMax_;
@@ -142,13 +147,12 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
 HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("bkg",edm::InputTag("generator"));
-  src2_ = iConfig.getUntrackedParameter<edm::InputTag>("signal",edm::InputTag("hiSignal"));
-
+   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
+   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
+   fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
    doAnalysis_ = iConfig.getUntrackedParameter<bool>("doAnalysis", true);
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
-   doCF_ = iConfig.getUntrackedParameter<bool>("useCrossingFrame", false);
-   doMixed_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
+   doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
    doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
 
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
@@ -204,8 +208,12 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      Handle<CrossingFrame<HepMCProduct> > cf;
      iEvent.getByLabel(InputTag("mix","source"),cf);
+
+
      MixCollection<HepMCProduct> mix(cf.product());
+
      nmix = mix.size();
+
      cout<<"Mix Collection Size: "<<mix<<endl;
 
      MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
@@ -236,17 +244,16 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }     
 
    }
-
+   
+      
    Handle<HepMCProduct> mc;
-   iEvent.getByLabel(src_,mc);
+   iEvent.getByLabel("generator",mc);
    evt = mc->GetEvent();
-
-   if(doMixed_){
-     Handle<HepMCProduct> mc2;
-     iEvent.getByLabel(src2_,mc2);
-     evt2 = mc2->GetEvent();
-   }
-
+      
+      Handle<HepMCProduct> mc2;
+      iEvent.getByLabel("generator",mc2);
+      evt2 = mc2->GetEvent();
+   
    const HeavyIon* hi = evt->heavy_ion();
    if(hi){
       b = hi->impact_parameter();
@@ -255,41 +262,46 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       nhard = hi->Ncoll_hard();
       phi0 = hi->event_plane_angle();
       
+      if(printLists_){
+	 out_b<<b<<endl;
+	 out_n<<npart<<endl;
+      }
    }
-
+   
    src = evt->particles_size();
-   if(doMixed_) sig = evt2->particles_size();
-   cout<<"Particles Size is : ";
-   cout<<evt->particles_size()<<endl;
+   sig = evt2->particles_size();
+   
+   
    HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
    for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-	int st = (*it)->status();
+      if((*it)->status() == 1){
 	 int pdg_id = (*it)->pdg_id();
 	 float eta = (*it)->momentum().eta();
 	 float phi = (*it)->momentum().phi();
 	 float pt = (*it)->momentum().perp();
 	 const ParticleData * part = pdt->particle(pdg_id );
 	 int charge = part->charge();
-         hev_.st[hev_.mult] = st;
+
 	 hev_.pt[hev_.mult] = pt;
 	 hev_.eta[hev_.mult] = eta;
 	 hev_.phi[hev_.mult] = phi;
 	 hev_.pdg[hev_.mult] = pdg_id;
 	 hev_.chg[hev_.mult] = charge;
-
-	 if((*it)->status() != 1) continue;
+	 
 	 eta = fabs(eta);
 	 int etabin = 0;
 	 if(eta > 0.5) etabin = 1; 
 	 if(eta > 1.) etabin = 2;
 	 if(eta < 2.){
-	   hev_.ptav[etabin] += pt;
-	   ++(hev_.n[etabin]);
+	    hev_.ptav[etabin] += pt;
+	    ++(hev_.n[etabin]);
 	 }
 	 ++(hev_.mult);
+      }
    }
-
+   //   }
+   
    if(doVertex_){
       edm::Handle<edm::SimVertexContainer> simVertices;
       iEvent.getByType<edm::SimVertexContainer>(simVertices);
@@ -333,6 +345,18 @@ HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
 {
    iSetup.getData(pdt);
 
+   if(printLists_){
+      out_b.open(fBFileName.c_str());
+      if(out_b.good() == false)
+	 throw cms::Exception("BadFile") << "Can\'t open file " << fBFileName;
+      out_n.open(fNFileName.c_str());
+      if(out_n.good() == false)
+	 throw cms::Exception("BadFile") << "Can\'t open file " << fNFileName;
+      out_m.open(fMFileName.c_str());
+      if(out_m.good() == false)
+	 throw cms::Exception("BadFile") << "Can\'t open file " << fMFileName;
+   }   
+   
    if(doAnalysis_){
       nt = f->make<TNtuple>("nt","Mixing Analysis","mix:np:src:sig");
 
@@ -348,7 +372,6 @@ HydjetAnalyzer::beginJob(const edm::EventSetup& iSetup)
       hydjetTree_->Branch("ptav",hev_.ptav,"ptav[3]/F");
       
       hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
-      hydjetTree_->Branch("st",hev_.st,"st[mult]/I");
       hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
       hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
       hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");

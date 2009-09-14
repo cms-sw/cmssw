@@ -200,7 +200,7 @@
       common /pyjets/ nhi,npadhi,khi(4000,5),phi(4000,5),vhi(4000,5)
       COMMON /PYDAT3/ MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
 *      common /lujets/ n,k(150000,5),p(150000,5),v(150000,5)
-      common /hyjets/ nhj,nhp,khj(450000,5),phj(450000,5),vhj(450000,5)
+      common /hyjets/ nhj,nhp,khj(150000,5),phj(150000,5),vhj(150000,5)
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hypyin/ ene,rzta,rnta,bfix,ifb,nh
       common /hyfpar/ bgen,nbcol,npart,npyt,nhyd
@@ -212,7 +212,7 @@
 * reset lujets and hyjets arrays before event generation 
 *      n=0 
       nhj=0 
-      do ncl=1,450000
+      do ncl=1,150000
        do j=1,5
 *        p(ncl,j)=0.
         phj(ncl,j)=0.d0
@@ -257,7 +257,7 @@
       else 
        np=0
       end if 
-      if(np.gt.450000) then 
+      if(np.gt.150000) then 
        write(6,*) 'Warning, soft multiplicity too large!'   
        goto 1 
       end if 
@@ -265,9 +265,6 @@
 * generate hard parton-parton scatterings (Q>ptmin) 'njet' times   
       njet=0 
       if(nhsel.ne.0) then 
-
-       write(*,*) 'Sigma Jets is : ', sigjet,' where total cross 
-     >  section is assumed to be ',sigin
        pjet=sigjet/sigin   
        do i=1,int(nbcol) 
         if(pyr(0).lt.pjet) njet=njet+1 
@@ -289,7 +286,7 @@
       nhyd=np 
 
 * Offset for separating Hydro as a sub-event. YY
-      ihydoff = njet * 500000
+      ihydoff = njet * 50000
 
       if(nhyd.eq.0) goto 4 
       if(bgen.gt.1.999d0) b1=1.999d0*RA
@@ -431,7 +428,7 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
       external pydata 
       external pyp,pyr,pyk,pyquen,shad1
       common /pyjets/ n,npad,k(4000,5),p(4000,5),v(4000,5)
-      common /hyjets/ nhj,nhp,khj(450000,5),phj(450000,5),vhj(450000,5)
+      common /hyjets/ nhj,nhp,khj(150000,5),phj(150000,5),vhj(150000,5)
       COMMON /PYDAT1/ MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON /PYDAT2/ KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
       COMMON /PYDAT3/ MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
@@ -499,11 +496,11 @@ c        call pyedit(2)                      ! remove partons & leave hadrons
 
 * fill array of final particles                                                                                                       
 #ifndef  __HIROOT_FORTRAN_ONLY__
-         ievoff=(ihard-nshad-1)*500000   ! event offset                                                                                
+         ievoff=(ihard-nshad-1)*50000   ! event offset                                                                                
 #endif
 
         nu=nhj+n
-        if(nu.gt.450000-np) then
+        if(nu.gt.150000-np) then
            write(6,*) 'Warning, multiplicity too large! Cut hard part.'                                                               
            goto 52
         end if
