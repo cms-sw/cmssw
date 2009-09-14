@@ -227,10 +227,8 @@ from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff impo
 
 
 # B tagging
-from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
-from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
-ic5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
-ic5PFJetTracksAssociatorAtVertex.tracks = 'generalTracks'
+from RecoJets.JetAssociationProducers.ak5JTA_cff import *
+ak5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
@@ -241,6 +239,10 @@ famosBTaggingSequence = cms.Sequence(
 )
 
 #Tau tagging
+from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
+from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
+ic5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
+ic5PFJetTracksAssociatorAtVertex.tracks = 'generalTracks'
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 
 famosTauTaggingSequence = cms.Sequence(tautagging)
@@ -405,8 +407,8 @@ famosWithElectronsAndPhotons = cms.Sequence(
 famosWithBTagging = cms.Sequence(
     famosWithTracksAndCaloTowers+
     vertexreco+
-    iterativeCone5CaloJets+
-    ic5JetTracksAssociatorAtVertex+
+    ak5CaloJets+
+    ak5JetTracksAssociatorAtVertex+
     ecalClusters+
     famosMuonSequence+
     reducedRecHitsSequence+ 
@@ -465,6 +467,7 @@ reconstructionWithFamos = cms.Sequence(
 #    paramMuons+
 #    muIsolation_ParamGlobalMuons+
     ic5JetTracksAssociatorAtVertex+
+    ak5JetTracksAssociatorAtVertex+
     famosTauTaggingSequence+
     reducedRecHitsSequence+
     famosBTaggingSequence+
