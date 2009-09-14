@@ -543,13 +543,13 @@ namespace edm {
   void
   RootInputFileSequence::readMany(int number, EventPrincipalVector& result) {
     for(int i = 0; i < number; ++i) {
-      EventPrincipal ep(rootFile_->productRegistry(), processConfiguration());
-      EventPrincipal* ev = rootFile_->readCurrentEvent(ep);
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
 	return;
       }
-      VectorInputSource::EventPrincipalVectorElement e(ev);
-      result.push_back(e);
+      assert(ev == ep.get());
+      result.push_back(ep);
       rootFile_->nextEventEntry();
     }
   }
@@ -563,15 +563,14 @@ namespace edm {
     }
     rootFile_->setEntryAtEvent(id.run(), 0U, id.event(), false);
     for(int i = 0; i < number; ++i) {
-      EventPrincipal ep(rootFile_->productRegistry(), processConfiguration());
-      EventPrincipal* ev = rootFile_->readCurrentEvent(ep);
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
       if(ev == 0) {
         rewindFile();
-	ev = rootFile_->readCurrentEvent(ep);
-	assert(ev != 0);
+	ev = rootFile_->readCurrentEvent(*ep);
       }
-      VectorInputSource::EventPrincipalVectorElement e(ev);
-      result.push_back(e);
+      assert(ev == ep.get());
+      result.push_back(ep);
       rootFile_->nextEventEntry();
     }
   }
@@ -607,6 +606,7 @@ namespace edm {
 	ev = rootFile_->readCurrentEvent(*ep);
 	assert(ev != 0);
       }
+      assert(ev == ep.get());
       result.push_back(ep);
       --eventsRemainingInFile_;
       rootFile_->nextEventEntry();
@@ -639,6 +639,7 @@ namespace edm {
 	}
 	return;
       }
+      assert(ev == ep.get());
       result.push_back(ep);
       ++numberRead;
       rootFile_->nextEventEntry();
