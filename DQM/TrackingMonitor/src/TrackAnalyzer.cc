@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 12:05:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/11 18:15:03 $
+ *  $Revision: 1.2 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -282,7 +282,33 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_) 
   dqmStore_->setCurrentFolder(MEFolderName);
 
   TkParameterMEs tkmes;
-if(doAllPlots_)
+  tkmes.TrackP = 0;
+  tkmes.TrackPx = 0;
+  tkmes.TrackPy = 0;
+  tkmes.TrackPz = 0;
+  tkmes.TrackPt = 0;
+  tkmes.TrackPxErr = 0;
+  tkmes.TrackPyErr = 0;
+  tkmes.TrackPzErr = 0;
+  tkmes.TrackPtErr = 0;
+  tkmes.TrackPErr = 0;
+  tkmes.TrackPhi = 0;
+  tkmes.TrackEta = 0;
+  tkmes.TrackTheta = 0;
+  tkmes.TrackPhiErr = 0;
+  tkmes.TrackEtaErr = 0;
+  tkmes.TrackThetaErr = 0;
+  tkmes.NumberOfRecHitsPerTrackVsPhi = 0;
+  tkmes.NumberOfRecHitsPerTrackVsTheta = 0;
+  tkmes.NumberOfRecHitsPerTrackVsEta = 0;
+  tkmes.NumberOfRecHitsPerTrackVsPhiProfile = 0;
+  tkmes.NumberOfRecHitsPerTrackVsThetaProfile = 0;
+  tkmes.NumberOfRecHitsPerTrackVsEtaProfile = 0;
+  tkmes.Chi2overDoFVsTheta = 0;
+  tkmes.Chi2overDoFVsPhi = 0;
+  tkmes.Chi2overDoFVsEta = 0;
+  
+  if(doAllPlots_)
 {
   histname = "NumberOfRecHitsPerTrackVsPhi_" + htag;
   tkmes.NumberOfRecHitsPerTrackVsPhi = dqmStore_->book2D(histname, histname, PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
