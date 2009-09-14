@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Tue Oct  14 16:10:31 CEST 2008
-// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.1 2008/12/04 22:10:48 safronov Exp $
+// $Id: DQMHcalIsoTrackAlCaReco.cc,v 1.2 2009/03/17 08:42:46 safronov Exp $
 //
 //
 
@@ -138,7 +138,8 @@ double DQMHcalIsoTrackAlCaReco::getDist(double eta1, double phi1, double eta2, d
 
 std::pair<int,int> DQMHcalIsoTrackAlCaReco::towerIndex(double eta, double phi) 
 {
-  int ieta, iphi;
+  int ieta = 0;
+  int iphi = 0;
   for (int i=1; i<21; i++)
     {
       if (fabs(eta)<(i*0.087)&&fabs(eta)>(i-1)*0.087) ieta=int(fabs(eta)/eta)*i;
