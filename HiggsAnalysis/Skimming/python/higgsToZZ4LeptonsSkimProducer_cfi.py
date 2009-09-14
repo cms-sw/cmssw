@@ -4,7 +4,7 @@ higgsToZZ4LeptonsSkimProducer = cms.EDFilter("HiggsToZZ4LeptonsSkimProducer",
     DebugHiggsToZZ4LeptonsSkim = cms.bool(False),
 
     # Collection to be accessed
-    ElectronCollectionLabel = cms.InputTag("pixelMatchGsfElectrons"),
+    ElectronCollectionLabel = cms.InputTag("gsfElectrons"),
     MuonCollectionLabel     = cms.InputTag("muons"),
     isGlobalMuon            = cms.bool(False),
   
