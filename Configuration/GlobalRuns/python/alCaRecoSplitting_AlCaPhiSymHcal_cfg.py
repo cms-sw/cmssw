@@ -10,10 +10,9 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -50,8 +49,7 @@ process.ALCARECOStreamHcalCalMinBias = cms.OutputModule("PoolOutputModule",
 )
 
 # Path and EndPath definitions
-process.endjob_step = cms.Path(process.endOfProcess)
 process.ALCARECOStreamHcalCalMinBiasOutPath = cms.EndPath(process.ALCARECOStreamHcalCalMinBias)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamHcalCalMinBiasOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamHcalCalMinBiasOutPath)
