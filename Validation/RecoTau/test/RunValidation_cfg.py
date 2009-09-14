@@ -265,12 +265,12 @@ if options.myModifications != ['none']:
 #       CFG dump                     #
 #                                    #
 ######################################
-process.Timing = cms.Service("Timing",
-         useJobReport = cms.untracked.bool(True)
-	 )
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
-         useJobReport = cms.untracked.bool(True)
-	 )
+#process.Timing = cms.Service("Timing",
+#         useJobReport = cms.untracked.bool(True)
+#	 )
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#         useJobReport = cms.untracked.bool(True)
+#	 )
 
 dumpFileName = "cfgDump"
 if options.batchNumber >= 0:
