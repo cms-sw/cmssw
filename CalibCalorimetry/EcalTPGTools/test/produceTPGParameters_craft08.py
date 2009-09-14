@@ -16,10 +16,10 @@ process.eegeom = cms.ESSource("EmptyESSource",
 )
 
 # Get hardcoded conditions the same used for standard digitization before CMSSW_3_1_x
-## process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
 # or Get DB parameters 
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = "GR09_31X_V2P::All"
+#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+#process.GlobalTag.globaltag = "GR09_31X_V2P::All"
 
 
 #########################
@@ -58,8 +58,8 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
 
     weight_sampleMax = cms.uint32(3),       ## position of the maximum among the 5 samples used by the TPG amplitude filter
 
-    forcedPedestalValue = cms.int32(-2),    ## use this value instead of getting it from DB or MC (-1 means use DB or MC. -2 used to cope with FENIX bug)
-    forceEtaSlice = cms.bool(False),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
+    forcedPedestalValue = cms.int32(160),    ## use this value instead of getting it from DB or MC (-1 means use DB or MC. -2 used to cope with FENIX bug)
+    forceEtaSlice = cms.bool(True),        ## when true, same linearization coeff for all crystals belonging to a given eta slice (tower)
 
     LUT_option = cms.string('Linear'),      ## compressed LUT option can be: "Identity", "Linear", "EcalResolution"
     LUT_threshold_EB = cms.double(0.750),   ## All Trigger Primitives <= threshold (in GeV) will be set to 0 
@@ -71,8 +71,8 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     LUT_noise_EE = cms.double(0.2),         ## noise term (GeV) of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
     LUT_constant_EE = cms.double(0.005),    ## constant term of the ECAL-EE ET resolution (used only if LUT_option="EcalResolution")
 
-    TTF_lowThreshold_EB = cms.double(0.3125),   ## EB Trigger Tower Flag low threshold in GeV
-    TTF_highThreshold_EB = cms.double(0.3125),  ## EB Trigger Tower Flag high threshold in GeV
+    TTF_lowThreshold_EB = cms.double(0.250),   ## EB Trigger Tower Flag low threshold in GeV
+    TTF_highThreshold_EB = cms.double(0.250),  ## EB Trigger Tower Flag high threshold in GeV
     TTF_lowThreshold_EE = cms.double(1.0625),  ## EE Trigger Tower Flag low threshold in GeV
     TTF_highThreshold_EE = cms.double(1.0625), ## EE Trigger Tower Flag high threshold in GeV
 
