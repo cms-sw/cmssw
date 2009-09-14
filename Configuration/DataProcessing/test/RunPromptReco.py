@@ -68,7 +68,7 @@ class RunPromptReco:
         psetFile = open("RunPromptRecoCfg.py", "w")
         psetFile.write(process.dumpPython())
         psetFile.close()
-        cmsRun = "cmsRun -f FrameworkJobReport.xml RunPromptRecoCfg.py"
+        cmsRun = "cmsRun -j FrameworkJobReport.xml RunPromptRecoCfg.py"
         print "Now do:\n%s" % cmsRun
         
 
