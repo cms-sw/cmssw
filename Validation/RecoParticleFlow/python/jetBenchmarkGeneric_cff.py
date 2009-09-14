@@ -5,7 +5,7 @@ from Validation.RecoParticleFlow.caloJetBenchmarkGeneric_cfi import caloJetBench
 from Validation.RecoParticleFlow.goodGenJets_cfi import *
 
 from RecoJets.Configuration.CaloTowersES_cfi import * 
-from RecoJets.JetProducers.iterativeCone5CaloJets_cff import *
+from RecoJets.JetProducers.ic5CaloJets_cfi import *
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
