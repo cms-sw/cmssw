@@ -18,7 +18,7 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
 
 process.load("Validation.RecoB.bTagAnalysis_cfi")
-process.bTagValidation.jetMCSrc = 'IC5byValAlgo'
+process.bTagValidation.jetMCSrc = 'AK5byValAlgo'
 process.bTagValidation.allHistograms = True 
 #process.bTagValidation.fastMC = True
 
@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
-process.plots = cms.Path(process.myPartons* process.iterativeCone5Flavour * process.bTagValidation*process.dqmSaver)
+process.plots = cms.Path(process.myPartons* process.AK5Flavour * process.bTagValidation*process.dqmSaver)
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'

@@ -3,7 +3,7 @@ import RecoBTag.SoftLepton.muonSelection
 
 # SoftLeptonTagInfo producer for tagging caloJets with global muons 
 softMuonTagInfos = cms.EDFilter("SoftLepton",
-    jets = cms.InputTag("iterativeCone5CaloJets"),
+    jets = cms.InputTag("ak5CaloJets"),
     leptons = cms.InputTag("muons"),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
     

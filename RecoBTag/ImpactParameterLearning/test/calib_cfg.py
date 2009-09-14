@@ -30,7 +30,7 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 
 process.load("Validation.RecoB.bTagAnalysis_cfi")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
-process.bTagValidation.jetMCSrc = 'IC5byValAlgo'
+process.bTagValidation.jetMCSrc = 'AK5byValAlgo'
 process.bTagValidation.allHistograms = True 
 
 
