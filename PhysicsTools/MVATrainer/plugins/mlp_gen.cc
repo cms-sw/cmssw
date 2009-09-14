@@ -3045,7 +3045,7 @@ int LoadWeights(char *filename, int *iepoch)
 				{
 				for(i=0; i<=NET.Nneur[ilayer-1]; i++)
 					{
-					fscanf(W," %e",&p);
+					fscanf(W," %le",&p);
 					NET.Weights[ilayer][ineur][i] = (dbl) p;
 					}
 				}
