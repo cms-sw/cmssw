@@ -725,6 +725,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evgueni<<"                        int & mult6, int & shift6, int & base6,"<<endl ;
   evgueni<<"                        int & mult1, int & shift1, int & base1)"<<endl ;
   evgueni<<"{"<<endl;
+  evgueni<<"  mult12 = 0 ; shift12 = 0 ; base12 = 0 ; mult6 = 0 ; shift6 = 0 ; base6 = 0 ; mult1 = 0 ; shift1 = 0 ; base1 = 0 ;"<<endl ;
   map< vector<int>, linStruc>::const_iterator itLinMap ;
   for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; itLinMap++) {
     vector<int> xtalInCCU = itLinMap->first ;
