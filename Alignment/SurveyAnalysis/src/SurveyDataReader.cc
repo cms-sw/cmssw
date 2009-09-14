@@ -22,7 +22,7 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
     throw cms::Exception("FileAccess") << "Unable to open input text file for " << fileType.c_str();
 
   int nErrors = 0;
-  align::ID m_detId;
+  align::ID m_detId = 0;
   int NINPUTS_align = 30;
   int NINPUTS_detId = 6;
   if (fileType == "TID") NINPUTS_detId++;
