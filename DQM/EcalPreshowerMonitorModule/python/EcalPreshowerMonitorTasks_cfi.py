@@ -5,7 +5,12 @@ from DQM.EcalPreshowerMonitorModule.ESIntegrityTask_cfi import *
 #from DQM.EcalPreshowerMonitorModule.ESFEDIntegrityTask_cfi import *
 #from DQM.EcalPreshowerMonitorModule.ESPedestalTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESOccupancyTask_cfi import *
+from DQM.EcalPreshowerMonitorModule.ESDcsInfoTask_cfi import *
 
 #ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerOccupancyTask*ecalPreshowerPedestalTask)
 ecalPreshowerDefaultTasksSequence = cms.Sequence(ecalPreshowerRawDataTask*ecalPreshowerIntegrityTask*ecalPreshowerOccupancyTask)
+
+ecalPreshowerCertificationSequence = cms.Sequence(ecalPreshowerDcsInfoTask)
+
+
 
