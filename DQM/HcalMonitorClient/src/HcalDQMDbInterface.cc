@@ -88,9 +88,9 @@ DOMElement* HcalDQMDbInterface::createIOV(DOMDocument* doc,DOMElement*  parent,
   DOMElement* iov = createElement(doc,parent,(char*)"IOV");
   iov->setAttribute(transcode("id"), transcode("IOV_ID"));
   
-  createElement(doc,iov,"INTERVAL_OF_VALIDITY_BEGIN", itoa(fIovBegin));
+  createElement(doc,iov,(char*)"INTERVAL_OF_VALIDITY_BEGIN", itoa(fIovBegin));
   if(fIovEnd) {
-    createElement(doc,iov,"INTERVAL_OF_VALIDITY_END", itoa(fIovEnd));
+    createElement(doc,iov,(char*)"INTERVAL_OF_VALIDITY_END", itoa(fIovEnd));
   }
   return iov;
 }
@@ -101,9 +101,9 @@ DOMElement* HcalDQMDbInterface::createTag(DOMDocument* doc,DOMElement*  parent,
   tag->setAttribute(transcode("id"), transcode ("TAG_ID"));
   tag->setAttribute(transcode("mode"), transcode ("auto"));
 
-  createElement(doc,tag,"TAG_NAME", fTagName);
-  createElement(doc,tag,"DETECTOR_NAME", fDetectorName);
-  createElement(doc,tag,"COMMENT_DESCRIPTION", fComment);
+  createElement(doc,tag,(char*)"TAG_NAME", fTagName);
+  createElement(doc,tag,(char*)"DETECTOR_NAME", fDetectorName);
+  createElement(doc,tag,(char*)"COMMENT_DESCRIPTION", fComment);
 
   return tag;
 }
@@ -172,7 +172,7 @@ void HcalHLXMaskDbInterface::createHeader(DOMDocument* doc){
 
 void HcalHLXMaskDbInterface::createData(DOMDocument* doc,DOMElement* parent, HcalHLXMask masks){
   DOMElement*  dataElem = createElement(doc,parent,(char*)"DATA");
-  createElement(doc, dataElem, "FPGA", masks.position);
+  createElement(doc, dataElem, (char*)"FPGA", masks.position);
   char tmp[5] = "fooo";
   sprintf(tmp,"%i",masks.occMask);
   createElement(doc, dataElem, (char*)"OCC_MASK", tmp);
