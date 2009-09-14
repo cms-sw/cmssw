@@ -57,6 +57,8 @@ class Analyzer_minbias : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void beginJob(const edm::EventSetup& ) ;
       virtual void endJob() ;
+      virtual void beginRun( const edm::Run& r, const edm::EventSetup& iSetup);
+      virtual void endRun( const edm::Run& r, const edm::EventSetup& iSetup);
 
    private:
   // ----------member data ---------------------------
@@ -72,9 +74,10 @@ class Analyzer_minbias : public edm::EDAnalyzer {
      TH1F*       hCalo2[73][43];
      TH1F*       hCalo1mom2[73][43];
      TH1F*       hCalo2mom2[73][43];
- 
+     TH2F*       hHBHEsize_vs_run; 
+     TH2F*       hHFsize_vs_run;
   // Root tree members
-   
+     int nevent_run;   
      int mydet, mysubd, depth, iphi, ieta;
      float phi,eta;
      float mom0_MB,mom1_MB,mom2_MB,mom3_MB,mom4_MB,occup;
@@ -92,15 +95,23 @@ class Analyzer_minbias : public edm::EDAnalyzer {
      double theMBFillDetMapPl0[5][5][73][43]; 
      double theMBFillDetMapPl1[5][5][73][43]; 
      double theMBFillDetMapPl2[5][5][73][43];
+     double theMBFillDetMapPl4[5][5][73][43];
+
      double theMBFillDetMapMin0[5][5][73][43]; 
      double theMBFillDetMapMin1[5][5][73][43]; 
      double theMBFillDetMapMin2[5][5][73][43];
+     double theMBFillDetMapMin4[5][5][73][43];
+
      double theNSFillDetMapPl0[5][5][73][43]; 
      double theNSFillDetMapPl1[5][5][73][43]; 
      double theNSFillDetMapPl2[5][5][73][43];
+     double theNSFillDetMapPl4[5][5][73][43];
+
      double theNSFillDetMapMin0[5][5][73][43]; 
      double theNSFillDetMapMin1[5][5][73][43]; 
      double theNSFillDetMapMin2[5][5][73][43];
+     double theNSFillDetMapMin4[5][5][73][43];
+
      double theDFFillDetMapPl0[5][5][73][43]; 
      double theDFFillDetMapPl1[5][5][73][43]; 
      double theDFFillDetMapPl2[5][5][73][43];

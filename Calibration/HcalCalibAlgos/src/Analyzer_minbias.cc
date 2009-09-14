@@ -66,6 +66,15 @@ Analyzer_minbias::~Analyzer_minbias()
 
 }
 
+void Analyzer_minbias::beginRun( const edm::Run& r, const edm::EventSetup& iSetup)
+{
+  nevent_run = 0;
+}
+void Analyzer_minbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup)
+{
+ std::cout<<" Runnumber "<<r.run()<<" Nevents  "<<nevent_run<<std::endl;
+}
+
 void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
 {
    
@@ -83,10 +92,12 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("mom0_MB",  &mom0_MB, "mom0_MB/F");
    myTree->Branch("mom1_MB",  &mom1_MB, "mom1_MB/F");
    myTree->Branch("mom2_MB",  &mom2_MB, "mom2_MB/F");
+   myTree->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
    
    myTree->Branch("mom0_Noise",  &mom0_Noise, "mom0_Noise/F");
    myTree->Branch("mom1_Noise",  &mom1_Noise, "mom1_Noise/F");
    myTree->Branch("mom2_Noise",  &mom2_Noise, "mom2_Noise/F");
+   myTree->Branch("mom4_Noise",  &mom4_Noise, "mom4_Noise/F");
    
    myTree->Branch("mom0_Diff",  &mom0_Diff, "mom0_Diff/F");
    myTree->Branch("mom1_Diff",  &mom1_Diff, "mom1_Diff/F");
@@ -104,6 +115,10 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
 
    int k=0;
    nevent = 0;
+// Size of collections
+
+   hHBHEsize_vs_run = new TH2F("hHBHEsize_vs_run","hHBHEsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5);
+   hHFsize_vs_run = new TH2F("hHFsize_vs_run","hHFsize_vs_run",500,111500.,112000.,6101,-100.5,6000.5); 
 
    for(int i=1;i<73;i++){
     for(int j=1;j<43;j++){
@@ -178,15 +193,24 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
         theMBFillDetMapPl0[i][j][k][l] = 0.;
         theMBFillDetMapPl1[i][j][k][l] = 0.;
         theMBFillDetMapPl2[i][j][k][l] = 0.;
+        theMBFillDetMapPl4[i][j][k][l] = 0.;
+
         theMBFillDetMapMin0[i][j][k][l] = 0.;
         theMBFillDetMapMin1[i][j][k][l] = 0.;
         theMBFillDetMapMin2[i][j][k][l] = 0.;
+        theMBFillDetMapMin4[i][j][k][l] = 0.;
+
+
         theNSFillDetMapPl0[i][j][k][l] = 0.;
         theNSFillDetMapPl1[i][j][k][l] = 0.;
         theNSFillDetMapPl2[i][j][k][l] = 0.;
+        theNSFillDetMapPl4[i][j][k][l] = 0.;
+
         theNSFillDetMapMin0[i][j][k][l] = 0.;
         theNSFillDetMapMin1[i][j][k][l] = 0.;
         theNSFillDetMapMin2[i][j][k][l] = 0.;
+        theNSFillDetMapMin4[i][j][k][l] = 0.;
+
         theDFFillDetMapPl0[i][j][k][l] = 0.;
         theDFFillDetMapPl1[i][j][k][l] = 0.;
         theDFFillDetMapPl2[i][j][k][l] = 0.;
@@ -220,9 +244,11 @@ void Analyzer_minbias::endJob()
             mom0_MB = theMBFillDetMapPl0[i][j][k][l];
             mom1_MB = theMBFillDetMapPl1[i][j][k][l];
             mom2_MB = theMBFillDetMapPl2[i][j][k][l];
+            mom4_MB = theMBFillDetMapPl2[i][j][k][l];
             mom0_Noise = theNSFillDetMapPl0[i][j][k][l];
             mom1_Noise = theNSFillDetMapPl1[i][j][k][l];
             mom2_Noise = theNSFillDetMapPl2[i][j][k][l];
+            mom4_Noise = theNSFillDetMapPl2[i][j][k][l];
             mom0_Diff = theDFFillDetMapPl0[i][j][k][l];
             mom1_Diff = theDFFillDetMapPl1[i][j][k][l];
             mom2_Diff = theDFFillDetMapPl2[i][j][k][l];
@@ -241,9 +267,11 @@ void Analyzer_minbias::endJob()
             mom0_MB = theMBFillDetMapMin0[i][j][k][l];
             mom1_MB = theMBFillDetMapMin1[i][j][k][l];
             mom2_MB = theMBFillDetMapMin2[i][j][k][l];
+            mom4_MB = theMBFillDetMapMin2[i][j][k][l];
             mom0_Noise = theNSFillDetMapMin0[i][j][k][l];
             mom1_Noise = theNSFillDetMapMin1[i][j][k][l];
             mom2_Noise = theNSFillDetMapMin2[i][j][k][l];
+            mom4_Noise = theNSFillDetMapMin2[i][j][k][l];
             mom0_Diff = theDFFillDetMapMin0[i][j][k][l];
             mom1_Diff = theDFFillDetMapMin1[i][j][k][l];
             mom2_Diff = theDFFillDetMapMin2[i][j][k][l];
@@ -269,6 +297,8 @@ void Analyzer_minbias::endJob()
       
    hOutputFile->Write() ;   
    hOutputFile->cd();
+   hHBHEsize_vs_run->Write() ;
+   hHFsize_vs_run->Write() ;
    for(int i=1;i<73;i++){
     for(int j=1;j<43;j++){
     hCalo1[i][j]->Write();
@@ -297,7 +327,10 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   std::cout<<" Start Analyzer_minbias::analyze "<<nevent<<std::endl;
   nevent++; 
+  nevent_run++;
   using namespace edm;
+
+  float rnnum = (float)iEvent.run(); 
 /*
   std::vector<Provenance const*> theProvenance;
   iEvent.getAllProvenance(theProvenance);
@@ -310,8 +343,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 */
 
-//   edm::ESHandle<CaloGeometry> pG;
-//   iSetup.get<CaloGeometryRecord>().get(pG);
 
   const HcalRespCorrs* myRecalib=0;
   if( theRecalib ) {
@@ -350,14 +381,73 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<HBHERecHitCollection> hbheNS;
    iEvent.getByLabel(hbherecoNoise, hbheNS);
 
+
    if(!hbheNS.isValid()){
      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
      cout<<" No HBHE MS "<<endl;
      return ;
    }
-  const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-  cout<<" HBHE NS size of collection "<<HithbheNS.size()<<endl;
+
   
+   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
+   cout<<" HBHE NS size of collection "<<HithbheNS.size()<<endl;
+   hHBHEsize_vs_run->Fill(rnnum,(float)HithbheNS.size());
+
+   if(HithbheNS.size()!= 5184) {
+          cout<<" HBHE problem "<<rnnum<<" "<<HithbheNS.size()<<endl;
+          return;
+   }
+   edm::Handle<HBHERecHitCollection> hbheMB;
+   iEvent.getByLabel(hbherecoMB, hbheMB);
+
+   if(!hbheMB.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+     cout<<" No HBHE MB"<<endl;
+     return ;
+   }
+
+  const HBHERecHitCollection HithbheMB = *(hbheMB.product());
+  cout<<" HBHE MB size of collection "<<HithbheMB.size()<<endl;
+  if(HithbheMB.size()!= 5184) {
+     cout<<" HBHE problem "<<rnnum<<" "<<HithbheMB.size()<<endl;
+     return;
+  }
+
+   edm::Handle<HFRecHitCollection> hfNS;
+   iEvent.getByLabel(hfrecoNoise, hfNS);
+
+   if(!hfNS.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+     cout<<" No HF NS "<<endl;
+     return ;
+   }
+
+   const HFRecHitCollection HithfNS = *(hfNS.product());
+   cout<<" HFE NS size of collection "<<HithfNS.size()<<endl;
+   hHFsize_vs_run->Fill(rnnum,(float)HithfNS.size());
+   if(HithfNS.size()!= 1728) {
+          cout<<" HF problem "<<rnnum<<" "<<HithfNS.size()<<endl;
+          return;
+   }
+
+   edm::Handle<HFRecHitCollection> hfMB;
+   iEvent.getByLabel(hfrecoMB, hfMB);
+
+   if(!hfMB.isValid()){
+     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+     cout<<" No HBHE MB"<<endl;
+     return ;
+   }
+
+  const HFRecHitCollection HithfMB = *(hfMB.product());
+  cout<<" HF MB size of collection "<<HithfMB.size()<<endl;
+   if(HithfMB.size()!= 1728) {
+          cout<<" HF problem "<<rnnum<<" "<<HithfMB.size()<<endl;
+          return;
+   }
+
+
+
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
         {
 // Recalibration of energy
@@ -377,6 +467,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
          theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
 	 theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
+         theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,4);
 	 
          tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
 	 tmpNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
@@ -386,6 +477,8 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
          theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
 	 theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
+         theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,4);
+
 
          tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
 	 tmpNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
@@ -406,17 +499,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // Signal part for HB HE
      
-   edm::Handle<HBHERecHitCollection> hbheMB;
-   iEvent.getByLabel(hbherecoMB, hbheMB);
-
-   if(!hbheMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MB"<<endl;
-     return ;
-   }
-
-  const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-  cout<<" HBHE MB size of collection "<<HithbheMB.size()<<endl;
 
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); hbheItr++)
         {
@@ -437,21 +519,19 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
          theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
 	 theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
+         theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,4);
 	 float mydiff = energyhit - tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
 	 
 	 
          theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+mydiff;
 	 theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(mydiff,2);
-	 if( hid.ieta() == 1 && hid.depth() == 1 && mysu == 1 ) { 
-	 std::cout<<" Energy "<<hid.iphi()<<" "<<energyhit<<
-	                                                         " "<<tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<<std::endl;
-	 std::cout<<" Mom2 "<< theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<< " " << theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<<" "<<
-	 tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]<<std::endl;							 
-								 }
          } else {
 	 theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
          theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
 	 theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
+         theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,4);
+
+
 	 float mydiff = energyhit - tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
          theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+mydiff;
 	 theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(mydiff,2);
@@ -470,17 +550,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         } // HBHE_MB
 	
 // HF
-   edm::Handle<HFRecHitCollection> hfNS;
-   iEvent.getByLabel(hfrecoNoise, hfNS);
-
-   if(!hfNS.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HF NS "<<endl;
-     return ;
-   }
-  const HFRecHitCollection HithfNS = *(hfNS.product());
-  cout<<" HFE NS size of collection "<<HithfNS.size()<<endl;
-  
+ 
   for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++)
         {
 // Recalibration of energy
@@ -500,6 +570,7 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
          theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
 	 theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
+         theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theNSFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,4);
 	 
          tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
 	 tmpNSFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
@@ -509,7 +580,9 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
          theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
 	 theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
+         theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theNSFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,4);
 
+ 
          tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = energyhit;
 	 tmpNSFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = pow(energyhit,2);
 	 
@@ -528,18 +601,6 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 // Signal part for HB HE
-     
-   edm::Handle<HFRecHitCollection> hfMB;
-   iEvent.getByLabel(hfrecoMB, hfMB);
-
-   if(!hfMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     cout<<" No HBHE MB"<<endl;
-     return ;
-   }
-
-  const HFRecHitCollection HithfMB = *(hfMB.product());
-  cout<<" HF MB size of collection "<<HithfMB.size()<<endl;
 
   for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); hbheItr++)
         {
@@ -560,6 +621,9 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl0[mysu][hid.depth()][hid.iphi()][hid.ieta()]+ 1.;
          theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit;
 	 theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,2);
+         theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theMBFillDetMapPl4[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow(energyhit,4);
+
+
          theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit-tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
 	 theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
 	 theDFFillDetMapPl2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow((energyhit-tmpNSFillDetMapPl1[mysu][hid.depth()][hid.iphi()][hid.ieta()]),2);
@@ -567,6 +631,8 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin0[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+ 1.;
          theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin1[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+energyhit;
 	 theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin2[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,2);
+         theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())] = theMBFillDetMapMin4[mysu][hid.depth()][hid.iphi()][abs(hid.ieta())]+pow(energyhit,4);
+ 
          theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()] = theDFFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]+energyhit-tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()];
 	 theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()] =
 	 theDFFillDetMapMin2[mysu][hid.depth()][hid.iphi()][hid.ieta()]+pow((energyhit-tmpNSFillDetMapMin1[mysu][hid.depth()][hid.iphi()][hid.ieta()]),2);
