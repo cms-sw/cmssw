@@ -23,8 +23,8 @@ class HLTDiJetAveFilter : public HLTFilter {
    private:
       edm::InputTag inputJetTag_; // input tag identifying jets
       bool saveTag_;              // whether to save this tag
-      double minEtAve_;
-      double minEtJet3_;
+      double minPtAve_;
+      double minPtJet3_;
       double minDphi_;
 };
 
