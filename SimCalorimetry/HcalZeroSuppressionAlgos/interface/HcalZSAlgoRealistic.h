@@ -9,21 +9,24 @@
   * up consecutive 2 samples in a slice of 10 time samples, beginning with (start) 
   * sample. If any of the sums are greater then the threshold, keep the event.
   *
-  * $Date: 2008/10/07 16:47:58 $
-  * $Revision: 1.1 $
+  * $Date: 2008/11/20 04:21:20 $
+  * $Revision: 1.2 $
   * \author S. Sengupta - Minnesota
   */
 class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
+  HcalZSAlgoRealistic(ZSMode mode);
   HcalZSAlgoRealistic(ZSMode mode, int levelHB, int levelHE, int levelHO, int levelHF);
-
+  
 protected:
   virtual bool shouldKeep(const HBHEDataFrame& digi) const;
   virtual bool shouldKeep(const HODataFrame& digi) const;
   virtual bool shouldKeep(const HFDataFrame& digi) const;
 private:
-  int thresholdHF_, thresholdHB_, thresholdHE_, thresholdHO_;
-
+  int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;
+  bool keepMe(const HBHEDataFrame& inp, int threshold) const;
+  bool keepMe(const HODataFrame& inp, int threshold) const;
+  bool keepMe(const HFDataFrame& inp, int threshold) const;
 };
 
 #endif

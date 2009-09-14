@@ -2,6 +2,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 
 HcalZeroSuppressionAlgo::HcalZeroSuppressionAlgo(ZSMode mode) : m_mode(mode) {
+   m_dbService=0;
 }
 
 
@@ -9,13 +10,13 @@ void HcalZeroSuppressionAlgo::suppress(const HBHEDigiCollection& input, HBHEDigi
   HBHEDigiCollection::const_iterator i;
   if (m_mode==zs_SingleChannel) {
     for (i=input.begin(); i!=input.end(); ++i) 
-      if (shouldKeep(*i)) output.push_back(*i);
+      if (shouldKeep((*i))) output.push_back(*i);
   } else if (m_mode==zs_TriggerTowerOR || m_mode==zs_AllDepthsOR) {
     HcalTrigTowerGeometry ttg;
     std::set<HcalTrigTowerDetId> passed;
     // get list of above-threshold trigger tower ids
     for (i=input.begin(); i!=input.end(); ++i) 
-      if (shouldKeep(*i)) {
+      if (shouldKeep((*i))) {
 	std::vector<HcalTrigTowerDetId> tids=ttg.towerIds(i->id());
 	if (!tids.empty()) passed.insert(tids[0]); // only use the first (order is stable for all channels)
       }
@@ -31,13 +32,13 @@ void HcalZeroSuppressionAlgo::suppress(const HFDigiCollection& input, HFDigiColl
   HFDigiCollection::const_iterator i;
   if (m_mode==zs_SingleChannel) {   
     for (i=input.begin(); i!=input.end(); ++i) 
-      if (shouldKeep(*i)) output.push_back(*i);
+      if (shouldKeep((*i))) output.push_back(*i);
   } else if (m_mode==zs_TriggerTowerOR) {
     HcalTrigTowerGeometry ttg;
     std::set<HcalTrigTowerDetId> passed;
     // get list of above-threshold trigger tower ids
     for (i=input.begin(); i!=input.end(); ++i) 
-      if (shouldKeep(*i)) {
+      if (shouldKeep((*i))) {
 	std::vector<HcalTrigTowerDetId> tids=ttg.towerIds(i->id());
 	if (!tids.empty()) passed.insert(tids[0]); // only use the first (order is stable for all channels)
       }
@@ -50,7 +51,7 @@ void HcalZeroSuppressionAlgo::suppress(const HFDigiCollection& input, HFDigiColl
     std::set<HcalDetId> passed;
     // get list of above-threshold trigger tower ids
     for (i=input.begin(); i!=input.end(); ++i) 
-      if (shouldKeep(*i)) {
+      if (shouldKeep((*i))) {
 	passed.insert(i->id()); 
       }
     // loop over digis again, checking to see if trig tower had passed
@@ -66,7 +67,7 @@ void HcalZeroSuppressionAlgo::suppress(const HODigiCollection& input, HODigiColl
   if (m_mode==zs_SingleChannel || m_mode==zs_TriggerTowerOR || m_mode==zs_AllDepthsOR) {
     HODigiCollection::const_iterator i;
     for (i=input.begin(); i!=input.end(); ++i) 
-      if (shouldKeep(*i)) output.push_back(*i);
+      if (shouldKeep((*i))) output.push_back(*i);
   }
 }
 

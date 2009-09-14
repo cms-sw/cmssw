@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
 using namespace std;
 
 #include <iostream>
@@ -24,12 +26,18 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
     edm::LogWarning("Hcal") << "Unknown zero suppression mode " << mode << " for HBHE. Using single-channel mode.";
     zmode=HcalZeroSuppressionAlgo::zs_SingleChannel; 
   }
-
-  algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(zmode,
+  
+    algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(zmode));
+  
+    //this constructor will be called if notUsingDBzsValues is set to 1 in
+    //HcalZeroSuppressionProducers/python/hcalDigisRealistic_cfi.py
+    //which means that channel-by-channel ZS thresholds from DB will not be used
+    if ( conf.getParameter<int>("notUsingDBzsValues") )
+      algo_=std::auto_ptr<HcalZSAlgoRealistic>(new HcalZSAlgoRealistic(zmode,
 							   conf.getParameter<int>("HBlevel"),
 							   conf.getParameter<int>("HElevel"),
 							   conf.getParameter<int>("HOlevel"),
-								   conf.getParameter<int>("HFlevel")));
+							   conf.getParameter<int>("HFlevel")));
 
   produces<HBHEDigiCollection>();
   produces<HODigiCollection>();
@@ -38,6 +46,7 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
 }
     
 HcalRealisticZS::~HcalRealisticZS() {
+  algo_->clearDbService();
 }
     
 void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -46,7 +55,11 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   edm::Handle<HBHEDigiCollection> hbhe;    
   edm::Handle<HODigiCollection> ho;    
   edm::Handle<HFDigiCollection> hf;    
-  
+
+  edm::ESHandle<HcalDbService> conditions;
+  eventSetup.get<HcalDbRecord>().get(conditions);
+  algo_->setDbService(conditions.product());
+
   e.getByLabel(inputLabel_,hbhe);
   
   // create empty output
@@ -62,10 +75,12 @@ void HcalRealisticZS::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   // create empty output
   std::auto_ptr<HFDigiCollection> zs_hf(new HFDigiCollection);
   
-  // run the algorithm
+  //run the algorithm
+
   algo_->suppress(*(hbhe.product()),*zs_hbhe);
   algo_->suppress(*(ho.product()),*zs_ho);
   algo_->suppress(*(hf.product()),*zs_hf);
+
   
   edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << hbhe->size() << " digis, output " << zs_hbhe->size() << " digis" 
 				      <<  " (HO) input " << ho->size() << " digis, output " << zs_ho->size() << " digis"

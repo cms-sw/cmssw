@@ -11,10 +11,13 @@
 
 #include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZSAlgoRealistic.h"
 
+//#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+//#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
 /** \class HcalSimpleRealisticZS
 	
-$Date: 2007/09/13 15:02:50 $
-$Revision: 1.2 $
+$Date: 2008/10/07 17:13:38 $
+$Revision: 1.1 $
 \author J. Mans - Minnesota
 */
 class HcalRealisticZS : public edm::EDProducer {
