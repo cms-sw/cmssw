@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.7 $
- *  $Date: 2009/04/16 08:30:16 $
- *  (last update by $Author: flucke $)
+ *  date       : February 2009 *  $Revision: 1.8 $
+ *  $Date: 2009/04/17 12:55:40 $
+ *  (last update by $Author: ireid $)
  */
 /*
  *# Parameters:
@@ -113,11 +113,11 @@ ApeSettingAlgorithm::~ApeSettingAlgorithm()
 // Call at beginning of job ---------------------------------------------------
 //____________________________________________________
 void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup, 
-                                             AlignableTracker *tracker, AlignableMuon *muon,
-                                             AlignmentParameterStore *store)
+				     AlignableTracker *tracker, AlignableMuon *muon,
+				     AlignmentParameterStore *store)
 { theAlignableNavigator = new AlignableNavigator(tracker, muon);
  theTracker = tracker;
-
+ 
  if (readApeFromAscii_)
    { std::ifstream apeReadFile(theConfig.getParameter<edm::FileInPath>("apeASCIIReadFile").fullPath().c_str()); //requires <fstream>
    if (!apeReadFile.good())
@@ -134,17 +134,17 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
        { apeReadFile>>apeId>>x11>>x22>>x33>>std::ws;}
      //idr What sanity checks do we need to put here?
      if (apeId != 0) //read appears valid?
-       if (apeList.find(apeId) == apeList.end()) //Not previously done
+       { if (apeList.find(apeId) == apeList.end()) //Not previously done
 	 {  DetId id(apeId);
 	 AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(id)); //NULL if none
 	 if (alidet)
 	   { if ((alidet->components().size()<1) || setComposites_) //the problem with glued dets...
 	     { GlobalError globErr;
-	       if (readLocalNotGlobal_)
+	     if (readLocalNotGlobal_)
 	       { AlgebraicSymMatrix as(3,0); 
 	       if (readFullLocalMatrix_)
 		 { as[0][0]=x11; as[1][0]=x21; as[1][1]=x22;
-		   as[2][0]=x31; as[2][1]=x32; as[2][2]=x33;
+		 as[2][0]=x31; as[2][1]=x32; as[2][2]=x33;
 		 }
 	       else
 	         { as[0][0]=x11*x11; as[1][1]=x22*x22; as[2][2]=x33*x33;} //local cov.
@@ -171,6 +171,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
        else
 	 { edm::LogInfo("Alignment") << "@SUB=initialize" << "Skipping duplicate APE for DetId "<<apeId;
 	 }
+       }
      }
    apeReadFile.close();
    edm::LogInfo("Alignment") << "@SUB=initialize" << "Set "<<apeList.size()<<" APE values.";
