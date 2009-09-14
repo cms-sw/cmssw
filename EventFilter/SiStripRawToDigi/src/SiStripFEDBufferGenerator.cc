@@ -398,16 +398,11 @@ namespace sistrip {
     memcpy(bufferPointer,payload.data(),payload.lengthInBytes());
     bufferPointer += payload.lengthInBytes();
     memcpy(bufferPointer,updatedDAQTrailer.data(),8);
-    //word swap if necessary
-    if (tkSpecialHeader.wasSwapped()) {
-      for (size_t i = 0; i < lengthInBytes; i++) {
-        pointerToStartOfBuffer[i] = pointerToStartOfBuffer[i^4];
-      }
-    }
     //update CRC
     const uint16_t crc = calculateFEDBufferCRC(pointerToStartOfBuffer,lengthInBytes);
     updatedDAQTrailer.setCRC(crc);
     memcpy(bufferPointer,updatedDAQTrailer.data(),8);
+    //word swap if necessary
     if (tkSpecialHeader.wasSwapped()) {
       for (size_t i = 0; i < 8; i++) {
         bufferPointer[i] = bufferPointer[i^4];

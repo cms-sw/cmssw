@@ -30,27 +30,36 @@ dummySiStripDigiToRaw = SiStripDigiToRaw.clone()
 
 # ----- Reference RawToDigiToClusters chains -----
 
-
-# DigiToRaw (reference "common") 
-SiStripDigiToRaw = cms.EDProducer(
-    "OldSiStripDigiToRawModule", ### WARNING: this is "old" DigiToRaw!!!
-    InputModuleLabel = cms.string('simSiStripDigis'),
-    InputDigiLabel = cms.string('ZeroSuppressed'),
-    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
-    UseFedKey = cms.bool(False)
+# Old DigiToRaw and RawToDigi
+oldSiStripDigiToRaw = cms.EDProducer(
+    "OldSiStripDigiToRawModule",
+    InputModuleLabel = cms.string('DigiSource'),
+    InputDigiLabel = cms.string(''),
+    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.untracked.bool(False)
     )
-
-# RawToDigi (reference "common")
-siStripDigis = cms.EDProducer(
+oldSiStripDigis = cms.EDProducer(
     "OldSiStripRawToDigiModule",
-    ProductLabel =  cms.InputTag('SiStripDigiToRaw'),
-    UseFedKey = cms.untracked.bool(False),
+    ProductLabel      = cms.InputTag('oldSiStripDigiToRaw'),
+    AppendedBytes     = cms.untracked.int32(0),
+    UseDaqRegister    = cms.bool(False),
+    UseFedKey         = cms.untracked.bool(False),
+    UnpackBadChannels = cms.bool(False),
+    TriggerFedId      = cms.untracked.int32(0)
+    #FedEventDumpFreq  = cms.untracked.int32(0),
+    #FedBufferDumpFreq = cms.untracked.int32(0),
     )
 
 # Clusterizer (reference "old")
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterProducer_cfi import *
-siStripClusterProducer.ProductLabel = cms.InputTag('siStripDigis:ZeroSuppressed')
+siStripClusterProducer.ProductLabel = cms.InputTag('oldSiStripDigis:ZeroSuppressed')
 siStripClusterProducer.DetSetVectorNew = True
+
+# New DigiToRaw and RawToDigi
+from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
+SiStripDigiToRaw.InputModuleLabel = 'DigiSource'
+from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
+siStripDigis.ProductLabel = 'SiStripDigiToRaw'
 
 # Clusterizer (reference "new")
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi import *
@@ -59,16 +68,8 @@ siStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag('siStripDigis:Zer
 
 # ----- New RawToClusters chain -----
 
-
-# DigiToRaw (new) ### WARNING: default for cfi should be migrated to new once validated!!!
-newSiStripDigiToRaw = cms.EDProducer(
-    "SiStripDigiToRawModule",
-    InputModuleLabel = cms.string('simSiStripDigis'),
-    InputDigiLabel = cms.string('ZeroSuppressed'),
-    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
-    UseFedKey = cms.bool(False),
-    UseWrongDigiType = cms.bool(False)
-    )
+# DigiToRaw (new)
+newSiStripDigiToRaw = SiStripDigiToRaw.clone()
 
 # RawToClusters (new)
 from EventFilter.SiStripRawToDigi.SiStripRawToClusters_cfi import *
@@ -88,19 +89,11 @@ siStripClustersDSV.DetSetVectorNew = True
 # ----- Old RawToClusters chain -----
 
 
-# DigiToRaw (old) ### WARNING: default for cfi should be migrated to new once validated!!!
-from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
-oldSiStripDigiToRaw = SiStripDigiToRaw.clone()
-oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
-oldSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
-oldSiStripDigiToRaw.InputDigiLabel = ''
-oldSiStripDigiToRaw.UseFedKey = False
-
 # RawToClusters (old)
 oldSiStripRawToClustersFacility = cms.EDProducer(
     "OldSiStripRawToClusters",
     SiStripClusterization,
-    ProductLabel = cms.InputTag('oldSiStripDigiToRaw')
+    ProductLabel = cms.InputTag('SiStripDigiToRaw')
     )
 
 # Regions Of Interest (old)
@@ -130,7 +123,7 @@ newValidateSiStripClusters.Collection1 = cms.untracked.InputTag("siStripClusters
 newValidateSiStripClusters.Collection2 = cms.untracked.InputTag("siStripClustersDSV")
 newValidateSiStripClusters.DetSetVectorNew = True
 
-# Cluster Validator (new-to-old)
+## Cluster Validator (new-to-old)
 #testValidateSiStripClusters = ValidateSiStripClusters.clone()
 #testValidateSiStripClusters.Collection1 = cms.untracked.InputTag("oldSiStripClustersDSV")
 #testValidateSiStripClusters.Collection2 = cms.untracked.InputTag("siStripClustersDSV")
@@ -152,8 +145,8 @@ output = cms.OutputModule(
     )
 
 reference_old = cms.Sequence(
-    SiStripDigiToRaw *
-    siStripDigis *
+    oldSiStripDigiToRaw *
+    oldSiStripDigis *
     siStripClusterProducer
     )
 
@@ -165,7 +158,7 @@ reference_new = cms.Sequence(
     )
 
 old = cms.Sequence(
-    oldSiStripDigiToRaw *
+    SiStripDigiToRaw *
     oldSiStripRawToClustersFacility *
     oldSiStripRoI *
     oldSiStripClustersDSV *
@@ -185,4 +178,4 @@ new = cms.Sequence(
 #    )
 
 e = cms.EndPath( output )
-s = cms.Sequence( dummySiStripDigiToRaw * reference_old * reference_new * old * new ) # * test )
+s = cms.Sequence( dummySiStripDigiToRaw * reference_old * reference_new * old * new ) #* test )

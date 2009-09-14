@@ -121,6 +121,7 @@ elif Mode == str("VR") :
     process.dummySiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
     process.oldSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
     process.newSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.newSiStripDigiToRaw.UseWrongDigiType = True
 
     process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
@@ -148,6 +149,7 @@ elif Mode == str("PR") :
     process.dummySiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
     process.oldSiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
     process.newSiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
+    process.newSiStripDigiToRaw.UseWrongDigiType = True
 
     process.oldSiStripDigis.UseFedKey = False
     process.siStripDigis.UseFedKey = False
@@ -178,6 +180,7 @@ elif Mode == str("FK") :
     process.oldSiStripDigiToRaw.UseFedKey = True
     process.newSiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
     process.newSiStripDigiToRaw.UseFedKey = True
+    process.newSiStripDigiToRaw.UseWrongDigiType = True
 
     process.oldSiStripDigis.UseFedKey = True
     process.siStripDigis.UseFedKey = True

@@ -110,7 +110,7 @@ namespace sistrip {
                          const FEDReadoutMode readoutMode = READOUT_MODE_ZERO_SUPPRESSED,
                          const FEDHeaderType headerType = HEADER_TYPE_FULL_DEBUG,
                          const FEDBufferFormat bufferFormat = BUFFER_FORMAT_OLD_SLINK,
-                         const FEDDAQEventType evtType = DAQ_EVENT_TYPE_SIMULATED,
+                         const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS,
                          const FEDDataType dataType = DATA_TYPE_FAKE);
       //methods to get and set the defaults
       uint32_t getL1ID() const;

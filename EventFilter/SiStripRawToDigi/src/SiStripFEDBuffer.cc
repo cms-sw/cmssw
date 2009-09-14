@@ -169,7 +169,7 @@ namespace sistrip {
     //find channel length
     //find last enabled FE unit
     uint8_t lastEnabledFeUnit = 7;
-    while (!feGood(lastEnabledFeUnit)) lastEnabledFeUnit--;
+    while ( !feGood(lastEnabledFeUnit) && lastEnabledFeUnit!=0 ) lastEnabledFeUnit--;
     //last channel is last channel on last enabled FE unit
     const FEDChannel& lastChannel = channels_[internalFEDChannelNum(lastEnabledFeUnit,FEDCH_PER_FEUNIT-1)];
     const size_t offsetLastChannel = lastChannel.offset();

@@ -24,19 +24,22 @@ dummySiStripDigiToRaw = SiStripDigiToRaw.clone()
 
 # DigiToRaw (old) ### WARNING: default for cfi should be migrated to new once validated!!!
 from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
-oldSiStripDigiToRaw = SiStripDigiToRaw.clone()
-oldSiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
-oldSiStripDigiToRaw.InputModuleLabel = 'DigiSource'
-oldSiStripDigiToRaw.InputDigiLabel = ''
-oldSiStripDigiToRaw.UseFedKey = False
+oldSiStripDigiToRaw = cms.EDProducer(
+    "OldSiStripDigiToRawModule",
+    InputModuleLabel = cms.string('DigiSource'),
+    InputDigiLabel = cms.string(''),
+    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.untracked.bool(False)
+    )
 
 # DigiToRaw (new) ### WARNING: default for cfi should be migrated to new once validated!!!
 newSiStripDigiToRaw = cms.EDProducer(
     "SiStripDigiToRawModule",
     InputModuleLabel = cms.string('simSiStripDigis'),
     InputDigiLabel = cms.string('ZeroSuppressed'),
-    FedReadoutMode = cms.untracked.string('ZERO_SUPPRESSED'),
-    UseFedKey = cms.untracked.bool(False)
+    FedReadoutMode = cms.string('ZERO_SUPPRESSED'),
+    UseFedKey = cms.bool(False),
+    UseWrongDigiType = cms.bool(False)
     )
 
 # RawToDigi (new)

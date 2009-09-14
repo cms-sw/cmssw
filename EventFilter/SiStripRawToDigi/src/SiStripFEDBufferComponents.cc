@@ -889,7 +889,7 @@ namespace sistrip {
   FEDDAQTrailer& FEDDAQTrailer::setCRC(const uint16_t crc)
   {
     trailer_[2] = (crc & 0x00FF);
-    trailer_[3] = ( (crc & 0xFF00) << 8);
+    trailer_[3] = ( (crc >> 8) & 0x00FF );
     return *this;
   }
   
