@@ -205,7 +205,7 @@ HepMCConverter<HepMCEventT,Traits>::createParticle(tcPPtr p) const {
   int status = 1;
   if ( !p->children().empty() || p->next() ) {
     tStepPtr step = p->birthStep();
-    if ((!step || step && (!step->handler() || step->handler() == eh)) && p->id() != 82)
+    if ((!step || (step && (!step->handler() || step->handler() == eh))) && p->id() != 82)
       status = 3;
     else
       status = 2;
