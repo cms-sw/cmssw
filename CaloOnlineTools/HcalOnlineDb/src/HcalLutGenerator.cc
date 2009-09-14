@@ -96,9 +96,10 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       // get the 15th bit (which is supposed to mean hot channel)
       bool is_hot = _cs->isBitSet(15);
-      edm::LogInfo("LUT") << "HCAL channel ID: " << _ch->rawId()
-	   << ", status word: " << status_word
-	   << ", hot flag: " << is_hot << endl;
+      //edm::LogInfo("LUT") << "HCAL channel ID: " << _ch->rawId()
+      //cout << "HCAL channel ID: " << _ch->rawId()
+      //   << ", status word: " << status_word
+      //   << ", hot flag: " << is_hot << endl;
     }
   }
   //_____end of Channel Quality example_____________________

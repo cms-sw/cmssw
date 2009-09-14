@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.1 2009/08/16 20:50:54 kukartse Exp $
+// $Id: HcalO2OManager.cc,v 1.2 2009/08/17 02:12:52 kukartse Exp $
 //
 
 
@@ -124,15 +124,15 @@ std::vector<uint32_t> HcalO2OManager::getListOfPoolIovs(std::string tag, std::st
     coraldb.commit();
     cond::PoolTransaction& pooldb = myconnection.poolTransaction();
     {
-      cond::IOVProxy iov( pooldb, token, !details);
+      //cond::IOVProxy iov( pooldb, token, !details);
       // FIXME: after CMSSW_3_2_3 use this:
-      //cond::IOVProxy iov( myconnection, token, !details, details);
-      cond::IOVService iovservice(pooldb);
+      cond::IOVProxy iov( myconnection, token, !details, details);
+      //cond::IOVService iovservice(pooldb);
       unsigned int counter=0;
 
-      std::string payloadContainer=iovservice.payloadContainerName(token);
+      //std::string payloadContainer=iovservice.payloadContainerName(token);
       // FIXME: after CMSSW_3_2_3 use this:
-      //std::string payloadContainer=iov.payloadContainerName();
+      std::string payloadContainer=iov.payloadContainerName();
       for (cond::IOVProxy::const_iterator ioviterator=iov.begin(); ioviterator!=iov.end(); ioviterator++) {
 	allIovs.push_back(ioviterator->since());
 	++counter;
