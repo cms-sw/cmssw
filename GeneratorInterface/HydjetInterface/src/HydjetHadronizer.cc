@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.3 2009/05/28 17:36:40 yilmaz Exp $
+ * $Id: HydjetHadronizer.cc,v 1.4 2009/05/28 18:54:03 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -161,6 +161,8 @@ HepMC::GenParticle* HydjetHadronizer::build_hyjet(int index, int barcode)
                                                   convertStatus(hyjets.khj[0][index]) // status                                                          
                                                   );
 
+
+   //   cout<<"Particle with index : <<"<<index<<" PDG : "<<hyjets.khj[1][index]<<endl;
    p->suggest_barcode(barcode);
 
    return p;
@@ -262,7 +264,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
    for(int isub=0;isub<nsub_;isub++){
       LogDebug("SubEvent") <<"Sub Event ID : "<<isub;
 
-      int sub_up = (isub+1)*50000; // Upper limit in mother index, determining the range of Sub-Event                                                    
+      int sub_up = (isub+1)*500000; // Upper limit in mother index, determining the range of Sub-Event                                                    
       vector<HepMC::GenParticle*> particles;
       vector<int>                 mother_ids;
       vector<HepMC::GenVertex*>   prods;
@@ -288,8 +290,8 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
 	 HepMC::GenParticle* part = particles[i];
 
          //The Fortran code is modified to preserve mother id info, by seperating the beginning                                                          
-         //mother indices of successive subevents by 50000.                                                                                              
-         int mid = mother_ids[i]-isub*50000-1;
+         //mother indices of successive subevents by 500000 (was 50000 before).                                                                                              
+         int mid = mother_ids[i]-isub*500000-1;
 	 LogDebug("DecayChain")<<"Particle "<<i;
 	 LogDebug("DecayChain")<<"Mother's ID "<<mid;
 	 LogDebug("DecayChain")<<"Particle's PDG ID "<<part->pdg_id();

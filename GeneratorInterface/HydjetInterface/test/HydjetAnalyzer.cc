@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.14 2009/05/20 23:15:31 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.15 2009/08/28 15:51:11 yilmaz Exp $
 //
 //
 
@@ -56,7 +56,7 @@
 
 using namespace std;
 
-static const int MAXPARTICLES = 5000000;
+static const int MAXPARTICLES = 2000000;
 static const int MAXVTX = 1000;
 static const int ETABINS = 3; // Fix also in branch string
 
@@ -204,12 +204,8 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      Handle<CrossingFrame<HepMCProduct> > cf;
      iEvent.getByLabel(InputTag("mix","source"),cf);
-
-
      MixCollection<HepMCProduct> mix(cf.product());
-
      nmix = mix.size();
-
      cout<<"Mix Collection Size: "<<mix<<endl;
 
      MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
@@ -240,18 +236,17 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }     
 
    }
-   
-      
+
    Handle<HepMCProduct> mc;
    iEvent.getByLabel(src_,mc);
    evt = mc->GetEvent();
-      
+
    if(doMixed_){
      Handle<HepMCProduct> mc2;
      iEvent.getByLabel(src2_,mc2);
      evt2 = mc2->GetEvent();
    }
-   
+
    const HeavyIon* hi = evt->heavy_ion();
    if(hi){
       b = hi->impact_parameter();
@@ -261,15 +256,14 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       phi0 = hi->event_plane_angle();
       
    }
-   
+
    src = evt->particles_size();
    if(doMixed_) sig = evt2->particles_size();
-   
-   
+   cout<<"Particles Size is : ";
+   cout<<evt->particles_size()<<endl;
    HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
    for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-
 	int st = (*it)->status();
 	 int pdg_id = (*it)->pdg_id();
 	 float eta = (*it)->momentum().eta();
@@ -277,17 +271,14 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 float pt = (*it)->momentum().perp();
 	 const ParticleData * part = pdt->particle(pdg_id );
 	 int charge = part->charge();
-
          hev_.st[hev_.mult] = st;
 	 hev_.pt[hev_.mult] = pt;
 	 hev_.eta[hev_.mult] = eta;
 	 hev_.phi[hev_.mult] = phi;
 	 hev_.pdg[hev_.mult] = pdg_id;
 	 hev_.chg[hev_.mult] = charge;
-	 
 
 	 if((*it)->status() != 1) continue;
-
 	 eta = fabs(eta);
 	 int etabin = 0;
 	 if(eta > 0.5) etabin = 1; 
@@ -297,9 +288,8 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   ++(hev_.n[etabin]);
 	 }
 	 ++(hev_.mult);
-	 
    }
-   
+
    if(doVertex_){
       edm::Handle<edm::SimVertexContainer> simVertices;
       iEvent.getByType<edm::SimVertexContainer>(simVertices);
