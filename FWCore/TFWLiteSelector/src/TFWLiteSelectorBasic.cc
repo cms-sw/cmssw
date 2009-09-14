@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //
 // Package:     TFWLiteSelector
 // Class  :     TFWLiteSelectorBasic
@@ -18,11 +19,12 @@
 #include "TClass.h"
 #include "Reflex/Type.h"
 #include "boost/shared_ptr.hpp"
-
+//#include <exception>
 // user include files
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -33,6 +35,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
@@ -41,11 +44,16 @@
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "DataFormats/FWLite/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 namespace edm {
   namespace root {
@@ -98,7 +106,7 @@ namespace edm {
         throw cms::Exception("FailedToCreate") <<"could not create an instance of '"<<fullName<<"'";
       }
       void* address  = wrapperObj.Address();
-       */
+      */
       TClass* rootClassType=TClass::GetClass(classType.TypeInfo());
       if( 0 == rootClassType) {
         throw cms::Exception("MissingRootDictionary")
@@ -113,9 +121,10 @@ namespace edm {
       Reflex::Object edProdObj = wrapperObj.CastObject( Reflex::Type::ByName("edm::EDProduct") );
       
       edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>(edProdObj.Address());
-       */
+      */
       static TClass* edproductTClass = TClass::GetClass( typeid(edm::EDProduct)); 
       edm::EDProduct* prod = reinterpret_cast<edm::EDProduct*>( rootClassType->DynamicCast(edproductTClass,address,true));
+
       if(0 == prod) {
         throw cms::Exception("FailedConversion")
 	<<"failed to convert a '"<<fullName
@@ -222,7 +231,7 @@ TFWLiteSelectorBasic::Init(TTree *iTree) {
 
 Bool_t
 TFWLiteSelectorBasic::Notify() { 
-   //std::cout <<"Notify start"<<std::endl;
+  //std::cout <<"Notify start"<<std::endl;
   //we have switched to a new file  
   //get new file from Tree
   if(0==m_->tree_) {
@@ -256,11 +265,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       TBranch* branch = m_->tree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
 
       branch->SetAddress(&pAux);
-      //provBranch->SetAddress(&pProv);
       branch->GetEntry(iEntry);
-      //provBranch->GetEntry(iEntry);
-      //CDJ turn off reading meta tree until we fix handling of provenance
-      //m_->metaTree_->GetEntry(iEntry);
 
 //NEW      m_->processNames_ = aux.processHistory();
 
@@ -273,17 +278,18 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       //     }
 
       edm::History history;
+      boost::shared_ptr<edm::History> history_(new edm::History);
       if (m_->fileFormatVersion_.eventHistoryTree()) {
-         edm::History* pHistory = &history;
+         edm::History* pHistory = history_.get();
          TBranch* eventHistoryBranch = m_->eventHistoryTree_->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
          if (!eventHistoryBranch)
             throw edm::Exception(edm::errors::FatalRootError)
             << "Failed to find history branch in event history tree";
          eventHistoryBranch->SetAddress(&pHistory);
          m_->eventHistoryTree_->GetEntry(iEntry);
-         aux.processHistoryID_ = history.processHistoryID();
+         
+         history_->setProcessHistoryID(aux.processHistoryID_);
       }
-/*
       try {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
@@ -295,17 +301,16 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	    new edm::LuminosityBlockPrincipal(lumiAux, reg, pc));
 	 lbp->setRunPrincipal(rp);
 	 boost::shared_ptr<edm::BranchMapper> mapper(new edm::BranchMapper);
-	 edm::EventPrincipal ep(aux, reg, pc, aux.processHistoryID(), mapper, m_->reader_);
+	 edm::EventPrincipal ep(aux, reg, pc, history_, mapper, m_->reader_);
 	 ep.setLuminosityBlockPrincipal(lbp);
-         ep.setHistory(history);
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;
-	 std::map<ProductID, BranchDescription>::iterator pit = m_->productMap_.begin();
-	 std::map<ProductID, BranchDescription>::iterator pitEnd = m_->productMap_.end();
-	 for (; pit != pitEnd; ++pit) {
-	    BranchDescription &product = pit->second;
-            if (not product.oldProductID().isValid()) continue;
+         edm::ProductRegistry::ProductList const& prodList = m_->reg_->productList();
+         for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+            it != itEnd; ++it)  {
+	    edm::BranchDescription const& product = it->second;
+            //std::cout<<"it->second "<<it->second.branchName()<<std::endl;
 	    ep.addGroup(edm::ConstBranchDescription(product));
 	 }
 
@@ -321,10 +326,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       } catch(...) {
 	 std::cout <<"While processing entry "<<iEntry<<" an unknown exception was caught" << std::endl;
       }
-*/
    }
-   //std::cout <<"Process end"<<std::endl;
-  return kFALSE; 
+  return kTRUE; 
 }
 
 void
@@ -341,72 +344,137 @@ void
 TFWLiteSelectorBasic::setupNewFile(TFile& iFile) { 
   //look up meta-data
   //get product registry
-  edm::ProductRegistry* pReg = &(*m_->reg_);
-  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
-  PsetMap psetMap;
-  edm::ProcessHistoryMap pHistMap;
-  PsetMap *psetMapPtr = &psetMap;
-  edm::ProcessHistoryMap *pHistMapPtr = &pHistMap;
-  edm::FileFormatVersion* fftPtr = &(m_->fileFormatVersion_);
-   
+  
+  //std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
   TTree* metaDataTree = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::metaDataTreeName().c_str()) );
-  if ( 0 != metaDataTree) {
-    metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg) );
-    metaDataTree->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
-    metaDataTree->SetBranchAddress(edm::poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
-    metaDataTree->SetBranchAddress(edm::poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
-    metaDataTree->GetEntry(0);
-    m_->reg_->setFrozen();
-  } else {
+  if (  ! metaDataTree) {
     std::cout <<"could not find TTree "<<edm::poolNames::metaDataTreeName() <<std::endl;
     everythingOK_ = false;
     return;
-  }
+   }
+  edm::FileFormatVersion* fftPtr = &(m_->fileFormatVersion_);
+  if(metaDataTree->FindBranch(edm::poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+    metaDataTree->SetBranchAddress(edm::poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    }
+
+
+  edm::ProductRegistry* pReg = &(*m_->reg_);
+  metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg) );
+
+  m_->reg_->setFrozen();
+  typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> PsetMap;
+  PsetMap psetMap;
+  PsetMap *psetMapPtr = &psetMap;
+  metaDataTree->SetBranchAddress(edm::poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+
+
+  edm::ProcessHistoryRegistry::vector_type pHistVector;
+  edm::ProcessHistoryRegistry::vector_type *pHistVectorPtr = &pHistVector;
+  if(metaDataTree->FindBranch(edm::poolNames::processHistoryBranchName().c_str()) != 0) {
+     metaDataTree->SetBranchAddress(edm::poolNames::processHistoryBranchName().c_str(), &pHistVectorPtr);
+   }
+
+
+  edm::ProcessConfigurationVector procConfigVector;
+  edm::ProcessConfigurationVector * procConfigVectorPtr=&procConfigVector;
+  if(metaDataTree->FindBranch(edm::poolNames::processConfigurationBranchName().c_str()) != 0) {
+     metaDataTree->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
+   }
+
+  std::auto_ptr<edm::BranchIDListRegistry::collection_type> branchIDListsAPtr(new edm::BranchIDListRegistry::collection_type);
+  edm::BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
+  if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
+    metaDataTree->SetBranchAddress(edm::poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
+   }
+
+  metaDataTree->GetEntry(0);
+
   m_->metaTree_ = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::eventMetaDataTreeName().c_str()));
+      //provBranch->GetEntry(iEntry);
   if( 0 == m_->metaTree_) {
     std::cout <<"could not find TTree "<<edm::poolNames::eventMetaDataTreeName() <<std::endl;
     everythingOK_ = false;
     return;
-  }
+   }
 
   // Merge into the registries. For now, we do NOT merge the product registry.
   edm::pset::Registry& psetRegistry = *edm::pset::Registry::instance();
   for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end();
       i != iEnd; ++i) {
-    psetRegistry.insertMapped(edm::ParameterSet(i->second.pset_));
-  } 
-  edm::ProcessHistoryRegistry & processNameListRegistry = *edm::ProcessHistoryRegistry::instance();
-  for (edm::ProcessHistoryMap::const_iterator j = pHistMap.begin(), jEnd = pHistMap.end();
-      j != jEnd; ++j) {
-    processNameListRegistry.insertMapped(j->second);
-  } 
+    edm::ParameterSet pset(i->second.pset_);
+    pset.setID(i->first);
+    pset.setFullyTracked();
+    psetRegistry.insertMapped(pset);
+   } 
+
+
+  edm::ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
+  edm::ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
+
   m_->productMap_.erase(m_->productMap_.begin(),m_->productMap_.end());
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
-  edm::ProductRegistry::ProductList const& prodList = pReg->productList();
-  std::vector<edm::EventEntryDescription> temp( prodList.size(), edm::EventEntryDescription() );
+
+  fillProductRegistryTransients(procConfigVector,*m_->reg_);
+  std::auto_ptr<edm::ProductRegistry> newReg(new edm::ProductRegistry());
+
+
+  edm::ProductRegistry::ProductList const& prodList = m_->reg_->productList();
+{
+     for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+            it != itEnd; ++it) {
+         edm::BranchDescription const& prod = it->second;
+         //std::cout << "productname = "<<it->second<<" end "<<std::endl;
+         std::string newFriendlyName = edm::friendlyname::friendlyName(prod.className());
+         if(newFriendlyName == prod.friendlyClassName()) {
+           newReg->copyProduct(prod);
+         } else {
+        
+           if(m_->fileFormatVersion_.splitProductIDs()) {
+             throw edm::Exception(edm::errors::UnimplementedFeature)
+               << "Cannot change friendly class name algorithm without more development work\n"
+               << "to update BranchIDLists.  Contact the framework group.\n";
+           }
+           edm::BranchDescription newBD(prod);
+           newBD.updateFriendlyClassName();
+           newReg->copyProduct(newBD);
+           // Need to call init to get old branch name.
+           prod.init();
+         }
+       }
+
+    newReg->setFrozen();
+    m_->reg_.reset(newReg.release());
+ }
+
+  edm::ProductRegistry::ProductList const& prodList2 = m_->reg_->productList();
+  std::vector<edm::EventEntryDescription> temp( prodList2.size(), edm::EventEntryDescription() );
   m_->prov_.swap( temp);
   std::vector<edm::EventEntryDescription>::iterator itB = m_->prov_.begin();
-  m_->pointerToBranchBuffer_.reserve(prodList.size());
-  for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+  m_->pointerToBranchBuffer_.reserve(prodList2.size());
+
+  
+
+
+  for (edm::ProductRegistry::ProductList::const_iterator it = prodList2.begin(), itEnd = prodList2.end();
        it != itEnd; ++it, ++itB) {
     edm::BranchDescription const& prod = it->second;
     if( prod.branchType() == edm::InEvent) {
       prod.init();
       //NEED to do this and check to see if branch exists
-      //prod.present_ = (branch != 0);
+      prod.setPresent(m_->tree_->GetBranch(prod.branchName().c_str())!=0); 
       m_->productMap_.insert(std::make_pair(it->second.oldProductID(), it->second));
-      //std::cout <<"id "<<it->second.oldProductID()<<" branch "<<it->second.branchName()<<std::endl;
-      m_->pointerToBranchBuffer_.push_back( & (*itB));
+
+      //std::cout <<"id "<<it->first<<" branch "<<it->second<<std::endl;
+      //m_->pointerToBranchBuffer_.push_back( & (*itB));
       //void* tmp = &(m_->pointerToBranchBuffer_.back());
       //edm::EventEntryDescription* tmp = & (*itB);
       //CDJ need to fix provenance and be backwards compatible, for now just don't read the branch
       //m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
-    }
+   }
   }  
-  //std::cout <<"Notify end"<<std::endl;
    
-   if (m_->fileFormatVersion_.eventHistoryTree()) {
+  if (m_->fileFormatVersion_.eventHistoryTree()) {
       m_->eventHistoryTree_ = dynamic_cast<TTree*>(iFile.Get(edm::poolNames::eventHistoryTreeName().c_str()));
       if(0==m_->eventHistoryTree_) {
          std::cout <<"could not find TTree "<<edm::poolNames::eventHistoryTreeName() <<std::endl;
