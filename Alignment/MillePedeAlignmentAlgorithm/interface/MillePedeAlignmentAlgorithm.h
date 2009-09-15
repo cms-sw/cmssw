@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.24 $
-///  $Date: 2009/08/12 14:40:23 $
+///  $Revision: 1.25 $
+///  $Date: 2009/08/21 16:40:16 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -91,12 +91,12 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
  // adds data from reference trajectory from a specific Hit
   void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
-  // adds data from reference trajectory from a specific break point
-  void addBreakPoint(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			   unsigned int iMeas);
+  // adds data from reference trajectory from a specific multiple scattering measurement
+  void addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+			   unsigned int iMsMeas);
 			   
  // adds data from reference trajectory from a specific Hit
-  void addRefTrackBreakpoint1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
+  void addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM, TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,

@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2009/02/24 13:32:58 $
+//  last update: $Date: 2009/08/12 14:54:12 $
 //  by         : $Author: flucke $
 
 #include <memory>
@@ -29,7 +29,6 @@
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 
-
 //__________________________________________________________________________________
 
 ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
@@ -39,13 +38,16 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 MaterialEffects materialEffects,
 					 PropagationDirection propDir,
 					 double mass) 
- : ReferenceTrajectoryBase( refTsos.localParameters().mixedFormatVector().kSize, recHits.size(), (materialEffects == breakPoints) ? 2*recHits.size()-2 : 0 )	 
+ : ReferenceTrajectoryBase( 
+   (materialEffects >= brokenLinesCoarse) ? 1 : refTsos.localParameters().mixedFormatVector().kSize, 
+   recHits.size(), 
+   (materialEffects >= brokenLinesCoarse) ? 2*recHits.size()   : ( (materialEffects == breakPoints) ? 2*recHits.size()-2 : 0) , 
+   (materialEffects >= brokenLinesCoarse) ? 2*recHits.size()-4 : ( (materialEffects == breakPoints) ? 2*recHits.size()-2 : 0) )	 
 {
 
-  // no check against magField == 0
-  
+  // no check against magField == 0  
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
-  // CHK for debug 
+  // CHK for debug and coarse broken lines
   theGlobalPars = refTsos.globalParameters().vector();
     
   if (hitsAreReverse) {
@@ -65,7 +67,11 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 //__________________________________________________________________________________
 
 ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects)
-  : ReferenceTrajectoryBase( nPar, nHits, (materialEffects == breakPoints) ? 2*nHits-2 : 0 )
+  : ReferenceTrajectoryBase( 
+   (materialEffects >= brokenLinesCoarse) ? 1 : nPar, 
+   nHits, 
+   (materialEffects >= brokenLinesCoarse) ? 2*nHits   : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0) , 
+   (materialEffects >= brokenLinesCoarse) ? 2*nHits-4 : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0) )  
 {}
 
 
@@ -75,7 +81,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 				    const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 				    double mass, MaterialEffects materialEffects,
 				    const PropagationDirection propDir, const MagneticField *magField)
-{  
+{   
   const SurfaceSide surfaceSide = this->surfaceSide(propDir);
   // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
   std::auto_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
@@ -99,9 +105,14 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   std::vector<AlgebraicSymMatrix> allDeltaParameterCovs;
   allDeltaParameterCovs.reserve(theNumberOfHits);
 
+  // CHK
   std::vector<AlgebraicMatrix> allLocalToCurv;
   allLocalToCurv.reserve(theNumberOfHits); 
-  
+  std::vector<double> allSteps;
+  allSteps.reserve(theNumberOfHits); 
+  std::vector<AlgebraicMatrix>    allCurvlinJacobians; 
+  allCurvlinJacobians.reserve(theNumberOfHits);
+   
   unsigned int iRow = 0;
   TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit;
   for ( itRecHit = recHits.begin(); itRecHit != recHits.end(); ++itRecHit ) { 
@@ -118,13 +129,17 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       const JacobianLocalToCurvilinear startTrafo(hitPtr->det()->surface(), refTsos.localParameters(), *magField);
       const AlgebraicMatrix localToCurvilinear =  asHepMatrix<5>(startTrafo.jacobian());
       allLocalToCurv.push_back(localToCurvilinear);
+      allSteps.push_back(0.);
+      allCurvlinJacobians.push_back(fullJacobian);
          
     } else {
       AlgebraicMatrix nextJacobian;
+      AlgebraicMatrix nextCurvlinJacobian;
+      double nextStep;
       TrajectoryStateOnSurface nextTsos;
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
-			   nextJacobian, propDir, magField)) {
+			   nextJacobian, nextCurvlinJacobian, &nextStep, propDir, magField)) {
 	return false; // stop if problem...// no delete aMaterialEffectsUpdator needed
       }
 
@@ -135,6 +150,12 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       const JacobianLocalToCurvilinear startTrafo(hitPtr->det()->surface(), nextTsos.localParameters(), *magField);
       const AlgebraicMatrix localToCurvilinear =  asHepMatrix<5>(startTrafo.jacobian());
       allLocalToCurv.push_back(localToCurvilinear);
+      if (nextStep == 0.) { 
+	 // brokenLinesFine will not work, brokenLinesCoarse combines close by layers
+	 if (materialEffects == brokenLinesFine) return false;
+      }
+      allSteps.push_back(nextStep);
+      allCurvlinJacobians.push_back(nextCurvlinJacobian);
     }
     // take material effects into account. since trajectory-state is constructed with errors equal zero,
     // the updated state contains only the uncertainties due to interactions in the current layer.
@@ -163,7 +184,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     previousHitPtr = hitPtr;
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
 					      updatedTsos.surface(), surfaceSide);
-
+    if (materialEffects<brokenLinesCoarse)
     this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
 
     AlgebraicVector mixedLocalParams = asHepVector<5>(theTsosVec.back().localParameters().mixedFormatVector());
@@ -173,20 +194,26 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     iRow += nMeasPerHit;
   } // end of loop on hits
 
-  if (materialEffects != none) {
-    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges,
-				allDeltaParameterCovs, allLocalToCurv);
+  switch (materialEffects) {
+  case none: break;
+  case multipleScattering:
+  case energyLoss:
+  case combined:
+    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs); break;
+  case breakPoints:
+    this->addMaterialEffectsBp (allJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs, allLocalToCurv); break;
+  case brokenLinesCoarse:
+    this->addMaterialEffectsBrl(allProjections, allDeltaParameterCovs, allLocalToCurv, allSteps); break;
+  case brokenLinesFine:
+    this->addMaterialEffectsBrl(allCurvlinJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs, allLocalToCurv, allSteps);
   }
-
+ 
   if (refTsos.hasError()) {
     AlgebraicSymMatrix parameterCov = asHepMatrix<5>(refTsos.localError().matrix());
-    //    theTrajectoryPositionCov = parameterCov.similarity(theDerivatives);
     AlgebraicMatrix  parDeriv;
-    if (theNumberOfBreakPoints > 0) {
-      parDeriv = theDerivatives.sub( 1, nMeasPerHit*allJacobians.size(), 1, theParameters.num_row() );
-    } else {
-      parDeriv = theDerivatives;
-    }
+    if (theNumberOfMsPars>0)
+    { parDeriv = theDerivatives.sub( 1, nMeasPerHit*allJacobians.size(), 1, theParameters.num_row() ); 
+    } else { parDeriv = theDerivatives; }
     theTrajectoryPositionCov = parameterCov.similarity(parDeriv);
   } else {
     theTrajectoryPositionCov = AlgebraicSymMatrix(theDerivatives.num_row(), 1);
@@ -211,7 +238,11 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
   case energyLoss:
     return new EnergyLossUpdator(mass);
   case combined:
+    return new CombinedMaterialEffectsUpdator(mass);
   case breakPoints:
+    return new CombinedMaterialEffectsUpdator(mass);
+  case brokenLinesCoarse:
+  case brokenLinesFine:
     return new CombinedMaterialEffectsUpdator(mass);
 }
 
@@ -221,7 +252,8 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
 //__________________________________________________________________________________
 
 bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
-				    const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
+				    const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
+				    AlgebraicMatrix &newCurvlinJacobian, double *nextStep,
 				    const PropagationDirection propDir, const MagneticField *magField) const
 {
   // propagate to next layer
@@ -232,6 +264,7 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
   // stop if propagation wasn't successful
   if (!tsosWithPath.first.isValid())  return false;
 
+  *nextStep = tsosWithPath.second;
   // calculate derivative of reference-track parameters on the actual layer w.r.t. the ones
   // on the previous layer (both in global coordinates)
   const AnalyticalCurvilinearJacobian aJacobian(previousTsos.globalParameters(), 
@@ -239,7 +272,6 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
 						tsosWithPath.first.globalMomentum(),
 						tsosWithPath.second);
   const AlgebraicMatrix curvilinearJacobian = asHepMatrix<5,5>(aJacobian.jacobian());
-
 
   // jacobian of the track parameters on the previous layer for local->global transformation
   const JacobianLocalToCurvilinear startTrafo(previousSurface, previousTsos.localParameters(), *magField);
@@ -251,6 +283,7 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
   
   // compute derivative of reference-track parameters on the actual layer w.r.t. the ones on
   // the previous layer (both in their local representation)
+  newCurvlinJacobian = curvilinearJacobian;
   newJacobian = curvilinearToLocal * curvilinearJacobian * localToCurvilinear;
   newTsos     = tsosWithPath.first;
 
@@ -329,8 +362,7 @@ void ReferenceTrajectory::fillTrajectoryPositions(const AlgebraicMatrix &project
 void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
 						const std::vector<AlgebraicMatrix> &allProjections,
 						const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
-						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
-						const std::vector<AlgebraicMatrix> &allLocalToCurv)
+						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs)
 {
   // the uncertainty due to multiple scattering is 'transferred' to the error matrix of the hits
 
@@ -345,21 +377,7 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
   AlgebraicSymMatrix paramMaterialEffectsCov(allDeltaParameterCovs[0]); //initialization
   // error-propagation to state after energy loss
   //GFback  paramMaterialEffectsCov = paramMaterialEffectsCov.similarity(allCurvatureChanges[0]);
-//CHK 
-  bool useBreakPoints = ( theNumberOfBreakPoints>0 );
-  int offsetPar = theNumberOfPars; 
-  int offsetMeas = nMeasPerHit * theNumberOfHits;
-    
-  AlgebraicMatrix fullJacobian(allJacobians[0]); //initialization 
-  fullJacobian = allCurvatureChanges[0] * fullJacobian; 
-  AlgebraicMatrix tempJacobian;
-  AlgebraicMatrix MSprojection(2,5);
-  MSprojection[0][1] = 1;
-  MSprojection[1][2] = 1;
-  AlgebraicSymMatrix tempMSCov; 
-  AlgebraicSymMatrix tempMSCovProj;
-  AlgebraicMatrix tempMSJacProj;   
-  
+
   AlgebraicMatrix tempParameterCov;
   AlgebraicMatrix tempMeasurementCov;
 
@@ -378,32 +396,7 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
     paramMaterialEffectsCov += allDeltaParameterCovs[k];
     // end GFback
     tempParameterCov = paramMaterialEffectsCov;
-    
-// CHK 
-    if (useBreakPoints) {
-      int kbp = k-1;
-      tempJacobian = allJacobians[k] * allCurvatureChanges[k];
-      tempMSCov = allDeltaParameterCovs[k-1].similarity(allLocalToCurv[k-1]);
-      tempMSCovProj = tempMSCov.similarity(MSprojection);
-      theMeasurementsCov[offsetMeas+nMeasPerHit*kbp  ][offsetMeas+nMeasPerHit*kbp  ] = tempMSCovProj[0][0];
-      theMeasurementsCov[offsetMeas+nMeasPerHit*kbp+1][offsetMeas+nMeasPerHit*kbp+1]=  tempMSCovProj[1][1];
-      theDerivatives[offsetMeas+nMeasPerHit*kbp  ][offsetPar+2*kbp  ] = 1.0;
-      theDerivatives[offsetMeas+nMeasPerHit*kbp+1][offsetPar+2*kbp+1] = 1.0 ; 
-  
-      //tempMSJacProj = (allProjections[k] * (allLocalToCurv[k-1] * tempJacobian)) * MSprojection.T();
-      int ierr = 0;
-      tempMSJacProj = (allProjections[k] * (tempJacobian * allLocalToCurv[k-1].inverse(ierr)))
-	* MSprojection.T();
-      if (ierr) {
-	edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsCov"
-				   << "Inversion 1 for break points failed: " << ierr;
-      }
-      theDerivatives[nMeasPerHit*k  ][offsetPar+2*kbp  ] =  tempMSJacProj[0][0];  
-      theDerivatives[nMeasPerHit*k  ][offsetPar+2*kbp+1] =  tempMSJacProj[0][1]; 
-      theDerivatives[nMeasPerHit*k+1][offsetPar+2*kbp  ] =  tempMSJacProj[1][0];  
-      theDerivatives[nMeasPerHit*k+1][offsetPar+2*kbp+1] =  tempMSJacProj[1][1];
-    } 
-              
+
     // compute "inter-layer-dependencies"
     for (unsigned int l = k+1; l < allJacobians.size(); ++l) {
       tempParameterCov   = allJacobians[l]   * allCurvatureChanges[l] * tempParameterCov;
@@ -420,37 +413,258 @@ void ReferenceTrajectory::addMaterialEffectsCov(const std::vector<AlgebraicMatri
 
       materialEffectsCov[nMeasPerHit*l+1][nMeasPerHit*k+1] = tempMeasurementCov[1][1];
       materialEffectsCov[nMeasPerHit*k+1][nMeasPerHit*l+1] = tempMeasurementCov[1][1];
-
-      if (useBreakPoints) 
-      {
-// CHK    
-        int kbp = k-1;
-        tempJacobian = allJacobians[l] * allCurvatureChanges[l] * tempJacobian; 
-	// tempMSJacProj = (allProjections[l] * (allLocalToCurv[k-1] * tempJacobian)) * MSprojection.T();
-	int ierr = 0;
-	tempMSJacProj = (allProjections[l] * (tempJacobian * allLocalToCurv[k-1].inverse(ierr)))
-	  * MSprojection.T();
-	if (ierr) {
-	  edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsCov"
-				     << "Inversion 2 for break points failed: " << ierr;
-	}
-        theDerivatives[nMeasPerHit*l  ][offsetPar+2*kbp  ] =  tempMSJacProj[0][0];  
-        theDerivatives[nMeasPerHit*l  ][offsetPar+2*kbp+1] =  tempMSJacProj[0][1]; 
-        theDerivatives[nMeasPerHit*l+1][offsetPar+2*kbp  ] =  tempMSJacProj[1][0];  
-        theDerivatives[nMeasPerHit*l+1][offsetPar+2*kbp+1] =  tempMSJacProj[1][1]; 
-      }   
-    }
-
+    } 
     // add uncertainties for the following layers due to scattering at this layer
     // GFback paramMaterialEffectsCov += allDeltaParameterCovs[k];    
     // error-propagation to state after energy loss
     paramMaterialEffectsCov = paramMaterialEffectsCov.similarity(allCurvatureChanges[k]);
+     
+  }
+  theMeasurementsCov += materialEffectsCov;
+}
+
+//__________________________________________________________________________________
+
+void ReferenceTrajectory::addMaterialEffectsBp(const std::vector<AlgebraicMatrix> &allJacobians, 
+						const std::vector<AlgebraicMatrix> &allProjections,
+						const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
+						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
+						const std::vector<AlgebraicMatrix> &allLocalToCurv)
+{
+//CHK: add material effects using break points
+  int offsetPar = theNumberOfPars; 
+  int offsetMeas = nMeasPerHit * allJacobians.size();
+  int ierr; 
+
+  AlgebraicMatrix tempJacobian;
+  AlgebraicMatrix MSprojection(2,5);
+  MSprojection[0][1] = 1;
+  MSprojection[1][2] = 1;
+  AlgebraicSymMatrix tempMSCov; 
+  AlgebraicSymMatrix tempMSCovProj;
+  AlgebraicMatrix tempMSJacProj;   
+
+  for (unsigned int k = 1; k < allJacobians.size(); ++k) {
+// CHK 
+    int kbp = k-1;
+    tempJacobian = allJacobians[k] * allCurvatureChanges[k];
+    tempMSCov = allDeltaParameterCovs[k-1].similarity(allLocalToCurv[k-1]);
+    tempMSCovProj = tempMSCov.similarity(MSprojection);
+    theMeasurementsCov[offsetMeas+nMeasPerHit*kbp  ][offsetMeas+nMeasPerHit*kbp  ] = tempMSCovProj[0][0];
+    theMeasurementsCov[offsetMeas+nMeasPerHit*kbp+1][offsetMeas+nMeasPerHit*kbp+1]=  tempMSCovProj[1][1];
+    theDerivatives[offsetMeas+nMeasPerHit*kbp  ][offsetPar+2*kbp  ] = 1.0;
+    theDerivatives[offsetMeas+nMeasPerHit*kbp+1][offsetPar+2*kbp+1] = 1.0 ; 
+
+    tempMSJacProj = (allProjections[k] * ( tempJacobian * allLocalToCurv[k-1].inverse(ierr) )) * MSprojection.T();
+    if (ierr) {
+      edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBp"
+	                         << "Inversion 1 for break points failed: " << ierr; }
+    theDerivatives[nMeasPerHit*k  ][offsetPar+2*kbp  ] =  tempMSJacProj[0][0];  
+    theDerivatives[nMeasPerHit*k  ][offsetPar+2*kbp+1] =  tempMSJacProj[0][1]; 
+    theDerivatives[nMeasPerHit*k+1][offsetPar+2*kbp  ] =  tempMSJacProj[1][0];  
+    theDerivatives[nMeasPerHit*k+1][offsetPar+2*kbp+1] =  tempMSJacProj[1][1];
+              
+    for (unsigned int l = k+1; l < allJacobians.size(); ++l) {
+// CHK    
+      int kbp = k-1;
+      tempJacobian = allJacobians[l] * allCurvatureChanges[l] * tempJacobian; 
+      tempMSJacProj = (allProjections[l] * ( tempJacobian * allLocalToCurv[k-1].inverse(ierr) )) * MSprojection.T();
+      if (ierr) {
+	edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBp"
+				   << "Inversion 2 for break points failed: " << ierr; }
+      theDerivatives[nMeasPerHit*l  ][offsetPar+2*kbp  ] =  tempMSJacProj[0][0];  
+      theDerivatives[nMeasPerHit*l  ][offsetPar+2*kbp+1] =  tempMSJacProj[0][1]; 
+      theDerivatives[nMeasPerHit*l+1][offsetPar+2*kbp  ] =  tempMSJacProj[1][0];  
+      theDerivatives[nMeasPerHit*l+1][offsetPar+2*kbp+1] =  tempMSJacProj[1][1]; 
+
+    }
+
+  }
+  
+}
+
+//__________________________________________________________________________________
+
+void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allCurvlinJacobians, 
+						const std::vector<AlgebraicMatrix> &allProjections,
+						const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
+						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
+						const std::vector<AlgebraicMatrix> &allLocalToCurv,
+						const std::vector<double> &allSteps)
+{
+//CHK: add material effects using broken lines
+//BrokenLinesFine: use exact Jacobians
+  
+  int offsetPar = theNumberOfPars; 
+  int offsetMeas = nMeasPerHit*allCurvlinJacobians.size();
+  int ierr; 
+  double cosLambda = sqrt((theGlobalPars[3]*theGlobalPars[3]+theGlobalPars[4]*theGlobalPars[4])/
+  (theGlobalPars[3]*theGlobalPars[3]+theGlobalPars[4]*theGlobalPars[4]+theGlobalPars[5]*theGlobalPars[5]));
     
-// CHK        
-    fullJacobian = allJacobians[k] * fullJacobian; 
-    fullJacobian = allCurvatureChanges[k] * fullJacobian;     
+  AlgebraicMatrix tempJacobian(allCurvatureChanges[0]);
+  AlgebraicMatrix MSprojAngle(2,5);
+  MSprojAngle[0][1] = 1;
+  MSprojAngle[1][2] = cosLambda;
+  AlgebraicMatrix MSprojOffset(2,5);
+  MSprojOffset[0][3] = 1;
+  MSprojOffset[1][4] = 1;
+
+  AlgebraicSymMatrix tempMSCov; 
+  AlgebraicSymMatrix tempMSCovProj;
+  AlgebraicMatrix tempMSJacProj; 
+  AlgebraicMatrix tempJacL; 
+  AlgebraicMatrix tempJacOffsetL; 
+  AlgebraicMatrix tempJacN; 
+  AlgebraicMatrix tempJacOffsetN; 
+  AlgebraicMatrix tempJacBending;
+           
+// measurements from hits  
+  for (unsigned int k = 0; k < allCurvlinJacobians.size(); ++k) {
+    tempMSJacProj = (allProjections[k] * allLocalToCurv[k].inverse(ierr) ) * MSprojOffset.T();  
+    if (ierr) {
+       edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+				   << "Inversion 1 for broken lines failed: " << ierr; }
+    theDerivatives[nMeasPerHit*k  ][offsetPar+2*k  ] =  tempMSJacProj[0][0];  
+    theDerivatives[nMeasPerHit*k  ][offsetPar+2*k+1] =  tempMSJacProj[0][1]; 
+    theDerivatives[nMeasPerHit*k+1][offsetPar+2*k  ] =  tempMSJacProj[1][0];  
+    theDerivatives[nMeasPerHit*k+1][offsetPar+2*k+1] =  tempMSJacProj[1][1]; 
   }
 
-  if (!useBreakPoints) theMeasurementsCov += materialEffectsCov;
+// measurement of MS kink  
+  for (unsigned int k = 1; k < allCurvlinJacobians.size()-1; ++k) {
+// CHK 
+    int iMsMeas = k-1; 
+    int l    = k-1; // last hit
+    int n    = k+1; // next hit
 
+// amount of multiple scattering in layer k  (angular error perp to direction)  
+    tempMSCov = allDeltaParameterCovs[k].similarity(allLocalToCurv[k]);
+    tempMSCovProj = tempMSCov.similarity(MSprojAngle);
+    theMeasurementsCov[offsetMeas+nMeasPerHit*iMsMeas  ][offsetMeas+nMeasPerHit*iMsMeas  ] = tempMSCovProj[1][1];
+    theMeasurementsCov[offsetMeas+nMeasPerHit*iMsMeas+1][offsetMeas+nMeasPerHit*iMsMeas+1]=  tempMSCovProj[0][0];
+// broken line measurements for layer k
+    double deltaK (1.0/allSteps[k]);    
+    double deltaN (1.0/allSteps[n]);    
+    // transformation matices for offsets ( l -> k <- n )
+    tempJacL = allCurvlinJacobians[k] * tempJacobian;
+    tempJacOffsetL = tempJacL.sub(4,5,4,5);
+    tempJacobian = tempJacobian * allCurvatureChanges[k];
+    tempJacN = allCurvlinJacobians[n] * tempJacobian;
+    tempJacOffsetN = tempJacN.sub(4,5,4,5).inverse(ierr); // .T() should do
+    if (ierr) {
+       edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+				   << "Inversion 2 for broken lines failed: " << ierr; }
+    tempJacBending = tempJacL.sub(2,3,1,1) + tempJacN.sub(2,3,1,1);
+    // bending    
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][              0] = tempJacBending[1][0]/cosLambda;
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][              0] = tempJacBending[0][0];
+    // last layer
+    tempJacOffsetL *= deltaK;
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*l  ] = tempJacOffsetL[0][0];    
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*l+1] = tempJacOffsetL[0][1];    
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*l  ] = tempJacOffsetL[1][0];    
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*l+1] = tempJacOffsetL[1][1];        
+    // current layer
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*k  ] = -(deltaK + deltaN);
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*k+1] = -(deltaK + deltaN);   
+    // next layer
+    tempJacOffsetN *= deltaN;
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*n  ] = tempJacOffsetN[0][0];
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*n+1] = tempJacOffsetN[0][1];
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*n  ] = tempJacOffsetN[1][0];
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*n+1] = tempJacOffsetN[1][1];   
+        
+  }
+  
+}
+
+void ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
+						const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs,
+						const std::vector<AlgebraicMatrix> &allLocalToCurv,
+						const std::vector<double> &allSteps,
+						const double minStep)
+{
+//CHK: add material effects using broken lines
+//BrokenLinesCoarse: combine close by detectors, use aprroximate Jacobians from Steps, bending only in RPhi
+
+  int offsetPar = theNumberOfPars; 
+  int offsetMeas = nMeasPerHit*allSteps.size();
+  int ierr; 
+  double cosLambda = sqrt((theGlobalPars[3]*theGlobalPars[3]+theGlobalPars[4]*theGlobalPars[4])/
+  (theGlobalPars[3]*theGlobalPars[3]+theGlobalPars[4]*theGlobalPars[4]+theGlobalPars[5]*theGlobalPars[5]));
+      
+  AlgebraicMatrix MSprojAngle(2,5);
+  MSprojAngle[0][1] = 1;
+  MSprojAngle[1][2] = cosLambda;
+  AlgebraicMatrix MSprojOffset(2,5);
+  MSprojOffset[0][3] = 1;
+  MSprojOffset[1][4] = 1;
+
+  AlgebraicSymMatrix tempMSCov; 
+  AlgebraicSymMatrix tempMSCovProj;
+  AlgebraicMatrix tempMSJacProj; 
+  
+  // combine closeby detectors into single plane
+  std::vector<unsigned int> first(allSteps.size());         
+  std::vector<unsigned int> last (allSteps.size());
+  std::vector<unsigned int> plane(allSteps.size());
+  std::vector<double> sPlane(allSteps.size());
+  unsigned int nPlane = 0;
+  double sTot = 0;
+  
+  for (unsigned int k = 0; k < allSteps.size(); ++k) {
+    sTot += allSteps[k];
+    if (fabs(allSteps[k])>minStep) { nPlane += 1; first[nPlane] = k; }
+    last[nPlane] = k;
+    plane[k] = nPlane;
+    sPlane[nPlane] += sTot;
+  }
+  for (unsigned int k = 0; k <= nPlane; ++k) { sPlane[k] /= (double) (last[k]-first[k]+1); }
+
+  // measurements from hits  
+  for (unsigned int k = 0; k < allSteps.size(); ++k) {
+    tempMSJacProj = (allProjections[k] * allLocalToCurv[k].inverse(ierr) ) * MSprojOffset.T(); 
+    if (ierr) {
+       edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::addMaterialEffectsBrl"
+				   << "Inversion 3 for broken lines failed: " << ierr; }   
+    unsigned int iPlane = plane[k]; 
+    theDerivatives[nMeasPerHit*k  ][offsetPar+2*iPlane  ] =  tempMSJacProj[0][0];  
+    theDerivatives[nMeasPerHit*k  ][offsetPar+2*iPlane+1] =  tempMSJacProj[0][1]; 
+    theDerivatives[nMeasPerHit*k+1][offsetPar+2*iPlane  ] =  tempMSJacProj[1][0];  
+    theDerivatives[nMeasPerHit*k+1][offsetPar+2*iPlane+1] =  tempMSJacProj[1][1]; 
+  }
+
+// measurement of MS kink 
+  for (unsigned int i = 1; i < nPlane; ++i) {
+// CHK 
+    int iMsMeas = i-1; 
+    int l    = i-1; // last hit
+    int n    = i+1; // next hit
+
+// amount of multiple scattering in plane k 
+    for (unsigned int k = first[i]; k <= last[i]; ++k) {   
+      tempMSCov = allDeltaParameterCovs[k].similarity(allLocalToCurv[k]);
+      tempMSCovProj = tempMSCov.similarity(MSprojAngle);
+      theMeasurementsCov[offsetMeas+nMeasPerHit*iMsMeas  ][offsetMeas+nMeasPerHit*iMsMeas  ] += tempMSCovProj[0][0];
+      theMeasurementsCov[offsetMeas+nMeasPerHit*iMsMeas+1][offsetMeas+nMeasPerHit*iMsMeas+1] += tempMSCovProj[1][1];
+    }
+// broken line measurements for layer k, correlations between both planes neglected
+    double stepK = sPlane[i] - sPlane[l];
+    double stepN = sPlane[n] - sPlane[i];
+    double deltaK (1.0/stepK);    
+    double deltaN (1.0/stepN);    
+    // bending (only in RPhi)  
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][              0] = stepK+stepN;
+    // last layer
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*l  ] = deltaK;    
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*l+1] = deltaK;        
+    // current layer
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*i  ] = -(deltaK + deltaN);
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*i+1] = -(deltaK + deltaN);   
+    // next layer
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas  ][offsetPar+2*n  ] = deltaN;
+    theDerivatives[offsetMeas+nMeasPerHit*iMsMeas+1][offsetPar+2*n+1] = deltaN;   
+        
+  }
+  
 }

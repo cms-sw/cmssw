@@ -8,7 +8,6 @@
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
-
 DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
 						  const ConstRecHitContainer &forwardRecHits,
 						  const ConstRecHitContainer &backwardRecHits,
@@ -17,7 +16,7 @@ DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface
 						  PropagationDirection propDir,
 						  double mass )
   : ReferenceTrajectoryBase( referenceTsos.localParameters().mixedFormatVector().kSize,
-			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1, (materialEffects == breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0)
+			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1, (materialEffects >= breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0)
 {
   theValidityFlag = this->construct( referenceTsos, forwardRecHits, backwardRecHits,
 				     mass, materialEffects, propDir, magField );
@@ -37,6 +36,9 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
 					 const PropagationDirection propDir,
 					 const MagneticField *magField)
 {
+  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
+    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
+    
   ReferenceTrajectoryBase* fwdTraj = construct(refTsos, forwardRecHits,
 					       mass, materialEffects,
 					       propDir, magField);
@@ -67,13 +69,14 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
   theRecHits.insert( theRecHits.end(), ++bwdRecHits.begin(), bwdRecHits.end() );
 
   theParameters = extractParameters( refTsos );
-
+  theGlobalPars = fwdTraj->globalPars();
+  
   unsigned int nParam   = theNumberOfPars;
   unsigned int nFwdMeas = fwdTraj->numberOfHitMeas();
   unsigned int nBwdMeas = bwdTraj->numberOfHitMeas();
-  unsigned int nFwdBP   = fwdTraj->numberOfBreakPoints();
-  unsigned int nBwdBP   = bwdTraj->numberOfBreakPoints();
-  unsigned int nMeas    = nFwdMeas+nBwdMeas-nMeasPerHit;  
+  unsigned int nFwdBP   = fwdTraj->numberOfMsMeas();
+  unsigned int nBwdBP   = bwdTraj->numberOfMsMeas();
+  unsigned int nMeas    = nFwdMeas+nBwdMeas-nMeasPerHit; 
        
   theMeasurements.sub( 1, fwdTraj->measurements().sub( 1, nFwdMeas ) );
   theMeasurements.sub( nFwdMeas+1, bwdTraj->measurements().sub( nMeasPerHit+1, nBwdMeas ) );
@@ -121,7 +124,9 @@ DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos
 				   const PropagationDirection propDir,
 				   const MagneticField *magField) const
 {
-
+  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
+    << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
+  
   return new ReferenceTrajectory(referenceTsos, recHits, false,
 				 magField, materialEffects, propDir, mass);
 }

@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2008/07/14 11:46:53 $
- * by         : $Author: ewidl $
+ * last update: $Date: 2009/08/12 14:54:11 $
+ * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -82,7 +82,8 @@ protected:
   /** internal method to calculate jacobian
    */
   virtual bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
-			 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
+			 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
+			 AlgebraicMatrix &newCurvlinJacobian, double *nextStep,
 			 const PropagationDirection propDir, const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
@@ -107,9 +108,32 @@ protected:
   virtual void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
+				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
+				     
+  /** internal method to add material effects using break points
+   */
+  virtual void addMaterialEffectsBp (const std::vector<AlgebraicMatrix> &allJacobians, 
+				     const std::vector<AlgebraicMatrix> &allProjections,
+				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv);
-
+				     
+  /** internal methods to add material effects using broken lines
+   */
+  // exact 
+  virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allJacobians, 
+				     const std::vector<AlgebraicMatrix> &allProjections,
+				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
+				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
+				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
+				     const std::vector<double> &allSteps);
+  // fast
+  virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
+				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
+				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
+				     const std::vector<double> &allSteps,
+				     const double minStep = 1.0);
+          
   // Don't care for propagation direction 'anyDirection' - in that case the material effects
   // are anyway not updated ...
   inline const SurfaceSide surfaceSide(const PropagationDirection dir) const

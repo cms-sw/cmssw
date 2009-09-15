@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.52 $
- *  $Date: 2009/08/18 13:59:57 $
- *  (last update by $Author: kaschube $)
+ *  $Revision: 1.53 $
+ *  $Date: 2009/08/21 16:40:16 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -273,12 +273,10 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
 	validHitVecY[iHit] = (flagXY >= 2);
       } 
     } // end loop on hits
-    
-    // CHK add breakpoints
-    for (unsigned int iBp = 0; iBp < refTrajPtr->numberOfBreakPoints(); ++iBp) {
-      this->addBreakPoint(refTrajPtr, iBp);
-    }
-    
+
+// CHK add 'Multiple Scattering Measurements' for break points, broken lines
+    for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) { this->addMsMeas(refTrajPtr,iMsMeas); }
+        
     // kill or end 'track' for mille, depends on #hits criterion
     if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
       theMille->kill();
@@ -322,7 +320,6 @@ int MillePedeAlignmentAlgorithm::addMeasurementData
  
   const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
-
   // ignore invalid hits
   if (!recHitPtr->isValid()) return 0;
 
@@ -705,16 +702,16 @@ void MillePedeAlignmentAlgorithm::diagonalize
 
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm
-::addRefTrackBreakpoint1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			  unsigned int iBreakPoint, TMatrixDSym &aHitCovarianceM,
-			  TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
+::addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                    unsigned int iMsMeas, TMatrixDSym &aHitCovarianceM,
+                    TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
 {
-  
+
   // This Method is valid for 1D measurements only
   
-  const unsigned int xIndex = iBreakPoint + refTrajPtr->numberOfHitMeas();
+  const unsigned int xIndex = iMsMeas + refTrajPtr->numberOfHitMeas();
   // Covariance into a TMatrixDSym
-
+  
   //aHitCovarianceM = new TMatrixDSym(1);
   aHitCovarianceM(0,0)=refTrajPtr->measurementErrors()[xIndex][xIndex];
   
@@ -773,6 +770,7 @@ int MillePedeAlignmentAlgorithm
               const std::vector<float> &globalDerivativesy)
 {
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+  
   if((aRecHit)->dimension() != 2) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::callMille2D"
                                << "You try to call method for 2D hits for a " 
@@ -857,6 +855,30 @@ int MillePedeAlignmentAlgorithm
 
   return (isReal2DHit ? 2 : 1);
 }
+//__________________________________________________________________________________________________
+void MillePedeAlignmentAlgorithm
+::addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iMsMeas)
+{
+  TMatrixDSym aHitCovarianceM(1);
+  TMatrixF aHitResidualsM(1,1);
+  TMatrixF aLocalDerivativesM(1, refTrajPtr->derivatives().num_col());
+  // below method fills above 3 'matrices'
+  this->addRefTrackMsMeas1D(refTrajPtr, iMsMeas, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
+  
+  // no global parameters (use dummy 0)
+  TMatrixF aGlobalDerivativesM(1,1);
+  aGlobalDerivativesM(0,0) = 0;
+      
+  float newResidX = aHitResidualsM(0,0);  
+  float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
+  float *newLocalDerivsX = aLocalDerivativesM[0].GetPtr();
+  float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
+  const int nLocal  = aLocalDerivativesM.GetNcols();
+  const int nGlobal = 0;
+              
+  theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
+		  &nGlobal, newResidX, newHitErrX);  
+}
 
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::addLaserData(const TkFittedLasBeamCollection &lasBeams,
@@ -919,29 +941,4 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const TkFittedLasBeam &lasBeam,
   } // end of loop over hits
   
   theMille->end();
-}
-
-//__________________________________________________________________________________________________
-void MillePedeAlignmentAlgorithm
-::addBreakPoint(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iBreakPoint)
-{
-  TMatrixDSym aHitCovarianceM(1);
-  TMatrixF aHitResidualsM(1,1);
-  TMatrixF aLocalDerivativesM(1, refTrajPtr->derivatives().num_col());
-  // below method fills above 3 'matrices'
-  this->addRefTrackBreakpoint1D(refTrajPtr, iBreakPoint, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
-  
-  // no global parameters (use dummy 0)
-  TMatrixF aGlobalDerivativesM(1,1);
-  aGlobalDerivativesM(0,0) = 0;
-  
-  float newResidX = aHitResidualsM(0,0);
-  float newHitErrX = TMath::Sqrt(aHitCovarianceM(0,0));
-  float *newLocalDerivsX = aLocalDerivativesM[0].GetPtr();
-  float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
-  const int nLocal  = aLocalDerivativesM.GetNcols();
-  const int nGlobal = 0;
-  
-  theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
-		  &nGlobal, newResidX, newHitErrX);
 }

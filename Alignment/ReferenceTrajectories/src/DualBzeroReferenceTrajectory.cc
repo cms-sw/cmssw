@@ -18,7 +18,7 @@ DualBzeroReferenceTrajectory::DualBzeroReferenceTrajectory( const TrajectoryStat
 							    double mass,
 							    double momentumEstimate )
   : DualReferenceTrajectory( referenceTsos.localParameters().mixedFormatVector().kSize - 1,
-			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,  (materialEffects == breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0 ),
+			     numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,  (materialEffects >= breakPoints) ? 2*(numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits))-4 : 0 ),
     theMomentumEstimate( momentumEstimate )
 {
     theValidityFlag = DualReferenceTrajectory::construct( referenceTsos,
@@ -36,6 +36,9 @@ DualBzeroReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenc
 				   const PropagationDirection propDir,
 				   const MagneticField *magField) const
 {
+  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
+    << "[DualBzeroReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
+      
   return new BzeroReferenceTrajectory(referenceTsos, recHits,
 				      false, magField,
 				      materialEffects, propDir,

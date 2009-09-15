@@ -20,7 +20,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 						bool useRefittedState,
 						bool constructTsosWithErrors )
 
-  : ReferenceTrajectoryBase( TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(), 0 )
+  : ReferenceTrajectoryBase( TwoBodyDecayParameters::dimension, recHits.first.size() + recHits.second.size(), materialEffects )
 {
   if ( hitsAreReverse )
   {
@@ -51,7 +51,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryStat
 
 
 TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( void )
-  : ReferenceTrajectoryBase( 0, 0, 0 )
+  : ReferenceTrajectoryBase( 0, 0, ReferenceTrajectoryBase::none )
 {}
 
 
@@ -63,6 +63,9 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
 					bool useRefittedState,
 					bool constructTsosWithErrors )
 {
+  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
+    << "[TwoBodyDecayTrajectory::construct] Wrong MaterialEffects: " << materialEffects;  
+  
   const TwoBodyDecayTrajectoryState::TsosContainer& tsos = state.trajectoryStates( useRefittedState );
   const TwoBodyDecayTrajectoryState::Derivatives& deriv = state.derivatives();
   double mass = state.particleMass();

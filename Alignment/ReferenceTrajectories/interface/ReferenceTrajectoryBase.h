@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2008/07/10 15:24:35 $
- * by         : $Author: ewidl $
+ * last update: $Date: 2009/08/12 14:54:11 $
+ * by         : $Author: flucke $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
  * stated.
@@ -54,7 +54,7 @@
  * 090730 C. Kleinwort: 'Break Points' introduced for better description of multiple 
  *                      scattering (correlations)
  *
- * For each detector layer (in the hit collection) two orthogonal scattering angles are
+ * For each detector layer (in the hit collection) two ortogonal scattering angles are
  * introduced as new local track parameters ("break points"). To constrain those to the
  * expected mean (=0.) and variance (~1/p^2 X/X0) corresponding measurements are added.
  * Invalid hits may be used to produce break points too (UseInvalidHits = True).
@@ -66,6 +66,12 @@
  *
  * Break Points are selected by TrajectoryFactory.MaterialEffects = "BreakPoints"
  *
+ * 090909 C. Kleinwort: 'Broken Lines' introduced for description of multiple scattering
+ *
+ * Fine Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BreakPointsFine"
+ *      (exact derivatives)
+ * Coarse Broken Lines are selected by TrajectoryFactory.MaterialEffects = "BreakPoints"
+ *      (approximate derivatives, closeby hits (ds<1cm) combined)
  */
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
@@ -85,7 +91,7 @@ public:
 
   typedef ReferenceCountingPointer<ReferenceTrajectoryBase> ReferenceTrajectoryPtr;
 
-  enum MaterialEffects { none, multipleScattering, energyLoss, combined, breakPoints };
+  enum MaterialEffects { none, multipleScattering, energyLoss, combined, breakPoints, brokenLinesCoarse, brokenLinesFine };
 
   virtual ~ReferenceTrajectoryBase() {}
 
@@ -144,14 +150,15 @@ public:
 
   inline unsigned int numberOfHits() const { return theNumberOfHits; }
   inline unsigned int numberOfPar() const { return theNumberOfPars; }
-  inline unsigned int numberOfBreakPoints() const { return theNumberOfBreakPoints; }  
+  inline unsigned int numberOfMsMeas() const { return theNumberOfMsMeas; }  
+  inline unsigned int numberOfMsPar() const { return theNumberOfMsPars; }  
   inline unsigned int numberOfHitMeas() const { return theNumberOfHits * nMeasPerHit; } 
      
   virtual ReferenceTrajectoryBase* clone() const = 0;
 
 protected:
 
-  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nBreakPoints = 0 );
+  explicit ReferenceTrajectoryBase(unsigned int nPar = 0, unsigned int nHits = 0, unsigned int nMsPar = 0, unsigned int nMsMeas = 0 );
 
   unsigned int numberOfUsedRecHits(const TransientTrackingRecHit::ConstRecHitContainer &recHits) const;
   bool useRecHit(const TransientTrackingRecHit::ConstRecHitPointer& hitPtr) const;
@@ -159,10 +166,11 @@ protected:
   bool theValidityFlag;
   bool theParamCovFlag;
 
-  unsigned int theNumberOfHits;
-  unsigned int theNumberOfPars;
-  unsigned int theNumberOfBreakPoints;
-    
+  unsigned int theNumberOfHits;   // number of (measurements from) hits
+  unsigned int theNumberOfPars;   // number of (track) parameters
+  unsigned int theNumberOfMsMeas; // number of measurements for multiple scattering
+  unsigned int theNumberOfMsPars; // number of parameters   for multiple scattering 
+      
   std::vector<TrajectoryStateOnSurface> theTsosVec;
   TransientTrackingRecHit::ConstRecHitContainer theRecHits;
 

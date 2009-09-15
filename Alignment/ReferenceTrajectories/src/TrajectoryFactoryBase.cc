@@ -94,7 +94,7 @@ TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPoin
 {
   const GeomDet* det = hitPtr->det();
   if ( !det && !theUseWithoutDet ) return false;
-
+  
   if ( !( theUseInvalidHits || hitPtr->isValid() ) ) return false;
 
   if ( !theUseProjectedHits )
@@ -115,7 +115,10 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
   if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
   if ( strME == "None" ) return ReferenceTrajectoryBase::none;
   if ( strME == "BreakPoints" ) return ReferenceTrajectoryBase::breakPoints;
-  
+  if ( strME == "BrokenLines" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
+  if ( strME == "BrokenLinesCoarse" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
+  if ( strME == "BrokenLinesFine" ) return ReferenceTrajectoryBase::brokenLinesFine;
+        
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
 }
