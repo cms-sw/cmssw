@@ -8,30 +8,30 @@ ComCodes EgCutCodes::codes_(EgCutCodes::setCodes_());
 ComCodes EgCutCodes::setCodes_()
 {
   ComCodes codes;
-  codes.setCode("et",ET);
-  codes.setCode("pt",PT);
-  codes.setCode("detEta",DETETA);
-  codes.setCode("crack",CRACK);
+  codes.setCode("et",int(ET));
+  codes.setCode("pt",int(PT));
+  codes.setCode("detEta",int(DETETA));
+  codes.setCode("crack",int(CRACK));
  
-  codes.setCode("dEtaIn",DETAIN);
-  codes.setCode("dPhiIn",DPHIIN);
-  codes.setCode("invEInvP",INVEINVP);
+  codes.setCode("dEtaIn",int(DETAIN));
+  codes.setCode("dPhiIn",int(DPHIIN));
+  codes.setCode("invEInvP",int(INVEINVP));
   
-  codes.setCode("hadem",HADEM);
-  codes.setCode("sigmaIEtaIEta",SIGMAIETAIETA);
-  codes.setCode("e2x5Over5x5",E2X5OVER5X5);
-  codes.setCode("r9",R9);
+  codes.setCode("hadem",int(HADEM));
+  codes.setCode("sigmaIEtaIEta",int(SIGMAIETAIETA));
+  codes.setCode("e2x5Over5x5",int(E2X5OVER5X5));
+  codes.setCode("r9",int(R9));
 
-  codes.setCode("isolEm",ISOLEM);
-  codes.setCode("isolHad",ISOLHAD);
-  codes.setCode("isolPtTrks",ISOLPTTRKS);
-  codes.setCode("isolNrTrks",ISOLNRTRKS);
+  codes.setCode("isolEm",int(ISOLEM));
+  codes.setCode("isolHad",int(ISOLHAD));
+  codes.setCode("isolPtTrks",int(ISOLPTTRKS));
+  codes.setCode("isolNrTrks",int(ISOLNRTRKS));
 
-  codes.setCode("hltIsolTrksEle",HLTISOLTRKSELE);
-  codes.setCode("hltIsolTrksPho",HLTISOLTRKSPHO);
-  codes.setCode("hltIsolHad",HLTISOLHAD);
+  codes.setCode("hltIsolTrksEle",int(HLTISOLTRKSELE));
+  codes.setCode("hltIsolTrksPho",int(HLTISOLTRKSPHO));
+  codes.setCode("hltIsolHad",int(HLTISOLHAD));
 
-  codes.setCode("invalid",INVALID);
+  codes.setCode("invalid",int(INVALID));
   codes.sort();
   return codes;
 }
