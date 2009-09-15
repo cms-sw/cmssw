@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+from pprint import pprint
 from FWCore.Utilities.Enumerate import Enumerate
 from FWCore.Utilities.FileUtils import sectionNofTotal
 
@@ -385,7 +386,6 @@ class VarParsing (object):
             else:
                 mylist = []
                 mylist.append (args)
-            self._lists[name] = []
             for item in mylist:
                 self._lists[name].append( self._convert (name, item ) )
 
