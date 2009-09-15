@@ -121,6 +121,14 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int btt_conf_id_;
   std::string tag_;
   int version_;
+  int m_write_ped;
+  int m_write_lin;
+  int m_write_lut;
+  int m_write_wei;
+  int m_write_fgr;
+  int m_write_sli;
+  int m_write_bxt;
+  int m_write_btt;
 
 };
 #endif
