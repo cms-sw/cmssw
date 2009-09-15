@@ -74,7 +74,6 @@ namespace egHLT {
     OffPho(const reco::Photon& pho,const ClusShapeData& shapeData,const IsolData& isolData):
       pho_(&pho),clusShapeData_(shapeData),isolData_(isolData),
       cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
-      //cutCode_(0),looseCutCode_(0){}
     ~OffPho(){}
     
     //modifiers  
