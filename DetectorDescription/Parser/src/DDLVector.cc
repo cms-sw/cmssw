@@ -136,8 +136,8 @@ void DDLVector::processElement (const std::string& name, const std::string& nmsp
 	std::string nEntries = atts.find("nEntries")->second;
 	expNEntries = size_t (ExprEvalSingleton::instance().eval(pNameSpace, nEntries));
       }
-      if (isNumVec && pVector.size() != expNEntries
-	  || isStringVec && pStrVector.size() != expNEntries)
+      if ( (isNumVec && pVector.size() != expNEntries)
+	  || (isStringVec && pStrVector.size() != expNEntries) )
 	{
 	  std::string msg ("Number of entries found in Vector text does not match number in attribute nEntries.");
 	  msg += "\n\tnEntries = " + atts.find("nEntries")->second;
