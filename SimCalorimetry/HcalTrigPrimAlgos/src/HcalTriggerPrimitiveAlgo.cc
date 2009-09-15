@@ -20,6 +20,11 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
                                                             FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
                                                             numberOfSamples_(numberOfSamples),
                                                             numberOfPresamples_(numberOfPresamples) {
+   //No peak finding setting (for Fastsim)
+   if (!peakfind_){
+      numberOfSamples_ = 1; 
+      numberOfPresamples_ = 0;
+   }
 }
 
 
@@ -165,7 +170,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 
    // Align digis and TP
    int shift = samples.presamples() - numberOfPresamples_;
-   assert (shift >= 1);
+   assert (shift >= (peakfind_ ? shrink : 0));
    assert((shift + numberOfSamples_ + shrink) <= samples.size());
 
    for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
