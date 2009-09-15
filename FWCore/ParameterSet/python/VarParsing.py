@@ -1,7 +1,8 @@
 import sys
 import os
 import re
-from FWCore.Python.Enumerate import Enumerate
+from FWCore.Utilities.Enumerate import Enumerate
+from FWCore.Utilities.FileUtils import sectionNofTotal
 
 class VarParsing (object):
     """Infrastructure to parse variable definitions passed to cmsRun
@@ -26,8 +27,60 @@ class VarParsing (object):
         self._tagOrder   = []
         # now play with the rest
         for arg in args:
-            if arg.lower() == "standard":
-                # load in standard arguments and defaults
+            lower = arg.lower()
+            if lower == 'python':
+                self.register ('storePrepend',
+                               '',
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.string,
+                               "Prepend locaition of files starting "
+                               "with '/store'")
+                # Don't continue because we want to process the next
+                # piece, too.
+            if lower == 'analysis' or lower == 'python':
+                # Optionos for cmsRun or FWLite.Python
+                self.register ('maxEvents',
+                               -1,
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.int,
+                               "Number of events to process (-1 for all)")
+                self.register ('totalSections',
+                               0,
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.int,
+                               "Total number of sections")
+                self.register ('section',
+                               0,
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.int,
+                               "This section (from 1..totalSections inclusive)")
+                self.register ('inputFiles',
+                               '',
+                               VarParsing.multiplicity.list,
+                               VarParsing.varType.string,
+                               "Files to process")
+                self.register ('secondaryInputFiles',
+                               '',
+                               VarParsing.multiplicity.list,
+                               VarParsing.varType.string,
+                               "Second group of files to process (if needed)")
+                self.register ('outputFile',
+                               'output.root',
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.tagString,
+                               "Name of output file (if needed)")
+                self.register ('secondaryOutputFile',
+                               '',
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.tagString,
+                               "Name of second output file (if needed)")
+                self.setupTags (tag = 'numEvent%d',
+                                ifCond = 'maxEvents > 0',
+                                tagArg = 'maxEvents')
+                continue
+            # old, depricated, but here for compatibility of older code
+            if lower == "standard":
+                # load in old standard arguments and defaults
                 self.register ('maxEvents',
                                -1,
                                VarParsing.multiplicity.singleton,
@@ -164,6 +217,27 @@ class VarParsing (object):
                         print "Do not understand command '%s'" % (arg)
                         raise RuntimeError, "Unknown command"
             # else if declaration
+        ###########################
+        # Post-loading processing #
+        ###########################
+        # sections
+        if self._register.has_key ('totalSections') and \
+           self._register.has_key ('section') and \
+           self._register.has_key ('inputFiles') and \
+           self.totalSections and self.section:
+            self.inputFiles = sectionNofTotal (self.inputFiles,
+                                               self.section,
+                                               self.totalSections)
+        # storePrepend
+        if self._register.has_key ('storePrepend') and \
+           self._register.has_key ('inputFiles'):
+            storeRE = re.compile (r'^/store/')
+            newFileList = []
+            for filename in self.inputFiles:
+                if storeRE.match (filename):
+                    filename = self.storePrepend + filename
+                newFileList.append (filename)
+            self.inputFiles = newFileList
         # make sure found the py file
         if not foundPy:
             print "VarParsing.parseArguments() Failure: No configuration " + \
@@ -267,6 +341,11 @@ class VarParsing (object):
             # does exist.
             if len (default):
                 self._lists[name].append (default)
+
+
+    def has_key (self, key):
+        """Returns true if a key is registered"""
+        return self._register.has_key (key)
 
 
     def setType (self, name, mytype):
