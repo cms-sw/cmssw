@@ -98,7 +98,7 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("L1T/EventInfo");
 
-  if ( reportSummary_ = dbe_->get("L1T/EventInfo/reportSumamry") ) {
+  if( (reportSummary_ = dbe_->get("L1T/EventInfo/reportSumamry")) ) {
       dbe_->removeElement(reportSummary_->getName()); 
    }
   
@@ -147,8 +147,8 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("L1T/EventInfo");
 
-  if ( reportSummaryMap_ = dbe_->get("L1T/EventInfo/reportSummaryMap") ) {
-  dbe_->removeElement(reportSummaryMap_->getName());
+  if( (reportSummaryMap_ = dbe_->get("L1T/EventInfo/reportSummaryMap")) ){
+    dbe_->removeElement(reportSummaryMap_->getName());
   }
 
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 2, 1, 3, 11, 1, 12);

@@ -124,8 +124,8 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
 //  sprintf(histo, "reportSummary");
-  if ( reportSummary_ = dbe_->get("L1TEMU/EventInfo/reportSumamry") ) {
-      dbe_->removeElement(reportSummary_->getName()); 
+  if( (reportSummary_ = dbe_->get("L1TEMU/EventInfo/reportSumamry")) ){
+    dbe_->removeElement(reportSummary_->getName()); 
    }
   
   reportSummary_ = dbe_->bookFloat("reportSummary");
@@ -173,8 +173,8 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
-  if ( reportSummaryMap_ = dbe_->get("L1TEMU/EventInfo/reportSummaryMap") ) {
-  dbe_->removeElement(reportSummaryMap_->getName());
+  if( (reportSummaryMap_ = dbe_->get("L1TEMU/EventInfo/reportSummaryMap")) ){
+    dbe_->removeElement(reportSummaryMap_->getName());
   }
 
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 2, 1, 3, 11, 1, 12);
