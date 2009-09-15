@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/07/28 13:48:06 $ 
+ **  $Date: 2009/09/01 11:09:53 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -887,7 +887,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       bool passesCuts = false;
 
 
-      if ( useBinning_ && Et > cut*cutStep_ && ( Et < (cut+1)*cutStep_  | cut == numberOfSteps_-1 ) ){
+      if ( useBinning_ && Et > cut*cutStep_ && ( (Et < (cut+1)*cutStep_)  | (cut == numberOfSteps_-1) ) ){
 	passesCuts = true;
       }
       else if ( !useBinning_ && Et > cut*cutStep_ ){
