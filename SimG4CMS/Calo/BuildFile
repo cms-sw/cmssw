@@ -3,7 +3,6 @@
 <use name=SimG4Core/GFlash>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
-<use name=SimG4Core/Application>
 <use name=DataFormats/EcalDetId> 
 <use name=DataFormats/HcalDetId> 
 <use name=DataFormats/Math>
@@ -16,7 +15,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
-<use name=PhysicsTools/UtilAlgos>
+<use name=SimDataFormats/GeneratorProducts>
 <use name=boost>
 <use name=geant4core>
 <use name=root>
