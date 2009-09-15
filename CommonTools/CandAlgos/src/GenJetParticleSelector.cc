@@ -44,11 +44,11 @@ bool GenJetParticleSelector::operator()(const reco::Candidate& p) {
   int status = p.status();
   int id = abs(p.pdgId());
   if((!stableOnly_ || status == 1) && !partons_ &&
-     (pIds_.find(id) == pIds_.end() ^ bInclude_))
+     ( (pIds_.find(id) == pIds_.end()) ^ bInclude_))
     return true;
   else if(partons_ &&
 	  (p.numberOfDaughters() > 0 && (p.daughter(0)->pdgId() == 91 || p.daughter(0)->pdgId() == 92)) &&
-	  ((pIds_.find(id) == pIds_.end() ^ bInclude_)))
+	  ( ((pIds_.find(id) == pIds_.end()) ^ bInclude_)))
     return true;
   else
     return false;
