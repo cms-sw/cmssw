@@ -71,7 +71,7 @@ void FEConfigFgrGroupDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrGrou
     m_writeStmt->setFloat(4, item->getThreshHigh());
     m_writeStmt->setFloat(5, item->getRatioLow());
     m_writeStmt->setFloat(6, item->getRatioHigh());
-    m_writeStmt->setFloat(7, item->getLUTValue());
+    m_writeStmt->setInt(7, item->getLUTValue());
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
@@ -115,7 +115,7 @@ void FEConfigFgrGroupDat::fetchData(map< EcalLogicID, FEConfigFgrGroupDat >* fil
       dat.setThreshHigh( rset->getFloat(3) );  
       dat.setRatioLow( rset->getFloat(4) );  
       dat.setRatioHigh( rset->getFloat(5) );  
-      dat.setLUTValue( rset->getFloat(6) );  
+      dat.setLUTValue( rset->getInt(6) );  
     
       p.second = dat;
       fillMap->insert(p);
@@ -174,7 +174,7 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
 	float z=dataitem->getThreshHigh();
 	float r=dataitem->getRatioLow();
 	float s=dataitem->getRatioHigh();
-	float t=dataitem->getLUTValue();
+	int t=dataitem->getLUTValue();
 
 	xx[count]=x;
 	yy[count]=y;
@@ -204,7 +204,7 @@ void FEConfigFgrGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFgrG
     m_writeStmt->setDataBuffer(4, (dvoid*)zz, OCCIFLOAT , sizeof(zz[0]), z_len );
     m_writeStmt->setDataBuffer(5, (dvoid*)rr, OCCIFLOAT , sizeof(rr[0]), r_len );
     m_writeStmt->setDataBuffer(6, (dvoid*)ss, OCCIFLOAT , sizeof(ss[0]), s_len );
-    m_writeStmt->setDataBuffer(7, (dvoid*)tt, OCCIFLOAT , sizeof(tt[0]), t_len );
+    m_writeStmt->setDataBuffer(7, (dvoid*)tt, OCCIINT , sizeof(tt[0]), t_len );
 
     m_writeStmt->executeArrayUpdate(nrows);
 
