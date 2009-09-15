@@ -218,8 +218,8 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 	}
 
 	XSec result;
-	result.value = 1.0e-9 * sigBrSum;
-	result.error = 1.0e-9 * std::sqrt(errBr2Sum);
+	result.value = sigBrSum;
+	result.error = std::sqrt(errBr2Sum);
 
 	return result;
 }
