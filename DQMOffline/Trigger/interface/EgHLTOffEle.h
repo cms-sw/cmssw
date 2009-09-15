@@ -77,7 +77,7 @@ namespace egHLT {
     
     OffEle(const reco::GsfElectron& ele,const ClusShapeData& shapeData,const IsolData& isolData):
       gsfEle_(&ele),clusShapeData_(shapeData),isolData_(isolData),
-      cutCode_(EgCutCodes::INVALID),looseCutCode_(EgCutCodes::INVALID){}
+      cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
     ~OffEle(){}
     
     //modifiers  
