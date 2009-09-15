@@ -6,7 +6,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Version>
-<use name=DataFormats/FEDRawData>
 <use name=roothistmatrix>
 <export>
   <lib name=1>

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTaskExtras.cc
  *
- * $Date: 2009/03/26 11:59:32 $
- * $Revision: 1.5 $
+ * $Date: 2009/03/30 18:54:28 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -25,7 +25,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "DataFormats/Math/interface/Point3D.h"
