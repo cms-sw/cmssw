@@ -26,8 +26,6 @@ class ESShape : public CaloVShape
   
   double operator () (double time_) const;
   void display () const {}
-  double derivative (double time_) const;
-  double getTpeak () const;      
 
  private:
 

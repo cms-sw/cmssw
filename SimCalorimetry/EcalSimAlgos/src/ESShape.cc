@@ -37,7 +37,7 @@ double ESShape::operator () (double time_) const
     return 0.0;
   }
 }
-
+/*
 double ESShape::derivative (double time_) const
 {
   if (time_>0.00001) {
@@ -48,5 +48,5 @@ double ESShape::derivative (double time_) const
     return 0.0;
   }
 }
-
+*/
 
