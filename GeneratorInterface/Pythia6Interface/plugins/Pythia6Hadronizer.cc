@@ -240,7 +240,10 @@ void Pythia6Hadronizer::finalizeEvent()
 
    // this is "standard" Py6 event weight (corresponds to PYINT1/VINT(97)
    //
-   event()->weights().push_back( pyint1.vint[96] );
+   if (lhe && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+     event()->weights().push_back( pyint1.vint[96] / 1.0e-9 ); // mb -> pb
+   else
+     event()->weights().push_back( pyint1.vint[96] );
    //
    // this is event weight as 1./VINT(99) (PYINT1/VINT(99) is returned by the PYEVWT) 
    //
