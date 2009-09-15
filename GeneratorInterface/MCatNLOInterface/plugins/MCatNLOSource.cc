@@ -178,8 +178,11 @@ bool MCatNLOSource::produce(edm::Event &event)
   if(lastEventDone) return false;
 
   // fill HEPRUP common block and store in edm::Run
+  lhef::HEPRUP heprup;
   lhef::HEPEUP hepeup;
+  lhef::CommonBlocks::readHEPRUP(&heprup);
   lhef::CommonBlocks::readHEPEUP(&hepeup);
+  hepeup.IDPRUP = heprup.LPRUP[0];
   std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup));
   lhEvent->addComment(makeConfigLine("#IHPRO", ihpro));
   event.put(lhEvent);
