@@ -1,7 +1,6 @@
 <use name=DQM/EcalCommon>
 <use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
-<use name=DataFormats/EcalRawData>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
