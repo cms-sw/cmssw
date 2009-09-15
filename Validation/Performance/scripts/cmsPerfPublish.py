@@ -421,6 +421,9 @@ def getNumOfEventsFromLog(logfile):
     CallgrindEvents=0
     MemcheckEvents=0
     for line in log:
+        #FIXME:
+        #For robustness could read this from the Launching the X tests (.....) with N events each and keep that format decent for parsing.
+        #One more place where XML would seem a better choice to extract information (Timing of the performance suite in general is also, but publishing and harvesting some other info as well).
         if 'TimeSizeEvents' in line and not TimeSizeEvents:
             lineitems=line.split()
             TimeSizeEvents=lineitems[lineitems.index('TimeSizeEvents')+1]

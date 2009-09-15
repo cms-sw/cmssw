@@ -1586,17 +1586,19 @@ def main(argv=[__name__]): #argv is a list of arguments.
              ActualLogfile = open(PerfSuiteArgs['logfile'],"w")
           except (OSError, IOError), detail:
              ActualLogfile.write("Failed to open the intended logfile %s, detail error:\n%s"%(PerfSuiteArgs['logfile'],detail))
+       ActualLogfile.flush()
                  
     #Three lines to add the exact command line used to call the performance suite directly in the log.
     ActualLogfile.write("Performance suite invoked with command line:\n")
     cmdline=reduce(lambda x,y:x+" "+y,sys.argv)
     ActualLogfile.write(cmdline+"\n")
+    ActualLogfile.flush()
     
     #Debug printout that we could silence...
     ActualLogfile.write("Initial PerfSuite Arguments:\n")
     for key in PerfSuiteArgs.keys():
         ActualLogfile.write("%s %s\n"%(key,PerfSuiteArgs[key]))
-
+    ActualLogfile.flush()
     #print PerfSuiteArgs
 
     #Handle in here the case of multiple cores and the loading of cores with cmsScimark:
@@ -1615,11 +1617,11 @@ def main(argv=[__name__]): #argv is a list of arguments.
                     command="taskset -c %s sh -c \"%s\" &" % (str(core), subcmd)
                     #self.logh.write(command + "\n")
                     ActualLogfile.write(command+"\n")
-                    
                     #cmsScimarkLaunch.csh is an infinite loop to spawn cmsScimark2 on the other
                     #cpus so it makes no sense to try reading its stdout/err
                     cmsScimarkLaunch_pslist[core]=subprocess.Popen(command,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     ActualLogfile.write("Spawned %s \n with PID %s"%(command,cmsScimarkLaunch_pslist[core].pid))
+                    ActualLogfile.flush()
         PerfSuiteArgs['runonspare']=False #Set it to false to avoid cmsScimark being spawned by each thread
         logfile=PerfSuiteArgs['logfile']
         suitethread={}
@@ -1642,6 +1644,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
             suitethread[cpu]=PerfThread(**PerfSuiteArgs)
             ActualLogfile.write(suitethread[cpu])
             ActualLogfile.write("Launching PerfSuite thread on cpu%s"%cpu)
+            ActualLogfile.flush()
             #print "With arguments:"
             #print PerfSuiteArgs
             suitethread[cpu].start()
@@ -1653,6 +1656,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
            except (KeyboardInterrupt, SystemExit):
               raise
         ActualLogfile.write("All PerfSuite threads have completed!\n")
+        ActualLogfile.flush()
 
     else: #No threading, just run the performance suite on the cpu core selected
         suite.runPerfSuite(**PerfSuiteArgs)
