@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 import SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi 
 import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi 
 import Validation.RecoMuon.MultiTrackValidator_cfi
+from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
+from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
