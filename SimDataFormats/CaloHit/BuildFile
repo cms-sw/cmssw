@@ -1,13 +1,8 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/Math>
 <use name=SimDataFormats/EncodedEventId>
 <use name=boost>
 <use name=rootrflx>
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/Math>
-  <use name=SimDataFormats/EncodedEventId>
-  <use name=boost>
   <lib name=SimDataFormatsCaloHit>
 </export>
 
