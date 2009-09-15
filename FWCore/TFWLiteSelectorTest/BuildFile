@@ -1,10 +1,6 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/TestObjects>
-<use name=FWCore/Framework>
 <use name=FWCore/TFWLiteSelector>
-<use name=rootcore>
 <use name=rootgraphics>
-<use name=rootrflx>
 <export>
   <lib name=FWCoreTFWLiteSelectorTest>
 </export>

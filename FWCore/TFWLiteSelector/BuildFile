@@ -3,10 +3,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
-<use name=boost>
 <use name=rootcore>
-<use name=rootrflx>
 <export>
-  <use name=rootcore>
   <lib name=FWCoreTFWLiteSelector>
 </export>
