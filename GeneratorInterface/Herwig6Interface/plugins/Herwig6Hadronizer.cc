@@ -391,7 +391,6 @@ void Herwig6Hadronizer::statistics()
 
 bool Herwig6Hadronizer::hadronize()
 {
-
 	// hard process generation, parton shower, hadron formation
 
 	InstanceWrapper wrapper(this);	// safe guard
@@ -411,18 +410,24 @@ bool Herwig6Hadronizer::hadronize()
 	hwbgen();	// parton cascades
 
 	// call jimmy ... only if event is not killed yet by HERWIG
-	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) 
+	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) {
+	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
 	  return false;
+        }
 	
 	hwdhob();	// heavy quark decays
 	hwcfor();	// cluster formation
 	hwcdec();	// cluster decays
 	
 	// if event *not* killed by HERWIG, return true
-	if (!hwevnt.IERROR)  return true;
-	
-	hwufne();	// finalize event, to keep system clean
-	return false;
+	if (hwevnt.IERROR) {
+	  hwufne();	// finalize event, to keep system clean
+	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
+	  return false;
+	}
+
+	if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kAccepted);
+	return true;
 }
 
 void Herwig6Hadronizer::finalizeEvent()
