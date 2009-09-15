@@ -26,9 +26,9 @@ TtSemiLepHypGenMatch::buildHypo(edm::Event& evt,
       case TtSemiLepEvtPartons::LightQBar:
 	jetCorrectionLevel("lightQuark").empty() ? setCandidate(jets, match[idx], lightQBar_) : setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("lightQuark")); break;
       case TtSemiLepEvtPartons::HadB:
-	jetCorrectionLevel("bJet").empty() ? setCandidate(jets, match[idx], hadronicB_) : setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bJet")); break;
+	jetCorrectionLevel("bQuark").empty() ? setCandidate(jets, match[idx], hadronicB_) : setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bQuark")); break;
       case TtSemiLepEvtPartons::LepB: 
-	jetCorrectionLevel("bJet").empty() ? setCandidate(jets, match[idx], leptonicB_) : setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bJet")); break;
+	jetCorrectionLevel("bQuark").empty() ? setCandidate(jets, match[idx], leptonicB_) : setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bQuark")); break;
       }
     }
   }

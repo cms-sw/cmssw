@@ -148,14 +148,27 @@ TtSemiLepHypothesis::leptonType(const reco::RecoCandidate* cand)
   return type;
 }
 
-/// helper function to contruct the proper correction level string for corresponding quarkType, for unknown quarkTypes an emty string is returned 
+/// helper function to contruct the proper correction level string for corresponding quarkType, for unknown quarkTypes or if JetCorrectionLevel_ was not configured an emty string is returned 
 std::string
 TtSemiLepHypothesis::jetCorrectionLevel(const std::string& quarkType)
 {
-  std::string level=jetCorrectionLevel_+":";
+  std::string level;
+  // jetCorrectionLevel was not configured
+  if(jetCorrectionLevel_.empty())
+    return level;
+
+  // quarkType is unknown
+  if( !(quarkType=="lightQuark" || quarkType=="bQuark") )
+    return level;
+
+  // combine correction level; start with a ':' even if 
+  // there is no flavor tag to be added, as it is needed
+  // by setCandidate to disentangle the correction tag 
+  // from a potential flavor tag, which can be empty
+  level=jetCorrectionLevel_+":";
   if( level=="had:" || level=="ue:" || level=="part:" ){
     if(quarkType=="lightQuark"){level+="uds";}
-    if(quarkType=="bJet"      ){level+="b";  }
+    if(quarkType=="bQuark"){level+="b";  }
   }
   return level;
 }
@@ -164,6 +177,8 @@ TtSemiLepHypothesis::jetCorrectionLevel(const std::string& quarkType)
 void 
 TtSemiLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel)
 {
+  // disentangle the correction from the potential flavor tag 
+  // by the separating ':'; the flavor tag can be empty though
   std::string step   = correctionLevel.substr(0,correctionLevel.find(":"));
   std::string flavor = correctionLevel.substr(1+correctionLevel.find(":"));
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
