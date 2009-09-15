@@ -72,7 +72,8 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
   dbe_->setCurrentFolder("HLT/EventInfo");
 
 //  sprintf(histo, "reportSummary");
-  if ( reportSummary_ == dbe_->get("HLT/EventInfo/reportSumamry") ) {
+  reportSummary_ = dbe_->get("HLT/EventInfo/reportSumamry");
+  if ( reportSummary_  ) {
       dbe_->removeElement(reportSummary_->getName()); 
    }
   
@@ -132,7 +133,8 @@ void HLTEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("HLT/EventInfo");
 
-  if ( reportSummaryMap_ == dbe_->get("HLT/EventInfo/reportSummaryMap") ) {
+  reportSummaryMap_ = dbe_->get("HLT/EventInfo/reportSummaryMap");
+  if ( reportSummaryMap_  ) {
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 
