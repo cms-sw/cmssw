@@ -538,7 +538,7 @@ class PerfSuite:
     #
     def printFlush(self,command):
         if self._verbose:
-            self.logh.write(command + "\n")
+            self.logh.write(str(command) + "\n")
             self.logh.flush()
     
     #############
