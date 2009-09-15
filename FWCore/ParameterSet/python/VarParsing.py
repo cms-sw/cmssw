@@ -167,6 +167,9 @@ class VarParsing (object):
                     if command == 'load':
                         self.loadFromFile (name, value)
                         continue
+                    if command == 'clear':
+                        self.clearList (name)
+                        continue
                     # If we're here, then I don't recognize this command
                     print "Unknown command '%s' in '%s_%s" % \
                           (command, name, command)
