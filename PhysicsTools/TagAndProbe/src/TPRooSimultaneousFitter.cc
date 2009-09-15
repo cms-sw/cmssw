@@ -1,3 +1,20 @@
+// -*- C++ -*-
+//
+// Package:    
+// Class:      
+//
+/**\class TPRooSimultaneousFitter
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Authors:   Valerie Halyo
+// 
+
+
 #include "PhysicsTools/TagAndProbe/interface/TPRooSimultaneousFitter.hh"
 
 // RooFit - clean headers only
