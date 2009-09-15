@@ -491,8 +491,8 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     TObjArray* MyArrayPtr = LNames.Tokenize(",");
     if (MyArrayPtr) {
       MyArrayPtr->SetOwner(kTRUE);
-      for (unsigned int i = 0; i <= MyArrayPtr->GetLast(); ++i) {
-        if( i < VectorOfDetNames.size() ) {
+      for( int i = 0; i <= MyArrayPtr->GetLast(); ++i ) {
+        if( i < int(VectorOfDetNames.size()) ) {
           VectorOfDetNames[i] = ((TObjString*) MyArrayPtr->At(i) )->GetString().Data();
         }
       }
