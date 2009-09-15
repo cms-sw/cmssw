@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.TrackingParticleSelectionForEfficiency_cfi import *
+from SimTracker.TrackAssociation.LhcParametersDefinerForTP_cfi import *
+from SimTracker.TrackAssociation.CosmicParametersDefinerForTP_cfi import *
 
 multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     # selection of TP for evaluation of efficiency
