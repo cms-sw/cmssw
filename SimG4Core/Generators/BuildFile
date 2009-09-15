@@ -3,9 +3,7 @@
 </export>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=DataFormats/Math>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=boost>
 <use name=geant4core>
-<use name=hepmc>
 <use name=rootmath>
