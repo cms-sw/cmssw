@@ -2,7 +2,6 @@
 <use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
-<use name=DataFormats/EcalRawData>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
