@@ -16,19 +16,6 @@
 <use name=rootrflx>
 <use name=zlib>
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/Provenance>
-  <use name=DataFormats/Streamer>
-  <use name=DataFormats/FEDRawData>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/RootAutoLibraryLoader>
-  <use name=FWCore/ServiceRegistry>
-  <use name=FWCore/Utilities>
-  <use name=FWCore/Version>
-  <use name=Utilities/StorageFactory>
-  <use name=boost>
-  <use name=rootcore>
   <lib name=IOPoolStreamer>
 </export>
 
