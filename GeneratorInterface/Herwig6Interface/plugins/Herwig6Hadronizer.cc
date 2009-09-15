@@ -381,12 +381,18 @@ bool Herwig6Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 
 void Herwig6Hadronizer::statistics()
 {
-	double RNWGT = 1. / hwevnt.NWGTS;
-	double AVWGT = hwevnt.WGTSUM * RNWGT;
+	if (!runInfo().internalXSec()) {
+	  // not set via LHE, so get it from HERWIG
+	  // the reason is that HERWIG doesn't compute the xsec
+	  // in all LHE modes
 
-	double xsec = 1.0e3 * AVWGT;
+	  double RNWGT = 1. / hwevnt.NWGTS;
+	  double AVWGT = hwevnt.WGTSUM * RNWGT;
 
-	runInfo().setInternalXSec(xsec);
+	  double xsec = 1.0e3 * AVWGT;
+
+	  runInfo().setInternalXSec(xsec);
+	}
 }
 
 bool Herwig6Hadronizer::hadronize()
@@ -509,7 +515,12 @@ void Herwig6Hadronizer::finalizeEvent()
   }
 
   // add event weight & PDF information
-  event()->weights().push_back( hwevnt.EVWGT );
+  if (lheRunInfo() != 0 && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+    // in LHE weighting mode 4 the weight is an xsec, so convert form HERWIG
+    // to standard CMS unit "picobarn"
+    event()->weights().push_back( 1.0e3 * hwevnt.EVWGT );
+  else
+    event()->weights().push_back( hwevnt.EVWGT );
 
     
   // find final parton (first entry with IST=123)
