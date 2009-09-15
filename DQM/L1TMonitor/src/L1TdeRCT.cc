@@ -909,12 +909,12 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   int nelectrIsoEmul = 0;
   int nelectrNisoEmul = 0;
 
-  int electronDataRank[2][PhiEtaMax]={0};
-  int electronDataEta[2][PhiEtaMax]={0};
-  int electronDataPhi[2][PhiEtaMax]={0};
-  int electronEmulRank[2][PhiEtaMax]={0};
-  int electronEmulEta[2][PhiEtaMax]={0};
-  int electronEmulPhi[2][PhiEtaMax]={0};
+  int electronDataRank[2][PhiEtaMax]={{0}};
+  int electronDataEta[2][PhiEtaMax]={{0}};
+  int electronDataPhi[2][PhiEtaMax]={{0}};
+  int electronEmulRank[2][PhiEtaMax]={{0}};
+  int electronEmulEta[2][PhiEtaMax]={{0}};
+  int electronEmulPhi[2][PhiEtaMax]={{0}};
 
     // region/bit arrays
   int nRegionData = 0;
