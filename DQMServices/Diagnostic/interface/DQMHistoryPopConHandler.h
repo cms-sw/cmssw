@@ -118,17 +118,18 @@ namespace popcon{
 	edm::LogInfo   ("DQMHistoryPopConHandler") 
 	  << "[DQMHistoryPopConHandler::isTransferNeeded] \nthe selected conditions will be uploaded: " << ss.str()
 	  << "\n Current MetaData - "<< ss.str()  << "\n Last Uploaded MetaData- " << ss_logdb.str() << "\n Fine";
-	
+
 	return true;
-      } else if (m_iovSequence && !condObjBuilder->checkForCompatibility(ss_logdb.str())) {
-	edm::LogInfo   ("DQMHistoryPopConHandler") 
-	  << "[DQMHistoryPopConHandler::isTransferNeeded] \nthe current MetaData conditions " << ss.str() 
-	  << "\nare not compatible with the MetaData Conditions of the last iov ("  
-	  << this->tagInfo().lastInterval.first << ") open for the object " 
-	  << this->logDBEntry().payloadName << " \nin the db " 
-	  << this->logDBEntry().destinationDB << " \nConditions: "  << ss_logdb.str() << "\n NO TRANSFER NEEDED";
-	return false;
-      }	
+     } else if (m_iovSequence && !condObjBuilder->checkForCompatibility(ss_logdb.str())) {
+       edm::LogInfo   ("DQMHistoryPopConHandler") 
+         << "[DQMHistoryPopConHandler::isTransferNeeded] \nthe current MetaData conditions " << ss.str() 
+         << "\nare not compatible with the MetaData Conditions of the last iov ("  
+         << this->tagInfo().lastInterval.first << ") open for the object " 
+         << this->logDBEntry().payloadName << " \nin the db " 
+         << this->logDBEntry().destinationDB << " \nConditions: "  << ss_logdb.str() << "\n NO TRANSFER NEEDED";
+       return false;
+     }
+     return false;
     }
 
 
