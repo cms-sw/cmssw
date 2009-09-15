@@ -1583,7 +1583,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
               
        else:
           try:
-             ActualLogFile = open(PerfSuiteArgs['logfile'],"w")
+             ActualLogfile = open(PerfSuiteArgs['logfile'],"w")
           except (OSError, IOError), detail:
              ActualLogfile.write("Failed to open the intended logfile %s, detail error:\n%s"%(PerfSuiteArgs['logfile'],detail))
                  
