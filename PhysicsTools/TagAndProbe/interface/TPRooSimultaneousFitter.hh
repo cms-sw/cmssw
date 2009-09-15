@@ -77,7 +77,6 @@ private:
   std::auto_ptr<RooDataSet> rooData_;
   std::auto_ptr<RooDataHist> roobData_;
 
-  //  std::auto_ptr<RooStringVar> rooResultsRootFile_;
   std::auto_ptr<RooRealVar> rooMass_;
   std::auto_ptr<RooRealVar> rooVar1_;
   std::auto_ptr<RooRealVar> rooVar2_;

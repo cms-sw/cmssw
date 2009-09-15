@@ -13,9 +13,9 @@
 //
 // Original Authors:  Nadia Adam, Valerie Halyo
 //         Created:  Wed Oct  8 11:06:35 CDT 2008
-// $Id: MuonRefProducer.cc,v 1.1 2009/09/11 19:34:22 valerieh Exp $
+// $Id: MuonRefProducer.cc,v 1.2 2009/09/14 23:55:47 valerieh Exp $
 //
-//
+
 
 #include "PhysicsTools/TagAndProbe/interface/MuonRefProducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h" 
@@ -60,7 +60,7 @@ MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig)
    nchi2_ = iConfig.getUntrackedParameter<double>("nchi2",10.0);
    d0_ = iConfig.getUntrackedParameter<double>("d0",2.0);
    z0_ = iConfig.getUntrackedParameter<double>("z0",25.0);
-
+   muonIdAlgo_= iConfig.getUntrackedParameter<std::string>("muonIdAlgo","TMLastStationOptimizedLowPtTight");
    produces<reco::MuonRefVector>();
   
 }
@@ -144,8 +144,8 @@ MuonRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if( beamSpot.isValid() && fabs(trkRef->dz( beamSpot->position() )) > z0_ ) continue;
 
 	 // Require TMLastStationOptimizedLowPtTight is true
-	 //if( !probeRef->isGood(reco::Muon::TMLastStationOptimizedLowPtTight) ) continue;
-	 if( !(muon::isGoodMuon(*(probeRef),muon::TMLastStationOptimizedLowPtTight)) ) continue;
+	 //	 if( !(muon::isGoodMuon(*(probeRef),muon::TMLastStationOptimizedLowPtTight)) ) continue;
+	 if (!selectMuonIdAlgo(*(probeRef))) continue;
 
 	 muonCollection->push_back(probeRef);		      
       }
@@ -167,6 +167,70 @@ MuonRefProducer::beginJob(const edm::EventSetup&)
 void 
 MuonRefProducer::endJob() {
 }
+
+bool 
+MuonRefProducer::selectMuonIdAlgo(const reco::Muon&  muonCand){
+
+
+  std::string muonid(muonIdAlgo_);
+  bool  isMuonAlgo = false;
+
+  if(muonid.compare("GlobalMuonPromptTight")==0 &&
+     muon::isGoodMuon((muonCand),muon::GlobalMuonPromptTight)){
+    isMuonAlgo =true;
+  }else if(muonid.compare("All")==0 &&
+	   muon::isGoodMuon((muonCand),muon::All)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("AllGlobalMuons")==0 &&
+	   muon::isGoodMuon((muonCand),muon::AllGlobalMuons)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("AllStandAloneMuons")==0 &&
+	   muon::isGoodMuon((muonCand),muon::AllStandAloneMuons)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("AllTrackerMuons")==0 &&
+	   muon::isGoodMuon((muonCand),muon::AllTrackerMuons)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("TrackerMuonArbitrated")==0 &&
+	   muon::isGoodMuon((muonCand),muon::TrackerMuonArbitrated)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("AllArbitrated")==0 &&
+	   muon::isGoodMuon((muonCand),muon::AllArbitrated)) {
+    isMuonAlgo =true;
+  } else if(muonid.compare("TMLastStationLoose")==0 &&
+	    muon::isGoodMuon((muonCand),muon::TMLastStationLoose)) {
+    isMuonAlgo =true;
+  } else    if(muonid.compare("TMLastStationTight")==0 &&
+	       muon::isGoodMuon((muonCand),muon::TMLastStationTight)) {
+    isMuonAlgo =true;
+  } else if(muonid.compare("TM2DCompatibilityLoose")==0 &&
+	    muon::isGoodMuon((muonCand),muon::TM2DCompatibilityLoose)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("TM2DCompatibilityTight")==0 &&
+	   muon::isGoodMuon((muonCand),muon::TM2DCompatibilityTight)) {
+    isMuonAlgo =true;
+  } else if(muonid.compare("TMOneStationLoose")==0 &&
+	    muon::isGoodMuon((muonCand),muon::TMOneStationLoose)) {
+    isMuonAlgo =true;
+  } else if(muonid.compare("TMOneStationTight")==0 &&
+	    muon::isGoodMuon((muonCand),muon::TMOneStationTight)) {
+    isMuonAlgo =true;
+  }else if(muonid.compare("TMLastStationOptimizedLowPtLoose")==0 &&
+	   muon::isGoodMuon((muonCand),muon::TMLastStationOptimizedLowPtLoose)) {
+    isMuonAlgo =true;
+  } else if(muonid.compare("TMLastStationOptimizedLowPtTight")==0 &&
+	    muon::isGoodMuon((muonCand),muon::TMLastStationOptimizedLowPtTight)) {
+    isMuonAlgo =true;
+  }
+
+  return isMuonAlgo;
+
+}
+
+
+
+
+
+
 
 
 

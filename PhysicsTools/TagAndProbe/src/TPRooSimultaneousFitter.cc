@@ -94,19 +94,6 @@ void TPRooSimultaneousFitter::configure(RooRealVar &ResonanceMass, TTree *fitTre
   roobData_.reset(new RooDataHist("bdata","Binned Data", RooArgList(*rooMass_,ProbePass),*rooData_));
 		  
 		  
-		  
-  //  std::stringstream roofitstream;
-  //#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-  //  rooData_->defaultStream(&roofitstream);
-  //#else
-  //  rooData_->defaultPrintStream(&roofitstream);
-  //#endif
-  //  rooData_->get()->Print();
-  //  roofitstream.str(std::string());
-  
-  
-  
-  
   rooEfficiency_.reset( new RooRealVar("efficiency","efficiency",efficiency[0]));
   if( efficiency.size() == 3 )
     {
@@ -139,7 +126,7 @@ void TPRooSimultaneousFitter::configure(RooRealVar &ResonanceMass, TTree *fitTre
       rooNumBkgFail_->setConstant(false);
     }
   
-  //   rooResultsRootFile_ =new RooStringVar("TPresultsRootFile","ROOT file with persisted fit results","") ;
+
 }
 
 
@@ -181,16 +168,8 @@ void TPRooSimultaneousFitter::createTotalPDF(RooAddPdf *signalShapePdf,RooAddPdf
    
    rooTotalPDF_->addPdf(sumpass,ProbePass.getLabel());
 
-   //#if ROOT_VERSION_CODE <= ROOT_VERSION(5,19,0)
-   //   rooTotalPDF_->defaultStream(&roofitstream;)
-   //#else
-   //     rooTotalPDF_->defaultPrintStream(&roofitstream);
-   //#endif
-   //   rooTotalPDF_->Print();
    ProbePass.setLabel("fail");
    rooTotalPDF_->addPdf(sumfail,ProbePass.getLabel());
-   // rooTotalPDF_->Print();
-
 
 }
 

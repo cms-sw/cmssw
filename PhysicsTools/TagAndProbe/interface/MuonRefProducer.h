@@ -32,8 +32,12 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h" 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h" 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/Common/interface/RefToBase.h" 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
+#include <string>
 //
 // class decleration
 //
@@ -43,6 +47,9 @@ class MuonRefProducer : public edm::EDProducer
    public:
       explicit MuonRefProducer(const edm::ParameterSet&);
       ~MuonRefProducer();
+
+
+      bool selectMuonIdAlgo(const reco::Muon& muonCand);
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -62,7 +69,8 @@ class MuonRefProducer : public edm::EDProducer
       double d0_;
       double z0_;
       double dz0_;
- 
+      std::string muonIdAlgo_;
+
       // ----------member data ---------------------------
 };
 
