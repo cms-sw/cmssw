@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Feb 22 13:57:06 CET 2008
-// $Id: RPCConeBuilder.cc,v 1.9 2009/04/10 15:36:40 fruboes Exp $
+// $Id: RPCConeBuilder.cc,v 1.1 2009/06/01 13:58:16 fruboes Exp $
 //
 //
 
@@ -42,7 +42,8 @@
 
 RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig) :
       m_towerBeg(iConfig.getParameter<int>("towerBeg")),
-      m_towerEnd(iConfig.getParameter<int>("towerEnd"))
+      m_towerEnd(iConfig.getParameter<int>("towerEnd")),
+      m_runOnceBuildCones(false)
       //m_rollBeg(iConfig.getParameter<int>("rollBeg")),
       //m_rollEnd(iConfig.getParameter<int>("rollEnd")),
       //m_hwPlaneBeg(iConfig.getParameter<int>("hwPlaneBeg")),
@@ -154,7 +155,7 @@ RPCConeBuilder::produce(const L1RPCConeBuilderRcd& iRecord)
 void RPCConeBuilder::geometryCallback( const MuonGeometryRecord& record ){
 
   //std::cout << " Geometry callback called " << std::endl; 
-  
+  m_runOnceBuildCones = false; // allow re-running of buildCones
   record.get(m_rpcGeometry);
   
   
@@ -163,7 +164,8 @@ void RPCConeBuilder::geometryCallback( const MuonGeometryRecord& record ){
 void RPCConeBuilder::coneDefCallback( const L1RPCConeDefinitionRcd& record ){
 
   //std::cout << " ConeDef callback called " << std::endl; 
-  
+  m_runOnceBuildCones = false; // allow re-running of buildCones
+
   //edm::ESHandle<RPCGeometry> rpcGeom;
   record.get(m_L1RPCConeDefinition);
   
@@ -178,9 +180,8 @@ void RPCConeBuilder::coneDefCallback( const L1RPCConeDefinitionRcd& record ){
 void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
   
 
-  static bool runOnce = false;
-  if (!runOnce){
-    runOnce = true;
+  if (!m_runOnceBuildCones){
+    m_runOnceBuildCones = true;
   } else {
     throw cms::Exception("RPCInternal") << "buildCones called twice \n";
   }

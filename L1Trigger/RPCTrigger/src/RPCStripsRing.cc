@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Feb 26 15:13:10 CET 2008
-// $Id: RPCStripsRing.cc,v 1.5 2009/04/10 15:36:40 fruboes Exp $
+// $Id: RPCStripsRing.cc,v 1.1 2009/06/01 13:58:17 fruboes Exp $
 //
 
 // system include files
@@ -513,13 +513,6 @@ int RPCStripsRing::getTowerForRefRing(){
 
 void RPCStripsRing::compressConnections(){
 
-  static bool runOnce = false;
-  if (!runOnce){
-    runOnce = true;
-  } else {
-    throw cms::Exception("RPCInternal") << "compressConnections called twice \n";
-  }
-  
   
   L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap->begin();
   

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 25 12:06:44 CET 2008
-// $Id: RPCConeBuilder.h,v 1.4 2009/03/20 15:25:15 michals Exp $
+// $Id: RPCConeBuilder.h,v 1.1 2009/06/01 13:58:16 fruboes Exp $
 //
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -67,6 +67,7 @@ class RPCConeBuilder : public edm::ESProducer {
       
       edm::ESHandle<L1RPCConeDefinition> m_L1RPCConeDefinition;
       edm::ESHandle<RPCGeometry> m_rpcGeometry;          
+      bool m_runOnceBuildCones; 
           
       RPCStripsRing::TIdToRindMap m_ringsMap;
       
