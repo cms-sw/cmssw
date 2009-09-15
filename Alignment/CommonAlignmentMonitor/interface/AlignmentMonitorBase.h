@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.8 2008/08/11 20:24:19 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.9 2009/08/29 18:18:07 pivarski Exp $
 //
 
 // system include files
@@ -82,7 +82,7 @@ class AlignmentMonitorBase {
       /// AlignmentMonitorBase can find your histograms in a
       /// collector (parallel-processing) job)
       TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
-      TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., char *option="s");
+      TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., const char *option="s");
       TH2F *book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
       TFileDirectory *directory(std::string dir);
       

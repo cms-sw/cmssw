@@ -418,8 +418,8 @@ void MuonGeometryArrange::endHist(){
 //////////////////////////////////////////////////
 void MuonGeometryArrange::makeGraph(int sizeI, float smi, float sma, 
 	float minV, float maxV,
-	TH2F* dxh, TGraph* grx, char* name, char* title, 
-	char* titleg, char* axis,
+	TH2F* dxh, TGraph* grx, const char* name, const char* title, 
+	const char* titleg, const char* axis,
 	float* xp, float* yp, int size){
 
   if(minV>=maxV || smi>=sma || sizeI<=1 || xp==0x0 || yp==0x0) return;
