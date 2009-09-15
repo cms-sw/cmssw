@@ -241,7 +241,8 @@ void Pythia6Hadronizer::finalizeEvent()
    // this is "standard" Py6 event weight (corresponds to PYINT1/VINT(97)
    //
    if (lhe && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
-     event()->weights().push_back( pyint1.vint[96] / 1.0e-9 ); // mb -> pb
+     // translate mb to pb (CMS/Gen "convention" as of May 2009)
+     event()->weights().push_back( pyint1.vint[96] * 1.0e9 );
    else
      event()->weights().push_back( pyint1.vint[96] );
    //
@@ -749,7 +750,7 @@ void Pythia6Hadronizer::statistics()
   {
      // set xsec if not already done (e.g. from LHE cross section collector)
      double cs = pypars.pari[0]; // cross section in mb
-     cs *= pow(10.,9); // translate to pb (CMS/Gen "convenstion" as of May 2009)
+     cs *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
      runInfo().setInternalXSec( cs );
 // FIXME: can we get the xsec statistical error somewhere?
   }
