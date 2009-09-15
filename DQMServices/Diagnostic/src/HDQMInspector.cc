@@ -132,7 +132,7 @@ bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList
 void HDQMInspector::InitializeIOVList()
 {
   const HDQMSummary* reference;
-  while(reference = Iterator->next()) {
+  while((reference = Iterator->next())) {
     iovList.push_back(Iterator->getStartTime());
     if (iDebug) {
       std::cout << "iovList " << iovList.back() << std::endl;
@@ -225,7 +225,7 @@ void HDQMInspector::createTrend(std::string ListItems, std::string CanvasName, i
     return;
   }
   const HDQMSummary* reference;
-  while(reference = Iterator->next()) { 
+  while((reference = Iterator->next())) { 
    
     if(Iterator->getStartTime()<firstRun || Iterator->getStartTime()>lastRun || isListed(reference->getRunNr(), blackList))
       continue;
@@ -491,8 +491,8 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     TObjArray* MyArrayPtr = LNames.Tokenize(",");
     if (MyArrayPtr) {
       MyArrayPtr->SetOwner(kTRUE);
-      for (int i = 0; i <= MyArrayPtr->GetLast(); ++i) {
-        if (i < VectorOfDetNames.size()) {
+      for (unsigned int i = 0; i <= MyArrayPtr->GetLast(); ++i) {
+        if( i < VectorOfDetNames.size() ) {
           VectorOfDetNames[i] = ((TObjString*) MyArrayPtr->At(i) )->GetString().Data();
         }
       }
