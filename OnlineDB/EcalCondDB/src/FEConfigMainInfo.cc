@@ -87,8 +87,9 @@ int FEConfigMainInfo::fetchID()
     } else {
       // always select the last inserted one with a given tag
       stmt->setSQL("SELECT conf_id from FE_CONFIG_MAIN "
-		   "WHERE tag = :tag order by db_timestamp  " );
+		   "WHERE tag = :1 and version= (select max(version) from FE_CONFIG_MAIN where tag=:2) " );
       stmt->setString(1, m_config_tag);
+      stmt->setString(2, m_config_tag);
     }
 
     ResultSet* rset = stmt->executeQuery();
@@ -98,6 +99,7 @@ int FEConfigMainInfo::fetchID()
     } else {
       m_ID = 0;
     }
+    std::cout<<m_ID<<endl;
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigMainInfo::fetchID:  "+e.getMessage()));
@@ -247,24 +249,35 @@ void FEConfigMainInfo::setByID(int id)
 
 void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
   throw(runtime_error)
-{
+{ std::cout << " ### 1 getId from FEConfigMainInfo = " << result->getId() << std::endl;
+  
   this->checkConnection();
    DateHandler dh(m_env, m_conn);
   result->clear();
-  if(result->getId()==0){
-    throw(runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
+
+  int idid=0;
+
+  if(result->getId()==0){  
+    //throw(runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
+    idid=result->fetchID();
+    result->setId(idid);
   }
 
   try {
     m_readStmt->setSQL("SELECT conf_id, ped_conf_id, lin_conf_id, lut_conf_id, fgr_conf_id, sli_conf_id, wei_conf_id, bxt_conf_id, btt_conf_id, tag, version, description, db_timestamp FROM FE_CONFIG_MAIN WHERE conf_id = :1 ");
 
+    std::cout << " ### 2 getId from FEConfigMainInfo = " << result->getId() << std::endl;
+     
+    // good m_readStmt->setInt(1, result->getId());
     m_readStmt->setInt(1, result->getId());
     ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
 
     result->setId(          rset->getInt(1) );
+    std::cout << " Id = " << rset->getInt(1) << std::endl;
     result->setPedId(       rset->getInt(2) );
+    std::cout << " PedId = " << rset->getInt(2) << std::endl;
     result->setLinId(       rset->getInt(3) );
     result->setLUTId(       rset->getInt(4) );
     result->setFgrId(       rset->getInt(5) );
