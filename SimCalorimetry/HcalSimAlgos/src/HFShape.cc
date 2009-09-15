@@ -5,7 +5,6 @@ HFShape::HFShape()
 : nbin_(256),
   nt_(nbin_, 0.)
 {   
-  setTpeak(2.0);
   computeShapeHF();
 }
 
@@ -15,7 +14,6 @@ HFShape::HFShape(const HFShape&d)
   nbin_(d.nbin_),
   nt_(d.nt_)
 {
-  setTpeak(2.0);
 }
 
   
@@ -61,10 +59,5 @@ double HFShape::operator () (double time) const
     return nt_[jtime];
   else 
     return 0.0;
-}
-
-double HFShape::derivative (double time) const
-{
-  return 0.0;
 }
   

@@ -3,13 +3,11 @@
 #include <cmath>
 
 HcalSiPMShape::HcalSiPMShape() : CaloVShape(), nBins_(512), nt_(nBins_, 0.) {
-  setTpeak(31.);
   computeShape();
 }
 
 HcalSiPMShape::HcalSiPMShape(const HcalSiPMShape & other) :
   CaloVShape(other), nBins_(other.nBins_), nt_(other.nt_) {
-  setTpeak(31.);
 }
 
 double HcalSiPMShape::operator () (double time) const {
