@@ -1595,7 +1595,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
     #Debug printout that we could silence...
     ActualLogfile.write("Initial PerfSuite Arguments:\n")
     for key in PerfSuiteArgs.keys():
-        ActualLogfile.write("%s %s"%(key,PerfSuiteArgs[key]))
+        ActualLogfile.write("%s %s\n"%(key,PerfSuiteArgs[key]))
 
     #print PerfSuiteArgs
 
