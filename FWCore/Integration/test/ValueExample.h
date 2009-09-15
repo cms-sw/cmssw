@@ -16,13 +16,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:51:59 EDT 2005
-// $Id$
 //
 
 // system include files
 
 // user include files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+namespace edm {
+  class ParameterSet;
+}
 
 // forward declarations
 class ValueExample
