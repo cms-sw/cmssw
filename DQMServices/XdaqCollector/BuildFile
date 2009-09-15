@@ -1,8 +1,8 @@
 <use name=DQMServices/Core>
+<use name=FWCore/Framework>
 <use name=EventFilter/Utilities>
 <use name=xdaq>
 <use name=curl>
-<use name=DQMServices/Components>
 <export>
   <lib name=DQMServicesXdaqCollector>
 </export>

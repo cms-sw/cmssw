@@ -11,7 +11,6 @@
 <use name=CondCore/PopCon>
 
 <use name=CondFormats/DQMObjects>
-<use name=CondFormats/DataRecord>
 
 <use name=DQMServices/Core>
 <use name=DQMServices/Diagnostic>
