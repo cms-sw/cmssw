@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 maxevts   = 100
-
-inputfile = '/store/relval/CMSSW_3_1_0_pre7/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_31X_v1/0004/D0DE109C-E641-DE11-B0CD-001D09F25325.root'
+globaltag = 'STARTUP31X_V1::All'
+inputfile = '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V1-v2/0002/FCBE122E-D66B-DE11-9667-001D09F291D2.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
 
@@ -15,17 +15,14 @@ process.MessageLogger.cout = cms.untracked.PSet(
 	INFO = cms.untracked.PSet(
         limit = cms.untracked.int32(-1) ) )
 
-#.. Geometry
+#.. Geometry and Global Tags
 process.load("Configuration.StandardSequences.Geometry_cff")
-
-#.. Real data raw to digi
-process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-
-#.. reconstruction sequence for Cosmics
-process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = cms.string( globaltag )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-#.. access database hardware configuration objects
+#.. if cosmics: reconstruction sequence for Cosmics
+#process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxevts) )
 
@@ -34,9 +31,13 @@ process.source = cms.Source("PoolSource",
 
 process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
 
+#.. use the provided hardware configuration parameters
+process.rpcTechnicalTrigger.UseDatabase  = cms.untracked.int32(0)
+process.rpcTechnicalTrigger.ConfigFile   = cms.untracked.string("hardware-pseudoconfig.txt")
+
 process.out = cms.OutputModule("PoolOutputModule",
-	                               fileName = cms.untracked.string('rpcttbits.root'),
-        	                       outputCommands = cms.untracked.vstring('drop *','keep L1GtTechnicalTriggerRecord_*_*_*') )
+                               fileName = cms.untracked.string('rpcttbits.root'),
+                               outputCommands = cms.untracked.vstring('drop *','keep L1GtTechnicalTriggerRecord_*_*_*') )
 
 process.p = cms.Path(process.rpcTechnicalTrigger)
 

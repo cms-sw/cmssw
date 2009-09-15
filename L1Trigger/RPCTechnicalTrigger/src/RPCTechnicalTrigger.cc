@@ -213,8 +213,8 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     if ( bx == 0 ) {
       
-      m_triggerbits.set(0, m_serializedInfoLine1[k]->m_trigWheel1);
-      m_triggerbits.set(1, m_serializedInfoLine1[k]->m_trigWheel2);
+      m_triggerbits.set(0, m_serializedInfoLine1[k]->m_trigWheel2);
+      m_triggerbits.set(1, m_serializedInfoLine1[k]->m_trigWheel1);
       m_triggerbits.set(2, m_serializedInfoLine1[k+1]->m_trigWheel1);
       m_triggerbits.set(3, m_serializedInfoLine1[k+2]->m_trigWheel1);
       m_triggerbits.set(4, m_serializedInfoLine1[k+2]->m_trigWheel2);

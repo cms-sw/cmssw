@@ -1,4 +1,4 @@
-// $Id: TTUWedgeORLogic.cc,v 1.1 2009/08/09 11:11:37 aosorio Exp $
+// $Id: TTUWedgeORLogic.cc,v 1.2 2009/08/19 15:04:02 aosorio Exp $
 // Include files 
 
 
@@ -42,7 +42,7 @@ TTUWedgeORLogic::~TTUWedgeORLogic() {}
 void TTUWedgeORLogic::setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & boardspecs ) 
 {
  
-  m_wheelMajority[ boardspecs.m_Wheel1Id ] = 3;
+  m_wheelMajority[ boardspecs.m_Wheel1Id ] = 4;
   
   if ( (boardspecs.m_MaxNumWheels > 1) && (boardspecs.m_Wheel2Id != 0) )
     m_wheelMajority[ boardspecs.m_Wheel2Id ] = 3;

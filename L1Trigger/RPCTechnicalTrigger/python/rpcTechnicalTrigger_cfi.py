@@ -1,16 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-trigmode    = 1
-usedatabase = 1
+usedatabase = 0
 mytag       = 'test5'
 database    = 'sqlite'
 
-if database == 'sqlite':
+#.............................................................................
+
+if database   == 'sqlite':
     dbconnection = 'sqlite_file:/afs/cern.ch/user/a/aosorio/public/rpcTechnicalTrigger/myrbconfig.db'
-else:
+elif database == 'oraclerpc':
     dbconnection = 'oracle://devdb10/CMS_RPC_COMMISSIONING'
-    
-#...
+else:
+    dbconnection = ''
+#.............................................................................
 
 if usedatabase >= 1:
 
@@ -29,7 +31,9 @@ if usedatabase >= 1:
 
     CondDBCommon.connect = cms.string( dbconnection )
 
-#...
+
+#.............................................................................
+# Default configurations
 
 rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                       RPCDigiLabel = cms.InputTag("simMuonRPCDigis"),
@@ -43,5 +47,3 @@ rpcTechnicalTrigger  = cms.EDProducer('RPCTechnicalTrigger',
                                                            'L1Tech_rpcBit6',
                                                            'L1Tech_rpcBit7',
                                                            ) )
-
-
