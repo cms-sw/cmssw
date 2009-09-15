@@ -1,9 +1,11 @@
 //
-// $Id: Muon.cc,v 1.19 2009/06/22 15:58:32 jribnik Exp $
+// $Id: Muon.cc,v 1.20 2009/08/11 04:23:31 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <limits>
 
 using namespace pat;
 
@@ -233,8 +235,7 @@ double Muon::normChi2() const {
       return t->chi2() / t->ndof();
     }
     else {
-      throw cms::Exception("DataNotFound") << "Track ref is null in accessing normChi2";
-      return 0.0;
+      return std::numeric_limits<double>::max();
     }
   }
 }
@@ -252,7 +253,6 @@ unsigned int Muon::numberOfValidHits() const {
       return t->numberOfValidHits();
     }
     else {
-      throw cms::Exception("DataNotFound") << "Track ref is null in accessing normChi2";
       return 0;
     }
   }
@@ -265,7 +265,6 @@ double Muon::dB() const {
   if ( cachedDB_ ) {
     return dB_;
   } else {
-    throw cms::Exception("DataNotFound") << "Track ref is null in accessing normChi2";
-    return 0.0;
+    return std::numeric_limits<double>::max();
   }
 }

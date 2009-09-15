@@ -1,9 +1,11 @@
 //
-// $Id: Electron.cc,v 1.18 2009/08/26 08:37:56 cbern Exp $
+// $Id: Electron.cc,v 1.19 2009/08/26 08:39:25 cbern Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <limits>
 
 using namespace pat;
 
@@ -171,7 +173,6 @@ double Electron::dB() const {
   if ( cachedDB_ ) {
     return dB_;
   } else {
-    throw cms::Exception("DataNotFound") << "dB is not stored in this electron object";
-    return 0.0;
+    return std::numeric_limits<double>::max();
   }
 }
