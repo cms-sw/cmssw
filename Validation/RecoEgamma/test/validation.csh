@@ -17,12 +17,12 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_1_1
-setenv CMSSWver2 3_1_2
-setenv OLDRELEASE 311
-setenv NEWRELEASE 312
+setenv CMSSWver1 3_1_2
+setenv CMSSWver2 3_3_0
+setenv OLDRELEASE 312
+setenv NEWRELEASE 330
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre3
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
@@ -37,11 +37,11 @@ setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
 #setenv SAMPLE PhotonJetPt470
 
 #setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
-setenv SAMPLE QCD_Pt_80_120STARTUP
+#setenv SAMPLE QCD_Pt_80_120STARTUP
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 
 #==============END BASIC CONFIGURATION==================
@@ -58,17 +58,17 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 if ($SAMPLE == SingleGammaPt10IDEAL) then
 
 setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
 setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
 setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 
 else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
 
@@ -168,13 +168,8 @@ cat > scaledhistosForPhotons <<EOF
   sigmaIetaIetaAll
   sigmaIetaIetaBarrel
   sigmaIetaIetaEndcap
-  hOverEAll
-  hOverEBarrel
-  hOverEEndcap
   ecalRecHitSumEtConeDR04Barrel
   ecalRecHitSumEtConeDR04Endcap
-  hcalTowerSumEtConeDR04Barrel
-  hcalTowerSumEtConeDR04Endcap
   isoTrkSolidConeDR04All
   isoTrkSolidConeDR04Barrel
   isoTrkSolidConeDR04Endcap
@@ -185,6 +180,16 @@ cat > scaledhistosForPhotons <<EOF
 
 
 EOF
+
+cat > scaledhistosForPhotonsLogScale <<EOF
+  hOverEAll
+  hOverEBarrel
+  hOverEEndcap
+  hcalTowerSumEtConeDR04Barrel
+  hcalTowerSumEtConeDR04Endcap
+
+EOF
+
 
 cat > unscaledhistosForPhotons <<EOF
 pEResVsR9All
@@ -199,6 +204,9 @@ pEResVsEtEndcap
 pEcalRecHitSumEtConeDR04VsEtaAll
 pEcalRecHitSumEtConeDR04VsEtBarrel
 pEcalRecHitSumEtConeDR04VsEtEndcap
+pHcalTowerSumEtConeDR04VsEtaAll
+pHcalTowerSumEtConeDR04VsEtBarrel
+pHcalTowerSumEtConeDR04VsEtEndcap
 
 EOF
 
@@ -440,6 +448,40 @@ EOF
 end
 
 
+foreach i (`cat scaledhistosForPhotonsLogScale`)
+  cat > temp$N.C <<EOF
+TCanvas *c$i = new TCanvas("c$i");
+c$i->SetFillColor(10);
+c$i->SetLogy(1);
+file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+Double_t nnew=$i->GetEntries();
+file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
+if ( $i==hcalTowerSumEtConeDR04Barrel ||  $i==hcalTowerSumEtConeDR04Endcap  ) {  
+$i->GetXaxis()->SetRangeUser(0.,10.);
+}
+Double_t nold=$i->GetEntries();
+$i->SetStats(0);
+$i->SetLineColor(kPink+8);
+$i->SetFillColor(kPink+8);
+$i->Draw();
+file_new->cd("DQMData/EgammaV/PhotonValidator/Photons");
+Double_t nnew=$i->GetEntries();
+$i->SetStats(0);
+$i->SetLineColor(kBlack);
+$i->SetMarkerColor(kBlack);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->Scale(nold/nnew);
+$i->Draw("e1same");
+c$i->SaveAs("gifs/$i.gif");
+
+EOF
+  setenv N `expr $N + 1`
+end
+
+
+
+
 
 foreach i (`cat unscaledhistosForPhotons`)
   cat > temp$N.C <<EOF
@@ -447,13 +489,18 @@ TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
 $i->SetStats(0);
-if ( $i==pEcalRecHitSumEtConeDR04VsEtaAll ) {  
+if ( $i==pEcalRecHitSumEtConeDR04VsEtaAll   ) {  
 $i->GetYaxis()->SetRangeUser(0.,5.);
 } else if ( $i==pEcalRecHitSumEtConeDR04VsEtBarrel ) 
 { $i->GetYaxis()->SetRangeUser(0.,20.); 
-} else if ( $i==pEcalRecHitSumEtConeDR04VsEtEndcap  ) 
-{
-$i->GetYaxis()->SetRangeUser(0.,20.);
+} else if ( $i==pEcalRecHitSumEtConeDR04VsEtEndcap ) 
+{ $i->GetYaxis()->SetRangeUser(0.,20.);
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtaAll   ) 
+{ $i->GetYaxis()->SetRangeUser(0.,0.3);
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtBarrel   ) 
+{ $i->GetYaxis()->SetRangeUser(0.,5.);
+} else if ( $i==pHcalTowerSumEtConeDR04VsEtEndcap  ) 
+{ $i->GetYaxis()->SetRangeUser(0.,5.);
 } else  {
 $i->SetMinimum(0.8);
 $i->SetMaximum(1.1);
