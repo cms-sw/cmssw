@@ -9,7 +9,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions#3XY_Releases_MC
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V5::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 ##################################################################################
 # Some services
@@ -43,7 +43,8 @@ options = VarParsing.VarParsing ('standard')
 
 # setup any defaults you want
 options.output = 'test_output_RECO.root'
-options.files = '/store/relval/CMSSW_3_3_0_pre1/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V5-v1/0012/ECD0FB45-6796-DE11-B075-001D09F28D54.root'
+#options.files = '/store/relval/CMSSW_3_3_0_pre1/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V5-v1/0012/ECD0FB45-6796-DE11-B075-001D09F28D54.root'
+options.files = '/store/relval/CMSSW_3_3_0_pre3/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V8-v1/0015/DC571B73-43A1-DE11-BD0C-000423D98804.root'
 options.maxEvents = 1 
 
 # get and parse the command line arguments
