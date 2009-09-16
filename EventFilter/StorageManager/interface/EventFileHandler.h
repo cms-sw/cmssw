@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.5 2009/08/28 16:41:49 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/28 16:41:49 $
    */
   
   class EventFileHandler : public FileHandler
@@ -41,11 +41,16 @@ namespace stor {
      */
     virtual void writeEvent(const I2OChain&);
  
-   /**
+    /**
      *  Returns true if the file has not seen any recent events
      */
-    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
+    virtual bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime());
   
+    /**
+     * Returns true if the file corresponds to the given lumi section
+     */
+    virtual bool isFromLumiSection(const uint32_t lumiSection);
+
 
   private:
     

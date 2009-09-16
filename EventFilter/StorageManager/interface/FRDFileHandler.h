@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.3 2009/07/03 11:08:32 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef StorageManager_FRDFileHandler_h
@@ -14,8 +14,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/03 11:08:32 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -36,11 +36,17 @@ namespace stor {
     virtual void writeEvent(const I2OChain&);
 
     /**
-     *  Returns true if the file has not seen any recent events
+     * Returns true if the file has not seen any recent events
      */
-    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
+    virtual bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
 
-    
+    /**
+     * Error events do not belong to a lumi section
+     */
+    virtual bool isFromLumiSection(const uint32_t lumiSection)
+    { return false; }
+
+   
   private:
     
     /**

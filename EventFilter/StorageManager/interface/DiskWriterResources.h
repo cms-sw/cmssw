@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DiskWriterResources.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DiskWriterResources.h 
 
 
@@ -11,6 +11,9 @@
 #include "boost/thread/condition.hpp"
 #include "boost/thread/mutex.hpp"
 
+#include <deque>
+
+
 namespace stor
 {
 
@@ -18,9 +21,9 @@ namespace stor
    * Container class for resources that are needed by the DiskWriter
    * and need to be accessed from multiple threads.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class DiskWriterResources
@@ -87,15 +90,17 @@ namespace stor
     void streamChangeDone();
 
     /**
-     * Requests that the DiskWriter check if files need to be closed.
+     * Requests that the DiskWriter closes all files for the 
+     * specified lumi section.
      */
-    void requestFileClosingTest();
+    void requestLumiSectionClosure(const uint32_t lumiSection);
 
     /**
-     * Checks if a request has been made to run the DiskWriter
-     * file closing test *and* clears any pending request.
+     * Checks if a request has been made to close all files for
+     * a lumi section. If it returns true, the argument contains
+     * the lumi section number to be closed.
      */
-    bool fileClosingTestRequested();
+    bool lumiSectionClosureRequested(uint32_t& lumiSection);
 
     /**
      * Sets the DiskWriter "busy" status to the specified state.
@@ -120,9 +125,11 @@ namespace stor
 
     bool _streamChangeInProgress;
     boost::condition _streamChangeCondition;
+    
+    std::deque<uint32_t> lumiSectionsToClose;
 
     mutable boost::mutex _streamChangeMutex;
-    mutable boost::mutex _generalMutex;
+    mutable boost::mutex _lumiSectionMutex;
   };
 
 }

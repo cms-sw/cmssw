@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
+// $Id: StreamHandler.h,v 1.5 2009/08/28 16:41:50 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -22,8 +22,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:11 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/28 16:41:50 $
    */
   
   class StreamHandler
@@ -45,6 +45,11 @@ namespace stor {
      */    
     void closeTimedOutFiles(utils::time_point_t currentTime =
                             utils::getCurrentTime());
+
+    /**
+     * Close all files which belong to the given lumi section
+     */    
+    void closeFilesForLumiSection(const uint32_t lumiSection);
 
     /**
      * Write the event to the stream file

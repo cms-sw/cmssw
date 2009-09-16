@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DiskWriter.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -30,8 +30,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -74,14 +74,30 @@ namespace stor {
     void writeEventToStreams(const I2OChain&);
 
     /**
-     * Close all timed-out files
+     * Reconfigure streams if a request is pending
      */    
-    void closeTimedOutFiles();
+    void checkStreamChangeRequest();
 
     /**
-     * Returns true if the next check for timed-out files is due
+     * Close old files if fileClosingTestInterval has passed
+     * or do it now if argument is true
      */    
-    bool timeToCheckForFileTimeOut();
+    void checkForFileTimeOuts(const bool doItNow = false);
+
+    /**
+     * Close all files for expired lumi sections
+     */    
+    void closeFilesForOldLumiSections();
+
+    /**
+     * Close all files belonging to the given lumi section
+     */    
+    void closeFilesForLumiSection(const uint32_t lumiSection);
+
+    /**
+     * Close all timed-out files
+     */    
+    void closeTimedOutFiles(const utils::time_point_t);
 
     /**
      * Configures the event streams to be written to disk
