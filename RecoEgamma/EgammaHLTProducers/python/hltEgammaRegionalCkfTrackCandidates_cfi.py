@@ -7,8 +7,7 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 #
 hltEgammaRegionalCkfTrackCandidates = copy.deepcopy(ckfTrackCandidates)
 #bool   seedCleaning         = false
-hltEgammaRegionalCkfTrackCandidates.SeedProducer = 'hltEgammaRegionalPixelSeedGenerator'
-hltEgammaRegionalCkfTrackCandidates.SeedLabel = ''
+hltEgammaRegionalCkfTrackCandidates.src = 'hltEgammaRegionalPixelSeedGenerator'
 hltEgammaRegionalCkfTrackCandidates.TrajectoryBuilder = 'CkfTrajectoryBuilder'
 hltEgammaRegionalCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 # set it as "none" to avoid redundant seed cleaner
