@@ -42,9 +42,9 @@ void TrackerPSimHitSelector::select(PSimHitCollection & selection, edm::Event co
     detCabling->addConnected(theDetIdList);
 
     // Select only psimhits from alive modules
-    std::vector<std::pair<PSimHit,int> > psimhits(SimHitSelectorFromDB().getSimHit(pSimHits, theDetIdList));
+    std::vector<std::pair<const PSimHit*,int> > psimhits(SimHitSelectorFromDB().getSimHit(pSimHits, theDetIdList));
 
     // Add the selected psimhit to the main list
     for (std::size_t i = 0; i < psimhits.size(); ++i)
-        selection.push_back( psimhits[i].first );
+        selection.push_back( *(const_cast<PSimHit*>(psimhits[i].first)) );
 }
