@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.cc,v 1.7 2009/06/10 08:15:27 dshpakov Exp $
+ * $Id: InitMsgCollection.cc,v 1.8 2009/07/20 13:07:27 mommsen Exp $
 /// @file: InitMsgCollection.cc
  */
 
@@ -238,6 +238,8 @@ int InitMsgCollection::size()
  */
 std::string InitMsgCollection::getSelectionHelpString()
 {
+  boost::mutex::scoped_lock sl(listLock_);
+
   // nothing much we can say if the collection is empty
   if (initMsgList_.size() == 0) {
     return "No information is available about the available triggers.";
@@ -288,12 +290,17 @@ std::string InitMsgCollection::getSelectionHelpString()
  */
 std::string InitMsgCollection::getOutputModuleName(uint32 outputModuleId)
 {
-  if (outModNameTable_.find(outputModuleId) == outModNameTable_.end())
+  boost::mutex::scoped_lock sl(listLock_);
+
+  std::map<uint32, std::string>::iterator it =
+    outModNameTable_.find(outputModuleId);
+
+  if (it == outModNameTable_.end())
   {
     return "";
   }
   else {
-    return outModNameTable_[outputModuleId];
+    return it->second;
   }
 }
 
@@ -404,3 +411,11 @@ InitMsgSharedPtr InitMsgCollection::getElementForConsumer( ConsumerID cid )
 
   return getElementForOutputModule(outputModuleLabel);
 }
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -
