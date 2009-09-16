@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.2 2009/05/09 16:12:28 dlange Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.3 2009/06/07 02:05:59 dlange Exp $
 //
 //
 
@@ -34,9 +34,18 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
   : HcalNoiseRBXCollectionTag (iConfig.getParameter <edm::InputTag> ("HcalNoiseRBXCollection")),
     HcalNoiseSummaryTag (iConfig.getParameter <edm::InputTag> ("HcalNoiseSummary")),
     severity (iConfig.getParameter <int> ("severity")),
-    EMFractionMin(iConfig.getParameter <double> ("EMFractionMin")),
-    nRBXhitsMax(iConfig.getParameter <int> ("nRBXhitsMax")),
-    RBXhitThresh(iConfig.getParameter <double> ("RBXhitThresh"))
+    useLooseFilter (iConfig.getParameter<bool>("useLooseFilter")),
+    useTightFilter (iConfig.getParameter<bool>("useTightFilter")),
+    useHighLevelFilter (iConfig.getParameter<bool>("useHighLevelFilter")),
+    useCustomFilter (iConfig.getParameter<bool>("useCustomFilter")),
+    minE2Over10TS (iConfig.getParameter<double>("minE2Over10TS")),
+    min25GeVHitTime (iConfig.getParameter<double>("min25GeVHitTime")),
+    max25GeVHitTime (iConfig.getParameter<double>("max25GeVHitTime")),
+    maxZeros (iConfig.getParameter<int>("maxZeros")),
+    maxHPDHits (iConfig.getParameter<int>("maxHPDHits")),
+    maxRBXHits (iConfig.getParameter<int>("maxRBXHits")),
+    minHPDEMF (iConfig.getParameter<double>("minHPDEMF")),
+    minRBXEMF (iConfig.getParameter<double>("minRBXEMF"))
 {
 }
 
@@ -69,16 +78,22 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
     return accept;
   }
 
-  //std::cout << "NoiseSummary: " << NoiseSummary->eventEMFraction() << std::endl;
-  if (NoiseSummary->eventEMFraction() < EMFractionMin) return false;
- 
-
-  //std::cout << "Size of NoiseRBX collection:  " << RBXCollection->size() << std::endl;
-  for (HcalNoiseRBXCollection::const_iterator rbx = RBXCollection->begin();
-         rbx!=(RBXCollection->end()); rbx++) {
-    int nRBXhits=rbx->numRecHits(RBXhitThresh);
-    //std::cout << "\tNumber of RBX hits:     " << nRBXhits << std::endl;
-    if (nRBXhits > nRBXhitsMax ) return false;
+  // apply each filter
+  if(useLooseFilter     && !NoiseSummary->passLooseNoiseFilter())     return false;
+  if(useTightFilter     && !NoiseSummary->passTightNoiseFilter())     return false;
+  if(useHighLevelFilter && !NoiseSummary->passHighLevelNoiseFilter()) return false;
+  
+  // custom filter
+  if(useCustomFilter) {
+    if(NoiseSummary->minE2Over10TS()<minE2Over10TS) return false;
+    if(NoiseSummary->min25GeVHitTime()<min25GeVHitTime) return false;
+    if(NoiseSummary->max25GeVHitTime()>max25GeVHitTime) return false;
+    if(NoiseSummary->maxZeros()>maxZeros) return false;
+    if(NoiseSummary->maxHPDHits()>maxHPDHits) return false;
+    if(NoiseSummary->maxRBXHits()>maxRBXHits) return false;
+    if(NoiseSummary->minHPDEMF()<minHPDEMF) return false;
+    if(NoiseSummary->minRBXEMF()<minRBXEMF) return false;
   }
+
   return accept;
 }
