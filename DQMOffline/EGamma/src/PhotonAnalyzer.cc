@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/09/01 11:09:53 $ 
+ **  $Date: 2009/09/15 08:04:50 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -702,7 +702,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
   const edm::ValueMap<bool> *tightPhotonID = tightPhotonFlag.product();
 
- 
+  std::cout << " Photon collection size " <<  photonCollection.size() << std::endl;
 
   // Create array to hold #photons/event information
   int nPho[100][3][3];
@@ -781,6 +781,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Loop over all photons in event
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
+
+
     //for reconstruction efficiency plots
     h_phoEta_HLT_->Fill( (*iPho).eta() );
     h_phoEt_HLT_->Fill( (*iPho).et() ); 
@@ -844,13 +846,15 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
     //get rechit collection containing this photon
+    bool validEcalRecHits=true;
     edm::Handle<EcalRecHitCollection>   ecalRecHitHandle;
+    EcalRecHitCollection ecalRecHitCollection;
     if ( phoIsInBarrel ) {
       // Get handle to rec hits ecal barrel 
       e.getByLabel(barrelRecHitProducer_, barrelRecHitCollection_, ecalRecHitHandle);
       if (!ecalRecHitHandle.isValid()) {
 	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelRecHitProducer_;
-	  return;
+	validEcalRecHits=false; 
 	}
 
     } else if ( phoIsInEndcap ) {    
@@ -858,11 +862,11 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       e.getByLabel(endcapRecHitProducer_, endcapRecHitCollection_, ecalRecHitHandle);
       if (!ecalRecHitHandle.isValid()) {
 	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapRecHitProducer_;
-	return;
+	validEcalRecHits=false; 
       }
       
     }
-
+    if (validEcalRecHits) ecalRecHitCollection = *(ecalRecHitHandle.product());
 
 
 
@@ -1025,7 +1029,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
- 	const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
+
 
 
  	bool atLeastOneDeadChannel=false;
