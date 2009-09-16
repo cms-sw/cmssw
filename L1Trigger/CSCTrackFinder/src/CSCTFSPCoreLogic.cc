@@ -370,7 +370,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 		++bx;
 	}
 
-	if( orDtIn == true )
+/*	if( orDtIn == true )
 	{
 		for(int ii=0; ii!=bx; ii++){
 			for(int jj=0; jj!=19; jj++)
@@ -396,7 +396,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 		}
 			
 	}
-
+*/
   bx = 0;
 
   //int nmuons = 0;

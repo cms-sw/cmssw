@@ -67,7 +67,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		      qual = (qual + 1)%8;
 
 		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, 0, 0, phib, csc_bx, (stub+1) + 2*((is+1)%2));
-		      DTChamberId dtid(wheel,1,is);
+		      DTChamberId dtid(wheel,1,iss+1);
 		      csctf::TrackStub tsCSC(dtinfo,dtid, phi, 0);
 
 		      dtstubs.push_back(tsCSC);
