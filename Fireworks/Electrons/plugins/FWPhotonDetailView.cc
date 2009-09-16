@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.13 2009/09/06 12:54:23 dmytro Exp $
+// $Id: FWPhotonDetailView.cc,v 1.14 2009/09/06 19:35:44 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -91,7 +91,7 @@ void FWPhotonDetailView::build (const FWModelId &id, const reco::Photon* iPhoton
    // set event handler and flip camera to top view at beginning
    glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = 
-     new TEveLegoEventHandler("Lego",(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
+     new TEveLegoEventHandler(lego, (TGWindow*)glv->GetGLWidget(), (TObject*)glv);
    glv->SetEventHandler(eh);
    glv->UpdateScene();
    glv->CurrentCamera().Reset();
