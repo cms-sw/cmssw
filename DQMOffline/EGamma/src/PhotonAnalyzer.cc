@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/07/28 13:48:06 $ 
+ **  $Date: 2009/09/16 18:32:50 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -702,7 +702,6 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
   const edm::ValueMap<bool> *tightPhotonID = tightPhotonFlag.product();
 
- 
 
   // Create array to hold #photons/event information
   int nPho[100][3][3];
@@ -781,6 +780,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Loop over all photons in event
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
+
+
     //for reconstruction efficiency plots
     h_phoEta_HLT_->Fill( (*iPho).eta() );
     h_phoEt_HLT_->Fill( (*iPho).et() ); 
@@ -843,7 +844,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     if ( !isIsolated ) type=2;
 
 
-  //get rechit collection containing this photon
+    //get rechit collection containing this photon
     bool validEcalRecHits=true;
     edm::Handle<EcalRecHitCollection>   ecalRecHitHandle;
     EcalRecHitCollection ecalRecHitCollection;
@@ -868,6 +869,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
+
     //if ((*iPho).isEBEEGap()) continue;  //cut out gap photons
 
 
@@ -888,7 +890,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       bool passesCuts = false;
 
 
-      if ( useBinning_ && Et > cut*cutStep_ && ( Et < (cut+1)*cutStep_  | cut == numberOfSteps_-1 ) ){
+      if ( useBinning_ && Et > cut*cutStep_ && ( (Et < (cut+1)*cutStep_)  | (cut == numberOfSteps_-1) ) ){
 	passesCuts = true;
       }
       else if ( !useBinning_ && Et > cut*cutStep_ ){
@@ -1028,6 +1030,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 
+
  	bool atLeastOneDeadChannel=false;
  	for(reco::CaloCluster_iterator bcIt = (*iPho).superCluster()->clustersBegin();bcIt != (*iPho).superCluster()->clustersEnd(); ++bcIt) { //loop over basic clusters in SC
  	  for(std::vector< std::pair<DetId, float> >::const_iterator rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) { //loop over rec hits in basic cluster
@@ -1085,8 +1088,11 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  }
 
 	
-	  fill2DHistoVector(h_phoConvEta_,aConv->caloCluster()[0]->eta(),cut,type);
-	  fill2DHistoVector(h_phoConvPhi_,aConv->caloCluster()[0]->phi(),cut,type);
+	  //fill2DHistoVector(h_phoConvEta_,aConv->caloCluster()[0]->eta(),cut,type);
+	  //fill2DHistoVector(h_phoConvPhi_,aConv->caloCluster()[0]->phi(),cut,type);
+	  
+	  fill2DHistoVector(h_phoConvEta_,aConv->pairMomentum().eta(),cut,type);
+	  fill2DHistoVector(h_phoConvPhi_,aConv->pairMomentum().phi(),cut,type);
 
 
 	  if ( aConv->conversionVertex().isValid() ) {
@@ -1098,7 +1104,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	    double convR= sqrt(aConv->conversionVertex().position().perp2());
 	    double scalar = aConv->conversionVertex().position().x()*aConv->pairMomentum().x() + aConv->conversionVertex().position().y()*aConv->pairMomentum().y();
-	    if ( scalar < 0 ) convR= -sqrt(aConv->conversionVertex().position().perp2());
+	    if ( scalar < 0 ) convR= -convR;
 
 
 	    fill2DHistoVector(h_convVtxRvsZ_,fabs( aConv->conversionVertex().position().z() ), convR,cut,type);
