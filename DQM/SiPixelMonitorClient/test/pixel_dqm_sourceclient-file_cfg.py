@@ -234,7 +234,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(20000)
 )
 
 ##----## Sequences and Paths:

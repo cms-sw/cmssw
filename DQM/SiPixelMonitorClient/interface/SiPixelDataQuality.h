@@ -111,8 +111,8 @@ class SiPixelDataQuality {
   float barrel_error_flag_, endcap_error_flag_, feds_error_flag_;
   float BarrelL1_error_flag_, BarrelL2_error_flag_, BarrelL3_error_flag_;
   float EndcapDP1_error_flag_, EndcapDP2_error_flag_, EndcapDM1_error_flag_, EndcapDM2_error_flag_;
-  float BarrelL1_cuts_flag_[14], BarrelL2_cuts_flag_[14], BarrelL3_cuts_flag_[14];
-  float EndcapDP1_cuts_flag_[14], EndcapDP2_cuts_flag_[14], EndcapDM1_cuts_flag_[14], EndcapDM2_cuts_flag_[14];
+  float BarrelL1_cuts_flag_[15], BarrelL2_cuts_flag_[15], BarrelL3_cuts_flag_[15];
+  float EndcapDP1_cuts_flag_[15], EndcapDP2_cuts_flag_[15], EndcapDM1_cuts_flag_[15], EndcapDM2_cuts_flag_[15];
   
   bool digiStatsBarrel, clusterOntrackStatsBarrel, clusterOfftrackStatsBarrel, rechitStatsBarrel, trackStatsBarrel;
   int digiCounterBarrel, clusterOntrackCounterBarrel, clusterOfftrackCounterBarrel, rechitCounterBarrel, trackCounterBarrel;
@@ -171,5 +171,7 @@ class SiPixelDataQuality {
   MonitorElement * RecHitErrorXEndcap;
   MonitorElement * RecHitErrorYEndcap;
   
+  // Track Cuts:
+  MonitorElement * NPixelTracks;
 };
 #endif

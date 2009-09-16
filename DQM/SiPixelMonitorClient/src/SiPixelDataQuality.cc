@@ -127,7 +127,7 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap->setAxisTitle("Pixel FED #",1);
     SummaryReportMap->setAxisTitle("Pixel FED Channel #",2);
   }else{
-    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",7,0.,7.,15,0.,15.);
+    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",7,0.,7.,16,0.,16.);
     SummaryReportMap->setBinLabel(1,"Barrel_Layer_1",1);
     SummaryReportMap->setBinLabel(2,"Barrel_Layer_2",1);
     SummaryReportMap->setBinLabel(3,"Barrel_Layer_3",1);
@@ -150,6 +150,7 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     SummaryReportMap->setBinLabel(13,"Pass residualY_RMS cut",2);
     SummaryReportMap->setBinLabel(14,"Pass rechit errorX cut",2);
     SummaryReportMap->setBinLabel(15,"Pass rechit errorY cut",2);
+    SummaryReportMap->setBinLabel(16,"Pass hiteff cut",2);
   }  
     SummaryPixel = bei->bookFloat("reportSummary");
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
@@ -190,6 +191,8 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     ResidualYRMSEndcap = bei->bookInt("EndcapResidualYRMSCut");
     RecHitErrorXEndcap = bei->bookInt("EndcapRecHitErrorXCut");
     RecHitErrorYEndcap = bei->bookInt("EndcapRecHitErrorYCut");
+  bei->setCurrentFolder("Pixel/Tracks");
+    NPixelTracks = bei->bookFloat("PixelTracksCut");
     
     // Init MonitoringElements:
     if(nFEDs>0){
@@ -269,6 +272,8 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     if(RecHitErrorXEndcap) RecHitErrorXEndcap->Fill(1);
     RecHitErrorYEndcap = bei->get("Pixel/Endcap/EndcapRecHitErrorYCut");
     if(RecHitErrorYEndcap) RecHitErrorYEndcap->Fill(1);
+    NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
+    if(NPixelTracks) NPixelTracks->Fill(1);
   bei->cd();  
 }
 
@@ -301,7 +306,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     n_errors_endcapDP1_=0; n_errors_endcapDP2_=0; n_errors_endcapDM1_=0; n_errors_endcapDM2_=0;
     BarrelL1_error_flag_=-1.; BarrelL2_error_flag_=-1.; BarrelL3_error_flag_=-1.;
     EndcapDP1_error_flag_=-1.; EndcapDP2_error_flag_=-1.; EndcapDM1_error_flag_=-1.; EndcapDM2_error_flag_=-1.; 
-    for(int i=0; i!=14; i++){
+    for(int i=0; i!=15; i++){
       BarrelL1_cuts_flag_[i]=-1.; BarrelL2_cuts_flag_[i]=-1.; BarrelL3_cuts_flag_[i]=-1.;
       EndcapDP1_cuts_flag_[i]=-1.; EndcapDP2_cuts_flag_[i]=-1.; EndcapDM1_cuts_flag_[i]=-1.;
       EndcapDM2_cuts_flag_[i]=-1.; 
@@ -1873,12 +1878,41 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     else if(trackStatsEndcapDP2) EndcapDP2_cuts_flag_[13]=1.;
   }
   
+  // Pixel Track multiplicity / Pixel hit efficiency
+  meName0 = "Pixel/Tracks/ntracks_ctfWithMaterialTracksP5";
+  me = bei->get(meName0);
+  if(me){
+    NPixelTracks = bei->get("Pixel/Tracks/PixelTracksCut");
+    if(NPixelTracks && me->getBinContent(1)>1000){
+      if((float)me->getBinContent(2)/(float)me->getBinContent(1)<0.01){
+        NPixelTracks->Fill(0);
+	BarrelL1_cuts_flag_[14]=0;
+	BarrelL2_cuts_flag_[14]=0;
+	BarrelL3_cuts_flag_[14]=0;
+	EndcapDM1_cuts_flag_[14]=0;
+	EndcapDP1_cuts_flag_[14]=0;
+	EndcapDM2_cuts_flag_[14]=0;
+	EndcapDP2_cuts_flag_[14]=0;
+      }else{ 
+        NPixelTracks->Fill(1);
+	BarrelL1_cuts_flag_[14]=1;
+	BarrelL2_cuts_flag_[14]=1;
+	BarrelL3_cuts_flag_[14]=1;
+	EndcapDM1_cuts_flag_[14]=1;
+	EndcapDP1_cuts_flag_[14]=1;
+	EndcapDM2_cuts_flag_[14]=1;
+	EndcapDP2_cuts_flag_[14]=1;
+      }
+    }
+  }
+  
 //********************************************************************************************************  
   
   // Final combination of all Data Quality results:
   float pixelFlag = -1., barrelFlag = -1., endcapFlag = -1.;
   float barrel_errors_temp[1]; int barrel_cuts_temp[14]; 
   float endcap_errors_temp[1]; int endcap_cuts_temp[14]; 
+  int pixel_cuts_temp[1];
   float combinedCuts = 1.; int numerator = 0, denominator = 0;
 
   me = bei->get("Pixel/Barrel/BarrelNErrorsCut");
@@ -1977,6 +2011,10 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       numerator = numerator + endcap_cuts_temp[k];
       denominator++;
     }
+    if(k<1 && pixel_cuts_temp[k]>=0){
+      numerator = numerator + pixel_cuts_temp[k];
+      denominator++;
+    }
     //cout<<"after both: num="<<numerator<<" , den="<<denominator<<endl;
   } 
   if(denominator!=0) combinedCuts = float(numerator)/float(denominator); 
@@ -2007,7 +2045,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){
       if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
-      if(Tier0Flag) for(int i=1; i!=8; i++) for(int j=1; j!=16; j++) SummaryReportMap->setBinContent(i,j,-1.);
+      if(Tier0Flag) for(int i=1; i!=8; i++) for(int j=1; j!=17; j++) SummaryReportMap->setBinContent(i,j,-1.);
     }
 
     init=false;
@@ -2140,7 +2178,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
         SummaryReportMap->setBinContent(5,1,EndcapDM1_error_flag_);
         SummaryReportMap->setBinContent(6,1,EndcapDP1_error_flag_);
         SummaryReportMap->setBinContent(7,1,EndcapDP2_error_flag_);
-        for(int j=2; j!=16; j++){
+        for(int j=2; j!=17; j++){
           SummaryReportMap->setBinContent(1,j,BarrelL1_cuts_flag_[j-2]);
           SummaryReportMap->setBinContent(2,j,BarrelL2_cuts_flag_[j-2]);
           SummaryReportMap->setBinContent(3,j,BarrelL3_cuts_flag_[j-2]);
