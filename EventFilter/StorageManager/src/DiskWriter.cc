@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -123,39 +123,24 @@ void DiskWriter::writeNextEvent()
   utils::time_point_t startTime = utils::getCurrentTime();
   if (sq->deq_timed_wait(event, _timeout))
   {
+    _sharedResources->_diskWriterResources->setBusy(true);
+
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.totalDataSize());
 
-    _sharedResources->_diskWriterResources->setBusy(true);
     writeEventToStreams(event);
 
-    if ( timeToCheckForFileTimeOut() ) closeTimedOutFiles();
+    checkForFileTimeOuts();
   }
   else
   {
     utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
     _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
 
-    closeTimedOutFiles();
+    checkForFileTimeOuts(true);
+    checkStreamChangeRequest();
     _sharedResources->_diskWriterResources->setBusy(false);
-  }
-
-  EvtStrConfigListPtr evtCfgList;
-  ErrStrConfigListPtr errCfgList;
-  double newTimeoutValue;
-  bool doConfig;
-  if (_sharedResources->_diskWriterResources->
-    streamChangeRequested(doConfig, evtCfgList, errCfgList, newTimeoutValue))
-  {
-    destroyStreams();
-    if (doConfig)
-    {
-      configureEventStreams(evtCfgList);
-      configureErrorStreams(errCfgList);
-      _timeout = (unsigned int) newTimeoutValue;
-    }
-    _sharedResources->_diskWriterResources->streamChangeDone();
   }
 }
 
@@ -186,27 +171,76 @@ void DiskWriter::writeEventToStreams(const I2OChain& event)
 }
 
 
-void DiskWriter::closeTimedOutFiles()
+void DiskWriter::checkStreamChangeRequest()
 {
-  utils::time_point_t currentTime = utils::getCurrentTime();
+  EvtStrConfigListPtr evtCfgList;
+  ErrStrConfigListPtr errCfgList;
+  double newTimeoutValue;
+  bool doConfig;
+  if (_sharedResources->_diskWriterResources->
+    streamChangeRequested(doConfig, evtCfgList, errCfgList, newTimeoutValue))
+  {
+    destroyStreams();
+    if (doConfig)
+    {
+      configureEventStreams(evtCfgList);
+      configureErrorStreams(errCfgList);
+      _timeout = (unsigned int) newTimeoutValue;
+    }
+    _sharedResources->_diskWriterResources->streamChangeDone();
+  }
+}
+
+
+void DiskWriter::checkForFileTimeOuts(const bool doItNow)
+{
+  utils::time_point_t now = utils::getCurrentTime();
+
+  const DiskWritingParams dwParams =
+    _sharedResources->_configuration->getDiskWritingParams();
+  if (doItNow || (now - _lastFileTimeoutCheckTime) > dwParams._fileClosingTestInterval)
+  {
+    closeFilesForOldLumiSections();
+    closeTimedOutFiles(now);
+    _lastFileTimeoutCheckTime = now;
+  }
+}
+
+
+void DiskWriter::closeFilesForOldLumiSections()
+{
+  uint32_t lumiSection;
+  while (_sharedResources->_diskWriterResources->
+    lumiSectionClosureRequested(lumiSection))
+  {
+    closeFilesForLumiSection(lumiSection);
+  }
+}
+
+
+void DiskWriter::closeFilesForLumiSection(const uint32_t lumiSection)
+{
   for (
     StreamHandlers::iterator it = _streamHandlers.begin(), itEnd = _streamHandlers.end();
     it != itEnd;
     ++it
   )
   {
-    (*it)->closeTimedOutFiles(currentTime);
+    (*it)->closeFilesForLumiSection(lumiSection);
   }
-  _lastFileTimeoutCheckTime  = currentTime;
 }
 
 
-bool DiskWriter::timeToCheckForFileTimeOut()
+void DiskWriter::closeTimedOutFiles(const utils::time_point_t now)
 {
-  const DiskWritingParams dwParams =
-    _sharedResources->_configuration->getDiskWritingParams();
-  utils::time_point_t now = utils::getCurrentTime();
-  return ((now - _lastFileTimeoutCheckTime) > dwParams._fileClosingTestInterval);
+  for (
+    StreamHandlers::iterator it = _streamHandlers.begin(), itEnd = _streamHandlers.end();
+    it != itEnd;
+    ++it
+  )
+  {
+    (*it)->closeTimedOutFiles(now);
+  }
 }
 
 
