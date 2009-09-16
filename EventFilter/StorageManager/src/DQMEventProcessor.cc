@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.6 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.7 2009/08/28 16:41:25 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -17,7 +17,7 @@ DQMEventProcessor::DQMEventProcessor(xdaq::Application *app, SharedResourcesPtr 
 _app(app),
 _sharedResources(sr),
 _actionIsActive(true),
-_dqmEventStore( sr->_statisticsReporter->getDQMEventMonitorCollection() )
+_dqmEventStore(sr)
 {
   WorkerThreadParams workerParams =
     _sharedResources->_configuration->getWorkerThreadParams();
