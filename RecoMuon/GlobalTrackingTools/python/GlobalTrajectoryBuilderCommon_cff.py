@@ -9,8 +9,6 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 GlobalTrajectoryBuilderCommon = cms.PSet(
     MuonTrackingRegionCommon,
     GlobalMuonTrackMatcher,
-    Direction = cms.int32(0),
-    MuonHitsOption = cms.int32(1),
     ScaleTECxFactor = cms.double(-1.0),
     ScaleTECyFactor = cms.double(-1.0),
     TrackerRecHitBuilder = cms.string('WithTrackAngle'),
@@ -30,7 +28,6 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     GlbRefitterParameters = cms.PSet(
         DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-        RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
         
         MuonHitsOption = cms.int32(1),
         PtCut = cms.double(1.0),
@@ -40,9 +37,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         Chi2CutRPC = cms.double(1.0),
         HitThreshold = cms.int32(1),
         
-        #Fitter = cms.string('KFFitterForRefitInsideOut'),
         Fitter = cms.string('GlbMuKFFitter'),
-        Smoother = cms.string('KFSmootherForRefitInsideOut'),
         Propagator = cms.string('SmartPropagatorAnyRK'),
         TrackerRecHitBuilder = cms.string('WithTrackAngle'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
