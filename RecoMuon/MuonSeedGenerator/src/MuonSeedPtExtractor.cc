@@ -366,7 +366,7 @@ std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double> & vPara
    //std::cout<<" eta = "<<eta<<" dPhi = "<<dPhi<<" vPara[0] = "<<vPara[0]<<" vPara[1] = "<<vPara[1]<<" vPara[2] = "<<vPara[2]<<std::endl;
   double h  = fabs(eta);
   double estPt  = ( vPara[0] + vPara[1]*h + vPara[2]*h*h ) / dPhi;
-  double estSPt = ( vPara[3] + vPara[4]*h + vPara[5]*h*h ) * estPt;
+  double estSPt = ( vPara[3] + vPara[4]*h + vPara[5]*h*h ) / dPhi;
   // std::cout<<"estPt = "<<estPt<<std::endl;
   std::vector<double> paraPt ;
   paraPt.push_back( estPt );
