@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2009/05/11 10:12:53 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/06/12 15:02:34 $
+ *  $Revision: 1.25 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -194,9 +194,8 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
     } 
     else if ((*iter)->trajectory()->direction() == oppositeToMomentum) { 
       innerTSOS = (*iter)->trajectory()->lastMeasurement().updatedState();
-    }
+	 }
     if ( !(innerTSOS.isValid()) ) continue;
-
     float pt1 = innerTSOS.globalMomentum().perp();
     float eta1 = innerTSOS.globalMomentum().eta();
     float phi1 = innerTSOS.globalMomentum().phi();
@@ -240,16 +239,16 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
         LogTrace(metname)
         << " MuonTrajectoryCleaner: candC " << i<<" and "<<j<< " direction matched: "
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();
-
       }
-      
+
       // If there are matches, reject the worst track
       bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
       bool tracksMatch = 
       ( ( (*iter)->trackerTrack() == (*jter)->trackerTrack() ) && 
         ( deltaR<double>((*iter)->muonTrack()->eta(),(*iter)->muonTrack()->phi(), (*jter)->muonTrack()->eta(),(*jter)->muonTrack()->phi()) < 0.2) );
 
-      if ( ( tracksMatch ) || (hitsMatch > 0) || directionMatch ) {
+      //if ( ( tracksMatch ) || (hitsMatch > 0) || directionMatch ) {
+			if ( ( tracksMatch ) || (hitsMatch > 0) ) { 
 	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
           if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
             mask[i] = false;
