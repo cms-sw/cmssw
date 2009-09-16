@@ -120,9 +120,11 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 		data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
 		data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
 		data->GetEtaBins()->SetTitleFont(122);
+                data->GetEtaBins()->SetTitleSize(0.03);
 		data->GetEtaBins()->SetTitle("h");
 		data->GetPhiBins()->SetTitleFont(122);
 		data->GetPhiBins()->SetTitle("f");
+                data->GetPhiBins()->SetTitleSize(0.03);
 	}
 	delete [] eta_bins;
 	delete [] phi_bins;
