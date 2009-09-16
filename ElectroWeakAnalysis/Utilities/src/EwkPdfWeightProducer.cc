@@ -50,9 +50,6 @@ EwkPdfWeightProducer::~EwkPdfWeightProducer(){}
 /////////////////////////////////////////////////////////////////////////////////////
 void EwkPdfWeightProducer::beginJob(const edm::EventSetup&) {
 
-      // Force unsetting of the LHAPATH variable to avoid potential problems
-      gSystem->Setenv("LHAPATH","");
-
       /* Examples, see $LHAPATH directory for available sets
             LHAPDF::initPDFByName("cteq65.LHgrid"); // NLO interpolated
             LHAPDF::initPDFByName("MRST2007lomod.LHgrid"); // LO modified, interpolated
