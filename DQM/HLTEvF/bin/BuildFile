@@ -1,0 +1,28 @@
+<library file="*.cc" name=HLTHistoryClient>
+<bin file=Inspector.cpp name=myInspector ></bin>
+
+<use name=rootgraphics>
+<use name=rootminuit>
+<use name=boost_program_options>
+<use name=FWCore/FWLite>
+<use name=DQMServices/Diagnostic>
+
+<use name=boost>
+<use name=root> 
+
+<use name=FWCore/Framework>
+<use name=FWCore/ServiceRegistry>
+
+<use name=CondCore/DBCommon>
+<use name=CondCore/Utilities>
+<use name=CondCore/PopCon>
+
+<use name=CondFormats/DQMObjects>
+<use name=CondFormats/DataRecord>
+
+
+<use name=DQMServices/Core>
+<use name=DQMServices/Diagnostic>
+
+  <flags EDM_PLUGIN=1>
+</library>
