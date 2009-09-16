@@ -1910,9 +1910,9 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   
   // Final combination of all Data Quality results:
   float pixelFlag = -1., barrelFlag = -1., endcapFlag = -1.;
-  float barrel_errors_temp[1]; int barrel_cuts_temp[14]; 
-  float endcap_errors_temp[1]; int endcap_cuts_temp[14]; 
-  int pixel_cuts_temp[1];
+  float barrel_errors_temp[1]={-1.}; int barrel_cuts_temp[14]={14*-1}; 
+  float endcap_errors_temp[1]={-1.}; int endcap_cuts_temp[14]={14*-1}; 
+  int pixel_cuts_temp[1]={-1};
   float combinedCuts = 1.; int numerator = 0, denominator = 0;
 
   me = bei->get("Pixel/Barrel/BarrelNErrorsCut");
