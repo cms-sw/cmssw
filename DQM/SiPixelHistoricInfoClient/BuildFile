@@ -2,13 +2,3 @@
 <use name="CondFormats/DataRecord">
 <use name="CondFormats/SiPixelObjects">
 <use name="DQM/SiPixelCommon">
-<use name="DQMServices/Core">
-<use name="DQMServices/Diagnostic">
-<use name="FWCore/Framework">
-<use name="FWCore/MessageLogger">
-<use name="FWCore/ParameterSet">
-<use name="FWCore/PluginManager">
-<use name="FWCore/ServiceRegistry">
-<use name="FWCore/Utilities">
-<use name="boost_system">
-<use name="rootgpad">
