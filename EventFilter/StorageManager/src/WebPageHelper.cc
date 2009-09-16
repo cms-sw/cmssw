@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.27 2009/08/28 16:41:27 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.28 2009/09/16 09:53:24 dshpakov Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -2530,12 +2530,12 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, fuResultsList[idx]->initMsgCount, 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->eventStats.getSampleCount(), 0);
+      maker.addText(tableDiv, fuResultsList[idx]->shortIntervalEventStats.getSampleCount(), 0);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, fuResultsList[idx]->errorEventStats.getSampleCount(), 0);
 
       discardCount = fuResultsList[idx]->initMsgCount +
-        fuResultsList[idx]->eventStats.getSampleCount() +
+        fuResultsList[idx]->shortIntervalEventStats.getSampleCount() +
         fuResultsList[idx]->errorEventStats.getSampleCount() -
         fuResultsList[idx]->dataDiscardCount;
       if (discardCount != 0)
@@ -2584,7 +2584,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       maker.addText(tableDiv, fuResultsList[idx]->skippedDiscardCount, 0);
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->eventStats.
+      maker.addText(tableDiv, fuResultsList[idx]->shortIntervalEventStats.
                     getSampleRate(MonitoredQuantity::RECENT));
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       maker.addText(tableDiv, fuResultsList[idx]->lastEventNumber, 0);

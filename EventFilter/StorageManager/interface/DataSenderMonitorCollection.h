@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.7 2009/08/18 08:54:13 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.8 2009/08/24 14:31:11 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -7,6 +7,7 @@
 #include <map>
 
 #include "xdata/UnsignedInteger32.h"
+#include "xdata/Integer32.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -22,8 +23,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.8 $
+   * $Date: 2009/08/24 14:31:11 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -137,7 +138,8 @@ namespace stor {
     {
       FilterUnitKey key;
       OutputModuleRecordMap outputModuleMap;
-      MonitoredQuantity eventSize;
+      MonitoredQuantity shortIntervalEventSize;
+      MonitoredQuantity mediumIntervalEventSize;
       MonitoredQuantity dqmEventSize;
       MonitoredQuantity errorEventSize;
       MonitoredQuantity staleChainSize;
@@ -158,7 +160,8 @@ namespace stor {
         FilterUnitKey fuKey,
         const utils::duration_t& updateInterval
       ) :
-        key(fuKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
+        key(fuKey), shortIntervalEventSize(updateInterval,10),
+        mediumIntervalEventSize(updateInterval,300), dqmEventSize(updateInterval,10),
         errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
         initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
         workingDataDiscardCount(0), workingDQMDiscardCount(0),
@@ -270,7 +273,8 @@ namespace stor {
       unsigned long long dataDiscardCount;
       unsigned long long dqmDiscardCount;
       unsigned long long skippedDiscardCount;
-      MonitoredQuantity::Stats eventStats;
+      MonitoredQuantity::Stats shortIntervalEventStats;
+      MonitoredQuantity::Stats mediumIntervalEventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
@@ -403,8 +407,8 @@ namespace stor {
     xdata::UnsignedInteger32 _connectedRBs;
     xdata::UnsignedInteger32 _connectedEPs;
     xdata::UnsignedInteger32 _activeEPs;
-    xdata::UnsignedInteger32 _outstandingDataDiscards;
-    xdata::UnsignedInteger32 _outstandingDQMDiscards;
+    xdata::Integer32 _outstandingDataDiscards;
+    xdata::Integer32 _outstandingDQMDiscards;
     xdata::UnsignedInteger32 _staleChains;
     xdata::UnsignedInteger32 _ignoredDiscards;
 
