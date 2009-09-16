@@ -1,22 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
-
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("DQMServices.Core.DQM_cfg")
-
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
-poolDBESSource.connect = "frontier://FrontierDev/CMS_COND_ALIGNMENT"
-poolDBESSource.toGet = cms.VPSet(cms.PSet(
-        record = cms.string('GlobalPositionRcd'),
-        tag = cms.string('IdealGeometry')
-    )) 
-process.glbPositionSource = poolDBESSource
 
 process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
@@ -58,9 +50,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noLineBreaks = cms.untracked.bool(True),
         threshold = cms.untracked.string('DEBUG'),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
@@ -70,10 +59,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.dtTTrigAnalyzer = cms.EDFilter("DTtTrigDBValidation",
-    labelDBRef = cms.untracked.string('ttrigRef'),
-    t0TestName = cms.untracked.string('tTrigDifferenceInRange'),
-    OutputFileName = cms.untracked.string('tTrigTestMonitoring.root'),
-    labelDB = cms.untracked.string('ttrigToValidate')
+    labelDBRef = cms.string('ttrigRef'),
+    labelDB = cms.string('ttrigToValidate'),
+    tTrigTestName = cms.string('tTrigDifferenceInRange'),
+    OutputMEsInRootFile = cms.untracked.bool(True),
+    OutputFileName = cms.untracked.string('tTrigTestMonitoring.root')
 )
 
 process.qTester = cms.EDFilter("QualityTester",

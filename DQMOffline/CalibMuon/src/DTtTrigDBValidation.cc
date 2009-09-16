@@ -30,47 +30,43 @@
 using namespace edm;
 using namespace std;
 
-DTtTrigDBValidation::DTtTrigDBValidation(const ParameterSet& pset) {
+DTtTrigDBValidation::DTtTrigDBValidation(const ParameterSet& pset):
+   metname("tTrigdbValidation"),
+   labelDBRef(pset.getParameter<string>("labelDBRef")),
+   labelDB(pset.getParameter<string>("labelDB")),
+   testCriterionName(pset.getParameter<string>("tTrigTestName")),
+   outputMEsInRootFile(pset.getUntrackedParameter<bool>("OutputMEsInRootFile",false)),
+   outputFileName(pset.getUntrackedParameter<string>("OutputFileName","tTrigDBMonitoring.root"))
+ {
 
-  cout << "[DTtTrigDBValidation] Constructor called!" << endl;
+  LogVerbatim(metname) << "[DTtTrigDBValidation] Constructor called!";
 
   // Get the DQM needed services
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setCurrentFolder("DT/DTDBValidation");
-
-  // Get dataBase label
-  labelDBRef = pset.getUntrackedParameter<string>("labelDBRef");
-  labelDB = pset.getUntrackedParameter<string>("labelDB");
-
-  parameters = pset;
 }
-
 
 DTtTrigDBValidation::~DTtTrigDBValidation(){}
 
-
 void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
-
-  metname = "tTrigdbValidation";
-  LogTrace(metname)<<"[DTtTrigDBValidation] Parameters initialization";
+  LogVerbatim(metname) << "[DTtTrigDBValidation] Parameters initialization";
  
-  outputFileName = parameters.getUntrackedParameter<std::string>("OutputFileName");
-
   ESHandle<DTTtrig> tTrig_Ref;
   setup.get<DTTtrigRcd>().get(labelDBRef, tTrig_Ref);
   const DTTtrig* DTTtrigRefMap = &*tTrig_Ref;
-  LogTrace(metname)<<"[DTtTrigDBValidation] reference Ttrig version: " << tTrig_Ref->version();
+  LogVerbatim(metname) << "[DTtTrigDBValidation] reference Ttrig version: " << tTrig_Ref->version();
 
   ESHandle<DTTtrig> tTrig;
   setup.get<DTTtrigRcd>().get(labelDB, tTrig);
   const DTTtrig* DTTtrigMap = &*tTrig;
-  LogTrace(metname)<<"[DTtTrigDBValidation] Ttrig to validate version: " << tTrig->version();
+  LogVerbatim(metname) << "[DTtTrigDBValidation] Ttrig to validate version: " << tTrig->version();
 
   //book&reset the summary histos
   for(int wheel=-2; wheel<=2; wheel++){
     bookHistos(wheel);
     wheelSummary[wheel]->Reset();
+    tTrigDiffWheel[wheel]->Reset();
   }
 
   // Get the geometry
@@ -83,15 +79,19 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		        (*it).first.stationId,
 		        (*it).first.sectorId,
 		        (*it).first.slId);
-    float tTrigmean;
-    float tTrigrms;
+    float tTrigMean;
+    float tTrigRms;
     float kFactor;
-    DTTtrigRefMap->get(slId, tTrigmean, tTrigrms, kFactor, DTTimeUnits::counts);
-    LogTrace(metname)<< "Ref Superlayer: " <<  slId <<endl
-		     << " Ttrig mean (TDC counts): " << tTrigmean
-		     << " Ttrig rms (TDC counts): " << tTrigrms;
-
-    tTrigRefMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
+    DTTtrigRefMap->get(slId, tTrigMean, tTrigRms, kFactor, DTTimeUnits::ns);
+    float tTrigCorr = tTrigMean + kFactor*tTrigRms;
+    LogTrace(metname)<< "Ref Superlayer: " <<  slId << "\n"
+		     << " Ttrig mean (ns): " << tTrigMean
+		     << " Ttrig rms (ns): " << tTrigRms
+                     << " Ttrig k-Factor: " << kFactor
+                     << " Ttrig value (ns): " << tTrigCorr;
+                     
+    //tTrigRefMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
+    tTrigRefMap[slId] = make_pair<float,float>(tTrigCorr,tTrigRms);
   }
 
   // Loop over Ref DB entries
@@ -101,56 +101,56 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		        (*it).first.stationId,
 		        (*it).first.sectorId,
 		        (*it).first.slId);
-    float tTrigmean;
-    float tTrigrms;
+    float tTrigMean;
+    float tTrigRms;
     float kFactor;
-    DTTtrigMap->get(slId, tTrigmean, tTrigrms, kFactor, DTTimeUnits::counts);
-    LogTrace(metname)<< "SuperLayer: " <<  slId <<endl
-		     << " Ttrig mean (TDC counts): " << tTrigmean
-		     << " Ttrig rms (TDC counts): " << tTrigrms;
+    DTTtrigMap->get(slId, tTrigMean, tTrigRms, kFactor, DTTimeUnits::ns);
+    float tTrigCorr = tTrigMean + kFactor*tTrigRms;
+    LogTrace(metname)<< "Superlayer: " <<  slId << "\n"
+                     << " Ttrig mean (ns): " << tTrigMean
+                     << " Ttrig rms (ns): " << tTrigRms
+                     << " Ttrig k-Factor: " << kFactor
+                     << " Ttrig value (ns): " << tTrigCorr;
 
-    tTrigMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
+    //tTrigMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
+    tTrigMap[slId] = make_pair<float,float>(tTrigCorr,tTrigRms);
   }
 
-  double difference=0;
   for(map<DTSuperLayerId, pair<float,float> >::const_iterator it = tTrigRefMap.begin();
-      it != tTrigRefMap.end();
-      ++it) {  
-      if(tTrigMap.find((*it).first) != tTrigMap.end()) {
+      it != tTrigRefMap.end(); ++it) {  
+      if(tTrigMap.find((*it).first) == tTrigMap.end()) continue;
 
       // compute the difference
-      difference = tTrigMap[(*it).first].first - (*it).second.first;
+      float difference = tTrigMap[(*it).first].first - (*it).second.first;
 
       //book histo
       int wheel = (*it).first.chamberId().wheel();
       int sector = (*it).first.chamberId().sector();	
       if(tTrigDiffHistos.find(make_pair(wheel,sector)) == tTrigDiffHistos.end()) bookHistos(wheel,sector);
 			
-      cout<< "Filling the histo for super-layer: "<<(*it).first<<"  difference: "<<difference<<endl;
+      LogTrace(metname) << "Filling histos for super-layer: " << (*it).first << "  difference: " << difference;
  
       // Fill the test histos
-      int entry=-1;
+      int entry = -1;
       int station = (*it).first.chamberId().station();	
       if(station == 1) entry=0;
       if(station == 2) entry=3;
       if(station == 3) entry=6;
       if(station == 4) entry=9;
 
-      int BinNumber = entry + (*it).first.superLayer();
-      if(BinNumber == 12) BinNumber=11;	
+      int slBin = entry + (*it).first.superLayer();
+      if(slBin == 12) slBin=11;	
 	
-      tTrigDiffHistos[make_pair(wheel,sector)]->setBinContent(BinNumber, difference);	
+      tTrigDiffHistos[make_pair(wheel,sector)]->setBinContent(slBin, difference);	
+      tTrigDiffWheel[wheel]->setBinContent(slBin,sector,difference);
 
-    }
   } // Loop over the tTrig map reference
   
 }
 
-
-void DTtTrigDBValidation::endJob() {
+void DTtTrigDBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {
 
   //check the histos
-  string testCriterionName = parameters.getUntrackedParameter<string>("tTrigTestName","tTrigDifferenceInRange"); 
   for(map<pair<int,int>, MonitorElement*>::const_iterator hDiff = tTrigDiffHistos.begin();
       hDiff != tTrigDiffHistos.end();
       hDiff++) {
@@ -159,31 +159,33 @@ void DTtTrigDBValidation::endJob() {
         vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	    channel != badChannels.end(); channel++) {
-	  cout << "Bad mean channel: wh: " << (*hDiff).first.first
-				           << " st: " << stationFromBin((*channel).getBin())
-				           << " sect: " << (*hDiff).first.second
-				           << " sl: " << slFromBin((*channel).getBin())
-				           << " mean : " << (*channel).getContents() << endl;
+	  LogVerbatim(metname) << "Bad mean channel: wh: " << (*hDiff).first.first
+			   << " st: " << stationFromBin((*channel).getBin())
+			   << " sect: " << (*hDiff).first.second
+			   << " sl: " << slFromBin((*channel).getBin())
+			   << " mean : " << (*channel).getContents();
 
 	  int xBin = (stationFromBin((*channel).getBin())-1)*3+slFromBin((*channel).getBin());
 	  if(xBin==12) xBin=11;
 	  wheelSummary[(*hDiff).first.first]->Fill(xBin,(*hDiff).first.second);
-
         }
-        cout << "-------- Wheel, Sector: "<< (*hDiff).first.first << ", " << (*hDiff).first.second << "  " << theDiffQReport->getMessage() << " ------- " << theDiffQReport->getStatus() << endl; 
+        LogVerbatim(metname) << "-------- Wheel, Sector: "<< (*hDiff).first.first << ", " << (*hDiff).first.second << "  " << theDiffQReport->getMessage() << " ------- " << theDiffQReport->getStatus(); 
 	
     }
   }
-
-  // write the histos on a file
-  dbe->save(outputFileName);
-
 }
 
+void DTtTrigDBValidation::endJob(){
+
+  if(outputMEsInRootFile){
+     // write the histos on a file
+     dbe->save(outputFileName);
+  }
+}
 
 void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
 
-  LogTrace(metname)<< "   Booking histos for Wheel, Sector: " << wheel << ", " << sector;
+  LogTrace(metname) << "   Booking histos for Wheel, Sector: " << wheel << ", " << sector;
 
   // Compose the chamber name
   stringstream str_wheel; str_wheel << wheel;
@@ -213,12 +215,27 @@ void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
   (tTrigDiffHistos[mypair])->setBinLabel(11,"MB4_SL3",1);
 }
 
-
 // Book the summary histos
 void DTtTrigDBValidation::bookHistos(int wheel) {
-  dbe->setCurrentFolder("DT/tTrigValidation/Summary");
+
   stringstream wh; wh << wheel;
-  wheelSummary[wheel]= dbe->book2D("summaryWrongTtrig_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",11,1,12,14,1,15);
+
+  dbe->setCurrentFolder("DT/tTrigValidation/Wheel" + wh.str());
+  tTrigDiffWheel[wheel] = dbe->book2D("htTrigDifference_W"+wh.str(), "W"+wh.str()+": summary of tTrig differences",11,1,12,14,1,15);
+  tTrigDiffWheel[wheel]->setBinLabel(1,"MB1_SL1",1);
+  tTrigDiffWheel[wheel]->setBinLabel(2,"MB1_SL2",1);
+  tTrigDiffWheel[wheel]->setBinLabel(3,"MB1_SL3",1);
+  tTrigDiffWheel[wheel]->setBinLabel(4,"MB2_SL1",1);
+  tTrigDiffWheel[wheel]->setBinLabel(5,"MB2_SL2",1);
+  tTrigDiffWheel[wheel]->setBinLabel(6,"MB2_SL3",1);
+  tTrigDiffWheel[wheel]->setBinLabel(7,"MB3_SL1",1);
+  tTrigDiffWheel[wheel]->setBinLabel(8,"MB3_SL2",1);
+  tTrigDiffWheel[wheel]->setBinLabel(9,"MB3_SL3",1);
+  tTrigDiffWheel[wheel]->setBinLabel(10,"MB4_SL1",1);
+  tTrigDiffWheel[wheel]->setBinLabel(11,"MB4_SL3",1);
+
+  dbe->setCurrentFolder("DT/tTrigValidation/Summary");
+  wheelSummary[wheel]= dbe->book2D("summaryWrongTtrig_W"+wh.str(), "W"+wh.str()+": summary of wrong tTrig differences",11,1,12,14,1,15);
   wheelSummary[wheel]->setBinLabel(1,"MB1_SL1",1);
   wheelSummary[wheel]->setBinLabel(2,"MB1_SL2",1);
   wheelSummary[wheel]->setBinLabel(3,"MB1_SL3",1);

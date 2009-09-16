@@ -63,10 +63,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.dtTTrigAnalyzer = cms.EDFilter("DTtTrigDBValidation",
-    labelDBRef = cms.untracked.string('ttrigRef'),
-    t0TestName = cms.untracked.string('tTrigDifferenceInRange'),
-    OutputFileName = cms.untracked.string('tTrigDBMonitoring_RUNNUMBERTEMPLATE.root'),
-    labelDB = cms.untracked.string('ttrigToValidate')
+    labelDBRef = cms.string('ttrigRef'),
+    labelDB = cms.string('ttrigToValidate'),
+    tTrigTestName = cms.string('tTrigDifferenceInRange'),
+    OutputMEsInRootFile = cms.untracked.bool(True),
+    OutputFileName = cms.untracked.string('tTrigDBMonitoring_RUNNUMBERTEMPLATE.root')
 )
 
 process.qTester = cms.EDFilter("QualityTester",

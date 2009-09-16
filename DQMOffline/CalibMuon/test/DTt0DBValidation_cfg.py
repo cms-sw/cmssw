@@ -1,22 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CALIB")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
 
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
 process.load("DQMServices.Core.DQM_cfg")
-
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import poolDBESSource
-poolDBESSource.connect = "frontier://FrontierDev/CMS_COND_ALIGNMENT"
-poolDBESSource.toGet = cms.VPSet(cms.PSet(
-        record = cms.string('GlobalPositionRcd'),
-        tag = cms.string('IdealGeometry')
-    )) 
-process.glbPositionSource = poolDBESSource
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),
@@ -28,23 +18,26 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
+
 process.tzeroRef = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('DTT0Rcd'),
-        tag = cms.string('tzero'),
-        connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/CRUZET3/t0/t0_CRUZET_080507_1135.db'),
-        label = cms.untracked.string('tzeroRef')
-    ), 
+    toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('DTT0Rcd'),
-            tag = cms.string('tzero'),
-            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/CRUZET3/t0/t0_CRUZET_080627_1641.db'),
+            tag = cms.string('t0'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/COMM09/t0/t0_111873.db'),
+            label = cms.untracked.string('tzeroRef')
+        ), 
+        cms.PSet(
+            record = cms.string('DTT0Rcd'),
+            tag = cms.string('t0'),
+            connect = cms.untracked.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/COMM09/t0/t0_new_111873.db'),
             label = cms.untracked.string('tzeroToValidate')
-        )),
+        )
+    ),
     connect = cms.string('')
 )
 
@@ -59,9 +52,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         noLineBreaks = cms.untracked.bool(True),
         threshold = cms.untracked.string('DEBUG'),
-        FwkJob = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
+        #FwkJob = cms.untracked.PSet(
+        #    limit = cms.untracked.int32(0)
+        #),
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
@@ -73,7 +66,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.dtT0Analyzer = cms.EDFilter("DTt0DBValidation",
     labelDBRef = cms.untracked.string('tzeroRef'),
     t0TestName = cms.untracked.string('t0DifferenceInRange'),
-    OutputFileName = cms.untracked.string('t0TestMonitoring.root'),
+    OutputFileName = cms.untracked.string('t0TestMonitoring_111873_new_Vs_original.root'),
     labelDB = cms.untracked.string('tzeroToValidate')
 )
 
