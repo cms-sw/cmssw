@@ -1,10 +1,6 @@
 #!/usr/bin/env perl
 
 use File::Copy;
-# This scrits must be used ./runNtpMakerCAF.pl RunNumber
-# It looks for streamer files from run with name $GLOBAL following
-# the CMS conventions for the path name.
-#Jobs are submitted on the CAF.
 
  
 #------Configure here ---------------------------------------
