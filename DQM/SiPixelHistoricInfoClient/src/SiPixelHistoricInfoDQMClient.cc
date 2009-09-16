@@ -138,7 +138,7 @@ void SiPixelHistoricInfoDQMClient::retrieveMEs() {
 	if (noModules) noModules = false; 
       } 
       else if( (thePath.find("Layer_",0)!=string::npos || 
-                thePath.find("Disk_",0)!=string::npos && thePath.find("Panel_",0)==string::npos) ) {
+                (thePath.find("Disk_",0)!=string::npos && thePath.find("Panel_",0)==string::npos)) ) {
 	if (useSummary_) {
    	  uint32_t newMEdetID = getSummaryRegionID(thePath); 
 	  if (printDebug_) cout << thePath.data() <<" in region "<< newMEdetID << endl; 	  
