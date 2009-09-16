@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2009/07/27 18:13:29 $
- *  $Revision: 1.32 $
+ *  $Date: 2009/09/10 10:46:27 $
+ *  $Revision: 1.33 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -171,8 +171,9 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
             LogTrace(metname) << "  Compatible RecHit with too large chi2"
 			    << "  --> trajectory NOT updated, invalid RecHit added." << endl;
 
-	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
-	    invalidRhPtr->invalidateHit();
+	    TrackingRecHit *invalidRecHit = (*recHit)->hit()->clone();
+	    invalidRecHit->setBad();
+	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), invalidRecHit );
 	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
 	    trajectory.push(invalidRhMeasurement, thisChi2.second);	  
           }
