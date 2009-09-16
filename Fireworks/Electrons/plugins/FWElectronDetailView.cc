@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.36 2009/09/06 12:53:44 dmytro Exp $
+// $Id: FWElectronDetailView.cc,v 1.3y7 2009/09/06 19:35:44 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -95,13 +95,13 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
-   overlay->SetShowScales(0); // temporary
+   overlay->SetShowScales(1); // temporary
    glv->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
    glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = 
-     new TEveLegoEventHandler("Lego",(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
+     new TEveLegoEventHandler(lego,(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
    glv->SetEventHandler(eh);
    glv->UpdateScene();
    glv->CurrentCamera().Reset();

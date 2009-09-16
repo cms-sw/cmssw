@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.45 2009/09/04 18:23:48 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.46 2009/09/06 12:45:14 dmytro Exp $
 //
 
 // system include files
@@ -105,13 +105,27 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_viewer.reset(nv);
    gEve->AddElement(nv, gEve->GetViewers());
 
+   if (list->HasChildren())
+   {
+      m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
+      if (m_lego) {
+         m_overlay = new TEveCaloLegoOverlay();
+	 // std::cout << "TEveCaloLegoOverlay: " << m_overlay << std::endl;
+         m_overlay->SetShowPlane(kFALSE);
+         m_overlay->SetShowPerspective(kFALSE);
+         m_overlay->GetAttAxis()->SetLabelSize(0.02);
+         ev->AddOverlayElement(m_overlay);
+         m_overlay->SetCaloLego(m_lego);
+	 m_overlay->SetShowScales(1); //temporary
+         m_overlay->SetScalePosition(0.88, 0.6);
+
+         ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+         TEveLegoEventHandler* eh = new TEveLegoEventHandler(m_lego, ev->GetGLWidget(), ev);
+         ev->SetEventHandler(eh);
+      }
+   }
    // take care of cameras
    //
-   ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveLegoEventHandler* eh = new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev);
-   ev->SetEventHandler(eh);
-
-
    if ( TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>( &(ev->RefCamera(TGLViewer::kCameraPerspXOY) ))) {
       m_cameraMatrixRef = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
       m_cameraMatrixBaseRef = const_cast<TGLMatrix*>(&(camera->GetCamBase()));
@@ -126,20 +140,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    //CDJ This is done too early setCameras();
    //m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
    //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
-   if (list->HasChildren())
-   {
-      m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
-      if (m_lego) {
-         m_overlay = new TEveCaloLegoOverlay();
-	 // std::cout << "TEveCaloLegoOverlay: " << m_overlay << std::endl;
-         m_overlay->SetShowPlane(kFALSE);
-         m_overlay->SetShowPerspective(kFALSE);
-         m_overlay->GetAttAxis()->SetLabelSize(0.02);
-         ev->AddOverlayElement(m_overlay);
-         m_overlay->SetCaloLego(m_lego);
-	 m_overlay->SetShowScales(0); //temporary
-      }
-   }
+ 
    setCameras();
 }
 
