@@ -6,7 +6,6 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
-<use name=DataFormats/EcalRecHit>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/GeometryVector>
 <use name=FWCore/Framework>
@@ -18,6 +17,7 @@
 <use name=Geometry/CaloTopology>
 <use name=Geometry/EcalMapping>
 <use name=Geometry/Records>
+<use name=Geometry/CaloEventSetup>
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=SimDataFormats/CaloHit>

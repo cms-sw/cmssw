@@ -5,30 +5,10 @@
 <use name=CondFormats/DataRecord>
 <use name=Geometry/CaloTopology>     		
 <use name=SimDataFormats/CaloHit>
-<use name=SimDataFormats/Track>
-<use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Framework>
 <use name=DQMServices/Core>
 <use name=boost>
 <use name=root>
-
 <flags EDM_PLUGIN=1>
-<export>
-   <lib name=ValidationEcalRecHits>
-   <use name=FWCore/ParameterSet>	
-   <use name=DataFormats/EcalDigi>
-   <use name=DataFormats/EcalRecHit>
-   <use name=CondFormats/EcalObjects>
-   <use name=CondFormats/DataRecord>
-   <use name=SimDataFormats/CaloHit>      
-   <use name=SimDataFormats/Track>        
-   <use name=SimDataFormats/Vertex>       
-   <use name=SimDataFormats/GeneratorProducts> 
-   <use name=DataFormats/EcalDetId>       
-   <use name=FWCore/Framework>            
-   <use name=DQMServices/Core>     
-   <use name=boost>                       
-   <use name=root>                        
-</export>
