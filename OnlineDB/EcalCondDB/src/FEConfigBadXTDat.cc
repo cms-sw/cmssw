@@ -37,7 +37,7 @@ void FEConfigBadXTDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id,fed_id, tt_id, xt_id, status ) "
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id,fed_id, tt_id, CRY_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 ,:6 )");
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigBadXTDat::prepareWrite():  "+e.getMessage()));
@@ -80,7 +80,7 @@ void FEConfigBadXTDat::fetchData(std::vector< FEConfigBadXTDat >* p, FEConfigBad
   }
 
   try {
-    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tcc_id, fed_id, tt_id , xt_id ");
+    m_readStmt->setSQL("SELECT * FROM " + getTable() + "WHERE rec_id = :rec_id order by tcc_id, fed_id, tt_id , cry_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     
