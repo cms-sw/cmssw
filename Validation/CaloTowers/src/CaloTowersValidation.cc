@@ -209,7 +209,9 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 }
 
 
-CaloTowersValidation::~CaloTowersValidation() {
+void CaloTowersValidation::beginRun() {}
+
+void CaloTowersValidation::endRun() {
 
   // mean number of towers per ieta
   int nx = Ntowers_vs_ieta->getNbinsX();
@@ -275,6 +277,10 @@ CaloTowersValidation::~CaloTowersValidation() {
   } // end of ieta cycle (i)
 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+}
+
+
+CaloTowersValidation::~CaloTowersValidation() {
   
 }
 
