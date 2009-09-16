@@ -45,6 +45,10 @@ void testInitMsgCollection::testAdditions()
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("hltOutputDQM").get() == 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("HLTDEBUG").get() == 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("CALIB").get() == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("hltOutputDQM") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("HLTDEBUG") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("CALIB") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->maxMsgCount() == 0);
 
   // *** first INIT message ***
 
@@ -60,6 +64,10 @@ void testInitMsgCollection::testAdditions()
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("hltOutputDQM").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("HLTDEBUG").get() == 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("CALIB").get() == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("hltOutputDQM") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("HLTDEBUG") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("CALIB") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->maxMsgCount() == 1);
 
   // *** second INIT message ***
 
@@ -75,6 +83,10 @@ void testInitMsgCollection::testAdditions()
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("hltOutputDQM").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("HLTDEBUG").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("CALIB").get() == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("hltOutputDQM") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("HLTDEBUG") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("CALIB") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->maxMsgCount() == 1);
 
   // *** third INIT message ***
 
@@ -90,6 +102,10 @@ void testInitMsgCollection::testAdditions()
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("hltOutputDQM").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("HLTDEBUG").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("CALIB").get() != 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("hltOutputDQM") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("HLTDEBUG") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("CALIB") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->maxMsgCount() == 1);
 
   // *** duplicate INIT message ***
 
@@ -105,6 +121,10 @@ void testInitMsgCollection::testAdditions()
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("hltOutputDQM").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("HLTDEBUG").get() != 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("CALIB").get() != 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("hltOutputDQM") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("HLTDEBUG") == 1);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("CALIB") == 2);
+  CPPUNIT_ASSERT(_initMsgCollection->maxMsgCount() == 2);
 
   // *** cleanup ***
 
@@ -114,6 +134,10 @@ void testInitMsgCollection::testAdditions()
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("hltOutputDQM").get() == 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("HLTDEBUG").get() == 0);
   CPPUNIT_ASSERT(_initMsgCollection->getElementForOutputModule("CALIB").get() == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("hltOutputDQM") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("HLTDEBUG") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->initMsgCount("CALIB") == 0);
+  CPPUNIT_ASSERT(_initMsgCollection->maxMsgCount() == 0);
 }
 
 
