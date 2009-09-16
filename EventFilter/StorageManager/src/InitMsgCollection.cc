@@ -1,11 +1,5 @@
-/**
- * This class is used to manage the set of INIT messages that have
- * been received by the storage manager and will be sent to event
- * consumers and written to output disk files.
- *
- * $Id: InitMsgCollection.cc,v 1.8 2009/07/20 13:07:27 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.9 2009/09/16 08:58:43 mommsen Exp $
 /// @file: InitMsgCollection.cc
- */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
@@ -23,9 +17,6 @@
 using namespace stor;
 using namespace edm;
 
-/**
- * InitMsgCollection constructor.
- */
 InitMsgCollection::InitMsgCollection()
 {
   FDEBUG(5) << "Executing constructor for InitMsgCollection" << std::endl;
@@ -36,29 +27,13 @@ InitMsgCollection::InitMsgCollection()
   OtherMessageBuilder fullSetMsg(&(*serializedFullSet_)[0], Header::INIT_SET);
 }
 
-/**
- * InitMsgCollection destructor.
- */
+
 InitMsgCollection::~InitMsgCollection()
 {
   FDEBUG(5) << "Executing destructor for InitMsgCollection" << std::endl;
 }
 
-/**
- * Adds the specified INIT message to the collection if it has a unique
- * HLT output module label.
- *
- * If we already have an INIT message with the same output module label
- * as the input INIT message, the duplicate
- * message is *not* added to the collection, and this method returns false.
- *
- * If the output module label inside the INIT message is empty, an
- * exception is thrown.
- *
- * @param initMsgView The INIT message to be added to the collection.
- * @return true if the message was added to the collection, false otherwise.
- * @throws cms::Exception if one of the consistency checks fails.
- */
+
 bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
 {
   boost::mutex::scoped_lock sl(listLock_);
@@ -84,9 +59,12 @@ bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
   else {
 
     // loop over the existing messages
-    std::vector<InitMsgSharedPtr>::const_iterator msgIter;
-    for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
-      InitMsgSharedPtr serializedProds = *msgIter;
+    for (InitMsgList::iterator msgIter = initMsgList_.begin(),
+           msgIterEnd = initMsgList_.end();
+         msgIter != msgIterEnd;
+         msgIter++)
+    {
+      InitMsgSharedPtr serializedProds = msgIter->first;
       InitMsgView existingInitMsg(&(*serializedProds)[0]);
       std::string existingOMLabel = existingInitMsg.outputModuleLabel();
 
@@ -94,6 +72,7 @@ bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
       if (inputOMLabel == existingOMLabel) {
         // we already have a copy of the INIT message
         addToList = false;
+        ++msgIter->second;
         break;
       }
     }
@@ -108,27 +87,9 @@ bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
   return addToList;
 }
 
-/**
- * Fetches the single INIT message that matches the requested HLT output
- * module label.  If no messages match the request, an empty pointer
- * is returned.
- *
- * If the requested HLT output module label is empty, and there is only
- * one INIT message in the collection, that INIT message is returned.
- * However, if there is more than one INIT message in the collection, and
- * an empty request is passed into this method, an exception will be thrown.
- * (How can we decide which is the best match when we have nothing to work
- * with?)
- *
- * @param requestedOMLabel The HLT output module label of the INIT
- *        message to be returned.
- * @return a pointer to the INIT message that matches.  If no
- *         matching INIT message is found, and empty pointer is returned.
- * @throws cms::Exception if the input HLT output module label string is
- *         empty and there is more than one INIT message in the collection.
- */
+
 InitMsgSharedPtr
-InitMsgCollection::getElementForOutputModule(std::string requestedOMLabel)
+InitMsgCollection::getElementForOutputModule(const std::string& requestedOMLabel) const
 {
   boost::mutex::scoped_lock sl(listLock_);
   InitMsgSharedPtr serializedProds;
@@ -139,7 +100,7 @@ InitMsgCollection::getElementForOutputModule(std::string requestedOMLabel)
   // switch to recursive mutexes...)
   if (requestedOMLabel.empty()) {
     if (initMsgList_.size() == 1) {
-      serializedProds = initMsgList_.back();
+      serializedProds = initMsgList_.back().first;
     }
     else if (initMsgList_.size() > 1) {
       std::string msg = "Invalid INIT message lookup: the requested ";
@@ -152,9 +113,12 @@ InitMsgCollection::getElementForOutputModule(std::string requestedOMLabel)
 
   else {
     // loop over the existing messages
-    std::vector<InitMsgSharedPtr>::const_iterator msgIter;
-    for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
-      InitMsgSharedPtr workingMessage = *msgIter;
+    for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
+           msgIterEnd = initMsgList_.end();
+         msgIter != msgIterEnd;
+         msgIter++)
+    {
+      InitMsgSharedPtr workingMessage = msgIter->first;
       InitMsgView existingInitMsg(&(*workingMessage)[0]);
       std::string existingOMLabel = existingInitMsg.outputModuleLabel();
       
@@ -169,44 +133,31 @@ InitMsgCollection::getElementForOutputModule(std::string requestedOMLabel)
   return serializedProds;
 }
 
-/**
- * Returns a shared pointer to the last element in the collection
- * or an empty pointer if the collection has no elements.
- *
- * @return the last InitMsgSharedPtr in the collection.
- */
-InitMsgSharedPtr InitMsgCollection::getLastElement()
+
+InitMsgSharedPtr InitMsgCollection::getLastElement() const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
   InitMsgSharedPtr ptrToLast;
   if (initMsgList_.size() > 0) {
-    ptrToLast = initMsgList_.back();
+    ptrToLast = initMsgList_.back().first;
   }
   return ptrToLast;
 }
 
-/**
- * Returns a shared pointer to the requested element in the collection
- * or an empty pointer if the requested index if out of bounds.
- *
- * @param index The index of the requested element.
- * @return the InitMsgSharedPtr at the requested index in the collection.
- */
-InitMsgSharedPtr InitMsgCollection::getElementAt(unsigned int index)
+
+InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
   InitMsgSharedPtr ptrToElement;
   if (index >= 0 && index < initMsgList_.size()) {
-    ptrToElement = initMsgList_[index];
+    ptrToElement = initMsgList_[index].first;
   }
   return ptrToElement;
 }
 
-/**
- * Removes all entries from the collection.
- */
+
 void InitMsgCollection::clear()
 {
   {
@@ -220,23 +171,55 @@ void InitMsgCollection::clear()
   }
 }
 
-/**
- * Returns the number of INIT messages in the collection.
- *
- * @return the integer number of messages.
- */
-int InitMsgCollection::size()
+
+int InitMsgCollection::size() const
 {
   boost::mutex::scoped_lock sl(listLock_);
   return initMsgList_.size();
 }
 
-/**
- * Returns a string with information on which selections are available.
- *
- * @return the help string.
- */
-std::string InitMsgCollection::getSelectionHelpString()
+
+uint32 InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
+{
+  boost::mutex::scoped_lock sl(listLock_);
+
+  for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
+         msgIterEnd = initMsgList_.end();
+       msgIter != msgIterEnd;
+       msgIter++)
+  {
+    InitMsgSharedPtr workingMessage = msgIter->first;
+    InitMsgView existingInitMsg(&(*workingMessage)[0]);
+    std::string existingOMLabel = existingInitMsg.outputModuleLabel();
+      
+    // check if the output module labels match
+    if (outputModuleLabel == existingOMLabel) {
+      return msgIter->second;
+    }
+  }
+  return 0;
+}
+
+
+uint32 InitMsgCollection::maxMsgCount() const
+{
+  boost::mutex::scoped_lock sl(listLock_);
+
+  uint32 maxCount = 0;
+
+  for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
+         msgIterEnd = initMsgList_.end();
+       msgIter != msgIterEnd;
+       msgIter++)
+  {
+    if (msgIter->second > maxCount)
+      maxCount = msgIter->second;
+  }
+  return maxCount;
+}
+
+
+std::string InitMsgCollection::getSelectionHelpString() const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
@@ -251,7 +234,7 @@ std::string InitMsgCollection::getSelectionHelpString()
 
   // we can just use the list from the first entry since all
   // subsequent entries are forced to be the same
-  InitMsgSharedPtr serializedProds = initMsgList_[0];
+  InitMsgSharedPtr serializedProds = initMsgList_[0].first;
   InitMsgView existingInitMsg(&(*serializedProds)[0]);
   Strings existingTriggerList;
   existingInitMsg.hltTriggerNames(existingTriggerList);
@@ -264,9 +247,12 @@ std::string InitMsgCollection::getSelectionHelpString()
   helpString.append("trigger selections are the following:");
 
   // loop over the existing messages
-  std::vector<InitMsgSharedPtr>::const_iterator msgIter;
-  for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
-    serializedProds = *msgIter;
+    for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
+           msgIterEnd = initMsgList_.end();
+         msgIter != msgIterEnd;
+         msgIter++)
+    {
+    serializedProds = msgIter->first;
     InitMsgView workingInitMsg(&(*serializedProds)[0]);
     helpString.append("\n  *** Output module \"");
     helpString.append(workingInitMsg.outputModuleLabel());
@@ -282,18 +268,12 @@ std::string InitMsgCollection::getSelectionHelpString()
   return helpString;
 }
 
-/**
- * Returns the name of the output module with the specified module ID,
- * or an empty string of the specified module ID is not known.
- *
- * @return the output module label or an empty string
- */
-std::string InitMsgCollection::getOutputModuleName(uint32 outputModuleId)
+
+std::string InitMsgCollection::getOutputModuleName(const uint32 outputModuleId) const
 {
   boost::mutex::scoped_lock sl(listLock_);
 
-  std::map<uint32, std::string>::iterator it =
-    outModNameTable_.find(outputModuleId);
+  OutModTable::const_iterator it = outModNameTable_.find(outputModuleId);
 
   if (it == outModNameTable_.end())
   {
@@ -304,16 +284,7 @@ std::string InitMsgCollection::getOutputModuleName(uint32 outputModuleId)
   }
 }
 
-/**
- * Creates a single text string from the elements in the specified
- * list of strings.  The specified maximum number of elements are
- * included, however a zero value for the maximum number will include
- * all elements.
- *
- * @param list the list of strings to include (vector of strings);
- * @param maxCount the maximum number of list elements to include.
- * @return the text string with the formatted list elements.
- */
+
 std::string InitMsgCollection::stringsToText(Strings const& list,
                                              unsigned int maxCount)
 {
@@ -334,16 +305,12 @@ std::string InitMsgCollection::stringsToText(Strings const& list,
   return resultString;
 }
 
-/**
- * Adds the specified INIT message to the collection (unconditionally).
- *
- * @param initMsgView The INIT message to add to the collection.
- */
+
 void InitMsgCollection::add(InitMsgView const& initMsgView)
 {
   // add the message to the internal list
   InitMsgSharedPtr serializedProds(new InitMsgBuffer(initMsgView.size()));
-  initMsgList_.push_back(serializedProds);
+  initMsgList_.push_back( std::make_pair(serializedProds,1) );
   std::copy(initMsgView.startAddress(),
             initMsgView.startAddress()+initMsgView.size(),
             &(*serializedProds)[0]);
@@ -371,10 +338,8 @@ void InitMsgCollection::add(InitMsgView const& initMsgView)
             copyPtr);
 }
 
-////////////////////////////
-//// Register consumer: ////
-////////////////////////////
-bool InitMsgCollection::registerConsumer( ConsumerID cid, const std::string& hltModule )
+
+bool InitMsgCollection::registerConsumer(const ConsumerID cid, const std::string& hltModule)
 {
   if ( ! cid.isValid() ) { return false; }
   if ( hltModule == "" ) { return false; }
@@ -384,11 +349,8 @@ bool InitMsgCollection::registerConsumer( ConsumerID cid, const std::string& hlt
   return true;
 }
 
-/**
- * Fetches the single INIT message that matches the requested consumer ID.
- * If no messages match the request, an empty pointer is returned.
- */
-InitMsgSharedPtr InitMsgCollection::getElementForConsumer( ConsumerID cid )
+
+InitMsgSharedPtr InitMsgCollection::getElementForConsumer(const ConsumerID cid) const
 {
   std::string outputModuleLabel;
   {
