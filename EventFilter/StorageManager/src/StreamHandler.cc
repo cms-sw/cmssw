@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.7 2009/08/28 16:41:27 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -39,6 +39,16 @@ void StreamHandler::closeTimedOutFiles(utils::time_point_t currentTime)
                                      _fileHandlers.end(),
                                      boost::bind(&FileHandler::tooOld,
                                                  _1, currentTime)),
+                      _fileHandlers.end());
+}
+
+
+void StreamHandler::closeFilesForLumiSection(const uint32_t lumiSection)
+{
+  _fileHandlers.erase(std::remove_if(_fileHandlers.begin(),
+                                     _fileHandlers.end(),
+                                     boost::bind(&FileHandler::isFromLumiSection,
+                                                 _1, lumiSection)),
                       _fileHandlers.end());
 }
 
