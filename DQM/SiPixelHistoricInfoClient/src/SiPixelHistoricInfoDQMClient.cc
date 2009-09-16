@@ -133,12 +133,12 @@ void SiPixelHistoricInfoDQMClient::retrieveMEs() {
   	      else (mapOfdetIDtoMEs.find(newMEdetID)->second).push_back(newME);
   	    } 
   	  } 
-  	  while (histnameLength!=string::npos); 
-	} 
+  	  while(histnameLength!=string::npos); 
+	}
 	if (noModules) noModules = false; 
       } 
-      else if (thePath.find("Layer_",0)!=string::npos || 
-               thePath.find("Disk_",0)!=string::npos && thePath.find("Panel_",0)==string::npos) {
+      else if( (thePath.find("Layer_",0)!=string::npos || 
+                thePath.find("Disk_",0)!=string::npos && thePath.find("Panel_",0)==string::npos) ) {
 	if (useSummary_) {
    	  uint32_t newMEdetID = getSummaryRegionID(thePath); 
 	  if (printDebug_) cout << thePath.data() <<" in region "<< newMEdetID << endl; 	  
