@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.5 2009/04/15 12:08:36 dpiparo Exp $
+// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.6 2009/05/15 09:55:59 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -32,8 +32,8 @@ ClassImp(RscConstrArrayFiller)
 #endif
 /*----------------------------------------------------------------------------*/
 
-RscConstrArrayFiller::RscConstrArrayFiller(char* name, 
-                                           char* title, 
+RscConstrArrayFiller::RscConstrArrayFiller(const char* name, 
+                                           const char* title, 
                                            RscCombinedModel* combo,
                                            bool verbosity)
     :RscTool(name,title,verbosity){
@@ -55,8 +55,8 @@ RscConstrArrayFiller::RscConstrArrayFiller(char* name,
 
 /*----------------------------------------------------------------------------*/
 
-RscConstrArrayFiller::RscConstrArrayFiller(char* name, 
-                                           char* title, 
+RscConstrArrayFiller::RscConstrArrayFiller(const char* name, 
+                                           const char* title, 
                                            RooArgList constraints_list,
                                            bool verbosity)
     :RscTool(name,title,verbosity){
@@ -65,8 +65,8 @@ RscConstrArrayFiller::RscConstrArrayFiller(char* name,
 
 /*----------------------------------------------------------------------------*/
 
-RscConstrArrayFiller::RscConstrArrayFiller(char* name,
-                                            char* title,
+RscConstrArrayFiller::RscConstrArrayFiller(const char* name,
+                                           const char* title,
                                             RscTotModel* model1,
                                             RscTotModel* model2,
                                             RscTotModel* model3,

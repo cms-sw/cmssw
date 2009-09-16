@@ -25,7 +25,7 @@ RscTotModel::RscTotModel(TString theName)
   theConstraints=NULL;
 
   readDataCard();
-  if (variablesString.getVal()=="") 
+  if (strcmp(variablesString.getVal(),"")==0) 
     cout << "ERROR, you forgot to specify the discriminating variables\n";
 }
 

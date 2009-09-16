@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscTool.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: RscTool.cc,v 1.4 2009/05/15 09:55:59 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 
@@ -9,7 +9,7 @@
 #endif
 
 
-RscTool::RscTool(char* name, char* title, bool verbosity)
+RscTool::RscTool(const char* name,const  char* title, bool verbosity)
     :TNamed(name,title){
     setVerbosity(true);
     }

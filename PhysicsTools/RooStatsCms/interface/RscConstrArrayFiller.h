@@ -1,12 +1,12 @@
-// @(#)root/hist:$Id: RscConstrArrayFiller.h,v 1.3 2009/04/15 11:10:45 dpiparo Exp $
+// @(#)root/hist:$Id: RscConstrArrayFiller.h,v 1.4 2009/05/15 09:55:43 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch, Gregory.Schott@cern.ch   05/04/2008
 
 /// ConstrArrayFiller : The mother class of the RooStatsCms Tools
 
 /**
 \class ConstrArrayFiller
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/05/15 09:55:43 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott (grgory.schott<at>cern.ch) - Universitaet Karlsruhe 
 Fill the array of constraints considering the Constraints in a collection of 
 RscTotModels and reading from the datacard the correlations.
@@ -33,8 +33,8 @@ class RscConstrArrayFiller : public RscTool  {
   public:
 
     /// Constructor
-    RscConstrArrayFiller(char* name, 
-                         char* title, 
+    RscConstrArrayFiller(const char* name, 
+                         const char* title, 
                          RscTotModel* model1,
                          RscTotModel* model2=0,
                          RscTotModel* model3=0,
@@ -46,14 +46,14 @@ class RscConstrArrayFiller : public RscTool  {
                          bool verbosity=true);
 
     /// Constructor with RscCombinedModel
-    RscConstrArrayFiller(char* name, 
-                         char* title, 
+    RscConstrArrayFiller(const char* name, 
+                         const char* title, 
                          RscCombinedModel* combo,
                          bool verbosity=true);
 
     /// Constructor with RscCombinedModel
-    RscConstrArrayFiller(char* name, 
-                         char* title, 
+    RscConstrArrayFiller(const char* name, 
+                         const char* title, 
                          RooArgList constraints_list,
                          bool verbosity=true);
 
