@@ -102,6 +102,61 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // Produces a TransientIntProduct instance.
+  //
+  class TransientIntProducer : public edm::EDProducer {
+  public:
+    explicit TransientIntProducer(edm::ParameterSet const& p) : 
+      value_(p.getParameter<int>("ivalue")) {
+      produces<TransientIntProduct>();
+    }
+    explicit TransientIntProducer(int i) : value_(i) {
+      produces<TransientIntProduct>();
+    }
+    virtual ~TransientIntProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+  private:
+    int value_;
+  };
+
+  void
+  TransientIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    std::auto_ptr<TransientIntProduct> p(new TransientIntProduct(value_));
+    e.put(p);
+  }
+
+  //--------------------------------------------------------------------
+  //
+  // Produces a IntProduct instance from a TransientIntProduct
+  //
+  class IntProducerFromTransient : public edm::EDProducer {
+  public:
+    explicit IntProducerFromTransient(edm::ParameterSet const&) { 
+      produces<IntProduct>();
+    }
+    explicit IntProducerFromTransient() {
+      produces<IntProduct>();
+    }
+    virtual ~IntProducerFromTransient() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+  private:
+  };
+
+  void
+  IntProducerFromTransient::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+    edm::Handle<TransientIntProduct> result;
+    bool ok = e.getByType(result);
+    assert(ok);
+    std::auto_ptr<IntProduct> p(new IntProduct(result.product()->value));
+    e.put(p);
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces an Int16_tProduct instance.
   //
   class Int16_tProducer : public edm::EDProducer {
@@ -953,6 +1008,8 @@ namespace edmtest {
 using edmtest::FailingProducer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
+using edmtest::TransientIntProducer;
+using edmtest::IntProducerFromTransient;
 using edmtest::Int16_tProducer;
 using edmtest::ToyDoubleProducer;
 using edmtest::SCSimpleProducer;
@@ -976,6 +1033,8 @@ using edmtest::ProdigalProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
+DEFINE_FWK_MODULE(TransientIntProducer);
+DEFINE_FWK_MODULE(IntProducerFromTransient);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(ToyDoubleProducer);
 DEFINE_FWK_MODULE(SCSimpleProducer);
