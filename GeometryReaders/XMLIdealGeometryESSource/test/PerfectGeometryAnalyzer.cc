@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: PerfectGeometryAnalyzer.cc,v 1.14 2009/07/09 20:57:24 case Exp $
+// $Id: PerfectGeometryAnalyzer.cc,v 1.15 2009/08/21 19:21:48 case Exp $
 //
 //
 
@@ -36,6 +36,11 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h"
+
+#include "CondFormats/GeometryObjects/interface/GeometryFile.h"
+#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -62,6 +67,8 @@ private:
   bool dumpSpecs_;
   std::string fname_;
   int nNodes_;
+  bool fromDB_;
+  std::string ddRootNodeName_;
 };
 
 //
@@ -82,7 +89,9 @@ PerfectGeometryAnalyzer::PerfectGeometryAnalyzer( const edm::ParameterSet& iConf
   dumpPosInfo_(iConfig.getUntrackedParameter<bool>("dumpPosInfo", false)),
   dumpSpecs_(iConfig.getUntrackedParameter<bool>("dumpSpecs", false)),
   fname_(iConfig.getUntrackedParameter<std::string>("outFileName", "GeoHistory")),
-  nNodes_(iConfig.getUntrackedParameter<uint32_t>("numNodesToDump", 0))
+  nNodes_(iConfig.getUntrackedParameter<uint32_t>("numNodesToDump", 0)),
+  fromDB_(iConfig.getUntrackedParameter<bool>("fromDB", false)),
+  ddRootNodeName_(iConfig.getUntrackedParameter<std::string>("ddRootNodeName", "cms:OCMS"))
 {
   if ( isMagField_ ) {
     label_ = "magfield";
@@ -107,22 +116,35 @@ PerfectGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetu
    using namespace edm;
 
    std::cout << "Here I am " << std::endl;
-   edm::ESHandle<DDCompactView> pDD;
-   if (!isMagField_) {
-     iSetup.get<IdealGeometryRecord>().get(label_, pDD );
-   } else {
-     iSetup.get<IdealMagneticFieldRecord>().get(label_, pDD );
+   if ( !fromDB_) {
+     edm::ESHandle<DDCompactView> pDD;
+     if (!isMagField_) {
+       iSetup.get<IdealGeometryRecord>().get(label_, pDD );
+     } else {
+       iSetup.get<IdealMagneticFieldRecord>().get(label_, pDD );
+     }
+     if (pDD.description()) {
+       edm::LogInfo("PerfectGeometryAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
+     } else {
+       edm::LogWarning("PerfectGeometryAnalyzer") << "NO label found pDD.description() returned false.";
+     }
+     if (!pDD.isValid()) {
+       edm::LogError("PerfectGeometryAnalyzer") << "ESHandle<DDCompactView> pDD is not valid!";
+     }
+     GeometryInfoDump gidump;
+     gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD, fname_, nNodes_ );
+   } else { //from db
+     edm::ESHandle<GeometryFile> gdd;
+     iSetup.get<GeometryFileRcd>().get(label_, gdd);
+     DDLParser * parser = DDLParser::instance();
+     DDRootDef::instance().set(DDName(ddRootNodeName_));
+     std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
+     parser->parse(*tb, tb->size());   
+     delete tb;
+     GeometryInfoDump gidump;
+     DDCompactView cpv;
+     gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, cpv, fname_, nNodes_ );
    }
-   if (pDD.description()) {
-     edm::LogInfo("PerfectGeometryAnalyzer") << pDD.description()->type_ << " label: " << pDD.description()->label_;
-   } else {
-     edm::LogWarning("PerfectGeometryAnalyzer") << "NO label found pDD.description() returned false.";
-   }
-   if (!pDD.isValid()) {
-     edm::LogError("PerfectGeometryAnalyzer") << "ESHandle<DDCompactView> pDD is not valid!";
-   }
-   GeometryInfoDump gidump;
-   gidump.dumpInfo( dumpHistory_, dumpSpecs_, dumpPosInfo_, *pDD, fname_, nNodes_ );
    std::cout << "finished" << std::endl;
 }
 

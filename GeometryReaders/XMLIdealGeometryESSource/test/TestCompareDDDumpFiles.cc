@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 10, 2009
-// $Id: TestCompareDDDumpFiles.cc,v 1.1 2009/03/04 14:47:33 fambrogl Exp $
+// $Id: TestCompareDDDumpFiles.cc,v 1.1 2009/09/11 01:59:35 case Exp $
 //
 //
 
@@ -47,11 +47,15 @@ private:
 
 TestCompareDDDumpFiles::TestCompareDDDumpFiles( const edm::ParameterSet& ps ) 
   :    fname1_(ps.getParameter<std::string>("dumpFile1"))
-       ,fname2_(ps.getParameter<std::string>("dumpFile2"))
-       ,tol_(ps.getUntrackedParameter<double>("tolerance", 0.000001))
-       ,f1_(fname1_.c_str())
-       ,f2_(fname2_.c_str())
-{ }
+  ,fname2_(ps.getParameter<std::string>("dumpFile2"))
+  ,tol_(ps.getUntrackedParameter<double>("tolerance", 0.000001))
+  ,f1_(fname1_.c_str(), std::ios::in)
+  ,f2_(fname2_.c_str(), std::ios::in)
+{ 
+  if (!f1_ || !f2_) {
+    throw cms::Exception("MissingFileDDTest") << fname1_ << " and/or " << fname2_ << " do not exist." ;
+  }
+}
 
 TestCompareDDDumpFiles::~TestCompareDDDumpFiles () {
   f1_.close();

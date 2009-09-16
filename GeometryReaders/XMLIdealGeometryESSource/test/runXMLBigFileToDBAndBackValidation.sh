@@ -1,68 +1,56 @@
+#!/bin/tcsh 
+# Michael Case 2009-09-17:  This is meant to validate that the geometry going into the db is
+# indeed the same as the geometry that comes from the many xml files which created the db.
+# It does NOT check SpecPars (yet).
+# It checks the position of all parts in the hierarchy of the graph of parts positioned
+# in the detector and is currently (in the file testCompareDumpFiles.py) set to look
+# for differences exceeting .0004 mm in x, y and z and .0004 in the elements of the
+# rotation matrix.
+#
+# To run this file, ./runXMLBigFileToDBAndBackValidation.sh in 
+# GeometryReaders/XMLIdealGeometryESSource/test
+# To RERUN the test, rm -rf workarea.
 echo start
-date
+cmsenv
 mkdir workarea
 cd workarea
 mkdir db
 mkdir xml
 cd db
-rm myfile.db
-#touch testIdeal.db
-rm trXMLFromDB.out
-rm twMakeBigFileIdeal.out
-rm twMakeDB.out
-rm twLoadDBWithXML.out
-rm *.log.xml
-rm *.log
-rm dumpGeoHistoryDBIdealRead
-rm dumpSpecsDBIdealRead
-
+# The rm lines can be removed for debugging to check what is going on.
+#rm myfile.db
+#rm trXMLFromDB.out
+#rm twLoadDBWithXML.out
+#rm *.log.xml
+#rm *.log
+#rm dumpBDB
+#rm dumpSpecsdumpBDB
 echo start write Ideal
-date
-cmsRun $CMSSW_BASE/src/DetectorDescription/OfflineDBLoader/test/dumpit.py >twMakeBigFileIdeal.out
-source $CMSSW_BASE/src/CondTools/Geometry/test/blob_preparation.txt > twMakeDB.out
-cmsRun ../../xmlgeometrywriter.py > twLoadDBWithXML.out
+# At this point, I'm preparing the database.
+source $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/blob_preparation.txt > twLoadDBWithXML.out
+# At this point I'm writing the XML file, 'fred.xml'
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometryxmlwriter.py .
+sed -i '{s/GeometryExtended/GeometryIdeal/}' geometryxmlwriter.py >> twLoadDBWithXML.out
+cmsRun geometryxmlwriter.py >> twLoadDBWithXML.out
+# At this point I'm writing ALL geometries, not only the "big file"
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrywriter.py .
+sed -i '{s/GeometryExtended/GeometryIdeal/}' geometrywriter.py >> twLoadDBWithXML.out
+cmsRun geometrywriter.py >> twLoadDBWithXML.out
 echo end write Ideal
-date
-echo done with all DB writes.
-
 echo start DB read Ideal
-date
 cmsRun ../../testReadXMLFromDB.py > trXMLFromDB.out
 echo done with read DB Ideal
-date
-
-mv dumpGeoHistory dumpGeoHistoryDBIdealRead
-mv dumpSpecs dumpSpecsDBIdealRead
-
-echo end all DB reads
-date
 cd ../xml
-rm trIdeal.out
-rm dumpGeoHistoryXMLIdealRead
-rm dumpSpecsXMLIdealRead
-rm diffgeomIdeal.out
-
-echo start XML read both
-date
-cmsRun $CMSSW_BASE/src/DetectorDescription/OfflineDBLoader/test/testreadXMLIdealOnly_cfg.py > trIdeal.out
-echo end XML read both
-date
-
-mv dumpGeoHistory dumpGeoHistoryXMLIdealRead
-mv dumpSpecs dumpSpecsXMLIdealRead
-echo done with reading XML
-
-echo doing seds to replace -0 with 0.
-date
-sed -i '{s/-0.0000/ 0.0000/g}' dumpGeoHistoryXMLIdealRead
-cd ../db
-sed -i '{s/-0.0000/ 0.0000/g}' dumpGeoHistoryDBIdealRead
-cd ../xml
-
-date
-echo this will show if there are any inconsistencies when reading the Ideal Geometry
-diff dumpGeoHistoryXMLIdealRead ../db/dumpGeoHistoryDBIdealRead > diffgeomIdeal.out
-
+#uncomment for debugging.
+#rm trIdeal.out
+#rm dumpSTD
+#rm dumpSpecdumpSTD
+#rm diffgeomIdeal.out
+echo start XML read Ideal Geometry
+cmsRun ../../readIdealAndDump.py
+echo end XML read Ideal Geometry
+cd ../..
+cmsRun testCompareDumpFiles.py
 echo ALL DONE!
 
 
