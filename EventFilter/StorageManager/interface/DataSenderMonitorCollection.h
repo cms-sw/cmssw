@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.8 2009/08/24 14:31:11 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.9 2009/09/16 16:12:53 biery Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -22,9 +22,9 @@ namespace stor {
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
-   * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Author: biery $
+   * $Revision: 1.9 $
+   * $Date: 2009/09/16 16:12:53 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -247,11 +247,14 @@ namespace stor {
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
       UniqueResourceBrokerID_t uniqueRBID;
+      int outstandingDataDiscardCount;
+      int outstandingDQMDiscardCount;
 
       explicit ResourceBrokerResult(ResourceBrokerKey const& rbKey):
         key(rbKey), filterUnitCount(0), initMsgCount(0),
         lastRunNumber(0), lastEventNumber(0), dataDiscardCount(0),
-        dqmDiscardCount(0), skippedDiscardCount(0), uniqueRBID(0) {}
+        dqmDiscardCount(0), skippedDiscardCount(0), uniqueRBID(0),
+        outstandingDataDiscardCount(0), outstandingDQMDiscardCount(0) {}
 
       bool operator<(ResourceBrokerResult const& other) const
       {
@@ -278,10 +281,13 @@ namespace stor {
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
+      int outstandingDataDiscardCount;
+      int outstandingDQMDiscardCount;
 
       explicit FilterUnitResult(FilterUnitKey const& fuKey):
         key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
-        dataDiscardCount(0), dqmDiscardCount(0), skippedDiscardCount(0) {}
+        dataDiscardCount(0), dqmDiscardCount(0), skippedDiscardCount(0),
+        outstandingDataDiscardCount(0), outstandingDQMDiscardCount(0) {}
     };
     typedef boost::shared_ptr<FilterUnitResult> FUResultPtr;
     typedef std::vector<FUResultPtr> FilterUnitResultsList;

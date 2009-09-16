@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.9 2009/09/14 16:24:55 biery Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.10 2009/09/16 16:12:54 biery Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -398,6 +398,13 @@ DataSenderMonitorCollection::getFilterUnitResultsForRB(UniqueResourceBrokerID_t 
           fuRecordPtr->dqmEventSize.getStats(result->dqmEventStats);
           fuRecordPtr->errorEventSize.getStats(result->errorEventStats);
           fuRecordPtr->staleChainSize.getStats(result->staleChainStats);
+
+          result->outstandingDataDiscardCount = result->initMsgCount +
+            result->shortIntervalEventStats.getSampleCount() +
+            result->errorEventStats.getSampleCount() - result->dataDiscardCount;
+          result->outstandingDQMDiscardCount = result->dqmEventStats.getSampleCount() -
+            result->dqmDiscardCount;
+
           resultsList.push_back(result);
         }
     }
@@ -717,6 +724,12 @@ DSMC::buildResourceBrokerResult(DSMC::RBRecordPtr const& rbRecordPtr) const
   rbRecordPtr->dqmEventSize.getStats(result->dqmEventStats);
   rbRecordPtr->errorEventSize.getStats(result->errorEventStats);
   rbRecordPtr->staleChainSize.getStats(result->staleChainStats);
+
+  result->outstandingDataDiscardCount = result->initMsgCount +
+    result->eventStats.getSampleCount() + result->errorEventStats.getSampleCount() -
+    result->dataDiscardCount;
+  result->outstandingDQMDiscardCount = result->dqmEventStats.getSampleCount() -
+    result->dqmDiscardCount;
 
   return result;
 }
