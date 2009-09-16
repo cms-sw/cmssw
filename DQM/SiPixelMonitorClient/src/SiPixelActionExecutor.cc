@@ -1442,7 +1442,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 
 void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, funcType ff)
 {
-	cout << "Starting with SiPixelActionExecutor::createMaps" << endl;
+//	cout << "Starting with SiPixelActionExecutor::createMaps" << endl;
 
 	Double_t mapB[NLev1][NLev2][NLev3][NLev4];
 	bei->setCurrentFolder("Pixel/Barrel/");
@@ -1475,7 +1475,7 @@ void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, funcType
 	bei->setCurrentFolder("Pixel/Endcap");
 	prephistosE(meE, bei, mapE, type, min, max);
 
-	cout << "Done with SiPixelActionExecutor::createMaps" << endl;
+//	cout << "Done with SiPixelActionExecutor::createMaps" << endl;
 }
 
 //=============================================================================================================
@@ -1488,19 +1488,19 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 	Int_t i = 0;
 	for (vector<string>::const_iterator it = dirLev1.begin(); it != dirLev1.end(); it++) // goes over HalfCylinders in Endcap and over Shells in Barrel
 	{
-		cout << "Current Directory: " << *it << endl;
+		//cout << "Current Directory: " << *it << endl;
 		bei->cd(*it);
 		vector<string> dirLev2 = bei->getSubdirs();
 		Int_t j = 0;
 		for (vector<string>::const_iterator it2 = dirLev2.begin(); it2 != dirLev2.end(); it2++) // goes over Disks in Endcap and over Layers in Barrel
 		{
-			cout << "Current Directory: " << *it2 << endl;
+			//cout << "Current Directory: " << *it2 << endl;
 			bei->cd(*it2);
 			Int_t k = 0;
 			vector<string> dirLev3 = bei->getSubdirs();
 			for (vector<string>::const_iterator it3 = dirLev3.begin(); it3 != dirLev3.end(); it3++) // goes over Blades in Endcap and over Ladders in Barrel
 			{
-				cout << "Current Directory: " << *it3 << endl;
+				//cout << "Current Directory: " << *it3 << endl;
 				bei->cd(*it3);
 				getData(map, type, bei, ff, i, j, k);
 				k++;
@@ -1518,7 +1518,7 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 
 void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k) {
 	
-	cout << "Starting with SiPixelActionExecutor::getData" << endl;
+//	cout << "Starting with SiPixelActionExecutor::getData" << endl;
 	vector<string> contents = bei->getMEs();
 	for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
 	{
@@ -1526,12 +1526,12 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 			// cout << "Skip";
 			continue; // Searching for specific type
 		}
-		cout << "Name: "  << *im << endl;
+		//cout << "Name: "  << *im << endl;
 		std::string fullpathname = bei->pwd() + "/" + (*im);	
 		MonitorElement*  me = bei->get(fullpathname);
 		
 		if (me) {
-		cout << me->getName() << endl;
+		//cout << me->getName() << endl;
 		// TH1F* histo = (TH1F*) me->getTH1F();
 		TH1F* histo = me->getTH1F();
 		
@@ -1579,7 +1579,7 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 					map[i][j][k][l] = 0;
 		}
 	}}
-	cout << "Done with SiPixelActionExecutor::getData" << endl;
+//	cout << "Done with SiPixelActionExecutor::getData" << endl;
 }
 
 //=============================================================================================================

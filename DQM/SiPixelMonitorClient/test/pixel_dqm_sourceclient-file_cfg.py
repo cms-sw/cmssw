@@ -94,7 +94,8 @@ process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "GR09_31X_V6P::All"
+#process.GlobalTag.globaltag = "GR09_31X_V6P::All"
+process.GlobalTag.globaltag = "CRAFT09_R_V2::All"
 ## this next line is needed for xdaq running outside P5 network:
 #process.SiteLocalConfigService = cms.Service("SiteLocalConfigService")
 
@@ -233,7 +234,7 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+    input = cms.untracked.int32(50)
 )
 
 ##----## Sequences and Paths:
