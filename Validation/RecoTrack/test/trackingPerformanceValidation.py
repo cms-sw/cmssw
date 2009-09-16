@@ -11,10 +11,10 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_2_3'
+RefRelease='CMSSW_3_2_5'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_2_4'
+NewRelease='CMSSW_3_2_6'
 
 # startup and ideal sample list
 
@@ -43,10 +43,10 @@ idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100',
 
 
 # track algorithm name and quality. Can be a list.
-Algos= ['ootb']
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
-Qualities=['']
-#Qualities=['', 'highPurity']
+#Algos= ['ootb']
+Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5']
+#Qualities=['']
+Qualities=['', 'highPurity']
 
 #Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -60,21 +60,22 @@ Tracksname=''
 #   -digi2track_and_TP
 #   -harvesting
 #   -preproduction
+#   -comparison_only
 
 #Sequence='preproduction'
-Sequence='harvesting'
+Sequence='comparison_only'
 
 
 # Ideal and Statup tags
-IdealTag='MC_31X_V5'
-StartupTag='STARTUP31X_V4'
+IdealTag='MC_31X_V8'
+StartupTag='STARTUP31X_V7'
 
 # PileUp: PU . No PileUp: noPU
 PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='MC_31X_V3_'+PileUp
-StartupReferenceSelection='STARTUP31X_V2_'+PileUp
+ReferenceSelection='MC_31X_V5_'+PileUp
+StartupReferenceSelection='STARTUP31X_V4_'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
@@ -83,8 +84,9 @@ NewSelectionLabel=''
 
 #Reference and new repository
 RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-NewRepository = './'
+NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
 
+castorHarvestedFilesDirectory='/castor/cern.ch/user/n/nuno/relval/harvest/'
 #for preproduction samples:
 #RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
 #NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
@@ -121,7 +123,7 @@ def replace(map, filein, fileout):
 
     
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
-    global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events
+    global Sequence, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
     tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom'}
@@ -166,7 +168,13 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
-
+            elif( Sequence=="comparison_only"):
+                harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-v1__GEN-SIM-RECO.root'
+                cpcmd='rfcp '+ castorHarvestedFilesDirectory+ NewRelease +'/' + harvestedfile + ' .'
+                returncode=os.system(cpcmd)
+                if (returncode!=0):
+                    print 'copy of harvested file from castor for sample ' + sample + ' failed'
+                    continue
             #search the primary dataset
             cmd='dbsql "find  dataset where dataset like *'
     #            cmd+=sample+'/'+NewRelease+'_'+GlobalTag+'*GEN-SIM-DIGI-RAW-HLTDEBUG-RECO* "'
@@ -251,7 +259,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )
                     replace(symbol_map, templatecfgFile, cfgFile)
-                    if(( (Sequence=="harvesting" or Sequence=="preproduction") and os.path.isfile(harvestedfile) )==False):
+                    if(( (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only") and os.path.isfile(harvestedfile) )==False):
                         # if the file is already harvested do not run the job again
                         cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
                         retcode=os.system(cmdrun)
@@ -265,7 +273,7 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             if (retcode!=0):
                     print 'Job for sample '+ sample + ' failed. \n'
             else:
-                    if (Sequence=="harvesting" or Sequence=="preproduction"):
+                    if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
                             #copy only the needed histograms
                             if(trackquality==""):
                                     rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
