@@ -386,7 +386,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardOld, 1);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM",
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
 
     _eventDistributor->registerEventConsumer(&(*consInfo));
@@ -416,7 +416,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardNew, 2);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM", 
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost" ));
     consInfo->setQueueID( queueId );
 
     _eventDistributor->registerEventConsumer(&(*consInfo));
@@ -467,7 +467,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardOld, 3);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM",
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
     consInfo->registerMe(&(*_eventDistributor));
     
@@ -483,7 +483,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardNew, 4);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM",
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
 
     consInfo->registerMe(&(*_eventDistributor));
@@ -680,7 +680,7 @@ void testEventDistributor::testDQMMessages()
   QueueID qid1( policy, 1 );
   ri1.reset( new DQMEventConsumerRegistrationInfo( "DQM Consumer 1",
                                                    "HCAL",
-                                                   qid1.index(), qid1.policy(), 10 ) );
+                                                   qid1.index(), qid1.policy(), 10, "localhost" ) );
   _eventDistributor->registerDQMEventConsumer( &( *ri1 ) );
 
   // Consumer for ECAL:
@@ -688,7 +688,7 @@ void testEventDistributor::testDQMMessages()
   QueueID qid2( policy, 2 );
   ri2.reset( new DQMEventConsumerRegistrationInfo( "DQM Consumer 2",
                                                    "ECAL",
-                                                   qid2.index(), qid2.policy(), 10 ) );
+                                                   qid2.index(), qid2.policy(), 10, "localhost" ) );
   _eventDistributor->registerDQMEventConsumer( &( *ri2 ) );
 
   // HCAL event:
@@ -720,7 +720,7 @@ void testEventDistributor::testDQMMessages()
   QueueID qid3( policy, 3 );
   ri3.reset( new DQMEventConsumerRegistrationInfo( "DQM Consumer 3",
                                                    "*",
-                                                   qid3.index(), qid3.policy(), 10 ) );
+                                                   qid3.index(), qid3.policy(), 10, "localhost" ) );
 
   _eventDistributor->registerDQMEventConsumer( &( *ri3 ) );
 

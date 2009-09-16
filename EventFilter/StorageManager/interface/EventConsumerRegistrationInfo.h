@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -19,9 +19,9 @@ namespace stor
   /**
    * Holds the registration information from a event consumer.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:22 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -41,7 +41,8 @@ namespace stor
 				   const std::string& selHLTOut,
                                    const size_t& queueSize,
                                    const enquing_policy::PolicyTag& queuePolicy,
-				   const utils::duration_t& secondsToStale );
+				   const utils::duration_t& secondsToStale,
+                                   const std::string& remoteHost );
 
     ~EventConsumerRegistrationInfo();
 
@@ -51,6 +52,7 @@ namespace stor
     const FilterList& selEvents() const { return _selEvents; }
     const std::string& selHLTOut() const { return _selHLTOut; }
     bool isProxyServer() const { return _isProxy; }
+    const std::string& remoteHost() const { return _remoteHost; }
 
     // Staleness:
     bool isStale() const { return _stale; }
@@ -80,6 +82,7 @@ namespace stor
     std::string _selHLTOut;
     bool _isProxy;
     bool _stale;
+    std::string _remoteHost;
 
   };
 

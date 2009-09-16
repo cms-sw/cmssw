@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.26 2009/08/28 14:35:04 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.27 2009/08/28 16:41:27 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -221,6 +221,9 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     XHTMLMaker::Node* cs_th_name = maker.addNode( "th", cs_top_row, th_attr_2r );
     maker.addText( cs_th_name, "Name" );
 
+    XHTMLMaker::Node* cs_th_rhost = maker.addNode( "th", cs_top_row, th_attr_2r );
+    maker.addText( cs_th_rhost, "Consumer Host" );
+
     XHTMLMaker::Node* cs_th_status = maker.addNode( "th", cs_top_row, th_attr_2r );
     maker.addText( cs_th_status, "Status" );
 
@@ -311,6 +314,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
           maker.addText( cs_td_name, "Proxy Server" );
         else
           maker.addText( cs_td_name, (*it)->consumerName() );
+
+        // Host:
+        XHTMLMaker::Node* cs_td_rhost = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_rhost, (*it)->remoteHost() );
 
         // Status:
         XHTMLMaker::AttrMap status_attr;
@@ -468,6 +475,9 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     XHTMLMaker::Node* cs_th_name = maker.addNode( "th", cs_top_row, th_attr_2r );
     maker.addText( cs_th_name, "Name" );
 
+    XHTMLMaker::Node* cs_th_rhost = maker.addNode( "th", cs_top_row, th_attr_2r );
+    maker.addText( cs_th_rhost, "Consumer Host" );
+
     XHTMLMaker::Node* cs_th_status = maker.addNode( "th", cs_top_row, th_attr_2r );
     maker.addText( cs_th_status, "Status" );
 
@@ -555,6 +565,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
           maker.addText( cs_td_name, "Proxy Server" );
         else
           maker.addText( cs_td_name, (*it)->consumerName() );
+
+        // Host:
+        XHTMLMaker::Node* cs_td_rhost = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_rhost, (*it)->remoteHost() );
 
         // Status:
         XHTMLMaker::AttrMap status_attr;

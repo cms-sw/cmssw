@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -22,13 +22,15 @@ namespace stor
     const string& selHLTOut,
     const size_t& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
-    const utils::duration_t& secondsToStale ) :
-  _common( consumerName, queueSize, queuePolicy, secondsToStale ),
-  _maxConnectRetries( maxConnectRetries ),
-  _connectRetryInterval( connectRetryInterval ),
-  _selEvents( selEvents ),
-  _selHLTOut( selHLTOut ),
-  _stale( false )
+    const utils::duration_t& secondsToStale,
+    const std::string& remoteHost ) :
+    _common( consumerName, queueSize, queuePolicy, secondsToStale ),
+    _maxConnectRetries( maxConnectRetries ),
+    _connectRetryInterval( connectRetryInterval ),
+    _selEvents( selEvents ),
+    _selHLTOut( selHLTOut ),
+    _stale( false ),
+    _remoteHost( remoteHost )
   {
     if( consumerName == "SMProxyServer" ||
         ( consumerName.find( "urn" ) != std::string::npos &&
