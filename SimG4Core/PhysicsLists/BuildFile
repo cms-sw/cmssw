@@ -2,7 +2,4 @@
  <lib name=SimG4CorePhysicsLists>
 </export>
 
-<use name=SimG4Core/Physics>
 <use name=geant4core>
-<use name=clhep>
-<use name=boost>
