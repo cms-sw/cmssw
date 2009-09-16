@@ -421,7 +421,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       int errorType = di->getType();               // type of error
       if(modon){
         (meErrorType_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -503,7 +503,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       
       if(ladon && barrel){
         (meErrorTypeLad_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -585,7 +585,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       
       if(layon && barrel){
         (meErrorTypeLay_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -667,7 +667,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       
       if(phion && barrel){
         (meErrorTypePhi_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -749,7 +749,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       
       if(bladeon && endcap){
         (meErrorTypeBlade_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -831,7 +831,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       
       if(diskon && endcap){
         (meErrorTypeDisk_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
@@ -913,7 +913,7 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
       
       if(ringon && endcap){
         (meErrorTypeRing_)->Fill((int)errorType);
-        if(!reducedSet && (errorType == 32)||(errorType == 33)||(errorType == 34)) {
+        if(!reducedSet && (errorType == 32 || errorType == 33 || errorType == 34) ) {
 	  long long errorWord = di->getWord64();     // for 64-bit error words
 	  if(errorType == 34) {
 	    int evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
