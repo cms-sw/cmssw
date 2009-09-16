@@ -33,6 +33,13 @@ namespace edmtest {
     int value;
   };
 
+  struct TransientIntProduct {
+    explicit TransientIntProduct(int i = 0) : value(i) {}
+    ~TransientIntProduct() {}
+    
+    int value;
+  };
+
   struct Int16_tProduct {
     explicit Int16_tProduct(int16_t i = 0, uint16_t j = 1) :value(i), uvalue(j) {}
     ~Int16_tProduct() {}

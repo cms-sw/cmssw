@@ -1,6 +1,7 @@
 <lcgdict>
  <class name="edmtest::DummyProduct"/>
  <class name="edmtest::IntProduct"/>
+ <class name="edmtest::TransientIntProduct" persistent="false"/>
  <class name="edmtest::Int16_tProduct"/>
  <class name="edmtest::DoubleProduct"/>
  <class name="edmtest::StringProduct"/>
