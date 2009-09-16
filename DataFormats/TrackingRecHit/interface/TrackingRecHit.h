@@ -67,10 +67,12 @@ public:
    * that at least one of the inputs is in common. */
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
 
+  // it must be hidden in TransientTrackingRecHit (i.e. re-implemented as private)
+  virtual void setBad() { m_status=bad; }
+
 protected:
   // used by muon...
   void setId(id_type iid) { m_id=iid;}
-  inline void setType(Type ttype) { m_status=ttype;}
 
 private:
   
