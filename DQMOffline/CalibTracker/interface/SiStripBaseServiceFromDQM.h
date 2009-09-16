@@ -150,9 +150,9 @@ void SiStripBaseServiceFromDQM<T>::getModuleFolderList(vector<string>& mfolders)
   }
 }
 
-template <class T>
-MonitorElement * SiStripBaseServiceFromDQM<T>::getModuleHistogram(const uint32_t detId, const string & name)
-{
+// template <class T>
+// MonitorElement * SiStripBaseServiceFromDQM<T>::getModuleHistogram(const uint32_t detId, const string & name)
+// {
 //   // Take the full path to the histogram
 //   string path;
 //   folderOrganizer_->getFolderName(detId, path);
@@ -172,7 +172,7 @@ MonitorElement * SiStripBaseServiceFromDQM<T>::getModuleHistogram(const uint32_t
 //   cout << "fullName = " << fullName << endl;
 
 //   return dqmStore_->get(fullName);
-}
+// }
 
 template <class T>
 uint32_t SiStripBaseServiceFromDQM<T>::getRunNumber() const
