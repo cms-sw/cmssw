@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -91,7 +91,7 @@ std::string FilesMonitorCollection::FileRecord::closingReason()
   {
     case notClosed:   return "open";
     case stop:        return "run stopped";
-    case Nminus2lumi: return "LS changed";
+    case endOfLS:     return "LS ended";
     case timeout:     return "timeout";
     case size:        return "file size";
     default:          return "unknown";
