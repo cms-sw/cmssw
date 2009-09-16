@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericFilter
  *
- * $Id: HLTEgammaGenericFilter.cc,v 1.1 2009/01/28 15:06:02 covarell Exp $
+ * $Id: HLTEgammaGenericFilter.cc,v 1.2 2009/08/11 10:16:56 covarell Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -29,20 +29,20 @@ HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig)
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
 
-  lessThan_ = iConfig.getParameter<bool> ("lessThan");
-  useEt_ = iConfig.getUntrackedParameter<bool> ("useEt",false);
-  thrRegularEB_ = iConfig.getParameter<double> ("thrRegularEB");
-  thrRegularEE_ = iConfig.getParameter<double> ("thrRegularEE");
-  thrOverEEB_ = iConfig.getUntrackedParameter<double> ("thrOverEEB",-1.0);
-  thrOverEEE_ = iConfig.getUntrackedParameter<double> ("thrOverEEE",-1.0);
-  thrOverE2EB_ = iConfig.getUntrackedParameter<double> ("thrOverE2EB",-1.0);
-  thrOverE2EE_ = iConfig.getUntrackedParameter<double> ("thrOverE2EE",-1.0);
-  
-  ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
-
-  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  lessThan_ = iConfig.getParameter<bool> ("lessThan");			  
+  useEt_ = iConfig.getParameter<bool> ("useEt");			  
+  thrRegularEB_ = iConfig.getParameter<double> ("thrRegularEB");	  
+  thrRegularEE_ = iConfig.getParameter<double> ("thrRegularEE");	  
+  thrOverEEB_ = iConfig.getParameter<double> ("thrOverEEB");		  
+  thrOverEEE_ = iConfig.getParameter<double> ("thrOverEEE");		  
+  thrOverE2EB_ = iConfig.getParameter<double> ("thrOverE2EB");		  
+  thrOverE2EE_ = iConfig.getParameter<double> ("thrOverE2EE");		  
+  				     	  
+  ncandcut_  = iConfig.getParameter<int> ("ncandcut");			  
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		  
+			     				  
+  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;	  
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
 //register your products

@@ -1,6 +1,6 @@
 /** \class HLTElectronGenericFilter
  *
- * $Id: HLTElectronGenericFilter.cc,v 1.9 2009/01/20 11:30:38 covarell Exp $
+ * $Id: HLTElectronGenericFilter.cc,v 1.1 2009/01/28 15:06:02 covarell Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -34,10 +34,10 @@ HLTElectronGenericFilter::HLTElectronGenericFilter(const edm::ParameterSet& iCon
   lessThan_ = iConfig.getParameter<bool> ("lessThan");
   thrRegularEB_ = iConfig.getParameter<double> ("thrRegularEB");
   thrRegularEE_ = iConfig.getParameter<double> ("thrRegularEE");
-  thrOverPtEB_ = iConfig.getUntrackedParameter<double> ("thrOverPtEB",-1.0);
-  thrOverPtEE_ = iConfig.getUntrackedParameter<double> ("thrOverPtEE",-1.0);
-  thrTimesPtEB_ = iConfig.getUntrackedParameter<double> ("thrTimesPtEB",-1.0);
-  thrTimesPtEE_ = iConfig.getUntrackedParameter<double> ("thrTimesPtEE",-1.0);
+  thrOverPtEB_ = iConfig.getParameter<double> ("thrOverPtEB");
+  thrOverPtEE_ = iConfig.getParameter<double> ("thrOverPtEE");
+  thrTimesPtEB_ = iConfig.getParameter<double> ("thrTimesPtEB");
+  thrTimesPtEE_ = iConfig.getParameter<double> ("thrTimesPtEE");
   
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
