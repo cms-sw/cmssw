@@ -14,7 +14,7 @@ from Configuration.EventContent.EventContent_cff import *
 from Configuration.StandardSequences.Digi_cff import *
 
 # Playback
-del RandomNumberGeneratorService.theSource
+del RandomNumberGeneratorService.generator
 RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string('randomEngineStateProducer')
 from SimGeneral.MixingModule.mixNoPU_cfi import *
 mix.playback = cms.untracked.bool(True)
