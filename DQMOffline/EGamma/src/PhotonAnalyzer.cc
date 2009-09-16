@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/09/15 08:04:50 $ 
+ **  $Date: 2009/09/16 18:14:11 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -702,7 +702,6 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
   const edm::ValueMap<bool> *tightPhotonID = tightPhotonFlag.product();
 
-  std::cout << " Photon collection size " <<  photonCollection.size() << std::endl;
 
   // Create array to hold #photons/event information
   int nPho[100][3][3];
