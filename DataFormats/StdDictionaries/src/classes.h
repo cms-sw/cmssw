@@ -5,6 +5,7 @@
 #include <set>
 #include <string>
 
+
 namespace {
   struct dictionary {
   std::vector<unsigned long> dummy1;
@@ -22,6 +23,7 @@ namespace {
   std::vector<unsigned short> dummy9;
   std::vector<std::vector<unsigned short> > dummy9v;
   std::vector<double> dummy10;
+  std::vector<std::vector<double> > v_v_d;  
   std::vector<long double> dummy11;
   std::vector<float> dummy12;
   std::vector<bool> dummy13;
@@ -29,6 +31,8 @@ namespace {
   std::vector<long long> dummy15;
   std::vector<std::pair<std::basic_string<char>,double> > dummy16;
   std::vector<std::pair<unsigned int,double> > dummy16_1;
+  std::vector<std::pair<int,int> > dummy16_2;
+  std::vector<std::pair<double,double> > dummy16_3;
   std::list<int> dummy17;
   std::deque<int> dummy18;
   std::set<int> dummy19;
@@ -57,6 +61,10 @@ namespace {
   std::pair<int,std::pair<unsigned long,unsigned long> > dummywp17;
   std::pair<unsigned int,short> dummywp18;
   std::pair<unsigned int,std::vector<std::pair<unsigned int,double> > > dummywp19;
+  std::pair<int,double> p_i_d;
+  std::vector<std::pair<int,double> > v_p_i_d;
+  std::vector<std::vector<std::pair<int,double> > > v_v_p_i_d;
+
 
   std::vector<std::pair<std::basic_string<char>, float> >	 v_p_s_f;
   std::vector<std::pair<std::basic_string<char>, int> >	 v_p_s_i32;

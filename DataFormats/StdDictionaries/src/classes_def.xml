@@ -59,6 +59,8 @@
  <class name="std::pair<unsigned long,unsigned long>"/>
  <class name="std::pair<unsigned short,std::vector<unsigned short> >"/>
  <class name="std::pair<unsigned short,unsigned short>"/>
+ <class name="std::pair<int,double>"/>
+
  <class name="std::random_access_iterator_tag"/>
  <class name="std::set<int>"/>
  <class name="std::vector<bool>"/>
@@ -76,9 +78,14 @@
  <class name="std::vector<std::pair<std::basic_string<char>,float> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,int> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >" />
+ <class name="std::vector<std::pair<int,int> >" />
+ <class name="std::vector<std::pair<double,double> >" />
+ <class name="std::vector<std::pair<int,double> >" />
+ <class name="std::vector<std::vector<std::pair<int,double> > >" />
  <class name="std::vector<std::vector<int> >"/>
  <class name="std::vector<std::vector<unsigned int> >"/>
  <class name="std::vector<std::vector<unsigned short> >"/>
+ <class name="std::vector<std::vector<double> >"/>
  <class name="std::vector<unsigned char>"/>
  <class name="std::vector<unsigned char*>"/>
  <class name="std::vector<unsigned int>"/>
