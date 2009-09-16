@@ -28,6 +28,8 @@ from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_Cosmics_cfi import *
 SiPixelTrackResidualSource_Cosmics.saveFile = False
+SiPixelTrackResidualSource_Cosmics.TrackCandidateProducer = cms.string('ckfTrackCandidatesP5')
+SiPixelTrackResidualSource_Cosmics.trajectoryInput = cms.string('ctfWithMaterialTracksP5')
 #MC
 SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
 SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
