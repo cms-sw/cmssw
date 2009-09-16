@@ -35,6 +35,8 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void beginJob() ;
   virtual void endJob() ;
+  virtual void beginRun() ;
+  virtual void endRun() ;
 
  private:
   double dR(double eta1, double phi1, double eta2, double phi2);
