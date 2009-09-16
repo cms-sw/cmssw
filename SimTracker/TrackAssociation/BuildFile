@@ -7,7 +7,6 @@
 <use name=SimDataFormats/Track>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrackReco>
-<use name=SimTracker/Records>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/PatternTools>
 <use name=SimDataFormats/TrackingAnalysis>

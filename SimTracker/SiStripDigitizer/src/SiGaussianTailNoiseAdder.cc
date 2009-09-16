@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 
 SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th,CLHEP::HepRandomEngine& eng):
   threshold(th),
