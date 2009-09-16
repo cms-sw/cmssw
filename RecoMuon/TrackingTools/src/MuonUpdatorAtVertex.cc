@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2009/03/28 15:28:54 $
- *  $Revision: 1.39 $
+ *  $Date: 2009/06/17 12:09:53 $
+ *  $Revision: 1.40 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -32,19 +32,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
    
   thePropagatorName = pset.getParameter<string>("Propagator");
     
-  // Position of the beam spot
-  vector<double> position = pset.getParameter< vector<double> >("BeamSpotPosition");
-  if(position.size() != 3) 
-    edm::LogError("Muon|RecoMuon|MuonUpdatorAtVertex")
-      <<"MuonUpdatorAtVertex::BeamSpotPosition wrong number of parameters!!";
-  
-  // assume:
-  // position[0] <=> x
-  // position[1] <=> y
-  // position[2] <=> z
-  GlobalPoint glbPos(position[0],position[1],position[2]);
-  thePosition = glbPos;
-  
+
   // Errors on the Beam spot position
   vector<double> errors = pset.getParameter< vector<double> >("BeamSpotPositionErrors");
   if(errors.size() != 3) 
