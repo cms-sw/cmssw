@@ -22,7 +22,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     signal =  cms.bool(True),
     MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
 #
-    minPhoEtCut = cms.double(35.0),
+    minPhoEtCut = cms.double(0.),
     convTrackMinPtCut = cms.double(1.),
     likelihoodCut = cms.double(0.5),
 #
