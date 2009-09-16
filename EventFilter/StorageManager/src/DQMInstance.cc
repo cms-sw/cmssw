@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+// $Id: DQMInstance.cc,v 1.13 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <iostream>
@@ -43,9 +43,10 @@ DQMFolder::~DQMFolder()
   }
 }
 
-DQMGroup::DQMGroup(int readyTime):
+DQMGroup::DQMGroup(int readyTime, int expectedUpdates):
   nUpdates_(0),
-  readyTime_(readyTime)
+  readyTime_(readyTime),
+  expectedUpdates_(expectedUpdates)
 {
   lastUpdate_  = new TTimeStamp(0,0);
   lastServed_  = new TTimeStamp(0,0);
@@ -67,7 +68,8 @@ bool DQMGroup::isReady(int currentTime)
   // than zero so that we don't report that a brand-new group is
   // ready before any updates have been added.
   return( lastUpdateSecs > 0 &&
-          ( currentTime - lastUpdateSecs ) > readyTime_);
+          ( nUpdates_ == expectedUpdates_ ||
+          ( currentTime - lastUpdateSecs ) > readyTime_));
 }
 
 DQMGroup::~DQMGroup() 
@@ -88,13 +90,15 @@ DQMInstance::DQMInstance(int runNumber,
 			 int lumiSection, 
 			 int instance,
 			 int purgeTime,
-			 int readyTime):
+                         int readyTime,
+                         int expectedUpdates):
   runNumber_(runNumber),
   lumiSection_(lumiSection),
   instance_(instance),
   nUpdates_(0),
   purgeTime_(purgeTime),
-  readyTime_(readyTime)
+  readyTime_(readyTime),
+  expectedUpdates_(expectedUpdates)
 {
   firstUpdate_ = new TTimeStamp();
   lastUpdate_  = new TTimeStamp();
@@ -125,7 +129,7 @@ int DQMInstance::updateObject(std::string groupName,
   DQMGroup * group = dqmGroups_[groupName];
   if ( group == NULL )
   {
-    group = new DQMGroup(readyTime_);
+    group = new DQMGroup(readyTime_,expectedUpdates_);
     dqmGroups_[groupName] = group;
   }
 

@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
+// $Id: DQMInstance.h,v 1.11 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -24,8 +24,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/07/13 14:42:07 $
+   * $Revision: 1.11 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class DQMFolder
@@ -42,14 +42,14 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/07/13 14:42:07 $
+   * $Revision: 1.11 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class DQMGroup
   {
     public:
-      DQMGroup(int readyTime);
+      DQMGroup(int readyTime, int expectedUpdates);
      ~DQMGroup();
       std::map<std::string, DQMFolder *> dqmFolders_;
       int getNUpdates()             { return(nUpdates_);}
@@ -71,6 +71,7 @@ namespace stor
       TTimeStamp            *lastServed_;
       int                    nUpdates_;
       int                    readyTime_;
+      int                    expectedUpdates_;
       int                    lastEvent_;
       bool                   wasServedSinceUpdate_;
   }; 
@@ -82,8 +83,8 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2009/07/13 14:42:07 $
+   * $Revision: 1.11 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class DQMInstance
@@ -93,7 +94,8 @@ namespace stor
 		  int lumiSection, 
 		  int instance,
 		  int purgeTime,
-		  int readyTime);
+                  int readyTime,
+                  int expectedUpdates);
 
      ~DQMInstance();
 
@@ -128,6 +130,7 @@ namespace stor
       int                    nUpdates_;
       int                    purgeTime_;
       int                    readyTime_;
+      int                    expectedUpdates_;
   }; 
 
   class DQMGroupDescriptor
