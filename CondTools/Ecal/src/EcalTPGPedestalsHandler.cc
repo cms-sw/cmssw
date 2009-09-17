@@ -10,6 +10,18 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 
 #include<iostream>
+#include<fstream>
+
+
+#include <time.h>
+#include <unistd.h>
+
+#include <string>
+#include <cstdio>
+#include <typeinfo>
+#include <sstream>
+
+
 
 popcon::EcalTPGPedestalsHandler::EcalTPGPedestalsHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalTPGPedestalsHandler")) {
@@ -23,6 +35,7 @@ popcon::EcalTPGPedestalsHandler::EcalTPGPedestalsHandler(const edm::ParameterSet
         m_locationsource= ps.getParameter<std::string>("LocationSource");
         m_location=ps.getParameter<std::string>("Location");
         m_gentag=ps.getParameter<std::string>("GenTag");
+        m_runtype=ps.getParameter<std::string>("RunType");
 
 	edm::LogInfo("EcalTPGPedestalsHandler")<< m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag;
 
@@ -70,49 +83,63 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
     	my_locdef.setLocation(m_location); 
 
     	RunTypeDef my_rundef;
-    	my_rundef.setRunType("PEDESTAL"); 
+    	my_rundef.setRunType(m_runtype); 
 
 	RunTag  my_runtag;
 	my_runtag.setLocationDef( my_locdef );
 	my_runtag.setRunTypeDef(  my_rundef );
 	my_runtag.setGeneralTag(m_gentag); 
 
- 	int min_run=0;
-	if(m_firstRun<(unsigned int)max_since) {
-	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+
+
+	readFromFile("last_tpg_ped_settings.txt");
+
+
+ 	int min_run=m_i_run_number+1;
+
+	if(m_firstRun<(unsigned int)m_i_run_number) {
+	  min_run=(int) m_i_run_number+1;
 	} else {
 	  min_run=(int)m_firstRun;
 	}
+	if(min_run<(unsigned int)max_since) {
+	  min_run=  (int)max_since+1; // we have to add 1 to the last transferred one
+	} 
+
+	std::cout<<"m_i_run_number"<< m_i_run_number <<"m_firstRun "<<m_firstRun<< "max_since " <<max_since<< endl;
 
 	int max_run=(int)m_lastRun;
 	edm::LogInfo("EcalTPGPedestalsHandler") <<"min_run= " << min_run << " max_run = " << max_run;
 	RunList my_list; 
-	//my_list=econn->fetchRunListByLocation(my_runtag, min_run, max_run, my_locdef); 
-    	my_list=econn->fetchRunList(my_runtag); 
+	my_list=econn->fetchRunListByLocation(my_runtag, min_run, max_run, my_locdef); 
+	//my_list=econn->fetchRunList(my_runtag); 
        
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
-	int mon_runs=run_vec.size();
+	int num_runs=run_vec.size();
 	
-	edm::LogInfo("EcalTPGPedestalsHandler") <<"number of runs is : "<< mon_runs<< endl;
+	std::cout <<"number of runs is : "<< num_runs<< endl;
         
 	unsigned long irun=0;
 		
-	if(mon_runs>0){ 
+	if(num_runs>0){ 
 	
-	  for(int kr=0; kr<mon_runs; kr++){
-	  
+	  for(int kr=0; kr<run_vec.size(); kr++){
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
-	   
-	    edm::LogInfo("EcalTPGPedestalsHandler")  << "Here is the run number: "<< run_vec[kr].getRunNumber();
-	    edm::LogInfo("EcalTPGPedestalsHandler")  << "Fetching run by tag";
 
+	    std::cout<<" **************** "<<std::endl;
+	    std::cout<<" **************** "<<std::endl;
+	    std::cout<<" run= "<<irun<<std::endl;
+
+	   
             // retrieve the data :
             map<EcalLogicID, RunTPGConfigDat> dataset;
             econn->fetchDataSet(&dataset, &run_vec[kr]);
+
             std::string the_config_tag="";
+	    int the_config_version=0;
+
             map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
-            FEConfigMainInfo fe_main_info;
-	
+
             int nr=0;
             for ( it=dataset.begin(); it!=dataset.end(); it++ )
             {
@@ -120,75 +147,193 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
               //EcalLogicID ecalid  = it->first;
            
               RunTPGConfigDat  dat = it->second;
-              std::string the_config_tag=dat.getConfigTag();
-              edm::LogInfo("EcalTPGPedestalsHandler")<<"config_tag "<<the_config_tag<<std::endl;
-              fe_main_info.setConfigTag(the_config_tag);
-              econn-> fetchConfigSet(&fe_main_info);	    
-            }
-        
-	    edm::LogInfo("EcalTPGPedestalsHandler")<<"Got " << nr << "objects in the Online dataset.";
-	
-    	    // now get TPGPedestals
-	    int pedId=fe_main_info.getPedId();
-	    FEConfigPedInfo fe_ped_info;
-    	    fe_ped_info.setId(pedId);
-     	    econn-> fetchConfigSet(&fe_ped_info);
-     	    map<EcalLogicID, FEConfigPedDat> dataset_TpgPed;
-     	    econn->fetchDataSet(&dataset_TpgPed, &fe_ped_info);
+              the_config_tag=dat.getConfigTag();
+              the_config_version=dat.getVersion();
+	    }
 
-	    // NB new 
-	    EcalTPGPedestals* peds = new EcalTPGPedestals;
-            typedef map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
-            EcalLogicID ecid_xt;
-            FEConfigPedDat  rd_ped;
-    	    int icells=0;
-    	    for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
-	    {
-	      ecid_xt = p->first;
-              rd_ped  = p->second;
-	  
-	      std::string ecid_name=ecid_xt.getName();
-	  
-	      // EB data
-	      if (ecid_name=="EB_crystal_number") {
-	        int sm_num=ecid_xt.getID1();
-	        int xt_num=ecid_xt.getID2();
-	    
-	        EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
-	        EcalTPGPedestals::Item item;
-	        item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1() ;
-	        item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
-	        item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
-	    
-	        peds->insert(std::make_pair(ebdetid.rawId(),item));
-	        ++icells;
-	  	} else if (ecid_name=="EE_crystal_number"){
-	  
-	  	// EE data
-	        int z=ecid_xt.getID1();
-	        int x=ecid_xt.getID2();
-	        int y=ecid_xt.getID3();
-	        EEDetId eedetid(x,y,z,EEDetId::SCCRYSTALMODE);
-	        EcalTPGPedestals::Item item;
-	        item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1();
-	        item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
-	        item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
-	    
-	        peds->insert(std::make_pair(eedetid.rawId(),item));
-	        ++icells;
-	  	}
-	     }
+	    // it is all the same for all SM... get the last one 
 
-	edm::LogInfo("EcalTPGPedestalsHandler") << "Finished pedestal reading.";
+
+	    std::cout<<" run= "<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version <<std::endl;
+
+	    // here we should check if it is the same as previous run.
+
+	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
+	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
+
+	      FEConfigMainInfo fe_main_info;
+	      fe_main_info.setConfigTag(the_config_tag);
+	      fe_main_info.setVersion(the_config_version);
+
+	      try{ 
+		std::cout << " before fetch config set" << std::endl;	    
+		econn-> fetchConfigSet(&fe_main_info);
+		std::cout << " after fetch config set" << std::endl;	    
+
+	      // now get TPGPedestals
+		int pedId=fe_main_info.getPedId();
+		
+		if( pedId != m_i_ped ) {
+		  
+		  FEConfigPedInfo fe_ped_info;
+		  fe_ped_info.setId(pedId);
+		  econn-> fetchConfigSet(&fe_ped_info);
+		  map<EcalLogicID, FEConfigPedDat> dataset_TpgPed;
+		  econn->fetchDataSet(&dataset_TpgPed, &fe_ped_info);
+		  
+		  // NB new 
+		  EcalTPGPedestals* peds = new EcalTPGPedestals;
+		  typedef map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
+		  EcalLogicID ecid_xt;
+		  FEConfigPedDat  rd_ped;
+		  int icells=0;
+		  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
+		    {
+		      ecid_xt = p->first;
+		    rd_ped  = p->second;
+		    
+		    std::string ecid_name=ecid_xt.getName();
+		    
+		    // EB data
+		    if (ecid_name=="EB_crystal_number") {
+		      if(icells<10) std::cout << " copy the EB data " << " icells = " << icells << std::endl;
+		      int sm_num=ecid_xt.getID1();
+		      int xt_num=ecid_xt.getID2();
+		      
+		      EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
+		      EcalTPGPedestals::Item item;
+		      item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1() ;
+		      item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
+		      item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
+		      
+		      peds->insert(std::make_pair(ebdetid.rawId(),item));
+		      ++icells;
+		    }else if (ecid_name=="EE_crystal_number"){
+		      
+		      // EE data
+		      int z=ecid_xt.getID1();
+		      int x=ecid_xt.getID2();
+		      int y=ecid_xt.getID3();
+		      EEDetId eedetid(x,y,z,EEDetId::XYMODE);
+		      EcalTPGPedestals::Item item;
+		      item.mean_x1  =(unsigned int)rd_ped.getPedMeanG1();
+		      item.mean_x6  =(unsigned int)rd_ped.getPedMeanG6();
+		      item.mean_x12 =(unsigned int)rd_ped.getPedMeanG12();
+		      
+		      peds->insert(std::make_pair(eedetid.rawId(),item));
+		      ++icells;
+		    }
+		  }
+		
+		  
+		  Time_t snc= (Time_t) irun; 
+		  m_to_transfer.push_back(std::make_pair((EcalTPGPedestals*)peds,snc));
+		  
+		  m_i_run_number=irun;
+		  m_i_tag=the_config_tag;
+		  m_i_version=the_config_version;
+		  m_i_ped=pedId;
+		  
+		  writeFile("last_tpg_ped_settings.txt");
+
+		} else {
+
+		  m_i_run_number=irun;
+		  m_i_tag=the_config_tag;
+		  m_i_version=the_config_version;
+
+		  writeFile("last_tpg_ped_settings.txt");
+
+		  std::cout<< " even if the tag/version is not the same, the pedestals id is the same -> no transfer needed "<< std::endl; 
+
+		}
+
+	      }       catch (std::exception &e) { 
+		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
+			  <<" version="<<the_config_version<< std::endl;
+		cout << e.what() << endl;
+		m_i_run_number=irun;
+
+	      }
+	      std::cout<<" **************** "<<std::endl;
+	      
+	    } else if(nr==0) {
+	      m_i_run_number=irun;
+	      std::cout<< " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed "<< std::endl; 
+	      std::cout<<" **************** "<<std::endl;
+	    } else {
+	      m_i_run_number=irun;
+	      m_i_tag=the_config_tag;
+	      m_i_version=the_config_version;
+	      std::cout<< " the tag/version is the same -> no transfer needed "<< std::endl; 
+	      std::cout<<" **************** "<<std::endl;
+	      writeFile("last_tpg_ped_settings.txt");
+	    }
+
+	  }
+	}
 	
-	Time_t snc= (Time_t) irun; 
-	m_to_transfer.push_back(std::make_pair((EcalTPGPedestals*)peds,snc));
-	
-          }
-        }
-	
+
   	delete econn;
 	
 	edm::LogInfo("EcalTPGPedestalsHandler")  << "Ecal - > end of getNewObjects -----------";        
+
 }
+
+
+
+void  popcon::EcalTPGPedestalsHandler::readFromFile(const char* inputFile) {
+  //-------------------------------------------------------------
+  
+  m_i_tag="";
+  m_i_version=0;
+  m_i_run_number=0;
+  m_i_ped=0; 
+
+  FILE *inpFile; // input file
+  inpFile = fopen(inputFile,"r");
+  if(!inpFile) {
+    edm::LogError("EcalTPGPedestalsHandler")<<"*** Can not open file: "<<inputFile;
+  }
+
+  char line[256];
+    
+  std::ostringstream str;
+
+  fgets(line,255,inpFile);
+  m_i_tag=to_string(line);
+  str << "gen tag " << m_i_tag << endl ;  // should I use this? 
+
+  fgets(line,255,inpFile);
+  m_i_version=atoi(line);
+  str << "version= " << m_i_version << endl ;  
+
+  fgets(line,255,inpFile);
+  m_i_run_number=atoi(line);
+  str << "run_number= " << m_i_run_number << endl ;  
+
+  fgets(line,255,inpFile);
+  m_i_ped=atoi(line);
+  str << "ped_config= " << m_i_ped << endl ;  
+
+    
+  fclose(inpFile);           // close inp. file
+
+}
+
+void  popcon::EcalTPGPedestalsHandler::writeFile(const char* inputFile) {
+  //-------------------------------------------------------------
+  
+  
+  ofstream myfile;
+  myfile.open (inputFile);
+  myfile << m_i_tag <<endl;
+  myfile << m_i_version <<endl;
+  myfile << m_i_run_number <<endl;
+  myfile << m_i_ped <<endl;
+
+  myfile.close();
+
+}
+
 

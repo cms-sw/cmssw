@@ -11,15 +11,16 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(100000000000),
+    lastValue = cms.uint64(1),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(100000000000),
+    firstValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.CondDBCommon.connect = 'sqlite_file:DB.db'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon, 
@@ -37,14 +38,15 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGPedestalsAnalyzer",
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source=cms.PSet(
-     firstRun = cms.string('13'),
+     firstRun = cms.string('98273'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('ecalh4db'),
-     OnlineDBUser = cms.string('test01'),
-     OnlineDBPassword = cms.string('oratest01'),
+     OnlineDBSID = cms.string('cms_omds_lb'),
+     OnlineDBUser = cms.string('cms_ecal_conf'),
+     OnlineDBPassword = cms.string('*************'),
      LocationSource = cms.string('P5'),
-     Location = cms.string('H4'),
-     GenTag = cms.string('default')
+     Location = cms.string('P5_Co'),
+     GenTag = cms.string('GLOBAL'),
+     RunType = cms.string('COSMICS')
     )                            
 )
 
