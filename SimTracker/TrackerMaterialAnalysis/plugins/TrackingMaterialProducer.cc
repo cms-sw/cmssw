@@ -15,9 +15,6 @@
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 // GEANT4

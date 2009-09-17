@@ -1,7 +1,6 @@
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/RecoCandidate>
-  <use name=DataFormats/WrappedStdDictionaries>
   <use name=SimDataFormats/GeneratorProducts>
   <use name=SimTracker/Records>
   <use name=SimTracker/TrackAssociation>

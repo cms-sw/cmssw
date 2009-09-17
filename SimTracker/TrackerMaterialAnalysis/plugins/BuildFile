@@ -1,4 +1,4 @@
-<library file="*.cc" name=SimTrackerTrackerMaterialAnalysis>
+<library file="*.cc" name=SimTrackerTrackerMaterialAnalysisPlugins>
   <use name=DataFormats/DetId>
   <use name=DataFormats/GeometryVector>
   <use name=DetectorDescription/Core>
@@ -8,14 +8,10 @@
   <use name=Geometry/CommonDetUnit>
   <use name=Geometry/Records>
   <use name=Geometry/TrackerGeometryBuilder>
-  <use name=RecoTracker/Record>
-  <use name=RecoTracker/TkDetLayers>
   <use name=SimDataFormats/ValidationFormats>
-  <use name=SimG4Core/Notification>
   <use name=SimG4Core/Watcher>
-  <use name=TrackingTools/DetLayers>
   <use name=boost>
   <use name=geant4>
-  <use name=rootgraphics>
+  <use name=rootgpad>
   <flags EDM_PLUGIN=1>
 </library>

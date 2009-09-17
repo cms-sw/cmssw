@@ -10,7 +10,6 @@
 <use name=FWCore/Utilities>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<use name=PhysicsTools/Utilities>
 <use name=SimDataFormats/TrackingAnalysis>
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimTracker/Records>
@@ -31,7 +30,6 @@
    <use name=FWCore/Utilities>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
-   <use name=PhysicsTools/Utilities>   
    <use name=RecoBTag/Analysis>
    <use name=SimDataFormats/TrackingAnalysis>
    <use name=SimGeneral/HepPDTRecord>
