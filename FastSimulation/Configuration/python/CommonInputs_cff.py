@@ -10,7 +10,7 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 
 # The muon tracker trajectory, to be fit without rechit refit
 from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
-GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
+GlobalTrajectoryBuilderCommon.TrackerRecHitBuilder = 'WithoutRefit'
 GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 
 # The condDB setup (the global tag refers to DevDB, IntDB or ProDB whenever needed)

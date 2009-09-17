@@ -24,6 +24,6 @@ from CalibMuon.Configuration.RPC_FakeConditions_cff import *
 
 # Muon Tracking
 from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
-GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
+GlobalTrajectoryBuilderCommon.TrackerRecHitBuilder = 'WithoutRefit'
 GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 

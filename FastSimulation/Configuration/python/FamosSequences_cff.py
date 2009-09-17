@@ -127,7 +127,6 @@ KFSmootherForMuonTrackLoader.Propagator = 'SmartPropagatorAny'
 from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
 from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 from FastSimulation.Configuration.globalMuons_cff import *
-globalMuons.GLBTrajBuilderParameters.TrackRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.GLBTrajBuilderParameters.TransformerOutPropagator = cms.string('SmartPropagatorAny')
