@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.6 2009/08/24 14:31:50 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -95,6 +95,9 @@ void DQMEventMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpac
 
 void DQMEventMonitorCollection::do_updateInfoSpaceItems()
 {
+  MonitoredQuantity::Stats stats;
+  getNumberOfUpdatesMQ().getStats(stats);
+  _dqmFoldersPerEP = static_cast<xdata::Double>(stats.getValueAverage(MonitoredQuantity::RECENT));
 }
 
 
