@@ -53,25 +53,14 @@ process.jpt = cms.Path( process.jptCaloJets )
 
 #-- Extra Jet/MET collections -------------------------------------------------
 from PhysicsTools.PatAlgos.tools.jetTools import *
-# Correct default KT settings (default has new input tag names from 33X)
-switchJetCollection(process,
-                    cms.InputTag('antikt5CaloJets'),   
-                    doJTA            = True,            
-                    doBTagging       = True,            
-                    jetCorrLabel     = ('AK5','Calo'),  
-                    doType1MET       = True,            
-                    genJetCollection = cms.InputTag("antikt5GenJets")
-                    )
 # Add a few jet collections...
-addJetCollection(process,cms.InputTag('iterativeCone5CaloJets'),
-                 'IC5',
-                 doJTA        = True,
-                 doBTagging   = True,
-                 jetCorrLabel = None,
-                 doType1MET   = True,
-                 doL1Cleaning = True,
-                 doL1Counters = True,
-                 genJetCollection=cms.InputTag("iterativeCone5GenJets")
+addJetCollection(process, cms.InputTag('antikt5CaloJets'),
+                 'AK5',
+                 doJTA            = True,            
+                 doBTagging       = True,            
+                 jetCorrLabel     = ('AK5','Calo'),  
+                 doType1MET       = True,            
+                 genJetCollection = cms.InputTag("antikt5GenJets")
                  )
 addJetCollection(process,cms.InputTag('iterativeCone5PFJets'),
                  'IC5PF',
@@ -111,14 +100,15 @@ addTcMET(process,'TC')
 addPfMET(process,'PF')
 
 #-- Tune contents of jet collections  -----------------------------------------
-for jetName in ( '', 'IC5', 'IC5PF', 'SC5', 'IC5JPT' ):
+for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT' ):
     module = getattr(process,'allLayer1Jets'+jetName)
     module.addTagInfos = False    # Remove tag infos
     module.addJetID    = True     # Add JetID variables
 
 #-- Output module configuration -----------------------------------------------
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-process.out.fileName = 'file://./test.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'file://./test.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+process.out.fileName = 'file://./LM0-312-SUSYPAT-V00-04-01.root'
 
 # Custom settings
 process.out.splitLevel = cms.untracked.int32(99)  # Turn on split level (smaller files???)
@@ -170,21 +160,21 @@ process.patTriggerEvent.patTriggerMatches  = ()
 
 
 #-- Execution path ------------------------------------------------------------
-# Rename default anti-kt collection for uniformity
-process.cleanLayer1JetsAK5 = process.cleanLayer1Jets
-process.layer1METsAK5      = process.layer1METs
+# Rename default jet collection for uniformity
+process.cleanLayer1JetsIC5 = process.cleanLayer1Jets
+process.layer1METsIC5      = process.layer1METs
 
 # Modify subsequent modules
-process.cleanLayer1Hemispheres.patJets = process.cleanLayer1JetsAK5.label()
-process.countLayer1Jets.src            = process.cleanLayer1JetsAK5.label()
+process.cleanLayer1Hemispheres.patJets = process.cleanLayer1JetsIC5.label()
+process.countLayer1Jets.src            = process.cleanLayer1JetsIC5.label()
 
 # Modify counters' input
 process.allLayer1Summary.candidates.remove(cms.InputTag('layer1METs'))
-process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsAK5'))
+process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsIC5'))
 process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
-process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsAK5'))
+process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsIC5'))
 # Add new jet collections to counters (MET done automatically)
-for jets in ( 'IC5', 'SC5','IC5PF','IC5JPT' ):
+for jets in ( 'AK5', 'SC5','IC5PF','IC5JPT' ):
     process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
