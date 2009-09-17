@@ -18,6 +18,7 @@
 #include "DataFormats/JetReco/interface/JetFloatAssociation.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
+#include "DataFormats/JetReco/interface/JetID.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefProd.h" 
@@ -98,6 +99,15 @@ namespace {
     JetExtendedAssociation::RefProd         jea_rp;
     JetExtendedAssociation::RefVector       jea_rv;
 
+    // jet id stuff
+    JetID jid;
+    edm::Ref<std::vector<JetID> > rjid;
+    edm::RefVector<std::vector<JetID> > rrjid;
+    edm::RefProd<std::vector<JetID> > rrrjid;
+    edm::Wrapper<std::vector<JetID> > wjid;
+    edm::Wrapper<edm::RefVector<std::vector<JetID> > > wrvjid;
+    edm::Wrapper<edm::ValueMap<JetID> > wvmjid;
+
     // Jet stuff
     edm::View<reco::Jet>  jv;
     edm::RefToBaseProd<reco::Jet> jrtbp;
@@ -134,6 +144,9 @@ namespace {
 
     edm::Ptr<reco::GenJet> ptrgj;
     edm::PtrVector<reco::GenJet> ptrvgj;
+
+    edm::Ptr<reco::JetID> ptrjid;
+    edm::PtrVector<reco::JetID> ptrvjid;
   };
 }
 #endif
