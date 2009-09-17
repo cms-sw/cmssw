@@ -110,3 +110,21 @@ src/DistortedMETProducer.cc
       )
 
 - A simple example showing how to use this code is given in "test/distortedMET.py".
+
+src/FSRWeightProducer.cc
+============================
+- Writes into the data structure a product containing the event weight ("double")
+  to be applied to obtain an estimate of variations due to a modification of 
+  final state WED radiation with respect to default PYTHIA.
+  This should still be improved in the future, to include O(alpha**2) corrections.
+  Example of usage:
+
+
+      # Produce event weights according to FSR QED O(alpha) correct matrix element calculation
+      process.fsrWeight = cms.EDProducer("FSRWeightProducer",
+            GenTag = cms.untracked.InputTag("generator"),
+      )
+
+- A simple example showing how to use this PDF information is given in 
+  "test/FSRWeightAnalyzer.cc". A test example is "test/fsrWeightAnalyzer.py".
+
