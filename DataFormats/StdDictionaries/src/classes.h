@@ -2,12 +2,14 @@
 #include <vector>
 #include <list>
 #include <deque>
+#include <bitset>
 #include <set>
 #include <string>
 
 
 namespace {
   struct dictionary {
+  std::bitset<7> dummybitset7;
   std::vector<unsigned long> dummy1;
   std::vector<unsigned int> dummy2;
   std::vector<std::vector<unsigned int> > dummy2v;
@@ -33,9 +35,13 @@ namespace {
   std::vector<std::pair<unsigned int,double> > dummy16_1;
   std::vector<std::pair<int,int> > dummy16_2;
   std::vector<std::pair<double,double> > dummy16_3;
+  std::vector<std::pair<float,float> > dummy16_4;
+  std::vector<std::map<short,short> > dummy16_5;
+  std::vector<std::vector<std::vector<int> > > dummy16_6;
   std::list<int> dummy17;
   std::deque<int> dummy18;
   std::set<int> dummy19;
+  std::set<std::basic_string<char> > dummy20;
   std::pair<unsigned long, unsigned long> dummywp1;
   std::pair<unsigned int, unsigned int> dummywp2;
   std::pair<unsigned int, int> dummywp2_1;
@@ -47,6 +53,8 @@ namespace {
   std::pair<const unsigned int, float> dummywp6a;
   std::pair<unsigned int, double> dummywp6d;
   std::pair<double, double> dummywp7;
+  std::pair<double, std::vector<double> > dummywp7v;
+  std::pair<float,float> dummywp7ff;
   std::pair<unsigned long long, std::basic_string<char> > dummywp8;
   std::pair<std::basic_string<char>,int> dummywp9;
   std::pair<std::basic_string<char>,double> dummywp10;
@@ -62,6 +70,12 @@ namespace {
   std::pair<unsigned int,short> dummywp18;
   std::pair<unsigned int,std::vector<std::pair<unsigned int,double> > > dummywp19;
   std::pair<int,double> p_i_d;
+  std::pair<const unsigned int,std::basic_string<char> > dummypcis;
+  std::pair<short,short> dummyss;
+  std::pair<short,std::vector<short> > dummysvs;
+  std::pair<std::basic_string<char>,std::basic_string<char> > dummystst;
+  std::pair<std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > > dummysmss;
+  std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummypsspsvs;
   std::vector<std::pair<int,double> > v_p_i_d;
   std::vector<std::vector<std::pair<int,double> > > v_v_p_i_d;
 
@@ -69,6 +83,7 @@ namespace {
   std::vector<std::pair<std::basic_string<char>, float> >	 v_p_s_f;
   std::vector<std::pair<std::basic_string<char>, int> >	 v_p_s_i32;
   std::vector<std::pair<std::basic_string<char>, bool> > v_p_s_b;
+  std::vector<std::pair<unsigned long long,std::basic_string<char> > > v_ull_s;
 
   std::map<unsigned long, unsigned long> dummywm1;
   std::map<unsigned int, unsigned int> dummywm2;
@@ -95,6 +110,12 @@ namespace {
   std::map<int,std::pair<unsigned int,unsigned int> > dummyypwmv9;
   std::map<int,std::pair<unsigned long,unsigned long> > dummyypwmv10;
   std::map<std::basic_string<char>,std::vector<std::basic_string<char> > > dummyypwmv11;
+  std::map<short,short> dummymss;
+  std::map<std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > > dummymsmss;
+  std::map<std::basic_string<char>,std::pair<unsigned int,unsigned int> > dummymspii;
+  std::map<std::pair<short,short>,std::pair<short,std::vector<short> > > dummympsspsvs;
+  std::map<unsigned int,std::basic_string<char> > dummymuis;
+  std::map<unsigned int,std::pair<unsigned int,unsigned int> > dummymuipuu;
   std::vector<char>::iterator itc;
   std::vector<short>::iterator its;
   std::vector<unsigned short>::iterator itus;
