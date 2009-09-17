@@ -1,12 +1,7 @@
 <use name="DataFormats/CaloRecHit">
-<use name="DataFormats/Candidate">
 <use name="DataFormats/Common">
 <use name="DataFormats/DetId">
-<use name="DataFormats/EgammaCandidates">
-<use name="DataFormats/EgammaReco">
-<use name="DataFormats/GsfTrackReco">
 <use name="DataFormats/Math">
-<use name="DataFormats/MuonReco">
 <use name="DataFormats/TrackReco">
 <use name="DataFormats/TrackingRecHit">
 <use name="DataFormats/TrajectorySeed">
@@ -18,14 +13,9 @@
 <use name="rootrflx">
 <export>
   <use name="DataFormats/CaloRecHit">
-  <use name="DataFormats/Candidate">
   <use name="DataFormats/Common">
   <use name="DataFormats/DetId">
-  <use name="DataFormats/EgammaCandidates">
-  <use name="DataFormats/EgammaReco">
-  <use name="DataFormats/GsfTrackReco">
   <use name="DataFormats/Math">
-  <use name="DataFormats/MuonReco">
   <use name="DataFormats/TrackReco">
   <use name="DataFormats/TrackingRecHit">
   <use name="DataFormats/TrajectorySeed">

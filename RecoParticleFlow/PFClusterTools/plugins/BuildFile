@@ -2,6 +2,7 @@
  <use name="DataFormats/Math">
  <use name="DataFormats/ParticleFlowCandidate">
  <use name="DataFormats/ParticleFlowReco">
+ <use name="PhysicsTools/UtilAlgos">
  <use name="DataFormats/TrackReco">
  <use name="FWCore/Framework">
  <use name="FWCore/PluginManager">

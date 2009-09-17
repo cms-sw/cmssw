@@ -1,19 +1,9 @@
-<use name="DataFormats/ParticleFlowCandidate">
 <use name="DataFormats/ParticleFlowReco">
-<use name="FWCore/Framework">
-<use name="FWCore/ParameterSet">
-<use name="FWCore/ServiceRegistry">
-<use name="PhysicsTools/UtilAlgos">
 <use name="boost">
 <use name="rootphysics">
 <use name="rootrflx">
 <export>
-  <use name="DataFormats/ParticleFlowCandidate">
   <use name="DataFormats/ParticleFlowReco">
-  <use name="FWCore/Framework">
-  <use name="FWCore/ParameterSet">
-  <use name="FWCore/ServiceRegistry">
-  <use name="PhysicsTools/UtilAlgos">
   <use name="boost">
   <use name="rootphysics">
   <use name="rootrflx">

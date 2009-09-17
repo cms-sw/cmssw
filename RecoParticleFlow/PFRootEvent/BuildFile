@@ -18,8 +18,6 @@
 <use name="FWCore/MessageLogger">
 <use name="FWCore/ParameterSet">
 <use name="FWCore/ServiceRegistry">
-<use name="PhysicsTools/CandUtils">
-<use name="RecoJets/JetAlgorithms">
 <use name="RecoParticleFlow/Benchmark">
 <use name="RecoParticleFlow/PFClusterProducer">
 <use name="RecoParticleFlow/PFClusterTools">
@@ -49,8 +47,6 @@
   <use name="FWCore/MessageLogger">
   <use name="FWCore/ParameterSet">
   <use name="FWCore/ServiceRegistry">
-  <use name="PhysicsTools/CandUtils">
-  <use name="RecoJets/JetAlgorithms">
   <use name="RecoParticleFlow/Benchmark">
   <use name="RecoParticleFlow/PFClusterProducer">
   <use name="RecoParticleFlow/PFClusterTools">

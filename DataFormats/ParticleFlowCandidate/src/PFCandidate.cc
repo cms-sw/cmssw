@@ -1,5 +1,5 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+//#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 
