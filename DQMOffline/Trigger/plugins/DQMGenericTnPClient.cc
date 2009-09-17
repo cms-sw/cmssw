@@ -134,6 +134,10 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
         RooDataHist dataPass("pass", "pass", mass, pass );
         chi2 = ( RooChi2Var("chi2All","chi2All",pdfAll,dataAll,DataError(RooAbsData::Poisson)).getVal()
           +RooChi2Var("chi2Pass","chi2Pass",pdfPass,dataPass,DataError(RooAbsData::Poisson)).getVal() )/(2*all->GetNbinsX()-8);
+        if(chi2>10){
+          efficiency.setVal(0.5);
+          efficiency.setError(0.5);
+        }
       }
   };
 //finally the usual stuff
