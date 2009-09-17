@@ -9,7 +9,6 @@ import FWCore.ParameterSet.Config as cms
 from FastSimulation.Muons.L3Muons_cff import *
 import FastSimulation.Muons.L3Muons_cfi
 hltL3Muons = FastSimulation.Muons.L3Muons_cfi.L3Muons.clone()
-hltL3Muons.L3TrajBuilderParameters.TrackRecHitBuilder = 'WithoutRefit'
 hltL3Muons.L3TrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 hltL3Muons.L3TrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
 
