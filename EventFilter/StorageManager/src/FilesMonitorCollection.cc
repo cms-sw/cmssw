@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.6 2009/08/24 14:31:52 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.7 2009/09/16 13:31:10 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -94,6 +94,7 @@ std::string FilesMonitorCollection::FileRecord::closingReason()
     case endOfLS:     return "LS ended";
     case timeout:     return "timeout";
     case size:        return "file size";
+    case truncated:   return "TRUNCATED";
     default:          return "unknown";
   }
 }
