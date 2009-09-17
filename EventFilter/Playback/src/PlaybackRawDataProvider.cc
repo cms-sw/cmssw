@@ -45,7 +45,7 @@ PlaybackRawDataProvider::PlaybackRawDataProvider(const ParameterSet& iConfig)
   evtNumber_ =new unsigned int[queueSize_];
   eventQueue_=new FEDRawDataCollection*[queueSize_];
   for (unsigned int i=0;i<queueSize_;i++) eventQueue_[i]=0;
-  edm::LogInfo("PbImpl") << "Created Concrete RawData Provider 0x"<< hex << (unsigned int) this << dec << endl;
+  edm::LogInfo("PbImpl") << "Created Concrete RawData Provider 0x"<< hex << (unsigned long) this << dec << endl;
   instance_=this;
 }
 
@@ -60,7 +60,7 @@ PlaybackRawDataProvider::~PlaybackRawDataProvider()
       if (0!=eventQueue_[i]) delete eventQueue_[i];
     delete [] eventQueue_;
   }
-  edm::LogInfo("PbImpl") << "Destroyed Concrete RawData Provider 0x"<< hex << (unsigned int) this << dec << endl;
+  edm::LogInfo("PbImpl") << "Destroyed Concrete RawData Provider 0x"<< hex << (unsigned long) this << dec << endl;
   instance_=0;
 }
 
