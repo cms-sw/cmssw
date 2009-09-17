@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: Exception.h,v 1.5 2009/08/20 13:42:23 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -32,8 +32,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.4 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.5 $
+     $Date: 2009/08/20 13:42:23 $
     
      @file: Exception.h
   */
@@ -119,6 +119,11 @@ XCEPT_DEFINE_EXCEPTION(stor, DQMEventProcessing)
  * Exception raised in case of a disk writing error
  */
 XCEPT_DEFINE_EXCEPTION(stor, DiskWriting)
+
+/**
+ * Exception raised when an output file is truncated
+ */
+XCEPT_DEFINE_EXCEPTION(stor, FileTruncation)
 
 /**
  * Exception when requested directory does not exist
