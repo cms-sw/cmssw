@@ -22,7 +22,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.source.fileNames = [
     'rfio://?svcclass=cmscafuser&path=/castor/cern.ch/cms/store/caf/user/fronga/V6production/PYTHIA6_SUSY_LM0_sftsht_10TeV_cff_py_RAW2DIGI_RECO_1.root'
     ]
-process.maxEvents.input = 100
+process.maxEvents.input = -1
 # Due to problem in production of LM samples: same event number appears multiple times
 process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
