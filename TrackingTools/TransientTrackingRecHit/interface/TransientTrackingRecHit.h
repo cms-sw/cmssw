@@ -117,9 +117,6 @@ private:
   // accessible via the bas class TrackingRecHit interface!
   virtual TransientTrackingRecHit * clone() const = 0;
 
-  // hidden
-  virtual void setBad() {}
-
 };
 
 #endif
