@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.1 2009/03/03 13:07:29 llista Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.7 2009/05/11 14:29:49 llista Exp $
 //
 //
 
@@ -33,10 +33,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CommonTools/UtilAlgos/interface/Selections.h"
-#include "CommonTools/UtilAlgos/interface/Plotter.h"
-#include "CommonTools/UtilAlgos/interface/NTupler.h"
-#include "CommonTools/UtilAlgos/interface/InputTagDistributor.h"
+#include "PhysicsTools/UtilAlgos/interface/Selections.h"
+#include "PhysicsTools/UtilAlgos/interface/Plotter.h"
+#include "PhysicsTools/UtilAlgos/interface/NTupler.h"
+#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
 
 //
 // class decleration

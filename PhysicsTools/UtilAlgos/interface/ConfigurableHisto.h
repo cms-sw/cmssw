@@ -10,8 +10,8 @@
 #include "TProfile.h"
 #include "THStack.h"
 
-#include "CommonTools/UtilAlgos/interface/VariableHelper.h"
-#include "CommonTools/UtilAlgos/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 
 class ConfigurableAxis {
