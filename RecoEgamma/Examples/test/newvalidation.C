@@ -153,13 +153,14 @@ web_page<<"</td></tr></table><hr>\n" ;
 histo_file1.close() ;
 
 std::ifstream histo_file2(histos_path.c_str()) ;
-std::string gif_name, canvas_name ;
+std::string gif_name, gif_path, canvas_name ;
 int scaled, log, err ;
 int divide;
 std::string num, denom;
 while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
  {
-  gif_name = val_web_path+"/gifs/"+histo_name+".gif" ;
+  gif_name = "gifs/"+histo_name+".gif" ;
+  gif_path = val_web_path+"/"+gif_name ;
   canvas_name = std::string("c")+histo_name ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
@@ -240,14 +241,14 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"
       <<" of mean value "<<histo_new->GetMean()
       <<std::endl ;
-    canvas->SaveAs(gif_name.c_str()) ;
+    canvas->SaveAs(gif_path.c_str()) ;
 	web_page<<"<img class=\"image\" width=\"500\" src=\""<<gif_name<<"\"><br>" ;
    }
   else if ((file_old!=0)&&(histo_old!=0))
    {
     std::cout<<histo_name<<" NOT FOUND"<<std::endl ;
     web_page<<"<br>(no such histo for "<<val_new_release<<")" ;
-    canvas->SaveAs(gif_name.c_str()) ;
+    canvas->SaveAs(gif_path.c_str()) ;
 	web_page<<"<img class=\"image\" width=\"500\" src=\""<<gif_name<<"\"><br>" ;
    }
   else
