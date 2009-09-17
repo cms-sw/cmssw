@@ -19,7 +19,6 @@
 #include "DataFormats/METReco/interface/MET.h"
 
 class DQMStore;
-class MuonServiceProxy;
 class MonitorElement;
 
 class QcdHighPtDQM : public edm::EDAnalyzer {
@@ -45,7 +44,6 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   
   DQMStore* theDbe;
-  MuonServiceProxy *theService;
 
   //input tags for Jets/MET
   edm::InputTag jetLabel_;

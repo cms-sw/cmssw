@@ -6,8 +6,8 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2009/06/18 15:32:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/26 10:18:36 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -17,7 +17,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 class DQMStore;
-class MuonServiceProxy;
 class MonitorElement;
 
 class BPhysicsOniaDQM : public edm::EDAnalyzer {
