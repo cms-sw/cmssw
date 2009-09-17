@@ -13,7 +13,6 @@
 <use name="FWCore/ParameterSet">
 <use name="FastSimulation/BaseParticlePropagator">
 <use name="RecoParticleFlow/PFProducer">
-<use name="RecoTracker/TkDetLayers">
 <use name="TrackingTools/GsfTools">
 <use name="TrackingTools/PatternTools">
 <use name="TrackingTools/TrajectoryState">
@@ -34,7 +33,6 @@
   <use name="FWCore/ParameterSet">
   <use name="FastSimulation/BaseParticlePropagator">
   <use name="RecoParticleFlow/PFProducer">
-  <use name="RecoTracker/TkDetLayers">
   <use name="TrackingTools/GsfTools">
   <use name="TrackingTools/PatternTools">
   <use name="TrackingTools/TrajectoryState">
