@@ -42,3 +42,12 @@ DataFormats/L1GlobalMuonTrigger
 DataFormats/L1GlobalTrigger
 DataFormats/L1Trigger
 DataFormats/CSCDigi
+#######################################
+DataFormats/VertexReco
+CommonTools/Utils
+DataFormats/BTauReco     
+DataFormats/PatCandidates
+DataFormats/HLTReco
+DataFormats/HcalDigi
+DataFormats/HcalIsolatedTrack
+FWCore/ParameterSet
