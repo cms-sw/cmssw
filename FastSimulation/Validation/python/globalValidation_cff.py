@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 # Tracking particle module
 from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
-mergedtruth.TrackerHitLabels = ['famosSimHitsTrackerHits']
+mergedtruth.simHitCollections = cms.PSet(tracker = cms.vstring("famosSimHitsTrackerHits"))
 mergedtruth.simHitLabel = 'famosSimHits'
+mergedtruth.removeDeadModules = cms.bool(False)
 
 from Validation.RecoMET.METRelValForDQM_cff import *
 
