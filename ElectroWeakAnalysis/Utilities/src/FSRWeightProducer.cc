@@ -89,14 +89,17 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   double photonPhi = photon->phi();
                   double costheta = sinLeptonTheta*sinPhotonTheta*cos(leptonPhi-photonPhi)
                                   + cosLeptonTheta*cosPhotonTheta;
-                  // This is only accurate enough for W, it must be cross-checked for Z
-                  double delta = - 8*photonEnergy *(1-betaLepton*costheta)
-                        / pow(bosonMass,3) 
-                        / (1-pow(leptonMass/bosonMass,2))
-                        / (4-pow(leptonMass/bosonMass,2))
-                        * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
-                  (*weight) *= (1 + delta);
-                  // Add some extra factor from lack of QED exponentiation
+                  // Missing O(alpha) terms
+                  // This is only relevant for W, for Z the effect is negligible
+                  if (abs(bosonId)==24) {
+                        double delta = - 8*photonEnergy *(1-betaLepton*costheta)
+                          / pow(bosonMass,3) 
+                          / (1-pow(leptonMass/bosonMass,2))
+                          / (4-pow(leptonMass/bosonMass,2))
+                          * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
+                        (*weight) *= (1 + delta);
+                  }
+                  // Add some extra factor from missing higher orders (in progress)
                   // (*weight) *= ...;
             }
       }

@@ -114,9 +114,9 @@ src/DistortedMETProducer.cc
 src/FSRWeightProducer.cc
 ============================
 - Writes into the data structure a product containing the event weight ("double")
-  to be applied to obtain an estimate of variations due to a modification of 
-  final state WED radiation with respect to default PYTHIA.
-  This should still be improved in the future, to include O(alpha**2) corrections.
+  to be applied to obtain an estimate of uncertainties due to missing final 
+  state QED radiation terms in PYTHIA.
+  This is still work in progress.
   Example of usage:
 
 
