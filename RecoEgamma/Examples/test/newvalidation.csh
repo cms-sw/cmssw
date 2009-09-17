@@ -64,14 +64,12 @@ setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
 #============== Find and prepare main output directory ==================
 
 echo "VAL_WEB = ${VAL_WEB}"
-cd $VAL_WEB
 
-if (! -d $VAL_NEW_RELEASE) then
-  mkdir $VAL_NEW_RELEASE
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE
 endif
 
 echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
-cd $VAL_NEW_RELEASE
 
 #============== Find and archive new log and data files ==================
 
@@ -91,7 +89,7 @@ if ( "${VAL_NEW_FILE}" != "" && ! -r "${VAL_NEW_FILE}" ) then
   setenv VAL_NEW_FILE ""
 endif
 
-if (! -d data) then
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/data) then
   mkdir data
 endif
 
@@ -99,28 +97,27 @@ echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
 
 if ( "${VAL_NEW_FILE}" != "" ) then
   if ( -r "$VAL_NEW_FILE" ) then
-    cp -f $VAL_NEW_FILE data
-	setenv VAL_NEW_FILE "${cwd}/data/${VAL_NEW_FILE:t}"
+    cp -f $VAL_NEW_FILE $VAL_WEB/$VAL_NEW_RELEASE/data
+	setenv VAL_NEW_FILE "$VAL_WEB/$VAL_NEW_RELEASE/data/${VAL_NEW_FILE:t}"
 	echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
   endif
 endif
 
 if ( -e "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog" ) then
-  cp -f ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog data
+  cp -f ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/data
 endif
 
 if ( -e "${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
-  cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog data
+  cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/data
 endif
 
 #============== Find reference data file (eventually the freshly copied new data) ==================
 
-if (! -d "vs${VAL_REF_RELEASE}") then
-  mkdir "vs${VAL_REF_RELEASE}"
+if (! -d "cd $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}") then
+  mkdir "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}"
 endif
 
 echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
-cd "vs${VAL_REF_RELEASE}"
 
 if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 
@@ -159,6 +156,8 @@ endif
 
 echo "VAL_WEB_SUB_DIR = ${VAL_WEB_SUB_DIR}"
 cd ${VAL_WEB_SUB_DIR}
+
+cd $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}
 
 if (! -d gifs) then
   mkdir gifs
