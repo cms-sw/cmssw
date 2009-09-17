@@ -46,8 +46,6 @@ double oneOverEtResolEt(double *x, double *par) {
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
 {
-  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder"<<endl;
-
   ped_conf_id_=0;
   lin_conf_id_=0;
   lut_conf_id_=0;
@@ -105,9 +103,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   if (writeToFiles_) {
     std::string outFile = pSet.getParameter<std::string>("outFile") ;
     out_file_ = new std::ofstream(outFile.c_str(), std::ios::out) ;  
-    geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
   }
-
+  geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
 
 
   useTransverseEnergy_ = pSet.getParameter<bool>("useTransverseEnergy") ;
@@ -143,10 +140,6 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
   FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
-
-  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder done"<<endl;
-
-
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -190,8 +183,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 {
   using namespace edm;
   using namespace std;
-
-  std::cout<< "we are in analyze"<< endl; 
 
   // geometry
   ESHandle<CaloGeometry> theGeometry;
@@ -251,30 +242,50 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   list<uint32_t>::iterator itList ;
 
 
-  std::cout <<"we get the pedestals from offline DB"<<endl;
   // Pedestals
+  std::cout <<"Getting the pedestals from offline DB..."<<endl;
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
   const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
-  
+  EcalPedestalsMapIterator pedIter ; 
+  int nPed = 0 ;
+  for (pedIter = pedMap.begin() ; pedIter != pedMap.end() && nPed<10 ; ++pedIter, nPed++) {
+    EcalPedestals::Item aped = (*pedIter);
+    std::cout<<aped.mean_x12<<", "<<aped.mean_x6<<", "<<aped.mean_x1<<std::endl ;
+  }
+  std::cout<<"...\n"<<std::endl ; 
 
-  std::cout <<"we get the intercalib from offline DB"<<endl;
+
   // Intercalib constants
+  std::cout <<"Getting intercalib from offline DB..."<<endl;
   ESHandle<EcalIntercalibConstants> pIntercalib ;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib) ;
   const EcalIntercalibConstants * intercalib = pIntercalib.product() ;
   const EcalIntercalibConstantMap & calibMap = intercalib->getMap() ;
+  EcalIntercalibConstantMap::const_iterator calIter ;
+  int nCal = 0 ;
+  for (calIter = calibMap.begin() ; calIter != calibMap.end() && nCal<10 ; ++calIter, nCal++) {
+    std::cout<<(*calIter)<<std::endl ;
+  }  
+  std::cout<<"...\n"<<std::endl ;
 
 
-  std::cout <<"we get the gain ratios from offline DB"<<endl;
   // Gain Ratios
+  std::cout <<"Getting the gain ratios from offline DB..."<<endl;
   ESHandle<EcalGainRatios> pRatio;
   evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
-  
+  EcalGainRatioMap::const_iterator gainIter ;
+  int nGain = 0 ;
+  for (gainIter = gainMap.begin() ; gainIter != gainMap.end() && nGain<10 ; ++gainIter, nGain++) {
+    const EcalMGPAGainRatio & aGain = (*gainIter) ;
+    std::cout<<aGain.gain12Over6()<<", "<<aGain.gain6Over1() * aGain.gain12Over6()<<std::endl ;
+  }  
+  std::cout<<"...\n"<<std::endl ;    
 
-  std::cout <<"we get the ADC to GEV from offline DB"<<endl;
+
   // ADCtoGeV
+  std::cout <<"Getting the ADC to GEV from offline DB..."<<endl;
   ESHandle<EcalADCToGeVConstant> pADCToGeV ;
   evtSetup.get<EcalADCToGeVConstantRcd>().get(pADCToGeV) ;
   const EcalADCToGeVConstant * ADCToGeV = pADCToGeV.product() ;
@@ -282,6 +293,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   xtal_LSB_EE_ = ADCToGeV->getEEValue() ;
   std::cout<<"xtal_LSB_EB_ = "<<xtal_LSB_EB_<<std::endl ;
   std::cout<<"xtal_LSB_EE_ = "<<xtal_LSB_EE_<<std::endl ;
+  std::cout<<std::endl ;  
 
   
   vector<EcalLogicID> my_EcalLogicId;
@@ -333,7 +345,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 							"ECAL_readout_strip",123 );
 						    
     // EE Strip identifiers
-    // DCC=601-609 TT = ~40 EEstrip = 5
+    // DCC=646-654 TT = ~40 EEstrip = 5
     my_StripEcalLogicId2_EE = db_->getEcalLogicIDSetOrdered( "ECAL_readout_strip",   
     							646, 654,   
 							1, 100,   
@@ -421,10 +433,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
          
-    if (writeToFiles_) (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
-				<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
-				<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
-				<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ieta="<<id.ieta()<<" iphi="<<id.iphi()<<endl ;
+    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
+		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
+		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
+		<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ieta="<<id.ieta()<<" iphi="<<id.iphi()<<endl ;
     
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -598,7 +610,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
 
-    if (writeToFiles_) (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
+    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
 		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
 		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
 		<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ix="<<id.ix()<<" iy="<<id.iy()<<endl ;
@@ -779,6 +791,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   evgueni<<"                        int & mult6, int & shift6, int & base6,"<<endl ;
   evgueni<<"                        int & mult1, int & shift1, int & base1)"<<endl ;
   evgueni<<"{"<<endl;
+  evgueni<<"  mult12 = 0 ; shift12 = 0 ; base12 = 0 ; mult6 = 0 ; shift6 = 0 ; base6 = 0 ; mult1 = 0 ; shift1 = 0 ; base1 = 0 ;"<<endl ;
   map< vector<int>, linStruc>::const_iterator itLinMap ;
   for (itLinMap = linMap.begin() ; itLinMap != linMap.end() ; itLinMap++) {
     vector<int> xtalInCCU = itLinMap->first ;
@@ -961,7 +974,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       // endcap loop
       for (int ich=0; ich<my_StripEcalLogicId1_EE.size() ; ich++){
-	//	std::cout << " endcap Sliding" << std::endl;
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
@@ -970,7 +982,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	dataset[my_StripEcalLogicId1_EE[ich]] = wut;
       }
       for (int ich=0; ich<my_StripEcalLogicId2_EE.size() ; ich++){
-	//	std::cout << " endcap Sliding" << std::endl;
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
@@ -1164,12 +1175,9 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   std::cout<<"we are in beginJob"<<endl;
 
   create_header() ; 
-  std::cout<<"we are in beginJob after create header"<<endl;
 
   DetId eb(DetId::Ecal,EcalBarrel) ;
   DetId ee(DetId::Ecal,EcalEndcap) ;
-
-  std::cout<<"we are in beginJob after detid"<<endl;
 
   if (writeToFiles_) {
     (*out_file_)<<"PHYSICS_EB "<<dec<<eb.rawId()<<std::endl ;
@@ -1184,8 +1192,6 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 		  <<-1<<" "<<-1<<std::endl ;
     (*out_file_) <<std::endl ;
   }
-  std::cout<<"we are in beginJob ending..."<<endl;
-
 
 }
 
@@ -1417,6 +1423,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
 
   std::vector<unsigned int> theWeights ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
+  std::cout<<std::endl ;
 
   delete weight ;
   delete iweight ;

@@ -96,7 +96,6 @@ process.TPGParamProducer = cms.EDFilter("EcalTPGParamBuilder",
     TPGWriteBxt = cms.uint32(0),
     TPGWriteBtt = cms.uint32(2003),
 
-
     writeToFiles = cms.bool(True),
     outFile = cms.string('TPG_craft.txt'),
    #### TPG config tag and version (if not given it will be automatically given ) ####
