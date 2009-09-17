@@ -11,6 +11,7 @@
 #include <limits>
 #include <assert.h>
 
+#include "Rtypes.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -26,12 +27,12 @@
 
 namespace {
 
-  typedef std::valarray<size_t> size_type; 
+  typedef std::valarray<Long64_t> size_type; 
 
   size_type getBasketSize( TBranch *);
   
   size_type getBasketSize( TObjArray * branches) {
-    size_type result(size_t(0),2);
+    size_type result(static_cast<Long64_t>(0),2);
     size_t n = branches->GetEntries();
     for( size_t i = 0; i < n; ++ i ) {
       TBranch * b = dynamic_cast<TBranch*>( branches->At( i ) );
@@ -42,7 +43,7 @@ namespace {
   }
   
   size_type getBasketSize( TBranch * b) {
-    size_type result(size_t(0),2);
+    size_type result(static_cast<Long64_t>(0),2);
     if ( b != 0 ) {
       if ( b->GetZipBytes() > 0 ) {
 	result[0]  = b->GetTotBytes();  result[1] = b->GetZipBytes();
