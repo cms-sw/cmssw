@@ -65,6 +65,24 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 	),
 
+	reweightConstant = cms.vstring(
+		'mkdir /Herwig/Weights',
+		'cd /Herwig/Weights',
+		'create ThePEG::ReweightConstant reweightConstant ReweightConstant.so',
+		'cd /',
+		'set /Herwig/Weights/reweightConstant:C 1',
+		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightConstant',
+	),
+	reweightPthat = cms.vstring(
+		'mkdir /Herwig/Weights',
+		'cd /Herwig/Weights',
+		'create ThePEG::ReweightMinPT reweightMinPT ReweightMinPT.so',
+		'cd /',
+		'set /Herwig/Weights/reweightMinPT:Power 4.5',
+		'set /Herwig/Weights/reweightMinPT:Scale 15*GeV',
+		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightMinPT',
+	),
+
 	setParticlesStableForDetector = cms.vstring(
 		'cd /Herwig/Particles',
 		'set mu-:Stable Stable',

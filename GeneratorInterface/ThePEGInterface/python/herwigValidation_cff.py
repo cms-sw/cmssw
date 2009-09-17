@@ -22,9 +22,11 @@ herwigValidationBlock = cms.PSet(
 	validationQCD = cms.vstring(
 		'cd /Herwig/MatrixElements/',
 		'insert SimpleQCD:MatrixElements[0] MEQCD2to2',
+#		'insert SimpleQCD:Reweights[0] /Herwig/Weights/reweightMinPT',
 		'cd /',
 		'set /Herwig/Cuts/JetKtCut:MinKT 50*GeV',
 		'set /Herwig/Cuts/JetKtCut:MaxKT 100*GeV',
 		'set /Herwig/UnderlyingEvent/MPIHandler:Algorithm 1',
 	)
+
 )
