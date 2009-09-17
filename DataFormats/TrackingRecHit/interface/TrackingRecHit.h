@@ -72,6 +72,7 @@ public:
 protected:
   // used by muon...
   void setId(id_type iid) { m_id=iid;}
+  inline void setType(Type ttype) { m_status=ttype;}
 
 private:
   
