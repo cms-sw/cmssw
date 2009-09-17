@@ -1,8 +1,8 @@
 /** \class StandAloneMuonFilter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2009/09/10 10:48:43 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/09/16 17:10:22 $
+ *  $Revision: 1.9 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
  */
@@ -365,9 +365,8 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, T
     if( !(*itm).recHit()->isValid() )
       defTraj.push( *itm, (*itm).estimate() );
     else {
-      TrackingRecHit *invalidRecHit = (*itm).recHit()->hit()->clone();
-      invalidRecHit->setBad();
-      MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( (*itm).recHit()->det(), invalidRecHit );
+      MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( (*itm).recHit()->det(), (*itm).recHit()->hit() );
+      invRhPtr->invalidateHit();
       TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr.get(), (*itm).estimate(), (*itm).layer() );
       defTraj.push( invRhMeas, (*itm).estimate() );	  
     }
