@@ -10,11 +10,6 @@
  <class name="edm::RunID"/>
  <class name="edm::FileID"/>
  <class name="edm::Timestamp"/>
- <class name="std::basic_string<char>"/>
- <class name="std::vector<std::basic_string<char> >"/>
- <class name="std::vector<std::basic_string<char> >::iterator"/>
- <class name="std::vector<std::basic_string<char> >::const_iterator"/>
- <class name="std::set<std::basic_string<char> >"/>
  <class name="edm::EventAuxiliary"/>
  <class name="edm::History"/>
  <class name="edm::LuminosityBlockAuxiliary"/>
