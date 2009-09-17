@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.5 2009/08/31 22:27:07 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.6 2009/08/31 22:34:53 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -107,7 +107,7 @@ class BSFitter {
 	//BSzFcn* theGausszFcn;
 	BSpdfsFcn* thePDF;
 	
-	
+	reco::BeamSpot::BeamType fbeamtype;
 	std::string ffit_type;
 	std::string ffit_variable;
 

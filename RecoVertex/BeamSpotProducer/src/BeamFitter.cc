@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.8 2009/08/31 22:27:09 yumiceva Exp $
+ version $Id: BeamFitter.cc,v 1.9 2009/09/01 15:21:39 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -88,6 +88,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     double z0 = track->dz();
     double sigmaz0 = track->dzError();
     double theta = track->theta();
+    double vx = track->vx();
+    double vy = track->vy();
 
     double cov[7][7];
 
@@ -97,11 +99,11 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       }
     }
 
-    if (debug_) {
-      std::cout << "pt= " << pt << " eta= " << eta << " fd0= " << d0 << " sigmad0= " << sigmad0;
-      std::cout << " track quality = "  << track->qualityMask();
-      std::cout << " track algorithm = " << track->algoName() << std::endl;
-    }
+//     if (debug_) {
+//       std::cout << "pt= " << pt << " eta= " << eta << " fd0= " << d0 << " sigmad0= " << sigmad0;
+//       std::cout << " track quality = "  << track->qualityMask();
+//       std::cout << " track algorithm = " << track->algoName() << std::endl;
+//     }
 
     // Track quality
     bool quality_ok=true;
@@ -128,18 +130,21 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     // Final track selection
     if (nTotLayerMeas >= trk_MinNTotLayers_
         && nPxLayerMeas >= trk_MinNPixLayers_
-		&& normchi2 < trk_MaxNormChi2_
-		&& pt > trk_MinpT_
-		&& algo_ok
-		&& quality_ok
-		&& std::abs( d0 ) < trk_MaxIP_
-		&& std::abs( z0 ) < trk_MaxZ_
+	&& normchi2 < trk_MaxNormChi2_
+	&& pt > trk_MinpT_
+	&& algo_ok
+	&& quality_ok
+	&& std::abs( d0 ) < trk_MaxIP_
+	&& std::abs( z0 ) < trk_MaxZ_
         ) {
       if (debug_){
-		  std::cout << "Selected track quality = " << track->qualityMask();
-		  std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+	std::cout << "Selected track quality = " << track->qualityMask();
+	std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
       }
-      fBSvector.push_back(BSTrkParameters(z0,sigmaz0,d0,sigmad0,phi0,pt,0.,0.));
+      BSTrkParameters BSTrk(z0,sigmaz0,d0,sigmad0,phi0,pt,0.,0.);
+      BSTrk.setVx(vx);
+      BSTrk.setVy(vy);
+      fBSvector.push_back(BSTrk);
     }
 
   }
@@ -158,15 +163,19 @@ bool BeamFitter::runFitter() {
 	myalgo->SetMaximumZ( trk_MaxZ_ );
 	myalgo->SetConvergence( convergence_ );
 	myalgo->SetMinimumNTrks(min_Ntrks_);
+
     fbeamspot = myalgo->Fit();
 
     if(writeTxt_) dumpTxtFile();
     
     delete myalgo;
-    fit_ok = true;
+    if ( fbeamspot.type() != 0 ) // not Fake
+      fit_ok = true;
   }
-  else
+  else{
+    fbeamspot.setType(reco::BeamSpot::Fake);
     if(debug_) std::cout << "Not enough good tracks selected! No beam fit!" << std::endl;
+  }
   return fit_ok;
 }
 
@@ -286,24 +295,24 @@ void BeamFitter::runAllFitter() {
       std::cout << beam_fit_dphi << std::endl;
     }
     
-//     myalgo->SetFitVariable(std::string("d*z"));
-//     myalgo->SetFitType(std::string("likelihood"));
-//     reco::BeamSpot beam_fit_dz_lh = myalgo->Fit();
-//     if (debug_){
-//       std::cout << " Log-Likelihood Fit:" << std::endl;
-//       std::cout << beam_fit_dz_lh << std::endl;
-//     }  
+    myalgo->SetFitVariable(std::string("d*z"));
+    myalgo->SetFitType(std::string("likelihood"));
+    reco::BeamSpot beam_fit_dz_lh = myalgo->Fit();
+    if (debug_){
+      std::cout << " Log-Likelihood Fit:" << std::endl;
+      std::cout << beam_fit_dz_lh << std::endl;
+    }
     
-//     myalgo->SetFitVariable(std::string("d*z"));
-//     myalgo->SetFitType(std::string("resolution"));
-//     reco::BeamSpot beam_fit_dresz_lh = myalgo->Fit();
-//     if(debug_){
-//       std::cout << " IP Resolution Fit" << std::endl;
-//       std::cout << beam_fit_dresz_lh << std::endl;
-    
-//       std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
-//       std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
-//     }
+    myalgo->SetFitVariable(std::string("d*z"));
+    myalgo->SetFitType(std::string("resolution"));
+    reco::BeamSpot beam_fit_dresz_lh = myalgo->Fit();
+    if(debug_){
+      std::cout << " IP Resolution Fit" << std::endl;
+      std::cout << beam_fit_dresz_lh << std::endl;
+      
+      std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
+      std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
+    }
   }
   else
     if (debug_) std::cout << "No good track selected! No beam fit!" << std::endl;

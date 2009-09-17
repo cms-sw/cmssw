@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.8 2009/08/14 23:06:44 jengbou Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.9 2009/08/25 18:54:40 jengbou Exp $
 
 ________________________________________________________________**/
 
@@ -167,7 +167,9 @@ BeamSpotAnalyzer::endJob() {
 // 	ftree_->Write();
 // 	file_->Close();
 
-  }    		
+  }
+  else std::cout << "[BeamSpotAnalyzer] beamfit fails !!!" << std::endl;
+
   std::cout << "[BeamSpotAnalyzer] endJob done \n" << std::endl;
 }
 
