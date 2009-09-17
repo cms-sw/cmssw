@@ -1,4 +1,3 @@
-
 <lcgdict>
  <class name="std::allocator<char>"/>
  <class name="std::allocator<double>"/>
@@ -18,19 +17,15 @@
  <class name="std::map<int,std::pair<unsigned long,unsigned long> >"/>
  <class name="std::map<int,unsigned int>"/>
  <class name="std::map<short,short>"/>
- <class name="std::map<short,short>::value_type"/>
  <class name="std::map<short,unsigned int>"/>
  <class name="std::map<std::basic_string<char>,int>"/>
  <class name="std::map<std::basic_string<char>,std::basic_string<char> >"/>
- <class name="std::map<std::basic_string<char>,std::basic_string<char> >::value_type"/>
  <class name="std::map<std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > >"/>
- <class name="std::map<std::basic_string<char>,std::map<std::basic_string<char>,std::basic_string<char> > >::value_type"/>
  <class name="std::map<std::basic_string<char>,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::map<std::pair<int,int>,int>"/>
  <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
- <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >::value_type"/>
  <class name="std::map<unsigned int,bool>"/>
  <class name="std::map<unsigned int,double>"/>
  <class name="std::map<unsigned int,float>"/>
@@ -89,14 +84,14 @@
  <class name="std::set<int>"/>
  <class name="std::set<std::basic_string<char> >"/>
  <class name="std::vector<bool>"/>
- <class name="std::vector<char*>"/>
  <class name="std::vector<char>"/>
+ <class name="std::vector<char*>"/>
  <class name="std::vector<double>"/>
  <class name="std::vector<float>"/>
  <class name="std::vector<int>"/>
+ <class name="std::vector<long>"/>
  <class name="std::vector<long double>"/>
  <class name="std::vector<long long>"/>
- <class name="std::vector<long>"/>
  <class name="std::vector<short>"/>
  <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::vector<std::basic_string<char> >::const_iterator"/>
@@ -118,10 +113,10 @@
  <class name="std::vector<std::vector<std::vector<int> > >"/>
  <class name="std::vector<std::vector<unsigned int> >"/>
  <class name="std::vector<std::vector<unsigned short> >"/>
- <class name="std::vector<unsigned char*>"/>
  <class name="std::vector<unsigned char>"/>
+ <class name="std::vector<unsigned char*>"/>
  <class name="std::vector<unsigned int>"/>
- <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<unsigned long>"/>
+ <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<unsigned short>"/>
 </lcgdict>
