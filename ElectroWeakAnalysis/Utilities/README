@@ -16,10 +16,11 @@ src/EwkPdfWeightProducer.cc
             PdfSetName = cms.untracked.string("cteq65.LHgrid")
       )
 
-- WARNING AT CREATION TIME: At present (version 312) you are forced to link against 
-  your own full LHAPDF libraries in order to be reasonably fast. Hopefully this 
-  will change in the future. Details on how to use your own LHAPDF library in 
-  the simpelst way are given inside "BuildFile".
+- WARNING AT CREATION TIME: From the 330 series on, full LHAPDF libraries are 
+  shipped with CMSSW. However, the default libraries used in the release are 
+  he "light" ones, leading to a very slow code. In order to run fast, 
+  please follow the recipes provided in ElectroWeakAnalysis/Utilities/BuildFile
+  and comment/uncomment the relevant lines there.
 
 - A simple example showing how to use this PDF information is given in 
   "test/EwkPdfWeightAnalyzer.cc". A test example is "test/EwkPdfWeightAnalyzer.py".
