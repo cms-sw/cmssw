@@ -75,8 +75,9 @@ class PerfSuite:
             self.host         = os.environ["HOST"]
             self.user              = os.environ["USER"]
         except KeyError:
-            print 'Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.'
-            print '       Please run eval `scramv1 runtime -csh` to set your environment variables'
+            self.logh.write('Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.')
+            self.logh.write('       Please run eval `scramv1 runtime -csh` to set your environment variables')
+            self.logh.flush()
             sys.exit()
 
         #Adding HEPSPEC06 score if available in /build/HEPSPEC06.score file
@@ -87,8 +88,8 @@ class PerfSuite:
               if not line.startswith("#") and "HEPSPEC06" in line:
                  self.HEPSPEC06= line.split()[2]
         except IOError:
-           print "***Warning***: Could not find file /build/HEPSPEC06.score file on this machine!"
-    
+           self.logh.write("***Warning***: Could not find file /build/HEPSPEC06.score file on this machine!")
+           self.logh.flush()
         #Scripts used by the suite:
         self.Scripts         =["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
         self.AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.py"]
@@ -127,9 +128,10 @@ class PerfSuite:
           self.perfsuiteinstance=perfsuiteinstance
        def runPerfTest(self):
           if "--pileup" in self.simpleGenReportArgs['cmsdriverOptions']:
-             print "Launching the PILE UP %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']) 
+             self.logh.write("Launching the PILE UP %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']))
           else:
-             print "Launching the %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']) 
+             self.logh.write("Launching the %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']))
+          self.logh.flush()
           #Cut and paste in bulk, should see if this works...
           self.perfsuiteinstance.printDate()
           self.perfsuiteinstance.logh.flush()
@@ -337,7 +339,7 @@ class PerfSuite:
         # Check step Options
         #
         if "GEN,SIM" in stepOptions:
-            print "WARNING: Please use GEN-SIM with a hypen not a \",\"!"
+            self.logh.write("WARNING: Please use GEN-SIM with a hypen not a \",\"!")
         #Using the step option as a switch between different dictionaries for:
         #RunTimeSize,RunIgProf,RunCallgrind,RunMemCheck,RunDigiPileUp:
         if stepOptions == "" or stepOptions == 'Default':
@@ -387,7 +389,7 @@ class PerfSuite:
         if not prevrel == "":
             prevrel = os.path.abspath(prevrel)
             if not os.path.exists(prevrel):
-                print "ERROR: Previous release dir %s could not be found" % prevrel
+                self.logh.write("ERROR: Previous release dir %s could not be found" % prevrel)
                 sys.exit()
     
         #############
@@ -557,14 +559,16 @@ class PerfSuite:
             cmdout   = process.stdout.read()
             exitstat = process.returncode
         except OSError, detail:
-            print "Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail)
+            self.logh.write("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail))
+            self.logh.flush()
             exitstat=999
             cmdout="Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail)
         if self._verbose:
             self.logh.write(cmdout)# + "\n") No need of extra \n!
             self.logh.flush()
         if exitstat == None:
-            print "Something strange is going on! Exit code was None for command %s: check if it really ran!"%command
+            self.logh.write("Something strange is going on! Exit code was None for command %s: check if it really ran!"%command)
+            self.logh.flush()
             exitstat=0
         return exitstat
     
@@ -573,7 +577,7 @@ class PerfSuite:
     
     def printDate(self):
         self.logh.write(self.getDate() + "\n")
-       
+        self.logh.flush()
     #############
     # Make directory for a particular candle and profiler.
     # ! This is really unnecessary code and should be replaced with a os.mkdir() call
@@ -646,17 +650,18 @@ class PerfSuite:
                 if NumEvtRegxp.search(line):
                     line=NumEvtRegxp.sub(r"-n 5",line)
                 else:
-                    print "The number of Memcheck event was not changed since the original number of Callgrind event was not 1!"
+                    self.logh.write("The number of Memcheck event was not changed since the original number of Callgrind event was not 1!")
                 Outputfile.write(line)
             elif digiRegxp.search(line) and MemcheckRegxp.search(line):
                 #Modify
                 if NumEvtRegxp.search(line):
                     line=NumEvtRegxp.sub(r"-n 5",line)
                 else:
-                    print "The number of Memcheck event was not changed since the original number of Callgrind event was not 1!"
+                    self.logh.write("The number of Memcheck event was not changed since the original number of Callgrind event was not 1!")
                 Outputfile.write(line)
             else:
                 Outputfile.write(line)
+        self.logh.flush()
         Outputfile.close()
             
         #self.runCmdSet(cmds)
@@ -798,15 +803,16 @@ class PerfSuite:
                 if self._unittest:
                     # Run cmsDriver.py
                     if userInputRootFiles:
-                       print userInputRootFiles
+                       self.logh.write(userInputRootFiles)
                        userInputFile=userInputRootFiles[0]
                     else:
                        userInputFile=""
+                    self.logh.flush()
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile) 
                     self.testCmsDriver(cpu,adir,candle)
                 else:
                     if userInputRootFiles:
-                       print "Variable userInputRootFiles is %s"%userInputRootFiles
+                       self.logh.write("Variable userInputRootFiles is %s"%userInputRootFiles)
                        #Need to use regexp, cannot rely on the order... since for different tests there are different candles...
                        #userInputFile=userInputRootFiles[candles.index(candle)]
                        userInputFile=""
@@ -814,9 +820,10 @@ class PerfSuite:
                        for file in userInputRootFiles:
                           if candleregexp.search(file):
                              userInputFile=file
-                             print "For these tests will use user input file %s"%userInputFile
+                             self.logh.write("For these tests will use user input file %s"%userInputFile)
                        if userInputFile=="":
-                          print "***No input file matching the candle being processed was found: will try to do without it!!!!!"
+                          self.logh.write("***No input file matching the candle being processed was found: will try to do without it!!!!!")
+                       self.logh.flush()
                     else:
                        userInputFile=""
                     DummyTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the timer (DummyTimer is just a reference, but we will use the dictionary to access this later...
@@ -826,12 +833,14 @@ class PerfSuite:
                     #Here where the no_exec option kicks in (do everything but do not launch cmsRelvalreport.py, it also prevents cmsScimark spawning...):
                     if self._noexec:
                         self.logh.write("Running in debugging mode, without executing cmsRelvalreport.py\n")
+                        self.logh.flush()
                         pass
                     else:
                         ExitCode=self.runCmsReport(cpu,adir,candle)
-                        print "Individual cmsRelvalreport.py ExitCode %s"%ExitCode
+                        self.logh.write("Individual cmsRelvalreport.py ExitCode %s"%ExitCode)
                         RelvalreportExitCode=RelvalreportExitCode+ExitCode
-                        print "Summed cmsRelvalreport.py ExitCode %s"%RelvalreportExitCode
+                        self.logh.write("Summed cmsRelvalreport.py ExitCode %s"%RelvalreportExitCode)
+                        self.logh.flush()
                     DummyTimer.set_end(datetime.datetime.now())
                     
                     #for proflog in proflogs:
@@ -895,7 +904,7 @@ class PerfSuite:
               self.logh = open(logfile,"a")
            except (OSError, IOError), detail:
               self.logh.write(detail + "\n")
-                
+              self.logh.flush()  
         try:        
             if not prevrel == "":
                 self.logh.write("Production of regression information has been requested with release directory %s" % prevrel)
@@ -925,7 +934,7 @@ class PerfSuite:
             TimerInfo={'TotalTime':{'TotalTime':TotalTime}} #Structure will be {'key':[PerfSuiteTimerInstance,...],...}
             showtags=os.popen4("showtags -r")[1].read()
             self.logh.write(showtags) # + "\n") No need for extra \n!
-    
+            self.logh.flush()
             #For the log:
             if self._verbose:
                 self.logh.write("The performance suite results tarball will be stored in CASTOR at %s\n" % self._CASTOR_DIR)
@@ -935,7 +944,7 @@ class PerfSuite:
                 self.logh.write("%s Memcheck events\n" % MemcheckEvents)
                 self.logh.write("%s cmsScimark benchmarks before starting the tests\n"      % cmsScimark)
                 self.logh.write("%s cmsScimarkLarge benchmarks before starting the tests\n" % cmsScimarkLarge)
-    
+                self.logh.flush()
             #Actual script actions!
             #Will have to fix the issue with the matplotlib pie-charts:
             #Used to source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh
@@ -1006,7 +1015,7 @@ class PerfSuite:
                         TimerInfo['cmsScimarkTime'].update({'cmsScimarkLargeInitial':cmsScimarkLargeInitialTime}) #Add the cmsScimarkLargeInitialTime information to the general TimerInfo dictionary
                         self.benchmarks(cpu,perfsuitedir,scimarklarge.name,cmsScimarkLarge, large=True)
                         cmsScimarkLargeInitialTime.set_end(datetime.datetime.now()) #Stop the cmsScimarkLarge Initial timer
-            
+                self.logh.flush()
             #Handling the Pile up input file here:
             if (TimeSizePUCandles or IgProfPUCandles or CallgrindPUCandles or MemcheckPUCandles) and not ("FASTSIM" in stepOptions):
                 #Note the FASTSIM exclusion... since there is no need to copy the file for FASTSIM.
@@ -1033,6 +1042,7 @@ class PerfSuite:
                 #Ultimately accept the case of the file being already there and not being specified in the --PUInputFile option
                 if not os.path.exists(PUInputName):
                     self.logh.write("The necessary INPUT_PILEUP_EVENTS.root file was not found in the working directory %s\nExiting now!"%perfsuitedir)
+                    self.logh.flush()
                     sys.exit(1)
                 else:
                     #Set up here the DIGI PILE UP options
