@@ -13,10 +13,13 @@
  <class name="std::less<int>"/>
  <class name="std::list<int>"/>
  <class name="std::map<int,int>"/>
+ <class name="std::map<int,std::pair<double,double> >"/>
  <class name="std::map<int,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::map<int,std::pair<unsigned long,unsigned long> >"/>
+ <class name="std::map<int,unsigned int>"/>
  <class name="std::map<short,short>"/>
  <class name="std::map<short,short>::value_type"/>
+ <class name="std::map<short,unsigned int>"/>
  <class name="std::map<std::basic_string<char>,int>"/>
  <class name="std::map<std::basic_string<char>,std::basic_string<char> >"/>
  <class name="std::map<std::basic_string<char>,std::basic_string<char> >::value_type"/>
@@ -25,6 +28,7 @@
  <class name="std::map<std::basic_string<char>,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
+ <class name="std::map<std::pair<int,int>,int>"/>
  <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
  <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >::value_type"/>
  <class name="std::map<unsigned int,bool>"/>

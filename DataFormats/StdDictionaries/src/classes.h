@@ -116,6 +116,10 @@ namespace {
   std::map<std::pair<short,short>,std::pair<short,std::vector<short> > > dummympsspsvs;
   std::map<unsigned int,std::basic_string<char> > dummymuis;
   std::map<unsigned int,std::pair<unsigned int,unsigned int> > dummymuipuu;
+  std::map<int,std::pair<double,double> > dummymipdd;
+  std::map<int,unsigned int> dummymiui;
+  std::map<short,unsigned int> dummymsui;
+  std::map<std::pair<int,int>,int> dummympii_i;
   std::vector<char>::iterator itc;
   std::vector<short>::iterator its;
   std::vector<unsigned short>::iterator itus;
