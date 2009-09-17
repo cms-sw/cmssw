@@ -1,4 +1,4 @@
-// $Id: XmasToDQM.cc,v 1.3 2008/10/13 13:06:17 vpatras Exp $
+// $Id: XmasToDQM.cc,v 1.4 2008/10/23 14:37:00 vpatras Exp $
 
 /*************************************************************************
  * XDAQ Components for Distributed Data Acquisition                      *
@@ -203,7 +203,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 	
 	//check if the queue is full and wait (a signal that informs that an element has been poped)
 	// until there is 'space' in the queue    
-    	while (xmas2dqm::wse::ToDqm::instance()->MemoryTable_.size() >= atoi(LASQueueSize_.toString().c_str())/*Qsize_max*/)
+    	while (xmas2dqm::wse::ToDqm::instance()->MemoryTable_.size() >= (unsigned int) atoi(LASQueueSize_.toString().c_str())/*Qsize_max*/)
 	{
         	pthread_cond_wait(&xmas2dqm::wse::ToDqm::instance()->less_, &xmas2dqm::wse::ToDqm::instance()->LASmutex_);
 	}

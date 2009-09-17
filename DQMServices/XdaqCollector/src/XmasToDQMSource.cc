@@ -143,8 +143,6 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 	//Insert data to histograms transfered to DQM GUI servers (print the table)
 	if(ref_table != NULL)
 	{
-		size_t row = ref_table->getRowCount();
-		
 
 		for ( size_t r = 0; r < ref_table->numberOfRows_; r++ )
 		{

@@ -8,7 +8,7 @@ xmas2dqm::wse::ToDqm * xmas2dqm::wse::ToDqm::instance()
 	if(instance_ == 0) instance_ = new xmas2dqm::wse::ToDqm(); return instance_;
 }
 
-xmas2dqm::wse::ToDqm::ToDqm() : messageCount_(0),BSem_(toolbox::BSem::FULL)
+xmas2dqm::wse::ToDqm::ToDqm() : BSem_(toolbox::BSem::FULL),messageCount_(0)
 {
 	//std::cout << "ToDqm constructor called.... " << std::endl;
 	pthread_mutex_init(&LASmutex_,NULL);
