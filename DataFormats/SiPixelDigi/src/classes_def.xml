@@ -13,7 +13,6 @@
    <class name="edmNew::DetSetVector<PixelDigi>"/>
    <class name="edm::Wrapper< edmNew::DetSetVector<PixelDigi> >"/>
 
-   <class name="std::pair<uint16_t,uint16_t>"/>
    <class name="SiPixelCalibDigi::datacontainer"/>
    <class name="std::vector<SiPixelCalibDigi::datacontainer>"/>
    <class name="SiPixelCalibDigi"/>
@@ -28,7 +27,6 @@
    <class name="edmNew::DetSetVector<SiPixelCalibDigi>"/>
    <class name="edm::Wrapper< edmNew::DetSetVector<SiPixelCalibDigi> >"/>
 
-   <class name="uint8_t"/>
    <class name="SiPixelCalibDigiError"/>
    <class name="edm::DetSet<SiPixelCalibDigiError>"/>
    <class name="std::vector<SiPixelCalibDigiError>"/>

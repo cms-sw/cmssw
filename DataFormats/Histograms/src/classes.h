@@ -42,8 +42,6 @@ namespace {
     edm::Wrapper<TProfile3D> dummyPr3D;
     edm::Wrapper<TObject> dummyObject;
 
-    std::vector<uint32_t> dummy1;
-    std::vector<std::vector<uint32_t> > dummy2;
     MEtoEDM<TH1F> dummy3;
     MEtoEDM<TH1S> dummy3s;
     MEtoEDM<TH2F> dummy4;

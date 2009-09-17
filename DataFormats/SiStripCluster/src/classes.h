@@ -9,8 +9,6 @@
 namespace {
   struct dictionary {
     edm::Wrapper<SiStripClusterCollection> siStripClusterCollectionWrapper;
-    std::pair<unsigned int, unsigned int> bah1;
-    std::map<unsigned int, std::pair<unsigned int, unsigned int> > bah2;
   };
 }
 

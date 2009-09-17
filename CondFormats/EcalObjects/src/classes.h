@@ -72,10 +72,8 @@ namespace{
     EcalTimeCalibErrors timeCalibErrors;
  
     EcalDCUTemperatures dcuTemperatures;
-    std::map<uint32_t, float> dcuTempMap;
  
     EcalPTMTemperatures ptmTemperatures;
-    std::map<uint32_t, float> ptmTempMap;
  
     EcalChannelStatus channelStatus;
  
@@ -94,11 +92,6 @@ namespace{
     std::map< uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap;
     std::pair< const uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap_valuetype;
  
-    std::map< uint32_t, uint32_t> EcalTPGFineGrainTowerEEMap;
- 
-    std::map< uint32_t, uint16_t> EcalTPGTowerStatusMap;
- 
-    std::map<uint32_t, uint32_t> EcalTPGGroupsMap;
  
     EcalTPGLinearizationConst tpglinconstmap;
  

@@ -16,8 +16,6 @@
 </class>
 
   <class name="PhysicsTFormulaPayload"/>   
-  <class name="std::vector< std::pair<float, float> >"/>   
-  <class name="std::pair<float, float>"/>   
 
 
 	<!-- Histogram -->
@@ -111,11 +109,8 @@
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcTMVA"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcTMVA&gt;"/>
-	<class name="std::vector&lt;unsigned char&gt;"/>
-	<class name="std::vector&lt;std::string&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::Variable&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood::SigBkg&gt;"/>
-	<class name="std::pair&lt;double, std::vector&lt;double&gt; &gt;"/>
 	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>
 
 	<class name="PhysicsTools::Calibration::MVAComputer" class_version="0">
@@ -127,6 +122,8 @@
 	<class name="PhysicsTools::Calibration::MVAComputerContainer" class_version="0">
 		<field name="cacheId" transient="true"/>
 	</class>
+	<class name="ROOT::TSchemaHelper"/>
+	<class name="std::vector&lt;ROOT::TSchemaHelper&gt;"/>
+	<class name="std::vector&lt;TFormula*&gt;"/>
 
-	<class pattern="*vector*"/>
 </lcgdict>

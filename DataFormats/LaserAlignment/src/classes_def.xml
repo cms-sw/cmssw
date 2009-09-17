@@ -14,14 +14,12 @@
 
   <class name="LASBeamProfileFit"/>
   <class name="std::vector<LASBeamProfileFit>"/>
-  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
   <class name="std::map<unsigned int, std::vector<LASBeamProfileFit> >"/>
   <class name="LASBeamProfileFitCollection"/>
   <class name="edm::Wrapper<LASBeamProfileFitCollection>"/>
 
   <class name="LASAlignmentParameter"/>
   <class name="std::vector<LASAlignmentParameter>"/>
-  <class name="std::map<std::string, std::pair<unsigned int, unsigned int> >"/>
   <class name="std::map<std::string, std::vector<LASAlignmentParameter> >"/>
   <class name="LASAlignmentParameterCollection"/>
   <class name="edm::Wrapper<LASAlignmentParameterCollection>"/>

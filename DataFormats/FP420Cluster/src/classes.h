@@ -21,7 +21,6 @@ namespace {
     edm::Wrapper< edm::DetSetVector<ClusterFP420> > zc4;
 
     edm::Wrapper<ClusterCollectionFP420> ccollection;
-    std::pair<unsigned int, unsigned int> foo1;
   };
 }
 

@@ -3,7 +3,7 @@
    <class name="CSCRPCDigi"/>
    <class name="CSCStripDigi"/>
    <class name="CSCComparatorDigi"/>
-   <class name="CSCCorrelatedLCTDigi"/>  
+   <class name="CSCCorrelatedLCTDigi"/>
    <class name="CSCCLCTDigi"/>
    <class name="CSCALCTDigi"/>
    <class name="CSCCFEBStatusDigi"/>
@@ -13,10 +13,6 @@
    <class name="CSCDDUStatusDigi"/>
    <class name="CSCDCCStatusDigi"/>
    <class name="CSCALCTStatusDigi"/>
-  
-   <class name="std::map<int,unsigned int>"/>
-   <class name="std::map<short,unsigned int>"/>
-
 
    <class name="std::vector<CSCWireDigi>"/>
    <class name="std::vector<CSCRPCDigi>"/>
@@ -36,7 +32,7 @@
    <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCRPCDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCStripDigi> >"/>
-   <class name="std::map<CSCDetId,std::vector<CSCComparatorDigi> >"/> 
+   <class name="std::map<CSCDetId,std::vector<CSCComparatorDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCorrelatedLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCCLCTDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCALCTDigi> >"/>
@@ -67,7 +63,7 @@
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCRPCDigi>>" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCStripDigi>>"  splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCComparatorDigi>>"  splitLevel="0"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >" splitLevel="0"/> 
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi> >" splitLevel="0"/>

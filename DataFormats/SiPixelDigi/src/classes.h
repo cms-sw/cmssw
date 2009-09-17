@@ -13,7 +13,6 @@
 
 namespace {
   struct dictionary {
-    std::pair<uint16_t,uint16_t> patterncontainer;
     SiPixelCalibDigi::datacontainer calibdatacontainer;
     SiPixelCalibDigi calibdigiitself;
     edm::Wrapper<SiPixelCalibDigi::datacontainer> calibdatacontainer0;
@@ -25,8 +24,6 @@ namespace {
     edm::Wrapper<edm::DetSetVector<SiPixelCalibDigi> > calibdigidetsetvec;
 
     
-    uint8_t singlesmallerror;
-    uint16_t containerforrowsandcolumns;
     SiPixelCalibDigiError calibdigierr;
     edm::Wrapper<SiPixelCalibDigiError> calibdigierrw;
     edm::Wrapper<std::vector<SiPixelCalibDigiError> > calibdigierrvec;

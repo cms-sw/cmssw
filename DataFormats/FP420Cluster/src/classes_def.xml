@@ -1,7 +1,6 @@
 <lcgdict>
  <class name="ClusterFP420"/>
  <class name="std::vector<ClusterFP420>"/>
- <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
  <class name="std::map<unsigned int, std::vector<ClusterFP420> >"/>
  <class name="edm::DetSet<ClusterFP420>"/>
  <class name="edm::DetSetVector<ClusterFP420>"/>

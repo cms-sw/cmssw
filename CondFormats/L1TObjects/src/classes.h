@@ -42,9 +42,6 @@
 
 namespace {
   struct dictionary {
-    std::map< std::string, std::map< std::string, std::string > > dummy0 ;
-    std::pair< std::string, std::map< std::string, std::string > > dummy0a ;
-    std::pair< std::string, std::string > dummy0b ;
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;
     std::vector<L1GtCaloTemplate> dummy5 ;
@@ -58,7 +55,6 @@ namespace {
     std::map< std::string, L1GtAlgorithm > dummy9 ;
     std::pair< std::string, L1GtAlgorithm > dummy9a ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
-    std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummy12 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
 //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
 //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;

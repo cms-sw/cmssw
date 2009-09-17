@@ -16,7 +16,6 @@ namespace{
   RPCDigiCollection dd;
   edm::Wrapper<RPCDigiCollection> dw;
 
-  std::map< std::pair<int,int>, int > a1;
   edm::Wrapper<std::map< std::pair<int,int>, int > > a2;
 
   RPCRawDataCounts d1;

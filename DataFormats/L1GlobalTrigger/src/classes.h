@@ -83,7 +83,6 @@ namespace { struct dictionary {
 
     L1GtTechnicalTriggerRecord dummy135;
     edm::Wrapper<L1GtTechnicalTriggerRecord> dummy136;
-    std::vector<std::vector<int> > dummy137;
 
     //
     std::vector<L1GtObject> dummy100;

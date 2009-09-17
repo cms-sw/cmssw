@@ -17,17 +17,6 @@
 
 namespace {
   namespace {
-    std::pair<int,double>  dummy0;
-    std::vector<std::pair<int, double> > dummy1;
-    std::vector<std::vector<std::pair<int, double> >  > dummy2;
-
-    std::pair<unsigned int, double> p_uint_dbl;
-    std::vector<std::pair<double, double> > v_p_dbl_dbl;
-    std::vector<std::pair<unsigned int, double> > v_p_uint_dbl;
-    std::pair<unsigned int, std::vector<unsigned int> > p_uint_vint;
-    std::vector<int> v_int;
-    std::vector<std::pair<std::string, double> > v_p_str_dbl;
-
     TString tstr;
     edm::Wrapper<TString> w_tstr;
     edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;

@@ -35,7 +35,6 @@
   <class name="std::vector<RPCEMap::lbItem>"/>
   <class name="RPCEMap::febItem"/>
   <class name="std::vector<RPCEMap::febItem>"/>
-  <class name="std::vector<int>"/>
 
   <class name="L1RPCConeBuilder"/>
 
@@ -46,7 +45,6 @@
   <class name="RPCStripNoises"/>
   <class name="RPCStripNoises::NoiseItem"/>
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
-  <class name="std::vector<float>"/>
 
   <class name="RPCObGas"/>
   <class name="RPCObGas::Item"/>

@@ -34,7 +34,7 @@
 #include <vector>
 #include <map>
 
-namespace{ 
+namespace{
   struct dictionary {
 
   CSCWireDigi cWD_;
@@ -46,7 +46,7 @@ namespace{
   CSCCorrelatedLCTDigi cCorLCTD_;
   CSCCFEBStatusDigi cCSD_;
   CSCTMBStatusDigi cTMBSD_;
-  CSCDCCFormatStatusDigi cDFSD_; 
+  CSCDCCFormatStatusDigi cDFSD_;
   CSCDMBStatusDigi cDMBSD_;
   CSCDDUStatusDigi cDDUSD_;
   CSCDCCStatusDigi cDCCSD_;
@@ -70,15 +70,15 @@ namespace{
   std::vector<CSCALCTStatusDigi>  vALCTSD_;
 
 
-  std::vector<std::vector<CSCWireDigi> >  vvWD_; 
+  std::vector<std::vector<CSCWireDigi> >  vvWD_;
   std::vector<std::vector<CSCRPCDigi>  >  vvRD_;
-  std::vector<std::vector<CSCStripDigi> >  vvSD_; 
+  std::vector<std::vector<CSCStripDigi> >  vvSD_;
   std::vector<std::vector<CSCComparatorDigi> >  vvCD_;
   std::vector<std::vector<CSCCLCTDigi> > vvCLCTD_;
   std::vector<std::vector<CSCALCTDigi> > vvALCTD_;
   std::vector<std::vector<CSCCorrelatedLCTDigi> > vvCorLCTD_;
   std::vector<std::vector<CSCCFEBStatusDigi> >  vvCSD_;
-  std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;  
+  std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;
   std::vector<std::vector<CSCDMBStatusDigi> >  vvDMBSD_;
   std::vector<std::vector<CSCDCCFormatStatusDigi> >  vvDFSD_;
   std::vector<std::vector<CSCDDUStatusDigi> >  vvDDUSD_;
@@ -108,15 +108,11 @@ namespace{
   edm::Wrapper<CSCALCTDigiCollection> wALCTD_;
   edm::Wrapper<CSCCorrelatedLCTDigiCollection> wCorLCTD_;
   edm::Wrapper<CSCCFEBStatusDigiCollection> wCSD_;
-  edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;  
+  edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;
   edm::Wrapper<CSCDCCFormatStatusDigiCollection> wDFSD_;
   edm::Wrapper<CSCDMBStatusDigiCollection> wDMBSD_;
   edm::Wrapper<CSCDDUStatusDigiCollection> wDDUSD_;
   edm::Wrapper<CSCDCCStatusDigiCollection> wDCCSD_;
   edm::Wrapper<CSCALCTStatusDigiCollection> wALCTSD_;
-
-  std::map<int,unsigned int> mCSCFmt_;
-  std::map<short,unsigned int> mDDUFmt_;
-
   };
 }

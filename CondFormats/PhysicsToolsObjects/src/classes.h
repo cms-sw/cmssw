@@ -25,7 +25,6 @@ struct dictionary {
 #ifdef STD_DICTIONARIES_STUFF_MISSING
 std::vector<unsigned char> v1;
 std::vector<double> v4;
-std::vector<std::string> v7;
 #endif
 
 // Histogram
@@ -52,7 +51,6 @@ std::vector<HistogramD3D> v33;
 std::vector<Variable> v19;
 std::vector<ProcCategory::BinLimits> v20;
 std::vector<ProcLikelihood::SigBkg> v21;
-std::pair<double, std::vector<double> > v22;
 std::pair<std::vector<ProcMLP::Neuron>, bool> v23;
 MVAComputerContainer::Entry v24;
 std::vector<MVAComputerContainer::Entry> v25;
@@ -71,8 +69,6 @@ std::vector<MVAComputerContainer::Entry> v25;
     //
     PhysicsTFormulaPayload p10;          
     PerformancePayloadFromTFormula p11;
-    std::vector<std::pair<float,float> >  p12;
-    std::pair<float,float>   p13;
 
 };
 } // anonymous namespace

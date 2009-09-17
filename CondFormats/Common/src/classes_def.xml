@@ -1,6 +1,4 @@
 <lcgdict>
- <class name="cond::Time_t"/>
- <class name="std::basic_string<char>"/>
  <class name="cond::IOVElement"/>
  <class name="cond::UpdateStamp"/>
  <class name="pool::PVector<cond::IOVElement>"/>
@@ -32,10 +30,6 @@
 
 <class name="pool::PolyPtr<std::basic_string<char> >"/>
  
-<class name="std::vector<int>"/>
-<class name="std::vector<float>"/>
- <class name="std::vector<double>"/>
- <class name="std::vector<unsigned long long>"/>
  <class name="pool::PolyPtr<std::vector<int> >"/>
  <class name="cond::DataWrapper<std::vector<int> >"/>
  >
@@ -44,6 +38,5 @@
 
  <class name="pool::PolyPtr<std::vector<unsigned long long> >"/>
  <class name="cond::DataWrapper<std::vector<unsigned long long> >"/>
-
 
 </lcgdict>   

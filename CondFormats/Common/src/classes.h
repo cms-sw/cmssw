@@ -17,10 +17,6 @@ namespace {
     };
 
     struct Dummy {
-      std::vector<int> vid;
-      std::vector<float> vfd;
-      std::vector<double> vdd;
-      std::vector<unsigned long long> vll;
       cond::DataWrapper<std::vector<int> > dummyI;
       cond::DataWrapper<std::vector<double> >dummyD;
       cond::DataWrapper<std::vector<unsigned long long> >dummyLL;

@@ -5,7 +5,6 @@
 <class name="MuonDigiCollection<RPCDetId,RPCDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigi>>" splitLevel="0"/> 
 
-<class name="std::map <std::pair<int,int>, int> "/> 
 <class name="edm::Wrapper<std::map <std::pair<int,int>, int> > "/> 
 <class name="RPCRawDataCounts"/>
 <class name="edm::Wrapper<RPCRawDataCounts>"/>

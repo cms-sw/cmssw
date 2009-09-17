@@ -17,7 +17,6 @@ namespace {
     edm::Wrapper< edm::DetSet<HDigiFP420> > zs2;
     edm::Wrapper< std::vector<edm::DetSet<HDigiFP420> > > zs3;
     edm::Wrapper< edm::DetSetVector<HDigiFP420> > zs4;
-    std::pair<unsigned int, unsigned int> foo1;
 
     edm::Wrapper<DigiCollectionFP420> collection;
   };

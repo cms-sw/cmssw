@@ -79,7 +79,6 @@
 
 	<!-- LHE products -->
 
-	<class name="std::vector&lt;std::pair&lt;int, int&gt; &gt;"/>
 	<class name="lhef::HEPEUP::FiveVector"/>
 	<class name="std::vector&lt;lhef::HEPEUP::FiveVector&gt;"/>
 	<class name="lhef::HEPRUP"/>
