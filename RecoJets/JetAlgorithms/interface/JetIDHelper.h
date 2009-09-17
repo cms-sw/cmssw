@@ -6,17 +6,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 
 namespace reco {
 
   namespace helper {
-
-
-    // select2nd exists only in some std and boost implementations, so let's control our own fate
-    // and it can't be a non-static member function.
-    static double select2nd (std::map<int,double>::value_type const &pair) {return pair.second;}
 
     class JetIDHelper {
 
@@ -26,61 +21,97 @@ namespace reco {
       JetIDHelper( edm::ParameterSet const & pset );
       ~JetIDHelper() {} 
 
+      void fillDescription(edm::ParameterSetDescription& iDesc);
+
+      void initValues ();
+
       // interface
       void calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg = 0 );
 
       // member access
       
-     double fHPD()          const   { return    fHPD_;}           
-     double fRBX()          const   { return    fRBX_;}           
-     int    n90Hits()       const   { return    n90Hits_;}        
-     double fSubDetector1() const   { return    fSubDetector1_;}  
-     double fSubDetector2() const   { return    fSubDetector2_;}  
-     double fSubDetector3() const   { return    fSubDetector3_;}  
-     double fSubDetector4() const   { return    fSubDetector4_;}  
-     double restrictedEMF() const   { return    restrictedEMF_;}  
-     int    nHCALTowers()   const   { return    nHCALTowers_;}    
-     int    nECALTowers()   const   { return    nECALTowers_;}    
+      // these require RecHits, so can not be evaluated from AOD
+      double fHPD()          const    { return    fHPD_;}           
+      double fRBX()          const    { return    fRBX_;}           
+      int    n90Hits()       const    { return    n90Hits_;}
+      // these are tower based
+      double fSubDetector1() const    { return    fSubDetector1_;}  
+      double fSubDetector2() const    { return    fSubDetector2_;}  
+      double fSubDetector3() const    { return    fSubDetector3_;}  
+      double fSubDetector4() const    { return    fSubDetector4_;}  
+      double restrictedEMF() const    { return    restrictedEMF_;}
+      int    nHCALTowers()   const    { return    nHCALTowers_;}    
+      int    nECALTowers()   const    { return    nECALTowers_;}    
+      // tower based approximations / inferior options
+      double approximatefHPD() const { return    approximatefHPD_;}           
+      double approximatefRBX() const { return    approximatefRBX_;}           
+      int    hitsInN90()        const { return    hitsInN90_;}        
  
+      struct subtower { // contents of a sub-detector's tower
+	double E;
+	int Nhit;
+	
+	subtower( double xE, int xN ) { E = xE; Nhit = xN; }
+      };
+      
+  
     private:
 
+     
       // helper functions
+      void calculateSubDetectorEnergies( const edm::Event& event, const reco::CaloJet &jet, 
+					 std::vector< double > &subdet_energies );
       void classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
-				  std::vector< double > &energies,      std::vector< double > &subdet_energies,
+				  std::vector< double > &energies,
 				  std::vector< double > &Ecal_energies, std::vector< double > &Hcal_energies, 
 				  std::vector< double > &HO_energies,
 				  std::vector< double > &HPD_energies,  std::vector< double > &RBX_energies,
-				  unsigned int& nHadTowers, unsigned int& nEMTowers, int iDbg = 0);
+				  const bool recHitBased = true, const int iDbg = 0);
+
+      void classifyJetTowers( const edm::Event& event, const reco::CaloJet &jet, 
+			      std::vector< subtower > &subtowers,      
+			      std::vector< subtower > &Ecal_subtowers, 
+			      std::vector< subtower > &Hcal_subtowers, 
+			      std::vector< subtower > &HO_subtowers,
+			      std::vector< double > &HPD_energies,  
+			      std::vector< double > &RBX_energies,
+			      const int iDbg = 0);
 
       unsigned int nCarrying( double fraction, std::vector< double > descending_energies );
- 
-      // if implementing as a class, the following should probably be private:
-
-      int HBHE_oddness (int iEta, int depth);
-      int HBHE_region (int iEta, int depth);
+      unsigned int hitsInNCarrying( double fraction, std::vector< subtower > descending_towers );
+      
+      enum Region{
+	unknown_region = -1,
+	HFneg, HEneg, HBneg, HBpos, HEpos, HFpos };
+      
+      int HBHE_oddness( int iEta, int depth );
+      Region HBHE_region( int iEta, int depth );
+      // tower-based. -1 means can't figure it out
+      int HBHE_oddness( int iEta );
+      Region region( int iEta );
       
 
-     double fHPD_;
-     double fRBX_;
-     int    n90Hits_;
-     double fSubDetector1_;
-     double fSubDetector2_;
-     double fSubDetector3_;
-     double fSubDetector4_;
-     double restrictedEMF_;
-     int    nHCALTowers_;
-     int    nECALTowers_;
-
-     edm::InputTag hbheRecHitsColl_;
-     edm::InputTag hoRecHitsColl_;
-     edm::InputTag hfRecHitsColl_;
-     edm::InputTag ebRecHitsColl_;
-     edm::InputTag eeRecHitsColl_;
-  
+      double fHPD_;
+      double fRBX_;
+      int    n90Hits_;
+      double fSubDetector1_;
+      double fSubDetector2_;
+      double fSubDetector3_;
+      double fSubDetector4_;
+      double restrictedEMF_;
+      int    nHCALTowers_;
+      int    nECALTowers_;
+      double approximatefHPD_;
+      double approximatefRBX_;
+      int    hitsInN90_;
+      
+      bool useRecHits_;
+      edm::InputTag hbheRecHitsColl_;
+      edm::InputTag hoRecHitsColl_;
+      edm::InputTag hfRecHitsColl_;
+      edm::InputTag ebRecHitsColl_;
+      edm::InputTag eeRecHitsColl_;
     };
-
   }
-
 }
-
 #endif
