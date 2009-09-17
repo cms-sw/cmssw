@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.5 2009/07/25 02:30:03 wmtan Exp $
+// $Id: FileHandler.cc,v 1.6 2009/08/28 16:41:26 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -28,7 +28,6 @@ FileHandler::FileHandler
 _fileRecord(fileRecord),
 _firstEntry(utils::getCurrentTime()),
 _lastEntry(0),
-_closingReason(FilesMonitorCollection::FileRecord::stop),
 _diskWritingParams(dwParams),
 _maxFileSize(maxFileSize),
 _logPath(dwParams._filePath+"/log"),
@@ -131,11 +130,11 @@ void FileHandler::insertFileInDatabase() const
 }
 
 
-const bool FileHandler::tooLarge(const unsigned long& dataSize)
+bool FileHandler::tooLarge(const unsigned long& dataSize)
 {
   if ( ((fileSize() + dataSize) > _maxFileSize) && (events() > 0) )
   {
-    _closingReason = FilesMonitorCollection::FileRecord::size;
+    closeFile(FilesMonitorCollection::FileRecord::size);
     return true;
   }
   else
@@ -145,13 +144,13 @@ const bool FileHandler::tooLarge(const unsigned long& dataSize)
 }
 
 
-const int FileHandler::events() const
+int FileHandler::events() const
 {
   return _fileRecord->eventCount;
 }
 
 
-const long long FileHandler::fileSize() const
+long long FileHandler::fileSize() const
 {
   return _fileRecord->fileSize;
 }
@@ -162,7 +161,11 @@ const long long FileHandler::fileSize() const
 /////////////////////////////
 
 
-void FileHandler::moveFileToClosed(const bool& useIndexFile)
+void FileHandler::moveFileToClosed
+(
+  const bool& useIndexFile,
+  const FilesMonitorCollection::FileRecord::ClosingReason& reason
+)
 {
   string openIndexFileName      = _fileRecord->completeFileName() + ".ind";
   string openStreamerFileName   = _fileRecord->completeFileName() + ".dat";
@@ -172,13 +175,21 @@ void FileHandler::moveFileToClosed(const bool& useIndexFile)
   makeFileReadOnly(openStreamerFileName);
   if (useIndexFile) makeFileReadOnly(openIndexFileName);
 
-  _fileRecord->whyClosed = _closingReason;
+  _fileRecord->whyClosed = reason;
   string closedIndexFileName    = _fileRecord->completeFileName() + ".ind";
   string closedStreamerFileName = _fileRecord->completeFileName() + ".dat";
 
   if (useIndexFile) renameFile(openIndexFileName, closedIndexFileName);
-  renameFile(openStreamerFileName, closedStreamerFileName);
-
+  try
+  {
+    renameFile(openStreamerFileName, closedStreamerFileName);
+  }
+  catch (stor::exception::DiskWriting& e)
+  {
+    // Rename failed. Move index file back to open location
+    if (useIndexFile) renameFile(closedIndexFileName, openIndexFileName);
+    XCEPT_RETHROW(stor::exception::DiskWriting, "Could not move streamer file to closed area.", e);
+  }
   checkFileSizeMatch(closedStreamerFileName, openStreamerFileSize);
 }
 
@@ -197,12 +208,13 @@ size_t FileHandler::checkFileSizeMatch(const string& fileName, const size_t& siz
   
   if ( sizeMismatch(size, statBuff.st_size) )
   {
+    _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::truncated;
     std::ostringstream msg;
     msg << "Found an unexpected file size when trying to move "
       << "the file to the closed state.  File " << fileName
       << " has an actual size of " << statBuff.st_size
       << " instead of the expected size of " << size;
-    XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+    XCEPT_RAISE(stor::exception::FileTruncation, msg.str());
   }
 
   return statBuff.st_size;
@@ -240,6 +252,7 @@ void FileHandler::renameFile(const string& openFileName, const string& closedFil
 {
   int result = rename( openFileName.c_str(), closedFileName.c_str() );
   if (result != 0) {
+    _fileRecord->whyClosed = FilesMonitorCollection::FileRecord::notClosed;
     std::ostringstream msg;
     msg << "Unable to move " << openFileName << " to "
       << closedFileName << ".  Possibly the storage manager "
@@ -249,7 +262,7 @@ void FileHandler::renameFile(const string& openFileName, const string& closedFil
 }
 
 
-const string FileHandler::logFile(const DiskWritingParams& dwp) const
+string FileHandler::logFile(const DiskWritingParams& dwp) const
 {
   time_t rawtime = time(0);
   tm * ptm;
@@ -277,7 +290,7 @@ void FileHandler::checkDirectories() const
 }
 
 
-const double FileHandler::calcPctDiff(const double& value1, const double& value2) const
+double FileHandler::calcPctDiff(const double& value1, const double& value2) const
 {
   if (value1 == value2) return 0;
   double largerValue = value1;
