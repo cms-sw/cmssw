@@ -10,6 +10,8 @@
 class TrackingRecHit {
 public:
 
+  friend class MuonTransientTrackingRecHit;
+
   typedef unsigned int id_type;
   
   /** Type of hits:
@@ -66,9 +68,6 @@ public:
    * means that all inputs of the two hits must be identical; the value "some" means
    * that at least one of the inputs is in common. */
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
-
-  // it must be hidden in TransientTrackingRecHit (i.e. re-implemented as private)
-  virtual void setBad() { m_status=bad; }
 
 protected:
   // used by muon...
