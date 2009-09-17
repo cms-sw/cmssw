@@ -107,8 +107,7 @@ for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT' ):
 
 #-- Output module configuration -----------------------------------------------
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-#process.out.fileName = 'file://./test.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
-process.out.fileName = 'file://./LM0-312-SUSYPAT-V00-04-01.root'
+process.out.fileName = 'file://./test.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
 
 # Custom settings
 process.out.splitLevel = cms.untracked.int32(99)  # Turn on split level (smaller files???)
