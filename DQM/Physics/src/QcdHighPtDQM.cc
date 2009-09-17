@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/18 15:32:55 $
+ *  $Date: 2009/07/07 13:41:56 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi, Eric - CERN
  */
@@ -19,7 +19,6 @@
 
 #include "DataFormats/METReco/interface/METCollection.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 

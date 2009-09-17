@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/18 15:32:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/26 10:18:36 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -21,7 +21,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
