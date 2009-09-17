@@ -55,11 +55,11 @@ private:
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "PhysicsTools/CandUtils/interface/Thrust.h"
+#include "CommonTools/CandUtils/interface/Thrust.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 struct jetptcomp {
   bool operator() (std::pair<reco::GenJetCollection::const_iterator,double> jet1, std::pair<reco::GenJetCollection::const_iterator,double> jet2){
