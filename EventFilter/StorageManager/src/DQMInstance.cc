@@ -1,4 +1,4 @@
-// $Id: DQMInstance.cc,v 1.13 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMInstance.cc,v 1.14 2009/09/16 11:06:46 mommsen Exp $
 /// @file: DQMInstance.cc
 
 #include <iostream>
@@ -54,11 +54,21 @@ DQMGroup::DQMGroup(int readyTime, int expectedUpdates):
   firstUpdate_->Set();
 }
 
-void DQMGroup::incrementUpdates() 
-{ 
-  nUpdates_++;
+void DQMGroup::setLastEvent(int lastEvent)
+{
+  if ( lastEvent_ != lastEvent )
+  {
+    lastEvent_ = lastEvent;
+    ++nUpdates_;
+  }
   wasServedSinceUpdate_ = false;
   lastUpdate_->Set();  
+}
+
+void DQMGroup::setServedSinceUpdate()
+{
+  wasServedSinceUpdate_=true;
+  nUpdates_ = 0;
 }
 
 bool DQMGroup::isReady(int currentTime)
@@ -140,7 +150,6 @@ int DQMInstance::updateObject(std::string groupName,
     group->dqmFolders_[objectDirectory] = folder;
   }
 
-  group->setLastEvent(eventNumber);
   TObject * storedObject = folder->dqmObjects_[objectName];
   if ( storedObject == NULL )
   {
@@ -166,7 +175,7 @@ int DQMInstance::updateObject(std::string groupName,
     }
   }
 
-  group->incrementUpdates();
+  group->setLastEvent(eventNumber);
   nUpdates_++;
   lastUpdate_->Set();
   return(nUpdates_);

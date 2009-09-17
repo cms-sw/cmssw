@@ -1,4 +1,4 @@
-// $Id: DQMInstance.h,v 1.11 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMInstance.h,v 1.12 2009/09/16 11:04:22 mommsen Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -24,8 +24,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.12 $
+   * $Date: 2009/09/16 11:04:22 $
    */
 
   class DQMFolder
@@ -42,8 +42,8 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.12 $
+   * $Date: 2009/09/16 11:04:22 $
    */
 
   class DQMGroup
@@ -55,14 +55,13 @@ namespace stor
       int getNUpdates()             { return(nUpdates_);}
       int getReadyTime()            { return(readyTime_);}
       int getLastEvent()            { return(lastEvent_);}
-      void setLastEvent(int lastEvent) { lastEvent_=lastEvent;}
+      void setLastEvent(int lastEvent);
       TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
       TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
       TTimeStamp * getLastServed()  { return(lastServed_);}
       bool isReady(int currentTime);
       bool wasServedSinceUpdate()   { return(wasServedSinceUpdate_);}
-      void setServedSinceUpdate()   { wasServedSinceUpdate_=true;}
-      void incrementUpdates();
+      void setServedSinceUpdate();
       void setLastServed()          { lastServed_->Set();}
 
     protected:
@@ -83,8 +82,8 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.12 $
+   * $Date: 2009/09/16 11:04:22 $
    */
 
   class DQMInstance
