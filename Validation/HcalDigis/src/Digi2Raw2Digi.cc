@@ -228,12 +228,12 @@ Digi2Raw2Digi::Digi2Raw2Digi(const edm::ParameterSet& iConfig)
 
 }
 
-
-Digi2Raw2Digi::~Digi2Raw2Digi() { 
-
+void Digi2Raw2Digi::beginJob() {}
+void Digi2Raw2Digi::endJob() {
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-
 }
+
+Digi2Raw2Digi::~Digi2Raw2Digi() {}
 
 
 void Digi2Raw2Digi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)

@@ -15,6 +15,7 @@
 
 class HcalDigiTester : public edm::EDAnalyzer {
 public:
+
   explicit HcalDigiTester(const edm::ParameterSet&);
   ~HcalDigiTester();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);

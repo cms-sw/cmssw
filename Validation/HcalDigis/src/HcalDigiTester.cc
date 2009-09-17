@@ -509,9 +509,7 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
 }
    
 
-HcalDigiTester::~HcalDigiTester() { 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
+HcalDigiTester::~HcalDigiTester() { }
 
 
 void HcalDigiTester::endJob() {
@@ -531,6 +529,8 @@ void HcalDigiTester::endJob() {
    else  // one of subsystem only
     eval_occupancy();
  }
+
+  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
 }
 

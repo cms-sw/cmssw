@@ -16,7 +16,9 @@ public:
   explicit Digi2Raw2Digi(const edm::ParameterSet&);
   ~Digi2Raw2Digi();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  template<class Digi>  void compare(const edm::Event&, const edm::EventSetup&);
+  template<class Digi>  void compare(const edm::Event&, const edm::EventSetup&);  virtual void beginJob() ;
+  virtual void endJob() ;
+
  private:
 
   edm::InputTag inputTag1_;
