@@ -2002,9 +2002,9 @@ void OHltTree::ApplyL1Prescales(OHltMenu *menu, OHltConfig *cfg, OHltRateCounter
   for (unsigned int i=0;i<tt;i++) {
     st = menu->GetL1TriggerName(i);
     if (map_BitOfStandardHLTPath.find(st)->second == 1) {
-      if (prescaleResponseL1(menu,cfg,rc,i)) {
-	map_BitOfStandardHLTPath[st] = 1;	
-      }
+      if (!prescaleResponseL1(menu,cfg,rc,i)) {
+	map_BitOfStandardHLTPath[st] = 0;	
+      } 
     }
   }
 }
