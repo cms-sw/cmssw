@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.23 2009/08/26 18:59:20 amraktad Exp $
+// $Id: CSGAction.cc,v 1.24 2009/08/27 18:54:09 amraktad Exp $
 //
 
 // system include files
@@ -220,7 +220,7 @@ Bool_t CSGAction::resizeMenuEntry() {
       widthChanged = kFALSE;
       realName += " ";
    }
-   realName += "     ";
+   realName += "\t";
    realName += scText;
    TIter next(m_menu->GetListOfEntries());
    TGMenuEntry *current;
