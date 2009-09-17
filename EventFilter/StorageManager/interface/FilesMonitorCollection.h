@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.7 2009/09/16 13:29:50 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -22,8 +22,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.7 $
+   * $Date: 2009/09/16 13:29:50 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -38,7 +38,8 @@ namespace stor {
         stop,
         endOfLS,
         timeout,
-        size
+        size,
+        truncated
       };
 
       uint32_t          entryCounter;       // file counter
