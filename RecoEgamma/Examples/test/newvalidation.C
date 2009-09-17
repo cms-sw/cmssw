@@ -9,7 +9,12 @@ TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
 TString val_analyzer = gSystem->Getenv("VAL_ANALYZER") ;
 
 TString val_web = gSystem->Getenv("VAL_WEB") ;
+TString val_web_sub_dir = gSystem->Getenv("VAL_WEB_SUB_DIR") ;
 TString val_web_url = gSystem->Getenv("VAL_WEB_URL") ;
+
+std::string val_web_path = val_web+"/"+val_new_release+"/vs"+val_ref_release+"/"+val_web_sub_dir ;
+std::string histos_path = val_web_path+"/histos.txt" ;
+std::string index_path = val_web_path+"/index.html" ;
 
 // style:
 TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
@@ -82,7 +87,7 @@ TCanvas * canvas ;
 TH1 * histo_old, * histo_new ;
 Double_t nold, nnew ;
 
-std::ofstream web_page("index.html") ;
+std::ofstream web_page(index_path.c_str()) ;
 
 web_page
   <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n"
@@ -97,7 +102,7 @@ web_page<<"<p>" ;
 if (file_old==0)
  {
   web_page
-	 <<"In all plots below"
+	 <<"In all TOTO plots below"
 	 <<", there was no "<<val_ref_release<<" histograms to compare with"
      <<", and the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
 	 <<"." ;
@@ -132,7 +137,7 @@ int scaled, log, err ;
 int divide;
 std::string num, denom;
 
-std::ifstream histo_file1("histos.txt") ;
+std::ifstream histo_file1(histos_path.c_str()) ;
 web_page<<"<br><hr><table cellpadding=\"5\" width=\"100%\"><tr valign=\"top\"><td width=\"20%\">\n" ;
 int histo_num = 0 ;
 while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
@@ -147,14 +152,14 @@ while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
 web_page<<"</td></tr></table><hr>\n" ;
 histo_file1.close() ;
 
-std::ifstream histo_file2("histos.txt") ;
+std::ifstream histo_file2(histos_path.c_str()) ;
 std::string gif_name, canvas_name ;
 int scaled, log, err ;
 int divide;
 std::string num, denom;
 while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
  {
-  gif_name = std::string("gifs/")+histo_name+".gif" ;
+  gif_name = val_web_path+"/gifs/"+histo_name+".gif" ;
   canvas_name = std::string("c")+histo_name ;
   canvas = new TCanvas(canvas_name.c_str()) ;
   canvas->SetFillColor(10) ;
@@ -193,6 +198,7 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
      }
    }
 
+  gErrorIgnoreLevel = kWarning ;
   histo_new = (TH1 *)file_new->Get(histo_name.c_str()) ;
   if (histo_new!=0)
    {

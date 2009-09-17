@@ -90,7 +90,7 @@ if ( "${VAL_NEW_FILE}" != "" && ! -r "${VAL_NEW_FILE}" ) then
 endif
 
 if (! -d $VAL_WEB/$VAL_NEW_RELEASE/data) then
-  mkdir data
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/data
 endif
 
 echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
@@ -113,7 +113,7 @@ endif
 
 #============== Find reference data file (eventually the freshly copied new data) ==================
 
-if (! -d "cd $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}") then
+if (! -d "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}") then
   mkdir "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}"
 endif
 
@@ -121,20 +121,35 @@ echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
 
 if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 
+setenv REF_ALREADY_STORED ""
+
 if ( ${VAL_REF_FILE} == "" ) then
-  if ( -e "${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
     setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
+	setenv REF_ALREADY_STORED "yes"
   endif
 endif
 
 if ( ${VAL_REF_FILE} == "" ) then
-  if ( -e "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}" ) then
+  if ( -r "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}" ) then
     setenv VAL_REF_FILE ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.oref.${VAL_OUTPUT_FILE}
   endif
 endif
  
 echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
+if ( "${VAL_REF_FILE}" != "" && "${REF_ALREADY_STORED}" == "" ) then
+
+  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data ) then
+    mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
+  endif
+
+  cp -f $VAL_REF_FILE $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
+  setenv VAL_REF_FILE "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data/${VAL_REF_FILE:t}"
+  echo "VAL_REF_FILE = ${VAL_REF_FILE}"
+
+endif
+ 
  
 #============== Prepare sample/cond subdirectory ==================
 
@@ -150,20 +165,17 @@ if ( ${VAL_WEB_SUB_DIR} == "" ) then
   endif
 endif
 
-if (! -d ${VAL_WEB_SUB_DIR}) then
-  mkdir ${VAL_WEB_SUB_DIR}
-endif
-
 echo "VAL_WEB_SUB_DIR = ${VAL_WEB_SUB_DIR}"
-cd ${VAL_WEB_SUB_DIR}
 
-cd $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}
-
-if (! -d gifs) then
-  mkdir gifs
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
 endif
 
-cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C .
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs
+endif
+
+#cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
 
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise
@@ -172,7 +184,7 @@ cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C .
 
 if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
-cat >! histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_charge 1 0 1 0 0 0 
 h_ele_vertexX 1 0 1 0 0 0
 h_ele_vertexY 1	0 1 0 0 0	
@@ -255,7 +267,7 @@ h_ele_mee_all 1 1 1 0 0 0
 h_ele_mee_os 1 1 1 0 0 0 
 EOF
 
-cat >> histos.txt <<EOF
+cat >> $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_absetaEff	0 0 1 1 h_ele_simAbsEta_matched h_mc_abseta
 h_ele_etaEff 0 0 1 1 h_ele_simEta_matched h_mc_eta
 h_ele_ptEff 0 0 1 1 h_ele_simPt_matched h_mc_Pt
@@ -294,7 +306,7 @@ EOF
 
 else if ($VAL_ANALYZER == GsfElectronDataAnalyzer ) then
 
-cat >! histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_charge 1 0 1 0 0 0
 h_ele_vertexX 1 0 1 0 0 0
 h_ele_vertexY 1 0 1 0 0 0
@@ -354,7 +366,7 @@ h_ele_mee 1 1 1 0 0 0
 h_ele_mee_os 1 1 1 0 0 0
 EOF
 
-cat >> histos.txt <<EOF
+cat >> $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_absetaEff	0 0 1 1 h_ele_matchingObjectAbsEta_matched h_SC_abseta
 h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_SC_eta
 h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_SC_Pt
@@ -386,7 +398,7 @@ EOF
 
 else if ($VAL_ANALYZER == GsfElectronFakeAnalyzer ) then
 
-cat >! histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_charge 1 0 1 0 0 0
 h_ele_vertexX 1	0 1 0 0 0
 h_ele_vertexY 1	0 1 0 0 0
@@ -446,7 +458,7 @@ h_ele_mee_all 1	0 1 0 0 0
 h_ele_mee_os 1	0 1 0 0 0
 EOF
 
-cat >> histos.txt <<EOF
+cat >> $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_CaloJet_abseta
 h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_CaloJet_eta
 h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_CaloJet_Pt
@@ -475,7 +487,7 @@ EOF
 
 else if ( $VAL_ANALYZER == SimplePhotonAnalyzer ) then
 
-cat >! histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 scE 1 0 0
 scEt 1 0 0
 scEta 1 0 0
@@ -501,7 +513,7 @@ EOF
 
 else if ( $VAL_ANALYZER == SimpleConvertedPhotonAnalyzer ) then
 
-cat >! histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 deltaE 1 0 0
 deltaPhi 1 0 0
 deltaEta 1 0 0
