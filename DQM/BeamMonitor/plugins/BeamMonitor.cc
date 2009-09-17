@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2009/08/25 21:46:56 $
- * $Revision: 1.1 $
+ * $Date: 2009/08/26 04:02:56 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -74,11 +74,11 @@ void BeamMonitor::beginJob(const EventSetup& context){
   h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of input tracks vs lumi",20,0.5,10.5);
   h_nTrk_lumi->setAxisTitle("Lumisection",1);
   h_nTrk_lumi->setAxisTitle("Num of Tracks",2);
- 
+  
   h_d0_phi0 = dbe_->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Input Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
- 
+  
   h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of input tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
   h_vx_vy->getTH2F()->SetOption("COLZ");
   //   h_vx_vy->getTH1()->SetBit(TH1::kCanRebin);
@@ -140,14 +140,14 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
        ++BSTrk, ++i){
     if (i >= nthBSTrk_){
       h_d0_phi0->Fill( BSTrk->phi0(), BSTrk->d0() );
-      double vx = BSTrk->d0()*sin(BSTrk->phi0());
-      double vy = -1.*BSTrk->d0()*cos(BSTrk->phi0());
+      double vx = BSTrk->vx();
+      double vy = BSTrk->vy();
       h_vx_vy->Fill( vx, vy );
     }
   }
   nthBSTrk_ = theBSvector.size();
   if (debug_) cout << "Num of tracks collected = " << nthBSTrk_ << endl;
-
+  
   if (theBeamFitter->runFitter()){
     reco::BeamSpot bs = theBeamFitter->getBeamSpot();
     if (debug_) {
@@ -158,6 +158,18 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg,
     h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
     h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );
   }
+  else { // Fill in empty beam spot if beamfit fails
+    reco::BeamSpot bs;
+    bs.setType(reco::BeamSpot::Fake);
+    if (debug_) {
+      cout << "\n Empty Beam:" << endl;
+      cout << bs << endl;
+      cout << "[BeamFitter] No fitting \n" << endl;      
+    }
+    h_x0_lumi->ShiftFillLast( bs.x0(), bs.x0Error(), fitNLumi_ );
+    h_y0_lumi->ShiftFillLast( bs.y0(), bs.y0Error(), fitNLumi_ );    
+  }
+
   if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {
     if (debug_) cout << "Reset track collection for beam fit!!!" <<endl;
     resetHistos_ = true;
