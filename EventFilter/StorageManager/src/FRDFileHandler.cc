@@ -1,7 +1,8 @@
-// $Id: FRDFileHandler.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
+// $Id: FRDFileHandler.cc,v 1.6 2009/09/16 13:46:00 mommsen Exp $
 /// @file: FRDFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/FRDFileHandler.h>
+#include <EventFilter/StorageManager/interface/Exception.h>
 #include <EventFilter/StorageManager/interface/I2OChain.h>
 #include <IOPool/Streamer/interface/FRDEventMessage.h>
 
@@ -19,12 +20,6 @@ FRDFileHandler::FRDFileHandler
 FileHandler(fileRecord, dwParams, maxFileSize),
 _writer(fileRecord->completeFileName()+".dat")
 {}
-
-
-FRDFileHandler::~FRDFileHandler()
-{
-  closeFile();
-}
 
 
 void FRDFileHandler::writeEvent(const I2OChain& chain)
@@ -47,7 +42,7 @@ bool FRDFileHandler::tooOld(const utils::time_point_t currentTime)
   if (_diskWritingParams._errorEventsTimeOut > 0 &&
     (currentTime - _lastEntry) > _diskWritingParams._errorEventsTimeOut)
   {
-    _closingReason = FilesMonitorCollection::FileRecord::timeout;
+    closeFile(FilesMonitorCollection::FileRecord::timeout);
     return true;
   }
   else
@@ -57,10 +52,10 @@ bool FRDFileHandler::tooOld(const utils::time_point_t currentTime)
 }
 
 
-void FRDFileHandler::closeFile()
+void FRDFileHandler::closeFile(const FilesMonitorCollection::FileRecord::ClosingReason& reason)
 {
   _writer.stop();
-  moveFileToClosed(false);
+  moveFileToClosed(false, reason);
   writeToSummaryCatalog();
   updateDatabase();
 }

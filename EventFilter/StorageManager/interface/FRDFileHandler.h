@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.5 2009/09/16 13:30:47 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef StorageManager_FRDFileHandler_h
@@ -14,8 +14,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/16 13:30:47 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -28,8 +28,6 @@ namespace stor {
       const long long& maxFileSize
     );
     
-    virtual ~FRDFileHandler();
-        
     /**
      * Write the event contained in the I2OChain
      */
@@ -46,13 +44,12 @@ namespace stor {
     virtual bool isFromLumiSection(const uint32_t lumiSection)
     { return false; }
 
-   
-  private:
-    
     /**
      * Close the file
      */
-    virtual void closeFile();
+    virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&);
+    
+  private:
     
     FRDEventFileWriter _writer;
   };

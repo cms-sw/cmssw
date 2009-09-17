@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.5 2009/08/28 16:41:49 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.6 $
+   * $Date: 2009/09/16 13:30:47 $
    */
   
   class EventFileHandler : public FileHandler
@@ -34,8 +34,6 @@ namespace stor {
       const long long& maxFileSize
     );
 
-    virtual ~EventFileHandler();
-        
     /**
      * Write the event contained in the I2OChain
      */
@@ -51,14 +49,14 @@ namespace stor {
      */
     virtual bool isFromLumiSection(const uint32_t lumiSection);
 
-
-  private:
-    
     /**
      * Close the file
      */
-    virtual void closeFile();
+    virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&);
 
+
+  private:
+    
     /**
      * Write the init message to the head of the file
      */

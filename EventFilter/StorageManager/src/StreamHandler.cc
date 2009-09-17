@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.7 2009/08/28 16:41:27 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.8 2009/09/16 13:46:00 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -21,14 +21,10 @@ _diskWritingParams(sharedResources->_configuration->getDiskWritingParams())
 {}
 
 
-StreamHandler::~StreamHandler()
-{
-  closeAllFiles();
-}
-
-
 void StreamHandler::closeAllFiles()
 {
+  std::for_each(_fileHandlers.begin(), _fileHandlers.end(),
+    boost::bind(&FileHandler::closeFile, _1, FilesMonitorCollection::FileRecord::stop));
   _fileHandlers.clear();
 }
 

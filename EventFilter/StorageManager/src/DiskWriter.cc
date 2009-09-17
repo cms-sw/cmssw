@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.8 2009/09/16 13:32:09 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -34,6 +34,9 @@ DiskWriter::~DiskWriter()
 
   // Cancel the workloop (will wait until the action has finished)
   _writingWL->cancel();
+
+  // Destroy any remaining streams. Under normal conditions, there should be none
+  destroyStreams(); 
 }
 
 
@@ -210,7 +213,7 @@ void DiskWriter::checkForFileTimeOuts(const bool doItNow)
 void DiskWriter::closeFilesForOldLumiSections()
 {
   uint32_t lumiSection;
-  while (_sharedResources->_diskWriterResources->
+  if (_sharedResources->_diskWriterResources->
     lumiSectionClosureRequested(lumiSection))
   {
     closeFilesForLumiSection(lumiSection);
@@ -220,27 +223,15 @@ void DiskWriter::closeFilesForOldLumiSections()
 
 void DiskWriter::closeFilesForLumiSection(const uint32_t lumiSection)
 {
-  for (
-    StreamHandlers::iterator it = _streamHandlers.begin(), itEnd = _streamHandlers.end();
-    it != itEnd;
-    ++it
-  )
-  {
-    (*it)->closeFilesForLumiSection(lumiSection);
-  }
+  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
+    boost::bind(&StreamHandler::closeFilesForLumiSection, _1, lumiSection));
 }
 
 
 void DiskWriter::closeTimedOutFiles(const utils::time_point_t now)
 {
-  for (
-    StreamHandlers::iterator it = _streamHandlers.begin(), itEnd = _streamHandlers.end();
-    it != itEnd;
-    ++it
-  )
-  {
-    (*it)->closeTimedOutFiles(now);
-  }
+  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
+    boost::bind(&StreamHandler::closeTimedOutFiles, _1, now));
 }
 
 
@@ -294,6 +285,8 @@ void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
 
 void DiskWriter::destroyStreams()
 {
+  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
+    boost::bind(&StreamHandler::closeAllFiles, _1));
   _streamHandlers.clear();
 }
 
