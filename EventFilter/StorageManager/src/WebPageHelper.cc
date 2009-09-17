@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.29 2009/09/16 16:12:54 biery Exp $
+// $Id: WebPageHelper.cc,v 1.30 2009/09/16 16:59:09 biery Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -259,7 +259,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate, "Served Event Rate" );
+    maker.addText( cs_th_served_rate, "Served Event Rate, 1/s" );
 
     XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_queued_recent, "Events Enqueued" );
@@ -268,7 +268,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served_recent, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate_recent, "Served Event Rate" );
+    maker.addText( cs_th_served_rate_recent, "Served Event Rate, 1/s" );
 
     boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
     RegistrationCollection::ConsumerRegistrations regs;
@@ -361,8 +361,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_policy, policy_oss.str() );
 
         // Queue size:
+        std::ostringstream qsize_oss;
+        qsize_oss << (*it)->queueSize();
         XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_q_size, (*it)->queueSize() );
+        maker.addText( cs_td_q_size, qsize_oss.str() );
 
         // Events in queue:
         std::ostringstream in_q_oss;
@@ -510,7 +512,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate, "Served Event Rate" );
+    maker.addText( cs_th_served_rate, "Served Event Rate, 1/s" );
 
     XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_queued_recent, "Events Enqueued" );
@@ -519,7 +521,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served_recent, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate_recent, "Served Event Rate" );
+    maker.addText( cs_th_served_rate_recent, "Served Event Rate, 1/s" );
 
     boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
     RegistrationCollection::DQMConsumerRegistrations regs;
@@ -597,8 +599,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_policy, policy_oss.str() );
 
         // Queue size:
+        std::ostringstream qsize_oss;
+        qsize_oss << (*it)->queueSize();
         XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_q_size, (*it)->queueSize() );
+        maker.addText( cs_td_q_size, qsize_oss.str() );
 
         // Events in queue:
         std::ostringstream in_q_oss;
