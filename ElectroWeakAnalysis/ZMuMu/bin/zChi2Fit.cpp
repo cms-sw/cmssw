@@ -395,7 +395,7 @@ if (region=="barrend"){
       }
     }
   }
-  catch(exception& e) {
+  catch(std::exception& e) {
     cerr << "error: " << e.what() << "\n";
     return 1;
   }
