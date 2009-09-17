@@ -26,7 +26,7 @@ FUShmRecoCell::FUShmRecoCell(unsigned int payloadSize)
   : payloadSize_(payloadSize)
 {
   payloadOffset_=sizeof(FUShmRecoCell);
-  void* payloadAddr=(void*)((unsigned int)this+payloadOffset_);
+  void* payloadAddr=(void*)((unsigned long)this+payloadOffset_);
   new (payloadAddr) unsigned char[payloadSize_];
 }
 
@@ -53,7 +53,7 @@ void FUShmRecoCell::initialize(unsigned int index)
 //______________________________________________________________________________
 unsigned char* FUShmRecoCell::payloadAddr() const
 {
-  unsigned char* result=(unsigned char*)((unsigned int)this+payloadOffset_);
+  unsigned char* result=(unsigned char*)((unsigned long)this+payloadOffset_);
   return result;
 }
 

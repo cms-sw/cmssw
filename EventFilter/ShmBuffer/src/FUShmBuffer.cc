@@ -64,55 +64,55 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
   void* addr;
   
   rawWriteOffset_=sizeof(FUShmBuffer);
-  addr=(void*)((unsigned int)this+rawWriteOffset_);
+  addr=(void*)((unsigned long)this+rawWriteOffset_);
   new (addr) unsigned int[nRawCells_];
   
   rawReadOffset_=rawWriteOffset_+nRawCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+rawReadOffset_);
+  addr=(void*)((unsigned long)this+rawReadOffset_);
   new (addr) unsigned int[nRawCells_];
  
   recoWriteOffset_=rawReadOffset_+nRawCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+recoWriteOffset_);
+  addr=(void*)((unsigned long)this+recoWriteOffset_);
   new (addr) unsigned int[nRecoCells_];
 
   recoReadOffset_=recoWriteOffset_+nRecoCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+recoReadOffset_);
+  addr=(void*)((unsigned long)this+recoReadOffset_);
   new (addr) unsigned int[nRecoCells_];
 
   dqmWriteOffset_=recoReadOffset_+nRecoCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+dqmWriteOffset_);
+  addr=(void*)((unsigned long)this+dqmWriteOffset_);
   new (addr) unsigned int[nDqmCells_];
 
   dqmReadOffset_=dqmWriteOffset_+nDqmCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+dqmReadOffset_);
+  addr=(void*)((unsigned long)this+dqmReadOffset_);
   new (addr) unsigned int[nDqmCells_];
 
   evtStateOffset_=dqmReadOffset_+nDqmCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+evtStateOffset_);
+  addr=(void*)((unsigned long)this+evtStateOffset_);
   new (addr) evt::State_t[nRawCells_];
   
   evtDiscardOffset_=evtStateOffset_+nRawCells_*sizeof(evt::State_t);
-  addr=(void*)((unsigned int)this+evtDiscardOffset_);
+  addr=(void*)((unsigned long)this+evtDiscardOffset_);
   new (addr) unsigned int[nRawCells_];
   
   evtNumberOffset_=evtDiscardOffset_+nRawCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+evtNumberOffset_);
+  addr=(void*)((unsigned long)this+evtNumberOffset_);
   new (addr) unsigned int[nRawCells_];
   
   evtPrcIdOffset_=evtNumberOffset_+nRawCells_*sizeof(unsigned int);
-  addr=(void*)((unsigned int)this+evtPrcIdOffset_);
+  addr=(void*)((unsigned long)this+evtPrcIdOffset_);
   new (addr) pid_t[nRawCells_];
   
   evtTimeStampOffset_=evtPrcIdOffset_+nRawCells_*sizeof(pid_t);
-  addr=(void*)((unsigned int)this+evtTimeStampOffset_);
+  addr=(void*)((unsigned long)this+evtTimeStampOffset_);
   new (addr) time_t[nRawCells_];
   
   dqmStateOffset_=evtTimeStampOffset_+nRawCells_*sizeof(time_t);
-  addr=(void*)((unsigned int)this+dqmStateOffset_);
+  addr=(void*)((unsigned long)this+dqmStateOffset_);
   new (addr) dqm::State_t[nDqmCells_];
   
   clientPrcIdOffset_=dqmStateOffset_+nDqmCells_*sizeof(dqm::State_t);
-  addr=(void*)((unsigned int)this+clientPrcIdOffset_);
+  addr=(void*)((unsigned long)this+clientPrcIdOffset_);
   new (addr) pid_t[nClientsMax_];
 
   rawCellOffset_=dqmStateOffset_+nClientsMax_*sizeof(pid_t);
@@ -120,26 +120,26 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
   if (segmentationMode_) {
     recoCellOffset_=rawCellOffset_+nRawCells_*sizeof(key_t);
     dqmCellOffset_ =recoCellOffset_+nRecoCells_*sizeof(key_t);
-    addr=(void*)((unsigned int)this+rawCellOffset_);
+    addr=(void*)((unsigned long)this+rawCellOffset_);
     new (addr) key_t[nRawCells_];
-    addr=(void*)((unsigned int)this+recoCellOffset_);
+    addr=(void*)((unsigned long)this+recoCellOffset_);
     new (addr) key_t[nRecoCells_];
-    addr=(void*)((unsigned int)this+dqmCellOffset_);
+    addr=(void*)((unsigned long)this+dqmCellOffset_);
     new (addr) key_t[nDqmCells_];
   }
   else {
     recoCellOffset_=rawCellOffset_+nRawCells_*rawCellTotalSize_;
     dqmCellOffset_ =recoCellOffset_+nRecoCells_*recoCellTotalSize_;
     for (unsigned int i=0;i<nRawCells_;i++) {
-      addr=(void*)((unsigned int)this+rawCellOffset_+i*rawCellTotalSize_);
+      addr=(void*)((unsigned long)this+rawCellOffset_+i*rawCellTotalSize_);
       new (addr) FUShmRawCell(rawCellSize);
     }
     for (unsigned int i=0;i<nRecoCells_;i++) {
-      addr=(void*)((unsigned int)this+recoCellOffset_+i*recoCellTotalSize_);
+      addr=(void*)((unsigned long)this+recoCellOffset_+i*recoCellTotalSize_);
       new (addr) FUShmRecoCell(recoCellSize);
     }
     for (unsigned int i=0;i<nDqmCells_;i++) {
-      addr=(void*)((unsigned int)this+dqmCellOffset_+i*dqmCellTotalSize_);
+      addr=(void*)((unsigned long)this+dqmCellOffset_+i*dqmCellTotalSize_);
       new (addr) FUShmDqmCell(dqmCellSize);
     }
   }
@@ -165,7 +165,7 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
   
   if (segmentationMode_) {
     int    shmKeyId=666;
-    key_t* keyAddr =(key_t*)((unsigned int)this+rawCellOffset_);
+    key_t* keyAddr =(key_t*)((unsigned long)this+rawCellOffset_);
     for (unsigned int i=0;i<nRawCells_;i++) {
       *keyAddr     =ftok(shmKeyPath_,shmKeyId++);
       int   shmid  =shm_create(*keyAddr,rawCellTotalSize_);
@@ -174,7 +174,7 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
       shmdt(shmAddr);
       ++keyAddr;
     }
-    keyAddr =(key_t*)((unsigned int)this+recoCellOffset_);
+    keyAddr =(key_t*)((unsigned long)this+recoCellOffset_);
     for (unsigned int i=0;i<nRecoCells_;i++) {
       *keyAddr     =ftok(shmKeyPath_,shmKeyId++);
       int   shmid  =shm_create(*keyAddr,recoCellTotalSize_);
@@ -183,7 +183,7 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
       shmdt(shmAddr);
       ++keyAddr;
     }
-    keyAddr =(key_t*)((unsigned int)this+dqmCellOffset_);
+    keyAddr =(key_t*)((unsigned long)this+dqmCellOffset_);
     for (unsigned int i=0;i<nDqmCells_;i++) {
       *keyAddr     =ftok(shmKeyPath_,shmKeyId++);
       int   shmid  =shm_create(*keyAddr,dqmCellTotalSize_);
@@ -237,18 +237,18 @@ void FUShmBuffer::reset()
   unsigned int *iWrite,*iRead;
   
   rawWriteNext_=0; rawWriteLast_=0; rawReadNext_ =0; rawReadLast_ =0;
-  iWrite=(unsigned int*)((unsigned int)this+rawWriteOffset_);
-  iRead =(unsigned int*)((unsigned int)this+rawReadOffset_);
+  iWrite=(unsigned int*)((unsigned long)this+rawWriteOffset_);
+  iRead =(unsigned int*)((unsigned long)this+rawReadOffset_);
   for (unsigned int i=0;i<nRawCells_;i++) { *iWrite++=i; *iRead++ =0xffffffff; }
 
   recoWriteNext_=0; recoWriteLast_=0; recoReadNext_ =0; recoReadLast_ =0;
-  iWrite=(unsigned int*)((unsigned int)this+recoWriteOffset_);
-  iRead =(unsigned int*)((unsigned int)this+recoReadOffset_);
+  iWrite=(unsigned int*)((unsigned long)this+recoWriteOffset_);
+  iRead =(unsigned int*)((unsigned long)this+recoReadOffset_);
   for (unsigned int i=0;i<nRecoCells_;i++) { *iWrite++=i; *iRead++ =0xffffffff; }
 
   dqmWriteNext_=0; dqmWriteLast_=0; dqmReadNext_ =0; dqmReadLast_ =0;
-  iWrite=(unsigned int*)((unsigned int)this+dqmWriteOffset_);
-  iRead =(unsigned int*)((unsigned int)this+dqmReadOffset_);
+  iWrite=(unsigned int*)((unsigned long)this+dqmWriteOffset_);
+  iRead =(unsigned int*)((unsigned long)this+dqmReadOffset_);
   for (unsigned int i=0;i<nDqmCells_;i++) { *iWrite++=i; *iRead++ =0xffffffff; }
   
   for (unsigned int i=0;i<nRawCells_;i++) {
@@ -1094,7 +1094,7 @@ unsigned int FUShmBuffer::nextIndex(unsigned int  offset,
 				    unsigned int& iNext)
 {
   lock();
-  unsigned int* pindex=(unsigned int*)((unsigned int)this+offset);
+  unsigned int* pindex=(unsigned int*)((unsigned long)this+offset);
   pindex+=iNext;
   iNext=(iNext+1)%nCells;
   unsigned int result=*pindex;
@@ -1110,7 +1110,7 @@ void FUShmBuffer::postIndex(unsigned int  index,
 			    unsigned int& iLast)
 {
   lock();
-  unsigned int* pindex=(unsigned int*)((unsigned int)this+offset);
+  unsigned int* pindex=(unsigned int*)((unsigned long)this+offset);
   pindex+=iLast;
   *pindex=index;
   iLast=(iLast+1)%nCells;
@@ -1205,7 +1205,7 @@ void FUShmBuffer::postDqmIndexToRead(unsigned int index)
 //______________________________________________________________________________
 unsigned int FUShmBuffer::indexForEvtNumber(unsigned int evtNumber)
 {
-  unsigned int *pevt=(unsigned int*)((unsigned int)this+evtNumberOffset_);
+  unsigned int *pevt=(unsigned int*)((unsigned long)this+evtNumberOffset_);
   for (unsigned int i=0;i<nRawCells_;i++) {
     if ((*pevt++)==evtNumber) return i;
   }
@@ -1218,7 +1218,7 @@ unsigned int FUShmBuffer::indexForEvtNumber(unsigned int evtNumber)
 evt::State_t FUShmBuffer::evtState(unsigned int index)
 {
   assert(index<nRawCells_);
-  evt::State_t *pstate=(evt::State_t*)((unsigned int)this+evtStateOffset_);
+  evt::State_t *pstate=(evt::State_t*)((unsigned long)this+evtStateOffset_);
   pstate+=index;
   return *pstate;
 }
@@ -1228,7 +1228,7 @@ evt::State_t FUShmBuffer::evtState(unsigned int index)
 dqm::State_t FUShmBuffer::dqmState(unsigned int index)
 {
   assert(index<nDqmCells_);
-  dqm::State_t *pstate=(dqm::State_t*)((unsigned int)this+dqmStateOffset_);
+  dqm::State_t *pstate=(dqm::State_t*)((unsigned long)this+dqmStateOffset_);
   pstate+=index;
   return *pstate;
 }
@@ -1238,7 +1238,7 @@ dqm::State_t FUShmBuffer::dqmState(unsigned int index)
 unsigned int FUShmBuffer::evtNumber(unsigned int index)
 {
   assert(index<nRawCells_);
-  unsigned int *pevt=(unsigned int*)((unsigned int)this+evtNumberOffset_);
+  unsigned int *pevt=(unsigned int*)((unsigned long)this+evtNumberOffset_);
   pevt+=index;
   return *pevt;
 }
@@ -1248,7 +1248,7 @@ unsigned int FUShmBuffer::evtNumber(unsigned int index)
 pid_t FUShmBuffer::evtPrcId(unsigned int index)
 {
   assert(index<nRawCells_);
-  pid_t *prcid=(pid_t*)((unsigned int)this+evtPrcIdOffset_);
+  pid_t *prcid=(pid_t*)((unsigned long)this+evtPrcIdOffset_);
   prcid+=index;
   return *prcid;
 }
@@ -1258,7 +1258,7 @@ pid_t FUShmBuffer::evtPrcId(unsigned int index)
 time_t FUShmBuffer::evtTimeStamp(unsigned int index)
 {
   assert(index<nRawCells_);
-  time_t *ptstmp=(time_t*)((unsigned int)this+evtTimeStampOffset_);
+  time_t *ptstmp=(time_t*)((unsigned long)this+evtTimeStampOffset_);
   ptstmp+=index;
   return *ptstmp;
 }
@@ -1268,7 +1268,7 @@ time_t FUShmBuffer::evtTimeStamp(unsigned int index)
 pid_t FUShmBuffer::clientPrcId(unsigned int index)
 {
   assert(index<nClientsMax_);
-  pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+  pid_t *prcid=(pid_t*)((unsigned long)this+clientPrcIdOffset_);
   prcid+=index;
   return *prcid;
 }
@@ -1278,7 +1278,7 @@ pid_t FUShmBuffer::clientPrcId(unsigned int index)
 bool FUShmBuffer::setEvtState(unsigned int index,evt::State_t state)
 {
   assert(index<nRawCells_);
-  evt::State_t *pstate=(evt::State_t*)((unsigned int)this+evtStateOffset_);
+  evt::State_t *pstate=(evt::State_t*)((unsigned long)this+evtStateOffset_);
   pstate+=index;
   lock();
   *pstate=state;
@@ -1291,7 +1291,7 @@ bool FUShmBuffer::setEvtState(unsigned int index,evt::State_t state)
 bool FUShmBuffer::setDqmState(unsigned int index,dqm::State_t state)
 {
   assert(index<nDqmCells_);
-  dqm::State_t *pstate=(dqm::State_t*)((unsigned int)this+dqmStateOffset_);
+  dqm::State_t *pstate=(dqm::State_t*)((unsigned long)this+dqmStateOffset_);
   pstate+=index;
   lock();
   *pstate=state;
@@ -1304,7 +1304,7 @@ bool FUShmBuffer::setDqmState(unsigned int index,dqm::State_t state)
 bool FUShmBuffer::setEvtDiscard(unsigned int index,unsigned int discard)
 {
   assert(index<nRawCells_);
-  unsigned int *pcount=(unsigned int*)((unsigned int)this+evtDiscardOffset_);
+  unsigned int *pcount=(unsigned int*)((unsigned long)this+evtDiscardOffset_);
   pcount+=index;
   lock();
   *pcount=discard;
@@ -1318,7 +1318,7 @@ int FUShmBuffer::incEvtDiscard(unsigned int index)
 {
   int result = 0;
   assert(index<nRawCells_);
-  unsigned int *pcount=(unsigned int*)((unsigned int)this+evtDiscardOffset_);
+  unsigned int *pcount=(unsigned int*)((unsigned long)this+evtDiscardOffset_);
   pcount+=index;
   lock();
   (*pcount)++;
@@ -1332,7 +1332,7 @@ int FUShmBuffer::incEvtDiscard(unsigned int index)
 bool FUShmBuffer::setEvtNumber(unsigned int index,unsigned int evtNumber)
 {
   assert(index<nRawCells_);
-  unsigned int *pevt=(unsigned int*)((unsigned int)this+evtNumberOffset_);
+  unsigned int *pevt=(unsigned int*)((unsigned long)this+evtNumberOffset_);
   pevt+=index;
   lock();
   *pevt=evtNumber;
@@ -1345,7 +1345,7 @@ bool FUShmBuffer::setEvtNumber(unsigned int index,unsigned int evtNumber)
 bool FUShmBuffer::setEvtPrcId(unsigned int index,pid_t prcId)
 {
   assert(index<nRawCells_);
-  pid_t* prcid=(pid_t*)((unsigned int)this+evtPrcIdOffset_);
+  pid_t* prcid=(pid_t*)((unsigned long)this+evtPrcIdOffset_);
   prcid+=index;
   lock();
   *prcid=prcId;
@@ -1358,7 +1358,7 @@ bool FUShmBuffer::setEvtPrcId(unsigned int index,pid_t prcId)
 bool FUShmBuffer::setEvtTimeStamp(unsigned int index,time_t timeStamp)
 {
   assert(index<nRawCells_);
-  time_t *ptstmp=(time_t*)((unsigned int)this+evtTimeStampOffset_);
+  time_t *ptstmp=(time_t*)((unsigned long)this+evtTimeStampOffset_);
   ptstmp+=index;
   lock();
   *ptstmp=timeStamp;
@@ -1372,7 +1372,7 @@ bool FUShmBuffer::setClientPrcId(pid_t prcId)
 {
   lock();
   assert(nClients_<nClientsMax_);
-  pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+  pid_t *prcid=(pid_t*)((unsigned long)this+clientPrcIdOffset_);
   for (unsigned int i=0;i<nClients_;i++) {
     if ((*prcid)==prcId) { unlock();  return false; }
     prcid++;
@@ -1388,7 +1388,7 @@ bool FUShmBuffer::setClientPrcId(pid_t prcId)
 bool FUShmBuffer::removeClientPrcId(pid_t prcId)
 {
   lock();
-  pid_t *prcid=(pid_t*)((unsigned int)this+clientPrcIdOffset_);
+  pid_t *prcid=(pid_t*)((unsigned long)this+clientPrcIdOffset_);
   unsigned int iClient(0);
   while (iClient<=nClients_&&(*prcid)!=prcId) { prcid++; iClient++; }
   assert(iClient!=nClients_);
@@ -1419,7 +1419,7 @@ FUShmRawCell* FUShmBuffer::rawCell(unsigned int iCell)
   }
   else {
     result=
-      (FUShmRawCell*)((unsigned int)this+rawCellOffset_+iCell*rawCellTotalSize_);
+      (FUShmRawCell*)((unsigned long)this+rawCellOffset_+iCell*rawCellTotalSize_);
   }
   
   return result;
@@ -1445,7 +1445,7 @@ FUShmRecoCell* FUShmBuffer::recoCell(unsigned int iCell)
   }
   else {
     result=
-      (FUShmRecoCell*)((unsigned int)this+recoCellOffset_+iCell*recoCellTotalSize_);
+      (FUShmRecoCell*)((unsigned long)this+recoCellOffset_+iCell*recoCellTotalSize_);
   }
   
   return result;
@@ -1471,7 +1471,7 @@ FUShmDqmCell* FUShmBuffer::dqmCell(unsigned int iCell)
   }
   else {
     result=
-      (FUShmDqmCell*)((unsigned int)this+dqmCellOffset_+iCell*dqmCellTotalSize_);
+      (FUShmDqmCell*)((unsigned long)this+dqmCellOffset_+iCell*dqmCellTotalSize_);
   }
   
   return result;
@@ -1482,7 +1482,7 @@ FUShmDqmCell* FUShmBuffer::dqmCell(unsigned int iCell)
 bool FUShmBuffer::rawCellReadyForDiscard(unsigned int index)
 {
   assert(index<nRawCells_);
-  unsigned int *pcount=(unsigned int*)((unsigned int)this+evtDiscardOffset_);
+  unsigned int *pcount=(unsigned int*)((unsigned long)this+evtDiscardOffset_);
   pcount+=index;
   lock();
   assert(*pcount>0);
@@ -1500,7 +1500,7 @@ key_t FUShmBuffer::shmKey(unsigned int iCell,unsigned int offset)
     cout<<"FUShmBuffer::shmKey() ERROR: only valid in segmentationMode!"<<endl;
     return -1;
   }
-  key_t* addr=(key_t*)((unsigned int)this+offset);
+  key_t* addr=(key_t*)((unsigned long)this+offset);
   for (unsigned int i=0;i<iCell;i++) ++addr;
   return *addr;
 }

@@ -33,27 +33,27 @@ FUShmRawCell::FUShmRawCell(unsigned int payloadSize)
 {
   fedSizeOffset_=sizeof(FUShmRawCell);
   unsigned int* fedSizeAddr;
-  fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
+  fedSizeAddr=(unsigned int*)((unsigned long)this+fedSizeOffset_);
   new(fedSizeAddr) unsigned int[nFed_];
   
   fedOffset_=fedSizeOffset_+sizeof(unsigned int)*nFed_;
   unsigned int* fedAddr;
-  fedAddr=(unsigned int*)((unsigned int)this+fedOffset_);
+  fedAddr=(unsigned int*)((unsigned long)this+fedOffset_);
   new(fedAddr) unsigned int[nFed_];
   
   superFragSizeOffset_=fedOffset_+sizeof(unsigned int)*nFed_;
   unsigned int* superFragSizeAddr;
-  superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
+  superFragSizeAddr=(unsigned int*)((unsigned long)this+superFragSizeOffset_);
   new(superFragSizeAddr) unsigned int[nSuperFrag_];
   
   superFragOffset_=superFragSizeOffset_+sizeof(unsigned int)*nSuperFrag_;
   unsigned char* superFragAddr;
-  superFragAddr=(unsigned char*)((unsigned int)this+superFragOffset_);
+  superFragAddr=(unsigned char*)((unsigned long)this+superFragOffset_);
   new(superFragAddr) unsigned char[nSuperFrag_];
   
   payloadOffset_=superFragOffset_+sizeof(unsigned int)*nSuperFrag_;
   unsigned char* payloadAddr;
-  payloadAddr=(unsigned char*)((unsigned int)this+payloadOffset_);
+  payloadAddr=(unsigned char*)((unsigned long)this+payloadOffset_);
   new(payloadAddr) unsigned char[payloadSize_];
 }
 
@@ -81,7 +81,7 @@ unsigned int FUShmRawCell::fedSize(unsigned int i) const
 {
   if (i>=nFed()) {cout<<"invalid fed index '"<<i<<"'."<<endl; return 0; }
   unsigned int* fedSizeAddr;
-  fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
+  fedSizeAddr=(unsigned int*)((unsigned long)this+fedSizeOffset_);
   fedSizeAddr+=i;
   unsigned int result=*fedSizeAddr;
   return result;
@@ -93,10 +93,10 @@ unsigned char* FUShmRawCell::fedAddr(unsigned int i) const
 {
   if (i>=nFed()) {cout<<"invalid fed index '"<<i<<"'."<<endl; return 0; }
   unsigned int* fedOffsetAddr;
-  fedOffsetAddr=(unsigned int*)((unsigned int)this+fedOffset_);
+  fedOffsetAddr=(unsigned int*)((unsigned long)this+fedOffset_);
   fedOffsetAddr+=i;
   unsigned int   fedOffset=*fedOffsetAddr;
-  unsigned char* result=(unsigned char*)((unsigned int)payloadAddr()+fedOffset);
+  unsigned char* result=(unsigned char*)((unsigned long)payloadAddr()+fedOffset);
   return result;
 }
 
@@ -106,7 +106,7 @@ unsigned int FUShmRawCell::superFragSize(unsigned int i) const
 {
   if (i>=nSuperFrag()) {cout<<"invalid sf index '"<<i<<"'."<<endl; return 0; }
   unsigned int* superFragSizeAddr;
-  superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
+  superFragSizeAddr=(unsigned int*)((unsigned long)this+superFragSizeOffset_);
   superFragSizeAddr+=i;
   unsigned int result=*superFragSizeAddr;
   return result;
@@ -118,10 +118,10 @@ unsigned char* FUShmRawCell::superFragAddr(unsigned int i) const
 {
   if (i>=nSuperFrag()) {cout<<"invalid fed index '"<<i<<"'."<<endl; return 0; }
   unsigned int* superFragOffsetAddr;
-  superFragOffsetAddr=(unsigned int*)((unsigned int)this+superFragOffset_);
+  superFragOffsetAddr=(unsigned int*)((unsigned long)this+superFragOffset_);
   superFragOffsetAddr+=i;
   unsigned int   superFragOffset=*superFragOffsetAddr;
-  unsigned char* result=(unsigned char*)((unsigned int)payloadAddr()+superFragOffset);
+  unsigned char* result=(unsigned char*)((unsigned long)payloadAddr()+superFragOffset);
   return result;
 }
 
@@ -129,7 +129,7 @@ unsigned char* FUShmRawCell::superFragAddr(unsigned int i) const
 //______________________________________________________________________________
 unsigned char* FUShmRawCell::payloadAddr() const
 {
-  unsigned char* result=(unsigned char*)((unsigned int)this+payloadOffset_);
+  unsigned char* result=(unsigned char*)((unsigned long)this+payloadOffset_);
   return result;
 }
 
@@ -148,11 +148,11 @@ void FUShmRawCell::clear()
   buResourceId_=0xffffffff;
   
   unsigned int* fedSizeAddr;
-  fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
+  fedSizeAddr=(unsigned int*)((unsigned long)this+fedSizeOffset_);
   for (unsigned int i=0;i<nFed();i++) *fedSizeAddr++=0;
 
   unsigned int* superFragSizeAddr;
-  superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
+  superFragSizeAddr=(unsigned int*)((unsigned long)this+superFragSizeOffset_);
   for (unsigned int i=0;i<nSuperFrag();i++) *superFragSizeAddr++=0;
 
   payloadPosition_=0;
@@ -197,7 +197,7 @@ unsigned char* FUShmRawCell::writeData(unsigned char* data,
   
   // result = addr of data to be written *in* the cell
   unsigned char* result=
-    (unsigned char*)((unsigned int)this+payloadOffset_+payloadPosition_);
+    (unsigned char*)((unsigned long)this+payloadOffset_+payloadPosition_);
   memcpy(result,data,dataSize);
   payloadPosition_+=dataSize;
   return result;
@@ -212,20 +212,20 @@ bool FUShmRawCell::markFed(unsigned int i,
   if (i>=nFed())
     {cout<<"invalid fed index '"<<i<<"'."<<endl; return false; }
   if (addr<payloadAddr())
-    { cout<<"invalid fed addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl; return false; }
+    { cout<<"invalid fed addr '0x"<<hex<<(unsigned long)addr<<dec<<"'."<<endl; return false; }
 
-  unsigned int offset=(unsigned int)addr-(unsigned int)payloadAddr();
+  unsigned long offset=(unsigned long)addr-(unsigned long)payloadAddr();
 
   if (offset>=payloadSize())
-    { cout<<"invalid fed addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl; return false; }
+    { cout<<"invalid fed addr '0x"<<hex<<(unsigned long)addr<<dec<<"'."<<endl; return false; }
 
   unsigned int* fedSizeAddr;
-  fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
+  fedSizeAddr=(unsigned int*)((unsigned long)this+fedSizeOffset_);
   fedSizeAddr+=i;
   *fedSizeAddr=size;
 
   unsigned int* fedAddr;
-  fedAddr=(unsigned int*)((unsigned int)this+fedOffset_);
+  fedAddr=(unsigned int*)((unsigned long)this+fedOffset_);
   fedAddr+=i;
   *fedAddr=offset;
 
@@ -241,20 +241,20 @@ bool FUShmRawCell::markSuperFrag(unsigned int i,
   if (i>=nSuperFrag())
     {cout<<"invalid sf index '"<<i<<"'."<<endl; return false; }
   if (addr<payloadAddr())
-    {cout<<"invalid sf addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl;return false;}
+    {cout<<"invalid sf addr '0x"<<hex<<(unsigned long)addr<<dec<<"'."<<endl;return false;}
 
-  unsigned int offset=(unsigned int)addr-(unsigned int)payloadAddr();
+  unsigned int offset=(unsigned long)addr-(unsigned long)payloadAddr();
 
   if (offset>=payloadSize())
-    {cout<<"invalid sf addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl;return false;}
+    {cout<<"invalid sf addr '0x"<<hex<<(unsigned long)addr<<dec<<"'."<<endl;return false;}
 
   unsigned int* superFragSizeAddr;
-  superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
+  superFragSizeAddr=(unsigned int*)((unsigned long)this+superFragSizeOffset_);
   superFragSizeAddr+=i;
   *superFragSizeAddr=size;
 
   unsigned int* superFragAddr;
-  superFragAddr=(unsigned int*)((unsigned int)this+superFragOffset_);
+  superFragAddr=(unsigned int*)((unsigned long)this+superFragOffset_);
   superFragAddr+=i;
   *superFragAddr=offset;
 
