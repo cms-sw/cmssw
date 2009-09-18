@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.13 2009/08/12 22:04:32 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.14 2009/08/26 19:06:04 chrjones Exp $
 //
 
 // system include files
@@ -166,6 +166,7 @@ FWSummaryManager::colorsChanged()
       const unsigned int backgroundColor=0x2f2f2f;
       m_pack->SetBackgroundColor(backgroundColor);
    }
+   gClient->NeedRedraw(m_pack);
    for(std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(), 
        itEnd = m_collectionWidgets.end();
        it != itEnd;
