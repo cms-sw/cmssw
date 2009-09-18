@@ -39,6 +39,7 @@
  <class name="std::map<unsigned long long,std::basic_string<char> >"/>
  <class name="std::map<unsigned long,std::vector<unsigned long> >"/>
  <class name="std::map<unsigned long,unsigned long>"/>
+ <class name="std::map<unsigned short,float>"/>
  <class name="std::map<unsigned short,std::vector<unsigned short> >"/>
  <class name="std::map<unsigned short,unsigned short>"/>
  <class name="std::multimap<double,double>"/>
@@ -66,6 +67,7 @@
  <class name="std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
+ <class name="std::pair<std::vector<std::pair<double,std::vector<double> > >,bool>"/>
  <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<unsigned int,double>"/>
  <class name="std::pair<unsigned int,float>"/>
@@ -98,6 +100,7 @@
  <class name="std::vector<std::basic_string<char> >::iterator"/>
  <class name="std::vector<std::map<short,short> >"/>
  <class name="std::vector<std::pair<double,double> >"/>
+ <class name="std::vector<std::pair<double,std::vector<double> > >"/>
  <class name="std::vector<std::pair<float,float> >"/>
  <class name="std::vector<std::pair<int,double> >"/>
  <class name="std::vector<std::pair<int,int> >"/>
@@ -105,7 +108,9 @@
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,float> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,int> >"/>
+ <class name="std::vector<std::pair<std::vector<std::pair<double,std::vector<double> > >,bool> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >"/>
+ <class name="std::vector<std::pair<unsigned int,unsigned int> >"/>
  <class name="std::vector<std::pair<unsigned long long,std::basic_string<char> > >"/>
  <class name="std::vector<std::vector<double> >"/>
  <class name="std::vector<std::vector<int> >"/>
@@ -120,3 +125,4 @@
  <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<unsigned short>"/>
 </lcgdict>
+
