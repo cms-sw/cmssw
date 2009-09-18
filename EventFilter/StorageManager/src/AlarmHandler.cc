@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.1 2009/08/20 13:45:05 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.2 2009/08/20 14:15:22 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -44,21 +44,21 @@ void AlarmHandler::raiseAlarm
       break;
 
     case WARNING:
-      LOG4CPLUS_WARN(_app->getApplicationLogger(),
-        "Raising warning alarm " << name << ": " << exception.message());
-      raiseAlarm(name, "warning", exception);
+      if ( raiseAlarm(name, "warning", exception) )
+        LOG4CPLUS_WARN(_app->getApplicationLogger(),
+          "Raising warning alarm " << name << ": " << exception.message());
       break;
 
     case ERROR:
-      LOG4CPLUS_ERROR(_app->getApplicationLogger(),
-        "Raising error alarm " << name << ": " << exception.message());
-      raiseAlarm(name, "error", exception);
+      if ( raiseAlarm(name, "error", exception) )
+        LOG4CPLUS_ERROR(_app->getApplicationLogger(),
+          "Raising error alarm " << name << ": " << exception.message());
       break;
 
     case FATAL:
-      LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-        "Raising fatal alarm " << name << ": " << exception.message());
-      raiseAlarm(name, "fatal", exception);
+      if ( raiseAlarm(name, "fatal", exception) )
+        LOG4CPLUS_FATAL(_app->getApplicationLogger(),
+          "Raising fatal alarm " << name << ": " << exception.message());
       break;
 
     default:
@@ -67,7 +67,7 @@ void AlarmHandler::raiseAlarm
   }
 }
 
-void AlarmHandler::raiseAlarm
+bool AlarmHandler::raiseAlarm
 (
   const std::string name,
   const std::string level,
@@ -85,9 +85,14 @@ void AlarmHandler::raiseAlarm
   catch(xdata::exception::Exception)
   {
     // Alarm is already set or sentinel not available
-    return;
+    return false;
   }
-  
+  return true;
+
+  #else
+
+  return false;
+
   #endif
 }
 
@@ -97,8 +102,6 @@ void AlarmHandler::revokeAlarm
   const std::string name
 )
 {
-  LOG4CPLUS_INFO(_app->getApplicationLogger(), "Revoking alarm " << name);
-
   #if SENTINELUTILS_VERSION_MAJOR>1
   
   sentinel::utils::Alarm *alarm;
@@ -111,11 +114,14 @@ void AlarmHandler::revokeAlarm
     // Alarm has not been set or sentinel not available
     return;
   }
+
+  LOG4CPLUS_INFO(_app->getApplicationLogger(), "Revoking alarm " << name);
   
   _alarmInfoSpace->fireItemRevoked(name, _app);
   delete alarm;
 
   #endif
+
 }
 
 

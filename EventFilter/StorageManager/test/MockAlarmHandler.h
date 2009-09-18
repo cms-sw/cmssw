@@ -1,4 +1,4 @@
-// $Id: MockAlarmHandler.h,v 1.1 2009/08/20 13:48:46 mommsen Exp $
+// $Id: MockAlarmHandler.h,v 1.2 2009/08/21 13:51:19 mommsen Exp $
 /// @file: MockAlarmHandler.h 
 
 #ifndef StorageManager_MockAlarmHandler_h
@@ -28,7 +28,7 @@ namespace stor {
     /**
       Raises a sentinel alarm
     */
-    void raiseAlarm
+    virtual void raiseAlarm
     (
       const std::string name,
       const ALARM_LEVEL level,
@@ -42,7 +42,7 @@ namespace stor {
     /**
       Revokes s sentinel alarm
     */
-    void revokeAlarm(const std::string name)
+    virtual void revokeAlarm(const std::string name)
     {
       _alarmsList.erase(name);
     }
