@@ -81,7 +81,9 @@ root genParticleforJets_branch	recoGenParticlesRefs_genParticlesForJets__PROD.ob
 root caloTowerBaseCandidates_branch  recoCandidatesOwned_caloTowers__PROD.obj
 
 // Particle Flow Candidates
-root particleFlowCand_branch    recoCandidatesOwned_particleFlowJetCandidates__PROD.obj
+root particleFlowCand_branch    recoPFCandidates_particleFlow__PROD.obj
+
+
 
 // Primary vertices
 root primaryVertex_branch    recoVertexs_offlinePrimaryVertices__PROD.obj
@@ -284,7 +286,8 @@ clustering thresh_Pt_PS			0.00000
 // seed threshold for preshower rechits
 clustering thresh_Seed_PS		0.00012
 clustering thresh_Pt_Seed_PS		0.00000
-
+clustering shower_Sigma_PS              0.2
+clustering neighbours_PS                8
 clustering posCalc_p1_PS                0
 
 
@@ -295,6 +298,9 @@ clustering posCalc_p1_PS                0
 blockAlgo debug 0
 // Debug PFAlgo
 PFAlgo debug 0
+
+// Re-run particle flow	
+particle_flow	on/off	1
 
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
@@ -425,6 +431,9 @@ print genParticles 0
 
 // verbosity 
 print verbosity 0
+
+// Perform comparison of pf candidates (CMSSW/PFRootEvent)
+particle_flow   comparison  0
 
 //tau benchmark options ---------------------------------------------------
 
