@@ -5,8 +5,8 @@
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
  *  BasicGenTest:
- *  $Date: 2009/07/09 04:23:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/07/23 22:02:06 $
+ *  $Revision: 1.3 $
  *  \author Joseph Zennamo SUNY-Buffalo; Based on: ConverterTester*/
 
 // framework & common header files
@@ -33,12 +33,13 @@ class BasicGenTest : public edm::EDAnalyzer
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  
-private:
-  
+
+ private:
+
   unsigned short int part_counter[100];
   unsigned short int glunum, dusnum, cnum, bnum, topnumber, Wnum, Znum; 
- 
+  float bjorken;
+
   DQMStore *dbe;
   
   MonitorElement *gluonNumber;
@@ -50,6 +51,7 @@ private:
   MonitorElement *ZNumber;
   MonitorElement *stablepart; 
   MonitorElement *Part_ID;
- };
+  MonitorElement *Bjorken_x;
+};
 
 #endif
