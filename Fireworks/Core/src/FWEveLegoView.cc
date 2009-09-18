@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.47 2009/09/16 21:56:02 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.48 2009/09/18 09:49:43 amraktad Exp $
 //
 
 // system include files
@@ -174,12 +174,12 @@ FWEveLegoView::setBackgroundColor(Color_t iColor)
       c1 = kGray + 2;
       c2 = kGray + 1;
       c3 = TColor::GetColor("#0f0f0f");
-      c4 = TColor::GetColor("#0a0a0a");
+      c4 = TColor::GetColor("#000000");
    } else {
-      c1 = kGray + 2;
-      c2 = kGray + 1;
-      c3 = TColor::GetColor("#d0d0d0");
-      c4 = TColor::GetColor("#d0d0d0");
+      c1 = kGray + 3;
+      c2 = kGray + 2;
+      c3 = TColor::GetColor("#b0b0b0");
+      c4 = TColor::GetColor("#f0f0f0");
    }
    m_lego->SetGridColor(c1);
    m_lego->SetFontColor(c3);
