@@ -23,7 +23,7 @@
 #include <vector>
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<Trajectory> kk;
     edm::Wrapper< std::vector<Trajectory> > trajCollWrapper;
     
@@ -54,5 +54,5 @@ namespace {
     TrackVtxConstraintAssociationRefProd ii5;
     TrackVtxConstraintAssociationRefVector ii6;
   
-  }
+  };
 }
