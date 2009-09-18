@@ -1291,7 +1291,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 	{
 	  *out << " <tr><td><a href=\"/" << urn << "/serviceWeb?service=" 
 	       << swebs[i]->name() << "\">" << swebs[i]->name() 
-	       << "</a></td><td>" << hex << (unsigned int)swebs[i] 
+	       << "</a></td><td>" << hex << (unsigned long)swebs[i] 
 	       << dec << "</td></tr>" << endl;
 	}
       *out << "</table>" << endl;
