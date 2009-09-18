@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.18 2009/08/26 15:22:01 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.19 2009/09/18 11:08:23 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -33,7 +33,12 @@ _numberOfInjectWorkers(updateInterval, 10),
 _nLogicalDisks(0),
 _latchedSataBeastStatus(-1),
 _progressMarker( "unused" )
-{}
+{
+  // Initialize values to avoid sending alarms
+  // before we've reach the ready state
+  _dwParams._nCopyWorkers = -1;
+  _dwParams._nInjectWorkers = -1;
+}
 
 
 void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams)
