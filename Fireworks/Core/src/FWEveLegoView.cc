@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.48 2009/09/18 09:49:43 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.49 2009/09/18 10:32:45 amraktad Exp $
 //
 
 // system include files
@@ -179,14 +179,14 @@ FWEveLegoView::setBackgroundColor(Color_t iColor)
       c1 = kGray + 3;
       c2 = kGray + 2;
       c3 = TColor::GetColor("#b0b0b0");
-      c4 = TColor::GetColor("#f0f0f0");
+      c4 = TColor::GetColor("#fdfdfd");
    }
    m_lego->SetGridColor(c1);
    m_lego->SetFontColor(c3);
    m_overlay->GetAttAxis()->SetLabelColor(c2);
    m_overlay->GetAttAxis()->SetAxisColor(c2);
    m_overlay->SetScaleColorTransparency(c4, 0);
-   m_overlay->SetFrameAttribs(c4, 0, 95);
+   m_overlay->SetFrameAttribs(c4, 70, 95);
 }
 
 void
