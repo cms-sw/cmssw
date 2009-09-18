@@ -10,6 +10,8 @@ d0_phi_analyzer = cms.EDAnalyzer("BeamSpotAnalyzer",
 	TrackCollection = cms.untracked.InputTag('generalTracks'),
         WriteAscii = cms.untracked.bool(True),
 	AsciiFileName = cms.untracked.string('BeamFit.txt'),
+	SaveNtuple = cms.untracked.bool(False),	
+	OutputFileName = cms.untracked.string('analyze_d0_phi.root'),
 	MinimumPt = cms.untracked.double(1.2),
 	MaximumEta = cms.untracked.double(2.4),
 	MaximumImpactParameter = cms.untracked.double(5),
@@ -22,7 +24,6 @@ d0_phi_analyzer = cms.EDAnalyzer("BeamSpotAnalyzer",
         InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 	FractionOfFittedTrks = cms.untracked.double(0.9),
 	MinimumInputTracks = cms.untracked.int32(100)
-     ),
-    OutputFileName = cms.untracked.string('analyze_d0_phi.root')
+     )
 )
 

@@ -8,7 +8,6 @@ process.load("RecoVertex.BeamSpotProducer.d0_phi_analyzer_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	
     )
 )
 process.maxEvents = cms.untracked.PSet(
@@ -16,6 +15,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.p = cms.Path(process.d0_phi_analyzer)
 process.MessageLogger.debugModules = ['BeamSpotAnalyzer']
-process.d0_phi_analyzer.OutputFileName = 'EarlyCollision.root'
+process.d0_phi_analyzer.BeamFitter.OutputFileName = 'EarlyCollision.root'
 
 

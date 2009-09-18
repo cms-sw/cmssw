@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.cc,v 1.9 2009/09/01 15:21:39 jengbou Exp $
+ version $Id: BeamFitter.cc,v 1.10 2009/09/17 21:49:42 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -31,6 +31,7 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   tracksLabel_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<edm::InputTag>("TrackCollection");
   writeTxt_          = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("WriteAscii");
   outputTxt_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("AsciiFileName");
+  saveNtuple_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<bool>("SaveNtuple");
 
   trk_MinpT_         = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MinimumPt");
   trk_MaxEta_        = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumEta");
@@ -53,12 +54,47 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig)
   //dump to file
   if (writeTxt_)
     fasciiFile.open(outputTxt_.c_str());
+
+  if (saveNtuple_) {
+    outputfilename_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("OutputFileName");
+    file_ = TFile::Open(outputfilename_.c_str(),"RECREATE");
+    ftree_ = new TTree("mytree","mytree");
+    ftree_->AutoSave();
+
+    ftree_->Branch("pt",&fpt,"fpt/D");
+    ftree_->Branch("d0",&fd0,"fd0/D");
+    ftree_->Branch("sigmad0",&fsigmad0,"fsigmad0/D");
+    ftree_->Branch("phi0",&fphi0,"fphi0/D");
+    ftree_->Branch("z0",&fz0,"fz0/D");
+    ftree_->Branch("sigmaz0",&fsigmaz0,"fsigmaz0/D");
+    ftree_->Branch("theta",&ftheta,"ftheta/D");
+    ftree_->Branch("eta",&feta,"feta/D");
+    ftree_->Branch("charge",&fcharge,"fcharge/I");
+    ftree_->Branch("normchi2",&fnormchi2,"fnormchi2/D");
+    ftree_->Branch("nTotLayerMeas",&fnTotLayerMeas,"fnTotLayerMeas/i");
+    ftree_->Branch("nStripLayerMeas",&fnStripLayerMeas,"fnStripLayerMeas/i");
+    ftree_->Branch("nPixelLayerMeas",&fnPixelLayerMeas,"fnPixelLayerMeas/i");
+    ftree_->Branch("nTIBLayerMeas",&fnTIBLayerMeas,"fnTIBLayerMeas/i");
+    ftree_->Branch("nTOBLayerMeas",&fnTOBLayerMeas,"fnTOBLayerMeas/i");
+    ftree_->Branch("nTIDLayerMeas",&fnTIDLayerMeas,"fnTIDLayerMeas/i");
+    ftree_->Branch("nTECLayerMeas",&fnTECLayerMeas,"fnTECLayerMeas/i");
+    ftree_->Branch("nPXBLayerMeas",&fnPXBLayerMeas,"fnPXBLayerMeas/i");
+    ftree_->Branch("nPXFLayerMeas",&fnPXFLayerMeas,"fnPXFLayerMeas/i");
+    ftree_->Branch("cov",&fcov,"fcov[7][7]/D");
+
+  }
   
   fBSvector.clear();
   ftotal_tracks = 0;
 }
 
-BeamFitter::~BeamFitter() {}
+BeamFitter::~BeamFitter() {
+  if (saveNtuple_) {
+    file_->cd();
+    ftree_->Write();
+    file_->Close();
+  }
+}
 
 
 void BeamFitter::readEvent(const edm::Event& iEvent)
@@ -74,33 +110,38 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 	++track ) {
     const reco::HitPattern& trkHP = track->hitPattern();
 
-    int nPxLayerMeas = trkHP.pixelLayersWithMeasurement();
-    int nTotLayerMeas = trkHP.trackerLayersWithMeasurement();
+    fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
+    fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
+    fnTotLayerMeas = trkHP.trackerLayersWithMeasurement();
+    fnPXBLayerMeas = trkHP.pixelBarrelLayersWithMeasurement();
+    fnPXFLayerMeas = trkHP.pixelEndcapLayersWithMeasurement();
+    fnTIBLayerMeas = trkHP.stripTIBLayersWithMeasurement();
+    fnTIDLayerMeas = trkHP.stripTIDLayersWithMeasurement();
+    fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
+    fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
     
-    double pt = track->pt();
-    double eta = track->eta();
-    double phi0 = track->phi();
-    double charge = track->charge();
-    double normchi2 = track->normalizedChi2();
+    fpt = track->pt();
+    feta = track->eta();
+    fphi0 = track->phi();
+    fcharge = track->charge();
+    fnormchi2 = track->normalizedChi2();
     
-    double d0 = track->d0();
-    double sigmad0 = track->d0Error();
-    double z0 = track->dz();
-    double sigmaz0 = track->dzError();
-    double theta = track->theta();
+    fd0 = track->d0();
+    fsigmad0 = track->d0Error();
+    fz0 = track->dz();
+    fsigmaz0 = track->dzError();
+    ftheta = track->theta();
     double vx = track->vx();
     double vy = track->vy();
 
-    double cov[7][7];
-
     for (int i=0; i<5; ++i) {
       for (int j=0; j<5; ++j) {
-	cov[i][j] = track->covariance(i,j);
+	fcov[i][j] = track->covariance(i,j);
       }
     }
 
 //     if (debug_) {
-//       std::cout << "pt= " << pt << " eta= " << eta << " fd0= " << d0 << " sigmad0= " << sigmad0;
+//       std::cout << "pt= " << fpt << " eta= " << feta << " fd0= " << fd0 << " sigmad0= " << fsigmad0;
 //       std::cout << " track quality = "  << track->qualityMask();
 //       std::cout << " track algorithm = " << track->algoName() << std::endl;
 //     }
@@ -125,23 +166,24 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 	algo_ok = false;
     }
     
+    if (saveNtuple_) ftree_->Fill();
     ftotal_tracks++;
     
     // Final track selection
-    if (nTotLayerMeas >= trk_MinNTotLayers_
-        && nPxLayerMeas >= trk_MinNPixLayers_
-	&& normchi2 < trk_MaxNormChi2_
-	&& pt > trk_MinpT_
+    if (fnTotLayerMeas >= trk_MinNTotLayers_
+        && fnPixelLayerMeas >= trk_MinNPixLayers_
+	&& fnormchi2 < trk_MaxNormChi2_
+	&& fpt > trk_MinpT_
 	&& algo_ok
 	&& quality_ok
-	&& std::abs( d0 ) < trk_MaxIP_
-	&& std::abs( z0 ) < trk_MaxZ_
+	&& std::abs( fd0 ) < trk_MaxIP_
+	&& std::abs( fz0 ) < trk_MaxZ_
         ) {
       if (debug_){
 	std::cout << "Selected track quality = " << track->qualityMask();
 	std::cout << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
       }
-      BSTrkParameters BSTrk(z0,sigmaz0,d0,sigmad0,phi0,pt,0.,0.);
+      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
       BSTrk.setVx(vx);
       BSTrk.setVy(vy);
       fBSvector.push_back(BSTrk);

@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.5 2009/08/31 22:27:07 yumiceva Exp $
+ version $Id: BeamFitter.h,v 1.6 2009/08/31 22:34:53 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -20,6 +20,9 @@
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
+// ROOT
+#include "TFile.h"
+#include "TTree.h"
 
 #include<fstream>
 
@@ -66,6 +69,35 @@ class BeamFitter {
   double convergence_;
   int ftotal_tracks;
   int min_Ntrks_;
+
+  // ntuple
+  bool saveNtuple_;
+  std::string outputfilename_;
+  TFile* file_;
+  TTree* ftree_;
+  double ftheta;
+  double fpt;
+  double feta;
+  int    fcharge;
+  double fnormchi2;
+  double fphi0;
+  double fd0;
+  double fsigmad0;
+  double fz0;
+  double fsigmaz0;
+  int fnTotLayerMeas;
+  int fnPixelLayerMeas;
+  int fnStripLayerMeas;
+  int fnTIBLayerMeas;
+  int fnTIDLayerMeas;
+  int fnTOBLayerMeas;
+  int fnTECLayerMeas;
+  int fnPXBLayerMeas;
+  int fnPXFLayerMeas;
+  double fd0phi_chi2;
+  double fd0phi_d0;
+  double fcov[7][7];
+
 };
 
 #endif
