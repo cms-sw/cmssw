@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.46 2009/09/06 12:45:14 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.47 2009/09/16 21:56:02 amraktad Exp $
 //
 
 // system include files
@@ -80,6 +80,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_lego(0),
    m_overlay(0),
    m_autoRebin(this,"Auto rebin on zoom",true),
+   m_showScales(this,"Show scales",true),
    m_cameraMatrix(0),
    m_cameraMatrixBase(0),
    m_cameraMatrixRef(0),
@@ -98,6 +99,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    TGLEmbeddedViewer* ev = m_embeddedViewer;
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
+   m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
 
    TEveScene* ns = gEve->SpawnNewScene(staticTypeName().c_str());
    m_scene.reset(ns);
@@ -137,7 +139,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
 
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
-   //CDJ This is done too early setCameras();
+
    //m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
    //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
  
@@ -167,14 +169,24 @@ FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
    m_viewer->GetGLViewer()->SetClearColor(iColor);
 
-   TAttAxis* att = m_overlay->GetAttAxis();
+   Color_t c1, c2, c3, c4;
    if(iColor == FWColorManager::kBlackIndex) {
-      att->SetLabelColor(Color_t(TColor::GetColor("#202020")));
-      att->SetAxisColor(Color_t(TColor::GetColor("#202020")));
+      c1 = kGray + 2;
+      c2 = kGray + 1;
+      c3 = TColor::GetColor("#0f0f0f");
+      c4 = TColor::GetColor("#0a0a0a");
    } else {
-      att->SetLabelColor(Color_t(TColor::GetColor("#A0A0A0")));
-      att->SetAxisColor(Color_t(TColor::GetColor("#A0A0A0")));
+      c1 = kGray + 2;
+      c2 = kGray + 1;
+      c3 = TColor::GetColor("#d0d0d0");
+      c4 = TColor::GetColor("#d0d0d0");
    }
+   m_lego->SetGridColor(c1);
+   m_lego->SetFontColor(c3);
+   m_overlay->GetAttAxis()->SetLabelColor(c2);
+   m_overlay->GetAttAxis()->SetAxisColor(c2);
+   m_overlay->SetScaleColorTransparency(c4, 0);
+   m_overlay->SetFrameAttribs(c4, 0, 95);
 }
 
 void
@@ -207,18 +219,7 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    m_lego->SetData(data);
    m_lego->ElementChanged();
    m_lego->DataChanged();
-   if ( !m_cameraSet ) setCameras();*/
-   /*
-      {
-      m_scene->Repaint();
-      m_viewer->Redraw(kTRUE);
-      // std::cout << "Viewer: " <<  m_viewer << std::endl;
-      // m_viewer->GetGLViewer()->ResetCameras();
-      m_cameraSet = true;
-      }
-    */
-   // m_viewer->GetGLViewer()->UpdateScene();
-   //CDJ m_viewer->GetGLViewer()->RequestDraw();
+   if ( !m_cameraSet ) setCameras();
 }
 
 void
@@ -284,19 +285,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    m_cameraMatrixBase = new TGLMatrix();
    m_orthoCameraMatrix = new TGLMatrix();
 
-/*   // state
-   std::string stateName("cameraState"); stateName += typeName();
-   assert( 0!=iFrom.valueForKey(stateName) );
-   std::istringstream s(iFrom.valueForKey(stateName)->value());
-   bool cameraState;
-   s>>cameraState;
-   if ( cameraState )
-     m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   else
-     m_embeddedViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-   // m_embeddedViewer->ResetCurrentCamera();
- */
-// transformation matrix
+   // transformation matrix
    assert(m_cameraMatrix);
    std::string matrixName("cameraMatrix");
    for ( unsigned int i = 0; i < 16; ++i ){
@@ -354,6 +343,13 @@ FWEveLegoView::setAutoRebin()
       m_lego->SetAutoRebin(m_autoRebin.value());
       m_lego->ElementChanged(kTRUE,kTRUE);
    }
+}
+
+void 
+FWEveLegoView::showScales()
+{
+   m_overlay->SetShowScales(m_showScales.value());
+   m_viewer->GetGLViewer()->RequestDraw();
 }
 
 
