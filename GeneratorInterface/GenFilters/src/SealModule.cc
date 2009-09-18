@@ -27,6 +27,7 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterIsolatedTrack.h"
 #include "GeneratorInterface/GenFilters/interface/BCToEFilter.h"
 #include "GeneratorInterface/GenFilters/interface/EMEnrichingFilter.h"
+#include "GeneratorInterface/GenFilters/interface/doubleEMEnrichingFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCDecayingPionKaonFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterEMJetHeep.h"
 #include "GeneratorInterface/GenFilters/interface/ComphepSingletopFilter.h"
@@ -61,6 +62,7 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterIsolatedTrack);
   DEFINE_ANOTHER_FWK_MODULE(BCToEFilter);
   DEFINE_ANOTHER_FWK_MODULE(EMEnrichingFilter);
+  DEFINE_ANOTHER_FWK_MODULE(doubleEMEnrichingFilter);
   DEFINE_ANOTHER_FWK_MODULE(MCDecayingPionKaonFilter);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterEMJetHeep);
   DEFINE_ANOTHER_FWK_MODULE(ComphepSingletopFilter);

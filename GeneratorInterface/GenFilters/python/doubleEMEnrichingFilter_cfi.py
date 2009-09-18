@@ -11,7 +11,8 @@ doubleEMenrichingfilter = cms.EDFilter("doubleEMEnrichingFilter",
         hOverEMax = cms.double(0.5),
         clusterThreshold = cms.double(4.0),
         seedThreshold = cms.double(2.5),
-        eTThreshold = cms.double(3.0)
+        eTThreshold = cms.double(3.0),
+        genParSource = cms.InputTag("genParticlesForFilter")
     )
 )
 
