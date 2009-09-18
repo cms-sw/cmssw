@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.15 2009/07/09 12:24:32 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.16 2009/07/11 19:51:36 charlot Exp $
 //
 //
 
@@ -26,6 +26,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
+#include <vector>
 
 class MagneticField;
 class TFile;
@@ -339,6 +341,8 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   double maxPt_;
   double maxAbsEta_;
   double deltaR_;
+  std::vector<int> matchingIDs_;
+  std::vector<int> matchingMotherIDs_;
 
   // histos limits and binning
   double etamin;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.35 2009/07/12 15:27:21 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.36 2009/09/18 22:51:27 charlot Exp $
 //
 //
 
@@ -57,7 +57,8 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
-
+  matchingIDs_ = conf.getParameter<std::vector<int> >("MatchingID");
+  matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
   edm::ParameterSet pset =
    conf.getParameter<edm::ParameterSet>("HistosConfigurationMC") ;
 
@@ -1456,17 +1457,26 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
   
   int mcNum=0, gamNum=0, eleNum=0;
-
+  bool matchingID, matchingMotherID;
+  
   // charge mis-ID
   for (reco::GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter != genParticles->end(); mcIter++ ) {
 
-    // select electrons
-    if ( mcIter->pdgId() == 11 || mcIter->pdgId() == -11 ){
+    // select requested matching gen particle
+    matchingID=false;
+    for (unsigned int i=0; i<matchingIDs_.size(); i++) 
+     if ( mcIter->pdgId() == matchingIDs_[i] ) matchingID=true;
+    
+    if (matchingID) {
 
+      // select requested mother matching gen particle
+      // always include single particle with no mother
       const Candidate * mother = mcIter->mother();
-      if ( ((mother == 0) || ((mother != 0) && (mother->pdgId() == 23))
-	                  || ((mother != 0) && (mother->pdgId() == 32))
-	                  || ((mother != 0) && (fabs(mother->pdgId()) == 24)))) {
+      matchingMotherID=false;
+      for (unsigned int i=0; i<matchingMotherIDs_.size(); i++) 
+        if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
+      
+      if (matchingMotherID) {
 
       if (mcIter->pt()> maxPt_ || fabs(mcIter->eta())> maxAbsEta_) continue;
 
@@ -1489,18 +1499,18 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
     	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
-	double mc_charge = mcIter->pdgId() == 11 ? -1. : 1. ;
-	h_ele_ChargeMnChargeTrue  -> Fill( fabs(gsfIter->charge()-mc_charge));
-	// require here a charge mismatch
-	if ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) || (mcIter->pdgId() == -11) &&
-	(gsfIter->charge() < 0.) ){
-	  double tmpGsfRatio = gsfIter->p()/mcIter->p();
-	  if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
-	    gsfOkRatio = tmpGsfRatio;
-	    bestGsfElectron=*gsfIter;
-	    okGsfFound = true;
+	  double mc_charge = mcIter->pdgId() == 11 ? -1. : 1. ;
+	  h_ele_ChargeMnChargeTrue  -> Fill( fabs(gsfIter->charge()-mc_charge));
+	  // require here a charge mismatch
+	  if ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) || (mcIter->pdgId() == -11) &&
+	  (gsfIter->charge() < 0.) ){
+	    double tmpGsfRatio = gsfIter->p()/mcIter->p();
+	    if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
+	      gsfOkRatio = tmpGsfRatio;
+	      bestGsfElectron=*gsfIter;
+	      okGsfFound = true;
+	    }
 	  }
-	}
 	}
       } // loop over rec ele to look for the best one
 
@@ -1529,14 +1539,21 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // counts photons
     if (mcIter->pdgId() == 22 ){ gamNum++; }
 
-    // select electrons
-    if ( mcIter->pdgId() == 11 || mcIter->pdgId() == -11 ){
+      // select requested matching gen particle
+      matchingID=false;
+      for (unsigned int i=0; i<matchingIDs_.size(); i++) 
+       if ( mcIter->pdgId() == matchingIDs_[i] ) matchingID=true;
 
-      // single primary electrons or electrons from Zs or Ws
+      if (matchingID) {
+      
+      // select requested mother matching gen particle
+      // always include single particle with no mother
       const Candidate * mother = mcIter->mother();
-      if ( ((mother == 0) || ((mother != 0) && (mother->pdgId() == 23))
-	                  || ((mother != 0) && (mother->pdgId() == 32))
-	                  || ((mother != 0) && (fabs(mother->pdgId()) == 24)))) {
+      matchingMotherID=false;
+      for (unsigned int i=0; i<matchingMotherIDs_.size(); i++) 
+       if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
+      
+      if (matchingMotherID) {
 
       if (mcIter->pt()> maxPt_ || fabs(mcIter->eta())> maxAbsEta_) continue;
 
@@ -1567,17 +1584,17 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
     	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
-	if ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) || (mcIter->pdgId() == -11) &&
-	(gsfIter->charge() > 0.) ){
-	  double tmpGsfRatio = gsfIter->p()/mcIter->p();
-	  if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
-	    gsfOkRatio = tmpGsfRatio;
-	    bestGsfElectron=*gsfIter;
-	    okGsfFound = true;
+	  if ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) || (mcIter->pdgId() == -11) &&
+	  (gsfIter->charge() > 0.) ){
+	    double tmpGsfRatio = gsfIter->p()/mcIter->p();
+	    if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
+	      gsfOkRatio = tmpGsfRatio;
+	      bestGsfElectron=*gsfIter;
+	      okGsfFound = true;
+	    }
 	  }
 	}
-	}
-     } // loop over rec ele to look for the best one
+      } // loop over rec ele to look for the best one
 
       // analysis when the mc track is found
      if (okGsfFound){
