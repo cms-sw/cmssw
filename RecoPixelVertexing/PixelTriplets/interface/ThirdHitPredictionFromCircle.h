@@ -17,6 +17,7 @@ public:
                                float tolerance);
 
   double phi(double curvature, double radius) const;
+  double angle(double curvature, double radius) const;
 
   Range operator()(Range curvature, double radius) const;
 

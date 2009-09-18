@@ -44,12 +44,12 @@ ThirdHitPredictionFromCircle::ThirdHitPredictionFromCircle(
 
 double ThirdHitPredictionFromCircle::phi(double curvature, double radius) const
 {
-  double sign = sgn(curvature);
   double phi;
   if (unlikely(std::abs(curvature) < 1.0e-5)) {
     double cos = (center * axis) / radius;
     phi = axis.phi() - clamped_acos(cos);
   } else {
+    double sign = sgn(curvature);
     double radius2 = sqr(1.0 / curvature);
     double orthog = clamped_sqrt(radius2 - delta2);
     PointRPhi center(this->center - sign * orthog * axis);
@@ -63,6 +63,22 @@ double ThirdHitPredictionFromCircle::phi(double curvature, double radius) const
   while(unlikely(phi < -M_PI)) phi += 2. * M_PI;
 
   return phi;
+}
+
+double ThirdHitPredictionFromCircle::angle(double curvature, double radius) const
+{
+  if (unlikely(std::abs(curvature) < 1.0e-5)) {
+    double sin = (center * axis) / radius;
+    return sin / clamped_sqrt(1 - sqr(sin));
+  } else {
+    double radius2 = sqr(1.0 / curvature);
+    double orthog = clamped_sqrt(radius2 - delta2);
+    PointRPhi center(this->center + sgn(curvature) * orthog * axis);
+
+    double cos = (radius2 + sqr(radius) - sqr(center.r())) *
+                 curvature / (2. * radius);
+    return - cos / clamped_sqrt(1 - sqr(cos));
+ }
 }
 
 ThirdHitPredictionFromCircle::Range
