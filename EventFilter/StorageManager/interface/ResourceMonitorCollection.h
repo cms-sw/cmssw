@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.15 2009/08/26 15:17:52 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.16 2009/09/18 09:10:52 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2009/08/26 15:17:52 $
+   * $Revision: 1.16 $
+   * $Date: 2009/09/18 09:10:52 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -120,6 +120,8 @@ namespace stor {
     void getDiskStats(Stats&) const;
     void calcDiskUsage();
     void calcNumberOfWorkers();
+    void checkNumberOfCopyWorkers();
+    void checkNumberOfInjectWorkers();
     int getProcessCount(const std::string processName);
 
     typedef std::set<std::string> SATABeasts;
@@ -129,12 +131,11 @@ namespace stor {
     bool checkSataDisks(const std::string& sataBeast, const std::string& hostSuffix);
     void updateSataBeastStatus(const std::string& sataBeast, const std::string& content);
 
+    DiskWritingParams _dwParams;
+
     MonitoredQuantity _numberOfCopyWorkers;
     MonitoredQuantity _numberOfInjectWorkers;
     unsigned int _nLogicalDisks;
-
-    double _highWaterMark;     // percentage of disk full when issuing an alarm
-    std::string _sataUser;     // user name to log into SATA controller
     int _latchedSataBeastStatus;
     
     xdata::UnsignedInteger32 _copyWorkers;     // number of running copyWorkers

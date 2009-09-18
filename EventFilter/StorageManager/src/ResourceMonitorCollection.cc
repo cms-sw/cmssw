@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.17 2009/08/26 09:38:18 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.18 2009/08/26 15:22:01 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -39,9 +39,8 @@ _progressMarker( "unused" )
 void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams)
 {
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
-
-  _highWaterMark = dwParams._highWaterMark;
-  _sataUser = dwParams._sataUser;
+  
+  _dwParams = dwParams;
 
   _nLogicalDisks = std::max(dwParams._nLogicalDisk, 1);
   _diskUsageList.clear();
@@ -239,11 +238,11 @@ void ResourceMonitorCollection::calcDiskUsage()
       (*it)->absDiskUsage.calculateStatistics();
       (*it)->relDiskUsage.addSample(relused);
       (*it)->relDiskUsage.calculateStatistics();
-      if (relused > _highWaterMark*100)
+      if (relused > _dwParams._highWaterMark*100)
       {
         emitDiskSpaceAlarm(*it);
       }
-      else if (relused < _highWaterMark*95)
+      else if (relused < _dwParams._highWaterMark*95)
         // do not change alarm level if we are close to the high water mark
       {
         revokeDiskAlarm(*it);
@@ -314,6 +313,59 @@ void ResourceMonitorCollection::calcNumberOfWorkers()
   
   _numberOfCopyWorkers.calculateStatistics();
   _numberOfInjectWorkers.calculateStatistics();
+
+  checkNumberOfCopyWorkers();
+  checkNumberOfInjectWorkers();
+}
+
+
+void ResourceMonitorCollection::checkNumberOfCopyWorkers()
+{
+  const std::string alarmName = "CopyWorkers";
+
+  if ( _dwParams._nCopyWorkers < 0 ) return;
+
+  MonitoredQuantity::Stats stats;
+  _numberOfCopyWorkers.getStats(stats);
+
+  if ( stats.getLastSampleValue() != _dwParams._nCopyWorkers )
+  {
+    std::ostringstream msg;
+    msg << "Expected " << _dwParams._nCopyWorkers <<
+      " running CopyWorkers, but found " <<
+      stats.getLastSampleValue() << ".";
+    XCEPT_DECLARE(stor::exception::CopyWorkers, ex, msg.str());
+    _alarmHandler->raiseAlarm(alarmName, AlarmHandler::WARNING, ex);
+  }
+  else
+  {
+    _alarmHandler->revokeAlarm(alarmName);
+  }
+}
+
+
+void ResourceMonitorCollection::checkNumberOfInjectWorkers()
+{
+  const std::string alarmName = "InjectWorkers";
+
+  if ( _dwParams._nInjectWorkers < 0 ) return;
+
+  MonitoredQuantity::Stats stats;
+  _numberOfInjectWorkers.getStats(stats);
+
+  if ( stats.getLastSampleValue() != _dwParams._nInjectWorkers )
+  {
+    std::ostringstream msg;
+    msg << "Expected " << _dwParams._nInjectWorkers <<
+      " running InjectWorkers, but found " <<
+      stats.getLastSampleValue() << ".";
+    XCEPT_DECLARE(stor::exception::InjectWorkers, ex, msg.str());
+    _alarmHandler->raiseAlarm(alarmName, AlarmHandler::WARNING, ex);
+  }
+  else
+  {
+    _alarmHandler->revokeAlarm(alarmName);
+  }
 }
 
 
@@ -390,7 +442,7 @@ bool ResourceMonitorCollection::checkSataDisks
   
   const CURLcode returnCode =
     curlInterface.getContent(
-      "http://" + sataBeast + hostSuffix + "/status.asp",_sataUser, content
+      "http://" + sataBeast + hostSuffix + "/status.asp",_dwParams._sataUser, content
     );
   
   if (returnCode == CURLE_OK)

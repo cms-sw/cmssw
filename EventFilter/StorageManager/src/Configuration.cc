@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.12 2009/08/24 14:31:50 mommsen Exp $
+// $Id: Configuration.cc,v 1.13 2009/08/26 15:22:01 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -162,6 +162,8 @@ namespace stor
     _diskWriteParamCopy._exactFileSizeTest = false;
     _diskWriteParamCopy._useIndexFiles = true;
     _diskWriteParamCopy._sataUser = "USER:mickey2mouse";
+    _diskWriteParamCopy._nInjectWorkers = -1;
+    _diskWriteParamCopy._nCopyWorkers = -1;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
 
@@ -260,6 +262,8 @@ namespace stor
     _exactFileSizeTest = _diskWriteParamCopy._exactFileSizeTest;
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
     _sataUser = _diskWriteParamCopy._sataUser;
+    _nInjectWorkers = _diskWriteParamCopy._nInjectWorkers;
+    _nCopyWorkers = _diskWriteParamCopy._nCopyWorkers;
 
     utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
 
@@ -281,6 +285,8 @@ namespace stor
     infoSpace->fireItemAvailable("exactFileSizeTest", &_exactFileSizeTest);
     infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
     infoSpace->fireItemAvailable("sataUser", &_sataUser);
+    infoSpace->fireItemAvailable("nInjectWorkers", &_nInjectWorkers);
+    infoSpace->fireItemAvailable("nCopyWorkers", &_nCopyWorkers);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -410,6 +416,8 @@ namespace stor
     _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
     _diskWriteParamCopy._sataUser = _sataUser;
+    _diskWriteParamCopy._nInjectWorkers = _nInjectWorkers;
+    _diskWriteParamCopy._nCopyWorkers = _nCopyWorkers;
 
     utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);
 

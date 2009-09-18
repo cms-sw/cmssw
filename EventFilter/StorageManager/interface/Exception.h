@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.6 2009/09/17 11:04:08 mommsen Exp $
+// $Id: Exception.h,v 1.7 2009/09/18 09:10:52 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -32,8 +32,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.6 $
-     $Date: 2009/09/17 11:04:08 $
+     $Revision: 1.7 $
+     $Date: 2009/09/18 09:10:52 $
     
      @file: Exception.h
   */
@@ -139,6 +139,16 @@ XCEPT_DEFINE_EXCEPTION( stor, ConsumerRegistration )
  * DQM consumer registration exception
  */
 XCEPT_DEFINE_EXCEPTION( stor, DQMConsumerRegistration )
+
+/**
+ * Exception for sentinel alarm for CopyWorkers count
+ */
+XCEPT_DEFINE_EXCEPTION( stor, CopyWorkers )
+
+/**
+ * Exception for sentinel alarm for InjectWorkers count
+ */
+XCEPT_DEFINE_EXCEPTION( stor, InjectWorkers )
 
 /**
  * Exception for sentinel alarm if disk space fills up

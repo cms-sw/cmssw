@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.8 2009/08/21 13:46:17 mommsen Exp $
+// $Id: Configuration.h,v 1.9 2009/08/26 15:18:25 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -41,6 +41,8 @@ namespace stor
     bool _exactFileSizeTest;
     bool _useIndexFiles;  // not yet used
     std::string _sataUser; // user name to log into SATA controller
+    int _nInjectWorkers; // expected number of inject workers running on the node
+    int _nCopyWorkers; // expected number of copy workers running on the node
 
     typedef std::vector<std::string> OtherDiskPaths;
     OtherDiskPaths _otherDiskPaths;
@@ -128,8 +130,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/21 13:46:17 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/26 15:18:25 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -296,6 +298,8 @@ namespace stor
     xdata::Boolean _exactFileSizeTest;
     xdata::Boolean _useIndexFiles;
     xdata::String _sataUser;
+    xdata::Integer _nInjectWorkers;
+    xdata::Integer _nCopyWorkers;
 
     xdata::Boolean _pushmode2proxy;
     xdata::Double _maxESEventRate;  // hertz
