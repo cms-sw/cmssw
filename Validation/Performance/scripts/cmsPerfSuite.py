@@ -75,25 +75,16 @@ class PerfSuite:
             self.host         = os.environ["HOST"]
             self.user              = os.environ["USER"]
         except KeyError:
-            self.logh.write('Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.')
-            self.logh.write('       Please run eval `scramv1 runtime -csh` to set your environment variables')
+            self.logh.write('Error: An environment variable either CMSSW_{BASE, RELEASE_BASE or VERSION} HOST or USER is not available.\n')
+            self.logh.write('       Please run eval `scramv1 runtime -csh` to set your environment variables\n')
             self.logh.flush()
             sys.exit()
-
-        #Adding HEPSPEC06 score if available in /build/HEPSPEC06.score file
-        self.HEPSPEC06 = 0 #Set it to 0 by default (so it is easy to catch in the DB too)
-        try:
-           HEPSPEC06_file=open("/build/HEPSPEC06.score","r")
-           for line in HEPSPEC06_file.readlines():
-              if not line.startswith("#") and "HEPSPEC06" in line:
-                 self.HEPSPEC06= line.split()[2]
-        except IOError:
-           self.logh.write("***Warning***: Could not find file /build/HEPSPEC06.score file on this machine!")
-           self.logh.flush()
+           
         #Scripts used by the suite:
         self.Scripts         =["cmsDriver.py","cmsRelvalreport.py","cmsRelvalreportInput.py","cmsScimark2"]
         self.AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.py"]
-    
+
+        
     #Threading the execution of IgProf, Memcheck and Callgrind using the same model used to thread the whole performance suite:
     #1-Define a class simpleGenReportThread() that has relevant methods needed to handle PerfTest()
     #2-Instantiate one with the necessary arguments to run simpleGenReport on core N
@@ -127,17 +118,29 @@ class PerfSuite:
           self.simpleGenReportArgs=simpleGenReportArgs
           self.perfsuiteinstance=perfsuiteinstance
        def runPerfTest(self):
+#          self.PerfTestTotalTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the TimeSize timer
+#          TimerInfo.update({self.simpleGenReportArgs['Name']:{'TotalTime':self.PerfTestTotalTimer}}) #Add the TimeSize timer to the dictionary  
           if "--pileup" in self.simpleGenReportArgs['cmsdriverOptions']:
-             self.logh.write("Launching the PILE UP %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']))
+             self.perfsuiteinstance.logh.write("Launching the PILE UP %s tests on cpu %s with %s events each\n"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']))
+             self.PerfTestPUTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the TimeSize timer
+             TimerInfo[self.simpleGenReportArgs['Name']].update({'PileUpTime':self.PerfTestPUTimer}) #Add the TimeSize timer to the dictionary
+             
           else:
-             self.logh.write("Launching the %s tests on cpu %s with %s events each"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']))
-          self.logh.flush()
+             self.perfsuiteinstance.logh.write("Launching the %s tests on cpu %s with %s events each\n"%(self.simpleGenReportArgs['Name'],self.cpu,self.simpleGenReportArgs['NumEvents']))
+             self.PerfTestTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the TimeSize timer
+             TimerInfo[self.simpleGenReportArgs['Name']].update({'NoPileUpTime':self.PerfTestTimer}) #Add the TimeSize timer to the dictionary
+          self.perfsuiteinstance.logh.flush()
           #Cut and paste in bulk, should see if this works...
           self.perfsuiteinstance.printDate()
           self.perfsuiteinstance.logh.flush()
-          return self.perfsuiteinstance.simpleGenReport([self.cpu],**(self.simpleGenReportArgs)) #Returning ReportExit code
-          
-          
+          self.exitcode=self.perfsuiteinstance.simpleGenReport([self.cpu],**(self.simpleGenReportArgs)) #Returning ReportExit code
+          #Stop the timers on the threaded PileUp and NoPileUp tests:
+          if "--pileup" in self.simpleGenReportArgs['cmsdriverOptions']:
+             self.PerfTestPUTimer.set_end(datetime.datetime.now())
+          else:
+             self.PerfTestTimer.set_end(datetime.datetime.now())
+          return self.exitcode
+       
     #Options handling
     def optionParse(self,argslist=None):
         parser = opt.OptionParser(usage='''./cmsPerfSuite.py [options]
@@ -339,7 +342,7 @@ class PerfSuite:
         # Check step Options
         #
         if "GEN,SIM" in stepOptions:
-            self.logh.write("WARNING: Please use GEN-SIM with a hypen not a \",\"!")
+            self.logh.write("WARNING: Please use GEN-SIM with a hypen not a \",\"!\n")
         #Using the step option as a switch between different dictionaries for:
         #RunTimeSize,RunIgProf,RunCallgrind,RunMemCheck,RunDigiPileUp:
         if stepOptions == "" or stepOptions == 'Default':
@@ -559,7 +562,7 @@ class PerfSuite:
             cmdout   = process.stdout.read()
             exitstat = process.returncode
         except OSError, detail:
-            self.logh.write("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail))
+            self.logh.write("Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s\n"%(command,pid,detail))
             self.logh.flush()
             exitstat=999
             cmdout="Race condition in subprocess.Popen has robbed us of the exit code of the %s process (PID %s).Assume it failed!\n %s"%(command,pid,detail)
@@ -650,14 +653,14 @@ class PerfSuite:
                 if NumEvtRegxp.search(line):
                     line=NumEvtRegxp.sub(r"-n 5",line)
                 else:
-                    self.logh.write("The number of Memcheck event was not changed since the original number of Callgrind event was not 1!")
+                    self.logh.write("The number of Memcheck event was not changed since the original number of Callgrind event was not 1!\n")
                 Outputfile.write(line)
             elif digiRegxp.search(line) and MemcheckRegxp.search(line):
                 #Modify
                 if NumEvtRegxp.search(line):
                     line=NumEvtRegxp.sub(r"-n 5",line)
                 else:
-                    self.logh.write("The number of Memcheck event was not changed since the original number of Callgrind event was not 1!")
+                    self.logh.write("The number of Memcheck event was not changed since the original number of Callgrind event was not 1!\n")
                 Outputfile.write(line)
             else:
                 Outputfile.write(line)
@@ -812,7 +815,7 @@ class PerfSuite:
                     self.testCmsDriver(cpu,adir,candle)
                 else:
                     if userInputRootFiles:
-                       self.logh.write("Variable userInputRootFiles is %s"%userInputRootFiles)
+                       self.logh.write("Variable userInputRootFiles is %s\n"%userInputRootFiles)
                        #Need to use regexp, cannot rely on the order... since for different tests there are different candles...
                        #userInputFile=userInputRootFiles[candles.index(candle)]
                        userInputFile=""
@@ -820,15 +823,21 @@ class PerfSuite:
                        for file in userInputRootFiles:
                           if candleregexp.search(file):
                              userInputFile=file
-                             self.logh.write("For these tests will use user input file %s"%userInputFile)
+                             self.logh.write("For these tests will use user input file %s\n"%userInputFile)
                        if userInputFile=="":
-                          self.logh.write("***No input file matching the candle being processed was found: will try to do without it!!!!!")
+                          self.logh.write("***No input file matching the candle being processed was found: will try to do without it!!!!!\n")
                        self.logh.flush()
                     else:
                        userInputFile=""
+                    DummyTestName=candlename+"_"+stepOptions.split("=")[1]
+                    #if "IgProf" in Name:
+                    #if "TTbar" in candlename:
+                        #print "@@@@Test Name: %s"%Name
+                        #print "@@@@@@@Candle Name: %s"%candlename
+                        #print "@@@@@@@@@@@Dummy Test Name(key): %s"%DummyTestName
+                        #print "@@@@@@@@@@@@@@@Current TimerInfo dictionary:",TimerInfo[Name]
                     DummyTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the timer (DummyTimer is just a reference, but we will use the dictionary to access this later...
-                    DummyTestName=candle+"-"+stepOptions
-                    TimerInfo.update({'TimeSize':{DummyTestName:DummyTimer}}) #Add the TimeSize timer to the dictionary
+                    TimerInfo[Name].update({DummyTestName:DummyTimer}) #Add the TimeSize timer to the dictionary
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)            
                     #Here where the no_exec option kicks in (do everything but do not launch cmsRelvalreport.py, it also prevents cmsScimark spawning...):
                     if self._noexec:
@@ -837,9 +846,9 @@ class PerfSuite:
                         pass
                     else:
                         ExitCode=self.runCmsReport(cpu,adir,candle)
-                        self.logh.write("Individual cmsRelvalreport.py ExitCode %s"%ExitCode)
+                        self.logh.write("Individual cmsRelvalreport.py ExitCode %s\n"%ExitCode)
                         RelvalreportExitCode=RelvalreportExitCode+ExitCode
-                        self.logh.write("Summed cmsRelvalreport.py ExitCode %s"%RelvalreportExitCode)
+                        self.logh.write("Summed cmsRelvalreport.py ExitCode %s\n"%RelvalreportExitCode)
                         self.logh.flush()
                     DummyTimer.set_end(datetime.datetime.now())
                     
@@ -897,17 +906,48 @@ class PerfSuite:
         
         #Set up a variable for the FinalExitCode to be used as the sum of exit codes:
         FinalExitCode=0
-        #Print a time stamp at the beginning:
-    
+
+        #Set up the logfile first!
         if not logfile == None:
            try:
               self.logh = open(logfile,"a")
            except (OSError, IOError), detail:
               self.logh.write(detail + "\n")
               self.logh.flush()  
+
+        #Adding HEPSPEC06 score if available in /build/HEPSPEC06.score file
+        self.HEPSPEC06 = 0 #Set it to 0 by default (so it is easy to catch in the DB too)
+        try:
+           HEPSPEC06_file=open("/build/HEPSPEC06.score","r")
+           for line in HEPSPEC06_file.readlines():
+              if not line.startswith("#") and "HEPSPEC06" in line:
+                 self.HEPSPEC06= line.split()[2]
+        except IOError:
+           self.logh.write("***Warning***: Could not find file /build/HEPSPEC06.score file on this machine!\n")
+           self.logh.flush()
+
+        #Adding a copy of /proc/cpuinfo and /proc/meminfo in the working directory so it can be kept in the tarball on CASTOR:
+        localcpuinfo=os.path.join(perfsuitedir,"cpuinfo")
+        cpuinfo_exitcode=-1
+        if os.path.exists(localcpuinfo):
+           cpuinfo_exitcode=0
+        else:
+           self.logh.write("Copying /proc/cpuinfo in current working directory (%s)\n"%perfsuitedir)
+           cpuinfo_exitcode=self.runcmd("cp /proc/cpuinfo %s"%perfsuitedir)
+        localmeminfo=os.path.join(perfsuitedir,"meminfo")
+        meminfo_exitcode=-1
+        if os.path.exists(localmeminfo):
+           meminfo_exitcode=0
+        else:
+           self.logh.write("Copying /proc/meminfo in current working directory (%s)\n"%perfsuitedir)
+           meminfo_exitcode=self.runcmd("cp /proc/meminfo %s"%perfsuitedir)
+        if cpuinfo_exitcode or meminfo_exitcode:
+           self.logh.write("There was an issue copying the cpuinfo or meminfo files!\n")
+        self.logh.flush()
+        
         try:        
             if not prevrel == "":
-                self.logh.write("Production of regression information has been requested with release directory %s" % prevrel)
+                self.logh.write("Production of regression information has been requested with release directory %s\n" % prevrel)
             if not cmsdriverOptions == "":
                 self.logh.write("Running cmsDriver.py with user defined options: %s\n" % cmsdriverOptions)
                 #Attach the full option synthax for cmsRelvalreportInput.py:
@@ -1038,7 +1078,7 @@ class PerfSuite:
                     GetPUInputExitCode=GetPUInput.wait()
                     #Allow even the potential copy of a local file (even one already named INPUT_PILEUP_EVENTS.root!)
                     if GetPUInputExitCode:
-                        self.logh.write("The copying of the pile-up input file returned a non-zero exit code: %s \nThis is the stdout+stderr if the command:\n%s"%(GetPUInputExitCode,GetPUInput.stdout))
+                        self.logh.write("The copying of the pile-up input file returned a non-zero exit code: %s \nThis is the stdout+stderr if the command:\n%s\n"%(GetPUInputExitCode,GetPUInput.stdout))
                 #Ultimately accept the case of the file being already there and not being specified in the --PUInputFile option
                 if not os.path.exists(PUInputName):
                     self.logh.write("The necessary INPUT_PILEUP_EVENTS.root file was not found in the working directory %s\nExiting now!"%perfsuitedir)
@@ -1339,6 +1379,11 @@ class PerfSuite:
                         self.printFlush("Let's use cpu %s"%cpu)
                         simpleGenReportArgs=TestsToDo.pop()
                         self.printFlush("Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu))
+                        #Adding a Total timer for each of the threaded tests:
+                        if simpleGenReportArgs['Name'] not in TimerInfo.keys():
+                           #if 'TotalTime' not in TimerInfo[simpleGenReportArgs['Name']].keys():
+                           self.PerfTestTotalTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the TimeSize timer
+                           TimerInfo.update({simpleGenReportArgs['Name']:{'TotalTime':self.PerfTestTotalTimer}}) #Add the TimeSize timer to the dictionary 
                         threadToDo=self.simpleGenReportThread(cpu,self,**simpleGenReportArgs) #Need to send self too, so that the thread has access to the PerfSuite.simpleGenReport() function
                         self.printFlush("Starting thread %s"%threadToDo)
                         ReportExitCode=threadToDo.start()
@@ -1348,8 +1393,15 @@ class PerfSuite:
                      else:
                         pass
                   #Test activePerfThreads:
+                  activeTestNames=[]
+                  activeTestNamesPU=[]
                   for cpu in activePerfTestThreads.keys():
                      if activePerfTestThreads[cpu].isAlive():
+                        #print "%% cpu %s activerPerfTestThreads[cpu] %s activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions'] %s"%(cpu,activePerfTestThreads[cpu],activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions'])
+                        if "--pileup" in activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions']:
+                           activeTestNamesPU.append(activePerfTestThreads[cpu].simpleGenReportArgs['Name'])
+                        else:
+                           activeTestNames.append(activePerfTestThreads[cpu].simpleGenReportArgs['Name'])
                         pass
                      elif cpu not in AvailableCores:
                         #Set waiting flag to False since we'll be doing something
@@ -1358,6 +1410,36 @@ class PerfSuite:
                         self.printFlush("%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) )
                         self.printFlush("About to append cpu %s to AvailableCores list"%cpu)
                         AvailableCores.append(cpu)
+                        #Eliminate from activeTestNames lists:
+                        #print activeTestNames
+                        #print activeTestNamesPU
+                        #print activePerfTestThreads[cpu].simpleGenReportArgs['Name']
+                        if "--pileup" in activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions']:
+                           try:
+                              activeTestNamesPU.remove(activePerfTestThreads[cpu].simpleGenReportArgs['Name'])
+                           except:
+                              pass
+                        else:
+                           try:
+                              activeTestNames.remove(activePerfTestThreads[cpu].simpleGenReportArgs['Name'])
+                           except:
+                              pass
+                        #Eliminate also from activePErfTestThreads dictionary:
+                        activePerfTestThreads.pop(cpu)
+                        #FIXME:
+                        #Delicate check to stop the timer on the individual threaded test!
+                        #Need to thik about it still...
+                  #FIXME:
+                  #Delicate check to stop the timers on the threaded tests:
+                  #Check activePerfTestThreads dictionary for "Name" if any name is missing, the total can be stopped for that name.
+                  #self.PerfTestTotalTimer
+                  for TestName in ["IgProf_Perf","IgProf_Mem","Memcheck","Valgrind"]:
+                     if (TestName not in activeTestNames) and (TestName not in activeTestNamesPU) :
+                        try:
+                           TimerInfo[TestName]['TotalTime'].set_end(datetime.datetime.now())
+                        except:
+                           #print "No %s test was running"%TestName
+                           pass
                   #Buggy if... it seems we don't wait for the running thread to be finished...
                   #We should request:
                   #-All OriginalAvailableCores should be actually available.
@@ -1444,8 +1526,8 @@ class PerfSuite:
                      #print "Print this is the token: %s"%token
                      pass
                   
-               self.printFlush("Conditions label to add to the tarball name is %s"%fileConditionsOption)
-               self.printFlush("Eventcontent label to add to the tarball name is %s"%fileEventContentOption)
+               #self.printFlush("Conditions label to add to the tarball name is %s"%fileConditionsOption)
+               #self.printFlush("Eventcontent label to add to the tarball name is %s"%fileEventContentOption)
                      #FIXME:
                      #Could add the allowed event contents in the cmsPerfCommons.py file and use those to match in the command line options... This assumes maintenance of cmsPerfCommons.py
                   
@@ -1509,21 +1591,31 @@ class PerfSuite:
            self.printFlush('No email notification will be sent for this execution of the performance suite since option --mail "" was used')
         
         TotalTime.set_end(datetime.datetime.now())        
-        self.printFlush("Total Running Time:%s seconds"%TotalTime.get_duration()['seconds'])
+        self.printFlush("Total Running Time\t%s hrs (%s mins)"%(TotalTime.get_duration()['hours'],TotalTime.get_duration()['minutes']))
 
         #Dump of the TimerInfo information
-        #First dump it as a pickle file...
+        #First dump it as a pickleq file...
+        #Well in order to do so without the complication of serializing a custom class instance need to make the dictionary fully string-made:
+        TimerInfoStr={}
         PerfSuiteTimerInfo=open("PerfSuiteTimerInfo.pkl","wb")
-        pickle.dump(TimerInfo,PerfSuiteTimerInfo)
-        PerfSuiteTimerInfo.close()
+        #pickle.dump(TimerInfo,PerfSuiteTimerInfo)
+        #PerfSuiteTimerInfo.close()
+        #For now print it at the bottom of the log:
+        self.logh.write("Test type\tActual Test\tDuration\tStart Time\tEnd Time\n")
         for key in TimerInfo.keys():
-           self.printFlush(key)
+           #self.printFlush(key)
+           TimerInfoStr.update({key:{}})
            for test in TimerInfo[key].keys():
-              self.printFlush(test)
-              self.printFlush("Start time: %s"%TimerInfo[key][test].get_start())
-              self.printFlush("End time: %s"%TimerInfo[key][test].get_end())
-              self.printFlush("Duration : %s"%TimerInfo[key][test].get_duration()['seconds'])
+              TimerInfoStr[key].update({test:[str(TimerInfo[key][test].get_duration()['hours'])+" hrs ("+str(TimerInfo[key][test].get_duration()['minutes'])+" mins)",TimerInfo[key][test].get_start(),TimerInfo[key][test].get_end()]})
+              self.logh.write(key+"\t"+test+"\t")
+              self.logh.write("%s hrs (%s mins)\t"%(TimerInfo[key][test].get_duration()['hours'],TimerInfo[key][test].get_duration()['minutes']))
+              self.logh.write("%s\t"%TimerInfo[key][test].get_start())
+              self.logh.write("%s\n"%TimerInfo[key][test].get_end())
+        pickle.dump(TimerInfoStr,PerfSuiteTimerInfo) 
+        PerfSuiteTimerInfo.close()
         
+        self.logh.write("Final Performance Suite exit code was %s"%FinalExitCode)
+        self.logh.flush()
         sys.exit(FinalExitCode)
     
 def main(argv=[__name__]): #argv is a list of arguments.
