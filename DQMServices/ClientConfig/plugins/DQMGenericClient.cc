@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/06/03 07:34:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/08/25 21:01:44 $
+ *  $Revision: 1.9 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -18,6 +18,9 @@
 
 #include <TH1F.h>
 #include <cmath>
+#include <TClass.h>
+#include <TString.h>
+
 
 using namespace std;
 using namespace edm;
@@ -42,6 +45,12 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   subDirs_ = pset.getUntrackedParameter<vstring>("subDirs");
 
   isWildcardUsed_ = false;
+}
+
+void DQMGenericClient::endRun(const edm::Run& r, const edm::EventSetup& c) 
+{
+  // Hrm, nothing run-sepcific to do, so just call endJob
+  endJob();
 }
 
 void DQMGenericClient::endJob()
@@ -191,7 +200,7 @@ void DQMGenericClient::endJob()
    }
   }
 
-  if ( verbose_ > 0 ) theDQM->showDirStructure();
+  //if ( verbose_ > 0 ) theDQM->showDirStructure();
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
 }
@@ -228,12 +237,15 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     return;
   }
 
-  TH1F* hSim  = simME ->getTH1F();
-  TH1F* hReco = recoME->getTH1F();
+  // Treat everything as the base class, TH1
+
+  TH1* hSim  = simME ->getTH1();
+  TH1* hReco = recoME->getTH1();
+
   if ( !hSim || !hReco ) {
     if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
       LogWarning("DQMGenericClient") << "computeEfficiency() : "
-                                  << "Cannot create TH1F from ME\n";
+                                 << "Cannot create TH1 from ME\n";
     }
     return;
   }
@@ -247,9 +259,26 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   }
   theDQM->setCurrentFolder(efficDir);
 
-  TH1F* efficHist = (TH1F*)hSim->Clone(newEfficMEName.c_str());
+  TH1* efficHist = (TH1*)hSim->Clone(newEfficMEName.c_str());
   efficHist->SetTitle(efficMETitle.c_str());
-  ME* efficME = theDQM->book1D(newEfficMEName, efficHist);
+
+  // Here is where you have trouble --- you need
+  // to understand what type of hist you have.
+
+  ME* efficME = 0;
+
+  // Parse the class name
+  // This works, but there might be a better way
+  TClass * myHistClass = efficHist->IsA();
+  TString histClassName = myHistClass->GetName();
+
+  if (histClassName == "TH1F"){
+    efficME = theDQM->book1D(newEfficMEName, (TH1F*)efficHist);
+  } else if (histClassName == "TH2F"){
+    efficME = theDQM->book2D(newEfficMEName, (TH2F*)efficHist);
+  } else if (histClassName == "TH3F"){
+    efficME = theDQM->book3D(newEfficMEName, (TH3F*)efficHist);
+  }
 
   if ( !efficME ) {
     LogWarning("DQMGenericClient") << "computeEfficiency() : "
@@ -257,17 +286,23 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
     return;
   }
 
-  const int nBin = efficME->getNbinsX();
-  for(int bin = 0; bin <= nBin; ++bin) {
-    const float nSim  = simME ->getBinContent(bin);
-    const float nReco = recoME->getBinContent(bin);
-    float eff =0;
-    if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
-    else eff= nSim ? nReco/nSim : 0.;
-    const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
-    efficME->setBinContent(bin, eff);
-    efficME->setBinError(bin, err);
-  }
+  // Update: 2009-9-16 slaunwhj
+  // call the most generic efficiency function
+  // works up to 3-d histograms
+
+  generic_eff (hSim, hReco, efficME);
+
+  //   const int nBin = efficME->getNbinsX();
+  //   for(int bin = 0; bin <= nBin; ++bin) {
+  //     const float nSim  = simME ->getBinContent(bin);
+  //     const float nReco = recoME->getBinContent(bin);
+  //     float eff =0;
+  //     if (type=="fake")eff = nSim ? 1-nReco/nSim : 0.;
+  //     else eff= nSim ? nReco/nSim : 0.;
+  //     const float err = nSim && eff <= 1 ? sqrt(eff*(1-eff)/nSim) : 0.;
+  //     efficME->setBinContent(bin, eff);
+  //     efficME->setBinError(bin, err);
+  //   }
   efficME->setEntries(simME->getEntries());
 
   // Global efficiency
@@ -513,5 +548,44 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
   
 }
 
+
+void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist) 
+{
+  for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++)
+  {
+    for (int iBinY = 1; iBinY < denom->GetNbinsY()+1; iBinY++)
+    {
+      for (int iBinZ = 1; iBinZ < denom->GetNbinsZ()+1; iBinZ++)
+      {
+
+        int globalBinNum = denom->GetBin(iBinX, iBinY, iBinZ);
+
+ 
+        float numerVal = numer->GetBinContent(globalBinNum);
+        float denomVal = denom->GetBinContent(globalBinNum);
+
+        float effVal = denomVal ? numerVal / denomVal : 0;
+
+        float errVal = (denomVal && (effVal <=1)) ? sqrt(effVal*(1-effVal)/denomVal) : 0;
+
+        LogDebug ("DQMGenericClient") << "(iBinX, iBinY, iBinZ)  = "
+            << iBinX << ", "
+            << iBinY << ", "
+            << iBinZ << "), global bin =  "  << globalBinNum
+            << "eff = " << numerVal << "  /  " << denomVal
+            << " =  " << effVal
+            << " ... setting the error for that bin ... " << endl
+            << endl;
+
+
+        efficiencyHist->setBinContent(globalBinNum, effVal);
+        efficiencyHist->setBinError(globalBinNum, errVal);
+      }
+    }
+  }
+
+  //efficiencyHist->setMinimum(0.0);
+  //efficiencyHist->setMaximum(1.0);
+}
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */
