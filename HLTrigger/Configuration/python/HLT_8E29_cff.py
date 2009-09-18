@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre1/8E29/V14 (CMSSW_3_3_X_2009-09-01-0500_HLT1)
+# /dev/CMSSW_3_3_0/pre4/8E29/V2 (CMSSW_3_3_X_2009-09-17-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/8E29/V14')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V2')
 )
 
 
@@ -959,6 +959,7 @@ hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     UnpackCalib = cms.untracked.bool( True ),
     UnpackZDC = cms.untracked.bool( True ),
+    UnpackTTP = cms.untracked.bool( True ),
     firstSample = cms.int32( 0 ),
     lastSample = cms.int32( 9 ),
     FilterDataQuality = cms.bool( True )
@@ -2057,17 +2058,12 @@ hltL3TkTracksFromL2 = cms.EDProducer( "TrackProducer",
 hltL3Muons = cms.EDProducer( "L3MuonProducer",
     MuonCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
     L3TrajBuilderParameters = cms.PSet( 
-      MuonHitsOption = cms.int32( 1 ),
       ScaleTECxFactor = cms.double( -1.0 ),
-      CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
       StateOnTrackerBoundOutPropagator = cms.string( "SmartPropagatorAny" ),
       TransformerOutPropagator = cms.string( "SmartPropagatorAny" ),
       ScaleTECyFactor = cms.double( -1.0 ),
       Direction = cms.int32( 0 ),
-      HitThreshold = cms.int32( 1 ),
       TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
-      Chi2CutRPC = cms.double( 1.0 ),
-      Chi2ProbabilityCut = cms.double( 30.0 ),
       MuonTrackingRegionBuilder = cms.PSet( 
         EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
         Eta_fixed = cms.double( 0.2 ),
@@ -2091,9 +2087,6 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
       ),
       TkTrackBuilder = cms.string( "muonCkfTrajectoryBuilder" ),
       TrackerPropagator = cms.string( "SteppingHelixPropagatorAny" ),
-      DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
-      Chi2CutCSC = cms.double( 150.0 ),
-      TrackRecHitBuilder = cms.string( "WithTrackAngle" ),
       MatcherOutPropagator = cms.string( "SmartPropagator" ),
       GlobalMuonTrackMatcher = cms.PSet( 
         MinP = cms.double( 2.5 ),
@@ -2115,11 +2108,9 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         Quality_2 = cms.double( 15.0 ),
         Quality_3 = cms.double( 7.0 )
       ),
-      RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
       tkTrajLabel = cms.InputTag( "hltL3TkTracksFromL2" ),
       MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
       RefitRPCHits = cms.bool( True ),
-      Chi2CutDT = cms.double( 10.0 ),
       TrackTransformer = cms.PSet( 
         DoPredictionsOnly = cms.bool( False ),
         Fitter = cms.string( "L3MuKFFitter" ),
@@ -2130,7 +2121,29 @@ hltL3Muons = cms.EDProducer( "L3MuonProducer",
         RefitRPCHits = cms.bool( True )
       ),
       PtCut = cms.double( 1.0 ),
-      KFFitter = cms.string( "L3MuKFFitter" )
+      KFFitter = cms.string( "L3MuKFFitter" ),
+      GlbRefitterParameters = cms.PSet( 
+        DTRecSegmentLabel = cms.InputTag( "hltDt4DSegments" ),
+        CSCRecSegmentLabel = cms.InputTag( "hltCscSegments" ),
+        RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
+        MuonHitsOption = cms.int32( 1 ),
+        Chi2CutCSC = cms.double( 150.0 ),
+        Chi2CutDT = cms.double( 10.0 ),
+        Chi2CutRPC = cms.double( 1.0 ),
+        HitThreshold = cms.int32( 1 ),
+        Fitter = cms.string( "L3MuKFFitter" ),
+        Smoother = cms.string( "KFSmootherForRefitInsideOut" ),
+        Propagator = cms.string( "SmartPropagatorAny" ),
+        TrackerRecHitBuilder = cms.string( "WithTrackAngle" ),
+        MuonRecHitBuilder = cms.string( "MuonRecHitBuilder" ),
+        DoPredictionsOnly = cms.bool( False ),
+        RefitDirection = cms.string( "insideOut" ),
+        PropDirForCosmics = cms.bool( False ),
+        RefitRPCHits = cms.bool( True ),
+        SkipStation = cms.int32( -1 ),
+        TrackerSkipSystem = cms.int32( -1 ),
+        TrackerSkipSection = cms.int32( -1 )
+      )
     ),
     ServiceParameters = cms.PSet( 
       Propagators = cms.untracked.vstring( 'SmartPropagatorAny',

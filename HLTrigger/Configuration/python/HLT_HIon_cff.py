@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre1/HIon/V14 (CMSSW_3_3_X_2009-09-01-0500_HLT1)
+# /dev/CMSSW_3_3_0/pre4/HIon/V2 (CMSSW_3_3_X_2009-09-17-0100_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre1/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/HIon/V2')
 )
 
 
@@ -946,6 +946,7 @@ hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     UnpackCalib = cms.untracked.bool( True ),
     UnpackZDC = cms.untracked.bool( True ),
+    UnpackTTP = cms.untracked.bool( True ),
     firstSample = cms.int32( 0 ),
     lastSample = cms.int32( 9 ),
     FilterDataQuality = cms.bool( True )
