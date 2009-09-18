@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.14 2009/04/27 16:53:29 dmytro Exp $
+// $Id: FW3DView.cc,v 1.15 2009/07/02 18:35:43 amraktad Exp $
 //
 
 // system include files
@@ -45,18 +45,12 @@
 #include "TEveElement.h"
 #include "TEveCalo.h"
 #include "TEveElement.h"
-#include "TEveRGBAPalette.h"
-#include "TEveLegoEventHandler.h"
-#include "TGLWidget.h"
 #include "TGLScenePad.h"
-#include "TGLFontManager.h"
-#include "TEveTrans.h"
 #include "TGeoTube.h"
-#include "TEveGeoNode.h"
-#include "TEveStraightLineSet.h"
-#include "TEveText.h"
 #include "TEveWindow.h"
 #include "TGeoArb8.h"
+#include "TEveGeoNode.h"
+#include "TEveScene.h"
 
 
 // user include files
@@ -64,14 +58,12 @@
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
-
+#include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "TEveGeoNode.h"
-#include "TEveScene.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
-#include "TEvePolygonSetProjected.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 //
@@ -511,8 +503,12 @@ FW3DView::setTransparency( )
 //______________________________________________________________________________
 
 void
-FW3DView::setBackgroundColor(Color_t iColor) {
-   m_viewer->GetGLViewer()->SetClearColor(iColor);
+FW3DView::setBackgroundColor(Color_t iColor)
+{
+   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
+   if ( iColor == FWColorManager::kBlackIndex && !dark ||
+        iColor == FWColorManager::kWhiteIndex && dark)
+      m_viewer->GetGLViewer()->SwitchColorSet();
 }
 
 //

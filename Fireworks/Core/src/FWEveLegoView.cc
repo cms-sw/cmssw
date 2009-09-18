@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.50 2009/09/18 10:40:58 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.51 2009/09/18 13:35:23 amraktad Exp $
 //
 
 // system include files
@@ -112,7 +112,6 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
       m_lego =  dynamic_cast<TEveCaloLego*>( list->FirstChild());
       if (m_lego) {
          m_overlay = new TEveCaloLegoOverlay();
-	 // std::cout << "TEveCaloLegoOverlay: " << m_overlay << std::endl;
          m_overlay->SetShowPlane(kFALSE);
          m_overlay->SetShowPerspective(kFALSE);
          m_overlay->GetAttAxis()->SetLabelSize(0.02);
@@ -120,11 +119,8 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->SetCaloLego(m_lego);
 	 m_overlay->SetShowScales(1); //temporary
          m_overlay->SetScalePosition(0.88, 0.6);
-         //         m_overlay->SetUseAxisColors(kTRUE);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-         TEveLegoEventHandler* eh = new TEveLegoEventHandler(m_lego, ev->GetGLWidget(), ev);
-         ev->SetEventHandler(eh);
       }
    }
    // take care of cameras
@@ -168,27 +164,11 @@ FWEveLegoView::finishSetup()
 void
 FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
-   m_viewer->GetGLViewer()->SetClearColor(iColor);
+   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
 
-   Color_t grid, overlay, font, scale;
-   if(iColor == FWColorManager::kWhiteIndex) {
-      grid  = kGray;
-      font  = kGray + 3;
-      scale = TColor::GetColor("#1f1f1f");
-      overlay = kGray + 2;
-   } else {
-      grid  = kGray + 3;
-      font  = TColor::GetColor("#b0b0b0");
-      scale = TColor::GetColor("#fdfdfd");
-      overlay = kGray + 2;
-   }
-   m_lego->SetGridColor(grid);
-   m_lego->SetFontColor(font);
-
-   m_overlay->GetAttAxis()->SetLabelColor(overlay);
-   m_overlay->GetAttAxis()->SetAxisColor(overlay);
-   m_overlay->SetScaleColorTransparency(scale, 0);
-   m_overlay->SetFrameAttribs(scale, 70, 95);
+   if ( iColor == FWColorManager::kBlackIndex && !dark ||
+        iColor == FWColorManager::kWhiteIndex && dark)
+      m_viewer->GetGLViewer()->SwitchColorSet();
 }
 
 void
