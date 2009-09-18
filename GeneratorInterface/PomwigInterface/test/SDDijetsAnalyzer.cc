@@ -72,7 +72,7 @@ SDDijetsAnalyzer::SDDijetsAnalyzer(const edm::ParameterSet& pset)
 {
   genParticlesTag_ = pset.getParameter<edm::InputTag>("GenParticleTag");
   genJetsTag_ = pset.getParameter<edm::InputTag>("GenJetTag");
-
+  Ebeam = pset.getParameter<double>("EBeam");
   debug = pset.getUntrackedParameter<bool>("debug",false);
 }
 
@@ -101,7 +101,6 @@ void SDDijetsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
   hProtonPt2 = fs->make<TH1F>("hProtonPt2","hProtonPt2",100,0.,3.0);
 
   nevents = 0;
-  Ebeam = 5000.;//Fix get the Ebeam from the event
 }
 
 void SDDijetsAnalyzer::endJob(){
@@ -151,6 +150,8 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 
   edm::Handle<reco::GenJetCollection> genJets;
   ev.getByLabel(genJetsTag_,genJets);
+  if(genJets->size() < 2) return;
+
   /*reco::GenJetCollection::const_iterator jet1 = genJets->end();
   reco::GenJetCollection::const_iterator jet2 = genJets->end();
   double firstpt = -1.;
@@ -165,7 +166,7 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
 		jet2 = genjet;
 	}
   }*/
-  std::vector<std::pair<reco::GenJetCollection::const_iterator,double> > genjetvec;	
+  /*std::vector<std::pair<reco::GenJetCollection::const_iterator,double> > genjetvec;	
   int jetcount = 0;
   for(reco::GenJetCollection::const_iterator genjet = genJets->begin(); genjet != genJets->end(); ++genjet){
 	if(debug) std::cout << " Jet " << jetcount++ << " pt: " << genjet->pt() << std::endl;
@@ -177,9 +178,12 @@ void SDDijetsAnalyzer::analyze(const edm::Event & ev, const edm::EventSetup&){
   if(debug){
   	std::cout << ">>> After sorting: " << std::endl;
   	for(size_t k = 0; k < genjetvec.size(); ++k) std::cout << " Jet " << k << " pt: " << genjetvec[k].second << std::endl;
-  }
+  }*/
 	
-  if((jet1 != genJets->end())&&(jet2 != genJets->end())){
+  const reco::GenJet* jet1 = &(*genJets)[0];
+  const reco::GenJet* jet2 = &(*genJets)[1];
+
+  if(jet1&&jet2){
 	if(debug) std::cout << ">>> Leading Jet pt,eta: " << jet1->pt() << " , " << jet1->eta() << std::endl;
 	hJet1Pt->Fill(jet1->pt());
 	hJet1Eta->Fill(jet1->eta());
