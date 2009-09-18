@@ -253,6 +253,9 @@ class PFRootEventManager {
   /// performs particle flow
   void particleFlow();
 
+  /// compare particle flow
+  void pfCandCompare(int);
+
   /// reconstruct gen jets
   void reconstructGenJets();   
 
@@ -462,6 +465,10 @@ class PFRootEventManager {
   /// Calo Tower base Candidates branch
   TBranch*   caloTowerBaseCandidatesBranch_;
   
+  /// CMSSW PF Candidates branch
+  
+  TBranch*   pfCandidatesBranch_;
+  
   ///CMSSW Gen Jet branch
   TBranch*   genJetBranch_;
   
@@ -624,6 +631,9 @@ class PFRootEventManager {
   /// CMSSW PF MET
   reco::PFMETCollection pfMetsCMSSW_;
 
+  /// CMSSW PF candidates
+  reco::PFCandidateCollection pfCandCMSSW_;
+
   /// input file
   TFile*     file_; 
 
@@ -723,6 +733,9 @@ class PFRootEventManager {
 
   /// particle flow on/off
   bool   doParticleFlow_;
+  
+  /// comparison with pf CMSSW
+  bool   doCompare_;
 
   /// jets on/off
   bool   doJets_;

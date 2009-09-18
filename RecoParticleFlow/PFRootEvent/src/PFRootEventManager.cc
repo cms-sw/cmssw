@@ -647,7 +647,9 @@ void PFRootEventManager::readOptions(const char* file,
 
 
   doParticleFlow_ = true;
+  doCompare_ = false;
   options_->GetOpt("particle_flow", "on/off", doParticleFlow_);  
+  options_->GetOpt("particle_flow", "comparison", doCompare_);  
 
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
@@ -1313,6 +1315,21 @@ void PFRootEventManager::connect( const char* infilename ) {
     }  
   }
 
+  // PF candidates 
+  string PFCandBranchName;
+  pfCandidatesBranch_ = 0;
+  options_->GetOpt("root","particleFlowCand_branch", 
+		   PFCandBranchName);
+  if(!PFCandBranchName.empty() ){  
+    pfCandidatesBranch_= 
+      tree_->GetBranch(PFCandBranchName.c_str()); 
+    if(!pfCandidatesBranch_) {
+      cerr<<"PFRootEventanager::ReadOptions : "
+	  <<"particleFlowCandidates_branch not found : "
+          <<PFCandBranchName<< endl;
+    }  
+  }
+
       
   string genJetBranchName; 
   options_->GetOpt("root","genJetBranchName", genJetBranchName);
@@ -1434,6 +1451,7 @@ void PFRootEventManager::setAddresses() {
   if (recCaloMETBranch_) recCaloMETBranch_->SetAddress(&caloMetsCMSSW_);
   if (recTCMETBranch_) recTCMETBranch_->SetAddress(&tcMetsCMSSW_);
   if (recPFMETBranch_) recPFMETBranch_->SetAddress(&pfMetsCMSSW_); 
+  if (pfCandidatesBranch_) pfCandidatesBranch_->SetAddress(&pfCandCMSSW_); 
   if (genParticlesforMETBranch_) genParticlesforMETBranch_->SetAddress(&genParticlesCMSSW_); 
 }
 
@@ -1525,7 +1543,10 @@ bool PFRootEventManager::processEntry(int entry) {
   }
 
   
-  if(doParticleFlow_) particleFlow();
+  if(doParticleFlow_) { 
+    particleFlow();
+    if (doCompare_) pfCandCompare(entry);
+  }
 
   if(doJets_) {
     reconstructGenJets();
@@ -2335,6 +2356,34 @@ void PFRootEventManager::particleFlow() {
   if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
 
+void PFRootEventManager::pfCandCompare(int entry) {
+
+  bool differentSize = pfCandCMSSW_.size() != pfCandidates_->size();
+  if ( differentSize ) { 
+    cout << "+++WARNING+++ PFCandidate size changed for entry " 
+	 << entry << " !" << endl
+	 << " - original size : " << pfCandCMSSW_.size() << endl 
+	 << " - current  size : " << pfCandidates_->size() << endl;
+  } else { 
+    for(unsigned i=0; i<pfCandidates_->size(); i++) {
+      double deltaE = (*pfCandidates_)[i].energy()-pfCandCMSSW_[i].energy();
+      double deltaEta = (*pfCandidates_)[i].eta()-pfCandCMSSW_[i].eta();
+      double deltaPhi = (*pfCandidates_)[i].phi()-pfCandCMSSW_[i].phi();
+      if ( fabs(deltaE) > 1E-5 ||
+	   fabs(deltaEta) > 1E-9 ||
+	   fabs(deltaPhi) > 1E-9 ) { 
+	cout << "+++WARNING+++ PFCandidate " << i 
+	     << " changed  for entry " << entry << " ! " << endl 
+	     << " - Original : " << pfCandCMSSW_[i] << endl
+	     << " - Current  : " << (*pfCandidates_)[i] << endl
+	     << " DeltaE   = : " << deltaE << endl
+	     << " DeltaEta = : " << deltaEta << endl
+	     << " DeltaPhi = : " << deltaPhi << endl << endl;
+      }
+    }
+  }
+
+}
 
 
 void PFRootEventManager::reconstructGenJets() {
