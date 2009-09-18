@@ -1439,21 +1439,35 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 // -- Tracker Map
 //
 
+void SiPixelActionExecutor::bookTrackerMaps(DQMStore* bei, std::string name)
+{
+	bei->setCurrentFolder("Pixel/Barrel");
+	std::string partB[] = { "Layer_1", "Layer_2", "Layer_3"};
+	bei->book2D("TRKMAP_" + name + "_" + partB[0], "TRKMAP_" + name + "_" + partB[0], 20, 1., 21., 8, 1., 9.);
+	bei->book2D("TRKMAP_" + name + "_" + partB[1], "TRKMAP_" + name + "_" + partB[1], 32, 1., 33., 8, 1., 9.);
+	bei->book2D("TRKMAP_" + name + "_" + partB[2], "TRKMAP_" + name + "_" + partB[2], 44, 1., 45., 8, 1., 9.);
+		
+	bei->setCurrentFolder("Pixel/Endcap");
+	std::string partE[] = { "Disc_1_M", "Disc_2_M", "Disc_1_P", "Disc_2_P" };
+	for(Int_t p = 0 ; p < NCyl ; p++)
+		bei->book2D("TRKMAP_" + name + "_" + partE[p], "TRKMAP_" + name + "_" + partE[p], 24, 1., 25., 7, 1., 8.);
+}
 
-void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, funcType ff)
+
+void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, std::string name, funcType ff)
 {
 //	cout << "Starting with SiPixelActionExecutor::createMaps" << endl;
 
 	Double_t mapB[NLev1][NLev2][NLev3][NLev4];
 	bei->setCurrentFolder("Pixel/Barrel/");
-	createMap(mapB, type, bei, ff);
+	createMap(mapB, type, bei, ff, true);
 	Double_t minB = mapMin(mapB, true);
 	Double_t maxB = mapMax(mapB, true);
 	
 	
 	Double_t mapE[NLev1][NLev2][NLev3][NLev4];
 	bei->setCurrentFolder("Pixel/Endcap/");
-	createMap(mapE, type, bei, ff);
+	createMap(mapE, type, bei, ff, false);
 	Double_t minE = mapMin(mapE, false);
 	Double_t maxE = mapMax(mapE, false);
 	
@@ -1471,16 +1485,16 @@ void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, funcType
 	MonitorElement* meE[NLayer];
 	//	TH2F* histE[NCyl];
 	bei->setCurrentFolder("Pixel/Barrel");
-	prephistosB(meB, bei, mapB, type, min, max);
+	prephistosB(meB, bei, mapB, name, min, max);
 	bei->setCurrentFolder("Pixel/Endcap");
-	prephistosE(meE, bei, mapE, type, min, max);
+	prephistosE(meE, bei, mapE, name, min, max);
 
 //	cout << "Done with SiPixelActionExecutor::createMaps" << endl;
 }
 
 //=============================================================================================================
 
-int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff)
+int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, bool isBarrel)
 {
 	// cout << "Starting with SiPixelActionExecutor::createMap" << endl;
 	//int createMap(Double_t map[][NLev2][NLev3][NLev4], TString type, TDirectoryFile* dirMain, funcType ff){
@@ -1502,7 +1516,31 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 			{
 				//cout << "Current Directory: " << *it3 << endl;
 				bei->cd(*it3);
-				getData(map, type, bei, ff, i, j, k);
+				if(Tier0Flag_)
+					for (Int_t l = 0; l < NLev4; l++)
+						getData(map, type, bei, ff, i, j, k, l);
+				else
+				{
+					Int_t l = 0;
+					vector<string> dirLev4 = bei->getSubdirs();
+					for (vector<string>::const_iterator it4 = dirLev4.begin(); it4 != dirLev4.end(); it4++)
+					{
+						// cout << "Current Directory: " << *it4 << endl;
+						bei->cd(*it4);
+						if (isBarrel)
+							getData(map, type, bei, ff, i, j, k, l++);
+						else
+						{
+							vector<string> dirLev5 = bei->getSubdirs();
+							for (vector<string>::const_iterator it5 = dirLev5.begin(); it5 != dirLev5.end(); it5++)
+							{
+								// cout << "Current Directory: " << *it5 << endl;
+								bei->cd(*it5);
+								getData(map, type, bei, ff, i, j, k, l++);
+							}
+						}
+					}
+				}
 				k++;
 			}
 			j++;
@@ -1516,7 +1554,7 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k) {
+void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k, Int_t l) {
 	
 //	cout << "Starting with SiPixelActionExecutor::getData" << endl;
 	vector<string> contents = bei->getMEs();
@@ -1531,7 +1569,7 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 		MonitorElement*  me = bei->get(fullpathname);
 		
 		if (me) {
-		//cout << me->getName() << endl;
+		//cout << "Name: " << me->getName() << endl;
 		// TH1F* histo = (TH1F*) me->getTH1F();
 		TH1F* histo = me->getTH1F();
 		
@@ -1539,43 +1577,36 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 		// cout << "# of bins: " << nbins << endl;
 		switch (ff){
 			case EachBinContent:
-				for(Int_t l = 0; l < ((nbins<NLev4)?nbins:NLev4); l++){
-					map[i][j][k][l] = histo->GetBinContent(l + 1);
-				}
+				map[i][j][k][l] = histo->GetBinContent(l + 1);
 				break;
 				
 			case Entries:
-				for(Int_t l = 0; l < NLev4; l++)
-					map[i][j][k][l] = histo->GetEntries();
+				map[i][j][k][l] = histo->GetEntries();
 				break;
 					
 			case Mean:
-				for(Int_t l = 0; l < NLev4; l++)
-					map[i][j][k][l] = histo->GetMean();
+				map[i][j][k][l] = histo->GetMean();
 				break;
 							
 			case Sum:
 			{
 				Double_t sum = 0;
-				for(Int_t l = 0; l < nbins; l++)
-					sum += histo->GetBinContent(l + 1);
-				for(Int_t l = 0; l < NLev4; l++)
-					map[i][j][k][l] = sum;
+				for(Int_t m = 0; m < nbins; m++)
+					sum += histo->GetBinContent(m + 1);
+				map[i][j][k][l] = sum;
 			}
 				break;
 							
 			case WeightedSum:
 			{
 				Double_t sum = 0;
-				for(Int_t l = 0; l < nbins; l++)
-					sum += histo->GetBinContent(l + 1) * (l + 1);
-				for(Int_t l = 0; l < NLev4; l++)
-					map[i][j][k][l] = sum;
+				for(Int_t m = 0; m < nbins; m++)
+					sum += histo->GetBinContent(m + 1) * histo->GetBinLowEdge(m + 1);
+				map[i][j][k][l] = sum;
 			}
 				break;
 				
 			default:
-				for(Int_t l = 0; l < NLev4; l++)
 					map[i][j][k][l] = 0;
 		}
 	}}
@@ -1584,18 +1615,20 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::prephistosB(MonitorElement* me[NLayer], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4],std::string type, Double_t min, Double_t max){
-	std::string part[] = { "Layer_1", "Layer_2", "Layer_3"};
+void SiPixelActionExecutor::prephistosB(MonitorElement* me[NLayer], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4],std::string name, Double_t min, Double_t max){
 	// cout << "Starting with SiPixelActionExecutor::prephistosB" << endl;
+	std::string part[] = { "Layer_1", "Layer_2", "Layer_3"};
+	std::string path = bei->pwd();
+	for (Int_t i = 0; i < NLayer; i++)
+	{
+		std::string fullpath = path + "/" + "TRKMAP_" + name + "_" + part[i];
+		MonitorElement* temp = bei->get(fullpath);
+		if(temp)
+			me[i] = temp;
+		else
+			cout << "Problem: " << fullpath << endl;
+	}
 	
-//	hist[0] = new TH2F(type + "_" + part[0], type + "_" + part[0], 20, 1., 21., 8, 1., 9.);
-//	hist[1] = new TH2F(type + "_" + part[1], type + "_" + part[1], 32, 1., 33., 8, 1., 9.);
-//	hist[2] = new TH2F(type + "_" + part[2], type + "_" + part[2], 44, 1., 45., 8, 1., 9.);
-
-	me[0] = bei->book2D("TRKMAP_" + type + "_" + part[0], "TRKMAP_" + type + "_" + part[0], 20, 1., 21., 8, 1., 9.);
-	me[1] = bei->book2D("TRKMAP_" + type + "_" + part[1], "TRKMAP_" + type + "_" + part[1], 32, 1., 33., 8, 1., 9.);
-	me[2] = bei->book2D("TRKMAP_" + type + "_" + part[2], "TRKMAP_" + type + "_" + part[2], 44, 1., 45., 8, 1., 9.);
-		
 	for(Int_t p = 0 ; p < NLayer ; p++){
 		for(Int_t b = 0 ; b < (10 + 6 * p); b++)
 			for(Int_t i = 0 ; i < NModuleB ; i++){
@@ -1612,17 +1645,22 @@ void SiPixelActionExecutor::prephistosB(MonitorElement* me[NLayer], DQMStore *be
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::prephistosE(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string type, Double_t min, Double_t max){
-	std::string part[] = { "Disc_1_M", "Disc_2_M", "Disc_1_P", "Disc_2_P" };
+void SiPixelActionExecutor::prephistosE(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string name, Double_t min, Double_t max){
 	// cout << "Starting with SiPixelActionExecutor::prephistosE" << endl;
-	
-	for(Int_t p = 0 ; p < NCyl ; p++)
+	std::string part[] = { "Disc_1_M", "Disc_2_M", "Disc_1_P", "Disc_2_P" };
+	std::string path = bei->pwd();
+	for (Int_t i = 0; i < NCyl; i++)
 	{
-//		hist[p] = new TH2F(type + " " + part[p], type, 24, 1., 25., 7, 1., 8.);
-
-		me[p] = bei->book2D("TRKMAP_" + type + "_" + part[p], "TRKMAP_" + type, 24, 1., 25., 7, 1., 8.);
-		me[p]->getTH2F()->SetMinimum(min);
-		me[p]->getTH2F()->SetMaximum(max);
+		std::string fullpath = path + "/" + "TRKMAP_" + name + "_" + part[i];
+		MonitorElement* temp = bei->get(fullpath);
+		if(temp)
+		{
+			me[i] = temp;
+			me[i]->getTH2F()->SetMinimum(min);
+			me[i]->getTH2F()->SetMaximum(max);
+		}
+		else
+			cout << "Problem: " << fullpath << endl;
 	}
 
 	for(Int_t c = 0 ; c < NCyl ; c += 2)

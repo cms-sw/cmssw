@@ -20,7 +20,7 @@ process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 #process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 #process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff")
 
-process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
+process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
 process.siStripDigis.ProductLabel = 'source'
 
 #process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
@@ -29,9 +29,10 @@ process.siStripDigis.ProductLabel = 'source'
 #process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
 #process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 
-#process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff")
+process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-#process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
 
 ##new##
 #process.load("Configuration.StandardSequences.Simulation_cff")
@@ -234,17 +235,18 @@ process.source = cms.Source("PoolSource",
 	    )
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20000)
+    input = cms.untracked.int32(25000)
 )
 
 ##----## Sequences and Paths:
 #process.Reco = cms.Sequence(process.siPixelRecHits)
-process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
-process.RecoStrips = cms.Sequence(process.siStripDigis*process.siStripClusters)
-process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
-process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
-process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
-process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.ctftracksP5) #*process.rstracks *process.ctftracksP5
+#process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
+#process.RecoStrips = cms.Sequence(process.siStripDigis*process.siStripClusters)
+#process.siPixelLocalReco = cms.Sequence(process.siPixelRecHits) 
+#process.siStripLocalReco = cms.Sequence(process.siStripMatchedRecHits)
+#process.trackerLocalReco = cms.Sequence(process.siPixelLocalReco*process.siStripLocalReco)
+#process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offlineBeamSpot*process.recopixelvertexing*process.ctftracksP5) #*process.rstracks *process.ctftracksP5
+process.RecoForDQM = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.offlineBeamSpot*process.trackerlocalreco*process.ctftracksP5)
 
 #put proces.dump in the path where you want to print all event content
 #process.dump=cms.EDAnalyzer('EventContentAnalyzer')
@@ -256,4 +258,5 @@ process.trackReconstruction = cms.Sequence(process.trackerLocalReco*process.offl
 #process.p = cms.Path( process.siPixelDigis * process.dqmEnv*process.SiPixelDigiSource*process.PixelP5DQMClient*process.dqmSaver)
 #process.p = cms.Path(process.Reco*process.dqmEnv*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.SiPixelRecHitSource*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
 
-process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
+#process.p = cms.Path(process.Reco*process.RecoStrips*process.trackReconstruction*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)
+process.p = cms.Path(process.RecoForDQM*process.dqmEnv*process.siPixelP5DQM_cosmics_source*process.qTester*process.PixelP5DQMClientWithDataCertification*process.dqmSaver)

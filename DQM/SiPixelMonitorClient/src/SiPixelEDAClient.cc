@@ -151,6 +151,11 @@ void SiPixelEDAClient::beginJob(const edm::EventSetup& eSetup){
   sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
   // Booking summary report ME's:
   sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_, nFEDs_);
+  // Booking Static Tracker Maps:
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "adc");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "charge");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "ndigis");
+  sipixelActionExecutor_->bookTrackerMaps(bei_, "NErrors");
 
 //  cout<<"...leaving SiPixelEDAClient::beginJob. "<<endl;
 }
@@ -229,11 +234,10 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
     // cout << "*** Creating Tracker Map Histos for End Run ***" << endl;
-    if (Tier0Flag_) {
-    	    sipixelActionExecutor_->createMaps(bei_, "SUMOFF_ndigis", EachBinContent);
-    } else {
-    	    sipixelActionExecutor_->createMaps(bei_, "SUMDIG_ndigis", EachBinContent);
-    }
+    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", "adc", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", "charge", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", "ndigis", WeightedSum);
+    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", "NErrors", WeightedSum);
     // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
   }   
          
@@ -283,14 +287,10 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
     // cout << "*** Creating Tracker Map Histos for End Run ***" << endl;
-    if (Tier0Flag_) {
-    	    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", Mean);
-    	    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", Mean);
-    	    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", WeightedSum);
-    	    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", WeightedSum);
-    } else {
-    	    sipixelActionExecutor_->createMaps(bei_, "SUMDIG_ndigis", EachBinContent);
-    }
+    sipixelActionExecutor_->createMaps(bei_, "adc_siPixelDigis", "adc", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "charge_siPixelClusters", "charge", Mean);
+    sipixelActionExecutor_->createMaps(bei_, "ndigis_siPixelDigis", "ndigis", WeightedSum);
+    sipixelActionExecutor_->createMaps(bei_, "NErrors_siPixelDigis", "NErrors", WeightedSum);
     // cout << "*** Done with Tracker Map Histos for End Run ***" << endl;
 
     // On demand, dump module ID's and stuff on the screen:

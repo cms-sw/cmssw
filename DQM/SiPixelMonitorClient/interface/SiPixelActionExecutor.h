@@ -21,7 +21,7 @@
 #include <string>
 
 // For Tracker Map
-enum funcType {EachBinContent, Entries, Mean, Sum, WeightedSum, Offline};
+enum funcType {EachBinContent, Entries, Mean, Sum, WeightedSum};
 #define PI_12 0.261799
 #define PI    3.141592
 #define PI_2  1.570796
@@ -85,7 +85,8 @@ class SiPixelActionExecutor {
                                     edm::EventSetup const        & eSetup);
  void dumpEndcapModIds(             DQMStore     		 * bei,
                                     edm::EventSetup const        & eSetup);
- void createMaps(DQMStore* bei, std::string type, funcType ff);
+ void createMaps(DQMStore* bei, std::string type, std::string name, funcType ff);
+ void bookTrackerMaps(DQMStore* bei, std::string name);
 
 
 private:
@@ -134,10 +135,10 @@ private:
   MonitorElement * OccupancyMap;
   MonitorElement * PixelOccupancyMap;
   
-  int createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff);
-  void getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k);
-  void prephistosB(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string type, Double_t min, Double_t max);
-  void prephistosE(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string type, Double_t min, Double_t max);
+  int createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, bool isBarrel);
+  void getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k, Int_t l);
+  void prephistosB(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string name, Double_t min, Double_t max);
+  void prephistosE(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string name, Double_t min, Double_t max);
   Double_t mapMax(const Double_t map[][NLev2][NLev3][NLev4], bool isBarrel); 
   Double_t mapMin(const Double_t map[][NLev2][NLev3][NLev4], bool isBarrel);
 
