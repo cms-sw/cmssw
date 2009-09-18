@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.30 2009/09/16 16:59:09 biery Exp $
+// $Id: WebPageHelper.cc,v 1.31 2009/09/17 15:34:50 dshpakov Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -259,7 +259,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate, "Served Event Rate, 1/s" );
+    maker.addText( cs_th_served_rate, "Served Event Rate, Hz" );
 
     XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_queued_recent, "Events Enqueued" );
@@ -268,7 +268,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served_recent, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate_recent, "Served Event Rate, 1/s" );
+    maker.addText( cs_th_served_rate_recent, "Served Event Rate, Hz" );
 
     boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
     RegistrationCollection::ConsumerRegistrations regs;
@@ -361,17 +361,13 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_policy, policy_oss.str() );
 
         // Queue size:
-        std::ostringstream qsize_oss;
-        qsize_oss << (*it)->queueSize();
         XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_q_size, qsize_oss.str() );
+        maker.addInt( cs_td_q_size, (*it)->queueSize() );
 
         // Events in queue:
-        std::ostringstream in_q_oss;
         const size_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
-        in_q_oss << nevents_in_queue;
         XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_in_q, in_q_oss.str() );
+        maker.addInt( cs_td_in_q, nevents_in_queue );
 
         // Events enqueued:
         std::ostringstream eq_oss;
@@ -512,7 +508,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate, "Served Event Rate, 1/s" );
+    maker.addText( cs_th_served_rate, "Served Event Rate, Hz" );
 
     XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_queued_recent, "Events Enqueued" );
@@ -521,7 +517,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     maker.addText( cs_th_served_recent, "Events Served" );
 
     XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
-    maker.addText( cs_th_served_rate_recent, "Served Event Rate, 1/s" );
+    maker.addText( cs_th_served_rate_recent, "Served Event Rate, Hz" );
 
     boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
     RegistrationCollection::DQMConsumerRegistrations regs;
@@ -599,17 +595,13 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_policy, policy_oss.str() );
 
         // Queue size:
-        std::ostringstream qsize_oss;
-        qsize_oss << (*it)->queueSize();
         XHTMLMaker::Node* cs_td_q_size = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_q_size, qsize_oss.str() );
+        maker.addInt( cs_td_q_size, (*it)->queueSize() );
 
         // Events in queue:
-        std::ostringstream in_q_oss;
         const size_t nevents_in_queue = qcoll_ptr->size( (*it)->queueId() );
-        in_q_oss << nevents_in_queue;
         XHTMLMaker::Node* cs_td_in_q = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_in_q, in_q_oss.str() );
+        maker.addInt( cs_td_in_q, nevents_in_queue );
 
         // Events enqueued:
         std::ostringstream eq_oss;
@@ -1041,7 +1033,7 @@ void WebPageHelper::addRowsForMemoryUsage
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, "Memory pool used (bytes)");
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-    maker.addText(tableDiv, stats.getLastSampleValue(), 0);
+    maker.addDouble( tableDiv, stats.getLastSampleValue(), 2 );
   }
   else
   {
@@ -1069,14 +1061,14 @@ void WebPageHelper::addRowsForWorkers
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# CopyWorker");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfCopyWorkersStats.getLastSampleValue(), 0);
-  
+  maker.addDouble( tableDiv, stats.numberOfCopyWorkersStats.getLastSampleValue(), 0 );
+
   // # inject worker
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# InjectWorker");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfInjectWorkersStats.getLastSampleValue(), 0);
+  maker.addDouble( tableDiv, stats.numberOfInjectWorkersStats.getLastSampleValue(), 0 );
 }
 
 
@@ -1116,7 +1108,7 @@ void WebPageHelper::addRowsForSataBeast
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, "SATA beast status");
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-    maker.addText(tableDiv, stats.sataBeastStatus, 0);
+    maker.addInt( tableDiv, stats.sataBeastStatus );
   }
 }
 
@@ -1278,11 +1270,11 @@ void WebPageHelper::addRowForFramesReceived
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Frames Received");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentSizeStats.getSampleCount(dataSet), 0);
+  maker.addInt( tableDiv, stats.allFragmentSizeStats.getSampleCount(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentSizeStats.getSampleCount(dataSet), 0);
+  maker.addInt( tableDiv, stats.eventFragmentSizeStats.getSampleCount(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentSizeStats.getSampleCount(dataSet), 0);
+  maker.addInt( tableDiv, stats.dqmEventFragmentSizeStats.getSampleCount(dataSet) );
 }
 
 
@@ -1298,11 +1290,11 @@ void WebPageHelper::addRowForBandwidth
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Bandwidth (MB/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentSizeStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, stats.allFragmentSizeStats.getValueRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentSizeStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, stats.eventFragmentSizeStats.getValueRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentSizeStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventFragmentSizeStats.getValueRate(dataSet) );
 }
 
 
@@ -1318,11 +1310,11 @@ void WebPageHelper::addRowForRate
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Rate (frames/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentSizeStats.getSampleRate(dataSet));
+  maker.addDouble( tableDiv, stats.allFragmentSizeStats.getSampleRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentSizeStats.getSampleRate(dataSet));
+  maker.addDouble( tableDiv, stats.eventFragmentSizeStats.getSampleRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentSizeStats.getSampleRate(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventFragmentSizeStats.getSampleRate(dataSet) );
 }
 
 
@@ -1338,11 +1330,11 @@ void WebPageHelper::addRowForLatency
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Latency (us/frame)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentSizeStats.getSampleLatency(dataSet));
+  maker.addDouble( tableDiv, stats.allFragmentSizeStats.getSampleLatency(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentSizeStats.getSampleLatency(dataSet));
+  maker.addDouble( tableDiv, stats.eventFragmentSizeStats.getSampleLatency(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentSizeStats.getSampleLatency(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventFragmentSizeStats.getSampleLatency(dataSet) );
 }
 
 
@@ -1358,11 +1350,11 @@ void WebPageHelper::addRowForTotalVolume
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Total volume received (MB)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentSizeStats.getValueSum(dataSet), 3);
+  maker.addDouble( tableDiv, stats.allFragmentSizeStats.getValueSum(dataSet), 3 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentSizeStats.getValueSum(dataSet), 3);
+  maker.addDouble( tableDiv, stats.eventFragmentSizeStats.getValueSum(dataSet), 3 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentSizeStats.getValueSum(dataSet), 3);
+  maker.addDouble( tableDiv, stats.dqmEventFragmentSizeStats.getValueSum(dataSet), 3 );
 }
 
 
@@ -1378,11 +1370,11 @@ void WebPageHelper::addRowForMaxBandwidth
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Maximum Bandwidth (MB/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, stats.allFragmentBandwidthStats.getValueMax(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, stats.eventFragmentBandwidthStats.getValueMax(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventFragmentBandwidthStats.getValueMax(dataSet) );
 }
 
 
@@ -1398,11 +1390,11 @@ void WebPageHelper::addRowForMinBandwidth
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Minimum Bandwidth (MB/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.allFragmentBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, stats.allFragmentBandwidthStats.getValueMin(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.eventFragmentBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, stats.eventFragmentBandwidthStats.getValueMin(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventFragmentBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventFragmentBandwidthStats.getValueMin(dataSet) );
 }
 
 
@@ -1442,33 +1434,33 @@ void WebPageHelper::addDOMforRunMonitor
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Run number");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, runNumbersSeenStats.getLastSampleValue(), 0);
+  maker.addDouble( tableDiv, runNumbersSeenStats.getLastSampleValue(), 0 );
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Lumi section");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, lumiSectionsSeenStats.getLastSampleValue(), 0);
+  maker.addDouble( tableDiv, lumiSectionsSeenStats.getLastSampleValue(), 0 );
 
   // Total events received
   tableRow = maker.addNode("tr", table, _specialRowAttr);
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Events received (non-unique)");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, eventIDsReceivedStats.getSampleCount(), 0);
+  maker.addInt( tableDiv, eventIDsReceivedStats.getSampleCount() );
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Error events received");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, errorEventIDsReceivedStats.getSampleCount(), 0);
+  maker.addInt( tableDiv, errorEventIDsReceivedStats.getSampleCount() );
 
   // Last event IDs
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Last event ID");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, eventIDsReceivedStats.getLastSampleValue(), 0);
+  maker.addDouble( tableDiv, eventIDsReceivedStats.getLastSampleValue(), 0 );
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "Last error event ID");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, errorEventIDsReceivedStats.getLastSampleValue(), 0);
+  maker.addDouble( tableDiv, errorEventIDsReceivedStats.getLastSampleValue(), 0 );
 
 }
 
@@ -1623,38 +1615,38 @@ void WebPageHelper::listStreamRecordsStats
     tableDiv = maker.addNode("td", tableRow);
     maker.addText(tableDiv, (*it)->streamName);
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamFileCountStats.getSampleCount(dataSet), 0);
+    maker.addInt( tableDiv, streamFileCountStats.getSampleCount(dataSet) );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamVolumeStats.getSampleCount(dataSet), 0);
+    maker.addInt( tableDiv, streamVolumeStats.getSampleCount(dataSet) );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamVolumeStats.getSampleRate(dataSet), 1);
+    maker.addDouble( tableDiv, streamVolumeStats.getSampleRate(dataSet), 1 );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamVolumeStats.getValueSum(dataSet), 1);
+    maker.addDouble( tableDiv, streamVolumeStats.getValueSum(dataSet), 1 );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamBandwidthStats.getValueRate(dataSet));
+    maker.addDouble( tableDiv, streamBandwidthStats.getValueRate(dataSet) );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamBandwidthStats.getValueMin(dataSet));
+    maker.addDouble( tableDiv, streamBandwidthStats.getValueMin(dataSet) );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, streamBandwidthStats.getValueMax(dataSet));
+    maker.addDouble( tableDiv, streamBandwidthStats.getValueMax(dataSet) );
   }
   
   tableRow = maker.addNode("tr", table, _specialRowAttr);
   tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Total");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsFileCountStats.getSampleCount(dataSet), 0);
+  maker.addInt( tableDiv, allStreamsFileCountStats.getSampleCount(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsVolumeStats.getSampleCount(dataSet), 0);
+  maker.addInt( tableDiv, allStreamsVolumeStats.getSampleCount(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsVolumeStats.getSampleRate(dataSet), 1);
+  maker.addDouble( tableDiv, allStreamsVolumeStats.getSampleRate(dataSet), 1 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsVolumeStats.getValueSum(dataSet), 1);
+  maker.addDouble( tableDiv, allStreamsVolumeStats.getValueSum(dataSet), 1 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsBandwidthStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, allStreamsBandwidthStats.getValueRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, allStreamsBandwidthStats.getValueMin(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, allStreamsBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, allStreamsBandwidthStats.getValueMax(dataSet) );
  
 }
 
@@ -1715,13 +1707,13 @@ void WebPageHelper::addDOMforFiles(XHTMLMaker& maker,
   {
     tableRow = maker.addNode("tr", table, _rowAttr);
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, (*it)->entryCounter, 0);
+    maker.addInt( tableDiv, (*it)->entryCounter );
     tableDiv = maker.addNode("td", tableRow);
     maker.addText(tableDiv, (*it)->completeFileName());
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, (*it)->eventCount, 0);
+    maker.addInt( tableDiv, (*it)->eventCount );
     tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-    maker.addText(tableDiv, (*it)->fileSize, 0);
+    maker.addInt( tableDiv, (*it)->fileSize );
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, (*it)->closingReason());
   }
@@ -1808,45 +1800,45 @@ void WebPageHelper::addDOMforDQMEventStatistics(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "DQM events received");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL));
+  maker.addDouble( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::RECENT));
+  maker.addDouble( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::RECENT) );
 
   // Average updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Updates/folder (average)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::FULL));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::RECENT));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueAverage(MonitoredQuantity::RECENT) );
 
   // Min updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Updates/folder (min)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMin(MonitoredQuantity::FULL));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueMin(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMin(MonitoredQuantity::RECENT));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueMin(MonitoredQuantity::RECENT) );
 
   // Max updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Updates/folder (max)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMax(MonitoredQuantity::FULL));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueMax(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueMax(MonitoredQuantity::RECENT));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueMax(MonitoredQuantity::RECENT) );
 
   // RMS updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Updates/folder (RMS)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::FULL));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::RECENT));
+  maker.addDouble( tableDiv, stats.numberOfUpdatesStats.getValueRMS(MonitoredQuantity::RECENT) );
 }
 
 
@@ -1941,72 +1933,72 @@ void WebPageHelper::addRowForThroughputStatistics
   else
   {
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-    maker.addText(tableDiv, snapshot.relativeTime, 2);
+    maker.addDouble( tableDiv, snapshot.relativeTime, 2 );
   }
 
   // memory pool usage
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.poolUsage, 0);
+  maker.addDouble( tableDiv, snapshot.poolUsage, 0 );
   
   // number of fragments in fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.entriesInFragmentQueue, 1);
+  maker.addDouble( tableDiv, snapshot.entriesInFragmentQueue, 1 );
   
   // number of fragments popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.fragmentQueueRate, 1);
+  maker.addDouble( tableDiv, snapshot.fragmentQueueRate, 1 );
   
   // data rate popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.fragmentQueueBandwidth, 1);
+  maker.addDouble( tableDiv, snapshot.fragmentQueueBandwidth, 1 );
   
   // fragment processor thread busy percentage
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.fragmentProcessorBusy, 1);
+  maker.addDouble( tableDiv, snapshot.fragmentProcessorBusy, 1 );
   
   // number of events in fragment store
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.fragmentStoreSize, 1);
+  maker.addDouble( tableDiv, snapshot.fragmentStoreSize, 1 );
   
   // number of events in stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.entriesInStreamQueue, 1);
+  maker.addDouble( tableDiv, snapshot.entriesInStreamQueue, 1 );
   
   // number of events popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.streamQueueRate, 1);
+  maker.addDouble( tableDiv, snapshot.streamQueueRate, 1 );
   
   // data rate popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.streamQueueBandwidth, 1);
+  maker.addDouble( tableDiv, snapshot.streamQueueBandwidth, 1 );
   
   // disk writer thread busy percentage
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.diskWriterBusy, 1);
+  maker.addDouble( tableDiv, snapshot.diskWriterBusy, 1 );
   
   // number of events written to disk
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.writtenEventsRate, 1);
+  maker.addDouble( tableDiv, snapshot.writtenEventsRate, 1 );
   
   // date rate written to disk
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.writtenEventsBandwidth, 1);
+  maker.addDouble( tableDiv, snapshot.writtenEventsBandwidth, 1 );
   
   // number of dqm events in DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.entriesInDQMQueue, 1);
+  maker.addDouble( tableDiv, snapshot.entriesInDQMQueue, 1 );
   
   // number of dqm events popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.dqmQueueRate, 1);
+  maker.addDouble( tableDiv, snapshot.dqmQueueRate, 1 );
   
   // data rate popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.dqmQueueBandwidth, 1);
+  maker.addDouble( tableDiv, snapshot.dqmQueueBandwidth, 1 );
   
   // DQMEvent processor thread busy percentage
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addText(tableDiv, snapshot.dqmEventProcessorBusy, 1);
+  maker.addDouble( tableDiv, snapshot.dqmEventProcessorBusy, 1 );
 }
 
 
@@ -2087,22 +2079,22 @@ void WebPageHelper::addOutputModuleStatistics(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow);
       maker.addText(tableDiv, outputModuleLabel);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, resultsList[idx]->eventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, resultsList[idx]->eventStats.getSampleCount() );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv,
-                    resultsList[idx]->eventStats.getValueSum()/(double)0x100000);
+      maker.addDouble( tableDiv,
+                       resultsList[idx]->eventStats.getValueSum()/(double)0x100000 );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv,
-                    resultsList[idx]->eventStats.getValueAverage()/(double)0x400);
+      maker.addDouble( tableDiv,
+                       resultsList[idx]->eventStats.getValueAverage()/(double)0x400 );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv,
-                    resultsList[idx]->eventStats.getValueRMS()/(double)0x400);
+      maker.addDouble( tableDiv,
+                       resultsList[idx]->eventStats.getValueRMS()/(double)0x400 );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv,
-                    resultsList[idx]->eventStats.getValueMin()/(double)0x400);
+      maker.addDouble( tableDiv,
+                       resultsList[idx]->eventStats.getValueMin()/(double)0x400 );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv,
-                    resultsList[idx]->eventStats.getValueMax()/(double)0x400);
+      maker.addDouble( tableDiv,
+                       resultsList[idx]->eventStats.getValueMax()/(double)0x400 );
     }
   }
 }
@@ -2151,9 +2143,9 @@ void WebPageHelper::addOutputModuleSummary(XHTMLMaker& maker,
       tableDiv = maker.addNode("td", tableRow);
       maker.addText(tableDiv, resultsList[idx]->name);
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, resultsList[idx]->id, 0);
+      maker.addInt( tableDiv, resultsList[idx]->id );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, resultsList[idx]->initMsgSize, 0);
+      maker.addInt( tableDiv, resultsList[idx]->initMsgSize );
     }
   }
 }
@@ -2237,17 +2229,17 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       maker.addText(link, rbResultsList[idx]->key.hltURL);
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->key.hltInstance, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->key.hltInstance );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->key.hltTid, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->key.hltTid );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->filterUnitCount, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->filterUnitCount );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->initMsgCount, 0);
+      maker.addInt(tableDiv, rbResultsList[idx]->initMsgCount );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->eventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->eventStats.getSampleCount() );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->errorEventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->errorEventStats.getSampleCount() );
 
       if (rbResultsList[idx]->outstandingDataDiscardCount != 0)
       {
@@ -2257,10 +2249,10 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, rbResultsList[idx]->outstandingDataDiscardCount, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->outstandingDataDiscardCount );
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->dqmEventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->dqmEventStats.getSampleCount() );
 
       if (rbResultsList[idx]->outstandingDQMDiscardCount != 0)
       {
@@ -2270,7 +2262,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, rbResultsList[idx]->outstandingDQMDiscardCount, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->outstandingDQMDiscardCount );
 
       if (rbResultsList[idx]->staleChainStats.getSampleCount() != 0)
       {
@@ -2280,7 +2272,7 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->staleChainStats.getSampleCount() );
 
       if (rbResultsList[idx]->skippedDiscardCount != 0)
       {
@@ -2290,13 +2282,13 @@ void WebPageHelper::addResourceBrokerList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, rbResultsList[idx]->skippedDiscardCount, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->skippedDiscardCount );
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->eventStats.
-                    getSampleRate(MonitoredQuantity::RECENT));
+      maker.addDouble( tableDiv, rbResultsList[idx]->eventStats.
+                       getSampleRate(MonitoredQuantity::RECENT) );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, rbResultsList[idx]->lastEventNumber, 0);
+      maker.addInt( tableDiv, rbResultsList[idx]->lastEventNumber );
     }
   }
 }
@@ -2361,79 +2353,79 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Instance");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->key.hltInstance, 0);
+  maker.addInt( tableDiv, rbResultPtr->key.hltInstance );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Local ID");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->key.hltLocalId, 0);
+  maker.addInt( tableDiv, rbResultPtr->key.hltLocalId );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Tid");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->key.hltTid, 0);
+  maker.addInt( tableDiv, rbResultPtr->key.hltTid );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "INIT Message Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->initMsgCount, 0);
+  maker.addInt( tableDiv, rbResultPtr->initMsgCount );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Event Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->eventStats.getSampleCount(), 0);
+  maker.addInt( tableDiv, rbResultPtr->eventStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Error Event Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->errorEventStats.getSampleCount(), 0);
+  maker.addInt( tableDiv, rbResultPtr->errorEventStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Data Discard Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->dataDiscardCount, 0);
+  maker.addInt( tableDiv, rbResultPtr->dataDiscardCount );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "DQM Event Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->dqmEventStats.getSampleCount(), 0);
+  maker.addInt( tableDiv, rbResultPtr->dqmEventStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "DQM Discard Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->dqmDiscardCount, 0);
+  maker.addInt( tableDiv, rbResultPtr->dqmDiscardCount );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Stale Chains Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->staleChainStats.getSampleCount(), 0);
+  maker.addInt( tableDiv, rbResultPtr->staleChainStats.getSampleCount() );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Ignored Discards Count");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->skippedDiscardCount, 0);
+  maker.addInt( tableDiv, rbResultPtr->skippedDiscardCount );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Last Event Number Received");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->lastEventNumber, 0);
+  maker.addInt( tableDiv, rbResultPtr->lastEventNumber );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "Last Run Number Received");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->lastRunNumber, 0);
+  maker.addInt( tableDiv, rbResultPtr->lastRunNumber );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
@@ -2442,7 +2434,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
     " sec) Event Rate (Hz)";
   maker.addText(tableDiv, tmpText);
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->eventStats.recentSampleRate);
+  maker.addDouble( tableDiv, rbResultPtr->eventStats.recentSampleRate );
 
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
@@ -2451,7 +2443,7 @@ void WebPageHelper::addResourceBrokerDetails(XHTMLMaker& maker,
     " sec) Event Rate (Hz)";
   maker.addText(tableDiv, tmpText);
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, rbResultPtr->eventStats.fullSampleRate);
+  maker.addDouble( tableDiv, rbResultPtr->eventStats.fullSampleRate );
 }
 
 
@@ -2522,13 +2514,13 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       tableRow = maker.addNode("tr", table, _rowAttr);
 
       tableDiv = maker.addNode("td", tableRow);
-      maker.addText(tableDiv, fuResultsList[idx]->key.fuProcessId, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->key.fuProcessId );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->initMsgCount, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->initMsgCount );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->shortIntervalEventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->shortIntervalEventStats.getSampleCount() );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->errorEventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->errorEventStats.getSampleCount() );
 
       if (fuResultsList[idx]->outstandingDataDiscardCount != 0)
       {
@@ -2538,10 +2530,10 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, fuResultsList[idx]->outstandingDataDiscardCount, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->outstandingDataDiscardCount );
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->dqmEventStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->dqmEventStats.getSampleCount() );
 
       if (fuResultsList[idx]->outstandingDQMDiscardCount != 0)
       {
@@ -2551,7 +2543,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, fuResultsList[idx]->outstandingDQMDiscardCount, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->outstandingDQMDiscardCount );
 
       if (fuResultsList[idx]->staleChainStats.getSampleCount() != 0)
       {
@@ -2561,7 +2553,7 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, fuResultsList[idx]->staleChainStats.getSampleCount(), 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->staleChainStats.getSampleCount() );
 
       if (fuResultsList[idx]->skippedDiscardCount != 0)
       {
@@ -2571,15 +2563,15 @@ void WebPageHelper::addFilterUnitList(XHTMLMaker& maker,
       {
         tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
       }
-      maker.addText(tableDiv, fuResultsList[idx]->skippedDiscardCount, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->skippedDiscardCount );
 
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->shortIntervalEventStats.
-                    getSampleRate(MonitoredQuantity::RECENT));
+      maker.addDouble( tableDiv, fuResultsList[idx]->shortIntervalEventStats.
+                       getSampleRate(MonitoredQuantity::RECENT) );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->lastEventNumber, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->lastEventNumber );
       tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-      maker.addText(tableDiv, fuResultsList[idx]->lastRunNumber, 0);
+      maker.addInt( tableDiv, fuResultsList[idx]->lastRunNumber );
     }
   }
 }
@@ -2634,11 +2626,11 @@ void WebPageHelper::addRowForDQMEventsProcessed
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Top level folders");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfGroupsStats.getValueSum(dataSet), 0);
+  maker.addDouble( tableDiv, stats.numberOfGroupsStats.getValueSum(dataSet), 0 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.servedDQMEventSizeStats.getSampleCount(dataSet), 0);
+  maker.addInt( tableDiv, stats.servedDQMEventSizeStats.getSampleCount(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.numberOfWrittenGroupsStats.getValueSum(dataSet), 0);
+  maker.addDouble( tableDiv, stats.numberOfWrittenGroupsStats.getValueSum(dataSet), 0 );
 }
 
 
@@ -2654,11 +2646,11 @@ void WebPageHelper::addRowForDQMEventBandwidth
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Bandwidth (MB/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventSizeStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventSizeStats.getValueRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.servedDQMEventSizeStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, stats.servedDQMEventSizeStats.getValueRate(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.writtenDQMEventSizeStats.getValueRate(dataSet));
+  maker.addDouble( tableDiv, stats.writtenDQMEventSizeStats.getValueRate(dataSet) );
 }
 
 
@@ -2674,11 +2666,11 @@ void WebPageHelper::addRowForTotalDQMEventVolume
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Total volume processed (MB)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventSizeStats.getValueSum(dataSet), 3);
+  maker.addDouble( tableDiv, stats.dqmEventSizeStats.getValueSum(dataSet), 3 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.servedDQMEventSizeStats.getValueSum(dataSet), 3);
+  maker.addDouble( tableDiv, stats.servedDQMEventSizeStats.getValueSum(dataSet), 3 );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.writtenDQMEventSizeStats.getValueSum(dataSet), 3);
+  maker.addDouble( tableDiv, stats.writtenDQMEventSizeStats.getValueSum(dataSet), 3 );
 }
 
 
@@ -2694,11 +2686,11 @@ void WebPageHelper::addRowForMaxDQMEventBandwidth
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Maximum Bandwidth (MB/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventBandwidthStats.getValueMax(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.servedDQMEventBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, stats.servedDQMEventBandwidthStats.getValueMax(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.writtenDQMEventBandwidthStats.getValueMax(dataSet));
+  maker.addDouble( tableDiv, stats.writtenDQMEventBandwidthStats.getValueMax(dataSet) );
 }
 
 
@@ -2714,11 +2706,11 @@ void WebPageHelper::addRowForMinDQMEventBandwidth
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow);
   maker.addText(tableDiv, "Minimum Bandwidth (MB/s)");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.dqmEventBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, stats.dqmEventBandwidthStats.getValueMin(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.servedDQMEventBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, stats.servedDQMEventBandwidthStats.getValueMin(dataSet) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addText(tableDiv, stats.writtenDQMEventBandwidthStats.getValueMin(dataSet));
+  maker.addDouble( tableDiv, stats.writtenDQMEventBandwidthStats.getValueMin(dataSet) );
 }
 
 
