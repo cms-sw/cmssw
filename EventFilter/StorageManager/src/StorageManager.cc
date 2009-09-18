@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.113 2009/08/28 16:41:27 mommsen Exp $
+// $Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -36,7 +36,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.113 2009/08/28 16:41:27 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -171,10 +171,6 @@ void StorageManager::initializeSharedResources()
   _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
   _sharedResources->_diskWriterResources.reset(new DiskWriterResources());
   _sharedResources->_dqmEventProcessorResources.reset(new DQMEventProcessorResources());
-
-  DiskWritingParams dwParams =
-    _sharedResources->_configuration->getDiskWritingParams();
-  _sharedResources->_statisticsReporter->getResourceMonitorCollection().configureDisks(dwParams);
 
   _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setFragmentQueue(_sharedResources->_fragmentQueue);
   _sharedResources->_statisticsReporter->getThroughputMonitorCollection().setStreamQueue(_sharedResources->_streamQueue);
