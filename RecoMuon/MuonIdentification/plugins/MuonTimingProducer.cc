@@ -12,7 +12,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id: MuonTimingProducer.cc,v 1.2 2009/03/26 23:56:44 ptraczyk Exp $
+// $Id: MuonTimingProducer.cc,v 1.3 2009/03/27 02:23:58 ptraczyk Exp $
 //
 //
 
@@ -43,7 +43,9 @@
 //
 MuonTimingProducer::MuonTimingProducer(const edm::ParameterSet& iConfig)
 {
-   produces<reco::MuonTimeExtraMap>();
+   produces<reco::MuonTimeExtraMap>("combined");
+   produces<reco::MuonTimeExtraMap>("dt");
+   produces<reco::MuonTimeExtraMap>("csc");
 
    m_muonCollection = iConfig.getParameter<edm::InputTag>("MuonCollection");
 
@@ -80,6 +82,10 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
   reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
+  std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapDT(new reco::MuonTimeExtraMap());
+  reco::MuonTimeExtraMap::Filler fillerDT(*muonTimeMapDT);
+  std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
+  reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
   
   edm::Handle<reco::MuonCollection> muons; 
   iEvent.getByLabel(m_muonCollection, muons);
@@ -108,10 +114,15 @@ MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   
   filler.insert(muons, combinedTimeColl.begin(), combinedTimeColl.end());
-  
   filler.fill();
-  
-  iEvent.put(muonTimeMap);
+  fillerDT.insert(muons, dtTimeColl.begin(), dtTimeColl.end());
+  fillerDT.fill();
+  fillerCSC.insert(muons, cscTimeColl.begin(), cscTimeColl.end());
+  fillerCSC.fill();
+
+  iEvent.put(muonTimeMap,"combined");
+  iEvent.put(muonTimeMapDT,"dt");
+  iEvent.put(muonTimeMapCSC,"csc");
 
 }
 
