@@ -146,12 +146,12 @@ testResourceMonitorCollection::diskUsage()
   CPPUNIT_ASSERT( diskUsageStatsPtr->alarmState == AlarmHandler::OKAY );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
 
-  _rmc->_highWaterMark = (relDiskUsage-10)/100;
+  _rmc->_dwParams._highWaterMark = (relDiskUsage-10)/100;
   _rmc->calcDiskUsage();
   CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::WARNING );
   CPPUNIT_ASSERT(! _ah->noAlarmSet() );
 
-  _rmc->_highWaterMark = (relDiskUsage+10)/100;
+  _rmc->_dwParams._highWaterMark = (relDiskUsage+10)/100;
   _rmc->calcDiskUsage();
   CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::OKAY );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
