@@ -204,7 +204,7 @@ CREATE OR REPLACE TRIGGER fe_config_btt_info_auto_ver_tg
   BEFORE INSERT ON FE_CONFIG_BADTT_INFO
   FOR EACH ROW
     begin
-  select test_update_tag_and_version('FE_CONFIG_BTT_INFO', :new.tag, :new.version) into :new.version from dual;
+  select test_update_tag_and_version('FE_CONFIG_BADTT_INFO', :new.tag, :new.version) into :new.version from dual;
 end;
 /
 SHOW ERRORS;
@@ -268,20 +268,6 @@ ALTER TABLE FE_CONFIG_lin_DAT ADD CONSTRAINT FE_CONFIG_lin_fk FOREIGN KEY (lin_c
  */
 
 
-CREATE TABLE FE_CONFIG_param_DAT (
-  lin_conf_id        NUMBER(10),
-  logic_id           NUMBER(10), -- (crystal)
-  etsat                Number,
-  ttthreshlow         Number,
-  ttthreshhigh         Number,
-  fg_lowthresh         Number,
-  fg_highthresh         Number,
-  fg_lowratio         Number,
-  fg_highratio         Number
-);
-
-ALTER TABLE FE_CONFIG_param_DAT ADD CONSTRAINT FE_CONFIG_param_pk PRIMARY KEY (lin_conf_id, logic_id);
-ALTER TABLE FE_CONFIG_param_DAT ADD CONSTRAINT FE_CONFIG_param_fk FOREIGN KEY (lin_conf_id) REFERENCES FE_CONFIG_lin_INFO (lin_conf_id);
 
 
 
@@ -371,6 +357,26 @@ CREATE TABLE FE_CONFIG_FGR_DAT (
 ALTER TABLE FE_CONFIG_FGR_DAT ADD CONSTRAINT FE_CONFIG_FGR_pk PRIMARY KEY (fgr_conf_id, logic_id);
 ALTER TABLE FE_CONFIG_FGR_DAT ADD CONSTRAINT FE_CONFIG_FGR_fk  FOREIGN KEY (fgr_conf_id) REFERENCES FE_CONFIG_FGR_INFO (fgr_conf_id);
 
+/* endcap part not by groups */
+CREATE TABLE FE_CONFIG_FGREETT_DAT (
+ fgr_conf_id        NUMBER(10),
+ logic_id              NUMBER(10), -- (tower by tcc and tt)
+ threshold                Number(10),
+ lut_fg                 number(10)
+);
+
+ALTER TABLE FE_CONFIG_FGREETT_DAT ADD CONSTRAINT FE_CONFIG_FGREETT_pk PRIMARY KEY (fgr_conf_id, logic_id);
+ALTER TABLE FE_CONFIG_FGREETT_DAT ADD CONSTRAINT FE_CONFIG_FGREETT_fk FOREIGN KEY (fgr_conf_id) REFERENCES FE_CONFIG_FGR_INFO (fgr_conf_id);
+
+CREATE TABLE FE_CONFIG_FGREEST_DAT (
+ fgr_conf_id        NUMBER(10),
+ logic_id              NUMBER(10), -- (strip)
+ lut_value                 number(10)
+);
+
+ALTER TABLE FE_CONFIG_FGREEST_DAT ADD CONSTRAINT FE_CONFIG_FGREEST_pk PRIMARY KEY (fgr_conf_id, logic_id);
+ALTER TABLE FE_CONFIG_FGREEST_DAT ADD CONSTRAINT FE_CONFIG_FGREEST_fk FOREIGN KEY (fgr_conf_id) REFERENCES FE_CONFIG_FGR_INFO (fgr_conf_id);
+
 
 
 CREATE TABLE FE_CONFIG_BadCrystals_DAT (
@@ -382,8 +388,8 @@ cry_id NUMBER(10),
  status NUMBER(10));
 
 ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_pk PRIMARY KEY (rec_id,tcc_id,fed_id,tt_id,cry_id);
-/* ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY (rec_id) REFERENCES FE_CONFIG_BadCrystals_INFO (rec_id); */
-ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY  (REC_ID) REFERENCES COND2CONF_INFO (REC_ID);
+ ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY (rec_id) REFERENCES FE_CONFIG_BadCrystals_INFO (rec_id); 
+/* ALTER TABLE FE_CONFIG_BadCrystals_DAT ADD CONSTRAINT FE_CONFIG_BXT_fk FOREIGN KEY  (REC_ID) REFERENCES COND2CONF_INFO (REC_ID); */
 
 CREATE TABLE FE_CONFIG_BadTT_DAT (
 rec_id NUMBER(10) NOT NULL,
@@ -393,8 +399,8 @@ tt_id  NUMBER(10),
  status NUMBER(10));
 
 ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_pk PRIMARY KEY (rec_id,tcc_id,fed_id,tt_id );
-/* ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (rec_id) REFERENCES FE_CONFIG_BadTT_INFO (rec_id); */
-ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (rec_id) REFERENCES COND2CONF_INFO (rec_id);
+ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (rec_id) REFERENCES FE_CONFIG_BadTT_INFO (rec_id); 
+/* ALTER TABLE FE_CONFIG_BadTT_DAT ADD CONSTRAINT FE_CONFIG_BTT_fk FOREIGN KEY (rec_id) REFERENCES COND2CONF_INFO (rec_id); */
 
 
 
@@ -410,6 +416,41 @@ ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_sli_fk FOREIGN KEY (
 ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_WEIGHT_fk FOREIGN KEY (wei_conf_id) REFERENCES FE_CONFIG_WEIGHT_INFO (wei_conf_id);
 /*  ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_BXT_fk FOREIGN KEY (bxt_conf_id) REFERENCES FE_CONFIG_BadCrystals_INFO (bxt_conf_id); */
 /* ALTER TABLE FE_CONFIG_MAIN ADD CONSTRAINT FE_CONFIG_MAIN_to_BTT_fk FOREIGN KEY (btt_conf_id) REFERENCES FE_CONFIG_BadTT_INFO (btt_conf_id); */
+
+
+CREATE TABLE FE_CONFIG_linparam_DAT (
+  lin_conf_id        NUMBER(10),
+  logic_id           NUMBER(10), -- (crystal)
+  etsat                Number
+);
+
+ALTER TABLE FE_CONFIG_linparam_DAT ADD CONSTRAINT FE_CONFIG_linparam_pk PRIMARY KEY (lin_conf_id, logic_id);
+ALTER TABLE FE_CONFIG_linparam_DAT ADD CONSTRAINT FE_CONFIG_linparam_fk FOREIGN KEY (lin_conf_id) REFERENCES FE_CONFIG_lin_INFO (lin_conf_id);
+
+
+CREATE TABLE FE_CONFIG_lutparam_DAT (
+  lut_conf_id        NUMBER(10),
+  logic_id           NUMBER(10), -- (crystal)
+  etsat                Number,
+  ttthreshlow         Number,
+  ttthreshhigh         Number
+);
+
+ALTER TABLE FE_CONFIG_lutparam_DAT ADD CONSTRAINT FE_CONFIG_lutparam_pk PRIMARY KEY (lut_conf_id, logic_id);
+ALTER TABLE FE_CONFIG_lutparam_DAT ADD CONSTRAINT FE_CONFIG_lutparam_fk FOREIGN KEY (lut_conf_id) REFERENCES FE_CONFIG_lut_INFO (lut_conf_id);
+
+CREATE TABLE FE_CONFIG_fgrparam_DAT (
+  fgr_conf_id        NUMBER(10),
+  logic_id           NUMBER(10), -- (crystal)
+  fg_lowthresh         Number,
+  fg_highthresh         Number,
+  fg_lowratio         Number,
+  fg_highratio         Number
+);
+
+ALTER TABLE FE_CONFIG_fgrparam_DAT ADD CONSTRAINT FE_CONFIG_fgrparam_pk PRIMARY KEY (fgr_conf_id, logic_id);
+ALTER TABLE FE_CONFIG_fgrparam_DAT ADD CONSTRAINT FE_CONFIG_fgrparam_fk FOREIGN KEY (fgr_conf_id) REFERENCES FE_CONFIG_fgr_INFO (fgr_conf_id);
+
 
 
 
