@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.7 2009/09/16 13:31:10 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.8 2009/09/17 10:58:12 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -13,11 +13,10 @@ using namespace stor;
 FilesMonitorCollection::FilesMonitorCollection(const utils::duration_t& updateInterval) :
 MonitorCollection(updateInterval),
 _maxFileEntries(250),
-_entryCounter(0),
-_numberOfErasedRecords(0)
+_entryCounter(0)
 {
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
-  _fileRecords.reserve(_maxFileEntries);
+  _fileRecords.set_capacity(_maxFileEntries);
 }
 
 
@@ -25,12 +24,6 @@ const FilesMonitorCollection::FileRecordPtr
 FilesMonitorCollection::getNewFileRecord()
 {
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
-
-  if (_fileRecords.size() >= _maxFileEntries)
-  {
-    ++_numberOfErasedRecords;
-    _fileRecords.erase(_fileRecords.begin());
-  }
 
   boost::shared_ptr<FileRecord> fileRecord(new FilesMonitorCollection::FileRecord());
   fileRecord->entryCounter = _entryCounter++;
@@ -52,7 +45,6 @@ void FilesMonitorCollection::do_reset()
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
   _fileRecords.clear();
   _entryCounter = 0;
-  _numberOfErasedRecords = 0;
 }
 
 
@@ -68,7 +60,6 @@ void FilesMonitorCollection::do_updateInfoSpaceItems()
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
 
   _openFiles = 0;
-  _closedFiles = _numberOfErasedRecords;
   
   for (
     FileRecordList::const_iterator it = _fileRecords.begin(),
@@ -79,9 +70,9 @@ void FilesMonitorCollection::do_updateInfoSpaceItems()
   {
     if ( (*it)->whyClosed == FileRecord::notClosed )
       ++_openFiles;
-    else
-      ++_closedFiles;
   }
+
+  _closedFiles = _entryCounter - _openFiles;
 }
 
 

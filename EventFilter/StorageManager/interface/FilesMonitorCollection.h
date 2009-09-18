@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.7 2009/09/16 13:29:50 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.8 2009/09/17 11:03:49 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <vector>
 
+#include <boost/circular_buffer.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -22,8 +23,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2009/09/16 13:29:50 $
+   * $Revision: 1.8 $
+   * $Date: 2009/09/17 11:03:49 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -63,7 +64,7 @@ namespace stor {
     // We do not know how many files there will be.
     // Thus, we need a vector of them.
     typedef boost::shared_ptr<FileRecord> FileRecordPtr;
-    typedef std::vector<FileRecordPtr> FileRecordList;
+    typedef boost::circular_buffer<FileRecordPtr> FileRecordList;
 
 
     explicit FilesMonitorCollection(const utils::duration_t& updateInterval);
@@ -91,7 +92,6 @@ namespace stor {
 
     const unsigned int _maxFileEntries; // maximum number of files to remember
     uint32_t _entryCounter;
-    uint32_t _numberOfErasedRecords;
 
     xdata::UnsignedInteger32 _closedFiles;                 // number of closed files
     xdata::UnsignedInteger32 _openFiles;                   // number of open files
