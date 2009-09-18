@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.19 2009/09/18 11:08:23 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.20 2009/09/18 12:36:09 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -28,8 +28,8 @@ ResourceMonitorCollection::ResourceMonitorCollection
 MonitorCollection(updateInterval),
 _updateInterval(updateInterval),
 _alarmHandler(ah),
-_numberOfCopyWorkers(updateInterval, 10),
-_numberOfInjectWorkers(updateInterval, 10),
+_numberOfCopyWorkers(-1),
+_numberOfInjectWorkers(-1),
 _nLogicalDisks(0),
 _latchedSataBeastStatus(-1),
 _progressMarker( "unused" )
@@ -53,13 +53,14 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
 
   for (unsigned int i=0; i<_nLogicalDisks; ++i) {
 
-    DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
+    DiskUsagePtr diskUsage( new DiskUsage() );
     diskUsage->pathName = dwParams._filePath;
     if( dwParams._nLogicalDisk > 0 ) {
       std::ostringstream oss;
       oss << "/" << std::setfill('0') << std::setw(2) << i; 
       diskUsage->pathName += oss.str();
     }
+    retrieveDiskSize(diskUsage);
     _diskUsageList.push_back(diskUsage);
   }
 
@@ -69,35 +70,10 @@ void ResourceMonitorCollection::configureDisks(DiskWritingParams const& dwParams
         it != itEnd;
         ++it)
   {
-    DiskUsagePtr diskUsage( new DiskUsage(_updateInterval) );
+    DiskUsagePtr diskUsage( new DiskUsage() );
     diskUsage->pathName = (*it);
+    retrieveDiskSize(diskUsage);
     _diskUsageList.push_back(diskUsage);
-  }
-  
-
-  for (DiskUsagePtrList::iterator it = _diskUsageList.begin(),
-         itEnd = _diskUsageList.end();
-       it != itEnd;
-       ++it)
-  {
-    if ( ! (*it)->retrieveDiskSize() ) emitDiskAlarm(*it, errno);
-  }
-}
-
-
-bool ResourceMonitorCollection::DiskUsage::retrieveDiskSize()
-{
-  struct statfs64 buf;
-  int retVal = statfs64(pathName.c_str(), &buf);
-  if(retVal==0) {
-    size_t blksize = buf.f_bsize;
-    diskSize = buf.f_blocks * blksize / 1024 / 1024 / 1024;
-    return true;
-  }
-  else
-  {
-    diskSize = 0;
-    return false;
   }
 }
 
@@ -106,8 +82,8 @@ void ResourceMonitorCollection::getStats(Stats& stats) const
 {
   getDiskStats(stats);
 
-  _numberOfCopyWorkers.getStats(stats.numberOfCopyWorkersStats);
-  _numberOfInjectWorkers.getStats(stats.numberOfInjectWorkersStats);
+  stats.numberOfCopyWorkers = _numberOfCopyWorkers;
+  stats.numberOfInjectWorkers = _numberOfInjectWorkers;
 
   stats.sataBeastStatus = _latchedSataBeastStatus;
 }
@@ -125,9 +101,9 @@ void ResourceMonitorCollection::getDiskStats(Stats& stats) const
         ++it)
   {
     DiskUsageStatsPtr diskUsageStats(new DiskUsageStats);
-    (*it)->absDiskUsage.getStats(diskUsageStats->absDiskUsageStats);
-    (*it)->relDiskUsage.getStats(diskUsageStats->relDiskUsageStats);
     diskUsageStats->diskSize = (*it)->diskSize;
+    diskUsageStats->absDiskUsage = (*it)->absDiskUsage;
+    diskUsageStats->relDiskUsage = (*it)->relDiskUsage;
     diskUsageStats->pathName = (*it)->pathName;
     diskUsageStats->alarmState = (*it)->alarmState;
     stats.diskUsageStatsList.push_back(diskUsageStats);
@@ -138,15 +114,16 @@ void ResourceMonitorCollection::getDiskStats(Stats& stats) const
 void ResourceMonitorCollection::do_calculateStatistics()
 {
   calcDiskUsage();
-  calcNumberOfWorkers();
+  calcNumberOfCopyWorkers();
+  calcNumberOfInjectWorkers();
   checkSataBeasts();
 }
 
 
 void ResourceMonitorCollection::do_reset()
 {
-  _numberOfCopyWorkers.reset();
-  _numberOfInjectWorkers.reset();
+  _numberOfCopyWorkers = -1;
+  _numberOfInjectWorkers = -1;
   _latchedSataBeastStatus = -1;
 
   boost::mutex::scoped_lock sl(_diskUsageListMutex);
@@ -155,8 +132,8 @@ void ResourceMonitorCollection::do_reset()
         it != itEnd;
         ++it)
   {
-    (*it)->absDiskUsage.reset();
-    (*it)->relDiskUsage.reset();
+    (*it)->absDiskUsage = -1;
+    (*it)->relDiskUsage = -1;
     (*it)->alarmState = AlarmHandler::OKAY;
   }
 }
@@ -180,13 +157,8 @@ void ResourceMonitorCollection::do_updateInfoSpaceItems()
   Stats stats;
   getStats(stats);
 
-  _copyWorkers = static_cast<xdata::UnsignedInteger32>(
-    static_cast<unsigned int>( stats.numberOfCopyWorkersStats.getLastSampleValue() )
-  );
-
-  _injectWorkers = static_cast<xdata::UnsignedInteger32>(
-    static_cast<unsigned int>( stats.numberOfInjectWorkersStats.getLastSampleValue() )
-  );
+  _copyWorkers = static_cast<xdata::UnsignedInteger32>(stats.numberOfCopyWorkers);
+  _injectWorkers = static_cast<xdata::UnsignedInteger32>(stats.numberOfInjectWorkers);
 
   _sataBeastStatus = stats.sataBeastStatus;
   _numberOfDisks = _nLogicalDisks;
@@ -215,10 +187,12 @@ void ResourceMonitorCollection::do_updateInfoSpaceItems()
     );
     _usedDiskSpace.push_back(
       static_cast<xdata::UnsignedInteger32>( 
-        static_cast<unsigned int>( (*it)->absDiskUsageStats.getLastSampleValue() * 1024 )
+        static_cast<unsigned int>( (*it)->absDiskUsage * 1024 )
       )
     );
   }
+
+  calcDiskUsage();
 }
 
 
@@ -231,32 +205,37 @@ void ResourceMonitorCollection::calcDiskUsage()
         it != itEnd;
         ++it)
   {
-    struct statfs64 buf;
-    int retVal = statfs64((*it)->pathName.c_str(), &buf);
-    if(retVal==0) {
-      unsigned int blksize = buf.f_bsize;
-      double absused = 
-        (*it)->diskSize -
-        buf.f_bavail * blksize / 1024 / 1024 / 1024;
-      double relused = (100 * (absused / (*it)->diskSize)); 
-      (*it)->absDiskUsage.addSample(absused);
-      (*it)->absDiskUsage.calculateStatistics();
-      (*it)->relDiskUsage.addSample(relused);
-      (*it)->relDiskUsage.calculateStatistics();
-      if (relused > _dwParams._highWaterMark*100)
-      {
-        emitDiskSpaceAlarm(*it);
-      }
-      else if (relused < _dwParams._highWaterMark*95)
-        // do not change alarm level if we are close to the high water mark
-      {
-        revokeDiskAlarm(*it);
-      }
-    }
-    else
+    retrieveDiskSize(*it);
+  }
+}
+
+void ResourceMonitorCollection::retrieveDiskSize(DiskUsagePtr diskUsage)
+{
+  struct statfs64 buf;
+  int retVal = statfs64(diskUsage->pathName.c_str(), &buf);
+  if(retVal==0) {
+    unsigned int blksize = buf.f_bsize;
+    diskUsage->diskSize = buf.f_blocks * blksize / 1024 / 1024 / 1024;
+    diskUsage->absDiskUsage =
+      diskUsage->diskSize -
+      buf.f_bavail * blksize / 1024 / 1024 / 1024;
+    diskUsage->relDiskUsage = (100 * (diskUsage->absDiskUsage / diskUsage->diskSize)); 
+    if ( diskUsage->relDiskUsage > _dwParams._highWaterMark*100 )
     {
-      emitDiskAlarm(*it, errno);
+      emitDiskSpaceAlarm(diskUsage);
     }
+    else if ( diskUsage->relDiskUsage < _dwParams._highWaterMark*95 )
+      // do not change alarm level if we are close to the high water mark
+    {
+      revokeDiskAlarm(diskUsage);
+    }
+  }
+  else
+  {
+    emitDiskAlarm(diskUsage, errno);
+    diskUsage->diskSize = -1;
+    diskUsage->absDiskUsage = -1;
+    diskUsage->relDiskUsage = -1;
   }
 }
 
@@ -287,15 +266,11 @@ void ResourceMonitorCollection::emitDiskSpaceAlarm(DiskUsagePtr diskUsage)
 {
   diskUsage->alarmState = AlarmHandler::WARNING;
 
-  MonitoredQuantity::Stats relUsageStats, absUsageStats;
-  diskUsage->relDiskUsage.getStats(relUsageStats);
-  diskUsage->absDiskUsage.getStats(absUsageStats);
-
   std::ostringstream msg;
   msg << std::fixed << std::setprecision(1) <<
     "Disk space usage for " << diskUsage->pathName <<
-    " is " << relUsageStats.getLastSampleValue() << "% (" <<
-    absUsageStats.getLastSampleValue() << "GB of " <<
+    " is " << diskUsage->relDiskUsage << "% (" <<
+    diskUsage->absDiskUsage << "GB of " <<
     diskUsage->diskSize << "GB).";
 
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg.str());
@@ -311,34 +286,20 @@ void ResourceMonitorCollection::revokeDiskAlarm(DiskUsagePtr diskUsage)
 }
 
 
-void ResourceMonitorCollection::calcNumberOfWorkers()
+void ResourceMonitorCollection::calcNumberOfCopyWorkers()
 {
-  _numberOfCopyWorkers.addSample( getProcessCount("CopyWorker.pl") );
-  _numberOfInjectWorkers.addSample( getProcessCount("InjectWorker.pl") );
-  
-  _numberOfCopyWorkers.calculateStatistics();
-  _numberOfInjectWorkers.calculateStatistics();
-
-  checkNumberOfCopyWorkers();
-  checkNumberOfInjectWorkers();
-}
-
-
-void ResourceMonitorCollection::checkNumberOfCopyWorkers()
-{
-  const std::string alarmName = "CopyWorkers";
+  _numberOfCopyWorkers = getProcessCount("CopyWorker.pl");
 
   if ( _dwParams._nCopyWorkers < 0 ) return;
 
-  MonitoredQuantity::Stats stats;
-  _numberOfCopyWorkers.getStats(stats);
+  const std::string alarmName = "CopyWorkers";
 
-  if ( stats.getLastSampleValue() != _dwParams._nCopyWorkers )
+  if ( _numberOfCopyWorkers != _dwParams._nCopyWorkers )
   {
     std::ostringstream msg;
     msg << "Expected " << _dwParams._nCopyWorkers <<
       " running CopyWorkers, but found " <<
-      stats.getLastSampleValue() << ".";
+      _numberOfCopyWorkers << ".";
     XCEPT_DECLARE(stor::exception::CopyWorkers, ex, msg.str());
     _alarmHandler->raiseAlarm(alarmName, AlarmHandler::WARNING, ex);
   }
@@ -349,21 +310,20 @@ void ResourceMonitorCollection::checkNumberOfCopyWorkers()
 }
 
 
-void ResourceMonitorCollection::checkNumberOfInjectWorkers()
+void ResourceMonitorCollection::calcNumberOfInjectWorkers()
 {
-  const std::string alarmName = "InjectWorkers";
+  _numberOfInjectWorkers = getProcessCount("InjectWorker.pl");
 
   if ( _dwParams._nInjectWorkers < 0 ) return;
 
-  MonitoredQuantity::Stats stats;
-  _numberOfInjectWorkers.getStats(stats);
+  const std::string alarmName = "InjectWorkers";
 
-  if ( stats.getLastSampleValue() != _dwParams._nInjectWorkers )
+  if ( _numberOfInjectWorkers != _dwParams._nInjectWorkers )
   {
     std::ostringstream msg;
     msg << "Expected " << _dwParams._nInjectWorkers <<
       " running InjectWorkers, but found " <<
-      stats.getLastSampleValue() << ".";
+      _numberOfInjectWorkers << ".";
     XCEPT_DECLARE(stor::exception::InjectWorkers, ex, msg.str());
     _alarmHandler->raiseAlarm(alarmName, AlarmHandler::WARNING, ex);
   }

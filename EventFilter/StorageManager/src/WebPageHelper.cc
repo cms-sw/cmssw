@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.33 2009/09/18 12:07:32 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.34 2009/09/18 14:01:11 dshpakov Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1125,14 +1125,14 @@ void WebPageHelper::addRowsForWorkers
   XHTMLMaker::Node* tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# CopyWorker");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, stats.numberOfCopyWorkersStats.getLastSampleValue(), 0 );
+  maker.addInt( tableDiv, stats.numberOfCopyWorkers );
 
   // # inject worker
   tableRow = maker.addNode("tr", table, _rowAttr);
   tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
   maker.addText(tableDiv, "# InjectWorker");
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, stats.numberOfInjectWorkersStats.getLastSampleValue(), 0 );
+  maker.addInt( tableDiv, stats.numberOfInjectWorkers );
 }
 
 
@@ -1216,8 +1216,8 @@ void WebPageHelper::addTableForDiskUsages
     {
       std::ostringstream tmpString;
       tmpString << std::fixed << std::setprecision(0) <<
-        (*it)->relDiskUsageStats.getLastSampleValue() << "% (" <<
-        (*it)->absDiskUsageStats.getLastSampleValue() << " of " << 
+        (*it)->relDiskUsage << "% (" <<
+        (*it)->absDiskUsage << " of " << 
         (*it)->diskSize << " GB)";
       maker.addText(tableDiv, tmpString.str());
     }

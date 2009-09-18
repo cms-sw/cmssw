@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.16 2009/09/18 09:10:52 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.17 2009/09/18 11:08:59 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.16 $
-   * $Date: 2009/09/18 09:10:52 $
+   * $Revision: 1.17 $
+   * $Date: 2009/09/18 11:08:59 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -41,8 +41,8 @@ namespace stor {
 
     struct DiskUsageStats
     {
-      MonitoredQuantity::Stats absDiskUsageStats;  // absolute disk usage in GB
-      MonitoredQuantity::Stats relDiskUsageStats;  // percentage of disk space occupied
+      double absDiskUsage;                         // absolute disk usage in GB
+      double relDiskUsage;                         // percentage of disk space occupied
       double diskSize;                             // absolute size of disk in GB
       std::string pathName;                        // path of the disk
       AlarmHandler::ALARM_LEVEL alarmState;        // alarm level of the disk usage
@@ -54,9 +54,9 @@ namespace stor {
     {
       DiskUsageStatsPtrList diskUsageStatsList;
 
-      MonitoredQuantity::Stats numberOfCopyWorkersStats;
-      MonitoredQuantity::Stats numberOfInjectWorkersStats;
-      int                      sataBeastStatus; // status code of SATA beast
+      int numberOfCopyWorkers;
+      int numberOfInjectWorkers;
+      int sataBeastStatus;       // status code of SATA beast
     };
 
 
@@ -84,17 +84,11 @@ namespace stor {
 
     struct DiskUsage
     {
-      MonitoredQuantity absDiskUsage;
-      MonitoredQuantity relDiskUsage;
+      double absDiskUsage;
+      double relDiskUsage;
       double diskSize;
       std::string pathName;
       AlarmHandler::ALARM_LEVEL alarmState;
-
-      DiskUsage(const utils::duration_t& updateInterval) :
-        absDiskUsage(updateInterval,10),
-        relDiskUsage(updateInterval,10) {}
-
-      bool retrieveDiskSize();
     };
     typedef boost::shared_ptr<DiskUsage> DiskUsagePtr;
     typedef std::vector<DiskUsagePtr> DiskUsagePtrList;
@@ -119,9 +113,10 @@ namespace stor {
 
     void getDiskStats(Stats&) const;
     void calcDiskUsage();
-    void calcNumberOfWorkers();
-    void checkNumberOfCopyWorkers();
-    void checkNumberOfInjectWorkers();
+    void retrieveDiskSize(DiskUsagePtr);
+
+    void calcNumberOfCopyWorkers();
+    void calcNumberOfInjectWorkers();
     int getProcessCount(const std::string processName);
 
     typedef std::set<std::string> SATABeasts;
@@ -133,8 +128,8 @@ namespace stor {
 
     DiskWritingParams _dwParams;
 
-    MonitoredQuantity _numberOfCopyWorkers;
-    MonitoredQuantity _numberOfInjectWorkers;
+    int _numberOfCopyWorkers;
+    int _numberOfInjectWorkers;
     unsigned int _nLogicalDisks;
     int _latchedSataBeastStatus;
     
