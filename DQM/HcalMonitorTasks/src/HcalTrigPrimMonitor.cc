@@ -2,7 +2,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 HcalTrigPrimMonitor::HcalTrigPrimMonitor() {
-  ievt_=0;
   occThresh_=0;
 }
 
@@ -21,7 +20,6 @@ void HcalTrigPrimMonitor::clearME(){
   if(m_dbe){
     m_dbe->setCurrentFolder(baseFolder_);
     m_dbe->removeContents();
-    meEVT_= 0;
   }
 } // void HcalTrigPrimMonitor::clearME()
 
@@ -42,7 +40,6 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   if (fVerbosity) cout <<"tp_check = "<<tp_checkNevents_<<endl;
   tp_makeDiagnostics_=ps.getUntrackedParameter<bool>("TrigPrimMonitor_makeDiagnostics",makeDiagnostics);
 
-  ievt_=0;
   
   if ( m_dbe !=NULL ) {    
 
@@ -54,7 +51,10 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_ + "/ZZ Expert Plots/ZZ DQM Expert Plots");
     type = "TrigPrim Event Number";
     meEVT_ = m_dbe->bookInt(type);
-    
+    meEVT_->Fill(ievt_);
+    meTOTALEVT_ = m_dbe->bookInt("TrigPrim Total Events Processed");
+    meTOTALEVT_->Fill(tevt_);
+
     // 00 TP Occupancy
     m_dbe->setCurrentFolder(baseFolder_);
     type = "00 TP Occupancy";
@@ -132,25 +132,26 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     //Geometry Plots
     m_dbe->setCurrentFolder(baseFolder_+"/Geometry Plots");
     type = "TrigPrim Eta Occupancy Map";
-    OCC_ETA = m_dbe->book1D(type,type,etaBins_,etaMin_,etaMax_);
+    OCC_ETA = m_dbe->book1D(type,type,83,-41.5,41.5);
     type = "TrigPrim Phi Occupancy Map";
-    OCC_PHI = m_dbe->book1D(type,type,phiBins_,phiMin_,phiMax_);
+    OCC_PHI = m_dbe->book1D(type,type,72,0.5,72.5);
     type = "TrigPrim Geo Occupancy Map";
-    OCC_MAP_ETAPHI = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    OCC_MAP_ETAPHI = m_dbe->book2D(type,type,
+				   83, -41.5, 41.5,
+				   72, 0.5, 72.5);
+
     //setupDepthHists2D(OCC_MAP_ETAPHI,type,"");
     //type = "old TrigPrim Geo Threshold Map";
-    //OCC_MAP_GEO = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    //OCC_MAP_GEO = m_dbe->book2D(type,type,83,-41.5,41.5,72,0.5,72.5);
     type = "TrigPrim Geo Threshold Map";
-    OCC_MAP_ETAPHI_THR = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    //setupDepthHists2D(OCC_MAP_ETAPHI_THR,type,"");
+    OCC_MAP_ETAPHI_THR = m_dbe->book2D(type,type,83,-41.5,41.5,72,0.5,72.5);
+
     type = "TrigPrim Eta Energy Map";
-    EN_ETA = m_dbe->book1D(type,type,etaBins_,etaMin_,etaMax_);
+    EN_ETA = m_dbe->book1D(type,type,83, -41.5, 41.5);
     type = "TrigPrim Phi Energy Map";
-    EN_PHI = m_dbe->book1D(type,type,phiBins_,phiMin_,phiMax_);
+    EN_PHI = m_dbe->book1D(type,type,72,0.5,72.5);
     type = "TrigPrim Geo Energy Map";
-    EN_MAP_ETAPHI = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    //setupDepthHists2D(EN_MAP_ETAPHI,type,"");
-    meEVT_->Fill(ievt_);
+    EN_MAP_ETAPHI = m_dbe->book2D(type,type,83,-41.5,41.5,72,0.5,72.5);
 
   } // if (m_dbe !=NULL)
 
@@ -263,9 +264,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
     return; 
   }
 
-  ++ievt_;
-  meEVT_->Fill(ievt_);
-
+  HcalBaseMonitor::processEvent();
   ++val_tpCount_[tpDigis.size()];
 
   float data[10];

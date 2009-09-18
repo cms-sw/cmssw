@@ -521,7 +521,7 @@ namespace sistrip {
 
   inline uint8_t FEDStripOrdering::physicalOrderForStripInChannel(const uint8_t readoutOrderStripIndexInChannel)
     {
-      return ( physicalOrderForStripInAPV(readoutOrderStripIndexInChannel/2)*2 + (readoutOrderStripIndexInChannel%2) );
+      return physicalOrderForStripInAPV(readoutOrderStripIndexInChannel/2) + (readoutOrderStripIndexInChannel%2)*STRIPS_PER_APV;
     }
   
   inline uint8_t FEDStripOrdering::readoutOrderForStripInChannel(const uint8_t physicalOrderStripIndexInChannel)
@@ -569,7 +569,7 @@ namespace sistrip {
   
   inline bool TrackerSpecialHeader::majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const
     {
-      return ( (0x1<<internalFEUnitNum) & apvAddressErrorRegister() );
+      return !( (0x1<<internalFEUnitNum) & apvAddressErrorRegister() );
     }
   
   inline uint8_t TrackerSpecialHeader::feEnableRegister() const

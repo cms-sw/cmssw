@@ -154,9 +154,6 @@ void DDCompactView::setRoot(const DDLogicalPart & root)
   rep_->setRoot(root);
 }  
 
-void DDCompactView::swap( DDCompactView& repToSwap ) {
-  rep_->swap ( *(repToSwap.rep_) );
-}
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"

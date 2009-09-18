@@ -14,8 +14,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2009/07/06 11:58:16 $
-  * $Revision: 1.30 $
+  * $Date: 2009/07/31 20:32:35 $
+  * $Revision: 1.32 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -58,6 +58,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   
  private:
   void zeroCounters(bool resetpresent=false);
+  void periodicReset();
 
   void processEvent_HBHEdigi(HBHEDigiCollection::const_iterator j);
   void processEvent_HOdigi(HODigiCollection::const_iterator j);
@@ -90,9 +91,6 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   double HOenergyThreshold_;
   double HFenergyThreshold_;
   double ZDCenergyThreshold_;
-
-  MonitorElement* meEVT_;
-  int ievt_;
 
   double deadmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
 

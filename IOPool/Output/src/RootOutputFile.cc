@@ -632,9 +632,6 @@ namespace edm {
 	  if(produced) {
             provenanceToKeep.insert(ProductProvenance(i->branchDescription_->branchID(),
 		        productstatus::neverCreated()));
-	  } else {
-            provenanceToKeep.insert(ProductProvenance(i->branchDescription_->branchID(),
-		        productstatus::dropped()));
 	  }
 	}
       } else {

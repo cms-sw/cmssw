@@ -24,7 +24,9 @@ class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
   //and other fields
   bool theUseSeedLayer;
   double theRescaleErrorIfFail;
-  mutable const Propagator * theProximityPropagator;
+  const Propagator * theProximityPropagator;
+  Chi2MeasurementEstimatorBase * theEtaPhiEstimator;
+  
 };
 
 

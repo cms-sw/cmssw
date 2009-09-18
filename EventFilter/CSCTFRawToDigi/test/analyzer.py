@@ -12,7 +12,7 @@ process.MessageLogger.cout.threshold = cms.untracked.string('INFO')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/FEBAD3FE-F69D-DD11-A12B-001D09F2906A.root')
+    fileNames = cms.untracked.vstring('file:/tmp/26B79166-7C00-DE11-AA81-0030486790A0.root')
 )
 
 process.csctfanalyzer = cms.EDAnalyzer("CSCTFAnalyzer",

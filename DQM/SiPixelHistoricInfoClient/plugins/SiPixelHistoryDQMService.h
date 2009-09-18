@@ -19,8 +19,8 @@ class SiPixelHistoryDQMService : public DQMHistoryServiceBase {
   private:
     //Methods to be specified by each subdet
     uint32_t returnDetComponent(const MonitorElement* ME);
-    bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent);
-    bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  );
+    bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity);
+    bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity);
     //std::string userTranslator (int);
 
     edm::ParameterSet iConfig_;

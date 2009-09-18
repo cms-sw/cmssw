@@ -3,7 +3,6 @@
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
 
 #include <TCanvas.h>
 #include <TObject.h>
@@ -37,7 +36,6 @@ class DisplayManager {
   void displayPrevious();
   void displayPFBlock(int blockNb) ;
   void enableDrawPFBlock(bool state);
-  void enableDrawBrem(bool state);
   void findAndDraw(int ident);
   //void findAndDrawbis(const int ident);
   void findBlock(int ident) ;
@@ -60,14 +58,11 @@ class DisplayManager {
   double clusEnMin_;
   double hitEnMin_;
   double trackPtMin_;
-  double gsfPtMin_;
   double particlePtMin_;
   double genParticlePtMin_;
      
   bool drawHits_;
   bool drawTracks_;
-  bool drawGsfTracks_;
-  bool drawBrems_;
   bool drawClus_;
   bool drawClusterL_;
   bool drawParticles_;
@@ -83,8 +78,6 @@ class DisplayManager {
   
   //------------- graphic attributes ------------------------------------
   std::vector<float>      trackAttributes_;
-  std::vector<float>      gsfAttributes_;
-  std::vector<float>      bremAttributes_;
   std::vector<float>      clusterAttributes_;
   
   
@@ -93,10 +86,7 @@ class DisplayManager {
   
   TAttMarker *trackPatternM_;
   TAttLine   *trackPatternL_;
-  TAttMarker *gsfPatternM_;
-  TAttLine   *gsfPatternL_;
-  TAttMarker *bremPatternM_;
-  TAttLine   *bremPatternL_;
+  
   TAttMarker *genPartPattern_;
   
   TAttLine   *simPartPatternL_;
@@ -125,10 +115,7 @@ class DisplayManager {
   int    eventNumber_;
   int    maxEvents_;
   double zoomFactor_;
-  
-  /// shiftId_ is the number of low bits indicating the object nb in the map key
-  /// the object type is obtained by shifting the key number of shiftId_ bits
-  /// ShiftId_ == SHIFTID == 26
+  //number of low bits indicating the object type in the map key
   int    shiftId_;
 
   //-------------- draw Canvas --------------------------------------
@@ -161,7 +148,6 @@ class DisplayManager {
   //std::vector<std::vector<int> >              vectClusLNb_;
     
   std::vector<int>                            selectedGObj_;
-  std::vector<int>                            badBremsId_;
      
     
   // Display Options read from option file
@@ -183,7 +169,7 @@ class DisplayManager {
   void createGTrack(reco::PFRecTrack &tr,
                     const std::vector<reco::PFTrajectoryPoint>& points,
                     int ident,double pt,double phi0, double sign, 
-                    bool displayInitial, int linestyle, int kfgsfbrem=0);
+                    bool displayInitial, int linestyle);
 
   void createGPart(const reco::PFSimParticle &ptc, 
                    const std::vector<reco::PFTrajectoryPoint>& points, 
@@ -205,8 +191,6 @@ class DisplayManager {
 
   void loadGRecTracks();
 
-  void loadGGsfRecTracks();
-
   void loadGSimParticles();
 
   void loadGPFBlocks();
@@ -215,11 +199,6 @@ class DisplayManager {
      
   //void redraw();
   void rubOutGPFBlock();
-  
-  // 
-  void retrieveBadBrems();
-  bool findBadBremsId(int ident);
-   
 
  
   // methods

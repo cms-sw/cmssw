@@ -34,8 +34,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/07/06 10:51:54 $
- * $Revision: 1.44 $
+ * $Date: 2009/07/21 11:02:48 $
+ * $Revision: 1.45 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -86,7 +86,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   vector<int> dccCrate_;
   vector<HcalSubdetector> dccSubdet_;
   int firstFED_;
-  int ievt_;
   int lastEvtN_;
   int lastBCN_;
   //   int dccnum_;
@@ -96,8 +95,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int dfmon_checkNevents;
 
  private:  //Monitoring elements
-   
-  MonitorElement* meEVT_;
 
   MonitorElement* DATAFORMAT_PROBLEM_MAP;
   MonitorElement* DATAFORMAT_PROBLEM_ZOO;

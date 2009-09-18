@@ -3,7 +3,7 @@ from SimGeneral.MixingModule.mixObjects_cfi import *
 
 
 process = cms.Process("PRODMIXNEW")
-process.load("SimGeneral.MixingModule.mixLowLumPU_mixProd_cfi")
+process.load("SimGeneral.MixingModule.mixLowLumPU_mixProdStep2_cfi")
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(

@@ -2,8 +2,8 @@
  *
  *  implementation of RPCMonitorSync class
  *
- *  $Date: 2009/03/27 17:37:18 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/03/28 03:52:46 $
+ *  $Revision: 1.6 $
  *
  * \author Piotr Traczyk
  */
@@ -21,41 +21,42 @@
 
 #include <vector>
 #include <ctime>
+#include <sstream>
 
 using namespace std;
 using namespace edm;
 
 // Detector overview historam booking routines
 
-MonitorElement *RPCMonitorSync::barrelOffsetHist( char *name, char *title ) {
-  char htit[128];
-  sprintf(htit,"Synchronization offset - %s",title);
+MonitorElement *RPCMonitorSync::barrelOffsetHist(string name, string title ) {
+  stringstream htit;
+  htit<<"Synchronization offset - "<<title;
   dbe->setCurrentFolder("Global");
-  MonitorElement *hist = dbe->book2D(name,title,18,1,7,24,1,13);
+  MonitorElement *hist = dbe->book2D(name,htit.str(),18,1,7,24,1,13);
   return hist;
 } 
 
-MonitorElement *RPCMonitorSync::endcapOffsetHist( char *name, char *title ) {
-  char htit[128];
-  sprintf(htit,"Synchronization offset - %s",title);
+MonitorElement *RPCMonitorSync::endcapOffsetHist( string name, string title ) {
+  stringstream htit;
+  htit<<"Synchronization offset - "<<title;
   dbe->setCurrentFolder("Global");
-  MonitorElement *hist = dbe->book2D(name,title,12,1,4,36,1,7);
+  MonitorElement *hist = dbe->book2D(name,htit.str(),12,1,4,36,1,7);
   return hist;
 } 
 
-MonitorElement *RPCMonitorSync::barrelWidthHist( char *name, char *title ) {
-  char htit[128];
-  sprintf(htit,"Synchronization width - %s",title);
+MonitorElement *RPCMonitorSync::barrelWidthHist( string name, string title ) {
+  stringstream htit;
+  htit<<"Synchronization width - "<<title;
   dbe->setCurrentFolder("Global");
-  MonitorElement *hist = dbe->book2D(name,title,18,1,7,24,1,13);
+  MonitorElement *hist = dbe->book2D(name,htit.str(),18,1,7,24,1,13);
   return hist;
 } 
 
-MonitorElement *RPCMonitorSync::endcapWidthHist( char *name, char *title ) {
-  char htit[128];
-  sprintf(htit,"Synchronization width - %s",title);
+MonitorElement *RPCMonitorSync::endcapWidthHist( string name, string title ) {
+  stringstream htit;
+  htit<<"Synchronization width - "<<title;
   dbe->setCurrentFolder("Global");
-  MonitorElement *hist = dbe->book2D(name,title,12,1,4,36,1,7);
+  MonitorElement *hist = dbe->book2D(name,htit.str(),12,1,4,36,1,7);
   return hist;
 } 
 

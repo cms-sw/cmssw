@@ -1,10 +1,10 @@
 #include "RecoBTag/PerformanceDB/interface/BtagPerformance.h"
 
-float BtagPerformance::getResult(BtagResult::BtagResultType r, BtagBinningPointByMap p) const {
+float BtagPerformance::getResult(PerformanceResult::ResultType r, BinningPointByMap p) const {
   return pl.getResult(r,p);
 }
 
-bool BtagPerformance::isResultOk(BtagResult::BtagResultType r, BtagBinningPointByMap p) const {
+bool BtagPerformance::isResultOk(PerformanceResult::ResultType r, BinningPointByMap p) const {
   return pl.isInPayload(r,p);
 }
 

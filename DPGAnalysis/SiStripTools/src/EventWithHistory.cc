@@ -1,5 +1,6 @@
 #include <map>
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Scalers/interface/L1AcceptBunchCrossing.h"
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
@@ -24,7 +25,8 @@ EventWithHistory::EventWithHistory(const std::vector<edm::EventAuxiliary>& veaux
   }
 }
 
-EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchCrossingCollection& l1abcc):
+EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchCrossingCollection& l1abcc,
+				   const long long orbitoffset, const int bxoffset):
   TinyEvent(), _prevse()
 {
   
@@ -33,21 +35,71 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
   for(L1AcceptBunchCrossingCollection::const_iterator l1abc=l1abcc.begin();l1abc!=l1abcc.end();++l1abc) {
     int evnumb = event.id().event()+l1abc->l1AcceptOffset();
     if(evnumb>0) {
-      TinyEvent tmpse(evnumb,l1abc->orbitNumber(),l1abc->bunchCrossing());
-      tmpmap[l1abc->l1AcceptOffset()]=tmpse;
+      if(orbitoffset < (long long)l1abc->orbitNumber()) {
+	unsigned int neworbit = l1abc->orbitNumber() - orbitoffset;
+	int newbx = l1abc->bunchCrossing() - bxoffset;
+	
+	while(newbx > 3563) {
+	  ++neworbit;
+	  newbx -= 3564;
+	}
+	while(newbx < 0) {
+	  --neworbit;
+	  newbx += 3564;
+	}
+	
+	if(l1abc->eventType()!=0) {
+	  TinyEvent tmpse(evnumb,neworbit,newbx);
+	  tmpmap[l1abc->l1AcceptOffset()]=tmpse;
+	}
+	else {
+	  edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
+	  for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
+	    edm::LogPrint("L1AcceptBunchCrossingNoType") << *debu;
+	  }
+	}
+      }
+      else {
+	edm::LogError("L1AcceptBunchCrossingOffsetTooLarge") << " Too large orbit offset "
+							     << orbitoffset << " " 
+							     << l1abc->orbitNumber();
+      }
     }
     else {
-      // throw exception
+      edm::LogWarning("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
+      for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
+	edm::LogPrint("L1AcceptBunchCrossingNegativeEvent") << *debu;
+      }
     }
   }
   // look for the event itself
-  if(tmpmap.find(0)!=tmpmap.end()) TinyEvent::operator=(tmpmap[0]);
+  if(tmpmap.find(0)!=tmpmap.end()) {
+    
+    TinyEvent::operator=(tmpmap[0]);
   
-  // loop on the rest of the map and stop when it is missing
-  int counter=-1;
-  while(tmpmap.find(counter)!=tmpmap.end()) {
-    _prevse.push_back(tmpmap[counter]);
-    --counter;
+    // loop on the rest of the map and stop when it is missing
+    // check that the events are in the right order and break if not
+
+    int counter=-1;
+    while(tmpmap.find(counter)!=tmpmap.end()) {
+
+      if(tmpmap[counter+1].deltaBX(tmpmap[counter]) > 0) {
+	_prevse.push_back(tmpmap[counter]);
+	--counter;
+      }
+      else {
+	edm::LogWarning("L1AcceptBunchCrossingNotInOrder") << "L1AcceptBunchCrossing not in order: ";
+	for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
+	  edm::LogPrint("L1AcceptBunchCrossingNotInOrder") << *debu;
+	}
+	break;
+      }
+    }
+  }
+  else {
+    TinyEvent::operator=(event);
+    edm::LogWarning("L1AcceptBunchCrossingNoCollection") << " L1AcceptBunchCrossing with offset=0 not found "
+							 << " likely L1ABCCollection is empty ";
   }
   
 }
@@ -68,9 +120,13 @@ EventWithHistory& EventWithHistory::operator=(const EventWithHistory& he) {
 int EventWithHistory::operator==(const EventWithHistory& other) const {
 
   int equal = TinyEvent::operator==(other);
-  equal = equal && (depth() == other.depth());
+
+  // depth is not checked anymore
+
+  //  equal = equal && (depth() == other.depth());
+
   if(equal) {
-    for(unsigned int i=0;i<depth();i++) {
+    for(unsigned int i=0;i<((depth()<other.depth())?depth():other.depth());i++) {
       equal = equal && (_prevse[i] == other._prevse[i]);
     }
   }

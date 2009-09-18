@@ -86,14 +86,6 @@ if Mode == str("ZS") :
 
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-    process.MessageLogger.destinations = cms.untracked.vstring(
-        "cerr",
-        "DigiToRawToDigiZS",
-        "info",
-        "warning",
-        "error"
-        )
-    
     process.output.fileName = "DigiToRawToDigiZS.root"
 
     process.DigiSource.FedRawDataMode = False
@@ -121,14 +113,6 @@ if Mode == str("ZS") :
     
 elif Mode == str("VR") :
 
-    process.MessageLogger.destinations = cms.untracked.vstring(
-        "cerr",
-        "DigiToRawToDigiVR",
-        "info",
-        "warning",
-        "error"
-        )
-    
     process.output.fileName = "DigiToRawToDigiVR.root"
 
     process.DigiSource.FedRawDataMode = True
@@ -156,14 +140,6 @@ elif Mode == str("VR") :
     
 elif Mode == str("PR") :
 
-    process.MessageLogger.destinations = cms.untracked.vstring(
-        "cerr",
-        "DigiToRawToDigiPR",
-        "info",
-        "warning",
-        "error"
-        )
-    
     process.output.fileName = "DigiToRawToDigiPR.root"
 
     process.DigiSource.FedRawDataMode = True
@@ -191,14 +167,6 @@ elif Mode == str("PR") :
     
 elif Mode == str("FK") :
 
-    process.MessageLogger.destinations = cms.untracked.vstring(
-        "cerr",
-        "DigiToRawToDigiFK",
-        "info",
-        "warning",
-        "error"
-        )
-    
     process.output.fileName = "DigiToRawToDigiFK.root"
     
     process.DigiSource.FedRawDataMode = True

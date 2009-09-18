@@ -69,13 +69,16 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
   maxchi2_ = iConfig.getParameter<double>("chi2_max" );
   minhits_ = iConfig.getParameter<double>("nhits_min");
   maxd0_   = iConfig.getParameter<double>("d0_max"   );
+  isCosmics_ = iConfig.getParameter<bool>("isCosmics"  );
 
   // get input collection tags
   muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );
-  electronInputTag_ = iConfig.getParameter<edm::InputTag>("electronInputTag");
   metInputTag_      = iConfig.getParameter<edm::InputTag>("metInputTag"     );
   trackInputTag_    = iConfig.getParameter<edm::InputTag>("trackInputTag"   );
   beamSpotInputTag_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
+
+  if( !isCosmics_ )
+    electronInputTag_ = iConfig.getParameter<edm::InputTag>("electronInputTag");
 
   // get input value map tags
   muonDepValueMap_  = iConfig.getParameter<edm::InputTag>("muonDepValueMap" );
@@ -181,7 +184,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
 
     if( isMuon( trk_idx ) ) continue;
 
-    if( isElectron( trk_idx ) ) continue;
+    if( !isCosmics_ )
+      if( isElectron( trk_idx ) ) continue;
 
     reco::TrackRef trkref( TrackHandle, trk_idx);
 

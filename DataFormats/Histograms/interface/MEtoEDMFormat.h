@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/07/21 17:52:46 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/07/21 19:31:46 $
+ *  $Revision: 1.14 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -80,7 +80,9 @@ class MEtoEDM
     const size_t nOldObjects = MEtoEdmObject.size();
 
    // if the old and new are not the same size, we want to report a problem
-   bool warn = (nObjects == nOldObjects);
+   if (nObjects != nOldObjects) {
+     std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new=" << nObjects << ", old=" << nOldObjects << std::endl;
+   }
 
    for (unsigned int i = 0; i < nObjects; ++i) {
      unsigned int j = 0;
@@ -90,8 +92,8 @@ class MEtoEDM
      while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
      if (j >= nOldObjects) {
        // this value is only in the new container, not the old one
+       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
        MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-       warn = true;
      } else {
        // this value is also in the new container: add the two 
        if (MEtoEdmObject[i].object.GetNbinsX() == newMEtoEDMObject[j].object.GetNbinsX() &&
@@ -105,7 +107,7 @@ class MEtoEDM
            MEtoEdmObject[i].object.GetZaxis()->GetXmax() == newMEtoEDMObject[j].object.GetZaxis()->GetXmax()) {
          MEtoEdmObject[i].object.Add(&newMEtoEDMObject[j].object);
        } else {
-          std::cout << "ERROR MEtoEDM::mergeProducts(): different axis limits - DQM ME '" << MEtoEdmObject[i].name << "' not merged" <<  std::endl;
+          std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits, '" << name << "' not merged" <<  std::endl;
 #if 0
           std::cout << MEtoEdmObject[i].object.GetNbinsX() << " " << newMEtoEDMObject[j].object.GetNbinsX() << std::endl;
           std::cout << MEtoEdmObject[i].object.GetXaxis()->GetXmin() << " " << newMEtoEDMObject[j].object.GetXaxis()->GetXmin() << std::endl;
@@ -119,9 +121,6 @@ class MEtoEDM
 #endif
        }
      }
-   }
-   if (warn) {
-     std::cout << "WARNING MEtoEDM::mergeProducts(): problem found" << std::endl;
    }
    return true;
   }
@@ -147,7 +146,9 @@ MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM)
   const size_t nOldObjects = MEtoEdmObject.size();
 
   // if the old and new are not the same size, we want to report a problem
-  bool warn = (nObjects == nOldObjects);
+  if (nObjects != nOldObjects) {
+    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new=" << nObjects << ", old=" << nOldObjects << std::endl;
+  }
 
   for (unsigned int i = 0; i < nObjects; ++i) {
     unsigned int j = 0;
@@ -157,12 +158,9 @@ MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM)
     while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-      warn = true;
     }
-  }
-  if (warn) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): problem found" << std::endl;
   }
   return true;
 }
@@ -179,7 +177,9 @@ MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
   const size_t nOldObjects = MEtoEdmObject.size();
 
   // if the old and new are not the same size, we want to report a problem
-  bool warn = (nObjects == nOldObjects);
+  if (nObjects != nOldObjects) {
+    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new=" << nObjects << ", old=" << nOldObjects << std::endl;
+  }
 
   for (unsigned int i = 0; i < nObjects; ++i) {
     unsigned int j = 0;
@@ -189,8 +189,8 @@ MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
     while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-      warn = true;
     } else {
       // this value is also in the new container: add the two
       if ( MEtoEdmObject[i].name.find("EventInfo/processedEvents") != std::string::npos ) {
@@ -203,9 +203,6 @@ MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
         }
       }
     }
-  }
-  if (warn) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): problem found" << std::endl;
   }
   return true;
 }
@@ -222,7 +219,9 @@ MEtoEDM<TString>::mergeProduct(const MEtoEDM<TString> &newMEtoEDM)
   const size_t nOldObjects = MEtoEdmObject.size();
 
   // if the old and new are not the same size, we want to report a problem
-  bool warn = (nObjects == nOldObjects);
+  if (nObjects != nOldObjects) {
+    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new=" << nObjects << ", old=" << nOldObjects << std::endl;
+  }
 
   for (unsigned int i = 0; i < nObjects; ++i) {
     unsigned int j = 0;
@@ -232,12 +231,9 @@ MEtoEDM<TString>::mergeProduct(const MEtoEDM<TString> &newMEtoEDM)
     while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-      warn = true;
     }
-  }
-  if (warn) {
-    std::cout << "WARNING MEtoEDM::mergeProducts(): problem found" << std::endl;
   }
   return true;
 }

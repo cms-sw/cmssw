@@ -17,12 +17,11 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
                                  ElectronCollection = cms.InputTag("gsfElectrons"),
                                  PhotonCollection = cms.InputTag("photons"),
-                                 #CaloJetCollection = cms.InputTag("iterativeCone5CaloJets"),
-                                 CaloJetCollection = cms.InputTag("L2L3CorJetIC5Calo"),
+                                 CaloJetCollection = cms.InputTag("sisCone5CaloJets"),
                                  IsolTrackCollection = cms.InputTag("generalTracks"),
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),
                                  HFRecHitCollection = cms.InputTag("hfreco"),
-                                 DQMDirName=cms.string("HLT/EgammaHLTOffline_egammaHLTDQM"),
+                                 DQMDirName=cms.string("HLT/EgOffline"),
                                  hltTag = cms.string("HLT"),
                                  eleEcalIsolTag=cms.InputTag("electronEcalRecHitIsolationLcone"),
                                  eleTrkIsolTag=cms.InputTag("electronTrackIsolationLcone"),
@@ -46,9 +45,7 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  phoCuts = cms.PSet(egHLTOffPhoCuts,),
                                  phoLooseCuts = cms.PSet(egHLTOffPhoLooseCuts,),          
                                  triggerCuts = cms.VPSet (
-                                   cms.PSet (egHLTOffEleEt15Cuts),
-                                   cms.PSet (egHLTOffEleLWEt15Cuts),
-                                   cms.PSet (egHLTOffDoubleEleEt5Cuts)
+                                   cms.PSet (egHLTOffEleEt20Cuts)
                                  )
                                  
 )

@@ -147,7 +147,7 @@ protected:
   std::ostream &	logme(void);
   static void		copydata(Bucket *b, const void *data, size_t len);
   bool			extractScalarData(DataBlob &objdata, Object &o);
-  virtual void		sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
+  void			sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
 
   virtual bool		shouldStop(void);
   void			waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
@@ -171,15 +171,14 @@ protected:
 
   void			updateMask(Peer *p);
   virtual void		updatePeerMasks(void) = 0;
-  static void		discard(Bucket *&b);
 
   bool			debug_;
   bool			sendScalarAsText_;
   bool			requestFullUpdates_;
-  pthread_mutex_t	lock_;
 
 private:
-  void			losePeer(const char *reason,
+  static void		discard(Bucket *&b);
+  bool			losePeer(const char *reason,
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
 				 lat::Error *err = 0);
@@ -203,6 +202,7 @@ private:
   AutoPeer		downstream_;
   WaitList		waiting_;
 
+  pthread_mutex_t	lock_;
   pthread_t		communicate_;
   sig_atomic_t		shutdown_;
 
@@ -372,8 +372,7 @@ protected:
   getPeer(lat::Socket *s)
     {
       typename PeerMap::iterator pos = peers_.find(s);
-      typename PeerMap::iterator end = peers_.end();
-      return pos == end ? 0 : &pos->second;
+      return pos == peers_.end() ? 0 : &pos->second;
     }
 
   virtual Peer *

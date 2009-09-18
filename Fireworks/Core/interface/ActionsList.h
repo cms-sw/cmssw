@@ -31,4 +31,5 @@ namespace cmsshow {
    extern const std::string sHelp;
    extern const std::string sKeyboardShort;
    extern const std::string sBackgroundColor;
+   extern const std::string sAutoRewind;
 }

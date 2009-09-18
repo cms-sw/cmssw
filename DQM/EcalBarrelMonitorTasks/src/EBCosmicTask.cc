@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2008/12/04 06:22:48 $
- * $Revision: 1.109 $
+ * $Date: 2009/08/10 15:49:11 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  *
 */
@@ -47,14 +47,12 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
-  lowThreshold_  = 0.06125; // 7 ADC counts at G200
-  highThreshold_ = 0.12500; // typical muon energy deposit is 250 MeV
+  threshold_ = 0.12500; // typical muon energy deposit is 250 MeV
 
   minJitter_ = -2.0;
   maxJitter_ =  1.5;
 
   for (int i = 0; i < 36; i++) {
-    meCutMap_[i] = 0;
     meSelMap_[i] = 0;
     meSpectrum_[0][i] = 0;
     meSpectrum_[1][i] = 0;
@@ -92,7 +90,6 @@ void EBCosmicTask::endRun(const Run& r, const EventSetup& c) {
 void EBCosmicTask::reset(void) {
 
   for (int i = 0; i < 36; i++) {
-    if ( meCutMap_[i] ) meCutMap_[i]->Reset();
     if ( meSelMap_[i] ) meSelMap_[i]->Reset();
     if ( meSpectrum_[0][i] ) meSpectrum_[0][i]->Reset();
     if ( meSpectrum_[1][i] ) meSpectrum_[1][i]->Reset();
@@ -108,14 +105,6 @@ void EBCosmicTask::setup(void){
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask");
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Cut");
-    for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
-      meCutMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      meCutMap_[i]->setAxisTitle("ieta", 1);
-      meCutMap_[i]->setAxisTitle("iphi", 2);
-    }
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBCosmicTask/Sel");
     for (int i = 0; i < 36; i++) {
@@ -263,10 +252,10 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hitItr->energy();
       if ( xval <= 0. ) xval = 0.0;
-      
+
       LogDebug("EBCosmicTask") << " hit energy " << xval;
 
-      // look for the seeds 
+      // look for the seeds
       float e3x3 = 0.;
       bool isSeed = true;
 
@@ -296,17 +285,13 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
         }
       }
 
-      if ( xval >= lowThreshold_ ) {
-        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
-      }
-
-      if ( isSeed && e3x3 >= highThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
+      if ( isSeed && e3x3 >= threshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
         if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, e3x3);
       }
 
       if ( meSpectrum_[0][ism-1] ) meSpectrum_[0][ism-1]->Fill(xval);
 
-      if ( isSeed && xval >= lowThreshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
+      if ( isSeed && xval >= threshold_ && jitter > minJitter_ && jitter < maxJitter_ ) {
         if ( meSpectrum_[1][ism-1] ) meSpectrum_[1][ism-1]->Fill(e3x3);
       }
 

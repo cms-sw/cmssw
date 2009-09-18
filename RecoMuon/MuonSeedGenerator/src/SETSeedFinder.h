@@ -34,6 +34,9 @@ public:
   std::vector<MuonRecHitContainer>
   sortByLayer(MuonRecHitContainer & cluster) const;
 
+  //---- For protection against huge memory consumtion
+  void limitCombinatorics(std::vector< MuonRecHitContainer > & MuonRecHitContainer_perLayer);
+    
   std::vector<MuonRecHitContainer>
   findAllValidSets(const std::vector<MuonRecHitContainer> & MuonRecHitContainer_perLayer);
 

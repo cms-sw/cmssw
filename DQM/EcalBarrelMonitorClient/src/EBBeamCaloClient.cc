@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/08/11 07:24:13 $
- * $Revision: 1.89 $
+ * $Date: 2009/02/27 13:54:05 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -232,11 +232,9 @@ void EBBeamCaloClient::cleanup(void) {
   meEBBCaloRedGreenSteps_ = 0;
 }
 
-bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -531,10 +529,6 @@ void EBBeamCaloClient::analyze(void) {
   //     else { meEBBCaloRedGreenReadCry_->setBinContent(1,1,1.);}
   //   }
 
-
-}
-
-void EBBeamCaloClient::softReset(bool flag) {
 
 }
 

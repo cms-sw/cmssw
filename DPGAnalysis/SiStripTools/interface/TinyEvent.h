@@ -17,6 +17,9 @@ struct TinyEvent {
   explicit TinyEvent(const int event,const int orbit,const int bx):
     _event(event), _orbit(orbit<0 ? 0 : orbit ), _bx(bx<0 ? 0 : bx) { }
 
+  explicit TinyEvent(const int event,const unsigned int orbit,const int bx):
+    _event(event), _orbit(orbit), _bx(bx<0 ? 0 : bx) { }
+
   TinyEvent(const TinyEvent& se):
     _event(se._event), _orbit(se._orbit), _bx(se._bx) { }
 

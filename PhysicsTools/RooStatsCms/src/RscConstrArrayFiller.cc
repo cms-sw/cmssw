@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.5 2009/04/15 12:08:36 dpiparo Exp $
+// @(#)root/hist:$Id: RscConstrArrayFiller.cc,v 1.4 2009/04/15 11:52:31 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -7,29 +7,13 @@
 
 #include "TIterator.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "ConstrBlock2.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlock2.h"
-#endif
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "ConstrBlock3.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/ConstrBlock3.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock2.h"
+#include "PhysicsTools/RooStatsCms/interface/ConstrBlock3.h"
 
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "RscConstrArrayFiller.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/RscConstrArrayFiller.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/RscConstrArrayFiller.h"
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(RscConstrArrayFiller)
-#endif
 /*----------------------------------------------------------------------------*/
 
 RscConstrArrayFiller::RscConstrArrayFiller(char* name, 

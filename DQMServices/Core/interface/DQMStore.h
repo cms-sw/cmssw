@@ -33,7 +33,12 @@ public:
     SaveWithReference,
     SaveWithReferenceForQTest
   };
-  
+  enum OpenRunDirs
+  {
+    KeepRunDirs,
+    StripRunDirs
+  };
+
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset);
@@ -111,6 +116,16 @@ public:
 					      int nchX, double lowX, double highX,
 					                double lowY, double highY,
 					      const char *option = "s");
+  MonitorElement *		bookProfile  (const std::string &name,
+					      const std::string &title,
+					      int nchX, double *xbinsize,
+					      int nchY, double lowY, double highY,
+					      const char *option = "s");
+  MonitorElement *		bookProfile  (const std::string &name,
+					      const std::string &title,
+					      int nchX, double *xbinsize,
+					                double lowY, double highY,
+					      const char *option = "s");
   MonitorElement *		bookProfile  (const std::string &name, TProfile *h);
 
   MonitorElement *		bookProfile2D(const std::string &name,
@@ -146,8 +161,9 @@ public:
   std::vector<MonitorElement *> getContents(const std::string &path, unsigned int tag) const;
   void				getContents(std::vector<std::string> &into, bool showContents = true) const;
 
-  // ---------------------- temporarily public for Ecal/Hcal/ -------------
+  // ---------------------- softReset methods -------------------------------
   void				softReset(MonitorElement *me);
+  void				disableSoftReset(MonitorElement *me);
 
   // ---------------------- Public deleting ---------------------------------
   void				rmdir(const std::string &fullpath);
@@ -162,12 +178,14 @@ public:
 				     const std::string &path = "",
 				     const std::string &pattern = "",
 				     const std::string &rewrite = "",
-				     SaveReferenceTag ref = SaveWithReferenceForQTest,
+				     SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK);
   void				open(const std::string &filename,
 				     bool overwrite = false,
 				     const std::string &path ="",
 				     const std::string &prepend = "");
+  void                          load(const std::string &filename,
+				     OpenRunDirs stripdirs = StripRunDirs);
   std::string			getFileReleaseVersion(const std::string &filename);
   std::string			getFileDQMPatchVersion(const std::string &filename);
   std::string			getDQMPatchVersion(void);
@@ -186,9 +204,6 @@ public:
   int				getStatus(const std::string &path = "") const;
 
 private:
-  // ------------ Operations for MEs that are normally never reset ---------
-  void				disableSoftReset(MonitorElement *me);
-
   // ---------------- Navigation -----------------------
   bool				cdInto(const std::string &path) const;
 
@@ -199,12 +214,18 @@ private:
   MonitorElement *		getReferenceME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
+  void				readFile(const std::string &filename,
+				     bool overwrite = false,
+				     const std::string &path ="",
+				     const std::string &prepend = "",
+				     OpenRunDirs stripdirs = StripRunDirs);
   void				makeDirectory(const std::string &path);
   unsigned int			readDirectory(TFile *file,
 					      bool overwrite,
 					      const std::string &path,
 					      const std::string &prepend,
-					      const std::string &curdir);
+					      const std::string &curdir,
+					      OpenRunDirs stripdirs);
 
   MonitorElement *		findObject(const std::string &dir,
 					   const std::string &name,

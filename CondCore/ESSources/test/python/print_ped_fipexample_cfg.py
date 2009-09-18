@@ -14,9 +14,9 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(20),
+    lastValue = cms.uint64(10),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(16),
+    firstValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
 

@@ -8,7 +8,7 @@ process = cms.Process("PWRITE")
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     destinations = cms.untracked.vstring('readFromFile_69912'),
-                                    readFromFile_69912 = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
+#                                    readFromFile_69912 = cms.untracked.PSet(threshold = cms.untracked.string('DEBUG')),
                                     debugModules = cms.untracked.vstring('*')
                                     )
 
@@ -95,8 +95,6 @@ process.SiStripHistoryDQMService = cms.Service("SiStripHistoryDQMService",
     # Summary Cluster Properties
     ,
     cms.PSet( keyName = cms.untracked.string("Summary_TotalNumberOfClusters_OnTrack"),  quantitiesToExtract = cms.untracked.vstring("stat"))
-    ,
-    cms.PSet( keyName = cms.untracked.string("Summary_ClusterChargeCorr_OnTrack"), quantitiesToExtract = cms.untracked.vstring("stat","landau","user"))
 
     # Summary Cluster properties @ layer level
     ,

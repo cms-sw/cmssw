@@ -4,6 +4,7 @@
 <use name=DataFormats/StdDictionaries>
 <use name=boost>
 <use name=rootrflx>
+<use name=root>
 <export>
   <use name=CondFormats/Common>
   <use name=boost>

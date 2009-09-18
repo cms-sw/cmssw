@@ -14,7 +14,8 @@ OutALCARECOHcalCalMinBias_noDrop = cms.PSet(
         'keep HFRecHitsSorted_hfrecoMB_*_*',
         'keep HBHERecHitsSorted_hbherecoNoise_*_*',
         'keep HORecHitsSorted_horecoNoise_*_*',
-        'keep HFRecHitsSorted_hfrecoNoise_*_*')
+        'keep HFRecHitsSorted_hfrecoNoise_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy

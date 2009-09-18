@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 5.25)
+//  SiPixelTemplateReco.cc (Version 6.01)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -25,6 +25,7 @@
 //  Add qbin = 5 and change 1-pixel probability to use new template info
 //  Add floor for probabilities (no exact zeros)
 //  Replace asserts with exceptions in CMSSW
+//  Change calling sequence to handle cot(beta)<0 for FPix cosmics
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -67,6 +68,7 @@ using namespace SiPixelTemplateReco;
 //!                     FPix templates (true) or Barrel templates (false)
 //! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
 //! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
+//! \param      locBz - (input) the sign of the local B_z field for FPix (usually B_z<0 when cot(beta)>0 and B_z>0 when cot(beta)<0  
 //! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
 //!           origin of local coords (0,0) at center of pixel cluster[0][0].  Set dead pixels to small non-zero values (0.1 e).                    
 //! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
@@ -79,7 +81,12 @@ using namespace SiPixelTemplateReco;
 //! \param     sigmax - (output) best estimate of uncertainty on xrec in microns
 //! \param      probx - (output) probability describing goodness-of-fit for x-reco
 //! \param       qbin - (output) index (0-4) describing the charge of the cluster
-//!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
+//!                       qbin = 0        Q/Q_avg > 1.5   [few % of all hits]
+//!                              1  1.5 > Q/Q_avg > 1.0   [~30% of all hits]
+//!                              2  1.0 > Q/Q_avg > 0.85  [~30% of all hits]
+//!                              3 0.85 > Q/Q_avg > min1  [~30% of all hits]
+//!                              4 min1 > Q/Q_avg > min2  [~0.1% of all hits]
+//!                              5 min2 > Q/Q_avg         [~0.1% of all hits]
 //! \param      speed - (input) switch (0-4) trading speed vs robustness
 //!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
 //!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
@@ -88,7 +95,7 @@ using namespace SiPixelTemplateReco;
 //! \param    deadpix - (input) bool to indicate that there are dead pixels to be included in the analysis
 //! \param    zeropix - (input) vector of index pairs pointing to the dead pixels
 // *************************************************************************************************************************************
-int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
+int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, float locBz, array_2d cluster, 
 		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
 		    SiPixelTemplate& templ, 
 		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, bool deadpix, std::vector<std::pair<int, int> > zeropix)
@@ -117,8 +124,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // First, interpolate the template needed to analyze this cluster     
 // check to see of the track direction is in the physical range of the loaded template
 
-	if(!templ.interpolate(id, fpix, cotalpha, cotbeta)) {
-	   if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta << " is not within the acceptance of fpix = "
+	if(!templ.interpolate(id, fpix, cotalpha, cotbeta, locBz)) {
+	   if (theVerboseLevel > 2) {LOGDEBUG("SiPixelTemplateReco") << "input cluster direction cot(alpha) = " << cotalpha << ", cot(beta) = " << cotbeta<< ", local B_z = " << locBz << " is not within the acceptance of fpix = "
 	   << fpix << ", template ID = " << id << ", no reconstruction performed" << ENDL;}	
 	   return 20;
 	}
@@ -896,6 +903,49 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 //!                     FPix templates (true) or Barrel templates (false)
 //! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
 //! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
+//! \param      locBz - (input) the sign of the local B_z field for FPix (usually B_z<0 when cot(beta)>0 and B_z>0 when cot(beta)<0  
+//! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
+//!           origin of local coords (0,0) at center of pixel cluster[0][0].                      
+//! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
+//! \param    xdouble - (input) STL vector of 7 element array to flag a double-pixel
+//! \param      templ - (input) the template used in the reconstruction
+//! \param       yrec - (output) best estimate of y-coordinate of hit in microns
+//! \param     sigmay - (output) best estimate of uncertainty on yrec in microns
+//! \param      proby - (output) probability describing goodness-of-fit for y-reco
+//! \param       xrec - (output) best estimate of x-coordinate of hit in microns
+//! \param     sigmax - (output) best estimate of uncertainty on xrec in microns
+//! \param      probx - (output) probability describing goodness-of-fit for x-reco
+//! \param       qbin - (output) index (0-4) describing the charge of the cluster
+//!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: 0.95Qmin<Q<0.85Qavg, 4: Q<0.95Qmin]
+//! \param      speed - (input) switch (0-4) trading speed vs robustness
+//!                      0       totally bombproof, searches the entire 41 bin range at full density (equiv to V2_4)
+//!                      1       faster, searches reduced 25 bin range (no big pix) + 33 bins (big pix at ends) at full density
+//!                      2       faster yet, searches same range as 1 but at 1/2 density
+//!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
+// *************************************************************************************************************************************
+int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, float locBz, array_2d cluster, 
+		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
+		    SiPixelTemplate& templ, 
+		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
+			
+{
+    // Local variables 
+	const bool deadpix = false;
+	std::vector<std::pair<int, int> > zeropix;
+    
+	return SiPixelTemplateReco::PixelTempReco2D(id, fpix, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
+		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix);
+
+} // PixelTempReco2D
+
+// *************************************************************************************************************************************
+//  Overload parameter list for compatibility with older versions
+//! Reconstruct the best estimate of the hit position for pixel clusters.      
+//! \param         id - (input) identifier of the template to use                                  
+//! \param       fpix - (input) logical input indicating whether to use 
+//!                     FPix templates (true) or Barrel templates (false)
+//! \param   cotalpha - (input) the cotangent of the alpha track angle (see CMS IN 2004/014) 
+//! \param    cotbeta - (input) the cotangent of the beta track angle (see CMS IN 2004/014)  
 //! \param    cluster - (input) boost multi_array container of 7x21 array of pixel signals, 
 //!           origin of local coords (0,0) at center of pixel cluster[0][0].                      
 //! \param    ydouble - (input) STL vector of 21 element array to flag a double-pixel
@@ -916,16 +966,18 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 //!                      3       fastest, searches same range as 1 but at 1/4 density (no big pix) and 1/2 density (big pix in cluster)
 // *************************************************************************************************************************************
 int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
-		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
-		    SiPixelTemplate& templ, 
-		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
-			
+										 std::vector<bool> ydouble, std::vector<bool> xdouble, 
+										 SiPixelTemplate& templ, 
+										 float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed)
+
 {
     // Local variables 
 	const bool deadpix = false;
 	std::vector<std::pair<int, int> > zeropix;
+	float locBz = -1.;
+	if(cotbeta < 0.) {locBz = -locBz;}
     
-	return SiPixelTemplateReco::PixelTempReco2D(id, fpix, cotalpha, cotbeta, cluster, ydouble, xdouble, templ, 
-		yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix);
-
+	return SiPixelTemplateReco::PixelTempReco2D(id, fpix, cotalpha, cotbeta, locBz, cluster, ydouble, xdouble, templ, 
+												yrec, sigmay, proby, xrec, sigmax, probx, qbin, speed, deadpix, zeropix);
+	
 } // PixelTempReco2D

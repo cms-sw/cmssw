@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.15 2009/06/18 16:03:49 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.16 2009/07/15 14:10:27 amraktad Exp $
 //
 
 // system include files
@@ -34,11 +34,12 @@ class TCanvas;
 class TRootEmbeddedCanvas;
 class FWDetailViewBase;
 class FWModelId;
+class TGWindow;
 
 class FWDetailViewManager
 {
 public:
-   FWDetailViewManager();
+   FWDetailViewManager(const TGWindow*);
    virtual ~FWDetailViewManager();
 
    // ---------- const member functions ---------------------
@@ -60,6 +61,8 @@ private:
 
 protected:
    // ---------- member data --------------------------------
+  const TGWindow        *m_parentWindow;
+
    FWDetailViewBase     *m_detailView;
 
    Bool_t                m_modeGL;

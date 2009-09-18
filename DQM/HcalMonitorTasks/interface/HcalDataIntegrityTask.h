@@ -21,8 +21,8 @@
 
 /** \class HcalDataIntegrityTask
  *
- * $Date: 2008/10/15 20:03:36 $
- * $Revision: 1.1 $
+ * $Date: 2008/11/04 18:57:37 $
+ * $Revision: 1.2 $
  * \author J. Temple -- University of Maryland
  * copied from W. Fisher/J. St. John's DataFormat code
  */
@@ -70,7 +70,6 @@ class HcalDataIntegrityTask: public HcalBaseMonitor
   vector<int> dccCrate_;
   vector<HcalSubdetector> dccSubdet_;
   int firstFED_;
-  int ievt_;
   int lastEvtN_;
   int lastBCN_;
   //   int dccnum_;
@@ -83,7 +82,6 @@ class HcalDataIntegrityTask: public HcalBaseMonitor
   MonitorElement* fedEntries_;
   MonitorElement* fedFatal_;
   MonitorElement* fedNonFatal_;
-
 
   //Member variables for reference values to be used in consistency checks.
   std::map<int, short> CDFversionNumber_list;

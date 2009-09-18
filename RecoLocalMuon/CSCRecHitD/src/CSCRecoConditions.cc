@@ -244,7 +244,6 @@ void CSCRecoConditions::crossTalk( const CSCDetId& id, int centralStrip, std::ve
 
 bool CSCRecoConditions::nearBadStrip( const CSCDetId& id, int geomStrip ) const {
   // Note ME1A strip runs 1-48 
-  /*
   CSCChannelTranslator translate;
   CSCDetId idraw = translate.rawCSCDetId( id );
   int geomChan = translate.channelFromStrip( id, geomStrip ); 
@@ -256,32 +255,7 @@ bool CSCRecoConditions::nearBadStrip( const CSCDetId& id, int geomStrip ) const 
   if( rawChan>1 && rawChan<80 ){ // 80 bits max, labelled 0-79. Test 1-78 for neighbours.
     nearBad = (badStrips.test(rawChan) || badStrips.test(rawChan-2));
   }
-  */
-  //
-  bool nearBad = (badStrip(id,geomStrip-1) || badStrip(id,geomStrip+1));
-
-
   return nearBad;
-}
-//
-/// Test for a bad strip
-
-bool CSCRecoConditions::badStrip( const CSCDetId& id, int geomStrip ) const {
-  // Note ME1A strip runs 1-48 
-  bool aBadS = false;
-  if(geomStrip>0 && geomStrip<81){ 
-    CSCChannelTranslator translate;
-    CSCDetId idraw = translate.rawCSCDetId( id );
-    int geomChan = translate.channelFromStrip( id, geomStrip ); 
-    int rawChan = translate.rawStripChannel( id, geomChan ); 
-
-    const std::bitset<80>& badStrips = theConditions.badStripWord(idraw);
-
-    if( rawChan>0 && rawChan<81 ){ // 80 bits max, labelled 0-79. Test 0-79 (i.e. any - that's the idea)
-      aBadS = badStrips.test(rawChan-1);
-    }
-  }
-  return aBadS;
 }
 
 /// Get bad wiregroup word

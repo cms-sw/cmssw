@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2009/02/24 07:07:17 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/04/10 14:48:22 $
+ *  $Revision: 1.15 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -185,7 +185,7 @@ vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkCandCo
   
   for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
     reco::TrackRef tkTrackRef(allTrackerTracks,position);
-    TrackCand tkCand = TrackCand(0,tkTrackRef);
+    TrackCand tkCand = TrackCand((Trajectory*)(0),tkTrackRef);
     tkCandColl.push_back(tkCand);
   }
 

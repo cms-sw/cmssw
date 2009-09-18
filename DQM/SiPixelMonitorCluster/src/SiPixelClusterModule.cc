@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.19 2009/02/25 17:16:50 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.20 2009/06/18 10:27:42 zablocki Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -82,15 +82,15 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
   if(type==0){
     // Number of clusters
     hid = theHistogramId->setHistoId("nclusters",id_);
-    meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",50,0.,50.);
+    meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",8,0.,8.);
     meNClusters_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
     hid = theHistogramId->setHistoId("charge",id_);
-    meCharge_ = theDMBE->book1D(hid,"Cluster charge",500,0.,500.);
+    meCharge_ = theDMBE->book1D(hid,"Cluster charge",100,0.,200.);
     meCharge_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
     hid = theHistogramId->setHistoId("size",id_);
-    meSize_ = theDMBE->book1D(hid,"Total cluster size",100,0.,100.);
+    meSize_ = theDMBE->book1D(hid,"Total cluster size",30,0.,30.);
     meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
     // Lowest cluster row
@@ -123,7 +123,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeX_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
     hid = theHistogramId->setHistoId("sizeY",id_);
-    meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeY_->setAxisTitle("Cluster y-size [columns]",1);
     
 	int nbinx = ncols_/2;
@@ -154,13 +154,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     if(isHalfModule) hid += "H";
     else hid += "F";
     // Number of clusters
-    meNClustersLad_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",50,0.,50.);
+    meNClustersLad_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",8,0.,8.);
     meNClustersLad_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    meChargeLad_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
+    meChargeLad_ = theDMBE->book1D("charge_" + hid,"Cluster charge",100,0.,200.);
     meChargeLad_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSizeLad_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
+    meSizeLad_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeLad_->setAxisTitle("Cluster size [number of pixels]",1);
 	if(!reducedSet)
 	{
@@ -186,7 +186,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeXLad_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
     meSizeXLad_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
-    meSizeYLad_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeYLad_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeYLad_->setAxisTitle("Cluster y-size [columns]",1);
     if(twoD){
       // 2D hit map
@@ -210,13 +210,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     // Number of clusters
-    meNClustersLay_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",50,0.,50.);
+    meNClustersLay_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",8,0.,8.);
     meNClustersLay_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    meChargeLay_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
+    meChargeLay_ = theDMBE->book1D("charge_" + hid,"Cluster charge",100,0.,200.);
     meChargeLay_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSizeLay_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
+    meSizeLay_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeLay_->setAxisTitle("Cluster size [in pixels]",1);
 	if(!reducedSet)
 	{
@@ -242,7 +242,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeXLay_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
     meSizeXLay_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
-    meSizeYLay_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeYLay_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeYLay_->setAxisTitle("Cluster y-size [columns]",1);
     if(twoD){
       // 2D hit map
@@ -274,13 +274,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of clusters
-    meNClustersPhi_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",50,0.,50.);
+    meNClustersPhi_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",8,0.,8.);
     meNClustersPhi_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    meChargePhi_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
+    meChargePhi_ = theDMBE->book1D("charge_" + hid,"Cluster charge",100,0.,200.);
     meChargePhi_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSizePhi_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
+    meSizePhi_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizePhi_->setAxisTitle("Cluster size [number of pixels]",1);
 	if(!reducedSet)
 	{
@@ -306,7 +306,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeXPhi_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
     meSizeXPhi_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
-    meSizeYPhi_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeYPhi_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeYPhi_->setAxisTitle("Cluster y-size [columns]",1);
     if(twoD){
       // 2D hit map
@@ -340,13 +340,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
     // Number of clusters
-    meNClustersBlade_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",50,0.,50.);
+    meNClustersBlade_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",8,0.,8.);
     meNClustersBlade_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    meChargeBlade_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
+    meChargeBlade_ = theDMBE->book1D("charge_" + hid,"Cluster charge",100,0.,200.);
     meChargeBlade_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSizeBlade_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
+    meSizeBlade_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeBlade_->setAxisTitle("Cluster size [number of pixels]",1);
 	if(!reducedSet)
 	{
@@ -372,7 +372,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeXBlade_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
     meSizeXBlade_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
-    meSizeYBlade_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeYBlade_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeYBlade_->setAxisTitle("Cluster y-size [columns]",1);
 	}
   }
@@ -382,13 +382,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
     // Number of clusters
-    meNClustersDisk_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",50,0.,50.);
+    meNClustersDisk_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",8,0.,8.);
     meNClustersDisk_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    meChargeDisk_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
+    meChargeDisk_ = theDMBE->book1D("charge_" + hid,"Cluster charge",100,0.,200.);
     meChargeDisk_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSizeDisk_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
+    meSizeDisk_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeDisk_->setAxisTitle("Cluster size [number of pixels]",1);
 	if(!reducedSet)
 	{
@@ -414,7 +414,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeXDisk_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
     meSizeXDisk_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
-    meSizeYDisk_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeYDisk_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeYDisk_->setAxisTitle("Cluster y-size [columns]",1);
 	}
   }
@@ -425,13 +425,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
     // Number of clusters
-    meNClustersRing_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",50,0.,50.);
+    meNClustersRing_ = theDMBE->book1D("nclusters_" + hid,"Number of Clusters",8,0.,8.);
     meNClustersRing_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    meChargeRing_ = theDMBE->book1D("charge_" + hid,"Cluster charge",500,0.,500.);
+    meChargeRing_ = theDMBE->book1D("charge_" + hid,"Cluster charge",100,0.,200.);
     meChargeRing_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    meSizeRing_ = theDMBE->book1D("size_" + hid,"Total cluster size",100,0.,100.);
+    meSizeRing_ = theDMBE->book1D("size_" + hid,"Total cluster size",30,0.,30.);
     meSizeRing_->setAxisTitle("Cluster size [number of pixels]",1);
 	if(!reducedSet)
 	{
@@ -457,7 +457,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
     meSizeXRing_ = theDMBE->book1D("sizeX_" + hid,"Cluster x-width (rows)",10,0.,10.);
     meSizeXRing_->setAxisTitle("Cluster x-size [rows]",1);
     // Cluster width on the y-axis
-    meSizeYRing_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",20,0.,20.);
+    meSizeYRing_ = theDMBE->book1D("sizeY_" + hid,"Cluster y-width (columns)",15,0.,15.);
     meSizeYRing_->setAxisTitle("Cluster y-size [columns]",1);
     if(twoD){
       // 2D hit map

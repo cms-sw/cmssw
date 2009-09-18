@@ -10,19 +10,12 @@ egHLTOffBaseEleTrigCuts = cms.PSet (
     endcap = cms.PSet(egHLTOffEleEndcapCuts)
 )
 
-egHLTOffEleEt15Cuts = cms.PSet(egHLTOffBaseEleTrigCuts)
-egHLTOffEleEt15Cuts.trigName = "hltL1NonIsoHLTNonIsoSingleElectronEt15TrackIsolFilter"
-egHLTOffEleEt15Cuts.barrel.minEt = 15.
-egHLTOffEleEt15Cuts.endcap.minEt = 15.
 
-egHLTOffEleLWEt15Cuts = cms.PSet(egHLTOffBaseEleTrigCuts);
-egHLTOffEleLWEt15Cuts.trigName = "hltL1NonIsoHLTNonIsoSingleElectronLWEt15TrackIsolFilter"
-egHLTOffEleLWEt15Cuts.barrel.minEt = 15.
-egHLTOffEleLWEt15Cuts.endcap.minEt = 15.
 
-egHLTOffDoubleEleEt5Cuts = cms.PSet(egHLTOffBaseEleTrigCuts)
-egHLTOffDoubleEleEt5Cuts.trigName = "hltL1NonIsoHLTNonIsoDoubleElectronEt5TrackIsolFilter"
-egHLTOffDoubleEleEt5Cuts.barrel.minEt = 5.
-egHLTOffDoubleEleEt5Cuts.barrel.cuts= "et:detEta:hltIsolHad:hltIsolTrksEle"
-egHLTOffDoubleEleEt5Cuts.endcap.minEt = 5.
-egHLTOffDoubleEleEt5Cuts.endcap.cuts= "et:detEta:hltIsolHad:hltIsolTrksEle"
+
+egHLTOffEleEt20Cuts  = cms.PSet(egHLTOffBaseEleTrigCuts)
+egHLTOffEleEt20Cuts.trigName = "hltL1NonIsoHLTNonIsoSingleElectronEt20PixelMatchFilter"
+egHLTOffEleEt20Cuts.barrel.minEt = 20.
+egHLTOffEleEt20Cuts.barrel.cuts = "et"
+egHLTOffEleEt20Cuts.endcap.minEt = 20.
+egHLTOffEleEt20Cuts.endcap.cuts = "et"

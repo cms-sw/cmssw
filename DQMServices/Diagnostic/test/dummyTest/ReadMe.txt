@@ -8,7 +8,9 @@ Instruction about how to install and run a simple HDQM test
 #*** Version currently used: CMSSW_3_1_0
 
 #*** needed tags
-cvs co -r V03-00-00      DQM/SiPixelHistoricInfoClient                    
+cvs co -r V03-00-02      DQM/SiPixelHistoricInfoClient                    
+cvs co -r V04-01-08      DQM/SiStripHistoricInfoClient                    
+cvs co -r V04-03-01      DQMServices/Diagnostic
 
 
 #****************
@@ -32,12 +34,14 @@ cmsRun test_SiStripHistoryDQMService_cfg_70416.py
 cmsRun test_SiStripHistoryDQMService_cfg_69572.py
 
 #*** Upload summaries for pixels
-cmsRun test_SiPixelpHistoryDQMService_cfg_69912.py
-cmsRun test_SiPixelpHistoryDQMService_cfg_70416.py
+cmsRun test_SiPixelpHistoryDQMService_cfg_108521.py
+cmsRun test_SiPixelpHistoryDQMService_cfg_108562.py
+cmsRun test_SiPixelpHistoryDQMService_cfg_108526.py
+
  
 #****************
 #Create Trends
 #***************
 
 root test_Inspector.cc
-root SiPixelPlottingExample.C
+root -b SiPixelPlottingExample.C

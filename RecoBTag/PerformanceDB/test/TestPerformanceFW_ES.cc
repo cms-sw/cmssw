@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id$
+// $Id: TestPerformanceFW_ES.cc,v 1.1 2009/03/06 10:13:20 tboccali Exp $
 //
 //
 
@@ -36,7 +36,7 @@
 
 #include "RecoBTag/Records/interface/BTagPerformanceRecord.h"
 
-#include "CondFormats/BTauObjects/interface/BtagBinningPointByMap.h"
+#include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 #include "RecoBTag/PerformanceDB/interface/BtagPerformance.h"
 //#include "CondFormats/BTagPerformance/interface/BtagPerformancePayloadFromTableEtaJetEt.h"
 //#include "CondFormats/BTagPerformance/interface/BtagPerformancePayloadFromTableEtaJetEtPhi.h"
@@ -100,35 +100,41 @@ TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   const BtagPerformance & perf = *(perfH.product());
 
+
+  std::cout << "Values: "<<
+    PerformanceResult::BTAGNBEFF<<" " <<
+    PerformanceResult::MUERR<<" " <<
+    std::endl;
+
   // check beff, berr for eta=.6, et=55;
-  BtagBinningPointByMap p;
+  BinningPointByMap p;
 
   std::cout <<" My Performance Object is indeed a "<<typeid(perfH.product()).name()<<std::endl;
 
   std::cout <<" test eta=0.6, et=55"<<std::endl;
 
 
-  p.insert(BtagBinningPointByMap::Eta,0.6);
-  p.insert(BtagBinningPointByMap::JetEt,55);
-  std::cout <<" nbeff/nberr ?"<<perf.isResultOk(BtagResult::NBEFF,p)<<"/"<<perf.isResultOk(BtagResult::NBERR,p)<<std::endl;
-  std::cout <<" beff/berr ?"<<perf.isResultOk(BtagResult::BEFF,p)<<"/"<<perf.isResultOk(BtagResult::BERR,p)<<std::endl;
-  std::cout <<" beff/berr ="<<perf.getResult(BtagResult::BEFF,p)<<"/"<<perf.getResult(BtagResult::BERR,p)<<std::endl;
+  p.insert(BinningVariables::JetEta,0.6);
+  p.insert(BinningVariables::JetEt,55);
+  std::cout <<" nbeff/nberr ?"<<perf.isResultOk(PerformanceResult::BTAGNBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGNBERR,p)<<std::endl;
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 
   std::cout <<" test eta=1.9, et=33"<<std::endl;
-   p.insert(BtagBinningPointByMap::Eta,1.9);
-  p.insert(BtagBinningPointByMap::JetEt,33);
-  std::cout <<" beff/berr ?"<<perf.isResultOk(BtagResult::BEFF,p)<<"/"<<perf.isResultOk(BtagResult::BERR,p)<<std::endl;
-  std::cout <<" beff/berr ="<<perf.getResult(BtagResult::BEFF,p)<<"/"<<perf.getResult(BtagResult::BERR,p)<<std::endl;
+   p.insert(BinningVariables::JetEta,1.9);
+  p.insert(BinningVariables::JetEt,33);
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 
   std::cout <<" The WP is defined by a cut at "<<perf.workingPoint().cut()<<std::endl;
   std::cout <<" Discriminant is "<<perf.workingPoint().discriminantName()<<std::endl;
 
   std::cout <<" now I ask for a calibration but I do not set eta in the binning point ---> should return all not available "<<std::endl;
   p.reset();
-  p.insert(BtagBinningPointByMap::NTracks,3);
-  p.insert(BtagBinningPointByMap::JetEt,55);
-  std::cout <<" beff/berr ?"<<perf.isResultOk(BtagResult::BEFF,p)<<"/"<<perf.isResultOk(BtagResult::BERR,p)<<std::endl;
-  std::cout <<" beff/berr ="<<perf.getResult(BtagResult::BEFF,p)<<"/"<<perf.getResult(BtagResult::BERR,p)<<std::endl;
+  p.insert(BinningVariables::JetNTracks,3);
+  p.insert(BinningVariables::JetEt,55);
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
 
   //  std::cout <<" now I ask for a calibration which is not present ---> should throw an exception "<<std::endl;
 

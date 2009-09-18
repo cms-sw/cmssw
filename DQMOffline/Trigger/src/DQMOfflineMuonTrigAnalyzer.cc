@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.7 2009/06/11 11:24:19 slaunwhj Exp $
+// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.9 2009/08/14 13:29:08 slaunwhj Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "DQMOffline/Trigger/interface/HLTMuonOverlap.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
 //#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -56,7 +56,7 @@ private:
 
   int theNumberOfTriggers;
   std::vector<HLTMuonMatchAndPlot*> theTriggerAnalyzers;
-  HLTMuonOverlap *theOverlapAnalyzer;
+  //HLTMuonOverlap *theOverlapAnalyzer;
 
 };
 
@@ -92,6 +92,14 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
   LogTrace ("HLTMuonVal") << "customCollection is a vector of size = " << customCollection.size() << std::endl
                           << "looping over entries" << std::endl;
 
+    
+  DQMStore * dbe_ = 0;
+  if ( pset.getUntrackedParameter<bool>("DQMStore", false) ) {
+    dbe_ = Service<DQMStore>().operator->();
+    dbe_->setVerbose(0);    
+  }
+
+
   vector < MuonSelectionStruct > customSelectors;
   vector < string > customNames;
   // Print out information about each pset
@@ -112,6 +120,40 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
                            << "targetTrackCollection = " << targetTrackCollection << std::endl
                            << "d0 cut = " << customD0Cut << std::endl
                            << "z0 cut = " << customZ0Cut << std:: endl ;
+
+    if (dbe_) {
+
+      string description = customName + ", reco cuts = " + customCuts
+        + ", hlt cuts = " + hltCuts + ", trackCollection = " + targetTrackCollection
+        + ", required triggers, ";
+
+      // add the required triggers
+      for (vector <string>::const_iterator trigit = requiredTriggers.begin();
+           trigit != requiredTriggers.end();
+           trigit++){
+        description  += (*trigit) + ", ";
+      }
+
+      // Add the other cuts
+      ostringstream ossd0, ossz0, osschi2, osshits;
+
+      
+      ossd0 << customD0Cut;
+      ossz0 << customZ0Cut;
+      //osschi2 << customChi2Cut;
+      //osshits << customNHitsCut;
+
+      description += "|d0| < "  + ossd0.str() + ", |z0| < " + ossz0.str();
+        
+
+      LogTrace ("HLTMuonVal") << "Storing description = " << description << endl;
+
+      dbe_->setCurrentFolder("HLT/Muon/Distributions/");
+
+      dbe_->bookString (customName, description);            
+
+    }
+
 
     StringCutObjectSelector<Muon> tempRecoSelector(customCuts);
     StringCutObjectSelector<TriggerObject> tempHltSelector(hltCuts);
@@ -177,7 +219,7 @@ OfflineDQMMuonTrigAnalyzer::OfflineDQMMuonTrigAnalyzer(const ParameterSet& pset)
     }
     iName++;
   }
-  theOverlapAnalyzer = new HLTMuonOverlap( pset );    
+  //theOverlapAnalyzer = new HLTMuonOverlap( pset );    
 
   theNumberOfTriggers = theTriggerAnalyzers.size();
 
@@ -200,7 +242,7 @@ OfflineDQMMuonTrigAnalyzer::~OfflineDQMMuonTrigAnalyzer()
     delete *thisAnalyzer;
   } 
   theTriggerAnalyzers.clear();
-  delete theOverlapAnalyzer;
+  //delete theOverlapAnalyzer;
 }
 
 
@@ -220,7 +262,7 @@ OfflineDQMMuonTrigAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetu
     {
       (*thisAnalyzer)->analyze(iEvent);
     } 
-  theOverlapAnalyzer ->analyze(iEvent);
+  //theOverlapAnalyzer ->analyze(iEvent);
 }
 
 
@@ -255,7 +297,7 @@ OfflineDQMMuonTrigAnalyzer::beginJob()
   LogTrace ("HLTMuonVal")
     << "OfflineDQMMuonTrigAnalyzer: Calling being for overlap analyzer" << endl;
   
-  theOverlapAnalyzer ->begin();
+  //theOverlapAnalyzer ->begin();
 }
 
 
@@ -274,7 +316,7 @@ OfflineDQMMuonTrigAnalyzer::endJob() {
     {
       (*thisAnalyzer)->finish();
     }
-  theOverlapAnalyzer ->finish();
+  //theOverlapAnalyzer ->finish();
 }
 
 //define this as a plug-in

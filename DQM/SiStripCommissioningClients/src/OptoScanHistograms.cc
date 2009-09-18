@@ -15,11 +15,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistograms::OptoScanHistograms( const edm::ParameterSet& pset,
-                                        DQMOldReceiver* mui )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                             mui,
-                             sistrip::OPTO_SCAN )
+OptoScanHistograms::OptoScanHistograms( DQMOldReceiver* mui ) 
+  : CommissioningHistograms( mui, sistrip::OPTO_SCAN )
 {
   factory_ = auto_ptr<OptoScanSummaryFactory>( new OptoScanSummaryFactory );
   LogTrace(mlDqmClient_) 
@@ -29,11 +26,8 @@ OptoScanHistograms::OptoScanHistograms( const edm::ParameterSet& pset,
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistograms::OptoScanHistograms( const edm::ParameterSet& pset,
-                                        DQMStore* bei )
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("OptoScanParameters"),
-                             bei,
-                             sistrip::OPTO_SCAN )
+OptoScanHistograms::OptoScanHistograms( DQMStore* bei ) 
+  : CommissioningHistograms( bei, sistrip::OPTO_SCAN )
 {
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistograms::" << __func__ << "]"
@@ -88,7 +82,7 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
 
     // Perform histo analysis
     OptoScanAnalysis* anal = new OptoScanAnalysis( iter->first );
-    OptoScanAlgorithm algo( this->pset(), anal );
+    OptoScanAlgorithm algo( anal );
     algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }

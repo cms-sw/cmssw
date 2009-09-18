@@ -6,7 +6,6 @@
 
 <use name=CondCore/PluginSystem>
 
-<use name=FWCore/Framework>
 <export>
   <lib name=RecoBTagPerformanceDB>
 </export>

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.33 2009/04/07 18:53:57 chrjones Exp $
+// $Id: FWEventItem.h,v 1.35 2009/08/05 13:36:02 chrjones Exp $
 //
 
 // system include files
@@ -159,6 +159,12 @@ public:
    /**Throws an FWExpresionException if there is a problem with the expression */
    void setFilterExpression(const std::string& );
 
+   /**Select the item (i.e. container) itself*/
+   void selectItem();
+   void unselectItem();
+   void toggleSelectItem();
+   bool itemIsSelected() const;
+   
    /**change layering*/
    void moveToFront();
    void moveToBack();
@@ -222,7 +228,10 @@ private:
    FWModelFilter m_filter;
    sigc::connection m_shouldFilterConnection;
    mutable bool m_printedNoDataError;
+   mutable bool m_printedErrorThisEvent;
    mutable std::string m_fullBranchName;
+   
+   bool m_isSelected;
 };
 
 

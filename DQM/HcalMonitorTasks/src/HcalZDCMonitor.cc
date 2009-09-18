@@ -28,8 +28,6 @@ void HcalZDCMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe )
   // Specify maximum occupancy rate above which a cell is not considered dead 
   deadthresh_ = ps.getUntrackedParameter<double>("ZDCMonitor_deadthresholdrate",0.);
   zdc_checkNevents_ = ps.getUntrackedParameter<int>("ZDCMonitor_checkNevents",checkNevents_);
-  // Set initial event # to 0
-  ievt_=0;
 
   //zeroCounters(); // do we need to do that here?  ZDC has small number of channels/histogram bins -- fill on each event?
 
@@ -40,6 +38,9 @@ void HcalZDCMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe )
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("ZDC Event Number");
       meEVT_->Fill(ievt_);
+      meTOTALEVT_ = m_dbe->bookInt("ZDC Total Events Processed");
+      meTOTALEVT_->Fill(tevt_);
+
       ProblemZDC_=m_dbe->book2D("ProblemZDC", 
 				"Problem Rate in ZDCs",
 				18,0,18,
@@ -148,8 +149,8 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi,
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  ++ievt_;
-  meEVT_->Fill(ievt_);
+
+  HcalBaseMonitor::processEvent();
 
   int histindex=-1;
   double EMSumP=0;

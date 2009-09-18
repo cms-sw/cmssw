@@ -9,20 +9,20 @@ GenericHistoryDQMService::GenericHistoryDQMService(const edm::ParameterSet& iCon
   edm::LogInfo("GenericHistoryDQMService") <<  "[GenericHistoryDQMService::GenericHistoryDQMService]";
 }
 
-
-GenericHistoryDQMService::~GenericHistoryDQMService() { 
+GenericHistoryDQMService::~GenericHistoryDQMService()
+{
   edm::LogInfo("GenericHistoryDQMService") <<  "[GenericHistoryDQMService::~GenericHistoryDQMService]";
 }
 
-
-uint32_t GenericHistoryDQMService::returnDetComponent(const MonitorElement* ME){
+uint32_t GenericHistoryDQMService::returnDetComponent(const MonitorElement* ME)
+{
   LogTrace("GenericHistoryDQMService") <<  "[GenericHistoryDQMService::returnDetComponent] returning value defined in the configuration Pset \"DetectorId\"";
   return iConfig_.getParameter<uint32_t>("DetectorId");
 }
 
-//Example on how to define an user function for the statistic extraction
-bool GenericHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity ){
-  
+/// Example on how to define an user function for the statistic extraction
+bool GenericHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity )
+{
   if(quantity=="userExample_XMax"){
     userDBContent.push_back(keyName+std::string("@")+std::string("userExample_XMax"));
   }
@@ -42,7 +42,9 @@ bool GenericHistoryDQMService::setDBLabelsForUser  (std::string& keyName, std::v
   }
   return true;
 }
-bool GenericHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity ){
+
+bool GenericHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values, std::string& quantity )
+{
   if(quantity=="userExample_XMax"){
     values.push_back( (*iterMes)->getTH1F()->GetXaxis()->GetBinCenter((*iterMes)->getTH1F()->GetMaximumBin()));
   }

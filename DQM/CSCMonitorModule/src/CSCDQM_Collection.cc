@@ -36,6 +36,10 @@ namespace cscdqm {
 
     LOG_INFO << "Reading histograms from " << config->getBOOKING_XML_FILE();
 
+    if (config->getBOOKING_XML_FILE().empty()) {
+      return;
+    }
+
     try {
 
       XMLPlatformUtils::Initialize();

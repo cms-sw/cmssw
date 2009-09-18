@@ -27,8 +27,6 @@ namespace gen {
       TauolaInterface( const edm::ParameterSet& );
       ~TauolaInterface();
       
-      void enablePolarization()  { fPolarization = 1; return; }
-      void disablePolarization() { fPolarization = 0; return; }
       void init( const edm::EventSetup& );
       const std::vector<int>& operatesOnParticles() { return fPDGs; }
       HepMC::GenEvent* decay( const HepMC::GenEvent* );
@@ -42,7 +40,6 @@ namespace gen {
       
       edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
       Pythia6Service*                          fPy6Service;
-      bool                                     fIsInitialized;
       //CLHEP::HepRandomEngine*                  fRandomEngine;
       //CLHEP::RandFlat*                         fRandomGenerator;
        

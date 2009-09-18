@@ -14,13 +14,4 @@
         <class name="CombinedTauTagCalibration::Entry"/>
         <class name="std::vector<CombinedTauTagCalibration::Entry>"/>      
 
-        <class name="PhysicsPerformancePayload"/>   
-
-  <class name="BtagCorrectionPerformancePayloadFromTableEtaJetEt"/>
-  <class name="BtagPerformancePayloadFromTableEtaJetEt"/>
-  <class name="BtagPerformancePayloadFromTableEtaJetEtOnlyBeff"/>
-  <class name="BtagPerformancePayloadFromTableEtaJetEtPhi"/>
-  <class name="BtagPerformancePayloadFromTable"/>
-  <class name="BtagPerformancePayload"/>
-  <class name="BtagWorkingPoint"/>     
 </lcgdict>   

@@ -482,7 +482,7 @@ namespace sistrip {
     if ( edm::isDebugEnabled() ) {
       if ( cabling.feds().empty() ) {
 	edm::LogWarning(sistrip::mlRawToDigi_)
-	  << "[OldSiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	  << " No FEDs found in cabling map!";
 	// Check which FED ids have non-zero size buffers
 	std::vector<uint16_t> feds;
@@ -493,7 +493,7 @@ namespace sistrip {
 	  }
 	}
 	LogTrace("SiStripRawToDigi")
-	  << "[OldSiStripRawToDigiUnpacker::" << __func__ << "]"
+	  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	  << " Found " 
 	  << feds.size() 
 	  << " FED buffers with non-zero size!";
@@ -542,12 +542,8 @@ namespace sistrip {
 	}
       }
     
-      // Handle 32-bit swapped data (and locate start of FED buffer within raw data)
-      FEDRawData output;
-      locateStartOfFedBuffer( *ifed, input, output );
-
       // Check on FEDRawData pointer
-      if ( !output.data() ) {
+      if ( !input.data() ) {
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning(sistrip::mlRawToDigi_)
 	    << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
@@ -558,7 +554,7 @@ namespace sistrip {
       }	
     
       // Check on FEDRawData size
-      if ( !output.size() ) {
+      if ( !input.size() ) {
 	if ( edm::isDebugEnabled() ) {
 	  edm::LogWarning(sistrip::mlRawToDigi_)
 	    << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
@@ -574,7 +570,7 @@ namespace sistrip {
       // construct FEDBuffer
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
-        buffer.reset(new sistrip::FEDBuffer(output.data(),output.size()));
+        buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
         if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << *ifed << ".";
       }
       catch (const cms::Exception& e) { 
@@ -801,6 +797,15 @@ namespace sistrip {
 	} 
       } // channel loop
     } // fed loop
+
+    // bad channels warning
+    if ( edm::isDebugEnabled() && detids.size() ) {
+      std::ostringstream ss;
+      ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+         << " Problems were found in data and " << detids.size() << " channels could not be unpacked. "
+         << "See output of FED Hardware monitoring for more information. ";
+      edm::LogWarning(sistrip::mlRawToDigi_) << ss.str();
+    }
 
     // update DetSetVectors
     update(scope_mode, virgin_raw, proc_raw, zero_suppr);

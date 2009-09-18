@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.18 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.17 2008/07/01 14:36:41 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -11,16 +11,11 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMOldReceiver* mui,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMOldReceiver* mui,
 					      SiStripConfigDb* const db ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
-                             mui,
-                             sistrip::VPSP_SCAN ),
-    CommissioningHistosUsingDb( db,
-                                sistrip::VPSP_SCAN ),
-    VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
-                        mui )
+  : CommissioningHistograms( mui, sistrip::VPSP_SCAN ),
+    CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
+    VpspScanHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
@@ -29,12 +24,10 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( const edm::ParameterSet & pset,
-                                              DQMStore* bei,
+VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMStore* bei,
 					      SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db, sistrip::VPSP_SCAN ),
-    VpspScanHistograms( pset.getParameter<edm::ParameterSet>("VpspScanParameters"),
-                        bei )
+    VpspScanHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"

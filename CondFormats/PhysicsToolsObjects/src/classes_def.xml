@@ -1,4 +1,25 @@
 <lcgdict>
+
+        <class name="PhysicsPerformancePayload"/>   
+
+   <class name="PerformancePayloadFromTable"/>
+
+  <class name="PerformancePayload"/>
+  <class name="PerformanceWorkingPoint"/>     
+
+  <class name="std::vector<PerformanceResult::ResultType>"/>     
+  <class name="std::vector<BinningVariables::BinningVariablesType>"/>     
+
+
+  <class name="PerformancePayloadFromTFormula">
+ <field name="compiledFormulas_" transient="true" />
+</class>
+
+  <class name="PhysicsTFormulaPayload"/>   
+  <class name="std::vector< std::pair<float, float> >"/>   
+  <class name="std::pair<float, float>"/>   
+
+
 	<!-- Histogram -->
 	<class name="PhysicsTools::Calibration::Range&lt;float&gt;"/>
 	<class name="PhysicsTools::Calibration::Histogram&lt;float,float&gt;">

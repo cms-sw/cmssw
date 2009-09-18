@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/07/06 19:13:51 $
- * $Revision: 1.119 $
+ * $Date: 2009/08/13 13:52:12 $
+ * $Revision: 1.124 $
  * \author W Fisher
  * \author J Temple
  *
@@ -35,7 +35,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   zdcMon_ = 0;
 
   ////////////////////////////////////
-  detDiagPed_ =0; detDiagLed_ =0; detDiagLas_ =0;
+  detDiagPed_ =0; detDiagLed_ =0; detDiagLas_ =0; detDiagNoise_ =0; 
   ///////////////////////////////////// 
 
   // initialize hcal quality object
@@ -186,9 +186,13 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     detDiagLas_= new HcalDetDiagLaserMonitor();
     detDiagLas_->setup(ps, dbe_);
   }
+  if ( ps.getUntrackedParameter<bool>("DetDiagNoiseMonitor", false) ) {
+    if(debug_>0) std::cout << "DetDiagNoiseMonitor: Hcal Analysis flag is on...." << std::endl;
+    detDiagNoise_= new HcalDetDiagNoiseMonitor();
+    detDiagNoise_->setup(ps, dbe_);
+  }
   //////////////////////////////////////////////////////
 
-  
 
   if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
     if(debug_>0) std::cout << "HcalMonitorModule: Hcal Analysis flag is on...." << std::endl;
@@ -252,6 +256,7 @@ HcalMonitorModule::~HcalMonitorModule()
      if(detDiagPed_!=0){  detDiagPed_->clearME();}
      if(detDiagLed_!=0){  detDiagLed_->clearME();}
      if(detDiagLas_!=0){  detDiagLas_->clearME();}
+     if(detDiagNoise_!=0){  detDiagNoise_->clearME();}
      /////////////////////////////////////////////
      
      dbe_->setCurrentFolder(rootFolder_);
@@ -317,6 +322,10 @@ HcalMonitorModule::~HcalMonitorModule()
     { delete detDiagLas_; 
     detDiagLas_=0; 
     }
+  if(detDiagNoise_!=0) 
+    { delete detDiagNoise_; 
+    detDiagNoise_=0; 
+    }
   ////////////////////////////////////////////  
   
   if (evtSel_!=0) {delete evtSel_; evtSel_ = 0;
@@ -329,11 +338,26 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   
   ievt_pre_=0;
 
+  // Counters for rawdata, digi, and rechit
+  ievt_rawdata_=0;
+  ievt_digi_=0;
+  ievt_rechit_=0;
+
   if ( dbe_ != NULL ){
     dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
+   
+    meIEVTALL_ = dbe_->bookInt("Events Processed");
+    meIEVTRAW_ = dbe_->bookInt("Events with Raw Data");
+    meIEVTDIGI_= dbe_->bookInt("Events with Digis");
+    meIEVTRECHIT_ = dbe_->bookInt("Events with RecHits");
+    meIEVTALL_->Fill(ievt_);
+    meIEVTRAW_->Fill(ievt_rawdata_);
+    meIEVTDIGI_->Fill(ievt_digi_);
+    meIEVTRECHIT_->Fill(ievt_rechit_);
     meStatus_  = dbe_->bookInt("STATUS");
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
+   
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
     // process latency was (200,0,1), but that gave overflows
     meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
@@ -526,6 +550,7 @@ void HcalMonitorModule::endJob(void) {
   if(detDiagPed_!=NULL) detDiagPed_->done();
   if(detDiagLed_!=NULL) detDiagLed_->done();
   if(detDiagLas_!=NULL) detDiagLas_->done();
+  if(detDiagNoise_!=NULL) detDiagNoise_->done();
   /////////////////////////////////////////////////////
 
   if (dump2database_)
@@ -554,15 +579,15 @@ void HcalMonitorModule::endJob(void) {
 		} 	 
 	      // Only perform these checks if bit 0 not set?
 	      // check dead cells
-	      if ((myquality_[id]>>5)&0x1)
-		  mystatus->setBit(5);
+	      if ((myquality_[id]>>HcalChannelStatus::HcalCellDead)&0x1)
+		  mystatus->setBit(HcalChannelStatus::HcalCellDead);
 	      else
-		mystatus->unsetBit(5);
+		mystatus->unsetBit(HcalChannelStatus::HcalCellDead);
 	      // check hot cells
-	      if ((myquality_[id]>>6)&0x1)
-		mystatus->setBit(6);
+	      if ((myquality_[id]>>HcalChannelStatus::HcalCellHot)&0x1)
+		mystatus->setBit(HcalChannelStatus::HcalCellHot);
 	      else
-		mystatus->unsetBit(6);
+		mystatus->unsetBit(HcalChannelStatus::HcalCellHot);
 	    } // if (myquality_.find_...)
 	  newChanQual->addValues(*mystatus);
 	  // Clean up pointers to avoid memory leaks
@@ -603,6 +628,7 @@ void HcalMonitorModule::reset(){
   if(detDiagPed_!=0) detDiagPed_->reset();
   if(detDiagLed_!=0) detDiagLed_->reset();
   if(detDiagLas_!=0) detDiagLas_->reset();
+  if(detDiagNoise_!=0) detDiagNoise_->reset();
   /////////////////////////////////////////////////////
 
 }
@@ -612,11 +638,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   
   // environment datamembers
   irun_     = e.id().run();
+
+  bool lumiswitch=false;
+  if (e.luminosityBlock()!=ilumisec_)
+    lumiswitch=true;
   ilumisec_ = e.luminosityBlock();
+
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_>1) std::cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << std::endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
+  if (debug_>1) std::cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << e.luminosityBlock() << ", evt: " << ievent_ << ", time: " << itime_ << std::endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
   // skip this event if we're prescaling...
   ievt_pre_++; // need to increment counter before calling prescale
@@ -630,6 +661,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if(detDiagPed_!=0) detDiagPed_->processEvent(e,eventSetup,*conditions_);
   if(detDiagLed_!=0) detDiagLed_->processEvent(e,eventSetup,*conditions_);
   if(detDiagLas_!=0) detDiagLas_->processEvent(e,eventSetup,*conditions_);
+  if(detDiagNoise_!=0) detDiagNoise_->processEvent(e,eventSetup,*conditions_);
   /////////////////////////////////////////////////////
 
   int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON|DO_HCAL_LED_CALIBMON|DO_HCAL_LASER_CALIBMON; // add in DO_HCAL_TPMON, DO_HCAL_CTMON?  (in HcalMonitorSelector.h) 
@@ -674,10 +706,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       rawOK_=false;
       LogWarning("HcalMonitorModule")<<" Digi Collection "<<inputLabelDigi_<<" not available";
     }
-  if (rawOK_&&!report.isValid()) {
+  if (rawOK_ && !report.isValid()) {
     rawOK_=false;
   }
-  else 
+  if (rawOK_)
     {
       if(!fedsListed_){
 	const std::vector<int> feds =  (*report).getFedsUnpacked();    
@@ -688,6 +720,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 	fedss = feds; //Assign to a non-const holder
       }
     }
+  if (rawOK_==true) ++ievt_rawdata_;
 
   //Orbit Gap Data Quality Monitoring
   /*Requires 
@@ -717,6 +750,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       if (CalibType == hc_Null) return;
     }
   }
+
   if (!InconsistentCalibTypes && AnalyzeOrbGapCT_) {
     // If we're doing the Orbit Gap DQM, set the right evtMask for
     // the Calibration Event Type.
@@ -782,6 +816,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     digiOK_=false;
     if (debug_>0) std::cout <<"<HcalMonitorModule> DIGI OK FAILED FOR ZDC"<<endl;
   }
+  
+  if (digiOK_) ++ievt_digi_;
 
   // check which Subdetectors are on by seeing which are reading out FED data
   // Assume subdetectors aren't present, unless we explicitly find otherwise
@@ -868,6 +904,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     rechitOK_ = false;
   }
   
+  if (rechitOK_) ++ievt_rechit_;
+
   if (!(e.getByLabel(inputLabelRecHitZDC_,zdc_hits)))
     {
       zdchitOK_=false;
@@ -897,6 +935,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Run the configured tasks, protect against missing products
 
+  meIEVTALL_->Fill(ievt_);
+  meIEVTRAW_->Fill(ievt_rawdata_);
+  meIEVTDIGI_->Fill(ievt_digi_);
+  meIEVTRECHIT_->Fill(ievt_rechit_);
+
   // Data Format monitor task
   
   if (showTiming_)
@@ -916,7 +959,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
 
   if((dfMon_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_) 
-    dfMon_->processEvent(*rawraw,*report,*readoutMap_);
+    {
+      if (lumiswitch) dfMon_->LumiBlockUpdate(ilumisec_);
+      dfMon_->processEvent(*rawraw,*report,*readoutMap_);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -925,7 +971,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     }
 
   if ((diTask_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_)
-    diTask_->processEvent(*rawraw,*report,*readoutMap_);
+    {
+      if (lumiswitch) diTask_->LumiBlockUpdate(ilumisec_);
+      diTask_->processEvent(*rawraw,*report,*readoutMap_);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -936,6 +985,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
     {
+      if (lumiswitch) digiMon_->LumiBlockUpdate(ilumisec_);
       digiMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_, ZDCpresent_);
       digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi, *zdc_digi,
 			     *conditions_,*report);
@@ -949,6 +999,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 
     {
+      if (lumiswitch) pedMon_->LumiBlockUpdate(ilumisec_);
       pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*zdc_digi,*conditions_);
     }
   if (showTiming_)
@@ -960,7 +1011,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // LED monitor task
   if((ledMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
-    ledMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+    {
+      if (lumiswitch) ledMon_->LumiBlockUpdate(ilumisec_);
+      ledMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -970,7 +1024,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Laser monitor task
   if((laserMon_!=NULL) && (evtMask&DO_HCAL_LASER_CALIBMON) && digiOK_ && laserOK_)
-    laserMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*laser_digi,*conditions_);
+    {
+      if (lumiswitch) ledMon_->LumiBlockUpdate(ilumisec_);
+      laserMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*laser_digi,*conditions_);
+    }
   if (showTiming_)
     {
       cpu_timer.stop();
@@ -981,14 +1038,16 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Rec Hit monitor task
   if((rhMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     {
-    rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
-    // This lets us process rec hits regardless of ZDC status.
-    // But is ZDC is okay, we'll make rec hit plots for that as well.
-    if (zdchitOK_)
-      {
-	if (debug_>1) std::cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
-	//rhMon_->processZDC(*zdc_hits);
-      }
+      if (lumiswitch) rhMon_->LumiBlockUpdate(ilumisec_);
+      rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+      // This lets us process rec hits regardless of ZDC status.
+      // But is ZDC is okay, we'll make rec hit plots for that as well.
+      if (zdchitOK_)
+	{
+	  if (debug_>1) std::cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	  //rhMon_->processZDC(*zdc_hits);
+	}
+
     }
   if (showTiming_)
     {
@@ -1000,6 +1059,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Beam Monitor task
   if ((beamMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_)
     {
+      if (lumiswitch) beamMon_->LumiBlockUpdate(ilumisec_);
       beamMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,*hf_digi);
     }
   if (showTiming_)
@@ -1013,8 +1073,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     {
+      if (lumiswitch) hotMon_->LumiBlockUpdate(ilumisec_);
       hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
-			    *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+			    //*hbhe_digi,*ho_digi,*hf_digi,
+			    *conditions_);
       //hotMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
     }
   if (showTiming_)
@@ -1026,6 +1088,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
     {
+      if (lumiswitch) deadMon_->LumiBlockUpdate(ilumisec_);
       //deadMon_->setSubDetectors(HBpresent_,HEpresent_, HOpresent_, HFpresent_);
       deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			     *hbhe_digi,*ho_digi,*hf_digi);
@@ -1040,7 +1103,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // CalotowerMonitor
   if ((ctMon_ !=NULL) )
-    ctMon_->processEvent(*calotowers);
+    {
+      if (lumiswitch) ctMon_->LumiBlockUpdate(ilumisec_);
+      ctMon_->processEvent(*calotowers);
+    }
 
   if (showTiming_)
     {
@@ -1052,9 +1118,11 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Trigger Primitive monitor task -- may end up using both rec hits and digis?
   if((tpMon_ != NULL) && rechitOK_ && digiOK_ && tpdOK_) 
-    tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi, *readoutMap_);			     
-  
+    {
+      if (lumiswitch) tpMon_->LumiBlockUpdate(ilumisec_);
+      tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
+			   *hbhe_digi,*ho_digi,*hf_digi,*tp_digi, *readoutMap_);			     
+    }
 
   if (showTiming_)
     {
@@ -1065,6 +1133,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Expert monitor plots
   if (expertMon_ != NULL) 
     {
+      if (lumiswitch) expertMon_->LumiBlockUpdate(ilumisec_);
       expertMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			       *hbhe_digi,*ho_digi,*hf_digi,
 			       *tp_digi,
@@ -1080,6 +1149,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Empty Event/Unsuppressed monitor plots
   if (eeusMon_ != NULL) 
     {
+      if (lumiswitch) eeusMon_->LumiBlockUpdate(ilumisec_);
       eeusMon_->processEvent( *rawraw,*report,*readoutMap_);
     }
   if (showTiming_)

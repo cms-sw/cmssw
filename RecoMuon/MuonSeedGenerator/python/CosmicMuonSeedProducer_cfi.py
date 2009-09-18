@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 CosmicMuonSeed = cms.EDFilter("CosmicMuonSeedGenerator",
-    MaxSeeds = cms.int32(10),
+    MaxSeeds = cms.int32(1000),
     CSCRecSegmentLabel = cms.InputTag("cscSegments"),
     EnableDTMeasurement = cms.bool(True),
     MaxCSCChi2 = cms.double(300.0),

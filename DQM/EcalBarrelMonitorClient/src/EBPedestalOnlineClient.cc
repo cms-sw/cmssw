@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/08/11 07:24:13 $
- * $Revision: 1.145 $
+ * $Date: 2009/08/21 11:52:28 $
+ * $Revision: 1.147 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -208,11 +208,9 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( flag ) this->softReset(false);
 
   EcalLogicID ecid;
 
@@ -286,8 +284,6 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
       cerr << e.what() << endl;
     }
   }
-
-  if ( ! flag ) this->softReset(true);
 
   return true;
 
@@ -384,7 +380,7 @@ void EBPedestalOnlineClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits03 ) {
@@ -399,27 +395,6 @@ void EBPedestalOnlineClient::analyze(void) {
     }
 
   }
-
-}
-
-void EBPedestalOnlineClient::softReset(bool flag) {
-
-  char histo[200];
-
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
-    MonitorElement* me = dqmStore_->get(histo);
-
-    if ( flag ) {
-      if ( me ) dqmStore_->softReset(me);
-    } else {
-//      if ( me ) dqmStore_->disableSoftReset(me);
-    }
-
-  }          
 
 }
 

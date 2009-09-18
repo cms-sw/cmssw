@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/04/01 07:32:50 $
+ *  $Revision: 1.1 $
  *
  *  \author:  Giovanni FRANZONI
  *
@@ -51,13 +51,3 @@ HLTTriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTTriggerTypeFilter::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTTriggerTypeFilter::endJob() {
-}

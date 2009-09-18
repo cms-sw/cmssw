@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/08/05 15:37:22 $
- * $Revision: 1.69 $
+ * $Date: 2009/02/27 13:54:05 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -183,11 +183,9 @@ void EBClusterClient::cleanup(void) {
 
 }
 
-bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   return true;
 
@@ -288,10 +286,6 @@ void EBClusterClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT dicluster invariant mass Pi0").c_str());
   me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
-
-}
-
-void EBClusterClient::softReset(bool flag) {
 
 }
 

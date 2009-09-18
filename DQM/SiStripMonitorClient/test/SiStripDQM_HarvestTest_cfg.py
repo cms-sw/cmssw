@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("EDMtoMEConvert")
@@ -42,8 +41,6 @@ process.dqmEnvTr = cms.EDFilter("DQMEventInfo",
                                                  eventInfoFolder = cms.untracked.string('EventInfo')
                                 )
 
-
-
 #process.dqmSaver.workflow = '/GlobalCruzet4-A/CMSSW_2_1_X-Testing/RECO'
 
 process.DQMStore.collateHistograms = False
@@ -58,3 +55,4 @@ process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
 #process.load('DQM.SiStripCommon.MessageLogger_cfi')
 
 process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmEnvTr*process.dqmSaver*process.dqmStoreStats)
+

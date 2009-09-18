@@ -1,11 +1,12 @@
-# /dev/CMSSW_3_2_0/pre1/HIon_V20/V2 (CMSSW_3_1_1_HLT1)
+# /dev/CMSSW_3_2_4/HIon/V15 (CMSSW_3_2_X_2009-08-31-2100_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_2_0/pre1/HIon_V20/V2')
+  tableName = cms.string('/dev/CMSSW_3_2_4/HIon/V15')
 )
+
 
 essourceSev = cms.ESSource( "EmptyESSource",
   recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
@@ -120,7 +121,8 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     orderedFedList = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     feUnpacking = cms.bool( True ),
     feIdCheck = cms.bool( True ),
-    memUnpacking = cms.bool( False )
+    memUnpacking = cms.bool( False ),
+    forceKeepFRData = cms.bool( False )
   ),
   ElectronicsMapper = cms.PSet( 
     numbXtalTSamples = cms.uint32( 10 ),
@@ -314,12 +316,12 @@ MeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelROCQualityDB = cms.bool( True ),
   DebugPixelROCQualityDB = cms.untracked.bool( False ),
-  UseStripModuleQualityDB = cms.bool( False ),
+  UseStripModuleQualityDB = cms.bool( True ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
-  UseStripAPVFiberQualityDB = cms.bool( False ),
+  UseStripAPVFiberQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
-  MaskBadAPVFibers = cms.bool( False ),
-  UseStripStripQualityDB = cms.bool( False ),
+  MaskBadAPVFibers = cms.bool( True ),
+  UseStripStripQualityDB = cms.bool( True ),
   DebugStripStripQualityDB = cms.untracked.bool( False ),
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
@@ -341,6 +343,8 @@ MuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
   trajectoryFilterName = cms.string( "muonCkfTrajectoryFilter" ),
   useSeedLayer = cms.bool( False ),
   rescaleErrorIfFail = cms.double( 1.0 ),
+  deltaEta = cms.double( 0.1 ),
+  deltaPhi = cms.double( 0.1 ),
   appendToDataLabel = cms.string( "" ),
   maxCand = cms.int32( 5 ),
   lostHitPenalty = cms.double( 30.0 ),
@@ -820,35 +824,9 @@ trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   fractionShared = cms.double( 0.5 )
 )
 
-PrescaleService = cms.Service( "PrescaleService",
-  lvl1DefaultLabel = cms.untracked.string( "HLT1" ),
-  lvl1Labels = cms.vstring( 'HLT8E29',
-    'HLT1E31',
-    'HLT1',
-    'HLT2' ),
-  prescaleTable = cms.VPSet( 
-    cms.PSet(  pathName = cms.string( "HLT_HIJet50U" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_HIJet75U" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_HIJet90U" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_HIPhoton10" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_HIPhoton20" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_HIPhoton30" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    ),
-    cms.PSet(  pathName = cms.string( "HLT_HIDoubleMu" ),
-      prescales = cms.vuint32( 1, 1, 1, 2 )
-    )
-  )
+DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
+  getSCInfo = cms.untracked.bool( True ),
+  hltMode = cms.untracked.bool( True )
 )
 UpdaterService = cms.Service( "UpdaterService",
 )
@@ -1259,9 +1237,9 @@ hltHIMML1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
+    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
     dataType = cms.string( "DDU" ),
     fedbyType = cms.untracked.bool( False ),
-    inputLabel = cms.untracked.InputTag( "rawDataCollector" ),
     readOutParameters = cms.PSet( 
       localDAQ = cms.untracked.bool( False ),
       performDataIntegrityMonitor = cms.untracked.bool( False ),
