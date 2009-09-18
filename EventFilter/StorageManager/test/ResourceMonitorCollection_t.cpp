@@ -66,9 +66,9 @@ void
 testResourceMonitorCollection::diskSize()
 {
   ResourceMonitorCollection::DiskUsagePtr
-    diskUsage( new ResourceMonitorCollection::DiskUsage(1) );
+    diskUsage( new ResourceMonitorCollection::DiskUsage() );
   diskUsage->pathName = ".";
-  CPPUNIT_ASSERT( diskUsage->retrieveDiskSize() );
+  _rmc->retrieveDiskSize(diskUsage);
 
   struct statfs64 buf;
   CPPUNIT_ASSERT( statfs64(diskUsage->pathName.c_str(), &buf) == 0 );
@@ -84,12 +84,12 @@ void
 testResourceMonitorCollection::unknownDisk()
 {
   ResourceMonitorCollection::DiskUsagePtr
-    diskUsage( new ResourceMonitorCollection::DiskUsage(1) );
+    diskUsage( new ResourceMonitorCollection::DiskUsage() );
   diskUsage->pathName = "/aNonExistingDisk";
 
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
-  CPPUNIT_ASSERT(! diskUsage->retrieveDiskSize() );
-  CPPUNIT_ASSERT( diskUsage->diskSize == 0 );
+  _rmc->retrieveDiskSize(diskUsage);
+  CPPUNIT_ASSERT( diskUsage->diskSize == -1 );
 }
 
 
@@ -137,7 +137,7 @@ testResourceMonitorCollection::diskUsage()
   ResourceMonitorCollection::DiskUsageStatsPtr diskUsageStatsPtr = stats.diskUsageStatsList[0];
   CPPUNIT_ASSERT( diskUsageStatsPtr.get() != 0 );
 
-  double statRelDiskUsage = diskUsageStatsPtr->relDiskUsageStats.getLastSampleValue();
+  double statRelDiskUsage = diskUsageStatsPtr->relDiskUsage;
   if (relDiskUsage > 0)
     CPPUNIT_ASSERT( (statRelDiskUsage/relDiskUsage) - 1 < 0.01 );
   else
