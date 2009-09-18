@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.24 2009/05/29 10:33:35 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.25 2009/08/28 19:06:42 dutta Exp $
 //
 
 #include <iostream>
@@ -245,7 +245,8 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
   if(stripdet.subDetector() == SiStripDetId::TIB ){
   // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(rawdetid);
-    if (abs(layer)  != tib1.layer()) {
+    int tib_layer = tib1.layer();
+    if (abs(layer)  != tib_layer) {
       LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tib1.layer() <<endl;
       return;
     }
@@ -253,14 +254,16 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
   }else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);
+    int tid_ring = tid1.ring();
     if(ring_flag){
-      if(abs(layer) != tid1.ring()) {
+      if(abs(layer) != tid_ring) {
 	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.ring() <<endl;
 	return;
       }
       rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"ring_"<<tid1.ring();
     }else{
-      if (abs(layer)  != tid1.wheel()) {
+      int tid_wheel = tid1.wheel();
+      if (abs(layer)  != tid_wheel) {
 	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.wheel() <<endl;
 	return;
       }
@@ -269,7 +272,8 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
   }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(rawdetid);
-    if (abs(layer)  != tob1.layer()) {
+    int tob_layer = tob1.layer();
+    if (abs(layer)  != tob_layer) {
       LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tob1.layer() <<endl;
       return;
     }
@@ -278,13 +282,15 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
     if(ring_flag){
-      if (abs(layer)  != tec1.ring()) {
+      int tec_ring = tec1.ring(); 
+      if (abs(layer)  != tec_ring) {
 	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.ring() <<endl;
 	return;
       }
       rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"ring_"<<tec1.ring();
     }else{
-      if (abs(layer)  != tec1.wheel()) {
+      int tec_wheel = tec1.wheel();
+      if (abs(layer)  != tec_wheel) {
 	LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.wheel() <<endl;
 	return;
       }
