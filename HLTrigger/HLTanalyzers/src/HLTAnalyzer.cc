@@ -414,6 +414,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   
   muon_analysis_.analyze(
     muon,
+    l1extmu,
     mucands2,
     isoMap2,
     mucands3,

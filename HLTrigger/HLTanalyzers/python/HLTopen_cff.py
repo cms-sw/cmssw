@@ -606,6 +606,23 @@ DoHLTIsoTrack = cms.Path(
     hltHITIPTCorrector1E31 +
     HLTEndSequence)
 
+DoHLTIsoTrack8E29 = cms.Path(
+    HLTBeginSequence +
+    hltL1sIsoTrack8E29 +
+    # hltPreIsoTrack8E29 +
+    HLTL2HcalIsolTrackSequence +
+    hltIsolPixelTrackProd8E29 +
+    hltIsolPixelTrackL2Filter8E29 +
+    HLTDoLocalStripSequence +
+    hltHITPixelPairSeedGenerator8E29 +
+    hltHITPixelTripletSeedGenerator8E29 +
+    hltHITSeedCombiner8E29 +
+    hltHITCkfTrackCandidates8E29 +
+    hltHITCtfWithMaterialTracks8E29 +
+    hltHITIPTCorrector8E29 +
+    HLTEndSequence)
+
+
 DoHLTMinBiasPixelTracks = cms.Path(
     HLTBeginSequence + 
     hltL1sMinBiasPixel + 
