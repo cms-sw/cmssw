@@ -94,7 +94,8 @@
   <class name="reco::TauMassTagInfo::ClusterTrackAssociationCollection">
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="reco::TauMassTagInfo_ClusterTrackAssociationMapType"/>
+  <!--commented out because the typedef resolves to std containers of built in types-->
+  <!--class name="reco::TauMassTagInfo_ClusterTrackAssociationMapType"/-->
   <class name="reco::TauMassTagInfo_ClusterTrackAssociationRefType"/>
   <class name="reco::TauMassTagInfo"/>
   <class name="reco::TauMassTagInfoCollection"/>

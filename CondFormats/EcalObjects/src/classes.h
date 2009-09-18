@@ -48,8 +48,6 @@
 
 namespace{
   struct dictionary {
-    uint32_t i32;
- 
     EcalPedestals pedmap;
     EcalWeightXtalGroups gg;
  
@@ -104,8 +102,6 @@ namespace{
     EcalTPGWeights weights;
     std::map<uint32_t, EcalTPGWeights> EcalTPGWeightMap;
     std::pair<const uint32_t, EcalTPGWeights> EcalTPGWeightMap_valuetype;
- 
-    std::map<uint32_t, uint32_t> EcalTPGSlidingWindowMap;
  
     EcalMappingElectronics ecalMap;
  

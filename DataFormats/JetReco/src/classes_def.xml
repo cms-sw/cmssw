@@ -54,7 +54,8 @@
   </class>
 
   <class name="edm::Wrapper<reco::JetFloatAssociation::Container>" />
-  <class name="reco::JetFloatAssociation::Values"/>
+  <!--commented out because the typedef resolves to simply std::vector<float>-->
+  <!--class name="reco::JetFloatAssociation::Values"/-->
   <class name="reco::JetFloatAssociation::value_type"/>
   <class name="reco::JetFloatAssociation::transient_vector_type"/>
   <class name="reco::JetFloatAssociation::Ref"/>

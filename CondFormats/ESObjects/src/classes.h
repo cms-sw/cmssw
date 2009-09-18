@@ -14,9 +14,6 @@
 
 namespace{
   struct dictionary {
-    uint32_t i32;
- 
-
     ESCondObjectContainer<ESPedestal> ESPedestalsMap;
     ESPedestalsMap::const_iterator ESPedestalsMapIterator;
 
