@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.29 2009/04/09 11:25:22 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.30 2009/04/21 15:33:16 frazier Exp $
 //
 //
 
@@ -63,29 +63,46 @@ private: // methods
   /*! Returns false if it fails to instantiate a Format Translator */
   bool autoDetectRequiredFormatTranslator(const unsigned char * data);
 
+  /// check block headers for consistency
+  void checkHeaders();
+
   /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
   void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const;
 
+  // add an error to the error collection
+  void addError(const unsigned code);
+
+  /// method called at job end - use to print summary report
   virtual void endJob();
+
 
 private: // members
 
   /// The maximum number of blocks we will try to unpack before thinking something is wrong
   static const unsigned MAX_BLOCKS = 256;
 
+  // unpacking options
   edm::InputTag inputLabel_;  ///< FED collection label.
   int fedId_;                 ///< GCT FED ID.
 
-  // unpacking options
-  const bool hltMode_;  ///< If true, only outputs the GT output data, and only BX = 0.
+  const bool hltMode_;        ///< If true, only outputs the GT output data, and only BX = 0.
   const bool unpackSharedRegions_;  ///< Commissioning option: if true, where applicable the shared RCT calo regions will also be unpacked.
   const unsigned formatVersion_;  ///< Defines unpacker verison to be used (e.g.: "Auto-detect", "MCLegacy", "V35", etc).
-  const bool verbose_;  ///< If true, then debug print out for each event.
+  const bool checkHeaders_;  ///< If true, check block headers for synchronisation
+  const bool verbose_;       ///< If true, then debug print out for each event.
 
-  // Block to Digi converter
-  GctFormatTranslateBase * formatTranslator_;
+  // format translator
+  GctFormatTranslateBase * formatTranslator_;  ///< pointer to the block-to-digi converter
 
+  // vector of unpacked block headers, for verbostity and/or sync checks
+  GctBlockHeaderCollection blockHeaders_;
+
+  // error handling
+  static const unsigned MAX_ERR_CODE = 6;
+  L1TriggerErrorCollection * errors_;    ///< pointer to error collection
+  std::vector<unsigned> errorCounters_;  ///< Counts number of errors for each code (index)
   unsigned unpackFailures_;  ///< To count the total number of GCT unpack failures.  
+
 };
 
 #endif
