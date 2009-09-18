@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.49 2009/09/18 10:32:45 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.50 2009/09/18 10:40:58 amraktad Exp $
 //
 
 // system include files
@@ -120,6 +120,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->SetCaloLego(m_lego);
 	 m_overlay->SetShowScales(1); //temporary
          m_overlay->SetScalePosition(0.88, 0.6);
+         //         m_overlay->SetUseAxisColors(kTRUE);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
          TEveLegoEventHandler* eh = new TEveLegoEventHandler(m_lego, ev->GetGLWidget(), ev);
@@ -169,24 +170,25 @@ FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
    m_viewer->GetGLViewer()->SetClearColor(iColor);
 
-   Color_t c1, c2, c3, c4;
-   if(iColor == FWColorManager::kBlackIndex) {
-      c1 = kGray + 2;
-      c2 = kGray + 1;
-      c3 = TColor::GetColor("#0f0f0f");
-      c4 = TColor::GetColor("#000000");
+   Color_t grid, overlay, font, scale;
+   if(iColor == FWColorManager::kWhiteIndex) {
+      grid  = kGray;
+      font  = kGray + 3;
+      scale = TColor::GetColor("#1f1f1f");
+      overlay = kGray + 2;
    } else {
-      c1 = kGray + 3;
-      c2 = kGray + 2;
-      c3 = TColor::GetColor("#b0b0b0");
-      c4 = TColor::GetColor("#fdfdfd");
+      grid  = kGray + 3;
+      font  = TColor::GetColor("#b0b0b0");
+      scale = TColor::GetColor("#fdfdfd");
+      overlay = kGray + 2;
    }
-   m_lego->SetGridColor(c1);
-   m_lego->SetFontColor(c3);
-   m_overlay->GetAttAxis()->SetLabelColor(c2);
-   m_overlay->GetAttAxis()->SetAxisColor(c2);
-   m_overlay->SetScaleColorTransparency(c4, 0);
-   m_overlay->SetFrameAttribs(c4, 70, 95);
+   m_lego->SetGridColor(grid);
+   m_lego->SetFontColor(font);
+
+   m_overlay->GetAttAxis()->SetLabelColor(overlay);
+   m_overlay->GetAttAxis()->SetAxisColor(overlay);
+   m_overlay->SetScaleColorTransparency(scale, 0);
+   m_overlay->SetFrameAttribs(scale, 70, 95);
 }
 
 void

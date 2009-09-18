@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.10 2009/05/21 16:34:43 dmytro Exp $
+// $Id: FWColorManager.h,v 1.11 2009/05/28 19:01:45 amraktad Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ public:
    
    Color_t geomColor(FWGeomColorIndex) const;
    
-   enum BackgroundColorIndex {kBlackIndex, kWhiteIndex};
+   enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
    BackgroundColorIndex backgroundColorIndex() const;
    // ---------- static member functions --------------------
    
