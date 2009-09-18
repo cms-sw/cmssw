@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.9 2009/09/16 16:12:53 biery Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.10 2009/09/16 16:59:09 biery Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -18,13 +18,16 @@
 
 namespace stor {
 
+  class AlarmHandler;
+
+
   /**
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: biery $
-   * $Revision: 1.9 $
-   * $Date: 2009/09/16 16:12:53 $
+   * $Revision: 1.10 $
+   * $Date: 2009/09/16 16:59:09 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -296,7 +299,11 @@ namespace stor {
     /**
      * Constructor.
      */
-    explicit DataSenderMonitorCollection(const utils::duration_t& updateInterval);
+    DataSenderMonitorCollection
+    (
+      const utils::duration_t& updateInterval,
+      boost::shared_ptr<AlarmHandler>
+    );
 
     /**
      * Adds the specified fragment to the monitor collection.
@@ -379,6 +386,8 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
+    void staleChainAlarm(const unsigned int&) const;
+    void ignoredDiscardAlarm(const unsigned int&) const;
 
     bool getAllNeededPointers(I2OChain const& i2oChain,
                               RBRecordPtr& rbRecordPtr,
@@ -424,6 +433,7 @@ namespace stor {
     std::map<UniqueResourceBrokerID_t, RBRecordPtr> _resourceBrokerMap;
 
     const utils::duration_t _updateInterval;
+    boost::shared_ptr<AlarmHandler> _alarmHandler;
 
   };
 

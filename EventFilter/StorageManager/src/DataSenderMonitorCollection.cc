@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.10 2009/09/16 16:12:54 biery Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.11 2009/09/16 16:59:09 biery Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -8,13 +8,18 @@
 #include <zlib.h>
 #include <boost/lexical_cast.hpp>
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 
 using namespace stor;
 
 
-DataSenderMonitorCollection::DataSenderMonitorCollection(const utils::duration_t& updateInterval) :
+DataSenderMonitorCollection::DataSenderMonitorCollection
+(
+  const utils::duration_t& updateInterval,
+  boost::shared_ptr<AlarmHandler> ah
+) :
 MonitorCollection(updateInterval),
 _connectedRBs(0),
 _connectedEPs(0),
@@ -23,7 +28,8 @@ _outstandingDataDiscards(0),
 _outstandingDQMDiscards(0),
 _staleChains(0),
 _ignoredDiscards(0),
-_updateInterval(updateInterval)
+_updateInterval(updateInterval),
+_alarmHandler(ah)
 {}
 
 
@@ -539,6 +545,48 @@ void DataSenderMonitorCollection::do_updateInfoSpaceItems()
   _outstandingDQMDiscards = static_cast<xdata::Integer32>(localMissingDQMDiscardCount);
   _staleChains = static_cast<xdata::UnsignedInteger32>(localStaleChainCount);
   _ignoredDiscards = static_cast<xdata::UnsignedInteger32>(localIgnoredDiscardCount);
+
+  staleChainAlarm(localStaleChainCount);
+  ignoredDiscardAlarm(localIgnoredDiscardCount);
+}
+
+
+void DataSenderMonitorCollection::staleChainAlarm(const unsigned int& staleChainCount) const
+{
+  const std::string alarmName = "StaleChain";
+
+  if (staleChainCount > 0)
+  {
+    std::ostringstream msg;
+    msg << "Missing I2O fragments for " <<
+      staleChainCount <<
+      " events. These events are lost!";
+    XCEPT_DECLARE(stor::exception::StaleChain, ex, msg.str());
+    _alarmHandler->raiseAlarm(alarmName, AlarmHandler::ERROR, ex);
+  }
+  else
+  {
+    _alarmHandler->revokeAlarm(alarmName);
+  }
+}
+
+
+void DataSenderMonitorCollection::ignoredDiscardAlarm(const unsigned int& ignoredDiscardCount) const
+{
+  const std::string alarmName = "IgnoredDiscard";
+
+  if ( ignoredDiscardCount > 0)
+  {
+    std::ostringstream msg;
+    msg << ignoredDiscardCount <<
+      " discard messages ignored. These events might be stuck in the resource broker.";
+    XCEPT_DECLARE(stor::exception::IgnoredDiscard, ex, msg.str());
+    _alarmHandler->raiseAlarm(alarmName, AlarmHandler::ERROR, ex);
+  }
+  else
+  {
+    _alarmHandler->revokeAlarm(alarmName);
+  }
 }
 
 

@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.11 2009/08/24 14:31:52 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.12 2009/08/28 16:41:26 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -33,7 +33,7 @@ _runMonCollection(_monitoringSleepSec),
 _fragMonCollection(_monitoringSleepSec),
 _filesMonCollection(5*_monitoringSleepSec),
 _streamsMonCollection(_monitoringSleepSec),
-_dataSenderMonCollection(_monitoringSleepSec),
+_dataSenderMonCollection(_monitoringSleepSec, _alarmHandler),
 _dqmEventMonCollection(5*_monitoringSleepSec),
 _resourceMonCollection(900*_monitoringSleepSec, _alarmHandler),
 _stateMachineMonCollection(_monitoringSleepSec),

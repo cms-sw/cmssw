@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.14 2009/08/26 09:38:27 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.15 2009/08/26 15:17:52 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef StorageManager_ResourceMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2009/08/26 09:38:27 $
+   * $Revision: 1.15 $
+   * $Date: 2009/08/26 15:17:52 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -60,7 +60,10 @@ namespace stor {
     };
 
 
-    explicit ResourceMonitorCollection
+    /**
+     * Constructor.
+     */
+    ResourceMonitorCollection
     (
       const utils::duration_t& updateInterval,
       boost::shared_ptr<AlarmHandler>
