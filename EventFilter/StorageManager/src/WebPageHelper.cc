@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.31 2009/09/17 15:34:50 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.32 2009/09/18 10:22:23 dshpakov Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -1033,7 +1033,7 @@ void WebPageHelper::addRowsForMemoryUsage
     tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
     maker.addText(tableDiv, "Memory pool used (bytes)");
     tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-    maker.addDouble( tableDiv, stats.getLastSampleValue(), 2 );
+    maker.addDouble( tableDiv, stats.getLastSampleValue(), 0 );
   }
   else
   {
@@ -1800,9 +1800,9 @@ void WebPageHelper::addDOMforDQMEventStatistics(XHTMLMaker& maker,
   tableDiv = maker.addNode("td", tableRow, _tableLabelAttr);
   maker.addText(tableDiv, "DQM events received");
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addDouble( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL) );
+  maker.addInt( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::FULL) );
   tableDiv = maker.addNode("td", tableRow, _tableValueAttr);
-  maker.addDouble( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::RECENT) );
+  maker.addInt( tableDiv, stats.dqmEventSizeStats.getSampleCount(MonitoredQuantity::RECENT) );
 
   // Average updates/folder
   tableRow = maker.addNode("tr", table, _rowAttr);
