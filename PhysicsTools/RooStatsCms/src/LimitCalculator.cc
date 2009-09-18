@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: LimitCalculator.cc,v 1.5 2009/05/15 09:55:59 dpiparo Exp $
+// @(#)root/hist:$Id: LimitCalculator.cc,v 1.6 2009/08/07 18:05:17 schott Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -155,10 +155,10 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
 
     assert(n_toys > 0);
 
-    //RooTreeData* b_data;
-    //RooTreeData* sb_data;
-    RooDataHist* b_data;
-    RooDataHist* sb_data;
+    RooTreeData* b_data;
+    RooTreeData* sb_data;
+    //RooDataHist* b_data;
+    //RooDataHist* sb_data;
     
     bool check_sb=false;
     bool check_b=false;
@@ -192,8 +192,8 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
 
 
 
-        //b_data = static_cast<RooTreeData*> (m_b_model->generate(*m_variables,RooFit::Extended()));
-	b_data=m_b_model->generateBinned(*m_variables,RooFit::Extended());
+        b_data = static_cast<RooTreeData*> (m_b_model->generate(*m_variables,RooFit::Extended()));
+	//b_data=m_b_model->generateBinned(*m_variables,RooFit::Extended());
 
         if (b_data==NULL){
               std::cerr << "\n\n\n\nEmpty B dataset!\n\n\n\n\n";
@@ -223,8 +223,8 @@ void LimitCalculator::m_do_toys(std::vector<float>& b_vals,
 //             delete b_data_dummy;
 //             }
 
-	//sb_data = static_cast<RooTreeData*> (m_sb_model->generate(*m_variables,RooFit::Extended()));
-	sb_data = m_sb_model->generateBinned(*m_variables,RooFit::Extended());
+	sb_data = static_cast<RooTreeData*> (m_sb_model->generate(*m_variables,RooFit::Extended()));
+	//sb_data = m_sb_model->generateBinned(*m_variables,RooFit::Extended());
  
 
          if (sb_data==NULL){
