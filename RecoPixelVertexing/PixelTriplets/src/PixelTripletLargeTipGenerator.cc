@@ -10,6 +10,7 @@
 #include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 
+#include "MatchedHitRZCorrectionFromBending.h"
 
 #include <algorithm>
 #include <iostream>
@@ -28,6 +29,7 @@ namespace {
   struct LayerRZPredictions {
     ThirdHitRZPrediction<PixelRecoLineRZ> line;
     ThirdHitRZPrediction<HelixRZ> helix1, helix2;
+    MatchedHitRZCorrectionFromBending rzPositionFixup;
   };
 }
 
@@ -95,6 +97,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(
      predRZ.line.initTolerance(extraHitRZtolerance);
      predRZ.helix1.initTolerance(extraHitRZtolerance);
      predRZ.helix2.initTolerance(extraHitRZtolerance);
+     predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer);
   }
 
   double curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
@@ -212,39 +215,47 @@ void PixelTripletLargeTipGenerator::hitTriplets(
       typedef RecHitsSortedInPhi::Hit Hit;
       vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(), phiRange.max());
 
+      MatchedHitRZCorrectionFromBending l2rzFixup(ip->outer()->det()->geographicalId());
+      MatchedHitRZCorrectionFromBending l3rzFixup = predRZ.rzPositionFixup;
+
       typedef vector<Hit>::const_iterator IH;
       for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
-
-         float p3_r = (*th)->globalPosition().perp();
-         float p3_z = (*th)->globalPosition().z();
-         float p3_phi = (*th)->globalPosition().phi();
+         GlobalPoint p3 = (*th)->globalPosition();
+         double p3_r = p3.perp();
+         double p3_z = p3.z();
+         double p3_phi = p3.phi();
 
          Range rangeRPhi = predictionRPhi(curvature, p3_r);
          correction.correctRPhiRange(rangeRPhi);
 
-         double phiErr = nSigmaPhi * sqrt((*th)->globalPositionError().phierr((*th)->globalPosition()));
+         double phiErr = nSigmaPhi * sqrt((*th)->globalPositionError().phierr(p3));
          if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r - phiErr, rangeRPhi.second/p3_r + phiErr))
            continue;
 
          const TransientTrackingRecHit::ConstRecHitPointer& hit = *th;
-         Basic2DVector<double> thc(hit->globalPosition().x(),
-                                   hit->globalPosition().y());
+         Basic2DVector<double> thc(p3.x(), p3.y());
+
+         double curv_ = predictionRPhi.curvature(thc);
+         double p2_r = point2.r(), p2_z = point2.z();
+
+         l2rzFixup(predictionRPhi, curv_, *ip->outer(), p2_r, p2_z);
+         l3rzFixup(predictionRPhi, curv_, **th, p3_r, p3_z);
 
          Range rangeRZ;
          if (useBend) {
-           HelixRZ updatedHelix(&predictionRPhi, gp1.z(), gp2.z(),
-           	                predictionRPhi.curvature(thc));
+           HelixRZ updatedHelix(&predictionRPhi, gp1.z(), p2_z, curv_);
            rangeRZ = predRZ.helix1(barrelLayer ? p3_r : p3_z, updatedHelix);
          } else {
            float tIP = predictionRPhi.transverseIP(thc);
+           PixelRecoPointRZ updatedPoint2(p2_r, p2_z);
            PixelRecoLineRZ updatedLine(line.origin(), point2, tIP);
            rangeRZ = predRZ.line(barrelLayer ? p3_r : p3_z, line);
          }
          correction.correctRZRange(rangeRZ);
 
          double err = nSigmaRZ * sqrt(barrelLayer
-                 ? hit->globalPositionError().czz()
-                 : hit->globalPositionError().rerr(hit->globalPosition()));
+				? hit->globalPositionError().czz()
+				: hit->globalPositionError().rerr(p3));
          rangeRZ.first -= err, rangeRZ.second += err;
 
          if (!rangeRZ.inside(barrelLayer ? p3_z : p3_r))
