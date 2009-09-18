@@ -18,5 +18,6 @@
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalValidationCorrs.h"
+#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 
 #endif

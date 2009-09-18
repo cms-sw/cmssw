@@ -66,6 +66,10 @@
  <class name="std::vector<HcalValidationCorr>"/>
  <class name="HcalValidationCorrs"/>
 
+ <class name="HcalLutMetadatum"/>
+ <class name="std::vector<HcalLutMetadatum>"/>
+ <class name="HcalLutMetadata"/>
+ <class name="HcalLutMetadata::NonChannelData"/>
 
  <class pattern="*HcalCondObjectContainer*"/>
 </lcgdict>   
