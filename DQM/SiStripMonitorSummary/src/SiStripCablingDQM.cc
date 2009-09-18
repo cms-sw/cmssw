@@ -56,7 +56,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
     if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
 
     int32_t n_conn = 0;
-      for(int connDet_i=0; connDet_i<cablingHandle_->getConnections(detId).size(); connDet_i++){
+      for(uint32_t connDet_i=0; connDet_i<cablingHandle_->getConnections(detId).size(); connDet_i++){
 	if(cablingHandle_->getConnections(detId)[connDet_i].isConnected()!=0) n_conn++;
       }
       fillTkMap(detId,n_conn*2.); 

@@ -208,7 +208,7 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
 
     //Check the axis range for tkmap, and in case redefine;
     int intNoise = int(meanNoise);
-    if(intNoise+1 > tkMapScaler.size()){
+    if(intNoise+1 > (int)tkMapScaler.size()){
       tkMapScaler.resize(intNoise+1,0);
     }
     tkMapScaler[intNoise]++;
