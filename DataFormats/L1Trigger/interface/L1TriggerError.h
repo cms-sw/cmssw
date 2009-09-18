@@ -14,7 +14,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  
-// $Id: L1TriggerError.h,v 1.1 2008/11/27 14:50:03 jbrooke Exp $
+// $Id: L1TriggerError.h,v 1.2 2009/04/07 10:42:00 jbrooke Exp $
 //
 
 
@@ -22,7 +22,7 @@ class L1TriggerError {
  public:
   
   /// construct from an error code
-  explicit L1TriggerError(unsigned code=0);
+  explicit L1TriggerError(unsigned short prodID=0, unsigned short code=0);
 
   /// dtor
   ~L1TriggerError();
