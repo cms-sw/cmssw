@@ -335,7 +335,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  simTrackIds.push_back(theSimTrackIds[tkId]);
 	  //making a state with exactly the sim track parameters
 	  //the initial errors are set to unity just for kicks
-	  AlgebraicSymMatrix C(5,1);// C*=50;
+	  //	  AlgebraicSymMatrix C(5,1);// C*=50;
+	  //new attempt!!!!
+	  AlgebraicSymMatrix C = seedState.curvilinearError().matrix_old();
+	  C *= 0.0000001;
+
 	  seedStates[theSimTrackIds[tkId]] = TrajectoryStateOnSurface(simtrack_comparestate.globalParameters(),
 								      CurvilinearTrajectoryError(C),
 								      seedState.surface());
