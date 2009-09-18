@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.32 2009/09/18 10:22:23 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.33 2009/09/18 12:07:32 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -200,8 +200,8 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     th_attr[ "valign" ] = "bottom";
     XHTMLMaker::AttrMap th_attr_2r = th_attr;
     th_attr_2r[ "rowspan" ] = "2";
-    XHTMLMaker::AttrMap th_attr_3c = th_attr;
-    th_attr_3c[ "colspan" ] = "3";
+    XHTMLMaker::AttrMap th_attr_multicol = th_attr;
+    th_attr_multicol[ "colspan" ] = "5";
 
     // Cell attributes:
     XHTMLMaker::AttrMap cell_attr;
@@ -242,10 +242,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     XHTMLMaker::Node* cs_th_in_queue = maker.addNode( "th", cs_top_row, th_attr_2r );
     maker.addText( cs_th_in_queue, "Events In Queue" );
 
-    XHTMLMaker::Node* cs_th_overall = maker.addNode( "th", cs_top_row, th_attr_3c );
+    XHTMLMaker::Node* cs_th_overall = maker.addNode( "th", cs_top_row, th_attr_multicol );
     maker.addText( cs_th_overall, "Overall" );
 
-    XHTMLMaker::Node* cs_th_recent = maker.addNode( "th", cs_top_row, th_attr_3c );
+    XHTMLMaker::Node* cs_th_recent = maker.addNode( "th", cs_top_row, th_attr_multicol );
     maker.addText( cs_th_recent, "Recent" );
 
     // Second row:
@@ -261,6 +261,12 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_served_rate, "Served Event Rate, Hz" );
 
+    XHTMLMaker::Node* cs_th_event_size = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_event_size, "Average Event Size, kB" );
+
+    XHTMLMaker::Node* cs_th_bw = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_bw, "Bandwidth, kB/s" );
+
     XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_queued_recent, "Events Enqueued" );
 
@@ -269,6 +275,12 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
     XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_served_rate_recent, "Served Event Rate, Hz" );
+
+    XHTMLMaker::Node* cs_th_event_size_recent = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_event_size_recent, "Average Event Size, kB" );
+
+    XHTMLMaker::Node* cs_th_bw_recent = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_bw_recent, "Bandwidth, kB/s" );
 
     boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
     RegistrationCollection::ConsumerRegistrations regs;
@@ -385,19 +397,27 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
             eq_oss_recent << "Not found";
           }
 
-        // Number and rate of served events:
+        // Number, rate, size and bandwidth of served events:
         std::ostringstream es_oss;
         std::ostringstream rate_oss;
         std::ostringstream es_oss_recent;
         std::ostringstream rate_oss_recent;
+        std::ostringstream ev_size_oss;
+        std::ostringstream ev_size_oss_recent;
+        std::ostringstream bw_oss;
+        std::ostringstream bw_oss_recent;
         MonitoredQuantity::Stats es_stats;
         bool es_found = eventConsumerCollection.getServed( (*it)->queueId(), es_stats );
         if( es_found )
           {
             es_oss << es_stats.getSampleCount();
             rate_oss << es_stats.getSampleRate();
+            ev_size_oss << ( es_stats.getValueAverage() / (double)1024 );
+            bw_oss << ( es_stats.getValueRate() / (double)1024 );
             es_oss_recent << es_stats.getSampleCount( MonitoredQuantity::RECENT );
             rate_oss_recent << es_stats.getSampleRate( MonitoredQuantity::RECENT );
+            ev_size_oss_recent << ( es_stats.getValueAverage( MonitoredQuantity::RECENT ) / (double)1024 );
+            bw_oss_recent << ( es_stats.getValueRate( MonitoredQuantity::RECENT ) / (double)1024 );
           }
         else
           {
@@ -405,6 +425,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
             rate_oss << "Not found";
             es_oss_recent << "Not found";
             rate_oss_recent << "Not found";
+            ev_size_oss << "Not found";
+            ev_size_oss_recent << "Not found";
+            bw_oss << "Not found";
+            bw_oss_recent << "Not found";
           }
 
         // Overall:
@@ -414,6 +438,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_es, es_oss.str() );
         XHTMLMaker::Node* cs_td_rate = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_rate, rate_oss.str() );
+        XHTMLMaker::Node* cs_td_ev_size = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_ev_size, ev_size_oss.str() );
+        XHTMLMaker::Node* cs_td_bw = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_bw, bw_oss.str() );
 
         // Recent:
         XHTMLMaker::Node* cs_td_eq_r = maker.addNode( "td", cs_tr, td_attr );
@@ -422,6 +450,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_es_r, es_oss_recent.str() );
         XHTMLMaker::Node* cs_td_rate_r = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_rate_r, rate_oss_recent.str() );
+        XHTMLMaker::Node* cs_td_ev_size_r = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_ev_size_r, ev_size_oss_recent.str() );
+        XHTMLMaker::Node* cs_td_bw_r = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_bw_r, bw_oss_recent.str() );
 
       }
 
@@ -452,8 +484,8 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     th_attr[ "valign" ] = "bottom";
     XHTMLMaker::AttrMap th_attr_2r = th_attr;
     th_attr_2r[ "rowspan" ] = "2";
-    XHTMLMaker::AttrMap th_attr_3c = th_attr;
-    th_attr_3c[ "colspan" ] = "3";
+    XHTMLMaker::AttrMap th_attr_multicol = th_attr;
+    th_attr_multicol[ "colspan" ] = "5";
 
     // Cell attributes:
     XHTMLMaker::AttrMap cell_attr;
@@ -491,10 +523,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     XHTMLMaker::Node* cs_th_in_queue = maker.addNode( "th", cs_top_row, th_attr_2r );
     maker.addText( cs_th_in_queue, "Events In Queue" );
 
-    XHTMLMaker::Node* cs_th_overall = maker.addNode( "th", cs_top_row, th_attr_3c );
+    XHTMLMaker::Node* cs_th_overall = maker.addNode( "th", cs_top_row, th_attr_multicol );
     maker.addText( cs_th_overall, "Overall" );
 
-    XHTMLMaker::Node* cs_th_recent = maker.addNode( "th", cs_top_row, th_attr_3c );
+    XHTMLMaker::Node* cs_th_recent = maker.addNode( "th", cs_top_row, th_attr_multicol );
     maker.addText( cs_th_recent, "Recent" );
 
     // Second row:
@@ -510,6 +542,12 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
     XHTMLMaker::Node* cs_th_served_rate = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_served_rate, "Served Event Rate, Hz" );
 
+    XHTMLMaker::Node* cs_th_event_size = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_event_size, "Average Event Size, kB" );
+
+    XHTMLMaker::Node* cs_th_bw = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_bw, "Bandwidth, kB/s" );
+
     XHTMLMaker::Node* cs_th_queued_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_queued_recent, "Events Enqueued" );
 
@@ -518,6 +556,12 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
     XHTMLMaker::Node* cs_th_served_rate_recent = maker.addNode( "th", cs_top_row_2, th_attr );
     maker.addText( cs_th_served_rate_recent, "Served Event Rate, Hz" );
+
+    XHTMLMaker::Node* cs_th_event_size_recent = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_event_size_recent, "Average Event Size, kB" );
+
+    XHTMLMaker::Node* cs_th_bw_recent = maker.addNode( "th", cs_top_row_2, th_attr );
+    maker.addText( cs_th_bw_recent, "Bandwidth, kB/s" );
 
     boost::shared_ptr<RegistrationCollection> rc = resPtr->_registrationCollection;
     RegistrationCollection::DQMConsumerRegistrations regs;
@@ -619,19 +663,27 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
             eq_oss_recent << "Not found";
           }
 
-        // Number and rate of served events:
+        // Number, rate, size and bandwidth of served events:
         std::ostringstream es_oss;
         std::ostringstream rate_oss;
         std::ostringstream es_oss_recent;
         std::ostringstream rate_oss_recent;
+        std::ostringstream ev_size_oss;
+        std::ostringstream ev_size_oss_recent;
+        std::ostringstream bw_oss;
+        std::ostringstream bw_oss_recent;
         MonitoredQuantity::Stats es_stats;
         bool es_found = dqmConsumerCollection.getServed( (*it)->queueId(), es_stats );
         if( es_found )
           {
             es_oss << es_stats.getSampleCount();
             rate_oss << es_stats.getSampleRate();
+            ev_size_oss << ( es_stats.getValueAverage() / (double)1024 );
+            bw_oss << ( es_stats.getValueRate() / (double)1024 );
             es_oss_recent << es_stats.getSampleCount( MonitoredQuantity::RECENT );
             rate_oss_recent << es_stats.getSampleRate( MonitoredQuantity::RECENT );
+            ev_size_oss_recent << ( es_stats.getValueAverage( MonitoredQuantity::RECENT ) / (double)1024 );
+            bw_oss_recent << ( es_stats.getValueRate( MonitoredQuantity::RECENT ) / (double)1024 );
           }
         else
           {
@@ -639,6 +691,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
             rate_oss << "Not found";
             es_oss_recent << "Not found";
             rate_oss_recent << "Not found";
+            ev_size_oss << "Not found";
+            ev_size_oss_recent << "Not found";
+            bw_oss << "Not found";
+            bw_oss_recent << "Not found";
           }
 
         // Overall:
@@ -648,6 +704,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_es, es_oss.str() );
         XHTMLMaker::Node* cs_td_rate = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_rate, rate_oss.str() );
+        XHTMLMaker::Node* cs_td_ev_size = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_ev_size, ev_size_oss.str() );
+        XHTMLMaker::Node* cs_td_bw = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_bw, bw_oss.str() );
 
         // Recent:
         XHTMLMaker::Node* cs_td_eq_r = maker.addNode( "td", cs_tr, td_attr );
@@ -656,6 +716,10 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
         maker.addText( cs_td_es_r, es_oss_recent.str() );
         XHTMLMaker::Node* cs_td_rate_r = maker.addNode( "td", cs_tr, td_attr );
         maker.addText( cs_td_rate_r, rate_oss_recent.str() );
+        XHTMLMaker::Node* cs_td_ev_size_r = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_ev_size_r, ev_size_oss_recent.str() );
+        XHTMLMaker::Node* cs_td_bw_r = maker.addNode( "td", cs_tr, td_attr );
+        maker.addText( cs_td_bw_r, bw_oss_recent.str() );
 
       }
 
