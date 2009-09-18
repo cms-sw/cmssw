@@ -32,7 +32,7 @@ namespace evf
       void registerWeb(std::string &name, ServiceWeb *cl)
 	{
 	  std::cout << "**********registering " << name << " to service web registry " 
-		    << std::hex << (unsigned int) this << std::dec << std::endl;
+		    << std::hex << (unsigned long) this << std::dec << std::endl;
 	  clm_.insert(std::pair<std::string, ServiceWeb*>(name,cl));
 	  std::cout << "**********registry size now " << clm_.size() << std::endl;
 	  // CAN ONLY BIND TO xdaq::Application methods...

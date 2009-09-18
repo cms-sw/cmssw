@@ -699,7 +699,7 @@ void FUResource::findFEDs() throw (evf::Exception)
 	 <<" evtNumber:"<<evtNumber_
 	 <<" fedId:"<<fedId
 	 <<" fedSize:"<<fedSize
-	 <<" fedAddr:0x"<<hex<<(int)fedHeaderAddr<<dec;
+	 <<" fedAddr:0x"<<hex<<(unsigned long)fedHeaderAddr<<dec;
       XCEPT_RAISE(evf::Exception,oss.str());
     }
     

@@ -1,3 +1,13 @@
+2009-09-18  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-16-05
+	* fix for 64-bit compilation
+	
+2009-09-18  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-16-04 (date not known)
+	* added setMicroState method to allow accounting for DQM output 
+
 2009-05-09  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-16-03
