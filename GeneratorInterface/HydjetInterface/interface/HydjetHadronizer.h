@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.3 2009/05/28 17:36:40 yilmaz Exp $
+// $Id: HydjetHadronizer.h,v 1.4 2009/05/28 18:54:03 yilmaz Exp $
 
 /** \class HydjetHadronizer
 *
@@ -63,7 +63,6 @@ namespace gen
     bool                                        call_hyinit(double energy, double a, int ifb, double bmin,
 							    double bmax,double bfix,int nh);
     bool					hydjet_init(const edm::ParameterSet &pset);
-    bool					hyjpythia_init(const edm::ParameterSet &pset);
     inline double			        nuclear_radius() const;
     void                                        rotateEvtPlane();
     //    virtual void                                produce(Event & e, const EventSetup & es);

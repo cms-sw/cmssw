@@ -18,11 +18,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-//#include "CLHEP/Random/RandomEngine.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "GeneratorInterface/HydjetInterface/interface/HydjetHadronizer.h"
-//#include "GeneratorInterface/HydjetInterface/interface/PYR.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -89,6 +87,10 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     pythia6Service_(new Pythia6Service(pset))
 {
   // Default constructor
+
+  // Set random seed for Hydjet
+  long seed = gen::getEngineReference().getSeed();
+  ludatr.mrlu[0]=seed;
 
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
@@ -340,12 +342,6 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
 {
   // set hydjet options
 
-   //  edm::Service<RandomNumberGenerator> rng;
-   //  uint32_t seed = rng->
-
-   long seed = gen::getEngineReference().getSeed();
-   ludatr.mrlu[0]=seed;
-
   // hydjet running mode mode
   // kHydroOnly --- nhsel=0 jet production off (pure HYDRO event), nhsel=0
   // kHydroJets --- nhsle=1 jet production on, jet quenching off (HYDRO+njet*PYTHIA events)
@@ -405,57 +401,6 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
   return true;
 }
 
-
-//____________________________________________________________________
-bool HydjetHadronizer::hyjpythia_init(const ParameterSet &pset)
-{
-  //Set PYTHIA parameters
-
-   /*
-
-  //random number seed
-  edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed = rng->mySeed();
-  ostringstream sRandomSet;
-  sRandomSet << "MRPY(1)=" << seed;
-  gen::call_pygive(sRandomSet.str());
-
-  // Set PYTHIA parameters in a single ParameterSet
-  ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
-  // The parameter sets to be read 
-  vector<string> setNames = pythia_params.getParameter<vector<string> >("parameterSets");
-
-    // Loop over the sets
-  for ( unsigned i=0; i<setNames.size(); ++i ) {
-    string mySet = setNames[i];
-    
-    // Read the PYTHIA parameters for each set of parameters
-    vector<string> pars = pythia_params.getParameter<vector<string> >(mySet);
-    
-    cout << "----------------------------------------------" << endl;
-    cout << "Read PYTHIA parameter set " << mySet << endl;
-    cout << "----------------------------------------------" << endl;
-    
-    // Loop over all parameters and stop in case of mistake
-    for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
-      static string sRandomValueSetting("MRPY(1)");
-      if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) ) {
-	throw edm::Exception(edm::errors::Configuration,"PythiaError")
-	  <<" Attempted to set random number using 'MRPY(1)'. NOT ALLOWED! \n Use RandomNumberGeneratorService to set the random number seed.";
-      }
-      if( !gen::call_pygive(*itPar) ) {
-	throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-	  <<"PYTHIA did not accept \""<<*itPar<<"\"";
-      }
-    }
-  }
-
-   */
-
-  return true;
-}
-
-
 //_____________________________________________________________________
 
 bool HydjetHadronizer::initializeForInternalPartons(){
@@ -470,8 +415,6 @@ bool HydjetHadronizer::initializeForInternalPartons(){
    bmax_     /= ra;
    bfixed_   /= ra;
 
-   // initialize pythia      
-   hyjpythia_init(pset_);
    // hydjet running options 
    hydjet_init(pset_);
    // initialize hydjet
