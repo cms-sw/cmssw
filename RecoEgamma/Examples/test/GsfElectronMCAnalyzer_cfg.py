@@ -28,6 +28,8 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     outputFile = cms.string(os.environ['TEST_OUTPUT_FILE']),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
+    MatchingID = cms.vint32(11,-11),
+    MatchingMotherID = cms.vint32(23,24,-24,32),
     MaxAbsEta = cms.double(2.5),
     HistosConfigurationMC = cms.PSet(
     mcAnalyzerStdBiningParameters
