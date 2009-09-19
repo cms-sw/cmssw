@@ -49,9 +49,13 @@ class strbitset {
   /// can then be sorted, cut, whatever, and the
   /// index mapping is kept
   void push_back( std::string s ) {
-    map_[s] = bits_.size();
-    bits_.resize( bits_.size() + 1 );
-    *(bits_.rbegin()) = false;
+    if ( map_.find(s) == map_.end() ) {
+      map_[s] = bits_.size();
+      bits_.resize( bits_.size() + 1 );
+      *(bits_.rbegin()) = false;
+    } else {
+      std::cout << "Duplicate entry " << s << ", not added to registry" << endl;
+    }
   }
 
 
