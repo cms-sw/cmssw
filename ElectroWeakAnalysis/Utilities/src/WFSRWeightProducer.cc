@@ -17,10 +17,10 @@
 //
 // class declaration
 //
-class FSRWeightProducer : public edm::EDProducer {
+class WFSRWeightProducer : public edm::EDProducer {
    public:
-      explicit FSRWeightProducer(const edm::ParameterSet&);
-      ~FSRWeightProducer();
+      explicit WFSRWeightProducer(const edm::ParameterSet&);
+      ~WFSRWeightProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -33,23 +33,23 @@ class FSRWeightProducer : public edm::EDProducer {
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
-FSRWeightProducer::FSRWeightProducer(const edm::ParameterSet& pset) {
+WFSRWeightProducer::WFSRWeightProducer(const edm::ParameterSet& pset) {
       genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("generator"));
 
       produces<double>();
 } 
 
 /////////////////////////////////////////////////////////////////////////////////////
-FSRWeightProducer::~FSRWeightProducer(){}
+WFSRWeightProducer::~WFSRWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void FSRWeightProducer::beginJob(const edm::EventSetup&) {}
+void WFSRWeightProducer::beginJob(const edm::EventSetup&) {}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void FSRWeightProducer::endJob(){}
+void WFSRWeightProducer::endJob(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
+void WFSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
       if (iEvent.isRealData()) return;
 
@@ -65,12 +65,12 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       for (unsigned int i = 0; i<gensize; ++i) {
             const reco::GenParticle& lepton = (*genParticles)[i];
             if (lepton.status()!=3) continue;
-            int leptonId = lepton.pdgId();
-            if (abs(leptonId)!=11 && abs(leptonId)!=13) continue;
+            int leptonId = abs(lepton.pdgId());
+            if (leptonId!=11 && leptonId!=13) continue;
             if (lepton.numberOfMothers()!=1) continue;
             const reco::Candidate * boson = lepton.mother();
-            int bosonId = boson->pdgId();
-            if (bosonId!=23 && abs(bosonId)!=24) continue;
+            int bosonId = abs(boson->pdgId());
+            if (bosonId!=24) continue;
             unsigned int nDaughters = lepton.numberOfDaughters();
             if (nDaughters<=1) continue;
             double leptonMass = lepton.mass();
@@ -89,18 +89,18 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   double photonPhi = photon->phi();
                   double costheta = sinLeptonTheta*sinPhotonTheta*cos(leptonPhi-photonPhi)
                                   + cosLeptonTheta*cosPhotonTheta;
-                  // Missing O(alpha) terms
-                  // This is only relevant for W, for Z the effect is negligible
-                  if (abs(bosonId)==24) {
-                        double delta = - 8*photonEnergy *(1-betaLepton*costheta)
-                          / pow(bosonMass,3) 
-                          / (1-pow(leptonMass/bosonMass,2))
-                          / (4-pow(leptonMass/bosonMass,2))
-                          * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
-                        (*weight) *= (1 + delta);
-                  }
-                  // Add some extra factor from missing higher orders (in progress)
-                  // (*weight) *= ...;
+                  // Missing O(alpha) terms in soft-collinear approach
+                  // From hep-ph/0303260
+                  double delta = - 8*photonEnergy *(1-betaLepton*costheta)
+                        / pow(bosonMass,3) 
+                        / (1-pow(leptonMass/bosonMass,2))
+                        / (4-pow(leptonMass/bosonMass,2))
+                        * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
+                  (*weight) *= (1 + delta);
+                  // Add some extra factor from missing NLO orders in FS parton shower
+                  // Change coupling scale from 0 to pt**2 to estimate this effect
+                  // double kT2 = pow(photonEnergy*costheta,2);
+                  //(*weight) *=i alphaQED(kT2)/alphaQED(0);
             }
       }
 
@@ -108,4 +108,4 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       iEvent.put(weight);
 }
 
-DEFINE_FWK_MODULE(FSRWeightProducer);
+DEFINE_FWK_MODULE(WFSRWeightProducer);
