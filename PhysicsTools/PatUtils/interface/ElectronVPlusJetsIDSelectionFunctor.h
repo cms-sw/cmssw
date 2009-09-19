@@ -15,8 +15,8 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
  ElectronVPlusJetsIDSelectionFunctor( Version_t version ) :
   version_(version)
   {
-    push_back("D0");
-    push_back("RelIso");
+    push_back("D0",        0.2);
+    push_back("RelIso",    0.1);
   }
 
   // Allow for multiple definitions of the cuts. 
@@ -43,8 +43,8 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
 
-    if ( fabs(corr_d0) > 0.2 && (*this)["D0"]      ) return false;
-    if ( relIso  > 0.1       && (*this)["RelIso"]  ) return false;
+    if ( fabs(corr_d0) >  cut("D0",     double()) && (*this)["D0"]      ) return false;
+    if ( relIso        >  cut("RelIso", double()) && (*this)["RelIso"]  ) return false;
 
     return true;
   }

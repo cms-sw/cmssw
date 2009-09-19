@@ -15,12 +15,12 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
  MuonVPlusJetsIDSelectionFunctor( Version_t version ) :
   version_(version)
   {
-    push_back("Chi2");
-    push_back("D0");
-    push_back("NHits");
-    push_back("ECalIso");
-    push_back("HCalIso");
-    push_back("RelIso");
+    push_back("Chi2",     10.0);
+    push_back("D0",        0.2);
+    push_back("NHits",      11);
+    push_back("ECalIso",   6.0);
+    push_back("HCalIso",   4.0);
+    push_back("RelIso",    0.1);
 
   }
 
@@ -48,13 +48,13 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( norm_chi2 >= 10.0   && (*this)["Chi2"]    ) return false;
-    if ( fabs(corr_d0) > 0.2 && (*this)["D0"]      ) return false;
-    if ( nhits < 11          && (*this)["NHits"]   ) return false;
-    if ( hcalIso > 6.0       && (*this)["HCalIso"] ) return false;
-    if ( ecalIso > 6.0       && (*this)["ECalIso"] ) return false;
-    if ( relIso  > 0.1       && (*this)["RelIso"]  ) return false;
-
+    if ( norm_chi2     >  cut("Chi2",   double()) && (*this)["Chi2"]    ) return false;
+    if ( fabs(corr_d0) >  cut("D0",     double()) && (*this)["D0"]      ) return false;
+    if ( nhits         <  cut("NHits",  int()   ) && (*this)["NHits"]   ) return false;
+    if ( hcalIso       >  cut("HCalIso",double()) && (*this)["HCalIso"] ) return false;
+    if ( ecalIso       >  cut("ECalIso",double()) && (*this)["ECalIso"] ) return false;
+    if ( relIso        >  cut("RelIso", double()) && (*this)["RelIso"]  ) return false;
+    
     return true;
   }
   
