@@ -28,7 +28,8 @@ class EwkPdfWeightProducer : public edm::EDProducer {
       virtual void endJob() ;
 
       edm::InputTag pdfInfoTag_;
-      const std::string pdfSetName_;
+      std::vector<std::string> pdfSetNames_;
+      std::vector<std::string> pdfShortNames_;
 };
 
 
@@ -39,9 +40,13 @@ class EwkPdfWeightProducer : public edm::EDProducer {
 /////////////////////////////////////////////////////////////////////////////////////
 EwkPdfWeightProducer::EwkPdfWeightProducer(const edm::ParameterSet& pset) :
  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
- pdfSetName_(pset.getUntrackedParameter<std::string> ("PdfSetName", "cteq65.LHgrid"))
+ pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
 {
-     produces<std::vector<double> >();
+      for (unsigned int k=0; k<pdfSetNames_.size(); k++) {
+            size_t dot = pdfSetNames_[k].find_first_of('.');
+            pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
+            produces<std::vector<double> >(pdfShortNames_[k].data());
+      }
 } 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -49,16 +54,10 @@ EwkPdfWeightProducer::~EwkPdfWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
 void EwkPdfWeightProducer::beginJob(const edm::EventSetup&) {
-
-      /* Examples, see $LHAPATH directory for available sets
-            LHAPDF::initPDFByName("cteq65.LHgrid"); // NLO interpolated
-            LHAPDF::initPDFByName("MRST2007lomod.LHgrid"); // LO modified, interpolated
-            LHAPDF::initPDFByName("cteq6mLHpdf"); // NLO evolved
-            LHAPDF::initPDFByName("MRST2004nlo.LHpdf"); // NLO, evolved
-      */
-      LHAPDF::setVerbosity(LHAPDF::SILENT);
-      LHAPDF::initPDFSet(pdfSetName_);
-      LHAPDF::getDescription();
+      for (unsigned int k=1; k<=pdfSetNames_.size(); k++) {
+            LHAPDF::initPDFSet(k,pdfSetNames_[k-1]);
+            LHAPDF::getDescription(k);
+      }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -83,17 +82,20 @@ void EwkPdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       double pdf2 = pdfstuff->pdf()->xPDF.second; 
 
       // Put PDF weights in the event
-      std::auto_ptr<std::vector<double> > weights (new std::vector<double>);
-      unsigned int nmembers = LHAPDF::numberPDF() + 1;
-      weights->reserve(nmembers);
-
-      for (unsigned int i=0; i<nmembers; ++i) {
-            LHAPDF::usePDFMember(i);
-            double newpdf1 = LHAPDF::xfx(x1, Q, id1)/x1;
-            double newpdf2 = LHAPDF::xfx(x2, Q, id2)/x2;
-            weights->push_back(newpdf1/pdf1*newpdf2/pdf2);
+      for (unsigned int k=1; k<=pdfSetNames_.size(); ++k) {
+            std::auto_ptr<std::vector<double> > weights (new std::vector<double>);
+            unsigned int nweights = 1;
+            if (LHAPDF::numberPDF(k)>1) nweights += LHAPDF::numberPDF(k);
+            weights->reserve(nweights);
+        
+            for (unsigned int i=0; i<nweights; ++i) {
+                  LHAPDF::usePDFMember(k,i);
+                  double newpdf1 = LHAPDF::xfx(k, x1, Q, id1)/x1;
+                  double newpdf2 = LHAPDF::xfx(k, x2, Q, id2)/x2;
+                  weights->push_back(newpdf1/pdf1*newpdf2/pdf2);
+            }
+            iEvent.put(weights,pdfShortNames_[k-1]);
       }
-      iEvent.put(weights);
 }
 
 DEFINE_FWK_MODULE(EwkPdfWeightProducer);
