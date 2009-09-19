@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.cc,v 1.24 2009/07/11 19:51:36 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.cc,v 1.25 2009/09/19 00:18:58 charlot Exp $
 //
 //
 
@@ -236,11 +236,17 @@ void GsfElectronFakeAnalyzer::beginJob(){
   histSclPhi_ = new TH1F("h_scl_phi","ele supercluster phi",nbinphi,phimin,phimax);
 
   histSclSigEtaEta_ =  new TH1F("h_scl_sigetaeta","ele supercluster sigma eta eta",100,0.,0.05);
-  histSclSigIEtaIEtabarrel_ =  new TH1F("h_scl_sigietaieta_barrel","ele supercluster sigma ieta ieta, barrel",100,0.,0.05);
-  histSclSigIEtaIEtaendcaps_ =  new TH1F("h_scl_sigietaieta_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05);
+  histSclSigIEtaIEta_barrel_ =  new TH1F("h_scl_sigietaieta_barrel","ele supercluster sigma ieta ieta, barrel",100,0.,0.05);
+  histSclSigIEtaIEta_endcaps_ =  new TH1F("h_scl_sigietaieta_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05);
   histSclE1x5_ =  new TH1F("h_scl_E1x5","ele supercluster energy in 1x5",nbinp,0.,pmax);
+  histSclE1x5_barrel_ =  new TH1F("h_scl_E1x5_barrel","ele supercluster energy in 1x5 barrel",nbinp,0.,pmax);
+  histSclE1x5_endcaps_ =  new TH1F("h_scl_E1x5_endcaps","ele supercluster energy in 1x5 endcaps",nbinp,0.,pmax);
   histSclE2x5max_ =  new TH1F("h_scl_E2x5max","ele supercluster energy in 2x5 max",nbinp,0.,pmax);
+  histSclE2x5max_barrel_ =  new TH1F("h_scl_E2x5max","ele supercluster energy in 2x5 max barrel",nbinp,0.,pmax);
+  histSclE2x5max_endcaps_ =  new TH1F("h_scl_E2x5max","ele supercluster energy in 2x5 max endcaps",nbinp,0.,pmax);
   histSclE5x5_ =  new TH1F("h_scl_E5x5","ele supercluster energy in 5x5",nbinp,0.,pmax);
+  histSclE5x5_barrel_ =  new TH1F("h_scl_E5x5","ele supercluster energy in 5x5 barrel",nbinp,0.,pmax);
+  histSclE5x5_endcaps_ =  new TH1F("h_scl_E5x5","ele supercluster energy in 5x5 endcaps",nbinp,0.,pmax);
 
   // matched electron, gsf tracks
   h_ele_ambiguousTracks      = new TH1F( "h_ele_ambiguousTracks", "ele # ambiguous tracks",  5,0.,5.);
@@ -403,16 +409,28 @@ void GsfElectronFakeAnalyzer::beginJob(){
   h_ele_PoPmatchingObject_endcaps        -> GetYaxis()-> SetTitle("Events");
   histSclSigEtaEta_-> GetXaxis()-> SetTitle("#sigma_{#eta #eta}") ;
   histSclSigEtaEta_-> GetYaxis()-> SetTitle("Events") ;
-  histSclSigIEtaIEtabarrel_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
-  histSclSigIEtaIEtabarrel_-> GetYaxis()-> SetTitle("Events") ;
-  histSclSigIEtaIEtaendcaps_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
-  histSclSigIEtaIEtaendcaps_-> GetYaxis()-> SetTitle("Events") ;
+  histSclSigIEtaIEta_barrel_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
+  histSclSigIEtaIEta_barrel_-> GetYaxis()-> SetTitle("Events") ;
+  histSclSigIEtaIEta_endcaps_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
+  histSclSigIEtaIEta_endcaps_-> GetYaxis()-> SetTitle("Events") ;
   histSclE1x5_-> GetXaxis()-> SetTitle("E1x5 (GeV)") ;
   histSclE1x5_-> GetYaxis()-> SetTitle("Events") ;
+  histSclE1x5_barrel_-> GetXaxis()-> SetTitle("E1x5 (GeV)") ;
+  histSclE1x5_barrel_-> GetYaxis()-> SetTitle("Events") ;
+  histSclE1x5_endcaps_-> GetXaxis()-> SetTitle("E1x5 (GeV)") ;
+  histSclE1x5_endcaps_-> GetYaxis()-> SetTitle("Events") ;
   histSclE2x5max_-> GetXaxis()-> SetTitle("E2x5 (GeV)") ;
   histSclE2x5max_-> GetYaxis()-> SetTitle("Events") ;
+  histSclE2x5max_barrel_-> GetXaxis()-> SetTitle("E2x5 (GeV)") ;
+  histSclE2x5max_barrel_-> GetYaxis()-> SetTitle("Events") ;
+  histSclE2x5max_endcaps_-> GetXaxis()-> SetTitle("E2x5 (GeV)") ;
+  histSclE2x5max_endcaps_-> GetYaxis()-> SetTitle("Events") ;
   histSclE5x5_-> GetXaxis()-> SetTitle("E5x5 (GeV)") ;
   histSclE5x5_-> GetYaxis()-> SetTitle("Events") ;
+  histSclE5x5_barrel_-> GetXaxis()-> SetTitle("E5x5 (GeV)") ;
+  histSclE5x5_barrel_-> GetYaxis()-> SetTitle("Events") ;
+  histSclE5x5_endcaps_-> GetXaxis()-> SetTitle("E5x5 (GeV)") ;
+  histSclE5x5_endcaps_-> GetYaxis()-> SetTitle("Events") ;
   h_ele_EtaMnEtamatchingObject   -> GetXaxis()-> SetTitle("#eta_{rec} - #eta_{jet}");
   h_ele_EtaMnEtamatchingObject   -> GetYaxis()-> SetTitle("Events");
   h_ele_PhiMnPhimatchingObject   -> GetXaxis()-> SetTitle("#phi_{rec} - #phi_{jet} (rad)");
@@ -796,11 +814,17 @@ GsfElectronFakeAnalyzer::endJob(){
   histSclEta_->Write();
   histSclPhi_->Write();
   histSclSigEtaEta_->Write();
-  histSclSigIEtaIEtabarrel_->Write();
-  histSclSigIEtaIEtaendcaps_->Write();
+  histSclSigIEtaIEta_barrel_->Write();
+  histSclSigIEtaIEta_endcaps_->Write();
   histSclE1x5_->Write();
+  histSclE1x5_barrel_->Write();
+  histSclE1x5_endcaps_->Write();
   histSclE2x5max_->Write();
+  histSclE2x5max_barrel_->Write();
+  histSclE2x5max_endcaps_->Write();
   histSclE5x5_->Write();
+  histSclE5x5_barrel_->Write();
+  histSclE5x5_endcaps_->Write();
 
   // matched electron, gsf tracks
   h_ele_ambiguousTracks->Write();
@@ -1151,11 +1175,17 @@ GsfElectronFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());
         histSclSigEtaEta_->Fill(bestGsfElectron.scSigmaEtaEta());
-        if (bestGsfElectron.isEB()) histSclSigIEtaIEtabarrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        if (bestGsfElectron.isEE()) histSclSigIEtaIEtaendcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+        if (bestGsfElectron.isEB()) histSclSigIEtaIEta_barrel_->Fill(bestGsfElectron.scSigmaIEtaIEta());
+        if (bestGsfElectron.isEE()) histSclSigIEtaIEta_endcaps_->Fill(bestGsfElectron.scSigmaIEtaIEta());
         histSclE1x5_->Fill(bestGsfElectron.scE1x5());
+        if (bestGsfElectron.isEB()) histSclE1x5_->Fill(bestGsfElectron.scE1x5());
+        if (bestGsfElectron.isEE()) histSclE1x5_->Fill(bestGsfElectron.scE1x5());
         histSclE2x5max_->Fill(bestGsfElectron.scE2x5Max());
+        if (bestGsfElectron.isEB()) histSclE2x5max_->Fill(bestGsfElectron.scE2x5Max());
+        if (bestGsfElectron.isEE()) histSclE2x5max_->Fill(bestGsfElectron.scE2x5Max());
         histSclE5x5_->Fill(bestGsfElectron.scE5x5());
+        if (bestGsfElectron.isEB()) histSclE5x5_->Fill(bestGsfElectron.scE5x5());
+        if (bestGsfElectron.isEE()) histSclE5x5_->Fill(bestGsfElectron.scE5x5());
 
 	// track related distributions
 	h_ele_ambiguousTracks     -> Fill( bestGsfElectron.ambiguousGsfTracksSize() );

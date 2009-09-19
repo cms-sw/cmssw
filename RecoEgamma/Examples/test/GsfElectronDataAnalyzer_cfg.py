@@ -7,7 +7,11 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(),
+    fileNames = cms.untracked.vstring
+    (
+        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3_preproduction_312-v1/0008/B4E5948E-1679-DE11-8721-002219205095.root',
+        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3_preproduction_312-v1/0006/B28F900A-0B79-DE11-B2D3-00D0680BF9A4.root',
+    ),
     secondaryFileNames = cms.untracked.vstring(),
 )
 
@@ -22,7 +26,7 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     electronCollection = cms.InputTag("gsfElectrons"),
     matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     readAOD = cms.bool(False),
-    outputFile = cms.string('gsfElectronHistos_data_RelVal310pre10QCD_Pt_80_120_tkIso.root'),
+    outputFile = cms.string('gsfElectronHistos_data_Summer09Zee_new.root'),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.3),
     MinEt = cms.double(4.),

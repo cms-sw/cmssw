@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.15 2009/07/11 19:51:36 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.16 2009/09/19 00:18:58 charlot Exp $
 //
 //
 
@@ -121,25 +121,40 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEta_ ;
   TH1F *histSclPhi_ ;
   TH1F *histSclSigEtaEta_ ;
-  TH1F *histSclSigIEtaIEtabarrel_ ;
-  TH1F *histSclSigIEtaIEtaendcaps_ ;
+  TH1F *histSclSigEtaEta_barrel_ ;
+  TH1F *histSclSigEtaEta_endcaps_ ;
+  TH1F *histSclSigIEtaIEta_ ;
+  TH1F *histSclSigIEtaIEta_barrel_ ;
+  TH1F *histSclSigIEtaIEta_endcaps_ ;
   TH1F *histSclE1x5_ ;
+  TH1F *histSclE1x5_barrel_ ;
+  TH1F *histSclE1x5_endcaps_ ;
   TH1F *histSclE2x5max_ ;
+  TH1F *histSclE2x5max_barrel_ ;
+  TH1F *histSclE2x5max_endcaps_ ;
   TH1F *histSclE5x5_ ;
+  TH1F *histSclE5x5_barrel_ ;
+  TH1F *histSclE5x5_endcaps_ ;
 
   TH1F *h_ele_ambiguousTracks;
   TH2F *h_ele_ambiguousTracksVsEta;
   TH2F *h_ele_ambiguousTracksVsPhi;
   TH2F *h_ele_ambiguousTracksVsPt;
   TH1F *h_ele_foundHits;
+  TH1F *h_ele_foundHits_barrel;
+  TH1F *h_ele_foundHits_endcaps;
   TH2F *h_ele_foundHitsVsEta;
   TH2F *h_ele_foundHitsVsPhi;
   TH2F *h_ele_foundHitsVsPt;
   TH1F *h_ele_lostHits;
+  TH1F *h_ele_lostHits_barrel;
+  TH1F *h_ele_lostHits_endcaps;
   TH2F *h_ele_lostHitsVsEta;
   TH2F *h_ele_lostHitsVsPhi;
   TH2F *h_ele_lostHitsVsPt;
   TH1F *h_ele_chi2;
+  TH1F *h_ele_chi2_barrel_;
+  TH1F *h_ele_chi2_endcaps_;
   TH2F *h_ele_chi2VsEta;
   TH2F *h_ele_chi2VsPhi;
   TH2F *h_ele_chi2VsPt;
@@ -179,43 +194,63 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_outerPtVsPhi_mode;
   TH2F *h_ele_outerPtVsPt_mode;
   TH1F *h_ele_EoP;
+  TH1F *h_ele_EoP_barrel;
+  TH1F *h_ele_EoP_endcaps;
   TH2F *h_ele_EoPVsEta;
   TH2F *h_ele_EoPVsPhi;
   TH2F *h_ele_EoPVsE;
   TH1F *h_ele_EseedOP;
+  TH1F *h_ele_EseedOP_barrel;
+  TH1F *h_ele_EseedOP_endcaps;
   TH2F *h_ele_EseedOPVsEta;
   TH2F *h_ele_EseedOPVsPhi;
   TH2F *h_ele_EseedOPVsE;
   TH1F *h_ele_EoPout;
+  TH1F *h_ele_EoPout_barrel;
+  TH1F *h_ele_EoPout_endcaps;
   TH2F *h_ele_EoPoutVsEta;
   TH2F *h_ele_EoPoutVsPhi;
   TH2F *h_ele_EoPoutVsE;
   TH1F *h_ele_EeleOPout;
+  TH1F *h_ele_EeleOPout_barrel;
+  TH1F *h_ele_EeleOPout_endcaps;
   TH2F *h_ele_EeleOPoutVsEta;
   TH2F *h_ele_EeleOPoutVsPhi;
   TH2F *h_ele_EeleOPoutVsE;
 
   TH1F *h_ele_dEtaSc_propVtx;
+  TH1F *h_ele_dEtaSc_propVtx_barrel;
+  TH1F *h_ele_dEtaSc_propVtx_endcaps;
   TH2F *h_ele_dEtaScVsEta_propVtx;
   TH2F *h_ele_dEtaScVsPhi_propVtx;
   TH2F *h_ele_dEtaScVsPt_propVtx;
   TH1F *h_ele_dPhiSc_propVtx;
+  TH1F *h_ele_dPhiSc_propVtx_barrel;
+  TH1F *h_ele_dPhiSc_propVtx_endcaps;
   TH2F *h_ele_dPhiScVsEta_propVtx;
   TH2F *h_ele_dPhiScVsPhi_propVtx;
   TH2F *h_ele_dPhiScVsPt_propVtx;
   TH1F *h_ele_dEtaCl_propOut;
+  TH1F *h_ele_dEtaCl_propOut_barrel;
+  TH1F *h_ele_dEtaCl_propOut_endcaps;
   TH2F *h_ele_dEtaClVsEta_propOut;
   TH2F *h_ele_dEtaClVsPhi_propOut;
   TH2F *h_ele_dEtaClVsPt_propOut;
   TH1F *h_ele_dPhiCl_propOut;
+  TH1F *h_ele_dPhiCl_propOut_barrel;
+  TH1F *h_ele_dPhiCl_propOut_endcaps;
   TH2F *h_ele_dPhiClVsEta_propOut;
   TH2F *h_ele_dPhiClVsPhi_propOut;
   TH2F *h_ele_dPhiClVsPt_propOut;
   TH1F *h_ele_dEtaEleCl_propOut;
+  TH1F *h_ele_dEtaEleCl_propOut_barrel;
+  TH1F *h_ele_dEtaEleCl_propOut_endcaps;
   TH2F *h_ele_dEtaEleClVsEta_propOut;
   TH2F *h_ele_dEtaEleClVsPhi_propOut;
   TH2F *h_ele_dEtaEleClVsPt_propOut;
   TH1F *h_ele_dPhiEleCl_propOut;
+  TH1F *h_ele_dPhiEleCl_propOut_barrel;
+  TH1F *h_ele_dPhiEleCl_propOut_endcaps;
   TH2F *h_ele_dPhiEleClVsEta_propOut;
   TH2F *h_ele_dPhiEleClVsPhi_propOut;
   TH2F *h_ele_dPhiEleClVsPt_propOut;
@@ -236,6 +271,8 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_eta_shower;
 
   TH1F *h_ele_HoE;
+  TH1F *h_ele_HoE_barrel;
+  TH1F *h_ele_HoE_endcaps;
   TH1F *h_ele_HoE_fiducial;
   TH2F *h_ele_HoEVsEta;
   TH2F *h_ele_HoEVsPhi;

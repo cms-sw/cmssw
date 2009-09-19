@@ -51,8 +51,8 @@ setenv VAL_ENV $1
 setenv VAL_OUTPUT_FILE $2
 setenv VAL_WEB_SUB_DIR $3
 setenv VAL_ORIGINAL_DIR $cwd
-#setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
-setenv VAL_WEB "/home/llr/cms/charlot/cmssw/CMSSW_3_1_2/src/RecoEgamma/Examples/test/validation"
+setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
+#setenv VAL_WEB "/home/llr/cms/charlot/cmssw/CMSSW_3_1_2/src/RecoEgamma/Examples/test/validation"
 setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
 
 # those must have a value
@@ -217,28 +217,66 @@ h_scl_EoEtrue_ebeegap_new 1 0 1 0 0 0
 h_scl_EoEtrue_endcaps_deegap_new 1 0 1 0 0 0
 h_scl_EoEtrue_endcaps_ringgap_new 1 0 1 0 0 0
 h_ele_EtaMnEtaTrue 1 0 1 0 0 0
+h_ele_EtaMnEtaTrue_barrel 1 0 1 0 0 0
+h_ele_EtaMnEtaTrue_endcaps 1 0 1 0 0 0
 h_ele_PhiMnPhiTrue 1 0 1 0 0 0
+h_ele_PhiMnPhiTrue_barrel 1 0 1 0 0 0
+h_ele_PhiMnPhiTrue_endcaps 1 0 1 0 0 0
 h_ele_EoP 1 1 1 0 0 0
+h_ele_EoP_barrel 1 1 1 0 0 0
+h_ele_EoP_endcaps 1 1 1 0 0 0
 h_ele_EoPout 1 1 1 0 0 0
+h_ele_EoPout_barrel 1 1 1 0 0 0
+h_ele_EoPout_endcaps 1 1 1 0 0 0
 h_ele_EeleOPout 1 1 1 0 0 0
+h_ele_EeleOPout_barrel 1 1 1 0 0 0
+h_ele_EeleOPout_endcaps 1 1 1 0 0 0
 h_ele_EseedOP 1 1 1 0 0 0
+h_ele_EseedOP_barrel 1 1 1 0 0 0
+h_ele_EseedOP_endcaps 1 1 1 0 0 0
 h_ele_dEtaCl_propOut 1 1 1 0 0 0
+h_ele_dEtaCl_propOut_barrel 1 1 1 0 0 0
+h_ele_dEtaCl_propOut_endcaps 1 1 1 0 0 0
 h_ele_dEtaEleCl_propOut 1 1 1 0 0 0
+h_ele_dEtaEleCl_propOut_barrel 1 1 1 0 0 0
+h_ele_dEtaEleCl_propOut_endcaps 1 1 1 0 0 0
 h_ele_dEtaSc_propVtx 1 1 1 0 0 0
+h_ele_dEtaSc_propVtx_barrel 1 1 1 0 0 0
+h_ele_dEtaSc_propVtx_endcaps 1 1 1 0 0 0
 h_ele_dPhiCl_propOut 1 1 1 0 0 0
+h_ele_dPhiCl_propOut_barrel 1 1 1 0 0 0
+h_ele_dPhiCl_propOut_endcaps 1 1 1 0 0 0
 h_ele_dPhiEleCl_propOut 1 1 1 0 0 0
+h_ele_dPhiEleCl_propOut_barrel 1 1 1 0 0 0
+h_ele_dPhiEleCl_propOut_endcaps 1 1 1 0 0 0
 h_ele_dPhiSc_propVtx 1 1 1 0 0 0
+h_ele_dPhiSc_propVtx_barrel 1 1 1 0 0 0
+h_ele_dPhiSc_propVtx_endcaps 1 1 1 0 0 0
 h_ele_HoE 1 1 1 0 0 0
+h_ele_HoE_barrel 1 1 1 0 0 0
+h_ele_HoE_endcaps 1 1 1 0 0 0
 h_ele_HoE_fiducial 1 1 1 0 0 0
-h_scl_sigetaeta 1 1 1 0 0 0
+h_scl_sigietaieta 1 1 1 0 0 0
 h_scl_sigietaieta_barrel 1 1 1 0 0 0
 h_scl_sigietaieta_endcaps 1 1 1  0 0 0
 h_scl_E1x5 1 1 1 0 0 0
+h_scl_E1x5_barrel 1 1 1 0 0 0
+h_scl_E1x5_endcaps 1 1 1 0 0 0
 h_scl_E2x5max 1 1 1 0 0 0
+h_scl_E2x5max_barrel 1 1 1 0 0 0
+h_scl_E2x5max_endcaps 1 1 1 0 0 0
 h_scl_E5x5 1 1 1 0 0 0
+h_scl_E5x5_barrel 1 1 1 0 0 0
+h_scl_E5x5_endcaps 1 1 1 0 0 0
 h_ele_chi2 1 1 1 0 0 0
+h_ele_chi2_barrel 1 1 1 0 0 0
+h_ele_chi2_endcaps 1 1 1 0 0 0
 h_ele_foundHits 1 0 1 0 0 0
+h_ele_foundHits_barrel 1 0 1 0 0 0
+h_ele_foundHits_endcaps 1 0 1 0 0 0
 h_ele_lostHits 1 0 1 0 0 0
+h_ele_lostHits_barrel 1 0 1 0 0 0
+h_ele_lostHits_endcaps 1 0 1 0 0 0
 h_ele_ambiguousTracks 1 1 1 0 0 0
 h_ele_seedDphi2 1 0 1 0 0 0
 h_ele_seedDrz2 1 0 1 0 0 0
@@ -343,12 +381,18 @@ h_ele_dPhiCl_propOut 1 1 1 0 0 0
 h_ele_dPhiEleCl_propOut 1 1 1 0 0 0
 h_ele_dPhiSc_propVtx 1 1 1 0 0 0
 h_ele_HoE 1 1 1 0 0 0
-h_scl_sigetaeta 1 1 1 0 0 0 
+h_scl_sigietaieta 1 1 1 0 0 0 
 h_scl_sigietaieta_barrel 1 1 1 0 0 0 
 h_scl_sigietaieta_endcaps 1 1 1 0 0 0
-h_scl_E1x5 1 1 1 0 0 0 
-h_scl_E2x5max 1 1 1 0 0 0   
-h_scl_E5x5 1 1 1 0 0 0   
+h_scl_E1x5 1 1 1 0 0 0
+h_scl_E1x5_barrel 1 1 1 0 0 0
+h_scl_E1x5_endcaps 1 1 1 0 0 0
+h_scl_E2x5max 1 1 1 0 0 0
+h_scl_E2x5max_barrel 1 1 1 0 0 0
+h_scl_E2x5max_endcaps 1 1 1 0 0 0
+h_scl_E5x5 1 1 1 0 0 0
+h_scl_E5x5_barrel 1 1 1 0 0 0
+h_scl_E5x5_endcaps 1 1 1 0 0 0
 h_ele_chi2 1 1 1 0 0 0
 h_ele_foundHits 1 0 1 0 0 0
 h_ele_lostHits 1 0 1 0 0 0
@@ -424,12 +468,18 @@ h_ele_dPhiCl_propOut 1 1 1 0 0 0
 h_ele_dPhiEleCl_propOut 1 1 1 0 0 0
 h_ele_dPhiSc_propVtx 1 1 1 0 0 0
 h_ele_HoE 1 1 1 0 0 0
-h_scl_sigetaeta 1 1 1 0 0 0 
+h_scl_sigietaieta 1 1 1 0 0 0 
 h_scl_sigietaieta_barrel 1 1 1 0 0 0
 h_scl_sigietaieta_endcaps 1 1 1 0 0 0
 h_scl_E1x5 1 1 1 0 0 0
+h_scl_E1x5_barrel 1 1 1 0 0 0
+h_scl_E1x5_endcaps 1 1 1 0 0 0
 h_scl_E2x5max 1 1 1 0 0 0
+h_scl_E2x5max_barrel 1 1 1 0 0 0
+h_scl_E2x5max_endcaps 1 1 1 0 0 0
 h_scl_E5x5 1 1 1 0 0 0
+h_scl_E5x5_barrel 1 1 1 0 0 0
+h_scl_E5x5_endcaps 1 1 1 0 0 0
 h_ele_chi2 1 1 1 0 0 0
 h_ele_foundHits 1 0 1 0 0 0
 h_ele_lostHits 1 0 1 0 0 0
