@@ -21,7 +21,7 @@
 ##    c) Comment the <use name=lhapdf> directive in this file
 ##    d) Uncomment the <use name=lhapdffull> directive in this file
 ##    e) scram b
-#<use name=lhapdffull>
+# <use name=lhapdffull>
 ###################################################################
 
 ##### Highly non-standard alternative that seems to work in all cases
