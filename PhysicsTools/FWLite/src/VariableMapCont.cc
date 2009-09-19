@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <cassert>
+#include <algorithm>
 #include "PhysicsTools/FWLite/interface/VariableMapCont.h"
 
 using namespace std;
