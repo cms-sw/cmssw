@@ -22,6 +22,11 @@ from RecoEgamma.Examples.dataAnalyzerFineBiningParameters_cff import *
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     electronCollection = cms.InputTag("gsfElectrons"),
+    matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
+    readAOD = cms.bool(False),
+    outputFile = cms.string('gsfElectronHistos_data_RelVal310pre10QCD_Pt_80_120_tkIso.root'),
+    MaxPt = cms.double(100.0),
+    DeltaR = cms.double(0.3),
     MinEt = cms.double(4.),
     MinPt = cms.double(0.),
     MaxAbsEta = cms.double(2.5),
@@ -57,10 +62,6 @@ process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     MaxHcalIso03Depth2Endcaps = cms.double(10000.),
     MaxEcalIso03Barrel = cms.double(10000.),
     MaxEcalIso03Endcaps = cms.double(10000.),
-    matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
-    MaxPt = cms.double(100.0),
-    DeltaR = cms.double(0.3),
-    outputFile = cms.string('gsfElectronHistos_data_RelVal310pre10QCD_Pt_80_120_tkIso.root'),
     HistosConfigurationData = cms.PSet(
     dataAnalyzerStdBiningParameters
     #dataAnalyzerFineBiningParameters

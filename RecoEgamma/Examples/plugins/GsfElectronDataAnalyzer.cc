@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.26 2009/07/10 20:11:22 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.27 2009/07/11 19:51:36 charlot Exp $
 //
 //
 
@@ -54,6 +54,7 @@ GsfElectronDataAnalyzer::GsfElectronDataAnalyzer(const edm::ParameterSet& conf)
   outputFile_ = conf.getParameter<std::string>("outputFile");
   histfile_ = new TFile(outputFile_.c_str(),"RECREATE");
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
+  readAOD_ = conf.getParameter<bool>("readAOD");
   minEt_ = conf.getParameter<double>("MinEt");
   minPt_ = conf.getParameter<double>("MinPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -1124,29 +1125,34 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	h_ele_ambiguousTracksVsEta     -> Fill( gsfIter->eta(), gsfIter->ambiguousGsfTracksSize() );
 	h_ele_ambiguousTracksVsPhi     -> Fill( gsfIter->phi(), gsfIter->ambiguousGsfTracksSize() );
 	h_ele_ambiguousTracksVsPt     -> Fill( gsfIter->pt(), gsfIter->ambiguousGsfTracksSize() );
-	h_ele_foundHits     -> Fill( gsfIter->gsfTrack()->numberOfValidHits() );
-	h_ele_foundHitsVsEta     -> Fill( gsfIter->eta(), gsfIter->gsfTrack()->numberOfValidHits() );
-	h_ele_foundHitsVsPhi     -> Fill( gsfIter->phi(), gsfIter->gsfTrack()->numberOfValidHits() );
-	h_ele_foundHitsVsPt     -> Fill( gsfIter->pt(), gsfIter->gsfTrack()->numberOfValidHits() );
-	h_ele_lostHits      -> Fill( gsfIter->gsfTrack()->numberOfLostHits() );
-	h_ele_lostHitsVsEta      -> Fill( gsfIter->eta(), gsfIter->gsfTrack()->numberOfLostHits() );
-	h_ele_lostHitsVsPhi      -> Fill( gsfIter->phi(), gsfIter->gsfTrack()->numberOfLostHits() );
-	h_ele_lostHitsVsPt      -> Fill( gsfIter->pt(), gsfIter->gsfTrack()->numberOfLostHits() );
-	h_ele_chi2          -> Fill( gsfIter->gsfTrack()->normalizedChi2() );
-	h_ele_chi2VsEta          -> Fill( gsfIter->eta(), gsfIter->gsfTrack()->normalizedChi2() );
-	h_ele_chi2VsPhi          -> Fill( gsfIter->phi(), gsfIter->gsfTrack()->normalizedChi2() );
-	h_ele_chi2VsPt          -> Fill( gsfIter->pt(), gsfIter->gsfTrack()->normalizedChi2() );
+        if (!readAOD_) { // track extra does not exist in AOD
+	  h_ele_foundHits     -> Fill( gsfIter->gsfTrack()->numberOfValidHits() );
+	  h_ele_foundHitsVsEta     -> Fill( gsfIter->eta(), gsfIter->gsfTrack()->numberOfValidHits() );
+	  h_ele_foundHitsVsPhi     -> Fill( gsfIter->phi(), gsfIter->gsfTrack()->numberOfValidHits() );
+	  h_ele_foundHitsVsPt     -> Fill( gsfIter->pt(), gsfIter->gsfTrack()->numberOfValidHits() );
+	  h_ele_lostHits      -> Fill( gsfIter->gsfTrack()->numberOfLostHits() );
+	  h_ele_lostHitsVsEta      -> Fill( gsfIter->eta(), gsfIter->gsfTrack()->numberOfLostHits() );
+	  h_ele_lostHitsVsPhi      -> Fill( gsfIter->phi(), gsfIter->gsfTrack()->numberOfLostHits() );
+	  h_ele_lostHitsVsPt      -> Fill( gsfIter->pt(), gsfIter->gsfTrack()->numberOfLostHits() );
+	  h_ele_chi2          -> Fill( gsfIter->gsfTrack()->normalizedChi2() );
+	  h_ele_chi2VsEta          -> Fill( gsfIter->eta(), gsfIter->gsfTrack()->normalizedChi2() );
+	  h_ele_chi2VsPhi          -> Fill( gsfIter->phi(), gsfIter->gsfTrack()->normalizedChi2() );
+	  h_ele_chi2VsPt          -> Fill( gsfIter->pt(), gsfIter->gsfTrack()->normalizedChi2() );
+	}
 	// from gsf track interface, hence using mean
-	h_ele_PinMnPout     -> Fill( gsfIter->gsfTrack()->innerMomentum().R() - gsfIter->gsfTrack()->outerMomentum().R() );
-	h_ele_outerP        -> Fill( gsfIter->gsfTrack()->outerMomentum().R() );
-	h_ele_outerPt       -> Fill( gsfIter->gsfTrack()->outerMomentum().Rho() );
-        // from electron interface, hence using mode
+        if (!readAOD_) { // track extra does not exist in AOD
+	  h_ele_PinMnPout     -> Fill( gsfIter->gsfTrack()->innerMomentum().R() - gsfIter->gsfTrack()->outerMomentum().R() );
+	  h_ele_outerP        -> Fill( gsfIter->gsfTrack()->outerMomentum().R() );
+	  h_ele_outerPt       -> Fill( gsfIter->gsfTrack()->outerMomentum().Rho() );
+        }
+	// from electron interface, hence using mode
 	h_ele_PinMnPout_mode     -> Fill( gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
 	h_ele_PinMnPoutVsEta_mode     -> Fill(  gsfIter->eta(), gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
 	h_ele_PinMnPoutVsPhi_mode     -> Fill(  gsfIter->phi(), gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
 	h_ele_PinMnPoutVsPt_mode     -> Fill(  gsfIter->pt(), gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
 	h_ele_PinMnPoutVsE_mode     -> Fill(  gsfIter->caloEnergy(), gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
-	h_ele_PinMnPoutVsChi2_mode     -> Fill(  gsfIter->gsfTrack()->normalizedChi2(), gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
+	if (!readAOD_)  // track extra does not exist in AOD
+	 h_ele_PinMnPoutVsChi2_mode     -> Fill(  gsfIter->gsfTrack()->normalizedChi2(), gsfIter->trackMomentumAtVtx().R() - gsfIter->trackMomentumOut().R() );
 	h_ele_outerP_mode        -> Fill( gsfIter->trackMomentumOut().R() );
 	h_ele_outerPVsEta_mode        -> Fill(gsfIter->eta(),  gsfIter->trackMomentumOut().R() );
 	h_ele_outerPt_mode       -> Fill( gsfIter->trackMomentumOut().Rho() );
@@ -1154,16 +1160,17 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	h_ele_outerPtVsPhi_mode       -> Fill(gsfIter->phi(),  gsfIter->trackMomentumOut().Rho() );
 	h_ele_outerPtVsPt_mode       -> Fill(gsfIter->pt(),  gsfIter->trackMomentumOut().Rho() );
 
-        edm::RefToBase<TrajectorySeed> seed = gsfIter->gsfTrack()->extra()->seedRef();
-	ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
-	h_ele_seed_dphi2_-> Fill(elseed->dPhi2());
-        h_ele_seed_dphi2VsEta_-> Fill(gsfIter->eta(), elseed->dPhi2());
-        h_ele_seed_dphi2VsPt_-> Fill(gsfIter->pt(), elseed->dPhi2()) ;
-        h_ele_seed_drz2_-> Fill(elseed->dRz2());
-        h_ele_seed_drz2VsEta_-> Fill(gsfIter->eta(), elseed->dRz2());
-        h_ele_seed_drz2VsPt_-> Fill(gsfIter->pt(), elseed->dRz2());
-        h_ele_seed_subdet2_-> Fill(elseed->subDet2());
-
+	if (!readAOD_) { // track extra does not exist in AOD
+          edm::RefToBase<TrajectorySeed> seed = gsfIter->gsfTrack()->extra()->seedRef();
+	  ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
+	  h_ele_seed_dphi2_-> Fill(elseed->dPhi2());
+          h_ele_seed_dphi2VsEta_-> Fill(gsfIter->eta(), elseed->dPhi2());
+          h_ele_seed_dphi2VsPt_-> Fill(gsfIter->pt(), elseed->dPhi2()) ;
+          h_ele_seed_drz2_-> Fill(elseed->dRz2());
+          h_ele_seed_drz2VsEta_-> Fill(gsfIter->eta(), elseed->dRz2());
+          h_ele_seed_drz2VsPt_-> Fill(gsfIter->pt(), elseed->dRz2());
+          h_ele_seed_subdet2_-> Fill(elseed->subDet2());
+        }
 	// match distributions
 	h_ele_EoP    -> Fill( gsfIter->eSuperClusterOverP() );
 	h_ele_EoPVsEta    -> Fill(gsfIter->eta(),  gsfIter->eSuperClusterOverP() );
@@ -1224,24 +1231,31 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (gsfIter->classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(gsfIter->eta()));
 
 	//fbrem
-	double fbrem_mean =  1. - gsfIter->gsfTrack()->outerMomentum().R()/gsfIter->gsfTrack()->innerMomentum().R();
+	double fbrem_mean=0.;
+	if (!readAOD_) // track extra does not exist in AOD
+	 fbrem_mean =  1. - gsfIter->gsfTrack()->outerMomentum().R()/gsfIter->gsfTrack()->innerMomentum().R();
 	double fbrem_mode =  gsfIter->fbrem();
 	h_ele_fbrem->Fill(fbrem_mode);
 	h_ele_fbremVsEta_mode->Fill(gsfIter->eta(),fbrem_mode);
-	h_ele_fbremVsEta_mean->Fill(gsfIter->eta(),fbrem_mean);
+	if (!readAOD_) // track extra does not exist in AOD
+ 	 h_ele_fbremVsEta_mean->Fill(gsfIter->eta(),fbrem_mean);
 
         if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_PinVsPoutGolden_mode -> Fill(gsfIter->trackMomentumOut().R(), gsfIter->trackMomentumAtVtx().R());
         if (gsfIter->classification() == GsfElectron::SHOWERING)
 	 h_ele_PinVsPoutShowering_mode -> Fill(gsfIter->trackMomentumOut().R(), gsfIter->trackMomentumAtVtx().R());
-	if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_PinVsPoutGolden_mean -> Fill(gsfIter->gsfTrack()->outerMomentum().R(), gsfIter->gsfTrack()->innerMomentum().R());
-        if (gsfIter->classification() == GsfElectron::SHOWERING)
-	 h_ele_PinVsPoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().R(), gsfIter->gsfTrack()->innerMomentum().R());
+	if (!readAOD_) // track extra does not exist in AOD
+ 	 if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_PinVsPoutGolden_mean -> Fill(gsfIter->gsfTrack()->outerMomentum().R(), gsfIter->gsfTrack()->innerMomentum().R());
+	if (!readAOD_) // track extra does not exist in AOD
+         if (gsfIter->classification() == GsfElectron::SHOWERING)
+ 	  h_ele_PinVsPoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().R(), gsfIter->gsfTrack()->innerMomentum().R());
         if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_PtinVsPtoutGolden_mode -> Fill(gsfIter->trackMomentumOut().Rho(), gsfIter->trackMomentumAtVtx().Rho());
         if (gsfIter->classification() == GsfElectron::SHOWERING)
 	 h_ele_PtinVsPtoutShowering_mode -> Fill(gsfIter->trackMomentumOut().Rho(), gsfIter->trackMomentumAtVtx().Rho());
-	if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_PtinVsPtoutGolden_mean -> Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
-        if (gsfIter->classification() == GsfElectron::SHOWERING)
-	 h_ele_PtinVsPtoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
+	if (!readAOD_) // track extra does not exist in AOD
+ 	 if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_PtinVsPtoutGolden_mean -> Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
+	if (!readAOD_) // track extra does not exist in AOD
+         if (gsfIter->classification() == GsfElectron::SHOWERING)
+	  h_ele_PtinVsPtoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
  
         h_ele_mva->Fill(gsfIter->mva());
 	if (gsfIter->isEcalDriven()) h_ele_provenance->Fill(1.);

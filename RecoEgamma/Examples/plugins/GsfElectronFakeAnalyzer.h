@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronFakeAnalyzer.h,v 1.11 2009/07/09 12:24:32 charlot Exp $
+// $Id: GsfElectronFakeAnalyzer.h,v 1.12 2009/07/11 19:51:36 charlot Exp $
 //
 //
 
@@ -274,6 +274,7 @@ class GsfElectronFakeAnalyzer : public edm::EDAnalyzer
   edm::InputTag electronCollection_;
   edm::InputTag matchingObjectCollection_;
   std::string type_;
+  bool readAOD_;
 
   double maxPt_;
   double maxAbsEta_;

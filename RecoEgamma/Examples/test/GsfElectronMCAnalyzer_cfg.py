@@ -24,8 +24,8 @@ from RecoEgamma.Examples.mcAnalyzerFineBiningParameters_cff import *
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
     electronCollection = cms.InputTag("gsfElectrons"),
-    mcTruthCollection = cms.InputTag("generator"),
-    readAOD = cms.bool(True),
+    mcTruthCollection = cms.InputTag("genParticles"),
+    readAOD = cms.bool(False),
     outputFile = cms.string(os.environ['TEST_OUTPUT_FILE']),
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
