@@ -1,3 +1,8 @@
+2009-09-19  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-16-06
+	* more 64-bit pointer cast fixes
+
 2009-09-18  Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-16-05

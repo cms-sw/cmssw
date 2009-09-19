@@ -5,14 +5,14 @@
 
 namespace evf{
 ServiceWebRegistry::ServiceWebRegistry(const edm::ParameterSet &ps){
-  std::cout << "Service registry constructor at " << std::hex << (unsigned int) this << std::dec << std::endl;
+  std::cout << "Service registry constructor at " << std::hex << (unsigned long) this << std::dec << std::endl;
 }
 
 
 
 std::vector<ServiceWeb*> ServiceWebRegistry::getWebs()
 {
-  std::cout << " service web registry " << std::hex << (unsigned int) this << std::dec 
+  std::cout << " service web registry " << std::hex << (unsigned long) this << std::dec 
 	    << " has " << clm_.size() << " services registered " << std::endl;
   std::vector<ServiceWeb*> retval;
   for(idct i = clm_.begin(); i != clm_.end(); i++)
@@ -53,7 +53,7 @@ void ServiceWebRegistry::publish(xdata::InfoSpace *is)
 
 void ServiceWebRegistry::clear()
 {
-  std::cout << "Service registry clear for " << std::hex << (unsigned int) this << std::dec << std::endl; 
+  std::cout << "Service registry clear for " << std::hex << (unsigned long) this << std::dec << std::endl; 
   clm_.clear();
 }
 
