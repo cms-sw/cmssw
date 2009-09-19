@@ -4,9 +4,9 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <functional>
+#include "PhysicsTools/Utilities/interface/Selector.h"
 
-class ElectronVPlusJetsIDSelectionFunctor : public std::unary_function<pat::Electron, bool>  {
+class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
  public: // interface
 
@@ -15,6 +15,8 @@ class ElectronVPlusJetsIDSelectionFunctor : public std::unary_function<pat::Elec
  ElectronVPlusJetsIDSelectionFunctor( Version_t version ) :
   version_(version)
   {
+    push_back("D0");
+    push_back("RelIso");
   }
 
   // Allow for multiple definitions of the cuts. 
@@ -40,14 +42,11 @@ class ElectronVPlusJetsIDSelectionFunctor : public std::unary_function<pat::Elec
     
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    // if the electron passes the event selection, add it to the output list
-    if ( fabs(corr_d0)  < 0.2 &&
-	 relIso         < 0.1 ) {
-      return true;
-    } else {
-      return false;
-    }
 
+    if ( fabs(corr_d0) > 0.2 && (*this)["D0"]      ) return false;
+    if ( relIso  > 0.1       && (*this)["RelIso"]  ) return false;
+
+    return true;
   }
   
  private: // member variables

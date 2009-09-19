@@ -4,9 +4,9 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <functional>
+#include "PhysicsTools/Utilities/interface/Selector.h"
 
-class MuonVPlusJetsIDSelectionFunctor : public std::unary_function<pat::Muon, bool>  {
+class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
  public: // interface
 
@@ -15,6 +15,13 @@ class MuonVPlusJetsIDSelectionFunctor : public std::unary_function<pat::Muon, bo
  MuonVPlusJetsIDSelectionFunctor( Version_t version ) :
   version_(version)
   {
+    push_back("Chi2");
+    push_back("D0");
+    push_back("NHits");
+    push_back("ECalIso");
+    push_back("HCalIso");
+    push_back("RelIso");
+
   }
 
   // Allow for multiple definitions of the cuts. 
@@ -41,17 +48,14 @@ class MuonVPlusJetsIDSelectionFunctor : public std::unary_function<pat::Muon, bo
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    // if the muon passes the event selection, add it to the output list
-    if ( norm_chi2      < 10. &&
-	 fabs(corr_d0)  < 0.2 &&
-	 nhits          >= 11 &&
-	 hcalIso        < 6.0 &&
-	 ecalIso        < 4.0 &&
-	 relIso         < 0.1 ) {
-      return true;
-    } else {
-      return false;
-    }
+    if ( norm_chi2 >= 10.0   && (*this)["Chi2"]    ) return false;
+    if ( fabs(corr_d0) > 0.2 && (*this)["D0"]      ) return false;
+    if ( nhits < 11          && (*this)["NHits"]   ) return false;
+    if ( hcalIso > 6.0       && (*this)["HCalIso"] ) return false;
+    if ( ecalIso > 6.0       && (*this)["ECalIso"] ) return false;
+    if ( relIso  > 0.1       && (*this)["RelIso"]  ) return false;
+
+    return true;
   }
   
  private: // member variables
