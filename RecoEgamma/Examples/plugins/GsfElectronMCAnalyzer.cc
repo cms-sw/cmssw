@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.37 2009/09/18 23:27:06 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.38 2009/09/18 23:55:16 charlot Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <iostream>
+#include <vector>
 #include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -141,6 +142,8 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_simPhi->Sumw2();
   h_simZ      = new TH1F( "h_mc_z",      "gen z ",    nbinxyz, -25, 25 );
   h_simZ->Sumw2();
+  h_simPtEta           = new TH2F( "h_mc_pteta",   "gen pt vs #eta", nbineta2D,etamin,etamax, nbinpt2D,5.,ptmax );
+  h_simPtEta->Sumw2();
 
   // all electrons
   h_ele_EoverP_all       = new TH1F( "h_ele_EoverP_all",       "ele E/P_{vertex}, all reco electrons",  nbineop,0.,eopmax);
@@ -226,6 +229,8 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_simAbsEta_matched->Sumw2();
   h_ele_simEta_matched      = new TH1F( "h_ele_simEta_matched",      "Efficiency vs gen eta",    nbineta,etamin,etamax);
   h_ele_simEta_matched->Sumw2();
+  h_ele_simPtEta_matched           = new TH2F( "h_ele_simPtEta_matched",   "Efficiency vs pt #eta",  nbineta2D,etamin,etamax, nbinpt2D,5.,ptmax );
+  h_ele_simPtEta_matched->Sumw2();
   h_ele_simPhi_matched               = new TH1F( "h_ele_simPhi_matched",               "Efficiency vs gen phi",        nbinphi,phimin,phimax);
   h_ele_simPhi_matched->Sumw2();
   h_ele_vertexPhi      = new TH1F( "h_ele_vertexPhi",      "ele  momentum #phi",    nbinphi,phimin,phimax);
@@ -812,6 +817,13 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_phiEff->GetXaxis()->SetTitle("#phi (rad)");
   h_ele_phiEff->GetYaxis()->SetTitle("Efficiency");
 
+  // efficiency vs pt eta
+  TH2F *h_ele_ptEtaEff = (TH2F*)h_ele_simPtEta_matched->Clone("h_ele_ptEtaEff");
+  h_ele_ptEtaEff->Reset();
+  h_ele_ptEtaEff->Divide(h_ele_simPtEta_matched,h_simPtEta,1,1,"b");
+  h_ele_ptEtaEff->GetYaxis()->SetTitle("p_{T} (GeV/c)");
+  h_ele_ptEtaEff->GetXaxis()->SetTitle("#eta");
+
   std::cout << "[GsfElectronMCAnalyzer] q-misid calculation " << std::endl;
   // misid vs eta
   TH1F *h_ele_etaQmisid = (TH1F*)h_ele_simEta_matched_qmisid->Clone("h_ele_etaQmisid");
@@ -1043,6 +1055,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_simPt->Write();
   h_simZ->Write();
   h_simPhi->Write();
+  h_simPtEta->Write();
     
   // all electrons
   h_ele_EoverP_all->Write();
@@ -1089,6 +1102,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_simAbsEta_matched->Write();
   h_ele_simEta_matched->Write();
   h_ele_simPhi_matched->Write();
+  h_ele_simPtEta_matched->Write();
   h_ele_vertexPhi->Write();
   h_ele_vertexX->Write();
   h_ele_vertexY ->Write();
@@ -1329,6 +1343,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_phiEff->Write();
   h_ele_absetaEff->Write();
   h_ele_ptEff->Write();
+  h_ele_ptEtaEff->Write();
   h_ele_etaEff_all->Write();
   h_ele_ptEff_all->Write();
   
@@ -1570,6 +1585,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       h_simPt   -> Fill( mcIter->pt() );
       h_simPhi   -> Fill( mcIter->phi() );
       h_simZ   -> Fill( mcIter->vz() );
+      h_simPtEta   -> Fill( mcIter->eta(),mcIter->pt() );
 
       // looking for the best matching gsf electron
       bool okGsfFound = false;
@@ -1616,6 +1632,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         h_ele_simPhi_matched   -> Fill( mcIter->phi() );
 	h_ele_simAbsEta_matched     -> Fill( fabs(mcIter->eta()) );
 	h_ele_simEta_matched     -> Fill( mcIter->eta() );
+	h_ele_simPtEta_matched      -> Fill(  mcIter->eta(),mcIter->pt() );
 	h_ele_vertexEtaVsPhi     -> Fill(  bestGsfElectron.phi(),bestGsfElectron.eta() );
 	h_ele_vertexPhi     -> Fill( bestGsfElectron.phi() );
 	h_ele_vertexX     -> Fill( bestGsfElectron.vertex().x() );

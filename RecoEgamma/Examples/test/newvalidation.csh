@@ -51,7 +51,8 @@ setenv VAL_ENV $1
 setenv VAL_OUTPUT_FILE $2
 setenv VAL_WEB_SUB_DIR $3
 setenv VAL_ORIGINAL_DIR $cwd
-setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
+#setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
+setenv VAL_WEB "/home/llr/cms/charlot/cmssw/CMSSW_3_1_2/src/RecoEgamma/Examples/test/validation"
 setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
 
 # those must have a value
@@ -186,12 +187,14 @@ if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
 cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_charge 1 0 1 0 0 0 
+h_ele_vertexPt 1 0 1 0 0 0
+h_ele_vertexEta 1 0 1 0 0 0
+h_ele_vertexPhi 1 0 1 0 0 0
+h_ele_vertexP 1	0 1 0 0 0
 h_ele_vertexX 1 0 1 0 0 0
 h_ele_vertexY 1	0 1 0 0 0	
 h_ele_vertexZ 1	0 1 0 0 0
 h_ele_vertexTIP 1 1 1 0 0 0 
-h_ele_vertexP 1	0 1 0 0 0
-h_ele_vertexPt 1 0 1 0 0 0
 h_ele_Et 1 0 1 0 0 0
 h_ele_outerP_mode 1 0 1 0 0 0
 h_ele_outerPt_mode 1 0 1 0 0 0
@@ -307,13 +310,15 @@ EOF
 else if ($VAL_ANALYZER == GsfElectronDataAnalyzer ) then
 
 cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
-h_ele_charge 1 0 1 0 0 0
-h_ele_vertexX 1 0 1 0 0 0
-h_ele_vertexY 1 0 1 0 0 0
-h_ele_vertexZ 1 0 1 0 0 0
-h_ele_vertexTIP 1 1 1 0 0 0
-h_ele_vertexP 1 0 1 0 0 0
+h_ele_charge 1 0 1 0 0 0 
 h_ele_vertexPt 1 0 1 0 0 0
+h_ele_vertexEta 1 0 1 0 0 0
+h_ele_vertexPhi 1 0 1 0 0 0
+h_ele_vertexP 1	0 1 0 0 0
+h_ele_vertexX 1 0 1 0 0 0
+h_ele_vertexY 1	0 1 0 0 0	
+h_ele_vertexZ 1	0 1 0 0 0
+h_ele_vertexTIP 1 1 1 0 0 0 
 h_ele_Et 1 0 1 0 0 0
 h_ele_outerP_mode 1 0 1 0 0 0
 h_ele_outerPt_mode 1 0 1 0 0 0
@@ -399,15 +404,15 @@ EOF
 else if ($VAL_ANALYZER == GsfElectronFakeAnalyzer ) then
 
 cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
-h_ele_charge 1 0 1 0 0 0
-h_ele_vertexX 1	0 1 0 0 0
-h_ele_vertexY 1	0 1 0 0 0
-h_ele_vertexZ 1	0 1 0 0 0
-h_ele_vertexTIP 1 1 1 0 0 0
-h_ele_vertexP 1	0 1 0 0 0
+h_ele_charge 1 0 1 0 0 0 
 h_ele_vertexPt 1 0 1 0 0 0
-h_ele_outerP_mode 1 0 1 0 0 0
-h_ele_outerPt_mode 1 0 1 0 0 0
+h_ele_vertexEta 1 0 1 0 0 0
+h_ele_vertexPhi 1 0 1 0 0 0
+h_ele_vertexP 1	0 1 0 0 0
+h_ele_vertexX 1 0 1 0 0 0
+h_ele_vertexY 1	0 1 0 0 0	
+h_ele_vertexZ 1	0 1 0 0 0
+h_ele_vertexTIP 1 1 1 0 0 0 
 h_ele_EoP 1 1 1 0 0 0
 h_ele_EoPout 1 1 1 0 0 0
 h_ele_EeleOPout 1 1 1 0 0 0

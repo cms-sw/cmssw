@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.17 2009/09/18 23:27:06 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.18 2009/09/18 23:55:16 charlot Exp $
 //
 //
 
@@ -70,12 +70,14 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_simPt;
   TH1F *h_simPhi;
   TH1F *h_simZ;
+  TH2F *h_simPtEta;
 
   TH1F *h_ele_simEta_matched;
   TH1F *h_ele_simAbsEta_matched;
   TH1F *h_ele_simPt_matched;
   TH1F *h_ele_simPhi_matched;
   TH1F *h_ele_simZ_matched;
+  TH2F *h_ele_simPtEta_matched;
 
   TH1F *h_ele_simEta_matched_qmisid;
   TH1F *h_ele_simAbsEta_matched_qmisid;
