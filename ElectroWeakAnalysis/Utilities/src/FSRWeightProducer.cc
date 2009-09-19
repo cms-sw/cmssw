@@ -17,15 +17,16 @@
 //
 // class declaration
 //
-class WFSRWeightProducer : public edm::EDProducer {
+class FSRWeightProducer : public edm::EDProducer {
    public:
-      explicit WFSRWeightProducer(const edm::ParameterSet&);
-      ~WFSRWeightProducer();
+      explicit FSRWeightProducer(const edm::ParameterSet&);
+      ~FSRWeightProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      double alphaRatio(double) ;
 
       edm::InputTag genTag_;
 };
@@ -33,23 +34,23 @@ class WFSRWeightProducer : public edm::EDProducer {
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 /////////////////////////////////////////////////////////////////////////////////////
-WFSRWeightProducer::WFSRWeightProducer(const edm::ParameterSet& pset) {
+FSRWeightProducer::FSRWeightProducer(const edm::ParameterSet& pset) {
       genTag_ = pset.getUntrackedParameter<edm::InputTag> ("GenTag", edm::InputTag("generator"));
 
       produces<double>();
 } 
 
 /////////////////////////////////////////////////////////////////////////////////////
-WFSRWeightProducer::~WFSRWeightProducer(){}
+FSRWeightProducer::~FSRWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void WFSRWeightProducer::beginJob(const edm::EventSetup&) {}
+void FSRWeightProducer::beginJob(const edm::EventSetup&) {}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void WFSRWeightProducer::endJob(){}
+void FSRWeightProducer::endJob(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void WFSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
+void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
       if (iEvent.isRealData()) return;
 
@@ -70,7 +71,7 @@ void WFSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             if (lepton.numberOfMothers()!=1) continue;
             const reco::Candidate * boson = lepton.mother();
             int bosonId = abs(boson->pdgId());
-            if (bosonId!=24) continue;
+            if (bosonId!=23  && bosonId!=24) continue;
             unsigned int nDaughters = lepton.numberOfDaughters();
             if (nDaughters<=1) continue;
             double leptonMass = lepton.mass();
@@ -90,17 +91,18 @@ void WFSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   double costheta = sinLeptonTheta*sinPhotonTheta*cos(leptonPhi-photonPhi)
                                   + cosLeptonTheta*cosPhotonTheta;
                   // Missing O(alpha) terms in soft-collinear approach
-                  // From hep-ph/0303260
-                  double delta = - 8*photonEnergy *(1-betaLepton*costheta)
-                        / pow(bosonMass,3) 
-                        / (1-pow(leptonMass/bosonMass,2))
-                        / (4-pow(leptonMass/bosonMass,2))
-                        * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
-                  (*weight) *= (1 + delta);
-                  // Add some extra factor from missing NLO orders in FS parton shower
-                  // Change coupling scale from 0 to pt**2 to estimate this effect
-                  // double kT2 = pow(photonEnergy*costheta,2);
-                  //(*weight) *=i alphaQED(kT2)/alphaQED(0);
+                  // Only for W, from hep-ph/0303260
+                  if (bosonId==24) {
+                        double delta = - 8*photonEnergy *(1-betaLepton*costheta)
+                          / pow(bosonMass,3) 
+                          / (1-pow(leptonMass/bosonMass,2))
+                          / (4-pow(leptonMass/bosonMass,2))
+                          * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
+                        (*weight) *= (1 + delta);
+                  }
+                  // Missing NLO QED orders in QED parton shower approach
+                  // Change coupling scale from 0 to kT to estimate this effect
+                  (*weight) *= alphaRatio(photonEnergy*costheta);
             }
       }
 
@@ -108,4 +110,45 @@ void WFSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       iEvent.put(weight);
 }
 
-DEFINE_FWK_MODULE(WFSRWeightProducer);
+double FSRWeightProducer::alphaRatio(double pt) {
+
+      double pigaga = 0.;
+
+      // Leptonic contribution (just one loop, precise at < 0.3% level)
+      const double alphapi = 1/137.036/M_PI;
+      const double mass_e = 0.0005;
+      const double mass_mu = 0.106;
+      const double mass_tau = 1.777;
+      const double mass_Z = 91.2;
+      if (pt>mass_e) pigaga += alphapi * (2*log(pt/mass_e)/3.-5./9.);
+      if (pt>mass_mu) pigaga += alphapi * (2*log(pt/mass_mu)/3.-5./9.);
+      if (pt>mass_tau) pigaga += alphapi * (2*log(pt/mass_tau)/3.-5./9.);
+
+      // Hadronic vaccum contribution
+      // Using simple effective parametrization from Physics Letters B 513 (2001) 46–52
+      // Top contribution neglected
+      double A = 0.; 
+      double B = 0.; 
+      double C = 0.; 
+      if (pt<0.7) {
+            A = 0.0; B = 0.0023092; C = 3.9925370;
+      } else if (pt<2.0) {
+            A = 0.0; B = 0.0022333; C = 4.2191779;
+      } else if (pt<4.0) {
+            A = 0.0; B = 0.0024402; C = 3.2496684;
+      } else if (pt<10.0) {
+            A = 0.0; B = 0.0027340; C = 2.0995092;
+      } else if (pt<mass_Z) {
+            A = 0.0010485; B = 0.0029431; C = 1.0;
+      } else if (pt<10000.) {
+            A = 0.0012234; B = 0.0029237; C = 1.0;
+      } else {
+            A = 0.0016894; B = 0.0028984; C = 1.0;
+      }
+      pigaga += A + B*log(1.+C*pt*pt);
+
+      // Done
+      return 1./(1.-pigaga);
+}
+
+DEFINE_FWK_MODULE(FSRWeightProducer);

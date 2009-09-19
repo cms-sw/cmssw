@@ -111,18 +111,20 @@ src/DistortedMETProducer.cc
 
 - A simple example showing how to use this code is given in "test/distortedMET.py".
 
-src/WFSRWeightProducer.cc
+src/FSRWeightProducer.cc
 ============================
 - Writes into the data structure a product containing the event weight ("double")
-  to be applied to obtain an estimate of uncertainties due to missing final 
-  state QED radiation terms in PYTHIA for W->l nu.
-  This is still work in progress.  Example of usage:
+  for estimating uncertainties due to missing final state QED radiation terms in 
+  PYTHIA for W->l nu and Z->ll. It produces the procuct of two factor:
+      a) Factor to go from soft-collinear approach to exact O(alpha) 
+         (from hep-ph/0303260, only sizable for W, and small in general)
+      b) Factor to recover missing NLO QED terms 
+         (using alpha(pt**2) instead of alpha(0))
+  Example of usage:
 
-
-      # Produce event weights according to FSR QED O(alpha) correct matrix element calculation
-      process.fsrWeight = cms.EDProducer("WFSRWeightProducer",
+      process.fsrWeight = cms.EDProducer("FSRWeightProducer",
             GenTag = cms.untracked.InputTag("generator"),
       )
 
 - A simple example showing how to use this PDF information is given in 
-  "test/WFSRWeightAnalyzer.cc". A test example is "test/WFSRWeightAnalyzer.py".
+  "test/FSRWeightAnalyzer.cc". A test example is "test/fsrWeightAnalyzer.py".
