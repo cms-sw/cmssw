@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.39 2009/09/19 15:35:33 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.40 2009/09/19 21:38:27 charlot Exp $
 //
 //
 
@@ -56,7 +56,6 @@ GsfElectronMCAnalyzer::GsfElectronMCAnalyzer(const edm::ParameterSet& conf)
   electronCollection_=conf.getParameter<edm::InputTag>("electronCollection");
   mcTruthCollection_ = conf.getParameter<edm::InputTag>("mcTruthCollection");
   readAOD_ = conf.getParameter<bool>("readAOD");
-  minPt_ = conf.getParameter<double>("MinPt");
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
