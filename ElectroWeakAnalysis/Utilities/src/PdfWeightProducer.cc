@@ -17,10 +17,10 @@
 //
 // class declaration
 //
-class EwkPdfWeightProducer : public edm::EDProducer {
+class PdfWeightProducer : public edm::EDProducer {
    public:
-      explicit EwkPdfWeightProducer(const edm::ParameterSet&);
-      ~EwkPdfWeightProducer();
+      explicit PdfWeightProducer(const edm::ParameterSet&);
+      ~PdfWeightProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -38,10 +38,15 @@ class EwkPdfWeightProducer : public edm::EDProducer {
 #include "LHAPDF/LHAPDF.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
-EwkPdfWeightProducer::EwkPdfWeightProducer(const edm::ParameterSet& pset) :
+PdfWeightProducer::PdfWeightProducer(const edm::ParameterSet& pset) :
  pdfInfoTag_(pset.getUntrackedParameter<edm::InputTag> ("PdfInfoTag", edm::InputTag("generator"))),
  pdfSetNames_(pset.getUntrackedParameter<std::vector<std::string> > ("PdfSetNames"))
 {
+      if (pdfSetNames_.size()>3) {
+            edm::LogWarning("") << pdfSetNames_.size() << " PDF sets requested on input. Using only the first 3 sets and ignoring the rest!!";
+            pdfSetNames_.erase(pdfSetNames_.begin()+3,pdfSetNames_.end());
+      }
+
       for (unsigned int k=0; k<pdfSetNames_.size(); k++) {
             size_t dot = pdfSetNames_[k].find_first_of('.');
             pdfShortNames_.push_back(pdfSetNames_[k].substr(0,dot));
@@ -50,21 +55,21 @@ EwkPdfWeightProducer::EwkPdfWeightProducer(const edm::ParameterSet& pset) :
 } 
 
 /////////////////////////////////////////////////////////////////////////////////////
-EwkPdfWeightProducer::~EwkPdfWeightProducer(){}
+PdfWeightProducer::~PdfWeightProducer(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void EwkPdfWeightProducer::beginJob(const edm::EventSetup&) {
+void PdfWeightProducer::beginJob(const edm::EventSetup&) {
       for (unsigned int k=1; k<=pdfSetNames_.size(); k++) {
             LHAPDF::initPDFSet(k,pdfSetNames_[k-1]);
-            LHAPDF::getDescription(k);
+            //LHAPDF::getDescription(k);
       }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-void EwkPdfWeightProducer::endJob(){}
+void PdfWeightProducer::endJob(){}
 
 /////////////////////////////////////////////////////////////////////////////////////
-void EwkPdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
+void PdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
 
       if (iEvent.isRealData()) return;
 
@@ -98,4 +103,4 @@ void EwkPdfWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
 }
 
-DEFINE_FWK_MODULE(EwkPdfWeightProducer);
+DEFINE_FWK_MODULE(PdfWeightProducer);
