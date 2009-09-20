@@ -9,7 +9,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.h,v 1.2 2008/10/27 16:10:00 anastass Exp $
+// $Id: hcalCalib.h,v 1.3 2009/03/22 15:12:58 anastass Exp $
 //
 ///////////////////////////////////////////////////////////////
 
@@ -31,8 +31,6 @@
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 #include "TRefArray.h"
-
-#include "Calibration/HcalCalibAlgos/interface/TCell.h"
 
 class hcalCalib : public TSelector {
 public :
