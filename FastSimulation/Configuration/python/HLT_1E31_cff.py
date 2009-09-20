@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_3_0/pre4/1E31/V3 (CMSSW_3_3_X_2009-09-17-0100_HLT2)
+# /dev/CMSSW_3_3_0/pre4/1E31/V4 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -28,7 +28,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/1E31/V3')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/1E31/V4')
 )
 
 
@@ -819,8 +819,8 @@ hltPreDiJetAve15U1E31 = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve15U1E31 = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 15.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 15.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve30U1E31 = cms.EDFilter( "HLTLevel1GTSeed",
@@ -836,8 +836,8 @@ hltPreDiJetAve30U1E31 = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve30U1E31 = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 30.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 30.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve50U = cms.EDFilter( "HLTLevel1GTSeed",
@@ -853,8 +853,8 @@ hltPreDiJetAve50U = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve50U = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 50.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 50.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve70U = cms.EDFilter( "HLTLevel1GTSeed",
@@ -870,8 +870,8 @@ hltPreDiJetAve70U = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve70U = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 70.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 70.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve130U = cms.EDFilter( "HLTLevel1GTSeed",
@@ -887,8 +887,8 @@ hltPreDiJetAve130U = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve130U = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 130.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 130.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sQuadJet30 = cms.EDFilter( "HLTLevel1GTSeed",
