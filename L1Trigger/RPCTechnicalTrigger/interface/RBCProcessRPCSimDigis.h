@@ -1,6 +1,6 @@
-// $Id: 
-#ifndef RBCPROCESSRPCDIGIS_H 
-#define RBCPROCESSRPCDIGIS_H 1
+// $Id: $
+#ifndef INTERFACE_RBCPROCESSRPCSIMDIGIS_H 
+#define INTERFACE_RBCPROCESSRPCSIMDIGIS_H 1
 
 // Include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,10 +11,12 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+
+//...RPCDigiSimLink
+#include <DataFormats/Common/interface/DetSetVector.h>
+#include <SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h>
 
 // From project
 #include "L1Trigger/RPCTechnicalTrigger/interface/RBCInput.h" 
@@ -30,29 +32,27 @@
 #include <map>
 #include <vector>
 
-/** @class RBCProcessRPCDigis RBCProcessRPCDigis.h
+/** @class RBCProcessRPCSimDigis RBCProcessRPCSimDigis.h interface/RBCProcessRPCSimDigis.h
  *  
  *
  *  @author Andres Felipe Osorio Oliveros
- *  @date   2009-04-15
+ *  @date   2009-09-20
  */
 
-class RBCProcessRPCDigis : public ProcessInputSignal {
+class RBCProcessRPCSimDigis : public ProcessInputSignal {
 public: 
   /// Standard constructor
-  RBCProcessRPCDigis( ) {};
+  RBCProcessRPCSimDigis(); 
   
-  RBCProcessRPCDigis( const edm::ESHandle<RPCGeometry> &, 
-                      const edm::Handle<RPCDigiCollection> & );
-  
-  virtual ~RBCProcessRPCDigis( ); ///< Destructor
+  RBCProcessRPCSimDigis( const edm::ESHandle<RPCGeometry> &, 
+                         const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > & );
   
   int  next();
   
   void reset();
   
   void configure();
-    
+  
   void initialize( std::vector<RPCData*> & );
   
   void builddata();
@@ -66,6 +66,8 @@ public:
   void rewind() {};
   void showfirst() {};
   
+  virtual ~RBCProcessRPCSimDigis( ); ///< Destructor
+  
 protected:
   
 private:
@@ -76,12 +78,12 @@ private:
   
   void setInputBit( std::bitset<15> & , int );
   
-  const edm::ESHandle<RPCGeometry>     * m_ptr_rpcGeom;
-  const edm::Handle<RPCDigiCollection> * m_ptr_digiColl;
+  const edm::ESHandle<RPCGeometry> * m_ptr_rpcGeom;
+  const edm::Handle<edm::DetSetVector<RPCDigiSimLink> > * m_ptr_digiSimLink;
   
-  RPCDigiCollection::const_iterator m_digiItr;
-  RPCDigiCollection::DigiRangeIterator m_detUnitItr;
-  
+  edm::DetSetVector<RPCDigiSimLink>::const_iterator m_linkItr;
+  edm::DetSet<RPCDigiSimLink>::const_iterator m_digiItr;
+    
   RPCData  * m_block;
   
   RPCInputSignal * m_lbin;
@@ -98,6 +100,7 @@ private:
   std::vector<int> m_wheelid;
   std::vector<int> m_sec1id;
   std::vector<int> m_sec2id;
-    
+
+  
 };
-#endif // RBCPROCESSRPCDIGIS_H
+#endif // INTERFACE_RBCPROCESSRPCSIMDIGIS_H

@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
-maxevts   = 100
-globaltag = 'STARTUP31X_V1::All'
-inputfile = '/store/relval/CMSSW_3_1_1/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V1-v2/0002/FCBE122E-D66B-DE11-9667-001D09F291D2.root'
+maxevts   = -1
+globaltag = 'STARTUP31X_V2::All'
+inputfile = '/store/relval/CMSSW_3_1_2/RelValCosmics/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0007/C481562D-9278-DE11-8CA2-000423D9517C.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
 
@@ -21,6 +21,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string( globaltag )
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+#.. if cosmics: reconstruction sequence for Cosmics
+process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxevts) )
 
 process.source = cms.Source("PoolSource",
@@ -30,6 +33,7 @@ process.load("L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi")
 
 #.. use the provided hardware configuration parameters
 process.rpcTechnicalTrigger.UseDatabase   = cms.untracked.int32(0)
+process.rpcTechnicalTrigger.UseRPCSimLink = cms.untracked.int32(1)
 process.rpcTechnicalTrigger.ConfigFile    = cms.untracked.string("hardware-pseudoconfig.txt")
 
 process.out = cms.OutputModule("PoolOutputModule",

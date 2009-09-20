@@ -8,6 +8,7 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/Common>
+<use name=SimDataFormats/RPCDigiSimLink>
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/Records>

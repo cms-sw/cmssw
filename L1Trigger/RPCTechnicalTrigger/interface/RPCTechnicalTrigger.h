@@ -103,6 +103,9 @@ private:
   std::vector<unsigned> m_ttBits;
   std::vector<std::string> m_ttNames;
   edm::InputTag m_rpcDigiLabel;
+  edm::InputTag m_rpcSimLinkInstance;
+  
+  int m_useRPCSimLink;
   
   TTUConfigurator     * m_readConfig;
   const TTUBoardSpecs * m_ttuspecs;
