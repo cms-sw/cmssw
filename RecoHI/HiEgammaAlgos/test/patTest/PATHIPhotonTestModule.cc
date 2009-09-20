@@ -126,7 +126,17 @@ PATHIPhotonTestModule::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	 }  
       }
  
-      datatemp->Fill(var);
+      var[idx] = photon->e3x3();
+      idx++;
+      var[idx] = photon->e5x5();
+      idx++;
+      
+      
+      
+
+
+
+datatemp->Fill(var);
    }
 
 }
