@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre4/8E29/V3 (CMSSW_3_3_X_2009-09-17-0100_HLT2)
+# /dev/CMSSW_3_3_0/pre4/8E29/V4 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V3')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V4')
 )
 
 
@@ -1156,8 +1156,8 @@ hltPreDiJetAve15U8E29 = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve15U8E29 = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 15.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 15.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sDiJetAve30U8E29 = cms.EDFilter( "HLTLevel1GTSeed",
@@ -1173,8 +1173,8 @@ hltPreDiJetAve30U8E29 = cms.EDFilter( "HLTPrescaler" )
 hltDiJetAve30U8E29 = cms.EDFilter( "HLTDiJetAveFilter",
     inputJetTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
     saveTag = cms.untracked.bool( True ),
-    minEtAve = cms.double( 30.0 ),
-    minEtJet3 = cms.double( 99999.9 ),
+    minPtAve = cms.double( 30.0 ),
+    minPtJet3 = cms.double( 99999.0 ),
     minDphi = cms.double( -1.0 )
 )
 hltL1sQuadJet15U = cms.EDFilter( "HLTLevel1GTSeed",
