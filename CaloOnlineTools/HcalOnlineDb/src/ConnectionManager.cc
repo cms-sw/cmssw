@@ -1,3 +1,6 @@
+
+#include <cstring>
+
 #include "occi.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConnectionManager.h"
 #include "ctype.h"
