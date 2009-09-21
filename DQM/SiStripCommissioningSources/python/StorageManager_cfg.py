@@ -9,7 +9,8 @@ process.out = cms.OutputModule("EventStreamFileWriter",
     maxSize = cms.int32(1000),
     compression_level = cms.untracked.int32(1),
     use_compression = cms.untracked.bool(False),
-    max_event_size = cms.untracked.int32(25000000)
+    max_event_size = cms.untracked.int32(25000000),
+    SelectHLTOutput = cms.untracked.string('consumer')
 )
 
 process.e1 = cms.EndPath(process.out)
