@@ -14,8 +14,8 @@ globalCosmicMuons = cms.EDProducer("GlobalCosmicMuonProducer",
         TkTrackCollectionLabel = cms.InputTag("generalTracks"),
         Propagator = cms.string('SteppingHelixPropagatorAny'),
         SmootherParameters = cms.PSet(
-            PropagatorAlong = cms.string('SmartPropagatorAny'),
-            PropagatorOpposite = cms.string('SmartPropagatorAnyOpposite'),
+            PropagatorAlong = cms.string('SteppingHelixPropagatorAny'),
+            PropagatorOpposite = cms.string('SteppingHelixPropagatorAny'),
             RescalingFactor = cms.double(5.0)
         )
     ),
