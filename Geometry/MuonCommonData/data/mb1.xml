@@ -197,8 +197,8 @@
  </SubtractionSolid>
  <SubtractionSolid name="MB1SLZGas_c">
    <rSolid name="MB1SLZGas_b"/>
-   <rRotation name="rotations:000D"/>
    <rSolid name="MB1SLZIBeamWing"/>
+   <rRotation name="rotations:000D"/>
    <Translation x="17.175*mm" y="0.*fm" z="-5.1*mm"/>
  </SubtractionSolid>
  <SubtractionSolid name="MB1SLZGas_d">
