@@ -48,6 +48,10 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripLorentzAngleFakeESSource);
 typedef SiStripTemplateFakeESSource< SiStripBadStrip, SiStripBadModuleRcd, SiStripBadModuleGenerator > SiStripBadModuleConfigurableFakeESSource;
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripBadModuleConfigurableFakeESSource);
 
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripLatencyGenerator.h"
+typedef SiStripTemplateFakeESSource< SiStripLatency, SiStripLatencyRcd, SiStripLatencyGenerator > SiStripLatencyFakeESSource;
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripLatencyFakeESSource);
 
 //---------- Empty Fake Source -----------//
 
