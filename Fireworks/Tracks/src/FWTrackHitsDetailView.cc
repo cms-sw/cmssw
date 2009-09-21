@@ -1,16 +1,11 @@
 // ROOT includes
-#include "TLatex.h"
-#include "TEveCalo.h"
 #include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TEveManager.h"
-#include "TCanvas.h" 
-#include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
-#include "TEveLegoEventHandler.h"
 #include "TEveTrack.h"
 
 // CMSSW includes
@@ -39,13 +34,12 @@ FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 void
 FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* slot)
 {
-   TEveScene*      scene(0);
-   TEveViewer*     viewer(0);
-   TGVerticalFrame* ediFrame(0);
-
-   TEveWindow* ew = FWDetailViewBase::makePackViewer(slot, ediFrame, viewer, scene);
-   ew->SetElementName("Track hit view");
-   FWDetailViewBase::setEveWindow(ew);
+   TEveViewer*  viewer = new TEveViewer("Track hits detail view");
+   viewer->SpawnGLEmbeddedViewer();
+   slot->ReplaceWindow(viewer);
+   TEveScene* scene = gEve->SpawnNewScene("hits scene");
+   viewer->AddScene(scene);
+   viewer->SetShowTitleBar(kFALSE);
 
    TracksRecHitsUtil::addHits(*track, id.item(), scene);
    CmsMagField* cmsMagField = new CmsMagField;

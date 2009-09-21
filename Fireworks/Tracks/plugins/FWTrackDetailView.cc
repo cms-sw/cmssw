@@ -2,22 +2,19 @@
 //
 // Package:     Calo
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.cc,v 1.16 2009/09/06 12:59:46 dmytro Exp $
+// $Id: FWTrackDetailView.cc,v 1.17 2009/09/06 19:35:44 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
 
 // ROOT includes
 #include "TLatex.h"
-#include "TEveCalo.h"
 #include "TEveStraightLineSet.h"
 #include "TEvePointSet.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TEveManager.h"
-#include "TCanvas.h" 
-#include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
 
 // CMSSW includes
@@ -50,23 +47,19 @@ void FWTrackDetailView::build(const FWModelId &id, const reco::Track* iTrack, TE
    if(0==iTrack) return;
    TEveWindowPack* eveWindow = base->MakePack();
    eveWindow->SetShowTitleBar(kFALSE);
+   eveWindow->SetHorizontal();
    FWDetailViewBase::setEveWindow(eveWindow);
 
-   // TEveWindow* ew(0);
-   TEveWindowSlot* slot(0);
-   // TEveScene*      scene(0);
-   // TEveViewer*     viewer(0);
-   // TGVerticalFrame* ediFrame(0);
-
+   TEveWindowSlot* slot;
    ////////////////////////////////////////////////////////////////////////
    //                              Sub-view 1
    ///////////////////////////////////////////////////////////////////////
-
+  
    // prepare window
    slot = eveWindow->NewSlot();
    FWTrackResidualDetailView builder1;
    builder1.build(id,iTrack,slot);
-   
+ 
    ////////////////////////////////////////////////////////////////////////
    //                              Sub-view 2
    ///////////////////////////////////////////////////////////////////////

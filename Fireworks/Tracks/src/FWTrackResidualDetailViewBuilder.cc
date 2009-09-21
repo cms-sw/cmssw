@@ -7,6 +7,7 @@
 #include <TLatex.h>
 #include <TPaveText.h>
 #include <TCanvas.h>
+#include <TEveWindow.h>
 #include "TRootEmbeddedCanvas.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -100,24 +101,16 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
 {
    prepareData(id, track);
 
-   TCanvas* histCanvas;
-   TGVerticalFrame* ediFrame;
-
-   // draw legend
-   makePackCanvas(slot, ediFrame, histCanvas);
-   TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", ediFrame, 100, 100, 0);
-   ediFrame->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   ediFrame->MapSubwindows();
-   ediFrame->Layout();
-   TCanvas* textCanvas = ec->GetCanvas();
-   textCanvas->cd();
-   makeLegend();
-   textCanvas->SetEditable(kFALSE);
+   TRootEmbeddedCanvas* ec  = new TRootEmbeddedCanvas();
+   TEveWindowFrame* wf = slot->MakeFrame(ec);
+   wf->SetShowTitleBar(kFALSE);
+   TCanvas* histCanvas = ec->GetCanvas();
+   histCanvas->SetHighLightColor(-1);
 
    // draw histogram
    histCanvas->cd();
 
-   TPad* padX = new TPad("pad1","pad1",0.1,0.05,0.9,0.95);
+   TPad* padX = new TPad("pad1","pad1",0.3,0.05,1,0.95);
    padX->SetBorderMode(0);
    histCanvas->cd();
    padX->Draw();
@@ -213,7 +206,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
             box[3] = height1+width*(k+1);
 
             if(stereo[l]==1) {
-	       color    = m_stereoCol;
+               color    = m_stereoCol;
                filltype = m_stereoFill;
             }
             else if(hittype[l]!=0) {
@@ -232,7 +225,14 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
       }
    }
    histCanvas->cd();
-   histCanvas->SetEditable(kFALSE);
+   histCanvas->cd();
+   TPad* padL = new TPad("pad1","pad1",0, 0., 0.4, 0.8);
+   padL->Draw();
+   padL->cd();
+   padL->SetBorderMode(0);
+   makeLegend();
+
+   //  histCanvas->SetEditable(kFALSE);
 }
 
 double
