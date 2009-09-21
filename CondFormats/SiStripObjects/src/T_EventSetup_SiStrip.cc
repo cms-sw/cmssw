@@ -10,6 +10,8 @@ EVENTSETUP_DATA_REG(SiStripLorentzAngle);
 EVENTSETUP_DATA_REG(SiStripModuleHV);
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 EVENTSETUP_DATA_REG(SiStripDetVOff);
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+EVENTSETUP_DATA_REG(SiStripLatency);
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 EVENTSETUP_DATA_REG(SiStripNoises);
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"

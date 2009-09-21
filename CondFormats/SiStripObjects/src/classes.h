@@ -8,6 +8,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPerformanceSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
@@ -55,6 +56,9 @@ namespace {
  
     std::vector< SiStripSummary::DetRegistry >::iterator tmp32;
     std::vector< SiStripSummary::DetRegistry >::const_iterator tmp33;
+
+    std::vector< SiStripLatency::Latency >::iterator tmp34;
+    std::vector< SiStripLatency::Latency >::const_iterator tmp35;
   };
 }  
   

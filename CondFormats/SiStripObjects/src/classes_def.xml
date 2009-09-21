@@ -50,6 +50,10 @@
   <class name="SiStripModuleHV" class_version="0"/>
   <class name="SiStripDetVOff" class_version="0"/>
 
+  <class name="SiStripLatency" class_version="0"/>
+  <class name="SiStripLatency::Latency" class_version="0"/>
+  <class name="std::vector<SiStripLatency::Latency>"/>
+
   <class name="SiStripRunSummary" class_version="0"/>
 
   <class name="SiStripSummary" class_version="0"/>

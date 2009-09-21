@@ -25,6 +25,8 @@ class SiStripModuleHVRcd : public edm::eventsetup::EventSetupRecordImplementatio
 class SiStripModuleLVRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripModuleLVRcd> {};
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
+class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLatencyRcd> {};
+
 class SiStripNoisesRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripNoisesRcd> {};
 
 class SiStripPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPedestalsRcd> {};
