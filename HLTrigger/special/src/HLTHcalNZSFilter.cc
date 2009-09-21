@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.5 2009/08/21 09:03:37 fwyzard Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.6 2009/08/27 13:33:47 gruen Exp $
 //
 //
 
@@ -72,6 +72,9 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
+  // MC treatment for this filter (MC is ZS - NZS not properly done in MC)
+  if (!iEvent.isRealData()) return false;
+
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByLabel(dataInputTag_,rawdata);
 
