@@ -4,6 +4,8 @@ import ROOT
 import inspect
 import sys
 import optparse
+from FWCore.ParameterSet.VarParsing import VarParsing
+
 
 ROOT.gSystem.Load("libFWCoreFWLite.so")
 ROOT.AutoLibraryLoader.enable()
@@ -35,29 +37,6 @@ def warn (*args, **kwargs):
         print
     else:
         print "%s (%s):" % (filename, lineNum)
-
-
-def createParser (mode='', progName=''):
-    """Create a parser that has options useful for FWLite"""
-    parser = optparse.OptionParser ('Usage: %prog [options]')
-    parser.add_option ('--inputFiles', dest='inputFiles',
-                       action='append', type='string', default=[],
-                       help='Input files')
-    parser.add_option ('--inputFiles_load', dest='inputFiles_load',
-                       action='append', type='string', default=[],
-                       help='Name of text file to load input files')
-    parser.add_option ('--secondaryInputFiles', dest='secondaryInputFiles',
-                       action='append', type='string', default=[],
-                       help='Secondary input files'
-                       ' (a.k.a. "Two file solution")')
-    parser.add_option ('--secondaryInputFiles_load',
-                       dest='secondaryInputFiles_load',
-                       action='append', type='string', default=[],
-                       help='Name of text file to load secondary input files')
-    parser.add_options ('--maxEvents', type='integer', default=0,
-                        help='Maximum number of events to process '
-                        '(0 for all events; default)')
-    return parser
 
 
 class Handle:
@@ -142,13 +121,26 @@ class Events:
         Optional arguments:
         forceEvent  => Use fwlite::Event IF there is only one file
         maxEvents   => Maximum number of events to process
-        """
-        self._veryFirstTime = True
-        self._event         = 0
-        self._eventCounts   = 0
-        self._maxEvents     = 0
-        self._forceEvent    = False
-        self._mode          = None
+        """        
+        if isinstance (inputFiles, list):
+            # it's a list
+            self._filenames = inputFiles[:]
+        elif isinstance (inputFiles, VarParsing):
+            # it's a VarParsing object
+            options = inputFiles
+            self._maxEvents           = options.maxEvents
+            self._filenames           = options.inputFiles
+            self._secondaryFilenames  = options.secondaryInputFiles
+        else:
+            # it's probably a single string
+            self._filenames = [inputFiles]
+        self._veryFirstTime      = True
+        self._event              = 0
+        self._eventCounts        = 0
+        self._maxEvents          = 0
+        self._forceEvent         = False
+        self._mode               = None
+        self._secondaryFilenames = None
         if kwargs.has_key ('maxEvents'):
             self._maxEvents = kwargs['maxEvents']
             del kwargs['maxEvents']
@@ -156,19 +148,19 @@ class Events:
             self._forceEvent = kwargs['forceEvent']
             del kwargs['forceEvent']
         if kwargs.has_key ('options'):
-            self._parseOptions (kwargs['options'])
-            del wkargs['options']
-        
+            options = kwargs ['options']
+            self._maxEvents           = options.maxEvents
+            self._filenames           = options.inputFiles
+            self._secondaryFilenames  = options.secondaryInputFiles
+            del kwargs['options']
+        print self._filenames
+            
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
         # somebody passed in an argument that we're not using and we
         # should complain.
         if len (kwargs):
             raise RuntimeError, "Unknown arguments %s" % kwargs
-        if isinstance (inputFiles, list):
-            self._filenames = inputFiles[:]
-        else:
-            self._filenames = [inputFiles]
         if not self._filenames:
             raise RuntimeError, "No input files given"        
 
@@ -261,22 +253,33 @@ class Events:
         if isinstance (self._filenames[0], ROOT.TFile):
             self._event = ROOT.fwlite.Event (self._filenames[0])
             self._mode = 'single'
+            return self._mode
         if len (self._filenames) == 1 and self._forceEvent:
             self._tfile = ROOT.TFile.Open (self._filenames[0])
             self._event = ROOT.fwlite.Event (self._tfile)
             self._mode = 'single'
-            return
+            return self._mode
         filenamesSVec = ROOT.vector("string") ()
         for name in self._filenames:
             filenamesSVec.push_back (name)
-        self._event = ROOT.fwlite.ChainEvent (filenamesSVec)
-        self._mode = 'chain'
+        if self._secondaryFilenames:
+            secondarySVec =  ROOT.vector("string") ()
+            for name in self._secondaryFilenames:
+                secondarySVec.push_back (name)
+            self._event = ROOT.fwlite.MultiChainEvent (filenamesSVec,
+                                                       secondarySVec)
+            self._mode = 'multi'
+        else:
+            self._event = ROOT.fwlite.ChainEvent (filenamesSVec)
+            self._mode = 'chain'
+        return self._mode
 
 
     def _next (self):
         """(Internal) Iterator internals"""
         if self._veryFirstTime:
-            self._createFWLiteEvent()
+			pass
+            #print "mode", self._createFWLiteEvent()
         if self._toBegin:
             self._toBeginCode()
         while not self._event.atEnd() :
