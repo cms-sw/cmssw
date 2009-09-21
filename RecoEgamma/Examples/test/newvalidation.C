@@ -135,7 +135,7 @@ std::string histo_name, gif_name, gif_path, canvas_name ;
 TString short_histo_name ;
 int scaled, log, err ;
 int divide;
-std::string num, denom;
+std::string num, denom, cat ;
 int eol ; // end of line
 int eoc ; // enf of category
 
@@ -144,6 +144,15 @@ web_page
   <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
   <<"<tr valign=\"top\"><td width=\"20%\">\n" ;
 int cat_num = 0 ;
+
+cat = "" ;
+do
+ {
+  std::getline(histo_file1,cat) ;
+ } while (cat.empty()) ;
+ 
+web_page<<"<b>"<<cat<<"</b><br><br>" ;
+
 while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
   short_histo_name = histo_name ;
@@ -153,16 +162,29 @@ while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
    {
 	cat_num++ ;
     if ((cat_num%5)==0)
-	 { web_page<<"</td></tr>\n<tr valign=\"top\"><td width=\"20%\">" ; }
+	 { web_page<<"<br></td></tr>\n<tr valign=\"top\"><td width=\"20%\">" ; }
 	else
-     { web_page<<"</td><td width=\"20%\">\n" ; }
+     { web_page<<"<br></td><td width=\"20%\">\n" ; }
+	cat = "" ;
+    do
+     {
+      std::getline(histo_file1,cat) ;
+     } while (cat.empty()) ;
+    web_page<<"<b>"<<cat<<"</b><br><br>" ;
    }
  }
-web_page<<"</td></tr></table>\n" ;
+web_page<<"<br></td></tr></table>\n" ;
 histo_file1.close() ;
 
 web_page<<"<br><br><table cellpadding=\"5\"><tr valign=\"top\"><td>\n" ;
 std::ifstream histo_file2(histos_path.c_str()) ;
+
+cat = "" ;
+do
+ {
+  std::getline(histo_file2,cat) ;
+ } while (cat.empty()) ;
+ 
 while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
   gif_name = "gifs/"+histo_name+".gif" ;
@@ -266,6 +288,14 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
    { web_page<<"</td></tr>\n<tr valign=\"top\"><td>" ; }
   else
    { web_page<<"</td><td>" ; }
+  if (eoc)
+   {
+	cat = "" ;
+    do
+     {
+      std::getline(histo_file2,cat) ;
+     } while (cat.empty()) ;
+   }
  }
 histo_file2.close() ;
 web_page<<"</td></tr></table>\n" ;

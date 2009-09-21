@@ -198,6 +198,8 @@ if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
 cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 
+Basic electron quantities
+
 h_ele_charge 1 0 1 0 0 0 1 0
 h_ele_vertexPt 1 0 1 0 0 0 1 0
 h_ele_vertexEta 1 0 1 0 0 0 1 0
@@ -210,6 +212,8 @@ h_ele_vertexTIP 1 1 1 0 0 0 1 0
 h_ele_Et 1 0 1 0 0 0 1 0
 h_ele_outerP_mode 1 0 1 0 0 0 1 0
 h_ele_outerPt_mode 1 0 1 0 0 0 1 1
+
+Comparison with MC truth (residuals)
 
 h_ele_ChargeMnChargeTrue 1 0 1  0 0 0 1 0
 h_ele_PoPtrue 1 0 1 0 0 0 0 0
@@ -236,6 +240,8 @@ h_ele_PhiMnPhiTrue 1 0 1 0 0 0 0 0
 h_ele_PhiMnPhiTrue_barrel 1 0 1 0 0 0 0 0
 h_ele_PhiMnPhiTrue_endcaps 1 0 1 0 0 0 1 1
 
+Track-cluster matching and ele ID observables
+
 h_ele_EoP 1 1 1 0 0 0 0 0
 h_ele_EoP_barrel 1 1 1 0 0 0 0 0
 h_ele_EoP_endcaps 1 1 1 0 0 0 1 0
@@ -265,7 +271,10 @@ h_ele_dPhiEleCl_propOut_barrel 1 1 1 0 0 0 0 0
 h_ele_dPhiEleCl_propOut_endcaps 1 1 1 0 0 0 1 0
 h_ele_dPhiSc_propVtx 1 1 1 0 0 0 0 0
 h_ele_dPhiSc_propVtx_barrel 1 1 1 0 0 0 0 0
-h_ele_dPhiSc_propVtx_endcaps 1 1 1 0 0 0 1 0
+h_ele_dPhiSc_propVtx_endcaps 1 1 1 0 0 0 1 1
+
+Electron Cluster shapes
+
 h_ele_HoE 1 1 1 0 0 0 0 0
 h_ele_HoE_barrel 1 1 1 0 0 0 0 0
 h_ele_HoE_endcaps 1 1 1 0 0 0 1 0
@@ -283,6 +292,8 @@ h_scl_E5x5 1 1 1 0 0 0 0 0
 h_scl_E5x5_barrel 1 1 1 0 0 0 0 0
 h_scl_E5x5_endcaps 1 1 1 0 0 0 1 1
 
+Electron track variables
+
 h_ele_chi2 1 1 1 0 0 0 0 0
 h_ele_chi2_barrel 1 1 1 0 0 0 0 0
 h_ele_chi2_endcaps 1 1 1 0 0 0 1 0
@@ -294,9 +305,13 @@ h_ele_lostHits_barrel 1 0 1 0 0 0 0 0
 h_ele_lostHits_endcaps 1 0 1 0 0 0 1 0
 h_ele_ambiguousTracks 1 1 1 0 0 0 1 1
 
+Electron seeds
+
 h_ele_seedDphi2 1 0 1 0 0 0 1 0
 h_ele_seedDrz2 1 0 1 0 0 0 1 0
 h_ele_seedSubdet2 1 0 1 0 0 0 1 1
+
+Brem fraction and related distributions
 
 h_ele_PinMnPout_mode 1 0 1 0 0 0 1 0
 h_ele_fbrem 1 0 1 0 0 0 1 0
@@ -306,7 +321,11 @@ h_ele_eta_goldenFrac 0 0 0 1 h_ele_eta_bbrem h_ele_eta 1 0
 h_ele_eta_narrowFrac 0 0 0 1 h_ele_eta_narrow h_ele_eta 1 0
 h_ele_eta_showerFrac 0 0 0 1 h_ele_eta_show h_ele_eta 1 1
 
+Particle flow mva
+
 h_ele_mva 1 0 1 0 0 0 1 1
+
+Isolation sums
 
 h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
 h_ele_ecalRecHitSumEt_dr03 1 1 1  0 0 0 1 0
@@ -316,6 +335,8 @@ h_ele_tkSumPt_dr04 1 1 1 0 0 0 1 0
 h_ele_ecalRecHitSumEt_dr04 1 1 1 0 0 0 1 0
 h_ele_hcalDepth1TowerSumEt_dr04 1 1 1 0 0 0 0 0
 h_ele_hcalDepth2TowerSumEt_dr04 1 1 1 0 0 0 1 1
+
+Distributions for all reconstructed electrons (i.e. not requiring a match with mc truth)
 
 h_recEleNum 1 0 1 0 0 0 1 0
 h_ele_EoverP_all 1 1 1  0 0 0 1 0
@@ -331,6 +352,8 @@ h_ele_HoE_all 1 1 1 0 0 0 1 0
 h_ele_mee_all 1 1 1 0 0 0 1 0
 h_ele_mee_os 1 1 1 0 0 0 1 1
 
+Reconstruction efficiency
+
 h_ele_absetaEff	0 0 1 1 h_ele_simAbsEta_matched h_mc_abseta 1 0
 h_ele_etaEff 0 0 1 1 h_ele_simEta_matched h_mc_eta 1 0
 h_ele_ptEff 0 0 1 1 h_ele_simPt_matched h_mc_Pt 1 0
@@ -339,10 +362,14 @@ h_ele_zEff 0 0 1 1 h_ele_simZ_matched h_mc_z 1 0
 h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_mc_eta 1 0
 h_ele_ptEff_all	0 0 1 1 h_ele_vertexPt_all h_mc_Pt 1 1
 
+Charge mis-ID
+
 h_ele_absetaQmisid 0 0 1 1 h_ele_abseta_matched_qmisid h_mc_abseta 1 0
 h_ele_etaQmisid	0 0 1 1 h_ele_eta_matched_qmisid h_mc_eta 1 0
 h_ele_ptQmisid 0 0 1 1 h_ele_Pt_matched_qmisid h_mc_Pt 1 0
 h_ele_zQmisid 0 0 1 1 h_ele_z_matched_qmisid h_mc_z 1 1
+
+2D profiles
 
 h_ele_vertexPtVsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_PoPtrueVsEta_pfx 0 0 1 0 0 0 1 0
@@ -369,6 +396,8 @@ else if ($VAL_ANALYZER == GsfElectronDataAnalyzer ) then
 
 cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 
+Basic electron quantities
+
 h_ele_charge 1 0 1 0 0 0 1 0
 h_ele_vertexPt 1 0 1 0 0 0 1 0
 h_ele_vertexEta 1 0 1 0 0 0 1 0
@@ -380,7 +409,10 @@ h_ele_vertexZ 1	0 1 0 0 0 1 0
 h_ele_vertexTIP 1 1 1 0 0 0 1 0
 h_ele_Et 1 0 1 0 0 0 1 0
 h_ele_outerP_mode 1 0 1 0 0 0 1 0
-h_ele_outerPt_mode 1 0 1 0 0 0 1 0
+h_ele_outerPt_mode 1 0 1 0 0 0 1 1
+
+Comparison with matching object (SC, Tag electron,..)
+
 h_ele_PoPmatchingObject 1 0 1 0 0 0 0 0
 h_ele_PoPmatchingObject_barrel 1 0 1 0 0 0 0 0
 h_ele_PoPmatchingObject_endcaps 1 0 1 0 0 0 1 0
@@ -390,7 +422,10 @@ h_ele_PtoPtmatchingObject_endcaps 1 0 1 0 0 0 1 0
 h_scl_EoEmatchingObject_barrel 1 0 1 0 0 0 0 0
 h_scl_EoEmatchingObject_endcaps 1 0 1 0 0 0 1 0
 h_ele_EtaMnEtamatchingObject 1 0 1 0 0 0 1 0
-h_ele_PhiMnPhimatchingObject 1 0 1 0 0 0 1 0
+h_ele_PhiMnPhimatchingObject 1 0 1 0 0 0 1 1
+
+Track-cluster matching and ele ID observables
+
 h_ele_EoP 1 1 1  0 0 0 1 0
 h_ele_EoPout 1 1 1 0 0 0 1 0
 h_ele_EeleOPout 1 1 1 0 0 0 1 0
@@ -400,7 +435,10 @@ h_ele_dEtaEleCl_propOut 1 1 1 0 0 0 1 0
 h_ele_dEtaSc_propVtx 1 1 1 0 0 0 1 0
 h_ele_dPhiCl_propOut 1 1 1 0 0 0 1 0
 h_ele_dPhiEleCl_propOut 1 1 1 0 0 0 1 0
-h_ele_dPhiSc_propVtx 1 1 1 0 0 0 1 0
+h_ele_dPhiSc_propVtx 1 1 1 0 0 0 1 1
+
+Electron Cluster shapes
+
 h_ele_HoE 1 1 1 0 0 0 1 0
 h_scl_sigietaieta 1 1 1 0 0 0 0 0 
 h_scl_sigietaieta_barrel 1 1 1 0 0 0 0 0 
@@ -413,15 +451,31 @@ h_scl_E2x5max_barrel 1 1 1 0 0 0 0 0
 h_scl_E2x5max_endcaps 1 1 1 0 0 0 1 0
 h_scl_E5x5 1 1 1 0 0 0 0 0
 h_scl_E5x5_barrel 1 1 1 0 0 0 0 0
-h_scl_E5x5_endcaps 1 1 1 0 0 0 1 0
+h_scl_E5x5_endcaps 1 1 1 0 0 0 1 1
+
+Electron track variables
+
 h_ele_chi2 1 1 1 0 0 0 1 0
 h_ele_foundHits 1 0 1 0 0 0 1 0
 h_ele_lostHits 1 0 1 0 0 0 1 0
-h_ele_ambiguousTracks 1 1 1 0 0 0 1 0
+h_ele_ambiguousTracks 1 1 1 0 0 0 1 1
+
+Brem fraction and related distributions
+
 h_ele_PinMnPout_mode 1 0 1 0 0 0 1 0 
 h_ele_fbrem 1 0 1 0 0 0 1 0
 h_ele_classes 1 0 1 0 0 0 1 0
-h_ele_mva 1 0 1 0 0 0 1 0
+h_ele_eta_bbremFrac 0 0 0 1 h_ele_eta_golden h_ele_eta 1 0
+h_ele_eta_goldenFrac 0 0 0 1 h_ele_eta_bbrem h_ele_eta 1 0
+h_ele_eta_narrowFrac 0 0 0 1 h_ele_eta_narrow h_ele_eta 1 0
+h_ele_eta_showerFrac 0 0 0 1 h_ele_eta_show h_ele_eta 1 0
+
+Particle flow mva
+
+h_ele_mva 1 0 1 0 0 0 1 1
+
+Isolation sums
+
 h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
 h_ele_ecalRecHitSumEt_dr03 1 1 1 0 0 0 1 0
 h_ele_hcalDepth1TowerSumEt_dr03 1 1 1 0 0 0 0 0
@@ -429,17 +483,24 @@ h_ele_hcalDepth2TowerSumEt_dr03 1 1 1 0 0 0 1 0
 h_ele_tkSumPt_dr04 1 1 1 0 0 0 1 0
 h_ele_ecalRecHitSumEt_dr04 1 1 1 0 0 0 1 0
 h_ele_hcalDepth1TowerSumEt_dr04 1 1 1 0 0 0 0 0
-h_ele_hcalDepth2TowerSumEt_dr04 1 1 1 0 0 0 1 0
+h_ele_hcalDepth2TowerSumEt_dr04 1 1 1 0 0 0 1 1
+
+Distributions for all reconstructed electrons (i.e. not requiring a match)
+
 h_recEleNum 1 0 1 0 0 0 1 0
 h_ele_mee_all 1 1 1 0 0 0 1 0
-h_ele_mee 1 1 1 0 0 0 1 0
 h_ele_mee_os 1 1 1 0 0 0 1 1
+
+Reconstruction efficiency
 
 h_ele_absetaEff	0 0 1 1 h_ele_matchingObjectAbsEta_matched h_SC_abseta 1 0
 h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_SC_eta 1 0
 h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_SC_Pt 1 0
 h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_SC_phi 1 0
-h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_SC_z 1 0
+h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_SC_z 1 1
+
+2D profiles
+
 h_ele_vertexPtVsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_PoPmatchingObjectVsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_PoPmatchingObjectVsPhi_pfx 0 0 1 0 0 0 1 0
@@ -458,16 +519,14 @@ h_ele_seedDrz2VsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_seedDrz2VsPt_pfx 0 0 1 0 0 0 1 0
 h_ele_fbremvsEtamean 0 0 1 0 0 0 1 0
 h_ele_fbremvsEtamode 0 0 1 0 0 0 1 0
-h_ele_eta_bbremFrac 0 0 0 1 h_ele_eta_golden h_ele_eta 1 0
-h_ele_eta_goldenFrac 0 0 0 1 h_ele_eta_bbrem h_ele_eta 1 0
-h_ele_eta_narrowFrac 0 0 0 1 h_ele_eta_narrow h_ele_eta 1 0
-h_ele_eta_showerFrac 0 0 0 1 h_ele_eta_show h_ele_eta 1 0
 
 EOF
 
 else if ($VAL_ANALYZER == GsfElectronFakeAnalyzer ) then
 
 cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+
+Basic electron quantities
 
 h_ele_charge 1 0 1 0 0 0 1 0
 h_ele_vertexPt 1 0 1 0 0 0 1 0
@@ -478,6 +537,8 @@ h_ele_vertexX 1 0 1 0 0 0 1 0
 h_ele_vertexY 1	0 1 0 0 0 1 0
 h_ele_vertexZ 1	0 1 0 0 0 1 0
 h_ele_vertexTIP 1 1 1 0 0 0 1 1
+
+Track-cluster matching and ele ID observables
 
 h_ele_EoP 1 1 1 0 0 0 0 0
 h_ele_EoP_barrel 1 1 1 0 0 0 0 0
@@ -508,7 +569,10 @@ h_ele_dPhiEleCl_propOut_barrel 1 1 1 0 0 0 0 0
 h_ele_dPhiEleCl_propOut_endcaps 1 1 1 0 0 0 1 0
 h_ele_dPhiSc_propVtx 1 1 1 0 0 0 0 0
 h_ele_dPhiSc_propVtx_barrel 1 1 1 0 0 0 0 0
-h_ele_dPhiSc_propVtx_endcaps 1 1 1 0 0 0 1 0
+h_ele_dPhiSc_propVtx_endcaps 1 1 1 0 0 0 1 1
+
+Electron Cluster shapes
+
 h_ele_HoE 1 1 1 0 0 0 0 0
 h_ele_HoE_barrel 1 1 1 0 0 0 0 0
 h_ele_HoE_endcaps 1 1 1 0 0 0 1 0
@@ -525,14 +589,20 @@ h_scl_E5x5 1 1 1 0 0 0 0 0
 h_scl_E5x5_barrel 1 1 1 0 0 0 0 0
 h_scl_E5x5_endcaps 1 1 1 0 0 0 1 1
 
+Electron track variables
+
 h_ele_chi2 1 1 1 0 0 0 1 0
 h_ele_foundHits 1 0 1 0 0 0 1 0
 h_ele_lostHits 1 0 1 0 0 0 1 0
 h_ele_ambiguousTracks 1 1 1 0 0 0 1 1
 
+Electron seeds
+
 h_ele_seedDphi2 1 0 1 0 0 0 1 0
 h_ele_seedDrz2 1 0 1 0 0 0 1 0
 h_ele_seedSubdet2 1 0 1 0 0 0 1 1
+
+Brem fraction and related distributions
 
 h_ele_fbrem 1 0 1 0 0 0 1 0
 h_ele_classes 1	0 1 0 0 0 1 0
@@ -541,7 +611,11 @@ h_ele_eta_goldenFrac 0 0 0 1 h_ele_eta_bbrem h_ele_eta 1 0
 h_ele_eta_narrowFrac 0 0 0 1 h_ele_eta_narrow h_ele_eta 1 0
 h_ele_eta_showerFrac 0 0 0 1 h_ele_eta_show h_ele_eta 1 1
 
+Particle flow mva
+
 h_ele_mva 1 0 1 0 0 0 1 1
+
+Isolation sums
 
 h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
 h_ele_ecalRecHitSumEt_dr03 1 1 1 0 0 0 1 0
@@ -551,6 +625,8 @@ h_ele_tkSumPt_dr04 1 1 1 0 0 0 1 0
 h_ele_ecalRecHitSumEt_dr04 1 1 1 0 0 0 1 0
 h_ele_hcalDepth1TowerSumEt_dr04 1 1 1 0 0 0 0 0
 h_ele_hcalDepth2TowerSumEt_dr04	1 1 1 0 0 0 1 1
+
+Distributions for all reconstructed electrons (i.e. not requiring a match with a reco jet)
 
 h_recEleNum 1 0 1 0 0 0 1 0
 h_ele_EoverP_all 1 1 1 0 0 0 1 0
@@ -566,6 +642,8 @@ h_ele_HoE_all 1	1 1 0 0 0 1 0
 h_ele_mee_all 1	0 1 0 0 0 1 0
 h_ele_mee_os 1	0 1 0 0 0 1 1
 
+Reconstruction efficiency
+
 h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_CaloJet_abseta 1 0
 h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_CaloJet_eta 1 0
 h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_CaloJet_Pt 1 0
@@ -573,6 +651,8 @@ h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_CaloJet_phi 1 0
 h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_CaloJet_z 1 0
 h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_CaloJet_eta 1 0
 h_ele_ptEff_all 0 0 1 1 h_ele_vertexPt_all h_CaloJet_Pt 1 1
+
+2D profiles
 
 h_ele_vertexPtVsEta_pfx 0 0 1 0 0 0 1 0
 h_ele_EoPVsEta_pfx 0 0 1 0 0 0 1 0
