@@ -102,7 +102,7 @@ web_page<<"<p>" ;
 if (file_old==0)
  {
   web_page
-	 <<"In all TOTO plots below"
+	 <<"In all plots below"
 	 <<", there was no "<<val_ref_release<<" histograms to compare with"
      <<", and the <a href=\""<<val_new_file_url<<"\">"<<val_new_release<<" histograms</a> are in red"
 	 <<"." ;
@@ -131,33 +131,39 @@ web_page
   <<"." ;
 web_page<<"</p>\n" ;
 
-std::string histo_name, gif_name, canvas_name ;
+std::string histo_name, gif_name, gif_path, canvas_name ;
 TString short_histo_name ;
 int scaled, log, err ;
 int divide;
 std::string num, denom;
+int eol ; // end of line
+int eoc ; // enf of category
 
 std::ifstream histo_file1(histos_path.c_str()) ;
-web_page<<"<br><hr><table cellpadding=\"5\" width=\"100%\"><tr valign=\"top\"><td width=\"20%\">\n" ;
-int histo_num = 0 ;
-while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
+web_page
+  <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
+  <<"<tr valign=\"top\"><td width=\"20%\">\n" ;
+int cat_num = 0 ;
+while (histo_file1>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
-  if ((histo_num!=0)&&((histo_num%24)==0))
-   { web_page<<"</td><td width=\"20%\">\n" ; }
-  histo_num++ ;
   short_histo_name = histo_name ;
   short_histo_name.Remove(0,2) ;
   web_page<<"<a href=\"#"<<short_histo_name<<"\">"<<short_histo_name<<"</a><br>\n" ;
+  if (eoc)
+   {
+	cat_num++ ;
+    if ((cat_num%5)==0)
+	 { web_page<<"</td></tr>\n<tr valign=\"top\"><td width=\"20%\">" ; }
+	else
+     { web_page<<"</td><td width=\"20%\">\n" ; }
+   }
  }
-web_page<<"</td></tr></table><hr>\n" ;
+web_page<<"</td></tr></table>\n" ;
 histo_file1.close() ;
 
+web_page<<"<br><br><table cellpadding=\"5\"><tr valign=\"top\"><td>\n" ;
 std::ifstream histo_file2(histos_path.c_str()) ;
-std::string gif_name, gif_path, canvas_name ;
-int scaled, log, err ;
-int divide;
-std::string num, denom;
-while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
+while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom>>eol>>eoc)
  {
   gif_name = "gifs/"+histo_name+".gif" ;
   gif_path = val_web_path+"/"+gif_name ;
@@ -166,7 +172,8 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
   canvas->SetFillColor(10) ;
   short_histo_name = histo_name ;
   short_histo_name.Remove(0,2) ;
-  web_page<<"<br><br><a id=\""<<short_histo_name<<"\" name=\""<<short_histo_name<<"\"></a><p>" ;
+
+  web_page<<"<a id=\""<<short_histo_name<<"\" name=\""<<short_histo_name<<"\"></a>" ;
 
   if ( file_old != 0 )
    {
@@ -255,9 +262,13 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
    {
     web_page<<"No <b>"<<histo_name<<"</b> for "<<val_new_release<<".<br>" ;
    }
-  web_page<<"</p>\n" ;
+  if (eol)
+   { web_page<<"</td></tr>\n<tr valign=\"top\"><td>" ; }
+  else
+   { web_page<<"</td><td>" ; }
  }
 histo_file2.close() ;
+web_page<<"</td></tr></table>\n" ;
 
 // cumulated efficiencies
 
