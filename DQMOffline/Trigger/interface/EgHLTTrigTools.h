@@ -11,7 +11,7 @@ namespace egHLT {
   namespace trigTools {
     TrigCodes::TrigBitSet getFiltersPassed(const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag);
     template<class T> void setFiltersObjPasses(std::vector<T>& objs,const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
-    
+    int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
   }
   
   //I have the horrible feeling that I'm converting into an intermediatry format and then coverting back again
