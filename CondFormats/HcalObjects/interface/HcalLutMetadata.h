@@ -18,10 +18,10 @@ class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
   std::string myname() const {return (std::string)"HcalLutMetadata";}
     
   bool  setRctLsb(float rctlsb);
-  float getRctLsb(){return mNonChannelData.mRctLsb;}
+  float getRctLsb() const {return mNonChannelData.mRctLsb;}
   
   bool  setNominalGain(float gain);
-  float getNominalGain(){return mNonChannelData.mNominalGain;}
+  float getNominalGain() const {return mNonChannelData.mNominalGain;}
   
   class NonChannelData{
     friend class HcalLutMetadata;

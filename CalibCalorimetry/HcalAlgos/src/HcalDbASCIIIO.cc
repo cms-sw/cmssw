@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.49 2009/08/27 07:25:20 elmer Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.50 2009/09/01 00:24:15 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -861,6 +861,74 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
 	fOutput << buf << std::endl;
       }
     }
+  }
+  return true;
+}
+
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLutMetadata* fObject){
+  if (!fObject) fObject = new HcalLutMetadata;
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    // now get non-channel data
+    if (items.size() > 1 && 
+	items[0].find("RctLsb")!=std::string::npos){
+      fObject->setRctLsb( atof( items[1].c_str() ) );
+      continue;
+    }
+    if (items.size() > 1 && 
+	items[0].find("Gain")!=std::string::npos){
+      fObject->setNominalGain( atof( items[1].c_str() ) );
+      continue;
+    }
+    // now proceeed to per-channel data
+    if (items.size () < 7) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 7 items: eta, phi, depth, subdet, Rcalib, LutGranularity, OutputLutThreshold" << std::endl;
+      continue;
+    }
+    DetId id = getId (items);
+    
+    HcalLutMetadatum * fCondObject = new HcalLutMetadatum(id,
+							  atof (items [4].c_str()),
+							  atoi (items [5].c_str()),
+							  atoi (items [6].c_str()));
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLutMetadata& fObject){
+  char buffer [1024];
+  const float _rctLsb = fObject.getRctLsb();
+  const float _gain   = fObject.getNominalGain();
+  sprintf (buffer, "# %20s\n", "Non-channel data");
+  fOutput << buffer;
+  sprintf (buffer, "%8s %8.5f\n", "RctLsb", _rctLsb);
+  fOutput << buffer;
+  sprintf (buffer, "%8s %8.5f\n", "Gain", _gain);
+  fOutput << buffer;
+  sprintf (buffer, "# %15s %15s %15s %15s %8s %15s %19s %10s\n", "eta", "phi", "dep", "det", "Rcalib", "LutGranularity", "OutputLutThreshold", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    const float   _rCalib             = fObject.getValues (*channel)->getRCalib();
+    const uint8_t _lutGranularity     = fObject.getValues (*channel)->getLutGranularity();
+    const uint8_t _outputLutThreshold = fObject.getValues (*channel)->getOutputLutThreshold();
+    dumpId (fOutput, *channel);
+    sprintf (buffer, " %8.5f %15d %19d %10X\n",
+	     _rCalib,
+	     _lutGranularity,
+	     _outputLutThreshold,
+	     channel->rawId ());
+    fOutput << buffer;
   }
   return true;
 }

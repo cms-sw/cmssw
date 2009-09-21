@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.13 2009/05/20 15:54:22 rofierzy Exp $
+// $Id: HcalTextCalibrations.cc,v 1.14 2009/07/30 20:09:03 kukartse Exp $
 //
 //
 
@@ -90,11 +90,16 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::produceValidationCorrs);
       findingRecord <HcalValidationCorrsRcd> ();
     }
+    else if (objectName == "LutMetadata") {
+      setWhatProduced (this, &HcalTextCalibrations::produceLutMetadata);
+      findingRecord <HcalLutMetadataRcd> ();
+    }
     else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName 
 		<< "', known names are: "
 		<< "Pedestals PedestalWidths Gains GainWidths QIEData ChannelQuality ElectronicsMap "
-		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects ValidationCorrs"
+		<< "ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
+		<< "ValidationCorrs LutMetadata "
 		<< std::endl;
     }
   }
@@ -190,3 +195,6 @@ std::auto_ptr<HcalValidationCorrs> HcalTextCalibrations::produceValidationCorrs 
   return produce_impl<HcalValidationCorrs> (mInputs ["ValidationCorrs"]);
 }
 
+std::auto_ptr<HcalLutMetadata> HcalTextCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
+  return produce_impl<HcalLutMetadata> (mInputs ["LutMetadata"]);
+}

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.20 2009/05/20 15:54:20 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.21 2009/07/30 20:09:03 kukartse Exp $
 //
 //
 
@@ -135,6 +135,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     if ((*objectName == "ValidationCorrs") || (*objectName == "ResponseCorrection") || all) {
       setWhatProduced (this, &HcalHardcodeCalibrations::produceValidationCorrs);
       findingRecord <HcalValidationCorrsRcd> ();
+    }
+    if ((*objectName == "LutMetadata") || (*objectName == "electronicsMap") || all) {
+      setWhatProduced (this, &HcalHardcodeCalibrations::produceLutMetadata);
+      findingRecord <HcalLutMetadataRcd> ();
     }
   }
 }
@@ -309,6 +313,21 @@ std::auto_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCo
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalValidationCorr item(cell->rawId(),1.0);
+    result->addValues(item,h2mode_);
+  }
+  return result;
+}
+
+std::auto_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLutMetadata-> ...";
+  std::auto_ptr<HcalLutMetadata> result (new HcalLutMetadata ());
+
+  result->setRctLsb( 0.25 );
+  result->setNominalGain( 0.177 );
+
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalLutMetadatum item(cell->rawId(),1.0,1,1);
     result->addValues(item,h2mode_);
   }
   return result;

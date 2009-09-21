@@ -6,9 +6,9 @@ R.Ofierzynski - 2.Oct. 2007
    testHcalDBFake.cfg
    testHcalDBFrontier.cfg
 
-July 29, 2009
-   Gena Kukartsev
-   Added HcalValidationCorrs
+July 29, 2009       Added HcalValidationCorrs - Gena Kukartsev
+September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
+   
 ----------------------------------------------------------------------*/
 
 #include <stdexcept>
@@ -115,6 +115,8 @@ namespace edmtest
       dumpIt(new HcalPFCorrs, new HcalPFCorrsRcd, e,context,"PFCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ValidationCorrs")) != mDumpRequest.end())
       dumpIt(new HcalValidationCorrs, new HcalValidationCorrsRcd, e,context,"ValidationCorrs");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LutMetadata")) != mDumpRequest.end())
+      dumpIt(new HcalLutMetadata, new HcalLutMetadataRcd, e,context,"LutMetadata");
     
   }
   DEFINE_FWK_MODULE(HcalDumpConditions);

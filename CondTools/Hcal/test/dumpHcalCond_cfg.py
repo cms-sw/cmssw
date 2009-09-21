@@ -2,7 +2,8 @@
 ## (can be also used to dump sqlite content or to test fake conditions reading in CMSSW)
 ## Radek Ofierzynski, 9.11.2008
 ##
-## Gena Kukartsev, 29.07.2009
+## Gena Kukartsev, July 29, 2009
+## Gena Kukartsev, September 21, 2009
 
 import FWCore.ParameterSet.Config as cms
 
@@ -27,6 +28,7 @@ process.prod = cms.EDFilter("HcalDumpConditions",
         ,'L1TriggerObjects'
         ,'ZSThresholds'
         ,'ValidationCorrs' 
+        ,'LutMetadata' 
                                  ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
@@ -79,10 +81,14 @@ process.source = cms.Source("EmptySource",
 #        cms.PSet(
 #            record = cms.string('HcalValidationCorrsRcd'),
 #            tag = cms.string('hcal_validationcorr_trivial_v1.01_mc')
+#        ),
+#        cms.PSet(
+#            record = cms.string('HcalLutMetadataRcd'),
+#            tag = cms.string('hcal_lutmetadata_trivial_v1.01_mc')
 #        ) 
 #)
 #)
-#
+
 
 ## specify which conditions should be taken for input, 
 ## you can mix different es_sources as long as it's unique for each object
@@ -112,13 +118,18 @@ process.source = cms.Source("EmptySource",
 #         cms.PSet(
 #             record = cms.string('HcalElectronicsMapRcd'),
 #             tag = cms.string('official_emap_v5_080208_mc')
-#             )
+#             ),
+#         cms.PSet(
+#             record = cms.string('HcalLutMetadataRcd'),
+#             tag = cms.string('hcal_lutmetadata_trivial_v1.01_mc')
+#         ) 
 #         )
 # )
 
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-     toGet = cms.untracked.vstring('GainWidths', 
-         'ZSThresholds')
+     toGet = cms.untracked.vstring('GainWidths',
+                                   'LutMetadata',
+                                   'ZSThresholds')
  )
 
 #process.es_ascii = cms.ESSource("HcalTextCalibrations",
@@ -162,7 +173,11 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 #         cms.PSet(
 #             object = cms.string('ValidationCorrs'),
 #             file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_validationCorr_trivial_HF0.7.txt')
-#         )
+#         ),
+#         cms.PSet(
+#             record = cms.string('HcalLutMetadataRcd'),
+#             tag = cms.string('CondFormats/HcalObjects/data/hcal_lutmetadata_trivial_v1.01_mc')
+#         ) 
 #         )
 # )
 
