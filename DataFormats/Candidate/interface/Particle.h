@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.26 2008/02/19 13:16:52 llista Exp $
+ * \version $Id: Particle.h,v 1.27 2008/02/21 09:04:06 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -31,7 +31,10 @@ namespace reco {
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle() : cachePolarFixed_( false ) { }
+    Particle() :
+      qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0), 
+      vertex_(0, 0, 0), pdgId_(0), status_(0),
+      cachePolarFixed_( false ) { }
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) : 
