@@ -108,48 +108,48 @@ namespace edm {
 
 // -----------------------------------------------------------------------
 
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   AllowedLabelsDescription(std::string const& label,
                            bool isTracked) :
     AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
-    vPsetDesc_()
+    psetDesc_()
   {              
   }
 
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   AllowedLabelsDescription(char const* label,
                            bool isTracked) :
     AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
-    vPsetDesc_()
+    psetDesc_()
   {
   }
 
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   AllowedLabelsDescription(std::string const& label,
-                           std::vector<ParameterSetDescription> const& value,
+                           ParameterSetDescription const& value,
                            bool isTracked) :
     AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
-    vPsetDesc_(new std::vector<ParameterSetDescription>(value))
+    psetDesc_(new ParameterSetDescription(value))
   {
   }
 
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   AllowedLabelsDescription(char const* label,
-                           std::vector<ParameterSetDescription> const& value,
+                           ParameterSetDescription const& value,
                            bool isTracked) :
     AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
-    vPsetDesc_(new std::vector<ParameterSetDescription>(value))
+    psetDesc_(new ParameterSetDescription(value))
   {
   }
 
   ParameterDescriptionNode*
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   clone() const {
     return new AllowedLabelsDescription(*this);
   }
 
   void
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   printNestedContent_(std::ostream & os,
                       bool optional,
                       DocFormatHelper & dfh) {
@@ -178,67 +178,32 @@ namespace edm {
 
     os << std::setfill(' ') << std::setw(indentation) << "";
     os << "Section " << newSection
-       << " VPSet description:\n";
-
-    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
-      os << std::setfill(' ')
-         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-         << "";
-      os << "[" << (i - 1) << "]: see Section " << dfh.section() << "." << dfh.counter()
-         << ".1." << i << "\n";
-    }
+       << " PSet description used to validate all elements of VPSet's:\n";
     if (!dfh.brief()) os << "\n";
 
-    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
+    DocFormatHelper new_dfh(dfh);
+    new_dfh.setSection(newSection);
+    new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+    new_dfh.setParent(DocFormatHelper::OTHER);
 
-      std::stringstream ss2;
-      ss2 << newSection << "." << i;
-      std::string newSection2 = ss2.str();
-
-      os << std::setfill(' ') << std::setw(indentation) << "";
-      os << "Section " << newSection2 << " PSet description:\n";
-      if (!dfh.brief()) os << "\n";
-
-      DocFormatHelper new_dfh(dfh);
-      new_dfh.setSection(newSection2);
-      new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
-      new_dfh.setParent(DocFormatHelper::OTHER);
-      (*vPsetDesc_)[i - 1].print(os, new_dfh);
-    }
+    psetDesc_->print(os, new_dfh);
   }
 
   void
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
+  AllowedLabelsDescription<std::vector<ParameterSet> >::
   validateAllowedLabel_(std::string const& allowedLabel,
                         ParameterSet & pset,
                         std::set<std::string> & validatedLabels) const {
     if (pset.existsAs<std::vector<ParameterSet> >(allowedLabel, isTracked())) {
       validatedLabels.insert(allowedLabel);
 
-      if (vPsetDesc_) {
+      if (psetDesc_) {
         VParameterSetEntry * vpsetEntry = pset.getPSetVectorForUpdate(allowedLabel);
         assert(vpsetEntry);
-        if (vpsetEntry->size() != vPsetDesc_->size()) {
-          throw edm::Exception(errors::Configuration)
-            << "Unexpected number of ParameterSets in vector of parameter sets named \"" << allowedLabel << "\".";
+        for (unsigned i = 0; i < vpsetEntry->size(); ++i) {
+          psetDesc_->validate(vpsetEntry->psetInVector(i));
         }
-        int i = 0;
-        for_all(*vPsetDesc_,
-                boost::bind(&AllowedLabelsDescription<std::vector<ParameterSetDescription> >::validateDescription,
-                            boost::cref(this),
-                            _1,
-                            vpsetEntry,
-                            boost::ref(i)));
       }
     }
-  }
-
-  void
-  AllowedLabelsDescription<std::vector<ParameterSetDescription> >::
-  validateDescription(ParameterSetDescription const& psetDescription,
-                      VParameterSetEntry * vpsetEntry,
-                      int & i) const {
-    psetDescription.validate(vpsetEntry->psetInVector(i));
-    ++i;
   }
 }

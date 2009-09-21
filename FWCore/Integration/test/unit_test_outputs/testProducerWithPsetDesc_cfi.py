@@ -170,36 +170,47 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     oDrinks = cms.uint32(5),
     ouDrinks = cms.untracked.uint32(5)
   ),
+  test104 = cms.untracked.VPSet(
+    cms.PSet()
+  ),
+  test105 = cms.untracked.VPSet(
+  ),
+  test1 = cms.double(0.1),
+  test2 = cms.double(0.2),
+  testA = cms.string('fooA'),
+  testB = cms.int32(100),
+  testC = cms.int32(101),
+  oiswitch = cms.int32(1),
+  oivalue1 = cms.double(101),
+  oivalue2 = cms.double(101),
+  testDeeplyNested2 = cms.PSet(
+    bswitch = cms.bool(False),
+    bvalue1 = cms.double(101),
+    bvalue2 = cms.double(101),
+    iswitch = cms.int32(1),
+    ivalue1 = cms.double(101),
+    ivalue2 = cms.untracked.double(101),
+    sswitch = cms.string('1'),
+    svalue1 = cms.double(101),
+    svalue2 = cms.double(101),
+    testint = cms.int32(1000)
+  ),
   bars = cms.VPSet(
     cms.PSet(
-      Drinks = cms.uint32(5),
-      uDrinks = cms.untracked.uint32(5),
-      oDrinks = cms.uint32(5),
-      ouDrinks = cms.untracked.uint32(5)
+      oDrinks = cms.uint32(11)
     ),
     cms.PSet(
-      Drinks = cms.uint32(5),
-      uDrinks = cms.untracked.uint32(5),
-      oDrinks = cms.uint32(5),
-      ouDrinks = cms.untracked.uint32(5),
+      ndouDrinks = cms.untracked.uint32(11),
+      oDrinks = cms.uint32(11),
+      ouDrinks = cms.untracked.uint32(11),
       testDeeplyNested = cms.PSet(
-        test1 = cms.double(0.1),
-        test2 = cms.double(0.2),
-        testA = cms.string('fooA'),
-        testB = cms.int32(100),
-        testC = cms.int32(101),
-        bswitch = cms.bool(False),
-        bvalue1 = cms.double(101),
-        bvalue2 = cms.double(101),
-        iswitch = cms.int32(1),
-        ivalue1 = cms.double(101),
-        ivalue2 = cms.untracked.double(101),
-        sswitch = cms.string('1'),
-        svalue1 = cms.double(101),
-        svalue2 = cms.double(101),
-        oiswitch = cms.int32(1),
-        oivalue1 = cms.double(101),
-        oivalue2 = cms.double(101)
+        testint = cms.int32(2)
+      ),
+      anotherVPSet = cms.VPSet(
+        cms.PSet(),
+        cms.PSet(
+          xvalue = cms.int32(17)
+        )
       )
     )
   ),

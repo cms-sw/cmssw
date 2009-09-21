@@ -80,6 +80,11 @@ namespace edm {
     // This should only be called to allow backwards compatibility.
     void setUnknown();
 
+    // ***** In these next 8 functions named "add", T is the parameter type ******
+    // Exceptions: For parameters of type ParameterSet, T should be a
+    // ParameterSetDescription instead of a ParameterSet.  And do not
+    // use these next 8 functions for parameters of type vector<ParameterSet>
+
     template<typename T, typename U>
     ParameterDescriptionBase * add(U const& iLabel, T const& value) {
       return add<T, U>(iLabel, value, true, false, true);
@@ -100,10 +105,8 @@ namespace edm {
       return add<T, U>(iLabel, value, false, true, true);
     }
 
-    // The next four will not compile with a template argument of ParameterSetDescription
-    // or vector<ParameterSetDescription>.  We think there is no need for that use case,
-    // but if we are wrong support for this could be added in a couple different ways as
-    // a future development.
+    // For the next 4 functions, there is no default so they will not get injected
+    // during validation if missing and they will not get written into cfi files.
 
     template<typename T, typename U>
     ParameterDescriptionBase * add(U const& iLabel) {
@@ -125,6 +128,71 @@ namespace edm {
       return add<T, U>(iLabel, false, true, false);
     }
 
+    // ***** Use these 8 functions for parameters of type vector<ParameterSet> *****
+    // When a vector<ParameterSet> appears in a configuration, all of its
+    // elements will be validated using the description in the argument named
+    // "validator" below.  The argument named "defaults" is used when the
+    // a vector<ParameterSet> is required to be in the configuration and
+    // is absent.  Note that these default ParameterSet's will be validated
+    // as if they had appeared in the configuration so they must be consistent
+    // with the description and missing parameters that have defaults in
+    // in the description will be inserted during validation.  These defaults
+    // are also used when writing cfi files.
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSet(U const& iLabel,
+                                        ParameterSetDescription const& validator,
+                                        std::vector<ParameterSet> const& defaults) {
+      return addVPSet<U>(iLabel, validator, defaults, true, false, true);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSetUntracked(U const& iLabel,
+                                        ParameterSetDescription const& validator,
+                                        std::vector<ParameterSet> const& defaults) {
+      return addVPSet<U>(iLabel, validator, defaults, false, false, true);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSetOptional(U const& iLabel,
+                                        ParameterSetDescription const& validator,
+                                        std::vector<ParameterSet> const& defaults) {
+      return addVPSet<U>(iLabel, validator, defaults, true, true, true);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSetOptionalUntracked(U const& iLabel,
+                                        ParameterSetDescription const& validator,
+                                        std::vector<ParameterSet> const& defaults) {
+      return addVPSet<U>(iLabel, validator, defaults, false, true, true);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSet(U const& iLabel,
+                                        ParameterSetDescription const& validator) {
+      return addVPSet<U>(iLabel, validator, true, false, false);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSetUntracked(U const& iLabel,
+                                        ParameterSetDescription const& validator) {
+      return addVPSet<U>(iLabel, validator, false, false, false);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSetOptional(U const& iLabel,
+                                        ParameterSetDescription const& validator) {
+      return addVPSet<U>(iLabel, validator, true, true, false);
+    }
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSetOptionalUntracked(U const& iLabel,
+                                        ParameterSetDescription const& validator) {
+      return addVPSet<U>(iLabel, validator, false, true, false);
+    }
+
+    // ********* Wildcards *********
+
     template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern) {
       return addWildcard<T, U>(pattern, true);
@@ -135,11 +203,14 @@ namespace edm {
       return addWildcard<T, U>(pattern, false);
     }
 
+    // ********* Used to insert generic nodes of any type ************
+
     ParameterDescriptionNode* addNode(ParameterDescriptionNode const& node);
     ParameterDescriptionNode* addNode(std::auto_ptr<ParameterDescriptionNode> node);
     ParameterDescriptionNode* addOptionalNode(ParameterDescriptionNode const& node, bool writeToCfi);
     ParameterDescriptionNode* addOptionalNode(std::auto_ptr<ParameterDescriptionNode> node, bool writeToCfi);
 
+    // ********* Switches ************
     // ifValue will only work with type T as a bool, int, or string.
     // T holds the value of the switch variable.
     // If you try using any other type, then it will not compile.
@@ -158,6 +229,7 @@ namespace edm {
       return ifValue<T>(switchParameter, cases, true, writeToCfi);
     }
 
+    // ********* if exists ************
     ParameterDescriptionNode*
     ifExists(ParameterDescriptionNode const& node1,
 	     ParameterDescriptionNode const& node2) {
@@ -171,6 +243,7 @@ namespace edm {
       return ifExists(node1, node2, true, writeToCfi);
     }
 
+    // ********* for parameters that are a list of allowed labels *********
     template<typename T, typename U>
     ParameterDescriptionNode*
     labelsFrom(U const& iLabel) {
@@ -196,29 +269,35 @@ namespace edm {
     }
 
     // These next four functions only work when the template
-    // parameter is ParameterSetDescription or vector<ParameterSetDescription>
-    template<typename T, typename U>
+    // parameters are:
+    // T = ParameterSetDescription and V = ParameterSetDescription
+    // or
+    // T = vector<ParameterSet> and V = ParameterSetDescription
+    // In either case U can be either a string or char*
+    // Note the U and V can be determined from the arguments, but
+    // T must be explicitly specified by the calling function.
+    template<typename T, typename U, typename V>
     ParameterDescriptionNode*
-    labelsFrom(U const& iLabel, T const& desc) {
-      return labelsFrom<T,U>(iLabel, true, false, true, desc);
+    labelsFrom(U const& iLabel, V const& desc) {
+      return labelsFrom<T,U,V>(iLabel, true, false, true, desc);
     }
 
-    template<typename T, typename U>
+    template<typename T, typename U, typename V>
     ParameterDescriptionNode*
-    labelsFromUntracked(U const& iLabel, T const& desc) {
-      return labelsFrom<T,U>(iLabel, false, false, true, desc);
+    labelsFromUntracked(U const& iLabel, V const& desc) {
+      return labelsFrom<T,U,V>(iLabel, false, false, true, desc);
     }
 
-    template<typename T, typename U>
+    template<typename T, typename U, typename V>
     ParameterDescriptionNode*
-    labelsFromOptional(U const& iLabel, bool writeToCfi, T const& desc) {
-      return labelsFrom<T,U>(iLabel, true, true, writeToCfi, desc);
+    labelsFromOptional(U const& iLabel, bool writeToCfi, V const& desc) {
+      return labelsFrom<T,U,V>(iLabel, true, true, writeToCfi, desc);
     }
 
-    template<typename T, typename U>
+    template<typename T, typename U, typename V>
     ParameterDescriptionNode*
-    labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi, T const& desc) {
-      return labelsFrom<T,U>(iLabel, false, true, writeToCfi, desc);
+    labelsFromOptionalUntracked(U const& iLabel, bool writeToCfi, V const& desc) {
+      return labelsFrom<T,U,V>(iLabel, false, true, writeToCfi, desc);
     }
 
     bool anythingAllowed() const { return anythingAllowed_; }
@@ -254,6 +333,17 @@ namespace edm {
     ParameterDescriptionBase * add(U const& iLabel,
                                    bool isTracked, bool isOptional, bool writeToCfi);
 
+    template<typename U>
+    ParameterDescriptionBase * addVPSet(U const& iLabel,
+					ParameterSetDescription const& validator,
+                                        std::vector<ParameterSet> const& defaults,
+                                        bool isTracked, bool isOptional, bool writeToCfi);
+
+    template<typename U>
+    ParameterDescriptionBase * addVPSet(U const& iLabel,
+					ParameterSetDescription const& validator,
+                                        bool isTracked, bool isOptional, bool writeToCfi);
+
     template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern, bool isTracked);
 
@@ -274,9 +364,9 @@ namespace edm {
     ParameterDescriptionNode*
     labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi);
 
-    template<typename T, typename U>
+    template<typename T, typename U, typename V>
     ParameterDescriptionNode*
-    labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc);
+    labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, V const& desc);
 
     static
     void
@@ -347,6 +437,37 @@ namespace edm {
     return pdReturn;
   }
 
+  template<typename U>
+  ParameterDescriptionBase *
+  ParameterSetDescription::addVPSet(U const& iLabel,
+                                    ParameterSetDescription const& validator,
+                                    std::vector<ParameterSet> const& defaults,
+                                    bool isTracked, bool isOptional, bool writeToCfi) {
+    std::auto_ptr<ParameterDescriptionBase> pdbase(
+        new ParameterDescription<std::vector<ParameterSet> >(iLabel, validator, isTracked, defaults));
+
+    ParameterDescriptionBase* pdReturn = pdbase.get();
+    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
+    addNode(node, isOptional, writeToCfi);
+
+    return pdReturn;
+  }
+
+  template<typename U>
+  ParameterDescriptionBase *
+  ParameterSetDescription::addVPSet(U const& iLabel,
+                                    ParameterSetDescription const& validator,
+                                    bool isTracked, bool isOptional, bool writeToCfi) {
+    std::auto_ptr<ParameterDescriptionBase> pdbase(
+        new ParameterDescription<std::vector<ParameterSet> >(iLabel, validator, isTracked));
+
+    ParameterDescriptionBase* pdReturn = pdbase.get();
+    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
+    addNode(node, isOptional, writeToCfi);
+
+    return pdReturn;
+  }
+
   template<typename T, typename U>
   ParameterWildcardBase*
   ParameterSetDescription::addWildcard(U const& pattern, bool isTracked) {
@@ -375,9 +496,9 @@ namespace edm {
     return addNode(pd, optional, writeToCfi);
   }
 
-  template<typename T, typename U>
+  template<typename T, typename U, typename V>
   ParameterDescriptionNode*
-  ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, T const& desc) {
+  ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, V const& desc) {
     std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, desc, isTracked));
     return addNode(pd, optional, writeToCfi);
   }

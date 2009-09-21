@@ -83,7 +83,7 @@ namespace edm {
   };
 
   template<>
-    class AllowedLabelsDescription<std::vector<ParameterSetDescription> > : public AllowedLabelsDescriptionBase {
+  class AllowedLabelsDescription<std::vector<ParameterSet> > : public AllowedLabelsDescriptionBase {
 
   public:
     AllowedLabelsDescription(std::string const& label,
@@ -93,11 +93,11 @@ namespace edm {
                              bool isTracked);
 
     AllowedLabelsDescription(std::string const& label,
-                             std::vector<ParameterSetDescription> const& value,
+                             ParameterSetDescription const& value,
                              bool isTracked);
 
     AllowedLabelsDescription(char const* label,
-                             std::vector<ParameterSetDescription> const& value,
+                             ParameterSetDescription const& value,
                              bool isTracked);
 
     virtual ParameterDescriptionNode* clone() const;
@@ -112,12 +112,7 @@ namespace edm {
                                        ParameterSet & pset,
                                        std::set<std::string> & validatedLabels) const;
 
-    void
-    validateDescription(ParameterSetDescription const& psetDescription,
-                        VParameterSetEntry * vpsetEntry,
-                        int & i) const;
-
-    value_ptr<std::vector<ParameterSetDescription> > vPsetDesc_;
+    value_ptr<ParameterSetDescription> psetDesc_;
   };
 }
 #endif

@@ -221,7 +221,7 @@ namespace testParameterSetDescription {
 
     {
       edm::ParameterSetDescription set;
-      edm::ParameterWildcard<std::vector<edm::ParameterSetDescription> > w("*", edm::RequireZeroOrMore, true);
+      edm::ParameterWildcard<std::vector<edm::ParameterSet> > w("*", edm::RequireZeroOrMore, true);
       set.addNode(w);
       edm::ParameterSet pset;
       testDesc(w, set, pset, true, true);
@@ -233,7 +233,7 @@ namespace testParameterSetDescription {
 
     {
       edm::ParameterSetDescription set;
-      edm::ParameterWildcard<std::vector<edm::ParameterSetDescription> > w(std::string("*"), edm::RequireZeroOrMore, true);
+      edm::ParameterWildcard<std::vector<edm::ParameterSet> > w(std::string("*"), edm::RequireZeroOrMore, true);
       set.addNode(w);
       edm::ParameterSet pset;
       testDesc(w, set, pset, true, true);
@@ -245,8 +245,8 @@ namespace testParameterSetDescription {
 
     {
       edm::ParameterSetDescription set;
-      edm::ParameterWildcard<std::vector<edm::ParameterSetDescription> > w("*", edm::RequireZeroOrMore, true,
-									   std::vector<edm::ParameterSetDescription>());
+      edm::ParameterWildcard<std::vector<edm::ParameterSet> > w("*", edm::RequireZeroOrMore, true,
+                                                                edm::ParameterSetDescription());
       set.addNode(w);
       edm::ParameterSet pset;
       testDesc(w, set, pset, true, true);
@@ -256,16 +256,12 @@ namespace testParameterSetDescription {
       testDesc(w, set, pset, true, false);
     }
 
-    std::vector<edm::ParameterSetDescription> nestedDescs;
     edm::ParameterSetDescription descElement;
     descElement.addUntracked<unsigned>("n11", 1);
-    nestedDescs.push_back(descElement);
-    nestedDescs.push_back(descElement);
-
     {
       edm::ParameterSetDescription set;
-      edm::ParameterWildcard<std::vector<edm::ParameterSetDescription> > w("*", edm::RequireZeroOrMore, true,
-                                                             nestedDescs);
+      edm::ParameterWildcard<std::vector<edm::ParameterSet> > w("*", edm::RequireZeroOrMore, true,
+                                                                descElement);
       set.addNode(w);
       edm::ParameterSet pset;
       testDesc(w, set, pset, true, true);
@@ -277,8 +273,8 @@ namespace testParameterSetDescription {
 
     {
       edm::ParameterSetDescription set;
-      edm::ParameterWildcard<std::vector<edm::ParameterSetDescription> > w(std::string("*"), edm::RequireExactlyOne, true,
-                                                             nestedDescs);
+      edm::ParameterWildcard<std::vector<edm::ParameterSet> > w(std::string("*"), edm::RequireExactlyOne, true,
+                                                                descElement);
       set.addNode(w);
       edm::ParameterSet pset;
       testDesc(w, set, pset, false, false);
@@ -290,8 +286,8 @@ namespace testParameterSetDescription {
 
     {
       edm::ParameterSetDescription set;
-      edm::ParameterWildcard<std::vector<edm::ParameterSetDescription> > w("*", edm::RequireAtLeastOne, true,
-                                                             nestedDescs);
+      edm::ParameterWildcard<std::vector<edm::ParameterSet> > w("*", edm::RequireAtLeastOne, true,
+                                                                descElement);
       set.addNode(w);
       edm::ParameterSet pset;
       testDesc(w, set, pset, false, false);
@@ -1071,10 +1067,10 @@ namespace testParameterSetDescription {
     psetDesc10.validate(psetA);
 
     // Now repeat what was done above with the variations
-    // necessary to test the vector<ParameterSetDescription> case
+    // necessary to test the vector<ParameterSet> case
     {
       edm::ParameterSetDescription psetDesc14;
-      psetDesc14.labelsFrom<std::vector<edm::ParameterSetDescription> >("allowedLabelsC");
+      psetDesc14.labelsFrom<std::vector<edm::ParameterSet> >("allowedLabelsC");
 
       edm::ParameterSet psetC;
       edm::ParameterSet psetD;
@@ -1104,10 +1100,7 @@ namespace testParameterSetDescription {
       // because a description was not passed to the labelsFrom function.
 
       edm::ParameterSetDescription psetDesc15;
-      std::vector<edm::ParameterSetDescription> vPsetDesc;
-      vPsetDesc.push_back(edm::ParameterSetDescription());
-      vPsetDesc.push_back(edm::ParameterSetDescription());
-      psetDesc15.labelsFrom<std::vector<edm::ParameterSetDescription> >("allowedLabelsC", vPsetDesc);
+      psetDesc15.labelsFrom<std::vector<edm::ParameterSet> >("allowedLabelsC", edm::ParameterSetDescription());
       // Now it should fail because the description says the contained vector<ParameterSet>
       // should have empty ParameterSets, but they have parameter "y"
       try {
@@ -1120,20 +1113,17 @@ namespace testParameterSetDescription {
       edm::ParameterSetDescription psetDesc6;
       edm::ParameterSetDescription psetDesc7;
       psetDesc7.add<int>("y", 1);
-      std::vector<edm::ParameterSetDescription> vPsetDesc7;
-      vPsetDesc7.push_back(psetDesc7); 
-      vPsetDesc7.push_back(psetDesc7); 
 
-      psetDesc6.labelsFrom<std::vector<edm::ParameterSetDescription> >("allowedLabelsC", vPsetDesc7);
+      psetDesc6.labelsFrom<std::vector<edm::ParameterSet> >("allowedLabelsC", psetDesc7);
       psetDesc6.validate(psetC);
 
       // A minor variation, repeat with a string argument
       edm::ParameterSetDescription psetDesc18;
       edm::ParameterSetDescription psetDesc19;
       edm::ParameterSetDescription psetDesc20;
-      psetDesc18.labelsFrom<std::vector<edm::ParameterSetDescription> >(std::string("allowedLabelsC"));
-      psetDesc19.labelsFrom<std::vector<edm::ParameterSetDescription> >(std::string("allowedLabelsC"), vPsetDesc);
-      psetDesc20.labelsFrom<std::vector<edm::ParameterSetDescription> >(std::string("allowedLabelsC"), vPsetDesc7);
+      psetDesc18.labelsFrom<std::vector<edm::ParameterSet> >(std::string("allowedLabelsC"));
+      psetDesc19.labelsFrom<std::vector<edm::ParameterSet> >(std::string("allowedLabelsC"), edm::ParameterSetDescription());
+      psetDesc20.labelsFrom<std::vector<edm::ParameterSet> >(std::string("allowedLabelsC"), psetDesc7);
       psetDesc18.validate(psetC);
       try {
         psetDesc19.validate(psetC);
@@ -1147,19 +1137,101 @@ namespace testParameterSetDescription {
 
   void testNoDefault() {
 
-    edm::ParameterSetDescription psetDesc1;
-    psetDesc1.add<int>("x");
-    edm::ParameterSet pset1;
+    edm::ParameterSetDescription psetDesc;
+    psetDesc.add<int>("x");
+    edm::ParameterSet pset;
 
+    try {
+      psetDesc.validate(pset);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+
+    pset.addParameter<int>("x", 1);
+    psetDesc.validate(pset);
+
+    psetDesc.addVPSet("y", edm::ParameterSetDescription());
+    try {
+      psetDesc.validate(pset);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+  }
+
+// ---------------------------------------------------------------------------------
+
+  void testWrongTrackiness() {
+
+    edm::ParameterSet pset1;
+    pset1.addParameter<int>("test1", 1);
+
+    edm::ParameterSetDescription psetDesc1;
+    psetDesc1.addUntracked<int>("test1", 1);
     try {
       psetDesc1.validate(pset1);
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
 
-    pset1.addParameter<int>("x", 1);
-    psetDesc1.validate(pset1);
+    edm::ParameterSet pset2;
+    pset2.addParameter<edm::ParameterSet>("test2", edm::ParameterSet());
 
+    edm::ParameterSetDescription psetDesc2;
+    psetDesc2.addUntracked<edm::ParameterSetDescription>("test2", edm::ParameterSetDescription());
+    try {
+      psetDesc2.validate(pset2);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+
+    edm::ParameterSet pset3;
+    pset3.addParameter<std::vector<edm::ParameterSet> >("test3", std::vector<edm::ParameterSet>());
+
+    edm::ParameterSetDescription psetDesc3;
+    psetDesc3.addVPSetUntracked("test3", edm::ParameterSetDescription());
+    try {
+      psetDesc3.validate(pset3);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+  }
+
+// ---------------------------------------------------------------------------------
+
+  void testWrongType() {
+
+    edm::ParameterSet pset1;
+    pset1.addParameter<unsigned int>("test1", 1);
+
+    edm::ParameterSetDescription psetDesc1;
+    psetDesc1.add<int>("test1", 1);
+    try {
+      psetDesc1.validate(pset1);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+
+    edm::ParameterSet pset2;
+    pset2.addParameter<int>("test2", 1);
+
+    edm::ParameterSetDescription psetDesc2;
+    psetDesc2.add<edm::ParameterSetDescription>("test2", edm::ParameterSetDescription());
+    try {
+      psetDesc2.validate(pset2);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
+
+    edm::ParameterSet pset3;
+    pset3.addParameter<int>("test3", 1);
+
+    edm::ParameterSetDescription psetDesc3;
+    psetDesc3.addVPSetUntracked("test3", edm::ParameterSetDescription());
+    try {
+      psetDesc3.validate(pset3);
+      assert(0);
+    }
+    catch(edm::Exception) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -1238,6 +1310,26 @@ int main(int argc, char* argv[]) {
   assert(par->exists(pset) == true);
   assert(par->partiallyExists(pset) == true);
   assert(par->howManyXORSubNodesExist(pset) == 1);
+
+  edm::ParameterSet psetWrongTrackiness;
+  psetWrongTrackiness.addUntrackedParameter("ivalue", a);
+  try {
+    psetDesc.validate(psetWrongTrackiness);
+    assert(0);
+  }
+  catch(edm::Exception) {
+    // There should be an exception
+  }
+
+  edm::ParameterSet psetWrongType;
+  psetWrongType.addUntrackedParameter("ivalue", 1U);
+  try {
+    psetDesc.validate(psetWrongType);
+    assert(0);
+  }
+  catch(edm::Exception) {
+    // There should be an exception
+  }
 
   edm::ParameterSetDescription::const_iterator parIter = psetDesc.begin();
   assert(parIter->node().operator->() == par);
@@ -1389,13 +1481,13 @@ int main(int argc, char* argv[]) {
   assert(par->partiallyExists(pset) == true);
   assert(par->howManyXORSubNodesExist(pset) == 1);
 
-  std::vector<edm::ParameterSetDescription> v10;
-  par = psetDesc.add<std::vector<edm::ParameterSetDescription> >("psetDescVector", v10);
+  edm::ParameterSetDescription v10;
+  par = psetDesc.addVPSet("psetVectorDesc", v10);
   assert(par->exists(pset) == false);
   assert(par->partiallyExists(pset) == false);
   assert(par->howManyXORSubNodesExist(pset) == 0);
   std::vector<edm::ParameterSet> vp1;
-  pset.addParameter<std::vector<edm::ParameterSet> >("psetDescVector", vp1);
+  pset.addParameter<std::vector<edm::ParameterSet> >("psetVectorDesc", vp1);
   assert(par->type() == edm::k_VPSet);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("VPSet"));
   assert(par->exists(pset) == true);
@@ -1423,7 +1515,6 @@ int main(int argc, char* argv[]) {
   vPset.push_back(nest1);
 
   pset.addUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0", vPset);
-
 
   std::vector<edm::ParameterSetDescription> testDescriptions;
   testDescriptions.push_back(psetDesc);
@@ -1455,11 +1546,7 @@ int main(int argc, char* argv[]) {
     par = nestLevel1.add<int>("intLevel1a", 1);
     par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
 
-    std::vector<edm::ParameterSetDescription> vDescs;
-    vDescs.push_back(edm::ParameterSetDescription());
-    vDescs.push_back(nestLevel1);
-
-    testDescriptions[i].addUntracked<std::vector<edm::ParameterSetDescription> >("nestLevel0", vDescs);
+    testDescriptions[i].addVPSetUntracked("nestLevel0", nestLevel1);
   }
 
   // Now run the validation and make sure we get the expected results
@@ -1477,6 +1564,7 @@ int main(int argc, char* argv[]) {
   // This validation should also pass and it should insert
   // the missing parameter into the ParameterSet
   testDescriptions[2].validate(pset);
+
   std::vector<edm::ParameterSet> vpset = 
     pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0");
   edm::ParameterSet psetInPset = vpset[1].getParameter<edm::ParameterSet>("nestLevel1b");
@@ -1486,11 +1574,10 @@ int main(int argc, char* argv[]) {
   // test the parameterSetDescription accessors.
   edm::ParameterSetDescription nestLevel2;
   par = nestLevel2.add<int>("intLevel2a", 1);
+  par->setComment("testComment");
   assert(par->parameterSetDescription() == 0);
-  assert(par->parameterSetDescriptions() == 0);
   edm::ParameterDescriptionBase const& constParRef = *par;
   assert(constParRef.parameterSetDescription() == 0);
-  assert(constParRef.parameterSetDescriptions() == 0);
 
   par = nestLevel2.addUntracked<int>("intLevel2b", 1);
   par = nestLevel2.addOptional<int>("intLevel2c", 1);
@@ -1501,32 +1588,23 @@ int main(int argc, char* argv[]) {
 
   edm::ParameterSetDescription nestLevel1;
   par = nestLevel1.add<int>("intLevel1a", 1);
+  par->setComment("testComment1");
   par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
   assert(par->parameterSetDescription() != 0);
-  assert(par->parameterSetDescriptions() == 0);
+  assert(par->parameterSetDescription()->begin()->node()->comment() == std::string("testComment"));
   edm::ParameterDescriptionBase const& constParRef2 = *par;
   assert(constParRef2.parameterSetDescription() != 0);
-  assert(constParRef2.parameterSetDescriptions() == 0);
+  assert(constParRef2.parameterSetDescription()->begin()->node()->comment() == std::string("testComment"));
 
   assert(par->parameterSetDescription()->anythingAllowed() == true);
   assert(constParRef2.parameterSetDescription()->anythingAllowed() == true);
 
-  std::vector<edm::ParameterSetDescription> vDescs;
-  vDescs.push_back(edm::ParameterSetDescription());
-  vDescs.push_back(nestLevel1);
-
-  par = psetDesc.addUntracked<std::vector<edm::ParameterSetDescription> >("nestLevel0", vDescs);
-  assert(par->parameterSetDescription() == 0);
-  assert(par->parameterSetDescriptions() != 0);
+  par = psetDesc.addVPSetUntracked("nestLevel0", nestLevel1);
+  assert(par->parameterSetDescription() != 0);
+  assert(par->parameterSetDescription()->begin()->node()->comment() == std::string("testComment1"));
   edm::ParameterDescriptionBase const& constParRef3 = *par;
-  assert(constParRef3.parameterSetDescription() == 0);
-  assert(constParRef3.parameterSetDescriptions() != 0);
-
-  std::vector<edm::ParameterSetDescription> * vec = par->parameterSetDescriptions();
-  assert(vec->size() == 2);
-
-  std::vector<edm::ParameterSetDescription> const* vec2 = constParRef3.parameterSetDescriptions();
-  assert(vec2->size() == 2);
+  assert(constParRef3.parameterSetDescription() != 0);
+  assert(constParRef3.parameterSetDescription()->begin()->node()->comment() == std::string("testComment1"));
 
   psetDesc.validate(pset);
 
@@ -1538,6 +1616,8 @@ int main(int argc, char* argv[]) {
   testParameterSetDescription::testIfExists();
   testParameterSetDescription::testAllowedLabels();
   testParameterSetDescription::testNoDefault();
-
+  testParameterSetDescription::testWrongTrackiness();
+  testParameterSetDescription::testWrongType();
+  
   return 0;
 }

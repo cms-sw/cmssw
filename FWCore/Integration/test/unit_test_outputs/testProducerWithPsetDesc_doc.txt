@@ -417,49 +417,81 @@ generated for each configuration with a module label.
                         type: VPSet optional
                         see Section 1.1.5 (do not write to cfi)
 
-    bars
-                        type: VPSet 
+    test104
+                        type: untracked VPSet 
                         see Section 1.1.6
 
-    subpset
-                        type: PSet optional
+    test105
+                        type: untracked VPSet 
                         see Section 1.1.7
 
-    wildcardPset
-                        type: PSet 
+    test1
+                        type: double 
+                        default: 0.1
+
+    test2
+                        type: double optional
+                        default: 0.2
+
+    test3
+                        type: double optional
+                        default: none (do not write to cfi)
+
+    AND group:
+                        optional
                         see Section 1.1.8
 
-    switchPset
-                        type: PSet 
+    oiswitch (switch)
+                        type: int32 optional
                         see Section 1.1.9
 
-    xorPset
+    testDeeplyNested2
                         type: PSet 
                         see Section 1.1.10
 
-    orPset
-                        type: PSet 
+    bars
+                        type: VPSet 
                         see Section 1.1.11
 
-    andPset
-                        type: PSet 
+    subpset
+                        type: PSet optional
                         see Section 1.1.12
 
-    ifExistsPset
+    wildcardPset
                         type: PSet 
                         see Section 1.1.13
 
-    allowedLabelsPset
+    switchPset
                         type: PSet 
                         see Section 1.1.14
 
-    noDefaultPset3
+    xorPset
                         type: PSet 
                         see Section 1.1.15
 
-    noDefaultPset4
+    orPset
                         type: PSet 
                         see Section 1.1.16
+
+    andPset
+                        type: PSet 
+                        see Section 1.1.17
+
+    ifExistsPset
+                        type: PSet 
+                        see Section 1.1.18
+
+    allowedLabelsPset
+                        type: PSet 
+                        see Section 1.1.19
+
+    noDefaultPset3
+                        type: PSet 
+                        see Section 1.1.20
+
+    noDefaultPset4
+                        type: PSet 
+                        see Section 1.1.21
 
     Section 1.1.1 vuint5 default contents: (vector size = 6)
         [0]: 4294967295
@@ -506,42 +538,18 @@ generated for each configuration with a module label.
                         default: 5
 
     Section 1.1.4 test102 VPSet description:
-        empty
+        All elements will be validated using the PSet description in Section 1.1.4.1.
+        Does not have a default VPSet.
+
+    Section 1.1.4.1 description of PSet used to validate elements of VPSet:
+
+        Description is empty
 
     Section 1.1.5 test103 VPSet description:
-        [0]: see Section 1.1.5.1
+        All elements will be validated using the PSet description in Section 1.1.5.1.
+        Does not have a default VPSet.
 
-    Section 1.1.5.1 PSet description:
-
-        Drinks
-                        type: uint32 
-                        default: 5
-
-        uDrinks
-                        type: untracked uint32 
-                        default: 5
-
-        oDrinks
-                        type: uint32 optional
-                        default: 5
-
-        ouDrinks
-                        type: untracked uint32 optional
-                        default: 5
-
-        ndoDrinks
-                        type: uint32 optional
-                        default: none (do not write to cfi)
-
-        ndouDrinks
-                        type: untracked uint32 optional
-                        default: none (do not write to cfi)
-
-    Section 1.1.6 bars VPSet description:
-        [0]: see Section 1.1.6.1
-        [1]: see Section 1.1.6.2
-
-    Section 1.1.6.1 PSet description:
+    Section 1.1.5.1 description of PSet used to validate elements of VPSet:
 
         Drinks
                         type: uint32 
@@ -567,7 +575,280 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: none (do not write to cfi)
 
-    Section 1.1.6.2 PSet description:
+    Section 1.1.6 test104 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.6.1.
+        The default VPSet has 1 element.
+        [0]: see Section 1.1.6.2
+
+    Section 1.1.6.1 description of PSet used to validate elements of VPSet:
+
+        Drinks
+                        type: uint32 
+                        default: 5
+
+        uDrinks
+                        type: untracked uint32 
+                        default: 5
+
+        oDrinks
+                        type: uint32 optional
+                        default: 5
+
+        ouDrinks
+                        type: untracked uint32 optional
+                        default: 5
+
+        ndoDrinks
+                        type: uint32 optional
+                        default: none (do not write to cfi)
+
+        ndouDrinks
+                        type: untracked uint32 optional
+                        default: none (do not write to cfi)
+
+    Section 1.1.6.2 PSet description of default VPSet element [0]
+
+        Description is empty
+
+    Section 1.1.7 test105 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.7.1.
+        The default VPSet is empty.
+
+    Section 1.1.7.1 description of PSet used to validate elements of VPSet:
+
+        Drinks
+                        type: uint32 
+                        default: 5
+
+        uDrinks
+                        type: untracked uint32 
+                        default: 5
+
+        oDrinks
+                        type: uint32 optional
+                        default: 5
+
+        ouDrinks
+                        type: untracked uint32 optional
+                        default: 5
+
+        ndoDrinks
+                        type: uint32 optional
+                        default: none (do not write to cfi)
+
+        ndouDrinks
+                        type: untracked uint32 optional
+                        default: none (do not write to cfi)
+
+    Section 1.1.8 AND group description:
+    This optional AND group requires all or none of the following to be in the PSet
+
+        testA
+                        type: string 
+                        default: 'fooA'
+
+        testB
+                        type: int32 
+                        default: 100
+
+        testC
+                        type: int32 
+                        default: 101
+
+    Section 1.1.9 oiswitch (switch):
+    The value of "oiswitch" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        oiswitch
+                        type: int32 optional
+                        default: 1
+
+        if oiswitch = 0
+        oivalue
+                        type: int32 
+                        default: 100
+
+        if oiswitch = 1
+        AND group:
+                        see Section 1.1.9.1
+
+        if oiswitch = 2
+        oivalue
+                        type: string 
+                        default: '102'
+
+    Section 1.1.9.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        oivalue1
+                        type: double 
+                        default: 101
+
+        oivalue2
+                        type: double 
+                        default: 101
+
+    Section 1.1.10 testDeeplyNested2 PSet description:
+
+        bswitch (switch)
+                        type: bool 
+                        see Section 1.1.10.1
+
+        iswitch (switch)
+                        type: int32 
+                        see Section 1.1.10.2
+
+        sswitch (switch)
+                        type: string 
+                        see Section 1.1.10.3
+
+        ndiswitch (switch)
+                        type: int32 optional (do not write to cfi)
+                        see Section 1.1.10.4
+
+        testint
+                        type: int32 
+                        default: 1000
+
+    Section 1.1.10.1 bswitch (switch):
+    The value of "bswitch" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        bswitch
+                        type: bool 
+                        default: False
+
+        if bswitch = False
+        AND group:
+                        see Section 1.1.10.1.1
+
+        if bswitch = True
+        bvalue
+                        type: int32 
+                        default: 100
+
+    Section 1.1.10.1.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        bvalue1
+                        type: double 
+                        default: 101
+
+        bvalue2
+                        type: double 
+                        default: 101
+
+    Section 1.1.10.2 iswitch (switch):
+    The value of "iswitch" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        iswitch
+                        type: int32 
+                        default: 1
+
+        if iswitch = 0
+        ivalue
+                        type: int32 
+                        default: 100
+
+        if iswitch = 1
+        AND group:
+                        see Section 1.1.10.2.1
+
+        if iswitch = 2
+        ivalue
+                        type: string 
+                        default: '102'
+
+    Section 1.1.10.2.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        ivalue1
+                        type: double 
+                        default: 101
+
+        ivalue2
+                        type: untracked double 
+                        default: 101
+
+    Section 1.1.10.3 sswitch (switch):
+    The value of "sswitch" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        sswitch
+                        type: string 
+                        default: '1'
+
+        if sswitch = "0"
+        svalue
+                        type: int32 
+                        default: 100
+
+        if sswitch = "1"
+        AND group:
+                        see Section 1.1.10.3.1
+
+        if sswitch = "2"
+        svalue
+                        type: string 
+                        default: '102'
+
+    Section 1.1.10.3.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        svalue1
+                        type: double 
+                        default: 101
+
+        svalue2
+                        type: double 
+                        default: 101
+
+    Section 1.1.10.4 ndiswitch (switch):
+    The value of "ndiswitch" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        ndiswitch
+                        type: int32 optional
+                        default: 1
+
+        if ndiswitch = 0
+        ndivalue
+                        type: int32 
+                        default: 100
+
+        if ndiswitch = 1
+        AND group:
+                        see Section 1.1.10.4.1
+
+        if ndiswitch = 2
+        ndivalue
+                        type: string 
+                        default: '102'
+
+    Section 1.1.10.4.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        ndivalue1
+                        type: double 
+                        default: 101
+
+        ndivalue2
+                        type: double 
+                        default: 101
+
+    Section 1.1.11 bars VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.11.1.
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.11.2
+        [1]: see Section 1.1.11.3
+
+    Section 1.1.11.1 description of PSet used to validate elements of VPSet:
 
         Drinks
                         type: uint32 
@@ -595,62 +876,35 @@ generated for each configuration with a module label.
 
         testDeeplyNested
                         type: PSet 
-                        see Section 1.1.6.2.1
+                        see Section 1.1.11.1.1
 
-    Section 1.1.6.2.1 testDeeplyNested PSet description:
+        anotherVPSet
+                        type: VPSet 
+                        see Section 1.1.11.1.2
 
-        test1
-                        type: double 
-                        default: 0.1
-
-        test2
-                        type: double optional
-                        default: 0.2
-
-        test3
-                        type: double optional
-                        default: none (do not write to cfi)
-
-        AND group:
-                        optional
-                        see Section 1.1.6.2.1.1
+    Section 1.1.11.1.1 testDeeplyNested PSet description:
 
         bswitch (switch)
                         type: bool 
-                        see Section 1.1.6.2.1.2
+                        see Section 1.1.11.1.1.1
 
         iswitch (switch)
                         type: int32 
-                        see Section 1.1.6.2.1.3
+                        see Section 1.1.11.1.1.2
 
         sswitch (switch)
                         type: string 
-                        see Section 1.1.6.2.1.4
-
-        oiswitch (switch)
-                        type: int32 optional
-                        see Section 1.1.6.2.1.5
+                        see Section 1.1.11.1.1.3
 
         ndiswitch (switch)
                         type: int32 optional (do not write to cfi)
-                        see Section 1.1.6.2.1.6
+                        see Section 1.1.11.1.1.4
 
-    Section 1.1.6.2.1.1 AND group description:
-    This optional AND group requires all or none of the following to be in the PSet
-
-        testA
-                        type: string 
-                        default: 'fooA'
-
-        testB
+        testint
                         type: int32 
-                        default: 100
+                        default: 1000
 
-        testC
-                        type: int32 
-                        default: 101
-
-    Section 1.1.6.2.1.2 bswitch (switch):
+    Section 1.1.11.1.1.1 bswitch (switch):
     The value of "bswitch" controls which other parameters
     are required or allowed to be in the PSet.
 
@@ -661,14 +915,14 @@ generated for each configuration with a module label.
 
         if bswitch = False
         AND group:
-                        see Section 1.1.6.2.1.2.1
+                        see Section 1.1.11.1.1.1.1
 
         if bswitch = True
         bvalue
                         type: int32 
                         default: 100
 
-    Section 1.1.6.2.1.2.1 AND group description:
+    Section 1.1.11.1.1.1.1 AND group description:
     This AND group requires all of the following to be in the PSet
 
         bvalue1
@@ -679,7 +933,7 @@ generated for each configuration with a module label.
                         type: double 
                         default: 101
 
-    Section 1.1.6.2.1.3 iswitch (switch):
+    Section 1.1.11.1.1.2 iswitch (switch):
     The value of "iswitch" controls which other parameters
     are required or allowed to be in the PSet.
 
@@ -695,14 +949,14 @@ generated for each configuration with a module label.
 
         if iswitch = 1
         AND group:
-                        see Section 1.1.6.2.1.3.1
+                        see Section 1.1.11.1.1.2.1
 
         if iswitch = 2
         ivalue
                         type: string 
                         default: '102'
 
-    Section 1.1.6.2.1.3.1 AND group description:
+    Section 1.1.11.1.1.2.1 AND group description:
     This AND group requires all of the following to be in the PSet
 
         ivalue1
@@ -713,7 +967,7 @@ generated for each configuration with a module label.
                         type: untracked double 
                         default: 101
 
-    Section 1.1.6.2.1.4 sswitch (switch):
+    Section 1.1.11.1.1.3 sswitch (switch):
     The value of "sswitch" controls which other parameters
     are required or allowed to be in the PSet.
 
@@ -729,14 +983,14 @@ generated for each configuration with a module label.
 
         if sswitch = "1"
         AND group:
-                        see Section 1.1.6.2.1.4.1
+                        see Section 1.1.11.1.1.3.1
 
         if sswitch = "2"
         svalue
                         type: string 
                         default: '102'
 
-    Section 1.1.6.2.1.4.1 AND group description:
+    Section 1.1.11.1.1.3.1 AND group description:
     This AND group requires all of the following to be in the PSet
 
         svalue1
@@ -747,41 +1001,7 @@ generated for each configuration with a module label.
                         type: double 
                         default: 101
 
-    Section 1.1.6.2.1.5 oiswitch (switch):
-    The value of "oiswitch" controls which other parameters
-    are required or allowed to be in the PSet.
-
-        switch:
-        oiswitch
-                        type: int32 optional
-                        default: 1
-
-        if oiswitch = 0
-        oivalue
-                        type: int32 
-                        default: 100
-
-        if oiswitch = 1
-        AND group:
-                        see Section 1.1.6.2.1.5.1
-
-        if oiswitch = 2
-        oivalue
-                        type: string 
-                        default: '102'
-
-    Section 1.1.6.2.1.5.1 AND group description:
-    This AND group requires all of the following to be in the PSet
-
-        oivalue1
-                        type: double 
-                        default: 101
-
-        oivalue2
-                        type: double 
-                        default: 101
-
-    Section 1.1.6.2.1.6 ndiswitch (switch):
+    Section 1.1.11.1.1.4 ndiswitch (switch):
     The value of "ndiswitch" controls which other parameters
     are required or allowed to be in the PSet.
 
@@ -797,14 +1017,14 @@ generated for each configuration with a module label.
 
         if ndiswitch = 1
         AND group:
-                        see Section 1.1.6.2.1.6.1
+                        see Section 1.1.11.1.1.4.1
 
         if ndiswitch = 2
         ndivalue
                         type: string 
                         default: '102'
 
-    Section 1.1.6.2.1.6.1 AND group description:
+    Section 1.1.11.1.1.4.1 AND group description:
     This AND group requires all of the following to be in the PSet
 
         ndivalue1
@@ -815,7 +1035,78 @@ generated for each configuration with a module label.
                         type: double 
                         default: 101
 
-    Section 1.1.7 subpset PSet description:
+    Section 1.1.11.1.2 anotherVPSet VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.11.1.2.1.
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.11.1.2.2
+        [1]: see Section 1.1.11.1.2.3
+
+    Section 1.1.11.1.2.1 description of PSet used to validate elements of VPSet:
+
+        xvalue
+                        type: int32 
+                        default: 7
+
+    Section 1.1.11.1.2.2 PSet description of default VPSet element [0]
+
+        Description is empty
+
+    Section 1.1.11.1.2.3 PSet description of default VPSet element [1]
+
+        xvalue
+                        type: int32 
+                        default: 100
+
+    Section 1.1.11.2 PSet description of default VPSet element [0]
+
+        oDrinks
+                        type: uint32 
+                        default: 11
+
+    Section 1.1.11.3 PSet description of default VPSet element [1]
+
+        ndouDrinks
+                        type: untracked uint32 
+                        default: 11
+
+        oDrinks
+                        type: uint32 
+                        default: 11
+
+        ouDrinks
+                        type: untracked uint32 
+                        default: 11
+
+        testDeeplyNested
+                        type: PSet 
+                        see Section 1.1.11.3.1
+
+        anotherVPSet
+                        type: VPSet 
+                        see Section 1.1.11.3.2
+
+    Section 1.1.11.3.1 testDeeplyNested PSet description:
+
+        testint
+                        type: int32 
+                        default: 2
+
+    Section 1.1.11.3.2  VPSet description for VPSet that is part of the default of a containing VPSet:
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.11.3.2.1
+        [1]: see Section 1.1.11.3.2.2
+
+    Section 1.1.11.3.2.1 PSet description of default VPSet element [0]
+
+        Description is empty
+
+    Section 1.1.11.3.2.2 PSet description of default VPSet element [1]
+
+        xvalue
+                        type: int32 
+                        default: 17
+
+    Section 1.1.12 subpset PSet description:
 
         xvalue
                         type: int32 
@@ -823,9 +1114,9 @@ generated for each configuration with a module label.
 
         bar
                         type: untracked PSet 
-                        see Section 1.1.7.1
+                        see Section 1.1.12.1
 
-    Section 1.1.7.1 bar PSet description:
+    Section 1.1.12.1 bar PSet description:
 
         Drinks
                         type: uint32 
@@ -843,7 +1134,7 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: 5
 
-    Section 1.1.8 wildcardPset PSet description:
+    Section 1.1.13 wildcardPset PSet description:
 
         p_uint_opt
                         type: uint32 optional
@@ -865,7 +1156,7 @@ generated for each configuration with a module label.
         labels must match this wildcard pattern: *
                         type: PSet optional
                         criteria: require at least one
-                        (see Section 1.1.8.1)
+                        (see Section 1.1.13.1)
 
         labels must match this wildcard pattern: *
                         type: VPSet optional
@@ -874,25 +1165,15 @@ generated for each configuration with a module label.
         labels must match this wildcard pattern: *
                         type: VPSet optional
                         criteria: require at least one
-                        (see Section 1.1.8.2)
+                        (see Section 1.1.13.2)
 
-    Section 1.1.8.1 description of PSet matching wildcard:
-
-        Drinks
-                        type: uint32 
-                        default: 5
-
-    Section 1.1.8.2 description of VPSet matching wildcard:
-        [0]: see Section 1.1.8.2.1
-        [1]: see Section 1.1.8.2.2
-
-    Section 1.1.8.2.1 description of PSet:
+    Section 1.1.13.1 description of PSet matching wildcard:
 
         Drinks
                         type: uint32 
                         default: 5
 
-    Section 1.1.8.2.2 description of PSet:
+    Section 1.1.13.2 description used to validate all PSets which are in the VPSet matching the wildcard:
 
         Drinks
                         type: uint32 
@@ -902,14 +1183,14 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.9 switchPset PSet description:
+    Section 1.1.14 switchPset PSet description:
 
         iswitch (switch)
                         type: int32 
-                        see Section 1.1.9.1
+                        see Section 1.1.14.1
                         Comment for a ParameterSwitch
 
-    Section 1.1.9.1 iswitch (switch):
+    Section 1.1.14.1 iswitch (switch):
     The value of "iswitch" controls which other parameters
     are required or allowed to be in the PSet.
 
@@ -927,14 +1208,14 @@ generated for each configuration with a module label.
 
         if iswitch = 1
         AND group:
-                        see Section 1.1.9.1.1
+                        see Section 1.1.14.1.1
 
         if iswitch = 2
         ivalue
                         type: string 
                         default: '102'
 
-    Section 1.1.9.1.1 AND group description:
+    Section 1.1.14.1.1 AND group description:
     This AND group requires all of the following to be in the PSet
 
         ivalue1
@@ -945,22 +1226,22 @@ generated for each configuration with a module label.
                         type: double 
                         default: 101
 
-    Section 1.1.10 xorPset PSet description:
+    Section 1.1.15 xorPset PSet description:
 
         XOR group:
-                        see Section 1.1.10.1
+                        see Section 1.1.15.1
 
         XOR group:
-                        see Section 1.1.10.2
+                        see Section 1.1.15.2
 
         XOR group:
                         optional (do not write to cfi)
-                        see Section 1.1.10.3
+                        see Section 1.1.15.3
 
         XOR group:
-                        see Section 1.1.10.4
+                        see Section 1.1.15.4
 
-    Section 1.1.10.1 XOR group description:
+    Section 1.1.15.1 XOR group description:
     This XOR group requires exactly one of the following to be in the PSet
 
         name
@@ -971,7 +1252,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.10.2 XOR group description:
+    Section 1.1.15.2 XOR group description:
     This XOR group requires exactly one of the following to be in the PSet
 
         name1
@@ -982,7 +1263,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.10.3 XOR group description:
+    Section 1.1.15.3 XOR group description:
     This optional XOR group requires exactly one or none of the following to be in the PSet
 
         name2
@@ -993,7 +1274,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.10.4 XOR group description:
+    Section 1.1.15.4 XOR group description:
     This XOR group requires exactly one of the following to be in the PSet
 
         name3
@@ -1006,13 +1287,13 @@ generated for each configuration with a module label.
 
         test101
                         type: PSet 
-                        see Section 1.1.10.4.1
+                        see Section 1.1.15.4.1
 
         test103
                         type: VPSet 
-                        see Section 1.1.10.4.2
+                        see Section 1.1.15.4.2
 
-    Section 1.1.10.4.1 test101 PSet description:
+    Section 1.1.15.4.1 test101 PSet description:
 
         Drinks
                         type: uint32 
@@ -1030,10 +1311,11 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: 5
 
-    Section 1.1.10.4.2 test103 VPSet description:
-        [0]: see Section 1.1.10.4.2.1
+    Section 1.1.15.4.2 test103 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.15.4.2.1.
+        Does not have a default VPSet.
 
-    Section 1.1.10.4.2.1 PSet description:
+    Section 1.1.15.4.2.1 description of PSet used to validate elements of VPSet:
 
         Drinks
                         type: uint32 
@@ -1059,19 +1341,19 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: none (do not write to cfi)
 
-    Section 1.1.11 orPset PSet description:
+    Section 1.1.16 orPset PSet description:
 
         OR group:
-                        see Section 1.1.11.1
+                        see Section 1.1.16.1
 
         OR group:
-                        see Section 1.1.11.2
+                        see Section 1.1.16.2
 
         OR group:
                         optional (do not write to cfi)
-                        see Section 1.1.11.3
+                        see Section 1.1.16.3
 
-    Section 1.1.11.1 OR group description:
+    Section 1.1.16.1 OR group description:
     This OR group requires at least one of the following to be in the PSet
 
         x1
@@ -1082,7 +1364,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.11.2 OR group description:
+    Section 1.1.16.2 OR group description:
     This OR group requires at least one of the following to be in the PSet
 
         y1
@@ -1093,7 +1375,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.11.3 OR group description:
+    Section 1.1.16.3 OR group description:
     This optional OR group requires at least one or none of the following to be in the PSet
 
         z1
@@ -1106,13 +1388,13 @@ generated for each configuration with a module label.
 
         test101
                         type: PSet 
-                        see Section 1.1.11.3.1
+                        see Section 1.1.16.3.1
 
         test103
                         type: VPSet 
-                        see Section 1.1.11.3.2
+                        see Section 1.1.16.3.2
 
-    Section 1.1.11.3.1 test101 PSet description:
+    Section 1.1.16.3.1 test101 PSet description:
 
         Drinks
                         type: uint32 
@@ -1130,10 +1412,11 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: 5
 
-    Section 1.1.11.3.2 test103 VPSet description:
-        [0]: see Section 1.1.11.3.2.1
+    Section 1.1.16.3.2 test103 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.16.3.2.1.
+        Does not have a default VPSet.
 
-    Section 1.1.11.3.2.1 PSet description:
+    Section 1.1.16.3.2.1 description of PSet used to validate elements of VPSet:
 
         Drinks
                         type: uint32 
@@ -1159,26 +1442,26 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: none (do not write to cfi)
 
-    Section 1.1.12 andPset PSet description:
+    Section 1.1.17 andPset PSet description:
 
         AND group:
-                        see Section 1.1.12.1
+                        see Section 1.1.17.1
 
         AND group:
-                        see Section 1.1.12.2
+                        see Section 1.1.17.2
 
         AND group:
-                        see Section 1.1.12.3
+                        see Section 1.1.17.3
 
         AND group:
                         optional (do not write to cfi)
-                        see Section 1.1.12.4
+                        see Section 1.1.17.4
 
         AND group:
                         optional
-                        see Section 1.1.12.5
+                        see Section 1.1.17.5
 
-    Section 1.1.12.1 AND group description:
+    Section 1.1.17.1 AND group description:
     This AND group requires all of the following to be in the PSet
 
         x1
@@ -1189,7 +1472,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.12.2 AND group description:
+    Section 1.1.17.2 AND group description:
     This AND group requires all of the following to be in the PSet
 
         y1
@@ -1200,7 +1483,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.12.3 AND group description:
+    Section 1.1.17.3 AND group description:
     This AND group requires all of the following to be in the PSet
 
         z1
@@ -1211,7 +1494,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.12.4 AND group description:
+    Section 1.1.17.4 AND group description:
     This optional AND group requires all or none of the following to be in the PSet
 
         a1
@@ -1222,7 +1505,7 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.12.5 AND group description:
+    Section 1.1.17.5 AND group description:
     This optional AND group requires all or none of the following to be in the PSet
 
         b1
@@ -1249,19 +1532,19 @@ generated for each configuration with a module label.
                         type: uint32 
                         default: 11
 
-    Section 1.1.13 ifExistsPset PSet description:
+    Section 1.1.18 ifExistsPset PSet description:
 
         IfExists pair:
-                        see Section 1.1.13.1
+                        see Section 1.1.18.1
 
         IfExists pair:
                         optional (do not write to cfi)
-                        see Section 1.1.13.2
+                        see Section 1.1.18.2
 
         IfExists pair:
-                        see Section 1.1.13.3
+                        see Section 1.1.18.3
 
-    Section 1.1.13.1 IfExists pair description:
+    Section 1.1.18.1 IfExists pair description:
     If the first parameter exists, then the second is required to exist
 
         x1
@@ -1272,7 +1555,7 @@ generated for each configuration with a module label.
                         type: string 
                         default: '11'
 
-    Section 1.1.13.2 optional IfExists pair description:
+    Section 1.1.18.2 optional IfExists pair description:
     If the first parameter exists, then the second is allowed to exist
 
         y1
@@ -1283,7 +1566,7 @@ generated for each configuration with a module label.
                         type: string 
                         default: '11'
 
-    Section 1.1.13.3 IfExists pair description:
+    Section 1.1.18.3 IfExists pair description:
     If the first parameter exists, then the second is required to exist
 
         z1
@@ -1294,35 +1577,35 @@ generated for each configuration with a module label.
                         type: string 
                         default: '11'
 
-    Section 1.1.14 allowedLabelsPset PSet description:
+    Section 1.1.19 allowedLabelsPset PSet description:
 
         p_int_opt
                         type: int32 optional
                         default: 0
 
         testAllowedLabels (list of allowed labels)
-                        see Section 1.1.14.1
+                        see Section 1.1.19.1
 
         testAllowedLabelsUntracked (list of allowed labels)
-                        see Section 1.1.14.2
+                        see Section 1.1.19.2
 
         testOptAllowedLabels (list of allowed labels)
                         optional (do not write to cfi)
-                        see Section 1.1.14.3
+                        see Section 1.1.19.3
 
         testOptAllowedLabelsUntracked (list of allowed labels)
                         optional (do not write to cfi)
-                        see Section 1.1.14.4
+                        see Section 1.1.19.4
 
         testWithSet (list of allowed labels)
                         optional
-                        see Section 1.1.14.5
+                        see Section 1.1.19.5
 
         testWithVectorOfSets (list of allowed labels)
                         optional
-                        see Section 1.1.14.6
+                        see Section 1.1.19.6
 
-    Section 1.1.14.1 testAllowedLabels - allowed labels description
+    Section 1.1.19.1 testAllowedLabels - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
 
@@ -1333,7 +1616,7 @@ generated for each configuration with a module label.
         type of allowed parameters:
                         int32
 
-    Section 1.1.14.2 testAllowedLabelsUntracked - allowed labels description
+    Section 1.1.19.2 testAllowedLabelsUntracked - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
 
@@ -1344,7 +1627,7 @@ generated for each configuration with a module label.
         type of allowed parameters:
                         untracked uint32
 
-    Section 1.1.14.3 testOptAllowedLabels - allowed labels description
+    Section 1.1.19.3 testOptAllowedLabels - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
 
@@ -1355,7 +1638,7 @@ generated for each configuration with a module label.
         type of allowed parameters:
                         int32
 
-    Section 1.1.14.4 testOptAllowedLabelsUntracked - allowed labels description
+    Section 1.1.19.4 testOptAllowedLabelsUntracked - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
 
@@ -1366,7 +1649,7 @@ generated for each configuration with a module label.
         type of allowed parameters:
                         untracked uint32
 
-    Section 1.1.14.5 testWithSet - allowed labels description
+    Section 1.1.19.5 testWithSet - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
 
@@ -1376,9 +1659,9 @@ generated for each configuration with a module label.
 
         type of allowed parameters:
                         untracked PSet
-                        see Section 1.1.14.5.1
+                        see Section 1.1.19.5.1
 
-    Section 1.1.14.5.1 PSet description:
+    Section 1.1.19.5.1 PSet description:
 
         Drinks
                         type: uint32 
@@ -1396,7 +1679,7 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: 5
 
-    Section 1.1.14.6 testWithVectorOfSets - allowed labels description
+    Section 1.1.19.6 testWithVectorOfSets - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
 
@@ -1406,13 +1689,9 @@ generated for each configuration with a module label.
 
         type of allowed parameters:
                         untracked VPSet
-                        see Section 1.1.14.6.1
+                        see Section 1.1.19.6.1
 
-    Section 1.1.14.6.1 VPSet description:
-        [0]: see Section 1.1.14.6.1.1
-        [1]: see Section 1.1.14.6.1.2
-
-    Section 1.1.14.6.1.1 PSet description:
+    Section 1.1.19.6.1 PSet description used to validate all elements of VPSet's:
 
         Drinks
                         type: uint32 
@@ -1430,25 +1709,7 @@ generated for each configuration with a module label.
                         type: untracked uint32 optional
                         default: 5
 
-    Section 1.1.14.6.1.2 PSet description:
-
-        Drinks
-                        type: uint32 
-                        default: 5
-
-        uDrinks
-                        type: untracked uint32 
-                        default: 5
-
-        oDrinks
-                        type: uint32 optional
-                        default: 5
-
-        ouDrinks
-                        type: untracked uint32 optional
-                        default: 5
-
-    Section 1.1.15 noDefaultPset3 PSet description:
+    Section 1.1.20 noDefaultPset3 PSet description:
 
         noDefault1
                         type: int32 optional
@@ -1546,7 +1807,7 @@ generated for each configuration with a module label.
                         type: VEventRange optional
                         default: none (do not write to cfi)
 
-    Section 1.1.16 noDefaultPset4 PSet description:
+    Section 1.1.21 noDefaultPset4 PSet description:
 
         noDefault1
                         type: untracked int32 optional

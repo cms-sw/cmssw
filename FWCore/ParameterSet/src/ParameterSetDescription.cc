@@ -183,6 +183,13 @@ namespace edm {
       if (!dfh.brief()) os << "\n";
     }
 
+    if (entries_.empty()) {
+      dfh.indent(os);
+      os << "Description is empty\n";
+      if (!dfh.brief()) os << "\n";
+      return;
+    }
+
     // Zeroth pass is only to calculate column widths in advance of any printing
     dfh.setPass(0);
     dfh.setCounter(0);

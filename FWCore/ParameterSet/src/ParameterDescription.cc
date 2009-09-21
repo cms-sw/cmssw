@@ -3,6 +3,8 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
+#include "FWCore/ParameterSet/interface/FillDescriptionFromPSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
@@ -128,7 +130,7 @@ namespace edm {
   bool
   ParameterDescription<ParameterSetDescription>::
   exists_(ParameterSet const& pset) const {
-      return pset.existsAs<ParameterSet>(label(), isTracked());
+    return pset.existsAs<ParameterSet>(label(), isTracked());
   }
 
   ParameterSetDescription const*
@@ -156,31 +158,86 @@ namespace edm {
   writeDoc_(std::ostream & os, int indentation) const {
   }
 
-  // =================================================================
-
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  ParameterDescription(std::string const& iLabel,
-                       std::vector<ParameterSetDescription> const& value,
-                       bool isTracked
-		      ) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
-      vPsetDesc_(new std::vector<ParameterSetDescription>(value)) {
+  // These next two should not be needed for this specialization
+  bool
+  ParameterDescription<ParameterSetDescription>::
+  exists_(ParameterSet const& pset, bool isTracked) const {
+    throw edm::Exception(errors::LogicError);
+    return true;
   }
-
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  ParameterDescription(char const* iLabel,
-                       std::vector<ParameterSetDescription> const& value,
-                       bool isTracked
-		      ) :
-      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
-      vPsetDesc_(new std::vector<ParameterSetDescription>(value)) {
-  }
-
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  ~ParameterDescription() { }
 
   void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<ParameterSetDescription>::
+  insertDefault_(ParameterSet & pset) const {
+    throw edm::Exception(errors::LogicError);
+    return;
+  }
+
+  // =================================================================
+
+  ParameterDescription<std::vector<ParameterSet> >::
+  ParameterDescription(std::string const& iLabel,
+                       ParameterSetDescription const& psetDesc,
+                       bool isTracked,
+                       std::vector<ParameterSet> const& vPset
+                      ) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
+      psetDesc_(new ParameterSetDescription(psetDesc)),
+      vPset_(vPset),
+      partOfDefaultOfVPSet_(false) {
+  }
+
+  ParameterDescription<std::vector<ParameterSet> >::
+  ParameterDescription(char const* iLabel,
+                       ParameterSetDescription const& psetDesc,
+                       bool isTracked,
+                       std::vector<ParameterSet> const& vPset
+                      ) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, true),
+      psetDesc_(new ParameterSetDescription(psetDesc)),
+      vPset_(vPset),
+      partOfDefaultOfVPSet_(false) {
+  }
+
+  ParameterDescription<std::vector<ParameterSet> >::
+  ParameterDescription(std::string const& iLabel,
+                       ParameterSetDescription const& psetDesc,
+                       bool isTracked
+                      ) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false),
+      psetDesc_(new ParameterSetDescription(psetDesc)),
+      vPset_(),
+      partOfDefaultOfVPSet_(false) {
+  }
+
+  ParameterDescription<std::vector<ParameterSet> >::
+  ParameterDescription(char const* iLabel,
+                       ParameterSetDescription const& psetDesc,
+                       bool isTracked
+                      ) :
+      ParameterDescriptionBase(iLabel, k_VPSet, isTracked, false),
+      psetDesc_(new ParameterSetDescription(psetDesc)),
+      vPset_(),
+      partOfDefaultOfVPSet_(false) {
+  }
+
+  ParameterDescription<std::vector<ParameterSet> >::
+  ~ParameterDescription() { }
+
+  ParameterSetDescription const*
+  ParameterDescription<std::vector<ParameterSet> >::
+  parameterSetDescription() const {
+    return psetDesc_.operator->();
+  }
+
+  ParameterSetDescription *
+  ParameterDescription<std::vector<ParameterSet> >::
+  parameterSetDescription() {
+    return psetDesc_.operator->();
+  }
+
+  void
+  ParameterDescription<std::vector<ParameterSet> >::
   validate_(ParameterSet & pset,
             std::set<std::string> & validatedLabels,
             bool optional) const {
@@ -197,40 +254,37 @@ namespace edm {
       throwParameterWrongType();
     }
 
-    if (!optional && !exists) {
-      std::vector<ParameterSet> vpset(vPsetDesc_->size(), ParameterSet());
-      if (isTracked()) {
-        pset.addParameter(label(), vpset);
+    if (!exists && !optional) {
+      if (hasDefault()) {
+        if (isTracked()) {
+          pset.addParameter(label(), vPset_);
+        }
+        else {
+          pset.addUntrackedParameter(label(), vPset_);
+        }
+        validatedLabels.insert(label());
       }
       else {
-        pset.addUntrackedParameter(label(), vpset);
+        throwMissingRequiredNoDefault();
       }
-      validatedLabels.insert(label());
     }
 
     exists = pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
     if (exists) {
       VParameterSetEntry * vpsetEntry = pset.getPSetVectorForUpdate(label());
       assert(vpsetEntry);
-      if (vpsetEntry->size() != vPsetDesc_->size()) {
-        throw edm::Exception(errors::Configuration)
-          << "Unexpected number of ParameterSets in vector of parameter sets named \"" << label() << "\".";
+
+      for (unsigned i = 0; i < vpsetEntry->size(); ++i) {
+        psetDesc_->validate(vpsetEntry->psetInVector(i));
       }
-      int i = 0;
-      for_all(*vPsetDesc_,
-              boost::bind(&ParameterDescription<std::vector<ParameterSetDescription> >::validateDescription,
-                          boost::cref(this),
-                          _1,
-                          vpsetEntry,
-                          boost::ref(i)));
     }
   }
 
   void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<std::vector<ParameterSet> >::
   printDefault_(std::ostream & os,
-                  bool writeToCfi,
-                  DocFormatHelper & dfh) {
+                bool writeToCfi,
+                DocFormatHelper & dfh) {
     os << "see Section " << dfh.section()
        << "." << dfh.counter();
     if (!writeToCfi) os << " (do not write to cfi)";
@@ -239,13 +293,13 @@ namespace edm {
 
 
   bool
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<std::vector<ParameterSet> >::
   hasNestedContent_() {
     return true;
   }
 
   void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<std::vector<ParameterSet> >::
   printNestedContent_(std::ostream & os,
                       bool optional,
                       DocFormatHelper & dfh) {
@@ -255,79 +309,108 @@ namespace edm {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
-    os << "Section " << dfh.section() << "." << dfh.counter()
-       << " " << label() << " VPSet description:\n";
+    if (!partOfDefaultOfVPSet_) {
+      os << std::setfill(' ') << std::setw(indentation) << "";
+      os << "Section " << dfh.section() << "." << dfh.counter()
+         << " " << label() << " VPSet description:\n";
 
-    if (vPsetDesc_->size() == 0U) {
       os << std::setfill(' ')
          << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-         << "";
-      os << "empty\n";
+         << ""
+         << "All elements will be validated using the PSet description in Section "
+         << dfh.section() << "." << dfh.counter() << ".1.\n";
+    }
+    else {
+      os << std::setfill(' ') << std::setw(indentation) << "";
+      os << "Section " << dfh.section() << "." << dfh.counter()
+         << " " << " VPSet description for VPSet that is part of the default of a containing VPSet:\n";
     }
 
-    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
-      os << std::setfill(' ')
-         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-         << "";
-      os << "[" << (i - 1) << "]: see Section " << dfh.section() 
-         << "." << dfh.counter() << "." << i << "\n";
+    os << std::setfill(' ')
+       << std::setw(indentation + DocFormatHelper::offsetSectionContent())
+       << "";
+
+    unsigned subsectionOffset = 2;
+    if (partOfDefaultOfVPSet_) subsectionOffset = 1;
+
+    if (hasDefault()) {
+      if (vPset_.size() == 0U) os << "The default VPSet is empty.\n";
+      else if (vPset_.size() == 1U) os << "The default VPSet has 1 element.\n";
+      else os << "The default VPSet has " << vPset_.size() << " elements.\n";
+
+      if (vPset_.size() > 0U) {
+        for (unsigned i = 0; i < vPset_.size(); ++i) {
+          os << std::setfill(' ')
+             << std::setw(indentation + DocFormatHelper::offsetSectionContent())
+             << "";
+          os << "[" << (i) << "]: see Section " << dfh.section() 
+             << "." << dfh.counter() << "." << (i + subsectionOffset) << "\n";
+        }
+      }
     }
+    else {
+      os << "Does not have a default VPSet.\n";
+    }
+
     if (!dfh.brief()) os << "\n";
 
-    for (unsigned i = 1; i <= vPsetDesc_->size(); ++i) {
+    if (!partOfDefaultOfVPSet_) {
 
       std::stringstream ss;
-      ss << dfh.section() << "." << dfh.counter() << "." << i;
+      ss << dfh.section() << "." << dfh.counter() << ".1";
       std::string newSection = ss.str();
 
       os << std::setfill(' ') << std::setw(indentation) << "";
-      os << "Section " << newSection << " PSet description:\n";
+      os << "Section " << newSection << " description of PSet used to validate elements of VPSet:\n";
       if (!dfh.brief()) os << "\n";
 
       DocFormatHelper new_dfh(dfh);
       new_dfh.init();
       new_dfh.setSection(newSection);
       if (dfh.parent() == DocFormatHelper::TOP) {
-        new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+         new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
       }
-      (*vPsetDesc_)[i - 1].print(os, new_dfh);
+      psetDesc_->print(os, new_dfh);
+    }
+
+    if (hasDefault()) {
+      for (unsigned i = 0; i < vPset_.size(); ++i) {
+
+        std::stringstream ss;
+        ss << dfh.section() << "." << dfh.counter() << "." << (i + subsectionOffset);
+        std::string newSection = ss.str();
+
+        os << std::setfill(' ') << std::setw(indentation) << "";
+        os << "Section " << newSection << " PSet description of "
+           << "default VPSet element [" << i << "]\n";
+        if (!dfh.brief()) os << "\n";
+
+        DocFormatHelper new_dfh(dfh);
+        new_dfh.init();
+        new_dfh.setSection(newSection);
+        if (dfh.parent() == DocFormatHelper::TOP) {
+          new_dfh.setIndentation(indentation + DocFormatHelper::offsetSectionContent());
+        }
+
+        ParameterSetDescription defaultDescription;
+        fillDescriptionFromPSet(vPset_[i], defaultDescription); 
+        defaultDescription.print(os, new_dfh);
+      }
     }
   }
 
   bool
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<std::vector<ParameterSet> >::
   exists_(ParameterSet const& pset) const {
     return pset.existsAs<std::vector<ParameterSet> >(label(), isTracked());
   }
 
   void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  validateDescription(ParameterSetDescription const& psetDescription,
-                      VParameterSetEntry * vpsetEntry,
-                      int & i) const {
-    psetDescription.validate(vpsetEntry->psetInVector(i));
-    ++i;
-  }
-
-  std::vector<ParameterSetDescription> const*
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  parameterSetDescriptions() const {
-    return vPsetDesc_.operator->();
-  }
-
-  std::vector<ParameterSetDescription> *
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  parameterSetDescriptions() {
-    return vPsetDesc_.operator->();
-  }
-
-  void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
-  writeOneDescriptionToCfi(ParameterSetDescription const& psetDesc,
-                           std::ostream & os,
-                           int indentation,
-                           bool & nextOneStartsWithAComma) {
+  ParameterDescription<std::vector<ParameterSet> >::
+  writeOneElementToCfi(ParameterSet const& pset,
+                       std::ostream & os,
+                       int indentation,
+                       bool & nextOneStartsWithAComma) {
     if (nextOneStartsWithAComma) os << ",";
     nextOneStartsWithAComma = true;
     os << "\n" << std::setw(indentation + 2) << " ";
@@ -335,28 +418,45 @@ namespace edm {
 
     bool startWithComma = false;
     int indent = indentation + 4;
+
+    ParameterSetDescription psetDesc;
+    fillDescriptionFromPSet(pset, psetDesc); 
     psetDesc.writeCfi(os, startWithComma, indent);
 
     os << ")";
   }
 
   void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<std::vector<ParameterSet> >::
   writeCfi_(std::ostream & os, int indentation) const {
     bool nextOneStartsWithAComma = false;
-    for_all(*vPsetDesc_, boost::bind(&writeOneDescriptionToCfi,
-                                    _1,
-                                    boost::ref(os),
-                                    indentation,
-                                    boost::ref(nextOneStartsWithAComma)));
+    for_all(vPset_, boost::bind(&writeOneElementToCfi,
+                                 _1,
+                                 boost::ref(os),
+                                 indentation,
+                                 boost::ref(nextOneStartsWithAComma)));
     os << "\n" << std::setw(indentation) << " ";
   }
 
   void
-  ParameterDescription<std::vector<ParameterSetDescription> >::
+  ParameterDescription<std::vector<ParameterSet> >::
   writeDoc_(std::ostream & os, int indentation) const {
   }
 
+  // These next two should not be needed for this specialization
+  bool
+  ParameterDescription<std::vector<ParameterSet> >::
+  exists_(ParameterSet const& pset, bool isTracked) const {
+    throw edm::Exception(errors::LogicError);
+    return true;
+  }
+
+  void
+  ParameterDescription<std::vector<ParameterSet> >::
+  insertDefault_(ParameterSet & pset) const {
+    throw edm::Exception(errors::LogicError);
+    return;
+  }
 
   // =================================================================
 

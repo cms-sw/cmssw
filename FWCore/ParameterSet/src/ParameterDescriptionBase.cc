@@ -12,6 +12,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionBase.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <iostream>
@@ -100,6 +101,35 @@ namespace edm {
                              std::set<ParameterTypes> & wildcardTypes) const {
     usedLabels.insert(label());
     parameterTypes.insert(type());
+  }
+
+  void
+  ParameterDescriptionBase::
+  validate_(ParameterSet & pset,
+            std::set<std::string> & validatedLabels,
+            bool optional) const {
+
+    bool exists = exists_(pset, isTracked());
+
+    if (exists) {
+      validatedLabels.insert(label());
+    }
+    else if (exists_(pset, !isTracked())) {
+      throwParameterWrongTrackiness();
+    }
+    else if (pset.exists(label())) {
+      throwParameterWrongType();
+    }
+
+    if (!exists && !optional) {
+      if (hasDefault()) {
+        insertDefault_(pset);
+        validatedLabels.insert(label());
+      }
+      else {
+        throwMissingRequiredNoDefault();
+      }
+    }
   }
 
   void

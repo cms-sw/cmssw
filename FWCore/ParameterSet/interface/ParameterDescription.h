@@ -33,13 +33,12 @@ namespace edm {
 
   class ParameterSetDescription;
 
-  class EventID;
+  class MinimalEventID;
   class LuminosityBlockID;
   class LuminosityBlockRange;
   class EventRange;
   class InputTag;
   class FileInPath;
-  class VParameterSetEntry;
   class DocFormatHelper;
 
   namespace writeParameterValue {
@@ -106,9 +105,13 @@ namespace edm {
                          bool isTracked
                         ):
       // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
-      // or vector<ParameterSetDescription> should be used instead.  This template
-      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+      // are handled by full template specializations below.  In the first case.
+      // ParameterSetDescription should be used instead of ParameterSet.
+      // In the second case the function arguments are completely different.
+      // Note that this template parameter is most often passed through from
+      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+      // use the addVPSet* versions of those functions.
       ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true),
       value_(value) {
     }
@@ -118,9 +121,13 @@ namespace edm {
                          bool isTracked
                         ):
       // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
-      // or vector<ParameterSetDescription> should be used instead.  This template
-      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+      // are handled by full template specializations below.  In the first case.
+      // ParameterSetDescription should be used instead of ParameterSet.
+      // In the second case the function arguments are completely different.
+      // Note that this template parameter is most often passed through from
+      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+      // use the addVPSet* versions of those functions.
       ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, true),
       value_(value) {
     }
@@ -129,9 +136,13 @@ namespace edm {
                          bool isTracked
                         ):
       // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
-      // or vector<ParameterSetDescription> should be used instead.  This template
-      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+      // are handled by full template specializations below.  In the first case.
+      // ParameterSetDescription should be used instead of ParameterSet.
+      // In the second case the function arguments are completely different.
+      // Note that this template parameter is most often passed through from
+      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+      // use the addVPSet* versions of those functions.
       ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false),
       value_() {
     }
@@ -140,9 +151,13 @@ namespace edm {
                          bool isTracked
                         ):
       // WARNING: the toEnum function is intentionally undefined if the template
-      // parameter is ParameterSet or vector<ParameterSet>.  ParameterSetDescription
-      // or vector<ParameterSetDescription> should be used instead.  This template
-      // parameter is usually passed through from an add*<T> function of ParameterSetDescription.
+      // parameter is ParameterSet or vector<ParameterSet>.  Both of these cases
+      // are handled by full template specializations below.  In the first case.
+      // ParameterSetDescription should be used instead of ParameterSet.
+      // In the second case the function arguments are completely different.
+      // Note that this template parameter is most often passed through from
+      // an add*<T> function of class ParameterSetDescription. For vector<ParameterSet>
+      // use the addVPSet* versions of those functions.
       ParameterDescriptionBase(iLabel, ParameterTypeToEnum::toEnum<T>(), isTracked, false),
       value_() {
     }
@@ -156,36 +171,6 @@ namespace edm {
     T getDefaultValue() const { return value_; }
 
   private:
-
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const {
-
-      bool exists = pset.existsAs<T>(label(), isTracked());
-
-      if (exists) {
-        validatedLabels.insert(label());
-      }
-      else if (pset.existsAs<T>(label(), !isTracked())) {
-        throwParameterWrongTrackiness();
-      }
-      else if (pset.exists(label())) {
-        throwParameterWrongType();
-      }
-
-      if (!optional && !exists) {
-        if (!hasDefault()) {
-          throwMissingRequiredNoDefault();
-        }
-        if (isTracked()) {
-          pset.addParameter(label(), value_);
-        }
-        else {
-          pset.addUntrackedParameter(label(), value_);
-        }
-        validatedLabels.insert(label());
-      }
-    }
 
     virtual bool exists_(ParameterSet const& pset) const {
       return pset.existsAs<T>(label(), isTracked());
@@ -202,6 +187,19 @@ namespace edm {
 
     virtual void writeDoc_(std::ostream & os, int indentation) const {
       writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::DOC);
+    }
+
+    virtual bool exists_(ParameterSet const& pset, bool isTracked) const {
+      return pset.existsAs<T>(label(), isTracked);
+    }
+
+    virtual void insertDefault_(ParameterSet & pset) const {
+      if (isTracked()) {
+        pset.addParameter(label(), value_);
+      }
+      else {
+        pset.addUntrackedParameter(label(), value_);
+      }
     }
 
     T value_;
@@ -253,32 +251,50 @@ namespace edm {
 
     virtual void writeDoc_(std::ostream & os, int indentation) const;
 
+    virtual bool exists_(ParameterSet const& pset, bool isTracked) const;
+
+    virtual void insertDefault_(ParameterSet & pset) const;
+
     value_ptr<ParameterSetDescription> psetDesc_;
   };
 
   template<>
-  class ParameterDescription<std::vector<ParameterSetDescription> > : public ParameterDescriptionBase {
+  class ParameterDescription<std::vector<ParameterSet> > : public ParameterDescriptionBase {
 
   public:
 
     ParameterDescription(std::string const& iLabel,
-                         std::vector<ParameterSetDescription> const& vPsetDesc,
+                         ParameterSetDescription const& psetDesc,
+                         bool isTracked,
+                         std::vector<ParameterSet> const& vPset
+                        );
+
+    ParameterDescription(char const* iLabel,
+                         ParameterSetDescription const& psetDesc,
+                         bool isTracked,
+                         std::vector<ParameterSet> const& vPset
+                        );
+
+    ParameterDescription(std::string const& iLabel,
+                         ParameterSetDescription const& psetDesc,
                          bool isTracked
                         );
 
     ParameterDescription(char const* iLabel,
-                         std::vector<ParameterSetDescription> const& vPsetDesc,
+                         ParameterSetDescription const& psetDesc,
                          bool isTracked
                         );
 
     virtual ~ParameterDescription();
 
-    virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const;
-    virtual std::vector<ParameterSetDescription> * parameterSetDescriptions();
+    virtual ParameterSetDescription const* parameterSetDescription() const;
+    virtual ParameterSetDescription * parameterSetDescription();
 
     virtual ParameterDescriptionNode* clone() const {
       return new ParameterDescription(*this);
     }
+
+    void setPartOfDefaultOfVPSet(bool value) { partOfDefaultOfVPSet_ = value; }
 
   private:
 
@@ -287,8 +303,8 @@ namespace edm {
                            bool optional) const;
 
     virtual void printDefault_(std::ostream & os,
-                                 bool writeToCfi,
-                                 DocFormatHelper & dfh);
+                               bool writeToCfi,
+                               DocFormatHelper & dfh);
 
     virtual bool hasNestedContent_();
 
@@ -302,16 +318,18 @@ namespace edm {
 
     virtual void writeDoc_(std::ostream & os, int indentation) const;
 
-    static void writeOneDescriptionToCfi(ParameterSetDescription const& psetDesc,
-                                         std::ostream & os,
-                                         int indentation,
-                                         bool & nextOneStartsWithAComma);
-    void
-    validateDescription(ParameterSetDescription const& psetDescription,
-                        VParameterSetEntry * vpsetEntry,
-                        int & i) const;
+    virtual bool exists_(ParameterSet const& pset, bool isTracked) const;
 
-    value_ptr<std::vector<ParameterSetDescription> > vPsetDesc_;
+    virtual void insertDefault_(ParameterSet & pset) const;
+
+    static void writeOneElementToCfi(ParameterSet const& pset,
+                                     std::ostream & os,
+                                     int indentation,
+                                     bool & nextOneStartsWithAComma);
+
+    value_ptr<ParameterSetDescription> psetDesc_;
+    std::vector<ParameterSet> vPset_;
+    bool partOfDefaultOfVPSet_;
   };
 }
 #endif

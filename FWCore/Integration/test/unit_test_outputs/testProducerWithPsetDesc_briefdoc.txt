@@ -151,17 +151,25 @@
     test101                 PSet                  optional see Section 1.1.3 (do not write to cfi)
     test102                 VPSet                 optional see Section 1.1.4 (do not write to cfi)
     test103                 VPSet                 optional see Section 1.1.5 (do not write to cfi)
-    bars                    VPSet                          see Section 1.1.6
-    subpset                 PSet                  optional see Section 1.1.7
-    wildcardPset            PSet                           see Section 1.1.8
-    switchPset              PSet                           see Section 1.1.9
-    xorPset                 PSet                           see Section 1.1.10
-    orPset                  PSet                           see Section 1.1.11
-    andPset                 PSet                           see Section 1.1.12
-    ifExistsPset            PSet                           see Section 1.1.13
-    allowedLabelsPset       PSet                           see Section 1.1.14
-    noDefaultPset3          PSet                           see Section 1.1.15
-    noDefaultPset4          PSet                           see Section 1.1.16
+    test104                 untracked VPSet                see Section 1.1.6
+    test105                 untracked VPSet                see Section 1.1.7
+    test1                   double                         0.1
+    test2                   double                optional 0.2
+    test3                   double                optional none (do not write to cfi)
+    AND group: optional see Section 1.1.8
+    oiswitch (switch)       int32                 optional see Section 1.1.9
+    testDeeplyNested2       PSet                           see Section 1.1.10
+    bars                    VPSet                          see Section 1.1.11
+    subpset                 PSet                  optional see Section 1.1.12
+    wildcardPset            PSet                           see Section 1.1.13
+    switchPset              PSet                           see Section 1.1.14
+    xorPset                 PSet                           see Section 1.1.15
+    orPset                  PSet                           see Section 1.1.16
+    andPset                 PSet                           see Section 1.1.17
+    ifExistsPset            PSet                           see Section 1.1.18
+    allowedLabelsPset       PSet                           see Section 1.1.19
+    noDefaultPset3          PSet                           see Section 1.1.20
+    noDefaultPset4          PSet                           see Section 1.1.21
     Section 1.1.1 vuint5 default contents: (vector size = 6)
         [0]: 4294967295
         [1]: 0
@@ -180,143 +188,242 @@
         oDrinks  uint32           optional 5
         ouDrinks untracked uint32 optional 5
     Section 1.1.4 test102 VPSet description:
-        empty
+        All elements will be validated using the PSet description in Section 1.1.4.1.
+        Does not have a default VPSet.
+    Section 1.1.4.1 description of PSet used to validate elements of VPSet:
+        Description is empty
     Section 1.1.5 test103 VPSet description:
-        [0]: see Section 1.1.5.1
-    Section 1.1.5.1 PSet description:
+        All elements will be validated using the PSet description in Section 1.1.5.1.
+        Does not have a default VPSet.
+    Section 1.1.5.1 description of PSet used to validate elements of VPSet:
         Drinks     uint32                    5
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
         ndoDrinks  uint32           optional none (do not write to cfi)
         ndouDrinks untracked uint32 optional none (do not write to cfi)
-    Section 1.1.6 bars VPSet description:
-        [0]: see Section 1.1.6.1
-        [1]: see Section 1.1.6.2
-    Section 1.1.6.1 PSet description:
+    Section 1.1.6 test104 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.6.1.
+        The default VPSet has 1 element.
+        [0]: see Section 1.1.6.2
+    Section 1.1.6.1 description of PSet used to validate elements of VPSet:
         Drinks     uint32                    5
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
         ndoDrinks  uint32           optional none (do not write to cfi)
         ndouDrinks untracked uint32 optional none (do not write to cfi)
-    Section 1.1.6.2 PSet description:
+    Section 1.1.6.2 PSet description of default VPSet element [0]
+        Description is empty
+    Section 1.1.7 test105 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.7.1.
+        The default VPSet is empty.
+    Section 1.1.7.1 description of PSet used to validate elements of VPSet:
+        Drinks     uint32                    5
+        uDrinks    untracked uint32          5
+        oDrinks    uint32           optional 5
+        ouDrinks   untracked uint32 optional 5
+        ndoDrinks  uint32           optional none (do not write to cfi)
+        ndouDrinks untracked uint32 optional none (do not write to cfi)
+    Section 1.1.8 AND group description:
+    This optional AND group requires all or none of the following to be in the PSet
+        testA string  'fooA'
+        testB int32   100
+        testC int32   101
+    Section 1.1.9 oiswitch (switch):
+        switch:
+        oiswitch int32  optional 1
+        if oiswitch = 0
+        oivalue  int32           100
+        if oiswitch = 1
+        AND group: see Section 1.1.9.1
+        if oiswitch = 2
+        oivalue  string          '102'
+    Section 1.1.9.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+        oivalue1 double  101
+        oivalue2 double  101
+    Section 1.1.10 testDeeplyNested2 PSet description:
+        bswitch (switch)   bool            see Section 1.1.10.1
+        iswitch (switch)   int32           see Section 1.1.10.2
+        sswitch (switch)   string          see Section 1.1.10.3
+        ndiswitch (switch) int32  optional (do not write to cfi) see Section 1.1.10.4
+        testint            int32           1000
+    Section 1.1.10.1 bswitch (switch):
+        switch:
+        bswitch bool   False
+        if bswitch = False
+        AND group: see Section 1.1.10.1.1
+        if bswitch = True
+        bvalue  int32  100
+    Section 1.1.10.1.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+        bvalue1 double  101
+        bvalue2 double  101
+    Section 1.1.10.2 iswitch (switch):
+        switch:
+        iswitch int32   1
+        if iswitch = 0
+        ivalue  int32   100
+        if iswitch = 1
+        AND group: see Section 1.1.10.2.1
+        if iswitch = 2
+        ivalue  string  '102'
+    Section 1.1.10.2.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+        ivalue1 double            101
+        ivalue2 untracked double  101
+    Section 1.1.10.3 sswitch (switch):
+        switch:
+        sswitch string  '1'
+        if sswitch = "0"
+        svalue  int32   100
+        if sswitch = "1"
+        AND group: see Section 1.1.10.3.1
+        if sswitch = "2"
+        svalue  string  '102'
+    Section 1.1.10.3.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+        svalue1 double  101
+        svalue2 double  101
+    Section 1.1.10.4 ndiswitch (switch):
+        switch:
+        ndiswitch int32  optional 1
+        if ndiswitch = 0
+        ndivalue  int32           100
+        if ndiswitch = 1
+        AND group: see Section 1.1.10.4.1
+        if ndiswitch = 2
+        ndivalue  string          '102'
+    Section 1.1.10.4.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+        ndivalue1 double  101
+        ndivalue2 double  101
+    Section 1.1.11 bars VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.11.1.
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.11.2
+        [1]: see Section 1.1.11.3
+    Section 1.1.11.1 description of PSet used to validate elements of VPSet:
         Drinks           uint32                    5
         uDrinks          untracked uint32          5
         oDrinks          uint32           optional 5
         ouDrinks         untracked uint32 optional 5
         ndoDrinks        uint32           optional none (do not write to cfi)
         ndouDrinks       untracked uint32 optional none (do not write to cfi)
-        testDeeplyNested PSet                      see Section 1.1.6.2.1
-    Section 1.1.6.2.1 testDeeplyNested PSet description:
-        test1              double          0.1
-        test2              double optional 0.2
-        test3              double optional none (do not write to cfi)
-        AND group: optional see Section 1.1.6.2.1.1
-        bswitch (switch)   bool            see Section 1.1.6.2.1.2
-        iswitch (switch)   int32           see Section 1.1.6.2.1.3
-        sswitch (switch)   string          see Section 1.1.6.2.1.4
-        oiswitch (switch)  int32  optional see Section 1.1.6.2.1.5
-        ndiswitch (switch) int32  optional (do not write to cfi) see Section 1.1.6.2.1.6
-    Section 1.1.6.2.1.1 AND group description:
-    This optional AND group requires all or none of the following to be in the PSet
-        testA string  'fooA'
-        testB int32   100
-        testC int32   101
-    Section 1.1.6.2.1.2 bswitch (switch):
+        testDeeplyNested PSet                      see Section 1.1.11.1.1
+        anotherVPSet     VPSet                     see Section 1.1.11.1.2
+    Section 1.1.11.1.1 testDeeplyNested PSet description:
+        bswitch (switch)   bool            see Section 1.1.11.1.1.1
+        iswitch (switch)   int32           see Section 1.1.11.1.1.2
+        sswitch (switch)   string          see Section 1.1.11.1.1.3
+        ndiswitch (switch) int32  optional (do not write to cfi) see Section 1.1.11.1.1.4
+        testint            int32           1000
+    Section 1.1.11.1.1.1 bswitch (switch):
         switch:
         bswitch bool   False
         if bswitch = False
-        AND group: see Section 1.1.6.2.1.2.1
+        AND group: see Section 1.1.11.1.1.1.1
         if bswitch = True
         bvalue  int32  100
-    Section 1.1.6.2.1.2.1 AND group description:
+    Section 1.1.11.1.1.1.1 AND group description:
     This AND group requires all of the following to be in the PSet
         bvalue1 double  101
         bvalue2 double  101
-    Section 1.1.6.2.1.3 iswitch (switch):
+    Section 1.1.11.1.1.2 iswitch (switch):
         switch:
         iswitch int32   1
         if iswitch = 0
         ivalue  int32   100
         if iswitch = 1
-        AND group: see Section 1.1.6.2.1.3.1
+        AND group: see Section 1.1.11.1.1.2.1
         if iswitch = 2
         ivalue  string  '102'
-    Section 1.1.6.2.1.3.1 AND group description:
+    Section 1.1.11.1.1.2.1 AND group description:
     This AND group requires all of the following to be in the PSet
         ivalue1 double            101
         ivalue2 untracked double  101
-    Section 1.1.6.2.1.4 sswitch (switch):
+    Section 1.1.11.1.1.3 sswitch (switch):
         switch:
         sswitch string  '1'
         if sswitch = "0"
         svalue  int32   100
         if sswitch = "1"
-        AND group: see Section 1.1.6.2.1.4.1
+        AND group: see Section 1.1.11.1.1.3.1
         if sswitch = "2"
         svalue  string  '102'
-    Section 1.1.6.2.1.4.1 AND group description:
+    Section 1.1.11.1.1.3.1 AND group description:
     This AND group requires all of the following to be in the PSet
         svalue1 double  101
         svalue2 double  101
-    Section 1.1.6.2.1.5 oiswitch (switch):
-        switch:
-        oiswitch int32  optional 1
-        if oiswitch = 0
-        oivalue  int32           100
-        if oiswitch = 1
-        AND group: see Section 1.1.6.2.1.5.1
-        if oiswitch = 2
-        oivalue  string          '102'
-    Section 1.1.6.2.1.5.1 AND group description:
-    This AND group requires all of the following to be in the PSet
-        oivalue1 double  101
-        oivalue2 double  101
-    Section 1.1.6.2.1.6 ndiswitch (switch):
+    Section 1.1.11.1.1.4 ndiswitch (switch):
         switch:
         ndiswitch int32  optional 1
         if ndiswitch = 0
         ndivalue  int32           100
         if ndiswitch = 1
-        AND group: see Section 1.1.6.2.1.6.1
+        AND group: see Section 1.1.11.1.1.4.1
         if ndiswitch = 2
         ndivalue  string          '102'
-    Section 1.1.6.2.1.6.1 AND group description:
+    Section 1.1.11.1.1.4.1 AND group description:
     This AND group requires all of the following to be in the PSet
         ndivalue1 double  101
         ndivalue2 double  101
-    Section 1.1.7 subpset PSet description:
+    Section 1.1.11.1.2 anotherVPSet VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.11.1.2.1.
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.11.1.2.2
+        [1]: see Section 1.1.11.1.2.3
+    Section 1.1.11.1.2.1 description of PSet used to validate elements of VPSet:
+        xvalue int32  7
+    Section 1.1.11.1.2.2 PSet description of default VPSet element [0]
+        Description is empty
+    Section 1.1.11.1.2.3 PSet description of default VPSet element [1]
+        xvalue int32  100
+    Section 1.1.11.2 PSet description of default VPSet element [0]
+        oDrinks uint32  11
+    Section 1.1.11.3 PSet description of default VPSet element [1]
+        ndouDrinks       untracked uint32  11
+        oDrinks          uint32            11
+        ouDrinks         untracked uint32  11
+        testDeeplyNested PSet              see Section 1.1.11.3.1
+        anotherVPSet     VPSet             see Section 1.1.11.3.2
+    Section 1.1.11.3.1 testDeeplyNested PSet description:
+        testint int32  2
+    Section 1.1.11.3.2  VPSet description for VPSet that is part of the default of a containing VPSet:
+        The default VPSet has 2 elements.
+        [0]: see Section 1.1.11.3.2.1
+        [1]: see Section 1.1.11.3.2.2
+    Section 1.1.11.3.2.1 PSet description of default VPSet element [0]
+        Description is empty
+    Section 1.1.11.3.2.2 PSet description of default VPSet element [1]
+        xvalue int32  17
+    Section 1.1.12 subpset PSet description:
         xvalue int32           11
-        bar    untracked PSet  see Section 1.1.7.1
-    Section 1.1.7.1 bar PSet description:
+        bar    untracked PSet  see Section 1.1.12.1
+    Section 1.1.12.1 bar PSet description:
         Drinks   uint32                    5
         uDrinks  untracked uint32          5
         oDrinks  uint32           optional 5
         ouDrinks untracked uint32 optional 5
-    Section 1.1.8 wildcardPset PSet description:
+    Section 1.1.13 wildcardPset PSet description:
         p_uint_opt  uint32           optional 0
         wildcard: * int32            optional (require zero or more)
         wildcard: * untracked double optional (require zero or more)
         wildcard: * PSet             optional (require exactly one)
         wildcard: * PSet             optional (require at least one)
-          (see Section 1.1.8.1)
+          (see Section 1.1.13.1)
         wildcard: * VPSet            optional (require exactly one)
         wildcard: * VPSet            optional (require at least one)
-          (see Section 1.1.8.2)
-    Section 1.1.8.1 description of PSet matching wildcard:
+          (see Section 1.1.13.2)
+    Section 1.1.13.1 description of PSet matching wildcard:
         Drinks      uint32                    5
-    Section 1.1.8.2 description of VPSet matching wildcard:
-        [0]: see Section 1.1.8.2.1
-        [1]: see Section 1.1.8.2.2
-    Section 1.1.8.2.1 description of PSet:
-        Drinks      uint32                    5
-    Section 1.1.8.2.2 description of PSet:
+    Section 1.1.13.2 description used to validate all PSets which are in the VPSet matching the wildcard:
         Drinks      uint32                    5
         Drinks2     uint32                    11
-    Section 1.1.9 switchPset PSet description:
-        iswitch (switch) int32          see Section 1.1.9.1
-    Section 1.1.9.1 iswitch (switch):
+    Section 1.1.14 switchPset PSet description:
+        iswitch (switch) int32          see Section 1.1.14.1
+    Section 1.1.14.1 iswitch (switch):
         switch:
         iswitch int32   1
         if iswitch = 0
@@ -324,105 +431,107 @@
           [0]: 21
           [1]: 22
         if iswitch = 1
-        AND group: see Section 1.1.9.1.1
+        AND group: see Section 1.1.14.1.1
         if iswitch = 2
         ivalue  string  '102'
-    Section 1.1.9.1.1 AND group description:
+    Section 1.1.14.1.1 AND group description:
     This AND group requires all of the following to be in the PSet
         ivalue1 double  101
         ivalue2 double  101
-    Section 1.1.10 xorPset PSet description:
-        XOR group: see Section 1.1.10.1
-        XOR group: see Section 1.1.10.2
-        XOR group: optional (do not write to cfi) see Section 1.1.10.3
-        XOR group: see Section 1.1.10.4
-    Section 1.1.10.1 XOR group description:
+    Section 1.1.15 xorPset PSet description:
+        XOR group: see Section 1.1.15.1
+        XOR group: see Section 1.1.15.2
+        XOR group: optional (do not write to cfi) see Section 1.1.15.3
+        XOR group: see Section 1.1.15.4
+    Section 1.1.15.1 XOR group description:
     This XOR group requires exactly one of the following to be in the PSet
         name string  '11'
         name uint32  11
-    Section 1.1.10.2 XOR group description:
+    Section 1.1.15.2 XOR group description:
     This XOR group requires exactly one of the following to be in the PSet
         name1 string  '11'
         name1 uint32  11
-    Section 1.1.10.3 XOR group description:
+    Section 1.1.15.3 XOR group description:
     This optional XOR group requires exactly one or none of the following to be in the PSet
         name2 string  '11'
         name2 uint32  11
-    Section 1.1.10.4 XOR group description:
+    Section 1.1.15.4 XOR group description:
     This XOR group requires exactly one of the following to be in the PSet
         name3   string  '11'
         name4   uint32  11
-        test101 PSet    see Section 1.1.10.4.1
-        test103 VPSet   see Section 1.1.10.4.2
-    Section 1.1.10.4.1 test101 PSet description:
+        test101 PSet    see Section 1.1.15.4.1
+        test103 VPSet   see Section 1.1.15.4.2
+    Section 1.1.15.4.1 test101 PSet description:
         Drinks   uint32                    5
         uDrinks  untracked uint32          5
         oDrinks  uint32           optional 5
         ouDrinks untracked uint32 optional 5
-    Section 1.1.10.4.2 test103 VPSet description:
-        [0]: see Section 1.1.10.4.2.1
-    Section 1.1.10.4.2.1 PSet description:
+    Section 1.1.15.4.2 test103 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.15.4.2.1.
+        Does not have a default VPSet.
+    Section 1.1.15.4.2.1 description of PSet used to validate elements of VPSet:
         Drinks     uint32                    5
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
         ndoDrinks  uint32           optional none (do not write to cfi)
         ndouDrinks untracked uint32 optional none (do not write to cfi)
-    Section 1.1.11 orPset PSet description:
-        OR group: see Section 1.1.11.1
-        OR group: see Section 1.1.11.2
-        OR group: optional (do not write to cfi) see Section 1.1.11.3
-    Section 1.1.11.1 OR group description:
+    Section 1.1.16 orPset PSet description:
+        OR group: see Section 1.1.16.1
+        OR group: see Section 1.1.16.2
+        OR group: optional (do not write to cfi) see Section 1.1.16.3
+    Section 1.1.16.1 OR group description:
     This OR group requires at least one of the following to be in the PSet
         x1 string  '11'
         x2 uint32  11
-    Section 1.1.11.2 OR group description:
+    Section 1.1.16.2 OR group description:
     This OR group requires at least one of the following to be in the PSet
         y1 string  '11'
         y2 uint32  11
-    Section 1.1.11.3 OR group description:
+    Section 1.1.16.3 OR group description:
     This optional OR group requires at least one or none of the following to be in the PSet
         z1      string  '11'
         z2      uint32  11
-        test101 PSet    see Section 1.1.11.3.1
-        test103 VPSet   see Section 1.1.11.3.2
-    Section 1.1.11.3.1 test101 PSet description:
+        test101 PSet    see Section 1.1.16.3.1
+        test103 VPSet   see Section 1.1.16.3.2
+    Section 1.1.16.3.1 test101 PSet description:
         Drinks   uint32                    5
         uDrinks  untracked uint32          5
         oDrinks  uint32           optional 5
         ouDrinks untracked uint32 optional 5
-    Section 1.1.11.3.2 test103 VPSet description:
-        [0]: see Section 1.1.11.3.2.1
-    Section 1.1.11.3.2.1 PSet description:
+    Section 1.1.16.3.2 test103 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.16.3.2.1.
+        Does not have a default VPSet.
+    Section 1.1.16.3.2.1 description of PSet used to validate elements of VPSet:
         Drinks     uint32                    5
         uDrinks    untracked uint32          5
         oDrinks    uint32           optional 5
         ouDrinks   untracked uint32 optional 5
         ndoDrinks  uint32           optional none (do not write to cfi)
         ndouDrinks untracked uint32 optional none (do not write to cfi)
-    Section 1.1.12 andPset PSet description:
-        AND group: see Section 1.1.12.1
-        AND group: see Section 1.1.12.2
-        AND group: see Section 1.1.12.3
-        AND group: optional (do not write to cfi) see Section 1.1.12.4
-        AND group: optional see Section 1.1.12.5
-    Section 1.1.12.1 AND group description:
+    Section 1.1.17 andPset PSet description:
+        AND group: see Section 1.1.17.1
+        AND group: see Section 1.1.17.2
+        AND group: see Section 1.1.17.3
+        AND group: optional (do not write to cfi) see Section 1.1.17.4
+        AND group: optional see Section 1.1.17.5
+    Section 1.1.17.1 AND group description:
     This AND group requires all of the following to be in the PSet
         x1 string  '11'
         x2 uint32  11
-    Section 1.1.12.2 AND group description:
+    Section 1.1.17.2 AND group description:
     This AND group requires all of the following to be in the PSet
         y1 string  '11'
         y2 uint32  11
-    Section 1.1.12.3 AND group description:
+    Section 1.1.17.3 AND group description:
     This AND group requires all of the following to be in the PSet
         z1 string  '11'
         z2 uint32  11
-    Section 1.1.12.4 AND group description:
+    Section 1.1.17.4 AND group description:
     This optional AND group requires all or none of the following to be in the PSet
         a1 string  '11'
         a2 uint32  11
-    Section 1.1.12.5 AND group description:
+    Section 1.1.17.5 AND group description:
     This optional AND group requires all or none of the following to be in the PSet
         b1 string  '11'
         b2 uint32  11
@@ -430,81 +539,73 @@
         b4 uint32  11
         b5 uint32  11
         b6 uint32  11
-    Section 1.1.13 ifExistsPset PSet description:
-        IfExists pair: see Section 1.1.13.1
-        IfExists pair: optional (do not write to cfi) see Section 1.1.13.2
-        IfExists pair: see Section 1.1.13.3
-    Section 1.1.13.1 IfExists pair description:
+    Section 1.1.18 ifExistsPset PSet description:
+        IfExists pair: see Section 1.1.18.1
+        IfExists pair: optional (do not write to cfi) see Section 1.1.18.2
+        IfExists pair: see Section 1.1.18.3
+    Section 1.1.18.1 IfExists pair description:
     If the first parameter exists, then the second is required to exist
         x1 uint32  11
         x2 string  '11'
-    Section 1.1.13.2 optional IfExists pair description:
+    Section 1.1.18.2 optional IfExists pair description:
     If the first parameter exists, then the second is allowed to exist
         y1 uint32  11
         y2 string  '11'
-    Section 1.1.13.3 IfExists pair description:
+    Section 1.1.18.3 IfExists pair description:
     If the first parameter exists, then the second is required to exist
         z1 uint32  11
         z2 string  '11'
-    Section 1.1.14 allowedLabelsPset PSet description:
+    Section 1.1.19 allowedLabelsPset PSet description:
         p_int_opt int32 optional 0
-        testAllowedLabels (list of allowed labels) see Section 1.1.14.1
-        testAllowedLabelsUntracked (list of allowed labels) see Section 1.1.14.2
-        testOptAllowedLabels (list of allowed labels) optional (do not write to cfi) see Section 1.1.14.3
-        testOptAllowedLabelsUntracked (list of allowed labels) optional (do not write to cfi) see Section 1.1.14.4
-        testWithSet (list of allowed labels) optional see Section 1.1.14.5
-        testWithVectorOfSets (list of allowed labels) optional see Section 1.1.14.6
-    Section 1.1.14.1 testAllowedLabels - allowed labels description
+        testAllowedLabels (list of allowed labels) see Section 1.1.19.1
+        testAllowedLabelsUntracked (list of allowed labels) see Section 1.1.19.2
+        testOptAllowedLabels (list of allowed labels) optional (do not write to cfi) see Section 1.1.19.3
+        testOptAllowedLabelsUntracked (list of allowed labels) optional (do not write to cfi) see Section 1.1.19.4
+        testWithSet (list of allowed labels) optional see Section 1.1.19.5
+        testWithVectorOfSets (list of allowed labels) optional see Section 1.1.19.6
+    Section 1.1.19.1 testAllowedLabels - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
         testAllowedLabels vstring  empty
         type of allowed parameters: int32
-    Section 1.1.14.2 testAllowedLabelsUntracked - allowed labels description
+    Section 1.1.19.2 testAllowedLabelsUntracked - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
         testAllowedLabelsUntracked untracked vstring  empty
         type of allowed parameters: untracked uint32
-    Section 1.1.14.3 testOptAllowedLabels - allowed labels description
+    Section 1.1.19.3 testOptAllowedLabels - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
         testOptAllowedLabels vstring optional empty
         type of allowed parameters: int32
-    Section 1.1.14.4 testOptAllowedLabelsUntracked - allowed labels description
+    Section 1.1.19.4 testOptAllowedLabelsUntracked - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
         testOptAllowedLabelsUntracked untracked vstring optional empty
         type of allowed parameters: untracked uint32
-    Section 1.1.14.5 testWithSet - allowed labels description
+    Section 1.1.19.5 testWithSet - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
         testWithSet untracked vstring optional empty
         type of allowed parameters: untracked PSet
-        see Section 1.1.14.5.1
-    Section 1.1.14.5.1 PSet description:
+        see Section 1.1.19.5.1
+    Section 1.1.19.5.1 PSet description:
         Drinks    uint32                    5
         uDrinks   untracked uint32          5
         oDrinks   uint32           optional 5
         ouDrinks  untracked uint32 optional 5
-    Section 1.1.14.6 testWithVectorOfSets - allowed labels description
+    Section 1.1.19.6 testWithVectorOfSets - allowed labels description
     The following parameter contains a list of parameter labels
     which are allowed to be in the PSet
         testWithVectorOfSets untracked vstring optional empty
         type of allowed parameters: untracked VPSet
-        see Section 1.1.14.6.1
-    Section 1.1.14.6.1 VPSet description:
-        [0]: see Section 1.1.14.6.1.1
-        [1]: see Section 1.1.14.6.1.2
-    Section 1.1.14.6.1.1 PSet description:
+        see Section 1.1.19.6.1
+    Section 1.1.19.6.1 PSet description used to validate all elements of VPSet's:
         Drinks    uint32                    5
         uDrinks   untracked uint32          5
         oDrinks   uint32           optional 5
         ouDrinks  untracked uint32 optional 5
-    Section 1.1.14.6.1.2 PSet description:
-        Drinks    uint32                    5
-        uDrinks   untracked uint32          5
-        oDrinks   uint32           optional 5
-        ouDrinks  untracked uint32 optional 5
-    Section 1.1.15 noDefaultPset3 PSet description:
+    Section 1.1.20 noDefaultPset3 PSet description:
         noDefault1  int32                 optional none (do not write to cfi)
         noDefault2  vint32                optional none (do not write to cfi)
         noDefault3  uint32                optional none (do not write to cfi)
@@ -529,7 +630,7 @@
         noDefault22 VLuminosityBlockRange optional none (do not write to cfi)
         noDefault23 EventRange            optional none (do not write to cfi)
         noDefault24 VEventRange           optional none (do not write to cfi)
-    Section 1.1.16 noDefaultPset4 PSet description:
+    Section 1.1.21 noDefaultPset4 PSet description:
         noDefault1  untracked int32                 optional none (do not write to cfi)
         noDefault2  untracked vint32                optional none (do not write to cfi)
         noDefault3  untracked uint32                optional none (do not write to cfi)

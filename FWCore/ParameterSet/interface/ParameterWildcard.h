@@ -100,7 +100,7 @@ namespace edm {
   };
 
   template<>
-  class ParameterWildcard<std::vector<ParameterSetDescription> > : public ParameterWildcardBase {
+  class ParameterWildcard<std::vector<ParameterSet> > : public ParameterWildcardBase {
 
   public:
 
@@ -108,9 +108,9 @@ namespace edm {
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked);
 
     ParameterWildcard(std::string const& pattern, WildcardValidationCriteria criteria, bool isTracked,
-                      std::vector<ParameterSetDescription> const& desc);
+                      ParameterSetDescription const& desc);
     ParameterWildcard(char const* pattern, WildcardValidationCriteria criteria, bool isTracked,
-                      std::vector<ParameterSetDescription> const& desc);
+                      ParameterSetDescription const& desc);
 
     virtual ~ParameterWildcard();
 
@@ -130,13 +130,9 @@ namespace edm {
 
     virtual bool exists_(ParameterSet const& pset) const;
 
-    void validateDescriptionVector(std::string const& parameterName, ParameterSet & pset) const;
+    void validatePSetVector(std::string const& parameterName, ParameterSet & pset) const;
 
-    void validateDescription(ParameterSetDescription const& psetDescription,
-                             VParameterSetEntry * vpsetEntry,
-                             int & i) const;
-
-    value_ptr<std::vector<ParameterSetDescription> > vPsetDesc_;
+    value_ptr<ParameterSetDescription> psetDesc_;
   };
 }
 #endif

@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 
 #include <string>
-#include <vector>
 #include <set>
 #include <iosfwd>
 
@@ -43,9 +42,6 @@ namespace edm {
 
     virtual ParameterSetDescription const* parameterSetDescription() const { return 0; }
     virtual ParameterSetDescription * parameterSetDescription() { return 0; }
-
-    virtual std::vector<ParameterSetDescription> const* parameterSetDescriptions() const { return 0; }
-    virtual std::vector<ParameterSetDescription> * parameterSetDescriptions() { return 0; }
 
   protected:
     void throwParameterWrongTrackiness() const;
@@ -69,6 +65,10 @@ namespace edm {
     virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
                                             std::set<ParameterTypes> & parameterTypes,
                                             std::set<ParameterTypes> & wildcardTypes) const;
+
+    virtual void validate_(ParameterSet & pset,
+                           std::set<std::string> & validatedLabels,
+                           bool optional) const;
 
     virtual void writeCfi_(std::ostream & os,
                            bool & startWithComma,
@@ -95,6 +95,10 @@ namespace edm {
     virtual void printNestedContent_(std::ostream & os,
                                      bool optional,
                                      DocFormatHelper & dfh);
+
+    virtual bool exists_(ParameterSet const& pset, bool isTracked) const = 0;
+
+    virtual void insertDefault_(ParameterSet & pset) const = 0;
 
     std::string label_;
     ParameterTypes type_;
