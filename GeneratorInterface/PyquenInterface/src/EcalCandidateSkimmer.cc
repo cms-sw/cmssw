@@ -42,10 +42,10 @@ bool EcalCandidateSkimmer::filter(HepMC::GenEvent *evt){
    
    HepMC::GenEvent::particle_const_iterator it = begin;
    while((!foundParton || !foundParticle) && it != end){
-      for(int i = 0; i < partonId_.size(); ++i){
+      for(unsigned i = 0; i < partonId_.size(); ++i){
 	 if(selectParticle(*it, partonStatus_[i], partonId_[i], partonPt_[i], etaMax_)) foundParton = true;
       }
-      for(int i = 0; i < particleId_.size(); ++i){
+      for(unsigned i = 0; i < particleId_.size(); ++i){
          if(selectParticle(*it, particleStatus_[i], particleId_[i], particlePt_[i], etaMax_)) foundParticle = true;
       }
       ++it;
