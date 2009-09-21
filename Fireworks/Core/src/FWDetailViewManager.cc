@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.45 2009/07/28 17:25:55 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.46 2009/08/22 17:10:13 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -71,7 +71,10 @@ FWDetailViewManager::FWDetailViewManager(const TGWindow* cmsShowMainFrame):
 }
 
 FWDetailViewManager::~FWDetailViewManager()
-{}
+{
+   if (m_detailView != 0)
+      m_detailView->getEveWindow()->DestroyWindow();
+}
 
 void
 FWDetailViewManager::openDetailViewFor(const FWModelId &id)
