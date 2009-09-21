@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -109,7 +110,7 @@ float SiStripLatency::singleLatency() const
   if( differentLatenciesNum == 0 ) {
     return latencies_[0].latency;
   }
-  return -1;
+  return -1.;
 }
 
 uint16_t SiStripLatency::singleMode() const
@@ -137,3 +138,34 @@ uint16_t SiStripLatency::singleMode() const
 //   }
 //   return make_pair(-1, 0);
 // }
+
+void SiStripLatency::printSummary(std::stringstream & ss) const
+{
+  float lat = singleLatency();
+  uint16_t mode = singleMode();
+  if( lat != -1. ) {
+    ss << "All the Tracker has the same latency = " << lat << endl;
+  }
+  else {
+    ss << "There is more than one latency value in the Tracker" << endl;
+  }
+
+  if( mode != 0 ) {
+    ss << "All the Tracker has the same mode = " << mode << endl;
+  }
+  else {
+    ss << "There is more than one mode in the Tracker" << endl;
+  }
+
+  ss << "Total number of ranges = " << latencies_.size() << endl;
+}
+
+void SiStripLatency::printDebug(std::stringstream & ss) const
+{
+  ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << endl;
+  for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
+    int detId = it->detIdAndApv >> 2;
+    int apv = it->detIdAndApv & 3; // 3 is 0...011
+    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << it->latency << " and mode = " << int(it->mode) << endl;
+  }
+}

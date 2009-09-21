@@ -29,6 +29,8 @@ using namespace std;
  * for each apv. <br>
  * If the value of latency (mode) is the same for the whole Tracker, the singleLatency()
  * (singleMode()) method will return it, otherwise it will return -1 (0). <br>
+ * <br>
+ * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
  */
 
 class SiStripLatency
@@ -44,6 +46,27 @@ class SiStripLatency
 //     mode_(mode)
 //   {}
 
+  // Defined as public for genreflex
+  struct Latency
+  {
+    Latency(const uint32_t inputDetIdAndApv, const float & inputLatency, const uint16_t inputMode) :
+      detIdAndApv(inputDetIdAndApv),
+      latency(inputLatency),
+      mode(inputMode)
+    {}
+    /// Default constructor needed by genreflex
+    Latency() :
+      detIdAndApv(0),
+      latency(-1.),
+      mode(0)
+    {}
+    uint32_t detIdAndApv;
+    float latency;
+    unsigned char mode;
+  };
+  typedef vector<Latency>::iterator latIt;
+  typedef vector<Latency>::const_iterator latConstIt;
+
   /** Saves the detIdAndApv and latency values in the vector of Latency objects.
    * At the end of the filling phase, the compress method should be called to
    * collapse all ranges in single values. Note that everything would work even
@@ -54,6 +77,7 @@ class SiStripLatency
   float latency(const uint32_t detId, const uint16_t apv) const;
   uint16_t mode(const uint32_t detId, const uint16_t apv) const;
   pair<float, uint16_t> latencyAndMode(const uint32_t detId, const uint16_t apv) const;
+  inline vector<Latency> allLatencyAndModes() const { return latencies_; }
 
   /** Reduce ranges of consecutive detIdsAndApvs with the same latency to one value (the latest)
    * so that lower_bound will return the correct value for latency.
@@ -64,20 +88,12 @@ class SiStripLatency
   uint16_t singleMode() const;
   //   pair<float, uint16_t> singleLatencyAndMode() const;
 
+  /// Prints the number of ranges as well as the value of singleLatency and singleMode
+  void printSummary(std::stringstream & ss) const;
+  /// Prints the full list of all ranges and corresponding values of latency and mode
+  void printDebug(std::stringstream & ss) const;
+
  private:
-  struct Latency
-  {
-    Latency(const uint32_t inputDetIdAndApv, const float & inputLatency, const uint16_t inputMode) :
-      detIdAndApv(inputDetIdAndApv),
-      latency(inputLatency),
-      mode(inputMode)
-    {}
-    uint32_t detIdAndApv;
-    float latency;
-    unsigned char mode;
-  };
-  typedef vector<Latency>::iterator latIt;
-  typedef vector<Latency>::const_iterator latConstIt;
 
   struct OrderByDetIdAndApv
   {
