@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.14 2009/05/05 02:02:05 chrjones Exp $
+// $Id: TestMergeResults.cc,v 1.15 2009/06/02 22:15:46 wmtan Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
@@ -31,6 +32,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <memory>
+#include <cassert>
 
 namespace edm {
   class EventSetup;
@@ -158,6 +161,21 @@ namespace edmtest {
     index6_(0),
     index7_(0),
     parentIndex_(0) {
+
+    std::auto_ptr<edmtest::Thing> ap_thing(new edmtest::Thing);
+    edm::Wrapper<edmtest::Thing> w_thing(ap_thing);
+    assert(!w_thing.isMergeable());
+    assert(!w_thing.hasIsProductEqual());
+
+    std::auto_ptr<edmtest::ThingWithMerge> ap_thingwithmerge(new edmtest::ThingWithMerge);
+    edm::Wrapper<edmtest::ThingWithMerge> w_thingWithMerge(ap_thingwithmerge);
+    assert(w_thingWithMerge.isMergeable());
+    assert(!w_thingWithMerge.hasIsProductEqual());
+
+    std::auto_ptr<edmtest::ThingWithIsEqual> ap_thingwithisequal(new edmtest::ThingWithIsEqual);
+    edm::Wrapper<edmtest::ThingWithIsEqual> w_thingWithIsEqual(ap_thingwithisequal);
+    assert(!w_thingWithIsEqual.isMergeable());
+    assert(w_thingWithIsEqual.hasIsProductEqual());
   }
 
   // -----------------------------------------------------------------
