@@ -35,6 +35,8 @@ class SiStripLatency
 {
  public:
 
+  SiStripLatency() {}
+
 //   SiStripLatency() :
 //     mode_(-1)
 //   {}
