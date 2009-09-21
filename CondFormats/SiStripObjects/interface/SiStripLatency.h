@@ -20,7 +20,7 @@ using namespace std;
  * <br>
  * The internal Latency object stores the detId and apv value in a compressed
  * (bit shifted) uint32_t holding both the values. It stores the latency value
- * in a float and the mode value in an unsigned char. <br>
+ * in a float and the mode value in an unsigned char (possible values 0-255). <br>
  * To save space, since typically the latency and mode is the same for all apvs, the ranges
  * of consecutive detIds and apvs are collapsed in the last value, so that the lower_bound
  * binary search will return the correct latency. <br>
