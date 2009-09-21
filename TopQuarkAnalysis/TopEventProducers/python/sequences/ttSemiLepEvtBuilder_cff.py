@@ -23,3 +23,31 @@ kinFitTtSemiLepEventHypothesis.maxNJets = ttSemiLepEvent.maxNJets
 makeTtSemiLepEvent = cms.Sequence(makeTtSemiLepHypotheses *
                                   ttSemiLepEvent
                                   )
+
+## provide a helper function for adding hypotheses to the process
+def addTtSemiLepHypotheses(process,
+                           names
+                           ):
+
+    ## edit list of input hypotheses for the TtSemiLepEventBuilder
+    labels =  getattr(process.ttSemiLepEvent, "hypotheses")
+    for obj in range(len(names)):
+        ## create correct label from HypoClassKey string (stripping the leading "k")
+        ## e.g. kKinFit -> ttSemiLepHypKinFit
+        label = "ttSemiLepHyp" + names[obj][1:]
+        ## add it to the list
+        labels.append(label)
+    process.ttSemiLepEvent.hypotheses = labels
+
+    ## include hypotheses in the standard sequence
+    sequence = getattr(process, "makeTtSemiLepHypotheses")
+    for obj in range(len(names)):
+        ## create correct label from HypoClassKey string (stripping the leading "k")
+        ## e.g. kKinFit -> makeHypothesis_kinFit
+        if names[obj][1:4] == "MVA":
+            label = "makeHypothesis_" + names[obj][1:4].lower() + names[obj][4:]
+        else:
+            label = "makeHypothesis_" + names[obj][1:2].lower() + names[obj][2:]
+        ## add it to the sequence
+        sequence += getattr(process, label)
+    process.makeTtSemiLepHypotheses = cms.Sequence(sequence)

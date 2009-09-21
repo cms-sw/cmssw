@@ -9,6 +9,7 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
                                    # 1: electron
                                    # 2: muon
                                    # 3: tau
+
     decayChannel2 = cms.int32(0),  # 0: none
                                    # 1: electron
                                    # 2: muon
@@ -28,13 +29,14 @@ ttSemiLepEvent = cms.EDProducer("TtSemiLepEvtBuilder",
                               # can be set to -1 to take all jets
 
     ## labels for event hypotheses
-    hypotheses = cms.vstring("ttSemiLepHypGeom",
-                             "ttSemiLepHypWMassMaxSumPt",
-                             "ttSemiLepHypMaxSumPtWMass",
-                             "ttSemiLepHypGenMatch",
-                             "ttSemiLepHypKinFit",
-                             "ttSemiLepHypMVADisc"
-                             ),
+    ## (this vector of strings can be modified using the functions
+    ## addTtSemiLepHypotheses and removeTtSemiLepHypGenMatch in
+    ## TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff)
+    hypotheses = cms.vstring("ttSemiLepHypGenMatch"),  # "ttSemiLepHypGeom"
+                                                       # "ttSemiLepHypWMassMaxSumPt"
+                                                       # "ttSemiLepHypMaxSumPtWMass"
+                                                       # "ttSemiLepHypKinFit"
+                                                       # "ttSemiLepHypMVADisc"
                                 
     ## add extra information on kinFit
     kinFit = cms.PSet(
