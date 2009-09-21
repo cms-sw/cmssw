@@ -351,7 +351,8 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
     sector = 0;
  // }
 
- 
+  int noOfQualitiesWritten = 0; 
+
   for (;it!=itEnd;++it) {
      
      // there is only one PACCellQuality for 12 comparators!
@@ -371,9 +372,14 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
 //           << (int)it->m_FiredPlanes<<"\","
            << fp.to_string<char,std::char_traits<char>, std::allocator<char> >() <<"\","
            << (int)it->m_QualityValue<<")";
-     
+     ++noOfQualitiesWritten;
   }
   
+  if (noOfQualitiesWritten == 1 && std::abs(tower) == 9) {
+
+
+  }
+
   ret<< ");" <<std::endl <<std::endl;
   
   return ret.str();
@@ -424,6 +430,12 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
        
        if (!firstRun) ret << ",";
        firstRun = false;
+       
+       int sign =  it->getSign();
+       
+       if (sign == 0) sign = 1;
+       else if (sign == 1) sign = 0;
+       else throw cms::Exception("BAD sign") << "Bad sign definition: " << sign << std::endl;
        
        ret   << "( " << iPAC << ", " << pacT
              << ", " << it->getRefGroup()
