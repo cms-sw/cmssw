@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 # Disclaimer :
 #
 # This set of Pythia configuration cards has been copied 
@@ -74,5 +72,3 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
         parameterSets = cms.vstring('pythiaHZZmumumumu')
     )
 )
-
-ProductionFilterSequence = cms.Sequence(generator)

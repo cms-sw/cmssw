@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 generator = cms.EDProducer("CosMuoGenProducer",
     MinP = cms.double(10.0),
     MinP_CMS = cms.double(-1.0), ##negative means MinP_CMS = MinP. Only change this if you know what you are doing!
@@ -25,5 +23,3 @@ generator = cms.EDProducer("CosMuoGenProducer",
     MTCCHalf = cms.bool(False),
     Verbosity = cms.bool(False)
 )
-
-ProductionFilterSequence = cms.Sequence(generator)

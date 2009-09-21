@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 from Configuration.Generator.PyquenDefaultSettings_cff import *
 
 generator = cms.EDFilter("HydjetGeneratorFilter",
@@ -18,6 +16,4 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          bMax = cms.double(30),
                          bFixed = cms.double(0)
                          )
-
-ProductionFilterSequence = cms.Sequence(generator)
 

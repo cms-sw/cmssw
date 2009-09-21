@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 from Configuration.Generator.PythiaUESettings_cfi import *
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -28,4 +26,3 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
         )
     )
 )
-ProductionFilterSequence = cms.Sequence(generator)

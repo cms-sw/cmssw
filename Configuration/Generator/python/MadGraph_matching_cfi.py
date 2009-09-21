@@ -32,5 +32,3 @@ generator = cms.EDFilter("Pythia6HadronizerFilter",
        MEMAIN_maxjets = cms.int32(-1),
     )
 )
-
-ProductionFilterSequence = cms.Sequence(generator)

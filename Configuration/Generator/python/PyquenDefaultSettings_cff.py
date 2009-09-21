@@ -199,4 +199,3 @@ impactParameters = cms.PSet(cFlag = cms.int32(1),
                             bMax = cms.double(30)
                             )
 
-

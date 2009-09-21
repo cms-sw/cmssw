@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(11),
@@ -18,5 +16,3 @@ generator = cms.EDProducer("FlatRandomEGunProducer",
     AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
-
-ProductionFilterSequence = cms.Sequence(generator)

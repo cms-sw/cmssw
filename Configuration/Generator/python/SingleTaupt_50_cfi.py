@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 generator = cms.EDProducer("Pythia6PtGun",
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(-15),
@@ -48,5 +46,3 @@ generator = cms.EDProducer("Pythia6PtGun",
         )
     )
 )
-
-ProductionFilterSequence = cms.Sequence(generator)
