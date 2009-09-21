@@ -763,26 +763,63 @@ def writeCommands(simcandles,
                         stepLabel = stepToWrite+"_PILEUP"
                     #Add kludge here to make the IGPROF ANALYSE work:
                     #The idea is to:
-                    #1-Check if ANALYSE is there everytime we're handling IGPROF profiles, check also it is not IgProfPerf, for which it makes no sense to dump intermediate profiles.
+                    #1-Check if ANALYSE is there everytime we're handling IGPROF profiles
                     #2-If it is there then write 2 lines instead of 1: add a @@@ reuse to the first line and a second line with ANALYSE @@@ the same metadata
                     #[3-Catch the case of ANALYSE by itself and raise an exception]
                     #4-Catch the case of ANALYSE proper, and do nothing in that case (already taken care by the second lines done after PERF_TICKS, MEM_TOTAL and MEM_LIVE.
                     #print "EEEEEEE %s"%prof
-                    #We actually want the analyse to be used also for IgProf!
+                    #We actually want the analyse to be used also for IgProf perf!
                     if 'IgProf' in prof: # and 'perf' not in prof:
+                        #New IgProf naming scheme:
+                        #Add a new naming scheme to simplify the handling in igprof-navigator:
+                        #Candle___Step___Conditions__PileUpOption__IgProfProfile___Event.gz (and .sql3)
+
+                        #Creating the IgProfProfile variable, to be either IgProfMem or IgProfPerf, the two types of profiling:
+                        IgProfProfile="IgProf"
+                        if "Mem" in prof:
+                            if "reuse" in prof:
+                                IgProfProfile="IgProfMem @@@ reuse"
+                            else:
+                                IgProfProfile="IgProfMem"
+                        else:
+                            if "reuse" in prof:
+                                IgProfProfile="IgProfPerf @@@ reuse"
+                            else:
+                                IgProfProfile="IgProfPerf"
+
+                        #Conditions and PileUpOption are extracted from the cmsDriverOptions:
+                        Conditions="UNKNOWN_CONDITIONS"
+                        PileUp="NOPILEUP"
+                        EventContent="UNKNOWN_EVENTCONTENT"
+                        tokens=cmsDriverOptions.split("--")
+                        for token in tokens:
+                            keywords=token.split(" ")
+                            if "=" in keywords[0]:
+                                keywords=keywords[0].split("=")
+                            if "conditions" in keywords[0]:
+                                #Complicated expression, just to get rid of FrontierConditions_GlobalTag, and ::All at the end:
+                                Conditions=keywords[1].split(",")[1].split("::")[0]
+                            elif "pileup" in keywords[0]:
+                                PileUp=keywords[1]
+                            elif "eventcontent" in keywords[0]:
+                                EventContent=keywords[1]
+                        #so here's our new MetaName:
+                        MetaName=acandle+"___"+stepToWrite+"___"+PileUp+"___"+Conditions+"___"+EventContent+"___"+IgProfProfile
                         
                         if 'Analyse' not in prof and (lambda x: 'Analyse' in x,Profile):
                                 
-                            simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                            simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
                                                                            Profiler[prof],
-                                                                           FileName[acandle],
-                                                                           stepLabel,
-                                                                           prof))
-                            simcandles.write("%s @@@ %s @@@ %s_%s_%s\n" % (Command,
+                                                                           MetaName))
+                                                                           #FileName[acandle],
+                                                                           #stepLabel,
+                                                                           #prof))
+                            simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
                                                                            Profiler[prof].split(".")[0]+'.ANALYSE',
-                                                                           FileName[acandle],
-                                                                           stepLabel,
-                                                                           prof))
+                                                                           MetaName))
+                                                                           #FileName[acandle],
+                                                                           #stepLabel,
+                                                                           #prof))
                         elif 'Analyse' in prof:
                             pass
                     else:    

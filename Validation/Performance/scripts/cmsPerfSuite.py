@@ -818,26 +818,25 @@ class PerfSuite:
                        self.logh.write("Variable userInputRootFiles is %s\n"%userInputRootFiles)
                        #Need to use regexp, cannot rely on the order... since for different tests there are different candles...
                        #userInputFile=userInputRootFiles[candles.index(candle)]
+                       #FIXME:
+                       #Note the issue that the input files HAVE to have in their name the candle as is used in cmsPerfSuite.py command line!
+                       #This is currently caught by a printout in the log: should be either taken care of with some exception to throw?
+                       #Will put this in the documentation
                        userInputFile=""
                        candleregexp=re.compile(candle)
                        for file in userInputRootFiles:
                           if candleregexp.search(file):
                              userInputFile=file
-                             self.logh.write("For these tests will use user input file %s\n"%userInputFile)
-                       if userInputFile=="":
-                          self.logh.write("***No input file matching the candle being processed was found: will try to do without it!!!!!\n")
+                             self.logh.write("For these %s %s tests will use user input file %s\n"%(candlename,Name,userInputFile))
+                       if userInputFile == "":
+                          self.logh.write("***WARNING: For these %s %s tests could not find a matching input file in %s: will try to do without it!!!!!\n"%(candlename,Name,userInputRootFiles))
                        self.logh.flush()
                     else:
                        userInputFile=""
                     DummyTestName=candlename+"_"+stepOptions.split("=")[1]
-                    #if "IgProf" in Name:
-                    #if "TTbar" in candlename:
-                        #print "@@@@Test Name: %s"%Name
-                        #print "@@@@@@@Candle Name: %s"%candlename
-                        #print "@@@@@@@@@@@Dummy Test Name(key): %s"%DummyTestName
-                        #print "@@@@@@@@@@@@@@@Current TimerInfo dictionary:",TimerInfo[Name]
                     DummyTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the timer (DummyTimer is just a reference, but we will use the dictionary to access this later...
                     TimerInfo[Name].update({DummyTestName:DummyTimer}) #Add the TimeSize timer to the dictionary
+                    #The following command will create the appropriate SimulationCandlesX.txt file in the relevant directory, ready to run cmsRelvalreport.py on it.
                     self.runCmsInput(cpu,adir,NumEvents,candle,cmsdriverOptions,stepOptions,profiles,bypasshlt,userInputFile)            
                     #Here where the no_exec option kicks in (do everything but do not launch cmsRelvalreport.py, it also prevents cmsScimark spawning...):
                     if self._noexec:
@@ -845,6 +844,7 @@ class PerfSuite:
                         self.logh.flush()
                         pass
                     else:
+                        #The following command will launch cmsRelvalreport.py on the SimulationCandlesX.txt input file created above.
                         ExitCode=self.runCmsReport(cpu,adir,candle)
                         self.logh.write("Individual cmsRelvalreport.py ExitCode %s\n"%ExitCode)
                         RelvalreportExitCode=RelvalreportExitCode+ExitCode

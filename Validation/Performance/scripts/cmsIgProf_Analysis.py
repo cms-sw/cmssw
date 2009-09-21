@@ -44,9 +44,9 @@ def simple_igprof_analysis(profile_name,outdir,output_type):
 
     #Use profile input file to determine the name of the output file (based still on the outdir though):
     if len(profile_name.split(".")) == 3: #Dumped profiles case        
-        outfile=outdir+"/"+outdir+"."+profile_name.split(".")[1]+".res"
+        outfile=outdir+"/"+outdir+"___"+profile_name.split(".")[1]+".res"
     else:
-        outfile=outdir+"/"+outdir+".res"
+        outfile=outdir+"/"+outdir+"___EndOfJob.res"
 
     #Launch the 1 command:
     
@@ -105,7 +105,7 @@ def diff_igprof_analysis(profile_name,regression_profile_name,outdir):
         AnalysisType='MEM_LIVE'
 
     #Following Giulio's filename convention:
-    outfile=outdir+"/"+outdir+"."+profile_name.split(".")[1]+"_diff"+regression_profile_name.split(".")[1]+".sql3"
+    outfile=outdir+"/"+outdir+"___"+profile_name.split(".")[1]+"_diff"+regression_profile_name.split(".")[1]+".sql3"
     command='igprof-analyse --sqlite -d -v -g --diff-mode -b %s -r %s %s |sqlite3 %s'%(regression_profile_name, AnalysisType,profile_name,outfile)
     exit=execute(command)
 
@@ -131,7 +131,7 @@ def library_igprof_analysis(profile_name,outdir):
         AnalysisType='MEM_LIVE'
 
     #Following Giulio's filename convention:
-    outfile=outdir+"/"+outdir+"."+profile_name.split(".")[1]+"_merged"+".sql3"
+    outfile=outdir+"/"+outdir+"___"+profile_name.split(".")[1]+"_merged"+".sql3"
     #Regular Expression supplied by Giulio:
     command="igprof-analyse --sqlite -d -v -g -r %s -ml -mr 's|.*/(.*)$|\\1|' %s |sqlite3 %s"%(AnalysisType,profile_name,outfile)
     exit=execute(command)

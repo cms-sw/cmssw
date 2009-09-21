@@ -331,7 +331,6 @@ class Profile:
             igprof_options+='-mp '
         else:
             raise ('Unknown IgProf flavour: %s !'%self.profiler)
-        
         igprof_options+='-z -o %s' %(self.profile_name)
         
         # If we are using cmsDriver we should use the prefix switch 
@@ -446,15 +445,15 @@ class Profile:
                     IgProf_option=None,
                     metastring=None):
         '''
-        Make a performance report with perfreport 3 or 2. PR2 will be no longer supported in future.
+        Make a performance report with CMSSW scripts for CMSSW internal profiling (Timing/SimpleMemoryCheck) and Memcheck, PR2 for edmEventSize and Callgrind (NOTE PR2 is not supported anymore and is not currently in the CMSSW external, running froma privat AFS!), igprof-analyse for all IgProf profiling.
         '''
 
-        
         if outdir==None or outdir==self.profile_name:
             outdir=self.profile_name+'_outdir'
             
         #Create the directory where the report will be stored:          
         if not os.path.exists(outdir) and not fill_db:
+            #FIXME: Add an IgProf condition to avoid the creation of a directory that we will not need anymore, since we will put all info in the filenames?
             execute('mkdir %s' %outdir)
         
         if fill_db:
@@ -703,8 +702,8 @@ def principal(options):
             profile_name=clean_name('%s_%s'%(meta,options.profile_name)) #Also options.profile_name is usually not used... should clean up...
                     
             # profiler is igprof: we need to disentangle the profiler and the counter
-            if profiler_opt.find('.')!=-1 and \
-               profiler_opt.find('IgProf')!=-1:
+            
+            if profiler_opt.find('.')!=-1 and profiler_opt.find('IgProf')!=-1:
                 profiler_opt_split=profiler_opt.split('.')
                 profiler,IgProf_counter=profiler_opt_split
                 if profile_name[-3:]!='.gz':
