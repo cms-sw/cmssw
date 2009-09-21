@@ -25,6 +25,9 @@
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
+#include "GeneratorInterface/Pythia8Interface/interface/LHAupLesHouches.h"
+
+
 using namespace gen;
 using namespace Pythia8;
 
@@ -61,6 +64,8 @@ class Pythia8Hadronizer : public BaseHadronizer {
 
     string LHEInputFileName;
 
+    std::auto_ptr<LHAupLesHouches>      lhaUP;
+
 	std::auto_ptr<Pythia>	pythia;
 	Event			*pythiaEvent;
 	HepMC::I_Pythia8	toHepMC;   
@@ -78,14 +83,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName",""))
 {
     randomEngine = &getEngineReference();
-
-/* these have moved to BaseHadronizer...
-
-	runInfo().setExternalXSecLO(
-		params.getUntrackedParameter<double>("crossSection", -1.0));
-	runInfo().setFilterEfficiency(
-		params.getUntrackedParameter<double>("filterEfficiency", -1.0));
-*/
 }
 
 Pythia8Hadronizer::~Pythia8Hadronizer()
@@ -133,22 +130,26 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     std::cout << "Initializing for external partons" << std::endl;
 
-    if(LHEInputFileName != string()) {
-      cout << endl;
-      cout << "LHE Input File Name = " << LHEInputFileName << endl;
-      cout << endl;
-    } else {
-      throw cms::Exception("PythiaError") << "LHE Input File Name is empty"
-                                          << std::endl;
-    }
-
     RandomP8* RP8 = new RandomP8();
 
     pythia.reset(new Pythia);
     pythia->setRndmEnginePtr(RP8);
     pythiaEvent = &pythia->event;
 
-    pythia->init(LHEInputFileName);
+    if(LHEInputFileName != string()) {
+
+      cout << endl;
+      cout << "LHE Input File Name = " << LHEInputFileName << endl;
+      cout << endl;
+      pythia->init(LHEInputFileName);
+
+    } else {
+
+      lhaUP.reset(new LHAupLesHouches());
+      lhaUP->loadRunInfo(lheRunInfo());
+      pythia->init(lhaUP.get());
+
+    }
 
     return true;
 }
@@ -203,6 +204,10 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 
 bool Pythia8Hadronizer::hadronize()
 {
+    if(LHEInputFileName == string()) {
+      lhaUP->loadEvent(lheEvent());
+    }
+
     if (!pythia->next())
         return false;
 
