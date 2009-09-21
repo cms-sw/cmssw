@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.14 2009/05/20 23:15:31 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.17 2009/09/14 10:18:53 yilmaz Exp $
 //
 //
 
@@ -281,7 +281,7 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 float phi = (*it)->momentum().phi();
 	 float pt = (*it)->momentum().perp();
 	 const ParticleData * part = pdt->particle(pdg_id );
-	 int charge = part->charge();
+	 int charge = static_cast<int>(part->charge());
 
 	 hev_.pt[hev_.mult] = pt;
 	 hev_.eta[hev_.mult] = eta;

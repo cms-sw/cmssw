@@ -193,13 +193,9 @@
 *     generation of single HYDJET event (soft+hard parts) at given parameters 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       double precision numpar,npar0,nbco0,npart,nbcol 
-      real p,v
-      INTEGER PYK,PYCHGE,PYCOMP
       external hsin,gauss,hftaa,numpar,hyhard,hipsear,pyr,pymass 
-      external ludata 
       common /pyjets/ nhi,npadhi,khi(4000,5),phi(4000,5),vhi(4000,5)
       COMMON /PYDAT3/ MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
-*      common /lujets/ n,k(150000,5),p(150000,5),v(150000,5)
       common /hyjets/ nhj,nhp,khj(150000,5),phj(150000,5),vhj(150000,5)
       common /hyipar/ bminh,bmaxh,AW,RA,npar0,nbco0,Apb,Rpb,np,init,ipr
       common /hypyin/ ene,rzta,rnta,bfix,ifb,nh
@@ -423,7 +419,6 @@ c       urf=vradf*rrf/reff**2                  !square transverse profile
 *     generate 'njet' number of hard parton-parton scatterings with PYTHIA 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       double precision npar0,nbco0,npart,nbcol
-      INTEGER PYK,PYCHGE,PYCOMP
       CHARACTER beam*2,targ*2
       external pydata 
       external pyp,pyr,pyk,pyquen,shad1
@@ -791,8 +786,8 @@ c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$$$c$
       DOUBLE PRECISION RES(2)
       DOUBLE PRECISION TAF
       DOUBLE PRECISION SEVAL
-      INTEGER INUCL,IREAD,TMAX
-      INTEGER I,J,K,IK
+      INTEGER INUCL,TMAX
+      INTEGER I,IK
 
       PARAMETER(TMAX=31)
       PARAMETER(XMAX=0.1)

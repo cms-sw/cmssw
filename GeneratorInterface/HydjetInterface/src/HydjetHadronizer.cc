@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.4 2009/05/28 18:54:03 yilmaz Exp $
+ * $Id: HydjetHadronizer.cc,v 1.7 2009/09/18 13:30:23 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -35,8 +35,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
-static const double pi = 3.14159265358979;
-
 using namespace edm;
 using namespace std;
 using namespace gen;
@@ -52,10 +50,11 @@ namespace {
 }
 
 
+//_____________________________________________________________________
 HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
-    pset_(pset),
     evt(0), 
+    pset_(pset),
     abeamtarget_(pset.getParameter<double>("aBeamTarget")),
     bfixed_(pset.getParameter<double>("bFixed")),
     bmax_(pset.getParameter<double>("bMax")),
@@ -88,10 +87,6 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
 {
   // Default constructor
 
-  // Set random seed for Hydjet
-  long seed = gen::getEngineReference().getSeed();
-  ludatr.mrlu[0]=seed;
-
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
@@ -100,7 +95,6 @@ HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
-
 }
 
 
@@ -110,7 +104,6 @@ HydjetHadronizer::~HydjetHadronizer()
   // destructor
   call_pystat(1);
   delete pythia6Service_;
-
 }
 
 
@@ -140,14 +133,13 @@ void HydjetHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
 
   evt->set_heavy_ion(*hi);
   delete hi;
-
 }
 
 //___________________________________________________________________     
 HepMC::GenParticle* HydjetHadronizer::build_hyjet(int index, int barcode)
 {
    // Build particle object corresponding to index in hyjets (soft+hard)  
-                                                                                                                                                         
+
    double x0 = hyjets.phj[0][index];
    double y0 = hyjets.phj[1][index];
 
@@ -155,16 +147,16 @@ HepMC::GenParticle* HydjetHadronizer::build_hyjet(int index, int barcode)
    double y = y0*cosphi0_+x0*sinphi0_;
 
    HepMC::GenParticle* p = new HepMC::GenParticle(
-                                                  HepMC::FourVector(x,  // px                                                                            
-                                                                    y,  // py                                                                            
-                                                                    hyjets.phj[2][index],  // pz                                                         
-                                                                    hyjets.phj[3][index]), // E                                                          
-                                                  hyjets.khj[1][index],// id                                                                             
-                                                  convertStatus(hyjets.khj[0][index]) // status                                                          
-                                                  );
+     HepMC::FourVector(x,                                 // px
+                       y,                                 // py
+                       hyjets.phj[2][index],              // pz
+                       hyjets.phj[3][index]),             // E
+                       hyjets.khj[1][index],              // id
+                       convertStatus(hyjets.khj[0][index] // status
+                      )
+   );
 
    p->suggest_barcode(barcode);
-
    return p;
 }
 
@@ -188,7 +180,6 @@ HepMC::GenVertex* HydjetHadronizer::build_hyjet_vertex(int i,int id)
 
 bool HydjetHadronizer::generatePartonsAndHadronize()
 {
-
    Pythia6Service::InstanceWrapper guard(pythia6Service_);
 
    // generate single event
@@ -237,21 +228,20 @@ bool HydjetHadronizer::generatePartonsAndHadronize()
    add_heavy_ion_rec(evt);
 
    event().reset(evt);
-
-
    return true;
 }
+
 
 //_____________________________________________________________________  
 bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
 {
    // Hard particles. The first nhard_ lines from hyjets array.                
    // Pythia/Pyquen sub-events (sub-collisions) for a given event              
-   // Return T/F if success/failure                                                                                                                      
-   // Create particles from lujet entries, assign them into vertices and                                                                                 
-   // put the vertices in the GenEvent, for each SubEvent                                                                                                
-   // The SubEvent information is kept by storing indeces of main vertices                                                                               
-   // of subevents as a vector in GenHIEvent.                                                                                                            
+   // Return T/F if success/failure
+   // Create particles from lujet entries, assign them into vertices and
+   // put the vertices in the GenEvent, for each SubEvent
+   // The SubEvent information is kept by storing indeces of main vertices
+   // of subevents as a vector in GenHIEvent.
 
    LogDebug("SubEvent")<< "Number of sub events "<<nsub_;
    LogDebug("Hydjet")<<"Number of hard events "<<hyjpar.njet;
@@ -264,7 +254,7 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
    for(int isub=0;isub<nsub_;isub++){
       LogDebug("SubEvent") <<"Sub Event ID : "<<isub;
 
-      int sub_up = (isub+1)*50000; // Upper limit in mother index, determining the range of Sub-Event                                                    
+      int sub_up = (isub+1)*50000; // Upper limit in mother index, determining the range of Sub-Event
       vector<HepMC::GenParticle*> particles;
       vector<int>                 mother_ids;
       vector<HepMC::GenVertex*>   prods;
@@ -281,16 +271,17 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
 
          ihy++;
       }
-      //Produce Vertices and add them to the GenEvent. Remember that GenParticles are adopted by                                                         
-      //GenVertex and GenVertex is adopted by GenEvent.                                                                                                  
+
+      //Produce Vertices and add them to the GenEvent. Remember that GenParticles are adopted by
+      //GenVertex and GenVertex is adopted by GenEvent.
 
       LogDebug("Hydjet")<<"Number of particles in vector "<<particles.size();
 
       for (unsigned int i = 0; i<particles.size(); i++) {
 	 HepMC::GenParticle* part = particles[i];
 
-         //The Fortran code is modified to preserve mother id info, by seperating the beginning                                                          
-         //mother indices of successive subevents by 50000.                                                                                              
+         //The Fortran code is modified to preserve mother id info, by seperating the beginning
+         //mother indices of successive subevents by 5000
          int mid = mother_ids[i]-isub*50000-1;
 	 LogDebug("DecayChain")<<"Particle "<<i;
 	 LogDebug("DecayChain")<<"Mother's ID "<<mid;
@@ -310,30 +301,29 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent *evt )
                prod_vertex = prods[i];
                prod_vertex->add_particle_in(mother);
                evt->add_vertex(prod_vertex);
-               prods[i]=0; // mark to protect deletion                                                                                                   
-
+               prods[i]=0; // mark to protect deletion
             }
             prod_vertex->add_particle_out(part);
          }
       }
-      // cleanup vertices not assigned to evt                                                                                                            
+      // cleanup vertices not assigned to evt
       for (unsigned int i = 0; i<prods.size(); i++) {
          if(prods[i]) delete prods[i];
       }
    }
-
    return true;
 }
 
+
 //______________________________________________________________
 bool HydjetHadronizer::call_hyinit(double energy,double a, int ifb, double bmin,
-			       double bmax,double bfix,int nh)
+                                   double bmax,double bfix,int nh)
 {
   // initialize hydjet  
 
    pydatr.mrpy[2]=1;
    HYINIT(energy,a,ifb,bmin,bmax,bfix,nh);
-    return true;
+   return true;
 }
 
 
@@ -397,7 +387,6 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
     edm::LogInfo("HydjetEnLoss") << "##### Radiative AND Collisional partonic energy loss ON ####";
     pyqpar.ienglu = 0; 
   }
-
   return true;
 }
 
@@ -418,69 +407,59 @@ bool HydjetHadronizer::initializeForInternalPartons(){
    // hydjet running options 
    hydjet_init(pset_);
    // initialize hydjet
-   LogInfo("HYDJETinAction") << "##### Calling HYINIT("<<comenergy<<","<<abeamtarget_<<","<<cflag_<<","<<bmin_<<","<<bmax_<<","<<bfixed_<<","<<nmultiplicity_<<") ####";
+   LogInfo("HYDJETinAction") << "##### Calling HYINIT("<<comenergy<<","<<abeamtarget_<<","
+                             <<cflag_<<","<<bmin_<<","<<bmax_<<","<<bfixed_<<","<<nmultiplicity_<<") ####";
    call_hyinit(comenergy,abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
-
    return true;
-
 }
 
 bool HydjetHadronizer::declareStableParticles( std::vector<int> pdg )
 {
-   for ( size_t i=0; i < pdg.size(); i++ )
-      {
-	 int pyCode = pycomp_( pdg[i] );
-	 std::ostringstream pyCard ;
-	 pyCard << "MDCY(" << pyCode << ",1)=0";
-	 std::cout << pyCard.str() << std::endl;
-	 call_pygive( pyCard.str() );
-      }
-   
-   return true;
-
+  for ( size_t i=0; i < pdg.size(); i++ ) {
+    int pyCode = pycomp_( pdg[i] );
+    std::ostringstream pyCard ;
+    pyCard << "MDCY(" << pyCode << ",1)=0";
+    std::cout << pyCard.str() << std::endl;
+    call_pygive( pyCard.str() );
+  }
+  return true;
 }
 
-//________________________________________________________________                                                                    
-void HydjetHadronizer::rotateEvtPlane(){
-
-   int * dummy;
-   phi0_ = 2.*pi*gen::pyr_(dummy) - pi;
-   sinphi0_ = sin(phi0_);
-   cosphi0_ = cos(phi0_);
+//________________________________________________________________
+void HydjetHadronizer::rotateEvtPlane()
+{
+  const double pi = 3.14159265358979;
+  phi0_ = 2.*pi*gen::pyr_(0) - pi;
+  sinphi0_ = sin(phi0_);
+  cosphi0_ = cos(phi0_);
 }
 
 
-
-
-
-//________________________________________________________________ 
-
+//________________________________________________________________
 bool HydjetHadronizer::hadronize()
 {
-   return false;
+  return false;
 }
 
 bool HydjetHadronizer::decay()
 {
-   return true;
+  return true;
 }
 
 bool HydjetHadronizer::residualDecay()
 {
-   return true;
+  return true;
 }
 
-void HydjetHadronizer::finalizeEvent(){
-
+void HydjetHadronizer::finalizeEvent()
+{
 }
 
-void HydjetHadronizer::statistics(){
+void HydjetHadronizer::statistics()
+{
 }
 
 const char* HydjetHadronizer::classname() const
 {
    return "gen::HydjetHadronizer";
 }
-
-
-

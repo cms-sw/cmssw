@@ -8,6 +8,7 @@
 <use name=GeneratorInterface/PyquenInterface>
 <use name=f77compiler>
 <use name=GeneratorInterface/ExternalDecays>
+<Flags FFLAGS="-O">
 <export>
  <lib name=GeneratorInterfaceHydjetInterface>
  <use name=hepmc>
