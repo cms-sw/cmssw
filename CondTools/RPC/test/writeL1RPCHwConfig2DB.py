@@ -14,8 +14,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    firstValue = cms.uint64(0),
-    lastValue = cms.uint64(0),
+    firstValue = cms.uint64(12505),
+    lastValue = cms.uint64(12505),
     timetype = cms.string('runnumber'),
     interval = cms.uint64(1)
 )
@@ -36,10 +36,13 @@ process.WriteInDB = cms.EDFilter("L1RPCHwConfigDBWriter",
     Source = cms.PSet(
         FirstBX = cms.untracked.int32(0),
         LastBX = cms.untracked.int32(0),
-        WriteDummy = cms.untracked.int32(0),
-        Validate = cms.untracked.int32(0),
-        OnlineConn = cms.untracked.string('oracle://cms_omds_lb/CMS_RPC_CONF')
+#        DisabledCrates = cms.untracked.vint32(0,1,2,3,4,5),
+        DisabledCrates = cms.untracked.vint32(),
+        DisabledTowers = cms.untracked.vint32(),
+        WriteDummy = cms.untracked.int32(1),
+        Validate = cms.untracked.int32(1),
         OnlineAuthPath = cms.untracked.string('.'),
+        OnlineConn = cms.untracked.string('oracle://cms_omds_lb/CMS_RPC_CONF')
     )
 )
 

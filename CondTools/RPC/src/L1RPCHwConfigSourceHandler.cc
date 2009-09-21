@@ -9,6 +9,8 @@ popcon::L1RPCHwConfigSourceHandler::L1RPCHwConfigSourceHandler(const edm::Parame
   m_validate(ps.getUntrackedParameter<int>("Validate",0)),
   m_firstBX(ps.getUntrackedParameter<int>("FirstBX",0)),
   m_lastBX(ps.getUntrackedParameter<int>("LastBX",0)),
+  m_disableCrates(ps.getUntrackedParameter<std::vector<int> >("DisabledCrates")),
+  m_disableTowers(ps.getUntrackedParameter<std::vector<int> >("DisabledTowers")),
   m_connect(ps.getUntrackedParameter<std::string>("OnlineConn","")),
   m_authpath(ps.getUntrackedParameter<std::string>("OnlineAuthPath",".")),
   m_host(ps.getUntrackedParameter<std::string>("OnlineDBHost","oracms.cern.ch")),
@@ -55,7 +57,16 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects()
   disabledDevs =  new L1RPCHwConfig();
   disabledDevs->setFirstBX(m_firstBX);
   disabledDevs->setLastBX(m_lastBX);
-      if (m_dummy==0) {
+      if (m_dummy==1) {
+        std::vector<int>::iterator crIt = m_disableCrates.begin();
+        for (; crIt!=m_disableCrates.end(); ++crIt){
+          disabledDevs->enableCrate(*crIt,false);
+        }
+        std::vector<int>::iterator twIt = m_disableTowers.begin();
+        for (; twIt!=m_disableTowers.end(); ++twIt){
+          disabledDevs->enableTower(*twIt,false);
+        }
+      } else {
         if (m_connect=="") {
           ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
           readHwConfig0();
