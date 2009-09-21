@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.51 2009/09/18 13:35:23 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.52 2009/09/18 20:01:48 amraktad Exp $
 //
 
 // system include files
@@ -121,6 +121,10 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->SetScalePosition(0.88, 0.6);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+
+         ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+         TEveLegoEventHandler* eh = new TEveLegoEventHandler(m_lego, ev->GetGLWidget(), ev); 	 
+         ev->SetEventHandler(eh);
       }
    }
    // take care of cameras
