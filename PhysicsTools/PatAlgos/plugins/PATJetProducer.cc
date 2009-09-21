@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.40 2009/07/27 15:49:29 srappocc Exp $
+// $Id: PATJetProducer.cc,v 1.41 2009/08/27 20:15:52 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -55,6 +55,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   embedGenPartonMatch_     = iConfig.getParameter<bool> 		      ( "embedGenPartonMatch" );
   genPartonSrc_            = iConfig.getParameter<edm::InputTag>	      ( "genPartonMatch" );
   addGenJetMatch_          = iConfig.getParameter<bool> 		      ( "addGenJetMatch" );
+  embedGenJetMatch_        = iConfig.getParameter<bool> 		      ( "embedGenJetMatch" );
   genJetSrc_               = iConfig.getParameter<edm::InputTag>	      ( "genJetMatch" );
   addPartonJetMatch_       = iConfig.getParameter<bool> 		      ( "addPartonJetMatch" );
   partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
@@ -240,7 +241,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addGenJetMatch_) {
       reco::GenJetRef genjet = (*genJetMatch)[jetRef];
       if (genjet.isNonnull() && genjet.isAvailable()) {
-          ajet.setGenJet(*genjet);
+          ajet.setGenJet(genjet, embedGenJetMatch_);
       } // leave empty if no match found
     }
 
@@ -338,6 +339,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<edm::InputTag>("genPartonMatch", edm::InputTag())->setComment("input with MC match information");
 
   iDesc.add<bool>("addGenJetMatch", true)->setComment("add MC matching");
+  iDesc.add<bool>("embedGenJetMatch", false)->setComment("embed MC matched MC information");
   iDesc.add<edm::InputTag>("genJetMatch", edm::InputTag())->setComment("input with MC match information");
 
   iDesc.add<bool>("addJetCharge", true);

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.36 2009/07/16 09:28:08 rwolf Exp $
+// $Id: Jet.h,v 1.37 2009/07/18 08:11:15 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.36 2009/07/16 09:28:08 rwolf Exp $
+  \version  $Id: Jet.h,v 1.37 2009/07/18 08:11:15 srappocc Exp $
 */
 
 
@@ -179,7 +179,9 @@ namespace pat {
       /// method to set the matched parton
       void setGenParton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
       /// method to set the matched generated jet
-      void setGenJet(const reco::GenJet & gj);
+      void setGenJet(const reco::GenJetRef & gj, const bool embed=false) { setGenJetRef(gj, embed); }
+      /// method to set the matched generated jet reference, embedding if requested
+      void setGenJetRef(const reco::GenJetRef & gj, const bool embed);
       /// method to set the flavour of the parton underlying the jet
       void setPartonFlavour(int partonFl);
 
@@ -326,6 +328,7 @@ namespace pat {
       // ---- MC info ----
 
       std::vector<reco::GenJet> genJet_;
+      reco::GenJetRefVector     genJetRef_;
       int partonFlavour_;
 
       // ---- energy scale correction factors ----

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.29 2009/02/19 15:39:29 rwolf Exp $
+// $Id: Jet.cc,v 1.30 2009/03/26 20:04:10 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -116,7 +116,8 @@ std::vector <const reco::PFCandidate*> Jet::getPFConstituents () const {
 
 /// return the matched generated jet
 const reco::GenJet * Jet::genJet() const {
-  return (genJet_.size() > 0 ? &genJet_.front() : 0);
+  if (genJet_.size()) return  &(genJet_.front());
+  return (genJetRef_.size() > 0 ? genJetRef_.begin()->get() : 0);
 }
 
 /// return the flavour of the parton underlying the jet
@@ -343,11 +344,14 @@ void Jet::setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers) {
   embeddedCaloTowers_ = true;
 }
 
-/// method to set the matched generated jet
-void Jet::setGenJet(const reco::GenJet & gj) {
-  genJet_.clear();
-  genJet_.push_back(gj);
+/// method to set the matched generated jet reference, embedding if requested
+void Jet::setGenJetRef(const reco::GenJetRef &ref, bool embed) {
+  genJet_   .clear(); 
+  genJetRef_.clear();
+  if (embed)  genJet_   .push_back(*ref);
+  else        genJetRef_.push_back(ref);
 }
+
 
 /// method to set the flavour of the parton underlying the jet
 void Jet::setPartonFlavour(int partonFl) {
