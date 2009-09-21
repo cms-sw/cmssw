@@ -1,15 +1,17 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/SymmetryFit.h"
 #include <cmath>
 
-TH1* SymmetryFit::symmetryChi2(TH1* candidate, std::pair<unsigned,unsigned> range) 
+TH1* SymmetryFit::symmetryChi2(const TH1* candidate, const std::pair<unsigned,unsigned> range) 
 {
-  unsigned firstGood(0), lastGood(candidate->GetNbinsX()+1);
-  while(! candidate->GetBinError(++firstGood));
-  while(! candidate->GetBinError(--lastGood));
-  unsigned ndf = std::min(range.first-firstGood, lastGood-range.second);
+  std::cout << "symmetryChi2: "<< std::flush;
+  std::pair<unsigned, unsigned> usable = range;
+  while(usable.first  > 1                                  && candidate->GetBinError(usable.first-1)) --usable.first;
+  while(usable.second < (unsigned)(candidate->GetNbinsX()) && candidate->GetBinError(usable.second+1)) ++usable.second;
+  unsigned ndf = std::min(range.first-usable.first, usable.second-range.second);
 
-  if( ndf < 2 || ndf < (range.second-range.first)/2 ) return 0;
-  for( unsigned i=range.first-ndf; i<=range.second+ndf; i++) if(candidate->GetBinError(i)==0) return 0;
+  if( ndf < 10 || ndf < (range.second-range.first)/2 ) { std::cout << "bad range" << std::endl
+								   << "usable: " << usable.first <<","<<usable.second << std::endl
+								   << "range: " << range.first <<"," << range.second << std::endl; return 0;}
 
   SymmetryFit sf(candidate, range, ndf);
   int status = sf.fit();

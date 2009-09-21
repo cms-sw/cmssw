@@ -9,7 +9,7 @@ class SymmetryFit {
 
  public:
   
-  static TH1* symmetryChi2(TH1*, std::pair<unsigned,unsigned>);
+  static TH1* symmetryChi2(const TH1*, const std::pair<unsigned,unsigned>);
   static std::string name(std::string base) {return base+"_symmchi2";}
   static TF1* fitfunction();
   

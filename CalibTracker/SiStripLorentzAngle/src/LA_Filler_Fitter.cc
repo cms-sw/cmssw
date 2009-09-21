@@ -121,16 +121,27 @@ fit_profile(Book& book, const std::string& key) {
 void LA_Filler_Fitter::
 make_and_fit_symmchi2(Book& book) {
   for(Book::const_iterator p = book.begin(".*"+method(SYMM,0)); p!=book.end(); ++p) {
-    unsigned minbin = (*p)->GetMinimumBin();
+    double min=(*p)->GetMaximum();
+    unsigned minbin=0;
+    for(int i=1; i<=(*p)->GetNbinsX(); ++i) if((*p)->GetBinError(i) && (*p)->GetBinContent(i)<min) {min = (*p)->GetBinContent(i); minbin = i;}
+
+    std::cout << "minbin: " << minbin << std::endl;
     double dguess(0), weight(0);
     for(unsigned i=0; i<20; i++) { 
-      double w = 1./pow((*p)->GetBinContent(minbin-10+i),4);
-      dguess+= w*(minbin-10+i);
-      weight+= w;
+      double w = pow((*p)->GetBinContent(minbin-10+i),4);
+      if(w>0) {
+	dguess+= (minbin-10+i)/w;
+	weight+= 1/w;
+      }
     }
     unsigned guess = (unsigned)(dguess/weight);
-    TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-4,guess+4));
-    if(chi2) book.book(SymmetryFit::name((*p)->GetName()), chi2);
+    TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-3,guess+3));
+    if(chi2) { 
+      dguess = chi2->GetFunction("SymmetryFit")->GetParameter(0);
+      guess = (*p)->FindBin(dguess);
+      delete chi2;
+      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-3,guess+3));
+      book.book(SymmetryFit::name((*p)->GetName()), chi2); std::cout <<"symmfit" << std::endl;}
   }
 }
 
