@@ -93,7 +93,7 @@ HiEgammaIsolationProducer::HiEgammaIsolationProducer(const edm::ParameterSet& iC
        iConfig.getParameter<std::string>("iso") == "Rx" ? calcRx :
        iConfig.getParameter<std::string>("iso") == "Txy" ? calcTxy :
        iConfig.getParameter<std::string>("iso") == "dRxy" ? calcDRxy : calcErr ),
-  mode_( iConfig.getParameter<std::string>("mode") == "backgroundSubtracted" ? 1 : 0)
+  mode_( iConfig.getParameter<std::string>("mode") == "BackgroundSubtracted" ? 1 : 0)
 {
       produces<edm::ValueMap<float> >();
 }
