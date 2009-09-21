@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include <TTree.h>
+#include "SymmetryFit.h"
 class Book;
 
 class LA_Filler_Fitter {
@@ -22,7 +23,7 @@ class LA_Filler_Fitter {
     case WIDTH:  return "_width-tanLA_profile";
     case RATIO:  return std::string("_tanLA")+(fit?  "_ratio":"");
     case SQRTVAR:return "_sqrtVariance-tanLA_profile";
-    case SYMM:   return "_symm";
+    case SYMM:   return fit? SymmetryFit::name("_symm") : "_symm";
     default: return "_UNKNOWN";
     }
   }
@@ -71,10 +72,12 @@ class LA_Filler_Fitter {
   
   static void fit(Book& book) { 
     make_and_fit_ratio(book); 
+    make_and_fit_symmchi2(book);
     fit_profile(book,method(WIDTH)); 
     fit_profile(book,method(SQRTVAR)); 
   }
   static void make_and_fit_ratio(Book&, bool cleanup=false);
+  static void make_and_fit_symmchi2(Book&);
   static void fit_profile(Book&, const std::string&);
   
   static Result result(Method, const std::string name, const Book&);

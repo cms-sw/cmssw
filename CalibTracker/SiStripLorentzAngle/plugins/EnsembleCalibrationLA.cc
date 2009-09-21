@@ -56,7 +56,7 @@ endJob()
   
   { 
     TFile file((Prefix+"sampleFits.root").c_str(),"RECREATE");
-    for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction|symm)"); hist!=book.end(); ++hist)
+    for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction|symm|symmchi2)"); hist!=book.end(); ++hist)
       (*hist)->Write();
     file.Close();
   }

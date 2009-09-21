@@ -73,6 +73,8 @@ process_reports() {
     std::string key = ( byMod ? ".*_module.*" : ".*_layer.*") + LA_Filler_Fitter::method(method);
     for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist)
       (*hist)->Write();
+    for(Book::const_iterator hist = book.begin(".*_symm"); hist!=book.end(); ++hist)
+      (*hist)->Write();
     tfile.Close();
   }
 }

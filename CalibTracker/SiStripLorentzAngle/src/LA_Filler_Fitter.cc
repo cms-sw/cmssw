@@ -1,7 +1,6 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/TTREE_FOREACH_ENTRY.hh"
 #include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
-#include "CalibTracker/SiStripLorentzAngle/interface/SymmetryFit.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cmath>
@@ -41,7 +40,7 @@ fill(TTree* tree, Book& book) {
       float driftx = (*tsosdriftx)[i];
       float driftz = (*tsosdriftz)[i];
 
-      int sign = driftx < 0  ?  1  :  -1 ;
+      int sign = (*tsosglobalZofunitlocalY)[i] < 0  ?  -1  :  1 ;
       double projectionByDriftz = tan((*tsoslocaltheta)[i]) * cos((*tsoslocalphi)[i]);
       unsigned width = (*clusterwidth)[i];
       float sqrtVar = sqrt((*clustervariance)[i]);
@@ -66,7 +65,7 @@ fill(TTree* tree, Book& book) {
       if(methods_ & RATIO)   book.fill( sign*projectionByDriftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
       if(methods_ & WIDTH)   book.fill( sign*projectionByDriftz,   width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
       if(methods_ & SQRTVAR) book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
-      if(methods_ & SYMM)    book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SYMM)        ,128,-1.0,1.0 );
+      if(methods_ & SYMM)    book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SYMM,0)     ,128,-1.0,1.0 );
       if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),            granular+"_field"            , 101, 1, 5 );
     }
   }
@@ -119,6 +118,22 @@ fit_profile(Book& book, const std::string& key) {
   }
 }
 
+void LA_Filler_Fitter::
+make_and_fit_symmchi2(Book& book) {
+  for(Book::const_iterator p = book.begin(".*"+method(SYMM,0)); p!=book.end(); ++p) {
+    unsigned minbin = (*p)->GetMinimumBin();
+    double dguess(0), weight(0);
+    for(unsigned i=0; i<20; i++) { 
+      double w = 1./pow((*p)->GetBinContent(minbin-10+i),4);
+      dguess+= w*(minbin-10+i);
+      weight+= w;
+    }
+    unsigned guess = (unsigned)(dguess/weight);
+    TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-4,guess+4));
+    if(chi2) book.book(SymmetryFit::name((*p)->GetName()), chi2);
+  }
+}
+
 LA_Filler_Fitter::Result LA_Filler_Fitter::
 result(Method m, const std::string name, const Book& book) {
   Result p;
@@ -131,17 +146,18 @@ result(Method m, const std::string name, const Book& book) {
     p.field = book(base+"_field")->GetMean();
 
   if(book.contains(name)) {
-    p.entries = (unsigned)(book(name)->GetEntries());
+    TH1* h = book(name);
+    p.entries = (unsigned)(h->GetEntries());
     switch(m) {
     case RATIO: {
-      TF1* f = book(name)->GetFunction("gaus");
+      TF1* f = h->GetFunction("gaus");
       p.measure = f->GetParameter(1);
       p.measureErr = f->GetParError(1);
       p.chi2 = f->GetChisquare();
       p.ndof = f->GetNDF();
       break; }
     case WIDTH: case SQRTVAR: {
-      TF1* f = book(name)->GetFunction("LA_profile_fit");
+      TF1* f = h->GetFunction("LA_profile_fit");
       p.measure = f->GetParameter(0);
       p.measureErr = f->GetParError(0);
       p.chi2 = f->GetChisquare();
@@ -149,12 +165,11 @@ result(Method m, const std::string name, const Book& book) {
       break;
     }
     case SYMM: {
-      sistrip::SymmetryFit f = sistrip::SymmetryFit::fromTProfile((TProfile*)(book(name)));
-      if(f.fitStatus()) break;
-      p.measure = f.result().first;
-      p.measureErr = f.result().second;
-      p.chi2 = f.minChi2();
-      p.ndof = f.NDF();
+      TF1* f = h->GetFunction("SymmetryFit");
+      p.measure = f->GetParameter(0);
+      p.measureErr = f->GetParameter(1);
+      p.chi2 = f->GetParameter(2);
+      p.ndof = (unsigned) (f->GetParameter(3));
     }
     default:break;
     }
