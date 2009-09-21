@@ -104,6 +104,7 @@ for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT' ):
     module = getattr(process,'allLayer1Jets'+jetName)
     module.addTagInfos = False    # Remove tag infos
     module.addJetID    = True     # Add JetID variables
+    module.embedGenJetMatch = False # Only keep reference, since we anyway keep the genJet collections
 
 #-- Output module configuration -----------------------------------------------
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
@@ -131,6 +132,7 @@ process.out.outputCommands.extend( [ # PAT Objects
                                      'keep recoGenParticles_genParticles_*_*',
                                      'keep recoGenJets_iterativeCone5GenJets_*_*',
                                      'keep recoGenJets_sisCone5GenJets_*_*',
+                                     'keep recoGenJets_antikt5GenJets_*_*',
                                      'keep recoGenMETs_*_*_*',
                                      # Trigger information
                                      'keep edmTriggerResults_TriggerResults_*_HLT',
