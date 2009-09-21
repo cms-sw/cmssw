@@ -2,8 +2,6 @@
 #include <ostream>
 //#include <limits>
 
-
-
 namespace edm {
 
   std::ostream& operator<<(std::ostream& oStream, EventRange const& r) {
@@ -12,13 +10,13 @@ namespace edm {
     return oStream;
   }
 
-/*  bool EventRange::contains(EventID const& test) const {
+/*  bool EventRange::contains(MinimalEventID const& test) const {
     if (test >= startEventID_ && test <= endEventID_) {
       return true;
     }
     return false;
   }*/
-  bool contains(EventRange const& lh, EventID const& rh) {
+  bool contains(EventRange const& lh, MinimalEventID const& rh) {
     if (rh >= lh.startEventID() && rh <= lh.endEventID()) {
       return true;
     }

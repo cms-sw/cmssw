@@ -7,10 +7,10 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 
 #include <string>
 #include <vector>
@@ -110,9 +110,9 @@ public:
       return edm::ESInputTag(module, data);
    }
    
-   edm::EventID newEventID(unsigned int run, unsigned int event)
+   edm::MinimalEventID newEventID(unsigned int run, unsigned int event)
   {
-    return edm::EventID(run, event);
+    return edm::MinimalEventID(run, event);
   }
 
   edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi)

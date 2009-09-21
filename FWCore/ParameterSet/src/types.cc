@@ -779,24 +779,24 @@ edm::encode(std::string& to, const std::vector<ESInputTag>& from)
 
 
 // ----------------------------------------------------------------------
-// EventID
+// EventID (MinimalEventID)
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(edm::EventID& to, std::string const& from)
+  edm::decode(edm::MinimalEventID& to, std::string const& from)
 {
   std::vector<std::string> tokens = edm::tokenize(from, ":");
   assert(tokens.size() == 2);
   unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
   unsigned int event = strtoul(tokens[1].c_str(), 0, 0);
-  to = edm::EventID(run, event);
+  to = edm::MinimalEventID(run, event);
   return true;
-}  // decode to EventID
+}  // decode to MinimalEventID
 
 
 
 bool
-  edm::encode(std::string& to, const edm::EventID & from)
+  edm::encode(std::string& to, const edm::MinimalEventID & from)
 {
   std::ostringstream os;
   os << from.run() << ":" << from.event();
@@ -810,7 +810,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<edm::EventID>& to, std::string const& from)
+  edm::decode(std::vector<edm::MinimalEventID>& to, std::string const& from)
 {
   std::vector<std::string> strings;
   decode(strings, from);
@@ -818,7 +818,7 @@ bool
   for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
       stringItr != stringItrEnd; ++stringItr)
   {
-    edm::EventID eventID;
+    edm::MinimalEventID eventID;
     decode(eventID, *stringItr);
     to.push_back(eventID);
   }
@@ -828,10 +828,10 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const std::vector<edm::EventID>& from)
+  edm::encode(std::string& to, const std::vector<edm::MinimalEventID>& from)
 {
   std::vector<std::string> strings;
-  for(std::vector<edm::EventID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+  for(std::vector<edm::MinimalEventID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
       idItr != idItrEnd; ++idItr)
   {
     std::string encodedEventID;
@@ -972,8 +972,8 @@ bool edm::encode(std::string& to, const std::vector<edm::LuminosityBlockRange>& 
 bool edm::decode(edm::EventRange& to, std::string const& from) {
   std::vector<std::string> tokens = edm::tokenize(from, "-");
   assert(tokens.size() == 2);
-  edm::EventID begin;
-  edm::EventID end;
+  edm::MinimalEventID begin;
+  edm::MinimalEventID end;
   edm::decode(begin,tokens[0]);
   edm::decode(end,tokens[1]);
   to = edm::EventRange(begin.run(), begin.event(),

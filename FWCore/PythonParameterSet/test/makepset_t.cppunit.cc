@@ -5,7 +5,7 @@
  *  Created by Chris Jones on 5/18/05.
  *  Changed by Viji Sundararajan on 11-Jul-05.
  *
- * $Id: makepset_t.cppunit.cc,v 1.64 2009/02/21 22:34:45 chrjones Exp $
+ * $Id: makepset_t.cppunit.cc,v 1.1 2009/08/26 21:14:04 wdd Exp $
  */
 
 #include <algorithm>
@@ -471,8 +471,8 @@ void testmakepset::typesTest()
    CPPUNIT_ASSERT("ESProd" == veinput2[1].module());
    CPPUNIT_ASSERT("" == veinput2[1].data());
    
-   edm::EventID eventID = test.getParameter<edm::EventID>("eventID");
-   std::vector<edm::EventID> vEventID = test.getParameter<std::vector<edm::EventID> >("vEventID");
+   edm::MinimalEventID eventID = test.getParameter<edm::MinimalEventID>("eventID");
+   std::vector<edm::MinimalEventID> vEventID = test.getParameter<std::vector<edm::MinimalEventID> >("vEventID");
    CPPUNIT_ASSERT(1 == eventID.run());
    CPPUNIT_ASSERT(1 == eventID.event());
    CPPUNIT_ASSERT(1 == vEventID[0].run());

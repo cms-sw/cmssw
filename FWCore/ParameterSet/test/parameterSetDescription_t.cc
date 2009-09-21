@@ -8,8 +8,9 @@
 #include "FWCore/ParameterSet/interface/IfExistsDescription.h"
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -1300,9 +1301,9 @@ int main(int argc, char* argv[]) {
   assert(par->isTracked() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("string"));
 
-  edm::EventID h;
-  par = psetDesc.addOptionalUntracked<edm::EventID>("evalue", h);
-  pset.addUntrackedParameter<edm::EventID>("evalue", h);
+  edm::MinimalEventID h;
+  par = psetDesc.addOptionalUntracked<edm::MinimalEventID>("evalue", h);
+  pset.addUntrackedParameter<edm::MinimalEventID>("evalue", h);
   assert(par != 0);
   assert(par->label() == std::string("evalue"));
   assert(par->type() == edm::k_EventID);
@@ -1357,9 +1358,9 @@ int main(int argc, char* argv[]) {
   assert(par->type() == edm::k_vstring);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("vstring"));
 
-  std::vector<edm::EventID> v7;
-  par = psetDesc.add<std::vector<edm::EventID> >("v7", v7);
-  pset.addParameter<std::vector<edm::EventID> >("v7", v7);
+  std::vector<edm::MinimalEventID> v7;
+  par = psetDesc.add<std::vector<edm::MinimalEventID> >("v7", v7);
+  pset.addParameter<std::vector<edm::MinimalEventID> >("v7", v7);
   assert(par->type() == edm::k_VEventID);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("VEventID"));
 

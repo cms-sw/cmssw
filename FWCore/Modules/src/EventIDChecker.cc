@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 
 //
 // class decleration
@@ -48,7 +48,7 @@ private:
    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
    // ----------member data ---------------------------
-   std::vector<edm::EventID> ids_;
+   std::vector<edm::MinimalEventID> ids_;
    unsigned int index_;
    
    unsigned int multiProcessSequentialEvents_;
@@ -68,7 +68,7 @@ private:
 // constructors and destructor
 //
 EventIDChecker::EventIDChecker(edm::ParameterSet const& iConfig) :
-  ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventSequence")),
+  ids_(iConfig.getUntrackedParameter<std::vector<edm::MinimalEventID> >("eventSequence")),
   index_(0),
   multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents", 0)),
   numberOfEventsToSkip_(0),
@@ -104,7 +104,7 @@ EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
    if(index_ >= ids_.size()) {
       throw cms::Exception("TooManyEvents")<<"Was passes "<<ids_.size()<<" EventIDs but have processed more events than that\n";
    }
-   if(iEvent.id() != ids_[index_]) {
+   if(iEvent.id().run() != ids_[index_].run() || iEvent.id().event() != ids_[index_].event()) {
       throw cms::Exception("WrongEvent")<<"Was expecting event "<<ids_[index_]<<" but was given "<<iEvent.id()<<"\n";
    }
    ++index_;

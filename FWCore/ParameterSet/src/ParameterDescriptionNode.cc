@@ -15,7 +15,7 @@
 
 namespace edm {
 
-  class EventID;
+  class MinimalEventID;
   class LuminosityBlockID;
   class LuminosityBlockRange;
   class EventRange;
@@ -35,8 +35,8 @@ namespace edm {
   TYPE_TO_ENUM(bool,k_bool)
   TYPE_TO_ENUM(std::string,k_string)
   TYPE_TO_ENUM(std::vector<std::string>,k_vstring)
-  TYPE_TO_ENUM(edm::EventID,k_EventID)
-  TYPE_TO_ENUM(std::vector<edm::EventID>,k_VEventID)
+  TYPE_TO_ENUM(edm::MinimalEventID,k_EventID)
+  TYPE_TO_ENUM(std::vector<edm::MinimalEventID>,k_VEventID)
   TYPE_TO_ENUM(edm::LuminosityBlockID,k_LuminosityBlockID)
   TYPE_TO_ENUM(std::vector<edm::LuminosityBlockID>,k_VLuminosityBlockID)
   TYPE_TO_ENUM(edm::InputTag,k_InputTag)

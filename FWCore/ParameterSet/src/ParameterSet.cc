@@ -1003,8 +1003,8 @@ namespace edm {
   // EventID
 
   template <>
-  EventID
-  ParameterSet::getParameter<EventID>(std::string const& name) const {
+  MinimalEventID
+  ParameterSet::getParameter<MinimalEventID>(std::string const& name) const {
     return retrieve(name).getEventID();
   }
 
@@ -1012,8 +1012,8 @@ namespace edm {
   // VEventID
 
   template <>
-  std::vector<EventID>
-  ParameterSet::getParameter<std::vector<EventID> >(std::string const& name) const {
+  std::vector<MinimalEventID>
+  ParameterSet::getParameter<std::vector<MinimalEventID> >(std::string const& name) const {
     return retrieve(name).getVEventID();
   }
 
@@ -1357,29 +1357,29 @@ namespace edm {
   // EventID, VEventID
 
   template<>
-  EventID
-  ParameterSet::getUntrackedParameter<EventID>(std::string const& name, EventID const& defaultValue) const {
+  MinimalEventID
+  ParameterSet::getUntrackedParameter<MinimalEventID>(std::string const& name, MinimalEventID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
   }
 
   template<>
-  EventID
-  ParameterSet::getUntrackedParameter<EventID>(std::string const& name) const {
+  MinimalEventID
+  ParameterSet::getUntrackedParameter<MinimalEventID>(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getEventID();
   }
 
   template<>
-  std::vector<EventID>
-  ParameterSet::getUntrackedParameter<std::vector<EventID> >(std::string const& name,
-                                      std::vector<EventID> const& defaultValue) const {
+  std::vector<MinimalEventID>
+  ParameterSet::getUntrackedParameter<std::vector<MinimalEventID> >(std::string const& name,
+                                      std::vector<MinimalEventID> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
   }
 
   template<>
-  std::vector<EventID>
-  ParameterSet::getUntrackedParameter<std::vector<EventID> >(std::string const& name) const {
+  std::vector<MinimalEventID>
+  ParameterSet::getUntrackedParameter<std::vector<MinimalEventID> >(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVEventID();
   }
 
@@ -1634,8 +1634,8 @@ namespace edm {
   // EventID
 
   template <>
-  EventID
-  ParameterSet::getParameter<EventID>(char const* name) const {
+  MinimalEventID
+  ParameterSet::getParameter<MinimalEventID>(char const* name) const {
     return retrieve(name).getEventID();
   }
 
@@ -1643,8 +1643,8 @@ namespace edm {
   // VEventID
 
   template <>
-  std::vector<EventID>
-  ParameterSet::getParameter<std::vector<EventID> >(char const* name) const {
+  std::vector<MinimalEventID>
+  ParameterSet::getParameter<std::vector<MinimalEventID> >(char const* name) const {
     return retrieve(name).getVEventID();
   }
 
@@ -1988,29 +1988,29 @@ namespace edm {
   // EventID, VEventID
 
   template<>
-  EventID
-  ParameterSet::getUntrackedParameter<EventID>(char const* name, EventID const& defaultValue) const {
+  MinimalEventID
+  ParameterSet::getUntrackedParameter<MinimalEventID>(char const* name, MinimalEventID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getEventID();
   }
 
   template<>
-  EventID
-  ParameterSet::getUntrackedParameter<EventID>(char const* name) const {
+  MinimalEventID
+  ParameterSet::getUntrackedParameter<MinimalEventID>(char const* name) const {
     return getEntryPointerOrThrow_(name)->getEventID();
   }
 
   template<>
-  std::vector<EventID>
-  ParameterSet::getUntrackedParameter<std::vector<EventID> >(char const* name,
-                                      std::vector<EventID> const& defaultValue) const {
+  std::vector<MinimalEventID>
+  ParameterSet::getUntrackedParameter<std::vector<MinimalEventID> >(char const* name,
+                                      std::vector<MinimalEventID> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVEventID();
   }
 
   template<>
-  std::vector<EventID>
-  ParameterSet::getUntrackedParameter<std::vector<EventID> >(char const* name) const {
+  std::vector<MinimalEventID>
+  ParameterSet::getUntrackedParameter<std::vector<MinimalEventID> >(char const* name) const {
     return getEntryPointerOrThrow_(name)->getVEventID();
   }
 

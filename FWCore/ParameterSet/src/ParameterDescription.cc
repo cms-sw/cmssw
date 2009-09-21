@@ -7,10 +7,10 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 
 #include "boost/bind.hpp"
 
@@ -424,7 +424,7 @@ namespace edm {
     }
 
     template <>
-    void writeSingleValue<edm::EventID>(std::ostream & os, edm::EventID const& value, ValueFormat format) {
+    void writeSingleValue<edm::MinimalEventID>(std::ostream & os, edm::MinimalEventID const& value, ValueFormat format) {
       if (format == CFI) os << value.run() << ", " << value.event();
       else os << value.run() << ":" << value.event();
     }
@@ -495,7 +495,7 @@ namespace edm {
     // Specializations for cases where we write the single values into
     // vectors differently than when there is only one not in a vector.
     template <>
-    void writeValueInVector<edm::EventID>(std::ostream & os, edm::EventID const& value, ValueFormat format) {
+    void writeValueInVector<edm::MinimalEventID>(std::ostream & os, edm::MinimalEventID const& value, ValueFormat format) {
       if (format == CFI) os << "'" << value.run() << ":" << value.event() << "'";
       else os << value.run() << ":" << value.event();
     }
@@ -612,12 +612,12 @@ namespace edm {
       writeVector<std::string>(os, indentation, value_, format);
     }
 
-    void writeValue(std::ostream & os, int indentation, edm::EventID const& value_, ValueFormat format) {
-      writeValue<edm::EventID>(os, value_, format);
+    void writeValue(std::ostream & os, int indentation, edm::MinimalEventID const& value_, ValueFormat format) {
+      writeValue<edm::MinimalEventID>(os, value_, format);
     }
 
-    void writeValue(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_, ValueFormat format) {
-      writeVector<edm::EventID>(os, indentation, value_, format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::MinimalEventID> const& value_, ValueFormat format) {
+      writeVector<edm::MinimalEventID>(os, indentation, value_, format);
     }
 
     void writeValue(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_, ValueFormat format) {
@@ -669,8 +669,8 @@ namespace edm {
     bool hasNestedContent(bool const& value) { return false; }
     bool hasNestedContent(std::string const& value) { return false; }
     bool hasNestedContent(std::vector<std::string> const& value) { return value.size() > 5U; }
-    bool hasNestedContent(edm::EventID const& value) { return false; }
-    bool hasNestedContent(std::vector<edm::EventID> const& value) { return value.size() > 5U; }
+    bool hasNestedContent(edm::MinimalEventID const& value) { return false; }
+    bool hasNestedContent(std::vector<edm::MinimalEventID> const& value) { return value.size() > 5U; }
     bool hasNestedContent(edm::LuminosityBlockID const& value) { return false; }
     bool hasNestedContent(std::vector<edm::LuminosityBlockID> const& value) { return value.size() > 5U; }
     bool hasNestedContent(edm::LuminosityBlockRange const& value) { return false; }

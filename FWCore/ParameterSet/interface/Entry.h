@@ -19,10 +19,10 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 //@@ not needed, but there might be trouble if we take it out
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include <boost/cstdint.hpp>
 
 // ----------------------------------------------------------------------
@@ -111,12 +111,12 @@ namespace edm {
     std::vector<edm::ESInputTag> getVESInputTag() const;
 
     // EventID
-    Entry(std::string const& name, edm::EventID const & tag, bool is_tracked);
-    edm::EventID getEventID() const;
+    Entry(std::string const& name, edm::MinimalEventID const & tag, bool is_tracked);
+    edm::MinimalEventID getEventID() const;
 
     // VEventID
-    Entry(std::string const& name, std::vector<edm::EventID> const & vtag, bool is_tracked);
-    std::vector<edm::EventID> getVEventID() const;
+    Entry(std::string const& name, std::vector<edm::MinimalEventID> const & vtag, bool is_tracked);
+    std::vector<edm::MinimalEventID> getVEventID() const;
 
     // LuminosityBlockID
     Entry(std::string const& name, edm::LuminosityBlockID const & tag, bool is_tracked);

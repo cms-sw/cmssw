@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_types_h
 
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.14 2009/01/12 20:10:08 ewv Exp $
+// $Id: types.h,v 1.15 2009/02/21 22:22:10 chrjones Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -104,12 +104,12 @@ namespace edm
    bool  encode(std::string &, std::vector<edm::ESInputTag> const&);
    
    // EventID
-  bool  decode(edm::EventID&, std::string const&);
-  bool  encode(std::string &, edm::EventID const&);
+  bool  decode(edm::MinimalEventID&, std::string const&);
+  bool  encode(std::string &, edm::MinimalEventID const&);
 
   // VEventID
-  bool  decode(std::vector<edm::EventID>&, std::string const&);
-  bool  encode(std::string &, std::vector<edm::EventID> const&);
+  bool  decode(std::vector<edm::MinimalEventID>&, std::string const&);
+  bool  encode(std::string &, std::vector<edm::MinimalEventID> const&);
 
   // LuminosityBlockID
   bool  decode(edm::LuminosityBlockID&, std::string const&);

@@ -59,8 +59,8 @@ namespace edm {
     void writeValue(std::ostream & os, int indentation, bool const& value_, ValueFormat format);
     void writeValue(std::ostream & os, int indentation, std::string const& value_, ValueFormat format);
     void writeValue(std::ostream & os, int indentation, std::vector<std::string> const& value_, ValueFormat format);
-    void writeValue(std::ostream & os, int indentation, edm::EventID const& value_, ValueFormat format);
-    void writeValue(std::ostream & os, int indentation, std::vector<edm::EventID> const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, edm::MinimalEventID const& value_, ValueFormat format);
+    void writeValue(std::ostream & os, int indentation, std::vector<edm::MinimalEventID> const& value_, ValueFormat format);
     void writeValue(std::ostream & os, int indentation, edm::LuminosityBlockID const& value_, ValueFormat format);
     void writeValue(std::ostream & os, int indentation, std::vector<edm::LuminosityBlockID> const& value_, ValueFormat format);
     void writeValue(std::ostream & os, int indentation, edm::LuminosityBlockRange const& value_, ValueFormat format);
@@ -84,8 +84,8 @@ namespace edm {
     bool hasNestedContent(bool const& value);
     bool hasNestedContent(std::string const& value);
     bool hasNestedContent(std::vector<std::string> const& value);
-    bool hasNestedContent(edm::EventID const& value);
-    bool hasNestedContent(std::vector<edm::EventID> const& value);
+    bool hasNestedContent(edm::MinimalEventID const& value);
+    bool hasNestedContent(std::vector<edm::MinimalEventID> const& value);
     bool hasNestedContent(edm::LuminosityBlockID const& value);
     bool hasNestedContent(std::vector<edm::LuminosityBlockID> const& value);
     bool hasNestedContent(edm::LuminosityBlockRange const& value);

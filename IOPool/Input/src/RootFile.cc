@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -81,7 +82,7 @@ namespace edm {
     std::vector<EventRange> const& whichEventsToSkip_;
     std::vector<EventRange> const& whichEventsToProcess_;
     mutable LuminosityBlockID lumi_;
-    mutable EventID event_;
+    mutable MinimalEventID event_;
   };
 
   bool
@@ -114,7 +115,7 @@ namespace edm {
     if(e.event_ == 0U) {
       return false;
     }
-    event_ = EventID(e.run_, e.event_);
+    event_ = MinimalEventID(e.run_, e.event_);
     if(search_if_in_all(whichEventsToSkip_, *this)) {
       return true;
     }

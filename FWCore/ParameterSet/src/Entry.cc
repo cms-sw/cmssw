@@ -179,12 +179,12 @@ namespace edm {
          break;
       }
       case 'E':  {  // EventID
-        edm::EventID val; 
+        edm::MinimalEventID val; 
         if(!decode(val, rep)) throwEntryError("EventID", rep);
         break;
       }
       case 'e':  {  // VEventID
-        std::vector<edm::EventID> val;
+        std::vector<edm::MinimalEventID> val;
         if(!decode(val, rep)) throwEntryError("VEventID", rep);
         break;
       }
@@ -438,7 +438,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 //  EventID
 
-  Entry::Entry(std::string const& name, edm::EventID const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, edm::MinimalEventID const& val, bool is_tracked) :
     name_(name), rep(), type('E'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("EventID");
@@ -449,7 +449,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventID
 
-  Entry::Entry(std::string const& name, std::vector<edm::EventID> const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, std::vector<edm::MinimalEventID> const& val, bool is_tracked) :
     name_(name), rep(), type('e'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("VEventID");
@@ -886,11 +886,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // EventID
 
-  edm::EventID
+  edm::MinimalEventID
   Entry::getEventID() const
   {
     if(type != 'E') throwValueError("EventID");
-    edm::EventID val;
+    edm::MinimalEventID val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
     return val;
   }
@@ -898,11 +898,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventID
 
-  std::vector<edm::EventID>
+  std::vector<edm::MinimalEventID>
   Entry::getVEventID() const
   {
     if(type != 'e') throwValueError("VEventID");
-    std::vector<edm::EventID> val;
+    std::vector<edm::MinimalEventID> val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
     return val;
   }

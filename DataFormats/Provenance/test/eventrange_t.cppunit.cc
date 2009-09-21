@@ -45,7 +45,7 @@ void testEventRange::constructTest()
 
    EventRange normal(rb, lb, re, le);
    EventRange maxed(rb, 0, re, 0);
-   EventID    dummy;
+   MinimalEventID    dummy;
 
    CPPUNIT_ASSERT(normal.startRun() == rb);
    CPPUNIT_ASSERT(normal.endRun()   == re);
@@ -58,10 +58,10 @@ void testEventRange::constructTest()
 
 void testEventRange::comparisonTest()
 {
-    const EventID small(1,1);
-    const EventID med(7, 2);
-    const EventID large(8,10);
-    const EventID larger(10,1);
+    const MinimalEventID small(1,1);
+    const MinimalEventID med(7, 2);
+    const MinimalEventID large(8,10);
+    const MinimalEventID larger(10,1);
     const EventRange normal(5,1,8,1);
     const EventRange maxed(5,1,8,0);
 

@@ -9,8 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterWildcard.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/MinimalEventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -151,23 +152,23 @@ namespace edmtest {
     assert(vstring[2] == std::string(""));
 
 
-    edm::EventID eventID1(11, 12);
-    assert(ps.getParameter<edm::EventID>("eventIDv1") == eventID1);
-    edm::EventID eventID2(101, 102);
-    assert(ps.getParameter<edm::EventID>("eventIDv2") == eventID2);
+    edm::MinimalEventID eventID1(11, 12);
+    assert(ps.getParameter<edm::MinimalEventID>("eventIDv1") == eventID1);
+    edm::MinimalEventID eventID2(101, 102);
+    assert(ps.getParameter<edm::MinimalEventID>("eventIDv2") == eventID2);
 
-    std::vector<edm::EventID> vEventID;
-    vEventID = ps.getParameter<std::vector<edm::EventID> >("vEventIDv1");
+    std::vector<edm::MinimalEventID> vEventID;
+    vEventID = ps.getParameter<std::vector<edm::MinimalEventID> >("vEventIDv1");
     assert(vEventID.empty());
-    vEventID = ps.getParameter<std::vector<edm::EventID> >("vEventIDv2");
-    assert(vEventID[0] == edm::EventID(1000, 1100));
-    vEventID = ps.getParameter<std::vector<edm::EventID> >("vEventIDv3");
-    assert(vEventID[0] == edm::EventID(1000, 1100));
-    assert(vEventID[1] == edm::EventID(10000, 11000));
-    vEventID = ps.getParameter<std::vector<edm::EventID> >("vEventIDv4");
-    assert(vEventID[0] == edm::EventID(1000, 1100));
-    assert(vEventID[1] == edm::EventID(10000, 11000));
-    assert(vEventID[2] == edm::EventID(100000, 110000));
+    vEventID = ps.getParameter<std::vector<edm::MinimalEventID> >("vEventIDv2");
+    assert(vEventID[0] == edm::MinimalEventID(1000, 1100));
+    vEventID = ps.getParameter<std::vector<edm::MinimalEventID> >("vEventIDv3");
+    assert(vEventID[0] == edm::MinimalEventID(1000, 1100));
+    assert(vEventID[1] == edm::MinimalEventID(10000, 11000));
+    vEventID = ps.getParameter<std::vector<edm::MinimalEventID> >("vEventIDv4");
+    assert(vEventID[0] == edm::MinimalEventID(1000, 1100));
+    assert(vEventID[1] == edm::MinimalEventID(10000, 11000));
+    assert(vEventID[2] == edm::MinimalEventID(100000, 110000));
 
     edm::LuminosityBlockID luminosityID1(11, 12);
     assert(ps.getParameter<edm::LuminosityBlockID>("luminosityIDv1") == luminosityID1);
@@ -552,22 +553,22 @@ namespace edmtest {
     vstring.push_back(test);
     iDesc.add<std::vector<std::string> >("vstringv4", vstring);
 
-    edm::EventID eventID(11, 12);
-    iDesc.add<edm::EventID>("eventIDv1", eventID);
-    edm::EventID eventID2(101, 102);
-    iDesc.add<edm::EventID>("eventIDv2", eventID2);
+    edm::MinimalEventID eventID(11, 12);
+    iDesc.add<edm::MinimalEventID>("eventIDv1", eventID);
+    edm::MinimalEventID eventID2(101, 102);
+    iDesc.add<edm::MinimalEventID>("eventIDv2", eventID2);
 
-    std::vector<edm::EventID> vEventID;
-    iDesc.add<std::vector<edm::EventID> >("vEventIDv1", vEventID);
-    edm::EventID eventID3(1000, 1100);
+    std::vector<edm::MinimalEventID> vEventID;
+    iDesc.add<std::vector<edm::MinimalEventID> >("vEventIDv1", vEventID);
+    edm::MinimalEventID eventID3(1000, 1100);
     vEventID.push_back(eventID3);
-    iDesc.add<std::vector<edm::EventID> >("vEventIDv2", vEventID);
-    edm::EventID eventID4(10000, 11000);
+    iDesc.add<std::vector<edm::MinimalEventID> >("vEventIDv2", vEventID);
+    edm::MinimalEventID eventID4(10000, 11000);
     vEventID.push_back(eventID4);
-    iDesc.add<std::vector<edm::EventID> >("vEventIDv3", vEventID);
-    edm::EventID eventID5(100000, 110000);
+    iDesc.add<std::vector<edm::MinimalEventID> >("vEventIDv3", vEventID);
+    edm::MinimalEventID eventID5(100000, 110000);
     vEventID.push_back(eventID5);
-    iDesc.add<std::vector<edm::EventID> >("vEventIDv4", vEventID);
+    iDesc.add<std::vector<edm::MinimalEventID> >("vEventIDv4", vEventID);
 
     edm::LuminosityBlockID luminosityID(11, 12);
     iDesc.add<edm::LuminosityBlockID>("luminosityIDv1", luminosityID);
@@ -873,8 +874,8 @@ namespace edmtest {
     noDefaultPset3.addOptional<bool>("noDefault11");
     noDefaultPset3.addOptional<std::string>("noDefault12");
     noDefaultPset3.addOptional<std::vector<std::string> >("noDefault13");
-    noDefaultPset3.addOptional<edm::EventID>("noDefault14");
-    noDefaultPset3.addOptional<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset3.addOptional<edm::MinimalEventID>("noDefault14");
+    noDefaultPset3.addOptional<std::vector<edm::MinimalEventID> >("noDefault15");
     noDefaultPset3.addOptional<edm::LuminosityBlockID>("noDefault16");
     noDefaultPset3.addOptional<std::vector<edm::LuminosityBlockID> >("noDefault17");
     noDefaultPset3.addOptional<edm::InputTag>("noDefault18");
@@ -902,8 +903,8 @@ namespace edmtest {
     noDefaultPset4.addOptionalUntracked<bool>("noDefault11");
     noDefaultPset4.addOptionalUntracked<std::string>("noDefault12");
     noDefaultPset4.addOptionalUntracked<std::vector<std::string> >("noDefault13");
-    noDefaultPset4.addOptionalUntracked<edm::EventID>("noDefault14");
-    noDefaultPset4.addOptionalUntracked<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset4.addOptionalUntracked<edm::MinimalEventID>("noDefault14");
+    noDefaultPset4.addOptionalUntracked<std::vector<edm::MinimalEventID> >("noDefault15");
     noDefaultPset4.addOptionalUntracked<edm::LuminosityBlockID>("noDefault16");
     noDefaultPset4.addOptionalUntracked<std::vector<edm::LuminosityBlockID> >("noDefault17");
     noDefaultPset4.addOptionalUntracked<edm::InputTag>("noDefault18");
@@ -942,8 +943,8 @@ namespace edmtest {
     noDefaultPset1.add<bool>("noDefault11");
     noDefaultPset1.add<std::string>("noDefault12");
     noDefaultPset1.add<std::vector<std::string> >("noDefault13");
-    noDefaultPset1.add<edm::EventID>("noDefault14");
-    noDefaultPset1.add<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset1.add<edm::MinimalEventID>("noDefault14");
+    noDefaultPset1.add<std::vector<edm::MinimalEventID> >("noDefault15");
     noDefaultPset1.add<edm::LuminosityBlockID>("noDefault16");
     noDefaultPset1.add<std::vector<edm::LuminosityBlockID> >("noDefault17");
     noDefaultPset1.add<edm::InputTag>("noDefault18");
@@ -971,8 +972,8 @@ namespace edmtest {
     noDefaultPset2.addUntracked<bool>("noDefault11");
     noDefaultPset2.addUntracked<std::string>("noDefault12");
     noDefaultPset2.addUntracked<std::vector<std::string> >("noDefault13");
-    noDefaultPset2.addUntracked<edm::EventID>("noDefault14");
-    noDefaultPset2.addUntracked<std::vector<edm::EventID> >("noDefault15");
+    noDefaultPset2.addUntracked<edm::MinimalEventID>("noDefault14");
+    noDefaultPset2.addUntracked<std::vector<edm::MinimalEventID> >("noDefault15");
     noDefaultPset2.addUntracked<edm::LuminosityBlockID>("noDefault16");
     noDefaultPset2.addUntracked<std::vector<edm::LuminosityBlockID> >("noDefault17");
     noDefaultPset2.addUntracked<edm::InputTag>("noDefault18");
