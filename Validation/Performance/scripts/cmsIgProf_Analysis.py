@@ -33,9 +33,9 @@ def simple_igprof_analysis(profile_name,outdir,output_type):
     #Assume the profile_name (i.e. the input profile file) is handled properly by the user or the scripts
     #Use the outdir to determine what kind of analysis to make:
 
-    AnalysisType=''
+    AnalysisType='UNKNOWN_COUNTER'
     #Will use IgProf Analyse with all three IgProf counters
-    if "IgProfperf" in outdir:
+    if "IgProfPerf" in outdir:
         AnalysisType='PERF_TICKS'
     elif "IgProfMemTotal" in outdir:
         AnalysisType='MEM_TOTAL'

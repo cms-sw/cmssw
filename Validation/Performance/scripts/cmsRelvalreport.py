@@ -501,7 +501,7 @@ class Profile:
             if IgProf_option!='ANALYSE':
                 #Switch to the use of igprof-analyse instead of PerfReport!
                 #Will use the ANALYSE case for regressions between early event dumps and late event dumps of the profiles
-                sqlite_outputfile=outdir+"/"+self.profile_name[:-3]+'.sql3'
+                sqlite_outputfile=outdir+"/"+self.profile_name[:-3]+'___EndOfJob.sql3'
                 logger("Executing the report of the IgProf end of job profile")
                 exit=execute('igprof-analyse --sqlite -d -v -g -r %s %s | sqlite3 %s'%(IgProf_option,self.profile_name,sqlite_outputfile)) 
                 return exit
@@ -531,7 +531,8 @@ class Profile:
                     LastDumpEvent=0
                     for dump in IgProfDumps:
                         DumpEvent=dump.split(".")[1]
-                        DumpedProfileName=self.profile_name[:-3]+"."+DumpEvent+".gz"
+                        #New naming convention using ___ as separator
+                        DumpedProfileName=self.profile_name[:-3]+"___"+DumpEvent+".gz"
                         if dump.startswith("IgProf"):
                             execute('mv %s %s'%(dump,DumpedProfileName))
                         #Keep a tab of the first and last dump event for the diff analysis
