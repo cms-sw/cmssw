@@ -6,7 +6,7 @@
  *
  */
 
-#include <iostream>
+#include <iosfwd>
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -372,6 +372,7 @@ namespace reco {
   /// as: pfcand->get<int, PFParticleIdTag>();
   GET_CANDIDATE_COMPONENT( PFCandidate, PFCandidate::ParticleType, particleId, PFParticleIdTag );
 
+  std::ostream& operator<<( std::ostream& out, const PFCandidate& c );
 }
 
 #endif

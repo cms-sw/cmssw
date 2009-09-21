@@ -5,7 +5,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-
+#include <ostream>
 #include <iomanip>
 
 using namespace reco;
