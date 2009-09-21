@@ -6,7 +6,7 @@ use work.std_logic_1164_ktp.all;
 use work.RPC_PAC_def.all;
 
 package RPC_PAC_patt is
-constant TT_MPAC_CFG_ID         :THV(3 downto 0) := "1003";
+constant TT_MPAC_CFG_ID         :THV(3 downto 0) := "XXXX";
 constant TT_MPAC_OR_LIMIT       :natural := 2; --| 0...3
 XXN
 constant TT_REF_GROUP_NUMBERS   :natural := 63;
