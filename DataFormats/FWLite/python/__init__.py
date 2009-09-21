@@ -141,6 +141,9 @@ class Events:
         self._forceEvent         = False
         self._mode               = None
         self._secondaryFilenames = None
+        ##############################
+        ## Parse optional arguments ##
+        ##############################
         if kwargs.has_key ('maxEvents'):
             self._maxEvents = kwargs['maxEvents']
             del kwargs['maxEvents']
@@ -153,8 +156,6 @@ class Events:
             self._filenames           = options.inputFiles
             self._secondaryFilenames  = options.secondaryInputFiles
             del kwargs['options']
-        print self._filenames
-            
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
         # somebody passed in an argument that we're not using and we
@@ -188,6 +189,11 @@ class Events:
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
+        if len(argsList)==1 and isinstance (argsList[0], tuple):
+            if len (argsList) > 3:
+                raise RuntimeError, "getByLabel Error: label tuple has too " \
+                      "many arguments '%s'" % argsList[0]
+            argsList = argsList[:]
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
@@ -278,8 +284,7 @@ class Events:
     def _next (self):
         """(Internal) Iterator internals"""
         if self._veryFirstTime:
-			pass
-            #print "mode", self._createFWLiteEvent()
+            self._createFWLiteEvent()
         if self._toBegin:
             self._toBeginCode()
         while not self._event.atEnd() :
