@@ -33,6 +33,9 @@ void SiStripLatencyGenerator::createObject()
                                             << " latency = " << _pset.getParameter<double>("latency")
                                             << " mode = " << _pset.getParameter<uint32_t>("mode") << endl;
     obj_->put(detInfos.rbegin()->first, 3, _pset.getParameter<double>("latency"), _pset.getParameter<uint32_t>("mode") );
+
+    // Call this method to collapse all consecutive detIdAndApvs with the same latency and mode to a single entry
+    obj_->compress();
   }
   else {
     edm::LogError("SiStripLatencyGenerator") << "Error: detInfo map is empty. Cannot get the last detId." << endl;
