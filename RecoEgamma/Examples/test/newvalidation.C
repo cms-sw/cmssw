@@ -12,19 +12,19 @@ TString val_web = gSystem->Getenv("VAL_WEB") ;
 TString val_web_sub_dir = gSystem->Getenv("VAL_WEB_SUB_DIR") ;
 TString val_web_url = gSystem->Getenv("VAL_WEB_URL") ;
 
-std::string val_web_path = val_web+"/"+val_new_release+"/vs"+val_ref_release+"/"+val_web_sub_dir ;
+std::string val_web_path = val_web+"/"+val_new_release+"/Electrons/vs"+val_ref_release+"/"+val_web_sub_dir ;
 std::string histos_path = val_web_path+"/histos.txt" ;
 std::string index_path = val_web_path+"/index.html" ;
 
 // style:
 TStyle *eleStyle = new TStyle("eleStyle","Style for electron validation");
-eleStyle->SetCanvasBorderMode(0); 
+eleStyle->SetCanvasBorderMode(0);
 eleStyle->SetCanvasColor(kWhite);
-eleStyle->SetCanvasDefH(600); 
-eleStyle->SetCanvasDefW(800); 
-eleStyle->SetCanvasDefX(0);  
+eleStyle->SetCanvasDefH(600);
+eleStyle->SetCanvasDefW(800);
+eleStyle->SetCanvasDefX(0);
 eleStyle->SetCanvasDefY(0);
-eleStyle->SetPadBorderMode(0); 
+eleStyle->SetPadBorderMode(0);
 eleStyle->SetPadColor(kWhite);
 eleStyle->SetPadGridX(false);
 eleStyle->SetPadGridY(false);
@@ -32,7 +32,7 @@ eleStyle->SetGridColor(0);
 eleStyle->SetGridStyle(3);
 eleStyle->SetGridWidth(1);
 eleStyle->SetOptStat(1);
-eleStyle->SetPadTickX(1); 
+eleStyle->SetPadTickX(1);
 eleStyle->SetPadTickY(1);
 eleStyle->SetHistLineColor(1);
 eleStyle->SetHistLineStyle(0);
@@ -54,8 +54,8 @@ eleStyle->SetPadLeftMargin(0.15);
 eleStyle->SetMarkerStyle(21);
 eleStyle->SetMarkerSize(0.8);
 
-eleStyle->cd(); 
-  
+eleStyle->cd();
+
 gROOT->ForceStyle();
 
 TString val_ref_file_url ;
@@ -97,7 +97,7 @@ web_page
   <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<"</title>\n"
   <<"</head>\n"
   <<"<h1><a href=\"../\">"<<val_new_release<<" vs "<<val_ref_release<<"</a> / "<<DBS_SAMPLE<<"</h1>\n" ;
-  
+
 web_page<<"<p>" ;
 if (file_old==0)
  {
@@ -190,7 +190,7 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
         h_res->GetYaxis()->SetTitle(h_num->GetYaxis()->GetTitle());
         h_res->SetLineColor(4) ;
         h_res->SetLineWidth(3) ;
-        h_res ->Draw("hist") ;    
+        h_res ->Draw("hist") ;
        }
      }
     else
@@ -208,7 +208,7 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
     histo_new->SetMarkerColor(2) ;
     histo_new->SetLineWidth(3) ;
     if ((scaled==1)&&(file_old!=0)&&(histo_old!=0)&&(histo_new->GetEntries()!=0))
-     { if (histo_old!=0) histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }   
+     { if (histo_old!=0) histo_new->Scale(histo_old->GetEntries()/histo_new->GetEntries()) ; }
     if (divide==0)
      {
       if (err==1)
@@ -220,7 +220,7 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
        {
         if (histo_old!=0) histo_new->Draw("same hist") ;
         else histo_new->Draw("hist") ;
-       }  
+       }
      }
 	else
      {
@@ -234,8 +234,8 @@ while (histo_file2>>histo_name>>scaled>>log>>err>>divide>>num>>denom)
       h_res->SetLineColor(2) ;
       h_res->SetMarkerColor(2) ;
       h_res->SetLineWidth(3) ;
-      if (err==1) h_res ->Draw("same E1 P") ;   
-      else  h_res ->Draw("same hist") ;    
+      if (err==1) h_res ->Draw("same E1 P") ;
+      else  h_res ->Draw("same hist") ;
      }
     std::cout<<histo_name
       <<" has "<<histo_new->GetEffectiveEntries()<<" entries"

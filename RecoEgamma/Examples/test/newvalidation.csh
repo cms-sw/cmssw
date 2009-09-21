@@ -70,6 +70,10 @@ if (! -d $VAL_WEB/$VAL_NEW_RELEASE) then
   mkdir $VAL_WEB/$VAL_NEW_RELEASE
 endif
 
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons
+endif
+
 echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
 
 #============== Find and archive new log and data files ==================
@@ -90,32 +94,32 @@ if ( "${VAL_NEW_FILE}" != "" && ! -r "${VAL_NEW_FILE}" ) then
   setenv VAL_NEW_FILE ""
 endif
 
-if (! -d $VAL_WEB/$VAL_NEW_RELEASE/data) then
-  mkdir $VAL_WEB/$VAL_NEW_RELEASE/data
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
 endif
 
 echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
 
 if ( "${VAL_NEW_FILE}" != "" ) then
   if ( -r "$VAL_NEW_FILE" ) then
-    cp -f $VAL_NEW_FILE $VAL_WEB/$VAL_NEW_RELEASE/data
-	setenv VAL_NEW_FILE "$VAL_WEB/$VAL_NEW_RELEASE/data/${VAL_NEW_FILE:t}"
+    cp -f $VAL_NEW_FILE $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
+	setenv VAL_NEW_FILE "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/data/${VAL_NEW_FILE:t}"
 	echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
   endif
 endif
 
 if ( -e "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog" ) then
-  cp -f ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/data
+  cp -f ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
 endif
 
 if ( -e "${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
-  cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/data
+  cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
 endif
 
 #============== Find reference data file (eventually the freshly copied new data) ==================
 
-if (! -d "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}") then
-  mkdir "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}"
+if (! -d "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}") then
+  mkdir "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}"
 endif
 
 echo "VAL_REF_RELEASE = ${VAL_REF_RELEASE}"
@@ -125,9 +129,16 @@ if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 setenv REF_ALREADY_STORED ""
 
 if ( ${VAL_REF_FILE} == "" ) then
+  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
+    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
+  setenv REF_ALREADY_STORED "yes"
+  endif
+endif
+
+if ( ${VAL_REF_FILE} == "" ) then
   if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
     setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
-	setenv REF_ALREADY_STORED "yes"
+  setenv REF_ALREADY_STORED "yes"
   endif
 endif
 
@@ -145,8 +156,8 @@ if ( "${VAL_REF_FILE}" != "" && "${REF_ALREADY_STORED}" == "" ) then
     mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
   endif
 
-  cp -f $VAL_REF_FILE $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
-  setenv VAL_REF_FILE "$VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data/${VAL_REF_FILE:t}"
+  cp -f $VAL_REF_FILE $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
+  setenv VAL_REF_FILE "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data/${VAL_REF_FILE:t}"
   echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
 endif
@@ -168,15 +179,15 @@ endif
 
 echo "VAL_WEB_SUB_DIR = ${VAL_WEB_SUB_DIR}"
 
-if (! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}) then
-  mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
 endif
 
-if (! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs) then
-  mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs
 endif
 
-#cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
+#cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
 
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise
@@ -185,7 +196,7 @@ endif
 
 if ( $VAL_ANALYZER == GsfElectronMCAnalyzer ) then
 
-cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_charge 1 0 1 0 0 0 
 h_ele_vertexPt 1 0 1 0 0 0
 h_ele_vertexEta 1 0 1 0 0 0
@@ -308,7 +319,7 @@ h_ele_mee_all 1 1 1 0 0 0
 h_ele_mee_os 1 1 1 0 0 0 
 EOF
 
-cat >> $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+cat >> $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_absetaEff	0 0 1 1 h_ele_simAbsEta_matched h_mc_abseta
 h_ele_etaEff 0 0 1 1 h_ele_simEta_matched h_mc_eta
 h_ele_ptEff 0 0 1 1 h_ele_simPt_matched h_mc_Pt
@@ -347,8 +358,8 @@ EOF
 
 else if ($VAL_ANALYZER == GsfElectronDataAnalyzer ) then
 
-cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
-h_ele_charge 1 0 1 0 0 0 
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+h_ele_charge 1 0 1 0 0 0
 h_ele_vertexPt 1 0 1 0 0 0
 h_ele_vertexEta 1 0 1 0 0 0
 h_ele_vertexPhi 1 0 1 0 0 0
@@ -415,7 +426,7 @@ h_ele_mee 1 1 1 0 0 0
 h_ele_mee_os 1 1 1 0 0 0
 EOF
 
-cat >> $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+cat >> $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_absetaEff	0 0 1 1 h_ele_matchingObjectAbsEta_matched h_SC_abseta
 h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_SC_eta
 h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_SC_Pt
@@ -447,7 +458,7 @@ EOF
 
 else if ($VAL_ANALYZER == GsfElectronFakeAnalyzer ) then
 
-cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_charge 1 0 1 0 0 0 
 h_ele_vertexPt 1 0 1 0 0 0
 h_ele_vertexEta 1 0 1 0 0 0
@@ -535,7 +546,7 @@ h_ele_mee_all 1	0 1 0 0 0
 h_ele_mee_os 1	0 1 0 0 0
 EOF
 
-cat >> $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+cat >> $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_CaloJet_abseta
 h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_CaloJet_eta
 h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_CaloJet_Pt
@@ -564,7 +575,7 @@ EOF
 
 else if ( $VAL_ANALYZER == SimplePhotonAnalyzer ) then
 
-cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
+cat >! $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
 scE 1 0 0
 scEt 1 0 0
 scEta 1 0 0
@@ -588,26 +599,6 @@ deltaEta 1 0 0
 deltaPhi 1 0 0
 EOF
 
-else if ( $VAL_ANALYZER == SimpleConvertedPhotonAnalyzer ) then
-
-cat >! $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/histos.txt <<EOF
-deltaE 1 0 0
-deltaPhi 1 0 0
-deltaEta 1 0 0
-MCphoE 1 0 0
-MCphoPhi 1 0 0
-MCphoEta 1 0 0
-MCConvE 1 0 0
-MCConvPt 1 0 0
-MCConvEta 1 0 0
-scE 1 0 0
-scEta 1 0 0
-scPhi 1 0 0
-phoE 1 0 0
-phoEta 1 0 0
-phoPhi 1 0 0
-EOF
-
 endif
 
 
@@ -615,4 +606,4 @@ endif
 
 root -b -l -q newvalidation.C
 echo "You can view your validation plots here:"
-echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"
+echo "${VAL_WEB_URL}/${VAL_NEW_RELEASE}/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/"

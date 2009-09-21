@@ -51,16 +51,19 @@ time to time we will have to upgrade the values DBS_* variable so to keep in
 touch with changes in data catalog structure.
 
 <file name="dbs_discovery.txt">
-../../Configuration/test/RelValSingleElectronPt10-RECO.root
-../../Configuration/test/RelValSingleElectronPt35-RECO.root
-../../Configuration/test/RelValQCD_Pt_80_120-RECO.root
+RelValSingleElectronPt10-RECO.root
+RelValSingleElectronPt35-RECO.root
+RelValTTbar-RECO.root
+RelValZEE-RECO.root
+RelValZEE-STARTUP-RECO.root
+RelValQCD_Pt_80_120-RECO.root
 </file>
 
 <environment name="FullSimStdStats">
 
-  <!var name="DBS_COND" value="MC_31X_*">
-  <var name="DBS_RELEASE" value="LOCAL">
-  <var name="DBS_COND" value="">
+  <var name="DBS_COND" value="MC_31X_V8-v*">
+  <!var name="DBS_RELEASE" value="LOCAL">
+  <!var name="DBS_COND" value="">
 
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -88,6 +91,7 @@ touch with changes in data catalog structure.
   
   <environment name="FullZEEIdeal">
     <var name="DBS_SAMPLE" value="RelValZEE">
+    <!var name="DBS_COND" value="MC">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
@@ -96,7 +100,8 @@ touch with changes in data catalog structure.
   
   <environment name="FullZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="DBS_COND" value="STARTUP31X_*">
+    <var name="DBS_COND" value="STARTUP31X_V7-v*">
+    <!var name="DBS_COND" value="STARTUP">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
@@ -129,7 +134,75 @@ touch with changes in data catalog structure.
 
 </environment>
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+This set of targets is made to redo the electrons froms the core electrons
+with the local modified code.
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<environment name="RedoFromCore">
+
+  <var name="TEST_GLOBAL_TAG" value="MC_31X_V8">
+  <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
+
+  <environment name="RedoPt10">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+  </environment>
+  
+  <environment name="RedoPt35">
+    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+  </environment>
+  
+  <environment name="RedoTTbar">
+    <var name="DBS_SAMPLE" value="RelValTTbar">
+    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+  </environment>
+  
+  <environment name="RedoZEEIdeal">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-MC-RECO.root">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+  </environment>
+  
+  <environment name="RedoZEEStartup">
+    <var name="DBS_SAMPLE" value="RelValZEE">
+    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-STARTUP-RECO.root">
+    <var name="TEST_GLOBAL_TAG" value="STARTUP31X_V7">
+    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+  </environment>
+  
+  <environment name="RedoQcdPt80-120">
+    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
+    <executable name="dbs_discovery.py">
+    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+  </environment>
+  
+</environment>
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+================================================================================
+This set of targets is made for the full/fast comparison.
+================================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 <environment name="FastSim">
+
+  This set of targets is made for the full/fast comparison.
 
   <var name="VAL_REF_RELEASE" value="FastSim">
   <var name="DBS_COND" value="MC*FastSim">
