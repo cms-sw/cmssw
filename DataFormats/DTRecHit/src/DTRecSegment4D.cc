@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/01/22 19:14:10 $
- * $Revision: 1.13 $
+ * $Date: 2008/12/03 12:17:02 $
+ * $Revision: 1.14 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -230,9 +230,9 @@ void DTRecSegment4D::setCovMatrixForZed(const LocalPoint& posZInCh){
   //   theZedSeg.parametersError()[1][1] << " + " << 
   //   2*posZInCh.z() << "*" << theZedSeg.parametersError()[0][1] ;
   theCovMatrix[3][3] =
-    (posZInCh.z()*posZInCh.z())*theZedSeg.parametersError()[0][0] +
+    2.*(posZInCh.z()*posZInCh.z())*theZedSeg.parametersError()[0][0] +
     theZedSeg.parametersError()[1][1] +
-    2*posZInCh.z()*theZedSeg.parametersError()[0][1];
+    2.*posZInCh.z()*theZedSeg.parametersError()[0][1];
   // cout << " = " << theCovMatrix[3][3] << endl;
 }
 

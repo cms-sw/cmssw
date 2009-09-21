@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/08/02 05:54:11 $
- * $Revision: 1.9 $
+ * $Date: 2009/03/02 09:38:08 $
+ * $Revision: 1.10 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -23,8 +23,7 @@ bool DTRecSegment2D::isInitialized(false);
 AlgebraicMatrix DTRecSegment2D::theProjectionMatrix;
 
 /* Operations */ 
-AlgebraicSymMatrix DTRecSegment2D::parError( const LocalError& lp, 
-					     const LocalError& lv) const {
+AlgebraicSymMatrix DTRecSegment2D::parametersError() const {
   AlgebraicSymMatrix m(2);
   /// mat[0][0]=sigma (dx/dz)
   /// mat[1][1]=sigma (x)
@@ -37,10 +36,14 @@ AlgebraicSymMatrix DTRecSegment2D::parError( const LocalError& lp,
   //   m[0][1] = 0.;
   //   m[1][1] = lp.xx()+lape.xx();
   // } else {
-    m[0][0] = lv.xx();
-    m[0][1] = 0.;
-    m[1][1] = lp.xx();
+    m[0][0] = theCovMatrix[0][0];
+    m[0][1] = theCovMatrix[0][1];
+    m[1][1] = theCovMatrix[1][1];
   //};
+
+    //cout << "theCovMatrix elements " << theCovMatrix[0][0] << " , " << theCovMatrix[0][1] <<
+    //        " , " << theCovMatrix[1][0] << " , " << theCovMatrix[1][1] << endl;
+
   return m;
 
 }

@@ -18,8 +18,8 @@
  * 2D means that this segment has information about position and direction in
  * one projection (r-phi or r-theta/zeta).
  *
- * $Date: 2007/08/02 05:54:11 $
- * $Revision: 1.13 $
+ * $Date: 2009/03/02 09:38:08 $
+ * $Revision: 1.14 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -75,9 +75,7 @@ class DTRecSegment2D : public RecSegment{
   }
 
   // The parameter error matrix 
-  virtual AlgebraicSymMatrix parametersError() const {
-    return parError( localPositionError(), localDirectionError());
-  }
+  virtual AlgebraicSymMatrix parametersError() const;
 
   /** return the projection matrix, which must project a parameter vector,
    * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
@@ -170,9 +168,6 @@ class DTRecSegment2D : public RecSegment{
     result[0]=lv.x()/lv.z();
     return result;
   }
-
-  AlgebraicSymMatrix parError( const LocalError& lp,
-			       const LocalError& lv) const;
 
 };
 std::ostream& operator<<(std::ostream& os, const DTRecSegment2D& seg);
