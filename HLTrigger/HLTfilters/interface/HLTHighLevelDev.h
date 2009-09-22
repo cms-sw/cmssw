@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2008/12/11 10:08:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/09/22 14:08:25 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -40,7 +40,7 @@ class HLTHighLevelDev : public HLTFilter {
 
     /// get HLTPaths with key 'key' from EventSetup (AlCaRecoTriggerBitsRcd)
     std::vector<std::string> pathsFromSetup(const std::string &key,
-					    const edm::EventSetup &iSetup) const;
+                                            const edm::EventSetup &iSetup) const;
   private:
     /// initialize the trigger conditions (call this if the trigger paths have changed)
     void init(const edm::TriggerResults & results, const edm::EventSetup &iSetup);
@@ -65,20 +65,20 @@ class HLTHighLevelDev : public HLTFilter {
     /// input patterns that will be expanded into trigger names
     std::vector<std::string>  HLTPatterns_;
 
-		/// for each trigger/pattern define a prescale.
-		/// Only a subset of the events per trigger will be selected
-		std::vector<int> HLTPrescales_;
-		/// This variable stores the prescales after pattern matching and expansion
-		std::vector<int> HLTPrescalesExpanded_; 
-		/// Scalers for the prescaling, L1 style.
-		std::vector<int> HLTPrescalesScalers; 
+    /// for each trigger/pattern define a prescale.
+    /// Only a subset of the events per trigger will be selected
+    std::vector<int> HLTPrescales_;
+    /// This variable stores the prescales after pattern matching and expansion
+    std::vector<int> HLTPrescalesExpanded_; 
+    /// Scalers for the prescaling, L1 style.
+    std::vector<int> HLTPrescalesScalers; 
 
-		/// You can define a prescale after the filter logic has been applied
-		/// this is different from the single prescales. It can be applied on
-		/// top of the single trigger prescales
-		int HLTOverallPrescale_ ;
-		int HLTOverallPrescalesScaler;
-		int nEvents;
+    /// You can define a prescale after the filter logic has been applied
+    /// this is different from the single prescales. It can be applied on
+    /// top of the single trigger prescales
+    int HLTOverallPrescale_ ;
+    int HLTOverallPrescalesScaler;
+    int nEvents;
 
     /// list of required HLT triggers by HLT name
     std::vector<std::string>  HLTPathsByName_;
