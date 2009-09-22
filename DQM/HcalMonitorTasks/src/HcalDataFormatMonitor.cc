@@ -105,7 +105,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     ProblemCells->setAxisTitle("i#phi",2);
     SetEtaPhiLabels(ProblemCells);
     SetupEtaPhiHists(ProblemCellsByDepth," Hardware Watch Cells", "");
-    
+
+    //Initialize maps "problemcount" and "problemfound" before first event.
     unsigned int etabins=0;
     unsigned int phibins=0;
     for (unsigned int depth=0; depth<4; ++depth)
@@ -127,13 +128,9 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meEVT_->Fill(ievt_);    
     meTOTALEVT_ = m_dbe->bookInt("Data Format Total Events Processed");
     meTOTALEVT_->Fill(tevt_);
-
-    m_dbe->setCurrentFolder(baseFolder_ + "/HcalFEDChecking");
     
     type="FEDEntries";
     fedEntries_ = m_dbe->book1D(type,type,32,699.5,731.5);
-    type="FEDFatal";
-    fedFatal_ = m_dbe->book1D(type,type,32,699.5,731.5);
 
     m_dbe->setCurrentFolder(baseFolder_);
     type="Readout Chain DataIntegrity Check";
@@ -835,12 +832,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     CDFProbThisDCC = true; 
   }
   if (CDFProbThisDCC) {
-    fillzoos(6,dccid);
     //Set the problem flag for the ieta, iphi of any channel in this DCC
     mapDCCproblem(dcc_);
   }
-  if (CDFProbThisDCC)
-    fedFatal_->Fill(dccid);
+
   fedEntries_->Fill(dccid);
 
   CDFProbThisDCC = false;  // reset for the next go-round.
@@ -849,7 +844,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   for(int i=0; i<HcalDCCHeader::SPIGOT_COUNT; i++) {
     CRC_err = ((dccHeader->getSpigotSummary(i) >> 10) & 0x00000001);
     if (CRC_err) {
-      fillzoos(5,dccid);
       //Set the problem flag for the ieta, iphi of any channel in this DCC
       mapHTRproblem(dcc_, i);  
     }
@@ -865,7 +859,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     ++DCC_DataIntegrityCheck_[bin][20];
   if (TTS_state & 0x4) /*BSY*/ {
     ++DCC_DataIntegrityCheck_[bin][18];
-    ///\\\///DATAFORMAT_PROBLEM_ZOO-> Fill(10);
   }
   if (TTS_state & 0x2) /*SYN*/ {
     ++DCC_DataIntegrityCheck_[bin][17];
@@ -874,7 +867,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
   if (TTS_state & 0x1) /*OFW*/ {
     ++DCC_DataIntegrityCheck_[bin][19];
-    ///\\\///DATAFORMAT_PROBLEM_ZOO-> Fill(9);
   }
 
   ////////// Histogram problems with DCC Event Format compliance;////////////
@@ -935,21 +927,17 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     if ((WholeErrorList>>0)&0x01) { //HTR OFW
       ++DCC_DataIntegrityCheck_[bin][15];
       meDCCSummariesOfHTRs_->Fill(dccid, 1);
-      fillzoos(11,dccid);
     }
     if ((WholeErrorList>>1)&0x01) { //HTR BSY
       ++DCC_DataIntegrityCheck_[bin][14];
       meDCCSummariesOfHTRs_->Fill(dccid, 2);
-      fillzoos(12,dccid);
     }
     if ((WholeErrorList>>2)&0x01) { //EE
       meDCCSummariesOfHTRs_->Fill(dccid, 3);
       //mapHTRproblem(dccid, j);
-      fillzoos(1,dccid);
     }
     if ((WholeErrorList>>3)&0x01) { //Trigger Rule Viol.
       meDCCSummariesOfHTRs_->Fill(dccid, 4);
-      fillzoos(13,dccid);
     }
     if ((WholeErrorList>>4)&0x01) { //Latency Err
       meDCCSummariesOfHTRs_->Fill(dccid, 5);
@@ -959,11 +947,9 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     }
     if ((WholeErrorList>>6)&0x01) { //OD
       meDCCSummariesOfHTRs_->Fill(dccid, 7);
-      fillzoos(15,dccid);
     }
     if ((WholeErrorList>>7)&0x01) { //CK
       meDCCSummariesOfHTRs_->Fill(dccid, 8);
-      fillzoos(16,dccid);
     }
   }
   /* [9:16] */ //Histogram LRB Error Bits in the DCC Headers
@@ -972,7 +958,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) j);
     if ((WholeErrorList>>0)&0x03) { //HammingCode Corrected & Uncorr
       ++DCC_DataIntegrityCheck_[bin][3]; 
-      fillzoos(4,dccid);
       mapHTRproblem (dccid, j);
       if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected 
 	meDCCSummariesOfHTRs_->Fill(dccid, 9);
@@ -1104,7 +1089,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
-      fillzoos(8,dccid);
       mapHTRproblem(dccid,spigot);
     }
 
@@ -1409,26 +1393,6 @@ void HcalDataFormatMonitor::label_xFEDs(MonitorElement* me_ptr, int xbins) {
   }
 }
 
-
-void HcalDataFormatMonitor::labelthezoo(MonitorElement* zoo) {
-  ///\\\///  zoo-> setBinLabel(1,"EE - HTR lost",1);    //HTR sent Empty Event
-  ///\\\///  zoo-> setBinLabel(2,"LRB lost",1);	    //LRB truncated data
-  ///\\\///  zoo-> setBinLabel(3,"FEE",1);		    //CapID or DV not set correctly
-  ///\\\///  zoo-> setBinLabel(4,"HAM",1);		    //Corr. & Uncorr. Hamm.
-  ///\\\///  zoo-> setBinLabel(5,"HTR CRC",1);	    //DCC found HTR CRC err
-  ///\\\///  zoo-> setBinLabel(6,"CMS EvFmt",1);	    //Common Data Format failed check
-  ///\\\///  zoo-> setBinLabel(7,"DCC EvFmt",1);	    //DCC Event format failed check
-  ///\\\///  zoo-> setBinLabel(8,"HTR EvFmt",1);	    //HTR Event Format failed check
-  ///\\\///  zoo-> setBinLabel(9,"DCC OFW",1);	    //DCC Overflow Warning
-  ///\\\///  zoo-> setBinLabel(10,"DCC BSY",1);	    //DCC Busy 
-  ///\\\///  zoo-> setBinLabel(11,"HTR OFW",1);	    //HTR Overflow Warning
-  ///\\\///  zoo-> setBinLabel(12,"HTR BSY",1);	    //HTR Busy 
-  ///\\\///  zoo-> setBinLabel(13,"RL1A",1);	    //HTR Rejected L1A
-  ///\\\///  zoo-> setBinLabel(14,"BE",1);		    //HTR Bunchcount Error
-  ///\\\///  zoo-> setBinLabel(15,"OD",1);		    //Optical Data error  
-  ///\\\///  zoo-> setBinLabel(16,"CK",1);		    //Clock Error from HTR              
-}
-
 // Public function so HcalMonitorModule can slip in a 
 // logical map digest or two. 
 void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
@@ -1436,16 +1400,6 @@ void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId
   DCCtoCell = givenDCCtoCell;
   HTRtoCell = givenHTRtoCell;
   return;
-}
-
-void HcalDataFormatMonitor::fillzoos(int bin, int dccid) {
-  ///\\\///  DATAFORMAT_PROBLEM_ZOO->Fill(bin);
-  ///\\\///  if (HBHE_LO_DCC<=dccid && dccid<=HBHE_HI_DCC)
-  ///\\\///    HBHE_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
-  ///\\\///  if (HF_LO_DCC<=dccid && dccid<=HF_HI_DCC)
-  ///\\\///    HF_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
-  ///\\\///  if (HO_LO_DCC<=dccid && dccid<=HO_HI_DCC)
-  ///\\\///    HO_DATAFORMAT_PROBLEM_ZOO->Fill(bin);
 }
 
 void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {

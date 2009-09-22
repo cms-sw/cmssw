@@ -34,8 +34,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/07/31 20:32:33 $
- * $Revision: 1.46 $
+ * $Date: 2009/08/18 21:16:25 $
+ * $Revision: 1.47 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -64,22 +64,11 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
 
  private: 
-  //There's no way this fixes the problem.
-  int dummy_rcdix;
-  int dummy_rcdiy;
-  int dummy_hhdix;
-  int dummy_hhdiy;
-  int dummy_csdix;
-  int dummy_cix  ;
-  int dummy_ciy  ;
-
   //backstage accounting mechanisms for the ProblemMap
   bool problemfound[85][72][4];     // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   uint64_t problemcount[85][72][4]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   void mapHTRproblem (int dcc, int spigot) ;    // Increment problem counters for affected cells
   void mapDCCproblem(int dcc) ;                 // Increment problem counters for affected cells
-
-  void fillzoos(int bin, int dccid);
 
   // Data accessors
   vector<int> fedUnpackList_;
@@ -125,7 +114,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* me_HO_ZS_SlidingSum_US;
 
   MonitorElement* fedEntries_;
-  MonitorElement* fedFatal_;
 
   //Check that evt numbers are synchronized across all HTRs
   MonitorElement* meEvtNumberSynch_;
