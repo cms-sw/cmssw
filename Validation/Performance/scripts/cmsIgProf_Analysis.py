@@ -8,13 +8,19 @@
 import os,sys
 import time
 
+IgProfProfile={'PERF_TICKS':'IgProfPerf',
+               'MEM_TOTAL':'IgProfMem',
+               'MEM_LIVE':'IgProfMem',
+               'MEM_MAX':'IgProfMem'
+               }
+
 def execute(command):
     print '[IgAnalysis] %s ...' %command
     sys.stdout.flush()
     exitstate=os.system(command)
     return exitstate
     
-def simple_igprof_analysis(profile_name,outdir,output_type):
+def simple_igprof_analysis(profile_name,AnalysisType,output_type):
     
     """This function takes as arguments:
     -a compressed (.gz) igprof output profile
@@ -30,24 +36,9 @@ def simple_igprof_analysis(profile_name,outdir,output_type):
     sqlite3 format, ready to be browsed by igprof-navigator GUI (standalone
     or cgi-bin).
     """
-    #Assume the profile_name (i.e. the input profile file) is handled properly by the user or the scripts
-    #Use the outdir to determine what kind of analysis to make:
-
-    AnalysisType='UNKNOWN_COUNTER'
-    #Will use IgProf Analyse with all three IgProf counters
-    if "IgProfPerf" in outdir:
-        AnalysisType='PERF_TICKS'
-    elif "IgProfMemTotal" in outdir:
-        AnalysisType='MEM_TOTAL'
-    elif "IgProfMemLive" in outdir:
-        AnalysisType='MEM_LIVE'
-
-    #Use profile input file to determine the name of the output file (based still on the outdir though):
-    if len(profile_name.split(".")) == 3: #Dumped profiles case        
-        outfile=outdir+"/"+outdir+"___"+profile_name.split(".")[1]+".res"
-    else:
-        outfile=outdir+"/"+outdir+"___EndOfJob.res"
-
+    #Use profile input file to determine the name of the output file adding the counter to it:
+    #outfile=profile_name[:-3]+"___"+AnalysisType+".res"
+    outfile=profile_name.split(".")[0].replace(IgProfProfile[AnalysisType],AnalysisType)+".res"
     #Launch the 1 command:
     
     #command='igprof-analyse -d -v -g -r %s %s|tee -a \%s'%(AnalysisType,profile_name,outfile)
@@ -85,7 +76,7 @@ def simple_igprof_analysis(profile_name,outdir,output_type):
     
     return exit
     
-def diff_igprof_analysis(profile_name,regression_profile_name,outdir):
+def diff_igprof_analysis(profile_name,regression_profile_name,AnalysisType):
     
     """
     This function takes as arguments:
@@ -95,22 +86,13 @@ def diff_igprof_analysis(profile_name,regression_profile_name,outdir):
     Based on this information it automatically selects the igprof counter (PERF_TICKS, MEM_TOTAL or MEM_LIVE) to use
     with igprof-analyse and it performs the regression analysis with SQLite3 output.
     """
-    AnalysisType=''
-    #Will use IgProf Analyse with all three IgProf counters
-    if "IgProfperf" in outdir:
-        AnalysisType='PERF_TICKS'
-    elif "IgProfMemTotal" in outdir:
-        AnalysisType='MEM_TOTAL'
-    elif "IgProfMemLive" in outdir:
-        AnalysisType='MEM_LIVE'
-
     #Following Giulio's filename convention:
-    outfile=outdir+"/"+outdir+"___"+profile_name.split(".")[1]+"_diff"+regression_profile_name.split(".")[1]+".sql3"
+    outfile=profile_name.split(".")[0].replace(IgProfProfile[AnalysisType],AnalysisType)+"_diff_"+regression_profile_name.split(".")[0].split("___")[-1]+".sql3"
     command='igprof-analyse --sqlite -d -v -g --diff-mode -b %s -r %s %s |sqlite3 %s'%(regression_profile_name, AnalysisType,profile_name,outfile)
     exit=execute(command)
 
     return exit
-def library_igprof_analysis(profile_name,outdir):
+def library_igprof_analysis(profile_name,AnalysisType):
 
     """
     This function takes as arguments:
@@ -120,18 +102,8 @@ def library_igprof_analysis(profile_name,outdir):
     with igprof-analyse and it performs the igprof-analyse analysis merging the results by library and saving the results
     in the usual igprof-navigator browseable SQLite3 format.
     """
-    #FIXME the analysisType should be determined in the main part of the script... no need to repeat it in each function!
-    AnalysisType=''
-    #Will use IgProf Analyse with all three IgProf counters
-    if "IgProfperf" in outdir:
-        AnalysisType='PERF_TICKS'
-    elif "IgProfMemTotal" in outdir:
-        AnalysisType='MEM_TOTAL'
-    elif "IgProfMemLive" in outdir:
-        AnalysisType='MEM_LIVE'
-
     #Following Giulio's filename convention:
-    outfile=outdir+"/"+outdir+"___"+profile_name.split(".")[1]+"_merged"+".sql3"
+    outfile=profile_name.split(".")[0].replace(IgProfProfile[AnalysisType],AnalysisType)+"_merged"+".sql3"
     #Regular Expression supplied by Giulio:
     command="igprof-analyse --sqlite -d -v -g -r %s -ml -mr 's|.*/(.*)$|\\1|' %s |sqlite3 %s"%(AnalysisType,profile_name,outfile)
     exit=execute(command)
@@ -153,10 +125,10 @@ if __name__ == '__main__':
                       default='',
                       dest='profile')
                       
-    parser.add_option('-o', '--outdir',
-                      help='The directory of the output' ,
-                      default='',
-                      dest='outdir')
+    parser.add_option('-c', '--counter',
+                      help='The IgProf counter for the analysis (PERF_TICKS,MEM_TOTAL,MEM_LIVE,MEM_MAX)' ,
+                      default='UNKNOWN_COUNTER',
+                      dest='counter')
     parser.add_option('-t', '--output_type',
                       help='The type of the output file (ASCII or sqlite3)' ,
                       default='',
@@ -173,19 +145,21 @@ if __name__ == '__main__':
     (options,args) = parser.parse_args()
     
     # Now some fault control..If an error is found we raise an exception
-    if options.profile=='' or\
-       options.outdir=='':
+    if options.profile=='':
         raise('Please select a profile, an output dir AND a type of output (ASCII or SQLITE3)!')
     
-    if not os.path.exists(options.profile) or\
-       not os.path.exists(options.outdir):
-        raise ('Outdir or input profile not present!')
+    if not os.path.exists(options.profile):
+        raise ('Input profile not present!')
+
+    AnalysisType=options.counter
+
+    print "Input file is %s and AnalysisType is %s"%(options.profile,AnalysisType)
     
     #launch the function!
     if options.regressionprofile:
-        diff_igprof_analysis(options.profile,options.regressionprofile,options.outdir)
+        diff_igprof_analysis(options.profile,options.regressionprofile,AnalysisType)
     elif options.library:
-        library_igprof_analysis(options.profile,options.outdir)
+        library_igprof_analysis(options.profile,AnalysisType)
     else:
-        simple_igprof_analysis(options.profile,options.outdir,options.output_type)        
+        simple_igprof_analysis(options.profile,AnalysisType,options.output_type)        
  

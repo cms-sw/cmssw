@@ -53,6 +53,8 @@ Profiler = {
     'IgProfMemTotal @@@ reuse': 'IgProf_mem.MEM_TOTAL',
     'IgProfMemLive'           : 'IgProf_mem.MEM_LIVE',
     'IgProfMemLive @@@ reuse' : 'IgProf_mem.MEM_LIVE',
+    'IgProfMemMax'            : 'IgProf_mem.MEM_MAX',
+    'IgProfMemMax @@@ reuse'  : 'IgProf_mem.MEM_MAX',
     'IgProfMemAnalyse'        : 'IgProf_mem.ANALYSE',
     'valgrind'                : 'ValgrindFCE',
     'memcheck_valgrind'       : 'Memcheck_Valgrind',
@@ -815,7 +817,7 @@ def writeCommands(simcandles,
                                                                            #stepLabel,
                                                                            #prof))
                             simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
-                                                                           Profiler[prof].split(".")[0]+'.ANALYSE',
+                                                                           Profiler[prof].split(".")[0]+'.ANALYSE.'+Profiler[prof].split(".")[1], #Add the IgProf counter in here (e.g. IgProfMem.ANALYSE.MEM_TOTAL)
                                                                            MetaName))
                                                                            #FileName[acandle],
                                                                            #stepLabel,

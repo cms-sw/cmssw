@@ -86,7 +86,16 @@ EXECUTABLE='cmsRun'
 # Command execution and debug switches
 EXEC=True
 DEBUG=True
- 
+
+#Handy dictionaries to handle the mapping between IgProf Profiles and counters:
+IgProfCounters={'IgProfPerf':['PERF_TICKS'],
+                'IgProfMem':['MEM_TOTAL','MEM_LIVE','MEM_MAX']
+                }
+IgProfProfiles={'PERF_TICKS':'IgProfPerf',
+               'MEM_TOTAL':'IgProfMem',
+               'MEM_LIVE':'IgProfMem',
+               'MEM_MAX':'IgProfMem'
+               }
 import time   
 import optparse 
 import sys
@@ -452,8 +461,8 @@ class Profile:
             outdir=self.profile_name+'_outdir'
             
         #Create the directory where the report will be stored:          
-        if not os.path.exists(outdir) and not fill_db:
-            #FIXME: Add an IgProf condition to avoid the creation of a directory that we will not need anymore, since we will put all info in the filenames?
+        if not os.path.exists(outdir) and not fill_db and not IgProf_option:
+            #Added an IgProf condition to avoid the creation of a directory that we will not need anymore, since we will put all info in the filenames
             execute('mkdir %s' %outdir)
         
         if fill_db:
@@ -498,12 +507,12 @@ class Profile:
         # Profiler is IgProf:
         if self.profiler.find('IgProf')!=-1:
             #First the case of IgProf PERF and MEM reporting:
-            if IgProf_option!='ANALYSE':
+            if not 'ANALYSE' in IgProf_option:
                 #Switch to the use of igprof-analyse instead of PerfReport!
                 #Will use the ANALYSE case for regressions between early event dumps and late event dumps of the profiles
-                sqlite_outputfile=outdir+"/"+self.profile_name[:-3]+'___EndOfJob.sql3'
+                sqlite_outputfile=self.profile_name.split(".")[0].replace(IgProfProfiles[IgProf_option[0]],IgProf_option[0])+'___EndOfJob.sql3'
                 logger("Executing the report of the IgProf end of job profile")
-                exit=execute('igprof-analyse --sqlite -d -v -g -r %s %s | sqlite3 %s'%(IgProf_option,self.profile_name,sqlite_outputfile)) 
+                exit=execute('igprof-analyse --sqlite -d -v -g -r %s %s | sqlite3 %s'%(IgProf_option[0],self.profile_name,sqlite_outputfile)) 
                 return exit
             #Then the "ANALYSE" case that we want to use to add to the same directories (Perf, MemTotal, MemLive)
             #also some other analyses and in particular:
@@ -512,6 +521,9 @@ class Profile:
             #3-the diff between the first and last dump,
             #4-the counters grouped by library using regexp at the last dump:
             else: #We use IgProf Analysis
+                #Set the IgProfCounter from the ANALYSE.MEM_TOT style IgProf_option
+                #print IgProf_option
+                IgProfCounter=IgProf_option[1]
                 #Add here the handling of the new IgProf.N.gz files so that they will get preserved and not overwritten:
                 logger("Looking for IgProf intermediate event profile dumps")
                 #Check if there are IgProf.N.gz dump files:
@@ -529,8 +541,12 @@ class Profile:
                     logger(IgProfDumps)
                     FirstDumpEvent=9999999
                     LastDumpEvent=0
+                    exit=0
                     for dump in IgProfDumps:
-                        DumpEvent=dump.split(".")[1]
+                        if "___" in dump:
+                            DumpEvent=dump.split(".")[0].split("___")[-1]
+                        else:
+                            DumpEvent=dump.split(".")[1]
                         #New naming convention using ___ as separator
                         DumpedProfileName=self.profile_name[:-3]+"___"+DumpEvent+".gz"
                         if dump.startswith("IgProf"):
@@ -540,24 +556,45 @@ class Profile:
                             FirstDumpEvent = int(DumpEvent)
                         if int(DumpEvent) > LastDumpEvent:
                             LastDumpEvent = int(DumpEvent)
+                        #Eliminating the ASCII analysis to get the totals, Giulio will provide this information in igprof-navigator with a special query
                         #First type of analysis: dump first 7 lines of ASCII analysis:
-                        logger("Executing the igprof-analyse analysis to dump the ASCII 7 lines output with the totals for the IgProf counter")
-                        exit=execute('%s -o%s -i%s -t%s' %(IGPROFANALYS,outdir,DumpedProfileName,"ASCII"))
+                        #logger("Executing the igprof-analyse analysis to dump the ASCII 7 lines output with the totals for the IgProf counter")
+                        #exit=execute('%s -o%s -i%s -t%s' %(IGPROFANALYS,outdir,DumpedProfileName,"ASCII"))
                         #Second type of analysis: dump the report in sqlite format to be ready to be browsed with igprof-navigator
                         logger("Executing the igprof-analyse analysis saving into igprof-navigator browseable SQLite3 format")
-                        exit=exit+execute('%s -o%s -i%s -t%s' %(IGPROFANALYS,outdir,DumpedProfileName,"SQLite3"))
-                    FirstDumpProfile=self.profile_name[:-3]+"."+str(FirstDumpEvent)+".gz"
-                    LastDumpProfile=self.profile_name[:-3]+"."+str(LastDumpEvent)+".gz"
+                        #exit=exit+execute('%s -o%s -i%s -t%s' %(IGPROFANALYS,outdir,DumpedProfileName,"SQLite3"))
+                        #Execute all types of analyses available with the current profile (using the dictionary IgProfProfile):
+                        #To avoid this we should use a further input in SimulationCandles.txt IgProfMem.ANALYSE.MEM_TOTAL maybe the cleanest solution.
+                        #for IgProfile in IgProfCounters.keys():
+                        #    if DumpedProfileName.find(IgProfile)>0:
+                        #        for counter in IgProfCounters[IgProfile]:
+                        #Check that the file does not exist:
+                        #if not os.path.exists(DumpedProfileName.split(".")[0].replace(IgProfProfiles[counter],counter)+".sql3"):
+                        exit=exit+execute('%s -c%s -i%s -t%s' %(IGPROFANALYS,IgProfCounter,DumpedProfileName,"SQLite3"))
+                                    #else:
+                                    #    print "File %s already exists will not process profile"%DumpedProfileName.split(".")[0].replace(IgProfProfiles[counter],counter)+".sql3"
+                    #FIXME:
+                    #Issue with multiple profiles in the same dir: assuming Perf and Mem will always be in separate dirs
+                    #Potential ssue with multiple steps?
+                    #Adapting to new igprof naming scheme:
+                    FirstDumpProfile=self.profile_name[:-3]+"___"+str(FirstDumpEvent)+".gz"
+                    LastDumpProfile=self.profile_name[:-3]+"___"+str(LastDumpEvent)+".gz"
                     #Third type of analysis: execute the diff analysis:
                     #Check there are at least 2 IgProf intermediate event dump profiles to do a regression!
                     if len(IgProfDumps)>1:
                         logger("Executing the igprof-analyse regression between the first IgProf profile dump and the last one")
-                        exit=exit+execute('%s -o%s -i%s -r%s' %(IGPROFANALYS,outdir,LastDumpProfile,FirstDumpProfile))
+                        #for IgProfile in IgProfCounters.keys():
+                        #    if DumpedProfileName.find(IgProfile)>0:
+                        #        IgProfCounter=IgProfCounters[IgProfile]
+                        exit=exit+execute('%s -c%s -i%s -r%s' %(IGPROFANALYS,IgProfCounter,LastDumpProfile,FirstDumpProfile))
                     else:
                         logger("CANNOT execute any regressions: not enough IgProf intermediate event profile dumps!")
                     #Fourth type of analysis: execute the grouped by library igprof-analyse:
                     logger("Executing the igprof-analyse analysis merging the results by library via regexp and saving the result in igprof-navigator browseable SQLite3 format")
-                    exit=exit+execute('%s -o%s -i%s --library' %(IGPROFANALYS,outdir,LastDumpProfile))
+                    #for IgProfile in IgProfCounters.keys():
+                    #        if DumpedProfileName.find(IgProfile)>0:
+                    #            IgProfCounter=IgProfCounters[IgProfile]
+                    exit=exit+execute('%s -c%s -i%s --library' %(IGPROFANALYS,IgProfCounter,LastDumpProfile))
                 #If they are not there at all (no dumps)
                 else:
                     logger("No IgProf intermediate event profile dumps found!")
@@ -706,7 +743,8 @@ def principal(options):
             
             if profiler_opt.find('.')!=-1 and profiler_opt.find('IgProf')!=-1:
                 profiler_opt_split=profiler_opt.split('.')
-                profiler,IgProf_counter=profiler_opt_split
+                profiler=profiler_opt_split[0]
+                IgProf_counter=profiler_opt_split[1:] #This way can handle IgProfMem.ANALYSE.MEM_TOT etc.
                 if profile_name[-3:]!='.gz':
                     profile_name+='.gz'
             
