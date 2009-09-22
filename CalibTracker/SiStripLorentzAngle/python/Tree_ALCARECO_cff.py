@@ -7,7 +7,7 @@ LorentzAngleTracks = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cf
     #src = 'generalTracks',            ## for beam
     filter = True,
     applyBasicCuts = True,
-    ptMin = 1.5,
+    ptMin = 0.5,
     nHitMin = 4,
     chi2nMax = 10.,
     )
