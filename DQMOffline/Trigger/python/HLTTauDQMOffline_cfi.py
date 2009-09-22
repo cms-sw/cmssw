@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 hltTauDQMofflineProcess = "HLT"
 
-
 #Ref Pbjects-------------------------------------------------------------------------------------------------------
 TauRefProducer = cms.EDFilter("HLTTauRefProducer",
 
@@ -124,7 +123,7 @@ hltTauOfflineMonitor_PFTaus = cms.EDFilter("HLTTauDQMOfflineSource",
         
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauOffline/PFTaus/L2'),
-            L2InfoAssociationInput = cms.InputTag("hltL2TauIsolationProducer"),
+            L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         )
    ),
@@ -138,7 +137,7 @@ hltTauOfflineMonitor_PFTaus = cms.EDFilter("HLTTauDQMOfflineSource",
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(
-      cms.InputTag("TauRefProducer","PFTaus",hltTauDQMofflineProcess)
+      cms.InputTag("TauRefProducer","PFTaus")
      )
 )
 
@@ -207,7 +206,7 @@ hltTauOfflineMonitor_Photons = cms.EDFilter("HLTTauDQMOfflineSource",
         
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauOffline/Photons/L2'),
-            L2InfoAssociationInput = cms.InputTag("hltL2TauIsolationProducer"),
+            L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         )
    ),
@@ -221,7 +220,7 @@ hltTauOfflineMonitor_Photons = cms.EDFilter("HLTTauDQMOfflineSource",
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(
-      cms.InputTag("TauRefProducer","Photons",hltTauDQMofflineProcess)
+      cms.InputTag("TauRefProducer","Photons")
      )
 )
 
@@ -285,7 +284,7 @@ hltTauOfflineMonitor_HPD = cms.EDFilter("HLTTauDQMOfflineSource",
         
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauOffline/HPD/L2'),
-            L2InfoAssociationInput = cms.InputTag("hltL2TauIsolationProducer"),
+            L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         )
    ),
@@ -299,7 +298,7 @@ hltTauOfflineMonitor_HPD = cms.EDFilter("HLTTauDQMOfflineSource",
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(
-      cms.InputTag("TauRefProducer","Towers",hltTauDQMofflineProcess)
+      cms.InputTag("TauRefProducer","Towers")
      )
 )
 
