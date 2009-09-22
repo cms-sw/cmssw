@@ -26,8 +26,26 @@ src/PdfWeightProducer.cc
   please follow the recipes provided in ElectroWeakAnalysis/Utilities/BuildFile
   and comment/uncomment the relevant lines there.
 
-- A simple example showing how to use this PDF information is given in 
-  "test/PdfWeightAnalyzer.cc". A test example is "test/PdfWeightAnalyzer.py".
+- A typical application is the determination of the PDF systematics. This is 
+  implemented in "src/PdfSystematicsAnalyzer.cc". This analyzer counts the 
+  processed events using PDF re-weighting, and assigns systematic 
+  uncertainties on the rate according to the recipe described in
+  hep-ph/0605240. Usage:
+
+      # Count PDF-weighted events and collect uncertainties
+      process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
+            PdfWeightTags = cms.untracked.VInputTag(
+                    "pdfWeights:cteq65"
+                  , "pdfWeights:MRST2006nnlo"
+                  , "pdfWeights:MRST2007lomod"
+            )
+      )
+
+- A test example of these utilities is "test/PdfSystematicsAnalyzer.py". There, 
+  one counts re-weighted events before and after selection, which gives immediate
+  access to the determination of PDF uncertainties on the acceptance for the 
+  given process under study.
+
 
 src/BosonPtWeightProducer.cc
 ============================
