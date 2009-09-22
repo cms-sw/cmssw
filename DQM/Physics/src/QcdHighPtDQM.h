@@ -16,7 +16,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+
 
 class DQMStore;
 class MonitorElement;
@@ -38,6 +39,8 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
 
   void endJob(void);
 
+
+
  private:
 
 
@@ -47,12 +50,17 @@ class QcdHighPtDQM : public edm::EDAnalyzer {
 
   //input tags for Jets/MET
   edm::InputTag jetLabel_;
-  edm::InputTag metLabel_;
-
+  edm::InputTag metLabel1_;
+  edm::InputTag metLabel2_;
+  edm::InputTag metLabel3_;
+  edm::InputTag metLabel4_;
+  
   //map of MEs
   std::map<std::string, MonitorElement*> MEcontainer_;
 
-
+  //methods to calculate MET over SumET and MET over Leading Jet Pt
+  float movers(const CaloMETCollection& metcollection);
+  float moverl(const CaloMETCollection& metcollection, float& ljpt);
 
 };
 #endif  
