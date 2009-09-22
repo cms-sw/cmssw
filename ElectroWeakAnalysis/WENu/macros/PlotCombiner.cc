@@ -163,7 +163,7 @@ void plotMaker(TString histoName, TString wzsignal,
 	       TString xtitle, Int_t NBins, Double_t min, Double_t max)
 {
   gROOT->Reset();
-  gROOT->ProcessLine(".L ~/tdrstyle.C"); 
+  gROOT->ProcessLine(".L tdrstyle.C"); 
   gROOT->ProcessLine("setTDRStyle()");
 
   // Wenu Signal .......................................................
