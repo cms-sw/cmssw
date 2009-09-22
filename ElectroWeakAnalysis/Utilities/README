@@ -41,7 +41,7 @@ src/PdfWeightProducer.cc
             )
       )
 
-- A test example for these utilities is "python/PdfSystematicsAnalyzer.py". There, 
+- A test example for these utilities is "test/PdfSystematicsAnalyzer.py". There, 
   one counts re-weighted events before and after selection, which gives immediate
   access to the determination of PDF uncertainties on the acceptance for the 
   given process under study.
@@ -84,7 +84,7 @@ src/ISRWeightProducer.cc
      
 - This weight information can be processed via the Analyzer
   "src/SimpleSystematicsAnalyzer.cc". A test example is 
-  "python/SimpleSystematicsAnalyzer.py".
+  "test/SimpleSystematicsAnalyzer.py".
 
 src/FSRWeightProducer.cc
 ============================
@@ -103,7 +103,7 @@ src/FSRWeightProducer.cc
 
 - This weight information can be processed via the Analyzer
   "src/SimpleSystematicsAnalyzer.cc". A test example is 
-  "python/SimpleSystematicsAnalyzer.py".
+  "test/SimpleSystematicsAnalyzer.py".
 
 src/DistortedMuonProducer.cc
 ============================
@@ -134,7 +134,7 @@ src/DistortedMuonProducer.cc
         EfficiencyRatioOverMC = cms.untracked.vdouble(0.99)
       )
 
-- A simple example showing how to use this code is given in "python/distortedMuons.py".
+- A simple example showing how to use this code is given in "test/distortedMuons.py".
 
 src/DistortedMETProducer.cc
 ===========================
@@ -151,5 +151,5 @@ src/DistortedMETProducer.cc
         MetScaleShift = cms.untracked.double(0.1)
       )
 
-- A simple example showing how to use this code is given in "python/distortedMET.py".
+- A simple example showing how to use this code is given in "test/distortedMET.py".
 
