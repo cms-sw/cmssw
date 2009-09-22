@@ -1,23 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GeometryTest")
+process = cms.Process("Demo")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = 'MC_31X_V8::All'
-process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
 process.source = cms.Source("EmptySource")
 
-process.out = cms.OutputModule("AsciiOutputModule")
+process.MessageLogger = cms.Service("MessageLogger")
 
-process.prod = cms.EDAnalyzer("DTGeometryAnalyzer")
+process.test1 = cms.EDFilter("RPCGEO")
+process.test2 = cms.EDFilter("RPCGeometryAnalyzer")
 
-process.p1 = cms.Path(process.prod)
-
+process.p = cms.Path(process.test1+process.test2)
 

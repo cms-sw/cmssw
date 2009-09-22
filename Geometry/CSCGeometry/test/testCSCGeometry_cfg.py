@@ -5,23 +5,15 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
-# flags for modelling of CSC layer & strip geometry
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-#process.load("Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff")
-process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-#process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "FakeAlignmentSource")
-process.fake2 = process.FakeAlignmentSource
-del process.FakeAlignmentSource
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
-    enableOverFlowEx = cms.untracked.bool(True),
-    enableDivByZeroEx = cms.untracked.bool(True),
-    enableInvalidEx = cms.untracked.bool(True),
-    enableUnderFlowEx = cms.untracked.bool(False)
-)
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
+
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+
 
 process.source = cms.Source("EmptySource")
 
