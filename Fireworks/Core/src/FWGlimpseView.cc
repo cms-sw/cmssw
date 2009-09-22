@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.25 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.26 2009/04/07 14:10:54 chrjones Exp $
 //
 
 // system include files
@@ -59,6 +59,8 @@
 #include "TGeoArb8.h"
 
 // user include files
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -91,6 +93,9 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
+
+   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
 
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;
@@ -262,7 +267,10 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 
 void
 FWGlimpseView::setBackgroundColor(Color_t iColor) {
-   m_viewer->GetGLViewer()->SetClearColor(iColor);
+   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
+   if ( iColor == FWColorManager::kBlackIndex && !dark ||
+        iColor == FWColorManager::kWhiteIndex && dark)
+      m_viewer->GetGLViewer()->SwitchColorSet();
 }
 //
 // const member functions
