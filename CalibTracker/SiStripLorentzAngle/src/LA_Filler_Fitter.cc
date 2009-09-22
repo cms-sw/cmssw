@@ -125,7 +125,6 @@ make_and_fit_symmchi2(Book& book) {
     unsigned minbin=0;
     for(int i=1; i<=(*p)->GetNbinsX(); ++i) if((*p)->GetBinError(i) && (*p)->GetBinContent(i)<min) {min = (*p)->GetBinContent(i); minbin = i;}
 
-    std::cout << "minbin: " << minbin << std::endl;
     double dguess(0), weight(0);
     for(unsigned i=0; i<20; i++) { 
       double w = pow((*p)->GetBinContent(minbin-10+i),4);
@@ -141,7 +140,8 @@ make_and_fit_symmchi2(Book& book) {
       guess = (*p)->FindBin(dguess);
       delete chi2;
       chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-3,guess+3));
-      book.book(SymmetryFit::name((*p)->GetName()), chi2); std::cout <<"symmfit" << std::endl;}
+      if(chi2) book.book(SymmetryFit::name((*p)->GetName()), chi2);
+    }
   }
 }
 
