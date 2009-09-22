@@ -20,17 +20,17 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
   }
 
   // Allow for multiple definitions of the cuts. 
-  bool operator()( const pat::Electron & electron ) const 
+  bool operator()( const pat::Electron & electron, std::strbitset & ret )  
   { 
 
-    if ( version_ == SUMMER08 ) return summer08Cuts( electron );
+    if ( version_ == SUMMER08 ) return summer08Cuts( electron, ret );
     else {
       return false;
     }
   }
 
   // cuts based on craft 08 analysis. 
-  bool summer08Cuts( const pat::Electron & electron) const
+  bool summer08Cuts( const pat::Electron & electron, std::strbitset & ret) 
   {
 
     double corr_d0 = electron.dB();
@@ -42,9 +42,8 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-
-    if ( fabs(corr_d0) >  cut("D0",     double()) && (*this)["D0"]      ) return false;
-    if ( relIso        >  cut("RelIso", double()) && (*this)["RelIso"]  ) return false;
+    if ( fabs(corr_d0) <  cut("D0",     double()) || !(*this)["D0"]      ) passCut(ret, "D0"     );
+    if ( relIso        <  cut("RelIso", double()) || !(*this)["RelIso"]  ) passCut(ret, "RelIso" );
 
     return true;
   }

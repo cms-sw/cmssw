@@ -25,17 +25,17 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
   // Allow for multiple definitions of the cuts. 
-  bool operator()( const pat::Muon & muon ) const 
+  bool operator()( const pat::Muon & muon, std::strbitset & ret ) 
   { 
 
-    if ( version_ == SUMMER08 ) return summer08Cuts( muon );
+    if ( version_ == SUMMER08 ) return summer08Cuts( muon, ret );
     else {
       return false;
     }
   }
 
   // cuts based on craft 08 analysis. 
-  bool summer08Cuts( const pat::Muon & muon) const
+  bool summer08Cuts( const pat::Muon & muon, std::strbitset & ret)
   {
     double norm_chi2 = muon.normChi2();
     double corr_d0 = muon.dB();
@@ -48,13 +48,13 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( norm_chi2     >  cut("Chi2",   double()) && (*this)["Chi2"]    ) return false;
-    if ( fabs(corr_d0) >  cut("D0",     double()) && (*this)["D0"]      ) return false;
-    if ( nhits         <  cut("NHits",  int()   ) && (*this)["NHits"]   ) return false;
-    if ( hcalIso       >  cut("HCalIso",double()) && (*this)["HCalIso"] ) return false;
-    if ( ecalIso       >  cut("ECalIso",double()) && (*this)["ECalIso"] ) return false;
-    if ( relIso        >  cut("RelIso", double()) && (*this)["RelIso"]  ) return false;
-    
+    if ( norm_chi2     <  cut("Chi2",   double()) || !(*this)["Chi2"]    ) passCut(ret, "Chi2"   );
+    if ( fabs(corr_d0) <  cut("D0",     double()) || !(*this)["D0"]      ) passCut(ret, "D0"     );
+    if ( nhits         >= cut("NHits",  int()   ) || !(*this)["NHits"]   ) passCut(ret, "NHits"  );
+    if ( hcalIso       <  cut("HCalIso",double()) || !(*this)["HCalIso"] ) passCut(ret, "HCalIso");
+    if ( ecalIso       <  cut("ECalIso",double()) || !(*this)["ECalIso"] ) passCut(ret, "ECalIso");
+    if ( relIso        <  cut("RelIso", double()) || !(*this)["RelIso"]  ) passCut(ret, "RelIso" );
+
     return true;
   }
   
