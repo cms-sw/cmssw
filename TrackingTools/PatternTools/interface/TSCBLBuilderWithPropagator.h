@@ -23,6 +23,7 @@ public:
   /// constructor with user-supplied propagator
   TSCBLBuilderWithPropagator(const Propagator& u);
 
+  virtual ~TSCBLBuilderWithPropagator(){};
 
   virtual TrajectoryStateClosestToBeamLine operator()
     (const FTS& originalFTS, const reco::BeamSpot & beamSpot) const;
