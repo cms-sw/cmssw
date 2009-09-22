@@ -348,9 +348,29 @@ famosWithTracksAndJets = cms.Sequence(
     caloJetMet
 )
 
-### alias of the above one, as Jets cannot be done without vetrexreco
+### Standard Jets _cannot_ be done without many other things...
+#######################################################################
 famosWithJets = cms.Sequence(
-   famosWithTracksAndJets
+    famosWithTracksAndCaloTowers+
+    vertexreco+
+    ecalClusters+
+    particleFlowCluster+
+    famosGsfTrackSequence+
+    famosMuonSequence+
+    famosMuonIdAndIsolationSequence+
+    famosParticleFlowSequence+
+    gsfElectronSequence+	
+    caloJetMetGen+
+    caloJetMet
+)
+
+##--- simplified IC05 jets only
+famosWithSimpleJets = cms.Sequence(
+    famosWithTracksAndCaloTowers+
+    vertexreco+
+    caloJetMetGen+
+    iterativeCone5CaloJets+
+    ic5JetTracksAssociatorAtVertex
 )
 
 famosWithCaloTowersAndParticleFlow = cms.Sequence(
