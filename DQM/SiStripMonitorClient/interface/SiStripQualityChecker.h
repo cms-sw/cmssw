@@ -49,6 +49,7 @@ class SiStripQualityChecker {
   void getModuleStatus(std::vector<MonitorElement*>& layer_mes, int& ndet, int& errdet);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
+  void initialiseBadModuleList();  
   
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetFolderMap;

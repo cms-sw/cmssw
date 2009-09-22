@@ -21,8 +21,8 @@ process.source = cms.Source("PoolSource",
 #      '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/00BAAF73-52A5-DD11-9351-001D09F23A84.root'
 
 ## CRAFT09
-#       '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/D2947736-8189-DE11-A17E-000423D94C68.root',
-#      '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/DE49D0FC-2C8A-DE11-BA21-000423D6A6F4.root'
+#       '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/001404E1-0F8A-DE11-ADB3-000423D99EEE.root',
+#      '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/002174A8-E989-DE11-8B4D-000423D6CA42.root'
       
     )
 )

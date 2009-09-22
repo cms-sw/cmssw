@@ -64,21 +64,8 @@ SiStripQualityChecker::~SiStripQualityChecker() {
 void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 
   if (!bookedStripStatus_) {
-    dqm_store->cd();
-    string top_dir = "SiStrip";
-    string strip_dir = ""; 
-    if (dqm_store->dirExists(top_dir)) {
-      dqm_store->cd(top_dir);
-      strip_dir = dqm_store->pwd();
-    } else {
-      if (SiStripUtility::goToDir(dqm_store, top_dir)) {
-	string mdir = "MechanicalView";
-	if (SiStripUtility::goToDir(dqm_store, mdir)) {
-	  strip_dir = dqm_store->pwd(); 
-	  strip_dir = strip_dir.substr(0, strip_dir.find(mdir)-1);
-        }
-      }	
-    }
+    string strip_dir = "";
+    SiStripUtility::getTopFolderPath(dqm_store, "SiStrip", strip_dir); 
     if (strip_dir.size() > 0) {
       dqm_store->setCurrentFolder(strip_dir+"/EventInfo"); 
       
@@ -131,21 +118,8 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
   }  
   if (!bookedTrackingStatus_) {
     
-    dqm_store->cd();
-    string top_dir = "Tracking";
-    string tracking_dir = ""; 
-    if (dqm_store->dirExists(top_dir)) {
-      dqm_store->cd(top_dir);
-      tracking_dir = dqm_store->pwd();
-    } else {
-      if (SiStripUtility::goToDir(dqm_store, top_dir)) {
-	string tdir = "TrackParameters";
-	if (SiStripUtility::goToDir(dqm_store, tdir)) {
-	  tracking_dir = dqm_store->pwd(); 
-	  tracking_dir = tracking_dir.substr(0, tracking_dir.find(tdir)-1);
-        }
-      }	
-    }
+    string tracking_dir = "";
+    SiStripUtility::getTopFolderPath(dqm_store, "Tracking", tracking_dir);
     if (tracking_dir.size() > 0) {
       dqm_store->setCurrentFolder(tracking_dir+"/EventInfo"); 
 
@@ -171,14 +145,15 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       bookedTrackingStatus_ = true;
     }
   }
+  dqm_store->cd();
 }
 //
 // -- Fill Dummy  Status
 //
 void SiStripQualityChecker::fillDummyStatus(){
  
+  resetStatus();
   if (bookedStripStatus_) {
-    resetStatus();
     for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
 	 it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes = it->second;
@@ -258,6 +233,8 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store) {
   string mdir = "MechanicalView"; 
   if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
   string mechanicalview_dir = dqm_store->pwd();
+ 
+  initialiseBadModuleList();
   for (map<string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
        it != SubDetMEsMap.end(); it++) {
     string det = it->first;
@@ -403,7 +380,6 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
 
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
-
       fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
       fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
       if (ston_stat > 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
@@ -561,7 +537,14 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
     if (me) me->Reset();
     else me = dqm_store->bookInt(detid_str.str());
     me->Fill(it->second);
-
   }
   dqm_store->cd();
 }
+//
+// -- Initialise Bad Module List
+//
+void SiStripQualityChecker::initialiseBadModuleList() {
+  for (map<uint32_t,uint16_t>::iterator it=badModuleList.begin(); it!=badModuleList.end(); it++) {
+    it->second = 0;
+  }
+} 

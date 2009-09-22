@@ -7,7 +7,11 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT0831X_V1::All"
+# CRAFT08
+# process.GlobalTag.globaltag = CRAFT0831X_V1::All
+# CRAFT09
+process.GlobalTag.globaltag = "GR09_P_V2::All"
+#process.GlobalTag.globaltag = "CRAFT09_R_V2::All"
 
 
 process.load("DQM.SiStripMonitorClient.SiStripClientConfig_Tier0_cff")
@@ -54,5 +58,4 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.Tracer = cms.Service('Tracer',indentation = cms.untracked.string('$$'))
 #process.load('DQM.SiStripCommon.MessageLogger_cfi')
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmEnvTr*process.dqmSaver*process.dqmStoreStats)
-
+process.p1 = cms.Path(process.EDMtoMEConverter*process.SiStripOfflineDQMClient*process.siStripDaqInfo*process.siStripDaqInfo*process.siStripDcsInfo*process.siStripCertificationInfo*process.dqmEnvTr*process.dqmSaver*process.dqmStoreStats)

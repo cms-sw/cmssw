@@ -57,7 +57,7 @@ class SiStripDaqInfo: public edm::EDAnalyzer {
 
   /// Begin Of Luminosity
                                                                                
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
 
   /// Analyze
 
@@ -70,6 +70,7 @@ private:
   void readSubdetFedFractions(std::vector<int>& fed_ids);
   void bookStatus();
   void fillDummyStatus();
+  void findExcludedModule(unsigned short fed_id);
 
   std::map<std::string,std::vector<unsigned short> > subDetFedMap;
 
@@ -87,5 +88,7 @@ private:
   unsigned long long m_cacheID_;
   int nFedTotal;
   bool bookedStatus_;
+
+  edm::ESHandle< SiStripFedCabling > fedCabling_;
 };
 #endif

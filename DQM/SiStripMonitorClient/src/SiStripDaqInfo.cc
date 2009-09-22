@@ -7,6 +7,7 @@
 
 #include "DQM/SiStripMonitorClient/interface/SiStripDaqInfo.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -51,37 +52,47 @@ void SiStripDaqInfo::beginJob( const edm::EventSetup &eSetup) {
 // -- Book MEs for SiStrip Daq Fraction
 //
 void SiStripDaqInfo::bookStatus() {
+   edm::LogInfo( "SiStripDcsInfo") << " SiStripDaqInfo::bookStatus " << bookedStatus_;
+  if (!bookedStatus_) {
+    string strip_dir = "";
+    SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir);
+    if (strip_dir.size() > 0) {
 
-  dqmStore_->setCurrentFolder("SiStrip/EventInfo");
-
-  DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
-
-  dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
-
-  for (map<string, vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
-       it != subDetFedMap.end(); it++) {
-    string det = it->first;
-
-    SubDetMEs local_mes;	
-    string me_name;
-    me_name = "SiStrip_" + det;    
-    local_mes.DaqFractionME = dqmStore_->bookFloat(me_name);  	
-    local_mes.ConnectedFeds = 0;
-    SubDetMEsMap.insert(make_pair(det, local_mes));
-  } 
-  bookedStatus_ = true;
-  fillDummyStatus();
+      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
+    
+      DaqFraction_= dqmStore_->bookFloat("DAQSummary");  
+      
+      dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
+      
+      for (map<string, vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
+	   it != subDetFedMap.end(); it++) {
+	string det = it->first;
+	
+	SubDetMEs local_mes;	
+	string me_name;
+	me_name = "SiStrip_" + det;    
+	local_mes.DaqFractionME = dqmStore_->bookFloat(me_name);  	
+	local_mes.ConnectedFeds = 0;
+	SubDetMEsMap.insert(make_pair(det, local_mes));
+      } 
+      bookedStatus_ = true;
+      dqmStore_->cd();
+    }
+  }
 }
-
 //
 // -- Fill with Dummy values
 //
 void SiStripDaqInfo::fillDummyStatus() {
   if (!bookedStatus_) bookStatus();
-  for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    it->second.DaqFractionME->Fill(-1.0);
+  if (bookedStatus_) {
+    for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+      it->second.DaqFractionME->Reset();
+      it->second.DaqFractionME->Fill(-1.0);
+    }
+    DaqFraction_->Reset();
+    DaqFraction_->Fill(-1.0);
   }
-  DaqFraction_->Fill(-1.0);
 }
 //
 // -- Begin Run
@@ -94,10 +105,9 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;       
 
-    edm::ESHandle< SiStripFedCabling > fed_cabling;
-    eSetup.get<SiStripFedCablingRcd>().get(fed_cabling); 
+    eSetup.get<SiStripFedCablingRcd>().get(fedCabling_); 
 
-    readFedIds(fed_cabling);
+    readFedIds(fedCabling_);
   }
   if (!bookedStatus_) bookStatus();  
 }
@@ -108,16 +118,16 @@ void SiStripDaqInfo::analyze(edm::Event const& event, edm::EventSetup const& eSe
 }
 
 //
-// -- Begin Luminosity Block
+// -- End Luminosity Block
 //
-void SiStripDaqInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){
+void SiStripDaqInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){
   edm::LogInfo ("SiStripDaqInfo") <<"SiStripDaqInfo:: Luminosity Block";
+  fillDummyStatus();
 
   if (nFedTotal == 0) {
    edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::No FEDs Connected!!!";
    return;
   }
-
   float nFEDConnected = 0.0;
 
   const FEDNumbering numbering;
@@ -139,8 +149,11 @@ void SiStripDaqInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
       }
       edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::Total # of FEDs " << nFedTotal 
                                       << " Connected FEDs " << nFEDConnected;
-      DaqFraction_->Fill(nFEDConnected/nFedTotal);
-      readSubdetFedFractions(FedsInIds);
+      if (nFEDConnected > 0) {
+	DaqFraction_->Reset();
+	DaqFraction_->Fill(nFEDConnected/nFedTotal);
+	readSubdetFedFractions(FedsInIds);
+      }
     }
   } 
 }
@@ -148,11 +161,11 @@ void SiStripDaqInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 // -- Read Sub Detector FEDs
 //
 void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling) {
-  const vector<uint16_t>& feds = fedcabling->feds(); 
+  const vector<uint16_t>& feds = fedCabling_->feds(); 
 
   nFedTotal = feds.size();
   for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++){
-    const std::vector<FedChannelConnection> fedChannels = fedcabling->connections( *ifed );
+    const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
     for (std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
       if (!iconn->isConnected()) continue;
       uint32_t detId = iconn->detId();
@@ -162,7 +175,7 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
       subDetFedMap[subdet_tag].push_back(*ifed); 
       break;
     }
-  }
+  }  
 }
 //
 // -- Fill Subdet FEDIds 
@@ -182,42 +195,80 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids) {
     iPos->second.ConnectedFeds = 0;
   }
   // count sub detector feds
-  for(unsigned int it = 0; it < fed_ids.size(); ++it) {
-    unsigned short fedID = fed_ids[it];     
-	
-    if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax) {
 
-      for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
+  
+  for (std::map<std::string, std::vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
 	   it != subDetFedMap.end(); it++) {
-	std::string name = it->first;
-	std::vector<unsigned short> subdetIds = it->second;       
-        bool fedid_found = false;
-	for (std::vector<unsigned short>::iterator iv = subdetIds.begin();
-	     iv != subdetIds.end(); iv++) {
-	  if ((*iv) == fedID) {
-            fedid_found = true;
-            break;
-          }
-        }
-        if (fedid_found) {
-	  map<string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
-	  if (iPos != SubDetMEsMap.end()) iPos->second.ConnectedFeds++;
-          break;
-	}   
-      } 
+    std::string name = it->first;
+    std::vector<unsigned short> subdetIds = it->second; 
+    map<string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
+    if (iPos == SubDetMEsMap.end()) continue;
+    iPos->second.ConnectedFeds = 0;
+    for (std::vector<unsigned short>::iterator iv = subdetIds.begin();
+	 iv != subdetIds.end(); iv++) {
+      bool fedid_found = false;
+      for(unsigned int it = 0; it < fed_ids.size(); ++it) {
+	unsigned short fedID = fed_ids[it];     
+        if(fedID < siStripFedIdMin ||  fedID > siStripFedIdMax) continue;
+	if ((*iv) == fedID) {
+	  fedid_found = true;
+          iPos->second.ConnectedFeds++;
+	  break;
+	}
+      }
+      if (!fedid_found) findExcludedModule((*iv));   
+    }
+    int nFedsConnected   = iPos->second.ConnectedFeds;
+    int nFedSubDet       = subdetIds.size();
+    if (nFedSubDet > 0) {
+      iPos->second.DaqFractionME->Reset();
+      iPos->second.DaqFractionME->Fill(nFedsConnected*1.0/nFedSubDet);
     }
   }
-  
-  for (map<string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    string type = it->first;
-    int nFedsConnected   = it->second.ConnectedFeds;
-    int nFedsTot = 0;        
-    map<std::string,std::vector<unsigned short> >::iterator iPos = subDetFedMap.find(type);
-    if (iPos != subDetFedMap.end()) nFedsTot = iPos->second.size();
-    if (nFedsTot > 0) it->second.DaqFractionME->Fill(nFedsConnected*1.0/nFedsTot);
-  }
-
 }
-
+//
+// -- find Excluded Modules
+//
+void SiStripDaqInfo::findExcludedModule(unsigned short fed_id) {
+  dqmStore_->cd();
+  string mdir = "MechanicalView";
+  if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
+  string mechanical_dir = dqmStore_->pwd();
+  const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections(fed_id);
+  int ichannel = 0;
+  string tag = "ExcludedFedChannel";
+  string bad_module_folder;
+  for (std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); 
+                                                         iconn < fedChannels.end(); iconn++){
+    if (!iconn->isConnected()) continue;
+    uint32_t detId = iconn->detId();
+    if (detId == 0 || detId == 0xFFFFFFFF)  continue;
+    
+    ichannel++;
+    if (ichannel == 1) {
+      string subdet_folder ;
+      SiStripFolderOrganizer folder_organizer;
+      folder_organizer.getSubDetFolder(detId,subdet_folder);
+      if (!dqmStore_->dirExists(subdet_folder)) {
+	subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find("MechanicalView")+14);
+	if (!dqmStore_->dirExists(subdet_folder)) continue;
+      }
+      bad_module_folder = subdet_folder + "/" + "BadModuleList";
+      dqmStore_->setCurrentFolder(bad_module_folder);    
+    }
+    ostringstream detid_str;
+    detid_str << detId;
+    string full_path = bad_module_folder + "/" + detid_str.str();
+    MonitorElement* me = dqmStore_->get(full_path);
+    uint16_t flag = 0; 
+    if (me) {
+      flag = me->getIntValue();
+      me->Reset();
+    } else me = dqmStore_->bookInt(detid_str.str());
+    SiStripUtility::setBadModuleFlag(tag, flag);
+    me->Fill(flag);
+  }
+  dqmStore_->cd();
+}
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripDaqInfo);
