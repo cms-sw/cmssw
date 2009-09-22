@@ -7,63 +7,82 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DQMOnlineSimData")
-# tracker geometry
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
-# tracker numbering
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#--------------------------
+# Event Source
+#--------------------------
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_3_2_6/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V7-v1/0013/F6CBADA1-D29A-DE11-96C8-00304879FA4A.root',
+    '/store/relval/CMSSW_3_2_6/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V7-v1/0013/60372DB3-D09A-DE11-857C-001D09F2915A.root')
+)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
 
-# cms geometry
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#-------------------------------------------------
+# Message Logger
+#-------------------------------------------------
+process.MessageLogger = cms.Service("MessageLogger",
+    debugModules = cms.untracked.vstring('siStripDigis',
+                                         'siStripZeroSuppression',
+                                         'siStripClusters'
+                                         'SiStripMonitorCluster'),
+    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
+    destinations = cms.untracked.vstring('cout')
+)
+
+#-------------------------------------------------
+# Geometry
+#-------------------------------------------------
+process.load("Configuration.StandardSequences.Geometry_cff")
 
 #-------------------------------------------------
 # CALIBRATION
 #-------------------------------------------------
-process.load("CalibTracker.Configuration.Tracker_FakeConditions_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "STARTUP31X_V7::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------
 #  Reconstruction Modules
 #-----------------------
-process.load("EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff")
+process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
+process.siStripDigis.ProductLabel = 'rawDataCollector'
 
-process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_SimData_cfi")
+#process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_SimData_cfi")
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 
 #--------------------------
-# SiStrip MonitorCluster
+# DQM Services
 #--------------------------
-process.load("DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi")
-
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('siStripDigis', 
-        'SiStripMonitorDigi'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('cout')
-)
-
 process.DQMStore = cms.Service("DQMStore",
     referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(0)
 )
 
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
+#--------------------------
+# SiStrip MonitorCluster
+#--------------------------
+process.load("DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi")
+process.SiStripMonitorCluster.CreateTrendMEs = True
+process.SiStripMonitorCluster.TkHistoMap_On = True
+process.SiStripMonitorCluster.SelectAllDetectors = True
+#process.SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
+process.SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
+#process.SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
+process.SiStripMonitorCluster.OutputMEsInRootFile = True
+process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
+
+##
 process.outP = cms.OutputModule("AsciiOutputModule")
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/2008/7/21/RelVal-RelValQCD_Pt_80_120-1216579576-STARTUP_V4-2nd/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579576-STARTUP_V4-2nd-unmerged/0000/0A81C8A7-6E57-DD11-8B07-00161757BF42.root', 
-        '/store/relval/2008/7/21/RelVal-RelValQCD_Pt_80_120-1216579576-STARTUP_V4-2nd/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579576-STARTUP_V4-2nd-unmerged/0000/0CDA198B-7057-DD11-B23E-001617C3B77C.root', 
-        '/store/relval/2008/7/21/RelVal-RelValQCD_Pt_80_120-1216579576-STARTUP_V4-2nd/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG-RECO/CMSSW_2_1_0_pre9-RelVal-1216579576-STARTUP_V4-2nd-unmerged/0000/182EA0C2-7057-DD11-9B09-000423D9880C.root')
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
-)
-process.RecoForDQM = cms.Sequence(process.SiStripRawToDigis*process.siStripZeroSuppression)
-process.p = cms.Path(process.SiStripMonitorCluster)
+process.RecoForDQM = cms.Sequence(process.siStripDigis*process.siStripZeroSuppression*process.siStripClusters)
+process.p = cms.Path(process.RecoForDQM*process.SiStripMonitorCluster)
 process.ep = cms.EndPath(process.outP)
-process.SiStripMonitorCluster.OutputMEsInRootFile = True
-process.SiStripMonitorCluster.SelectAllDetectors = True
-process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
 
