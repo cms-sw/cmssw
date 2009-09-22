@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.8 2009/08/24 14:31:11 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.9 2009/08/28 16:41:50 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -43,8 +43,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/28 16:41:50 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -147,6 +147,12 @@ namespace stor {
     void reset();
 
     /**
+     * Access alarm handler
+     */
+    typedef boost::shared_ptr<AlarmHandler> AlarmHandlerPtr;
+    AlarmHandlerPtr alarmHandler() { return _alarmHandler; }
+
+    /**
      * Update the variables put into the application info space
      */
     virtual void actionPerformed(xdata::Event&);
@@ -169,7 +175,7 @@ namespace stor {
     void updateInfoSpace();
 
     xdaq::Application* _app;
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
+    AlarmHandlerPtr _alarmHandler;
     utils::duration_t _monitoringSleepSec;
     utils::time_point_t _lastMonitorAction;
 

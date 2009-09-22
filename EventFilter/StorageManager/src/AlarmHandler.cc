@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.2 2009/08/20 14:15:22 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.3 2009/09/18 11:08:00 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -37,6 +37,7 @@ void AlarmHandler::raiseAlarm
   xcept::Exception& exception
 )
 {
+
   switch( level )
   {
     case OKAY:
@@ -74,6 +75,9 @@ bool AlarmHandler::raiseAlarm
   xcept::Exception& exception
 )
 {
+
+  boost::mutex::scoped_lock sl( _mutex );
+
   #if SENTINELUTILS_VERSION_MAJOR>1
   
   sentinel::utils::Alarm *alarm =
@@ -102,6 +106,9 @@ void AlarmHandler::revokeAlarm
   const std::string name
 )
 {
+
+  boost::mutex::scoped_lock sl( _mutex );
+
   #if SENTINELUTILS_VERSION_MAJOR>1
   
   sentinel::utils::Alarm *alarm;
