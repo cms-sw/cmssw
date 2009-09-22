@@ -42,10 +42,6 @@ muonValidationHLTFastSim_seq = cms.Sequence(
      +l2UpdMuonTrackFSV
      +l3MuonTrackFSV
      +l3TkMuonTrackFSV
-     +l3TkMuonMuTrackFSV
-     +l2MuonMuTrackFSV
-     +l2UpdMuonMuTrackFSV
-     +l3MuonMuTrackFSV
      )
 
 
