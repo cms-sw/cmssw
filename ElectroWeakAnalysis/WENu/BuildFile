@@ -11,7 +11,7 @@
 <use name=rootcore>
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=EWKSoftwareEWKEleSelectionOpt>
+   <lib name=ElectroWeakAnalysisWENu>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
