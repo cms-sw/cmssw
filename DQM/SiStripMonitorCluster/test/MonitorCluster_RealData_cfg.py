@@ -7,7 +7,7 @@ process = cms.Process("DQMOnlineRealData")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #        '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/0000721C-35A3-DD11-9132-001D09F291D7.root'
-       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/22CBBD11-07A3-DD11-9DFB-001D09F2447F.root'
+        '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/001404E1-0F8A-DE11-ADB3-000423D99EEE.root'
     )
 )
 process.maxEvents = cms.untracked.PSet(
@@ -35,7 +35,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.GlobalTag.globaltag = "GR09_31X_V6P::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------
