@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2009/09/22 14:08:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/22 14:11:43 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -67,21 +67,21 @@ class HLTHighLevelDev : public HLTFilter {
 
     /// for each trigger/pattern define a prescale.
     /// Only a subset of the events per trigger will be selected
-    std::vector<int> HLTPrescales_;
+    std::vector<uint32_t> HLTPrescales_;
     /// This variable stores the prescales after pattern matching and expansion
-    std::vector<int> HLTPrescalesExpanded_; 
+    std::vector<uint32_t> HLTPrescalesExpanded_; 
     /// Scalers for the prescaling, L1 style.
-    std::vector<int> HLTPrescalesScalers; 
+    std::vector<uint32_t> HLTPrescalesScalers; 
 
     /// You can define a prescale after the filter logic has been applied
     /// this is different from the single prescales. It can be applied on
     /// top of the single trigger prescales
-    int HLTOverallPrescale_ ;
-    int HLTOverallPrescalesScaler;
-    int nEvents;
+    uint32_t HLTOverallPrescale_ ;
+    uint32_t HLTOverallPrescalesScaler;
+    uint32_t nEvents;
 
     /// list of required HLT triggers by HLT name
-    std::vector<std::string>  HLTPathsByName_;
+    std::vector<std::string> HLTPathsByName_;
 
     /// list of required HLT triggers by HLT index
     std::vector<unsigned int> HLTPathsByIndex_;

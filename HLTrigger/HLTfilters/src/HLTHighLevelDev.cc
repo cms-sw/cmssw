@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/05/04 10:47:36 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/09/22 14:08:26 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -40,9 +40,9 @@ HLTHighLevelDev::HLTHighLevelDev(const edm::ParameterSet& iConfig) :
   eventSetupPathsKey_(iConfig.getParameter<std::string>("eventSetupPathsKey")),
   watchAlCaRecoTriggerBitsRcd_(0),
   HLTPatterns_  (iConfig.getParameter<std::vector<std::string> >("HLTPaths")),
-  HLTPrescales_ (iConfig.getParameter<std::vector<int> >("HLTPathsPrescales")),
+  HLTPrescales_ (iConfig.getParameter<std::vector<uint32_t> >("HLTPathsPrescales")),
   HLTPrescalesExpanded_(), 
-  HLTOverallPrescale_ (iConfig.getParameter<int>("HLTOverallPrescale")),
+  HLTOverallPrescale_ (iConfig.getParameter<uint32_t>("HLTOverallPrescale")),
   HLTPathsByName_(),
   HLTPathsByIndex_()
 {
@@ -55,7 +55,7 @@ HLTHighLevelDev::HLTHighLevelDev(const edm::ParameterSet& iConfig) :
       // We do not want double trigger path setting, so throw!
       throw cms::Exception("Configuration")
         << " HLTHighLevelDev instance: "<< iConfig.getParameter<std::string>("@module_label")
-        << "\n configured with " << HLTPatterns_.size()	<< " HLTPaths and\n"
+        << "\n configured with " << HLTPatterns_.size() << " HLTPaths and\n"
         << " eventSetupPathsKey " << eventSetupPathsKey_ << ", choose either of them.";
     }
     watchAlCaRecoTriggerBitsRcd_ = new edm::ESWatcher<AlCaRecoTriggerBitsRcd>;
@@ -89,6 +89,10 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
      HLTPatterns_ = this->pathsFromSetup(eventSetupPathsKey_, iSetup);
    }
 
+   // check the HLTPatterns_ and HLTPrescales_ have the same number of elements
+   if (HLTPatterns_.size() != HLTPrescales_.size())
+     throw cms::Exception("Configuration") << "HLTPrescales must have the same number of entries as HLTPatterns.";
+
    if (HLTPatterns_.empty()) {
      // for empty input vector, default to all HLT trigger paths
      n = result.size();
@@ -101,18 +105,10 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
        HLTPrescalesExpanded_[i] = 1;
      }
    } else {
-     // Synchronize the sizes of HLTPrescales and HLTPatterns
-     if (HLTPatterns_.size()< HLTPrescales_.size()) {
-       LogDebug("") << "HLTPrescales has more entries than HLTPatterns. Truncating it." << std::endl;
-       HLTPrescales_.resize(HLTPatterns_.size());
-     }
-     if (HLTPatterns_.size()> HLTPrescales_.size()) {
-       LogDebug("") << "HLTPrescales has less entries than HLTPatterns. Expanding it with prescales=1." << std::endl;
-       HLTPrescales_.resize(HLTPatterns_.size(),1);
-     }
-     unsigned int indexPath=0; // I have no better way to keep the HLTPatterns_ and HLTPrescales_ syncronized
      // otherwise, expand wildcards in trigger names...
+     std::vector<uint32_t>::const_iterator i_scale = HLTPrescales_.begin();
      BOOST_FOREACH(const std::string & pattern, HLTPatterns_) {
+       uint32_t scale = *(i_scale++);
        if (edm::is_glob(pattern)) {
          // found a glob pattern, expand it
          std::vector< std::vector<std::string>::const_iterator > matches = edm::regexMatch(triggerNames_.triggerNames(), pattern);
@@ -123,20 +119,16 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
            // store the matching patterns
            BOOST_FOREACH(std::vector<std::string>::const_iterator match, matches) {
              HLTPathsByName_.push_back(*match);
-             HLTPrescalesExpanded_.push_back(HLTPrescales_.at(indexPath));
+             HLTPrescalesExpanded_.push_back(scale);
            }
          }
-         indexPath++;
        } else {
          // found a trigger name, just copy it
          HLTPathsByName_.push_back(pattern);
-         HLTPrescalesExpanded_.push_back(HLTPrescales_.at(indexPath++));
+         HLTPrescalesExpanded_.push_back(scale);
        }
      }
      n = HLTPathsByName_.size();
-//  		 std::cout<<"HLTPathsByName_.size() = " <<n
-// 							<< " HLTPrescalesExpanded_.size() = "<<HLTPrescalesExpanded_.size()
-// 							<<std::endl;//RR
 
      // resizing and initializing the scalers
      HLTPrescalesScalers.resize(n, 0);
@@ -145,9 +137,6 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
      // ...and get hold of trigger indices
      HLTPathsByIndex_.resize(n);
      for (unsigned int i = 0; i < HLTPathsByName_.size(); i++) {
-// 			 std::cout<<"HLTPathsByName_.at("<<i<<") = "<<HLTPathsByName_.at(i)
-// 								<<"\tHLTPrescalesExpanded_.at("<<i<<") = "<<HLTPrescalesExpanded_.at(i)
-// 								<<std::endl;//RR
        HLTPathsByIndex_[i] = triggerNames_.triggerIndex(HLTPathsByName_[i]);
        if (HLTPathsByIndex_[i] >= result.size()) {
          // trigger path not found
@@ -226,17 +215,16 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    unsigned int n     = HLTPathsByName_.size();
    unsigned int nbad  = 0;
    unsigned int fired = 0;
-   bool andFired = true;
+   bool allFired = true;
 
    // count invalid and fired triggers
    for (unsigned int i = 0; i < n; i++) {
      if (HLTPathsByIndex_[i] == (unsigned int) -1)
        ++nbad;
-     else if (     trh->accept(HLTPathsByIndex_[i]) and (HLTPrescalesScalers[i] % HLTPrescalesExpanded_[i] == 0))  // get OR
+     else if (trh->accept(HLTPathsByIndex_[i]) and (HLTPrescalesScalers[i]++ % HLTPrescalesExpanded_[i] == 0))
        ++fired;
-     else if (not (trh->accept(HLTPathsByIndex_[i]) and (HLTPrescalesScalers[i] % HLTPrescalesExpanded_[i] == 0))) // get AND
-       andFired = false;
-     if (trh->accept(HLTPathsByIndex_[i])) ++HLTPrescalesScalers[i];
+     else
+       allFired = false;
    }
 
    if ((nbad > 0) and (config_changed or throw_)) {
@@ -266,20 +254,9 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
-// 	 for (unsigned int i = 0; i < n; i++) {//RR
-// 		 std::cout<<"nEvents = "<<nEvents
-// 							<<"\tHLTPathsByName_["<<i<<"] = "<<HLTPathsByName_[i]
-// 							<<"\taccept = "<<trh->accept(HLTPathsByIndex_[i])
-// 							<<"\tHLTPrescalesScalers["<<i<<"] = "<<HLTPrescalesScalers[i]
-// 							<<"\tfired = "<<fired
-// 							<<"\tandFired = "<<andFired
-// 							<<std::endl;//RR
-// 	 }
-// 	 std::cout<<std::endl;//RR
-
    // Boolean filter result (always at least one trigger)
-//    const bool accept( (fired > 0) and ( andOr_ or (fired == n-nbad) ) );
-   const bool accept( (fired > 0) and ( andOr_ or andFired ) );
+// const bool accept( (fired > 0) and ( andOr_ or (fired == n-nbad) ) );
+   const bool accept( (fired > 0) and ( andOr_ or allFired ) );
    LogDebug("") << "Accept = " << std::boolalpha << accept;
 
    return (accept and ((HLTOverallPrescalesScaler++) % HLTOverallPrescale_ == 0));
