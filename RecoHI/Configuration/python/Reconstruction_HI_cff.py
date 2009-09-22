@@ -20,6 +20,16 @@ from RecoHI.HiMuonAlgos.HiRecoMuon_cff import *
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
+# Global + High-Level Reco Sequence
+globalRecoPbPb = cms.Sequence(heavyIonTracking
+                              * muonRecoPbPb
+                              * hiEcalClusters
+                              * runjets
+                              * hiEgammaSequence
+                              * hiCentrality
+                              * hiEvtPlane
+                              )
+
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 
 # in Configuration.StandardSequences.ReconstructionHeavyIons_cff
