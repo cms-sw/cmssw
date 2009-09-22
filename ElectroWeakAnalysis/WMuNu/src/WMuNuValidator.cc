@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "TH1D.h"
 #include <map>
 

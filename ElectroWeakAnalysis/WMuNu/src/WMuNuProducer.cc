@@ -6,32 +6,6 @@
 // system include files
 #include <memory>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-
-#include "DataFormats/GeometryVector/interface/Phi.h"
-
-#include "FWCore/Framework/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
-#include "DataFormats/Common/interface/View.h"
-
-#include "DataFormats/Candidate/src/CompositeCandidate.cc"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "ElectroWeakAnalysis/WMuNu/interface/WMuNuCandidate.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 
 class WMuNuProducer : public edm::EDProducer {
 public:
@@ -65,6 +39,35 @@ private:
 
 
 };
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+
+#include "DataFormats/GeometryVector/interface/Phi.h"
+
+#include "FWCore/Framework/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "DataFormats/Common/interface/View.h"
+
+#include "DataFormats/Candidate/src/CompositeCandidate.cc"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "ElectroWeakAnalysis/WMuNu/interface/WMuNuCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+
+
   
 using namespace edm;
 using namespace std;

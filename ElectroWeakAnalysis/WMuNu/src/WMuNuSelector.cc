@@ -17,6 +17,8 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -60,9 +62,7 @@ private:
   std::map<std::string,TH2D*> h2_;
 
 };
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
