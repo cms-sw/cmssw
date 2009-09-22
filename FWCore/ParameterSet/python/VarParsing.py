@@ -12,20 +12,25 @@ class VarParsing (object):
 
     multiplicity = Enumerate ("singleton list", "multiplicity")
     varType      = Enumerate ("int float string tagString")
+    commaRE      = re.compile (r',')
 
 
     def __init__ (self, *args):
         """Class initializer"""
         # Set everything up first
-        self._singletons = {}
-        self._lists      = {}
-        self._register   = {}
-        self._beenSet    = {}
-        self._info       = {}
-        self._types      = {}
-        self._maxLength  = 0
-        self._tags       = {}
-        self._tagOrder   = []
+        self._singletons       = {}
+        self._lists            = {}
+        self._register         = {}
+        self._beenSet          = {}
+        self._info             = {}
+        self._types            = {}
+        self._maxLength        = 0
+        self._tags             = {}
+        self._tagOrder         = []
+        self._noCommaSplit     = {}
+        self._noDefaultClear   = {}
+        self._setDuringParsing = {}
+        self._currentlyParsing = False
         # now play with the rest
         for arg in args:
             lower = arg.lower()
@@ -34,7 +39,7 @@ class VarParsing (object):
                                '',
                                VarParsing.multiplicity.singleton,
                                VarParsing.varType.string,
-                               "Prepend locaition of files starting "
+                               "Prepend location of files starting "
                                "with '/store'")
                 # Don't continue because we want to process the next
                 # piece, too.
@@ -145,6 +150,7 @@ class VarParsing (object):
         """Parses command line arguments.  Parsing starts just after
         the name of the configuration script.  Parsing will fail if
         there is not 'xxxx.py'"""
+        self._currentlyParsing = True
         foundPy      = False
         printStatus  = False
         help         = False
@@ -212,10 +218,12 @@ class VarParsing (object):
                 else:
                     # simple command
                     command = arg.lower()
-                    if command == 'help':
+                    if command == 'help' or command == '--help':
                         help = True
-                    elif command == 'print':
+                    elif command == 'print' or command == '--print':
                         printStatus = True
+                    elif command == 'noprint' or command == '--noprint':
+                        printStatus = False
                     else:
                         # We don't understand this command
                         print "Do not understand command '%s'" % (arg)
@@ -229,18 +237,27 @@ class VarParsing (object):
            self._register.has_key ('section') and \
            self._register.has_key ('inputFiles') and \
            self.totalSections and self.section:
-            self.inputFiles = sectionNofTotal (self.inputFiles,
+            # copy list
+            oldInputFiles = self.inputFiles
+            # clear list
+            self.clearList ('inputFiles')
+            # used old list to make list
+            self.inputFiles = sectionNofTotal (oldInputFiles,
                                                self.section,
                                                self.totalSections)
         # storePrepend
         if self._register.has_key ('storePrepend') and \
-           self._register.has_key ('inputFiles'):
+           self._register.has_key ('inputFiles') and \
+           self.storePrepend:
             storeRE = re.compile (r'^/store/')
             newFileList = []
             for filename in self.inputFiles:
                 if storeRE.match (filename):
                     filename = self.storePrepend + filename
                 newFileList.append (filename)
+            # clear old list
+            self.clearList ('inputFiles')
+            # set new list as list
             self.inputFiles = newFileList
         # make sure found the py file
         if not foundPy:
@@ -250,8 +267,8 @@ class VarParsing (object):
         if help:
             self.help()
         if printStatus:
-            print "Printing status"
             print self
+        self._currentlyParsing = False
 
 
     def clearList (self, name):
@@ -260,12 +277,36 @@ class VarParsing (object):
             print "Error:  '%s' not registered." \
                   % name
             raise RuntimeError, "Unknown variable"
-        if self._register[name] == \
-               VarParsing.multiplicity.list:
-            self._lists[name] = []
-        else:
+        if self._register[name] != VarParsing.multiplicity.list:
             print "Error: '%s' is not a list" % name
             raise RuntimeError, "Faulty 'clear' command"
+        # if we're still here, do what we came to do
+        self._lists[name] = []
+
+
+    def setNoDefaultClear (self, name, value=True):
+        """Tells lists to not clear default list values when set from
+        command line."""
+        if not self._register.has_key (name):
+            print "Error:  '%s' not registered." \
+                  % name
+            raise RuntimeError, "Unknown variable"
+        if self._register[name] != VarParsing.multiplicity.list:
+            print "Error: '%s' is not a list" % name
+            raise RuntimeError, "Faulty 'setNoDefaultClear' command"
+        self._noDefaultClear[name] = bool (value)
+
+
+    def setNoCommaSplit (self, name, value=True):
+        """Tells lists to not split up values by commas."""
+        if not self._register.has_key (name):
+            print "Error:  '%s' not registered." \
+                  % name
+            raise RuntimeError, "Unknown variable"
+        if self._register[name] != VarParsing.multiplicity.list:
+            print "Error: '%s' is not a list" % name
+            raise RuntimeError, "Faulty 'setNoCommaSplit' command"
+        self._noCommaSplit[name] = bool (value)
 
 
     def loadFromFile (self, name, filename):
@@ -306,7 +347,8 @@ class VarParsing (object):
                   default = "",
                   mult    = multiplicity.singleton,
                   mytype  = varType.int,
-                  info    = ""):
+                  info    = "",
+                  **kwargs):
         """Register a variable"""
         # is type ok?
         if not VarParsing.multiplicity.isValidValue (mult):
@@ -345,6 +387,19 @@ class VarParsing (object):
             # does exist.
             if len (default):
                 self._lists[name].append (default)
+        #######################################
+        ## Process any additional directives ##
+        #######################################
+        # do we want to tell the list to not split command line
+        # arguments by commas?
+        if kwargs.get ('noCommaSplit'):
+            self._noCommaSplit[name] = bool( kwargs['noCommaSplit'] )
+            del kwargs['noCommaSplit']
+        if kwargs.get ('noDefaultClear'):
+            self._noDefaultClear[name] = bool( kwargs['noDefaultClear'] )
+            del kwargs['noDefaultClear']
+        if len (kwargs):
+            raise RuntimeError, "register() Unknown arguments %s" % kwargs
 
 
     def has_key (self, key):
@@ -379,6 +434,23 @@ class VarParsing (object):
                 raise RuntimeError, "setDefault args problem"
             self._singletons[name] = self._convert (name, args[0])
         else:
+            # If:
+            #   - We have a list (which we do)
+            #   - We are now processing command line parsing
+            #   - It has not yet been set after parsing
+            #   - We have not explicitly asked for it to be NOT cleared
+            # Then:
+            #   - We clear the list
+            if self._currentlyParsing and \
+               not self._setDuringParsing.get(name) and \
+               not self._noDefaultClear.get(name):
+                # All four conditions have been satisfied, so let's go
+                # ahead and clear this.
+                self.clearList (name)
+            # IF we are currently parsing, then tell people I've set
+            # this:
+            if self._currentlyParsing:
+                self._setDuringParsing[name] = True
             # if args is a tuple and it only has one entry, get rid of
             # the first level of tupleness:
             if isinstance (args, tuple) and len (args) == 1:
@@ -386,9 +458,16 @@ class VarParsing (object):
             # is this still a tuple
             if isinstance (args, tuple):
                 mylist = list (args)
+            elif isinstance (args, list):
+                mylist = args
             else:
                 mylist = []
                 mylist.append (args)
+            if not self._noCommaSplit.get (name):
+                oldList = mylist
+                mylist = []
+                for item in oldList:
+                    mylist.extend( VarParsing.commaRE.split( item ) )
             for item in mylist:
                 self._lists[name].append( self._convert (name, item ) )
 
