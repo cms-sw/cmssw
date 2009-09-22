@@ -54,7 +54,6 @@ process.selcorMet = cms.EDFilter("WMuNuSelector",
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus:WMuNuCandidates"),
 
       # Main cuts ->
-      UseTrackerPt = cms.untracked.bool(True),
       PtCut = cms.untracked.double(25.0),
       EtaCut = cms.untracked.double(2.1),
       IsRelativeIso = cms.untracked.bool(True),

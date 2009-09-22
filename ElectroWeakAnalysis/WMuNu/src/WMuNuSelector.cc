@@ -16,7 +16,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "TH1D.h"
 #include "TH2D.h"
@@ -35,7 +34,6 @@ private:
   bool metIncludesMuons_;
   edm::InputTag jetTag_;
   edm::InputTag WMuNuCollectionTag_;
-  bool useTrackerPt_;
   double ptCut_;
   double etaCut_;
   bool isRelativeIso_;
@@ -103,7 +101,6 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       WMuNuCollectionTag_(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus"))),
 
       // Main cuts 
-      useTrackerPt_(cfg.getUntrackedParameter<bool>("UseTrackerPt", true)),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
@@ -163,14 +160,14 @@ void WMuNuSelector::beginJob(const EventSetup &) {
 void WMuNuSelector::endJob() {
       double esel = nsel/nall;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of events passing pre-selection: " << nall << " [events]";
+      LogVerbatim("") << "Total numer of events pre-selected: " << nall << " [events]";
       LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
 
      if ( fabs(selectByCharge_)==1 ){
       esel = nsel/ncharge;
       LogVerbatim("") << "\n>>>>>> W+(-) SELECTION >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of W+(-) events passing pre-selection: " << ncharge << " [events]";
+      LogVerbatim("") << "Total numer of W+(-) events pre-selected: " << ncharge << " [events]";
       LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Selection Efficiency only W+(-): " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/ncharge)*100. << ")%";    
      }
@@ -224,7 +221,6 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
             // Pt,eta cuts
             double pt = mu.pt();
-            if (useTrackerPt_) pt = tk->pt();
             double eta = mu.eta();
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
                   if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
@@ -274,8 +270,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... Met  pt: "<<WMuNu.getNeutrino().pt()<<"[GeV]";
 
 
-            double massT = WMuNu.massT(useTrackerPt_);
-            double w_et = WMuNu.eT(useTrackerPt_);
+            double massT = WMuNu.massT();
+            double w_et = WMuNu.eT();
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << WMuNu.px() << ", " << WMuNu.py() << " [GeV]";
 
@@ -297,8 +293,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             }
 
 
-            if (massT<mtMin_ && massT>mtMax_)  return 0;
-            if (met_et<metMin_ && met_et>metMax_) return 0;
+            if (massT<mtMin_ || massT>mtMax_)  return 0;
+            if (met_et<metMin_ || met_et>metMax_) return 0;
 
             LogTrace("") << ">>>> Event ACCEPTED";
             nsel++;

@@ -25,30 +25,20 @@ WMuNuCandidate::~WMuNuCandidate()
 {
 }
 
-double WMuNuCandidate::eT(bool useTrackPt) const{
+double WMuNuCandidate::eT() const{
  double e_t=0; 
- if(useTrackPt) {e_t=muon_->innerTrack()->pt()+neutrino_->pt();}  
- else {
-     e_t=muon_->pt()+neutrino_->pt();}
+     e_t=muon_->pt()+neutrino_->pt();
  return e_t; 
 }
 
-double WMuNuCandidate::massT(bool useTrackPt) const{
+double WMuNuCandidate::massT() const{
       // Candidates have a mt() function which computes the tranverse mass from E & pz. 
       // As MET does not have pz information... WMuNuCandidates have an alternative function to compute the mt quantity
       // used in the WMuNu Inclusive analysis just from px, py
- 
-      double wpx=0, wpy=0;
-      //"UseTrackPt" uses the tracker momentum instead of the global momentum.  
-       if (useTrackPt){
-          wpx=muon_->innerTrack()->px()+neutrino_->px(); 
-          wpy=muon_->innerTrack()->py()+neutrino_->py();
-       } else {wpx=px(); wpy=py();}
-
-       double mt = eT(useTrackPt)*eT(useTrackPt) - wpx*wpx - wpy*wpy;
- 
-       mt = (mt>0) ? sqrt(mt) : 0;
-       return mt; 
+      double wpx=px(); double wpy=py();
+      double mt = eT()*eT() - wpx*wpx - wpy*wpy;
+      mt = (mt>0) ? sqrt(mt) : 0;
+      return mt; 
 }
 
 double WMuNuCandidate::acop() const{

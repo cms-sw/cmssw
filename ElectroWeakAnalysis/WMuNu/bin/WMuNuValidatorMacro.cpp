@@ -62,6 +62,7 @@ int main(int argc, char** argv){
   gStyle->SetPadGridX(true);
   gStyle->SetPadGridY(true);
   gStyle->SetOptStat(1111111);
+  gStyle->SetFillColor(0);
 
   TPad* pad[4];
   pad[0] = new TPad("pad_tl","The top-left pad",0.01,0.48,0.49,0.92); 

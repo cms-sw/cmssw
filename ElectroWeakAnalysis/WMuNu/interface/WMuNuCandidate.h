@@ -30,10 +30,9 @@ public:
       // As MET does not have pz information... WMuNuCandidates have an alternative function used in the WMuNu Inclusive Analysis
       // to compute mt just from px, py:
       // Transverse Mass from px, py:
-      double massT(bool useTrackPt=false) const;
+      double massT() const;
       // Transverse Energy from px, py:
-      double eT(bool useTrackPt=false) const;
-      // "useTrackPt" allows to compute massT from tracker momentum instead of global momentum.
+      double eT() const;
 
       // Acoplanarity between the muon and the MET
       double acop() const;
@@ -43,6 +42,8 @@ public:
 
 
 private:
+
+
       edm::Ptr<Muon> muon_;
       edm::Ptr<MET>  neutrino_;  
 };

@@ -52,7 +52,6 @@ private:
 
   bool applyPreselection_;
   const std::string muonTrig_;
-  bool useTrackerPt_;
   double ptThrForZ1_;
   double ptThrForZ2_;
   double eJetMin_;
@@ -82,7 +81,6 @@ WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
       // Preselection cuts 
       applyPreselection_(cfg.getUntrackedParameter<bool>("ApplyPreselection",true)),
       muonTrig_(cfg.getUntrackedParameter<std::string>("MuonTrig", "HLT_Mu9")),
-      useTrackerPt_(cfg.getUntrackedParameter<bool>("UseTrackerPt", true)),
       ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
       ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
       eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
@@ -155,11 +153,6 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
             double pt = mu.pt();
-            if (useTrackerPt_) {
-                  reco::TrackRef tk = mu.innerTrack();
-                  if (mu.innerTrack().isNull()) continue;
-                  pt = tk->pt();
-            }
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
       }
@@ -190,14 +183,14 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
       // Preselection of events: ensure there is 1 and only 1 muon candidate to build the W... This is only for the Inclusive Analysis
       if(applyPreselection_){ 
       if (!trigger_fired) return;
-      if (nmuonsForZ1>=0 && nmuonsForZ2>=2) return;
+      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) return;
       if (njets>nJetMax_) return;
       } 
       npresel ++;   
       
 
-      double MaxPt[5]={0,0,0,0,0};
-      int Maxi[5]={0,0,0,0,0};
+      double MaxPt[10]={0,0,0,0,0,0,0,0,0,0};
+      int Maxi[10]={0,0,0,0,0,0,0,0,0,0};
       int nmuons=0;
       // Now order remaining Muons by Pt  - there should be only one if preselection has been applied
        
@@ -211,7 +204,6 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             reco::TrackRef tk = mu.innerTrack();
 
             double pt = mu.pt();
-            if (useTrackerPt_) pt = tk->pt();
           
             nmuons++; 
            
@@ -221,7 +213,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             }while(!foundPosition);
                
      }
-     if (nmuons<1) return;
+     if (nmuons<0) return;
 
      auto_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
 
@@ -230,12 +222,13 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
  
      for (int indx=0; indx<nmuons; indx++){ 
      int MuonIndx=Maxi[indx]; 
+     const Muon& Muon = muonCollection->at(MuonIndx);
      edm::Ptr<reco::Muon> muon(muonCollection,MuonIndx);
    
       // Build WMuNuCandidate
       LogTrace("")<<"Building WMuNu Candidate!"; 
       WMuNuCandidate* WCand = new WMuNuCandidate(muon,met); 
-      LogTrace("") << "\t... W mass, W_et, W_px, W_py: "<<WCand->massT(useTrackerPt_)<<", "<<WCand->eT(useTrackerPt_)<<"[GeV]";
+      LogTrace("") << "\t... W mass, W_et, W_px, W_py: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
       LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
       LogTrace("") << "\t... acop  " << WCand->acop();
       LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
