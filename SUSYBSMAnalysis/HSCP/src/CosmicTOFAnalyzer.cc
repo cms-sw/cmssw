@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Sun Dec  7 12:41:44 CET 2008
-// $Id: CosmicTOFAnalyzer.cc,v 1.4 2009/03/09 10:33:35 arizzi Exp $
+// $Id: CosmicTOFAnalyzer.cc,v 1.5 2009/03/25 11:07:14 arizzi Exp $
 //
 //
 
@@ -78,6 +78,7 @@ struct DiMuonEvent
  float t0e;
  float t1e;
  float deltaT;
+ float deltaTs;
 //momentum
  float pt0;
  float pt1;
@@ -120,6 +121,7 @@ struct MuonCollectionDataAndHistograms
 
       TH1F * diff;
       TH1F * pull;
+      TH1F * diffSingleOffsetCorrected;
       TH1F * diffBiasCorrected;
       TH1F * diffBiasCorrectedErr;
       TH1F * diffBiasCorrectedErrPtCut;
@@ -127,11 +129,16 @@ struct MuonCollectionDataAndHistograms
       TProfile * diffBiasCorrectedErrPt;
       TProfile * diffBiasCorrectedVsErr;
 
+      TH1F * single[5][15];
       TH1F * pairs[5][15][5][15];
+      float sbias[5][15];
+      float srms[5][15];
+      float spoints[5][15];
       float bias[5][15][5][15];
       float rms[5][15][5][15];
       float points[5][15][5][15];
       TFileDirectory * biasSubDir;
+      TFileDirectory * singleSubDir;
 };
 
 class CosmicTOFAnalyzer : public edm::EDFilter {
@@ -298,6 +305,7 @@ h_[collName].event.t1 = 0;
 h_[collName].event.t0e = 0;
 h_[collName].event.t1e = 0;
 h_[collName].event.deltaT = 0;
+h_[collName].event.deltaTs = 0;
 h_[collName].event.pt0=0;
 h_[collName].event.pt1=0;
 h_[collName].event.eta0=0;
@@ -373,9 +381,24 @@ if(s0 ==0 || s1 ==0)
 
 if(muon0.pt() > 20 && muon1.pt()  > 20)  h_[collName].pairs[w0+2][s0][w1+2][s1]->Fill(t0-t1);
 
+if(muon0.pt() > 20)  h_[collName].single[w0+2][s0]->Fill(t0);
+if(muon1.pt() > 20)  h_[collName].single[w1+2][s1]->Fill(t1);
+
+if(h_[collName].spoints[w0+2][s0]>=50 && h_[collName].spoints[w1+2][s1]>=50)
+{
+// correct with individual biases
+      h_[collName].diffSingleOffsetCorrected->Fill( (t0-h_[collName].sbias[w0+2][s0])-(t1-h_[collName].sbias[w1+2][s1]));
+      h_[collName].event.deltaTs = (t0-h_[collName].sbias[w0+2][s0])-(t1-h_[collName].sbias[w1+2][s1]); 
+}
+else 
+{
+  h_[collName].event.deltaTs = -1000;
+} 
+
  // use only sectors for which we do know the bias quite well (at least 50 measurement)
  if(h_[collName].points[w0+2][s0][w1+2][s1]>=50) 
  { 
+// correct using pair bias
       h_[collName].diffBiasCorrected->Fill(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1]);
       float error = sqrt(mt0.timeAtIpInOutErr*mt0.timeAtIpInOutErr  + mt1.timeAtIpInOutErr *mt1.timeAtIpInOutErr ); 
       h_[collName].diffBiasCorrectedVsErr->Fill(error ,abs(t0-t1-h_[collName].bias[w0+2][s0][w1+2][s1])); 
@@ -474,13 +497,14 @@ CosmicTOFAnalyzer::beginJob(const edm::EventSetup&)
 
 void CosmicTOFAnalyzer::initBranch(std::string collName, TTree * t)
 {
-   h_[collName].branch = t->Branch(collName.c_str(),&(h_[collName].event),"t0:t1:t0e:t1e:deltaT:pt0:pt1:eta0:eta1:phi0:phi1:nh0:nh1:s0:s1:w0:w1:y0:y1:ev:run");
+   h_[collName].branch = t->Branch(collName.c_str(),&(h_[collName].event),"t0:t1:t0e:t1e:deltaT:deltaTs:pt0:pt1:eta0:eta1:phi0:phi1:nh0:nh1:s0:s1:w0:w1:y0:y1:ev:run");
 
 }
 
 void CosmicTOFAnalyzer::readBias(std::string collName)
 {
   ifstream f((collName+"_input-bias.txt").c_str());
+  std::cout << collName+"_input-bias.txt" <<std::endl;
 
   while(!f.eof())
   {
@@ -495,6 +519,23 @@ void CosmicTOFAnalyzer::readBias(std::string collName)
    h_[collName].rms[w0][s0][w1][s1] = r;
    std::cout << w0 << " " << s0 << " " << w1 << " "<< s1 <<" " << b << " " << p << " " << r <<  std::endl;
   }
+  std::cout << collName+"_input-singleOffset.txt" <<std::endl;
+  ifstream f1((collName+"_input-singleOffset.txt").c_str());
+
+  while(!f1.eof())
+  {
+   int w0,s0;
+   float b,r,p;
+
+   f1 >>  w0 >> s0 >> p >>  b >> r;
+   if (!f1.good()) break;
+
+   h_[collName].spoints[w0][s0] = p;
+   h_[collName].sbias[w0][s0] = b;
+   h_[collName].srms[w0][s0] = r;
+   std::cout << w0 << " " << s0 << " " << b << " " << p << " " << r <<  std::endl;
+  }
+
 
 }
 
@@ -505,6 +546,7 @@ void CosmicTOFAnalyzer::initHistos(std::string collName)
   h_[collName].diff = h_[collName].subDir->make<TH1F>("Diff","Diff", 100,-50,50);
   h_[collName].pull = h_[collName].subDir->make<TH1F>("Pulls","Pulls", 100,-5,5);
   h_[collName].diffBiasCorrected = h_[collName].subDir->make<TH1F>("DiffBiasSub","DiffBiasSub", 100,-50,50);
+  h_[collName].diffSingleOffsetCorrected = h_[collName].subDir->make<TH1F>("DiffSingleOffsetSub","DiffSingleOffsetSub", 100,-50,50);
   h_[collName].diffBiasCorrectedErr = h_[collName].subDir->make<TH1F>("DiffBiasSubErr","DiffBiasSub (Err1 && Err2 < 10)", 100,-50,50);
   h_[collName].diffBiasCorrectedErrPtCut = h_[collName].subDir->make<TH1F>("DiffBiasSubErrPtCut","DiffBiasSub (Pt > 50)", 100,-50,50);
   h_[collName].diffBiasCorrectedErrPtCutPhiCut = h_[collName].subDir->make<TH1F>("DiffBiasSubErrPtCutPhiCut","DiffBiasSub (Pt > 50 && |phi+pi/2| < pi/4)", 100,-50,50);
@@ -534,6 +576,15 @@ void CosmicTOFAnalyzer::initHistos(std::string collName)
           s<< "W" << w1-2 <<"S" << s1 << "_VS_" << "W" << w2-2 <<"S" << s2  ;
           h_[collName].pairs[w1][s1][w2][s2] = h_[collName].biasSubDir->make<TH1F>(s.str().c_str(),s.str().c_str(), 100,-50,50);
       } 
+
+  h_[collName].singleSubDir = new TFileDirectory(fs->mkdir( (collName+"SingleOffset").c_str() ));
+  for(int w1=0;w1<5;w1++)
+   for(int s1=1;s1<15;s1++)
+      {
+          std::stringstream s;
+          s<< "W" << w1-2 <<"S" << s1  ;
+          h_[collName].single[w1][s1] = h_[collName].singleSubDir->make<TH1F>(s.str().c_str(),s.str().c_str(), 100,-50,50);
+      }
 
 
 }
@@ -573,6 +624,26 @@ CosmicTOFAnalyzer::writeBias(std::string collName) {
           //              cout <<  "W" << w1-2 <<"S" << s1 << "_VS_" << "W" << w2-2 <<"S : NOSTAT"  << endl ;
             }
       }
+
+  ofstream f1((collName+"_output-singleOffset.txt").c_str());
+  for(int w1=0;w1<5;w1++)
+    for(int s1=1;s1<15;s1++)
+      {
+          if(h_[collName].single[w1][s1]->GetEntries() > 0)
+            {
+             f1 << w1 << " " << s1 << " " << h_[collName].single[w1][s1]->GetEntries() << " " <<  h_[collName].single[w1][s1]->GetMean() << " " <<  h_[collName].single[w1][s1]->GetRMS() << endl;
+      /*       cout <<  "W" << w1-2 <<"S" << s1 << "_VS_" << "W" << w2-2 <<"S "  << s2 << " " <<  w1<< " " <<s1<< " " <<w2 << " " << s2 << " :";
+             cout << " Entries : " << h_[collName].pairs[w1][s1][w2][s2]->GetEntries() ;
+             cout << " Avg : " << h_[collName].pairs[w1][s1][w2][s2]->GetMean() ;
+             cout << " RMS : " << h_[collName].pairs[w1][s1][w2][s2]->GetRMS() ;
+             cout << endl;
+        */    }
+             else
+            {
+          //              cout <<  "W" << w1-2 <<"S" << s1 << "_VS_" << "W" << w2-2 <<"S : NOSTAT"  << endl ;
+            }
+      }
+
 
 
 }
