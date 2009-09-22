@@ -79,7 +79,7 @@ namespace edm {
       //      using namespace boost::lambda;
       for(typename map_type::iterator i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
 	map_assoc & v = i->second;
-	double std::pair<index, Q>:: *quality = &std::pair<index, Q>::second;
+	Q std::pair<index, Q>::*quality = &std::pair<index, Q>::second;
 	std::sort(v.begin(), v.end(),
 		  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
       }
