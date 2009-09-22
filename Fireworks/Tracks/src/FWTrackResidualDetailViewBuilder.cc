@@ -107,20 +107,30 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
    TCanvas* histCanvas = ec->GetCanvas();
    histCanvas->SetHighLightColor(-1);
 
-   // draw histogram
-   histCanvas->cd();
 
-   TPad* padX = new TPad("pad1","pad1",0.3,0.05,1,0.95);
-   padX->SetBorderMode(0);
-   histCanvas->cd();
-   padX->Draw();
-
+  
    TH2F* h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,m_ndet,0,m_ndet);
    const char* res_str= "residuals in Si detector local x-y coord.";
    const char* title = "residual";
+
+   // draw histogram
+   histCanvas->cd();
+   TPaveText *pt = new TPaveText(0.05,0.915,0.95,0.995,"blNDC");
+   pt->SetBorderSize(0);
+   pt->AddText(res_str);
+   pt->Draw();
+
+   histCanvas->cd();
+
+   TPad* padX = new TPad("pad1","pad1",0.3,0.25,1,0.85);
+   padX->SetBorderMode(0);
+   histCanvas->cd();
+   padX->Draw();
    padX->cd();
-   padX->SetLeftMargin(0.2);
-   padX->SetRightMargin(0.2);
+   //padX->SetTopMargin(0.2);
+   //padX->SetBottomMargin(0.2);
+    padX->SetLeftMargin(0.28);
+   //padX->SetRightMargin(0.2);
    padX->Range(-7.7,-1.5,6.966667,13.5);
    padX->SetFrameLineWidth(0);
    padX->Modified();
@@ -137,12 +147,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
    h_res->Draw();
    padX->SetGridy();
 
-   TPaveText *pt = new TPaveText(0.05,0.915,0.95,0.995,"blNDC");
-   pt->SetName("mytitle");
-   pt->SetBorderSize(0);
-   pt->AddText(res_str);
-   pt->Draw();
-
+   
    histCanvas->cd();
 
    float larray[9]={0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.5, 4.5, 5.5};
