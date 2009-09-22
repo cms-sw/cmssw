@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/09/22 14:54:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/22 15:48:36 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -218,7 +218,7 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (unsigned int i = 0; i < n; i++) {
      if (HLTPathsByIndex_[i] == (unsigned int) -1)
        ++nbad;
-     else if (trh->accept(HLTPathsByIndex_[i]) and (HLTPrescalesScalers[i]++ % HLTPrescalesExpanded_[i] == 0))
+     else if (trh->accept(HLTPathsByIndex_[i]) and HLTPrescalesExpanded_[i] and (HLTPrescalesScalers[i]++ % HLTPrescalesExpanded_[i] == 0))
        ++fired;
      else
        allFired = false;
@@ -256,7 +256,7 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const bool accept( (fired > 0) and ( andOr_ or allFired ) );
    LogDebug("") << "Accept = " << std::boolalpha << accept;
 
-   return (accept and ((HLTOverallPrescalesScaler_++) % HLTOverallPrescale_ == 0));
+   return (accept and HLTOverallPrescale_ and ((HLTOverallPrescalesScaler_++) % HLTOverallPrescale_ == 0));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
