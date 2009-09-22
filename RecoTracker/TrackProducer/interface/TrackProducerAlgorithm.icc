@@ -150,7 +150,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
       try{
 	const T * theT = i->key.get();
 
-	LogDebug("TrackProducer") << "Running Refitter with Momentum Constraint. p=" << i->val->first << " err=" << i->val->second;
+	LogDebug("TrackProducer") << "Running Refitter with Momentum Constraint. p=" << i->val->momentum << " err=" << i->val->error;
 
 	float ndof=0;
 	PropagationDirection seedDir = theT->seedDirection();
@@ -163,8 +163,8 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
-	double mom = i->val->first;//10;
-	double err = i->val->second;//0.01;
+	double mom = i->val->momentum;//10;
+	double err = i->val->error;//0.01;
 	TransientTrackingRecHit::RecHitPointer testhit = 
 	  TRecHit1DMomConstraint::build(((int)(theInitialStateForRefitting.charge())),
 					mom,err,

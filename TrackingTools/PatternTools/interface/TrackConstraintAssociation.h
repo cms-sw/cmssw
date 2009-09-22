@@ -5,7 +5,16 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-typedef std::pair<double,double> MomentumConstraint;
+
+//typedef std::pair<double,double> MomentumConstraint;
+struct MomentumConstraint {
+  MomentumConstraint(const double & f, const double & s) :momentum(f),error(s){}
+  MomentumConstraint() : momentum(0), error(0) {}
+  
+  double momentum;
+  double error;
+};
+
 typedef std::pair<GlobalPoint,GlobalError> VertexConstraint;
 
 typedef edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint> > > TrackMomConstraintAssociationCollection;
