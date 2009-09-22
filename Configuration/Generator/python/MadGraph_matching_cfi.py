@@ -1,9 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring(
-    'file:../../../GeneratorInterface/Pythia6Interface/test/ttbar_5flavours_xqcut20_10TeV.lhe')
-)
+#
+# this is a leftover from an "intermediate" version of cmsDriver
+# we keep it here so far, as an example for 311/312 and 32x, 
+# but starting 313 the machinery has been updated, and also 330pre4
+#
+#source = cms.Source("LHESource",
+#    fileNames = cms.untracked.vstring(
+#    'file:../../../GeneratorInterface/Pythia6Interface/test/ttbar_5flavours_xqcut20_10TeV.lhe')
+#)
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 generator = cms.EDFilter("Pythia6HadronizerFilter",
