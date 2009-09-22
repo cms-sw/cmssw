@@ -45,7 +45,7 @@ void PdfSystematicsAnalyzer::beginJob(const edm::EventSetup& eventSetup){
 /////////////////////////////////////////////////////////////////////////////////////
 void PdfSystematicsAnalyzer::endJob(){
       edm::LogVerbatim("PDFAnalysis") << "\n>>>> Begin of PDF weight systematics summary >>>>";
-      edm::LogVerbatim("PDFAnalysis") << "Analyzed (reference): " << originalEvents_ << " [events]";
+      edm::LogVerbatim("PDFAnalysis") << "Analyzed data (reference): " << originalEvents_ << " [events]";
       if (originalEvents_==0) return;
       
       for (unsigned int i=0; i<pdfWeightTags_.size(); ++i) {
@@ -55,7 +55,9 @@ void PdfSystematicsAnalyzer::endJob(){
             edm::LogVerbatim("PDFAnalysis") << "Results for PDF set " << pdfWeightTags_[i].instance() << " ---->";
 
             double events_central = weightedEvents_[pdfStart_[i]]; 
-            edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF set: " << int(events_central) << " [events], change with respect to reference: " << std::setprecision(4) << 100*(events_central/originalEvents_-1.) << " [%]";
+            edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF member: " << int(events_central) << " [events]";
+            edm::LogVerbatim("PDFAnalysis") << "\ti.e. " << std::setprecision(4) << 100*(events_central/originalEvents_-1.) << "% with respect to PDF used in generation step";
+
 
             if (npairs>0) {
                   edm::LogVerbatim("PDFAnalysis") << "\tNumber of eigenvectors for uncertainty estimation: " << npairs;
@@ -78,7 +80,7 @@ void PdfSystematicsAnalyzer::endJob(){
               }
               if (wplus>0) wplus = sqrt(wplus);
               if (wminus>0) wminus = sqrt(wminus);
-              edm::LogVerbatim("PDFAnalysis") << "\tRelative uncertainty with respect to central: +" << std::setprecision(4) << 100.*wplus << " / -" << std::setprecision(4) << 100.*wminus << " [%]";
+              edm::LogVerbatim("PDFAnalysis") << "\tRelative uncertainty with respect to central member: +" << std::setprecision(4) << 100.*wplus << " / -" << std::setprecision(4) << 100.*wminus << " [%]";
             } else {
                   edm::LogVerbatim("PDFAnalysis") << "\tNO eigenvectors for uncertainty estimation";
             }
