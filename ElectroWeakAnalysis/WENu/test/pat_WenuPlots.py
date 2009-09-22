@@ -72,7 +72,7 @@ process.layer1RawCaloMETs = process.layer1METs.clone(                           
     metSource = cms.InputTag("met","","RECO"),
     addTrigMatch = cms.bool(False),
     addMuonCorrections = cms.bool(False),
-    addGenMET(False),
+    addGenMET = cms.bool(False),
     )
 ## specify here what you want to have on the plots! <===== MET THAT YOU WANT ON THE PLOTS  %%%%%%%
 myDesiredMetCollection = 'layer1RawCaloMETs'
