@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/09/22 14:08:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/22 14:54:13 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -78,7 +78,6 @@ HLTHighLevelDev::~HLTHighLevelDev()
 void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventSetup& iSetup)
 {
    unsigned int n;
-   nEvents=0,
   
    // clean up old data
    HLTPathsByName_.clear();
@@ -132,7 +131,7 @@ void HLTHighLevelDev::init(const edm::TriggerResults & result, const edm::EventS
 
      // resizing and initializing the scalers
      HLTPrescalesScalers.resize(n, 0);
-     HLTOverallPrescalesScaler = 0;
+     HLTOverallPrescalesScaler_ = 0;
    
      // ...and get hold of trigger indices
      HLTPathsByIndex_.resize(n);
@@ -189,8 +188,6 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace std;
    using namespace edm;
-
-   nEvents++;
 
    // get hold of TriggerResults Object
    Handle<TriggerResults> trh;
@@ -259,7 +256,7 @@ HLTHighLevelDev::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const bool accept( (fired > 0) and ( andOr_ or allFired ) );
    LogDebug("") << "Accept = " << std::boolalpha << accept;
 
-   return (accept and ((HLTOverallPrescalesScaler++) % HLTOverallPrescale_ == 0));
+   return (accept and ((HLTOverallPrescalesScaler_++) % HLTOverallPrescale_ == 0));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

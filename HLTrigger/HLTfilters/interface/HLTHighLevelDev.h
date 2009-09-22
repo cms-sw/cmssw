@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2009/09/22 14:11:43 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/22 14:54:13 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -77,8 +77,7 @@ class HLTHighLevelDev : public HLTFilter {
     /// this is different from the single prescales. It can be applied on
     /// top of the single trigger prescales
     uint32_t HLTOverallPrescale_ ;
-    uint32_t HLTOverallPrescalesScaler;
-    uint32_t nEvents;
+    uint32_t HLTOverallPrescalesScaler_;
 
     /// list of required HLT triggers by HLT name
     std::vector<std::string> HLTPathsByName_;
