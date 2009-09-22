@@ -102,13 +102,12 @@ process.pdfana = cms.Path(
 #process.MyEventContent.outputCommands.extend(
 #      cms.untracked.vstring('keep *_pdfWeights_*_*')
 #)
-
-# Output (filtered by selector)
+## Output (filtered by selector)
 #process.pdfOutput = cms.OutputModule("PoolOutputModule",
 #    process.MyEventContent,
 #    SelectEvents = cms.untracked.PSet(
 #        SelectEvents = cms.vstring('pdfana')
 #    ),
-#    fileName = cms.untracked.string('wmnSelectedEvents.root')
+#    fileName = cms.untracked.string('selectedEvents.root')
 #)
 #process.end = cms.EndPath(process.pdfOutput)

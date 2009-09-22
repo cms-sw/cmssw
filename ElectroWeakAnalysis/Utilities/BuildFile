@@ -29,7 +29,4 @@
 #<flags LDFLAGS="-Wl,-rpath $(LHAPATH)/../../../full/lib -L$(LHAPATH)/../../../full/lib -lLHAPDF">
 ###################################################################
 
-<export>
-      <lib name=ElectroWeakAnalysisUtilities>
-</export>
-
+<flags EDM_PLUGIN=1>

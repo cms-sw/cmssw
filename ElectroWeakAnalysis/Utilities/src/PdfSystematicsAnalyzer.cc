@@ -56,7 +56,7 @@ void PdfSystematicsAnalyzer::endJob(){
 
             double events_central = weightedEvents_[pdfStart_[i]]; 
             edm::LogVerbatim("PDFAnalysis") << "\tEstimate for central PDF member: " << int(events_central) << " [events]";
-            edm::LogVerbatim("PDFAnalysis") << "\ti.e. " << std::setprecision(4) << 100*(events_central/originalEvents_-1.) << "% with respect to PDF used in generation step";
+            edm::LogVerbatim("PDFAnalysis") << "\ti.e. " << std::setprecision(4) << 100*(events_central/originalEvents_-1.) << "% variation with respect to original PDF";
 
 
             if (npairs>0) {
