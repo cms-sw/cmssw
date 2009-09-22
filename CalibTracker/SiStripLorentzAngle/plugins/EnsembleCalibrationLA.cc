@@ -20,7 +20,7 @@ EnsembleCalibrationLA::EnsembleCalibrationLA(const edm::ParameterSet& conf) :
   useRATIO( conf.getUntrackedParameter<bool>("useRATIO",true)),
   useSQRTVAR( conf.getUntrackedParameter<bool>("useSQRTVAR",true)),
   useSYMM( conf.getUntrackedParameter<bool>("useSYMM",true))
-{std::cout << conf << std::endl;}
+{}
 
 void EnsembleCalibrationLA::
 endJob() 
@@ -36,9 +36,9 @@ endJob()
   if(useSYMM) methods|= LA_Filler_Fitter::SYMM;
 
   LA_Filler_Fitter laff(methods,samples,nbins,lowBin,highBin,maxEvents);
-  laff.fill(chain,book);            std::cout << "Fill complete" << std::endl;
-  laff.fit(book);                   std::cout << "Fit complete" << std::endl;
-  laff.summarize_ensembles(book);   std::cout << "Summarization complete" << std::endl;
+  laff.fill(chain,book);           
+  laff.fit(book);                  
+  laff.summarize_ensembles(book);  
 
   std::pair<std::string, std::vector<LA_Filler_Fitter::EnsembleSummary> > ensemble;
   BOOST_FOREACH(ensemble, laff.ensemble_summary(book)) {
@@ -50,7 +50,7 @@ endJob()
     file << std::endl << std::endl
 	 << "# Best Fit Line: "	 << line.first.first <<"("<< line.first.second<<")   +   x* "
 	                         << line.second.first<<"("<< line.second.second<<")"           << std::endl
-	 << "# Mean Reported Uncertainty / Sigma: " << LA_Filler_Fitter::pull(ensemble.second) << std::endl;
+	 << "# Pull (average sigma of (x_measure-x_truth)/e_measure): " << LA_Filler_Fitter::pull(ensemble.second) << std::endl;
     file.close();
   }
   

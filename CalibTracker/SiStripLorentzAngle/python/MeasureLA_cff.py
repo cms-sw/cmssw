@@ -26,22 +26,22 @@ def LA_Calibration(method, pitch, slope, offset, pull) :
                      ErrorScaling = cms.double(pull) )
 
 LorentzAngleCalibrations_PeakMode = cms.VPSet(
-    LA_Calibration( METHOD_SYMM, 183, 1, 0., 1),
-    LA_Calibration( METHOD_SYMM, 122, 1, 0., 1),
-    LA_Calibration( METHOD_SYMM, 120, 1, 0., 1),
-    LA_Calibration( METHOD_SYMM,  80, 1, 0., 1),
-    LA_Calibration( METHOD_SQRTVAR, 183, 1.0289, -0.000320368, 0.876556),
-    LA_Calibration( METHOD_SQRTVAR, 122, 0.992503, -0.000829539, 0.755962),
-    LA_Calibration( METHOD_SQRTVAR, 120, 1.01791, 0.00587959, 0.745295),
-    LA_Calibration( METHOD_SQRTVAR,  80, 1.00784, 0.00277018,  0.874995),
-    LA_Calibration( METHOD_RATIO,   183, 0.97007,  -0.00107811, 10.3975),
-    LA_Calibration( METHOD_RATIO,   122, 0.944102, -0.00706026,  3.76948),
-    LA_Calibration( METHOD_RATIO,   120, 1.00205,   0.00255656,   9.81462),
-    LA_Calibration( METHOD_RATIO,    80, 0.996139,  0.000359434, 18.1353),
-    LA_Calibration( METHOD_WIDTH,   183, 0.991679, 0.000813695, 0.884903),
-    LA_Calibration( METHOD_WIDTH,   122, 1.0285, 0.00322536, 0.779108),
-    LA_Calibration( METHOD_WIDTH,   120, 1.01354, 0.00648133, 0.821002),
-    LA_Calibration( METHOD_WIDTH,    80, 1.01182, 0.00450226, 0.843897)
+    LA_Calibration( METHOD_SYMM, 183, 1.02351,  0.000723037, 0.921798),
+    LA_Calibration( METHOD_SYMM, 122, 0.999362, 0.000454755, 0.913588),
+    LA_Calibration( METHOD_SYMM, 120, 1.02851,  0.00838982,  0.969561),
+    LA_Calibration( METHOD_SYMM,  80, 1.04731,  0.00955597,  0.982278),
+    LA_Calibration( METHOD_SQRTVAR, 183, 1.06516, -0.000143231, 1.21116),
+    LA_Calibration( METHOD_SQRTVAR, 122, 1.01051, -7.32838e-05, 1.19388),
+    LA_Calibration( METHOD_SQRTVAR, 120, 1.01642,  0.00585199,  1.19422),
+    LA_Calibration( METHOD_SQRTVAR,  80, 1.0146,   0.00486891,  1.28626),
+    LA_Calibration( METHOD_RATIO,   183, 0.981047, 0.000140891, 0.0354449),
+    LA_Calibration( METHOD_RATIO,   122, 1.00273, -0.00136105,  0.0770203),
+    LA_Calibration( METHOD_RATIO,   120, 1.00007,  0.00206247,  0.0390019),
+    LA_Calibration( METHOD_RATIO,    80, 0.996719, 0.000287906, 0.0259316),
+    LA_Calibration( METHOD_WIDTH,   183, 1.00847,  0.00147708,  1.18568),
+    LA_Calibration( METHOD_WIDTH,   122, 1.01785,  0.00219077,  1.12721),
+    LA_Calibration( METHOD_WIDTH,   120, 1.00736,  0.00551022,  1.14293),
+    LA_Calibration( METHOD_WIDTH,    80, 0.997497, 0.00296953,  1.24678)
     )
 
 LorentzAngleCalibrations_DeconvolutionMode = cms.VPSet(

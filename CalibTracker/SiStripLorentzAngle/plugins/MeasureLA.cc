@@ -82,7 +82,7 @@ process_reports() {
 void MeasureLA::
 calibrate(std::pair<uint32_t,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) {
   result.calibratedMeasurement = ( result.measure - offset[key] ) / slope[key] ;
-  result.calibratedError = result.measureErr / (slope[key] * error_scaling[key] );
+  result.calibratedError = result.measureErr * error_scaling[key] / slope[key] ;
 }
 
 std::pair<uint32_t,LA_Filler_Fitter::Method> MeasureLA::
