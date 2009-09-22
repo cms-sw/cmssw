@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.2 2009/09/19 03:28:48 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.3 2009/09/21 03:39:55 srappocc Exp $
 */
 
 
@@ -18,6 +18,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+
+namespace std {
 
 class strbitset {
  public:
@@ -36,6 +38,22 @@ class strbitset {
   void clear() {
     map_.clear();
     bits_.clear();
+  }
+
+  ///! cast to bool
+  operator bool() const {
+    bool b = true;
+    for ( bit_vector::const_iterator bitsBegin = bits_.begin(),
+	    bitsEnd = bits_.end(), ibit = bitsBegin;
+	  ibit != bitsEnd; ++ibit ) {
+      if ( *ibit == false ) b = false;
+    }
+    return b;
+  }
+
+  ///! Logical negation of bool()
+  bool operator!() const {
+    return ! ( operator bool() );
   }
   
   /// adds an item that is indexed by the string. this
@@ -208,10 +226,26 @@ class strbitset {
     return true;
   }
 
+  //! equality operator to bool
+  bool operator==( bool b ) const {
+    bool result = true;
+    for ( bit_vector::const_iterator iBegin = bits_.begin(),
+	    iEnd = bits_.end(), ibit = iBegin;
+	  ibit != iEnd; ++ibit ) {
+      result &= ( *ibit == b );
+    }
+    return result;
+  }
+
 
   //! inequality operator
   bool operator!=( const strbitset & r) const {
     return ! (operator==(r));
+  }
+
+  //! inequality operator to bool
+  bool operator!=( bool b ) const {
+    return ! ( operator!=(b));
   }
 
   //! returns number of bits set
@@ -229,7 +263,6 @@ class strbitset {
 
   //! returns true if any are set
   size_t any() const {
-    size_t ret = 0;
     for ( bit_vector::const_iterator ibegin = bits_.begin(),
 	    iend = bits_.end(), i = ibegin;
 	  i != iend; ++i ) {
@@ -274,75 +307,8 @@ class strbitset {
   bit_vector        bits_;  //!< the actual bits, indexed by the index in "map_"
 };
 
-strbitset operator&(const strbitset& l, const strbitset& r)
-{
-  strbitset ret; ret.set(false);
-  strbitset ret1 ( r );
-  ret1.set(false);
-  if ( r.map_.size() != l.map_.size() ) {
-    std::cout << "strbitset operator& : rhs and lhs do not have same size" << std::endl;
-    return ret;
-  }
-  for ( strbitset::str_index_map::const_iterator irbegin = r.map_.begin(),
-	  irend = r.map_.end(), ir = irbegin;
-	ir != irend; ++ir ) {
-    std::string key = ir->first;
-    strbitset::str_index_map::const_iterator il = l.map_.find( key );
-    if ( il == l.map_.end() ) {
-      std::cout << "strbitset operator& : rhs and lhs do not share same elements" << std::endl;
-      return ret;
-    }
-    ret1[key] = l[key] && r[key];
-  }
-  return ret1;
-}
 
 
-strbitset operator|(const strbitset& l, const strbitset& r)
-{
-  strbitset ret; ret.set(false);
-  strbitset ret1 ( r );
-  ret1.set(false);
-  if ( r.map_.size() != l.map_.size() ) {
-    std::cout << "strbitset operator& : rhs and lhs do not have same size" << std::endl;
-    return ret;
-  }
-  for ( strbitset::str_index_map::const_iterator irbegin = r.map_.begin(),
-	  irend = r.map_.end(), ir = irbegin;
-	ir != irend; ++ir ) {
-    std::string key = ir->first;
-    strbitset::str_index_map::const_iterator il = l.map_.find( key );
-    if ( il == l.map_.end() ) {
-      std::cout << "strbitset operator& : rhs and lhs do not share same elements" << std::endl;
-      return ret;
-    }
-    ret1[key] = l[key] || r[key];
-  }
-  return ret1;
-}
-
-
-strbitset operator^(const strbitset& l, const strbitset& r)
-{
-  strbitset ret; ret.set(false);
-  strbitset ret1 ( r );
-  ret1.set(false);
-  if ( r.map_.size() != l.map_.size() ) {
-    std::cout << "strbitset operator& : rhs and lhs do not have same size" << std::endl;
-    return ret;
-  }
-  for ( strbitset::str_index_map::const_iterator irbegin = r.map_.begin(),
-	  irend = r.map_.end(), ir = irbegin;
-	ir != irend; ++ir ) {
-    std::string key = ir->first;
-    strbitset::str_index_map::const_iterator il = l.map_.find( key );
-    if ( il == l.map_.end() ) {
-      std::cout << "strbitset operator& : rhs and lhs do not share same elements" << std::endl;
-      return ret;
-    }
-    ret1[key] = (l[key] || r[key]) && !(l[key] && r[key]);
-  }
-  return ret1;
 }
 
 #endif
