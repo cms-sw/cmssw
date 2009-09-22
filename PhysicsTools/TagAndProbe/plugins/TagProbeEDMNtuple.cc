@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Mon May  5 08:47:29 CDT 2008
-// $Id: TagProbeEDMNtuple.cc,v 1.14 2009/05/27 12:39:42 ahunt Exp $
+// $Id: TagProbeEDMNtuple.cc,v 1.15 2009/06/22 21:39:18 ahunt Exp $
 //
 //
 // Kalanand Mishra: October 7, 2008 
@@ -36,8 +36,7 @@
 //
 // constructors and destructor
 //
-TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig)
-{
+TagProbeEDMNtuple::TagProbeEDMNtuple(const edm::ParameterSet& iConfig) {
    edm::LogInfo("TagProbeEDMNtuple") << "Here in TagProbeEDMNtuple init!";
    
    candType_ = iConfig.getUntrackedParameter<std::string>("tagProbeType","Muon");
@@ -731,7 +730,7 @@ TagProbeEDMNtuple::fillTagProbeInfo()
 	 for( ; tpItr != tagprobes->end(); ++tpItr )
 	 {
 	    const reco::CandidateBaseRef &tag = tpItr->key;
-	    std::vector< std::pair< reco::CandidateBaseRef,double> > vprobes = (*tagprobes)[tag];
+	    std::vector< std::pair< reco::CandidateBaseRef,bool> > vprobes = (*tagprobes)[tag];
 
 	    // If there are two probes with the tag continue
 	    if( vprobes.size() > 1 ) {
@@ -1517,8 +1516,7 @@ int TagProbeEDMNtuple::ProbePassProbeOverlap( const reco::CandidateBaseRef& prob
 // ***************** Trigger object matching ******************** //
 bool TagProbeEDMNtuple::MatchObjects( const reco::Candidate *hltObj, 
 				      const reco::CandidateBaseRef& tagObj,
-				      bool exact )
-{
+				      bool exact ) {
    double tEta = tagObj->eta();
    double tPhi = tagObj->phi();
    double tPt  = tagObj->pt();
@@ -1540,7 +1538,7 @@ bool TagProbeEDMNtuple::MatchObjects( const reco::Candidate *hltObj,
 
 // ***************** Trigger object matching ******************** //
 int TagProbeEDMNtuple::getBestProbe(int ptype, const reco::CandidateBaseRef& tag,
-				      std::vector< std::pair<reco::CandidateBaseRef,double> > vprobes )
+				      std::vector< std::pair<reco::CandidateBaseRef,bool> > vprobes )
 {
    int tempProbeNum = 0;
    if (bestProbeCriteria_[ptype] == "OneProbe")

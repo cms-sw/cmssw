@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon May  5 09:05:35 CDT 2008
-// $Id: TagProbeEDMNtuple.h,v 1.7 2009/03/24 19:32:37 ahunt Exp $
+// $Id: TagProbeEDMNtuple.h,v 1.8 2009/06/22 21:39:17 ahunt Exp $
 //
 // Kalanand Mishra: October 7, 2008 
 // Added vertex information of the tag & probe candidates in edm::TTree
@@ -59,7 +59,7 @@ class TagProbeEDMNtuple : public edm::EDProducer
 			 const reco::CandidateBaseRef& tagObj,
 			 bool exact = true );
 
-      int getBestProbe(int ptype, const reco::CandidateBaseRef &tag, std::vector< std::pair<reco::CandidateBaseRef,double> > vprobes);
+      int getBestProbe(int ptype, const reco::CandidateBaseRef &tag, std::vector< std::pair<reco::CandidateBaseRef,bool> > vprobes);
       
       // ----------member data ---------------------------
       edm::Event* m_event;

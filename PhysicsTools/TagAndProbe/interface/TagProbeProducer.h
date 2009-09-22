@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr 16 10:08:13 CDT 2008
-// $Id: TagProbeProducer.h,v 1.2 2008/07/30 13:38:24 srappocc Exp $
+// $Id: TagProbeProducer.h,v 1.3 2009/03/24 19:32:37 ahunt Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 // forward declarations
 
@@ -41,11 +41,18 @@ class TagProbeProducer : public edm::EDProducer
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      
+
+      bool isPassingProbe (const unsigned int iprobe) const;
+
       // ----------member data ---------------------------
       
       edm::InputTag tagCollection_;
       edm::InputTag probeCollection_;
+      edm::InputTag passingProbeCollection_;
+
+      edm::Handle< reco::CandidateView > tags;
+      edm::Handle< reco::CandidateView > probes;
+      edm::Handle< reco::CandidateView > passingProbes;
 
       double massMinCut_;
       double massMaxCut_;

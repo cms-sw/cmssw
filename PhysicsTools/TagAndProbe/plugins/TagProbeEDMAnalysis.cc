@@ -1409,7 +1409,7 @@ void TagProbeEDMAnalysis::CleanUpMCHistograms() {
 
 /****************************************************************
 WARNING: The following headers pollute the namespace by calling
-"using namespace std" in Minuit2/stackAllocator.h. The path exact
+"using namespace std" in Minuit2/stackAllocator.h. The exact path
 is not clear.
 ****************************************************************/
 #include <RooAddPdf.h> 
