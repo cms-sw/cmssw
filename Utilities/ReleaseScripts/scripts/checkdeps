@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.5 2008/03/12 17:59:09 dlange Exp $
+# $Id: checkdeps,v 1.6 2009/09/01 09:37:46 eulisse Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -19,21 +19,36 @@ use Cwd;
 #if any argument, print help and exit 
 
 my $runAddpkg=0;
+my $checkpython=0;
+my $checkheader=0;
  
 foreach my $arg (@ARGV) {
     if ( $arg eq "-a" ) {
 	$runAddpkg=1;
     }
+    elsif ( $arg eq "-p" ) {
+	$checkpython=1;
+    }
+    elsif ( $arg eq "-c" ) {
+	$checkheader=1;
+    }
     else{
 	print "checkdeps:\n";
 	print "   Utility to check your local development area against the CMSSW release.\n";
-	print "   Any modified header files are found and the package dependencies of \n";
-	print "   these files will be returned. addpkg-ing these packages and rebuilding them\n";
-	print "   should provide a full and consistent build.\n";
+	print "   Any modified header files or python modules are found and the package\n";
+	print "   dependencies of these files will be returned. addpkg-ing these packages\n";
+	print "   and rebuilding them should provide a full and consistent build.\n";
 	print "\nUsage: \n";
+	print "   -p look for python modules and their dependencies (ON by default)\n";
+	print "   -c look for header files and their dependencies   (ON by default)\n";
 	print "   -a will checkout the packages into your development area (done by addpkg)\n\n";
 	exit;
     }
+}
+
+if ((!$checkpython) && (!$checkheader)) {
+    $checkpython=1;
+    $checkheader=1;
 }
 
 if ( $ENV{'LOCALRT'} eq "" ) {
@@ -56,15 +71,30 @@ if ( !(-e "$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out.gz") ) {
     exit;
 }
 
-open(F1,"gunzip -c $ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out |");
-     
+#check that addpkg is ok...
+my $isaddpkg=`which addpkg`;
+if ( $isaddpkg =~ /Command not found/) {
+    print "This script relies on addpkg, which appears not to be in your path\n";
+    print "Perhaps something is wrong with this release or your run time\n";
+    print "environment is not set correctly?\n";
+    exit;
+}
 
+my %vals=();
+if ($checkheader){
+    &readDependencyInfo("$ENV{'LOCALRT'}/etc/dependencies/usedby.out.gz",\%vals);
+}
+
+if ($checkpython) {
+    if (-e "$ENV{'LOCALRT'}/etc/dependencies/pyusedby.out.gz") {
+        &readDependencyInfo("$ENV{'LOCALRT'}/etc/dependencies/pyusedby.out.gz",\%vals);
+    }
+}
 
 chdir("$ENV{'LOCALRT'}/src");
 my @f1 = `ls`;
 my $maindir=cwd;
 
-my @subsys;
 my @packages;
 
 # Get the list of packages
@@ -72,7 +102,6 @@ for my $f (@f1) {
   chomp($f);
   chdir("$maindir");
   if( -d $f && ($f ne "CVS") ) { 
-    push @subsys, $f;
     chdir("$f");
     # list of packages in subystem
     my @f2 = `ls`;
@@ -84,16 +113,6 @@ for my $f (@f1) {
       }
     }
   }
-
-}
-
-#check that addpkg is ok...
-my $isaddpkg=`which addpkg`;
-if ( $isaddpkg =~ /Command not found/) {
-    print "This script relies on addpkg, which appears not to be in your path\n";
-    print "Perhaps something is wrong with this release or your run time\n";
-    print "environment is not set correctly?\n";
-    return;
 }
 
 my @changedFiles;
@@ -115,22 +134,12 @@ foreach my $package (@packages) {
     }
 }
 
-my %vals;
-
-while  (<F1>) { 
-    my $line=$_;
-    chomp($line);
-    my @sp1=split(' ',$line,2);
-    $vals{$sp1[0]}=$sp1[1];
-}
-
 my @recompileList;
 foreach my $file (@changedFiles) {
     next if (!(exists $vals{$file}));
-    my @sp3=split(' ',$vals{$file});
-    foreach my $dep (@sp3) {
-	my @sp4=split('/',$dep);
-	my $recompile="$sp4[0]/$sp4[1]";
+    foreach my $dep (@{$vals{$file}}) {
+	my @sp=split('/',$dep);
+	my $recompile="$sp[0]/$sp[1]";
 	if (!(grep {$_ eq $recompile} @recompileList)) {
 	    if (!(grep {$_ eq $recompile} @packages)) {
 		push(@recompileList,$recompile);
@@ -161,4 +170,21 @@ if ( $len > 0 ) {
 else{
     print "None\n";
 }
-close F1;
+
+sub readDependencyInfo()
+{
+  my $file=shift;
+  my $cache=shift;
+  my $ref;
+  open($ref,"gunzip -c $file |") || die "Can not open file for reading: $file\n";
+  while  (my $line=<$ref>) { 
+    chomp($line);
+    my ($file1,$rest)=split(' ',$line,2);
+    if ($file1 ne "")
+    {
+      if (!exists $vals{$file1}){$vals{$file1}=[];}
+      push @{$vals{$file1}},split(' ',$rest);
+    }
+  }
+  close($ref);
+}
