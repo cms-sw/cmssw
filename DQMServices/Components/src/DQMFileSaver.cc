@@ -12,6 +12,9 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
+#include <string>
+#include <TString.h>
+#include <TSystem.h>
 
 //--------------------------------------------------------
 static void
@@ -24,9 +27,82 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
       << "'.  Must be -1 or >= 1.";
 }
 
+
+// run showtag command line
+std::string 
+DQMFileSaver::getShowTags(void)
+{
+   TString out;
+   FILE *pipe = gSystem->OpenPipe("showtags u -t", "r");
+
+   TString line;
+   while (line.Gets(pipe,true)) {
+     if (line.Contains("Test Release")) continue;
+     if (line.Contains("Base Release")) continue;
+     if (line.Contains("Test release")) continue;
+     if (line.Contains("--- Tag ---")) continue;
+     if (line.Contains(" ")) line.Replace(line.First(" "),1,":");
+     line.ReplaceAll(" ","");
+     out = out + line + ";";
+     if (line.Contains("-------------------")) break;
+     if (out.Length()>2000) break;
+   }
+   out.ReplaceAll("--","");
+   out.ReplaceAll(";-",";");
+   out.ReplaceAll(";;",";");
+   out.ReplaceAll("\n","");
+
+   Int_t r = gSystem->ClosePipe(pipe);
+   if (r) {
+     gSystem->Error("ShowTags","problem running command showtags -u -t");
+   }
+
+   std::string str(out);
+   if (str.length()>2000) str.resize(2000);
+
+   std::string safestr =
+     "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-;:";
+   size_t found=str.find_first_not_of(safestr);
+   if (found!=std::string::npos)
+   {
+     std::cout << "DQMFileSaver::ShowTags: Illegal character found: " 
+               << str[found] 
+	       << " at position " 
+	       << int(found) << std::endl;
+     return "notags";
+   }   
+   return str;
+}
+
+void 
+DQMFileSaver::makeProvInfo()
+{
+    dbe_->cd() ;
+    dbe_->setCurrentFolder("ProvInfo");
+    if (dbe_->get("ProvInfo/CMSSW")) return ;
+    
+    versCMSSW_     = dbe_->bookString("CMSSW",edm::getReleaseVersion().c_str() );
+    hostName_      = dbe_->bookString("hostName",gSystem->HostName());
+    workingDir_    = dbe_->bookString("workingDir",gSystem->pwd());
+    processId_     = dbe_->bookInt("processID"); processId_->Fill(gSystem->GetPid());
+
+    versDataset_   = dbe_->bookString("Dataset",workflow_);
+    versGlobaltag_ = dbe_->bookString("Globaltag","global tag"); // FIXME
+    versTaglist_   = dbe_->bookString("Taglist",getShowTags()); 
+
+    isComplete_ = dbe_->bookInt("runIsComplete"); 
+    isComplete_->Fill((runIsComplete_?1:0));
+    fileVersion_ = dbe_->bookInt("fileVersion");
+    fileVersion_->Fill(version_);
+    
+    return ;
+}
+
 void
 DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 {
+  if (makeProvInfo_) makeProvInfo();
+
   char suffix[64];
   sprintf(suffix, "R%09d", run);
 
@@ -76,6 +152,7 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
 {
    std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
+   if (makeProvInfo_) makeProvInfo();
    for (size_t i = 0, e = systems.size(); i != e; ++i) {
      if (systems[i] != "Reference") {
        dbe_->cd();
@@ -117,6 +194,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     saveReferenceQMin_ (dqm::qstatus::STATUS_OK),
     forceRunNumber_ (-1),
     fileBaseName_ (""),
+    makeProvInfo_ (false),
     dbe_ (&*edm::Service<DQMStore>()),
     irun_ (-1),
     ilumi_ (-1),
@@ -156,7 +234,12 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   else if (! ps.getUntrackedParameter<std::string>("workflow", "").empty())
     throw cms::Exception("DQMFileSaver")
       << "The 'workflow' parameter must be empty in 'Online' convention.";
-
+  else // for online set parameters
+  {
+    workflow_="/Global/Online/P5";
+    makeProvInfo_=true;
+  }
+    
   // Allow file producer to be set to specific values in certain conditions.
   producer_ = ps.getUntrackedParameter<std::string>("producer", producer_);
   if (convention_ == Online
@@ -179,6 +262,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   version_ = ps.getUntrackedParameter<int>("version", version_);
   // flag to signal that file contains data from complete run
   runIsComplete_ = ps.getUntrackedParameter<bool>("runIsComplete", runIsComplete_);
+  // flag to switch storage of provenance info effective for offline
+  makeProvInfo_ = ps.getUntrackedParameter<bool>("makeProvInfo", makeProvInfo_);
 
   // Check how we should save the references.
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");
