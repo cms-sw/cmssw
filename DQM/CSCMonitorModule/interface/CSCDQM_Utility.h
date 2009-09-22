@@ -31,7 +31,6 @@
 #include <xercesc/util/XMLString.hpp>
 #endif
 
-#include <boost/shared_ptr.hpp>
 #include <TString.h>
 #include <TPRegexp.h>
 
