@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.20 2009/09/18 15:49:29 srappocc Exp $
+  \version  $Id: Selector.h,v 1.2 2009/09/19 03:30:25 srappocc Exp $
 */
 
 
@@ -20,36 +20,54 @@
 
 /// Functor that operates on <T>
 template<class T>
-class Selector : public std::unary_function<T, bool>  {
+class Selector : public std::binary_function<T, std::strbitset, bool>  {
   
  public:
-  typedef std::map<size_t, int>      int_map;
-  typedef std::map<size_t, double>   double_map;
+  typedef T                                            data_type;
+  typedef std::binary_function<T,std::strbitset,bool>  base_type;
+  typedef std::pair<std::string, size_t>               cut_flow_item;
+  typedef std::vector<cut_flow_item>                   cut_flow_map;
+  typedef std::map<std::string, int>                   int_map;
+  typedef std::map<std::string, double>                double_map;
 
   /// Constructor clears the bits
-  Selector( ) { bits_.clear(); intCuts_.clear(); doubleCuts_.clear();}
+  Selector( ) { 
+    bits_.clear(); 
+    intCuts_.clear(); 
+    doubleCuts_.clear();
+    cutFlow_.clear();
+  }
 
   virtual ~Selector() {}
 
   /// This is the registration of an individual cut string
-  void push_back( std::string s) {
+  virtual void push_back( std::string s) {
     bits_.push_back(s);
+    // don't need to check to see if the key is already there,
+    // bits_ does that.
+    cutFlow_.push_back( cut_flow_item(s,0) );
   }
 
   /// This is the registration of an individual cut string, with an int cut value
-  void push_back( std::string s, int cut) {
+  virtual void push_back( std::string s, int cut) {
     bits_.push_back(s);
-    intCuts_[bits_[s]] = cut;
+    intCuts_[s] = cut;
+    // don't need to check to see if the key is already there,
+    // bits_ does that.
+    cutFlow_.push_back( cut_flow_item(s,0) );
   }
 
   /// This is the registration of an individual cut string, with a double cut value
-  void push_back( std::string s, double cut) {
+  virtual void push_back( std::string s, double cut) {
     bits_.push_back(s);
-    doubleCuts_[bits_[s]] = cut;
+    doubleCuts_[s] = cut;
+    // don't need to check to see if the key is already there,
+    // bits_ does that.
+    cutFlow_.push_back( cut_flow_item(s,0) );
   }
 
   /// This provides the interface for base classes to select objects
-  virtual bool operator()( T const & t) const  = 0;
+  virtual bool operator()( T const & t, std::strbitset & ret ) = 0;
   
   /// Set a given selection cut, on or off
   void set(std::string s, bool val = true) {
@@ -59,13 +77,13 @@ class Selector : public std::unary_function<T, bool>  {
   /// Set a given selection cut, on or off, and reset int cut value
   void set(std::string s, int cut, bool val = true) {
     bits_[s] = val;
-    intCuts_[bits_[s]] = cut;
+    intCuts_[s] = cut;
   }
 
   /// Set a given selection cut, on or off, and reset int cut value
   void set(std::string s, double cut, bool val = true) {
     bits_[s] = val;
-    doubleCuts_[bits_[s]] = cut;
+    doubleCuts_[s] = cut;
   }
 
   /// Turn off a given selection cut. 
@@ -78,24 +96,51 @@ class Selector : public std::unary_function<T, bool>  {
     return bits_[s];
   }
 
+  /// Passing cuts
+  void passCut( std::strbitset & ret, std::string const & s ) {
+    ret[s] = true;
+    cut_flow_map::iterator found = cutFlow_.end();
+    for ( cut_flow_map::iterator cutsBegin = cutFlow_.begin(),
+	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
+	  icut != cutsEnd && found == cutsEnd; ++icut ) {
+      if ( icut->first == s ) {
+	found = icut;
+      }
+    }
+    ++(found->second);
+  }
+
   /// Access the int cut values at index "s"
   int cut( std::string s, int val ) const {
-    return intCuts_.find( bits_[s] )->second;
+    return intCuts_.find( s )->second;
   };
-
   /// Access the double cut values at index "s"
   double cut( std::string s, double val ) const {
-    return doubleCuts_.find( bits_[s] )->second;
+    return doubleCuts_.find( s )->second;
   };
 
-  /// Print the bitset
-  void print(std::ostream & out) const { bits_.print(out);
+  /// Get an empty bitset with the proper names
+  std::strbitset getBitTemplate() const { return bits_;}
+
+  /// Print the cut flow
+  void print(std::ostream & out) const { 
+    for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
+	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
+	  icut != cutsEnd; ++icut ) {
+      char buff[1000];
+      sprintf(buff, "%6d : %20s %10d", 
+	      icut - cutsBegin,
+	      icut->first.c_str(),
+	      icut->second );
+      out << buff << std::endl;
+    } 
   }
 
  protected:
-  strbitset     bits_;        //!< the bitset indexed by strings
-  int_map       intCuts_;     //!< the int-value cut map
-  double_map    doubleCuts_;  //!< the double-value cut map
+  std::strbitset bits_;        //!< the bitset indexed by strings
+  int_map        intCuts_;     //!< the int-value cut map
+  double_map     doubleCuts_;  //!< the double-value cut map
+  cut_flow_map   cutFlow_;     //!< map of cut flows in "human" order
 };
 
 #endif
