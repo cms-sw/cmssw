@@ -67,29 +67,31 @@ process.pdfNumeratorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
       )
 )
 
-# Save PDF weights in the output file 
-process.load("Configuration.EventContent.EventContent_cff")
-process.MyEventContent = cms.PSet( 
-      outputCommands = process.AODSIMEventContent.outputCommands
-)
-process.MyEventContent.outputCommands.extend(
-      cms.untracked.vstring('keep *_pdfWeights_*_*')
-)
-
-# Output (optionaly filtered by path)
-process.pdfOutput = cms.OutputModule("PoolOutputModule",
-    process.MyEventContent,
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pdfana')
-    ),
-    fileName = cms.untracked.string('pdfAnalyzer_Events.root')
-)
-
-# Runnning and end paths
+# Main path
 process.pdfana = cms.Path(
        process.pdfWeights
       *process.pdfDenominatorSystematics
       *process.wmnSelFilter
       *process.pdfNumeratorSystematics
 )
-process.end = cms.EndPath(process.pdfOutput)
+
+# Optional code follows
+#
+# Save PDF weights in the output file 
+#process.load("Configuration.EventContent.EventContent_cff")
+#process.MyEventContent = cms.PSet( 
+#      outputCommands = process.AODSIMEventContent.outputCommands
+#)
+#process.MyEventContent.outputCommands.extend(
+#      cms.untracked.vstring('keep *_pdfWeights_*_*')
+#)
+
+# Output (filtered by selector)
+#process.pdfOutput = cms.OutputModule("PoolOutputModule",
+#    process.MyEventContent,
+#    SelectEvents = cms.untracked.PSet(
+#        SelectEvents = cms.vstring('pdfana')
+#    ),
+#    fileName = cms.untracked.string('wmnSelectedEvents.root')
+#)
+#process.end = cms.EndPath(process.pdfOutput)
