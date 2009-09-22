@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre4/8E29/V4 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
+# /dev/CMSSW_3_3_0/pre4/8E29/V6 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V4')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V6')
 )
 
 
@@ -203,28 +203,6 @@ FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   appendToDataLabel = cms.string( "" )
 )
 GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer",
-  appendToDataLabel = cms.string( "" )
-)
-GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "GroupedCkfTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "" ),
-  trajectoryFilterName = cms.string( "ckfBaseTrajectoryFilter" ),
-  inOutTrajectoryFilterName = cms.string( "" ),
-  useSameTrajFilter = cms.bool( True ),
-  maxCand = cms.int32( 5 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  foundHitBonus = cms.double( 5.0 ),
-  intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  lockHits = cms.bool( True ),
-  bestHitOnly = cms.bool( True ),
-  requireSeedHitsInRebuild = cms.bool( True ),
-  minNrOfHitsForRebuild = cms.int32( 5 ),
   appendToDataLabel = cms.string( "" )
 )
 HITTRHBuilderWithoutRefit = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
@@ -959,7 +937,6 @@ hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     InputLabel = cms.InputTag( "rawDataCollector" ),
     UnpackCalib = cms.untracked.bool( True ),
     UnpackZDC = cms.untracked.bool( True ),
-    UnpackTTP = cms.untracked.bool( True ),
     firstSample = cms.int32( 0 ),
     lastSample = cms.int32( 9 ),
     FilterDataQuality = cms.bool( True )
@@ -1219,7 +1196,7 @@ hltMet = cms.EDProducer( "METProducer",
     InputType = cms.string( "CandidateCollection" ),
     METType = cms.string( "CaloMET" ),
     alias = cms.string( "RawCaloMET" ),
-    globalThreshold = cms.double( 0.5 ),
+    globalThreshold = cms.double( 0.3 ),
     noHF = cms.bool( False ),
     HO_EtResPar = cms.vdouble( 0.0, 1.3, 0.0050 ),
     HF_EtResPar = cms.vdouble( 0.0, 1.82, 0.09 ),

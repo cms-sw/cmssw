@@ -1,4 +1,5 @@
 HLTriggerFirstPath
+HLT_MinBiasHcal
 HLT_HIJet50U
 HLT_HIJet75U
 HLT_HIJet90U
