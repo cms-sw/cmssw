@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -16,6 +16,7 @@
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
 
 using namespace stor;
 
@@ -37,13 +38,18 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   // special handling for faulty or incomplete events
   if ( ioc.faulty() || !ioc.complete() )
   {
-    // mark these events for the special SM error stream
-    
-    // log a warning???
 
-    DataSenderMonitorCollection& dataSenderMonColl = _sharedResources->
-      _statisticsReporter->getDataSenderMonitorCollection();
+    XCEPT_DECLARE( stor::exception::I2OChain,
+                   xcept,
+                   "Bad I2OChain in EventDistributor::addEventToRelevantQueues" );
+    _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm( "BadI2OChain",
+                                                                       AlarmHandler::WARNING,
+                                                                       xcept );
+
+    DataSenderMonitorCollection& dataSenderMonColl =
+      _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
     dataSenderMonColl.addStaleChainSample(ioc);
+
   }
   else
   {
@@ -185,8 +191,14 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
     
     default:
     {
-      // Log error and/or go to failed state???
 
+      XCEPT_DECLARE( stor::exception::I2OChain,
+                     xcept,
+                     "Bad I2OChain in EventDistributor::tagCompleteEventForQueues" );
+      _sharedResources->_statisticsReporter->
+        alarmHandler()->raiseAlarm( "BadI2OChain",
+                                    AlarmHandler::WARNING,
+                                    xcept );
 
       // 24-Jun-2009, KAB - this is not really the best way to track this,
       // but it's probably better than nothing in the short term.
