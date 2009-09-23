@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.35 2009/09/18 15:15:09 mommsen Exp $
+// $Id: WebPageHelper.cc,v 1.36 2009/09/23 13:08:23 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -2006,11 +2006,11 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of fragments in fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.entriesInFragmentQueue, 1 );
+  maker.addDouble( tableDiv, snapshot.entriesInFragmentQueue, 0 );
   
   // number of fragments popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.fragmentQueueRate, 1 );
+  maker.addDouble( tableDiv, snapshot.fragmentQueueRate, 0 );
   
   // data rate popped from fragment queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2022,15 +2022,15 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of events in fragment store
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.fragmentStoreSize, 1 );
+  maker.addDouble( tableDiv, snapshot.fragmentStoreSize, 0 );
   
   // number of events in stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.entriesInStreamQueue, 1 );
+  maker.addDouble( tableDiv, snapshot.entriesInStreamQueue, 0 );
   
   // number of events popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.streamQueueRate, 1 );
+  maker.addDouble( tableDiv, snapshot.streamQueueRate, 0 );
   
   // data rate popped from stream queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2042,7 +2042,7 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of events written to disk
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.writtenEventsRate, 1 );
+  maker.addDouble( tableDiv, snapshot.writtenEventsRate, 0 );
   
   // date rate written to disk
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
@@ -2050,11 +2050,11 @@ void WebPageHelper::addRowForThroughputStatistics
   
   // number of dqm events in DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.entriesInDQMQueue, 1 );
+  maker.addDouble( tableDiv, snapshot.entriesInDQMQueue, 0 );
   
   // number of dqm events popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
-  maker.addDouble( tableDiv, snapshot.dqmQueueRate, 1 );
+  maker.addDouble( tableDiv, snapshot.dqmQueueRate, 0 );
   
   // data rate popped from DQMEvent queue
   tableDiv = maker.addNode("td", tableRow, tableValueAttr);
