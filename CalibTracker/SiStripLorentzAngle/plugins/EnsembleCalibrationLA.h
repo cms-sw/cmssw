@@ -7,11 +7,19 @@
 
 namespace sistrip {
 class EnsembleCalibrationLA : public edm::EDAnalyzer {
+
  public:
+
   explicit EnsembleCalibrationLA(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) {}
   void endJob();
+
  private:
+  
+  void write_ensembles_text(const Book&);
+  void write_ensembles_fits(const Book&);
+  void write_samples_fits(const Book&);
+
   std::vector<std::string> inputFiles;
   std::string inFileLocation, Prefix;
   unsigned maxEvents,samples, nbins;
