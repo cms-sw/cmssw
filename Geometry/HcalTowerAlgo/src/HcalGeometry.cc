@@ -9,14 +9,12 @@ HcalGeometry::HcalGeometry() :
    theTopology    ( new HcalTopology ),
    m_ownsTopology ( true )
 {
-   fillDetIds() ;
 }
 
 HcalGeometry::HcalGeometry( const HcalTopology* topology ) :
    theTopology    ( topology ) ,
    m_ownsTopology ( false ) 
 {
-   fillDetIds() ;
 }
   
 
@@ -27,7 +25,7 @@ HcalGeometry::~HcalGeometry()
 
 
 void
-HcalGeometry::fillDetIds()
+HcalGeometry::fillDetIds() const
 {
    const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
    for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
@@ -70,6 +68,8 @@ const std::vector<DetId>&
 HcalGeometry::getValidDetIds( DetId::Detector det,
 			      int             subdet ) const 
 {
+   if( 0 != subdet &&
+       0 == m_hbIds.size() ) fillDetIds() ;
    return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
 	    ( HcalBarrel == subdet ? m_hbIds :
 	      ( HcalEndcap == subdet ? m_heIds :
