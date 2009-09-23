@@ -47,6 +47,12 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 ## change jet-parton matching algorithm
 #process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 
+## choose which hypotheses to produce
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import addTtSemiLepHypotheses
+addTtSemiLepHypotheses(process,
+                       ["kMaxSumPtWMass", "kMVADisc"]
+                       )
+
 ## load HypothesisAnalyzer
 process.load("TopQuarkAnalysis.Examples.HypothesisAnalyzer_cff")
 
