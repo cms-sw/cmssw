@@ -103,10 +103,12 @@ class Handle:
         if not getByLabelSuccess:
             self._exception = RuntimeError ("getByLabel (%s, %s) failed" \
                                             % (self, labelString))
+            print "one", self._exception
             return
         if not self._wrapper.isPresent():
             self._exception = RuntimeError ("getByLabel (%s, %s) not present this event" \
                                             % (self, labelString))
+            print "two", self._exception
             return
         # if we're still here, then everything is happy.  Clear the exception
         self._exception = None
@@ -163,12 +165,34 @@ class Events:
         if len (kwargs):
             raise RuntimeError, "Unknown arguments %s" % kwargs
         if not self._filenames:
-            raise RuntimeError, "No input files given"        
+            raise RuntimeError, "No input files given"
+
+
+    def to (self, entryIndex):
+        """Jumps to event entryIndex"""
+        if self._veryFirstTime:
+            self._createFWLiteEvent()
+        self._event.to ( long(entryIndex) )
 
         
     def toBegin (self):
         """Called to reset event loop to first event."""
         self._toBegin = True
+
+
+    def size (self):
+        """Returns number of events"""
+        if self._veryFirstTime:
+            self._createFWLiteEvent()
+        return self._event.size()
+
+
+    def eventAuxiliary (self):
+        """Returns eventAuxiliary object"""
+        if self._veryFirstTime:
+            raise RuntimeError, "eventAuxiliary() called before "\
+                  "toBegin() or to()"
+        return self._event.eventAuxiliary()
 
 
     def object (self):
@@ -179,9 +203,13 @@ class Events:
     def getByLabel (self, *args):
         """Calls FWLite's getByLabel.  Called:
         getByLabel (moduleLabel, handle)
-        getByLabel (moduleLabel, productInstanceLabel, handle), or
-        getByLabel (moduleLabel, productInstanceLabel, processLabel, handle)
+        getByLabel (moduleLabel, productInstanceLabel, handle),
+        getByLabel (moduleLabel, productInstanceLabel, processLabel, handle),
+        or
+        getByLabel ( (mL, pIL,pL), handle)
         """
+        if self._veryFirstTime:
+            self._createFWLiteEvent()        
         length = len (args)
         if length < 2 or length > 4:
             # not called correctly
@@ -189,11 +217,13 @@ class Events:
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and isinstance (argsList[0], tuple):
+        if len(argsList)==1 and \
+               ( isinstance (argsList[0], tuple) or
+                 isinstance (argsList[0], list) ) :
             if len (argsList) > 3:
                 raise RuntimeError, "getByLabel Error: label tuple has too " \
                       "many arguments '%s'" % argsList[0]
-            argsList = argsList[:]
+            argsList = list(argsList[0])
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
