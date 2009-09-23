@@ -1,15 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.RecoGeometry.RecoGeometries_cff import *
-from TrackingTools.TrackFitters.MRHFittingSmootherESProducer_cfi import *
-from TrackingTools.TrackFitters.MRHTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.MRHTrajectorySmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
 from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
-from TrackingTools.TrackFitters.RungeKuttaKFFittingSmootherESProducer_cfi import *
-from TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi import *
-from TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi import *
 
+from TrackingTools.TrackFitters.MRHFitters_cff import *
+from TrackingTools.TrackFitters.RungeKuttaFitters_cff import *
+from TrackingTools.TrackFitters.RungeKutta1DFitters_cff import *
 
