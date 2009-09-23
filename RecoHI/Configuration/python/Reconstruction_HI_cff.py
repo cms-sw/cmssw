@@ -22,9 +22,9 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
 # Global + High-Level Reco Sequence
 globalRecoPbPb = cms.Sequence(heavyIonTracking
-                              * muonRecoPbPb
                               * hiEcalClusters
                               * runjets
+                              * muonRecoPbPb
                               * hiEgammaSequence
                               * hiCentrality
                               * hiEvtPlane
