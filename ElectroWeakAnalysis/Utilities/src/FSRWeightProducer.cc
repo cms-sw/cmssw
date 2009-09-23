@@ -102,7 +102,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   }
                   // Missing NLO QED orders in QED parton shower approach
                   // Change coupling scale from 0 to kT to estimate this effect
-                  (*weight) *= alphaRatio(photonEnergy*costheta);
+                  (*weight) *= alphaRatio(photonEnergy*sqrt(1-pow(costheta,2)));
             }
       }
 
