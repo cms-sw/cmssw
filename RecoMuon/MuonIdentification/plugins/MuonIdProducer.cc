@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.40 2009/09/07 04:49:15 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.41 2009/09/12 20:34:45 aeverett Exp $
 //
 //
 
@@ -54,7 +54,9 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
    produces<reco::MuonCollection>();
-   produces<reco::MuonTimeExtraMap>();
+   produces<reco::MuonTimeExtraMap>("combined");
+   produces<reco::MuonTimeExtraMap>("dt");
+   produces<reco::MuonTimeExtraMap>("csc");
    
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
@@ -307,6 +309,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
    reco::MuonTimeExtraMap::Filler filler(*muonTimeMap);
+   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapDT(new reco::MuonTimeExtraMap());
+   reco::MuonTimeExtraMap::Filler fillerDT(*muonTimeMapDT);
+   std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMapCSC(new reco::MuonTimeExtraMap());
+   reco::MuonTimeExtraMap::Filler fillerCSC(*muonTimeMapCSC);
 
    // loop over input collections
    
@@ -518,9 +524,18 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
    // timers.pop();
    OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(outputMuons);
+
    filler.insert(muonHandle, combinedTimeColl.begin(), combinedTimeColl.end());
    filler.fill();
-   iEvent.put(muonTimeMap);
+   fillerDT.insert(muonHandle, dtTimeColl.begin(), dtTimeColl.end());
+   fillerDT.fill();
+   fillerCSC.insert(muonHandle, cscTimeColl.begin(), cscTimeColl.end());
+   fillerCSC.fill();
+
+   iEvent.put(muonTimeMap,"combined");
+   iEvent.put(muonTimeMapDT,"dt");
+   iEvent.put(muonTimeMapCSC,"csc");
+
 }
 
 
