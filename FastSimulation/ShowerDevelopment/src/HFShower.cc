@@ -737,7 +737,7 @@ int HFShower::indexFinder(double x, const std::vector<double> & Fhist) {
   for (iter = 0; iter < size ; iter++) {
 
     if( curr >= size || curr < 1 )
-      LogError("FastCalorimetry") << " FamosHFShower::indexFinder - wrong current index = " 
+      LogWarning("FastCalorimetry") << " FamosHFShower::indexFinder - wrong current index = " 
 	   << curr << " !!!" << std::endl;
 
     if ((x <= Fhist[curr]) && (x > Fhist[curr-1])) break;

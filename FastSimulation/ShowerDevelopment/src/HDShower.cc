@@ -608,7 +608,7 @@ int HDShower::indexFinder(double x, const std::vector<double> & Fhist) {
   for (iter = 0; iter < size ; iter++) {
 
     if( curr >= size || curr < 1 )
-      LogError("FastCalorimetry") << " FamosHDShower::indexFinder - wrong current index = " 
+      LogWarning("FastCalorimetry") << " FamosHDShower::indexFinder - wrong current index = " 
 	   << curr << " !!!" << std::endl;
 
     if ((x <= Fhist[curr]) && (x > Fhist[curr-1])) break;
