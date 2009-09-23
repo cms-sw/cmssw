@@ -61,7 +61,7 @@ process.prod = cms.EDFilter("SiStripQualityHotStripIdentifierRoot",
     verbosity = cms.untracked.uint32(0),
     IOVMode = cms.string('Run'),
     Record = cms.string('SiStripBadStrip'),
-    rootDirPath = cms.untracked.string(''),
+    rootDirPath = cms.untracked.string('Run insertRun/AlCaReco'),
     rootFilename = cms.untracked.string('insertCastorPath/insertDataset/insertDQMFile'),
     doStoreOnDB = cms.bool(True)
 )
