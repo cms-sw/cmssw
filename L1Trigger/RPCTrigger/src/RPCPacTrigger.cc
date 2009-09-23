@@ -5,9 +5,7 @@
 *                                                                              *
 *******************************************************************************/
 #include "L1Trigger/RPCTrigger/interface/RPCPacTrigger.h"
-#ifdef _GRAB_MUONS
-#include "PactAnalysis/L1RpcMuonsGrabber.h"
-#endif
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
 RPCPacTrigger::RPCPacTrigger(RPCTriggerConfiguration* triggerConfig):
   m_FinalSorter(triggerConfig),
@@ -27,8 +25,6 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
  if (m_TrigCnfg->getDebugLevel()!=0){
 #ifdef _STAND_ALONE
    std::cout << "---TBMuons in new event" << std::endl;
-#else
-   LogDebug("RPCHwDebug") << "---TBMuons in new event";
 #endif // _STAND_ALONE
  }
   for(unsigned int iLC = 0; iLC < logConesVec.size(); iLC++) {
@@ -51,8 +47,11 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec) {
               <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel()) 
               << std::endl;
 #else
-	  LogDebug("RPCHwDebug") << "GB 2 " << iTB << " "
-                           <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+	 // LogDebug("RPCHwDebug") << "GB 2 " << iTB << " "
+         //                  <<tcsMuonsVec2[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+         MuonsGrabber::Instance().addMuon(tcsMuonsVec2[iTC][iTB], 2, -1, -1, iTB);  
+
+          
 #endif // _STAND_ALONE
         }
     }

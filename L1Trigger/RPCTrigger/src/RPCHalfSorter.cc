@@ -3,6 +3,8 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include <algorithm>
+
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 //---------------------------------------------------------------------------
 #include <set>
 using namespace std;
@@ -161,11 +163,14 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 	    iMod=4;
 	  }
           // Print out 
-          if (m_TrigCnfg->getDebugLevel()!=0){
+          if (m_TrigCnfg->getDebugLevel()==1){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
-	        << " " << i - iMod << " "
-                << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
+           // LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
+	   //     << " " << i - iMod << " "
+           //     << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
+           //MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
+           MuonsGrabber::Instance().addMuon(m_GBOutputMuons[region][i], 3, region, halfNum, i);  
+
 #else
             std::cout <<"GB 3" << region<< halfNum
 	        << " " << i - iMod << " "

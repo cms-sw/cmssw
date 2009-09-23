@@ -6,6 +6,7 @@
 *******************************************************************************/
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerBoard.h"
 #include "L1Trigger/RPCTrigger/interface/RPCException.h"
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
 #include<sstream>
 //---------------------------------------------------------------------------
@@ -68,8 +69,9 @@ bool RPCTriggerBoard::runCone(const RPCLogCone& cone)  {
         m_PacsMuonsVec.push_back(tbMuon);
         if (m_TriggerConfig->getDebugLevel()!=0){
 #ifndef _STAND_ALONE
-	  LogDebug("RPCHwDebug") << "GB 0 -1 "
-			         << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel());
+	//  LogDebug("RPCHwDebug") << "GB 0 -1 "
+	//		         << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel());
+          MuonsGrabber::Instance().addMuon(tbMuon, 0, -1, -1, -1);  
 #else
 	  std::cout << "GB 0 -1 "
   	  	    << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel())

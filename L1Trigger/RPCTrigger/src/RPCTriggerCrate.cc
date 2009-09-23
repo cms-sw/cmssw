@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
-
 #include "L1Trigger/RPCTrigger/interface/RPCTriggerCrate.h"
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
 //---------------------------------------------------------------------------
 RPCTriggerCrate::RPCTriggerCrate(RPCTriggerConfiguration* triggerConfig, int tcNum):
@@ -32,8 +32,9 @@ L1RpcTBMuonsVec RPCTriggerCrate::runTCGBSorter() {
     for (unsigned  int iTC = 0; iTC < tbMuonsVec2.size(); iTC++){
         for (unsigned  int iTB = 0; iTB < tbMuonsVec2[iTC].size(); iTB++){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug") << "GB 1 " << iTB << " "
-              <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel());
+ //           LogDebug("RPCHwDebug") << "GB 1 " << iTB << " "
+ //             <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel());
+            MuonsGrabber::Instance().addMuon(tbMuonsVec2[iTC][iTB], 1, -1, -1, iTB);  
 #else
 	  std::cout << "GB 1 " << "GB 1 " << iTB << " "
 		  <<tbMuonsVec2[iTC][iTB].printDebugInfo(m_TriggerConfig->getDebugLevel())

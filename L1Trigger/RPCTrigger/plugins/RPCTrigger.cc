@@ -13,6 +13,7 @@
 
 
 
+#include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
 
 RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
@@ -29,10 +30,11 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
   m_triggerDebug = iConfig.getUntrackedParameter<int>("RPCTriggerDebug",0);
   
   // 0 - no debug
-  // 2 - technical debug
-  // 1 - human readable debug
-  if ( m_triggerDebug != 1 && m_triggerDebug != 2)
+  // 1 - dump to xml
+  if ( m_triggerDebug != 1){
      m_triggerDebug = 0;
+  }
+     
    
   m_label = iConfig.getParameter<std::string>("label");
 }
@@ -51,7 +53,7 @@ void
 RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
  
-
+  if ( m_triggerDebug == 1)  MuonsGrabber::Instance().startNewEvent(iEvent.id().event(), iEvent.bunchCrossing());  
 
   if (m_firstRun){
 
@@ -66,6 +68,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
      m_trigConfig->setDebugLevel(m_triggerDebug);
      m_pacTrigger = new RPCPacTrigger(m_trigConfig);
+     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().setRPCBasicTrigConfig(m_trigConfig);
 
       
   }
@@ -87,6 +90,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      delete m_pacTrigger;
      m_pacTrigger = new RPCPacTrigger(m_trigConfig);
 
+     if ( m_triggerDebug == 1)  MuonsGrabber::Instance().setRPCBasicTrigConfig(m_trigConfig);
 
        
   }
@@ -139,8 +143,9 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
   
-    int maxFiredPlanes = 0;
+    //int maxFiredPlanes = 0;
     
+    /*
     for (unsigned int i=0;i<ActiveCones.size();i++){
         int fpCnt = ActiveCones[i].getFiredPlanesCnt();
         if (fpCnt > maxFiredPlanes)
@@ -151,6 +156,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // finalMuons[0]=barell, finalMuons[1]=endcap
     LogDebug("RPCTrigger") << "---Filling candindates in new event--- " 
                           << maxFiredPlanes << std::endl;
+    */
     
     std::vector<L1MuRegionalCand> RPCb = giveFinallCandindates(finalMuons[0],1, iBx);
     std::vector<L1MuRegionalCand> RPCf = giveFinallCandindates(finalMuons[1],3, iBx);
@@ -161,6 +167,7 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     candForward->insert(candForward->end(), RPCf.begin(), RPCf.end());
 
+    if ( m_triggerDebug == 1)  MuonsGrabber::Instance().writeDataForRelativeBX(iBx);  
   }  
   iEvent.put(candBarell, "RPCb");
   iEvent.put(candForward, "RPCf");

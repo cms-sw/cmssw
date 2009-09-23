@@ -23,13 +23,14 @@ process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
 process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
 process.load("L1Trigger.RPCTrigger.l1RpcEmulDigis_cfi")
 process.l1RpcEmulDigis.label = cms.string('simMuonRPCDigis')
+process.l1RpcEmulDigis.RPCTriggerDebug = 1
 
 # rpc r2d
 #process.load("EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi")
 #process.load("EventFilter.RPCRawToDigi.rpcUnpacker_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100000)
+    input = cms.untracked.int32(-1)
 )
 
 #process.source = cms.Source("NewEventStreamFileReader",

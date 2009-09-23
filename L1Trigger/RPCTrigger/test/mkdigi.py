@@ -52,9 +52,9 @@ process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MinPt = cms.double(2),
-        MaxPt = cms.double(80),
-        PartID = cms.vint32(13,-13),
+        MinPt = cms.double(14),
+        MaxPt = cms.double(15),
+        PartID = cms.vint32(13),
         MaxEta = cms.double(0.1),
         MaxPhi = cms.double(3.141592),
         MinEta = cms.double(-0.1),
