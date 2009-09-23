@@ -2,8 +2,8 @@
 
 /**
 \class LEPBandPlot
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/05/15 09:55:43 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class allows to produce plots like the ones of the 
@@ -109,9 +109,9 @@ class LEPBandPlot : public StatisticalPlot {
 
 
 //For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
+// #if (defined (STANDALONE) or defined (__CINT__) )
 ClassDef(LEPBandPlot,1)
-#endif
+// #endif
  };
 
 #endif

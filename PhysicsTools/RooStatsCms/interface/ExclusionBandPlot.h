@@ -2,8 +2,8 @@
 
 /**
 \class ExclusionBandPlot
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.4 $
+$Date: 2009/05/15 09:55:42 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 Yet another band plot, this time for sm exclusion, following the examples of 
@@ -81,10 +81,10 @@ class ExclusionBandPlot : public StatisticalPlot {
 
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
+//For Cint/**/
+// #if (defined (STANDALONE) or defined (__CINT__) )
 ClassDef(ExclusionBandPlot,1)
-#endif
+// #endif
  };
 
 #endif
