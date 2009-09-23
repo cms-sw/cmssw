@@ -13,7 +13,7 @@ from TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi impor
 # KFTrajectorySmootherESProducer
 from TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi import *
 # KFFittingSmootherESProducer
-from TrackingTools.TrackFitters.RungeKuttaKFFittingSmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.RungeKuttaFitters_cff import *
 # PropagatorWithMaterialESProducer
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer

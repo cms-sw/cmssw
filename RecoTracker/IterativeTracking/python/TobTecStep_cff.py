@@ -134,8 +134,8 @@ fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCan
     )
 
 # TRACK FITTING AND SMOOTHING OPTIONS
-import TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi
-fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.KFFittingSmootherWithOutliersRejectionAndRK_cfi.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+import TrackingTools.TrackFitters.RungeKuttaFitters_cff
+fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
     ComponentName = 'fifthFittingSmootherWithOutlierRejection',
     EstimateCut = 20,
     MinNumberOfHits = 7,
@@ -144,14 +144,12 @@ fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.KFFittingS
     )
 
 # Also necessary to specify minimum number of hits after final track fit
-import TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi
-import TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi
-fifthRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi.RKTrajectoryFitter.clone(
+fifthRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
     ComponentName = cms.string('fifthRKFitter'),
     minHits = 7
     )
 
-fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi.RKTrajectorySmoother.clone(
+fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
     ComponentName = cms.string('fifthRKSmoother'),
     minHits = 7
     )
