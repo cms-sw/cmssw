@@ -11,8 +11,8 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2008/09/11 13:19:21 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/02/12 17:28:18 $
+ *  $Revision: 1.8 $
  *  \author J. Mans - UMD
  */
 
@@ -45,7 +45,7 @@ class HcalDCCHeader {
   /** Check the third bit of second Slink64 CDF word */
   inline bool thereIsAThirdCDFHeaderWord() const {return ((commondataformat2>>3) & 0x0001); }
   /** Get the Orbit Number from the CDF. */
-  inline unsigned int getOrbitNumber() const { return (commondataformat2>>4); }
+  inline unsigned int getOrbitNumber() const { return ( ((commondataformat3 && 0xF) << 28) + ( commondataformat2>>4) ); }
   /** get the (undefined) 'Reserved' part of the second Slink64 CDF word */
   inline unsigned int getSlink64ReservedBits() const { return (  (commondataformat3>>4)&0x00FFFFFF ); }
   /** Get the Beginning Of Event bits.  If it's not the first or last CDF Slink64 word, the high 4 bits must be zero.*/
