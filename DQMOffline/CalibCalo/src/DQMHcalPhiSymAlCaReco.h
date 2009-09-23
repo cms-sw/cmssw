@@ -5,8 +5,8 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2009/07/30 08:48:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/11 11:39:24 $
+ *  $Revision: 1.4 $
  *  \author Stefano Argiro'
  *          Andrea Gozzelino - Universita  e INFN Torino
  *   
@@ -71,7 +71,9 @@ private:
   MonitorElement * hiDistrHBHEsize1D_;
   MonitorElement * hiDistrHFsize1D_;
 
-  MonitorElement* hFEDsize;
+  MonitorElement * hFEDsize;
+  MonitorElement * hHcalIsZS;
+  MonitorElement * hL1Id;
   
   int hiDistr_y_nbin_;
   int hiDistr_x_nbin_;
@@ -102,6 +104,9 @@ private:
  
   /// Write to file 
   bool saveToFile_;
+
+  //period of ZS
+  unsigned int period_;
 
   /// Output file name if required
   std::string fileName_;

@@ -2,9 +2,9 @@
  * \file DQMHcalPhiSymAlCaReco.cc
  *
  * \author Olga Kodolova
- *        
- * $Date: 2009/08/25 21:32:49 $
- * $Revision: 1.11 $
+ * 
+ * $Date: 2009/09/11 11:39:15 $
+ * $Revision: 1.12 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -32,6 +32,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/CalibCalo/src/DQMHcalPhiSymAlCaReco.h"
@@ -47,37 +50,39 @@ DQMHcalPhiSymAlCaReco::DQMHcalPhiSymAlCaReco( const edm::ParameterSet& ps ) :
 eventCounter_(0)
 {
   dbe_ = Service<DQMStore>().operator->();
-//
-// Input from configurator file 
-//
-  folderName_ = ps.getUntrackedParameter<string>("FolderName","ALCAStreamHcalPhiSym");
+  //
+  // Input from configurator file 
+  //
+  folderName_   = ps.getUntrackedParameter<string>("FolderName","ALCAStreamHcalPhiSym");
   
-  hbherecoMB = ps.getParameter<edm::InputTag>("hbheInputMB");
-  horecoMB   = ps.getParameter<edm::InputTag>("hoInputMB");
-  hfrecoMB   = ps.getParameter<edm::InputTag>("hfInputMB");
+  hbherecoMB    = ps.getParameter<edm::InputTag>("hbheInputMB");
+  horecoMB      = ps.getParameter<edm::InputTag>("hoInputMB");
+  hfrecoMB      = ps.getParameter<edm::InputTag>("hfInputMB");
   
   hbherecoNoise = ps.getParameter<edm::InputTag>("hbheInputNoise");
   horecoNoise   = ps.getParameter<edm::InputTag>("hoInputNoise");
   hfrecoNoise   = ps.getParameter<edm::InputTag>("hfInputNoise");
 
-  rawInLabel_=ps.getParameter<edm::InputTag>("rawInputLabel");
+  rawInLabel_   = ps.getParameter<edm::InputTag>("rawInputLabel");
 
-  saveToFile_=ps.getUntrackedParameter<bool>("SaveToFile",false);
-  fileName_=  ps.getUntrackedParameter<string>("FileName","MonitorAlCaHcalPhiSym.root");
+  period_       = ps.getParameter<unsigned int>("period") ;
+
+  saveToFile_   = ps.getUntrackedParameter<bool>("SaveToFile",false);
+  fileName_     = ps.getUntrackedParameter<string>("FileName","MonitorAlCaHcalPhiSym.root");
 
   // histogram parameters
 
   // Distribution of rechits in iPhi, iEta 
-  hiDistr_y_nbin_= ps.getUntrackedParameter<int>("hiDistr_y_nbin",72);
-  hiDistr_y_min_=  ps.getUntrackedParameter<double>("hiDistr_y_min",0.5);
-  hiDistr_y_max_=  ps.getUntrackedParameter<double>("hiDistr_y_max",72.5);
-  hiDistr_x_nbin_= ps.getUntrackedParameter<int>("hiDistr_x_nbin",41);
-  hiDistr_x_min_=  ps.getUntrackedParameter<double>("hiDistr_x_min",0.5);
-  hiDistr_x_max_=  ps.getUntrackedParameter<double>("hiDistr_x_max",41.5);
+  hiDistr_y_nbin_ = ps.getUntrackedParameter<int>("hiDistr_y_nbin",72);
+  hiDistr_y_min_  =  ps.getUntrackedParameter<double>("hiDistr_y_min",0.5);
+  hiDistr_y_max_  =  ps.getUntrackedParameter<double>("hiDistr_y_max",72.5);
+  hiDistr_x_nbin_ = ps.getUntrackedParameter<int>("hiDistr_x_nbin",41);
+  hiDistr_x_min_  =  ps.getUntrackedParameter<double>("hiDistr_x_min",0.5);
+  hiDistr_x_max_  =  ps.getUntrackedParameter<double>("hiDistr_x_max",41.5);
   // Check for NZS
   hiDistr_r_nbin_ = ps.getUntrackedParameter<int>("hiDistr_r_nbin",100);
-  ihbhe_size_ = ps.getUntrackedParameter<double>("ihbhe_size_",5184.);
-  ihf_size_ = ps.getUntrackedParameter<double>("ihf_size_",1728.);
+  ihbhe_size_     = ps.getUntrackedParameter<double>("ihbhe_size_",5184.);
+  ihf_size_       = ps.getUntrackedParameter<double>("ihf_size_",1728.);
     
 }
 
@@ -92,8 +97,18 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
 
   eventCounter_ = 0;
 
-  hFEDsize=dbe_->book1D("hFEDsize","HCAL FED size (kB)",200,-0.5,20.5);
+  hFEDsize = dbe_->book1D("hFEDsize","HCAL FED size (kB)",200,-0.5,20.5);
   hFEDsize->setAxisTitle("kB",1);
+
+  hHcalIsZS = dbe_->book1D("hHcalIsZS", "Hcal Is ZS", 4, -1.5, 2.5);
+  hHcalIsZS->setBinLabel(2, "NZS");
+  hHcalIsZS->setBinLabel(3, "ZS");
+
+  char hname[50];
+  sprintf(hname, "L1 Event Number %% %i", period_);
+  hL1Id = dbe_->book1D("hL1Id", hname,4200,-99.5,4099.5);
+  hL1Id->setAxisTitle(hname);
+  
 
   // book some histograms 1D
   double xmin = 0.1;
@@ -299,7 +314,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
 			       const EventSetup& iSetup ){  
  
 
-   eventCounter_++;
+  eventCounter_++;
  
   edm::Handle<FEDRawDataCollection> rawIn;
   iEvent.getByLabel(rawInLabel_,rawIn);
@@ -316,54 +331,78 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
       selFEDs.push_back(i);
     }
 
-//  std::cout<<" Size of FED "<<selFEDs.size()<<std::endl;
+  //  std::cout<<" Size of FED "<<selFEDs.size()<<std::endl;
 
   const FEDRawDataCollection *rdc=rawIn.product(); 
 
+  bool hcalIsZS = false ;
   for (unsigned int k=0; k<selFEDs.size(); k++)
     {
       const FEDRawData & fedData = rdc->FEDData(selFEDs[k]);
-//      std::cout<<fedData.size()*pow(1024.,-1)<<std::endl;
+      // std::cout<<fedData.size()*pow(1024.,-1)<<std::endl;
       hFEDsize->Fill(fedData.size()*pow(1024.,-1),1);
-    }
+      
+      // get HCAL DCC Header for each FEDRawData
+      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
 
+      // walk through the HTR data...
+      HcalHTRData htr;  
+      for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+	if (!dccHeader->getSpigotPresent(spigot)) continue;
+
+	// Load the given decoder with the pointer and length from this spigot.
+	dccHeader->getSpigotData(spigot,htr, fedData.size()); 
+      
+	if ( !htr.isUnsuppressed() ) { hcalIsZS = true; }
+      } 
+    
+    } // loop over HcalFEDs
+  
+  hHcalIsZS->Fill( hcalIsZS );
+
+  // get Trigger FED-Id
+  const FEDRawData& fedData = rdc->FEDData(FEDNumbering::MINTriggerGTPFEDID) ;
+  FEDHeader header(fedData.data()) ;
+
+  /// Level-1 event number generated by the TTC system
+  hL1Id->Fill( (header.lvl1ID())%period_ );
  
-   edm::Handle<HBHERecHitCollection> hbheNS;
-   iEvent.getByLabel(hbherecoNoise, hbheNS);
-
-   if(!hbheNS.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      return ;
-   }
-   
-   edm::Handle<HBHERecHitCollection> hbheMB;
-   iEvent.getByLabel(hbherecoMB, hbheMB);
-
-   if(!hbheMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     return ;
-   }
-
-   edm::Handle<HFRecHitCollection> hfNS;
-   iEvent.getByLabel(hfrecoNoise, hfNS);
-
-   if(!hfNS.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-     return ;
-   }
-
-   edm::Handle<HFRecHitCollection> hfMB;
-   iEvent.getByLabel(hfrecoMB, hfMB);
-
-   if(!hfMB.isValid()){
-     LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      return ;
-   }
-
+  edm::Handle<HBHERecHitCollection> hbheNS;
+  iEvent.getByLabel(hbherecoNoise, hbheNS);
+  
+  if(!hbheNS.isValid()){
+    LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+    return ;
+  }
+  
+  edm::Handle<HBHERecHitCollection> hbheMB;
+  iEvent.getByLabel(hbherecoMB, hbheMB);
+  
+  if(!hbheMB.isValid()){
+    LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+    return ;
+  }
+  
+  edm::Handle<HFRecHitCollection> hfNS;
+  iEvent.getByLabel(hfrecoNoise, hfNS);
+  
+  if(!hfNS.isValid()){
+    LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+    return ;
+  }
+  
+  edm::Handle<HFRecHitCollection> hfMB;
+  iEvent.getByLabel(hfrecoMB, hfMB);
+  
+  if(!hfMB.isValid()){
+    LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
+    return ;
+  }
+  
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
   
   hiDistrHBHEsize1D_->Fill(HithbheNS.size()/ihbhe_size_);
-
+  
      
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
         {
