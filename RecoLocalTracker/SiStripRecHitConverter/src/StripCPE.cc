@@ -59,7 +59,7 @@ StripCPE::Param const & StripCPE::
 param(const uint32_t detid) const {
   Param & p = const_cast<StripCPE*>(this)->m_Params[detid];
   if (p.topology) return p;
-  else return const_cast<StripCPE*>(this)->fillParam(p, geom_->idToDetUnit(DetId(detid)));
+  else return const_cast<StripCPE*>(this)->fillParam(p, geom_->idToDetUnit(detid));
 }
 
 StripCPE::Param & StripCPE::

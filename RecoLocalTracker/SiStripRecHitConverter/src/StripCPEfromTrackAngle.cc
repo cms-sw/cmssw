@@ -28,7 +28,7 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
 
 inline
 float StripCPEfromTrackAngle::
-stripErrorSquared(const unsigned& N, const float& uProj) const
+stripErrorSquared(const unsigned N, const float uProj) const
 {
   if( (N-uProj) > 3.5 )  
     return N*N/12.;
