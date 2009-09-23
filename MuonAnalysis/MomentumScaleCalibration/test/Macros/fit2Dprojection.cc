@@ -67,7 +67,7 @@ class ProjectionFitter
                                  const unsigned int rebinX, const unsigned int rebinY,
                                  const double & fitXmin, const double & fitXmax,
                                  const TString & fitName, const TString & append,
-                                 const unsigned int minEntries = 100);
+                                 TFile * outputFile, const unsigned int minEntries = 100);
  protected:
   /// Take the projection and give it a suitable name and title
   TH1 * takeProjectionY( const TH2 * histo, const int index ) {
@@ -94,8 +94,8 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
                                                  const unsigned int rebinX, const unsigned int rebinY,
                                                  const double & fitXmin, const double & fitXmax,
                                                  const TString & fitName, const TString & append,
-                                                 const unsigned int minEntries) {
-
+                                                 TFile * outputFile, const unsigned int minEntries)
+{
   // Read the TH2 from file
   // cout << "inputFileName = " << inputFileName << endl;
   TFile *inputFile = new TFile(inputFileName);
@@ -108,10 +108,10 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   vector<FitResult> fitResults;
 
   // Output file
-  TString outputFileName("fitCompare2"+histoName);
-  outputFileName += append;
-  outputFileName += ".root";
-  TFile * outputFile = new TFile(outputFileName,"RECREATE");
+  // TString outputFileName("fitCompare2"+histoName);
+  // outputFileName += append;
+  // outputFileName += ".root";
+  // TFile * outputFile = new TFile(outputFileName,"RECREATE");
 
   // For each bin in X take the projection on Y and fit.
   // All the fits are saved in a single canvas.
@@ -183,7 +183,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
     }
   }
 
-  TCanvas * canvasYcheck = new TCanvas(histoName+"_canvas_check", histoName+" fits check", 1000, 800);
+  TCanvas * canvasYcheck = new TCanvas(histoName+"_canvas_check"+append, histoName+" fits check", 1000, 800);
   int sizeCheck = projections.size();
   int x = int(sqrt(sizeCheck));
   int y = x;
@@ -200,6 +200,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
     (*it)->Draw();
     (*it)->GetXaxis()->SetRangeUser(fitXmin, fitXmax);
     (*fit)->Draw("same");
+    (*fit)->SetLineColor(kRed);
   }
 
   // Plot the fit results in TGraphs
@@ -243,15 +244,15 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
 
   outputFile->cd();
   // Draw and save the graphs
-  TCanvas * c1 = new TCanvas(histoName+"_Width", histoName+"_Width");
+  TCanvas * c1 = new TCanvas(histoName+"_Width"+append, histoName+"_Width");
   c1->cd();
   grWidth->Draw("AP");
   c1->Write();
-  TCanvas * c2 = new TCanvas(histoName+"_Mean", histoName+"_Mean");
+  TCanvas * c2 = new TCanvas(histoName+"_Mean"+append, histoName+"_Mean");
   c2->cd();
   grMean->Draw("AP");
   c2->Write();
-  TCanvas * c3 = new TCanvas(histoName+"_Chi2", histoName+"_Chi2");
+  TCanvas * c3 = new TCanvas(histoName+"_Chi2"+append, histoName+"_Chi2");
   c3->cd();
   grChi2->Draw("AP");
   c3->Write();
@@ -259,7 +260,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   // Write the canvas with the fits
   canvasYcheck->Write();
 
-  outputFile->Close();
+  // outputFile->Close();
 
   return grMean;
 }
@@ -267,8 +268,8 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
 /****************************************************************************************/
 void macroPlot( TString name, const TString & nameFile1, const TString & nameFile2, const TString & title,
                 const TString & resonanceType, const int rebinX, const int rebinY, const TString & outputFileName,
-                TFile * externalOutputFile = 0) {
-
+                TFile * externalOutputFile = 0)
+{
   gROOT->SetBatch(true);
 
   //Save the graphs in a file
@@ -292,8 +293,8 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
   else if( resonanceType == "Z" ) { y[0]=70; y[1]=110; }
   else if( resonanceType == "Resolution" ) { y[0]=-0.3; y[1]=0.3; }
 
-  TGraphErrors *grM_1 = projectionFitter.fit2Dprojection( nameFile1, name, rebinX, rebinY, y[0], y[1], "gaus", "_1" );
-  TGraphErrors *grM_2 = projectionFitter.fit2Dprojection( nameFile2, name, rebinX, rebinY, y[0], y[1], "gaus", "_2" );
+  TGraphErrors *grM_1 = projectionFitter.fit2Dprojection( nameFile1, name, rebinX, rebinY, y[0], y[1], "gaus", "_1", outputFile );
+  TGraphErrors *grM_2 = projectionFitter.fit2Dprojection( nameFile2, name, rebinX, rebinY, y[0], y[1], "gaus", "_2", outputFile );
 
   TCanvas *c = new TCanvas(name,name);
   c->SetGridx();
