@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 #define MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 //
-// $Id: MatcherUsingTracksAlgorithm.h,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
+// $Id: MatcherUsingTracksAlgorithm.h,v 1.4 2009/09/05 17:03:38 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.4 2009/09/05 17:03:38 gpetrucc Exp $
 */
 
 
@@ -37,12 +37,12 @@ class MatcherUsingTracksAlgorithm {
 
         /// Try to match one track to another one. Return true if succeeded.
         /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
-        bool match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltaR, float &deltaLocalPos, float &deltaPtRel, float &chi2) const ;
+        bool match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltaR, float &deltaEta, float &deltaPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const ;
 
         /// Find the best match to another candidate, and return its index in the vector
         /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
         /// Returns -1 if the match fails
-        int match(const reco::Candidate &tk, const edm::View<reco::Candidate> &c2s, float &deltaR, float &deltaLocalPos, float &deltaPtRel, float &chi2) const ;
+        int match(const reco::Candidate &tk, const edm::View<reco::Candidate> &c2s, float &deltaR, float &deltaEta, float &deltaPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const ;
 
         /// Return 'true' if the matcher will produce meaningful deltaR, deltaLocalPos, deltaPtRel values
         bool hasMetrics() const { return algo_ != ByTrackRef; }
@@ -90,7 +90,7 @@ class MatcherUsingTracksAlgorithm {
         float maxGlobalDPtRel_;
         float maxChi2_;
         bool  useChi2_, chi2UseVertex_, chi2DiagonalOnly_, chi2FirstMomentum_;
-        enum  SortBy { LocalPosDiff, GlobalMomDeltaR, GlobalDPtRel, Chi2};
+        enum  SortBy { LocalPosDiff, GlobalMomDeltaR, GlobalMomDeltaEta, GlobalMomDeltaPhi, GlobalDPtRel, Chi2};
         SortBy sortBy_;
 
         //- Tools
@@ -110,16 +110,16 @@ class MatcherUsingTracksAlgorithm {
         /// Propagate and match. return true if current pair is the new best match (in that case, update also deltaR and deltaLocalPos)
         /// Uses TrajectoryStateClosestToPointBuilder
         bool matchWithPropagation(const FreeTrajectoryState &start, const FreeTrajectoryState &target, 
-                float &lastDeltaR, float &lastDeltaLocalPos, float &lastGlobalDPtRel, float &lastChi2) const ;
+                float &lastDeltaR, float &lastDeltaEta, float &lastDeltaPhi, float &lastDeltaLocalPos, float &lastGlobalDPtRel, float &lastChi2) const ;
 
         /// Propagate and match. return true if current pair is the new best match (in that case, update also deltaR and deltaLocalPos)
         /// Uses standard propagator to reach target's surface
         bool matchWithPropagation(const FreeTrajectoryState &start, const TrajectoryStateOnSurface &target, 
-                float &lastDeltaR, float &lastDeltaLocalPos, float &lastGlobalDPtRel, float &lastChi2) const ;
+                float &lastDeltaR, float &lastDeltaEta, float &lastDeltaPhi, float &lastDeltaLocalPos, float &lastGlobalDPtRel, float &lastChi2) const ;
 
         /// Compare directly two states. return true if current pair is the new best match (in that case, update also deltaR and deltaLocalPos)
         bool matchByDirectComparison(const FreeTrajectoryState &start, const FreeTrajectoryState &other, 
-                float &lastDeltaR, float &lastDeltaLocalPos, float &lastGlobalDPtRel, float &lastChi2) const ;
+                float &lastDeltaR, float &lastDeltaEta, float &lastDeltaPhi, float &lastDeltaLocalPos, float &lastGlobalDPtRel, float &lastChi2) const ;
 
         /// Parse some configuration
         void getConf(const edm::ParameterSet & iConfig, const std::string &whatFor, WhichTrack &whichTrack, WhichState &whichState) ;

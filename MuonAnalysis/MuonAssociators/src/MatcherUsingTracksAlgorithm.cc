@@ -56,8 +56,8 @@ MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet
         if      (sortBy == "deltaLocalPos") sortBy_ = LocalPosDiff;
         else if (sortBy == "deltaPtRel")    sortBy_ = GlobalDPtRel;
         else if (sortBy == "deltaR")        sortBy_ = GlobalMomDeltaR;
-        //else if (sortBy == "deltaEta")      sortBy_ = GlobalMomDeltaEta;
-        //else if (sortBy == "deltaPhi")      sortBy_ = GlobalMomDeltaPhi;
+        else if (sortBy == "deltaEta")      sortBy_ = GlobalMomDeltaEta;
+        else if (sortBy == "deltaPhi")      sortBy_ = GlobalMomDeltaPhi;
         else if (sortBy == "chi2")          sortBy_ = Chi2;
         else throw cms::Exception("Configuration") << "Parameter 'sortBy' must be one of: deltaLocalPos, deltaPtRel, deltaR, chi2.\n";
         // validate the config
@@ -123,7 +123,7 @@ MatcherUsingTracksAlgorithm::getConf(const edm::ParameterSet & iConfig, const st
 /// Try to match one track to another one. Return true if succeeded.
 /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
 bool 
-MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltR, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
+MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candidate &c2, float &deltR, float &deltEta, float &deltPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
     switch (algo_) {
         case ByTrackRef: { 
             reco::TrackRef t1 = getTrack(c1, whichTrack1_); 
@@ -136,28 +136,28 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candid
         case ByPropagatingSrc: {
             FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
             TrajectoryStateOnSurface target = targetState(c2, whichTrack2_, whichState2_);
-            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, chi2);
+            return matchWithPropagation(start, target, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2);
             }
         case ByPropagatingMatched: { 
             FreeTrajectoryState start = startingState(c2, whichTrack2_, whichState2_);
             TrajectoryStateOnSurface target = targetState(c1, whichTrack1_, whichState1_);
-            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, chi2);
+            return matchWithPropagation(start, target, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2);
             }
         case ByPropagatingSrcTSCP: {
             FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
             FreeTrajectoryState target = startingState(c2, whichTrack2_, whichState2_);
-            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, chi2);
+            return matchWithPropagation(start, target, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2);
             }
         case ByPropagatingMatchedTSCP: { 
             FreeTrajectoryState start = startingState(c2, whichTrack2_, whichState2_);
             FreeTrajectoryState target = startingState(c1, whichTrack1_, whichState1_);
-            return matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, chi2);
+            return matchWithPropagation(start, target, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2);
             }
 
         case ByDirectComparison: {
             FreeTrajectoryState start = startingState(c1, whichTrack1_, whichState1_);
             FreeTrajectoryState otherstart = startingState(c2, whichTrack2_, whichState2_);
-            return matchByDirectComparison(start, otherstart, deltR, deltaLocalPos, deltaPtRel, chi2);
+            return matchByDirectComparison(start, otherstart, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2);
             }
     }
     return false;
@@ -167,7 +167,7 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const reco::Candid
 /// For matches not by ref, it will update deltaR, deltaLocalPos and deltaPtRel if the match suceeded
 /// Returns -1 if the match fails
 int 
-MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<reco::Candidate> &c2s, float &deltR, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
+MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<reco::Candidate> &c2s, float &deltR, float &deltEta, float &deltPhi, float &deltaLocalPos, float &deltaPtRel, float &chi2) const {
     
     // working and output variables
     FreeTrajectoryState start; TrajectoryStateOnSurface target;
@@ -195,25 +195,25 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<re
             case ByPropagatingMatched: {
                      if (algo_ == ByPropagatingMatched)  start = startingState(*it, whichTrack2_, whichState2_);
                      else if (algo_ == ByPropagatingSrc) target = targetState(*it, whichTrack2_, whichState2_);
-                     if (matchWithPropagation(start, target, deltR, deltaLocalPos, deltaPtRel, chi2)) { 
+                     if (matchWithPropagation(start, target, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2)) { 
                          match = i; 
                      }
                  } break;
             case ByDirectComparison: {
                      FreeTrajectoryState otherstart = startingState(*it, whichTrack2_, whichState2_);
-                     if (matchByDirectComparison(start, otherstart, deltR, deltaLocalPos, deltaPtRel, chi2)) {
+                     if (matchByDirectComparison(start, otherstart, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2)) {
                          match = i;
                      }
                  } break;
             case ByPropagatingSrcTSCP: {
                     FreeTrajectoryState otherstart = startingState(*it, whichTrack2_, whichState2_);
-                    if (matchWithPropagation(start, otherstart, deltR, deltaLocalPos, deltaPtRel, chi2)) {
+                    if (matchWithPropagation(start, otherstart, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2)) {
                          match = i;
                     }
                 } break;
             case ByPropagatingMatchedTSCP: {
                     FreeTrajectoryState otherstart = startingState(*it, whichTrack2_, whichState2_);
-                    if (matchWithPropagation(otherstart, start, deltR, deltaLocalPos, deltaPtRel, chi2)) {
+                    if (matchWithPropagation(otherstart, start, deltR, deltEta, deltPhi, deltaLocalPos, deltaPtRel, chi2)) {
                          match = i;
                     }
                 } break;
@@ -286,7 +286,9 @@ MatcherUsingTracksAlgorithm::targetState(const reco::Candidate &reco, WhichTrack
 bool
 MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &start, 
                                               const TrajectoryStateOnSurface &target, 
-                                              float &lastDeltaR, 
+                                              float &lastDeltaR,
+                                              float &lastDeltaEta,
+                                              float &lastDeltaPhi, 
                                               float &lastDeltaLocalPos,
                                               float &lastGlobalDPtRel,
                                               float &lastChi2) const 
@@ -311,14 +313,18 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
             float thisChi2         = useChi2_ ? getChi2(target, tsos, chi2DiagonalOnly_, chi2UseVertex_) : 0;
             if (thisChi2 >= maxChi2_) return false;
             switch (sortBy_) {
-                case LocalPosDiff:    isBest = (thisLocalPosDiff    < lastDeltaLocalPos); break;
-                case GlobalMomDeltaR: isBest = (thisGlobalMomDeltaR < lastDeltaR);        break;
-                case GlobalDPtRel:    isBest = (thisGlobalDPtRel    < lastGlobalDPtRel);  break;
-                case Chi2:            isBest = (thisChi2            < lastChi2);          break;
+                case LocalPosDiff:      isBest = (thisLocalPosDiff      < lastDeltaLocalPos); break;
+                case GlobalMomDeltaR:   isBest = (thisGlobalMomDeltaR   < lastDeltaR);        break;
+                case GlobalMomDeltaEta: isBest = (thisGlobalMomDeltaEta < lastDeltaEta);      break;
+                case GlobalMomDeltaPhi: isBest = (thisGlobalMomDeltaPhi < lastDeltaPhi);      break;
+                case GlobalDPtRel:      isBest = (thisGlobalDPtRel      < lastGlobalDPtRel);  break;
+                case Chi2:              isBest = (thisChi2              < lastChi2);          break;
             }
             if (isBest) {
                 lastDeltaLocalPos = thisLocalPosDiff;
                 lastDeltaR        = thisGlobalMomDeltaR;
+                lastDeltaEta      = thisGlobalMomDeltaEta;
+                lastDeltaPhi      = thisGlobalMomDeltaPhi;
                 lastGlobalDPtRel  = thisGlobalDPtRel;
                 lastChi2          = thisChi2;
             } 
@@ -331,7 +337,9 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
 bool
 MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &start, 
                                               const FreeTrajectoryState &target, 
-                                              float &lastDeltaR, 
+                                              float &lastDeltaR,
+                                              float &lastDeltaEta,
+                                              float &lastDeltaPhi, 
                                               float &lastDeltaLocalPos,
                                               float &lastGlobalDPtRel,
                                               float &lastChi2) const 
@@ -357,14 +365,18 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
         float thisChi2         = useChi2_ ? getChi2(target, tscp, chi2DiagonalOnly_, chi2UseVertex_) : 0;
         if (thisChi2 >= maxChi2_) return false;
         switch (sortBy_) {
-            case LocalPosDiff:    isBest = (thisLocalPosDiff    < lastDeltaLocalPos); break;
-            case GlobalMomDeltaR: isBest = (thisGlobalMomDeltaR < lastDeltaR);        break;
-            case GlobalDPtRel:    isBest = (thisGlobalDPtRel    < lastGlobalDPtRel);  break;
-            case Chi2:            isBest = (thisChi2            < lastChi2);          break;
+            case LocalPosDiff:      isBest = (thisLocalPosDiff      < lastDeltaLocalPos); break;
+            case GlobalMomDeltaR:   isBest = (thisGlobalMomDeltaR   < lastDeltaR);        break;
+            case GlobalMomDeltaEta: isBest = (thisGlobalMomDeltaEta < lastDeltaEta);      break;
+            case GlobalMomDeltaPhi: isBest = (thisGlobalMomDeltaPhi < lastDeltaPhi);      break;
+            case GlobalDPtRel:      isBest = (thisGlobalDPtRel      < lastGlobalDPtRel);  break;
+            case Chi2:              isBest = (thisChi2              < lastChi2);          break;
         }
         if (isBest) {
             lastDeltaLocalPos = thisLocalPosDiff;
             lastDeltaR        = thisGlobalMomDeltaR;
+            lastDeltaEta      = thisGlobalMomDeltaEta;
+            lastDeltaPhi      = thisGlobalMomDeltaPhi;
             lastGlobalDPtRel  = thisGlobalDPtRel;
             lastChi2          = thisChi2;
         } 
@@ -378,7 +390,9 @@ MatcherUsingTracksAlgorithm::matchWithPropagation(const FreeTrajectoryState &sta
 bool
 MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &start, 
                                                  const FreeTrajectoryState &target, 
-                                                 float &lastDeltaR, 
+                                                 float &lastDeltaR,
+                                                 float &lastDeltaEta,
+                                                 float &lastDeltaPhi, 
                                                  float &lastDeltaLocalPos,
                                                  float &lastGlobalDPtRel,
                                                  float &lastChi2) const 
@@ -400,14 +414,18 @@ MatcherUsingTracksAlgorithm::matchByDirectComparison(const FreeTrajectoryState &
         float thisChi2 = useChi2_ ? getChi2(start, target, chi2DiagonalOnly_, chi2UseVertex_, chi2FirstMomentum_) : 0;
         if (thisChi2 >= maxChi2_) return false;
         switch (sortBy_) {
-            case LocalPosDiff:    isBest = (thisLocalPosDiff    < lastDeltaLocalPos); break;
-            case GlobalMomDeltaR: isBest = (thisGlobalMomDeltaR < lastDeltaR);        break;
-            case GlobalDPtRel:    isBest = (thisGlobalDPtRel    < lastGlobalDPtRel);  break;
-            case Chi2:            isBest = (thisChi2            < lastChi2);          break;
+            case LocalPosDiff:      isBest = (thisLocalPosDiff      < lastDeltaLocalPos); break;
+            case GlobalMomDeltaR:   isBest = (thisGlobalMomDeltaR   < lastDeltaR);        break;
+            case GlobalMomDeltaEta: isBest = (thisGlobalMomDeltaEta < lastDeltaEta);      break;
+            case GlobalMomDeltaPhi: isBest = (thisGlobalMomDeltaPhi < lastDeltaPhi);      break;
+            case GlobalDPtRel:      isBest = (thisGlobalDPtRel      < lastGlobalDPtRel);  break;
+            case Chi2:              isBest = (thisChi2              < lastChi2);          break;
         }
         if (isBest) {
             lastDeltaLocalPos = thisLocalPosDiff;
             lastDeltaR        = thisGlobalMomDeltaR;
+            lastDeltaEta      = thisGlobalMomDeltaEta;
+            lastDeltaPhi      = thisGlobalMomDeltaPhi;
             lastGlobalDPtRel  = thisGlobalDPtRel;
             lastChi2          = thisChi2;
         } 

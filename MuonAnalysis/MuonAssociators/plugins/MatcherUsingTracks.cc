@@ -1,5 +1,5 @@
 //
-// $Id: MatcherUsingTracks.cc,v 1.2 2009/08/02 08:33:19 gpetrucc Exp $
+// $Id: MatcherUsingTracks.cc,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracks.cc,v 1.2 2009/08/02 08:33:19 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracks.cc,v 1.3 2009/09/03 13:49:06 gpetrucc Exp $
 */
 
 
@@ -75,6 +75,8 @@ pat::MatcherUsingTracks::MatcherUsingTracks(const edm::ParameterSet & iConfig) :
     // this is the extra stuff
     if (algo_.hasMetrics()) {
         produces<edm::ValueMap<float> >("deltaR");
+        produces<edm::ValueMap<float> >("deltaEta");
+        produces<edm::ValueMap<float> >("deltaPhi");
         produces<edm::ValueMap<float> >("deltaLocalPos");
         produces<edm::ValueMap<float> >("deltaPtRel");
         if (algo_.hasChi2()) {
@@ -104,6 +106,8 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     // working and output variables
     vector<int>   match(nsrc, -1);
     vector<float> deltaRs(nsrc, 999);
+    vector<float> deltaEtas(nsrc, 999);
+    vector<float> deltaPhis(nsrc, 999);
     vector<float> deltaPtRel(nsrc, 999);
     vector<float> deltaLocalPos(nsrc, 999);
     vector<float> chi2(nsrc, 999999);
@@ -112,7 +116,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     if (!(matched.failedToGet() && dontFailOnMissingInput_)) {
         // loop on the source collection, and request for the match
         for (itsrc = src->begin(), edsrc = src->end(), isrc = 0; itsrc != edsrc; ++itsrc, ++isrc) {
-            match[isrc] = algo_.match(*itsrc, *matched, deltaRs[isrc], deltaLocalPos[isrc], deltaPtRel[isrc], chi2[isrc]); 
+            match[isrc] = algo_.match(*itsrc, *matched, deltaRs[isrc], deltaEtas[isrc], deltaPhis[isrc], deltaLocalPos[isrc], deltaPtRel[isrc], chi2[isrc]); 
         }
     }
 
@@ -142,7 +146,9 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     }
 
     if (algo_.hasMetrics()) {
-        storeValueMap<float>(iEvent, src, deltaRs, "deltaR");
+        storeValueMap<float>(iEvent, src, deltaRs,   "deltaR");
+        storeValueMap<float>(iEvent, src, deltaEtas, "deltaEta");
+        storeValueMap<float>(iEvent, src, deltaPhis, "deltaPhi");
         storeValueMap<float>(iEvent, src, deltaLocalPos, "deltaLocalPos");
         storeValueMap<float>(iEvent, src, deltaPtRel,    "deltaPtRel");
         if (algo_.hasChi2()) {
