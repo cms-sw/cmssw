@@ -3,8 +3,6 @@
 
 /*----------------------------------------------------------------------
 
-$Id: EventAuxiliary.cc,v 1.3 2007/07/18 20:12:04 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -13,7 +11,6 @@ namespace edm {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;
     os << id_ << std::endl;
     //os << "TimeStamp = " << time_ << std::endl;
-    os << "LuminosityBlockNumber_t = " << luminosityBlock_ << std::endl;
   }
 
   bool
@@ -21,7 +18,7 @@ namespace edm {
     return
       a.id_ == b.id_ &&
       a.processGUID_ == b.processGUID_ &&
-      a.luminosityBlock_ == b.luminosityBlock_ &&
+      a.luminosityBlock() == b.luminosityBlock() &&
       a.time_ == b.time_ &&
       a.isRealData_ == b.isRealData_ &&
       a.experimentType_ == b.experimentType_ &&

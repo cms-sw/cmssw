@@ -28,6 +28,7 @@
 namespace edm {
 
    typedef unsigned int EventNumber_t;
+   typedef unsigned int LuminosityBlockNumber_t;
 
    
 class EventID {
@@ -35,42 +36,44 @@ class EventID {
    public:
    
    
-      EventID() : run_(0), event_(0) {}
-      EventID(RunNumber_t iRun, EventNumber_t iEvent) :
-	run_(iRun), event_(iEvent) {}
+      EventID() : run_(0), luminosityBlock_(0), event_(0) {}
+      EventID(RunNumber_t iRun, EventNumber_t iEvent) : run_(iRun), luminosityBlock_(1U), event_(iEvent) {} // Needed by on-line for now.
+      EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
+	run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
       
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
+      LuminosityBlockNumber_t luminosityBlock() const { return luminosityBlock_; }
       EventNumber_t event() const { return event_; }
    
       //moving from one EventID to another one
-      EventID next() const {
+      EventID next(LuminosityBlockNumber_t const& lumi) const {
          if(event_ != maxEventNumber()) {
-            return EventID(run_, event_+1);
+            return EventID(run_, lumi, event_ + 1);
          }
-         return EventID(run_+1, 1);
+         return EventID(run_ + 1, lumi, 1);
       }
-      EventID nextRun() const {
-         return EventID(run_+1, 0);
+      EventID nextRun(LuminosityBlockNumber_t const& lumi) const {
+         return EventID(run_ + 1, lumi, 0);
       }
-      EventID nextRunFirstEvent() const {
-         return EventID(run_+1, 1);
+      EventID nextRunFirstEvent(LuminosityBlockNumber_t const& lumi) const {
+         return EventID(run_ + 1, lumi, 1);
       }
-      EventID previousRunLastEvent() const {
+      EventID previousRunLastEvent(LuminosityBlockNumber_t const& lumi) const {
          if(run_ > 1) {
-            return EventID(run_-1, maxEventNumber());
+            return EventID(run_ - 1, lumi, maxEventNumber());
          }
-         return EventID(0,0);
+         return EventID();
       }
    
-      EventID previous() const {
+      EventID previous(LuminosityBlockNumber_t const& lumi) const {
          if(event_ > 1) {
-            return EventID(run_, event_-1);
+            return EventID(run_, lumi, event_-1);
          }
          if(run_ != 0) {
-            return EventID(run_ -1, maxEventNumber());
+            return EventID(run_ - 1, lumi, maxEventNumber());
          }
-         return EventID(0,0);
+         return EventID();
       }
       
       bool operator<(EventID const& iRHS) const {
@@ -104,10 +107,13 @@ class EventID {
       }
    
       static EventID firstValidEvent() {
-         return EventID(1, 1);
+         return EventID(1, 1, 1);
       }
       // ---------- member functions ---------------------------
    
+      void setLuminosityBlockNumber(LuminosityBlockNumber_t const& lb) {
+        luminosityBlock_ = lb;
+      }
    private:
       //EventID(EventID const&); // stop default
 
@@ -115,6 +121,7 @@ class EventID {
 
       // ---------- member data --------------------------------
       RunNumber_t run_;
+      LuminosityBlockNumber_t luminosityBlock_;
       EventNumber_t event_;
 };
 

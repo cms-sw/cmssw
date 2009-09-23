@@ -21,6 +21,7 @@ namespace edm
     bool fastCopyPossible() const;
     bool parameterSetsByReference() const;
     bool triggerPathsTracked() const;
+    bool lumiInEventID() const;
     int value() const {return value_;}
     
    private:

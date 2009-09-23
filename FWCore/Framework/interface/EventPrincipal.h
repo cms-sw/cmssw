@@ -88,8 +88,8 @@ namespace edm {
       return *aux_;
     }
 
-    LuminosityBlockNumber_t const& luminosityBlock() const {
-      return aux().luminosityBlock();
+    LuminosityBlockNumber_t luminosityBlock() const {
+      return id().luminosityBlock();
     }
 
     RunNumber_t run() const {

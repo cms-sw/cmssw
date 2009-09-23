@@ -728,7 +728,7 @@ namespace edm {
       }
     }
     if (pep != 0) {
-      IOVSyncValue ts(ep->id(), ep->luminosityBlock(), ep->time());
+      IOVSyncValue ts(ep->id(), ep->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
       schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*ep, es);
     }
@@ -913,8 +913,7 @@ namespace edm {
       
       RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
       std::cout <<" prefetching for run "<<runPrincipal.run()<<std::endl;
-      IOVSyncValue ts(EventID(runPrincipal.run(), 0),
-                      0,
+      IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                       runPrincipal.beginTime());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
 
@@ -1709,8 +1708,7 @@ namespace edm {
   void EventProcessor::beginRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doBeginRun(runPrincipal);
-    IOVSyncValue ts(EventID(runPrincipal.run(), 0),
-                    0,
+    IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                     runPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
@@ -1723,8 +1721,7 @@ namespace edm {
   void EventProcessor::endRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
-    IOVSyncValue ts(EventID(runPrincipal.run(), EventID::maxEventNumber()),
-                    LuminosityBlockID::maxLuminosityBlockNumber(),
+    IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal, es);
@@ -1739,7 +1736,7 @@ namespace edm {
     input_->doBeginLumi(lumiPrincipal);
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(), 0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
+    IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0), lumiPrincipal.beginTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal, es);
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
@@ -1753,8 +1750,7 @@ namespace edm {
     input_->doEndLumi(lumiPrincipal);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(), EventID::maxEventNumber()),
-                    lumiPrincipal.luminosityBlock(),
+    IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
                     lumiPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal, es);
@@ -1813,7 +1809,7 @@ namespace edm {
     }
     assert(pep != 0);
 
-    IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
+    IOVSyncValue ts(pep->id(), pep->time());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
  

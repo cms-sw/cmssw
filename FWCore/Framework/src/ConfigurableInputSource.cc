@@ -27,10 +27,8 @@ namespace edm {
     numberEventsInThisRun_(0),
     numberEventsInThisLumi_(0),
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
-    eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
+    eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
     origEventID_(eventID_),
-    luminosityBlock_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
-    origLuminosityBlockNumber_t_(luminosityBlock_),
     newRun_(true),
     newLumi_(true),
     eventCached_(false),
@@ -63,7 +61,7 @@ namespace edm {
     if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
     Timestamp ts = Timestamp(presentTime_);
     newLumi_ = false;
-    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), luminosityBlock_, ts, Timestamp::invalidTimestamp()));
+    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
   }
 
   EventPrincipal *
@@ -74,10 +72,10 @@ namespace edm {
   }
 
   void
-  ConfigurableInputSource::reallyReadEvent(LuminosityBlockNumber_t lumi) {
+  ConfigurableInputSource::reallyReadEvent() {
     if (processingMode() != RunsLumisAndEvents) return;
     EventSourceSentry sentry(*this);
-    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventID_, processGUID(), Timestamp(presentTime_), lumi, isRealData_, eType_));
+    std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_));
     eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal());
     Event e(*eventPrincipalCache(), moduleDescription());
     if (!produce(e)) {
@@ -105,8 +103,7 @@ namespace edm {
     // as this is a legitimate way of stopping the job.
     // Do nothing if the run is not changed.
     if (r != eventID_.run()) {
-      eventID_ = EventID(r, zerothEvent_);
-      luminosityBlock_ = origLuminosityBlockNumber_t_;
+      eventID_ = EventID(r, origEventID_.luminosityBlock(), zerothEvent_);
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
       newRun_ = newLumi_ = true;
@@ -133,11 +130,11 @@ namespace edm {
   ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {
     // Protect against invalid lumi.
     if (lb == LuminosityBlockNumber_t()) {
-	lb = origLuminosityBlockNumber_t_;
+	lb = origEventID_.luminosityBlock();
     }
     // Do nothing if the lumi block is not changed.
-    if (lb != luminosityBlock_) {
-      luminosityBlock_ = lb;
+    if (lb != eventID_.luminosityBlock()) {
+      eventID_.setLuminosityBlockNumber(lb);
       numberEventsInThisLumi_ = 0;
       newLumi_ = true;
     }
@@ -156,7 +153,6 @@ namespace edm {
 
   void
   ConfigurableInputSource::rewind_() {
-    luminosityBlock_ = origLuminosityBlockNumber_t_;
     presentTime_ = origTime_;
     eventID_ = origEventID_;
     numberEventsInThisRun_ = 0;
@@ -188,7 +184,7 @@ namespace edm {
       return IsEvent;
     }
     EventID oldEventID = eventID_;
-    LuminosityBlockNumber_t oldLumi = luminosityBlock_;
+    LuminosityBlockNumber_t oldLumi = eventID_.luminosityBlock();
     if (!eventSet_) {
       lumiSet_ = false;
       setRunAndEventInfo();
@@ -203,20 +199,20 @@ namespace edm {
       // If the user did not explicitly set the luminosity block number,
       // reset it back to the beginning.
       if (!lumiSet_) {
-	luminosityBlock_ = origLuminosityBlockNumber_t_;
+	eventID_.setLuminosityBlockNumber(origEventID_.luminosityBlock());
       }
       newRun_ = newLumi_ = true;
       return IsRun;
     }
       // Same Run
-    if (oldLumi != luminosityBlock_) {
+    if (oldLumi != eventID_.luminosityBlock()) {
       // New Lumi
       newLumi_ = true;
       if (processingMode() != Runs) {
         return IsLumi;
       }
     }
-    reallyReadEvent(luminosityBlock_);
+    reallyReadEvent();
     if(!eventCached_) {
       return IsStop;
     }
@@ -228,21 +224,20 @@ namespace edm {
   ConfigurableInputSource::advanceToNext()  {
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       // same run
-      eventID_ = eventID_.next();
       ++numberEventsInThisRun_;
       if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
         // new lumi
-        ++luminosityBlock_;
+        eventID_ = eventID_.next(eventID_.luminosityBlock() + 1);
         numberEventsInThisLumi_ = 1;
       } else {
+        eventID_ = eventID_.next(eventID_.luminosityBlock());
         ++numberEventsInThisLumi_;
       }
     } else {
       // new run
-      eventID_ = eventID_.nextRunFirstEvent();
+      eventID_ = eventID_.nextRunFirstEvent(origEventID_.luminosityBlock());
       numberEventsInThisLumi_ = 1;
       numberEventsInThisRun_ = 1;
-      luminosityBlock_ = origLuminosityBlockNumber_t_;
     }
     presentTime_ += timeBetweenEvents_;
   }
@@ -251,22 +246,21 @@ namespace edm {
   ConfigurableInputSource::retreatToPrevious()  {
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ > 0) {
       // same run
-      eventID_ = eventID_.previous();
       --numberEventsInThisRun_;
+      eventID_ = eventID_.previous(eventID_.luminosityBlock());
       if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ > 0)) {
         // new lumi
-        --luminosityBlock_;
+        eventID_ = eventID_.previous(eventID_.luminosityBlock() - 1);
         numberEventsInThisLumi_ = numberEventsInLumi_;
       } else {
         --numberEventsInThisLumi_;
       }
     } else {
       // new run
-      eventID_ = eventID_.previousRunLastEvent();
-      eventID_ = EventID(numberEventsInRun_,eventID_.run());
+      eventID_ = eventID_.previousRunLastEvent(origEventID_.luminosityBlock() + numberEventsInRun_/numberEventsInLumi_);
+      eventID_ = EventID(numberEventsInRun_, eventID_.luminosityBlock(), eventID_.run());
       numberEventsInThisLumi_ = numberEventsInLumi_;
       numberEventsInThisRun_ = numberEventsInRun_;
-      luminosityBlock_ = origLuminosityBlockNumber_t_ + numberEventsInRun_/numberEventsInLumi_;
     }
     presentTime_ -= timeBetweenEvents_;
   }

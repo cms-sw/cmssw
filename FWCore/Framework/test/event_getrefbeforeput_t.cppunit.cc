@@ -61,7 +61,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*preg);
-  edm::EventID col(1L, 1L);
+  edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
@@ -70,7 +70,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, lbp->luminosityBlock(), true));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, true));
   edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   try {
@@ -128,7 +128,7 @@ void testEventGetRefBeforePut::getRefTest() {
   preg->addProduct(product);
   preg->setFrozen();
   edm::BranchIDListHelper::updateRegistries(*preg);
-  edm::EventID col(1L, 1L);
+  edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
   boost::shared_ptr<edm::ProcessConfiguration> pcPtr(new edm::ProcessConfiguration(processName, dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID()));
@@ -138,7 +138,7 @@ void testEventGetRefBeforePut::getRefTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, lbp->luminosityBlock(), true));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, true));
   edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
 

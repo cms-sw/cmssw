@@ -23,7 +23,6 @@
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 // forward declarations
@@ -35,13 +34,13 @@ class IOVSyncValue
    public:
       IOVSyncValue();
       //virtual ~IOVSyncValue();
-      explicit IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi=0);
+      explicit IOVSyncValue(const EventID& iID);
       explicit IOVSyncValue(const Timestamp& iTime);
-      IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime);
+      IOVSyncValue(const EventID& iID, const Timestamp& iTime);
 
       // ---------- const member functions ---------------------
       const EventID& eventID() const { return eventID_;}
-      LuminosityBlockNumber_t luminosityBlockNumber() const { return lumiID_;}
+      LuminosityBlockNumber_t luminosityBlockNumber() const { return eventID_.luminosityBlock();}
       const Timestamp& time() const {return time_; }
       
       bool operator==(const IOVSyncValue& iRHS) const {
@@ -79,13 +78,13 @@ class IOVSyncValue
          bool doOp(const IOVSyncValue& iRHS) const {
             bool returnValue = false;
             if(haveID_ && iRHS.haveID_) {
-               if(lumiID_==0 || iRHS.lumiID_==0 || lumiID_==iRHS.lumiID_) {
+               if(luminosityBlockNumber()==0 || iRHS.luminosityBlockNumber()==0 || luminosityBlockNumber()==iRHS.luminosityBlockNumber()) {
                   Op<EventID> op;
                   returnValue = op(eventID_, iRHS.eventID_);
                } else {
                   if(iRHS.eventID_.run() == eventID_.run()) {
                      Op<LuminosityBlockNumber_t> op;
-                     returnValue = op(lumiID_, iRHS.lumiID_);
+                     returnValue = op(luminosityBlockNumber(), iRHS.luminosityBlockNumber());
                   } else {
                      Op<RunNumber_t> op;
                      returnValue = op(eventID_.run(), iRHS.eventID_.run());
@@ -103,7 +102,6 @@ class IOVSyncValue
          
       // ---------- member data --------------------------------
       EventID eventID_;
-      LuminosityBlockNumber_t lumiID_;
       Timestamp time_;
       bool haveID_;
       bool haveTime_;

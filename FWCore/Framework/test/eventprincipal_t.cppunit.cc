@@ -148,7 +148,7 @@ void test_ep::setUp() {
 
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.
-  eventID_ = edm::EventID(101, 20);
+  eventID_ = edm::EventID(101, 1, 20);
 
   // We can only insert products registered in the ProductRegistry.
   pProductRegistry_.reset(new edm::ProductRegistry);
@@ -192,7 +192,7 @@ void test_ep::setUp() {
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pProductRegistry_, *process));
     boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, now, now));
     boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process, rp));
-    std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(eventID_, uuid, now, lbp->luminosityBlock(), true));
+    std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(eventID_, uuid, now, true));
     pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, *process));
     pEvent_->fillEventPrincipal(eventAux, lbp);
     pEvent_->put(branchFromRegistry, product, branchEntryInfoPtr);

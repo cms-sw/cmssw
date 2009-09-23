@@ -57,6 +57,11 @@ namespace edm {
     return value_ >= 13;
   }
 
+  bool
+  FileFormatVersion::lumiInEventID() const {
+    return value_ >= 14;
+  }
+
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff) {
     os << ff.value();

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.10 2008/10/16 23:12:33 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.11 2009/09/01 23:30:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -62,9 +62,9 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> lbp2(
         new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration(), rp2));
 
-    EventID id(run, event);
+    EventID id(run, lbp2->luminosityBlock(), event);
     currentIndex_ += 3;
-    std::auto_ptr<EventAuxiliary> eventAux(new EventAuxiliary(id, processGUID(), ts, lbp2->luminosityBlock(), false));
+    std::auto_ptr<EventAuxiliary> eventAux(new EventAuxiliary(id, processGUID(), ts, false));
     EventPrincipal* result(new EventPrincipal(productRegistry(), processConfiguration()));
     result->fillEventPrincipal(eventAux, lbp2);
     return result;

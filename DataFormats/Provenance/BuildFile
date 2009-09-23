@@ -3,9 +3,6 @@
 <use name=rootrflx>
 <use name=FWCore/MessageLogger>
 <export>
-  <use name=FWCore/Utilities>
-  <use name=boost>
-  <use name=rootrflx>
   <lib name=DataFormatsProvenance>
 </export>
 

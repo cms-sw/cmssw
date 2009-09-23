@@ -83,7 +83,7 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(id, uuid, time, lbp->luminosityBlock(), true));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(id, uuid, time, true));
   edm::EventPrincipal ep(preg, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -160,7 +160,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::BranchKey const bk(product);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-  edm::EventID col(1L, 1L);
+  edm::EventID col(1L, 1L, 1L);
   edm::Timestamp fakeTime;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
@@ -169,7 +169,7 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, lbp->luminosityBlock(), true));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new edm::EventAuxiliary(col, uuid, fakeTime, true));
   edm::EventPrincipal ep(pregc, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   const edm::BranchDescription& branchFromRegistry = it->second;

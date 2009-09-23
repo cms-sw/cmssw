@@ -8,7 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Aug 19 14:14:42 EDT 2008
-// $Id: intersectingiovrecordintervalfinder_t.cppunit.cc,v 1.1 2008/08/19 20:30:07 chrjones Exp $
 //
 
 // system include files
@@ -90,38 +89,38 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    std::vector<boost::shared_ptr<edm::EventSetupRecordIntervalFinder> > finders;
    boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
    {
-      const edm::EventID eID_1(1, 1);
+      const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
-      const edm::EventID eID_3(1, 3);
+      const edm::EventID eID_3(1, 1, 3);
       const edm::ValidityInterval definedInterval(sync_1, 
                                                   edm::IOVSyncValue(eID_3));
       finders.push_back(dummyFinder);
       dummyFinder->setInterval(definedInterval);
       intFinder.swapFinders(finders);
       
-      CPPUNIT_ASSERT(definedInterval == intFinder.findIntervalFor(dummyRecordKey, edm::IOVSyncValue(edm::EventID(1, 2)))); 
+      CPPUNIT_ASSERT(definedInterval == intFinder.findIntervalFor(dummyRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2)))); 
    }
 
    {
-      const edm::EventID eID_5(1, 5);
+      const edm::EventID eID_5(1, 1, 5);
       const edm::IOVSyncValue sync_5(eID_5);
       const edm::ValidityInterval unknownedEndInterval(sync_5 ,
                                                        edm::IOVSyncValue::invalidIOVSyncValue());
       dummyFinder->setInterval(unknownedEndInterval);
    
-      CPPUNIT_ASSERT(unknownedEndInterval == intFinder.findIntervalFor(dummyRecordKey, edm::IOVSyncValue(edm::EventID(1, 5))));
+      CPPUNIT_ASSERT(unknownedEndInterval == intFinder.findIntervalFor(dummyRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
    }
    
    {
       finders.clear();
       
-      const edm::EventID eID_1(1, 1);
+      const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
-      const edm::EventID eID_3(1, 3);
+      const edm::EventID eID_3(1, 1, 3);
       const edm::IOVSyncValue sync_3(eID_3);
-      const edm::EventID eID_4(1, 4);
+      const edm::EventID eID_4(1, 1, 4);
       const edm::IOVSyncValue sync_4(eID_4);
-      const edm::EventID eID_5(1, 5);
+      const edm::EventID eID_5(1, 1, 5);
       const edm::IOVSyncValue sync_5(eID_5);
       const edm::ValidityInterval definedInterval(sync_1, 
                                                   sync_4);
@@ -140,13 +139,13 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    
    {
       finders.clear();
-      const edm::EventID eID_1(1, 1);
+      const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
-      const edm::EventID eID_3(1, 3);
+      const edm::EventID eID_3(1, 1, 3);
       const edm::IOVSyncValue sync_3(eID_3);
-      const edm::EventID eID_4(1, 4);
+      const edm::EventID eID_4(1, 1, 4);
       const edm::IOVSyncValue sync_4(eID_4);
-      const edm::EventID eID_5(1, 5);
+      const edm::EventID eID_5(1, 1, 5);
       const edm::IOVSyncValue sync_5(eID_5);
       const edm::ValidityInterval definedInterval(sync_1, 
                                                   sync_4);
@@ -168,11 +167,11 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    
    {
       finders.clear();
-      const edm::EventID eID_1(1, 1);
+      const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
-      const edm::EventID eID_3(1, 3);
+      const edm::EventID eID_3(1, 1, 3);
       const edm::IOVSyncValue sync_3(eID_3);
-      const edm::EventID eID_4(1, 4);
+      const edm::EventID eID_4(1, 1, 4);
       const edm::IOVSyncValue sync_4(eID_4);
       const edm::ValidityInterval definedInterval(sync_1, 
                                                   sync_4);
@@ -195,11 +194,11 @@ testintersectingiovrecordintervalfinder::intersectionTest()
    {
       //reverse order so invalid ending is first in list
       finders.clear();
-      const edm::EventID eID_1(1, 1);
+      const edm::EventID eID_1(1, 1, 1);
       const edm::IOVSyncValue sync_1(eID_1);
-      const edm::EventID eID_3(1, 3);
+      const edm::EventID eID_3(1, 1, 3);
       const edm::IOVSyncValue sync_3(eID_3);
-      const edm::EventID eID_4(1, 4);
+      const edm::EventID eID_4(1, 1, 4);
       const edm::IOVSyncValue sync_4(eID_4);
       const edm::ValidityInterval definedInterval(sync_1, 
                                                   sync_4);

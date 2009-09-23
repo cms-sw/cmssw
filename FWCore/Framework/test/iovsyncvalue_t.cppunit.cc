@@ -40,7 +40,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testIOVSyncValue);
 void testIOVSyncValue::constructTest()
 {
    {
-      const EventID t(2,0);
+      const EventID t(2,0,0);
       
       IOVSyncValue temp(t);
       
@@ -56,9 +56,9 @@ void testIOVSyncValue::constructTest()
    CPPUNIT_ASSERT(IOVSyncValue::beginOfTime() < IOVSyncValue::endOfTime());
 
    {
-      const EventID t(2,1);
+      const EventID t(2,3,1);
       
-      IOVSyncValue temp(t,3);
+      IOVSyncValue temp(t);
       
       CPPUNIT_ASSERT(temp.eventID() == t);
       CPPUNIT_ASSERT(temp.luminosityBlockNumber() == 3);
@@ -91,8 +91,8 @@ void testIOVSyncValue::constructTimeTest()
 void testIOVSyncValue::comparisonTest()
 {
    {
-      const IOVSyncValue small(EventID(1,1));
-      const IOVSyncValue med(EventID(2,2));
+      const IOVSyncValue small(EventID(1,1,1));
+      const IOVSyncValue med(EventID(2,1,2));
       
       CPPUNIT_ASSERT(small < med);
       CPPUNIT_ASSERT(small <= med);
@@ -102,8 +102,8 @@ void testIOVSyncValue::comparisonTest()
       CPPUNIT_ASSERT(!(small >= med));
    }
    {
-      const IOVSyncValue small(EventID(2,1));
-      const IOVSyncValue med(EventID(2,2));
+      const IOVSyncValue small(EventID(2,1,1));
+      const IOVSyncValue med(EventID(2,1,2));
       
       CPPUNIT_ASSERT(small < med);
       CPPUNIT_ASSERT(small <= med);
@@ -113,8 +113,8 @@ void testIOVSyncValue::comparisonTest()
       CPPUNIT_ASSERT(!(small >= med));
    }
    {
-      const IOVSyncValue small(EventID(2,2));
-      const IOVSyncValue med(EventID(3,1));
+      const IOVSyncValue small(EventID(2,1,2));
+      const IOVSyncValue med(EventID(3,1,1));
       
       CPPUNIT_ASSERT(small < med);
       CPPUNIT_ASSERT(small <= med);
@@ -124,8 +124,8 @@ void testIOVSyncValue::comparisonTest()
       CPPUNIT_ASSERT(!(small >= med));
    }
    {
-      const IOVSyncValue small(EventID(2,1),2);
-      const IOVSyncValue med(EventID(2,2),2);
+      const IOVSyncValue small(EventID(2,2,1));
+      const IOVSyncValue med(EventID(2,2,2));
       
       CPPUNIT_ASSERT(small < med);
       CPPUNIT_ASSERT(small <= med);
@@ -135,8 +135,8 @@ void testIOVSyncValue::comparisonTest()
       CPPUNIT_ASSERT(!(small >= med));
    }
    {
-      const IOVSyncValue small(EventID(2,3),1);
-      const IOVSyncValue med(EventID(2,2),2);
+      const IOVSyncValue small(EventID(2,1,3));
+      const IOVSyncValue med(EventID(2,2,2));
       
       CPPUNIT_ASSERT(small < med);
       CPPUNIT_ASSERT(small <= med);

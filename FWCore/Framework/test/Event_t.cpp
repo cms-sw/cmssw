@@ -130,7 +130,7 @@ class testEvent: public CppUnit::TestFixture {
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEvent);
 
-EventID   make_id() { return EventID(2112, 25); }
+EventID   make_id() { return EventID(2112, 1, 25); }
 Timestamp make_timestamp() { return Timestamp(1); }
 
 template <class T>
@@ -324,7 +324,7 @@ void testEvent::setUp() {
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
   boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
-  std::auto_ptr<edm::EventAuxiliary> eventAux(new EventAuxiliary(id, uuid, time, lbp->luminosityBlock(), true));
+  std::auto_ptr<edm::EventAuxiliary> eventAux(new EventAuxiliary(id, uuid, time, true));
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(preg, pc));

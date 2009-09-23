@@ -30,17 +30,18 @@ namespace edm {
     unsigned int numberEventsInThisLumi() const {return numberEventsInThisLumi_;}
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
-    LuminosityBlockNumber_t luminosityBlock() const {return luminosityBlock_;}
+    LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
 
   protected:
 
     void setEventNumber(EventNumber_t e) {
       RunNumber_t r = run();
-      eventID_ = EventID(r, e);
+      LuminosityBlockNumber_t lb = luminosityBlock();
+      eventID_ = EventID(r, lb, e);
       eventSet_ = true;
     } 
     void setTime(TimeValue_t t) {presentTime_ = t;}
-    void reallyReadEvent(LuminosityBlockNumber_t lumi);
+    void reallyReadEvent();
 
   private:
     virtual ItemType getNextItemType();
@@ -74,8 +75,6 @@ namespace edm {
     unsigned int const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
-    LuminosityBlockNumber_t luminosityBlock_;
-    LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
     bool newRun_;
     bool newLumi_;
     bool eventCached_;

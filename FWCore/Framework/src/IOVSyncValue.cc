@@ -8,13 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id: IOVSyncValue.cc,v 1.5 2007/04/09 23:08:20 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 
 //
@@ -30,23 +30,23 @@ namespace edm {
 //
 // constructors and destructor
 //
-IOVSyncValue::IOVSyncValue(): eventID_(), lumiID_(0), time_(),
+IOVSyncValue::IOVSyncValue(): eventID_(), time_(),
 haveID_(true), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi) : eventID_(iID), lumiID_(iLumi), time_(),
+IOVSyncValue::IOVSyncValue(const EventID& iID) : eventID_(iID), time_(),
 haveID_(true), haveTime_(false)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), lumiID_(0),time_(iTime),
+IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), time_(iTime),
 haveID_(false), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime) :
-eventID_(iID), lumiID_(iLumi), time_(iTime),
+IOVSyncValue::IOVSyncValue(const EventID& iID, const Timestamp& iTime) :
+eventID_(iID), time_(iTime),
 haveID_(true), haveTime_(true)
 {
 }
@@ -90,14 +90,13 @@ IOVSyncValue::invalidIOVSyncValue() {
 }
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
-   static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, EventID::maxEventNumber()),
-                                   LuminosityBlockID::maxLuminosityBlockNumber(),
+   static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                                    Timestamp::endOfTime());
    return s_endOfTime;
 }
 const IOVSyncValue&
 IOVSyncValue::beginOfTime() {
-   static IOVSyncValue s_beginOfTime(EventID(1,0), 0, Timestamp::beginOfTime());
+   static IOVSyncValue s_beginOfTime(EventID(1,0,0), Timestamp::beginOfTime());
    return s_beginOfTime;
 }
 }

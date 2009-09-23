@@ -45,7 +45,7 @@ EmptyESSource::EmptyESSource(ParameterSet const& pset) :
       if(iovIsTime_) {
          setOfIOV_.insert(IOVSyncValue(Timestamp(*itValue)));
       } else {
-         setOfIOV_.insert(IOVSyncValue(EventID(*itValue, 0)));
+         setOfIOV_.insert(IOVSyncValue(EventID(*itValue, 0, 0)));
       }
    }
    //copy_all(temp, inserter(setOfIOV_ , setOfIOV_.end()));
@@ -97,7 +97,7 @@ EmptyESSource::setIntervalFor(eventsetup::EventSetupRecordKey const&,
       if(iovIsTime_) {
          endOfInterval = IOVSyncValue(Timestamp(itFound.second->time().value() - 1));
       } else {
-         endOfInterval = IOVSyncValue(itFound.second->eventID().previousRunLastEvent());
+         endOfInterval = IOVSyncValue(itFound.second->eventID().previousRunLastEvent(0));
       }
    }
    oInterval = ValidityInterval(*(itFound.first), endOfInterval);
