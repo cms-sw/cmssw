@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.6 2009/05/19 21:56:32 chrjones Exp $
+// $Id: FWTableViewManager.cc,v 1.7 2009/05/20 20:42:48 chrjones Exp $
 //
 
 // system include files
@@ -50,7 +50,8 @@
 // constructors and destructor
 //
 FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr) :
-     FWViewManagerBase()
+     FWViewManagerBase(),
+     m_guiManager(iGUIMgr)
 {
      FWGUIManager::ViewBuildFunctor f;
      f=boost::bind(&FWTableViewManager::buildView,
@@ -440,4 +441,10 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom)
 	  // error, it merely means that the types are handled by the
 	  // first FWTableView.
      }
+}
+
+void 
+FWTableViewManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
+{
+   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY);
 }

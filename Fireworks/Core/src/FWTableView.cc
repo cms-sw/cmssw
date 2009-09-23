@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.13 2009/06/14 10:28:05 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.14 2009/06/15 11:43:37 jmuelmen Exp $
 //
 
 // system include files
@@ -318,8 +318,8 @@ FWTableView::FWTableView (TEveWindowSlot* iParent, FWTableViewManager *manager)
      m_tableWidget = new FWTableWidget(m_tableManager, m_vert);
      resetColors(m_manager->colorManager());
      m_tableWidget->SetHeaderBackgroundColor(gVirtualX->GetPixel(kWhite));
-     m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t)", "FWTableView",
-			    this, "modelSelected(Int_t,Int_t,Int_t)");
+     m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)", "FWTableView",
+			    this, "modelSelected(Int_t,Int_t,Int_t,Int_t,Int_t)");
      m_tableWidget->Connect("columnClicked(Int_t,Int_t,Int_t)", "FWTableView",
 			    this, "columnSelected(Int_t,Int_t,Int_t)");
      m_vert->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
@@ -588,7 +588,7 @@ void FWTableView::selectCollection (Int_t i_coll)
      dataChanged();
 }
 
-void FWTableView::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod)
+void FWTableView::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t iGlobalX,Int_t iGlobalY)
 {
      if(iKeyMod & kKeyControlMask) {      
 	  item()->toggleSelect(iRow);
@@ -597,6 +597,9 @@ void FWTableView::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod)
 	  item()->selectionManager()->clearSelection();
 	  item()->select(iRow);
      }
+   if(iButton == kButton3) {
+      m_manager->showSelectedModelContextMenu(iGlobalX,iGlobalY);
+   }
 }
 
 void FWTableView::columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod)

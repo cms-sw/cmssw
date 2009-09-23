@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.71 2009/08/12 19:21:03 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.72 2009/08/14 15:38:31 chrjones Exp $
 //
 
 // system include files
@@ -75,6 +75,8 @@ class FWGUIEventDataAdder;
 
 class CmsShowTaskExecutor;
 
+class FWModelContextMenuHandler;
+
 namespace fwlite {
    class Event;
 }
@@ -117,6 +119,8 @@ public:
    void showModelPopup();
    void showViewPopup();
    void popupViewClosed();
+   
+   void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
 
    // help
    void createHelpPopup ();
@@ -254,6 +258,8 @@ private:
 
    FWDetailViewManager* m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
+   
+   FWModelContextMenuHandler* m_contextMenuHandler;
 
    const TFile* m_openFile;
    FWGUIEventDataAdder* m_dataAdder;

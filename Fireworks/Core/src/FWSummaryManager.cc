@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.14 2009/08/26 19:06:04 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.15 2009/09/18 12:52:34 amraktad Exp $
 //
 
 // system include files
@@ -105,6 +105,7 @@ FWSummaryManager::newItem(FWEventItem* iItem)
    lst->Connect("requestForFilter(FWEventItem*)","FWSummaryManager",this,"requestForFilter(FWEventItem*)");
    lst->Connect("requestForErrorInfo(FWEventItem*)","FWSummaryManager",this,"requestForError(FWEventItem*)");
    lst->Connect("requestForController(FWEventItem*)","FWSummaryManager",this,"requestForController(FWEventItem*)");
+   lst->Connect("requestForModelContextMenu(Int_t,Int_t)","FWSummaryManager",this,"requestForSelectedModelContextMenu(Int_t,Int_t)");
 }
 
 void 
@@ -197,6 +198,12 @@ void
 FWSummaryManager::requestForController(FWEventItem* iItem)
 {
    m_guiManager->showEDIFrame();
+}
+
+void 
+FWSummaryManager::requestForSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
+{
+   m_guiManager->showSelectedModelContextMenu(iGlobalX,iGlobalY);
 }
 
 //

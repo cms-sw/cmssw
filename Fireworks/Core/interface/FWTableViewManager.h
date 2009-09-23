@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.2.2.6 2009/04/27 02:01:41 jmuelmen Exp $
+// $Id: FWTableViewManager.h,v 1.3 2009/05/01 22:30:41 jmuelmen Exp $
 //
 
 // system include files
@@ -70,6 +70,7 @@ public:
      static const std::string kConfigTypeNames;
      static const std::string kConfigColumns;
 
+     void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY);
 protected:
      FWTableViewManager();
 
@@ -83,7 +84,7 @@ protected:
      std::vector<const FWEventItem *> m_items;
 
      std::map<std::string, std::vector<TableEntry> > m_tableFormats;
-
+     FWGUIManager* m_guiManager;
 private:
      std::map<std::string, std::vector<TableEntry> >::iterator tableFormatsImpl (const Reflex::Type &key);
      FWTableViewManager(const FWTableViewManager&);    // stop default

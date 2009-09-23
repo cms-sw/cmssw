@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.145 2009/08/26 19:30:34 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.146 2009/08/27 18:54:09 amraktad Exp $
 //
 
 // system include files
@@ -88,6 +88,8 @@
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
+#include "Fireworks/Core/src/FWModelContextMenuHandler.h"
+
 //
 // constants, enums and typedefs
 //
@@ -122,6 +124,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_editableSelected(0),
    m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
+   m_contextMenuHandler(0),
    m_dataAdder(0),
    m_ediFrame(0),
    m_modelPopup(0),
@@ -167,6 +170,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
       m_detailViewManager = new FWDetailViewManager(m_cmsShowMainFrame);
+      m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
@@ -213,6 +217,7 @@ FWGUIManager::~FWGUIManager()
    delete m_editableSelected;
    delete m_cmsShowMainFrame;
    delete m_ediFrame;
+   delete m_contextMenuHandler;
 }
 
 void
@@ -694,6 +699,13 @@ void FWGUIManager::createShortcutPopup ()
    }
    m_shortcutPopup->MapWindow();
 }
+
+void 
+FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
+{
+   m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY);
+}
+
  //
 // const member functions
 //
