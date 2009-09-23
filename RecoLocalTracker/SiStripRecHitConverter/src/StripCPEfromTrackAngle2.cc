@@ -9,7 +9,7 @@ using namespace std;
 
 StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle2::localParameters( const SiStripCluster & cl,const LocalTrajectoryParameters & ltp)const{
 
-  StripCPE::Param const & p = param(DetId(cl.geographicalId()));
+  StripCPE::Param const & p = param(cl.geographicalId());
   
   LocalPoint middlepoint = ltp.position();
   LocalVector trackDir = ltp.momentum()/ltp.momentum().mag();

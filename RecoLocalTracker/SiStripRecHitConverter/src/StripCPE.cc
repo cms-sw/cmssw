@@ -15,19 +15,19 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 
 StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster) const {
-  StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
+  StripCPE::Param const & p = param(cluster.geographicalId());
   const float strip = p.driftCorrected( cluster.barycenter() );
   return std::make_pair( p.topology->localPosition(strip),
 			 p.topology->localError(strip, 1/12.) );
 }
 
 float StripCPE::Param::
-driftCorrected(const float& strip) const {
+driftCorrected(const float strip) const {
   return driftCorrected(strip, topology->localPosition(strip));
 }
 
 float StripCPE::Param::
-driftCorrected(const float& strip, const LocalPoint& lpos) const {
+driftCorrected(const float strip, const LocalPoint& lpos) const {
   return strip - 0.5*coveredStrips(drift, lpos);
 }
 
@@ -56,10 +56,10 @@ driftDirection(const StripGeomDetUnit* det) const {
 
 
 StripCPE::Param const & StripCPE::
-param(DetId detId) const {
-  Param & p = const_cast<StripCPE*>(this)->m_Params[detId.rawId()];
+param(const uint32_t detid) const {
+  Param & p = const_cast<StripCPE*>(this)->m_Params[detid];
   if (p.topology) return p;
-  else return const_cast<StripCPE*>(this)->fillParam(p, geom_->idToDetUnit(detId));
+  else return const_cast<StripCPE*>(this)->fillParam(p, geom_->idToDetUnit(DetId(detid)));
 }
 
 StripCPE::Param & StripCPE::

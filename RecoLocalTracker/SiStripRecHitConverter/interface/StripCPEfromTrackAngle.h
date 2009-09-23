@@ -22,7 +22,7 @@ class StripCPEfromTrackAngle : public StripCPE
   
  private:
   
-  float stripErrorSquared(const unsigned&, const float&) const;
+  float stripErrorSquared(const unsigned, const float) const;
   
 };
 #endif

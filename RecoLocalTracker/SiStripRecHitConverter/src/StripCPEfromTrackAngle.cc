@@ -9,7 +9,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
 
 StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::
 localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters& ltp) const {
-  StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
+  StripCPE::Param const & p = param(cluster.geographicalId());
   
   LocalVector track = ltp.momentum();
   track *= 

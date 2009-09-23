@@ -257,7 +257,7 @@ match(products& output, LocalVector trackdirection) const
 }
 
 void SiStripRecHitConverterAlgorithm::
-fillBad128StripBlocks(const uint32_t &detid, bool bad128StripBlocks[6] ) const 
+fillBad128StripBlocks(const uint32_t detid, bool bad128StripBlocks[6] ) const 
 {
   if(maskBad128StripBlocks) {
     short badApvs   = quality->getBadApvs(detid);
@@ -296,7 +296,7 @@ isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const
 
 inline
 bool SiStripRecHitConverterAlgorithm::
-useModule(uint32_t id) const
+useModule(const uint32_t id) const
 {
   const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker->idToDetUnit(id);
   if(stripdet==0) edm::LogWarning("SiStripRecHitConverter") << "Detid=" << id << " not found";

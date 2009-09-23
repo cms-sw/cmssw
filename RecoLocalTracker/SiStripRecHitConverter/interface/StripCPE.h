@@ -38,10 +38,10 @@ public:
     int nstrips;
     SiStripDetId::SubDetector subdet;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
-    float driftCorrected(const float& strip, const LocalPoint&) const;
-    float driftCorrected(const float& strip) const;
+    float driftCorrected(const float strip, const LocalPoint&) const;
+    float driftCorrected(const float strip) const;
   };
-  Param const & param(DetId detId) const;
+  Param const & param(const uint32_t detid) const;
 
 private:
 

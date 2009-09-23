@@ -40,9 +40,9 @@ class SiStripRecHitConverterAlgorithm
  private:
   
   void match(products& output, LocalVector trackdirection) const;
-  void fillBad128StripBlocks(const uint32_t &detid, bool bad128StripBlocks[6]) const;
+  void fillBad128StripBlocks(const uint32_t detid, bool bad128StripBlocks[6]) const;
   bool isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const;
-  bool useModule(uint32_t id) const;
+  bool useModule(const uint32_t id) const;
   
   bool useQuality, maskBad128StripBlocks;
   uint32_t tracker_cache_id, cpe_cache_id, quality_cache_id;
