@@ -66,8 +66,11 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                       ),
 
     pythiaWeakBosons = cms.vstring('MSUB(1)=1',
-                              'MSUB(2)=1'),
-
+                                   'MSUB(2)=1'),
+    
+    pythiaZjets = cms.vstring('MSUB(15)=1',
+                              'MSUB(30)=1'),
+    
     pythiaCharmoniumNRQCD = cms.vstring('MSUB(421) = 1',
                                         'MSUB(422) = 1',
                                         'MSUB(423) = 1',
