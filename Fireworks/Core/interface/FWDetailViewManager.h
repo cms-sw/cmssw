@@ -16,8 +16,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.17 2009/07/28 17:25:55 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.18 2009/08/22 17:10:13 amraktad Exp $
 //
+#include <map>
+#include <string>
 
 class TEveCompositeFrameInMainFrame;
 class FWDetailViewBase;
