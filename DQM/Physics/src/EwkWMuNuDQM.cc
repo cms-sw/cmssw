@@ -38,7 +38,6 @@ EwkWMuNuDQM::EwkWMuNuDQM( const ParameterSet & cfg ) :
 
       // Main cuts 
       muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
-      useTrackerPt_(cfg.getUntrackedParameter<bool>("UseTrackerPt", true)),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
@@ -66,17 +65,21 @@ EwkWMuNuDQM::EwkWMuNuDQM( const ParameterSet & cfg ) :
 {
 }
 
+void EwkWMuNuDQM::beginRun(const Run& r, const EventSetup&) {
+      nall = 0;
+      nsel = 0;
+
+      nrec = 0; 
+      niso = 0; 
+      nhlt = 0; 
+      nmet = 0;
+}
+
+
 void EwkWMuNuDQM::beginJob(const EventSetup &) {
       theDbe = Service<DQMStore>().operator->();
       theDbe->setCurrentFolder("Physics/EwkWMuNuDQM");
 
-      nall = 0;
-      nsel = 0;
-
-      nrec = 0;
-      niso = 0;
-      nhlt = 0;
-      nmet = 0;
       init_histograms();
 }
 
@@ -84,11 +87,7 @@ void EwkWMuNuDQM::init_histograms() {
 
       char chtitle[256] = "";
       for (int i=0; i<2; ++i) {
-            if (useTrackerPt_) {
-                  snprintf(chtitle, 255, "Muon transverse momentum (tracker) [GeV]");
-            } else {
-                  snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
-            }
+            snprintf(chtitle, 255, "Muon transverse momentum (global muon) [GeV]");
             pt_before_ = theDbe->book1D("PT_BEFORECUTS",chtitle,100,0.,100.);
             pt_after_ = theDbe->book1D("PT_LASTCUT",chtitle,100,0.,100.);
 
@@ -163,6 +162,10 @@ void EwkWMuNuDQM::init_histograms() {
 
 
 void EwkWMuNuDQM::endJob() {
+}
+
+void EwkWMuNuDQM::endRun(const Run& r, const EventSetup&) {
+
       double all = nall;
       double esel = nsel/all;
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
@@ -231,7 +234,7 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
       // Muon collection
       Handle<View<Muon> > muonCollection;
       if (!ev.getByLabel(muonTag_, muonCollection)) {
-            LogError("") << ">>> Muon collection does not exist !!!";
+            LogWarning("") << ">>> Muon collection does not exist !!!";
             return;
       }
       unsigned int muonCollectionSize = muonCollection->size();
@@ -239,7 +242,7 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
       if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
-            LogTrace("") << ">>> No beam spot found !!!";
+            LogWarning("") << ">>> No beam spot found !!!";
             return;
       }
   
@@ -248,7 +251,7 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
       double met_py = 0.;
       Handle<View<MET> > metCollection;
       if (!ev.getByLabel(metTag_, metCollection)) {
-            LogError("") << ">>> MET collection does not exist !!!";
+            LogWarning("") << ">>> MET collection does not exist !!!";
             return;
       }
       const MET& met = metCollection->at(0);
@@ -270,7 +273,7 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
       Handle<TriggerResults> triggerResults;
       TriggerNames trigNames;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
-            LogError("") << ">>> TRIGGER collection does not exist !!!";
+            LogWarning("") << ">>> TRIGGER collection does not exist !!!";
             return;
       }
       trigNames.init(*triggerResults);
@@ -294,11 +297,6 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             const Muon& mu = muonCollection->at(i);
             if (!mu.isGlobalMuon()) continue;
             double pt = mu.pt();
-            if (useTrackerPt_) {
-                  reco::TrackRef tk = mu.innerTrack();
-                  if (mu.innerTrack().isNull()) continue;
-                  pt = tk->pt();
-            }
             if (pt>ptThrForZ1_) nmuonsForZ1++;
             if (pt>ptThrForZ2_) nmuonsForZ2++;
       }
@@ -352,7 +350,6 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
 
             // Pt,eta cuts
             double pt = mu.pt();
-            if (useTrackerPt_) pt = tk->pt();
             double eta = mu.eta();
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
@@ -390,18 +387,10 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             if (trigger_fired) muon_sel[7] = true; 
 
             // MET/MT cuts
-            double w_et = met_et;
-            double w_px = met_px;
-            double w_py = met_py;
-            if (useTrackerPt_) {
-                  w_et += tk->pt();
-                  w_px += tk->px();
-                  w_py += tk->py();
-            } else {
-                  w_et += mu.pt();
-                  w_px += mu.px();
-                  w_py += mu.py();
-            }
+            double w_et = met_et+mu.pt();
+            double w_px = met_px+mu.px();
+            double w_py = met_py+mu.py();
+            
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
 

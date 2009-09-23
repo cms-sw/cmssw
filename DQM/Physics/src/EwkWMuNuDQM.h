@@ -21,6 +21,9 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+
   void init_histograms();
 private:
 
@@ -31,7 +34,6 @@ private:
   edm::InputTag jetTag_;
 
   const std::string muonTrig_;
-  bool useTrackerPt_;
   double ptCut_;
   double etaCut_;
   bool isRelativeIso_;
@@ -60,6 +62,7 @@ private:
   unsigned int nhlt;
   unsigned int nmet;
   unsigned int nsel;
+
 
   DQMStore* theDbe;
 
