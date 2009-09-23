@@ -13,7 +13,7 @@
 //
 // Original Author:  Adam A Everett
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.4 2006/12/13 20:22:40 aeverett Exp $
+// $Id: MuonTimingValidator.cc,v 1.1 2009/09/18 09:54:43 ptraczyk Exp $
 //
 //
 
@@ -133,11 +133,11 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(MuonTags_,MuCollection);
   const reco::MuonCollection muonC = *(MuCollection.product());
 
-  iEvent.getByLabel("muontiming","combined",timeMap1);
+  iEvent.getByLabel(TimeTags_.label(),"combined",timeMap1);
   const reco::MuonTimeExtraMap & timeMapCmb = *timeMap1;
-  iEvent.getByLabel("muontiming","dt",timeMap2);
+  iEvent.getByLabel(TimeTags_.label(),"dt",timeMap2);
   const reco::MuonTimeExtraMap & timeMapDT = *timeMap2;
-  iEvent.getByLabel("muontiming","csc",timeMap3);
+  iEvent.getByLabel(TimeTags_.label(),"csc",timeMap3);
   const reco::MuonTimeExtraMap & timeMapCSC = *timeMap3;
 
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
