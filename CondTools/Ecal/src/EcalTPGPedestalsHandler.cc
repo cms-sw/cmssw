@@ -91,7 +91,6 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	my_runtag.setGeneralTag(m_gentag); 
 
 
-
 	readFromFile("last_tpg_ped_settings.txt");
 
 
@@ -112,7 +111,6 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 	edm::LogInfo("EcalTPGPedestalsHandler") <<"min_run= " << min_run << " max_run = " << max_run;
 	RunList my_list; 
 	my_list=econn->fetchRunListByLocation(my_runtag, min_run, max_run, my_locdef); 
-	//my_list=econn->fetchRunList(my_runtag); 
        
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
 	int num_runs=run_vec.size();
@@ -158,6 +156,7 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 
 	    // here we should check if it is the same as previous run.
 
+
 	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
 	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
 
@@ -190,9 +189,9 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 		  for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) 
 		    {
 		      ecid_xt = p->first;
-		    rd_ped  = p->second;
+		      rd_ped  = p->second;
 		    
-		    std::string ecid_name=ecid_xt.getName();
+		      std::string ecid_name=ecid_xt.getName();
 		    
 		    // EB data
 		    if (ecid_name=="EB_crystal_number") {
@@ -248,7 +247,9 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects()
 
 		}
 
-	      }       catch (std::exception &e) { 
+	      }       
+	      
+	      catch (std::exception &e) { 
 		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
 			  <<" version="<<the_config_version<< std::endl;
 		cout << e.what() << endl;
