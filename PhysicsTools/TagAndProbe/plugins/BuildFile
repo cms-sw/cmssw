@@ -1,9 +1,6 @@
 <export></export>
 <library name=PhysicsToolsTagAndProbe_plugins file=*.cc>
    <flags EDM_PLUGIN=1>
-   <use name=root>
-   <use name=rootmath>
-   <use name=rootcore>
    <use name=rootroofit>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
