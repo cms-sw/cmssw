@@ -1,4 +1,4 @@
-// $Id: AlarmHandler.h,v 1.2 2009/09/18 11:08:47 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.3 2009/09/22 14:54:50 dshpakov Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef StorageManager_AlarmHandler_h
@@ -18,9 +18,9 @@ namespace stor {
   /**
    * Helper class to handle sentinel alarming
    *
-   * $Author: mommsen $
-   * $Revision: 1.2 $
-   * $Date: 2009/09/18 11:08:47 $
+   * $Author: dshpakov $
+   * $Revision: 1.3 $
+   * $Date: 2009/09/22 14:54:50 $
    */
 
   class AlarmHandler
@@ -32,6 +32,8 @@ namespace stor {
     
     AlarmHandler() {};
     explicit AlarmHandler(xdaq::Application*);
+
+    virtual ~AlarmHandler() {};
 
     /**
       Raises a sentinel alarm
