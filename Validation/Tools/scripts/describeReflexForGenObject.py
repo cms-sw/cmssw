@@ -26,6 +26,34 @@ root2GOtypeDict = {
     'std::basic_string<char>'  : 'str',
     }
 
+startString = """
+# -*- sh -*- For Font lock mode
+
+###########################
+## GenObject Definitions ##
+###########################
+
+# GenObject 'event' definition
+[runevent singleton]
+run:   type=int
+event: type=int
+"""
+
+defTemplate = """
+#####################
+## %(OBJS)s Definition ##
+#####################
+
+# Nickname and Tree
+[%(objs)s:FWLite]
+
+# 'reco'-tupe 'runevent' 'tofill' information
+[runevent:%(objs)s:EventAuxiliary shortcut=eventAuxiliary()]
+run:   run()
+event: event()
+
+"""
+
 colonRE     = re.compile (r':')
 dotRE       = re.compile (r'\.')
 nonAlphaRE  = re.compile (r'\W')
@@ -80,9 +108,9 @@ def genObjNameDef (line):
     return name, func
     
     
-def genObjectDef (mylist, tuple, alias, full):
+def genObjectDef (mylist, tuple, alias, label, type):
     """ """
-    print "tuple %s alias %s full %s" % (tuple, alias, full)
+    print "tuple %s alias %s label %s type %s" % (tuple, alias, label, type)
     # first get the name of the object
     firstName = mylist[0][0]
     match = alphaRE.match (firstName)
@@ -93,8 +121,8 @@ def genObjectDef (mylist, tuple, alias, full):
     genDef =  " ## GenObject %s Definition ##\n[%s]\n" % \
              (genName, genName)
     genDef += "-equiv: eta,0.1 phi,0.1\n";
-    tupleDef = '[%s:%s:%s alias=%s]\n' % \
-               (genName, tuple, alias, full)
+    tupleDef = '[%s:%s:%s label=%s type=%s]\n' % \
+               (genName, tuple, alias, label, type)
     
     for variable in mylist:
         name, func = genObjNameDef (variable[0])
@@ -119,6 +147,12 @@ if __name__ == "__main__":
     parser.add_option ('--alias', dest='alias', type='string',
                        default = 'dummyAlias',
                        help="Tell GO to set an alias")
+    parser.add_option ('--label', dest='label', type='string',
+                       default = 'dummyLabel',
+                       help="Tell GO to set an label")
+    parser.add_option ('--type', dest='type', type='string',
+                       default = 'dummyType',
+                       help="Tell GO to set an type")
     parser.add_option ('--goName', dest='goName', type='string',
                        default='',
                        help='GenObject name')
@@ -145,12 +179,11 @@ if __name__ == "__main__":
     genDef, tupleDef = genObjectDef (mylist,
                                      options.tupleName,
                                      goName,
-                                     options.alias)
-    targetFile.write ("# -*- sh -*- For Font lock mode\n# GenObject 'event' definition\n[runevent singleton]\nrun:   type=int\nevent: type=int\n\n")
+                                     options.label,
+                                     options.type)
+    targetFile.write (startString)
     targetFile.write (genDef)
-    targetFile.write ('\n\n# %s Definition\n# Nickname and Tree\n[%s:Events]\n'\
-                      % (options.tupleName, options.tupleName));
-    targetFile.write ('[runevent:%s:EventAuxiliary]\nrun:   id_.run()\nevent: id_.event()\n\n' % options.tupleName)
+    targetFile.write (defTemplate % {'objs':'reco', 'OBJS':'RECO'})
     targetFile.write (tupleDef)
     print "Vetoed types:"
     pprint.pprint ( sorted( list(vetoedTypes) ) )
