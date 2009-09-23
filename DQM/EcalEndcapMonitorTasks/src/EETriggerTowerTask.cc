@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/08/31 06:53:58 $
- * $Revision: 1.54 $
+ * $Date: 2009/08/31 10:48:20 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -50,6 +50,10 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   meEtBxReal_[1] = 0;
   meOccupancyBxReal_[0] = 0;
   meOccupancyBxReal_[1] = 0;
+  meTCCTimingCalo_[0] = 0;
+  meTCCTimingCalo_[1] = 0;
+  meTCCTimingMuon_[0] = 0;
+  meTCCTimingMuon_[1] = 0;
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
