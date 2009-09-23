@@ -15,9 +15,6 @@ globalMuons.TrackerCollectionLabel = hiTracks
 muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJets")
 muIsoDepositJets.ExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJets")
 
-# HI muon sequences
-muonRecoPbPb = cms.Sequence(muontracking_with_TeVRefinement
-                            #* muonIdProducerSequence       #needs fixing
-                            )
+# HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
+muonRecoPbPb = cms.Sequence(muonreco_plus_isolation)
 
-#muonRecoPbPbWithIsolation = cms.Sequence(muonRecoPbPb * muIsolation)  #needs testing
