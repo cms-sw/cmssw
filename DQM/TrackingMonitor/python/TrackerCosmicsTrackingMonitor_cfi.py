@@ -16,7 +16,7 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     MeasurementState = cms.string('default'),
 
     doTrackerSpecific = cms.bool(True),
-    doAllPlots = cms.bool(False),
+    doAllPlots = cms.bool(True),
     doBeamSpotPlots = cms.bool(False),                                     
     doSeedParameterHistos = cms.bool(False),
 

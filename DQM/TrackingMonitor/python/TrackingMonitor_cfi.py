@@ -21,7 +21,7 @@ TrackMon = cms.EDFilter("TrackingMonitor",
 
     doTrackerSpecific = cms.bool(True),
     doAllPlots = cms.bool(False),                    
-    doBeamSpotPlots = cms.bool(True),
+    doBeamSpotPlots = cms.bool(False),
     doSeedParameterHistos = cms.bool(False),
 
     TkSizeBin = cms.int32(500),
