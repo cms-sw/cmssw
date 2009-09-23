@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.22 2009/07/26 23:15:31 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.23 2009/08/29 21:18:57 dmytro Exp $
 //
 
 // system include files
@@ -398,7 +398,7 @@ FWGUIEventDataAdder::createWindow()
    m_tableWidget = new FWTableWidget(m_tableManager,vf);
    m_tableWidget->Resize(200,200);
    vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t)");
+   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
 
    m_apply = new TGTextButton(vf,"Add Data");
    vf->AddFrame(m_apply, new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
@@ -526,7 +526,7 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 }
 
 void 
-FWGUIEventDataAdder::rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod)
+FWGUIEventDataAdder::rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t)
 {
    if(iButton==kButton1) {
       m_tableManager->setSelection(iRow,iKeyMod);
