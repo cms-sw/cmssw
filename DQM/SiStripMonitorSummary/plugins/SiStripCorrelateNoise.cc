@@ -206,7 +206,7 @@ SiStripCorrelateNoise::getHistos(const uint32_t& detid,std::vector<TH1F*>& histo
 }
 
 TH1F*
-SiStripCorrelateNoise::getHisto(const size_t& index){
+SiStripCorrelateNoise::getHisto(const long unsigned int& index){
   if(vTH1.size()<index+1)
     vTH1.resize(index+1,0);
   

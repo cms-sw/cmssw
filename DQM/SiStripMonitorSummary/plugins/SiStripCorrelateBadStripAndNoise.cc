@@ -164,7 +164,7 @@ SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid,std::vector<TH
 }
 
 TH2F*
-SiStripCorrelateBadStripAndNoise::getHisto(const size_t& index){
+SiStripCorrelateBadStripAndNoise::getHisto(const long unsigned int& index){
   if(vTH2.size()<index+1)
     vTH2.resize(index+1,0);
   
