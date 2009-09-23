@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: EventConsumerSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: EventConsumerSelector.h 
 
 #ifndef StorageManager_EventConsumerSelector_h
@@ -17,9 +17,9 @@ namespace stor {
    * Defines the common interface for event and DQM consumer
    * registration info objects.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:22 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class EventConsumerSelector
@@ -35,9 +35,7 @@ namespace stor {
       _initialized( false ),
       _stale( false ),
       _outputModuleId( 0 ),
-      _outputModuleLabel( configInfo->selHLTOut() ),
-      _eventSelectionStrings( configInfo->selEvents() ),
-      _queueId( configInfo->queueId() )
+      _configInfo( *configInfo )
     {}
 
     /**
@@ -61,7 +59,7 @@ namespace stor {
     /**
      * Returns the ID of the queue corresponding to this selector.
      */
-    QueueID const& queueId() const { return _queueId; }
+    QueueID const queueId() const { return _configInfo.queueId(); }
 
     /**
      * Tests whether this selector has been initialized.
@@ -88,9 +86,7 @@ namespace stor {
     bool _initialized;
     bool _stale;
     unsigned int _outputModuleId;
-    std::string _outputModuleLabel;
-    Strings _eventSelectionStrings;
-    QueueID _queueId;
+    const EventConsumerRegistrationInfo _configInfo;
 
     boost::shared_ptr<edm::EventSelector> _eventSelector;
 
