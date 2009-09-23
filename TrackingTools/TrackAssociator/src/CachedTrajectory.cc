@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.19.2.1 2009/07/01 04:43:46 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.20 2009/09/06 16:32:46 dmytro Exp $
 //
 //
 
@@ -447,7 +447,7 @@ const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getPreshowerTraject
 
 void CachedTrajectory::findHcalTrajectory( const FiducialVolume& volume ) {
    LogTrace("TrackAssociator") << "getting trajectory in HCAL";
-   getTrajectory(hcalTrajectory_, volume, 20 ); // more steps to account for different depth
+   getTrajectory(hcalTrajectory_, volume, 4 ); // more steps to account for different depth
    LogTrace("TrackAssociator") << "# of points in HCAL trajectory:" << hcalTrajectory_.size();
 }
 
