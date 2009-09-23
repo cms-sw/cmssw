@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.8 2009/09/18 11:08:59 mommsen Exp $
+// $Id: Exception.h,v 1.9 2009/09/23 13:01:59 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -32,8 +32,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.8 $
-     $Date: 2009/09/18 11:08:59 $
+     $Revision: 1.9 $
+     $Date: 2009/09/23 13:01:59 $
     
      @file: Exception.h
   */
@@ -63,6 +63,11 @@ XCEPT_DEFINE_EXCEPTION(stor, Monitoring)
  * Exception raised in case of problems accessing the info space
  */
 XCEPT_DEFINE_EXCEPTION(stor, Infospace)
+
+/**
+ * Exception raised in case of configuration problems
+ */
+XCEPT_DEFINE_EXCEPTION(stor, Configuration)
 
 /**
  * Exception raised in case of missuse of I2OChain
