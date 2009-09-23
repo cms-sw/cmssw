@@ -59,6 +59,7 @@ private:
   static const int NTRIG = 20;
 
   //std::string out_;
+  unsigned int ndenomAccept_;
 
   std::string directory_;
   //std::string label_;
@@ -66,7 +67,7 @@ private:
   //MonitorElement * hEffSummary;
   //MonitorElement * hCountSummary;
   MonitorElement * hSubFilterCount[NTRIG];
-  //MonitorElement * hSubFilterEfficiency[NTRIG];
+  MonitorElement * hSubFilterEff[NTRIG];
 
 
   MonitorElement * h1_;
