@@ -26,14 +26,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon, 
     logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('EcalTPGFineGrainEBIdMapRcd'),
-        #tag = cms.string('EcalTPGFineGrainEBIdMap_craft')
-	tag = cms.string('EcalTPGFineGrainEBIdMap_TPGTrivial_config')
+        record = cms.string('EcalTPGFineGrainStripEERcd'),
+        #tag = cms.string('EcalTPGFineGrainStripEE_craft')
+    	tag = cms.string('EcalTPGFineGrainStripEE_TPGTrivial_config')
     ))
 )
 
-process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainEBIdMapAnalyzer",
-    record = cms.string('EcalTPGFineGrainEBIdMapRcd'),
+process.Test1 = cms.EDAnalyzer("ExTestEcalTPGFineGrainStripEEAnalyzer",
+    record = cms.string('EcalTPGFineGrainStripEERcd'),
     loggingOn= cms.untracked.bool(True),
     IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
