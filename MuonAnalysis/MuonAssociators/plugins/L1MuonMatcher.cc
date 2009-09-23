@@ -1,5 +1,5 @@
 //
-// $Id: L1MuonMatcher.cc,v 1.4 2009/05/12 17:20:45 gpetrucc Exp $
+// $Id: L1MuonMatcher.cc,v 1.1.2.1 2009/09/07 13:15:25 gpetrucc Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Matcher of reconstructed objects to L1 Muons 
             
   \author   Giovanni Petrucciani
-  \version  $Id: L1MuonMatcher.cc,v 1.4 2009/05/12 17:20:45 gpetrucc Exp $
+  \version  $Id: L1MuonMatcher.cc,v 1.1.2.1 2009/09/07 13:15:25 gpetrucc Exp $
 */
 
 
@@ -25,7 +25,7 @@
 
 #include "MuonAnalysis/MuonAssociators/interface/L1MuonMatcherAlgo.h"
 
-#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,9 +40,9 @@ namespace pat {
 
       virtual void beginRun(edm::Run & iRun, const edm::EventSetup & iSetup);
     private:
-      typedef pat::TriggerPrimitive           PATPrimitive;
-      typedef pat::TriggerPrimitiveCollection PATPrimitiveCollection;
-      typedef pat::TriggerPrimitiveMatch      PATTriggerAssociation;
+      typedef pat::TriggerObjectStandAlone           PATPrimitive;
+      typedef pat::TriggerObjectStandAloneCollection PATPrimitiveCollection;
+      typedef pat::TriggerObjectStandAloneMatch      PATTriggerAssociation;
 
       L1MuonMatcherAlgo matcher_;
 
@@ -115,7 +115,8 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
         if (propagated.isValid()) {
             GlobalPoint pos = propagated.globalPosition();
             propMatches[i] = propOut->size();
-            propOut->push_back(PATPrimitive(math::PtEtaPhiMLorentzVector(mu.pt(), pos.eta(), pos.phi(), mu.mass()), labelProp_));
+            propOut->push_back(PATPrimitive(math::PtEtaPhiMLorentzVector(mu.pt(), pos.eta(), pos.phi(), mu.mass())));
+            propOut->back().addFilterLabel(labelProp_);
             propOut->back().setCharge(mu.charge());
         }
         if (match != -1) {
@@ -123,7 +124,8 @@ pat::L1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
             whichRecoMatch[match] = reco->ptrAt(i); 
             if (isSelected[match] == -1) { // copy to output if needed
                 isSelected[match] = l1Out->size();
-                l1Out->push_back(PATPrimitive(l1.polarP4(), labelL1_));
+                l1Out->push_back(PATPrimitive(l1.polarP4()));
+                l1Out->back().addFilterLabel(labelL1_);
                 l1Out->back().setCharge(l1.charge());
             }
             fullMatches[i] = isSelected[match]; // index in the output collection
