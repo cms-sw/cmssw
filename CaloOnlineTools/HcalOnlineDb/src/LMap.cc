@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.9 2009/08/20 16:54:10 kukartse Exp $
+// $Id: LMap.cc,v 1.10 2009/09/10 23:41:21 kukartse Exp $
 //
 
 // system include files
@@ -179,7 +179,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
 	 eId!=v_eId.end();
 	 eId++){
       EMapRow row;
-      row.rawId     = eId->rawId();
+      //row.rawId     = eId->rawId();
       row.crate     = eId->readoutVMECrateId();
       row.slot      = eId->htrSlot();
       row.dcc       = eId->dccid();
@@ -198,6 +198,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
 	    )
 	   ){
 	HcalDetId _id( emap->lookup(*eId) );
+	row.rawId     = _id.rawId();
 	row.ieta      = _id.ieta();
 	row.iphi      = _id.iphi();
 	row.idepth    = _id.depth();
@@ -226,7 +227,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
 	 eId!=v_eId.end();
 	 eId++){
       EMapRow row;
-      row.rawId     = eId->rawId();
+      //row.rawId     = eId->rawId();
       row.crate     = eId->readoutVMECrateId();
       row.slot      = eId->htrSlot();
       row.dcc       = eId->dccid();
@@ -238,6 +239,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
       //
       HcalTrigTowerDetId _id( emap->lookupTrigger(*eId) );
       if ( !(_id.null()) ){
+	row.rawId     = _id.rawId();
 	row.ieta      = _id.ieta();
 	row.iphi      = _id.iphi();
 	row.idepth    = _id.depth();

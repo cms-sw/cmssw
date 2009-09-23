@@ -48,7 +48,9 @@ class HcalLutManager{
   
   HcalLutManager( );
   HcalLutManager(std::vector<HcalGenericDetId> & map);
-  HcalLutManager(const HcalElectronicsMap * _emap, const HcalChannelQuality * _cq = 0);
+  HcalLutManager(const HcalElectronicsMap * _emap,
+		 const HcalChannelQuality * _cq = 0,
+		 uint32_t _status_word_to_mask = 0x0000);
   ~HcalLutManager( );
 
   void init( void );
@@ -158,6 +160,7 @@ class HcalLutManager{
   HcalAssistant _ass;
   const HcalElectronicsMap * emap;
   const HcalChannelQuality * cq;
+  uint32_t status_word_to_mask;
 };
 
 

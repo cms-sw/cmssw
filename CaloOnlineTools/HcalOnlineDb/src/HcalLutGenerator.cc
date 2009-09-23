@@ -21,8 +21,9 @@ using std::endl;
 HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig)
 {
   cout << " --> HcalLutGenerator::HcalLutGenerator()" << endl;
-  _tag = iConfig.getParameter<string>("tag");
-  _lin_file = iConfig.getParameter<string>("HO_master_file");
+  _tag                 = iConfig.getParameter<string>("tag");
+  _lin_file            = iConfig.getParameter<string>("HO_master_file");
+  _status_word_to_mask = iConfig.getParameter<uint32_t>("status_word_to_mask");
 }
 
 HcalLutGenerator::~HcalLutGenerator()
@@ -108,7 +109,8 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //_____ generate LUTs _________________________________________________
   //
   //HcalLutManager * manager = new HcalLutManager(); // old ways
-  HcalLutManager * manager = new HcalLutManager(&(*hEmap));
+  //HcalLutManager * manager = new HcalLutManager(&(*hEmap));
+  HcalLutManager * manager = new HcalLutManager(&(*hEmap), _cq, _status_word_to_mask);
   bool split_by_crate = true;
   cout << " tag name: " << _tag << endl;
   cout << " HO master file: " << _lin_file << endl;
