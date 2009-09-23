@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.6 2009/09/22 15:23:26 dshpakov Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -39,11 +39,11 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
   if ( ioc.faulty() || !ioc.complete() )
   {
 
-    XCEPT_DECLARE( stor::exception::I2OChain,
+    XCEPT_DECLARE( stor::exception::IncompleteEventMessage,
                    xcept,
-                   "Bad I2OChain in EventDistributor::addEventToRelevantQueues" );
+                   "Faulty or incomplete I2OChain." );
     _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm( "BadI2OChain",
-                                                                       AlarmHandler::WARNING,
+                                                                       AlarmHandler::ERROR,
                                                                        xcept );
 
     DataSenderMonitorCollection& dataSenderMonColl =
@@ -79,19 +79,20 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       InitMsgView imv( &b[0] );
       if( _sharedResources->_initMsgCollection->addIfUnique( imv ) )
       {
-        for( EvtSelList::iterator it = _eventStreamSelectors.begin(),
-               itEnd = _eventStreamSelectors.end();
-             it != itEnd;
-             ++it )
+        try
         {
-          it->initialize( imv );
+          for_each(_eventStreamSelectors.begin(),_eventStreamSelectors.end(),
+            boost::bind(&EventStreamSelector::initialize, _1, imv));
+
+          for_each(_eventConsumerSelectors.begin(), _eventConsumerSelectors.end(),
+            boost::bind(&EventConsumerSelector::initialize, _1, imv));
         }
-        for( ConsSelList::iterator it = _eventConsumerSelectors.begin(),
-               itEnd = _eventConsumerSelectors.end();
-             it != itEnd;
-             ++it )
+        catch( stor::exception::InvalidEventSelection& e )
         {
-          it->initialize( imv );
+          _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
+            "InvalidEventSelection",
+            AlarmHandler::ERROR,
+            e );
         }
       }
       
@@ -109,9 +110,9 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
            it != itEnd;
            ++it )
       {
-        if( it->acceptEvent( ioc ) )
+        if( (*it)->acceptEvent( ioc ) )
         {
-          ioc.tagForStream( it->configInfo().streamId() );
+          ioc.tagForStream( (*it)->configInfo().streamId() );
         }
       }
       for( ConsSelList::iterator it = _eventConsumerSelectors.begin(),
@@ -119,9 +120,9 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
            it != itEnd;
            ++it )
       {
-        if( it->acceptEvent( ioc ) )
+        if( (*it)->acceptEvent( ioc ) )
         {
-          ioc.tagForEventConsumer( it->queueId() );
+          ioc.tagForEventConsumer( (*it)->queueId() );
         }
       }
       
@@ -145,9 +146,9 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
            it != itEnd;
            ++it)
       {
-        if( it->acceptEvent( ioc ) )
+        if( (*it)->acceptEvent( ioc ) )
         {
-          ioc.tagForDQMEventConsumer( it->queueId() );
+          ioc.tagForDQMEventConsumer( (*it)->queueId() );
         }
       }
       
@@ -170,9 +171,9 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
            it != itEnd;
            ++it )
       {
-        if( it->acceptEvent( ioc ) )
+        if( (*it)->acceptEvent( ioc ) )
         {
-          ioc.tagForStream( it->configInfo().streamId() );
+          ioc.tagForStream( (*it)->configInfo().streamId() );
         }
       }
       
@@ -191,13 +192,14 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
     
     default:
     {
-
-      XCEPT_DECLARE( stor::exception::I2OChain,
-                     xcept,
-                     "Bad I2OChain in EventDistributor::tagCompleteEventForQueues" );
+      std::ostringstream msg;
+      msg << "I2OChain with unknown message type " <<
+        ioc.messageCode();
+      XCEPT_DECLARE( stor::exception::WrongI2OMessageType,
+                     xcept, msg.str());
       _sharedResources->_statisticsReporter->
-        alarmHandler()->raiseAlarm( "BadI2OChain",
-                                    AlarmHandler::WARNING,
+        alarmHandler()->raiseAlarm( "UnkownMessageType",
+                                    AlarmHandler::ERROR,
                                     xcept );
 
       // 24-Jun-2009, KAB - this is not really the best way to track this,
@@ -222,15 +224,25 @@ void EventDistributor::registerEventConsumer
   const EventConsumerRegistrationInfo* registrationInfo
 )
 {
-  EventConsumerSelector evtSel( registrationInfo );
+  ConsSelPtr evtSel( new EventConsumerSelector(registrationInfo) );
 
   InitMsgSharedPtr initMsgPtr =
-    _sharedResources->_initMsgCollection->getElementForOutputModule( registrationInfo->selHLTOut() );
+    _sharedResources->_initMsgCollection->getElementForOutputModule( registrationInfo->outputModuleLabel() );
   if ( initMsgPtr.get() != 0 )
   {
     uint8* regPtr = &(*initMsgPtr)[0];
     InitMsgView initView(regPtr);
-    evtSel.initialize( initView );
+    try
+    {
+      evtSel->initialize( initView );
+    }
+    catch( stor::exception::InvalidEventSelection& e )
+    {
+      _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
+        "InvalidEventSelection",
+        AlarmHandler::ERROR,
+        e );
+    }
   }
   
   _eventConsumerSelectors.push_back( evtSel );
@@ -238,7 +250,8 @@ void EventDistributor::registerEventConsumer
 
 void EventDistributor::registerDQMEventConsumer( const DQMEventConsumerRegistrationInfo* ptr )
 {
-  _dqmEventSelectors.push_back( DQMEventSelector( ptr ) );
+  DQMEvtSelPtr dqmEvtSel( new DQMEventSelector(ptr) );
+  _dqmEventSelectors.push_back( dqmEvtSel );
 }
 
 void EventDistributor::registerEventStreams( const EvtStrConfigListPtr cl )
@@ -247,7 +260,8 @@ void EventDistributor::registerEventStreams( const EvtStrConfigListPtr cl )
        it != itEnd;
        ++it )
   {
-    _eventStreamSelectors.push_back( EventStreamSelector( *it ) );
+    EvtSelPtr evtSel( new EventStreamSelector(*it) );
+    _eventStreamSelectors.push_back( evtSel );
   }
 }
 
@@ -258,7 +272,8 @@ void EventDistributor::registerErrorStreams( const ErrStrConfigListPtr cl )
        it != itEnd;
        ++it )
   {
-    _errorStreamSelectors.push_back( ErrorStreamSelector( *it ) );
+    ErrSelPtr errSel( new ErrorStreamSelector(*it) );
+    _errorStreamSelectors.push_back( errSel );
   }
 }
 
@@ -285,7 +300,7 @@ unsigned int EventDistributor::initializedStreamCount() const
        it != itEnd;
        ++it)
   {
-    if ( it->isInitialized() )
+    if ( (*it)->isInitialized() )
       ++counter;
   }
   return counter;
@@ -313,7 +328,7 @@ unsigned int EventDistributor::initializedConsumerCount() const
        it != itEnd;
        ++it)
   {
-    if ( it->isInitialized() )
+    if ( (*it)->isInitialized() )
       ++counter;
   }
   return counter;
@@ -340,14 +355,14 @@ void EventDistributor::checkForStaleConsumers()
 
       // First, assume the consumer is active. If we find its queue in
       // the stale list, we'll mark it stale in the inner loop.
-      i->markAsActive();
+      (*i)->markAsActive();
 
       for( std::vector<QueueID>::const_iterator j = stale_qs.begin();
            j != stale_qs.end(); ++j )
         {
-          if( i->queueId() == *j )
+          if( (*i)->queueId() == *j )
             {
-              i->markAsStale();
+              (*i)->markAsStale();
             }
         }
 
@@ -357,9 +372,9 @@ void EventDistributor::checkForStaleConsumers()
       for( RegistrationCollection::ConsumerRegistrations::iterator k = cregs.begin();
            k != cregs.end(); ++k )
         {
-          if( (*k)->queueId() == i->queueId() )
+          if( (*k)->queueId() == (*i)->queueId() )
             {
-              (*k)->setStaleness( i->isStale() );
+              (*k)->setStaleness( (*i)->isStale() );
             }
         }
 
@@ -382,14 +397,14 @@ void EventDistributor::checkForStaleConsumers()
 
       // First, assume the consumer is active. If we find its queue in
       // the stale list, we'll mark it stale in the inner loop.
-      i->markAsActive();
+      (*i)->markAsActive();
 
       for( std::vector<QueueID>::const_iterator j = stale_qs.begin();
            j != stale_qs.end(); ++j )
         {
-          if( i->queueId() == *j )
+          if( (*i)->queueId() == *j )
             {
-              i->markAsStale();
+              (*i)->markAsStale();
             }
         }
 
@@ -399,9 +414,9 @@ void EventDistributor::checkForStaleConsumers()
       for( RegistrationCollection::DQMConsumerRegistrations::iterator k = dqm_cregs.begin();
            k != dqm_cregs.end(); ++k )
         {
-          if( (*k)->queueId() == i->queueId() )
+          if( (*k)->queueId() == (*i)->queueId() )
             {
-              (*k)->setStaleness( i->isStale() );
+              (*k)->setStaleness( (*i)->isStale() );
             }
         }
 
