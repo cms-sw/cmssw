@@ -4,7 +4,7 @@
 typedef PtIsolationAlgo<reco::Candidate,reco::CandidateCollection> CandPtIsolationAlgo;
 
 namespace {
-  namespace {
+  struct dictionary {
     CandPtIsolationAlgo iso1;
-  }
+  };
 }

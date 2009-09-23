@@ -3,7 +3,9 @@
 #include "DQM/SiPixelHistoricInfoClient/interface/HDQMInspectorConfigSiPixel.h"
 
 namespace {
-  HDQMInspectorConfigSiPixel RealDummyDum;
+  struct dictionary {
+    HDQMInspectorConfigSiPixel RealDummyDum;
+  };
 }
 
 

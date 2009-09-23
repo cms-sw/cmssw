@@ -18,7 +18,7 @@
  
  
 namespace {
-  namespace {
+  struct dictionary {
 /*      GPFRecHit dummy1; */
 /*      std::vector<std::vector<GPFRecHit> > dummy2; */
 /*      GPFCluster dummy3; */
@@ -28,5 +28,5 @@ namespace {
 /*      GPFSimParticle dummy7; */
 /*      std::vector<std::vector<GPFSimParticle> > dummy8; */
       
-  }
+  };
 }

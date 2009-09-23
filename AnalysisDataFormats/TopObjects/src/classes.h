@@ -16,15 +16,15 @@
 #include "TString.h"
 
 namespace {
-  namespace {
+  typedef edm::Ptr<pat::MET> PtrMet;
+  typedef edm::Ptr<pat::Jet> PtrJet;
+  typedef edm::Ptr<pat::Muon> PtrMuon;
+  typedef edm::Ptr<pat::Electron> PtrElec;
+  struct dictionary {
     TString tstr;
     edm::Wrapper<TString> w_tstr;
     edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;
 
-    typedef edm::Ptr<pat::MET> PtrMet;
-    typedef edm::Ptr<pat::Jet> PtrJet;
-    typedef edm::Ptr<pat::Muon> PtrMuon;
-    typedef edm::Ptr<pat::Electron> PtrElec;
     PtrMet  p_met;
     PtrJet  p_jet;
     PtrMuon p_muon;
@@ -84,5 +84,5 @@ namespace {
     edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef> rb_catopjet;
     edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                 rbh_catopjet; 
-  }
+  };
 }
