@@ -113,7 +113,7 @@ SiStripPlotGain::getHisto(const size_t& index){
   
   if(vTH1[index]==0){
     char name[128];
-    sprintf(name,"%d",index);
+    sprintf(name,"%lu",index);
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
     vTH1[index]=new TH1F(name,name,150,0.,5.);
   }

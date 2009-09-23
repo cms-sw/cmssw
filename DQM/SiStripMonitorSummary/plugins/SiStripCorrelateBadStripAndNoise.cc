@@ -170,7 +170,7 @@ SiStripCorrelateBadStripAndNoise::getHisto(const size_t& index){
   
   if(vTH2[index]==0){
     char name[128];
-    sprintf(name,"%d",index);
+    sprintf(name,"%lu",index);
     edm::LogInfo("")<<"[getHisto] creating index " << index << std::endl;
     vTH2[index]=new TH2F(name,name,50,-2.,2.,21,0.5,21.5);
   }
