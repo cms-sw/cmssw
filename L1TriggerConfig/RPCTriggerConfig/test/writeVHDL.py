@@ -10,7 +10,15 @@ process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
-process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/pats/') 
+#process.rpcconf.filedir = cms.untracked.string('L1Trigger/RPCTrigger/data/CosmicPats/v7/')
+#process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/D66M_-1/')
+#process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/D66M_truncated_-1/')
+#process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/D66M_full_-1/')
+#process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/D66M_fullWithGRPs_-1/')
+#process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/D66M_fullWithGRPsImprooved_-1/')
+process.rpcconf.filedir = cms.untracked.string('L1TriggerConfig/RPCTriggerConfig/test/D66M_fullWithGRPsImprooved2_-1/')
+    
+process.rpcconf.PACsPerTower = cms.untracked.int32(12)
 
 process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
 process.load("L1TriggerConfig.RPCTriggerConfig.RPCHwConfig_cff")
@@ -32,7 +40,7 @@ process.write = cms.EDAnalyzer("WriteVHDL",
           minSector = cms.int32(9),
           maxSector = cms.int32(9),
           templateName = cms.string("pacTemplate.vhd"),
-          outDir =  cms.string("./vhd/")
+          outDir =  cms.string("./cones/")
 )
 
 

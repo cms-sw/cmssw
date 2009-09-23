@@ -82,7 +82,7 @@ class WriteVHDL : public edm::EDAnalyzer {
 
       std::string writeVersion();
       
-      std::string writeCNT(std::string pacT);
+      std::string writeCNT(const edm::EventSetup& iSetup, int tower, int logsector,std::string pacT);
 
       std::string writePACandLPDef(const edm::EventSetup& iSetup, 
                                    int tower, int logsector, std::string PACt);
@@ -208,7 +208,7 @@ WriteVHDL::writePats(const edm::EventSetup& evtSetup,int tower, int logsector) {
                            fout << writeVersion();
                            break;
                       case 'N':
-                           fout << writeCNT(pacT);
+                           fout << writeCNT(evtSetup, tower, logsector, pacT);
                            break;
                       case 'P':
                            fout << writePACandLPDef(evtSetup, tower, logsector, pacT);
@@ -263,19 +263,65 @@ std::string WriteVHDL::writeVersion(){
   return ret.str();
 }
 
-std::string WriteVHDL::writeCNT(std::string pacT){
+std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int sector, std::string pacT){
    
    std::stringstream ret;
-   int nT=0, nE=0;
-   if (pacT == "E")
+   int nT=0, nE=0, refGrps = 0;
+   if (pacT == "E") {
       nE=12;
-   else if (pacT == "T")
+   }
+   else if (pacT == "T") {
       nT=12;
+   }
    else
       throw cms::Exception("") << "Unknown PAC type \n";
    
    ret << "constant TT_EPACS_COUNT         :natural := " << nE << ";" <<  std::endl;
    ret << "constant TT_TPACS_COUNT         :natural := " << nT << ";" <<  std::endl;
+   
+   // calculate number of RefGruops used
+   if (pacT == "E") {
+   
+      tower = std::abs(tower);
+
+      edm::ESHandle<L1RPCConfig> conf;
+      iSetup.get<L1RPCConfigRcd>().get(conf);
+
+      const RPCPattern::RPCPatVec *pats = &conf.product()->m_pats;
+      int ppt = conf.product()->getPPT();
+      int segment = 0;
+
+      if (ppt == 1 || ppt == 12) {
+        sector = 0;
+      }
+
+
+      const RPCPattern::RPCPatVec::const_iterator itEnd = pats->end();
+      RPCPattern::RPCPatVec::const_iterator it;
+
+      for ( int iPAC = 0; iPAC < 12 ; ++iPAC){
+
+        if (ppt == 144 || ppt == 12) segment = iPAC;
+
+        for (it = pats->begin(); it!=itEnd; ++it){
+
+           // select right pac
+           if ( it->getTower() != tower ||
+                it->getLogSector() != sector ||
+                it->getLogSegment() != segment ) continue;
+   
+           if (it->getPatternType() != RPCPattern::PAT_TYPE_E ) {
+             throw cms::Exception("WriteVHDL") 
+               << "Expected E type pattern, got different one" << std::endl;
+           }
+           if (refGrps < it->getRefGroup() ) refGrps = it->getRefGroup();
+           
+         } // patsIter
+      } // segment iter
+   } // if type E
+
+   ret  << "constant TT_REF_GROUP_NUMBERS   :natural := " << refGrps + 1 << ";" <<  std::endl;
+
    
    return ret.str();
 }
