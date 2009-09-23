@@ -21,7 +21,7 @@ CaloGeometry::makeIndex( DetId::Detector det    ,
 	  0       <  subdet &&
 	  kMaxSub >= subdet    ) ;
 
-   return ( ( det - kMinDet )*kMaxDet + subdet - 1 ) ;
+   return ( ( det - kMinDet )*kMaxSub + subdet - 1 ) ;
 }
 
 void 
@@ -32,6 +32,10 @@ CaloGeometry::setSubdetGeometry( DetId::Detector                det    ,
    bool ok ;
    const unsigned int index = makeIndex( det, subdet, ok ) ;
    if( ok ) m_geos[index] = geom ;
+
+//   std::cout<<"Detector="<<(int)det<<", subset="<<subdet<<", index="<<index
+//	    <<", size="<<m_geos.size()<<std::endl;
+
    assert( ok ) ;
 }
 
@@ -88,12 +92,20 @@ std::vector<DetId> CaloGeometry::getValidDetIds() const
    std::vector<DetId> returnValue ;
    returnValue.reserve( kLength ) ;
 
+   bool doneHcal ( false ) ;
    for( unsigned int i ( 0 ) ; i != m_geos.size() ; ++i ) 
    {
-      if( 0 != m_geos[i] )
+      if( 0    != m_geos[i] )
       {
 	 const std::vector< DetId >& aVec ( m_geos[i]->getValidDetIds() ) ;
-	 returnValue.insert( returnValue.end(), aVec.begin(), aVec.end() ) ;
+	 const bool isHcal ( DetId::Hcal == aVec.front().det() ) ;
+	 if( !doneHcal ||
+	     !isHcal      )
+	 {
+	    returnValue.insert( returnValue.end(), aVec.begin(), aVec.end() ) ;
+	    if( !doneHcal &&
+		isHcal        ) doneHcal = true ;
+	 }
       }
    }
    return returnValue ;
