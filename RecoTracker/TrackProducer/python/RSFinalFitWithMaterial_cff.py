@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
-from TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi import *
-from TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi import *
 from TrackingTools.TrackFitters.RungeKuttaFitters_cff import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *

@@ -9,9 +9,7 @@ from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
 from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
 # KFTrajectoryFitterESProducer
-from TrackingTools.TrackFitters.RungeKuttaKFTrajectoryFitterESProducer_cfi import *
 # KFTrajectorySmootherESProducer
-from TrackingTools.TrackFitters.RungeKuttaKFTrajectorySmootherESProducer_cfi import *
 # KFFittingSmootherESProducer
 from TrackingTools.TrackFitters.RungeKuttaFitters_cff import *
 # PropagatorWithMaterialESProducer
