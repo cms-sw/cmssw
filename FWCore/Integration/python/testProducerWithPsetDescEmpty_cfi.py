@@ -18,7 +18,8 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
   ),
   switchPset = cms.PSet(
     iswitch = cms.int32(2),
-    ivalue = cms.string('102')
+    ivalue = cms.string('102'),
+    addTeVRefits = cms.bool(False)
   ),
   xorPset = cms.PSet(
     name = cms.uint32(11)

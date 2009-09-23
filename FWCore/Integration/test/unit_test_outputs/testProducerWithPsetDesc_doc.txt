@@ -401,6 +401,8 @@ generated for each configuration with a module label.
                         type: FileInPath 
                         default: 'FWCore/Integration/test/ProducerWithPSetDesc.cc'
 
+    Empty group description
+
     bar
                         type: PSet 
                         see Section 1.1.2
@@ -1190,6 +1192,12 @@ generated for each configuration with a module label.
                         see Section 1.1.14.1
                         Comment for a ParameterSwitch
 
+        addTeVRefits (switch)
+                        type: bool 
+                        see Section 1.1.14.2
+                        If TeV refits are added, their sources need to be 
+                        specified
+
     Section 1.1.14.1 iswitch (switch):
     The value of "iswitch" controls which other parameters
     are required or allowed to be in the PSet.
@@ -1225,6 +1233,33 @@ generated for each configuration with a module label.
         ivalue2
                         type: double 
                         default: 101
+
+    Section 1.1.14.2 addTeVRefits (switch):
+    The value of "addTeVRefits" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        addTeVRefits
+                        type: bool 
+                        default: True
+
+        if addTeVRefits = False
+        Empty group description
+
+        if addTeVRefits = True
+        AND group:
+                        see Section 1.1.14.2.1
+
+    Section 1.1.14.2.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        pickySrc
+                        type: InputTag 
+                        default: ''
+
+        tpfmsSrc
+                        type: InputTag 
+                        default: ''
 
     Section 1.1.15 xorPset PSet description:
 

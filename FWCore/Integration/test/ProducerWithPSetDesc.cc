@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterWildcard.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/MinimalEventID.h"
@@ -643,6 +644,9 @@ namespace edmtest {
     edm::FileInPath fileInPath("FWCore/Integration/test/ProducerWithPSetDesc.cc");
     iDesc.add<edm::FileInPath>("fileInPath", fileInPath);
 
+    edm::EmptyGroupDescription emptyGroup;
+    iDesc.addNode(emptyGroup);
+
     edm::ParameterSetDescription bar;
     bar.add<unsigned int>("Drinks", 5);
     bar.addUntracked<unsigned int>("uDrinks", 5);
@@ -809,6 +813,13 @@ namespace edmtest {
                                    edm::ParameterDescription<double>("ivalue2", 101.0, true)) or
                              2 >> edm::ParameterDescription<std::string>("ivalue", "102", true) );
     pn->setComment("Comment for a ParameterSwitch");
+
+    switchPset.ifValue( edm::ParameterDescription<bool>("addTeVRefits", true, true),
+                        true >> (edm::ParameterDescription<edm::InputTag>("pickySrc", edm::InputTag(), true) and
+                                 edm::ParameterDescription<edm::InputTag>("tpfmsSrc", edm::InputTag(), true)) or
+                        false >> edm::EmptyGroupDescription()
+                      )->setComment("If TeV refits are added, their sources need to be specified");    
+
     iDesc.add("switchPset", switchPset);
 
     // -----------------------------------------------

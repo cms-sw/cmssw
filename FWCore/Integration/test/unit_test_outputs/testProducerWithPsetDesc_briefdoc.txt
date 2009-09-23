@@ -147,6 +147,7 @@
       [2]: 'One'
       [3]: 'One::Three'
     fileInPath              FileInPath                     'FWCore/Integration/test/ProducerWithPSetDesc.cc'
+    Empty group description
     bar                     PSet                           see Section 1.1.2
     test101                 PSet                  optional see Section 1.1.3 (do not write to cfi)
     test102                 VPSet                 optional see Section 1.1.4 (do not write to cfi)
@@ -422,7 +423,8 @@
         Drinks      uint32                    5
         Drinks2     uint32                    11
     Section 1.1.14 switchPset PSet description:
-        iswitch (switch) int32          see Section 1.1.14.1
+        iswitch (switch)      int32          see Section 1.1.14.1
+        addTeVRefits (switch) bool           see Section 1.1.14.2
     Section 1.1.14.1 iswitch (switch):
         switch:
         iswitch int32   1
@@ -438,6 +440,17 @@
     This AND group requires all of the following to be in the PSet
         ivalue1 double  101
         ivalue2 double  101
+    Section 1.1.14.2 addTeVRefits (switch):
+        switch:
+        addTeVRefits bool  True
+        if addTeVRefits = False
+        Empty group description
+        if addTeVRefits = True
+        AND group: see Section 1.1.14.2.1
+    Section 1.1.14.2.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+        pickySrc InputTag  ''
+        tpfmsSrc InputTag  ''
     Section 1.1.15 xorPset PSet description:
         XOR group: see Section 1.1.15.1
         XOR group: see Section 1.1.15.2

@@ -229,7 +229,10 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
   switchPset = cms.PSet(
     iswitch = cms.int32(1),
     ivalue1 = cms.double(101),
-    ivalue2 = cms.double(101)
+    ivalue2 = cms.double(101),
+    addTeVRefits = cms.bool(True),
+    pickySrc = cms.InputTag(''),
+    tpfmsSrc = cms.InputTag('')
   ),
   xorPset = cms.PSet(
     name = cms.string('11'),
