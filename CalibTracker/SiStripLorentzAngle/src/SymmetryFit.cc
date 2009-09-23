@@ -71,19 +71,20 @@ float SymmetryFit::chi2_element(std::pair<unsigned,unsigned> range)
 }
 
 int SymmetryFit::fit() {
+
+  int status = chi2_->Fit("pol2","WQ");
+  if(status) return status;
+  double a = chi2_->GetFunction("pol2")->GetParameter(2);
+  double b = chi2_->GetFunction("pol2")->GetParameter(1);
+  double c = chi2_->GetFunction("pol2")->GetParameter(0);
+
   TF1* f = fitfunction();
-  double low = chi2_->GetBinCenter(1);
-  double high = chi2_->GetBinCenter(chi2_->GetNbinsX());
-  double min = chi2_->GetMinimum();
-  double max = chi2_->GetMaximum();
-  int minbin = chi2_->GetMinimumBin();
+  f->SetParameter(0, -0.5*b/a); f->SetParLimits(0, -0.5*b/a-0.01, -0.5*b/a+0.01);
+  f->SetParameter(1, 1./sqrt(a)); f->SetParLimits(1, 0.9/sqrt(a), 1.1/sqrt(a));
+  f->SetParameter(2, c-0.25*b*b/a); f->SetParLimits(2,-5, c);
+  f->SetParameter(3, ndf_);  f->SetParLimits(3, ndf_,ndf_); //Fixed
 
-  f->SetParameter(0,  chi2_->GetBinCenter(minbin));  f->SetParLimits(0, low,high);
-  f->SetParameter(1,     (high-low)/sqrt(max-min));  f->SetParLimits(1, 0, 4*(high-low)/sqrt(max-min));
-  f->SetParameter(2, chi2_->GetBinContent(minbin));  f->SetParLimits(2, -5, max);
-  f->SetParameter(3,                         ndf_);  f->SetParLimits(3, ndf_,ndf_); //Fixed
-
-  return chi2_->Fit(f);
+  return chi2_->Fit(f,"W");
 }
 
 TF1* SymmetryFit::fitfunction() 
