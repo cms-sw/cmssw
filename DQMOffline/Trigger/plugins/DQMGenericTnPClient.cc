@@ -145,7 +145,7 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
     DQMGenericTnPClient(const edm::ParameterSet& pset);
     virtual ~DQMGenericTnPClient();
     virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-    virtual void endJob();
+    virtual void endRun(const edm::Run &run, const edm::EventSetup &setup);
     void calculateEfficiency(const ParameterSet& pset);
   private:
     DQMStore * dqmStore;
@@ -166,7 +166,7 @@ DQMGenericTnPClient::DQMGenericTnPClient(const edm::ParameterSet& pset):
   GPLfitter = new GaussianPlusLinearFitter(verbose);
 }
 
-void DQMGenericTnPClient::endJob(){
+void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &setup){
   dqmStore = Service<DQMStore>().operator->();
   if( !dqmStore ){
     LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
