@@ -45,6 +45,11 @@ WPlusJetsEventSelector::WPlusJetsEventSelector(
 
 bool WPlusJetsEventSelector::operator() (edm::EventBase const & t, std::strbitset & ret)
 {
+  selectedJets_.clear();
+  selectedMuons_.clear();
+  selectedElectrons_.clear();
+  selectedMETs_.clear();
+
   passCut( ret, "Inclusive");
   edm::Handle< std::vector<pat::Jet> >       allJets;
   edm::Handle< std::vector<pat::Muon> >      allMuons;
