@@ -118,7 +118,7 @@ int HemisphereAlgo::reconstruct(){
     LogDebug("HemisphereAlgo") << " Axis 2 is Object = " << J_Max;
 
    
-  } else if (seed_meth == 2 | seed_meth == 3) {
+  } else if ( (seed_meth == 2) | (seed_meth == 3)  ) {
 
     float Mass_Max = 0.;
     float InvariantMass = 0.;
