@@ -98,10 +98,21 @@ MonitorTrackSTAMuons = cms.EDFilter("TrackingMonitor",
     TrackPMax = cms.double(1000),
     Chi2ProbMax = cms.double(1.0),
     Chi2ProbBin = cms.int32(100),
-    Chi2ProbMin = cms.double(0.0)
+    Chi2ProbMin = cms.double(0.0),
 
+    BSFolderName = cms.string('Track/BeamSpotParameters'),
+    doBeamSpotPlots = cms.bool(False),
+    X0Bin = cms.int32(100),
+    X0Min = cms.double(-3.0),
+    X0Max = cms.double(3.0),
 
-  
+    Y0Bin = cms.int32(100),
+    Y0Min = cms.double(-3.0),
+    Y0Max = cms.double(3.0),
+
+    Z0Bin = cms.int32(60),
+    Z0Min = cms.double(-30.0),
+    Z0Max = cms.double(30.0)
 )
 
 

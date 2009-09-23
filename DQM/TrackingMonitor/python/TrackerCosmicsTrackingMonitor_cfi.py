@@ -11,11 +11,13 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     OutputFileName = cms.string('MonitorTrack.root'),
 
     FolderName = cms.string('Track/GlobalParameters'),
-
+    BSFolderName = cms.string('Track/BeamSpotParameters'),
+                                     
     MeasurementState = cms.string('default'),
 
     doTrackerSpecific = cms.bool(True),
-    doAllPlots = cms.bool(False),                    
+    doAllPlots = cms.bool(False),
+    doBeamSpotPlots = cms.bool(False),                                     
     doSeedParameterHistos = cms.bool(False),
 
     Chi2Bin = cms.int32(100),
@@ -123,5 +125,17 @@ TrackerCosmicTrackMon = cms.EDFilter("TrackingMonitor",
     VZMax = cms.double(200.0),
     VZMin = cms.double(-200.0),
     
+    X0Bin = cms.int32(100),
+    X0Min = cms.double(-3.0),
+    X0Max = cms.double(3.0),
+
+    Y0Bin = cms.int32(100),
+    Y0Min = cms.double(-3.0),
+    Y0Max = cms.double(3.0),
+
+    Z0Bin = cms.int32(60),
+    Z0Min = cms.double(-30.0),
+    Z0Max = cms.double(30.0),
+
     TTRHBuilder = cms.string('WithTrackAngle')
 )
