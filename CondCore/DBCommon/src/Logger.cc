@@ -1,10 +1,9 @@
 #include "CondCore/DBCommon/interface/Logger.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/UserLogInfo.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
 #include "CondCore/DBCommon/interface/TokenInterpreter.h"
-#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -29,13 +28,13 @@ namespace cond{
     return ss.str();
   }
 }
-cond::Logger::Logger(cond::Connection* connectionHandle):m_connectionHandle(connectionHandle),m_coraldb(connectionHandle->coralTransaction()),m_locked(false),m_statusEditorHandle(0),m_sequenceManager(0),m_logTableExists(false){
+cond::Logger::Logger(cond::DbSession& sessionHandle):m_sessionHandle(sessionHandle),m_locked(false),m_statusEditorHandle(0),m_sequenceManager(0),m_logTableExists(false){
 }
 bool
 cond::Logger::getWriteLock()throw() {
   try{
-    m_coraldb.start(false);
-    coral::ITable& statusTable=m_coraldb.nominalSchema().tableHandle(LogDBNames::LogTableName());
+    m_sessionHandle.transaction().start(false);
+    coral::ITable& statusTable=m_sessionHandle.nominalSchema().tableHandle(LogDBNames::LogTableName());
     //Instructs the server to lock the rows involved in the result set.
     m_statusEditorHandle=statusTable.newQuery();
     m_statusEditorHandle->setForUpdate();
@@ -55,20 +54,21 @@ cond::Logger::releaseWriteLock()throw() {
     m_statusEditorHandle=0;
   }
   m_locked=false;
-  m_coraldb.commit();
+  m_sessionHandle.transaction().commit();
   return !m_locked;
 }
 void 
 cond::Logger::createLogDBIfNonExist(){
   if(m_logTableExists) return;
-  m_coraldb.start(false);
-  if(m_coraldb.nominalSchema().existsTable(cond::LogDBNames::SequenceTableName())&&m_coraldb.nominalSchema().existsTable(cond::LogDBNames::LogTableName())){
+  m_sessionHandle.transaction().start(false);
+  if(m_sessionHandle.nominalSchema().existsTable(cond::LogDBNames::SequenceTableName()) &&
+     m_sessionHandle.nominalSchema().existsTable(cond::LogDBNames::LogTableName())){
     m_logTableExists=true;
-    m_coraldb.commit();
+    m_sessionHandle.transaction().commit();
     return;
   }
   //create sequence table
-  cond::SequenceManager sequenceGenerator(m_coraldb,cond::LogDBNames::SequenceTableName());
+  cond::SequenceManager sequenceGenerator(m_sessionHandle,cond::LogDBNames::SequenceTableName());
   if( !sequenceGenerator.existSequencesTable() ){
     sequenceGenerator.createSequencesTable();
   }
@@ -116,9 +116,9 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.insertColumn(std::string("EXECMESSAGE"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  m_coraldb.nominalSchema().createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+  m_sessionHandle.nominalSchema().createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
   m_logTableExists=true;
-  m_coraldb.commit();
+  m_sessionHandle.transaction().commit();
 }
 void 
 cond::Logger::logOperationNow(
@@ -135,7 +135,7 @@ cond::Logger::logOperationNow(
   std::string now=cond::to_string(p.date().year())+"-"+cond::to_string(p.date().month())+"-"+cond::to_string(p.date().day())+"-"+cond::to_string(p.time_of_day().hours())+":"+cond::to_string(p.time_of_day().minutes())+":"+cond::to_string(p.time_of_day().seconds());
   //aquireentryid
   if(!m_sequenceManager){
-    m_sequenceManager=new cond::SequenceManager(m_coraldb,cond::LogDBNames::SequenceTableName());
+    m_sequenceManager=new cond::SequenceManager(m_sessionHandle,cond::LogDBNames::SequenceTableName());
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
@@ -156,7 +156,7 @@ cond::Logger::logFailedOperationNow(
   std::string now=cond::to_string(p.date().year())+"-"+cond::to_string(p.date().month())+"-"+cond::to_string(p.date().day())+"-"+cond::to_string(p.time_of_day().hours())+":"+cond::to_string(p.time_of_day().minutes())+":"+cond::to_string(p.time_of_day().seconds());
   //aquireentryid
   if(!m_sequenceManager){
-    m_sequenceManager=new cond::SequenceManager(m_coraldb,cond::LogDBNames::SequenceTableName());
+    m_sequenceManager=new cond::SequenceManager(m_sessionHandle,cond::LogDBNames::SequenceTableName());
   }
   unsigned long long targetLogId=m_sequenceManager->incrementId(LogDBNames::LogTableName());
   //insert log record with the new id
@@ -181,8 +181,8 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
   BindVariableList.extend("execmessage",typeid(std::string) );
   BindVariableList["provenance"].data<std::string>()=provenance;
   BindVariableList["execmessage"].data<std::string>()="OK";
-  m_coraldb.start(true);
-  coral::IQuery* query = m_coraldb.nominalSchema().newQuery();
+  m_sessionHandle.transaction().start(true);
+  coral::IQuery* query = m_sessionHandle.nominalSchema().newQuery();
   // construct select
   query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
   query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
@@ -227,7 +227,7 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
     //row.toOutputStream( std::cout ) << std::endl;
   }
   delete query;
-  m_coraldb.commit();
+  m_sessionHandle.transaction().commit();
 }
 void 
 cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
@@ -258,9 +258,9 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
     BindVariableList["execmessage"].data<std::string>()="OK"; 
   }
   
-  m_coraldb.start(true);
+  m_sessionHandle.transaction().start(true);
   //coral::IQuery* query = m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery();
-  coral::IQuery* query = m_coraldb.nominalSchema().newQuery();
+  coral::IQuery* query = m_sessionHandle.nominalSchema().newQuery();
   // construct select
   query->addToOutputList( cond::LogDBNames::LogTableName()+".LOGID" );
   query->defineOutputType( cond::LogDBNames::LogTableName()+".LOGID", "unsigned long long" );
@@ -305,7 +305,7 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
     //row.toOutputStream( std::cout ) << std::endl;
   }
   delete query;  
-  m_coraldb.commit();
+  m_sessionHandle.transaction().commit();
 }
 void 
 cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
@@ -352,7 +352,7 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData["IOVTIMETYPE"].data< std::string >() = iovtimetype;
     rowData["PAYLOADINDEX"].data< unsigned int >() = payloadIdx;
     rowData["EXECMESSAGE"].data< std::string >() = exceptionMessage;
-    m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).dataEditor().insertRow(rowData);
+    m_sessionHandle.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).dataEditor().insertRow(rowData);
   }catch(const std::exception& er){
     throw cond::Exception(std::string(er.what()));
   }

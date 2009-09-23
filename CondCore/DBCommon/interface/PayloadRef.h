@@ -41,16 +41,16 @@ namespace cond {
       // try wrapper, if not try plain
       pool::Ref<DataWrapper> ref(svc,token);
       if (ref) {
-	m_data.copyShallow(ref);
-	m_data->data();
-	ok= true;
+        m_data.copyShallow(ref);
+        m_data->data();
+        ok= true;
       } else {
-	pool::Ref<DataT> refo(svc,token);
-	if (refo) {
-	  old = true;
-	  m_OldData.copyShallow(refo);
-	  ok =  true;
-	}
+        pool::Ref<DataT> refo(svc,token);
+        if (refo) {
+          old = true;
+          m_OldData.copyShallow(refo);
+          ok =  true;
+        }
       }
       return ok;
     }

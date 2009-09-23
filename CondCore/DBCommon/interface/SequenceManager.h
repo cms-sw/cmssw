@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include "CondCore/DBCommon/interface/DbSession.h"
 //
 // Package:     DBCommon
 // Class  :     SequenceManager
@@ -22,7 +23,7 @@ namespace cond {
   class SequenceManager {
   public:
     /// Constructor
-    SequenceManager(cond::CoralTransaction& coraldb,
+    SequenceManager(cond::DbSession& coraldb,
 		    const std::string& sequenceTableName);
 
     /// Destructor
@@ -53,7 +54,7 @@ namespace cond {
     void init();
     private:
       /// The coraldb in use
-      cond::CoralTransaction& m_coraldb;
+      cond::DbSession m_coraldb;
 
       /// Sequence table name
       std::string m_sequenceTableName;

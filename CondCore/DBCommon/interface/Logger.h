@@ -1,6 +1,7 @@
 #ifndef CONDCORE_DBCOMMON_LOGGER_H
 #define CONDCORE_DBCOMMON_LOGGER_H
 
+#include "CondCore/DBCommon/interface/DbSession.h"
 #include <string>
 //#include <iostream>
 //
@@ -20,12 +21,10 @@ namespace coral{
 namespace cond{
   class UserLogInfo;
   class LogDBEntry;
-  class CoralTransaction;
-  class Connection;
   class SequenceManager;
   class Logger{
   public:
-    explicit Logger(Connection* connectionHandle);
+    explicit Logger(DbSession& sessionHandle);
     ~Logger();
     bool getWriteLock() throw ();
     bool releaseWriteLock() throw ();
@@ -95,8 +94,7 @@ namespace cond{
 			 unsigned int payloadIdx,
 			 const std::string& exceptionMessage);
     
-    Connection* m_connectionHandle;
-    CoralTransaction& m_coraldb;
+    mutable DbSession m_sessionHandle;
     //coral::ISchema& m_schema;
     bool m_locked;
     coral::IQuery* m_statusEditorHandle;

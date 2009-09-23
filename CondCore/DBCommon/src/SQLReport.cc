@@ -8,7 +8,7 @@ static std::string SQLREPORT_DEFAULT_FILENAME("sqlreport.out");
 
 void cond::SQLReport::reportForConnection(const std::string& connectionString){
   m_report << "-- connection: "<< connectionString << std::endl;
-  m_session.monitoringReporter().reportToOutputStream( connectionString, m_report );
+  m_connection.monitoringReporter().reportToOutputStream( connectionString, m_report );
 }
 
 bool cond::SQLReport::putOnFile(std::string fileName){

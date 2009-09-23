@@ -37,6 +37,12 @@ namespace cond {
 
   TypeH reflexTypeByToken(std::string const & token);
 
+  std::string classNameForTypeId( const std::type_info& typeInfo );
+
+  template <typename T> std::string classNameForPointer( T* pointer ){
+    return classNameForTypeId( typeid(pointer) );
+  }
+
 }
 
 
