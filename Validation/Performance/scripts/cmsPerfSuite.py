@@ -1038,9 +1038,6 @@ class PerfSuite:
                 AvailableCores=cpus
             else:
                 AvailableCores=range(cores)
-            #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
-            print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
-            print AvailableCores
             #Initialize a list that will contain all the simpleGenReport keyword arguments (1 dictionary per test):
             TestsToDo=[]
             #IgProf tests:
@@ -1233,7 +1230,14 @@ class PerfSuite:
             #Here if there are any IgProf, Callgrind or MemcheckEvents to be run,
             #run the infinite loop that submits the PerfTest() threads on the available cores:
             if IgProfEvents or CallgrindEvents or MemcheckEvents:
-               
+               #FIXME:We should consider what behavior makes most sense in case we use the --cores option at this time only the cores=0 care is considered...
+               print "Threading all remaining tests on all %s available cores!"%len(AvailableCores)
+               #Save the original AvailableCores list to use it as a test to break the infinite loop:
+               #While in the regular RelVal use-case it makes sense to use the actual number of cores of the machines, in
+               #the IB case the AvailableCores will always consist of only 1 single core..
+               OriginalAvailableCores=AvailableCores
+               print AvailableCores
+
                #Create a dictionaty to keep track of running threads on the various cores:
                activePerfTestThreads={}
                #Flag for waiting messages:
@@ -1274,7 +1278,7 @@ class PerfSuite:
                         print "%s test, in thread %s is done running on core %s"%(activePerfTestThreads[cpu].simpleGenReportArgs['Name'],activePerfTestThreads[cpu],cpu) 
                         print "About to append cpu %s to AvailableCores list"%cpu
                         AvailableCores.append(cpu)
-                  if set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) and not TestsToDo:
+                  if (set(AvailableCores)==set(range(cmsCpuInfo.get_NumOfCores())) or set(AvailableCores)==set(OriginalAvailableCores)) and not TestsToDo:
                      print "WHEW! We're done... all TestsToDo are done..."
                      print AvailableCores
                      print TestsToDo
@@ -1310,16 +1314,29 @@ class PerfSuite:
     
             #Create a tarball of the work directory
             #Adding the str(stepOptions to distinguish the tarballs for 1 release (GEN->DIGI, L1->RECO will be run in parallel)
-            TarFile = "%s_%s_%s_%s.tgz" % (self.cmssw_version, str(stepOptions), self.host, self.user)
+            #Cleaning the stepOptions from the --usersteps=:
+            if "=" in str(stepOptions):
+               fileStepOption=str(stepOptions).split("=")[1]
+            else:
+               fileStepOption=str(stepOptions)
+            #Add the working directory used to avoid overwriting castor files (also put a check...)
+            fileWorkingDir=os.path.basename(perfsuitedir)
+            TarFile = "%s_%s_%s_%s_%s.tgz" % (self.cmssw_version, fileStepOption, fileWorkingDir, self.host, self.user)
             AbsTarFile = os.path.join(perfsuitedir,TarFile)
             tarcmd  = "tar -zcf %s %s" %(AbsTarFile,os.path.join(perfsuitedir,"*"))
             self.printFlush(tarcmd)
             self.printFlush(os.popen3(tarcmd)[2].read()) #Using popen3 to get only stderr we don't want the whole stdout of tar!
     
             #Archive it on CASTOR
-            castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
-            self.printFlush(castorcmd)
-            castorcmdstderr=os.popen3(castorcmd)[2].read()
+            #Before archiving check if it already exist if it does print a message, but do not overwrite, so do not delete it from local dir:
+            checkcastor="nsls  %s" % (os.path.join(castordir,TarFile))
+            checkcastorerr=os.popen3(checkcastor)[2].read()
+            if not checkcastorerr:
+               castorcmd="rfcp %s %s" % (AbsTarFile,os.path.join(castordir,TarFile))
+               self.printFlush(castorcmd)
+               castorcmdstderr=os.popen3(castorcmd)[2].read()
+            else:
+               castorcmdstderr="File already on CASTOR! Will NOT OVERWRITE!!!"
             #Checking the stderr of the rfcp command to copy the tarball (.tgz) on CASTOR:
             if castorcmdstderr:
                 #If it failed print the stderr message to the log and tell the user the tarball (.tgz) is kept in the working directory

@@ -84,7 +84,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
 
     # mc matching
     addGenMatch   = cms.bool(True),
-    embedGenMatch = cms.bool(False),
+    embedGenMatch = cms.bool(True),
     genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
 
     # efficiencies
@@ -94,6 +94,10 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     # resolution configurables
     addResolutions  = cms.bool(False),
     resolutions      = cms.PSet(),
+
+    # high level selections
+    embedHighLevelSelection = cms.bool(True),
+    beamLineSrc             = cms.InputTag("offlineBeamSpot")
 )
 
 

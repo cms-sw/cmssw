@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.14 $ by $Author$
-#     $Date: 2009/06/23 12:32:18 $
+#     $Revision: 1.10 $
+#     $Date: 2008/10/16 18:34:57 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -20,10 +20,6 @@ use Mpslib;
 
 $maxJobs = 1;  # by default, fire one job only
 $fireMerge = 0;
-
-$pedeMemDef = 2560; # Default memory allocated for pede: 2560MB=2.5GB
-$pedeMemMin = 1024; # Minimum memory allocated for pede: 1024MB=1GB
-
 # parse the arguments
 while (@ARGV) {
   $arg = shift(ARGV);
@@ -42,7 +38,8 @@ while (@ARGV) {
       $updateDb = 1;
     }
     $optionstring = "$optionstring$arg";
-  } else {                # parameters not related to options
+  }
+  else {                # parameters not related to options
     $i = $i + 1;
     if ($i eq 1) {
       $maxJobs = $arg;
@@ -74,14 +71,9 @@ if ($fireMerge == 0) {
     # fire the "normal" parallel jobs
     # set the resource string coming from mps.db
     $resources = get_class("mille");
-    if ($resources =~ "cmscafspec") {  # "cmscafspec" found in $resources: special cmscaf resource
+    if ($resources eq "cmscafspec") {  # special cmscaf resource
 	print "\nWARNING:\n  Running mille jobs on cmscafspec, intended for pede only!\n\n";
-        $queue = $resources;
-        $queue =~ s/cmscafspec/cmscaf/;
- 	$resources = "-q ".$queue." -R cmscafspec";
-    } elsif ($resources =~ "cmscaf") { # "cmscaf" found in $resources
-	# g_cmscaf for ordinary caf queues, keeping 'cmscafspec' free for pede jobs: 
- 	$resources = "-q ".$resources." -m g_cmscaf";
+	$resources = "-q cmscaf -R ".$resources;
     } else {
 	$resources = "-q ".$resources;
     }
@@ -106,7 +98,8 @@ if ($fireMerge == 0) {
 		    ## @JOBID[$i] = $1;
 		    @JOBID[$i] = sprintf "%07d",$1;
 		    ## print "jobid is @JOBID[$i]\n";
-		} else {
+		}
+		else {
 		    $jid = $i + 1;
 		    print "Submission of $jid seems to have failed: $result\n";
 		}
@@ -114,25 +107,17 @@ if ($fireMerge == 0) {
 	    }
 	}
     }
-} else {
+}
+else {
     # fire the merge job
     print "fire merge\n";
     # set the resource string coming from mps.db
     $resources = get_class("pede");
-    if ($resources =~ "cmscafspec") {  # "cmscafspec" found in $resources: special cmscaf resource
-        $queue = $resources;
-        $queue =~ s/cmscafspec/cmscaf/;
- 	$resources = "-q ".$queue." -R cmscafspec";
+    if ($resources eq "cmscafspec") {  # special cmscaf resource
+	$resources = "-q cmscaf -R ".$resources;
     } else {
 	$resources = "-q ".$resources;
     }
-
-# Allocate memory for pede job
-    if ($pedeMem =~ /\D/ || $pedeMem < $pedeMemMin) {
-        print "Memory request (".$pedeMem.") non-digit or < ".$pedeMemMin.", use ".$pedeMemDef."\n";
-	$pedeMem = $pedeMemDef;
-    }
-    $resources = $resources." -R \"rusage[mem=".$pedeMem."]\"";
 
     # check whether all other jobs OK
     $mergeOK = 1;
@@ -144,62 +129,74 @@ if ($fireMerge == 0) {
     }
 
     $i = $nJobs;
-    while ($i < @JOBDIR) { # loop on all possible merge jobs (usually just 1...)
-      if (@JOBSTATUS[$i] ne "SETUP") {
-        print "Merge job $i status @JOBSTATUS[$i] not submitted.\n";
-      } elsif ($mergeOK!=1 && $forceMerge!=1) {
-        print "Merge job not submitted since Mille jobs error/unfinished (Use -mf to force).\n";
-      } else {
-        if ($forceMerge==1) { # force option invoked
-	  # Make first a backup copy of the script
-          if (!(-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak")) {
-	    system "cp -p $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/theScript.sh.bak";
-       	  }
-          # Get then the name of merge cfg file (-> $mergeCfg)
-          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh.bak | grep cmsRun | grep "\.py" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
-          $mergeCfg = `basename $mergeCfg`;
-          $mergeCfg =~ s/\n//;
-          # And make a backup copy of the cfg
-          if (!(-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak")) {
-            system "cp -p $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i]/$mergeCfg.bak";
-          }
-          # Rewrite the mergeCfg, using only "OK" jobs
+    if (@JOBSTATUS[$i] ne "SETUP") {
+      print "Merge job $i status @JOBSTATUS[$i] not submitted.\n";
+    } elsif ($mergeOK!=1 && $forceMerge!=1) {
+      print "Merge job not submitted since Mille jobs error/unfinished (Use -mf to force).\n";
+    } else {
+
+      if ($forceMerge==1) { # force option invoked
+	# Make first a backup copy of the script
+	if (!(-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak")) {
+	  system "cp -p $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/theScript.sh.bak";
+	}
+
+	# Get then the name of merge cfg file (-> $mergeCfg)
+### Use this for .py extension ###
+	$mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh.bak | grep cmsRun | grep "\.py" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+### Use this for .cfg extension (obsolete) ###
+#	$mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh.bak | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+###
+	$mergeCfg = `basename $mergeCfg`;
+	$mergeCfg =~ s/\n//;
+
+	# And make a backup copy of the cfg
+	if (!(-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak")) {
+	  system "cp -p $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i]/$mergeCfg.bak";
+	}
+
+	# Rewrite the mergeCfg, using only "OK" jobs
           system "mps_merge.pl -c $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
+
           # Rewrite theScript.sh, using only "OK" jobs
 	  system "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i] $mergeCfg $nJobs $mssDir";
         } else {
-          # Restore the backup copy of the script
-          if (-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak") {
-            system "cp -pf $theJobData/@JOBDIR[$i]/theScript.sh.bak $theJobData/@JOBDIR[$i]/theScript.sh";
-          }
-          # Then get the name of merge cfg file (-> $mergeCfg)
+	  # Restore the backup copy of the script
+	  if (-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak") {
+	    system "cp -pf $theJobData/@JOBDIR[$i]/theScript.sh.bak $theJobData/@JOBDIR[$i]/theScript.sh";
+	  }
+
+	  # Then get the name of merge cfg file (-> $mergeCfg)
+### Use this for .py extension ###
           $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh | grep cmsRun | grep "\.py" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
-          $mergeCfg = `basename $mergeCfg`;
+### Use this for .cfg extension (obsolete) ###
+#          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+###
+	  $mergeCfg = `basename $mergeCfg`;
           $mergeCfg =~ s/\n//;
 
-          # And finally restore the backup copy of the cfg
-          if (-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak") {
-            system "cp -pf $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg";
-          }
-        } # end of 'else' from if($forceMerge)
+	  # And finally restore the backup copy of the cfg
+	  if (-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak") {
+	    system "cp -pf $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg";
+	  }
+	}
 
-        print "bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
-        $result = `bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
-        print "     $result";
-        chomp $result;
-        $nn = ($result =~ m/Job \<(\d+)\> is submitted/);
-        if ($nn eq 1) {
-          # need standard format for job number
-          @JOBSTATUS[$i] = "SUBTD";
-          ## @JOBID[$i] = $1;
-          @JOBID[$i] = sprintf "%07d",$1;
-          print "jobid is @JOBID[$i]\n";
-        } else {
-          print "Submission of merge job seems to have failed: $result\n";
-        }
-      }
-      ++$i;  
-    } # end while on merge jobs
+	print "bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
+	$result = `bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
+	print "     $result";
+	chomp $result;
+	$nn = ($result =~ m/Job \<(\d+)\> is submitted/);
+	if ($nn eq 1) {
+	    # need standard format for job number
+	    @JOBSTATUS[$i] = "SUBTD";
+	    ## @JOBID[$i] = $1;
+	    @JOBID[$i] = sprintf "%07d",$1;
+	    print "jobid is @JOBID[$i]\n";
+	}
+	else {
+	    print "Submission of merge job seems to have failed: $result\n";
+	}
+    }
 
 }
 write_db();

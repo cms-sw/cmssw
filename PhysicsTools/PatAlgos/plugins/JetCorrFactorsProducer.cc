@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.6 2009/03/30 17:18:11 rwolf Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.9 2009/07/21 08:34:42 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -53,10 +53,13 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
 
   SampleType type=kNone;
   // determine sample type for the flavor dependend corrections
-  switch( iConfig.getParameter<int>( "sampleType" ) ){
-  case  0: type = kDijet; break;
-  case  1: type = kTtbar; break;
-  default: 
+  if     ( iConfig.getParameter<std::string>( "sampleType" ).compare("dijet")==0){
+    type = kDijet;
+  }
+  else if( iConfig.getParameter<std::string>( "sampleType" ).compare("ttbar")==0){
+    type = kTtbar;
+  }
+  else{
     throw cms::Exception("InvalidRequest") 
       << "you ask for a sample type for jet energy corrections which does not exist \n";  
   }
@@ -127,12 +130,12 @@ JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, Comb
   // get the jet energy correction factors depending on whether emf should be used or not;
   double correction;
   if( !useEMF_ ){
-    correction = (corrector->getSubCorrections(jet->pt(), jet->eta()))[idx];
+    correction = (corrector->getSubCorrections(jet->pt(), jet->eta(), jet->energy()))[idx];
   }
   else{
     // to have the emf accessible to the corrector the jet needs to 
     // be a CaloJet
-    correction = (corrector->getSubCorrections(jet->pt(), jet->eta()))[idx];
+    correction = (corrector->getSubCorrections(jet->pt(), jet->eta(), jet->energy()))[idx];
   }
   return correction;
 }
@@ -302,7 +305,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription iDesc;
   iDesc.add<bool>("useEMF", false);
   iDesc.add<edm::InputTag>("jetSource", edm::InputTag("iterativeCone5CaloJets")); 
-  iDesc.add<int>("sampleType", 0);
+  iDesc.add<std::string>("sampleType", "dijet");
   iDesc.add<std::string>("L1Offset", "none");
   iDesc.add<std::string>("L2Relative", "Summer08Redigi_L2Relative_IC5Calo");
   iDesc.add<std::string>("L3Absolute", "Summer08Redigi_L2Relative_IC5Calo");

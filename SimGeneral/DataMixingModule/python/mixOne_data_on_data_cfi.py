@@ -19,8 +19,9 @@ mixData = cms.EDFilter("DataMixingModule",
     maxBunch = cms.int32(0),
     bunchspace = cms.int32(25),
     minBunch = cms.int32(0),
-    checktof = cms.bool(False), 
     #                   
+    mixProdStep1 = cms.bool(False),
+    mixProdStep2 = cms.bool(False),
     IsThisFastSim = cms.string('NO'),  # kludge for fast simulation flag...
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
@@ -34,7 +35,7 @@ mixData = cms.EDFilter("DataMixingModule",
                    #
     pixeldigiCollectionSig = cms.InputTag("siPixelDigis"),
     #
-    SiStripPileInputTag = cms.InputTag("ZeroSuppressed","siStripDigis"),
+    SiStripPileInputTag = cms.InputTag("siStripDigis","ZeroSuppressed"),
                    #
     pixeldigiCollectionPile = cms.InputTag("siPixelDigis"),
                    #
@@ -95,8 +96,8 @@ mixData = cms.EDFilter("DataMixingModule",
                    #
     #  Pileup
                    #                   
-    DTPileInputTag        = cms.InputTag("muonDTDigis","MuonDTDigis"),
-    RPCPileInputTag       = cms.InputTag("muonRPCDigis","MuonRPCDigis"),
+    DTPileInputTag        = cms.InputTag("muonDTDigis"),
+    RPCPileInputTag       = cms.InputTag("muonRPCDigis"),
     CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
     CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
     CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi"),

@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.18 2009/03/25 15:54:52 borrell Exp $
+// $Id: SiStripMonitorDigi.h,v 1.17 2009/02/20 21:28:52 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -61,7 +61,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   struct SubDetMEs{
     MonitorElement* SubDetTotDigiProf;
     MonitorElement* SubDetDigiApvProf;
-    MonitorElement* SubDetDigiApvTH2;
   };
 
  private:
@@ -128,7 +127,6 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool moduleswitchstripoccupancyon;
   bool subdetswitchtotdigiprofon;
   bool subdetswitchapvcycleprofon;
-  bool subdetswitchapvcycleth2on;
 
   bool Mod_On_;
 

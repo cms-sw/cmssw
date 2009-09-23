@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('rackingTruthOutputTest')
+process = cms.Process('TrackingTruthOutputTest')
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
+
+process.load("SimGeneral.TrackingAnalysis.Playback_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -21,4 +23,4 @@ process.myOutputTest = cms.EDAnalyzer(
   dumpOnlyBremsstrahlung = cms.untracked.bool(False)  
 )
 
-process.p = cms.EndPath(process.myOutputTest)
+process.p = cms.EndPath(process.mix*process.myOutputTest)

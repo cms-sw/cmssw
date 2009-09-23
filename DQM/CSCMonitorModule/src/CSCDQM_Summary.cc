@@ -113,7 +113,7 @@ namespace cscdqm {
           }
         }
       }
-      double factor = num / denum;
+      double factor = num / denum, eps_meas = 0.0;
   
       Address adr;
       unsigned int N = 0, n = 0;
@@ -149,14 +149,54 @@ namespace cscdqm {
               SetValue(adr, DATA);
             }
   
-            switch (Utility::checkOccupancy(N, n, cold_coef, hot_coef, cold_Sfail, hot_Sfail)) {
-              case -1:
-                SetValue(adr, COLD);
-                break;
-              case 1:
-                SetValue(adr, HOT);
-                break;
-            };
+            if (N > 0) {
+  
+              eps_meas = (1.0 * n) / (1.0 * N);
+  
+              /**  Chamber is cold? It means error! */
+              if (eps_meas < cold_coef) {
+  
+                double S = SignificanceLevel(N, n, cold_coef);
+  
+                LOG_DEBUG << "?COLD?" 
+                  << "adr = " << detector.AddressName(adr)
+                  << ", n = " << n 
+                  << ", N = " << N
+                  << ", eps_meas = " << eps_meas
+                  << ", cold_coef = " << cold_coef
+                  << ", cold_Sfail = " << cold_Sfail
+                  << ", S = " << S
+                  << ", result = " << (S > cold_Sfail);
+  
+                if (S > cold_Sfail) {
+                  SetValue(adr, COLD);
+                }
+
+              } else {
+              
+                /**  Chamber is hot? It means error! */
+                if (eps_meas > hot_coef) {
+  
+                  double S = SignificanceLevelHot(N, n);
+  
+                  LOG_DEBUG << "?HOT?"
+                    << "adr = " << detector.AddressName(adr)
+                    << ", n = " << n << ", N = " << N
+                    << ", eps_meas = " << eps_meas
+                    << ", hot_coef = " << hot_coef
+                    << ", hot_Sfail = " << hot_Sfail
+                    << ", S = " << S
+                    << ", result = " << (S > cold_Sfail);
+  
+                  if (S > hot_Sfail) {
+                    SetValue(adr, HOT);
+                  }
+
+                }
+              }
+  
+  
+            }
   
           }
   
@@ -191,10 +231,13 @@ namespace cscdqm {
           N = int(evs->GetBinContent(x, y));
           n = int(err->GetBinContent(x, y));
           if (ChamberCoordsToAddress(x, y, adr)) {
-            if(Utility::checkError(N, n, eps_max, Sfail)) { 
-              SetValue(adr, bit);
-            } else {
-              ReSetValue(adr, bit);
+            double eps_meas = (1.0 * n) / (1.0 * N);
+            if (eps_meas > eps_max) { 
+              if(SignificanceLevel(N, n, eps_max) > Sfail) { 
+                SetValue(adr, bit);
+              } else {
+                ReSetValue(adr, bit);
+              }
             }
           }
         }
@@ -856,4 +899,51 @@ namespace cscdqm {
   
   }
   
+  /**
+   * @brief  Calculate error significance alpha for the given number of errors 
+   * based on reference number of errors for "cold" elements: actual number of 
+   * events have to be less then the reference.
+   * @param  N Number of events
+   * @param  n Number of errors
+   * @param  eps Rate of tolerance
+   * @return Significance level
+   */
+  const double Summary::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps) const {
+  
+    /** std::cout << "N = " << N << ", n = " << n << ", eps = " << eps << "\n"; */
+  
+    double l_eps = eps;
+    if (l_eps <= 0.0) l_eps = 0.000001;
+    if (l_eps >= 1.0) l_eps = 0.999999;
+  
+    double eps_meas = (1.0 * n) / (1.0 * N);
+    double a = 1.0, b = 1.0;
+  
+    if (n > 0) {
+      for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps);
+    }
+  
+    if (n < N) {
+      for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
+    }
+  
+    return sqrt(2.0 * log(a * b));
+  
+  }
+  
+  /**
+   * @brief  Calculate error significance alpha for the given number of events
+   * based on reference number of errors for "hot" elements: actual number of
+   * events have to be larger then the reference.
+   * @param  N number of reference events
+   * @param  n number of actual events
+   * @return error significance
+   */
+  const double Summary::SignificanceLevelHot(const unsigned int N, const unsigned int n) const {
+    if (N > n) return 0.0;
+    /**  no - n observed, ne - n expected */
+    double no = 1.0 * n, ne = 1.0 * N;
+    return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
+  }
+
 }

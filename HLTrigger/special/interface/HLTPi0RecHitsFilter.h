@@ -337,7 +337,6 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       PositionCalc posCalculator_;
  
       static const int MAXCLUS = 2000;
-      static const int MAXPI0S = 1999000;
-      
-      
+      static const int MAXPI0S = 200;
+
 };

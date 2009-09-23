@@ -17,18 +17,18 @@ def adaptPFMuons(process,module):
     module.useParticleFlow = True
     module.isolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("isoMuonWithCharged"),
-        pfNeutralHadrons = cms.InputTag("isoMuonWithNeutral"),
-        pfPhotons = cms.InputTag("isoMuonWithPhotons")
+        pfChargedHadrons = cms.InputTag("isoDepMuonWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoDepMuonWithNeutral"),
+        pfPhotons = cms.InputTag("isoDepMuonWithPhotons")
         )
     module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("pfMuonIsolationFromDepositsChargedHadrons"),
-        pfNeutralHadrons = cms.InputTag("pfMuonIsolationFromDepositsNeutralHadrons"),
-        pfPhotons = cms.InputTag("pfMuonIsolationFromDepositsPhotons")
+        pfChargedHadrons = cms.InputTag("isoValMuonWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoValMuonWithNeutral"),
+        pfPhotons = cms.InputTag("isoValMuonWithPhotons")
         )
     # matching the pfMuons, not the standard muons.
-    switchMCMatch(process,module.muonSource,module.pfMuonSource)
-    process.aodSummary.candidates.append(module.pfMuonSource)
+    process.muonMatch.src = module.pfMuonSource
+
     print " muon source:", module.pfMuonSource
     print " isolation  :",
     print module.isolationValues
@@ -38,28 +38,84 @@ def adaptPFMuons(process,module):
     
 
 def adaptPFElectrons(process,module):
+    # module.useParticleFlow = True
+
+    print "Adapting PF Electrons "
+    print "********************* "
+    warningIsolation()
+    print 
     module.useParticleFlow = True
-    print "Temporarily switching off isolation & isoDeposits for PF Electrons"
     module.isolation   = cms.PSet()
-    module.isoDeposits = cms.PSet()
-    print "Temporarily switching off electron ID for PF Electrons"
-    module.isolation   = cms.PSet()
-    module.addElectronID = False
-    if module.embedTrack.value(): 
-        module.embedTrack = False
-        print "Temporarily switching off electron track embedding"
-    if module.embedGsfTrack.value(): 
-        module.embedGsfTrack = False
-        print "Temporarily switching off electron gsf track embedding"
-    if module.embedSuperCluster.value(): 
-        module.embedSuperCluster = False
-        print "Temporarily switching off electron supercluster embedding"
+    module.isoDeposits = cms.PSet(
+        pfChargedHadrons = cms.InputTag("isoDepElectronWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoDepElectronWithNeutral"),
+        pfPhotons = cms.InputTag("isoDepElectronWithPhotons")
+        )
+    module.isolationValues = cms.PSet(
+        pfChargedHadrons = cms.InputTag("isoValElectronWithCharged"),
+        pfNeutralHadrons = cms.InputTag("isoValElectronWithNeutral"),
+        pfPhotons = cms.InputTag("isoValElectronWithPhotons")
+        )
+
+    # COLIN: since we take the egamma momentum for pat Electrons, we must
+    # match the egamma electron to the gen electrons, and not the PFElectron.  
+    # -> do not uncomment the line below.
+    # process.electronMatch.src = module.pfElectronSource
+    # COLIN: how do we depend on this matching choice? 
+
+    print " PF electron source:", module.pfElectronSource
+    print " isolation  :"
+    print module.isolationValues
+    print " isodeposits: "
+    print module.isoDeposits
+    print 
+    
+    
+
+
+##     print "Temporarily switching off isolation & isoDeposits for PF Electrons"
+##     module.isolation   = cms.PSet()
+##     module.isoDeposits = cms.PSet()
+##     print "Temporarily switching off electron ID for PF Electrons"
+##     module.isolation   = cms.PSet()
+##     module.addElectronID = False
+##     if module.embedTrack.value(): 
+##         module.embedTrack = False
+##         print "Temporarily switching off electron track embedding"
+##     if module.embedGsfTrack.value(): 
+##         module.embedGsfTrack = False
+##         print "Temporarily switching off electron gsf track embedding"
+##     if module.embedSuperCluster.value(): 
+##         module.embedSuperCluster = False
+##         print "Temporarily switching off electron supercluster embedding"
 
 def adaptPFPhotons(process,module):
     raise RuntimeError, "Photons are not supported yet"
 
 def adaptPFJets(process,module):
     module.embedCaloTowers   = False
+
+def adaptPFTaus(process,tauType = 'fixedConePFTau' ):
+# MICHAL: tauType can be changed only to shrinkig cone one, otherwise request is igonred
+    oldTaus = process.allLayer1Taus.tauSource
+    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
+
+    if tauType == 'shrinkingConePFTau': 
+        print "PF2PAT: tauType changed from default \'fixedConePFTau\' to \'shrinkingConePFTau\'"
+        process.allLayer0TausDiscrimination.PFTauProducer = cms.InputTag(tauType+"Producer")
+        process.allLayer0Taus.src = cms.InputTag(tauType+"Producer")
+        process.pfTauSequence.replace(process.fixedConePFTauProducer,
+                                      process.shrinkingConePFTauProducer)
+        
+    if (tauType != 'shrinkingConePFTau' and tauType != 'fixedConePFTau'):
+        print "PF2PAT: TauType \'"+tauType+"\' is not supported. Default \'fixedConePFTau\' is used instead."
+        tauType = 'fixedConePFTau'
+        
+    redoPFTauDiscriminators(process, cms.InputTag(tauType+'Producer'),
+                            process.allLayer1Taus.tauSource,
+                            tauType)
+    switchToAnyPFTau(process, oldTaus, process.allLayer1Taus.tauSource, tauType)
+
 
 def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     from PhysicsTools.PatAlgos.producersLayer1.pfParticleProducer_cfi import allLayer1PFParticles
@@ -81,18 +137,15 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut=""):
     process.selectedLayer1Objects.replace(process.selectedLayer1Summary, filter +  process.selectedLayer1Summary)
     process.countLayer1Objects    += counter
     # summary tables
-    process.aodSummary.candidates.append(src)
     process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1' + patLabel))
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1' + patLabel))
 
 def switchToPFMET(process,input=cms.InputTag('pfMET')):
     print 'MET: using ', input
     oldMETSource = process.layer1METs.metSource
-    switchMCMatch(process,oldMETSource,input)
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
-    #process.patJetMETCorrections.remove(process.patMETCorrections)
-    process.patAODExtraReco.remove(process.patMETCorrections)
+    process.patDefaultSequence.remove(process.patMETCorrections)
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
     print 'Jets: using ', input
@@ -103,20 +156,26 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         jetCorrLabel=None, 
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
-    process.aodSummary.candidates.append(process.allLayer1Jets.jetSource)
 
 def usePF2PAT(process,runPF2PAT=True):
+
+    # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
+    # CREATE ADDITIONAL FUNCTIONS IF NEEDED. 
+
 
     """Switch PAT to use PF2PAT instead of AOD sources. if 'runPF2PAT' is true, we'll also add PF2PAT in front of the PAT sequence"""
 
     # -------- CORE ---------------
     if runPF2PAT:
         process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
-        process.patAODCoreReco += process.PF2PAT
-        # note: I can't just replace it, because other people could have added stuff here (e.g. btagging)
+
+#        process.dump = cms.EDAnalyzer("EventContentAnalyzer")
+        process.patDefaultSequence.replace(process.allLayer1Objects,
+                                           process.PF2PAT +
+                                           process.allLayer1Objects
+                                           )
 
     removeCleaning(process)
-    process.aodSummary.candidates = cms.VInputTag();
     
     # -------- OBJECTS ------------
     # Muons
@@ -124,36 +183,19 @@ def usePF2PAT(process,runPF2PAT=True):
 
     
     # Electrons
-#    process.allLayer1Electrons.pfElectronSource = cms.InputTag("isolatedElectrons")
-#    adaptPFElectrons(process,process.allLayer1Electrons)
-#    switchMCMatch(process,process.allLayer1Electrons.electronSource,process.allLayer1Electrons.pfElectronSource)
-#    process.aodSummary.candidates.append(process.allLayer1Electrons.pfElectronSource)
-#    process.patAODCoreReco.remove(process.electronsNoDuplicates)
-#    process.patAODExtraReco.remove(process.patElectronId)
-#    process.patAODExtraReco.remove(process.patElectronIsolation)
-    print "Temporarily switching off electrons completely"
-    removeSpecificPATObject(process,'Electrons')
-    process.patAODCoreReco.remove(process.electronsNoDuplicates)
-    process.patAODExtraReco.remove(process.patElectronId)
-    process.patAODExtraReco.remove(process.patElectronIsolation)
-    #process.countLayer1Leptons.countElectrons = False
-    
+    adaptPFElectrons(process,process.allLayer1Electrons)
+
     # Photons
     print "Temporarily switching off photons completely"
-    removeSpecificPATObject(process,'Photons')
-    process.patAODExtraReco.remove(process.patPhotonIsolation)
+    removeSpecificPATObjects(process,['Photons'])
+    process.patDefaultSequence.remove(process.patPhotonIsolation)
     
     # Jets
-    switchToPFJets( process, 'pfNoTau' )
+    switchToPFJets( process, cms.InputTag('pfNoTau') )
     
     # Taus
-    #COLIN try to re-enable taus
-    removeSpecificPATObject(process,'Taus')
-#    oldTaus = process.allLayer1Taus.tauSource
-#    process.allLayer1Taus.tauSource = cms.InputTag("allLayer0Taus")
-#    switchMCMatch(process, oldTaus, process.allLayer1Taus.tauSource)
-#    redoPFTauDiscriminators(process, oldTaus, process.allLayer1Taus.tauSource)
-#    process.aodSummary.candidates.append(process.allLayer1Taus.tauSource)
+    adaptPFTaus( process ) #default (i.e. fixedConePFTau)
+    #adaptPFTaus( process, tauType='shrinkingConePFTau' )
     
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'))

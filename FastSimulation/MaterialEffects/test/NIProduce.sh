@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorhome="/castor/cern.ch/user/p/pjanot/CMSSW300pre3/"
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_0_0_pre3/src
+castorhome="/castor/cern.ch/user/p/pjanot/CMSSW330pre2/"
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_3_0_pre2/src
 
 # 150000 evenements en 8h
 # for energy in 1 2 3 4 5 7 9

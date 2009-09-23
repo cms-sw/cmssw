@@ -1,9 +1,11 @@
 //
-// $Id: Muon.cc,v 1.18 2009/03/26 22:36:55 hegner Exp $
+// $Id: Muon.cc,v 1.20 2009/08/11 04:23:31 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
+#include <limits>
 
 using namespace pat;
 
@@ -19,7 +21,13 @@ Muon::Muon() :
     pickyMuonRef_(),
     tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    pfCandidateRef_(),
+    cachedNormChi2_(false),
+    cachedDB_(false),
+    cachedNumberOfValidHits_(0),
+    normChi2_(0.0),
+    dB_(0.0),
+    numberOfValidHits_(0)
 {
 }
 
@@ -35,7 +43,13 @@ Muon::Muon(const reco::Muon & aMuon) :
     pickyMuonRef_(),
     tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    pfCandidateRef_(),
+    cachedNormChi2_(false),
+    cachedDB_(false),
+    cachedNumberOfValidHits_(0),
+    normChi2_(0.0),
+    dB_(0.0),
+    numberOfValidHits_(0)
 {
 }
 
@@ -51,7 +65,13 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     pickyMuonRef_(),
     tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    pfCandidateRef_(),
+    cachedNormChi2_(false),
+    cachedDB_(false),
+    cachedNumberOfValidHits_(0),
+    normChi2_(0.0),
+    dB_(0.0),
+    numberOfValidHits_(0)
 {
 }
 
@@ -67,7 +87,13 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     pickyMuonRef_(),
     tpfmsMuonRef_(),
     embeddedPFCandidate_(false),
-    pfCandidateRef_()
+    pfCandidateRef_(),
+    cachedNormChi2_(false),
+    cachedDB_(false),
+    cachedNumberOfValidHits_(0),
+    normChi2_(0.0),
+    dB_(0.0),
+    numberOfValidHits_(0)
 {
 }
 
@@ -193,4 +219,52 @@ void Muon::embedPFCandidate() {
 bool Muon::muonID(const std::string& name) const {
   muon::SelectionType st = muon::selectionTypeFromString(name);
   return muon::isGoodMuon(*this, st);
+}
+
+
+/// Norm chi2 gives the normalized chi2 of the global track. 
+/// The user can choose to cache this info so they can drop the
+/// global track, or they can use the track itself if it is present
+/// in the event. 
+double Muon::normChi2() const {
+  if ( cachedNormChi2_ ) {
+    return normChi2_;
+  } else {
+    reco::TrackRef t = this->globalTrack();
+    if ( t.isNonnull() && t.isAvailable() ) {
+      return t->chi2() / t->ndof();
+    }
+    else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+}
+
+/// numberOfValidHits returns the number of valid hits on the global track.
+/// The user can choose to cache this info so they can drop the
+/// global track, or they can use the track itself if it is present
+/// in the event. 
+unsigned int Muon::numberOfValidHits() const {
+  if ( cachedNumberOfValidHits_ ) {
+    return numberOfValidHits_;
+  } else {
+    reco::TrackRef t = this->globalTrack();
+    if ( t.isNonnull() && t.isAvailable() ) {
+      return t->numberOfValidHits();
+    }
+    else {
+      return 0;
+    }
+  }
+}
+
+/// dB gives the impact parameter wrt the beamline.
+/// If this is not cached it is not meaningful, since
+/// it relies on the distance to the beamline. 
+double Muon::dB() const {
+  if ( cachedDB_ ) {
+    return dB_;
+  } else {
+    return std::numeric_limits<double>::max();
+  }
 }

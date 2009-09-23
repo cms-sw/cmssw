@@ -155,6 +155,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //------------------------------------------------------------------
 void SiPixelHLTSource::bookMEs(){
 
+  theDMBE->setVerbose(0);
   theDMBE->cd();
   theDMBE->setCurrentFolder("Pixel/FEDIntegrity/");
 

@@ -174,10 +174,10 @@ std::vector<DetId> EcalTrigTowerConstituentsMap::constituentsOf(const EcalTrigTo
       //--------------------
       // trigger towers are 5x5 crystals in the barrel
       int etaxtalMin=(id.ietaAbs()-1)*5+1;
-      int phixtalMin=(id.iphi()-1)*5+11;
+      int phixtalMin=((id.iphi()-1)*5+11)%360;
       if(phixtalMin<=0)phixtalMin+=360;
       int etaxtalMax=id.ietaAbs()*5;
-      int phixtalMax=(id.iphi()*5+10)%360;
+      int phixtalMax=((id.iphi())*5+10)%360;
       if(phixtalMax<=0) phixtalMax+=360;
       for(int e=etaxtalMin;e<=etaxtalMax;e++) 
 	for(int p=phixtalMin;p<=phixtalMax;p++) 

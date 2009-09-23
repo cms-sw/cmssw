@@ -19,7 +19,7 @@ namespace edm
 
   // Constructor 
   //FIXME: subdet here?
-  MixingWorkerBase::MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string &label,std::string &labelCF,unsigned int maxNbSources, InputTag &tag, InputTag &tagCF, bool checktof, bool mixProdStep2, bool isTracker) :
+  MixingWorkerBase::MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string &label,std::string &labelCF,unsigned int maxNbSources, InputTag &tag, InputTag &tagCF, bool mixProdStep2) :
 	  minBunch_(minBunch),
 	  maxBunch_(maxBunch),
 	  bunchSpace_(bunchSpace),
@@ -28,11 +28,8 @@ namespace edm
 	  labelCF_(labelCF),
 	  maxNbSources_(maxNbSources),
 	  tag_(tag),
-	  tagSignal_(tagCF),
-	  checktof_(checktof),
-	  isTracker_(isTracker)
+	  tagSignal_(tagCF)
   {
-   opp_=InputTag();
   }
 
   // Virtual destructor needed.

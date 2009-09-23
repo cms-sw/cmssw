@@ -58,9 +58,9 @@ class CrossingFrame
   void addSignals(const T * vec,edm::EventID id);
  
   // standard version
-  void addPileups(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
+  void addPileups(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0);
   // version for HepMCProduct
-  void addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset=0,bool checkTof=false,bool high=false);
+  void addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset=0);
 
   void setTof( );
 
@@ -136,15 +136,8 @@ class CrossingFrame
   void setPileupOffsetsSource(std::vector< std::vector<unsigned int> > pOffsetsS) { pileupOffsetsSource_ = pOffsetsS;}  //one per source
   void setBunchRange(std::pair<int,int> bunchRange) { firstCrossing_ = bunchRange.first;
   						      lastCrossing_ = bunchRange.second;} 
-
   
-// limits for tof to be considered for trackers
-  static const int lowTrackTof; //nsec
-  static const int highTrackTof;
-  static const int minLowTof;
-  static const int limHighLowTof;
-					    
- private:
+ private: 					    
   // please update the swap() function below if any data members are added.
   // general information
   int firstCrossing_;
@@ -173,6 +166,7 @@ class CrossingFrame
   // as a function of the position of an object in the pileups_ vector
   std::vector<unsigned int> pileupOffsetsBcr_;
   std::vector< std::vector<unsigned int> > pileupOffsetsSource_; //one per source
+  
 };
 
 //==============================================================================
@@ -180,7 +174,9 @@ class CrossingFrame
 //==============================================================================
 
 template <class T> 
-CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int maxNbSources):firstCrossing_(minb), lastCrossing_(maxb), bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
+CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int
+maxNbSources):firstCrossing_(minb), lastCrossing_(maxb),
+bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
  pileupOffsetsSource_.resize(maxNbSources_);
  for (unsigned int i=0;i<maxNbSources_;++i)
    pileupOffsetsSource_[i].reserve(-firstCrossing_+lastCrossing_+1);
@@ -280,29 +276,29 @@ void CrossingFrame<T>::setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFram
 
 //==================== template specializations  ===========================================
 template <class T>
-void CrossingFrame<T>::addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset,bool checkTof,bool high) {
+void CrossingFrame<T>::addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset) {
   // default, valid for HepMCProduct
   pileups_.push_back(product);
 }
 
 template <class T>
-void CrossingFrame<T>::addPileups(const int bcr, std::vector<T> * product, unsigned int evtId,int vertexoffset,bool checkTof,bool high){
+void CrossingFrame<T>::addPileups(const int bcr, std::vector<T> * product, unsigned int evtId,int vertexoffset){
   // default, in fact never called since special implementations exist for all possible types
   // of this signature, i.e. PSimHit, PCaloHit, SimTrack, SimVertex
   // But needs to be present for HepMCProduct
 }
 
 template <>
-void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *, unsigned int evtId,int vertexoffset);
 
 template <>
-void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *, unsigned int evtId,int vertexoffset);
 
 template <>
-void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *, unsigned int evtId,int vertexoffset);
 
 template <>
-void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset,bool checkTof,bool high);
+void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset);
 
 template <class T> 
 void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
@@ -322,9 +318,5 @@ void CrossingFrame<T>::addSignals(const T * product,edm::EventID id){
 
 template <class T>
 void CrossingFrame<T>::setTof() {;}
-
-template <>
-void CrossingFrame<PSimHit>::setTof();
-
 
 #endif 

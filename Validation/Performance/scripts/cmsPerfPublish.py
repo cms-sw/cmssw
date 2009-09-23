@@ -824,6 +824,7 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
         if Profiler == "":
             INDEX.write("<li><a href=\"%s\">%s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,step,NumOfEvents))
         else:
+            #FIXME: need to fix this: why do we have the number of Memcheck events hardcoded? 
             if CurrentProfile == "memcheck_valgrind":#FIXME:quick and dirty hack to report we have changed memcheck to 5 events now...
                 INDEX.write("<li><a href=\"%s\">%s %s %s (%s events)</a></li>\n" % (ProfileReportLink,CurrentProfile,Profiler,step,"5"))
             else:
@@ -865,12 +866,16 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
     NumOfEvents={
                 DirName[0] : TimeSizeNumOfEvents,
                 DirName[1] : IgProfNumOfEvents,
-                DirName[2] : CallgrindNumOfEvents,
-                DirName[3] : MemcheckNumOfEvents,
-                DirName[4] : TimeSizeNumOfEvents,
-                DirName[5] : IgProfNumOfEvents,
-                DirName[6] : CallgrindNumOfEvents,
-                DirName[7] : MemcheckNumOfEvents
+                DirName[2] : IgProfNumOfEvents,
+                DirName[3] : IgProfNumOfEvents,
+                DirName[4] : CallgrindNumOfEvents,
+                DirName[5] : MemcheckNumOfEvents,
+                DirName[6] : TimeSizeNumOfEvents,
+                DirName[7] : IgProfNumOfEvents,
+                DirName[8] : IgProfNumOfEvents,
+                DirName[9] : IgProfNumOfEvents,
+                DirName[10] : CallgrindNumOfEvents,
+                DirName[11] : MemcheckNumOfEvents
                 }
 
     Profile=(
@@ -933,13 +938,19 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                     if not prevrev == "":
 
                         profs = []
-                        if   CurDir == DirName[0] or CurDir == DirName[4]:
+                        #FIXME!
+                        #Check what this was used for.. it now has different DirName list since we added IgProf_Perf and IgProf_Mem on top of IgProf alone (still there)
+                        if   CurDir == DirName[0] or CurDir == DirName[6]: #TimeSize tests (with and without PU)
                             profs = Profile[0:4]
-                        elif CurDir == DirName[1] or CurDir == DirName[5]:
+                        elif CurDir == DirName[1] or CurDir == DirName[7]: #IgProf tests (with and without PU)
                             profs = Profile[4:8]
-                        elif CurDir == DirName[2] or CurDir == DirName[6]:
+                        elif CurDir == DirName[2] or CurDir == DirName[8]: #IgProf Perf tests (with and without PU)
+                            profs =[Profile[4]] #Keeping format to a list...
+                        elif CurDir == DirName[3] or CurDir == DirName[9]: #IgProf Mem tests (with and without PU)
+                            profs =Profile[5:8] #Keeping format to a list...  
+                        elif CurDir == DirName[4] or CurDir == DirName[10]: #Callgrind tests (with and without PU)
                             profs = [Profile[8]] #Keeping format to a list...
-                        elif CurDir == DirName[3] or CurDir == DirName[7]:
+                        elif CurDir == DirName[5] or CurDir == DirName[11]: #Memcheck tests (with and without PU)
                             profs = [Profile[9]] #Keeping format to a list...
                         #This could be optimized, but for now just comment the code:
                         #This for cycle takes care of the case in which there are regression reports to link to the html:
@@ -1384,7 +1395,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                             INDEX.write("Performance Reports with regression: %s VS %s\n" % (prevrev,CMSSW_VERSION))                            
             elif hostreg.search(NewFileLine):
                 INDEX.write(HOST + "\n")
+            #File Size Summary Table
             elif fsizereg.search(NewFileLine):
+                #Case of NO-REGRESSION:
                 if prevrev == "":
                     fsize_tab = Table()
 
@@ -1445,8 +1458,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                                       "Release ROOT file sizes",
                                       "Table showing current release ROOT filesizes in (k/M/G) bytes.",
                                       "Filesizes",2)   
+                #Case of REGRESSION vs previous release:
                 else:
-
                     try:
                         globpath = os.path.join(repdir,"REGRESSION.%s.vs.*" % (prevrev))
                         globs = glob.glob(globpath)
@@ -1535,8 +1548,9 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         print detail
                     except OSError, detail:
                         print detail
-                
+            #CPU Time Summary Table    
             elif cpureg.search(NewFileLine):
+                #Case of NO REGRESSION
                 if prevrev == "":
                     time_tab = Table()
 
@@ -1600,7 +1614,8 @@ def createWebReports(WebArea,repdir,ExecutionDate,LogFiles,cmsScimarkResults,dat
                         createHTMLtab(INDEX,table_dict,ordered_keys,
                                       "Release CPU times",
                                       "Table showing current release CPU times in secs.",
-                                      "CPU Times (s)",3)                        
+                                      "CPU Times (s)",3)
+                #Case of REGRESSION (CPU Time Summary Table)
                 else:
 
 

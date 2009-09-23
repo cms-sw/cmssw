@@ -115,16 +115,6 @@ namespace edm {
 	  }
 	}
       }
-    } else {
-      Service<RandomNumberGenerator> rng;
-      if(!rng.isAvailable()) {
-        throw edm::Exception(errors::Configuration)
-          << "A secondary input source requires the RandomNumberGeneratorService\n"
-          << "which is not present in the configuration file.  You must add the service\n"
-          << "in the configuration file or remove the modules that require it.";
-      }
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_.reset(new CLHEP::RandFlat(engine));
     }
   }
 
@@ -149,7 +139,7 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
     if(firstFile_) {
-      // The first input file has already been opened, or a rewind has occurred.
+      // The first input file has already been opened.
       firstFile_ = false;
       if(!rootFile_) {
 	initFile(skipBadFiles_);
@@ -362,18 +352,22 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    firstFile_ = true;
-    fileIter_ = fileIterBegin_;
-    currentRun_ = skippedToRun_ = 0U;
-    currentLumi_ = skippedToLumi_ = 0U;
-    skippedToEvent_ = 0U;
-    skippedToEntry_ = FileIndex::Element::invalidEntry;
+    if (fileIter_ != fileIterBegin_) {
+      closeFile_();
+      fileIter_ = fileIterBegin_;
+      initFile(false);
+    }
+    rewindFile();
   }
 
   // Rewind to the beginning of the current file
   void
   RootInputFileSequence::rewindFile() {
     rootFile_->rewind();
+    currentRun_ = skippedToRun_ = 0U;
+    currentLumi_ = skippedToLumi_ = 0U;
+    skippedToEvent_ = 0U;
+    skippedToEntry_ = FileIndex::Element::invalidEntry;
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
@@ -551,6 +545,11 @@ namespace edm {
 
   void
   RootInputFileSequence::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    if (!flatDistribution_) {
+      Service<RandomNumberGenerator> rng;
+      CLHEP::HepRandomEngine& engine = rng->getEngine();
+      flatDistribution_.reset(new CLHEP::RandFlat(engine));
+    }
     skipBadFiles_ = false;
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     while(eventsRemainingInFile_ < number) {
@@ -577,6 +576,38 @@ namespace edm {
        VectorInputSource::EventPrincipalVectorElement e(ev.release());
       result.push_back(e);
       --eventsRemainingInFile_;
+      rootFile_->nextEventEntry();
+    }
+  }
+
+  void
+  RootInputFileSequence::readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    skipBadFiles_ = false;
+    if (fileIter_ == fileIterEnd_ || !rootFile_) {
+      fileIter_ = fileIterBegin_;
+      initFile(false);
+      rootFile_->setAtEventEntry(0);
+    }
+    fileSeqNumber = fileIter_ - fileIterBegin_;
+    unsigned int numberRead = 0;
+    for(int i = 0; i < number; ++i) {
+      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
+      if(ev.get() == 0) {
+	if (numberRead == 0) {
+	  ++fileIter_;
+          fileSeqNumber = fileIter_ - fileIterBegin_;
+	  if (fileIter_ == fileIterEnd_) {
+	    return;
+	  }
+	  initFile(false);
+	  rootFile_->setAtEventEntry(0);
+	  return readManySequential_(number, result, fileSeqNumber);
+	}
+	return;
+      }
+      VectorInputSource::EventPrincipalVectorElement e(ev.release());
+      result.push_back(e);
+      ++numberRead;
       rootFile_->nextEventEntry();
     }
   }

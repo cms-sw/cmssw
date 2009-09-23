@@ -215,17 +215,9 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	HcalTrigPrimDigiCollection hcalIn;
 
 
-	if(hcal.isValid())
-	for(unsigned int i=0;i<hcal->size();++i)
-	 {
+	if(ecal.isValid()) ecalIn=*ecal;
+	if(hcal.isValid()) hcalIn=*hcal;
 
-	         hcalIn.push_back((*hcal)[i]);
-	 }
-	if(ecal.isValid())
-	for(unsigned int i=0;i<ecal->size();++i)
-	 {
-		ecalIn.push_back((*ecal)[i]);
-	 }
 
 
 	rct->digiInput(ecalIn,hcalIn);

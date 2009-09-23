@@ -161,15 +161,25 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 	    proc != processes.end(); ++proc) {
 		unsigned int idx = proc->heprupIndex;
 
-		double sigmaSum, sigma2Sum, sigma2Err;
-		if (std::abs(heprup.IDWTUP) == 3) {
+		double sigmaSum, sigma2Sum, sigma2Err, xsec;
+		switch(std::abs(heprup.IDWTUP)) {
+		    case 2:
+			sigmaSum = proc->tried.sum * heprup.XSECUP[idx];
+			sigma2Sum = proc->tried.sum2 * heprup.XSECUP[idx]
+			                             * heprup.XSECUP[idx];
+			sigma2Err = proc->tried.sum2 * heprup.XERRUP[idx]
+			                             * heprup.XERRUP[idx];
+			break;
+		    case 3:
 			sigmaSum = proc->tried.n * heprup.XSECUP[idx];
 			sigma2Sum = sigmaSum * heprup.XSECUP[idx];
 			sigma2Err = proc->tried.n * heprup.XERRUP[idx]
 			                          * heprup.XERRUP[idx];
-		} else {
-			sigmaSum = proc->tried.sum;
-			sigma2Sum = proc->tried.sum2;
+			break;
+		    default:
+			xsec = proc->tried.sum / proc->tried.n;
+			sigmaSum = proc->tried.sum * xsec;
+			sigma2Sum = proc->tried.sum2 * xsec * xsec;
 			sigma2Err = 0.0;
 		}
 
@@ -208,8 +218,8 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 	}
 
 	XSec result;
-	result.value = 1.0e-9 * sigBrSum;
-	result.error = 1.0e-9 * std::sqrt(errBr2Sum);
+	result.value = sigBrSum;
+	result.error = std::sqrt(errBr2Sum);
 
 	return result;
 }
@@ -234,15 +244,25 @@ void LHERunInfo::statistics() const
 	    proc != processes.end(); ++proc) {
 		unsigned int idx = proc->heprupIndex;
 
-		double sigmaSum, sigma2Sum, sigma2Err;
-		if (std::abs(heprup.IDWTUP) == 3) {
+		double sigmaSum, sigma2Sum, sigma2Err, xsec;
+		switch(std::abs(heprup.IDWTUP)) {
+		    case 2:
+			sigmaSum = proc->tried.sum * heprup.XSECUP[idx];
+			sigma2Sum = proc->tried.sum2 * heprup.XSECUP[idx]
+			                             * heprup.XSECUP[idx];
+			sigma2Err = proc->tried.sum2 * heprup.XERRUP[idx]
+			                             * heprup.XERRUP[idx];
+			break;
+		    case 3:
 			sigmaSum = proc->tried.n * heprup.XSECUP[idx];
 			sigma2Sum = sigmaSum * heprup.XSECUP[idx];
 			sigma2Err = proc->tried.n * heprup.XERRUP[idx]
 			                          * heprup.XERRUP[idx];
-		} else {
-			sigmaSum = proc->tried.sum;
-			sigma2Sum = proc->tried.sum2;
+			break;
+		    default:
+			xsec = proc->tried.sum / proc->tried.n;
+			sigmaSum = proc->tried.sum * xsec;
+			sigma2Sum = proc->tried.sum2 * xsec * xsec;
 			sigma2Err = 0.0;
 		}
 

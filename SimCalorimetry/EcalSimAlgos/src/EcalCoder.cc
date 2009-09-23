@@ -109,6 +109,7 @@ void EcalCoder::encode(const CaloSamples& caloSamples, EcalDataFrame& df) const
 
   int wait = 0 ;
   int gainId = 0 ;
+  bool isSaturated = 0;
   for (int i = 0 ; i < caloSamples.size() ; ++i)
   {    
      int adc = MAXADC;
@@ -159,10 +160,27 @@ void EcalCoder::encode(const CaloSamples& caloSamples, EcalDataFrame& df) const
 
      // change the gain for saturation
      int storeGainId = gainId;
-     if ( gainId == 3 && adc == MAXADC ) storeGainId = 0;
+     if ( gainId == 3 && adc == MAXADC ) {
+             storeGainId = 0;
+             isSaturated = true;
+     }
      // LogDebug("EcalCoder") << " Writing out frame " << i << " ADC = " << adc << " gainId = " << gainId << " storeGainId = " << storeGainId ; 
      
      df.setSample(i, EcalMGPASample(adc, storeGainId));   
+  }
+  // handle saturation properly according to IN-2007/056
+  // N.B. - FIXME 
+  // still missing the possibility for a signal to pass the saturation threshold
+  // again within the 5 subsequent samples (higher order effect).
+  if ( isSaturated ) {
+          for (int i = 0 ; i < caloSamples.size() ; ++i) {
+                  if ( df.sample(i).gainId() == 0 ) {
+                          int hyst = i+1+2;
+                          for ( int j = i+1; j < hyst && j < caloSamples.size(); ++j ) {
+                                  df.setSample(j, EcalMGPASample(MAXADC, 0));   
+                          }
+                  }
+          }
   }
 }
 

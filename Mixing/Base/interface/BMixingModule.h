@@ -48,7 +48,7 @@ namespace edm {
       bool poisson() const {return input_ ? input_->poisson() : 0.0 ;}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
-      //virtual void checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
+      virtual void checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
       void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker, const edm::EventSetup& c);
       virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
       virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
@@ -76,8 +76,8 @@ namespace edm {
       std::vector<int> fileSeqNrs_;
       std::vector<unsigned int> nrEvents_;
       const static unsigned int maxNbSources_;
-      bool doit_[5];//FIXME
-      std::vector<EventPrincipalVector> pileup_[5];//FIXME
+      bool doit_[4];//FIXME
+      std::vector<EventPrincipalVector> pileup_[4];//FIXME
 
   private:
 
@@ -85,7 +85,6 @@ namespace edm {
       boost::shared_ptr<PileUp> cosmics_;
       boost::shared_ptr<PileUp> beamHalo_p_;
       boost::shared_ptr<PileUp> beamHalo_m_;
-      boost::shared_ptr<PileUp> fwdDet_;
 
       unsigned int eventId_;
   };

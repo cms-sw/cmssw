@@ -1,19 +1,28 @@
+<use name=CondFormats/JetMETObjects>
 <use name=DataFormats/Common>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/PatCandidates>
+<use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/JetReco>
-<use name=DataFormats/TrackReco>
 <use name=Geometry/CaloGeometry>
-<use name=DataFormats/MuonReco>
 <use name=JetMETCorrections/Objects>
-<use name=CondFormats/JetMETObjects>
-<use name=RecoJets/JetAssociationAlgorithms>
-<use name=MagneticField/Records>
-<use name=TrackingTools/Records>
+<use name=boost>
 
 <export>
-   <lib name=JetMETCorrectionsAlgorithms>
-   <use name=JetMETCorrections/Objects>
-   <use name=CondFormats/JetMETObjects>
+  <lib name=JetMETCorrectionsAlgorithms>
+  <use name=CondFormats/JetMETObjects>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/PatCandidates>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=JetMETCorrections/Objects>
+  <use name=boost>
 </export>

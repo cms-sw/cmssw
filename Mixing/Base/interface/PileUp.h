@@ -44,6 +44,9 @@ namespace edm {
 
     //playback info
     bool playback_;
+
+    // sequential reading
+    bool sequential_;
   };
 }
 

@@ -58,8 +58,8 @@ HcalCalibFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //--- Get the list of FEDs to be kept ---//
   int calibType = -1 ; 
-  for (int i=FEDNumbering::getHcalFEDIds().first; 
-       i<=FEDNumbering::getHcalFEDIds().second; i++) {
+  for (int i=FEDNumbering::MINHCALFEDID;
+       i<=FEDNumbering::MAXHCALFEDID; i++) {
     const FEDRawData& fedData = rawIn->FEDData(i) ; 
     if ( fedData.size() < 24 ) continue ; // FED is empty
     int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 

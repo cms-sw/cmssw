@@ -86,6 +86,8 @@ class JetMatching;
      // this is the only one specific to Pythia6
      //
      unsigned int    fPythiaListVerbosity ;
+     bool            fDisplayPythiaBanner;
+     bool            fDisplayPythiaCards;
      
      // these two params control stop- and r-handron features,
      // that are "custom" add-ons to Py6; 

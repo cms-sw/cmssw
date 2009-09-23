@@ -1,11 +1,11 @@
 //
-// $Id: PATTriggerMatcher.cc,v 1.1.2.2 2009/03/27 21:31:06 vadler Exp $
+// $Id: PATTriggerMatcher.cc,v 1.3 2009/04/01 10:45:52 vadler Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATTriggerMatchSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/PhysObjectMatcher.h"
-#include "PhysicsTools/UtilAlgos/interface/MatchByDR.h"
-#include "PhysicsTools/UtilAlgos/interface/MatchByDRDPt.h"
-#include "PhysicsTools/UtilAlgos/interface/MatchLessByDPt.h"
+#include "CommonTools/UtilAlgos/interface/PhysObjectMatcher.h"
+#include "CommonTools/UtilAlgos/interface/MatchByDR.h"
+#include "CommonTools/UtilAlgos/interface/MatchByDRDPt.h"
+#include "CommonTools/UtilAlgos/interface/MatchLessByDPt.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"

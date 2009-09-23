@@ -11,7 +11,7 @@
 <use name=JetMETCorrections/Objects>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimGeneral/HepPDTRecord>
-<use name=Geometry/CaloEventSetup>
+<use name=Geometry/Records>
 <use name=Geometry/CaloTopology>
 <library file="*.cc" name=JetMETCorrectionsJetPlusTrackPlugins>
       <flags EDM_PLUGIN=1>

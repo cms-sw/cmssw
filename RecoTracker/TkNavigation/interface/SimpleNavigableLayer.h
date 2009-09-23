@@ -35,8 +35,6 @@ public:
 
   bool theSelfSearch;
 
-  virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, PropagationDirection timeDirection) const;
-
 protected:
 
   typedef BDLC::iterator                       BDLI;
@@ -71,8 +69,6 @@ protected:
   void pushResult( DLC& result, const FDLC& tmp) const;
   void pushResult( DLC& result, const BDLC& tmp) const;
 
-  TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const;
-  
 };
 
 #endif // SimpleNavigableLayer_H

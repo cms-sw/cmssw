@@ -1,5 +1,5 @@
 //
-// $Id: TauPFSpecific.h,v 1.1 2008/06/09 09:03:19 gpetrucc Exp $
+// $Id: TauPFSpecific.h,v 1.2 2009/04/09 12:03:03 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_PFSpecific_h
@@ -10,7 +10,7 @@
   \brief    Structure to hold information specific to a PFTau inside a pat::Tau
 
   \author   Giovanni Petrucciani
-  \version  $Id: TauPFSpecific.h,v 1.1 2008/06/09 09:03:19 gpetrucc Exp $
+  \version  $Id: TauPFSpecific.h,v 1.2 2009/04/09 12:03:03 veelken Exp $
 */
 
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -26,6 +26,8 @@ struct TauPFSpecific {
     reco::PFTauTagInfoRef PFTauTagInfoRef_;
     reco::PFCandidateRef leadPFChargedHadrCand_;
     float leadPFChargedHadrCandsignedSipt_;
+    reco::PFCandidateRef leadPFNeutralCand_;
+    reco::PFCandidateRef leadPFCand_;
     reco::PFCandidateRefVector selectedSignalPFCands_, selectedSignalPFChargedHadrCands_, selectedSignalPFNeutrHadrCands_, selectedSignalPFGammaCands_;
     reco::PFCandidateRefVector selectedIsolationPFCands_, selectedIsolationPFChargedHadrCands_, selectedIsolationPFNeutrHadrCands_, selectedIsolationPFGammaCands_;
     float isolationPFChargedHadrCandsPtSum_;

@@ -40,7 +40,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
@@ -59,6 +59,8 @@ process.dqmEnv.subSystemFolder = 'RPC'
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCEventSummary_cfi")
 process.rpcEventSummary.EventInfoPath = 'RPC/EventInfo'
+process.rpcEventSummary.RPCPrefixDir = 'RPC/RecHits'
+process.rpcEventSummary.RPCPrefixDir = 'RPC/RecHits'
 process.rpcEventSummary.PrescaleFactor = 10
 process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
 
@@ -85,10 +87,4 @@ process.DQM.collectorHost = ''
 #process.DQM.debug = False
 process.rpcRecHits.rpcDigiLabel = 'muonRPCDigis'
 
-
-#process.Timing = cms.Service('Timing')
-
-process.options = cms.untracked.PSet(
-         wantSummary = cms.untracked.bool(True)
-         )
 

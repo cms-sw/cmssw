@@ -16,9 +16,11 @@
 */
 // Original Author:  Julia Weinelt
 //         Created:  Wed Jan 23 15:12:46 CET 2008
-// $Id: STFilter.cc,v 1.10 2009/01/09 10:23:11 saout Exp $
+// $Id: STFilter.cc,v 1.1 2009/03/26 23:03:44 yarba Exp $
 
 #include <memory>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/GenFilters/interface/STFilter.h"
 

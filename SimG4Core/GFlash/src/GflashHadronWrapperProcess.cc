@@ -107,13 +107,19 @@ G4VParticleChange* GflashHadronWrapperProcess::PostStepDoIt(const G4Track& track
 
       testGPIL = fProcess->PostStepGPIL(track,fStepLength,&fForceCondition );
 
-      //restore TrackStatus if fForceCondition !=  ExclusivelyForced
-      (const_cast<G4Track *> (&track))->SetTrackStatus(keepStatus);
-
       // if G4FastSimulationModel:: ModelTrigger is true, then the parameterized 
       // physics process takes over the current process 
       
       if( fForceCondition == ExclusivelyForced) {     
+
+	// clean up memory for changing the process - counter clean up for
+	// the secondaries created by new G4Track in G4HadronicProcess::FillTotalResult 
+	G4int nsec = particleChange->GetNumberOfSecondaries();
+	for(G4int DSecLoop=0 ; DSecLoop< nsec ; DSecLoop++){
+	  G4Track* tempSecondaryTrack = particleChange->GetSecondary(DSecLoop);
+	  delete tempSecondaryTrack;
+	} 
+	particleChange->Clear();
 
 	// updating G4Step between PostStepGPIL and PostStepDoIt for the parameterized 
         // process may not be necessary, but do it anyway
@@ -140,7 +146,10 @@ G4VParticleChange* GflashHadronWrapperProcess::PostStepDoIt(const G4Track& track
 	
 	// additional nullification 
 	(const_cast<G4Track *> (&track))->SetTrackStatus( particleChange->GetTrackStatus() );
-
+      }
+      else {
+	//restore TrackStatus if fForceCondition !=  ExclusivelyForced
+	(const_cast<G4Track *> (&track))->SetTrackStatus(keepStatus);
       }
       // assume that there is one and only one parameterized physics
       break;

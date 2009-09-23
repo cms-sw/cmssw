@@ -1,15 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-
-hltL3TrackCandidateFromL2 = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+hltL3TrackCandidateFromL2 = cms.EDProducer("TrackCandidateProducer",
+    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits"),
+    # The smallest number of crossed layers to make a candidate
+    MinNumberOfCrossedLayers = cms.uint32(5),
+    # The number of crossed layers needed before stopping tracking
+    MaxNumberOfCrossedLayers = cms.uint32(999),
     SeedProducer = cms.InputTag("hltL3TrajectorySeed"),
-    OverlapCleaning = cms.bool(True),
+    # If true, keep the tracks fitted in the previous collection
+    # Just ignore them otherwise
+    KeepFittedTracks = cms.bool(True),
+    # Reject overlapping hits? (GroupedTracking from 170pre2 onwards)
+    OverlapCleaning = cms.bool(False),
+    # Reject copies of tracks from several seeds - take the first seed in that case
     SeedCleaning = cms.bool(True),
-    SplitHits = cms.bool(False),
+    # The tracks already fitted - no need to fit them already !
     TrackProducers = cms.VInputTag(),
-    SimTracks = cms.InputTag('famosSimHits'),
-    EstimatorCut = cms.double(200)
+    # Split matched hits? 
+    SplitHits = cms.bool(True)
 )
 
 

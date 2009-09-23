@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.21 2009/06/30 22:00:54 cbern Exp $
+// $Id: PATMuonProducer.h,v 1.22 2009/07/02 12:31:58 cbern Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.21 2009/06/30 22:00:54 cbern Exp $
+  \version  $Id: PATMuonProducer.h,v 1.22 2009/07/02 12:31:58 cbern Exp $
 */
 
 
@@ -87,6 +87,10 @@ namespace pat {
       edm::InputTag pfMuonSrc_;
 
       bool          embedPFCandidate_;
+
+      /// embed high level selection variables?
+      bool          embedHighLevelSelection_;
+      edm::InputTag beamLineSrc_;
 
 
       typedef std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > GenAssociations;

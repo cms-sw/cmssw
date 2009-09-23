@@ -37,13 +37,10 @@ public:
     unsigned int nDAQProblems;
     unsigned int nFEDsWithFEProblems;
     unsigned int nCorruptBuffers;
-    unsigned int nBadChannels;
     unsigned int nBadActiveChannels;
     unsigned int nFEDsWithFEOverflows;
     unsigned int nFEDsWithFEBadMajorityAddresses;
     unsigned int nFEDsWithMissingFEs;
-    unsigned int nTotalBadChannels;
-    unsigned int nTotalBadActiveChannels;
   };
 
   struct FECounters {
@@ -115,14 +112,14 @@ public:
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
-		     const unsigned int aPrintDebug
+		     const bool aPrintDebug
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
 
   bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 			 bool & aFullDebug,
-			 const unsigned int aPrintDebug
+			 const bool aPrintDebug
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
@@ -130,7 +127,6 @@ public:
   void fillBadChannelList(std::map<unsigned int,std::pair<unsigned short,unsigned short> > & aMap,
 			  const SiStripFedCabling* aCabling,
 			  unsigned int & aNBadChannels,
-			  unsigned int & aNBadActiveChannels,
 			  const bool aFillAll);
 
   //bool foundFEDErrors();

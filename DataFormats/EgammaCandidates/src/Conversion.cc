@@ -126,8 +126,8 @@ double  Conversion::pairCotThetaSeparation() const  {
   double dCotTheta=-99.;
   
   if ( nTracks()==2 ) {
-    double theta1=tracks()[0]->innerMomentum().Theta();
-    double theta2=tracks()[1]->innerMomentum().Theta();
+    double theta1=tracksPin()[0].Theta();
+    double theta2=tracksPin()[1].Theta();
     dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
   }
 

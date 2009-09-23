@@ -13,8 +13,7 @@ mix = cms.EDProducer("MixingModule",
 
     bunchspace = cms.int32(450), ## ns
 	
-    checktof = cms.bool(False),
-    mixProdStep1 = cms.bool(True),
+    mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
     	
     playback = cms.untracked.bool(False),
@@ -25,6 +24,7 @@ mix = cms.EDProducer("MixingModule",
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
+	sequential = cms.untracked.bool(False),
         fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 

@@ -184,10 +184,10 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
       for(vector<const CaloTower*>::const_iterator it = towers.begin();
 	  it != towers.end(); it++) {
 	if((*it)->et() < towerEtThreshold) continue;
-	muMETInfo.ecalE =+ (*it)->emEt();
-	muMETInfo.hcalE =+ (*it)->hadEt();
+	muMETInfo.ecalE += (*it)->emEnergy();
+	muMETInfo.hcalE += (*it)->hadEnergy();
 	if(useHO)
-	  muMETInfo.hoE =+ (*it)->outerEt();
+	  muMETInfo.hoE +=(*it)->outerEnergy();
       }
     }//use Towers
   }

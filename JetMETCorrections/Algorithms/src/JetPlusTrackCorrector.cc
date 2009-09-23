@@ -1,6 +1,8 @@
 #include "JetMETCorrections/Algorithms/interface/JetPlusTrackCorrector.h"
 //
 #include <vector>
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 //#include "FWCore/Framework/interface/Event.h"
 //#include "DataFormats/Common/interface/Handle.h"
@@ -12,16 +14,7 @@
 //#include "DataFormats/MuonReco/interface/MuonFwd.h"
 //
 
-// Added by R.B.
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
-#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 using namespace std;
 
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
@@ -29,26 +22,28 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
   m_JetTracksAtVertex = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtVertex");
   m_JetTracksAtCalo = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtCalo");
   m_muonsSrc = iConfig.getParameter<edm::InputTag>("muonSrc");
+  //JW electron ID
+   m_recoGsfelectrons= iConfig.getParameter<edm::InputTag>("recoGsfelectrons" ); 
+  m_eIDValueMap_= iConfig.getParameter<edm::InputTag>("eIDValueMap" );
   theResponseAlgo = iConfig.getParameter<int>("respalgo");
   theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
   theNonEfficiencyFile = iConfig.getParameter<std::string>("NonEfficiencyFile");
   theNonEfficiencyFileResp = iConfig.getParameter<std::string>("NonEfficiencyFileResp");
   theResponseFile = iConfig.getParameter<std::string>("ResponseFile"); 			  
+  theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
   theUseQuality = iConfig.getParameter<bool>("UseQuality");
   theTrackQuality = iConfig.getParameter<std::string>("TrackQuality");
+  mSplitMerge = iConfig.getParameter<int>("SplitMergeP");
 
   trackQuality_=reco::TrackBase::qualityByName(theTrackQuality);
 
-  // Added by R.B.
-  m_tracksSrc = iConfig.getParameter<edm::InputTag>("trackSrc");
-  thePropagator = iConfig.getParameter<std::string>("Propagator");
-  coneSize = iConfig.getParameter<double>("coneSize");
-
   std::cout<<" BugFix JetPlusTrackCorrector::JetPlusTrackCorrector::response algo "<< theResponseAlgo
 	   <<" TheAddOutOfConeTracks " << theAddOutOfConeTracks
+    	   <<" Electron ID "<< m_eIDValueMap_ 
 	   <<" TheNonEfficiencyFile "<< theNonEfficiencyFile
 	   <<" TheNonEfficiencyFileResp "<< theNonEfficiencyFileResp
-	   <<" TheResponseFile "<< theResponseFile <<std::endl;
+	   <<" TheResponseFile "<< theResponseFile 
+           <<" SplitMerge "<<mSplitMerge<<std::endl;
   
              std::string file1="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
              std::string file2="JetMETCorrections/Configuration/data/"+theNonEfficiencyFileResp+".txt";
@@ -62,6 +57,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
           //   std::cout<< " Before the set of parameters "<<std::endl;			  
 	     setParameters(f1.fullPath(),f2.fullPath(),f3.fullPath());
 	     theSingle = new SingleParticleJetResponse();
+			  
 }
 
 JetPlusTrackCorrector::~JetPlusTrackCorrector()
@@ -199,8 +195,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          const edm::EventSetup& theEventSetup) const 
 {
 
-   bool debug = false;
-   //bool debug = true;
+  bool debug = false;
+  //bool debug = true;
 
    double NewResponse = fJet.energy();
 
@@ -213,6 +209,16 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    reco::MuonCollection::const_iterator muon;
    iEvent.getByLabel(m_muonsSrc, muons);
    
+   //JW:  Get electrons
+   edm::Handle<reco::GsfElectronCollection>  elecs;
+   iEvent.getByLabel( m_recoGsfelectrons, elecs);
+   reco::GsfElectronCollection::const_iterator elec;  
+   //JW: map for electronID
+   edm::Handle<edm::ValueMap<float> >  eIDValueMap;
+   iEvent.getByLabel( m_eIDValueMap_ , eIDValueMap );
+    const edm::ValueMap<float> & eIdmapCuts = * eIDValueMap;
+   
+
    if(debug){
    cout <<" muon collection size = " << muons->size() << endl;   
 
@@ -224,14 +230,16 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	    <<" muon phi = " << muon->phi() << endl;  
      }
    }
+   // JW: Electron debug   
+   if(elecs->size() != 0) {
+     for (elec= elecs->begin(); elec != elecs->end(); ++elec) {
+       //reco::TrackRef glbTrack = muon->combinedMuon();
+       cout <<" electron pT = " << elec->pt() 
+	    <<" electron eta = " << elec->eta()
+	    <<" electron  phi = " << elec->phi() << endl;  
+     }   
    }
-
-   // Added by R.B.
-   reco::TrackRefVector trAtVertex;
-   reco::TrackRefVector trAtCalo;
-
-   if ( !m_JetTracksAtVertex.label().empty() &&
-	!m_JetTracksAtCalo.label().empty() ) {
+   } //debug 
 
    // Get Jet-track association at Vertex
    edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
@@ -249,82 +257,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    
   //std::cout<<" Get collection of tracks at vertex :: Point 0 "<<jtV.size()<<std::endl;
   // std::cout<<" E, eta, phi "<<fJet.energy()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;  
-
-   trAtVertex = reco::JetTracksAssociation::getValue(jtV,fJet);
-
-// std::cout<<" Get collection of tracks at vertex :: Point 1 "<<std::endl;
-// Look if jet is associated with tracks. If not, return the response of jet.
-
-   if( trAtVertex.size() == 0 ) {return NewResponse/fJet.energy();}
-
-// Get Jet-track association at Calo
-   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
-   iEvent.getByLabel(m_JetTracksAtCalo,jetTracksAtCalo);
-   
-   // std::cout<<" Get collection of tracks at Calo "<<std::endl;
-   
-   if(jetTracksAtCalo.isValid()) { 
-     const reco::JetTracksAssociation::Container jtC = *(jetTracksAtCalo.product());
-     trAtCalo = reco::JetTracksAssociation::getValue(jtC,fJet);
-   }
-
-//   const reco::TrackRefVector trAtCalo = reco::JetTracksAssociation::getValue(jtC,fJet);
-
-   // Added by R.B.
-   } else {
-
-     static JetTracksAssociationDRVertex vrtx(coneSize);
-     static JetTracksAssociationDRCalo   calo(coneSize);
-     static JetTracksAssociationDR::TrackRefs trks;
-     
-     static uint32_t event = 0;
-     if ( iEvent.id().event() != event ) {
-       event = iEvent.id().event();
-
-       edm::ESHandle<MagneticField> field;
-       theEventSetup.get<IdealMagneticFieldRecord>().get( field );
-       edm::ESHandle<Propagator> propagator;
-       theEventSetup.get<TrackingComponentsRecord>().get( thePropagator, propagator );
-    
-       edm::Handle<reco::TrackCollection> tracks;
-       iEvent.getByLabel( m_tracksSrc, tracks );
-       if ( !tracks.isValid() || tracks.failedToGet() ) {
-	 edm::LogError("JEC")
-	   << "[JetPlusTrackCorrector::" << __func__ << "]"
-	   << " Invalid handle to \"reco::TrackCollection\""
-	   << " with InputTag (label:instance:process) \"" 
-	   << m_tracksSrc.label() << ":"
-	   << m_tracksSrc.instance() << ":"
-	   << m_tracksSrc.process() << "\"";
-	 return ( NewResponse / fJet.energy() );
-       }
-    
-       JetTracksAssociationDR::createTrackRefs( trks, tracks, trackQuality_ );
-       vrtx.propagateTracks( trks );
-       calo.propagateTracks( trks, *field, *propagator );
-    
-     } 
-
-     vrtx.associateTracksToJet( trAtVertex, fJet, trks );
-     calo.associateTracksToJet( trAtCalo, fJet, trks );
-
-     if( trAtVertex.empty() ) { return ( NewResponse / fJet.energy() ); }
-
-   }
-
-   // tracks in vertex cone and in calo cone 
-   reco::TrackRefVector trInCaloInVertex;
-   // tracks in calo cone, but out of vertex cone 
-   reco::TrackRefVector trInCaloOutOfVertex;
-   // tracks in vertex cone but out of calo cone
-   reco::TrackRefVector trOutOfCaloInVertex; 
-
-   // muon in vertex cone and in calo cone 
-   reco::TrackRefVector muInCaloInVertex;
-   // muon in calo cone, but out of vertex cone 
-   reco::TrackRefVector muInCaloOutOfVertex;
-   // muon in vertex cone but out of calo cone
-   reco::TrackRefVector muOutOfCaloInVertex; 
 
   vector<double> emean_incone;
   vector<double> netracks_incone;
@@ -344,8 +276,56 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
         } // ptbin
     } // etabin
 
-   //cout<<" Number of tracks at vertex "<<trAtVertex.size()<<" Number of tracks at Calo "<<trAtCalo.size()<<endl;
+   //const reco::TrackRefVector trAtVertex = reco::JetTracksAssociation::getValue(jtV,fJet);
 
+// Track at vertex
+   // std::cout<<"!!!!!!!Tracks at vertex start "<<std::endl;
+   reco::TrackRefVector trAtVertexEx; 
+   reco::TrackRefVector trAtVertex = jtC_rebuild(jtV,fJet,trAtVertexEx);
+   //std::cout<<"!!!!!!!Tracks at vertex end "<<trAtVertexEx.size()<<std::endl;
+// std::cout<<" Get collection of tracks at vertex :: Point 1 "<<std::endl;
+// Look if jet is associated with tracks. If not, return the response of jet.
+
+   if( trAtVertex.size() == 0 ) {return NewResponse/fJet.energy();}
+
+// Get Jet-track association at Calo
+   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
+   iEvent.getByLabel(m_JetTracksAtCalo,jetTracksAtCalo);
+   
+   // std::cout<<" Get collection of tracks at Calo "<<std::endl;
+   
+   reco::TrackRefVector trAtCalo;
+   
+   if(jetTracksAtCalo.isValid()) { 
+
+     const reco::JetTracksAssociation::Container jtC = *(jetTracksAtCalo.product());
+
+     //std::cout<<"!!!!!!!Tracks at calo start "<<std::endl;     
+       trAtCalo = jtC_exclude(jtC,fJet,trAtVertexEx);
+     //std::cout<<"!!!!!!!Tracks at calo end "<<trAtCalo.size()<<std::endl;
+
+   }
+
+//   const reco::TrackRefVector trAtCalo = reco::JetTracksAssociation::getValue(jtC,fJet);
+
+
+   // tracks in vertex cone and in calo cone 
+   reco::TrackRefVector trInCaloInVertex;
+   // tracks in calo cone, but out of vertex cone 
+   reco::TrackRefVector trInCaloOutOfVertex;
+   // tracks in vertex cone but out of calo cone
+   reco::TrackRefVector trOutOfCaloInVertex; 
+
+   // muon in vertex cone and in calo cone 
+   reco::TrackRefVector muInCaloInVertex;
+   // muon in calo cone, but out of vertex cone 
+   reco::TrackRefVector muInCaloOutOfVertex;
+   // muon in vertex cone but out of calo cone
+   reco::TrackRefVector muOutOfCaloInVertex; 
+
+
+   if (debug) cout<<" Number of tracks at vertex "<<trAtVertex.size()<<" Number of tracks at Calo "<<trAtCalo.size()<<endl;
+     const reco::GsfElectron *matched=NULL;
    for( reco::TrackRefVector::iterator itV = trAtVertex.begin(); itV != trAtVertex.end(); itV++)
      {
        if(theUseQuality && (!(**itV).quality(trackQuality_))) continue;
@@ -356,7 +336,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	 // muon id here
 	 // track quality requirements are general and should be done elsewhere
 	 if ( muon->innerTrack().isNull() ||
-	      !muon->isGood(reco::Muon::TMLastStationTight) ||
+	      ! muon::isGoodMuon(*muon,muon::TMLastStationTight) ||
 	      muon->innerTrack()->pt()<3.0 ) continue;
 	 if (itV->id() != muon->innerTrack().id())
 	     throw cms::Exception("FatalError") 
@@ -368,6 +348,29 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	     break;
 	   }
        }
+       // JW: Look for electrons
+       bool iselec(false); 
+       int  i=0;
+       //	 cout <<" track id " <<itV->id() << endl;  
+       //	 cout  <<" track phi/eta/pt = " <<(**itV).momentum().phi()<< "/"<< (**itV).momentum().eta() << "/"<< (**itV).pt()  << endl;
+      	double deltaR=999.;
+	double deltaRMIN=999.;
+
+       for (elec = elecs->begin(); elec != elecs->end(); ++elec) {
+	 // elec id here
+	 edm::Ref<reco::GsfElectronCollection> electronRef(elecs,i);
+	 i++;
+	 bool eleid = false;
+	 if( eIdmapCuts[electronRef] > 0) eleid = true;
+	 if(eleid) {
+	   double deltaphi=fabs(elec->phi()- (**itV).momentum().phi() );
+	   if (deltaphi > 6.283185308) deltaphi -= 6.283185308;
+	   if (deltaphi > 3.141592654) deltaphi = 6.283185308-deltaphi;
+	   deltaR= abs(sqrt(pow((elec->eta()-(**itV).momentum().eta()),2) +  pow(deltaphi ,2 ))); 
+	   if(deltaR<deltaRMIN)  { deltaRMIN=deltaR;	matched= &(*elec);}
+	 } 
+       }
+       if(deltaR < 0.02) iselec = true;
 
        reco::TrackRefVector::iterator it = find(trAtCalo.begin(),trAtCalo.end(),(*itV));
        if(it != trAtCalo.end()) {
@@ -377,6 +380,8 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	 if (ismuon) 
 	   muInCaloInVertex.push_back(*it);
 	 else 
+	   //JW
+ 	   if(!iselec)
 	   trInCaloInVertex.push_back(*it);
        } else { // trAtCalo.end()
 	 if (ismuon)
@@ -407,7 +412,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 		 // muon id here
 		 // track quality requirements are general and should be done elsewhere
 		 if ( muon->innerTrack().isNull() ||
-		      !muon->isGood(reco::Muon::TMLastStationTight) ||
+		      !muon::isGoodMuon(*muon,muon::TMLastStationTight) ||
 		      muon->innerTrack()->pt()<3.0 ) continue;
 		 if (itC->id() != muon->innerTrack().id())
 		   throw cms::Exception("FatalError") 
@@ -633,9 +638,113 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 	   //double echar=sqrt((**itV).px()*(**itV).px()+(**itV).py()*(**itV).py()+(**itV).pz()*(**itV).pz()+0.105*0.105);
 	   NewResponse = NewResponse - 2.0;
 	 }
-   float mScale = NewResponse/fJet.energy();
+   double mScale = NewResponse/fJet.energy();
+// Do nothing if mScale<0.
+   if(mScale <0.) mScale=1;
    
-   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<std::endl;
-   
+   if(debug) std::cout<<" mScale= "<<mScale<<" NewResponse "<<NewResponse<<" Jet energy "<<fJet.energy()<<" event "<<iEvent.id().event()<<std::endl;
+
    return mScale;
 }
+
+
+
+reco::TrackRefVector JetPlusTrackCorrector::jtC_rebuild(
+                                        const reco::JetTracksAssociation::Container& jtV0,
+                                        const reco::Jet& fJet,
+                                        reco::TrackRefVector& Excl)
+                                         const
+{
+
+     //std::cout<<" New Merge/Split schema "<<mSplitMerge<<std::endl;
+//
+// Do nothing if schema is not switched on
+//
+
+     reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue(jtV0,fJet);
+
+     if(mSplitMerge<0) return tracks;
+
+     //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+
+     typedef std::vector<reco::JetBaseRef>::iterator JetBaseRefIterator;
+     std::vector<reco::JetBaseRef> theJets = reco::JetTracksAssociation::allJets(jtV0);
+
+     reco::TrackRefVector tracksthis;
+
+     int tr=0;
+
+    for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
+    {
+
+          double dR2this = deltaR2 (fJet.eta(), fJet.phi(), (**it).eta(), (**it).phi());
+          //double dfi = fabs(fJet.phi()-(**it).phi());
+          //if(dfi>4.*atan(1.))dfi = 8.*atan(1.)-dfi;
+          //double deta = fJet.eta() - (**it).eta();
+          //double dR2check = sqrt(dfi*dfi+deta*deta);
+
+
+          double scalethis = dR2this;
+          if(mSplitMerge == 0) scalethis = 1./fJet.et();
+          if(mSplitMerge == 2) scalethis = dR2this/fJet.et();
+          tr++;
+          int flag = 1;
+     for(JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++)
+     {
+        if(&(**ii) == &fJet ) {continue;}
+          double dR2 = deltaR2 ((*ii)->eta(), (*ii)->phi(), (**it).eta(), (**it).phi());
+          double scale = dR2;
+          if(mSplitMerge == 0) scale = 1./fJet.et();
+          if(mSplitMerge == 2) scale = dR2/fJet.et();
+          if(scale < scalethis) flag = 0;
+
+          if(flag == 0) {
+    //       std::cout<<" Track belong to another jet also "<<dR2<<" "<<
+    //      (*ii)->et()<<" "<<(*ii)->eta()<<" "<< (*ii)->phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<" "<<scalethis<<" "<<scale<<" "<<flag<<std::endl;
+          break;
+          }
+     }
+
+//        std::cout<<" Track "<<tr<<" "<<flag<<" "<<dR2this<<" "<<dR2check<<" Jet "<<fJet.eta()<<" "<< fJet.phi()<<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+        if(flag == 1) {tracksthis.push_back (*it);}else{Excl.push_back (*it);}
+    }
+
+  //  std::cout<<" The new size of tracks "<<tracksthis.size()<<" Excludede "<<Excl.size()<<std::endl;
+    return tracksthis;
+
+}
+
+reco::TrackRefVector JetPlusTrackCorrector::jtC_exclude(
+                                        const reco::JetTracksAssociation::Container& jtV0,
+                                        const reco::Jet& fJet,
+                                        reco::TrackRefVector& Excl)
+                                         const
+{
+     reco::TrackRefVector tracks = reco::JetTracksAssociation::getValue(jtV0,fJet);
+     if(Excl.size() == 0) return tracks;
+     if(mSplitMerge<0) return tracks;
+
+     //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+
+     reco::TrackRefVector tracksthis;
+
+    for(reco::TrackRefVector::iterator it = tracks.begin(); it != tracks.end(); it++ )
+    {
+
+       //std::cout<<" Track at calo surface "
+       //   <<" Track "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+       reco::TrackRefVector::iterator itold = find(Excl.begin(),Excl.end(),(*it));
+       if(itold == Excl.end()) {
+                                  tracksthis.push_back (*it);
+                                 } 
+                                 //  else {
+                                 //   std::cout<<"Exclude "<<(**it).eta()<<" "<<(**it).phi()<<std::endl;
+                                // }
+
+    }
+
+//    std::cout<<" Size of calo tracks "<<tracksthis.size()<<std::endl;
+
+    return tracksthis;
+}
+

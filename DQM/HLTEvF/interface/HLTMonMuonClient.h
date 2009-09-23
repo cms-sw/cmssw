@@ -45,28 +45,18 @@ protected:
 
 private:
 
+  void initialize();
   edm::ParameterSet parameters;
 
-  static const int NTRIG = 20;
+  DQMStore* dbe;
+  std::string input_dir, output_dir;
+  //int counterLS;      ///counter
+  //int counterEvt;     ///counter
+  //int prescaleLS;     ///units of lumi sections
+  //int prescaleEvt;    ///prescale on number of events
 
-  int nTriggers_;
-
-  DQMStore* dbe_;
-  std::string indir_, outdir_;
-
-  std::vector<std::string> theHLTCollectionLabels;
-  std::vector<std::string> theHLTCollectionLevel;
-  std::vector<edm::InputTag> theHLTCollectionL1seed;
-  std::vector<edm::InputTag> theHLTCollectionL1filter;
-  std::vector<edm::InputTag> theHLTCollectionL2filter;
-  std::vector<edm::InputTag> theHLTCollectionL2isofilter;
-  std::vector<edm::InputTag> theHLTCollectionL3filter;
-  std::vector<edm::InputTag> theHLTCollectionL3isofilter;
-
-  MonitorElement * hEffSummary;
-  MonitorElement * hCountSummary;
-  MonitorElement * hSubFilterEfficiency[NTRIG];
-  MonitorElement * hSubFilterCount[NTRIG];
+  // -------- member data --------
+  //MonitorElement *csctferrors_;
 };
 
 #endif

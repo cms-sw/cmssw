@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.15 2009/06/22 17:35:09 arizzi Exp $
+#  $Id: EventContent_cff.py,v 1.19 2009/07/20 12:52:32 ghete Exp $
 #
 #
 #
@@ -401,6 +401,7 @@ FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 RAWDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(L1TriggerRAWDEBUG.outputCommands)
 RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
 RAWDEBUGHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
@@ -446,3 +447,34 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlOverlaps.outputCommand
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT.outputCommands)
+
+#Special Event Content for MixingModule and DataMixer
+DATAMIXEREventContent = cms.PSet(
+             outputCommands = cms.untracked.vstring('drop *',
+                                                    'keep CaloTowersSorted_calotoweroptmaker_*_*',
+                                                    'keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*',
+                                                    'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*',
+                                                    'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_MuonCSCComparatorDigi_*',
+                                                    'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_csctfDigis_*_*',
+                                                    'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCorrelatedLCTDigi_*',
+                                                    'keep CSCDetIdCSCRPCDigiMuonDigiCollection_muonCSCDigis_MuonCSCRPCDigi_*',
+                                                    'keep CSCDetIdCSCStripDigiMuonDigiCollection_muonCSCDigis_MuonCSCStripDigi_*',
+                                                    'keep CSCDetIdCSCWireDigiMuonDigiCollection_muonCSCDigis_MuonCSCWireDigi_*',
+                                                    'keep DTLayerIdDTDigiMuonDigiCollection_muonDTDigis_*_*',
+                                                    'keep PixelDigiedmDetSetVector_siPixelDigis_*_*',
+                                                    'keep StripDigiedmDetSetVector_siStripDigis_*_*',
+                                                    'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*',
+                                                    'keep HBHEDataFramesSorted_hcalDigis_*_*',
+                                                    'keep HFDataFramesSorted_hcalDigis_*_*',
+                                                    'keep HODataFramesSorted_hcalDigis_*_*',
+                                                    'keep EBDigiCollection_ecalDigis_*_*',
+                                                    'keep EEDigiCollection_ecalDigis_*_*',
+                                                    'keep ESDataFramesSorted_ecalPreshowerDigis_*_*'),
+             splitLevel = cms.untracked.int32(0)
+             )
+
+MIXINGMODULEEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_cfWriter_*_*'),
+    splitLevel = cms.untracked.int32(0)
+    )

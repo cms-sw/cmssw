@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/07 14:26:43 $
+ *  $Revision: 1.26 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -36,8 +36,7 @@ using namespace std;
 DTLocalTriggerTPTest::DTLocalTriggerTPTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerTP");
-  baseFolderDCC = "DT/11-LocalTriggerTP-DCC/";
-  baseFolderDDU = "DT/12-LocalTriggerTP-DDU/";
+  baseFolder = "DT/11-LocalTriggerTP/";
   
 
 }
@@ -66,8 +65,8 @@ void DTLocalTriggerTPTest::beginJob(const edm::EventSetup& c){
 	hwSource = (*iHw);
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
-	  bookWheelHistos(wh,"CorrectBXPhi");
-	  bookWheelHistos(wh,"ResidualBXPhi");
+	  bookWheelHistos(wh,"","CorrectBXPhi");
+	  bookWheelHistos(wh,"","ResidualBXPhi");
 	}
       }
     }
@@ -104,8 +103,8 @@ void DTLocalTriggerTPTest::runClientDiagnostic() {
 		delete BX;
 
 		if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-		  bookWheelHistos(wh,"ResidualBXPhi");
-		  bookWheelHistos(wh,"CorrectBXPhi");
+		  bookWheelHistos(wh,"","ResidualBXPhi");
+		  bookWheelHistos(wh,"","CorrectBXPhi");
 		}
 	   
 		std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);

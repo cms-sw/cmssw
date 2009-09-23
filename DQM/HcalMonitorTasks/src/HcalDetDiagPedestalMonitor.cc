@@ -182,12 +182,12 @@ int  eta,phi,depth,side,chan,nTS;
        edm::Handle<FEDRawDataCollection> rawdata;
        iEvent.getByType(rawdata);
        //checking FEDs for calibration information
-       for (int i=FEDNumbering::getHcalFEDIds().first;i<=FEDNumbering::getHcalFEDIds().second; i++) {
-          const FEDRawData& fedData = rawdata->FEDData(i) ;
-          if ( fedData.size() < 24 ) continue ;
-          int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
-          if ( calibType < 0 )  calibType = value ;
-       }
+       for (int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++){
+         const FEDRawData& fedData = rawdata->FEDData(i) ;
+	 if ( fedData.size() < 24 ) continue ;
+	 int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
+	 if ( calibType < 0 )  calibType = value ;
+       } // for (int i=FEDNumbering::MINHCALFEDID;...)
        if(calibType!=1) return; 
    }
    if(iEvent.time()>time_max) time_max=iEvent.time();

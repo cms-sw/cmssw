@@ -27,7 +27,7 @@ KFFittingSmootherESProducer::KFFittingSmootherESProducer(const edm::ParameterSet
 KFFittingSmootherESProducer::~KFFittingSmootherESProducer() {}
 
 boost::shared_ptr<TrajectoryFitter> 
-KFFittingSmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
+KFFittingSmootherESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 
   std::string fname = pset_.getParameter<std::string>("Fitter");
   std::string sname = pset_.getParameter<std::string>("Smoother");

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.14 2009/06/05 19:59:24 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.15 2009/06/18 16:03:49 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,7 @@ public:
 
    // ---------- member functions ---------------------------
    void openDetailViewFor(const FWModelId& );
+   void saveImage() const;
 
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
@@ -55,7 +56,7 @@ private:
    const FWDetailViewManager& operator=(const FWDetailViewManager&);    // stop default
 
    std::string findViewerFor(const std::string&) const;
-  void createDetailViewFrame();
+   void createDetailViewFrame();
 
 protected:
    // ---------- member data --------------------------------

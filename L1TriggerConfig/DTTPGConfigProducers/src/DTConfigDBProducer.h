@@ -39,10 +39,9 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 #include "CondFormats/DTObjects/interface/DTConfigList.h"
-//#include "CondTools/DT/interface/DTConfigHandler.h"
-//#include "CondTools/DT/interface/DTDBSession.h"
-#include "CondFormats/DTObjects/interface/DTConfig1Handler.h"
-#include "CondFormats/DTObjects/interface/DTDB1Session.h" 
+#include "CondTools/DT/interface/DTConfigHandler.h"
+#include "CondTools/DT/interface/DTDBSession.h"
+
 //
 // class declaration
 //
@@ -83,9 +82,9 @@ private:
   bool local;
   bool cfgConfig;
   
-  DTDB1Session* session;
+  DTDBSession* session;
   const DTConfigList* rs;
-  DTConfig1Handler* ri;
+  DTConfigHandler* ri;
   
   bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM;  
 };

@@ -1,9 +1,11 @@
 //
-// $Id: Electron.cc,v 1.14 2008/11/28 19:02:15 lowette Exp $
+// $Id: Electron.cc,v 1.19 2009/08/26 08:39:25 cbern Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <limits>
 
 using namespace pat;
 
@@ -14,13 +16,12 @@ Electron::Electron() :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedPFCandidate_(false),
+    cachedDB_(false),
+    dB_(0.0)
 {
 }
+
 
 
 /// constructor from reco::GsfElectron
@@ -29,11 +30,9 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedPFCandidate_(false),
+    cachedDB_(false),
+    dB_(0.0)
 {
 }
 
@@ -44,11 +43,9 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedPFCandidate_(false),
+    cachedDB_(false),
+    dB_(0.0)
 {
 }
 
@@ -58,11 +55,9 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),
     embeddedTrack_(false),
-    scSigmaEtaEta_(0),
-    scSigmaIEtaIEta_(0), 
-    scE1x5_(0),
-    scE2x5Max_(0), 
-    scE5x5_(0) 
+    embeddedPFCandidate_(false),
+    cachedDB_(false),
+    dB_(0.0)
 {
 }
 
@@ -151,16 +146,6 @@ bool Electron::isElectronIDAvailable(const std::string & name) const {
     }
     return false;
 }
-/// method to store the electron's cluster shape
-void Electron::setClusterShapes (const float& scSigmaEtaEta, const float& scSigmaIEtaIEta, 
-                                 const float& scE1x5, const float& scE2x5Max, const float& scE5x5) 
-  { 
-    scSigmaEtaEta_ = scSigmaEtaEta ; 
-    scSigmaIEtaIEta_ = scSigmaIEtaIEta ;
-    scE1x5_ = scE1x5 ;
-    scE2x5Max_ = scE2x5Max ;
-    scE5x5_ = scE5x5 ;
-  }
 
 
 /// reference to the source PFCandidates
@@ -177,5 +162,17 @@ void Electron::embedPFCandidate() {
   if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
     pfCandidate_.push_back( *pfCandidateRef_ );
     embeddedPFCandidate_ = true;
+  }
+}
+
+
+/// dB gives the impact parameter wrt the beamline.
+/// If this is not cached it is not meaningful, since
+/// it relies on the distance to the beamline. 
+double Electron::dB() const {
+  if ( cachedDB_ ) {
+    return dB_;
+  } else {
+    return std::numeric_limits<double>::max();
   }
 }

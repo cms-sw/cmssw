@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.24 2009/03/26 22:36:54 hegner Exp $
+// $Id: Muon.h,v 1.25 2009/06/22 15:58:31 jribnik Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.24 2009/03/26 22:36:54 hegner Exp $
+  \version  $Id: Muon.h,v 1.25 2009/06/22 15:58:31 jribnik Exp $
 */
 
 
@@ -117,6 +117,30 @@ namespace pat {
       /// then the isMuonIDAvailable method will be defined
       //bool isMuonIDAvailable(const std::string& name) const;
 
+
+      /// Muon High Level Selection
+      /// The user can choose to cache this info so they can drop the
+      /// global tracks. If the global track is present these should
+      /// not be set, but the "getters" will return the appropriate
+      /// value. The exception is dB which requires the beamline
+      /// as external input. 
+
+      /// dB gives the impact parameter wrt the beamline.
+      double dB() const;
+      void   setDB ( double dB ) 
+      { dB_ = dB; cachedDB_ = true; }
+
+      /// numberOfValidHits returns the number of valid hits on the global track.
+      unsigned int numberOfValidHits() const;
+      void setNumberOfValidHits(unsigned int numberOfValidHits ) 
+      { numberOfValidHits_ = numberOfValidHits; cachedNormChi2_ = true; }
+
+      /// Norm chi2 gives the normalized chi2 of the global track. 
+      double normChi2() const;
+      void setNormChi2 (double normChi2 ) 
+      { normChi2_ = normChi2; cachedNormChi2_ = true; }
+
+
     protected:
 
       // ---- for content embedding ----
@@ -146,6 +170,14 @@ namespace pat {
       /// reference to the IsolatedPFCandidate this has been built from
       /// null if this has been built from a standard muon
       reco::PFCandidateRef pfCandidateRef_;
+
+      // V+Jets group selection variables. 
+      bool    cachedNormChi2_;         /// has the normalized chi2 been cached?
+      bool    cachedDB_;               /// has the dB been cached?
+      bool    cachedNumberOfValidHits_;/// has the numberOfValidHits been cached?
+      double  normChi2_;               /// globalTrack->chi2() / globalTrack->ndof()
+      double  dB_;                     /// globalTrack->dxy( beamPoint )
+      unsigned int  numberOfValidHits_;/// globalTrack->numberOfValidHits()
 
   };
 

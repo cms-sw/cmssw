@@ -18,10 +18,12 @@ tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
         # size of inner cone excluded from IsoDeposit computation
         DR_Veto = cms.double(0.),
 
-        # distance in zVertex between tau production vertex and PFCandidates included in IsoDeposit computation
-        Diff_z = cms.double(0.2),
-        # distance in x-y between tau production vertex and PFCandidates included in IsoDeposit computation
-        Diff_r = cms.double(0.1),
+        # max. distance in z-direction between tau production vertex and PFCandidates included in IsoDeposit computation
+        # (cut per default disabled, since well-defined for PFCandidates associated to tracks (PFChargedHadrons) only)
+        Diff_z = cms.double(1.e+4),
+        # max. distance in x-y between tau production vertex and PFCandidates included in IsoDeposit computation
+        # (cut per default disabled, since well-defined for PFCandidates associated to tracks (PFChargedHadrons) only)
+        Diff_r = cms.double(1.e+4),
 
         # collection of PFTaus, needed for excluding particles in tau signal cone from IsoDeposit
         tauSource = cms.InputTag("fixedConePFTauProducer"),
@@ -35,8 +37,11 @@ tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
 )
 
 # compute IsoDeposits from PFChargedHadrons
+# (enable cut on z and x-y distance between tau and PFCandidate production vertex)
 tauIsoDepositPFChargedHadrons = copy.deepcopy(tauIsoDepositPFCandidates)
 tauIsoDepositPFChargedHadrons.ExtractorPSet.candidateSource = cms.InputTag("pfAllChargedHadrons")
+tauIsoDepositPFChargedHadrons.ExtractorPSet.Diff_z = cms.double(0.2)
+tauIsoDepositPFChargedHadrons.ExtractorPSet.Diff_r = cms.double(0.1)
 
 # compute IsoDeposits from PFNeutralHadrons
 tauIsoDepositPFNeutralHadrons = copy.deepcopy(tauIsoDepositPFCandidates)

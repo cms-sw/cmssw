@@ -1,2 +1,38 @@
-#warning this header file is obsolete. Please, use #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#ifndef UtilAlgos_TFileService_h
+#define UtilAlgos_TFileService_h
+/* \class TFileService
+ *
+ * \author Luca Lista, INFN
+ *
+ */
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+
+namespace edm {
+  class ActivityRegistry;
+  class ParameterSet;
+  class ModuleDescription;
+}
+
+class TFileService : public TFileDirectory {
+public:
+  /// constructor
+  TFileService(const edm::ParameterSet &, edm::ActivityRegistry &);
+  /// destructor
+  ~TFileService();
+  /// return opened TFile
+  TFile & file() const { return * file_; }
+
+  /// Hook for writing info into JR
+  void afterBeginJob();
+
+private:
+  /// pointer to opened TFile
+  TFile * file_;
+  std::string fileName_;
+  bool fileNameRecorded_;
+  bool closeFileFast_;
+  // set current directory according to module name and prepair to create directory
+  void setDirectoryName( const edm::ModuleDescription & desc );
+};
+
+#endif

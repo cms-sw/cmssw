@@ -49,4 +49,9 @@ VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GeneInfo = cms.Sequence(genParticles)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
 pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
+#
+# this sequence is intended for HI runs/studies;
+# it'll be modified, as HI-specific "genParts" will be included
+#
+pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing)
 

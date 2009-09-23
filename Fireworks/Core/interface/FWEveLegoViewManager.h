@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.12 2009/04/07 14:06:23 chrjones Exp $
+// $Id: FWEveLegoViewManager.h,v 1.14 2009/07/20 08:48:00 amraktad Exp $
 //
 
 // system include files
@@ -44,18 +44,6 @@ class TEveCaloLego;
 class TEveWindowSlot;
 class TEveStraightLineSet;
 
-/*
-   struct FWEveLegoModelProxy
-   {
-   boost::shared_ptr<FW3DLegoDataProxyBuilder>   builder;
-   TObject*                           product; //owned by builder
-   bool ignore;
-   FWEveLegoModelProxy():product(0),ignore(false){}
-   FWEveLegoModelProxy(boost::shared_ptr<FW3DLegoDataProxyBuilder> iBuilder):
-    builder(iBuilder),product(0),ignore(false){}
-   };
- */
-
 class FWEveLegoViewManager : public FWViewManagerBase
 {
 
@@ -69,7 +57,6 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   //virtual void newEventAvailable();
 
    virtual void newItem(const FWEventItem*);
 
@@ -92,25 +79,22 @@ private:
 
    void makeProxyBuilderFor(const FWEventItem* iItem);
    void beingDestroyed(const FWViewBase*);
-   //void itemChanged(const FWEventItem*);
    void initData();
 
    void setGridColors();
    // ---------- member data --------------------------------
    typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
    TypeToBuilders m_typeToBuilders;
+
    std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> > m_builders;
-
    std::vector<boost::shared_ptr<FWEveLegoView> > m_views;
-   FWEvePtr<TEveElementList> m_elements;
-   TEveCaloDataHist* m_data;
-   FWEvePtr<TEveCaloLego> m_lego;
-   TEveStraightLineSet* m_boundaries;
-   int m_legoRebinFactor;
 
-   //bool m_itemChanged;
-   TEveSelection* m_eveSelection;
-   FWSelectionManager* m_selectionManager;
+   FWEvePtr<TEveElementList> m_elements;
+   TEveCaloDataHist*         m_data;
+   TEveCaloLego*             m_lego;
+   TEveStraightLineSet*      m_boundaries;
+   TEveSelection*            m_eveSelection;
+   FWSelectionManager*       m_selectionManager;
 
    bool m_modelsHaveBeenMadeAtLeastOnce;
 };

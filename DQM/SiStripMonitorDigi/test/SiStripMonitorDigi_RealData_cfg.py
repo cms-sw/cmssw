@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 #-------------------------------------------------
@@ -37,7 +37,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #-------------------------------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT_31X::All"
+process.GlobalTag.globaltag = "CRAFT_30X::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #-----------------------
@@ -62,12 +62,10 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 #--------------------------
 process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
 process.SiStripMonitorDigi.CreateTrendMEs = True
-process.SiStripMonitorDigi.TkHistoMap_On = True
+process.SiStripMonitorDigi.TkHistoMapDigi = True
 process.SiStripMonitorDigi.OutputMEsInRootFile = True
 process.SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
-process.SiStripMonitorDigi.TH2DigiApvCycle.subdetswitchon = True
-process.SiStripMonitorDigi.TH2DigiApvCycle.yfactor = 0.005
 process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 process.SiStripMonitorDigi.SelectAllDetectors = True
 

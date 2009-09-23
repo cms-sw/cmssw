@@ -77,6 +77,7 @@ namespace gen {
       int ntotal, npartial, nevent;      // generic counters
       
       int nPythia;
+      bool usePythia;
       // std::vector<std::string> pythia_params;  // Pythia stuff
       
       int nlist; 

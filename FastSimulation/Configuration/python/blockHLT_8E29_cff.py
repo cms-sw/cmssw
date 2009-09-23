@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_1_0/pre11/8E29_V8/V2 (CMSSW_3_1_0)
+# /dev/CMSSW_3_1_0/pre11/8E29_V12/V2 (CMSSW_3_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/8E29_V8/V2')
+  tableName = cms.string('/dev/CMSSW_3_1_0/pre11/8E29_V12/V2')
 )
 
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
@@ -198,4 +198,25 @@ block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
   hOverEHBMinE = cms.double( 999999.0 ),
   hOverEHFMinE = cms.double( 999999.0 ),
   nSigmasDeltaZ1 = cms.double( 5.0 )
+)
+block_hltL3TrajectorySeed = cms.PSet(
+  EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
+  Eta_fixed = cms.double( 0.2 ),
+  beamSpot = cms.InputTag( "offlineBeamSpot" ),
+  OnDemand = cms.double( -1.0 ),
+  Rescale_Dz = cms.double( 3.0 ),
+  Eta_min = cms.double( 0.1 ),
+  Rescale_phi = cms.double( 3.0 ),
+  PhiR_UpperLimit_Par1 = cms.double( 0.6 ),
+  DeltaZ_Region = cms.double( 15.9 ),
+  Phi_min = cms.double( 0.1 ),
+  PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
+  vertexCollection = cms.InputTag( "pixelVertices" ),
+  Phi_fixed = cms.double( 0.2 ),
+  DeltaR = cms.double( 0.2 ),
+  EtaR_UpperLimit_Par2 = cms.double( 0.15 ),
+  UseFixedRegion = cms.bool( False ),
+  Rescale_eta = cms.double( 3.0 ),
+  UseVertex = cms.bool( False ),
+  EscapePt = cms.double( 1.5 )
 )

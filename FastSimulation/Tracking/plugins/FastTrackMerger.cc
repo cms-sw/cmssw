@@ -289,18 +289,18 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	//==== add more cuts on the trajectory (emulate the Trajectory Filter) 
 
 #ifdef FAMOS_DEBUG
-	if(aTrajectoryRef->lostHits() > theMaxLostHits )
+	if(aTrajectoryRef->lostHits() >  theMaxLostHits )
 	  std::cout << "\tmaxLostHits= " << aTrajectoryRef->lostHits() << "\tCUT =" << theMaxLostHits << std::endl;
 #endif
 
-	if(aTrajectoryRef->lostHits() > theMaxLostHits ) continue;
+	if((unsigned int)aTrajectoryRef->lostHits() > theMaxLostHits ) continue;
 
 #ifdef FAMOS_DEBUG
 	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits )
 	  std::cout << "\tMinimumNumberOfHits = " <<  aTrajectoryRef->foundHits() << "\tCUT = " <<theMinimumNumberOfHits <<  std::endl;
 #endif
 	
-	if(aTrajectoryRef->foundHits() < theMinimumNumberOfHits ) continue;
+	if((unsigned int)aTrajectoryRef->foundHits() < theMinimumNumberOfHits ) continue;
 	//calculate the consecutive Lost Hits
 	int consecLostHits = 0;
 	const std::vector<TrajectoryMeasurement> tms = aTrajectoryRef->measurements();
@@ -310,11 +310,11 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	}
 
 #ifdef FAMOS_DEBUG
-	if( consecLostHits > theMaxConsecutiveLostHits ) 
+	if( consecLostHits > (int)theMaxConsecutiveLostHits ) 
 	  std::cout << "\tconsecLostHits = " << consecLostHits << std::endl;
 #endif
 
-	if( consecLostHits > theMaxConsecutiveLostHits ) continue;
+	if( (unsigned int)consecLostHits > theMaxConsecutiveLostHits ) continue;
 
 
 	//=============end new filters

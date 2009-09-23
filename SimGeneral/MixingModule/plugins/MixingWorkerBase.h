@@ -35,17 +35,14 @@ namespace edm
 	label_(std::string(" ")),
 	labelCF_(std::string(" ")),
 	maxNbSources_(5),
-	checktof_(false),
-	mixProdStep2_(false),
- 	isTracker_(false)
-	{
+	mixProdStep2_(false)
+ 	{
 	  tag_=InputTag();
 	  tagSignal_=InputTag();
-	  opp_=InputTag();
 	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,std::string& labelCF, unsigned int maxNbSources, InputTag &tag, InputTag &tagCF, bool checktof,bool mixProdStep2, bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,std::string& labelCF, unsigned int maxNbSources, InputTag &tag, InputTag &tagCF ,bool mixProdStep2);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
@@ -56,8 +53,6 @@ namespace edm
       virtual void addPileups(const int bcr, EventPrincipal *,unsigned int EventNr,int vertexOffset=0)=0;
       virtual void setBcrOffset()=0;
       virtual void setSourceOffset(const unsigned int s)=0;
-      virtual void setOppositeTag(InputTag& opp) {opp_=opp;}
-      virtual void setCheckTof(bool checktof) {checktof_=checktof;}
       virtual void setTof()=0;
            
     protected:
@@ -70,11 +65,8 @@ namespace edm
       unsigned int const maxNbSources_;
       InputTag tag_;
       InputTag tagSignal_;
-      bool checktof_;
       bool mixProdStep2_;
-      bool isTracker_;
-      InputTag opp_;
-
+ 
     private:
       unsigned int eventNr_;
 

@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.22 2009/03/09 21:01:53 lowette Exp $
+// $Id: Electron.h,v 1.24 2009/07/08 08:46:38 salerno Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.22 2009/03/09 21:01:53 lowette Exp $
+  \version  $Id: Electron.h,v 1.24 2009/07/08 08:46:38 salerno Exp $
 */
 
 
@@ -89,14 +89,7 @@ namespace pat {
       /// Store multiple electron ID values, discarding existing ones
       /// The first one in the list becomes the 'default' electron id 
       void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
-      /// Store the cluster shape variables associated to the electron
-      void setClusterShapes ( const float& , const float& , const float& , const float& , const float& ) ;
-      const float scSigmaEtaEta()   const { return  scSigmaEtaEta_ ; }
-      const float scSigmaIEtaIEta() const { return  scSigmaIEtaIEta_ ; }  
-      const float scE1x5()          const { return  scE1x5_ ; }
-      const float scE2x5Max()       const { return  scE2x5Max_ ; }        
-      const float scE5x5()          const { return  scE5x5_ ; } 	      
-
+      
       // ---- PF specific methods ----
       /// reference to the source PFCandidates
       /// null if this has been built from a standard electron
@@ -108,6 +101,12 @@ namespace pat {
       /// embed the PFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
 
+
+      /// dB gives the impact parameter wrt the beamline.
+      /// If this is not cached it is not meaningful, since
+      /// it relies on the distance to the beamline. 
+      double dB() const;
+      void setDB(double dB) { dB_ = dB; cachedDB_ = true;}
 
     protected:
 
@@ -121,12 +120,6 @@ namespace pat {
       // ---- electron ID's holder ----
       std::vector<IdPair> electronIDs_;
 
-      float scSigmaEtaEta_ ;
-      float scSigmaIEtaIEta_ ; 
-      float scE1x5_ ;
-      float scE2x5Max_ ; 
-      float scE5x5_ ; 
-
       // ---- PF specific members ----
       /// true if the IsolatedPFCandidate is embedded
       bool embeddedPFCandidate_;      
@@ -136,6 +129,10 @@ namespace pat {
       /// reference to the IsolatedPFCandidate this has been built from
       /// null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef_;
+
+      // V+Jets group selection variables. 
+      bool    cachedDB_;         // have these values been cached? 
+      double  dB_;               // track->dxy( beamPoint ) 
 
   };
 

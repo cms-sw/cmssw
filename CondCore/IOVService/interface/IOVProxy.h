@@ -3,7 +3,7 @@
 
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include <string>
-#include "CondFormats/Common/interface/Time.h"
+#include "CondCore/DBCommon/interface/Time.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
@@ -13,17 +13,16 @@ namespace cond {
   class IOVSequence;
   typedef  IOVSequence IOV;
   class PoolTransaction;
-  class Connection;
   
   class IOVElementProxy {
   public:
-    IOVElementProxy() : m_since(cond::invalidTime), m_till(cond::invalidTime), m_conn(0){}
-    IOVElementProxy(Connection * iconn) : m_since(cond::invalidTime), m_till(cond::invalidTime), m_conn(iconn){}
+    IOVElementProxy() : m_since(0), m_till(0), m_db(0){}
+    IOVElementProxy(PoolTransaction * idb) : m_since(0), m_till(0), m_db(idb){}
     IOVElementProxy(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken,
-	       Connection * iconn) :
-      m_since(is), m_till(it), m_token(itoken), m_conn(iconn){}
+	       PoolTransaction * idb) :
+      m_since(is), m_till(it), m_token(itoken), m_db(idb){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
@@ -35,15 +34,13 @@ namespace cond {
     
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
-    std::string const & token() const {return m_token;}
     std::string const & wrapperToken() const {return m_token;}
-    Connection * connection() const { return m_conn;}
-    PoolTransaction * db() const;
+    PoolTransaction * db() const { return m_db;}
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
     std::string  m_token;
-    Connection * m_conn;
+    PoolTransaction * m_db;
   };
   
   
@@ -59,8 +56,8 @@ namespace cond {
     IOVProxy();
     ~IOVProxy();
     
-    IOVProxy(cond::Connection& conn,
-	     const std::string & token, bool nolib, bool keepOpen);
+    IOVProxy(cond::PoolTransaction& db,
+	     const std::string & token, bool nolib);
     
     struct IterHelp {
       typedef IOVElementProxy result_type;
@@ -88,9 +85,6 @@ namespace cond {
 					     IterHelp(*m_iov));
     }
     
-    // find in range...
-    const_iterator find(cond::Time_t time) const;
-
     // limit range
     void setRange(cond::Time_t since, cond::Time_t  till) const;
     // limit to the first n 
@@ -101,13 +95,7 @@ namespace cond {
     int size() const;
     IOV const & iov() const;
     TimeType timetype() const;
-    std::string payloadContainerName() const;
-    std::string comment() const;
-    int revision() const;
-
-    PoolTransaction & db() const;
- 
-
+    
   private:
     boost::shared_ptr<impl::IOVImpl> m_iov;
     mutable int m_low;

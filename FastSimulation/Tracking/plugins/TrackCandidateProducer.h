@@ -56,8 +56,6 @@ class TrackCandidateProducer : public edm::EDProducer
   bool seedCleaning;
   bool keepFittedTracks;
 
-  edm::InputTag simTracks_;
-  double estimatorCut_;
 };
 
 #endif

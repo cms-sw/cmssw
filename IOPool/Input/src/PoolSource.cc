@@ -212,9 +212,14 @@ namespace edm {
   }
 
   void
+  PoolSource::readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    assert (!secondaryFileSequence_);
+    primaryFileSequence_->readManySequential_(number, result, fileSeqNumber);
+  }
+
+  void
   PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
     assert (!secondaryFileSequence_);
-    assert (!primary());
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
   }
 

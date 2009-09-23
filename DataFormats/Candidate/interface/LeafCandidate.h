@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.20 2009/03/28 19:52:21 hegner Exp $
+ * \version $Id: LeafCandidate.h,v 1.21 2009/06/30 11:07:10 elmer Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -33,7 +33,10 @@ namespace reco {
     typedef unsigned int index;
 
     /// default constructor                                                               
-    LeafCandidate() : cachePolarFixed_( false ) { }
+    LeafCandidate() : 
+      qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0), 
+      vertex_(0, 0, 0), pdgId_(0), status_(0),
+      cachePolarFixed_( false ) { }
     // constructor from candidate                                                         
     explicit LeafCandidate( const Candidate & c) :
       qx3_( c.charge()*3 ), pt_( c.p4().pt() ), eta_( c.p4().eta() ), phi_( c.p4().phi() )\

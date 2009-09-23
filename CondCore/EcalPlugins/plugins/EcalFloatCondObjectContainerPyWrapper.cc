@@ -3,10 +3,11 @@
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-#include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
-#include <string>
 
+#include <string>
 #include <fstream>
+
+
 #include <sstream>
 #include <algorithm>
 #include <numeric>
@@ -67,7 +68,7 @@ namespace cond {
 
     void extractSingleChannel(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       result.reserve(which.size());
-      for (unsigned int i=0; i<which.size();i++) {
+      for (int i=0; i<which.size();i++) {
 	  result.push_back(cont[which[i]]);
       }
     }
@@ -135,19 +136,13 @@ namespace cond {
   template<>
   std::string
   PayLoadInspector<EcalFloatCondObjectContainer>::dump() const {
-
-    std::stringstream ss;
-    EcalCondHeader header;
-    ss<<EcalFloatCondObjectContainerXMLTranslator::dumpXML(header,object());
-    return ss.str();
-
- //    Printer p;
-//     std::for_each(object().barrelItems().begin(),object().barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
-//     p.ss <<"\n";
-//     p.reset();
-//     std::for_each(object().endcapItems().begin(),object().endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
-//     p.ss << std::endl;
-//     return p.ss.str();
+    Printer p;
+    std::for_each(object().barrelItems().begin(),object().barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
+    p.ss <<"\n";
+    p.reset();
+    std::for_each(object().endcapItems().begin(),object().endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
+    p.ss << std::endl;
+    return p.ss.str();
   }
   
   template<>

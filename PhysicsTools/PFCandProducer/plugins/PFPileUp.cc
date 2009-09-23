@@ -90,7 +90,7 @@ void PFPileUp::produce(Event& iEvent,
 	vertexref.key()==0 ) continue;
 
     pOutput->push_back( PileUpPFCandidate( candptr, vertexref ) );
-   
+    pOutput->back().setSourceCandidatePtr( candptr );
   }
   
   iEvent.put( pOutput );

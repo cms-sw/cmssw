@@ -97,16 +97,6 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
         ),
 
-    TH2DigiApvCycle = cms.PSet(
-        Nbins = cms.int32(70),
-        xmin = cms.double(-0.5),
-        xmax = cms.double(69.5),
-        Nbinsy = cms.int32(200),
-        ymin = cms.double(0.0),
-        yfactor = cms.double(0.2),
-        subdetswitchon = cms.bool(False)
-    ),
-
     Mod_On = cms.bool(True),
 
     # rest of parameters
@@ -119,5 +109,5 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     # by default do not write out any file with histograms
     # can overwrite this in .cfg file with: replace SiStripMonitorDigi.OutputMEsInRootFile = true
     OutputMEsInRootFile = cms.bool(False),
-    OutputFileName = cms.string('test_digi.root'),
+    OutputFileName = cms.string('test_digi_sim.root'),
 )

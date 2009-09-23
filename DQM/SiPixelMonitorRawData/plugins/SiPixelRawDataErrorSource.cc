@@ -214,6 +214,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
   
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
+  theDMBE->setVerbose(0);
   
   SiPixelFolderOrganizer theSiPixelFolder;
   

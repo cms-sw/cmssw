@@ -37,18 +37,8 @@ void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
 TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 {
-  if(traj.firstMeasurement().forwardPredictedState().isValid()){    
-    // The firstMeasurement fwd state is valid. Therefore the backward fitting has already been done
-    // and we don't have to repeat it.
-    TSOS firstState = traj.firstMeasurement().forwardPredictedState();
-    firstState.rescaleError(100.);    
-    return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
-								traj.firstMeasurement().recHit()->det());
-  }
-
+  int lastFitted = 4;
   int nhits = traj.foundHits();
-  //int lastFitted = 4;
-  int lastFitted = nhits; //BM
   if (nhits-1 < lastFitted) lastFitted = nhits-1;
 
   std::vector<TrajectoryMeasurement> measvec = traj.measurements();
@@ -56,8 +46,28 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   bool foundLast = false;
   int actualLast = -99;
+  //cout << "=== lastFitted, nhits: " << lastFitted << " , " << nhits << endl;
+  //cout << "=== start loop in TISE" << endl;
+
+  for (int i=nhits-1; i >= 0; i--) {
+    if(measvec[i].recHit()->det()){
+      /*
+      cout << " bis measvec[i].recHit()->det()->surface()->position().perp(),valid: " 
+	   << measvec[i].recHit()->det()->surface().position().perp() << " , "
+	   << measvec[i].recHit()->isValid() << endl;
+      */
+    }
+  }
 
   for (int i=lastFitted; i >= 0; i--) {
+    if(measvec[i].recHit()->det()){
+      /*
+      cout << " measvec[i].recHit()->det()->surface()->position().perp(),valid: " 
+	   << measvec[i].recHit()->det()->surface().position().perp() << " , "
+	   << measvec[i].recHit()->isValid() << endl;
+      */
+    }
+    //if(measvec[i].recHit()->isValid()){
     if(measvec[i].recHit()->det()){
       if(!foundLast){
 	actualLast = i; 
@@ -66,8 +76,16 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
       firstHits.push_back( measvec[i].recHit());
     }
   }
-  TSOS startingState = measvec[actualLast].updatedState();
-  startingState.rescaleError(100.);
+  TSOS unscaledState = measvec[actualLast].updatedState();
+  //AlgebraicSymMatrix C(5,1); // why the **** we're still using CLHEP here at 07/12/2007?
+  AlgebraicSymMatrix55 C = AlgebraicMatrixID(); 
+  // C *= 100.;
+
+  TSOS startingState( unscaledState.localParameters(), LocalTrajectoryError(C),
+		      unscaledState.surface(),
+		      thePropagatorAlong->magneticField());
+
+  // cout << endl << "FitTester starts with state " << startingState << endl;
 
   KFTrajectoryFitter backFitter( *thePropagatorAlong,
 				 KFUpdator(),
@@ -83,7 +101,6 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   vector<Trajectory> fitres = backFitter.fit( fakeSeed, firstHits, startingState);
 
-
   if (fitres.size() != 1) {
     // cout << "FitTester: first hits fit failed!" << endl;
     return std::pair<TrajectoryStateOnSurface, const GeomDet*>();
@@ -91,9 +108,18 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj) const
 
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
   TSOS firstState = firstMeas.updatedState();
-  firstState.rescaleError(100.);
+
+  //  cout << "FitTester: Fitted first state " << firstState << endl;
+  //cout << "FitTester: chi2 = " << fitres[0].chiSquared() << endl;
+
   
-  return std::pair<TrajectoryStateOnSurface, const GeomDet*>( firstState, 
+
+
+  TSOS initialState( firstState.localParameters(), LocalTrajectoryError(C),
+		     firstState.surface(),
+		     thePropagatorAlong->magneticField());
+
+  return std::pair<TrajectoryStateOnSurface, const GeomDet*>( initialState, 
 							      firstMeas.recHit()->det());
 }
 

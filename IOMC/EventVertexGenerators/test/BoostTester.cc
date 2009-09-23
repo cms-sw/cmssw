@@ -137,8 +137,6 @@ void BoostTester::analyze( const Event& e, const EventSetup& )
 		   if ( (*Part)->status() != 1 ) continue;
 
 		   HepMC::FourVector Mon = (*Part)->momentum() ;
-		   double Phi = Mon.phi() ;
-		   double Eta = Mon.eta();//-log(tan(Mom.theta()/2.));
 	 
 		   //if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
 		   //{	 
@@ -151,8 +149,8 @@ void BoostTester::analyze( const Event& e, const EventSetup& )
 		   fp = Mon.mag();
 		   fpt = Mon.perp();
 		   fe = Mon.e();
-		   feta = Eta;
-		   fphi = Phi;
+		   feta = Mon.eta();//-log(tan(Mom.theta()/2.));
+		   fphi = Mon.phi();
 		   */
 		   
 		   //ftreep->Fill();

@@ -8,7 +8,6 @@ mix = cms.EDProducer("MixingModule",
     minBunch = cms.int32(0), ## in terms of 25 ns
 
     bunchspace = cms.int32(25), ## nsec
-    checktof = cms.bool(False),
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(True),
     
@@ -20,7 +19,8 @@ mix = cms.EDProducer("MixingModule",
 	nbPileupEvents = cms.PSet(
         averageNumber = cms.double(1.0)
     	),
-       fileNames = cms.untracked.vstring('file:PCFLowLumiPU.root')
+	sequential = cms.untracked.bool(True),
+        fileNames = cms.untracked.vstring('file:PCFLowLumiPU.root')
     ),
     
     mixObjects = cms.PSet(

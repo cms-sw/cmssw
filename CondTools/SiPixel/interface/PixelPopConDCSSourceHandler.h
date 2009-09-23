@@ -7,8 +7,8 @@
  *
  *  Specify the object type via the template parameter Type.
  *
- *  $Date: 2008/11/30 19:41:09 $
- *  $Revision: 1.2 $
+ *  $Date: $
+ *  $Revision: $
  *  \author Chung Khim Lae
  */
 
@@ -92,7 +92,11 @@ void PixelPopConDCSSourceHandler<Type>::fillObject(coral::ICursor& cursor)
   {
     const coral::AttributeList& row = cursor.currentRow();
 
-    setValue( (*data)[row["name"].data<std::string>()], row );
+    typename PixelDCSObject<Type>::Item datum;
+
+    datum.name = row["name"].data<std::string>();
+    setValue(datum.value, row);
+    data->items.push_back(datum);
   }
 
   this->m_to_transfer.push_back( std::make_pair(data, 1) );

@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2009/06/11 20:54:51 $
- * $Revision: 1.37 $
+ * $Date: 2009/03/05 10:41:43 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -86,8 +86,6 @@ std::string prefixME_;
 bool enableCleanup_;
 
 std::vector<int> superModules_;
-std::vector<int> laserWavelengths_;
-std::vector<int> ledWavelengths_;
 
 std::vector<EEClient*> clients_;
 
@@ -111,27 +109,6 @@ MonitorElement* meLaserL1PNErr_;
 MonitorElement* meLaserL1Ampl_; 
 MonitorElement* meLaserL1Timing_;
 MonitorElement* meLaserL1AmplOverPN_;
-MonitorElement* meLaserL2_[2];
-MonitorElement* meLaserL2Err_;
-MonitorElement* meLaserL2PN_[2];
-MonitorElement* meLaserL2PNErr_;
-MonitorElement* meLaserL2Ampl_; 
-MonitorElement* meLaserL2Timing_;
-MonitorElement* meLaserL2AmplOverPN_;
-MonitorElement* meLaserL3_[2];
-MonitorElement* meLaserL3Err_;
-MonitorElement* meLaserL3PN_[2];
-MonitorElement* meLaserL3PNErr_;
-MonitorElement* meLaserL3Ampl_; 
-MonitorElement* meLaserL3Timing_;
-MonitorElement* meLaserL3AmplOverPN_;
-MonitorElement* meLaserL4_[2];
-MonitorElement* meLaserL4Err_;
-MonitorElement* meLaserL4PN_[2];
-MonitorElement* meLaserL4PNErr_;
-MonitorElement* meLaserL4Ampl_; 
-MonitorElement* meLaserL4Timing_;
-MonitorElement* meLaserL4AmplOverPN_;
 MonitorElement* meLedL1_[2];
 MonitorElement* meLedL1Err_;
 MonitorElement* meLedL1PN_[2];
@@ -139,13 +116,6 @@ MonitorElement* meLedL1PNErr_;
 MonitorElement* meLedL1Ampl_;
 MonitorElement* meLedL1Timing_;
 MonitorElement* meLedL1AmplOverPN_;
-MonitorElement* meLedL2_[2];
-MonitorElement* meLedL2Err_;
-MonitorElement* meLedL2PN_[2];
-MonitorElement* meLedL2PNErr_;
-MonitorElement* meLedL2Ampl_;
-MonitorElement* meLedL2Timing_;
-MonitorElement* meLedL2AmplOverPN_;
 MonitorElement* mePedestal_[2];
 MonitorElement* mePedestalG01_[2];
 MonitorElement* mePedestalG06_[2];

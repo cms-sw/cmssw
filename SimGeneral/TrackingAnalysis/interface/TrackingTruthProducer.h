@@ -21,6 +21,10 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
+#include "SimGeneral/TrackingAnalysis/interface/MuonPSimHitSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/PixelPSimHitSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/PSimHitSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackerPSimHitSelector.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "Utilities/Timing/interface/TimerStack.h"
@@ -32,8 +36,8 @@ class TrackingTruthProducer : public edm::EDProducer
 {
 
 public:
+
     explicit TrackingTruthProducer( const edm::ParameterSet & );
-//  ~TrackingTruthProducer() { TimingReport::current()->dump(std::cout); }
 
 private:
 
@@ -43,12 +47,13 @@ private:
 
     edm::ParameterSet conf_;
 
-    double                   distanceCut_;
     std::vector<std::string> dataLabels_;
+    bool                     useMultipleHepMCLabels_;
+    double                   distanceCut_;
     std::vector<std::string> hitLabelsVector_;
     double                   volumeRadius_;
     double                   volumeZ_;
-    bool					 mergedBremsstrahlung_;
+    bool                     mergedBremsstrahlung_;
     bool                     removeDeadModules_;
     std::string              simHitLabel_;
 
@@ -56,14 +61,21 @@ private:
 
     // Related to production
 
-    edm::Handle<edm::HepMCProduct>            hepmc_;
+    std::vector<edm::Handle<edm::HepMCProduct> > hepMCProducts_;
 
-    std::auto_ptr<MixCollection<PSimHit> >    pSimHits_;
+    PSimHitSelector::PSimHitCollection        pSimHits_;
+
+    PSimHitSelector                           pSimHitSelector_;
+    PixelPSimHitSelector                      pixelPSimHitSelector_;
+    TrackerPSimHitSelector                    trackerPSimHitSelector_;
+    MuonPSimHitSelector                       muonPSimHitSelector_;
+
     std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
     std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
 
     std::auto_ptr<TrackingParticleCollection> trackingParticles_;
     std::auto_ptr<TrackingVertexCollection>   trackingVertexes_;
+
     TrackingParticleRefProd refTrackingParticles_;
     TrackingVertexRefProd   refTrackingVertexes_;
 
@@ -79,20 +91,24 @@ private:
     EncodedEventIdToIndex   eventIdCounter_;
     EncodedTruthIdToIndexes trackIdToHits_;
     EncodedTruthIdToIndex   trackIdToIndex_;
+    EncodedTruthIdToIndex   vertexIdToIndex_;
 
     bool selectorFlag_;
     TrackingParticleSelector selector_;
 
-    template<typename Object, typename Associator>
     void associator(
-        std::auto_ptr<MixCollection<Object> > const &,
-        Associator &
+        std::vector<PSimHit> const &,
+        EncodedTruthIdToIndexes &
     );
 
     void associator(
-        std::auto_ptr<MixCollection<PSimHit> > const &,
-        std::vector<std::pair<PSimHit,int> > const &,
-        EncodedTruthIdToIndexes &
+        std::auto_ptr<MixCollection<SimTrack> > const &,
+        EncodedTruthIdToIndex &
+    );
+
+    void associator(
+        std::auto_ptr<MixCollection<SimVertex> > const &,
+        EncodedTruthIdToIndex &
     );
 
     void mergeBremsstrahlung();
@@ -116,24 +132,6 @@ private:
 
     void addCloseGenVertexes(TrackingVertex &);
 };
-
-
-template<typename Object, typename Associator>
-void TrackingTruthProducer::associator(
-    std::auto_ptr<MixCollection<Object> > const & mixCollection,
-    Associator & association
-)
-{
-    int index = 0;
-    // Clear the association map
-    association.clear();
-    // Create a association from simtracks to overall index in the mix collection
-    for (typename MixCollection<Object>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
-    {
-        typename Associator::key_type objectId = typename Associator::key_type(iterator->eventId(), iterator->trackId());
-        association.insert( make_pair(objectId, index) );
-    }
-}
 
 
 #endif

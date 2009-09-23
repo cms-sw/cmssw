@@ -91,7 +91,7 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
   int kk = 0;
 
-  cout<<" kk= "<<kk<<" excludedBarrel "<<excludedBarrelLayer<<" excludedForward "<<excludedForwardLayer<<endl;
+  //cout<<" kk= "<<kk<<" excludedBarrel "<<excludedBarrelLayer<<" excludedForward "<<excludedForwardLayer<<endl;
 
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
     if((*i)->specificSurface().radius()<20. || (*i)->specificSurface().radius()>65.) {
@@ -149,20 +149,20 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
  
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
 			 not1(DetBelowZ(0)));
-  cout<<" Point 0 "<<endl;
+  //cout<<" Point 0 "<<endl;
   theLeftLayers  = FDLC( theForwardLayers.begin(), middle);
-   cout<<" Point 1 "<<endl;
+  // cout<<" Point 1 "<<endl;
   theRightLayers = FDLC( middle, theForwardLayers.end());
-   cout<<" Point 2 "<<endl; 
+  // cout<<" Point 2 "<<endl; 
   SymmetricLayerFinder symFinder( theForwardLayers);
-   cout<<" Point 3 "<<endl;
+  // cout<<" Point 3 "<<endl;
   // only work on positive Z side; negative by mirror symmetry later
   linkBarrelLayers( symFinder);
-    cout<<" Point 4 "<<endl;
+  //  cout<<" Point 4 "<<endl;
   linkForwardLayers( symFinder);
-    cout<<" Point 5 "<<endl;
+  //  cout<<" Point 5 "<<endl;
   establishInverseRelations();
-   cout<<" Point 6 "<<endl;
+  // cout<<" Point 6 "<<endl;
 }
 
 HICSimpleNavigationSchool::StateType 
@@ -222,7 +222,7 @@ void HICSimpleNavigationSchool::linkNextForwardLayer( BarrelDetLayer* bl,
   if(fabs((**fli).position().z())>130. && fabs((**fli).position().z())<132.)
     {
 #ifdef DEBUG
-      cout<<" Add to barrel layer "<<radius<<" Forward layer "<<(**fli).position().z()<<endl;
+//      cout<<" Add to barrel layer "<<radius<<" Forward layer "<<(**fli).position().z()<<endl;
 #endif
       rightFL.push_back( *fli);
       return;
@@ -317,7 +317,7 @@ void HICSimpleNavigationSchool::linkNextBarrelLayer( ForwardDetLayer* fl,
 //	 zpos        < (**bli).surface().bounds().length() / 2.)
    if( fabs(zpos) > 130. && fabs(zpos) < 132. ) 
     {
-      cout<<" Forward layer "<<fl->position().z()<<" to Barrel layer "<<(**bli).specificSurface().radius()<<endl;
+      //cout<<" Forward layer "<<fl->position().z()<<" to Barrel layer "<<(**bli).specificSurface().radius()<<endl;
       reachableBL.push_back( *bli);
       return;
     }

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/06/26 13:39:29 $
+// last change    : $Date: 2009/01/20 20:21:39 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1004,8 +1004,6 @@ void PlotMillePede::DrawXyArrow(Double_t factor, Option_t *option)
   TTree *tree = this->GetMainTree();
   const Long64_t size = tree->GetSelectedRows();
 
-  if (size == 0) return; // nothing survived...
-
   // get min/max x/y for frame
   Double_t maxX = tree->GetV1()[TMath::LocMax(size, tree->GetV1())];
   maxX *= (maxX < 0 ? 0.9 : 1.1);
@@ -1017,9 +1015,8 @@ void PlotMillePede::DrawXyArrow(Double_t factor, Option_t *option)
   minY *= (minY > 0 ? 0.9 : 1.1);
   TH1 *hFrame = new TH2F(this->Unique("frame"),
 			 Form("scale %g%s;x [cm];y [cm]", factor, this->TitleAdd().Data()),
-			 10, minX, maxX, 10, minY, maxY);
+			 1, minX, maxX, 1, minY, maxY);
   hFrame->SetOption("AXIS");
-  hFrame->SetEntries(size); // entries shows number of plotted arrows
   fHistManager->AddHist(hFrame, layer);
 
   // copy arrays from TTree:
@@ -1037,11 +1034,10 @@ void PlotMillePede::DrawXyArrow(Double_t factor, Option_t *option)
   if (opt.Contains("zcirc", TString::kIgnoreCase)) { // circles for z to be drawn
     // get delta z from tree
     const std::vector<double> deltaZs(tree->GetV3(), tree->GetV3() + size);
-    const Double_t rootFactor = TMath::Sqrt(TMath::Abs(factor)); //area grows ^2...
     // add z positions via coloured circles
     for (unsigned int i = 0; i < size; ++i) {
       if (deltaZs[i] == 0.) continue;
-      TEllipse *circ = new TEllipse(xs[i], ys[i], TMath::Abs(rootFactor*deltaZs[i]));
+      TEllipse *circ = new TEllipse(xs[i], ys[i], TMath::Abs(factor*deltaZs[i]));
       // circ->SetLineStyle(0); // no line at border
       if (deltaZs[i] < 0.) circ->SetFillColor(kRed);
       else circ->SetFillColor(kGreen);
@@ -1240,13 +1236,7 @@ TString PlotMillePede::TitleAdd() const
     result += fAdditionalSelTitle;
   }
 
-  if (fTitle.Length()) {
-    if (result.Length()) result.Prepend(fTitle + ", ");
-    else result.Prepend(fTitle);
-  }
-
   if (result.Length()) result.Prepend(": ");  
-
   return result;
 }
 
@@ -1273,22 +1263,10 @@ void PlotMillePede::AddAdditionalSel(const char *selection)
     ::Warning("PlotMillePede::AddAdditionalSel", "Ignore empty selection.");
   } else {
     if (fAdditionalSel.Length()) fAdditionalSel = Parenth(fAdditionalSel) += AndL();
+    fAdditionalSel += selection;
     // Add to title for hists as well :
     if (fAdditionalSelTitle.Length()) fAdditionalSelTitle += ", ";
-    const TString sel(selection);
-    if (sel == "StripDoubleOr1D") {
-      fAdditionalSel += "(Id&3)==0";
-      fAdditionalSelTitle += "Double sided or 1D layer/ring";
-    } else if (sel == "StripRphi") {
-      fAdditionalSel += "(Id&3)==2";
-      fAdditionalSelTitle += "R#phi";
-    } else if (sel == "StripStereo"){
-      fAdditionalSel += "(Id&3)==1";
-      fAdditionalSelTitle += "Stereo";
-    } else { // genericaly add
-      fAdditionalSel += selection;
-      fAdditionalSelTitle += selection;
-    }
+    fAdditionalSelTitle += selection;
   }
 }
 

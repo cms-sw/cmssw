@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.4 2009/05/28 09:47:02 ferriff Exp $
- *  $Date: 2009/05/28 09:47:02 $
- *  $Revision: 1.4 $
+ *  $Id: EcalRecHitProducer.cc,v 1.5 2009/06/05 13:38:16 ferriff Exp $
+ *  $Date: 2009/06/05 13:38:16 $
+ *  $Revision: 1.5 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -220,7 +220,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 if ( ttIds ) {
                         for( std::set<EcalTrigTowerDetId>::const_iterator it = ttIds->begin(); it != ttIds->end(); ++it ) {
                                 // uses the EcalUncalibratedRecHit to pass the DetId info
-                                EcalUncalibratedRecHit urh( EBDetId( (*it).ieta(), (*it).iphi()), 0, 0, 0, EcalRecHitWorkerBaseClass::EB_FE );
+                                int ieta = (((*it).ietaAbs()-1)*5+1)*(*it).zside(); // from EcalTrigTowerConstituentsMap
+                                int iphi = ((*it).iphi()-1)*5+11;                   // from EcalTrigTowerConstituentsMap
+                                if( iphi <= 0 ) iphi += 360;                        // from EcalTrigTowerConstituentsMap
+                                EcalUncalibratedRecHit urh( EBDetId(ieta, iphi, EBDetId::ETAPHIMODE), 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_FE );
                                 workerRecover_->run( evt, urh, *ebRecHits );
                         }
                 }
@@ -241,7 +244,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 if ( scIds ) {
                         for( std::set<EcalScDetId>::const_iterator it = scIds->begin(); it != scIds->end(); ++it ) {
                                 // uses the EcalUncalibratedRecHit to pass the DetId info
-                                EcalUncalibratedRecHit urh( EEDetId( (*it).ix(), (*it).iy(), (*it).zside() ), 0, 0, 0, EcalRecHitWorkerBaseClass::EE_FE );
+                                EcalUncalibratedRecHit urh( EEDetId( ((*it).ix()-1)*5+1, ((*it).iy()-1)*5+1, (*it).zside() ), 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_FE );
                                 workerRecover_->run( evt, urh, *eeRecHits );
                         }
                 }

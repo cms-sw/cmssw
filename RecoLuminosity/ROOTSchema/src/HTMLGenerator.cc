@@ -14,6 +14,7 @@
 #include <TStyle.h>
 
 // Lumi Headers
+#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 HCAL_HLX::HTMLGenerator::HTMLGenerator(){
