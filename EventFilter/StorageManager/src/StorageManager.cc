@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $
+// $Id: StorageManager.cc,v 1.115 2009/09/18 12:35:29 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -36,7 +36,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.115 2009/09/18 12:35:29 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -754,7 +754,7 @@ StorageManager::processConsumerRegistrationRequest( xgi::Input* in, xgi::Output*
   // Register consumer with InitMsgCollection:
   bool reg_ok =
     _sharedResources->_initMsgCollection->registerConsumer( cid,
-                                                            reginfo->selHLTOut() );
+                                                            reginfo->outputModuleLabel() );
   if( !reg_ok )
     {
       writeNotReady( out );

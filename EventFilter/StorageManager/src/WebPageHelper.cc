@@ -1,4 +1,4 @@
-// $Id: WebPageHelper.cc,v 1.34 2009/09/18 14:01:11 dshpakov Exp $
+// $Id: WebPageHelper.cc,v 1.35 2009/09/18 15:15:09 mommsen Exp $
 /// @file: WebPageHelper.cc
 
 #include <iomanip>
@@ -349,7 +349,7 @@ void WebPageHelper::consumerStatistics( xgi::Output* out,
 
         // HLT output module:
         XHTMLMaker::Node* cs_td_hlt = maker.addNode( "td", cs_tr, td_attr );
-        maker.addText( cs_td_hlt, (*it)->selHLTOut() );
+        maker.addText( cs_td_hlt, (*it)->outputModuleLabel() );
 
         // Filter list:
         std::string fl_str;
