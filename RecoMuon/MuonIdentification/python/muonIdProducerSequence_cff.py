@@ -19,3 +19,4 @@ from RecoMuon.GlobalTrackingTools.GlobalTrackQuality_cfi import *
 
 muons.fillGlobalTrackQuality = True
 muonIdProducerSequence = cms.Sequence(glbTrackQual*muons*calomuons)
+

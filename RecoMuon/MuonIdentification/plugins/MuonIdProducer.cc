@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.41 2009/09/12 20:34:45 aeverett Exp $
+// $Id: MuonIdProducer.cc,v 1.42 2009/09/23 12:28:03 ptraczyk Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
@@ -54,6 +55,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
 muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
    produces<reco::MuonCollection>();
+   produces<reco::CaloMuonCollection>();
    produces<reco::MuonTimeExtraMap>("combined");
    produces<reco::MuonTimeExtraMap>("dt");
    produces<reco::MuonTimeExtraMap>("csc");
@@ -74,6 +76,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    fillGlobalTrackQuality_  = iConfig.getParameter<bool>("fillGlobalTrackQuality");
    ptThresholdToFillCandidateP4WithGlobalFit_    = iConfig.getParameter<double>("ptThresholdToFillCandidateP4WithGlobalFit");
    sigmaThresholdToFillCandidateP4WithGlobalFit_ = iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
+   caloCut_ = iConfig.getParameter<double>("minCaloCompatibility"); //CaloMuons
    
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -201,6 +204,19 @@ reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent, const edm::EventSetup& i
    return aMuon;
 }
 
+
+reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
+{
+   reco::CaloMuon aMuon;
+   aMuon.setInnerTrack( muon.innerTrack() );
+   
+   aMuon.setCalEnergy( muon.calEnergy() );
+   // get calo compatibility
+   aMuon.setCaloCompatibility( muonCaloCompatibility_.evaluate(muon) );
+   return aMuon;
+}
+
+
 reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 {
    LogTrace("MuonIdentification") << "Creating a muon from a link to tracks object";
@@ -305,6 +321,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // timers.push("MuonIdProducer::produce");
    
    std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection);
+   std::auto_ptr<reco::CaloMuonCollection> caloMuons( new reco::CaloMuonCollection );
+
    init(iEvent, iSetup);
 
    std::auto_ptr<reco::MuonTimeExtraMap> muonTimeMap(new reco::MuonTimeExtraMap());
@@ -348,7 +366,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
        }
    
-   // tracker muon is next
+   // tracker and calo muons are next
    if ( innerTrackCollectionHandle_.isValid() ) {
       LogTrace("MuonIdentification") << "Creating tracker muons";
       for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
@@ -373,10 +391,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
 		trackerMuon.setType( reco::Muon::TrackerMuon );
 		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
-		if ( ! isGoodTrackerMuon( trackerMuon ) ){
-		   LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-		   continue;
-		}
 		// timers.pop();
 	  
 		if ( debugWithTruthMatching_ ) {
@@ -405,6 +419,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			  break;
 		       }
 		  }
+		if ( ! isGoodTrackerMuon( trackerMuon ) ){
+		   LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+		   const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
+		   if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ ) continue;
+		   caloMuons->push_back( caloMuon );
+		   continue;
+		}
 		if ( newMuon ) outputMuons->push_back( trackerMuon );
 	     }
 	}
@@ -536,6 +557,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(muonTimeMapDT,"dt");
    iEvent.put(muonTimeMapCSC,"csc");
 
+   iEvent.put(caloMuons);
 }
 
 

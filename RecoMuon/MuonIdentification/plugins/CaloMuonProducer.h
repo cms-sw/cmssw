@@ -2,18 +2,10 @@
 //
 // Package:    CaloMuonProducer
 // Class:      CaloMuonProducer
-// 
-/**\class CaloMuonProducer CaloMuonProducer.cc Test/CaloMuonProducer/src/CaloMuonProducer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id: CaloMuonProducer.h,v 1.1 2007/10/07 17:18:29 dmytro Exp $
+// $Id: CaloMuonProducer.h,v 1.2 2009/09/07 04:49:15 dmytro Exp $
 //
 //
 
@@ -25,15 +17,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
-
-
 class CaloMuonProducer : public edm::EDProducer {
  public:
    explicit CaloMuonProducer(const edm::ParameterSet&);
@@ -41,15 +24,5 @@ class CaloMuonProducer : public edm::EDProducer {
    
  private:
    virtual void     produce( edm::Event&, const edm::EventSetup& );
-   reco::CaloMuon   makeMuon( const edm::Event& iEvent, 
-			      const edm::EventSetup& iSetup,
-			      const reco::TrackRef& track );
-
-   double caloCut_;
-   double minPt_;
-   TrackDetectorAssociator trackAssociator_;
-   TrackAssociatorParameters parameters_;
-   MuonCaloCompatibility muonCaloCompatibility_;
-   edm::InputTag inputMuons_;
-   edm::InputTag inputTracks_;
+   edm::InputTag inputCollection;
 };
