@@ -13,7 +13,7 @@ class FEConfigBadTTInfo : public IODConfig {
   ~FEConfigBadTTInfo();
 
   // User data methods
-  inline std::string getTable() { return "BAD_TT_INFO"; }
+  inline std::string getTable() { return "FE_CONFIG_BADTT_INFO"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
