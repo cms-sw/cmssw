@@ -1,17 +1,15 @@
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/Utilities/interface/CondBasicIter.h"
 #include <iostream>
-CondBasicIter::CondBasicIter(){
-    ioviterator = 0;
-    pooldb = 0;
-    myconnection =  0;
-}
+CondBasicIter::CondBasicIter():ioviterator(0),mysession(),myconnection(){}
 
 CondBasicIter::~CondBasicIter(){
-    if (pooldb) {
-        pooldb->commit();
+    if (mysession.isOpen()) {
+        mysession.transaction().commit();
     }
     if (ioviterator) delete ioviterator;
-    if (myconnection) delete myconnection;
+    if(myconnection) delete myconnection;
 }
 
 void CondBasicIter::setStartTime(unsigned int start){
@@ -31,7 +29,7 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
 
 
     
-    std::string Command1;
+  std::string Command1;
     Command1 = NameDB;
     //You need to write all the sintax like "oracle://cms_orcoff_int2r/SOMETHING"
     std::string Command4 = " -t ";
@@ -52,47 +50,41 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
   
     tag=Command5;
 
-
-    cond::DBSession* session=new cond::DBSession;
-    session->configuration().setAuthenticationMethod( cond::Env );
-    
-    if (nameBlob.size()) {
-        session->configuration().setBlobStreamer(nameBlob.c_str());
-    }
-
-    session->configuration().setMessageLevel( cond::Error );
+    if(myconnection) delete myconnection;
+    myconnection = new cond::DbConnection();
+    myconnection->configuration().setMessageLevel( coral::Error );
     //session->configuration().connectionConfiguration()->setConnectionRetrialTimeOut( 600 );
     //session->configuration().connectionConfiguration()->enableConnectionSharing();
     //session->configuration().connectionConfiguration()->enableReadOnlySessionOnUpdateConnections();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
 
-    if (!myconnection){
-   myconnection = new  cond::Connection(connect,5000000);    
-    }
-    if (!pooldb) {
+    if (!mysession.isOpen()) {
         putenv(const_cast<char*>(userenv.c_str()));
         putenv(const_cast<char*>(passenv.c_str()));
     }
+    myconnection->configure();
+    mysession = myconnection->createSession();
+    if (nameBlob.size()) {
+      mysession.setBlobStreamingService(nameBlob.c_str());
+    }
+
+    mysession.open( connect );
     
-    
-    session->open();
-    myconnection->connect(session);
-    cond::CoralTransaction& coraldb=myconnection->coralTransaction();
-    cond::MetaData metadata_svc(coraldb);
+    cond::MetaData metadata_svc(mysession);
     std::string token;
-    coraldb.start(true);
+    mysession.transaction().start(true);
     
     token=metadata_svc.getToken(tag);
-    coraldb.commit();
-    int test = 0;
-    if (!pooldb) {
-      pooldb = &(myconnection->poolTransaction());
-	test = 1;
-    }
+    mysession.transaction().commit();
+    //int test = 0;
+    //if (!p) {
+    //  pooldb = &(myconnection->poolTransaction());
+    //test = 1;
+    //}
     
     // timetype irrelevant
-    cond::IOVService iovservice(*pooldb);
+    cond::IOVService iovservice(mysession);
     //-----------------------------------------
     if (ioviterator) {
       delete ioviterator;
@@ -103,9 +95,9 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     ioviterator=iovservice.newIOVIterator(token);
     
       
-    if (test==1){
-      pooldb->start(true);
-    }
+    //if (test==1){
+    //  pooldb->start(true);
+    //}
 
     // printing out the iteratot size 
     std::cout<< " ioviterator->size() == " << ioviterator->size() << std::endl; 
@@ -113,8 +105,6 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
 
 
 
-    delete session;
-  
     
     //---- inizializer
     iter_Min = 0;

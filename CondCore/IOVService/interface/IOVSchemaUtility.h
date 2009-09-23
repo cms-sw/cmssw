@@ -1,11 +1,11 @@
 #ifndef CondCore_IOVSchemaUtility_h
 #define CondCore_IOVSchemaUtility_h
 
+#include "CondCore/DBCommon/interface/DbSession.h"
 namespace cond{
-  class CoralTransaction;
   class IOVSchemaUtility{
   public:
-    IOVSchemaUtility(CoralTransaction& coraldb);
+    IOVSchemaUtility(DbSession& pooldb);
     ~IOVSchemaUtility();
     /// create iov tables if not existing
     void create();
@@ -14,7 +14,7 @@ namespace cond{
     /// truncate iov tables if existing
     void truncate();
   private:
-    cond::CoralTransaction& m_coraldb;
+    cond::DbSession m_pooldb;
   };
 }//ns cond
 #endif

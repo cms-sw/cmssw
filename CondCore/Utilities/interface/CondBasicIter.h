@@ -1,17 +1,15 @@
 #ifndef CondIter_CondBasicIter_h
 #define CondIter_CondBasicIter_h
-#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVService.h"
+
+namespace cond {
+  class DbConnection;
+}
+
 
 class CondBasicIter{
 
@@ -19,8 +17,8 @@ class CondBasicIter{
         
   cond::IOVIterator* ioviterator;
   std::string payloadContainer;
-  cond::PoolTransaction *pooldb;
-  cond::Connection * myconnection;
+  cond::DbSession mysession;
+  cond::DbConnection* myconnection;
   /*minimum and maximum of the interval where search IOVs*/     
   unsigned int iter_Min;
   unsigned int iter_Max;

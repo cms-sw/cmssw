@@ -7,6 +7,7 @@
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 
 
 #include<boost/shared_ptr.hpp>
@@ -14,8 +15,6 @@
 
 namespace cond {
 
-  class DBSession;
-  class Connection;
   class Logger;
 
   namespace impl {
@@ -39,7 +38,7 @@ namespace cond {
    CondDB();
    CondDB(const CondDB & other);
    CondDB & operator=(const CondDB & other);
-   CondDB(Connection * conn, boost::shared_ptr<cond::Logger> ilog );
+   CondDB(DbSession& session, boost::shared_ptr<cond::Logger> ilog );
    ~CondDB();
    std::string allTags() const;
 
@@ -53,10 +52,10 @@ namespace cond {
    cond::LogDBEntry lastLogEntry(std::string const & tag) const;
    cond::LogDBEntry lastLogEntryOK(std::string const & tag) const;
 
-   Connection * connection() { return me;}
+   DbSession& session() { return me;}
 
  private:
-   mutable Connection * me;
+   mutable DbSession me;
    boost::shared_ptr<cond::Logger> logger;
  };
 
@@ -72,7 +71,7 @@ namespace cond {
     CondDB getDB(std::string const & db);
 
   private:
-    boost::shared_ptr<DBSession> session;
+    boost::shared_ptr<DbConnection> connection;
     boost::shared_ptr<cond::Logger> logger;
 
   };

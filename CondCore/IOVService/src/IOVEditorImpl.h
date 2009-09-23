@@ -1,17 +1,17 @@
 #ifndef CondCore_IOVService_IOVEditorImpl_h
 #define CondCore_IOVService_IOVEditorImpl_h
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "DataSvc/Ref.h"
 #include<iosfwd>
 
 namespace cond{
-  class PoolTransaction;
   class IOVSequence;
 
   class IOVEditorImpl : virtual public cond::IOVEditor{
   public:
     // constructor from existing iov
-    IOVEditorImpl( cond::PoolTransaction& pooldb,
+    IOVEditorImpl( cond::DbSession& poolDb,
 		   const std::string& token);
     /// Destructor
     virtual ~IOVEditorImpl();
@@ -78,10 +78,10 @@ namespace cond{
     void reportError(std::string message) const;
     void reportError(std::string message, cond::Time_t time) const;
 
-    cond::PoolTransaction* m_pooldb;
+    cond::DbSession m_poolDb;
     std::string m_token;
     bool m_isActive;
-    cond::TypedRef<cond::IOVSequence> m_iov;
+    pool::Ref<cond::IOVSequence> m_iov;
   };
 }//ns cond
 #endif

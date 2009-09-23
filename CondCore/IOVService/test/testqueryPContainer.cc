@@ -1,27 +1,20 @@
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Connection.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
 int main(){
   try{
-    cond::DBSession* session=new cond::DBSession;
-    //session->configuration().setMessageLevel(cond::Error);
-    //session->configuration().setAuthenticationMethod(cond::XML);
-    session->open();
-    cond::Connection myconnection("sqlite_file:mytest.db",0); 
-    myconnection.connect(session);    
+    cond::DbConnection connection;
+    cond::DbSession pooldb = connection.createSession();
+    pooldb.open("sqlite_file:mytest.db"); 
     testPayloadObj* myobj=new testPayloadObj;
     myobj->data.push_back(1);
     myobj->data.push_back(10);
-    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    pooldb.start(false);
-    cond::TypedRef<testPayloadObj> myref(pooldb,myobj);
-    myref.markWrite("mypayloadcontainer");
-    std::string token=myref.token();
+    pooldb.transaction().start(false);
+    pool::Ref<testPayloadObj> myref = pooldb.storeObject(myobj,"mypayloadcontainer");
+    std::string token=myref.toString();
     std::cout<<"payload token "<<token<<std::endl;
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
@@ -29,11 +22,9 @@ int main(){
     editor->append(1,token);
     std::string iovtok=editor->token();
     std::string cname=iovmanager.payloadContainerName(iovtok);
-    pooldb.commit();
-    myconnection.disconnect();
+    pooldb.transaction().commit();
     std::cout<<"Payload Container Name: "<<cname<<std::endl;
     delete editor;
-    delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){

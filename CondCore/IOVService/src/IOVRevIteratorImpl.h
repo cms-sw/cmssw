@@ -1,19 +1,19 @@
 #ifndef CondCore_IOVService_IOVRevIteratorImpl_h
 #define CondCore_IOVService_IOVRevIteratorImpl_h
 
+#include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
+#include "DataSvc/Ref.h"
 #include <string>
 
 namespace cond{
-  class PoolTransaction;
   class IOVRevIteratorImpl : virtual public cond::IOVIterator{
   public:
     typedef IOVSequence::Container::const_reverse_iterator const_iterator;
-    IOVRevIteratorImpl( cond::PoolTransaction& pooldb,
-		     const std::string & token);
+    IOVRevIteratorImpl( cond::DbSession& pooldb,
+                        const std::string & token);
     virtual ~IOVRevIteratorImpl();
     virtual bool next();
     virtual bool rewind();
@@ -30,9 +30,9 @@ namespace cond{
     void init();
     IOVSequence::Container const & iov() const { return m_iov->iovs();}
 
-    cond::PoolTransaction& m_pooldb;
+    mutable cond::DbSession m_pooldb;
     std::string m_token;
-    cond::TypedRef<cond::IOVSequence> m_iov;
+    pool::Ref<cond::IOVSequence> m_iov;
     const_iterator m_pos;
     const_iterator m_next;
     size_t m_count;

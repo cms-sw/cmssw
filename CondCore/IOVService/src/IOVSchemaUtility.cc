@@ -1,26 +1,18 @@
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
-#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-cond::IOVSchemaUtility::IOVSchemaUtility(cond::CoralTransaction& coraldb):m_coraldb(coraldb){
+
+cond::IOVSchemaUtility::IOVSchemaUtility(cond::DbSession& pooldb):m_pooldb(pooldb){
 }
 cond::IOVSchemaUtility::~IOVSchemaUtility(){}
 void 
 cond::IOVSchemaUtility::create(){
-  cond::ObjectRelationalMappingUtility mappingUtil(&(m_coraldb.coralSessionProxy()) );
-  if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
-    mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
-  }
+  m_pooldb.initializeMapping( cond::IOVNames::iovMappingVersion(), cond::IOVNames::iovMappingXML());
 }
 void 
 cond::IOVSchemaUtility::drop(){
-  cond::ObjectRelationalMappingUtility mappingUtil(&(m_coraldb.coralSessionProxy()) );
-  if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ) return;
-  mappingUtil.removeMapping(cond::IOVNames::iovMappingVersion(),true);
+  m_pooldb.deleteMapping( cond::IOVNames::iovMappingVersion(), true );
 }
 void
 cond::IOVSchemaUtility::truncate(){
-  cond::ObjectRelationalMappingUtility mappingUtil(&(m_coraldb.coralSessionProxy()) );
-  if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ) return;
-  mappingUtil.removeMapping(cond::IOVNames::iovMappingVersion(),false);
+  m_pooldb.deleteMapping( cond::IOVNames::iovMappingVersion(), false );
 }

@@ -20,14 +20,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -121,43 +114,37 @@ namespace cond {
   //------------------------------------------------------------
 
 
-  CondDB::CondDB() : me(0){
+  CondDB::CondDB() : me(){
     //topinit();    
   }
-  CondDB::CondDB(cond::Connection * conn, boost::shared_ptr<cond::Logger> ilog) :
-    me(conn), logger(ilog) {
+  CondDB::CondDB(cond::DbSession& session, boost::shared_ptr<cond::Logger> ilog) :
+    me(session), logger(ilog) {
     //topinit();
   }
 
   // move ownership....
   CondDB::CondDB(const CondDB & other) : me(other.me), logger(other.logger) {
-    other.me=0;
   }
 
   CondDB & CondDB::operator=(const CondDB & other) {
-    if (me==other.me) return *this; // unless =0 this is an error condition!
-    if (me!=0) me->disconnect();
+    if (this==&other) return *this; // unless =0 this is an error condition!
     me = other.me;
     logger = other.logger;
-    other.me=0;
     return *this;
   }
 
   CondDB::~CondDB() {
-    if (me)
-      me->disconnect();
   }
   
 
   std::string CondDB::allTags() const {
     std::ostringstream ss;
 
-    cond::CoralTransaction& coraldb=me->coralTransaction();
-    cond::MetaData metadata_svc(coraldb);
+    cond::MetaData metadata_svc(me);
     std::vector<std::string> alltags;
-    coraldb.start(true);
+    me.transaction().start(true);
     metadata_svc.listAllTags(alltags);
-    coraldb.commit();
+    me.transaction().commit();
     
     std::copy (alltags.begin(),
 	       alltags.end(),
@@ -167,21 +154,20 @@ namespace cond {
   }
 
   std::string CondDB::iovToken(std::string const & tag) const {
-    cond::CoralTransaction& coraldb=me->coralTransaction();
-    cond::MetaData metadata_svc(coraldb);
-    coraldb.start(true);
+    cond::MetaData metadata_svc(me);
+    me.transaction().start(true);
     std::string token=metadata_svc.getToken(tag);
-    coraldb.commit();
+    me.transaction().commit();
     return token;
   }
   
   // fix commit problem....
   IOVProxy CondDB::iov(std::string const & tag) const {
-    return IOVProxy(*me,iovToken(tag),true,true);
+    return IOVProxy(me,iovToken(tag),true,true);
   }
   
   IOVProxy CondDB::iovWithLib(std::string const & tag) const {
-    return IOVProxy(*me,iovToken(tag),false,true);
+    return IOVProxy(me,iovToken(tag),false,true);
   }
 
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
@@ -206,52 +192,45 @@ namespace cond {
 
 
 
-  RDBMS::RDBMS() : session(new DBSession) {
+  RDBMS::RDBMS() : connection(new DbConnection) {
     //topinit();
-    session->configuration().setAuthenticationMethod( cond::XML );
-    session->configuration().setMessageLevel( cond::Error );
-    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
-    session->open();
+    connection->configuration().setMessageLevel( coral::Error );
+    connection->configure();
   }
   RDBMS::~RDBMS() {}
 
-  RDBMS::RDBMS(std::string const & authPath,  bool debug) : session(new DBSession) {
+  RDBMS::RDBMS(std::string const & authPath,  bool debug) : connection(new DbConnection) {
     //topinit();
-    session->configuration().setAuthenticationPath(authPath);
-    session->configuration().setAuthenticationMethod( cond::XML );
-    if (debug) session->configuration().setMessageLevel( cond::Debug );
+    connection->configuration().setAuthenticationPath(authPath);
+    if (debug) connection->configuration().setMessageLevel( coral::Debug );
     else
-      session->configuration().setMessageLevel( cond::Error );
-    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
-    session->open();
+      connection->configuration().setMessageLevel( coral::Error );
+    connection->configure();
   }
   
-  RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
+  RDBMS::RDBMS(std::string const & user,std::string const & pass) : connection(new DbConnection) {
     //topinit();
     std::string userenv(std::string("CORAL_AUTH_USER=")+user);
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
-    session->configuration().setAuthenticationMethod( cond::Env );
-    session->configuration().setMessageLevel( cond::Error );
-    session->configuration().setBlobStreamer( "COND/Services/TBufferBlobStreamingService" );
-    session->open();
+    connection->configuration().setMessageLevel( coral::Error );
+    connection->configure();
   }
 
   void RDBMS::setLogger(std::string const & connstr) {
-    cond::ConnectionHandler::Instance().registerConnection(connstr,*session,-1);
-    cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(connstr);
-    conn.connect(session.get());
-    logger.reset(new cond::Logger(&conn));
+    DbSession loggerSession = connection->createSession();
+    loggerSession.open( connstr );
+    logger.reset(new cond::Logger(loggerSession));
   }
 
 
   
   CondDB RDBMS::getDB(std::string const & db) {
-    cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
-    cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(db);
-    conn.connect(session.get());
-    return CondDB(&conn,logger);
+    DbSession dbSession = connection->createSession();
+    dbSession.open( db );
+    dbSession.setBlobStreamingService( "COND/Services/TBufferBlobStreamingService" );
+    return CondDB(dbSession,logger);
   }
 
 }

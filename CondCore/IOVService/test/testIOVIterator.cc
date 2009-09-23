@@ -1,7 +1,10 @@
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Connection.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
+
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
@@ -47,43 +50,44 @@ namespace {
 
 struct Add {
 
-  Add( cond::PoolTransaction& db,  cond::IOVEditor & e) :
+  Add( cond::DbSession& db,  cond::IOVEditor & e) :
     pooldb(db), editor(e){}
 
 
-  cond::PoolTransaction& pooldb;
+  cond::DbSession pooldb;
   cond::IOVEditor & editor;
 
-  void operator()(int i, std::string mess) {
-    cond::TypedRef<cond::IOVElement> ref(pooldb,new cond::IOVElement(i,mess));
-    ref.markWrite("SomeWhere");
-    editor.append(i,ref.token());
-  }
+    void operator()(int i, std::string mess) {
+      pool::Ref<cond::IOVElement> ref = pooldb.storeObject(new cond::IOVElement(i,mess),"SomeWhere");
+      editor.append(i,ref.toString());
+    }
 
 };
 
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   try{
-    cond::DBSession* session=new cond::DBSession;
-    session->open();
-    cond::Connection myconnection("sqlite_file:mytest.db",0); 
-    myconnection.connect(session);
-    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    pooldb.start(false);
-    cond::IOVService iovmanager(pooldb);
+    cond::DbConnection connection;
+    connection.configuration().setPoolAutomaticCleanUp( false );
+    connection.configure();
+    cond::DbSession pooldb = connection.createSession();
+    pooldb.open("sqlite_file:mytest.db");
+    pooldb.transaction().start(false);
+    cond::IOVService iovmanager( pooldb );
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     editor->create(cond::timestamp,60);
     Add add(pooldb,*editor);
     add(1,"pay1");
     add(21,"pay2");
     add(41,"pay3");
-    pooldb.commit();
+    pooldb.transaction().commit();
     std::string iovtok=editor->token();
     ///test iterator
     // forward
     cond::IOVIterator* it=iovmanager.newIOVIterator(iovtok);
     std::cout<<"test forward iterator "<<std::endl;
-    pooldb.start(true);
+    pooldb.transaction().start(true);
     std::cout << "size " << it->size()
 	      <<", Time Type " << it->timetype() << std::endl;
     while( it->next() ){
@@ -107,12 +111,12 @@ int main(){
     std::cout<<"30 validity "<< v.first << " : " << v.second <<std::endl;
     std::cout<<"30 token "<< iovmanager.payloadToken(iovtok,30)<<std::endl;
 
-    pooldb.commit();
+    pooldb.transaction().commit();
     delete editor;
     // use Proxy
     {
       std::cout<<"test proxy "<<std::endl;
-      cond::IOVProxy iov(myconnection,iovtok, true, false);
+      cond::IOVProxy iov(pooldb,iovtok, true, false);
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
@@ -131,8 +135,8 @@ int main(){
     }
     {
       // test "copy shallow"
-      cond::IOVProxy iov(myconnection,iovtok, true, false);
-      myconnection.disconnect();
+      cond::IOVProxy iov( pooldb,iovtok, true, false);
+      pooldb.close();
       std::cout << "size " << iov.size()
 		<<", Time Type " << iov.timetype() << std::endl;
       iov.head(2);
@@ -146,8 +150,9 @@ int main(){
       print(*iov.find(63));
     }
     {
+      pooldb.open("sqlite_file:mytest.db");
       // test PayloadProxy
-      cond::PayloadProxy<cond::IOVElement> data(myconnection,iovtok,false);
+      cond::PayloadProxy<cond::IOVElement> data(pooldb,iovtok,false);
       print(data,3);
       print(data,21);
       print(data,33);
@@ -159,15 +164,15 @@ int main(){
       if (data.refresh()) std::cout << "error!, what refresh..." << std::endl;
       std::cout << " size " << data.iov().size() << std::endl;
       {
-	myconnection.connect(session);
-	cond::PoolTransaction& pooldb2=myconnection.poolTransaction();
-	pooldb2.start(false);
-	cond::IOVService iovmanager2(pooldb2);
-	cond::IOVEditor* editor=iovmanager2.newIOVEditor(iovtok);
-	Add add(pooldb2,*editor);
-	add(54,"pay54");
-	delete editor;
-	pooldb2.commit();
+        cond::DbSession pooldb2 = connection.createSession();
+        pooldb2.open("sqlite_file:mytest.db");
+        pooldb2.transaction().start(false);
+        cond::IOVService iovmanager2(pooldb2);
+        cond::IOVEditor* editor=iovmanager2.newIOVEditor(iovtok);
+        Add add(pooldb2,*editor);
+        add(54,"pay54");
+        delete editor;
+        pooldb2.transaction().commit();
       }
       if (!data.refresh()) std::cout << "error!, NO refresh..." << std::endl;
       std::cout << " size " << data.iov().size() << std::endl;
@@ -179,7 +184,6 @@ int main(){
       print(data,57);
       print(data,63);
     }
-    delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){

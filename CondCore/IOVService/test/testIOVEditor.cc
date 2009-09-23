@@ -1,22 +1,27 @@
-#include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/Connection.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
+
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
 
 #include <iostream>
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   try{
-    cond::DBSession* session=new cond::DBSession;
-    session->open();
-    cond::Connection myconnection("sqlite_file:test.db",0);  
-    myconnection.connect(session);
-    cond::PoolTransaction& pooldb=myconnection.poolTransaction();
+    cond::DbConnection connection;
+    connection.configuration().setPoolAutomaticCleanUp( false );
+    connection.configure();
+    cond::DbSession pooldb = connection.createSession();
+    pooldb.open("sqlite_file:test.db");  
     cond::IOVService iovmanager(pooldb);  
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    pooldb.start(false);
+    pooldb.transaction().start(false);
     unsigned int pos=0;
     editor->create(cond::timestamp,9);
     pos=editor->append(1,"pay01tok");
@@ -145,34 +150,34 @@ int main(){
 
     std::string token=editor->token();
     std::cout<<"iov token "<<token<<std::endl;
-    pooldb.commit();
+    pooldb.transaction().commit();
     delete editor;
 
     editor=iovmanager.newIOVEditor(token);
-    pooldb.start(false);
+    pooldb.transaction().start(false);
     pos=editor->truncate();
     std::cout<<"truncate. new last position "<<pos<<std::endl;
     pos=editor->truncate();
     std::cout<<"truncate. new last position "<<pos<<std::endl;
 
     editor->updateClosure(900);
-    pooldb.commit();
+    pooldb.transaction().commit();
     delete editor;
 
 
     editor=iovmanager.newIOVEditor(token);
-    pooldb.start(false);
+    pooldb.transaction().start(false);
     pos=editor->append(1345, "pay1345tok");
     std::cout<<"inserted 1345 payload at position "<<pos<<std::endl;
     editor->updateClosure(2000);
-    pooldb.commit();
+    pooldb.transaction().commit();
     delete editor;
 
 
 
     cond::IOVIterator* it=iovmanager.newIOVIterator(token);
     std::cout<<"forward iterator "<<std::endl;
-    pooldb.start(true);
+    pooldb.transaction().start(true);
     while( it->next() ){
       std::cout<<"payloadToken "<<it->payloadToken();
       std::cout<<", since "<<it->validity().first;
@@ -182,10 +187,8 @@ int main(){
     
     //cond::IOVEditor* bomber=iovmanager.newIOVEditor(token);
     //bomber->deleteEntries();
-    pooldb.commit();
+    pooldb.transaction().commit();
 
-    myconnection.disconnect();
-    delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){

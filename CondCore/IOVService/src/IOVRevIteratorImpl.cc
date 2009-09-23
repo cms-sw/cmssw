@@ -1,7 +1,7 @@
 #include "IOVRevIteratorImpl.h"
 #include<utility>
-cond::IOVRevIteratorImpl::IOVRevIteratorImpl( cond::PoolTransaction& pooldb,
-					const std::string & token)
+cond::IOVRevIteratorImpl::IOVRevIteratorImpl( cond::DbSession& pooldb,
+                                              const std::string & token)
   : m_pooldb(pooldb),m_token(token), m_count(0),  m_isInit(false), m_isOpen(false){
 } 
 cond::IOVRevIteratorImpl::~IOVRevIteratorImpl(){
@@ -10,7 +10,7 @@ cond::IOVRevIteratorImpl::~IOVRevIteratorImpl(){
 void cond::IOVRevIteratorImpl::open() const{
   if (m_isOpen) return;
   const_cast<cond::IOVRevIteratorImpl*>(this)->m_iov=
-    cond::TypedRef<cond::IOVSequence>(m_pooldb, m_token);
+    m_pooldb.getTypedObject<cond::IOVSequence>( m_token );
   const_cast<cond::IOVRevIteratorImpl*>(this)->m_isOpen=true;
 }
 

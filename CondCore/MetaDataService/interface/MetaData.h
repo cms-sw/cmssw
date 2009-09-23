@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
 #include "MetaDataEntry.h"
 //
 // Package:     MetaDataService
@@ -15,11 +16,10 @@
 // Author:      Zhen Xie
 //
 namespace cond{
-  class CoralTransaction;
   class MetaData {
   public:
     // constructor
-    explicit MetaData( cond::CoralTransaction& coraldb );
+    explicit MetaData( cond::DbSession& coraldb );
     // destructor
     ~MetaData();
     // add metadata entry
@@ -45,7 +45,7 @@ namespace cond{
   private:
     // create metadata table
     //void createTable(const std::string& tabname);
-    cond::CoralTransaction& m_coraldb;
+    mutable cond::DbSession m_coraldb;
   };
 }
 #endif

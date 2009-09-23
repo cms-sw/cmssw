@@ -1,14 +1,8 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-#include "CondCore/DBCommon/interface/AuthenticationMethod.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/SharedLibraryName.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
@@ -46,7 +40,7 @@ int main( int argc, char** argv ){
   std::string authPath("");
   std::string user("");
   std::string pass("");
-  bool deleteAll=true;
+  //bool deleteAll=true;
   bool debug=false;
   bool withPayload=false;
   std::string dictionary;
@@ -87,51 +81,47 @@ int main( int argc, char** argv ){
     }catch ( const cms::Exception& er ) {
       throw std::runtime_error( er.what() );
     }
-  cond::DBSession* session=new cond::DBSession;
-  session->configuration().connectionConfiguration()->disablePoolAutomaticCleanUp();
-  session->configuration().connectionConfiguration()->setConnectionTimeOut(0);
 
-  std::string userenv(std::string("CORAL_AUTH_USER=")+user);
-  std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
-  ::putenv(const_cast<char*>(userenv.c_str()));
-  ::putenv(const_cast<char*>(passenv.c_str()));
+  cond::DbConnection connection;
+  connection.configuration().setPoolAutomaticCleanUp( false );
+  connection.configuration().setConnectionTimeOut(0);
+
   if( !authPath.empty() ){
-    session->configuration().setAuthenticationMethod( cond::XML );
-    session->configuration().setAuthenticationPath(authPath);
+    connection.configuration().setAuthenticationPath(authPath);
   }else{
-    session->configuration().setAuthenticationMethod( cond::Env );
+    std::string userenv(std::string("CORAL_AUTH_USER=")+user);
+    std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
+    ::putenv(const_cast<char*>(userenv.c_str()));
+    ::putenv(const_cast<char*>(passenv.c_str()));
   }
   if(debug){
-    session->configuration().setMessageLevel( cond::Debug );
+    connection.configuration().setMessageLevel( coral::Debug );
   }else{
-    session->configuration().setMessageLevel( cond::Error );
+    connection.configuration().setMessageLevel( coral::Error );
   }
-  cond::Connection con(connect,-1);
-  session->open();
-  con.connect(session);
+  connection.configure();
+
+  cond::DbSession session = connection.createSession();
+  session.open( connect );
+  
   try{
-    cond::CoralTransaction& coraldb=con.coralTransaction();
-    cond::MetaData metadata_svc(coraldb);
-    coraldb.start(true);
+    cond::MetaData metadata_svc( session );
+    session.transaction().start(true);
     std::string token=metadata_svc.getToken(tag);
     if( token.empty() ) {
       std::cout<<"non-existing tag "<<tag<<std::endl;
       return 11;
     }
-    coraldb.commit();      
-    cond::PoolTransaction& pooldb=con.poolTransaction();
-    cond::IOVService iovservice(pooldb);
+    session.transaction().commit();      
+    cond::IOVService iovservice( session );
     cond::IOVEditor* ioveditor=iovservice.newIOVEditor(token);
-    pooldb.start(false);
+    session.transaction().start(false);
     ioveditor->truncate(withPayload);
-    pooldb.commit();    
-    delete ioveditor;
+    session.transaction().commit();    
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(std::exception& er){
     std::cout<<er.what()<<std::endl;
   }
-  con.disconnect();
-  delete session;
   return 0;
 }

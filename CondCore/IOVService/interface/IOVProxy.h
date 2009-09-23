@@ -1,6 +1,7 @@
 #ifndef CondCore_IOVService_IOVProxy_h
 #define CondCore_IOVService_IOVProxy_h
 
+#include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include "CondFormats/Common/interface/SequenceState.h"
 
@@ -14,18 +15,16 @@ namespace cond {
   
   class IOVSequence;
   typedef  IOVSequence IOV;
-  class PoolTransaction;
-  class Connection;
   
   class IOVElementProxy {
   public:
-    IOVElementProxy() : m_since(cond::invalidTime), m_till(cond::invalidTime), m_conn(0){}
-    IOVElementProxy(Connection * iconn) : m_since(cond::invalidTime), m_till(cond::invalidTime), m_conn(iconn){}
+    IOVElementProxy() : m_since(cond::invalidTime), m_till(cond::invalidTime), m_dbSession(){}
+    IOVElementProxy(cond::DbSession& dbSession) : m_since(cond::invalidTime), m_till(cond::invalidTime), m_dbSession( dbSession ){}
     IOVElementProxy(cond::Time_t is,
-	       cond::Time_t it,
-	       std::string const& itoken,
-	       Connection * iconn) :
-      m_since(is), m_till(it), m_token(itoken), m_conn(iconn){}
+                    cond::Time_t it,
+                    std::string const& itoken,
+                    cond::DbSession& dbSession) :
+      m_since(is), m_till(it), m_token(itoken), m_dbSession( dbSession ){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
@@ -39,14 +38,13 @@ namespace cond {
     cond::Time_t till() const {return m_till;}
     std::string const & token() const {return m_token;}
     std::string const & wrapperToken() const {return m_token;}
-    Connection * connection() const { return m_conn;}
-    PoolTransaction * db() const;
+    cond::DbSession& db() const { return m_dbSession; }
 
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
     std::string  m_token;
-    Connection * m_conn;
+    mutable cond::DbSession m_dbSession;
   };
   
   
@@ -62,21 +60,23 @@ namespace cond {
     IOVProxy();
     ~IOVProxy();
     
-    IOVProxy(cond::Connection& conn,
-	     const std::string & token, bool nolib, bool keepOpen);
+    IOVProxy(cond::DbSession& dbSession,
+             const std::string & token,
+             bool nolib,
+             bool keepOpen);
     
     struct IterHelp {
-      typedef IOVElementProxy result_type;
-      IterHelp(impl::IOVImpl & in);
-      
-      result_type const & operator()(int i) const {
-	elem.set(iov,i);
-	return elem;
-      } 
-      
-    private:
-      IOV const & iov;
-      mutable IOVElementProxy elem;
+        typedef IOVElementProxy result_type;
+        IterHelp(impl::IOVImpl & in);
+
+        result_type const & operator()(int i) const {
+          elem.set(iov,i);
+          return elem;
+        }
+
+        private:
+        IOV const & iov;
+        mutable IOVElementProxy elem;
     };
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
@@ -116,7 +116,7 @@ namespace cond {
 
  
 
-    PoolTransaction & db() const;
+    DbSession& db() const;
  
     bool refresh();
 

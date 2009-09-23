@@ -1,7 +1,8 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/DBCommon/interface/ContainerIterator.h"
-#include "CondCore/DBCommon/interface/GenericRef.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
 #include "IOVEditorImpl.h"
@@ -14,14 +15,14 @@
 cond::IOVSequence const & cond::IOVServiceImpl::iovSeq(const std::string& iovToken) const {
   Cache::const_iterator it=m_iovcache.find(iovToken);
   if(it!=m_iovcache.end()) return *(*it).second;
-  pool::Ref<cond::IOVSequence> temp(&(m_pooldb->poolDataSvc()),iovToken);
+  pool::Ref<cond::IOVSequence> temp = m_pooldb.getTypedObject<cond::IOVSequence>( iovToken );
   m_iovcache[iovToken].copyShallow(temp);
   return *temp;
 }
 
 
-cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) :
-  m_pooldb(&pooldb) {
+cond::IOVServiceImpl::IOVServiceImpl( cond::DbSession& pooldb) :
+  m_pooldb(pooldb) {
 }
 
 cond::IOVServiceImpl::~IOVServiceImpl(){
@@ -83,19 +84,15 @@ cond::IOVServiceImpl::payloadContainerName( const std::string& iovToken ){
 
 void 
 cond::IOVServiceImpl::deleteAll(bool withPayload){
-  cond::ContainerIterator<cond::IOVSequence> it(*m_pooldb,cond::IOVNames::container());
+  cond::ContainerIterator<cond::IOVSequence> it(m_pooldb,cond::IOVNames::container());
   while ( it.next() ) {
     if(withPayload){
       std::string tokenStr;
       IOVSequence::const_iterator payloadIt;
       IOVSequence::const_iterator payloadItEnd=it.dataRef()->iovs().end();
       for(payloadIt=it.dataRef()->iovs().begin();payloadIt!=payloadItEnd;++payloadIt){
-	tokenStr=payloadIt->wrapperToken();
-	pool::Token token;
-	const pool::Guid& classID=token.fromString(tokenStr).classID();
-	cond::GenericRef ref(*m_pooldb,tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
-	ref.markDelete();
-	ref.reset();
+        tokenStr=payloadIt->wrapperToken();
+        m_pooldb.deleteObject( tokenStr );
       }
     }
     it.dataRef().markDelete();
@@ -103,46 +100,40 @@ cond::IOVServiceImpl::deleteAll(bool withPayload){
 }
 
 std::string
-cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
-					    const std::string& iovToken){
-
-
+cond::IOVServiceImpl::exportIOVWithPayload( cond::DbSession& destDB,
+                                            const std::string& iovToken){
   cond::IOVSequence const & iov=iovSeq(iovToken);
 
   cond::IOVSequence* newiov=new cond::IOVSequence(iov.timeType(), iov.lastTill(),iov.metadataToken());
 
   for( IOVSequence::const_iterator it=iov.iovs().begin();
        it!=iov.iovs().end(); ++it){
-    cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
-    std::string newPToken=payloadRef.exportTo(destDB);
+    std::string newPToken = destDB.importObject( m_pooldb, it->wrapperToken());
     newiov->add(it->sinceTime(),newPToken);
   }
-  cond::TypedRef<cond::IOVSequence> newiovref(destDB,newiov);
-  newiovref.markWrite(cond::IOVNames::container());
-  return newiovref.token();
+  return destDB.storeObject(newiov, cond::IOVNames::container()).toString();
 }
-
 
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 
 void cond::IOVServiceImpl::loadDicts( const std::string& iovToken) {
-    // loadlib
-    cond::TypedRef<cond::IOVSequence> iov(*m_pooldb,iovToken);
-    // FIXME use iov metadata
-    std::string ptok = iov->iovs().front().wrapperToken();
-    m_pooldb->commit();   
-    cond::reflexTypeByToken(ptok);
-    m_pooldb->start(true);
+  // loadlib
+  pool::Ref<cond::IOVSequence> iov = m_pooldb.getTypedObject<cond::IOVSequence>(iovToken);
+  // FIXME use iov metadata
+  std::string ptok = iov->iovs().front().wrapperToken();
+  m_pooldb.transaction().commit();
+  cond::reflexTypeByToken(ptok);
+  m_pooldb.transaction().start(true);
 }
 
 
 std::string 
-cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
-						 const std::string& iovToken,
-						 const std::string& destToken,
-						 cond::Time_t since,
-						 cond::Time_t till, 
-						 bool outOfOrder){
+cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::DbSession& destDB,
+                                                 const std::string& iovToken,
+                                                 const std::string& destToken,
+                                                 cond::Time_t since,
+                                                 cond::Time_t till,
+                                                 bool outOfOrder){
  
   
   loadDicts(iovToken);
@@ -159,19 +150,16 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   
   // since > ifirstTill->sinceTime() used to overwrite the actual time
   //since = ifirstTill->sinceTime();
-  
-  cond::TypedRef<cond::IOVSequence> newiovref;
+
+  pool::Ref<cond::IOVSequence> newiovref;
   //FIXME more option and eventually ability to resume (roll back is difficult)
   std::string dToken = destToken;
   if (dToken.empty()) {
     // create a new one 
-    newiovref = 
-      cond::TypedRef<cond::IOVSequence>(destDB,
-					new cond::IOVSequence(iov.timeType(), iov.lastTill(),iov.metadataToken()));
-    newiovref.markWrite(cond::IOVNames::container());
-    dToken = newiovref.token();
+    newiovref = destDB.storeObject( new cond::IOVSequence(iov.timeType(), iov.lastTill(),iov.metadataToken()),cond::IOVNames::container());
+    dToken = newiovref.toString();
   } else {
-    newiovref = cond::TypedRef<cond::IOVSequence>(destDB,destToken);
+    newiovref = destDB.getTypedObject<cond::IOVSequence>(destToken);
 
     if (newiovref->iovs().empty()) ; // do not waist time
     else if (outOfOrder) {
@@ -192,22 +180,21 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
     // first since overwritten by global since...
     
     // FIXME need option to load Ptr unconditionally....
-    cond::TypedRef<cond::PayloadWrapper> payloadTRef(*m_pooldb,it->wrapperToken());
+    pool::Ref<cond::PayloadWrapper> payloadTRef = m_pooldb.getTypedObject<cond::PayloadWrapper>(it->wrapperToken());
     if(payloadTRef.ptr()) payloadTRef->loadAll();
-    cond::GenericRef payloadRef(*m_pooldb,it->wrapperToken());
-    std::string newPtoken=payloadRef.exportTo(destDB);
+    std::string newPtoken = destDB.importObject( m_pooldb,it->wrapperToken());
     newiovref->add(lsince, newPtoken);
     /// commit to avoid HUGE memory footprint
     n++;
     if (n==100) {
       std::cout << "committing " << std::endl;
       n=0;
-      destDB.commit();
-      destDB.start(false);
-      newiovref = cond::TypedRef<cond::IOVSequence>(destDB,dToken);
+      destDB.transaction().commit();
+      destDB.transaction().start(false);
+      newiovref = destDB.getTypedObject<cond::IOVSequence>( dToken );
       newiovref.markUpdate();
     }
   }
   newiovref->stamp(cond::userInfo(),false);
-  return newiovref.token();
+  return newiovref.toString();
 }

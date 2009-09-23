@@ -1,4 +1,4 @@
-#include "CondCore/DBCommon/interface/GenericRef.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "IOVEditorImpl.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
@@ -9,9 +9,9 @@
 
 namespace cond {
 
-  IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
+  IOVEditorImpl::IOVEditorImpl( cond::DbSession& poolDb,
 				const std::string& token
-				):m_pooldb(&pooldb),m_token(token),
+				):m_poolDb(poolDb),m_token(token),
 				  m_isActive(false){
   }
   
@@ -20,7 +20,7 @@ namespace cond {
 
   void IOVEditorImpl::debugInfo(std::ostream & co) const {
     co << "IOVEditor: ";
-    co << "db " << m_pooldb->parentConnection().connectStr();
+    co << "db " << m_poolDb.connectionString();
     if(m_token.empty()) {
       co << " no token"; return;
     }
@@ -64,10 +64,8 @@ namespace cond {
       reportError("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
     }
 
-    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,new cond::IOVSequence(timetype));
-					    
-    m_iov.markWrite(cond::IOVNames::container());
-    m_token=m_iov.token();
+    m_iov = m_poolDb.storeObject(new cond::IOVSequence(timetype),cond::IOVNames::container());
+    m_token=m_iov.toString();
     m_isActive=true;
 
   }
@@ -81,12 +79,9 @@ namespace cond {
 
     if(!validTime(lastTill, timetype))
       reportError("cond::IOVEditorImpl::create time not in global range",lastTill);
-    
-    
-    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,new cond::IOVSequence((int)timetype,lastTill," "));
-					    
-    m_iov.markWrite(cond::IOVNames::container());
-    m_token=m_iov.token();
+
+    m_iov = m_poolDb.storeObject(new cond::IOVSequence((int)timetype,lastTill," "),cond::IOVNames::container());
+    m_token=m_iov.toString();
     m_isActive=true;
     
   }
@@ -100,7 +95,7 @@ namespace cond {
       reportError("cond::IOVEditorImpl::init cannot init w/o token change");
     }
     
-    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb, m_token); 
+    m_iov = m_poolDb.getTypedObject<cond::IOVSequence>(m_token);
     m_isActive=true;
     
   }
@@ -297,9 +292,7 @@ namespace cond {
     if (m_iov->piovs().empty()) return 0;
     if(withPayload){
       std::string tokenStr = m_iov->piovs().back().wrapperToken();
-      cond::GenericRef ref(*m_pooldb,tokenStr);
-      ref.markDelete();
-      ref.reset();
+      m_poolDb.deleteObject( tokenStr );
     }
     m_iov.markUpdate();
     return m_iov->truncate();
@@ -316,10 +309,8 @@ namespace cond {
       IOVSequence::const_iterator payloadIt;
       IOVSequence::const_iterator payloadItEnd=m_iov->piovs().end();
       for(payloadIt=m_iov->piovs().begin();payloadIt!=payloadItEnd;++payloadIt){
-	tokenStr=payloadIt->wrapperToken();
-	cond::GenericRef ref(*m_pooldb,tokenStr);
-	ref.markDelete();
-	ref.reset();
+        tokenStr=payloadIt->wrapperToken();
+        m_poolDb.deleteObject( tokenStr );
       }
     }
     m_iov.markDelete();
@@ -328,9 +319,8 @@ namespace cond {
   void 
   IOVEditorImpl::import( const std::string& sourceIOVtoken ){
     if( !m_token.empty() ) reportError("cond::IOVEditorImpl::import IOV sequence already exists, cannot import");
-    m_iov=cond::TypedRef<cond::IOVSequence>(*m_pooldb,sourceIOVtoken);
-    m_iov.markWrite(cond::IOVNames::container());
-    m_token=m_iov.token();
+    m_iov = m_poolDb.getTypedObject<cond::IOVSequence>(sourceIOVtoken);
+    m_token=m_iov.toString();
   }
   
 

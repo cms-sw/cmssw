@@ -29,8 +29,9 @@ namespace cond {
   class BasePayloadProxy {
   public:
     // errorPolicy=true will throw on load, false will set interval and token to invalid
-    BasePayloadProxy(cond::Connection& conn,
-		     const std::string & token, bool errorPolicy);
+    BasePayloadProxy(cond::DbSession& session,
+                     const std::string & token,
+                     bool errorPolicy);
     
     virtual ~BasePayloadProxy();
 
@@ -75,9 +76,11 @@ namespace cond {
   class PayloadProxy : public BasePayloadProxy {
   public:
  
-    PayloadProxy(cond::Connection& conn,
-		 const std::string & token, bool errorPolicy, const char * source=0) :
-      BasePayloadProxy(conn, token, errorPolicy) {}
+    PayloadProxy(cond::DbSession& session,
+                 const std::string & token,
+                 bool errorPolicy,
+                 const char * source=0) :
+      BasePayloadProxy(session, token, errorPolicy) {}
     
     virtual ~PayloadProxy(){}
 

@@ -2,17 +2,16 @@
 #define CondCore_IOVService_IOVServiceImpl_h
 #include <string>
 #include <map>
-#include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
 
 namespace cond{
-  class PoolStorageManager;
   class IOVIterator;
   class IOVEditor;
   class IOVServiceImpl{
   public:
-    IOVServiceImpl(cond::PoolTransaction& pooldb);
+    IOVServiceImpl(cond::DbSession& pooldb);
     
     ~IOVServiceImpl();
     
@@ -35,21 +34,21 @@ namespace cond{
     cond::Time_t globalSince() const;
     cond::Time_t globalTill() const;
 
-    std::string exportIOVWithPayload( cond::PoolTransaction& destDB,
-				      const std::string& iovToken );
+    std::string exportIOVWithPayload( cond::DbSession& destDB,
+                                      const std::string& iovToken );
     
     
-    std::string exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
-					   const std::string& iovToken,
-					   const std::string& destToken,
-					   cond::Time_t since,
-					   cond::Time_t till,
-					   bool outOfOrder);
+    std::string exportIOVRangeWithPayload( cond::DbSession& destDB,
+                                           const std::string& iovToken,
+                                           const std::string& destToken,
+                                           cond::Time_t since,
+                                           cond::Time_t till,
+                                           bool outOfOrder);
   private:
 
     cond::IOVSequence const & iovSeq(const std::string& iovToken) const;
 
-    cond::PoolTransaction* m_pooldb;
+    mutable cond::DbSession m_pooldb;
     typedef std::map< std::string,  pool::Ref<cond::IOVSequence> > Cache;
     mutable Cache m_iovcache;
   };

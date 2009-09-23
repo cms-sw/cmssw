@@ -22,9 +22,9 @@ Usage:
 
 namespace cond {
   class DataProxyWrapperBase;
-  class Connection;
+  class DbSession;
 
-  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ( cond::Connection&, std::pair< std::string, std::string> const & ) > ProxyFactory;
+  typedef edmplugin::PluginFactory< cond::DataProxyWrapperBase* ( cond::DbSession&, std::pair< std::string, std::string> const & ) > ProxyFactory;
 
    const char* pluginCategory();
 }
@@ -38,7 +38,7 @@ namespace edm {
 }
 namespace oldcond {
 
-typedef edmplugin::PluginFactory< edm::eventsetup::DataProxy* ( cond::Connection*, std::map<std::string,std::string>::iterator& ) > ProxyFactory;
+typedef edmplugin::PluginFactory< edm::eventsetup::DataProxy* ( cond::DbSession&, std::map<std::string,std::string>::iterator& ) > ProxyFactory;
 
   // const char* pluginCategory();
 }

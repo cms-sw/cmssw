@@ -1,7 +1,6 @@
 #include "CondCore/MetaDataService/interface/MetaDataSchemaUtility.h"
 #include "CondCore/MetaDataService/interface/MetaDataNames.h"
 #include "CondCore/MetaDataService/interface/MetaDataExceptions.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "RelationalAccess/SchemaException.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -13,7 +12,7 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
-cond::MetaDataSchemaUtility::MetaDataSchemaUtility(cond::CoralTransaction& coraldb):m_coraldb(coraldb){
+cond::MetaDataSchemaUtility::MetaDataSchemaUtility(cond::DbSession& coraldb):m_coraldb(coraldb){
 }
 cond::MetaDataSchemaUtility::~MetaDataSchemaUtility(){}
 
