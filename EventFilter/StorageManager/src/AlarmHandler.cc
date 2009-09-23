@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.3 2009/09/18 11:08:00 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.4 2009/09/22 14:54:50 dshpakov Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -25,6 +25,7 @@ _app(app)
   catch(xdata::exception::Exception)
   {
     // sentinel is not available
+    _alarmInfoSpace = 0;
   }
 #endif
 }
@@ -76,6 +77,8 @@ bool AlarmHandler::raiseAlarm
 )
 {
 
+  if (!_alarmInfoSpace) return false;
+
   boost::mutex::scoped_lock sl( _mutex );
 
   #if SENTINELUTILS_VERSION_MAJOR>1
@@ -93,10 +96,6 @@ bool AlarmHandler::raiseAlarm
   }
   return true;
 
-  #else
-
-  return false;
-
   #endif
 }
 
@@ -106,6 +105,7 @@ void AlarmHandler::revokeAlarm
   const std::string name
 )
 {
+  if (!_alarmInfoSpace) return;
 
   boost::mutex::scoped_lock sl( _mutex );
 
