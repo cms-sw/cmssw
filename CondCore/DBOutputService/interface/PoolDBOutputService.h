@@ -1,10 +1,9 @@
 #ifndef CondCore_PoolDBOutputService_h
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/TypedRef.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "serviceCallbackRecord.h"
 #include "CondCore/DBCommon/interface/Logger.h"
@@ -44,41 +43,42 @@ namespace cond{
 
 
     struct GetToken {
-      virtual std::string operator()(cond::PoolTransaction&, bool) const =0;
+      virtual std::string operator()(cond::DbSession&, bool) const =0;
       static unsigned int sizeDSW();
     };
     
     struct GetTrivialToken : public GetToken {
       
-      GetTrivialToken(std::string token) : 
-	m_token(token){}
-      virtual ~GetTrivialToken(){}
-      virtual std::string operator()(cond::PoolTransaction&, bool) const {
-	return m_token;
-      }
-      
-      std::string m_token;
+        GetTrivialToken(std::string token) :
+          m_token(token){}
+        virtual ~GetTrivialToken(){}
+        virtual std::string operator()(cond::DbSession&, bool) const {
+          return m_token;
+        }
+        std::string m_token;
     };
     
     template<typename T>
     struct GetTokenFromPointer : public GetToken {
       typedef cond::DataWrapper<T> Wrapper;
       
-      GetTokenFromPointer(T * p, Summary * s) : 
-	m_p(p), m_s(s){}
+        GetTokenFromPointer(T * p, Summary * s) :
+          m_p(p), m_s(s){}
       //m_w(new Wrapper(p,s)){}
       
-      virtual std::string operator()(cond::PoolTransaction& pooldb, bool withWrapper) const {
-	if (withWrapper) {
-	  cond::TypedRef<Wrapper> myPayload(pooldb,new Wrapper(m_p,m_s));
-	  myPayload.markWrite(myPayload.className().replace(0,sizeDSW(),"DSW"));
-	  return myPayload.token();
-	} else {
-	  cond::TypedRef<T> myPayload(pooldb,m_p);
-	  myPayload.markWrite(myPayload.className());
-	  return myPayload.token();
-	}
-	return "make compiler happy";
+        virtual std::string operator()(cond::DbSession& pooldb, bool withWrapper) const {
+          std::string ret("");
+          if (withWrapper) {
+            Wrapper* wrapper = new Wrapper(m_p,m_s);
+            std::string className = cond::classNameForPointer( wrapper );
+            pool::Ref<Wrapper> myPayload = pooldb.storeObject(wrapper,className.replace(0,sizeDSW(),"DSW"));
+            ret = myPayload.toString();
+          } else {
+            std::string className = cond::classNameForPointer( m_p );
+            pool::Ref<T> myPayload = pooldb.storeObject(m_p,className);
+            ret = myPayload.toString();
+          }
+          return ret;
       }
       
       T * m_p;
@@ -109,12 +109,8 @@ namespace cond{
       //
       // return the database session in use
       //
-      cond::DBSession& session() const;
+      cond::DbSession session() const;
       //
-      // return the database connection handle in use
-      //
-      cond::Connection& connection() const;
-      // 
       std::string tag( const std::string& EventSetupRecordName );
       bool isNewTagRequest( const std::string& EventSetupRecordName );
       const cond::Logger& queryLog() const;
@@ -123,8 +119,8 @@ namespace cond{
       template<typename T>
       void writeOne(T * payload,
 		    Time_t time, const std::string& recordName, 
-		    bool withlogging=false, bool since=true) {
-	this->writeOne<T>(payload, 0, time, recordName, withlogging,since);
+                    bool withlogging=false, bool since=true) {
+        this->writeOne<T>(payload, 0, time, recordName, withlogging,since);
       }
       /* write one (either create or append)
        * The ONE and ONLY interface supportd in future!
@@ -132,21 +128,18 @@ namespace cond{
       template<typename T>
       void writeOne(T * payload, Summary * summary, 
 		    Time_t time, const std::string& recordName, 
-		    bool withlogging=false, bool since=true) {
-	if (isNewTagRequest(recordName) ){
-	  createNewIOV<T>(payload, summary,
-			  since ? time : beginOfTime(),
-			  since ?  endOfTime() : time, 
-			  recordName, withlogging);
-	}
-	else{
-	  if (since){ 
-	    appendSinceTime<T>(payload, summary, time, recordName, withlogging);
-	  } 
-	  else { 
-	    appendTillTime<T>(payload, summary, time, recordName, withlogging);
-	  }
-	}	
+                    bool withlogging=false, bool since=true) {
+        if (isNewTagRequest(recordName) ){
+          createNewIOV<T>(payload, summary,
+                          since ? time : beginOfTime(),
+                          since ?  endOfTime() : time,recordName, withlogging);
+        }else{
+          if (since){
+            appendSinceTime<T>(payload, summary, time, recordName, withlogging);
+          } else {
+            appendTillTime<T>(payload, summary, time, recordName, withlogging);
+          }
+        }	
       }
 
 
@@ -156,8 +149,8 @@ namespace cond{
 			   cond::Time_t firstSinceTime,
 			   cond::Time_t firstTillTime,
 			   const std::string& recordName,
-			   bool withlogging=false){
-	this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName,withlogging);
+                         bool withlogging=false){
+        this->createNewIOV(firstPayloadObj, 0, firstSinceTime, firstTillTime, recordName,withlogging);
       }
 
      //
@@ -165,92 +158,82 @@ namespace cond{
       // Note: user looses the ownership of the pointer to the payloadObj
       // The payload object will be stored as well
       // 
-      template<typename T>
-	void createNewIOV( T* firstPayloadObj,  Summary * summary,
-			   cond::Time_t firstSinceTime,
-			   cond::Time_t firstTillTime,
-			   const std::string& EventSetupRecordName,
-			   bool withlogging=false){
-
-	createNewIOV( GetTokenFromPointer<T>(firstPayloadObj, summary),
-		      firstSinceTime, 
-		      firstTillTime,
-		      EventSetupRecordName,
-		      withlogging);
+      template<typename T> void createNewIOV( T* firstPayloadObj,  Summary * summary,
+                                              cond::Time_t firstSinceTime,
+                                              cond::Time_t firstTillTime,
+                                              const std::string& EventSetupRecordName,
+                                              bool withlogging=false){
+        createNewIOV( GetTokenFromPointer<T>(firstPayloadObj, summary),
+                      firstSinceTime,
+                      firstTillTime,
+                      EventSetupRecordName,
+                      withlogging);
 	
       }
 
-      void createNewIOV( const std::string& firstPayloadToken, 
-			 cond::Time_t firstSinceTime, 
-			 cond::Time_t firstTillTime,
-			 const std::string& EventSetupRecordName,
-			 bool withlogging=false) {
-	
-	createNewIOV( GetTrivialToken(firstPayloadToken),
-		      firstSinceTime, 
-		      firstTillTime,
-		      EventSetupRecordName,
-		      withlogging);
+      void createNewIOV( const std::string& firstPayloadToken,
+                         cond::Time_t firstSinceTime,
+                         cond::Time_t firstTillTime,
+                         const std::string& EventSetupRecordName,
+                         bool withlogging=false) {
+        createNewIOV( GetTrivialToken(firstPayloadToken),
+                      firstSinceTime,
+                      firstTillTime,
+                      EventSetupRecordName,
+                      withlogging);
       }
 
 
 
       // BW-compatible signature
-      template<typename T>
-      void appendTillTime( T* payloadObj,
-			    cond::Time_t tillTime,
-			    const std::string& recordName,
-			    bool withlogging=false){
-
-	this->appendTillTime<T>(payloadObj, 0, tillTime, recordName, withlogging);
+      template<typename T> void appendTillTime( T* payloadObj,
+                                                cond::Time_t tillTime,
+                                                const std::string& recordName,
+                                                bool withlogging=false){
+        this->appendTillTime<T>(payloadObj, 0, tillTime, recordName, withlogging);
       }
 
-      template<typename T>
-      void appendTillTime( T* payloadObj,  Summary * summary,
-			   cond::Time_t tillTime,
-			   const std::string& EventSetupRecordName,
-			   bool withlogging=false){
-	add(false,
-	    GetTokenFromPointer<T>(payloadObj,summary),
-	    tillTime, 
-	    EventSetupRecordName,
-	    withlogging);
+      template<typename T> void appendTillTime( T* payloadObj,  Summary * summary,
+                                                cond::Time_t tillTime,
+                                                const std::string& EventSetupRecordName,
+                                                bool withlogging=false){
+        add(false,
+            GetTokenFromPointer<T>(payloadObj,summary),
+            tillTime,
+            EventSetupRecordName,
+            withlogging);
       }
 
-      void appendTillTime( const std::string& payloadToken, 
-			   cond::Time_t tillTime,
-			   const std::string& EventSetupRecordName,
-			   bool withlogging=false
-			   ) {
-
-	add(false,
-	    GetTrivialToken(payloadToken),
-	    tillTime, 
-	    EventSetupRecordName,
-	    withlogging);
+      void appendTillTime( const std::string& payloadToken,
+                           cond::Time_t tillTime,
+                           const std::string& EventSetupRecordName,
+                           bool withlogging=false ) {
+        add(false,
+            GetTrivialToken(payloadToken),
+            tillTime,
+            EventSetupRecordName,
+            withlogging);
       }
 
       
       // BW-compatible signature
-      template<typename T>
-      void appendSinceTime( T* payloadObj,
-			    cond::Time_t sinceTime,
-			    const std::string& recordName,
-			    bool withlogging=false){
-
-	this->appendSinceTime<T>(payloadObj, 0, sinceTime, recordName, withlogging);
+      template<typename T> void appendSinceTime( T* payloadObj,
+                                                 cond::Time_t sinceTime,
+                                                 const std::string& recordName,
+                                                 bool withlogging=false){
+        this->appendSinceTime<T>(payloadObj, 0, sinceTime, recordName, withlogging);
       }
 
       template<typename T>
-      void appendSinceTime( T* payloadObj, Summary * summary,
-			      cond::Time_t sinceTime,
-			      const std::string& EventSetupRecordName,
-			      bool withlogging=false){
-	add(true,
-	    GetTokenFromPointer<T>(payloadObj,summary),
-	    sinceTime, 
-	    EventSetupRecordName,
-	    withlogging);
+        void appendSinceTime( T* payloadObj, Summary * summary,
+                              cond::Time_t sinceTime,
+                              const std::string& EventSetupRecordName,
+                              bool withlogging=false){
+        add(true,
+            GetTokenFromPointer<T>(payloadObj,summary),
+            sinceTime,
+            EventSetupRecordName,
+            withlogging);
       }
 
       // Append the payload and its valid sinceTime into the database
@@ -258,15 +241,15 @@ namespace cond{
       // Note: the iov index appended to MUST pre-existing and the existing 
       // conditions data are retrieved from EventSetup 
       // 
-      void appendSinceTime( const std::string& payloadToken, 
-			   cond::Time_t sinceTime,
-			   const std::string& EventSetupRecordName,
-			    bool withlogging=false) {
-	add(true,
-	    GetTrivialToken(payloadToken),
-	    sinceTime, 
-	    EventSetupRecordName,
-	    withlogging);	
+      void appendSinceTime( const std::string& payloadToken,
+                            cond::Time_t sinceTime,
+                            const std::string& EventSetupRecordName,
+                            bool withlogging=false) {
+        add(true,
+            GetTrivialToken(payloadToken),
+            sinceTime,
+            EventSetupRecordName,
+            withlogging);
       }
 
 
@@ -321,17 +304,17 @@ namespace cond{
       void disconnect();
       void initDB();
       size_t callbackToken(const std::string& EventSetupRecordName ) const ;
-      unsigned int appendIOV(cond::PoolTransaction&,
-			     cond::service::serviceCallbackRecord& record,
-			     const std::string& payloadToken, 
-			     cond::Time_t sinceTime);
+      unsigned int appendIOV(cond::DbSession&,
+                             cond::service::serviceCallbackRecord& record,
+                             const std::string& payloadToken,
+                             cond::Time_t sinceTime);
 
       /// Returns payload location index 
       unsigned int 
-      insertIOV(cond::PoolTransaction& pooldb,
-		cond::service::serviceCallbackRecord& record,
-		const std::string& payloadToken, 			    
-		cond::Time_t tillTime);
+        insertIOV(cond::DbSession& pooldb,
+                  cond::service::serviceCallbackRecord& record,
+                  const std::string& payloadToken,
+                  cond::Time_t tillTime);
       //			    const std::string& EventSetupRecordName);
       
       serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
@@ -341,8 +324,9 @@ namespace cond{
       cond::TimeType m_timetype; 
       std::string m_timetypestr;
       cond::Time_t m_currentTime;
-      cond::DBSession* m_session;
-      cond::Connection* m_connection;
+      cond::DbConnection m_connection;
+      cond::DbSession m_session;
+      cond::DbSession m_logSession;
       std::map<size_t, cond::service::serviceCallbackRecord> m_callbacks;
       std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_dbstarted;

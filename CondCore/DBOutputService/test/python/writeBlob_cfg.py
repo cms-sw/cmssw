@@ -15,7 +15,7 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService2'),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('mySiStripNoisesRcd'),

@@ -12,15 +12,9 @@
 // system include files
 #include "boost/shared_ptr.hpp"
 #include "CondCore/ESSources/interface/PoolDBESSource.h"
-#include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/Connection.h"
 #include "CondFormats/Common/interface/Time.h"
-#include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/PoolTransaction.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
-#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
 
 // #include "FWCore/Framework/interface/DataProxy.h"
@@ -77,7 +71,7 @@ namespace {
 
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
-  m_session(), 
+  m_connection(), 
   lastRun(0),  // for the refresh
   doRefresh(iConfig.getUntrackedParameter<bool>("RefreshEachRun",false)),
   doDump(iConfig.getUntrackedParameter<bool>("DumpStat",false))
@@ -87,96 +81,86 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   /*parameter set parsing and pool environment setting
    */
+
+
+  std::string userconnect;
+  userconnect=iConfig.getParameter<std::string>("connect");
+  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters");
+  m_connection.configuration().setParameters( connectionPset );
+  m_connection.configure();
+  
+  cond::DbSession session = m_connection.createSession();
   std::string blobstreamerName("");
   if( iConfig.exists("BlobStreamerName") ){
     blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
     blobstreamerName.insert(0,"COND/Services/");
-    m_session.configuration().setBlobStreamer(blobstreamerName);
+    session.setBlobStreamingService(blobstreamerName);
   }
-
- 
-  std::string userconnect;
-  userconnect=iConfig.getParameter<std::string>("connect");
-  edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
-  cond::ConfigSessionFromParameterSet configConnection(m_session,connectionPset);
-  m_session.open();
-  
   if(!userconnect.empty())
-    cond::ConnectionHandler::Instance().registerConnection(userconnect,m_session,0);
+    session.open( userconnect );
   
-
-
   std::string globaltag;
   if( iConfig.exists("globaltag")) globaltag=iConfig.getParameter<std::string>("globaltag");
 
-    cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(userconnect);
-    cond::ConnectionHandler::Instance().connect(&m_session);
-    cond::CoralTransaction& coraldb=c->coralTransaction();
-    
-    std::map<std::string,cond::TagMetadata> replacement;
-    if( iConfig.exists("toGet") ){
-      typedef std::vector< edm::ParameterSet > Parameters;
-      Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-      for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-	cond::TagMetadata nm;
-	nm.recordname=itToGet->getParameter<std::string>("record");
-	nm.labelname=itToGet->getUntrackedParameter<std::string>("label","");
-	nm.tag=itToGet->getParameter<std::string>("tag");
-	nm.pfn=itToGet->getUntrackedParameter<std::string>("connect",userconnect);
-	//	nm.objectname=itFound->second;
-	std::string k=nm.recordname+"@"+nm.labelname;
-	replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
-      }
+  std::map<std::string,cond::TagMetadata> replacement;
+  if( iConfig.exists("toGet") ){
+    typedef std::vector< edm::ParameterSet > Parameters;
+    Parameters toGet = iConfig.getParameter<Parameters>("toGet");
+    for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+      cond::TagMetadata nm;
+      nm.recordname=itToGet->getParameter<std::string>("record");
+      nm.labelname=itToGet->getUntrackedParameter<std::string>("label","");
+      nm.tag=itToGet->getParameter<std::string>("tag");
+      nm.pfn=itToGet->getUntrackedParameter<std::string>("connect",userconnect);
+      //	nm.objectname=itFound->second;
+      std::string k=nm.recordname+"@"+nm.labelname;
+      replacement.insert(std::make_pair<std::string,cond::TagMetadata>(k,nm));
     }
+  }
 
-    coraldb.start(true);
-    fillTagCollectionFromDB(coraldb, globaltag,replacement);
-    coraldb.commit();
+  session.transaction().start(true);
+  fillTagCollectionFromDB(session, globaltag,replacement);
+  session.transaction().commit();
 
-    TagCollection::iterator it;
-    TagCollection::iterator itBeg=m_tagCollection.begin();
-    TagCollection::iterator itEnd=m_tagCollection.end();
-    for(it=itBeg; it!=itEnd; ++it){
-      cond::ConnectionHandler::Instance().registerConnection(it->pfn,m_session,0);
+  TagCollection::iterator it;
+  TagCollection::iterator itBeg=m_tagCollection.begin();
+  TagCollection::iterator itEnd=m_tagCollection.end();
+  //for(it=itBeg; it!=itEnd; ++it){
+  //  cond::ConnectionHandler::Instance().registerConnection(it->pfn,m_session,0);
+  //}
+
+  //  cond::ConnectionHandler::Instance().connect(&m_session);
+  for(it=itBeg;it!=itEnd;++it){
+
+    cond::DbSession nsess = m_connection.createSession();
+    nsess.open( it->pfn);
+    cond::MetaData metadata(nsess);
+    nsess.transaction().start(true);
+    cond::MetaDataEntry result;
+    metadata.getEntryByTag(it->tag,result);
+    nsess.transaction().commit();
+
+    cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), nsess,
+                                                                         cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
+    ProxyP proxy(pb);
+    proxy->addInfo(it->pfn, it->tag);
+    //      proxy->addInfo(conn.connectStr(), it->tag);
+    m_proxies[it->recordname] = proxy;
+  }
+
+  CondGetterFromESSource visitor(m_proxies);
+  ProxyMap::iterator b= m_proxies.begin();
+  ProxyMap::iterator e= m_proxies.end();
+  for (;b!=e;b++) {
+    (*b).second->proxy()->loadMore(visitor);
+
+    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( (*b).first ) );
+    if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
+      findingRecordWithKey( recordKey );
+      usingRecordWithKey( recordKey );
     }
-
-    cond::ConnectionHandler::Instance().connect(&m_session);
-    for(it=itBeg;it!=itEnd;++it){
-      
-      cond::Connection &  conn = *cond::ConnectionHandler::Instance().getConnection(it->pfn);
-      cond::CoralTransaction& coraldb=conn.coralTransaction();
-      cond::MetaData metadata(coraldb);
-      coraldb.start(true);
-      cond::MetaDataEntry result;
-      metadata.getEntryByTag(it->tag,result);
-      coraldb.commit();
-      
-      
-      cond::DataProxyWrapperBase * pb =  cond::ProxyFactory::get()->create(buildName(it->recordname), conn, 
-									   cond::DataProxyWrapperBase::Args(result.iovtoken, it->labelname));
-      
-      ProxyP proxy(pb);
-      proxy->addInfo(it->pfn, it->tag);
-      //      proxy->addInfo(conn.connectStr(), it->tag);
-      m_proxies[it->recordname] = proxy;
-
-    }
-    
-    CondGetterFromESSource visitor(m_proxies);
-    ProxyMap::iterator b= m_proxies.begin();
-    ProxyMap::iterator e= m_proxies.end();
-    for (;b!=e;b++) {
-
-      (*b).second->proxy()->loadMore(visitor);
-
-      edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( (*b).first ) );
-      if( recordKey.type() != edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
-	findingRecordWithKey( recordKey );
-	usingRecordWithKey( recordKey );   
-      }
-
-    }
-    stats.nData=m_proxies.size();
+  }
+  stats.nData=m_proxies.size();
 }
 
 
@@ -284,14 +268,14 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 
 
 void 
-PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb, 
+PoolDBESSource::fillTagCollectionFromDB( cond::DbSession& coraldb, 
 					 const std::string& roottag,
 					 std::map<std::string,cond::TagMetadata>& replacement){
   //  std::cout<<"fillTagCollectionFromDB"<<std::endl;
   std::set< cond::TagMetadata > tagcoll;
   if (!roottag.empty()) {
-  cond::TagCollectionRetriever tagRetriever( coraldb );
-  tagRetriever.getTagCollection(roottag,tagcoll);
+    cond::TagCollectionRetriever tagRetriever( coraldb );
+    tagRetriever.getTagCollection(roottag,tagcoll);
   } 
 
   std::set<cond::TagMetadata>::iterator it;
