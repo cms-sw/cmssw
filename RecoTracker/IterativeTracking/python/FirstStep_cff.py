@@ -53,7 +53,6 @@ newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackC
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'newTrackCandidateMaker',
-    Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK',
     AlgorithmName = 'iter0'
     )
 
