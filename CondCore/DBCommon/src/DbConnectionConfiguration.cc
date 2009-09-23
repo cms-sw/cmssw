@@ -199,8 +199,9 @@ void cond::DbConnectionConfiguration::configure( coral::IConnectionServiceConfig
       boostAuthPath /= boost::filesystem::path("authentication.xml");      
     }
     std::string authFileName = boostAuthPath.string();
-    coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authFileName);  
-  }
+    coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authFileName);
+    coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
+   }
   coralConfig.setAuthenticationService( authServiceName );
   // connection sharing
   if(m_connectionSharing.first)

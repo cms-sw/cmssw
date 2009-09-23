@@ -17,6 +17,7 @@
 namespace coral {
   class IConnectionService;
   class ISchema;
+  class ISessionProxy;
 }
 
 namespace pool {
@@ -60,7 +61,18 @@ namespace cond{
 
     coral::ISchema& nominalSchema();
 
+    coral::ISessionProxy& coralSession();
+
     pool::IDataSvc& poolCache();
+
+    bool initializeMapping(const std::string& mappingVersion, const std::string& xmlStream);
+
+    bool deleteMapping( const std::string& mappingVersion, bool removeTables );
+
+    bool importMapping( cond::DbSession& fromDatabase,
+                        const std::string& contName,
+                        const std::string& classVersion="",
+                        bool allVersions=false );
 
     pool::RefBase getObject( const std::string& objectId );
 
@@ -83,16 +95,17 @@ namespace cond{
 
     boost::shared_ptr<SessionImpl> m_implementation;
   };
-}
 
-template <typename T> pool::Ref<T> cond::DbSession::getTypedObject( const std::string& objectId ){
+template <typename T> inline pool::Ref<T> DbSession::getTypedObject( const std::string& objectId ){
   return pool::Ref<T>(&poolCache(),objectId );
 }
 
-template <typename T> pool::Ref<T> cond::DbSession::storeObject( T* object, const std::string& containerName ){
+template <typename T> inline pool::Ref<T> DbSession::storeObject( T* object, const std::string& containerName ){
   pool::Ref<T> objectRef(&poolCache(), object );
   storeObject( objectRef, containerName );
   return objectRef;
+}
+ 
 }
 
 #endif

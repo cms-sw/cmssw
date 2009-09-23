@@ -18,6 +18,9 @@
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "StorageSvc/DbType.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingUtilities.h"
+#include "ObjectRelationalAccess/ObjectRelationalMappingSchema.h"
+//#include "ObjectRelationalAccess/ObjectRelationalMappingPersistency.h"
 
 namespace cond {
   class DbSession::SessionImpl {
@@ -205,7 +208,14 @@ coral::ISchema& cond::DbSession::nominalSchema()
   return m_implementation->m_session->nominalSchema();  
 }
 
-
+coral::ISessionProxy& cond::DbSession::coralSession()
+{
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::coralSession: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::coralSession: cannot get coral session. Underlying connection is closed.");
+  return *m_implementation->m_session;  
+}
 
 pool::IDataSvc& cond::DbSession::poolCache()
 {
@@ -215,6 +225,57 @@ pool::IDataSvc& cond::DbSession::poolCache()
     throw cond::Exception("DbSession::poolCache: cannot get pool cache. Underlying connection is closed.");
   return *m_implementation->m_dataSvc;
 }
+
+bool cond::DbSession::initializeMapping(const std::string& mappingVersion, const std::string& xmlStream){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::initializeMapping: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::initializeMapping: cannot get coral session. Underlying connection is closed.");
+  bool ret = false;
+  pool::ObjectRelationalMappingSchema mappingSchema( m_implementation->m_session->nominalSchema() );
+  pool::ObjectRelationalMappingUtilities mappingUtil( m_implementation->m_session );
+  if( !mappingSchema.existTables() || !mappingUtil.existsMapping(mappingVersion) ){
+    mappingUtil.buildAndMaterializeMappingFromBuffer( xmlStream.c_str(),false,false );
+    ret = true;
+  }
+  return ret;
+}
+
+bool cond::DbSession::deleteMapping( const std::string& mappingVersion, bool removeTables ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::deleteMapping: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::deleteMapping: cannot get coral session. Underlying connection is closed.");
+  bool ret = false;
+  pool::ObjectRelationalMappingSchema mappingSchema( m_implementation->m_session->nominalSchema() );
+  pool::ObjectRelationalMappingUtilities mappingUtil( m_implementation->m_session );
+  if( mappingSchema.existTables() && mappingUtil.existsMapping( mappingVersion ) ){
+    mappingUtil.removeMapping(mappingVersion,removeTables);
+    ret = true;
+  }
+  return ret;
+}
+
+bool cond::DbSession::importMapping( cond::DbSession& fromDatabase,
+                                     const std::string& contName,
+                                     const std::string& classVersion,
+                                     bool allVersions ){
+  if(!m_implementation->m_session)
+    throw cond::Exception("DbSession::importMapping: cannot get coral session. Session has not been open.");
+  if(!m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importMapping: cannot get coral session. Underlying connection is closed.");
+  if(!fromDatabase.m_implementation->m_session)
+    throw cond::Exception("DbSession::importMapping: cannot get source coral session. Session has not been open.");
+  if(!fromDatabase.m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importMapping: cannot get source coral session. Underlying connection is closed.");
+  
+  pool::ObjectRelationalMappingUtilities mappingutil( fromDatabase.m_implementation->m_session );
+  mappingutil.loadMappingInformation( contName, classVersion, allVersions);
+  mappingutil.setSession( m_implementation->m_session,false);
+  return mappingutil.storeMappingInformation(true);  
+}
+
+
 
 bool cond::DbSession::storeObject( pool::RefBase& objectRef, const std::string& containerName  ){
   if(!m_implementation->m_session)
@@ -249,9 +310,13 @@ bool cond::DbSession::deleteObject( const std::string& objectId ){
 
 std::string cond::DbSession::importObject( cond::DbSession& fromDatabase, const std::string& objectId ){
   if(!m_implementation->m_session)
-    throw cond::Exception("DbSession::importObject: cannot access object store. Session has not been open.");
+    throw cond::Exception("DbSession::importObject: cannot access destination object store. Session has not been open.");
   if(!m_implementation->m_connection->isOpen())
-    throw cond::Exception("DbSession::importObject: cannot access object store. Underlying connection is closed.");
+    throw cond::Exception("DbSession::importObject: cannot access destination object store. Underlying connection is closed.");
+  if(!fromDatabase.m_implementation->m_session)
+    throw cond::Exception("DbSession::importObject: cannot access source object store. Session has not been open.");
+  if(!fromDatabase.m_implementation->m_connection->isOpen())
+    throw cond::Exception("DbSession::importObject: cannot access source object store. Underlying connection is closed.");
   pool::RefBase source = fromDatabase.getObject( objectId );
   pool::RefBase dest( m_implementation->m_dataSvc,
                       source.object().get(),

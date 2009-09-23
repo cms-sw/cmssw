@@ -1,9 +1,6 @@
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/SequenceManager.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
@@ -15,22 +12,18 @@
 int main(){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  cond::DBSession* session=new cond::DBSession;
-  session->configuration().setMessageLevel( cond::Error );
-  session->configuration().setAuthenticationMethod(cond::XML);
-  cond::Connection con("sqlite_file:mydata.db",-1);
-  session->open();
-  con.connect(session);
-  cond::CoralTransaction& coralTransaction=con.coralTransaction();
-  coralTransaction.start(false);
-  cond::SequenceManager sequenceGenerator(coralTransaction,"mysequenceDepot");
+  cond::DbConnection connection;
+  connection.configuration().setMessageLevel( coral::Error );
+  connection.configure();
+  cond::DbSession session = connection.createSession();
+  session.open( "sqlite_file:mydata.db" );
+  session.transaction().start(false);
+  cond::SequenceManager sequenceGenerator(session,"mysequenceDepot");
   if( !sequenceGenerator.existSequencesTable() ){
     sequenceGenerator.createSequencesTable();
   }
   unsigned long long targetId=sequenceGenerator.incrementId("MYLOGDATA");
   std::cout<<"targetId for table MYLOGDATA "<<targetId<<std::endl;
   sequenceGenerator.clear();
-  coralTransaction.commit();
-  con.disconnect();
-  delete session;
+  session.transaction().commit();
 }

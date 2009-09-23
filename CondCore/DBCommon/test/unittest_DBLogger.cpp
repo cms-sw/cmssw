@@ -1,9 +1,6 @@
-#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/MessageLevel.h"
-#include "CondCore/DBCommon/interface/Connection.h"
-#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/TokenBuilder.h"
 #include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "CondCore/DBCommon/interface/Logger.h"
@@ -34,15 +31,12 @@ int main(){
   //std::string constr("oracle://devdb10/cms_xiezhen_dev");
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  cond::DBSession* session=new cond::DBSession;
-  session->configuration().setMessageLevel( cond::Error );
-  session->configuration().setAuthenticationMethod(cond::XML);
-  cond::Connection con(constr,-1);
-  session->open();
-  con.connect(session);
-  //cond::CoralTransaction& coralTransaction=con.coralTransaction();
-  // coralTransaction.start(false);
-  cond::Logger mylogger(&con);
+  cond::DbConnection connection;
+  connection.configuration().setMessageLevel( coral::Error );
+  connection.configure();
+  cond::DbSession session = connection.createSession();
+  session.open( constr );
+  cond::Logger mylogger( session );
   cond::UserLogInfo a;
   a.provenance="me";
   mylogger.createLogDBIfNonExist();
@@ -129,6 +123,4 @@ int main(){
   std::cout<<"execmessage "<<result2.execmessage<<std::endl;
   */
   //coralTransaction.commit();
-  con.disconnect();
-  delete session;
 }
