@@ -49,6 +49,8 @@ private:
     tryEval(const reco::Candidate &c, const boost::shared_ptr<StringObjectFunction<Obj> > &func) const {
         if (func.get()) return (*func)(static_cast<const Obj &>(c));
         else throwBadType(typeid(c));
+        assert(false);
+        return 0; 
     }
 
     // out of line throw exception
@@ -91,6 +93,8 @@ private:
     tryEval(const reco::Candidate &c, const boost::shared_ptr<StringCutObjectSelector<Obj> > &func) const {
         if (func.get()) return (*func)(static_cast<const Obj &>(c));
         else throwBadType(typeid(c));
+        assert(false);
+        return false;
     }
 
     // out of line throw exception
