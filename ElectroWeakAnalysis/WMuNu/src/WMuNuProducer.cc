@@ -18,24 +18,12 @@ private:
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
 
-  edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
-  bool metIncludesMuons_;
-  edm::InputTag jetTag_;
-
-  bool applyPreselection_;
-  const std::string muonTrig_;
-  double ptThrForZ1_;
-  double ptThrForZ2_;
-  double eJetMin_;
-  int nJetMax_;
-
   const std::string WMuNuCollectionTag_;
 
 
   unsigned int nall;
-  unsigned int npresel;
 
 
 };
@@ -75,36 +63,17 @@ using namespace reco;
 
 WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
       // Input collections
-      trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
-
-      // Preselection cuts 
-      applyPreselection_(cfg.getUntrackedParameter<bool>("ApplyPreselection",true)),
-      muonTrig_(cfg.getUntrackedParameter<std::string>("MuonTrig", "HLT_Mu9")),
-      ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
-      ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
-      eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
-      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999))
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met")))
 {
   produces< WMuNuCandidateCollection >("WMuNuCandidates");
 }
 
 void WMuNuProducer::beginJob(const EventSetup &) {
-      nall = 0;
-      npresel = 0;
 }
 
 void WMuNuProducer::endJob() {
-    double all = nall;
-      double esel = npresel/all;
-      LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-      LogVerbatim("") << "Total numer of events pre-selected: " << npresel << " [events]";
-      LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%";
-      LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY END >>>>>>>>>>>>>>>";
+   LogTrace("")<<"WMuNuCandidateCollection Stored in the Event";
 }
 
 
@@ -136,61 +105,9 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
       //const MET& Met = metCollection->at(0);
       edm::Ptr<reco::MET> met(metCollection,0);
 
-      // Trigger
-      Handle<TriggerResults> triggerResults;
-      TriggerNames trigNames;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
-            LogError("") << ">>> TRIGGER collection does not exist !!!";
-            return;
-      }
-      trigNames.init(*triggerResults);
-      bool trigger_fired = false;
-      int itrig1 = trigNames.triggerIndex(muonTrig_);
-      if (triggerResults->accept(itrig1)) trigger_fired = true;
-      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
-
-      // Loop to reject/control Z->mumu is done separately
-      unsigned int nmuonsForZ1 = 0;
-      unsigned int nmuonsForZ2 = 0;
-      for (unsigned int i=0; i<muonCollectionSize; i++) {
-            const Muon& mu = muonCollection->at(i);
-            if (!mu.isGlobalMuon()) continue;
-            double pt = mu.pt();
-            if (pt>ptThrForZ1_) nmuonsForZ1++;
-            if (pt>ptThrForZ2_) nmuonsForZ2++;
-      }
-      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
-      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-      
-      // Jet collection
-      Handle<View<Jet> > jetCollection;
-      if (!ev.getByLabel(jetTag_, jetCollection)) {
-            LogError("") << ">>> JET collection does not exist !!!";
-            return;
-      }
-      unsigned int jetCollectionSize = jetCollection->size();
-      int njets = 0;
-      for (unsigned int i=0; i<jetCollectionSize; i++) {
-            const Jet& jet = jetCollection->at(i);
-            if (jet.et()>eJetMin_) njets++;
-      }
-      LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
-      LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
-
-      
-      // Ensure there is at least 1 muon candidate to build the W...
-      nall++;
 
       if (muonCollectionSize<1) return;
-
-      // Preselection of events: ensure there is 1 and only 1 muon candidate to build the W... This is only for the Inclusive Analysis
-      if(applyPreselection_){ 
-      if (!trigger_fired) return;
-      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) return;
-      if (njets>nJetMax_) return;
-      } 
-      npresel ++;   
-      
+      if (muonCollectionSize>10) {LogError("")<<"I am not prepared for events with 10 muons!! Fix me! (and check this event! :-) )"; return;}
 
       double MaxPt[10]={0,0,0,0,0,0,0,0,0,0};
       int Maxi[10]={0,0,0,0,0,0,0,0,0,0};

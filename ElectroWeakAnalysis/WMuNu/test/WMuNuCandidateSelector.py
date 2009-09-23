@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
       fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
 )
 
-process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
+process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
@@ -23,35 +23,6 @@ process.MessageLogger = cms.Service("MessageLogger",
             #threshold = cms.untracked.string('DEBUG')
       ),
       destinations = cms.untracked.vstring('cout')
-)
-
-process.selcorMet = cms.EDFilter("WMuNuSelector",
-      # Fill Basc Histograms? ->
-      plotHistograms = cms.untracked.bool(False),
-
-      # Input collections ->
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus:WMuNuCandidates"),
-
-      # Main cuts ->
-      PtCut = cms.untracked.double(25.0),
-      EtaCut = cms.untracked.double(2.1),
-      IsRelativeIso = cms.untracked.bool(True),
-      IsCombinedIso = cms.untracked.bool(False),
-      IsoCut03 = cms.untracked.double(0.1),
-      MtMin = cms.untracked.double(50.0),
-      MtMax = cms.untracked.double(200.0),
-      MetMin = cms.untracked.double(-999999.),
-      MetMax = cms.untracked.double(999999.),
-      AcopCut = cms.untracked.double(2.),
-
-      # Muon quality cuts ->
-      DxyCut = cms.untracked.double(0.2),
-      NormalizedChi2Cut = cms.untracked.double(10.),
-      TrackerHitsCut = cms.untracked.int32(11),
-      IsAlsoTrackerMuon = cms.untracked.bool(True),
-
-      # Select only W-, W+ ( default is all Ws)  
-      SelectByCharge=cms.untracked.int32(0)
 )
 
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.root') )
@@ -72,7 +43,7 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 )
 
 # This Example uses only "corMetGlobalMuons". Modify to run over pf & tc Met
-process.path = cms.Path(process.corMetWMuNus + process.selcorMet)
+process.path = cms.Path(process.selectCaloWMuNus)
 
 process.end = cms.EndPath(process.wmnOutput)
 

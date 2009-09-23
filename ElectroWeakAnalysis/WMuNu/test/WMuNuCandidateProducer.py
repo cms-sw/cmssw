@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("USER")
 process.maxEvents = cms.untracked.PSet(
       #input = cms.untracked.int32(-1)
-      input = cms.untracked.int32(10)
+      input = cms.untracked.int32(100)
 )
 
 process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")

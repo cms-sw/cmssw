@@ -31,11 +31,17 @@ public:
   void init_histograms();
 private:
   bool plotHistograms_;
+  edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
   bool metIncludesMuons_;
   edm::InputTag jetTag_;
   edm::InputTag WMuNuCollectionTag_;
+  const std::string muonTrig_;
+  double ptThrForZ1_;
+  double ptThrForZ2_;
+  double eJetMin_;
+  int nJetMax_;
   double ptCut_;
   double etaCut_;
   bool isRelativeIso_;
@@ -55,6 +61,7 @@ private:
   int selectByCharge_;
 
   double nall;
+  double npresel;
   double nsel;
   double ncharge; 
 
@@ -94,11 +101,21 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       plotHistograms_(cfg.getUntrackedParameter<bool> ("plotHistograms", true)),
       
       // Input collections
+      trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
       metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
       WMuNuCollectionTag_(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus"))),
+
+
+      // Preselection cuts 
+      muonTrig_(cfg.getUntrackedParameter<std::string>("MuonTrig", "HLT_Mu9")),
+      ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
+      ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
+      eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
+      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999)),
+
 
       // Main cuts 
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
@@ -120,13 +137,12 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
 
       // W+/W- Selection
       selectByCharge_(cfg.getUntrackedParameter<int>("SelectByCharge", 0))
-
-
 {
 }
 
 void WMuNuSelector::beginJob(const EventSetup &) {
       nall = 0;
+      npresel=0;
       nsel = 0;
       ncharge = 0;
 
@@ -158,9 +174,14 @@ void WMuNuSelector::beginJob(const EventSetup &) {
 
 
 void WMuNuSelector::endJob() {
-      double esel = nsel/nall;
+      double all = nall;
+      double epresel = npresel/all;
+      double esel = nsel/all;
+
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of events pre-selected: " << nall << " [events]";
+      LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
+      LogVerbatim("") << "Total numer of events pre-selected: " << npresel << " [events]";
+      LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
       LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
 
@@ -175,6 +196,65 @@ void WMuNuSelector::endJob() {
 }
 
 bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
+      nall++;
+
+      // Repeat Pre-Selection Cuts just in case...
+      // Muon collection
+      Handle<View<Muon> > muonCollection;
+      if (!ev.getByLabel(muonTag_, muonCollection)) {
+            LogError("") << ">>> Muon collection does not exist !!!";
+            return 0;
+      }
+      unsigned int muonCollectionSize = muonCollection->size();
+
+      // Trigger
+      Handle<TriggerResults> triggerResults;
+      TriggerNames trigNames;
+      if (!ev.getByLabel(trigTag_, triggerResults)) {
+            LogError("") << ">>> TRIGGER collection does not exist !!!";
+            return 0;
+      }
+      trigNames.init(*triggerResults);
+      bool trigger_fired = false;
+      int itrig1 = trigNames.triggerIndex(muonTrig_);
+      if (triggerResults->accept(itrig1)) trigger_fired = true;
+      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
+
+      // Loop to reject/control Z->mumu is done separately
+      unsigned int nmuonsForZ1 = 0;
+      unsigned int nmuonsForZ2 = 0;
+      for (unsigned int i=0; i<muonCollectionSize; i++) {
+            const Muon& mu = muonCollection->at(i);
+            if (!mu.isGlobalMuon()) continue;
+            double pt = mu.pt();
+            if (pt>ptThrForZ1_) nmuonsForZ1++;
+            if (pt>ptThrForZ2_) nmuonsForZ2++;
+      }
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
+
+      // Jet collection
+      Handle<View<Jet> > jetCollection;
+      if (!ev.getByLabel(jetTag_, jetCollection)) {
+            LogError("") << ">>> JET collection does not exist !!!";
+            return 0;
+      }
+      unsigned int jetCollectionSize = jetCollection->size();
+      int njets = 0;
+      for (unsigned int i=0; i<jetCollectionSize; i++) {
+            const Jet& jet = jetCollection->at(i);
+            if (jet.et()>eJetMin_) njets++;
+      }
+      LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
+      LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
+
+      // Preselection cuts:
+
+      if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
+      if (nmuonsForZ1>=1 && nmuonsForZ2>=2) {LogTrace("")<<"Z Candidate!!"; return 0;}
+      if (njets>nJetMax_) {LogTrace("")<<"NJets > threshold";  return 0;}
+
+       npresel++;
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
@@ -182,6 +262,8 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << ">>> No beam spot found !!!";
             return false;
       }
+
+
 
       // Get WMuNu candidates from file:
 
@@ -198,12 +280,12 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       LogTrace("") << "> WMuNu Candidate with: ";
       const WMuNuCandidate& WMuNu = WMuNuCollection->at(0);
+      // WMuNuCandidates are ordered by Pt! Our best Candidate is the first one 
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
             if(plotHistograms_){
             h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());  
             }
-      nall++;
 
 
       // Select Ws by charge:  
