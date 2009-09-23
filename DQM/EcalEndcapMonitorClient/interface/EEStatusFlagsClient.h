@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsClient.h
  *
- * $Date: 2009/02/27 13:54:08 $
- * $Revision: 1.15 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -92,6 +92,10 @@ TH2F* h01_[18];
 MonitorElement* meh02_[18];
 
 TH1F* h02_[18];
+
+MonitorElement* meh03_[18];
+
+TH2F* h03_[18];
 
 };
 

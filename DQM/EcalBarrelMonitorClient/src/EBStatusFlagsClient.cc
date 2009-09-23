@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2009/02/27 13:54:06 $
- * $Revision: 1.24 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,12 @@
 #include <iomanip>
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -56,6 +62,10 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
     h02_[ism-1] = 0;
 
     meh02_[ism-1] = 0;
+
+    h03_[ism-1] = 0;
+
+    meh03_[ism-1] = 0;
 
   }
 
@@ -119,13 +129,16 @@ void EBStatusFlagsClient::cleanup(void) {
     if ( cloneME_ ) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
       if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( h03_[ism-1] ) delete h03_[ism-1];
     }
 
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
+    meh03_[ism-1] = 0;
 
   }
 
@@ -165,6 +178,12 @@ void EBStatusFlagsClient::analyze(void) {
     if ( debug_ ) cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
+
+  map<EcalLogicID, RunTTErrorsDat> mask1;
+  EcalErrorMask::fetchDataSet(&mask1);
+
   char histo[200];
 
   MonitorElement* me;
@@ -182,6 +201,47 @@ void EBStatusFlagsClient::analyze(void) {
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
+
+    sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT MEM front-end status %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    meh03_[ism-1] = me;    
+
+    // TT masking
+    
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+        
+        if ( mask1.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask1.begin(); m != mask1.end(); m++) {
+      
+            EcalLogicID ecid = m->first;
+      
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
+
+            int iet = (itt-1)/4 + 1;
+            int ipt = (itt-1)%4 + 1;
+
+            if ( itt > 70 ) continue;
+      
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+                
+                if ( itt >= 1 && itt <= 68 ) {
+                  if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+                } else if ( itt == 69 || itt == 70 ) {
+                  if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
+                }
+
+              }
+            }
+      
+          }
+        }
+        
+      }
+    }
 
   }
 

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/08/26 18:34:43 $
- * $Revision: 1.183 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  *
 */
@@ -1956,9 +1956,19 @@ void EESummaryClient::analyze(void) {
               if ( me->getBinContent( ix, iy ) > 0 ) xval = 0;
 
               if ( ism >= 1 && ism <= 9 ) {
+
                 meStatusFlags_[0]->setBinContent( 101 - jx, jy, xval );
+
+                if ( me->getBinError( ix, iy ) > 0 && me->getBinError( ix, iy ) < 0.1 ) {
+                  UtilsClient::maskBinContent( meStatusFlags_[0], 101 - jx, jy );
+                }
               } else {
+
                 meStatusFlags_[1]->setBinContent( jx, jy, xval );
+
+                if ( me->getBinError( ix, iy ) > 0 && me->getBinError( ix, iy ) < 0.1 ) {
+                  UtilsClient::maskBinContent( meStatusFlags_[1], jx, jy );
+                }
               }
 
               if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );

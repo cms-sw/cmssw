@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2009/02/27 13:54:09 $
- * $Revision: 1.26 $
+ * $Date: 2009/08/27 15:41:03 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -13,6 +13,12 @@
 #include <iomanip>
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -56,6 +62,10 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps) {
     h02_[ism-1] = 0;
 
     meh02_[ism-1] = 0;
+
+    h03_[ism-1] = 0;
+
+    meh03_[ism-1] = 0;
 
   }
 
@@ -119,13 +129,16 @@ void EEStatusFlagsClient::cleanup(void) {
     if ( cloneME_ ) {
       if ( h01_[ism-1] ) delete h01_[ism-1];
       if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( h03_[ism-1] ) delete h03_[ism-1];
     }
 
     h01_[ism-1] = 0;
     h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
 
     meh01_[ism-1] = 0;
     meh02_[ism-1] = 0;
+    meh03_[ism-1] = 0;
 
   }
 
@@ -165,6 +178,12 @@ void EEStatusFlagsClient::analyze(void) {
     if ( debug_ ) cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
+  uint64_t bits01 = 0;
+  bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
+
+  map<EcalLogicID, RunTTErrorsDat> mask1;
+  EcalErrorMask::fetchDataSet(&mask1);
+
   char histo[200];
 
   MonitorElement* me;
@@ -182,6 +201,55 @@ void EEStatusFlagsClient::analyze(void) {
     me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
+
+    sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT MEM front-end status %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    meh03_[ism-1] = me;    
+
+    // TT masking
+    
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+        
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+
+         if ( mask1.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask1.begin(); m != mask1.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+      
+            int itt = Numbers::iSC(ism, EcalEndcap, jx, jy);
+
+            if ( itt > 70 ) continue;
+            
+            if ( itt >= 42 && itt <= 68 ) continue;
+
+            if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+              if ( (m->second).getErrorBits() & bits01 ) {
+
+                if ( itt >= 1 && itt <= 41 ) {
+                  if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ix, iy, 0.01 );
+                } else if ( itt == 69 || itt == 70 ) {
+                  if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
+                }
+
+              }
+            }
+      
+          }
+        }
+        
+      }
+    }
 
   }
 

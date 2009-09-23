@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsClient.h
  *
- * $Date: 2009/02/27 13:54:04 $
- * $Revision: 1.15 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -92,6 +92,10 @@ TH2F* h01_[36];
 MonitorElement* meh02_[36];
 
 TH1F* h02_[36];
+
+MonitorElement* meh03_[36];
+
+TH2F* h03_[36];
 
 };
 

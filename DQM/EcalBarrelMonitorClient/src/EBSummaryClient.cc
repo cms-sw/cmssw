@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2009/08/26 18:33:38 $
- * $Revision: 1.195 $
+ * $Date: 2009/08/27 15:31:31 $
+ * $Revision: 1.196 $
  * \author G. Della Ricca
  *
 */
@@ -1421,6 +1421,9 @@ void EBSummaryClient::analyze(void) {
               if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
 
               meStatusFlags_->setBinContent( ipx, iex, xval );
+
+              if ( me->getBinError( ie, ip ) > 0 && me->getBinError( ie, ip ) < 0.1 ) UtilsClient::maskBinContent( meStatusFlags_, ipx, iex );
+
               if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
 
             }
