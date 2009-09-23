@@ -1,9 +1,10 @@
-// $Id: Ready.cc,v 1.8 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Ready.cc,v 1.9 2009/08/28 16:41:26 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
@@ -13,6 +14,8 @@
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+
+#include "xcept/tools.h"
 
 #include <iostream>
 
@@ -37,16 +40,47 @@ void Ready::do_entryActionWork()
     outermost_context().getSharedResources();
 
   // update all configuration parameters
+  std::string errorMsg = "Failed to update configuration parameters in Ready state";
   try
     {
       sharedResources->_configuration->updateAllParams();
     }
+  // we don't have access to the sentinel here. Send an alarm instead.
+  catch(xcept::Exception &e)
+  {
+    XCEPT_DECLARE_NESTED(stor::exception::Configuration,
+      alarmException, errorMsg, e);
+    sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
+      "Configuration", AlarmHandler::FATAL, alarmException);
+
+    sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
+    return;
+  }
+  catch( std::exception &e )
+  {
+    errorMsg.append(": ");
+    errorMsg.append( e.what() );
+
+    XCEPT_DECLARE(stor::exception::Configuration,
+      alarmException, errorMsg);
+    sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
+      "Configuration", AlarmHandler::FATAL, alarmException);
+    
+    sharedResources->moveToFailedState( errorMsg );
+    return;
+  }
   catch(...)
-    {
-      // To do: add logging:
-      sharedResources->moveToFailedState( "exception while updating parameters in Ready entry action" );
-      return;
-    }
+  {
+    errorMsg.append(": unknown exception");
+
+    XCEPT_DECLARE(stor::exception::Configuration,
+      alarmException, errorMsg);
+    sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
+      "Configuration", AlarmHandler::FATAL, alarmException);
+    
+    sharedResources->moveToFailedState( errorMsg );
+    return;
+  }
 
   // configure the various queue sizes
   QueueConfigurationParams queueParams =
