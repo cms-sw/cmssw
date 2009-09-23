@@ -30,6 +30,9 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--tuple2', dest='tuple2', type='string',
                            default='pat',
                            help="Tuple type of 2nd tuple")
+    tupleGroup.add_option ('--file', dest='file', type='string',
+                           default="",
+                           help="1st and 2nd tuple file (debugging only)")
     tupleGroup.add_option ('--file1', dest='file1', type='string',
                            default="",
                            help="1st tuple file")
@@ -59,7 +62,7 @@ if __name__ == "__main__":
     optionsGroup.add_option ('--printEvent', dest='printEvent',
                              action='store_true',
                              help='Prints loaded event to screen')
-    optionsGroup.add_option ('--printGlobal', dest='printStatic',
+    optionsGroup.add_option ('--printGlobal', dest='printGlobal',
                              action='store_true',
                              help='Prints out global information' +
                              ' (for development)')
@@ -111,7 +114,7 @@ if __name__ == "__main__":
             if changeMatch:
                 GenObject.changeVariable (changeMatch.group (1),
                                           changeMatch.group (2),
-                                          changeMatch.group (3),
+                                         changeMatch.group (3),
                                           changeMatch.group (4))
                 continue
             # if we're here, then we have an argument that we don't understand
@@ -128,6 +131,8 @@ if __name__ == "__main__":
     # take care of any 'double' options now
     if options.tuple:
         options.tuple1 = options.tuple2 = options.tuple
+    if options.file:
+        options.file1 = options.file2 = options.file
     if options.numEvents:
         options.numEvents1 = options.numEvents2 = options.numEvents
     if options.compare:
@@ -146,11 +151,14 @@ if __name__ == "__main__":
                                          options.numEvents1)
         GenObject.saveTupleAs (chain1, options.saveAs)
     if options.printTuple:
+        print "printing tuple"
         GenObject.setGlobalFlag ('printEvent', True)
         chain1 = GenObject.prepareTuple (options.tuple1, options.file1,
                                          options.numEvents1)
         GenObject.printTuple (chain1)
         #GenObject.saveTupleAs (chain1, options.saveAs)
+    if options.printGlobal:
+        GenObject.printGlobal()
     if options.interactive:
         chain1 = chain2 = 0
         if len (options.file1):
@@ -178,6 +186,4 @@ if __name__ == "__main__":
         if os.path.exists (historyPath) :
             readline.read_history_file(historyPath)
             readline.set_history_length(-1)
-    if options.printStatic:
-        GenObject.printStatic()
 

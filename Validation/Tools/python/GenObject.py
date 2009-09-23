@@ -4,11 +4,12 @@
 
 
 from FWCore.Python.Enumerate import Enumerate
+from DataFormats.FWLite import Events, Handle
 import re
 import os
 import copy
-import ConfigParser
-import PhysicsTools.PythonAnalysis as cmstools
+#import ConfigParser
+#import PhysicsTools.PythonAnalysis as cmstools
 import pprint
 import random
 import sys
@@ -24,6 +25,7 @@ quietWarn = False
 def setQuietWarn (quiet = True):
     global quietWarn
     quietWarn = quiet
+
 
 def warn (*args, **kwargs):
     """print out warning with line number and rest of arguments"""
@@ -96,12 +98,15 @@ class GenObject (object):
     _doubleQuoteRE    = re.compile (r'^\"(.+)\"$')
     _bracketRE        = re.compile (r'\[\s*(.+?)\s*\]')
     _commentRE        = re.compile (r'#.+$')
-    _aliasRE          = re.compile (r'alias=(\S+)',   re.IGNORECASE)
-    _singletonRE      = re.compile (r'singleton',     re.IGNORECASE)
-    _typeRE           = re.compile (r'type=(\S+)',    re.IGNORECASE)
-    _defaultRE        = re.compile (r'default=(\S+)', re.IGNORECASE)
-    _precRE           = re.compile (r'prec=(\S+)',    re.IGNORECASE)
-    _formRE           = re.compile (r'form=(\S+)',    re.IGNORECASE)
+    _aliasRE          = re.compile (r'alias=(\S+)',    re.IGNORECASE)
+    _labelRE          = re.compile (r'label=(\S+)',    re.IGNORECASE)
+    _typeRE           = re.compile (r'type=(\S+)',     re.IGNORECASE)
+    _singletonRE      = re.compile (r'singleton',      re.IGNORECASE)
+    _typeRE           = re.compile (r'type=(\S+)',     re.IGNORECASE)
+    _defaultRE        = re.compile (r'default=(\S+)',  re.IGNORECASE)
+    _shortcutRE       = re.compile (r'shortcut=(\S+)', re.IGNORECASE)
+    _precRE           = re.compile (r'prec=(\S+)',     re.IGNORECASE)
+    _formRE           = re.compile (r'form=(\S+)',     re.IGNORECASE)
     
     #############################
     ## Static Member Functions ##
@@ -147,7 +152,7 @@ class GenObject (object):
         
     
     @staticmethod
-    def printStatic():
+    def printGlobal():
         """Meant for debugging, but ok if called by user"""
         print "objs: "
         pprint.pprint (GenObject._objsDict,   indent=4)
@@ -355,6 +360,25 @@ class GenObject (object):
 
 
     @staticmethod
+    def _parseVariableTofill (fillname):
+        """Returns tofill tuple made from string"""
+        parts = GenObject._dotRE.split (fillname)
+        partsList = []
+        for part in parts:
+            parenMatch = GenObject._parenRE.search (part)
+            mode   = GenObject._objFunc.obj
+            parens = []
+            if parenMatch:
+                part   = parenMatch.group (1)
+                mode   = GenObject._objFunc.func
+                parens = \
+                       GenObject._convertStringToParameters \
+                       (parenMatch.group (2))
+            partsList.append(  (part, mode, parens) )
+        return partsList
+
+
+    @staticmethod
     def loadConfigFile (configFile):
         """Loads configuration file"""
         objName    = ""
@@ -374,6 +398,9 @@ class GenObject (object):
             if not GenObject._nonSpacesRE.search (line):
                 # Nothing to see here folks.  Keep moving....
                 continue
+            ###################
+            ## Bracket Match ##
+            ###################
             bracketMatch = GenObject._bracketRE.search (line)
             if bracketMatch:
                 # a header
@@ -429,9 +456,37 @@ class GenObject (object):
                                  setdefault (tupleName, {})
                     ntupleDict[objName] = tofillName
                     for word in words:
+                        # label
+                        labelMatch = GenObject._labelRE.search (word)
+                        if labelMatch:
+                            label = tuple( GenObject._commaRE.\
+                                           split(  labelMatch.group (1) ) )
+                            ntupleDict.setdefault ('_label', {}).\
+                                                  setdefault (tofillName,
+                                                              label)
+                            continue
+                        # shortcut
+                        shortcutMatch = GenObject._shortcutRE.search (word)
+                        if shortcutMatch:
+                            shortcutFill = \
+                                         GenObject.\
+                                         _parseVariableTofill ( shortcutMatch.\
+                                                                group(1) )
+                            ntupleDict.setdefault ('_shortcut', {}).\
+                                                  setdefault (tofillName,
+                                                              shortcutFill)
+                            continue
+                        # type/handle
+                        typeMatch = GenObject._typeRE.search (word)
+                        if typeMatch:
+                            handle = Handle( typeMatch.group(1) )
+                            ntupleDict.setdefault ('_handle', {}).\
+                                                  setdefault (tofillName,
+                                                              handle)
+                            continue
+                        # alias 
                         aliasMatch = GenObject._aliasRE.search (word)
                         if aliasMatch:
-                            myTuple = (tofillName, aliasMatch.group (1))
                             ntupleDict.setdefault ('_alias', {}).\
                                                   setdefault (tofillName,
                                                               aliasMatch.\
@@ -444,6 +499,9 @@ class GenObject (object):
                         raise RuntimeError, \
                               "Config file parser error '%s'(%d)" \
                               % (fullLine, lineNum)
+            ##############
+            ## Variable ##
+            ##############
             else:
                 # a variable
                 if modeEnum.none == mode:
@@ -533,19 +591,19 @@ class GenObject (object):
                     if len (pieces) < 1:
                         continue
                     fillname, pieces = pieces[0], pieces[1:]
-                    parts = GenObject._dotRE.split (fillname)
-                    partsList = []
-                    for part in parts:
-                        parenMatch = GenObject._parenRE.search (part)
-                        mode   = GenObject._objFunc.obj
-                        parens = []
-                        if parenMatch:
-                            part   = parenMatch.group (1)
-                            mode   = GenObject._objFunc.func
-                            parens = \
-                                   GenObject._convertStringToParameters \
-                                   (parenMatch.group (2))
-                        partsList.append(  (part, mode, parens) )
+                    ## parts = GenObject._dotRE.split (fillname)
+                    ## partsList = []
+                    ## for part in parts:
+                    ##     parenMatch = GenObject._parenRE.search (part)
+                    ##     mode   = GenObject._objFunc.obj
+                    ##     parens = []
+                    ##     if parenMatch:
+                    ##         part   = parenMatch.group (1)
+                    ##         mode   = GenObject._objFunc.func
+                    ##         parens = \
+                    ##                GenObject._convertStringToParameters \
+                    ##                (parenMatch.group (2))
+                    ##     partsList.append(  (part, mode, parens) )
                     # I don't yet have any options available here, but
                     # I'm keeping the code here for when I add them.
                     optionsDict = {}
@@ -560,185 +618,9 @@ class GenObject (object):
                     tofillDict = GenObject._tofillDict.\
                                  setdefault (tupleName, {}).\
                                  setdefault (objName, {})
+                    partsList = GenObject._parseVariableTofill (fillname)
                     tofillDict[varName] = [partsList, optionsDict]
         # for line
-        for objName in GenObject._objsDict:
-            # if this isn't a singleton, add 'index' as a variable
-            if not GenObject.isSingleton (objName):
-                GenObject.addObjectVariable (objName, 'index',
-                                             varType = GenObject.types.int,
-                                             form = '%3d')
-        
-
-    @staticmethod
-    def oldLoadConfigFile (configFile):
-        """Loads configuration file using ConfigParser."""
-        objName    = ""
-        tupleName  = ""
-        tofillName = ""
-        modeEnum   = Enumerate ("none define tofill ntuple", "mode")
-        mode       = modeEnum.none
-        config     = ConfigParser.SafeConfigParser()
-        config.read (configFile)
-        for section in config.sections():
-            pieces = GenObject._spacesRE.split (section)
-            if not len (pieces): continue
-            objName, pieces = pieces[0], pieces[1:]
-            colonMatch = GenObject._doubleColonRE.search (objName)
-            mode = modeEnum.none
-            if colonMatch:
-                ##########################
-                ## Object 'tofill' Info ##
-                ##########################
-                mode = modeEnum.tofill
-                objName    = colonMatch.group (1)
-                tupleName  = colonMatch.group (2)
-                tofillName = colonMatch.group (3)
-                ntupleDict = GenObject._ntupleDict.\
-                             setdefault (tupleName, {})
-                ntupleDict[objName] = tofillName
-                for word in pieces:
-                    aliasMatch = GenObject._aliasRE.search (word)
-                    if aliasMatch:
-                        myTuple = (tofillName, aliasMatch.group (1))
-                        ntupleDict.setdefault ('_alias', {}).\
-                                              setdefault (tofillName,
-                                                          aliasMatch.group(1))
-                        continue
-                    # If we're still here, then we didn't have a valid
-                    # option.  Complain vociferously
-                    print "I don't understand '%s' in section '%s' : %s" \
-                          % (word, section, mode)
-                    raise RuntimeError, "Config file parsing error"
-            else:
-                colonMatch = GenObject._singleColonRE.search (objName)
-                if colonMatch:
-                    #######################
-                    ## Ntuple Definition ##
-                    #######################
-                    mode = modeEnum.ntuple
-                    ntupleDict = GenObject._ntupleDict.\
-                                setdefault (colonMatch.group(1), {})
-                    ntupleDict['_tree'] = colonMatch.group(2)
-            if not GenObject._singleColonRE.search (section):
-                ##########################
-                ## GenObject Definition ##
-                ##########################
-                mode = modeEnum.define
-                for word in pieces:
-                    if GenObject._singletonRE.match (word):
-                        #GenObject._singletonSet.add (objName)
-                        objsDict = GenObject._objsDict.setdefault (objName, {})
-                        objsDict['_singleton'] = True
-                        continue
-                    # If we're still here, then we didn't have a valid
-                    # option.  Complain vociferously
-                    print "I don't understand '%s' in section '%s' : %s" \
-                          % (word, section, mode)
-                    raise RuntimeError, "Config file parsing error"
-            if modeEnum.none == mode:
-                # Poorly formatted 'section' tag
-                print "I don't understand section '%s'." % section
-                raise RuntimeError, "Config file parsing error"
-            for varName in config.options (section):
-                option = config.get (section, varName)
-                if option:
-                    pieces = GenObject._spacesRE.split (option)
-                else:
-                    pieces = []
-                if modeEnum.define == mode:
-                    #########################
-                    ## Variable Definition ##
-                    #########################
-                    # is this a variable or an option?
-                    if varName.startswith("-"):
-                        # this is an option
-                        if "-equiv" == varName.lower():
-                            for part in pieces:
-                                halves = part.split (",")
-                                if 2 != len (halves):
-                                    print "Problem with -equiv '%s' in '%s'" % \
-                                          (part, section)
-                                    raise RuntimeError, \
-                                          "Config file parsing error"
-                                if halves[1]:
-                                    halves[1] = float (halves[1])
-                                    if not halves[1] > 0:
-                                        print "Problem with -equiv ",\
-                                              "'%s' in '%s'" % \
-                                              (part, section)
-                                        raise RuntimeError, \
-                                              "Config file parsing error"
-                                GenObject.setEquivExpression (section,
-                                                              halves[0],
-                                                              halves[1])
-                        continue
-                    # If we're here, then this is a variable
-                    optionsDict = {}
-                    for word in pieces:
-                        typeMatch = GenObject._typeRE.search (word)
-                        if typeMatch and \
-                               GenObject.types.isValidKey (typeMatch.group(1)):
-                            varType = typeMatch.group(1).lower()
-                            optionsDict['varType'] = GenObject.types (varType)
-                            continue
-                        defaultMatch = GenObject._defaultRE.search (word)
-                        if defaultMatch:
-                            optionsDict['default'] = defaultMatch.group(1)
-                            continue
-                        precMatch = GenObject._precRE.search (word)
-                        if precMatch:
-                            optionsDict['prec'] = float (precMatch.group (1))
-                            continue
-                        formMatch = GenObject._formRE.search (word)
-                        if formMatch:
-                            optionsDict['form'] = formMatch.group (1)
-                            continue
-                        # If we're still here, then we didn't have a valid
-                        # option.  Complain vociferously
-                        print "I don't understand '%s' in section '%s'." \
-                              % (word, option)
-                        raise RuntimeError, "Config file parsing error"
-                    GenObject.addObjectVariable (objName, varName, \
-                                                 **optionsDict)
-                else: # if modeEnum.define != mode
-                    ############################
-                    ## Variable 'tofill' Info ##
-                    ############################
-                    if len (pieces) < 1:
-                        continue
-                    fillname, pieces = pieces[0], pieces[1:]
-                    parts = GenObject._dotRE.split (fillname)
-                    partsList = []
-                    for part in parts:
-                        parenMatch = GenObject._parenRE.search (part)
-                        mode   = GenObject._objFunc.obj
-                        parens = []
-                        if parenMatch:
-                            part   = parenMatch.group (1)
-                            mode   = GenObject._objFunc.func
-                            parens = \
-                                   GenObject._convertStringToParameters \
-                                   (parenMatch.group (2))
-                        partsList.append(  (part, mode, parens) )
-                    # I don't yet have any options available here, but
-                    # I'm keeping the code here for when I add them.
-                    optionsDict = {}
-                    for word in pieces:
-                        # If we're still here, then we didn't have a valid
-                        # option.  Complain vociferously
-                        print "I don't understand '%s' in section '%s'." \
-                              % (word, option)
-                        raise RuntimeError, "Config file parsing error"
-                    tofillDict = GenObject._tofillDict.\
-                                 setdefault (tupleName, {}).\
-                                 setdefault (objName, {})
-                    tofillDict[varName] = [partsList, optionsDict]
-        # We aren't guarenteed (ugh) that the file will be processed
-        # in the order it is written.  I think that eventually I'll
-        # want to process the file myself, but for now just wait until
-        # everything is read and then add 'index' to all of the
-        # objects that are not singletons.
         for objName in GenObject._objsDict:
             # if this isn't a singleton, add 'index' as a variable
             if not GenObject.isSingleton (objName):
@@ -769,9 +651,25 @@ class GenObject (object):
 
 
     @staticmethod
+    def _evaluateFunction (obj, partsList, debug=False):
+        """Evaluates function described in partsList on obj"""
+        for part in partsList:
+            if debug: warn (part, spaces=15)
+            obj = getattr (obj, part[0])
+            if debug: warn (obj, spaces=15)
+            # if this is a function instead of a data member, make
+            # sure you call it with its arguments:
+            if GenObject._objFunc.func == part[1]:
+                # Arguments are stored as a list in part[2]
+                obj = obj (*part[2])
+                if debug: warn (obj, spaces=18)
+        return obj
+
+
+    @staticmethod
     def _genObjectClone (objName, tupleName, obj, index = -1):
         """Creates a GenObject copy of Root object"""
-        debug         = GenObject._kitchenSinkDict.get ('debug', False)
+        debug = GenObject._kitchenSinkDict.get ('debug', False)
         if objName == 'runevent':
             debug = False
         tofillObjDict = GenObject._tofillDict.get(tupleName, {})\
@@ -781,20 +679,20 @@ class GenObject (object):
         if debug: warn (objName, spaces = 9)
         for genVar, ntDict in tofillObjDict.iteritems():
             if debug: warn (genVar, spaces = 12)
-            # start off with the original object
-            obj = origObj
             # lets work our way down the list
             partsList = ntDict[0]
-            for part in partsList:
-                if debug: warn (part, spaces=15)
-                obj = getattr (obj, part[0])
-                if debug: warn (obj, spaces=15)
-                # if this is a function instead of a data member, make
-                # sure you call it with its arguments:
-                if GenObject._objFunc.func == part[1]:
-                    # Arguments are stored as a list in part[2]
-                    obj = obj (*part[2])
-                    if debug: warn (obj, spaces=18)
+            # start off with the original object
+            obj = GenObject._evaluateFunction (origObj, partsList, debug)
+            ## for part in partsList:
+            ##     if debug: warn (part, spaces=15)
+            ##     obj = getattr (obj, part[0])
+            ##     if debug: warn (obj, spaces=15)
+            ##     # if this is a function instead of a data member, make
+            ##     # sure you call it with its arguments:
+            ##     if GenObject._objFunc.func == part[1]:
+            ##         # Arguments are stored as a list in part[2]
+            ##         obj = obj (*part[2])
+            ##         if debug: warn (obj, spaces=18)
             if debug: warn (obj, spaces=12)
             setattr (genObj, genVar, obj)
         # Do I need to store the index of this object?
@@ -969,8 +867,8 @@ class GenObject (object):
             # This means that 'eventTree' is a ROOT.TChain
             eventTree.GetEntry (eventIndex)
         else:
-            # This means that 'evenTree' is a cmstools.EventTree
-            rootEvent = eventTree[eventIndex]
+            # This means that 'eventTree' is a FWLite Events
+            eventTree.to(eventIndex)
         tofillDict = GenObject._tofillDict.get (tupleName)
         ntupleDict = GenObject._ntupleDict.get (tupleName)
         if not tofillDict:
@@ -987,9 +885,24 @@ class GenObject (object):
                 # guess not
                 continue
             if isChain:
+                # Root TChain
                 objects = getattr (eventTree, branchName)
             else:
-                objects = rootEvent.getProduct (branchName)
+                # FWLite
+                shortcut = ntupleDict.get('_shortcut', {}).get(branchName)
+                if shortcut:
+                    objects = GenObject._evaluateFunction (eventTree, shortcut)
+                else:
+                    eventTree.toBegin()
+                    handle = ntupleDict.get('_handle', {}).get(branchName)
+                    label  = ntupleDict.get('_label' , {}).get(branchName)
+                    if not handle or not label:
+                        raise RuntimeError, "Missing handle or label for '%s'"\
+                              % branchName
+                    if not eventTree.getByLabel (label, handle):
+                        raise RuntimeError, "not able to get %s for %s" \
+                              % (label, branchName)
+                    objects = handle.product()
             # is this a singleton?
             if GenObject.isSingleton (objName):
                 event[objName] = GenObject.\
@@ -1008,8 +921,8 @@ class GenObject (object):
                                                         index) )
             del objects
             # end for obj        
-        if not isChain:
-            del rootEvent
+        ## if not isChain:
+        ##     del rootEvent
         # end for objName
         return event
 
@@ -1053,19 +966,26 @@ class GenObject (object):
         aliasDict[name] = alias
 
 
+    ## @staticmethod
+    ## def changeLabel (tupleName, name, label):
+    ##     """Updates an label for an object for a given tuple"""
+    ##     labelDict = GenObject._ntupleDict[tupleName]['_label']
+    ##     if not labelDict.has_key (name):
+    ##         raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
+    ##               (name, tupleName)
+    ##     labelDict[name] = label
+
+
     @staticmethod
     def prepareTuple (tupleName, files, numEventsWanted = 0):
         """Given the tuple name and list of files, returns either a
         TChain or EventTree, and number of entries"""
         if "GenObject" == tupleName:
             GenObject.prepareToLoadGenObject()            
-        if isinstance (files, list):
-            # for now, we can only deal with one file
-            files = files[0:1]
-        else:
+        if not isinstance (files, list):
             # If this isn't a list, make it one
             files = [files]
-        ntupleDict = GenObject._ntupleDict[tupleName]
+            ntupleDict = GenObject._ntupleDict[tupleName]
         treeName = ntupleDict["_tree"]
         if ntupleDict.get('_useChain'):
             chain = ROOT.TChain (treeName)
@@ -1074,9 +994,8 @@ class GenObject (object):
                 numEntries = chain.GetEntries()
         # Are we using a chain or EventTree here?
         else:
-            chain = cmstools.EventTree (files[0])
-            GenObject.setAliases (chain, tupleName)
-            numEntries = chain.tree().GetEntries()
+            chain = Events (files, forceEvent=True)
+            numEntries = chain.size()
         chainDict = GenObject._kitchenSinkDict.setdefault (chain, {})
         if numEventsWanted and numEventsWanted < numEntries:
             numEntries = numEventsWanted
@@ -1487,11 +1406,14 @@ class GenObject (object):
     @staticmethod
     def printTuple (chain):
         """Prints out all events to stdout"""
-        numEntries = GenObject._kitchenSinkDict[chain]['numEntries']        
+        numEntries = GenObject._kitchenSinkDict[chain]['numEntries']
+        debug = GenObject._kitchenSinkDict.get ('debug', False)
+        if debug: warn (numEntries)
         for entryIndex in xrange (numEntries):
+            if debug: warn (entryIndex, spaces=3)
             event = GenObject.loadEventFromTree (chain, entryIndex)            
             GenObject.printEvent (event)
-
+            if debug: warn(spaces=3)
 
     @staticmethod
     def _convertStringToParameters (string):
