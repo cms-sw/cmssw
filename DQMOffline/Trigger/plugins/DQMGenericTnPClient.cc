@@ -76,7 +76,7 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
       double getEfficiency(){ return efficiency.getVal(); }
       double getEfficiencyError(){ return efficiency.getError(); }
       double getChi2(){ return chi2; }
-      RooPlot* savePlot(TString name){ 
+      void savePlot(TString name){ 
         RooPlot* frame = mass.frame(Name(name), Title("All and Passing Probe Distributions"));
         data->plotOn(frame,Cut("category==category::all"),LineColor(kRed));
         data->plotOn(frame,Cut("category==category::pass"),LineColor(kGreen));
@@ -84,7 +84,8 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
         simPdf.plotOn(frame,Slice(category,"pass"),ProjWData(category,*data),LineColor(kGreen));
         simPdf.paramOn(frame,Layout(0.55));
         data->statOn(frame,Layout(0.65));
-        return frame; 
+        frame->Write();
+        delete frame;        
       }
   };
 //concrete fitter: Gaussian signal plus linear background
@@ -263,6 +264,8 @@ void DQMGenericTnPClient::calculateEfficiency(const ParameterSet& pset){
     effName.erase(0, slashPos+1);
   }
   dqmStore->setCurrentFolder(effDir);
+  TString prefix(effDir.c_str());
+  prefix.ReplaceAll('/','_');
   MonitorElement * eff;
   MonitorElement * effChi2;
   switch(dimensions){
@@ -320,16 +323,17 @@ void DQMGenericTnPClient::calculateEfficiency(const ParameterSet& pset){
       effChi2->setBinContent( index, fitter->getChi2() );
       if(plots){
         plots->cd();
-        fitter->savePlot( TString::Format("%s_%d_%d",effName.c_str(),par1,par2) );
+        fitter->savePlot( TString::Format("%s_%s_%d_%d",prefix.Data(),effName.c_str(),par1,par2) );
       }
     }
   }
+  delete all1D;
+  delete pass1D;
 }
 
 DQMGenericTnPClient::~DQMGenericTnPClient(){
   delete GPLfitter;
   if(plots){
-    plots->Write();
     plots->Close();
   }
 }
