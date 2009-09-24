@@ -43,7 +43,7 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 )
 
 # This Example uses only "corMetGlobalMuons". Modify to run over pf & tc Met
-process.path = cms.Path(process.selectCaloWMuNus)
+process.path = cms.Path(process.selectCaloMetWMuNus)
 
 process.end = cms.EndPath(process.wmnOutput)
 

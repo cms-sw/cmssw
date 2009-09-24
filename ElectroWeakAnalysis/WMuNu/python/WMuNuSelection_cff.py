@@ -127,7 +127,7 @@ seltcMet = cms.EDFilter("WMuNuSelector",
 
 )
 
-selectCaloWMuNus = cms.Sequence(corMetWMuNus+selcorMet)
+selectCaloMetWMuNus = cms.Sequence(corMetWMuNus+selcorMet)
 
 selectPfMetWMuNus = cms.Sequence(pfMetWMuNus+selpfMet)
 

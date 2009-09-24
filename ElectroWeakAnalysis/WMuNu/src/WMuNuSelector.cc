@@ -148,7 +148,7 @@ void WMuNuSelector::beginJob(const EventSetup &) {
 
    if(plotHistograms_){
      edm::Service<TFileService> fs;
-     h1_["hNWCand_sel"]                  =fs->make<TH1D>("NWCand_sel","Nb. of WCandidates passing pre-selection",10,0.,10.);
+     h1_["hNWCand_sel"]                  =fs->make<TH1D>("NWCand_sel","Nb. of WCandidates passing pre-selection (ordered by pt)",10,0.,10.);
      h1_["hPtMu_sel"]                    =fs->make<TH1D>("ptMu_sel","Pt mu",100,0.,100.);
      h1_["hEtaMu_sel"]                   =fs->make<TH1D>("etaMu_sel","Eta mu",50,-2.5,2.5);
      h1_["hd0_sel"]                      =fs->make<TH1D>("d0_sel","Impact parameter",1000,-1.,1.);
@@ -273,14 +273,16 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             return false;
       }
   
-      if(WMuNuCollection->size() < 1) return 0;
- 
+      if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
+      else if (WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate"; return 0;}  
 
       // W->mu nu selection criteria
 
       LogTrace("") << "> WMuNu Candidate with: ";
       const WMuNuCandidate& WMuNu = WMuNuCollection->at(0);
-      // WMuNuCandidates are ordered by Pt! Our best Candidate is the first one 
+      // WMuNuCandidates are ordered by Pt! 
+      // The Inclusive Selection WMuNu Candidate is the first one 
+     
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
             if(plotHistograms_){

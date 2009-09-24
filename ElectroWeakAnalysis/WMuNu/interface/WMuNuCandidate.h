@@ -37,8 +37,8 @@ public:
       // Acoplanarity between the muon and the MET
       double acop() const;
 
-      reco::Muon getMuon()     const {return *muon_;}; 
-      reco::MET  getNeutrino() const {return *neutrino_;};
+      const reco::Muon & getMuon()     const {return *muon_;}; 
+      const reco::MET  & getNeutrino() const {return *neutrino_;};
 
 
 private:
