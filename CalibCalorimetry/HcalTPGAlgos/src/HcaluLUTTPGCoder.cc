@@ -615,7 +615,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             isMasked = ( (status & bitToMask) > 0 );
 
 				
-			int offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? 1 : 0; // Lumi offset of 1 for the four rings used to measure lumi
+         frame.setSample(0, HcalQIESample(1));
+         coder.adc2fC(frame,samples);
+			float offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? samples[0] : 0; // Lumi offset of 1 adc (in fC) for the four rings used to measure lumi
 			for (int j = 0; j <= 0x7F; j++) {
 				HcalQIESample adc(j);
 				frame.setSample(0,adc);
