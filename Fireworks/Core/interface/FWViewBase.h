@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.7 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWViewBase.h,v 1.8 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -47,6 +47,7 @@ public:
    // ---------- member functions ---------------------------
    void destroy();
    sigc::signal<void,const FWViewBase*> beingDestroyed_;
+   sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 
 protected:
    virtual ~FWViewBase();
