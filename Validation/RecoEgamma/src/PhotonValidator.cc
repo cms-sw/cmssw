@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2009/08/04 18:14:23 $ 
- **  $Revision: 1.49 $
+ **  $Date: 2009/08/19 16:52:14 $ 
+ **  $Revision: 1.50 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -694,6 +694,15 @@ void  PhotonValidator::beginJob() {
     histname="hOverEVsEt";
     h2_hOverEVsEt_[0] = dbe_->book2D(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
     h2_hOverEVsEt_[1] = dbe_->book2D(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    //
+    histname="pHoverEVsEta";
+    p_hOverEVsEta_[0] = dbe_->bookProfile(histname+"All"," All photons H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    p_hOverEVsEta_[1] = dbe_->bookProfile(histname+"Unconv"," All photons H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
+    //
+    histname="pHoverEVsEt";
+    p_hOverEVsEt_[0] = dbe_->bookProfile(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    p_hOverEVsEt_[1] = dbe_->bookProfile(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+
     //
     histname = "ecalRecHitSumEtConeDR04";
     h_ecalRecHitSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
@@ -1691,6 +1700,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_hOverE_[type][0]->Fill( hOverE );
       h2_hOverEVsEta_[0] -> Fill (mcEta_, hOverE );      
       h2_hOverEVsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), hOverE);      
+      p_hOverEVsEta_[0] -> Fill (mcEta_, hOverE );      
+      p_hOverEVsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), hOverE);      
       //
       h_ecalRecHitSumEtConeDR04_[type][0]->Fill( ecalIso );
       h2_ecalRecHitSumEtConeDR04VsEta_[0] -> Fill (mcEta_, ecalIso );      
