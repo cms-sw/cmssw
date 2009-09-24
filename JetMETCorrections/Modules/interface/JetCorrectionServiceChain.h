@@ -1,7 +1,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Feb. 13, 2008
-// $Id: JetCorrectionServiceChain.icc,v 1.1 2007/01/18 01:35:12 fedor Exp $
+// $Id: JetCorrectionServiceChain.h,v 1.1 2008/02/29 22:58:45 fedor Exp $
 //
 //
 

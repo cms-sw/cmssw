@@ -1,32 +1,36 @@
-#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/SourceFactory.h"
 DEFINE_SEAL_MODULE();
 
+#include "CondCore/PluginSystem/interface/registration_macros.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-
 using namespace cms;
 using namespace reco;
 
+#include "JetMETCorrections/Modules/interface/JetCorrectionService.h"
+#include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "JetMETCorrections/Modules/src/JetCorrectionProducer.h"
 typedef JetCorrectionProducer<CaloJet> CaloJetCorrectionProducer;
 DEFINE_ANOTHER_FWK_MODULE(CaloJetCorrectionProducer);
+
+#include "DataFormats/JetReco/interface/PFJet.h"
 typedef JetCorrectionProducer<PFJet> PFJetCorrectionProducer;
 DEFINE_ANOTHER_FWK_MODULE(PFJetCorrectionProducer);
-#include "PlotJetCorrections.h"
+
+#include "JetMETCorrections/Modules/interface/PlotJetCorrections.h"
 DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
-#include "JetCorrectionServiceChain.h"
+
+#include "JetMETCorrections/Modules/interface/JetCorrectionServiceChain.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(JetCorrectionServiceChain);
 
-#include "JetCorrectionService.icc"
 #include "JetMETCorrections/Objects/interface/SimpleJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
+
 #include "JetMETCorrections/Algorithms/interface/MCJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
 #include "JetMETCorrections/Algorithms/interface/MCJetCorrector3D.h"

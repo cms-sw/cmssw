@@ -1,7 +1,10 @@
+#ifndef JetCorrectionService_h
+#define JetCorrectionService_h
+
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: MCJetCorrectionService.cc,v 1.2 2007/01/04 21:37:39 fedor Exp $
+// $Id: JetCorrectionService.icc,v 1.1 2007/01/18 01:35:12 fedor Exp $
 //
 //
 
@@ -49,3 +52,5 @@ public:
     fIOV = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime()); // anytime
   }
 };
+
+#endif
