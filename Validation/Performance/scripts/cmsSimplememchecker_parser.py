@@ -48,28 +48,29 @@ def manipulate_log(outdir,logfile_name,startevt):
     # skim the second entry when the event number is the same BUG!!!!!!!
     # i take elements in couples!
     new_data=[]
-    if data[0][0]==data[1][0]:
-        print 'Two modules seem to have some output.\nCollapsing ...'
-        i=0
-        while True:
-            dataline1=data[i]
-            i+=1
-            dataline2=data[i]
-            new_eventnumber=dataline1[0]
-            new_vsize=dataline2[1]['vsize']
-            new_delta_vsize=dataline1[1]['delta_vsize']+dataline2[1]['delta_vsize']
-            new_rss=dataline2[1]['rss']
-            new_delta_rss=dataline1[1]['delta_rss']+dataline2[1]['delta_rss']
-            
-            new_data.append((new_eventnumber,{'vsize':new_vsize,
-                                              'delta_vsize':new_delta_vsize,
-                                              'rss':new_rss,
-                                              'delta_rss':new_delta_rss}))
-            i+=1
-            if i==len(data): break
-                 
-        data=new_data
-        print 'Collapsing: Done!'        
+    if len(data)>2:
+    	if data[0][0]==data[1][0]:
+    	    print 'Two modules seem to have some output.\nCollapsing ...'
+    	    i=0
+    	    while True:
+    	        dataline1=data[i]
+    	        i+=1
+    	        dataline2=data[i]
+    	        new_eventnumber=dataline1[0]
+    	        new_vsize=dataline2[1]['vsize']
+    	        new_delta_vsize=dataline1[1]['delta_vsize']+dataline2[1]['delta_vsize']
+    	        new_rss=dataline2[1]['rss']
+    	        new_delta_rss=dataline1[1]['delta_rss']+dataline2[1]['delta_rss']
+    	        
+    	        new_data.append((new_eventnumber,{'vsize':new_vsize,
+    	                                          'delta_vsize':new_delta_vsize,
+    	                                          'rss':new_rss,
+    	                                          'delta_rss':new_delta_rss}))
+    	        i+=1
+    	        if i==len(data): break
+    	             
+    	    data=new_data
+    	    print 'Collapsing: Done!'        
         
     npoints=len(data)
     

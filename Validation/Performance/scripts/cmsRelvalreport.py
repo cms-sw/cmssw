@@ -460,7 +460,7 @@ class Profile:
         if outdir==None or outdir==self.profile_name:
             outdir=self.profile_name+'_outdir'
             
-        #Create the directory where the report will be stored:          
+        #Create the directory where the report will be stored:
         if not os.path.exists(outdir) and not fill_db and not IgProf_option:
             #Added an IgProf condition to avoid the creation of a directory that we will not need anymore, since we will put all info in the filenames
             execute('mkdir %s' %outdir)
@@ -929,7 +929,7 @@ if __name__=="__main__":
                       help='Specify the IgProf counter or the CMSSW. '+\
                            'If a profiler different from '+\
                            'IgProf is selected this is ignored.' ,
-                      default='PERF_TICKS',
+                      default=None,
                       dest='IgProf_counter')                        
                       
     parser.add_option('--executable',
