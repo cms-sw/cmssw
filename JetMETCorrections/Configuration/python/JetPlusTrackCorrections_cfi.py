@@ -9,6 +9,7 @@ JPTZSPCorrectorICone5 = cms.PSet(
     # General Configuration
     Verbose           = cms.bool(False),
     UsePatCollections = cms.bool(False),
+    UseEfficiency     = cms.bool(True),
     
     # Select correction types
     UseInConeTracks      = cms.bool(True),
