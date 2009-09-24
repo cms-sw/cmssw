@@ -54,6 +54,9 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false, cons
 
   TFile *Target;
 
+  vecNames.push_back("DeltaMassOverGenMassVsPt");
+  vecNames.push_back("DeltaMassOverGenMassVsEta");
+
   vecNames.push_back(mainNamePt + "_ResoVSPt");
   vecNames.push_back(mainNamePt + "_ResoVSEta");
   vecNames.push_back(mainNamePt + "_ResoVSPhiMinus");

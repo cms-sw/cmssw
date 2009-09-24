@@ -9,21 +9,22 @@
  * It draws the reco-gen derived resolution (true resolution), those from the resolution functions from 0_MuScleFit.root
  * and those from the resolution functions from 1_MuScleFit.root for a comparison of the change before and after the fit.
  */
+
 draw( const TString & resolName, TDirectory * resolDir,
       const TString & functionResolName, TDirectory * functionResolDir,
       const TString & canvasName, TFile * outputFile,
       const TString & title = "", const TString & xAxisTitle = "", const TString & yAxisTitle = "", double Ymax,
       TDirectory * functionResolDirAfter = 0, TDirectory * resolDirAfter = 0 )
 {
+  TProfile * functionResolVSpt = (TProfile*) functionResolDir->Get(functionResolName);
+  TProfile * functionResolVsptAfter = 0;
+  if( functionResolDirAfter != 0 ) functionResolVSptAfter = (TProfile*) functionResolDirAfter->Get(functionResolName);
   TH1D * resolVSpt = (TH1D*) resolDir->Get(resolName);
   TH1D * resolVSptAfter = 0;
   if( resolDirAfter != 0 ) {
     resolVSptAfter = (TH1D*) resolDirAfter->Get(resolName);
     cout << "resolName = " << resolName << endl;
   }
-  TProfile * functionResolVSpt = (TProfile*) functionResolDir->Get(functionResolName);
-  TProfile * functionResolVsptAfter = 0;
-  if( functionResolDirAfter != 0 ) functionResolVSptAfter = (TProfile*) functionResolDirAfter->Get(functionResolName);
 
   TString resolVSptName("from reco-gen comparison");
   TCanvas * c = new TCanvas(canvasName, canvasName, 1000, 800);
@@ -33,7 +34,9 @@ draw( const TString & resolName, TDirectory * resolDir,
   legend->SetFillColor(0); // Have a white background
   if( resolDirAfter == 0 ) legend->AddEntry(resolVSpt, resolVSptName);
   else legend->AddEntry(resolVSpt, resolVSptName+" before");
+  cout << "resolVSpt = " << resolVSpt << endl;
   resolVSpt->SetTitle(title);
+  resolVSpt->Draw();
   resolVSpt->GetXaxis()->SetTitle(xAxisTitle);
   resolVSpt->GetYaxis()->SetTitle(yAxisTitle);
   resolVSpt->SetMaximum(Ymax);
@@ -91,8 +94,36 @@ void ResolCompare(const TString & stringNumBefore = "0", const TString & stringN
   TDirectory * resolDirAfter = 0;
   TDirectory * functionResolDirBefore = 0;
   TDirectory * functionResolDirAfter = 0;
-  // sigmaPt
-  // -------
+
+
+  // SigmaMass/Mass
+  // --------------
+  resolDirBefore = (TDirectory*) resolFileBefore->Get("DeltaMassOverGenMassVsPt");
+  if( resolFileAfter == 0 ) resolDirAfter = 0;
+  else resolDirAfter = (TDirectory*) resolFileAfter->Get("DeltaMassOverGenMassVsPt");
+  functionResolDirBefore = (TDirectory*) functionResolFileBefore->Get("hFunctionResolMassVSMu");
+  functionResolDirAfter = (TDirectory*) functionResolFileAfter->Get("hFunctionResolMassVSMu");
+  // Vs Pt
+  draw("DeltaMassOverGenMassVsPt_resol", resolDirBefore,
+       "hFunctionResolMassVSMu_ResoVSPt_prof", functionResolDirBefore,
+       "massResolVSpt", outputFile,
+       "resolution on mass vs pt",
+       "pt(GeV)", "#sigmaM/M",0.2,
+       functionResolDirAfter, resolDirAfter );
+  // VsEta
+  resolDirBefore = (TDirectory*) resolFileBefore->Get("DeltaMassOverGenMassVsEta");
+  if( resolFileAfter == 0 ) resolDirAfter = 0;
+  else resolDirAfter = (TDirectory*) resolFileAfter->Get("DeltaMassOverGenMassVsEta");
+  draw("DeltaMassOverGenMassVsEta_resol", resolDirBefore,
+       "hFunctionResolMassVSMu_ResoVSEta_prof", functionResolDirBefore,
+       "massResolVSeta", outputFile,
+       "resolution on mass vs eta",
+       "eta", "#sigmaM/M",0.2,
+       functionResolDirAfter, resolDirAfter );
+
+
+  // sigmaPt/Pt
+  // ----------
   resolDirBefore = (TDirectory*) resolFileBefore->Get("hResolPtGenVSMu");
   if( resolFileAfter == 0 ) resolDirAfter = 0;
   else resolDirAfter = (TDirectory*) resolFileAfter->Get("hResolPtGenVSMu");
