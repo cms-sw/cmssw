@@ -183,17 +183,17 @@ void WMuNuSelector::endJob() {
       double esel = nsel/all;
 
       LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
-      LogVerbatim("") << "Total numer of events pre-selected: " << npresel << " [events]";
+      LogVerbatim("") << "Total number of events analyzed: " << nall << " [events]";
+      LogVerbatim("") << "Total number of events pre-selected: " << npresel << " [events]";
       LogVerbatim("") << "Pre-Selection Efficiency:             " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
-      LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
+      LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Selection Efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
 
      if ( fabs(selectByCharge_)==1 ){
       esel = nsel/ncharge;
       LogVerbatim("") << "\n>>>>>> W+(-) SELECTION >>>>>>>>>>>>>>>";
-      LogVerbatim("") << "Total numer of W+(-) events pre-selected: " << ncharge << " [events]";
-      LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
+      LogVerbatim("") << "Total number of W+(-) events pre-selected: " << ncharge << " [events]";
+      LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
       LogVerbatim("") << "Selection Efficiency only W+(-): " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/ncharge)*100. << ")%";    
      }
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
@@ -278,7 +278,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
   
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
-      else if (WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate"; return 0;}  
+      else if (WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
 
       // W->mu nu selection criteria
 
