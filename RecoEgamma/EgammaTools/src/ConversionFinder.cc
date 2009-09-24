@@ -41,6 +41,10 @@ bool ConversionFinder::isElFromConversion(const reco::GsfElectron& gsfElectron,
       continue;
 
     int tk_q = tk->charge();
+
+    //the electron and track must be opposite charge
+    if(tk_q + gsfElectron.charge() != 0)
+      continue;
     LorentzVector tk_p4 = LorentzVector(tk->px(), tk->py(),
 					tk->pz(), tk->p());
     double tk_d0 = tk->d0();
