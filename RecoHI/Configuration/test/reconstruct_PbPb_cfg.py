@@ -1,84 +1,61 @@
+# Auto generated configuration file
+# using: 
+# Revision: 1.7 
+# Source: /cvs_server/repositories/CMSSW/UserCode/edwenger/Misc/ConfigBuilder.py,v 
+# with command line options: hiReco -s RAW2DIGI,RECO --scenario HeavyIons --conditions FrontierConditions_GlobalTag,MC_31X_V8::All --datatier GEN-SIM-RECO --eventcontent=RECODEBUG --filein=/store/relval/CMSSW_3_3_0_pre3/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V8-v1/0015/DC571B73-43A1-DE11-BD0C-000423D98804.root -n 1 --no_exec --fileout=hydjetMB_RECO.root
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("RECO")
+process = cms.Process('RECO')
 
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+# import of standard configurations
+process.load('Configuration/StandardSequences/Services_cff')
+process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration/StandardSequences/MixingNoPileUp_cff')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/MagneticField_38T_cff')
+process.load('Configuration/StandardSequences/RawToDigi_cff')
+process.load('Configuration/StandardSequences/ReconstructionHeavyIons_cff')
+process.load('Configuration/StandardSequences/EndOfProcess_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration/EventContent/EventContentHeavyIons_cff')
 
-#global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions#3XY_Releases_MC
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.configurationMetadata = cms.untracked.PSet(
+    version = cms.untracked.string('$Revision: 1.7 $'),
+    annotation = cms.untracked.string('hiReco nevts:1'),
+    name = cms.untracked.string('PyReleaseValidation')
+)
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+process.options = cms.untracked.PSet(
+    Rethrow = cms.untracked.vstring('ProductNotFound')
+)
+# Input source
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0_pre3/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V8-v1/0015/DC571B73-43A1-DE11-BD0C-000423D98804.root')
+)
+
+# Output definition
+process.output = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    outputCommands = process.RECODEBUGEventContent.outputCommands,
+    fileName = cms.untracked.string('hydjetMB_RECO.root'),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('GEN-SIM-RECO'),
+        filterName = cms.untracked.string('')
+    )
+)
+
+# Additional output definition
+
+# Other statements
 process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
-##################################################################################
-# Some services
+# Path and EndPath definitions
+process.raw2digi_step = cms.Path(process.RawToDigi)
+process.reconstruction_step = cms.Path(process.reconstructionHeavyIons)
+process.endjob_step = cms.Path(process.endOfProcess)
+process.out_step = cms.EndPath(process.output)
 
-process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
-                                        ignoreTotal=cms.untracked.int32(0),
-                                        oncePerEventMode = cms.untracked.bool(False)
-                                        )
-										
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('towerMaker', 
-        'caloTowers', 
-        'iterativeConePu5CaloJets'),
-    destinations = cms.untracked.vstring('cout', 
-        'cerr'),
-    cerr = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    fwkJobReports = cms.untracked.vstring('FrameworkJobReport.xml')
-)
-
-process.Timing = cms.Service("Timing")
-
-##################################################################################
-
-# setup 'standard'  options
-options = VarParsing.VarParsing ('standard')
-
-# setup any defaults you want
-options.output = 'test_output_RECO.root'
-#options.files = '/store/relval/CMSSW_3_3_0_pre1/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V5-v1/0012/ECD0FB45-6796-DE11-B075-001D09F28D54.root'
-options.files = '/store/relval/CMSSW_3_3_0_pre3/RelValHydjetQ_MinBias_4TeV/GEN-SIM-RAW/MC_31X_V8-v1/0015/DC571B73-43A1-DE11-BD0C-000423D98804.root'
-options.maxEvents = 1 
-
-# get and parse the command line arguments
-options.parseArguments()
-
-##################################################################################
-# Input Source
-process.source = cms.Source('PoolSource',
-	fileNames = cms.untracked.vstring(options.files)
-)
-							
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(options.maxEvents)
-)
-
-##################################################################################
-# Digi + Reconstruction
-
-process.load("Configuration.StandardSequences.RawToDigi_cff")
-process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff")
-
-##############################################################################
-# Output EDM File
-process.load("Configuration.EventContent.EventContentHeavyIons_cff")
-process.output = cms.OutputModule("PoolOutputModule",
-    process.RECODEBUGEventContent,
-    compressionLevel = cms.untracked.int32(2),
-    commitInterval = cms.untracked.uint32(1),
-    fileName = cms.untracked.string(options.output)
-)
-
-##################################################################################
-# Paths
-process.p = cms.Path(process.RawToDigi*process.reconstruct_PbPb)
-process.outpath = cms.EndPath(process.output)
-
-
+# Schedule definition
+process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.endjob_step,process.out_step)
