@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
 
+# Paths for WMuNuSelector filtering of events
+# Be careful: events may contain more than one WMunuCandidate if they
+#             contain more than one muon. 
+# The "real" WMuNuCandidate selected is the first one of the collection
+
 selcorMet = cms.EDFilter("WMuNuSelector",
       # Fill Basc Histograms? ->
       plotHistograms = cms.untracked.bool(False),

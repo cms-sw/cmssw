@@ -5,10 +5,14 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                      //      
 //    Filter of WMuNuCandidates for Analysis                                                                            //
-//    --> From a WMuNuCandidate collection with event cuts (trigger, Z rejection, ttbar rejection) already in place     //
-//    --> Ws are pre-selected from the highest pt muon in the event (once Zs have been rejected)                        //
+//    --> From a WMuNuCandidate collection                                                                              //
+//    --> Pre-Selection of events based in event cuts (trigger, Z rejection, ttbar rejection)                           //
+//    --> The Ws are selected from the highest pt muon in the event (applying the standard WMuNu Selection cuts)        //
 //                                                                                                                      //
-//    Optionally, plots selection variables sequentially after cuts,                                                       //
+//    --> Be careful: if this Selector is used as a filter for further analysis you still have to make sure that        //
+//                    the W Candidate you use for your modules is the first one in the collection!!                     //
+//                                                                                                                      //
+//    Optionally, plots selection variables sequentially after cuts,                                                    //
 //    and 2D histograms for background determination.                                                                   //
 //                                                                                                                      //
 //    For basic plots before & after cuts (without Candidate formalis), use WMuNuValidator.cc                           //

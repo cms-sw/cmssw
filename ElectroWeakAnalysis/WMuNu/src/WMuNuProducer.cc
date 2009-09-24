@@ -1,3 +1,20 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                      //
+//                                    WMuNuCandidate Producer                                                           //
+//                                                                                                                      //    
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                      //      
+//    Productor of WMuNuCandidates for Analysis                                                                         //
+//    --> Creates a WMuNuCandidateCollection                                                                            //
+//    --> One Candidate is created per muon in the event, combinig the information with a selected kind of Met          //
+//        (met kind configurable via cfg)                                                                               //
+//    --> All WMuNuCandidates are stored in the event, ordered by muon pt.                                              //
+//    --> The WMuNuCandidate to be used for the Inclusive analysis is then the first one! (Highest Pt)                  //
+//                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
