@@ -22,6 +22,7 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
     useInConeTracks_( pset.getParameter<bool>("UseInConeTracks") ),
     useOutOfConeTracks_( pset.getParameter<bool>("UseOutOfConeTracks") ),
     useOutOfVertexTracks_( pset.getParameter<bool>("UseOutOfVertexTracks") ),
+    useEff_( pset.getParameter<bool>("UseEfficiency") ),
     useMuons_( pset.getParameter<bool>("UseMuons") ),
     useElectrons_( pset.getParameter<bool>("UseElectrons") ),
     usePat_( pset.getParameter<bool>("UsePatCollections") ),
@@ -135,14 +136,18 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
   double corr_pion_eff_in_cone = 0.;
   double corr_pion_eff_out_of_cone = 0.;
   
-  if ( useInConeTracks_ ) { 
-    corr_pion_eff_in_cone = correction( in_cone, true );
-    jet_energy += corr_pion_eff_in_cone;
-  }
+  if ( useEff_ ) {
 
-  if ( useOutOfConeTracks_ ) {
-    corr_pion_eff_out_of_cone = correction( out_of_cone, false );
-    jet_energy += corr_pion_eff_out_of_cone;
+    if ( useInConeTracks_ ) { 
+      corr_pion_eff_in_cone = correction( in_cone, true );
+      jet_energy += corr_pion_eff_in_cone;
+    }
+    
+    if ( useOutOfConeTracks_ ) {
+      corr_pion_eff_out_of_cone = correction( out_of_cone, false );
+      jet_energy += corr_pion_eff_out_of_cone;
+    }
+
   }
   
   // -------------------- Muons --------------------
@@ -173,7 +178,10 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
   
   // Check if scale is negative
   double scale = jet_energy / fJet.energy();
-  if ( scale < 0. ) { scale = 1.; } 
+  if ( scale < 0. ) { 
+    jet_energy = fJet.energy();
+    scale = 1.; 
+  } 
 
   if ( verbose_ ) {
     std::stringstream ss;
@@ -200,15 +208,14 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
     ss << "Total correction:" << std::endl
        << " Uncorrected energy : " << fJet.energy() << std::endl
        << " Corrected energy   : " << jet_energy << std::endl
-       << " Correction factor  : " << jet_energy / fJet.energy() << std::endl
-       << " Factor returned    : " << scale;
+       << " Correction factor  : " << scale;
     edm::LogVerbatim("JPTCorrector") << ss.str();
   }
 
-//   LogTrace("test") << " mScale= " << scale
-//    		   << " NewResponse " << jet_energy 
-//    		   << " Jet energy " << fJet.energy()
-//    		   << " event " << event.id().event();
+//   std::cout << " mScale= " << scale
+// 	    << " NewResponse " << jet_energy 
+// 	    << " Jet energy " << fJet.energy()
+// 	    << " event " << event.id().event() << std::endl;
   
   return scale;
   
@@ -884,16 +891,10 @@ double JetPlusTrackCorrector::correction( const reco::TrackRefVector& tracks,
 		     << " Track eta / pt    : " << eta << " / " << pt << std::endl
 		     << temp.str() << std::setw(21-temp.str().size()) << " : " 
 		     << response().value(ieta,ipt) << std::endl
-		     << " Track momentum    : " << momentum << std::endl
-		     << " Energy subtracted : " << momentum * response().value(ieta,ipt) << std::endl
-		     << " Energy correction : " << correction;
-		  // 		  int k = ieta*response().nPtBins()+ipt;
-		  // 		  ss << "        k eta/pT index = " << k
-		  // 		     << " netracks_incone[k] = " << track_response.nTrks( ieta, ipt )
-		  // 		     << " emean_incone[k] = " << track_response.sumE( ieta, ipt )
-		  // 		     << " i,j "<<ieta<<" "<<ipt<<" "<<response().value(ieta,ipt)
-		  // 		     << " echar "<<momentum<<" "<<response().value(ieta,ipt)*momentum;
-		  LogTrace("JetPlusTrackCorrector") << ss.str();
+		     << " Track momentum added : " << momentum << std::endl
+		     << " Response subtracted  : " << ( mip > 0. ? mip : momentum * response().value(ieta,ipt) ) << std::endl
+		     << " Energy correction    : " << correction;
+		  LogDebug("JetPlusTrackCorrector") << ss.str();
 		}
 		
 	      }

@@ -136,6 +136,7 @@ class JetPlusTrackCorrector : public JetCorrector {
   bool useInConeTracks_;
   bool useOutOfConeTracks_;
   bool useOutOfVertexTracks_;
+  bool useEff_;
   bool useMuons_;
   bool useElectrons_;
   bool usePat_;
