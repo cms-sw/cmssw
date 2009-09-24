@@ -67,10 +67,7 @@ namespace popcon
 			~EcalTPGPedestalsHandler(); 
 			void getNewObjects();
 
-
-
 			std::string id() const { return m_name;}
-
 
 			void readFromFile(const char* inputFile) ;
 			void writeFile(const char* inputFile);
