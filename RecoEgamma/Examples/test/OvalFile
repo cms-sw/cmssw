@@ -18,8 +18,8 @@ The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="330pre3">
-<var name="VAL_REF_RELEASE" value="330pre2">
+<var name="VAL_NEW_RELEASE" value="330pre5beta1">
+<var name="VAL_REF_RELEASE" value="330pre3">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
@@ -51,19 +51,19 @@ time to time we will have to upgrade the values DBS_* variable so to keep in
 touch with changes in data catalog structure.
 
 <file name="dbs_discovery.txt">
-RelValSingleElectronPt10-RECO.root
-RelValSingleElectronPt35-RECO.root
-RelValTTbar-RECO.root
-RelValZEE-RECO.root
-RelValZEE-STARTUP-RECO.root
-RelValQCD_Pt_80_120-RECO.root
+/tmp/RelValSingleElectronPt10-RECO.root
+/tmp/RelValSingleElectronPt35-RECO.root
+/tmp/RelValTTbar-RECO.root
+/tmp/RelValZEE-MC-RECO.root
+/tmp/RelValZEE-STARTUP-RECO.root
+/tmp/RelValQCD_Pt_80_120-RECO.root
 </file>
 
 <environment name="FullSimStdStats">
 
   <var name="DBS_COND" value="MC_31X_V8-v*">
-  <!var name="DBS_RELEASE" value="LOCAL">
-  <!var name="DBS_COND" value="">
+  <var name="DBS_RELEASE" value="LOCAL">
+  <var name="DBS_COND" value="">
 
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -91,7 +91,7 @@ RelValQCD_Pt_80_120-RECO.root
   
   <environment name="FullZEEIdeal">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <!var name="DBS_COND" value="MC">
+    <var name="DBS_COND" value="MC">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
@@ -101,7 +101,7 @@ RelValQCD_Pt_80_120-RECO.root
   <environment name="FullZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="DBS_COND" value="STARTUP31X_V7-v*">
-    <!var name="DBS_COND" value="STARTUP">
+    <var name="DBS_COND" value="STARTUP">
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
@@ -137,58 +137,112 @@ RelValQCD_Pt_80_120-RECO.root
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ================================================================================
-This set of targets is made to redo the electrons froms the core electrons
+This set of targets is made to redo the electrons
 with the local modified code.
 ================================================================================
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<environment name="RedoFromCore">
+<environment name="Redo">
 
   <var name="TEST_GLOBAL_TAG" value="MC_31X_V8">
   <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
 
-  <environment name="RedoPt10">
-    <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
-    <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
-  </environment>
+  <environment name="RedoFromCore">
+
+    <environment name="RedoFromCorePt10">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+    </environment>
   
-  <environment name="RedoPt35">
-    <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
-    <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
-  </environment>
+    <environment name="RedoFromCorePt35">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+    </environment>
   
-  <environment name="RedoTTbar">
-    <var name="DBS_SAMPLE" value="RelValTTbar">
-    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
-    <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
-  </environment>
+    <environment name="RedoFromCoreTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+    </environment>
   
-  <environment name="RedoZEEIdeal">
-    <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-MC-RECO.root">
-    <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
-  </environment>
+    <environment name="RedoFromCoreZEEIdeal">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+    </environment>
   
-  <environment name="RedoZEEStartup">
-    <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-STARTUP-RECO.root">
-    <var name="TEST_GLOBAL_TAG" value="STARTUP31X_V7">
-    <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
-    <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
-  </environment>
+    <environment name="RedoFromCoreZEEStartup">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-STARTUP-RECO.root">
+      <var name="TEST_GLOBAL_TAG" value="STARTUP31X_V7">
+      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+    </environment>
   
-  <environment name="RedoQcdPt80-120">
-    <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-    <var name="TEST_OUTPUT_FILE" value="${DBS_SAMPLE}-RECO.root">
-    <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="GsfElectronFromCore_cfg.py">
+    <environment name="RedoFromCoreQcdPt80-120">
+      <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromCore_cfg.py">
+    </environment>
+  
+  </environment>
+
+  <environment name="RedoFromRaw">
+
+    <var name="DBS_TIER" value="-RAW">
+
+    <environment name="RedoFromRawPt10">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawPt35">
+      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawTTbar">
+      <var name="DBS_SAMPLE" value="RelValTTbar">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawZEEIdeal">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-MC-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawZEEStartup">
+      <var name="DBS_SAMPLE" value="RelValZEE">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-STARTUP-RECO.root">
+      <var name="TEST_GLOBAL_TAG" value="STARTUP31X_V7">
+      <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-v*">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+    </environment>
+  
+    <environment name="RedoFromRawQcdPt80-120">
+      <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+      <var name="TEST_OUTPUT_FILE" value="/tmp/${DBS_SAMPLE}-RECO.root">
+      <executable name="dbs_discovery.py">
+      <executable name="cmsRun" args="GsfElectronRedoFromRaw_cfg.py">
+    </environment>
+  
   </environment>
   
 </environment>
