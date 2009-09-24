@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.16 2009/09/18 20:01:48 amraktad Exp $
+// $Id: FW3DView.cc,v 1.17 2009/09/24 00:28:24 chrjones Exp $
 //
 
 // system include files
@@ -104,7 +104,7 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
-   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
    m_embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
    

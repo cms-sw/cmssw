@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.53 2009/09/21 14:20:31 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.54 2009/09/24 00:29:03 chrjones Exp $
 //
 
 // system include files
@@ -98,14 +98,11 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
-   //NOTE: This doesn't work because later the Event handler is replaced :(
-   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
-   m_embeddedViewer->SetEventHandler(eh);
+   TGLEmbeddedViewer* ev = m_embeddedViewer;
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)ev->GetGLWidget(), (TObject*)ev);
+   ev->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
    
-   
-   TGLEmbeddedViewer* ev = m_embeddedViewer;
-
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
    m_showScales.changed_.connect(boost::bind(&FWEveLegoView::showScales,this));
 
@@ -129,10 +126,7 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
          m_overlay->SetScalePosition(0.88, 0.6);
 
          ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-
-         ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-         TEveLegoEventHandler* eh = new TEveLegoEventHandler(m_lego, ev->GetGLWidget(), ev); 	 
-         ev->SetEventHandler(eh);
+         eh->SetLego(m_lego);
       }
    }
    // take care of cameras

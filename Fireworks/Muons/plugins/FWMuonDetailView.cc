@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.11 2009/09/06 23:14:35 dmytro Exp $
+// $Id: FWMuonDetailView.cc,v 1.12 2009/09/16 21:56:05 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -106,7 +106,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    // set event handler and flip camera to top view at beginning
    glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = 
-     new TEveLegoEventHandler(lego,(TGWindow*)glv->GetGLWidget(), (TObject*)glv);
+      new TEveLegoEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv, lego);
    glv->SetEventHandler(eh);
    glv->UpdateScene();
    glv->CurrentCamera().Reset();

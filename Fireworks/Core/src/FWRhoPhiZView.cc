@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.38 2009/09/18 20:01:48 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.39 2009/09/24 00:28:24 chrjones Exp $
 //
 
 #define private public
@@ -161,7 +161,7 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
    
-   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
    m_embeddedViewer->SetEventHandler(eh);
    eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
    

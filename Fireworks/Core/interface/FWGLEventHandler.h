@@ -1,14 +1,14 @@
 #ifndef Fireworks_Core_FWGLEventHandler_h
 #define Fireworks_Core_FWGLEventHandler_h
 
-#include "TGLEventHandler.h"
+#include "TEveLegoEventHandler.h"
 #include <sigc++/signal.h>
 
 class TGWindow;
 
-class FWGLEventHandler : public TGLEventHandler {
+class FWGLEventHandler : public TEveLegoEventHandler {
 public:
-   FWGLEventHandler(const char *name, TGWindow *w, TObject *obj, const char *title="");
+   FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l = 0 );
    virtual ~FWGLEventHandler() {}
 
    virtual Bool_t HandleButton(Event_t * event);

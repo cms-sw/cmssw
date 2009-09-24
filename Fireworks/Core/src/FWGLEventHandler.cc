@@ -21,9 +21,8 @@
 #include "TEveProjectionBases.h"
 
 //______________________________________________________________________________
-FWGLEventHandler::FWGLEventHandler(const char *name, TGWindow *w, TObject *obj,
-                                 const char *title) :
-   TGLEventHandler(name, w, obj, title)
+FWGLEventHandler::FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l):
+   TEveLegoEventHandler(w, obj, l)
 {
 
 }
