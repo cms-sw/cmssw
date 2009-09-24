@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:02 CDT 2009
-// $Id$
+// $Id: FWModelContextMenuHandler.h,v 1.1 2009/09/23 20:25:29 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@ class FWSelectionManager;
 class FWDetailViewManager;
 class FWColorManager;
 class FWColorPopup;
+class FWGUIManager;
 
 class FWModelContextMenuHandler
 {
@@ -37,7 +38,8 @@ class FWModelContextMenuHandler
 public:
    FWModelContextMenuHandler(FWSelectionManager*,
                              FWDetailViewManager*,
-                             FWColorManager*);
+                             FWColorManager*,
+                             FWGUIManager*);
    virtual ~FWModelContextMenuHandler();
    
    // ---------- const member functions ---------------------
@@ -63,6 +65,7 @@ private:
    FWSelectionManager* m_selectionManager;
    FWDetailViewManager* m_detailViewManager;
    FWColorManager* m_colorManager;
+   FWGUIManager* m_guiManager;
    mutable Int_t m_x;
    mutable Int_t m_y;
 };

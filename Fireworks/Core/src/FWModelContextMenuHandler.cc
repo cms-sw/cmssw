@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id$
+// $Id: FWModelContextMenuHandler.cc,v 1.1 2009/09/23 20:25:29 chrjones Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 
 //
 // constants, enums and typedefs
@@ -30,6 +31,8 @@ enum MenuOptions {
    kSetVisibleMO,
    kSetColorMO,
    kOpenDetailViewMO,
+   kOpenObjectControllerMO,
+   kOpenCollectionControllerMO,
    kNumOfMO
 };
 
@@ -42,12 +45,14 @@ enum MenuOptions {
 //
 FWModelContextMenuHandler::FWModelContextMenuHandler(FWSelectionManager* iSM,
                                                      FWDetailViewManager* iDVM,
-                                                     FWColorManager* iCM):
+                                                     FWColorManager* iCM,
+                                                     FWGUIManager* iGM):
 m_modelPopup(0),
 m_colorPopup(0),
 m_selectionManager(iSM),
 m_detailViewManager(iDVM),
-m_colorManager(iCM)
+m_colorManager(iCM),
+m_guiManager(iGM)
 {
 }
 
@@ -124,6 +129,16 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
          m_detailViewManager->openDetailViewFor(*(m_selectionManager->selected().begin())) ;
          break;
       }
+      case kOpenObjectControllerMO:
+      {
+         m_guiManager->showModelPopup();
+         break;
+      }
+      case kOpenCollectionControllerMO:
+      {
+         m_guiManager->showEDIFrame();
+         break;
+      }
       default:
          break;
    }
@@ -184,7 +199,10 @@ FWModelContextMenuHandler::createModelContext() const
       m_modelPopup->AddEntry("Set Visible",kSetVisibleMO);
       m_modelPopup->AddEntry("Set Color ...",kSetColorMO);
       m_modelPopup->AddEntry("Open Detailed View ...",kOpenDetailViewMO);
-      
+      m_modelPopup->AddSeparator();
+      m_modelPopup->AddEntry("Open Object Controller ...",kOpenObjectControllerMO);
+      m_modelPopup->AddEntry("Open Collection Controller ...",kOpenCollectionControllerMO);
+
       m_modelPopup->Connect("Activated(Int_t)",
                             "FWModelContextMenuHandler",
                             const_cast<FWModelContextMenuHandler*>(this),
