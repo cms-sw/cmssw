@@ -10,47 +10,47 @@ process.source = cms.Source ("PoolSource",
 	secondaryFileNames = cms.untracked.vstring()
 )
 process.source.fileNames.extend(dbs_discovery.search())
-process.gsfElectrons....
+process.ecalDrivenElectronSeeds.SeedConfiguration.fromTrackerSeeds = cms.bool(False)
 
 
-
-<var name="DBS_RELEASE" value="CMSSW_3_1_0_pre8">
-<var name="DBS_LIKE" value="*IDEAL_31X_v1*-*RAW*">
+<var name="DBS_RELEASE" value="CMSSW_3_3_0_pre3">
+<var name="DBS_COND" value="MC_31X_*">
+<var name="DBS_TIER" value="-*RAW*">
 
 <diffline expr="(Begin processing the \S* record)">
 <diffline expr="(found \S* particles)">
 
 <environment name="SingleElectronPt10Raw">
-  <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 1000 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=SingleElectronPt10Raw.py --fileout=SingleElectronPt10Raw.root --no_exec">
+  <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 1000 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,MC_31X_V1::All --python_filename=SingleElectronPt10Raw.py --fileout=RelValSingleElectronPt10-RAW.root --mc --no_exec">
   <executable name="cmsRun" args="SingleElectronPt10Raw.py">
 </environment>
 
 <environment name="SingleElectronPt10Reco">
-  <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:SingleElectronPt10Raw.root -n 1000 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=SingleElectronPt10Reco.py --fileout=SingleElectronPt10Reco.root --no_exec">
+  <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:RelValSingleElectronPt10-RAW.root -n 1000 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,MC_31X_V1::All --python_filename=SingleElectronPt10Reco.py --fileout=RelValSingleElectronPt10-RECO.root --no_exec">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="SingleElectronPt10Reco.py">
 </environment>
 
 <environment name="SingleElectronPt35Raw">
-  <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 1000 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root --no_exec">
+  <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 1000 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,MC_31X_V1::All --python_filename=SingleElectronPt35Raw.py --fileout=RelValSingleElectronPt35-RAW.root --mc --no_exec">
   <executable name="cmsRun" args="SingleElectronPt35Raw.py">
 </environment>
 
 <environment name="SingleElectronPt35Reco">
-  <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:SingleElectronPt35Raw.root -n 1000 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=SingleElectronPt35Reco.py --fileout=SingleElectronPt35Reco.root --no_exec">
+  <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:RelValSingleElectronPt35-RAW.root -n 1000 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,MC_31X_V1::All --python_filename=SingleElectronPt35Reco.py --fileout=RelValSingleElectronPt35-RECO.root --no_exec">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="SingleElectronPt35Reco.py">
 </environment>
 
 <environment name="QcdPt80-120Raw">
-  <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 200 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=QcdPt80-120Raw.py --fileout=QcdPt80-120Raw.root --no_exec">
+  <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW -n 200 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,MC_31X_V1::All --python_filename=QcdPt80-120Raw.py --fileout=RelValQCD_Pt_80_120-RAW.root --mc --no_exec">
   <executable name="cmsRun" args="QcdPt80-120Raw.py">
 </environment>
 
 <environment name="QcdPt80-120Reco">
-  <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:QcdPt80-120Raw.root -n 200 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,IDEAL_31X::All --python_filename=QcdPt80-120Reco.py --fileout=QcdPt80-120Reco.root --no_exec">
+  <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:RelValQCD_Pt_80_120-RAW.root -n 200 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,MC_31X_V1::All --python_filename=QcdPt80-120Reco.py --fileout=RelValQCD_Pt_80_120-RECO.root --no_exec">
   <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
   <executable name="dbs_discovery.py">
   <executable name="cmsRun" args="QcdPt80-120Reco.py">
