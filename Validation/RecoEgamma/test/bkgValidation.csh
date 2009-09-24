@@ -17,12 +17,12 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_2_2
-setenv CMSSWver2 3_2_3
-setenv OLDRELEASE 322
-setenv NEWRELEASE 323
+setenv CMSSWver1 3_1_2
+setenv CMSSWver2 3_3_0
+setenv OLDRELEASE 312
+setenv NEWRELEASE 330
 setenv OLDPRERELEASE 
-setenv NEWPRERELEASE 
+setenv NEWPRERELEASE pre3
 
 setenv OLDRELEASE ${OLDRELEASE}${OLDPRERELEASE}
 setenv NEWRELEASE ${NEWRELEASE}${NEWPRERELEASE}
@@ -46,7 +46,7 @@ setenv SAMPLE QCD_Pt_80_120STARTUP
 if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
 setenv OLDFILE /data/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
-setenv NEWFILE /data/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
+setenv NEWFILE /data/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 
 
 endif
@@ -112,12 +112,8 @@ cat > scaledhistosForBkg <<EOF
   r2BkgEndcap
   sigmaIetaIetaBkgBarrel
   sigmaIetaIetaBkgEndcap
-  hOverEBkgBarrel
-  hOverEBkgEndcap
   ecalRecHitSumEtConeDR04BkgBarrel
   ecalRecHitSumEtConeDR04BkgEndcap
-  hcalTowerSumEtConeDR04BkgBarrel
-  hcalTowerSumEtConeDR04BkgEndcap
   isoTrkSolidConeDR04BkgBarrel
   isoTrkSolidConeDR04BkgEndcap
   nTrkSolidConeDR04BkgBarrel
@@ -125,6 +121,18 @@ cat > scaledhistosForBkg <<EOF
   
 
 EOF
+
+
+cat > scaledhistosForBkgLogScale <<EOF
+  hOverEBkgAll
+  hOverEBkgBarrel
+  hOverEBkgEndcap
+  hcalTowerSumEtConeDR04BkgBarrel
+  hcalTowerSumEtConeDR04BkgEndcap
+
+EOF
+
+
 
 cat > unscaledhistosForBkg <<EOF
 
@@ -189,11 +197,17 @@ c$i->SetFillColor(10);
 file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
 $i->SetStats(0);
 if ( $i==deadChVsEtaBkg ||  $i==deadChVsPhiBkg ||  $i==deadChVsEtBkg ) {
-$i->SetMinimum(0.);
-$i->SetMaximum(0.2);
+$i->GetYaxis()->SetRangeUser(0.,0.2);
+
+}else if ( $i==bkgEffVsEta ||  $i==bkgEffVsPhi ||  $i==bkgEffVsEt ) {
+$i->GetYaxis()->SetRangeUser(0.,0.4);
+
+}else if (  $i==bkgEffVsEt ) {
+$i->GetYaxis()->SetRangeUser(0.,1.);
+
+
 } else {
-$i->SetMinimum(0.);
-$i->SetMaximum(1.1);
+$i->GetYaxis()->SetRangeUser(0.,1.1);
 }
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
@@ -305,6 +319,42 @@ end
 
 
 
+foreach i (`cat scaledhistosForBkgLogScale`)
+  cat > temp$N.C <<EOF
+TCanvas *c$i = new TCanvas("c$i");
+c$i->SetFillColor(10);
+c$i->SetLogy(1);
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
+Double_t nnew=$i->GetEntries();
+file_old->cd("DQMData/EgammaV/PhotonValidator/Background");
+if ( $i==hcalTowerSumEtConeDR04BkgBarrel ||  $i==hcalTowerSumEtConeDR04BkgEndcap  ) {  
+$i->GetXaxis()->SetRangeUser(0.,10.);
+} else if ( $i==hOverEBkgBarrel || $i==hOverEBkgEndcap ) {
+$i->GetXaxis()->SetRangeUser(0.,1.);
+}
+ 
+Double_t nold=$i->GetEntries();
+$i->SetStats(0);
+$i->SetLineColor(kPink+8);
+$i->SetFillColor(kPink+8);
+$i->Draw();
+file_new->cd("DQMData/EgammaV/PhotonValidator/Background");
+Double_t nnew=$i->GetEntries();
+$i->SetStats(0);
+$i->SetLineColor(kBlack);
+$i->SetMarkerColor(kBlack);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->Scale(nold/nnew);
+$i->Draw("e1same");
+c$i->SaveAs("gifs/$i.gif");
+
+EOF
+  setenv N `expr $N + 1`
+end
+
+
+
 
 
 foreach i (`cat 2DhistosForBkg`)
@@ -395,6 +445,7 @@ rm   bkgValidationPlotsTemplate.html
 
 rm efficiencyForBkg
 rm scaledhistosForBkg
+rm scaledhistosForBkgLogScale
 rm unscaledhistosForBkg
 rm 2DhistosForBkg
 
