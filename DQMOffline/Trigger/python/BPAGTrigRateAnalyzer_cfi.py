@@ -57,13 +57,14 @@ bpagTrigOffDQM = cms.EDAnalyzer("BPAGTrigAnalyzer",
     # Set the ranges and numbers of bins for histograms
 	# max pt is not very useful
     MaxPtParameters    = cms.vdouble(40,0.,80.),
-    # PtParmeters is not currently used
-	PtParameters       = cms.vdouble(50,0.,80.),
-    EtaParameters      = cms.vdouble(50, -3.5,3.5),
-    PhiParameters      = cms.vdouble(50, -3.15,3.15),
+    # PtParmeters is the low bin edges, with size = nbins + 1 
+	PtParameters       = cms.vdouble(0.0, 3.0, 4.5, 6, 8, 20.0),
+    EtaParameters      = cms.vdouble(4, -2.1,2.1),
+    PhiParameters      = cms.vdouble(4, -3.15,3.15),
     ResParameters      = cms.vdouble(50, -0.15, 0.15),
 	DrParameters       = cms.vdouble(50, 0.0, 0.05),			
 
+    MassParameters     = cms.untracked.vdouble(50, 2.6, 3.6),
 
 	# valid match types are dr and cosmic
 	# future update: make sure default is
