@@ -18,6 +18,14 @@ HcalSimParameterMap::HcalSimParameterMap() :
                    217., 5, 
                    10, 5, true, true,
                    1, std::vector<double>(16, 217.)),
+  theHOZecotekSiPMParameters( 4000., 4.8,
+                   217., 5,
+                   10, 5, true, true,
+                   1, std::vector<double>(16, 217.)),
+  theHOHamamatsuSiPMParameters( 4000., 4.8,
+                   217., 5,
+                   10, 5, true, true,
+                   1, std::vector<double>(16, 217.)),
   theHFParameters1(6., 2.79,
 		   1/0.278 , -4,
 		   true),
@@ -26,8 +34,12 @@ HcalSimParameterMap::HcalSimParameterMap() :
 		   true),
   theZDCParameters(1., 4.3333,
 		   2.09 , -4,
-		   false)
+		   false),
+  theHOZecotekDetIds(),
+  theHOHamamatsuDetIds()
 {
+  theHOZecotekSiPMParameters.thePixels = 36000;
+  theHOHamamatsuSiPMParameters.thePixels = 960;
 }
 /*
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
@@ -41,10 +53,14 @@ HcalSimParameterMap::HcalSimParameterMap(const edm::ParameterSet & p)
 : theHBParameters(  p.getParameter<edm::ParameterSet>("hb") ),
   theHEParameters(  p.getParameter<edm::ParameterSet>("he") ),
   theHOParameters(  p.getParameter<edm::ParameterSet>("ho") ),
+  theHOZecotekSiPMParameters(  p.getParameter<edm::ParameterSet>("ho") ),
+  theHOHamamatsuSiPMParameters(  p.getParameter<edm::ParameterSet>("ho") ),
   theHFParameters1( p.getParameter<edm::ParameterSet>("hf1") ),
   theHFParameters2( p.getParameter<edm::ParameterSet>("hf2") ),
   theZDCParameters( p.getParameter<edm::ParameterSet>("zdc") )
 {
+  theHOZecotekSiPMParameters.thePixels = 36000;
+  theHOHamamatsuSiPMParameters.thePixels = 960;
 }
 
 const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId) const {
@@ -57,7 +73,20 @@ const CaloSimParameters & HcalSimParameterMap::simParameters(const DetId & detId
   } else if(hcalDetId.subdet() == HcalEndcap) {
      return theHEParameters;
   } else if(hcalDetId.subdet() == HcalOuter) {
-     return theHOParameters;
+     if(std::find(theHOZecotekDetIds.begin(),
+        theHOZecotekDetIds.end(), hcalDetId) != theHOZecotekDetIds.end())
+     {
+       return theHOZecotekSiPMParameters;
+     }
+     if(std::find(theHOHamamatsuDetIds.begin(),
+        theHOHamamatsuDetIds.end(), hcalDetId) != theHOHamamatsuDetIds.end())
+     {
+       return theHOHamamatsuSiPMParameters;
+     }
+     else
+     {
+       return theHOParameters;
+     }
   } else { // HF
     if(hcalDetId.depth() == 1) {
       return theHFParameters1;
