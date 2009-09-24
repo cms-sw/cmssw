@@ -1,33 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
-# "Generic" configurables used by ESSources/EDProducers in both the JetMET and PAT code 
-
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * 
 
 JPTZSPCorrectorICone5 = cms.PSet(
 
     # General Configuration
-    Verbose           = cms.bool(False),
-    UsePatCollections = cms.bool(False),
-    UseEfficiency     = cms.bool(True),
+    Verbose = cms.bool(False),
+
+    # Vectorial corrections
+    VectorialCorrection = cms.bool(True),
+    JetDirFromTracks    = cms.bool(True),
     
-    # Select correction types
+    # Select tracks used in correction
     UseInConeTracks      = cms.bool(True),
     UseOutOfConeTracks   = cms.bool(True),
     UseOutOfVertexTracks = cms.bool(True),
     
-    # Jet-tracks association (null value = "on-the-fly" mode)
+    # Jet-tracks association
     JetTracksAssociationAtVertex   = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex"), 
     JetTracksAssociationAtCaloFace = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace"),
 
     # Jet merging/splitting
     JetSplitMerge = cms.int32(0),
-    
-    # Jet-tracks association "on-the-fly" mode
-    AllowOnTheFly = cms.bool(False),
-    Tracks        = cms.InputTag("generalTracks"),
-    Propagator    = cms.string('SteppingHelixPropagatorAlong'),
-    ConeSize      = cms.double(0.5),
+
+    # Pions
+    UsePions      = cms.bool(True),
+    UseEfficiency = cms.bool(True),
     
     # Muons
     UseMuons = cms.bool(True),
@@ -46,5 +44,5 @@ JPTZSPCorrectorICone5 = cms.PSet(
     ResponseMap   = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_response.txt"),
     EfficiencyMap = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_TrackNonEff.txt"),
     LeakageMap    = cms.string("JetMETCorrections/Configuration/data/CMSSW_167_TrackLeakage.txt"),
-
+    
     )
