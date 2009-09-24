@@ -47,3 +47,6 @@ ZSPJetCorJetAntiKt5 = cms.EDProducer("CaloJetCorrectionProducer",
 ZSPJetCorrectionsIcone5 = cms.Sequence(ZSPJetCorJetIcone5)
 ZSPJetCorrectionsSisCone5 = cms.Sequence(ZSPJetCorJetSiscone5)
 ZSPJetCorrectionsAntiKt5 = cms.Sequence(ZSPJetCorJetAntiKt5)
+
+# For backward-compatiblity (but to be deprecated!)
+ZSPJetCorrections = ZSPJetCorrectionsIcone5
