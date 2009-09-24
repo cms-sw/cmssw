@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-from Validation.Tools.GenObject import *
-    
 if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options]\nVisit https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison\nfor full documentation.")
@@ -51,6 +49,9 @@ if __name__ == "__main__":
     tupleGroup.add_option ('--alias', dest='alias', type='string',
                            action='append',
                            help="Change alias ('tuple:object:alias')")
+    tupleGroup.add_option ('--label', dest='label', type='string',
+                           action='append',
+                           help="Change label ('tuple:object:label')")
     tupleGroup.add_option ('--changeVariable', dest='changeVar', type='string',
                            action='append',
                            help="Change variable filling "
@@ -86,6 +87,8 @@ if __name__ == "__main__":
     parser.add_option_group (tupleGroup)
     parser.add_option_group (optionsGroup)
     (options, args) = parser.parse_args()
+    from Validation.Tools.GenObject import *
+    
     # Here we go
     random.seed( os.getpid() )
     if options.oldLoad:
