@@ -17,8 +17,8 @@ class EnsembleCalibrationLA : public edm::EDAnalyzer {
  private:
   
   void write_ensembles_text(const Book&);
-  void write_ensembles_fits(const Book&);
-  void write_samples_fits(const Book&);
+  void write_ensembles_plots(const Book&);
+  void write_samples_plots(const Book&);
 
   std::vector<std::string> inputFiles;
   std::string inFileLocation, Prefix;

@@ -42,8 +42,8 @@ endJob()
   laff.summarize_ensembles(book);  
 
   write_ensembles_text(book);
-  write_ensembles_fits(book);
-  write_samples_fits(book);
+  write_ensembles_plots(book);
+  write_samples_plots(book);
 }
 
 void EnsembleCalibrationLA::
@@ -64,7 +64,7 @@ write_ensembles_text(const Book& book) {
 }
 
 void EnsembleCalibrationLA::
-write_ensembles_fits(const Book& book) {
+write_ensembles_plots(const Book& book) {
   TFile file((Prefix+"sampleFits.root").c_str(),"RECREATE");
   for(Book::const_iterator hist = book.begin(".*(profile|ratio|reconstruction|symm|symmchi2)"); hist!=book.end(); ++hist)
     (*hist)->Write();
@@ -72,7 +72,7 @@ write_ensembles_fits(const Book& book) {
 }
   
 void EnsembleCalibrationLA::
-write_samples_fits(const Book& book) {
+write_samples_plots(const Book& book) {
   TFile file((Prefix+"ensembleFits.root").c_str(),"RECREATE");
   for(Book::const_iterator hist = book.begin(".*(measure|merr|ensembleReco|pull)"); hist!=book.end(); ++hist)
     (*hist)->Write();
