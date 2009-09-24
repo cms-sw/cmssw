@@ -1,3 +1,17 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                      //
+//                                    WMuNuValidator                                                                    //
+//                                                                                                                      //    
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                      //      
+//    Basic plots before & after cuts (without Candidate formalism)                                                     //
+//    Intended for a prompt validation of samples.                                                                      // 
+//                                                                                                                      //      
+//    Use in combination with WMuNuValidatorMacro (in bin/WMuNuValidatorMacro.cpp)                                      //
+//                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -15,7 +15,7 @@
 //    Optionally, plots selection variables sequentially after cuts,                                                    //
 //    and 2D histograms for background determination.                                                                   //
 //                                                                                                                      //
-//    For basic plots before & after cuts (without Candidate formalis), use WMuNuValidator.cc                           //
+//    For basic plots before & after cuts (without Candidate formalism), use WMuNuValidator.cc                          //
 //                                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
