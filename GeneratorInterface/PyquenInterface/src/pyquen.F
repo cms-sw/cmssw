@@ -1,4 +1,3 @@
-
 *----------------------------------------------------------------------
 *
 *  Filename             : PYQUEN.F
@@ -21,7 +20,7 @@
       SUBROUTINE PYQUEN(A,ifb,bfix,bmin,bmax)
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
+c      INTEGER PYK,PYCHGE,PYCOMP
       external pydata  
       external pyp,pyr,pyk,pyjoin,pyshow
       external funbip,prhoaa,pfunc1
@@ -137,7 +136,9 @@
       ip002=0  
       if(mstj(41).ne.0) goto 5
       mstj(41)=1  
-      nn=n 
+      nn=n
+      kfh1=0 
+      kfh2=0 
       do i=9,nn 
        if(k(i,3).eq.7) then  
         ip1=i                    ! first hard parton (line ip1) 
@@ -586,7 +587,7 @@
 * collisional and radiative energy loss of each parton through plasma        
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
+c      INTEGER PYK,PYCHGE,PYCOMP
       external plthik, pln, plt, pls, gauss, gluang 
       external pyp,pyr,pyk 
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
@@ -850,7 +851,7 @@
 * transform parton 4-momentum due to scattering in plasma at time = tau 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
+c      INTEGER PYK,PYCHGE,PYCOMP
       external plfun1, pls 
       external pyp,pyr   
       common /plpar1/ tau0,T0,TC,sigqq,AW,RA,mvisc,nf
