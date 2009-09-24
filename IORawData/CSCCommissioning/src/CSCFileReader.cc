@@ -136,7 +136,11 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	fuEvent[1]=0; fuEventSize[1]=0;
 	fuEvent[2]=0; fuEventSize[2]=0;
 	fuEvent[3]=0; fuEventSize[3]=0;
-
+	// Event buffer and its length for every RU
+	for(int rui=0; rui<nRUIs; rui++){
+		ruBuf[rui] = 0;
+		ruBufSize[rui] = 0;
+	}
 	LogDebug("CSCFileReader|ctor")<<"... and finished";
 }
 
@@ -186,11 +190,6 @@ int CSCFileReader::readFU(int fu, const unsigned short* &buf, size_t &length){
 }
 
 int CSCFileReader::buildEventFromRUIs(FEDRawDataCollection *data){
-	// Event buffer and its length for every RUI
-	const unsigned short *buf[nRUIs];
-	size_t length[nRUIs];
-	bzero(length,sizeof(length));
-
 	int eventNumber =-1; // Will determine below
 
 	do {
@@ -200,7 +199,7 @@ int CSCFileReader::buildEventFromRUIs(FEDRawDataCollection *data){
 			//     1) it is readable (currentL1A>0) and we expect next event from the RUI
 			//     2) it is first time (expectedNextL1A<0)
 			if((currentL1A[rui]>0 && currentL1A[rui]<expectedNextL1A) || expectedNextL1A<0 )
-				currentL1A[rui] = readRUI(rui,buf[rui],length[rui]);
+				currentL1A[rui] = readRUI(rui,ruBuf[rui],ruBufSize[rui]);
 		}
 		eventNumber =-1;
 
@@ -225,9 +224,9 @@ int CSCFileReader::buildEventFromRUIs(FEDRawDataCollection *data){
 			for(std::list<unsigned int>::const_iterator rui=fed->second.begin(); rui!=fed->second.end(); rui++){
 //cout<<"Event:"<<eventNumber<<"  FED:"<<fed->first<<"  RUI:"<<*(fed->second.begin())<<" currL1A:"<<currentL1A[*rui]<<endl;
 				if( currentL1A[*rui]==eventNumber ){
-					if(dccCur-dccBuf+length[*rui]>=200000*nRUIs+8) throw cms::Exception("CSCFileReader|eventBuffer")<<"OutOfBuffer: Event size exceeds maximal size allowed!";
-					memcpy(dccCur,buf[*rui],length[*rui]*sizeof(unsigned short));
-					dccCur += length[*rui];
+					if(dccCur-dccBuf+ruBufSize[*rui]>=200000*nRUIs+8) throw cms::Exception("CSCFileReader|eventBuffer")<<"OutOfBuffer: Event size exceeds maximal size allowed!";
+					memcpy(dccCur,ruBuf[*rui],ruBufSize[*rui]*sizeof(unsigned short));
+					dccCur += ruBufSize[*rui];
 				}
 			}
 			dccCur[3] = 0xEF00; dccCur[2] = 0x0000; dccCur[1] = 0x0000; dccCur[0] = 0x0000; // Fake DCC Trailer 2
@@ -240,8 +239,8 @@ int CSCFileReader::buildEventFromRUIs(FEDRawDataCollection *data){
 		} else {
 			for(std::list<unsigned int>::const_iterator rui=fed->second.begin(); rui!=fed->second.end(); rui++){
 				FEDRawData& fedRawData = data->FEDData(fed->first);
-				fedRawData.resize(length[*rui]*sizeof(unsigned short));
-				std::copy((unsigned char*)buf[*rui],(unsigned char*)(buf[*rui]+length[*rui]),fedRawData.data());
+				fedRawData.resize(ruBufSize[*rui]*sizeof(unsigned short));
+				std::copy((unsigned char*)ruBuf[*rui],(unsigned char*)(ruBuf[*rui]+ruBufSize[*rui]),fedRawData.data());
 			}
 		}
 

@@ -24,6 +24,8 @@ private:
 	unsigned short *tmpBuf;
 	const unsigned short *fuEvent[4];
 	size_t fuEventSize[4];
+	const unsigned short *ruBuf[40];
+	size_t ruBufSize[40];
 
 	FileReaderDDU RUI[40];
 	FileReaderDCC FU [4];
