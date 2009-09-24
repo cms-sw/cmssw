@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/09/07 13:18:30 $
-//  $Revision: 1.55 $
+//  $Date: 2009/09/08 09:52:17 $
+//  $Revision: 1.56 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -307,7 +307,6 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
 MuScleFit::~MuScleFit () {
   if (debug_>0) cout << "[MuScleFit]: Destructor" << endl;
   cout << "Total number of analyzed events = " << totalEvents_ << endl;
-  plotter->writeHistoMap();
 }
 
 // Begin job
@@ -345,7 +344,11 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 // -----------------              
 void MuScleFit::endOfJob () {
   if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
-  //delete plotter;
+
+  if( loopCounter == 0 ) {
+    plotter->writeHistoMap();
+    delete plotter;
+  }
 }
 
 // New loop
@@ -461,9 +464,11 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     if( compareToSimTracks_ ) {
       try {
         event.getByLabel (simTracksCollection_, simTracks);
-        plotter->fillSim(simTracks);
-        if(ifHepMC && loopCounter == 0){
-          plotter->fillGenSim(evtMC,simTracks);
+        if( loopCounter == 0 ) {
+          plotter->fillSim(simTracks);
+          if(ifHepMC) {
+            plotter->fillGenSim(evtMC,simTracks);
+          }
         }
       }
       catch (...) {
@@ -692,16 +697,22 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	mapHisto_["hLikeVSMu"]->Fill (recMu2, deltalike);
 	mapHisto_["hLikeVSMuMinus"]->Fill (recMu1, deltalike);
 	mapHisto_["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
-	mapHisto_["hResolMassVSMu"]->Fill (recMu1, massResol, -1);
-	mapHisto_["hResolMassVSMu"]->Fill (recMu2, massResol, +1);
 
         double recoMass = (recMu1+recMu2).mass();
+        if( recoMass != 0 ) {
+          // IMPORTANT: massResol is a relative resolution
+          mapHisto_["hResolMassVSMu"]->Fill (recMu1, massResol, -1);
+          mapHisto_["hResolMassVSMu"]->Fill (recMu2, massResol, +1);
+          mapHisto_["hFunctionResolMassVSMu"]->Fill (recMu1, massResol/recoMass, -1);
+          mapHisto_["hFunctionResolMassVSMu"]->Fill (recMu2, massResol/recoMass, +1);
+        }
+
         if( !MuScleFitUtils::speedup ) {
           double genMass = (genMu.first + genMu.second).mass();
           // Fill the mass resolution (computed from MC), we use the covariance class to compute the variance
           if( genMass != 0 ) {
-            // double diffMass = (recoMass - genMass)/genMass;
-            double diffMass = recoMass - genMass;
+            double diffMass = (recoMass - genMass)/genMass;
+            // double diffMass = recoMass - genMass;
             // Fill if for both muons
             double pt1 = recMu1.pt();
             double eta1 = recMu1.eta();
@@ -709,6 +720,12 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
             double eta2 = recMu2.eta();
             // This is to avoid nan
             if( diffMass == diffMass ) {
+              // Mass relative difference vs Pt and Eta. To be used to extract the true mass resolution
+              mapHisto_["hDeltaMassOverGenMassVsPt"]->Fill(pt1, diffMass);
+              mapHisto_["hDeltaMassOverGenMassVsPt"]->Fill(pt2, diffMass);
+              mapHisto_["hDeltaMassOverGenMassVsEta"]->Fill(eta1, diffMass);
+              mapHisto_["hDeltaMassOverGenMassVsEta"]->Fill(eta2, diffMass);
+              // This is used for the covariance comparison
               mapHisto_["hMassResolutionVsPtEta"]->Fill(pt1, eta1, diffMass, diffMass);
               mapHisto_["hMassResolutionVsPtEta"]->Fill(pt2, eta2, diffMass, diffMass);
             }

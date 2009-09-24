@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/08/26 12:16:20 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/09/08 09:54:43 $
+ *  $Revision: 1.15 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -218,7 +218,7 @@ protected:
 // -----------------------------------------------------
 class HParticle : public Histograms {
  public:
-  HParticle (const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100.) :
+  HParticle( const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100. ) :
     Histograms(name),
     // Kinematical variables
     hPt_(      new TH1F (name+"_Pt",      "transverse momentum", 100, 0, maxPt) ),
@@ -231,7 +231,7 @@ class HParticle : public Histograms {
   {}
 
   /// Constructor that puts the histograms inside a TDirectory
-  HParticle (TFile* outputFile, const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100.) :
+  HParticle( TFile* outputFile, const TString & name, const double & minMass = 0., const double & maxMass = 200., const double & maxPt = 100. ) :
     Histograms(outputFile, name)
   {
     // Kinematical variables
@@ -244,7 +244,7 @@ class HParticle : public Histograms {
     hNumber_ = new TH1F (name+"_Number", "number", 20, -0.5, 19.5);
   }
 
-  HParticle (const TString & name, TFile* file) :
+  HParticle( const TString & name, TFile* file ) :
     Histograms(name),
     hPt_(      (TH1F *) file->Get(name_+"_Pt") ),
     hPtVsEta_( (TH2F *) file->Get(name_+"_PtVsEta") ),
@@ -266,12 +266,12 @@ class HParticle : public Histograms {
     delete hNumber_;
   }
 
-  virtual void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.)
+  virtual void Fill( const reco::Particle::LorentzVector & p4, const double & weight = 1. )
   {
     Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill (CLHEP::HepLorentzVector momentum, const double & weight = 1.)
+  virtual void Fill( const CLHEP::HepLorentzVector & momentum, const double & weight = 1. )
   {
     hPt_->Fill(momentum.perp(), weight);
     hPtVsEta_->Fill(momentum.perp(), momentum.eta(), weight);
@@ -281,7 +281,7 @@ class HParticle : public Histograms {
     //hMass_fine_->Fill(momentum.m(), weight);
   }
   
-  virtual void Fill (int number)
+  virtual void Fill( int number )
   {
     hNumber_->Fill (number);
   }
@@ -784,8 +784,9 @@ class HResolutionVSPart : public Histograms
  public:
   HResolutionVSPart(TFile * outputFile, const TString & name, const double maxPt = 100,
                     const double & yMinEta = -1, const double & yMaxEta = 1,
-                    const double & yMinPt = -1, const double & yMaxPt = 1) : Histograms(outputFile, name) {
-
+                    const double & yMinPt = -1, const double & yMaxPt = 1,
+                    const bool doProfiles = false) : Histograms(outputFile, name), doProfiles_(doProfiles)
+  {
     // Kinematical variables
 
     // hReso           = new TH1F (name+"_Reso", "resolution", 4000, -1, 1);
@@ -806,17 +807,19 @@ class HResolutionVSPart : public Histograms
     hReso_           = new TH1F( name+"_Reso", "resolution", 200, -1, 1 );
     hResoVSPtEta_    = new TH2F( name+"_ResoVSPtEta", "resolution VS pt and #eta", 200, 0, maxPt, 60, -3, 3 );
     hResoVSPt_       = new TH2F( name+"_ResoVSPt", "resolution VS pt", 200, 0, maxPt, 400, yMinPt, yMaxPt );
-    //hResoVSPt_prof_  = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, -1, 1 );
     hResoVSEta_      = new TH2F( name+"_ResoVSEta", "resolution VS eta", 60, -3, 3, 400, yMinEta, yMaxEta );
-    hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 400, -1, 1 );
-    //hResoVSEta_prof_ = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1 );
+    hResoVSTheta_    = new TH2F( name+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 400, yMinEta, yMaxEta );
     hResoVSPhiPlus_  = new TH2F( name+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 400, -1, 1 );
     hResoVSPhiMinus_ = new TH2F( name+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 400, -1, 1 );
-    //hResoVSPhi_prof_ = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
     hAbsReso_        = new TH1F( name+"_AbsReso", "resolution", 100, 0, 1 );
     hAbsResoVSPt_    = new TH2F( name+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, maxPt, 100, 0, 1 );
     hAbsResoVSEta_   = new TH2F( name+"_AbsResoVSEta", "Abs resolution VS eta", 60, -3, 3, 100, 0, 1 );
     hAbsResoVSPhi_   = new TH2F( name+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1 );
+    if( doProfiles_ ) {
+      hResoVSPt_prof_  = new TProfile(name+"_ResoVSPt_prof", "resolution VS pt", 100, 0, maxPt, yMinPt, yMaxPt );
+      hResoVSEta_prof_ = new TProfile(name+"_ResoVSEta_prof", "resolution VS eta", 100, -2.5, 2.5, yMinEta, yMaxEta );
+      hResoVSPhi_prof_ = new TProfile(name+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1 );
+    }
   }
   
   HResolutionVSPart(const TString & name, TFile* file) {
@@ -824,34 +827,38 @@ class HResolutionVSPart : public Histograms
     hReso_           = (TH1F *) file->Get(name+"_Reso");
     hResoVSPtEta_    = (TH2F *) file->Get(name+"_ResoVSPtEta");
     hResoVSPt_       = (TH2F *) file->Get(name+"_ResoVSPt");
-    //hResoVSPt_prof_  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
     hResoVSEta_      = (TH2F *) file->Get(name+"_ResoVSEta");
     hResoVSTheta_    = (TH2F *) file->Get(name+"_ResoVSTheta");
-    //hResoVSEta_prof_ = (TProfile *) file->Get(name+"_ResoVSEta_prof");
     hResoVSPhiPlus_  = (TH2F *) file->Get(name+"_ResoVSPhiPlus");
     hResoVSPhiMinus_ = (TH2F *) file->Get(name+"_ResoVSPhiMinus");
-    //hResoVSPhi_prof_ = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
     hAbsReso_        = (TH1F *) file->Get(name+"_AbsReso");
     hAbsResoVSPt_    = (TH2F *) file->Get(name+"_AbsResoVSPt");
     hAbsResoVSEta_   = (TH2F *) file->Get(name+"_AbsResoVSEta");
     hAbsResoVSPhi_   = (TH2F *) file->Get(name+"_AbsResoVSPhi");
+    if( doProfiles_ ) {
+      hResoVSPt_prof_  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
+      hResoVSEta_prof_ = (TProfile *) file->Get(name+"_ResoVSEta_prof");
+      hResoVSPhi_prof_ = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
+    }
   }
 
   ~HResolutionVSPart() {
     delete hReso_;
     delete hResoVSPtEta_;
     delete hResoVSPt_;
-    // delete hResoVSPt_prof_;
     delete hResoVSEta_;
     delete hResoVSTheta_;
-    // delete hResoVSEta_prof_;
     delete hResoVSPhiMinus_;
     delete hResoVSPhiPlus_;
-    // delete hResoVSPhi_prof_;
     delete hAbsReso_;
     delete hAbsResoVSPt_;
     delete hAbsResoVSEta_;
     delete hAbsResoVSPhi_;
+    if( doProfiles_ ) {
+      delete hResoVSPt_prof_;
+      delete hResoVSEta_prof_;
+      delete hResoVSPhi_prof_;
+    }
   }
 
   virtual void Fill(const reco::Particle::LorentzVector & p4, const double & resValue, const int charge) { 
@@ -866,13 +873,15 @@ class HResolutionVSPart : public Histograms
       hResoVSPhiPlus_->Fill(p4.Phi(),resValue); 
     else if(charge<0)
       hResoVSPhiMinus_->Fill(p4.Phi(),resValue); 
-    //hResoVSPt_prof_->Fill(p4.Pt(),resValue); 
-    //hResoVSEta_prof_->Fill(p4.Eta(),resValue); 
-    //hResoVSPhi_prof_->Fill(p4.Phi(),resValue); 
     hAbsReso_->Fill(fabs(resValue)); 
     hAbsResoVSPt_->Fill(pt,fabs(resValue)); 
     hAbsResoVSEta_->Fill(eta,fabs(resValue)); 
     hAbsResoVSPhi_->Fill(p4.Phi(),fabs(resValue));     
+    if( doProfiles_ ) {
+      hResoVSPt_prof_->Fill(p4.Pt(),resValue); 
+      hResoVSEta_prof_->Fill(p4.Eta(),resValue); 
+      hResoVSPhi_prof_->Fill(p4.Phi(),resValue); 
+    }
   }
 
   virtual void Write() {
@@ -881,51 +890,56 @@ class HResolutionVSPart : public Histograms
     hReso_->Write();
     hResoVSPtEta_->Write();
     hResoVSPt_->Write();
-    //hResoVSPt_prof_->Write();
     hResoVSEta_->Write();
     hResoVSTheta_->Write();
-    //hResoVSEta_prof_->Write();
     hResoVSPhiMinus_->Write();
     hResoVSPhiPlus_->Write();
-    //hResoVSPhi_prof_->Write();
     hAbsReso_->Write();
     hAbsResoVSPt_->Write();
     hAbsResoVSEta_->Write();
     hAbsResoVSPhi_->Write();
+    if( doProfiles_ ) {
+      hResoVSPt_prof_->Write();
+      hResoVSEta_prof_->Write();
+      hResoVSPhi_prof_->Write();
+    }
   }
   
   virtual void Clear() {
     hReso_->Clear();
     hResoVSPtEta_->Clear();
     hResoVSPt_->Clear();
-    //hResoVSPt_prof_->Clear();
     hResoVSEta_->Clear();
     hResoVSTheta_->Clear();
-    //hResoVSEta_prof_->Clear();
     hResoVSPhiPlus_->Clear();
     hResoVSPhiMinus_->Clear();
-    //hResoVSPhi_prof_->Clear();
     hAbsReso_->Clear();
     hAbsResoVSPt_->Clear();
     hAbsResoVSEta_->Clear();
     hAbsResoVSPhi_->Clear();
+    if( doProfiles_ ) {
+      hResoVSPt_prof_->Clear();
+      hResoVSEta_prof_->Clear();
+      hResoVSPhi_prof_->Clear();
+    }
   }
 
  public:
   TH1F* hReso_;
   TH2F* hResoVSPtEta_;
   TH2F* hResoVSPt_;
-  //TProfile* hResoVSPt_prof_;
+  TProfile* hResoVSPt_prof_;
   TH2F* hResoVSEta_;
   TH2F* hResoVSTheta_;
-  //TProfile* hResoVSEta_prof_;
+  TProfile* hResoVSEta_prof_;
   TH2F* hResoVSPhiMinus_;
   TH2F* hResoVSPhiPlus_;
-  //TProfile* hResoVSPhi_prof_;
+  TProfile* hResoVSPhi_prof_;
   TH1F* hAbsReso_;
   TH2F* hAbsResoVSPt_;
   TH2F* hAbsResoVSEta_;
   TH2F* hAbsResoVSPhi_;
+  bool doProfiles_;
 };
 
 // -------------------------------------------------------------
@@ -1010,7 +1024,7 @@ class HLikelihoodVSPart : public Histograms
  * This histogram class fills a TProfile with the resolution evaluated from the resolution
  * functions for single muon quantities. The resolution functions are used by MuScleFit to
  * evaluate the mass resolution, which is the value seen by minuit and through it,
- * corrections are evaluated.
+ * corrections are evaluated. <br>
  * In the end we will compare the histograms filled by this class (from the resolution
  * function, reflecting the parameters changes done by minuit) with those filled comparing
  * recoMuons with genMuons (the real resolutions).
@@ -1284,7 +1298,7 @@ public:
 
 /**
  * This class can be used to compute the covariance between two input variables.
- * The Fill method need the two input variables. </br>
+ * The Fill method needs the two input variables. </br>
  * In the end the covariance method computes the covariance as:
  * cov(x,y) = Sum_i(x_i*y_i)/N - x_mean*y_mean. </br>
  * Of course passing the same variable for x and y gives the variance of that variable.
@@ -1406,7 +1420,7 @@ class HCovarianceVSxy : public Histograms
     int yIndex = getYindex(y);
     // Only fill values if they are in the selected range
     if ( 0 <= xIndex && xIndex < totBinsX_ && 0 <= yIndex && yIndex < totBinsY_ ) {
-      if( TString(histoCovariance_->GetName()).Contains("CovarianceCotgTheta_Covariance") )
+      // if( TString(histoCovariance_->GetName()).Contains("CovarianceCotgTheta_Covariance") )
       covariances_[xIndex][yIndex].fill(a,b);
       // Should be used with the variance, in which case a==b
       if( varianceCheck_ ) histoVarianceCheck_[xIndex][yIndex]->Fill(a);
