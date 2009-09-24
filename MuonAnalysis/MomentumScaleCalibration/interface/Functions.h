@@ -1120,7 +1120,12 @@ class resolutionFunctionType11 : public resolutionFunctionBase<T> {
   }
 };
 
-/// This resolution function is the same as type11 but in addition allows a parabolic shape to be fitted for Pt in [2.1, 3.5]GeV
+/**
+ * Same as type12 but with free parameters for transition region and center of second parabola.
+ * It also imposes continuity of the two fuctions.
+ * Adds also two additional parameters to allow a linear and a quadratic dependence from pt (the
+ * resolution vs Pt has been seen to grow with Pt for misaligned samples.
+ */
 // Resolution Type 12
 template <class T>
 class resolutionFunctionType12 : public resolutionFunctionBase<T> {
@@ -1129,20 +1134,125 @@ class resolutionFunctionType12 : public resolutionFunctionBase<T> {
   // linear in pt and by points in eta
   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
     double fabsEta = fabs(eta);
-    double ptPart = 0.;
-    if( pt > 2.1 && pt < 3.5 ) {
-      // parabolic
-      ptPart = parval[8] + parval[9]*pt + parval[10]*pt*pt;
+
+    double ptPart = parval[2]*1./pt + pt/(pt+parval[3]) + pt*parval[9] + pt*pt*parval[10];
+
+    if(fabsEta<parval[0]) {
+      // To impose continuity we require that the parval[0] of type11 is
+      double par = parval[1] + parval[6]*fabs((parval[0]-parval[8])) + parval[7]*(parval[0]-parval[8])*(parval[0]-parval[8]) - (parval[4]*parval[0] + parval[5]*parval[0]*parval[0]);
+      return( par + ptPart + parval[4]*fabsEta + parval[5]*eta*eta );
     }
     else {
-      ptPart = parval[2]*1./pt + pt/(pt+parval[3]);
+      return( parval[1]+ ptPart + parval[6]*fabs((fabsEta-parval[8])) + parval[7]*(fabsEta-parval[8])*(fabsEta-parval[8]) );
+    }
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( 0.004 );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( 0.001 );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.001, 0.00001, 0.0000001, 0.00000001,
+                          0.00000001, 0.00000001, 0.00000001, 0.00000001,
+                          0.001, 0.0001, 0.000001 };
+    TString thisParName[] = { "etaTransition", "offsetEtaHigh", "coeffOverPt", "coeffHighPt",
+                              "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh",
+                              "secondParabolaCenter", "linearPt", "quadraticPt" };
+    double thisMini[] = { -1.1, -1.1, -0.1, -0.1,
+                          0.0001, 0.0005, 0.0005, 0.001,
+                          -1.0, -1.0, -1.0 };
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1.,
+                            1., 1., 1., 1.,
+                            1., 1. ,1. };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = { 1.8, -0.8, -0.001, -0.001,
+                            0.005, 0.05, 0.05, 0.05,
+                            2.4, 2.0, 2.0 };
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
+// /// This resolution function is the same as type11 but in addition allows a parabolic shape to be fitted for Pt in [2.1, 3.5]GeV
+// // Resolution Type 12
+// template <class T>
+// class resolutionFunctionType12 : public resolutionFunctionBase<T> {
+//  public:
+//   resolutionFunctionType12() { this->parNum_ = 11; }
+//   // linear in pt and by points in eta
+//   virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+//     double fabsEta = fabs(eta);
+//     double ptPart = 0.;
+//     if( pt > 2.1 && pt < 3.5 ) {
+//       // parabolic
+//       ptPart = parval[8] + parval[9]*pt + parval[10]*pt*pt;
+//     }
+//     else {
+//       ptPart = parval[2]*1./pt + pt/(pt+parval[3]);
+//     }
+//     if(fabsEta<1.2)
+//       return (parval[0] + ptPart + parval[4]*fabsEta + parval[5]*eta*eta);
+//     else 
+//       return (parval[1] + ptPart + parval[6]*fabs((fabsEta-1.6)) + parval[7]*(fabsEta-1.6)*(fabsEta-1.6)); 
+
+//    }
+//   // 1/pt in pt and quadratic in eta
+//   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+//     return( 0.004 );
+//   }
+//   // 1/pt in pt and quadratic in eta
+//   virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+//     return( 0.001 );
+//   }
+//   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+//     double thisStep[] = { 0.00001, 0.00001, 0.0000001, 0.00000001,
+//                           0.00000001, 0.00000001, 0.00000001, 0.00001,
+//                           0.000001, 0.0000001, 0.0000001 };
+//     TString thisParName[] = { "offsetEtaCentral", "offsetEtaHigh", "coeffOverPt", "coeffHighPt",
+//                               "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh",
+//                               "offsetBump", "linearBump", "parabBump"};
+//     double thisMini[] = { -1.1, -1.1, -0.1, -0.1,
+//                           0.0001, 0.0005, 0.0005, 0.001,
+//                           -1.1, -1.1, -1.1};
+//     if( muonType == 1 ) {
+//       double thisMaxi[] = { 1., 1., 1., 1.,
+//                             1., 1., 1., 1.,
+//                             2., 1., 1.};
+//       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+//     } else {
+//       double thisMaxi[] = { -0.8, -0.8, -0.001, -0.001,
+//                             0.005, 0.05, 0.05, 0.05,
+//                             1., 1., 1.};
+//       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+//     }
+//   }
+// };
+
+/// This resolution function uses the same function as type11, but one for Pt < 4GeV and one for Pt >= 4 GeV.
+// Resolution Type 13
+template <class T>
+class resolutionFunctionType13 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType13() { this->parNum_ = 16; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    double fabsEta = fabs(eta);
+    int shift = 0;
+    if( pt >= 4 ) {
+      shift = 8;
     }
     if(fabsEta<1.2)
-      return (parval[0] + ptPart + parval[4]*fabsEta + parval[5]*eta*eta);
-    else 
-      return (parval[1] + ptPart + parval[6]*fabs((fabsEta-1.6)) + parval[7]*(fabsEta-1.6)*(fabsEta-1.6)); 
-
-   }
+      return (parval[0+shift]+ parval[2+shift]*1./pt + pt/(pt+parval[3+shift]) + parval[4+shift]*fabsEta + parval[5+shift]*eta*eta);
+    else
+      return (parval[1+shift]+ parval[2+shift]*1./pt + pt/(pt+parval[3+shift]) + parval[6+shift]*fabs((fabsEta-1.6)) + parval[7+shift]*(fabsEta-1.6)*(fabsEta-1.6)); 
+  }
   // 1/pt in pt and quadratic in eta
   virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
     return( 0.004 );
@@ -1155,27 +1265,31 @@ class resolutionFunctionType12 : public resolutionFunctionBase<T> {
 
     double thisStep[] = { 0.00001, 0.00001, 0.0000001, 0.00000001,
                           0.00000001, 0.00000001, 0.00000001, 0.00001,
-                          0.000001, 0.0000001, 0.0000001 };
+                          0.00001, 0.00001, 0.0000001, 0.00000001,
+                          0.00000001, 0.00000001, 0.00000001, 0.00001 };
     TString thisParName[] = { "offsetEtaCentral", "offsetEtaHigh", "coeffOverPt", "coeffHighPt",
                               "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh",
-                              "offsetBump", "linearBump", "parabBump"};
+                              "offsetEtaCentral_2", "offsetEtaHigh_2", "coeffOverPt_2", "coeffHighPt_2",
+                              "linaerEtaCentral_2", "parabEtaCentral_2", "linaerEtaHigh_2", "parabEtaHigh_2" };
     double thisMini[] = { -1.1, -1.1, -0.1, -0.1,
                           0.0001, 0.0005, 0.0005, 0.001,
-                          -1.1, -1.1, -1.1};
+                          -1.1, -1.1, -0.1, -0.1,
+                          0.0001, 0.0005, 0.0005, 0.001 };
     if( muonType == 1 ) {
       double thisMaxi[] = { 1., 1., 1., 1.,
                             1., 1., 1., 1.,
-                            2., 1., 1.};
+                            1., 1., 1., 1.,
+                            1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
       double thisMaxi[] = { -0.8, -0.8, -0.001, -0.001,
                             0.005, 0.05, 0.05, 0.05,
-                            1., 1., 1.};
+                            -0.8, -0.8, -0.001, -0.001,
+                            0.005, 0.05, 0.05, 0.05 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
 };
-
 
 // ------------ ATTENTION ----------- //
 // Other functions are not in for now //
