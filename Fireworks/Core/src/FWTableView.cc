@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.14 2009/06/15 11:43:37 jmuelmen Exp $
+// $Id: FWTableView.cc,v 1.15 2009/09/23 20:30:58 chrjones Exp $
 //
 
 // system include files
@@ -598,7 +598,7 @@ void FWTableView::modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t iGl
 	  item()->select(iRow);
      }
    if(iButton == kButton3) {
-      m_manager->showSelectedModelContextMenu(iGlobalX,iGlobalY);
+      openSelectedModelContextMenu_(iGlobalX,iGlobalY);
    }
 }
 
