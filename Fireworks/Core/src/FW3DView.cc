@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.15 2009/07/02 18:35:43 amraktad Exp $
+// $Id: FW3DView.cc,v 1.16 2009/09/18 20:01:48 amraktad Exp $
 //
 
 // system include files
@@ -62,6 +62,8 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -102,6 +104,10 @@ FW3DView::FW3DView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
+   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   
    TGLEmbeddedViewer* ev = m_embeddedViewer;
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.26 2009/04/07 14:10:54 chrjones Exp $
+// $Id: FWGlimpseView.cc,v 1.27 2009/09/22 14:55:31 amraktad Exp $
 //
 
 // system include files
@@ -96,6 +96,7 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
 
    FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
    m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
 
 
    TGLEmbeddedViewer* ev = m_embeddedViewer;

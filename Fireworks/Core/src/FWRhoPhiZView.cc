@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.37 2009/05/08 18:53:12 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.38 2009/09/18 20:01:48 amraktad Exp $
 //
 
 #define private public
@@ -50,6 +50,8 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 //
 // constants, enums and typedefs
@@ -158,6 +160,12 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    TEveViewer* nv = new TEveViewer(iName.c_str());
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
+   
+   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   
+   
    TGLEmbeddedViewer* ev = m_embeddedViewer;
 
    ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
