@@ -2,13 +2,12 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/Math>
 <use name=DataFormats/MuonReco>
-<use name=DataFormats/PatCandidates>
 <use name=DataFormats/TrackReco>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Geometry/CaloGeometry>
 <use name=JetMETCorrections/Objects>
 <use name=boost>
 
@@ -17,9 +16,8 @@
   <use name=CondFormats/JetMETObjects>
   <use name=DataFormats/Common>
   <use name=DataFormats/EgammaCandidates>
-  <use name=DataFormats/JetReco>
+  <use name=DataFormats/Math>
   <use name=DataFormats/MuonReco>
-  <use name=DataFormats/PatCandidates>
   <use name=DataFormats/TrackReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
