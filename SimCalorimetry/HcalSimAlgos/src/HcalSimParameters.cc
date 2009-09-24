@@ -6,7 +6,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "CLHEP/Random/RandGaussQ.h"
-
+using namespace std;
 
 HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
                  double samplingFactor, double timePhase,
@@ -18,6 +18,7 @@ HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, double photo
   theDbService(0),
   theFirstRing(firstRing),
   theSamplingFactors(samplingFactors),
+  thePixels(0),
   doTimeSmear_(true)
 {
   defaultTimeSmearing();
@@ -28,6 +29,7 @@ HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
    theDbService(0),
    theFirstRing( p.getParameter<int>("firstRing") ),
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
+   thePixels(0),
    doTimeSmear_( p.getParameter<bool>("timeSmearing"))
 {
   defaultTimeSmearing();
@@ -58,7 +60,6 @@ double HcalSimParameters::fCtoGeV(const DetId & detId) const
     edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
   }
   // only one gain will be recorded per channel, so just use capID 0 for now
-  
   double result = gains->getValue(0);
 //  if(doNoise_)
 ///  {

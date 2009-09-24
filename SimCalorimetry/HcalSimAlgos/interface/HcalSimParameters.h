@@ -35,12 +35,17 @@ public:
   bool doTimeSmear() const { return doTimeSmear_; }
 
   double timeSmearRMS(double ampl) const;
-  
+
+  int pixels() const {return thePixels;}
+
+  friend class HcalSimParameterMap;
+
 private:
   void defaultTimeSmearing();
   const HcalDbService * theDbService;
   int theFirstRing;
   std::vector<double> theSamplingFactors;
+  int thePixels;
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;
 };
