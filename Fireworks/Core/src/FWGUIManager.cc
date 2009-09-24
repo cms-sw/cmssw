@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.146 2009/08/27 18:54:09 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.147 2009/09/23 20:35:25 chrjones Exp $
 //
 
 // system include files
@@ -280,6 +280,7 @@ FWGUIManager::createView(const std::string& iName, TEveWindowSlot* slot)
    if (slot == 0) slot =  m_viewSecPack->NewSlotWithWeight(1);
    TEveCompositeFrame *ef = slot->GetEveFrame();
    FWViewBase* view = itFind->second(slot);
+   view->openSelectedModelContextMenu_.connect(boost::bind(&FWGUIManager::showSelectedModelContextMenu ,m_guiManager,_1,_2));
    TEveWindow *ew = ef->GetEveWindow();
    ew->SetElementName(iName.c_str());
    ew->SetUserData(view);
@@ -703,7 +704,9 @@ void FWGUIManager::createShortcutPopup ()
 void 
 FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY)
 {
-   m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY);
+   if(!m_selectionManager->selected().empty()) {
+      m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY);
+   }
 }
 
  //
