@@ -51,7 +51,7 @@ if __name__ == "__main__":
                            help="Change alias ('tuple:object:alias')")
     tupleGroup.add_option ('--label', dest='label', type='string',
                            action='append',
-                           help="Change label ('tuple:object:label')")
+                           help="Change label ('tuple^object^label')")
     tupleGroup.add_option ('--changeVariable', dest='changeVar', type='string',
                            action='append',
                            help="Change variable filling "
@@ -78,8 +78,6 @@ if __name__ == "__main__":
     optionsGroup.add_option ('--compRoot', dest='compRoot', type='string',
                              default='',
                              help="Write out root file for file comparisons")
-    optionsGroup.add_option ('--oldLoad', dest='oldLoad', action='store_true',
-                             help="Use old loading routine (DEBUGGING ONLY)")
     optionsGroup.add_option ('--debug', dest='debug', action='store_true',
                              help="Print debugging information")
     optionsGroup.add_option 
@@ -88,13 +86,14 @@ if __name__ == "__main__":
     parser.add_option_group (optionsGroup)
     (options, args) = parser.parse_args()
     from Validation.Tools.GenObject import *
+    ROOT.gROOT.SetBatch()
+
+    if len (args):
+        raise RuntimeError, "Do not understand: %s" % args
     
     # Here we go
     random.seed( os.getpid() )
-    if options.oldLoad:
-        GenObject.oldLoadConfigFile (options.config)
-    else:
-        GenObject.loadConfigFile (options.config)
+    GenObject.loadConfigFile (options.config)
     ROOT.gSystem.Load("libFWCoreFWLite.so")
     ROOT.AutoLibraryLoader.enable()
     # Let's parse any args
@@ -121,7 +120,14 @@ if __name__ == "__main__":
                                           changeMatch.group (4))
                 continue
             # if we're here, then we have an argument that we don't understand
-            raise RuntimeError, "Unknown changeVar format '%s'" % arg        
+            raise RuntimeError, "Unknown changeVar format '%s'" % arg
+    if options.label:
+        for label in options.label:            
+            pieces = label.split('^')
+            if len (pieces) != 3:
+                raise RuntimeError, "Can't process label command '%s'" \
+                      % options.label
+            GenObject.changeLabel (*pieces)
     # We don't want to use options beyond the main code, so let thee
     # kitchen sink know what we want
     if options.printEvent:

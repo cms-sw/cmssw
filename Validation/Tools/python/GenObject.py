@@ -541,7 +541,7 @@ class GenObject (object):
                                           % (fullLine, lineNum)
                                 if halves[1]:
                                     halves[1] = float (halves[1])
-                                    if not halves[1] > 0:
+                                    if not halves[1] >= 0:
                                         print "Problem with -equiv ",\
                                               "'%s' in '%s'" % \
                                               (part, section)
@@ -966,14 +966,15 @@ class GenObject (object):
         aliasDict[name] = alias
 
 
-    ## @staticmethod
-    ## def changeLabel (tupleName, name, label):
-    ##     """Updates an label for an object for a given tuple"""
-    ##     labelDict = GenObject._ntupleDict[tupleName]['_label']
-    ##     if not labelDict.has_key (name):
-    ##         raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
-    ##               (name, tupleName)
-    ##     labelDict[name] = label
+    @staticmethod
+    def changeLabel (tupleName, objectName, label):
+        """Updates an label for an object for a given tuple"""
+        labelDict = GenObject._ntupleDict[tupleName]['_label']
+        if not labelDict.has_key (objectName):
+            raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
+                  (objectName, tupleName)
+        label = tuple( GenObject._commaRE.split( label ) )
+        labelDict[objectName] = label
 
 
     @staticmethod
@@ -1111,7 +1112,7 @@ class GenObject (object):
                     # Do we check equality or a precision
                     if precision:
                         value = abs (val1 - val2) / precision
-                        if value > 1.:
+                        if value >= 1.:
                             ok = False
                             break
                         total += value ** 2
@@ -1218,11 +1219,16 @@ class GenObject (object):
             for obj in event[objName]:
                 count += 1
                 for varName in GenObject._objsDict[objName].keys():
+                    if isinstance (obj.__dict__[varName], str):
+                        # don't bother
+                        continue
                     randNumber = random.random()
                     #print "rN", randNumber
                     if randNumber < GenObject._kitchenSinkDict['blurRate']:
                         print "  %s: changing '%s' of '%s:%d'" \
                               % (where, varName, obj._objName, count)
+                        ## print "objdict", obj.__dict__.get(varName), ':',\
+                        ##       value
                         obj.__dict__[varName] += value
 
 
@@ -1269,6 +1275,7 @@ class GenObject (object):
                                    len (secondOnly)
         resultsDict['eventsCompared'] = len (overlap)
         for reTuple in sorted(overlap):
+            #print 'retuple', reTuple
             if debug: warn ('event1', blankLines = 3)
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
             if debug: warn ('event2', blankLines = 3)
@@ -1279,7 +1286,7 @@ class GenObject (object):
                 print "event2:"
                 GenObject.printEvent (event2)
             if GenObject._kitchenSinkDict.get('blur'):
-                where = "run %d event %d" % reTuple
+                where = reTuple
                 GenObject.blurEvent (event1,
                                      GenObject._kitchenSinkDict['blur'],
                                      where)

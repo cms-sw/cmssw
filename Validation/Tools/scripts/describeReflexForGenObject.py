@@ -9,7 +9,7 @@ import optparse
 
 defsDict = {
     'int'    : '%-40s : form=%%%%8d     type=int',
-    'float'  : '%-40s : form=%%%%7.2f   prec=0.001',
+    'float'  : '%-40s : form=%%%%7.2f   prec=1e-5',
     'str'    : '%-40s : form=%%%%20s    type=string',
     'long'   : '%-40s : form=%%%%10d    type=long',    
     }
@@ -120,7 +120,10 @@ def genObjectDef (mylist, tuple, alias, label, type):
     genName = match.group (1)
     genDef =  " ## GenObject %s Definition ##\n[%s]\n" % \
              (genName, genName)
-    genDef += "-equiv: eta,0.1 phi,0.1\n";
+    if options.index:
+        genDef += "-equiv: index,0\n";
+    else:
+        genDef += "-equiv: eta,0.1 phi,0.1\n";
     tupleDef = '[%s:%s:%s label=%s type=%s]\n' % \
                (genName, tuple, alias, label, type)
     
@@ -139,7 +142,7 @@ def genObjectDef (mylist, tuple, alias, label, type):
 if __name__ == "__main__":
     # Setup options parser
     parser = optparse.OptionParser \
-             ("usage: %prog [options] output.txt  objectName\n" \
+             ("usage: %prog [options]  objectName\n" \
               "Creates control file for GenObject.")
     parser.add_option ('--output', dest='output', type='string',
                        default = '',
@@ -156,14 +159,14 @@ if __name__ == "__main__":
     parser.add_option ('--goName', dest='goName', type='string',
                        default='',
                        help='GenObject name')
+    parser.add_option ('--index', dest='index', action='store_true',
+                       help='use index for matching')
     parser.add_option ('--tupleName', dest='tupleName', type='string',
                        default = 'reco',
                        help="Tuple name (default '%default')")
     options, args = parser.parse_args()
     if len (args) < 1:
-        print "Need to provide output file, and Root name"\
-              ". Aborting."
-        sys.exit(1)
+        raise RuntimeError, "Need to provide object name."
     #
     objectName = args[0]    
     goName     = options.goName or colonRE.sub ('', objectName)
