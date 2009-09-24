@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.115 2009/09/18 12:35:29 mommsen Exp $
+// $Id: StorageManager.cc,v 1.116 2009/09/23 13:08:23 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
@@ -29,6 +29,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <cstdlib>
+
 using namespace std;
 using namespace stor;
 
@@ -36,7 +38,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.115 2009/09/18 12:35:29 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.116 2009/09/23 13:08:23 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -111,6 +113,10 @@ void StorageManager::bindStateMachineCallbacks()
   xoap::bind( this,
               &StorageManager::handleFSMSoapMessage,
               "Halt",
+              XDAQ_NS_URI );
+  xoap::bind( this,
+              &StorageManager::handleFSMSoapMessage,
+              "EmergencyStop",
               XDAQ_NS_URI );
 }
 
@@ -282,6 +288,15 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   fragMonCollection.addEventFragmentSample( i2oChain.totalDataSize() );
 
   _sharedResources->_fragmentQueue->enq_wait(i2oChain);
+
+#ifdef STOR_DEBUG_DUPLICATE_MESSAGES
+  double r = rand()/static_cast<double>(RAND_MAX);
+  if (r < 0.001)
+  {
+    LOG4CPLUS_INFO(this->getApplicationLogger(), "Simulating duplicated data message");
+    receiveDataMessage(ref->duplicate());
+  }
+#endif
 }
 
 
@@ -615,6 +630,10 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     else if (command == "Halt")
     {
       _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::Halt() ) );
+    }
+    else if (command == "EmergencyStop")
+    {
+      _sharedResources->_commandQueue->enq_wait( stor::event_ptr( new stor::EmergencyStop() ) );
     }
     else
     {
