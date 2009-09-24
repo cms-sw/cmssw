@@ -348,7 +348,7 @@ namespace pos{
       // assert(err==0);
       if(0!=err) 
 	{
-	  std::cout<<"[PixelConfigFile.h::get] error loading config list"<<std::endl;
+	  std::cout<<"[PixelConfigFile.h::get] error loading config list. "<<theKey<<" "<<dir<<" "<<version<<std::endl;
 	  data= 0; 
 	  return;
 	}
