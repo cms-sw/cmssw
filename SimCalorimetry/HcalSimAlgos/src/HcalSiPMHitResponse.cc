@@ -1,6 +1,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMRecovery.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
@@ -80,7 +81,8 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit,
     theHitCorrection->correct(hit);
 
   DetId id(hit.id());
-  const CaloSimParameters & pars = theParameterMap->simParameters(id);
+  const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
+  theSiPM->setNCells(pars.pixels());
 
   static double const HPD_QE = 0.14;
   double signal = analogSignalAmplitude(hit, pars);
