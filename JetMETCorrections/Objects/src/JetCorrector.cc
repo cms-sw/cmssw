@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: JetCorrector.cc,v 1.3 2007/01/18 01:35:14 fedor Exp $
+// $Id: JetCorrector.cc,v 1.4 2007/11/01 21:56:37 fedor Exp $
 //
 // Generic interface for JetCorrection services
 //
@@ -16,7 +16,20 @@ double JetCorrector::correction (const reco::Jet& fJet,
 				 const edm::Event& fEvent, 
 				 const edm::EventSetup& fSetup) const {
   if (eventRequired ()) {
-    edm::LogError ("Missing Jet Correction Method") << "Undefined Jet Correction method requiring event data is called" << std::endl;
+    edm::LogError ("Missing Jet Correction Method") 
+      << "Undefined Jet Correction method requiring event data is called" << std::endl;
+    return 0;
+  }
+  return correction (fJet);
+}
+
+double JetCorrector::correction (const reco::Jet& fJet, 
+				 const edm::Event& fEvent, 
+				 const edm::EventSetup& fSetup,
+				 LorentzVector& corrected ) const {
+  if ( vectorialCorrection() ) {
+    edm::LogError ("Missing Jet Correction Method") 
+      << "Undefined Jet (vectorial) correction method requiring event data is called" << std::endl;
     return 0;
   }
   return correction (fJet);
