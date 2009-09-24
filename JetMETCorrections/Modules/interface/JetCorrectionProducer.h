@@ -95,15 +95,15 @@ namespace cms {
 		double scale = mCorrectors[i]->correction (*referenceJet, fEvent, fSetup);
 		if (mVerbose)
 		  std::cout << "JetCorrectionProducer::produce-> Corrector # " << i << ", correction factor: " << scale << std::endl;
-		correctedJet.scaleEnergy (scale); // apply correction
+		correctedJet.scaleEnergy (scale); // apply scalar correction
 		referenceJet = &correctedJet;
 	      } else {
 		// Vectorial correction
-		JetCorrector::LorentzVector corr(0.,0.,0.,0.);
-		double scale = mCorrectors[i]->correction (*referenceJet, fEvent, fSetup, corr);
+		JetCorrector::LorentzVector corrected;
+		double scale = mCorrectors[i]->correction (*referenceJet, fEvent, fSetup, corrected);
 		if (mVerbose)
 		  std::cout << "JetCorrectionProducer::produce-> Corrector # " << i << ", correction factor: " << scale << std::endl;
-		correctedJet.setP4( corr ); // apply correction
+		correctedJet.setP4( corrected ); // apply vectorial correction
 		referenceJet = &correctedJet;
 	      }
 	    }
