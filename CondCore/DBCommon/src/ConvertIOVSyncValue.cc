@@ -1,5 +1,5 @@
 #include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
-
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 
 namespace cond {
