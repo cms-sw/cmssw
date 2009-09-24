@@ -287,10 +287,10 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
 int main (int argn, char* argv []) {
   int result = 0; // OK
 
-  if (argn < 5) {
+  if (argn < 6) {
     std::cout << "Usage: " 
 	      << argv[0] 
-	      << " <file_name> <reference file_name> <module_name> <description> <use number of events for normalization? (y or n)>, default is n " << std::endl;
+	      << " <file_name> <reference file_name> <module_name> <module_name_for_reference> <description> <use number of events for normalization? (y or n)>, default is n " << std::endl;
     return 1;
   }
 
@@ -322,10 +322,11 @@ int main (int argn, char* argv []) {
   std::string inputFileName (argv[1]);
   std::string refFileName (argv[2]);
   std::string moduleName (argv[3]);
-  std::string globalTitle = argv[4];
+  std::string refmoduleName (argv[4]);
+  std::string globalTitle = argv[5];
   std::string normalization = "n";
-  if (argn == 6) {
-    normalization = (argv[5]);
+  if (argn == 7) {
+    normalization = (argv[6]);
   }
   std::cout << normalization << std::endl;
   std::cout << "Processing file " << inputFileName << std::endl;
@@ -361,14 +362,14 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirRef = 0;
-  //  workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
-  workDir = std::string ("DQMData/RecoJetsV/") + moduleName; // new format
+  //  workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + refmoduleName; // new format
+  workDir = std::string ("DQMData/RecoJetsV/") + refmoduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
 
   if (!dirRef) {
     std::cout << "Fall back to old format for file " << refFileName << std::endl;
-    //    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
-    workDir = std::string ("DQMData/") + moduleName; // old format
+    //    workDir = std::string ("DQMData/CaloJetTask_") + refmoduleName; // old format
+    workDir = std::string ("DQMData/") + refmoduleName; // old format
     refFile->GetObject (workDir.c_str(), dirRef);
     if (!dirRef) {
       std::cerr << "Can't access workDir in file " << refFileName << std::endl;
