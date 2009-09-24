@@ -17,11 +17,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 ## CRAFT08   
-       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
+#       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root'
 #      '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/00BAAF73-52A5-DD11-9351-001D09F23A84.root'
 
 ## CRAFT09
-#       '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/001404E1-0F8A-DE11-ADB3-000423D99EEE.root',
+       '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/001404E1-0F8A-DE11-ADB3-000423D99EEE.root',
 #      '/store/data/CRAFT09/Cosmics/RAW/v1/000/110/998/002174A8-E989-DE11-8B4D-000423D6CA42.root'
       
     )
@@ -59,9 +59,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #--------------------------
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # CRAFT08
-process.GlobalTag.globaltag = CRAFT0831X_V1::All
+#process.GlobalTag.globaltag = CRAFT0831X_V1::All
 # CRAFT09
-#process.GlobalTag.globaltag = "GR09_P_V2::All"
+process.GlobalTag.globaltag = "CRAFT09_R_V3::All"
 
 #-----------------------
 #  Reconstruction Modules
