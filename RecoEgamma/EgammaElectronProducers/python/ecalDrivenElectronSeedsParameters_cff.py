@@ -15,8 +15,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # H/E cut moved back to electron preselection
     maxHOverE = cms.double(0.1),
     hOverEConeSize = cms.double(0.15),
-    hOverEHBMinE = cms.double(0.9),
-    hOverEHFMinE = cms.double(1.4),
+    hOverEHBMinE = cms.double(0.7),
+    hOverEHFMinE = cms.double(0.8),
     
     # r/z windows
     nSigmasDeltaZ1 = cms.double(5.),
