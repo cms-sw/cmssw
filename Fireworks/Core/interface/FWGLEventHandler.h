@@ -2,6 +2,7 @@
 #define Fireworks_Core_FWGLEventHandler_h
 
 #include "TGLEventHandler.h"
+#include <sigc++/signal.h>
 
 class TGWindow;
 
@@ -12,6 +13,7 @@ public:
 
    virtual Bool_t HandleButton(Event_t * event);
 
+   sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 
 private:
    FWGLEventHandler(const FWGLEventHandler&); // stop default

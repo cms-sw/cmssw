@@ -113,41 +113,6 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
                                                      event->fX, event->fY, x, y, childdum);
                      selected->InvokeContextMenu(*fGLViewer->fContextMenu, x, y);
                   }
-               }
-               else if (event->fState & kKeyShiftMask)
-               {
-                  // Fireworks context menu
-                  fGLViewer->RequestSelect(event->fX, event->fY);
-                  const TGLPhysicalShape * selected = fGLViewer->fSelRec.GetPhysShape();
-                  if (selected) {
-                     TObject* external = selected->GetLogical()->GetExternal();
-                     if (external)
-                     {
-                        printf("TODO::Invoke context menu\n");
-                        TEveElement* el = dynamic_cast<TEveElement*>(external);
-                        if (el)
-                        {
-                           printf("EveElement (%p) >> %s %s\n", el, el->GetElementName(), el->GetElementTitle());
-                           printf("EveElement UserData >> (void*) (%p) \n", el->GetUserData());
-                           TEveElement* m = el->GetMaster();
-                           if (m)
-                              printf("EveElement's master (%p) >>  %s %s\n", m,  m->GetElementName(), m->GetElementTitle());
-                           TEveElement* cmp = el->GetCompound();
-                           if (cmp)
-                              printf("EveElement's compound (%p)  >> %s %s\n", cmp, cmp->GetElementName(), cmp->GetElementTitle());
-
-                           // projectable cases
-                           TEveProjected* pted = dynamic_cast<TEveProjected*>(el);
-                           if (pted)
-                           {
-                              TEveElement* pe = dynamic_cast<TEveElement*>(pted);
-                              if (pe) printf("EveElement's projected  (%p) >> %s %s \n", pe, pe->GetElementName(), pe->GetElementTitle());
-                           }
-
-                        }
-                     }
-
-                  }
                } else {
                   fGLViewer->fDragAction = TGLViewer::kDragCameraDolly;
                   grabPointer = kTRUE;
@@ -230,11 +195,27 @@ Bool_t FWGLEventHandler::HandleButton(Event_t * event)
             obj = phys_shape->GetLogical()->GetExternal();
          }
          fGLViewer->Clicked(obj);
-         fGLViewer->Clicked(obj, event->fCode, event->fState);
+         Int_t buttonCode = event->fCode;
+         if(buttonCode==kButton3) {
+            //we want this also to be selected so have to 'fake' it
+            buttonCode=kButton1;
+         }
+         fGLViewer->Clicked(obj, buttonCode, event->fState);
          eventSt.fX = 0;
          eventSt.fY = 0;
          eventSt.fCode = 0;
          eventSt.fState = 0;
+
+         //Handle context menu
+         if(event->fCode ==kButton3) {
+            Int_t    x, y;
+            Window_t childdum;
+            gVirtualX->TranslateCoordinates(fGLViewer->fGLWidget->GetId(),
+                                            gClient->GetDefaultRoot()->GetId(),
+                                            event->fX, event->fY, x, y, childdum);
+            openSelectedModelContextMenu_(x,y);         
+         }
+         
       }
       if (event->fCode == kButton1 && fMouseTimer)
       {
