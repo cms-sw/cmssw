@@ -10,11 +10,11 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.2 2009/09/19 03:30:25 srappocc Exp $
+  \version  $Id: Selector.h,v 1.3 2009/09/22 16:01:48 srappocc Exp $
 */
 
 
-#include "CommonTools/Utils/interface/strbitset.h"
+#include "PhysicsTools/Utilities/interface/strbitset.h"
 #include <fstream>
 #include <functional>
 
