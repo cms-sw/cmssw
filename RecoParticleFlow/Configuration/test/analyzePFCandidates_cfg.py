@@ -9,17 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source (
     "PoolSource",    
     fileNames = cms.untracked.vstring(
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_0.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_1.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_10.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_2.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_3.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_4.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_5.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_6.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_7.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_8.root',
-      'rfio:/castor/cern.ch/user/c/cbern/CMSSW312/Fast/aod_QCDForPF_Fast_9.root',
+        'file:display.root'
       ),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
@@ -27,10 +17,12 @@ process.source = cms.Source (
     )
 
 
+
+
 process.pfCandidateAnalyzer = cms.EDAnalyzer("PFCandidateAnalyzer",
     PFCandidates = cms.InputTag("particleFlow"),
     verbose = cms.untracked.bool(True),
-    printBlocks = cms.untracked.bool(False)
+    printBlocks = cms.untracked.bool(True)
 )
 
 process.load("FastSimulation.Configuration.EventContent_cff")
