@@ -6,6 +6,16 @@
 
 namespace sistrip {
 
+void MeasureLA::
+store_methods_and_granularity( const edm::VParameterSet& vpset) {
+  BOOST_FOREACH(edm::ParameterSet p, vpset) {
+    methods |= p.getParameter<int32_t>("Method"); 
+    byModule = byModule || p.getParameter<bool>("ByModule");
+    byLayer  = byLayer  || !p.getParameter<bool>("ByModule");
+  }  
+}
+
+
 MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   inputFiles( conf.getParameter<std::vector<std::string> >("InputFiles") ),
   inFileLocation( conf.getParameter<std::string>("InFileLocation")),
@@ -13,38 +23,38 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   maxEvents( conf.getUntrackedParameter<unsigned>("MaxEvents",0)),
   reports( conf.getParameter<edm::VParameterSet>("Reports")),
   measurementPreferences( conf.getParameter<edm::VParameterSet>("MeasurementPreferences")),
-  calibrations(conf.getParameter<edm::VParameterSet>("Calibrations"))
+  calibrations(conf.getParameter<edm::VParameterSet>("Calibrations")),
+  methods(0), byModule(false), byLayer(false)
 {
-  BOOST_FOREACH(edm::ParameterSet p, calibrations) {
-    std::pair<uint32_t,LA_Filler_Fitter::Method> key(p.getParameter<uint32_t>("Pitch"),
-						     (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method"));
-    offset[key] = p.getParameter<double>("Offset");
-    slope[key] = p.getParameter<double>("Slope");
-    error_scaling[key] = p.getParameter<double>("ErrorScaling");
-  }
+  store_methods_and_granularity( reports );
+  store_methods_and_granularity( measurementPreferences );
+  store_calibrations();
 
-  TChain* chain = new TChain("la_ensemble"); 
+  TChain* chain = new TChain("la_data"); 
   BOOST_FOREACH(std::string file, inputFiles) chain->Add((file+inFileLocation).c_str());
   
-  int32_t methods = 0;  bool byModule(false), byLayer(false);
-  append_methods_and_granularity( methods, byModule, byLayer, reports);
-  append_methods_and_granularity( methods, byModule, byLayer, measurementPreferences );
-
   LA_Filler_Fitter laff(methods, byLayer, byModule, maxEvents);
   laff.fill(chain, book);
-  LA_Filler_Fitter::fit(book);
+  laff.fit(book);
   process_reports();
 
   setWhatProduced(this,&MeasureLA::produce);
 }
+
+
+boost::shared_ptr<SiStripLorentzAngle> MeasureLA::
+produce(const SiStripLorentzAngleRcd& ) {
+  boost::shared_ptr<SiStripLorentzAngle> lorentzAngle(new SiStripLorentzAngle());
+  /*
+  std::map<uint32_t,LA_Filler_Fitter::Result> 
+    module_results = LA_Filler_Fitter::module_results(book, LA_Filler_Fitter::SQRTVAR);
   
-void MeasureLA::
-append_methods_and_granularity(int32_t& methods, bool& byModule, bool& byLayer, const edm::VParameterSet& vpset) {
-  BOOST_FOREACH(edm::ParameterSet p, vpset) {
-    methods |= p.getParameter<int32_t>("Method"); 
-    byModule = byModule || p.getParameter<bool>("ByModule");
-    byLayer  = byLayer  || !p.getParameter<bool>("ByModule");
-  }  
+  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader(fp_.fullPath()).getAllDetIds()) {
+    float la = module_results[detid].measure / module_results[detid].field ;
+    lorentzAngle->putLorentzAngle( detid, la );
+  }
+  */
+  return lorentzAngle;
 }
 
 void MeasureLA::
@@ -54,31 +64,48 @@ process_reports() {
     std::string name = p.getParameter<std::string>("ReportName");
     LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
 
-    typedef std::pair<uint32_t,LA_Filler_Fitter::Result> mr_t;
-    typedef std::pair<std::string,LA_Filler_Fitter::Result> lr_t;
-    fstream file((name+".dat").c_str(),std::ios::out);
-    if(byMod) BOOST_FOREACH(mr_t result, LA_Filler_Fitter::module_results(book,method)) {
-      calibrate( calibration_key(result.first,method), 
-		 result.second); 
-      file<< result.first <<"\t"<< result.second <<std::endl;
-    }
-    else BOOST_FOREACH(lr_t result,  LA_Filler_Fitter::layer_results(book,method)) {
-      calibrate(calibration_key(result.first,method), 
-		result.second);
-      file<< result.first <<"\t"<< result.second <<std::endl;
-    }
-    file.close();
-    
-    TFile tfile((name+".root").c_str(),"RECREATE");
-    std::string key = ( byMod ? ".*_module.*" : ".*_layer.*") + LA_Filler_Fitter::method(method);
-    for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist)
-      (*hist)->Write();
-    for(Book::const_iterator hist = book.begin(".*_symm"); hist!=book.end(); ++hist)
-      (*hist)->Write();
-    tfile.Close();
+    write_report_plots( name, method, byMod);  if(byMod) 
+    write_report_text( name, method, LA_Filler_Fitter::module_results(book, method)); else 
+    write_report_text( name, method, LA_Filler_Fitter::layer_results(book, method) );
   }
 }
 
+void MeasureLA::
+write_report_plots(std::string name, LA_Filler_Fitter::Method method, bool byMod ) {
+  TFile file((name+".root").c_str(),"RECREATE");
+  std::string key(".*");
+  key += (byMod?"_module":"_layer");
+  key += ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+")";
+  for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist) 
+    (*hist)->Write();
+  file.Close();
+}
+
+template <class T>
+void MeasureLA::
+write_report_text(std::string name, LA_Filler_Fitter::Method method, std::map<T,LA_Filler_Fitter::Result> results) {
+  fstream file((name+".dat").c_str(),std::ios::out);
+  std::pair<T,LA_Filler_Fitter::Result> result;
+  BOOST_FOREACH(result, results) {
+    calibrate( calibration_key(result.first,method), result.second); 
+    file << result.first << "\t" << result.second << std::endl;
+  }
+  file.close();
+}  
+  
+void MeasureLA::
+store_calibrations() {
+  BOOST_FOREACH(edm::ParameterSet p, calibrations) {
+    std::pair<uint32_t,LA_Filler_Fitter::Method> 
+      key( p.getParameter<uint32_t>("Pitch"), (LA_Filler_Fitter::Method) 
+	   p.getParameter<int32_t>("Method"));
+    offset[key] = p.getParameter<double>("Offset");
+    slope[key] = p.getParameter<double>("Slope");
+    error_scaling[key] = p.getParameter<double>("ErrorScaling");
+  }
+}
+
+inline
 void MeasureLA::
 calibrate(std::pair<uint32_t,LA_Filler_Fitter::Method> key, LA_Filler_Fitter::Result& result) {
   result.calibratedMeasurement = ( result.measure - offset[key] ) / slope[key] ;
@@ -102,21 +129,6 @@ calibration_key(uint32_t detid,LA_Filler_Fitter::Method method) {
     ? TIBDetId(detid).layer() < 3 ?  80 : 120
     : TOBDetId(detid).layer() > 4 ? 122 : 183; 
   return std::make_pair(pitch,method);
-}
-
-boost::shared_ptr<SiStripLorentzAngle> MeasureLA::
-produce(const SiStripLorentzAngleRcd& ) {
-  boost::shared_ptr<SiStripLorentzAngle> lorentzAngle(new SiStripLorentzAngle());
-  /*
-  std::map<uint32_t,LA_Filler_Fitter::Result> 
-    module_results = LA_Filler_Fitter::module_results(book, LA_Filler_Fitter::SQRTVAR);
-  
-  BOOST_FOREACH(const uint32_t& detid, SiStripDetInfoFileReader(fp_.fullPath()).getAllDetIds()) {
-    float la = module_results[detid].measure / module_results[detid].field ;
-    lorentzAngle->putLorentzAngle( detid, la );
-  }
-  */
-  return lorentzAngle;
 }
       
 }
