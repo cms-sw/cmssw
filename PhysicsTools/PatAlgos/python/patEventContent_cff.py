@@ -25,10 +25,9 @@ patEventContent = [
 
 patExtraAodEventContent = [
     # GEN
-    'keep recoGenParticles_genParticles_*_*',
-    'keep *_genEventScale_*_*',
-    'keep *_genEventWeight_*_*',
-    'keep *_genEventPdfInfo_*_*',
+    'keep recoGenParticles_genParticles_*',
+    'keep GenEventInfoProduct_*',
+    'keep GenRunInfoProduct_*', 
     # RECO
     'keep recoTracks_generalTracks_*_*', 
     'keep *_towerMaker_*_*',
