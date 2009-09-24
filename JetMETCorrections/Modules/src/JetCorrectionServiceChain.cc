@@ -1,11 +1,11 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Dec. 28, 2006
-// $Id: JetCorrectionService.icc,v 1.1 2007/01/18 01:35:12 fedor Exp $
+// $Id: JetCorrectionServiceChain.cc,v 1.1 2008/02/29 22:58:45 fedor Exp $
 //
 //
 
-#include "JetCorrectionServiceChain.h"
+#include "JetMETCorrections/Modules/interface/JetCorrectionServiceChain.h"
 
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
