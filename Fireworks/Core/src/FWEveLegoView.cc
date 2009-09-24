@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.52 2009/09/18 20:01:48 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.53 2009/09/21 14:20:31 amraktad Exp $
 //
 
 // system include files
@@ -60,6 +60,8 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
+#include "Fireworks/Core/interface/FWGLEventHandler.h"
+
 
 //
 // constants, enums and typedefs
@@ -96,6 +98,12 @@ FWEveLegoView::FWEveLegoView(TEveWindowSlot* iParent, TEveElementList* list) :
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
    iParent->ReplaceWindow(nv);
 
+   //NOTE: This doesn't work because later the Event handler is replaced :(
+   FWGLEventHandler* eh = new FWGLEventHandler("RhoPhi",(TGWindow*)m_embeddedViewer->GetGLWidget(), (TObject*)m_embeddedViewer);
+   m_embeddedViewer->SetEventHandler(eh);
+   eh->openSelectedModelContextMenu_.connect(openSelectedModelContextMenu_);
+   
+   
    TGLEmbeddedViewer* ev = m_embeddedViewer;
 
    m_autoRebin.changed_.connect(boost::bind(&FWEveLegoView::setAutoRebin,this));
