@@ -131,36 +131,42 @@ make_and_fit_symmchi2(Book& book) {
   for(Book::const_iterator p = book.begin(".*"+method(SYMM,0)); p!=book.end(); ++p) {
     unsigned rebin = (unsigned)( (*p)->GetNbinsX() / sqrt(2*(*p)->GetEntries()) + 1);
     (*p)->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
-    const unsigned bins = (*p)->GetNbinsX();
 
-    unsigned lower(1), upper(1+bins/20);  double sliding_sum(0);
-    for(unsigned bin=lower; bin<=upper; ++bin) {double c = (*p)->GetBinContent(bin); if(c==0) upper++; sliding_sum+=c;}
-    unsigned least_low(lower), least_up(upper); double least_sum(sliding_sum);
-    while(upper<=bins) {
-      while( ++upper<=bins && (*p)->GetBinContent(upper) == 0 ); 
-      if(upper<=bins) {
-	while( (*p)->GetBinContent(++lower) == 0 );
-	sliding_sum += (*p)->GetBinContent(upper);
-	sliding_sum -= (*p)->GetBinContent(lower);
-	if( sliding_sum < least_sum ) {
-	  least_sum = sliding_sum;
-	  least_low = lower;
-	  least_up = upper;
-	}
-      }
-    }
-    unsigned guess = (least_low+least_up)/2;
+    const unsigned bins = (*p)->GetNbinsX();
+    const unsigned guess = guess_bin(*p);
 
     TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
     if(chi2) { 
-      double dguess = chi2->GetFunction("SymmetryFit")->GetParameter(0);
-      guess = (*p)->FindBin(dguess);
+      const unsigned guess2 = (*p)->FindBin(chi2->GetFunction("SymmetryFit")->GetParameter(0));
       delete chi2;
-      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/30,guess+bins/30)); if(!chi2)
-      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
+      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess2-bins/30,guess2+bins/30)); if(!chi2)
+	chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess2-bins/20,guess2+bins/20)); if(!chi2)
+	  chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
       if(chi2) book.book(SymmetryFit::name((*p)->GetName()), chi2);
     }
   }
+}
+
+unsigned LA_Filler_Fitter::
+guess_bin(TH1* hist) {
+  const unsigned bins = hist->GetNbinsX();
+  unsigned lower(1), upper(1+bins/20);  double sliding_sum(0);
+  for(unsigned bin=lower; bin<=upper; ++bin) {double c = hist->GetBinContent(bin); if(c==0) upper++; sliding_sum+=c;}
+  unsigned least_low(lower), least_up(upper); double least_sum(sliding_sum);
+  while(upper<=bins) {
+    while( ++upper<=bins && hist->GetBinContent(upper) == 0 ); 
+    if(upper<=bins) {
+      while( hist->GetBinContent(++lower) == 0 );
+      sliding_sum += hist->GetBinContent(upper);
+      sliding_sum -= hist->GetBinContent(lower);
+      if( sliding_sum < least_sum ) {
+	least_sum = sliding_sum;
+	least_low = lower;
+	least_up = upper;
+      }
+    }
+  }
+  return (least_low+least_up)/2;
 }
 
 LA_Filler_Fitter::Result LA_Filler_Fitter::

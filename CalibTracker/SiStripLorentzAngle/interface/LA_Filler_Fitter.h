@@ -95,6 +95,8 @@ class LA_Filler_Fitter {
   
  private:
   
+  static unsigned guess_bin(TH1*);
+  
   int ensembleSize_, ensembleBins_;
   double ensembleLow_, ensembleUp_;
   bool byLayer_, byModule_;
