@@ -1099,6 +1099,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     //if ( (spigot+1) >= ievt_ ) 
     //  mapHTRproblem(dccid,spigot); 
 
+    //Fake a problem with each calorimeter cell a unique number of times.
+    //for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) 
+    //  if (htrchan>ievt_)
+    //	mapChannproblem(dcc_,spigot,htrchan); 
 
     // Fish out Front-End Errors from the precision channels
     const short unsigned int* daq_first, *daq_last, *tp_first, *tp_last;
@@ -1106,7 +1110,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     // get pointers
     htr.dataPointers(&daq_first,&daq_last,&tp_first,&tp_last);
-
     qie_begin=(HcalQIESample*)daq_first;
     qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
 
@@ -1114,11 +1117,6 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     int lastfibchan =-1, samplecounter=-1;
     int channum=0; // Valid: [1,24]
     channDIM_x=0;  
-
-    //Fake a problem with each calorimeter cell a unique number of times.
-    for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) 
-      if (htrchan>ievt_)
-	mapChannproblem(dcc_,spigot,htrchan); 
 
     // Loop over DAQ words for this spigot
     for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
