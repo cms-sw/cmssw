@@ -4,7 +4,7 @@
 /*
  *  DQM HLT Dimuon Test Client
  *
- *  $Date: 2008/10/16 16:43:28 $
+ *  $Date: 2009/07/29 13:05:04 $
  *  $Revision: 1.2 $
  *  \author  M. Vander Donckt CERN
  *   
@@ -79,7 +79,11 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
 
   int counterEvt_;
   int prescaleEvt_;
+  int N_sig;
+  int N_trig;
+
   double coneSize_;
+  float  eff;
 
   edm::InputTag triggerResults_;
   edm::InputTag L1_Collection_;
@@ -88,6 +92,11 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
 
   std::vector<std::string> hltPaths_L1_;
   std::vector<std::string> hltPaths_L3_;
+  std::vector<std::string> hltPath_sig_;
+  std::vector<std::string> hltPath_trig_;
+
+  double muon_pT_cut_;
+  double muon_eta_cut_;
 
   // ----------member data ---------------------------
 
@@ -96,12 +105,18 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   MonitorElement * Trigs;
   MonitorElement * NMuons;
   MonitorElement * PtMuons;
+  MonitorElement * PtMuons_sig;
+  MonitorElement * PtMuons_trig;
   MonitorElement * EtaMuons;
+  MonitorElement * EtaMuons_sig;
+  MonitorElement * EtaMuons_trig;
   MonitorElement * PhiMuons;
   MonitorElement * DiMuonMass;
   MonitorElement * DiMuonMass_LOG;
   MonitorElement * DeltaEtaMuons;
   MonitorElement * DeltaPhiMuons;
+  MonitorElement * MuonEfficiency_pT;
+  MonitorElement * MuonEfficiency_eta;
 
 };
 

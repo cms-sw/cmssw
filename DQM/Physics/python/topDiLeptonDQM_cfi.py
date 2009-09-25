@@ -9,12 +9,12 @@ topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
     hltPaths_L3_el = cms.vstring('HLT_Ele15_SW_L1R','HLT_Ele20_SW_L1R'),
 
     muonCollection = cms.InputTag('muons'),
-    muon_pT_cut    = cms.double(  4.0 ),
-    muon_eta_cut   = cms.double(  5.0 ),
+    muon_pT_cut    = cms.double( 10.0 ),
+    muon_eta_cut   = cms.double(  2.4 ),
 
     elecCollection = cms.InputTag('gsfElectrons'),
-    elec_pT_cut    = cms.double(  4.0 ),
-    elec_eta_cut   = cms.double(  5.0 )
+    elec_pT_cut    = cms.double( 15.0 ),
+    elec_eta_cut   = cms.double(  2.4 )
 
 )
 
