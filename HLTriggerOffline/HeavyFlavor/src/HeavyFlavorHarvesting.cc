@@ -77,6 +77,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   MonitorElement * effME;
   int numberOfCells = 0;
   TH1 * eff = (TH1*)num->Clone(effName.c_str());
+  eff->SetTitle(effName.c_str());
   int dimensions = eff->GetDimension();
   switch(dimensions){
     case 1:
