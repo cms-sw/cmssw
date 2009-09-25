@@ -11,14 +11,18 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "boost/range/iterator_range.hpp"
 #include <sstream>
 #include <string>
+
+namespace edm {
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}
 
 // --------------------------------------------------------
 // -------------------- Helper classes --------------------
@@ -228,19 +232,18 @@ class JetPlusTrackCorrector : public JetCorrector {
   typedef reco::JetTracksAssociation::Container JetTracksAssociations;
   typedef reco::TrackRefVector TrackRefs;
 
-  /// Associates tracks to jets
-  bool jetTrackAssociation( const reco::Jet&, 
-			    const edm::Event&, 
-			    const edm::EventSetup&,
-			    jpt::JetTracks& ) const;
+  /// Associates tracks to jets (overriden in derived class)
+  virtual bool jetTrackAssociation( const reco::Jet&, 
+				    const edm::Event&, 
+				    const edm::EventSetup&,
+				    jpt::JetTracks& ) const;
   
-  /// Associates tracks to jets "on-the-fly"
-  virtual bool jtaOnTheFly( const reco::Jet&, 
-			    const edm::Event&, 
-			    const edm::EventSetup&,
-			    jpt::JetTracks& ) const;
+  /// JTA using collections from event
+  bool jtaUsingEventData( const reco::Jet&, 
+			  const edm::Event&, 
+			  jpt::JetTracks& ) const;
   
-  /// Matches tracks to different particle types 
+  /// Matches tracks to different particle types (overriden in derived class)
   virtual void matchTracks( const jpt::JetTracks&,
 			    const edm::Event&, 
 			    jpt::MatchedTracks& pions, 

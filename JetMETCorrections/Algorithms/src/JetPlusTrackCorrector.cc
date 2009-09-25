@@ -4,7 +4,10 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <vector>
 
@@ -180,75 +183,83 @@ bool JetPlusTrackCorrector::jetTrackAssociation( const reco::Jet& fJet,
   // Some init
   trks.clear();
   
-  // Check whether to retrieve JTA object from Event or construct "on-the-fly"
-  if ( !jetTracksAtVertex_.label().empty() && 
-       !jetTracksAtCalo_.label().empty() ) { 
-    
-    // Get Jet-track association at Vertex
-    edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
-    event.getByLabel( jetTracksAtVertex_, jetTracksAtVertex ); 
-    if ( !jetTracksAtVertex.isValid() || jetTracksAtVertex.failedToGet() ) {
-      if ( verbose_ && edm::isDebugEnabled() ) {
-	edm::LogWarning("JetPlusTrackCorrector")
-	  << "[JetPlusTrackCorrector::" << __func__ << "]"
-	  << " Invalid handle to reco::JetTracksAssociation::Container (for Vertex)"
-	  << " with InputTag (label:instance:process) \"" 
-	  << jetTracksAtVertex_.label() << ":"
-	  << jetTracksAtVertex_.instance() << ":"
-	  << jetTracksAtVertex_.process() << "\"" << std::endl
-	  << " Attempting to use JTA \"on-the-fly\" mode...";
-      }
-      return jtaOnTheFly( fJet, event, setup, trks );
-    }
-    
-    // Retrieve jet-tracks association for given jet
-    const reco::JetTracksAssociation::Container jtV = *( jetTracksAtVertex.product() );
-    TrackRefs excluded; 
-    if ( jetSplitMerge_ < 0 ) { trks.vertex_ = reco::JetTracksAssociation::getValue( jtV, fJet ); }
-    else { rebuildJta( fJet, jtV, trks.vertex_, excluded ); }
-    
-    // Check if any tracks are associated to jet at vertex
-    if ( trks.vertex_.empty() ) { return false; }
-
-    // Get Jet-track association at Calo
-    edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
-    event.getByLabel( jetTracksAtCalo_, jetTracksAtCalo ); 
-    if ( !jetTracksAtCalo.isValid() || jetTracksAtCalo.failedToGet() ) {
-      if ( verbose_ && edm::isDebugEnabled() ) {
-	edm::LogWarning("JetPlusTrackCorrector")
-	  << "[JetPlusTrackCorrector::" << __func__ << "]"
-	  << " Invalid handle to reco::JetTracksAssociation::Container (for CaloFace)"
-	  << " with InputTag (label:instance:process) \"" 
-	  << jetTracksAtCalo_.label() << ":"
-	  << jetTracksAtCalo_.instance() << ":"
-	  << jetTracksAtCalo_.process() << "\"" << std::endl
-	  << " Attempting to use JTA \"on-the-fly\" mode...";
-      }
-      return jtaOnTheFly( fJet, event, setup, trks );
-    }
-    
-    // Retrieve jet-tracks association for given jet
-    const reco::JetTracksAssociation::Container jtC = *( jetTracksAtCalo.product() );
-    if ( jetSplitMerge_ < 0 ) { trks.caloFace_ = reco::JetTracksAssociation::getValue( jtC, fJet ); }
-    else { excludeJta( fJet, jtC, trks.caloFace_, excluded ); }
-    
-    // Successful
-    return true;
-    
-  } else { return jtaOnTheFly( fJet, event, setup, trks ); }
+  // Check if labels are given
+  if ( !jetTracksAtVertex_.label().empty() && !jetTracksAtCalo_.label().empty() ) { 
+    return jtaUsingEventData( fJet, event, trks );
+  } else {
+    edm::LogWarning("PatJPTCorrector") 
+      << "[JetPlusTrackCorrector::" << __func__ << "]"
+      << " Empty label for the reco::JetTracksAssociation::Containers"
+      << std::endl
+      << " InputTag for JTA \"at vertex\"    (label:instance:process) \"" 
+      << jetTracksAtVertex_.label() << ":"
+      << jetTracksAtVertex_.instance() << ":"
+      << jetTracksAtVertex_.process() << "\""
+      << std::endl
+      << " InputTag for JTA \"at calo face\" (label:instance:process) \"" 
+      << jetTracksAtCalo_.label() << ":"
+      << jetTracksAtCalo_.instance() << ":"
+      << jetTracksAtCalo_.process() << "\"";
+    return false;
+  }
   
 }
 
 // -----------------------------------------------------------------------------
 //
-bool JetPlusTrackCorrector::jtaOnTheFly( const reco::Jet& fJet,
-					 const edm::Event& event, 
-					 const edm::EventSetup& setup,
-					 JetTracks& trks ) const {
-  edm::LogWarning("JetPlusTrackCorrector") 
-    << "[JetPlusTrackCorrector::" << __func__ << "]"
-    << " \"On-the-fly\" mode not available in this version of JPT!";
-  return false;
+bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
+					       const edm::Event& event, 
+					       JetTracks& trks ) const {
+  
+  // Get Jet-track association at Vertex
+  edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
+  event.getByLabel( jetTracksAtVertex_, jetTracksAtVertex ); 
+  if ( !jetTracksAtVertex.isValid() || jetTracksAtVertex.failedToGet() ) {
+    if ( verbose_ && edm::isDebugEnabled() ) {
+      edm::LogWarning("JetPlusTrackCorrector")
+	<< "[JetPlusTrackCorrector::" << __func__ << "]"
+	<< " Invalid handle to reco::JetTracksAssociation::Container (for Vertex)"
+	<< " with InputTag (label:instance:process) \"" 
+	<< jetTracksAtVertex_.label() << ":"
+	<< jetTracksAtVertex_.instance() << ":"
+	<< jetTracksAtVertex_.process() << "\"";
+    }
+    return false;
+  }
+    
+  // Retrieve jet-tracks association for given jet
+  const reco::JetTracksAssociation::Container jtV = *( jetTracksAtVertex.product() );
+  TrackRefs excluded; 
+  if ( jetSplitMerge_ < 0 ) { trks.vertex_ = reco::JetTracksAssociation::getValue( jtV, fJet ); }
+  else { rebuildJta( fJet, jtV, trks.vertex_, excluded ); }
+    
+  // Check if any tracks are associated to jet at vertex
+  if ( trks.vertex_.empty() ) { return false; }
+
+  // Get Jet-track association at Calo
+  edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
+  event.getByLabel( jetTracksAtCalo_, jetTracksAtCalo ); 
+  if ( !jetTracksAtCalo.isValid() || jetTracksAtCalo.failedToGet() ) {
+    if ( verbose_ && edm::isDebugEnabled() ) {
+      edm::LogWarning("JetPlusTrackCorrector")
+	<< "[JetPlusTrackCorrector::" << __func__ << "]"
+	<< " Invalid handle to reco::JetTracksAssociation::Container (for CaloFace)"
+	<< " with InputTag (label:instance:process) \"" 
+	<< jetTracksAtCalo_.label() << ":"
+	<< jetTracksAtCalo_.instance() << ":"
+	<< jetTracksAtCalo_.process() << "\"";
+    }
+    return false; 
+  }
+    
+  // Retrieve jet-tracks association for given jet
+  const reco::JetTracksAssociation::Container jtC = *( jetTracksAtCalo.product() );
+  if ( jetSplitMerge_ < 0 ) { trks.caloFace_ = reco::JetTracksAssociation::getValue( jtC, fJet ); }
+  else { excludeJta( fJet, jtC, trks.caloFace_, excluded ); }
+    
+  // Successful
+  return true;
+  
 }
 
 // -----------------------------------------------------------------------------

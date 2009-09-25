@@ -39,18 +39,45 @@ PatJPTCorrector::~PatJPTCorrector() {;}
 
 // -----------------------------------------------------------------------------
 //
+bool PatJPTCorrector::jetTrackAssociation( const reco::Jet& fJet,
+					   const edm::Event& event, 
+					   const edm::EventSetup& setup,
+					   JetTracks& trks ) const {
+  
+  // Some init
+  trks.clear();
+  
+  // Check if labels are given
+  if ( !jetTracksAtVertex_.label().empty() && !jetTracksAtCalo_.label().empty() ) { 
+    return jtaUsingEventData( fJet, event, trks );
+  } else {
+    return jtaOnTheFly( fJet, event, setup, trks );
+  }
+  
+  return false;
+  
+}
+
+// -----------------------------------------------------------------------------
+//
 bool PatJPTCorrector::jtaOnTheFly( const reco::Jet& fJet,
 				   const edm::Event& event, 
 				   const edm::EventSetup& setup,
 				   JetTracks& trks ) const {
 
+  edm::LogWarning("PatJPTCorrector") 
+    << "[PatJPTCorrector::" << __func__ << "]"
+    << " Please provide valid InputTags for the reco::JetTracksAssociation::Containers!"
+    << " (\"On-the-fly\" mode not yet implemented.)";
+  return false;
+  
 //   if ( !allowOnTheFly_ ) {
 
-    edm::LogWarning("PatJPTCorrector") 
-      << "[PatJPTCorrector::" << __func__ << "]"
-      << " \"On-the-fly\" mode not allowed by configuration!...";
+//     edm::LogWarning("PatJPTCorrector") 
+//       << "[PatJPTCorrector::" << __func__ << "]"
+//       << " \"On-the-fly\" mode not allowed by configuration!...";
 
-    return false;
+//     return false;
 
 //   } else {
     

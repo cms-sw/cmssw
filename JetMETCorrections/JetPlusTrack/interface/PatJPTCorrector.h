@@ -37,8 +37,14 @@ class PatJPTCorrector : public JetPlusTrackCorrector {
   typedef edm::View<pat::Muon> PatMuons;
   typedef edm::View<pat::Electron> PatElectrons;
   typedef PatJPTCorrector::TrackRefs TrackRefs;
+
+  /// Associates tracks to jets
+  bool jetTrackAssociation( const reco::Jet&, 
+			    const edm::Event&, 
+			    const edm::EventSetup&,
+			    jpt::JetTracks& ) const;
   
-  /// Associates tracks to jets "on-the-fly"
+  /// JTA "on-the-fly"
   bool jtaOnTheFly( const reco::Jet&, 
 		    const edm::Event&, 
 		    const edm::EventSetup&,
