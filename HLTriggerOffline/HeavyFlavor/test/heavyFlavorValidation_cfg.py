@@ -43,9 +43,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff")
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
+process.load("DQMServices.Components.DQMStoreStats_cfi")
 process.path = cms.Path(
   process.heavyFlavorValidationSequence
-  *process.endOfProcess
+  *process.endOfProcess*process.dqmStoreStats
 )
 
 process.outputmodule = cms.OutputModule("PoolOutputModule",
