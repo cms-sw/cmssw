@@ -121,7 +121,7 @@ CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   double imw = wCand.mass();
 
 	   // Find the combination closest to the W mass
-	   if ( fabs( imw - WMass_ ) < properties.wMass ) {
+	   if ( fabs( imw - WMass_ ) < fabs(properties.wMass - WMass_) ) {
 	     properties.wMass = imw;
 	   }
 	   // Find the minimum mass pairing. 
