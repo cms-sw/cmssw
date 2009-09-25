@@ -80,7 +80,13 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       setupDepthHists2D(ProblemBeamCellsByDepth, " Problem BeamMonitor Rate","");
 
       //jason's
-      m_dbe->setCurrentFolder(baseFolder_);
+
+      // halo monitoring -- need to separate code that monitors HF lumi from that which monitors halo
+
+      m_dbe->setCurrentFolder(baseFolder_+"/HFlumi");
+      // add HFlumi plots here
+
+      m_dbe->setCurrentFolder(baseFolder_+"/halo");
       CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
 					   "Center Of Energy radius",
 					   200,0,1);
@@ -103,7 +109,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       
       std::stringstream histname;
       std::stringstream histtitle;
-      m_dbe->setCurrentFolder(baseFolder_+"/HB");
+      m_dbe->setCurrentFolder(baseFolder_+"/halo/HB");
       HBCenterOfEnergyRadius = m_dbe->book1D("HBCenterOfEnergyRadius",
 					     "HB Center Of Energy radius",
 					     200,0,1);
@@ -125,7 +131,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 							  200,0,1);
 	    } // end of HB loop
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/HE");
+      m_dbe->setCurrentFolder(baseFolder_+"/halo/HE");
       HECenterOfEnergyRadius = m_dbe->book1D("HECenterOfEnergyRadius",
 					     "HE Center Of Energy radius",
 					     200,0,1);
@@ -147,7 +153,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 							  200,0,1);
 	    } // end of HE loop
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/HO");
+      m_dbe->setCurrentFolder(baseFolder_+"/halo/HO");
       HOCenterOfEnergyRadius = m_dbe->book1D("HOCenterOfEnergyRadius",
 					     "HO Center Of Energy radius",
 					     200,0,1);
@@ -169,7 +175,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 								     200,0,1);
 	    } // end of HO loop
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/HF");
+      m_dbe->setCurrentFolder(baseFolder_+"/halo/HF");
       HFCenterOfEnergyRadius = m_dbe->book1D("HFCenterOfEnergyRadius",
 					     "HF Center Of Energy radius",
 					     200,0,1);
@@ -192,7 +198,8 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	    } // end of HF loop
 	}
       
-      m_dbe->setCurrentFolder(baseFolder_+"/Lumi");
+      // this had been stored in "Lumi" subdirectory.  Do we still want it in HFlumi?
+      m_dbe->setCurrentFolder(baseFolder_+"/HFlumi");
       // Wenhan's 
       // reducing bins from ",200,0,2000" to ",40,0,800"
       
