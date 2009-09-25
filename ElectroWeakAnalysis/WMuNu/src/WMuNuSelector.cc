@@ -278,7 +278,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       }
   
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
-      else if (WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
+      if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
 
       // W->mu nu selection criteria
 
@@ -296,8 +296,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Select Ws by charge:  
   
-      if (selectByCharge_*WMuNu.charge()==-1)
-      ncharge++;
+      if (selectByCharge_*WMuNu.charge()==-1){ ncharge++;}
 
 
       // W->mu nu selection criteria

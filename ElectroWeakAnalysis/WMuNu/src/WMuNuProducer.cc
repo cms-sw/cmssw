@@ -83,7 +83,7 @@ WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met")))
 {
-  produces< WMuNuCandidateCollection >("WMuNuCandidates");
+  produces< WMuNuCandidateCollection >();
 }
 
 void WMuNuProducer::beginJob(const EventSetup &) {
@@ -172,7 +172,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
   	WMuNuCandidates->push_back(*WCand);
        } 
 
-      ev.put(WMuNuCandidates,"WMuNuCandidates");
+      ev.put(WMuNuCandidates);
 
 }
 
