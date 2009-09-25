@@ -64,12 +64,16 @@ if __name__ == "__main__":
             problems.setdefault(log,[]).extend ( ['other',
                                                   'ran:%s' % ran,
                                                   'success:%s' % success])
-            pass
+            key = 'other'
+            if not problemTypes.has_key(key):
+                problemTypes[key] = 1
+            else:
+                problemTypes[key] += 1
 
     print "total:   ", len (files)
     print "success: ", succeeded
     print "Problem types:"
-    for key, value in (problemTypes.iteritems()):
+    for key, value in sorted (problemTypes.iteritems()):
         print "  %-15s: %2d" % (key, value)
     print "\nDetailed Problems list:"
     for key, problemList in sorted (problems.iteritems()):
