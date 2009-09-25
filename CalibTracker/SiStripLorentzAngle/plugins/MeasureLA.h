@@ -20,13 +20,22 @@ class MeasureLA : public edm::ESProducer {
   
  private:
 
+  enum GRANULARITY {LAYER=0, MODULE=1, MODULESUMMARY=2};
+  std::string granularity(int32_t g) { switch(g) {
+    case LAYER: return "_layer"; 
+    case MODULE: return "_module"; 
+    case MODULESUMMARY: return "_moduleSummary";
+  } return "";};
+
   void store_calibrations();
   void store_methods_and_granularity(const edm::VParameterSet&);
 
+  void summarize_module_muH_byLayer();
   void process_reports();
   template<class T> 
   void write_report_text(std::string, LA_Filler_Fitter::Method, std::map<T,LA_Filler_Fitter::Result>);
-  void write_report_plots(std::string, LA_Filler_Fitter::Method, bool);
+  void write_report_text_ms(std::string name, LA_Filler_Fitter::Method method);
+  void write_report_plots(std::string, LA_Filler_Fitter::Method, GRANULARITY);
 
   void calibrate(std::pair<uint32_t,LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&);
   std::pair<uint32_t,LA_Filler_Fitter::Method> calibration_key(std::string layer,LA_Filler_Fitter::Method method);

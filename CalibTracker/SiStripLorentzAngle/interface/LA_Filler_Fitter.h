@@ -45,10 +45,10 @@ class LA_Filler_Fitter {
       meanUncertainty,SDmeanUncertainty,
       pull,           SDpull;
     EnsembleSummary() : samples(0),truth(0),
-			meanMeasured(0),SDmeanMeasured(0),
-			sigmaMeasured(0),SDsigmaMeasured(0),
-			meanUncertainty(0),SDmeanUncertainty(0),
-			pull(0),SDpull(0) {}
+		        meanMeasured(0),SDmeanMeasured(0),
+		        sigmaMeasured(0),SDsigmaMeasured(0),
+		        meanUncertainty(0),SDmeanUncertainty(0),
+		        pull(0),SDpull(0) {}
   };
   
   LA_Filler_Fitter(int methods, int M, int N, double low, double up, unsigned max=0) :
@@ -89,6 +89,10 @@ class LA_Filler_Fitter {
   static std::pair<std::pair<float,float>, std::pair<float,float> > offset_slope(const std::vector<EnsembleSummary>&);
   static float pull(const std::vector<EnsembleSummary>&);
 
+  static std::string subdetLabel(SiStripDetId);
+  static std::string moduleLabel(SiStripDetId);
+  static std::string layerLabel(SiStripDetId);
+  
  private:
   
   int ensembleSize_, ensembleBins_;

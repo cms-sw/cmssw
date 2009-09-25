@@ -10,9 +10,9 @@ void MeasureLA::
 store_methods_and_granularity( const edm::VParameterSet& vpset) {
   BOOST_FOREACH(edm::ParameterSet p, vpset) {
     methods |= p.getParameter<int32_t>("Method"); 
-    byModule = byModule || p.getParameter<bool>("ByModule");
-    byLayer  = byLayer  || !p.getParameter<bool>("ByModule");
-  }  
+    byModule = byModule || p.getParameter<int32_t>("Granularity");
+    byLayer  = byLayer  || !p.getParameter<int32_t>("Granularity");
+  }
 }
 
 
@@ -36,6 +36,7 @@ MeasureLA::MeasureLA(const edm::ParameterSet& conf) :
   LA_Filler_Fitter laff(methods, byLayer, byModule, maxEvents);
   laff.fill(chain, book);
   laff.fit(book);
+  summarize_module_muH_byLayer();
   process_reports();
 
   setWhatProduced(this,&MeasureLA::produce);
@@ -58,24 +59,49 @@ produce(const SiStripLorentzAngleRcd& ) {
 }
 
 void MeasureLA::
-process_reports() {
-  BOOST_FOREACH(edm::ParameterSet p, reports) {
-    bool byMod = p.getParameter<bool>("ByModule");
-    std::string name = p.getParameter<std::string>("ReportName");
-    LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
+summarize_module_muH_byLayer() {
+  for(int m = LA_Filler_Fitter::FIRST_METHOD; m <= LA_Filler_Fitter::LAST_METHOD; m<<=1) {
+    LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)m;
+    std::pair<uint32_t,LA_Filler_Fitter::Result> result;
+    BOOST_FOREACH(result, LA_Filler_Fitter::module_results(book, method)) {
+      
+      calibrate( calibration_key(result.first,method), result.second); 
+      std::string label = LA_Filler_Fitter::layerLabel(result.first) + granularity(MODULESUMMARY) + LA_Filler_Fitter::method(method);
+      label = boost::regex_replace(label,boost::regex("layer"),"");
 
-    write_report_plots( name, method, byMod);  if(byMod) 
-    write_report_text( name, method, LA_Filler_Fitter::module_results(book, method)); else 
-    write_report_text( name, method, LA_Filler_Fitter::layer_results(book, method) );
+      
+      double mu_H = fabs( result.second.calibratedMeasurement / result.second.field );
+      double sigma_mu_H = result.second.calibratedError / result.second.field;
+      double weight = pow(1./sigma_mu_H, 2);
+      
+      book.fill(mu_H, label, 150,-0.05,0.1, weight);
+    }
+    for(Book::const_iterator it = book.begin(".*"+granularity(MODULESUMMARY)+".*"); it!=book.end(); ++it) {
+      if((*it)->GetEntries()) (*it)->Fit("gaus","LLQ");
+    }
   }
 }
 
 void MeasureLA::
-write_report_plots(std::string name, LA_Filler_Fitter::Method method, bool byMod ) {
+process_reports() {
+  BOOST_FOREACH(edm::ParameterSet p, reports) {
+    GRANULARITY gran = (GRANULARITY) p.getParameter<int32_t>("Granularity");
+    std::string name = p.getParameter<std::string>("ReportName");
+    LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method) p.getParameter<int32_t>("Method");
+
+    write_report_plots( name, method, gran);
+    switch(gran) {
+    case LAYER: write_report_text( name, method, LA_Filler_Fitter::layer_results(book, method) ); break;
+    case MODULE: write_report_text( name, method, LA_Filler_Fitter::module_results(book, method)); break;
+    case MODULESUMMARY: write_report_text_ms( name, method); break;
+    }
+  }
+}
+
+void MeasureLA::
+write_report_plots(std::string name, LA_Filler_Fitter::Method method, GRANULARITY gran ) {
   TFile file((name+".root").c_str(),"RECREATE");
-  std::string key(".*");
-  key += (byMod?"_module":"_layer");
-  key += ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+")";
+  std::string key = ".*" + granularity(gran) + ".*("+LA_Filler_Fitter::method(method)+"|"+LA_Filler_Fitter::method(method,0)+")";
   for(Book::const_iterator hist = book.begin(key); hist!=book.end(); ++hist) 
     (*hist)->Write();
   file.Close();
@@ -91,7 +117,24 @@ write_report_text(std::string name, LA_Filler_Fitter::Method method, std::map<T,
     file << result.first << "\t" << result.second << std::endl;
   }
   file.close();
-}  
+}
+
+void MeasureLA::
+write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) {
+  fstream file((name+".dat").c_str(),std::ios::out);
+  std::string key = ".*"+granularity(MODULESUMMARY)+LA_Filler_Fitter::method(method);
+  for(Book::const_iterator it = book.begin(key); it!=book.end(); ++it) {
+    TF1* f = (*it)->GetFunction("gaus");
+    if(f) {
+      file << it.name() << "\t"
+	   << f->GetParameter(1) << "\t"
+	   << f->GetParError(1) << "\t"
+	   << f->GetParameter(2) << "\t"
+	   << f->GetParError(2) << std::endl;
+    }
+  }
+  file.close();
+}
   
 void MeasureLA::
 store_calibrations() {

@@ -3,13 +3,12 @@
 
 TH1* SymmetryFit::symmetryChi2(const TH1* candidate, const std::pair<unsigned,unsigned> range) 
 {
-  std::cout << "symmetryChi2: "<< std::flush;
   std::pair<unsigned, unsigned> usable = range;
   while(usable.first  > 1                                  && candidate->GetBinError(usable.first-1)) --usable.first;
   while(usable.second < (unsigned)(candidate->GetNbinsX()) && candidate->GetBinError(usable.second+1)) ++usable.second;
   unsigned ndf = std::min(range.first-usable.first, usable.second-range.second);
 
-  if( ndf < 10 || ndf < (range.second-range.first)/2 ) { std::cout << "bad range" << std::endl
+  if( ndf < 10 || ndf < (range.second-range.first)/2 ) { std::cout << "symm_chi2 bad range" << std::endl
 								   << "usable: " << usable.first <<","<<usable.second << std::endl
 								   << "range: " << range.first <<"," << range.second << std::endl; return 0;}
 
@@ -77,6 +76,10 @@ int SymmetryFit::fit() {
   double a = chi2_->GetFunction("pol2")->GetParameter(2);
   double b = chi2_->GetFunction("pol2")->GetParameter(1);
   double c = chi2_->GetFunction("pol2")->GetParameter(0);
+  if( a<0  || 
+      -0.5*b/a < chi2_->GetBinCenter(1) || 
+      -0.5*b/a > chi2_->GetBinCenter(chi2_->GetNbinsX())) 
+    return 7;
 
   TF1* f = fitfunction();
   f->SetParameter(0, -0.5*b/a); f->SetParLimits(0, -0.5*b/a-0.01, -0.5*b/a+0.01);
@@ -84,7 +87,7 @@ int SymmetryFit::fit() {
   f->SetParameter(2, c-0.25*b*b/a); f->SetParLimits(2,-5, c);
   f->SetParameter(3, ndf_);  f->SetParLimits(3, ndf_,ndf_); //Fixed
 
-  return chi2_->Fit(f,"W");
+  return chi2_->Fit(f,"WQ");
 }
 
 TF1* SymmetryFit::fitfunction() 

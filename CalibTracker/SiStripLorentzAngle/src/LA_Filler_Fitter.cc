@@ -52,11 +52,9 @@ fill(TTree* tree, Book& book) {
 	granular+= "";
 	if(ensembleSize_) granular*= "_sample"+boost::lexical_cast<std::string>(TTREE_FOREACH_ENTRY_index % ensembleSize_);
       } else {
-	granular+= detid.subDetector()==SiStripDetId::TOB? "TOB" : "TIB";
-	granular+= "";
-	if(byLayer_) { unsigned layer = detid.subDetector() == SiStripDetId::TOB ? TOBDetId(detid()).layer() : TIBDetId(detid()).layer(); 
-                       granular*= "_layer"+boost::lexical_cast<std::string>(layer)+(detid.stereo()?"s":"a"); }
-	if(byModule_)  granular*= "_module"+boost::lexical_cast<std::string>(detid());
+	granular += subdetLabel(detid);
+	if(byLayer_) granular *= layerLabel(detid);
+	if(byModule_) granular *= moduleLabel(detid);
       }
       poly<std::string> A1("_all"); 
       if(width==1) A1*="_width1";
@@ -65,10 +63,20 @@ fill(TTree* tree, Book& book) {
       if(methods_ & RATIO)   book.fill( sign*projectionByDriftz,          granular+ method(RATIO,0)+A1 , 81, -0.6,0.6 );
       if(methods_ & WIDTH)   book.fill( sign*projectionByDriftz,   width, granular+ method(WIDTH)      , 81, -0.6,0.6 );
       if(methods_ & SQRTVAR) book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SQRTVAR)    , 81, -0.6,0.6 );
-      if(methods_ & SYMM)    book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SYMM,0)     ,128,-1.0,1.0 );
+      if(methods_ & SYMM)    book.fill( sign*projectionByDriftz, sqrtVar, granular+ method(SYMM,0)     ,360,-1.0,1.0 );
       if(ensembleBins_==0)   book.fill( fabs((*tsosBdotY)[i]),            granular+"_field"            , 101, 1, 5 );
     }
   }
+}
+
+std::string LA_Filler_Fitter::
+subdetLabel(SiStripDetId detid) { return detid.subDetector()==SiStripDetId::TOB? "TOB" : "TIB";}
+std::string LA_Filler_Fitter::
+moduleLabel(SiStripDetId detid) { return subdetLabel(detid) + "_module"+boost::lexical_cast<std::string>(detid());}
+std::string LA_Filler_Fitter::
+layerLabel(SiStripDetId detid) {
+  unsigned layer = detid.subDetector() == SiStripDetId::TOB ? TOBDetId(detid()).layer() : TIBDetId(detid()).layer();
+  return subdetLabel(detid)+"_layer"+boost::lexical_cast<std::string>(layer)+(detid.stereo()?"s":"a");
 }
 
 void LA_Filler_Fitter::
@@ -121,25 +129,35 @@ fit_profile(Book& book, const std::string& key) {
 void LA_Filler_Fitter::
 make_and_fit_symmchi2(Book& book) {
   for(Book::const_iterator p = book.begin(".*"+method(SYMM,0)); p!=book.end(); ++p) {
-    double min=(*p)->GetMaximum();
-    unsigned minbin=0;
-    for(int i=1; i<=(*p)->GetNbinsX(); ++i) if((*p)->GetBinError(i) && (*p)->GetBinContent(i)<min) {min = (*p)->GetBinContent(i); minbin = i;}
+    unsigned rebin = (unsigned)( (*p)->GetNbinsX() / sqrt(2*(*p)->GetEntries()) + 1);
+    (*p)->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
+    const unsigned bins = (*p)->GetNbinsX();
 
-    double dguess(0), weight(0);
-    for(unsigned i=0; i<20; i++) { 
-      double w = pow((*p)->GetBinContent(minbin-10+i),4);
-      if(w>0) {
-	dguess+= (minbin-10+i)/w;
-	weight+= 1/w;
+    unsigned lower(1), upper(1+bins/20);  double sliding_sum(0);
+    for(unsigned bin=lower; bin<=upper; ++bin) {double c = (*p)->GetBinContent(bin); if(c==0) upper++; sliding_sum+=c;}
+    unsigned least_low(lower), least_up(upper); double least_sum(sliding_sum);
+    while(upper<=bins) {
+      while( ++upper<=bins && (*p)->GetBinContent(upper) == 0 ); 
+      if(upper<=bins) {
+	while( (*p)->GetBinContent(++lower) == 0 );
+	sliding_sum += (*p)->GetBinContent(upper);
+	sliding_sum -= (*p)->GetBinContent(lower);
+	if( sliding_sum < least_sum ) {
+	  least_sum = sliding_sum;
+	  least_low = lower;
+	  least_up = upper;
+	}
       }
     }
-    unsigned guess = (unsigned)(dguess/weight);
-    TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-3,guess+3));
+    unsigned guess = (least_low+least_up)/2;
+
+    TH1* chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
     if(chi2) { 
-      dguess = chi2->GetFunction("SymmetryFit")->GetParameter(0);
+      double dguess = chi2->GetFunction("SymmetryFit")->GetParameter(0);
       guess = (*p)->FindBin(dguess);
       delete chi2;
-      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-3,guess+3));
+      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/30,guess+bins/30)); if(!chi2)
+      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
       if(chi2) book.book(SymmetryFit::name((*p)->GetName()), chi2);
     }
   }
@@ -161,14 +179,14 @@ result(Method m, const std::string name, const Book& book) {
     p.entries = (unsigned)(h->GetEntries());
     switch(m) {
     case RATIO: {
-      TF1* f = h->GetFunction("gaus");
+      TF1* f = h->GetFunction("gaus"); if(!f) break;
       p.measure = f->GetParameter(1);
       p.measureErr = f->GetParError(1);
       p.chi2 = f->GetChisquare();
       p.ndof = f->GetNDF();
       break; }
     case WIDTH: case SQRTVAR: {
-      TF1* f = h->GetFunction("LA_profile_fit");
+      TF1* f = h->GetFunction("LA_profile_fit"); if(!f) break;
       p.measure = f->GetParameter(0);
       p.measureErr = f->GetParError(0);
       p.chi2 = f->GetChisquare();
@@ -176,7 +194,8 @@ result(Method m, const std::string name, const Book& book) {
       break;
     }
     case SYMM: {
-      TF1* f = h->GetFunction("SymmetryFit");
+      p.entries = (unsigned) book(base+method(SYMM,0))->GetEntries();
+      TF1* f = h->GetFunction("SymmetryFit"); if(!f) break;
       p.measure = f->GetParameter(0);
       p.measureErr = f->GetParameter(1);
       p.chi2 = f->GetParameter(2);
@@ -191,7 +210,7 @@ result(Method m, const std::string name, const Book& book) {
 std::map<uint32_t,LA_Filler_Fitter::Result> LA_Filler_Fitter::
 module_results(const Book& book, const Method m) {
   std::map<uint32_t,Result> results;
-  for(Book::const_iterator it = book.begin(".*module.*"+method(m)); it!=book.end(); ++it ) {
+  for(Book::const_iterator it = book.begin(".*_module\\d*"+method(m)); it!=book.end(); ++it ) {
     uint32_t detid = boost::lexical_cast<uint32_t>( boost::regex_replace( it.name(),
 									  boost::regex(".*_module(\\d*)_.*"),
 									  std::string("\\1")));
@@ -203,7 +222,7 @@ module_results(const Book& book, const Method m) {
 std::map<std::string,LA_Filler_Fitter::Result> LA_Filler_Fitter::
 layer_results(const Book& book, const Method m) {
   std::map<std::string,Result> results;
-  for(Book::const_iterator it = book.begin(".*layer.*"+method(m)); it!=book.end(); ++it ) {
+  for(Book::const_iterator it = book.begin(".*layer\\d.*"+method(m)); it!=book.end(); ++it ) {
     std::string name = boost::erase_all_copy(it.name(),method(m));
     results[name] = result(m,it.name(),book);
   }

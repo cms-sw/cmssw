@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-byLayer = cms.bool(False)
-byModule = cms.bool(True)
+byLayer = cms.int32(0)
+byModule = cms.int32(1)
+byModuleSummary = cms.int32(2)
+
 METHOD_WIDTH = cms.int32(1)
 METHOD_RATIO = cms.int32(2)
 METHOD_SQRTVAR = cms.int32(4)
@@ -9,12 +11,12 @@ METHOD_SYMM = cms.int32(8)
 
 def LA_Report(method, granularity, filename) :
     return cms.PSet( Method = method,
-                     ByModule = granularity,
+                     Granularity = granularity,
                      ReportName = cms.string(filename) )
 
 def LA_Measurement(method, granularity, minimumEntries, maxChi2ndof) :
     return cms.PSet( Method = method,
-                     ByModule = granularity,
+                     Granularity = granularity,
                      MinEntries = cms.uint32(minimumEntries),
                      MaxChi2ndof = cms.double(maxChi2ndof) )
 
