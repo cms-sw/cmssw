@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/08/26 18:05:03 $
- * $Revision: 1.133 $
+ * $Date: 2009/09/11 12:27:11 $
+ * $Revision: 1.134 $
  * \author W Fisher
  * \author J Temple
  *
@@ -402,8 +402,10 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 
   // Build a map of readout hardware unit to calorimeter channel
   std::vector <HcalElectronicsId> AllElIds = readoutMap_->allElectronicsIdPrecision();
-  int dccid;
-  pair <int,int> dcc_spgt;
+  uint32_t itsdcc    =0;
+  uint32_t itsspigot =0;
+  uint32_t itshtrchan=0;
+  
   // by looping over all precision (non-trigger) items.
   for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin();
        eid != AllElIds.end();
@@ -412,7 +414,6 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     //Get the HcalDetId from the HcalElectronicsId
     detid_ = readoutMap_->lookup(*eid);
     
-
     // NULL if illegal; ignore
     if (!detid_.null()) {
       if (detid_.det()!=4) continue;
@@ -420,42 +421,17 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
 	  detid_.subdetId()!=HcalEndcap &&
 	  detid_.subdetId()!=HcalOuter  &&
 	  detid_.subdetId()!=HcalForward) continue;
+
+      itsdcc    =(uint32_t) eid->dccid(); 
+      itsspigot =(uint32_t) eid->spigot();
+      itshtrchan=(uint32_t) eid->htrChanId();
       hcaldetid_ = HcalDetId(detid_);
-      
-      dccid = eid->dccid();
-      dcc_spgt = pair <int,int> (dccid, eid->spigot());
-      
-      thisDCC = DCCtoCell.find(dccid);
-      thisHTR = HTRtoCell.find(dcc_spgt);
-      
-      // If this DCC has no entries, make this its first one.
-      if (thisDCC == DCCtoCell.end()) {
-	std::vector <HcalDetId> tempv;
-	tempv.push_back(hcaldetid_);
-	pair <int, std::vector<HcalDetId> > thispair;
-	thispair = pair <int, std::vector<HcalDetId> > (dccid,tempv);
-	DCCtoCell.insert(thispair); 
-      }
-      else {
-	thisDCC->second.push_back(hcaldetid_);
-      }
-      
-      // If this HTR has no entries, make this its first one.
-      if (thisHTR == HTRtoCell.end()) {
-	std::vector <HcalDetId> tempv;
-	tempv.push_back(hcaldetid_);
-	pair < pair <int,int>, std::vector<HcalDetId> > thispair;
-	thispair = pair <pair <int,int>, std::vector<HcalDetId> > (dcc_spgt,tempv);
-	HTRtoCell.insert(thispair); 
-      }
-      else {
-	thisHTR->second.push_back(hcaldetid_);	
-      }
+
+      if (dfMon_)
+	dfMon_->stashHDI(dfMon_->hashup(itsdcc,itsspigot,itshtrchan),
+			 hcaldetid_);
     } // if (!detid_.null()) 
   } 
-  if (dfMon_) {
-    dfMon_->smuggleMaps(DCCtoCell, HTRtoCell);
-  }
 
   //get conditions
   c.get<HcalDbRecord>().get(conditions_);

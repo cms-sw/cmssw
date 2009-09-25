@@ -13,6 +13,7 @@
 #define  HO_LO_DCC   725
 #define  HO_HI_DCC   731
 #define  NUMDCCS      32
+#define  NUMSPIGS     15
 #define  HTRCHANMAX   24
 //The four Data Integrity Plots & Arrays
 #define  RCDIX        55
@@ -53,22 +54,25 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
-  void labelthezoo (MonitorElement* zoo);
 
  public: //Electronics map -> geographic channel map
-  void smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
-  		   std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell);
-  std::map<uint32_t, std::vector<HcalDetId> > DCCtoCell;
-  std::map<uint32_t, std::vector<HcalDetId> > ::iterator thisDCC;
-  std::map<pair <int,int> , std::vector<HcalDetId> > HTRtoCell;
-  std::map<pair <int,int> , std::vector<HcalDetId> > ::iterator thisHTR;
-
+  inline int hashup(uint32_t d=0, uint32_t s=0, uint32_t c=0) {
+    return (int) ( (d*NUMSPIGS*HTRCHANMAX)+(s*HTRCHANMAX)+(c)); }
+  void stashHDI(int thehash, HcalDetId thehcaldetid);
+  //Protect against indexing past array.
+  inline HcalDetId HashToHDI(int thehash) {
+    return ( ( (thehash<0) || (thehash>(NUMDCCS*NUMSPIGS*HTRCHANMAX)) )
+	     ?(HcalDetId::Undefined)
+	     :(hashedHcalDetId_[thehash]));
+  };
  private: 
+  HcalDetId hashedHcalDetId_[NUMDCCS * NUMSPIGS * HTRCHANMAX];
   //backstage accounting mechanisms for the ProblemMap
   bool problemfound[85][72][4];     // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   uint64_t problemcount[85][72][4]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
-  void mapHTRproblem (int dcc, int spigot) ;    // Increment problem counters for affected cells
-  void mapDCCproblem(int dcc) ;                 // Increment problem counters for affected cells
+  void mapDCCproblem  (int dcc) ;                         // Increment problem counters for affected cells
+  void mapHTRproblem  (int dcc, int spigot) ;             // Increment problem counters for affected cells
+  void mapChannproblem(int dcc, int spigot, int htrchan); // Increment problem counters for affected cell.
 
   // Data accessors
   vector<int> fedUnpackList_;
@@ -82,8 +86,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int prtlvl_;
   int dfmon_checkNevents;
 
- private:  //Monitoring elements
-
+  //Monitoring elements
   MonitorElement* DATAFORMAT_PROBLEM_MAP;
   MonitorElement* DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HB_DATAFORMAT_PROBLEM_MAP;
@@ -215,7 +218,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meCh_DataIntegrityFED30_;   //DataIntegrity for channels in FED 30
   MonitorElement* meCh_DataIntegrityFED31_;   //DataIntegrity for channels in FED 31
   // handy array of pointers to pointers...
-  MonitorElement* meChann_DataIntegrityCheck_[32];
+  MonitorElement* meChann_DataIntegrityCheck_[NUMDCCS];
 
   MonitorElement* meFib1OrbMsgBCN_;  //BCN of Fiber 1 Orb Msg
   MonitorElement* meFib2OrbMsgBCN_;  //BCN of Fiber 2 Orb Msg

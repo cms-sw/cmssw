@@ -60,7 +60,10 @@ HcalDataFormatMonitor::HcalDataFormatMonitor() {
     for (int x=0; x<CIX; x++)
       for (int y=0; y<CIY; y++)      
 	Chann_DataIntegrityCheck_  [f][x][y]=0;
-  
+
+  for (int i=0; i<(NUMDCCS * NUMSPIGS * HTRCHANMAX); i++) 
+    hashedHcalDetId_[i]=HcalDetId::Undefined;
+
 } // HcalDataFormatMonitor::HcalDataFormatMonitor()
 
 HcalDataFormatMonitor::~HcalDataFormatMonitor() {}
@@ -1112,8 +1115,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     int channum=0; // Valid: [1,24]
     channDIM_x=0;  
 
-    // Loop over DAQ words for this spigot
+    //Fake a problem with each calorimeter cell a unique number of times.
+    for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) 
+      if (htrchan>ievt_)
+	mapChannproblem(dcc_,spigot,htrchan); 
 
+    // Loop over DAQ words for this spigot
     for (qie_work=qie_begin; qie_work!=qie_end; qie_work++) {
       bool yeah = (qie_work->raw()==0xFFFF);
       if (yeah)  // filler word
@@ -1129,6 +1136,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 	    channAOK=false;}
 	  if (channAOK) 
 	    ++Chann_DataIntegrityCheck_[dcc_][channDIM_x][channDIM_y+1];
+	} else { //first channel reporting
+	  //mapChannproblem(dcc_,spigot,qie_work->fiberAndChan() ); 
 	}
 	//..and set up for this new channel
 	channum= (3* (qie_work->fiber() -1)) + qie_work->fiberChan();  
@@ -1395,37 +1404,77 @@ void HcalDataFormatMonitor::label_xFEDs(MonitorElement* me_ptr, int xbins) {
 
 // Public function so HcalMonitorModule can slip in a 
 // logical map digest or two. 
-void HcalDataFormatMonitor::smuggleMaps(std::map<uint32_t, std::vector<HcalDetId> >& givenDCCtoCell,
-					std::map<pair <int,int> , std::vector<HcalDetId> >& givenHTRtoCell) {
-  DCCtoCell = givenDCCtoCell;
-  HTRtoCell = givenHTRtoCell;
-  return;
+void HcalDataFormatMonitor::stashHDI(int thehash, HcalDetId thehcaldetid) {
+  //Let's not allow indexing off the array...
+  if ((thehash<0)||(thehash>(NUMDCCS*NUMSPIGS*HTRCHANMAX)))return;
+  //...but still do the job requested.
+  hashedHcalDetId_[thehash] = thehcaldetid;
 }
-
-void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
-  int myeta = 0;
-  //dcc, spigot pair for finding this spigot's HcalDetIds
-  pair <int,int> thishtr = pair <int,int> (dcc, spigot);
-
-  //Light up all affected cells.
-  for (std::vector<HcalDetId>::iterator thishdi = HTRtoCell[thishtr].begin(); 
-       thishdi != HTRtoCell[thishtr].end(); thishdi++) 
-    {
-      myeta=CalcEtaBin(thishdi->subdet(),thishdi->ieta(),thishdi->depth());
-      problemfound[myeta][thishdi->iphi()-1][thishdi->depth()-1] = true;
-    }
-}   // void HcalDataFormatMonitor::mapHTRproblem(...)
 
 void HcalDataFormatMonitor::mapDCCproblem(int dcc) {
-  int myeta = 0;
- 
+  int myeta   = 0;
+  int myphi   =-1;
+  int mydepth = 0;
+  HcalDetId HDI;
   //Light up all affected cells.
-  for (std::vector<HcalDetId>::iterator thishdi = DCCtoCell[dcc].begin(); 
-       thishdi != DCCtoCell[dcc].end(); thishdi++) {
-    myeta=CalcEtaBin(thishdi->subdet(),thishdi->ieta(),thishdi->depth());
-    problemfound[myeta][thishdi->iphi()-1][thishdi->depth()-1] = true;
+  for (int i=hashup(dcc); 
+       i<hashup(dcc)+(NUMSPIGS*HTRCHANMAX); 
+       i++) {
+    HDI = hashedHcalDetId_[i];
+    if (HDI==HcalDetId::Undefined) 
+      continue;
+    mydepth = HDI.depth();
+    myphi   = HDI.iphi();
+    myeta = CalcEtaBin(HDI.subdet(),
+		       HDI.ieta(),
+		       mydepth);
+    problemfound[myeta][myphi-1][mydepth-1] = true;
   }
 }
+void HcalDataFormatMonitor::mapHTRproblem(int dcc, int spigot) {
+  int myeta = 0;
+  int myphi   =-1;
+  int mydepth = 0;
+  HcalDetId HDI;
+  //Light up all affected cells.
+  for (int i=hashup(dcc,spigot); 
+       i<hashup(dcc,spigot)+(HTRCHANMAX); 
+       i++) {
+    HDI = hashedHcalDetId_[i];
+    if (HDI==HcalDetId::Undefined) 
+      continue;
+    mydepth = HDI.depth();
+    myphi   = HDI.iphi();
+    myeta = CalcEtaBin(HDI.subdet(),
+		       HDI.ieta(),
+		       mydepth);
+    problemfound[myeta][myphi-1][mydepth-1] = true;
+  }
+}   // void HcalDataFormatMonitor::mapHTRproblem(...)
+
+void HcalDataFormatMonitor::mapChannproblem(int dcc, int spigot, int htrchan) {
+  int myeta = 0;
+  int myphi   =-1;
+  int mydepth = 0;
+  HcalDetId HDI;
+  //Light up the affected cell.
+  int i=hashup(dcc,spigot,htrchan); 
+  HDI = HashToHDI(i);
+  if (HDI==HcalDetId::Undefined) {
+    //if ((dcc!=lastdc) || (spigot!=lastsp)) cout<<endl<<"***dcc,spigot:"<<dcc<<","<<spigot<<":  ";
+    //if (dcc!=lastdc) lastdc=dcc;
+    //if (spigot!=lastsp) lastsp=spigot;
+    //cout <<"Yipes:"<<dcc<<", "<<spigot<<", "<<htrchan<<" ->  "<<i<<"    ";
+    return; // Do nothing at all, instead.
+  } 
+  mydepth = HDI.depth();
+  myphi   = HDI.iphi();
+  myeta = CalcEtaBin(HDI.subdet(),
+		     HDI.ieta(),
+		     mydepth);
+  problemfound[myeta][myphi-1][mydepth-1] = true;
+}   // void HcalDataFormatMonitor::mapChannproblem(...)
+
 
 void HcalDataFormatMonitor::UpdateMEs (void ) {
   for (int x=0; x<RCDIX; x++)
