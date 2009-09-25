@@ -223,7 +223,7 @@ void EwkWMuNuDQM::endRun(const Run& r, const EventSetup&) {
 }
 
 void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
-
+      
       // Reset global event selection flags
       bool rec_sel = false;
       bool iso_sel = false;
@@ -277,6 +277,7 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             return;
       }
       trigNames.init(*triggerResults);
+      bool trigger_fired = false;
       /*
       for (unsigned int i=0; i<triggerResults->size(); i++) {
             if (triggerResults->accept(i)) {
@@ -284,9 +285,19 @@ void EwkWMuNuDQM::analyze (const Event & ev, const EventSetup &) {
             }
       }
       */
-      bool trigger_fired = false;
+
+      // the following gives error on CRAFT08 data where itrig1=19 (vector index out of range)
+      /*
       int itrig1 = trigNames.triggerIndex(muonTrig_);
       if (triggerResults->accept(itrig1)) trigger_fired = true;
+      */
+      //suggested replacement: lm250909
+      for (unsigned int i=0; i<triggerResults->size(); i++) {
+        std::string trigName = trigNames.triggerName(i);
+	if ( trigName == muonTrig_ && triggerResults->accept(i)) trigger_fired = true;
+      }
+
+
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
       trig_before_->Fill(trigger_fired);
 
