@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/15 15:57:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/09/25 12:03:19 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -144,13 +144,15 @@ DTCCBConfig::configKeyMap() const {
       std::vector< std::pair<DTCCBId,int>* >::iterator n_iter( t_iter );
       while( n_iter != t_iend ) {
         std::pair<DTCCBId,int>* pck = *n_iter;
-        DTCCBId& chkId = pck->first;
-        if ( ( chkId.  wheelId == ccbId.  wheelId ) && 
-             ( chkId.stationId == ccbId.stationId ) && 
-             ( chkId. sectorId == ccbId. sectorId ) ) {
-          cfgKeys.push_back( pck->second );
-          delete *n_iter;
-          *n_iter = 0;
+        if ( pck != 0 ) {
+          DTCCBId& chkId = pck->first;
+          if ( ( chkId.  wheelId == ccbId.  wheelId ) && 
+               ( chkId.stationId == ccbId.stationId ) && 
+               ( chkId. sectorId == ccbId. sectorId ) ) {
+            cfgKeys.push_back( pck->second );
+            delete *n_iter;
+            *n_iter = 0;
+          }
         }
         ++n_iter;
       }
