@@ -1,4 +1,4 @@
-<library file="*.cc" name=JetMETCorrectionsJetPlusTrackPlugins>
+<library name=JetMETCorrectionsJetPlusTrackPlugins file=JetPlusTrackAnalysis.cc,JPTAnalyzer.cc,SinglePionEfficiencyNew.cc>
   <use name=DataFormats/CaloTowers>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
@@ -40,5 +40,22 @@
   <use name=TrackingTools/TrajectoryState>
   <use name=clhep>
   <use name=root>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library name=jpt_JetMETCorrectionsJetPlusTrackPlugins file=modules.cc>
+  <use name=DataFormats/PatCandidates>
+  <use name=FWCore/Framework>
+  <use name=JetMETCorrections/JetPlusTrack>
+  <use name=JetMETCorrections/Modules>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library name=raw_JetMETCorrectionsJetPlusTrackPlugins file=RawPATJetProducer.cc>
+  <use name=CommonTools/Utils>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/PatCandidates>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
   <flags EDM_PLUGIN=1>
 </library>
