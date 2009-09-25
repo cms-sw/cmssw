@@ -78,13 +78,13 @@ int SymmetryFit::fit() {
   double c = chi2_->GetFunction("pol2")->GetParameter(0);
   if( a<0  || 
       -0.5*b/a < chi2_->GetBinCenter(1) || 
-      -0.5*b/a > chi2_->GetBinCenter(chi2_->GetNbinsX())) 
+      -0.5*b/a > chi2_->GetBinCenter(chi2_->GetNbinsX()))
     return 7;
 
   TF1* f = fitfunction();
-  f->SetParameter(0, -0.5*b/a); f->SetParLimits(0, -0.5*b/a-0.01, -0.5*b/a+0.01);
-  f->SetParameter(1, 1./sqrt(a)); f->SetParLimits(1, 0.9/sqrt(a), 1.1/sqrt(a));
-  f->SetParameter(2, c-0.25*b*b/a); f->SetParLimits(2,-5, c);
+  f->SetParameter(0, -0.5*b/a);
+  f->SetParameter(1, 1./sqrt(a));
+  f->SetParameter(2, c-0.25*b*b/a);
   f->SetParameter(3, ndf_);  f->SetParLimits(3, ndf_,ndf_); //Fixed
 
   return chi2_->Fit(f,"WQ");

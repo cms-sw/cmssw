@@ -139,9 +139,7 @@ make_and_fit_symmchi2(Book& book) {
     if(chi2) { 
       const unsigned guess2 = (*p)->FindBin(chi2->GetFunction("SymmetryFit")->GetParameter(0));
       delete chi2;
-      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess2-bins/30,guess2+bins/30)); if(!chi2)
-	chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess2-bins/20,guess2+bins/20)); if(!chi2)
-	  chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess-bins/20,guess+bins/20));
+      chi2 = SymmetryFit::symmetryChi2(*p, std::make_pair(guess2-bins/30,guess2+bins/30));
       if(chi2) book.book(SymmetryFit::name((*p)->GetName()), chi2);
     }
   }
