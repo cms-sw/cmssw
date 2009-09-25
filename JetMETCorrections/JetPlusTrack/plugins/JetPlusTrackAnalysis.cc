@@ -461,3 +461,7 @@ void JetPlusTrackAnalysis::analyze(
 }
 } // namespace cms
 
+// define this class as a plugin
+#include "FWCore/Framework/interface/MakerMacros.h"
+using namespace cms;
+DEFINE_FWK_MODULE(JetPlusTrackAnalysis);
