@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.4 2009/09/22 14:54:50 dshpakov Exp $
+//$Id: AlarmHandler.cc,v 1.5 2009/09/23 16:00:28 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -95,6 +95,10 @@ bool AlarmHandler::raiseAlarm
     return false;
   }
   return true;
+
+  #else
+
+  return false;
 
   #endif
 }
