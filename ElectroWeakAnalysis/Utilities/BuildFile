@@ -31,9 +31,12 @@
 ##### (/usr/local the present default prefix in LHAPDF installation)
 ##    a) Comment the <use name=lhapdf> directive in this file
 ##    b) Comment the <use name=lhapdffull> directive in this file
-##    c) Uncomment the following two lines
+##    c) Use the right $LHAPATH variable,  i.e. (in tcsh):
+##          setenv LHAPATH /usr/local/share/lhapdf/PDFsets
+##    d) Uncomment the following two lines, of the type "<flags ...>"
 #<flags CXXFLAGS="-I/usr/local/include">
 #<flags LDFLAGS="-Wl,-rpath /usr/local/lib -L/usr/local/lib -lLHAPDF">
+##    e) scram b
 #####################################################################
 
 <flags EDM_PLUGIN=1>
