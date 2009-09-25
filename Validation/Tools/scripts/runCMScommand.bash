@@ -18,6 +18,8 @@ if [ -z "$3" ]; then
   exit;
 fi
 
+unset DISPLAY
+
 ## setup variables
 export DIR=$1
 shift
