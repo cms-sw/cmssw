@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 #    'file:/scratch1/cms/data/summer09/aodsim/ppMuX/0010/9C519151-5883-DE11-8BC8-001AA0095119.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -59,7 +59,7 @@ process.goodAODTrackCands = cms.EDFilter("CandViewSelector",
 
 process.dimuonsAOD = cms.EDFilter("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(False),
-    cut = cms.string('mass > 20'),
+    cut = cms.string('mass > 0'),
     decay = cms.string("goodAODMuons@+ goodAODMuons@-")
 )
 
@@ -70,7 +70,7 @@ process.dimuonsGlobalAOD = cms.EDFilter("CandViewRefSelector",
 
 process.dimuonsOneStandAloneMuonAOD = cms.EDFilter("CandViewRefSelector",
     src = cms.InputTag("dimuonsAOD"),
-    cut = cms.string('charge = 0 & (daughter(0).isStandAloneMuon = 1 & daughter(0).isGlobalMuon = 0 & daughter(1).isGlobalMuon = 1) | (daughter(1).isStandAloneMuon = 1 & daughter(1).isGlobalMuon = 0 & daughter(0).isGlobalMuon = 1)')
+    cut = cms.string('charge = 0 & mass > 20 & ( (daughter(0).isStandAloneMuon = 1 & daughter(0).isGlobalMuon = 0 & daughter(1).isGlobalMuon = 1) | (daughter(1).isStandAloneMuon = 1 & daughter(1).isGlobalMuon = 0 & daughter(0).isGlobalMuon = 1) )')
 )
 
 process.dimuonsOneTrackAOD = cms.EDFilter("CandViewShallowCloneCombiner",
