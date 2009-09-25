@@ -156,6 +156,7 @@ namespace edm {
       rp->fillFrom(*iter->second);
       iter->second = rp;
       runOK = iter->second->adjustToNewProductRegistry(*reg);
+      changedRunPrincipal(rp);
       assert(runOK);
     }
     currentRunPrincipal_ = iter->second;
@@ -245,5 +246,22 @@ namespace edm {
     if (!eventOK) {
       eventPrincipal_.reset(new EventPrincipal(reg, eventPrincipal_->processConfiguration()));
     }
+  }
+  
+  void PrincipalCache::changedRunPrincipal(boost::shared_ptr<RunPrincipal> iPrincipal)
+  {
+     //NOTE: if we were to have done a swap on the RunPrincipals then this would be unnecessary
+     int theRun = static_cast<int>(iPrincipal->run());
+     //find any luminosity blocks for this run and reset their RunPrincipal pointer
+     LumiIterator itFound = lumiPrincipals_.lower_bound(LumiKey(theRun,0) );
+     if(itFound == lumiPrincipals_.end() || itFound->first.run() != theRun) {
+        return;
+     }
+     for(LumiIterator itEnd = lumiPrincipals_.end(); itFound != itEnd; ++itFound) {
+        if(itFound->first.run() != theRun) {
+           break;
+        }
+        itFound->second->setRunPrincipal(iPrincipal);
+     }
   }
 }

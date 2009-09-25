@@ -22,8 +22,8 @@ namespace edm {
 
   class LumiKey {
   public:
-    int run() { return run_; }
-    int lumi() { return lumi_; }
+    int run() const { return run_; }
+    int lumi() const { return lumi_; }
 
     LumiKey(int run, int lumi) : run_(run), lumi_(lumi) { }
 
@@ -88,6 +88,7 @@ namespace edm {
 
   private:
 
+    void changedRunPrincipal(boost::shared_ptr<RunPrincipal>);
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
     typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::iterator LumiIterator;
