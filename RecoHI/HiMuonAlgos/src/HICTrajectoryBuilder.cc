@@ -323,15 +323,50 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     enum RefitDirection{insideOut,outsideIn,undetermined};
     
     Trajectory::ConstRecHitContainer recHitsForReFit = traj0.recHits();
-    
+   
+#ifdef DEBUG
+ cout<<" Take recHits for reFit "<<endl;
+#endif
+
+ 
     PTrajectoryStateOnDet garbage1;
     edm::OwnVector<TrackingRecHit> garbage2;
-    TrajectoryStateOnSurface firstTSOS = traj0.firstMeasurement().updatedState(); 
+//    TrajectoryStateOnSurface firstTSOS = traj0.firstMeasurement().updatedState(); 
 
-    PropagationDirection propDir = oppositeToMomentum;
+    TrajectoryStateOnSurface firstTSOS = traj0.lastMeasurement().updatedState();
+    Trajectory::ConstRecHitContainer newRecHitsForReFit;
+    for(Trajectory::ConstRecHitContainer::const_iterator it=recHitsForReFit.end()-1; it!=recHitsForReFit.begin()-1; it--){
+//     cout<<" RecHIT is valid "<<(*it)->isValid()<<endl;
+     if((*it)->isValid()) {
+//           cout<<(*it)->globalPosition()<<endl;
+           newRecHitsForReFit.push_back(*it);
+     } 
+//           else{cout<<" Invalid! "<<endl;
+//           }
+    }
 
+
+
+
+#ifdef DEBUG
+ cout<<" Take firstTSOS "<<firstTSOS.isValid()<<endl;
+ if(firstTSOS.isValid()) cout<<firstTSOS.freeTrajectoryState()->charge()<<" "<<firstTSOS.freeTrajectoryState()->position()<<" "<<firstTSOS.freeTrajectoryState()->momentum()<<endl;
+#endif
+
+//    PropagationDirection propDir = oppositeToMomentum;
+    PropagationDirection propDir = alongMomentum;
     TrajectorySeed seed(garbage1,garbage2,propDir);
-    vector<Trajectory> trajectories = theFitterTrack->fit(seed,recHitsForReFit,firstTSOS);
+    vector<Trajectory> trajectories = theFitterTrack->fit(seed,newRecHitsForReFit,firstTSOS);
+
+ //   vector<Trajectory> trajectories = theFitterTrack->fit(seed,recHitsForReFit,firstTSOS);
+ //   vector<Trajectory> trajectories = theFitterTrack->fit(seed,recHitsForReFit);
+ //   vector<Trajectory> trajectories = theFitterTrack->fit(traj0);
+
+#ifdef DEBUG
+ cout<<" fit Trajectory "<<endl;
+#endif
+
+
 
     TrajectoryStateOnSurface innertsos;
 
@@ -344,10 +379,20 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       
     }
 
+#ifdef DEBUG
+ cout<<" take inertsos "<<endl;
+#endif
+
+
     TSCBLBuilderNoMaterial tscblBuilder;
 
     //TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
     TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+
+#ifdef DEBUG
+ cout<<" closest to Beam "<<endl;
+#endif
+
 
     if (tscbl.isValid()==false) {
     //cout<<" false track "<<endl; 
@@ -356,7 +401,12 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     
     GlobalPoint v = tscbl.trackStateAtPCA().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
-    
+   
+#ifdef DEBUG
+ cout<<" check vertex constraints "<<endl;
+#endif
+
+ 
     if(v.perp() > 0.1 ) return false;
     if(fabs(v.z() - theHICConst->zvert ) > 0.4 ) return false;
 
