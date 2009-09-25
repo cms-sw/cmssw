@@ -19,5 +19,5 @@ from SimGeneral.MixingModule.HiEventMixing_cff import *
 from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
 hiGenParticles.srcVector = ["hiSignal","generator"]
 
-hiSignalSequence = cms.Sequence(cms.SequencePlaceholder("hiSignal")*matchVtx*hiGenParticles*hiSignalG4SimHits)
+hiSignalSequence = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("hiSignal")*matchVtx*hiGenParticles*hiSignalG4SimHits)
 

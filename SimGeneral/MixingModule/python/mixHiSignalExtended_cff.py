@@ -9,4 +9,4 @@ from SimTransport.HectorProducer.HectorTransportZDC_cfi import *
 hiSignalLHCTransport = LHCTransport.clone()
 hiSignalLHCTransport.HepMCProductLabel = 'hiSignal'
 
-hiSignalSequence = cms.Sequence(cms.SequencePlaceholder("hiSignal")*matchVtx*hiGenParticles*hiSignalLHCTransport*hiSignalG4SimHits)
+hiSignalSequence = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("hiSignal")*matchVtx*hiGenParticles*hiSignalLHCTransport*hiSignalG4SimHits)
