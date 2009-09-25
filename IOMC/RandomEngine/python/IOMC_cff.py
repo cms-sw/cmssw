@@ -28,6 +28,10 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(87654321),
         engineName = cms.untracked.string('TRandom3')
     ),
+    hiSignalLHCTransport = cms.PSet(
+        initialSeed = cms.untracked.uint32(88776655),
+        engineName = cms.untracked.string('TRandom3')
+    ),
     g4SimHits = cms.PSet(
         initialSeed = cms.untracked.uint32(11),
         engineName = cms.untracked.string('HepJamesRandom')
