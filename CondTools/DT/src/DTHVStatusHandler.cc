@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/16 11:00:18 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2009/09/25 12:03:21 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -948,7 +948,7 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
     mapIter = snapshotValues.find( chan );
     if ( ( mapIter != mapIend ) &&
          ( mapIter->second.first < mTime ) ) {
-      nextFound = condTime( lastStamp = mTime );
+      nextFound = condTime( mTime );
       if ( changedStatus ) {
         if ( nextFound > timeLimit ) {
           DTHVStatus* hvStatus = offlineList( snapshotValues );
@@ -965,7 +965,7 @@ int DTHVStatusHandler::checkForPeriod( cond::Time_t condSince,
         timeLimit = nextFound + dTime;
         changedStatus = true;
       }
-      mapIter->second = timedMeasurement( mTime, cont );
+      mapIter->second = timedMeasurement( lastStamp = mTime, cont );
       lastFound = nextFound;
       missingChannels--;
     }
