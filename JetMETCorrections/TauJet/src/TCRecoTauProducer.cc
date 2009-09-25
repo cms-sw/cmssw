@@ -15,7 +15,7 @@ TCRecoTauProducer::~TCRecoTauProducer(){
 }
   
 void TCRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
-std::cout << "check TCRecoTauProducer::produce " << std::endl;
+
   	auto_ptr<CaloTauCollection> resultCaloTau(new CaloTauCollection);
 
 	Handle<CaloTauCollection> theCaloTauHandle;
