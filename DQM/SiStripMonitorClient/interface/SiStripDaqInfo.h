@@ -79,7 +79,6 @@ private:
 
   struct SubDetMEs{
     MonitorElement* DaqFractionME;
-    int TotalFed;
     int ConnectedFeds;
   };
 
