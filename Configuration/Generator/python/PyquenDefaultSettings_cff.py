@@ -157,6 +157,35 @@ pyquenPythiaDefaultBlock = cms.PSet(
                                  "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
                                  ),
 
+
+    pythiaZtoElectrons = cms.vstring("MDME(174,1)=0",          # !Z decay into d dbar,
+                                     "MDME(175,1)=0",          # !Z decay into u ubar,
+                                     "MDME(176,1)=0",          # !Z decay into s sbar,
+                                     "MDME(177,1)=0",          # !Z decay into c cbar,
+                                     "MDME(178,1)=0",          # !Z decay into b bbar,
+                                     "MDME(179,1)=0",          # !Z decay into t tbar,
+                                     "MDME(182,1)=1",          # !Z decay into e- e+,
+                                     "MDME(183,1)=0",          # !Z decay into nu_e nu_ebar,
+                                     "MDME(184,1)=0",          # !Z decay into mu- mu+,
+                                     "MDME(185,1)=0",          # !Z decay into nu_mu nu_mubar,
+                                     "MDME(186,1)=0",          # !Z decay into tau- tau+,
+                                     "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
+                                     ),
+    
+    pythiaZtoMuonsAndElectrons = cms.vstring("MDME(174,1)=0",          # !Z decay into d dbar,
+                                             "MDME(175,1)=0",          # !Z decay into u ubar,
+                                             "MDME(176,1)=0",          # !Z decay into s sbar,
+                                             "MDME(177,1)=0",          # !Z decay into c cbar,
+                                             "MDME(178,1)=0",          # !Z decay into b bbar,
+                                             "MDME(179,1)=0",          # !Z decay into t tbar,
+                                             "MDME(182,1)=1",          # !Z decay into e- e+,
+                                             "MDME(183,1)=0",          # !Z decay into nu_e nu_ebar,
+                                             "MDME(184,1)=1",          # !Z decay into mu- mu+,
+                                             "MDME(185,1)=0",          # !Z decay into nu_mu nu_mubar,
+                                             "MDME(186,1)=0",          # !Z decay into tau- tau+,
+                                             "MDME(187,1)=0"           # !Z decay into nu_tau nu_taubar
+                                             ),
+    
     pythiaUpsilonToMuons = cms.vstring('BRAT(1034) = 0 ',  # switch off',
                                        'BRAT(1035) = 1 ',  # switch on',
                                        'BRAT(1036) = 0 ',  # switch off',
