@@ -12,6 +12,7 @@ vectorRE = re.compile (r'^vector<(\S+)>')
 colonRE  = re.compile (r':+')
 commaRE  = re.compile (r',')
 queueCommand = '/uscms/home/cplager/bin/clpQueue.pl addjob %s'
+logDir = 'logfiles'
 
 class EdmObject (object):
 
@@ -46,15 +47,30 @@ if __name__ == "__main__":
     parser.add_option ("--verbose", dest="verbose",
                        action="store_true", default=False,
                        help="Verbose output.")
+    parser.add_option ("--prefix", dest="prefix", type="string",
+                       help="Prefix to prepend to logfile name")
+
 
     options, args = parser.parse_args()
-    if len (args) < 1:
-        raise RuntimeError, "You must provide a root file"
+    if len (args) < 1 or len (args) > 2:
+        raise RuntimeError, "You must provide 1 or 2 root files"
+    if not os.path.isdir (logDir):
+        os.mkdir (logDir)
+        if not os.path.isdir (logDir):
+            raise RuntimeError, "Can't create %s directory" % logDir
+
+    logPrefix = logDir + '/'
+    if options.prefix:
+        logPrefix += options.prefix + '_'
     currentDir = os.getcwd()
     #filename = os.path.abspath( args[0] )
-    filename = args[0]
-    print "filename", filename
-    output = commands.getoutput ("edmDumpEventContent %s" % filename)\
+    filename1 = args[0]
+    if len (args) == 2:
+        filename2 = args[1]
+    else:
+        filename2 = filename1
+    print "files", filename1, filename2
+    output = commands.getoutput ("edmDumpEventContent %s" % filename1)\
              .split("\n")
 
     collection = {}
@@ -75,9 +91,9 @@ if __name__ == "__main__":
             continue
         # print name, prettyName
         describeCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s describeReflexForGenObject.py --index %s "\\\"--type=%s\\\""' \
-                  % (currentDir, prettyName, name, key)
+                  % (currentDir, logPrefix + prettyName, name, key)
         os.system (queueCommand % describeCmd)
-        print describeCmd, '\n'
+        #print describeCmd, '\n'
 
     if options.describeOnly:
         sys.exit()
@@ -89,13 +105,15 @@ if __name__ == "__main__":
             name = obj.name
             prettyName = colonRE.sub('', name)
             prettyLabel = commaRE.sub ('_', obj.label())
-            compareCmd = 'edmOneToOneComparison.py --config=%s --file=%s --tuple=reco --compare --label=reco^%s^%s' \
+            compareCmd = 'edmOneToOneComparison.py --config=%s --file1=%s --file2=%s --tuple=reco --compare --label=reco^%s^%s' \
                           % (prettyName + '.txt',
-                             filename,
+                             filename1,
+                             filename2,
                              prettyName,
                              obj.label())
             fullCompareCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s %s' \
-                             % (currentDir, prettyName + '_' + prettyLabel,
+                             % (currentDir,
+                                logPrefix + prettyName + '_' + prettyLabel,
                                 compareCmd)
             #print fullCompareCmd,'\n'
             os.system (queueCommand % fullCompareCmd)
