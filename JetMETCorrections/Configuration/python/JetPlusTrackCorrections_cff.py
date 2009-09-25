@@ -14,21 +14,21 @@ from JetMETCorrections.Configuration.JetPlusTrackCorrections_cfi import *
 
 JetPlusTrackZSPCorrectorIcone5 = cms.ESSource(
     "JetPlusTrackCorrectionService",
-    JPTZSPCorrectorICone5,
+    cms.PSet(JPTZSPCorrectorICone5),
     label = cms.string('JetPlusTrackZSPCorrectorIcone5'),
     )
 JetPlusTrackZSPCorrectorIcone5.JetSplitMerge = cms.int32(0)
 
 JetPlusTrackZSPCorrectorSiscone5 = cms.ESSource(
     "JetPlusTrackCorrectionService",
-    JPTZSPCorrectorICone5,
+    cms.PSet(JPTZSPCorrectorICone5),
     label = cms.string('JetPlusTrackZSPCorrectorSiscone5'),
     )
 JetPlusTrackZSPCorrectorSiscone5.JetSplitMerge = cms.int32(1)
 
 JetPlusTrackZSPCorrectorAntiKt5 = cms.ESSource(
     "JetPlusTrackCorrectionService",
-    JPTZSPCorrectorICone5,
+    cms.PSet(JPTZSPCorrectorICone5),
     label = cms.string('JetPlusTrackZSPCorrectorAntiKt5'),
     )
 JetPlusTrackZSPCorrectorAntiKt5.JetSplitMerge = cms.int32(2)
@@ -145,4 +145,5 @@ JetPlusTrackCorrectionsAntiKt5 = cms.Sequence(
     )
 
 # For backward-compatiblity (but to be deprecated!)
+ZSPrecoJetAssociations = ZSPrecoJetAssociationsIcone5
 JetPlusTrackCorrections = JetPlusTrackCorrectionsIcone5
