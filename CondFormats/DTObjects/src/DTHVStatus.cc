@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/11/20 12:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/16 11:00:18 $
+ *  $Revision: 1.1.6.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -132,9 +132,127 @@ int DTHVStatus::get( int   wheelId,
 }
 
 
-//int DTHVStatus::offChannelsNumber( const DTChamberId& id ) const {
-//  return 0;
-//}
+int DTHVStatus::get( const DTLayerId& id,
+                     int    partId,
+                     int&    fCell,
+                     int&    lCell,
+                     int&    flagA,
+                     int&    flagC,
+                     int&    flagS ) const {
+  return get( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              partId,
+              fCell, lCell, flagA, flagC, flagS );
+}
+
+
+int DTHVStatus::get( const DTWireId& id,
+                      int&         flagA,
+                      int&         flagC,
+                      int&         flagS ) const {
+  flagA = flagC = flagS = 0;
+  int iCell = id.wire();
+  int fCell;
+  int lCell;
+  int
+  fCheck = get( id.wheel(),
+                id.station(),
+                id.sector(),
+                id.superLayer(),
+                id.layer(),
+                0,     fCell, lCell,
+                flagA, flagC, flagS );
+  if ( ( fCheck == 0 ) &&
+       ( fCell <= iCell ) &&
+       ( lCell >= iCell ) ) return 0;
+  fCheck = get( id.wheel(),
+                id.station(),
+                id.sector(),
+                id.superLayer(),
+                id.layer(),
+                1,     fCell, lCell,
+                flagA, flagC, flagS );
+  if ( ( fCheck == 0 ) &&
+       ( fCell <= iCell ) &&
+       ( lCell >= iCell ) ) return 0;
+  flagA = flagC = flagS = 0;
+  return 1;
+}
+
+
+int DTHVStatus::offChannelsNumber() const {
+  int offNum = 0;
+  DTHVStatus::const_iterator iter = begin();
+  DTHVStatus::const_iterator iend = end();
+  while ( iter != iend ) {
+    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
+    DTHVStatusId   hvId = entry.first;
+    DTHVStatusData data = entry.second;
+    int offA = data.flagA & 1;
+    int offC = data.flagC & 1;
+    int offS = data.flagS & 1;
+    if ( offA || offC || offS )
+         offNum += ( 1 + data.lCell - data.fCell );
+  }
+  return offNum;
+}
+
+
+int DTHVStatus::offChannelsNumber( const DTChamberId& id ) const {
+  int offNum = 0;
+  DTHVStatus::const_iterator iter = begin();
+  DTHVStatus::const_iterator iend = end();
+  while ( iter != iend ) {
+    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
+    DTHVStatusId   hvId = entry.first;
+    DTHVStatusData data = entry.second;
+    if ( hvId.  wheelId != id.  wheel() ) continue;
+    if ( hvId.stationId != id.station() ) continue;
+    if ( hvId. sectorId != id. sector() ) continue;
+    int offA = data.flagA & 1;
+    int offC = data.flagC & 1;
+    int offS = data.flagS & 1;
+    if ( offA || offC || offS )
+         offNum += ( 1 + data.lCell - data.fCell );
+  }
+  return offNum;
+}
+
+
+int DTHVStatus::badChannelsNumber() const {
+  int offNum = 0;
+  DTHVStatus::const_iterator iter = begin();
+  DTHVStatus::const_iterator iend = end();
+  while ( iter != iend ) {
+    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
+    DTHVStatusId   hvId = entry.first;
+    DTHVStatusData data = entry.second;
+    if ( data.flagA || data.flagC || data.flagS )
+         offNum += ( 1 + data.lCell - data.fCell );
+  }
+  return offNum;
+}
+
+
+int DTHVStatus::badChannelsNumber( const DTChamberId& id ) const {
+  int offNum = 0;
+  DTHVStatus::const_iterator iter = begin();
+  DTHVStatus::const_iterator iend = end();
+  while ( iter != iend ) {
+    const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;
+    DTHVStatusId   hvId = entry.first;
+    DTHVStatusData data = entry.second;
+    if ( hvId.  wheelId != id.  wheel() ) continue;
+    if ( hvId.stationId != id.station() ) continue;
+    if ( hvId. sectorId != id. sector() ) continue;
+    if ( data.flagA || data.flagC || data.flagS )
+         offNum += ( 1 + data.lCell - data.fCell );
+  }
+  return offNum;
+}
 
 
 const
@@ -151,6 +269,7 @@ std::string& DTHVStatus::version() {
 void DTHVStatus::clear() {
   DTDataBuffer<int,int>::dropBuffer( mapName() );
   dataList.clear();
+  dataList.reserve( 10 );
   return;
 }
 
@@ -218,6 +337,173 @@ int DTHVStatus::set( int   wheelId,
 
   return 99;
 
+}
+
+
+int DTHVStatus::set( const DTLayerId& id,
+                     int    partId,
+                     int     fCell,
+                     int     lCell,
+                     int     flagA,
+                     int     flagC,
+                     int     flagS ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              partId,
+              fCell, lCell, flagA, flagC, flagS );
+}
+
+
+int DTHVStatus::setFlagA( int   wheelId,
+                          int stationId,
+                          int  sectorId,
+                          int      slId,
+                          int   layerId,
+                          int    partId,
+                          int      flag ) {
+  int fCell;
+  int lCell;
+  int flagA;
+  int flagC;
+  int flagS;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          partId,
+           fCell,
+           lCell,
+           flagA,
+           flagC,
+           flagS );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+                   slId,
+                layerId,
+                 partId,
+                  fCell,
+                  lCell,
+                   flag,
+                  flagC,
+                  flagS );
+}
+
+
+int DTHVStatus::setFlagA( const DTLayerId& id,
+                          int    partId,
+                          int      flag ) {
+  return setFlagA( id.wheel(),
+                   id.station(),
+                   id.sector(),
+                   id.superLayer(),
+                   id.layer(),
+                   partId,
+                   flag );
+}
+
+
+int DTHVStatus::setFlagC( int   wheelId,
+                          int stationId,
+                          int  sectorId,
+                          int      slId,
+                          int   layerId,
+                          int    partId,
+                          int      flag ) {
+  int fCell;
+  int lCell;
+  int flagA;
+  int flagC;
+  int flagS;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          partId,
+           fCell,
+           lCell,
+           flagA,
+           flagC,
+           flagS );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+               slId,
+                layerId,
+                 partId,
+                  fCell,
+                  lCell,
+                  flagA,
+                   flag,
+                  flagS );
+}
+
+
+int DTHVStatus::setFlagC( const DTLayerId& id,
+                          int    partId,
+                          int      flag ) {
+  return setFlagC( id.wheel(),
+                   id.station(),
+                   id.sector(),
+                   id.superLayer(),
+                   id.layer(),
+                   partId,
+                   flag );
+}
+
+
+int DTHVStatus::setFlagS( int   wheelId,
+                          int stationId,
+                          int  sectorId,
+                          int      slId,
+                          int   layerId,
+                          int    partId,
+                          int      flag ) {
+  int fCell;
+  int lCell;
+  int flagA;
+  int flagC;
+  int flagS;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          partId,
+           fCell,
+           lCell,
+           flagA,
+           flagC,
+           flagS );
+  return set(   wheelId,
+              stationId,
+               sectorId,
+                   slId,
+                layerId,
+                 partId,
+                  fCell,
+                  lCell,
+                  flagA,
+                  flagC,
+                   flag );
+}
+
+
+int DTHVStatus::setFlagS( const DTLayerId& id,
+                          int    partId,
+                          int      flag ) {
+  return setFlagS( id.wheel(),
+                   id.station(),
+                   id.sector(),
+                   id.superLayer(),
+                   id.layer(),
+                   partId,
+                   flag );
 }
 
 

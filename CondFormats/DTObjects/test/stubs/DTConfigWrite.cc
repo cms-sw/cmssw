@@ -56,15 +56,25 @@ namespace edmtest {
     int status = 0;
     std::ifstream ifile( "testConfig.txt" );
     int run;
+    int nty;
+    int kty;
     int key;
     int whe;
     int sta;
     int sec;
     int nbr;
     int ibr;
-    ifile >> run >> key;
-    conf->setFullKey( key );
+    ifile >> run >> nty;
     conf->setStamp( run );
+    std::vector<DTConfigKey> fullKey;
+    while ( nty-- ) {
+      ifile >> kty >> key;
+      DTConfigKey confList;
+      confList.confType = kty;
+      confList.confKey  = key;
+      fullKey.push_back( confList );
+    }
+    conf->setFullKey( fullKey );
     while ( ifile >> whe
                   >> sta
                   >> sec

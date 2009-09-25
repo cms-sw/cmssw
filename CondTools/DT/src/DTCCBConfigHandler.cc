@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/09/18 13:08:07 $
- *  $Revision: 1.9.10.1 $
+ *  $Date: 2008/10/07 14:37:48 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -105,18 +105,24 @@ void DTCCBConfigHandler::getNewObjects() {
   std::cout << "last configuration key already copied for run: "
             << last << std::endl;
 
-  int lastKey = 0;
+  std::vector<DTConfigKey> lastKey;
   if ( last == 0 ) {
     DTCCBConfig* dummyConf = new DTCCBConfig( dataTag );
     dummyConf->setStamp( 0 );
-    dummyConf->setFullKey( 0 );
+    dummyConf->setFullKey( lastKey );
     cond::Time_t snc = 1;
     m_to_transfer.push_back( std::make_pair( dummyConf, snc ) );
   }
   else {
     Ref payload = lastPayload();
-    int lastKey = payload->fullKey();
-    std::cout << "last key: " << lastKey << std::endl;
+    lastKey = payload->fullKey();
+    std::cout << "last key: " << std::endl;
+    std::vector<DTConfigKey>::const_iterator keyIter = lastKey.begin();
+    std::vector<DTConfigKey>::const_iterator keyIend = lastKey.end();
+    while ( keyIter != keyIend ) {
+      const DTConfigKey& keyList = *keyIter++;
+      std::cout << keyList.confType << " : " << keyList.confKey << std::endl;
+    }
   }
 
   //to access the information on last successful log entry for this tag:
@@ -178,25 +184,30 @@ void DTCCBConfigHandler::getNewObjects() {
 
   // Find latest runs
   std::map<int,int> runMap;
-  std::map<int,int> cfgMap;
+//  std::map<int,int> cfgMap;
+  std::map<int,std::vector<DTConfigKey>*> rhcMap;
   coral::ITable& runHistoryTable =
     isession->nominalSchema().tableHandle( "RUNHISTORY" );
   std::auto_ptr<coral::IQuery>
     runHistoryQuery( runHistoryTable.newQuery() );
   runHistoryQuery->addToOutputList( "RUN" );
-  runHistoryQuery->addToOutputList( "CCBCSET" );
+//  runHistoryQuery->addToOutputList( "CCBCSET" );
+  runHistoryQuery->addToOutputList( "RHID" );
   coral::ICursor& runHistoryCursor = runHistoryQuery->execute();
   while( runHistoryCursor.next() ) {
     const coral::AttributeList& row = runHistoryCursor.currentRow();
     int runId = row[    "RUN"].data<int>();
-    int cfgId = static_cast<int>( row["CCBCSET"].data<long long>() );
+//    int cfgId = static_cast<int>( row["CCBCSET"].data<long long>() );
+    int rhcId = static_cast<int>( row["RHID"].data<int>() );
     if ( static_cast<unsigned>( runId ) <= lastRun ) continue;
     std::cout << "schedule config key copy for run "
-              << runId << " ---> config " << cfgId << std::endl;
+              << runId << " ---> RHID " << rhcId << std::endl;
     if ( runMap.find( runId ) == runMap.end() )
-         runMap.insert( std::pair<int,int>( runId, cfgId ) );
-    if ( cfgMap.find( cfgId ) == cfgMap.end() )
-         cfgMap.insert( std::pair<int,int>( cfgId, runId ) );
+         runMap.insert( std::pair<int,int>( runId, rhcId ) );
+//    if ( cfgMap.find( cfgId ) == cfgMap.end() )
+//         cfgMap.insert( std::pair<int,int>( cfgId, runId ) );
+    if ( rhcMap.find( rhcId ) == rhcMap.end() )
+         rhcMap.insert( std::pair<int,std::vector<DTConfigKey>*>( rhcId, 0 ) );
   }
   if ( !runMap.size() ) std::cout << "no new run found" << std::endl;
 
@@ -223,6 +234,39 @@ void DTCCBConfigHandler::getNewObjects() {
     ccbId.stationId = station;
     ccbId. sectorId =  sector;
     ccbMap.insert( std::pair<int,DTCCBId>( ccb, ccbId ) );
+  }
+
+  // get RH relations
+  std::cout << "retrieve RH relations" << std::endl;
+  std::map<int,int> cfgMap;
+  coral::ITable& rhcRelTable =
+    isession->nominalSchema().tableHandle( "RHRELATIONS" );
+  std::auto_ptr<coral::IQuery>
+    rhcRelQuery( rhcRelTable.newQuery() );
+  rhcRelQuery->addToOutputList( "RHID" );
+  rhcRelQuery->addToOutputList( "CONFKEY" );
+  rhcRelQuery->addToOutputList( "CSETTYPEID" );
+  coral::ICursor& rhcRelCursor = rhcRelQuery->execute();
+  // loop over all RH relations
+  while( rhcRelCursor.next() ) {
+    const coral::AttributeList& row = rhcRelCursor.currentRow();
+    int rhc     = row["RHID"      ].data<int>();
+    int key     = row["CONFKEY"   ].data<int>();
+    int cfg     = row["CSETTYPEID"].data<int>();
+    // check for used configurations
+    std::map<int,std::vector<DTConfigKey>*>::iterator rhcIter =
+                                                      rhcMap.find( rhc );
+    std::map<int,std::vector<DTConfigKey>*>::iterator rhcIend =
+                                                      rhcMap.end();
+    if ( rhcIter == rhcIend ) continue;
+    std::vector<DTConfigKey>* keyPtr = rhcIter->second;
+    if ( keyPtr == 0 ) rhcIter->second = keyPtr = new std::vector<DTConfigKey>;
+    DTConfigKey confList;
+    confList.confType = cfg;
+    confList.confKey  = key;
+    keyPtr->push_back( confList );
+    if ( cfgMap.find( cfg ) == cfgMap.end() )
+         cfgMap.insert( std::pair<int,int>( key, rhc ) );
   }
 
   // get ccb config keys
@@ -366,15 +410,29 @@ void DTCCBConfigHandler::getNewObjects() {
     const std::pair<int,int>& runEntry = *runIter++;
     // get full configuration
     int run = runEntry.first;
-    int cfg = runEntry.second;
-    if ( cfg == lastKey ) continue;
-    lastKey = cfg;
+//    int cfg = runEntry.second;
+    int rhc = runEntry.second;
+    std::map<int,std::vector<DTConfigKey>*>::const_iterator
+             rhcIter = rhcMap.find( rhc );
+    std::map<int,std::vector<DTConfigKey>*>::const_iterator
+             rhcIend = rhcMap.end();
+    std::vector<DTConfigKey>& cfl = *( rhcIter->second );
+    if ( sameConfigList( cfl, lastKey ) ) continue;
+//    if ( cfg == lastKey ) continue;
+    lastKey = cfl;
     std::cout << "retrieve configuration bricks for run " << run
-              << " ---> config " << cfg << std::endl;
+              << " ---> RH " << rhc << std::endl;
     DTCCBConfig* fullConf = new DTCCBConfig( dataTag );
     // set run and full configuration in payload
     fullConf->setStamp(   run );
-    fullConf->setFullKey( cfg );
+    fullConf->setFullKey( cfl );
+
+    std::vector<DTConfigKey>::const_iterator cfgIter = cfl.begin();
+    std::vector<DTConfigKey>::const_iterator cfgIend = cfl.end();
+    while ( cfgIter != cfgIend ) {
+    const DTConfigKey& cfgEntry = *cfgIter++;
+    int cfg = cfgEntry.confKey;
+
     // retrieve ccb config map
     std::map<int,std::map<int,int>*>::const_iterator keyIter =
                                                      keyMap.find( cfg );
@@ -405,10 +463,11 @@ void DTCCBConfigHandler::getNewObjects() {
       std::vector<int>* brkPtr = brkIter->second;
       if ( brkPtr == 0 ) continue;
       // brick id lists in payload
-      fullConf->setConfigKey( chaId.wheelId,
-                              chaId.stationId,
-                              chaId.sectorId,
-                              *brkPtr );
+      fullConf->appendConfigKey( chaId.wheelId,
+                                 chaId.stationId,
+                                 chaId.sectorId,
+                                 *brkPtr );
+    }
     }
     cond::Time_t snc = runEntry.first;
     m_to_transfer.push_back( std::make_pair( fullConf, snc ) );
@@ -580,4 +639,36 @@ std::string DTCCBConfigHandler::id() const {
   return dataTag;
 }
 
+
+bool DTCCBConfigHandler::sameConfigList(
+                         const std::vector<DTConfigKey>& cfgl,
+                         const std::vector<DTConfigKey>& cfgr ) {
+  if ( cfgl.size() != cfgr.size() ) return false;
+  std::map<int,int> lmap;
+  std::vector<DTConfigKey>::const_iterator lIter = cfgl.begin();
+  std::vector<DTConfigKey>::const_iterator lIend = cfgl.end();
+  while ( lIter != lIend ) {
+    const DTConfigKey& entry = *lIter++;
+    lmap.insert( std::pair<int,int>( entry.confType, entry.confKey ) );
+  }
+  std::map<int,int> rmap;
+  std::vector<DTConfigKey>::const_iterator rIter = cfgr.begin();
+  std::vector<DTConfigKey>::const_iterator rIend = cfgr.end();
+  while ( rIter != rIend ) {
+    const DTConfigKey& entry = *rIter++;
+    rmap.insert( std::pair<int,int>( entry.confType, entry.confKey ) );
+  }
+  std::map<int,int>::const_iterator lmIter = lmap.begin();
+  std::map<int,int>::const_iterator lmIend = lmap.end();
+  std::map<int,int>::const_iterator rmIter = rmap.begin();
+  std::map<int,int>::const_iterator rmIend = rmap.end();
+  while ( ( lmIter != lmIend ) &&
+          ( rmIter != rmIend ) ) {
+    const std::pair<int,int>& lEntry = *lmIter++;
+    const std::pair<int,int>& rEntry = *rmIter++;
+    if ( lEntry.first  != rEntry.first  ) return false;
+    if ( lEntry.second != rEntry.second ) return false;
+  }
+  return true;
+}
 

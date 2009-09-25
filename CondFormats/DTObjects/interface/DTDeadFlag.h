@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes life and HV status
  *
- *  $Date: 2007/10/31 10:26:07 $
- *  $Revision: 1.2.2.2 $
+ *  $Date: 2009/09/16 11:00:17 $
+ *  $Revision: 1.3.14.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -113,6 +113,38 @@ class DTDeadFlag {
            bool& dead_RO,
            bool& discCat ) const;
 
+  bool getCellDead_HV( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId ) const;
+  bool getCellDead_HV( const DTWireId& id ) const;
+
+  bool getCellDead_TP( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId ) const;
+  bool getCellDead_TP( const DTWireId& id ) const;
+
+  bool getCellDead_RO( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId ) const;
+  bool getCellDead_RO( const DTWireId& id ) const;
+
+  bool getCellDiscCat( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId ) const;
+  bool getCellDiscCat( const DTWireId& id ) const;
+
   /// access version
   const
   std::string& version() const;
@@ -130,12 +162,31 @@ class DTDeadFlag {
                      bool dead_HV,
                      bool dead_TP,
                      bool dead_RO,
-                     bool discCat );
+                     bool discCat )
+      { return set( wheelId, stationId, sectorId, slId, layerId, cellId, 
+                    dead_HV, dead_TP, dead_RO, discCat ); };
   int setCellStatus( const DTWireId& id,
                      bool dead_HV,
                      bool dead_TP,
                      bool dead_RO,
-                     bool discCat );
+                     bool discCat )
+      { return set( id, dead_HV, dead_TP, dead_RO, discCat ); };
+
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           bool dead_HV,
+           bool dead_TP,
+           bool dead_RO,
+           bool discCat ) ;
+  int set( const DTWireId& id,
+           bool dead_HV,
+           bool dead_TP,
+           bool dead_RO,
+           bool discCat );
 
   int setCellDead_HV( int   wheelId,
                       int stationId,

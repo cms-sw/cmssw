@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/28 12:38:07 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/09/16 11:00:18 $
+ *  $Revision: 1.10.14.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -166,18 +166,18 @@ void DTStatusFlag::clear() {
 }
 
 
-int DTStatusFlag::setCellStatus( int   wheelId,
-                                 int stationId,
-                                 int  sectorId,
-                                 int      slId,
-                                 int   layerId,
-                                 int    cellId,
-                                 bool noiseFlag,
-                                 bool    feMask,
-                                 bool   tdcMask,
-                                 bool  trigMask,
-                                 bool  deadFlag,
-                                 bool  nohvFlag ) {
+int DTStatusFlag::set( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       int      slId,
+                       int   layerId,
+                       int    cellId,
+                       bool noiseFlag,
+                       bool    feMask,
+                       bool   tdcMask,
+                       bool  trigMask,
+                       bool  deadFlag,
+                       bool  nohvFlag ) {
 
   std::string mName = mapName();
   DTBufferTree<int,int>* dBuf =
@@ -235,21 +235,21 @@ int DTStatusFlag::setCellStatus( int   wheelId,
 }
 
 
-int DTStatusFlag::setCellStatus( const DTWireId& id,
-                                 bool noiseFlag,
-                                 bool    feMask,
-                                 bool   tdcMask,
-                                 bool  trigMask,
-                                 bool  deadFlag,
-                                 bool  nohvFlag  ) {
-  return setCellStatus( id.wheel(),
-                        id.station(),
-                        id.sector(),
-                        id.superLayer(),
-                        id.layer(),
-                        id.wire(),
-                        noiseFlag,   feMask,  tdcMask,
-                         trigMask, deadFlag, nohvFlag );
+int DTStatusFlag::set( const DTWireId& id,
+                       bool noiseFlag,
+                       bool    feMask,
+                       bool   tdcMask,
+                       bool  trigMask,
+                       bool  deadFlag,
+                       bool  nohvFlag  ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              noiseFlag,   feMask,  tdcMask,
+              trigMask, deadFlag, nohvFlag );
 }
 
 
@@ -267,30 +267,30 @@ int DTStatusFlag::setCellNoise( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                      flag,
-                    feMask,
-                   tdcMask,
-                  trigMask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+            flag,
+          feMask,
+         tdcMask,
+        trigMask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -322,30 +322,30 @@ int DTStatusFlag::setCellFEMask( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                      mask,
-                   tdcMask,
-                  trigMask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+            mask,
+         tdcMask,
+        trigMask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -377,30 +377,30 @@ int DTStatusFlag::setCellTDCMask( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                      mask,
-                  trigMask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+            mask,
+        trigMask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -432,30 +432,30 @@ int DTStatusFlag::setCellTrigMask( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                   tdcMask,
-                      mask,
-                  deadFlag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+         tdcMask,
+            mask,
+        deadFlag,
+        nohvFlag );
   return status;
 
 }
@@ -487,30 +487,30 @@ int DTStatusFlag::setCellDead( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                   tdcMask,
-                  trigMask,
-                      flag,
-                  nohvFlag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+         tdcMask,
+        trigMask,
+            flag,
+        nohvFlag );
   return status;
 
 }
@@ -542,30 +542,30 @@ int DTStatusFlag::setCellNoHV( int   wheelId,
   bool  trigMask;
   bool  deadFlag;
   bool  nohvFlag;
-  int status = cellStatus(   wheelId,
-                           stationId,
-                            sectorId,
-                                slId,
-                             layerId,
-                              cellId,
-                           noiseFlag,
-                              feMask,
-                             tdcMask,
-                            trigMask,
-                            deadFlag,
-                            nohvFlag );
-  setCellStatus(   wheelId,
-                 stationId,
-                  sectorId,
-                      slId,
-                   layerId,
-                    cellId,
-                 noiseFlag,
-                    feMask,
-                   tdcMask,
-                  trigMask,
-                  deadFlag,
-                      flag );
+  int status = get(   wheelId,
+                    stationId,
+                     sectorId,
+                         slId,
+                      layerId,
+                       cellId,
+                    noiseFlag,
+                       feMask,
+                      tdcMask,
+                     trigMask,
+                     deadFlag,
+                     nohvFlag );
+  set(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+       noiseFlag,
+          feMask,
+         tdcMask,
+        trigMask,
+        deadFlag,
+            flag );
   return status;
 
 }

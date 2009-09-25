@@ -5,7 +5,12 @@
    <Class table="DTCCBCONFIG" id_columns="IOV_VALUE_ID" name="DTCCBConfig" mapping_version="DTCCBConfig-2.0" >
      <Primitive column="TIME" name="timeStamp" />
      <Primitive column="DATA_VERSION" name="dataVersion" />
-     <Primitive column="CONFKEY" name="fullConfigKey" />
+     <Container table="DT_KEYLIST" id_columns="IOV_VALUE_ID" name="fullConfigKey" position_column="CONF_ID" >
+       <Object name="value_type" >
+         <Primitive column="KEY"  name="confKey" />
+         <Primitive column="TYPE" name="confType" />
+       </Object >
+     </Container >
      <Container table="DT_CFGCHAMBER" id_columns="IOV_VALUE_ID" name="dataList" position_column="DATA_ID" >
        <Object name="value_type" >
          <Object name="first" >

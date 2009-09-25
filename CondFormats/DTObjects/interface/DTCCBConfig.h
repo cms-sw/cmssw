@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold configuration identifier for chambers
  *
- *  $Date: 2007/11/24 12:29:10 $
- *  $Revision: 1.1.4.2 $
+ *  $Date: 2007/12/07 15:00:45 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -46,6 +46,19 @@ class DTCCBId {
 };
 
 
+class DTConfigKey {
+
+ public:
+
+  DTConfigKey();
+  ~DTConfigKey();
+
+  int confType;
+  int confKey;
+
+};
+
+
 class DTCCBConfig {
 
  public:
@@ -62,7 +75,7 @@ class DTCCBConfig {
   /** Operations
    */
   /// get content
-  int fullKey() const;
+  std::vector<DTConfigKey> fullKey() const;
   int stamp() const;
   int configKey( int   wheelId,
                  int stationId,
@@ -82,7 +95,7 @@ class DTCCBConfig {
   /// reset content
   void clear();
 
-  void setFullKey( int key );
+  void setFullKey( std::vector<DTConfigKey> );
   void setStamp( int s );
 
   int setConfigKey( int   wheelId,
@@ -91,6 +104,13 @@ class DTCCBConfig {
                     const std::vector<int>& confKey );
   int setConfigKey( const DTChamberId& id,
                     const std::vector<int>& confKey );
+
+  int appendConfigKey( int   wheelId,
+                       int stationId,
+                       int  sectorId,
+                       const std::vector<int>& confKey );
+  int appendConfigKey( const DTChamberId& id,
+                       const std::vector<int>& confKey );
 
   /// Access methods to data
   typedef std::vector< std::pair<DTCCBId,int> >::const_iterator
@@ -102,7 +122,7 @@ class DTCCBConfig {
 
   int timeStamp;
   std::string dataVersion;
-  int fullConfigKey;
+  std::vector<DTConfigKey> fullConfigKey;
   std::vector< std::pair<DTCCBId,int> > dataList;
 
   /// read and store full content

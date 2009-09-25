@@ -6,8 +6,8 @@
  *       Class to hold drift tubes status
  *             ( cell by cell noise and masks )
  *
- *  $Date: 2007/11/24 12:29:10 $
- *  $Revision: 1.3.6.2 $
+ *  $Date: 2009/09/16 11:00:17 $
+ *  $Revision: 1.4.14.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -153,14 +153,40 @@ class DTStatusFlag {
                      bool   tdcMask,
                      bool  trigMask,
                      bool  deadFlag,
-                     bool  nohvFlag );
+                     bool  nohvFlag )
+      { return set( wheelId, stationId, sectorId, slId, layerId, cellId,
+                    noiseFlag, feMask, tdcMask, trigMask,
+                    deadFlag, nohvFlag); };
   int setCellStatus( const DTWireId& id,
                      bool noiseFlag,
                      bool    feMask,
                      bool   tdcMask,
                      bool  trigMask,
                      bool  deadFlag,
-                     bool  nohvFlag );
+                     bool  nohvFlag )
+      { return set( id,
+                    noiseFlag, feMask, tdcMask, trigMask,
+                    deadFlag, nohvFlag ); };
+
+  int set( int   wheelId,
+           int stationId,
+           int  sectorId,
+           int      slId,
+           int   layerId,
+           int    cellId,
+           bool noiseFlag,
+           bool    feMask,
+           bool   tdcMask,
+           bool  trigMask,
+           bool  deadFlag,
+           bool  nohvFlag );
+  int set( const DTWireId& id,
+           bool noiseFlag,
+           bool    feMask,
+           bool   tdcMask,
+           bool  trigMask,
+           bool  deadFlag,
+           bool  nohvFlag );
 
   int setCellNoise( int   wheelId,
                     int stationId,

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/28 12:38:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/09/16 11:00:18 $
+ *  $Revision: 1.5.14.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -137,6 +137,138 @@ int DTDeadFlag::get( const DTWireId& id,
 }
 
 
+bool DTDeadFlag::getCellDead_HV( int   wheelId,
+                                 int stationId,
+                                 int  sectorId,
+                                 int      slId,
+                                 int   layerId,
+                                 int    cellId ) const {
+
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+         dead_HV, dead_TP, dead_RO, discCat );
+  return dead_HV;
+
+}
+
+
+bool DTDeadFlag::getCellDead_HV( const DTWireId& id ) const {
+  return getCellDead_HV( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire() );
+}
+
+
+bool DTDeadFlag::getCellDead_TP( int   wheelId,
+                                 int stationId,
+                                 int  sectorId,
+                                 int      slId,
+                                 int   layerId,
+                                 int    cellId ) const {
+
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+         dead_HV, dead_TP, dead_RO, discCat );
+  return dead_TP;
+
+}
+
+
+bool DTDeadFlag::getCellDead_TP( const DTWireId& id ) const {
+  return getCellDead_TP( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire() );
+}
+
+
+bool DTDeadFlag::getCellDead_RO( int   wheelId,
+                                 int stationId,
+                                 int  sectorId,
+                                 int      slId,
+                                 int   layerId,
+                                 int    cellId ) const {
+
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+         dead_HV, dead_TP, dead_RO, discCat );
+  return dead_RO;
+
+}
+
+
+bool DTDeadFlag::getCellDead_RO( const DTWireId& id ) const {
+  return getCellDead_RO( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire() );
+}
+
+
+bool DTDeadFlag::getCellDiscCat( int   wheelId,
+                                 int stationId,
+                                 int  sectorId,
+                                 int      slId,
+                                 int   layerId,
+                                 int    cellId ) const {
+
+  bool dead_HV;
+  bool dead_TP;
+  bool dead_RO;
+  bool discCat;
+  get(   wheelId,
+       stationId,
+        sectorId,
+            slId,
+         layerId,
+          cellId,
+         dead_HV, dead_TP, dead_RO, discCat );
+  return discCat;
+
+}
+
+
+bool DTDeadFlag::getCellDiscCat( const DTWireId& id ) const {
+  return getCellDiscCat( id.wheel(),
+                         id.station(),
+                         id.sector(),
+                         id.superLayer(),
+                         id.layer(),
+                         id.wire() );
+}
+
+
 const
 std::string& DTDeadFlag::version() const {
   return dataVersion;
@@ -155,16 +287,16 @@ void DTDeadFlag::clear() {
 }
 
 
-int DTDeadFlag::setCellStatus( int   wheelId,
-                               int stationId,
-                               int  sectorId,
-                               int      slId,
-                               int   layerId,
-                               int    cellId,
-                               bool dead_HV,
-                               bool dead_TP,
-                               bool dead_RO,
-                               bool discCat ) {
+int DTDeadFlag::set( int   wheelId,
+                     int stationId,
+                     int  sectorId,
+                     int      slId,
+                     int   layerId,
+                     int    cellId,
+                     bool dead_HV,
+                     bool dead_TP,
+                     bool dead_RO,
+                     bool discCat ) {
 
   std::string mName = mapName();
   DTBufferTree<int,int>* dBuf =
@@ -218,18 +350,18 @@ int DTDeadFlag::setCellStatus( int   wheelId,
 }
 
 
-int DTDeadFlag::setCellStatus( const DTWireId& id,
-                               bool dead_HV,
-                               bool dead_TP,
-                               bool dead_RO,
-                               bool discCat ) {
-  return setCellStatus( id.wheel(),
-                        id.station(),
-                        id.sector(),
-                        id.superLayer(),
-                        id.layer(),
-                        id.wire(),
-                        dead_HV, dead_TP, dead_RO, discCat );
+int DTDeadFlag::set( const DTWireId& id,
+                     bool dead_HV,
+                     bool dead_TP,
+                     bool dead_RO,
+                     bool discCat ) {
+  return set( id.wheel(),
+              id.station(),
+              id.sector(),
+              id.superLayer(),
+              id.layer(),
+              id.wire(),
+              dead_HV, dead_TP, dead_RO, discCat );
 }
 
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:13:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/16 11:00:18 $
+ *  $Revision: 1.3.14.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -109,13 +109,13 @@ void DTStatusFlagHandler::getNewObjects() {
                 >> trigMask
                 >> deadFlag
                 >> nohvFlag ) {
-    status = stFlag->setCellStatus( whe, sta, sec, qua, lay, cel,
-                                    noiseFlag != 0,
-                                       feMask != 0,
-                                      tdcMask != 0,
-                                     trigMask != 0,
-                                     deadFlag != 0,
-                                     nohvFlag != 0 );
+    status = stFlag->set( whe, sta, sec, qua, lay, cel,
+                          noiseFlag != 0,
+                             feMask != 0,
+                            tdcMask != 0,
+                           trigMask != 0,
+                           deadFlag != 0,
+                           nohvFlag != 0 );
     std::cout << whe << " "
               << sta << " "
               << sec << " "

@@ -66,6 +66,7 @@ namespace {
                               DTLVStatusData> >    lvStatusMap;
     std::vector< std::pair<     DTHVStatusId,
                               DTHVStatusData> >    hvStatusMap;
+    std::vector<                 DTConfigKey  >        confKey;
     std::vector< std::pair<          DTCCBId,
                                          int> >         ccbMap;
     std::vector< std::pair<DTTPGParametersId,

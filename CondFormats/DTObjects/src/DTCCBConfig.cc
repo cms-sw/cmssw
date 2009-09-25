@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/28 12:38:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/15 15:57:23 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -51,6 +51,12 @@ DTCCBId::DTCCBId() :
 }
 
 
+DTConfigKey::DTConfigKey() :
+  confType( 0 ),
+  confKey ( 0 ) {
+}
+
+
 //--------------
 // Destructor --
 //--------------
@@ -64,10 +70,14 @@ DTCCBId::~DTCCBId() {
 }
 
 
+DTConfigKey::~DTConfigKey() {
+}
+
+
 //--------------
 // Operations --
 //--------------
-int DTCCBConfig::fullKey() const {
+std::vector<DTConfigKey> DTCCBConfig::fullKey() const {
   return fullConfigKey;
 }
 
@@ -173,7 +183,7 @@ void DTCCBConfig::clear() {
 }
 
 
-void DTCCBConfig::setFullKey( int key ) {
+void DTCCBConfig::setFullKey( std::vector<DTConfigKey> key ) {
   fullConfigKey = key;
 }
 
@@ -211,12 +221,23 @@ int DTCCBConfig::setConfigKey( int   wheelId,
     const_iterator iend = dataList.end();
     while ( iter != iend ) {
       const DTCCBId& ccbId( iter->first );
-      if ( ( ccbId.  wheelId ==   wheelId ) &&
-           ( ccbId.stationId == stationId ) &&
-           ( ccbId. sectorId ==  sectorId ) ) tempList.push_back( *iter );
+//      if ( ( ccbId.  wheelId ==   wheelId ) &&
+//           ( ccbId.stationId == stationId ) &&
+//           ( ccbId. sectorId ==  sectorId ) ) tempList.push_back( *iter );
+      if ( ( ccbId.  wheelId !=   wheelId ) ||
+           ( ccbId.stationId != stationId ) ||
+           ( ccbId. sectorId !=  sectorId ) ) tempList.push_back( *iter );
       ++iter;
     }
     dataList = tempList;
+    DTCCBId ccbId;
+    ccbId.  wheelId =   wheelId;
+    ccbId.stationId = stationId;
+    ccbId. sectorId =  sectorId;
+    std::vector<int>::const_iterator cfgIter = confKey.begin();
+    std::vector<int>::const_iterator cfgIend = confKey.end();
+    while ( cfgIter != cfgIend ) dataList.push_back( std::pair<DTCCBId,int>(
+                                                     ccbId, *cfgIter++ ) );
     *confPtr = confKey;
     return -1;
   }
@@ -227,10 +248,10 @@ int DTCCBConfig::setConfigKey( int   wheelId,
     ccbId.  wheelId =   wheelId;
     ccbId.stationId = stationId;
     ccbId. sectorId =  sectorId;
-    std::vector<int>::const_iterator iter = confKey.begin();
-    std::vector<int>::const_iterator iend = confKey.end();
-    while ( iter != iend ) dataList.push_back( std::pair<DTCCBId,int>(
-                                               ccbId, *iter++ ) );
+    std::vector<int>::const_iterator cfgIter = confKey.begin();
+    std::vector<int>::const_iterator cfgIend = confKey.end();
+    while ( cfgIter != cfgIend ) dataList.push_back( std::pair<DTCCBId,int>(
+                                                     ccbId, *cfgIter++ ) );
     return 0;
   }
 
@@ -243,6 +264,66 @@ int DTCCBConfig::setConfigKey( const DTChamberId& id,
                        id.station(),
                        id.sector(),
                        confKey );
+}
+
+
+int DTCCBConfig::appendConfigKey( int   wheelId,
+                                  int stationId,
+                                  int  sectorId,
+                                  const std::vector<int>& confKey ) {
+
+  std::string mName = mapName();
+  DTBufferTree< int,std::vector<int>* >* dBuf =
+  DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+  if ( dBuf == 0 ) {
+    cacheMap();
+    dBuf =
+    DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
+  }
+  std::vector<int> chanKey;
+  chanKey.reserve(3);
+  chanKey.push_back(   wheelId );
+  chanKey.push_back( stationId );
+  chanKey.push_back(  sectorId );
+
+  DTCCBId ccbId;
+  ccbId.  wheelId =   wheelId;
+  ccbId.stationId = stationId;
+  ccbId. sectorId =  sectorId;
+  std::vector<int>::const_iterator iter = confKey.begin();
+  std::vector<int>::const_iterator iend = confKey.end();
+  int key;
+
+  std::vector<int>* confPtr;
+  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
+
+  if ( searchStatus ) {
+    dBuf->insert( chanKey.begin(),
+                  chanKey.end(), confPtr = new std::vector<int>( confKey ) );
+  }
+
+  while ( iter != iend ) {
+    key = *iter++;
+    dataList.push_back( std::pair<DTCCBId,int>( ccbId, key ) );
+    confPtr->push_back( key );
+  }
+
+  if ( !searchStatus ) {
+    return -1;
+  }
+  else {
+    return 0;
+  }
+
+}
+
+
+int DTCCBConfig::appendConfigKey( const DTChamberId& id,
+                                  const std::vector<int>& confKey ) {
+  return appendConfigKey( id.wheel(),
+                          id.station(),
+                          id.sector(),
+                          confKey );
 }
 
 

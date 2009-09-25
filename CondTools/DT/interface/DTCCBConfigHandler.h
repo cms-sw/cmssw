@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2007/12/07 15:12:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/02/15 18:15:02 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -67,6 +67,8 @@ class DTCCBConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
 
   coral::ISessionProxy* isession;
   void chkConfigList();
+  static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
+                              const std::vector<DTConfigKey>& cfgr );
 
 };
 

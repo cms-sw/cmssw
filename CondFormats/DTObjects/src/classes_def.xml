@@ -41,11 +41,13 @@
   <class name="std::pair<DTCCBId,int>"/>
   <class name="std::vector<std::pair<DTCCBId,int> >"/>
   <class name="DTCCBId" id="1433B332-EC9F-DB11-BD6F-000E0C5CE283"/>
+  <class name="std::vector<DTConfigKey>"/>
+  <class name="DTConfigKey" id="98dbb21d-8624-44b9-94d6-ac7ff16ed2d2"/>
   <class name="DTConfigList" id="9CB14BE8-30A2-DB11-9935-000E0C5CE283"/>
-  <class name="DTConfigData" id="3858CAFE-30A2-DB11-9E86-000E0C5CE283"/>
-  <class name="DTConfigToken" id="4AA88D8D-31A2-DB11-A311-000E0C5CE283"/>
   <class name="std::pair<int,DTConfigToken>"/>
   <class name="std::vector<std::pair<int,DTConfigToken> >"/>
+  <class name="DTConfigToken" id="4AA88D8D-31A2-DB11-A311-000E0C5CE283"/>
+  <class name="DTConfigData" id="3858CAFE-30A2-DB11-9E86-000E0C5CE283"/>
   <class name="DTLVStatus" id="926ACBCB-E3B7-DD11-B87E-000E0C5CE282"/>
   <class name="std::pair<DTLVStatusId,DTLVStatusData>"/>
   <class name="std::vector<std::pair<DTLVStatusId,DTLVStatusData> >"/>

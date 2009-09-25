@@ -5,8 +5,8 @@
  *  Description: Class to copy HV status via PopCon
  *
  *
- *  $Date: 2008/11/25 11:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/03 14:09:01 $
+ *  $Revision: 1.1.4.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -25,6 +25,7 @@
 
 namespace coral {
   class ISessionProxy;
+  class TimeStamp;
 }
 
 //---------------
@@ -56,32 +57,82 @@ class DTHVStatusHandler: public popcon::PopConSourceHandler<DTHVStatus> {
 
  private:
 
+  typedef std::pair<long long int,float> timedMeasurement;
+  typedef std::pair<int,float> channelValue;
+
+  void checkNewData();
+
   void getChannelMap();
   void getLayerSplit();
-
-//  void updateHVStatus( int run );
-  void updateHVStatus( cond::Time_t time );
+  void getChannelSplit();
   void dumpHVAliases();
+
+  void createSnapshot();
+  int recoverSnapshot( std::map<int,timedMeasurement>& snapshotValues );
+  cond::Time_t recoverLastTime();
+  void   dumpSnapshot( const coral::TimeStamp& time,
+                       std::map<int,timedMeasurement>& snapshotValues );
+  void updateHVStatus();
+  int  checkForPeriod( cond::Time_t condSince,
+                       cond::Time_t condUntil,
+                       std::map<int,timedMeasurement>& snapshotValues,
+                       int& missingChannels,
+                       bool copyOffline );
+
+  void copyHVData( std::map<int,timedMeasurement>& snapshotValues );
+  DTHVStatus* offlineList( std::map<int,timedMeasurement>& snapshotValues );
+  void setFlags( DTHVStatus* hv, int type, int rawId, float value );
+  void setChannelFlag( DTHVStatus* hv,
+                       int whe, int sta, int sec, int qua, int lay, int l_p,
+                       char cht, int err );
+
+  int checkCurrentStatus( int chan, int type, float value );
+  int checkStatusChange( int type, float oldValue, float newValue );
+
+  static coral::TimeStamp coralTime( const  cond::Time_t&    time );
+  static  cond::Time_t     condTime( const coral::TimeStamp& time );
+  static  cond::Time_t     condTime( long long int           time );
 
   std::string dataTag;
   std::string onlineConnect;
   std::string onlineAuthentication;
   std::string bufferConnect;
-  DTHVStatus* hvStatus;
+  DTHVStatus* lastStatus;
 
   int ySince;
   int mSince;
   int dSince;
+  int hSince;
+  int pSince;
+  int sSince;
   int yUntil;
   int mUntil;
   int dUntil;
+  int hUntil;
+  int pUntil;
+  int sUntil;
+
+  float* minHV;
+  float* maxHV;
+  float maxCurrent;
+
+  cond::Time_t procSince;
+  cond::Time_t procUntil;
+  cond::Time_t lastFound;
+  cond::Time_t nextFound;
+  cond::Time_t timeLimit;
+  long long int lastStamp;
+  int maxPayload;
 
   coral::ISessionProxy* omds_s_proxy;
   coral::ISessionProxy* buff_s_proxy;
 
   std::string mapVersion;
+  std::string splitVersion;
   std::map<int,int> aliasMap;
+  std::map<int,int> layerMap;
   std::map<int,int> laySplit;
+  std::map< int, std::vector<int>* > channelSplit;
 
 };
 
