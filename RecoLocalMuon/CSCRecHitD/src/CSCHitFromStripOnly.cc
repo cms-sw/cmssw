@@ -375,7 +375,7 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
                                 //---- this is not XTalk corrected so it is correct in first approximation only
       int j = 0;
       for(int l = 0; l<8; ++l){
-        if(j<0) edm::LogError("CSCRecHit") << "This should never occur!!! Contact CSC expert!";
+        if(j<0) edm::LogWarning("FailedStripCountingWrongConsecutiveStripNumber") << "This should never occur!!! Contact CSC expert!";
         ++j;
         bool signalPresent = false;
         for(int k = 0; k<2; ++k){
