@@ -1,4 +1,4 @@
-<library name=JetMETCorrectionsJetPlusTrackPlugins file=JetPlusTrackAnalysis.cc,JPTAnalyzer.cc,SinglePionEfficiencyNew.cc>
+<library name=JetMETCorrectionsJetPlusTrackPlugins file=JetPlusTrackAnalysis.cc,JPTAnalyzer.cc,JPTBjetAnalyzer.cc,SinglePionEfficiencyNew.cc>
   <use name=DataFormats/CaloTowers>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
