@@ -9,6 +9,7 @@ from TrackingTools.Configuration.TrackingTools_cff import *
 # Global  reco
 from RecoEcal.Configuration.RecoEcal_cff import *
 from RecoJets.Configuration.RecoJets_cff import *
+from RecoJets.Configuration.JetIDProducers_cff import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 from RecoMuon.Configuration.RecoMuon_cff import *
@@ -39,7 +40,7 @@ localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+particleFl
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
 #
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets+muonrecoComplete+electronGsfTracking)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*ckftracks+ecalClusters+caloTowersRec*vertexreco*recoJets*recoJetIds+muonrecoComplete+electronGsfTracking)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusGSF = cms.Sequence(globalreco*GsfGlobalElectronTestSequence)
 globalreco_plusRS_plusGSF = cms.Sequence(globalreco*rstracks*GsfGlobalElectronTestSequence)
