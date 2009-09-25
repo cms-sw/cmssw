@@ -18,7 +18,7 @@
 <use name=CondFormats/DataRecord>
 <use name=DQM/HLTEvF>
 <use name=root>
-<use name=rootroofit>
+<use name=roofit>
 <use name=boost>
 
 <library file="*.cc" name=DQMOfflineTriggerPlugins>
