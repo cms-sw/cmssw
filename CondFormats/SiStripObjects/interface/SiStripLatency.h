@@ -31,6 +31,12 @@ using namespace std;
  * (singleMode()) method will return it, otherwise it will return -1 (0). <br>
  * <br>
  * The method allLatencyAndModes() returns the internal vector<Latency> (by value).
+ * <br>
+ * ATTENTION: the biggest possible detId value that can be stored is 536870911 because
+ * 29 bits out of 32 are reserved for the detId and the remaining 3 for the apv value (1-6). <br>
+ * The biggest possible Tracker detId at this moment is 470178036 so this is not a problem.
+ * In any case the code will throw an "InsertFailure" cms::Exception if trying to insert a detId
+ * above the maximum and output a detailed LogError message about the problem.
  */
 
 class SiStripLatency
@@ -117,7 +123,7 @@ class SiStripLatency
       // cout << "SiStripLatency: Error, range is empty" << endl;
       return latencies_.end();
     }
-    uint32_t detIdAndApv = (detId << 2) | apv;
+    uint32_t detIdAndApv = (detId << 3) | apv;
     latConstIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
     return pos;
   }

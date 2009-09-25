@@ -1,4 +1,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 #include <iterator>
@@ -9,8 +11,19 @@ using namespace std;
 
 bool SiStripLatency::put( const uint32_t detId, const uint16_t apv, const float & latency, const uint16_t mode )
 {
+  if( detId > 536870911 ) {
+    stringstream error;
+    error << "ERROR: the detId = " << detId << " is bigger than the maximum acceptable value = 2^(29) - 1 = " << 536870911 << endl;
+    error << "Since we are using 29 bits for the detId and 3 bits for the apv value. The maximum tracker detId at the moment" << endl;
+    error << "of the writing of this class was 47017836 as defined in CalibTracker/SiStripCommon/data/SiStripDetInfo.dat." << endl;
+    error << "If the maximum value has changed a revision of this calss is needed, possibly changing the detIdAndApv value from" << endl;
+    error << "from uint32_t to uint64_t." << endl;
+    edm::LogError("SiStripLatency::put") << error;
+    throw cms::Exception("InsertFailure");
+  }
+
   // Store all the values in the vectors
-  uint32_t detIdAndApv = (detId << 2) | apv;
+  uint32_t detIdAndApv = (detId << 3) | apv;
   latIt pos = lower_bound(latencies_.begin(), latencies_.end(), detIdAndApv, OrderByDetIdAndApv());
 
   if( pos != latencies_.end() && pos->detIdAndApv == detIdAndApv ) {
@@ -164,8 +177,8 @@ void SiStripLatency::printDebug(std::stringstream & ss) const
 {
   ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << endl;
   for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
-    int detId = it->detIdAndApv >> 2;
-    int apv = it->detIdAndApv & 3; // 3 is 0...011
+    int detId = it->detIdAndApv >> 3;
+    int apv = it->detIdAndApv & 7; // 7 is 0...0111
     ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << it->latency << " and mode = " << int(it->mode) << endl;
   }
 }
