@@ -413,8 +413,6 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meInvHTRData_->setAxisTitle("Spigot #",1);
     meInvHTRData_->setAxisTitle("DCC #",2);
 
-    m_dbe->setCurrentFolder(baseFolder_ + "/HTR Plots/ZZ HTR Expert Plots");
-
     type = "BCN of Fiber Orbit Message";
     meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
     meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
