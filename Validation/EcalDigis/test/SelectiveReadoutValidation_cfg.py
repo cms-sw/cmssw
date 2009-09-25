@@ -25,6 +25,7 @@ process.load("SimCalorimetry.Configuration.ecalDigiSequence_cff")
 
 # Defines Ecal seletive readout validation module, ecalSelectiveReadoutValidation:
 process.load("Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi")
+process.ecalSelectiveReadoutValidation.outputFile = 'srvalid_hists.root'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)

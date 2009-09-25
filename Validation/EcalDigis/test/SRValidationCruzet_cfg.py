@@ -57,6 +57,7 @@ process.ecalSelectiveReadoutValidation.EbSrFlagCollection = 'ecalEBunpacker:'
 process.ecalSelectiveReadoutValidation.EeSrFlagCollection = 'ecalEBunpacker:'
 process.ecalSelectiveReadoutValidation.TrigPrimCollection = 'ecalEBunpacker:EcalTriggerPrimitives'
 process.ecalSelectiveReadoutValidation.tpInGeV = False
+process.ecalSelectiveReadoutValidation.outputFile = 'srvalid_hists.root'
 process.ecalSelectiveReadoutValidation.histDir = ''
 process.ecalSelectiveReadoutValidation.histograms = [
     "EBEventSize", #Barrel data volume;Event size (kB);Nevts

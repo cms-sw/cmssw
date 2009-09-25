@@ -17,12 +17,14 @@ ecalSelectiveReadoutValidation = cms.EDFilter("EcalSelectiveReadoutValidation",
     EbRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     EeRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     FEDRawCollection = cms.InputTag("source"),
+    EventHeaderCollection = cms.InputTag("ecalEBunpacker"),
 
     #Versbose mode switch:
     verbose = cms.untracked.bool(False),
 
-    #Name of the output histrogram root file:
-    outputFile = cms.untracked.string('srvalid_hists.root'),
+    #Name of the output histrogram root file. If empty histogram are not
+    #to a file (for DQM mode).
+    outputFile = cms.untracked.string(''),
 
     #Switch to enable local amplitude reconstruction from digis instead
     #of RecHit's:

@@ -51,6 +51,7 @@ process.load("SimCalorimetry.Configuration.ecalDigiSequence_cff")
 #include "Validation/EcalDigis/data/ecalDigisValidationSequence.cff"
 # Defines Ecal seletive readout validation module, ecalSelectiveReadoutValidation:
 process.load("Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi")
+process.ecalSelectiveReadoutValidation.outputFile = 'srvalid_hists.root'
 
 #ECAL reco sequence:
 process.load("RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff")
