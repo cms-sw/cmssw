@@ -46,7 +46,11 @@ LorentzAngleCalibrations_PeakMode = cms.VPSet(
     LA_Calibration( METHOD_WIDTH,    80, 0.997497, 0.00296953,  1.24678)
     )
 
-LorentzAngleCalibrations_DeconvolutionMode = cms.VPSet(
+LorentzAngleCalibrations_Uncalibrated = cms.VPSet(
+    LA_Calibration( METHOD_SYMM, 183, 1, 0, 1),
+    LA_Calibration( METHOD_SYMM, 122, 1, 0, 1),
+    LA_Calibration( METHOD_SYMM, 120, 1, 0, 1),
+    LA_Calibration( METHOD_SYMM,  80, 1, 0, 1),
     LA_Calibration( METHOD_SQRTVAR, 183, 1, 0, 1),
     LA_Calibration( METHOD_SQRTVAR, 122, 1, 0, 1),
     LA_Calibration( METHOD_SQRTVAR, 120, 1, 0, 1),
