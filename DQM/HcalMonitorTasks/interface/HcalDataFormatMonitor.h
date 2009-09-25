@@ -96,13 +96,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* HF_DATAFORMAT_PROBLEM_ZOO;
   MonitorElement* HO_DATAFORMAT_PROBLEM_MAP;
   MonitorElement* HO_DATAFORMAT_PROBLEM_ZOO;
-   
-  //MEs for hcalunpacker report info
-  MonitorElement* meSpigotFormatErrors_;
-  MonitorElement* meBadQualityDigis_;
-  MonitorElement* meUnmappedDigis_;
-  MonitorElement* meUnmappedTPDigis_;
-  MonitorElement* meFEDerrorMap_;
 
   MonitorElement* meFEDRawDataSizes_;
   MonitorElement* meUSFractSpigs_;
