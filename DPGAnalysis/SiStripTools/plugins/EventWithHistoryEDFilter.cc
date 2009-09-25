@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Tue Dec  9 18:33:42 CET 2008
-// $Id: EventWithHistoryEDFilter.cc,v 1.2 2009/03/23 10:30:38 venturia Exp $
+// $Id: EventWithHistoryEDFilter.cc,v 1.1 2009/07/20 16:06:58 venturia Exp $
 //
 //
 
@@ -21,6 +21,7 @@
 // system include files
 #include <memory>
 
+#include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -53,7 +54,7 @@ private:
   
   // ----------member data ---------------------------
   
-  EventWithHistoryFilter _ehfilter;
+  std::vector<EventWithHistoryFilter> _ehfilters;
   bool _debu;
 };
 
@@ -69,10 +70,24 @@ private:
 // constructors and destructor
 //
 EventWithHistoryEDFilter::EventWithHistoryEDFilter(const edm::ParameterSet& iConfig):
-  _ehfilter(iConfig),
+  _ehfilters(),
   _debu(iConfig.getUntrackedParameter<bool>("debugPrint",false))
 {
    //now do what ever initialization is needed
+
+  std::vector<edm::ParameterSet> filterconfigs(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >
+					       ("filterConfigurations",std::vector<edm::ParameterSet>()));
+  
+  for(std::vector<edm::ParameterSet>::iterator ps=filterconfigs.begin();
+      ps!=filterconfigs.end();++ps) {
+
+    ps->augment(iConfig.getUntrackedParameter<edm::ParameterSet>("commonConfiguration",edm::ParameterSet()));
+    
+    const EventWithHistoryFilter filter(*ps);
+    _ehfilters.push_back(filter);
+
+  }
+
 
 }
 
@@ -95,7 +110,15 @@ bool
 EventWithHistoryEDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  bool selected = _ehfilter.selected(iEvent,iSetup);
+  bool selected = false;
+
+  for(std::vector<EventWithHistoryFilter>::const_iterator filter=_ehfilters.begin();
+      filter!=_ehfilters.end();++filter) {
+
+    selected = selected || filter->selected(iEvent,iSetup);
+
+  }
+
   if(_debu && selected ) edm::LogInfo("SELECTED") << "selected event";
  
   return selected;

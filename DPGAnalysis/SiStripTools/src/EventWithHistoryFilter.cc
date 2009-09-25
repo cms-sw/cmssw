@@ -206,82 +206,101 @@ const bool EventWithHistoryFilter::isInRange(const long long bx, const std::vect
 
 void EventWithHistoryFilter::printConfig() const {
 
-  edm::LogInfo("EventWithHistoryFilterConfig");
+  std::string msgcategory = "EventWithHistoryFilterConfiguration";
 
-  edm::LogVerbatim("CutValues") << "-----------------------";
-  edm::LogVerbatim("CutValues") << "List of active cuts:";
-  if(!isCutInactive(_bxrange)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    if(_bxrange.size()>=1) edm::LogVerbatim("absoluteBX") << "absoluteBX lower limit " << _bxrange[0];
-    if(_bxrange.size()>=2) edm::LogVerbatim("absoluteBX") << "absoluteBX upper limit " << _bxrange[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_bxrangelat)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    if(_bxrangelat.size()>=1) edm::LogVerbatim("absoluteBXLtcyAware") << "absoluteBXLtcyAware lower limit " 
-								      << _bxrangelat[0];
-    if(_bxrangelat.size()>=2) edm::LogVerbatim("absoluteBXLtcyAware") << "absoluteBXLtcyAware upper limit " 
-								      << _bxrangelat[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_bxcyclerange)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    edm::LogVerbatim("CutValues") <<"absoluteBXinCycle partition: " << _partition;
-    if(_bxcyclerange.size()>=1) edm::LogVerbatim("absoluteBXinCycle") << "absoluteBXinCycle lower limit " 
-								      << _bxcyclerange[0];
-    if(_bxcyclerange.size()>=2) edm::LogVerbatim("absoluteBXinCycle") << "absoluteBXinCycle upper limit " 
-								      << _bxcyclerange[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_bxcyclerangelat)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    edm::LogVerbatim("CutValues") <<"absoluteBXinCycleLtcyAware partition: " << _partition;
-    if(_bxcyclerangelat.size()>=1) edm::LogVerbatim("absoluteBXinCycleLtcyAware") << "absoluteBXinCycleLtcyAware lower limit " 
-										  << _bxcyclerangelat[0];
-    if(_bxcyclerangelat.size()>=2) edm::LogVerbatim("absoluteBXinCycleLtcyAware") << "absoluteBXinCycleLtcyAware upper limit " 
-										  << _bxcyclerangelat[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_dbxrange)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    if(_dbxrange.size()>=1) edm::LogVerbatim("deltaBX") << "deltaBX lower limit " << _dbxrange[0];
-    if(_dbxrange.size()>=2) edm::LogVerbatim("deltaBX") << "deltaBX upper limit " << _dbxrange[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_dbxrangelat)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    if(_dbxrangelat.size()>=1) edm::LogVerbatim("deltaBXLtcyAware") << "deltaBXLtcyAware lower limit " 
-								    << _dbxrangelat[0];
-    if(_dbxrangelat.size()>=2) edm::LogVerbatim("deltaBXLtcyAware") << "deltaBXLtcyAware upper limit " 
-								    << _dbxrangelat[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_dbxcyclerange)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    edm::LogVerbatim("CutValues") <<"deltaBXinCycle partition: " << _partition;
-    if(_dbxcyclerange.size()>=1) edm::LogVerbatim("deltaBXinCycle") << "deltaBXinCycle lower limit " 
-								    << _dbxcyclerange[0];
-    if(_dbxcyclerange.size()>=2) edm::LogVerbatim("deltaBXinCycle") << "deltaBXinCycle upper limit " 
-								    << _dbxcyclerange[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  if(!isCutInactive(_dbxcyclerangelat)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    edm::LogVerbatim("CutValues") <<"deltaBXinCycleLtcyAware partition: " << _partition;
-    if(_dbxcyclerangelat.size()>=1) edm::LogVerbatim("deltaBXinCycleLtcyAware") << "deltaBXinCycleLtcyAware lower limit " 
+  if(!(
+       isCutInactive(_bxrange) &&
+       isCutInactive(_bxrangelat) &&
+       isCutInactive(_bxcyclerange) &&
+       isCutInactive(_bxcyclerangelat) &&
+       isCutInactive(_dbxrange) &&
+       isCutInactive(_dbxrangelat) &&
+       isCutInactive(_dbxcyclerange) &&
+       isCutInactive(_dbxcyclerangelat) &&
+       isCutInactive(_dbxtrpltrange)
+       )) {
+
+    edm::LogInfo(msgcategory.c_str()) << "historyProduct: " 
+							<< _historyProduct.label() << " " 
+							<< _historyProduct.instance() << " " 
+							<< _historyProduct.process() << " " 
+							<< " APVCyclePhase: " 
+							<< _APVPhaseLabel;
+    
+    edm::LogVerbatim(msgcategory.c_str()) << "-----------------------";
+    edm::LogVerbatim(msgcategory.c_str()) << "List of active cuts:";
+    if(!isCutInactive(_bxrange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(_bxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX lower limit " << _bxrange[0];
+      if(_bxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX upper limit " << _bxrange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_bxrangelat)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(_bxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware lower limit " 
+									<< _bxrangelat[0];
+      if(_bxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware upper limit " 
+									<< _bxrangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_bxcyclerange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycle partition: " << _partition;
+      if(_bxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle lower limit " 
+									<< _bxcyclerange[0];
+      if(_bxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle upper limit " 
+									<< _bxcyclerange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_bxcyclerangelat)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycleLtcyAware partition: " << _partition;
+      if(_bxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware lower limit " 
+										    << _bxcyclerangelat[0];
+      if(_bxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware upper limit " 
+										    << _bxcyclerangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_dbxrange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(_dbxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX lower limit " << _dbxrange[0];
+      if(_dbxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX upper limit " << _dbxrange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_dbxrangelat)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(_dbxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware lower limit " 
+								      << _dbxrangelat[0];
+      if(_dbxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware upper limit " 
+								      << _dbxrangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_dbxcyclerange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycle partition: " << _partition;
+      if(_dbxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle lower limit " 
+								      << _dbxcyclerange[0];
+      if(_dbxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle upper limit " 
+								      << _dbxcyclerange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_dbxcyclerangelat)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycleLtcyAware partition: " << _partition;
+      if(_dbxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware lower limit " 
 										  << _dbxcyclerangelat[0];
-    if(_dbxcyclerangelat.size()>=2) edm::LogVerbatim("deltaBXinCycleLtcyAware") << "deltaBXinCycleLtcyAware upper limit " 
+      if(_dbxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware upper limit " 
 										  << _dbxcyclerangelat[1];
-    edm::LogVerbatim("CutValues") << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(_dbxtrpltrange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(_dbxtrpltrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation lower limit " 
+									<< _dbxtrpltrange[0];
+      if(_dbxtrpltrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation upper limit " 
+									<< _dbxtrpltrange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    edm::LogVerbatim(msgcategory.c_str()) << "-----------------------";
   }
-  if(!isCutInactive(_dbxtrpltrange)) {
-    edm::LogVerbatim("CutValues") << "......................";
-    if(_dbxtrpltrange.size()>=1) edm::LogVerbatim("TripletIsolation") << "TripletIsolation lower limit " 
-								      << _dbxtrpltrange[0];
-    if(_dbxtrpltrange.size()>=2) edm::LogVerbatim("TripletIsolation") << "TripletIsolation upper limit " 
-								      << _dbxtrpltrange[1];
-    edm::LogVerbatim("CutValues") << "......................";
-  }
-  edm::LogVerbatim("CutValues") << "-----------------------";
-
 }  

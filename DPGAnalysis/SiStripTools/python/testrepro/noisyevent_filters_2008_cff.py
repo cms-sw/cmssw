@@ -14,13 +14,21 @@ from DPGAnalysis.SiStripTools.filters.Potential_TOB_HugeEvents_cfi import *
 from DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_cfi import *
 
 from DPGAnalysis.SiStripTools.filters.Potential_TOB_FrameHeaderEvents_firstpeak_cfi import *
-potentialTOBFrameHeaderEventsFPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,21)
+potentialTOBFrameHeaderEventsFPeak.filterConfigurations = cms.untracked.VPSet(
+          cms.PSet (absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,21))
+          )
 
 from DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi import *
-potentialTIBTECFrameHeaderEventsFPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,21)
+potentialTIBTECFrameHeaderEventsFPeak.filterConfigurations = cms.untracked.VPSet(
+          cms.PSet (absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,21))
+          )
 
 potentialTOBFrameHeaderEventsAdditionalPeak = potentialTOBFrameHeaderEventsFPeak.clone() 
-potentialTOBFrameHeaderEventsAdditionalPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,25)
+potentialTOBFrameHeaderEventsAdditionalPeak.filterConfigurations = cms.untracked.VPSet(
+          cms.PSet (absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,25))
+          )
 
 potentialTIBTECFrameHeaderEventsAdditionalPeak = potentialTIBTECFrameHeaderEventsFPeak.clone() 
-potentialTIBTECFrameHeaderEventsAdditionalPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,25)
+potentialTIBTECFrameHeaderEventsAdditionalPeak.filterConfigurations = cms.untracked.VPSet(
+          cms.PSet (absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,25))
+          )
