@@ -3,7 +3,7 @@
 # cmssw wrapper for job submission
 # run cmssw and copy output and log to destdir 
 # 
-# $Id: cmssw-job.csh,v 1.3 2009/01/16 08:40:05 argiro Exp $
+# $Id: cmssw-job.csh,v 1.4 2009/05/28 11:49:55 argiro Exp $
 
 set conffile = $1 
 set logfile  = $2
@@ -33,8 +33,11 @@ setenv destpath `echo $destdir | cut -d ':' -f2 `
 
 echo "copying to $destdir"
 
-if ($protocol == 'castor') then
-   rfcp $logfile $destpath
+if ($protocol == 'rfio') then
+#   rfcp * $destpath
+   foreach file (`ls`)
+      rfcp $file $destpath
+   end
 else
    scp * $destdir
 endif
