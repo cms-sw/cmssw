@@ -94,6 +94,7 @@ namespace edm {
 
     void swap(LuminosityBlockPrincipal&);
 
+    void setRunPrincipal(boost::shared_ptr<RunPrincipal>);
   private:
     virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 

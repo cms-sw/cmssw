@@ -94,5 +94,12 @@ namespace edm {
     std::swap(runPrincipal_,iOther.runPrincipal_);
     std::swap(aux_, iOther.aux_);
   }
+  
+  void 
+  LuminosityBlockPrincipal::setRunPrincipal(boost::shared_ptr<RunPrincipal> iRunPrincipal)
+  {
+     runPrincipal_ = iRunPrincipal;
+  }
+  
 }
 
