@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/07/29 21:10:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/25 12:58:23 $
+ *  $Revision: 1.4 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -117,22 +117,22 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if( muons.failedToGet() ) {
 
-    cout << endl << "------------------------" << endl;
-    cout << "--- NO RECO MUONS !! ---" << endl;
-    cout << "------------------------" << endl << endl;
+    //    cout << endl << "------------------------" << endl;
+    //    cout << "--- NO RECO MUONS !! ---" << endl;
+    //    cout << "------------------------" << endl << endl;
 
     //    return;
 
   }
 
-  edm::Handle<reco::ElectronCollection> elecs;
+  edm::Handle<reco::GsfElectronCollection> elecs;
   evt.getByLabel(elecs_, elecs);
 
   if( elecs.failedToGet() ) {
 
-    cout << endl << "----------------------------" << endl;
-    cout << "--- NO RECO ELECTRONS !! ---" << endl;
-    cout << "----------------------------" << endl << endl;
+    //    cout << endl << "----------------------------" << endl;
+    //    cout << "--- NO RECO ELECTRONS !! ---" << endl;
+    //    cout << "----------------------------" << endl << endl;
 
     //    return;
 
@@ -143,9 +143,9 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   if( trigResults.failedToGet() ) {
 
-//    cout << endl << "-----------------------------" << endl;
-//    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
-//    cout << "-----------------------------" << endl << endl;
+    //    cout << endl << "-----------------------------" << endl;
+    //    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
+    //    cout << "-----------------------------" << endl << endl;
 
   }
 
@@ -196,7 +196,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     for(muon = muons->begin(); muon!= muons->end(); ++muon) {
 
-      //      cout << " All muons p_T: " << muon->pt() << endl;
+      //    cout << " All muons p_T: " << muon->pt() << endl;
       //    cout << " All muons eta: " << muon->eta() << endl;
       //    cout << " All muons phi: " << muon->phi() << endl << endl;
 
@@ -277,13 +277,13 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
     Nelecs_->Fill( elecs->size() );
 
-    reco::ElectronCollection::const_iterator elec;
+    reco::GsfElectronCollection::const_iterator elec;
 
     //    cout << endl  << "--------------------" << endl;
 
     for(elec = elecs->begin(); elec!= elecs->end(); ++elec) {
 
-      //      cout << " All electrons p_T: " << elec->pt() << endl;
+      //    cout << " All electrons p_T: " << elec->pt() << endl;
       //    cout << " All electrons eta: " << elec->eta() << endl;
       //    cout << " All electrons phi: " << elec->phi() << endl << endl;
 

@@ -167,9 +167,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
   if( trigResults.failedToGet() ) {
 
-    cout << endl << "-----------------------------" << endl;
-    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
-    cout << "-----------------------------" << endl << endl;
+    //    cout << endl << "-----------------------------" << endl;
+    //    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
+    //    cout << "-----------------------------" << endl << endl;
 
   }
 
@@ -201,9 +201,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 	    FiredTriggers[i] = true;
 	    Trigs->Fill(i);
 
-	    cout << "-----------------------------" << endl;
-	    cout << "Trigger: " << hltPaths[i] << " FIRED!!!  " << endl;
-	    cout << "-----------------------------" << endl << endl;
+	    //	    cout << "-----------------------------" << endl;
+	    //	    cout << "Trigger: " << hltPaths[i] << " FIRED!!!  " << endl;
+	    //	    cout << "-----------------------------" << endl << endl;
 
 	  }
 
@@ -217,10 +217,10 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
     if( Fired_Control_Trigger )  ++N_trig;
 
-    cout << "-----------------------------" << endl;
-    cout << "Signal Trigger  : " << N_sig  << endl;
-    cout << "Control Trigger : " << N_trig << endl;
-    cout << "-----------------------------" << endl << endl;
+    //    cout << "-----------------------------" << endl;
+    //    cout << "Signal Trigger  : " << N_sig  << endl;
+    //    cout << "Control Trigger : " << N_trig << endl;
+    //    cout << "-----------------------------" << endl << endl;
 
   }
 
@@ -238,9 +238,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
     if( mucands.failedToGet() ) {
 
-      cout << endl << "------------------------------" << endl;
-      cout << "--- NO L1 TRIGGER MUONS !! ---" << endl;
-      cout << "------------------------------" << endl << endl;
+      //      cout << endl << "------------------------------" << endl;
+      //      cout << "--- NO L1 TRIGGER MUONS !! ---" << endl;
+      //      cout << "------------------------------" << endl << endl;
 
     }
 
@@ -248,9 +248,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
       NMuons->Fill(mucands->size());
 
-      cout << "--------------------" << endl;
-      cout << " Nmuons: " << mucands->size() << endl;
-      cout << "--------------------" << endl << endl;
+      //      cout << "--------------------" << endl;
+      //      cout << " Nmuons: " << mucands->size() << endl;
+      //      cout << "--------------------" << endl << endl;
 
       L1MuonParticleCollection::const_iterator cand;
 
@@ -314,9 +314,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
     if( mucands.failedToGet() ) {
 
-      cout << endl << "------------------------------" << endl;
-      cout << "--- NO HL TRIGGER MUONS !! ---" << endl;
-      cout << "------------------------------" << endl << endl;
+      //      cout << endl << "------------------------------" << endl;
+      //      cout << "--- NO HL TRIGGER MUONS !! ---" << endl;
+      //      cout << "------------------------------" << endl << endl;
 
     }
 
@@ -324,9 +324,9 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
       NMuons->Fill(mucands->size());
 
-      cout << "--------------------" << endl;
-      cout << " Nmuons: " << mucands->size() << endl;
-      cout << "--------------------" << endl << endl;
+      //      cout << "--------------------" << endl;
+      //      cout << " Nmuons: " << mucands->size() << endl;
+      //      cout << "--------------------" << endl << endl;
 
       RecoChargedCandidateCollection::const_iterator cand;
 
