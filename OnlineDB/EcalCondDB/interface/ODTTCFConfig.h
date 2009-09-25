@@ -32,6 +32,10 @@ class ODTTCFConfig : public IODConfig {
   inline void setTTCFClob(unsigned char* x) { m_ttcf_clob = x; }
   inline unsigned char* getTTCFClob() const { return m_ttcf_clob; }
 
+  inline void setRxBC0Delay( int x ) { m_rxbc0_delay = x; } 
+  inline int getRxBC0Delay( ) { return m_rxbc0_delay; } 
+  inline void setReg30( int x ) { m_reg_30 = x; } 
+  inline int getReg30( ) { return m_reg_30; } 
 
   void setParameters(std::map<string,string> my_keys_map);
   
@@ -56,6 +60,9 @@ class ODTTCFConfig : public IODConfig {
   unsigned int m_size;
   std::string m_ttcf_file;
 
+  int m_rxbc0_delay;
+  int m_reg_30;
+  
 };
 
 #endif

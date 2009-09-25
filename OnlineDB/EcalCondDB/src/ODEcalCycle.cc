@@ -13,6 +13,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODRunConfigCycleInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODScanCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTCCCycle.h"
+#include "OnlineDB/EcalCondDB/interface/ODTCCEECycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTTCciCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTTCFCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODSRPCycle.h"
@@ -121,6 +122,14 @@ void ODEcalCycle::writeDB()
     tcc_cycle.insertConfig();
     cout << "Inserting TCC-cycle in DB..." << flush;
   }
+  if(getTCCEEId()!=0){
+    ODTCCEECycle tcc_ee_cycle;
+    tcc_ee_cycle.setId(cyc_id);
+    tcc_ee_cycle.setTCCConfigurationID(getTCCEEId());
+    tcc_ee_cycle.setConnection(m_env, m_conn);
+    tcc_ee_cycle.insertConfig();
+    cout << "Inserting TCCEE-cycle in DB..." << flush;
+  }
   if(getTTCCIId()!=0){
     ODTTCciCycle ttcci_cycle;
     ttcci_cycle.setId(cyc_id);
@@ -180,6 +189,7 @@ void ODEcalCycle::clear(){
    m_lts=0;
    m_dcu=0;
    m_tcc=0;
+   m_tcc_ee=0;
    m_ttcci=0;
    m_jbh4=0;
    m_scan=0;
@@ -223,7 +233,8 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 
     m_readStmt->setSQL("SELECT d.tag, d.version, d.sequence_num, d.cycle_num, d.cycle_tag, d.description, d.ccs_configuration_id,    "
 		       " d.dcc_configuration_id, d.laser_configuration_id, d.ltc_configuration_id, d.lts_configuration_id, d.tcc_configuration_id,"
-		       " d.\"TTCci_CONFIGURATION_ID\" ,  d.jbh4_configuration_id, d.scan_id, d.TTCF_configuration_id, d.srp_configuration_id, d.dcu_configuration_id " 
+		       " d.\"TTCci_CONFIGURATION_ID\" ,  d.jbh4_configuration_id, d.scan_id, d.TTCF_configuration_id, d.srp_configuration_id, d.dcu_configuration_id,"
+		       " d.tcc_ee_configuration_id " 
 		       "FROM ECAL_CYCLE d "
 		       " where d.cycle_id = :1 " );
     m_readStmt->setInt(1, result->getId());
@@ -252,6 +263,7 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
     result->setTTCFId(        rset->getInt(16) );
     result->setSRPId(        rset->getInt(17) );
     result->setDCUId(        rset->getInt(18) );
+    result->setTCCEEId(      rset->getInt(19) );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODEcalCycle::fetchData():  "+e.getMessage()));

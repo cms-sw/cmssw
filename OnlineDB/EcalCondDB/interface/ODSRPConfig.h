@@ -38,6 +38,9 @@ class ODSRPConfig : public IODConfig {
   inline void setAutomaticMasks(int x) { m_auto = x; }
   inline int getAutomaticMasks() const { return m_auto; }
 
+  inline void setAutomaticSrpSelect(int x) { m_auto_srp = x; }
+  inline int getAutomaticSrpSelect() const { return m_auto_srp; }
+
   inline void setSRP0BunchAdjustPosition(int x) { m_bnch = x; }
   inline int getSRP0BunchAdjustPosition() const { return m_bnch; }
 
@@ -66,7 +69,7 @@ class ODSRPConfig : public IODConfig {
   int m_dummy;
   std::string m_file;
   std::string m_patdir;
-  int m_auto;
+  int m_auto, m_auto_srp;
   int m_bnch;
   unsigned int m_size;
 
