@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.42 2009/09/23 12:28:03 ptraczyk Exp $
+// $Id: MuonIdProducer.cc,v 1.43 2009/09/23 19:15:04 dmytro Exp $
 //
 //
 
@@ -923,6 +923,13 @@ double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) con
 {
    if ( muon.isStandAloneMuon() ) return muon.standAloneMuon()->innerPosition().phi();
    // the rest is tracker muon only
+   if ( muon.matches().empty() ){
+      if ( muon.innerTrack().isAvailable() &&
+	   muon.innerTrack()->extra().isAvailable() )
+	return muon.innerTrack()->outerPosition().phi();
+      else
+	return muon.phi(); // makes little sense, but what else can I use
+   }
    return sectorPhi(muon.matches().at(0).id);
 }
 
