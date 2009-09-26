@@ -925,14 +925,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_LooseEcalIso_L1R") == 0) {     
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonLooseEcalIsoPassed(10.,0,999.,999.,999.,3.)>=1) {  
+      if(OpenHlt1PhotonLooseEcalIsoPassed(10.,0,999.,3.,999.,999.)>=1) {  
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }      
     }      
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon15_LooseEcalIso_L1R") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,999.,999.,999.,3.)>=1) { 
+      if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,999.,3.,999.,999.)>=1) { 
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }     
       }     
     }     
@@ -1058,28 +1058,28 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon10_LooseEcalIso_TrackIso_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonLooseEcalIsoPassed(10.,0,2,999.,999.,3.)>=1) {   
+      if(OpenHlt1PhotonLooseEcalIsoPassed(10.,0,2.,3.,999.,999.)>=1) {   
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }       
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon20_LooseEcalIso_TrackIso_L1R") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,2,999.,999.,3.)>=1) {    
+      if(OpenHlt1PhotonLooseEcalIsoPassed(15.,0,2.,3.,999.,999.)>=1) {    
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
       } 
     }
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Photon25_LooseEcalIso_TrackIso_L1R") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonLooseEcalIsoPassed(25.,0,2,999.,999.,3.)>=1) {    
+      if(OpenHlt1PhotonLooseEcalIsoPassed(25.,0,2.,3.,999.,999.)>=1) {    
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
       } 
     }
   } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoublePhoton15_VeryLooseEcalIso_L1R") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if(OpenHlt1PhotonVeryLooseEcalIsoPassed(15.,0,2,999.,999.,5.)>=2) {     
+      if(OpenHlt1PhotonVeryLooseEcalIsoPassed(15.,0,999.,5.,999.,999.)>=2) {     
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
       }  
     }
