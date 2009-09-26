@@ -1589,7 +1589,7 @@ void TagProbeEDMAnalysis::performFit(const std::string &bvar1, const std::vector
       RooAbsPdf* pdf =  totalPdf.getPdf(type->GetName());
       RooAbsData* dset = (RooAbsData*) dsetList->FindObject(type->GetName());
      
-      if (pdf && dset && dset->numEntries() != 0.0) 
+      if (pdf && dset && dset->sumEntries() != 0.0) 
       {               
 	 edm::LogInfo("TagProbeEDMAnalysis") << "GOF Entries " << dset->numEntries() << " " 
 	      << type->GetName() << std::endl;
