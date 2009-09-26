@@ -69,7 +69,7 @@ void  NoiseCheck::beginJobAnalyze(const edm::EventSetup & c){
   edm::ESHandle<CaloGeometry> pG;
   c.get<CaloGeometryRecord>().get(pG);     
   // Setup the tools
-  double bField000 = 4.;
+  //  double bField000 = 4.;
 //  myGeometry.setupGeometry(*pG);
 //  myGeometry.setupTopology(*theCaloTopology);
 //  myGeometry.initialize(bField000);
