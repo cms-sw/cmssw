@@ -1,13 +1,10 @@
 #ifndef _TPRooSimultaneousFitter_HH_
 #define _TPRooSimultaneousFitter_HH_
 
-
-
-
 // STL
 #include <vector>
 #include <string>
-
+#include <memory>
 
 class RooArgSet;
 class RooRealVar;
@@ -19,9 +16,6 @@ class TTree;
 class TFile;
 class RooDataSet;
 class RooDataHist;
-
-
-
 
 class TPRooSimultaneousFitter{
 public:
