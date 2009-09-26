@@ -17,7 +17,6 @@ class HLTHcalMETNoiseFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      edm::InputTag HcalNoiseRBXCollectionTag;
       edm::InputTag HcalNoiseSummaryTag;
       int severity;
 
