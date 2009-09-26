@@ -122,6 +122,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
 	ref_hist1[nh1]->Rebin(10);
 	val_hist1[nh1]->Rebin(10);
       }
+      if (OutLabel == "RBX_energy_type3.gif"){
+	ref_hist1[nh1]->Rebin(5);
+	val_hist1[nh1]->Rebin(5);
+      }
       
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   

@@ -1,6 +1,6 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 
-void SinglePi(const TString ref_vers="218", const TString val_vers="218"){
+void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
 
    TCanvas *myc = new TCanvas("myc","",800,600);
 
@@ -127,7 +127,7 @@ void SinglePi(const TString ref_vers="218", const TString val_vers="218"){
   TLegend *leg = new TLegend(0.20, 0.91, 0.70, 0.99, "","brNDC");
   leg->SetBorderSize(2);
   leg->SetFillStyle(1001);
-  leg->AddEntry(ratio1,"CaloTowers scale (pi50) ratio 320/310 vs ieta","pl");
+  leg->AddEntry(ratio1,"CaloTowers scale (pi50) ratio "+val_vers+"/"+ref_vers+" vs ieta","pl");
   leg->Draw("");
 
 
