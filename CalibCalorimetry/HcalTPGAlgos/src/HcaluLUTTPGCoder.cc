@@ -615,9 +615,14 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             isMasked = ( (status & bitToMask) > 0 );
 
 				
-         frame.setSample(0, HcalQIESample(1));
-         coder.adc2fC(frame,samples);
-			float offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? samples[0] : 0; // Lumi offset of 1 adc (in fC) for the four rings used to measure lumi
+         //frame.setSample(0, HcalQIESample(1));
+         //coder.adc2fC(frame,samples);
+         float one_adc2fC = 0.0;
+         for (int capId = 0; capId < 4; ++capId)
+            one_adc2fC += channelCoder->charge(*shape, 1, capId) - channelCoder->charge(*shape, 0, capId);
+         one_adc2fC /= 4.0;
+			float offset = (abs(ieta) >= 33 && abs(ieta) <= 36) ? one_adc2fC : 0; // Lumi offset of 1 adc (in fC) for the four rings used to measure lumi
+
 			for (int j = 0; j <= 0x7F; j++) {
 				HcalQIESample adc(j);
 				frame.setSample(0,adc);
