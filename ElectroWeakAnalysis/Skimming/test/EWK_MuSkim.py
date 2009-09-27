@@ -5,7 +5,7 @@ process = cms.Process("EWKMuSkim")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # source
 process.source = cms.Source("PoolSource", 
@@ -48,7 +48,7 @@ from Configuration.EventContent.EventContent_cff import *
 EWK_MuSkimEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
-EWK_MuSkimEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
+EWK_MuSkimEventContent.outputCommands.extend(AODEventContent.outputCommands)
 
 EWK_MuSkimEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(

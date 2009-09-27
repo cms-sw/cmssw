@@ -137,7 +137,7 @@ EWK_dimuonsEventContent = cms.PSet(
 EWK_DimuonSkimEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
-EWK_DimuonSkimEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
+EWK_DimuonSkimEventContent.outputCommands.extend(AODEventContent.outputCommands)
 EWK_DimuonSkimEventContent.outputCommands.extend(EWK_dimuonsEventContent.outputCommands)
 
 EWK_DimuonSkimEventSelection = cms.PSet(

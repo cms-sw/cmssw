@@ -5,7 +5,7 @@ process = cms.Process("EWKElectronSkim")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # source
 process.source = cms.Source("PoolSource", 
@@ -47,7 +47,7 @@ from Configuration.EventContent.EventContent_cff import *
 EWK_ElectronSkimEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
-EWK_ElectronSkimEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
+EWK_ElectronSkimEventContent.outputCommands.extend(AODEventContent.outputCommands)
 
 EWK_ElectronSkimEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(

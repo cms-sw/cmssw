@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.Skimming.dimuonsHLTFilter_cfi import *
-from ElectroWeakAnalysis.Skimming.patCandidatesForDimuonsSequences_cff import *
+from ElectroWeakAnalysis.Skimming.patCandidatesForZMuMuSubskim_cff import *
 from ElectroWeakAnalysis.Skimming.dimuons_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrack_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsGlobal_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneStandAloneMuon_cfi import *
-from ElectroWeakAnalysis.Skimming.mcTruthForDimuons_cff import *
 from ElectroWeakAnalysis.Skimming.dimuonsFilter_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrackFilter_cfi import *
 
@@ -25,7 +24,4 @@ dimuonsOneTrackPath = cms.Path(dimuonsHLTFilter+
                                dimuonsOneTrackFilter
 )
 
-dimuonsMCTruth = cms.Path(dimuonsHLTFilter+
-                          mcTruthForDimuons
-)
 
