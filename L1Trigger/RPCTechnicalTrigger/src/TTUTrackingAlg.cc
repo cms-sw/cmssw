@@ -1,4 +1,4 @@
-// $Id: TTUTrackingAlg.cc,v 1.7 2009/07/04 20:07:40 aosorio Exp $
+// $Id: TTUTrackingAlg.cc,v 1.8 2009/07/09 14:03:37 aosorio Exp $
 // Include files 
 
 
@@ -231,9 +231,9 @@ void TTUTrackingAlg::findNeighbors( Seed  * _seed, std::vector<Seed*> & neighbor
     
     if ( _difx == 11 ) _difx = 1;
     
-    if ( (_difx == 1) && (_dify == 1) ||
-         (_difx == 1) && (_dify == 0) ||
-         (_difx == 0) && (_dify == 1)   ) 
+    if ( ((_difx == 1) && (_dify == 1)) ||
+         ((_difx == 1) && (_dify == 0)) ||
+         ((_difx == 0) && (_dify == 1)) ) 
       
       neighbors.push_back( (*_itr) );
     
