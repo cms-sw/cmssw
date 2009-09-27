@@ -4,13 +4,14 @@ process = cms.Process("readelectrons")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring
     (
-        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3_preproduction_312-v1/0008/B4E5948E-1679-DE11-8721-002219205095.root',
-        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3_preproduction_312-v1/0006/B28F900A-0B79-DE11-B2D3-00D0680BF9A4.root',
+        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3-v1/0028/DAA8926E-CE8B-DE11-9654-0030487DF78A.root',
+        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3-v1/0027/E6394B5A-338B-DE11-A710-00151764221C.root',
+        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3-v1/0027/B00D1565-438B-DE11-A443-001E682F8528.root'
     ),
     secondaryFileNames = cms.untracked.vstring(),
 )
@@ -24,11 +25,15 @@ from RecoEgamma.Examples.dataAnalyzerFineBiningParameters_cff import *
 
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronDataAnalyzer",
     electronCollection = cms.InputTag("gsfElectrons"),
-    matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     readAOD = cms.bool(False),
-    outputFile = cms.string('gsfElectronHistos_data_Summer09Zee_new.root'),
-    MaxPt = cms.double(100.0),
+    outputFile = cms.string('gsfElectronHistos_data_ZeeSummer09.root'),
+    triggerResults = cms.InputTag("TriggerResults::HLT"),
+    hltPaths = cms.vstring('HLT_Ele10_SW_L1R','HLT_Ele15_SW_L1R','HLT_Ele15_SW_EleId_L1R','HLT_Ele15_SW_LooseTrackIso_L1R','HLT_Ele15_SC15_SW_LooseTrackIso_L1R','HLT_Ele15_SC15_SW_EleId_L1R','HLT_Ele20_SW_L1R','HLT_Ele20_SC15_SW_L1R','HLT_Ele25_SW_L1R','HLT_Ele25_SW_EleId_LooseTrackIso_L1R','HLT_DoubleEle10_SW_L1R'),
+    matchingObjectCollection = cms.InputTag("mergedSuperClusters"),
+    matchingCondition = cms.string("Cone"),
     DeltaR = cms.double(0.3),
+    MaxPtMatchingObject = cms.double(100.0),
+    MaxAbsEtaMatchingObject = cms.double(2.5),
     MinEt = cms.double(4.),
     MinPt = cms.double(0.),
     MaxAbsEta = cms.double(2.5),

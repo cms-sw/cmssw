@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.h,v 1.16 2009/09/19 00:18:58 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.h,v 1.17 2009/09/19 21:38:26 charlot Exp $
 //
 //
 
@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -49,9 +50,32 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
 
  private:
 
+  bool trigger(const edm::Event & e);
+  
+  unsigned int nEvents_;
+  unsigned int nAfterTrigger_;
+
+  edm::InputTag triggerResults_;
+  edm::TriggerNames triggerNames_;
+
+  std::vector<std::string > HLTPathsByName_;
+  std::vector<unsigned int> HLTPathsByIndex_;
+
+  std::string outputFile_;
+  edm::InputTag electronCollection_;
+  edm::InputTag matchingObjectCollection_;
+  std::string matchingCondition_;
+  std::string type_;
+  bool readAOD_;
+  // matching 
+  double maxPtMatchingObject_;
+  double maxAbsEtaMatchingObject_;
+  double deltaR_;
+
   TrajectoryStateTransform transformer_;
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> theMagField;
+
   TFile *histfile_;
   TTree *tree_;
   float mcEnergy[10], mcEta[10], mcPhi[10], mcPt[10], mcQ[10];
@@ -110,10 +134,10 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *histNum_;
 
   TH1F *histSclEn_ ;
-  TH1F *histSclEoEmatchingObject_barrel;
-  TH1F *histSclEoEmatchingObject_endcaps;
-  TH1F *histSclEoEmatchingObject_barrel_new;
-  TH1F *histSclEoEmatchingObject_endcaps_new;
+  TH1F *histSclEoEmatchingObject_barrel_matched;
+  TH1F *histSclEoEmatchingObject_endcaps_matched;
+  TH1F *histSclEoEmatchingObject_barrel_new_matched;
+  TH1F *histSclEoEmatchingObject_endcaps_new_matched;
   TH1F *histSclEt_ ;
   TH2F *histSclEtVsEta_ ;
   TH2F *histSclEtVsPhi_ ;
@@ -159,24 +183,24 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_chi2VsPhi;
   TH2F *h_ele_chi2VsPt;
 
-  TH1F *h_ele_PtoPtmatchingObject;
-  TH1F *h_ele_PoPmatchingObject;
-  TH2F *h_ele_PoPmatchingObjectVsEta;
-  TH2F *h_ele_PoPmatchingObjectVsPhi;
-  TH2F *h_ele_PoPmatchingObjectVsPt;
-  TH1F *h_ele_PoPmatchingObject_barrel;
-  TH1F *h_ele_PoPmatchingObject_endcaps;
-  TH1F *h_ele_PtoPtmatchingObject_barrel;
-  TH1F *h_ele_PtoPtmatchingObject_endcaps;
-  TH1F *h_ele_EtaMnEtamatchingObject;
-  TH2F *h_ele_EtaMnEtamatchingObjectVsEta;
-  TH2F *h_ele_EtaMnEtamatchingObjectVsPhi;
-  TH2F *h_ele_EtaMnEtamatchingObjectVsPt;
-  TH1F *h_ele_PhiMnPhimatchingObject;
-  TH1F *h_ele_PhiMnPhimatchingObject2;
-  TH2F *h_ele_PhiMnPhimatchingObjectVsEta;
-  TH2F *h_ele_PhiMnPhimatchingObjectVsPhi;
-  TH2F *h_ele_PhiMnPhimatchingObjectVsPt;
+  TH1F *h_ele_PtoPtmatchingObject_matched;
+  TH1F *h_ele_PoPmatchingObject_matched;
+  TH2F *h_ele_PoPmatchingObjectVsEta_matched;
+  TH2F *h_ele_PoPmatchingObjectVsPhi_matched;
+  TH2F *h_ele_PoPmatchingObjectVsPt_matched;
+  TH1F *h_ele_PoPmatchingObject_barrel_matched;
+  TH1F *h_ele_PoPmatchingObject_endcaps_matched;
+  TH1F *h_ele_PtoPtmatchingObject_barrel_matched;
+  TH1F *h_ele_PtoPtmatchingObject_endcaps_matched;
+  TH1F *h_ele_EtaMnEtamatchingObject_matched;
+  TH2F *h_ele_EtaMnEtamatchingObjectVsEta_matched;
+  TH2F *h_ele_EtaMnEtamatchingObjectVsPhi_matched;
+  TH2F *h_ele_EtaMnEtamatchingObjectVsPt_matched;
+  TH1F *h_ele_PhiMnPhimatchingObject_matched;
+  TH1F *h_ele_PhiMnPhimatchingObject2_matched;
+  TH2F *h_ele_PhiMnPhimatchingObjectVsEta_matched;
+  TH2F *h_ele_PhiMnPhimatchingObjectVsPhi_matched;
+  TH2F *h_ele_PhiMnPhimatchingObjectVsPt_matched;
   TH1F *h_ele_PinMnPout;
   TH1F *h_ele_PinMnPout_mode;
   TH2F *h_ele_PinMnPoutVsEta_mode;
@@ -307,16 +331,10 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
 
-  std::string outputFile_;
-  edm::InputTag electronCollection_;
-  edm::InputTag matchingObjectCollection_;
-  std::string type_;
-  bool readAOD_;
-
-  //selection
-  double maxAbsEta_;
+  // electron selection
   double minEt_;
   double minPt_;
+  double maxAbsEta_;
   bool isEB_;
   bool isEE_;
   bool isNotEBEEGap_;
@@ -350,11 +368,7 @@ class GsfElectronDataAnalyzer : public edm::EDAnalyzer
   double ecalIso03MaxBarrel_;
   double ecalIso03MaxEndcaps_;
   
-  //matching
-  double maxPt_;
-  double deltaR_;
-
-  // histos limits and binning
+   // histos limits and binning
   double etamin;
   double etamax;
   double phimin;
