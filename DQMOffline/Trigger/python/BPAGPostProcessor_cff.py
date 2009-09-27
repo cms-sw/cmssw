@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 JpsiTrigEff = cms.EDAnalyzer("DQMGenericTnPClient",
   MyDQMrootFolder = cms.untracked.string("HLT/Muon/Distributions"),
   # Set this if you want to save info about each fit
-  SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
-  #SavePlotsInRootFileName = cms.untracked.string(""),						 
+  #SavePlotsInRootFileName = cms.untracked.string("fittingPlots.root"),
+  SavePlotsInRootFileName = cms.untracked.string(""),						 
   Verbose = cms.untracked.bool(False),
   Efficiencies = cms.untracked.VPSet(
     cms.untracked.PSet(
