@@ -266,9 +266,9 @@ tpToGlbCosmicMuonAssociation.PurityCut_track = 0.75
 muonAssociation_seq = cms.Sequence((tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
                                   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation))
 
-#muonAssociationTEV_seq = cms.Sequence((tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
-#                                     +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation))
-muonAssociationTEV_seq = cms.Sequence(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation)
+muonAssociationTEV_seq = cms.Sequence((tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation)
+                                     +(tpToTevFirstTrackAssociation+tpToTevPickyTrackAssociation))
+
 
 muonAssociationCosmic_seq = cms.Sequence((tpToTkCosmicMuonAssociation+tpToStaCosmicMuonAssociation+tpToGlbCosmicMuonAssociation)
                                         +(tpToTkCosmicTrackAssociation+tpToStaCosmicTrackAssociation+tpToGlbCosmicTrackAssociation))
