@@ -61,8 +61,11 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   const edm::InputTag _apvphasecollection;
+  std::vector<std::string> _selectedparts;
   std::map<std::string,TH1F*> _hphases;
+  std::map<std::string,TH1F*> _hselectedphases;
   std::map<std::string,TProfile*> _hphasevsorbit;
+  std::map<std::string,TProfile*> _hselectedphasevsorbit;
   unsigned int _nevents;
 };
 
@@ -79,7 +82,8 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
 //
 APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
   _apvphasecollection(iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection")),
-  _hphases(),_hphasevsorbit(),
+  _selectedparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedPartitions",std::vector<std::string>())),
+  _hphases(),_hselectedphases(),_hphasevsorbit(),_hselectedphasevsorbit(),
   _nevents(0)
 {
    //now do what ever initialization is needed
@@ -139,7 +143,17 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      _hphases[phase->first]->Fill(phase->second);
      _hphasevsorbit[phase->first]->Fill(iEvent.orbitNumber(),phase->second);
    }
+
+   // selected partitions
    
+   for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
+     if(_hselectedphases.find(*part)!=_hselectedphases.end()) {
+       _hselectedphases[*part]->Fill(apvphases->getPhase(*part));
+     }
+     if(_hselectedphasevsorbit.find(*part)!=_hselectedphasevsorbit.end()) {
+       _hselectedphasevsorbit[*part]->Fill(iEvent.orbitNumber(),apvphases->getPhase(*part));
+     }
+   }
 }
 
 void 
@@ -147,18 +161,32 @@ APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
   
   _hphases.clear();
+  _hselectedphases.clear();
   _hphasevsorbit.clear();
+  _hselectedphasevsorbit.clear();
+
+  edm::Service<TFileService> tfserv;
+
+  char dirname[300];
+  sprintf(dirname,"run_%d",iRun.run());
+  TFileDirectory subrun = tfserv->mkdir(dirname);
   
-  /*
-  for(std::vector<std::string>::const_iterator part = _defpartnames.begin(); part != _defpartnames.end() ; ++part) {
-    sprintf(hname,"phase_%s",part->c_str());
-    _hphases[*part] = subrun.make<TH1F>(hname,hname,70,-0.5,69.5);
-    sprintf(hname,"phasevsorbit_%s",part->c_str());
-    _hphasevsorbit[*part] = subrun.make<TProfile>(hname,hname,1800,0.,1800*11223);
-    _hphasevsorbit[*part]->SetBit(TH1::kCanRebin);
+  for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
+
+    char hname[300];
+    
+    sprintf(hname,"selected_phase_%s",part->c_str());
+    edm::LogInfo("SelectedTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
+    _hselectedphases[*part] = subrun.make<TH1F>(hname,hname,70,-0.5,69.5);
+    _hselectedphases[*part]->GetXaxis()->SetTitle("BX mod 70"); _hselectedphases[*part]->GetYaxis()->SetTitle("Events");
+    
+    sprintf(hname,"selected_phasevsorbit_%s",part->c_str());
+    edm::LogInfo("SelectedTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
+    _hselectedphasevsorbit[*part] = subrun.make<TProfile>(hname,hname,1800,0.,1800*11223);
+    _hselectedphasevsorbit[*part]->SetBit(TH1::kCanRebin);
+    _hselectedphasevsorbit[*part]->GetXaxis()->SetTitle("time [orbit#]"); 
+    _hselectedphasevsorbit[*part]->GetYaxis()->SetTitle("Phase");
   }
-  */
-  
 }
 
 void 

@@ -15,6 +15,9 @@ class APVCyclePhaseCollection {
 
   std::map<std::string,int>& get() { return _apvmap; };
 
+  const int getPhase(const std::string partition) const;
+
+  enum{nopartition=-91,multiphase=-92,invalid=-99};
 
  private:
 

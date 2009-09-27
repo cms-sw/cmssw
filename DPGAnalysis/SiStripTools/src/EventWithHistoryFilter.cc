@@ -14,7 +14,7 @@
 
 EventWithHistoryFilter::EventWithHistoryFilter():
   _historyProduct(),
-  _partition("None"), 
+  _partition(), 
   _APVPhaseLabel(),
   _dbxrange(), _dbxrangelat(),
   _bxrange(), _bxrangelat(),
@@ -28,7 +28,7 @@ EventWithHistoryFilter::EventWithHistoryFilter():
 
 EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig):
   _historyProduct(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"))),
-  _partition(iConfig.getUntrackedParameter<std::string>("partitionName","None")),
+  _partition(iConfig.getUntrackedParameter<std::string>("partitionName","All")),
   _APVPhaseLabel(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")),
   _dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>())),
   _dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>())),
@@ -48,7 +48,7 @@ void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig) {
 
 
   _historyProduct = iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"));
-  _partition = iConfig.getUntrackedParameter<std::string>("partitionName","None");
+  _partition = iConfig.getUntrackedParameter<std::string>("partitionName","All");
   _APVPhaseLabel = iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases");
   _dbxrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>());
   _dbxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>());
@@ -150,16 +150,16 @@ const int EventWithHistoryFilter::getAPVPhase(const edm::Event& iEvent) const {
   edm::Handle<APVCyclePhaseCollection> apvPhases;
   iEvent.getByLabel(_APVPhaseLabel,apvPhases);
 
-  //  if(!apvPhases.failedToGet() && apvPhases.isValid()) {
+  const int phase = apvPhases->getPhase(_partition.c_str());
 
-  for(std::map<std::string,int>::const_iterator it=apvPhases->get().begin();it!=apvPhases->get().end();it++) {
-    if(strstr(it->first.c_str(),_partition.c_str())) return it->second;
+  if(!_noAPVPhase) {
+    if(phase == APVCyclePhaseCollection::nopartition) throw cms::Exception("NoPartitionAPVPhase") 
+      << " No APV phase for partition " << _partition.c_str() << " : check if a proper partition has been chosen ";
+    if(phase == APVCyclePhaseCollection::multiphase) throw cms::Exception("MultiAPVPhase") 
+      << " Too many APV phases for partition " << _partition.c_str() << " : check if a proper partition has been chosen ";
   }
 
-  if(!_noAPVPhase) throw cms::Exception("InvalidAPVPhase") 
-    << " invalid APV phase found: check if a proper partition has been chosen";
-
-  return -1;
+  return phase;
 }
 
 const bool EventWithHistoryFilter::isAPVLatencyNotNeeded() const {
