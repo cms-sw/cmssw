@@ -4,6 +4,21 @@ import optparse
 import os
 from glob import glob
 import re
+import pprint
+countRE = re.compile (r'^count_(\w+)')
+
+def summaryOK (summary):
+    """returns a tuple.  First value is true if summary hasn't found
+    any problems, else false."""
+    retval = True
+    count    = -1
+    compared = summary.get('eventsCompared', -1)
+    if len( summary.keys()) != 2:
+        retval = False
+    for key,value in summary.iteritems():
+        if countRE.search(key):
+            count = value
+    return (retval, {'count':count, 'compared':compared})
 
 if __name__ == "__main__":
 
@@ -17,6 +32,7 @@ if __name__ == "__main__":
     cppExceptionRE = re.compile (r'\(C\+\+ exception\)')
     missingCfgRE   = re.compile (r"raise.+Can't open configuration")
     finishRE       = re.compile (r'finish')
+    nonSpacesRE    = re.compile (r'\S')
     problemDict = { 'label'        : labelErrorRE,
                     'terminate'    : terminatedRE,
                     'cppException' : cppExceptionRE,
@@ -24,6 +40,9 @@ if __name__ == "__main__":
                     'finish'       : finishRE}
 
     parser = optparse.OptionParser ("Usage: %prog logfilePrefix [directory]")
+    parser.add_option ("--counts", dest="counts",
+                       action="store_true", default=False,
+                       help="Display counts only.")
 
     options, args = parser.parse_args()
     if not 1 <= len (args) <= 2:
@@ -37,14 +56,24 @@ if __name__ == "__main__":
     totalFiles = len (files)
     problems = {}
     succeeded = 0
+    weird     = 0
     problemTypes = {}
     for log in files:
         source = open (log, 'r')
         ran = False
         success = False
+        reading = False
+        summaryLines = ''
         for line in source:
+            line = line.rstrip('\n')
+            if reading:
+                if not nonSpacesRE.search(line):
+                    reading = False
+                    continue
+                summaryLines += line
             if startOutputRE.search(line):
-                ran = True
+                ran     = True
+                reading = True
                 continue
             if success1RE.search (line) or success2RE.search(line):
                 success = True
@@ -58,23 +87,38 @@ if __name__ == "__main__":
                     else:
                         problemTypes[key] += 1
         source.close()
+        if summaryLines:
+            summary = eval (summaryLines)
+            ok = summaryOK (summary)
+        else:
+            ok = (False,)
         if ran and success:
             succeeded += 1
-        elif not problems.has_key (log):
-            problems.setdefault(log,[]).extend ( ['other',
-                                                  'ran:%s' % ran,
-                                                  'success:%s' % success])
-            key = 'other'
-            if not problemTypes.has_key(key):
-                problemTypes[key] = 1
+            if not ok[0]:
+                weird += 1
+        else:
+            if ok[0]:
+                weird += 1
+        if not problems.has_key (log) and not ok[0]:
+            if not ok[0]:
+                key = 'mismatch'
+                problems[log] = pprint.pformat (summary, indent=4)
             else:
-                problemTypes[key] += 1
+                problems[log] = ['other','ran:%s' % ran,
+                                  'success:%s' % success]
+                key = 'other'
+        if not problemTypes.has_key(key):
+            problemTypes[key] = 1
+        else:
+            problemTypes[key] += 1
 
     print "total:   ", len (files)
     print "success: ", succeeded
+    print "weird:   ", weird
     print "Problem types:"
     for key, value in sorted (problemTypes.iteritems()):
         print "  %-15s: %2d" % (key, value)
-    print "\nDetailed Problems list:"
-    for key, problemList in sorted (problems.iteritems()):
-        print "   %s:\n   %s\n" % (key, problemList)
+    if not options.counts:
+        print "\nDetailed Problems list:"
+        for key, problemList in sorted (problems.iteritems()):
+            print "   %s:\n   %s\n" % (key, problemList)
