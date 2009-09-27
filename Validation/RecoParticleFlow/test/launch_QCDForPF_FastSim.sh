@@ -1,7 +1,7 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW330pre4/
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_3_0_pre4/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW330pre5/
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_3_0_pre5/src
 
 for ((job=0;job<=10;job++));
   do
