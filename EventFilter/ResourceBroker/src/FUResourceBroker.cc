@@ -98,6 +98,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , buInstance_(0)
   , smClassName_("StorageManager")
   , smInstance_(0)
+  , shmResourceTableTimeout_(130000)
   , monSleepSec_(2)
   , watchSleepSec_(10)
   , timeOutSec_(30)
@@ -200,7 +201,7 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       recoCellSize_.value_,
 				       dqmCellSize_.value_,
 				       bu_,sm_,
-				       log_);
+				       log_, shmResourceTableTimeout_.value_);
     FUResource::doFedIdCheck(doFedIdCheck_);
     FUResource::useEvmBoard(useEvmBoard_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
@@ -253,19 +254,19 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(log_, "Start stopping :) ...");
     resourceTable_->stop();
     UInt_t count = 0;
-    while (count<10) {
+    while (count<100) {
       if (resourceTable_->isReadyToShutDown()) {
-	LOG4CPLUS_INFO(log_,"ResourceTable successfully shutdown ("<<count+1<<").");
+	LOG4CPLUS_INFO(log_,"ResourceTable successfully shutdown ("<<count<<").");
 	break;
       }
       else {
 	count++;
-	LOG4CPLUS_DEBUG(log_,"Waiting for ResourceTable to shutdown ("<<count<<")");
-	::sleep(1);
+	LOG4CPLUS_INFO(log_,"Waiting for ResourceTable to shutdown ("<<count<<")");
+	::usleep(shmResourceTableTimeout_.value_);
       }
     }
     
-    if (count<10) {
+    if (count<100) {
       LOG4CPLUS_INFO(log_, "Finished stopping!");
       fsm_.fireEvent("StopDone",this);
     }
@@ -698,6 +699,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("buInstance",              &buInstance_);
   gui_->addStandardParam("smClassName",             &smClassName_);
   gui_->addStandardParam("smInstance",              &smInstance_);
+  gui_->addStandardParam("shmResourceTableTimeout", &shmResourceTableTimeout_);
   gui_->addStandardParam("monSleepSec",             &monSleepSec_);
   gui_->addStandardParam("watchSleepSec",           &watchSleepSec_);
   gui_->addStandardParam("timeOutSec",              &timeOutSec_);

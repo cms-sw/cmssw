@@ -33,7 +33,7 @@ namespace evf {
 		    UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
 		    UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize,
 		    BUProxy* bu,SMProxy* sm,
-		    log4cplus::Logger logger) throw (evf::Exception);
+		    log4cplus::Logger logger, unsigned int) throw (evf::Exception);
     virtual ~FUResourceTable();
     
     
@@ -215,6 +215,7 @@ namespace evf {
     
     UInt_t             doCrcCheck_;
     UInt_t             doDumpEvents_;
+    unsigned int       shutdownTimeout_;
 
     UInt_t             nbAllocated_;
     UInt_t             nbPending_;
