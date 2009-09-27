@@ -16,12 +16,13 @@ exoticaMuOutputModule = cms.OutputModule("PoolOutputModule",
 
 
 #default output contentAODSIMEventContent
-exoticaMuOutputModule.outputCommands.extend(AODSIMEventContent.outputCommands)
+exoticaMuOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands)
 
 #add specific content you need. 
 SpecifiedEvenetContent=cms.PSet(
     outputCommands = cms.untracked.vstring(
-      "keep *_exoticaMuRecoQalityCut_*_*"
+      "keep *_exoticaHLTMuonFilter_*_*",
+	  "keep *_exoticaRecoMuonFilter_*_*",
       )
     )
 exoticaMuOutputModule.outputCommands.extend(SpecifiedEvenetContent.outputCommands)
