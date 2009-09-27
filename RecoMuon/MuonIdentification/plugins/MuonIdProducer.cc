@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.44 2009/09/26 19:03:30 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.45 2009/09/26 19:56:38 dmytro Exp $
 //
 //
 
@@ -403,29 +403,32 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		// have to check where muon hits are really located
 		// to match properly
 		bool newMuon = true;
-		if ( isGoodTrackerMuon( trackerMuon ) ){
-		   for ( reco::MuonCollection::iterator muon = outputMuons->begin();
-			 muon !=  outputMuons->end(); ++muon )
-		     {
-			if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
-			     cos(phiOfMuonIneteractionRegion(*muon) - 
-				 phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
-			  {
-			     newMuon = false;
-			     muon->setMatches( trackerMuon.matches() );
-			     if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
-			     if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
-			     muon->setType( muon->type() | reco::Muon::TrackerMuon );
-			     LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
-			     break;
-			  }
-		     }
-		   if ( newMuon ) outputMuons->push_back( trackerMuon );
-		} else {
-		   LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-		   const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
+		bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
+		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
+		      muon !=  outputMuons->end(); ++muon )
+		  {
+		     if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
+			  cos(phiOfMuonIneteractionRegion(*muon) - 
+			      phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
+		       {
+			  newMuon = false;
+			  muon->setMatches( trackerMuon.matches() );
+			  if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
+			  if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
+			  if (goodTrackerMuon) muon->setType( muon->type() | reco::Muon::TrackerMuon );
+			  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
+			  break;
+		       }
+		  }
+		if ( newMuon ) {
+		   if ( goodTrackerMuon ){
+		      outputMuons->push_back( trackerMuon );
+		   } else {
+		      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+		      const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
 		      if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ ) continue;
-		   caloMuons->push_back( caloMuon );
+		      caloMuons->push_back( caloMuon );
+		   }
 		}
 	     }
 	}
