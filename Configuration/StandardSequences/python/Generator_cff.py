@@ -53,8 +53,11 @@ pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexS
 # this sequence is intended for HI runs/studies;
 # it'll be modified, as HI-specific "genParts" will be included
 #
-pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing)
 
-from SimGeneral.MixingModule.himixGEN_cff import *
+from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
 
-pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+hiSignalGenSequence)
+pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+hiGenParticles)
+
+from SimGeneral.MixingModule.MatchVtx_cfi import *
+
+pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+matchVtx+hiGenParticles)
