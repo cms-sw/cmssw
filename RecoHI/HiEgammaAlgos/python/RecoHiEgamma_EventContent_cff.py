@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 RecoHiEgammaFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep recoSuperClusters_*_*_*',
+    'keep recoCaloClusters_*_*_*',
     'keep EcalRecHitsSorted_*_*_*',
     'keep floatedmValueMap_*_*_*'
     )
@@ -11,6 +12,7 @@ RecoHiEgammaFEVT = cms.PSet(
 RecoHiEgammaRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep recoSuperClusters_*_*_*',
+    'keep recoCaloClusters_*_*_*',
     'keep EcalRecHitsSorted_*_*_*',
     'keep floatedmValueMap_*_*_*'  # isolation not created yet in RECO step, but in case it is later
     )
