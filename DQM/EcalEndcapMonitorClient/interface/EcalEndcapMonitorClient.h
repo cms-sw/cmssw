@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2009/04/17 07:17:33 $
- * $Revision: 1.52 $
+ * $Date: 2009/08/27 15:57:07 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,7 +27,6 @@
 #include "TROOT.h"
 #include "TH1.h"
 
-class DQMOldReceiver;
 class DQMStore;
 class RunIOV;
 class MonRunIOV;
@@ -111,9 +110,6 @@ std::string prefixME_;
 
 std::string clientName_;
 
-std::string hostName_;
-int         hostPort_;
-
 std::string inputFile_;
 std::string referenceFile_;
  
@@ -154,10 +150,7 @@ std::map<std::string,int> clientsStatus_;
 
 EESummaryClient* summaryClient_;
 
-DQMOldReceiver* mui_;
 DQMStore* dqmStore_;
- 
-bool enableUpdate_;
  
 std::string location_;
 

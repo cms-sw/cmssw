@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/09/01 09:50:13 $
- * $Revision: 1.460 $
+ * $Date: 2009/09/01 09:52:49 $
+ * $Revision: 1.461 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -184,18 +184,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     cout << " prescaleFactor = " << prescaleFactor_ << endl;
   }
 
-  // enableMonitorDaemon switch
-
-  enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", false);
-
-  if ( verbose_ ) {
-    if ( enableMonitorDaemon_ ) {
-      cout << " enableMonitorDaemon switch is ON" << endl;
-    } else {
-      cout << " enableMonitorDaemon switch is OFF" << endl;
-    }
-  }
-
   // prefixME path
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -216,38 +204,12 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) {
     }
   }
 
-  // enableUpdate switch
-
-  enableUpdate_ = ps.getUntrackedParameter<bool>("enableUpdate", false);
-
-  if ( verbose_ ) {
-    if ( enableUpdate_ ) {
-      cout << " enableUpdate switch is ON" << endl;
-    } else {
-      cout << " enableUpdate switch is OFF" << endl;
-    }
-  }
-
   // DQM Client name
 
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
-  if ( enableMonitorDaemon_ ) {
-
-    // DQM Collector hostname
-
-    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
-
-    // DQM Collector port
-
-    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
-
-    if ( verbose_ ) {
-      cout << " Client '" << clientName_ << "' " << endl
-           << " Collector on host '" << hostName_ << "'"
-           << " on port '" << hostPort_ << "'" << endl;
-    }
-
+  if ( verbose_ ) {
+    cout << " Client '" << clientName_ << "' " << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -611,8 +573,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient() {
 
   if ( summaryClient_ ) delete summaryClient_;
 
-  if ( enableMonitorDaemon_ ) delete mui_;
-
 }
 
 void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
@@ -646,28 +606,13 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   last_time_update_ = current_time_;
   last_time_db_ = current_time_;
 
-  if ( enableMonitorDaemon_ ) {
+  // get hold of back-end interface
 
-    // start DQM user interface instance
-    // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
+  dqmStore_ = Service<DQMStore>().operator->();
 
-    mui_ = new DQMOldReceiver(hostName_, hostPort_, clientName_, 5);
-    dqmStore_ = mui_->getBEInterface();
-
-  } else {
-
-    // get hold of back-end interface
-
-    mui_ = 0;
-    dqmStore_ = Service<DQMStore>().operator->();
-
-  }
-
-  if ( ! enableMonitorDaemon_ ) {
-    if ( inputFile_.size() != 0 ) {
-      if ( dqmStore_ ) {
-        dqmStore_->open(inputFile_);
-      }
+  if ( inputFile_.size() != 0 ) {
+    if ( dqmStore_ ) {
+      dqmStore_->open(inputFile_);
     }
   }
 
@@ -1135,7 +1080,7 @@ void EcalBarrelMonitorClient::writeDb() {
     moniov_.setRunIOV(runiov_);
     moniov_.setSubRunNumber(subrun_);
 
-    if ( enableMonitorDaemon_ || subrun_ > 1 ) {
+    if ( subrun_ > 1 ) {
       moniov_.setSubRunStart(startSubRun);
     } else {
       moniov_.setSubRunStart(runiov_.getRunStart());
@@ -1379,11 +1324,6 @@ void EcalBarrelMonitorClient::analyze(void) {
   jevt_++;
 
   if ( debug_ ) cout << "EcalBarrelMonitorClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
-
-  // update MEs (online mode)
-  if ( enableUpdate_ ) {
-    if ( enableMonitorDaemon_ ) mui_->doMonitoring();
-  }
 
   MonitorElement* me;
   string s;
