@@ -1063,7 +1063,10 @@ class GenObject (object):
         for word in words:
             match = GenObject._singleColonRE.search (word)
             if match:
-                runevent.__setattr__ (match.group(1), int(match.group(2)))
+                # for now, I'm assuming everything in the runevent
+                # tuple is an integer.  If this isn't the case, I'll
+                # have to come back and be more clever here.
+                runevent.__setattr__ (match.group(1), int( match.group(2) ))
         return runevent
                                      
 
