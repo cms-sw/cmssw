@@ -99,6 +99,12 @@ from PhysicsTools.PatAlgos.tools.metTools import *
 addTcMET(process,'TC')
 addPfMET(process,'PF')
 
+# Add latest HcalNoiseSummary
+process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
+process.hcalnoise.refillRefVectors = True
+process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise" # This has changed in 33X
+
+
 #-- Tune contents of jet collections  -----------------------------------------
 for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT' ):
     module = getattr(process,'allLayer1Jets'+jetName)
@@ -148,7 +154,7 @@ process.out.outputCommands.extend( [ # PAT Objects
                                      'keep recoSuperClusters_corrected*_*_*',
                                      'keep recoConversions_conversions_*_*',
                                      'keep recoTracks_*onversions_*_*',
-                                     'keep HcalNoiseSummary_*_*_*',
+                                     'keep HcalNoiseSummary_*_*_'+process.name_(), # Only keep the one we create
                                      'keep recoPFCandidates_particleFlow_*_*'
                                      ] )
 
@@ -181,5 +187,5 @@ for jets in ( 'AK5', 'SC5','IC5PF','IC5JPT' ):
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
 
 # Full path
-process.p = cms.Path( process.patDefaultSequence*process.patTrigger*process.patTriggerEvent )
+process.p = cms.Path( process.hcalnoise*process.patDefaultSequence*process.patTrigger*process.patTriggerEvent )
 
