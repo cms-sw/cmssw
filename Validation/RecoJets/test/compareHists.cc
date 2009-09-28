@@ -344,7 +344,7 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirIn = 0;
-  std::string workDir = std::string ("DQMData/RecoJetsV/") + moduleName ; // new format
+  std::string workDir = std::string ("DQMData/JetMET/RecoJetsV/") + moduleName ; // new format
   inputFile->GetObject (workDir.c_str(), dirIn);
 
   if (!dirIn) {
@@ -366,7 +366,7 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirRef = 0;
-  //  workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + refmoduleName; // new format
+  //  workDir = std::string ("DQMData/JetMET/RecoJetsV/CaloJetTask_") + refmoduleName; // new format
   workDir = std::string ("DQMData/RecoJetsV/") + refmoduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
 

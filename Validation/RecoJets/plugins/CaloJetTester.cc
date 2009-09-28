@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.17 2009/06/16 15:54:04 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.18 2009/07/13 19:02:55 chjeong Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -96,7 +96,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
-    dbe->setCurrentFolder("RecoJetsV/CaloJetTask_" + mInputCollection.label());
+    dbe->setCurrentFolder("JetMET/RecoJetsV/CaloJetTask_" + mInputCollection.label());
     //
     numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2);
     //

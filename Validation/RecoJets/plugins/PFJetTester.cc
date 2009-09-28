@@ -63,7 +63,7 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
   DQMStore* dbe = &*edm::Service<DQMStore>();
   if (dbe) {
     //cout<<" Creating the histograms -----------------------------------------------------> 3"<<endl;//////////////////////
-    dbe->setCurrentFolder("RecoJetsV/PFJetTask_" + mInputCollection.label());
+    dbe->setCurrentFolder("JetMET/RecoJetsV/PFJetTask_" + mInputCollection.label());
 
     numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2); // new
     
