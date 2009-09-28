@@ -75,6 +75,7 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     # add jet ID
     addJetID = cms.bool(True),
     jetID = cms.PSet(
+        useRecHits = cms.bool(True),
         hbheRecHitsColl = cms.InputTag("hbhereco"),
         hoRecHitsColl   = cms.InputTag("horeco"),
         hfRecHitsColl   = cms.InputTag("hfreco"),
