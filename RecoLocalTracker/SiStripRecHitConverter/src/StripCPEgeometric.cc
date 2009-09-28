@@ -39,23 +39,25 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
             (track.z()>0) ? -fabs(p.thickness/track.z()) :  
                              p.maxLength/track.mag() ;
 
-  const stats_t<float> projection = find_projection( p, track, pos );
+  const float lfp(lateFrontPlane(p.subdet)), lbp(lateBackPlane(p.subdet));
+  const float fullProjection = p.coveredStrips( track+p.drift, pos );
+  stats_t<float> projection;
+  {
+    const float absProj = fabs( (1-lfp-lbp) * fullProjection );
+    const float minProj = 2*p.thickness*tan_diffusion_angle/p.topology->localPitch(pos);
+    const float projection_rel_err2 = thickness_rel_err2 + p.pitch_rel_err2;
+    projection = stats_t<float>::from_relative_uncertainty2( std::max(absProj, minProj), projection_rel_err2);
+  }
+
   const std::vector<stats_t<float> > Q = reco::InverseCrosstalkMatrix::unfold( cluster.amplitudes(), crosstalk[p.subdet] );
   const stats_t<float> strip = cluster.firstStrip() + offset_from_firstStrip( Q, projection );
 
-  const float corrected = p.driftCorrected( strip() , pos );
+  const float corrected = strip() -  0.5*(1-lbp+lfp) * fullProjection
+    + 0.5*p.coveredStrips(track, ltp.position());
   const float error2 = std::max( strip.error2(), minimum_uncertainty_squared );  
 
   return std::make_pair( p.topology->localPosition( corrected ),
 			 p.topology->localError( corrected, error2 ) );
-}
-
-stats_t<float> StripCPEgeometric::
-find_projection(const StripCPE::Param& p, const LocalVector& track, const LocalPoint& position) const {
-  const float projection = fabs( p.coveredStrips( track+p.drift, position ));
-  const float minProjection = 2*p.thickness*tan_diffusion_angle/p.topology->localPitch(position);
-  const float projection_rel_err2 = thickness_rel_err2 + p.pitch_rel_err2;
-  return stats_t<float>::from_relative_uncertainty2( std::max(projection, minProjection), projection_rel_err2);
 }
 
 stats_t<float> StripCPEgeometric::

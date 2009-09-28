@@ -32,22 +32,21 @@ public:
     Param() : topology(0) {}
     StripTopology const * topology;
     LocalVector drift;
-    float thickness;
-    float pitch_rel_err2;
-    float maxLength;
+    float thickness, pitch_rel_err2, maxLength;
     int nstrips;
     SiStripDetId::SubDetector subdet;
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
-    float driftCorrected(const float strip, const LocalPoint&) const;
-    float driftCorrected(const float strip) const;
   };
   Param const & param(const uint32_t detid) const;
+  float lateFrontPlane(SiStripDetId) const;
+  float lateBackPlane(SiStripDetId) const;
 
 private:
 
   Param & fillParam(Param & p, const GeomDetUnit *  det);
   typedef  __gnu_cxx::hash_map< unsigned int, Param> Params;  
   Params m_Params;
-  
+  vector<pair<float,float> > late;
+
 };
 #endif

@@ -40,7 +40,6 @@ class StripCPEgeometric : public StripCPE
     std::vector<stats_t<float> >::const_iterator clusterFirst, first;
   };
 
-  stats_t<float> find_projection(const StripCPE::Param&, const LocalVector&, const LocalPoint&) const;
   stats_t<float> offset_from_firstStrip( const std::vector<stats_t<float> >&, const stats_t<float>&) const;
   stats_t<float> geometric_position(const WrappedCluster&, const stats_t<float>&) const;
   bool useNPlusOne(const WrappedCluster&, const stats_t<float>&) const;

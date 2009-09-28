@@ -10,27 +10,28 @@ StripCPE::StripCPE( edm::ParameterSet & conf,
 		    const SiStripLorentzAngle* LorentzAngle)
   : geom_(geom),
     magfield_(mag),
-    LorentzAngleMap_(LorentzAngle) {}
+    LorentzAngleMap_(LorentzAngle)
+{
+  edm::ParameterSet outoftime = conf.getParameter<edm::ParameterSet>("OutOfTime");
+  late.push_back( std::make_pair(outoftime.getParameter<double>("TIBlateFP"),outoftime.getParameter<double>("TIBlateBP")));
+  late.push_back( std::make_pair(outoftime.getParameter<double>("TIDlateFP"),outoftime.getParameter<double>("TIDlateBP")));
+  late.push_back( std::make_pair(outoftime.getParameter<double>("TOBlateFP"),outoftime.getParameter<double>("TOBlateBP")));
+  late.push_back( std::make_pair(outoftime.getParameter<double>("TEClateFP"),outoftime.getParameter<double>("TEClateBP")));
+}
 
 
 StripClusterParameterEstimator::LocalValues StripCPE::
 localParameters( const SiStripCluster& cluster) const {
   StripCPE::Param const & p = param(cluster.geographicalId());
-  const float strip = p.driftCorrected( cluster.barycenter() );
+  const float lfp(lateFrontPlane(p.subdet)), lbp(lateBackPlane(p.subdet));
+  const float barycenter = cluster.barycenter();
+  const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), LocalPoint(barycenter,0,0));
+  const float strip = barycenter - 0.5 * (1-lbp+lfp) * fullProjection;
+  // + 0.5*p.coveredStrips(track, ltp.position()); unnecessary, since hypothesized perpendicular track covers no strips.
+
   return std::make_pair( p.topology->localPosition(strip),
 			 p.topology->localError(strip, 1/12.) );
 }
-
-float StripCPE::Param::
-driftCorrected(const float strip) const {
-  return driftCorrected(strip, topology->localPosition(strip));
-}
-
-float StripCPE::Param::
-driftCorrected(const float strip, const LocalPoint& lpos) const {
-  return strip - 0.5*coveredStrips(drift, lpos);
-}
-
 
 float StripCPE::Param::
 coveredStrips(const LocalVector& lvec, const LocalPoint& lpos) const {  
@@ -38,7 +39,6 @@ coveredStrips(const LocalVector& lvec, const LocalPoint& lpos) const {
     topology->measurementPosition(lpos + 0.5*lvec).x() 
     - topology->measurementPosition(lpos - 0.5*lvec).x();
 }
-
 
 LocalVector StripCPE::
 driftDirection(const StripGeomDetUnit* det) const { 
@@ -52,8 +52,6 @@ driftDirection(const StripGeomDetUnit* det) const {
   
   return LocalVector(dir_x,dir_y,dir_z);
 }
-
-
 
 StripCPE::Param const & StripCPE::
 param(const uint32_t detid) const {
@@ -80,4 +78,14 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
     : 0;
   
   return p;
+}
+
+float StripCPE::
+lateFrontPlane(SiStripDetId subdet) const {
+  return late[subdet.subDetector()-SiStripDetId::TIB].first;
+}
+
+float StripCPE::
+lateBackPlane(SiStripDetId subdet) const {
+  return late[subdet.subDetector()-SiStripDetId::TIB].second;
 }

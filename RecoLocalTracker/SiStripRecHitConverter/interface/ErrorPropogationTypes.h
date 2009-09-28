@@ -40,6 +40,7 @@ class stats_t :
   private:
   T value, err2;
   public:
+  stats_t() : value(0), err2(1) {}
   stats_t(count_t c) : value(c()), err2(c.error2()) {}
   stats_t(T q, T e2) : value(q), err2(e2) {}
   static stats_t from_relative_uncertainty2(T q, T re2) { return stats_t(q,q*q*re2);}

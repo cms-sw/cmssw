@@ -17,11 +17,15 @@ localParameters( const SiStripCluster& cluster, const LocalTrajectoryParameters&
     (track.z()>0) ? -fabs(p.thickness/track.z()) :  
                          p.maxLength/track.mag() ;
 
-  const unsigned N = cluster.amplitudes().size();
-  const float uProj = p.coveredStrips( track+p.drift, ltp.position());
-  const float uerr2 = stripErrorSquared( N, fabs(uProj) );
-  const float strip = p.driftCorrected( cluster.barycenter(), ltp.position());
+  const float lfp(lateFrontPlane(p.subdet)), lbp(lateBackPlane(p.subdet));
 
+  const unsigned N = cluster.amplitudes().size();
+  const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
+  const float uProj = (1-lbp-lfp) * fullProjection; 
+  const float uerr2 = stripErrorSquared( N, fabs(uProj) );
+  const float strip = cluster.barycenter() -  0.5*(1-lbp+lfp) * fullProjection
+    + 0.5*p.coveredStrips(track, ltp.position());
+  
   return std::make_pair( p.topology->localPosition(strip),
 			 p.topology->localError(strip, uerr2) );
 }
