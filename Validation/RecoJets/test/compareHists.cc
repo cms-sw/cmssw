@@ -92,7 +92,8 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   TText* t1 = title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
   TText* t2 = title.AddText (buf);
-  // t2->SetTextSize(0.3);
+  t1->SetTextSize(0.3);
+  t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -138,7 +139,8 @@ double makeGifHists2 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   TText* t1 = title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
   TText* t2 = title.AddText (buf);
-  // t2->SetTextSize(0.3);
+  t1->SetTextSize(0.3);
+  t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -186,7 +188,8 @@ double makeGifHists3 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   TText* t1 = title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
   TText* t2 = title.AddText (buf);
-  // t2->SetTextSize(0.3);
+  t1->SetTextSize(0.3);
+  t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -233,7 +236,8 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   TText* t1 = title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
   TText* t2 = title.AddText (buf);
-  // t2->SetTextSize(0.3);
+  t1->SetTextSize(0.3);
+  t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -285,7 +289,7 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
 
 //----------
 int main (int argn, char* argv []) {
-  int result = 0; // OK
+  //int result = 0; // OK
 
   if (argn < 6) {
     std::cout << "Usage: " 
