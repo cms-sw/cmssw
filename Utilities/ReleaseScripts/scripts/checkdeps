@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.6 2009/09/01 09:37:46 eulisse Exp $
+# $Id: checkdeps,v 1.7 2009/09/22 17:12:16 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -29,7 +29,7 @@ foreach my $arg (@ARGV) {
     elsif ( $arg eq "-p" ) {
 	$checkpython=1;
     }
-    elsif ( $arg eq "-c" ) {
+    elsif ( $arg eq "-h" ) {
 	$checkheader=1;
     }
     else{
@@ -40,7 +40,7 @@ foreach my $arg (@ARGV) {
 	print "   and rebuilding them should provide a full and consistent build.\n";
 	print "\nUsage: \n";
 	print "   -p look for python modules and their dependencies (ON by default)\n";
-	print "   -c look for header files and their dependencies   (ON by default)\n";
+	print "   -h look for header files and their dependencies   (ON by default)\n";
 	print "   -a will checkout the packages into your development area (done by addpkg)\n\n";
 	exit;
     }
@@ -82,12 +82,12 @@ if ( $isaddpkg =~ /Command not found/) {
 
 my %vals=();
 if ($checkheader){
-    &readDependencyInfo("$ENV{'LOCALRT'}/etc/dependencies/usedby.out.gz",\%vals);
+    &readDependencyInfo("$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/usedby.out.gz",\%vals);
 }
 
 if ($checkpython) {
-    if (-e "$ENV{'LOCALRT'}/etc/dependencies/pyusedby.out.gz") {
-        &readDependencyInfo("$ENV{'LOCALRT'}/etc/dependencies/pyusedby.out.gz",\%vals);
+    if (-e "$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/pyusedby.out.gz") {
+        &readDependencyInfo("$ENV{'CMSSW_RELEASE_BASE'}/etc/dependencies/pyusedby.out.gz",\%vals);
     }
 }
 
@@ -134,24 +134,24 @@ foreach my $package (@packages) {
     }
 }
 
-my @recompileList;
+my %recompileList;
 foreach my $file (@changedFiles) {
     next if (!(exists $vals{$file}));
     foreach my $dep (@{$vals{$file}}) {
 	my @sp=split('/',$dep);
 	my $recompile="$sp[0]/$sp[1]";
-	if (!(grep {$_ eq $recompile} @recompileList)) {
-	    if (!(grep {$_ eq $recompile} @packages)) {
-		push(@recompileList,$recompile);
-	    }
+	if (!(grep {$_ eq $recompile} @packages)) {
+	    my $scope="header";
+	    if ($file=~/\.py$/o){$scope="python";}
+	    $recompileList{$recompile}{$scope}=1;
 	}
     }
 }
 
-my @t=sort(@recompileList);
+my @t=sort(keys %recompileList);
 my $len=scalar(@t);
 if ( $runAddpkg == 0 ) {
-    print "Packages to check out and compile:\n";
+    print "Packages to check out and compile: $len\n";
 }
 else{
     print "Checking out these packages\n";
@@ -159,16 +159,13 @@ else{
 
 if ( $len > 0 ) {
     foreach my $i (@t) {
-	print "$i\n";
+	print "$i (",join(", ",sort keys %{$recompileList{$i}}),")\n";
     }
     if ( $runAddpkg == 1 ) {
 	foreach my $i (@t) {
 	    system("addpkg $i");
 	}
     }
-}
-else{
-    print "None\n";
 }
 
 sub readDependencyInfo()
