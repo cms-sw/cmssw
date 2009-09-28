@@ -40,7 +40,7 @@ int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPed
 }
 
 int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, 
-					      const  map<EcalLogicID, FEConfigParamDat> & linparamset, int iovId, string tag) {
+					      const  map<EcalLogicID, FEConfigLinParamDat> & linparamset, int iovId, string tag) {
   
   int result=0;
 
@@ -225,7 +225,8 @@ int EcalTPGDBApp::writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidi
 }
 
 int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupDat> & lutgroupset,
-					const  map<EcalLogicID, FEConfigLUTDat> & lutset, int iovId, string tag) 
+					const  map<EcalLogicID, FEConfigLUTDat> & lutset, 
+				       const  map<EcalLogicID, FEConfigLUTParamDat> & lutparamset,int iovId, string tag) 
 {
   cout << "*****************************************" << endl;
   cout << "************Inserting LUT************" << endl;
@@ -244,6 +245,8 @@ int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupD
   insertDataArraySet(&lutgroupset, &fe_lut_info);
   // Insert the dataset
   insertDataArraySet(&lutset, &fe_lut_info);
+  // insert the parameters
+  insertDataArraySet(&lutparamset, &fe_lut_info);
   
   result=fe_lut_info.getId();
 
@@ -288,7 +291,11 @@ int EcalTPGDBApp::writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeight
 
 
 int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupDat> & fgrgroupset,
-					const  map<EcalLogicID, FEConfigFgrDat> & fgrset, int iovId, string tag) 
+				       const  map<EcalLogicID, FEConfigFgrDat> & fgrset,  
+				       const  map<EcalLogicID, FEConfigFgrParamDat> & fgrparamset,
+				       const  map<EcalLogicID, FEConfigFgrEETowerDat> & dataset3, 
+				       const  map<EcalLogicID, FEConfigFgrEEStripDat> & dataset4,
+				       int iovId, string tag) 
 {
   cout << "*****************************************" << endl;
   cout << "************Inserting Fgr************" << endl;
@@ -307,6 +314,12 @@ int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupD
   insertDataArraySet(&fgrgroupset, &fe_fgr_info);
   // Insert the dataset
   insertDataArraySet(&fgrset, &fe_fgr_info);
+  // Insert the parameters
+  insertDataArraySet(&fgrparamset, &fe_fgr_info);
+  // Insert the parameters
+  insertDataArraySet(&dataset3, &fe_fgr_info);
+  // Insert the parameters
+  insertDataArraySet(&dataset4, &fe_fgr_info);
   
   result=fe_fgr_info.getId();
 
