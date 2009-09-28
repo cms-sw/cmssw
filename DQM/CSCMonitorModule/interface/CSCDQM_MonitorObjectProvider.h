@@ -26,9 +26,9 @@
 
 namespace cscdqm {
 
-  typedef enum HistoType { INT, FLOAT, STRING, H1D, H2D, H3D, PROFILE, PROFILE2D };
+  enum HistoType { INT, FLOAT, STRING, H1D, H2D, H3D, PROFILE, PROFILE2D };
 
-  typedef struct HistoBookRequest {
+  struct HistoBookRequest {
 
     const HistoDef *hdef;
     HistoType htype;

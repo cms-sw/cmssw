@@ -37,7 +37,7 @@
 namespace cscdqm {
 
   /** @brief Chamber MO List object definition */
-  typedef struct CSCHistoKeyType {
+  struct CSCHistoKeyType {
     HistoId id;
     HwId addId;
     const MonitorObject* mo;
@@ -59,7 +59,7 @@ namespace cscdqm {
   > CSCHistoMapType;
 
   /** @brief Chamber List object definition */
-  typedef struct CSCKeyType {
+  struct CSCKeyType {
     HwId crateId;
     HwId dmbId;
     CSCHistoMapType mos;
@@ -84,7 +84,7 @@ namespace cscdqm {
   typedef std::map<HwId, MonitorObject**> DDUMapType;
 
   /** @brief MO Lookup List object definition */
-  typedef struct LookupKeyType {
+  struct LookupKeyType {
     HistoDef histo;
     std::string path;
     MonitorObject* mo;
