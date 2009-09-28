@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre4/8E29/V6 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
+# /dev/CMSSW_3_3_0/pre4/8E29/V7 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V6')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/8E29/V7')
 )
 
 
@@ -1604,14 +1604,7 @@ hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
 hltL2Muons = cms.EDProducer( "L2MuonProducer",
     InputObjects = cms.InputTag( "hltL2MuonSeeds" ),
     L2TrajBuilderParameters = cms.PSet( 
-      RefitterParameters = cms.PSet( 
-        FitterName = cms.string( "KFFitterSmootherForL2Muon" ),
-        NumberOfIterations = cms.uint32( 3 ),
-        ForceAllIterations = cms.bool( False ),
-        MaxFractionOfLostHits = cms.double( 0.05 ),
-        RescaleError = cms.double( 100.0 )
-      ),
-      DoRefit = cms.bool( True ),
+      DoRefit = cms.bool( False ),
       SeedPropagator = cms.string( "FastSteppingHelixPropagatorAny" ),
       NavigationType = cms.string( "Standard" ),
       SeedTransformerParameters = cms.PSet( 
