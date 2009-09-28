@@ -13,4 +13,4 @@ higgsToWW2LeptonsHLTFilter.throw = False # tolerate triggers not available
 #higgsToWW2LeptonsHLTFilter.HLTPaths = ['HLT_Mu3','HLT_Ele10_LW_L1R']
 
 #Lum 1E31
-higgsToWW2LeptonsHLTFilter.HLTPaths = ['HLT_Mu15','HLT_Ele15_SW_LooseTrackIso_L1R']
+higgsToWW2LeptonsHLTFilter.HLTPaths = ['HLT_Mu9','HLT_Ele10_LW_EleId_L1R']

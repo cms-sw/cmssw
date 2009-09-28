@@ -8,7 +8,7 @@ higgsToWW2LeptonsFilter = cms.EDFilter("HiggsToWW2LeptonsSkim",
     GlobalMuonCollectionLabel = cms.InputTag("globalMuons"),
     DiLeptonPtMin = cms.double(10.0),
     etaMax = cms.double(2.4),
-    beTight = cms.bool(True),
+    beTight = cms.bool(False),
     dilepM = cms.double(6),
     eleHadronicOverEm = cms.double(0.5)
 
