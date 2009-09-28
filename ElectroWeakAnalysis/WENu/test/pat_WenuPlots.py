@@ -38,7 +38,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ## pat sequences to be loaded:
 process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
+#process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
 ##
 #
 # for ecal isolation: set the correct name of the ECAL rechit collection
@@ -49,20 +49,7 @@ process.eleIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("r
 #
 process.eidRobustHighEnergy.reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB", "", "RECO")
 process.eidRobustHighEnergy.reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE", "", "RECO")     
-## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-## CHOICE OF THE HLT PATH     this section is not used from PAT
-##                            
-## Define here as string the names of the triggers only once
-## please consult the table of the available triggers at the end of this file
-# trigger menu selection
-##
-#process.patTrigger.processName = cms.string(HLT_process_name)  
-#process.patTriggerMatcher = cms.Sequence(process.patTriggerElectronMatcher)
-#process.electronTriggerMatchHltElectrons.pathNames = cms.vstring(HLT_path_name)
-#process.patTriggerMatchEmbedder = cms.Sequence(process.cleanLayer1ElectronsTriggerMatch)
-#process.patTriggerSequence = cms.Sequence(process.patTrigger*process.patTriggerMatcher*
-#                                          process.patTriggerMatchEmbedder)
-##
+
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## MET creation     <=== WARNING: YOU MAY WANT TO MODIFY THIS PART OF THE CODE       %%%%%%%%%%%%%
 ##                                specify the names of the MET collections that you need here %%%%
@@ -81,6 +68,34 @@ process.makeLayer1METs = cms.Sequence(process.patMETCorrections * process.layer1
                                       process.layer1RawCaloMETs)
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
+process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
+process.electronEcalRecHitIsolationScone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
+process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")
+process.electronEcalRecHitIsolationScone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")
+#
+process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitCollection = cms.InputTag("")
+process.electronEcalRecHitIsolationScone.ecalBarrelRecHitCollection = cms.InputTag("")
+process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitCollection = cms.InputTag("")
+process.electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection = cms.InputTag("")
+#
+#
+process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
+process.allLayer1Electrons.isolation = cms.PSet(
+    tracker = cms.PSet(
+      src = cms.InputTag("electronTrackIsolationScone"),
+    ),
+    ecal = cms.PSet(
+      src = cms.InputTag("electronEcalRecHitIsolationLcone"),
+    ),
+    hcal = cms.PSet(
+      src = cms.InputTag("electronHcalTowerIsolationLcone"),
+    ),
+    )
+process.allLayer1Electrons.isoDeposits = cms.PSet()
+process.allLayer1Electrons.addElectronID = cms.bool(False)
+process.allLayer1Electrons.electronIDSources = cms.PSet()
+
 process.allLayer1Objects = cms.Sequence(process.makeAllLayer1Electrons+process.makeAllLayer1Muons+process.makeLayer1METs)
 process.selectedLayer1Objects = cms.Sequence(process.selectedLayer1Electrons+process.selectedLayer1Muons)
 process.cleanLayer1Objects  = cms.Sequence(process.cleanLayer1Muons*process.cleanLayer1Electrons)
