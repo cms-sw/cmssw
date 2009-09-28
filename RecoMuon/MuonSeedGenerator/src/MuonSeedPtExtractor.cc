@@ -1,5 +1,5 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
@@ -303,23 +303,26 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
         //std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
     ParametersMap::const_iterator parametersItr = theParametersForCombo.find(combination);
     if(parametersItr == theParametersForCombo.end()) {
-       throw cms::Exception("MuonSeedPtEstimator") << "Cannot find parameters for combo " << combination;
-    }
+      edm::LogWarning("RecoMuon|MuonSeedGenerator|MuonSeedPtExtractor") << "Cannot find parameters for combo " << combination;
+      pTestimate[0] = pTestimate[1] = 100;
+      //       throw cms::Exception("MuonSeedPtEstimator") << "Cannot find parameters for combo " << combination;
+    } else {
 
-    if(scaleDT_ && outerHit->isDT() )
-    {
-       pTestimate = getPt(parametersItr->second, eta, dPhi, combination, detId_outer);
+      if(scaleDT_ && outerHit->isDT() )
+	{
+	  pTestimate = getPt(parametersItr->second, eta, dPhi, combination, detId_outer);
+	}
+      else 
+	{
+	  pTestimate = getPt(parametersItr->second, eta, dPhi);
+	}
+      
+      if(singleSegment){
+	pTestimate[0] = fabs(pTestimate[0]);
+	pTestimate[1] = fabs(pTestimate[1]);
+      }
+      pTestimate[0] *= double(sign);
     }
-    else 
-    {
-       pTestimate = getPt(parametersItr->second, eta, dPhi);
-    }
-
-    if(singleSegment){
-      pTestimate[0] = fabs(pTestimate[0]);
-      pTestimate[1] = fabs(pTestimate[1]);
-    }
-    pTestimate[0] *= double(sign);
   }
   else{
     // often a MB3 - ME1/3 seed
