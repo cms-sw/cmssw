@@ -9,13 +9,24 @@ process = cms.Process("JETVALIDATION")
 #process.load("Configuration.StandardSequences.Simulation_cff")
 #process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 #process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+#
+# DQM
+#
+process.load("DQMServices.Core.DQM_cfg")
+
+# check # of bins
+process.load("DQMServices.Components.DQMStoreStats_cfi")
 
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff")
+
+# Validation module
+process.load("Validation.RecoJets.JetValidation_cff")
 
 process.maxEvents = cms.untracked.PSet(
        input = cms.untracked.int32(-1)
@@ -46,7 +57,6 @@ process.source = cms.Source("PoolSource",
         #'/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/16E5D232-D66B-DE11-85E0-001D09F2924F.root',
         #'/store/relval/CMSSW_3_1_1/RelValQCD_Pt_3000_3500/GEN-SIM-RECO/MC_31X_V2-v1/0002/000F823D-B86B-DE11-90C2-000423D98B6C.root'
 
-
     )
 
 )
@@ -66,21 +76,21 @@ process.L2L3CorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
 ## IC5 Corrected jets
 process.JetAnalyzerIC5Cor = cms.EDAnalyzer("CaloJetTester",
     src = cms.InputTag("L2L3CorJetIcone5"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),                                
+    srcGen = cms.InputTag("iterativeCone5GenJets"),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),                                
+#    outputFile = cms.untracked.string('histo.root'),
 #    outputFile = cms.untracked.string('test.root'),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
 ## IC5 JPT jets
 process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),                                
+    srcGen = cms.InputTag("iterativeCone5GenJets"),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),
@@ -88,13 +98,13 @@ process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                 
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
 ## AntiKt5 JPT jets
 process.JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-    srcGen = cms.InputTag("ak5GenJets"),                                
+    srcGen = cms.InputTag("ak5GenJets"),
 #    TurnOnEverything = cms.untracked.string('yes'),
 #    TurnOnEverything = cms.untracked.string('no'),
 #    outputFile = cms.untracked.string('histo.root'),
@@ -102,17 +112,23 @@ process.JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                 
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-
-process.p1 = cms.Path(process.fileSaver*process.L2L3CorJetIcone5
-                      *process.JetAnalyzerIC5Cor
+process.p1 = cms.Path(process.fileSaver
+                      #--- Non-Standard sequence (that involve Producers)
+                      *process.L2L3CorJetIcone5
                       *process.ZSPJetCorrectionsIcone5
                       *process.ZSPJetCorrectionsAntiKt5
                       *process.JetPlusTrackCorrectionsIcone5
                       *process.JetPlusTrackCorrectionsAntiKt5
                       *process.JetAnalyzerIC5Cor
-                      *process.JetAnalyzerAk5Cor
+                      *process.JetAnalyzerIC5JPT
+                      *process.JetAnalyzerAk5JPT
+                      #--- Standard sequence
                       *process.JetValidation)
+                      #--- DQM stats module
+                      #*process.dqmStoreStats)
+
+process.DQM.collectorHost = ''
 
