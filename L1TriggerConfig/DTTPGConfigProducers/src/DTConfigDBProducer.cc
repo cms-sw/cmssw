@@ -143,7 +143,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   {
   	cout << ccb_conf->version() << endl;
   	cout << ndata << " data in the container" << endl;
-  	cout << "Full config key: " << ccb_conf->fullKey() << endl;
+// SV 090928 : update for Paolo Ronchese new tags CondFormats/DTObjects V07-01-02 and CondTools/DT          V07-01-02
+//  	cout << "Full config key: " << ccb_conf->fullKey() << endl;
   }
 
   edm::ValidityInterval iov(iRecord.getRecord<DTCCBConfigRcd>().validityInterval() );
