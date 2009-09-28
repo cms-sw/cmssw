@@ -68,6 +68,7 @@ def getObjectList (objectName, base):
     rootObjConstructor = getattr (ROOT, objectName)
     obj = rootObjConstructor()
     alreadySeenFunction = set()
+    etaFound, phiFound = False, False
     global vetoedTypes
     retval = []
     # Put the current class on the queue and start the while loop
@@ -81,6 +82,10 @@ def getObjectList (objectName, base):
             funcMember = reflex.FunctionMemberAt (index)
             # if we've already seen this, don't bother again
             name = funcMember.Name()
+            if name == 'eta':
+                etaFound = True
+            elif name == 'phi':
+                phiFound = True
             if name  in alreadySeenFunction:
                 continue
             # make sure this is an allowed return type
@@ -96,7 +101,7 @@ def getObjectList (objectName, base):
                 #print "  %3d) %-30s %-20s" % (index, name, returnType)
                 alreadySeenFunction.add( name )
     retval.sort()
-    return retval
+    return retval, etaFound and phiFound
 
 
 def genObjNameDef (line):
@@ -108,7 +113,7 @@ def genObjNameDef (line):
     return name, func
     
     
-def genObjectDef (mylist, tuple, alias, label, type):
+def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
     """ """
     print "tuple %s alias %s label %s type %s" % (tuple, alias, label, type)
     # first get the name of the object
@@ -120,7 +125,7 @@ def genObjectDef (mylist, tuple, alias, label, type):
     genName = match.group (1)
     genDef =  " ## GenObject %s Definition ##\n[%s]\n" % \
              (genName, genName)
-    if options.index:
+    if options.index or not etaPhiFound:
         genDef += "-equiv: index,0\n";
     else:
         genDef += "-equiv: eta,0.1 phi,0.1\n";
@@ -177,13 +182,14 @@ if __name__ == "__main__":
     ROOT.gSystem.Load("libDataFormatsFWLite")   
     ROOT.gSystem.Load("libReflexDict")
     ROOT.AutoLibraryLoader.enable()
-    mylist = getObjectList (objectName, goName)
+    mylist, etaPhiFound = getObjectList (objectName, goName)
     targetFile = open (outputFile, 'w')
     genDef, tupleDef = genObjectDef (mylist,
                                      options.tupleName,
                                      goName,
                                      options.label,
-                                     options.type)
+                                     options.type,
+                                     etaPhiFound)
     targetFile.write (startString)
     targetFile.write (genDef)
     targetFile.write (defTemplate % {'objs':'reco', 'OBJS':'RECO'})

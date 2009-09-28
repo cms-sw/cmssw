@@ -47,6 +47,9 @@ if __name__ == "__main__":
     parser.add_option ("--verbose", dest="verbose",
                        action="store_true", default=False,
                        help="Verbose output.")
+    parser.add_option ("--noQueue", dest="noQueue",
+                       action="store_true", default=False,
+                       help="Do not use queue, but run jobs serially.")
     parser.add_option ("--prefix", dest="prefix", type="string",
                        help="Prefix to prepend to logfile name")
 
@@ -54,6 +57,12 @@ if __name__ == "__main__":
     options, args = parser.parse_args()
     if len (args) < 1 or len (args) > 2:
         raise RuntimeError, "You must provide 1 or 2 root files"
+    # Make sure CMSSW is setup
+    base         = os.environ.get ('CMSSW_BASE')
+    release_base = os.environ.get ('CMSSW_RELEASE_BASE')
+    if not base or not release_base:
+        raise RuntimeError, "You must have already setup a CMSSW release."
+        
     if not os.path.isdir (logDir):
         os.mkdir (logDir)
         if not os.path.isdir (logDir):
@@ -90,7 +99,7 @@ if __name__ == "__main__":
                 print '%s exists.  Skipping' % descriptionName
             continue
         # print name, prettyName
-        describeCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s describeReflexForGenObject.py --index %s "\\\"--type=%s\\\""' \
+        describeCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s describeReflexForGenObject.py %s "\\\"--type=%s\\\""' \
                   % (currentDir, logPrefix + prettyName, name, key)
         os.system (queueCommand % describeCmd)
         #print describeCmd, '\n'
