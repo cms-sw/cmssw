@@ -38,7 +38,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ## pat sequences to be loaded:
 process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
+#process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
 ##
 #
 # for ecal isolation: set the correct name of the ECAL rechit collection
@@ -81,6 +81,34 @@ process.makeLayer1METs = cms.Sequence(process.patMETCorrections * process.layer1
                                       process.layer1RawCaloMETs)
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
+process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
+process.electronEcalRecHitIsolationScone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
+process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")
+process.electronEcalRecHitIsolationScone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")
+#
+process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitCollection = cms.InputTag("")
+process.electronEcalRecHitIsolationScone.ecalBarrelRecHitCollection = cms.InputTag("")
+process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitCollection = cms.InputTag("")
+process.electronEcalRecHitIsolationScone.ecalEndcapRecHitCollection = cms.InputTag("")
+#
+#
+process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
+process.allLayer1Electrons.isolation = cms.PSet(
+    tracker = cms.PSet(
+      src = cms.InputTag("electronTrackIsolationScone"),
+    ),
+    ecal = cms.PSet(
+      src = cms.InputTag("electronEcalRecHitIsolationLcone"),
+    ),
+    hcal = cms.PSet(
+      src = cms.InputTag("electronHcalTowerIsolationLcone"),
+    ),
+    )
+process.allLayer1Electrons.isoDeposits = cms.PSet()
+process.allLayer1Electrons.addElectronID = cms.bool(False)
+process.allLayer1Electrons.electronIDSources = cms.PSet()
+#
 process.allLayer1Objects = cms.Sequence(process.makeAllLayer1Electrons+process.makeAllLayer1Muons+process.makeLayer1METs)
 process.selectedLayer1Objects = cms.Sequence(process.selectedLayer1Electrons+process.selectedLayer1Muons)
 process.cleanLayer1Objects  = cms.Sequence(process.cleanLayer1Muons*process.cleanLayer1Electrons)
