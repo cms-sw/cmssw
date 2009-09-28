@@ -16,11 +16,13 @@ public:
   virtual ~CutBasedPhotonIDAlgo(){};
 
   void setup(const edm::ParameterSet& conf);
-  void decideEB(const reco::Photon* pho, 
+  void decideEB(const reco::Photon* pho,
+		bool &LooseEM,
 		bool &LoosePhoton, 
 		bool &TightPhoton 
 		);
-  void decideEE(const reco::Photon* pho, 
+  void decideEE(const reco::Photon* pho,
+		bool &LooseEM,
 		bool &LoosePhoton,
 		bool &TightPhoton);
  private:
@@ -37,6 +39,21 @@ public:
   bool dophotonHadOverEMCut_;
   bool dophotonsigmaeeCut_;
   bool dophotonR9Cut_;
+
+  double looseEMEcalIsoRelativeCutSlopeEB_;
+  double looseEMEcalIsoRelativeCutOffsetEB_;
+  double looseEMHcalTowerIsolationCutSlopeEB_;
+  double looseEMHcalTowerIsolationCutOffsetEB_;
+  double looseEMHollowConeTrkIsolationSlopeEB_;
+  double looseEMHollowConeTrkIsolationOffsetEB_;
+  double looseEMSolidConeTrkIsolationSlopeEB_;
+  double looseEMSolidConeTrkIsolationOffsetEB_;
+  double looseEMSolidConeTrkIsolationCutEB_;
+  int looseEMSolidConeNTrkCutEB_;
+  int looseEMHollowConeNTrkCutEB_;
+  double looseEMEtaWidthCutEB_;
+  double looseEMHadOverEMCutEB_;
+  double looseEMR9CutEB_;
 
   double loosephotonEcalIsoRelativeCutSlopeEB_;
   double loosephotonEcalIsoRelativeCutOffsetEB_;
@@ -67,6 +84,21 @@ public:
   double tightphotonEtaWidthCutEB_;
   double tightphotonHadOverEMCutEB_;
   double tightphotonR9CutEB_;
+
+  double looseEMEcalIsoRelativeCutSlopeEE_;
+  double looseEMEcalIsoRelativeCutOffsetEE_;
+  double looseEMHcalTowerIsolationCutSlopeEE_;
+  double looseEMHcalTowerIsolationCutOffsetEE_;
+  double looseEMHollowConeTrkIsolationSlopeEE_;
+  double looseEMHollowConeTrkIsolationOffsetEE_;
+  double looseEMSolidConeTrkIsolationSlopeEE_;
+  double looseEMSolidConeTrkIsolationOffsetEE_;
+  double looseEMSolidConeTrkIsolationCutEE_;
+  int looseEMSolidConeNTrkCutEE_;
+  int looseEMHollowConeNTrkCutEE_;
+  double looseEMEtaWidthCutEE_;
+  double looseEMHadOverEMCutEE_;
+  double looseEMR9CutEE_;
 
   double loosephotonEcalIsoRelativeCutSlopeEE_;
   double loosephotonEcalIsoRelativeCutOffsetEE_;

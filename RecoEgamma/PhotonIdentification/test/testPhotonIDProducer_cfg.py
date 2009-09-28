@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.Out = cms.OutputModule("PoolOutputModule",
@@ -49,12 +49,16 @@ process.photonIDAna = cms.EDAnalyzer("PhotonIDSimpleAnalyzer",
     # Optionally produce a TTree of photons (set to False or True).
     # This slows down the analyzer, and if running
     # over 100,000+ events, this can create a large ROOT file
-    createPhotonTTree  = cms.bool(False)
+    createPhotonTTree  = cms.bool(True)
 )
 
 #process.p = cms.Path(process.photonSequence*process.photonIDSequence*process.photonIDAna)
-process.p = cms.Path(process.photonSequence*process.photonIDSequence*process.photonIDAna)
+process.p = cms.Path(process.photonIDSequence*process.photonIDAna)
 process.e = cms.EndPath(process.Out)
 
-process.PoolSource.fileNames = ['dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_7.root',
-'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_13.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_14.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_4.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_10.root','dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_5.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_08.08_on_June_10-2008/gamjet_pt40-60/reco_20.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_38.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_12.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_29.root','dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_7.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_40.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_31.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_22.root', 'dcache:/pnfs/cms/WAX/resilient/oleksiy/temp/CMSSW_2_1_0_pre5/Tuesday_at_09.25_on_June_10-2008/gamjet_pt40-60/reco_8.root']
+process.PoolSource.fileNames = [
+    '/store/relval/CMSSW_3_2_5/RelValZEE/GEN-SIM-RECO/MC_31X_V5-v1/0011/84E3AE4D-738E-DE11-A5E4-003048D374F2.root',
+'/store/relval/CMSSW_3_2_5/RelValZEE/GEN-SIM-RECO/MC_31X_V5-v1/0011/7886FE89-738E-DE11-B893-001D09F241F0.root',
+'/store/relval/CMSSW_3_2_5/RelValZEE/GEN-SIM-RECO/MC_31X_V5-v1/0011/60D71215-828E-DE11-8BFE-000423D98804.root',
+'/store/relval/CMSSW_3_2_5/RelValZEE/GEN-SIM-RECO/MC_31X_V5-v1/0011/4AA439F6-728E-DE11-AF2D-000423D98EA8.root'
+] 

@@ -106,6 +106,7 @@ class PhotonIDSimpleAnalyzer : public edm::EDAnalyzer {
       // Composite or Other Histograms
       TH1F* h_photonInAnyGap_;
       TH1F* h_nPassingPho_;
+      TH1F* h_nPassEM_;
       TH1F* h_nPho_;
 
       // TTree

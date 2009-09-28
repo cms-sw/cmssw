@@ -30,6 +30,7 @@ class PhotonIDProducer : public edm::EDProducer
 
   std::string photonProducer_;
   std::string photonLabel_;
+  std::string photonCutBasedIDLooseEMLabel_;
   std::string photonCutBasedIDLooseLabel_;
   std::string photonCutBasedIDTightLabel_;
 

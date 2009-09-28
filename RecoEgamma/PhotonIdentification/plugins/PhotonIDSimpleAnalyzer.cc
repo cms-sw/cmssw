@@ -16,7 +16,7 @@
 //  Editing Author:  M.B. Anderson
 //
 //         Created:  Fri May 9 11:03:51 CDT 2008
-// $Id: PhotonIDSimpleAnalyzer.cc,v 1.6 2008/11/04 22:52:24 askew Exp $
+// $Id: PhotonIDSimpleAnalyzer.cc,v 1.7 2009/03/24 18:43:17 nancy Exp $
 //
 ///////////////////////////////////////////////////////////////////////
 //                    header file for this analyzer                  //
@@ -134,7 +134,8 @@ PhotonIDSimpleAnalyzer::beginJob(edm::EventSetup const&)
 
   // Composite or Other Histograms
   h_photonInAnyGap_   = new TH1F("photonInAnyGap",     "Photon in any gap flag",  2, -0.5, 1.5);
-  h_nPassingPho_      = new TH1F("photonPassingCount", "Total number photons (0=NotPassing, 1=Passing)", 2, -0.5, 1.5);
+  h_nPassingPho_      = new TH1F("photonLoosePhoton", "Total number photons (0=NotPassing, 1=Passing)", 2, -0.5, 1.5);
+  h_nPassEM_          = new TH1F("photonLooseEM", "Total number photons (0=NotPassing, 1=Passing)", 2, -0.5, 1.5);
   h_nPho_             = new TH1F("photonCount",        "Number of photons passing cuts in event",  10,  0,  10);
 
   // Create a TTree of photons if set to 'True' in config file
@@ -160,6 +161,8 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 
   Handle<edm::ValueMap<Bool_t> > loosePhotonQual;
   evt.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonQual);
+  Handle<edm::ValueMap<Bool_t> > looseEMQual;
+  evt.getByLabel("PhotonIDProd","PhotonCutBasedIDLooseEM",looseEMQual);
   // grab PhotonId objects  
 //   Handle<reco::PhotonIDAssociationCollection> photonIDMapColl;
 //   evt.getByLabel("PhotonIDProd", "PhotonAssociatedID", photonIDMapColl);
@@ -167,7 +170,7 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
   // create reference to the object types we are interested in
   const reco::PhotonCollection *photons = photonColl.product();  
   const edm::ValueMap<Bool_t> *phoMap = loosePhotonQual.product();
-
+  const edm::ValueMap<Bool_t> *lEMMap = looseEMQual.product();
   int photonCounter = 0;
   int idxpho=0;
   reco::PhotonCollection::const_iterator pho;
@@ -180,7 +183,10 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
 
     float photonEt       = pho->et();
     float superClusterEt = (pho->superCluster()->energy())/(cosh(pho->superCluster()->position().eta()));
-
+    Bool_t LoosePhotonQu = (*phoMap)[photonref];
+    h_nPassingPho_->Fill(LoosePhotonQu);
+    Bool_t LooseEMQu = (*lEMMap)[photonref];
+    h_nPassEM_->Fill(LooseEMQu);
     // Only store photon candidates (SuperClusters) that pass some simple cuts
     bool passCuts = (              photonEt > minPhotonEt_     ) &&
                     (      fabs(pho->eta()) > minPhotonAbsEta_ ) &&
@@ -220,8 +226,6 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
       h_photonScEtaWidth_->Fill(pho->superCluster()->etaWidth());
       
       // It passed photon cuts, mark it
-      Bool_t LoosePhotonQu = (*phoMap)[photonref];
-      h_nPassingPho_->Fill(LoosePhotonQu);
 
       ///////////////////////////////////////////////////////
       //                fill TTree (optional)              //
@@ -261,7 +265,7 @@ PhotonIDSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es
     else
     {
       // This didn't pass photon cuts, mark it
-      h_nPassingPho_->Fill(0.0);
+   
     }
     idxpho++;
   } // End Loop over photons
@@ -306,6 +310,7 @@ PhotonIDSimpleAnalyzer::endJob()
   // Composite or Other Histograms
   h_photonInAnyGap_->Write();
   h_nPassingPho_->   Write();
+  h_nPassEM_->       Write();
   h_nPho_->          Write();
 
   // Write the root file (really writes the TTree)

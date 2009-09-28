@@ -12,13 +12,14 @@ PhotonIDProducer::PhotonIDProducer(const edm::ParameterSet& conf) : conf_(conf) 
  
   photonCutBasedIDLooseLabel_ = conf.getParameter<std::string>("photonCutBasedIDLooseLabel");
   photonCutBasedIDTightLabel_ = conf.getParameter<std::string>("photonCutBasedIDTightLabel");
-
+  photonCutBasedIDLooseEMLabel_ = conf.getParameter<std::string>("photonCutBasedIDLooseEMLabel");
 
   doCutBased_ = conf_.getParameter<bool>("doCutBased");
   cutBasedAlgo_ = new CutBasedPhotonIDAlgo();
   cutBasedAlgo_->setup(conf);
   produces<edm::ValueMap<Bool_t> > (photonCutBasedIDLooseLabel_);
   produces<edm::ValueMap<Bool_t> > (photonCutBasedIDTightLabel_);
+  produces<edm::ValueMap<Bool_t> > (photonCutBasedIDLooseEMLabel_);
 
 }
 
@@ -40,19 +41,29 @@ void PhotonIDProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   reco::PhotonCollection::const_iterator photon;
   std::vector <Bool_t> Loose;
   std::vector <Bool_t> Tight;
+  std::vector <Bool_t> LooseEM;
   for (photon = (*photons).begin();
        photon != (*photons).end(); ++photon) {
     bool LooseQual;
     bool TightQual;
+    bool LooseEMQual;
     if (photon->isEB())
-      cutBasedAlgo_->decideEB(&(*photon),LooseQual, TightQual);
+      cutBasedAlgo_->decideEB(&(*photon),LooseEMQual,LooseQual, TightQual);
     else
-      cutBasedAlgo_->decideEE(&(*photon),LooseQual, TightQual);
+      cutBasedAlgo_->decideEE(&(*photon),LooseEMQual,LooseQual, TightQual);
+    LooseEM.push_back(LooseEMQual);
     Loose.push_back(LooseQual);
     Tight.push_back(TightQual);
     
   }
   
+
+  std::auto_ptr<edm::ValueMap<Bool_t> > outlooseEM(new edm::ValueMap<Bool_t>());
+  edm::ValueMap<Bool_t>::Filler fillerlooseEM(*outlooseEM);
+  fillerlooseEM.insert(photons, LooseEM.begin(), LooseEM.end());
+  fillerlooseEM.fill();
+  // and put it into the event
+  e.put(outlooseEM, photonCutBasedIDLooseEMLabel_);
 
   std::auto_ptr<edm::ValueMap<Bool_t> > outloose(new edm::ValueMap<Bool_t>());
   edm::ValueMap<Bool_t>::Filler fillerloose(*outloose);
