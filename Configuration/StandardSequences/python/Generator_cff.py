@@ -55,3 +55,6 @@ pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexS
 #
 pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing)
 
+from SimGeneral.MixingModule.himixGEN_cff import *
+
+pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+hiSignalGenSequence)
