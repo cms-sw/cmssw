@@ -57,15 +57,19 @@ void L2TauJetsMerger::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection); 
  //Removing the collinear jets
-
  for(unsigned int iTau1 = 0; iTau1 <  myTmpJets.size();iTau1++)
      { 
-       for(unsigned int iTau2 = iTau1; iTau2 <  myTmpJets.size();iTau2++)
+       bool doubleJet = false;
+	 
+       for(unsigned int iTau2 = iTau1+1; iTau2 <  myTmpJets.size();iTau2++)
 	 { 
 	   double deltaR = ROOT::Math::VectorUtil::DeltaR(myTmpJets[iTau1].p4().Vect(), myTmpJets[iTau2].p4().Vect());
-	   if(deltaR < 0.1) tauL2jets->push_back(myTmpJets[iTau1]);
+	   if(deltaR < 0.1) doubleJet = true;
 	 }
+
+       if(!doubleJet) tauL2jets->push_back(myTmpJets[iTau1]);
      }
+ 
 //    cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
 
   iEvent.put(tauL2jets);

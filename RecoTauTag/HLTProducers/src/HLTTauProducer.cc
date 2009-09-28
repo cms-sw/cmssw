@@ -39,10 +39,8 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
   //  std::cout <<"L2 jets "<< tauL2Jets->size()<<std::endl;
   //  std::cout <<"L25 jets "<< tauL25Jets->size()<<std::endl;
-  bool foundAtL25 = false;
-  bool foundAtL3 = false;
- float deltaR = 0.3;
-  
+
+
  for(L2TauInfoAssociation::const_iterator p = tauL2Jets->begin();p!=tauL2Jets->end();++p)
 	   {
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
@@ -64,12 +62,21 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	     pippo.setHcalClusterShape(l2info.hcalClusterShape());
 	     pippo.setNHcalHits(l2info.nHcalHits());
 
+	     bool foundAtL25 = false;
+	     bool foundAtL3 = false;
+
+	     double dR=0.3;
+	     float deltaR = 0.3;
 	     //setting up L2.5 quantities
 	     for(unsigned int i=0 ; i<tauL25Jets->size(); i++){
 	       //getting the pftau reference
 	       PFTauRef thePFTauRef(tauL25Jets,i);	      
-	       if(ROOT::Math::VectorUtil::DeltaR(thePFTauRef->p4().Vect(),jet.p4().Vect()) < deltaR)
+
+	       dR = ROOT::Math::VectorUtil::DeltaR(thePFTauRef->p4().Vect(),jet.p4().Vect()) ;
+	       if(dR < deltaR)
 		 {
+		   deltaR = dR;
+		   
 		   pippo.setL25TauPt(thePFTauRef->pt());
 		   if(thePFTauRef->leadPFChargedHadrCand().isNonnull()) {
 		     pippo.setL25LeadTrackPtValue(thePFTauRef->leadPFChargedHadrCand()->pt());
@@ -84,12 +91,15 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		   foundAtL25 = true;
 		 }
 	     }
+	     deltaR = 0.3;
 	     //setting up L3 quantities
 	     for(unsigned int i=0 ; i<tauL3Jets->size(); i++){
 	       //getting the pftau reference  
 	       PFTauRef thePFTauL3Ref(tauL3Jets,i);
-	       if(ROOT::Math::VectorUtil::DeltaR(thePFTauL3Ref->p4().Vect(),jet.p4().Vect()) < deltaR)
+	       dR = ROOT::Math::VectorUtil::DeltaR(thePFTauL3Ref->p4().Vect(),jet.p4().Vect());
+	       if( dR < deltaR)
 		 {
+		   deltaR = dR;
 		   pippo.setNL3TrackIsolation(thePFTauL3Ref->isolationTracks().size());
 		   float sumPtL3 = 0.;
 		   for(unsigned int j=0;j<thePFTauL3Ref->isolationTracks().size();j++){
@@ -100,7 +110,10 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		 }
 	     }
 	     if(foundAtL25 && foundAtL3) jetCollection->push_back(pippo);
+			   
 	   }
+
+    
  auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);
   
  iEvent.put(selectedTaus);
