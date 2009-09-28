@@ -807,6 +807,9 @@ class GenObject (object):
         GenObject._loadGoRootLibrary()
         # diff tree
         diffTree = ROOT.TTree (diffName, diffDescription)
+        runEventObject = getattr (ROOT, 'go_runevent')()
+        diffTree.Branch ('runevent', 'go_runevent', runEventObject)
+        GenObject._rootClassDict['runevent'] = runEventObject
         for objName in sorted (GenObject._objsDict.keys()):
             if objName == 'runevent': continue
             classname = GenObject.rootClassName (objName)
@@ -1052,14 +1055,15 @@ class GenObject (object):
 
 
     @staticmethod
-    def _key2re (key):
+    def _key2re (key, runevent=None):
         """Given a key, returns a GO 'runevent' object"""
-        runevent = GenObject ('runevent')
+        if not runevent:
+            runevent = GenObject ('runevent')
         words = GenObject._spacesRE.split (key)
         for word in words:
-            match = GenObject._singleColonRE (word)
+            match = GenObject._singleColonRE.search (word)
             if match:
-                runevent.__setattr__ (match.group(1), match.group(2))
+                runevent.__setattr__ (match.group(1), int(match.group(2)))
         return runevent
                                      
 
@@ -1283,6 +1287,7 @@ class GenObject (object):
                                    len (secondOnly)
         resultsDict['eventsCompared'] = len (overlap)
         for reTuple in sorted(overlap):
+            GenObject._key2re (reTuple, GenObject._rootClassDict['runevent'])
             #print 'retuple', reTuple
             if debug: warn ('event1', blankLines = 3)
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
