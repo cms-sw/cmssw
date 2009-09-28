@@ -2,7 +2,11 @@
 
 import os, sys, optparse, math
 
-commandline = " ".join(sys.argv)
+copyargs = sys.argv[:]
+for i in range(len(copyargs)):
+    if copyargs[i] == "":
+        copyargs[i] = "\"\""
+commandline = " ".join(copyargs)
 
 usage = """%prog DIRNAME ITERATIONS INITIALGEOM INPUTFILES [options]
 
