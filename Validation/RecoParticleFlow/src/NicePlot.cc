@@ -1,18 +1,18 @@
+#include "Validation/RecoParticleFlow/interface/NicePlot.h"
 
-class Style : public TH1F {
-};
+#include <TROOT.h>
+#include <TStyle.h>
+#include <string>
 
-Style *s1;
-Style *s2;
-Style *sg1;
-Style *sback;
-Style *spred;
-Style *spblue;
 
-void InitNicePlot() {
-gROOT->SetStyle("Plain");
- gStyle->SetPalette(1);
- gStyle->SetHistMinimumZero(kTRUE);
+using namespace std; 
+
+
+Styles::Styles() {
+
+  gROOT->SetStyle("Plain");
+  gStyle->SetPalette(1);
+  gStyle->SetHistMinimumZero(kTRUE);
 
   s1 = new Style(); 
 
@@ -44,12 +44,11 @@ gROOT->SetStyle("Plain");
   spblue = new Style();
   spblue->SetLineColor(4); 
   spblue->SetLineWidth(2); 
-  //spblue->SetFillStyle(3005); 
-  // spblue->SetFillColor(4);   
 }
 
 
-void FormatHisto( TH1* h, const Style* s ) {
+
+void Styles::FormatHisto( TH1* h, const Style* s ) {
   //  h->SetStats(0);
   h->SetTitle("CMS Preliminary");
 
@@ -65,7 +64,7 @@ void FormatHisto( TH1* h, const Style* s ) {
   h->SetFillColor( s->GetFillColor() );
 }
 
-void FormatPad( TPad* pad, bool grid = true, bool logx = false, bool logy = false) {
+void Styles::FormatPad( TPad* pad, bool grid, bool logx, bool logy) {
   
   
   pad->SetGridx(grid);
@@ -82,7 +81,7 @@ void FormatPad( TPad* pad, bool grid = true, bool logx = false, bool logy = fals
 }
 
 
-void SavePlot(const char* name, const char* dir) {
+void Styles::SavePlot(const char* name, const char* dir) {
   string eps = dir;
   eps += "/";
   eps += name;

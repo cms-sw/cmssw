@@ -128,6 +128,9 @@ class website:
 
 class benchmark:
  
+    # arg can be either the full name of a benchmark, or 
+    # an extension, in which case, the release and benchmark name are guessed 
+    # from the environment variables. 
     def __init__(self, arg=None):
 
         release = None
@@ -139,11 +142,19 @@ class benchmark:
             (release, benchName, extension) = decodePath( arg )
 
         if release == None:
-        
+            # we get there if:
+            # - arg == None
+            # - the decoding of arg as a full benchmark name has failed. 
             self.release_ = os.environ['CMSSW_VERSION']
         
             # benchmark directory, as the current working directory
             self.benchmark_ = os.path.basename( os.getcwd() )
+
+            # underscore are not allowed in extension names 
+            if arg.count('_'):
+                print 'sorry, as said many times, underscores are not allowed in the extension ;P'
+                sys.exit(5)
+            
             extension = arg
         else:
             self.release_ = release
