@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/08/09 13:09:27 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/08/27 07:11:51 $
+ *  $Revision: 1.16 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -90,7 +90,12 @@ class MEtoEDM
      // see if the name is already in the old container up to the point where
      // we may have added new entries in the container
      const std::string& name =newMEtoEDMObject[i].name;
-     while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+     if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+       j = i;
+     } else {
+       j = 0;
+       while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+     }
      if (j >= nOldObjects) {
        // this value is only in the new container, not the old one
        std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
@@ -156,7 +161,12 @@ MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM)
     // see if the name is already in the old container up to the point where
     // we may have added new entries in the container
     const std::string& name =newMEtoEDMObject[i].name;
-    while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+      j = i;
+    } else {
+      j = 0;
+      while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
@@ -187,7 +197,12 @@ MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
     // see if the name is already in the old container up to the point where
     // we may have added new entries in the container
     const std::string& name =newMEtoEDMObject[i].name;
-    while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+      j = i;
+    } else {
+      j = 0;
+      while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
@@ -229,7 +244,12 @@ MEtoEDM<TString>::mergeProduct(const MEtoEDM<TString> &newMEtoEDM)
     // see if the name is already in the old container up to the point where
     // we may have added new entries in the container
     const std::string& name =newMEtoEDMObject[i].name;
-    while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+      j = i;
+    } else {
+      j = 0;
+      while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
