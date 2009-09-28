@@ -5,22 +5,17 @@ from RecoJets.Configuration.RecoJetAssociations_cff import *
 
 process = cms.Process("JETVALIDATION")
 
-process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.Simulation_cff")
-process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.Services_cff")
+#process.load("Configuration.StandardSequences.Simulation_cff")
+#process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
+#process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
-
-#process.load("JetMETCorrections.Configuration.L2L3Corrections_iCSA08_S156_cff")
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer08Redigi_cff")
-#process.load("JetMETCorrections.Configuration.L2L3Corrections_Winter09_cff")
-
-#process.load("DQMServices.Core.DQM_cfg")
 
 process.maxEvents = cms.untracked.PSet(
        input = cms.untracked.int32(-1)
@@ -60,173 +55,15 @@ process.fileSaver = cms.EDFilter("JetFileSaver",
                                  OutputFile = cms.untracked.string('histo.root')
 )
 
-# IC5 Calo jets
+## Test for corrected jets - available only for 
+process.prefer("L2L3JetCorrectorIC5Calo")
 
-process.JetAnalyzerIC5Calo = cms.EDAnalyzer("CaloJetTester",
+process.L2L3CorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
     src = cms.InputTag("iterativeCone5CaloJets"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+    correctors = cms.vstring('L2L3JetCorrectorIC5Calo')
 )
 
-# IC5 PFlow jets
-
-process.JetAnalyzerIC5PF = cms.EDFilter("PFJetTester",
-    src = cms.InputTag("iterativeCone5PFJets"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),                                    
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),                                    
-    genPtThreshold = cms.double(1.0),           
-    RThreshold = cms.double(0.3),              
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# IC5 JPT jets
-
-process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
-    srcGen = cms.InputTag("iterativeCone5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                 
-)
-
-# kt4 Calo jets
-
-process.JetAnalyzerKt4Calo = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("kt4CaloJets"),                                   
-    srcGen = cms.InputTag("kt4GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-                                    
-# kt6 Calo jets
-                                    
-process.JetAnalyzerKt6Calo = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("kt6CaloJets"),                                   
-    srcGen = cms.InputTag("kt6GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# Sisc5 jets
-                                    
-process.JetAnalyzerSc5Calo = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("sisCone5CaloJets"),                                 
-    srcGen = cms.InputTag("sisCone5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# Sisc7 jets
-                                    
-process.JetAnalyzerSc7Calo = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("sisCone7CaloJets"),
-    srcGen = cms.InputTag("sisCone7GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# AntiKt5 jets
-                                    
-process.JetAnalyzerAk5Calo = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("ak5CaloJets"),                                 
-    srcGen = cms.InputTag("ak5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# AntiKt7 jets
-                                    
-process.JetAnalyzerAk7Calo = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("ak7CaloJets"),
-    srcGen = cms.InputTag("ak7GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# AntiKt5 PFlow jets
-
-process.JetAnalyzerAk5PF = cms.EDFilter("PFJetTester",
-    src = cms.InputTag("ak5PFJets"),
-    srcGen = cms.InputTag("ak5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),                                    
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),                                    
-    genPtThreshold = cms.double(1.0),           
-    RThreshold = cms.double(0.3),              
-    reverseEnergyFractionThreshold = cms.double(0.5)
-)
-
-# AntiKt5 JPT jets
-
-process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
-    src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-    srcGen = cms.InputTag("ak5GenJets"),                                
-#    TurnOnEverything = cms.untracked.string('yes'),
-#    TurnOnEverything = cms.untracked.string('no'),
-#    outputFile = cms.untracked.string('histo.root'),
-#    outputFile = cms.untracked.string('test.root'),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                 
-)
-
-# IC5 Corrected jets
-
+## IC5 Corrected jets
 process.JetAnalyzerIC5Cor = cms.EDAnalyzer("CaloJetTester",
     src = cms.InputTag("L2L3CorJetIcone5"),
     srcGen = cms.InputTag("iterativeCone5GenJets"),                                
@@ -240,24 +77,42 @@ process.JetAnalyzerIC5Cor = cms.EDAnalyzer("CaloJetTester",
     reverseEnergyFractionThreshold = cms.double(0.5)                                    
 )
 
-
-process.prefer("L2L3JetCorrectorIC5Calo")
-
-process.L2L3CorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
-    src = cms.InputTag("iterativeCone5CaloJets"),
-    correctors = cms.vstring('L2L3JetCorrectorIC5Calo')
+## IC5 JPT jets
+process.JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
+    src = cms.InputTag("JetPlusTrackZSPCorJetIcone5"),
+    srcGen = cms.InputTag("iterativeCone5GenJets"),                                
+#    TurnOnEverything = cms.untracked.string('yes'),
+#    TurnOnEverything = cms.untracked.string('no'),
+#    outputFile = cms.untracked.string('histo.root'),
+#    outputFile = cms.untracked.string('test.root'),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)                                 
 )
 
+## AntiKt5 JPT jets
+process.JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
+    src = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
+    srcGen = cms.InputTag("ak5GenJets"),                                
+#    TurnOnEverything = cms.untracked.string('yes'),
+#    TurnOnEverything = cms.untracked.string('no'),
+#    outputFile = cms.untracked.string('histo.root'),
+#    outputFile = cms.untracked.string('test.root'),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)                                 
+)
+
+
 process.p1 = cms.Path(process.fileSaver*process.L2L3CorJetIcone5
+                      *process.JetAnalyzerIC5Cor
                       *process.ZSPJetCorrectionsIcone5
                       *process.ZSPJetCorrectionsAntiKt5
                       *process.JetPlusTrackCorrectionsIcone5
                       *process.JetPlusTrackCorrectionsAntiKt5
-                      *process.JetAnalyzerIC5Calo
-                      *process.JetAnalyzerIC5PF*process.JetAnalyzerIC5JPT
-                      *process.JetAnalyzerKt4Calo*process.JetAnalyzerKt6Calo
-                      *process.JetAnalyzerSc5Calo*process.JetAnalyzerSc7Calo
-                      *process.JetAnalyzerAk5Calo*process.JetAnalyzerAk7Calo
-                      *process.JetAnalyzerAk5PF
-                      *process.JetAnalyzerIC5Cor)
+                      *process.JetAnalyzerIC5Cor
+                      *process.JetAnalyzerAk5Cor
+                      *process.JetValidation)
 
