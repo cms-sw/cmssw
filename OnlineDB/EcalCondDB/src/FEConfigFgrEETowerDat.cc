@@ -15,8 +15,7 @@ FEConfigFgrEETowerDat::FEConfigFgrEETowerDat()
   m_writeStmt = NULL;
   m_readStmt = NULL;
 
-  m_thresh = 0;
-  m_lut_fg = 0;
+  m_lut = 0;
 
 }
 
@@ -36,9 +35,9 @@ void FEConfigFgrEETowerDat::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (fgr_conf_id, logic_id, "
-		      "threshold, lut_fg ) "
+		      "lut_value ) "
 		      "VALUES (:fgr_conf_id, :logic_id, "
-		      ":threshold, :lut_fg )" );
+		      ":lut_value )" );
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigFgrEETowerDat::prepareWrite():  "+e.getMessage()));
   }
@@ -61,8 +60,7 @@ void FEConfigFgrEETowerDat::writeDB(const EcalLogicID* ecid, const FEConfigFgrEE
   try {
     m_writeStmt->setInt(1, iconfID);
     m_writeStmt->setInt(2, logicID);
-    m_writeStmt->setInt(3, item->getThreshold());
-    m_writeStmt->setInt(4, item->getLutFg());
+    m_writeStmt->setInt(3, item->getLutValue());
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
@@ -88,7 +86,7 @@ void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >*
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.sliding "
+		 "d.lut_value "
 		 "FROM channelview cv JOIN "+getTable()+" d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE fgr_conf_id = :fgr_conf_id");
@@ -105,8 +103,7 @@ void FEConfigFgrEETowerDat::fetchData(map< EcalLogicID, FEConfigFgrEETowerDat >*
 			     rset->getInt(5),        // id3
 			     rset->getString(6));    // maps_to
 
-      dat.setThreshold( rset->getInt(7) );  
-      dat.setLutFg( rset->getInt(7) );  
+      dat.setLutValue( rset->getInt(7) );  
 
       p.second = dat;
       fillMap->insert(p);
@@ -130,13 +127,11 @@ void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
   int* ids= new int[nrows];
   int* iconfid_vec= new int[nrows];
   int* xx= new int[nrows];
-  int* yy= new int[nrows];
 
 
   ub2* ids_len= new ub2[nrows];
   ub2* iconf_len= new ub2[nrows];
   ub2* x_len= new ub2[nrows];
-  ub2* y_len= new ub2[nrows];
 
 
   const EcalLogicID* channel;
@@ -152,18 +147,15 @@ void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
 
 	dataitem = &(p->second);
 	// dataIface.writeDB( channel, dataitem, iconf);
-	int x=dataitem->getThreshold();
-	int y=dataitem->getLutFg();
+	int x=dataitem->getLutValue();
 
 	xx[count]=x;
-	yy[count]=y;
-
 
 	ids_len[count]=sizeof(ids[count]);
 	iconf_len[count]=sizeof(iconfid_vec[count]);
 	
 	x_len[count]=sizeof(xx[count]);
-	y_len[count]=sizeof(yy[count]);
+
 
 	count++;
      }
@@ -173,19 +165,16 @@ void FEConfigFgrEETowerDat::writeArrayDB(const std::map< EcalLogicID, FEConfigFg
     m_writeStmt->setDataBuffer(1, (dvoid*)iconfid_vec, OCCIINT, sizeof(iconfid_vec[0]),iconf_len);
     m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
     m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIINT , sizeof(xx[0]), x_len );
-    m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIINT , sizeof(yy[0]), y_len );
 
     m_writeStmt->executeArrayUpdate(nrows);
 
     delete [] ids;
     delete [] iconfid_vec;
     delete [] xx;
-    delete [] yy;
 
     delete [] ids_len;
     delete [] iconf_len;
     delete [] x_len;
-    delete [] y_len;
 
   } catch (SQLException &e) {
     throw(runtime_error("FEConfigFgrEETowerDat::writeArrayDB():  "+e.getMessage()));
