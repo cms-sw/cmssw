@@ -43,7 +43,7 @@ typedef uint32_t ExaminerMaskType;
 typedef uint32_t ExaminerStatusType;
 
 /** Format Error individual named flags */
-typedef enum FormatErrorFlag {
+enum FormatErrorFlag {
   ANY_ERRORS                                          = 0,
   DDU_TRAILER_MISSING                                 = 1,
   DDU_HEADER_MISSING                                  = 2,
@@ -76,7 +76,7 @@ typedef enum FormatErrorFlag {
 };
 
 /** CSC Payload individual named flags */
-typedef enum CSCPayloadFlag {
+enum CSCPayloadFlag {
   CFEB1_ACTIVE = 0,
   CFEB2_ACTIVE = 1,
   CFEB3_ACTIVE = 2,
@@ -92,7 +92,7 @@ typedef enum CSCPayloadFlag {
 };
 
 /** CSC Status individual named flags */
-typedef enum CSCStatusFlag {
+enum CSCStatusFlag {
   ALCT_FIFO_FULL           = 0,
   TMB_FIFO_FULL            = 1,
   CFEB1_FIFO_FULL          = 2,
