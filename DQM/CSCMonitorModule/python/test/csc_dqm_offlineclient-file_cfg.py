@@ -13,7 +13,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 # DQM Module Configuration
 #-------------------------------------------------
 
-process.load("DQM.CSCMonitorModule.csc_dqm_offlineclient_cfi")
+process.load("DQM.CSCMonitorModule.csc_dqm_offlineclient_cosmics_cff")
 
 #----------------------------
 # Event Source
@@ -100,7 +100,7 @@ MessageLogger = cms.Service("MessageLogger",
 # Sequences
 #--------------------------
 
-process.p = cms.Path(process.reader * process.dqmCSCOfflineClient + process.dqmSaver)
+process.p = cms.Path(process.reader * process.cscOfflineCosmicsClients + process.dqmSaver)
 #process.p = cms.Path(process.EDMtoMEConverter*process.dqmCSCOfflineClient*process.dqmSaver)
 
 
