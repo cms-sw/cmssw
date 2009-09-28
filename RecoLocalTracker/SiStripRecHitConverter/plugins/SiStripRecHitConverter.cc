@@ -1,4 +1,5 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/SiStripRecHitConverter.h"
+#include "FWCore/Framework/interface/Event.h"
 
 SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf) 
   : recHitConverterAlgorithm(conf) ,
