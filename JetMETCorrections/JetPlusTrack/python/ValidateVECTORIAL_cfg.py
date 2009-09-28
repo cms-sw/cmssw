@@ -28,12 +28,12 @@ fileNames1.extend( [
     '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/2EC02533-3B8E-DE11-BE85-003048D37514.root',
     ] );
 fileNames2.extend( [
-    'file:/home/bainbrid/work/src/TEST/2AA47C1E-828E-DE11-B3C5-001D09F34488.root',
-    'file:/home/bainbrid/work/src/TEST/DA6FF61D-3D8E-DE11-938A-003048D37538.root',
-    'file:/home/bainbrid/work/src/TEST/82CF8666-398E-DE11-8F3B-000423D94A20.root',
-    'file:/home/bainbrid/work/src/TEST/6255E85C-3F8E-DE11-B46A-000423D6B48C.root',
-    'file:/home/bainbrid/work/src/TEST/3453CD32-418E-DE11-87D2-003048D2C020.root',
-    'file:/home/bainbrid/work/src/TEST/2EC02533-3B8E-DE11-BE85-003048D37514.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/2AA47C1E-828E-DE11-B3C5-001D09F34488.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/DA6FF61D-3D8E-DE11-938A-003048D37538.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/82CF8666-398E-DE11-8F3B-000423D94A20.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/6255E85C-3F8E-DE11-B46A-000423D6B48C.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/3453CD32-418E-DE11-87D2-003048D2C020.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/2EC02533-3B8E-DE11-BE85-003048D37514.root',
     ] );
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
