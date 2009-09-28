@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/pre4/HIon/V7 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
+# /dev/CMSSW_3_3_0/pre4/HIon/V8 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_3_3_0/pre4/HIon/V8')
 )
 
 
@@ -58,6 +58,19 @@ AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProduc
   PropagationDirection = cms.string( "anyDirection" ),
   MaxDPhi = cms.double( 1.6 ),
   appendToDataLabel = cms.string( "" )
+)
+AutoMagneticFieldESProducer = cms.ESProducer( "AutoMagneticFieldESProducer",
+  label = cms.untracked.string( "" ),
+  valueOverride = cms.int32( -1 ),
+  appendToDataLabel = cms.string( "" ),
+  nominalCurrents = cms.untracked.vint32( -1, 0, 9558, 14416, 16819, 18268, 19262 ),
+  mapLabels = cms.untracked.vstring( '090322_3_8t',
+    '0t',
+    '071212_2t',
+    '071212_3t',
+    '071212_3_5t',
+    '090322_3_8t',
+    '071212_4t' )
 )
 CaloTopologyBuilder = cms.ESProducer( "CaloTopologyBuilder",
   appendToDataLabel = cms.string( "" )
@@ -356,12 +369,6 @@ OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
-ParametrizedMagneticFieldProducer = cms.ESProducer( "ParametrizedMagneticFieldProducer",
-  label = cms.untracked.string( "parametrizedField" ),
-  version = cms.string( "OAE_1103l_071212" ),
-  appendToDataLabel = cms.string( "" ),
-  parameters = cms.PSet(  BValue = cms.string( "3_8T" ) )
-)
 PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   ComponentName = cms.string( "PixelCPEGeneric" ),
   eff_charge_cut_lowX = cms.double( 0.0 ),
@@ -398,6 +405,41 @@ SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
   EtaDivisions = cms.untracked.uint32( 20 ),
   PhiDivisions = cms.untracked.uint32( 20 ),
   EtaMax = cms.untracked.double( 2.5 )
+)
+SlaveField0 = cms.ESProducer( "UniformMagneticFieldESProducer",
+  ZFieldInTesla = cms.double( 0.0 ),
+  label = cms.untracked.string( "slave_0" ),
+  appendToDataLabel = cms.string( "" )
+)
+SlaveField20 = cms.ESProducer( "ParametrizedMagneticFieldProducer",
+  label = cms.untracked.string( "slave_20" ),
+  version = cms.string( "OAE_1103l_071212" ),
+  appendToDataLabel = cms.string( "" ),
+  parameters = cms.PSet(  BValue = cms.string( "2_0T" ) )
+)
+SlaveField30 = cms.ESProducer( "ParametrizedMagneticFieldProducer",
+  label = cms.untracked.string( "slave_30" ),
+  version = cms.string( "OAE_1103l_071212" ),
+  appendToDataLabel = cms.string( "" ),
+  parameters = cms.PSet(  BValue = cms.string( "3_0T" ) )
+)
+SlaveField35 = cms.ESProducer( "ParametrizedMagneticFieldProducer",
+  label = cms.untracked.string( "slave_35" ),
+  version = cms.string( "OAE_1103l_071212" ),
+  appendToDataLabel = cms.string( "" ),
+  parameters = cms.PSet(  BValue = cms.string( "3_5T" ) )
+)
+SlaveField38 = cms.ESProducer( "ParametrizedMagneticFieldProducer",
+  label = cms.untracked.string( "slave_38" ),
+  version = cms.string( "OAE_1103l_071212" ),
+  appendToDataLabel = cms.string( "" ),
+  parameters = cms.PSet(  BValue = cms.string( "3_8T" ) )
+)
+SlaveField40 = cms.ESProducer( "ParametrizedMagneticFieldProducer",
+  label = cms.untracked.string( "slave_40" ),
+  version = cms.string( "OAE_1103l_071212" ),
+  appendToDataLabel = cms.string( "" ),
+  parameters = cms.PSet(  BValue = cms.string( "4_0T" ) )
 )
 SmartPropagator = cms.ESProducer( "SmartPropagatorESProducer",
   ComponentName = cms.string( "SmartPropagator" ),
@@ -518,6 +560,78 @@ TrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
 TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" ),
   appendToDataLabel = cms.string( "" )
+)
+VBF0 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
+  label = cms.untracked.string( "0t" ),
+  version = cms.string( "grid_1103l_071212_2t" ),
+  overrideMasterSector = cms.bool( True ),
+  useParametrizedTrackerField = cms.bool( True ),
+  paramLabel = cms.string( "slave_0" ),
+  appendToDataLabel = cms.string( "" ),
+  scalingVolumes = cms.vint32(  ),
+  scalingFactors = cms.vdouble(  ),
+  findVolumeTolerance = cms.double( 0.0 ),
+  cacheLastVolume = cms.untracked.bool( True )
+)
+VBF20 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
+  label = cms.untracked.string( "071212_2t" ),
+  version = cms.string( "grid_1103l_071212_2t" ),
+  overrideMasterSector = cms.bool( True ),
+  useParametrizedTrackerField = cms.bool( True ),
+  paramLabel = cms.string( "slave_20" ),
+  appendToDataLabel = cms.string( "" ),
+  scalingVolumes = cms.vint32(  ),
+  scalingFactors = cms.vdouble(  ),
+  findVolumeTolerance = cms.double( 0.0 ),
+  cacheLastVolume = cms.untracked.bool( True )
+)
+VBF30 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
+  label = cms.untracked.string( "071212_3t" ),
+  version = cms.string( "grid_1103l_071212_3t" ),
+  overrideMasterSector = cms.bool( True ),
+  useParametrizedTrackerField = cms.bool( True ),
+  paramLabel = cms.string( "slave_30" ),
+  appendToDataLabel = cms.string( "" ),
+  scalingVolumes = cms.vint32(  ),
+  scalingFactors = cms.vdouble(  ),
+  findVolumeTolerance = cms.double( 0.0 ),
+  cacheLastVolume = cms.untracked.bool( True )
+)
+VBF35 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
+  label = cms.untracked.string( "071212_3_5t" ),
+  version = cms.string( "grid_1103l_071212_3_5t" ),
+  overrideMasterSector = cms.bool( True ),
+  useParametrizedTrackerField = cms.bool( True ),
+  paramLabel = cms.string( "slave_35" ),
+  appendToDataLabel = cms.string( "" ),
+  scalingVolumes = cms.vint32(  ),
+  scalingFactors = cms.vdouble(  ),
+  findVolumeTolerance = cms.double( 0.0 ),
+  cacheLastVolume = cms.untracked.bool( True )
+)
+VBF38 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
+  label = cms.untracked.string( "090322_3_8t" ),
+  version = cms.string( "grid_1103l_090322_3_8t" ),
+  overrideMasterSector = cms.bool( False ),
+  useParametrizedTrackerField = cms.bool( True ),
+  paramLabel = cms.string( "slave_38" ),
+  appendToDataLabel = cms.string( "" ),
+  scalingVolumes = cms.vint32( 14100, 14200, 17600, 17800, 17900, 18100, 18300, 18400, 18600, 23100, 23300, 23400, 23600, 23800, 23900, 24100, 28600, 28800, 28900, 29100, 29300, 29400, 29600, 28609, 28809, 28909, 29109, 29309, 29409, 29609, 28610, 28810, 28910, 29110, 29310, 29410, 29610, 28611, 28811, 28911, 29111, 29311, 29411, 29611 ),
+  scalingFactors = cms.vdouble( 1.0, 1.0, 0.994, 1.004, 1.004, 1.005, 1.004, 1.004, 0.994, 0.965, 0.958, 0.958, 0.953, 0.958, 0.958, 0.965, 0.918, 0.924, 0.924, 0.906, 0.924, 0.924, 0.918, 0.991, 0.998, 0.998, 0.978, 0.998, 0.998, 0.991, 0.991, 0.998, 0.998, 0.978, 0.998, 0.998, 0.991, 0.991, 0.998, 0.998, 0.978, 0.998, 0.998, 0.991 ),
+  findVolumeTolerance = cms.double( 0.0 ),
+  cacheLastVolume = cms.untracked.bool( True )
+)
+VBF40 = cms.ESProducer( "VolumeBasedMagneticFieldESProducer",
+  label = cms.untracked.string( "071212_4t" ),
+  version = cms.string( "grid_1103l_071212_4t" ),
+  overrideMasterSector = cms.bool( True ),
+  useParametrizedTrackerField = cms.bool( True ),
+  paramLabel = cms.string( "slave_40" ),
+  appendToDataLabel = cms.string( "" ),
+  scalingVolumes = cms.vint32(  ),
+  scalingFactors = cms.vdouble(  ),
+  findVolumeTolerance = cms.double( 0.0 ),
+  cacheLastVolume = cms.untracked.bool( True )
 )
 WithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "WithTrackAngle" ),
