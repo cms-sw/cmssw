@@ -11,10 +11,10 @@ import string
 
 #Reference release
 
-RefRelease='CMSSW_3_2_5'
+RefRelease='CMSSW_3_3_0_pre3'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_2_6'
+NewRelease='CMSSW_3_3_0_pre4'
 
 # startup and ideal sample list
 
@@ -74,8 +74,8 @@ StartupTag='STARTUP31X_V7'
 PileUp='noPU'
 
 # Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection='MC_31X_V5_'+PileUp
-StartupReferenceSelection='STARTUP31X_V4_'+PileUp
+ReferenceSelection='MC_31X_V8_'+PileUp
+StartupReferenceSelection='STARTUP31X_V7_'+PileUp
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
 NewSelectionLabel=''
@@ -87,6 +87,7 @@ RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/
 NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
 
 castorHarvestedFilesDirectory='/castor/cern.ch/user/n/nuno/relval/harvest/'
+
 #for preproduction samples:
 #RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
 #NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
