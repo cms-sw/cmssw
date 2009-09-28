@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Oct 24 00:00:00 EDT 2006
-// $Id: L1CaloGeometryProd.cc,v 1.2 2008/04/18 00:01:00 wsun Exp $
+// $Id: L1CaloGeometryProd.cc,v 1.3 2009/07/17 17:43:07 wsun Exp $
 //
 //
 
@@ -88,4 +88,4 @@ L1CaloGeometryProd::produce(const L1CaloGeometryRecord& iRecord)
 }
 
 //define this as a plug-in
-//DEFINE_FWK_EVENTSETUP_MODULE(L1CaloGeometryProd)
+DEFINE_FWK_EVENTSETUP_MODULE(L1CaloGeometryProd) ;
