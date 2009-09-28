@@ -86,7 +86,7 @@ def getObjectList (objectName, base):
                 etaFound = True
             elif name == 'phi':
                 phiFound = True
-            if name  in alreadySeenFunction:
+            if name in alreadySeenFunction:
                 continue
             # make sure this is an allowed return type
             returnType = funcMember.TypeOf().ReturnType().Name (0xffffffff)
@@ -98,7 +98,6 @@ def getObjectList (objectName, base):
             # and has no input parameters.            
             if funcMember.IsConst() and not funcMember.FunctionParameterSize():
                 retval.append( ("%s.%s()" % (base, name), goType))
-                #print "  %3d) %-30s %-20s" % (index, name, returnType)
                 alreadySeenFunction.add( name )
     retval.sort()
     return retval, etaFound and phiFound
@@ -126,6 +125,8 @@ def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
     genDef =  " ## GenObject %s Definition ##\n[%s]\n" % \
              (genName, genName)
     if options.index or not etaPhiFound:
+        # either we told it to always use index OR either eta or phi
+        # is missing.
         genDef += "-equiv: index,0\n";
     else:
         genDef += "-equiv: eta,0.1 phi,0.1\n";
@@ -134,9 +135,6 @@ def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
     
     for variable in mylist:
         name, func = genObjNameDef (variable[0])
-        ## if name in alreadySeenSet:
-        ##     raise RuntineError, "Duplicate '%s'" % name
-        ## alreadySeenSet.add (name)
         typeInfo   = variable[1]
         form = defsDict[ typeInfo ]
         genDef   += form % name + '\n'

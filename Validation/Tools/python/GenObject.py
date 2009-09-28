@@ -155,15 +155,17 @@ class GenObject (object):
     def printGlobal():
         """Meant for debugging, but ok if called by user"""
         print "objs: "
-        pprint.pprint (GenObject._objsDict,   indent=4)
-        print "equiv: "
-        pprint.pprint (GenObject._equivDict,  indent=4)
-        print "ntuple: "
-        pprint.pprint (GenObject._ntupleDict, indent=4)
-        print "tofill: "
-        pprint.pprint (GenObject._tofillDict, indent=4)
+        pprint.pprint (GenObject._objsDict,        indent=4)
+        print "equiv: "                            
+        pprint.pprint (GenObject._equivDict,       indent=4)
+        print "ntuple: "                           
+        pprint.pprint (GenObject._ntupleDict,      indent=4)
+        print "tofill: "                           
+        pprint.pprint (GenObject._tofillDict,      indent=4)
         print "kitchenSink: "
         pprint.pprint (GenObject._kitchenSinkDict, indent=4)
+        print "rootClassDict"
+        pprint.pprint (GenObject._rootClassDict,   indent=4)
 
 
     @staticmethod
@@ -322,6 +324,7 @@ class GenObject (object):
                 print "%s exists" % filename
             command = "echo .L %s+ | root.exe -b" % filename
             os.system (command)
+        print "loading %s" % SO
         ROOT.gSystem.Load(SO)
         return
 
@@ -718,7 +721,11 @@ class GenObject (object):
         """Creates the approprite type of Root object and copies the
         information into it from the GO object."""
         objName = obj._objName
-        rootObj = GenObject._rootClassDict[objName]()
+        classObj = GenObject._rootClassDict.get (objName)
+        if not classObj:
+            goName = GenObject.rootClassName (objName)
+            classObj = GenObject._rootClassDict[ goName ]
+        rootObj = classObj()
         for varName in GenObject._objsDict [objName].keys():
             setattr( rootObj, varName, obj (varName) )
         return rootObj
@@ -802,10 +809,11 @@ class GenObject (object):
         diffTree = ROOT.TTree (diffName, diffDescription)
         for objName in sorted (GenObject._objsDict.keys()):
             if objName == 'runevent': continue
+            classname = GenObject.rootClassName (objName)
+            GenObject._rootClassDict[classname] = getattr (ROOT, classname)
             contName = GenObject.rootDiffContClassName (objName)
             diffName = GenObject.rootDiffClassName (objName)
-            rootObj = \
-                    GenObject._rootClassDict[contName] = \
+            rootObj = GenObject._rootClassDict[contName] = \
                     getattr (ROOT, contName)
             GenObject._rootClassDict[diffName] = getattr (ROOT, diffName)
             obj = GenObject._rootObjectDict[objName] = rootObj()
