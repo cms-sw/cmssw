@@ -16,8 +16,10 @@ printGlobalTagL1Rct = cms.Sequence(l1RCTParametersTest*l1RCTChannelMaskTest*l1RC
 # Global Calorimeter Trigger
 #
 
-import L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi
-printGlobalTagL1Gct = L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi.l1GctConfigDump.clone()
+from L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi import l1GctConfigDump
+from L1TriggerConfig.L1GeometryProducers.l1CaloGeometryDump_cfi import l1CaloGeometryDump
+printGlobalTagL1Gct = cms.Sequence(l1GctConfigDump*l1CaloGeometryDump)
+#printGlobalTagL1Gct = L1TriggerConfig.GctConfigProducers.l1GctConfigDump_cfi.l1GctConfigDump.clone()
 
 # DT TPG
 #

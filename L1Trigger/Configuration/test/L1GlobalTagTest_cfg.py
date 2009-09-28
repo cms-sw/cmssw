@@ -18,7 +18,7 @@ useGlobalTag = 'GR09_31X_V1P'
 
 # include printing for subsystems
 printL1Rct = False
-printL1Gct = False
+printL1Gct = True
 
 printL1DtTPG = False
 printL1DtTF = False
@@ -29,12 +29,13 @@ printL1Rpc = False
 
 printL1Gmt = False
 
-printL1Gt = True
+printL1Gt = False
 
-# infinite IoV (use empty source) or run over given event sample (POOL source - default)
-#cmsSource = 'EmptySource'
-cmsSource = 'PoolSource'
+# specific run number (use empty source) or run over given event sample (POOL source - default)
+cmsSource = 'EmptySource'
+runnum = 109087
 
+#cmsSource = 'PoolSource'
 
 ###################### end user choices ###################
 
@@ -44,7 +45,12 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 if cmsSource == 'EmptySource' :
-    process.source = cms.Source('EmptySource')
+    process.source = cms.Source("EmptyIOVSource",
+                                timetype = cms.string('runnumber'),
+                                firstValue = cms.uint64(runnum),
+                                lastValue = cms.uint64(runnum),
+                                interval = cms.uint64(1)
+                                )
 else :
     readFiles = cms.untracked.vstring()
     secFiles = cms.untracked.vstring() 
