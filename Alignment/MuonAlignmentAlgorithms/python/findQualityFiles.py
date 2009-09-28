@@ -4,6 +4,11 @@
 import os,sys, DLFCN
 import optparse
 
+copyargs = sys.argv[:]
+for i in range(len(copyargs)):
+    if copyargs[i] == "":
+        copyargs[i] = "\"\""
+
 ######################################################
 # To parse commandline args
 
@@ -105,6 +110,8 @@ v = options.verbose
 minI = options.minB*18160/3.8
 maxI = options.maxB*18160/3.8
 
+infotofile = ["### %s\n" % " ".join(copyargs)]
+
 ######################################################
 # RunInfo DB connection setup
 
@@ -172,6 +179,9 @@ except Exception, er :
 print "### runs with good B field ###"
 print runs_b_on
 
+infotofile.append("### runs with good B field ###\n")
+infotofile.append("### %s\n" % str(runs_b_on))
+
 ######################################################
 # Add requiremment of good quality runs
 
@@ -193,11 +203,16 @@ os.system('rm /tmp/runs_full_of_pink_bunnies')
 print "### runs with good quality ###"
 print runs_good_dq
 
+infotofile.append("### runs with good quality ###\n")
+infotofile.append("### %s\n" % str(runs_good_dq))
 
 runs_good = [val for val in runs_b_on if val in runs_good_dq]
 
 print "### runs with good B field and quality ###"
 print runs_good
+
+infotofile.append("### runs with good B field and quality ###\n")
+infotofile.append("### %s\n" % str(runs_good))
 
 ######################################################
 # Find files for good runs
@@ -223,17 +238,20 @@ ff.close()
 os.system('rm /tmp/runs_and_files_full_of_pink_bunnies')
 print "### total number of events in those runs = "+str(total_numevents)
 
+infotofile.append("### total number of events in those runs = "+str(total_numevents))
+
 ######################################################
 # Write out results
 
 # ff = open(options.outputFile+'.txt','w')
-# size = len(list_of_files)
+size = len(list_of_files)
 # for i in range(0,size):
 #     ff.write(list_of_runs[i] + ", " + list_of_files[i]+"\n")
 # ff.close()
 
 ff = open(options.outputFile,'w')
-ff.write("fileNames = [\n")
+ff.write("".join(infotofile))
+ff.write("\nfileNames = [\n")
 comma = ","
 for i in range(0,size):
     if i==size-1:
