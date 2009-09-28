@@ -33,8 +33,10 @@ private:
   MonitorElement*  totalCertFraction;
   MonitorElement* certWheelFractions[5];
   MonitorElement* certDiskFractions[10];
+ std::pair<int, int> FEDRange_;
+  int numberOfDisks_;  
+  int NumberOfFeds_;
 
-  int numberOfDisks_;
 };
 
 

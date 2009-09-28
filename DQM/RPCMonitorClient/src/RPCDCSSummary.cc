@@ -6,54 +6,102 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+//CondFormats
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 using namespace std;
 using namespace edm;
 
 
-
 RPCDCSSummary::RPCDCSSummary(const ParameterSet& ps) {
 
  numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+
+ FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);
+ FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumRPCFEDId", 792);
+ 
+ NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 }
 
 RPCDCSSummary::~RPCDCSSummary() {}
 
-
 void RPCDCSSummary::beginJob(const EventSetup& setup){
+
+
+ edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
+
+ int defaultValue = 1;
+
+ if(0 != setup.find( recordKey ) ) {
+    defaultValue = -1;
+    //get fed summary information
+    ESHandle<RunInfo> sumFED;
+    setup.get<RunInfoRcd>().get(sumFED);    
+    vector<int> FedsInIds= sumFED->m_fed_in;   
+    unsigned int f = 0;
+    bool flag = false;
+    while(!flag && f < FedsInIds.size()) {
+      int fedID=FedsInIds[f];
+      //make sure fed id is in allowed range  
+      if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
+	defaultValue = 1;
+	flag = true;
+      } 
+      f++;
+    }   
+  }   
+
   // get the DQMStore
   theDbe = Service<DQMStore>().operator->();
   
   theDbe->setCurrentFolder("RPC/EventInfo");
   // global fraction
   totalDCSFraction = theDbe->bookFloat("DCSSummary");  
-  totalDCSFraction->Fill(-1);
+  totalDCSFraction->Fill(defaultValue);
 
   DCSMap_ = theDbe->book2D( "DCSSummaryMap","RPC DCS Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
   
   //customize the 2d histo
   stringstream BinLabel;
-  for (int i= 1 ; i<=15; i++){
+  for (int i= 1 ; i<13; i++){
     BinLabel.str("");
-    if(i<13){
-      BinLabel<<"Sec"<<i;
-      DCSMap_->setBinLabel(i,BinLabel.str(),2);
-    } 
+    BinLabel<<"Sec"<<i;
+    DCSMap_->setBinLabel(i,BinLabel.str(),2);
+  } 
 
+  for(int i = -2; i<=2; i++){
     BinLabel.str("");
-    if(i<5)
-      BinLabel<<"Disk"<<i-5;
-    else if(i>11)
-      BinLabel<<"Disk"<<i-11;
-    else if(i==11 || i==5)
-      BinLabel.str("");
-    else
-      BinLabel<<"Wheel"<<i-8;
- 
-     DCSMap_->setBinLabel(i,BinLabel.str(),1);
+    BinLabel<<"Wheel"<<i;
+    DCSMap_->setBinLabel((i+8),BinLabel.str(),1);
   }
 
+  for(int i = 1; i<=numberOfDisks_; i++){
+    BinLabel.str("");
+    BinLabel<<"Disk"<<i;
+    DCSMap_->setBinLabel((i+11),BinLabel.str(),1);
+    BinLabel.str("");
+    BinLabel<<"Disk"<<-i;
+    DCSMap_->setBinLabel((-i+5),BinLabel.str(),1);
+  }
+
+  //fill the histo with "1" --- just for the moment
+  for(int i=1; i<=15; i++){
+     for (int j=1; j<=12; j++ ){
+       if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
+	 DCSMap_->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
+       else
+	 DCSMap_->setBinContent(i,j,defaultValue);
+     }
+   }
+
+
+  if(numberOfDisks_ < 4){
+    for (int j=1; j<=12; j++ ){
+      DCSMap_->setBinContent(1,j,-1);//bins that not correspond to subdetector parts
+      DCSMap_->setBinContent(15,j,-1);
+    }
+ }
 
   // book the ME
   theDbe->setCurrentFolder("RPC/EventInfo/DCSContents");
@@ -67,7 +115,7 @@ void RPCDCSSummary::beginJob(const EventSetup& setup){
       stringstream streams;
       streams << "RPC_Wheel" << i;
       dcsWheelFractions[i+2] = theDbe->bookFloat(streams.str());
-      dcsWheelFractions[i+2]->Fill(-1);
+      dcsWheelFractions[i+2]->Fill(defaultValue);
    }
     
     if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_))continue;
@@ -77,7 +125,7 @@ void RPCDCSSummary::beginJob(const EventSetup& setup){
     stringstream streams;
     streams << "RPC_Disk" << i;
     dcsDiskFractions[i+2] = theDbe->bookFloat(streams.str());
-    dcsDiskFractions[i+2]->Fill(-1);
+    dcsDiskFractions[i+2]->Fill(defaultValue);
   }
 }
 

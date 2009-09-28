@@ -27,7 +27,7 @@ process.dqmSaver.convention = 'Online'
 
 ################# DQM Read ME ROOT File ####################
 process.readMeFromFile = cms.EDAnalyzer("ReadMeFromFile",
-      InputFile = cms.untracked.string('DQM_V6_newDIGI_Merged_R70664.root')
+      InputFile = cms.untracked.string('DQM_3.root')
 )
 
 ################# DQM Event Summary ####################
@@ -72,9 +72,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 #process.Timing = cms.Service('Timing')
 
-process.options = cms.untracked.PSet(
-         wantSummary = cms.untracked.bool(True)
-         )
+## process.options = cms.untracked.PSet(
+##          wantSummary = cms.untracked.bool(True)
+##          )
 
 ################# Path ###########################
 #process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)

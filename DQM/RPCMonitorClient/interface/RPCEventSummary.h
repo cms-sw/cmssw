@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2009/03/28 03:31:09 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/05/12 12:58:50 $
+ *  $Revision: 1.12 $
  *  \author Anna Cimmino
  *   
  */
@@ -67,10 +67,11 @@ public:
  
   int nLumiSegs_;
   std::string globalFolder_;
-  
-  int numberDisk_;
 
 
+  std::pair<int, int> FEDRange_;
+  int numberOfDisks_;  
+  int NumberOfFeds_;
   enum RPCQualityFlags{DEAD = 6, PARTIALLY_DEAD=5};
 
 };
