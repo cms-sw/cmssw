@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # IC5 Calo jets
 
-process.JetAnalyzerIC5Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerIC5Calo = cms.EDAnalyzer("CaloJetTester",
     src = cms.InputTag("iterativeCone5CaloJets"),
     srcGen = cms.InputTag("iterativeCone5GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -17,7 +17,7 @@ process.JetAnalyzerIC5Calo = cms.EDAnalyzer("CaloJetTester",
 
 # IC5 PFlow jets
 
-process.JetAnalyzerIC5PF = cms.EDFilter("PFJetTester",
+JetAnalyzerIC5PF = cms.EDFilter("PFJetTester",
     src = cms.InputTag("iterativeCone5PFJets"),
     srcGen = cms.InputTag("iterativeCone5GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -32,7 +32,7 @@ process.JetAnalyzerIC5PF = cms.EDFilter("PFJetTester",
 
 # kt4 Calo jets
 
-process.JetAnalyzerKt4Calo = cms.EDFilter("CaloJetTester",
+JetAnalyzerKt4Calo = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("kt4CaloJets"),                                   
     srcGen = cms.InputTag("kt4GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -47,7 +47,7 @@ process.JetAnalyzerKt4Calo = cms.EDFilter("CaloJetTester",
                                     
 # kt6 Calo jets
                                     
-process.JetAnalyzerKt6Calo = cms.EDFilter("CaloJetTester",
+JetAnalyzerKt6Calo = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("kt6CaloJets"),                                   
     srcGen = cms.InputTag("kt6GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -62,7 +62,7 @@ process.JetAnalyzerKt6Calo = cms.EDFilter("CaloJetTester",
 
 # Sisc5 jets
                                     
-process.JetAnalyzerSc5Calo = cms.EDFilter("CaloJetTester",
+JetAnalyzerSc5Calo = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("sisCone5CaloJets"),                                 
     srcGen = cms.InputTag("sisCone5GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -77,7 +77,7 @@ process.JetAnalyzerSc5Calo = cms.EDFilter("CaloJetTester",
 
 # Sisc7 jets
                                     
-process.JetAnalyzerSc7Calo = cms.EDFilter("CaloJetTester",
+JetAnalyzerSc7Calo = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("sisCone7CaloJets"),
     srcGen = cms.InputTag("sisCone7GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -92,7 +92,7 @@ process.JetAnalyzerSc7Calo = cms.EDFilter("CaloJetTester",
 
 # AntiKt5 jets
                                     
-process.JetAnalyzerAk5Calo = cms.EDFilter("CaloJetTester",
+JetAnalyzerAk5Calo = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("ak5CaloJets"),                                 
     srcGen = cms.InputTag("ak5GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -107,7 +107,7 @@ process.JetAnalyzerAk5Calo = cms.EDFilter("CaloJetTester",
 
 # AntiKt7 jets
                                     
-process.JetAnalyzerAk7Calo = cms.EDFilter("CaloJetTester",
+JetAnalyzerAk7Calo = cms.EDFilter("CaloJetTester",
     src = cms.InputTag("ak7CaloJets"),
     srcGen = cms.InputTag("ak7GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
@@ -122,7 +122,7 @@ process.JetAnalyzerAk7Calo = cms.EDFilter("CaloJetTester",
 
 # AntiKt5 PFlow jets
 
-process.JetAnalyzerAk5PF = cms.EDFilter("PFJetTester",
+JetAnalyzerAk5PF = cms.EDFilter("PFJetTester",
     src = cms.InputTag("ak5PFJets"),
     srcGen = cms.InputTag("ak5GenJets"),                                
 #    TurnOnEverything = cms.untracked.string('yes'),
