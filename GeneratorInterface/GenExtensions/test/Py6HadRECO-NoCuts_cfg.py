@@ -13,7 +13,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.99.2.3 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Configuration/GenProduction/BctoJPsiPi_cfi.py nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -42,7 +42,7 @@ process.output.outputCommands.append('keep *_generator_*_*')
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 
 process.raw2digi_step = cms.Path(process.RawToDigi)

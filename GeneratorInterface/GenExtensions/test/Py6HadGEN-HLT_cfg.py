@@ -18,7 +18,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.109 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('GeneratorInterface/Pythia6Interface/BCVEGPY_cfi.py nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -48,7 +48,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 process.mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     MinPt = cms.untracked.vdouble(2.5, 2.5),
     MaxEta = cms.untracked.vdouble(2.5, 2.5),
@@ -160,10 +160,7 @@ for path in process.paths:
     getattr(process,path)._seq = process.ProducerSourceSequence*getattr(process,path)._seq
 
 def customise(process):
-	process.RandomNumberGeneratorService.generator = process.RandomNumberGeneratorService.theSource
-
 	process.VtxSmeared.src = 'generator'
-
 	process.output.outputCommands.append('keep *_source_*_*')
 	process.output.outputCommands.append('keep *_generator_*_*')
 

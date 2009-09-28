@@ -13,10 +13,11 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.109 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('GeneratorInterface/Pythia6Interface/BCVEGPY_cfi.py nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)
 )
@@ -25,9 +26,10 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring('file:Bc2JpsiPi.lhe'),
+    fileNames = cms.untracked.vstring('file:Bc2JpsiPi.lhe')
 ##     firstEvent = cms.untracked.uint32(300001)
 )
+
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
@@ -44,7 +46,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'MC_31X_V2::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     eventsToPrint = cms.untracked.uint32(10),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
@@ -139,10 +141,7 @@ for path in process.paths:
     getattr(process,path)._seq = process.ProducerSourceSequence*getattr(process,path)._seq
 
 def customise(process):
-	process.RandomNumberGeneratorService.generator = process.RandomNumberGeneratorService.theSource
-
 	process.VtxSmeared.src = 'generator'
-
 	process.output.outputCommands.append('keep *_source_*_*')
 	process.output.outputCommands.append('keep *_generator_*_*')
 
