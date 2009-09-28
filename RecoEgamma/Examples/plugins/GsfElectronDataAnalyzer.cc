@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.27 2009/07/11 19:51:36 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.30 2009/09/27 16:45:33 charlot Exp $
 //
 //
 
@@ -199,7 +199,7 @@ void GsfElectronDataAnalyzer::beginJob(){
   // matching object distributions
   hlabel="h_"+type_+"_eta"; htitle=type_+" #eta";
   h_matchingObjectEta             = new TH1F( hlabel.c_str(), htitle.c_str(), nbineta,etamin,etamax);
-  hlabel="h_"+type_+"_ahseta"; htitle=type_+" |#eta|";
+  hlabel="h_"+type_+"_abseta"; htitle=type_+" |#eta|";
   h_matchingObjectAbsEta             = new TH1F( hlabel.c_str(), htitle.c_str(), nbineta/2,0.,etamax);
   hlabel="h_"+type_+"_P"; htitle=type_+" p";
   h_matchingObjectP               = new TH1F( hlabel.c_str(), htitle.c_str(),              nbinp,0.,pmax);
