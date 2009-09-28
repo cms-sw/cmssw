@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/05 15:48:34 $
+ *  $Date: 2009/09/25 13:04:00 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -83,7 +83,7 @@ HLTSummaryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // check if we want to cut on all physics objects of a full "L3" collection
    index=summary->collectionIndex(memberTag_);
-   if (index<=summary->sizeCollections()) {
+   if (index<summary->sizeCollections()) {
      const Keys& KEYS (summary->collectionKeys());
      const size_type n0 (index == 0? 0 : KEYS.at(index-1));
      const size_type n1 (KEYS.at(index));
