@@ -5,10 +5,12 @@
 #include "Validation/RecoEgamma/interface/EgammaObjects.h"
 #include "Validation/RecoEgamma/interface/PhotonValidator.h"
 #include "Validation/RecoEgamma/interface/PhotonPostprocessing.h"
+#include "Validation/RecoEgamma/interface/ElectronMcValidator.h"
 
 DEFINE_SEAL_MODULE();
 
 DEFINE_ANOTHER_FWK_MODULE(EgammaObjects);
 DEFINE_ANOTHER_FWK_MODULE(PhotonValidator);
 DEFINE_ANOTHER_FWK_MODULE(PhotonPostprocessing);
+DEFINE_ANOTHER_FWK_MODULE(ElectronMcValidator);
 
