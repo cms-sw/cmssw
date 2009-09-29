@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.2 2009/09/29 14:43:40 dshpakov Exp $
+// $Id: ChainData.h,v 1.3 2009/09/29 14:58:15 dshpakov Exp $
 
 #ifndef CHAINDATA_H
 #define CHAINDATA_H
@@ -270,6 +270,43 @@ namespace stor
       mutable uint32 _eventNumber;
 
     }; // EventMsgData
+
+
+    /////////////////////////
+    //// DQMEventMsgData ////
+    /////////////////////////
+
+    class DQMEventMsgData : public ChainData
+    {
+
+    public:
+
+      explicit DQMEventMsgData(toolbox::mem::Reference* pRef);
+      ~DQMEventMsgData() {}
+
+    protected:
+
+      unsigned long do_headerSize() const;
+      unsigned char* do_headerLocation() const;
+      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      std::string do_topFolderName() const;
+      DQMKey do_dqmKey() const;
+      void do_assertRunNumber(uint32 runNumber);
+
+    private:
+
+      void parseI2OHeader();
+      void cacheHeaderFields() const;
+
+      mutable bool _headerFieldsCached;
+      mutable std::vector<unsigned char> _headerCopy;
+      mutable unsigned long _headerSize;
+      mutable unsigned char* _headerLocation;
+      mutable std::string _topFolderName;
+      mutable DQMKey _dqmKey;
+
+    }; // class DQMEventMsgData
+
 
   } // namespace detail
 
