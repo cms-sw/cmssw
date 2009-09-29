@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/05/18 10:14:28 $
-// $Revision: 1.22 $
+// $Author: jmuelmen $
+// $Date: 2009/05/27 02:37:00 $
+// $Revision: 1.23 $
 //
 
 #include <memory>
@@ -22,6 +22,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
@@ -53,6 +54,8 @@ namespace cms
       const std::type_info &type = typeid(*hit);
       if (type == typeid(SiStripRecHit2D)) {
 	pID=reinterpret_cast<const SiStripRecHit2D *>(hit)->cluster().id();
+      } else if (type == typeid(SiStripRecHit1D)) {
+	pID=reinterpret_cast<const SiStripRecHit1D *>(hit)->cluster().id();	
       } else if (type == typeid(SiStripMatchedRecHit2D)) {
 	const SiStripMatchedRecHit2D *mhit = reinterpret_cast<const SiStripMatchedRecHit2D *>(hit);
 	pID=mhit->monoHit()->cluster().id();
