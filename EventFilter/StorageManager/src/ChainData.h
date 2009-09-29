@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.1 2009/09/29 11:59:20 dshpakov Exp $
+// $Id: ChainData.h,v 1.2 2009/09/29 14:43:40 dshpakov Exp $
 
 #ifndef CHAINDATA_H
 #define CHAINDATA_H
@@ -187,6 +187,10 @@ namespace stor
     }; // class ChainData
 
 
+    //////////////////////
+    //// InitMsgData: ////
+    //////////////////////
+
     class InitMsgData : public ChainData
     {
 
@@ -222,6 +226,50 @@ namespace stor
       mutable Strings _l1TriggerNames;
 
     }; // class InitMsgData
+
+
+    ///////////////////////
+    //// EventMsgData: ////
+    ///////////////////////
+
+    class EventMsgData : public ChainData
+    {
+
+    public:
+
+      explicit EventMsgData(toolbox::mem::Reference* pRef);
+      ~EventMsgData() {}
+
+    protected:
+
+      unsigned long do_headerSize() const;
+      unsigned char* do_headerLocation() const;
+      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      uint32 do_outputModuleId() const;
+      uint32 do_hltTriggerCount() const;
+      void do_hltTriggerBits(std::vector<unsigned char>& bitList) const;
+      void do_assertRunNumber(uint32 runNumber);
+      uint32 do_runNumber() const;
+      uint32 do_lumiSection() const;
+      uint32 do_eventNumber() const;
+
+    private:
+
+      void parseI2OHeader();
+      void cacheHeaderFields() const;
+
+      mutable bool _headerFieldsCached;
+      mutable std::vector<unsigned char> _headerCopy;
+      mutable unsigned long _headerSize;
+      mutable unsigned char* _headerLocation;
+      mutable uint32 _outputModuleId;
+      mutable uint32 _hltTriggerCount;
+      mutable std::vector<unsigned char> _hltTriggerBits;
+      mutable uint32 _runNumber;
+      mutable uint32 _lumiSection;
+      mutable uint32 _eventNumber;
+
+    }; // EventMsgData
 
   } // namespace detail
 
