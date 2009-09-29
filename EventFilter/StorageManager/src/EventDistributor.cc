@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.6 2009/09/22 15:23:26 dshpakov Exp $
+// $Id: EventDistributor.cc,v 1.7 2009/09/23 13:08:06 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -42,9 +42,8 @@ void EventDistributor::addEventToRelevantQueues( I2OChain& ioc )
     XCEPT_DECLARE( stor::exception::IncompleteEventMessage,
                    xcept,
                    "Faulty or incomplete I2OChain." );
-    _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm( "BadI2OChain",
-                                                                       AlarmHandler::ERROR,
-                                                                       xcept );
+    _sharedResources->_statisticsReporter->alarmHandler()->
+      notifySentinel(AlarmHandler::ERROR, xcept);
 
     DataSenderMonitorCollection& dataSenderMonColl =
       _sharedResources->_statisticsReporter->getDataSenderMonitorCollection();
@@ -89,10 +88,8 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
         }
         catch( stor::exception::InvalidEventSelection& e )
         {
-          _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
-            "InvalidEventSelection",
-            AlarmHandler::ERROR,
-            e );
+          _sharedResources->_statisticsReporter->alarmHandler()->
+            notifySentinel(AlarmHandler::ERROR,e);
         }
       }
       
@@ -198,9 +195,7 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
       XCEPT_DECLARE( stor::exception::WrongI2OMessageType,
                      xcept, msg.str());
       _sharedResources->_statisticsReporter->
-        alarmHandler()->raiseAlarm( "UnkownMessageType",
-                                    AlarmHandler::ERROR,
-                                    xcept );
+        alarmHandler()->notifySentinel(AlarmHandler::ERROR, xcept);
 
       // 24-Jun-2009, KAB - this is not really the best way to track this,
       // but it's probably better than nothing in the short term.
@@ -238,10 +233,8 @@ void EventDistributor::registerEventConsumer
     }
     catch( stor::exception::InvalidEventSelection& e )
     {
-      _sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
-        "InvalidEventSelection",
-        AlarmHandler::ERROR,
-        e );
+      _sharedResources->_statisticsReporter->alarmHandler()->
+        notifySentinel(AlarmHandler::ERROR, e);
     }
   }
   

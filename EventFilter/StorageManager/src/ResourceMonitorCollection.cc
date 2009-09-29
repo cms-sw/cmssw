@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.20 2009/09/18 12:36:09 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.21 2009/09/18 15:15:09 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -258,7 +258,7 @@ void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage, error_t e)
   }
   
   XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
-  _alarmHandler->raiseAlarm(diskUsage->pathName, diskUsage->alarmState, ex);
+  _alarmHandler->notifySentinel(diskUsage->alarmState, ex);
 }
 
 
