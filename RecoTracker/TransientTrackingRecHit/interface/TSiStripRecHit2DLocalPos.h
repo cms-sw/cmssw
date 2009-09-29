@@ -140,6 +140,8 @@ private:
     return new TSiStripRecHit2DLocalPos(*this);
   }
 
+  virtual ConstRecHitContainer transientHits() const;
+
 };
 
 #endif

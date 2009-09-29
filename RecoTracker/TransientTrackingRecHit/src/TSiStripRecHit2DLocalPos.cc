@@ -1,4 +1,5 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
@@ -33,4 +34,14 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
 const GeomDetUnit* TSiStripRecHit2DLocalPos::detUnit() const
 {
   return static_cast<const GeomDetUnit*>(det());
+}
+
+TransientTrackingRecHit::ConstRecHitContainer 	
+TSiStripRecHit2DLocalPos::transientHits () const {
+  ConstRecHitContainer result;
+
+  result.push_back(TSiStripRecHit1D::build( det(),&SiStripRecHit1D(specificHit()),
+					    cpe()));
+
+  return result;
 }
