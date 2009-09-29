@@ -58,7 +58,9 @@ if __name__ == "__main__":
     succeeded = 0
     weird     = 0
     problemTypes = {}
+    successes = {}
     for log in files:
+        problemSet = set()
         source = open (log, 'r')
         ran = False
         success = False
@@ -81,12 +83,17 @@ if __name__ == "__main__":
             for key, regex in problemDict.iteritems():
                 #print "considering %s for %s" % (key, line)
                 if regex.search(line):
+                    if key in problemSet:
+                        continue
+                    problemSet.add (key)
                     problems.setdefault(log,[]).append(key)
                     if not problemTypes.has_key(key):
                         problemTypes[key] = 1
                     else:
                         problemTypes[key] += 1
+            key = ''
         source.close()
+        
         if summaryLines:
             summary = eval (summaryLines)
             ok = summaryOK (summary)
@@ -96,6 +103,8 @@ if __name__ == "__main__":
             succeeded += 1
             if not ok[0]:
                 weird += 1
+            else:
+                successes[log] = pprint.pformat (summary, indent=4)
         else:
             if ok[0]:
                 weird += 1
@@ -107,18 +116,27 @@ if __name__ == "__main__":
                 problems[log] = ['other','ran:%s' % ran,
                                   'success:%s' % success]
                 key = 'other'
-        if not problemTypes.has_key(key):
-            problemTypes[key] = 1
-        else:
-            problemTypes[key] += 1
-
-    print "total:   ", len (files)
-    print "success: ", succeeded
-    print "weird:   ", weird
+            if not problemTypes.has_key(key):
+                problemTypes[key] = 1
+            else:
+                problemTypes[key] += 1
+    print "total:     ", len (files)
+    print "success:   ", succeeded
+    print "weird:     ", weird
     print "Problem types:"
+    total = 0
     for key, value in sorted (problemTypes.iteritems()):
-        print "  %-15s: %2d" % (key, value)
+        print "  %-15s: %4d" % (key, value)
+        total += value
+    print " ", '-'*13, " : ----"
+    print "  %-15s: %4d + %d = %d" \
+          % ('total', total, succeeded, total + succeeded),
     if not options.counts:
-        print "\nDetailed Problems list:"
+        print
+        print "Detailed Problems list:"
         for key, problemList in sorted (problems.iteritems()):
             print "   %s:\n   %s\n" % (key, problemList)
+        print "\n", '='*78, '\n'
+        print "Success list:"
+        for key, successesList in sorted (successes.iteritems()):
+            print "   %s:\n   %s\n" % (key, successesList)
