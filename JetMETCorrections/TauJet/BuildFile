@@ -6,7 +6,7 @@
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TauReco>
 <use name=JetMETCorrections/Objects>
-<lib name=TrackingToolsTransientTrack>
+<use name=TrackingTools/TransientTrack>
 <use name=Geometry/CaloGeometry>
 <use name=DataFormats/BTauReco>
 <use name=RecoTauTag/TauTagTools>
