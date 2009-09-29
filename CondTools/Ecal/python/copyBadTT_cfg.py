@@ -11,24 +11,23 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(1),
+    lastValue = cms.uint64(100000000000),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(100000000000),
     interval = cms.uint64(1)
 )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.CondDBCommon.connect = 'sqlite_file:DB.db'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
+process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon, 
     logconnect = cms.untracked.string('sqlite_file:log.db'),   
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalTPGTowerStatusRcd'),
-#        tag = cms.string('EcalTPGTowerStatus_craft')
-       tag = cms.string('EcalTPGTowerStatus_TPGTrivial_config')
+        tag = cms.string('EcalTPGTowerStatus_craft')
     ))
 )
 
@@ -40,9 +39,9 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalTPGBadTTAnalyzer",
     Source=cms.PSet(
      firstRun = cms.string('98273'),
      lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('cms_omds_lb'),
+     OnlineDBSID = cms.string('cms_orcoff'),
      OnlineDBUser = cms.string('cms_ecal_conf'),
-     OnlineDBPassword = cms.string('*************'),
+     OnlineDBPassword = cms.string('*********'),
      LocationSource = cms.string('P5'),
      Location = cms.string('P5_Co'),
      GenTag = cms.string('GLOBAL'),
