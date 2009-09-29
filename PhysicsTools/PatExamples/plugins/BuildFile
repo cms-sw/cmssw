@@ -16,6 +16,7 @@
   <use name=PhysicsTools/PatExamples>
   <use name=PhysicsTools/PatAlgos>
   <use name=PhysicsTools/PatUtils>
+  <use name=PhysicsTools/CandUtils>
   <use name=PhysicsTools/UtilAlgos>
   <use name=root>
 </library>
