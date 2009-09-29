@@ -60,3 +60,30 @@ makeCompositeCandidateWithRefsToMaster( const reco::CandidateRef & c1,
   cmp.addDaughter( ShallowCloneCandidate( CandidateBaseRef( c4 ) ) );
   return cmp;
 }
+
+helpers::CompositePtrCandidateMaker makeCompositePtrCandidate( const CandidatePtr & c1, const CandidatePtr & c2 ) {
+  helpers::CompositePtrCandidateMaker cmp( auto_ptr<CompositePtrCandidate>( new CompositePtrCandidate ) );
+  cmp.addDaughter( c1 );
+  cmp.addDaughter( c2 );
+  return cmp;
+}
+
+helpers::CompositePtrCandidateMaker makeCompositePtrCandidate( const CandidatePtr & c1, const CandidatePtr & c2, 
+							       const CandidatePtr & c3 ) {
+  helpers::CompositePtrCandidateMaker cmp( auto_ptr<CompositePtrCandidate>( new CompositePtrCandidate ) );
+  cmp.addDaughter( c1 );
+  cmp.addDaughter( c2 );
+  cmp.addDaughter( c3 );
+  return cmp;
+}
+
+helpers::CompositePtrCandidateMaker makeCompositePtrCandidate( const CandidatePtr & c1, const CandidatePtr & c2, 
+							       const CandidatePtr & c3, const CandidatePtr & c4 ) {
+  helpers::CompositePtrCandidateMaker cmp( auto_ptr<CompositePtrCandidate>( new CompositePtrCandidate ) );
+  cmp.addDaughter( c1 );
+  cmp.addDaughter( c2 );
+  cmp.addDaughter( c3 );
+  cmp.addDaughter( c4 );
+  return cmp;
+}
+
