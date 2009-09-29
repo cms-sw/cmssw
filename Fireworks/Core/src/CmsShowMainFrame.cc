@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.61 2009/08/26 18:59:19 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.62 2009/08/27 18:54:09 amraktad Exp $
 //
 // hacks
 #define private public
@@ -310,7 +310,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    // text/num entries
 
    Int_t maxW =  fullbar->GetWidth() - controlFrame->GetWidth();
-   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 44, kFixedSize, backgroundColor);
+   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 48, kFixedSize, backgroundColor);
    Int_t entryHeight = 20;
 
    // upper row
@@ -332,10 +332,25 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    texts->AddFrame(runInfo, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,1));
 
    // lower row
-   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
-   makeFixedSizeLabel(filterFrame, "Filter", backgroundColor, 0xffffff);
-   m_filterEntry = new TGTextEntry(filterFrame, "");
-   filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
+   // m_filterEntry = new TGTextEntry(filterFrame, "");
+   // filterFrame->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+   // m_filterButton = new
+   
+   TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
+   m_filterState = new TGCheckButton(filterFrame,"");
+   m_filterState->SetBackgroundColor(backgroundColor);
+   m_filterState->SetTextColor(0xFFFFFF);
+   m_filterState->SetToolTipText("Enable/disable event filtering");
+   lframe->AddFrame(m_filterState, new TGLayoutHints(kLHintsRight | kLHintsBottom));
+   filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsBottom,2,4,2,2));
+
+   m_filterEditButton = new TGTextButton(filterFrame,"Event filtering is OFF");
+   m_filterEditButton->SetBackgroundColor(backgroundColor);
+   m_filterEditButton->SetTextColor(0xFFFFFF);
+   m_filterEditButton->SetToolTipText("Edit event selection");
+   filterFrame->AddFrame(m_filterEditButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
+
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
 

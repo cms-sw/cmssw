@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.148 2009/09/24 00:27:42 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.149 2009/09/24 00:43:53 chrjones Exp $
 //
 
 // system include files
@@ -191,7 +191,9 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
       TQObject::Connect(m_cmsShowMainFrame->m_runEntry,"ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
-      TQObject::Connect(m_cmsShowMainFrame->m_filterEntry, "ReturnPressed()", "FWGUIManager", this, "eventFilterChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "showEventFilter()");
+      TQObject::Connect(m_cmsShowMainFrame->m_filterState, "Clicked()", "FWGUIManager", this, "eventFilterStatusChanged()");
+      // TQObject::Connect(m_cmsShowMainFrame->m_filterEditButton, "Clicked()", "FWGUIManager", this, "eventFilterChanged()");
 
       TQObject::Connect(gEve->GetWindowManager(), "WindowSelected(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
       TQObject::Connect(gEve->GetWindowManager(), "WindowDocked(TEveWindow*)", "FWGUIManager", this, "checkSubviewAreaIconState(TEveWindow*)");
@@ -301,7 +303,7 @@ FWGUIManager::enableActions(bool enable)
 }
 
 void
-FWGUIManager::newFile(const TFile* iFile)
+FWGUIManager::fileChanged(const TFile* iFile)
 {
    m_openFile = iFile;
    char title[128];
@@ -344,15 +346,15 @@ FWGUIManager::autoRewindAction()
 }
 
 void
-FWGUIManager::disablePrevious()
+FWGUIManager::disablePrevious(bool flag)
 {
-   m_cmsShowMainFrame->enablePrevious(false);
+   m_cmsShowMainFrame->enablePrevious(!flag);
 }
 
 void
-FWGUIManager::disableNext()
+FWGUIManager::disableNext(bool flag)
 {
-   m_cmsShowMainFrame->enableNext(false);
+   m_cmsShowMainFrame->enableNext(!flag);
 }
 
 void
@@ -360,7 +362,7 @@ FWGUIManager::setPlayMode(bool play)
 {
    m_cmsShowMainFrame->m_runEntry->SetState(!play);
    m_cmsShowMainFrame->m_eventEntry->SetState(!play);
-   m_cmsShowMainFrame->m_filterEntry->SetState(!play);
+   // m_cmsShowMainFrame->m_filterEntry->SetState(!play);
 }
 
 void
@@ -1172,17 +1174,24 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
-   changedRunId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber());
+   m_cmsShowMainFrame->m_eventEntry->SetText("",kFALSE);
+   m_cmsShowMainFrame->m_eventEntry->SetFocus();
 }
 
 void FWGUIManager::eventIdChanged()
 {
-   changedEventId_.emit(m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
+  changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber(),
+		       m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
 }
 
-void FWGUIManager::eventFilterChanged()
+void FWGUIManager::showEventFilter()
 {
-   changedEventFilter_.emit(m_cmsShowMainFrame->m_filterEntry->GetText());
+  showEventFilter_.emit();
+}
+
+void FWGUIManager::eventFilterStatusChanged()
+{
+  changedEventFilterStatus_.emit(m_cmsShowMainFrame->m_filterState->IsOn());
 }
 
 void
@@ -1191,7 +1200,17 @@ FWGUIManager::finishUpColorChange()
    gEve->FullRedraw3D(kFALSE,kTRUE);
 }
 
-
+void FWGUIManager::eventFilterMessage(const std::string& message)
+{
+  if ( message.empty() ){
+    // if (m_cmsShowMainFrame->m_filterState->IsOn()) warning
+    m_cmsShowMainFrame->m_filterState->SetOn(kFALSE);
+    m_cmsShowMainFrame->m_filterEditButton->SetText("Event Filtering is OFF");
+  } else {
+    m_cmsShowMainFrame->m_filterState->SetOn(kTRUE);
+    m_cmsShowMainFrame->m_filterEditButton->SetText(message.c_str());
+  }
+}
 
 //
 // static member functions

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.91 2009/08/14 15:40:44 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.92 2009/08/18 19:03:31 amraktad Exp $
 //
 
 // system include files
@@ -136,13 +136,14 @@ static const char* const kEveOpt = "eve";
 static const char* const kEveCommandOpt = "eve";
 static const char* const kAdvancedRenderOpt = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
-static char const* const kHelpOpt = "help";
-static char const* const kHelpCommandOpt = "help,h";
-// static char const* const kSoftOpt = "soft";
-static char const* const kSoftCommandOpt = "soft";
+static const char* const kHelpOpt = "help";
+static const char* const kHelpCommandOpt = "help,h";
+// static const char* const kSoftOpt = "soft";
+static const char* const kSoftCommandOpt = "soft";
 static const char* const kPortCommandOpt = "port";
-static char const* const kPlainRootCommandOpt = "root";
-static char const* const kRootInteractiveCommandOpt = "root-interactive,r";
+static const char* const kPlainRootCommandOpt = "root";
+static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
+static const char* const kChainCommandOpt = "chain";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    m_configurationManager(new FWConfigurationManager),
@@ -156,6 +157,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                     m_selectionManager.get(),
                                     m_eiManager.get(),
                                     m_colorManager.get())),
+   m_navigator(new CmsShowNavigator(*this)),
    m_playTimer(0),
    m_playBackTimer(0),
    m_isPlaying(false),
@@ -186,6 +188,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
               (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
               (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
               (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+              (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain.")
               (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
@@ -268,6 +271,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                 m_viewManager.get(), _1));
       m_configurationManager->add("EventItems",m_eiManager.get());
       m_configurationManager->add("GUI",m_guiManager.get());
+      m_configurationManager->add("EventNavigator",m_navigator);
       m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                   m_configurationManager.get(),_1));
       //figure out where to find macros
@@ -309,6 +313,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
       if(vm.count(kPortCommandOpt)) {
          f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>());
+         m_startupTasks->addTask(f);
+      }
+      if(vm.count(kChainCommandOpt)) {
+         f=boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator, vm[kChainCommandOpt].as<unsigned int>());
          m_startupTasks->addTask(f);
       }
       if (vm.count(kPlayOpt)) {
@@ -427,7 +435,10 @@ void CmsShowMain::openData()
    strcpy(fi.fIniDir, ".");
    new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
    m_guiManager->updateStatus("loading file ...");
-   if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
+   if (fi.fFilename) {
+     m_navigator->loadFile(fi.fFilename);
+     m_navigator->firstEventInTheCurrentFile();
+   }
    m_guiManager->clearStatus();
 }
 void CmsShowMain::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
@@ -691,16 +702,15 @@ void
 CmsShowMain::setupDataHandling()
 {
    m_guiManager->updateStatus("Setting up data handling...");
-   m_navigator = new CmsShowNavigator(*this);
    m_navigator->oldEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
    m_navigator->newEvent_.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
-   m_navigator->newFileLoaded_.connect(boost::bind(&CmsShowMain::resetInitialization,this));
-   m_navigator->newFileLoaded_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
-   m_navigator->atBeginning_.connect((sigc::mem_fun(*this, &CmsShowMain::reachedBeginning)));
-   m_navigator->atEnd_.connect(sigc::mem_fun(*this, &CmsShowMain::reachedEnd));
+   m_navigator->fileChanged_.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::fileChanged));
+   m_navigator->atBeginning_.connect(boost::bind(&CmsShowMain::reachedBeginning,this,_1));
+   m_navigator->atEnd_.connect(boost::bind(&CmsShowMain::reachedEnd,this,_1));
    m_navigator->preFiltering_.connect(boost::bind(&CmsShowMain::preFiltering,this));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering,this));
+   m_navigator->eventSelectionChanged_.connect(boost::bind(&FWGUIManager::eventFilterMessage,m_guiManager.get(),_1));
    if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
@@ -717,9 +727,10 @@ CmsShowMain::setupDataHandling()
    m_guiManager->setDelayBetweenEvents(m_playDelay);
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMain::setPlayDelay,this,_1));
 
-   m_guiManager->changedRunId_.connect(boost::bind(&CmsShowNavigator::goToRun,m_navigator,_1));
-   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1));
-   m_guiManager->changedEventFilter_.connect(boost::bind(&CmsShowNavigator::filterEventsAndReset,m_navigator,_1));
+   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowNavigator::goToEvent,m_navigator,_1,_2));
+   m_guiManager->showEventFilter_.connect(boost::bind(&CmsShowNavigator::showEventFilter,m_navigator));
+   // m_guiManager->changedEventFilter_.connect(boost::bind(&CmsShowNavigator::filterEventsAndReset,m_navigator));
+   m_guiManager->changedEventFilterStatus_.connect(boost::bind(&CmsShowNavigator::enableEventFiltering,m_navigator,_1));
 
    {
       SignalTimer* timer = new SignalTimer();
@@ -735,6 +746,8 @@ CmsShowMain::setupDataHandling()
       if (! m_navigator->loadFile(m_inputFileName) ){
 	m_guiManager->updateStatus("failed to load data file");
 	openData();
+      } else {
+	m_navigator->firstEventInTheCurrentFile();
       }
    }
    else if (m_monitor.get() != 0) {
@@ -805,6 +818,7 @@ CmsShowMain::notified(TSocket* iSocket)
       if (!m_inputFileName.size())
       {
          m_navigator->loadFile(fileName);
+	 m_navigator->firstEventInTheCurrentFile();
          accept = true;
       }
       else
@@ -865,12 +879,12 @@ CmsShowMain::stopPlaying()
 }
 
 void
-CmsShowMain::reachedEnd()
+CmsShowMain::reachedEnd(bool flag)
 {
    if (m_rewindMode && m_guiManager->playEventsAction()->isRunning())
       return;
 
-   if (m_isPlaying)
+   if (m_isPlaying && flag)
    {
       if ( m_forward ) {
          if (m_monitor.get())
@@ -879,20 +893,20 @@ CmsShowMain::reachedEnd()
             m_playTimer->TurnOff();
          } else {
             stopPlaying();
-            m_guiManager->disableNext();
+            m_guiManager->disableNext(flag);
          }
       }
    }
-   else m_guiManager->disableNext();
+   else m_guiManager->disableNext(flag);
 }
 
 void
-CmsShowMain::reachedBeginning()
+CmsShowMain::reachedBeginning(bool flag)
 {
    if (m_rewindMode && m_guiManager->playEventsBackwardsAction()->isRunning())
       return;
 
-   if (m_isPlaying)
+   if (m_isPlaying && flag)
    {
       if (!m_forward) {
 
@@ -902,11 +916,11 @@ CmsShowMain::reachedBeginning()
             m_playBackTimer->TurnOff();
          } else {
             stopPlaying();
-            m_guiManager->disablePrevious();
+            m_guiManager->disablePrevious(flag);
          }
       }
    }
-   else m_guiManager->disablePrevious();
+   else m_guiManager->disablePrevious(flag);
 }
 
 void

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.72 2009/08/14 15:38:31 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.73 2009/09/23 20:35:26 chrjones Exp $
 //
 
 // system include files
@@ -147,13 +147,13 @@ public:
 
    void connectSubviewAreaSignals(FWGUISubviewArea*);
    void enableActions(bool enable = true);
-   void disablePrevious();
-   void disableNext();
+   void disablePrevious(bool);
+   void disableNext(bool);
    void setPlayMode(bool);
    void updateStatus(const char* status);
    void clearStatus();
    void loadEvent(const fwlite::Event& event);
-   void newFile(const TFile*);
+   void fileChanged(const TFile*);
 
    CSGAction* getAction(const std::string name);
 
@@ -165,21 +165,23 @@ public:
 
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
    sigc::signal<void, const std::string&> changedEventFilter_;
-   sigc::signal<void, int> changedEventId_;
-   sigc::signal<void, int> changedRunId_;
+   sigc::signal<void, bool> changedEventFilterStatus_;
+   sigc::signal<void, int, int> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
 
    sigc::signal<void> changedRunEntry_;
    sigc::signal<void> changedEventEntry_;
-   sigc::signal<void> changedFileterEntry_;
+   sigc::signal<void> showEventFilter_;
 
    sigc::signal<void, Float_t> changedDelayBetweenEvents_;
 
    void openEveBrowserForDebugging() const;
    void setDelayBetweenEvents(Float_t);
 
-   void eventFilterChanged();
+   // void eventFilterChanged();       // CmsShowMainFrame -> CmsShowNavigator
+   void eventFilterStatusChanged(); // CmsShowMainFrame -> CmsShowNavigator
+   void eventFilterMessage(const std::string&); // CmsShowNavigator -> CmsShowMainFrame
    void runIdChanged();
    void eventIdChanged();
    void checkSubviewAreaIconState(TEveWindow*);
@@ -188,6 +190,7 @@ public:
    void subviewInfoSelected(FWGUISubviewArea*);
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
+   void showEventFilter();
 
    static  TGFrame* makeGUIsubview(TEveCompositeFrame* cp, TGCompositeFrame* parent, Int_t height);
 

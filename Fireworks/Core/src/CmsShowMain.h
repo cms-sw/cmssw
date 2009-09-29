@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.24 2009/08/14 10:23:32 amraktad Exp $
+// $Id: CmsShowMain.h,v 1.25 2009/08/14 15:40:44 chrjones Exp $
 //
 
 // system include files
@@ -118,8 +118,8 @@ private:
    void playForward();
    void playBackward();
    void stopPlaying();
-   void reachedEnd();
-   void reachedBeginning();
+   void reachedEnd(bool);
+   void reachedBeginning(bool);
    void setPlayAutoRewind();
    void unsetPlayAutoRewind();
 

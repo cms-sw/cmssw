@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.26 2009/08/26 18:59:19 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.27 2009/08/27 18:54:09 amraktad Exp $
 //
 
 // system include files
@@ -90,7 +90,8 @@ public:
    CSGAction* createNewViewerAction(const std::string& iActionName);
 
 protected:
-   TGTextEntry*         m_filterEntry;
+   TGCheckButton*       m_filterState;
+   TGTextButton*        m_filterEditButton;
    TGNumberEntryField*  m_runEntry;
    TGNumberEntryField*  m_eventEntry;
    FWIntValueListener*  m_delaySliderListener;
