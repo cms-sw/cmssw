@@ -45,9 +45,9 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
     double corrPt = jet.correctedP4( pat::JetCorrFactors::L3 ).Pt();
 
     // loose fhpd cut
-    if ( ! (*this)["LOOSE_fHPD"]    || jet.jetID().fHPD() < 0.98 ) passCut( ret, "LOOSE_fHPD");
+    if ( ! (*this)["LOOSE_fHPD"]    || jet.jetID().fHPD < 0.98 ) passCut( ret, "LOOSE_fHPD");
     // loose n90 hits cut
-    if ( ! (*this)["LOOSE_N90Hits"] || jet.jetID().n90Hits() > 1 ) passCut( ret, "LOOSE_N90Hits");
+    if ( ! (*this)["LOOSE_N90Hits"] || jet.jetID().n90Hits > 1 ) passCut( ret, "LOOSE_N90Hits");
 
     // loose EMF Cut
     bool emf_loose = true;
@@ -61,7 +61,7 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
  
     // tight fhpd cut
     bool tight_fhpd = true;
-    if ( jet.pt() >= 25 && jet.jetID().fHPD() >= 0.95 ) tight_fhpd = false;
+    if ( jet.pt() >= 25 && jet.jetID().fHPD >= 0.95 ) tight_fhpd = false;
     if ( !(*this)["TIGHT_fHPD"] || tight_fhpd ) passCut(ret, "TIGHT_fHPD");
 	
     // tight emf cut
