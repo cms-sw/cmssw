@@ -49,10 +49,11 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 process.ttSemiLepEvent.verbosity = 1
 
 ## choose which hypotheses to produce
-from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import addTtSemiLepHypotheses
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 addTtSemiLepHypotheses(process,
                        ["kGeom", "kWMassMaxSumPt", "kMaxSumPtWMass", "kMVADisc", "kKinFit"]
                        )
+#removeTtSemiLepHypGenMatch(process)
 
 ## change maximum number of jets taken into account per event (default: 4)
 ## process.ttSemiLepEvent.maxNJets = 5

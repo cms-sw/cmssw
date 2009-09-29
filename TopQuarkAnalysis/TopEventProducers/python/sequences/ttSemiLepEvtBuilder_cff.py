@@ -24,7 +24,11 @@ makeTtSemiLepEvent = cms.Sequence(makeTtSemiLepHypotheses *
                                   ttSemiLepEvent
                                   )
 
-## provide a helper function for adding hypotheses to the process
+########################################
+## helper functions
+########################################
+
+## add hypotheses to the process
 def addTtSemiLepHypotheses(process,
                            names
                            ):
@@ -50,4 +54,8 @@ def addTtSemiLepHypotheses(process,
             label = "makeHypothesis_" + names[obj][1:2].lower() + names[obj][2:]
         ## add it to the sequence
         sequence += getattr(process, label)
-    process.makeTtSemiLepHypotheses = cms.Sequence(sequence)
+
+## remove genMatch hypothesis from the process
+def removeTtSemiLepHypGenMatch(process):
+    process.makeTtSemiLepHypotheses.remove(process.makeHypothesis_genMatch)
+    process.ttSemiLepEvent.hypotheses.remove("ttSemiLepHypGenMatch")
