@@ -9,6 +9,12 @@
 # Starting with a skeleton process which gets imported with the following line
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+#-- Meta data to be logged in Provenance --------------------------------------
+process.configurationMetadata = cms.untracked.PSet(
+    version = cms.untracked.string('$Revision: $'),
+    name = cms.untracked.string('$Source:$'),
+    annotation = cms.untracked.string('SUSY pattuple definition')
+)
 
 #-- Message Logger ------------------------------------------------------------
 process.MessageLogger.categories.append('PATSummaryTables')
@@ -56,10 +62,10 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 # Add a few jet collections...
 addJetCollection(process, cms.InputTag('antikt5CaloJets'),
                  'AK5',
-                 doJTA            = True,            
-                 doBTagging       = True,            
-                 jetCorrLabel     = ('AK5','Calo'),  
-                 doType1MET       = True,            
+                 doJTA            = True,
+                 doBTagging       = True,
+                 jetCorrLabel     = ('AK5','Calo'),
+                 doType1MET       = True,
                  genJetCollection = cms.InputTag("antikt5GenJets")
                  )
 addJetCollection(process,cms.InputTag('iterativeCone5PFJets'),
@@ -104,9 +110,52 @@ process.load("RecoMET.METProducers.hcalnoiseinfoproducer_cfi")
 process.hcalnoise.refillRefVectors = True
 process.hcalnoise.hcalNoiseRBXCollName = "hcalnoise" # This has changed in 33X
 
+#-- Track Jets ----------------------------------------------------------------
+# Select tracks for track jets
+process.load("PhysicsTools.RecoAlgos.TrackWithVertexSelector_cfi")
+process.trackWithVertexSelector.src              = cms.InputTag("generalTracks")
+process.trackWithVertexSelector.ptMax            = cms.double(500.0) 
+process.trackWithVertexSelector.normalizedChi2   = cms.double(100.0)
+process.trackWithVertexSelector.vertexTag        = cms.InputTag("offlinePrimaryVertices")
+process.trackWithVertexSelector.copyTrajectories = cms.untracked.bool(False)
+process.trackWithVertexSelector.vtxFallback      = cms.bool(False)
+process.trackWithVertexSelector.useVtx           = cms.bool(False)
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.tracksForJets = cms.EDProducer("ConcreteChargedCandidateProducer",
+                                       src = cms.InputTag("trackWithVertexSelector"),
+                                       particleType = cms.string('pi+')
+                                       )
+# Add jet collections
+from RecoJets.JetProducers.SISConeJetParameters_cfi import *
+from RecoJets.JetProducers.FastjetParameters_cfi import *
+process.SISCone5TrackJets = cms.EDProducer("SISConeJetProducer",
+                                           SISConeJetParameters,
+                                           FastjetNoPU,
+                                           src = cms.InputTag("tracksForJets"),
+                                           jetType = cms.untracked.string('BasicJet'),
+                                           alias = cms.untracked.string('SISCone5TrackJets'),
+                                           coneRadius = cms.double(0.5),
+                                           jetPtMin = cms.double(0.3),
+                                           inputEMin = cms.double(0.0),
+                                           inputEtMin = cms.double(0.2),
+                                           )
+process.addTrackJets = cms.Sequence(  process.trackWithVertexSelector
+                                    * process.tracksForJets
+                                    * process.SISCone5TrackJets )
+addJetCollection(process,cms.InputTag('SISCone5TrackJets'),
+                 'SC5Track',
+                 doJTA        = True,
+                 doBTagging   = True,
+                 jetCorrLabel = None,
+                 doType1MET   = False,
+                 doL1Cleaning = True,
+                 doL1Counters = True,
+                 genJetCollection = cms.InputTag("sisCone5GenJets")
+                 )
+process.jetTracksAssociatorAtVertexSC5Track.tracks = cms.InputTag("trackWithVertexSelector")
 
 #-- Tune contents of jet collections  -----------------------------------------
-for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT' ):
+for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT', 'SC5Track' ):
     module = getattr(process,'allLayer1Jets'+jetName)
     module.addTagInfos = False    # Remove tag infos
     module.addJetID    = True     # Add JetID variables
@@ -181,11 +230,13 @@ process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsIC5'))
 process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
 process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsIC5'))
 # Add new jet collections to counters (MET done automatically)
-for jets in ( 'AK5', 'SC5','IC5PF','IC5JPT' ):
+for jets in ( 'AK5', 'SC5','IC5PF','IC5JPT', 'SC5Track' ):
     process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
 
 # Full path
-process.p = cms.Path( process.hcalnoise*process.patDefaultSequence*process.patTrigger*process.patTriggerEvent )
+process.p = cms.Path( process.hcalnoise*process.addTrackJets
+                      * process.patDefaultSequence
+                      * process.patTrigger*process.patTriggerEvent )
 
