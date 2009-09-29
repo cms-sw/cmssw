@@ -14,8 +14,8 @@ from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( ecal_dqm_client_offline *
                                              hcalOfflineDQMClient *
-                                             sipixelEDAClient *
                                              SiStripOfflineDQMClient *
+                                             sipixelEDAClient *
                                              dtClients *
                                              rpcTier0Client *
                                              cscOfflineCollisionsClients *
