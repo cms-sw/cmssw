@@ -20,6 +20,8 @@ void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
         const std::type_info &type = typeid(*hit);
         if (type == typeid(SiStripRecHit2D)) {
             reKey(reinterpret_cast<SiStripRecHit2D *>(hit), detid.rawId());
+	} else if (type == typeid(SiStripRecHit1D)) {
+            reKey(reinterpret_cast<SiStripRecHit1D *>(hit), detid.rawId());
         } else if (type == typeid(SiStripMatchedRecHit2D)) {
             SiStripMatchedRecHit2D *mhit = reinterpret_cast<SiStripMatchedRecHit2D *>(hit);
             // const_cast is needed: monoHit() e stereoHit() are const only - at least for now
@@ -48,6 +50,25 @@ void ClusterRemovalRefSetter::reKey(SiStripRecHit2D *hit, uint32_t detid) const 
     assert(newIndex < indices.size());
     size_t oldIndex = indices[newIndex];
     SiStripRecHit2D::ClusterRef oldRef(cri_->stripRefProd(), oldIndex);
+    hit->setClusterRef(oldRef);
+}
+
+void ClusterRemovalRefSetter::reKey(SiStripRecHit1D *hit, uint32_t detid) const {
+    using reco::ClusterRemovalInfo;
+    const ClusterRemovalInfo::Indices &indices = cri_->stripIndices();
+    SiStripRecHit1D::ClusterRef newRef = hit->cluster();
+    // "newRef" as it refs to the "new"(=cleaned) collection, instead of the old one
+
+    if (newRef.id() != cri_->stripNewRefProd().id()) {   // this is a cfg error in the tracking configuration, much more likely
+        throw cms::Exception("Inconsistent Data") << "ClusterRemovalRefSetter: " << 
+            "Existing strip cluster refers to product ID " << newRef.id() << 
+            " while the ClusterRemovalInfo expects as *new* cluster collection the ID " << cri_->stripNewRefProd().id() << "\n";
+    }
+
+    size_t newIndex = newRef.key();
+    assert(newIndex < indices.size());
+    size_t oldIndex = indices[newIndex];
+    SiStripRecHit1D::ClusterRef oldRef(cri_->stripRefProd(), oldIndex);
     hit->setClusterRef(oldRef);
 }
 

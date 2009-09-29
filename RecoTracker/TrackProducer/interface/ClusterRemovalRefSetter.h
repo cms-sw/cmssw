@@ -12,6 +12,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -21,6 +22,7 @@ class ClusterRemovalRefSetter {
         ClusterRemovalRefSetter(const edm::Event &iEvent, const edm::InputTag tag) ;
         void reKey(TrackingRecHit *hit) const ;
         void reKey(SiStripRecHit2D *hit, uint32_t detid) const ;
+        void reKey(SiStripRecHit1D *hit, uint32_t detid) const ;
         void reKey(SiPixelRecHit *hit, uint32_t detid) const ;
     private:
         const reco::ClusterRemovalInfo *cri_;
