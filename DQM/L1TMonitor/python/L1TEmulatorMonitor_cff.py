@@ -28,12 +28,17 @@ from DQM.L1TMonitor.L1TdeRCT_cfi import *
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
 
+#filter to select "real events"
+from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
+hltTriggerTypeFilter.SelectedTriggerType = 1
+
+
 p = cms.Path(
     cms.SequencePlaceholder("RawToDigi")
     *cms.SequencePlaceholder("L1HardwareValidation")
     *(l1demon
       +l1demonecal
-      +l1tderct
+      +hltTriggerTypeFilter*l1tderct
       +l1demongct
       )
     )
