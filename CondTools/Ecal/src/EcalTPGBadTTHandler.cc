@@ -113,10 +113,6 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	  
 	    irun=(unsigned long) run_vec[kr].getRunNumber();
 
-	    std::cout<<" **************** "<<std::endl;
-	    std::cout<<" **************** "<<std::endl;
-	    std::cout<<" run= "<<irun<<std::endl;
-
             // retrieve the data :
             map<EcalLogicID, RunTPGConfigDat> dataset;
             econn->fetchDataSet(&dataset, &run_vec[kr]);
@@ -140,12 +136,12 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	    // it is all the same for all SM... get the last one 
 
 
-	    std::cout<<" run= "<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version <<std::endl;
 
 	    // here we should check if it is the same as previous run.
 
 
 	    if((the_config_tag != m_i_tag || the_config_version != m_i_version ) && nr>0 ) {
+	      std::cout<<" run= "<<irun<<" tag "<<the_config_tag<<" version="<<the_config_version <<std::endl;
 	      std::cout<<"the tag is different from last transferred run ... retrieving last config set from DB"<<endl;
 
 	      FEConfigMainInfo fe_main_info;
@@ -153,103 +149,112 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 	      fe_main_info.setVersion(the_config_version);
 
 	      try{ 
-		std::cout << " before fetch config set" << std::endl;	    
+
 		econn-> fetchConfigSet(&fe_main_info);
-		std::cout << " after fetch config set" << std::endl;	    
 	
             // now get TPGTowerStatus
            int badttId=fe_main_info.getBttId();
 	
 	   if( badttId != m_i_badTT ) {
 	
-           FEConfigBadTTInfo fe_badTT_info;
-           fe_badTT_info.setId(badttId);
-	
-           econn-> fetchConfigSet(&fe_badTT_info);
-           std::vector<FEConfigBadTTDat> dataset_TpgBadTT;
-	   //econn->fetchDataSet(&dataset_TpgBadTT, &fe_badTT_info);
-           // try the method from EcalCondDNInterface 
-	   // with 
-	   econn->fetchConfigDataSet(&dataset_TpgBadTT, &fe_badTT_info);
+	     FEConfigBadTTInfo fe_badTT_info;
+	     fe_badTT_info.setId(badttId);
+	     
+	     econn-> fetchConfigSet(&fe_badTT_info);
+	     
+	     std::vector< FEConfigBadTTDat > dataset_TpgBadTT;
 
-	   EcalTPGTowerStatus* towerStatus = new EcalTPGTowerStatus;
-	   typedef std::vector<FEConfigBadTTDat>::const_iterator CIfeped;
-           EcalLogicID ecid_xt;
-	   FEConfigBadTTDat  rd_badTT;
-           int icells=0;
-
-           for (CIfeped p = dataset_TpgBadTT.begin(); p != dataset_TpgBadTT.end(); p++) {
-             rd_badTT  = *p;
-	     std::string ecid_name=ecid_xt.getName();
-	      
-	     if(ecid_name=="EB_trigger_tower") {
+	     econn->fetchConfigDataSet(&dataset_TpgBadTT, &fe_badTT_info);
+	     
+	     EcalTPGTowerStatus* towerStatus = new EcalTPGTowerStatus;
+	     typedef std::vector<FEConfigBadTTDat>::const_iterator CIfeped;
+	     EcalLogicID ecid_xt;
+	     FEConfigBadTTDat  rd_badTT;
+	     int icells=0;
+	     
+	     for (CIfeped p = dataset_TpgBadTT.begin(); p != dataset_TpgBadTT.end(); p++) {
+	       rd_badTT  = *p;
+	       //	       std::string ecid_name=ecid_xt.getName();
+	       
+	       // if(ecid_name=="EB_trigger_tower") {
  	  
-	       int tcc_num=rd_badTT.getTCCId();
-	       int tt_num=rd_badTT.getTTId();
-	        
-	       char identTTEB[10];
-    	       sprintf(identTTEB,"%d%d", tcc_num, tt_num);
-	       str.assign(identTTEB);
-	       std::string S="";
-	       S.insert(0,identTTEB);
+		 int tcc_num=rd_badTT.getTCCId();
+		 int tt_num=rd_badTT.getTTId();
+		 
+		 std::cout<< " tcc/tt"<< tcc_num<<"/"<<tt_num<< endl;
+		 
+		 /* char identTTEB[10];
+		    sprintf(identTTEB,"%d%d", tcc_num, tt_num);
+		    str.assign(identTTEB);
+		    std::string S="";
+		    S.insert(0,identTTEB);
+		    
+		    int ebTTDetId = 0; 
+		    ebTTDetId = atoi(S.c_str());
+		 */
+
+		 int ebTTDetId=tcc_num*100+tt_num;
+		 
+		 towerStatus->setValue(ebTTDetId,rd_badTT.getStatus());
+		 
+		 ++icells;
+		 /*	       }
+			       else if (ecid_name=="EE_trigger_tower"){
+			       // Check
+			       // EE data
+			       
+			       int tcc_num=rd_badTT.getTCCId();
+			       int tt_num=rd_badTT.getTTId();
+			       
+			       std::cout<< " tcc/tt"<< tcc_num<<"/"<<tt_num<< endl;
+			       
+			       char identTTEE[10];
+			       sprintf(identTTEE,"%d%d", tcc_num, tt_num);
+			       str.assign(identTTEE);
+			       
+			       std::string S="";
+			       S.insert(0,identTTEE);
+			       
+			       int eeTTDetId = 0; 
+			       eeTTDetId = atoi(S.c_str());
+			       
+			       eeTTDetId=tcc_num*100+tt_num;
+			       
+			       towerStatus->setValue(eeTTDetId,rd_badTT.getStatus());
+			       
+			       ++icells;
+			       }
+		 */
+		 
 	       
-	       int ebTTDetId = 0; 
-	       ebTTDetId = atoi(S.c_str());
-	       
-	       towerStatus->setValue(ebTTDetId,rd_badTT.getStatus());
-	    
-	       ++icells;
 	     }
-	     else if (ecid_name=="EE_trigger_tower"){
-	       // Check
-	       // EE data
-	    
-	       int tcc_num=rd_badTT.getTCCId();
-	       int tt_num=rd_badTT.getTTId();
+	     
 
-	       char identTTEE[10];
-	       sprintf(identTTEE,"%d%d", tcc_num, tt_num);
-	       str.assign(identTTEE);
-		
-	       std::string S="";
-	       S.insert(0,identTTEE);
-	       		        
-	       int eeTTDetId = 0; 
-	       eeTTDetId = atoi(S.c_str());
-                 
-	       towerStatus->setValue(eeTTDetId,rd_badTT.getStatus());
-	    
-	      ++icells;
-		
-	    }
-          }
-
-
-        edm::LogInfo("EcalTPGBadTTHandler") << "Finished badTT reading.";
-	
-	Time_t snc= (Time_t) irun ;                      
-
-	m_to_transfer.push_back(std::make_pair((EcalTPGTowerStatus*)towerStatus,snc));
-	
-			  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-		  m_i_badTT=badttId;
-		  
-		  writeFile("last_tpg_badTT_settings.txt");
-
-		} else {
-
-		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-
-		  writeFile("last_tpg_badTT_settings.txt");
-
-		  std::cout<< " even if the tag/version is not the same, the badTT id is the same -> no transfer needed "<< std::endl; 
-
-		}
-
+	     edm::LogInfo("EcalTPGBadTTHandler") << "Finished badTT reading.";
+	     
+	     Time_t snc= (Time_t) irun ;                      
+	     
+	     m_to_transfer.push_back(std::make_pair((EcalTPGTowerStatus*)towerStatus,snc));
+	     
+	     m_i_run_number=irun;
+	     m_i_tag=the_config_tag;
+	     m_i_version=the_config_version;
+	     m_i_badTT=badttId;
+	     
+	     writeFile("last_tpg_badTT_settings.txt");
+	     
+	   } else {
+	     
+	     m_i_run_number=irun;
+	     m_i_tag=the_config_tag;
+	     m_i_version=the_config_version;
+	     
+	     writeFile("last_tpg_badTT_settings.txt");
+	     
+	     //  std::cout<< " even if the tag/version is not the same, the badTT id is the same -> no transfer needed "<< std::endl; 
+	     
+	   }
+	   
 	      }       
 	      
 	      catch (std::exception &e) { 
@@ -257,23 +262,21 @@ void popcon::EcalTPGBadTTHandler::getNewObjects()
 			  <<" version="<<the_config_version<< std::endl;
 		cout << e.what() << endl;
 		m_i_run_number=irun;
-
+		
 	      }
-	      std::cout<<" **************** "<<std::endl;
+	      
 	      
 	    } else if(nr==0) {
 	      m_i_run_number=irun;
-	      std::cout<< " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed "<< std::endl; 
-	      std::cout<<" **************** "<<std::endl;
+	      //	      std::cout<< " no tag saved to RUN_TPGCONFIG_DAT by EcalSupervisor -> no transfer needed "<< std::endl; 
 	    } else {
 	      m_i_run_number=irun;
 	      m_i_tag=the_config_tag;
 	      m_i_version=the_config_version;
-	      std::cout<< " the tag/version is the same -> no transfer needed "<< std::endl; 
-	      std::cout<<" **************** "<<std::endl;
+
 	      writeFile("last_tpg_badTT_settings.txt");
 	    }	
-          }
+	 }
         }
 	
 	delete econn;
