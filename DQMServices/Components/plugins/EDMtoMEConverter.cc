@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2009/05/04 17:46:13 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/05/12 11:39:51 $
+ *  $Revision: 1.21 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -54,8 +54,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   classtypes.push_back("TH3F");
   classtypes.push_back("TProfile");
   classtypes.push_back("TProfile2D");
-  classtypes.push_back("Float");
-  classtypes.push_back("Int");
+  classtypes.push_back("Double");
+  classtypes.push_back("Int64");
   classtypes.push_back("String");
 
   count.clear();
@@ -578,7 +578,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
       } // end loop thorugh metoedmobject
     } // end TProfile2D creation
 
-    if (classtypes[ii] == "Float") {
+    if (classtypes[ii] == "Double") {
       edm::Handle<MEtoEDM<double> > metoedm;
       iRun.getByType(metoedm);
 
@@ -642,17 +642,17 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
       } // end loop thorugh metoedmobject
     } // end Float creation
 
-    if (classtypes[ii] == "Int") {
-      edm::Handle<MEtoEDM<int> > metoedm;
+    if (classtypes[ii] == "Int64") {
+      edm::Handle<MEtoEDM<int64_t> > metoedm;
       iRun.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
-        //  << "MEtoEDM<int> doesn't exist in run";
+        //  << "MEtoEDM<int64_t> doesn't exist in run";
         continue;
       }
 
-      std::vector<MEtoEDM<int>::MEtoEDMObject> metoedmobject =
+      std::vector<MEtoEDM<int64_t>::MEtoEDMObject> metoedmobject =
         metoedm->getMEtoEdmObject();
 
       me7.resize(metoedmobject.size());
@@ -692,7 +692,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
-          int ival = 0;
+          int64_t ival = 0;
           if ( endrun ) {
             if (name.find("processedEvents") != std::string::npos) {
               if (MonitorElement* me = dbe->get(dir+"/"+name)) {

@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/07/21 17:49:21 $
- *  $Revision: 1.22 $
+ *  $Date: 2009/07/29 19:24:39 $
+ *  $Revision: 1.23 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -55,7 +55,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   produces<MEtoEDM<TProfile>, edm::InRun>(fName);
   produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
   produces<MEtoEDM<double>, edm::InRun>(fName);
-  produces<MEtoEDM<int>, edm::InRun>(fName);
+  produces<MEtoEDM<int64_t>, edm::InRun>(fName);
   produces<MEtoEDM<TString>, edm::InRun>(fName);
 
   firstevent = true;
@@ -85,8 +85,8 @@ MEtoEDMConverter::endJob(void)
   unsigned nTH3F = 0;
   unsigned nTProfile = 0;
   unsigned nTProfile2D = 0;
-  unsigned nFloat = 0;
-  unsigned nInt = 0;
+  unsigned nDouble = 0;
+  unsigned nInt64 = 0;
   unsigned nString = 0;
 
   if (verbosity > 1) std::cout << std::endl << "Summary :" << std::endl;
@@ -106,15 +106,15 @@ MEtoEDMConverter::endJob(void)
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
-      ++nInt;
+      ++nInt64;
       if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": Int\n";
+	std::cout << "   scalar: " << tobj->GetName() << ": Int64\n";
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      ++nFloat;
+      ++nDouble;
       if (verbosity > 1)
-	std::cout << "   scalar: " << tobj->GetName() << ": Float\n";
+	std::cout << "   scalar: " << tobj->GetName() << ": Double\n";
       break;
 
     case MonitorElement::DQM_KIND_STRING:
@@ -190,8 +190,8 @@ MEtoEDMConverter::endJob(void)
     std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
     std::cout << "We have " << nTProfile2D << " TProfile2D objects" 
 	      << std::endl;
-    std::cout << "We have " << nFloat << " Float objects" << std::endl;
-    std::cout << "We have " << nInt << " Int objects" << std::endl;
+    std::cout << "We have " << nDouble << " Double objects" << std::endl;
+    std::cout << "We have " << nInt64 << " Int64 objects" << std::endl;
     std::cout << "We have " << nString << " String objects" << std::endl;
   }
 
@@ -302,19 +302,19 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   unsigned int n3F=0;
   unsigned int nProf=0;
   unsigned int nProf2=0;
-  unsigned int nFloat=0;
-  unsigned int nInt=0;
+  unsigned int nDouble=0;
+  unsigned int nInt64=0;
   unsigned int nString=0;
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
     MonitorElement *me = *mmi;
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
-      ++nInt;
+      ++nInt64;
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      ++nFloat;
+      ++nDouble;
       break;
 
     case MonitorElement::DQM_KIND_STRING:
@@ -358,8 +358,8 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
     }
   }
 
-  std::auto_ptr<MEtoEDM<int> > pOutInt(new MEtoEDM<int>(nInt));
-  std::auto_ptr<MEtoEDM<double> > pOutFloat(new MEtoEDM<double>(nFloat));
+  std::auto_ptr<MEtoEDM<int64_t> > pOutInt(new MEtoEDM<int64_t>(nInt64));
+  std::auto_ptr<MEtoEDM<double> > pOutDouble(new MEtoEDM<double>(nDouble));
   std::auto_ptr<MEtoEDM<TString> > pOutString(new MEtoEDM<TString>(nString));
   std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
   std::auto_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
@@ -382,7 +382,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      pOutFloat->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue(),
+      pOutDouble->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue(),
 				  release,run,datatier);
       break;
 
@@ -442,7 +442,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   // produce objects to put in events
   iRun.put(pOutInt,fName);
-  iRun.put(pOutFloat,fName);
+  iRun.put(pOutDouble,fName);
   iRun.put(pOutString,fName);
   iRun.put(pOut1,fName);
   iRun.put(pOut1s,fName);
