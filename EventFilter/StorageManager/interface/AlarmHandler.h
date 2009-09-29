@@ -1,4 +1,4 @@
-// $Id: AlarmHandler.h,v 1.3 2009/09/22 14:54:50 dshpakov Exp $
+// $Id: AlarmHandler.h,v 1.4 2009/09/23 13:04:15 mommsen Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef StorageManager_AlarmHandler_h
@@ -18,9 +18,9 @@ namespace stor {
   /**
    * Helper class to handle sentinel alarming
    *
-   * $Author: dshpakov $
-   * $Revision: 1.3 $
-   * $Date: 2009/09/22 14:54:50 $
+   * $Author: mommsen $
+   * $Revision: 1.4 $
+   * $Date: 2009/09/23 13:04:15 $
    */
 
   class AlarmHandler
@@ -34,6 +34,15 @@ namespace stor {
     explicit AlarmHandler(xdaq::Application*);
 
     virtual ~AlarmHandler() {};
+
+    /**
+      Notifies the sentinel
+    */
+    virtual void notifySentinel
+    (
+      const ALARM_LEVEL,
+      xcept::Exception&
+    );
 
     /**
       Raises a sentinel alarm
@@ -57,7 +66,7 @@ namespace stor {
     (
       const std::string name,
       const std::string level,
-      xcept::Exception&
+      const xcept::Exception&
     );
 
     xdaq::Application* _app;
