@@ -28,6 +28,8 @@
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/FWEventSelector.h"
 
 namespace {
    struct Fireworks_Core {

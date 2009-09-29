@@ -29,4 +29,6 @@
   <class name="FWGlimpseViewManager"/>
   <class name="FWViewBase"/>
   <class name="FWTableView"/>
+  <class name="FWGUIEventFilter"/>
+  <class name="FWEventSelector"/>
 </lcgdict>
