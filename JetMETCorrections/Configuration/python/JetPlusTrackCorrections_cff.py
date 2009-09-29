@@ -17,6 +17,8 @@ JetPlusTrackZSPCorrectorIcone5 = cms.ESSource(
     cms.PSet(JPTZSPCorrectorICone5),
     label = cms.string('JetPlusTrackZSPCorrectorIcone5'),
     )
+JetPlusTrackZSPCorrectorIcone5.JetTracksAssociationAtVertex = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
+JetPlusTrackZSPCorrectorIcone5.JetTracksAssociationAtCaloFace = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtCaloFace")
 JetPlusTrackZSPCorrectorIcone5.JetSplitMerge = cms.int32(0)
 
 JetPlusTrackZSPCorrectorSiscone5 = cms.ESSource(
@@ -24,6 +26,8 @@ JetPlusTrackZSPCorrectorSiscone5 = cms.ESSource(
     cms.PSet(JPTZSPCorrectorICone5),
     label = cms.string('JetPlusTrackZSPCorrectorSiscone5'),
     )
+JetPlusTrackZSPCorrectorSiscone5.JetTracksAssociationAtVertex = cms.InputTag("ZSPSisCone5JetTracksAssociatorAtVertex")
+JetPlusTrackZSPCorrectorSiscone5.JetTracksAssociationAtCaloFace = cms.InputTag("ZSPSisCone5JetTracksAssociatorAtCaloFace")
 JetPlusTrackZSPCorrectorSiscone5.JetSplitMerge = cms.int32(1)
 
 JetPlusTrackZSPCorrectorAntiKt5 = cms.ESSource(
@@ -31,6 +35,8 @@ JetPlusTrackZSPCorrectorAntiKt5 = cms.ESSource(
     cms.PSet(JPTZSPCorrectorICone5),
     label = cms.string('JetPlusTrackZSPCorrectorAntiKt5'),
     )
+JetPlusTrackZSPCorrectorAntiKt5.JetTracksAssociationAtVertex = cms.InputTag("ZSPAntiKt5JetTracksAssociatorAtVertex")
+JetPlusTrackZSPCorrectorAntiKt5.JetTracksAssociationAtCaloFace = cms.InputTag("ZSPAntiKt5JetTracksAssociatorAtCaloFace")
 JetPlusTrackZSPCorrectorAntiKt5.JetSplitMerge = cms.int32(2)
 
 # ---------- Module definition
