@@ -36,14 +36,14 @@ class HLTriggerSelector {
 	//check if trigger name is valid
 	//use of wildcard
 	TPRegexp wildCard(*j);
-	std::cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << std::endl;
+	//std::cout << "wildCard.GetPattern() = " << wildCard.GetPattern() << std::endl;
 	for (unsigned int i = 0; i != validTriggerNames.size(); ++i){
 	  if (TString(validTriggerNames[i]).Contains(wildCard)){ 
 	    goodOne = true;
 	    if (find(theSelectTriggers.begin(),
 		     theSelectTriggers.end(), 
 		     validTriggerNames[i])==theSelectTriggers.end()){
-	      std::cout << "wildcard trigger = " << validTriggerNames[i] << std::endl;
+	      //std::cout << "wildcard trigger = " << validTriggerNames[i] << std::endl;
 	      theSelectTriggers.push_back( validTriggerNames[i] ); //add it after duplicate check.
 	    }
 	  }
