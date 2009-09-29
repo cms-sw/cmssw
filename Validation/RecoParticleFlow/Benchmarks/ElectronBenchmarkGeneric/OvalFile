@@ -21,7 +21,7 @@ and receive as a result the corresponding list of input data files.
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
   <var name="E_SELECTION" value="">	
   <var name="EVENT_SOURCE" value="SingleElectronPt10_cfi.py">
-  <var name="TITLE" value="Single electrons">
+  <var name="TITLE" value="Single electrons Pt10" >
   <var name="TEST_OUTPUT_FILE" value="TreeSinglePt10.root">	
   <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py > benchmark_cfg.py">
   <executable name="cmsRun" args="benchmark_cfg.py">
@@ -32,7 +32,7 @@ and receive as a result the corresponding list of input data files.
 <environment name="Pt35">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
   <var name="E_SELECTION" value="">	
-  <var name="TITLE" value="Single electrons">
+  <var name="TITLE" value="Single electrons Pt35">
   <var name="TEST_OUTPUT_FILE" value="TreeSinglePt35.root">	
   <var name="EVENT_SOURCE" value="SingleElectronPt35_cfi.py">
   <executable name="dbs_discovery.py">
@@ -76,8 +76,10 @@ and receive as a result the corresponding list of input data files.
   <executable name="cmsRun" args="benchmark_cfg.py">
   <executable name="runroot.sh">
   <executable name="publication.sh"> 
-
 </environment>
 
+<environment name=twiki>
+<executable name="prepare-twiki.sh">
+</environment>
 
 
