@@ -84,7 +84,7 @@ process.myOut = cms.OutputModule("PoolOutputModule",
 #--------------------------
 # Scheduling
 #--------------------------
-process.p = cms.Path(process.RawToDigi_woGCT*process.reconstructionCosmics*process.SiStripDQMTest)
+process.p = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerCosmics*process.SiStripDQMTest)
 
 
 process.outpath = cms.EndPath(process.myOut)

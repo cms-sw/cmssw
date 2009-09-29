@@ -225,8 +225,6 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, string name) {
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     string fname = (*ic);
-    if ((fname.find("SiStrip") == string::npos) &&
-        (fname.find("Tracking") == string::npos)) continue; 
     if ((fname.find("Reference") != string::npos) ||
          (fname.find("AlCaReco") != string::npos)) continue;
     dqm_store->cd(fname);

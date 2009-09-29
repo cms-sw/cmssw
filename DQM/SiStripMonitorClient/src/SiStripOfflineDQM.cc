@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.27 2009/06/18 17:03:23 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.28 2009/09/09 08:20:56 dutta Exp $
 //
 //
 
@@ -168,6 +168,7 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
   if (createSummary_)  actionExecutor_->createSummaryOffline(dqmStore_);
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
+    actionExecutor_->createStatus(dqmStore_);
     if (usedWithEDMtoMEConverter_) {
       if (trackerFEDsFound_) actionExecutor_->fillStatus(dqmStore_);
       else actionExecutor_->fillDummyStatus();

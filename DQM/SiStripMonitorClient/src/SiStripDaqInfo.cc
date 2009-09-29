@@ -64,9 +64,16 @@ void SiStripDaqInfo::bookStatus() {
       
       dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DAQContents");
       
-      for (map<string, vector<unsigned short> >::const_iterator it = subDetFedMap.begin();
-	   it != subDetFedMap.end(); it++) {
-	string det = it->first;
+      vector<string> det_type;
+      det_type.push_back("TIB");
+      det_type.push_back("TOB");
+      det_type.push_back("TIDF");
+      det_type.push_back("TIDB");
+      det_type.push_back("TECF");
+      det_type.push_back("TECB");
+      
+      for ( vector<string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
+	string det = (*it);
 	
 	SubDetMEs local_mes;	
 	string me_name;
