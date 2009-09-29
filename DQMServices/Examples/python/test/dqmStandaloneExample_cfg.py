@@ -12,14 +12,14 @@ process.maxEvents = cms.untracked.PSet(
 ######################################################################################
 ### include to get DQM histogramming services
 process.load("DQMServices.Core.DQM_cfg")
-process.DQMStore.verbose = 0
+process.DQMStore.verbose = 2
 
 ### include to get DQM environment (file saver and eventinfo module)
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 ### replace YourSubsystemName by the name of your source ###
 ### use it for dqmEnv, dqmSaver ###
-process.dqmEnv.subSystemFolder = 'SubS'
+process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 
 ### optional parameters (defaults are different) ###
 
@@ -39,7 +39,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 ######################################################################################
 ### include your reference file
-process.DQMStore.referenceFileName = 'ref.root'
+#process.DQMStore.referenceFileName = 'ref.root'
 ### set 
 #process.DQMStore.collateHistograms = cms.untracked.bool(True)
 

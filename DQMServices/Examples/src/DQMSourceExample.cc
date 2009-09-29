@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/07/29 21:18:36 $
- * $Revision: 1.20 $
+ * $Date: 2009/09/06 11:24:52 $
+ * $Revision: 1.21 $
  * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
@@ -166,7 +166,7 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   // fill integer and float
 // number exceeding 32 bits
-//  i1->Fill((int64_t)0xffff00000000); // FIXME use double
+  i1->Fill(400000000000000LL); // FIXME use double
   f1->Fill(-3.14);
  
   //----------------------------------------
@@ -196,7 +196,7 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   deadTrue->Fill(  gRandom->Gaus(20, 10), 2.);
   deadFalse->Fill( gRandom->Gaus(20,  4), 1.);
   h2->Fill(  gRandom->Gaus(20,  4), 1.);
-//  h3->Fill(  XMIN, (double)0xffff00000000); // FIXME use double
+//  h3->Fill(  XMIN, 1.); // FIXME use double
   
   //h1hist->Print();
   //h1hist->Print();
