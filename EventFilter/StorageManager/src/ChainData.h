@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: ChainData.h,v 1.1 2009/09/29 11:59:20 dshpakov Exp $
 
 #ifndef CHAINDATA_H
 #define CHAINDATA_H
@@ -183,7 +183,45 @@ namespace stor
       virtual uint32 do_runNumber() const;
       virtual uint32 do_lumiSection() const;
       virtual uint32 do_eventNumber() const;
+
     }; // class ChainData
+
+
+    class InitMsgData : public ChainData
+    {
+
+    public:
+
+      explicit InitMsgData(toolbox::mem::Reference* pRef);
+      ~InitMsgData() {}
+
+    protected:
+
+      unsigned long do_headerSize() const;
+      unsigned char* do_headerLocation() const;
+      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      uint32 do_outputModuleId() const;
+      std::string do_outputModuleLabel() const;
+      void do_hltTriggerNames(Strings& nameList) const;
+      void do_hltTriggerSelections(Strings& nameList) const;
+      void do_l1TriggerNames(Strings& nameList) const;
+
+    private:
+
+      void parseI2OHeader();
+      void cacheHeaderFields() const;
+
+      mutable bool _headerFieldsCached;
+      mutable std::vector<unsigned char> _headerCopy;
+      mutable unsigned long _headerSize;
+      mutable unsigned char* _headerLocation;
+      mutable uint32 _outputModuleId;
+      mutable std::string _outputModuleLabel;
+      mutable Strings _hltTriggerNames;
+      mutable Strings _hltTriggerSelections;
+      mutable Strings _l1TriggerNames;
+
+    }; // class InitMsgData
 
   } // namespace detail
 
