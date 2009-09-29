@@ -1,13 +1,13 @@
 /** \class ExampleMuonAnalyzer
  *  Analyzer of the muon objects
  *
- *  $Date: 2009/08/24 08:51:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/29 19:46:13 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
 
-#include "ExampleMuonAnalyzer.h"
+#include "PhysicsTools/PatExamples/plugins/MuonAnalyzer.h"
 
 // Collaborating Class Header
 #include "FWCore/Framework/interface/MakerMacros.h"
