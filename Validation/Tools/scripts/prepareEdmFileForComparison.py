@@ -30,12 +30,6 @@ class EdmObject (object):
                 self.bool = True
                 self.name = match.group(1)
                 break
-        ## vecMatch = vectorRE.search( self.container )
-        ## if vecMatch:
-        ##     self.bool = True
-        ##     self.name = vecMatch.group(1)
-        ## else:
-        ##     self.bool = False
 
     def __str__ (self):        
         return pprint.pformat (self.__dict__)
@@ -74,7 +68,21 @@ if __name__ == "__main__":
     release_base = os.environ.get ('CMSSW_RELEASE_BASE')
     if not base or not release_base:
         raise RuntimeError, "You must have already setup a CMSSW release."
-        
+    if options.noQueue:
+        command = 'src/Validation/Tools/scripts/runCommand.bash'
+    else:
+        command = 'src/Validation/Tools/scripts/runCMScommand.bash'
+    # find command
+    found = False
+    for directory in [base, release_base]:
+        fullCommand = directory + '/' + command
+        if os.path.exists (fullCommand):
+            found = True
+            break
+    if not found:
+        raise RuntimeError, "Can not find %s" % command
+    if not options.noQueue:
+        fullCommand = queueCommand % fullCommand
     if not os.path.isdir (logDir):
         os.mkdir (logDir)
         if not os.path.isdir (logDir):
@@ -111,9 +119,9 @@ if __name__ == "__main__":
                 print '%s exists.  Skipping' % descriptionName
             continue
         #print name, prettyName, key
-        describeCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s describeReflexForGenObject.py %s "\\\"--type=%s\\\""' \
-                  % (currentDir, logPrefix + prettyName, name, key)
-        os.system (queueCommand % describeCmd)
+        describeCmd = '%s %s %s describeReflexForGenObject.py %s "\\\"--type=%s\\\""' \
+                  % (fullCommand, currentDir, logPrefix + prettyName, name, key)
+        os.system (describeCmd)
         #print describeCmd, '\n'
 
     if options.describeOnly:
@@ -132,9 +140,9 @@ if __name__ == "__main__":
                              filename2,
                              prettyName,
                              obj.label())
-            fullCompareCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s %s' \
-                             % (currentDir,
+            fullCompareCmd = '%s %s %s %s' \
+                             % (fullCommand, currentDir,
                                 logPrefix + prettyName + '_' + prettyLabel,
                                 compareCmd)
             #print fullCompareCmd,'\n'
-            os.system (queueCommand % fullCompareCmd)
+            os.system (fullCompareCmd)
