@@ -132,8 +132,7 @@ if __name__ == "__main__":
     print "  %-15s: %4d + %d = %d" \
           % ('total', total, succeeded, total + succeeded),
     if not options.counts:
-        print
-        print "Detailed Problems list:"
+        print "\nDetailed Problems list:"
         for key, problemList in sorted (problems.iteritems()):
             print "   %s:\n   %s\n" % (key, problemList)
         print "\n", '='*78, '\n'
