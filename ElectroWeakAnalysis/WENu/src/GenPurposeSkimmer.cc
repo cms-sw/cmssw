@@ -40,7 +40,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Oct 16 17:11:55 CEST 2008
-// $Id$
+// $Id: GenPurposeSkimmer.cc,v 1.1 2009/09/28 09:54:52 rompotis Exp $
 //
 //
 
@@ -537,13 +537,13 @@ GenPurposeSkimmer::analyze(const edm::Event& evt, const edm::EventSetup& es)
       // I know that there is a more direct way, but in this way it
       // is clearer what you get each time :P
       probe_isolation_value[probeIt] = probeEle->dr03IsolationVariables().tkSumPt;
-      probe_ecal_isolation_value[probeIt] = probeEle->dr04IsolationVariables().tkSumPt;
+      probe_ecal_isolation_value[probeIt] = probeEle->dr04IsolationVariables().ecalRecHitSumEt;
       probe_hcal_isolation_value[probeIt] = 
 	probeEle->dr04IsolationVariables().hcalDepth1TowerSumEt + 
 	probeEle->dr04IsolationVariables().hcalDepth2TowerSumEt;
       // one extra isos:
       probe_iso_user[probeIt] = probeEle->dr04IsolationVariables().tkSumPt;
-      probe_ecal_iso_user[probeIt] = probeEle->dr03IsolationVariables().tkSumPt;
+      probe_ecal_iso_user[probeIt] = probeEle->dr03IsolationVariables().ecalRecHitSumEt;
       probe_hcal_iso_user[probeIt] = 
 	probeEle->dr03IsolationVariables().hcalDepth1TowerSumEt + 
 	probeEle->dr03IsolationVariables().hcalDepth2TowerSumEt;
