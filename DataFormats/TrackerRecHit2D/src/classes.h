@@ -2,6 +2,7 @@
 #define TrackerRecHit2D_CLASSES_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1DCollection.h"
 #include "DataFormats/CLHEP/interface/Migration.h" 
 #include <boost/cstdint.hpp> 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h" 
@@ -31,6 +32,7 @@ namespace {
 
     ProjectedSiStripRecHit2D projHit;   
     SiStripRecHit2D a1;
+    SiStripRecHit1D a11;
     SiStripMatchedRecHit2D a2;
     SiPixelRecHit b1;
     SiTrackerGSRecHit2D c1;
@@ -38,6 +40,7 @@ namespace {
     SiTrackerGSRecHit2D e1;
 
     edm::ClonePolicy<SiStripRecHit2D>  a4;
+    edm::ClonePolicy<SiStripRecHit1D>  a44;
     edm::ClonePolicy<SiStripMatchedRecHit2D > a5;
     edm::ClonePolicy<SiPixelRecHit> b2;
     edm::ClonePolicy<SiTrackerGSRecHit2D>  c2;
@@ -48,6 +51,10 @@ namespace {
       edm::ClonePolicy<SiStripRecHit2D> > a6;
     edm::OwnVector<SiStripRecHit2D,
       edm::ClonePolicy<SiStripRecHit2D> >::const_iterator it6;
+    edm::OwnVector<SiStripRecHit1D,
+      edm::ClonePolicy<SiStripRecHit1D> > a66;
+    edm::OwnVector<SiStripRecHit1D,
+      edm::ClonePolicy<SiStripRecHit1D> >::const_iterator it66;
     edm::OwnVector<SiStripMatchedRecHit2D,
       edm::ClonePolicy<SiStripMatchedRecHit2D> > a7;
     edm::OwnVector<SiStripMatchedRecHit2D,
@@ -77,6 +84,16 @@ namespace {
       edm::OwnVector<SiStripRecHit2D,
       edm::ClonePolicy<SiStripRecHit2D> >, 
       edm::ClonePolicy<SiStripRecHit2D> >::id_iterator    it2d;
+
+    edm::Wrapper< edm::RangeMap<DetId,
+      edm::OwnVector<SiStripRecHit1D,
+      edm::ClonePolicy<SiStripRecHit1D> >, 
+      edm::ClonePolicy<SiStripRecHit1D> > >    siStripRecHit1DLocalPosCollectionWrapper;
+    edm::RangeMap<DetId,
+      edm::OwnVector<SiStripRecHit1D,
+      edm::ClonePolicy<SiStripRecHit1D> >, 
+      edm::ClonePolicy<SiStripRecHit1D> >::id_iterator    it1d;
+
     
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiStripMatchedRecHit2D,
@@ -126,7 +143,12 @@ namespace {
     edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> > refRangeMapDetIdOwnVectorSiStripRecHit2D;
     edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> > refVectorRangeMapDetIdOwnVectorSiStripRecHit2D;
 
+    edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> > refRangeMapDetIdOwnVectorSiStripRecHit1D;
+    edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> > refVectorRangeMapDetIdOwnVectorSiStripRecHit1D;
+
+
     edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> > wdstvDummy1;
+    edm::Wrapper<edmNew::DetSetVector<SiStripRecHit1D> > wdstvDummy11;
     edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy2;
     edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> > wdstvDummy3;
 

@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
@@ -36,6 +37,14 @@ SiStripRecHit2D::sharesInput( const TrackingRecHit* other,
   const std::type_info & otherType = typeid(*other);
   if (otherType == typeid(SiStripRecHit2D)) {
     const SiStripRecHit2D* otherCast = static_cast<const SiStripRecHit2D*>(other);
+    // as 'null == null' is true, we can't just "or" the two equality tests: one of the two refs is always null! (gpetrucc)
+    if (cluster_.isNonnull()) {
+      return (cluster_ == otherCast->cluster());
+    } else {
+      return (clusterRegional_ == otherCast->cluster_regional());
+    }
+  } else if (otherType == typeid(SiStripRecHit1D)) {
+    const SiStripRecHit1D* otherCast = static_cast<const SiStripRecHit1D*>(other);
     // as 'null == null' is true, we can't just "or" the two equality tests: one of the two refs is always null! (gpetrucc)
     if (cluster_.isNonnull()) {
       return (cluster_ == otherCast->cluster());
