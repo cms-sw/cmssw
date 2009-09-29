@@ -5,6 +5,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+
 
 #include <algorithm>
 
@@ -154,19 +157,47 @@ void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
 	LocalVector Delta = secondLocalPos - firstLocalPos;
 	float scalar  = Delta.z() * (itm->updatedState().localDirection().z());
 	
+
+	TransientTrackingRecHit::ConstRecHitPointer hitA, hitB;
+
+	// Get 2D strip Hits from a matched Hit.
+ 	//hitA = itm->recHit()->transientHits()[0];
+ 	//hitB = itm->recHit()->transientHits()[1];
+
+	// Get 2D strip Hits from a matched Hit. Then get the 1D hit from the 2D hit
+	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
+	  hitA = itm->recHit()->transientHits()[0]->transientHits()[0];
+	  hitB = itm->recHit()->transientHits()[1]->transientHits()[0];
+	}else{ //don't use 1D hit in the endcap yet
+	  hitA = itm->recHit()->transientHits()[0];
+	  hitB = itm->recHit()->transientHits()[1];
+	}
+
 	if( (scalar>0 && direction()==alongMomentum) ||
 	    (scalar<0 && direction()==oppositeToMomentum)){
-	  hits.push_back(itm->recHit()->transientHits()[0]);
-	  hits.push_back(itm->recHit()->transientHits()[1]);
+	  hits.push_back(hitA);
+	  hits.push_back(hitB);
 	}else if( (scalar>0 && direction()== oppositeToMomentum) ||
 		  (scalar<0 && direction()== alongMomentum)){
-	  hits.push_back(itm->recHit()->transientHits()[1]);
-	  hits.push_back(itm->recHit()->transientHits()[0]);
+	  hits.push_back(hitB);
+	  hits.push_back(hitA);
 	}else
 	  throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
       }else if(typeid(*(itm->recHit()->hit())) == typeid(ProjectedSiStripRecHit2D)){
-	hits.push_back(itm->recHit()->transientHits()[0]);	
+	//hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
+	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
+	  hits.push_back(itm->recHit()->transientHits()[0]->transientHits()[0]);	//Use 1D SiStripRecHit
+	}else{
+	  hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
+	}
 	// ===================================================================================	
+      }else if(typeid(*(itm->recHit()->hit())) == typeid(SiStripRecHit2D)){
+	//hits.push_back(itm->recHit());  //Use 2D SiStripRecHit
+	if(!itm->recHit()->detUnit()->type().isEndcap()){
+	  hits.push_back(itm->recHit()->transientHits()[0]); //Use 1D SiStripRecHit
+	}else{
+	  hits.push_back(itm->recHit());  //Use 2D SiStripRecHit
+	}
       }else{
 	hits.push_back(itm->recHit());
       }
