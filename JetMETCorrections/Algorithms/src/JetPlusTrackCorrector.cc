@@ -44,6 +44,37 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
     elecMass_(0.000511)
 {
   
+  if ( verbose_ ) {
+    std::stringstream ss;
+    ss << "[JetPlusTrackCorrector::" << __func__ << "] Configuration for JPT corrector: " << std::endl
+       << " Particles" << std::endl
+       << "  UsePions             : " << ( usePions_ ? "true" : "false" ) << std::endl
+       << "  UseMuons             : " << ( useMuons_ ? "true" : "false" ) << std::endl
+       << "  UseElecs             : " << ( useElecs_ ? "true" : "false" ) << std::endl
+       << " Corrections" << std::endl 
+       << "  UseInConeTracks      : " << ( useInConeTracks_ ? "true" : "false" ) << std::endl
+       << "  UseOutOfConeTracks   : " << ( useOutOfConeTracks_ ? "true" : "false" ) << std::endl
+       << "  UseOutOfVertexTracks : " << ( useOutOfVertexTracks_ ? "true" : "false" ) << std::endl
+       << "  ResponseMap          : " << pset.getParameter<std::string>("ResponseMap") << std::endl
+       << " Efficiency" << std::endl
+       << "  UsePionEfficiency    : " << ( useEff_ ? "true" : "false" ) << std::endl
+       << "  EfficiencyMap        : " << pset.getParameter<std::string>("EfficiencyMap") << std::endl
+       << "  LeakageMap           : " << pset.getParameter<std::string>("LeakageMap") << std::endl
+       << " Tracks" << std::endl
+       << "  JetTracksAtVertex    : " << jetTracksAtVertex_ << std::endl
+       << "  JetTracksAtCalo      : " << jetTracksAtCalo_ << std::endl
+       << "  JetSplitMerge        : " << jetSplitMerge_ << std::endl
+       << "  UseTrackQuality      : " << ( useTrackQuality_ ? "true" : "false" ) << std::endl
+       << " Collections" << std::endl
+       << "  Muons                : " << muons_ << std::endl
+       << "  Electrons            : " << electrons_ << std::endl
+       << " Vectorial" << std::endl
+       << "  UseTracksAndReponse  : " << ( vectorial_ ? "true" : "false" ) << std::endl
+       << "  UseTracksOnly        : " << ( vecTracks_ ? "true" : "false" );
+    LogDebug("JetPlusTrackCorrector") << ss.str();
+    //std::cout << ss.str() << std::endl;
+  }
+
   if ( !useInConeTracks_ || 
        !useOutOfConeTracks_ ||
        !useOutOfVertexTracks_ ) {
@@ -55,8 +86,6 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
        << " UseOutOfVertexTracks : " << ( useOutOfVertexTracks_ ? "true" : "false" );
     edm::LogWarning("JetPlusTrackCorrector") << ss.str();
   }
-
-  LogDebug("TESTTEST") << ( vectorial_ ? "true" : "false" );
 
 }
 
