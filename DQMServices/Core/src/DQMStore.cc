@@ -703,38 +703,83 @@ DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+bool
+DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
+{
+  if (me->getTH1()->GetNbinsX() != h->GetNbinsX() 
+    || me->getTH1()->GetNbinsY() != h->GetNbinsY() 
+    || me->getTH1()->GetNbinsZ() != h->GetNbinsZ() 
+    || me->getTH1()->GetXaxis()->GetXmin() != h->GetXaxis()->GetXmin() 
+    || me->getTH1()->GetYaxis()->GetXmin() != h->GetYaxis()->GetXmin() 
+    || me->getTH1()->GetZaxis()->GetXmin() != h->GetZaxis()->GetXmin() 
+    || me->getTH1()->GetXaxis()->GetXmax() != h->GetXaxis()->GetXmax() 
+    || me->getTH1()->GetYaxis()->GetXmax() != h->GetYaxis()->GetXmax() 
+    || me->getTH1()->GetZaxis()->GetXmax() != h->GetZaxis()->GetXmax() ) 
+  {
+  //  edm::LogWarning ("DQMStore")
+  std::cout << "*** DQMStore: WARNING:"
+    << "checkBinningMatches: different binning - cannot add object '"
+    << h->GetName() << "' of type '"
+    << h->IsA()->GetName() << " to existing ME: "
+    << me->getFullname() << "'\n";
+    return false ;
+  }
+  return true;	   
+}
+
 void
 DQMStore::collate1D(MonitorElement *me, TH1F *h)
-{ me->getTH1F()->Add(h); }
+{ 
+  if (checkBinningMatches(me,h)) 
+    me->getTH1F()->Add(h); 
+}
 
 void
 DQMStore::collate1S(MonitorElement *me, TH1S *h)
-{ me->getTH1S()->Add(h); }
+{  
+  if (checkBinningMatches(me,h)) 
+    me->getTH1S()->Add(h); 
+}
 
 void
 DQMStore::collate2D(MonitorElement *me, TH2F *h)
-{ me->getTH2F()->Add(h); }
+{  
+  if (checkBinningMatches(me,h)) 
+    me->getTH2F()->Add(h); 
+}
 
 void
 DQMStore::collate2S(MonitorElement *me, TH2S *h)
-{ me->getTH2S()->Add(h); }
+{  
+  if (checkBinningMatches(me,h)) 
+    me->getTH2S()->Add(h); 
+}
 
 void
 DQMStore::collate3D(MonitorElement *me, TH3F *h)
-{ me->getTH3F()->Add(h); }
+{  
+  if (checkBinningMatches(me,h)) 
+    me->getTH3F()->Add(h); 
+}
 
 void
 DQMStore::collateProfile(MonitorElement *me, TProfile *h)
 {
-  TProfile *meh = me->getTProfile();
-  me->addProfiles(h, meh, meh, 1, 1);
+  if (checkBinningMatches(me,h)) 
+  {
+    TProfile *meh = me->getTProfile();
+    me->addProfiles(h, meh, meh, 1, 1);
+  }
 }
 
 void
 DQMStore::collateProfile2D(MonitorElement *me, TProfile2D *h)
 {
-  TProfile2D *meh = me->getTProfile2D();
-  me->addProfiles(h, meh, meh, 1, 1);
+  if (checkBinningMatches(me,h)) 
+  {
+    TProfile2D *meh = me->getTProfile2D();
+    me->addProfiles(h, meh, meh, 1, 1);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1242,7 +1287,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       if (! me || overwrite)
       {
 	if (! me) me = bookInt(dir, label);
-	me->Fill(atoi(value.c_str()));
+	me->Fill(atoll(value.c_str()));
       }
     }
     else if (kind == "f")

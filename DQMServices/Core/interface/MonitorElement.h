@@ -20,6 +20,7 @@
 # include <sstream>
 # include <iomanip>
 # include <cassert>
+# include <stdint.h>
 
 # ifndef DQM_ROOT_METHODS
 #  define DQM_ROOT_METHODS 1
@@ -33,7 +34,7 @@ class MonitorElement
 public:
   struct Value
   {
-    int			num;
+    int64_t		num;
     double		real;
     std::string		str;
     TObject		*tobj;
@@ -113,11 +114,24 @@ public:
   void setResetMe(bool flag)
     { data_.flags |= DQM_FLAG_RESET; }
 
-  void Fill(float x);
-  void Fill(float x, float yw);
-  void Fill(float x, float y, float zw);
-  void Fill(float x, float y, float z, float w);
-  void ShiftFillLast(float y, float ye = 0., int xscale = 1);
+  void Fill(uint64_t x) { Fill(static_cast<int64_t>(x)); }
+  void Fill(int32_t x)  { Fill(static_cast<int64_t>(x)); }
+  void Fill(uint32_t x) { Fill(static_cast<int64_t>(x)); }
+  void Fill(int16_t x)  { Fill(static_cast<int64_t>(x)); }
+  void Fill(uint16_t x) { Fill(static_cast<int64_t>(x)); }
+  void Fill(int8_t x)	{ Fill(static_cast<int64_t>(x)); }
+  void Fill(uint8_t x)  { Fill(static_cast<int64_t>(x)); }
+
+  void Fill(float x)	{ Fill(static_cast<double>(x)); } 
+  
+  void Fill(int64_t x);
+  void Fill(double x);
+  void Fill(std::string &value);
+
+  void Fill(double x, double yw);
+  void Fill(double x, double y, double zw);
+  void Fill(double x, double y, double z, double w);
+  void ShiftFillLast(double y, double ye = 0., int32_t xscale = 1);
   void Reset(void);
 
   std::string valueString(void) const;
@@ -161,39 +175,39 @@ private:
 
 public:
 #if DQM_ROOT_METHODS
-  float getMean(int axis = 1) const;
-  float getMeanError(int axis = 1) const;
-  float getRMS(int axis = 1) const;
-  float getRMSError(int axis = 1) const;
+  double getMean(int axis = 1) const;
+  double getMeanError(int axis = 1) const;
+  double getRMS(int axis = 1) const;
+  double getRMSError(int axis = 1) const;
   int getNbinsX(void) const;
   int getNbinsY(void) const;
   int getNbinsZ(void) const;
-  float getBinContent(int binx) const;
-  float getBinContent(int binx, int biny) const;
-  float getBinContent(int binx, int biny, int binz) const;
-  float getBinError(int binx) const;
-  float getBinError(int binx, int biny) const;
-  float getBinError(int binx, int biny, int binz) const;
-  float getEntries(void) const;
-  float getBinEntries(int bin) const;
+  double getBinContent(int binx) const;
+  double getBinContent(int binx, int biny) const;
+  double getBinContent(int binx, int biny, int binz) const;
+  double getBinError(int binx) const;
+  double getBinError(int binx, int biny) const;
+  double getBinError(int binx, int biny, int binz) const;
+  double getEntries(void) const;
+  double getBinEntries(int bin) const;
 
 private:
-  float getYmin(void) const;
-  float getYmax(void) const;
+  double getYmin(void) const;
+  double getYmax(void) const;
 
 public:
   std::string getAxisTitle(int axis = 1) const;
   std::string getTitle(void) const;
-  void setBinContent(int binx, float content);
-  void setBinContent(int binx, int biny, float content);
-  void setBinContent(int binx, int biny, int binz, float content);
-  void setBinError(int binx, float error);
-  void setBinError(int binx, int biny, float error);
-  void setBinError(int binx, int biny, int binz, float error);
-  void setBinEntries(int bin, float nentries);
-  void setEntries(float nentries);
+  void setBinContent(int binx, double content);
+  void setBinContent(int binx, int biny, double content);
+  void setBinContent(int binx, int biny, int binz, double content);
+  void setBinError(int binx, double error);
+  void setBinError(int binx, int biny, double error);
+  void setBinError(int binx, int biny, int binz, double error);
+  void setBinEntries(int bin, double nentries);
+  void setEntries(double nentries);
   void setBinLabel(int bin, const std::string &label, int axis = 1);
-  void setAxisRange(float xmin, float xmax, int axis = 1);
+  void setAxisRange(double xmin, double xmax, int axis = 1);
   void setAxisTitle(const std::string &title, int axis = 1);
   void setAxisTimeDisplay(int value, int axis = 1);
   void setAxisTimeFormat(const char *format = "", int axis = 1);
@@ -266,7 +280,7 @@ public:
   TProfile *getRefTProfile(void) const;
   TProfile2D *getRefTProfile2D(void) const;
 
-  const int &getIntValue(void) const
+  const int64_t &getIntValue(void) const
     {
       assert(kind_ == DQM_KIND_INT);
       return curvalue_.num;

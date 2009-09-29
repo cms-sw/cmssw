@@ -343,7 +343,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
     std::string value = m.matchString(t->GetName(), 3);
 
     if (type == "i")
-      store->bookInt(name)->Fill(atoi(value.c_str()));
+      store->bookInt(name)->Fill(atoll(value.c_str()));
     else if (type == "f")
       store->bookFloat(name)->Fill(atof(value.c_str()));
     else if (type == "s")

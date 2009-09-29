@@ -3,8 +3,6 @@
 #include "DQMServices/Core/src/QStatisticalTests.h"
 #include "DQMServices/Core/src/DQMError.h"
 #include "TMath.h"
-#include "TH1F.h"
-#include "TH1S.h"
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -116,17 +114,17 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
   { 
     if (verbose_>0) 
       std::cout << "QTest:Comp2RefEqualH" 
-                << " ME does not contain TH1F/TH1S/TH2F/TH2S/TH3F, exiting\n"; 
+        << " ME does not contain TH1F/TH1S/TH2F/TH2S/TH3F, exiting\n"; 
     return -1;
   } 
 
   //--  QUALITY TEST itself 
-  Int_t first = 0; // 1 //(use underflow bin)
-  Int_t last  = nbins+1; //(use overflow bin)
+  int first = 0; // 1 //(use underflow bin)
+  int last  = nbins+1; //(use overflow bin)
   bool failure = false;
-  for (Int_t bin=first;bin<=last;bin++) 
+  for (int bin=first;bin<=last;bin++) 
   {
-    float contents = h->GetBinContent(bin);
+    double contents = h->GetBinContent(bin);
     if (contents != ref_->GetBinContent(bin)) 
     {
       failure = true;
@@ -180,8 +178,8 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   } 
 
    //-- isInvalid ? - Check consistency in number of channels
-  Int_t ncx1  = h->GetXaxis()->GetNbins(); 
-  Int_t ncx2  = ref_->GetXaxis()->GetNbins();
+  int ncx1  = h->GetXaxis()->GetNbins(); 
+  int ncx2  = ref_->GetXaxis()->GetNbins();
   if ( ncx1 !=  ncx2)
   {
     if (verbose_>0) 
@@ -195,8 +193,8 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   //reset Results
   Ndof_ = 0; chi2_ = -1.; ncx1 = ncx2 = -1;
 
-  Int_t i, i_start, i_end;
-  float chi2 = 0.;  int ndof = 0; int constraint = 0;
+  int i, i_start, i_end;
+  double chi2 = 0.;  int ndof = 0; int constraint = 0;
 
   i_start = 1;  
   i_end = ncx1;
@@ -207,7 +205,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   ndof = i_end-i_start+1-constraint;
 
   //Compute the normalisation factor
-  Double_t sum1=0, sum2=0;
+  double sum1=0, sum2=0;
   for (i=i_start; i<=i_end; i++)
   {
     sum1 += h->GetBinContent(i);
@@ -232,7 +230,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
     return -1;
   }
 
-  Double_t bin1, bin2, err1, err2, temp;
+  double bin1, bin2, err1, err2, temp;
   for (i=i_start; i<=i_end; i++)
   {
     bin1 = h->GetBinContent(i)/sum1;
@@ -258,7 +256,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
     }
   }
   chi2_ = chi2;  Ndof_ = ndof;
-  return TMath::Prob(0.5*chi2, Int_t(0.5*ndof));
+  return TMath::Prob(0.5*chi2, int(0.5*ndof));
 }
 
 //-------------------------------------------------------//
@@ -267,7 +265,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
 
 float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 {
-  const Double_t difprec = 1e-5;
+  const double difprec = 1e-5;
    
   if (!me) 
     return -1;
@@ -306,8 +304,8 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   } 
    
   //-- isInvalid ? - Check consistency in number of channels
-  Int_t ncx1 = h->GetXaxis()->GetNbins(); 
-  Int_t ncx2 = ref_->GetXaxis()->GetNbins();
+  int ncx1 = h->GetXaxis()->GetNbins(); 
+  int ncx2 = ref_->GetXaxis()->GetNbins();
   if ( ncx1 !=  ncx2)
   {
     if (verbose_>0) 
@@ -317,8 +315,8 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     return -1;
   } 
   //-- isInvalid ? - Check consistency in channel edges
-  Double_t diff1 = TMath::Abs(h->GetXaxis()->GetXmin() - ref_->GetXaxis()->GetXmin());
-  Double_t diff2 = TMath::Abs(h->GetXaxis()->GetXmax() - ref_->GetXaxis()->GetXmax());
+  double diff1 = TMath::Abs(h->GetXaxis()->GetXmin() - ref_->GetXaxis()->GetXmin());
+  double diff2 = TMath::Abs(h->GetXaxis()->GetXmax() - ref_->GetXaxis()->GetXmax());
   if (diff1 > difprec || diff2 > difprec)
   {
     if (verbose_>0) 
@@ -329,9 +327,9 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 
   //--  QUALITY TEST itself 
   Bool_t afunc1 = kFALSE; Bool_t afunc2 = kFALSE;
-  Double_t sum1 = 0, sum2 = 0;
-  Double_t ew1, ew2, w1 = 0, w2 = 0;
-  Int_t bin;
+  double sum1 = 0, sum2 = 0;
+  double ew1, ew2, w1 = 0, w2 = 0;
+  int bin;
   for (bin=1;bin<=ncx1;bin++)
   {
     sum1 += h->GetBinContent(bin);
@@ -359,7 +357,7 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     return -1;
   }
 
-  Double_t tsum1 = sum1; Double_t tsum2 = sum2;
+  double tsum1 = sum1; double tsum2 = sum2;
   tsum1 += h->GetBinContent(0);
   tsum2 += ref_->GetBinContent(0);
   tsum1 += h->GetBinContent(ncx1+1);
@@ -368,12 +366,12 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   // Check if histograms are weighted.
   // If number of entries = number of channels, probably histograms were
   // not filled via Fill(), but via SetBinContent()
-  Double_t ne1 = h->GetEntries();
-  Double_t ne2 = ref_->GetEntries();
+  double ne1 = h->GetEntries();
+  double ne2 = ref_->GetEntries();
   // look at first histogram
-  Double_t difsum1 = (ne1-tsum1)/tsum1;
-  Double_t esum1 = sum1;
-  if (difsum1 > difprec && Int_t(ne1) != ncx1)
+  double difsum1 = (ne1-tsum1)/tsum1;
+  double esum1 = sum1;
+  if (difsum1 > difprec && int(ne1) != ncx1)
   {
     if (h->GetSumw2N() == 0)
     {
@@ -388,9 +386,9 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     }
   }
   // look at second histogram
-  Double_t difsum2 = (ne2-tsum2)/tsum2;
-  Double_t esum2   = sum2;
-  if (difsum2 > difprec && Int_t(ne2) != ncx1)
+  double difsum2 = (ne2-tsum2)/tsum2;
+  double esum2   = sum2;
+  if (difsum2 > difprec && int(ne2) != ncx1)
   {
     if (ref_->GetSumw2N() == 0)
     {
@@ -405,13 +403,13 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     }
   }
 
-  Double_t s1 = 1/tsum1; Double_t s2 = 1/tsum2;
+  double s1 = 1/tsum1; double s2 = 1/tsum2;
   // Find largest difference for Kolmogorov Test
-  Double_t dfmax =0, rsum1 = 0, rsum2 = 0;
+  double dfmax =0, rsum1 = 0, rsum2 = 0;
   // use underflow bin
-  Int_t first = 0; // 1
+  int first = 0; // 1
   // use overflow bin
-  Int_t last  = ncx1+1; // ncx1
+  int last  = ncx1+1; // ncx1
   for ( bin=first; bin<=last; bin++)
   {
     rsum1 += s1*h->GetBinContent(bin);
@@ -420,7 +418,7 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   }
 
   // Get Kolmogorov probability
-  Double_t z = 0;
+  double z = 0;
   if (afunc1)      z = dfmax*TMath::Sqrt(esum2);
   else if (afunc2) z = dfmax*TMath::Sqrt(esum1);
   else             z = dfmax*TMath::Sqrt(esum1*esum2/(esum1+esum2));
@@ -481,20 +479,20 @@ float ContentsXRange::runTest(const MonitorElement*me)
     else 
       return -1;
   }
-  Int_t ncx = h->GetXaxis()->GetNbins();
+  int ncx = h->GetXaxis()->GetNbins();
   // use underflow bin
-  Int_t first = 0; // 1
+  int first = 0; // 1
   // use overflow bin
-  Int_t last  = ncx+1; // ncx
+  int last  = ncx+1; // ncx
   // all entries
-  Double_t sum = 0;
+  double sum = 0;
   // entries outside X-range
-  Double_t fail = 0;
-  Int_t bin;
+  double fail = 0;
+  int bin;
   for (bin = first; bin <= last; ++bin)
   {
-    Double_t contents = h->GetBinContent(bin);
-    float x = h->GetBinCenter(bin);
+    double contents = h->GetBinContent(bin);
+    double x = h->GetBinCenter(bin);
     sum += contents;
     if (x < xmin_ || x > xmax_)fail += contents;
   }
@@ -540,20 +538,20 @@ float ContentsYRange::runTest(const MonitorElement*me)
   } 
 
   if (!rangeInitialized_ || !h->GetXaxis()) return 1; // all bins are accepted if no initialization
-  Int_t ncx = h->GetXaxis()->GetNbins();
+  int ncx = h->GetXaxis()->GetNbins();
   // do NOT use underflow bin
-  Int_t first = 1;
+  int first = 1;
   // do NOT use overflow bin
-  Int_t last  = ncx;
+  int last  = ncx;
   // bins outside Y-range
-  Int_t fail = 0;
-  Int_t bin;
+  int fail = 0;
+  int bin;
   
   if (useEmptyBins_)///Standard test !
   {
     for (bin = first; bin <= last; ++bin)
     {
-      Double_t contents = h->GetBinContent(bin);
+      double contents = h->GetBinContent(bin);
       bool failure = false;
       failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
       if (failure) 
@@ -570,7 +568,7 @@ float ContentsYRange::runTest(const MonitorElement*me)
   {
     for (bin = first; bin <= last; ++bin)
     {
-      Double_t contents = h->GetBinContent(bin);
+      double contents = h->GetBinContent(bin);
       bool failure = false;
       if (contents) failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
       if (failure) ++fail;
@@ -621,26 +619,26 @@ float DeadChannel::runTest(const MonitorElement*me)
     if (verbose_>0) 
       std::cout << "QTest:DeadChannel"
          << " ME " << me->getFullname() 
-         << " does not contain TH1F/TH1S/TH2F/TH1S, exiting\n"; 
+         << " does not contain TH1F/TH1S/TH2F/TH2S, exiting\n"; 
     return -1;
   } 
 
-  Int_t fail = 0; // number of failed channels
+  int fail = 0; // number of failed channels
 
   //--------- do the quality test for 1D histo ---------------//
   if (h1 != NULL)  
   {
     if (!rangeInitialized_ || !h1->GetXaxis() ) 
       return 1; // all bins are accepted if no initialization
-    Int_t ncx = h1->GetXaxis()->GetNbins();
-    Int_t first = 1;
-    Int_t last  = ncx;
-    Int_t bin;
+    int ncx = h1->GetXaxis()->GetNbins();
+    int first = 1;
+    int last  = ncx;
+    int bin;
 
     /// loop over all channels
     for (bin = first; bin <= last; ++bin)
     {
-      Double_t contents = h1->GetBinContent(bin);
+      double contents = h1->GetBinContent(bin);
       bool failure = false;
       failure = contents <= ymin_; // dead channel: equal to or less than ymin_
       if (failure)
@@ -666,7 +664,7 @@ float DeadChannel::runTest(const MonitorElement*me)
     {
       for (int cy = 1; cy <= ncy; ++cy)
       {
-	Double_t contents = h2->GetBinContent(h2->GetBin(cx, cy));
+	double contents = h2->GetBinContent(h2->GetBin(cx, cy));
 	bool failure = false;
 	failure = contents <= ymin_; // dead channel: equal to or less than ymin_
 	if (failure)
@@ -749,16 +747,16 @@ float NoisyChannel::runTest(const MonitorElement *me)
     return 1; // all channels are accepted if tolerance has not been set
 
   // do NOT use underflow bin
-  Int_t first = 1;
+  int first = 1;
   // do NOT use overflow bin
-  Int_t last  = nbins;
+  int last  = nbins;
   // bins outside Y-range
-  Int_t fail = 0;
-  Int_t bin;
+  int fail = 0;
+  int bin;
   for (bin = first; bin <= last; ++bin)
   {
-    Double_t contents = h->GetBinContent(bin);
-    Double_t average = getAverage(bin, h);
+    double contents = h->GetBinContent(bin);
+    double average = getAverage(bin, h);
     bool failure = false;
     if (average != 0)
        failure = (((contents-average)/TMath::Abs(average)) > tolerance_);
@@ -777,13 +775,13 @@ float NoisyChannel::runTest(const MonitorElement *me)
 
 // get average for bin under consideration
 // (see description of method setNumNeighbors)
-Double_t NoisyChannel::getAverage(int bin, const TH1 *h) const
+double NoisyChannel::getAverage(int bin, const TH1 *h) const
 {
   /// do NOT use underflow bin
-  Int_t first = 1;
+  int first = 1;
   /// do NOT use overflow bin
-  Int_t ncx  = h->GetXaxis()->GetNbins();
-  Double_t sum = 0; int bin_low, bin_hi;
+  int ncx  = h->GetXaxis()->GetNbins();
+  double sum = 0; int bin_low, bin_hi;
   for (unsigned i = 1; i <= numNeighbors_; ++i)
   {
     /// use symmetric-to-bin bins to calculate average
@@ -861,8 +859,8 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
     } 
 
     int nsum = 0;
-    float sum = 0.0;
-    float average = 0.0;
+    double sum = 0.0;
+    double average = 0.0;
 
     if (checkMeanTolerance_)
     { // calculate average value of all bin contents
@@ -925,19 +923,19 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 
 	if (checkMean_)
 	{
-	  float mean = h->GetBinContent(h->GetBin(cx, cy));
+	  double mean = h->GetBinContent(h->GetBin(cx, cy));
           failMean = (mean < minMean_ || mean > maxMean_);
 	}
 
 	if (checkRMS_)
 	{
-	  float rms = h->GetBinError(h->GetBin(cx, cy));
+	  double rms = h->GetBinError(h->GetBin(cx, cy));
           failRMS = (rms < minRMS_ || rms > maxRMS_);
 	}
 
 	if (checkMeanTolerance_)
 	{
-	  float mean = h->GetBinContent(h->GetBin(cx, cy));
+	  double mean = h->GetBinContent(h->GetBin(cx, cy));
           failMeanTolerance = (TMath::Abs(mean - average) > toleranceMean_*TMath::Abs(average));
 	}
 
@@ -1008,7 +1006,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
       for (int cy = 1; cy <= ncy; ++cy)
       {
 	bool failure = false;
-	float Content = h->GetBinContent(h->GetBin(cx, cy));
+	double Content = h->GetBinContent(h->GetBin(cx, cy));
 	if (Content) 
 	  failure = (Content <  minMean_ || Content >  maxMean_);
 	if (failure) 
@@ -1020,7 +1018,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 
 }
 /// set expected value for mean
-void ContentsWithinExpected::setMeanRange(float xmin, float xmax)
+void ContentsWithinExpected::setMeanRange(double xmin, double xmax)
 {
   if (xmax < xmin)
     if (verbose_>0) 
@@ -1032,7 +1030,7 @@ void ContentsWithinExpected::setMeanRange(float xmin, float xmax)
 }
 
 /// set expected value for mean
-void ContentsWithinExpected::setRMSRange(float xmin, float xmax)
+void ContentsWithinExpected::setRMSRange(double xmin, double xmax)
 {
   if (xmax < xmin)
     if (verbose_>0) 
@@ -1086,7 +1084,7 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
  
   
   if (useRange_) {
-    float mean = h->GetMean();
+    double mean = h->GetMean();
     if (mean <= xmax_ && mean >= xmin_) 
       return 1;
     else
@@ -1096,7 +1094,7 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
   {
     if (sigma_ != 0.) 
     {
-      float chi = (h->GetMean() - expMean_)/sigma_;
+      double chi = (h->GetMean() - expMean_)/sigma_;
       return TMath::Prob(chi*chi, 1);
     }
     else
@@ -1111,7 +1109,7 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
   {
     if (h->GetRMS() != 0.) 
     {
-      float chi = (h->GetMean() - expMean_)/h->GetRMS();
+      double chi = (h->GetMean() - expMean_)/h->GetRMS();
       return TMath::Prob(chi*chi, 1);
     }
     else
@@ -1129,7 +1127,7 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
     return -1; 
 }
 
-void MeanWithinExpected::useRange(float xmin, float xmax)
+void MeanWithinExpected::useRange(double xmin, double xmax)
 {
     useRange_ = true;
     useSigma_ = useRMS_ = false;
@@ -1139,7 +1137,7 @@ void MeanWithinExpected::useRange(float xmin, float xmax)
         std::cout << "QTest:MeanWithinExpected"
                   << " Illogical range: (" << xmin_ << ", " << xmax_ << "\n";
 }
-void MeanWithinExpected::useSigma(float expectedSigma)
+void MeanWithinExpected::useSigma(double expectedSigma)
 {
   useSigma_ = true;
   useRMS_ = useRange_ = false;

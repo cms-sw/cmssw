@@ -15,6 +15,7 @@ class MonitorElement;
 class QCriterion;
 class TFile;
 class TObject;
+class TH1;
 class TObjString;
 class TH1F;
 class TH1S;
@@ -261,6 +262,8 @@ private:
   MonitorElement *		book3D(const std::string &dir, const std::string &name, TH3F *h);
   MonitorElement *		bookProfile(const std::string &dir, const std::string &name, TProfile *h);
   MonitorElement *		bookProfile2D(const std::string &folder, const std::string &name, TProfile2D *h);
+
+  static bool                   checkBinningMatches(MonitorElement *me, TH1 *h);
 
   static void			collate1D(MonitorElement *me, TH1F *h);
   static void			collate1S(MonitorElement *me, TH1S *h);
