@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/08/27 07:11:51 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/09/28 18:28:07 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -178,7 +178,7 @@ MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM)
 
 template <>
 inline bool
-MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
+MEtoEDM<int64_t>::mergeProduct(const MEtoEDM<int64_t> &newMEtoEDM)
 {
   const MEtoEdmObjectVector &newMEtoEDMObject =
     newMEtoEDM.getMEtoEdmObject();

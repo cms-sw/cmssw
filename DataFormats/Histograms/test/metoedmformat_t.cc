@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jul 21 11:00:06 CDT 2009
-// $Id: metoedmformat_t.cc,v 1.1 2009/07/21 17:53:30 chrjones Exp $
+// $Id: metoedmformat_t.cc,v 1.2 2009/07/21 18:06:50 chrjones Exp $
 //
 
 // system include files
@@ -21,13 +21,13 @@
 class TestMEtoEDMFormat : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(TestMEtoEDMFormat);
-  CPPUNIT_TEST(testMergeInt);
+  CPPUNIT_TEST(testMergeInt64);
   CPPUNIT_TEST(testMergeDouble);
   CPPUNIT_TEST(testMergeTString);
   CPPUNIT_TEST(testMergeT);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void testMergeInt();
+  void testMergeInt64();
   void testMergeDouble();
   void testMergeTString();
   void testMergeT();
@@ -65,12 +65,12 @@ bool areEquivalent(const MEtoEDM<T>& iLHS, const MEtoEDM<T>& iRHS) {
 }
 
 void
-TestMEtoEDMFormat::testMergeInt()
+TestMEtoEDMFormat::testMergeInt64()
 {
-  MEtoEDM<int> empty(0);
+  MEtoEDM<int64_t> empty(0);
 
-  MEtoEDM<int>::TagList tList;
-  MEtoEDM<int> full(3);
+  MEtoEDM<int64_t>::TagList tList;
+  MEtoEDM<int64_t> full(3);
   full.putMEtoEdmObject("a",
 			tList,
 			1,
@@ -90,7 +90,7 @@ TestMEtoEDMFormat::testMergeInt()
 			12,
 			"MYTIER");
 
-  MEtoEDM<int> fullReordered(3);
+  MEtoEDM<int64_t> fullReordered(3);
   fullReordered.putMEtoEdmObject("b",
 			tList,
 			2,
@@ -110,7 +110,7 @@ TestMEtoEDMFormat::testMergeInt()
 			12,
 			"MYTIER");
 
-  MEtoEDM<int> toMerge(full);
+  MEtoEDM<int64_t> toMerge(full);
 
   //be sure copy constructor worked
   CPPUNIT_ASSERT(areEquivalent(toMerge,full));
@@ -118,15 +118,15 @@ TestMEtoEDMFormat::testMergeInt()
   toMerge.mergeProduct(empty);
   CPPUNIT_ASSERT(areEquivalent(toMerge,full));
 
-  MEtoEDM<int> toMerge2(empty);
+  MEtoEDM<int64_t> toMerge2(empty);
   toMerge2.mergeProduct(full);
   CPPUNIT_ASSERT(areEquivalent(toMerge2,full));
 
-  MEtoEDM<int> toMerge3(full);
+  MEtoEDM<int64_t> toMerge3(full);
   toMerge3.mergeProduct(fullReordered);
   CPPUNIT_ASSERT(areEquivalent(toMerge3,full));
   
-  MEtoEDM<int> part1(2);
+  MEtoEDM<int64_t> part1(2);
   part1.putMEtoEdmObject("a",
 			tList,
 			1,
@@ -139,7 +139,7 @@ TestMEtoEDMFormat::testMergeInt()
 			"TEST",
 			12,
 			"MYTIER");
-  MEtoEDM<int> part2(1);
+  MEtoEDM<int64_t> part2(1);
   part2.putMEtoEdmObject("c",
 			tList,
 			3,
@@ -149,7 +149,7 @@ TestMEtoEDMFormat::testMergeInt()
   part1.mergeProduct(part2);
   CPPUNIT_ASSERT(areEquivalent(part1,full));
 
-  MEtoEDM<int> specials1(3);
+  MEtoEDM<int64_t> specials1(3);
   specials1.putMEtoEdmObject("EventInfo/processedEvents",
 			tList,
 			1,
@@ -169,7 +169,7 @@ TestMEtoEDMFormat::testMergeInt()
 			12,
 			"MYTIER");
 
-  MEtoEDM<int> specials2(3);
+  MEtoEDM<int64_t> specials2(3);
   specials2.putMEtoEdmObject("EventInfo/processedEvents",
 			tList,
 			1,
@@ -189,7 +189,7 @@ TestMEtoEDMFormat::testMergeInt()
 			12,
 			"MYTIER");
 
-  MEtoEDM<int> specialsTotal(3);
+  MEtoEDM<int64_t> specialsTotal(3);
   specialsTotal.putMEtoEdmObject("EventInfo/processedEvents",
 			tList,
 			2,

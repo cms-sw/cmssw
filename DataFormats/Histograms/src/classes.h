@@ -19,6 +19,7 @@
 #include "TProfile3D.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "TString.h"
+#include <stdint.h>
 
 namespace {
   struct dictionary {
@@ -50,7 +51,7 @@ namespace {
     MEtoEDM<TProfile> dummy6;
     MEtoEDM<TProfile2D> dummy7;
     MEtoEDM<double> dummy8;
-    MEtoEDM<int> dummy9;
+    MEtoEDM<int64_t> dummy9;
     MEtoEDM<TString> dummy10;
     MEtoEDM<TH1F>::MEtoEDMObject blah1;
     MEtoEDM<TH1S>::MEtoEDMObject blah2;
@@ -69,7 +70,7 @@ namespace {
     std::vector<MEtoEDM<TProfile>::MEtoEDMObject> dummy14;
     std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject> dummy15;
     std::vector<MEtoEDM<double>::MEtoEDMObject> dummy16;
-    std::vector<MEtoEDM<int>::MEtoEDMObject> dummy17;
+    std::vector<MEtoEDM<int64_t>::MEtoEDMObject> dummy17;
     std::vector<MEtoEDM<TString>::MEtoEDMObject> dummy18;
     edm::Wrapper<MEtoEDM<TH1F> > theValidData1;
     edm::Wrapper<MEtoEDM<TH1S> > theValidData1s;
@@ -79,7 +80,7 @@ namespace {
     edm::Wrapper<MEtoEDM<TProfile> > theValidData4;
     edm::Wrapper<MEtoEDM<TProfile2D> > theValidData5;
     edm::Wrapper<MEtoEDM<double> > theValidData6;
-    edm::Wrapper<MEtoEDM<int> > theValidData7;
+    edm::Wrapper<MEtoEDM<int64_t> > theValidData7;
     edm::Wrapper<MEtoEDM<TString> > theValidData8;
   };
 }
