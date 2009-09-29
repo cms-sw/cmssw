@@ -200,13 +200,16 @@ def runBTagging(process,
     return (seq, labels)
 
 
+
 def switchJetCollection(process,
                         jetCollection,
                         doJTA            = True,
                         doBTagging       = True,
                         jetCorrLabel     = None,
                         doType1MET       = True,
-                        genJetCollection = cms.InputTag("ak5GenJets")
+                        genJetCollection = cms.InputTag("ak5GenJets"),
+                        doJetID          = True,
+                        jetIdLabel       = "ak5"
                         ):
     """
     ------------------------------------------------------------------        
@@ -228,6 +231,8 @@ def switchJetCollection(process,
                        the new jet colllection; at the moment it must
                        be 'False' for non CaloJets otherwise the
                        JetMET POG module crashes.
+    doJetID          : run jet id for new jet collection and add it
+                       to the new pat jet collection
     genJetCollection : GenJet collection to match to
     ------------------------------------------------------------------        
     """
@@ -282,6 +287,19 @@ def switchJetCollection(process,
         ## jet production to 'False'
         process.allLayer1Jets.addBTagInfo = False
 
+    if ( doJetID) :
+        jetIdLabelNew = jetIdLabel + 'JetID'
+        print "Making new jet ID label with label " + jetIdLabel
+        ## replace jet id sequence
+        jetIdProducerFileLabel = "RecoJets.JetProducers." + jetIdLabel + "JetID_cfi"
+        process.load(jetIdProducerFileLabel)
+        process.makeAllLayer1Jets.replace( process.ak5JetID, getattr(process,jetIdLabelNew) )
+        process.allLayer1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
+    else :
+        process.makeAllLayer1Jets.remove(process.recoJetId)
+        process.allLayer1Jets.addJetID = cms.bool(False)
+
+
     if (jetCorrLabel!=None):
         ## replace jet energy corrections; catch
         ## a couple of exceptions first
@@ -332,7 +350,9 @@ def addJetCollection(process,
                      doType1MET   = True,
                      doL1Cleaning = True,                     
                      doL1Counters = False,
-                     genJetCollection=cms.InputTag("ak5GenJets")
+                     genJetCollection=cms.InputTag("ak5GenJets"),
+                     doJetID      = True,
+                     jetIdLabel   = "ak5"
                      ):
     """
     ------------------------------------------------------------------        
@@ -451,6 +471,19 @@ def addJetCollection(process,
         ## switch general b tagging info switch off
         l1Jets.addBTagInfo = False
         
+
+    if ( doJetID) :
+        jetIdLabelNew = jetIdLabel + 'JetID'
+        print "Making new jet ID label with label " + jetIdLabel
+        ## replace jet id sequence
+        jetIdProducerFileLabel = "RecoJets.JetProducers." + jetIdLabel + "JetID_cfi"
+        process.load(jetIdProducerFileLabel)
+        process.makeAllLayer1Jets.replace( process.jetPartonMatch, getattr(process,jetIdLabelNew) + process.jetPartonMatch )
+        l1Jets.addJetID = cms.bool(True)
+        l1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
+    else :
+        l1Jets.addJetID = cms.bool(False)
+
     if (jetCorrLabel != None):
         ## add clone of jet energy corrections;
         ## catch a couple of exceptions first

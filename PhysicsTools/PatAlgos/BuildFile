@@ -23,7 +23,6 @@
 <use name=PhysicsTools/Utilities>
 <use name=PhysicsTools/IsolationAlgos>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=RecoJets/JetAlgorithms>
 <use name=clhep>
 <export>
   <lib name=PhysicsToolsPatAlgos>
