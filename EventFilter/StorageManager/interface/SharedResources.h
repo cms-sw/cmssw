@@ -1,4 +1,4 @@
-// $Id: SharedResources.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: SharedResources.h,v 1.5 2009/08/28 16:41:50 mommsen Exp $
 /// @file: SharedResources.h 
 
 #ifndef StorageManager_SharedResources_h
@@ -33,8 +33,8 @@ namespace stor {
    * Container for shared resources.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/28 16:41:50 $
    */
 
   struct SharedResources
@@ -61,7 +61,13 @@ namespace stor {
     /**
      * Add a Failed state-machine event to the command queue
      */
-    void moveToFailedState( const std::string& reason );
+    void moveToFailedState( xcept::Exception& );
+
+    /**
+       Write message to a file in /tmp
+       (last resort when everything else fails)
+    */
+    void localDebug( const std::string& message ) const;
 
   };
 
