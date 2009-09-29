@@ -21,7 +21,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 # Update input files
-print dbs_discovery.search()
+#print dbs_discovery.search()
 process.source.fileNames.extend(dbs_discovery.search())
 
 
@@ -36,7 +36,8 @@ process.load("Validation.RecoParticleFlow.electronBenchmarkGeneric_cff")
 process.gensource.select = elec_selection.selection()
 # Update the output file
 
-process.pfElectronBenchmarkGeneric.OutputFile = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
+#process.pfElectronBenchmarkGeneric.OutputFile = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
+process.pfElectronBenchmarkGeneric.OutputFile = cms.untracked.string('benchmark.root')
 
 process.p =cms.Path(
         process.electronBenchmarkGeneric

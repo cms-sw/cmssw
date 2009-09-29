@@ -9,61 +9,74 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_1_2">
+<var name="DBS_RELEASE" value="CMSSW_3_3_0_pre3">
 <!var name="DBS_LIKE" value="LOCAL">
-<var name="DBS_LIKE" value="*MC_31X_V3-v1*-RECO">
+<var name="DBS_LIKE" value="*MC_31X_V8-v1*-RECO">
 
 <var name="VAL_ANALYZER" value="benchmark-oval">
 
+<var name="WEB_PUBLICATION" value="true">
+
 <environment name="Pt10">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-  <var name="DIR_NAME" value="SinglePt10">
   <var name="E_SELECTION" value="">	
+  <var name="EVENT_SOURCE" value="SingleElectronPt10_cfi.py">
+  <var name="TITLE" value="Single electrons">
   <var name="TEST_OUTPUT_FILE" value="TreeSinglePt10.root">	
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="root" args="-l plot.C">
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py > benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh">
 </environment>
 
 <environment name="Pt35">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
   <var name="E_SELECTION" value="">	
-  <var name="DIR_NAME" value="SinglePt35">	
+  <var name="TITLE" value="Single electrons">
   <var name="TEST_OUTPUT_FILE" value="TreeSinglePt35.root">	
+  <var name="EVENT_SOURCE" value="SingleElectronPt35_cfi.py">
   <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="root" args="-l plot.C">
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py > benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh">
 </environment>
 
 <environment name="TTbarW">
   <var name="DBS_SAMPLE" value="RelValTTbar">
   <var name="E_SELECTION" value="efromW">	
-  <var name="DIR_NAME" value="TTBar-W">	
   <var name="TEST_OUTPUT_FILE" value="TreeTTbarW.root">	
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="root" args="-l plot.C">
+  <var name="EVENT_SOURCE" value="TTbar_Tauola_cfi.py">
+  <var name="TITLE" value="e from W in ttbar events">
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py > benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh">
 </environment>
 
 <environment name="TTbarb">
   <var name="DBS_SAMPLE" value="RelValTTbar">
-  <!var name="VAL_ANALYZER" value="benchmark-oval">
   <var name="E_SELECTION" value="efromb">	
-  <var name="DIR_NAME" value="TTBar-bjets">	
+  <var name="EVENT_SOURCE" value="TTbar_Tauola_cfi.py">
+  <var name="TITLE" value="e from b in ttbar events">
   <var name="TEST_OUTPUT_FILE" value="TreeTTbarbjets.root">	
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="root" args="-l plot.C">
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py>benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh">
 </environment>
 
 <environment name="ZEE">
   <var name="DBS_SAMPLE" value="RelValZEE">
   <var name="E_SELECTION" value="efromZ">
-  <var name="DIR_NAME" value="ZEE">		
+  <var name="EVENT_SOURCE" value="ZEE_cfi.py">
+  <var name="TITLE" value="e from Z">
   <var name="TEST_OUTPUT_FILE" value="TreeZEEIdeal.root">	
-  <executable name="dbs_discovery.py">
-  <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
-  <executable name="root" args="-l plot.C">
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py>benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh"> 
+
 </environment>
 
 
