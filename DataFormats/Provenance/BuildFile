@@ -2,6 +2,7 @@
 <use name=boost>
 <use name=rootrflx>
 <use name=FWCore/MessageLogger>
+<use name=DataFormats/StdDictionaries>
 <export>
   <lib name=DataFormatsProvenance>
 </export>
