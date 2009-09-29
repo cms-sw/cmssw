@@ -1,4 +1,4 @@
-//$Id: AlarmHandler.cc,v 1.6 2009/09/25 08:18:49 mommsen Exp $
+//$Id: AlarmHandler.cc,v 1.7 2009/09/29 07:55:33 mommsen Exp $
 /// @file: AlarmHandler.cc
 
 
@@ -115,7 +115,7 @@ bool AlarmHandler::raiseAlarm
 (
   const std::string name,
   const std::string level,
-  const xcept::Exception& exception
+  xcept::Exception& exception
 )
 {
 

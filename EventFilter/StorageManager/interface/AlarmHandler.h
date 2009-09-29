@@ -1,4 +1,4 @@
-// $Id: AlarmHandler.h,v 1.4 2009/09/23 13:04:15 mommsen Exp $
+// $Id: AlarmHandler.h,v 1.5 2009/09/29 07:52:23 mommsen Exp $
 /// @file: AlarmHandler.h 
 
 #ifndef StorageManager_AlarmHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Helper class to handle sentinel alarming
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/09/23 13:04:15 $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/29 07:52:23 $
    */
 
   class AlarmHandler
@@ -66,7 +66,7 @@ namespace stor {
     (
       const std::string name,
       const std::string level,
-      const xcept::Exception&
+      xcept::Exception&
     );
 
     xdaq::Application* _app;
