@@ -1,5 +1,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
 SiStripRecHit1D::SiStripRecHit1D( const LocalPoint& pos, const LocalError& err,
 				  const DetId& id,
