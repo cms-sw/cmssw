@@ -1290,7 +1290,11 @@ class GenObject (object):
                                    len (secondOnly)
         resultsDict['eventsCompared'] = len (overlap)
         for reTuple in sorted(overlap):
-            GenObject._key2re (reTuple, GenObject._rootClassDict['runevent'])
+            # if we are filling the diff tree, then save the run and
+            # event information.
+            if diffOutputName:
+                GenObject._key2re (reTuple,
+                                   GenObject._rootClassDict['runevent'])
             #print 'retuple', reTuple
             if debug: warn ('event1', blankLines = 3)
             event1 = GenObject.loadEventFromTree (chain1, ree1 [reTuple])
