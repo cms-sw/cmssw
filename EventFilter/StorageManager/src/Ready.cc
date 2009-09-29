@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.9 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Ready.cc,v 1.10 2009/09/23 13:53:30 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -6,7 +6,6 @@
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
@@ -24,7 +23,7 @@ using namespace stor;
 
 Ready::Ready( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Ready::do_entryActionWork()
@@ -49,11 +48,8 @@ void Ready::do_entryActionWork()
   catch(xcept::Exception &e)
   {
     XCEPT_DECLARE_NESTED(stor::exception::Configuration,
-      alarmException, errorMsg, e);
-    sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
-      "Configuration", AlarmHandler::FATAL, alarmException);
-
-    sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
+      sentinelException, errorMsg, e);
+    sharedResources->moveToFailedState( sentinelException );
     return;
   }
   catch( std::exception &e )
@@ -62,11 +58,8 @@ void Ready::do_entryActionWork()
     errorMsg.append( e.what() );
 
     XCEPT_DECLARE(stor::exception::Configuration,
-      alarmException, errorMsg);
-    sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
-      "Configuration", AlarmHandler::FATAL, alarmException);
-    
-    sharedResources->moveToFailedState( errorMsg );
+      sentinelException, errorMsg);
+    sharedResources->moveToFailedState( sentinelException );
     return;
   }
   catch(...)
@@ -74,11 +67,8 @@ void Ready::do_entryActionWork()
     errorMsg.append(": unknown exception");
 
     XCEPT_DECLARE(stor::exception::Configuration,
-      alarmException, errorMsg);
-    sharedResources->_statisticsReporter->alarmHandler()->raiseAlarm(
-      "Configuration", AlarmHandler::FATAL, alarmException);
-    
-    sharedResources->moveToFailedState( errorMsg );
+      sentinelException, errorMsg);
+    sharedResources->moveToFailedState( sentinelException );
     return;
   }
 
@@ -117,7 +107,7 @@ void Ready::do_entryActionWork()
 
 Ready::~Ready()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Ready::do_exitActionWork()
@@ -131,9 +121,9 @@ string Ready::do_stateName() const
   return string( "Ready" );
 }
 
-void Ready::do_moveToFailedState( const std::string& reason ) const
+void Ready::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 
