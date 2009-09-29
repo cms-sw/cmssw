@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
@@ -63,6 +64,7 @@ class TrackClusterRemover : public edm::EDProducer {
 
         inline void process(const TrackingRecHit *hit, float chi2);
         inline void process(const SiStripRecHit2D *hit2D, uint32_t subdet);
+        inline void process(const SiStripRecHit1D *hit1D, uint32_t subdet);
 
         template<typename T> 
         std::auto_ptr<edmNew::DetSetVector<T> >
@@ -192,6 +194,22 @@ void TrackClusterRemover::process(const SiStripRecHit2D *hit, uint32_t subdet) {
     strips[cluster.key()] = false;
 }
 
+void TrackClusterRemover::process(const SiStripRecHit1D *hit, uint32_t subdet) {
+    SiStripRecHit1D::ClusterRef cluster = hit->cluster();
+
+    if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") << 
+            "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() << 
+            " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
+
+    assert(cluster.id() == stripSourceProdID);
+    if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
+
+//DBG// cout << "Individual HIT " << cluster.key().first << ", INDEX = " << cluster.key().second << endl;
+    strips[cluster.key()] = false;
+}
+
+
+
 void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
     DetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
@@ -223,13 +241,17 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 #define HIT_SPLITTING_TYPEID
 #if defined(ASSUME_HIT_SPLITTING)
         const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
+	cout << "--- DEBUG: assume hit splitting!!" << endl; 
         process(stripHit,subdet);
 #elif defined(HIT_SPLITTING_TYPEID)
         const type_info &hitType = typeid(*hit);
         if (hitType == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
 //DBG//     cout << "Plain RecHit 2D: " << endl;
-            process(stripHit,subdet);
+            process(stripHit,subdet);}
+	else if (hitType == typeid(SiStripRecHit1D)) {
+	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
+	  process(hit1D,subdet);
         } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
 //DBG//     cout << "Matched RecHit 2D: " << endl;
@@ -245,6 +267,9 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         if (const SiStripRecHit2D *stripHit = dynamic_cast<const SiStripRecHit2D *>(hit)) {
 //DBG//     cout << "Plain RecHit 2D: " << endl;
             process(stripHit,subdet);
+	else if (hitType == typeid(SiStripRecHit1D)) {
+	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
+	  process(hit1D,subdet);
         } else if (const SiStripMatchedRecHit2D *matchHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit)) {
 //DBG//     cout << "Matched RecHit 2D: " << endl;
             process(matchHit->monoHit(),subdet);
