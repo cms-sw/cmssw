@@ -44,13 +44,15 @@ class PartonSelector : public edm::EDProducer
     virtual void produce(edm::Event&, const edm::EventSetup& ); 
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list 
+    edm::InputTag   inputTagGenParticles_; // input collection
 };
 //=========================================================================
 
 PartonSelector::PartonSelector( const edm::ParameterSet& iConfig )
 { 
     produces<reco::GenParticleRefVector>();
-    withLeptons         = iConfig.getParameter<bool>("withLeptons"); 
+    withLeptons           = iConfig.getParameter<bool>("withLeptons"); 
+    inputTagGenParticles_ = iConfig.getParameter<edm::InputTag>("src");
     if ( iConfig.exists("withTop") ) {
       withTop = iConfig.getParameter<bool>("withTop");
     } else {
@@ -71,7 +73,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   
   //edm::Handle <reco::CandidateView> particles;
   edm::Handle <reco::GenParticleCollection> particles;
-  iEvent.getByLabel ("genParticles", particles );  
+  iEvent.getByLabel (inputTagGenParticles_, particles );  
   edm::LogVerbatim("PartonSelector") << "=== GenParticle size:" << particles->size();
   int nPart=0; 
 
