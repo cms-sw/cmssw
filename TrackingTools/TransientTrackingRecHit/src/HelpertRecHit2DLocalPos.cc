@@ -36,8 +36,8 @@ AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
 
 void
 HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
-                        const TrackingRecHit &hit2dLocalPos,
-                        const GeomDet& det)
+					 const TrackingRecHit &hit2dLocalPos,
+					 const GeomDet& det)
 {
     hit2dLocalPos.getKfComponents(holder);
     if ( det.alignmentPositionError() != 0) {
@@ -48,5 +48,20 @@ HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
         m(0, 0) += lape.xx();
         m(0, 1) += lape.xy();
         m(1, 1) += lape.yy();
+    }
+}
+
+void
+HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
+					 const SiStripRecHit1D& hit1D,
+					 const GeomDet& det)
+{
+    hit1D.getKfComponents(holder);
+    if ( det.alignmentPositionError() != 0) {
+        LocalError lape =
+            ErrorFrameTransformer().transform( det.alignmentPositionError()->globalError(),
+                    det.surface());
+        AlgebraicSymMatrix11 &m = holder.errors<1>();
+        m(0, 0) += lape.xx();
     }
 }
