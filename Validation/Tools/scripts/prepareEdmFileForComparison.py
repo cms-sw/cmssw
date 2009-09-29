@@ -7,23 +7,35 @@ import re
 import os
 import sys
 
-piecesRE = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)\."')
-vectorRE = re.compile (r'^vector<(\S+)>')
-colonRE  = re.compile (r':+')
-commaRE  = re.compile (r',')
+piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)\."')
+colonRE      = re.compile (r':+')
+commaRE      = re.compile (r',')
 queueCommand = '/uscms/home/cplager/bin/clpQueue.pl addjob %s'
-logDir = 'logfiles'
+logDir       = 'logfiles'
+# Containers
+vectorRE      = re.compile (r'^vector<(\S+)>')
+detSetVecRE   = re.compile (r'^edm::DetSetVector<(\S+)>')
+edColRE       = re.compile (r'^edm::EDCollection<(\S+)>')
+sortedColRE   = re.compile (r'^edm::SortedCollection<(\S+),\S+?> >')
+containerList = [vectorRE, detSetVecRE, edColRE, sortedColRE]
 
 class EdmObject (object):
 
     def __init__ (self, tup):
         self.container, self.one, self.two, self.three = tup
-        vecMatch = vectorRE.search( self.container )
-        if vecMatch:
-            self.bool = True
-            self.name = vecMatch.group(1)
-        else:
-            self.bool = False
+        self.bool = False
+        for regex in containerList:
+            match = regex.search( self.container)
+            if match:
+                self.bool = True
+                self.name = match.group(1)
+                break
+        ## vecMatch = vectorRE.search( self.container )
+        ## if vecMatch:
+        ##     self.bool = True
+        ##     self.name = vecMatch.group(1)
+        ## else:
+        ##     self.bool = False
 
     def __str__ (self):        
         return pprint.pformat (self.__dict__)
@@ -98,7 +110,7 @@ if __name__ == "__main__":
             if options.verbose:
                 print '%s exists.  Skipping' % descriptionName
             continue
-        # print name, prettyName
+        #print name, prettyName, key
         describeCmd = '/uscms/home/cplager/work/cmssw/CMSSW_3_3_0_pre3/src/Validation/Tools/scripts/runCMScommand.bash %s %s describeReflexForGenObject.py %s "\\\"--type=%s\\\""' \
                   % (currentDir, logPrefix + prettyName, name, key)
         os.system (queueCommand % describeCmd)
