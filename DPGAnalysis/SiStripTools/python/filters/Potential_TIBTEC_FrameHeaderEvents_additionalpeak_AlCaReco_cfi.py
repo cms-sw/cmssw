@@ -8,6 +8,19 @@ PotentialTIBTECFrameHeaderEventsAdditionalPeak = cms.EDFilter('EventWithHistoryE
                                                  ),
                                                  filterConfigurations = cms.untracked.VPSet(
                                                    cms.PSet(
+                                                     partitionName              = cms.untracked.string("TI"),
+                                                     absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,26)
+                                                   ),
+                                                   cms.PSet(
+                                                     partitionName              = cms.untracked.string("TO"),
+                                                     absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,26)
+                                                   ),
+                                                   cms.PSet(
+                                                     partitionName              = cms.untracked.string("TP"),
+                                                     absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,26)
+                                                   ),
+                                                   cms.PSet(
+                                                     partitionName              = cms.untracked.string("TM"),
                                                      absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,26)
                                                    )
                                                   ) 
