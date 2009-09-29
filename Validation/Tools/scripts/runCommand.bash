@@ -33,7 +33,7 @@ cd $DIR
 # DO NOT setup CMS environment
 
 echo "hostname:" `hostname` > $LOG
-date >> $log
+date >> $LOG
 pwd >> $LOG
 echo $EXE $@ >> $LOG 2>&1
 (time $EXE $@)  >> $LOG 2>&1

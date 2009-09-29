@@ -36,7 +36,7 @@ cd $DIR
 eval `scramv1 runtime -sh`
 
 echo "hostname:" `hostname` > $LOG
-date >> $log
+date >> $LOG
 pwd >> $LOG
 echo $EXE $@ >> $LOG 2>&1
 (time $EXE $@)  >> $LOG 2>&1
