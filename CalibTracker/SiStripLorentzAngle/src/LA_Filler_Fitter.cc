@@ -1,6 +1,6 @@
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
-#include "CalibTracker/SiStripLorentzAngle/interface/TTREE_FOREACH_ENTRY.hh"
-#include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
+#include "CalibTracker/SiStripCommon/interface/TTREE_FOREACH_ENTRY.hh"
+#include "CalibTracker/SiStripCommon/interface/Book.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cmath>

@@ -1,5 +1,5 @@
 #include "CalibTracker/SiStripLorentzAngle/plugins/EnsembleCalibrationLA.h"
-#include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
+#include "CalibTracker/SiStripCommon/interface/Book.h"
 #include <TChain.h>
 #include <TFile.h>
 #include <boost/foreach.hpp>

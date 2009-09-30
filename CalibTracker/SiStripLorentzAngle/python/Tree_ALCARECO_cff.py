@@ -29,9 +29,9 @@ LorentzAngleTracksRefit = cms.EDFilter("TrackRefitter",
 
 trackFilterRefitter = cms.Sequence( LorentzAngleTracks + offlineBeamSpot + LorentzAngleTracksRefit )
 
-from UserCode.ShallowTools.ShallowEventDataProducer_cfi import *
-from UserCode.ShallowTools.ShallowClustersProducer_cfi import *
-from UserCode.ShallowTools.ShallowTrackClustersProducer_cfi import *
+from CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi import *
+from CalibTracker.SiStripCommon.ShallowClustersProducer_cfi import *
+from CalibTracker.SiStripCommon.ShallowTrackClustersProducer_cfi import *
 calibrationTree = cms.EDAnalyzer("ShallowTree",
                                  outputCommands = cms.untracked.vstring(
     'drop *',

@@ -6,8 +6,8 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
-#include "CalibTracker/SiStripLorentzAngle/interface/Book.h"
 #include "CalibTracker/SiStripLorentzAngle/interface/LA_Filler_Fitter.h"
+#include "CalibTracker/SiStripCommon/interface/Book.h"
 
 namespace sistrip {
 
