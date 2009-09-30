@@ -3,8 +3,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/04/29 22:00:30 $
- *  $Revision: 1.64 $
+ *  $Date: 2009/06/01 17:52:38 $
+ *  $Revision: 1.65 $
  */
 
 
@@ -691,8 +691,9 @@ MonitorElement* HLTMuonGenericRate::bookIt
   double max = parameters[2];
   TH1F *h = new TH1F( name, title, nBins, min, max );
   h->Sumw2();
-  return dbe_->book1D( name.Data(), h );
+  MonitorElement * returnedME = dbe_->book1D( name.Data(), h );
   delete h;
+  return returnedME;
 }
 
 MonitorElement* HLTMuonGenericRate::bookTurnOn
@@ -705,7 +706,8 @@ MonitorElement* HLTMuonGenericRate::bookTurnOn
   for (size_t i = 0; i < nBins + 1; i++) edges[i] = theMaxPtParameters[i];
   TH1F *h = new TH1F( name, title, nBins, edges );
   h->Sumw2();
-  return dbe_->book1D( name.Data(), h );
+  MonitorElement * returnedME = dbe_->book1D( name.Data(), h );
   delete h;
+  return returnedME;
 }
 
