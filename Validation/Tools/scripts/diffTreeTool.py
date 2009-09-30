@@ -3,11 +3,23 @@
 import optparse
 import os
 import re
-import 
+from pprint import pprint
 
-def getObjectFromTree (tree, prefix, varDict):
-    """Given a tree and a prefix, fills an return dictionary with the
+def getPieceFromObject (obj, description):
+    """ """
+    parsed = GenObject.parseVariableTofill (description)
+    return GenObject.evaluateFunction (obj, parsed)
+
+def getDictFromObject (obj, varDict, prefix = ''):
+    """Given a object and a prefix, fills an return dictionary with the
     proper values"""
+    if prefix:
+        obj = getPieceFromObject (obj, prefix)
+    retval = {}
+    for key, description in varDict.iteritems():
+        retval[key] = getPieceFromObject (obj, description)
+    return retval
+
 
 if __name__ == "__main__":
     parser = optparse.OptionParser ("Usage: %prog bla.root lib.so var1 [var2]")
@@ -69,4 +81,9 @@ if __name__ == "__main__":
     tree = rootfile.Get ('diffTree')
     if not tree:
         raise RuntimeError, "Failed to get 'diffTree'"
-    
+    size = tree.GetEntries()
+    runeventDict = {'run':'run', 'event':'event'}
+    for index in range (size):
+        tree.GetEntry (index)
+        runevent = getDictFromObject (tree, runeventDict, 'runevent')
+        pprint (runevent)
