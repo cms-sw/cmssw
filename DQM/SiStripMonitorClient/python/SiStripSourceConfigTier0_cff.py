@@ -34,7 +34,7 @@ TrackMon.TrackProducer = 'generalTracks'
 TrackMon.AlgoName = 'CKFTk'
 TrackMon.FolderName = 'Tracking/TrackParameters'
 TrackMon.doSeedParameterHistos = True
-TrackMon.doBeamSpotPlots       = cms.bool(True),
+TrackMon.doBeamSpotPlots       = True
 TrackMon.BSFolderName          = 'Tracking/TrackParameters/BeamSpotParameters'
 
 # DQM Services
