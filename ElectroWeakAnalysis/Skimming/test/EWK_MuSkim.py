@@ -28,12 +28,12 @@ process.EWK_MuHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clo
 #process.EWK_MuHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 #process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu3", "HLT_DoubleMu3"]
 # Uncomment this to filter on 1E31 HLT menu
-process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu9", "HLT_DoubleMu3"]
+process.EWK_MuHLTFilter.HLTPaths = ["HLT_Mu9"]
 
 # Muon filter
 process.goodMuons = cms.EDFilter("CandViewSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('isGlobalMuon = 1 & abs(eta) < 2.5 & pt > 15'),
+  cut = cms.string('isGlobalMuon = 1 & abs(eta) < 2.5'),
   filter = cms.bool(True)                                
 )
 

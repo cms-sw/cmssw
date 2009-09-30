@@ -72,7 +72,7 @@ allLayer1Muons.isolation.tracker = cms.PSet(
 #allLayer1Muons.addTrigMatch = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
-selectedLayer1Muons.cut = 'pt > 10. & abs(eta) < 100.0'
+selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
