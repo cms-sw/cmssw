@@ -1,9 +1,33 @@
 #! /usr/bin/env python
 
+import sys
+import subprocess
 import FWCore.ParameterSet.Config as cms
-import hltOutputA_cff
-import hltOutputALCA_cff
-import hltOutputMON_cff
+
+config = sys.argv[1]
+
+def extractBlock(config, blocks, target):
+  print 'configuration: %s' % config
+  print 'blocks:        %s' % ', '.join(blocks)
+  print 'target:        %s' % target
+  print
+  commands = ','.join( block + '::outputCommands' for block in blocks )
+  proc = subprocess.Popen(
+    "edmConfigFromDB --configName %s --noedsources --nopaths --noes --nopsets --noservices --cff --blocks %s --format python | sed -e'/^streams/,/^)/d' -e'/^datasets/,/^)/d' > %s" % (config, commands, target),
+    shell  = True,
+    stdin  = None, 
+    stdout = None,
+    stderr = None,
+  )
+  proc.wait()
+
+def extractBlocks(config):
+  outputA    = ( 'hltOutputA', )
+  outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAPHISYMHCAL', 'hltOutputALCAP0', 'hltOutputRPCMON' )
+  outputMON  = ( 'hltOutputDQM', 'hltOutputHLTDQM', 'hltOutputHLTMON', 'hltOutput8E29', 'hltOutput1E31', 'hltOutputHIon' )
+  extractBlock(config, outputA,    'hltOutputA_cff.py')
+  extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
+  extractBlock(config, outputMON,  'hltOutputMON_cff.py')
 
 def makePSet(statements):
   statements = list(statements)
@@ -30,6 +54,10 @@ def buildPSetWithoutRAWs(blocks):
 
 
 # extract the HLT layer event content
+extractBlocks( config )
+import hltOutputA_cff
+import hltOutputALCA_cff
+import hltOutputMON_cff
 
 # hltDebugOutput
 hltDebugOutputBlocks = (
