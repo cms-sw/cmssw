@@ -21,7 +21,6 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
-#include "CondFormats/HcalObjects/src/HcalQIEShape.cc"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 
