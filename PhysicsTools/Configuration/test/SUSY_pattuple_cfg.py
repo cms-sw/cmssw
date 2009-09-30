@@ -9,9 +9,9 @@
 # Starting with a skeleton process which gets imported with the following line
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-#-- Meta data to be logged in Provenance --------------------------------------
+#-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -207,6 +207,7 @@ process.out.outputCommands.extend( [ # PAT Objects
                                      'keep *_cleanLayer1PFParticles_*_*',
                                      # Generator information
                                      'keep GenEventInfoProduct_generator_*_*',
+                                     'keep GenRunInfoProduct_generator_*_*',
                                      # Generator particles/jets/MET
                                      'keep recoGenParticles_genParticles_*_*',
                                      'keep recoGenJets_iterativeCone5GenJets_*_*',
