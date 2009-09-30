@@ -3,7 +3,7 @@
 ##  the classes may not function as intended.
 
 
-from FWCore.Python.Enumerate import Enumerate
+from FWCore.Utilities.Enumerate import Enumerate
 from DataFormats.FWLite import Events, Handle
 import re
 import os
