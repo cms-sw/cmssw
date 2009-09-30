@@ -1,8 +1,8 @@
 /** \file LaserSteppingAction.cc
  *  
  *
- *  $Date: 2007/03/20 12:01:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/11 14:44:29 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -57,65 +57,65 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
 	  
 	  // use different energy deposit for the discs depending on the z-position to simulate the variable laser power
 	  // Disc 1 TEC2TEC
-	  if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1262.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1382.5 )
-	       || (theStep->GetPreStepPoint()->GetPosition().z() < -1262.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1382.5 ) 
-	       && ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
-		    || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
-		    || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) )
+	  if ( ( (theStep->GetPreStepPoint()->GetPosition().z() > 1262.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1382.5 )
+                 || (theStep->GetPreStepPoint()->GetPosition().z() < -1262.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1382.5 ) )
+               && ( ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
+                      || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
+                      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
+                      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
+                      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) ) )
  	    { theStep->AddTotalEnergyDeposit(EnergyLoss); } // Disc 1 TEC2TEC
 	  // Disc 1
 	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1262.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1382.5 )
 		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1262.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1382.5 ) )
  	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2*0.2*0.2*0.2)); } // Disc 1
 	  // Disc 2 TEC2TEC
-	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1402.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1522.5 )
-		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1402.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1522.5 ) 
-		    && ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) )
+	  else if ( ( (theStep->GetPreStepPoint()->GetPosition().z() > 1402.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1522.5 )
+                      || (theStep->GetPreStepPoint()->GetPosition().z() < -1402.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1522.5 ) )
+		    && ( ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) ) )
  	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2)); } // Disc 2 TEC2TEC
 	  // Disc 2
 	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1402.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1522.5 )
 		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1402.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1522.5 ) )
 	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2*0.2*0.2)); } // Disc 2
 	  // Disc 3 TEC2TEC
-	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1542.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1662.5 )
-		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1542.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1662.5 ) 
-		    && ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) )
+	  else if ( ( (theStep->GetPreStepPoint()->GetPosition().z() > 1542.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1662.5 )
+		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1542.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1662.5 ) ) 
+		    && ( ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) ) )
 	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2*0.2)); } // Disc 3 TEC2TEC
 	  // Disc 3
 	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1542.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1662.5 )
 		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1542.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1662.5 ) )
 	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2*0.2)); } // Disc 3
 	  // Disc 4 TEC2TEC
-	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1682.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1802.5 )
-		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1682.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1802.5 ) 
-		    && ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) )
+	  else if ( ( (theStep->GetPreStepPoint()->GetPosition().z() > 1682.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1802.5 )
+                      || (theStep->GetPreStepPoint()->GetPosition().z() < -1682.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1802.5 ) ) 
+		    && ( ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) ) )
 	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2*0.2*0.2)); } // Disc 4 TEC2TEC
 	  // Disc 4
 	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1682.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1802.5 )
 		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1682.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1802.5 ) )
 	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2)); } // Disc 4
 	  // Disc 5 TEC2TEC
-	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1822.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1942.5 )
-		    || (theStep->GetPreStepPoint()->GetPosition().z() < -1822.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1942.5 ) 
-		    && ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
-			 || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
-			      || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) )
+	  else if ( ( ( theStep->GetPreStepPoint()->GetPosition().z() > 1822.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1942.5 )
+		    || ( theStep->GetPreStepPoint()->GetPosition().z() < -1822.5 && theStep->GetPreStepPoint()->GetPosition().z() > -1942.5 ) )
+		    && ( ( ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.285 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.295 ) 
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() > 1.84 && theStep->GetPreStepPoint()->GetPosition().phi() < 1.86 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 3.63 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 3.66 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.20 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.23 )
+                           || ( theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI > 5.76 && theStep->GetPreStepPoint()->GetPosition().phi() + 2.0*M_PI < 5.80 ) ) ) )
 	    { theStep->AddTotalEnergyDeposit(EnergyLoss/(0.2*0.2*0.2*0.2)); } // Disc 5 TEC2TEC
 	  // Disc 5
 	  else if ( (theStep->GetPreStepPoint()->GetPosition().z() > 1822.5 && theStep->GetPreStepPoint()->GetPosition().z() < 1942.5 )
