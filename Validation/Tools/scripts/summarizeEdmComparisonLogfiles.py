@@ -32,11 +32,13 @@ if __name__ == "__main__":
     cppExceptionRE = re.compile (r'\(C\+\+ exception\)')
     missingCfgRE   = re.compile (r"raise.+Can't open configuration")
     finishRE       = re.compile (r'finish')
+    dummyRE        = re.compile (r'edm::Wrapper<dummyType>')
     nonSpacesRE    = re.compile (r'\S')
     problemDict = { 'label'        : labelErrorRE,
                     'terminate'    : terminatedRE,
                     'cppException' : cppExceptionRE,
                     'missingCfg'   : missingCfgRE,
+                    'dummy'        : dummyRE,
                     'finish'       : finishRE}
 
     parser = optparse.OptionParser ("Usage: %prog logfilePrefix [directory]")
@@ -99,6 +101,7 @@ if __name__ == "__main__":
             ok = summaryOK (summary)
         else:
             ok = (False,)
+            summary = None
         if ran and success:
             succeeded += 1
             if not ok[0]:
@@ -109,7 +112,7 @@ if __name__ == "__main__":
             if ok[0]:
                 weird += 1
         if not problems.has_key (log) and not ok[0]:
-            if not ok[0]:
+            if not ok[0] and summary:
                 key = 'mismatch'
                 problems[log] = pprint.pformat (summary, indent=4)
             else:
