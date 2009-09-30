@@ -83,6 +83,7 @@ hltDebugWithAlCaOutputBlocks = (
   hltOutputMON_cff.block_hltOutputHIon.outputCommands,
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCAPHISYMHCAL.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
   hltOutputALCA_cff.block_hltOutputRPCMON.outputCommands,
 )
