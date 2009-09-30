@@ -5,7 +5,7 @@
 <use name=DQMServices/Core>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
-<lib name=GeometryTrackerGeometryBuilder>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=Alignment/OfflineValidation>
 <flags EDM_PLUGIN=1>
 <export>
@@ -17,5 +17,5 @@
    <use name=DQMServices/Core>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
-   <lib name=GeometryTrackerGeometryBuilder>
+   <use name=GeometryTrackerGeometryBuilder>
 </export>
