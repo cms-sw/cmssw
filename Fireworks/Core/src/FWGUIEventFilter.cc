@@ -10,14 +10,24 @@
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "TSystem.h"
 
-FWGUIEventFilter::FWGUIEventFilter(std::vector<FWEventSelector>& sels):
+FWGUIEventFilter::FWGUIEventFilter(std::vector<FWEventSelector>& sels, bool& junction):
   TGTransientFrame(gClient->GetRoot(), gClient->GetRoot(),m_width,m_height),
-  m_sels(sels),m_haveNewEntry(false)
+  m_sels(sels),m_globalOR(junction),m_haveNewEntry(false)
 {
   // SetCleanup(kDeepCleanup);
-  TGCanvas* frame = new TGCanvas(this,m_width,m_height-m_entryHeight);
-  AddFrame(frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandX, 0,0,0,0));
-  
+  TGHorizontalFrame* labels = new TGHorizontalFrame(this, m_width, 2*m_entryHeight, 0);
+  AddFrame(labels, new TGLayoutHints(kLHintsExpandX|kLHintsTop, 5,5,5,5));
+
+  TGLabel* label1 = new TGLabel(labels," Outputs of enabled selectors are combined as the logical: ");
+  labels->AddFrame(label1, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 0,0,0,0));
+  m_junctionWidget = new TGTextButton(labels," OR  ");
+  labels->AddFrame(m_junctionWidget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 0,0,0,0));
+  m_junctionWidget->Connect("Clicked()","FWGUIEventFilter", this, "junctionChanged()");
+  junctionUpdate();
+
+  TGCanvas* frame = new TGCanvas(this,m_width,m_height-2*m_entryHeight);
+  AddFrame(frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0,0,0,0));
+
   m_mainFrame = new TGHorizontalFrame(frame->GetViewPort(), m_width, m_entryHeight, 0);
   frame->SetContainer(m_mainFrame);
   
@@ -148,3 +158,15 @@ void FWGUIEventFilter::dump(const char* text){
       "\t " << sel->removed << std::endl;
 }
 
+void FWGUIEventFilter::junctionChanged(){
+  m_globalOR = !m_globalOR;
+  junctionUpdate();
+}
+
+void FWGUIEventFilter::junctionUpdate(){
+  m_junctionWidget->SetDown(!m_globalOR);
+  if (m_globalOR)
+    m_junctionWidget->SetText(" OR  ");
+  else
+    m_junctionWidget->SetText(" AND ");
+}

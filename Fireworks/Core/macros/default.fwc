@@ -558,7 +558,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaa(0);
-  topaa.addValue("-1603361052");
+  topaa.addValue("");
   topa.addKeyValue("EventFilter0_comment", topaa);
 }
 {
@@ -573,7 +573,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaa(0);
-  topaa.addValue("-1603361052");
+  topaa.addValue("");
   topa.addKeyValue("EventFilter1_comment", topaa);
 }
 {
@@ -761,6 +761,11 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
   topaaa.addKeyValue("Auto rebin on zoom", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("Show scales", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
@@ -1727,12 +1732,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1041");
+  topaaaaa.addValue("1040");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("79");
+  topaaaaa.addValue("56");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {
@@ -1775,12 +1780,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1040");
+  topaaaaa.addValue("1039");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("400");
+  topaaaaa.addValue("374");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {

@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.21 2009/08/18 19:03:30 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.22 2009/09/29 19:26:32 dmytro Exp $
 //
 
 // system include files
@@ -105,6 +105,7 @@ private:
    std::deque<FWFileEntry>::iterator m_lastSelectedFile;
    std::deque<FWFileEntry>::iterator m_lastFile;
    bool m_filterEvents;
+   bool m_globalOR;
    // entry is an event index nubmer which runs from 0 to
    // #events or #selected_events depending on if we filter
    // events or not

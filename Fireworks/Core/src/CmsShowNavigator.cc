@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.35 2009/08/18 19:03:30 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.36 2009/09/29 19:26:33 dmytro Exp $
 //
 
 // hacks
@@ -38,6 +38,7 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
   : m_maxNumberOfFilesToChain(1),
     m_currentFile(m_files.begin()),
     m_filterEvents(false),
+    m_globalOR(true),
     m_currentEntry(0),
     m_lastEntry(-1),
     m_main(main)
@@ -456,7 +457,10 @@ CmsShowNavigator::filterEvents()
       file->mainSelection.Clear();
       for ( unsigned int i=0; i < m_selectors.size(); ++i )
 	if (!m_selectors[i].removed && m_selectors[i].enabled)
-	  file->mainSelection.Add(file->lists[i]);
+	  if ( m_globalOR || file->mainSelection.GetN()==0 )
+	    file->mainSelection.Add(file->lists[i]);
+	  else
+	    file->mainSelection.Intersect(file->lists[i]);
       // std::cout << Form("File: %s, number of events passed OR of all selections: %d",
       // file->name.c_str(),file->mainSelection.GetN()) 
       // << std::endl;
@@ -502,7 +506,7 @@ CmsShowNavigator::filterEvents()
 
   m_currentFile->file->cd();	  
   postFiltering_();
-  eventSelectionChanged_.emit(std::string(Form("Events are filtered: %d out of %d",nPassed,nTotal)));
+  eventSelectionChanged_.emit(std::string(Form("Events are filtered. %d out of %d events are shown",nPassed,nTotal)));
 }
 /*
 void 
@@ -544,7 +548,7 @@ CmsShowNavigator::enableEventFiltering( Bool_t flag ){
 
 void
 CmsShowNavigator::showEventFilter(){
-  FWGUIEventFilter* filter = new FWGUIEventFilter(m_selectors);
+  FWGUIEventFilter* filter = new FWGUIEventFilter(m_selectors,m_globalOR);
   filter->show();
   gClient->WaitForUnmap(filter);
   Int_t absolutePosition = m_currentEntry;
@@ -562,6 +566,8 @@ CmsShowNavigator::showEventFilter(){
     firstEventInTheCurrentFile();
   }
 }
+
+
 
 void
 CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
@@ -617,9 +623,9 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
     iTo.addKeyValue(Form("EventFilter%d_enabled",numberOfFilters),
 		    FWConfiguration(Form("%d",sel->enabled)));
     iTo.addKeyValue(Form("EventFilter%d_selection",numberOfFilters),
-		    FWConfiguration(Form("%s",sel->selection.c_str())));
+		    FWConfiguration(sel->selection));
     iTo.addKeyValue(Form("EventFilter%d_comment",numberOfFilters),
-		    FWConfiguration(Form("%d",sel->title.c_str())));
+		    FWConfiguration(sel->title));
     ++numberOfFilters;
   }
   iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
