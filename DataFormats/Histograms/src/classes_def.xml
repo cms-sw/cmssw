@@ -50,6 +50,7 @@
  <class name="MEtoEDM<TProfile>"/>
  <class name="MEtoEDM<TProfile2D>"/>
  <class name="MEtoEDM<double>"/>
+ <class name="MEtoEDM<int>"/>
  <class name="MEtoEDM<int64_t>"/>
  <class name="MEtoEDM<TString>"/>
  <class name="MEtoEDM<TH1F>::MEtoEDMObject"/>
@@ -60,6 +61,7 @@
  <class name="MEtoEDM<TProfile>::MEtoEDMObject"/>
  <class name="MEtoEDM<TProfile2D>::MEtoEDMObject"/>
  <class name="MEtoEDM<double>::MEtoEDMObject"/>
+ <class name="MEtoEDM<int>::MEtoEDMObject"/>
  <class name="MEtoEDM<int64_t>::MEtoEDMObject"/>
  <class name="MEtoEDM<TString>::MEtoEDMObject"/>
  <class name="std::vector<MEtoEDM<TH1F>::MEtoEDMObject>"/>
@@ -70,6 +72,7 @@
  <class name="std::vector<MEtoEDM<TProfile>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<double>::MEtoEDMObject>"/>
+ <class name="std::vector<MEtoEDM<int>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<int64_t>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TString>::MEtoEDMObject>"/>
  <class name="edm::Wrapper<MEtoEDM<TH1F> >"/>
@@ -80,6 +83,7 @@
  <class name="edm::Wrapper<MEtoEDM<TProfile> >"/>
  <class name="edm::Wrapper<MEtoEDM<TProfile2D> >"/>
  <class name="edm::Wrapper<MEtoEDM<double> >"/>
+ <class name="edm::Wrapper<MEtoEDM<int> >"/>
  <class name="edm::Wrapper<MEtoEDM<int64_t> >"/>
  <class name="edm::Wrapper<MEtoEDM<TString> >"/>
 </lcgdict>

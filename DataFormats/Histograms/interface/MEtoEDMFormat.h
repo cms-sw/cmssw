@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/09/28 18:28:07 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/09/29 19:49:10 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -171,6 +171,53 @@ MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM)
       // this value is only in the new container, not the old one
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
+    }
+  }
+  return true;
+}
+
+template <>
+inline bool
+MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
+{
+  const MEtoEdmObjectVector &newMEtoEDMObject =
+    newMEtoEDM.getMEtoEdmObject();
+  const size_t nObjects = newMEtoEDMObject.size();
+  //  NOTE: we remember the present size since we will only add content
+  //        from newMEtoEDMObject after this point
+  const size_t nOldObjects = MEtoEdmObject.size();
+
+  // if the old and new are not the same size, we want to report a problem
+  if (nObjects != nOldObjects) {
+    std::cout << "WARNING MEtoEDM::mergeProducts(): the lists of histograms to be merged have different sizes: new=" << nObjects << ", old=" << nOldObjects << std::endl;
+  }
+
+  for (unsigned int i = 0; i < nObjects; ++i) {
+    unsigned int j = 0;
+    // see if the name is already in the old container up to the point where
+    // we may have added new entries in the container
+    const std::string& name =newMEtoEDMObject[i].name;
+    if (i < nOldObjects && (MEtoEdmObject[i].name == name)) {
+      j = i;
+    } else {
+      j = 0;
+      while (j <  nOldObjects && (MEtoEdmObject[j].name != name) ) ++j;
+    }
+    if (j >= nOldObjects) {
+      // this value is only in the new container, not the old one
+      std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+      MEtoEdmObject.push_back(newMEtoEDMObject[i]);
+    } else {
+      // this value is also in the new container: add the two
+      if ( MEtoEdmObject[i].name.find("EventInfo/processedEvents") != std::string::npos ) {
+        MEtoEdmObject[i].object += (newMEtoEDMObject[j].object);
+      }
+      if ( MEtoEdmObject[i].name.find("EventInfo/iEvent") != std::string::npos ||
+           MEtoEdmObject[i].name.find("EventInfo/iLumiSection") != std::string::npos) {
+        if (MEtoEdmObject[i].object < newMEtoEDMObject[j].object) {
+          MEtoEdmObject[i].object = (newMEtoEDMObject[j].object);
+        }
+      }
     }
   }
   return true;
