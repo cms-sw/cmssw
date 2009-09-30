@@ -8,8 +8,6 @@ from DataFormats.FWLite import Events, Handle
 import re
 import os
 import copy
-#import ConfigParser
-#import PhysicsTools.PythonAnalysis as cmstools
 import pprint
 import random
 import sys
@@ -363,7 +361,7 @@ class GenObject (object):
 
 
     @staticmethod
-    def _parseVariableTofill (fillname):
+    def parseVariableTofill (fillname):
         """Returns tofill tuple made from string"""
         parts = GenObject._dotRE.split (fillname)
         partsList = []
@@ -473,7 +471,7 @@ class GenObject (object):
                         if shortcutMatch:
                             shortcutFill = \
                                          GenObject.\
-                                         _parseVariableTofill ( shortcutMatch.\
+                                         parseVariableTofill ( shortcutMatch.\
                                                                 group(1) )
                             ntupleDict.setdefault ('_shortcut', {}).\
                                                   setdefault (tofillName,
@@ -621,7 +619,7 @@ class GenObject (object):
                     tofillDict = GenObject._tofillDict.\
                                  setdefault (tupleName, {}).\
                                  setdefault (objName, {})
-                    partsList = GenObject._parseVariableTofill (fillname)
+                    partsList = GenObject.parseVariableTofill (fillname)
                     tofillDict[varName] = [partsList, optionsDict]
         # for line
         for objName in GenObject._objsDict:
@@ -654,7 +652,7 @@ class GenObject (object):
 
 
     @staticmethod
-    def _evaluateFunction (obj, partsList, debug=False):
+    def evaluateFunction (obj, partsList, debug=False):
         """Evaluates function described in partsList on obj"""
         for part in partsList:
             if debug: warn (part, spaces=15)
@@ -685,7 +683,7 @@ class GenObject (object):
             # lets work our way down the list
             partsList = ntDict[0]
             # start off with the original object
-            obj = GenObject._evaluateFunction (origObj, partsList, debug)
+            obj = GenObject.evaluateFunction (origObj, partsList, debug)
             ## for part in partsList:
             ##     if debug: warn (part, spaces=15)
             ##     obj = getattr (obj, part[0])
@@ -902,7 +900,7 @@ class GenObject (object):
                 # FWLite
                 shortcut = ntupleDict.get('_shortcut', {}).get(branchName)
                 if shortcut:
-                    objects = GenObject._evaluateFunction (eventTree, shortcut)
+                    objects = GenObject.evaluateFunction (eventTree, shortcut)
                 else:
                     eventTree.toBegin()
                     handle = ntupleDict.get('_handle', {}).get(branchName)
