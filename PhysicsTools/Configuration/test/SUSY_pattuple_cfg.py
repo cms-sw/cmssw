@@ -11,8 +11,8 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in Provenance --------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: $'),
-    name = cms.untracked.string('$Source:$'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
 
@@ -54,8 +54,13 @@ process.tauMatch.checkCharge      = False
 
 #-- JetPlusTrack --------------------------------------------------------------
 # produce jpt corrected calo jets, which are not on AOD per default
-process.load("PhysicsTools.PatAlgos.recoLayer0.jetPlusTrack_cff")
-process.jpt = cms.Path( process.jptCaloJets )
+process.load("JetMETCorrections.Configuration.ZSPJetCorrections219_cff")
+process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
+process.ZSPJetCorJetAntiKt5.src = "antikt5CaloJets"
+process.JPT = cms.Sequence(
+    process.ZSPJetCorrectionsIcone5 * process.JetPlusTrackCorrectionsIcone5
+    #+ process.ZSPJetCorrectionsSisCone5 * process.JetPlusTrackCorrectionsSisCone5
+    + process.ZSPJetCorrectionsAntiKt5 * process.JetPlusTrackCorrectionsAntiKt5)
 
 #-- Extra Jet/MET collections -------------------------------------------------
 from PhysicsTools.PatAlgos.tools.jetTools import *
@@ -88,16 +93,35 @@ addJetCollection(process,cms.InputTag('sisCone5CaloJets'),
                  doL1Counters = True,
                  genJetCollection=cms.InputTag("sisCone5GenJets")
                  )
-# FIXME: Need Summer09 JPT corrections!
 addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetIcone5'),
                  'IC5JPT',
                  doJTA        = True,
                  doBTagging   = True,
-                 jetCorrLabel = None, # ('IC5','JPT'), <-- HERE
+                 jetCorrLabel = None,
                  doType1MET   = False,
                  doL1Cleaning = True,
                  doL1Counters = True,
                  genJetCollection = cms.InputTag("iterativeCone5GenJets")
+                 )
+#addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetSisCone5'),
+#                                  'SC5JPT',
+#                                  doJTA        = True,
+#                                  doBTagging   = True,
+#                                  jetCorrLabel = None,
+#                                  doType1MET   = False,
+#                                  doL1Cleaning = True,
+#                                  doL1Counters = True,
+#                                  genJetCollection = cms.InputTag("SisCone5GenJets")
+#                                  )
+addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
+                 'AK5JPT',
+                 doJTA        = True,
+                 doBTagging   = True,
+                 jetCorrLabel = None,
+                 doType1MET   = False,
+                 doL1Cleaning = True,
+                 doL1Counters = True,
+                 genJetCollection = cms.InputTag("antikt5GenJets")
                  )
 
 # Add tcMET and PFMET
@@ -155,7 +179,7 @@ addJetCollection(process,cms.InputTag('SISCone5TrackJets'),
 process.jetTracksAssociatorAtVertexSC5Track.tracks = cms.InputTag("trackWithVertexSelector")
 
 #-- Tune contents of jet collections  -----------------------------------------
-for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT', 'SC5Track' ):
+for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT', 'AK5JPT', 'SC5Track' ): # 'SC5JPT'
     module = getattr(process,'allLayer1Jets'+jetName)
     module.addTagInfos = False    # Remove tag infos
     module.addJetID    = True     # Add JetID variables
@@ -230,13 +254,13 @@ process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsIC5'))
 process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
 process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsIC5'))
 # Add new jet collections to counters (MET done automatically)
-for jets in ( 'AK5', 'SC5','IC5PF','IC5JPT', 'SC5Track' ):
+for jets in ( 'AK5', 'SC5','IC5PF','IC5JPT', 'AK5JPT', 'SC5Track' ):
     process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
 
 # Full path
-process.p = cms.Path( process.hcalnoise*process.addTrackJets
+process.p = cms.Path( process.hcalnoise*process.addTrackJets*process.JPT
                       * process.patDefaultSequence
                       * process.patTrigger*process.patTriggerEvent )
 
