@@ -98,7 +98,10 @@ if __name__ == "__main__":
         filename2 = args[1]
     else:
         filename2 = filename1
-    print "files", filename1, filename2
+    if options.verbose:
+        print "files", filename1, filename2
+    if options.verbose:
+        print "Getting edmDump output"
     output = commands.getoutput ("edmDumpEventContent %s" % filename1)\
              .split("\n")
 
@@ -109,7 +112,6 @@ if __name__ == "__main__":
             obj = EdmObject( match.group(1,2,3,4) )
             if obj.bool:
                 collection.setdefault( obj.container, [] ).append(obj)
-    #pprint.pprint(collection)
     for key, value in sorted (collection.iteritems()):
         name      = value[0].name
         prettyName = colonRE.sub('', name)
@@ -119,8 +121,11 @@ if __name__ == "__main__":
                 print '%s exists.  Skipping' % descriptionName
             continue
         #print name, prettyName, key
-        describeCmd = '%s %s %s describeReflexForGenObject.py %s "\\\"--type=%s\\\""' \
+        describeCmd = "%s %s %s describeReflexForGenObject.py %s '--type=%s'" \
                   % (fullCommand, currentDir, logPrefix + prettyName, name, key)
+        if options.verbose:
+            print "describing %s" % name
+            print describeCmd
         os.system (describeCmd)
         #print describeCmd, '\n'
 
@@ -144,5 +149,6 @@ if __name__ == "__main__":
                              % (fullCommand, currentDir,
                                 logPrefix + prettyName + '_' + prettyLabel,
                                 compareCmd)
-            #print fullCompareCmd,'\n'
+            if options.verbose:
+                print "comparing EDProdct %s %s" % (name, obj.label())
             os.system (fullCompareCmd)
