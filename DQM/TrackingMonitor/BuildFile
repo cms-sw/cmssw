@@ -5,7 +5,7 @@
 <use name=DQMServices/Core>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerTopology>
-<lib name=GeometryTrackerGeometryBuilder>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=TrackingTools/TrackFitters>
@@ -26,7 +26,7 @@
    <use name=DQMServices/Core>
    <use name=Geometry/CommonTopologies>
    <use name=Geometry/TrackerTopology>
-   <lib name=GeometryTrackerGeometryBuilder>
+   <use name=Geometry/TrackerGeometryBuilder>
    <use name=TrackingTools/TransientTrackingRecHit> 
    <use name=TrackingTools/TransientTrack> 
    <use name=TrackingTools/TrackFitters>
