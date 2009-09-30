@@ -5,7 +5,9 @@ import os
 import re
 import 
 
-def getObjectFromTree (tree, 
+def getObjectFromTree (tree, prefix, varDict):
+    """Given a tree and a prefix, fills an return dictionary with the
+    proper values"""
 
 if __name__ == "__main__":
     parser = optparse.OptionParser ("Usage: %prog bla.root lib.so var1 [var2]")
