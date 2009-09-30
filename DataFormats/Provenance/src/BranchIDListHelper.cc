@@ -74,7 +74,7 @@ namespace edm {
     BranchIDListRegistry& breg = *BranchIDListRegistry::instance();
     BranchListIndexMapper& branchListIndexMapper = breg.extra().branchListIndexMapper_;
     for (BranchListIndexes::iterator i = indexes.begin(), e = indexes.end(); i != e; ++i) {
-      *i = branchListIndexMapper[i - indexes.begin()];
+      *i = branchListIndexMapper[*i];
     }
   }
 
