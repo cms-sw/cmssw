@@ -39,7 +39,7 @@ process.dqmSaver.saveAtJobEnd = True
 
 ######################################################################################
 ### include your reference file
-#process.DQMStore.referenceFileName = 'ref.root'
+process.DQMStore.referenceFileName = 'ref.root'
 ### set 
 #process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
