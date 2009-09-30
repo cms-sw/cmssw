@@ -5,7 +5,6 @@ from Configuration.EventContent.EventContent_cff import *
 zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
       'drop *',
-#      'keep *_selectedLayer1Muons_*_*',
       'keep *_selectedLayer1MuonsTriggerMatch_*_*',
       'keep *_selectedLayer1TrackCands_*_*',
       'keep *_dimuons_*_*',
