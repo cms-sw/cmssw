@@ -24,8 +24,8 @@ label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))
 
 
     // checkin size of phthat vectors -- default is allowed
-    if (pthatMin.size() > 1 &&  processID.size() != pthatMin.size() 
-     || pthatMax.size() > 1 && processID.size() != pthatMax.size()) {
+    if ( (pthatMin.size() > 1 &&  processID.size() != pthatMin.size()) 
+     ||  (pthatMax.size() > 1 && processID.size() != pthatMax.size()) ) {
       cout << "WARNING: MCPROCESSFILTER : size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
     }
 

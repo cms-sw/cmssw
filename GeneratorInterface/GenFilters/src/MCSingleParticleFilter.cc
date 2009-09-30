@@ -31,10 +31,10 @@ label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))
 
 
     // check for same size
-    if (ptMin.size() > 1 &&  particleID.size() != ptMin.size() 
-     || etaMin.size() > 1 && particleID.size() != etaMin.size() 
-     || etaMax.size() > 1 && particleID.size() != etaMax.size()
-     || status.size() > 1 && particleID.size() != status.size() ) {
+    if ( (ptMin.size() > 1 &&  particleID.size() != ptMin.size()) 
+     ||  (etaMin.size() > 1 && particleID.size() != etaMin.size()) 
+     ||  (etaMax.size() > 1 && particleID.size() != etaMax.size())
+     ||  (status.size() > 1 && particleID.size() != status.size()) ) {
       cout << "WARNING: MCPROCESSFILTER : size of MinPthat and/or MaxPthat not matching with ProcessID size!!" << endl;
     }
 

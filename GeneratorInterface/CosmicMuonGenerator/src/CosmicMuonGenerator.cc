@@ -204,7 +204,7 @@ void CosmicMuonGenerator::nextEvent(){
     //std::cout << " P(Mu)=" << sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass)
     //      << " MinP_CMS=" << MinP_CMS << std::endl;
 
-    if (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS
+    if ( (OneMuoEvt.hitTarget() && sqrt(OneMuoEvt.e()*OneMuoEvt.e() - MuonMass*MuonMass) > MinP_CMS)
 	|| AcptAllMu==true){
       Nsel+=1.; //count number of generated and accepted events  
       notSelected = false;
@@ -263,7 +263,7 @@ void CosmicMuonGenerator::terminate(){
     //at least 100 evts., and
     //downgoing inside theta parametersisation range
     //or upgoing neutrino muons 
-    if(n100cos>0 && MaxTheta<84.26*Deg2Rad 
+    if( (n100cos>0 && MaxTheta<84.26*Deg2Rad) 
        || MinTheta>90.*Deg2Rad) {
       // rate: corrected for area and selection-Eff. and normalized to known flux, integration over solid angle (dOmega) is implicit
       // flux is normalised with respect to known flux of vertical 100GeV muons in area at suface level 

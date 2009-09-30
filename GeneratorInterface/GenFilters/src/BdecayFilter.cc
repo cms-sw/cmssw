@@ -134,13 +134,14 @@ bool BdecayFilter::cuts(const GenParticle * jpsi, const CutStruct cut)
 	cout << "start cuts" << endl;
   HepMC::GenVertex* myVertex = jpsi->end_vertex();
   int numChildren = myVertex->particles_out_size();
+  int numDecProd = cut.decayProduct.size();
   std::vector<HepMC::GenParticle*> psiChild;
   // for(std::set<GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
   for(GenVertex::particles_out_const_iterator p = myVertex->particles_out_const_begin();
       p != myVertex->particles_out_const_end(); p++) 
     psiChild.push_back((*p));
 
-  if (numChildren!=cut.decayProduct.size()) return false;
+  if (numChildren!=numDecProd) return false;
     cout << psiChild[0]->pdg_id()<<" "<<psiChild[1]->pdg_id()<<endl;
 
   for (int i=0; i<numChildren; ++i) {

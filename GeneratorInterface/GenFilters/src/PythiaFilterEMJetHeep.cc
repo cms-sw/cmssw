@@ -229,8 +229,8 @@ bool PythiaFilterEMJetHeep::filter(edm::Event& iEvent, const edm::EventSetup& iS
     if (debug) std::cout << " Selection 4 passed " << std::endl;
 
     // Selection 5: max. track pT fractions and number of tracks in the proto-cluster
-    if ( EB && setCharged / setCone_clust > fracTrkPtMax_EB ||  Ncharged > ntrkMax_EB) continue;
-    if ( EE && setCharged / setCone_clust > fracTrkPtMax_EE ||  Ncharged > ntrkMax_EE) continue;
+    if ( (EB && setCharged / setCone_clust > fracTrkPtMax_EB) ||  Ncharged > ntrkMax_EB) continue;
+    if ( (EE && setCharged / setCone_clust > fracTrkPtMax_EE) ||  Ncharged > ntrkMax_EE) continue;
     if (debug) std::cout << " Selection 5 passed " << std::endl;
 
     // Selection #6: max. pT of the hadron in the proto-cluster
