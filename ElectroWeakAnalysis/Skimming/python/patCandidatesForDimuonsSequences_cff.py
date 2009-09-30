@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
-# PAT TRACKS (sequence compatible with PAT v2)
+# PAT TRACKS
 
 # before layer 1: conversion to track candidates for pat; isolation 
 #from PhysicsTools.PatAlgos.recoLayer0.genericTrackCandidates_cff import *
@@ -153,7 +153,6 @@ beforePatLayer1 = cms.Sequence(
 patLayer1 = cms.Sequence(
     allLayer1Muons *
     selectedLayer1Muons *
-#    cleanLayer1Muons *
     allLayer1TrackCands *
     selectedLayer1TrackCands
 )
