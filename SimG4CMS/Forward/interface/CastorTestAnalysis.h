@@ -90,6 +90,7 @@ private:
   int doNTcastorevent;
   std::string stepNtFileName;
   std::string eventNtFileName;
+  bool useShowerLibrary;
 
   TFile* castorOutputEventFile;
   TFile* castorOutputStepFile;
@@ -97,8 +98,7 @@ private:
   TNtuple* castorstepntuple;
   TNtuple* castoreventntuple;
 
-  int eventIndex, det, zside, sector, zmodule;
-
+  int eventIndex;
   int stepIndex;
 
   Float_t castorsteparray[14];

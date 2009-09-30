@@ -41,13 +41,17 @@ public:
 
   void                initParticleTable(G4ParticleTable *);
   CastorShowerEvent   getShowerHits(G4Step*, bool&);
+  int                 FindEnergyBin(double);
+  int                 FindEtaBin(double);
+  int                 FindPhiBin(double);
 
 protected:
 
   void                initFile(edm::ParameterSet const & );
   void                getRecord(int, int);
   void                loadEventInfo(TBranchObject *);
-  void                select(int, double);               // Replaces interpolate / extrapolate
+// if eta or phi is not given, take into account only the binning in energy
+  void                select(int, double,double =0,double=9);  // Replaces interpolate / extrapolate
   // void                interpolate(int, double);
   // void                extrapolate(int, double);
 
@@ -63,12 +67,18 @@ private:
 
   bool                verbose;
   unsigned int        nMomBin, totEvents, evtPerBin;
+  
   std::vector<double> pmom;
 
   int                 emPDG, epPDG, gammaPDG;
   int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
   int                 mumPDG, mupPDG;
-
+// new variables (bins in eta and phi)
+  unsigned int        nBinsE, nBinsEta, nBinsPhi;
+  unsigned int        nEvtPerBinE, nEvtPerBinEta, nEvtPerBinPhi;
+  std::vector<double> SLenergies;
+  std::vector<double> SLetas;
+  std::vector<double> SLphis;
 };
 #endif
