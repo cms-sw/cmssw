@@ -39,11 +39,10 @@ TtFullLepHypKinSolution::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add jets
   // -----------------------------------------------------
-  if( !jets->empty() )  
-    setCandidate(jets, match[0], b_   );
-  if( !jets->empty() ) 
-    setCandidate(jets, match[1], bBar_);
-
+  if( !jets->empty() ){
+    setCandidate(jets, match[0], b_   , jetCorrectionLevel_);
+    setCandidate(jets, match[1], bBar_, jetCorrectionLevel_);
+  }
   // -----------------------------------------------------
   // add leptons
   // -----------------------------------------------------    

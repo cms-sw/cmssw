@@ -16,8 +16,13 @@ TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg):
     getMatch_ = true;
     match_ = cfg.getParameter<edm::InputTag>("match");
   }
+  // if no other correction is given apply L3 (abs) correction
+  jetCorrectionLevel_ = "abs";
   if( cfg.exists("jetCorrectionLevel") ) {
     jetCorrectionLevel_ = cfg.getParameter<std::string>("jetCorrectionLevel");
+  }
+  else{ // if no other correction is given apply L3 (abs) correction
+    jetCorrectionLevel_ = "abs";
   }
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
   produces<int>("Key");
@@ -157,39 +162,10 @@ TtFullLepHypothesis::hypo()
   return hyp;
 }
 
-/// helper function to contruct the proper correction level string for corresponding quarkType, for unknown quarkTypes or if JetCorrectionLevel_ was not configured an emty string is returned 
-std::string
-TtFullLepHypothesis::jetCorrectionLevel(const std::string& quarkType)
-{
-  std::string level;
-  // jetCorrectionLevel was not configured
-  if(jetCorrectionLevel_.empty())
-    return level;
-
-  // quarkType is unknown
-  if( !(quarkType=="lightQuark" || quarkType=="bQuark") )
-    return level;
-
-  // combine correction level; start with a ':' even if 
-  // there is no flavor tag to be added, as it is needed
-  // by setCandidate to disentangle the correction tag 
-  // from a potential flavor tag, which can be empty
-  level=jetCorrectionLevel_+":";
-  if( level=="had:" || level=="ue:" || level=="part:" ){
-    if(quarkType=="lightQuark"){level+="uds";}
-    if(quarkType=="bQuark"){level+="b";  }
-  }
-  return level;
-}
-
 /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
 void 
 TtFullLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel)
 {
-  // disentangle the correction from the potential flavor tag 
-  // by the separating ':'; the flavor tag can be empty though
-  std::string step   = correctionLevel.substr(0,correctionLevel.find(":"));
-  std::string flavor = correctionLevel.substr(1+correctionLevel.find(":"));
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->correctedJet(step, flavor).p4(), ptr->vertex() );
+  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->correctedJet(jetCorrectionLevel_, "b").p4(), ptr->vertex() );
 }
