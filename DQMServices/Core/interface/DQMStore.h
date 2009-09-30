@@ -19,8 +19,10 @@ class TH1;
 class TObjString;
 class TH1F;
 class TH1S;
+class TH1D;
 class TH2F;
 class TH2S;
+class TH2D;
 class TH3F;
 class TProfile;
 class TProfile2D;
@@ -80,6 +82,14 @@ public:
 					      int nchX, float *xbinsize);
   MonitorElement *		book1S       (const std::string &name, TH1S *h);
 
+  MonitorElement *		book1DD       (const std::string &name,
+					      const std::string &title,
+					      int nchX, double lowX, double highX);
+  MonitorElement *		book1DD       (const std::string &name,
+					      const std::string &title,
+					      int nchX, float *xbinsize);
+  MonitorElement *		book1DD       (const std::string &name, TH1D *h);
+
   MonitorElement *		book2D       (const std::string &name,
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
@@ -99,6 +109,16 @@ public:
 					      int nchX, float *xbinsize,
 					      int nchY, float *ybinsize);
   MonitorElement *		book2S       (const std::string &name, TH2S *h);
+
+  MonitorElement *		book2DD       (const std::string &name,
+					      const std::string &title,
+					      int nchX, double lowX, double highX,
+					      int nchY, double lowY, double highY);
+  MonitorElement *		book2DD       (const std::string &name,
+					      const std::string &title,
+					      int nchX, float *xbinsize,
+					      int nchY, float *ybinsize);
+  MonitorElement *		book2DD       (const std::string &name, TH2D *h);
 
   MonitorElement *		book3D       (const std::string &name,
 					      const std::string &title,
@@ -257,8 +277,10 @@ private:
   MonitorElement *		bookString(const std::string &dir, const std::string &name, const std::string &value);
   MonitorElement *		book1D(const std::string &dir, const std::string &name, TH1F *h);
   MonitorElement *		book1S(const std::string &dir, const std::string &name, TH1S *h);
+  MonitorElement *		book1DD(const std::string &dir, const std::string &name, TH1D *h);
   MonitorElement *		book2D(const std::string &dir, const std::string &name, TH2F *h);
   MonitorElement *		book2S(const std::string &dir, const std::string &name, TH2S *h);
+  MonitorElement *		book2DD(const std::string &dir, const std::string &name, TH2D *h);
   MonitorElement *		book3D(const std::string &dir, const std::string &name, TH3F *h);
   MonitorElement *		bookProfile(const std::string &dir, const std::string &name, TProfile *h);
   MonitorElement *		bookProfile2D(const std::string &folder, const std::string &name, TProfile2D *h);
@@ -267,8 +289,10 @@ private:
 
   static void			collate1D(MonitorElement *me, TH1F *h);
   static void			collate1S(MonitorElement *me, TH1S *h);
+  static void			collate1DD(MonitorElement *me, TH1D *h);
   static void			collate2D(MonitorElement *me, TH2F *h);
   static void			collate2S(MonitorElement *me, TH2S *h);
+  static void			collate2DD(MonitorElement *me, TH2D *h);
   static void			collate3D(MonitorElement *me, TH3F *h);
   static void			collateProfile(MonitorElement *me, TProfile *h);
   static void			collateProfile2D(MonitorElement *me, TProfile2D *h);

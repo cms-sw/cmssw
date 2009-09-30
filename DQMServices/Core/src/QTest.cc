@@ -72,6 +72,15 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
     ref_ = me->getRefTH1S(); //access Ref hiso 
     if (nbins != nbinsref) return -1;
   } 
+  //-- TH1D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D)
+  { 
+    nbins = me->getTH1D()->GetXaxis()->GetNbins(); 
+    nbinsref = me->getRefTH1D()->GetXaxis()->GetNbins();
+    h  = me->getTH1D(); // access Test histo
+    ref_ = me->getRefTH1D(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
   //-- TH2
   else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
   { 
@@ -96,6 +105,18 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
     if (nbins != nbinsref) return -1;
   } 
 
+  //-- TH2
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
+  { 
+    nbins = me->getTH2D()->GetXaxis()->GetNbins() *
+            me->getTH2D()->GetYaxis()->GetNbins();
+    nbinsref = me->getRefTH2D()->GetXaxis()->GetNbins() *
+               me->getRefTH2D()->GetYaxis()->GetNbins();
+    h = me->getTH2D(); // access Test histo
+    ref_ = me->getRefTH2D(); //access Ref hiso 
+    if (nbins != nbinsref) return -1;
+  } 
+
   //-- TH3
   else if (me->kind()==MonitorElement::DQM_KIND_TH3F)
   { 
@@ -114,7 +135,7 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
   { 
     if (verbose_>0) 
       std::cout << "QTest:Comp2RefEqualH" 
-        << " ME does not contain TH1F/TH1S/TH2F/TH2S/TH3F, exiting\n"; 
+        << " ME does not contain TH1F/TH1S/TH1D/TH2F/TH2S/TH2D/TH3F, exiting\n"; 
     return -1;
   } 
 
@@ -163,6 +184,12 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
     h = me->getTH1S(); // access Test histo
     ref_ = me->getRefTH1S(); //access Ref histo
   } 
+  //-- TH1D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D)
+  { 
+    h = me->getTH1D(); // access Test histo
+    ref_ = me->getRefTH1D(); //access Ref histo
+  } 
   //-- TProfile
   else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
   {
@@ -173,7 +200,7 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   { 
     if (verbose_>0) 
       std::cout << "QTest::Comp2RefChi2"
-                << " ME does not contain TH1F/TH1S/TProfile, exiting\n"; 
+                << " ME does not contain TH1F/TH1S/TH1D/TProfile, exiting\n"; 
     return -1;
   } 
 
@@ -289,6 +316,12 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     h = me->getTH1S(); // access Test histo
     ref_ = me->getRefTH1S(); //access Ref histo
   } 
+  //-- TH1D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D)
+  { 
+    h = me->getTH1D(); // access Test histo
+    ref_ = me->getRefTH1D(); //access Ref histo
+  } 
   //-- TProfile
   else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
   {
@@ -299,7 +332,7 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   { 
     if (verbose_>0) 
       std::cout << "QTest:Comp2RefKolmogorov"
-                << " ME does not contain TH1F/TH1S/TProfile, exiting\n"; 
+                << " ME does not contain TH1F/TH1S/TH1D/TProfile, exiting\n"; 
     return -1;
   } 
    
@@ -464,11 +497,16 @@ float ContentsXRange::runTest(const MonitorElement*me)
   {
     h = me->getTH1S();
   } 
+  // -- TH1D
+  else if ( me->kind()==MonitorElement::DQM_KIND_TH1D ) 
+  {
+    h = me->getTH1D();
+  } 
   else 
   {
     if (verbose_>0) std::cout << "QTest:ContentsXRange"
          << " ME " << me->getFullname() 
-         << " does not contain TH1F/TH1S, exiting\n"; 
+         << " does not contain TH1F/TH1S/TH1D, exiting\n"; 
     return -1;
   } 
 
@@ -528,12 +566,16 @@ float ContentsYRange::runTest(const MonitorElement*me)
   { 
     h = me->getTH1S(); //access Test histo
   } 
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D) 
+  { 
+    h = me->getTH1D(); //access Test histo
+  } 
   else 
   {
     if (verbose_>0) 
       std::cout << "QTest:ContentsYRange" 
                 << " ME " << me->getFullname() 
-                << " does not contain TH1F/TH1S, exiting\n"; 
+                << " does not contain TH1F/TH1S/TH1D, exiting\n"; 
     return -1;
   } 
 
@@ -604,6 +646,11 @@ float DeadChannel::runTest(const MonitorElement*me)
   { 
     h1 = me->getTH1S(); //access Test histo
   } 
+  //TH1D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D) 
+  { 
+    h1 = me->getTH1D(); //access Test histo
+  } 
   //-- TH2F
   else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
   { 
@@ -614,12 +661,17 @@ float DeadChannel::runTest(const MonitorElement*me)
   { 
     h2  = me->getTH2S(); // access Test histo
   } 
+  //-- TH2D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
+  { 
+    h2  = me->getTH2D(); // access Test histo
+  } 
   else 
   {
     if (verbose_>0) 
       std::cout << "QTest:DeadChannel"
          << " ME " << me->getFullname() 
-         << " does not contain TH1F/TH1S/TH2F/TH2S, exiting\n"; 
+         << " does not contain TH1F/TH1S/TH1D/TH2F/TH2S/TH2D, exiting\n"; 
     return -1;
   } 
 
@@ -718,6 +770,12 @@ float NoisyChannel::runTest(const MonitorElement *me)
     nbins = me->getTH1S()->GetXaxis()->GetNbins(); 
     h  = me->getTH1S(); // access Test histo
   } 
+  //-- TH1D
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D)
+  { 
+    nbins = me->getTH1D()->GetXaxis()->GetNbins(); 
+    h  = me->getTH1D(); // access Test histo
+  } 
   //-- TH2
   else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
   { 
@@ -732,12 +790,19 @@ float NoisyChannel::runTest(const MonitorElement *me)
             me->getTH2S()->GetYaxis()->GetNbins();
     h  = me->getTH2S(); // access Test histo
   } 
+  //-- TH2
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
+  { 
+    nbins = me->getTH2D()->GetXaxis()->GetNbins() *
+            me->getTH2D()->GetYaxis()->GetNbins();
+    h  = me->getTH2D(); // access Test histo
+  } 
   else 
   {  
     if (verbose_>0) 
       std::cout << "QTest:NoisyChannel"
         << " ME " << me->getFullname() 
-        << " does not contain TH1F/TH1S or TH2F/TH2S, exiting\n"; 
+        << " does not contain TH1F/TH1S/TH1D or TH2F/TH2S/TH2D, exiting\n"; 
     return -1;
   }
 
@@ -836,6 +901,13 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
       ncy = me->getTH2S()->GetYaxis()->GetNbins(); 
       h  = me->getTH2S(); // access Test histo
     }
+    //-- TH2D
+    else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
+    {
+      ncx = me->getTH2D()->GetXaxis()->GetNbins();
+      ncy = me->getTH2D()->GetYaxis()->GetNbins(); 
+      h  = me->getTH2D(); // access Test histo
+    }
     //-- TProfile
     else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE)
     {
@@ -854,7 +926,7 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
     {
       if (verbose_>0) 
         std::cout << "QTest:ContentsWithinExpected" 
-	 << " ME does not contain TH2F/TH2S/TPROFILE/TPROFILE2D, exiting\n"; 
+	 << " ME does not contain TH2F/TH2S/TH2D/TPROFILE/TPROFILE2D, exiting\n"; 
       return -1;
     } 
 
@@ -875,6 +947,11 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 	    ++nsum;
 	  }
 	  else if (me->kind() == MonitorElement::DQM_KIND_TH2S)
+	  {
+	    sum += h->GetBinContent(h->GetBin(cx, cy));
+	    ++nsum;
+	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TH2D)
 	  {
 	    sum += h->GetBinContent(h->GetBin(cx, cy));
 	    ++nsum;
@@ -956,6 +1033,13 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 			    h->GetBinError(h->GetBin(cx, cy)));
             badChannels_.push_back(chan);
 	  }
+	  else if (me->kind() == MonitorElement::DQM_KIND_TH2D) 
+	  {
+            DQMChannel chan(cx, cy, 0,
+			    h->GetBinContent(h->GetBin(cx, cy)),
+			    h->GetBinError(h->GetBin(cx, cy)));
+            badChannels_.push_back(chan);
+	  }
 	  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) 
 	  {
 	    DQMChannel chan(cx, cy, int(me->getTProfile()->GetBinEntries(h->GetBin(cx))),
@@ -991,11 +1075,17 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
       ncy = me->getTH2S()->GetYaxis()->GetNbins();
       h  = me->getTH2S(); // access Test histo
     }
+    else if (me->kind()==MonitorElement::DQM_KIND_TH2D)
+    {
+      ncx = me->getTH2D()->GetXaxis()->GetNbins();
+      ncy = me->getTH2D()->GetYaxis()->GetNbins();
+      h  = me->getTH2D(); // access Test histo
+    }
     else 
     {
       if (verbose_>0) 
         std::cout << "QTest:ContentsWithinExpected AS" 
-                  << " ME does not contain TH2F/TH2S, exiting\n"; 
+                  << " ME does not contain TH2F/TH2S/TH2D, exiting\n"; 
       return -1;
     } 
 
@@ -1074,11 +1164,15 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
   { 
     h = me->getTH1S(); //access Test histo
   }
+  else if (me->kind()==MonitorElement::DQM_KIND_TH1D) 
+  { 
+    h = me->getTH1D(); //access Test histo
+  }
   else {
     if (verbose_>0) 
       std::cout << "QTest:MeanWithinExpected"
                 << " ME " << me->getFullname() 
-                << " does not contain TH1F/TH1S, exiting\n"; 
+                << " does not contain TH1F/TH1S/TH1D, exiting\n"; 
     return -1;
   } 
  

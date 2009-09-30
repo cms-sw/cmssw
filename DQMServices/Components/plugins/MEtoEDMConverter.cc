@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/07/29 19:24:39 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/09/29 19:45:45 $
+ *  $Revision: 1.24 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -49,8 +49,10 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   // create persistent objects
   produces<MEtoEDM<TH1F>, edm::InRun>(fName);
   produces<MEtoEDM<TH1S>, edm::InRun>(fName);
+  produces<MEtoEDM<TH1D>, edm::InRun>(fName);
   produces<MEtoEDM<TH2F>, edm::InRun>(fName);
   produces<MEtoEDM<TH2S>, edm::InRun>(fName);
+  produces<MEtoEDM<TH2D>, edm::InRun>(fName);
   produces<MEtoEDM<TH3F>, edm::InRun>(fName);
   produces<MEtoEDM<TProfile>, edm::InRun>(fName);
   produces<MEtoEDM<TProfile2D>, edm::InRun>(fName);
@@ -80,8 +82,10 @@ MEtoEDMConverter::endJob(void)
   std::map<std::string,int> packages; // keep track just of package names
   unsigned nTH1F = 0; // count various objects we have
   unsigned nTH1S = 0;
+  unsigned nTH1D = 0;
   unsigned nTH2F = 0;
   unsigned nTH2S = 0;
+  unsigned nTH2D = 0;
   unsigned nTH3F = 0;
   unsigned nTProfile = 0;
   unsigned nTProfile2D = 0;
@@ -135,6 +139,12 @@ MEtoEDMConverter::endJob(void)
 	std::cout << "   normal: " << tobj->GetName() << ": TH1S\n";
       break;
 
+    case MonitorElement::DQM_KIND_TH1D:
+      ++nTH1D;
+      if (verbosity > 1)
+	std::cout << "   normal: " << tobj->GetName() << ": TH1D\n";
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       ++nTH2F;
       if (verbosity > 1)
@@ -145,6 +155,12 @@ MEtoEDMConverter::endJob(void)
       ++nTH2S;
       if (verbosity > 1)
 	std::cout << "   normal: " << tobj->GetName() << ": TH2S\n";
+      break;
+
+    case MonitorElement::DQM_KIND_TH2D:
+      ++nTH2D;
+      if (verbosity > 1)
+	std::cout << "   normal: " << tobj->GetName() << ": TH2D\n";
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
@@ -184,8 +200,10 @@ MEtoEDMConverter::endJob(void)
 
     std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
     std::cout << "We have " << nTH1S << " TH1S objects" << std::endl;
+    std::cout << "We have " << nTH1D << " TH1D objects" << std::endl;
     std::cout << "We have " << nTH2F << " TH2F objects" << std::endl;
     std::cout << "We have " << nTH2S << " TH2S objects" << std::endl;
+    std::cout << "We have " << nTH2D << " TH2D objects" << std::endl;
     std::cout << "We have " << nTH3F << " TH3F objects" << std::endl;
     std::cout << "We have " << nTProfile << " TProfile objects" << std::endl;
     std::cout << "We have " << nTProfile2D << " TProfile2D objects" 
@@ -249,11 +267,19 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       me->Reset();
       break;
 
+    case MonitorElement::DQM_KIND_TH1D:
+      me->Reset();
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       me->Reset();
       break;
 
     case MonitorElement::DQM_KIND_TH2S:
+      me->Reset();
+      break;
+
+    case MonitorElement::DQM_KIND_TH2D:
       me->Reset();
       break;
 
@@ -297,8 +323,10 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   std::vector<MonitorElement *> items(dbe->getAllContents(path));
   unsigned int n1F=0;
   unsigned int n1S=0;
+  unsigned int n1D=0;
   unsigned int n2F=0;
   unsigned int n2S=0;
+  unsigned int n2D=0;
   unsigned int n3F=0;
   unsigned int nProf=0;
   unsigned int nProf2=0;
@@ -329,12 +357,20 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
       ++n1S;
       break;
 
+    case MonitorElement::DQM_KIND_TH1D:
+      ++n1D;
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       ++n2F;
       break;
 
     case MonitorElement::DQM_KIND_TH2S:
       ++n2S;
+      break;
+
+    case MonitorElement::DQM_KIND_TH2D:
+      ++n2D;
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
@@ -363,8 +399,10 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
   std::auto_ptr<MEtoEDM<TString> > pOutString(new MEtoEDM<TString>(nString));
   std::auto_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
   std::auto_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
+  std::auto_ptr<MEtoEDM<TH1D> > pOut1d(new MEtoEDM<TH1D>(n1D));
   std::auto_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
   std::auto_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
+  std::auto_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
   std::auto_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
   std::auto_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
   std::auto_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
@@ -401,6 +439,11 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 			       release,run,datatier);
       break;
 
+    case MonitorElement::DQM_KIND_TH1D:
+      pOut1d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1D(),
+			       release,run,datatier);
+      break;
+
     case MonitorElement::DQM_KIND_TH2F:
       pOut2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2F(),
 			      release,run,datatier);
@@ -408,6 +451,11 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
     case MonitorElement::DQM_KIND_TH2S:
       pOut2s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2S(),
+			       release,run,datatier);
+      break;
+
+    case MonitorElement::DQM_KIND_TH2D:
+      pOut2d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2D(),
 			       release,run,datatier);
       break;
 

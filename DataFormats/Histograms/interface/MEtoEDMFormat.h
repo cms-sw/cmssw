@@ -6,16 +6,18 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/09/29 19:49:10 $
- *  $Revision: 1.18 $
+ *  $Date: 2009/09/30 21:46:50 $
+ *  $Revision: 1.19 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include <TObject.h>
 #include <TH1F.h>
 #include <TH1S.h>
+#include <TH1D.h>
 #include <TH2F.h>
 #include <TH2S.h>
+#include <TH2D.h>
 #include <TH3F.h>
 #include <TProfile.h>
 #include <TProfile2D.h>
