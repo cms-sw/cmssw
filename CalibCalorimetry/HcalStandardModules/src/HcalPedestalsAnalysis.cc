@@ -106,7 +106,11 @@ HcalPedestalsAnalysis::~HcalPedestalsAnalysis()
          }
       }
 
-      dephist[bunch_it->detid.depth()-1]->Fill(bunch_it->detid.ieta(),bunch_it->detid.iphi(),
+
+      int fillphi = bunch_it->detid.iphi();
+      if (bunch_it->detid.depth()==4) fillphi++;
+
+      dephist[bunch_it->detid.depth()-1]->Fill(bunch_it->detid.ieta(),fillphi,
                 (bunch_it->cap[0]+bunch_it->cap[1]+bunch_it->cap[2]+bunch_it->cap[3])/4);
 
       const HcalPedestal item(bunch_it->detid, bunch_it->cap[0], bunch_it->cap[1], bunch_it->cap[2], bunch_it->cap[3],
