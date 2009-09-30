@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use Tk 804;
+use Tk::DialogBox;
 require Tk::ROText;
 
 # Needed in order to read mps.db
@@ -782,6 +783,19 @@ sub reset_var {
 sub setup_cmd {
   my $setup_cmd = "";
   my $setup_opt = "";
+
+  if (-e "jobData") {
+
+    my $popup=$MW->DialogBox(-title=>"Confirm Setup",
+			     -buttons=>["Confirm","Cancel"],);
+    $popup->add("Label", -text=>"Are you sure? This will erase the existing jobData directory.")->pack;
+
+    my $button = $popup->Show;
+
+    if ($button ne "Confirm") {
+      return;
+    }
+  }
 
   if ($appendmillejob_variable == 1) {
     $setup_opt .= " -a";
