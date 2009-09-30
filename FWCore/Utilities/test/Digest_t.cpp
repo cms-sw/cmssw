@@ -32,6 +32,21 @@ void testConversions() {
   assert(r1 == r2);
   assert(r1.toString() == r2.toString());
   assert(r1.compactForm() == r2.compactForm());
+
+  //check the MD5Result lookup table
+  MD5Result lookup;
+  MD5Result fromHex;
+  for(unsigned int i=0; i<256;++i)
+  {
+    for(unsigned int j=0; j<16;++j) {
+      lookup.bytes[j]=static_cast<char>(i);
+      fromHex.fromHexifiedString(lookup.toString());
+      assert(lookup == fromHex);
+      assert(lookup.toString() == fromHex.toString());
+      assert(lookup.compactForm() == fromHex.compactForm());
+    }
+  }
+
 }
 
 void testEmptyString() {
