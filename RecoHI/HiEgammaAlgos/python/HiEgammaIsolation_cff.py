@@ -11,6 +11,7 @@ from RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff import *
 gamIsoDepositEcalFromHits.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB")
 gamIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE")
 
+gamIsoDepositTk.ExtractorPSet.inputTrackCollection = isolationInputParameters.track
 
 hiEgammaIsolationSequenceAll = cms.Sequence(hiCaloIsolationAll+hiTrackerIsolation)
 hiEgammaIsolationSequence = cms.Sequence(hiCaloIsolationBckSubtracted+hiTrackerIsolation+photonIDSequence+reducedRecHitsSequence*gamIsolationSequence)

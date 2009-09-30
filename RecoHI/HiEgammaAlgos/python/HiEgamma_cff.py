@@ -24,3 +24,4 @@ from RecoHI.HiEgammaAlgos.HiEgammaIsolation_cff import *
 hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
 hiEgammaSequence = cms.Sequence(hiPhotonSequence)
 hiEcalClustersIsolation = cms.Sequence(hiEgammaSequence * hiEgammaIsolationSequence)
+
