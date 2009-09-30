@@ -1,7 +1,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
-<use name=geant4>
 <use name=clhep>
 <use name=boost>
 
@@ -14,9 +13,6 @@
  <use name=SimG4Core/SensitiveDetector>
  <use name=FWCore/PluginManager>
  <use name=SimG4Core/Generators>
- <use name=SimG4Core/Geometry>
- <use name=SimG4Core/Notification>
- <use name=SimG4Core/Watcher>
  <use name=SimG4Core/Geometry>
  <use name=SimG4Core/Application>
  <use name=SimG4CMS/Tracker>
@@ -31,9 +27,6 @@
 <library file=LaserAlignmentSource.cc>
  <use name=Alignment/LaserAlignmentSimulation>
  <use name=SimDataFormats/GeneratorProducts>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=clhep>
  <use name=hepmc>
 <flags EDM_PLUGIN=1>
 </library>
