@@ -10,15 +10,15 @@ SiStripLorentzAngleGenerator = cms.Service(
     # - either give two equal values or a single value (pass an empty max vector)  -> fixed value
     
     # TIB min and max
-    TIB_EstimatedValuesMin = cms.vdouble(0.014, 0.014, 0.014, 0.014)
-    TIB_EstimatedValuesMax = cms.vdouble()
+    TIB_EstimatedValuesMin = cms.vdouble(0.014, 0.014, 0.014, 0.014),
+    TIB_EstimatedValuesMax = cms.vdouble(),
     # TIB errors
-    TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.)
+    TIB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.),
     # TOB min and max
-    TOB_EstimatedValuesMin = cms.vdouble(0.021, 0.021, 0.021, 0.021, 0.021, 0.021)
-    TOB_EstimatedValuesMax = cms.vdouble(0.021, 0.021, 0.021, 0.021, 0.021, 0.021)
+    TOB_EstimatedValuesMin = cms.vdouble(0.021, 0.021, 0.021, 0.021, 0.021, 0.021),
+    TOB_EstimatedValuesMax = cms.vdouble(0.021, 0.021, 0.021, 0.021, 0.021, 0.021),
     # TOB errors
-    TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.)
+    TOB_PerCent_Errs       = cms.vdouble(0.,    0.,    0.,    0.,    0.,    0.),
     
     file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),         
 )
