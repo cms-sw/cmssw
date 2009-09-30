@@ -1,22 +1,6 @@
-<use name=DataFormats/Common>
-<use name=DataFormats/SiStripDigi>
-<use name=CalibTracker/Records>
-<use name=CondFormats/DataRecord>
-<use name=CondFormats/SiStripObjects>
-<use name=CalibFormats/SiStripObjects>
-<use name=FWCore/Framework>
 <use name=RecoLocalTracker/SiStripClusterizer>
-<use name=boost>
 <use name=rootrflx>
 <export>
-  <use name=DataFormats/SiStripDigi>
-  <use name=CalibTracker/Records>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=CondFormats/DataRecord>
-  <use name=RecoLocalTracker/SiStripClusterizer>
-  <use name=boost>
-  <use name=FWCore/Framework>
   <lib name=AnalysisDataFormatsSiStripClusterInfo>
 </export>
 
