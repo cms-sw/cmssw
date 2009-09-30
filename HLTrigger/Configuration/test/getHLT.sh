@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_3_0/pre4/HLT"          # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_3_0/pre4/\$TABLE"      # no explicit version, take te most recent 
-TABLES="8E29 1E31 GRun HIon"                # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_3_3_0/HLT"          # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_3_0/\$TABLE"      # no explicit version, take te most recent 
+TABLES="8E29 1E31 GRun HIon"           # $TABLE in the above variable will be expanded to these TABLES
 
 # getHLT.py
 PACKAGE="HLTrigger/Configuration"
