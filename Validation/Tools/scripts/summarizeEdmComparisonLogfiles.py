@@ -45,6 +45,8 @@ if __name__ == "__main__":
     parser.add_option ("--counts", dest="counts",
                        action="store_true", default=False,
                        help="Display counts only.")
+    parser.add_option ("--problem", dest="problem", type='string',
+                       help="Displays problems matching PROBLEM")
 
     options, args = parser.parse_args()
     if not 1 <= len (args) <= 2:
@@ -137,8 +139,11 @@ if __name__ == "__main__":
     if not options.counts:
         print "\nDetailed Problems list:"
         for key, problemList in sorted (problems.iteritems()):
+            if options.problem and problemList[0] != options.problem:
+                continue
             print "   %s:\n   %s\n" % (key, problemList)
-        print "\n", '='*78, '\n'
-        print "Success list:"
-        for key, successesList in sorted (successes.iteritems()):
-            print "   %s:\n   %s\n" % (key, successesList)
+        if not options.problem:
+            print "\n", '='*78, '\n'
+            print "Success list:"
+            for key, successesList in sorted (successes.iteritems()):
+                print "   %s:\n   %s\n" % (key, successesList)
