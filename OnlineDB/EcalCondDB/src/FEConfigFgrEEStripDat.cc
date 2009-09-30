@@ -88,7 +88,7 @@ void FEConfigFgrEEStripDat::fetchData(map< EcalLogicID, FEConfigFgrEEStripDat >*
   try {
 
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
-		 "d.sliding "
+		 "d.threshold, d.lut_fg "
 		 "FROM channelview cv JOIN "+getTable()+" d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE fgr_conf_id = :fgr_conf_id");
