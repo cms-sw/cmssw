@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/11 20:21:26 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/06/01 17:52:58 $
+ *  $Revision: 1.31 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  */
 
@@ -126,9 +126,11 @@ private:
   DQMStore* dbe_;
 
   std::vector <MonitorElement*> hPassMaxPtGen;
+  std::vector <MonitorElement*> hPassMaxPt2Gen;
   std::vector <MonitorElement*> hPassEtaGen;
   std::vector <MonitorElement*> hPassPhiGen;
   std::vector <MonitorElement*> hPassMaxPtRec;
+  std::vector <MonitorElement*> hPassMaxPt2Rec;
   std::vector <MonitorElement*> hPassEtaRec;
   std::vector <MonitorElement*> hPassPhiRec;
 

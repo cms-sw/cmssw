@@ -4,7 +4,7 @@
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
  *  $Date: 2009/06/01 17:52:38 $
- *  $Revision: 1.65 $
+ *  $Revision: 1.66 $
  */
 
 
@@ -162,8 +162,10 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   // Get all generated and reconstructed muons and create structs to hold  
   // matches to trigger candidates 
 
-  double genMuonPt = -1;
-  double recMuonPt = -1;
+  double genMuonPt  = -1;
+  double genMuonPt2 = -1;
+  double recMuonPt  = -1;
+  double recMuonPt2 = -1;
 
   std::vector<MatchStruct> genMatches;
   if ( useMuonFromGenerator ) {
@@ -183,8 +185,12 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         MatchStruct newMatchStruct;
         newMatchStruct.genCand = genParticle;
         genMatches.push_back(newMatchStruct);
-        if ( pt > genMuonPt && fabs(eta) < theMaxEtaCut )
-          genMuonPt = pt;
+        if ( pt > genMuonPt2 && fabs(eta) < theMaxEtaCut )
+          if ( pt > genMuonPt) {
+            genMuonPt2 = genMuonPt;
+            genMuonPt  = pt;
+          }
+          else genMuonPt2 = pt;
   } } }
 
   std::vector<MatchStruct> recMatches;
@@ -202,8 +208,12 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
         MatchStruct newMatchStruct;
         newMatchStruct.recCand = &*muon;
         recMatches.push_back(newMatchStruct);
-        if ( pt > recMuonPt && fabs(eta) < theMaxEtaCut ) 
-          recMuonPt = pt;
+        if ( pt > recMuonPt2 && fabs(eta) < theMaxEtaCut )
+          if ( pt > recMuonPt) {
+            recMuonPt2 = recMuonPt;
+            recMuonPt  = pt;
+          }
+          else recMuonPt2 = pt;
   } } } 
   
   LogTrace("HLTMuonVal") << "genMuonPt: " << genMuonPt << ", "  
@@ -475,16 +485,26 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
   //////////////////////////////////////////////////////////////////////////
   // Fill histograms
 
-  if ( genMuonPt > 0 ) hPassMaxPtGen[0]->Fill( genMuonPt );
-  if ( recMuonPt > 0 ) hPassMaxPtRec[0]->Fill( recMuonPt );
+  if ( genMuonPt  > 0. ) hPassMaxPtGen [0]->Fill( genMuonPt  );
+  if ( recMuonPt  > 0. ) hPassMaxPtRec [0]->Fill( recMuonPt  );
+  if ( genMuonPt2 > 0. ) hPassMaxPt2Gen[0]->Fill( genMuonPt2 );
+  if ( recMuonPt2 > 0. ) hPassMaxPt2Rec[0]->Fill( recMuonPt2 );
   if ( numL1Cands >= theNumberOfObjects ) {
-    if ( genMuonPt > 0 ) hPassMaxPtGen[1]->Fill( genMuonPt );
-    if ( recMuonPt > 0 ) hPassMaxPtRec[1]->Fill( recMuonPt );
+    if ( genMuonPt > 0. ) hPassMaxPtGen[1]->Fill( genMuonPt  );
+    if ( recMuonPt > 0. ) hPassMaxPtRec[1]->Fill( recMuonPt  );
+    if ( numL1Cands > 1) {
+      if ( genMuonPt2 > 0. ) hPassMaxPt2Gen[1]->Fill( genMuonPt2 );
+      if ( recMuonPt2 > 0. ) hPassMaxPt2Rec[1]->Fill( recMuonPt2 );
+    }
   }
   for ( size_t i = 0; i < numHltLabels; i++ ) {
     if ( numHltCands[i] >= theNumberOfObjects ) {
-      if ( genMuonPt > 0 ) hPassMaxPtGen[i+2]->Fill( genMuonPt );
-      if ( recMuonPt > 0 ) hPassMaxPtRec[i+2]->Fill( recMuonPt );
+      if ( genMuonPt > 0. ) hPassMaxPtGen[i+2]->Fill( genMuonPt  );
+      if ( recMuonPt > 0. ) hPassMaxPtRec[i+2]->Fill( recMuonPt  );
+      if ( numHltCands[i] > 1 ) {
+        if ( genMuonPt2 > 0. ) hPassMaxPt2Gen[i+2]->Fill( genMuonPt2 );
+        if ( recMuonPt2 > 0. ) hPassMaxPt2Rec[i+2]->Fill( recMuonPt2 );
+      }
     }
   }
 
@@ -496,12 +516,12 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       hNumObjects->getTH1()->AddBinContent(1);
       hPassEtaGen[0]->Fill(eta);
       hPassPhiGen[0]->Fill(phi);
-      if ( genMatches[i].l1Cand.E() > 0 ) {
+      if ( genMatches[i].l1Cand.E() > 0. ) {
         hPassEtaGen[1]->Fill(eta);
         hPassPhiGen[1]->Fill(phi);
         bool foundAllPreviousCands = true;
         for ( size_t j = 0; j < genMatches[i].hltCands.size(); j++ ) {
-          if ( foundAllPreviousCands && genMatches[i].hltCands[j].E() > 0 ) {
+          if ( foundAllPreviousCands && genMatches[i].hltCands[j].E() > 0. ) {
             hPassEtaGen[j+2]->Fill(eta);
             hPassPhiGen[j+2]->Fill(phi);
           } else foundAllPreviousCands = false;
@@ -515,12 +535,12 @@ void HLTMuonGenericRate::analyze( const Event & iEvent )
       hNumObjects->getTH1()->AddBinContent(2);
       hPassEtaRec[0]->Fill(eta);
       hPassPhiRec[0]->Fill(phi);
-      if ( recMatches[i].l1Cand.E() > 0 ) {
+      if ( recMatches[i].l1Cand.E() > 0. ) {
         hPassEtaRec[1]->Fill(eta);
         hPassPhiRec[1]->Fill(phi);
         bool foundAllPreviousCands = true;
         for ( size_t j = 0; j < recMatches[i].hltCands.size(); j++ ) {
-          if ( foundAllPreviousCands && recMatches[i].hltCands[j].E() > 0 ) {
+          if ( foundAllPreviousCands && recMatches[i].hltCands[j].E() > 0. ) {
             hPassEtaRec[j+2]->Fill(eta);
             hPassPhiRec[j+2]->Fill(phi);
           } else foundAllPreviousCands = false;
@@ -623,6 +643,8 @@ void HLTMuonGenericRate::begin()
 
       hPassMaxPtGen.push_back( bookTurnOn( "genPassMaxPt_All", "pt of Leading Gen Muon") );
       hPassMaxPtGen.push_back( bookTurnOn( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel) );
+      hPassMaxPt2Gen.push_back( bookTurnOn( "genPassMaxPt2_All", "pt of Next-to-Leading Gen Muon") );
+      hPassMaxPt2Gen.push_back( bookTurnOn( "genPassMaxPt2_" + myLabel, "pt of Next-to-Leading Gen Muon, if matched to " + myLabel) );
       hPassEtaGen.push_back( bookIt( "genPassEta_All", "#eta of Gen Muons", theEtaParameters) );
       hPassEtaGen.push_back( bookIt( "genPassEta_" + myLabel, "#eta of Gen Muons matched to " + myLabel, theEtaParameters) );
       hPassPhiGen.push_back( bookIt( "genPassPhi_All", "#phi of Gen Muons", thePhiParameters) );
@@ -639,6 +661,8 @@ void HLTMuonGenericRate::begin()
 
       hPassMaxPtRec.push_back( bookTurnOn( "recPassMaxPt_All", "pt of Leading Reco Muon" + myLabel) );
       hPassMaxPtRec.push_back( bookTurnOn( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel) );
+      hPassMaxPt2Rec.push_back( bookTurnOn( "genPassMaxPt2_All", "pt of Next-to-Leading Reco Muon") );
+      hPassMaxPt2Rec.push_back( bookTurnOn( "genPassMaxPt2_" + myLabel, "pt of Next-to-Leading Reco Muon, if matched to " + myLabel) );
       hPassEtaRec.push_back( bookIt( "recPassEta_All", "#eta of Reco Muons", theEtaParameters) );
       hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
       hPassPhiRec.push_back( bookIt( "recPassPhi_All", "#phi of Reco Muons", thePhiParameters) );
@@ -662,6 +686,7 @@ void HLTMuonGenericRate::begin()
       if ( useMuonFromGenerator ) {
 
         hPassMaxPtGen.push_back( bookTurnOn( "genPassMaxPt_" + myLabel, "pt of Leading Gen Muon, if matched to " + myLabel) );   
+        hPassMaxPt2Gen.push_back( bookTurnOn( "genPassMaxPt2_" + myLabel, "pt of Next-to-Leading Gen Muon, if matched to " + myLabel) );   
         hPassEtaGen.push_back( bookIt( "genPassEta_" + myLabel, "#eta of Gen Muons matched to " + myLabel, theEtaParameters) );
         hPassPhiGen.push_back( bookIt( "genPassPhi_" + myLabel, "#phi of Gen Muons matched to " + myLabel, thePhiParameters) );
 
@@ -670,6 +695,7 @@ void HLTMuonGenericRate::begin()
       if ( useMuonFromReco ) {
 
         hPassMaxPtRec.push_back( bookTurnOn( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel) );     
+        hPassMaxPt2Rec.push_back( bookTurnOn( "genPassMaxPt2_" + myLabel, "pt of Next-to-Leading Reco Muon, if matched to " + myLabel) );   
         hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
         hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
       }
@@ -710,4 +736,3 @@ MonitorElement* HLTMuonGenericRate::bookTurnOn
   delete h;
   return returnedME;
 }
-
