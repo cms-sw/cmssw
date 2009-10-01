@@ -1344,13 +1344,13 @@ class GenObject (object):
                     # should be calculating root diff objects
                     if diffOutputName:
                         # first set
-                        for index in noMatch1Set:
+                        for index in sorted(list(noMatch1Set)):
                             goObj = vec1 [index]
                             rootObj.firstOnly.push_back ( GenObject.\
                                                           _rootObjectClone \
                                                           (goObj) )
                         # second set
-                        for index in noMatch2Set:
+                        for index in sorted(list(noMatch2Set)):
                             goObj = vec2 [index]
                             rootObj.secondOnly.push_back ( GenObject.\
                                                           _rootObjectClone \
