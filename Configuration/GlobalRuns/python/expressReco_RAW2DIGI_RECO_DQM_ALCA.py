@@ -1,6 +1,6 @@
 # Auto generated configuration file
 # using: 
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options: promptReco -s RAW2DIGI,RECO,DQM,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+SiStripCalZeroBias+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec --data --magField 0T --scenario cosmics
 import FWCore.ParameterSet.Config as cms
@@ -22,7 +22,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContentCosmics_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('promptReco nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -41,6 +41,12 @@ process.source = cms.Source("PoolSource",
 
 # Other statements
 process.GlobalTag.globaltag = 'GR09_31X_V2P::All'
+
+# FIX
+
+process.DQMOfflineCosmics.remove(process.hltResults)
+
+# FIX
 
 # Path and EndPath definitions
 
