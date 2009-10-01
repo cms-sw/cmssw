@@ -18,7 +18,7 @@ class GenSpecificAlgo
   typedef std::vector <const reco::Candidate*> ParticleCollection;
   /// Make GenMET. Assumes MET is made from MCCandidates
   //reco::GenMET addInfo(const reco::CandidateCollection *particles, CommonMETData met);
-  reco::GenMET addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData met);
+  reco::GenMET addInfo(edm::Handle<edm::View<reco::Candidate> > particles, CommonMETData met, bool onlyFiducial=false);
 };
 
 #endif
