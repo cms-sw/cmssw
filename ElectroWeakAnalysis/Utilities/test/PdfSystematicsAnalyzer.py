@@ -22,8 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
-      fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
-      #fileNames = cms.untracked.vstring("file:/dataamscie1b/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
+      fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
 )
 
 # Produce PDF weights (maximum is 3)
@@ -31,8 +30,8 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
       PdfInfoTag = cms.untracked.InputTag("generator"),
       PdfSetNames = cms.untracked.vstring(
               "cteq65.LHgrid"
-            , "MRST2006nnlo.LHgrid"
-            , "MRST2007lomod.LHgrid"
+            #, "MRST2006nnlo.LHgrid"
+            #, "MRST2007lomod.LHgrid"
       )
 )
 
@@ -40,8 +39,8 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
 process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
       PdfWeightTags = cms.untracked.VInputTag(
               "pdfWeights:cteq65"
-            , "pdfWeights:MRST2006nnlo"
-            , "pdfWeights:MRST2007lomod"
+            #, "pdfWeights:MRST2006nnlo"
+            #, "pdfWeights:MRST2007lomod"
       )
 )
 
@@ -59,7 +58,7 @@ process.corMetWMuNus = cms.EDProducer("WMuNuProducer",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("corMetGlobalMuons"),
       METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
 )
 
 process.wmnSelFilter = cms.EDFilter("WMuNuSelector",
@@ -70,16 +69,16 @@ process.wmnSelFilter = cms.EDFilter("WMuNuSelector",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("corMetGlobalMuons"),
       METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus:WMuNuCandidates")
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
+      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus")
 )
 
 # Count PDF-weighted 'selected' events and collect uncertainties
 process.pdfNumeratorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
       PdfWeightTags = cms.untracked.VInputTag(
               "pdfWeights:cteq65"
-            , "pdfWeights:MRST2006nnlo"
-            , "pdfWeights:MRST2007lomod"
+            #, "pdfWeights:MRST2006nnlo"
+            #, "pdfWeights:MRST2007lomod"
       )
 )
 

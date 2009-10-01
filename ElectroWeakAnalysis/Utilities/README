@@ -86,8 +86,8 @@ src/ISRWeightProducer.cc
   "src/SimpleSystematicsAnalyzer.cc". A test example is 
   "test/SimpleSystematicsAnalyzer.py".
 
-src/FSRWeightProducer.cc
-============================
+src/FSRWeightProducer.cc (IN PROGRESS)
+======================================
 - Writes into the data structure a product containing the event weight ("double")
   for estimating uncertainties due to missing final state QED radiation terms in 
   PYTHIA for W->l nu and Z->ll. It produces the procuct of two factor:

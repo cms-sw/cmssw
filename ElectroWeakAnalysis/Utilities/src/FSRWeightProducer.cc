@@ -76,7 +76,6 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             if (nDaughters<=1) continue;
             double leptonMass = lepton.mass();
             double leptonEnergy = lepton.energy();
-            double betaLepton = sqrt(1-pow(leptonMass/leptonEnergy,2));
             double bosonMass = boson->mass();
             double cosLeptonTheta = cos(lepton.theta());
             double sinLeptonTheta = sin(lepton.theta());
@@ -93,11 +92,21 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
                   // Missing O(alpha) terms in soft-collinear approach
                   // Only for W, from hep-ph/0303260
                   if (bosonId==24) {
+                        double betaLepton = sqrt(1-pow(leptonMass/leptonEnergy,2));
                         double delta = - 8*photonEnergy *(1-betaLepton*costheta)
                           / pow(bosonMass,3) 
                           / (1-pow(leptonMass/bosonMass,2))
                           / (4-pow(leptonMass/bosonMass,2))
                           * leptonEnergy * (pow(leptonMass,2)/bosonMass+2*photonEnergy);
+                        (*weight) *= (1 + delta);
+                  }
+                  // Missing log(s/MW**2) terms due to radiation off the W
+                  // Only for W, from hep-ph/9807417
+                  if (bosonId==24) {
+                        double delta = 1/137.036/2/M_PI * (
+                                log(bosonMass/80.4)*(7.+4.*log(leptonMass/80.4))
+                              + 3.*M_PI*M_PI/4. - 1.
+                        );
                         (*weight) *= (1 + delta);
                   }
                   // Missing NLO QED orders in QED parton shower approach
