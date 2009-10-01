@@ -59,13 +59,17 @@ namespace cms
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
-    noHF = iConfig.getParameter<bool>("noHF");
-
 
     if(      METtype == "CaloMET" ) 
-      produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+      {
+	noHF = iConfig.getParameter<bool>("noHF");
+	produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+      }
     else if( METtype == "GenMET" )  
-      produces<GenMETCollection>().setBranchAlias(alias.c_str());
+      {
+	onlyFiducial = iConfig.getParameter<bool>("onlyFiducialParticles");
+	produces<GenMETCollection>().setBranchAlias(alias.c_str());
+      }
     else if( METtype == "PFMET" )
       produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
     else if (METtype == "TCMET" )
@@ -126,16 +130,6 @@ namespace cms
 
     if( METtype == "CaloMET" ) 
     {
-      /*
-	//Old implementation (prior to 30X and 11/14/2008)  
-      alg_.run(input, &output, globalThreshold); 
-      CaloSpecificAlgo calo;
-      std::auto_ptr<CaloMETCollection> calometcoll; 
-      calometcoll.reset(new CaloMETCollection);
-      calometcoll->push_back( calo.addInfo(input, output, noHF, globalThreshold) );
-      event.put( calometcoll );
-      */
-      
       //Run Basic MET Algorithm
       alg_.run(input, &output, globalThreshold);
 
@@ -176,15 +170,15 @@ namespace cms
     //-----------------------------------
     else if( METtype == "GenMET" ) 
     {
-      alg_.run(input, &output, globalThreshold); 
+      alg_.run(input, &output, globalThreshold ); 
       GenSpecificAlgo gen;
       std::auto_ptr<GenMETCollection> genmetcoll;
       genmetcoll.reset (new GenMETCollection);
-      genmetcoll->push_back( gen.addInfo(input, output) );
+      genmetcoll->push_back( gen.addInfo(input, output, onlyFiducial) );
       event.put( genmetcoll );
     }
     else
-    {
+      {
       alg_.run(input, &output, globalThreshold); 
       LorentzVector p4( output.mex, output.mey, 0.0, output.met);
       Point vtx(0,0,0);
