@@ -107,48 +107,37 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
    TCanvas* histCanvas = ec->GetCanvas();
    histCanvas->SetHighLightColor(-1);
 
-
-  
-   TH2F* h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,m_ndet,0,m_ndet);
+   //  title
    const char* res_str= "residuals in Si detector local x-y coord.";
-   const char* title = "residual";
-
-   // draw histogram
-   histCanvas->cd();
-   TPaveText *pt = new TPaveText(0.05,0.915,0.95,0.995,"blNDC");
+   TPaveText *pt = new TPaveText(0.0,0.91, 1,0.99,"blNDC");
    pt->SetBorderSize(0);
    pt->AddText(res_str);
    pt->Draw();
 
+   // info
+   histCanvas->cd();
+   makeLegend();
    histCanvas->cd();
 
-   TPad* padX = new TPad("pad1","pad1",0.3,0.25,1,0.85);
+   // draw histogram
+   TH2F* h_res = new TH2F("h_resx","h_resx",10,-5.5,5.5,m_ndet,0,m_ndet);
+   TPad* padX = new TPad("pad1","pad1",0.28, 0.15, 0.95, 0.92);
    padX->SetBorderMode(0);
-   histCanvas->cd();
+   padX->SetLeftMargin(0.2);
    padX->Draw();
    padX->cd();
-   //padX->SetTopMargin(0.2);
-   //padX->SetBottomMargin(0.2);
-    padX->SetLeftMargin(0.28);
-   //padX->SetRightMargin(0.2);
-   padX->Range(-7.7,-1.5,6.966667,13.5);
    padX->SetFrameLineWidth(0);
    padX->Modified();
    h_res->SetDirectory(0);
-   h_res->SetTitle("");
    h_res->SetStats(kFALSE);
-   h_res->SetTitleSize(0.04);
-   h_res->GetYaxis()->SetRangeUser(0,m_ndet+1);
-   h_res->GetYaxis()->SetLabelSize(0.06);
-   h_res->SetXTitle(title);
+   h_res->SetTitle("");
+   h_res->SetXTitle("residual");
    h_res->GetXaxis()->SetTickLength(0);
    h_res->GetYaxis()->SetTickLength(0);
    h_res->GetXaxis()->SetNdivisions(20);
+   h_res->GetYaxis()->SetLabelSize(0.06);
    h_res->Draw();
    padX->SetGridy();
-
-   
-   histCanvas->cd();
 
    float larray[9]={0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.5, 4.5, 5.5};
    float larray2[8];
@@ -183,7 +172,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
    float width=0.25;
    int filltype;
    Color_t color;
-   Float_t box[4];
+   Double_t box[4];
    padX->cd();
 
    for(int h=0; h<2; h++) {
@@ -230,36 +219,29 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
       }
    }
    histCanvas->cd();
-   histCanvas->cd();
-   TPad* padL = new TPad("pad1","pad1",0, 0., 0.4, 0.8);
-   padL->Draw();
-   padL->cd();
-   padL->SetBorderMode(0);
-   makeLegend();
-
-   //  histCanvas->SetEditable(kFALSE);
+   histCanvas->SetEditable(kFALSE);
 }
 
 double
 FWTrackResidualDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX)
 {
-     double local1[3] = { 0, 0, 0 };
-     double local2[3] = { resX, 0, 0 };
-     double global1[3], global2[3];
-     const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
-     assert(m != 0);
-     m->LocalToMaster(local1, global1);
-     m->LocalToMaster(local2, global2);
-     TVector3 g1 = global1;
-     TVector3 g2 = global2;
-     if (g2.DeltaPhi(g1) > 0)
-	  return resX;
-     else return -resX;
+   double local1[3] = { 0, 0, 0 };
+   double local2[3] = { resX, 0, 0 };
+   double global1[3], global2[3];
+   const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+   assert(m != 0);
+   m->LocalToMaster(local1, global1);
+   m->LocalToMaster(local2, global2);
+   TVector3 g1 = global1;
+   TVector3 g2 = global2;
+   if (g2.DeltaPhi(g1) > 0)
+      return resX;
+   else return -resX;
 }
 
 
 void
-FWTrackResidualDetailView::drawBox(Float_t *pos, Color_t fillCol, Int_t fillType, bool bg)
+FWTrackResidualDetailView::drawBox(Double_t *pos, Color_t fillCol, Int_t fillType, bool bg)
 {
    // background
    if (bg)
@@ -300,6 +282,14 @@ void
 FWTrackResidualDetailView::makeLegend()
 {
    char mytext[256];
+   Double_t fontsize = 0.03;
+   TLatex* latex = new TLatex();
+   latex->SetTextSize(fontsize);
+   latex->Draw();
+   Double_t x0 = 0.02;
+   Double_t y = 0.9;
+
+   // summary
    int nvalid=0;
    int npix=0;
    int nstrip=0;
@@ -310,29 +300,39 @@ FWTrackResidualDetailView::makeLegend()
       else nstrip++;
    }
 
-   TLatex* latex = new TLatex(0.02, 0.970, "");
-   latex->SetTextSize(0.06);
-   float_t x0 = 0.02;
-   float   y = 0.95;
-   float fontsize = 0.03;
+   Double_t w = 0.4;
+   TPad* padL = new TPad("pad1","pad1",0, 0., w, 0.9);
 
-   // top text
-   sprintf(mytext,"valid/total Si hits: %i/%i", nvalid, m_nhits);
+   padL->Draw();
+   padL->cd();
+   padL->SetBorderMode(0);
+   fontsize *= 1./w;
+   latex->SetTextSize(fontsize);
+   fontsize = 0.04;
+   Double_t boxH = 0.25*fontsize;
+
+   latex->DrawLatex(x0, y, "Residual:");
+   y-= fontsize;
+   latex->DrawLatex(x0, y, "sgn(#hat{X}#bullet#hat{#phi}) #times #frac{X_{hit} - X_{traj}}{#sqrt{#sigma^{2}_{hit} + #sigma^{2}_{traj}}}" );
+   y-= 2.5*fontsize;
+   sprintf(mytext,"layers hit: %i", m_ndet);
    latex->DrawLatex(x0, y, mytext);
    y -= fontsize;
-
-   sprintf(mytext,"valid Si pixel (strip) hits: %i (%i)", npix, nstrip);
+   sprintf(mytext,"valid Si hits: %i", nvalid);
    latex->DrawLatex(x0, y, mytext);
    y -= fontsize;
-
-   sprintf(mytext,"Number of layers hit: %i", m_ndet);
+   sprintf(mytext,"total Si hits: %i", m_nhits);
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+   sprintf(mytext,"valid Si pixel hits: %i", npix);
+   latex->DrawLatex(x0, y, mytext);
+   y -= fontsize;
+   sprintf(mytext,"valid Si strip hits: %i", nstrip);
    latex->DrawLatex(x0, y, mytext);
 
-   // legend
-   Float_t pos[4];
+   Double_t pos[4];
    pos[0] = 0.4;
    pos[2] = 0.55;
-   Float_t boxH = 0.015;
 
    y -= fontsize*2;
    sprintf(mytext,"X hit");
@@ -340,42 +340,23 @@ FWTrackResidualDetailView::makeLegend()
    pos[1] = y; pos[3] = pos[1] + boxH;
    drawBox(pos, m_resXCol, m_resXFill);
 
-   y -=  boxH*2;
+   y -=  fontsize;
    sprintf(mytext,"Y hit");
    latex->DrawLatex(x0, y, mytext);
    pos[1] = y; pos[3] = pos[1] + boxH;
    drawBox(pos, m_resYCol, m_resYFill, 0);
 
-   y -= boxH*2;
+   y -= fontsize;
    sprintf(mytext, "stereo hit");
    latex->DrawLatex(x0, y, mytext);
    pos[1] = y; pos[3] = pos[1] + boxH;
    drawBox(pos, m_stereoCol, m_stereoFill);
 
-   y -= boxH*2;
+   y -= fontsize;
    sprintf(mytext, "invalid hit");
    latex->DrawLatex(x0, y, mytext);
    pos[1] = y; pos[3] = pos[1] + boxH;
    drawBox(pos, m_invalidCol, m_invalidFill);
-
-   // explanation 
-   y -= boxH*2;
-   y -= fontsize;
-   sprintf(mytext,"Residual: ");
-   latex->DrawLatex(x0, y, mytext);
-   y -= fontsize;
-   sprintf(mytext, "(X_{hit} - X_{traj}) #/ #sqrt{#sigma^{2}_{hit} + #sigma^{2}_{traj}}");
-   latex->DrawLatex(x0, y, mytext);
-   y -= fontsize;
-   sprintf(mytext,"Y is detector local coordinate");
-   latex->DrawLatex(x0, y, mytext);
-   y -= fontsize;
-   sprintf(mytext,"X is detector local coordinate");
-   latex->DrawLatex(x0, y, mytext);
-   y -= fontsize;
-   sprintf(mytext,"signed by sgn(#hat{X}#bullet#hat{#phi})");
-   latex->DrawLatex(x0, y, mytext);
-   y -= fontsize;
 }
 
 REGISTER_FWDETAILVIEW(FWTrackResidualDetailView);

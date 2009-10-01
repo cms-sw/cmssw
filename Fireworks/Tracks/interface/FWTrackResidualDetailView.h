@@ -54,7 +54,7 @@ private:
    double getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX);
    void prepareData(const FWModelId &id, const reco::Track*);
    void printDebug();
-   void drawBox(Float_t* pos, Color_t fillCol, Int_t fillType, bool bg=kTRUE);
+   void drawBox(Double_t* pos, Color_t fillCol, Int_t fillType, bool bg=kTRUE);
    void makeLegend();
 
    int m_ndet;
