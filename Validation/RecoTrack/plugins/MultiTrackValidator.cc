@@ -90,6 +90,8 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
       h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
 
+
+      /// this are needed to calculate efficiency during tha harvesting for the automated validation
       h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nint,min,max) );
       h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nint,min,max) );
       h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nint,min,max) );
@@ -119,6 +121,14 @@ void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_assoc2dz.push_back( dbe_->book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
       h_simuldz.push_back( dbe_->book1D("num_simul_dz","N of simulated tracks vs dz",nintDz,minDz,maxDz) );
 
+      h_assocvertpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertpos","N of associated tracks (simToReco) vs transverse vert position",nintVertpos,minVertpos,maxVertpos) );
+      h_simulvertpos.push_back( dbe_->book1D("num_simul_vertpos","N of simulated tracks vs transverse vert position",nintVertpos,minVertpos,maxVertpos) );
+
+      h_assoczpos.push_back( dbe_->book1D("num_assoc(simToReco)_zpos","N of associated tracks (simToReco) vs z vert position",nintZpos,minZpos,maxZpos) );
+      h_simulzpos.push_back( dbe_->book1D("num_simul_zpos","N of simulated tracks vs z vert position",nintZpos,minZpos,maxZpos) );
+
+
+      /////////////////////////////////
 
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
@@ -1000,6 +1010,13 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       fillPlotFromVector(h_simuldz[w],totSIM_dz[w]);
       fillPlotFromVector(h_assocdz[w],totASS_dz[w]);
       fillPlotFromVector(h_assoc2dz[w],totASS2_dz[w]);
+
+      fillPlotFromVector(h_simulvertpos[w],totSIM_vertpos[w]);
+      fillPlotFromVector(h_assocvertpos[w],totASS_vertpos[w]);
+
+      fillPlotFromVector(h_simulzpos[w],totSIM_zpos[w]);
+      fillPlotFromVector(h_assoczpos[w],totASS_zpos[w]);
+
       w++;
     }
   }
