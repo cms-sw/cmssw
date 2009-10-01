@@ -63,8 +63,8 @@ class ElectronMcValidator : public edm::EDAnalyzer
 
     // dqm basics
 
-    DQMStore* store_ ;
-    std::string monitorName_ ;
+    DQMStore * store_ ;
+    //std::string monitorName_ ;
 
     // utility methods for histos booking
 
