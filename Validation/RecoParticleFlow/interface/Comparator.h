@@ -1,0 +1,172 @@
+#ifndef __Validation_RecoParticleFlow_Comparator__
+#define __Validation_RecoParticleFlow_Comparator__
+
+
+
+#include <math.h>
+
+#include <TLegend.h>
+#include <TFile.h>
+#include <TH1.h>
+#include <TF1.h>
+
+/* #include <string> */
+
+
+class Style;
+
+class Comparator {
+
+public:
+
+  enum Mode {
+    NORMAL,
+    SCALE,
+    EFF
+  };
+
+  Comparator() : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
+		 s0_(0), s1_(0), legend_(0,0,1,1) {}
+
+  Comparator( const char* file0,
+	      const char* dir0,
+	      const char* file1,
+	      const char* dir1 ) : 
+    rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
+    s0_(0), s1_(0), legend_(0,0,1,1) {
+    
+    SetDirs( file0, dir0, file1, dir1);
+  }
+  
+  /// set the 2 files, and the directory within each file, in which the histograms will be compared
+  void SetDirs( const char* file0,
+		const char* dir0,
+		const char* file1,
+		const char* dir1  );
+
+  // set the rebinning factor and the range
+  void SetAxis( int rebin,
+		float xmin, 
+		float xmax) {
+    rebin_ = rebin;
+    xMin_ = xmin;
+    xMax_ = xmax;
+    resetAxis_ = true;
+  }
+  
+  // set the rebinning factor, unset the range
+  void SetAxis( int rebin ) {
+    rebin_ = rebin;
+    resetAxis_ = false;
+  }
+  
+  // draws a Y projection of a slice along X
+  void DrawSlice( const char* key, 
+		  int binxmin, int binxmax, 
+		  Mode mode );
+
+//  // create nbin slices between binxmin and binxmax. In each slice get the mean.
+//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+//  void DrawMeanSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+//                     const unsigned int nbin, const double Ymin, const double Ymax,
+//		     const std::string title, const std::string binning_option);
+//
+//
+//
+//  // create nbin slices between binxmin and binxmax. In each slice get the RMS.
+//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+//  void DrawSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+//		      const unsigned int nbin, const double Ymin, const double Ymax,
+//		      const std::string title, const std::string binning_option);
+//
+//
+//  // create nbin slices between binxmin and binxmax. In each slice get the RMS and sigma from of gaussian fit.
+//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+//  void DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+//			   const unsigned int nbin, const double Ymin, const double Ymax,
+//			   const std::string title, const std::string binning_option, const unsigned int rebin,
+//			   const double fitmin, const double fitmax, const std::string epsname,
+//			   const bool doFit);
+//
+//  // create nbin slices between binxmin and binxmax. In each slice get the RMS/meanX and sigma/meanX from of gaussian fit.
+//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+//  void DrawGaussSigmaOverMeanXSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
+//				   const unsigned int nbin, const double Ymin, const double Ymax,
+//				   const std::string title, const std::string binning_option, const unsigned int rebin,
+//				    const double fitmin, const double fitmax, const std::string epsname);
+//  // create nbin slices between binxmin and binxmax. In each slice get the RMS/mean and sigma/mean from of gaussian fit.
+//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
+//  void DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, const unsigned int binxmin, const unsigned int binxmax,
+//				   const unsigned int nbin, const double Ymin, const double Ymax,
+//				   const std::string title, const std::string binning_option, const unsigned int rebin,
+//				   const double fitmin, const double fitmax, const std::string epsname);
+//
+//  //COLIN mode is not used
+//  // loosing the possibility to pass options from TH1::Draw
+//  // remove, and use Comparator::Histo to access histograms from outside
+//  void Draw2D_file1( const char* key, Mode mode);
+//
+//  //COLIN mode is not used
+//  // loosing the possibility to pass options from TH1::Draw
+//  // remove, and use Comparator::Histo to access histograms from outside
+//  // btw: file1 and file2 should not be hardcoded in the name of the function
+//  // but provided as an integer as for the other functions of the class
+//  void Draw2D_file2( const char* key, Mode mode);
+
+
+  void Draw( const char* key, Mode mode);
+
+  
+  void Draw( const char* key0, const char* key1, Mode mode);
+
+ /*  // cd to a give path */
+/*   void cd(const char* path ) { */
+/*     path_ = path; */
+/*   } */
+  
+  // return the two temporary 1d histograms, that have just
+  // been plotted
+  TH1* h0() {return h0_;}
+  TH1* h1() {return h1_;}
+
+  const TLegend& Legend() {return legend_;}
+  
+  // set the styles for further plots
+  void SetStyles( Style* s0, 
+		  Style* s1,
+		  const char* leg0,
+		  const char* leg1);
+   
+  TH1* Histo( const char* key, unsigned dirIndex);
+
+private:
+
+  // retrieve an histogram in one of the two directories
+
+  // draw 2 1D histograms.
+  // the histograms can be normalized to the same number of entries, 
+  // or plotted as a ratio.
+  void Draw( TH1* h0, TH1* h1, Mode mode );
+
+  int rebin_;
+  float xMin_;
+  float xMax_;
+  bool resetAxis_;
+
+  TFile*      file0_;
+  TDirectory* dir0_;
+  TFile*      file1_;
+  TDirectory* dir1_;
+  
+  TH1* h0_;
+  TH1* h1_;
+  
+  Style* s0_;
+  Style* s1_;
+  
+  TLegend legend_;
+
+/*   std::string path_; */
+};
+
+#endif
