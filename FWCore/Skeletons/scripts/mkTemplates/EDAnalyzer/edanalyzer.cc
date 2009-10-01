@@ -5,10 +5,10 @@
 // 
 /**\class anlzrname anlzrname.cc skelsubsys/anlzrname/src/anlzrname.cc
 
- Description: <one line class summary>
+ Description: [one line class summary]
 
  Implementation:
-     <Notes on implementation>
+     [Notes on implementation]
 */
 //
 // Original Author:  John Doe
@@ -36,7 +36,7 @@
 @example_histo #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 @example_histo #include "TH1.h"
 //
-// class decleration
+// class declaration
 //
 
 class anlzrname : public edm::EDAnalyzer {

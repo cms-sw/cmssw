@@ -7,10 +7,10 @@
 // 
 /**\class tselname tselname.h skelsubsys/tselname/src/tselname.h
 
-Description: <one line class summary>
+Description: [one line class summary]
 
 Implementation:
-<Notes on implementation>
+[Notes on implementation]
 */
 //
 // Original Author:  John Doe

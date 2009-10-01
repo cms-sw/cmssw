@@ -5,10 +5,10 @@
 // 
 /**\class prodname prodname.h skelsubsys/prodname/src/prodname.cc
 
- Description: <one line class summary>
+ Description: [one line class summary]
 
  Implementation:
-     <Notes on implementation>
+     [Notes on implementation]
 */
 //
 // Original Author:  John Doe
@@ -32,7 +32,7 @@
 
 
 //
-// class decleration
+// class declaration
 //
 
 class prodname : public edm::ESProducer {

@@ -5,10 +5,10 @@
 // 
 /**\class prodname prodname.cc skelsubsys/prodname/src/prodname.cc
 
- Description: <one line class summary>
+ Description: [one line class summary]
 
  Implementation:
-     <Notes on implementation>
+     [Notes on implementation]
 */
 //
 // Original Author:  John Doe
@@ -37,7 +37,7 @@
 @example_myparticle #include "FWCore/Utilities/interface/InputTag.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class prodname : public edm::EDProducer {

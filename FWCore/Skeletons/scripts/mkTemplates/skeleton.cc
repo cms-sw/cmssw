@@ -4,7 +4,7 @@ nocap// Package:     skelpackage
 nocap// Class  :     skelname
 nocap// 
 nocap// Implementation:
-nocap//     <Notes on implementation>
+nocap//     [Notes on implementation]
 nocap//
 nocap// Original Author:  John Doe
 nocap//         Created:  day-mon-xx

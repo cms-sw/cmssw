@@ -7,7 +7,7 @@ nocap// Class  :     skelname
 nocap// 
 nocap/**\class skelname skelname.h skelsubsys/skelpackage/interface/skelname.h
 nocap
-nocap Description: <one line class summary>
+nocap Description: [one line class summary]
 nocap
 nocap Usage:
 nocap    <usage>
