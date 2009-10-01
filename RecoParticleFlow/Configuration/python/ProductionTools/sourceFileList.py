@@ -20,8 +20,7 @@ source = cms.Source(
 
 
 parser = OptionParser()
-parser.usage = "%prog <dir> <regexp> : format a set of root files matching a regexp in a directory, as an input to the PoolSource. Temporary merged files are created on /tmp of the local machine, and are then migrated to a Chunk/ subdirectory of your input castor directory. Therefore, you need write access to the input castor directory. 
-\n\nExample (just try, the -n option negates the command!):\nsourceFileList.py /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '.*\.root'"
+parser.usage = "%prog <dir> <regexp> : format a set of root files matching a regexp in a directory, as an input to the PoolSource. \n\nExample (just try!):\nsourceFileList.py /castor/cern.ch/user/c/cbern/CMSSW312/SinglePions '.*\.root'"
 
 
 (options,args) = parser.parse_args()
