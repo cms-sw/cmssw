@@ -5,6 +5,8 @@ import os
 import re
 from pprint import pprint
 
+epsilon = 1.e-4
+
 def getPieceFromObject (obj, description):
     """ """
     parsed = GenObject.parseVariableTofill (description)
@@ -20,6 +22,32 @@ def getDictFromObject (obj, varDict, prefix = ''):
         retval[key] = getPieceFromObject (obj, description)
     return retval
 
+
+def format (objDict, label, spacing=8):
+    '''return a formatted string for given object'''
+    value = objDict[label]
+    diff  = objDict['delta_' + label]
+    problem = False
+    if isinstance (diff, float):
+        formatString = '%%%d.%df' % (spacing, spacing - 3)
+        retval = formatString % value
+        if abs(diff) > epsilon:
+            retval += ' (' + formatString % (value + diff) + ')'
+        else:
+            retval += ' ' * (spacing + 3)
+        return retval
+    else:
+        formatString = '%%%ds' % spacing
+        retval = formatString % value
+        if diff:
+            if isinstance (diff, str):
+                retval += ' (' + formatSting % diff + ')'
+            else:
+                retval += ' (' + formatString % (value + diff) + ')'
+        else:
+            retval += ' ' * (spacing + 3)
+        return retval
+    
 
 if __name__ == "__main__":
     parser = optparse.OptionParser ("Usage: %prog bla.root lib.so var1 [var2]")
@@ -83,7 +111,26 @@ if __name__ == "__main__":
         raise RuntimeError, "Failed to get 'diffTree'"
     size = tree.GetEntries()
     runeventDict = {'run':'run', 'event':'event'}
+    indexDict = {'index':'index', 'delta_index':'delta_index'}
+    infoDict = {}
+    for var in variables:
+        infoDict[var] = var;
+        if var in stringSet:
+            infoDict['delta_' + var] = 'other_' + var
+        else:
+            infoDict['delta_' + var] = 'delta_' + var
     for index in range (size):
         tree.GetEntry (index)
         runevent = getDictFromObject (tree, runeventDict, 'runevent')
         pprint (runevent)
+        diffColl = getPieceFromObject (tree, name+'.diff')
+        size = diffColl.size()
+        for index in range (size):
+            diff = diffColl[index]
+            index = getDictFromObject (diff, indexDict)
+            print '  ', format (index, 'index', 3),
+            info = getDictFromObject (diff, infoDict)
+            for var in variables:
+                print '  ', format (info, var),
+            print
+        print
