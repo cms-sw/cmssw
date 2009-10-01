@@ -35,13 +35,14 @@ produce(edm::Event& e, const edm::EventSetup& es)
   if (regional) recHitConverterAlgorithm.run(refclusters,lazygetter,output);
   else          recHitConverterAlgorithm.run(clusters, output);
   
+  LogDebug("SiStripRecHitConverter") << "found\n"  
+				     << output.rphi->dataSize()   << "  clusters in mono detectors\n"                            
+				     << output.stereo->dataSize() << "  clusters in partners stereo detectors\n";
+
   e.put( output.matched,         matchedRecHitsTag );
   e.put( output.rphi,            rphiRecHitsTag    );
   e.put( output.stereo,          stereoRecHitsTag  );
   e.put( output.rphiUnmatched,   rphiRecHitsTag   + "Unmatched" );
   e.put( output.stereoUnmatched, stereoRecHitsTag + "Unmatched" );  
 
-  LogDebug("SiStripRecHitConverter") << "found\n"  
-				     << output.rphi->dataSize()   << "  clusters in mono detectors\n"                            
-				     << output.stereo->dataSize() << "  clusters in partners stereo detectors\n";
 }
