@@ -54,11 +54,13 @@ void TH2Analyzer::ProcessSlices( const TH2D* histo) {
 
   for( int i=1; i<=histo->GetNbinsX(); ++i) {
     TH1D* proj =  histo->ProjectionY("toto", i, i);
-    double mean = proj->GetMean();
-    double rms = proj->GetRMS();
-    cout<<mean<<" "<<rms<<endl;
+    const double mean = proj->GetMean();
+    const double rms = proj->GetRMS();
+    // cout<<mean<<" "<<rms<<endl;
     average_->SetBinContent( i, mean);
+    average_->SetBinError( i, proj->GetMeanError());
     RMS_->SetBinContent(i, rms);
+    RMS_->SetBinError(i, proj->GetRMSError());
     ProcessSlice( proj );
   }
 
