@@ -4,7 +4,7 @@
 /** \class PyquenHadronizer
  *
  * Generates PYTHIA+PYQUEN ==> HepMC events
- * $Id: PyquenHadronizer.h,v 1.5 2009/09/02 15:15:52 yilmaz Exp $
+ * $Id: PyquenHadronizer.h,v 1.6 2009/09/21 13:17:22 yilmaz Exp $
  *
  * Camelia Mironov                                  
  *   for the Generator Interface. March 2007
@@ -45,7 +45,7 @@ namespace gen
 
     bool	     pyqpythia_init(const edm::ParameterSet &pset);
     bool	     pyquen_init(const edm::ParameterSet &pset);
-    char*            nucleon();
+    const char*      nucleon();
     void             rotateEvtPlane(HepMC::GenEvent* evt, double angle);
 
     edm::ParameterSet pset_;

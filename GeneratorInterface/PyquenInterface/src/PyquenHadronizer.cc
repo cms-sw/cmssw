@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.7 2009/09/02 15:15:52 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.8 2009/09/21 13:17:22 yilmaz Exp $
 */
 
 #include <iostream>
@@ -251,10 +251,10 @@ bool PyquenHadronizer::pyquen_init(const ParameterSet &pset)
   return true;
 }
 
-char* PyquenHadronizer::nucleon(){
+const char* PyquenHadronizer::nucleon(){
   int* dummy = 0;
   double random = gen::pyr_(dummy);
-  char* nuc = 0;
+  const char* nuc = 0;
   if(random > pfrac_) nuc = "n";
   else nuc = "p";
   

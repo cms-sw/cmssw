@@ -105,8 +105,8 @@ c      INTEGER PYK,PYCHGE,PYCOMP
        ff1=fmax*pyr(0) 
        fb=funbip(bb1) 
        if(ff1.gt.fb) goto 11    
-*       if(bb1.gt.bmax) goto 112
-*       if(bb1.lt.bmin) goto 112
+       if(bb1.gt.bmax) goto 112
+       if(bb1.lt.bmin) goto 112
        b1=bb1  
       end if  
       bgen=b1 
@@ -532,6 +532,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
 *
       pi=3.14159d0 
       pi2=pi*pi  
+      et=et
 
 * set number degrees of freedom in QGP                
       hgd=3.d0
@@ -606,6 +607,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
      <    /pleave/,/parimp/,/plen/,/plos/,/numje1/
 *
       pi=3.14159d0              
+      et=et
 
 * find minimum of nuclear thikness function with subroutine plsear      
       psib1=pi*(2.d0*pyr(0)-1.d0) 
@@ -872,6 +874,9 @@ c      INTEGER PYK,PYCHGE,PYCOMP
       i=ip                              ! redenote parton number i=ip       
       iter=0 
       iraz=0 
+      epart=epart
+      tau=tau
+
 
 * boost to system of comoving plasma constituent  
       phir=pyp(i,15)                    ! parton phi  
