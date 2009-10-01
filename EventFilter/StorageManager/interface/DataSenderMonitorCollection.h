@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.11 2009/09/18 09:10:52 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.12 2009/09/24 09:54:09 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -26,8 +26,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2009/09/18 09:10:52 $
+   * $Revision: 1.12 $
+   * $Date: 2009/09/24 09:54:09 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -114,7 +114,7 @@ namespace stor {
     /**
      * Key that is used to identify output modules.
      */
-    typedef unsigned int OutputModuleKey;
+    typedef uint32 OutputModuleKey;
 
 
     /**
@@ -123,7 +123,7 @@ namespace stor {
     struct OutputModuleRecord
     {
       std::string name;
-      unsigned int id;
+      OutputModuleKey id;
       unsigned int initMsgSize;
       //MonitoredQuantity fragmentSize;
       MonitoredQuantity eventSize;
@@ -206,7 +206,7 @@ namespace stor {
     struct OutputModuleResult
     {
       std::string name;
-      unsigned int id;
+      OutputModuleKey id;
       unsigned int initMsgSize;
       MonitoredQuantity::Stats eventStats;
     };
