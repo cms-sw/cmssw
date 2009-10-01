@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -168,7 +168,7 @@ process.addTrackJets = cms.Sequence(  process.trackWithVertexSelector
                                     * process.SISCone5TrackJets )
 addJetCollection(process,cms.InputTag('SISCone5TrackJets'),
                  'SC5Track',
-                 doJTA        = True,
+                 doJTA        = False,
                  doBTagging   = True,
                  jetCorrLabel = None,
                  doType1MET   = False,
@@ -176,7 +176,6 @@ addJetCollection(process,cms.InputTag('SISCone5TrackJets'),
                  doL1Counters = True,
                  genJetCollection = cms.InputTag("sisCone5GenJets")
                  )
-process.jetTracksAssociatorAtVertexSC5Track.tracks = cms.InputTag("trackWithVertexSelector")
 
 #-- Tune contents of jet collections  -----------------------------------------
 for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'IC5JPT', 'AK5JPT', 'SC5Track' ): # 'SC5JPT'
