@@ -23,28 +23,32 @@ def getDictFromObject (obj, varDict, prefix = ''):
     return retval
 
 
-def format (objDict, label, spacing=8):
+def format (objDict, label, spacing=8, firstOnly = False):
     '''return a formatted string for given object'''
     value = objDict[label]
-    diff  = objDict['delta_' + label]
+    if firstOnly:
+        diff = 0.
+    else:
+        diff  = objDict['delta_' + label]
+        
     problem = False
-    if isinstance (diff, float):
+    if isinstance (value, float):
         formatString = '%%%d.%df' % (spacing, spacing - 3)
         retval = formatString % value
         if abs(diff) > epsilon:
             retval += ' (' + formatString % (value + diff) + ')'
-        else:
+        elif not firstOnly:
             retval += ' ' * (spacing + 3)
         return retval
     else:
         formatString = '%%%ds' % spacing
         retval = formatString % value
         if diff:
-            if isinstance (diff, str):
+            if isinstance (value, str):
                 retval += ' (' + formatSting % diff + ')'
             else:
                 retval += ' (' + formatString % (value + diff) + ')'
-        else:
+        elif not firstOnly:
             retval += ' ' * (spacing + 3)
         return retval
     
@@ -110,34 +114,73 @@ if __name__ == "__main__":
     if not tree:
         raise RuntimeError, "Failed to get 'diffTree'"
     size = tree.GetEntries()
-    runeventDict = {'run':'run', 'event':'event'}
-    indexDict = {'index':'index', 'delta_index':'delta_index'}
-    infoDict = {}
+    runeventDict = {'Run':'run', 'Event':'event'}
+    indexSingleDict = {'index':'index'}
+    indexDoubleDict = {'index':'index', 'delta_index':'delta_index'}
+    infoSingleDict = {}
+    infoDoubleDict = {}
     for var in variables:
-        infoDict[var] = var;
+        infoSingleDict[var] = infoDoubleDict[var] = var;        
         if var in stringSet:
-            infoDict['delta_' + var] = 'other_' + var
+            infoDoubleDict['delta_' + var] = 'other_' + var
         else:
-            infoDict['delta_' + var] = 'delta_' + var
+            infoDoubleDict['delta_' + var] = 'delta_' + var
     for index in range (size):
         tree.GetEntry (index)
         runevent = getDictFromObject (tree, runeventDict, 'runevent')
         pprint (runevent)
+        # first only
+        firstOnlyColl  = getPieceFromObject (tree, name + '.firstOnly')
+        size = firstOnlyColl.size()
+        if size:            
+            print "First Only:\n   index  ",
+            for var in variables:
+                print "%-10s" % (' ' + var),
+            print
+            print '-' * (12 + 10 * len(variables))
+        for index in range (size):
+            firstOnly = firstOnlyColl[index]
+            index = getDictFromObject (firstOnly, indexSingleDict)
+            print '  ', format (index, 'index', 3, firstOnly = True),
+            info = getDictFromObject (firstOnly, infoSingleDict)
+            for var in variables:
+                print '  ', format (info, var, firstOnly = True),
+            print
+        print
+        # second only
+        secondOnlyColl = getPieceFromObject (tree, name + '.secondOnly')
+        size = secondOnlyColl.size()
+        if size:            
+            print "Second Only:\n   index  ",
+            for var in variables:
+                print "%-10s" % (' ' + var),
+            print
+            print '-' * (12 + 10 * len(variables))
+        for index in range (size):
+            secondOnly = secondOnlyColl[index]
+            index = getDictFromObject (secondOnly, indexSingleDict)
+            print '  ', format (index, 'index', 3, firstOnly = True),
+            info = getDictFromObject (secondOnly, infoSingleDict)
+            for var in variables:
+                print '  ', format (info, var, firstOnly = True),
+            print
+        print
+        # both
         diffColl = getPieceFromObject (tree, name+'.diff')
         size = diffColl.size()
-        if not size:
-            continue
-        print "index",
-        for var in variables:
-            print "%19s" % (var + '      '),
-        print
-        print '-' * (5 + 19 * size)
+        if size:            
+            print "Both:\n   index",
+            for var in variables:
+                print "%-22s" % ('       ' + var),
+            print
+            print '-' * (16 + 21 * len(variables))
         for index in range (size):
             diff = diffColl[index]
-            index = getDictFromObject (diff, indexDict)
+            index = getDictFromObject (diff, indexDoubleDict)
             print '  ', format (index, 'index', 3),
-            info = getDictFromObject (diff, infoDict)
+            info = getDictFromObject (diff, infoDoubleDict)
             for var in variables:
                 print '  ', format (info, var),
             print
         print
+ 
