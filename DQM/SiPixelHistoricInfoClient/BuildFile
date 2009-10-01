@@ -2,3 +2,6 @@
 <use name="CondFormats/DataRecord">
 <use name="CondFormats/SiPixelObjects">
 <use name="DQM/SiPixelCommon">
+<export>
+  <lib name="DQMSiPixelHistoricInfoClient">
+</export>
