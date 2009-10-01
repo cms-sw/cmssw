@@ -14,10 +14,10 @@
 
 struct SpecificPFMETData
 {
-  double NeutralEMFraction ; 
-  double NeutralHadFraction ;
-  double ChargedEMFraction ; 
-  double ChargedHadFraction ;
-  double MuonFraction ;
+  double NeutralEMEtFraction ; 
+  double NeutralHadEtFraction ;
+  double ChargedEMEtFraction ; 
+  double ChargedHadEtFraction ;
+  double MuonEtFraction ;
 }; //public : struct SpecificPFMETData
 #endif
