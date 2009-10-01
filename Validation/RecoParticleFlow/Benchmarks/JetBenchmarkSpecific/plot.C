@@ -1,7 +1,11 @@
 {
+gSystem->Load("libFWCoreFWLite.so");
+gSystem->Load("libValidationRecoParticleFlow.so");
+gSystem->Load("libCintex.so");
+ROOT::Cintex::Cintex::Enable();
 
-gROOT->LoadMacro("../Tools/NicePlot.C");
-InitNicePlot();
+//gROOT->LoadMacro("../Tools/NicePlot.C");
+//InitNicePlot();
 
 gROOT->ProcessLine(".L makeJetResolutionPlot.C");
 Resolution(1,"JetBenchmark_Fast_330pre5.root","JetBenchmark_Fast_Barrel_330pre5.png","Fast simulation - Barrel resolution");

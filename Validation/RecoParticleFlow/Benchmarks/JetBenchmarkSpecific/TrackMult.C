@@ -23,8 +23,12 @@ void drawFF(TProfile* fast, TProfile* full,int max=24, int min=0) {
 void TrackMult(const char* fileFast, const char* fileFull)
 {
 
-gROOT->LoadMacro("../Tools/NicePlot.C");
-InitNicePlot();
+gSystem->Load("libFWCoreFWLite.so");
+gSystem->Load("libValidationRecoParticleFlow.so");
+gSystem->Load("libCintex.so");
+ROOT::Cintex::Cintex::Enable();
+//gROOT->LoadMacro("../Tools/NicePlot.C");
+//InitNicePlot();
 
 TFile* fast = new TFile(fileFast);
 gStyle->SetOptStat(0);
