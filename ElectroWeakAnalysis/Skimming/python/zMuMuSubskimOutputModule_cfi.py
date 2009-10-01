@@ -5,6 +5,9 @@ from Configuration.EventContent.EventContent_cff import *
 zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
       'drop *',
+####   to access the position at the momentum system for global and standalone muons
+      'keep recoTrackExtras_standAloneMuons_*_*',
+      'keep recoTracks_standAloneMuons_UpdatedAtVtx_*',
       'keep *_selectedLayer1MuonsTriggerMatch_*_*',
       'keep *_selectedLayer1TrackCands_*_*',
       'keep *_dimuons_*_*',

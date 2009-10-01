@@ -16,6 +16,7 @@ import PhysicsTools.PatAlgos.producersLayer1.genericParticleProducer_cfi as gene
 
 allLayer1TrackCands = genericpartproducer_cfi.allLayer1GenericParticles.clone(
     src = cms.InputTag("patAODTrackCands"),
+    embedTrack = cms.bool(True),
     # isolation configurables
     isolation = cms.PSet(
       tracker = cms.PSet(
@@ -46,6 +47,16 @@ selectedLayer1TrackCands.cut = 'pt > 10.'
 
 # PAT MUONS
 
+# before layer 1: Merge CaloMuons into the collection of reco::Muons
+from RecoMuon.MuonIdentification.calomuons_cfi import calomuons;
+muons = cms.EDProducer("CaloMuonMerger",
+    muons = cms.InputTag("muons"), # half-dirty thing. it works aslong as we're the first module using muons in the path
+    caloMuons = cms.InputTag("calomuons"),
+    minCaloCompatibility = calomuons.minCaloCompatibility)
+
+## And re-make isolation, as we can't use the one in AOD because our collection is different
+import RecoMuon.MuonIsolationProducers.muIsolation_cff
+
 # layer 1 muons
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 allLayer1Muons.isolation.tracker = cms.PSet(
@@ -56,6 +67,12 @@ allLayer1Muons.isolation.tracker = cms.PSet(
     threshold = cms.double(1.5)
 )
 allLayer1Muons.addGenMatch = cms.bool(False)
+allLayer1Muons.embedTrack = cms.bool(True)
+allLayer1Muons.embedCombinedMuon = cms.bool(True)
+allLayer1Muons.embedStandAloneMuon = cms.bool(True)
+allLayer1Muons.embedPickyMuon = cms.bool(False)
+allLayer1Muons.embedTpfmsMuon = cms.bool(False)
+allLayer1Muons.embedPFCandidate = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedLayer1Muons.cut = 'pt > 10. & abs(eta) < 100.0'
@@ -104,11 +121,17 @@ muonTriggerMatchEmbedder = cms.Sequence(
 
 # pat sequences
 
+beforeLayer1Muons = cms.Sequence(
+    muons *
+    muIsolation
+)
+
 beforeLayer1Tracks = cms.Sequence(
     patAODTrackCandSequence 
 )
 
 beforePatLayer1 = cms.Sequence(
+    beforeLayer1Muons *
     beforeLayer1Tracks
 )
 
