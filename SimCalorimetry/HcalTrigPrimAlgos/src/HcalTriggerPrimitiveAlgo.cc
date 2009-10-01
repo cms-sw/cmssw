@@ -233,7 +233,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
       for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
          int idx = ibin + shift;
          // if not vetod, add L+S to total sum and calculate FG
-         if (!(veto[ibin] && (*sumFGItr)[idx] > PMT_NoiseThreshold_)) {
+         if (!(veto[idx] && (*sumFGItr)[idx] > PMT_NoiseThreshold_)) {
             samples[idx] += (*sumFGItr)[idx];
             finegrain[ibin] = (finegrain[ibin] || (*sumFGItr)[idx] >= FG_threshold_);
          }
