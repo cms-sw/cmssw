@@ -21,11 +21,11 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   // Instantiate the container to hold the PF specific information
   SpecificPFMETData specific;
   // Initialize the container
-  specific.NeutralEMFraction = 0.0;
-  specific.NeutralHadFraction = 0.0;
-  specific.ChargedEMFraction = 0.0;
-  specific.ChargedHadFraction = 0.0;
-  specific.MuonFraction = 0.0;
+  specific.NeutralEMEtFraction = 0.0;
+  specific.NeutralHadEtFraction = 0.0;
+  specific.ChargedEMEtFraction = 0.0;
+  specific.ChargedHadEtFraction = 0.0;
+  specific.MuonEtFraction = 0.0;
 
 
   if(!PFCandidates->size()) // if no Particle Flow candidates in the event
@@ -37,9 +37,10 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
     } 
   
   //Insert code to retreive / calculate specific pf data here:  
-
-
-
+  for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; iParticle++ )
+    {
+      
+    }
 
   const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
   const Point vtx(0.0,0.0,0.0);
