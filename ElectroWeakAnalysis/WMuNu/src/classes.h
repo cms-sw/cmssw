@@ -18,6 +18,7 @@
 #include <vector>
 #include <map>
 
+
 namespace {
   struct dictionary {
      std::vector<reco::WMuNuCandidate> v1;

@@ -50,8 +50,7 @@ private:
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -138,7 +137,6 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
             if (mu.innerTrack().isNull()) continue;
 
             reco::TrackRef gm = mu.globalTrack();
-            reco::TrackRef tk = mu.innerTrack();
 
             double pt = mu.pt();
           
@@ -164,9 +162,9 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
       // Build WMuNuCandidate
       LogTrace("")<<"Building WMuNu Candidate!"; 
       WMuNuCandidate* WCand = new WMuNuCandidate(muon,met); 
-      LogTrace("") << "\t... W mass, W_et, W_px, W_py: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
+      LogTrace("") << "\t... W mass, W_et: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
       LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
-      LogTrace("") << "\t... acop  " << WCand->acop();
+      LogTrace("") << "\t... acop:  " << WCand->acop();
       LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
       LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
   	WMuNuCandidates->push_back(*WCand);

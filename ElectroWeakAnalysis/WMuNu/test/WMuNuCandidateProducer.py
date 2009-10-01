@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("USER")
 process.maxEvents = cms.untracked.PSet(
       #input = cms.untracked.int32(-1)
-      input = cms.untracked.int32(200)
+      input = cms.untracked.int32(20)
 )
 
 process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
@@ -13,7 +13,8 @@ process.load("ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi")
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
-      fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
+      fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
+
 )
 
 # Debug/info printouts
@@ -37,8 +38,8 @@ process.myEventContent = cms.PSet(
 )
 
 process.wmnOutput = cms.OutputModule("PoolOutputModule",
-      #process.AODSIMEventContent,
-      process.myEventContent,
+      process.AODSIMEventContent,
+      #process.myEventContent,
       SelectEvents = cms.untracked.PSet(
             SelectEvents = cms.vstring('path')
       ),
@@ -47,10 +48,10 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 
 
 # Steering the process
-#process.path = cms.Path(process.corMetWMuNus)
+process.path = cms.Path(process.corMetWMuNus)
 #process.path = cms.Path(process.pfMetWMuNus)
 #process.path = cms.Path(process.tcMetWMuNus)
-process.path = cms.Path(process.allWMuNus)
+#process.path = cms.Path(process.allWMuNus)
 
 process.end = cms.EndPath(process.wmnOutput)
 

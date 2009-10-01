@@ -9,7 +9,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
-      fileNames = cms.untracked.vstring("file:/data4/Wmunu-Summer09-MC_31X_V2_preproduction_311-v1/0011/F4C91F77-766D-DE11-981F-00163E1124E7.root")
+      fileNames = cms.untracked.vstring(
+      #           "file:/data4/InclusiveMu15_Summer09-MC_31X_V3_AODSIM-v1/0024/C2F408ED-E181-DE11-8949-0030483344E2.root")
+      #       "file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
+              '/store/user/cepeda/mytestSkim_Wmunu_10pb/EWK_WMuNu_SubSkim_31Xv3_1.root' 
+
 )
 
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")

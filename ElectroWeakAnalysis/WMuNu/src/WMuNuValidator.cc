@@ -78,6 +78,8 @@ private:
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -174,6 +176,10 @@ void WMuNuValidator::init_histograms() {
 
             snprintf(chname, 255, "NHITS%s", chsuffix[i].data());
             snprintf(chtitle, 255, "Number of hits, inner track");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,40,-0.5,39.5);
+
+            snprintf(chname, 255, "ValidMuonHits%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "number Of Valid Muon Hits");
             h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,40,-0.5,39.5);
 
             snprintf(chname, 255, "TKMU%s", chsuffix[i].data());
@@ -419,7 +425,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
 
             LogTrace("") << "> Wsel: processing muon number " << i << "...";
             reco::TrackRef gm = mu.globalTrack();
-            reco::TrackRef tk = mu.innerTrack();
+            //reco::TrackRef tk = mu.innerTrack();
 
             // Pt,eta cuts
             double pt = mu.pt();
@@ -431,13 +437,15 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             else if (fastOption_) continue;
 
             // d0, chi2, nhits quality cuts
-            double dxy = tk->dxy(beamSpotHandle->position());
+            double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
-            double trackerHits = tk->numberOfValidHits();
+            double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
+            double standalonehits=mu.outerTrack()->numberOfValidHits();
+            double trackerHits = gm->hitPattern().numberOfValidTrackerHits(); 
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
             else if (fastOption_) continue;
-            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+            if (muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)) muon_sel[3] = true; 
             else if (fastOption_) continue;
             if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
             else if (fastOption_) continue;
@@ -449,6 +457,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             fill_histogram("DXY_BEFORECUTS",dxy);
             fill_histogram("CHI2_BEFORECUTS",normalizedChi2);
             fill_histogram("NHITS_BEFORECUTS",trackerHits);
+            fill_histogram("ValidMuonHits_BEFORECUTS",validmuonhits);
             fill_histogram("TKMU_BEFORECUTS",mu.isTrackerMuon());
 
             // Isolation cuts
@@ -538,6 +547,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
                         fill_histogram("DXY_LASTCUT",dxy);
                   if (!muon_sel[3] || flags_passed==NFLAGS) 
                         fill_histogram("CHI2_LASTCUT",normalizedChi2);
+                        fill_histogram("ValidMuonHits_LASTCUT",validmuonhits);
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
                         fill_histogram("NHITS_LASTCUT",trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 

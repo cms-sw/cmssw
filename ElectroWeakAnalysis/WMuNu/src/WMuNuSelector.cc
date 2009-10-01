@@ -37,8 +37,6 @@ private:
   bool plotHistograms_;
   edm::InputTag trigTag_;
   edm::InputTag muonTag_;
-  edm::InputTag metTag_;
-  bool metIncludesMuons_;
   edm::InputTag jetTag_;
   edm::InputTag WMuNuCollectionTag_;
   const std::string muonTrig_;
@@ -83,6 +81,8 @@ private:
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
@@ -107,8 +107,6 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
       WMuNuCollectionTag_(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus"))),
 
@@ -304,7 +302,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             if (!mu.isGlobalMuon()) return 0; 
 
             reco::TrackRef gm = mu.globalTrack();
-            reco::TrackRef tk = mu.innerTrack();
+            //reco::TrackRef tk = mu.innerTrack();
 
             // Pt,eta cuts
             double pt = mu.pt();
@@ -312,17 +310,17 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
                   if(plotHistograms_){ h1_["hPtMu_sel"]->Fill(pt);}
             if (pt<ptCut_) return 0;
-
                   if(plotHistograms_){ h1_["hEtaMu_sel"]->Fill(eta);}
             if (fabs(eta)>etaCut_) return 0;
 
             // d0, chi2, nhits quality cuts
-            double dxy = tk->dxy(beamSpotHandle->position());
-            double normalizedChi2 = gm->normalizedChi2();
-            double trackerHits = tk->numberOfValidHits();
-            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
+            double dxy = gm->dxy(beamSpotHandle->position());
+            double normalizedChi2 = gm->normalizedChi2(); LogTrace("")<<"Im here"<<endl;
+            double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
+            LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " << mu.isTrackerMuon();
+
                   if(plotHistograms_){ h1_["hd0_sel"]->Fill(dxy);}
-            if (fabs(dxy)>dxyCut_) return 0;
+            if (!muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) ) return 0;
                   if(plotHistograms_){ h1_["hNormChi2_sel"]->Fill(normalizedChi2);}
             if (normalizedChi2>normalizedChi2Cut_) return 0;
                   if(plotHistograms_){ h1_["hNHits_sel"]->Fill(trackerHits);}
@@ -361,6 +359,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             double w_et = WMuNu.eT();
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << WMuNu.px() << ", " << WMuNu.py() << " [GeV]";
+
 
             // Plot 2D Histograms before final cuts 
                   if(plotHistograms_){

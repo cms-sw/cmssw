@@ -13,9 +13,9 @@ selcorMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
 
       # Preselection! 
@@ -54,9 +54,9 @@ selpfMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("pfMet"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"),
 
       # Preselection! 
@@ -96,9 +96,9 @@ seltcMet = cms.EDFilter("WMuNuSelector",
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("tcMet"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT8E29"),
+      #TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
+      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("tcMetWMuNus"),
 
       # Preselection! 
