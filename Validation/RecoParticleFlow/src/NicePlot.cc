@@ -43,7 +43,15 @@ Styles::Styles() {
 
   spblue = new Style();
   spblue->SetLineColor(4); 
-  spblue->SetLineWidth(2); 
+  spblue->SetLineWidth(2);
+
+  sgr1 = new Style();
+  sgr1->SetLineWidth(2);
+  sgr1->SetLineColor(2);
+
+  sgr2 = new Style(); 
+  sgr2->SetLineWidth(2);   
+  sgr2->SetLineColor(4);   
 }
 
 

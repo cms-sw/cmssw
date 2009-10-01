@@ -16,6 +16,8 @@ class Styles {
   Style *sback;
   Style *spred;
   Style *spblue;
+  Style *sgr1;
+  Style *sgr2;
 
   Styles();
 
