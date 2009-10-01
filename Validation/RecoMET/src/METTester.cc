@@ -70,8 +70,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   FolderName_              = iConfig.getUntrackedParameter<std::string>("FolderName");
 }
 
-//void METTester::beginJob(const edm::EventSetup& iSetup)
-//void METTester::beginJob()
+
 void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   // get ahold of back-end interface
@@ -167,10 +166,13 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET", 2000,-0.5,1999.5);
 	    me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
 	    me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",1000,-0.5,9999.5);
-	    me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",800,-0.5,3999.5);
-	    me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",800,-0.5,3999.5);
-	    me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",800,-0.5,3999.5);
-	    me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",800,-0.5,3999.5);    
+
+	    me["hNeutralEMEtFraction"]    = dbe_->book1D("METTask_GenNeutralEMEtFraction", "METTask_GenNeutralEMEtFraction", 120, 0.0, 1.2 );
+	    me["hNeutralHadEtFraction"]   = dbe_->book1D("METTask_GenNeutralHadEtFraction", "METTask_GenNeutralHadEtFraction", 120, 0.0, 1.2 );
+	    me["hChargedEMEtFraction"]    = dbe_->book1D("METTask_GenChargedEMEtFraction", "METTask_GenChargedEMEtFraction", 120, 0.0, 1.2);
+	    me["hChargedHadEtFraction"]   = dbe_->book1D("METTask_GenChargedHadEtFraction", "METTask_GenChargedHadEtFraction", 120, 0.0,1.2);
+	    me["hMuonEtFraction"]         = dbe_->book1D("METTask_GenMuonEtFraction", "METTask_GenMuonEtFraction", 120, 0.0, 1.2 );
+	    me["hInvisibleEtFraction"]    = dbe_->book1D("METTask_GenInvisibleEtFraction", "METTask_GenInvisibleEtFraction", 120, 0.0, 1.2 );
 	    
 	  }
 	else
@@ -183,10 +185,13 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	       me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
 	       me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
 	       me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",10001,0,10001);
-	       me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",4001,0,4001);
-	       me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",4001,0,4001);
-	       me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",4001,0,4001);
-	       me["hGenAuxiliaryEnergy"]     = dbe_->book1D("METTask_GenAuxiliaryEnergy","METTask_GenAuxiliaryEnergy",4001,0,4001);
+	       me["hNeutralEMEtFraction"]    = dbe_->book1D("METTask_GenNeutralEMEtFraction", "METTask_GenNeutralEMEtFraction", 120, 0.0, 1.2 );
+	       me["hNeutralHadEtFraction"]   = dbe_->book1D("METTask_GenNeutralHadEtFraction", "METTask_GenNeutralHadEtFraction", 120, 0.0, 1.2 );
+	       me["hChargedEMEtFraction"]    = dbe_->book1D("METTask_GenChargedEMEtFraction", "METTask_GenChargedEMEtFraction", 120, 0.0, 1.2);
+	       me["hChargedHadEtFraction"]   = dbe_->book1D("METTask_GenChargedHadEtFraction", "METTask_GenChargedHadEtFraction", 120, 0.0,1.2);
+	       me["hMuonEtFraction"]         = dbe_->book1D("METTask_GenMuonEtFraction", "METTask_GenMuonEtFraction", 120, 0.0, 1.2 );
+	       me["hInvisibleEtFraction"]    = dbe_->book1D("METTask_GenInvisibleEtFraction", "METTask_GenInvisibleEtFraction", 120, 0.0, 1.2 );
+
 	  }
       }
     else if (METType_ == "MET")
@@ -283,26 +288,26 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
 
 	    if( METType_ == "TCMET" ) {
-	      me["htrkPt"] = dbe_->book1D("METTASK_trackPt", "METTASK_trackPt", 50, 0, 500);
-	      me["htrkEta"] = dbe_->book1D("METTASK_trackEta", "METTASK_trackEta", 50, -2.5, 2.5);
-	      me["htrkNhits"] = dbe_->book1D("METTASK_trackNhits", "METTASK_trackNhits", 50, 0, 50);
-	      me["htrkChi2"] = dbe_->book1D("METTASK_trackNormalizedChi2", "METTASK_trackNormalizedChi2", 20, 0, 20);
-	      me["htrkD0"] = dbe_->book1D("METTASK_trackD0", "METTASK_trackd0", 50, -1, 1);
-	      me["helePt"] = dbe_->book1D("METTASK_electronPt", "METTASK_electronPt", 50, 0, 500);
-	      me["heleEta"] = dbe_->book1D("METTASK_electronEta", "METTASK_electronEta", 50, -2.5, 2.5);
-	      me["heleHoE"] = dbe_->book1D("METTASK_electronHoverE", "METTASK_electronHoverE", 25, 0, 0.5);
-	      me["hmuPt"] = dbe_->book1D("METTASK_muonPt", "METTASK_muonPt", 50, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTASK_muonEta", "METTASK_muonEta", 50, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTASK_muonNhits", "METTASK_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTASK_muonNormalizedChi2", "METTASK_muonNormalizedChi2", 20, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTASK_muonD0", "METTASK_muonD0", 50, -1, 1);
+	      me["htrkPt"] = dbe_->book1D("METTask_trackPt", "METTask_trackPt", 50, 0, 500);
+	      me["htrkEta"] = dbe_->book1D("METTask_trackEta", "METTask_trackEta", 50, -2.5, 2.5);
+	      me["htrkNhits"] = dbe_->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
+	      me["htrkChi2"] = dbe_->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 20, 0, 20);
+	      me["htrkD0"] = dbe_->book1D("METTask_trackD0", "METTask_trackd0", 50, -1, 1);
+	      me["helePt"] = dbe_->book1D("METTask_electronPt", "METTask_electronPt", 50, 0, 500);
+	      me["heleEta"] = dbe_->book1D("METTask_electronEta", "METTask_electronEta", 50, -2.5, 2.5);
+	      me["heleHoE"] = dbe_->book1D("METTask_electronHoverE", "METTask_electronHoverE", 25, 0, 0.5);
+	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
 	    }
 	    else if( METType_ == "corMetGlobalMuons" ) {
-	      me["hmuPt"] = dbe_->book1D("METTASK_muonPt", "METTASK_muonPt", 50, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTASK_muonEta", "METTASK_muonEta", 50, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTASK_muonNhits", "METTASK_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTASK_muonNormalizedChi2", "METTASK_muonNormalizedChi2", 20, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTASK_muonD0", "METTASK_muonD0", 50, -1, 1);
+	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 50, 0, 500);
+	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 50, -2.5, 2.5);
+	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 20, 0, 20);
+	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 50, -1, 1);
 	    }
 	  }
 	else
@@ -326,26 +331,26 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	    me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
 
 	    if( METType_ == "TCMET" ) {
-	      me["htrkPt"] = dbe_->book1D("METTASK_trackPt", "METTASK_trackPt", 250, 0, 500);
-	      me["htrkEta"] = dbe_->book1D("METTASK_trackEta", "METTASK_trackEta", 250, -2.5, 2.5);
-	      me["htrkNhits"] = dbe_->book1D("METTASK_trackNhits", "METTASK_trackNhits", 50, 0, 50);
-	      me["htrkChi2"] = dbe_->book1D("METTASK_trackNormalizedChi2", "METTASK_trackNormalizedChi2", 100, 0, 20);
-	      me["htrkD0"] = dbe_->book1D("METTASK_trackD0", "METTASK_trackd0", 200, -1, 1);
-	      me["helePt"] = dbe_->book1D("METTASK_electronPt", "METTASK_electronPt", 250, 0, 500);
-	      me["heleEta"] = dbe_->book1D("METTASK_electronEta", "METTASK_electronEta", 250, -2.5, 2.5);
-	      me["heleHoE"] = dbe_->book1D("METTASK_electronHoverE", "METTASK_electronHoverE", 100, 0, 0.5);
-	      me["hmuPt"] = dbe_->book1D("METTASK_muonPt", "METTASK_muonPt", 250, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTASK_muonEta", "METTASK_muonEta", 250, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTASK_muonNhits", "METTASK_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTASK_muonNormalizedChi2", "METTASK_muonNormalizedChi2", 100, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTASK_muonD0", "METTASK_muonD0", 200, -1, 1);
+	      me["htrkPt"] = dbe_->book1D("METTask_trackPt", "METTask_trackPt", 250, 0, 500);
+	      me["htrkEta"] = dbe_->book1D("METTask_trackEta", "METTask_trackEta", 250, -2.5, 2.5);
+	      me["htrkNhits"] = dbe_->book1D("METTask_trackNhits", "METTask_trackNhits", 50, 0, 50);
+	      me["htrkChi2"] = dbe_->book1D("METTask_trackNormalizedChi2", "METTask_trackNormalizedChi2", 100, 0, 20);
+	      me["htrkD0"] = dbe_->book1D("METTask_trackD0", "METTask_trackd0", 200, -1, 1);
+	      me["helePt"] = dbe_->book1D("METTask_electronPt", "METTask_electronPt", 250, 0, 500);
+	      me["heleEta"] = dbe_->book1D("METTask_electronEta", "METTask_electronEta", 250, -2.5, 2.5);
+	      me["heleHoE"] = dbe_->book1D("METTask_electronHoverE", "METTask_electronHoverE", 100, 0, 0.5);
+	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 250, 0, 500);
+	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 250, -2.5, 2.5);
+	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 100, 0, 20);
+	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 200, -1, 1);
 	    }
 	    else if( METType_ == "corMetGlobalMuons" ) {
-	      me["hmuPt"] = dbe_->book1D("METTASK_muonPt", "METTASK_muonPt", 250, 0, 500);
-	      me["hmuEta"] = dbe_->book1D("METTASK_muonEta", "METTASK_muonEta", 250, -2.5, 2.5);
-	      me["hmuNhits"] = dbe_->book1D("METTASK_muonNhits", "METTASK_muonNhits", 50, 0, 50);
-	      me["hmuChi2"] = dbe_->book1D("METTASK_muonNormalizedChi2", "METTASK_muonNormalizedChi2", 100, 0, 20);
-	      me["hmuD0"] = dbe_->book1D("METTASK_muonD0", "METTASK_muonD0", 200, -1, 1);
+	      me["hmuPt"] = dbe_->book1D("METTask_muonPt", "METTask_muonPt", 250, 0, 500);
+	      me["hmuEta"] = dbe_->book1D("METTask_muonEta", "METTask_muonEta", 250, -2.5, 2.5);
+	      me["hmuNhits"] = dbe_->book1D("METTask_muonNhits", "METTask_muonNhits", 50, 0, 50);
+	      me["hmuChi2"] = dbe_->book1D("METTask_muonNormalizedChi2", "METTask_muonNormalizedChi2", 100, 0, 20);
+	      me["hmuD0"] = dbe_->book1D("METTask_muonD0", "METTask_muonD0", 200, -1, 1);
 	    }
 	  }
 	
@@ -388,6 +393,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	const CaloMETCollection *calometcol = calo.product();
 	calomet = &(calometcol->front());
       }
+
+
       // ==========================================================
       // Reconstructed MET Information
       double caloSumET = calomet->sumEt();
@@ -487,11 +494,20 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double genMEy = genmet->py();
       double genMETPhi = genmet->phi();
       double genMETSig = genmet->mEtSig();
+      /*
       double genEmEnergy = genmet->emEnergy();
       double genHadEnergy = genmet->hadEnergy();
       double genInvisibleEnergy= genmet->invisibleEnergy();
       double genAuxiliaryEnergy= genmet->auxiliaryEnergy();
-      
+      */
+
+      double NeutralEMEtFraction = genmet->NeutralEMEtFraction() ;
+      double NeutralHadEtFraction = genmet->NeutralHadEtFraction() ;
+      double ChargedEMEtFraction = genmet->ChargedEMEtFraction () ;
+      double ChargedHadEtFraction = genmet->ChargedHadEtFraction();
+      double MuonEtFraction = genmet->MuonEtFraction() ;
+      double InvisibleEtFraction = genmet->InvisibleEtFraction() ;
+
       me["hNevents"]->Fill(0);
       me["hGenMEx"]->Fill(genMEx);
       me["hGenMEy"]->Fill(genMEy);
@@ -500,10 +516,14 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       me["hGenSumET"]->Fill(genSumET);
       me["hGenMETSig"]->Fill(genMETSig);
       //me["hGenEz"]->Fill(genEz);
-      me["hGenEmEnergy"]->Fill(genEmEnergy);
-      me["hGenHadEnergy"]->Fill(genHadEnergy);
-      me["hGenInvisibleEnergy"]->Fill(genInvisibleEnergy);
-      me["hGenAuxiliaryEnergy"]->Fill(genAuxiliaryEnergy);
+
+      me["hNeutralEMEtFraction"]->Fill( NeutralEMEtFraction );
+      me["hNeutralHadEtFraction"]->Fill( NeutralHadEtFraction );
+      me["hChargedEMEtFraction"]->Fill( ChargedEMEtFraction );
+      me["hChargedHadEtFraction"]->Fill( ChargedHadEtFraction );
+      me["hMuonEtFraction"]->Fill( MuonEtFraction );
+      me["hInvisibleEtFraction"]->Fill( InvisibleEtFraction );
+
       me["hNevents"]->Fill(0.5);
     }
   else if( METType_ == "PFMET")
