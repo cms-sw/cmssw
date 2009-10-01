@@ -117,7 +117,7 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
   if(hltConfig.init(triggerProcessName)){
     LogDebug("HLTriggerOfflineHeavyFlavor") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
   }else{
-    LogError("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
   }
   stringstream os;
   vector<string> triggerNames = hltConfig.triggerNames();
@@ -428,14 +428,15 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     double genDimuonEta = (genMuons[0].p4()+genMuons[secondMuon].p4()).eta();
     double genDimuonRap = (genMuons[0].p4()+genMuons[secondMuon].p4()).Rapidity();
     double genDimuonDR = deltaR<LeafCandidate,LeafCandidate>( genMuons[0], genMuons[secondMuon] );
+    bool highPt = genMuons[0].pt()>7. && genMuons[secondMuon].pt()>7;
     ME["genDimuon_genEtaPt"]->Fill( genDimuonEta, genDimuonPt );
     ME["genDimuon_genRapPt"]->Fill( genDimuonRap, genDimuonPt );
-    ME["genDimuon_genPtDR"]->Fill( genDimuonPt, genDimuonDR );
+    if(highPt) ME["genDimuon_genPtDR"]->Fill( genDimuonPt, genDimuonDR );
 //two global
     if(glob_gen[0]!=-1 && glob_gen[secondMuon]!=-1){
       ME["globDimuon_genEtaPt"]->Fill( genDimuonEta, genDimuonPt );
       ME["globDimuon_genRapPt"]->Fill( genDimuonRap, genDimuonPt );
-      ME["globDimuon_genPtDR"]->Fill( genDimuonPt, genDimuonDR );
+      if(highPt) ME["globDimuon_genPtDR"]->Fill( genDimuonPt, genDimuonDR );
       double globDimuonPt = (globMuons[glob_gen[0]].p4()+globMuons[glob_gen[secondMuon]].p4()).pt();
       double globDimuonEta = (globMuons[glob_gen[0]].p4()+globMuons[glob_gen[secondMuon]].p4()).eta();
       double globDimuonRap = (globMuons[glob_gen[0]].p4()+globMuons[glob_gen[secondMuon]].p4()).Rapidity();
@@ -443,15 +444,15 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       double globDimuonDRpos = deltaR<LeafCandidate,LeafCandidate>( globMuons_position[glob_gen[0]], globMuons_position[glob_gen[secondMuon]] );
       ME["globDimuon_recoEtaPt"]->Fill( globDimuonEta, globDimuonPt );
       ME["globDimuon_recoRapPt"]->Fill( globDimuonRap, globDimuonPt );
-      ME["globDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
-      ME["globDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
+      if(highPt) ME["globDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
+      if(highPt) ME["globDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
 //two filter objects    
       for(size_t f=0; f<filterNamesLevels.size(); f++){
         if(filt_glob[f][glob_gen[0]] != -1 && filt_glob[f][glob_gen[secondMuon]] != -1){
           ME[TString::Format("diFilt%dDimuon_recoEtaPt",f+1)]->Fill( globDimuonEta, globDimuonPt );
           ME[TString::Format("diFilt%dDimuon_recoRapPt",f+1)]->Fill( globDimuonRap, globDimuonPt );
-          ME[TString::Format("diFilt%dDimuon_recoPtDR",f+1)]->Fill( globDimuonPt, globDimuonDR );
-          ME[TString::Format("diFilt%dDimuon_recoPtDRpos",f+1)]->Fill( globDimuonPt, globDimuonDRpos );
+          if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDR",f+1)]->Fill( globDimuonPt, globDimuonDR );
+          if(highPt) ME[TString::Format("diFilt%dDimuon_recoPtDRpos",f+1)]->Fill( globDimuonPt, globDimuonDRpos );
         }else{
           break;
         }  
@@ -461,8 +462,8 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
         if(filt_glob[f][glob_gen[0]] != -1 || filt_glob[f][glob_gen[secondMuon]] != -1){
           ME[TString::Format("filt%dDimuon_recoEtaPt",f+1)]->Fill( globDimuonEta, globDimuonPt );
           ME[TString::Format("filt%dDimuon_recoRapPt",f+1)]->Fill( globDimuonRap, globDimuonPt );
-          ME[TString::Format("filt%dDimuon_recoPtDR",f+1)]->Fill( globDimuonPt, globDimuonDR );
-          ME[TString::Format("filt%dDimuon_recoPtDRpos",f+1)]->Fill( globDimuonPt, globDimuonDRpos );
+          if(highPt) ME[TString::Format("filt%dDimuon_recoPtDR",f+1)]->Fill( globDimuonPt, globDimuonDR );
+          if(highPt) ME[TString::Format("filt%dDimuon_recoPtDRpos",f+1)]->Fill( globDimuonPt, globDimuonDRpos );
         }else{
           break;
         }
@@ -471,22 +472,22 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       if(path_glob[glob_gen[0]] != -1 && path_glob[glob_gen[secondMuon]] != -1){
         ME["diPathDimuon_recoEtaPt"]->Fill( globDimuonEta, globDimuonPt );
         ME["diPathDimuon_recoRapPt"]->Fill( globDimuonRap, globDimuonPt );
-        ME["diPathDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
-        ME["diPathDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
+        if(highPt) ME["diPathDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
+        if(highPt) ME["diPathDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
       }
 //one path object
       if(path_glob[glob_gen[0]] != -1 || path_glob[glob_gen[secondMuon]] != -1){
         ME["pathDimuon_recoEtaPt"]->Fill( globDimuonEta, globDimuonPt );
         ME["pathDimuon_recoRapPt"]->Fill( globDimuonRap, globDimuonPt );
-        ME["pathDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
-        ME["pathDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
+        if(highPt) ME["pathDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
+        if(highPt) ME["pathDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
       }
 //trigger result
       if( triggerResults->accept( triggerNames.triggerIndex(triggerPathName) ) ){
         ME["resultDimuon_recoEtaPt"]->Fill( globDimuonEta, globDimuonPt );
         ME["resultDimuon_recoRapPt"]->Fill( globDimuonRap, globDimuonPt );
-        ME["resultDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
-        ME["resultDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
+        if(highPt) ME["resultDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
+        if(highPt) ME["resultDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
       }
     }
   }
