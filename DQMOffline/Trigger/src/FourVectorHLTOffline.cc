@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.42 2009/08/31 12:29:51 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.43 2009/08/31 21:17:33 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -1222,6 +1222,15 @@ void FourVectorHLTOffline::cleanDRMatchSet(mmset& tempSet)
  LogDebug("FourVectorHLTOffline") << "size of the set (before CLEANED)= " << tempSet.size() << " maps." << endl;
 
  if(tempSet.size() < 2) return;
+ if(tempSet.size() > 10) {
+
+   LogDebug("FourVectorHLTOffline") << "size of the set is too large.  It will be truncated to 10." << endl;
+	 mmset::iterator it = tempSet.begin();
+	 for (int i=0;i<10;i++) {	  it++; }
+	 tempSet.erase( it, tempSet.end());
+   LogDebug("FourVectorHLTOffline") << "size of the set is now = " << tempSet.size() << " maps." << endl;
+
+ }
  
  bool cleanedOneMap = false;
  
