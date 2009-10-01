@@ -1,6 +1,5 @@
 <use name=DQM/EcalCommon>
 <use name=OnlineDB/EcalCondDB>
-<lib name=DQMEcalCommonOnlineDB>
 <use name=DQMServices/Core>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/Framework>
