@@ -25,6 +25,7 @@
 #include "TH2F.h"
 #include <string>
 #include <TFile.h>
+#include <vector>
 
 
 class PFJetBenchmark;
@@ -80,6 +81,14 @@ class PFJetBenchmark {
   TH2F *hRHCALvsEta ; 
   TH2F *hRHONLvsEta ;
   TH2F *hRCHEvsEta ;
+  TH2F *hNCHvsEta;
+  TH2F* hNCH0vsEta;
+  TH2F* hNCH1vsEta;
+  TH2F* hNCH2vsEta;
+  TH2F* hNCH3vsEta;
+  TH2F* hNCH4vsEta;
+  TH2F* hNCH5vsEta;
+  TH2F* hNCH6vsEta;
 	
   // delta Pt or E quantities for Barrel
   TH1F *hBRPt;
@@ -112,6 +121,15 @@ class PFJetBenchmark {
   TH2F *hBRHONLvsP;
   TH2F *hBDEtavsPt;
   TH2F *hBDPhivsPt;
+  TH2F *hBNCHvsPt;
+  TH1F *hBNCH;
+  TH2F* hBNCH0vsPt;
+  TH2F* hBNCH1vsPt;
+  TH2F* hBNCH2vsPt;
+  TH2F* hBNCH3vsPt;
+  TH2F* hBNCH4vsPt;
+  TH2F* hBNCH5vsPt;
+  TH2F* hBNCH6vsPt;
 	
   // delta Pt or E quantities for Endcap
   TH1F *hERPt ;
@@ -144,6 +162,15 @@ class PFJetBenchmark {
   TH2F *hERHONLvsP;
   TH2F *hEDEtavsPt;
   TH2F *hEDPhivsPt;
+  TH2F *hENCHvsPt;
+  TH1F *hENCH;
+  TH2F* hENCH0vsPt;
+  TH2F* hENCH1vsPt;
+  TH2F* hENCH2vsPt;
+  TH2F* hENCH3vsPt;
+  TH2F* hENCH4vsPt;
+  TH2F* hENCH5vsPt;
+  TH2F* hENCH6vsPt;
 	
   // delta Pt or E quantities for Forward
   TH1F *hFRPt ;
@@ -176,6 +203,15 @@ class PFJetBenchmark {
   TH2F *hFRHONLvsP;
   TH2F *hFDEtavsPt;
   TH2F *hFDPhivsPt;
+  TH2F *hFNCHvsPt;
+  TH1F *hFNCH;
+  TH2F* hFNCH0vsPt;
+  TH2F* hFNCH1vsPt;
+  TH2F* hFNCH2vsPt;
+  TH2F* hFNCH3vsPt;
+  TH2F* hFNCH4vsPt;
+  TH2F* hFNCH5vsPt;
+  TH2F* hFNCH6vsPt;
 	
   std::string outputFile_;	
  protected:
