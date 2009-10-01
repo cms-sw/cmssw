@@ -1,6 +1,6 @@
 #! /bin/csh
 
-set RefRelease="CMSSW_3_2_2"
+set RefRelease="CMSSW_3_3_0_pre4"
 
 # Possible values are:
 # Reconstruction  : preforms reconstruction+validation + histograms comparison
@@ -20,11 +20,11 @@ set Mode="Comparison"
 set copyWWW="true"
 
 # set the histogram file name in Comparison mode
-set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_2_5-MC_31X_V5-v1__GEN-SIM-RECO.root"
+set histogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre5-MC_31X_V8-v1__GEN-SIM-RECO.root"
 
 #reference histogram file name
 #set refhistogramfile="DQM_V0001_R000000001__${RefRelease}__RelVal__Validation.root"
-set refhistogramfile="DQM_V0001_R000000001__MC_31X_V3__RelValSingleMuPt10__Validation.root"
+set refhistogramfile="DQM_V0001_R000000001__RelValSingleMuPt10__CMSSW_3_3_0_pre4-MC_31X_V8-v1__GEN-SIM-RECO.root"
 eval `scramv1 runtime -csh`
 
 setenv DATADIR $CMSSW_BASE/src
