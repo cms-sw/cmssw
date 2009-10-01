@@ -19,7 +19,7 @@ using namespace jpt;
 JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset ) 
   : verbose_( pset.getParameter<bool>("Verbose") ),
     vectorial_( pset.getParameter<bool>("VectorialCorrection") ),
-    vecTracks_( pset.getParameter<bool>("JetDirFromTracks") ),
+    vecResponse_( pset.getParameter<bool>("UseResponseInVecCorr") ),
     useInConeTracks_( pset.getParameter<bool>("UseInConeTracks") ),
     useOutOfConeTracks_( pset.getParameter<bool>("UseOutOfConeTracks") ),
     useOutOfVertexTracks_( pset.getParameter<bool>("UseOutOfVertexTracks") ),
@@ -38,7 +38,6 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
     response_( Map( pset.getParameter<std::string>("ResponseMap"), verbose_ ) ),
     efficiency_( Map( pset.getParameter<std::string>("EfficiencyMap"), verbose_ ) ),
     leakage_( Map( pset.getParameter<std::string>("LeakageMap"), verbose_ ) ),
-    eff_( response_, efficiency_, leakage_ ),
     pionMass_(0.140),
     muonMass_(0.105),
     elecMass_(0.000511)
@@ -69,8 +68,8 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
        << "  Muons                : " << muons_ << std::endl
        << "  Electrons            : " << electrons_ << std::endl
        << " Vectorial" << std::endl
-       << "  UseTracksAndReponse  : " << ( vectorial_ ? "true" : "false" ) << std::endl
-       << "  UseTracksOnly        : " << ( vecTracks_ ? "true" : "false" );
+       << "  UseTracksAndResponse : " << ( ( vectorial_ && vecResponse_ ) ? "true" : "false" ) << std::endl
+       << "  UseTracksOnly        : " << ( ( vectorial_ && !vecResponse_ ) ? "true" : "false" );
     LogDebug("JetPlusTrackCorrector") << ss.str();
     //std::cout << ss.str() << std::endl;
   }
@@ -131,7 +130,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
   if ( useElecs_ ) { corrected += elecCorrection( fJet.p4(), elecs ); }
 
   // Define jet direction using total 3-momentum of tracks (overrides above)
-  if ( vecTracks_ ) { corrected = jetDirFromTracks( corrected, pions, muons, elecs ); }
+  if ( vectorial_ && !vecResponse_ ) { corrected = jetDirFromTracks( corrected, pions, muons, elecs ); }
   
   // Check if corrected 4-momentum gives negative scale
   double scale = checkScale( fJet.p4(), corrected );
@@ -146,10 +145,10 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
     edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
   }
   
-//   std::cout << " mScale= " << scale
-// 	    << " NewResponse " << corrected.energy() 
-// 	    << " Jet energy " << fJet.energy()
-// 	    << " event " << event.id().event() << std::endl;
+  std::cout << " mScale= " << scale
+ 	    << " NewResponse " << corrected.energy() 
+ 	    << " Jet energy " << fJet.energy()
+ 	    << " event " << event.id().event() << std::endl;
   
   // Return energy correction
   return scale;
@@ -496,38 +495,46 @@ bool JetPlusTrackCorrector::tracksInCalo( const MatchedTracks& pions,
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet,
 								 const MatchedTracks& pions ) const {
-  
+
   P4 corr_pions;
-  
+
+  // In-cone
+
   P4 corr_pions_in_cone;
-  P4 corr_pions_out_of_cone;
-  P4 corr_pions_out_of_vertex;
-
   P4 corr_pions_eff_in_cone;
-  P4 corr_pions_eff_out_of_cone;
-
-  // Corrections with pions 
+  Efficiency in_cone( responseMap(), efficiencyMap(), leakageMap() );
 
   if ( useInConeTracks_ ) { 
-    corr_pions_in_cone = pionCorrection( jet, pions.inVertexInCalo_, true, true ); 
+    corr_pions_in_cone = pionCorrection( jet, pions.inVertexInCalo_, in_cone, true, true ); 
     corr_pions += corr_pions_in_cone;
     if ( useEff_ ) {
-      corr_pions_eff_in_cone = pionEfficiency( jet, true );
+      corr_pions_eff_in_cone = pionEfficiency( jet, in_cone, true );
       corr_pions += corr_pions_eff_in_cone;
     }
   }
+
+  // Out-of-cone
+
+  P4 corr_pions_out_of_cone;
+  P4 corr_pions_eff_out_of_cone;
+  Efficiency out_of_cone( responseMap(), efficiencyMap(), leakageMap() );
   
   if ( useOutOfConeTracks_ ) {
-    corr_pions_out_of_cone = pionCorrection( jet, pions.inVertexOutOfCalo_, true, false );
+    corr_pions_out_of_cone = pionCorrection( jet, pions.inVertexOutOfCalo_, out_of_cone, true, false );
     corr_pions += corr_pions_out_of_cone;
     if ( useEff_ ) {
-      corr_pions_eff_out_of_cone = pionEfficiency( jet, false );
+      corr_pions_eff_out_of_cone = pionEfficiency( jet, out_of_cone, false );
       corr_pions += corr_pions_eff_out_of_cone;
     }
   }
+
+  // Out-of-vertex
+
+  P4 corr_pions_out_of_vertex;
+  Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
   
   if ( useOutOfVertexTracks_ ) {
-    corr_pions_out_of_vertex = pionCorrection( jet, pions.outOfVertexInCalo_, false, true );
+    corr_pions_out_of_vertex = pionCorrection( jet, pions.outOfVertexInCalo_, not_used, false, true );
     corr_pions += corr_pions_out_of_vertex;
   }
     
@@ -629,7 +636,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator itrk = pions.inVertexInCalo_.begin();
     TrackRefs::iterator jtrk = pions.inVertexInCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
-      if ( (*itrk)->pt() >= 50. ) { continue; }
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
     }
@@ -639,7 +645,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator itrk = pions.inVertexOutOfCalo_.begin();
     TrackRefs::iterator jtrk = pions.inVertexOutOfCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
-      if ( (*itrk)->pt() >= 50. ) { continue; }
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
     }
@@ -651,7 +656,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator itrk = muons.inVertexInCalo_.begin();
     TrackRefs::iterator jtrk = muons.inVertexInCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
-      if ( (*itrk)->pt() >= 50. ) { continue; }
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
     }
@@ -661,7 +665,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator itrk = muons.inVertexOutOfCalo_.begin();
     TrackRefs::iterator jtrk = muons.inVertexOutOfCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
-      if ( (*itrk)->pt() >= 50. ) { continue; }
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
     }
@@ -673,7 +676,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator itrk = elecs.inVertexInCalo_.begin();
     TrackRefs::iterator jtrk = elecs.inVertexInCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
-      if ( (*itrk)->pt() >= 50. ) { continue; }
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
     }
@@ -683,7 +685,6 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator itrk = elecs.inVertexOutOfCalo_.begin();
     TrackRefs::iterator jtrk = elecs.inVertexOutOfCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
-      if ( (*itrk)->pt() >= 50. ) { continue; }
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
       tracks_present = true;
     }
@@ -701,17 +702,18 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
 								const TrackRefs& tracks, 
+								jpt::Efficiency& eff,
 								bool in_cone_at_vertex,
 								bool in_cone_at_calo_face,
 								double mass, 
-								bool is_mip,
+								bool is_pion,
 								double mip ) const { 
 
   // Correction to be applied to jet 4-momentum
   P4 correction;
 
   // Reset efficiency container
-  eff_.reset();
+  eff.reset();
   
   // Iterate through tracks
   if ( !tracks.empty() ) {
@@ -720,11 +722,11 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
     for ( ; itrk != jtrk; ++itrk ) {
 
       // Ignore high-pt tracks (only when in-cone and not a mip)
-      if ( in_cone_at_calo_face && !is_mip && (*itrk)->pt() >= 50. ) { continue; }
+      if ( in_cone_at_calo_face && is_pion && (*itrk)->pt() >= 50. ) { continue; }
       
       // Inner track 4-momentum
       P4 inner;
-      if ( vectorialCorrection() ) {
+      if ( vectorial_ && vecResponse_ ) {
 	inner = PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), mass );
       } else { 
 	double energy = sqrt( (*itrk)->px() * (*itrk)->px() + 
@@ -744,12 +746,12 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
       uint32_t ipt = response_.ptBin( pt );
 
       // Check bins (not for mips)
-      if ( !is_mip && ( ieta == response_.nEtaBins() || ipt == response_.nPtBins() ) ) { continue; }
+      if ( is_pion && ( ieta == response_.nEtaBins() || ipt == response_.nPtBins() ) ) { continue; }
       
       // Outer track 4-momentum 
       P4 outer;
       if ( in_cone_at_calo_face ) { 
-	if ( vectorialCorrection() ) {
+	if ( vectorial_ && vecResponse_ ) {
 	  // Build 4-momentum from outer track (SHOULD USE IMPACT POINT?!)
 	  double outer_pt  = (*itrk)->pt();
 	  double outer_eta = (*itrk)->eta();
@@ -761,19 +763,19 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
 	  }
 	  outer = PtEtaPhiM( outer_pt, outer_eta, outer_phi, mass );
 	  // Check if mip or not
-	  if ( is_mip ) { outer *= ( outer.energy() > 0. ? mip / outer.energy() : 1. ); } //@@ Scale to mip energy
+	  if ( !is_pion ) { outer *= ( outer.energy() > 0. ? mip / outer.energy() : 1. ); } //@@ Scale to mip energy
 	  else { outer *= ( outer.energy() > 0. ? inner.energy() / outer.energy() : 1. ); } //@@ Scale to inner track energy
 	} else {
 	  // Check if mip or not
-	  if ( is_mip ) { outer = ( jet.energy() > 0. ? mip / jet.energy() : 1. ) * jet; } //@@ Jet 4-mom scaled by mip energy
+	  if ( !is_pion ) { outer = ( jet.energy() > 0. ? mip / jet.energy() : 1. ) * jet; } //@@ Jet 4-mom scaled by mip energy
 	  else { outer = inner; } //@@ Set to inner track 4-momentum
 	}      
-	if ( !is_mip ) { outer *= response_.value(ieta,ipt); } //@@ Scale by pion response
+	if ( is_pion ) { outer *= response_.value(ieta,ipt); } //@@ Scale by pion response
 	correction -= outer; //@@ Subtract 
       }
       
       // Record inner track energy for pion efficiency correction
-      if ( !is_mip ) { eff_.addE( ieta, ipt, inner.energy() ); }
+      if ( is_pion ) { eff.addE( ieta, ipt, inner.energy() ); }
 	
       // Debug
       if ( verbose_ && edm::isDebugEnabled() ) {
@@ -800,6 +802,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
 // -----------------------------------------------------------------------------
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionEfficiency( const P4& jet,
+								 const Efficiency& eff,
 								 bool in_cone_at_calo_face ) const { 
   
   // Total correction to be applied
@@ -810,19 +813,19 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionEfficiency( const P4& jet,
     for ( uint32_t ipt = 0; ipt < response_.nPtBins()-1; ++ipt ) {
 
       // Check tracks are found in this eta/pt bin
-      if ( !eff_.nTrks(ieta,ipt) ) { continue; }
+      if ( !eff.nTrks(ieta,ipt) ) { continue; }
 
       for ( uint16_t ii = 0; ii < 2; ++ii  ) {
 	
 	// Check which correction should be applied
 	double corr = 0.;
-	if ( ii == 0 )                              { corr = eff_.outOfConeCorr( ieta, ipt ); }
-	else if ( ii == 1 && in_cone_at_calo_face ) { corr = eff_.inConeCorr( ieta, ipt ); }
+	if ( ii == 0 )                              { corr = eff.outOfConeCorr( ieta, ipt ); }
+	else if ( ii == 1 && in_cone_at_calo_face ) { corr = eff.inConeCorr( ieta, ipt ); }
 	else                                        { continue; }
 
 	// Calculate correction to be applied	
 	P4 corr_p4;
-	if ( vectorialCorrection() ) {
+	if ( vectorial_ && vecResponse_ ) {
 	  double corr_eta = response_.binCenterEta(ieta);
 	  double corr_phi = jet.phi(); //@@ jet phi!
 	  double corr_pt  = response_.binCenterPt(ipt);
@@ -1276,14 +1279,6 @@ Efficiency::Efficiency( const jpt::Map& response,
 {
   reset();
 }
-
-// -----------------------------------------------------------------------------
-//
-Efficiency::Efficiency() 
-  : response_(),
-    efficiency_(),
-    leakage_()
-{;}
 
 // -----------------------------------------------------------------------------
 //
