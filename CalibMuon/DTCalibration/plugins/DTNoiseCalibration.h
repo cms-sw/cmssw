@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2008/08/19 13:33:23 $
- * $Revision: 1.4 $
+ * $Date: 2008/12/09 22:44:10 $
+ * $Revision: 1.5 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -40,8 +40,7 @@ class DTNoiseCalibration: public edm::EDAnalyzer{
   /// Destructor
   virtual ~DTNoiseCalibration();
 
-  /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
  
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -70,6 +69,9 @@ private:
   float tTrig;
   float tTrigRMS;
   float kFactor;
+
+  // The label used to retrieve digis from the event
+  std::string digiLabel;
 
   edm::ParameterSet parameters;
 

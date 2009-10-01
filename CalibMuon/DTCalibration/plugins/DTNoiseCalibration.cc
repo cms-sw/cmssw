@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/12/09 22:44:10 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,6 +48,9 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
   // Get the debug parameter for verbose output
   debug = ps.getUntrackedParameter<bool>("debug");
 
+  // Get the label to retrieve digis from the event
+  digiLabel = ps.getUntrackedParameter<string>("digiLabel");
+
   // The analysis type
   fastAnalysis = ps.getUntrackedParameter<bool>("fastAnalysis", true);
   // The wheel & sector interested for the time-dependent analysis
@@ -69,19 +72,18 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
 
 }
 
-
-void DTNoiseCalibration::beginJob(const edm::EventSetup& context){
+void DTNoiseCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup ) {
 
   cout <<"[DTNoiseCalibration]: BeginJob"<<endl; 
   nevents = 0;
   counter = 0;
 
   // Get the DT Geometry
-  context.get<MuonGeometryRecord>().get(dtGeom);
+  setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // tTrig 
   if (parameters.getUntrackedParameter<bool>("readDB", true)) 
-    context.get<DTTtrigRcd>().get(tTrigMap);
+    setup.get<DTTtrigRcd>().get(tTrigMap);
 
   // TDC time distribution
   int numBin = (TriggerWidth*(32/25))/50;
@@ -91,14 +93,13 @@ void DTNoiseCalibration::beginJob(const edm::EventSetup& context){
 
 
 void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& context){
-
   nevents++;
   if(debug)
     cout<<"nevents: "<<nevents<<endl;
   
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
+  e.getByLabel(digiLabel, dtdigis);
 
   TH1F *hOccupancyHisto;
   TH2F *hEvtPerWireH;
@@ -131,11 +132,11 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
       if ( parameters.getUntrackedParameter<bool>("readDB", true) ) {
 	tTrigMap->get( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
 
-	upperLimit = tTrig-500;
+	upperLimit = tTrig-100;
       }
       else { 
 	tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
-	upperLimit = tTrig-500;
+	upperLimit = tTrig-100;
       }
 	
       if((cosmicRun && (*digiIt).countsTDC()<upperLimit) || (!cosmicRun) ){
@@ -275,7 +276,7 @@ void DTNoiseCalibration::endJob(){
 	tTrigMap->get( ((*lHisto).first).superlayerId(), tTrig, tTrigRMS, kFactor,
 		     DTTimeUnits::counts );
      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
-      double TriggerWidth_ns = ((tTrig-500)*25)/32;
+      double TriggerWidth_ns = ((tTrig-100)*25)/32;
       TriggerWidth_s = TriggerWidth_ns/1e9;
     }
     if(!cosmicRun)
