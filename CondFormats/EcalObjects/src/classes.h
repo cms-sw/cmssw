@@ -99,7 +99,7 @@ namespace{
  
     EcalTPGPedestals tpgpedmap;
  
-    EcalTPGWeights weights;
+    EcalTPGWeights weightsweights;
     std::map<uint32_t, EcalTPGWeights> EcalTPGWeightMap;
     std::pair<const uint32_t, EcalTPGWeights> EcalTPGWeightMap_valuetype;
  
@@ -123,6 +123,10 @@ namespace{
     std::map< uint32_t, EcalTPGPhysicsConst::Item >  phConst;
     std::pair< const uint32_t, EcalTPGPhysicsConst::Item >  phConst_valuetype;
  
+    EcalTPGTowerStatus towerstatus;
+    std::map< uint32_t, uint16_t > tStatus;
+    std::pair< const uint32_t, uint16_t > tStatus_valuetype;
+    
     EcalTPGCrystalStatus tpgCrystalStatus;
   };
 }
