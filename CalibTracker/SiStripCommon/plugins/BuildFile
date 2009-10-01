@@ -3,6 +3,7 @@
 <use name=SimTracker/TrackAssociation>
 <use name=TrackingTools/TrackFitters>
 <use name=CalibTracker/SiStripCommon>
+<use name=Geometry/TrackerGeometryBuilder>
 <library file="*.cc" name=CalibTrackerSiStripCommonPlugins>
 <flags EDM_PLUGIN=1>
 </library>
