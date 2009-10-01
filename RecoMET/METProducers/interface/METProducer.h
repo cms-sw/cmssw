@@ -50,8 +50,16 @@ namespace cms
       std::string inputType;
       std::string METtype;
       std::string alias;
+
+      //Use HF in CaloMET calculation?
       bool noHF;
+      
+      //Use an Et threshold on all of the objects in the CaloMET calculation?
       double globalThreshold;
+
+      //Use only fiducial GenParticles in GenMET calculation? 
+      bool onlyFiducial; 
+
 
       //Temporary implementation of response function for Track Corrected MET
       //TH2D *responseFunction_;  
