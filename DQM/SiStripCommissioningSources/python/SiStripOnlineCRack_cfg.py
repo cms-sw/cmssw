@@ -50,7 +50,7 @@ process.p1 = cms.Path(
 # reco inclusion ; cleanup? // was: I'd love to include less, but I fail...
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 # geometry
-process.load('DQM.SiStripCommissioningSources.P5Geometry_cff')
+process.load('DQM.SiStripCommissioningSources.CRackGeometry_cff')
 # magnetic field (0T by default)
 process.load('MagneticField.Engine.uniformMagneticField_cfi')
 
@@ -113,10 +113,10 @@ process.siStripClusters.DigiProducersList = cms.VInputTag(
 process.load('RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi')
 
 # find the seeds
-process.load('DQM.SiStripCommissioningSources.P5SeedGenerator_cff')
+process.load('DQM.SiStripCommissioningSources.CRackSeedGenerator_cff')
 
 # reconstruct track candidates
-process.load('DQM.SiStripCommissioningSources.P5CosmicCandidateFinder_cff')
+process.load('DQM.SiStripCommissioningSources.CRackCosmicCandidateFinder_cff')
 
 # reconstruct tracks
 process.load('RecoTracker.TrackProducer.TrackProducer_cfi')

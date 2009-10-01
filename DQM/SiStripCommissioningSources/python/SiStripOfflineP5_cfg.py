@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # process declaration
-process = cms.Process('SiStripOnline')
+process = cms.Process('SiStripOffline')
 
 
 #############################################
@@ -9,16 +9,18 @@ process = cms.Process('SiStripOnline')
 #############################################
 
 # message logger
-process.load('DQM.SiStripCommissioningSources.OnlineMessageLogger_cff')
+process.load('DQM.SiStripCommissioningSources.OfflineMessageLogger_cff')
 
 # DQM service
-process.load('DQM.SiStripCommissioningSources.OnlineDQM_cff')
+process.load('DQM.SiStripCommissioningSources.OfflineDQM_cff')
 
 # config db settings
-process.load('DQM.SiStripCommissioningSources.OnlineSiStripConfigDb_cff')
+process.load('DQM.SiStripCommissioningSources.OfflineSiStripConfigDb_cff')
+process.SiStripConfigDb.Partitions.PrimaryPartition.PartitionName = 'DBPART'
+process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER
 
 # input source
-process.load('DQM.SiStripCommissioningSources.OnlineSource_cfi')
+process.load('DQM.SiStripCommissioningSources.OfflineSource_cfi')
 
 
 ##############################################
@@ -155,8 +157,8 @@ process.p2 = cms.Path(
 # output
 #############################################
 
-process.load('DQM.SiStripCommissioningSources.OnlineOutput_cfi')
-process.outpath = cms.EndPath( process.consumer )
+#process.load('DQM.SiStripCommissioningSources.OfflineOutput_cfi')
+#process.outpath = cms.EndPath( process.consumer )
 
 
 #############################################
