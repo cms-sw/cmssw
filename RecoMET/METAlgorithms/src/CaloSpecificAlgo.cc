@@ -53,36 +53,14 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 
   if( towers->size() == 0 )  // if there are no towers, return specific = 0
     {
-   //   LogDebug("CaloMET") << "Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " ;
+      //   LogDebug("CaloMET") << "Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " ;
       const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
       const Point vtx( 0.0, 0.0, 0.0 );
       CaloMET specificmet( specific, met.sumet, p4, vtx );
       return specificmet;
     }
-  /*
-  //retreive calo tower information from candidates
-  //start with the first element of the candidate list
-  CandidateCollection::const_iterator tower = towers->begin();
-  //get the EDM references to the CaloTowers from the candidate list
-  edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
-  */
-  
-  /*
-  edm::Ref<CaloTowerCollection> towerRef = towers->begin()->get<CaloTowerRef>();
-  //finally instantiate now, a list of pointers to the CaloTowers
-  const CaloTowerCollection *towerCollection = towerRef.product();
-  //iterate over all CaloTowers and record information
-  CaloTowerCollection::const_iterator calotower = towerCollection->begin();
-  */
-
-  //edm::Ref<CaloTowerCollection> towerRef = towers->begin();
-  //finally instantiate now, a list of pointers to the CaloTowers
-  //const CaloTowerCollection *towerCollection = towerRef.product();
-  //iterate over all CaloTowers and record information
-  //CaloTowerCollection::const_iterator calotower = towerCollection->begin();
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
-
   for( ; towerCand != towers->end(); towerCand++ ) 
     {
       const Candidate* candidate = &(*towerCand);
@@ -197,7 +175,8 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   specific.EtFractionHadronic = totalHad / totalEt; 
   specific.EtFractionEm       =  totalEm / totalEt;       
 
-  const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
+  //  const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
+  const LorentzVector p4( met.mex, met.mey, met.mez, sqrt(met.met*met.met + met.mez+met.mez ));
   const Point vtx( 0.0, 0.0, 0.0 );
   // Create and return an object of type CaloMET, which is a MET object with 
   // the extra calorimeter specfic information added
