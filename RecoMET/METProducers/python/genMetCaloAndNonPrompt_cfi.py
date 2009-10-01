@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-# File: GenMET.cff
-# Author: R. Cavanaugh
-# Date: 08.08.2006
+# File: genMetCaloAndNonPrompt.cff
+# Author: R. Remington
 #
 # Form Missing ET from Generator Information and store into event as a GenMET
-# product.  Exclude calo invisible final state particles like neutrinos, muons
+# product.  Exclude calo invisible, non-resonant, final state particles like neutrinos, muons
 genMetCaloAndNonPrompt = cms.EDProducer("METProducer",
     src = cms.InputTag("genParticlesForJets"), ## Input  product label		  
 
@@ -13,7 +12,7 @@ genMetCaloAndNonPrompt = cms.EDProducer("METProducer",
 
     alias = cms.string('GenMETCaloAndNonPrompt'), ## Alias  for FWLite		  
 
-    noHF = cms.bool(False), ## do not exclude HF
+    onlyFiducialParticles = cms.bool(True), ## use only fiducial GenParticles
 
     globalThreshold = cms.double(0.0), ## Global Threshold for input objects
 
