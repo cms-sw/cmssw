@@ -12,6 +12,8 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),cms.InputTag('simHcalUnsuppressedDigis')),
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
     ZS_threshold = cms.uint32(1), ## threshold for setting fine grain bit
+    MinSignalThreshold = cms.uint32(0), # For HF PMT veto
+    PMTNoiseThreshold = cms.uint32(0), # For HF PMT veto
     RunZS = cms.untracked.bool(False),
     FrontEndFormatError = cms.untracked.bool(False) # Front End Format Error, for real data only
 )
