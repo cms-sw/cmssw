@@ -1,4 +1,4 @@
-// $Id: testMakeCompositeCandidate.cc,v 1.2 2008/03/13 13:13:27 llista Exp $
+// $Id: testMakeCompositeCandidate.cc,v 1.1 2009/02/26 09:17:35 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "CommonTools/CandUtils/interface/makeCompositeCandidate.h"
@@ -27,7 +27,6 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testMakeCompositeCandidate);
 
 void testMakeCompositeCandidate::checkAll() {
-
   reco::Particle::LorentzVector p1( 1.0, 2.0, 3.0, 4.0 ), p2( 1.5, 2.5, 3.5, 4.5 );
   reco::Particle::Charge q1( 1 ), q2( -1 );
   test::DummyCandidate t1( p1, q1 );
@@ -48,6 +47,10 @@ void testMakeCompositeCandidate::checkAll() {
   CPPUNIT_ASSERT( fabs(d[1]->p4().eta() - p2.eta()) < epsilon );
   CPPUNIT_ASSERT( fabs(d[1]->p4().phi() - p2.phi()) < epsilon );
 
+  reco::Particle::LorentzVector ptot = p1 + p2;
+  CPPUNIT_ASSERT( fabs(cmp->pt() - ptot.pt()) < epsilon );
+  CPPUNIT_ASSERT( fabs(cmp->eta() - ptot.eta()) < epsilon );
+  CPPUNIT_ASSERT( fabs(cmp->phi() - ptot.phi()) < epsilon );
 
   auto_ptr<Candidate> cmp3 = makeCompositeCandidate( t1, t2, t1 )[ AddFourMomenta() ];  
   auto_ptr<Candidate> cmp4 = makeCompositeCandidate( t1, t2, t1, t2 )[ AddFourMomenta() ];  
