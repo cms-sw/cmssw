@@ -15,7 +15,7 @@ exoticaMuOutputModule = cms.OutputModule("PoolOutputModule",
   )
 
 
-#default output contentAODSIMEventContent
+#default output contentRECOSIMEventContent
 exoticaMuOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands)
 
 #add specific content you need. 

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 exoticaMuHLT = hltHighLevel
 #Define the HLT path to be used.
-exoticaMuHLT.HLTPaths =['HLT_Mu5']
+exoticaMuHLT.HLTPaths =['HLT_Mu9']
 
 #Define the HLT quality cut 
 exoticaHLTMuonFilter = cms.EDFilter("HLTSummaryFilter",
