@@ -65,7 +65,7 @@ process.JPTCorrectorIC5CaloNone.UseEfficiency        = cms.bool(False)
 process.JPTCorrectorIC5CaloNone.UseMuons             = cms.bool(False)
 process.JPTCorrectorIC5CaloNone.UseElectrons         = cms.bool(False)
 process.JPTCorrectorIC5CaloNone.VectorialCorrection  = cms.bool(False)
-process.JPTCorrectorIC5CaloNone.JetDirFromTracks     = cms.bool(False)
+process.JPTCorrectorIC5CaloNone.UseResponseInVecCorr = cms.bool(False)
 
 process.JPTCorJetIC5CaloNone = process.JPTCorJetIC5CaloDefault.clone()
 process.JPTCorJetIC5CaloNone.correctors = cms.vstring('JPTCorrectorIC5CaloNone')
@@ -133,28 +133,27 @@ process.JPTCorJetIC5CaloElectrons.alias = cms.untracked.string('JPTCorJetIC5Calo
 
 # + VectorialCorrection
 
-process.JPTCorrectorIC5CaloVectorial = process.JPTCorrectorIC5CaloElectrons.clone()
-process.JPTCorrectorIC5CaloVectorial.label = cms.string('JPTCorrectorIC5CaloVectorial')
-process.JPTCorrectorIC5CaloVectorial.VectorialCorrection = cms.bool(True)
-
-process.JPTCorJetIC5CaloVectorial = process.JPTCorJetIC5CaloElectrons.clone()
-process.JPTCorJetIC5CaloVectorial.correctors = cms.vstring('JPTCorrectorIC5CaloVectorial')
-process.JPTCorJetIC5CaloVectorial.alias = cms.untracked.string('JPTCorJetIC5CaloVectorial')
-
-# + JetDirFromTracks
-
-process.JPTCorrectorIC5CaloVecTracks = process.JPTCorrectorIC5CaloVectorial.clone()
+process.JPTCorrectorIC5CaloVecTracks = process.JPTCorrectorIC5CaloElectrons.clone()
 process.JPTCorrectorIC5CaloVecTracks.label = cms.string('JPTCorrectorIC5CaloVecTracks')
-process.JPTCorrectorIC5CaloVecTracks.JetDirFromTracks = cms.bool(True)
+process.JPTCorrectorIC5CaloVecTracks.VectorialCorrection = cms.bool(True)
 
-process.JPTCorJetIC5CaloVecTracks = process.JPTCorJetIC5CaloVectorial.clone()
+process.JPTCorJetIC5CaloVecTracks = process.JPTCorJetIC5CaloElectrons.clone()
 process.JPTCorJetIC5CaloVecTracks.correctors = cms.vstring('JPTCorrectorIC5CaloVecTracks')
 process.JPTCorJetIC5CaloVecTracks.alias = cms.untracked.string('JPTCorJetIC5CaloVecTracks')
+
+# + UseResponseInVecCorr
+
+process.JPTCorrectorIC5CaloVecResponse = process.JPTCorrectorIC5CaloVecTracks.clone()
+process.JPTCorrectorIC5CaloVecResponse.label = cms.string('JPTCorrectorIC5CaloVecResponse')
+process.JPTCorrectorIC5CaloVecResponse.UseResponseInVecCorr = cms.bool(True)
+
+process.JPTCorJetIC5CaloVecResponse = process.JPTCorJetIC5CaloVecTracks.clone()
+process.JPTCorJetIC5CaloVecResponse.correctors = cms.vstring('JPTCorrectorIC5CaloVecResponse')
+process.JPTCorJetIC5CaloVecResponse.alias = cms.untracked.string('JPTCorJetIC5CaloVecResponse')
 
 # Sequences
 
 process.JPTValidation = cms.Sequence(
-    process.JPTCorJetIC5CaloDefault *
     process.JPTCorJetIC5CaloNone *
     process.JPTCorJetIC5CaloInCone *
     process.JPTCorJetIC5CaloOutOfCone *
@@ -162,8 +161,8 @@ process.JPTValidation = cms.Sequence(
     process.JPTCorJetIC5CaloPionEff *
     process.JPTCorJetIC5CaloMuons *
     process.JPTCorJetIC5CaloElectrons * 
-    process.JPTCorJetIC5CaloVectorial *
-    process.JPTCorJetIC5CaloVecTracks 
+    process.JPTCorJetIC5CaloVecTracks *
+    process.JPTCorJetIC5CaloVecResponse 
     )
 
 # -------------------- JPT from PAT --------------------
@@ -181,11 +180,12 @@ process.JTA = cms.Sequence(
     )
 
 process.p = cms.Path(
-    process.ZSPJetCorJetIcone5 * # ZSP corrections
-    process.JTA *                # Jet-tracks association
-    process.JPTValidation *      # All flavours of JPT corrections from RECO
-    process.patDefaultSequence * # PAT sequence (slow!)
-    process.PatJPTCorrectionsIC5 # JPT corrections from PAT
+    process.ZSPJetCorJetIcone5 *      # ZSP corrections
+    process.JTA *                     # Jet-tracks association
+    process.JPTCorJetIC5CaloDefault * # Default JPT corrections from RECO
+    process.JPTValidation *           # All flavours of JPT corrections from RECO
+    process.patDefaultSequence *      # PAT sequence (slow!)
+    process.PatJPTCorrectionsIC5      # JPT corrections from PAT
     )
 
 process.o = cms.OutputModule(
