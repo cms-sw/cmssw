@@ -33,7 +33,7 @@ void Comparator::SetDirs( const char* file0,
 void Comparator::SetStyles( Style* s0, 
 		  Style* s1,
 		  const char* leg0,
-		  const char* leg1) { 
+		  const char* leg1) {
   s0_ = s0; 
   s1_ = s1;
   
@@ -80,68 +80,25 @@ void Comparator::DrawSlice( const char* key,
   Draw( h0_slice, h1_slice, mode);        
 }
 
+void Comparator::DrawMeanSlice(const char* key, const int rebinFactor, Mode mode)
+{
+  TDirectory* dir = dir1_;
+  dir->cd();
+  TH2D *h2 = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Ana(h2);
+  TH2Ana.Eval(rebinFactor);
+  TH1D* ha=TH2Ana.Average();
 
+  dir = dir0_;
+  dir->cd();
+  TH2D *h2b = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Anab(h2b);
+  TH2Anab.Eval(rebinFactor);
+  TH1D* hb=TH2Anab.Average();
 
-//void Comparator::DrawMeanSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//			       const unsigned int nbin, const double Ymin, const double Ymax,
-//			       const std::string title, const std::string binning_option)
-//{
-//  TDirectory* dir = dir1_;
-//  dir->cd();
-//  //gStyle->SetOptStat("");
-//  TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
-//  TH1D* meanslice = new TH1D("meanslice","MeanSlice",nbin,binxmin,binxmax);
-//  h2->MeanSlice(meanslice,binxmin,binxmax,nbin,binning_option);
-//  meanslice->SetTitle(title.c_str());
-//  meanslice->SetMaximum(Ymax);
-//  meanslice->SetMinimum(Ymin);
-//  meanslice->SetMarkerStyle(21);
-//  meanslice->SetMarkerColor(4);
-//  meanslice->Draw("E1");
-//
-//  dir = dir0_;
-//  dir->cd();
-//  TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
-//  TH1D* meanslice2 = new TH1D("meanslice2","MeanSlice",nbin,binxmin,binxmax);
-//  h2b->MeanSlice(meanslice2,binxmin,binxmax,nbin,binning_option);
-//  meanslice2->SetTitle(title.c_str());
-//  meanslice2->SetMaximum(Ymax);
-//  meanslice2->SetMinimum(Ymin);
-//  meanslice2->SetMarkerStyle(21);
-//  meanslice2->SetMarkerColor(2);
-//  meanslice2->Draw("E1same");
-//}
-//
-//void Comparator::DrawSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//				const unsigned int nbin, const double Ymin, const double Ymax,
-//				const std::string title, const std::string binning_option)
-//{
-//  TDirectory* dir = dir1_;
-//  dir->cd();
-//  gStyle->SetOptStat("");
-//  TH2Analyzer *h2 = (TH2Analyzer*) dir->Get(key);
-//  TH1D* sigmaslice = new TH1D("sigmaslice","Sigmaslice",nbin,binxmin,binxmax);
-//  h2->SigmaSlice(sigmaslice,binxmin,binxmax,nbin,binning_option);
-//  sigmaslice->SetTitle(title.c_str());
-//  sigmaslice->SetMaximum(Ymax);
-//  sigmaslice->SetMinimum(Ymin);
-//  sigmaslice->SetMarkerStyle(21);
-//  sigmaslice->SetMarkerColor(4);
-//  sigmaslice->Draw("E1");
-//
-//  dir = dir0_;
-//  dir->cd();
-//  TH2Analyzer *h2b = (TH2Analyzer*) dir->Get(key);
-//  TH1D* sigmaslice2 = new TH1D("sigmaslice2","Sigmaslice",nbin,binxmin,binxmax);
-//  h2b->SigmaSlice(sigmaslice2,binxmin,binxmax,nbin,binning_option);
-//  sigmaslice2->SetTitle(title.c_str());
-//  sigmaslice2->SetMaximum(Ymax);
-//  sigmaslice2->SetMinimum(Ymin);
-//  sigmaslice2->SetMarkerStyle(21);
-//  sigmaslice2->SetMarkerColor(2);
-//  sigmaslice2->Draw("E1same");
-//}
-//
+  Draw(hb,ha,mode);
+}
+
 //void Comparator::DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
 //				     const unsigned int nbin, const double Ymin, const double Ymax,
 //				     const std::string title, const std::string binning_option, const unsigned int rebin,
@@ -391,31 +348,6 @@ void Comparator::DrawSlice( const char* key,
 //  //fitFcnrmsb3->DrawClone("same"); 
 //  //fitFcneb3->DrawClone("same"); 
 //}
-//
-////COLIN mode is not used
-//// loosing the possibility to pass options from TH1::Draw
-//// remove, and use Comparator::Histo to access histograms from outside
-//void Comparator::Draw2D_file1( const char* key, Mode mode) {
-//  TDirectory* dir = dir0_;
-//  dir->cd();
-//  gStyle->SetPalette(1);
-//  TH2F *h2 = (TH2F*) dir->Get(key);
-//  h2->Draw("colz");
-//}
-//
-////COLIN mode is not used
-//// loosing the possibility to pass options from TH1::Draw
-//// remove, and use Comparator::Histo to access histograms from outside
-//// btw: file1 and file2 should not be hardcoded in the name of the function
-//// but provided as an integer as for the other functions of the class
-//void Comparator::Draw2D_file2( const char* key, Mode mode) {
-//  TDirectory* dir = dir1_;
-//  dir->cd();
-//  gStyle->SetPalette(1);
-//  TH2F *h2 = (TH2F*) dir->Get(key);
-//  h2->Draw("colz");
-//}
-
 
 void Comparator::Draw( const char* key, Mode mode) {
 
@@ -549,9 +481,26 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
     if( h1_->GetMaximum()>h0_->GetMaximum()) {
       h0_->SetMaximum( h1_->GetMaximum()*1.15 );
     }
+
     h0_->Draw();
     h1_->Draw("same");
 
+    break;
+  case GRAPH:
+    if(s0_)
+      Styles::FormatHisto( h0_ , s0_);
+    if(s1_)
+      Styles::FormatHisto( h1_ , s1_);
+      
+    if( h1_->GetMaximum()>h0_->GetMaximum()) {
+      h0_->SetMaximum( h1_->GetMaximum()*1.15 );
+    }
+    if( h1_->GetMinimum()<h0_->GetMinimum()) {
+      h0_->SetMinimum( h1_->GetMinimum()*1.15 );
+    }
+
+    h0_->Draw("E");
+    h1_->Draw("Esame");
     break;
   case EFF:
     h1_->Divide( h0_ );

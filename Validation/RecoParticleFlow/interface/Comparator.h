@@ -22,7 +22,8 @@ public:
   enum Mode {
     NORMAL,
     SCALE,
-    EFF
+    EFF,
+    GRAPH
   };
 
   Comparator() : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 
@@ -64,6 +65,8 @@ public:
   void DrawSlice( const char* key, 
 		  int binxmin, int binxmax, 
 		  Mode mode );
+
+  void DrawMeanSlice(const char* key, const int rebinFactor, Mode mode);
 
 //  // create nbin slices between binxmin and binxmax. In each slice get the mean.
 //  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
@@ -138,6 +141,9 @@ public:
 		  const char* leg1);
    
   TH1* Histo( const char* key, unsigned dirIndex);
+
+  TDirectory* dir0(){ return dir0_;}
+  TDirectory* dir1(){ return dir1_;}
 
 private:
 
