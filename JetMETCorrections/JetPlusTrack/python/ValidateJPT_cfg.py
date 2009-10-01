@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+                                          
 process = cms.Process("TEST")
 
 process.Timing = cms.Service("Timing")
@@ -19,20 +19,21 @@ process.source = cms.Source(
 
 # Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_2_5 (replace with 33X when available!)
 fileNames1.extend( [
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0011/2AA47C1E-828E-DE11-B3C5-001D09F34488.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/DA6FF61D-3D8E-DE11-938A-003048D37538.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/82CF8666-398E-DE11-8F3B-000423D94A20.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/6255E85C-3F8E-DE11-B46A-000423D6B48C.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/3453CD32-418E-DE11-87D2-003048D2C020.root',
-    '/store/relval/CMSSW_3_2_5/RelValQCD_Pt_80_120/GEN-SIM-RECO/STARTUP31X_V4-v1/0010/2EC02533-3B8E-DE11-BE85-003048D37514.root',
+    '/store/relval/CMSSW_3_3_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0000/F681AAB1-9AA6-DE11-ADF6-001D09F2523A.root',
+    '/store/relval/CMSSW_3_3_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0000/EED11BA3-9FA6-DE11-BD00-001D09F2905B.root',
+    '/store/relval/CMSSW_3_3_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0000/A0060696-71A7-DE11-B330-000423D6006E.root',
+    '/store/relval/CMSSW_3_3_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0000/9C13D02A-9CA6-DE11-85A8-001D09F290CE.root',
+    '/store/relval/CMSSW_3_3_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0000/32C70A52-9BA6-DE11-903E-001D09F2538E.root',
+    '/store/relval/CMSSW_3_3_0_pre4/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V8-v1/0000/2098DAED-9DA6-DE11-B881-001D09F24637.root',
     ] );
+
 fileNames2.extend( [
-    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/2AA47C1E-828E-DE11-B3C5-001D09F34488.root',
-    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/DA6FF61D-3D8E-DE11-938A-003048D37538.root',
-    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/82CF8666-398E-DE11-8F3B-000423D94A20.root',
-    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/6255E85C-3F8E-DE11-B46A-000423D6B48C.root',
-    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/3453CD32-418E-DE11-87D2-003048D2C020.root',
-    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_2_5/2EC02533-3B8E-DE11-BE85-003048D37514.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/F681AAB1-9AA6-DE11-ADF6-001D09F2523A.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/EED11BA3-9FA6-DE11-BD00-001D09F2905B.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/A0060696-71A7-DE11-B330-000423D6006E.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/9C13D02A-9CA6-DE11-85A8-001D09F290CE.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/32C70A52-9BA6-DE11-903E-001D09F2538E.root',
+    'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/2098DAED-9DA6-DE11-B881-001D09F24637.root',
     ] );
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
@@ -173,18 +174,18 @@ process.uncorrectedLayer1JetsIC5.JetCollection = cms.InputTag("allLayer1Jets")
 
 # -------------------- Paths --------------------
 
-process.ZSPandJTA = cms.Sequence(
-    process.ZSPJetCorJetIcone5 *
+process.JTA = cms.Sequence(
     process.ZSPiterativeCone5JetTracksAssociatorAtVertex *
     process.ZSPiterativeCone5JetTracksAssociatorAtCaloFace *
     process.ZSPiterativeCone5JetExtender 
     )
 
 process.p = cms.Path(
-    process.ZSPandJTA *          # ZSP and JTA sequence
-    process.JPTValidation *      # All flavours of JPT from RECO
+    process.ZSPJetCorJetIcone5 * # ZSP corrections
+    process.JTA *                # Jet-tracks association
+    process.JPTValidation *      # All flavours of JPT corrections from RECO
     process.patDefaultSequence * # PAT sequence (slow!)
-    process.PatJPTCorrectionsIC5 # JPT from PAT
+    process.PatJPTCorrectionsIC5 # JPT corrections from PAT
     )
 
 process.o = cms.OutputModule(
