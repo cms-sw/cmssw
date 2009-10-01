@@ -24,10 +24,13 @@ genCandidatesForMET = cms.EDProducer(
     
     ###These ID's will contribute to MET because they will be skipped in the negative vector sum Et calculation performed by the MET Algorithm  
     ignoreParticleIDs = cms.vuint32(
-    1000022, 2000012, 2000014,
-    2000016, 1000039, 5000039,
-    4000012, 9900012, 9900014,
-    9900016, 39, 12, 13, 14, 16
+    1000022,
+    1000012, 1000014, 1000016,
+    2000012, 2000014, 2000016,
+    1000039, 5100039,
+    4000012, 4000014, 4000016,
+    9900012, 9900014, 9900016,
+    39, 12, 13, 14, 16
     )  
     )
 
@@ -40,10 +43,13 @@ genParticlesForMETAllVisible = cms.EDFilter(
     tausAsJets = cms.bool(False),
     
     ignoreParticleIDs = cms.vuint32(
-    1000022, 2000012, 2000014,
-    2000016, 1000039, 5000039,
-    4000012, 9900012, 9900014,
-    9900016, 39, 12, 14, 16
+    1000022,
+    1000012, 1000014, 1000016,
+    2000012, 2000014, 2000016,
+    1000039, 5100039,
+    4000012, 4000014, 4000016,
+    9900012, 9900014, 9900016,
+    39, 12, 14, 16
     )
     )                                        
 
