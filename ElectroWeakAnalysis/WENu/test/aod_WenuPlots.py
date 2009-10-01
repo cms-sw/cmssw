@@ -32,7 +32,7 @@ process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # this filter produces patElectrons and patCaloMets to be used in the following
-process.aod2patFilter = cms.EDFilter('aod2patFilter',
+process.aod2patFilter = cms.EDFilter('aod2patFilterWenu',
                                      electronCollectionTag = cms.untracked.InputTag("gsfElectrons","","RECO"),
                                      metCollectionTag = cms.untracked.InputTag("met","","RECO"),
     )
