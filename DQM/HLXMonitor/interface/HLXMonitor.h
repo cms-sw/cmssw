@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.12 2009/08/05 14:38:03 neadam Exp $
+// $Id: HLXMonitor.h,v 1.13 2009/08/24 07:41:41 neadam Exp $
 //
 //
 
@@ -27,6 +27,7 @@ Implementation:
 #include <memory>
 #include <iomanip>
 #include <cstdlib>
+#include <sys/time.h>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h" // Not included in example
@@ -73,11 +74,13 @@ class HLXMonitor : public edm::EDAnalyzer
       void FillHistograms(const LUMI_SECTION&);
       void FillHistoHFCompare(const LUMI_SECTION&);
       void FillReportSummary();
-      void FillEventInfo(const LUMI_SECTION&);
+      void FillEventInfo(const LUMI_SECTION&, const edm::Event& e);
 
       void ResetAll();
 
       void EndRun( bool saveFile = true );
+
+      double getUTCtime(timeval* a, timeval* b = NULL);
 
       //  void FillHistoHistory(const LUMI_SECTION&);
 
@@ -165,7 +168,29 @@ class HLXMonitor : public edm::EDAnalyzer
       ///   by the module
       //////////////////////////////////////////////////////////////////
       MonitorElement * runId_;
+      MonitorElement * runStartTimeStamp_;  ///UTC time of the run start
+      MonitorElement * eventId_;
       MonitorElement * lumisecId_;
+      MonitorElement * eventTimeStamp_;
+   
+      //////////////////////////////////////////////////////////////////
+      ///These MEs are either static or updated upon each analyze() call
+      //////////////////////////////////////////////////////////////////
+      MonitorElement * nUpdates_;          ///Number of collector updates (TBD)
+      MonitorElement * processId_;         ///The PID associated with this job
+      MonitorElement * processStartTimeStamp_; ///The UTC time of the first event processed
+      MonitorElement * processTimeStamp_;  ///The UTC time of the last event
+      MonitorElement * processLatency_;    ///Time elapsed since the last event
+      MonitorElement * processEventRate_;  ///Avg # of events in programmable window (default: 5 min)
+      MonitorElement * processEvents_;     ///# of event processed so far
+      MonitorElement * hostName_;          ///Hostname of the local machine
+      MonitorElement * processName_;       ///DQM "name" of the job (eg, Hcal or DT)
+      MonitorElement * workingDir_;        ///Current working directory of the job
+      MonitorElement * cmsswVer_;          ///CMSSW version run for this job
+      MonitorElement * dqmPatch_;          ///DQM patch version for this job
+      MonitorElement * errSummary_;        ///Subdetector-specific error summary (float)
+      MonitorElement * errSummaryEtaPhi_;     ///Subdetector-specific etaPhi summary (float)
+      MonitorElement * errSummarySegment_[10];
 
       // Report Summary
       MonitorElement * reportSummary_;
@@ -242,6 +267,13 @@ class HLXMonitor : public edm::EDAnalyzer
       double sectionInstantSumOcc2;
       double sectionInstantErrSumOcc2;
       double sectionInstantNorm;
+
+      // EventInfo Parameters
+      timeval currentTime_, lastUpdateTime_, lastAvgTime_;
+      timeval runStartTime_;
+      float evtRateWindow_;
+      int evtRateCount_;
+      int pEvent_;
 
 };
 

@@ -597,9 +597,44 @@ void HLXMonitor::SetupEventInfo( )
 
    dbe_->setCurrentFolder(currentfolder) ;
 
+   pEvent_ = 0;
+   evtRateCount_ = 0;
+   gettimeofday(&currentTime_,NULL);
+   lastAvgTime_ = currentTime_;
+   evtRateWindow_ = 0.5;
+
    //Event specific contents
    runId_     = dbe_->bookInt("iRun");
    lumisecId_ = dbe_->bookInt("iLumiSection");
+
+   eventId_   = dbe_->bookInt("iEvent");
+   eventId_->Fill(-1);
+   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
+   
+   dbe_->setCurrentFolder(currentfolder) ;
+   //Process specific contents
+   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
+   processTimeStamp_->Fill(getUTCtime(&currentTime_));
+   processLatency_ = dbe_->bookFloat("processLatency");
+   processTimeStamp_->Fill(-1);
+   processEvents_ = dbe_->bookInt("processedEvents");
+   processEvents_->Fill(pEvent_);
+   processEventRate_ = dbe_->bookFloat("processEventRate");
+   processEventRate_->Fill(-1); 
+   nUpdates_= dbe_->bookInt("processUpdates");
+   nUpdates_->Fill(-1);
+ 
+   //Static Contents
+   processId_= dbe_->bookInt("processID"); 
+   processId_->Fill(gSystem->GetPid());
+   processStartTimeStamp_ = dbe_->bookFloat("processStartTimeStamp");
+   processStartTimeStamp_->Fill(getUTCtime(&currentTime_));
+   runStartTimeStamp_ = dbe_->bookFloat("runStartTimeStamp");
+   hostName_= dbe_->bookString("hostName",gSystem->HostName());
+   processName_= dbe_->bookString("processName",subSystemName_);
+   workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
+   cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
+   dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
 
    reportSummary_ = dbe_->bookFloat("reportSummary");
    reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 18, 0., 18., 2, -1.5, 1.5);
@@ -646,13 +681,18 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( HLXTCP.ReceiveLumiSection( lumiSection ) == 1 )
    {
       // If this is the first time through, set the runNumber ...
-      if( runNumber_ != lumiSection.hdr.runNumber ) runNumber_ = lumiSection.hdr.runNumber;
-      //std::cout << "Run number is: " << runNumber_ << std::endl;
+      if( runNumber_ != lumiSection.hdr.runNumber ){
+	 runNumber_ = lumiSection.hdr.runNumber;
+	 //std::cout << "Run number is: " << runNumber_ << std::endl;
+         timeval startruntime;
+         gettimeofday(&startruntime,NULL);
+	 runStartTimeStamp_->Fill(getUTCtime(&startruntime));
+      }
       
       // Fill the monitoring histograms 
       FillHistograms(lumiSection);
       FillHistoHFCompare(lumiSection);
-      FillEventInfo(lumiSection);
+      FillEventInfo(lumiSection,iEvent);
       FillReportSummary();
       
       cout << "Run: " << lumiSection.hdr.runNumber 
@@ -1100,7 +1140,7 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
   }
 }
 
-void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
+void HLXMonitor::FillEventInfo(const LUMI_SECTION & section, const edm::Event& e)
 {
    // New run .. set the run number and fill run summaries ...
    std::cout << "Run number " << runNumber_ << " Section hdr run number " 
@@ -1115,6 +1155,25 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
       unsigned int iWedge = HLXHFMap[iHLX] + 1;
       totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
    }   
+
+   eventId_->Fill(e.id().event());
+   eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
+ 
+   pEvent_++;
+   evtRateCount_++;
+   processEvents_->Fill(pEvent_);
+ 
+   lastUpdateTime_=currentTime_;
+   gettimeofday(&currentTime_,NULL);  
+   processTimeStamp_->Fill(getUTCtime(&currentTime_));
+   processLatency_->Fill(getUTCtime(&lastUpdateTime_,&currentTime_));
+ 
+   float time = getUTCtime(&lastAvgTime_,&currentTime_);
+   if(time>=(evtRateWindow_*60.0)){
+      processEventRate_->Fill((float)evtRateCount_/time);
+      evtRateCount_ = 0;
+      lastAvgTime_ = currentTime_;    
+   }
 
 }
 
@@ -1223,6 +1282,11 @@ void HLXMonitor::ResetAll()
    dbe_->softReset(BXvsTimeAvgEtSumHFM);
 }
 
+double HLXMonitor::getUTCtime(timeval* a, timeval* b){
+  double deltaT=(*a).tv_sec*1000.0+(*a).tv_usec/1000.0;
+  if(b!=NULL) deltaT=(*b).tv_sec*1000.0+(*b).tv_usec/1000.0 - deltaT;
+  return deltaT/1000.0;
+}
 
 
 //define this as a plug-in

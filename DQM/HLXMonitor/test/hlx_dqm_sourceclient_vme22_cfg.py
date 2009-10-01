@@ -6,7 +6,7 @@ process.load("DQMServices.Components.MessageLogger_cfi")
 process.load("DQM.HLXMonitor.hlx_dqm_sourceclient_vme22_cfi")
 
 process.load("DQMServices.Core.DQM_cfg")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
+##process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -22,17 +22,18 @@ process.hlxQualityTester = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/HLXMonitor/test/HLXQualityTests.xml')
 )
 
-process.p = cms.Path(process.dqmEnv+process.hlxdqmsource+process.hlxQualityTester+process.dqmSaver)
+##process.p = cms.Path(process.dqmEnv*process.hlxdqmsource*process.hlxQualityTester*process.dqmSaver)
+process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester)
 process.hlxdqmsource.outputDir = '/opt/dqm/data/live'
 process.hlxdqmsource.PrimaryHLXDAQIP = 'vmepcs2f17-18'
 process.hlxdqmsource.SecondaryHLXDAQIP = 'vmepcs2f17-19'
 process.DQM.collectorHost = 'localhost'
 process.DQM.collectorPort = 9190
 process.DQMStore.verbose = 0
-process.dqmEnv.subSystemFolder = 'HLX'
-process.dqmSaver.dirName = '/opt/dqm/data/test'
-process.dqmSaver.producer = 'DQM'
-process.dqmSaver.convention = 'Online'
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveAtJobEnd = False
+##process.dqmEnv.subSystemFolder = 'HLX'
+##process.dqmSaver.dirName = '/opt/dqm/data/test'
+##process.dqmSaver.producer = 'DQM'
+##process.dqmSaver.convention = 'Online'
+##process.dqmSaver.saveByRun = 1
+##process.dqmSaver.saveAtJobEnd = False
 
