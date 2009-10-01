@@ -1356,8 +1356,8 @@ class GenObject (object):
                                                           _rootObjectClone \
                                                            (goObj) )
                 # o.k.  Now that we have them matched, let's compare
-                # the proper items:
-                for pair in matchedSet:
+                # the proper items:                
+                for pair in sorted(list(matchedSet)):
                     if diffOutputName:
                         rootObj.diff.push_back ( GenObject._rootDiffObject \
                                                  ( vec1[ pair[1 - 1] ],
