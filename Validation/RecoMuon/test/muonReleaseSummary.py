@@ -7,8 +7,8 @@ import string
 
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
-NewRelease='CMSSW_3_3_0_pre2'
-RefRelease='CMSSW_3_3_0_pre1'
+NewRelease='CMSSW_3_3_0_pre5'
+RefRelease='CMSSW_3_3_0_pre4'
 
 samples= ['RelValSingleMuPt10','RelValSingleMuPt100']
 #samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar']
@@ -24,7 +24,8 @@ Publish=False
 NewFastSim=True
 RefFastSim=True
 
-GetFilesFromCastor=True
+GetFilesFromCastor=False
+GetRefsFromCastor=True
 CastorRepository = '/castor/cern.ch/user/n/nuno/relval/harvest'
 #CastorRepository = '/castor/cern.ch/user/n/nuno/preproduction/harvest'
 #CastorRepository = '/castor/cern.ch/user/j/jhegeman/preproduction_summer09/3_1_2'
@@ -42,10 +43,10 @@ if (NewFastSim):
     NewFormat='GEN-SIM-DIGI-RECO'
 else:
     NewTag = NewCondition+'_noPU_ootb'
-    NewLabel=NewCondition+'_31X_V5-v1'
+    NewLabel=NewCondition+'_31X_V8-v1'
 #    NewLabel=NewCondition+'31X_V3_preproduction_312-v1'
     if (NewCondition=='STARTUP'):
-        NewLabel=NewCondition+'31X_V4-v1'
+        NewLabel=NewCondition+'31X_V7-v1'
     NewFormat='GEN-SIM-RECO'
 
 if (RefFastSim):
@@ -54,15 +55,21 @@ if (RefFastSim):
     RefFormat='GEN-SIM-DIGI-RECO'
 else:
     RefTag = RefCondition+'_noPU_ootb'
-    RefLabel=RefCondition+'_31X_V5-v1'
+    RefLabel=RefCondition+'_31X_V8-v1'
 #    RefLabel=RefCondition+'_31X_V2_preproduction_311-v1'
     if (RefCondition=='STARTUP'):
-        RefLabel=RefCondition+'31X_V4-v1'
+        RefLabel=RefCondition+'31X_V7-v1'
     RefFormat='GEN-SIM-RECO'
 
+if (NewFastSim):
+    NewCondition=NewCondition+'_FSIM'
+if (RefFastSim):
+    RefCondition=RefCondition+'_FSIM'
 
-RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+
 NewRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+RefRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
+CastorRefRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 
 macro='macro/TrackValHistoPublisher.C'
@@ -109,18 +116,24 @@ for sample in samples :
          elif (os.path.isfile(newSample)) :
              os.system('cp '+newSample+' '+NewRelease+'/'+NewTag+'/'+sample)
              
-         if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val'+sample+'.root')!=True and os.path.isfile(refSample)) :
-             os.system('ln -s '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
+         if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val'+sample+'.root')!=True and os.path.isfile(refSample)):
+             print '*** Getting reference file from '+RefRelease
+             os.system('cp '+refSample+' '+RefRelease+'/'+RefTag+'/'+sample)
+         elif (GetRefsFromCastor):
+             print '*** Getting reference file from castor'
+             os.system('rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
+         else:
+             print '*** WARNING: no reference file was found'
 
          cfgFileName=sample+'_'+NewRelease+'_'+RefRelease
          hltcfgFileName='HLT'+sample+'_'+NewRelease+'_'+RefRelease
 
-         if os.path.isfile(refSample ):
+         if os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'):
              replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
              if (ValidateHLT):
                  replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
          else:
-             print "No reference file found at: ", RefRelease+'/'+RefTag
+             print "No reference file found at: ", RefRelease+'/'+RefTag+'/'+sample
              replace_map_RECO = { 'DATATYPE': 'RECO', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': cfgFileName}
              if (ValidateHLT):
                  replace_map_HLT = { 'DATATYPE': 'HLT', 'NEW_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_FILE':NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':NewRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':NewTag, 'NEWSELECTION':NewTag, 'TrackValHistoPublisher': hltcfgFileName}
