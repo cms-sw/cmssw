@@ -22,11 +22,20 @@ namespace reco
     virtual ~PFMET() {}
     
     //getters
-    double NeutralEMFraction() const { return pf_data.NeutralEMFraction; }
-    double NeutralHadFraction() const { return pf_data.NeutralHadFraction; }
-    double ChargedEMFraction() const { return pf_data.ChargedEMFraction; }
-    double ChargedHadFraction() const { return pf_data.ChargedHadFraction; }
-    double MuonFraction() const { return pf_data.MuonFraction; }
+    double NeutralEMEtFraction() const { return pf_data.NeutralEMEtFraction; }
+    double NeutralEMEt() const { return pf_data.NeutralEMEtFraction * sumEt(); }
+
+    double NeutralHadEtFraction() const { return pf_data.NeutralHadEtFraction; }
+    double NeutralHadEt() const { return pf_data.NeutralHadEtFraction * sumEt(); }
+
+    double ChargedEMEtFraction() const { return pf_data.ChargedEMEtFraction; }
+    double ChargedEMEt() const { return pf_data.ChargedEMEtFraction * sumEt(); }
+
+    double ChargedHadEtFraction() const { return pf_data.ChargedHadEtFraction; }
+    double ChargedHadEt() const { return pf_data.ChargedHadEtFraction * sumEt(); }
+
+    double MuonEtFraction() const { return pf_data.MuonEtFraction; }
+    double MuonEt() const { return pf_data.MuonEtFraction * sumEt(); }
     
     // block accessors
     SpecificPFMETData getSpecific() const {return pf_data;}
