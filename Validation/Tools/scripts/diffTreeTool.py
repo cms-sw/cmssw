@@ -125,6 +125,13 @@ if __name__ == "__main__":
         pprint (runevent)
         diffColl = getPieceFromObject (tree, name+'.diff')
         size = diffColl.size()
+        if not size:
+            continue
+        print "index",
+        for var in variables:
+            print "%19s" % (var + '      '),
+        print
+        print '-' * (5 + 19 * size)
         for index in range (size):
             diff = diffColl[index]
             index = getDictFromObject (diff, indexDict)
