@@ -90,8 +90,6 @@ namespace jpt {
 		const jpt::Map& efficiency,
 		const jpt::Map& leakage );
       
-    Efficiency();
-
     typedef std::pair<uint16_t,double> Pair;
     
     uint16_t nTrks( uint32_t eta_bin, uint32_t pt_bin ) const;
@@ -112,6 +110,8 @@ namespace jpt {
     
   private:
     
+    Efficiency();
+
     double sumE( uint32_t eta_bin, uint32_t pt_bin ) const;
     double meanE( uint32_t eta_bin, uint32_t pt_bin ) const;
 
@@ -121,9 +121,9 @@ namespace jpt {
     typedef std::vector<VPair> VVPair;
     VVPair data_;
 
-    jpt::Map response_;
-    jpt::Map efficiency_;
-    jpt::Map leakage_;
+    const jpt::Map& response_;
+    const jpt::Map& efficiency_;
+    const jpt::Map& leakage_;
     
   };
   
@@ -253,6 +253,7 @@ class JetPlusTrackCorrector : public JetCorrector {
   /// Calculates individual pion corrections
   P4 pionCorrection( const P4& jet, 
 		     const TrackRefs& pions, 
+		     jpt::Efficiency&,
 		     bool in_cone_at_vertex,
 		     bool in_cone_at_calo_face ) const; 
 
@@ -277,14 +278,17 @@ class JetPlusTrackCorrector : public JetCorrector {
   /// Generic method to calculates 4-momentum correction to be applied
   P4 calculateCorr( const P4& jet, 
 		    const TrackRefs&, 
+		    jpt::Efficiency&,
 		    bool in_cone_at_vertex,
 		    bool in_cone_at_calo_face,
 		    double mass,
-		    bool is_mip,
+		    bool is_pion,
 		    double mip ) const;
   
   /// Correction to be applied using tracking efficiency 
-  P4 pionEfficiency( const P4& jet, bool in_cone_at_calo_face ) const;
+  P4 pionEfficiency( const P4& jet, 
+		     const jpt::Efficiency&,
+		     bool in_cone_at_calo_face ) const;
   
   /// Check corrected 4-momentum does not give negative scale
   double checkScale( const P4& jet, P4& corrected ) const;
@@ -336,7 +340,11 @@ class JetPlusTrackCorrector : public JetCorrector {
 		   const JetTracksAssociations&, 
 		   TrackRefs& included,
 		   const TrackRefs& excluded ) const;
-
+  
+  const jpt::Map& responseMap() const;
+  const jpt::Map& efficiencyMap() const;
+  const jpt::Map& leakageMap() const;
+  
   /// Default constructor
   JetPlusTrackCorrector() {;}
 
@@ -347,7 +355,7 @@ class JetPlusTrackCorrector : public JetCorrector {
   // Some general configuration
   bool verbose_;
   bool vectorial_;
-  bool vecTracks_;
+  bool vecResponse_;
   bool useInConeTracks_;
   bool useOutOfConeTracks_;
   bool useOutOfVertexTracks_;
@@ -374,7 +382,6 @@ class JetPlusTrackCorrector : public JetCorrector {
   const jpt::Map response_;
   const jpt::Map efficiency_;
   const jpt::Map leakage_;
-  mutable jpt::Efficiency eff_;
 
   // Mass    
   double pionMass_;
@@ -398,23 +405,26 @@ inline bool JetPlusTrackCorrector::canCorrect( const reco::Jet& jet ) const { re
 
 inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet, 
 									const TrackRefs& pions, 
+									jpt::Efficiency& eff,
 									bool in_cone_at_vertex,
 									bool in_cone_at_calo_face ) const {
-  return calculateCorr( jet, pions, in_cone_at_vertex, in_cone_at_calo_face, pionMass_, false, -1. );
+  return calculateCorr( jet, pions, eff, in_cone_at_vertex, in_cone_at_calo_face, pionMass_, true, -1. );
 }
 
 inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4& jet, 
 									const TrackRefs& muons, 
 									bool in_cone_at_vertex,
 									bool in_cone_at_calo_face ) const {
-  return calculateCorr( jet, muons, in_cone_at_vertex, in_cone_at_calo_face, muonMass_, true, 2. );
+  static jpt::Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
+  return calculateCorr( jet, muons, not_used, in_cone_at_vertex, in_cone_at_calo_face, muonMass_, false, 2. );
 } 
 
 inline JetPlusTrackCorrector::P4 JetPlusTrackCorrector::elecCorrection( const P4& jet, 
 									const TrackRefs& elecs, 
 									bool in_cone_at_vertex,
 									bool in_cone_at_calo_face ) const {
-  return calculateCorr( jet, elecs, in_cone_at_vertex, in_cone_at_calo_face, elecMass_, true, 0. ); 
+  static jpt::Efficiency not_used( responseMap(), efficiencyMap(), leakageMap() );
+  return calculateCorr( jet, elecs, not_used, in_cone_at_vertex, in_cone_at_calo_face, elecMass_, false, 0. ); 
 } 
 
 inline double JetPlusTrackCorrector::checkScale( const P4& jet, P4& corrected ) const {
@@ -423,5 +433,9 @@ inline double JetPlusTrackCorrector::checkScale( const P4& jet, P4& corrected ) 
   }
   return corrected.energy() / jet.energy();
 }
+
+inline const jpt::Map& JetPlusTrackCorrector::responseMap() const { return response_; }
+inline const jpt::Map& JetPlusTrackCorrector::efficiencyMap() const { return efficiency_; }
+inline const jpt::Map& JetPlusTrackCorrector::leakageMap() const { return leakage_; }
 
 #endif // JetMETCorrections_Algorithms_JetPlusTrackCorrector_h
