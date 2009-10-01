@@ -80,8 +80,9 @@ copy("$dqm_dir/../data/jqviewer.js",        "$dqm_int/TkMap/jqviewer.js");
 copy("$dqm_dir/../data/viewerHeader.xhtml", "$dqm_int/TkMap/viewerHeader.xhtml");
 copy("$dqm_dir/../data/viewerTrailer.xhtml","$dqm_int/TkMap/viewerTrailer.xhtml");
 copy("$dqm_int/../python/test/$js_files/$cfg_file", "$dqm_int/.");
-system qq[perl], qq[-pi -e], qq[s!TkMapCreationFrequency  = -1!TkMapCreationFrequency  = 1!], qq[$cfg_file]; 
-system qq[perl], qq[-pi -e], qq[s!TkMapCreationFrequency  = -1!TkMapCreationFrequency  = 1!], qq[$cfg_file]; 
+system qq[perl], qq[-pi -e], qq[s!TkMapCreationFrequency  = -1!TkMapCreationFrequency  = 1!], qq[$dqm_int/$cfg_file]; 
+system qq[perl], qq[-pi -e], qq[s!/dqmdata/dqm/reference!/home/dqmdevlocal/reference!], qq[$dqm_int/$cfg_file]; 
+
 #
 # make XDAQ 'profile.xml'
 #
