@@ -28,16 +28,47 @@ namespace reco
 	: MET( sumet_, fP4, fVertex ), gen_data( gen_data_ ) {}
       /* Default destructor*/
       virtual ~GenMET() {}
-      /** Returns energy of electromagnetic particles*/
-      double emEnergy() const {return gen_data.m_EmEnergy;};
-      /** Returns energy of hadronic particles*/
-      double hadEnergy() const {return gen_data.m_HadEnergy;};
-      /** Returns invisible energy*/
-      double invisibleEnergy() const {return gen_data.m_InvisibleEnergy;};
-      /** Returns other energy (undecayed Sigmas etc.)*/
-      double auxiliaryEnergy() const {return gen_data.m_AuxiliaryEnergy;};
+
+      //Get Neutral EM Et Fraction
+      double NeutralEMEtFraction() const { return gen_data.NeutralEMEtFraction ; }
+
+      //Get Neutral EM Et 
+      double NeutralEMEt () const{ return gen_data.NeutralEMEtFraction * sumEt(); }
+      
+      //Get Charged EM Et Fraction 
+      double ChargedEMEtFraction()const { return gen_data.ChargedEMEtFraction ; }
+
+      //Get Charged EM Et  
+      double ChargedEMEt() const{return gen_data.ChargedEMEtFraction * sumEt() ; }
+     
+      //Get Neutral Had Et Fraction 
+      double NeutralHadEtFraction() const{ return gen_data.NeutralHadEtFraction ; }
+
+      //Get Neutral Had Et
+      double NeutralHadEt() const{ return gen_data.NeutralHadEtFraction * sumEt(); }
+      
+      //Get Charged Had Et Fraction 
+      double ChargedHadEtFraction()const { return gen_data.ChargedHadEtFraction ; }
+
+      //Get Charged Had Et 
+      double ChargedHadEt()const { return gen_data.ChargedHadEtFraction * sumEt() ; }
+
+      //Get Muon Et Fraction 
+      double MuonEtFraction()const { return gen_data.MuonEtFraction ; }
+
+      //Get Muon Et 
+      double MuonEt() const{ return gen_data.MuonEtFraction * sumEt() ; }
+
+      //Get Invisible Et Fraction 
+      double InvisibleEtFraction() const{ return gen_data.InvisibleEtFraction ; }
+
+      //Get Invisible Et  
+      double InvisibleEt()const { return gen_data.InvisibleEtFraction * sumEt() ; }
+      
+
+
+
       // block accessors
-      //const Specific& getSpecific () const {return gen_data;}
     private:
       virtual bool overlap( const Candidate & ) const;
       // Data members
