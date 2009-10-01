@@ -192,7 +192,8 @@
       SUBROUTINE HYEVNT
 *     generation of single HYDJET event (soft+hard parts) at given parameters 
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      double precision numpar,npar0,nbco0,npart,nbcol 
+      double precision numpar,npar0,nbco0,npart,nbcol
+      integer pycomp
       external hsin,gauss,hftaa,numpar,hyhard,hipsear,pyr,pymass 
       common /pyjets/ nhi,npadhi,khi(4000,5),phi(4000,5),vhi(4000,5)
       COMMON /PYDAT3/ MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
