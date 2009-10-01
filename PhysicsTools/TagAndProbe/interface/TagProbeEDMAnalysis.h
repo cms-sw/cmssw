@@ -4,7 +4,7 @@
 //
 // Original Author: Nadia Adam (Princeton University) 
 //         Created:  Fri May 16 16:48:24 CEST 2008
-// $Id: TagProbeEDMAnalysis.h,v 1.20 2009/08/04 21:54:50 ahunt Exp $
+// $Id: TagProbeEDMAnalysis.h,v 1.21 2009/09/13 06:15:40 valerieh Exp $
 //
 //
 // Kalanand Mishra: July 1, 2008 
@@ -17,6 +17,8 @@
 // Also, fixed the problem with RooDataSet declaration.
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 class EffTableLoader;
 class SideBandSubtraction;
@@ -31,7 +33,7 @@ class RooRealVar;
 class RooAddPdf;
 
 class TH1F;
-class TFile;
+//class TFile;
 class TTree;
 class TH2F;
 
@@ -88,15 +90,12 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       void CleanUpMCHistograms();
       void WriteMCHistograms();
 
-      void ConfigureQuantityHistograms(const edm::ParameterSet& QuantPSet);
-      void CreateQuantityHistograms(const edm::Event& iEvent);
-
       void cleanFitVariables();
 
-      // Histogram drawing input variables
-      std::vector<std::string> quantities_;  
-      std::vector<std::string> conditions_;  
-      std::vector<std::string> outputFileNames_;
+/*       // Histogram drawing input variables */
+/*       std::vector<std::string> quantities_;   */
+/*       std::vector<std::string> conditions_;   */
+/*       std::vector<std::string> outputFileNames_; */
 
       std::vector<unsigned int> XBins_;
       std::vector<double> XMax_;
@@ -166,7 +165,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
       std::string fitFileName_;              // Name of the root file to write to
       std::vector<std::string> readFiles_;   // Files to read from ... if mode == READ
 
-      TFile *outRootFile_;
+      //      TFile *outRootFile_;
       TTree *fitTree_;
       TTree *mcTree_;
       int    ProbePass_;
@@ -191,6 +190,7 @@ class TagProbeEDMAnalysis : public edm::EDAnalyzer{
 
       bool doAnalyze_;
 
+      edm::Service<TFileService> fs;
 };
 
 #endif
