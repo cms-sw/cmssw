@@ -880,16 +880,19 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
    std::cout<<"Total number of DetIds in all subdets is = "<<allDetId.size()<<std::endl ;
 
-   const std::vector<DetId> deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
-   const std::vector<DetId> dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
-   const std::vector<DetId> des ( pG->getValidDetIds(DetId::Ecal,EcalPreshower                  ));
-   const std::vector<DetId> dhb ( pG->getValidDetIds(DetId::Hcal,HcalBarrel                     ));
-   const std::vector<DetId> dhe ( pG->getValidDetIds(DetId::Hcal,HcalEndcap                     ));
-   const std::vector<DetId> dho ( pG->getValidDetIds(DetId::Hcal,HcalOuter                      ));
-   const std::vector<DetId> dhf ( pG->getValidDetIds(DetId::Hcal,HcalForward                    ));
-   const std::vector<DetId> dct ( pG->getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
-   const std::vector<DetId> dca ( pG->getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
-   const std::vector<DetId> dzd ( pG->getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
+   const std::vector<DetId>& deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
+   const std::vector<DetId>& dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
+   const std::vector<DetId>& des ( pG->getValidDetIds(DetId::Ecal,EcalPreshower                  ));
+   const std::vector<DetId>& dhb ( pG->getValidDetIds(DetId::Hcal,HcalBarrel                     ));
+   const std::vector<DetId>& dhe ( pG->getValidDetIds(DetId::Hcal,HcalEndcap                     ));
+   const std::vector<DetId>& dho ( pG->getValidDetIds(DetId::Hcal,HcalOuter                      ));
+   const std::vector<DetId>& dhf ( pG->getValidDetIds(DetId::Hcal,HcalForward                    ));
+   const std::vector<DetId>& dct ( pG->getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
+   const std::vector<DetId>& dca ( pG->getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
+   const std::vector<DetId>& dzd ( pG->getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
+
+   const std::vector<DetId>& dha ( pG->getSubdetectorGeometry(DetId::Hcal,1)->getValidDetIds());
+
 
    const unsigned int sum ( deb.size() +
 			    dee.size() +
@@ -907,6 +910,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
    assert( sum == allDetId.size() ) ;
 
+   assert( dha.size() == dhb.size()+dhe.size()+dho.size()+dhf.size() ) ;
    //
    // get the ecal & hcal geometry
    //
