@@ -5,6 +5,10 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include <vector>
 
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 namespace edm {
   class Event;
   class ParameterSet;
@@ -43,9 +47,13 @@ class AlignmentTrackSelector
   bool isOkCharge(const TrackingRecHit* therechit) const;
   bool isOkChargeStripHit(const SiStripRecHit2D *siStripRecHit2D) const;
   bool isIsolated(const TrackingRecHit* therechit, const edm::Event& evt) const;
+  bool isOkTrkQuality(const reco::Track* track) const;
 
   /// filter the n highest pt tracks
   Tracks theNHighestPtTracks(const Tracks& tracks) const;
+
+  //filter tracks that do not have a min # of hits taken by the Skim&Prescale workflow
+  Tracks checkTakenHits(const Tracks& tracks, const edm::Event& evt) const;
 
   /// compare two tracks in pt (used by theNHighestPtTracks)
   struct ComparePt {
@@ -67,6 +75,10 @@ class AlignmentTrackSelector
   const unsigned int nHitMin2D_;
   const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
 
+  const int minTakenHits_;
+  const edm::InputTag hitVMTag_;  // ValueMap containing associtaion cluster - flag
+
+  std::vector<std::string> trkQuality_;
 };
 
 #endif
