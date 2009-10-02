@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
     'file:testEWKMuSkim.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -23,7 +23,7 @@ process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPaths_cff")
 
 # Output module configuration
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
-process.zMuMuSubskimOutputModule.fileName = 'file:testZMuMuSubskimFromEWKCommon.root'
+process.zMuMuSubskimOutputModule.fileName = 'file:testZMuMuSubskim.root'
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
 
