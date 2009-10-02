@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HecFP420Test")
+
+
+process.load("Configuration.StandardSequences.Generator_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
@@ -13,31 +16,30 @@ process.load("Configuration.EventContent.EventContent_cff")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        noLineBreaks = cms.untracked.bool(True)
-    ),
-    destinations = cms.untracked.vstring('cout')
-)
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        PythiaSource = cms.untracked.uint32(12345),
-        g4SimHits = cms.untracked.uint32(11),
-        mix = cms.untracked.uint32(12345),
-        VtxSmeared = cms.untracked.uint32(98765432)
-    ),
-    sourceSeed = cms.untracked.uint32(123456789)
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
+
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+    oncePerEventMode = cms.untracked.bool(True),
+    ignoreTotal = cms.untracked.int32(1)
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-process.source = cms.Source("PythiaSource",
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    maxEventsToPrint = cms.untracked.int32(0),
+# Input source
+#process.load('Configuration/Generator/MinBias_cfi')
+
+# Input source
+process.source = cms.Source("EmptySource")
+
+from GeneratorInterface.Pythia6Interface.pythiaDefault_cff import *
+process.generator = cms.EDFilter("Pythia6GeneratorFilter",
+    pythiaHepMCVerbosity = cms.untracked.bool(True),
+    maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(0),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
         myParameters = cms.vstring(),
         parameterSets = cms.vstring('pythiaMinBias', 
@@ -83,8 +85,13 @@ process.source = cms.Source("PythiaSource",
     )
 )
 
+#ProductionFilterSequence = cms.Sequence(process.generator)
+
 process.o1 = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
+        'keep edmHepMCProduct_*_*_*',
+        'keep SimTracks_*_*_*',
+        'keep SimVertexs_*_*_*',
         'keep PSimHitCrossingFrame_mix_FP420SI_*', 
         'keep PSimHits_*_FP420SI_*'),
     fileName = cms.untracked.string('HecMBEvent.root')
@@ -92,12 +99,14 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.Timing = cms.Service("Timing")
 process.Tracer = cms.Service("Tracer")
-process.p1 = cms.Path(process.VtxSmeared*process.LHCTransport*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.LHCTransport*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.schedule = cms.Schedule(process.p1,process.outpath)
 process.g4SimHits.Physics.DefaultCutValue =  1000.
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
 process.g4SimHits.Generator.HepMCProductLabel = 'LHCTransport'
-
-
+process.g4SimHits.Generator.ApplyPhiCuts = cms.bool(False)
+process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(2000.0)
+process.g4SimHits.StackingAction.MaxTrackTime = cms.double(2000.0)
+#rocess.FP420Digi.ApplyTofCut = cms.bool(False)
