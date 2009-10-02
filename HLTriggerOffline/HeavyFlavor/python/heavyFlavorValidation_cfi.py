@@ -9,6 +9,7 @@ heavyFlavorValidation = cms.EDAnalyzer("HeavyFlavorValidation",
     TriggerResults = cms.untracked.string("TriggerResults"),
     RecoMuons = cms.InputTag("muons"),
     GenParticles = cms.InputTag("genParticles","","HLT"),
+# list IDs of muon mothers, -1:don't check, 0:particle gun, 23:Z, 443:J/psi, 553:Upsilon
     MotherIDs = cms.untracked.vint32(23,443,553,0),
     GenGlobDeltaRMatchingCut = cms.untracked.double(0.1),
     GlobL1DeltaRMatchingCut = cms.untracked.double(0.3),
