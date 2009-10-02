@@ -7,9 +7,7 @@ from PhysicsTools.PatAlgos.tools.tauTools import *
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
-def adaptPFMuons(process,module):
-
-    
+def adaptPFMuons(process,module):    
     print "Adapting PF Muons "
     print "***************** "
     warningIsolation()
@@ -70,6 +68,9 @@ def adaptPFElectrons(process,module):
     print module.isoDeposits
     print 
     
+    print "removing traditional isolation"
+    process.patDefaultSequence.remove(getattr(process, 'patElectronIsolation'))
+
     
 
 
@@ -145,7 +146,8 @@ def switchToPFMET(process,input=cms.InputTag('pfMET')):
     oldMETSource = process.layer1METs.metSource
     process.layer1METs.metSource = input
     process.layer1METs.addMuonCorrections = False
-    process.patDefaultSequence.remove(process.patMETCorrections)
+    process.patDefaultSequence.remove(getattr(process, 'makeLayer1METs'))
+
 
 def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
     print 'Jets: using ', input
@@ -153,7 +155,7 @@ def switchToPFJets(process,input=cms.InputTag('pfNoTau')):
                         input,
                         doJTA=True,
                         doBTagging=True,
-                        jetCorrLabel=None, 
+                        jetCorrLabel=('IC5','PF'), 
                         doType1MET=False)  
     adaptPFJets(process, process.allLayer1Jets)
 
