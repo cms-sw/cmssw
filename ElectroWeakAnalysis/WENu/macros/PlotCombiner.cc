@@ -42,6 +42,25 @@
      
      and you finally get the plots.
 
+     For the ABCD method:
+     ^^^^^^^^^^^^^^^^^^^^
+     you have to insert in the 2nd line instead of wenu or zee the keyword abcd(...)
+     The files should contain ewk samples, sig samples and qcd samples (but also read
+     later). The only absolutely necessary files are the sig ones.
+     Example:
+     abcd(I=0.95,dI=0.01,Fz=0.6,dFz=0.01,FzP=0.56, dFzP=0.2,METCut=30.,data)
+     These parameters keep the same notation as in the note. The last parameter (data)
+     can take 3 values:
+     data: calculate in ABCD as in data. This means that the histograms denoted with
+           sig,qcd,bce,gje  are used as of the same kind and ewk as the MC ewk. 
+           The background is substructed as in data
+     mcOnly: here we ignore all the input parameters I, dI etc. All parameters are taken
+           from MC by forcing Fqcd=1
+     mc:   here we take from MC everything that is not specified in the input parameters
+           for example, if I is given a negative value, or it is not contained in the
+           keyword, it is taken from mc WARNING: this option has not yet been implemented
+            
+
      TO DO:
      functionalities to plot more kind of plots, e.g. efficiencies
      
@@ -76,6 +95,13 @@ void plotMaker(TString histoName, TString typeOfplot,
 	       vector<TString> file, vector<TString> type, 
 	       vector<double> weight, 
 	       TString xtitle, Int_t NBins, Double_t min, Double_t max);
+
+void abcd(vector<TString> file, vector<TString> type, vector<double> weight,
+	  double METCut, double I, double dI, double Fz, double dFz, 
+	  double FzP, double dFzP, 
+	  double data, double mc, double mcOnly);
+double  searchABCDstring(TString abcdString, TString keyword);
+Double_t Trionym(Double_t a, Double_t b, Double_t c, Double_t sum);
 
 
 void PlotCombiner()
@@ -144,18 +170,398 @@ void PlotCombiner()
     //        ====================
     plotMaker("h_met", typeOfplot, files, types, weights, "MET (GeV)", 100,0,100);
   }
-  else {
+  else if (typeOfplot == "zee"){
     cout << "zee plot maker" << endl;
     //        ====================
     // =====> WHICH HISTOS TO PLOT
     //        ====================
     plotMaker("h_mee", typeOfplot, files, types, weights, "M_{ee} (GeV)", 150,0,150);
   }
+  else if (typeOfplot(0,4) == "abcd") {
+    // now read the parameters of the ABCD method
+    // look for parameter I and dI
+    double I = searchABCDstring(typeOfplot, "I");
+    double dI= searchABCDstring(typeOfplot, "dI");
+    // look for parameter Fz
+    double Fz = searchABCDstring(typeOfplot, "Fz");
+    double dFz= searchABCDstring(typeOfplot, "dFz");
+    // look for parameter FzP
+    double FzP = searchABCDstring(typeOfplot, "FzP");
+    double dFzP= searchABCDstring(typeOfplot, "dFzP");
+    // look for the MET cut
+    double METCut =searchABCDstring(typeOfplot, "METCut");
+    // do you want data driven only?
+    double data = searchABCDstring(typeOfplot, "data");
+    double mc = searchABCDstring(typeOfplot, "mc");
+    double mcOnly = searchABCDstring(typeOfplot, "mcOnly");
+    //        ===============================
+    // =====> ABCD METHOD FOR BKG SUBTRACTION
+    //        ===============================
+    abcd(files, types, weights, METCut, I, dI, Fz, dFz, FzP, dFzP,
+	 data, mc, mcOnly);
+
+  }
 
 
 }
 
+void abcd( vector<TString> file, vector<TString> type, vector<double> weight, double METCut,
+	   double I, double dI, double Fz, double dFz, double FzP, double dFzP, 
+	   double data, double mc, double mcOnly)
+{
+  gROOT->Reset();
+  gROOT->ProcessLine(".L tdrstyle.C"); 
+  gROOT->ProcessLine("setTDRStyle()");
+  //
+  std::cout << "Trying ABCD method for Background subtration" << std::endl;
+  //
+  // histogram names to use:
+  TString histoName_Ba("h_met_EB");
+  TString histoName_Bb("h_met_inverse_EB");
+  TString histoName_Ea("h_met_EE");
+  TString histoName_Eb("h_met_inverse_EE");
+  //
+  // find one file and get the dimensions of your histogram
+  int fmax = (int) file.size();
+  int NBins = 0; Double_t min = 0; Double_t max = -1;
+  for (int i=0; i<fmax; ++i) {
+    if (weight[i]>0) {
+      TFile f(file[i]);
+      TH1F *h = (TH1F*) f.Get(histoName_Ba);
+      NBins = h->GetNbinsX();
+      min = h->GetBinLowEdge(1);
+      max = h->GetBinLowEdge(NBins+1);
+      break;
+    }
+  }
+  if (NBins ==0 || (max<min)) {
+    std::cout << "PlotCombiner::abcd error: Could not find valid histograms in file"
+	      << std::endl;
+    abort();
+  }
+  //
+  // Wenu Signal .......................................................
+  TH1F h_wenu("h_wenu", "h_wenu", NBins, min, max);
+  TH1F h_wenu_inv("h_wenu_inv", "h_wenu_inv", NBins, min, max);
+  for (int i=0; i<fmax; ++i) {
+    if (type[i] == "sig" && weight[i]>0 ) {
+      TFile f(file[i]);
+      //
+      TH1F *h_ba = (TH1F*) f.Get(histoName_Ba);
+      h_wenu.Add(h_ba, weight[i]);
+      TH1F *h_ea = (TH1F*) f.Get(histoName_Ea);
+      h_wenu.Add(h_ea, weight[i]);
+      //
+      TH1F *h_bb = (TH1F*) f.Get(histoName_Bb);
+      h_wenu_inv.Add(h_bb, weight[i]);
+      TH1F *h_eb = (TH1F*) f.Get(histoName_Eb);
+      h_wenu_inv.Add(h_eb, weight[i]);
+    }
+    // as signal consider also qcd,bce,gje events if data option is on
+    if ((data < 0 && data >-0.75) && type[i]!="sig"
+	&& type[i]!="ewk") {
+      TFile f(file[i]);
+      //
+      TH1F *h_ba = (TH1F*) f.Get(histoName_Ba);
+      h_wenu.Add(h_ba, weight[i]);
+      TH1F *h_ea = (TH1F*) f.Get(histoName_Ea);
+      h_wenu.Add(h_ea, weight[i]);
+      //
+      TH1F *h_bb = (TH1F*) f.Get(histoName_Bb);
+      h_wenu_inv.Add(h_bb, weight[i]);
+      TH1F *h_eb = (TH1F*) f.Get(histoName_Eb);
+      h_wenu_inv.Add(h_eb, weight[i]);      
+    }
+  }
+  // QCD Bkgs
+  TH1F h_qcd("h_qcd", "h_qcd", NBins, min, max);
+  TH1F h_qcd_inv("h_qcd_inv", "h_qcd_inv", NBins, min, max);
+  for (int i=0; i<fmax; ++i) {
+    if ((type[i] == "qcd" || type[i] == "bce" 
+	 || type[i] == "gje") && weight[i]>0) {
+      TFile f(file[i]);
+      //
+      TH1F *h_ba = (TH1F*) f.Get(histoName_Ba);
+      h_qcd.Add(h_ba, weight[i]);
+      TH1F *h_ea = (TH1F*) f.Get(histoName_Ea);
+      h_qcd.Add(h_ea, weight[i]);
+      //
+      TH1F *h_bb = (TH1F*) f.Get(histoName_Bb);
+      h_qcd_inv.Add(h_bb, weight[i]);
+      TH1F *h_eb = (TH1F*) f.Get(histoName_Eb);
+      h_qcd_inv.Add(h_eb, weight[i]);
+    }
+  }
+  //
+  TH1F h_ewk("h_ewk", "h_ewk", NBins, min, max);
+  TH1F h_ewk_inv("h_ewk_inv", "h_ewk_inv", NBins, min, max);
+  for (int i=0; i<fmax; ++i) {
+    if ( type[i] == "ewk" && weight[i]>0) {
+      TFile f(file[i]);
+      //
+      TH1F *h_ba = (TH1F*) f.Get(histoName_Ba);
+      h_ewk.Add(h_ba, weight[i]);
+      TH1F *h_ea = (TH1F*) f.Get(histoName_Ea);
+      h_ewk.Add(h_ea, weight[i]);
+      //
+      TH1F *h_bb = (TH1F*) f.Get(histoName_Bb);
+      h_ewk_inv.Add(h_bb, weight[i]);
+      TH1F *h_eb = (TH1F*) f.Get(histoName_Eb);
+      h_ewk_inv.Add(h_eb, weight[i]);
+    }
+  }
+  //
+  // calculate the METCut position
+  //
+  // this is calculated as a low edge bin of your input histogram
+  // METCut = min + (max-min)*IMET/NBins
+  int IMET = int ((METCut - min)/(max-min) * double(NBins));
+  // check whether it is indeed a low egde position
+  double metCalc = min + (max-min)*double(IMET)/double(NBins);
+  if (metCalc < METCut || metCalc > METCut) {
+    std::cout << "PlotCombiner:abcd: your MET Cut is not in low egde bin position"
+	      << std::endl;
+  }
+  // Calculate the population in the ABCD Regions now
+  // signal
+  double a_sig = h_wenu.Integral(IMET,NBins+1);
+  double b_sig = h_wenu.Integral(0,IMET-1);
+  double c_sig = h_wenu_inv.Integral(0,IMET-1);
+  double d_sig = h_wenu_inv.Integral(IMET,NBins+1);
+  // qcd
+  double a_qcd = h_qcd.Integral(IMET,NBins+1);
+  double b_qcd = h_qcd.Integral(0,IMET-1);
+  double c_qcd = h_qcd_inv.Integral(0,IMET-1);
+  double d_qcd = h_qcd_inv.Integral(IMET,NBins+1);
+  // ewk
+  double a_ewk = h_ewk.Integral(IMET,NBins+1);
+  double b_ewk = h_ewk.Integral(0,IMET-1);
+  double c_ewk = h_ewk_inv.Integral(0,IMET-1);
+  double d_ewk = h_ewk_inv.Integral(IMET,NBins+1);
+  ////////////////////////////////////////////////
+  //
+  // now the parameters of the method
+  if (data < 0 && data >-0.75) {  // select value -0.5 that gives the
+                                  // string parser
+    // now everything is done from data + input
+    double A = (1.0-I)*(FzP-Fz);
+    double B = I*(FzP+1.0)*(FzP*(c_sig-c_ewk)-(d_sig-d_ewk)) + 
+      (1+Fz)*(1-I)*((a_sig-a_ewk)-dFzP*(b_sig-b_ewk));
+    double C = I*(1.+Fz)*(1.+FzP)*((d_sig-d_ewk)*(b_sig-b_ewk) - (a_sig-a_ewk)*(c_sig-c_ewk));
+    //
+    // signal calculation:
+    double S = Trionym(A,B,C, a_sig+b_sig);
 
+    // the errors now:
+    // calculate the statistical error now:
+    Double_t  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
+    Double_t  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
+    Double_t  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
+    Double_t  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
+    //
+    double Na = a_sig, Nb = b_sig, Nc=c_sig, Nd = d_sig;
+    double Ea = a_ewk, Eb = b_ewk, Ec=c_ewk, Ed = d_ewk;
+    if (A != 0) {
+      
+      ApI   = -(FzP-Fz);
+      ApFz  = -(1.0-I);
+      ApFzP = (1.0-I);
+      ApNa  = 0.0;
+      ApNb  = 0.0;
+      ApNc  = 0.0;
+      ApNd  = 0.0;
+      
+      BpI   = (FzP+1.0)*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0+Fz)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFz  = I*(FzP+1.0)*(Nc-Ec)+(1.0-I)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFzP = I*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0-I)*(1.0+Fz)*(Nb-Eb);
+      BpNa  =  (1.0-I)*(1.0+Fz);
+      BpNb  = -(1.0-I)*(1.0+Fz)*FzP;
+      BpNc  = I*(FzP+1.0)*Fz;
+      BpNd  = -I*(FzP+1.0);
+      
+      CpI   = (1.0+Fz)*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec)); 
+      CpFz  = I*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpFzP = I*(1.0+Fz)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpNa  = -I*(1.0+Fz)*(1.0+FzP)*(Nc-Ec);
+      CpNb  =  I*(1.0+Fz)*(1.0+FzP)*(Nd-Ed);
+      CpNc  = -I*(1.0+Fz)*(1.0+FzP)*(Na-Ea);
+      CpNd  =  I*(1.0+Fz)*(1.0+FzP)*(Nb-Eb);
+      
+      SpI   = (-BpI   + (B*BpI   -2.0*ApI*C   -2.0*A*CpI)  /fabs(2.0*A*S+B)- 2.0*ApI*S)  /(2.0*A);
+      SpFz  = (-BpFz  + (B*BpFz  -2.0*ApFz*C  -2.0*A*CpFz) /fabs(2.0*A*S+B)- 2.0*ApFz*S) /(2.0*A);
+      SpFzP = (-BpFzP + (B*BpFzP -2.0*ApFzP*C -2.0*A*CpFzP)/fabs(2.0*A*S+B)- 2.0*ApFzP*S)/(2.0*A);
+      SpNa  = (-BpNa  + (B*BpNa  -2.0*ApNa*C  -2.0*A*CpNa) /fabs(2.0*A*S+B)- 2.0*ApNa*S) /(2.0*A);
+      SpNb  = (-BpNb  + (B*BpNb  -2.0*ApNb*C  -2.0*A*CpNb) /fabs(2.0*A*S+B)- 2.0*ApNb*S) /(2.0*A);
+      SpNc  = (-BpNc  + (B*BpNc  -2.0*ApNc*C  -2.0*A*CpNc) /fabs(2.0*A*S+B)- 2.0*ApNc*S) /(2.0*A);
+      SpNd  = (-BpNd  + (B*BpNd  -2.0*ApNd*C  -2.0*A*CpNd) /fabs(2.0*A*S+B)- 2.0*ApNd*S) /(2.0*A);
+    }
+    else {
+      BpI   = (FzP+1.0)*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0+Fz)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFz  = I*(FzP+1.0)*(Nc-Ec)+(1.0-I)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFzP = I*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0-I)*(1.0+Fz)*(Nb-Eb);
+      BpNa  =  (1.0-I)*(1.0+Fz);
+      BpNb  = -(1.0-I)*(1.0+Fz)*FzP;
+      BpNc  = I*(FzP+1.0)*Fz;
+      BpNd  = -I*(FzP+1.0);
+      
+      CpI   = (1.0+Fz)*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec)); 
+      CpFz  = I*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpFzP = I*(1.0+Fz)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpNa  = -I*(1.0+Fz)*(1.0+FzP)*(Nc-Ec);
+      CpNb  =  I*(1.0+Fz)*(1.0+FzP)*(Nd-Ed);
+      CpNc  = -I*(1.0+Fz)*(1.0+FzP)*(Na-Ea);
+      CpNd  =  I*(1.0+Fz)*(1.0+FzP)*(Nb-Eb);
+      
+      SpI   = -CpI/B+C*BpI/(B*B);
+      SpFz  = -CpFz/B+C*BpFz/(B*B);
+      SpFzP = -CpFzP/B+C*BpFzP/(B*B);
+      SpNa  = -CpNa/B+C*BpNa/(B*B);
+      SpNb  = -CpNb/B+C*BpNb/(B*B);
+      SpNc  = -CpNc/B+C*BpNc/(B*B);
+      SpNd  = -CpNd/B+C*BpNd/(B*B);
+    }
+    Double_t  DS;
+    DS = sqrt( SpI*dI*SpI*dI + SpFz*dFz*SpFz*dFz + SpFzP*dFzP*SpFzP*dFzP  +
+	       SpNa*SpNa*Na + SpNb*SpNb*Nb + SpNc*SpNc*Nc + SpNd*SpNd*Nd );
+    // warning: S here denotes the method prediction ..........
+    cout << "Statistical Error Summary: " << endl;
+    cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
+    cout << "due to FzP= "<< SpFzP*dFzP
+	 << ", ("<<SpFzP*dFzP*100./S << "%)"<< endl; 
+    cout << "due to  I = "<< SpI*dI
+	 << ", ("<<SpI*dI*100./S << "%)"<< endl; 
+    cout << "due to Na = "<< SpNa*sqrt(Na)
+	 << ", ("<< SpNa*sqrt(Na)*100./S << "%)"<< endl; 
+    cout << "due to Nb = "<< SpNb*sqrt(Nb)
+	 << ", ("<< SpNb*sqrt(Nb)*100./S << "%)"<< endl; 
+    cout << "due to Nc = "<< SpNc*sqrt(Nc)
+	 << ", ("<< SpNc*sqrt(Nc)*100./S << "%)"<< endl; 
+    cout << "due to Nd = "<< SpNd*sqrt(Nd)
+	 << ", ("<< SpNd*sqrt(Nd)*100./S << "%)"<< endl; 
+    cout << "Total Statistical Error: " 
+	 << DS << ", (" << DS*100./S << "%)"<< endl;
+    cout << "Stat Error percentages are wrt S prediction, not S mc" << endl;
+  }
+  if (mcOnly < 0 && mcOnly >-0.75) {  // select value -0.5 that gives the
+                                      // string parser
+
+    // recalculate the basic quantities
+    I = (a_sig + b_sig) / (a_sig + b_sig + c_sig + d_sig);
+    dI = sqrt(I*(1-I)/(a_sig + b_sig + c_sig + d_sig));
+    Fz = a_sig/b_sig;
+    double e =a_sig/(a_sig + b_sig);
+    double de = sqrt(e*(1-e)/(a_sig + b_sig));
+    double alpha = de/(2.*Fz-e);
+    dFz = alpha/(1-alpha);
+    FzP = d_sig/c_sig;
+    double ep =d_sig/(c_sig + d_sig);
+    double dep = sqrt(ep*(1-ep)/(c_sig + d_sig));
+    double alphap = dep/(2.*FzP-ep);
+    dFzP = alphap/(1-alphap);
+    //
+    // now everything is done from data + input
+    double A = (1.0-I)*(FzP-Fz);
+    double B = I*(FzP+1.0)*(FzP*(c_sig+c_qcd)-(d_sig+d_qcd)) + 
+      (1+Fz)*(1-I)*((a_sig+a_qcd)-dFzP*(b_sig+b_qcd));
+    double C = I*(1.+Fz)*(1.+FzP)*((d_sig+d_qcd)*(b_sig+b_qcd) - (a_sig+a_qcd)*(c_sig+c_qcd));
+    //
+    // signal calculation:
+    double S = Trionym(A,B,C, a_sig+b_sig+a_qcd +b_qcd);
+
+    // the errors now:
+    // calculate the statistical error now:
+    Double_t  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
+    Double_t  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
+    Double_t  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
+    Double_t  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
+    //
+    double Na = a_sig+a_qcd+a_ewk, Nb = b_sig+b_qcd+b_ewk, Nc=c_sig+c_qcd+c_ewk, 
+      Nd = d_sig+d_qcd+d_ewk;
+    double Ea = a_ewk, Eb = b_ewk, Ec=c_ewk, Ed = d_ewk;
+    if (A != 0) {
+      
+      ApI   = -(FzP-Fz);
+      ApFz  = -(1.0-I);
+      ApFzP = (1.0-I);
+      ApNa  = 0.0;
+      ApNb  = 0.0;
+      ApNc  = 0.0;
+      ApNd  = 0.0;
+      
+      BpI   = (FzP+1.0)*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0+Fz)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFz  = I*(FzP+1.0)*(Nc-Ec)+(1.0-I)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFzP = I*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0-I)*(1.0+Fz)*(Nb-Eb);
+      BpNa  =  (1.0-I)*(1.0+Fz);
+      BpNb  = -(1.0-I)*(1.0+Fz)*FzP;
+      BpNc  = I*(FzP+1.0)*Fz;
+      BpNd  = -I*(FzP+1.0);
+      
+      CpI   = (1.0+Fz)*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec)); 
+      CpFz  = I*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpFzP = I*(1.0+Fz)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpNa  = -I*(1.0+Fz)*(1.0+FzP)*(Nc-Ec);
+      CpNb  =  I*(1.0+Fz)*(1.0+FzP)*(Nd-Ed);
+      CpNc  = -I*(1.0+Fz)*(1.0+FzP)*(Na-Ea);
+      CpNd  =  I*(1.0+Fz)*(1.0+FzP)*(Nb-Eb);
+      
+      SpI   = (-BpI   + (B*BpI   -2.0*ApI*C   -2.0*A*CpI)  /fabs(2.0*A*S+B)- 2.0*ApI*S)  /(2.0*A);
+      SpFz  = (-BpFz  + (B*BpFz  -2.0*ApFz*C  -2.0*A*CpFz) /fabs(2.0*A*S+B)- 2.0*ApFz*S) /(2.0*A);
+      SpFzP = (-BpFzP + (B*BpFzP -2.0*ApFzP*C -2.0*A*CpFzP)/fabs(2.0*A*S+B)- 2.0*ApFzP*S)/(2.0*A);
+      SpNa  = (-BpNa  + (B*BpNa  -2.0*ApNa*C  -2.0*A*CpNa) /fabs(2.0*A*S+B)- 2.0*ApNa*S) /(2.0*A);
+      SpNb  = (-BpNb  + (B*BpNb  -2.0*ApNb*C  -2.0*A*CpNb) /fabs(2.0*A*S+B)- 2.0*ApNb*S) /(2.0*A);
+      SpNc  = (-BpNc  + (B*BpNc  -2.0*ApNc*C  -2.0*A*CpNc) /fabs(2.0*A*S+B)- 2.0*ApNc*S) /(2.0*A);
+      SpNd  = (-BpNd  + (B*BpNd  -2.0*ApNd*C  -2.0*A*CpNd) /fabs(2.0*A*S+B)- 2.0*ApNd*S) /(2.0*A);
+    }
+    else {
+      BpI   = (FzP+1.0)*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0+Fz)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFz  = I*(FzP+1.0)*(Nc-Ec)+(1.0-I)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFzP = I*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0-I)*(1.0+Fz)*(Nb-Eb);
+      BpNa  =  (1.0-I)*(1.0+Fz);
+      BpNb  = -(1.0-I)*(1.0+Fz)*FzP;
+      BpNc  = I*(FzP+1.0)*Fz;
+      BpNd  = -I*(FzP+1.0);
+      
+      CpI   = (1.0+Fz)*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec)); 
+      CpFz  = I*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpFzP = I*(1.0+Fz)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpNa  = -I*(1.0+Fz)*(1.0+FzP)*(Nc-Ec);
+      CpNb  =  I*(1.0+Fz)*(1.0+FzP)*(Nd-Ed);
+      CpNc  = -I*(1.0+Fz)*(1.0+FzP)*(Na-Ea);
+      CpNd  =  I*(1.0+Fz)*(1.0+FzP)*(Nb-Eb);
+      
+      SpI   = -CpI/B+C*BpI/(B*B);
+      SpFz  = -CpFz/B+C*BpFz/(B*B);
+      SpFzP = -CpFzP/B+C*BpFzP/(B*B);
+      SpNa  = -CpNa/B+C*BpNa/(B*B);
+      SpNb  = -CpNb/B+C*BpNb/(B*B);
+      SpNc  = -CpNc/B+C*BpNc/(B*B);
+      SpNd  = -CpNd/B+C*BpNd/(B*B);
+    }
+    Double_t  DS;
+    DS = sqrt( SpI*dI*SpI*dI + SpFz*dFz*SpFz*dFz + SpFzP*dFzP*SpFzP*dFzP  +
+	       SpNa*SpNa*Na + SpNb*SpNb*Nb + SpNc*SpNc*Nc + SpNd*SpNd*Nd );
+    // warning: S here denotes the method prediction ..........
+    cout << "Statistical Error Summary: " << endl;
+    cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
+    cout << "due to FzP= "<< SpFzP*dFzP
+	 << ", ("<<SpFzP*dFzP*100./S << "%)"<< endl; 
+    cout << "due to  I = "<< SpI*dI
+	 << ", ("<<SpI*dI*100./S << "%)"<< endl; 
+    cout << "due to Na = "<< SpNa*sqrt(Na)
+	 << ", ("<< SpNa*sqrt(Na)*100./S << "%)"<< endl; 
+    cout << "due to Nb = "<< SpNb*sqrt(Nb)
+	 << ", ("<< SpNb*sqrt(Nb)*100./S << "%)"<< endl; 
+    cout << "due to Nc = "<< SpNc*sqrt(Nc)
+	 << ", ("<< SpNc*sqrt(Nc)*100./S << "%)"<< endl; 
+    cout << "due to Nd = "<< SpNd*sqrt(Nd)
+	 << ", ("<< SpNd*sqrt(Nd)*100./S << "%)"<< endl; 
+    cout << "Total Statistical Error: " 
+	 << DS << ", (" << DS*100./S << "%)"<< endl;
+    cout << "Stat Error percentages are wrt S prediction, not S mc" << endl;
+  }
+
+
+}
 
 void plotMaker(TString histoName, TString wzsignal,
 	       vector<TString> file, vector<TString> type, 
@@ -259,4 +665,63 @@ void plotMaker(TString histoName, TString wzsignal,
 }
 
 
+//
+// reads the ABCD string and returns its value
+// value is whatever it exists after the = sign and
+// before the comma or the parenthesis
+//
+// if the string is not contained returns -1
+// if there is no value, but the string is contained -0.5
+// if there is an error in the algorithm return -99 and print error
+// else returns its value
+double searchABCDstring(TString abcdString, TString keyword)
+{
+  int size = keyword.Sizeof();
+  int existsEntry = abcdString.Index(keyword);
+  //
+  if (existsEntry==-1) return -1.;
+  //
+  TString previousVal = abcdString(existsEntry-1);
+  if (!(previousVal == "," || previousVal == " " || 
+	previousVal == "(" )) return -1.;
+  //
+  TString afterVal = abcdString(existsEntry+size-1);
+  //std::cout << "afterVal=" << afterVal << std::endl;
+  if (afterVal !="=") return -0.5;
+  //
+  // now find the comma or the parenthesis after the = sign
+  int comma = abcdString.Index(",",existsEntry);
+  //std::cout << "first comma=" << comma << std::endl;
+  if (comma<0) comma = abcdString.Index(")",existsEntry);
+  if (comma<0) {
+    std::cout << "Error in parcing abcd line, chech syntax " 
+	      << std::endl;
+    return -99.;
+  }
+  TString svalue=abcdString(existsEntry+size,comma-existsEntry-size);
+  std::cout << "Found ABCD parameter "<< keyword
+	    << " with value "  << svalue << endl;
+  // convert this to a float
+  double value = svalue.Atof();
+  return value;
 
+}
+
+
+Double_t Trionym(Double_t a, Double_t b, Double_t c, Double_t sum)
+{
+  if (a==0) {
+    return -c/b;
+  }
+  Double_t D2 = b*b - 4.*a*c;
+  //return (-b + sqrt(D2)) / (2.*a);
+  if (D2 > 0) {
+    Double_t s1 = (-b + sqrt(D2)) / (2.*a);
+    Double_t s2 = (-b - sqrt(D2)) / (2.*a);
+    Double_t solution =   fabs(s1-sum)<fabs(s2-sum)?s1:s2;
+    return solution;
+  }
+  else  {
+    return -1.;  
+  }
+}
