@@ -13,4 +13,4 @@ iterativeCone5HiGenJets = cms.EDProducer("SubEventGenJetProducer",
 
 iterativeCone5HiGenJets.src = cms.InputTag("hiGenParticlesForJets")
 
-hiGenJets = cms.Sequence(hiGenParticlesForJets*iterativeCone5HiGenJets)
+hiRecoGenJets = cms.Sequence(iterativeCone5HiGenJets)
