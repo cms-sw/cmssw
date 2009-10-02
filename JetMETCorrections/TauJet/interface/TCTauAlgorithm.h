@@ -37,6 +37,9 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
+
 #include "Math/VectorUtil.h"
 
 using namespace ROOT::Math;
@@ -65,9 +68,17 @@ class TCTauAlgorithm {
 	int    statistics();
 
     private:
+
+  	const edm::Event *event;
+  	const edm::EventSetup *setup;
+	TrackAssociatorParameters trackAssociatorParameters;
+	TrackDetectorAssociator* trackAssociator;
+
+
         void init();
 
 	XYZVector                 trackEcalHitPoint(const TransientTrack&,const CaloJet&);
+	XYZVector		  trackEcalHitPoint(const Track&);
 	pair<XYZVector,XYZVector> getClusterEnergy(const CaloJet&,XYZVector&,double);
 	XYZVector                 getCellMomentum(const CaloCellGeometry*,double&);
 

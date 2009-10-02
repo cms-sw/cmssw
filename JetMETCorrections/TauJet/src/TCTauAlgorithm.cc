@@ -23,6 +23,12 @@ TCTauAlgorithm::~TCTauAlgorithm(){}
 
 void TCTauAlgorithm::init(){
 
+	event = 0;
+	setup = 0;
+
+	trackAssociator = new TrackDetectorAssociator();
+  	trackAssociator->useDefaultPropagator();
+
 	etCaloOverTrackMin = -0.9;
 	etCaloOverTrackMax = 0.0;
 	etHcalOverTrackMin = -0.3;
@@ -78,6 +84,8 @@ void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig){
 	HORecHits_input    = iConfig.getUntrackedParameter<InputTag>("HORecHitCollection",HORecHits_input);
 	HFRecHits_input    = iConfig.getUntrackedParameter<InputTag>("HFRecHitCollection",HFRecHits_input);
 
+	edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  	trackAssociatorParameters.loadParameters( pset );
 }
 
 
@@ -94,6 +102,10 @@ int TCTauAlgorithm::allTauCandidates(){
 }
 
 void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+
+	event = &iEvent;
+	setup = &iSetup;
+
 	edm::ESHandle<TransientTrackBuilder> builder;
         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
         transientTrackBuilder = builder.product();
@@ -225,15 +237,18 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,co
 		}
 	}
         if(momentum.Rho() == 0) return p4;
-
+/*
 	const TransientTrack transientTrack = transientTrackBuilder->build(*leadTk);
 	XYZVector ltrackEcalHitPoint = trackEcalHitPoint(transientTrack,caloJet);
+*/
+	XYZVector ltrackEcalHitPoint = trackEcalHitPoint(*leadTk);
+
 	if(! (ltrackEcalHitPoint.Rho() > 0 && ltrackEcalHitPoint.Rho() < 9999) ) return p4;
 
         pair<XYZVector,XYZVector> caloClusters = getClusterEnergy(caloJet,ltrackEcalHitPoint,signalCone);
 	XYZVector EcalCluster = caloClusters.first;
         XYZVector HcalCluster = caloClusters.second;
-
+/*
         double etCaloOverTrack = (EcalCluster.Rho()+HcalCluster.Rho()-momentum.Rho())/momentum.Rho();
 
         pair<XYZVector,XYZVector> caloClustersPhoton = getClusterEnergy(caloJet,ltrackEcalHitPoint,ecalCone);
@@ -264,7 +279,40 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,co
                   p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
                 }
         }
+*/
+	double eCaloOverTrack = (EcalCluster.R()+HcalCluster.R()-momentum.R())/momentum.R();
 
+        pair<XYZVector,XYZVector> caloClustersPhoton = getClusterEnergy(caloJet,ltrackEcalHitPoint,ecalCone);
+        XYZVector EcalClusterPhoton = caloClustersPhoton.first;
+/*
+        TLorentzVector p4photons(EcalClusterPhoton.X() - EcalCluster.X(),
+                                 EcalClusterPhoton.Y() - EcalCluster.Y(),
+                                 EcalClusterPhoton.Z() - EcalCluster.Z(),
+                                 EcalClusterPhoton.R() - EcalCluster.R());
+*/
+	TLorentzVector p4photons(0,0,0,EcalClusterPhoton.R() - EcalCluster.R());
+
+        if( eCaloOverTrack > etCaloOverTrackMin  && eCaloOverTrack < etCaloOverTrackMax ) {
+                p4.SetXYZT(momentum.X(),
+                           momentum.Y(),
+                           momentum.Z(),
+                           momentum.R());
+                p4 += p4photons;
+        }
+        if( eCaloOverTrack  > etCaloOverTrackMax ) {
+                double eHcalOverTrack = (HcalCluster.R()-momentum.R())/momentum.R();
+
+                if ( eHcalOverTrack  > etHcalOverTrackMin  && eHcalOverTrack  < etHcalOverTrackMax ) {
+                  p4.SetXYZT(EcalCluster.X()   + momentum.X(),
+                             EcalCluster.Y()   + momentum.Y(),
+                             EcalCluster.Z()   + momentum.Z(),
+                             EcalCluster.R()   + momentum.R());
+                  p4 += p4photons;
+                }
+                if ( eHcalOverTrack  < etHcalOverTrackMin ) {
+                  p4.SetXYZT(caloJet.px(),caloJet.py(),caloJet.pz(),caloJet.energy());
+                }
+        }
 	if(p4.Et() > 0) passed++;
 
 	return p4;
@@ -282,9 +330,7 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack
                                                  iTower!= towers.end(); ++iTower){
                 if((*iTower)->et() > maxTowerEt){
                         maxTowerEt = (*iTower)->et();
-                        ecalHitPosition = GlobalPoint((*iTower)->momentum().x(),
-                                                      (*iTower)->momentum().y(),
-                                                      (*iTower)->momentum().z());
+                        ecalHitPosition = (*iTower)->emPosition();
                 }
         }
 
@@ -292,8 +338,9 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack
         XYZVector ecalHitPoint(0,0,0);
 
         try{
-                TrajectoryStateClosestToPoint TSCP = transientTrack.trajectoryStateClosestToPoint(ecalHitPosition);
-                GlobalPoint trackEcalHitPoint = TSCP.position();
+//                TrajectoryStateClosestToPoint TSCP = transientTrack.trajectoryStateClosestToPoint(ecalHitPosition);
+//                GlobalPoint trackEcalHitPoint = TSCP.position();
+		GlobalPoint trackEcalHitPoint = transientTrack.stateOnSurface(ecalHitPosition).globalPosition();
 
                 ecalHitPoint.SetXYZ(trackEcalHitPoint.x(),
                                     trackEcalHitPoint.y(),
@@ -301,6 +348,16 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack
         }catch(...) {;}
 
         return ecalHitPoint;
+}
+
+XYZVector TCTauAlgorithm::trackEcalHitPoint(const Track& track){
+
+      	const FreeTrajectoryState fts = trackAssociator->getFreeTrajectoryState(*setup,track);
+      	TrackDetMatchInfo info = trackAssociator->associate(*event, *setup, fts, trackAssociatorParameters);
+      	if( info.isGoodEcal != 0 ) {
+          return XYZVector(info.trkGlobPosAtEcal.x(),info.trkGlobPosAtEcal.y(),info.trkGlobPosAtEcal.z());
+	}
+	return XYZVector(0,0,0);
 }
 
 pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone){
