@@ -9,10 +9,10 @@
 
 #include <map>
 
-#define maxHDe    15   // energy points for hadrons 
-#define maxHDeta  51   // eta points for hadrons
-#define maxEMe     7   // energy points e/gamma in HF
-#define maxEMeta  20   //
+#define maxHDe    15   // energy points for hadrons  
+#define maxHDeta  51   // eta    points for hadrons
+#define maxEMe     6   // energy points  e/gamma in HF
+#define maxEMeta  21   // eta points     e/gamma in HF
 #define maxMUe     4   // energy points for muons
 #define maxMUeta   6   
 #define maxMUbin  40   // binning oh muon histograms  

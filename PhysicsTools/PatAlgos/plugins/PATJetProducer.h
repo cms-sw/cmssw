@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.17 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATJetProducer.h,v 1.21 2009/09/21 09:10:45 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.17 2009/06/08 13:51:35 hegner Exp $
+  \version  $Id: PATJetProducer.h,v 1.21 2009/09/21 09:10:45 fronga Exp $
 */
 
 
@@ -31,6 +31,8 @@
 
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
+
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -62,6 +64,7 @@ namespace pat {
       bool                     embedGenPartonMatch_;
       edm::InputTag            genPartonSrc_;
       bool                     addGenJetMatch_;
+      bool                     embedGenJetMatch_;
       edm::InputTag            genJetSrc_;
       bool                     addPartonJetMatch_;
       edm::InputTag            partonJetSrc_;
@@ -75,10 +78,11 @@ namespace pat {
       bool                       addTagInfos_; 
       std::vector<edm::InputTag> tagInfoTags_;
       std::vector<std::string>   tagInfoLabels_;
-      bool                     addAssociatedTracks_;
-      edm::InputTag            trackAssociation_;
-      bool                     addJetCharge_;
-      edm::InputTag            jetCharge_;
+      bool                       addAssociatedTracks_;
+      edm::InputTag              trackAssociation_;
+      bool                       addJetCharge_;
+      edm::InputTag              jetCharge_;
+      bool                       addJetID_;
       // tools
       GreaterByPt<Jet>                   pTComparator_;
 
@@ -90,6 +94,9 @@ namespace pat {
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
+
+      
+      reco::helper::JetIDHelper jetIDHelper_;
 
   };
 

@@ -1,9 +1,0 @@
-<use name=FWCore/Framework>
-<use name=DQMServices/Core>
-<use name=DataFormats/MuonReco>
-<use name=DataFormats/EgammaReco>
-<use name=RecoMuon/TrackingTools>
-<use name=HLTrigger/HLTcore>
-<export>
-  <lib name=1>
-</export>

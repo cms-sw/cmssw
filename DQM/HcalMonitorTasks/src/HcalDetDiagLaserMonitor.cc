@@ -128,7 +128,7 @@ int  eta,phi,depth,nTS;
        edm::Handle<FEDRawDataCollection> rawdata;
        iEvent.getByType(rawdata);
        //checking FEDs for calibration information
-       for (int i=FEDNumbering::getHcalFEDIds().first;i<=FEDNumbering::getHcalFEDIds().second; i++) {
+       for (int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
           const FEDRawData& fedData = rawdata->FEDData(i) ;
           if ( fedData.size() < 24 ) continue ;
           int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;

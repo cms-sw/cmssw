@@ -11,7 +11,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/TestEvtGen.root')
+    fileNames = cms.untracked.vstring('file:/tmp/PYTHIA6_Psi2SWithFSR_10TeV_cff_py_GEN.root')
 )
 
 process.Test = cms.EDAnalyzer("EvtGenTestAnalyzer",

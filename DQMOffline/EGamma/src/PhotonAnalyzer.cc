@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/06/19 14:30:03 $ 
+ **  $Date: 2009/06/17 13:17:11 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -90,11 +90,15 @@ void PhotonAnalyzer::beginJob()
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
   int etaBin = parameters_.getParameter<int>("etaBin");
+  double barrelEtaMin = parameters_.getParameter<double>("barrelEtaMin");
+  double barrelEtaMax = parameters_.getParameter<double>("barrelEtaMax");
+  int barrelEtaBin = parameters_.getParameter<int>("barrelEtaBin");
 
  
   double phiMin = parameters_.getParameter<double>("phiMin");
   double phiMax = parameters_.getParameter<double>("phiMax");
   int    phiBin = parameters_.getParameter<int>("phiBin");
+  int    barrelPhiBin = parameters_.getParameter<int>("barrelPhiBin");
 
   double r9Min = parameters_.getParameter<double>("r9Min"); 
   double r9Max = parameters_.getParameter<double>("r9Max"); 
@@ -103,6 +107,10 @@ void PhotonAnalyzer::beginJob()
   double hOverEMin = parameters_.getParameter<double>("hOverEMin"); 
   double hOverEMax = parameters_.getParameter<double>("hOverEMax"); 
   int hOverEBin = parameters_.getParameter<int>("hOverEBin");
+
+  double xyMin = parameters_.getParameter<double>("xyMin"); 
+  double xyMax = parameters_.getParameter<double>("xyMax"); 
+  int xyBin = parameters_.getParameter<int>("xyBin");
 
   double xMin = parameters_.getParameter<double>("xMin"); 
   double xMax = parameters_.getParameter<double>("xMax"); 
@@ -221,6 +229,10 @@ void PhotonAnalyzer::beginJob()
 
 	}//end loop over different parts of the ecal
 
+// 	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionAllEcal","Distribution of "+types[type]+" Photons in Eta/Phi: AllEcal;#phi;#eta",phiBin,phiMin,phiMax,etaBin,etaMin,etaMax));
+// 	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionBarrel","Distribution of "+types[type]+" Photons in Eta/Phi: Barrel;#phi;#eta",barrelPhiBin,phiMin,phiMax,barrelEtaBin,barrelEtaMin,barrelEtaMax));
+// 	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapMinus","Distribution of "+types[type]+" Photons in X/Y: EndcapMinus;x (cm);y (cm)",xyBin,xyMin,xyMax,xyBin,xyMin,xyMax));
+// 	h_phoDistribution_part_.push_back(dbe_->book2D("DistributionEndcapPlus","Distribution of "+types[type]+" Photons in X/Y: EndcapPlus;x (cm);y (cm)",xyBin,xyMin,xyMax,xyBin,xyMin,xyMax));
 
 	h_phoE_isol_.push_back(h_phoE_part_);
 	h_phoE_part_.clear();
@@ -243,6 +255,11 @@ void PhotonAnalyzer::beginJob()
 	p_ecalSumVsEt_part_.clear();
 	p_hcalSumVsEt_part_.clear();
 
+
+
+
+// 	h_phoDistribution_isol_.push_back(h_phoDistribution_part_);
+// 	h_phoDistribution_part_.clear();
 
 	h_phoEta_isol_.push_back(dbe_->book1D("phoEta",types[type]+" Photon Eta;#eta ",etaBin,etaMin, etaMax)) ;
 	h_phoPhi_isol_.push_back(dbe_->book1D("phoPhi",types[type]+" Photon Phi;#phi ",phiBin,phiMin,phiMax)) ;
@@ -364,6 +381,8 @@ void PhotonAnalyzer::beginJob()
       h_nPho_.push_back(h_nPho_isol_);
       h_nPho_isol_.clear();
       
+//       h_phoDistribution_.push_back(h_phoDistribution_isol_);
+//       h_phoDistribution_isol_.clear();
             
       h_phoEta_.push_back(h_phoEta_isol_);
       h_phoEta_isol_.clear();
@@ -984,6 +1003,22 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	fill2DHistoVector(p_hOverEVsEt_,(*iPho).et(),(*iPho).hadronicOverEm(),cut,type);
 
 
+
+
+// 	h_phoDistribution_[cut][0][0]->Fill( (*iPho).phi(),(*iPho).eta() );
+// 	h_phoDistribution_[cut][type][0]->Fill( (*iPho).phi(),(*iPho).eta() );
+// 	if ( phoIsInBarrel ) {
+// 	  h_phoDistribution_[cut][0][1]->Fill( (*iPho).phi(),(*iPho).eta() );
+// 	  h_phoDistribution_[cut][type][1]->Fill( (*iPho).phi(),(*iPho).eta() );
+// 	}	
+// 	if ( phoIsInEndcapMinus ) {
+// 	  h_phoDistribution_[cut][0][2]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+// 	  h_phoDistribution_[cut][type][2]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+// 	}	
+// 	if ( phoIsInEndcapPlus ) {
+// 	  h_phoDistribution_[cut][0][3]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+// 	  h_phoDistribution_[cut][type][3]->Fill( (*iPho).superCluster()->x(),(*iPho).superCluster()->y() );
+// 	}
 
 
 	// filling conversion-related histograms

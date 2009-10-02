@@ -56,8 +56,8 @@ namespace xuti{
   const  std::string Endcap_tag("EndcapValue");
 
 
-  const  std::string Value_tag("Value");
-  const  std::string EcalFloatCondObjectContainer_tag("EcalFloatCondObjectContainer");
+
+
 
 }
 

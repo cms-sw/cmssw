@@ -1,7 +1,6 @@
 #ifndef DQM_SiStripCommissioningAnalysis_OptoScanAlgorithm_H
 #define DQM_SiStripCommissioningAnalysis_OptoScanAlgorithm_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/CommissioningAlgorithm.h"
 #include <boost/cstdint.hpp>
 #include <vector>
@@ -19,7 +18,7 @@ class OptoScanAlgorithm : public CommissioningAlgorithm {
   
  public:
   
-  OptoScanAlgorithm( const edm::ParameterSet & pset, OptoScanAnalysis* const );
+  OptoScanAlgorithm( OptoScanAnalysis* const );
   
   virtual ~OptoScanAlgorithm() {;}
 
@@ -41,9 +40,6 @@ class OptoScanAlgorithm : public CommissioningAlgorithm {
   
   /** Pointers and titles for histograms. */
   std::vector< std::vector<Histo> > histos_;
-
-  /** Analysis parameters */
-  float targetGain_;
   
 };
 

@@ -5,6 +5,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "PhysicsTools/PFCandProducer/plugins/PFCandidateSelectorDefinition.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
 
   typedef edm::ValueMap<double> IsoMap;
@@ -14,8 +16,7 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
     isolationCuts_(cfg.getParameter< std::vector<double> >("isolationCuts")) { 
 
     if( isolationCuts_.size() != isolationValueMapLabels_.size() )
-      assert(0);
-      //      throw edm::Exception("the vector of isolation ValueMaps and the vector of the corresponding cuts must have the same size.");
+      throw cms::Exception("BadConfiguration")<<"the vector of isolation ValueMaps and the vector of the corresponding cuts must have the same size."<<std::endl;
   }
 
   void select( const HandleToCollection & hc, 
@@ -23,7 +24,7 @@ struct IsolatedPFCandidateSelectorDefinition : public PFCandidateSelectorDefinit
 	       const edm::EventSetup& s) {
     selected_.clear();
     
-    assert( hc.isValid() );
+/*     assert( hc.isValid() ); */
 
     // read all isolation value maps
     std::vector< edm::Handle<IsoMap> > 

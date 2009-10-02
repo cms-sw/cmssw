@@ -63,6 +63,7 @@ namespace edm {
     void readMany_(int number, EventPrincipalVector& result);
     void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
+    void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     ProductRegistry const& fileProductRegistry() const;
   private:

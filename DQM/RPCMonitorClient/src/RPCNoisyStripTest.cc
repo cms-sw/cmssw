@@ -14,9 +14,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 
-//Geometry
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-
 using namespace edm;
 using namespace std;
 
@@ -26,7 +23,7 @@ RPCNoisyStripTest::RPCNoisyStripTest(const ParameterSet& ps ){
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
+
 }
 
 RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
@@ -115,11 +112,9 @@ void RPCNoisyStripTest::beginRun(const Run& r, const EventSetup& iSetup,vector<M
      dbe_->removeElement(me->getName());
    }
    
-   NOISEDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() ,36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
-
-   rpcUtils.labelXAxisSegment(NOISEDisk[w+offset]);
-   rpcUtils.labelYAxisRing(NOISEDisk[w+offset], numberOfRings_);
-
+   NOISEDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() , 6, 0.5, 6.5, 54, 0.5, 54.5);
+   rpcUtils.labelXAxisSector( NOISEDisk[w+offset]);
+   rpcUtils.labelYAxisRoll( NOISEDisk[w+offset], 1, w);
  }//end loop wheel and disks
    
  //Get NumberOfDigi ME for each roll
@@ -201,17 +196,21 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,Ev
       NOISE = NOISEWheel[detId.ring()+2];
       DEVD = DEVDWheel[detId.ring()+2];
       NOISED= NOISEDWheel[detId.ring()+2];
-    }else if(detId.region()<0 && (-detId.station() + numberOfDisks_) >= 0 ){//ENDCAP-
-      NOISE = NOISEDisk[ -detId.station() + numberOfDisks_];
-      DEVD = DEVDDisk[ -detId.station()  + numberOfDisks_];
-      NOISED= NOISEDDisk[-detId.station() + numberOfDisks_];
-    }else if((-detId.station() + numberOfDisks_)>= 0 ){//ENDCAP +
-      NOISE = NOISEDisk[detId.station() + numberOfDisks_-1];
-      DEVD = DEVDDisk[detId.station()  + numberOfDisks_-1];
-      NOISED= NOISEDDisk[detId.station() + numberOfDisks_-1];
+    }else if(detId.region()<0 && ((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){//ENDCAP-
+      NOISE = NOISEDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+      DEVD = DEVDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+      NOISED= NOISEDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+    }else if(((detId.station() * detId.region() ) + numberOfDisks_-1) >= 0 ){//ENDCAP +
+      NOISE = NOISEDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+      DEVD = DEVDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+      NOISED= NOISEDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
     }
     
+ //    RPCGeomServ RPCserv(detId);
+//     const RPCRoll * rpcRoll = rpcgeo->roll(detId);      
+//     unsigned int nstrips =rpcRoll->nstrips();
     
+      
     int entries = (int) myMe -> getEntries();
     int bins = (int) myMe ->getNbinsX();
       
@@ -235,22 +234,11 @@ void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,Ev
 	if(DEVD) DEVD-> Fill(deviation);
       }
 	
-      if(NOISE && NOISED ){
-	int xBin,yBin;
-	if(detId.region()==0){//Barrel
-	  xBin= detId.sector();
-	  rpcdqm::utils rollNumber;
-	  yBin = rollNumber.detId2RollNr(detId);
-	}else{//Endcap
-	  //get segment number
-	  RPCGeomServ RPCServ(detId);
-	  xBin = RPCServ.segment();
-	  (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
-	}
-	
-	NOISE->setBinContent(xBin,yBin,noisyStrips); 
-	NOISED ->Fill(noisyStrips);
-      }
+      rpcdqm::utils rollNumber;
+      int nr = rollNumber.detId2RollNr(detId);
+         
+      if(NOISE) NOISE->setBinContent(detId.sector(),nr,noisyStrips); 
+      if(NOISED) NOISED ->Fill(noisyStrips);
     }
 }
 

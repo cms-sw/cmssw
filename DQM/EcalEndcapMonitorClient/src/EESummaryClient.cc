@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2009/06/12 12:31:37 $
- * $Revision: 1.167 $
+ * $Date: 2009/06/11 20:54:52 $
+ * $Revision: 1.166 $
  * \author G. Della Ricca
  *
 */
@@ -65,14 +65,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
-  laserWavelengths_.reserve(4);
-  for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
-
-  ledWavelengths_.reserve(2);
-  for ( unsigned int i = 1; i <= 2; i++ ) ledWavelengths_.push_back(i);
-  ledWavelengths_ = ps.getUntrackedParameter<vector<int> >("ledWavelengths", ledWavelengths_);
-
   // summary maps
   meIntegrity_[0]      = 0;
   meIntegrity_[1]      = 0;
@@ -86,7 +78,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   mePedestalOnlineRMSMap_[1] = 0;
   mePedestalOnlineMean_   = 0;
   mePedestalOnlineRMS_    = 0;
-
   meLaserL1_[0]        = 0;
   meLaserL1_[1]        = 0;
   meLaserL1PN_[0]      = 0;
@@ -94,31 +85,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meLaserL1Ampl_ = 0;
   meLaserL1Timing_  = 0;
   meLaserL1AmplOverPN_ = 0;
-
-  meLaserL2_[0]        = 0;
-  meLaserL2_[1]        = 0;
-  meLaserL2PN_[0]      = 0;
-  meLaserL2PN_[1]      = 0;
-  meLaserL2Ampl_ = 0;
-  meLaserL2Timing_  = 0;
-  meLaserL2AmplOverPN_ = 0;
-
-  meLaserL3_[0]        = 0;
-  meLaserL3_[1]        = 0;
-  meLaserL3PN_[0]      = 0;
-  meLaserL3PN_[1]      = 0;
-  meLaserL3Ampl_ = 0;
-  meLaserL3Timing_  = 0;
-  meLaserL3AmplOverPN_ = 0;
-
-  meLaserL4_[0]        = 0;
-  meLaserL4_[1]        = 0;
-  meLaserL4PN_[0]      = 0;
-  meLaserL4PN_[1]      = 0;
-  meLaserL4Ampl_ = 0;
-  meLaserL4Timing_  = 0;
-  meLaserL4AmplOverPN_ = 0;
-
   meLedL1_[0]          = 0;
   meLedL1_[1]          = 0;
   meLedL1PN_[0]        = 0;
@@ -126,15 +92,6 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   meLedL1Ampl_         = 0;
   meLedL1Timing_       = 0;
   meLedL1AmplOverPN_   = 0;
-
-  meLedL2_[0]          = 0;
-  meLedL2_[1]          = 0;
-  meLedL2PN_[0]        = 0;
-  meLedL2PN_[1]        = 0;
-  meLedL2Ampl_         = 0;
-  meLedL2Timing_       = 0;
-  meLedL2AmplOverPN_   = 0;
-
   mePedestal_[0]       = 0;
   mePedestal_[1]       = 0;
   mePedestalG01_[0]       = 0;
@@ -189,16 +146,8 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps) {
   mePedestalOnlineErr_  = 0;
   meLaserL1Err_         = 0;
   meLaserL1PNErr_       = 0;
-  meLaserL2Err_         = 0;
-  meLaserL2PNErr_       = 0;
-  meLaserL3Err_         = 0;
-  meLaserL3PNErr_       = 0;
-  meLaserL4Err_         = 0;
-  meLaserL4PNErr_       = 0;
   meLedL1Err_           = 0;
   meLedL1PNErr_         = 0;
-  meLedL2Err_           = 0;
-  meLedL2PNErr_         = 0;
   mePedestalErr_        = 0;
   mePedestalPNErr_      = 0;
   meTestPulseErr_       = 0;
@@ -408,382 +357,122 @@ void EESummaryClient::setup(void) {
     mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+  if ( meLaserL1_[0] ) dqmStore_->removeElement( meLaserL1_[0]->getName() );
+  sprintf(histo, "EELT EE - laser quality summary L1");
+  meLaserL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[0]->setAxisTitle("jx", 1);
+  meLaserL1_[0]->setAxisTitle("jy", 2);
 
-    if ( meLaserL1_[0] ) dqmStore_->removeElement( meLaserL1_[0]->getName() );
-    sprintf(histo, "EELT EE - laser quality summary L1");
-    meLaserL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL1_[0]->setAxisTitle("jx", 1);
-    meLaserL1_[0]->setAxisTitle("jy", 2);
+  if ( meLaserL1PN_[0] ) dqmStore_->removeElement( meLaserL1PN_[0]->getName() );
+  sprintf(histo, "EELT EE - PN laser quality summary L1");
+  meLaserL1PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[0]->setAxisTitle("jx", 1);
+  meLaserL1PN_[0]->setAxisTitle("jy", 2);
 
-    if ( meLaserL1PN_[0] ) dqmStore_->removeElement( meLaserL1PN_[0]->getName() );
-    sprintf(histo, "EELT EE - PN laser quality summary L1");
-    meLaserL1PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL1PN_[0]->setAxisTitle("jx", 1);
-    meLaserL1PN_[0]->setAxisTitle("jy", 2);
+  if ( meLaserL1_[1] ) dqmStore_->removeElement( meLaserL1_[1]->getName() );
+  sprintf(histo, "EELT EE + laser quality summary L1");
+  meLaserL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLaserL1_[1]->setAxisTitle("jx", 1);
+  meLaserL1_[1]->setAxisTitle("jy", 2);
 
-    if ( meLaserL1_[1] ) dqmStore_->removeElement( meLaserL1_[1]->getName() );
-    sprintf(histo, "EELT EE + laser quality summary L1");
-    meLaserL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL1_[1]->setAxisTitle("jx", 1);
-    meLaserL1_[1]->setAxisTitle("jy", 2);
+  if ( meLaserL1PN_[1] ) dqmStore_->removeElement( meLaserL1PN_[1]->getName() );
+  sprintf(histo, "EELT EE + PN laser quality summary L1");
+  meLaserL1PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_[1]->setAxisTitle("jx", 1);
+  meLaserL1PN_[1]->setAxisTitle("jy", 2);
 
-    if ( meLaserL1PN_[1] ) dqmStore_->removeElement( meLaserL1PN_[1]->getName() );
-    sprintf(histo, "EELT EE + PN laser quality summary L1");
-    meLaserL1PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL1PN_[1]->setAxisTitle("jx", 1);
-    meLaserL1PN_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
-    sprintf(histo, "EELT laser quality errors summary L1");
-    meLaserL1Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
-    sprintf(histo, "EELT PN laser quality errors summary L1");
-    meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
-    sprintf(histo, "EELT laser L1 amplitude summary");
-    meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
-    sprintf(histo, "EELT laser L1 timing summary");
-    meLaserL1Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-  
-    if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
-    sprintf(histo, "EELT laser L1 amplitude over PN summary");
-    meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
+  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
+  sprintf(histo, "EELT laser quality errors summary L1");
+  meLaserL1Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-    if ( meLaserL2_[0] ) dqmStore_->removeElement( meLaserL2_[0]->getName() );
-    sprintf(histo, "EELT EE - laser quality summary L2");
-    meLaserL2_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL2_[0]->setAxisTitle("jx", 1);
-    meLaserL2_[0]->setAxisTitle("jy", 2);
-
-    if ( meLaserL2PN_[0] ) dqmStore_->removeElement( meLaserL2PN_[0]->getName() );
-    sprintf(histo, "EELT EE - PN laser quality summary L2");
-    meLaserL2PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL2PN_[0]->setAxisTitle("jx", 1);
-    meLaserL2PN_[0]->setAxisTitle("jy", 2);
-
-    if ( meLaserL2_[1] ) dqmStore_->removeElement( meLaserL2_[1]->getName() );
-    sprintf(histo, "EELT EE + laser quality summary L2");
-    meLaserL2_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL2_[1]->setAxisTitle("jx", 1);
-    meLaserL2_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL2PN_[1] ) dqmStore_->removeElement( meLaserL2PN_[1]->getName() );
-    sprintf(histo, "EELT EE + PN laser quality summary L2");
-    meLaserL2PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL2PN_[1]->setAxisTitle("jx", 1);
-    meLaserL2PN_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
-    sprintf(histo, "EELT laser quality errors summary L2");
-    meLaserL2Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL2Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
-    sprintf(histo, "EELT PN laser quality errors summary L2");
-    meLaserL2PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL2PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
-    sprintf(histo, "EELT laser L2 amplitude summary");
-    meLaserL2Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
-    sprintf(histo, "EELT laser L2 timing summary");
-    meLaserL2Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL2Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-  
-    if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
-    sprintf(histo, "EELT laser L2 amplitude over PN summary");
-    meLaserL2AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL2AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
+  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
+  sprintf(histo, "EELT PN laser quality errors summary L1");
+  meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-    if ( meLaserL3_[0] ) dqmStore_->removeElement( meLaserL3_[0]->getName() );
-    sprintf(histo, "EELT EE - laser quality summary L3");
-    meLaserL3_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL3_[0]->setAxisTitle("jx", 1);
-    meLaserL3_[0]->setAxisTitle("jy", 2);
-
-    if ( meLaserL3PN_[0] ) dqmStore_->removeElement( meLaserL3PN_[0]->getName() );
-    sprintf(histo, "EELT EE - PN laser quality summary L3");
-    meLaserL3PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL3PN_[0]->setAxisTitle("jx", 1);
-    meLaserL3PN_[0]->setAxisTitle("jy", 2);
-
-    if ( meLaserL3_[1] ) dqmStore_->removeElement( meLaserL3_[1]->getName() );
-    sprintf(histo, "EELT EE + laser quality summary L3");
-    meLaserL3_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL3_[1]->setAxisTitle("jx", 1);
-    meLaserL3_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL3PN_[1] ) dqmStore_->removeElement( meLaserL3PN_[1]->getName() );
-    sprintf(histo, "EELT EE + PN laser quality summary L3");
-    meLaserL3PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL3PN_[1]->setAxisTitle("jx", 1);
-    meLaserL3PN_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
-    sprintf(histo, "EELT laser quality errors summary L3");
-    meLaserL3Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL3Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
-    sprintf(histo, "EELT PN laser quality errors summary L3");
-    meLaserL3PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL3PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
-    sprintf(histo, "EELT laser L3 amplitude summary");
-    meLaserL3Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
-    sprintf(histo, "EELT laser L3 timing summary");
-    meLaserL3Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL3Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-  
-    if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
-    sprintf(histo, "EELT laser L3 amplitude over PN summary");
-    meLaserL3AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL3AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
+  if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
+  sprintf(histo, "EELT laser L1 amplitude summary");
+  meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
+  for (int i = 0; i < 18; i++) {
+    meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-    if ( meLaserL4_[0] ) dqmStore_->removeElement( meLaserL4_[0]->getName() );
-    sprintf(histo, "EELT EE - laser quality summary L4");
-    meLaserL4_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL4_[0]->setAxisTitle("jx", 1);
-    meLaserL4_[0]->setAxisTitle("jy", 2);
-
-    if ( meLaserL4PN_[0] ) dqmStore_->removeElement( meLaserL4PN_[0]->getName() );
-    sprintf(histo, "EELT EE - PN laser quality summary L4");
-    meLaserL4PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL4PN_[0]->setAxisTitle("jx", 1);
-    meLaserL4PN_[0]->setAxisTitle("jy", 2);
-
-    if ( meLaserL4_[1] ) dqmStore_->removeElement( meLaserL4_[1]->getName() );
-    sprintf(histo, "EELT EE + laser quality summary L4");
-    meLaserL4_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL4_[1]->setAxisTitle("jx", 1);
-    meLaserL4_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL4PN_[1] ) dqmStore_->removeElement( meLaserL4PN_[1]->getName() );
-    sprintf(histo, "EELT EE + PN laser quality summary L4");
-    meLaserL4PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLaserL4PN_[1]->setAxisTitle("jx", 1);
-    meLaserL4PN_[1]->setAxisTitle("jy", 2);
-
-    if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
-    sprintf(histo, "EELT laser quality errors summary L4");
-    meLaserL4Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL4Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
-    sprintf(histo, "EELT PN laser quality errors summary L4");
-    meLaserL4PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLaserL4PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
-    sprintf(histo, "EELT laser L4 amplitude summary");
-    meLaserL4Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
-    sprintf(histo, "EELT laser L4 timing summary");
-    meLaserL4Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL4Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
+  if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
+  sprintf(histo, "EELT laser L1 timing summary");
+  meLaserL1Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
+  for (int i = 0; i < 18; i++) {
+    meLaserL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
   
-    if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
-    sprintf(histo, "EELT laser L4 amplitude over PN summary");
-    meLaserL4AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
-    for (int i = 0; i < 18; i++) {
-      meLaserL4AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
+  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
+  sprintf(histo, "EELT laser L1 amplitude over PN summary");
+  meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
+  for (int i = 0; i < 18; i++) {
+    meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+  if ( meLedL1_[0] ) dqmStore_->removeElement( meLedL1_[0]->getName() );
+  sprintf(histo, "EELDT EE - led quality summary L1");
+  meLedL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLedL1_[0]->setAxisTitle("jx", 1);
+  meLedL1_[0]->setAxisTitle("jy", 2);
 
-    if ( meLedL1_[0] ) dqmStore_->removeElement( meLedL1_[0]->getName() );
-    sprintf(histo, "EELDT EE - led quality summary L1");
-    meLedL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL1_[0]->setAxisTitle("jx", 1);
-    meLedL1_[0]->setAxisTitle("jy", 2);
+  if ( meLedL1PN_[0] ) dqmStore_->removeElement( meLedL1PN_[0]->getName() );
+  sprintf(histo, "EELDT EE - PN led quality summary L1");
+  meLedL1PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedL1PN_[0]->setAxisTitle("jx", 1);
+  meLedL1PN_[0]->setAxisTitle("jy", 2);
 
-    if ( meLedL1PN_[0] ) dqmStore_->removeElement( meLedL1PN_[0]->getName() );
-    sprintf(histo, "EELDT EE - PN led quality summary L1");
-    meLedL1PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLedL1PN_[0]->setAxisTitle("jx", 1);
-    meLedL1PN_[0]->setAxisTitle("jy", 2);
+  if ( meLedL1_[1] ) dqmStore_->removeElement( meLedL1_[1]->getName() );
+  sprintf(histo, "EELDT EE + led quality summary L1");
+  meLedL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meLedL1_[1]->setAxisTitle("jx", 1);
+  meLedL1_[1]->setAxisTitle("jy", 2);
 
-    if ( meLedL1_[1] ) dqmStore_->removeElement( meLedL1_[1]->getName() );
-    sprintf(histo, "EELDT EE + led quality summary L1");
-    meLedL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL1_[1]->setAxisTitle("jx", 1);
-    meLedL1_[1]->setAxisTitle("jy", 2);
+  if ( meLedL1PN_[1] ) dqmStore_->removeElement( meLedL1PN_[1]->getName() );
+  sprintf(histo, "EELDT EE + PN led quality summary L1");
+  meLedL1PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLedL1PN_[1]->setAxisTitle("jx", 1);
+  meLedL1PN_[1]->setAxisTitle("jy", 2);
 
-    if ( meLedL1PN_[1] ) dqmStore_->removeElement( meLedL1PN_[1]->getName() );
-    sprintf(histo, "EELDT EE + PN led quality summary L1");
-    meLedL1PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLedL1PN_[1]->setAxisTitle("jx", 1);
-    meLedL1PN_[1]->setAxisTitle("jy", 2);
-
-    if ( meLedL1Err_ ) dqmStore_->removeElement( meLedL1Err_->getName() );
-    sprintf(histo, "EELDT led quality errors summary L1");
-    meLedL1Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLedL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLedL1PNErr_ ) dqmStore_->removeElement( meLedL1PNErr_->getName() );
-    sprintf(histo, "EELDT PN led quality errors summary L1");
-    meLedL1PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLedL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLedL1Ampl_ ) dqmStore_->removeElement( meLedL1Ampl_->getName() );
-    sprintf(histo, "EELDT led L1 amplitude summary");
-    meLedL1Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
-    for (int i = 0; i < 18; i++) {
-      meLedL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLedL1Timing_ ) dqmStore_->removeElement( meLedL1Timing_->getName() );
-    sprintf(histo, "EELDT led L1 timing summary");
-    meLedL1Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
-    for (int i = 0; i < 18; i++) {
-      meLedL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-  
-    if ( meLedL1AmplOverPN_ ) dqmStore_->removeElement( meLedL1AmplOverPN_->getName() );
-    sprintf(histo, "EELDT led L1 amplitude over PN summary");
-    meLedL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
-    for (int i = 0; i < 18; i++) {
-      meLedL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
+  if ( meLedL1Err_ ) dqmStore_->removeElement( meLedL1Err_->getName() );
+  sprintf(histo, "EELDT led quality errors summary L1");
+  meLedL1Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLedL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
-  if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+  if ( meLedL1PNErr_ ) dqmStore_->removeElement( meLedL1PNErr_->getName() );
+  sprintf(histo, "EELDT PN led quality errors summary L1");
+  meLedL1PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+  for (int i = 0; i < 18; i++) {
+    meLedL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
 
-    if ( meLedL2_[0] ) dqmStore_->removeElement( meLedL2_[0]->getName() );
-    sprintf(histo, "EELDT EE - led quality summary L2");
-    meLedL2_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL2_[0]->setAxisTitle("jx", 1);
-    meLedL2_[0]->setAxisTitle("jy", 2);
+  if ( meLedL1Ampl_ ) dqmStore_->removeElement( meLedL1Ampl_->getName() );
+  sprintf(histo, "EELDT led L1 amplitude summary");
+  meLedL1Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
+  for (int i = 0; i < 18; i++) {
+    meLedL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
 
-    if ( meLedL2PN_[0] ) dqmStore_->removeElement( meLedL2PN_[0]->getName() );
-    sprintf(histo, "EELDT EE - PN led quality summary L2");
-    meLedL2PN_[0] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLedL2PN_[0]->setAxisTitle("jx", 1);
-    meLedL2PN_[0]->setAxisTitle("jy", 2);
-
-    if ( meLedL2_[1] ) dqmStore_->removeElement( meLedL2_[1]->getName() );
-    sprintf(histo, "EELDT EE + led quality summary L2");
-    meLedL2_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL2_[1]->setAxisTitle("jx", 1);
-    meLedL2_[1]->setAxisTitle("jy", 2);
-
-    if ( meLedL2PN_[1] ) dqmStore_->removeElement( meLedL2PN_[1]->getName() );
-    sprintf(histo, "EELDT EE + PN led quality summary L2");
-    meLedL2PN_[1] = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
-    meLedL2PN_[1]->setAxisTitle("jx", 1);
-    meLedL2PN_[1]->setAxisTitle("jy", 2);
-
-    if ( meLedL2Err_ ) dqmStore_->removeElement( meLedL2Err_->getName() );
-    sprintf(histo, "EELDT led quality errors summary L2");
-    meLedL2Err_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLedL2Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLedL2PNErr_ ) dqmStore_->removeElement( meLedL2PNErr_->getName() );
-    sprintf(histo, "EELDT PN led quality errors summary L2");
-    meLedL2PNErr_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
-    for (int i = 0; i < 18; i++) {
-      meLedL2PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLedL2Ampl_ ) dqmStore_->removeElement( meLedL2Ampl_->getName() );
-    sprintf(histo, "EELDT led L2 amplitude summary");
-    meLedL2Ampl_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 2000., "s");
-    for (int i = 0; i < 18; i++) {
-      meLedL2Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
-    if ( meLedL2Timing_ ) dqmStore_->removeElement( meLedL2Timing_->getName() );
-    sprintf(histo, "EELDT led L2 timing summary");
-    meLedL2Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
-    for (int i = 0; i < 18; i++) {
-      meLedL2Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
+  if ( meLedL1Timing_ ) dqmStore_->removeElement( meLedL1Timing_->getName() );
+  sprintf(histo, "EELDT led L1 timing summary");
+  meLedL1Timing_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10., "s");
+  for (int i = 0; i < 18; i++) {
+    meLedL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+  }
   
-    if ( meLedL2AmplOverPN_ ) dqmStore_->removeElement( meLedL2AmplOverPN_->getName() );
-    sprintf(histo, "EELDT led L2 amplitude over PN summary");
-    meLedL2AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
-    for (int i = 0; i < 18; i++) {
-      meLedL2AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
-    }
-
+  if ( meLedL1AmplOverPN_ ) dqmStore_->removeElement( meLedL1AmplOverPN_->getName() );
+  sprintf(histo, "EELDT led L1 amplitude over PN summary");
+  meLedL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 20., "s");
+  for (int i = 0; i < 18; i++) {
+    meLedL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
 
   if( mePedestal_[0] ) dqmStore_->removeElement( mePedestal_[0]->getName() );
@@ -1667,86 +1356,19 @@ void EESummaryClient::analyze(void) {
 
           if ( eelc ) {
 
-            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+            me = eelc->meg01_[ism-1];
 
-              me = eelc->meg01_[ism-1];
+            if ( me ) {
 
-              if ( me ) {
+              float xval = me->getBinContent( ix, iy );
 
-                float xval = me->getBinContent( ix, iy );
-
-                if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL1_[1]->setBinContent( jx, jy, xval );
-                  }
-                  if ( xval == 0 ) meLaserL1Err_->Fill( ism );
+              if ( me->getEntries() != 0 ) {
+                if ( ism >= 1 && ism <= 9 ) {
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL1_[0]->setBinContent( 101 - jx, jy, xval );
+                } else {
+                  if ( Numbers::validEE(ism, jx, jy) ) meLaserL1_[1]->setBinContent( jx, jy, xval );
                 }
-
-              }
-
-            }
-
-            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-              me = eelc->meg02_[ism-1];
-
-              if ( me ) {
-
-                float xval = me->getBinContent( ix, iy );
-
-                if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL2_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL2_[1]->setBinContent( jx, jy, xval );
-                  }
-                  if ( xval == 0 ) meLaserL2Err_->Fill( ism );
-                }
-
-              }
-
-            }
-
-            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-              me = eelc->meg03_[ism-1];
-
-              if ( me ) {
-
-                float xval = me->getBinContent( ix, iy );
-
-                if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL3_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL3_[1]->setBinContent( jx, jy, xval );
-                  }
-                  if ( xval == 0 ) meLaserL3Err_->Fill( ism );
-                }
-
-              }
-
-            }
-
-            if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-              me = eelc->meg04_[ism-1];
-
-              if ( me ) {
-
-                float xval = me->getBinContent( ix, iy );
-
-                if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLaserL4_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLaserL4_[1]->setBinContent( jx, jy, xval );
-                  }
-                  if ( xval == 0 ) meLaserL4Err_->Fill( ism );
-                }
-
+                if ( xval == 0 ) meLaserL1Err_->Fill( ism );
               }
 
             }
@@ -1755,44 +1377,19 @@ void EESummaryClient::analyze(void) {
 
           if ( eeldc ) {
 
-            if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+            me = eeldc->meg01_[ism-1];
 
-              me = eeldc->meg01_[ism-1];
+            if ( me ) {
 
-              if ( me ) {
-                
-                float xval = me->getBinContent( ix, iy );
-                
-                if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLedL1_[1]->setBinContent( jx, jy, xval );
-                  }
-                  if ( xval == 0 ) meLedL1Err_->Fill( ism );
+              float xval = me->getBinContent( ix, iy );
+
+              if ( me->getEntries() != 0 ) {
+                if ( ism >= 1 && ism <= 9 ) {
+                  if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL1_[0]->setBinContent( 101 - jx, jy, xval );
+                } else {
+                  if ( Numbers::validEE(ism, jx, jy) ) meLedL1_[1]->setBinContent( jx, jy, xval );
                 }
-                
-              }
-
-            }
-
-            if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-
-              me = eeldc->meg02_[ism-1];
-
-              if ( me ) {
-                
-                float xval = me->getBinContent( ix, iy );
-                
-                if ( me->getEntries() != 0 ) {
-                  if ( ism >= 1 && ism <= 9 ) {
-                    if ( Numbers::validEE(ism, 101 - jx, jy) ) meLedL2_[0]->setBinContent( 101 - jx, jy, xval );
-                  } else {
-                    if ( Numbers::validEE(ism, jx, jy) ) meLedL2_[1]->setBinContent( jx, jy, xval );
-                  }
-                  if ( xval == 0 ) meLedL2Err_->Fill( ism );
-                }
-                
+                if ( xval == 0 ) meLedL1Err_->Fill( ism );
               }
 
             }
@@ -2137,268 +1734,87 @@ void EESummaryClient::analyze(void) {
 
             if ( eelc ) {
 
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+              MonitorElement *meg = eelc->meg01_[ism-1];
 
-                MonitorElement *meg = eelc->meg01_[ism-1];
+              float xval = 2;
+              if ( meg ) xval = meg->getBinContent( ix, iy );
 
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
-
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) { 
+              // exclude channels without laser data (yellow in the quality map)
+              if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
+                int RtHalf = 0;
+                // EE-05
+                if ( ism ==  8 && ix > 50 ) RtHalf = 1;
                 
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
+                // EE+05
+                if ( ism == 17 && ix > 50 ) RtHalf = 1;
                 
-                  // L1A
-                  MonitorElement *mea01 = eelc->mea01_[ism-1];
-                  MonitorElement *met01 = eelc->met01_[ism-1];
-                  MonitorElement *meaopn01 = eelc->meaopn01_[ism-1];
+                // L1A
+                MonitorElement *mea01 = eelc->mea01_[ism-1];
+                MonitorElement *met01 = eelc->met01_[ism-1];
+                MonitorElement *meaopn01 = eelc->meaopn01_[ism-1];
 
-                  if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
-                    meLaserL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
-                    meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
-                    meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea05 = eelc->mea05_[ism-1];
-                  MonitorElement *met05 = eelc->met05_[ism-1];
-                  MonitorElement *meaopn05 = eelc->meaopn05_[ism-1];
-
-                  if( mea05 && met05 && meaopn05 && RtHalf == 0 ) {
-                    meLaserL1Ampl_->Fill( ism, mea05->getBinContent( ic ) );
-                    meLaserL1Timing_->Fill( ism, met05->getBinContent( ic ) );
-                    meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( ic ) );
-                  }
-
+                if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
+                  meLaserL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
+                  meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
+                  meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
                 }
-              
-              }
 
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+                // L1B
+                MonitorElement *mea05 = eelc->mea05_[ism-1];
+                MonitorElement *met05 = eelc->met05_[ism-1];
+                MonitorElement *meaopn05 = eelc->meaopn05_[ism-1];
 
-                MonitorElement *meg = eelc->meg02_[ism-1];
-
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
-
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) { 
-                
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
-                  MonitorElement *mea02 = eelc->mea02_[ism-1];
-                  MonitorElement *met02 = eelc->met02_[ism-1];
-                  MonitorElement *meaopn02 = eelc->meaopn02_[ism-1];
-
-                  if( mea02 && met02 && meaopn02 && RtHalf == 0 ) {
-                    meLaserL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
-                    meLaserL2Timing_->Fill( ism, met02->getBinContent( ic ) );
-                    meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea06 = eelc->mea06_[ism-1];
-                  MonitorElement *met06 = eelc->met06_[ism-1];
-                  MonitorElement *meaopn06 = eelc->meaopn06_[ism-1];
-
-                  if( mea06 && met06 && meaopn06 && RtHalf == 0 ) {
-                    meLaserL2Ampl_->Fill( ism, mea06->getBinContent( ic ) );
-                    meLaserL2Timing_->Fill( ism, met06->getBinContent( ic ) );
-                    meLaserL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( ic ) );
-                  }
-
+                if( mea05 && met05 && meaopn05 && RtHalf == 0 ) {
+                  meLaserL1Ampl_->Fill( ism, mea05->getBinContent( ic ) );
+                  meLaserL1Timing_->Fill( ism, met05->getBinContent( ic ) );
+                  meLaserL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( ic ) );
                 }
-              
+
               }
-
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-                MonitorElement *meg = eelc->meg03_[ism-1];
-
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
-
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) { 
-                
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
-                  MonitorElement *mea03 = eelc->mea03_[ism-1];
-                  MonitorElement *met03 = eelc->met03_[ism-1];
-                  MonitorElement *meaopn03 = eelc->meaopn03_[ism-1];
-
-                  if( mea03 && met03 && meaopn03 && RtHalf == 0 ) {
-                    meLaserL3Ampl_->Fill( ism, mea03->getBinContent( ic ) );
-                    meLaserL3Timing_->Fill( ism, met03->getBinContent( ic ) );
-                    meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea07 = eelc->mea07_[ism-1];
-                  MonitorElement *met07 = eelc->met07_[ism-1];
-                  MonitorElement *meaopn07 = eelc->meaopn07_[ism-1];
-
-                  if( mea07 && met07 && meaopn07 && RtHalf == 0 ) {
-                    meLaserL3Ampl_->Fill( ism, mea07->getBinContent( ic ) );
-                    meLaserL3Timing_->Fill( ism, met07->getBinContent( ic ) );
-                    meLaserL3AmplOverPN_->Fill( ism, meaopn07->getBinContent( ic ) );
-                  }
-
-                }
               
-              }
-
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-                MonitorElement *meg = eelc->meg04_[ism-1];
-
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
-
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) { 
-                
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-                
-                  // L1A
-                  MonitorElement *mea04 = eelc->mea04_[ism-1];
-                  MonitorElement *met04 = eelc->met04_[ism-1];
-                  MonitorElement *meaopn04 = eelc->meaopn04_[ism-1];
-
-                  if( mea04 && met04 && meaopn04 && RtHalf == 0 ) {
-                    meLaserL4Ampl_->Fill( ism, mea04->getBinContent( ic ) );
-                    meLaserL4Timing_->Fill( ism, met04->getBinContent( ic ) );
-                    meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea08 = eelc->mea08_[ism-1];
-                  MonitorElement *met08 = eelc->met08_[ism-1];
-                  MonitorElement *meaopn08 = eelc->meaopn08_[ism-1];
-
-                  if( mea08 && met08 && meaopn08 && RtHalf == 0 ) {
-                    meLaserL4Ampl_->Fill( ism, mea08->getBinContent( ic ) );
-                    meLaserL4Timing_->Fill( ism, met08->getBinContent( ic ) );
-                    meLaserL4AmplOverPN_->Fill( ism, meaopn08->getBinContent( ic ) );
-                  }
-
-                }
-              
-              }
-
             }
 
             if ( eeldc ) {
 
-              if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+              MonitorElement *meg = eeldc->meg01_[ism-1];
 
-                MonitorElement *meg = eeldc->meg01_[ism-1];
+              float xval = 2;
+              if ( meg )  xval = meg->getBinContent( ix, iy );
 
-                float xval = 2;
-                if ( meg )  xval = meg->getBinContent( ix, iy );
-
-                // exclude channels without led data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) { 
+              // exclude channels without led data (yellow in the quality map)
+              if( xval != 2 && xval != 5 ) { 
                 
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
+                int RtHalf = 0;
+                // EE-05
+                if ( ism ==  8 && ix > 50 ) RtHalf = 1;
                 
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
+                // EE+05
+                if ( ism == 17 && ix > 50 ) RtHalf = 1;
                
-                  // L1A
-                  MonitorElement *mea01 = eeldc->mea01_[ism-1];
-                  MonitorElement *met01 = eeldc->met01_[ism-1];
-                  MonitorElement *meaopn01 = eeldc->meaopn01_[ism-1];
+                // L1A
+                MonitorElement *mea01 = eeldc->mea01_[ism-1];
+                MonitorElement *met01 = eeldc->met01_[ism-1];
+                MonitorElement *meaopn01 = eeldc->meaopn01_[ism-1];
 
-                  if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
-                    meLedL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
-                    meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
-                    meLedL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea05 = eeldc->mea05_[ism-1];
-                  MonitorElement *met05 = eeldc->met05_[ism-1];
-                  MonitorElement *meaopn05 = eeldc->meaopn05_[ism-1];
-
-                  if( mea05 && met05 && meaopn05 && RtHalf == 0 ) {
-                    meLedL1Ampl_->Fill( ism, mea05->getBinContent( ic ) );
-                    meLedL1Timing_->Fill( ism, met05->getBinContent( ic ) );
-                    meLedL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( ic ) );
-                  }
- 
+                if( mea01 && met01 && meaopn01 && RtHalf == 0 ) {
+                  meLedL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
+                  meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
+                  meLedL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
                 }
 
-              }
+                // L1B
+                MonitorElement *mea05 = eeldc->mea05_[ism-1];
+                MonitorElement *met05 = eeldc->met05_[ism-1];
+                MonitorElement *meaopn05 = eeldc->meaopn05_[ism-1];
 
-              if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-
-                MonitorElement *meg = eeldc->meg02_[ism-1];
-
-                float xval = 2;
-                if ( meg )  xval = meg->getBinContent( ix, iy );
-
-                // exclude channels without led data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) { 
-                
-                  int RtHalf = 0;
-                  // EE-05
-                  if ( ism ==  8 && ix > 50 ) RtHalf = 1;
-                
-                  // EE+05
-                  if ( ism == 17 && ix > 50 ) RtHalf = 1;
-               
-                  // L1A
-                  MonitorElement *mea02 = eeldc->mea02_[ism-1];
-                  MonitorElement *met02 = eeldc->met02_[ism-1];
-                  MonitorElement *meaopn02 = eeldc->meaopn02_[ism-1];
-
-                  if( mea02 && met02 && meaopn02 && RtHalf == 0 ) {
-                    meLedL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
-                    meLedL2Timing_->Fill( ism, met02->getBinContent( ic ) );
-                    meLedL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
-                  }
-
-                  // L1B
-                  MonitorElement *mea06 = eeldc->mea06_[ism-1];
-                  MonitorElement *met06 = eeldc->met06_[ism-1];
-                  MonitorElement *meaopn06 = eeldc->meaopn06_[ism-1];
-
-                  if( mea06 && met06 && meaopn06 && RtHalf == 0 ) {
-                    meLedL2Ampl_->Fill( ism, mea06->getBinContent( ic ) );
-                    meLedL2Timing_->Fill( ism, met06->getBinContent( ic ) );
-                    meLedL2AmplOverPN_->Fill( ism, meaopn06->getBinContent( ic ) );
-                  }
- 
+                if( mea05 && met05 && meaopn05 && RtHalf == 0 ) {
+                  meLedL1Ampl_->Fill( ism, mea05->getBinContent( ic ) );
+                  meLedL1Timing_->Fill( ism, met05->getBinContent( ic ) );
+                  meLedL1AmplOverPN_->Fill( ism, meaopn05->getBinContent( ic ) );
                 }
-
+ 
               }
-
             }
 
             if ( eetpc ) {
@@ -2517,53 +1933,17 @@ void EESummaryClient::analyze(void) {
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
-      if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
+      if(meIntegrity_[0] && mePedestalOnline_[0] && meLaserL1_[0] && meLedL1_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
 
         float xval = 6;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
+        float val_ls = meLaserL1_[0]->getBinContent(jx,jy);
+        float val_ld = meLedL1_[0]->getBinContent(jx,jy);
         float val_tm = meTiming_[0]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
 	// float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
 	float val_ee = 1;
-
-        // combine all the available wavelenghts in unique laser status
-        // for each laser turn dark color and yellow into bright green
-        float val_ls_1=2, val_ls_2=2, val_ls_3=2, val_ls_4=2;
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-          if ( meLaserL1_[0] ) val_ls_1 = meLaserL1_[0]->getBinContent(jx,jy);
-          if(val_ls_1==2 || val_ls_1==3 || val_ls_1==4 || val_ls_1==5) val_ls_1=1;
-        }
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-          if ( meLaserL2_[0] ) val_ls_2 = meLaserL2_[0]->getBinContent(jx,jy);
-          if(val_ls_2==2 || val_ls_2==3 || val_ls_2==4 || val_ls_2==5) val_ls_2=1;
-        }
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-          if ( meLaserL3_[0] ) val_ls_3 = meLaserL3_[0]->getBinContent(jx,jy);
-          if(val_ls_3==2 || val_ls_3==3 || val_ls_3==4 || val_ls_3==5) val_ls_3=1;
-        }
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-          if ( meLaserL4_[0] ) val_ls_4 = meLaserL4_[0]->getBinContent(jx,jy);
-          if(val_ls_4==2 || val_ls_4==3 || val_ls_4==4 || val_ls_4==5) val_ls_4=1;
-        }
-        
-        float val_ls = 1;
-        if (val_ls_1 == 0 || val_ls_2==0 || val_ls_3==0 || val_ls_4==0) val_ls=0;
-
-        // combine all the available wavelenghts in unique laser status
-        // for each laser turn dark color and yellow into bright green
-        float val_ld_1=2, val_ld_2=2;
-        if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-          if ( meLedL1_[0] ) val_ld_1 = meLedL1_[0]->getBinContent(jx,jy);
-          if(val_ld_1==2 || val_ld_1==3 || val_ld_1==4 || val_ld_1==5) val_ld_1=1;
-        }
-        if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-          if ( meLedL2_[0] ) val_ld_2 = meLedL2_[0]->getBinContent(jx,jy);
-          if(val_ld_2==2 || val_ld_2==3 || val_ld_2==4 || val_ld_2==5) val_ld_2=1;
-        }
-
-        float val_ld = 1;
-        if (val_ld_1 == 0 || val_ld_2==0) val_ld=0;
 
         // turn each dark color (masked channel) to bright green
         // for laser & timing & trigger turn also yellow into bright green
@@ -2635,53 +2015,17 @@ void EESummaryClient::analyze(void) {
 
       }
 
-      if(meIntegrity_[1] && mePedestalOnline_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1]) {
+      if(meIntegrity_[1] && mePedestalOnline_[1] && meLaserL1_[1] && meLedL1_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1]) {
 
         float xval = 6;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
+        float val_ls = meLaserL1_[1]->getBinContent(jx,jy);
+        float val_ld = meLedL1_[1]->getBinContent(jx,jy);
         float val_tm = meTiming_[1]->getBinContent(jx,jy);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
 	float val_ee = 1;
-
-        // combine all the available wavelenghts in unique laser status
-        // for each laser turn dark color and yellow into bright green
-        float val_ls_1=2, val_ls_2=2, val_ls_3=2, val_ls_4=2;
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-          if ( meLaserL1_[1] ) val_ls_1 = meLaserL1_[1]->getBinContent(jx,jy);
-          if(val_ls_1==2 || val_ls_1==3 || val_ls_1==4 || val_ls_1==5) val_ls_1=1;
-        }
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-          if ( meLaserL2_[1] ) val_ls_2 = meLaserL2_[1]->getBinContent(jx,jy);
-          if(val_ls_2==2 || val_ls_2==3 || val_ls_2==4 || val_ls_2==5) val_ls_2=1;
-        }
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-          if ( meLaserL3_[1] ) val_ls_3 = meLaserL3_[1]->getBinContent(jx,jy);
-          if(val_ls_3==2 || val_ls_3==3 || val_ls_3==4 || val_ls_3==5) val_ls_3=1;
-        }
-        if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-          if ( meLaserL4_[1] ) val_ls_4 = meLaserL4_[1]->getBinContent(jx,jy);
-          if(val_ls_4==2 || val_ls_4==3 || val_ls_4==4 || val_ls_4==5) val_ls_4=1;
-        }
-        
-        float val_ls = 1;
-        if (val_ls_1 == 0 || val_ls_2==0 || val_ls_3==0 || val_ls_4==0) val_ls=0;
-
-        // combine all the available wavelenghts in unique laser status
-        // for each laser turn dark color and yellow into bright green
-        float val_ld_1=2, val_ld_2=2;
-        if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-          if ( meLedL1_[1] ) val_ld_1 = meLedL1_[1]->getBinContent(jx,jy);
-          if(val_ld_1==2 || val_ld_1==3 || val_ld_1==4 || val_ld_1==5) val_ld_1=1;
-        }
-        if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-          if ( meLedL2_[1] ) val_ld_2 = meLedL2_[1]->getBinContent(jx,jy);
-          if(val_ld_2==2 || val_ld_2==3 || val_ld_2==4 || val_ld_2==5) val_ld_2=1;
-        }
-
-        float val_ld = 1;
-        if (val_ld_1 == 0 || val_ld_2==0) val_ld=0;
 
         // turn each dark color to bright green
         // for laser & timing & trigger turn also yellow into bright green

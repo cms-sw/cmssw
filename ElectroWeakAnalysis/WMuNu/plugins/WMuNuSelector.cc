@@ -1,230 +1,367 @@
-/* \class WMuNuSelector
- *
- * \author Juan Alcaraz, CIEMAT
- *
- */
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "TH1D.h"
+#include <map>
 
-class WMuNuSelector : public edm::EDFilter {
+#ifdef IS_PAT
+class WMuNuPATSelector : public edm::EDFilter {
+#else
+class WMuNuAODSelector : public edm::EDFilter {
+#endif
 public:
-  WMuNuSelector (const edm::ParameterSet &);
+#ifdef IS_PAT
+  WMuNuPATSelector (const edm::ParameterSet &);
+#else
+  WMuNuAODSelector (const edm::ParameterSet &);
+#endif
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&);
   virtual void endJob();
-  double my_weight(double eta, const std::string mode);
+  void init_histograms();
+  void fill_histogram(char*, const double&);
 private:
-  edm::InputTag genParticlesTag_;
+  bool fastOption_;
+  edm::InputTag trigTag_;
   edm::InputTag muonTag_;
   edm::InputTag metTag_;
+  bool metIncludesMuons_;
   edm::InputTag jetTag_;
-  bool useOnlyGlobalMuons_;
+
+  const std::string muonTrig_;
+  bool useTrackerPt_;
   double ptCut_;
   double etaCut_;
   bool isRelativeIso_;
+  bool isCombinedIso_;
   double isoCut03_;
-  double massTMin_;
-  double massTMax_;
-  double ptThrForZCount_;
+  double mtMin_;
+  double mtMax_;
+  double metMin_;
+  double metMax_;
   double acopCut_;
+
+  double dxyCut_;
+  double normalizedChi2Cut_;
+  int trackerHitsCut_;
+  bool isAlsoTrackerMuon_;
+
+  double ptThrForZ1_;
+  double ptThrForZ2_;
+
   double eJetMin_;
   int nJetMax_;
 
   unsigned int nall;
-  unsigned int ngen;
   unsigned int nrec;
   unsigned int niso;
   unsigned int nhlt;
-  unsigned int nmt;
-  unsigned int ntop;
+  unsigned int nmet;
   unsigned int nsel;
-  double wiso;
-  double whlt;
-  double wrec;
-  double wall;
+
+  std::map<std::string,TH1D*> h1_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#ifdef IS_PAT
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#else
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#endif
+
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Common/interface/View.h"
   
 using namespace edm;
 using namespace std;
-using namespace reco;
+#ifdef IS_PAT
+      using namespace pat;
+#else
+      using namespace reco;
+#endif
 
-WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
-      genParticlesTag_(cfg.getUntrackedParameter<edm::InputTag> ("GenParticlesTag", edm::InputTag("genParticles"))),
+#ifdef IS_PAT
+WMuNuPATSelector::WMuNuPATSelector( const ParameterSet & cfg ) :
+#else
+WMuNuAODSelector::WMuNuAODSelector( const ParameterSet & cfg ) :
+#endif
+      // Fast selection (no histograms or book-keeping)
+      fastOption_(cfg.getUntrackedParameter<bool> ("FastOption", false)),
+
+      // Input collections
+      trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("iterativeCone5CaloJets"))),
-      useOnlyGlobalMuons_(cfg.getUntrackedParameter<bool>("UseOnlyGlobalMuons", true)),
+      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
+
+      // Main cuts 
+      muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
+      useTrackerPt_(cfg.getUntrackedParameter<bool>("UseTrackerPt", true)),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
+      isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
       isoCut03_(cfg.getUntrackedParameter<double>("IsoCut03", 0.1)),
-      massTMin_(cfg.getUntrackedParameter<double>("MassTMin", 50.)),
-      massTMax_(cfg.getUntrackedParameter<double>("MassTMax", 200.)),
-      ptThrForZCount_(cfg.getUntrackedParameter<double>("PtThrForZCount", 20.)),
-      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 999999.)),
+      mtMin_(cfg.getUntrackedParameter<double>("MtMin", 50.)),
+      mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
+      metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
+      metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
+      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
+
+      // Muon quality cuts
+      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
+      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
+      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
+      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
+
+      // Z rejection
+      ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
+      ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
+
+      // Top rejection
       eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
       nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999))
 {
 }
 
-void WMuNuSelector::beginJob(const EventSetup &) {
+#ifdef IS_PAT
+void WMuNuPATSelector::beginJob(const EventSetup &) {
+#else
+void WMuNuAODSelector::beginJob(const EventSetup &) {
+#endif
       nall = 0;
-      ngen = 0;
-      nrec = 0;
-      niso = 0;
-      nhlt = 0;
-      nmt = 0;
-      ntop = 0;
       nsel = 0;
-      wiso = 0.;
-      whlt = 0.;
-      wrec = 0.;
-      wall = 0.;
+
+      if (!fastOption_) {
+            nrec = 0;
+            niso = 0;
+            nhlt = 0;
+            nmet = 0;
+            init_histograms();
+      }
 }
 
-void WMuNuSelector::endJob() {
-      LogError("") << "nall= " << nall << endl;
+#ifdef IS_PAT
+void WMuNuPATSelector::init_histograms() {
+#else
+void WMuNuAODSelector::init_histograms() {
+#endif
+      edm::Service<TFileService> fs;
+      TFileDirectory subDir0 = fs->mkdir("BeforeCuts");
+      TFileDirectory subDir1 = fs->mkdir("LastCut");
+      TFileDirectory* subDir[2]; subDir[0] = &subDir0; subDir[1] = &subDir1;
+
+      char chname[256] = "";
+      char chtitle[256] = "";
+      std::string chsuffix[2] = { "_BEFORECUTS", "_LASTCUT" };
+
+      for (int i=0; i<2; ++i) {
+            snprintf(chname, 255, "PT%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Muon transverse momentum [GeV]");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
+
+            snprintf(chname, 255, "ETA%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Muon pseudo-rapidity");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,50,-2.5,2.5);
+
+            snprintf(chname, 255, "DXY%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,-0.5,0.5);
+
+            snprintf(chname, 255, "CHI2%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Normalized Chi2, inner track fit");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,100.);
+
+            snprintf(chname, 255, "NHITS%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Number of hits, inner track");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,40,-0.5,39.5);
+
+            snprintf(chname, 255, "TKMU%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Tracker-muon flag (for global muons)");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
+
+            snprintf(chname, 255, "ISO%s", chsuffix[i].data());
+            if (isRelativeIso_) {
+                  snprintf(chtitle, 255, "Relative isolation variable");
+                  h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 100, 0., 1.);
+            } else {
+                  snprintf(chtitle, 255, "Absolute isolation variable [GeV]");
+                  h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 100, 0., 20.);
+            }
+
+            snprintf(chname, 255, "TRIG%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Trigger response (bit %s)", muonTrig_.data());
+            h1_[chname]  = subDir[i]->make<TH1D>(chname,chtitle,2,-0.5,1.5);
+
+            snprintf(chname, 255, "MT%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Transverse mass [GeV]");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,150,0.,300.);
+
+            snprintf(chname, 255, "MET%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Missing transverse energy [GeV]");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,100,0.,200.);
+
+            snprintf(chname, 255, "ACOP%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "MU-MET acoplanarity");
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,50,0.,M_PI);
+
+            snprintf(chname, 255, "NZ1%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ1_);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 10, -0.5, 9.5);
+
+            snprintf(chname, 255, "NZ2%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Z rejection: number of muons above %.2f GeV", ptThrForZ2_);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle, 10, -0.5, 9.5);
+
+            snprintf(chname, 255, "NJETS%s", chsuffix[i].data());
+            snprintf(chtitle, 255, "Number of jets above %.2f GeV", eJetMin_);
+            h1_[chname] = subDir[i]->make<TH1D>(chname,chtitle,10,-0.5,9.5);
+
+      }
+}
+
+#ifdef IS_PAT
+void WMuNuPATSelector::fill_histogram(char* name, const double& var) {
+#else
+void WMuNuAODSelector::fill_histogram(char* name, const double& var) {
+#endif
+      if (fastOption_) return;
+      h1_[name]->Fill(var);
+}
+
+#ifdef IS_PAT
+void WMuNuPATSelector::endJob() {
+#else
+void WMuNuAODSelector::endJob() {
+#endif
       double all = nall;
-      double egen = ngen/all;
-      double erec = nrec/all;
-      double eiso = niso/all;
-      double ehlt = nhlt/all;
-      double emt  = nmt /all;
-      double etop = ntop/all;
       double esel = nsel/all;
-      LogError("") << "ngen= " << ngen << ", " << egen*100 <<" +/- "<<sqrt(egen*(1-egen)/all)*100<<" %, to previous step: " << egen*100 <<"%";
-      LogError("") << "nrec= " << nrec << ", " << erec*100 <<" +/- "<<sqrt(erec*(1-erec)/all)*100<<" %, to previous step: " << erec/egen*100 <<"%";
-      LogError("") << "niso= " << niso << ", " << eiso*100 <<" +/- "<<sqrt(eiso*(1-eiso)/all)*100<<" %, to previous step: " << eiso/erec*100 <<"%";
-      LogError("") << "nhlt= " << nhlt << ", " << ehlt*100 <<" +/- "<<sqrt(ehlt*(1-ehlt)/all)*100<< " %, to previous step: " << ehlt/eiso*100 <<"%";
-      LogError("") << "nmt = " << nmt  << ", " << emt*100 <<" +/- "<<sqrt(emt*(1-emt)/all)*100<< "%, to previous step: " << emt/ehlt*100 <<"%";
-      LogError("") << "ntop= " << ntop << ", " << etop*100 <<" +/- "<<sqrt(etop*(1-etop)/all)*100<<  "%, to previous step: " << etop/emt*100 <<"%";
-      LogError("") << "nsel= " << nsel << ", " << esel*100 <<" +/- "<<sqrt(esel*(1-esel)/all)*100<< "%, to previous step: " << esel/etop*100 <<"%";
-      LogError("") << "hlt/iso= " << ehlt/eiso*100<<" +/- "<<sqrt(ehlt/eiso*(1-ehlt/eiso)/niso)*100<< "%, from data: " << whlt/niso*100<<" +/- "<<sqrt(whlt/niso*(1-whlt/niso)/niso)*100<<"%";
-      LogError("") << "iso/rec= " << eiso/erec*100 <<" +/- "<<sqrt(eiso/erec*(1-eiso/erec)/nrec)*100<< "%, from data: " << wiso/nrec*100 <<" +/- "<<sqrt(wiso/nrec*(1-wiso/nrec)/nrec)*100<<"%";
-      LogError("") << "rec/gen= " << erec/egen*100 <<" +/- "<<sqrt(erec/egen*(1-erec/egen)/ngen)*100<< "%, from data: " << wrec/ngen*100 <<" +/- "<<sqrt(wrec/ngen*(1-wrec/ngen)/ngen)*100<<"%";
-      LogError("") << "all(rec-iso-hlt)/gen= " << ehlt/egen*100 <<" +/- "<<sqrt(ehlt/egen*(1-ehlt/egen)/ngen)*100<<  "%, from data: " << wall/ngen*100<< " +/- "<<sqrt(wall/ngen*(1-wall/ngen)/ngen)*100<<"%";
+      LogVerbatim("") << "\n>>>>>> W SELECTION SUMMARY BEGIN >>>>>>>>>>>>>>>";
+      LogVerbatim("") << "Total numer of events analyzed: " << nall << " [events]";
+      LogVerbatim("") << "Total numer of events selected: " << nsel << " [events]";
+      LogVerbatim("") << "Overall efficiency:             " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/all)*100. << ")%";
+
+      if (!fastOption_) {
+        double erec = nrec/all;
+        double eiso = niso/all;
+        double ehlt = nhlt/all;
+        double emet = nmet/all;
+
+        double num = nrec;
+        double eff = erec;
+        double err = sqrt(eff*(1-eff)/all);
+        double effstep = 1.;
+        double errstep = 0.;
+        LogVerbatim("") << "Passing Pt/Eta/Quality cuts:    " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%";
+
+        num = niso;
+        eff = eiso;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = eiso/erec;
+        errstep = sqrt(effstep*(1-effstep)/nrec);
+        LogVerbatim("") << "Passing isolation cuts:         " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+  
+        num = nhlt;
+        eff = ehlt;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = ehlt/eiso;
+        errstep = sqrt(effstep*(1-effstep)/niso);
+        LogVerbatim("") << "Passing HLT criteria:           " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
+        num = nmet;
+        eff = emet;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = emet/ehlt;
+        errstep = sqrt(effstep*(1-effstep)/nhlt);
+        LogVerbatim("") << "Passing MET/acoplanarity cuts:  " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+
+        num = nsel;
+        eff = esel;
+        err = sqrt(eff*(1-eff)/all);
+        effstep = esel/emet;
+        errstep = sqrt(effstep*(1-effstep)/nmet);
+        LogVerbatim("") << "Passing Z/top rejection cuts:   " << num << " [events], (" << setprecision(4) << eff*100. <<" +/- "<< setprecision(2) << err*100. << ")%, to previous step: (" <<  setprecision(4) << effstep*100. << " +/- "<< setprecision(2) << errstep*100. <<")%";
+      }
+
+      LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
-bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
-      double met_px = 0.;
-      double met_py = 0.;
+#ifdef IS_PAT
+bool WMuNuPATSelector::filter (Event & ev, const EventSetup &) {
+#else
+bool WMuNuAODSelector::filter (Event & ev, const EventSetup &) {
+#endif
 
-      Handle<MuonCollection> muonCollection;
+      // Reset global event selection flags
+      bool rec_sel = false;
+      bool iso_sel = false;
+      bool hlt_sel = false;
+      bool met_sel = false;
+      bool all_sel = false;
+
+      // Muon collection
+      Handle<View<Muon> > muonCollection;
       if (!ev.getByLabel(muonTag_, muonCollection)) {
             LogError("") << ">>> Muon collection does not exist !!!";
             return false;
       }
-      for (unsigned int i=0; i<muonCollection->size(); i++) {
-            MuonRef mu(muonCollection,i);
-            if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
-            met_px -= mu->px();
-            met_py -= mu->py();
-      }
+      unsigned int muonCollectionSize = muonCollection->size();
 
-      Handle<CaloMETCollection> metCollection;
+      // Beam spot
+      Handle<reco::BeamSpot> beamSpotHandle;
+      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+            LogTrace("") << ">>> No beam spot found !!!";
+            return false;
+      }
+  
+      // MET
+      double met_px = 0.;
+      double met_py = 0.;
+      Handle<View<MET> > metCollection;
       if (!ev.getByLabel(metTag_, metCollection)) {
             LogError("") << ">>> MET collection does not exist !!!";
             return false;
       }
-      CaloMETCollection::const_iterator caloMET = metCollection->begin();
-      LogTrace("") << ">>> CaloMET_et, CaloMET_px, CaloMET_py= " << caloMET->et() << ", " << caloMET->px() << ", " << caloMET->py();;
-      met_px += caloMET->px();
-      met_py += caloMET->py();
-      double met_et = sqrt(met_px*met_px+met_py*met_py);
-
-
-      Handle<CaloJetCollection> jetCollection;
-      if (!ev.getByLabel(jetTag_, jetCollection)) {
-            LogError("") << ">>> CALOJET collection does not exist !!!";
-            return false;
-      }
-
-      CaloJetCollection::const_iterator jet = jetCollection->begin();
-      int njets = 0;
-      for (jet=jetCollection->begin(); jet!=jetCollection->end(); jet++) {
-            if (jet->et()>eJetMin_) njets++;
-      }
-
-
-      float etagen, ptgen;
-      bool genfound = false;
-
-      Handle<GenParticleCollection> genParticles;
-      if (!ev.getByLabel(genParticlesTag_, genParticles)) {
-            cout<<"genParticles dont exist!!!"<<endl;
-            return false;
-      }
-      nall++;
-
-      for(size_t i = 0; i < genParticles->size(); ++ i) {
-            const GenParticle& p = (*genParticles)[i];
-            int id = p.pdgId();      
-            int st = p.status();
-
-            if (st==3) continue;
-            if (abs(id)!=13) continue;
-
-            int nmothers = p.numberOfMothers();
-            //printf("Boson Id %d numberOfMothers %d\n", id, nmothers);
-            if (nmothers!=1) continue;
-            const Candidate * mom = p.mother();
-            int momId=mom->pdgId();
-
-            while(abs(momId)==13 && mom->numberOfMothers()==1){
-                  mom = mom->mother();  
-                  momId=mom->pdgId();
+      const MET& met = metCollection->at(0);
+      met_px = met.px();
+      met_py = met.py();
+      if (!metIncludesMuons_) {
+            for (unsigned int i=0; i<muonCollectionSize; i++) {
+                  const Muon& mu = muonCollection->at(i);
+                  if (!mu.isGlobalMuon()) continue;
+                  met_px -= mu.px();
+                  met_py -= mu.py();
             }
-
-            if(abs(momId)!=24) continue;
-	      //To select only W+ or W-: 
-	      // if(momId!=-24) continue;
-
-	      ptgen = p.pt();     
-            etagen =p.eta(); 
-
-            ptgen = p.pt();     
-            etagen =p.eta();     
-            if (ptgen<25 || fabs(etagen)>2.0) continue;    
-            genfound = true;               
-
-            break;
       }
+      double met_et = sqrt(met_px*met_px+met_py*met_py);
+      LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
+      fill_histogram("MET_BEFORECUTS",met_et);
 
-      if (!genfound) return false;
-      
-      ngen++;
-      double rec_weight = my_weight(etagen,"REC");
-      if (rec_weight>0) wrec += rec_weight;
-      double all_weight = my_weight(etagen,"");
-      if (all_weight>0) wall += all_weight;
-
-
+      // Trigger
       Handle<TriggerResults> triggerResults;
       TriggerNames trigNames;
-      if (!ev.getByLabel(InputTag("TriggerResults::HLT"), triggerResults)) {
+      if (!ev.getByLabel(trigTag_, triggerResults)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
       trigNames.init(*triggerResults);
-      bool fired = false;
-
       /*
       for (unsigned int i=0; i<triggerResults->size(); i++) {
             if (triggerResults->accept(i)) {
@@ -232,178 +369,258 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             }
       }
       */
+      bool trigger_fired = false;
+      int itrig1 = trigNames.triggerIndex(muonTrig_);
+      if (triggerResults->accept(itrig1)) trigger_fired = true;
+      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
+      fill_histogram("TRIG_BEFORECUTS",trigger_fired);
 
-      int itrig1 = trigNames.triggerIndex("HLT_Mu15");
-      if (triggerResults->accept(itrig1)) fired = true;
+      // Loop to reject/control Z->mumu is done separately
+      unsigned int nmuonsForZ1 = 0;
+      unsigned int nmuonsForZ2 = 0;
+      for (unsigned int i=0; i<muonCollectionSize; i++) {
+            const Muon& mu = muonCollection->at(i);
+            if (!mu.isGlobalMuon()) continue;
+            double pt = mu.pt();
+            if (useTrackerPt_) {
+                  reco::TrackRef tk = mu.innerTrack();
+                  if (mu.innerTrack().isNull()) continue;
+                  pt = tk->pt();
+            }
+            if (pt>ptThrForZ1_) nmuonsForZ1++;
+            if (pt>ptThrForZ2_) nmuonsForZ2++;
+      }
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
+      fill_histogram("NZ1_BEFORECUTS",nmuonsForZ1);
+      fill_histogram("NZ2_BEFORECUTS",nmuonsForZ2);
+      
+      // Jet collection
+      Handle<View<Jet> > jetCollection;
+      if (!ev.getByLabel(jetTag_, jetCollection)) {
+            LogError("") << ">>> JET collection does not exist !!!";
+            return false;
+      }
+      unsigned int jetCollectionSize = jetCollection->size();
+      int njets = 0;
+      for (unsigned int i=0; i<jetCollectionSize; i++) {
+            const Jet& jet = jetCollection->at(i);
+            if (jet.et()>eJetMin_) njets++;
+      }
+      LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
+      LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
+      fill_histogram("NJETS_BEFORECUTS",njets);
 
-      unsigned int nmuons = 0;
-      unsigned int nmuonsForZ = 0;
-      for (unsigned int i=0; i<muonCollection->size(); i++) {
-            MuonRef mu(muonCollection,i);
-            if (useOnlyGlobalMuons_ && !mu->isGlobalMuon()) continue;
-            if (mu->innerTrack().isNull()) continue;
-            TrackRef tk = mu->innerTrack();
-            LogTrace("") << "> Processing muon number " << i << "...";
-            double pt = tk->pt();
-            if (pt>ptThrForZCount_) nmuonsForZ++;
-            LogTrace("") << "\t... pt= " << pt << " GeV";
-  //          if (pt<ptCut_) continue;
-            double eta = tk->eta();
-            LogTrace("") << "\t... eta= " << eta;
-//            if (fabs(eta)>etaCut_) continue;
+      // Start counting, reject already events if possible (under FastOption flag)
+      nall++;
+      if (fastOption_ && !trigger_fired) return false;
+      if (fastOption_ && nmuonsForZ1>=0 && nmuonsForZ2>=2) return false;
+      if (fastOption_ && njets>nJetMax_) return false;
 
+      // Histograms per event shouldbe done only once, so keep track of them
+      bool hlt_hist_done = false;
+      bool met_hist_done = false;
+      bool nz1_hist_done = false;
+      bool nz2_hist_done = false;
+      bool njets_hist_done = false;
 
-            //if(tk->charge()!=1) continue;
+      // Central W->mu nu selection criteria
+      const int NFLAGS = 13;
+      bool muon_sel[NFLAGS];
+      for (unsigned int i=0; i<muonCollectionSize; i++) {
+            for (int j=0; j<NFLAGS; ++j) {
+                  muon_sel[j] = false;
+            }
 
-            if (pt<ptCut_-2*tk->ptError()) continue;
-            //LogTrace("") << "\t... eta= " << eta;
-            if (fabs(eta)>etaCut_+2*tk->etaError()) continue;
-            nrec++;
+            const Muon& mu = muonCollection->at(i);
+            if (!mu.isGlobalMuon()) continue;
+            if (mu.globalTrack().isNull()) continue;
+            if (mu.innerTrack().isNull()) continue;
 
-            double iso_weight = my_weight(eta,"ISO");
-            if (iso_weight>0) wiso += iso_weight;
+            LogTrace("") << "> Wsel: processing muon number " << i << "...";
+            reco::TrackRef gm = mu.globalTrack();
+            reco::TrackRef tk = mu.innerTrack();
 
-            bool iso = false;
-            double ptsum = mu->isolationR03().sumPt;
-            if (ptsum/pt<0.09){iso=true;};
- 
-            LogTrace("") << "\t... isolated? " << iso;
-            if (!iso) continue;
-            niso++;
+            // Pt,eta cuts
+            double pt = mu.pt();
+            if (useTrackerPt_) pt = tk->pt();
+            double eta = mu.eta();
+            LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
+            if (pt>ptCut_) muon_sel[0] = true; 
+            else if (fastOption_) continue;
+            if (fabs(eta)<etaCut_) muon_sel[1] = true; 
+            else if (fastOption_) continue;
 
-            double hlt_weight = my_weight(eta,"HLT");
-            if (hlt_weight>0) whlt += hlt_weight;
+            // d0, chi2, nhits quality cuts
+            double dxy = tk->dxy(beamSpotHandle->position());
+            double normalizedChi2 = gm->normalizedChi2();
+            double trackerHits = tk->numberOfValidHits();
+            LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
+            if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
+            else if (fastOption_) continue;
+            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+            else if (fastOption_) continue;
+            if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
+            else if (fastOption_) continue;
+            if (mu.isTrackerMuon()) muon_sel[5] = true; 
+            else if (fastOption_) continue;
 
-            if (!fired) continue;
-            nhlt++;
+            fill_histogram("PT_BEFORECUTS",pt);
+            fill_histogram("ETA_BEFORECUTS",eta);
+            fill_histogram("DXY_BEFORECUTS",dxy);
+            fill_histogram("CHI2_BEFORECUTS",normalizedChi2);
+            fill_histogram("NHITS_BEFORECUTS",trackerHits);
+            fill_histogram("TKMU_BEFORECUTS",mu.isTrackerMuon());
 
-            double w_et = tk->pt() + met_et;
-            double w_px = tk->px() + met_px;
-            double w_py = tk->py() + met_py;
+            // Isolation cuts
+            double isovar = mu.isolationR03().sumPt;
+            if (isCombinedIso_) {
+                  isovar += mu.isolationR03().emEt;
+                  isovar += mu.isolationR03().hadEt;
+            }
+            if (isRelativeIso_) isovar /= pt;
+            if (isovar<isoCut03_) muon_sel[6] = true; 
+            else if (fastOption_) continue;
+            LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
+            fill_histogram("ISO_BEFORECUTS",isovar);
+
+            // HLT (not mtched to muon for the time being)
+            if (trigger_fired) muon_sel[7] = true; 
+            else if (fastOption_) continue;
+
+            // MET/MT cuts
+            double w_et = met_et;
+            double w_px = met_px;
+            double w_py = met_py;
+            if (useTrackerPt_) {
+                  w_et += tk->pt();
+                  w_px += tk->px();
+                  w_py += tk->py();
+            } else {
+                  w_et += mu.pt();
+                  w_px += mu.px();
+                  w_py += mu.py();
+            }
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
-            LogTrace("") << "\t... W_et, W_px, W_py= " << w_et << ", " << w_px << ", " << w_py << " GeV";
-            LogTrace("") << "\t... Invariant transverse mass= " << massT << " GeV";
-            if (massT<massTMin_) continue;
-            if (massT>massTMax_) continue;
-            nmt++;
 
-            LogTrace("") << ">>> Number of jets " << jetCollection->size() << "; above " << eJetMin_ << " GeV: " << njets;
-            LogTrace("") << ">>> Number of jets above " << eJetMin_ << " GeV: " << njets;
-            if (njets>nJetMax_) return false;
+            LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
+            if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; 
+            else if (fastOption_) continue;
+            fill_histogram("MT_BEFORECUTS",massT);
+            if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true; 
+            else if (fastOption_) continue;
 
-            Geom::Phi<double> deltaphi(tk->phi()-atan2(met_py,met_px));
+            // Acoplanarity cuts
+            Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
             double acop = deltaphi.value();
             if (acop<0) acop = - acop;
             acop = M_PI - acop;
-            LogTrace("") << "\t... acop= " << acop;
-            if (acop>acopCut_) continue;
-            ntop++;
-            nmuons++;
+            LogTrace("") << "\t... acoplanarity: " << acop;
+            if (acop<acopCut_) muon_sel[10] = true; 
+            else if (fastOption_) continue;
+            fill_histogram("ACOP_BEFORECUTS",acop);
+
+            // Remaining flags (from global event information)
+            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true; 
+            else if (fastOption_) continue;
+            if (njets<=nJetMax_) muon_sel[12] = true; 
+            else if (fastOption_) continue;
+
+            if (fastOption_) {
+                  all_sel = true;
+                  break;
+            } else {
+              // Collect necessary flags "per muon"
+              int flags_passed = 0;
+              bool rec_sel_this = true;
+              bool iso_sel_this = true;
+              bool hlt_sel_this = true;
+              bool met_sel_this = true;
+              bool all_sel_this = true;
+              for (int j=0; j<NFLAGS; ++j) {
+                  if (muon_sel[j]) flags_passed += 1;
+                  if (j<6 && !muon_sel[j]) rec_sel_this = false;
+                  if (j<7 && !muon_sel[j]) iso_sel_this = false;
+                  if (j<8 && !muon_sel[j]) hlt_sel_this = false;
+                  if (j<11 && !muon_sel[j]) met_sel_this = false;
+                  if (!muon_sel[j]) all_sel_this = false;
+              }
+
+              // "rec" => pt,eta and quality cuts are satisfied
+              if (rec_sel_this) rec_sel = true;
+              // "iso" => "rec" AND "muon is isolated"
+              if (iso_sel_this) iso_sel = true;
+              // "hlt" => "iso" AND "event is triggered"
+              if (hlt_sel_this) hlt_sel = true;
+              // "met" => "hlt" AND "MET/MT and acoplanarity cuts"
+              if (met_sel_this) met_sel = true;
+              // "all" => "met" AND "Z/top rejection cuts"
+              if (all_sel_this) all_sel = true;
+
+              // Do N-1 histograms now (and only once for global event quantities)
+              if (flags_passed >= (NFLAGS-1)) {
+                  if (!muon_sel[0] || flags_passed==NFLAGS) 
+                        fill_histogram("PT_LASTCUT",pt);
+                  if (!muon_sel[1] || flags_passed==NFLAGS) 
+                        fill_histogram("ETA_LASTCUT",eta);
+                  if (!muon_sel[2] || flags_passed==NFLAGS) 
+                        fill_histogram("DXY_LASTCUT",dxy);
+                  if (!muon_sel[3] || flags_passed==NFLAGS) 
+                        fill_histogram("CHI2_LASTCUT",normalizedChi2);
+                  if (!muon_sel[4] || flags_passed==NFLAGS) 
+                        fill_histogram("NHITS_LASTCUT",trackerHits);
+                  if (!muon_sel[5] || flags_passed==NFLAGS) 
+                        fill_histogram("TKMU_LASTCUT",mu.isTrackerMuon());
+                  if (!muon_sel[6] || flags_passed==NFLAGS) 
+                        fill_histogram("ISO_LASTCUT",isovar);
+                  if (!muon_sel[7] || flags_passed==NFLAGS) 
+                        if (!hlt_hist_done) fill_histogram("TRIG_LASTCUT",trigger_fired);
+                        hlt_hist_done = true;
+                  if (!muon_sel[8] || flags_passed==NFLAGS) 
+                        fill_histogram("MT_LASTCUT",massT);
+                  if (!muon_sel[9] || flags_passed==NFLAGS) 
+                        if (!met_hist_done) fill_histogram("MET_LASTCUT",met_et);
+                        met_hist_done = true;
+                  if (!muon_sel[10] || flags_passed==NFLAGS) 
+                        fill_histogram("ACOP_LASTCUT",acop);
+                  if (!muon_sel[11] || flags_passed==NFLAGS) 
+                        if (!nz1_hist_done) fill_histogram("NZ1_LASTCUT",nmuonsForZ1);
+                        nz1_hist_done = true;
+                  if (!muon_sel[11] || flags_passed==NFLAGS) 
+                        if (!nz2_hist_done) fill_histogram("NZ2_LASTCUT",nmuonsForZ2);
+                        nz2_hist_done = true;
+                  if (!muon_sel[12] || flags_passed==NFLAGS) 
+                        if (!njets_hist_done) fill_histogram("NJETS_LASTCUT",njets);
+                        njets_hist_done = true;
+              }
+            }
+
       }
-      LogTrace("") << "> Muon counts to reject Z= " << nmuonsForZ;
-      if (nmuonsForZ>=2) {
-            LogTrace("") << ">>>> Event REJECTED";
-            return false;
+
+      // Collect final flags
+      if (!fastOption_) {     
+            if (rec_sel) nrec++;
+            if (iso_sel) niso++;
+            if (hlt_sel) nhlt++;
+            if (met_sel) nmet++;
       }
-      LogTrace("") << "> Number of muons for W= " << nmuons;
-      if (nmuons<1) {
-            LogTrace("") << ">>>> Event REJECTED";
-            return false;
-      }
-      LogTrace("") << ">>>> Event SELECTED!!!";
-      nsel++;
 
-      return true;
-
-}
-
-double WMuNuSelector::my_weight(double eta, const std::string mode) {
-      // ISO
-      const double iso_min = -2.0; 
-      const double iso_max = +2.0; 
-      const int iso_bins = 20;
-
-
-// New Isolation!!!!!!! (ptsum/pt)
-const double eff_iso[iso_bins] ={ 0.984649 ,  0.969325 ,  0.974406 ,  0.986864 ,  0.961353 ,  0.964286 ,  0.967647 ,  0.974965 ,  0.98329 ,  0.972603 ,  0.965007 ,  0.956989 ,  0.978231 ,  0.968839 ,  0.971125 ,  0.968 ,  0.976271 ,  0.985428 ,  0.984344 ,  0.971963 };
-
-
-
-      // HLT
-      const double hlt_min = -2.1;
-      const double hlt_max = +2.1;
-      const int hlt_bins = 50;
-
- const double eff_hlt[hlt_bins] = { 0.740458012, 0.900709212, 0.918918908, 0.947368443, 0.915032685, 0.909090936, 0.901639342, 0.958333313, 0.939226508, 0.982758641, 0.866666675, 0.849056602, 0.896551728, 0.882113814, 0.868778288, 0.918552041, 0.916334689, 0.895161271, 0.93065691 , 0.914979756, 0.893700778, 0.913513541, 0.903669715, 0.946043193, 0.903100789, 0.921146929, 0.944852948, 0.941908717, 0.919831216, 0.92125982 , 0.954166651, 0.920000017, 0.88429755 , 0.929906547, 0.907834113, 0.876712322, 0.936440706, 0.864000022, 0.842857122, 0.85446012 , 0.945652187, 0.934343457, 0.949748755, 0.908045948, 0.942708313, 0.932584286, 0.886486471, 0.890173435, 0.90322578 , 0.744827569};
-
-
-
-
-
-     // Fake values for REC as of today
-      const double rec_min = -2.1;
-      const double rec_max = +2.1;
-      const int rec_bins = 50;
-  
-
-
-      const double eff_rec[rec_bins] = { 0.976272, 0.979553, 0.982398, 0.977702, 0.968152, 0.980511, 0.98003, 0.979629, 0.985716, 0.989284, 0.980755, 0.983586, 0.988282, 0.986041, 0.991525, 0.982173, 0.992052, 0.993635, 0.992547, 0.992847, 0.992071, 0.961635, 0.982511, 0.991947, 0.970049, 0.97124, 0.992011, 0.979631, 0.9573, 0.990328, 0.992836, 0.991493, 0.991128, 0.988691, 0.974209, 0.990908, 0.985435, 0.985698, 0.983657, 0.980375, 0.991139, 0.986679, 0.98006, 0.977969, 0.979052, 0.968776, 0.975388, 0.982799, 0.980274, 0.976611};
-      const double eff_sta[rec_bins] = { 0.983005, 0.985753, 0.988546, 0.987125, 0.978763, 0.990595, 0.991229, 0.992798, 0.996607, 0.999549, 0.994675, 0.993563, 0.99636 , 0.995803, 0.996025, 0.986317, 0.995953, 0.996802, 0.996158, 0.99696 , 0.997018, 0.96867 , 0.986946, 0.996645, 0.996869, 0.996446, 0.996218, 0.984129, 0.964356, 0.995571, 0.99659 , 0.995412, 0.995965, 0.994154, 0.979378, 0.995491, 0.994966, 0.995404, 0.992672, 0.993381, 0.999444, 0.995852, 0.990442, 0.990121, 0.987173, 0.977185, 0.982735, 0.988271, 0.985356, 0.982167};
-      const double eff_trk[rec_bins] = { 0.991292, 0.992328, 0.992554, 0.989253, 0.988361, 0.98955 , 0.98833 , 0.98674 , 0.989074, 0.989765, 0.985971, 0.989958, 0.991892, 0.990197, 0.995483, 0.995798, 0.996083, 0.996821, 0.996375, 0.995874, 0.995038, 0.992738, 0.995477, 0.995312, 0.973095, 0.974705, 0.995749, 0.99543 , 0.992653, 0.994732, 0.996261, 0.996034, 0.995143, 0.994505, 0.994721, 0.995396, 0.990389, 0.990217, 0.990919, 0.986907, 0.991761, 0.990754, 0.989526, 0.987541, 0.991423, 0.989434, 0.990578, 0.993657, 0.993631, 0.992817};
-      const double eff_mat[rec_bins] = { 0.998088, 0.998979, 0.999314, 0.998753, 0.998534, 0.99977 , 0.999843, 0.999809, 0.999927, 0.999964, 1       , 1   , 1       , 1       , 1       , 1       , 1       , 0.999972, 1       , 1       , 1       , 1       , 1       , 0.999973, 0.999972, 1       , 1       , 1      , 1       , 0.999973, 0.999972, 1       , 1       , 1       , 0.99997 , 1       , 1       , 0.999968, 1       , 1       , 0.999928, 0.999964, 0.999771, 0.999807, 0.999479, 0.997169, 0.99702 , 0.999179, 0.998106, 0.997866};
-
-
-
-      double eff = 1.;
-
-
-
- if (mode=="ISO") {
-
-            // Iso
-            int iso_bin = int((eta-iso_min)/(iso_max-iso_min)*iso_bins);
-            if (iso_bin<0) iso_bin = 0;
-            if (iso_bin>=iso_bins) iso_bin = iso_bins-1;
-            eff = eff_iso[iso_bin];
-
-      } else if (mode=="HLT") {
-
-            // HLT
-            int hlt_bin = int((eta-hlt_min)/(hlt_max-hlt_min)*hlt_bins);
-            if (hlt_bin<0) hlt_bin = 0;
-            if (hlt_bin>=hlt_bins) hlt_bin = hlt_bins-1;
-            eff = eff_hlt[hlt_bin];
-
-      } else if (mode=="REC") {
-
-            // Rec
-            int rec_bin = int((eta-rec_min)/(rec_max-rec_min)*rec_bins);
-            if (rec_bin<0) rec_bin = 0;
-            if (rec_bin>=rec_bins) rec_bin = rec_bins-1;
-            //eff = eff_rec[rec_bin];
-            eff = eff_sta[rec_bin]*eff_trk[rec_bin]*eff_mat[rec_bin];
-
+      if (all_sel) {
+            nsel++;
+            LogTrace("") << ">>>> Event ACCEPTED";
       } else {
-
-            // All
-            int iso_bin = int((eta-iso_min)/(iso_max-iso_min)*iso_bins);
-            if (iso_bin<0) iso_bin = 0;
-            if (iso_bin>=iso_bins) iso_bin = iso_bins-1;
-            int hlt_bin = int((eta-hlt_min)/(hlt_max-hlt_min)*hlt_bins);
-            if (hlt_bin<0) hlt_bin = 0;
-            if (hlt_bin>=hlt_bins) hlt_bin = hlt_bins-1;
-            int rec_bin = int((eta-rec_min)/(rec_max-rec_min)*rec_bins);
-            if (rec_bin<0) rec_bin = 0;
-            if (rec_bin>=rec_bins) rec_bin = rec_bins-1;
-            eff = eff_iso[iso_bin] * eff_hlt[hlt_bin] * eff_rec[rec_bin];
-
+            LogTrace("") << ">>>> Event REJECTED";
       }
 
-      return eff;
-      
+      return all_sel;
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( WMuNuSelector );
+#ifdef IS_PAT
+      DEFINE_FWK_MODULE( WMuNuPATSelector );
+#else
+      DEFINE_FWK_MODULE( WMuNuAODSelector );
+#endif

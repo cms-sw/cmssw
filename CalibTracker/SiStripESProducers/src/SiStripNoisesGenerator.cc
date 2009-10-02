@@ -54,7 +54,7 @@ void SiStripNoisesGenerator::createObject(){
 	noise = ( noiseStripLengthLinearSlope_ * (it->second.stripLength) + noiseStripLengthLinearQuote_) / electronsPerADC_;
       }
       else{
-	noise = CLHEP::RandGauss::shoot(meanNoise_,sigmaNoise_);
+	noise = RandGauss::shoot(meanNoise_,sigmaNoise_);
 	if(noise<=minimumPosValue_) noise=minimumPosValue_;
       }
       if (count<printdebug_) {

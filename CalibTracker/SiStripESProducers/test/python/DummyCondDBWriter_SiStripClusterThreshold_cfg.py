@@ -43,11 +43,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripThresholdRcd'),
-        tag = cms.string('SiStripClusterThreshold_Ideal_31X')
+        tag = cms.string('SiStripClusterThreshold_Standard_31X')
     ))
 )
 
-process.siStripThresholdDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
+
 process.p1 = cms.Path(process.siStripThresholdDummyDBWriter)
 
 

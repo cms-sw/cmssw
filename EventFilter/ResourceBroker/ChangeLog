@@ -1,3 +1,8 @@
+2009-07-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-08
+	* complete migration away from FEDNumbering getter functions
+	
 2009-07-02  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-12-07

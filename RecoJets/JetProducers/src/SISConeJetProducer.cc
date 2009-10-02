@@ -1,7 +1,7 @@
 // File: SISConeJetProducer.cc
 // Description:  see SISConeJetProducer.h
 // Author:  Fedor Ratnikov, Maryland, June 30, 2007
-// $Id: SISConeJetProducer.cc,v 1.3 2009/07/02 21:21:15 srappocc Exp $
+// $Id: SISConeJetProducer.cc,v 1.4 2009/07/03 15:06:00 srappocc Exp $
 //
 //--------------------------------------------
 #include <memory>
@@ -33,22 +33,23 @@ namespace cms
 
   SISConeJetProducer::SISConeJetProducer(edm::ParameterSet const& conf):
     BaseJetProducer (conf),
-    alg_(conf)
+    alg_(conf),
+    ncut_(conf.getParameter<uint>("maxInputSize"))
   {}
 
 
   // run algorithm itself
   bool SISConeJetProducer::runAlgorithm (const JetReco::InputCollection& fInput, 
 		     JetReco::OutputCollection* fOutput) {
-     //do not run algorithm for more than 1000 input elements
-    if(fInput.size() > 1000) {
+     //do not run algorithm for more than <ncut_> input elements
+    if(fInput.size() > ncut_) {
       // sort in pt
       JetReco::InputCollection & fInputMutable = const_cast<JetReco::InputCollection &>( fInput );
       GreaterByPtCaloTower                   pTComparator;
       std::sort(fInputMutable.begin(), fInputMutable.end(), pTComparator);
-      // now restrict first 1000 events
-      fInputMutable.resize(1000);
-      edm::LogWarning("SISConeTooManyEntries") << "Too many calo towers in the event, sisCone is limiting to first 1000. Output is suspect.";
+      // now restrict to first <ncut_> entries
+      fInputMutable.resize(ncut_);
+      edm::LogWarning("SISConeTooManyEntries") << "Too many calo towers in the event, sisCone is limiting to first " << ncut_ << ". Output is suspect.";
 //       edm::LogError("SISConeNotRun") << "Too many calo tower in the event, sisCone collection will be empty";
 //       return false;
       alg_.run( fInputMutable, fOutput );

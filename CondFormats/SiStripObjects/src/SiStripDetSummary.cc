@@ -73,10 +73,10 @@ void SiStripDetSummary::print(stringstream & ss, const bool mean) const
       mean = (meanIt->second)/count;
       // if ( (rmsIt->second)/count - pow(mean,2) < 0 ) cout << "Error: negative value, meanIt->second = " << meanIt->second << " count = " << count << " rmsIt->second/count = " << (rmsIt->second)/count << " mean*mean = " << mean*mean << " pow = " << pow(mean,2) << endl;
       rms = (rmsIt->second)/count - mean*mean;
-      if (rms <= 0)
-	rms = 0;
+      if (rms <=0)
+	rms=0;
       else
-	rms = sqrt(rms);
+	rms= sqrt(rms);
     }
     // Detector type
     switch ((countIt->first)/1000) {

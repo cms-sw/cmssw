@@ -16,26 +16,15 @@
 #include "TString.h"
 
 namespace {
-  namespace {
-    std::pair<int,double>  dummy0;
-    std::vector<std::pair<int, double> > dummy1;
-    std::vector<std::vector<std::pair<int, double> >  > dummy2;
-
-    std::pair<unsigned int, double> p_uint_dbl;
-    std::vector<std::pair<double, double> > v_p_dbl_dbl;
-    std::vector<std::pair<unsigned int, double> > v_p_uint_dbl;
-    std::pair<unsigned int, std::vector<unsigned int> > p_uint_vint;
-    std::vector<int> v_int;
-    std::vector<std::pair<std::string, double> > v_p_str_dbl;
-
+  typedef edm::Ptr<pat::MET> PtrMet;
+  typedef edm::Ptr<pat::Jet> PtrJet;
+  typedef edm::Ptr<pat::Muon> PtrMuon;
+  typedef edm::Ptr<pat::Electron> PtrElec;
+  struct dictionary {
     TString tstr;
     edm::Wrapper<TString> w_tstr;
     edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;
 
-    typedef edm::Ptr<pat::MET> PtrMet;
-    typedef edm::Ptr<pat::Jet> PtrJet;
-    typedef edm::Ptr<pat::Muon> PtrMuon;
-    typedef edm::Ptr<pat::Electron> PtrElec;
     PtrMet  p_met;
     PtrJet  p_jet;
     PtrMuon p_muon;
@@ -95,5 +84,5 @@ namespace {
     edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef> rb_catopjet;
     edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                 rbh_catopjet; 
-  }
+  };
 }

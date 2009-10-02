@@ -19,7 +19,6 @@ class LASProfileJudge {
   bool IsSignalIn( const LASModuleProfile&, double );
   bool JudgeProfile( const LASModuleProfile&, double );
   void EnableZeroFilter( bool );
-  void SetOverdriveThreshold( unsigned int );
 
  private:
   double GetNegativity( int );
@@ -30,7 +29,6 @@ class LASProfileJudge {
   LASModuleProfile profile;
   std::pair<unsigned int, double> thePeak;
   bool isZeroFilter;
-  unsigned int overdriveThreshold;
 
 };
 

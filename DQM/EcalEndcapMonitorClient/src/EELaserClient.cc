@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2009/06/09 15:36:37 $
- * $Revision: 1.108 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -68,18 +68,6 @@ EELaserClient::EELaserClient(const ParameterSet& ps) {
   superModules_.reserve(18);
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
-
-  laserWavelengths_.reserve(4);
-  for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
-
-  if ( verbose_ ) {
-    cout << " Laser wavelengths:" << endl;
-    for ( unsigned int i = 0; i < laserWavelengths_.size(); i++ ) {
-      cout << " " << laserWavelengths_[i];
-    }
-    cout << endl;
-  }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -297,465 +285,330 @@ void EELaserClient::setup(void) {
 
     int ism = superModules_[i];
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
-      meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg01_[ism-1]->setAxisTitle("jx", 1);
-      meg01_[ism-1]->setAxisTitle("jy", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
-      meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg02_[ism-1]->setAxisTitle("jx", 1);
-      meg02_[ism-1]->setAxisTitle("jy", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
-      meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg03_[ism-1]->setAxisTitle("jx", 1);
-      meg03_[ism-1]->setAxisTitle("jy", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
-      meg04_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg04_[ism-1]->setAxisTitle("jx", 1);
-      meg04_[ism-1]->setAxisTitle("jy", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg05_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L2 PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg06_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg06_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L3 PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg07_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg07_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L4 PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg08_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg08_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L1 PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg09_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg09_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L2 PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg10_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg10_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L3 PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg11_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg11_[ism-1]->setAxisTitle("channel", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
-      sprintf(histo, "EELT laser quality L4 PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg12_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-      meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
-      meg12_[ism-1]->setAxisTitle("channel", 2);
-    }
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L1 %s", Numbers::sEE(ism).c_str());
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1]->setAxisTitle("jx", 1);
+    meg01_[ism-1]->setAxisTitle("jy", 2);
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L2 %s", Numbers::sEE(ism).c_str());
+    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg02_[ism-1]->setAxisTitle("jx", 1);
+    meg02_[ism-1]->setAxisTitle("jy", 2);
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L3 %s", Numbers::sEE(ism).c_str());
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg03_[ism-1]->setAxisTitle("jx", 1);
+    meg03_[ism-1]->setAxisTitle("jy", 2);
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L4 %s", Numbers::sEE(ism).c_str());
+    meg04_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg04_[ism-1]->setAxisTitle("jx", 1);
+    meg04_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
-      sprintf(histo, "EELT amplitude L1A %s", Numbers::sEE(ism).c_str());
-      mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea01_[ism-1]->setAxisTitle("channel", 1);
-      mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L2A %s", Numbers::sEE(ism).c_str());
-      mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea02_[ism-1]->setAxisTitle("channel", 1);
-      mea02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L3A %s", Numbers::sEE(ism).c_str());
-      mea03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea03_[ism-1]->setAxisTitle("channel", 1);
-      mea03_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L4A %s", Numbers::sEE(ism).c_str());
-      mea04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea04_[ism-1]->setAxisTitle("channel", 1);
-      mea04_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );;
-      sprintf(histo, "EELT amplitude L1B %s", Numbers::sEE(ism).c_str());
-      mea05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea05_[ism-1]->setAxisTitle("channel", 1);
-      mea05_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L2B %s", Numbers::sEE(ism).c_str());
-      mea06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea06_[ism-1]->setAxisTitle("channel", 1);
-      mea06_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mea07_[ism-1] ) dqmStore_->removeElement( mea07_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L3B %s", Numbers::sEE(ism).c_str());
-      mea07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea07_[ism-1]->setAxisTitle("channel", 1);
-      mea07_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mea08_[ism-1] ) dqmStore_->removeElement( mea08_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude L4B %s", Numbers::sEE(ism).c_str());
-      mea08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      mea08_[ism-1]->setAxisTitle("channel", 1);
-      mea08_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());
+    meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg05_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L2 PNs G01 %s", Numbers::sEE(ism).c_str());
+    meg06_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg06_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L3 PNs G01 %s", Numbers::sEE(ism).c_str());
+    meg07_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg07_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L4 PNs G01 %s", Numbers::sEE(ism).c_str());
+    meg08_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg08_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L1 PNs G16 %s", Numbers::sEE(ism).c_str());
+    meg09_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg09_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L2 PNs G16 %s", Numbers::sEE(ism).c_str());
+    meg10_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg10_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L3 PNs G16 %s", Numbers::sEE(ism).c_str());
+    meg11_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg11_[ism-1]->setAxisTitle("channel", 2);
+    if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
+    sprintf(histo, "EELT laser quality L4 PNs G16 %s", Numbers::sEE(ism).c_str());
+    meg12_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
+    meg12_[ism-1]->setAxisTitle("channel", 2);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L1A %s", Numbers::sEE(ism).c_str());
-      met01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met01_[ism-1]->setAxisTitle("channel", 1);
-      met01_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L2A %s", Numbers::sEE(ism).c_str());
-      met02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met02_[ism-1]->setAxisTitle("channel", 1);
-      met02_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L3A %s", Numbers::sEE(ism).c_str());
-      met03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met03_[ism-1]->setAxisTitle("channel", 1);
-      met03_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L4A %s", Numbers::sEE(ism).c_str());
-      met04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met04_[ism-1]->setAxisTitle("channel", 1);
-      met04_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L1B %s", Numbers::sEE(ism).c_str());
-      met05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met05_[ism-1]->setAxisTitle("channel", 1);
-      met05_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L2B %s", Numbers::sEE(ism).c_str());
-      met06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met06_[ism-1]->setAxisTitle("channel", 1);
-      met06_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( met07_[ism-1] ) dqmStore_->removeElement( met07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L3B %s", Numbers::sEE(ism).c_str());
-      met07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met07_[ism-1]->setAxisTitle("channel", 1);
-      met07_[ism-1]->setAxisTitle("jitter", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( met08_[ism-1] ) dqmStore_->removeElement( met08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing L4B %s", Numbers::sEE(ism).c_str());
-      met08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      met08_[ism-1]->setAxisTitle("channel", 1);
-      met08_[ism-1]->setAxisTitle("jitter", 2);
-    }
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
+    sprintf(histo, "EELT amplitude L1A %s", Numbers::sEE(ism).c_str());
+    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude L2A %s", Numbers::sEE(ism).c_str());
+    mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea02_[ism-1]->setAxisTitle("channel", 1);
+    mea02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude L3A %s", Numbers::sEE(ism).c_str());
+    mea03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea03_[ism-1]->setAxisTitle("channel", 1);
+    mea03_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude L4A %s", Numbers::sEE(ism).c_str());
+    mea04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea04_[ism-1]->setAxisTitle("channel", 1);
+    mea04_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );;
+    sprintf(histo, "EELT amplitude L1B %s", Numbers::sEE(ism).c_str());
+    mea05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea05_[ism-1]->setAxisTitle("channel", 1);
+    mea05_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude L2B %s", Numbers::sEE(ism).c_str());
+    mea06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea06_[ism-1]->setAxisTitle("channel", 1);
+    mea06_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea07_[ism-1] ) dqmStore_->removeElement( mea07_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude L3B %s", Numbers::sEE(ism).c_str());
+    mea07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea07_[ism-1]->setAxisTitle("channel", 1);
+    mea07_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( mea08_[ism-1] ) dqmStore_->removeElement( mea08_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude L4B %s", Numbers::sEE(ism).c_str());
+    mea08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    mea08_[ism-1]->setAxisTitle("channel", 1);
+    mea08_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L1A %s", Numbers::sEE(ism).c_str());
-      metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav01_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L2A %s", Numbers::sEE(ism).c_str());
-      metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav02_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L3A %s", Numbers::sEE(ism).c_str());
-      metav03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav03_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L4A %s", Numbers::sEE(ism).c_str());
-      metav04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav04_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L1B %s", Numbers::sEE(ism).c_str());
-      metav05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav05_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L2B %s", Numbers::sEE(ism).c_str());
-      metav06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav06_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metav07_[ism-1] ) dqmStore_->removeElement( metav07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L3B %s", Numbers::sEE(ism).c_str());
-      metav07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav07_[ism-1]->setAxisTitle("mean", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metav08_[ism-1] ) dqmStore_->removeElement( metav08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing mean L4B %s", Numbers::sEE(ism).c_str());
-      metav08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      metav08_[ism-1]->setAxisTitle("mean", 1);
-    }
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L1A %s", Numbers::sEE(ism).c_str());
+    met01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met01_[ism-1]->setAxisTitle("channel", 1);
+    met01_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L2A %s", Numbers::sEE(ism).c_str());
+    met02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met02_[ism-1]->setAxisTitle("channel", 1);
+    met02_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L3A %s", Numbers::sEE(ism).c_str());
+    met03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met03_[ism-1]->setAxisTitle("channel", 1);
+    met03_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L4A %s", Numbers::sEE(ism).c_str());
+    met04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met04_[ism-1]->setAxisTitle("channel", 1);
+    met04_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L1B %s", Numbers::sEE(ism).c_str());
+    met05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met05_[ism-1]->setAxisTitle("channel", 1);
+    met05_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L2B %s", Numbers::sEE(ism).c_str());
+    met06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met06_[ism-1]->setAxisTitle("channel", 1);
+    met06_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met07_[ism-1] ) dqmStore_->removeElement( met07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L3B %s", Numbers::sEE(ism).c_str());
+    met07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met07_[ism-1]->setAxisTitle("channel", 1);
+    met07_[ism-1]->setAxisTitle("jitter", 2);
+    if ( met08_[ism-1] ) dqmStore_->removeElement( met08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing L4B %s", Numbers::sEE(ism).c_str());
+    met08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    met08_[ism-1]->setAxisTitle("channel", 1);
+    met08_[ism-1]->setAxisTitle("jitter", 2);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L1A %s", Numbers::sEE(ism).c_str());
-      metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms01_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L2A %s", Numbers::sEE(ism).c_str());
-      metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms02_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L3A %s", Numbers::sEE(ism).c_str());
-      metrms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms03_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L4A %s", Numbers::sEE(ism).c_str());
-      metrms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms04_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L1B %s", Numbers::sEE(ism).c_str());
-      metrms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms05_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L2B %s", Numbers::sEE(ism).c_str());
-      metrms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms06_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( metrms07_[ism-1] ) dqmStore_->removeElement( metrms07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L3B %s", Numbers::sEE(ism).c_str());
-      metrms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms07_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( metrms08_[ism-1] ) dqmStore_->removeElement( metrms08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser timing rms L4B %s", Numbers::sEE(ism).c_str());
-      metrms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
-      metrms08_[ism-1]->setAxisTitle("rms", 1);
-    }
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L1A %s", Numbers::sEE(ism).c_str());
+    metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L2A %s", Numbers::sEE(ism).c_str());
+    metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav02_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L3A %s", Numbers::sEE(ism).c_str());
+    metav03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav03_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L4A %s", Numbers::sEE(ism).c_str());
+    metav04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav04_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L1B %s", Numbers::sEE(ism).c_str());
+    metav05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L2B %s", Numbers::sEE(ism).c_str());
+    metav06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav06_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav07_[ism-1] ) dqmStore_->removeElement( metav07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L3B %s", Numbers::sEE(ism).c_str());
+    metav07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav07_[ism-1]->setAxisTitle("mean", 1);
+    if ( metav08_[ism-1] ) dqmStore_->removeElement( metav08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing mean L4B %s", Numbers::sEE(ism).c_str());
+    metav08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    metav08_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
-      meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn01_[ism-1]->setAxisTitle("channel", 1);
-      meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
-      meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn02_[ism-1]->setAxisTitle("channel", 1);
-      meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L3A %s", Numbers::sEE(ism).c_str());
-      meaopn03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn03_[ism-1]->setAxisTitle("channel", 1);
-      meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L4A %s", Numbers::sEE(ism).c_str());
-      meaopn04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn04_[ism-1]->setAxisTitle("channel", 1);
-      meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
-      meaopn05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn05_[ism-1]->setAxisTitle("channel", 1);
-      meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
-      meaopn06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn06_[ism-1]->setAxisTitle("channel", 1);
-      meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( meaopn07_[ism-1] ) dqmStore_->removeElement( meaopn07_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L3B %s", Numbers::sEE(ism).c_str());
-      meaopn07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn07_[ism-1]->setAxisTitle("channel", 1);
-      meaopn07_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( meaopn08_[ism-1] ) dqmStore_->removeElement( meaopn08_[ism-1]->getName() );
-      sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
-      meaopn08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
-      meaopn08_[ism-1]->setAxisTitle("channel", 1);
-      meaopn08_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    }
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L1A %s", Numbers::sEE(ism).c_str());
+    metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L2A %s", Numbers::sEE(ism).c_str());
+    metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms02_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L3A %s", Numbers::sEE(ism).c_str());
+    metrms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms03_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L4A %s", Numbers::sEE(ism).c_str());
+    metrms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms04_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L1B %s", Numbers::sEE(ism).c_str());
+    metrms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L2B %s", Numbers::sEE(ism).c_str());
+    metrms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms06_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms07_[ism-1] ) dqmStore_->removeElement( metrms07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L3B %s", Numbers::sEE(ism).c_str());
+    metrms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms07_[ism-1]->setAxisTitle("rms", 1);
+    if ( metrms08_[ism-1] ) dqmStore_->removeElement( metrms08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser timing rms L4B %s", Numbers::sEE(ism).c_str());
+    metrms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
+    metrms08_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
-      mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms01_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
-      mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms02_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
-      mepnprms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms03_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
-      mepnprms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms04_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
-      mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms05_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
-      mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms06_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
-      mepnprms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms07_[ism-1]->setAxisTitle("rms", 1);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
-      sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
-      mepnprms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
-      mepnprms08_[ism-1]->setAxisTitle("rms", 1);
-    }
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
+    meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn01_[ism-1]->setAxisTitle("channel", 1);
+    meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
+    meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn02_[ism-1]->setAxisTitle("channel", 1);
+    meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L3A %s", Numbers::sEE(ism).c_str());
+    meaopn03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn03_[ism-1]->setAxisTitle("channel", 1);
+    meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L4A %s", Numbers::sEE(ism).c_str());
+    meaopn04_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn04_[ism-1]->setAxisTitle("channel", 1);
+    meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
+    meaopn05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn05_[ism-1]->setAxisTitle("channel", 1);
+    meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
+    meaopn06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn06_[ism-1]->setAxisTitle("channel", 1);
+    meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn07_[ism-1] ) dqmStore_->removeElement( meaopn07_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L3B %s", Numbers::sEE(ism).c_str());
+    meaopn07_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn07_[ism-1]->setAxisTitle("channel", 1);
+    meaopn07_[ism-1]->setAxisTitle("amplitude/PN", 2);
+    if ( meaopn08_[ism-1] ) dqmStore_->removeElement( meaopn08_[ism-1]->getName() );
+    sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
+    meaopn08_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    meaopn08_[ism-1]->setAxisTitle("channel", 1);
+    meaopn08_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L1A %s", Numbers::sEE(ism).c_str());
-      me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs01_[ism-1]->setAxisTitle("sample", 1);
-      me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L2A %s", Numbers::sEE(ism).c_str());
-      me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs02_[ism-1]->setAxisTitle("sample", 1);
-      me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L3A %s", Numbers::sEE(ism).c_str());
-      me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs03_[ism-1]->setAxisTitle("sample", 1);
-      me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L4A %s", Numbers::sEE(ism).c_str());
-      me_hs04_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs04_[ism-1]->setAxisTitle("sample", 1);
-      me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-      if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L1B %s", Numbers::sEE(ism).c_str());
-      me_hs05_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs05_[ism-1]->setAxisTitle("sample", 1);
-      me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-      if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L2B %s", Numbers::sEE(ism).c_str());
-      me_hs06_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs06_[ism-1]->setAxisTitle("sample", 1);
-      me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-      if ( me_hs07_[ism-1] ) dqmStore_->removeElement( me_hs07_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L3B %s", Numbers::sEE(ism).c_str());
-      me_hs07_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs07_[ism-1]->setAxisTitle("sample", 1);
-      me_hs07_[ism-1]->setAxisTitle("amplitude", 2);
-    }
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-      if ( me_hs08_[ism-1] ) dqmStore_->removeElement( me_hs08_[ism-1]->getName() );
-      sprintf(histo, "EELT laser shape L4B %s", Numbers::sEE(ism).c_str());
-      me_hs08_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
-      me_hs08_[ism-1]->setAxisTitle("sample", 1);
-      me_hs08_[ism-1]->setAxisTitle("amplitude", 2);
-    }
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
+    mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
+    mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms02_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
+    mepnprms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms03_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
+    mepnprms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms04_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
+    mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
+    mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms06_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
+    mepnprms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms07_[ism-1]->setAxisTitle("rms", 1);
+    if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
+    mepnprms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms08_[ism-1]->setAxisTitle("rms", 1);
+
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L1A %s", Numbers::sEE(ism).c_str());
+    me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1]->setAxisTitle("sample", 1);
+    me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L2A %s", Numbers::sEE(ism).c_str());
+    me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1]->setAxisTitle("sample", 1);
+    me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L3A %s", Numbers::sEE(ism).c_str());
+    me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1]->setAxisTitle("sample", 1);
+    me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L4A %s", Numbers::sEE(ism).c_str());
+    me_hs04_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs04_[ism-1]->setAxisTitle("sample", 1);
+    me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L1B %s", Numbers::sEE(ism).c_str());
+    me_hs05_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1]->setAxisTitle("sample", 1);
+    me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L2B %s", Numbers::sEE(ism).c_str());
+    me_hs06_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs06_[ism-1]->setAxisTitle("sample", 1);
+    me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs07_[ism-1] ) dqmStore_->removeElement( me_hs07_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L3B %s", Numbers::sEE(ism).c_str());
+    me_hs07_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs07_[ism-1]->setAxisTitle("sample", 1);
+    me_hs07_[ism-1]->setAxisTitle("amplitude", 2);
+    if ( me_hs08_[ism-1] ) dqmStore_->removeElement( me_hs08_[ism-1]->getName() );
+    sprintf(histo, "EELT laser shape L4B %s", Numbers::sEE(ism).c_str());
+    me_hs08_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+    me_hs08_[ism-1]->setAxisTitle("sample", 1);
+    me_hs08_[ism-1]->setAxisTitle("amplitude", 2);
 
   }
 
@@ -1183,22 +1036,14 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-        UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
-        UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
-        UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
-        UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
-      }
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+      UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
+      UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
+      UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
     }
 
     for ( int ix = 1; ix <= 50; ix++ ) {
@@ -1587,38 +1432,22 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
     if ( verbose_ ) {
       cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
       cout << endl;
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
-        UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
-        UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg07_[ism-1], i03_[ism-1]);
-        UtilsClient::printBadChannels(meg07_[ism-1], i07_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg08_[ism-1], i04_[ism-1]);
-        UtilsClient::printBadChannels(meg08_[ism-1], i08_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
-        UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
-        UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg11_[ism-1], i11_[ism-1]);
-        UtilsClient::printBadChannels(meg11_[ism-1], i15_[ism-1]);
-      }
-      if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-        UtilsClient::printBadChannels(meg12_[ism-1], i12_[ism-1]);
-        UtilsClient::printBadChannels(meg12_[ism-1], i16_[ism-1]);
-      }
+      UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
+      UtilsClient::printBadChannels(meg07_[ism-1], i03_[ism-1]);
+      UtilsClient::printBadChannels(meg07_[ism-1], i07_[ism-1]);
+      UtilsClient::printBadChannels(meg08_[ism-1], i04_[ism-1]);
+      UtilsClient::printBadChannels(meg08_[ism-1], i08_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+      UtilsClient::printBadChannels(meg11_[ism-1], i11_[ism-1]);
+      UtilsClient::printBadChannels(meg11_[ism-1], i15_[ism-1]);
+      UtilsClient::printBadChannels(meg12_[ism-1], i12_[ism-1]);
+      UtilsClient::printBadChannels(meg12_[ism-1], i16_[ism-1]);
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -2243,357 +2072,197 @@ void EELaserClient::analyze(void) {
 
     int ism = superModules_[i];
 
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4A").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4B").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
-
-    }
-
-    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
-
-      sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
-
-    }
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude %s L3B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT amplitude over PN %s L3B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude %s L4B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT amplitude over PN %s L4B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT timing %s L3B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT timing %s L4B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/EELT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/EELT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/EELT shape %s L3B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/EELT shape %s L4B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain01/EEPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser3/PN/Gain16/EEPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
+
+    sprintf(histo, (prefixME_ + "/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
+    i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
     if ( meg02_[ism-1] ) meg02_[ism-1]->Reset();

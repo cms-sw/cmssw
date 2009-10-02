@@ -35,7 +35,8 @@
   Style* style2 = spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
-  int etamode = BARREL;
+ int etamode = BARREL;
+//  int etamode = ENDCAP;
 
   string outdir = "Plots_BarrelAndEndcap";
 

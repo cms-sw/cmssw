@@ -9,7 +9,7 @@ TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               EtaMax        = cms.untracked.double(2.5)
 )
 
-hltTauRef = cms.Sequence(TauMCProducer)
+HLTTauRef = cms.Sequence(TauMCProducer)
 
 
 

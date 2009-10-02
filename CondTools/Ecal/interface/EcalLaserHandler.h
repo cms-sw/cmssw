@@ -62,7 +62,6 @@ namespace popcon
 
 		public:
 			void getNewObjects();
-			bool checkAPDPN(float x, float old_x);
 			~EcalLaserHandler(); 
 			EcalLaserHandler(edm::ParameterSet const & ); 
 

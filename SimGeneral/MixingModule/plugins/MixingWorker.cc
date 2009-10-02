@@ -7,66 +7,28 @@
 
 #include "boost/shared_ptr.hpp"
 
-template <> const int  edm::MixingWorker<PSimHit>::lowTrackTof = -36; 
-template <> const int  edm::MixingWorker<PSimHit>::highTrackTof = 36; 
-template <> const int  edm::MixingWorker<PSimHit>::limHighLowTof = 36; 
-
 namespace edm {
   template <>
   void MixingWorker<PSimHit>::addPileups(const int bcr, EventPrincipal *ep,unsigned int eventNr,int vertexoffset)
   {
     if (!mixProdStep2_){ 
       //    default version changed for high/low treatment
-      if (!isTracker_) {
-        boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtr = 
-	  getProductByTag<std::vector<PSimHit> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtr = getProductByTag<std::vector<PSimHit> >(*ep, tag_);
         if (shPtr) {
 	  LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
-
+          crFrame_->setPileupPtr(shPtr);
 	  crFrame_->addPileups(bcr,const_cast< std::vector<PSimHit> * > (shPtr->product()),eventNr);
         }
-      } else {
-        boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtrHigh, shPtrLow;
-        if(trackerHigh_) {
-	  shPtrHigh=getProductByTag<std::vector<PSimHit> >(*ep, tag_);
-	  crFrame_->setPileupPtr(shPtrHigh);
-	  shPtrLow=edm::getProductByTag<std::vector<PSimHit> >(*ep, opp_);
-        }
-        else {
-	  shPtrHigh=getProductByTag<std::vector<PSimHit> >(*ep, opp_);
-	  shPtrLow=getProductByTag<std::vector<PSimHit> >(*ep, tag_);
-	  crFrame_->setPileupPtr(shPtrLow);
-        }
-
-        // add HighTof simhits to high and low signals
-        float tof = bcr*crFrame_->getBunchSpace();
-        if (shPtrHigh) {
-	  if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
-	    crFrame_->addPileups(bcr,const_cast< std::vector<PSimHit> * > (shPtrHigh->product()),eventNr,0,checktof_,trackerHigh_);
-	    LogDebug("MixingModule") <<"For bcr "<<bcr<<", "<<subdet_<<", evNr "<<eventNr<<", "<<shPtrHigh->product()->size()<<" Hits added from high";
-	  }
-        }
-
-        // add LowTof simhits to high and low signals
-        if (shPtrLow) {
-	  if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {
-	    crFrame_->addPileups(bcr,const_cast< std::vector<PSimHit> * > (shPtrLow->product()),eventNr,0,checktof_,trackerHigh_);
-	    LogDebug("MixingModule") <<"For bcr "<<bcr<<", "<<subdet_<<", evNr "<<eventNr<<", "<<shPtrLow->product()->size()<<" Hits added from low";
-	  }
-        }
-      }
-    }
-    else{ // In case mixProdStep2_=true
-        // In the Step2, when using a mixed secondary source, there is no
-	// high/low treatment, it was done in the Step1, when producing the mixed source 
-	boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
+      } else{ // In case mixProdStep2_=true
+        boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
         if (shPtr) { 
           crFrame_->setPileupPtr(shPtr);
       	  secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtr->product());
 	  LogDebug("MixingModule") << "Add PCrossingFrame<PSimHit>,  eventNr " << secSourceCF_->getEventID();
-
 	  copyPCrossingFrame(secSourceCF_);	  
 	} 
+        else 
+	  LogDebug("MixingModule") << "Could not get the PCrossingFrame<PSimHit>!";
     }//else mixProd2    
   }
 
@@ -212,8 +174,4 @@ namespace edm {
 	  return got;
   }
       
-  template <>
-  void MixingWorker<PSimHit>::setTof(){
-    crFrame_->setTof();
-  }
 }//namespace edm

@@ -39,7 +39,11 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   SRThreshold_ = RecHitsParameters.getParameter<double> ("SRThreshold");
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
+  noiseADC_ = RecHitsParameters.getParameter<double>("NoiseADC");
+  highNoiseParameters_ = RecHitsParameters.getParameter<std::vector<double> > ("HighNoiseParameters");
+
   theCalorimeterHits_.resize(EEDetId::kSizeForDenseIndexing,0.);
+  applyZSCells_.resize(EEDetId::kSizeForDenseIndexing,true);
   towerOf_.resize(EEDetId::kSizeForDenseIndexing);
   theTTDetIds_.resize(1440);
   SCofTT_.resize(1440);
@@ -49,14 +53,12 @@ EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p,
   TTTEnergy_.resize(1440,0.);
   CrystalsinSC_.resize(633);
   sinTheta_.resize(EEDetId::kEEhalf,0.);
-
+  doCustomHighNoise_=false;
   
   noisified_ = (noise_==0.);
   edm::ParameterSet CalibParameters=RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1 = CalibParameters.getParameter<double>("EEs25notContainment");
   calibfactor_= 1./c1;
-
-
 }
   
 
@@ -71,6 +73,7 @@ void EcalEndcapRecHitsMaker::clean()
   for(unsigned ic=0;ic<size;++ic)
     {
       theCalorimeterHits_[theFiredCells_[ic]] = 0.;
+      applyZSCells_[theFiredCells_[ic]] = false;
     }
   theFiredCells_.clear();
   // If the noise is set to 0. No need to simulate it. 
@@ -133,7 +136,8 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
       // is afterwards put in this cell which would not be correct. 
       float energy=theCalorimeterHits_[icell];
       
-      if ( energy<threshold_ && !isHighInterest(myDetId)) 
+      // the threshold is in amplitude, so the intercalibration constant should be injected 
+      if ( energy<threshold_*((*ICMC_)[icell]) && !isHighInterest(myDetId) && applyZSCells_[icell]) 
 	{
 	  theCalorimeterHits_[icell]=0.;
 	  //	  int TThashedindex=towerOf_[icell];
@@ -147,8 +151,9 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	    theCalorimeterHits_[icell]=sat_;
 	  }
       if(energy!=0.)
-	ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
-      //      std::cout << "AA " << myDetId.ix() << " " << myDetId.iy() << " " << energy << std::endl;
+	{
+	  ecalHits.push_back(EcalRecHit(myDetId,energy,0.));
+	}
     }
   noisified_ = true;
 
@@ -169,15 +174,18 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 
       unsigned hashedindex = EEDetId(cficalo->id()).hashedIndex();      
       // Check if the hit already exists
+      float calib=(doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
 	  theFiredCells_.push_back(hashedindex); 
 	  float noise=(noise_==-1.) ? noisesigma_[hashedindex] : noise_ ;
-	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise); 
+	  if (!noisified_ ) {
+	    theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise*calib); 
+	  }
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
       // the miscalibration is applied here:
-      float calib=(doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
+
       // cficalo->energy can be 0 (a 7x7 grid is always built), in this case, one should not kill the cell (for later noise injection), but it should
       // be added only once.  This is a dirty trick. 
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
@@ -274,13 +282,13 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
   // for debugging
   //  std::vector<int> listofNewTowers;
   
-  if(noise_==-1.)
+  if(noise_==-1. && !doCustomHighNoise_)
     ncells=EEDetId::kSizeForDenseIndexing;
 
   unsigned icell=0;
   while(icell < ncells)
     {
-      unsigned cellindex= (noise_!=-1.) ? 
+      unsigned cellindex= (noise_!=-1. || doCustomHighNoise_) ? 
 	(unsigned)(floor(random_->flatShoot()*EEDetId::kSizeForDenseIndexing)): icell ;
       
       if(theCalorimeterHits_[cellindex]==0.)
@@ -294,7 +302,12 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
 	      // in this case the generated noise might be below the threshold but it 
 	      // does not matter, the threshold will be applied anyway
 	      //	      energy/=sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
-	      energy=random_->gaussShoot(0.,noisesigma_[cellindex]); 
+	      float noisemean  = (doCustomHighNoise_)? highNoiseParameters_[0]*(*ICMC_)[cellindex]*adcToGeV_: 0.;
+	      float noisesigma = (doCustomHighNoise_)? highNoiseParameters_[1]*(*ICMC_)[cellindex]*adcToGeV_ : noisesigma_[cellindex]; 
+	      energy=random_->gaussShoot(noisemean,noisesigma); 
+
+	      // in the case of high noise fluctuation, the ZS should not be applied later 
+	      if(doCustomHighNoise_) applyZSCells_[cellindex]=false;
 	    }
 	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[cellindex]:calibfactor_;
 	  energy *= calib;
@@ -435,6 +448,9 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       const EcalIntercalibConstantsMC* jcal = pJcal.product(); 
       const std::vector<float>& ICMC = jcal->endcapItems();
 
+      // should be saved, used by the zero suppression
+      ICMC_ = &ICMC;
+
       // Intercalib constants IC_i 
       // IC = IC_MC * (1+delta)
       // where delta is the miscalib
@@ -442,6 +458,7 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
       es.get<EcalIntercalibConstantsRcd>().get(pIcal);
       const EcalIntercalibConstants* ical = pIcal.product();
       const std::vector<float>& IC = ical->endcapItems();
+
 
       unsigned nic = IC.size();
       meanNoiseSigmaEt_ = 0.;
@@ -456,12 +473,12 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 
 	  // the miscalibration on the noise will be applied later one; so it is really ICMC here
 	  if(noise_==-1.)
-	    {
-	      // presumably the calib factor should not be counted twice, so remove it
-	      noisesigma_[ic]=2.87*agc->getEEValue()*ICMC[ic] / calibfactor_;
+	    { 
+	      // the calibfactor will be applied later on 
+	      noisesigma_[ic]=noiseADC_*adcToGeV_*ICMC[ic]/calibfactor_;
 	      meanNoiseSigmaEt_ += noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf];
-	      EEDetId myDetId(EEDetId::unhashIndex(ic));
-	      //	      std::cout << " BB " <<  myDetId.ix() << " " << myDetId.iy() << " " <<  noisesigma_[ic] * sinTheta_[(ic<EEDetId::kEEhalf)? ic : ic-EEDetId::kEEhalf] << std::endl;;
+	      //	      EEDetId myDetId(EEDetId::unhashIndex(ic));
+	      //	      std::cout << " DDD " <<  myDetId << " " << myDetId.ix() << " " << myDetId.iy() <<  " " << ic << " " << noiseADC_ << " " << agc->getEEValue() << " " << ICMC[ic] << " " << noisesigma_[ic] << std::endl;
 	    }
 	  ++ncells;	
 	}
@@ -482,11 +499,20 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   // or the user chose to use the noise from DB. In this case, the noise is flat in pT and not in energy
   // but the threshold is in energy and not in pT. 
 
+  doCustomHighNoise_=highNoiseParameters_.size()==4;
   Genfun::Erf myErf; 
   if(  noise_>0. ) {
     EEHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
     myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+    edm::LogInfo("CaloRecHitsProducer") <<"Uniform noise simulation selected";
   }
+  else  if( noise_==-1 && doCustomHighNoise_)
+    {
+      // computes the hot fraction from the threshold applied on the online amplitude reconstruction
+      // 
+      EEHotFraction_ = 0.5-0.5*myErf(highNoiseParameters_[3]/highNoiseParameters_[2]/sqrt(2.));
+      edm::LogInfo("CaloRecHitsProducer")<< " The gaussian model for high noise fluctuation cells after ZS is selected (best model), hot fraction " << EEHotFraction_  << std::endl;
+    }
 }
 
 

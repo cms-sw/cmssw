@@ -292,7 +292,8 @@ void RPCSimAverageNoiseEff::simulateNoise(const RPCRoll* roll)
     if(veff[j] == 0) continue;
 
     double ave = vnoise[j]*nbxing*gate*area*1.0e-9*frate;
-    poissonDistribution_ = new CLHEP::RandPoissonQ(engine, ave);
+
+    poissonDistribution_ = new CLHEP::RandPoisson(engine, ave);
     N_hits = poissonDistribution_->fire();
 
     for (int i = 0; i < N_hits; i++ ){

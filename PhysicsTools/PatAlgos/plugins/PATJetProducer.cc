@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.37 2009/06/08 17:32:26 hegner Exp $
+// $Id: PATJetProducer.cc,v 1.42 2009/09/21 09:10:45 fronga Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -34,6 +34,8 @@
 
 #include "FWCore/Framework/interface/Selector.h"
 
+#include "RecoJets/JetAlgorithms/interface/JetIDHelper.h"
+
 #include <vector>
 #include <memory>
 
@@ -53,6 +55,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   embedGenPartonMatch_     = iConfig.getParameter<bool> 		      ( "embedGenPartonMatch" );
   genPartonSrc_            = iConfig.getParameter<edm::InputTag>	      ( "genPartonMatch" );
   addGenJetMatch_          = iConfig.getParameter<bool> 		      ( "addGenJetMatch" );
+  embedGenJetMatch_        = iConfig.getParameter<bool> 		      ( "embedGenJetMatch" );
   genJetSrc_               = iConfig.getParameter<edm::InputTag>	      ( "genJetMatch" );
   addPartonJetMatch_       = iConfig.getParameter<bool> 		      ( "addPartonJetMatch" );
   partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
@@ -67,6 +70,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
   jetCharge_               = iConfig.getParameter<edm::InputTag>	      ( "jetChargeSource" );
+  addJetID_                = iConfig.getParameter<bool>                       ( "addJetID");
 
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
@@ -111,6 +115,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"));
+  }
+
+  if ( addJetID_ ) {
+    jetIDHelper_ = reco::helper::JetIDHelper( iConfig.getParameter<edm::ParameterSet>("jetID") );
   }
 
   // produces vector of jets
@@ -233,7 +241,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addGenJetMatch_) {
       reco::GenJetRef genjet = (*genJetMatch)[jetRef];
       if (genjet.isNonnull() && genjet.isAvailable()) {
-          ajet.setGenJet(*genjet);
+          ajet.setGenJet(genjet, embedGenJetMatch_);
       } // leave empty if no match found
     }
 
@@ -262,17 +270,17 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             for (size_t k=0; k<jetTagInfos.size(); ++k) {
                 const edm::View<reco::BaseTagInfo> & taginfos = *jetTagInfos[k];
                 // This is not associative, so we have to search the jet
-                const reco::BaseTagInfo * match = 0;
+		edm::Ptr<reco::BaseTagInfo> match;
                 // Try first by 'same index'
                 if ((idx < taginfos.size()) && (taginfos[idx].jet() == jetRef)) {
-                    match = &taginfos[idx];
+ 		  match = taginfos.ptrAt(idx);
                 } else {
                     // otherwise fail back to a simple search
                     for (edm::View<reco::BaseTagInfo>::const_iterator itTI = taginfos.begin(), edTI = taginfos.end(); itTI != edTI; ++itTI) {
-                        if (itTI->jet() == jetRef) { match = &*itTI; break; }
+		      if (itTI->jet() == jetRef) { match = taginfos.ptrAt( itTI - taginfos.begin() ); break; }
                     }
                 }
-		//TODO !!!                if (match != 0) ajet.addTagInfo(tagInfoLabels_[k], *match);
+                if (match.isNonnull()) ajet.addTagInfo(tagInfoLabels_[k], match);
             }
         }    
     }
@@ -281,6 +289,20 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     if (addJetCharge_)        ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
 
+    // add jet ID for calo jets
+    if (addJetID_ && ajet.isCaloJet() ) {
+      jetIDHelper_.calculate( iEvent, dynamic_cast<reco::CaloJet const &>(*itJet) );
+      ajet.setFHPD         ( jetIDHelper_.fHPD()            );
+      ajet.setFRBX         ( jetIDHelper_.fRBX()            );
+      ajet.setN90Hits      ( jetIDHelper_.n90Hits()         );
+      ajet.setFSubDetector1( jetIDHelper_.fSubDetector1()   );
+      ajet.setFSubDetector2( jetIDHelper_.fSubDetector2()   );
+      ajet.setFSubDetector3( jetIDHelper_.fSubDetector3()   );
+      ajet.setFSubDetector4( jetIDHelper_.fSubDetector4()   );
+      ajet.setRestrictedEMF( jetIDHelper_.restrictedEMF()   );
+      ajet.setNHCALTowers  ( jetIDHelper_.nHCALTowers()     );
+      ajet.setNECALTowers  ( jetIDHelper_.nECALTowers()     );
+    }
 
     if ( useUserData_ ) {
       userDataHelper_.add( ajet, iEvent, iSetup );
@@ -317,10 +339,18 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<edm::InputTag>("genPartonMatch", edm::InputTag())->setComment("input with MC match information");
 
   iDesc.add<bool>("addGenJetMatch", true)->setComment("add MC matching");
+  iDesc.add<bool>("embedGenJetMatch", false)->setComment("embed MC matched MC information");
   iDesc.add<edm::InputTag>("genJetMatch", edm::InputTag())->setComment("input with MC match information");
 
   iDesc.add<bool>("addJetCharge", true);
   iDesc.add<edm::InputTag>("jetChargeSource", edm::InputTag("patJetCharge"));
+  
+  // jet id
+  iDesc.add<bool>("addJetID", true)->setComment("Add jet ID information");
+  edm::ParameterSetDescription jetIDPSet;
+  jetIDPSet.setAllowAnything();
+  iDesc.addOptional("jetID", jetIDPSet);
+
 
   iDesc.add<bool>("addPartonJetMatch", false);
   iDesc.add<edm::InputTag>("partonJetSource", edm::InputTag("NOT IMPLEMENTED"));

@@ -79,7 +79,9 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
        matEff.getParameter<bool>("EnergyLoss") || 
-       matEff.getParameter<bool>("MultipleScattering") )
+       matEff.getParameter<bool>("MultipleScattering") || 
+       matEff.getParameter<bool>("NuclearInteraction")
+       )
        theMaterialEffects = new MaterialEffects(matEff,random);
 
   // Save SimHits according to Optiom

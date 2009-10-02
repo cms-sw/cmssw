@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2008/05/11 09:35:11 $
- * $Revision: 1.11 $
+ * $Date: 2008/04/08 15:32:09 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -69,7 +69,6 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
-std::vector<int> laserWavelengths_;
 
 MonitorElement* meShapeMapL1A_[18];
 MonitorElement* meAmplMapL1A_[18];

@@ -37,7 +37,7 @@ protected:
   G4double longitudinalProfile(G4double showerDepth, G4double pathLength);
   G4double hoProfile(G4double pathLength, G4double refDepth);
   void doCholeskyReduction(G4double **cc, G4double **vv, const G4int ndim);
-  G4double* getFluctuationVector(G4double *lowTriangle);
+  void getFluctuationVector(G4double *lowTriangle, G4double *correlationVector);
   void setEnergyScale(G4double einc, G4ThreeVector ssp);
 
   G4int getNumberOfSpots(Gflash::CalorimeterNumber kCalor);
@@ -70,7 +70,6 @@ protected:
   CLHEP::RandGaussQ* theRandGauss;
   CLHEP::RandGamma*  theRandGamma;
   CLHEP::RandPoissonQ*  theRandPoissonQ;
-  CLHEP::RandChiSquare* theRandChiSquare;
 
   G4double energyScale[Gflash::kNumberCalorimeter]; 
   G4double averageSpotEnergy[Gflash::kNumberCalorimeter]; 

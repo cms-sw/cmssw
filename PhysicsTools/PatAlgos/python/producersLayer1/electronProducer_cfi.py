@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # input collection
-    electronSource = cms.InputTag("electronsNoDuplicates"),
+    electronSource = cms.InputTag("gsfElectrons"),
 
     # use particle flow instead of std reco    
     useParticleFlow  =  cms.bool( False ),
-    pfElectronSource = cms.InputTag("pfElectrons"),
+    pfElectronSource = cms.InputTag("pfIsolatedElectrons"),
                                     
     # user data to add
     userData = cms.PSet(
@@ -35,7 +35,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     embedTrack        = cms.bool(False), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
     embedGsfTrack     = cms.bool(True),  ## embed in AOD externally stored gsf track
     embedSuperCluster = cms.bool(True),  ## embed in AOD externally stored supercluster
-    embedPFCandidate  = cms.bool(False), ## embed in AOD externally stored particle flow candidate
+    embedPFCandidate  = cms.bool(True), ## embed in AOD externally stored particle flow candidate
                                     
     # isolation
     isolation = cms.PSet(
@@ -57,11 +57,6 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
     ),
 
-    # electron cluster shape
-    addElectronShapes = cms.bool(True),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-
     # electron ID
     addElectronID = cms.bool(True),
     electronIDSources = cms.PSet(
@@ -76,7 +71,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
 
     # mc matching
     addGenMatch      = cms.bool(True),
-    embedGenMatch    = cms.bool(False),
+    embedGenMatch    = cms.bool(True),
     genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
     
     # efficiencies
@@ -86,6 +81,10 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # resolution configurables
     addResolutions   = cms.bool(False),
     resolutions      = cms.PSet(),
+
+    # high level selections
+    embedHighLevelSelection = cms.bool(True),
+    beamLineSrc             = cms.InputTag("offlineBeamSpot")
 )
 
 

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PdgIdExcluder.h,v 1.1 2007/11/14 10:14:21 llista Exp $
+ * $Id: PdgIdExcluder.h,v 1.1 2009/02/24 15:01:17 llista Exp $
  */
 #include <vector>
 #include <algorithm>
@@ -18,7 +18,7 @@ struct PdgIdExcluder {
   }
   PdgIdExcluder( const PdgIdExcluder & o ) :
     pdgId_( o.pdgId_ ), begin_( pdgId_.begin() ), end_( pdgId_.end() ) { }
-  PdgIdExcluder & operator==( const PdgIdExcluder & o ) {
+  PdgIdExcluder & operator=( const PdgIdExcluder & o ) {
     * this = o; return * this;
   }
   template<typename T>

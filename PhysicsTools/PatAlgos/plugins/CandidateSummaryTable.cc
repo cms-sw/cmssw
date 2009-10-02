@@ -1,5 +1,5 @@
 //
-// $Id: CandidateSummaryTable.cc,v 1.1.2.1 2009/01/12 22:08:05 gpetrucc Exp $
+// $Id: CandidateSummaryTable.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   FIXME FIXME Move to CandAlgos
 
   \author   Giovanni Petrucciani
-  \version  $Id: CandidateSummaryTable.cc,v 1.1.2.1 2009/01/12 22:08:05 gpetrucc Exp $
+  \version  $Id: CandidateSummaryTable.cc,v 1.2 2009/03/26 05:02:41 hegner Exp $
 */
 
 
@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/MessageService/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
 
 #include "DataFormats/Common/interface/View.h"

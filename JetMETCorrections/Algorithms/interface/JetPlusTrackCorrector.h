@@ -10,8 +10,16 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+//JW: electrons
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+//JW: needed for elecID
+#include "AnalysisDataFormats/Egamma/interface/ElectronID.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 class SingleParticleJetResponse;
 
@@ -43,7 +51,14 @@ public:
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
   void setParameters( std::string fDataFile1, std::string fDataFile2, std::string fDataFile3);
-  
+ 
+  virtual reco::TrackRefVector jtC_rebuild(
+                                        const reco::JetTracksAssociation::Container&, const reco::Jet& fJet, reco::TrackRefVector& Excl) const;
+
+  virtual reco::TrackRefVector jtC_exclude(
+                                        const reco::JetTracksAssociation::Container&, const reco::Jet& fJet, reco::TrackRefVector& Excl) const;
+
+ 
   /// if correction needs event information
   virtual bool eventRequired () const {return true;}
    
@@ -51,12 +66,11 @@ private:
   edm::InputTag m_JetTracksAtVertex;
   edm::InputTag m_JetTracksAtCalo;
   edm::InputTag m_muonsSrc;
-
-  // Used by "on-the-fly" jet-tracks association
-  edm::InputTag m_tracksSrc;
-  std::string thePropagator;
-  double coneSize;
-
+  //JW:
+  edm::InputTag m_recoGsfelectrons; 
+  edm::InputTag m_eIDValueMap_;
+  // Split/Merge
+  int mSplitMerge;
   // responce algo (will be absolete)
   int theResponseAlgo;
   // add or not out of cone tracks (default: true)

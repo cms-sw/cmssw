@@ -1,6 +1,5 @@
 #include "Validation/CaloTowers/interface/CaloTowersValidation.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   theCaloTowerCollectionLabel(conf.getUntrackedParameter<std::string>("CaloTowerCollectionLabel"))
@@ -39,37 +38,6 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
   if ( dbe_ ) {
     dbe_->setCurrentFolder("CaloTowersV/CaloTowersTask");
   }
-
-
-  sprintf  (histo, "Ntowers_pre_event_vs_ieta" );
-  Ntowers_vs_ieta = dbe_->book1D(histo, histo, 82, -41., 41.);
-
-  sprintf  (histo, "emean_vs_ieta_E" );
-  emean_vs_ieta_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  sprintf  (histo, "emean_vs_ieta_H" );
-  emean_vs_ieta_H = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  sprintf  (histo, "emean_vs_ieta_EH" );
-  emean_vs_ieta_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  
-
-  sprintf  (histo, "emean_vs_ieta_E1" );
-  emean_vs_ieta_E1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  sprintf  (histo, "emean_vs_ieta_H1" );
-  emean_vs_ieta_H1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  sprintf  (histo, "emean_vs_ieta_EH1" );
-  emean_vs_ieta_EH1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
-  
-
-  sprintf  (histo, "CaloTowersTask_map_energy_E" );
-  mapEnergy_E = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-  sprintf  (histo, "CaloTowersTask_map_energy_H");
-  mapEnergy_H = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-  sprintf  (histo, "CaloTowersTask_map_energy_EH" );
-  mapEnergy_EH = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-
-  sprintf  (histo, "CaloTowersTask_map_Nentries" );
-  mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-
 
   if( isub == 1 || isub == 0) {
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
@@ -203,85 +171,17 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 
 CaloTowersValidation::~CaloTowersValidation() {
-
-  // mean number of towers per ieta
-  int nx = Ntowers_vs_ieta->getNbinsX();
-  float cont;
-  float fev = float(nevent);
-
-  for (int i = 1; i <= nx; i++) {
-    cont = Ntowers_vs_ieta -> getBinContent(i) / fev ;
-    Ntowers_vs_ieta -> setBinContent(i,cont);
-  }
-
-  // mean energies evaluation
-  
-  nx = mapEnergy_N->getNbinsX();    
-  int ny = mapEnergy_N->getNbinsY();
-  float cnorm;
-  
-  for (int i = 1; i <= nx; i++) {
-    for (int j = 1; j <= ny; j++) {
-      
-      cnorm   = mapEnergy_N -> getBinContent(i,j);
-      if(cnorm > 0.000001) {
-	
-	// Emean
-	cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
-	mapEnergy_E -> setBinContent(i,j,cont);	      
-	
-	cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
-	mapEnergy_H -> setBinContent(i,j,cont);	      
-	
-	cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
-	mapEnergy_EH -> setBinContent(i,j,cont);	      
-
-      }
-    }
-  }
-  
-  
+   
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
 
 void CaloTowersValidation::endJob() { }
 
-void CaloTowersValidation::beginJob(){ nevent = 0; }
+void CaloTowersValidation::beginJob(){
 
+}
 void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
-
-  nevent++;
-
-  bool     MC = false;
-  double   phi_MC = 9999.;
-  double   eta_MC = 9999.;
-
-
-  edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("VtxSmeared",evtMC);
-  event.getByLabel("generator",evtMC);  // generator in late 310_preX
-  if (!evtMC.isValid()) {
-    std::cout << "no HepMCProduct found" << std::endl;    
-  } else {
-    MC=true;
-    //    std::cout << "*** source HepMCProduct found"<< std::endl;
-  }  
-
-  // MC particle with highest pt is taken as a direction reference  
-  double maxPt = -99999.;
-  int npart    = 0;
-  const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
-  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
-	p != myGenEvent->particles_end(); ++p ) {
-    double phip = (*p)->momentum().phi();
-    double etap = (*p)->momentum().eta();
-    //    phi_MC = phip;
-    //    eta_MC = etap;
-    double pt  = (*p)->momentum().perp();
-    if(pt > maxPt) { npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
-  }
-  //  std::cout << "*** Max pT = " << maxPt <<  std::endl;  
 
   edm::Handle<CaloTowerCollection> towers;
   event.getByLabel(theCaloTowerCollectionLabel,towers);
@@ -289,18 +189,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
   double met;
   double phimet;
-
-  // ieta scan 
-  double partR  = 0.3;
-  double Rmin   = 9999.;
-  double Econe  = 0.;
-  double Hcone  = 0.;
-  double Ee1    = 0.;
-  double Eh1    = 0.;
-  double ieta_MC = 9999;
-  double iphi_MC = 9999;
-  //  double  etaM   = 9999.;
-
 
   // HB   
   double sumEnergyHcal_HB = 0.;
@@ -336,7 +224,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     double eH   = cal->hadEnergy();
     double eHO  = cal->outerEnergy();
     double etaT = cal->eta();
-    double phiT = cal->phi();
+    //      double phiT = cal->eta();
     double en   = cal->energy();
 
     math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
@@ -345,31 +233,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     // cell properties    
     CaloTowerDetId idT = cal->id();
     int ieta = idT.ieta();
-    if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
-
-
-    double r    = dR(eta_MC, phi_MC, etaT, phiT);
-
-    if( r < partR ){
-      Econe += eE; 
-      Hcone += eH; 
-
-      // closest to MC
-      if(r < Rmin) { 
-        if( fabs(eta_MC) < 3.0 && (ieta > 29 || ieta < -29)) {;}
-	else {    
-	  Rmin = r;
-	  ieta_MC = ieta; 
-	  iphi_MC = iphi; 
-	  Ee1     = eE;
-	  Eh1     = eH;
-	}
-      }
-    }
-      
-
-    Ntowers_vs_ieta -> Fill(double(ieta),1.);
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
@@ -450,20 +314,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
   } // end of Towers cycle 
 
-  emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
-  emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
-  emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
-  
-  emean_vs_ieta_E1  -> Fill(double(ieta_MC), Ee1); 
-  emean_vs_ieta_H1  -> Fill(double(ieta_MC), Eh1); 
-  emean_vs_ieta_EH1 -> Fill(double(ieta_MC), Ee1+Eh1); 
-
-  mapEnergy_E -> Fill(double(ieta_MC), double(iphi_MC), Ee1); 
-  mapEnergy_H -> Fill(double(ieta_MC), double(iphi_MC), Eh1); 
-  mapEnergy_EH -> Fill(double(ieta_MC), double(iphi_MC), Ee1+Eh1); 
-  mapEnergy_N  -> Fill(double(ieta_MC), double(iphi_MC), 1.); 
-
-
+ 
   if(isub == 0 || isub == 1) {
     met    = sqrt(metx_HB*metx_HB + mety_HB*mety_HB);
     Vector metv(metx_HB,mety_HB,metz_HB);
@@ -518,15 +369,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
 }
 
-double CaloTowersValidation::dR(double eta1, double phi1, double eta2, double phi2) { 
-  double PI = 3.1415926535898;
-  double deltaphi= phi1 - phi2;
-  if( phi2 > phi1 ) { deltaphi= phi2 - phi1;}
-  if(deltaphi > PI) { deltaphi = 2.*PI - deltaphi;}
-  double deltaeta = eta2 - eta1;
-  double tmp = sqrt(deltaeta* deltaeta + deltaphi*deltaphi);
-  return tmp;
-}
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(CaloTowersValidation);

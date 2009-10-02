@@ -37,8 +37,12 @@
 #include "GeneratorInterface/Herwig6Interface/interface/Herwig6Instance.h"
 #include "GeneratorInterface/Herwig6Interface/interface/herwig.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+
 extern "C" {
-	void hwuidt_(int *iopt, int *ipdg, int *iwig, char nwig[8]);
+  void hwuidt_(int *iopt, int *ipdg, int *iwig, char nwig[8]);
+  double hwualf_(int *mode, double* scale);
+  double hwuaem_(double* scale);
 }
 
 // helpers
@@ -377,17 +381,22 @@ bool Herwig6Hadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 
 void Herwig6Hadronizer::statistics()
 {
-	double RNWGT = 1. / hwevnt.NWGTS;
-	double AVWGT = hwevnt.WGTSUM * RNWGT;
+	if (!runInfo().internalXSec()) {
+	  // not set via LHE, so get it from HERWIG
+	  // the reason is that HERWIG doesn't compute the xsec
+	  // in all LHE modes
 
-	double xsec = 1.0e3 * AVWGT;
+	  double RNWGT = 1. / hwevnt.NWGTS;
+	  double AVWGT = hwevnt.WGTSUM * RNWGT;
 
-	runInfo().setInternalXSec(xsec);
+	  double xsec = 1.0e3 * AVWGT;
+
+	  runInfo().setInternalXSec(xsec);
+	}
 }
 
 bool Herwig6Hadronizer::hadronize()
 {
-
 	// hard process generation, parton shower, hadron formation
 
 	InstanceWrapper wrapper(this);	// safe guard
@@ -407,31 +416,133 @@ bool Herwig6Hadronizer::hadronize()
 	hwbgen();	// parton cascades
 
 	// call jimmy ... only if event is not killed yet by HERWIG
-	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) 
+	if (useJimmy && doMPInteraction && !hwevnt.IERROR && call_hwmsct()) {
+	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
 	  return false;
+        }
 	
 	hwdhob();	// heavy quark decays
 	hwcfor();	// cluster formation
 	hwcdec();	// cluster decays
 	
 	// if event *not* killed by HERWIG, return true
-	if (!hwevnt.IERROR) return true;
+	if (hwevnt.IERROR) {
+	  hwufne();	// finalize event, to keep system clean
+	  if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kKilled);
+	  return false;
+	}
 
-	hwufne();	// finalize event	
-	return false;
+	if (lheEvent()) lheEvent()->count(lhef::LHERunInfo::kAccepted);
+	return true;
 }
 
 void Herwig6Hadronizer::finalizeEvent()
 {
-	lhef::LHEEvent::fixHepMCEventTimeOrdering(event().get());
+  lhef::LHEEvent::fixHepMCEventTimeOrdering(event().get());
+  
+  HepMC::PdfInfo pdfInfo;
+  if(externalPartons) {
+    lheEvent()->fillEventInfo( event().get() );
+    lheEvent()->fillPdfInfo( &pdfInfo );
 
-	if (emulatePythiaStatusCodes)
-		pythiaStatusCodes();
+    // for MC@NLO: IDWRUP is not filled...
+    if(event()->signal_process_id()==0)
+      event()->set_signal_process_id( abs(hwproc.IPROC) );
 
-	event()->set_signal_process_id(hwproc.IPROC);
-	// add the event weight
-	event()->weights().push_back(hwevnt.EVWGT);
+  } else {
+    
+    HepMC::GenParticle* incomingParton = NULL;
+    HepMC::GenParticle* targetParton = NULL;
+    
+    HepMC::GenParticle* incomingProton = NULL;
+    HepMC::GenParticle* targetProton = NULL;
+    
+    // find incoming parton (first entry with IST=121)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && incomingParton==NULL); it++)
+      if((*it)->status()==121) incomingParton = (*it);
+    
+    // find target parton (first entry with IST=122)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && targetParton==NULL); it++)
+      if((*it)->status()==122) targetParton = (*it);
+    
+    // find incoming Proton (first entry ID=2212, IST=101)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && incomingProton==NULL); it++)
+      if((*it)->status()==101 && (*it)->pdg_id()==2212) incomingProton = (*it);
+    
+    // find target Proton (first entry ID=2212, IST=102)
+    for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+	(it != event()->particles_end() && targetProton==NULL); it++)
+      if((*it)->status()==102 && (*it)->pdg_id()==2212) targetProton = (*it);
+    
+    // find hard scale Q (computed from colliding partons)
+    if( incomingParton && targetParton ) {
+      math::XYZTLorentzVector totMomentum(0,0,0,0);
+      totMomentum+=incomingParton->momentum();
+      totMomentum+=targetParton->momentum();
+      double evScale = totMomentum.mass(); 
+      double evScale2 = evScale*evScale; 
+      
+      // find alpha_QED & alpha_QCD	  
+      int one=1;
+      double alphaQCD=hwualf_(&one,&evScale);
+      double alphaQED=hwuaem_(&evScale2);
+      
+      // fill the infos into the event      
+      event()->set_event_scale(evScale);
+      event()->set_alphaQCD(alphaQCD);
+      event()->set_alphaQED(alphaQED);
+      
+      // get the PDF information
+      pdfInfo.set_id1( incomingParton->pdg_id()==21 ? 0 : incomingParton->pdg_id());
+      pdfInfo.set_id2( targetParton->pdg_id()==21 ? 0 : targetParton->pdg_id());
+      if( incomingProton && targetProton ) {
+	double x1 = incomingParton->momentum().pz()/incomingProton->momentum().pz();
+	double x2 = targetParton->momentum().pz()/targetProton->momentum().pz();	
+	pdfInfo.set_x1(x1);
+	pdfInfo.set_x2(x2);	  
+
+      }
+
+      // we do not fill pdf1 & pdf2, since they are not easily available (what are they needed for anyways???)
+      pdfInfo.set_scalePDF(evScale); // the same as Q above... does this make sense?
+    } 
+    
+    event()->set_signal_process_id( abs(hwproc.IPROC) );
+    event()->set_pdf_info( pdfInfo );
+  }
+
+  // add event weight & PDF information
+  if (lheRunInfo() != 0 && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+    // in LHE weighting mode 4 the weight is an xsec, so convert form HERWIG
+    // to standard CMS unit "picobarn"
+    event()->weights().push_back( 1.0e3 * hwevnt.EVWGT );
+  else
+    event()->weights().push_back( hwevnt.EVWGT );
+
+    
+  // find final parton (first entry with IST=123)
+  HepMC::GenParticle* finalParton = NULL;
+  for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
+      (it != event()->particles_end() && finalParton==NULL); it++)
+    if((*it)->status()==123) finalParton = (*it);
+  
+  
+  // add GenEventInfo & binning Values
+  eventInfo().reset(new GenEventInfoProduct(event().get()));	
+  if(finalParton) {
+    double thisPt=finalParton->momentum().perp();
+    eventInfo()->setBinningValues(std::vector<double>(1, thisPt));
+  }
+  
+  // emulate PY6 status codes, if switched on...
+  if (emulatePythiaStatusCodes)
+    pythiaStatusCodes();    	  
+  
 }
+
 
 bool Herwig6Hadronizer::decay()
 {
@@ -483,7 +594,7 @@ void Herwig6Hadronizer::upInit()
 	  if(hIter->tag()==mcnloHeader){
 	    readMCatNLOfile=true;
 	    for(lhef::LHERunInfo::Header::const_iterator lIter=hIter->begin(); lIter != hIter->end(); ++lIter) {
-	      if((lIter->c_str())[1]!='#') {   // it's not a comment
+	      if((lIter->c_str())[0]!='#' && (lIter->c_str())[0]!='\n') {   // it's not a comment) 
 		if (!give(*lIter))
 		  throw edm::Exception(edm::errors::Configuration)
 		    << "Herwig 6 did not accept the following: \""

@@ -3,8 +3,8 @@
 
 //#include "CondFormats/BTagPerformance/interface/BtagPerformanceInterface.h"
 
-#include "CondFormats/BTauObjects/interface/BtagPerformancePayload.h"
-#include "CondFormats/BTauObjects/interface/BtagWorkingPoint.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
 
 #include <string>
@@ -12,17 +12,17 @@
 
 class BtagPerformance {
 public:
-  BtagPerformance(const BtagPerformancePayload& p, const BtagWorkingPoint& w) : pl(p), wp(w) {}
+  BtagPerformance(const PerformancePayload& p, const PerformanceWorkingPoint& w) : pl(p), wp(w) {}
 
-  virtual float getResult(BtagResult::BtagResultType, BtagBinningPointByMap) const ;
+  virtual float getResult(PerformanceResult::ResultType, BinningPointByMap) const ;
 
-  virtual bool isResultOk(BtagResult::BtagResultType, BtagBinningPointByMap) const ;
+  virtual bool isResultOk(PerformanceResult::ResultType, BinningPointByMap) const ;
   
-  virtual const BtagWorkingPoint& workingPoint() const {return wp;}
+  virtual const PerformanceWorkingPoint& workingPoint() const {return wp;}
 
   private:
-  const BtagPerformancePayload& pl;
-  const BtagWorkingPoint& wp;
+  const PerformancePayload& pl;
+  const PerformanceWorkingPoint& wp;
 
 };
 

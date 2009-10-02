@@ -50,6 +50,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         peakTimeSigma = cms.double(0.0),
         shapingTime = cms.int32(30),
         readBadChannels = cms.bool(False),
+        readBadChambers = cms.bool(True),        
         timeBitForBxZero = cms.int32(6),
         samplingTime = cms.double(5.0),
         bunchTimingOffsets = cms.vdouble(0.0, 13.0, 13.0, 28.0, 28.0, 
@@ -60,9 +61,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     ),
     InputCollection = cms.string('g4SimHitsMuonCSCHits'),
     stripConditions = cms.string('Database'),
-    GeometryType = cms.string('idealForDigi'),                            
-    digitizeBadChambers = cms.bool(False)
-
+    GeometryType = cms.string('idealForDigi')                             
 )
 
 

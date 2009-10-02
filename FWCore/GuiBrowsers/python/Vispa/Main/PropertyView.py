@@ -5,6 +5,7 @@ from PyQt4.QtCore import *
 
 from Vispa.Main.AbstractTab import *
 from Vispa.Main.BasicDataAccessor import *
+from Vispa.Main.Thread import RunThread
 
 class PropertyView(QTableWidget):
     """ Shows properties of an object in a QTableWidget using the DataAccessor.
@@ -15,6 +16,7 @@ class PropertyView(QTableWidget):
         QTableWidget.__init__(self, parent)
         self._accessor = None
        
+        self._operationId = 0
         self.updateIni = False
         self.setSortingEnabled(False)
         self.verticalHeader().hide()
@@ -33,6 +35,7 @@ class PropertyView(QTableWidget):
         """ Clear the table and set the header label.
         """
         QTableWidget.clear(self)
+        self._operationId += 1
         self._rows = 0
         self.setRowCount(self._rows)
         self.setHorizontalHeaderLabels(['Property', 'Value'])
@@ -146,7 +149,18 @@ class PropertyView(QTableWidget):
         if self._accessor == None or self._dataObject == None:
             return
         self._ignoreValueChangeFlag = True  # prevent infinite loop
-        for property in self._accessor.properties(self._dataObject):
+        operationId = self._operationId
+        thread = RunThread(self._accessor.properties, self._dataObject)
+        while thread.isRunning():
+            QCoreApplication.instance().processEvents()
+        if operationId != self._operationId:
+            return False
+        for property in thread.returnValue:
+            # Process application event loop in order to accept user input during time consuming drawing operation
+            QCoreApplication.instance().processEvents()
+            # Abort drawing if operationId out of date
+            if operationId != self._operationId:
+                return False
             if property[0] == "Category":
                 self.addCategory(property[1])
             elif property[0] == "String":

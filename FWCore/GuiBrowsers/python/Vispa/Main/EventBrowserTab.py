@@ -6,7 +6,6 @@ from PyQt4.QtGui import *
 from Vispa.Main.SplitterTab import *
 from Vispa.Main.TreeView import *
 from Vispa.Main.ZoomableScrollArea import *
-from Vispa.Main.BoxDecayTree import *
 from Vispa.Main.WidgetView import *
 
 class EventBrowserTab(SplitterTab):
@@ -31,7 +30,7 @@ class EventBrowserTab(SplitterTab):
     def _createCenterView(self):
         """ Create the center view.
         """
-        self._scrollArea = ZoomableScrollArea(self)
+        self.createScrollArea()
         self._centerView = WidgetView() 
         self._scrollArea.setWidget(self._centerView)
 
@@ -57,14 +56,6 @@ class EventBrowserTab(SplitterTab):
     def closeEvent(self, event):
         self.controller().closeEvent(event)
 
-    def setController(self,controller):
-        """ Sets controller for this tab and connects signals etc.
-        """
-        SplitterTab.setController(self,controller)
-        
-        self.connect(self._scrollArea, SIGNAL('wheelZoom()'), controller.resetZoomButtonPressedBefore)
-        self.connect(self._scrollArea, SIGNAL("zoomChanged(float)"), controller.zoomChanged)
-        
     def scrollArea(self):
         """ Returns scroll area of this tab.
         """

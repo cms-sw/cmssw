@@ -36,7 +36,6 @@ import FWCore.ParameterSet.Config as cms
 ##########################################################
 
 HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
-    triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),                            
     pdgGen = cms.int32(22),     
     genEtaAcc = cms.double(2.5),
     genEtAcc = cms.double(10.0),
@@ -53,7 +52,7 @@ HLT_Photon10_L1R_DQM = cms.EDFilter("EmDQM",
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltL1sRelaxedSingleEgammaEt5","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
-            theHLTOutputTypes = cms.int32(-82),
+            theHLTOutputTypes = cms.int32(-83),
             HLTCollectionHumanName = cms.untracked.string("Level 1")
         ),
         ##########################################################

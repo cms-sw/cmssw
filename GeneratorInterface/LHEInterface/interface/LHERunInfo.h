@@ -13,8 +13,8 @@
 
 #ifndef XERCES_CPP_NAMESPACE_QUALIFIER
 #	define UNDEF_XERCES_CPP_NAMESPACE_QUALIFIER
-#	define XERCES_CPP_NAMESPACE_QUALIFIER
-namespace {
+#	define XERCES_CPP_NAMESPACE_QUALIFIER dummy::
+namespace dummy {
 	class DOMNode;
 	class DOMDocument;
 }

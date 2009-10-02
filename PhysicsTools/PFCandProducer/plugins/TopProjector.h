@@ -62,7 +62,8 @@ class TopProjector : public edm::EDProducer {
   void
     ptrToAncestor( reco::CandidatePtr candRef,
 		   reco::CandidatePtrVector& ancestors,
-		   const edm::ProductID& ancestorsID ) const;
+		   const edm::ProductID& ancestorsID,
+		   const edm::Event& iEvent ) const;
 
   /// ancestors is a RefToBase vector. For each object in this vector
   /// get the index and set the corresponding slot to true in the 
@@ -74,7 +75,8 @@ class TopProjector : public edm::EDProducer {
   void processCollection( const edm::Handle< std::vector<Top> >& handle,
 			  const edm::Handle< std::vector<Bottom> >& allPFCandidates ,
 			  std::vector<bool>& masked,
-			  const char* objectName  ) const; 
+			  const char* objectName,
+			  const edm::Event& iEvent ) const; 
 
   void  printAncestors( const reco::CandidatePtrVector& ancestors,
 			const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const;
@@ -113,7 +115,7 @@ TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) {
 
 template< class Top, class Bottom >
 void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
-					    const edm::EventSetup& iSetup) {
+					  const edm::EventSetup& iSetup) {
   
   using namespace std;
   using namespace edm;
@@ -158,10 +160,17 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 
  
   if(verbose_) {
+    const Provenance& topProv = iEvent.getProvenance(tops.id());
+    const Provenance& bottomProv = iEvent.getProvenance(bottoms.id());
+
     cout<<"Top projector: event "<<iEvent.id().event()<<endl;
     cout<<"Inputs --------------------"<<endl;
-    cout<<"Top      :  "<<tops.id()<<"\t"<<tops->size()<<endl
-	<<"Bottom   :  "<<bottoms.id()<<"\t"<<bottoms->size()<<endl;
+    cout<<"Top      :  "
+	<<tops.id()<<"\t"<<tops->size()<<endl
+	<<topProv.branchDescription()<<endl
+	<<"Bottom   :  "
+	<<bottoms.id()<<"\t"<<bottoms->size()<<endl
+	<<bottomProv.branchDescription()<<endl;
   }
 
 
@@ -177,7 +186,7 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
     
 
 
-  processCollection( tops, bottoms, masked, name_.c_str() );
+  processCollection( tops, bottoms, masked, name_.c_str(), iEvent );
 
 
   const BottomCollection& inCands = *bottoms;
@@ -209,9 +218,10 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 
 template< class Top, class Bottom > 
 void TopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vector<Top> >& tops,
-					const edm::Handle< std::vector<Bottom> >& bottoms ,
-					std::vector<bool>& masked,
-					const char* objectName) const {
+						     const edm::Handle< std::vector<Bottom> >& bottoms ,
+						     std::vector<bool>& masked,
+						     const char* objectName,
+						     const edm::Event& iEvent) const {
 
   if( tops.isValid() && bottoms.isValid() ) {
     const std::vector<Top>& topCollection = *tops;
@@ -230,7 +240,8 @@ void TopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vec
       reco::CandidatePtrVector ancestors;
       ptrToAncestor( basePtr,
 		     ancestors,
-		     bottoms.id() );
+		     bottoms.id(), 
+		     iEvent );
       
       if(verbose_) {
 /* 	std::cout<<"\t"<<objectName<<" "<<i */
@@ -274,8 +285,9 @@ void  TopProjector<Top,Bottom>::printAncestors( const reco::CandidatePtrVector& 
 template< class Top, class Bottom >
 void
 TopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
-			       reco::CandidatePtrVector& ancestors,
-			       const edm::ProductID& ancestorsID ) const {
+					 reco::CandidatePtrVector& ancestors,
+					 const edm::ProductID& ancestorsID,
+					 const edm::Event& iEvent) const {
 
   
   using namespace std;
@@ -285,18 +297,26 @@ TopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 
   unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
 
-//   cout<<"going down from "<<candPtr.id()
-//       <<"/"<<candPtr.key()<<" #mothers "<<nSources
-//       <<" ancestor id "<<ancestorsID<<endl;
-  
+  if(verbose_) {
+    const Provenance& hereProv = iEvent.getProvenance(candPtr.id());
+
+    cout<<"going down from "<<candPtr.id()
+	<<"/"<<candPtr.key()<<" #mothers "<<nSources
+	<<" ancestor id "<<ancestorsID<<endl
+	<<hereProv.branchDescription()<<endl;
+  }  
+
   for(unsigned i=0; i<nSources; i++) {
     
     CandidatePtr mother = candPtr->sourceCandidatePtr(i);
-//     cout<<"  mother id "<<mother.id()<<endl;
-    
+    if( verbose_ ) {
+      const Provenance& motherProv = iEvent.getProvenance(mother.id());
+      cout<<"  mother id "<<mother.id()<<endl
+	  <<motherProv<<endl;
+    }
     if(  mother.id() != ancestorsID ) {
       // the mother is not yet at lowest level
-      ptrToAncestor( mother, ancestors, ancestorsID);
+      ptrToAncestor( mother, ancestors, ancestorsID, iEvent );
     }
     else {
       // adding mother to the list of ancestors

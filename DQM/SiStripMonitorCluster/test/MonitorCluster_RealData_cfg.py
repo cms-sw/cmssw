@@ -67,8 +67,6 @@ process.SiStripMonitorCluster.SelectAllDetectors = True
 process.SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
-process.SiStripMonitorCluster.TH2ClustersApvCycle.subdetswitchon = True
-process.SiStripMonitorCluster.TH2ClustersApvCycle.yfactor = 0.005
 process.SiStripMonitorCluster.OutputMEsInRootFile = True
 process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
 

@@ -11,27 +11,23 @@ namespace cond {
     std::string const pythonIDCategory("CondPythonID");
   }
 
-
-
-  char const * className(const std::type_info& t);
-
   class ClassIDRegistry;
 
-  class ClassInfo {
-  public:
-    virtual ~ClassInfo(){}
-    inline ClassInfo(const std::type_info& t) : tinfo(t) {}
-    inline ClassInfo(const std::type_info& t, int);
-    inline const std::type_info& type() const { return tinfo;}
-    std::string pluginName(std::string const & prefix) const;
-    virtual std::string resource() const=0;
-  private:
-    ClassIDRegistry * registry;
-    const char * registerMe(const std::type_info& t);
-    const std::type_info& tinfo;
-  };
-  
-  
+    class ClassInfo {
+    public:
+      virtual ~ClassInfo(){}
+      inline ClassInfo(const std::type_info& t) : tinfo(t) {}
+      inline ClassInfo(const std::type_info& t, int);
+      inline const std::type_info& type() const { return tinfo;}
+      std::string pluginName(std::string const & prefix) const;
+      virtual std::string resource() const=0;
+    private:
+      ClassIDRegistry * registry;
+      const char * registerMe(const std::type_info& t);
+      const std::type_info& tinfo;
+    };
+ 
+
   class ClassIDRegistry {
   public:
     typedef ClassInfo Elem;
@@ -39,7 +35,7 @@ namespace cond {
     std::vector<const char*> csids;
     ClassIDRegistry(std::string const & pfix);
     
-    const char * registerMe(const std::type_info& t);
+   const char * registerMe(const std::type_info& t);
     
   private:
     std::string prefix;
@@ -73,9 +69,9 @@ namespace cond{
 namespace{ cond::ClassID<type_>  EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
  DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , cond::ClassID<type_>().pluginName(cond::idCategories::dictIDCategory).c_str() )
 
-#define PYTHON_ID(type_, plugName_, uname_)					\
-  namespace pythonID { struct EDM_PLUGIN_SYM(plugName_, uname_)  : public cond::ClassID<type_> { EDM_PLUGIN_SYM(plugName_ , uname_) () : cond::ClassID<type_>(::plugName_){}};} \
-  DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, EDM_PLUGIN_SYM(pythonID::plugName_, uname_) , EDM_PLUGIN_SYM(pythonID::plugName_, uname_)().pluginName(cond::idCategories::pythonIDCategory).c_str() )
+#define PYTHON_ID(type_, plugName_) \
+  namespace pythonID { struct EDM_PLUGIN_SYM(plugName_, __LINE__)  : public cond::ClassID<type_> { EDM_PLUGIN_SYM(plugName_ , __LINE__) () : cond::ClassID<type_>(::plugName_){}};} \
+  DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, EDM_PLUGIN_SYM(pythonID::plugName_, __LINE__) , EDM_PLUGIN_SYM(pythonID::plugName_, __LINE__)().pluginName(cond::idCategories::pythonIDCategory).c_str() )
 
 
 #endif //  CondCoreDBCommon_ClassID_H

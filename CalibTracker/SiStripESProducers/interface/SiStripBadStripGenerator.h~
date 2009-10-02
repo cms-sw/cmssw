@@ -1,0 +1,25 @@
+#ifndef CalibTracker_SiStripESProducers_SiStripBadStripGenerator_H
+#define CalibTracker_SiStripESProducers_SiStripBadStripGenerator_H
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondTools/SiStrip/interface/SiStripCondObjBuilderBase.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include <string>
+
+class SiStripBadStripGenerator : public SiStripCondObjBuilderBase<SiStripBadStrip> {
+ public:
+
+  explicit SiStripBadStripGenerator(const edm::ParameterSet&,const edm::ActivityRegistry&);
+  ~SiStripBadStripGenerator();
+  
+  void getObj(SiStripBadStrip* & obj){createObject(); obj=obj_;}
+
+ private:
+  
+  void createObject();
+
+  
+};
+
+#endif 

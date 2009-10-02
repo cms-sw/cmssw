@@ -34,7 +34,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
 
   ParameterSet pfTau = iConfig.getUntrackedParameter<edm::ParameterSet>("PFTaus");
   PFTaus_ = pfTau.getUntrackedParameter<InputTag>("PFTauProducer");
-  PFTauDis_ = pfTau.getUntrackedParameter<std::vector<InputTag> >("PFTauDiscriminators");
+  PFTauDis_ = pfTau.getUntrackedParameter<InputTag>("PFTauDiscriminator");
   doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus",false);
   ptMinPFTau_= pfTau.getUntrackedParameter<double>("ptMin",15.);
 
@@ -68,13 +68,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   doJets_ = jets.getUntrackedParameter<bool>("doJets");
   ptMinJet_= jets.getUntrackedParameter<double>("etMin");
 
-  ParameterSet  photons = iConfig.getUntrackedParameter<edm::ParameterSet>("Photons");
-  Photons_ = photons.getUntrackedParameter<InputTag>("PhotonCollection");
-  doPhotons_ = photons.getUntrackedParameter<bool>("doPhotons");
-  ptMinPhoton_= photons.getUntrackedParameter<double>("etMin");
-  photonEcalIso_= photons.getUntrackedParameter<double>("ECALIso");
-
-
   etaMax = iConfig.getUntrackedParameter<double>("EtaMax",2.5);
   
 
@@ -84,7 +77,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   produces<LorentzVectorCollection>("Electrons");
   produces<LorentzVectorCollection>("Muons");
   produces<LorentzVectorCollection>("Jets");
-  produces<LorentzVectorCollection>("Photons");
 
 }
 
@@ -102,8 +94,6 @@ void HLTTauRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     doMuons(iEvent,iES);
   if(doJets_)
     doJets(iEvent,iES);
-  if(doPhotons_)
-    doPhotons(iEvent,iES);
 
 }
 
@@ -114,25 +104,28 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       //Retrieve the collection
       edm::Handle<PFTauCollection> pftaus;
       if(iEvent.getByLabel(PFTaus_,pftaus))
-	for(unsigned int j=0;j<PFTauDis_.size();++j)
-	  {
-	    edm::Handle<PFTauDiscriminator> pftaudis;
-	    if(iEvent.getByLabel(PFTauDis_[j],pftaudis))
-	      for(size_t i = 0 ;i<pftaus->size();++i)
-		{
-		  
-		  if((*pftaudis)[i].second==1)
-		    if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
-		      {
-			
-			LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
-			product_PFTaus->push_back(vec);
-			
-		      }
-		}
-	  }
+	{
+	  edm::Handle<PFTauDiscriminator> pftaudis;
+	  if(iEvent.getByLabel(PFTauDis_,pftaudis))
+	    for(size_t i = 0 ;i<pftaus->size();++i)
+	      {
+
+		if((*pftaudis)[i].second==1)
+		  if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
+		    {
+		      
+		      LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
+		      product_PFTaus->push_back(vec);
+	
+		    }
+	      }
       iEvent.put(product_PFTaus,"PFTaus");
-      
+
+	}
+
+
+
+
 }
 
 void 
@@ -276,24 +269,5 @@ HLTTauRefProducer::doJets(edm::Event& iEvent,const edm::EventSetup& iES)
 	      }
 	}
       iEvent.put(product_Jets,"Jets");
-}
-
-void 
-HLTTauRefProducer::doPhotons(edm::Event& iEvent,const edm::EventSetup& iES)
-{
-      auto_ptr<LorentzVectorCollection> product_Gammas(new LorentzVectorCollection);
-      //Retrieve the collection
-      edm::Handle<PhotonCollection> photons;
-      if(iEvent.getByLabel(Photons_,photons))
-      for(size_t i = 0 ;i<photons->size();++i)
-	if((*photons)[i].ecalRecHitSumEtConeDR04()<photonEcalIso_)
-	{
-	     if((*photons)[i].et()>ptMinPhoton_&&fabs((*photons)[i].eta())<etaMax)
-	      {
-		LorentzVector vec((*photons)[i].px(),(*photons)[i].py(),(*photons)[i].pz(),(*photons)[i].energy());
-		product_Gammas->push_back(vec);
-	      }
-	}
-      iEvent.put(product_Gammas,"Photons");
 }
 

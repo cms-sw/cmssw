@@ -1,0 +1,35 @@
+<use name=PhysicsTools/Utilities>
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/PatCandidates>
+<use name=PhysicsTools/UtilAlgos>
+<use name=PhysicsTools/PatUtils>
+<use name=PhysicsTools/CandUtils>
+<use name=rootrflx>
+
+##### Use the following line for normal release processing 
+##### (PDF weight producer will be very slow)
+<use name=lhapdf>
+###################################################################
+
+##### For analysis usage (PDF weight producer will be fast)
+##    a) scram setup lhapdffull
+##    b) scram b ToolUpdated 
+##    c) Comment the <use name=lhapdf> directive in this file
+##    d) Uncomment the <use name=lhapdffull> directive in this file
+##    e) scram b
+# <use name=lhapdffull>
+###################################################################
+
+##### Highly non-standard alternative that seems to work in all cases
+#<flags CXXFLAGS="-I$(LHAPATH)/../../../full/include">
+#<flags LDFLAGS="-Wl,-rpath $(LHAPATH)/../../../full/lib -L$(LHAPATH)/../../../full/lib -lLHAPDF">
+###################################################################
+
+<export>
+      <lib name=ElectroWeakAnalysisUtilities>
+</export>
+

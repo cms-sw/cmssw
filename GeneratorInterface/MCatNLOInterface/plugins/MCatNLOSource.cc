@@ -116,7 +116,8 @@ void MCatNLOSource::beginRun(edm::Run &run)
   std::auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
 
   LHERunInfoProduct::Header hw6header("herwig6header");
-  hw6header.addLine("\n# Herwig6 parameters\n");
+  hw6header.addLine("\n");
+  hw6header.addLine("# Herwig6 parameters\n");
   hw6header.addLine(makeConfigLine("IPROC", processCode));
   // add lines for parameter that have been touched by UPINIT
   if(mcpars_.emmins) 
@@ -177,8 +178,11 @@ bool MCatNLOSource::produce(edm::Event &event)
   if(lastEventDone) return false;
 
   // fill HEPRUP common block and store in edm::Run
+  lhef::HEPRUP heprup;
   lhef::HEPEUP hepeup;
+  lhef::CommonBlocks::readHEPRUP(&heprup);
   lhef::CommonBlocks::readHEPEUP(&hepeup);
+  hepeup.IDPRUP = heprup.LPRUP[0];
   std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup));
   lhEvent->addComment(makeConfigLine("#IHPRO", ihpro));
   event.put(lhEvent);

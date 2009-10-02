@@ -9,9 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
 #include "DataFormats/Common/interface/DetSetVector.h"    
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
@@ -25,15 +22,19 @@ public:
   HITrackingRegionProducer(const edm::ParameterSet& cfg) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
+
     thePtMin            = regionPSet.getParameter<double>("ptMin");
     theOriginRadius     = regionPSet.getParameter<double>("originRadius");
-	theNSigmaZ          = regionPSet.getParameter<double>("nSigmaZ");
-	theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
-	thePrecise          = regionPSet.getParameter<bool>("precise"); 
-	theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");  
-	double xDir         = regionPSet.getParameter<double>("directionXCoord");
+    theOriginHalfLength = regionPSet.getParameter<double>("originHalfLength");
+    double xPos         = regionPSet.getParameter<double>("originXPos");
+    double yPos         = regionPSet.getParameter<double>("originYPos");
+    double zPos         = regionPSet.getParameter<double>("originZPos");
+    double xDir         = regionPSet.getParameter<double>("directionXCoord");
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
+    thePrecise          = regionPSet.getParameter<bool>("precise"); 
+    theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");
+    theOrigin = GlobalPoint(xPos,yPos,zPos);
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
 
@@ -94,34 +95,28 @@ public:
     }
 
     // tracking region selection
-	std::vector<TrackingRegion* > result;
-	edm::Handle<reco::BeamSpot> bsHandle;
-	ev.getByLabel( theBeamSpotTag, bsHandle);
-	if(bsHandle.isValid()) {
-		  const reco::BeamSpot & bs = *bsHandle; 
-		  GlobalPoint origin(bs.x0(), bs.y0(), bs.z0()); 
-		  
-      if(estTracks>regTracking) {  // regional tracking
-        result.push_back( 
-            new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), etaB, phiB, thePrecise) );
-      }
-      else {                       // global tracking
-        LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
-        result.push_back( 
-            new GlobalTrackingRegion(thePtMin, origin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), thePrecise) );
-      }
-	} 
-    return result;
+    std::vector<TrackingRegion* > result;
+    if(estTracks>regTracking) {  // regional tracking
+      result.push_back( 
+          new RectangularEtaPhiTrackingRegion(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, thePrecise) );
+    }
+    else {                       // global tracking
+      LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
+      result.push_back( 
+          new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
+    }
+    return 
+result;
   }
 
 private:
+  std::string theSiPixelRecHits;
   double thePtMin; 
+  GlobalPoint theOrigin;
   double theOriginRadius; 
-  double theNSigmaZ;
-  edm::InputTag theBeamSpotTag;	
+  double theOriginHalfLength; 
   bool thePrecise;
   GlobalVector theDirection;
-  std::string theSiPixelRecHits;
 };
 
 #endif 

@@ -11,7 +11,7 @@
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include <string>

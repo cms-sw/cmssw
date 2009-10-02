@@ -1,5 +1,4 @@
 <use name=boost>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HcalDetId>

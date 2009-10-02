@@ -1,5 +1,6 @@
 import os
 import sys
+import string
 import commands
 import platform
 import logging
@@ -17,8 +18,9 @@ from MainWindow import *
 from AbstractTab import *
 from Filetype import *
 from Exceptions import *
+from AboutDialog import AboutDialog
 #from PreferencesEditor import PreferencesEditor
-
+import Vispa
 
 import Resources
 
@@ -47,6 +49,8 @@ class Application(QApplication):
         self._initLogging()
         self._loadIni()
 
+        self.setVersion(Vispa.__version__)
+
         self._window = MainWindow(self, applicationName)
         self._connectSignals()
         
@@ -74,6 +78,34 @@ class Application(QApplication):
         
     def setVersion(self, version):
         self._version = version
+        
+    def version(self):
+        """ Returns version string.
+        """
+        return self._version
+        
+    def atLeastQtVersion(self, versionString):
+        """ Returns True if given versionString is newer than current used version of Qt.
+        """
+        [majorV, minorV, revisionV] = versionString.split(".")
+        [majorQ, minorQ, revisionQ] = str(qVersion()).split(".")
+        if majorV > majorQ:
+            return True
+        elif majorV < majorQ:
+            return False
+        elif majorV == majorQ:
+            if minorV > minorQ:
+                return True
+            elif minorV < minorQ:
+                return False
+            elif minorV == minorQ:
+                if revisionV > revisionQ:
+                    return True
+                elif revisionV < revisionQ:
+                    return False
+                elif revisionV == revisionQ:
+                    return True
+        return False
 
     def _readCommandLineAttributes(self):
         """ Analyzes the command line attributes and print usage summary if required.
@@ -451,12 +483,18 @@ class Application(QApplication):
     def getLastOpenLocation(self):
         """ Returns directory name of first entry of recent files list.
         """
-        if len(self._recentFiles) > 0:
-            return os.path.dirname(self._recentFiles[0])
-        elif platform.system() == "Darwin":
-            # Mac OS X
-            return homeDirectory + "/Documents"
-        return homeDirectory
+        # if current working dir is vispa directory use recentfile or home
+        if os.path.abspath(os.getcwd()) in [os.path.abspath(baseDirectory),os.path.abspath(os.path.join(baseDirectory,"bin"))]:
+            if len(self._recentFiles) > 0:
+                return os.path.dirname(self._recentFiles[0])
+            elif platform.system() == "Darwin":
+                # Mac OS X
+                return homeDirectory + "/Documents"
+            else:
+                return homeDirectory
+        # if user navigated to another directory use this
+        else:
+            return os.getcwd()
     
     def updateMenu(self):
         """ Update recent files and enable disable menu entries in file and edit menu.
@@ -477,8 +515,10 @@ class Application(QApplication):
             
         if numRecentFiles == 0:
             self._fileMenuItems['clearRecentFilesAction'].setEnabled(False)
+            self._fileMenuItems['clearMissingRecentFilesAction'].setEnabled(False)
         else:
             self._fileMenuItems['clearRecentFilesAction'].setEnabled(True)
+            self._fileMenuItems['clearMissingRecentFilesAction'].setEnabled(True)
             
         # Enabled / disable menu entries depending on number of open files
         atLeastOneFlag = False
@@ -782,11 +822,8 @@ class Application(QApplication):
         """ Displays about box. 
         """
         logging.debug('Application: aboutBox()')
-        text = self._windowTitle()
-        if self._version:
-            text += " - " + str(self._version)
-        # TODO: add vispaWebsiteUrl
-        QMessageBox.about(self.mainWindow(), "About this software...", text) 
+        about = AboutDialog(self)
+        about.onScreen()
 
     def openRecentFile(self):
         """ Slot for opening recent file.
@@ -819,14 +856,14 @@ class Application(QApplication):
         self.updateMenu()
         self.updateWindowTitle()
 
-    def _windowTitle(self):
+    def windowTitle(self):
         return str(self._window.windowTitle()).split("-")[0].strip()
     
     def updateWindowTitle(self):
         """ update window caption
         """
         logging.debug('Application: updateWindowTitle()')
-        name = self._windowTitle()
+        name = self.windowTitle()
         
         try:
             filename = self.currentTabController().filename()
@@ -860,22 +897,23 @@ class Application(QApplication):
         """
         logging.debug('Application: _loadIni()')
         ini = self.ini()
-        if ini.has_option("history", "recentfiles"):
-            text = str(ini.get("history", "recentfiles"))
-            self._recentFiles = text.strip("[']").replace("', '", ",").split(",")
-            for f in self._recentFiles:
-                f.rstrip("\/")
-            if self._recentFiles == [""]:
-                self._recentFiles = []
+        self._recentFiles = []
+        if ini.has_section("history"):
+            for i in range(0, self.MAX_RECENT_FILES):
+                if ini.has_option("history", str(i)):
+                    self._recentFiles+=[ini.get("history", str(i))]
                
     def _saveIni(self):
         """ Load the list of recent files.
         """
         logging.debug('Application: _saveIni()')
         ini = self.ini()
-        if not ini.has_section("history"):
-            ini.add_section("history")
-        ini.set("history", "recentfiles", str(self._recentFiles))
+        if ini.has_section("history"):
+            ini.remove_section("history")
+        ini.add_section("history")
+        for i in range(len(self._recentFiles)):
+            ini.set("history", str(i), self._recentFiles[i])
+                
         self.writeIni()
 
     def errorMessage(self, message):
@@ -907,26 +945,29 @@ class Application(QApplication):
                 return self.openFile(filename)
         
         # open file in default application
-        if os.access(filename, os.X_OK):
-          logging.warning("Won't run programs by double-click.")
-        else:
-          try:
-            if platform.system() == "Windows":
-                os.startfile(filename)
-            elif platform.system() == "Darwin":
-                subprocess.call(("open", filename))
-            elif platform.system() == "Linux":
-            # Linux comes with many Desktop Enviroments
+        try:
+          if platform.system() == "Windows":
+              os.startfile(filename)
+          elif platform.system() == "Darwin":
+            if os.access(filename, os.X_OK):
+              logging.warning("Won't run programs by double-click.")
+            else:
+              subprocess.call(("open", filename))
+          elif platform.system() == "Linux":
+          # Linux comes with many Desktop Enviroments
+            if os.access(filename, os.X_OK):
+              logging.warning("Won't run programs by double-click.")
+            else:
+              try:
+                  #Freedesktop Standard
+                  subprocess.call(("xdg-open", filename))
+              except:
                 try:
-                    #Freedesktop Standard
-                    subprocess.call(("xdg-open", filename))
+                   subprocess.call(("gnome-open", filename))
                 except:
-                  try:
-                     subprocess.call(("gnome-open", filename))
-                  except:
-                     logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + platform.platform() + "'. Cannot open file. I Don't know how!")
-          except:
-            logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + platform.platform() + "'. Error while opening file: " + str(filename))
+                   logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + platform.platform() + "'. Cannot open file. I Don't know how!")
+        except:
+          logging.error(self.__class__.__name__ + ": doubleClickOnFile() - Platform '" + platform.platform() + "'. Error while opening file: " + str(filename))
 
     def createStatusBar(self):
         self._workingMessages = {}
@@ -935,13 +976,16 @@ class Application(QApplication):
         self._window.statusBar().addPermanentWidget(self._progressWidget)
 
         self._progressTimeLine = QTimeLine(1000, self)
-        self._progressTimeLine.setFrameRange(0, 100)
+        self._progressTimeLine.setFrameRange(0, 20)
         self._progressTimeLine.setLoopCount(0)
         self.connect(self._progressTimeLine, SIGNAL("frameChanged(int)"), self.setProgress)
         
     def setProgress(self, progress):
-        angle = int(progress * 360.0 / 100.0)
+        angle = int(progress * 360.0 / 20.0)
         pixmap = QPixmap(":/resources/vispabutton.png")
+        # if problem with loading png
+        if pixmap.size().width()==0:
+            return
         rotate_matrix = QMatrix()
         rotate_matrix.rotate(angle)
         pixmap_rotated = pixmap.transformed(rotate_matrix)

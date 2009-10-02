@@ -204,7 +204,7 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
             - [25, 28] are empty ie should be skipped by unpacker 
 	  */
 
-	  if( nTTs_ != 28 || nTTs_ !=16 ){
+	  if( nTTs_ != 28 && nTTs_ !=16 ){
 	    if( ! DCCDataUnpacker::silentMode_ ){
           edm::LogWarning("EcalRawToDigiTCC") 
 		   <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()

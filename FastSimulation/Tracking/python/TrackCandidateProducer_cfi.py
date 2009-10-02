@@ -17,9 +17,7 @@ trackCandidateProducer = cms.EDProducer("TrackCandidateProducer",
     # The tracks already fitted - no need to fit them already !
     TrackProducers = cms.VInputTag(cms.InputTag("generalTracks")),
     # Split matched hits? 
-    SplitHits = cms.bool(True),
-    SimTracks = cms.InputTag(''),
-    EstimatorCut = cms.double(0)
+    SplitHits = cms.bool(True)
 )
 
 

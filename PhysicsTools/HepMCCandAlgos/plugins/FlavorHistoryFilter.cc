@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "PhysicsTools/Utilities/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistorySelectorUtil.h"
 

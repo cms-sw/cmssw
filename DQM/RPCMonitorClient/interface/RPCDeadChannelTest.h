@@ -50,7 +50,7 @@ public:
  
   DQMStore* dbe_;
  
-  int numberOfDisks_,numberOfRings_ ;
+  int numberOfDisks_;
 
   MonitorElement * DEADWheel[5];
   MonitorElement * DEADDisk[10]; 

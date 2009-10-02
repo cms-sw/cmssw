@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-from PhysicsTools.PFCandProducer.pfAllElectrons_cfi import pfAllElectrons
+from PhysicsTools.PFCandProducer.ParticleSelectors.pfAllElectrons_cfi import pfAllElectrons
 
 from Validation.RecoParticleFlow.pfElectronBenchmarkGeneric_cfi import pfElectronBenchmarkGeneric
 

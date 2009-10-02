@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/06/04 15:26:11 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/02/05 15:52:36 $
+ *  $Revision: 1.21 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -62,13 +62,11 @@
 #include "Alignment/LaserAlignment/src/LASPeakFinder.h"
 #include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
 #include "Alignment/LaserAlignment/src/LASGeometryUpdater.h"
-#include "Alignment/LaserAlignment/src/LASConstants.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "TH1.h"
 #include "TFile.h"
-#include "TF1.h"
 
 
 
@@ -122,20 +120,11 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// fills a LASGlobalData<LASCoordinateSet> with nominal module positions
   void CalculateNominalCoordinates( void );
   
-  /// for debugging only, will disappear
+  /// for debugging only, wil disappear
   void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );
 
   /// for debugging only, will disappear
-  void DumpStripFileSet( LASGlobalData<std::pair<float,float> >& );
-
-  /// for debugging only, will disappear
   void DumpHitmaps( LASGlobalData<int> );
-
-  /// apply endcap correction to masked modules in TEC
-  void ApplyEndcapMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
-  
-  /// same for alignment tube modules
-  void ApplyATMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASBarrelAlignmentParameterSet& ); 
 
   /// counter for the total number of events processed
   int theEvents;
@@ -147,22 +136,10 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool theUseMinuitAlgorithm;
 
   /// config switch
-  bool theApplyBeamKinkCorrections;
-
-  /// config parameter
-  double peakFinderThreshold;
-
-  /// config switch
   bool enableJudgeZeroFilter;
-
-  /// config parameters for the LASProfileJudge
-  unsigned int judgeOverdriveThreshold;
 
   /// config switch
   bool updateFromInputGeometry;
-
-  /// config switch
-  bool misalignedByRefGeometry;
 
   /// config switch
   bool theStoreToDB;
@@ -179,10 +156,6 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   /// config parameter (histograms file output name)
   std::string theFileName;
 
-  /// config parameters
-  std::vector<unsigned int> theMaskTecModules;
-  std::vector<unsigned int> theMaskAtModules;
-
   /// config switch
   bool theSetNominalStrips;
 
@@ -190,14 +163,11 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // a LASModuleProfile is usable for position measurement
   LASProfileJudge judge;
 
-  // colection of constants
-  LASConstants theLasConstants;
-
   // the detector ids for all the modules
-  LASGlobalData<unsigned int> detectorId;
+  LASGlobalData<int> detectorId;
 
   // the detector ids for the doubly hit modules in the TECs
-  std::vector<unsigned int> tecDoubleHitDetId;
+  std::vector<int> tecDoubleHitDetId;
 
   // all the 474 profiles for the pedestals
   LASGlobalData<LASModuleProfile> pedestalProfiles;

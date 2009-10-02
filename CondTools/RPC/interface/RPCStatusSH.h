@@ -5,8 +5,8 @@
  * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/12/30 10:16:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/12/12 20:02:58 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -36,8 +36,7 @@ namespace popcon{
     RPCObStatus* Sdata;
 
     unsigned long long snc;
-    unsigned long long tll;
-    unsigned long long niov;
+    unsigned long long niov;	    
     unsigned long long utime;
   private:
     std::string m_name;
@@ -45,7 +44,7 @@ namespace popcon{
     std::string user;
     std::string passw;
     unsigned long long m_since;
-    unsigned long long m_till;
+
   };
 }
 #endif

@@ -1,5 +1,4 @@
 <use name=AnalysisDataFormats/TopObjects>
-<use name=TopQuarkAnalysis/Examples>
 <use name=TopQuarkAnalysis/TopTools>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>

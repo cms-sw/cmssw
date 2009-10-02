@@ -10,8 +10,7 @@ mix = cms.EDProducer("MixingModule",
     minBunch = cms.int32(-5), ## in terms of 25 ns
 
     bunchspace = cms.int32(25),
-    checktof = cms.bool(False),
-    mixProdStep1 = cms.bool(True),
+    mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
 
     playback = cms.untracked.bool(False),

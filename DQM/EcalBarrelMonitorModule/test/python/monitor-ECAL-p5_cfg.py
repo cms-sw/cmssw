@@ -249,7 +249,8 @@ process.ecalBarrelCosmicTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2
 process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 process.ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:EcalUncalibRecHitsEB'
 
-process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
+process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_cosmics.txt.gz'
+#process.EcalTrigPrimESProducer.DatabaseFile = 'TPG_startup.txt.gz'
 
 process.ecalBarrelMonitorClient.maskFile = '../data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5'

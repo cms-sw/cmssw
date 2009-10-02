@@ -9,7 +9,7 @@ from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder, defau
 from Configuration.PyReleaseValidation.cmsDriverOptions import options, python_config_filename
 
 # after cleanup of all config parameters pass it to the ConfigBuilder
-configBuilder = ConfigBuilder(options)
+configBuilder = ConfigBuilder(options, with_output = True, with_input = True)
 configBuilder.prepare()
 
 # fetch the results and write it to file

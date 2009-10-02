@@ -6,8 +6,7 @@
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//Geometry
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+
 
 using namespace edm;
 using namespace std;
@@ -17,7 +16,6 @@ RPCOccupancyTest::RPCOccupancyTest(const ParameterSet& ps ){
   globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-  numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
 RPCOccupancyTest::~RPCOccupancyTest(){
@@ -103,10 +101,10 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       dbe_->removeElement(me->getName());
     }
       
-    AsyMeDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+    AsyMeDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);
     
-    rpcUtils.labelXAxisSegment(AsyMeDisk[w+offset]);
-    rpcUtils.labelYAxisRing(AsyMeDisk[w+offset], numberOfRings_);
+    rpcUtils.labelXAxisSector(AsyMeDisk[w+offset]);
+    rpcUtils.labelYAxisRoll(AsyMeDisk[w+offset], 1, w);
     
     histoName.str("");
     histoName<<"AsymmetryLeftRight_Distribution_Disk"<<w;      
@@ -126,10 +124,10 @@ void RPCOccupancyTest::beginRun(const Run& r, const EventSetup& c,vector<Monitor
       dbe_->removeElement(me->getName());
     }
     
-    NormOccupDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+    NormOccupDisk[w+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  6, 0.5, 6.5, 54, 0.5, 54.5);
     
-    rpcUtils.labelXAxisSegment(NormOccupDisk[w+offset]);
-    rpcUtils.labelYAxisRing( NormOccupDisk[w+offset],numberOfRings_);
+    rpcUtils.labelXAxisSector(  NormOccupDisk[w+offset]);
+    rpcUtils.labelYAxisRoll( NormOccupDisk[w+offset], 1, w);
     
     histoName.str("");
     histoName<<"OccupancyNormByGeoAndRPCEvents_Distribution_Disk"<<w;  
@@ -224,37 +222,28 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 
     }else{
 
-      if( -detId.station() +  numberOfDisks_ >= 0 ){
+      if(((detId.station() * detId.region() ) + numberOfDisks_) >= 0 ){
 	
 	if(detId.region()<0){
-	  AsyMe= AsyMeDisk[-detId.station()  + numberOfDisks_];
-	  AsyMeD= AsyMeDDisk[-detId.station() + numberOfDisks_];
-	  NormOccup=NormOccupDisk[-detId.station() + numberOfDisks_];
-	  NormOccupD=NormOccupDDisk[-detId.station() + numberOfDisks_];
+	  AsyMe= AsyMeDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	  AsyMeD= AsyMeDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	  NormOccup=NormOccupDisk[(detId.station() * detId.region() ) + numberOfDisks_];
+	  NormOccupD=NormOccupDDisk[(detId.station() * detId.region() ) + numberOfDisks_];
 	}else{
-	  AsyMe= AsyMeDisk[detId.station() + numberOfDisks_-1];
-	  AsyMeD= AsyMeDDisk[detId.station() + numberOfDisks_-1];
-	  NormOccup=NormOccupDisk[detId.station() + numberOfDisks_-1];
-	  NormOccupD=NormOccupDDisk[detId.station() + numberOfDisks_-1];
+	  AsyMe= AsyMeDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	  AsyMeD= AsyMeDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	  NormOccup=NormOccupDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
+	  NormOccupD=NormOccupDDisk[(detId.station() * detId.region() ) + numberOfDisks_-1];
 	}
       }
 
 
     }
 
- 
-    int xBin,yBin;
-    if(detId.region()==0){//Barrel
-      xBin= detId.sector();
-      rpcdqm::utils rollNumber;
-      yBin = rollNumber.detId2RollNr(detId);
-    }else{//Endcap
-      //get segment number
-      RPCGeomServ RPCServ(detId);
-      xBin = RPCServ.segment();
-      (numberOfRings_ == 3 ? yBin= detId.ring()*3-detId.roll()+1 : yBin= (detId.ring()-1)*3-detId.roll()+1);
-    }
-    
+    rpcdqm::utils prova;	  
+    int nr = prova.detId2RollNr(detId);
+
+                                              
 	
     int stripInRoll=myMe->getNbinsX();
     float FOccupancy=0;
@@ -268,18 +257,15 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 	    
     float asym =  fabs((FOccupancy - BOccupancy )/totEnt);
     
-    if(AsyMe)  AsyMe->setBinContent(xBin,yBin,asym );
+    if(AsyMe)  AsyMe->setBinContent(detId.sector(),nr,asym );
 
     if(AsyMeD) AsyMeD->Fill(asym);
 	
     float normoccup = 0;
     if(stripInRoll*rpcevents_ !=0)
       normoccup = totEnt/(stripInRoll*rpcevents_)*10;
-    if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
+    if(NormOccup)  NormOccup->setBinContent(detId.sector(),nr, normoccup);
     if(NormOccupD) NormOccupD->Fill(normoccup);
-
-
-
 }
 
 

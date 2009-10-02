@@ -4,18 +4,26 @@ from PhysicsTools.PatAlgos.patEventContent_cff import *
     
 def switchOnTrigger( process ):
     """ Enables trigger information in PAT  """
+    ## add trigger modules to path
+    process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
+    process.patDefaultSequence += process.patTriggerSequence
+
+    ## configure pat trigger
     process.patTrigger.onlyStandAlone = False
-    # add trigger modules to path
-    process.p *= process.patTriggerSequence
-    # add trigger specific event content to PAT event content
+
+    ## add trigger specific event content to PAT event content
     process.out.outputCommands += patTriggerEventContent
     for matchLabel in process.patTriggerEvent.patTriggerMatches:
         process.out.outputCommands += [ 'keep patTriggerObjectsedmAssociation_patTriggerEvent_' + matchLabel + '_*' ]
 
 def switchOnTriggerStandAlone( process ):
+    ## add trigger modules to path
+    process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
+    process.patDefaultSequence += process.patTriggerSequence
+
+    ## configure pat trigger
     process.patTrigger.onlyStandAlone = True
     process.patTriggerSequence.remove( process.patTriggerEvent )
-    process.p *= process.patTriggerSequence
     process.out.outputCommands += patTriggerStandAloneEventContent
 
 def switchOnTriggerAll( process ):

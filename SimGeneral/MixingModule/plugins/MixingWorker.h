@@ -40,14 +40,10 @@ namespace edm
       explicit MixingWorker() {;}
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, std::string labelCF,int maxNbSources, InputTag& tag, InputTag& tagCF, bool checktof, bool mixProdStep2, bool isTracker=false):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,labelCF,maxNbSources,tag,tagCF,checktof,mixProdStep2,isTracker)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, std::string labelCF,int maxNbSources, InputTag& tag, InputTag& tagCF, bool mixProdStep2):
+	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,labelCF,maxNbSources,tag,tagCF,mixProdStep2)
 	{
-          
-          trackerHigh_=false;
-	  mixProdStep2_ = mixProdStep2;
-          if (isTracker) 
-	    if (subdet.find("HighTof")!=std::string::npos) 		trackerHigh_=true;
+          mixProdStep2_ = mixProdStep2;
 	}
 
       /**Default destructor*/
@@ -131,13 +127,8 @@ namespace edm
     private:
       CrossingFrame<T> * crFrame_;
       PCrossingFrame<T> * secSourceCF_;
-      bool trackerHigh_;
-      
+
       bool mixProdStep2_;
-      // limits for tof to be considered for trackers
-      static const int lowTrackTof; //nsec
-      static const int highTrackTof;
-      static const int limHighLowTof;
     };
 
 //=============== template specializations ====================================================================================
@@ -187,9 +178,6 @@ template <>
 
 template <class T>
     void MixingWorker<T>::setTof() {;}
-
-template <>
-    void MixingWorker<PSimHit>::setTof();
 
 template <class T>
     void MixingWorker<T>::copyPCrossingFrame(const PCrossingFrame<T> *PCF)

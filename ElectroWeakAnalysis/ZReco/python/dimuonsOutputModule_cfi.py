@@ -22,7 +22,7 @@ dimuonsEventContent = cms.PSet(
         'keep patTriggerFilters_patTrigger_*_*',
         'keep patTriggerPaths_patTrigger_*_*',
         'keep patTriggerEvent_patTriggerEvent_*_*',
-        'keep *_selectedLayer1MuonsTriggerMatch_*_*'
+        'keep patTriggerObjectsedmAssociation_patTriggerEvent_*_*'
         )
 )
 dimuonsEventSelection = cms.PSet(
@@ -32,7 +32,6 @@ dimuonsEventSelection = cms.PSet(
            'dimuonsOneTrackPath')
     )
 )
-
 
 AODSIMDimuonEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring()

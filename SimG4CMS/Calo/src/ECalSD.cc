@@ -289,7 +289,7 @@ double ECalSD::getBirkL3(G4Step* aStep) {
     double density = mat->GetDensity();
     double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
     double rkb     = birk1/density;
-    weight         = 1. - birkSlope*log(rkb*dedx);
+    if (dedx > 0.) weight         = 1. - birkSlope*log(rkb*dedx);
     if (weight < birkCut) weight = birkCut;
     else if (weight > 1.) weight = 1.;
 #ifdef DebugLog

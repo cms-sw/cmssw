@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.15 2009/05/14 08:32:18 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.13 2008/09/05 10:59:03 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -526,17 +526,6 @@ LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,
   r.setRunTag(tag);
   r.setLMFRunTag(lmfrunTag);
   r.fetchRuns(min_run, max_run);
-  return r;
-}
-
-LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,uint64_t min_time, int min_run, int end_run)
-  throw(runtime_error)
-{  
-  LMFRunList r;
-  r.setConnection(env, conn);
-  r.setRunTag(tag);
-  r.setLMFRunTag(lmfrunTag);
-  r.fetchRuns(min_time, min_run, end_run);
   return r;
 }
 

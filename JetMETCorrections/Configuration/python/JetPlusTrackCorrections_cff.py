@@ -11,6 +11,10 @@ from RecoJets.Configuration.RecoJetAssociations_cff import *
 
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cfi import *
 
+# Tight Electron ID
+from RecoEgamma.ElectronIdentification.electronIdSequence_cff import eidTight
+JPTeidTight = eidTight.clone()
+
 JetPlusTrackZSPCorrectorIcone5 = cms.ESSource(
     "JetPlusTrackCorrectionService",
     JPTZSPCorrectorICone5,
@@ -37,7 +41,7 @@ ZSPiterativeCone5JetExtender.jet2TracksAtCALO = cms.InputTag("ZSPiterativeCone5J
 ZSPiterativeCone5JetExtender.jet2TracksAtVX = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
 
 
-ZSPrecoJetAssociations = cms.Sequence(ZSPiterativeCone5JetTracksAssociatorAtVertex*ZSPiterativeCone5JetTracksAssociatorAtCaloFace*ZSPiterativeCone5JetExtender)
+ZSPrecoJetAssociations = cms.Sequence(JPTeidTight*ZSPiterativeCone5JetTracksAssociatorAtVertex*ZSPiterativeCone5JetTracksAssociatorAtCaloFace*ZSPiterativeCone5JetExtender)
 
 JetPlusTrackCorrections = cms.Sequence(ZSPrecoJetAssociations*JetPlusTrackZSPCorJetIcone5)
 

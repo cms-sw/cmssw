@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/02/11 20:21:26 $
- *  $Revision: 1.30 $
+ *  $Date: 2009/02/08 21:51:20 $
+ *  $Revision: 1.29 $
  *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
  */
 
@@ -55,7 +55,6 @@ public:
   void            analyze( const edm::Event & iEvent );
   void            finish ( );
   MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
-  MonitorElement* bookTurnOn ( TString name, TString title );
 
 private:
 
