@@ -58,29 +58,29 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
   deta_EE_ = iConfig.getUntrackedParameter<Double_t>("deta_EE");
   hoe_EE_ = iConfig.getUntrackedParameter<Double_t>("hoe_EE");
   //
-  trackIso_EB_inv = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 
+  trackIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EB_inv", 
 							    false);
-  ecalIso_EB_inv = iConfig.getUntrackedParameter<Double_t>("ecalIso_EB",
+  ecalIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIso_EB_inv",
 							   false);
-  hcalIso_EB_inv = iConfig.getUntrackedParameter<Double_t>("hcalIso_EB",
+  hcalIso_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIso_EB_inv",
 							   false);
   //
-  trackIso_EE_inv = iConfig.getUntrackedParameter<Double_t>("trackIso_EE",
+  trackIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("trackIso_EE_inv",
 							    false);
-  ecalIso_EE_inv = iConfig.getUntrackedParameter<Double_t>("ecalIso_EE",
+  ecalIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("ecalIso_EE_inv",
 							   false);
-  hcalIso_EE_inv = iConfig.getUntrackedParameter<Double_t>("hcalIso_EE",
+  hcalIso_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hcalIso_EE_inv",
 							   false);
   //
-  sihih_EB_inv = iConfig.getUntrackedParameter<Double_t>("sihih_EB", false);
-  dphi_EB_inv = iConfig.getUntrackedParameter<Double_t>("dphi_EB",false);
-  deta_EB_inv = iConfig.getUntrackedParameter<Double_t>("deta_EB",false);
-  hoe_EB_inv = iConfig.getUntrackedParameter<Double_t>("hoe_EB",false);
+  sihih_EB_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EB_inv", false);
+  dphi_EB_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EB_inv",false);
+  deta_EB_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EB_inv",false);
+  hoe_EB_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EB_inv",false);
   //
-  sihih_EE_inv = iConfig.getUntrackedParameter<Double_t>("sihih_EE", false);
-  dphi_EE_inv = iConfig.getUntrackedParameter<Double_t>("dphi_EE", false);
-  deta_EE_inv = iConfig.getUntrackedParameter<Double_t>("deta_EE",false);
-  hoe_EE_inv = iConfig.getUntrackedParameter<Double_t>("hoe_EE",false);
+  sihih_EE_inv = iConfig.getUntrackedParameter<Bool_t>("sihih_EE_inv", false);
+  dphi_EE_inv = iConfig.getUntrackedParameter<Bool_t>("dphi_EE_inv", false);
+  deta_EE_inv = iConfig.getUntrackedParameter<Bool_t>("deta_EE_inv",false);
+  hoe_EE_inv = iConfig.getUntrackedParameter<Bool_t>("hoe_EE_inv",false);
 
 
 }
@@ -226,8 +226,10 @@ bool ZeePlots::CheckCutInv(const pat::Electron *ele, int i) {
     if (InvVars_[i]) return fabs(ReturnCandVar(ele, i))>CutVars_[i];
     return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
-  if (InvVars_[i+nBarrelVars_]) 
-    return fabs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];
+  if (InvVars_[i+nBarrelVars_]) {
+    if (InvVars_[i])
+      return fabs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];
+  }
   return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 ////////////////////////////////////////////////////////////////////////
