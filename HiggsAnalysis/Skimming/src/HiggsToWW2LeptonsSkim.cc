@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2009/06/16 10:29:37 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/08/17 20:32:33 $
+ *  $Revision: 1.17 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *  \revised Javier Fernandez - Univ. Oviedo	
@@ -16,15 +16,19 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-// Muons:
+//Tracks
 #include <DataFormats/TrackReco/interface/Track.h>
+
+// Muons:
+#include <DataFormats/MuonReco/interface/Muon.h>
+#include <DataFormats/MuonReco/interface/MuonFwd.h>
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-
 
 #include <iostream>
 
@@ -33,13 +37,14 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
+using namespace muon;
 
 HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
   nEvents_(0), nAccepted_(0)
 {
 
   // Reconstructed objects
-  theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
+  theMuonLabel   = iConfig.getParameter<edm::InputTag>("MuonCollectionLabel");
   theGsfELabel      = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
 
   nLeptons_	     = iConfig.getParameter<int>("nLeptons");
@@ -52,7 +57,8 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
   diLeptonPtMin_     = iConfig.getParameter<double>("DiLeptonPtMin");
   etaMin_           = iConfig.getParameter<double>("etaMin");
   etaMax_           = iConfig.getParameter<double>("etaMax");
-
+  muonType_	    = iConfig.getParameter<string>("muonType");
+ 
   beTight_	    = iConfig.getParameter<bool>("beTight");
   dilepM_	    = iConfig.getParameter<double>("dilepM");
   eleHadronicOverEm_= iConfig.getParameter<double>("eleHadronicOverEm");
@@ -88,19 +94,22 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
   // Handle<CandidateCollection> tracks;
 
   using reco::TrackCollection;
+  using reco::MuonCollection;
 
   // Get the muon track collection from the event
-  edm::Handle<reco::TrackCollection> muTracks;
-  event.getByLabel(theGLBMuonLabel.label(), muTracks);
+  edm::Handle<reco::MuonCollection> muTracks;
+  event.getByLabel(theMuonLabel.label(), muTracks);
   
   if ( muTracks.isValid() ) {
 
-    reco::TrackCollection::const_iterator muons;
+    reco::MuonCollection::const_iterator muons;
 
+  
     // Loop over muon collections and count how many muons there are,
     // and how many are above threshold
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
-      if ( muons->eta() > etaMin_ && muons->eta() < etaMax_ ) {
+    if(muon::isGoodMuon(*muons,muon::selectionTypeFromString(muonType_))){  
+    if ( muons->eta() > etaMin_ && muons->eta() < etaMax_ ) {
         if ( muons->pt() > singleLeptonPtMin_ ) accepted1 = true;
         if ( muons->pt() > diLeptonPtMin_ ) nLeptonOver2ndCut++;
 	if(beTight_){
@@ -110,6 +119,7 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
       }
     }
   } 
+  }
 
   // Now look at electrons:
 

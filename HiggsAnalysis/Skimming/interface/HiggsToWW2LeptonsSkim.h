@@ -7,8 +7,8 @@
  *  This class is an EDFilter choosing reconstructed di-tracks
  *  Allows extended requirements for tighter skim options (bool beTight=true)
  *
- *  $Date: 2009/06/16 10:29:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/08/17 20:32:31 $
+ *  $Revision: 1.6 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *  \revised J. Fernandez  -  Univ. Oviedo
@@ -32,7 +32,6 @@
 using namespace edm;
 using namespace std;
 
-
 class HiggsToWW2LeptonsSkim : public edm::EDFilter {
     public:
        explicit HiggsToWW2LeptonsSkim(const edm::ParameterSet&);
@@ -45,6 +44,7 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
       double singleLeptonPtMin_;
       double diLeptonPtMin_;
       int    nLeptons_;
+      string muonType_;
       double etaMin_;
       double etaMax_;
       bool   beTight_;
@@ -54,7 +54,7 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
       unsigned int nAccepted_;
 
   // Reco samples
-  edm::InputTag theGLBMuonLabel;
+  edm::InputTag theMuonLabel;
   edm::InputTag theGsfELabel;
 
 };
