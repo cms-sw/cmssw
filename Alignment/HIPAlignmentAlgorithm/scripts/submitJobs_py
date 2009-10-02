@@ -1,13 +1,15 @@
 #!/bin/tcsh
 
 # get working dir to set environment
+source /afs/cern.ch/cms/caf/setup.csh
 set workdir = `cd ../../; pwd`
 
 set iter = $1                          # final iteration number
 set odir = `cd $2; pwd`                # get full output path
 set name = `basename $odir`            # for job name
 set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
-set queue = cmscaf                     # pick queue to run on
+set queue = cmscaf1nd                    # pick queue to run on
+set startdir = `pwd`
 
 ## Submit jobs and iterate
 
@@ -19,6 +21,7 @@ end
 
 echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs
 
+@ COLLECT_ERROR = 0
 
 while ($i <= $iter)
 
@@ -39,13 +42,15 @@ while ($i <= $iter)
     bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
          -o /dev/null bkill -J $name/requeue$i
 
+    #new
+	bsub -q $queue -C 0 -oo $odir/main/runControl$i.txt $odir/main/runControl.csh $odir $i
 ## When <collect> job ends, <requeue> job is killed and gets an EXIT status.
 ## And we can stop requeuing failed <align> jobs.
 
     while (`bjobs -d -J $name/requeue$i |& grep EXIT` == "")
       bsub -q cmsinter -C 0 -J $name/requeue$i -w "numexit($id, > 0)" \
            -I brequeue -e $id
-      sleep 10
+      sleep 60
     end
 
   else
@@ -56,9 +61,36 @@ while ($i <= $iter)
   sleep 5
   if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") exit 1
 
-## Clean up after collector has finished successfully.
+#check if something went wrong, in case warn the owner of the job
+#create a db every 10 iters as a backup
+  cd $odir/main/
+    ./checkError.sh $USER
+    @ errstatus = $?
+    if ($errstatus == 0) then
+    @ mod =  $i % 5 
+   # echo "Modulus is $mod"
+	if ( $mod == 0 && $COLLECT_ERROR == 0 )	then
+	cd ${CMSSW_BASE}/src/
+	eval `scramv1 runtime -csh`
+	cd $odir
+	cp $odir/main/IOIteration.root $odir/
+	cp $odir/main/IOAlignedPositions.root $odir/
+	cmsRun upload_cfg.py > upload_iter${i}.out
+	mv alignments.db alignments_iter${i}.db
+	rm -f $odir/*.root
+	cd -
+    endif 
+ else
+   @ COLLECT_ERROR++
+ endif
+ cd $startdir
 
-  rm $odir/job*/IOUserVariables.root
+
+## Clean up after collector has finished successfully.
+    
+  rm -rf $odir/job*/IOUserVariables.root
+  rm -rf $odir/job*/DONE1
+  rm -rf $odir/main/runControl*.txt
   gzip $odir/job*/*.out
   gzip $odir/main/*.out
 

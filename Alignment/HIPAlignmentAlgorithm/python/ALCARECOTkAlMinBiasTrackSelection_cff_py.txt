@@ -1,0 +1,38 @@
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+
+# track selection for sample in filename...
+process.AlignmentTrackSelector.filter = True
+process.AlignmentTrackSelector.applyBasicCuts = True
+process.AlignmentTrackSelector.pMin    = 2.0
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 0.9
+process.AlignmentTrackSelector.ptMax   = 9999.
+process.AlignmentTrackSelector.etaMin  = -999.
+process.AlignmentTrackSelector.etaMax  = 999.
+process.AlignmentTrackSelector.nHitMin = 8
+process.AlignmentTrackSelector.nHitMin2D = 2
+process.AlignmentTrackSelector.chi2nMax = 9999.
+process.AlignmentTrackSelector.applyMultiplicityFilter = False
+process.AlignmentTrackSelector.maxMultiplicity = 1
+process.AlignmentTrackSelector.applyNHighestPt = False
+#process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
+
+# Reject outliers
+## include  "TrackingTools/TrackFitters/data/RungeKuttaKFFittingSmootherESProducer.cfi"
+process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=15.0   ## If you use TrackRefitter
+process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=6
+#process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=15.0   ## If you use TrackRefitterP5
+#process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=6
+
+#process.AlignmentTrackSelector.minHitsPerSubDet.inTIB = 0
+#process.AlignmentTrackSelector.minHitsPerSubDet.inTOB = 0
+#process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX = 2
+#process.AlignmentTrackSelector.minHitsPerSubDet.inFPIX = 1
+

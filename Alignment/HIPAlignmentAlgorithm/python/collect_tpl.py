@@ -23,7 +23,8 @@ process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 #process.AlignmentProducer.algoConfig.outfile2 = '<PATH>/main/HIPAlignmentAlignables.root'
 
 
-# this part is only needed for survey constraint
+# this part only needed for survey constraint
+"""
 process.survey = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
     timetype = cms.string('runnumber'),
@@ -35,11 +36,12 @@ process.survey = cms.ESSource("PoolDBESSource",
             record = cms.string('TrackerSurveyErrorRcd'),
             tag = cms.string('errorTag')
         )),
-     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_ALLTK_verrs_tightSSTloosePXB.db')
+     connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/surveyRcd_ALLTK_PXFoppPXB_tightSSTUltraTightTOB_311.db')
 )
 
 #process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TOBRod','TECPetal','TECRing','TIDRing','TIDSide']
-process.AlignmentProducer.algoConfig.surveyResiduals = ['DetUnit','Det','TIBString','TOBRod','TECRing','TIDSide','TECPetal']
+process.AlignmentProducer.algoConfig.surveyResiduals = ['Det','TIBString','TOBRod','TECRing','TIDSide','TECPetal']
 process.AlignmentProducer.useSurvey = True
+"""
 # end of survey constraint part
 
