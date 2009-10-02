@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/05 10:11:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/09/10 13:07:02 $
+ *  $Revision: 1.7 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -162,7 +162,7 @@ void HLTMonBTagMuSource::beginRun(const edm::Run & run, const edm::EventSetup & 
 
   m_pathIndex = configProvider.triggerIndex( m_pathName );
   if (m_pathIndex == configProvider.size())
-    throw cms::Exception("ConfigurationError") << "trigger name \"" << m_processName << "\" is not valid.";
+    throw cms::Exception("ConfigurationError") << "trigger name \"" << m_pathName << "\" is not valid.";
 
   // if their call fails, these will be set to one after the last valid module for their path
   // so they will never be "passed"
