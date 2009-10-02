@@ -23,7 +23,7 @@ def getDictFromObject (obj, varDict, prefix = ''):
     return retval
 
 
-def format (objDict, label, spacing=8, firstOnly = False):
+def format (objDict, label, spacing=9, firstOnly = False):
     '''return a formatted string for given object'''
     value = objDict[label]
     if firstOnly:
@@ -33,7 +33,7 @@ def format (objDict, label, spacing=8, firstOnly = False):
         
     problem = False
     if isinstance (value, float):
-        formatString = '%%%d.%df' % (spacing, spacing - 3)
+        formatString = '%%%d.%df' % (spacing, spacing - 5)
         retval = formatString % value
         if abs(diff) > epsilon:
             retval += ' (' + formatString % (value + diff) + ')'
@@ -133,11 +133,11 @@ if __name__ == "__main__":
         firstOnlyColl  = getPieceFromObject (tree, name + '.firstOnly')
         size = firstOnlyColl.size()
         if size:            
-            print "First Only:\n   index  ",
+            print "First Only:\n   index    ",
             for var in variables:
-                print "%-10s" % (' ' + var),
+                print "%-12s" % (' ' + var),
             print
-            print '-' * (12 + 10 * len(variables))
+            print '-' * (12 + 11 * len(variables))
         for index in range (size):
             firstOnly = firstOnlyColl[index]
             index = getDictFromObject (firstOnly, indexSingleDict)
@@ -151,11 +151,11 @@ if __name__ == "__main__":
         secondOnlyColl = getPieceFromObject (tree, name + '.secondOnly')
         size = secondOnlyColl.size()
         if size:            
-            print "Second Only:\n   index  ",
+            print "Second Only:\n   index    ",
             for var in variables:
-                print "%-10s" % (' ' + var),
+                print "%-12s" % (' ' + var),
             print
-            print '-' * (12 + 10 * len(variables))
+            print '-' * (12 + 11 * len(variables))
         for index in range (size):
             secondOnly = secondOnlyColl[index]
             index = getDictFromObject (secondOnly, indexSingleDict)
@@ -171,9 +171,9 @@ if __name__ == "__main__":
         if size:            
             print "Both:\n   index",
             for var in variables:
-                print "%-22s" % ('       ' + var),
+                print "%-24s" % ('          ' + var),
             print
-            print '-' * (16 + 21 * len(variables))
+            print '-' * (16 + 23 * len(variables))
         for index in range (size):
             diff = diffColl[index]
             index = getDictFromObject (diff, indexDoubleDict)
