@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="spec-pars2.xml">
-    
+
+  <SpecPar name="TrackerRecMaterialPixelBarrelLayer0" eval="true">
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullPlus/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderFull/PixelBarrelModuleBoxFull/PixelBarrelModuleFullMinus/PixelBarrelSensorFull/PixelBarrelActiveFull"/>
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <PartSelector path="//PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
+      <Parameter name="TrackerRadLength" value="0.0257"/>
+      <Parameter name="TrackerXi" value="5.42e-05"/>
+    </SpecPar>
+
+    <!-- 
     <SpecPar name="TrackerRecMaterialPixelBarrelLayer0_Z0" eval="true">
       <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
       <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer0/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
@@ -27,7 +37,8 @@
       <Parameter name="TrackerRadLength" value="0.016466"/>
       <Parameter name="TrackerXi" value="0.0000367183"/>
     </SpecPar>
-    
+    -->
+
     <SpecPar name="TrackerRecMaterialPixelBarrelLayer1_Z0" eval="true">
       <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfMinus[4]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
       <PartSelector path="//Tracker/PixelBarrel/PixelBarrelLayer1/PixelBarrelLadderHalf/PixelBarrelModuleBoxHalf/PixelBarrelModuleHalfPlus[1]/PixelBarrelSensorHalf/PixelBarrelActiveHalf"/>
