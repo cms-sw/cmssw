@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2008/12/11 12:27:21 $
- * $Revision: 1.8 $
+ * $Date: 2009/09/01 13:55:40 $
+ * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
@@ -41,8 +41,10 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+//#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
@@ -130,11 +132,16 @@ private:
  MonitorElement* meESShapeRatio_;
 
  const EcalSimParameterMap * theParameterMap;
- const CaloVShape * theEcalShape;
+ //const CaloVShape * theEcalShape;
  const ESShape * theESShape;
+ const EBShape *theEBShape;
+ const EEShape *theEEShape;
 
- CaloHitResponse * theEcalResponse;
+
+ //CaloHitResponse * theEcalResponse;
  CaloHitResponse * theESResponse;
+ CaloHitResponse * theEBResponse;
+ CaloHitResponse * theEEResponse;
  
  void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold);
 
