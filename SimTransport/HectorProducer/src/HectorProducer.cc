@@ -39,36 +39,15 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
 		      m_FP420Transport,
 		      m_ZDCTransport);
   
-  edm::LogInfo ("Hector") << "HectorProducer parameters: \n" 
-			  << "   Verbosity: " << m_verbosity << "\n"
-			  << "   m_InTag:    " <<  m_InTag<< "\n"
-			  << "   m_FP420Transport:    " << m_FP420Transport << "\n"
-			  << "   m_ZDCTransport:    " << m_ZDCTransport << "\n";
-
-  if(m_verbosity) {
-    cout << "===================================================================" << endl;  
-    cout << "=== Start create new HectorProducer                           =====" << endl;
-    cout << "=== m_InTag: " << m_InTag << endl;
-    cout << "=== You are going to transport:                               =====" << endl;
-    cout << "=== FP420: " << m_FP420Transport << endl;
-    cout << "=== ZDC: " << m_ZDCTransport << endl;
-    cout << "===================================================================" << endl;
-  }  
 }
 
 HectorProducer::~HectorProducer(){
   
   if(m_verbosity) {
-    cout << "===================================================================" << endl;  
-    cout << "=== Start delete HectorProducer                               =====" << endl;
-    cout << "=== Number of events analysed: " << eventsAnalysed << endl;
+    LogDebug("HectorSetup") << "Delete HectorProducer"  
+                            << "Number of events analysed: " << eventsAnalysed;
   }
 
-  if(m_verbosity) {
-    cout << "=== DONE                              =====" << endl;
-    cout << "===================================================================" << endl;  
-  }
-  
 }
 
 void HectorProducer::beginJob(const edm::EventSetup & es)
@@ -120,7 +99,6 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   }
   evt_ = hector->addPartToHepMC( evt_ );
   if (m_verbosity) {
-    cout << "=== Hector transported event: " << endl;
     evt_->print();
   }
   
@@ -134,9 +112,8 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   (*NewCorrespondenceMap).swap(thisLink);
 
   if ( m_verbosity ) {
-    cout << "=== Hector correspondence table: " << endl;
     for ( unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++) 
-      std::cout << (*NewCorrespondenceMap)[i] << std::endl;
+      LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
   }
 
   iEvent.put( NewCorrespondenceMap );
