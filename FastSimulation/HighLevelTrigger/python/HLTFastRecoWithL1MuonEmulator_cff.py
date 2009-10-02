@@ -15,10 +15,16 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForB_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
 
-# L1 emulator 
-from L1Trigger.Configuration.L1Emulator_cff import *
+# L1 emulator - in the future, we may want to use directly L1Trigger.Configuration.SimL1Emulator_cff
+# Configuration comes from the GlobalTag
+# Emulator modules
+from L1Trigger.Configuration.L1MuonEmulator_cff import *
+from L1Trigger.Configuration.L1CaloEmulator_cff import *
+from L1Trigger.GlobalTrigger.gtDigis_cfi import *
 rctDigis.ecalDigis = cms.VInputTag(cms.InputTag("simEcalTriggerPrimitiveDigis"))
 rctDigis.hcalDigis = cms.VInputTag(cms.InputTag("simHcalTriggerPrimitiveDigis"))
+# Emulator sequence
+L1Emulator = cms.Sequence(L1CaloEmulator*L1MuonEmulator*gtDigis)
 
 # The calorimeter emulator requires doDigis=true)
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
@@ -28,20 +34,12 @@ hfreco.doDigis = True
 horeco.doDigis = True
 
 # L1 muons emulator
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
-CSCCommonTrigger.MinBX = 0
-CSCCommonTrigger.MaxBX = 0
 #from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import *
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
 dtTriggerPrimitiveDigis.digiTag = cms.InputTag("simMuonDTDigis")
 from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import *
 rpcTriggerDigis.label = "simMuonRPCDigis"
 from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import *
-#gmtDigis.Debug = 9
-gmtDigis.BX_min = 0
-gmtDigis.BX_max = 0
-gmtDigis.BX_min_readout = 0
-gmtDigis.BX_max_readout = 0
 gmtDigis.DTCandidates = cms.InputTag("dttfDigis","DT")
 gmtDigis.CSCCandidates = cms.InputTag("csctfDigis","CSC")
 gmtDigis.RPCbCandidates = cms.InputTag("rpcTriggerDigis","RPCb")
@@ -60,9 +58,9 @@ l1extraParticles.muonSource = 'gmtDigis'
 
 # L1 report
 import L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi
-hltL1gtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
-hltL1gtTrigReport.PrintVerbosity = 1
-hltL1gtTrigReport.PrintOutput = 2
+hltL1GtTrigReport = L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi.l1GtTrigReport.clone()
+hltL1GtTrigReport.PrintVerbosity = 1
+hltL1GtTrigReport.PrintOutput = 2
 
 # HLT Report
 options = cms.untracked.PSet(
