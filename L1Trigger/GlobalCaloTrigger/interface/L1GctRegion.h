@@ -37,7 +37,7 @@ class L1GctRegion : public L1CaloRegion
                                         const unsigned ieta, const unsigned iphi, const int16_t bx);
 
   // Replace et() method to use 10 bits for all eta
-  unsigned et() const { return overFlow() ? kGctRegionMaxValue : raw()&kGctRegionMaxValue; }
+  unsigned et() const { return raw()&kGctRegionMaxValue; }
 
   // Replace local eta with a non-physical value
   unsigned rctEta() const { return ( empty() ? 12 : id().rctEta() ); }

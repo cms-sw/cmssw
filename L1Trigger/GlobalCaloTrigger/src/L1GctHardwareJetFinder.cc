@@ -229,11 +229,6 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
   unsigned localEta = localMax.rctEta();
   unsigned localPhi = localMax.rctPhi();
 
-  unsigned etCluster = 0;
-  bool ovrFlowOr = false;
-  bool tauVetoOr = false;
-  unsigned rgnsAboveIsoThreshold = 0;
-
   // check for row00
   const unsigned midEta=(L1CaloRegionDetId::N_ETA)/2;
   bool wrongEtaWheel = ( (!m_positiveEtaWheel) && (eta>=midEta) ) || ( (m_positiveEtaWheel) && (eta<midEta) );
@@ -261,11 +256,20 @@ L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
     }
   }
 
+  unsigned etCluster = 0;
+  bool ovrFlowOr = false;
+  bool tauVetoOr = false;
+  unsigned rgnsAboveIsoThreshold = 0;
+
   for (unsigned row=rowStart; row<rowEnd; ++row) {
     for (unsigned column=0; column<2; ++column) {
       unsigned index = column*COL_OFFSET + row;
       etCluster += m_inputRegions.at(index).et();
       ovrFlowOr |= m_inputRegions.at(index).overFlow();
+      if ( ovrFlowOr || (etCluster > L1GctRegion::kGctRegionMaxValue) ) {
+	etCluster = L1GctRegion::kGctRegionMaxValue;
+	ovrFlowOr = true;
+      }
       if (m_useImprovedTauAlgo) {
 
 	if ((row==(localEta+N_EXTRA_REGIONS_ETA00)) && (column==localPhi)) {

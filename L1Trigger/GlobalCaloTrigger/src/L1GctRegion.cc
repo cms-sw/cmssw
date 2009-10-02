@@ -37,8 +37,10 @@ L1GctRegion::L1GctRegion(const unsigned et,
 	      const unsigned ieta, 
 	      const unsigned iphi,
 	      const int16_t bx) :
-  L1CaloRegion( L1CaloRegion::makeGctJetRegion( ((overFlow || et>kGctRegionMaxValue) ? kGctRegionMaxValue : (et & kGctRegionMaxValue) ),
-					 	 (overFlow || et>kGctRegionMaxValue), fineGrain, ieta, iphi, bx) ) { }
+//   L1CaloRegion( L1CaloRegion::makeGctJetRegion( ((overFlow || et>kGctRegionMaxValue) ? kGctRegionMaxValue : (et & kGctRegionMaxValue) ),
+// 					 	 (overFlow || et>kGctRegionMaxValue), fineGrain, ieta, iphi, bx) ) { }
+  L1CaloRegion( L1CaloRegion::makeGctJetRegion( (et & kGctRegionMaxValue),
+					        (overFlow || et>kGctRegionMaxValue), fineGrain, ieta, iphi, bx) ) { }
 
 void L1GctRegion::setBit(const unsigned bitNum, const bool onOff)
 {
