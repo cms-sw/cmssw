@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.5.4.1 2009/07/01 09:58:47 dmytro Exp $
+// $Id: EcalDetIdAssociator.h,v 1.6 2009/09/06 16:36:52 dmytro Exp $
 //
 //
 
@@ -31,13 +31,13 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
 
    virtual std::set<DetId> getASetOfValidDetIds() const {
       std::set<DetId> setOfValidIds;
-      std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB
+      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
          setOfValidIds.insert(*it);
 
-      vectOfValidIds.clear();
-      vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, EcalEndcap);//EE
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
+//      vectOfValidIds.clear();
+      const std::vector<DetId>& vectOfValidIdsEE = geometry_->getValidDetIds(DetId::Ecal, EcalEndcap);//EE
+      for(std::vector<DetId>::const_iterator it = vectOfValidIdsEE.begin(); it != vectOfValidIdsEE.end(); ++it)
          setOfValidIds.insert(*it);
 
       return setOfValidIds;

@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: HODetIdAssociator.h,v 1.1.12.1 2007/10/06 05:50:12 jribnik Exp $
+// $Id: HODetIdAssociator.h,v 1.2 2007/10/08 13:04:31 dmytro Exp $
 //
 //
 
@@ -31,7 +31,7 @@ class HODetIdAssociator: public CaloDetIdAssociator{
 
    virtual std::set<DetId> getASetOfValidDetIds() const {
       std::set<DetId> setOfValidIds;
-      std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Hcal, 3);//HO
+      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Hcal, 3);//HO
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
          setOfValidIds.insert(*it);
       return setOfValidIds;
