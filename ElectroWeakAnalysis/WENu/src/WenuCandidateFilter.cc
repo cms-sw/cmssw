@@ -351,13 +351,13 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    // get the most high-ET electron:
    const  pat::Electron maxETelec = myElectrons[max_et_index];
-   std::cout << "** selected ele phi: " << maxETelec.phi()
-   	     << ", eta=" << maxETelec.eta() << ", sihih="
-	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 
-	     << maxETelec.hadronicOverEm() << ", trackIso: " 
-	     << maxETelec.trackIso() << ", ecalIso: " << maxETelec.ecalIso()
-	     << ", hcalIso: " << maxETelec.hcalIso()
-	     << std::endl;
+   //std::cout << "** selected ele phi: " << maxETelec.phi()
+   //	     << ", eta=" << maxETelec.eta() << ", sihih="
+   //	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 
+   //	     << maxETelec.hadronicOverEm() << ", trackIso: " 
+   //	     << maxETelec.trackIso() << ", ecalIso: " << maxETelec.ecalIso()
+   //	     << ", hcalIso: " << maxETelec.hcalIso()
+   //	     << std::endl;
    //
    // these 3 objects have been declared outside the loop
    //const int nF(pHLT->sizeFilters());
@@ -440,8 +440,8 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //double metMt = met->mt();
    //double metPhi = met->phi();
    //double metSig = met->mEtSig();
-   std::cout << "met properties: et=" << met->et() << ", eta: " <<  met->eta()
-	     << std::endl;
+   //std::cout<<"met properties: et=" << met->et() << ", eta: " <<  met->eta()
+   //	     << std::endl;
    // 
    if (metEt < METCut_) {
      delete [] sorted;  delete [] et;
