@@ -13,15 +13,15 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
+<use name=DataFormats/Alignment>
+<use name=AnalysisDataFormats/SiStripClusterInfo>
+<use name=RecoTracker/TransientTrackingRecHit>
 <export>
-  <use name=Alignment/CommonAlignment>
+#  <use name=Alignment/CommonAlignment>
   <use name=CondFormats/Alignment>
   <use name=DataFormats/SiPixelDetId>
   <use name=DataFormats/SiStripDetId>
   <use name=Geometry/CommonDetUnit>
   <lib name=AlignmentTrackerAlignment>
 </export>
-
-
-
 
