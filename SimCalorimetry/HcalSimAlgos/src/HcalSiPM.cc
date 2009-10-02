@@ -36,7 +36,7 @@ int HcalSiPM::hitCells(int photons, int integral) const {
     }
 
     CLHEP::HepRandomEngine& engine = rng->getEngine();
-    theRndGauss = new CLHEP::RandGauss(engine);
+    theRndGauss = new CLHEP::RandGaussQ(engine);
   }
 
   //normalize by theCellCount to remove dependency on SiPM size and pixel density.
@@ -68,7 +68,8 @@ void HcalSiPM::setNCells(int nCells) {
 }
 
 void HcalSiPM::initRandomEngine(CLHEP::HepRandomEngine& engine) {
-  theRndGauss = new CLHEP::RandGauss(engine);
+  if(theRndGauss) delete theRndGauss;
+  theRndGauss = new CLHEP::RandGaussQ(engine);
 }
 
 double HcalSiPM::errOnX(double x, double prehit) const {

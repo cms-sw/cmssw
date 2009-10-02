@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 class HcalSiPM {
  public:
@@ -32,7 +32,7 @@ class HcalSiPM {
 			 const std::vector<double>& vec) const;
 
   int theCellCount;
-  mutable CLHEP::RandGauss *theRndGauss;
+  mutable CLHEP::RandGaussQ *theRndGauss;
 
   std::vector< double > theXSamples;
   std::vector< double > thePrehitSamples;
