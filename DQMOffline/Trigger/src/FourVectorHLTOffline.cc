@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.43 2009/08/31 21:17:33 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.44 2009/10/01 19:51:37 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -386,7 +386,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	v!= hltPaths_.end(); ++v ) 
 { 
 
-    //LogTrace("FourVectorHLTOffline") << " path " << v->getPath() << endl;
+    LogTrace("FourVectorHLTOffline") << " path " << v->getPath() << endl;
 
 	      if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
 				else btagMon = btagMuMon;
@@ -1218,8 +1218,7 @@ void FourVectorHLTOffline::endRun(const edm::Run& run, const edm::EventSetup& c)
 void FourVectorHLTOffline::cleanDRMatchSet(mmset& tempSet)
 {
 
- LogDebug("FourVectorHLTOffline") << "cleanDRMatchSet(mmset& tempSet) " << endl;
- LogDebug("FourVectorHLTOffline") << "size of the set (before CLEANED)= " << tempSet.size() << " maps." << endl;
+ LogDebug("FourVectorHLTOffline") << "cleanDRMatchSet(mmset& tempSet) " << "size of the set (before CLEANED) = " << tempSet.size() << " maps." << endl;
 
  if(tempSet.size() < 2) return;
  if(tempSet.size() > 10) {
