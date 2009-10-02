@@ -5,10 +5,12 @@
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
@@ -57,7 +59,7 @@ int main() {
   // correspond to a 100 GeV particle
 
   HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
-  PCaloHit barrelHit(barrelDetId.rawId(),  0.855, 0.);
+  //PCaloHit barrelHit(barrelDetId.rawId(),  0.855, 0.);
 
   HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
   PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0.);
@@ -77,9 +79,26 @@ int main() {
   std::cout<<zdcDetId<<std::endl;
   std::cout<<zdcHit<<std::endl;
 
+  vector<PCaloHit> hits;
+  //hits.push_back(barrelHit);
+  //hits.push_back(endcapHit);
+  hits.push_back(outerHit);
+  hits.push_back(forwardHit1);
+  hits.push_back(forwardHit2);
+  hits.push_back(zdcHit);
+
   vector<DetId> hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds;
-  hcalDetIds.push_back(barrelDetId);
-  hcalDetIds.push_back(endcapDetId);
+  //hcalDetIds.push_back(barrelDetId);
+  //hcalDetIds.push_back(endcapDetId);
+  for(int phi = 1; phi < 50 ; ++phi)
+  {
+    HcalDetId detId(HcalBarrel, 1 , phi, 1);
+    PCaloHit barrelHit(detId.rawId(),  0.085*phi, 0.);
+    hcalDetIds.push_back(detId);
+    hits.push_back(barrelHit);
+  }
+
+
   hoDetIds.push_back(outerDetId);
   hfDetIds.push_back(forwardDetId1);
   hfDetIds.push_back(forwardDetId2);
@@ -91,13 +110,6 @@ int main() {
   allDetIds.insert(allDetIds.end(), hfDetIds.begin(), hfDetIds.end());
   allDetIds.insert(allDetIds.end(), hzdcDetIds.begin(), hzdcDetIds.end());
 
-  vector<PCaloHit> hits;
-  hits.push_back(barrelHit);
-  hits.push_back(endcapHit);
-  hits.push_back(outerHit);
-  hits.push_back(forwardHit1);
-  hits.push_back(forwardHit2);
-  hits.push_back(zdcHit);
 
   string hitsName = "HcalHits";
   vector<string> caloDets;
@@ -113,7 +125,7 @@ int main() {
   PCaloHit zdcPileup(zdcDetId.rawId(), 3.52, 0.);
 
   vector<PCaloHit> pileups;
-  pileups.push_back(barrelPileup);
+  //pileups.push_back(barrelPileup);
   pileups.push_back(forwardPileup);
   pileups.push_back(zdcPileup);
   ///TODO fix once the new crossingframe is released
@@ -122,25 +134,35 @@ int main() {
   // crossingFrame.addPileupCaloHits(-3, hitsName, &pileups, 0);
   HcalSimParameterMap parameterMap;
   HcalShape hcalShape;
+  HcalSiPMShape sipmShape;
   HFShape hfShape;
   ZDCShape zdcShape;
 
   CaloShapeIntegrator hcalShapeIntegrator(&hcalShape);
+  CaloShapeIntegrator sipmShapeIntegrator(&sipmShape);
   CaloShapeIntegrator hfShapeIntegrator(&hfShape);
   CaloShapeIntegrator zdcShapeIntegrator(&zdcShape);
+
+//for(float t = -25; t < 200; t += 5)
+//{
+//  std::cout <<  t << " " << hcalShape(t) << "  " << sipmShape(t) << "  " << hcalShapeIntegrator(t) << "  "<< sipmShapeIntegrator(t) << std::endl;
+//}
 
   CaloHitResponse hbheResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hoResponse(&parameterMap, &hcalShapeIntegrator);
   CaloHitResponse hfResponse(&parameterMap, &hfShapeIntegrator);
   CaloHitResponse zdcResponse(&parameterMap, &zdcShapeIntegrator);
+  HcalSiPMHitResponse hbheSiPMResponse(&parameterMap, &sipmShapeIntegrator);
 
   HcalHitCorrection hitCorrection(&parameterMap);
   hbheResponse.setHitCorrection(&hitCorrection);
+  hbheSiPMResponse.setHitCorrection(&hitCorrection);
   hoResponse.setHitCorrection(&hitCorrection);
   zdcResponse.setHitCorrection(&hitCorrection);
 
   CLHEP::HepJamesRandom randomEngine;
   hbheResponse.setRandomEngine(randomEngine);
+  hbheSiPMResponse.setRandomEngine(randomEngine);
   hoResponse.setRandomEngine(randomEngine);
   hfResponse.setRandomEngine(randomEngine);
   zdcResponse.setRandomEngine(randomEngine);
@@ -151,6 +173,7 @@ int main() {
   ZDCHitFilter zdcHitFilter;
 
   hbheResponse.setHitFilter(&hbheHitFilter);
+  hbheSiPMResponse.setHitFilter(&hbheHitFilter);
   hoResponse.setHitFilter(&hoHitFilter);
   hfResponse.setHitFilter(&hfHitFilter);
   zdcResponse.setHitFilter(&zdcHitFilter);
@@ -214,11 +237,14 @@ int main() {
   MixCollection<PCaloHit> hitCollection(&crossingFrame);
 
   testHitCorrection(&hitCorrection, hitCollection);
-
-  hbheDigitizer.run(hitCollection, *hbheResult);
-  hoDigitizer.run(hitCollection, *hoResult);
-  hfDigitizer.run(hitCollection, *hfResult);
-  zdcDigitizer.run(hitCollection, *zdcResult);
+  std::cout << "HBHE " << std::endl;
+  hbheResponse.run(hitCollection);
+  std::cout << "SIPM " << std::endl;
+  hbheSiPMResponse.run(hitCollection);
+  //hbheDigitizer.run(hitCollection, *hbheResult);
+  //hoDigitizer.run(hitCollection, *hoResult);
+  //hfDigitizer.run(hitCollection, *hfResult);
+  //zdcDigitizer.run(hitCollection, *zdcResult);
 
   // print out all the digis
   cout << "HBHE Frames" << endl;
