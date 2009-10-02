@@ -15,7 +15,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.32 2009/03/24 20:14:48 fischler Exp $
+// $Id: MessageLogger.h,v 1.33 2009/08/12 22:22:00 fischler Exp $
 //
 // =================================================
 // Change log
@@ -66,6 +66,9 @@
 //
 // 14 mf  8/11/09   provision for control of standalone threshold and ignores
 //
+// 15 mf  10/2/09  Correct mission in logVerbatim and others of check for
+//		   whether this severity is enabled
+//
 // =================================================
 
 // system include files
@@ -90,7 +93,8 @@ class LogWarning
 {
 public:
   explicit LogWarning( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->warningEnabled ? new MessageSender(ELwarning,id) : 0 )
+    : ap ( edm::MessageDrop::instance()->warningEnabled ? 
+      new MessageSender(ELwarning,id) : 0 )
   { }
   ~LogWarning();
 
@@ -161,7 +165,8 @@ class LogInfo
 {
 public:
   explicit LogInfo( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->infoEnabled ? new MessageSender(ELinfo,id) : 0 )
+    : ap ( edm::MessageDrop::instance()->infoEnabled ? 
+      new MessageSender(ELinfo,id) : 0 )
   { }
   ~LogInfo();
 
@@ -186,7 +191,8 @@ class LogVerbatim						// change log 2
 {
 public:
   explicit LogVerbatim( std::string const & id ) 
-    : ap( new MessageSender(ELinfo,id,true) ) // the true is the verbatim arg 
+    : ap ( edm::MessageDrop::instance()->infoEnabled ? 		// change log 15
+      new MessageSender(ELinfo,id,true) : 0 ) // the true is the verbatim arg 
   { }
   ~LogVerbatim(); 
 
@@ -212,7 +218,8 @@ class LogPrint							// change log 3
 {
 public:
   explicit LogPrint( std::string const & id ) 
-    : ap( new MessageSender(ELwarning,id,true) ) // the true is the Print arg 
+    : ap ( edm::MessageDrop::instance()->warningEnabled ? 	// change log 15
+      new MessageSender(ELwarning,id,true) : 0 ) // the true is the Print arg 
   { }
   ~LogPrint(); 
 
