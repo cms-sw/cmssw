@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.13 $'),
+    version = cms.untracked.string('$Revision: 1.14 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -55,15 +55,15 @@ process.tauMatch.checkCharge      = False
 #-- Jet plus tracks -----------------------------------------------------------
 process.load("JetMETCorrections.Configuration.JetCorrectionsRecord_cfi")
 
-# ---------- ESSources delivering ZSP correctors
-process.ZSPJetCorrectorIcone5 = cms.ESSource( "ZSPJetCorrectionService", tagName = cms.string('ZSP_CMSSW219_Iterative_Cone_05'), label = cms.string('ZSPJetCorrectorIcone5'))
-process.ZSPJetCorrectorSiscone5 = cms.ESSource( "ZSPJetCorrectionService", tagName = cms.string('ZSP_CMSSW219_Iterative_Cone_05'), label = cms.string('ZSPJetCorrectorSiscone5'))
-process.ZSPJetCorrectorAntiKt5 = cms.ESSource( "ZSPJetCorrectionService", tagName = cms.string('ZSP_CMSSW219_Iterative_Cone_05'), label = cms.string('ZSPJetCorrectorAntiKt5'))
-# ---------- EDProducers using ZSP correctors
-process.ZSPJetCorJetIcone5 = cms.EDProducer( "CaloJetCorrectionProducer", src = cms.InputTag("iterativeCone5CaloJets"), correctors = cms.vstring('ZSPJetCorrectorIcone5'), alias = cms.untracked.string('ZSPJetCorJetIcone5'))
-process.ZSPJetCorJetSiscone5 = cms.EDProducer( "CaloJetCorrectionProducer", src = cms.InputTag("sisCone5CaloJets"), correctors = cms.vstring('ZSPJetCorrectorSiscone5'), alias = cms.untracked.string('ZSPJetCorJetSiscone5'))
-process.ZSPJetCorJetAntiKt5 = cms.EDProducer( "CaloJetCorrectionProducer", src = cms.InputTag("antikt5CaloJets"), correctors = cms.vstring('ZSPJetCorrectorAntiKt5'), alias = cms.untracked.string('ZSPJetCorJetAntiKt5'))
-# ---------- Jet-track association for IC5, SC5 and AK5
+# ESSources delivering ZSP correctors
+process.ZSPJetCorrectorIcone5 = cms.ESSource("ZSPJetCorrectionService",tagName=cms.string('ZSP_CMSSW219_Iterative_Cone_05'),label=cms.string('ZSPJetCorrectorIcone5'))
+process.ZSPJetCorrectorSiscone5 = cms.ESSource("ZSPJetCorrectionService",tagName=cms.string('ZSP_CMSSW219_Iterative_Cone_05'),label=cms.string('ZSPJetCorrectorSiscone5'))
+process.ZSPJetCorrectorAntiKt5 = cms.ESSource("ZSPJetCorrectionService",tagName=cms.string('ZSP_CMSSW219_Iterative_Cone_05'),label=cms.string('ZSPJetCorrectorAntiKt5'))
+# EDProducers using ZSP correctors
+process.ZSPJetCorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",src=cms.InputTag("iterativeCone5CaloJets"),correctors=cms.vstring('ZSPJetCorrectorIcone5'),alias=cms.untracked.string('ZSPJetCorJetIcone5'))
+process.ZSPJetCorJetSiscone5=cms.EDProducer( "CaloJetCorrectionProducer",src=cms.InputTag("sisCone5CaloJets"),correctors=cms.vstring('ZSPJetCorrectorSiscone5'),alias=cms.untracked.string('ZSPJetCorJetSiscone5'))
+process.ZSPJetCorJetAntiKt5=cms.EDProducer( "CaloJetCorrectionProducer",src=cms.InputTag("antikt5CaloJets"),correctors=cms.vstring('ZSPJetCorrectorAntiKt5'),alias=cms.untracked.string('ZSPJetCorJetAntiKt5'))
+# Jet-track association for IC5, SC5 and AK5
 process.load("RecoJets.Configuration.RecoJetAssociations_cff")
 process.load("RecoJets.JetAssociationProducers.iterativeCone5JTA_cff")
 
@@ -94,7 +94,7 @@ process.ZSPAntiKt5JetExtender.jets = cms.InputTag("ZSPJetCorJetAntiKt5")
 process.ZSPAntiKt5JetExtender.jet2TracksAtCALO = cms.InputTag("ZSPAntiKt5JetTracksAssociatorAtCaloFace")
 process.ZSPAntiKt5JetExtender.jet2TracksAtVX = cms.InputTag("ZSPAntiKt5JetTracksAssociatorAtVertex")
 
-# ---------- ESSources delivering JPT correctors
+# ESSources delivering JPT correctors
 from JetMETCorrections.Configuration.JetPlusTrackCorrections_cfi import *
 process.JetPlusTrackZSPCorrectorIcone5 = cms.ESSource( "JetPlusTrackCorrectionService", cms.PSet(JPTZSPCorrectorICone5), label = cms.string('JetPlusTrackZSPCorrectorIcone5'),)
 process.JetPlusTrackZSPCorrectorIcone5.JetTrackCollectionAtVertex = cms.InputTag("ZSPiterativeCone5JetTracksAssociatorAtVertex")
@@ -114,20 +114,21 @@ process.JetPlusTrackZSPCorrectorAntiKt5.JetTrackCollectionAtCalo = cms.InputTag(
 process.JetPlusTrackZSPCorrectorAntiKt5.SplitMergeP = cms.int32(2)
 process.JetPlusTrackZSPCorrectorAntiKt5.eIDValueMap = cms.InputTag("eidTight")
 
-# ---------- EDProducers using JPT correctors
+# EDProducers using JPT correctors
 process.JetPlusTrackZSPCorJetIcone5 = cms.EDProducer( "CaloJetCorrectionProducer", src = cms.InputTag("ZSPJetCorJetIcone5"), correctors = cms.vstring('JetPlusTrackZSPCorrectorIcone5'), alias = cms.untracked.string('JetPlusTrackZSPCorJetIcone5'))
 process.JetPlusTrackZSPCorJetSiscone5 = cms.EDProducer( "CaloJetCorrectionProducer", src = cms.InputTag("ZSPJetCorJetSiscone5"), correctors = cms.vstring('JetPlusTrackZSPCorrectorSiscone5'), alias = cms.untracked.string('JetPlusTrackZSPCorJetSiscone5'))
 process.JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer( "CaloJetCorrectionProducer", src = cms.InputTag("ZSPJetCorJetAntiKt5"), correctors = cms.vstring('JetPlusTrackZSPCorrectorAntiKt5'), alias = cms.untracked.string('JetPlusTrackZSPCorJetAntiKt5'))
 
-# ---------- Sequences
+# Sequences
 process.JetPlusTrackCorrectionsIcone5 = cms.Sequence(process.ZSPJetCorJetIcone5*process.ZSPiterativeCone5JetTracksAssociatorAtVertex*process.ZSPiterativeCone5JetTracksAssociatorAtCaloFace*process.ZSPiterativeCone5JetExtender*process.JetPlusTrackZSPCorJetIcone5)
 process.JetPlusTrackCorrectionsSisCone5 = cms.Sequence(process.ZSPJetCorJetSiscone5*process.ZSPSisCone5JetTracksAssociatorAtVertex*process.ZSPSisCone5JetTracksAssociatorAtCaloFace*process.ZSPSisCone5JetExtender*process.JetPlusTrackZSPCorJetSiscone5)
 process.JetPlusTrackCorrectionsAntiKt5 = cms.Sequence(process.ZSPJetCorJetAntiKt5*process.ZSPAntiKt5JetTracksAssociatorAtVertex*process.ZSPAntiKt5JetTracksAssociatorAtCaloFace*process.ZSPAntiKt5JetExtender*process.JetPlusTrackZSPCorJetAntiKt5)
 process.JetPlusTrackCorrections = cms.Sequence(process.JetPlusTrackCorrectionsIcone5*process.JetPlusTrackCorrectionsSisCone5*process.JetPlusTrackCorrectionsAntiKt5)
 
 #-- Extra Jet/MET collections -------------------------------------------------
-from PhysicsTools.PatAlgos.tools.jetTools import *
 # Add a few jet collections...
+from PhysicsTools.PatAlgos.tools.jetTools import *
+# CaloJets
 addJetCollection(process, cms.InputTag('antikt5CaloJets'),
                  'AK5',
                  doJTA            = True,
@@ -135,16 +136,6 @@ addJetCollection(process, cms.InputTag('antikt5CaloJets'),
                  jetCorrLabel     = ('AK5','Calo'),
                  doType1MET       = True,
                  genJetCollection = cms.InputTag("antikt5GenJets")
-                 )
-addJetCollection(process,cms.InputTag('iterativeCone5PFJets'),
-                 'IC5PF',
-                 doJTA        = True,
-                 doBTagging   = True,
-                 jetCorrLabel = None,
-                 doType1MET   = True,
-                 doL1Cleaning = True,
-                 doL1Counters = True,
-                 genJetCollection=cms.InputTag("iterativeCone5GenJets")
                  )
 addJetCollection(process,cms.InputTag('sisCone5CaloJets'),
                  'SC5',
@@ -156,27 +147,28 @@ addJetCollection(process,cms.InputTag('sisCone5CaloJets'),
                  doL1Counters = True,
                  genJetCollection=cms.InputTag("sisCone5GenJets")
                  )
-# Load JPT sequence
-addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetIcone5'),
-                 'IC5JPT',
+# PF jets
+addJetCollection(process,cms.InputTag('antikt5PFJets'),
+                 'AK5PF',
                  doJTA        = True,
                  doBTagging   = True,
                  jetCorrLabel = None,
-                 doType1MET   = False,
+                 doType1MET   = True,
                  doL1Cleaning = True,
                  doL1Counters = True,
-                 genJetCollection = cms.InputTag("iterativeCone5GenJets")
+                 genJetCollection=cms.InputTag("antikt5GenJets")
                  )
-addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetSiscone5'),
-                 'SC5JPT',
+addJetCollection(process,cms.InputTag('sisCone5PFJets'),
+                 'SC5PF',
                  doJTA        = True,
                  doBTagging   = True,
                  jetCorrLabel = None,
-                 doType1MET   = False,
+                 doType1MET   = True,
                  doL1Cleaning = True,
                  doL1Counters = True,
-                 genJetCollection = cms.InputTag("sisCone5GenJets")
+                 genJetCollection=cms.InputTag("sisCone5GenJets")
                  )
+# JPT jets
 addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
                   'AK5JPT',
                   doJTA        = True,
@@ -187,6 +179,16 @@ addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
                   doL1Counters = True,
                   genJetCollection = cms.InputTag("antikt5GenJets")
                   )
+addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetSiscone5'),
+                 'SC5JPT',
+                 doJTA        = True,
+                 doBTagging   = True,
+                 jetCorrLabel = None,
+                 doType1MET   = False,
+                 doL1Cleaning = True,
+                 doL1Counters = True,
+                 genJetCollection = cms.InputTag("sisCone5GenJets")
+                 )
 
 # Add tcMET and PFMET
 from PhysicsTools.PatAlgos.tools.metTools import *
@@ -242,7 +244,7 @@ addJetCollection(process,cms.InputTag('SISCone5TrackJets'),
                  )
 
 #-- Tune contents of jet collections  -----------------------------------------
-for jetName in ( '', 'AK5', 'IC5PF', 'SC5', 'SC5Track', 'AK5JPT', 'SC5JPT' ):
+for jetName in ( '', 'AK5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'SC5JPT', 'SC5Track' ):
     module = getattr(process,'allLayer1Jets'+jetName)
     module.addTagInfos = False    # Remove tag infos
     module.addJetID    = True     # Add JetID variables
@@ -318,7 +320,7 @@ process.allLayer1Summary.candidates.append(cms.InputTag('layer1METsIC5'))
 process.cleanLayer1Summary.candidates.remove(cms.InputTag('cleanLayer1Jets'))
 process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1JetsIC5'))
 # Add new jet collections to counters (MET done automatically)
-for jets in ( 'AK5', 'SC5','IC5PF','SC5Track', 'AK5JPT', 'SC5JPT' ):
+for jets in ( 'AK5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'SC5JPT', 'SC5Track' ):
     process.allLayer1Summary.candidates.append(cms.InputTag('allLayer1Jets'+jets))
     process.selectedLayer1Summary.candidates.append(cms.InputTag('selectedLayer1Jets'+jets))
     process.cleanLayer1Summary.candidates.append(cms.InputTag('cleanLayer1Jets'+jets))
