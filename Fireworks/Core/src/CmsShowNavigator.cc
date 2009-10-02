@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.36 2009/09/29 19:26:33 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.37 2009/09/30 18:01:09 dmytro Exp $
 //
 
 // hacks
@@ -31,6 +31,10 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "DataFormats/FWLite/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 //
 // constructors and destructor
 //
@@ -340,6 +344,10 @@ CmsShowNavigator::goToEvent(Int_t run, Int_t event)
 void
 CmsShowNavigator::filterEvents(FWFileEntry& file, int iSelector, std::string selection)
 {
+  file.selections[iSelector] = selection;
+  // first our parser
+  if (filterEventsWithCustomParser(file, iSelector, selection)) return;
+
   // parse selection for known Fireworks expressions
   std::string interpretedSelection = selection;
   for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
@@ -393,9 +401,14 @@ CmsShowNavigator::filterEvents(FWFileEntry& file, int iSelector, std::string sel
     }
   }
 
-  file.eventTree->Draw(Form(">>list%d",iSelector),interpretedSelection.c_str());
+  Int_t result = file.eventTree->Draw(Form(">>list%d",iSelector),interpretedSelection.c_str());
   //std::cout << Form("File: %s, selection: %s, number of events passed the selection: %d",
   //file.name.c_str(),interpretedSelection.c_str(), file.lists[iSelector]->GetN()) << std::endl;
+
+  if (result<0){
+    std::cout << "Selection: \"" << selection << "\" is invalid. Disabled." <<std::endl;
+    m_selectors[iSelector]->enabled = false;
+  }
 
   //set the old branch buffers                                                                 
   {
@@ -409,8 +422,6 @@ CmsShowNavigator::filterEvents(FWFileEntry& file, int iSelector, std::string sel
       ++itAddress;
     }
   }
-
-  file.selections[iSelector] = selection;
 }
 
 void
@@ -436,10 +447,10 @@ CmsShowNavigator::filterEvents()
 	    file->lists.back()->SetDirectory(file->file);
 	    file->selections.push_back(std::string());
 	  }
-	  if (!m_selectors[i].removed && m_selectors[i].enabled){
-	    //std::cout << "i: " << i << "\n\t m_selectors[i].selection: " << m_selectors[i].selection <<
+	  if (!m_selectors[i]->removed && m_selectors[i]->enabled){
+	    //std::cout << "i: " << i << "\n\t m_selectors[i]->selection: " << m_selectors[i]->selection <<
 	    //"\n\t file->selections[i]: " << file->selections[i] << std::endl;
-	    if ( m_selectors[i].selection != file->selections[i] )
+	    if ( m_selectors[i]->selection != file->selections[i] )
 	      updateList.push_back(i);
 	  }
 	}
@@ -447,7 +458,7 @@ CmsShowNavigator::filterEvents()
       if ( !updateList.empty() ){
 	for (std::vector<unsigned int>::const_iterator i = updateList.begin();
 	     i != updateList.end(); ++i){
-	  filterEvents(*file,*i,m_selectors[*i].selection);
+	  filterEvents(*file,*i,m_selectors[*i]->selection);
 	}
 	// hack to get rid of problems with cached events/branches in fwlite::Event. Just make a new one.
 	// if ( file->event != 0 ) delete file->event;
@@ -456,7 +467,7 @@ CmsShowNavigator::filterEvents()
       // make main selection file
       file->mainSelection.Clear();
       for ( unsigned int i=0; i < m_selectors.size(); ++i )
-	if (!m_selectors[i].removed && m_selectors[i].enabled)
+	if (!m_selectors[i]->removed && m_selectors[i]->enabled)
 	  if ( m_globalOR || file->mainSelection.GetN()==0 )
 	    file->mainSelection.Add(file->lists[i]);
 	  else
@@ -548,7 +559,7 @@ CmsShowNavigator::enableEventFiltering( Bool_t flag ){
 
 void
 CmsShowNavigator::showEventFilter(){
-  FWGUIEventFilter* filter = new FWGUIEventFilter(m_selectors,m_globalOR);
+  FWGUIEventFilter* filter = new FWGUIEventFilter(m_selectors,*m_currentFile->event,m_globalOR);
   filter->show();
   gClient->WaitForUnmap(filter);
   Int_t absolutePosition = m_currentEntry;
@@ -587,27 +598,27 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
   }
   
   for(int i=0; i<numberOfFilters; ++i){
-    FWEventSelector selector;
+    FWEventSelector* selector = new FWEventSelector();
     {
       const FWConfiguration* value = 
 	iFrom.valueForKey( Form("EventFilter%d_enabled",i) );
       assert(value);
       std::istringstream s(value->value());
-      s>>selector.enabled;
+      s>>selector->enabled;
     }
     {
       const FWConfiguration* value = 
 	iFrom.valueForKey( Form("EventFilter%d_selection",i) );
       assert(value);
       std::istringstream s(value->value());
-      s>>selector.selection;
+      s>>selector->selection;
     }
     {
       const FWConfiguration* value = 
 	iFrom.valueForKey( Form("EventFilter%d_comment",i) );
       assert(value);
       std::istringstream s(value->value());
-      s>>selector.title;
+      s>>selector->title;
     }
     m_selectors.push_back(selector);
   }
@@ -617,17 +628,84 @@ void
 CmsShowNavigator::addTo(FWConfiguration& iTo) const
 {
   int numberOfFilters(0);
-  for (std::vector<FWEventSelector>::const_iterator sel = m_selectors.begin();
+  for (std::vector<FWEventSelector*>::const_iterator sel = m_selectors.begin();
        sel != m_selectors.end(); ++sel){
-    if ( sel->removed ) continue;
+    if ( (*sel)->removed ) continue;
     iTo.addKeyValue(Form("EventFilter%d_enabled",numberOfFilters),
-		    FWConfiguration(Form("%d",sel->enabled)));
+		    FWConfiguration(Form("%d",(*sel)->enabled)));
     iTo.addKeyValue(Form("EventFilter%d_selection",numberOfFilters),
-		    FWConfiguration(sel->selection));
+		    FWConfiguration((*sel)->selection));
     iTo.addKeyValue(Form("EventFilter%d_comment",numberOfFilters),
-		    FWConfiguration(sel->title));
+		    FWConfiguration((*sel)->title));
     ++numberOfFilters;
   }
   iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
   iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d",m_filterEvents)));
+}
+
+bool
+CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector, std::string selection)
+{
+  // get rid of white spaces
+  boost::regex re_spaces("\\s+");
+  selection = boost::regex_replace(selection,re_spaces,"");
+  edm::EventID currentEvent = file.event->id();
+  fwlite::Handle<edm::TriggerResults> hTriggerResults;
+  hTriggerResults.getByLabel(*file.event,"TriggerResults","","HLT");
+  fwlite::TriggerNames const&  triggerNames = file.event->triggerNames(*hTriggerResults);
+
+  //std::cout << "Number of trigger names: " << triggerNames.size() << std::endl; 
+  // for (unsigned int i=0; i<triggerNames.size(); ++i)
+  //  std::cout << " " << triggerNames.triggerName(i);
+  //std::cout << std::endl;
+  
+  // cannot interpret selection with OR and AND
+  if ( selection.find("&&")!=std::string::npos &&
+       selection.find("||")!=std::string::npos ) return false; 
+
+  bool junction_mode = true; // AND
+  if ( selection.find("||")!=std::string::npos ) junction_mode = false; // OR
+
+  boost::regex re("\\&\\&|\\|\\|");
+  boost::sregex_token_iterator i(selection.begin(), selection.end(), re, -1);
+  boost::sregex_token_iterator j;
+
+  // filters and how they enter in the logical expression
+  std::vector<std::pair<unsigned int,bool> > filters;
+
+  while(i != j)
+    {
+      std::string filter = *i++;
+      bool flag = true;
+      if (filter[0]=='!') {
+	flag = false;
+	filter.erase(filter.begin());
+      }
+      unsigned int index = triggerNames.triggerIndex(filter);
+      if (index == triggerNames.size()) return false; //parsing failed
+      filters.push_back(std::pair<unsigned int,bool>(index,flag));
+    }
+  if (filters.empty()) return false;
+  
+  TEventList* list = file.lists[iSelector];
+  list->Clear();
+
+  // loop over events
+  unsigned int iEvent = 0;
+  for (file.event->toBegin(); ! file.event->atEnd(); ++(*file.event)) {
+    hTriggerResults.getByLabel(*file.event,"TriggerResults","","HLT");
+    std::vector<std::pair<unsigned int,bool> >::const_iterator filter = filters.begin();
+    bool passed = hTriggerResults->accept(filter->first) == filter->second;
+    ++filter;
+    for(;filter != filters.end(); ++filter){
+      if (junction_mode)
+	passed &= hTriggerResults->accept(filter->first) == filter->second;
+      else
+	passed |= hTriggerResults->accept(filter->first) == filter->second;
+    }
+    if (passed) list->Enter(iEvent);
+    ++iEvent;
+  }
+  file.event->to(currentEvent);
+  return true;
 }

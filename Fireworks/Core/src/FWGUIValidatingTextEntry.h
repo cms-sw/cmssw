@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id: FWGUIValidatingTextEntry.h,v 1.3 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.h,v 1.4 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -29,6 +29,8 @@
 
 // forward declarations
 class FWValidatorBase;
+class TGComboBoxPopup;
+class TGListBox;
 
 class FWGUIValidatingTextEntry : public TGTextEntry {
 

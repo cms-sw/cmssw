@@ -578,7 +578,22 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaa(0);
-  topaa.addValue("2");
+  topaa.addValue("1");
+  topa.addKeyValue("EventFilter2_enabled", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("HLT_Mu9 || HLT_Ele15_SW_L1R");
+  topa.addKeyValue("EventFilter2_selection", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("");
+  topa.addKeyValue("EventFilter2_comment", topaa);
+}
+{
+  FWConfiguration topaa(0);
+  topaa.addValue("3");
   topa.addKeyValue("EventFilter_total", topaa);
 }
 {
@@ -1732,7 +1747,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("1040");
+  topaaaaa.addValue("1039");
   topaaaa.addKeyValue("x", topaaaaa);
 }
 {
@@ -1785,7 +1800,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaaa(0);
-  topaaaaa.addValue("374");
+  topaaaaa.addValue("372");
   topaaaa.addKeyValue("y", topaaaaa);
 }
 {

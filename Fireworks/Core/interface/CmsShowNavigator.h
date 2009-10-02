@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.22 2009/09/29 19:26:32 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.23 2009/09/30 18:01:09 dmytro Exp $
 //
 
 // system include files
@@ -96,11 +96,13 @@ private:
    const CmsShowNavigator& operator=(const CmsShowNavigator&);    // stop default
 
    void filterEvents(FWFileEntry&, int, std::string);
+   bool filterEventsWithCustomParser(FWFileEntry& file, int, std::string);
+
    // ---------- member data --------------------------------
    unsigned int m_maxNumberOfFilesToChain; 
    std::deque<FWFileEntry> m_files;
    std::deque<FWFileEntry>::iterator m_currentFile;
-   std::vector<FWEventSelector> m_selectors;
+   std::vector<FWEventSelector*> m_selectors;
    std::deque<FWFileEntry>::iterator m_firstSelectedFile;
    std::deque<FWFileEntry>::iterator m_lastSelectedFile;
    std::deque<FWFileEntry>::iterator m_lastFile;
