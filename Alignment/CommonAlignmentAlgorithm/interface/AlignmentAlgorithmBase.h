@@ -18,6 +18,7 @@ class Trajectory;
 // class TsosVectorCollection;      // Dito.
 #include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
 
 namespace edm { class EventID; class RunID; class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
@@ -34,12 +35,14 @@ public:
   struct EventInfo {
     EventInfo(const edm::EventID &eventId, 
 	      const ConstTrajTrackPairCollection &trajTrackPairs,
-	      const reco::BeamSpot &beamSpot) 
-      : eventId_(eventId), trajTrackPairs_(trajTrackPairs), beamSpot_(beamSpot) {}
+	      const reco::BeamSpot &beamSpot,
+	      const AliClusterValueMap *hitVM) 
+      : eventId_(eventId), trajTrackPairs_(trajTrackPairs), beamSpot_(beamSpot), hitVM_(hitVM) {}
 
     const edm::EventID                 &eventId_;
     const ConstTrajTrackPairCollection &trajTrackPairs_;
     const reco::BeamSpot               &beamSpot_;
+    const AliClusterValueMap            *hitVM_;//might be null!
   };
   
   /// define run information passed to algorithms (in endRun)
