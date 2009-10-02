@@ -43,7 +43,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    
    virtual std::set<DetId> getASetOfValidDetIds(){
       std::set<DetId> setOfValidIds;
-      std::vector<DetId> vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
+      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
          setOfValidIds.insert(*it);
 

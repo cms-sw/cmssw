@@ -226,7 +226,7 @@ void EcalRingCalibrationTools::initializeFromGeometry()
       return;
     }
 
-  std::vector<DetId> m_endcapCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+  const std::vector<DetId>& m_endcapCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
 
   for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin();
        endcapIt!=m_endcapCells.end();
@@ -267,7 +267,7 @@ void EcalRingCalibrationTools::initializeFromGeometry()
 	}
   }
 
-  std::vector<DetId> m_barrelCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId>& m_barrelCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin();
        barrelIt!=m_barrelCells.end();
