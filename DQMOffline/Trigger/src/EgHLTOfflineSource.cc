@@ -147,15 +147,14 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
    
 
   const double weight=1.; //we have the ability to weight but its disabled for now
-
+  nrEventsProcessed_++;
+  nrEventsProcessedMonElem_->Fill(nrEventsProcessed_);
   int errCode = offEvtHelper_.makeOffEvt(iEvent,iSetup,offEvt_);
   if(errCode!=0){
-    std::cout <<"errCode "<<errCode<<std::endl;
     dqmErrsMonElem_->Fill(errCode);
     return;
   }
-  nrEventsProcessed_++;
-  nrEventsProcessedMonElem_->Fill(nrEventsProcessed_);
+  
   
   
  
