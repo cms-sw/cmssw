@@ -15,7 +15,7 @@ import HiggsAnalysis.Skimming.higgsToZZ4LeptonsSkimFilter_cfi
 from HLTrigger.HLTanalyzers.hlTrigReport_cfi import *
 import HLTrigger.HLTanalyzers.hlTrigReport_cfi
 hltReport = HLTrigger.HLTanalyzers.hlTrigReport_cfi.hlTrigReport.clone()
-hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLT")
+hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLT8E29")
 
 higgsToZZ4LeptonsSequence = cms.Sequence(
         higgsToZZ4LeptonsHLTAnalysis  +

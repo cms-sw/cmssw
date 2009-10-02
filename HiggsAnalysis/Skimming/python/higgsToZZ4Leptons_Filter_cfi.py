@@ -9,7 +9,7 @@ higgsToZZ4LeptonsFilter = cms.EDFilter("HiggsToZZ4LeptonsSkim",
     DebugHiggsToZZ4LeptonsSkim = cms.bool(False),
 
     # Collection to be accessed
-    ElectronCollectionLabel = cms.InputTag("pixelMatchGsfElectrons"),
+    ElectronCollectionLabel = cms.InputTag("gsfElectrons"),
     MuonCollectionLabel     = cms.InputTag("muons"),
   
     # Pt thresholds for leptons
