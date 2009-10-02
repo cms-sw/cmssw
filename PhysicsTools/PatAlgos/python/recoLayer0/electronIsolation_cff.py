@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ## compute isolation, using POG modules
 from RecoEgamma.EgammaIsolationAlgos.eleIsoDeposits_cff import *
 from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDeposits_cff  import *
+from RecoEgamma.EgammaIsolationAlgos.electronEcalRecHitIsolationScone_cfi import *
 
 eleIsoDepositEcalFromHits.ExtractorPSet.barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB", "", "RECO")
 eleIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE", "", "RECO")
@@ -11,6 +12,7 @@ eleIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEc
 patElectronIsolation = cms.Sequence(
     eleIsoDepositTk * eleIsoFromDepsTk +
     eleIsoDepositEcalFromHits * eleIsoFromDepsEcalFromHits +
+    electronEcalRecHitIsolationScone +
     eleIsoDepositHcalFromTowers * eleIsoFromDepsHcalFromTowers
 )
 

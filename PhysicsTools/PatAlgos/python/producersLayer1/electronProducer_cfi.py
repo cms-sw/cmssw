@@ -43,7 +43,7 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
             src = cms.InputTag("eleIsoFromDepsTk"),
         ),
         ecal = cms.PSet(
-            src = cms.InputTag("eleIsoFromDepsEcalFromHits"),
+            src = cms.InputTag("electronEcalRecHitIsolationScone"),
         ),
         hcal = cms.PSet(
             src = cms.InputTag("eleIsoFromDepsHcalFromTowers"),
