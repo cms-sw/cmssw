@@ -117,7 +117,7 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   // I N P U T      P A R A M E T E R S  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // Cuts
-  double ETCut_D = 20.;
+  double ETCut_D = 30.;
   ETCut_ = iConfig.getUntrackedParameter<double>("ETCut",ETCut_D);
   double METCut_D = 0.;
   METCut_ = iConfig.getUntrackedParameter<double>("METCut",METCut_D);
