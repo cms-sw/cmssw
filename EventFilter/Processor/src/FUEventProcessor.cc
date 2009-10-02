@@ -5,31 +5,25 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "EventFilter/Processor/interface/FUEventProcessor.h"
+#include "FUEventProcessor.h"
+#include "procUtils.h"
 
-#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
-#include "EventFilter/Utilities/interface/ServiceWebRegistry.h"
-#include "EventFilter/Utilities/interface/ServiceWeb.h"
-#include "EventFilter/Utilities/interface/TimeProfilerService.h"
+
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
-#include "EventFilter/Utilities/interface/MicroStateService.h"
+
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
+#include "EventFilter/Utilities/interface/ServiceWebRegistry.h"
+#include "EventFilter/Utilities/interface/ServiceWeb.h"
 
 
-#include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "xdaq/ApplicationDescriptorImpl.h"
-#include "xdaq/ContextDescriptor.h"
+#include <boost/tokenizer.hpp>
 
 #include "xcept/tools.h"
 #include "xgi/Method.h"
@@ -38,59 +32,14 @@
 #include "cgicc/Cgicc.h"
 #include "cgicc/FormEntry.h"
 
-#include "xoap/MessageReference.h"
-#include "xoap/MessageFactory.h"
-#include "xoap/SOAPEnvelope.h"
-#include "xoap/SOAPBody.h"
-#include "xoap/domutils.h"
-#include "xoap/Method.h"
-#include "xmas/xmas.h"
-#include "xdata/TableIterator.h"
-#include "xdata/exdr/Serializer.h"
-#include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
+
+#include <sys/wait.h>
+#include <sys/utsname.h>
 
 #include <typeinfo>
 #include <stdlib.h>
-
-
-namespace evf {
-
-  namespace internal {
-    
-    using namespace std;
-    void addService(vector<edm::ParameterSet>& adjust,string const& service)
-    {
-      edm::ParameterSet newpset;
-      newpset.addParameter<string>("@service_type",service);
-      adjust.push_back(newpset);
-    }
-
-    // Add a service to the services list if it is not already there
-    void addServiceMaybe(vector<edm::ParameterSet>& adjust,string const& service)
-    {
-      std::vector<edm::ParameterSet>::const_iterator it;
-      for(it=adjust.begin();it!=adjust.end();++it) {
-	string name = it->getParameter<std::string>("@service_type");
-	if (name == service) return;
-      }
-      addService(adjust, service);
-    }
-    
-    const edm::ParameterSet *findService(vector<edm::ParameterSet> &adjust, string const& service)
-    {
-      edm::ParameterSet *retval = 0;
-      std::vector<edm::ParameterSet>::const_iterator it;
-      for(it=adjust.begin();it!=adjust.end();++it) {
-	string name = it->getParameter<std::string>("@service_type");
-	if (name == service) return &(*it);
-      }
-      return retval;
-    }
-    
-  } // namespace internal
-  
-} // namespace evf
-
+#include <stdio.h>
+#include <errno.h>
 
 using namespace std;
 using namespace evf;
@@ -105,60 +54,45 @@ using namespace cgicc;
 FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) 
   : xdaq::Application(s)
   , fsm_(this)
-  , evtProcessor_(0)
-  , serviceToken_()
-  , servicesDone_(false)
-  , inRecovery_(false)
-  , recoveryCount_(0)
-  , triggerReportIncomplete_(false)
-  , prescaleSvc_(0)
+  , log_(getApplicationLogger())
+  , evtProcessor_(log_)
   , runNumber_(0)
   , epInitialized_(false)
   , outPut_(true)
-  , inputPrescale_(1)
-  , outputPrescale_(1)
-  , timeoutOnStop_(10)
   , hasShMem_(true)
   , hasPrescaleService_(true)
   , hasModuleWebRegistry_(true)
   , hasServiceWebRegistry_(true)
   , isRunNumberSetter_(true)
-  , isPython_(false)
   , outprev_(true)
-  , monSleepSec_(1)
-  , wlMonitoring_(0)
-  , asMonitoring_(0)
-  , watching_(false)
-  , wlScalers_(0)
-  , asScalers_(0)
-  , localLsIncludingTimeOuts_(0)
-  , lsTimeOut_(105)
-  , firstLsTimeOut_(200)
-  , residualTimeOut_(0)
-  , lastLsTimedOut_(false)
-  , lastLsWithEvents_(0)
-  , lastLsWithTimeOut_(0)
   , reasonForFailedState_()
-  , wlMonitoringActive_(false)
-  , wlScalersActive_(false)
-  , scalersUpdateAttempted_(0)
-  , scalersUpdateCounter_(0)
-  , lumiSectionsCtr_(lsRollSize_)
-  , lumiSectionsTo_(lsRollSize_)
-  , allPastLumiProcessed_(0)
-  , rollingLsIndex_(lsRollSize_)
-  , rollingLsWrap_(false)
   , squidnet_(3128,"http://localhost:8000/RELEASE-NOTES.txt")
   , logRing_(logRingSize_)
   , logRingIndex_(logRingSize_)
   , logWrap_(false)
+  , nbSubProcesses_(0)
+  , sq_(0)
+  , nblive_(0)
+  , nbdead_(0)
+  , wlReceiving_(0)
+  , asReceiveMsgAndExecute_(0)
+  , receiving_(false) 
+  , wlReceivingMonitor_(0)
+  , asReceiveMsgAndRead_(0)
+  , receivingM_(false)
+  , isChildProcess_(false)
+  , wlSupervising_(0)
+  , asSupervisor_(0)
+  , supervising_(false)
+  , monitorInfoSpace_(0)
+  , applicationInfoSpace_(0)
+  , nbProcessed(0)
+  , nbAccepted(0)
 {
-  //list of variables for scalers flashlist
-  names_.push_back("lumiSectionIndex");
-  names_.push_back("prescaleSetIndex");
-  names_.push_back("scalersTable");
-  squidPresent_ = squidnet_.check();
 
+  squidPresent_ = squidnet_.check();
+  evtProcessor_.setAppDesc(getApplicationDescriptor());
+  evtProcessor_.setAppCtxt(getApplicationContext());
   // bind relevant callbacks to finite state machine
   fsm_.initialize<evf::FUEventProcessor>(this);
   
@@ -170,50 +104,33 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   instance_=getApplicationDescriptor()->getInstance();
   sourceId_=class_.toString()+"_"+instance_.toString();
   LOG4CPLUS_INFO(getApplicationLogger(),sourceId_ <<" constructor");
-  LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
   LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
   
   getApplicationDescriptor()->setAttribute("icon", "/evf/images/epicon.jpg");
-
-  ostringstream ns;  ns << "EP" << instance_.toString();
-
-
-  //some initialization of state data
-  epMAltState_ = -1;
-  epmAltState_ = -1;
   
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
+  applicationInfoSpace_ = ispace;
 
   // default configuration
   ispace->fireItemAvailable("parameterSet",         &configString_);
-  ispace->fireItemAvailable("pluginPath",           &sealPluginPath_);
   ispace->fireItemAvailable("epInitialized",        &epInitialized_);
   ispace->fireItemAvailable("stateName",             fsm_.stateName());
   ispace->fireItemAvailable("runNumber",            &runNumber_);
   ispace->fireItemAvailable("outputEnabled",        &outPut_);
-  ispace->fireItemAvailable("globalInputPrescale",  &inputPrescale_);
-  ispace->fireItemAvailable("globalOutputPrescale", &outputPrescale_);
-  ispace->fireItemAvailable("timeoutOnStop",        &timeoutOnStop_);
+
   ispace->fireItemAvailable("hasSharedMemory",      &hasShMem_);
   ispace->fireItemAvailable("hasPrescaleService",   &hasPrescaleService_);
   ispace->fireItemAvailable("hasModuleWebRegistry", &hasModuleWebRegistry_);
   ispace->fireItemAvailable("hasServiceWebRegistry", &hasServiceWebRegistry_);
   ispace->fireItemAvailable("isRunNumberSetter",    &isRunNumberSetter_);
-  ispace->fireItemAvailable("isPython",             &isPython_);
-  ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
-  ispace->fireItemAvailable("lsTimeOut",            &lsTimeOut_);
+
   ispace->fireItemAvailable("rcmsStateListener",     fsm_.rcmsStateListener());
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
-  
-  
-  ispace->fireItemAvailable("prescalerAsString",    &prescalerAsString_);
-  //  ispace->fireItemAvailable("triggerReportAsString",&triggerReportAsString_);
+  ispace->fireItemAvailable("nbSubProcesses",       &nbSubProcesses_);
   
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
   getApplicationInfoSpace()->addItemChangedListener("outputEnabled",       this);
-  getApplicationInfoSpace()->addItemChangedListener("globalInputPrescale", this);
-  getApplicationInfoSpace()->addItemChangedListener("globalOutputPrescale",this);
 
   // findRcmsStateListener
   fsm_.findRcmsStateListener();
@@ -232,44 +149,33 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   monitorInfoSpace_->fireItemAvailable("instance",                 &instance_);
   monitorInfoSpace_->fireItemAvailable("runNumber",                &runNumber_);
   monitorInfoSpace_->fireItemAvailable("stateName",                 fsm_.stateName()); 
-  monitorInfoSpace_->fireItemAvailable("epMacroState",             &epMState_);
-  monitorInfoSpace_->fireItemAvailable("epMicroState",             &epmState_);
-  monitorInfoSpace_->fireItemAvailable("nbProcessed",              &nbProcessed_);
-  monitorInfoSpace_->fireItemAvailable("nbAccepted",               &nbAccepted_);
 
-  monitorInfoSpace_->fireItemAvailable("epMacroStateInt",             &epMAltState_);
-  monitorInfoSpace_->fireItemAvailable("epMicroStateInt",             &epmAltState_);
-  
-  monitorInfoSpace_->fireItemAvailable("macroStateLegend",      &macro_state_legend_);
-  monitorInfoSpace_->fireItemAvailable("microStateLegend",      &micro_state_legend_);
-
-  monitorInfoSpace_->fireItemAvailable("squidPresent",      &squidPresent_);
+  monitorInfoSpace_->fireItemAvailable("squidPresent",             &squidPresent_);
 
   std::stringstream oss3;
   oss3<<"urn:xdaq-scalers-"<<class_.toString();
   string monInfoSpaceName2=oss3.str();
   toolbox::net::URN urn2 = this->createQualifiedInfoSpace(monInfoSpaceName2);
-  xdata::Table &stbl = trh_.getTable(); 
-  scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn2.toString());
-  scalersInfoSpace_->fireItemAvailable("instance", &instance_);
-  scalersInfoSpace_->fireItemAvailable("scalersTable", &stbl);
-  scalersComplete_.addColumn("instance", "unsigned int 32");
-  scalersComplete_.addColumn("lsid", "unsigned int 32");
-  scalersComplete_.addColumn("psid", "unsigned int 32");
-  scalersComplete_.addColumn("triggerReport", "table");  
 
-  // bind prescale related soap callbacks
-  //  xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
-  //  xoap::bind(this,&FUEventProcessor::getLsReport ,"GetLsReport",XDAQ_NS_URI);
-  //  xoap::bind(this,&FUEventProcessor::putPrescaler,"PutPrescaler",XDAQ_NS_URI);
-  
+  xdata::InfoSpace *scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn2.toString());
+  scalersInfoSpace_->fireItemAvailable("instance", &instance_);
+
+  evtProcessor_.setApplicationInfoSpace(ispace);
+  evtProcessor_.setMonitorInfoSpace(monitorInfoSpace_);
+  evtProcessor_.setScalersInfoSpace(scalersInfoSpace_);
+  evtProcessor_.publishConfigAndMonitorItems();
+
+
   // Bind web interface
-  xgi::bind(this, &FUEventProcessor::css           ,   "styles.css");
+  xgi::bind(this, &FUEventProcessor::css,              "styles.css");
   xgi::bind(this, &FUEventProcessor::defaultWebPage,   "Default"   );
   xgi::bind(this, &FUEventProcessor::spotlightWebPage, "Spotlight" );
-  xgi::bind(this, &FUEventProcessor::moduleWeb     ,   "moduleWeb" );
-  xgi::bind(this, &FUEventProcessor::serviceWeb    ,   "serviceWeb" );
-  xgi::bind(this, &FUEventProcessor::microState    ,   "microState");
+  xgi::bind(this, &FUEventProcessor::subWeb,           "SubWeb"    );
+  xgi::bind(this, &FUEventProcessor::moduleWeb,        "moduleWeb" );
+  xgi::bind(this, &FUEventProcessor::serviceWeb,       "serviceWeb");
+  xgi::bind(this, &FUEventProcessor::microState,       "microState");
+  xgi::bind(this, &FUEventProcessor::updater,          "updater");
+  xgi::bind(this, &FUEventProcessor::procStat,          "procStat");
 
   // instantiate the plugin manager, not referenced here after!
 
@@ -291,14 +197,66 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
     LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
   }
   ML::MLlog4cplus::setAppl(this);      
-    
+
+  typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
+  typedef AppDescSet_t::iterator            AppDescIter_t;
+  
+  AppDescSet_t rcms=
+    getApplicationContext()->getDefaultZone()->
+    getApplicationDescriptors("RCMSStateListener");
+  if(rcms.size()==0) 
+    {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		       "MonitorReceiver not found, perhaphs it has not been defined ? Scalers updater wl will bail out!");
+      //	localLog("-W- MonitorReceiver not found, perhaphs it has not been defined ? Scalers updater wl will bail out!");
+    }
+  else
+    {
+      AppDescIter_t it = rcms.begin();
+      evtProcessor_.setRcms(*it);
+    }
+  pthread_mutex_init(&start_lock_,0);
+  pthread_mutex_init(&stop_lock_,0);
+  pthread_mutex_init(&pickup_lock_,0);
+
+  std::ostringstream ost;
+  ost  << "<div id=\"ve\"> 2.0.0 </div>"
+       << "<div id=\"ou\">" << outPut_.toString() << "</div>"
+       << "<div id=\"sh\">" << hasShMem_.toString() << "</div>"
+       << "<div id=\"mw\">" << hasModuleWebRegistry_.toString() << "</div>"
+       << "<div id=\"sw\">" << hasServiceWebRegistry_.toString() << "</div>"
+       << "<div id=\"ms\">" << hasShMem_.toString() << "</div>";
+  
+  xdata::Serializable *monsleep = 0;
+  xdata::Serializable *lstimeout = 0;
+  try{
+    monsleep = ispace->find("monSleepSec");
+    lstimeout = ispace->find("lsTimeOut");
+  }
+  catch(xdata::exception::Exception e){
+  }
+  
+  if(monsleep!=0)
+    ost << "<div id=\"ms\">" << monsleep->toString() << "</div>";
+  if(lstimeout!=0)
+    ost << "<div id=\"lst\">" << lstimeout->toString() << "</div>";
+  char cbuf[sizeof(struct utsname)];
+  struct utsname* buf = (struct utsname*)cbuf;
+  uname(buf);
+  ost << "<div id=\"sysinfo\">" << buf->sysname << " " << buf->nodename 
+      << " " << buf->release << " " << buf->version << " " << buf->machine << "</div>";
+  updaterStatic_ = ost.str();
+  
 }
+
 
 
 //______________________________________________________________________________
 FUEventProcessor::~FUEventProcessor()
 {
-  if (evtProcessor_) delete evtProcessor_;
+  // no longer needed since the wrapper is a member of the class and one can rely on 
+  // implicit destructor - to be revised
+  //  if (evtProcessor_) delete evtProcessor_;
 }
 
 
@@ -306,175 +264,45 @@ FUEventProcessor::~FUEventProcessor()
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-//______________________________________________________________________________
-bool FUEventProcessor::getTriggerReport(bool useLock)
-  throw (toolbox::fsm::exception::Exception)
-{
-
-
-  // Calling this method results in calling 
-  // evtProcessor_->getTriggerReport, the value returned is encoded as
-  // a xdata::Table.
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"getTriggerReport action invoked");
-  if(inRecovery_) { return false;} //stop scalers loop if caught in the middle of recovery
-
-  //Get the trigger report.
-  ModuleWebRegistry *mwr = 0;
-  try{
-    if(edm::Service<ModuleWebRegistry>().isAvailable())
-      mwr = edm::Service<ModuleWebRegistry>().operator->();
-  }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service ModuleWebRegistry");
-    return false;
-  }
-  edm::TriggerReport tr; 
-  if(mwr==0) return false;
-
-  xdata::InfoSpace *ispace = getApplicationInfoSpace();
-  unsigned int ls = 0;
-  unsigned int ps = 0;
-  xdata::Table::iterator it = scalersComplete_.begin();
-  if( it == scalersComplete_.end())
-    {
-      it = scalersComplete_.append();
-      it->setField("instance",instance_);
-    }
-  timeval tv;
-  if(useLock) {
-    gettimeofday(&tv,0);
-    mwr->openBackDoor("DaqSource",residualTimeOut_);
-    string st = fsm_.stateName()->toString();
-    if(st!="Enabled" && st!="Configured" && st!="enabling" && st!="stopping") return false;
-    residualTimeOut_ = lsTimeOut_.value_ ;
-  }
-  bool localTimeOut = false;
-  try{
-    xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
-    if(lsid) {
-      ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-
-      xdata::Boolean *to =  (xdata::Boolean*)ispace->find("lsTimedOut");
-      if(to!=0)
-	{
-	  localTimeOut = to->value_;
-	  if(to->value_)
-	    {
-	      if(lastLsTimedOut_)localLsIncludingTimeOuts_.value_++;
-	      else localLsIncludingTimeOuts_.value_ = ls;
-	      lastLsTimedOut_ = true; 
-	      lastLsWithTimeOut_ = ls;
-	    }
-	  else
-	    {
-	      lastLsWithEvents_ = ls;
-	      if(lastLsTimedOut_)
-		{
-		  if(localLsIncludingTimeOuts_.value_ < (ls-1)) //cover timed out LS not yet accounted for when events return;
-		    for(localLsIncludingTimeOuts_.value_++; localLsIncludingTimeOuts_.value_ < ls; localLsIncludingTimeOuts_.value_++)
-		      {
-			if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
-			rollingLsIndex_--;
-			lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
-			lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
-											     evtProcessor_->totalEvents()-
-											     allPastLumiProcessed_);
-			it->setField("lsid", localLsIncludingTimeOuts_);
-			fireScalersUpdate();
-		      }
-
-		  timeval tv1;
-		  gettimeofday(&tv1,0);
-		  residualTimeOut_ -= (tv1.tv_sec - tv.tv_sec); //adjust timeout to handle rest of LS where events come back
-		  mwr->closeBackDoor("DaqSource"); 
-		  lastLsTimedOut_ = false;
-		  return true;
-		}
-	      localLsIncludingTimeOuts_.value_ = ls;
-	      lastLsTimedOut_ = false; 
-	    }
-	}
-      it->setField("lsid", localLsIncludingTimeOuts_);
-    }
-    xdata::Serializable *psid = ispace->find("prescaleSetIndex");
-    if(psid) {
-      ps = ((xdata::UnsignedInteger32*)(psid))->value_;
-      if(prescaleSvc_ != 0) prescaleSvc_->setIndex(ps);
-      it->setField("psid",*psid);
-    }
-  }
-  catch(xdata::exception::Exception e){
-    LOG4CPLUS_INFO(getApplicationLogger(),
-                   "exception when obtaining ls or ps id");
-    if(useLock){
-      mwr->closeBackDoor("DaqSource");
-    }
-    return false;
-  }
-
-
-  if(rollingLsIndex_==0){rollingLsIndex_=lsRollSize_; rollingLsWrap_ = true;}
-  rollingLsIndex_--;
-  lumiSectionsTo_[rollingLsIndex_] = localTimeOut;
-  lumiSectionsCtr_[rollingLsIndex_] = pair<unsigned int, unsigned int>(localLsIncludingTimeOuts_.value_,
-								       evtProcessor_->totalEvents()-
-								       allPastLumiProcessed_);
-  allPastLumiProcessed_ = evtProcessor_->totalEvents();
-
-
-  if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
-  if(useLock){
-    mwr->closeBackDoor("DaqSource");
-  }  
-
-  trh_.formatReportTable(tr,descs_);
-  if(trh_.checkLumiSection(ls))
-    {
-      trh_.triggerReportToTable(tr,ls,false);
-    }
-  else
-    {
-      if(triggerReportIncomplete_)
-	{
-	  triggerReportIncomplete_ = false;
-	  //	      trh_.printReportTable();
-	  //send xmas message with data
-	}
-      trh_.triggerReportToTable(tr,ls);
-    }
-  it->setField("triggerReport",trh_.getTable());
-  // send xmas message with data
-  //      triggerReportAsString_ = triggerReportToString(tr);
-      
-  //Print the trigger report message in debug format.
-  //      trh_.printTriggerReport(tr);
-  
-  
-  return true;
-}
-
-
 
 //______________________________________________________________________________
 bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 {
+  unsigned char smap = (nbSubProcesses_.value_!=0) << 4
+    + (instance_.value_==0) << 3 
+    + hasServiceWebRegistry_.value_ << 2 
+    + hasModuleWebRegistry_.value_ << 1 
+    + hasPrescaleService_.value_;
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
-    initEventProcessor();
-    if(epInitialized_)
+    std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
+
+    if(evtProcessor_)
       {
-	startMonitoringWorkLoop();
-	evtProcessor_->beginJob();
+	// moved to wrapper class
+	configuration_ = evtProcessor_.configuration();
+	if(nbSubProcesses_.value_==0) evtProcessor_.startMonitoringWorkLoop(); 
+	evtProcessor_->beginJob(); 
 	fsm_.fireEvent("ConfigureDone",this);
 	LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
+	localLog("-I- Configuration completed");
       }
   }
   catch (xcept::Exception &e) {
     reasonForFailedState_ = "configuring FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-  localLog("-I- Configuration completed");
+  catch(cms::Exception &e) {
+    reasonForFailedState_ = e.explainSelf();
+    fsm_.fireFailed(reasonForFailedState_,this);
+  }    
+  catch(std::exception &e) {
+    reasonForFailedState_ = e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+  }
+  catch(...) {
+    fsm_.fireFailed("Unknown Exception",this);
+  }
   return false;
 }
 
@@ -482,167 +310,79 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
-  unsigned int tempLsTO = lsTimeOut_.value_;
-  lsTimeOut_.value_ = firstLsTimeOut_;
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
-    
-    // if the ep is intialized already, the initialization will be skipped
-    initEventProcessor();
-    if(hasShMem_) attachDqmToShm();
+  unsigned char smap = (nbSubProcesses_.value_!=0) << 4
+    + (instance_.value_==0) << 3 
+    + hasServiceWebRegistry_.value_ << 2 
+    + hasModuleWebRegistry_.value_ << 1 
+    + hasPrescaleService_.value_;
 
-    int sc = 0;
-    evtProcessor_->clearCounters();
-    if(isRunNumberSetter_)
-      evtProcessor_->setRunNumber(runNumber_.value_);
-    else
-      evtProcessor_->declareRunNumber(runNumber_.value_);
-    try{
-      evtProcessor_->runAsync();
-      sc = evtProcessor_->statusAsync();
+  LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
+  std::string cfg = configString_.toString(); evtProcessor_.init(smap,cfg);
+  //classic appl will return here 
+  if(nbSubProcesses_.value_==0) return enableClassic();
+
+  //protect manipulation of subprocess array
+  pthread_mutex_lock(&start_lock_);
+  subs_.clear();
+
+  pid_t retval = -1;
+  subs_.resize(nbSubProcesses_.value_);
+  for(unsigned int i=0; i<nbSubProcesses_.value_; i++)
+    {
+      subs_[i]=SubProcess(i,retval); //this will replace all the scattered variables
+      retval = subs_[i].forkNew();
+      std::cout << "After fork, retval = " << retval << std::endl;
+      if(retval>0)
+	{
+	  std::cout << "here parent 1" << std::endl;
+
+	  pthread_mutex_unlock(&start_lock_);
+	}
+      if(retval==0)
+	{
+	  isChildProcess_=true;
+	  return enableMPEPSlave(i);
+	  // the loop is broken in the child 
+	}
     }
-    catch(cms::Exception &e) {
-      reasonForFailedState_ = e.explainSelf();
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
-    }    
-    catch(std::exception &e) {
-      reasonForFailedState_  = e.what();
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
-    }
-    catch(...) {
-      reasonForFailedState_ = "Unknown Exception";
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
-    }
-    
-    if(sc != 0) {
-      ostringstream oss;
-      oss<<"EventProcessor::runAsync returned status code " << sc;
-      reasonForFailedState_ = oss.str();
-      fsm_.fireFailed(reasonForFailedState_,this);
-      return false;
-    }
-    
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-    
-    fsm_.fireEvent("EnableDone",this);
-  }
-  catch (xcept::Exception &e) {
-    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-  }
-  while(evtProcessor_->getState()!= edm::event_processor::sRunning){
-    LOG4CPLUS_INFO(getApplicationLogger(),"waiting for edm::EventProcessor to start before enabling watchdog");
-    ::sleep(1);
-  }
-  watching_ = true;
-  residualTimeOut_ = lsTimeOut_.value_;
-  startScalersWorkLoop();
-  lsTimeOut_.value_ = tempLsTO;
+  std::cout << "Starting supervisor loop " << std::endl;
+  startSupervisorLoop();
+  LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
+  fsm_.fireEvent("EnableDone",this);
   localLog("-I- Start completed");
   return false;
 }
 
 
+
 //______________________________________________________________________________
 bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 {
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
-    edm::EventProcessor::StatusCode rc = stopEventProcessor();
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-    if(rc != edm::EventProcessor::epTimedOut) 
-      fsm_.fireEvent("StopDone",this);
-    else
-      {
-	epMState_ = evtProcessor_->currentStateName();
-	reasonForFailedState_ = "EventProcessor stop timed out";
-	localLog(reasonForFailedState_);
-	fsm_.fireFailed(reasonForFailedState_,this);
 
-      }
-    if(hasShMem_) detachDqmFromShm();
-  }
-  catch (xcept::Exception &e) {
-    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
-    localLog(reasonForFailedState_);
-    fsm_.fireFailed(reasonForFailedState_,this);
-  }
-  watching_ = false;
-  allPastLumiProcessed_ = 0;
-  localLog("-I- Stop completed");
-  return false;
+  if(nbSubProcesses_.value_!=0) 
+    stopSlavesAndAcknowledge();
+  return stopClassic();
 }
 
 
 //______________________________________________________________________________
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
-  edm::ServiceRegistry::Operate operate(serviceToken_);
-  ModuleWebRegistry *mwr = 0;
+  LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
+  
   try{
-    if(edm::Service<ModuleWebRegistry>().isAvailable())
-      mwr = edm::Service<ModuleWebRegistry>().operator->();
+    evtProcessor_.stopAndHalt();
   }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service ModuleWebRegistry");
-  }
-  
-  if(mwr) 
-    {
-      mwr->clear();
-    }
-
-  ServiceWebRegistry *swr = 0;
-  try{
-    if(edm::Service<ServiceWebRegistry>().isAvailable())
-      swr = edm::Service<ServiceWebRegistry>().operator->();
-  }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service ModuleWebRegistry");
-  }
-  
-  if(swr) 
-    {
-      swr->clear();
-    }
-
-  edm::event_processor::State st = evtProcessor_->getState();
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-    edm::EventProcessor::StatusCode rc = stopEventProcessor();
-    if(rc != edm::EventProcessor::epTimedOut)
-      {
-	if(hasShMem_) detachDqmFromShm();
-	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
-	  evtProcessor_->endJob();
-	monitorInfoSpace_->lock(); //protect monitoring workloop from using ep pointer while it is being deleted
-	delete evtProcessor_;
-	evtProcessor_ = 0;
-	monitorInfoSpace_->unlock();
-	epInitialized_ = false;
-	LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
-  
-	fsm_.fireEvent("HaltDone",this);
-      }
-    else
-      {
-	reasonForFailedState_ = "EventProcessor stop timed out";
-	localLog(reasonForFailedState_);
-	fsm_.fireFailed(reasonForFailedState_,this);
-      }
-  }
-  catch (xcept::Exception &e) {
+  catch (evf::Exception &e) {
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
     localLog(reasonForFailedState_);
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-  watching_ = false;
-  allPastLumiProcessed_ = 0;
+  if(hasShMem_) detachDqmFromShm();
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
+  fsm_.fireEvent("HaltDone",this);
+
   localLog("-I- Halt completed");
   return false;
 }
@@ -653,271 +393,6 @@ xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
   return fsm_.commandCallback(msg);
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::initEventProcessor()
-{
-  trh_.resetFormat(); //reset the report table even if HLT didn't change
-  if (epInitialized_) {
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "CMSSW EventProcessor already initialized: skip!");
-    return;
-  }
-  
-  LOG4CPLUS_INFO(getApplicationLogger(),"Initialize CMSSW EventProcessor.");
-  
-  if (0!=setenv("SEAL_PLUGINS",sealPluginPath_.value_.c_str(),0)) {
-    LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to set SEAL_PLUGINS search path");
-  }
-  else {
-    LOG4CPLUS_INFO(getApplicationLogger(),"plugin path: "<<getenv("SEAL_PLUGINS"));
-    LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
-  }
-  
-
-  // job configuration string
-  ParameterSetRetriever pr(configString_.value_);
-  configuration_ = pr.getAsString();
-  if (configString_.value_.size() > 3 && configString_.value_.substr(configString_.value_.size()-3) == ".py") isPython_ = true;
-  boost::shared_ptr<edm::ParameterSet> params; // change this name!
-  boost::shared_ptr<vector<edm::ParameterSet> > pServiceSets;
-  boost::shared_ptr<edm::ProcessDesc> pdesc;
-  try{
-    if(isPython_)
-      {
-	PythonProcessDesc ppdesc = PythonProcessDesc(configuration_);
-	pdesc = ppdesc.processDesc();
-      }
-    else
-      pdesc = boost::shared_ptr<edm::ProcessDesc>(new edm::ProcessDesc(configuration_));
-  }
-  catch(cms::Exception &e){
-    reasonForFailedState_ = e.explainSelf();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return;
-  } 
-  pServiceSets = pdesc->getServicesPSets();
-  // add default set of services
-  if(!servicesDone_) {
-    internal::addServiceMaybe(*pServiceSets,"DQMStore");
-    //    internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
-    internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
-    internal::addServiceMaybe(*pServiceSets,"MicroStateService");
-    if(hasPrescaleService_) internal::addServiceMaybe(*pServiceSets,"PrescaleService");
-    if(hasModuleWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ModuleWebRegistry");
-    if(hasServiceWebRegistry_) internal::addServiceMaybe(*pServiceSets,"ServiceWebRegistry");
-    
-    try{
-      serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
-    }
-    catch(cms::Exception &e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),e.explainSelf());
-    }    
-    catch(std::exception &e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),e.what());
-    }
-    catch(...) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
-    }
-    servicesDone_ = true;
-  }
-  
-  edm::ServiceRegistry::Operate operate(serviceToken_);
-
-
-  //test rerouting of fwk logging to log4cplus
-  edm::LogInfo("FUEventProcessor")<<"started MessageLogger Service.";
-  edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configuration_;
-
-  DQMStore *dqm = 0;
-  try{
-    if(edm::Service<DQMStore>().isAvailable())
-      dqm = edm::Service<DQMStore>().operator->();
-  }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service DQMStore");
-  }
-  if(dqm!=0) dqm->rmdir("");
-  
-
-  ModuleWebRegistry *mwr = 0;
-  try{
-    if(edm::Service<ModuleWebRegistry>().isAvailable())
-      mwr = edm::Service<ModuleWebRegistry>().operator->();
-  }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service ModuleWebRegistry");
-  }
-
-  if(mwr) mwr->clear(); // in case we are coming from stop we need to clear the mwr
-
-  ServiceWebRegistry *swr = 0;
-  try{
-    if(edm::Service<ServiceWebRegistry>().isAvailable())
-      swr = edm::Service<ServiceWebRegistry>().operator->();
-  }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service ModuleWebRegistry");
-  }
-
-  //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
-
-
-  // instantiate the event processor
-  try{
-    vector<string> defaultServices;
-    vector<string> forcedServices;
-    defaultServices.push_back("MessageLogger");
-    defaultServices.push_back("InitRootHandlers");
-    defaultServices.push_back("JobReportService");
-    pdesc->addServices(defaultServices, forcedServices);
-    monitorInfoSpace_->lock();
-    if (0!=evtProcessor_) delete evtProcessor_;
-
-    evtProcessor_ = new edm::EventProcessor(pdesc,
-					    serviceToken_,
-					    edm::serviceregistry::kTokenOverrides);
-
-    monitorInfoSpace_->unlock();
-    //    evtProcessor_->setRunNumber(runNumber_.value_);
-
-    if(!outPut_)
-      //evtProcessor_->toggleOutput();
-      //evtProcessor_->prescaleInput(inputPrescale_);
-      //evtProcessor_->prescaleOutput(outputPrescale_);
-      evtProcessor_->enableEndPaths(outPut_);
-    
-    outprev_=outPut_;
-    
-    // to publish all module names to XDAQ infospace
-
-    if(mwr) 
-      {
-	mwr->publish(getApplicationInfoSpace());
-	mwr->publishToXmas(scalersInfoSpace_);
-      }
-    if(swr) 
-      {
-	swr->publish(getApplicationInfoSpace());
-      }
-    // get the prescale service
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "Checking for edm::service::PrescaleService!");
-    try {
-      if(edm::Service<edm::service::PrescaleService>().isAvailable())
-	{
-	  LOG4CPLUS_INFO(getApplicationLogger(),
-			 "edm::service::PrescaleService is available!");
-	  prescaleSvc_ = edm::Service<edm::service::PrescaleService>().operator->();
-	  LOG4CPLUS_INFO(getApplicationLogger(),
-			 "Obtained pointer to PrescaleService");
-	  //prescaleSvc_->putHandle(evtProcessor_);
-	  //LOG4CPLUS_INFO(getApplicationLogger(),
-	  //	 "PrescaleService::putHandle called");
-	}
-    }
-    catch(...) {
-      LOG4CPLUS_INFO(getApplicationLogger(),
-		     "exception when trying to get service "
-		     <<"edm::service::PrescaleService");
-    }
-    const edm::ParameterSet *prescaleSvcConfig = internal::findService(*pServiceSets,"PrescaleService");
-    if(prescaleSvc_ != 0 && prescaleSvcConfig !=0) prescaleSvc_->reconfigure(*prescaleSvcConfig);
-  }
-  catch(cms::Exception &e) {
-    reasonForFailedState_ = e.explainSelf();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return;
-  }    
-  catch(std::exception &e) {
-    reasonForFailedState_ = e.what();
-    fsm_.fireFailed(reasonForFailedState_,this);
-    return;
-  }
-  catch(...) {
-    fsm_.fireFailed("Unknown Exception",this);
-    return;
-  }
-  
-  //fill macrostate legend information
-  unsigned int i = 0;
-  std::stringstream oss;
-  for(i = (unsigned int)edm::event_processor::sInit; i < (unsigned int)edm::event_processor::sInvalid; i++)
-    {
-      oss << i << "=" << evtProcessor_->stateName((edm::event_processor::State) i) << " ";
-    }
-  monitorInfoSpace_->lock();
-  if(getApplicationDescriptor()->getInstance() == 0) macro_state_legend_ = oss.str();
-  //fill microstate legend information
-  descs_ = evtProcessor_->getAllModuleDescriptions();
-
-  std::stringstream oss2;
-  unsigned int outcount = 0;
-  oss2 << 0 << "=In ";
-  modmap_["IN"]=0;
-  for(unsigned int j = 0; j < descs_.size(); j++)
-    {
-      if(descs_[j]->moduleName() == "ShmStreamConsumer") // find something better than hardcoding name
-	{ 
-	  outcount++;
-	  oss2 << outcount << "=" << descs_[j]->moduleLabel() << " ";
-	  modmap_[descs_[j]->moduleLabel()]=outcount;
-	  i++;
-	}
-    }
-  modmap_["DQM"]=outcount+1;
-  oss2 << outcount+1 << "=DQMHistograms ";
-  unsigned int modcount = 1;
-  for(i = 0; i < descs_.size(); i++)
-    {
-      if(descs_[i]->moduleName() != "ShmStreamConsumer")
-	{
-	  modcount++;
-	  oss2 << outcount+modcount << "=" << descs_[i]->moduleLabel() << " ";
-	  modmap_[descs_[i]->moduleLabel()]=outcount+modcount;
-	}
-    }
-  if(getApplicationDescriptor()->getInstance() == 0) micro_state_legend_ = oss2.str();
-  monitorInfoSpace_->unlock();
-  LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor configuration finished.");
-  
-  epInitialized_ = true;
-
-  return;
-}
-
-
-//______________________________________________________________________________
-edm::EventProcessor::StatusCode FUEventProcessor::stopEventProcessor()
-{
-  edm::event_processor::State st = evtProcessor_->getState();
-
-  LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor::stopEventProcessor. state "
-               << evtProcessor_->stateName(st));
-
-  edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
-
-  if(st == edm::event_processor::sInit) return rc;
-
-  try  {
-    rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
-  }
-  catch(cms::Exception &e) {
-    XCEPT_RAISE(evf::Exception,e.explainSelf());
-  }    
-  catch(std::exception &e) {
-    XCEPT_RAISE(evf::Exception,e.what());
-  }
-  catch(...) {
-    XCEPT_RAISE(evf::Exception,"Unknown Exception");
-  }
-  return rc;
-
 }
 
 
@@ -941,18 +416,11 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
     }
     
     if (item == "globalInputPrescale") {
-      //evtProcessor_->prescaleInput(inputPrescale_);
-      //LOG4CPLUS_WARN(this->getApplicationLogger(),
-      //"Setting global input prescale factor to" << inputPrescale_);
-      //
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "Setting global input prescale has no effect "
 		     <<"in this version of the code");
     }
     if ( item == "globalOutputPrescale") {
-      //evtProcessor_->prescaleOutput(outputPrescale_);
-      //LOG4CPLUS_WARN(this->getApplicationLogger(),
-      //"Setting global output prescale factor to" << outputPrescale_);
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "Setting global output prescale has no effect "
 		     <<"in this version of the code");
@@ -963,496 +431,53 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 
 //______________________________________________________________________________
 
+  //______________________________________________________________________________
+void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
+{
+  pid_t pid = 0;
+  using namespace cgicc;
+  Cgicc cgi(in);
+  std::vector<FormEntry> els = cgi.getElements() ;
+  std::cout << "subWeb called with query " << std::endl;
+  for(std::vector<FormEntry>::iterator it = els.begin(); it!=els.end(); it++)
+    std::cout << it->getName() << " " << it->getValue() << std::endl;
+  std::vector<FormEntry> el1;
+  cgi.getElement("method",el1);
+  std::vector<FormEntry> el2;
+  cgi.getElement("process",el2);
+  std::cout << "subWeb el1 " << el1.size() << " el2 " << el2.size() << std::endl;
+  if(el1.size()!=0) {
+    std::string meth = el1[0].getValue();
+    if(el2.size()!=0) {
+      unsigned int i = 0;
+      std::string mod = el2[0].getValue();
+      pid = atoi(mod.c_str());
+      std::cout << "subWeb called with process " << pid << " method " << meth << std::endl;
+      for(; i < subs_.size(); i++)
+	if(subs_[i].pid()==pid) break;
+      MsgBuf msg1(meth.length(),MSQM_MESSAGE_TYPE_WEB);
+      strcpy(msg1->mtext,meth.c_str());
+      std::cout << "posting subweb request to process " << i << std::endl;
+      subs_[i].post(msg1,true);
+      MsgBuf msg(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_WEB);
+      subs_[i].rcv(msg,true);
+      *out<<msg->mtext;
+    }
+  }
+}
+
+
 //______________________________________________________________________________
 void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
 
-
   string urn = getApplicationDescriptor()->getURN();
-  *out << "<!-- base href=\"/" <<  urn
-       << "\"> -->" << endl;
-  *out << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">"	<< endl;
-  *out << "<html>"								<< endl;
-  *out << "<head>"								<< endl;
-
-  *out << "<script src=\"/evf/html/microEPPage.js\"></script>"<< endl;
-  *out << "<style type=\"text/css\">"						<< endl;
-  *out << "#s1 {"								<< endl;
-  *out << "border-width: 2px; border: solid blue; text-align: right; "
-       << "background: lightgrey "						<< endl;
-  *out << "}"									<< endl; 
-  *out << "#s2 {"								<< endl;
-  *out << "border-width: 2px; border: white; text-align: left; vertical-align: top; "
-       << "background: green; font-size: 12pt; height:112; width:80 "		<< endl;
-  *out << "}"									<< endl; 
-  *out << "</style> "								<< endl; 
-  *out << "<link type=\"text/css\" rel=\"stylesheet\""
-       << " href=\"/" <<  urn
-       << "/styles.css\"/>"							<< endl;
-  *out << "<title>" << getApplicationDescriptor()->getClassName() 
-       << " " << getApplicationDescriptor()->getInstance() 
-       << " MAIN</title>"							<< endl;
-  *out << "</head>"								<< endl;
-  *out << "<body onload=\"loadXMLDoc()\">"					<< endl;
-
-  *out << "<table border=\"0\" width=\"100%\">"					<< endl;
-
-  *out << "<tr>"								<< endl;
-
-  *out << "  <td align=\"left\"><img align=\"middle\" src=\"/evf/images/epicon.jpg\""
-       << " alt=\"main\" width=\"64\" height=\"64\"></td>"                      << endl;
-
-  *out << "  <td align=\"middle\">"						<< endl;
-  *out << "    <table><tr><td>"							<< endl;
-  *out << "      <b>" 
-       << getApplicationDescriptor()->getClassName() << " " 
-       << getApplicationDescriptor()->getInstance() 
-       << "</b></td></tr>"			<< endl;
-  *out << "      <tr><td>Run Number: " << runNumber_.toString() << "</td></tr>"	<< endl;
-  if(fsm_.stateName()->toString() != "Halted" && fsm_.stateName()->toString() != "halting")
-    *out << "      <tr><td><a href=\"" << configString_.toString() << "\">HLT Config</a></td></tr>"	<< endl;
-  *out << "    </table>"							<< endl;
-  *out << "  </td>"								<< endl;
-
-  *out << "  <td align=\"middle\">"						<< endl;
-  *out << "    <table><tr>"							<< endl;
-  *out << "       <td><div id=\"s2\">"
-       << "</div></td>"			<< endl;
-  *out << "       <td><div id=\"s1\" style=\"border:2px";
-  if(fsm_.stateName()->value_ == "Failed")
-    {
-      *out << " solid red;height:64;width:150\">microState</div> "		<< endl;
-      *out << "    </td></tr><tr><td>"						<< endl;
-      *out << "                <textarea rows=" << 5 << " cols=50 scroll=yes";
-      *out << " readonly title=\"Reason For Failed\">" << reasonForFailedState_;
-      *out << "</textarea></td></tr></table>"					<< endl;
-    }
-  else
-    {
-      *out << ";height:112;width:150\">microState</div> "			<< endl;
-      *out << "     </td></tr></table>"						<< endl;
-    }
-  *out << "  </td>"								<< endl;
-
-
-  *out << "  <td width=\"32\"><a href=\"/urn:xdaq-application:lid=3\">"
-       << "<img align=\"middle\" src=\"/hyperdaq/images/HyperDAQ.jpg\" alt=\"HyperDAQ\""
-       << " width=\"32\" height=\"32\"></a></td>"                               << endl;
-
-  *out << "  <td width=\"32\"><a href=\"/" << urn 
-       << "/Spotlight\"><img align=\"middle\" src=\"/evf/images/spoticon.jpg\"";
-  *out << " alt=\"debug\" width=\"32\" height=\"32\"></a></td>"                 << endl;
-
-  *out << "</tr>"								<< endl;
-  //version number, please update consistently with TAG
-  *out << "<tr>"								<< endl;
-  *out << "  <td colspan=\"5\" align=\"right\">"				<< endl;
-  *out << "    Version 1.4.7"							<< endl;
-  *out << "  </td>"								<< endl;
-  *out << "</tr>"								<< endl;
-
-  *out << "</table>"								<< endl;
-  // end of page banner table
-  *out << "<hr>"								<< endl;
-
-  *out << "<table>"                                                  << endl;
-  *out << "<tr valign=\"top\">"                                      << endl;
-  *out << "  <td>"                                                   << endl;
-
-  //configuration table
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-  *out << "<colgroup> <colgroup align=\"right\">"                    << endl;
-  *out << "  <tr>"                                                   << endl;
-  *out << "    <th colspan=2>"                                       << endl;
-  *out << "      " << "Configuration"                                << endl;
-  *out << "    </th>"                                                << endl;
-  *out << "  </tr>"                                                  << endl;
-  
-  *out << "<tr>" << endl;
-  *out << "<th >" << endl;
-  *out << "Parameter" << endl;
-  *out << "</th>" << endl;
-  *out << "<th>" << endl;
-  *out << "Value" << endl;
-  *out << "</th>" << endl;
-  *out << "</tr>" << endl;
-
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Output Enabled" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << outPut_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Timeout On Stop" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << timeoutOnStop_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Has Shared Memory" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << hasShMem_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Is Python Config" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << isPython_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Has Module Web" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << hasModuleWebRegistry_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Has Service Web" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << hasServiceWebRegistry_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Monitor Sleep (s)" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << monSleepSec_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "LumiSec Timeout (s)" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << lsTimeOut_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "</table>"							<< endl;
-  
-
-  *out << "<td>"							<< endl;
-
-  //status table
-
-  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">"	<< endl;
-  *out << "<colgroup> <colgroup align=\"right\">"			<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th colspan=2>"						<< endl;
-  *out << "      " << "Status"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th >"							<< endl;
-  *out << "       Parameter"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "    <th>"							<< endl;
-  *out << "       Value"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Successful Recoveries" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << recoveryCount_ << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Squid Present " << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << squidPresent_.toString() << endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Monitor WL " << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  if(wlMonitoring_!=0 && wlMonitoring_->isActive()) *out << (wlMonitoringActive_ ? "active" : "inactive");
-  else *out << "not initialized";
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Scalers WL " << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  if(wlScalers_!=0 && wlScalers_->isActive()) *out << (wlScalersActive_ ? "active" : "inactive");
-  else *out << "not initialized";
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-  *out << "<tr>" << endl;
-  *out << "<td >" << endl;
-  *out << "Scalers Updates (Att/Succ)" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << scalersUpdateAttempted_ << "/" << scalersUpdateCounter_;
-  *out << "</td>" << endl; 
-  *out << "</tr>"							<< endl; 
-
-
-  *out << "</table>"							<< endl;
-  *out << "</td>" << endl;
-  *out << "</tr>"                                            << endl;
-
-  *out << "<tr>"                                             << endl;
-  *out << "<th colspan=2>"                                   << endl;
-  *out << "<textarea rows=" << 5 << " cols=50 scroll=yes";
-  *out << " readonly title=\"Last Log Messages\">"		     << endl;
-  *out << logsAsString()                                         << endl;
-  *out << "</textarea></td></tr></table>"                        << endl;
-
-  // lumisection summary table
-  *out << "   <table border=1 bgcolor=\"#CFCFCF\">" << endl;
-  *out << "     <tr>"							<< endl;
-  *out << "       <td> LS </td>";
-  if(rollingLsWrap_)
-    {
-      for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
-	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
-      for(unsigned int i = 0; i < rollingLsIndex_; i++)
-	*out << "<td " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
-	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
-    }
-  else
-      for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td  " << (lumiSectionsTo_[i] ? "bgcolor=\"red\"" : "")
-	     << ">" << lumiSectionsCtr_[i].first << "</td>" << endl;
-
-  *out << "     </tr>"							<< endl;    
-  *out << "     <tr>"							<< endl;
-  *out << "       <td> Ev </td>";
-  if(rollingLsWrap_)
-    {
-      for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << endl;
-      for(unsigned int i = 0; i < rollingLsIndex_; i++)
-	*out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << endl;
-    }
-  else
-      for(unsigned int i = rollingLsIndex_; i < lumiSectionsCtr_.size(); i++)
-	*out << "<td>" << lumiSectionsCtr_[i].second << "</td>" << endl;
-  *out << "     </tr>"							<< endl;    
-  *out << "</table>" << endl;
-
-  ServiceWebRegistry *swr = 0;
-  if(0!=evtProcessor_)
-    {
-      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
-      try{
-	if(edm::Service<ServiceWebRegistry>().isAvailable())
-	  swr = edm::Service<ServiceWebRegistry>().operator->();
-      }
-      catch(...) {
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "Exception when trying to get service ServiceWebRegistry");
-      }
-    }
-  if(0!=swr)
-    {
-      std::vector<ServiceWeb *> swebs = swr->getWebs();
-      *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
-      //      *out << "<colgroup> <colgroup align=\"right\">"                    << endl;
-      *out << "  <tr>"                                                   << endl;
-      *out << "    <th colspan=2>"                                       << endl;
-      *out << "      " << "Linked Services"                              << endl;
-      *out << "    </th>"                                                << endl;
-      *out << "  </tr>"                                                  << endl;
-      
-      *out << "<tr>" << endl;
-      *out << "<th >" << endl;
-      *out << "Service" << endl;
-      *out << "</th>" << endl;
-      *out << "<th>" << endl;
-      *out << "Address" << endl;
-      *out << "</th>" << endl;
-      *out << "</tr>" << endl;
-      for(unsigned int i = 0; i < swebs.size(); i++)
-	{
-	  *out << " <tr><td><a href=\"/" << urn << "/serviceWeb?service=" 
-	       << swebs[i]->name() << "\">" << swebs[i]->name() 
-	       << "</a></td><td>" << hex << (unsigned long)swebs[i] 
-	       << dec << "</td></tr>" << endl;
-	}
-      *out << "</table>" << endl;
-    }
-  *out << "</table>"							<< endl;
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string &urn)
-{
-  ModuleWebRegistry *mwr = 0;
-  edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
-  try{
-    if(edm::Service<ModuleWebRegistry>().isAvailable())
-      mwr = edm::Service<ModuleWebRegistry>().operator->();
-  }
-  catch(...) {
-    LOG4CPLUS_WARN(getApplicationLogger(),
-		   "Exception when trying to get service ModuleWebRegistry");
-  }
-  TimeProfilerService *tpr = 0;
-  try{
-    if(edm::Service<TimeProfilerService>().isAvailable())
-      tpr = edm::Service<TimeProfilerService>().operator->();
-  }
-  catch(...) { 
-  }
-
-  *out << "<td>" << endl;
-  //Process details table
-  *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">"	<< endl;
-  *out << "  <tr>"							<< endl;
-  *out << "    <th colspan=3>"						<< endl;
-  *out << "      " << "HLT"						<< endl;
-  if(descs_.size()>0)
-    *out << " (Process " << descs_[0]->processName() << ")"		<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "  </tr>"							<< endl;
-
-  *out << "  <tr >"							<< endl;
-  *out << "    <th >"							<< endl;
-  *out << "       Module"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "    <th >"							<< endl;
-  *out << "       Label"						<< endl;
-  *out << "    </th>"							<< endl;
-  *out << "    <th >"							<< endl;
-  *out << "       Version"						<< endl;
-  *out << "    </th>"							<< endl;
-  if(tpr)
-    {
-      *out << "    <th >"                                                       << endl;
-      *out << "       first"                                            << endl;
-      *out << "    </th>"                                                       << endl;
-      *out << "    <th >"                                                       << endl;
-      *out << "       ave"                                              << endl;
-      *out << "    </th>"                                                       << endl;
-      *out << "    <th >"                                                       << endl;
-      *out << "       max"                                              << endl;
-      *out << "    </th>"                                                       << endl;
-    }
-  *out << "  </tr>"							<< endl;
-  
-  for(unsigned int idesc = 0; idesc < descs_.size(); idesc++)
-    {
-      *out << "  <tr>"							<< endl;
-      *out << "    <td >";
-      if(mwr && mwr->checkWeb(descs_[idesc]->moduleName()))
-	*out << "<a href=\"/" << urn 
-	     << "/moduleWeb?module=" 
-	     << descs_[idesc]->moduleName() << "\">" 
-	     << descs_[idesc]->moduleName() << "</a>";
-      else
-	*out << descs_[idesc]->moduleName();
-      *out << "</td>"							<< endl;
-      *out << "    <td >";
-      *out << descs_[idesc]->moduleLabel();
-      *out << "</td>"							<< endl;
-      *out << "    <td >";
-      *out << descs_[idesc]->releaseVersion();
-      *out << "</td>"							<< endl;
-      if(tpr)
-        {
-          *out << "    <td align=\"right\">";
-          *out << tpr->getFirst(descs_[idesc]->moduleLabel());
-          *out << "</td>"                                                       << endl;
-          *out << "    <td align=\"right\"";
-	  *out << (tpr->getAve(descs_[idesc]->moduleLabel())>1. ? "bgcolor=\"red\"" : "") 
-	       << ">";
-          *out << tpr->getAve(descs_[idesc]->moduleLabel());
-          *out << "</td>"                                                       << endl;
-          *out << "    <td align=\"right\">";
-          *out << tpr->getMax(descs_[idesc]->moduleLabel());
-          *out << "</td>"                                                       << endl;
-        }
-      *out << "  </tr>" << endl;
-    }
-  *out << "</table>" << endl;
-  *out << "</td>" << endl;
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  Cgicc cgi(in);
-  vector<FormEntry> el1;
-  cgi.getElement("module",el1);
-  if(evtProcessor_)  {
-    if(el1.size()!=0) {
-      string mod = el1[0].getValue();
-      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
-      ModuleWebRegistry *mwr = 0;
-      try{
-	if(edm::Service<ModuleWebRegistry>().isAvailable())
-	  mwr = edm::Service<ModuleWebRegistry>().operator->();
-      }
-      catch(...) { 
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "Exception when trying to get service ModuleWebRegistry");
-      }
-      mwr->invoke(in,out,mod);
-    }
-  }
-  else {
-    *out<<"EventProcessor just disappeared "<<endl;
-  }
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::serviceWeb(xgi::Input  *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  Cgicc cgi(in);
-  vector<FormEntry> el1;
-  cgi.getElement("service",el1);
-  if(evtProcessor_)  {
-    if(el1.size()!=0) {
-      string ser = el1[0].getValue();
-      edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
-      ServiceWebRegistry *swr = 0;
-      try{
-	if(edm::Service<ServiceWebRegistry>().isAvailable())
-	  swr = edm::Service<ServiceWebRegistry>().operator->();
-      }
-      catch(...) { 
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "Exception when trying to get service ModuleWebRegistry");
-      }
-      swr->invoke(in,out,ser);
-    }
-  }
-  else {
-    *out<<"EventProcessor just disappeared "<<endl;
-  }
+  *out << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">" 
+       << "<html><head><title>" << getApplicationDescriptor()->getClassName() << (nbSubProcesses_.value_ > 0 ? "MP " : " ") 
+       << getApplicationDescriptor()->getInstance() << "</title>"
+       << "<meta http-equiv=\"REFRESH\" content=\"0;url=/evf/html/defaultBasePage.html\">"
+       << "</head></html>";
 }
 
 
@@ -1462,22 +487,18 @@ void FUEventProcessor::serviceWeb(xgi::Input  *in, xgi::Output *out)
 void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  xdata::InfoSpace *ispace = getApplicationInfoSpace();
   string urn = getApplicationDescriptor()->getURN();
-  ostringstream ourl;
-  ourl << "'/" <<  urn << "/microState'";
   *out << "<!-- base href=\"/" <<  urn
        << "\"> -->" << endl;
   *out << "<html>"                                                   << endl;
   *out << "<head>"                                                   << endl;
   *out << "<link type=\"text/css\" rel=\"stylesheet\"";
-  *out << " href=\"/" <<  urn
-       << "/styles.css\"/>"                   << endl;
+  *out << " href=\"/evf/html/styles.css\"/>"                   << endl;
   *out << "<title>" << getApplicationDescriptor()->getClassName() 
        << getApplicationDescriptor()->getInstance() 
        << " MAIN</title>"     << endl;
   *out << "</head>"                                                  << endl;
-  *out << "<body onload=\"loadXMLDoc()\">"                           << endl;
+  *out << "<body>"                                                   << endl;
   *out << "<table border=\"0\" width=\"100%\">"                      << endl;
   *out << "<tr>"                                                     << endl;
   *out << "  <td align=\"left\">"                                    << endl;
@@ -1522,74 +543,9 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</table>"                                                 << endl;
 
   *out << "<hr/>"                                                    << endl;
-  *out << "<table>"                                                  << endl;
-
-  *out << "<tr valign=\"top\">"                                      << endl;
-  *out << "<td>" << endl;
-
-
-  if(evtProcessor_ && !inRecovery_)
-    {
-      edm::TriggerReport tr; 
-      evtProcessor_->getTriggerReport(tr);
-
-      // trigger summary table
-      *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
-      *out << "  <tr>"							<< endl;
-      *out << "    <th colspan=7>"						<< endl;
-      *out << "      " << "Trigger Summary"					<< endl;
-      *out << "    </th>"							<< endl;
-      *out << "  </tr>"							<< endl;
-
-      *out << "  <tr >"							<< endl;
-      *out << "    <th >Path</th>"						<< endl;
-      *out << "    <th >Exec</th>"						<< endl;
-      *out << "    <th >Pass</th>"						<< endl;
-      *out << "    <th >Fail</th>"						<< endl;
-      *out << "    <th >Except</th>"					<< endl;
-      *out << "    <th >TargetPF</th>"					<< endl;
-      *out << "  </tr>"							<< endl;
-      xdata::Serializable *psid = 0;
-      try{
-	psid = ispace->find("prescaleSetIndex");
-      }
-      catch(xdata::exception::Exception e){
-      }
-
-
-      for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-	*out << "  <tr>" << endl;
-	*out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< endl;
-	*out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< endl;
-	*out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< endl;
-	*out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< endl;
-	*out << "    <td ";
-	if(tr.trigPathSummaries[i].timesExcept !=0)
-	  *out << "bgcolor=\"red\""		      					<< endl;
-	*out << ">" << tr.trigPathSummaries[i].timesExcept << "</td>"		<< endl;
-	if(psid != 0)
-	  {
-	    *out << "    <td>"
-		 << prescaleSvc_->getPrescale(tr.trigPathSummaries[i].name) 
-		 << "</td>"		<< endl;
-	  }
-	else 	*out << "    <td>N/A</td>"		                        << endl;
-	*out << "  </tr >"								<< endl;
-	
-      }
-    }
-  else if(inRecovery_)
-    {
-      *out << "  <tr>"							<< endl;
-      *out << "    <td bgcolor=\"red\"> In Recovery !!! </td>"	      		<< endl;
-      *out << "  </tr>"							<< endl;
-    }
-  *out << "</table>" << endl;
-
-  *out << "</td>" << endl;
 
   if(evtProcessor_)
-    taskWebPage(in,out,urn);
+    evtProcessor_.taskWebPage(in,out,urn);
   else
     *out << "<td>HLT Unconfigured</td>" << endl;
   *out << "</table>"                                                 << endl;
@@ -1602,40 +558,6 @@ void FUEventProcessor::spotlightWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</html>"                                                  << endl;
 
 
-}
-
-//______________________________________________________________________________
-void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  edm::ServiceRegistry::Operate operate(serviceToken_);
-  MicroStateService *mss = 0;
-  string micro1 = "unavailable";
-  if(epInitialized_)
-    micro1 = "initialized";
-  string micro2 = "unavailable";
-  if(0 != evtProcessor_ && evtProcessor_->getState() != edm::event_processor::sInit)
-    {
-      try{
-	mss = edm::Service<MicroStateService>().operator->();
-      }
-      catch(...) { 
-	LOG4CPLUS_INFO(getApplicationLogger(),
-		       "exception when trying to get service MicroStateService");
-      }
-    }
-  if(mss) {
-    micro1 = evtProcessor_->currentStateName();
-    micro2 = mss->getMicroState2();
-  }
-  *out << fsm_.stateName()->toString() << endl;   
-  *out << "<br>  " << micro1 << endl;
-  *out << "<br>  " << micro2 << endl;
-  *out << "<br>  " << nbAccepted_.value_ << "/" << nbProcessed_.value_  
-       << " (" << float(nbAccepted_.value_)/float(nbProcessed_.value_)*100. <<"%)" << endl;
-  *out << "<br>  " << lsidAsString_ << "/" << lsidTimedOutAsString_ << endl;
-  *out << "<br>  " << psidAsString_ << endl;
-  *out << " " << endl;
 }
 
 
@@ -1674,350 +596,6 @@ void FUEventProcessor::detachDqmFromShm() throw (evf::Exception)
 }
 
 
-void FUEventProcessor::startScalersWorkLoop() throw (evf::Exception)
-{
-  
-  try {
-    wlScalers_=
-      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Scalers",
-						       "waiting");
-    if (!wlScalers_->isActive()) wlScalers_->activate();
-    asScalers_ = toolbox::task::bind(this,&FUEventProcessor::scalers,
-				      sourceId_+"Scalers");
-    wlScalers_->submit(asScalers_);
-    wlScalersActive_ = true;
-  }
-  catch (xcept::Exception& e) {
-    string msg = "Failed to start workloop 'Scalers'.";
-    XCEPT_RETHROW(evf::Exception,msg,e);
-  }
-}
-
-
-void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
-{
-  struct timezone timezone;
-  gettimeofday(&monStartTime_,&timezone);
-  
-  try {
-    wlMonitoring_=
-      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
-						       "waiting");
-    if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
-    asMonitoring_ = toolbox::task::bind(this,&FUEventProcessor::monitoring,
-				      sourceId_+"Monitoring");
-    wlMonitoring_->submit(asMonitoring_);
-    wlMonitoringActive_ = true;
-  }
-  catch (xcept::Exception& e) {
-    string msg = "Failed to start workloop 'Monitoring'.";
-    XCEPT_RETHROW(evf::Exception,msg,e);
-  }
-}
-
-
-//______________________________________________________________________________
-bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
-{
-  ::sleep(1); //avoid synchronization issues at the start of the event loop
-  edm::ServiceRegistry::Operate operate(serviceToken_);
-  monitorInfoSpace_->lock();
-  if(evtProcessor_)
-    {
-      edm::event_processor::State st = evtProcessor_->getState();
-      monitorInfoSpace_->unlock();
-      if(st == edm::event_processor::sRunning && fsm_.stateName()->toString()=="Enabled")
-	{
-	  if(!getTriggerReport(true)) {
-	    wlScalersActive_ = false;
-	    return false;
-	  }
-	  if(lastLsTimedOut_) lsidTimedOutAsString_ = localLsIncludingTimeOuts_.toString();
-	  else lsidTimedOutAsString_ = "";
-	  if(lastLsTimedOut_ && lastLsWithEvents_==lastLsWithTimeOut_) return true;
-	  if(!fireScalersUpdate()){
-	    wlScalersActive_ = false;
-	    return false;
-	  }
-	}
-      else 
-	{
-	  wlScalersActive_ = false;
-	  return false;
-	}
-    }
-  else
-    {
-      monitorInfoSpace_->unlock();
-      wlScalersActive_ = false;
-      return false;
-    }
-  squidPresent_ = squidnet_.check();
-  return true;
-}
-
-//______________________________________________________________________________
-bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
-{
-  
-  struct timeval  monEndTime;
-  struct timezone timezone;
-  gettimeofday(&monEndTime,&timezone);
-  xdata::InfoSpace *ispace = getApplicationInfoSpace();
-  edm::ServiceRegistry::Operate operate(serviceToken_);
-  //detect failures of edm event processor and attempts recovery procedure
-  if(evtProcessor_)
-    {
-      edm::event_processor::State st = evtProcessor_->getState();
-      if(watching_ && fsm_.stateName()->toString()=="Enabled" && 
-	 !(st == edm::event_processor::sRunning || st == edm::event_processor::sStopping))
-	{
-	  inRecovery_ = true;
-	  LOG4CPLUS_WARN(getApplicationLogger(),
-			 "failure detected in internal edm::EventProcessor - attempting local recovery procedure");
-	  ModuleWebRegistry *mwr = 0;
-	  try{
-	    if(edm::Service<ModuleWebRegistry>().isAvailable())
-	      mwr = edm::Service<ModuleWebRegistry>().operator->();
-	  }
-	  catch(...) { 
-	    LOG4CPLUS_WARN(getApplicationLogger(),
-			   "InRecovery::exception when trying to get service ModuleWebRegistry");
-	  }
-	  //update table for lumi section before going out of scope
-
-	  triggerReportIncomplete_ = true;
-	  edm::TriggerReport tr; 
-	  evtProcessor_->getTriggerReport(tr);
-	  unsigned int ls = 0;
-	  try{
-	    xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
-	    ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
-	  }
-	  catch(xdata::exception::Exception e){
-	  }
-	  trh_.formatReportTable(tr,descs_);
-	  trh_.triggerReportToTable(tr,ls);
-	  //	  trh_.printReportTable();
-	  if(mwr) 
-	    {
-	      mwr->clear();
-	    }
-	  int sc = 0;
-	  if(hasShMem_) detachDqmFromShm();
-	  //	  delete evtProcessor_;
-	  epInitialized_ = false;
-	  initEventProcessor();
-	  evtProcessor_->beginJob();
-	  if(hasShMem_) attachDqmToShm();
-	  if(isRunNumberSetter_)
-	    evtProcessor_->setRunNumber(runNumber_.value_);
-	  else
-	    evtProcessor_->declareRunNumber(runNumber_.value_);
-	  try {
-	    evtProcessor_->runAsync();
-	    sc = evtProcessor_->statusAsync();
-	  }
-	  catch(cms::Exception &e) {
-	    reasonForFailedState_ = e.explainSelf();
-	    fsm_.fireFailed(reasonForFailedState_,this);
-	    return false;
-	  }    
-	  catch(std::exception &e) {
-	    reasonForFailedState_  = e.what();
-	    fsm_.fireFailed(reasonForFailedState_,this);
-	    return false;
-	  }
-	  catch(...) {
-	    reasonForFailedState_ = "Unknown Exception";
-	    fsm_.fireFailed(reasonForFailedState_,this);
-	    return false;
-	  }
-	  
-	  if(sc != 0) {
-	    ostringstream oss;
-	    oss<<"EventProcessor::runAsync returned status code " << sc;
-	    reasonForFailedState_ = oss.str();
-	    fsm_.fireFailed(reasonForFailedState_,this);
-	    wlMonitoringActive_ = false;
-	    return false;
-	  }
-
-	  //	  reasonForFailedState_ = "edm failure, EP state ";
-	  //	  reasonForFailedState_ += evtProcessor_->currentStateName();
-	  //	  fsm_.fireFailed(reasonForFailedState_,this);
-	  LOG4CPLUS_WARN(getApplicationLogger(),
-			 "edm::EventProcessor recovery completed successfully - please check operation of this and other nodes");
-	  inRecovery_ = false;
-	  recoveryCount_++;
-	  localLog("-I- Recovery completed");
-	  startScalersWorkLoop();
-	}
-    }
-
-  MicroStateService *mss = 0;
-
-  monitorInfoSpace_->lock();
-  if(evtProcessor_)
-    {
-      epMState_ = evtProcessor_->currentStateName();
-      epMAltState_ = (int) evtProcessor_->getState();
-    }
-  else
-    {
-      epMState_ = "Off";
-      epMAltState_ = -1;
-    }
-  if(0 != evtProcessor_ && evtProcessor_->getState() != edm::event_processor::sInit)
-    {
-      try{
-	mss = edm::Service<MicroStateService>().operator->();
-      }
-      catch(...) { 
-	LOG4CPLUS_INFO(getApplicationLogger(),
-		       "exception when trying to get service MicroStateService");
-      }
-      try{
-	xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
-	if(lsid!=0){
-	  lsidAsString_ = lsid->toString();
-	}
-      }
-      catch(xdata::exception::Exception e){
-	lsidAsString_ = "N/A";
-      }
-      xdata::Serializable *psid = 0;
-      try{
-	psid = ispace->find("prescaleSetIndex");
-	if(psid!=0) {
-	  psidAsString_ = psid->toString();
-	}
-      }
-      catch(xdata::exception::Exception e){
-	psidAsString_ = "N/A";
-      }
-
-    }
-  if(mss) 
-    {
-      epmState_  = mss->getMicroState2();
-      epmAltState_ = modmap_[mss->getMicroState2()];
-    }
-  if(evtProcessor_)
-    {
-      nbProcessed_ = evtProcessor_->totalEvents();
-      nbAccepted_  = evtProcessor_->totalEventsPassed(); 
-    }
-  monitorInfoSpace_->unlock();  
-
-  ::sleep(monSleepSec_.value_);
-  
-  return true;
-}
-
-
-bool FUEventProcessor::fireScalersUpdate()
-{
-  scalersUpdateAttempted_++;
-  try{
-    scalersInfoSpace_->lock();
-    scalersInfoSpace_->fireItemGroupChanged(names_,0);
-    scalersInfoSpace_->unlock();
-  }
-  catch(xdata::exception::Exception &e)
-    {
-      LOG4CPLUS_ERROR(getApplicationLogger(), "Exception from fireItemGroupChanged: " << e.what());
-      localLog(e.what());
-      return false;
-    }
-  typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
-  typedef AppDescSet_t::iterator            AppDescIter_t;
-  
-  AppDescSet_t rcms=
-    getApplicationContext()->getDefaultZone()->
-    getApplicationDescriptors("RCMSStateListener");
-  if(rcms.size()==0) 
-    {
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "MonitorReceiver not found, perhaphs it has not been defined ? Scalers updater wl will bail out!");
-	localLog("-W- MonitorReceiver not found, perhaphs it has not been defined ? Scalers updater wl will bail out!");
-	return false;
-    }
-  AppDescIter_t it = rcms.begin();
-  
-  toolbox::net::URL url((*it)->getContextDescriptor()->getURL());
-  toolbox::net::URL properurl(url.getProtocol(),url.getHost(),url.getPort(),"/rcms/servlet/monitorreceiver");
-  xdaq::ContextDescriptor *ctxdsc = new xdaq::ContextDescriptor(properurl.toString());
-  xdaq::ApplicationDescriptor *appdesc = new xdaq::ApplicationDescriptorImpl(ctxdsc,(*it)->getClassName(),(*it)->getLocalId(), "pippo");
-  xdata::exdr::Serializer serializer;
-  toolbox::net::URL at(getApplicationContext()->getContextDescriptor()->getURL() + "/" + getApplicationDescriptor()->getURN());
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
-  xoap::SOAPName responseName = envelope.createName( "report", xmas::NamespacePrefix, xmas::NamespaceUri);
-  (void) envelope.getBody().addBodyElement ( responseName );		
-  xoap::SOAPName reportName ("report", xmas::NamespacePrefix, xmas::NamespaceUri);
-  xoap::SOAPElement reportElement = envelope.getBody().getChildElements(reportName)[0];
-  reportElement.addNamespaceDeclaration (xmas::sensor::NamespacePrefix, xmas::sensor::NamespaceUri);
-  xoap::SOAPName sampleName = envelope.createName( "sample", xmas::NamespacePrefix, xmas::NamespaceUri);
-  xoap::SOAPElement sampleElement = reportElement.addChildElement(sampleName);
-  xoap::SOAPName flashListName = envelope.createName( "flashlist", "", "");
-  sampleElement.addAttribute(flashListName,"urn:xdaq-flashlist:scalers");
-  xoap::SOAPName tagName = envelope.createName( "tag", "", "");
-  sampleElement.addAttribute(tagName,"tag");
-  xoap::MimeHeaders* headers = msg->getMimeHeaders();
-  headers->removeHeader("x-xdaq-tags");
-  headers->addHeader("x-xdaq-tags", "tag");
-  tagName = envelope.createName( "originator", "", "");
-  sampleElement.addAttribute(tagName,at.toString());
-  
-  xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
-
-  try
-    {
-      serializer.exportAll( &scalersComplete_, &outBuffer );
-    }
-  catch(xdata::exception::Exception & e)
-    {
-      LOG4CPLUS_WARN(getApplicationLogger(),
-		     "Exception in serialization of scalers table");      
-      localLog("-W- Exception in serialization of scalers table");      
-      return true;
-    }
-  
-  xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
-  attachment->setContentEncoding("binary");
-  tagName = envelope.createName( "tag", "", "");
-  sampleElement.addAttribute(tagName,"tag");
-  std::stringstream contentId;
-
-  contentId << "<" <<  "urn:xdaq-flashlist:scalers" << "@" << at.getHost() << ">";
-  attachment->setContentId(contentId.str());
-  std::stringstream contentLocation;
-  contentId << at.toString();
-  attachment->setContentLocation(contentLocation.str());
-  
-  std::stringstream disposition;
-  disposition << "attachment; filename=" << "urn:xdaq-flashlist:scalers" << ".exdr; creation-date=" << "\"" << "dummy" << "\"";
-  attachment->addMimeHeader("Content-Disposition",disposition.str());
-  msg->addAttachmentPart(attachment);
-  try{
-    this->getApplicationContext()->postSOAP(msg,*(getApplicationDescriptor()),*appdesc);
-  }
-  catch(xdaq::exception::Exception &ex)
-    {
-      string message = "exception when posting SOAP message to MonitorReceiver";
-      message += ex.what();
-      LOG4CPLUS_WARN(getApplicationLogger(),message.c_str());
-      string lmessage = "-W- "+message;
-      localLog(lmessage);
-      return true;
-   }
-  delete appdesc; 
-  delete ctxdsc;
-  scalersUpdateCounter_++;
-  return true;
-}
-
 std::string FUEventProcessor::logsAsString()
 {
   ostringstream oss;
@@ -2050,6 +628,613 @@ void FUEventProcessor::localLog(string m)
   timestamp << " at " << datestring;
   m += timestamp.str();
   logRing_[logRingIndex_] = m;
+}
+
+void FUEventProcessor::startSupervisorLoop()
+{
+  try {
+    wlSupervising_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop("Supervisor",
+						       "waiting");
+    if (!wlSupervising_->isActive()) wlSupervising_->activate();
+    asSupervisor_ = toolbox::task::bind(this,&FUEventProcessor::supervisor,
+					"Supervisor");
+    wlSupervising_->submit(asSupervisor_);
+    supervising_ = true;
+  }
+  catch (xcept::Exception& e) {
+    std::string msg = "Failed to start workloop 'Supervisor'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+  std::cout << "supervisor loop started " << std::endl;
+
+}
+
+void FUEventProcessor::startReceivingLoop()
+{
+  try {
+    wlReceiving_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop("Receiving",
+						       "waiting");
+    if (!wlReceiving_->isActive()) wlReceiving_->activate();
+    asReceiveMsgAndExecute_ = toolbox::task::bind(this,&FUEventProcessor::receiving,
+					"Receiving");
+    wlReceiving_->submit(asReceiveMsgAndExecute_);
+    receiving_ = true;
+  }
+  catch (xcept::Exception& e) {
+    std::string msg = "Failed to start workloop 'Receiving'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+  std::cout << "receiving loop started " << std::endl;
+
+}
+void FUEventProcessor::startReceivingMonitorLoop()
+{
+  try {
+    wlReceivingMonitor_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop("ReceivingM",
+						       "waiting");
+    if (!wlReceivingMonitor_->isActive()) 
+      wlReceivingMonitor_->activate();
+    asReceiveMsgAndRead_ = 
+      toolbox::task::bind(this,&FUEventProcessor::receivingAndMonitor,
+			  "ReceivingM");
+    wlReceivingMonitor_->submit(asReceiveMsgAndRead_);
+    receivingM_ = true;
+  }
+  catch (xcept::Exception& e) {
+    std::string msg = "Failed to start workloop 'ReceivingM'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+  std::cout << "receivingM loop started " << std::endl;
+
+}
+
+bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
+{
+  MsgBuf msg;
+  try{
+    sq_->rcv(msg); //will receive only messages from Master
+    if(msg->mtype==MSQM_MESSAGE_TYPE_STOP)
+      {
+	fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+	stopClassic(); // call the normal sequence of stopping - as this is allowed to fail provisions must be made ...@@@EM
+	MsgBuf msg1(0,MSQS_MESSAGE_TYPE_STOP);
+	sq_->post(msg1);
+	fclose(stdout);
+	fclose(stderr);
+	exit(EXIT_SUCCESS);
+      }
+  }
+  catch(evf::Exception &e){}
+  return true;
+}
+
+bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
+{
+  std::cout << " supervisor entered " << std::endl;
+  pthread_mutex_lock(&stop_lock_);
+  bool running = fsm_.stateName()->toString()=="Enabled";
+  bool stopping = fsm_.stateName()->toString()=="stopping";
+  std::cout << " supervisor running " << running << " stopping " << stopping << std::endl;
+  for(unsigned int i = 0; i < subs_.size(); i++)
+    {
+      int sl;
+      std::cout << " supervisor checking process " << subs_[i].pid() << std::endl;  
+      pid_t killedOrNot = waitpid(subs_[i].pid(),&sl,WNOHANG);
+
+      if(killedOrNot==subs_[i].pid()) subs_[i].alive() = (WIFEXITED(sl) != 0 ? 0 : -1);
+      else continue;
+      std::cout << " supervisor picking up process " << i << std::endl;
+      pthread_mutex_lock(&pickup_lock_);
+      ostringstream ost;
+      if(subs_[i].alive()==0) ost << " process exited with status " << WEXITSTATUS(sl);
+      else if(WIFSIGNALED(sl)!=0) ost << " process terminated with signal " << WTERMSIG(sl);
+      else ost << " process stopped ";
+      subs_[i].countdown()=10;
+      subs_[i].setReasonForFailed(ost.str());
+      ostringstream ost1;
+      ost1 << "-E- Slave " << subs_[i].pid() << ost.str();
+      localLog(ost1.str());
+      pthread_mutex_unlock(&pickup_lock_);
+    }
+  pthread_mutex_unlock(&stop_lock_);	
+  if(stopping) return true;
+  if(running)
+    {
+      std::cout << " supervisor entered running checks " << std::endl;
+      for(unsigned int i = 0; i < nbSubProcesses_; i++)
+	{
+	  if(subs_[i].alive() != 1){
+	    if(subs_[i].countdown()-- == 0)
+	      {
+		pid_t rr = subs_[i].forkNew();
+		if(rr==0)
+		  {
+		    isChildProcess_=true;
+		    fsm_.fireEvent("Stop",this); // need to set state in fsm first to allow stopDone transition
+		    fsm_.fireEvent("StopDone",this); // need to set state in fsm first to allow stopDone transition
+		    fsm_.fireEvent("Enable",this); // need to set state in fsm first to allow stopDone transition
+		    enableMPEPSlave(i);
+		  }
+		else
+		  {
+		    ostringstream ost1;
+		    ost1 << "-I- New Process " << rr << " forked for slot " << i; 
+		    localLog(ost1.str());
+		  }
+	      }
+	  }
+	}
+      xdata::Serializable *lsid = 0; 
+      xdata::Serializable *psid = 0;
+      xdata::Serializable *epMAltState = 0; 
+      xdata::Serializable *epmAltState = 0;
+
+      MsgBuf msg1(0,MSQM_MESSAGE_TYPE_PRG);
+      MsgBuf msg2(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_PRR);
+      
+      try{
+	lsid = applicationInfoSpace_->find("lumiSectionIndex");
+	psid = applicationInfoSpace_->find("prescaleSetIndex");
+	nbProcessed = monitorInfoSpace_->find("nbProcessed");
+	nbAccepted  = monitorInfoSpace_->find("nbAccepted");
+	epMAltState = monitorInfoSpace_->find("epMacroStateInt");
+	epmAltState = monitorInfoSpace_->find("epMicroStateInt");
+
+      }
+      catch(xdata::exception::Exception e){
+	LOG4CPLUS_INFO(getApplicationLogger(),"could not retrieve some data - " << e.what());    
+      }
+      try{
+	if(nbProcessed !=0 && nbAccepted !=0)
+	  {
+	    ((xdata::UnsignedInteger32*)nbProcessed)->value_ = 0;
+	    ((xdata::UnsignedInteger32*)nbAccepted)->value_  = 0;
+
+	    nblive_ = 0;
+	    nbdead_ = 0;
+	    
+	    for(unsigned int i = 0; i < subs_.size(); i++)
+	      {
+		if(subs_[i].alive()>0)
+		  {
+		    nblive_++;
+		    std::cout << " supervisor posting query " << i << std::endl;
+		    int ret = subs_[i].post(msg1,true);
+		    std::cout << " supervisor posted query returned " << ret << " and receiving " << i << std::endl;
+		    subs_[i].rcvNonBlocking(msg2,true);
+		    std::cout << " supervisor received response from " << i << std::endl;
+		    prg* p = (struct prg*)(msg2->mtext);
+		    subs_[i].setParams(p);
+
+
+		    ((xdata::UnsignedInteger32*)nbProcessed)->value_ += p->nbp;
+		    ((xdata::UnsignedInteger32*)nbAccepted)->value_  += p->nba;
+		  }
+		else
+		  nbdead_++;
+	      }
+	  }
+
+      }
+      catch(evf::Exception &e){
+	LOG4CPLUS_INFO(getApplicationLogger(),"could not send/receive msg - " << e.what());    
+      }
+      catch(std::exception &e){
+	LOG4CPLUS_INFO(getApplicationLogger(),"std exception - " << e.what());    
+      }
+      catch(...){
+	LOG4CPLUS_INFO(getApplicationLogger(),"unknown exception ");    
+      }
+    }
+  ::sleep(1);	
+  return true;
+}
+
+bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
+{
+  MsgBuf msg;
+  try{
+    std::cout << "receivingM receive message " << std::endl; 
+    sqm_->rcv(msg); //will receive only messages from Master
+    std::cout << "receivingM received message of type " << msg->mtype << std::endl; 
+    switch(msg->mtype)
+      {
+      case MSQM_MESSAGE_TYPE_MCS:
+	{
+	  xgi::Input *in = 0;
+	  xgi::Output out;
+	  evtProcessor_.microState(in,&out);
+	  MsgBuf msg1(out.str().size(),MSQS_MESSAGE_TYPE_MCR);
+	  strncpy(msg1->mtext,out.str().c_str(),out.str().size());
+	  std::cout << "receivingM posting response to MCS " << std::endl; 
+	  sqm_->post(msg1);
+	  break;
+	}
+      
+      case MSQM_MESSAGE_TYPE_PRG:
+	{
+	  std::cout << "process " << getpid() << "in receivingandmonitor with message of type PRG1" << std::endl;
+	  MsgBuf msg1(sizeof(prg),MSQS_MESSAGE_TYPE_PRR);
+	  xdata::Serializable * dt[6];
+	  std::cout << "process " << getpid() << "in receivingandmonitor with message of type PRG2" << std::endl;
+	  try{
+	    dt[0] = applicationInfoSpace_->find("lumiSectionIndex");
+	    dt[1] = applicationInfoSpace_->find("prescaleSetIndex");
+	    dt[2] = monitorInfoSpace_->find("nbProcessed");
+	    dt[3] = monitorInfoSpace_->find("nbAccepted");
+	    dt[4] = monitorInfoSpace_->find("epMacroStateInt");
+	    dt[5] = monitorInfoSpace_->find("epMicroStateInt");
+	    std::cout << "process " << getpid() << "in receivingandmonitor with message of type PRG3" << std::endl;
+	  }
+	  catch(xdata::exception::Exception &e)
+	    {
+	      LOG4CPLUS_INFO(getApplicationLogger(),"could not retrieve some data - " << e.what());    
+	    }
+	  std::cout << "process " << getpid() << "in receivingandmonitor with message of type PRG4" << std::endl;
+	  for(unsigned int i = 0; i<6; i++)
+	    if(dt[i]!=0) *(unsigned int*)(msg1->mtext+i*sizeof(unsigned int)) = ((xdata::UnsignedInteger32*)dt[i])->value_;
+	  std::cout << "receivingM posting response to PRG " << std::endl; 
+	  sqm_->post(msg1);
+	  break;
+	}
+      case MSQM_MESSAGE_TYPE_WEB:
+	{
+	  xgi::Input *in = 0;
+	  xgi::Output out;
+	  std::cout << "message web received with text " << msg->mtext << std::endl;
+	  if(strcmp(msg->mtext,"Spotlight")==0)
+	    {
+	      std::cout << "invoking spotlight " << std::endl;
+	      spotlightWebPage(in,&out);
+	    }
+	  else if(strcmp(msg->mtext,"procStat")==0)
+	    {
+	      std::cout << "invoking procStat " << std::endl;
+	      procStat(in,&out);
+	    }
+	  else 
+	    {
+	      std::cout << "404 response " << std::endl;
+	      out << "Error 404!!!!!!!!" << std::endl;
+	    }
+
+	  MsgBuf msg1(out.str().size(),MSQS_MESSAGE_TYPE_WEB);
+	  strncpy(msg1->mtext,out.str().c_str(),out.str().size());
+	  std::cout << "receivingM posting response to WEB " << std::endl; 
+	  sqm_->post(msg1);
+	  break;
+	}
+      case MSQM_MESSAGE_TYPE_TRP:
+	{
+// 	  MsgBuf msg1 = evtProcessor_.getAndPackTriggerReport();
+// 	  std::cout << "receivingM posting response to TRP " << std::endl; 
+// 	  sqm_->post(msg1);
+	  break;
+	}
+      }
+  }
+  catch(evf::Exception &e){std::cout << "exception caught in recevingM: " << e.what() << std::endl;}
+  return true;
+}
+
+bool FUEventProcessor::enableCommon()
+{
+  try {    
+    if(hasShMem_) attachDqmToShm();
+    int sc = 0;
+    evtProcessor_->clearCounters();
+    if(isRunNumberSetter_)
+      evtProcessor_->setRunNumber(runNumber_.value_);
+    else
+      evtProcessor_->declareRunNumber(runNumber_.value_);
+    try{
+      ::sleep(1);
+      evtProcessor_->runAsync();
+      sc = evtProcessor_->statusAsync();
+    }
+    catch(cms::Exception &e) {
+      reasonForFailedState_ = e.explainSelf();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      return false;
+    }    
+    catch(std::exception &e) {
+      reasonForFailedState_  = e.what();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      return false;
+    }
+    catch(...) {
+      reasonForFailedState_ = "Unknown Exception";
+      fsm_.fireFailed(reasonForFailedState_,this);
+      return false;
+    }
+    if(sc != 0) {
+      ostringstream oss;
+      oss<<"EventProcessor::runAsync returned status code " << sc;
+      reasonForFailedState_ = oss.str();
+      fsm_.fireFailed(reasonForFailedState_,this);
+      return false;
+    }
+  }
+  catch (xcept::Exception &e) {
+    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+  }
+  try{
+    fsm_.fireEvent("EnableDone",this);
+  }
+  catch (xcept::Exception &e) {
+    std::cout << "exception " << (string)e.what() << std::endl;
+    throw;
+  }
+
+  return false;
+}
+  
+bool FUEventProcessor::enableClassic()
+{
+  bool retval = enableCommon();
+  while(evtProcessor_->getState()!= edm::event_processor::sRunning){
+    LOG4CPLUS_INFO(getApplicationLogger(),"waiting for edm::EventProcessor to start before enabling watchdog");
+    ::sleep(1);
+  }
+  
+  //  implementation moved to EPWrapper
+  evtProcessor_.startScalersWorkLoop();
+  localLog("-I- Start completed");
+  return retval;
+}
+bool FUEventProcessor::enableMPEPSlave(int ind)
+{
+  //all this happens only in the child process
+  sq_ = new SlaveQueue(ind);
+  sqm_ = new SlaveQueue(200+ind);
+  startReceivingLoop();
+  startReceivingMonitorLoop();
+  ::sleep(1);
+  evtProcessor_.startMonitoringWorkLoop();
+  try{
+    //    evtProcessor_.makeServicesOnly();
+    try{
+      LOG4CPLUS_DEBUG(getApplicationLogger(),
+		      "Trying to create message service presence ");
+      edm::PresenceFactory *pf = edm::PresenceFactory::get();
+      if(pf != 0) {
+	pf->makePresence("MessageServicePresence").release();
+      }
+      else {
+	LOG4CPLUS_ERROR(getApplicationLogger(),
+			"Unable to create message service presence ");
+      }
+    } 
+    catch(...) {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"Unknown Exception");
+    }
+  ML::MLlog4cplus::setAppl(this);      
+  }	  
+  catch (xcept::Exception &e) {
+    reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(reasonForFailedState_,this);
+  }
+  bool retval =  enableCommon();
+  evtProcessor_.startScalersWorkLoop();
+  return retval;
+}
+
+bool FUEventProcessor::stopClassic()
+{
+  try {
+    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
+    edm::EventProcessor::StatusCode rc = evtProcessor_.stop();
+    if(rc != edm::EventProcessor::epTimedOut) 
+      fsm_.fireEvent("StopDone",this);
+    else
+      {
+	//	epMState_ = evtProcessor_->currentStateName();
+	reasonForFailedState_ = "EventProcessor stop timed out";
+	localLog(reasonForFailedState_);
+	fsm_.fireFailed(reasonForFailedState_,this);
+
+      }
+    if(hasShMem_) detachDqmFromShm();
+  }
+  catch (xcept::Exception &e) {
+    reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
+    localLog(reasonForFailedState_);
+    fsm_.fireFailed(reasonForFailedState_,this);
+  }
+  LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
+  localLog("-I- Stop completed");
+  return false;
+}
+
+void FUEventProcessor::stopSlavesAndAcknowledge()
+{
+  MsgBuf msg(0,MSQM_MESSAGE_TYPE_STOP);
+  MsgBuf msg1(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_STOP);
+
+  for(unsigned int i = 0; i < nbSubProcesses_.value_; i++)
+    {
+      pthread_mutex_lock(&stop_lock_);
+      std::cout << "sending stop to process " << subs_[i].pid() 
+		<< " already dead ? alive= "  << subs_[i].alive() << std::endl;
+      if(subs_[i].alive()>0)subs_[i].post(msg,false);
+      std::cout << "done sending stop to process " << subs_[i].pid() << std::endl;
+      std::cout << "going to check on  process " << subs_[i].pid() 
+		<< " already dead ? alive= "  << subs_[i].alive() << std::endl;
+
+      if(subs_[i].alive()<=0)
+	{
+	  std::cout << "process " << subs_[i].pid() << " already dead ? alive= " 
+		    << subs_[i].alive() << std::endl;
+	  pthread_mutex_unlock(&stop_lock_);
+	  continue;
+	}
+      try{
+	std::cout << "try to receive stop ack " << subs_[i].pid() 
+		  << " already dead ? alive= "  << subs_[i].alive() << std::endl;
+
+	subs_[i].rcv(msg1,false);
+	std::cout << "received stop ack " << subs_[i].pid() 
+		  << " already dead ? alive= "  << subs_[i].alive() << std::endl;
+
+      }
+      catch(evf::Exception &e){
+	ostringstream ost;
+	ost << "failed to get STOP - errno ->" << errno << " " << e.what(); 
+	reasonForFailedState_ = ost.str();
+	LOG4CPLUS_WARN(getApplicationLogger(),reasonForFailedState_);
+	fsm_.fireFailed(reasonForFailedState_,this);
+	break;
+      }
+      pthread_mutex_unlock(&stop_lock_);
+      std::cout << "unlocks stopmutex process " << subs_[i].pid() 
+		<< " already dead ? alive= "  << subs_[i].alive() << std::endl;
+
+      if(msg1->mtype==MSQS_MESSAGE_TYPE_STOP)
+	while(subs_[i].alive()>0) ::usleep(10000);
+      subs_[i].disconnect();
+
+    }
+
+
+}
+
+void FUEventProcessor::microState(xgi::Input *in,xgi::Output *out)
+{
+  try{
+    evtProcessor_.stateNameFromIndex(0);
+    evtProcessor_.moduleNameFromIndex(0);
+  if(isChildProcess_) {std::cout << "microstate called for child! bail out" << std::endl; return;}
+  //  std::cout << "process " << getpid() << " - microstate " << std::endl;
+  *out << "<tr><td>" << fsm_.stateName()->toString() 
+       << "</td><td>M</td><td>" << nblive_ << "</td><td>"
+       << nbdead_ << "</td><td><a id=\"pM\" href=\"procStat\">" << getpid() <<"</a></td>";
+  evtProcessor_.microState(in,out);
+  *out << "</tr>";
+  if(nbSubProcesses_.value_!=0) 
+    {
+      pthread_mutex_lock(&start_lock_);
+      for(unsigned int i = 0; i < subs_.size(); i++)
+	{
+	  try{
+	    if(subs_[i].alive()>0)
+	      {
+		*out << "<tr><td  bgcolor=\"#00FF00\" id=\"a"
+		     << i << "\">""Alive</td><td>S</td><td>"
+		     << subs_[i].queueId() << "<td>" 
+		     << subs_[i].queueStatus()<< "/"
+		     << subs_[i].queueOccupancy() << "/"
+		     << subs_[i].queuePidOfLastSend() << "/"
+		     << subs_[i].queuePidOfLastReceive() 
+		     << "</td><td><a id=\"p"<< i << "\" href=\"SubWeb?process=" 
+		     << subs_[i].pid() << "&method=procStat\">" 
+		     << subs_[i].pid()<<"</a></td>" //<< msg->mtext;
+		     << "<td>" << evtProcessor_.stateNameFromIndex(subs_[i].params().Ms) << "</td><td>" 
+		     << evtProcessor_.moduleNameFromIndex(subs_[i].params().ms) << "</td><td>" 
+		     << subs_[i].params().nba << "/" << subs_[i].params().nbp 
+		     << " (" << float(subs_[i].params().nba)/float(subs_[i].params().nbp)*100. <<"%)" 
+		     << "</td><td>" << subs_[i].params().ls << "/" << subs_[i].params().ls 
+		     << "</td><td>" << subs_[i].params().ps << "</td>";
+	      }
+	    else 
+	      {
+		pthread_mutex_lock(&pickup_lock_);
+		*out << "<tr><td id=\"a"<< i << "\" "  
+		     << (subs_[i].alive()==0 ? ">Done" : " bgcolor=\"#FF0000\">Dead") 
+		     << "</td><td>S</td><td>"<< subs_[i].queueId() << "<td>" 
+		     << subs_[i].queueStatus() << "/"
+		     << subs_[i].queueOccupancy() << "/"
+		     << subs_[i].queuePidOfLastSend() << "/"
+		     << subs_[i].queuePidOfLastReceive() 
+		     << "</td><td id=\"p"<< i << "\">"
+		     <<subs_[i].pid()<<"</td><td colspan=\"5\">" << subs_[i].reasonForFailed();
+		if(subs_[i].alive()!=0) *out << " will restart in " << subs_[i].countdown() << " s";
+		*out << "</td>";
+		pthread_mutex_unlock(&pickup_lock_);
+	      }
+	    *out << "</tr>";
+	  }
+	  catch(evf::Exception &e){
+	    *out << "<tr><td id=\"a"<< i << "\" " 
+		 <<"bgcolor=\"#FFFF00\">NotResp</td><td>S</td><td>"<< subs_[i].queueId() << "<td>" 
+		 << subs_[i].queueStatus() << "/"
+		 << subs_[i].queueOccupancy() << "/"
+		 << subs_[i].queuePidOfLastSend() << "/"
+		 << subs_[i].queuePidOfLastReceive() 
+		 << "</td><td id=\"p"<< i << "\">"
+		 <<subs_[i].pid()<<"</td>";
+	  }
+	}
+      pthread_mutex_unlock(&start_lock_); 
+    }
+  }
+      catch(evf::Exception &e)
+      {
+	LOG4CPLUS_INFO(getApplicationLogger(),"evf::Exception caught in microstate - " << e.what());    
+      }
+    catch(cms::Exception &e)
+      {
+	LOG4CPLUS_INFO(getApplicationLogger(),"cms::Exception caught in microstate - " << e.what());    
+      }
+    catch(std::exception &e)
+      {
+	LOG4CPLUS_INFO(getApplicationLogger(),"std::Exception caught in microstate - " << e.what());    
+      }
+    catch(...)
+      {
+	LOG4CPLUS_INFO(getApplicationLogger(),"unknown exception caught in microstate - ");    
+      }
+
+}
+
+
+void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
+{
+  *out << updaterStatic_;
+
+  *out << "<div id=\"st\">" << fsm_.stateName()->toString() << "</div>"
+       << "<div id=\"ru\">" << runNumber_.toString() << "</div>"
+       << "<div id=\"nsl\">" << nbSubProcesses_.value_ << "</div>"
+       << "<div id=\"cl\">" << getApplicationDescriptor()->getClassName() 
+       << (nbSubProcesses_.value_ > 0 ? "MP " : " ") << "</div>"
+       << "<div id=\"in\">" << getApplicationDescriptor()->getInstance() << "</div>";
+  if(fsm_.stateName()->toString() != "Halted" && fsm_.stateName()->toString() != "halting")
+    *out << "<div id=\"hlt\"><a href=\"" << configString_.toString() << "\">HLT Config</a></div>" << endl;
+  else
+    *out << "<div id=\"hlt\">Not yet...</div>" << endl;  
+  *out << "<div id=\"sq\">" << squidPresent_.toString() << "</div>"
+       << "<div id=\"vwl\">" << (supervising_ ? "Active" : "not initialized") << "</div>"
+       << "<div id=\"mwl\">" << evtProcessor_.wlMonitoring() << "</div>";
+  if(nbProcessed != 0 && nbAccepted != 0)
+    {
+      *out << "<div id=\"tt\">" << ((xdata::UnsignedInteger32*)nbProcessed)->value_ << "</div>"
+	   << "<div id=\"ac\">" << ((xdata::UnsignedInteger32*)nbAccepted)->value_ << "</div>";
+    }
+  else
+    {
+      *out << "<div id=\"tt\">" << 0 << "</div>"
+	   << "<div id=\"ac\">" << 0 << "</div>";
+    }
+
+  *out<< "<div id=\"swl\">" << evtProcessor_.wlScalers() << "</div>"
+      << "<div id=\"lg\">";
+  for(unsigned int i = logRingIndex_; i<logRingSize_; i++)
+    *out << logRing_[i] << std::endl;
+  if(logWrap_)
+    for(unsigned int i = 0; i<logRingIndex_; i++)
+      *out << logRing_[i] << std::endl;
+  *out << "</div>" << std::endl;
+}
+void FUEventProcessor::procStat(xgi::Input *in, xgi::Output *out)
+{
+  evf::utils::procStat(out);
+}
+void FUEventProcessor::sendMessageOverMonitorQueue(MsgBuf &buf)
+{
+  sqm_->post(buf);
 }
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

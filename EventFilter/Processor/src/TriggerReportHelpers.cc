@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 namespace evf{
   namespace fuep{
@@ -206,5 +207,86 @@ void TriggerReportHelpers::printTriggerReport(edm::TriggerReport &tr)
   std::cout << oss.str() << std::endl; 
   //  LOG4CPLUS_DEBUG(getApplicationLogger(),oss.str());
 }
+
+void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr)
+{
+  size_t max_paths = 500;
+  size_t max_endpaths = 20;
+  size_t max_label = 80;
+  size_t max_modules = 100;
+    
+  TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
+  trp->lumiSection = lumiSectionIndex_;
+  //copy the event summary
+  trp->eventSummary = tr.eventSummary;
+  //get total paths in the menu
+  trp->trigPathsInMenu = std::min(tr.trigPathSummaries.size(),max_paths);
+  trp->endPathsInMenu = std::min(tr.endPathSummaries.size(),max_endpaths);
+  //traverse the trigger report to get a copy of relevant parts in the static structure
+  // loop on paths
+  for(unsigned int i = 0; i < trp->trigPathsInMenu; i++)
+    {
+      // fill individual path summaries
+      trp->trigPathSummaries[i].bitPosition = tr.trigPathSummaries[i].bitPosition;
+      trp->trigPathSummaries[i].timesRun    = tr.trigPathSummaries[i].timesRun;
+      trp->trigPathSummaries[i].timesPassed = tr.trigPathSummaries[i].timesPassed;
+      trp->trigPathSummaries[i].timesFailed = tr.trigPathSummaries[i].timesFailed;
+      trp->trigPathSummaries[i].timesExcept = tr.trigPathSummaries[i].timesExcept;
+      trp->trigPathSummaries[i].modulesInPath =
+	std::min(max_modules,tr.trigPathSummaries[i].moduleInPathSummaries.size());
+      size_t pathNameLength = std::min(max_label,tr.trigPathSummaries[i].name.length());
+      strncpy(trp->trigPathSummaries[i].name, tr.trigPathSummaries[i].name.c_str(), pathNameLength);
+      //loop over modules in path
+      for(unsigned int j = 0; j<trp->trigPathSummaries[i].modulesInPath; j++)
+	{
+	  //copy module summaries
+	  trp->trigPathSummaries[i].moduleInPathSummaries[j].timesVisited =
+	    tr.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited;
+	  trp->trigPathSummaries[i].moduleInPathSummaries[j].timesPassed =
+	    tr.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed;
+	  trp->trigPathSummaries[i].moduleInPathSummaries[j].timesFailed =
+	    tr.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed;
+	  trp->trigPathSummaries[i].moduleInPathSummaries[j].timesExcept =
+	    tr.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept;
+	  size_t moduleNameLength =  std::min(max_label,tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel.length());
+	  strncpy(trp->trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel,
+		  tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel.c_str(),
+		  moduleNameLength);
+	}
+    }
+  for(unsigned int i = 0; i < trp->endPathsInMenu; i++)
+    {
+      trp->endPathSummaries[i].bitPosition = tr.endPathSummaries[i].bitPosition;
+      trp->endPathSummaries[i].timesRun    = tr.endPathSummaries[i].timesRun;
+      trp->endPathSummaries[i].timesPassed = tr.endPathSummaries[i].timesPassed;
+      trp->endPathSummaries[i].timesFailed = tr.endPathSummaries[i].timesFailed;
+      trp->endPathSummaries[i].timesExcept = tr.endPathSummaries[i].timesExcept;
+      trp->endPathSummaries[i].modulesInPath =
+	std::min(max_modules,tr.endPathSummaries[i].moduleInPathSummaries.size());
+      size_t pathNameLength = std::min(max_label,tr.endPathSummaries[i].name.length());
+      strncpy(trp->endPathSummaries[i].name, tr.endPathSummaries[i].name.c_str(), pathNameLength);
+      for(unsigned int j = 0; j<trp->endPathSummaries[i].modulesInPath; j++)
+	{
+	  trp->endPathSummaries[i].moduleInPathSummaries[j].timesVisited =
+	    tr.endPathSummaries[i].moduleInPathSummaries[j].timesVisited;
+	  trp->endPathSummaries[i].moduleInPathSummaries[j].timesPassed =
+	    tr.endPathSummaries[i].moduleInPathSummaries[j].timesPassed;
+	  trp->endPathSummaries[i].moduleInPathSummaries[j].timesFailed =
+	    tr.endPathSummaries[i].moduleInPathSummaries[j].timesFailed;
+	  trp->endPathSummaries[i].moduleInPathSummaries[j].timesExcept =
+	    tr.endPathSummaries[i].moduleInPathSummaries[j].timesExcept;
+	  size_t moduleNameLength =  std::min(max_label,tr.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel.length());
+	  strncpy(trp->endPathSummaries[i].moduleInPathSummaries[j].moduleLabel,
+		  tr.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel.c_str(),
+		  moduleNameLength);
+	}
+    }
+  std::cout << "packTriggerReport for ls " << trp->lumiSection << std::endl;
+  std::cout << "packTriggerReport events " << trp->eventSummary.totalEvents << std::endl;
+  std::cout << "packTriggerReport passed " << trp->eventSummary.totalEventsPassed << std::endl;
+  std::cout << "packTriggerReport failed " << trp->eventSummary.totalEventsFailed << std::endl;
+  std::cout << "packTriggerReport trigger paths " << trp->trigPathsInMenu << std::endl;
+  std::cout << "packTriggerReport end paths " << trp->endPathsInMenu << std::endl;
 }
-}
+}//end namespace fuep
+}//end namespace evf
