@@ -70,54 +70,64 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     string dqmFolder;
     string triggerProcessName;
     string triggerPathName;
+    InputTag triggerSummaryRAWTag;
+    InputTag triggerSummaryAODTag;
+    InputTag triggerResultsTag;
+    InputTag recoMuonsTag;
     InputTag genParticlesTag;   
     vector<int> motherIDs;
-    InputTag recoMuonsTag;   
-    InputTag triggerResultsTag; 
-    InputTag triggerSummaryRAWTag; 
-    InputTag triggerSummaryAODTag; 
     double genGlobDeltaRMatchingCut;
     double globL1DeltaRMatchingCut;
     double globL2DeltaRMatchingCut;
     double globL3DeltaRMatchingCut;
+    vector<double> deltaEtaBins;
+    vector<double> deltaPhiBins;
+    vector<double> muonPtBins;
+    vector<double> muonEtaBins;
+    vector<double> muonPhiBins;
+    vector<double> dimuonPtBins;
+    vector<double> dimuonEtaBins;
+    vector<double> dimuonDRBins;
     DQMStore* dqmStore;
     map<TString, MonitorElement *> ME;
     vector<pair<string,int> > filterNamesLevels;
-    double muonMass;
+    const double muonMass;
     TriggerNames triggerNames;
 };
 
-HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
+HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
 //get parameters
-  dqmFolder = pset.getUntrackedParameter<string>("DQMFolder");
-  triggerProcessName = pset.getUntrackedParameter<string>("TriggerProcessName");
-  triggerPathName = pset.getUntrackedParameter<string>("TriggerPathName");
-  triggerSummaryRAWTag = InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName);
-  triggerSummaryAODTag = InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName);
-  triggerResultsTag = InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName);
-  recoMuonsTag = pset.getParameter<InputTag>("RecoMuons");
-  genParticlesTag = pset.getParameter<InputTag>("GenParticles");
-  motherIDs = pset.getUntrackedParameter<vector<int> >("MotherIDs");
-  genGlobDeltaRMatchingCut = pset.getUntrackedParameter<double>("GenGlobDeltaRMatchingCut");
-  globL1DeltaRMatchingCut = pset.getUntrackedParameter<double>("GlobL1DeltaRMatchingCut");
-  globL2DeltaRMatchingCut = pset.getUntrackedParameter<double>("GlobL2DeltaRMatchingCut");
-  globL3DeltaRMatchingCut = pset.getUntrackedParameter<double>("GlobL3DeltaRMatchingCut");
-  vector<double> deltaEtaBins = pset.getUntrackedParameter<vector<double> >("DeltaEtaBins");
-  vector<double> deltaPhiBins = pset.getUntrackedParameter<vector<double> >("DeltaPhiBins");
-  vector<double> muonPtBins = pset.getUntrackedParameter<vector<double> >("MuonPtBins");
-  vector<double> muonEtaBins = pset.getUntrackedParameter<vector<double> >("MuonEtaBins");
-  vector<double> muonPhiBins = pset.getUntrackedParameter<vector<double> >("MuonPhiBins");
-  vector<double> dimuonPtBins = pset.getUntrackedParameter<vector<double> >("DimuonPtBins");
-  vector<double> dimuonEtaBins = pset.getUntrackedParameter<vector<double> >("DimuonEtaBins");
-  vector<double> dimuonDRBins = pset.getUntrackedParameter<vector<double> >("DimuonDRBins");
-  muonMass = 0.106;
+  dqmFolder(pset.getUntrackedParameter<string>("DQMFolder")),
+  triggerProcessName(pset.getUntrackedParameter<string>("TriggerProcessName")),
+  triggerPathName(pset.getUntrackedParameter<string>("TriggerPathName")),
+  triggerSummaryRAWTag(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName)),
+  triggerSummaryAODTag(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName)),
+  triggerResultsTag(InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName)),
+  recoMuonsTag(pset.getParameter<InputTag>("RecoMuons")),
+  genParticlesTag(pset.getParameter<InputTag>("GenParticles")),
+  motherIDs(pset.getUntrackedParameter<vector<int> >("MotherIDs")),
+  genGlobDeltaRMatchingCut(pset.getUntrackedParameter<double>("GenGlobDeltaRMatchingCut")),
+  globL1DeltaRMatchingCut(pset.getUntrackedParameter<double>("GlobL1DeltaRMatchingCut")),
+  globL2DeltaRMatchingCut(pset.getUntrackedParameter<double>("GlobL2DeltaRMatchingCut")),
+  globL3DeltaRMatchingCut(pset.getUntrackedParameter<double>("GlobL3DeltaRMatchingCut")),
+  deltaEtaBins(pset.getUntrackedParameter<vector<double> >("DeltaEtaBins")),
+  deltaPhiBins(pset.getUntrackedParameter<vector<double> >("DeltaPhiBins")),
+  muonPtBins(pset.getUntrackedParameter<vector<double> >("MuonPtBins")),
+  muonEtaBins(pset.getUntrackedParameter<vector<double> >("MuonEtaBins")),
+  muonPhiBins(pset.getUntrackedParameter<vector<double> >("MuonPhiBins")),
+  dimuonPtBins(pset.getUntrackedParameter<vector<double> >("DimuonPtBins")),
+  dimuonEtaBins(pset.getUntrackedParameter<vector<double> >("DimuonEtaBins")),
+  dimuonDRBins(pset.getUntrackedParameter<vector<double> >("DimuonDRBins")),
+  muonMass(0.106)
+{}
   
+void HeavyFlavorValidation::beginJob(const EventSetup&){
 //discover HLT configuration
   HLTConfigProvider hltConfig;
   if(hltConfig.init(triggerProcessName)){
     LogDebug("HLTriggerOfflineHeavyFlavor") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
   }else{
-    LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    LogWarning("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
   }
   stringstream os;
   vector<string> triggerNames = hltConfig.triggerNames();
@@ -251,9 +261,6 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset){
   myBook1D( "pathMuon_size", sizeBins, "container size", triggerPathName );
 }
 
-void HeavyFlavorValidation::beginJob(const EventSetup&){
-}
-
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
   if( !dqmStore ){
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access DQM Store service"<<endl;
@@ -268,7 +275,8 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   iEvent.getByLabel(genParticlesTag, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
-      if( p->status() == 1 && abs(p->pdgId())==13 && find( motherIDs.begin(), motherIDs.end(), getMotherId(&(*p)) )!=motherIDs.end() ){
+      if( p->status() == 1 && abs(p->pdgId())==13 && 
+          ( find( motherIDs.begin(), motherIDs.end(), -1 )!=motherIDs.end() || find( motherIDs.begin(), motherIDs.end(), getMotherId(&(*p)) )!=motherIDs.end() ) ){
         genMuons.push_back( *p );
       }  
     }
@@ -352,9 +360,21 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }
 
 // access Trigger Results
+  bool triggerFired = false;
   Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(triggerResultsTag,triggerResults);
-  triggerNames.init(*triggerResults);
+  if(triggerResults.isValid()){
+    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Successfully initialized "<<triggerResultsTag<<endl;
+    triggerNames.init(*triggerResults);
+    size_t index = triggerNames.triggerIndex(triggerPathName);
+    if( index < triggerNames.size() ){
+      triggerFired = triggerResults->accept( index );
+    }else{
+      LogDebug("HLTriggerOfflineHeavyFlavor")<<triggerResultsTag<<" has no trigger: "<<triggerPathName<<endl;
+    }
+  }else{
+    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not initialize "<<triggerResultsTag<<endl;
+  }
 
 //create matching maps
   vector<int> glob_gen(genMuons.size(),-1);
@@ -404,7 +424,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 //highest pt muon      
       if( first ){
         first = false;
-        if( triggerResults->accept( triggerNames.triggerIndex(triggerPathName) ) ){
+        if( triggerFired ){
           ME["resultMuon_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
           ME["resultMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
         }
@@ -483,7 +503,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
         if(highPt) ME["pathDimuon_recoPtDRpos"]->Fill( globDimuonPt, globDimuonDRpos );
       }
 //trigger result
-      if( triggerResults->accept( triggerNames.triggerIndex(triggerPathName) ) ){
+      if( triggerFired ){
         ME["resultDimuon_recoEtaPt"]->Fill( globDimuonEta, globDimuonPt );
         ME["resultDimuon_recoRapPt"]->Fill( globDimuonRap, globDimuonPt );
         if(highPt) ME["resultDimuon_recoPtDR"]->Fill( globDimuonPt, globDimuonDR );
