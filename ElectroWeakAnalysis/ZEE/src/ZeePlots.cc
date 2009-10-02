@@ -118,9 +118,9 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   }
   //
   //
-  const pat::CompositeCandidateCollection *wcands = ZeeCands.product();
+  const pat::CompositeCandidateCollection *zcands = ZeeCands.product();
   const pat::CompositeCandidateCollection::const_iterator 
-    zeeIter = wcands->begin();
+    zeeIter = zcands->begin();
   const pat::CompositeCandidate zee = *zeeIter;
   //
   // get the parts of the composite candidate:
@@ -139,14 +139,30 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   TLorentzVector e2;
   e1.SetPxPyPzE(p1.X(), p1.Y(), p1.Z(), myElec1->caloEnergy());
   e2.SetPxPyPzE(p2.X(), p2.Y(), p2.Z(), myElec2->caloEnergy());
-  TLorentzVector e = e1+e2;
-  double mee = e.M();
-  // the inverted selection plots:
+  TLorentzVector Z = e1+e2;
+  double mee = Z.M();
+  // the selection plots:
   bool pass = CheckCuts(myElec1) && CheckCuts(myElec2);
   //cout << "This event passes? " << pass << ", mee is: " << mee
   //   << " and the histo is filled." << endl;
   if (not pass) return;
+
   h_mee->Fill(mee);
+  if(fabs(e1.Eta())<1.479 && fabs(e2.Eta())<1.479)h_mee_EBEB->Fill(mee);
+  if(fabs(e1.Eta())<1.479 && fabs(e2.Eta())>1.479)h_mee_EBEE->Fill(mee);
+  if(fabs(e1.Eta())>1.479 && fabs(e2.Eta())<1.479)h_mee_EBEE->Fill(mee);
+  if(fabs(e1.Eta())>1.479 && fabs(e2.Eta())>1.479)h_mee_EEEE->Fill(mee);
+  
+  h_Zcand_PT->Fill(Z.Pt());
+  h_Zcand_Y->Fill(Z.Rapidity());
+
+  h_e_PT->Fill(e1.Pt()); h_e_PT->Fill(e2.Pt()); 
+  h_e_ETA->Fill(e1.Eta()); h_e_ETA->Fill(e2.Eta()); 
+  h_e_PHI->Fill(e1.Phi()); h_e_PHI->Fill(e2.Phi()); 
+
+
+
+
   //double scEta = myElec->superCluster()->eta();
   //double scPhi = myElec->superCluster()->phi();
   //double scEt = myElec->superCluster()->energy()/cosh(scEta);
@@ -236,7 +252,18 @@ void
 ZeePlots::beginJob(const edm::EventSetup&)
 {
   //std::cout << "In beginJob()" << std::endl;
-  h_mee = new TH1F("h_met", "h_met", 100, 0, 100);
+  h_mee      = new TH1F("h_mee",      "h_mee",       200, 0, 200);
+  h_mee_EBEB = new TH1F("h_mee_EBEB", "h_mee_EBEB", 200, 0, 200);
+  h_mee_EBEE = new TH1F("h_mee_EBEE", "h_mee_EBEE", 200, 0, 200);
+  h_mee_EEEE = new TH1F("h_mee_EEEE", "h_mee_EEEE", 200, 0, 200);
+
+  h_Zcand_PT = new TH1F("h_Zcand_PT", "h_Zcand_PT", 200,  0, 100);
+  h_Zcand_Y  = new TH1F("h_Zcand_Y",  "h_Zcand_Y" , 200, -5, 5);
+
+  h_e_PT  = new TH1F("h_e_PT", "h_e_PT", 200,  0, 100);
+  h_e_ETA = new TH1F("h_e_ETA","h_e_ETA",200, -3, 3);
+  h_e_PHI = new TH1F("h_e_PHI","h_e_PHI",200, -4, 4);
+
   //
   // if you add some new variable change the nBarrelVars_ accordingly
   nBarrelVars_ = 7;
@@ -286,7 +313,18 @@ ZeePlots::beginJob(const edm::EventSetup&)
 void 
 ZeePlots::endJob() {
   TFile * newfile = new TFile(TString(outputFile_),"RECREATE");
+  //
   h_mee->Write();
+  h_mee_EBEB->Write();
+  h_mee_EBEE->Write();
+  h_mee_EEEE->Write();
+  h_Zcand_PT->Write();
+  h_Zcand_Y->Write();
+
+  h_e_PT->Write();
+  h_e_ETA->Write();
+  h_e_PHI->Write();
+  //
   newfile->Close();
 
 }

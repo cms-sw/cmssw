@@ -53,6 +53,16 @@ class ZeePlots : public edm::EDAnalyzer {
   //
   // the histograms
   TH1F *h_mee;
+  TH1F *h_mee_EBEB;
+  TH1F *h_mee_EBEE;
+  TH1F *h_mee_EEEE;
+  TH1F *h_Zcand_PT;
+  TH1F *h_Zcand_Y;
+
+  TH1F *h_e_PT;
+  TH1F *h_e_ETA;
+  TH1F *h_e_PHI;
+
   //
   // the selection cuts
   Double_t trackIso_EB_;
