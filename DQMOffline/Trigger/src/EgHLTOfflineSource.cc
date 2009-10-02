@@ -14,14 +14,18 @@
 
 #include <boost/algorithm/string.hpp>
 
-
-
+//#include "DQMOffline/Trigger/interface/EgHLTCutCodes.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 using namespace egHLT;
 
-EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig)
+EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
+  nrEventsProcessed_(0)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   if (!dbe_) {
+    //our one and only error message ever logged
     edm::LogInfo("EgHLTOfflineSource") << "unable to get DQMStore service?";
   }
   if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
@@ -43,6 +47,7 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig)
   getHLTFilterNamesUsed(hltFiltersUsed);
   TrigCodes::setCodes(hltFiltersUsed);
   offEvtHelper_.setup(iConfig,hltFiltersUsed);
+  
   
   dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgHLTOfflineSource_" + iConfig.getParameter<std::string>("@module_label");
 
@@ -76,6 +81,7 @@ void EgHLTOfflineSource::beginJob(const edm::EventSetup& iSetup)
   dbe_->setCurrentFolder(dirName_);
   //the one monitor element the source fills directly
   dqmErrsMonElem_ =dbe_->book1D("dqmErrors","EgHLTOfflineSource Errors",101,-0.5,100.5);
+  nrEventsProcessedMonElem_ = dbe_->bookInt("nrEventsProcessed");
   
 
   //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
@@ -94,12 +100,14 @@ void EgHLTOfflineSource::beginJob(const edm::EventSetup& iSetup)
 
 
   MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,
-					new EgDiEleCut(~0x0,&OffEle::cutCode));
+			
+		new EgDiEleCut(~0x0,&OffEle::cutCode));
   MonElemFuncs::initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,
 					new EgDiPhoCut(~0x0,&OffPho::cutCode));
 
   MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(eleMonElems_,diEleTightLooseTrigNames_,binData_);
   MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(phoMonElems_,diPhoTightLooseTrigNames_,binData_);
+
 
   //tag and probe trigger efficiencies
   //this is to do measure the trigger efficiency with respect to a fully selected offline electron
@@ -131,16 +139,26 @@ void EgHLTOfflineSource::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
+  //debugging info, commented out for prod
+  //  int nrProducts = debug::listAllProducts<edm::ValueMap<double> >(iEvent,"EgHLTOfflineSource");
+  //edm::LogInfo("EgHLTOfflineSource")<<" HERE ";
+  // std::cout <<"here"<<std::endl;
   if(!dbe_) return;
- 
-  
+   
+
   const double weight=1.; //we have the ability to weight but its disabled for now
 
   int errCode = offEvtHelper_.makeOffEvt(iEvent,iSetup,offEvt_);
   if(errCode!=0){
+    std::cout <<"errCode "<<errCode<<std::endl;
     dqmErrsMonElem_->Fill(errCode);
     return;
   }
+  nrEventsProcessed_++;
+  nrEventsProcessedMonElem_->Fill(nrEventsProcessed_);
+  
+  
+ 
 
   for(size_t pathNr=0;pathNr<eleFilterMonHists_.size();pathNr++){
     eleFilterMonHists_[pathNr]->fill(offEvt_,weight);
@@ -154,7 +172,7 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
     for(size_t eleNr=0;eleNr<eles.size();eleNr++){
       eleMonElems_[monElemNr]->fill(eles[eleNr],offEvt_,weight);
     }
-  }  
+  }
 
   for(size_t monElemNr=0;monElemNr<phoMonElems_.size();monElemNr++){
     const std::vector<OffPho>& phos = offEvt_.phos();

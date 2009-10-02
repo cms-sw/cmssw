@@ -24,8 +24,10 @@ namespace egHLT {
     double maxDPhiIn;
     double maxInvEInvP;
     //super cluster cuts
-    double maxHadem;
-    double maxSigmaIEtaIEta;
+    double maxHadem; //h/e
+    double maxHadEnergy; //max h of h/e
+    double maxSigmaIEtaIEta;   
+    double maxSigmaEtaEta;
     double minR9;
      //std isolation cuts
     double isolEmConstTerm;
@@ -39,12 +41,29 @@ namespace egHLT {
     double isolPtTrksGradStart;
     int isolNrTrksConstTerm;
     //hlt isolation cuts
-    double maxHLTIsolTrksEle;
-    double maxHLTIsolTrksPho;
+    double maxHLTIsolTrksEle; 
+    double maxHLTIsolTrksEleOverPt; 
+    double maxHLTIsolTrksEleOverPt2;
+    double maxHLTIsolTrksPho; 
+    double maxHLTIsolTrksPhoOverPt; 
+    double maxHLTIsolTrksPhoOverPt2;
     double maxHLTIsolHad;
     double maxHLTIsolHadOverEt;
     double maxHLTIsolHadOverEt2;
-    
+    double maxHLTIsolEm;
+    double maxHLTIsolEmOverEt;
+    double maxHLTIsolEmOverEt2;
+    //ctf track quality cuts
+    double minCTFTrkOuterRadius;
+    double maxCTFTrkInnerRadius;
+    double minNrCTFTrkHits;
+    double maxNrCTFTrkHitsLost;
+    double maxCTFTrkChi2NDof;
+    //hlt track variable cuts
+    double maxHLTDEtaIn;
+    double maxHLTDPhiIn;
+    double maxHLTInvEInvP;
+
     EgCutValues(){}
     explicit EgCutValues(const edm::ParameterSet& iConfig){setup(iConfig);}
     void setup(const edm::ParameterSet& iConfig);

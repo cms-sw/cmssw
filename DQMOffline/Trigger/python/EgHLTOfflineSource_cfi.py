@@ -13,6 +13,7 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
 
                                  #products we need
                                  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+                                 hltTag = cms.string("HLT"),
                                  EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
                                  ElectronCollection = cms.InputTag("gsfElectrons"),
@@ -22,14 +23,42 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),
                                  HFRecHitCollection = cms.InputTag("hfreco"),
                                  DQMDirName=cms.string("HLT/EgOffline"),
-                                 hltTag = cms.string("HLT"),
-                                 eleEcalIsolTag=cms.InputTag("electronEcalRecHitIsolationLcone"),
-                                 eleTrkIsolTag=cms.InputTag("electronTrackIsolationLcone"),
-                                 eleHcalDepth1IsolTag=cms.InputTag("electronHcalDepth1TowerIsolationLcone"),
-                                 eleHcalDepth2IsolTag=cms.InputTag("electronHcalDepth2TowerIsolationLcone"),
-                                 phoIDTag = cms.InputTag("PhotonIDProd","PhotonAssociatedID"),
-                              
-                               
+                                 
+                                 BeamSpotProducer = cms.InputTag("offlineBeamSpot"),
+                                 CaloTowers = cms.InputTag("towerMaker"),
+
+                                 #hcal isolation parameters
+                                 #first which ones do we want to calculate...
+                                 calHLTHcalIsol = cms.bool(False),
+                                 calHLTEmIsol = cms.bool(True),
+                                 calHLTEleTrkIsol = cms.bool(True),
+                                 calHLTPhoTrkIsol = cms.bool(True),
+                                 #actual settings for hlt isolation 
+                                 hltEMIsolOuterCone = cms.double(0.4),
+                                 hltEMIsolInnerConeEB = cms.double(0.045),
+                                 hltEMIsolEtaSliceEB = cms.double(0.02),
+                                 hltEMIsolEtMinEB = cms.double(-9999.0),
+                                 hltEMIsolEMinEB = cms.double(0.08),
+                                 hltEMIsolInnerConeEE = cms.double(0.07),
+                                 hltEMIsolEtaSliceEE = cms.double(0.02),
+                                 hltEMIsolEtMinEE = cms.double(-9999.),
+                                 hltEMIsolEMinEE = cms.double(0.3),
+                                 hltPhoTrkIsolPtMin = cms.double(1.5),
+                                 hltPhoTrkIsolOuterCone = cms.double(0.3),
+                                 hltPhoTrkIsolInnerCone = cms.double(0.06),
+                                 hltPhoTrkIsolZSpan = cms.double(999999.),
+                                 hltPhoTrkIsolRSpan = cms.double(999999.),
+                                 hltPhoTrkIsolCountTrks = cms.bool(False),
+                                 hltEleTrkIsolPtMin = cms.double(1.5),
+                                 hltEleTrkIsolOuterCone = cms.double(0.2),
+                                 hltEleTrkIsolInnerCone = cms.double(0.02),
+                                 hltEleTrkIsolZSpan = cms.double(0.1),
+                                 hltEleTrkIsolRSpan = cms.double(999999.0),
+                                 hltHadIsolOuterCone = cms.double(0.3),
+                                 hltHadIsolInnerCone = cms.double(0.0),
+                                 hltHadIsolEtMin = cms.double(0.),
+                                 hltHadIsolDepth = cms.int32(-1),
+                                            
 
                                  
                                  #setting up selection
@@ -45,7 +74,19 @@ egHLTOffDQMSource = cms.EDFilter("EgHLTOfflineSource",
                                  phoCuts = cms.PSet(egHLTOffPhoCuts,),
                                  phoLooseCuts = cms.PSet(egHLTOffPhoLooseCuts,),          
                                  triggerCuts = cms.VPSet (
-                                   cms.PSet (egHLTOffEleEt20Cuts)
+                                   cms.PSet (egHLTOffEleEt10SWCuts),
+                                   cms.PSet (egHLTOffEleEt15SWCuts),
+                                   cms.PSet (egHLTOffEleEt20SWCuts),
+                                   cms.PSet (egHLTOffEleEt15SWEleIdCuts),
+                                   cms.PSet (egHLTOffEleEt15SWEleIdLTICuts),
+                                   cms.PSet (egHLTOffEleEt15SWLTICuts),
+                                   cms.PSet (egHLTOffDoubleEleEt10SWCuts),
+                                   cms.PSet (egHLTOffPhoEt10Cuts),
+                                   cms.PSet (egHLTOffPhoEt15Cuts),
+                                   cms.PSet (egHLTOffPhoEt25Cuts),
+                                   cms.PSet (egHLTOffPhoEt30Cuts),
+                                   cms.PSet (egHLTOffPhoEt25LEITICuts),
+                                   
                                  )
                                  
 )

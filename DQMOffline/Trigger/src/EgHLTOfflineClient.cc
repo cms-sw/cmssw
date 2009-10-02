@@ -43,6 +43,10 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NU
   phoTrigTPEffVsVars_ = iConfig.getParameter<std::vector<std::string> >("phoTrigTPEffVsVars");
   phoLooseTightTrigEffVsVars_ =  iConfig.getParameter<std::vector<std::string> >("phoLooseTightTrigEffVsVars");
   
+  runClientEndLumiBlock_ = iConfig.getParameter<bool>("runClientEndLumiBlock");
+  runClientEndRun_ = iConfig.getParameter<bool>("runClientEndRun");
+  runClientEndJob_ = iConfig.getParameter<bool>("runClientEndJob");
+
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
   if(dbe_) dbe_->setCurrentFolder(dirName_);
  
@@ -62,7 +66,7 @@ void EgHLTOfflineClient::beginJob(const edm::EventSetup& iSetup)
 
 void EgHLTOfflineClient::endJob() 
 {
-
+  if(runClientEndJob_) runClient_();
 }
 
 void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -73,7 +77,7 @@ void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 void EgHLTOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  runClient_();
+  if(runClientEndRun_) runClient_();
 }
 
 //dummy analysis function
@@ -84,7 +88,7 @@ void EgHLTOfflineClient::analyze(const edm::Event& iEvent,const edm::EventSetup&
 
 void EgHLTOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
 { 
-  runClient_();
+  if(runClientEndLumiBlock_)  runClient_();
 }
 
 void EgHLTOfflineClient::runClient_()

@@ -18,8 +18,11 @@ egHLTOffDQMBinData = cms.PSet (
     isolHad=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
     isolPtTrks=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
     isolNrTrks=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
-    mass = cms.PSet(nr=cms.int32(420),min=cms.double(-10.),max=cms.double(2000)),
+    mass = cms.PSet(nr=cms.int32(26),min=cms.double(-10.),max=cms.double(120)),
     massHigh = cms.PSet(nr=cms.int32(20),min=cms.double(0.),max=cms.double(5000)),
+
+    eOverP = cms.PSet(nr=cms.int32(12),min=cms.double(-1.),max=cms.double(5)),
+    invEInvP = cms.PSet(nr=cms.int32(10),min=cms.double(-0.2),max=cms.double(0.2)),
     etaVsPhi = cms.PSet(nrX=cms.int32(15),xMin=cms.double(-3.),xMax=cms.double(3.),
                         nrY=cms.int32(8),yMin=cms.double(-3.14),yMax=cms.double(3.14)),
 )

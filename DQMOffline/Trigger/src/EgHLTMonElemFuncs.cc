@@ -21,9 +21,13 @@ void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& his
   addStdHist<OffEle,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffEle::hOverE);
   addStdHist<OffEle,float>(histVec,baseName+"_dPhiIn",baseName+" #Delta #phi_{in}; #Delta #phi_{in}",bins.dEtaIn,&OffEle::dPhiIn);
   addStdHist<OffEle,float>(histVec,baseName+"_dEtaIn",baseName+" #Delta #eta_{in}; #Delta #eta_{in}",bins.dPhiIn,&OffEle::dEtaIn);
-  addStdHist<OffEle,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffEle::scSigmaIEtaIEta);  
-  addStdHist<OffEle,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffEle::scE2x5MaxOver5x5);
-  addStdHist<OffEle,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffEle::scE1x5Over5x5);
+  addStdHist<OffEle,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffEle::sigmaIEtaIEta);  
+  addStdHist<OffEle,float>(histVec,baseName+"_epIn",baseName+"E/p_{in}; E/p_{in}",bins.eOverP,&OffEle::epIn);
+  addStdHist<OffEle,float>(histVec,baseName+"_epOut",baseName+"E/p_{out}; E/p_{out}",bins.eOverP,&OffEle::epIn); 
+  addStdHist<OffEle,float>(histVec,baseName+"_invEInvP",baseName+"1/E -1/p; 1/E - 1/p",bins.invEInvP,&OffEle::invEInvP);
+
+  addStdHist<OffEle,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffEle::e2x5MaxOver5x5);
+  addStdHist<OffEle,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffEle::e1x5Over5x5);
   addStdHist<OffEle,float>(histVec,baseName+"_isolEM",baseName+"Isol EM; Isol EM (GeV)",bins.isolEm,&OffEle::isolEm); 
   addStdHist<OffEle,float>(histVec,baseName+"_isolHad",baseName+"Isol Had; Isol Had (GeV)",bins.isolHad,&OffEle::isolHad);
   addStdHist<OffEle,float>(histVec,baseName+"_isolPtTrks",baseName+"Isol Pt Trks; Isol Pt Tracks (GeV/c)",bins.isolPtTrks,&OffEle::isolPtTrks); 
@@ -48,9 +52,9 @@ void MonElemFuncs::initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& his
   
   addStdHist<OffPho,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffPho::hOverE);
   addStdHist<OffPho,float>(histVec,baseName+"_r9",baseName+" R9 ; R9",bins.r9,&OffPho::r9);
-  addStdHist<OffPho,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffPho::scSigmaIEtaIEta);  
-  addStdHist<OffPho,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffPho::scE2x5MaxOver5x5);
-  addStdHist<OffPho,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffPho::scE1x5Over5x5);
+  addStdHist<OffPho,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffPho::sigmaIEtaIEta);  
+  addStdHist<OffPho,float>(histVec,baseName+"_e2x5Over5x5",baseName+"E^{2x5}/E^{5x5}; E^{2x5}/E^{5x5}",bins.e2x5,&OffPho::e2x5MaxOver5x5);
+  addStdHist<OffPho,float>(histVec,baseName+"_e1x5Over5x5",baseName+"E^{1x5}/E^{5x5}; E^{1x5}/E^{5x5}",bins.e1x5,&OffPho::e1x5Over5x5);
   addStdHist<OffPho,float>(histVec,baseName+"_isolEM",baseName+"Isol EM; Isol EM (GeV)",bins.isolEm,&OffPho::isolEm); 
   addStdHist<OffPho,float>(histVec,baseName+"_isolHad",baseName+"Isol Had; Isol Had (GeV)",bins.isolHad,&OffPho::isolHad);
   addStdHist<OffPho,float>(histVec,baseName+"_isolPtTrks",baseName+"Isol Pt Trks; Isol Pt Tracks (GeV/c)",bins.isolPtTrks,&OffPho::isolPtTrks);  

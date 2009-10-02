@@ -18,7 +18,9 @@ void EgCutValues::setup(const edm::ParameterSet& iConfig)
   maxInvEInvP = iConfig.getParameter<double>("maxInvEInvP");
   //super cluster cuts
   maxHadem = iConfig.getParameter<double>("maxHadem");
+  maxHadEnergy = iConfig.getParameter<double>("maxHadEnergy");
   maxSigmaIEtaIEta = iConfig.getParameter<double>("maxSigmaIEtaIEta"); 
+  maxSigmaIEtaIEta = iConfig.getParameter<double>("maxSigmaEtaEta"); 
   minR9 = iConfig.getParameter<double>("minR9");
 
   //std isolation cuts
@@ -37,11 +39,29 @@ void EgCutValues::setup(const edm::ParameterSet& iConfig)
   isolNrTrksConstTerm = iConfig.getParameter<int>("isolNrTrksConstTerm");
 
   //hlt isolation cuts
-  maxHLTIsolTrksEle = iConfig.getParameter<double>("maxHLTIsolTrksEle"); 
-  maxHLTIsolTrksPho = iConfig.getParameter<double>("maxHLTIsolTrksPho");
+  maxHLTIsolTrksEle = iConfig.getParameter<double>("maxHLTIsolTrksEle");  
+  maxHLTIsolTrksEleOverPt = iConfig.getParameter<double>("maxHLTIsolTrksEleOverPt");  
+  maxHLTIsolTrksEleOverPt = iConfig.getParameter<double>("maxHLTIsolTrksEleOverPt2"); 
+  maxHLTIsolTrksPho = iConfig.getParameter<double>("maxHLTIsolTrksPho"); 
+  maxHLTIsolTrksPhoOverPt = iConfig.getParameter<double>("maxHLTIsolTrksPhoOverPt");  
+  maxHLTIsolTrksPhoOverPt = iConfig.getParameter<double>("maxHLTIsolTrksPhoOverPt2"); 
   maxHLTIsolHad = iConfig.getParameter<double>("maxHLTIsolHad");
   maxHLTIsolHadOverEt = iConfig.getParameter<double>("maxHLTIsolHadOverEt");
   maxHLTIsolHadOverEt2 = iConfig.getParameter<double>("maxHLTIsolHadOverEt2");  
 
+  maxHLTIsolEm = iConfig.getParameter<double>("maxHLTIsolEm");
+  maxHLTIsolEmOverEt = iConfig.getParameter<double>("maxHLTIsolEmOverEt");
+  maxHLTIsolEmOverEt2 = iConfig.getParameter<double>("maxHLTIsolEmOverEt2");  
+
+  minCTFTrkOuterRadius = iConfig.getParameter<double>("minCTFTrkOuterRadius");
+  maxCTFTrkInnerRadius = iConfig.getParameter<double>("minCTFTrkOuterRadius");
+  minNrCTFTrkHits = iConfig.getParameter<int>("minNrCTFTrkHits");
+  maxNrCTFTrkHitsLost = iConfig.getParameter<int>("maxNrCTFTrkHitsLost");
+  maxCTFTrkChi2NDof = iConfig.getParameter<double>("maxCTFTrkChi2NDof");
+
+  maxHLTDEtaIn = iConfig.getParameter<double>("maxHLTDEtaIn");
+  maxHLTDPhiIn = iConfig.getParameter<double>("maxHLTDPhiIn"); 
+  maxHLTInvEInvP = iConfig.getParameter<double>("maxHLTInvEInvP");
+  
 }
 

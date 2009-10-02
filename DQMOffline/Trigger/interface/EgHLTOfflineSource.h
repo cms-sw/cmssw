@@ -57,6 +57,8 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
  private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   MonitorElement* dqmErrsMonElem_; //monitors DQM errors (ie failing to get trigger info, etc)
+  MonitorElement* nrEventsProcessedMonElem_; //number of events processed mon elem
+  int nrEventsProcessed_; //number of events processed 
 
   std::vector<egHLT::EleHLTFilterMon*> eleFilterMonHists_; //monitoring histograms for different trigger paths, we own them
   std::vector<egHLT::PhoHLTFilterMon*> phoFilterMonHists_; //monitoring histograms for different trigger paths, we own them

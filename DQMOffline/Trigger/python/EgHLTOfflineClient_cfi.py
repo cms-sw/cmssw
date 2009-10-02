@@ -4,8 +4,10 @@ from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 
 egHLTOffDQMClient = cms.EDFilter("EgHLTOfflineClient",
                                  egHLTOffFiltersToMon,
-                                 sourceModuleName = cms.string('egammaHLTDQM'),
-                                 DQMDirName=cms.string("HLT/EgammaHLTOffline_egammaHLTDQM"),
+                                 DQMDirName=cms.string("HLT/EgOffline"),
+                                 runClientEndLumiBlock=cms.bool(False),
+                                 runClientEndRun=cms.bool(True),
+                                 runClientEndJob=cms.bool(False),
 
                                  #efficiences variables and vs variables
                                  eleN1EffVars=cms.vstring('dEtaIn','dPhiIn','hOverE','sigmaIEtaIEta',

@@ -30,6 +30,12 @@ ComCodes EgCutCodes::setCodes_()
   codes.setCode("hltIsolTrksEle",int(HLTISOLTRKSELE));
   codes.setCode("hltIsolTrksPho",int(HLTISOLTRKSPHO));
   codes.setCode("hltIsolHad",int(HLTISOLHAD));
+  codes.setCode("hltIsolEm",int(HLTISOLEM));
+  
+  codes.setCode("ctfTrack",int(CTFTRACK));
+  codes.setCode("hltDEtaIn",int(HLTDETAIN));
+  codes.setCode("hltDPhiIn",int(HLTDPHIIN));
+  codes.setCode("hltInvEInvP",int(HLTINVEINVP));
 
   codes.setCode("invalid",int(INVALID));
   codes.sort();

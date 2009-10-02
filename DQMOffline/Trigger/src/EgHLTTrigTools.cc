@@ -2,22 +2,27 @@
 
 #include "FWCore/ParameterSet/interface/Registry.h"
 
+
 using namespace egHLT;
 
-TrigCodes::TrigBitSet trigTools::getFiltersPassed(const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag)
+TrigCodes::TrigBitSet trigTools::getFiltersPassed(const std::vector<std::pair<std::string,int> >& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag)
 {
   TrigCodes::TrigBitSet evtTrigs;
   for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"",hltTag).encode());
-    const TrigCodes::TrigBitSet filterCode = TrigCodes::getCode(filters[filterNrInVec].c_str());
-    if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
-      evtTrigs |=filterCode; //if something passes it add to the event trigger bits
+    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec].first,"",hltTag).encode());
+    const TrigCodes::TrigBitSet filterCode = TrigCodes::getCode(filters[filterNrInVec].first.c_str());
+    if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, however this only means that something passed the previous filter
+      const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);
+      if(static_cast<int>(trigKeys.size())>=filters[filterNrInVec].second){
+	evtTrigs |=filterCode; //filter was passed
+      }
     }//end check if filter is present
   }//end loop over all filters
 
   return evtTrigs;
 
 }
+
 
 //this function runs over all parameter sets for every module that has ever run on an event in this job
 //it looks for the specified filter module

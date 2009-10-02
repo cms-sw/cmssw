@@ -27,14 +27,15 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
   //kinematic cuts
   if(ele.et()< cuts.minEt) cutCode |= EgCutCodes::ET;
   if(fabs(ele.etaSC())< cuts.minEta || fabs(ele.etaSC())>cuts.maxEta) cutCode |= EgCutCodes::DETETA;
-  if(ele.classification()==40) cutCode |= EgCutCodes::CRACK;
+  if(ele.isGap()) cutCode |= EgCutCodes::CRACK;
   //track cuts
   if(fabs(ele.dEtaIn()) > cuts.maxDEtaIn ) cutCode |=EgCutCodes::DETAIN;
   if(fabs(ele.dPhiIn()) > cuts.maxDPhiIn ) cutCode |=EgCutCodes::DPHIIN;
-  if(ele.invEOverInvP() > cuts.maxInvEInvP) cutCode |= EgCutCodes::INVEINVP;
+  if(ele.invEInvP() > cuts.maxInvEInvP) cutCode |= EgCutCodes::INVEINVP;
   //supercluster cuts
-  if(ele.hOverE()> cuts.maxHadem) cutCode |= EgCutCodes::HADEM;
-  if(ele.scSigmaIEtaIEta()>cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA;
+  if(ele.hOverE()> cuts.maxHadem && ele.hOverE()*ele.caloEnergy()>cuts.maxHadEnergy) cutCode |= EgCutCodes::HADEM;
+  if(ele.sigmaIEtaIEta()>cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA;
+  if(ele.sigmaEtaEta()>cuts.maxSigmaEtaEta) cutCode |= EgCutCodes::SIGMAETAETA;
   if(ele.r9()<cuts.minR9) cutCode |= EgCutCodes::R9;
   
   //std isolation cuts
@@ -43,13 +44,36 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
   if(ele.isolPtTrks() > (cuts.isolPtTrksConstTerm + cuts.isolPtTrksGradTerm*(ele.et()<cuts.isolPtTrksGradStart ? 0. : (ele.et()-cuts.isolPtTrksGradStart))))cutCode |=EgCutCodes::ISOLPTTRKS; 
   //ele Nr trks not defined, assume it passes
   //hlt isolation cuts
-  if(ele.hltIsolTrksEle() > cuts.maxHLTIsolTrksEle) cutCode |=EgCutCodes::HLTISOLTRKSELE;
-  if(ele.hltIsolTrksPho() > cuts.maxHLTIsolTrksPho) cutCode |=EgCutCodes::HLTISOLTRKSPHO;
-  
-  if(ele.et()==0 || (ele.hltIsolHad() > cuts.maxHLTIsolHad && ele.hltIsolHad()/ele.et() > cuts.maxHLTIsolHadOverEt &&
-		     ele.hltIsolHad()/ele.et()/ele.et() > cuts.maxHLTIsolHadOverEt2)) cutCode |=EgCutCodes::HLTISOLHAD;
+  if(ele.et()<=0.){//even it if et<=0, we give it a shot at passing isolation. Note this should be an impossible case
+    if(ele.hltIsolTrksEle() > cuts.maxHLTIsolTrksEle) cutCode |=EgCutCodes::HLTISOLTRKSELE;
+    if(ele.hltIsolTrksPho() > cuts.maxHLTIsolTrksPho) cutCode |=EgCutCodes::HLTISOLTRKSPHO;
+    if(ele.hltIsolHad() > cuts.maxHLTIsolHad) cutCode |=EgCutCodes::HLTISOLHAD;
+    if(ele.hltIsolEm() > cuts.maxHLTIsolEm) cutCode |=EgCutCodes::HLTISOLEM;
+  }else{ 
+    if(ele.hltIsolTrksEle() > cuts.maxHLTIsolTrksEle && ele.hltIsolTrksEle()/ele.et() > cuts.maxHLTIsolTrksEleOverPt &&
+       ele.hltIsolTrksEle()/ele.et()/ele.et() > cuts.maxHLTIsolTrksEleOverPt2 ) cutCode |=EgCutCodes::HLTISOLTRKSELE;
+    if(ele.hltIsolTrksPho() > cuts.maxHLTIsolTrksPho && ele.hltIsolTrksPho()/ele.et() > cuts.maxHLTIsolTrksPhoOverPt &&
+       ele.hltIsolTrksPho()/ele.et()/ele.et() > cuts.maxHLTIsolTrksPhoOverPt2 ) cutCode |=EgCutCodes::HLTISOLTRKSPHO;
+    if(ele.hltIsolHad() > cuts.maxHLTIsolHad && ele.hltIsolHad()/ele.et() > cuts.maxHLTIsolHadOverEt &&
+       ele.hltIsolHad()/ele.et()/ele.et() > cuts.maxHLTIsolHadOverEt2) cutCode |=EgCutCodes::HLTISOLHAD;
+    if(ele.hltIsolEm() > cuts.maxHLTIsolEm && ele.hltIsolEm()/ele.et() > cuts.maxHLTIsolEmOverEt &&
+       ele.hltIsolEm()/ele.et()/ele.et() > cuts.maxHLTIsolEmOverEt2) cutCode |=EgCutCodes::HLTISOLEM;
+  }
+ 
+ 
+  //cuts on CTF track, HLT tracking doesnt handle poor quaility tracks
+  if(ele.validCTFTrack()){
+    if(!(ele.ctfTrkOuterRadius() >= cuts.minCTFTrkOuterRadius && //note I'm noting the result of the and
+       ele.ctfTrkInnerRadius() <= cuts.maxCTFTrkInnerRadius &&
+       ele.ctfTrkHitsFound() >= cuts.minNrCTFTrkHits && 
+	 ele.ctfTrkHitsLost() <= cuts.maxNrCTFTrkHitsLost)) cutCode |=EgCutCodes::CTFTRACK;
+  }else cutCode |=EgCutCodes::CTFTRACK;
 
-  return (cutCode & cuts.cutMask & cutMask) ;
+  if(fabs(ele.hltDEtaIn()) > cuts.maxHLTDEtaIn) cutCode |=EgCutCodes::HLTDETAIN;
+  if(fabs(ele.hltDPhiIn()) > cuts.maxHLTDPhiIn) cutCode |=EgCutCodes::HLTDPHIIN;
+  if(fabs(ele.hltInvEInvP()) > cuts.maxHLTInvEInvP) cutCode |=EgCutCodes::HLTINVEINVP;
+
+  return (cutCode & cuts.cutMask & cutMask);
 }
 
 int OffEgSel::getCutCode(const OffPho& pho,int cutMask)const
@@ -65,14 +89,15 @@ int OffEgSel::getCutCode(const OffPho& pho,const EgCutValues& cuts,int cutMask)
   //kinematic cuts
   if(pho.et()< cuts.minEt) cutCode |= EgCutCodes::ET;
   if(fabs(pho.etaSC())< cuts.minEta || fabs(pho.etaSC())>cuts.maxEta) cutCode |= EgCutCodes::DETETA;
-  //if(pho.classification()==40) cutCode |= EgCutCodes::CRACK;
+  if(pho.isGap()) cutCode |= EgCutCodes::CRACK;
   //track cuts (all fail)
   cutCode |=EgCutCodes::DETAIN;
   cutCode |=EgCutCodes::DPHIIN;
   cutCode |=EgCutCodes::INVEINVP;
   //supercluster cuts
-  if(pho.hOverE()> cuts.maxHadem) cutCode |= EgCutCodes::HADEM;
-  if(pho.scSigmaIEtaIEta()>cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA; 
+  if(pho.hOverE()> cuts.maxHadem && pho.hOverE()*pho.energy()>cuts.maxHadEnergy) cutCode |= EgCutCodes::HADEM;
+  if(pho.sigmaIEtaIEta()>cuts.maxSigmaIEtaIEta) cutCode |= EgCutCodes::SIGMAIETAIETA; 
+  if(pho.sigmaEtaEta()>cuts.maxSigmaEtaEta) cutCode |= EgCutCodes::SIGMAETAETA; 
   if(pho.r9()<cuts.minR9) cutCode |= EgCutCodes::R9;
   //std isolation cuts
   if(pho.isolEm()>( cuts.isolEmConstTerm + cuts.isolEmGradTerm*(pho.et()<cuts.isolEmGradStart ? 0. : (pho.et()-cuts.isolEmGradStart)))) cutCode |=EgCutCodes::ISOLEM;
@@ -82,9 +107,24 @@ int OffEgSel::getCutCode(const OffPho& pho,const EgCutValues& cuts,int cutMask)
 
   //hlt isolation cuts
   cutCode |=EgCutCodes::HLTISOLTRKSELE; //automatically fails ele track isolation
-  if(pho.hltIsolTrks() > cuts.maxHLTIsolTrksPho) cutCode |=EgCutCodes::HLTISOLTRKSPHO;
-  if(pho.et()==0 || (pho.hltIsolHad() > cuts.maxHLTIsolHad && pho.hltIsolHad()/pho.et() > cuts.maxHLTIsolHadOverEt &&
-		     pho.hltIsolHad()/pho.et()/pho.et() > cuts.maxHLTIsolHadOverEt2)) cutCode |=EgCutCodes::HLTISOLHAD;
+  if(pho.et()<=0.){ //even it if et<=0, we give it a shot at passing isolation. Note this should be an impossible case
+    if(pho.hltIsolTrks() > cuts.maxHLTIsolTrksPho) cutCode |=EgCutCodes::HLTISOLTRKSPHO;
+    if(pho.hltIsolHad() > cuts.maxHLTIsolHad) cutCode |=EgCutCodes::HLTISOLHAD;
+    if(pho.hltIsolEm() > cuts.maxHLTIsolEm) cutCode |=EgCutCodes::HLTISOLEM;
+  }else{ 
+    if(pho.hltIsolTrks() > cuts.maxHLTIsolTrksPho && pho.hltIsolTrks()/pho.et() > cuts.maxHLTIsolTrksPhoOverPt &&
+       pho.hltIsolTrks()/pho.et()/pho.et() > cuts.maxHLTIsolTrksPhoOverPt2 ) cutCode |=EgCutCodes::HLTISOLTRKSPHO;
+    if(pho.hltIsolHad() > cuts.maxHLTIsolHad && pho.hltIsolHad()/pho.et() > cuts.maxHLTIsolHadOverEt &&
+       pho.hltIsolHad()/pho.et()/pho.et() > cuts.maxHLTIsolHadOverEt2) cutCode |=EgCutCodes::HLTISOLHAD;
+    if(pho.hltIsolEm() > cuts.maxHLTIsolEm && pho.hltIsolEm()/pho.et() > cuts.maxHLTIsolEmOverEt &&
+       pho.hltIsolEm()/pho.et()/pho.et() > cuts.maxHLTIsolEmOverEt2) cutCode |=EgCutCodes::HLTISOLEM;
+  }
 
+  //track cuts, photon will automatically fail them (for now)
+  cutCode |=EgCutCodes::CTFTRACK;
+  cutCode |=EgCutCodes::HLTDETAIN;
+  cutCode |=EgCutCodes::HLTDPHIIN;
+  cutCode |=EgCutCodes::HLTINVEINVP;
+  
   return (cutCode & cuts.cutMask & cutMask) ;
 }

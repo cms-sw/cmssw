@@ -9,7 +9,7 @@
 namespace egHLT {
   
   namespace trigTools {
-    TrigCodes::TrigBitSet getFiltersPassed(const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag);
+    TrigCodes::TrigBitSet getFiltersPassed(const std::vector<std::pair<std::string,int> >& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag);
     template<class T> void setFiltersObjPasses(std::vector<T>& objs,const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
     int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
   }
@@ -23,7 +23,7 @@ namespace egHLT {
   void trigTools::setFiltersObjPasses(std::vector<T>& particles,const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag)
   {
     std::vector<TrigCodes::TrigBitSet> partTrigBits(particles.size());
-    const double maxDeltaR=0.3;
+    const double maxDeltaR=0.1;
     for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
       size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"",hltTag).encode());
       const TrigCodes::TrigBitSet filterCode = TrigCodes::getCode(filters[filterNrInVec].c_str());
@@ -37,7 +37,7 @@ namespace egHLT {
 	    float trigObjPhi = trigObjColl[*keyIt].phi();
 	    if (reco::deltaR(particles[partNr].eta(),particles[partNr].phi(),trigObjEta,trigObjPhi) < maxDeltaR){
 	    partTrigBits[partNr] |= filterCode;
-	    }//end dR<0.3 trig obj match test
+	    }//end dR<maxDeltaR trig obj match test
 	  }//end loop over all objects passing filter
 	}//end loop over particles
       }//end check if filter is present

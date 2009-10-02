@@ -25,6 +25,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
@@ -37,12 +40,14 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
-class EgammaHLTHcalIsolation;
 class EgammaHLTTrackIsolation;
 
 namespace egHLT {
@@ -57,8 +62,7 @@ namespace egHLT {
     
     std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> > trigCuts_;//non sorted vector (for now)
     
-    //does anybody else think its ridicious that we need handles to the CaloGeometry and Topology as well as all the read out ecal barrel / endcap hits to calculated a standard id variable which to be perfectly honest should be accessible from the electron directly.
-    //as you may have guessed the following six members are to enable us to calculate sigmaEtaEta, with the first two being the tags needed
+    
     edm::InputTag ecalRecHitsEBTag_;
     edm::InputTag ecalRecHitsEETag_;
     edm::InputTag caloJetsTag_;
@@ -68,14 +72,12 @@ namespace egHLT {
     edm::InputTag triggerSummaryLabel_;
     edm::InputTag electronsTag_;
     edm::InputTag photonsTag_;
-    edm::InputTag eleEcalIsolTag_;
-    edm::InputTag eleHcalDepth1IsolTag_;
-    edm::InputTag eleHcalDepth2IsolTag_;
-    edm::InputTag eleTrkIsolTag_;
-    //edm::InputTag phoIDTag_;
+    edm::InputTag beamSpotTag_;
+    edm::InputTag caloTowersTag_;
 
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
+    edm::ESHandle<MagneticField> magField_;
     
     edm::Handle<EcalRecHitCollection> ebRecHits_;
     edm::Handle<EcalRecHitCollection> eeRecHits_; 
@@ -87,28 +89,61 @@ namespace egHLT {
     edm::Handle<reco::PhotonCollection> recoPhos_;
     edm::Handle<reco::GsfElectronCollection> recoEles_;
     edm::Handle<std::vector<reco::CaloJet> > recoJets_;
-    // edm::Handle<reco::PhotonIDAssociationCollection> photonIDMap_;
-
-    edm::Handle<edm::ValueMap<double> > eleEcalIsol_;
-    edm::Handle<edm::ValueMap<double> > eleHcalDepth1Isol_;
-    edm::Handle<edm::ValueMap<double> > eleHcalDepth2Isol_;
-    edm::Handle<edm::ValueMap<double> > eleTrkIsol_;
+    
+    edm::Handle<reco::BeamSpot> beamSpot_;
+    edm::Handle<CaloTowerCollection> caloTowers_;
+    
 
     std::string hltTag_;
     std::vector<std::string> hltFiltersUsed_;
-
-    //allow us to recompute e/gamma HLT isolations
-    //cant do ECAL isolation at the moment as we would need island clusters 
-    EgammaHLTHcalIsolation* hltHcalIsolAlgo_;
+    std::vector<std::pair<std::string,int> > hltFiltersUsedWithNrCandsCut_; //stores the filter name + number of candidates required to pass that filter for it to accept
+    //allow us to recompute e/gamma HLT isolations (note we also have em and hcal but they have to be declared for every event)
+    //which is awkward and I havent thought of a good way around it yet
     EgammaHLTTrackIsolation* hltEleTrkIsolAlgo_;
     EgammaHLTTrackIsolation* hltPhoTrkIsolAlgo_;
+
+    //our hlt isolation parameters...
+    //ecal
+    double hltEMIsolOuterCone_;
+    double hltEMIsolInnerConeEB_;
+    double hltEMIsolEtaSliceEB_;
+    double hltEMIsolEtMinEB_;
+    double hltEMIsolEMinEB_;
+    double hltEMIsolInnerConeEE_;
+    double hltEMIsolEtaSliceEE_;
+    double hltEMIsolEtMinEE_;
+    double hltEMIsolEMinEE_;
+    //tracker
+    double hltPhoTrkIsolPtMin_;
+    double hltPhoTrkIsolOuterCone_;
+    double hltPhoTrkIsolInnerCone_;
+    double hltPhoTrkIsolZSpan_;
+    double hltPhoTrkIsolRSpan_;
+    bool hltPhoTrkIsolCountTrks_;
+    double hltEleTrkIsolPtMin_;
+    double hltEleTrkIsolOuterCone_;
+    double hltEleTrkIsolInnerCone_;
+    double hltEleTrkIsolZSpan_;
+    double hltEleTrkIsolRSpan_;
+    //hcal
+    double hltHadIsolOuterCone_;
+    double hltHadIsolInnerCone_;
+    double hltHadIsolEtMin_;
+    int hltHadIsolDepth_;
+    //flags to disable calculations if same as reco (saves time)
+    bool calHLTHcalIsol_;
+    bool calHLTEmIsol_;
+    bool calHLTEleTrkIsol_;
+    bool calHLTPhoTrkIsol_;
+    
+    
 
   private: //disabling copy / assignment
     OffHelper& operator=(const OffHelper& rhs){return *this;}
     OffHelper(const OffHelper& rhs){}
     
   public:
-    OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltHcalIsolAlgo_(NULL),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
+    OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
     ~OffHelper();
     
     void setup(const edm::ParameterSet& conf,const std::vector<std::string>& hltFiltersUsed);
@@ -123,7 +158,18 @@ namespace egHLT {
     int fillOffPhoVec(std::vector<OffPho>& offPhos);
     int setTrigInfo(egHLT::OffEvt& offEvent);
 
-    //
+    void fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isolData);
+    void fillClusShapeData(const reco::GsfElectron& ele,OffEle::ClusShapeData& clusShapeData);
+    void fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltData);
+    
+    void fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData);
+    void fillClusShapeData(const reco::Photon& pho,OffPho::ClusShapeData& clusShapeData);
+
+    //tempory debuging functions
+    const trigger::TriggerEvent* trigEvt()const{return trigEvt_.product();}
+    const std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> >& trigCuts()const{return trigCuts_;}
+    
+    
     template<class T> static bool getHandle(const edm::Event& event,const edm::InputTag& tag,edm::Handle<T>& handle);
     
   };
