@@ -42,7 +42,8 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
         timeSmearing = cms.bool(False),
-        siPMCells = cms.vint32()
+        # 0 is HPD, 1 is SiPM, 2, is hardcoded combination 
+        siPMCode = cms.int32(2)
     ),
     hb = cms.PSet(
         readoutFrameSize = cms.int32(10),
