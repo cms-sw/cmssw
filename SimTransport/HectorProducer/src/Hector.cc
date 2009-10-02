@@ -7,7 +7,6 @@
 #include "SimTransport/HectorProducer/interface/Hector.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "HepMC/SimpleVector.h"
