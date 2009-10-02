@@ -124,7 +124,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
   if ( usePions_ ) { corrected += pionCorrection( fJet.p4(), pions ); }
   
   // Muon corrections (both scalar and vectorial)
-  if ( useMuons_ ) { corrected += muonCorrection( fJet.p4(), muons, !pions.inVertexOutOfCalo_.empty() ); }
+  if ( useMuons_ ) { corrected += muonCorrection( fJet.p4(), muons ); }
   
   // Electrons corrections (both scalar and vectorial)
   if ( useElecs_ ) { corrected += elecCorrection( fJet.p4(), elecs ); }
@@ -359,7 +359,7 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 	else               { pions.inVertexInCalo_.push_back(*it); } 
       } else { 
 	if ( is_muon )     { muons.inVertexOutOfCalo_.push_back(*itrk); }
-	//else if ( is_ele ) { elecs.inVertexOutOfCalo_.push_back(*itrk); } //@@ bug?  
+	else if ( is_ele ) { elecs.inVertexOutOfCalo_.push_back(*itrk); } 
 	else               { pions.inVertexOutOfCalo_.push_back(*itrk); }
       } 
     } 
@@ -380,10 +380,10 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
       if ( !found ) {
 	
 	bool is_muon = useMuons_ && matchMuons( itrk, reco_muons );
-	bool is_ele  = false; //@@ bug? useElecs_ && matchElectrons( itrk, reco_elecs, reco_elec_ids );
+	bool is_ele  = useElecs_ && matchElectrons( itrk, reco_elecs, reco_elec_ids );
 	
 	if ( is_muon )     { muons.outOfVertexInCalo_.push_back(*itrk); } 
-	else if ( is_ele ) { elecs.outOfVertexInCalo_.push_back(*itrk); } //@@ bug?
+	else if ( is_ele ) { elecs.outOfVertexInCalo_.push_back(*itrk); } 
 	else               { pions.outOfVertexInCalo_.push_back(*itrk); }
 	
       }
@@ -475,8 +475,8 @@ bool JetPlusTrackCorrector::findTrack( const MatchedTracks& pions,
 				 elecs.inVertexInCalo_.end(),
 				 *itrk );
   if ( ip == pions.inVertexInCalo_.end() &&
-       im == muons.inVertexInCalo_.end() /* && */ ) { 
-    /* ie == elecs.inVertexInCalo_.end() ) { */ return false; } //@@ bug?
+       im == muons.inVertexInCalo_.end() && 
+       ie == elecs.inVertexInCalo_.end() ) { return false; } 
   else { return true; }
 }
 
@@ -485,9 +485,9 @@ bool JetPlusTrackCorrector::findTrack( const MatchedTracks& pions,
 bool JetPlusTrackCorrector::tracksInCalo( const MatchedTracks& pions, 
 					  const MatchedTracks& muons,
 					  const MatchedTracks& elecs ) const { 
-  if ( !pions.inVertexInCalo_.empty() /* || */ ) {
-    /* !muons.inVertexInCalo_.empty() || */
-    /* !elecs.inVertexInCalo_.empty() ) { */ return true; } //@@ bug?
+  if ( !pions.inVertexInCalo_.empty() || 
+       !muons.inVertexInCalo_.empty() ||
+       !elecs.inVertexInCalo_.empty() ) { return true; } 
   else { return false; }
 }
 
@@ -559,8 +559,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet,
 // -----------------------------------------------------------------------------
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4& jet,
-								 const MatchedTracks& muons,
-								 bool size ) const {
+								 const MatchedTracks& muons ) const {
   
   P4 corr_muons;
   
@@ -574,10 +573,8 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4& jet,
   }  
   
   if ( useOutOfConeTracks_ ) {
-    if ( size ) { //@@ bug?
-      corr_muons_out_of_cone = muonCorrection( jet, muons.inVertexOutOfCalo_, true, false );
-      corr_muons += corr_muons_out_of_cone;
-    }
+    corr_muons_out_of_cone = muonCorrection( jet, muons.inVertexOutOfCalo_, true, false );
+    corr_muons += corr_muons_out_of_cone;
   }    
   
   if ( useOutOfVertexTracks_ ) {

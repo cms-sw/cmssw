@@ -216,7 +216,7 @@ class JetPlusTrackCorrector : public JetCorrector {
   P4 pionCorrection( const P4& jet, const jpt::MatchedTracks& pions ) const;
   
   /// Calculates correction to be applied using muons
-  P4 muonCorrection( const P4& jet, const jpt::MatchedTracks& muons, bool ) const;
+  P4 muonCorrection( const P4& jet, const jpt::MatchedTracks& muons ) const;
   
   /// Calculates correction to be applied using electrons
   P4 elecCorrection( const P4& jet, const jpt::MatchedTracks& elecs ) const;
