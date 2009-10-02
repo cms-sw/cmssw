@@ -6,10 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/08/14 13:29:13 $
- *  $Revision: 1.6 $
- *  \author  M. Vander Donckt, J. Klukas  (copied from J. Alcaraz)
- *  \author  J. Slaunwhite (modified from above
+ *  $Date: 2009/08/25 10:03:25 $
+ *  $Revision: 1.7 $
+ *  
+ *  \author  J. Slaunwhite, based on code from Jeff Klukas
  */
 
 // Base Class Headers
@@ -110,6 +110,7 @@ public:
   virtual void            begin  ( );
   virtual void            analyze( const edm::Event & iEvent );
   virtual void            finish ( );
+  virtual void            endRun (const edm::Run& r, const edm::EventSetup& c);
   virtual MonitorElement* bookIt ( TString name, TString title, std::vector<double> );
   virtual MonitorElement* bookIt ( TString name, TString title, int nbins, float* xBinLowEdges);
   
@@ -197,6 +198,14 @@ protected:
 
   bool virtual applyTriggerSelection (MuonSelectionStruct mySelection, const edm::Event & event);
 
+  // boolean to turn on/off overflow inclusion
+  // function to do the overflow
+  bool includeOverflow;
+  void moveOverflow (MonitorElement * myElement);
+
+  // keep track of the ME's you've booked,
+  // rebin them at job end.
+  std::vector<MonitorElement*> booked1DMonitorElements;
   
   // Data members
 
@@ -259,7 +268,7 @@ protected:
   // to simplify charge plots
 
   static const int POS_CHARGE = 1;
-  static const int NEG_CHARGE = 0;
+  static const int NEG_CHARGE = -1;
   int getCharge (int pdgId); 
 
   // 1-D histogram paramters
@@ -280,13 +289,15 @@ protected:
   int numBinsInPtHisto;
 
   // 2-D histogram parameters
-  std::vector<double> theMaxPtParameters2d;
-  std::vector<double> theEtaParameters2d;
-  std::vector<double> thePhiParameters2d;
   std::vector<double> thePhiEtaParameters2d;
-  std::vector<double> theDeltaPhiVsPhiParameters;
-  std::vector<double> theDeltaPhiVsZ0Parameters;
-  std::vector<double> theDeltaPhiVsD0Parameters;
+
+  //   std::vector<double> theMaxPtParameters2d;
+  //   std::vector<double> theEtaParameters2d;
+  //   std::vector<double> thePhiParameters2d;
+  
+  //   std::vector<double> theDeltaPhiVsPhiParameters;
+  //   std::vector<double> theDeltaPhiVsZ0Parameters;
+  //   std::vector<double> theDeltaPhiVsD0Parameters;
   
 
   // Resolution hisotgram parameters

@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.6 2009/05/22 09:07:41 slaunwhj Exp $
+// $Id: TopTrigAnalyzer.cc,v 1.1 2009/08/14 13:34:12 slaunwhj Exp $
 //
 //
 
@@ -55,6 +55,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  virtual void endRun (const edm::Run& r, const edm::EventSetup& c);
   int theNumberOfTriggers;
 
   std::vector<HLTMuonMatchAndPlot*> theTriggerAnalyzers;
@@ -325,6 +326,21 @@ TopTrigAnalyzer::beginJob()
   //theOverlapAnalyzer ->begin();
 }
 
+void 
+TopTrigAnalyzer::endRun( const edm::Run& theRun, const edm::EventSetup& theEventSetup ) {
+  vector<HLTTopPlotter *>::iterator thisAnalyzer;
+  //unsigned iAna = 0;
+
+  LogTrace ("HLTMuonVal") << "Inside end job, looping over analyzers"
+                          << endl;
+  for ( thisAnalyzer  = theTopPlotters.begin(); 
+        thisAnalyzer != theTopPlotters.end(); 
+	++thisAnalyzer )
+    {
+      (*thisAnalyzer)->endRun(theRun, theEventSetup);      
+    }
+  //theOverlapAnalyzer ->finish();
+}
 
 
 void 

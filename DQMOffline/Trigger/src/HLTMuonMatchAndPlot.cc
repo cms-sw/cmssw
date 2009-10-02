@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/08/14 13:29:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/08/25 10:03:16 $
+ *  $Revision: 1.8 $
  */
 
 
@@ -203,102 +203,149 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   //useMuonFromGenerator = false; // = ( theGenLabel  == "" ) ? false : true;
   useMuonFromReco      = true; // = ( theRecoLabel == "" ) ? false : true;
 
-  theMaxPtParameters = pset.getParameter< vector<double> >("MaxPtParameters");
-  theEtaParameters   = pset.getParameter< vector<double> >("EtaParameters");
-  thePhiParameters   = pset.getParameter< vector<double> >("PhiParameters");
+  //define default parameters so that you don't crash
 
-  theResParameters = pset.getParameter < vector<double> >("ResParameters");
+  vector <double> etaDefault;
+  etaDefault.push_back(15);
+  etaDefault.push_back(-2.1);
+  etaDefault.push_back(2.1);
+
+  theEtaParameters   = pset.getUntrackedParameter< vector<double> >("EtaParameters", etaDefault);
+  
+  vector <double> phiDefault;
+  phiDefault.push_back(15);
+  phiDefault.push_back(-3.2);
+  phiDefault.push_back(3.2);
+
+  thePhiParameters   = pset.getUntrackedParameter< vector<double> >("PhiParameters", phiDefault);
+
+  // leave this vector of size 0
+  vector <double> ptDefault;
 
   //  pt parameters are a different story
   //  it's a vector of doubles but it unpacked
   //  as bin low edges
-  thePtParameters    = pset.getParameter< vector<double> >("PtParameters");
+  thePtParameters    = pset.getUntrackedParameter< vector<double> >("PtParameters", ptDefault);
 
+  
+  vector <double> resDefault;
+  resDefault.push_back(10);
+  resDefault.push_back(-0.1);
+  resDefault.push_back(0.1);
+  theResParameters = pset.getUntrackedParameter < vector<double> >("ResParameters", resDefault);  
 
+  vector <double> d0Default;
+  d0Default.push_back(10);
+  d0Default.push_back(-2.0);
+  d0Default.push_back(2.0);
+
+  theD0Parameters = pset.getUntrackedParameter <vector<double> > ("D0Parameters", d0Default);
+
+  vector <double> z0Default;
+  z0Default.push_back(10);
+  z0Default.push_back(-25);
+  z0Default.push_back(25);
+
+  theZ0Parameters = pset.getUntrackedParameter < vector<double> > ("Z0Parameters", z0Default);
+
+  
+  
   int numPtBinEdge = 0;
   if ( thePtParameters.size() > 100) {
     LogInfo ("HLTMuonVal") << "Warning!!! You specified a list of pt bin edges that is > 100 bins"
                            << "This is too many bins!! Truncating the list!!! " << endl;
     numPtBinEdge = 100;
+  } else if (thePtParameters.size() < 1) {
+
+    numPtBinEdge = 5;
+    numBinsInPtHisto = numPtBinEdge - 1;
+    ptBins[0] = 0;
+    ptBins[1] = 20;
+    ptBins[2] = 50;
+    ptBins[3] = 100;
+    ptBins[4] = 150;
+    
   } else {
     numPtBinEdge = thePtParameters.size();
-  }
-
-  // the number of bins in the histo is one
-  // less than the number of edges
-  numBinsInPtHisto = numPtBinEdge - 1;
+    // the number of bins in the histo is one
+    // less than the number of edges
+    numBinsInPtHisto = numPtBinEdge - 1;
   
-  for (int iBin = 0; iBin < numPtBinEdge; iBin++){
-    ptBins[iBin] = (float) thePtParameters[iBin];
+    for (int iBin = 0; iBin < numPtBinEdge; iBin++){
+      ptBins[iBin] = (float) thePtParameters[iBin];
+      //LogTrace ("HLTMuonVal") << the 
+    }
+
   }
+
 
   
   // Duplicate the pt parameters for some 2D histos
-  for(int i =0; i < 2; i++){
-    for (std::vector<double>::const_iterator iNum = theMaxPtParameters.begin();
-         iNum != theMaxPtParameters.end();
-         iNum++){
+//   for(int i =0; i < 2; i++){
+//     for (std::vector<double>::const_iterator iNum = theMaxPtParameters.begin();
+//          iNum != theMaxPtParameters.end();
+//          iNum++){
       
-      // if this is the # of bins, then
-      // halve the number of bins.
-      if (iNum == theMaxPtParameters.begin()){
-        theMaxPtParameters2d.push_back(floor((*iNum)/2));
-      } else {
-        theMaxPtParameters2d.push_back((*iNum));
-      }
-    }
-  }
+//       // if this is the # of bins, then
+//       // halve the number of bins.
+//       if (iNum == theMaxPtParameters.begin()){
+//         theMaxPtParameters2d.push_back(floor((*iNum)/2));
+//       } else {
+//         theMaxPtParameters2d.push_back((*iNum));
+//       }
+//     }
+//   }
 
-  // Duplicate the pt parameters for some 2D histos
-  for(int i =0; i < 2; i++){
-    for (std::vector<double>::const_iterator iNum = theEtaParameters.begin();
-         iNum != theEtaParameters.end();
-         iNum++){
-      // if this is the nBins param, halve it
-      if (iNum ==  theEtaParameters.begin()){
-        theEtaParameters2d.push_back(floor((*iNum)/2));      
-      } else {
-        theEtaParameters2d.push_back(*iNum);                   
-      }
+//   // Duplicate the eta parameters for some 2D histos
+//   for(int i =0; i < 2; i++){
+//     for (std::vector<double>::const_iterator iNum = theEtaParameters.begin();
+//          iNum != theEtaParameters.end();
+//          iNum++){
+//       // if this is the nBins param, halve it
+//       if (iNum ==  theEtaParameters.begin()){
+//         theEtaParameters2d.push_back(floor((*iNum)/2));      
+//       } else {
+//         theEtaParameters2d.push_back(*iNum);                   
+//       }
       
-      // also fill the eta/phi plot parameters
-      // but don't worry about doubleing bins
-      // if (i < 1){
-      //         if (iNum ==  theEtaParameters.begin()){
-      //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-      //         } else {
-      //           thePhiEtaParameters2d.push_back(*iNum);      
+//       // also fill the eta/phi plot parameters
+//       // but don't worry about doubleing bins
+//       // if (i < 1){
+//       //         if (iNum ==  theEtaParameters.begin()){
+//       //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+//       //         } else {
+//       //           thePhiEtaParameters2d.push_back(*iNum);      
       
-      //         } 
+//       //         } 
       
-      //       }
-    }
-  }
+//       //       }
+//     }
+//   }
 
-  // Duplicate the pt parameters for some 2D histos
-  for(int i =0; i < 2; i++){
-    for (std::vector<double>::const_iterator iNum = thePhiParameters.begin();
-         iNum != thePhiParameters.end();
-         iNum++){
+//   // Duplicate the pt parameters for some 2D histos
+//   for(int i =0; i < 2; i++){
+//     for (std::vector<double>::const_iterator iNum = thePhiParameters.begin();
+//          iNum != thePhiParameters.end();
+//          iNum++){
 
-      if (iNum == thePhiParameters.begin()) {
-        thePhiParameters2d.push_back(floor((*iNum)/2));
-      } else {
-        thePhiParameters2d.push_back(*iNum);
-      }
+//       if (iNum == thePhiParameters.begin()) {
+//         thePhiParameters2d.push_back(floor((*iNum)/2));
+//       } else {
+//         thePhiParameters2d.push_back(*iNum);
+//       }
 
-      //       if (i < 1){
+//       //       if (i < 1){
       
-      //         // if (iNum ==  theEtaParameters.begin()){
-      //         //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
-      //         //         } else {
-      //         //           thePhiEtaParameters2d.push_back(*iNum);      
+//       //         // if (iNum ==  theEtaParameters.begin()){
+//       //         //           thePhiEtaParameters2d.push_back(floor((*iNum)/2));      
+//       //         //         } else {
+//       //         //           thePhiEtaParameters2d.push_back(*iNum);      
       
-      //         //         } 
+//       //         //         } 
       
-      //       }
-    }
-  }
+//       //       }
+//     }
+//   }
 
 
 
@@ -306,9 +353,9 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
 
 
-  theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut");
-  theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut");
-  theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut");
+  theL1DrCut     = pset.getUntrackedParameter<double>("L1DrCut", 0.4);
+  theL2DrCut     = pset.getUntrackedParameter<double>("L2DrCut", 0.1);
+  theL3DrCut     = pset.getUntrackedParameter<double>("L3DrCut", 0.05);
 
   
   //==========================================
@@ -327,13 +374,13 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   thePhiEtaParameters2d.push_back(3.5);
   
   
-  theD0Parameters.push_back(25);
-  theD0Parameters.push_back(-50.0);
-  theD0Parameters.push_back(50.0);
+  // theD0Parameters.push_back(25);
+  // theD0Parameters.push_back(-50.0);
+  // theD0Parameters.push_back(50.0);
   
-  theZ0Parameters.push_back(25);
-  theZ0Parameters.push_back(-100);
-  theZ0Parameters.push_back(100);
+  //   theZ0Parameters.push_back(25);
+  //   theZ0Parameters.push_back(-100);
+  //   theZ0Parameters.push_back(100);
 
   theChargeParameters.push_back(3);
   theChargeParameters.push_back(-1.5);
@@ -344,12 +391,11 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   theDRParameters.push_back(theL3DrCut);
 
   theChargeFlipParameters.push_back(2);
-  theChargeFlipParameters.push_back(-0.5);
-  theChargeFlipParameters.push_back(1.5);
+  theChargeFlipParameters.push_back(-1.0);
+  theChargeFlipParameters.push_back(1.0);
   theChargeFlipParameters.push_back(2);
-  theChargeFlipParameters.push_back(-0.5);
-  theChargeFlipParameters.push_back(1.5);
-
+  theChargeFlipParameters.push_back(-1.0);
+  theChargeFlipParameters.push_back(1.0);
 
   theIsolationParameters.push_back(25);
   theIsolationParameters.push_back(0.0);
@@ -359,26 +405,26 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   thePhiParameters0Pi.push_back(0);
   thePhiParameters0Pi.push_back(3.2);
 
-  theDeltaPhiVsPhiParameters.push_back(50);
-  theDeltaPhiVsPhiParameters.push_back(-3.15);
-  theDeltaPhiVsPhiParameters.push_back(3.15);
-  theDeltaPhiVsPhiParameters.push_back(50);
-  theDeltaPhiVsPhiParameters.push_back(0);
-  theDeltaPhiVsPhiParameters.push_back(3.2);
+  // theDeltaPhiVsPhiParameters.push_back(50);
+  //   theDeltaPhiVsPhiParameters.push_back(-3.15);
+  //   theDeltaPhiVsPhiParameters.push_back(3.15);
+  //   theDeltaPhiVsPhiParameters.push_back(50);
+  //   theDeltaPhiVsPhiParameters.push_back(0);
+  //   theDeltaPhiVsPhiParameters.push_back(3.2);
 
-  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[0]);
-  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[1]);
-  theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[2]);
-  theDeltaPhiVsZ0Parameters.push_back(50);
-  theDeltaPhiVsZ0Parameters.push_back(0);
-  theDeltaPhiVsZ0Parameters.push_back(3.2);
+//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[0]);
+//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[1]);
+//   theDeltaPhiVsZ0Parameters.push_back(theZ0Parameters[2]);
+//   theDeltaPhiVsZ0Parameters.push_back(50);
+//   theDeltaPhiVsZ0Parameters.push_back(0);
+//   theDeltaPhiVsZ0Parameters.push_back(3.2);
 
-  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[0]);
-  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[1]);
-  theDeltaPhiVsD0Parameters.push_back(theD0Parameters[2]);
-  theDeltaPhiVsD0Parameters.push_back(50);
-  theDeltaPhiVsD0Parameters.push_back(0);
-  theDeltaPhiVsD0Parameters.push_back(3.2);
+//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[0]);
+//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[1]);
+//   theDeltaPhiVsD0Parameters.push_back(theD0Parameters[2]);
+//   theDeltaPhiVsD0Parameters.push_back(50);
+//   theDeltaPhiVsD0Parameters.push_back(0);
+//   theDeltaPhiVsD0Parameters.push_back(3.2);
       
   
 
@@ -406,15 +452,40 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
 
 
 
+void HLTMuonMatchAndPlot::endRun (const edm::Run& r, const edm::EventSetup& c)
+{
+
+  LogTrace ("HLTMuonVal") << "\n\nInside HLTMuonMatchAndPlot endRun()";
+
+  // loop over all the histograms we booked, and handle the overflow bins
+
+  // do this at end run, since you want to be sure you did it before you
+  // saved your ME's.
+  
+  vector<MonitorElement*>::iterator iMonitorEl;
+  
+  for ( iMonitorEl = booked1DMonitorElements.begin();
+        iMonitorEl != booked1DMonitorElements.end();
+        iMonitorEl++ ) {
+
+    moveOverflow((*iMonitorEl));
+
+  }
+  
+
+}
+
+
 void HLTMuonMatchAndPlot::finish()
 {
 
-  LogTrace ("HLTMuonVal") << "\n\nInside HLTMuonMatchAndPlot finish()";
+  LogTrace ("HLTMuonVal") << "\n\nInside HLTMuonMatchAndPlot finish()" << endl;
+
   if (createStandAloneHistos && histoFileName != "") {
     dbe_->save(histoFileName);
   }
+  
 }
-
 
 
 void HLTMuonMatchAndPlot::analyze( const Event & iEvent )
@@ -1949,9 +2020,9 @@ void HLTMuonMatchAndPlot::begin()
       
       
       // 0 = MaxPt_All
-      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_All", "pt of Leading Reco Muon" ,  theMaxPtParameters) );
+      hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_All", "pt of Leading Reco Muon" ,  numBinsInPtHisto, ptBins) );
       // 1 = MaxPt if matched to L1 Trigger
-      if (useFullDebugInformation || isL1Path) hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
 
       hPassEtaRec.push_back( bookIt( "recPassEta_All", "#eta of Reco Muons", theEtaParameters) );
       if (useFullDebugInformation || isL1Path) hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
@@ -1961,14 +2032,14 @@ void HLTMuonMatchAndPlot::begin()
       
 
       
-      hPassPtRec.push_back( bookIt( "recPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
-      if (useFullDebugInformation || isL1Path) hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+      hPassPtRec.push_back( bookIt( "recPassPt_All", "Pt of  Reco Muon" , numBinsInPtHisto, ptBins) );
+      if (useFullDebugInformation || isL1Path) hPassPtRec.push_back( bookIt( "recPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
       
-      hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_All", "pt of Leading Reco Muon (==1 muon)" ,  theMaxPtParameters) );
-      if (useFullDebugInformation || isL1Path) hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel,  theMaxPtParameters) );
+      hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_All", "pt of Leading Reco Muon (==1 muon)" ,  numBinsInPtHisto, ptBins) );
+      if (useFullDebugInformation || isL1Path) hPassPtRecExactlyOne.push_back( bookIt( "recPassPtExactlyOne_" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
       
-      hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_All", "pt of Leading Reco Muon in events with exactly one muon" ,  theMaxPtParameters) );
-      if (useFullDebugInformation || isL1Path) hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  theMaxPtParameters) );
+      hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_All", "pt of Leading Reco Muon in events with exactly one muon" ,  numBinsInPtHisto, ptBins) );
+      if (useFullDebugInformation || isL1Path) hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  numBinsInPtHisto, ptBins) );
 
       hPassD0Rec.push_back( bookIt("recPassD0_All", "Track 2-D impact parameter wrt (0,0,0)(d0) ALL", theD0Parameters));
       if (useFullDebugInformation || isL1Path) hPassD0Rec.push_back( bookIt("recPassD0_" + myLabel, "Track 2-D impact parameter (0,0,0)(d0) " + myLabel, theD0Parameters));
@@ -2002,7 +2073,7 @@ void HLTMuonMatchAndPlot::begin()
       // hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_All" , "Charge Flip from hlt to RECO;HLT;Reco", theChargeFlipParameters)); 
       if (useFullDebugInformation || isL1Path) hChargeFlipMatched.push_back ( bookIt("recChargeFlipMatched_" + myLabel, "Charge Flip from hlt to RECO;HLT Charge (-,+);Reco (-,+)", theChargeFlipParameters)); 
 
-      if (useFullDebugInformation || isL1Path) hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
+      if (useFullDebugInformation || isL1Path) hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, numBinsInPtHisto, ptBins) );
       //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
       //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
       //hPhiMatchVsPhiRec.push_back( bookIt( "recPhiVsMatchPhi_" + myLabel, "Reco #phi vs HLT #phi  " + myLabel, thePhiParameters2d) );
@@ -2022,8 +2093,8 @@ void HLTMuonMatchAndPlot::begin()
       ////////////////////////////////////////////////
 
       if (useFullDebugInformation) {
-        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_All", "Pt of  Reco Muon" ,  theMaxPtParameters) );
-        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_All", "Pt of  Reco Muon" ,  numBinsInPtHisto, ptBins) );
+        rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
       
         rawMatchHltCandEta.push_back( bookIt( "rawPassEta_All", "#eta of Reco Muons", theEtaParameters) );
         rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
@@ -2059,14 +2130,14 @@ void HLTMuonMatchAndPlot::begin()
       if ( useMuonFromReco ) {
 
         // These histos have All, L1, L2, L3
-        hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel, theMaxPtParameters) );     
+        hPassMaxPtRec.push_back( bookIt( "recPassMaxPt_" + myLabel, "pt of Leading Reco Muon, if matched to " + myLabel, numBinsInPtHisto, ptBins) );     
         hPassEtaRec.push_back( bookIt( "recPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
         hPassPhiRec.push_back( bookIt( "recPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );                
 
-        hPassPtRec.push_back ( bookIt( "recPassPt_" + myLabel, "Pt of  Reco Muon, if matched to " + myLabel, theMaxPtParameters) );
-        hPassPtRecExactlyOne.push_back (bookIt( "recPassPtExactlyOne__" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel, theMaxPtParameters) );
+        hPassPtRec.push_back ( bookIt( "recPassPt_" + myLabel, "Pt of  Reco Muon, if matched to " + myLabel, numBinsInPtHisto, ptBins) );
+        hPassPtRecExactlyOne.push_back (bookIt( "recPassPtExactlyOne__" + myLabel, "pt of Leading Reco Muon (==1 muon), if matched to " + myLabel, numBinsInPtHisto, ptBins) );
 
-        hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  theMaxPtParameters) );        
+        hPassExaclyOneMuonMaxPtRec.push_back( bookIt("recPassExactlyOneMuonMaxPt_" + myLabel, "pt of Leading Reco Muon in events with exactly one muon match to " + myLabel ,  numBinsInPtHisto, ptBins) );        
         hPhiVsEtaRec.push_back ( bookIt ("recPhiVsRecEta_" + myLabel, "Reco #phi vs Reco #eta  " +myLabel, thePhiEtaParameters2d));
 
          
@@ -2079,7 +2150,7 @@ void HLTMuonMatchAndPlot::begin()
         hIsolationRec.push_back ( bookIt("recPassIsolation_" + myLabel, "Muon Isolation cone 0.3  " + myLabel, theIsolationParameters)); 
         
         // Match histos only have numHltLabels indices
-        hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, theMaxPtParameters) );
+        hPassMatchPtRec.push_back( bookIt( "recPassMatchPt_" + myLabel, "Pt of Reco Muon that is matched to Trigger Muon " + myLabel, numBinsInPtHisto, ptBins) );
 
         //hPtMatchVsPtRec.push_back (bookIt("recPtVsMatchPt" + myLabel, "Reco Pt vs Matched HLT Muon Pt" + myLabel ,  theMaxPtParameters2d) );
         //hEtaMatchVsEtaRec.push_back( bookIt( "recEtaVsMatchEta_" + myLabel, "Reco #eta vs HLT #eta  " + myLabel, theEtaParameters2d) );
@@ -2101,11 +2172,11 @@ void HLTMuonMatchAndPlot::begin()
 
         // these candidates are indexed by the number
         // of hlt labels
-        allHltCandPt.push_back( bookIt("allHltCandPt_" + myLabel, "Pt of all HLT Muon Cands, for HLT " + myLabel, theMaxPtParameters));     
+        allHltCandPt.push_back( bookIt("allHltCandPt_" + myLabel, "Pt of all HLT Muon Cands, for HLT " + myLabel, numBinsInPtHisto, ptBins));     
         allHltCandEta.push_back( bookIt("allHltCandEta_" + myLabel, "Eta of all HLT Muon Cands, for HLT " + myLabel, theEtaParameters));         
         allHltCandPhi.push_back( bookIt("allHltCandPhi_" + myLabel, "Phi of all HLT Muon Cands, for HLT " + myLabel, thePhiParameters));    
 
-        fakeHltCandPt.push_back( bookIt("fakeHltCandPt_" + myLabel, "Pt of fake HLT Muon Cands, for HLT " + myLabel, theMaxPtParameters));     
+        fakeHltCandPt.push_back( bookIt("fakeHltCandPt_" + myLabel, "Pt of fake HLT Muon Cands, for HLT " + myLabel, numBinsInPtHisto, ptBins));     
         fakeHltCandEta.push_back( bookIt("fakeHltCandEta_" + myLabel, "Eta of fake HLT Muon Cands, for HLT " + myLabel, theEtaParameters));         
         fakeHltCandPhi.push_back( bookIt("fakeHltCandPhi_" + myLabel, "Phi of fake HLT Muon Cands, for HLT " + myLabel, thePhiParameters));    
                 
@@ -2114,7 +2185,7 @@ void HLTMuonMatchAndPlot::begin()
         // raw histograms
 
         if (useFullDebugInformation) {
-          rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  theMaxPtParameters) );
+          rawMatchHltCandPt.push_back( bookIt( "rawPassPt_" + myLabel, "pt  Reco Muon, if matched to " + myLabel,  numBinsInPtHisto, ptBins) );
           rawMatchHltCandEta.push_back( bookIt( "rawPassEta_" + myLabel, "#eta of Reco Muons matched to " + myLabel, theEtaParameters) );
           rawMatchHltCandPhi.push_back( bookIt( "rawPassPhi_" + myLabel, "#phi of Reco Muons matched to " + myLabel, thePhiParameters) );
         }
@@ -2140,8 +2211,10 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
   if (parameters.size() == 3) {
     TH1F *h = new TH1F( name, title, nBins, min, max );
     h->Sumw2();
-    return dbe_->book1D( name.Data(), h );
+    MonitorElement * returnedME = dbe_->book1D( name.Data(), h );
     delete h;
+    booked1DMonitorElements.push_back(returnedME);
+    return returnedME;
 
     // this is the case for a 2D hist
   } else if (parameters.size() == 6) {
@@ -2152,8 +2225,9 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
 
     TH2F *h = new TH2F (name, title, nBins, min, max, nBins2, min2, max2);
     h->Sumw2();
-    return dbe_->book2D (name.Data(), h);
-    delete h;
+    MonitorElement * returnedME = dbe_->book2D (name.Data(), h);
+    delete h;    
+    return returnedME;
 
   } else {
     LogInfo ("HLTMuonVal") << "Directory" << dbe_->pwd() << " Name "
@@ -2171,7 +2245,11 @@ MonitorElement* HLTMuonMatchAndPlot::bookIt
 
   TH1F *tempHist = new TH1F(name, title, nbins, xBinLowEdges);
   tempHist->Sumw2();
-  return dbe_->book1D(name.Data(), tempHist);
+  MonitorElement * returnedME = dbe_->book1D(name.Data(), tempHist);
+  delete tempHist;
+
+  booked1DMonitorElements.push_back(returnedME);
+  return returnedME;
   
 }
 
@@ -2210,4 +2288,33 @@ TString HLTMuonMatchAndPlot::calcHistoSuffix (string moduleName) {
 
   return myLabel;
   
+}
+
+void HLTMuonMatchAndPlot::moveOverflow (MonitorElement * myElement) {
+
+  LogTrace ("HLTMuonVal") << "MOVEOVERFLOW" << endl;
+
+  
+  // This will handle an arbitrary dimension first/last bin
+  // but you should think about how you will interpret this for
+  // 2D/3D histos
+  // Actually, this can't handle abitrary dimensions.
+  int maxBin = myElement->getNbinsX();
+  
+  
+  LogTrace ("HLTMuonVal") << "==MOVEOVERFLOW==  "
+                                << "maxBin = " << maxBin
+                                << ", calling underflow"
+                                << endl;
+  
+  myElement->setBinContent(1, myElement->getBinContent(0) + myElement->getBinContent(1));
+
+  LogTrace ("HLTMuonVal") << "reseting underflow to zero" << endl;
+  myElement->setBinContent(0,0.0);
+  LogTrace ("HLTMuonVal") << "calling overflow" << endl;
+  myElement->setBinContent(maxBin,myElement->getBinContent(maxBin) + myElement->getBinContent(maxBin+1));
+  LogTrace ("HLTMuonVal") << "seting overflow to zero" << endl;
+  myElement->setBinContent(maxBin+1,0.0);
+
+
 }

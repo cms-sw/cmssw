@@ -56,13 +56,13 @@ bpagTrigOffDQM = cms.EDAnalyzer("BPAGTrigAnalyzer",
 
     # Set the ranges and numbers of bins for histograms
 	# max pt is not very useful
-    MaxPtParameters    = cms.vdouble(40,0.,80.),
+    MaxPtParameters    = cms.untracked.vdouble(40,0.,80.),
     # PtParmeters is the low bin edges, with size = nbins + 1 
-	PtParameters       = cms.vdouble(0.0, 3.0, 4.5, 6, 8, 20.0),
-    EtaParameters      = cms.vdouble(4, -2.1,2.1),
-    PhiParameters      = cms.vdouble(4, -3.15,3.15),
-    ResParameters      = cms.vdouble(50, -0.15, 0.15),
-	DrParameters       = cms.vdouble(50, 0.0, 0.05),			
+	PtParameters       = cms.untracked.vdouble(0.0, 3.0, 4.5, 6, 8, 20.0),
+    EtaParameters      = cms.untracked.vdouble(4, -2.1,2.1),
+    PhiParameters      = cms.untracked.vdouble(4, -3.15,3.15),
+    ResParameters      = cms.untracked.vdouble(50, -0.15, 0.15),
+	DrParameters       = cms.untracked.vdouble(50, 0.0, 0.05),			
 
     MassParameters     = cms.untracked.vdouble(50, 2.6, 3.6),
 
@@ -83,7 +83,7 @@ bpagTrigOffDQM = cms.EDAnalyzer("BPAGTrigAnalyzer",
 
 	# still used by overlap analyzer
     # not included in meaningful output									
-    CrossSection = cms.double(0.97),
+    #CrossSection = cms.double(0.97),
 	# ddd 								
     #NSigmas90 = cms.untracked.vdouble(3.0, 3.0, 3.0, 3.0),
 

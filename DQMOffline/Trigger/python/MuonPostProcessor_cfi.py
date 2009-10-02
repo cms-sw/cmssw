@@ -10,7 +10,8 @@ hLTMuonPostVal = cms.EDAnalyzer("DQMGenericClient",
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     outputFileName = cms.untracked.string(''),
     commands       = cms.vstring(),
-    resolution     = cms.vstring(),                                    
+    resolution     = cms.vstring(),
+    
     efficiency     = cms.vstring(
 
 	    #### Comma Checking --- check for trailing commas by searching

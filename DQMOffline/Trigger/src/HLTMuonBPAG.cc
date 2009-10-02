@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/08/28 13:07:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/24 12:03:45 $
+ *  $Revision: 1.3 $
  */
 
 
@@ -568,6 +568,8 @@ MonitorElement* HLTMuonBPAG::book2DVarBins (TString name, TString title, int nBi
 
   TH2F *tempHist = new TH2F(name, title, nBinsX, xBinLowEdges, nBinsY, yMin, yMax);
   tempHist->Sumw2();
-  return dbe_->book2D(name.Data(), tempHist);
+  MonitorElement * returnedME = dbe_->book2D(name.Data(), tempHist);
+  delete tempHist;
+  return returnedME;
 
 }
