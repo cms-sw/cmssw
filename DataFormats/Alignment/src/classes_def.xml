@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="AliClusterValueMap"/>
+  <class name="edm::ValueMap<AlignmentClusterFlag >"/>
+  <class name="edm::Wrapper< edm::ValueMap<AlignmentClusterFlag >  >"/>
+  <class name="AlignmentClusterFlag"/>
+  <class name="std::vector<AlignmentClusterFlag>"/>
+</lcgdict>
