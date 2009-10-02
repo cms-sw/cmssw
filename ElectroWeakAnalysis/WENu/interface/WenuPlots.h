@@ -49,8 +49,23 @@ class WenuPlots : public edm::EDAnalyzer {
   TFile *histofile;
   //
   // the histograms ********************
+
   TH1F *h_met;
   TH1F *h_met_inverse;
+  TH1F *h_mt;
+  TH1F *h_mt_inverse;
+
+  TH1F *h_met_EB;
+  TH1F *h_met_inverse_EB;
+  TH1F *h_mt_EB;
+  TH1F *h_mt_inverse_EB;
+
+  TH1F *h_met_EE;
+  TH1F *h_met_inverse_EE;
+  TH1F *h_mt_EE;
+  TH1F *h_mt_inverse_EE;
+
+
   TH1F *h_scEt;
   TH1F *h_scEta;
   TH1F *h_scPhi;

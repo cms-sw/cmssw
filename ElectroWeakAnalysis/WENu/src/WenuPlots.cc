@@ -164,13 +164,29 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   double scEta = myElec->superCluster()->eta();
   double scPhi = myElec->superCluster()->phi();
   double scEt = myElec->superCluster()->energy()/cosh(scEta);
-  double met = myMet->et();
+  double met    = myMet->et();
+  double metPhi = myMet->phi();
+  double mt  = sqrt(2.0*scEt*met*(1.0-(cos(scPhi)*cos(metPhi)+sin(scPhi)*sin(metPhi))));
   double trackIso = myElec->trackIso();
   //
   //
   //
   // the inverted selection plots:
-  if (CheckCutsInverse(myElec)) h_met_inverse->Fill(met);
+  if (CheckCutsInverse(myElec)){
+   std::cout << "-----------------INVERSION-----------passed" << std::endl;
+    h_met_inverse->Fill(met);
+    h_mt_inverse->Fill(mt);
+    if(fabs(scEta)<1.479){
+      h_met_inverse_EB->Fill(met);
+      h_mt_inverse_EB->Fill(mt);
+    }
+    if(fabs(scEta)>1.479){
+      h_met_inverse_EE->Fill(met);
+      h_mt_inverse_EE->Fill(mt);
+    }
+  }
+
+
   ///////////////////////////////////////////////////////////////////////
   //
   // N-1 plots: plot some variable so that all the other cuts are satisfied
@@ -188,6 +204,15 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //////////////////////////////////////////////////////////////////////
 
   h_met->Fill(met);
+  h_mt->Fill(mt);
+  if(fabs(scEta)<1.479){
+    h_met_EB->Fill(met);
+    h_mt_EB->Fill(mt);
+  }
+  if(fabs(scEta)>1.479){
+    h_met_EE->Fill(met);
+    h_mt_EE->Fill(mt);
+  }
 
 
   h_scEt->Fill(scEt);
@@ -249,12 +274,13 @@ bool WenuPlots::CheckCut(const pat::Electron *ele, int i) {
 bool WenuPlots::CheckCutInv(const pat::Electron *ele, int i) {
   double fabseta = fabs(ele->superCluster()->eta());
   if ( fabseta<1.479) {
-    if (InvVars_[i]) return fabs(ReturnCandVar(ele, i))>CutVars_[i];
+    if (InvVars_[i]) 
+    return fabs(ReturnCandVar(ele, i))>CutVars_[i];
     return fabs(ReturnCandVar(ele, i)) < CutVars_[i];
   }
   if (InvVars_[i+nBarrelVars_]) 
     return fabs(ReturnCandVar(ele, i))>CutVars_[i+nBarrelVars_];
-  return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
+    return fabs(ReturnCandVar(ele, i)) < CutVars_[i+nBarrelVars_];
 }
 ////////////////////////////////////////////////////////////////////////
 double WenuPlots::ReturnCandVar(const pat::Electron *ele, int i) {
@@ -279,17 +305,40 @@ WenuPlots::beginJob(const edm::EventSetup&)
   Double_t Pi = TMath::Pi();
   //  TString histo_file = outputFile_;
   //  histofile = new TFile( histo_file,"RECREATE");
-  h_met = new TH1F("h_met", "h_met", 100, 0, 100);
-  h_met_inverse = new TH1F("h_met_inverse", "h_met_inverse", 100, 0, 100);
-  h_scEt = new TH1F("h_scEt", "h_scEt", 100, 0, 100);
-  h_scEta = new TH1F("h_scEta", "h_scEta", 50, -2.5, 2.5);
-  h_scPhi = new TH1F("h_scPhi", "h_scPhi", 30, -Pi, Pi);
+
+  h_met         = new TH1F("h_met",         "h_met",         200, 0, 200);
+  h_met_inverse = new TH1F("h_met_inverse", "h_met_inverse", 200, 0, 200);
+
+  h_mt         = new TH1F("h_mt",         "h_mt",         200, 0, 200);
+  h_mt_inverse = new TH1F("h_mt_inverse", "h_mt_inverse", 200, 0, 200);
+
+
+  h_met_EB         = new TH1F("h_met_EB",         "h_met_EB",         200, 0, 200);
+  h_met_inverse_EB = new TH1F("h_met_inverse_EB", "h_met_inverse_EB", 200, 0, 200);
+
+  h_mt_EB         = new TH1F("h_mt_EB",         "h_mt_EB",         200, 0, 200);
+  h_mt_inverse_EB = new TH1F("h_mt_inverse_EB", "h_mt_inverse_EB", 200, 0, 200);
+
+
+  h_met_EE         = new TH1F("h_met_EE",         "h_met_EE",         200, 0, 200);
+  h_met_inverse_EE = new TH1F("h_met_inverse_EE", "h_met_inverse_EE", 200, 0, 200);
+
+  h_mt_EE         = new TH1F("h_mt_EE",         "h_mt_EE",         200, 0, 200);
+  h_mt_inverse_EE = new TH1F("h_mt_inverse_EE", "h_mt_inverse_EE", 200, 0, 200);
+
+
+  h_scEt  = new TH1F("h_scEt",  "h_scEt",  200,  0, 100);
+  h_scEta = new TH1F("h_scEta", "h_scEta", 200, -3, 3);
+  h_scPhi = new TH1F("h_scPhi", "h_scPhi", 200, -4, 4);
+
   //
   //
   h_trackIso_eb_NmOne = 
     new TH1F("h_trackIso_eb_NmOne","trackIso EB N-1 plot",80,0,8);
   h_trackIso_ee_NmOne = 
     new TH1F("h_trackIso_ee_NmOne","trackIso EE N-1 plot",80,0,8);
+
+
   //
   // if you add some new variable change the nBarrelVars_ accordingly
   nBarrelVars_ = 7;
@@ -340,6 +389,19 @@ WenuPlots::endJob() {
   TFile * newfile = new TFile(TString(outputFile_),"RECREATE");
   h_met->Write();
   h_met_inverse->Write();
+  h_mt->Write();
+  h_mt_inverse->Write();
+
+  h_met_EB->Write();
+  h_met_inverse_EB->Write();
+  h_mt_EB->Write();
+  h_mt_inverse_EB->Write();
+
+  h_met_EE->Write();
+  h_met_inverse_EE->Write();
+  h_mt_EE->Write();
+  h_mt_inverse_EE->Write();
+
   h_scEt->Write();
   h_scEta->Write();
   h_scPhi->Write();
