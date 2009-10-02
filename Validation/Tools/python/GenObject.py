@@ -105,10 +105,31 @@ class GenObject (object):
     _shortcutRE       = re.compile (r'shortcut=(\S+)', re.IGNORECASE)
     _precRE           = re.compile (r'prec=(\S+)',     re.IGNORECASE)
     _formRE           = re.compile (r'form=(\S+)',     re.IGNORECASE)
+    _nonAlphaRE       = re.compile (r'\W')
+    _percentAsciiRE   = re.compile (r'%([0-9a-fA-F]{2})')
     
     #############################
     ## Static Member Functions ##
     #############################
+
+    @staticmethod
+    def char2ascii (match):
+        return "%%%02x" % ord (match.group(0))
+
+    @staticmethod
+    def ascii2char (match):
+        return chr( int( match.group(1), 16 ) )
+
+    @staticmethod
+    def encodeNonAlphanumerics (line):
+        """Use a web like encoding of characters that are non-alphanumeric"""
+        return GenObject._nonAlphaRE.sub( GenObject.char2ascii, line )
+
+    @staticmethod
+    def decodeNonAlphanumerics (line):
+        """Decode lines encoded with encodeNonAlphanumerics()"""
+        return GenObject._percentAsciiRE.sub( GenObject.ascii2char, line )
+        
 
     @staticmethod
     def addObjectVariable (obj, var, **optionsDict):

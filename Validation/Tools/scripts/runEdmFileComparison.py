@@ -6,6 +6,7 @@ import pprint
 import re
 import os
 import sys
+from Validation.Tools.GenObject import GenObject
 
 piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)\."')
 colonRE      = re.compile (r':+')
@@ -122,10 +123,10 @@ if __name__ == "__main__":
             continue
         #print name, prettyName, key
         describeCmd = "%s %s %s describeReflexForGenObject.py %s '--type=%s'" \
-                  % (fullCommand, currentDir, logPrefix + prettyName, name, key)
+                  % (fullCommand, currentDir, logPrefix + prettyName, name,
+                     GenObject.encodeNonAlphanumerics (key))
         if options.verbose:
             print "describing %s" % name
-            print describeCmd
         os.system (describeCmd)
         #print describeCmd, '\n'
 

@@ -6,6 +6,7 @@ import pprint
 import sys
 import inspect
 import optparse
+from Validation.Tools.GenObject import GenObject
 
 defsDict = {
     'int'    : '%-40s : form=%%%%8d     type=int',
@@ -168,6 +169,7 @@ if __name__ == "__main__":
                        default = 'reco',
                        help="Tuple name (default '%default')")
     options, args = parser.parse_args()
+    options.type = GenObject.decodeNonAlphanumerics (options.type)
     if len (args) < 1:
         raise RuntimeError, "Need to provide object name."
     #
