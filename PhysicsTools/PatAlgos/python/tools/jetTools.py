@@ -3,6 +3,32 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import *
 
 
+def patchJetCorrFactors_(jetCorrFactors, newAlgo):
+    """
+    ------------------------------------------------------------------
+    Patch to be called from:
+       * switchJECSet_
+       * switchJECParameters
+    This function can safely be removed as soon as the L7Parton
+    corrections for AK5 and AK7 are available.
+
+    jetCorrFactors : jetCorrFactors module
+    ------------------------------------------------------------------
+    """
+    if (newAlgo == "AK5"):
+        ## voice a note to the user
+        print "NOTE TO USER: L7Parton is currently taken from SC5 instead of AK5 "
+        print "              This is an intermediate solution for the time being."
+        ## redirect the L7Parton correction in case of AK5 or AK7
+        setattr(jetCorrFactors, 'L7Parton', getattr(jetCorrFactors, 'L7Parton').value().replace(newAlgo,'SC5') )
+    if (newAlgo == "AK7"):
+        ## voice a note to the user
+        print "NOTE TO USER: L7Parton is currently taken from SC7 instead of AK7 "
+        print "              This is an intermediate solution for the time being."
+        ## redirect the L7Parton correction in case of AK5 or AK7        
+        setattr(jetCorrFactors, 'L7Parton', getattr(jetCorrFactors, 'L7Parton').value().replace(newAlgo,'SC7') )
+
+
 def switchJECSet(process,
                  newName,
                  oldName
@@ -19,15 +45,10 @@ def switchJECSet(process,
     switchJECSet_(process.jetCorrFactors, newName, oldName)
 
     
-#def switchJECSet_(jetCorrFactors,
-#                  newName,
-#                  oldName,
-#                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE', 'L7Parton']
-#                  ):
 def switchJECSet_(jetCorrFactors,
                   newName,
                   oldName,
-                  steps=['L1Offset', 'L2Relative', 'L3Absolute']
+                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE', 'L7Parton']
                   ):
     """
     ------------------------------------------------------------------    
@@ -39,8 +60,6 @@ def switchJECSet_(jetCorrFactors,
     steps          : correction steps in the module
     ------------------------------------------------------------------    
     """
-
-    print """NOTE TO USER: All but L1+L2+L3 corrections are currently disabled."""
     found = False
     for k in steps:
         ## loop jet correction steps
@@ -54,8 +73,12 @@ def switchJECSet_(jetCorrFactors,
         raise RuntimeError,"""
         Can't replace jet energy correction step %s with %s.
         The full configuration is %s""" % (oldName, newName, jetCorrFactors.dumpPython())
+    ##
+    ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
+    ##
+    patchJetCorrFactors_(jetCorrFactors, newAlgo)
 
-    
+
 def switchJECParameters(jetCorrFactors,
                         newAlgo,
                         newType="Calo",
@@ -73,17 +96,20 @@ def switchJECParameters(jetCorrFactors,
     oldType        : label of old jet type [Calo, Pflow, Jpt, ...]
     ------------------------------------------------------------------    
     """    
-    print """NOTE TO USER: All but L1+L2+L3 corrections are currently disabled."""
-#    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
-    for k in ['L1Offset', 'L2Relative', 'L3Absolute']:
+    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
         ## loop jet correction steps; the L5Flavor step
-        ## is not in the list as as it is said not to
-        ## dependend on the specific jet algorithm
+        ## is not in the list as it is said NOT to be
+        ## dependendent on the specific jet algorithm
         vv = getattr(jetCorrFactors, k).value();
         if (vv != "none"):
             ## the first replace is for '*_AK5Calo'
             ## types, the second for '*_AK5' types            
             setattr(jetCorrFactors, k, vv.replace(oldAlgo+oldType,newAlgo+newType).replace(oldAlgo,newAlgo) )
+
+    ##
+    ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
+    ##
+    patchJetCorrFactors_(jetCorrFactors, newAlgo)    
 
 
 def runBTagging(process,
@@ -134,14 +160,14 @@ def runBTagging(process,
     ## define tag info labels (compare with jetProducer_cfi.py)        
     ipTILabel = 'impactParameterTagInfos'     + label
     svTILabel = 'secondaryVertexTagInfos'     + label
-#    nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
+   #nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
     seTILabel = 'softElectronTagInfos'        + label
     smTILabel = 'softMuonTagInfos'            + label
     
     ## produce tag infos
     setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
     setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
-#    setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
+   #setattr( process, nvTILabel, nbtag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
     setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
     setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
 
@@ -154,7 +180,7 @@ def runBTagging(process,
     setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
     setattr( process, 'simpleSecondaryVertexBJetTags'+label, btag.simpleSecondaryVertexBJetTags.clone(tagInfos = vit(svTILabel)) )
-#    setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
+   #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
     setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
     setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
@@ -171,7 +197,7 @@ def runBTagging(process,
                                                     'trackCountingHighPurBJetTags',
                                                     'trackCountingHighEffBJetTags',
                                                     'simpleSecondaryVertexBJetTags',
-#                                                    'simpleSecondaryVertexNegativeBJetTags',
+                                                   #'simpleSecondaryVertexNegativeBJetTags',
                                                     'combinedSecondaryVertexBJetTags',
                                                     'combinedSecondaryVertexMVABJetTags',
                                                     'softElectronByPtBJetTags',
@@ -198,7 +224,6 @@ def runBTagging(process,
     setattr( process, 'btagging'+label, seq )
     ## return the combined sequence and the labels defined above
     return (seq, labels)
-
 
 
 def switchJetCollection(process,

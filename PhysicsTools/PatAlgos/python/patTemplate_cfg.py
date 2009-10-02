@@ -30,7 +30,9 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 print "*********************************************************************"
 print "Switching all processes to use the anti-kT algorithm by default."
 print "Switch the jet collection to your desired algorithm if this is not"
-print "what you want to use."
+print "what you want to use. Note that L7Parton correction are taken from"
+print "SC5 instead of AK5. This is an intermediate solution for the time "
+print "being."
 print "*********************************************************************"
 switchJetCollection(process, 
                     cms.InputTag('ak5CaloJets'),   
