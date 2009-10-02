@@ -101,6 +101,8 @@ void HcalSimParameterMap::setDbService(const HcalDbService * dbService)
   theHBParameters.setDbService(dbService);
   theHEParameters.setDbService(dbService);
   theHOParameters.setDbService(dbService);
+  theHOZecotekSiPMParameters.setDbService(dbService);
+  theHOHamamatsuSiPMParameters.setDbService(dbService);
   theHFParameters1.setDbService(dbService);
   theHFParameters2.setDbService(dbService);
   theZDCParameters.setDbService(dbService);
