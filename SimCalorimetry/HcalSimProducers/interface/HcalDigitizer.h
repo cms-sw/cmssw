@@ -6,6 +6,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HBHEHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HFHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -39,6 +40,8 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
+
+  void buildHOSiPMCells(const std::vector<DetId>& allCells);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
@@ -82,6 +85,7 @@ private:
   HBHEHitFilter theHBHEHitFilter;
   HFHitFilter   theHFHitFilter;
   HOHitFilter   theHOHitFilter;
+  HcalHitFilter theHOSiPMHitFilter;
   ZDCHitFilter  theZDCHitFilter;
 
   HcalHitCorrection * theHitCorrection;
@@ -98,6 +102,8 @@ private:
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
 
   std::string hitsProducer_;
+
+  int theHOSiPMCode;
 };
 
 #endif

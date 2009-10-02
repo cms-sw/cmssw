@@ -107,6 +107,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHBHEHitFilter(),
   theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
   theHOHitFilter(),
+  theHOSiPMHitFilter(HcalOuter),
   theZDCHitFilter(),
   theHitCorrection(0),
   theNoiseGenerator(0),
@@ -122,7 +123,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   zdcgeo(true),
   hbhegeo(true),
   hogeo(true),
-  hfgeo(true)
+  hfgeo(true),
+  theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode"))
 {
   bool doNoise = ps.getParameter<bool>("doNoise");
   bool doEmpty = ps.getParameter<bool>("doEmpty");
@@ -139,11 +141,13 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
 
   // a code of 1 means make all cells SiPM
   std::vector<int> hbSiPMCells(ps.getParameter<edm::ParameterSet>("hb").getParameter<std::vector<int> >("siPMCells"));
-  std::vector<int> hoSiPMCells(ps.getParameter<edm::ParameterSet>("ho").getParameter<std::vector<int> >("siPMCells"));
+  //std::vector<int> hoSiPMCells(ps.getParameter<edm::ParameterSet>("ho").getParameter<std::vector<int> >("siPMCells"));
+  // 0 means none, 1 means all, and 2 means use hardcoded
+
   bool doHBHEHPD = hbSiPMCells.empty() || (hbSiPMCells[0] != 1);
-  bool doHOHPD = hoSiPMCells.empty() || (hoSiPMCells[0] != 1);
+  bool doHOHPD = (theHOSiPMCode != 1);
   bool doHBHESiPM = !hbSiPMCells.empty();
-  bool doHOSiPM = !hoSiPMCells.empty();
+  bool doHOSiPM = (theHOSiPMCode != 0);
 
   if(doHBHEHPD || doHOHPD )
   {
@@ -178,7 +182,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(doHOSiPM)
   {
     theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMIntegratedShape);
-    theHOSiPMResponse->setHitFilter(&theHOHitFilter);
+    theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
 
@@ -186,11 +190,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(doHBHEHPD && doHBHESiPM)
   {
     HcalDigitizerImpl::fillSiPMCells(hbSiPMCells, theHBHESiPMDigitizer);
-  }
-
-  if(doHOHPD && doHOSiPM)
-  {
-    HcalDigitizerImpl::fillSiPMCells(hoSiPMCells, theHOSiPMDigitizer);
   }
 
 
@@ -435,8 +434,65 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
 
   HcalDigitizerImpl::fillCells(hbheCells, theHBHEDigitizer, theHBHESiPMDigitizer);
-  HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
+  //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
+  buildHOSiPMCells(hoCells);
   theHFDigitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
 }
+
+
+void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
+{
+  // all HPD
+  if(theHOSiPMCode == 0)
+  {
+    theHODigitizer->setDetIds(allCells);
+  }
+  else if(theHOSiPMCode == 1)
+  {
+    theHOSiPMDigitizer->setDetIds(allCells);
+    // FIXME pick Zecotek or hamamatsu?
+  } 
+  else if(theHOSiPMCode == 2)// hardcode which are SiPM 
+  {
+    std::vector<HcalDetId> zecotekDetIds;
+    std::vector<HcalDetId> hamamatsuDetIds;
+    std::vector<DetId> siPMDetIds;
+    std::vector<DetId> hpdDetIds;
+    for(std::vector<DetId>::const_iterator detItr = allCells.begin();
+        detItr != allCells.end(); ++detItr)
+    {
+      HcalDetId hcalId(*detItr);
+      int ieta = hcalId.ieta();
+      int iphi = hcalId.iphi(); 
+      if ((ieta>=5 && ieta <= 10 )  && (iphi >=47 && iphi <=52))
+      {
+        zecotekDetIds.push_back(hcalId);
+        siPMDetIds.push_back(*detItr);
+      } 
+      else if(((ieta>=5 && ieta <= 10 ) && (iphi >=53 && iphi <=58))
+           || ((ieta>=11 && ieta <= 15 )  && (iphi >=59 && iphi <=70))){
+        hamamatsuDetIds.push_back(hcalId);
+        siPMDetIds.push_back(*detItr);
+      }
+      else {
+        hpdDetIds.push_back(*detItr);
+      }
+    }
+    assert(theHODigitizer);
+    assert(theHOSiPMDigitizer);
+    theHODigitizer->setDetIds(hpdDetIds);
+    theHOSiPMDigitizer->setDetIds(siPMDetIds);
+    theHOSiPMHitFilter.setDetIds(siPMDetIds);
+    // FIXME not applying a HitFilter to the HPDs, for now
+    theParameterMap->setHOZecotekDetIds(zecotekDetIds);
+    theParameterMap->setHOHamamatsuDetIds(hamamatsuDetIds);
+
+    // make sure we don't got through this exercise again
+    theHOSiPMCode = -2;
+  }
+}
+
+      
+    
 
