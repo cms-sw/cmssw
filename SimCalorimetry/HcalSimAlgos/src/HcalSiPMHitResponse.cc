@@ -84,13 +84,11 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit,
   const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
   theSiPM->setNCells(pars.pixels());
 
-  static double const HPD_QE = 0.14;
   double signal = analogSignalAmplitude(hit, pars);
-  int photons = static_cast<int>(signal/HPD_QE + 0.5);
+  int photons = static_cast<int>(signal + 0.5);
   int pixels = theSiPM->hitCells(photons, integral);
   integral += pixels;
   signal = double(pixels);
-
   double jitter = hit.time() - timeOfFlight(id);
 
   const double tzero = pars.timePhase() - jitter -
@@ -106,3 +104,4 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit,
 
   return result;
 }
+
