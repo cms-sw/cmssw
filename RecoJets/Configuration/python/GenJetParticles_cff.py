@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: GenJetParticles.cff,v 1.9 2008/03/25 14:42:03 oehler Exp $
+# $Id: GenJetParticles_cff.py,v 1.2 2008/04/21 03:27:15 rpw Exp $
 #
 # ShR 27 Mar 07: move modules producing candidates for Jets from RecoGenJets.cff
 # 
@@ -19,3 +19,5 @@ genParticlesForJets = cms.EDFilter("InputGenJetsParticleSelector",
 
 genJetParticles = cms.Sequence(genParticlesForJets)
 
+hiGenParticlesForJets = genParticlesForJets.clone()
+hiGenParticlesForJets.src = cms.InputTag("hiGenParticles")

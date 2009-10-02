@@ -7,6 +7,8 @@ from RecoJets.JetProducers.gk5GenJets_cfi import gk5GenJets
 from RecoJets.JetProducers.kt4GenJets_cfi import kt4GenJets
 from RecoJets.JetProducers.ca4GenJets_cfi import ca4GenJets
 
+from RecoHI.HiJetAlgos.HiGenJets_cff import *
+
 
 sisCone7GenJets = sisCone5GenJets.clone( rParam = 0.7 )
 ak7GenJets      = ak5GenJets.clone( rParam = 0.7 )
