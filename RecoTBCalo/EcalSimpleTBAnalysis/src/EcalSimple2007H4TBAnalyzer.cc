@@ -6,7 +6,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.8 2007/12/21 16:10:55 ferriff Exp $
+// $Id: EcalSimple2007H4TBAnalyzer.cc,v 1.1 2008/11/26 14:49:25 meridian Exp $
 //
 //
 
@@ -110,7 +110,7 @@ EcalSimple2007H4TBAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 
   
   theTBGeometry_ =  &(*pG);
-  std::vector<DetId> validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
+//  const std::vector<DetId>& validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
 //   std::cout << "Found " << validIds.size() << " channels in the geometry" << std::endl;
 //   for (unsigned int i=0;i<validIds.size();++i)
 //     std::cout << EEDetId(validIds[i]) << std::endl;
