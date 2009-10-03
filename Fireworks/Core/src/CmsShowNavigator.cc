@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.38 2009/10/02 17:55:27 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.39 2009/10/03 15:18:23 dmytro Exp $
 //
 
 // hacks
@@ -660,7 +660,7 @@ CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector,
     return false;
   }
   
-  std::cout << "Number of trigger names: " << triggerNames->size() << std::endl; 
+  // std::cout << "Number of trigger names: " << triggerNames->size() << std::endl; 
   // for (unsigned int i=0; i<triggerNames->size(); ++i)
   //  std::cout << " " << triggerNames->triggerName(i);
   //std::cout << std::endl;
