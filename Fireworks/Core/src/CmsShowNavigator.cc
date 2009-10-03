@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.37 2009/09/30 18:01:09 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.38 2009/10/02 17:55:27 dmytro Exp $
 //
 
 // hacks
@@ -651,12 +651,18 @@ CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector,
   selection = boost::regex_replace(selection,re_spaces,"");
   edm::EventID currentEvent = file.event->id();
   fwlite::Handle<edm::TriggerResults> hTriggerResults;
-  hTriggerResults.getByLabel(*file.event,"TriggerResults","","HLT");
-  fwlite::TriggerNames const&  triggerNames = file.event->triggerNames(*hTriggerResults);
-
-  //std::cout << "Number of trigger names: " << triggerNames.size() << std::endl; 
-  // for (unsigned int i=0; i<triggerNames.size(); ++i)
-  //  std::cout << " " << triggerNames.triggerName(i);
+  fwlite::TriggerNames const* triggerNames(0);
+  try{
+    hTriggerResults.getByLabel(*file.event,"TriggerResults","","HLT");
+    triggerNames = &file.event->triggerNames(*hTriggerResults);
+  } catch(...) {
+    std::cout << "Warning: failed to get trigger results with process name HLT" << std::endl;
+    return false;
+  }
+  
+  std::cout << "Number of trigger names: " << triggerNames->size() << std::endl; 
+  // for (unsigned int i=0; i<triggerNames->size(); ++i)
+  //  std::cout << " " << triggerNames->triggerName(i);
   //std::cout << std::endl;
   
   // cannot interpret selection with OR and AND
@@ -681,8 +687,8 @@ CmsShowNavigator::filterEventsWithCustomParser(FWFileEntry& file, int iSelector,
 	flag = false;
 	filter.erase(filter.begin());
       }
-      unsigned int index = triggerNames.triggerIndex(filter);
-      if (index == triggerNames.size()) return false; //parsing failed
+      unsigned int index = triggerNames->triggerIndex(filter);
+      if (index == triggerNames->size()) return false; //parsing failed
       filters.push_back(std::pair<unsigned int,bool>(index,flag));
     }
   if (filters.empty()) return false;

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.6 2009/05/05 08:39:25 elmer Exp $
+// $Id: FWHLTValidator.cc,v 1.1 2009/10/02 17:54:41 dmytro Exp $
 //
 
 // system include files
@@ -27,10 +27,16 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
 
    if (m_triggerNames.empty()){
      fwlite::Handle<edm::TriggerResults> hTriggerResults;
-     hTriggerResults.getByLabel(m_event,"TriggerResults","","HLT");
-     fwlite::TriggerNames const& triggerNames = m_event.triggerNames(*hTriggerResults);
-     for(unsigned int i=0; i<triggerNames.size(); ++i)
-       m_triggerNames.push_back(triggerNames.triggerName(i));
+     fwlite::TriggerNames const* triggerNames(0);
+     try{
+       hTriggerResults.getByLabel(m_event,"TriggerResults","","HLT");
+       triggerNames = &m_event.triggerNames(*hTriggerResults);
+     } catch (...){
+       std::cout << "Warning: no trigger results with process name HLT is available" << std::endl;
+       return;
+     }
+     for(unsigned int i=0; i<triggerNames->size(); ++i)
+       m_triggerNames.push_back(triggerNames->triggerName(i));
      std::sort(m_triggerNames.begin(),m_triggerNames.end());
    }
 
