@@ -48,7 +48,7 @@
      The files should contain ewk samples, sig samples and qcd samples (but also read
      later). The only absolutely necessary files are the sig ones.
      Example:
-     abcd(I=0.95,dI=0.01,Fz=0.6,dFz=0.01,FzP=0.56, dFzP=0.2,METCut=30.,data)
+     abcd(I=0.95,dI=0.01,Fz=0.6,dFz=0.01,FzP=0.56, dFzP=0.2,ewkerror=0.1,METCut=30.,mc)
      These parameters keep the same notation as in the note. The last parameter (data)
      can take 3 values:
      data: calculate in ABCD as in data. This means that the histograms denoted with
@@ -56,9 +56,10 @@
            The background is substructed as in data
      mcOnly: here we ignore all the input parameters I, dI etc. All parameters are taken
            from MC by forcing Fqcd=1
-     mc:   here we take from MC everything that is not specified in the input parameters
-           for example, if I is given a negative value, or it is not contained in the
-           keyword, it is taken from mc WARNING: this option has not yet been implemented
+     mc:   <THIS IS WHAT ONE NORMALLY USES> input mc samples, calculation of statistical
+           and systematics as in CMS AN 2009/004, systematic and statistic error 
+	   calculation. This option also creates the plots of the variation of the
+           
             
 
      TO DO:
@@ -89,20 +90,43 @@
 #include "TH1F.h"
 #include "TFile.h"
 #include "TCanvas.h"
+#include "TGraph.h"
 #include "TLegend.h"
 
 void plotMaker(TString histoName, TString typeOfplot,
 	       vector<TString> file, vector<TString> type, 
 	       vector<double> weight, 
-	       TString xtitle, Int_t NBins, Double_t min, Double_t max);
+	       TString xtitle, Int_t NBins, double min, double max);
 
 void abcd(vector<TString> file, vector<TString> type, vector<double> weight,
 	  double METCut, double I, double dI, double Fz, double dFz, 
-	  double FzP, double dFzP, 
+	  double FzP, double dFzP, double ewkerror,
 	  double data, double mc, double mcOnly);
 double  searchABCDstring(TString abcdString, TString keyword);
-Double_t Trionym(Double_t a, Double_t b, Double_t c, Double_t sum);
+double Trionym(double a, double b, double c, double sum);
+double CalcABCD
+(double I, double Fz, double FzP, double K, double ewk,
+ double Na_, double Nb_, double Nc_, double Nd_,
+ double Ea_, double Eb_, double Ec_, double Ed_);
 
+// values for systematics plots: it is fraction of the MC value
+const double EWK_SYST_MIN = 0.3;
+const double EWK_SYST_MAX = 0.3;
+//
+const double I_SYST_MIN = 0.05;
+const double I_SYST_MAX = 0.05;
+//
+const double FZ_SYST_MIN = 0.1;
+const double FZ_SYST_MAX = 0.1;
+//
+const double FZP_SYST_MIN = 0.1;
+const double FZP_SYST_MAX = 0.1;
+//
+const double K_SYST_MIN = 0.8;
+const double K_SYST_MAX = 0.8;
+
+
+using namespace std;
 
 void PlotCombiner()
 {
@@ -194,19 +218,22 @@ void PlotCombiner()
     double data = searchABCDstring(typeOfplot, "data");
     double mc = searchABCDstring(typeOfplot, "mc");
     double mcOnly = searchABCDstring(typeOfplot, "mcOnly");
+    // what is the ewk error?
+    double ewkerror = searchABCDstring(typeOfplot, "ewkerror");
     //        ===============================
     // =====> ABCD METHOD FOR BKG SUBTRACTION
     //        ===============================
     abcd(files, types, weights, METCut, I, dI, Fz, dFz, FzP, dFzP,
-	 data, mc, mcOnly);
+	 ewkerror, data, mc, mcOnly);
 
   }
 
 
 }
 
-void abcd( vector<TString> file, vector<TString> type, vector<double> weight, double METCut,
-	   double I, double dI, double Fz, double dFz, double FzP, double dFzP, 
+void abcd( vector<TString> file, vector<TString> type, vector<double> weight, 
+	   double METCut, double I, double dI, double Fz, double dFz, 
+	   double FzP, double dFzP, double ewkerror,
 	   double data, double mc, double mcOnly)
 {
   gROOT->Reset();
@@ -223,7 +250,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
   //
   // find one file and get the dimensions of your histogram
   int fmax = (int) file.size();
-  int NBins = 0; Double_t min = 0; Double_t max = -1;
+  int NBins = 0; double min = 0; double max = -1;
   for (int i=0; i<fmax; ++i) {
     if (weight[i]>0) {
       TFile f(file[i]);
@@ -256,21 +283,6 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
       h_wenu_inv.Add(h_bb, weight[i]);
       TH1F *h_eb = (TH1F*) f.Get(histoName_Eb);
       h_wenu_inv.Add(h_eb, weight[i]);
-    }
-    // as signal consider also qcd,bce,gje events if data option is on
-    if ((data < 0 && data >-0.75) && type[i]!="sig"
-	&& type[i]!="ewk") {
-      TFile f(file[i]);
-      //
-      TH1F *h_ba = (TH1F*) f.Get(histoName_Ba);
-      h_wenu.Add(h_ba, weight[i]);
-      TH1F *h_ea = (TH1F*) f.Get(histoName_Ea);
-      h_wenu.Add(h_ea, weight[i]);
-      //
-      TH1F *h_bb = (TH1F*) f.Get(histoName_Bb);
-      h_wenu_inv.Add(h_bb, weight[i]);
-      TH1F *h_eb = (TH1F*) f.Get(histoName_Eb);
-      h_wenu_inv.Add(h_eb, weight[i]);      
     }
   }
   // QCD Bkgs
@@ -344,6 +356,12 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
   if (data < 0 && data >-0.75) {  // select value -0.5 that gives the
                                   // string parser
     // now everything is done from data + input
+    std::cout << "Calculating ABCD Result and Stat Error Assuming DATA"
+	      << std::endl << "Summary: in this implementation we have assumed"
+	      << " that what real 'data' appear with type sig in the input"
+	      << std::endl << "No systematics available with this type of"
+	      << " calculation. If you need systematics try one of the other"
+	      << " options" << std::endl;
     double A = (1.0-I)*(FzP-Fz);
     double B = I*(FzP+1.0)*(FzP*(c_sig-c_ewk)-(d_sig-d_ewk)) + 
       (1+Fz)*(1-I)*((a_sig-a_ewk)-dFzP*(b_sig-b_ewk));
@@ -354,10 +372,10 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
 
     // the errors now:
     // calculate the statistical error now:
-    Double_t  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
-    Double_t  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
-    Double_t  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
-    Double_t  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
+    double  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
+    double  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
+    double  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
+    double  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
     //
     double Na = a_sig, Nb = b_sig, Nc=c_sig, Nd = d_sig;
     double Ea = a_ewk, Eb = b_ewk, Ec=c_ewk, Ed = d_ewk;
@@ -420,10 +438,19 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
       SpNc  = -CpNc/B+C*BpNc/(B*B);
       SpNd  = -CpNd/B+C*BpNd/(B*B);
     }
-    Double_t  DS;
+    double  DS;
     DS = sqrt( SpI*dI*SpI*dI + SpFz*dFz*SpFz*dFz + SpFzP*dFzP*SpFzP*dFzP  +
 	       SpNa*SpNa*Na + SpNb*SpNb*Nb + SpNc*SpNc*Nc + SpNd*SpNd*Nd );
     // warning: S here denotes the method prediction ..........
+    cout << "********************************************************" << endl;
+    cout << "Signal Prediction: " << S << "+-" << DS << "(stat)" << endl;
+    cout << "********************************************************" << endl;
+    cout << "Parameters used in calculation: " << endl;
+    cout << "I=  " << I << "+-" << dI << endl;
+    cout << "Fz= " << Fz << "+-" << dFz << endl;
+    cout << "FzP=" << FzP << "+-" << dFzP << endl;
+    cout << endl;
+    //
     cout << "Statistical Error Summary: " << endl;
     cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
     cout << "due to FzP= "<< SpFzP*dFzP
@@ -442,41 +469,31 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
 	 << DS << ", (" << DS*100./S << "%)"<< endl;
     cout << "Stat Error percentages are wrt S prediction, not S mc" << endl;
   }
-  if (mcOnly < 0 && mcOnly >-0.75) {  // select value -0.5 that gives the
-                                      // string parser
-
-    // recalculate the basic quantities
-    I = (a_sig + b_sig) / (a_sig + b_sig + c_sig + d_sig);
-    dI = sqrt(I*(1-I)/(a_sig + b_sig + c_sig + d_sig));
-    Fz = a_sig/b_sig;
-    double e =a_sig/(a_sig + b_sig);
-    double de = sqrt(e*(1-e)/(a_sig + b_sig));
-    double alpha = de/(2.*Fz-e);
-    dFz = alpha/(1-alpha);
-    FzP = d_sig/c_sig;
-    double ep =d_sig/(c_sig + d_sig);
-    double dep = sqrt(ep*(1-ep)/(c_sig + d_sig));
-    double alphap = dep/(2.*FzP-ep);
-    dFzP = alphap/(1-alphap);
-    //
-    // now everything is done from data + input
+  //
+  //
+  //  this is the main option of the algorithm: the one implemented in the 
+  //  Analysis Note
+  //
+  if (mc < 0 && mcOnly >-0.75) {  // select value -0.5 that gives the 
+                                  // string parser
+    
+    //////// STATISTICAL ERROR CALCULATION /////////////////////////////
     double A = (1.0-I)*(FzP-Fz);
     double B = I*(FzP+1.0)*(FzP*(c_sig+c_qcd)-(d_sig+d_qcd)) + 
       (1+Fz)*(1-I)*((a_sig+a_qcd)-dFzP*(b_sig+b_qcd));
-    double C = I*(1.+Fz)*(1.+FzP)*((d_sig+d_qcd)*(b_sig+b_qcd) - (a_sig+a_qcd)*(c_sig+c_qcd));
+    double C = I*(1.+Fz)*(1.+FzP)*((d_sig+d_qcd)*(b_sig+b_qcd) - 
+				   (a_sig+a_qcd)*(c_sig+c_qcd));
     //
     // signal calculation:
-    double S = Trionym(A,B,C, a_sig+b_sig+a_qcd +b_qcd);
-
-    // the errors now:
-    // calculate the statistical error now:
-    Double_t  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
-    Double_t  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
-    Double_t  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
-    Double_t  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
+    double S = Trionym(A,B,C, a_sig+b_sig);
     //
-    double Na = a_sig+a_qcd+a_ewk, Nb = b_sig+b_qcd+b_ewk, Nc=c_sig+c_qcd+c_ewk, 
-      Nd = d_sig+d_qcd+d_ewk;
+    double  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
+    double  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
+    double  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
+    double  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
+    //
+    double Na = a_sig+a_qcd+a_ewk, Nb = b_sig+b_qcd+b_ewk;
+    double Nc=c_sig+c_qcd+c_ewk,   Nd = d_sig+d_qcd+d_ewk;
     double Ea = a_ewk, Eb = b_ewk, Ec=c_ewk, Ed = d_ewk;
     if (A != 0) {
       
@@ -537,10 +554,315 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
       SpNc  = -CpNc/B+C*BpNc/(B*B);
       SpNd  = -CpNd/B+C*BpNd/(B*B);
     }
-    Double_t  DS;
+    double  DS;
+    DS = sqrt( SpI*dI*SpI*dI + SpFz*dFz*SpFz*dFz + SpFzP*dFzP*SpFzP*dFzP  +
+	       SpNa*SpNa*Na + SpNb*SpNb*Nb + SpNc*SpNc*Nc + SpNd*SpNd*Nd );
+
+    ////////////////////////////////////////////////////////////////////////
+    // SYSTEMATICS CALCULATION /////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    // recalculate the basic quantities
+    double Imc = (a_sig + b_sig) / (a_sig + b_sig + c_sig + d_sig);
+    double dImc = sqrt(Imc*(1-Imc)/(a_sig + b_sig + c_sig + d_sig));
+    double Fzmc = a_sig/b_sig;
+    double e =a_sig/(a_sig + b_sig);
+    double de = sqrt(e*(1-e)/(a_sig + b_sig));
+    double alpha = de/(2.*Fzmc-e);
+    double dFzmc = alpha/(1-alpha);
+    double FzPmc = d_sig/c_sig;
+    double ep =d_sig/(c_sig + d_sig);
+    double dep = sqrt(ep*(1-ep)/(c_sig + d_sig));
+    double alphap = dep/(2.*FzPmc-ep);
+    double dFzPmc = alphap/(1-alphap);
+    //
+    // calculate the K parameter as it is in MC:
+    double KMC = (d_qcd/c_qcd)/(a_qcd/b_qcd);
+    double SMC = a_sig + b_sig;
+    //
+    double dfz = Fz -Fzmc;
+    double di = I - Imc;
+    double dfzp = FzP - FzPmc;
+    double fk = fabs(1-KMC);
+    ////////////////////////////////////////////////////////////////////////
+    // ewk error: this error has to be inserted by hand
+    double fm = 1.-ewkerror;
+    double fp = 1.+ewkerror;
+    double S_EWK_PLUS = CalcABCD(Imc, Fzmc, FzPmc, KMC, fp, Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+    double S_EWK_MINUS = CalcABCD(Imc, Fzmc, FzPmc, KMC, fm, Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+    // error in K
+    double S_K= CalcABCD(Imc, Fzmc, FzPmc, 1., 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+    // error in Fz
+    double S_FZ= CalcABCD(Imc, Fz, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+    // error in FzP
+    double S_FZP= CalcABCD(Imc, Fzmc, FzP, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+    // error in I
+    double S_I = CalcABCD(I, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+    //
+    // ************ plots for the systematics calculation ****************
+    // ewk plot
+    int const POINTS = 10;
+    int const allPOINTS = 2*POINTS;
+    TGraph g_ewk(allPOINTS);
+    TGraph g_fz(allPOINTS);
+    TGraph g_fzp(allPOINTS);
+    TGraph g_k(allPOINTS);
+    TGraph g_i(allPOINTS);
+    //    double points_ewk[allPOINTS];
+    //    double points_k[allPOINTS];
+    //    double points_fz[allPOINTS];
+    //    double points_fzp[allPOINTS];
+    //    double points_i[allPOINTS];
+    double ewk_syst_min = EWK_SYST_MIN; // because this is just fraction
+    double i_syst_min = Imc*(1.-I_SYST_MIN);
+    double fz_syst_min = Fzmc*(1.-FZ_SYST_MIN);
+    double fzp_syst_min = FzPmc*(1.-FZP_SYST_MIN);
+    double k_syst_min = KMC*(1.-K_SYST_MIN);
+    //
+    double ewk_syst_max = EWK_SYST_MAX; // because this is just fraction
+    double i_syst_max = Imc*(1.+I_SYST_MAX);
+    double fz_syst_max = Fzmc*(1.+FZ_SYST_MAX);
+    double fzp_syst_max = FzPmc*(1.+FZP_SYST_MAX);
+    double k_syst_max = KMC*(1.+K_SYST_MAX);
+    //
+    // negative points
+    for (int i=0; i<=POINTS; ++i) {
+      double x_ewk = ewk_syst_min + (1.-ewk_syst_min)*i/POINTS;
+      double x_fz  = fz_syst_min + (Fzmc-fz_syst_min)*i/POINTS;
+      double x_fzp = fzp_syst_min + (FzPmc-fzp_syst_min)*i/POINTS;
+      double x_k   = k_syst_min + (KMC-k_syst_min)*i/POINTS;
+      double x_i   = i_syst_min + (Imc-i_syst_min)*i/POINTS;
+      //
+      double y_ewk= CalcABCD(Imc, Fzmc, FzPmc, KMC, x_ewk, Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_fz = CalcABCD(Imc, x_fz, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_fzp= CalcABCD(Imc, Fzmc, x_fzp, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_k  = CalcABCD(Imc, Fzmc, FzPmc, x_k, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_i  = CalcABCD(x_i, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      //
+      g_ewk.SetPoint(i,x_ewk*100., 100.*fabs(y_ewk-SMC)/SMC);
+      g_fz.SetPoint(i,(x_fz-Fzmc)*100./Fzmc, 100.*fabs(y_fz-SMC)/SMC);
+      g_fzp.SetPoint(i,(x_fzp-FzPmc)*100./FzPmc, 100.*fabs(y_fzp-SMC)/SMC);
+      g_i.SetPoint(i,(x_i-Imc)*100./Imc, 100.*fabs(y_i-SMC)/SMC);
+      g_k.SetPoint(i,(x_k-KMC)*100./KMC, 100.*fabs(y_k-SMC)/SMC);
+      //
+    }
+    //
+    // positive points
+    for (int i=0; i<=POINTS; ++i) {
+      double x_ewk = (ewk_syst_max-1.)*i/POINTS;
+      double x_fz  = (fz_syst_max-Fzmc)*i/POINTS;
+      double x_fzp = (fzp_syst_max-FzPmc)*i/POINTS;
+      double x_k   = (k_syst_max-KMC)*i/POINTS;
+      double x_i   = (i_syst_max-Imc)*i/POINTS;
+      //
+      double y_ewk= CalcABCD(Imc, Fzmc, FzPmc, KMC, x_ewk, Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_fz = CalcABCD(Imc, x_fz, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_fzp= CalcABCD(Imc, Fzmc, x_fzp, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_k  = CalcABCD(Imc, Fzmc, FzPmc, x_k, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      double y_i  = CalcABCD(x_i, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
+      //
+      g_ewk.SetPoint(i+POINTS+1,x_ewk*100., 100.*fabs(y_ewk-SMC)/SMC);
+      g_fz.SetPoint(i+POINTS+1,(x_fz-Fzmc)*100./Fzmc, 100.*fabs(y_fz-SMC)/SMC);
+      g_fzp.SetPoint(i+POINTS+1,(x_fzp-FzPmc)*100./FzPmc, 100.*fabs(y_fzp-SMC)/SMC);
+      g_i.SetPoint(i+POINTS+1,(x_i-Imc)*100./Imc, 100.*fabs(y_i-SMC)/SMC);
+      g_k.SetPoint(i+POINTS+1,(x_k-KMC)*100./KMC, 100.*fabs(y_k-SMC)/SMC);
+    }
+    TCanvas c;
+    g_ewk.Draw("AL");
+    c.Print("ewk_syst_variation.C");
+    //
+    g_fz.Draw("AL");
+    c.Print("fz_syst_variation.C");
+    //
+    g_fzp.Draw("AL");
+    c.Print("fzp_syst_variation.C");
+    //
+    g_i.Draw("AL");
+    c.Print("i_syst_variation.C");
+    //
+    g_k.Draw("AL");
+    c.Print("k_syst_variation.C");
+    //
+    // ******************************************************************
+    //
+    //
+    // 
+    double err_ewk = std::max(fabs(SMC-S_EWK_PLUS),fabs(SMC-S_EWK_MINUS));
+    double err_fz = fabs(SMC-S_FZ);
+    double err_fzp = fabs(SMC-S_FZP);
+    double err_i  = fabs(SMC-S_I);
+    double err_k = fabs(SMC-S_K);
+    //
+    double DS_syst = sqrt(err_ewk*err_ewk + err_fz*err_fz + err_fzp*err_fzp+
+			  err_i*err_i + err_k*err_k);
+    //
+    cout << "********************************************************" << endl;
+    cout << "Signal Prediction: " << S << "+-" << DS << "(stat) +-"
+	 << DS_syst << "(syst)"  << endl;
+    cout << "stat error: " << 100.*DS/S <<"%" << endl;
+    cout << "syt  error: " << 100.*DS_syst/S<< "%"  << endl;
+    cout << "********************************************************" << endl;
+    cout << "Parameters used in calculation: " << endl;
+    cout << "I=  " << I << "+-" << dI << endl;
+    cout << "Fz= " << Fz << "+-" << dFz << endl;
+    cout << "FzP=" << FzP << "+-" << dFzP << endl;
+    cout << endl;
+    cout << "Parameters from MC: " << endl;
+    cout << "I=  " << Imc << "+-" << dImc << endl;
+    cout << "Fz= " << Fzmc << "+-" << dFzmc << endl;
+    cout << "FzP=" << FzPmc << "+-" << dFzPmc << endl;
+    cout << endl;
+    cout << "Real value of K=" << KMC << endl;
+    cout << endl;
+    cout << "Difference Measured - MC value (% wrt MC value except K=1): " 
+	 << endl;
+    cout << "Fz : " << dfz  << ", (" << dfz*100./Fzmc << "%)" << endl;
+    cout << "FzP: " << dfzp << ", (" << dfzp*100./FzPmc << "%)"  << endl;
+    cout << "I  : " << di   << ", (" << di*100./Imc << "%)"  << endl;
+    cout << "K  : " << fk   << ", (" << fk*100./1. << "%)"  << endl;
+    cout << endl;
+    //
+    cout << "DETAILS OF THE CALCULATION" << endl;
+    cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^" << endl;
+    cout << "Statistical Error Summary: " << endl;
+    cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
+    cout << "due to FzP= "<< SpFzP*dFzP
+	 << ", ("<<SpFzP*dFzP*100./S << "%)"<< endl; 
+    cout << "due to  I = "<< SpI*dI
+	 << ", ("<<SpI*dI*100./S << "%)"<< endl; 
+    cout << "due to Na = "<< SpNa*sqrt(Na)
+	 << ", ("<< SpNa*sqrt(Na)*100./S << "%)"<< endl; 
+    cout << "due to Nb = "<< SpNb*sqrt(Nb)
+	 << ", ("<< SpNb*sqrt(Nb)*100./S << "%)"<< endl; 
+    cout << "due to Nc = "<< SpNc*sqrt(Nc)
+	 << ", ("<< SpNc*sqrt(Nc)*100./S << "%)"<< endl; 
+    cout << "due to Nd = "<< SpNd*sqrt(Nd)
+	 << ", ("<< SpNd*sqrt(Nd)*100./S << "%)"<< endl; 
+    cout << "Total Statistical Error: " 
+	 << DS << ", (" << DS*100./S << "%)"<< endl;
+    cout << "Stat Error percentages are wrt S prediction, not S mc" << endl;
+    cout << endl;
+    cout << "Systematic Error Summary:" << endl;
+    cout << "due to k   = " << err_k << " ( " << err_k*100./S  << ")" << endl;
+    cout << "due to Fz  = " << err_fz << " ( " << err_fz*100./S  << ")" << endl;
+    cout << "due to FzP = " << err_fzp << " ( " << err_fzp*100./S  << ")" << endl;
+    cout << "due to I   = " << err_i << " ( " << err_i*100./S  << ")" << endl;
+    cout << "due to EWK = " << err_ewk << " ( " << err_ewk*100./S  << ")" << endl;
+
+    cout << "Syst Error percentages are wrt S prediction, not S mc" << endl;
+  }
+  //
+  //
+  if (mcOnly < 0 && mcOnly >-0.75) {  // select value -0.5 that gives the
+                                      // string parser
+    cout << "Calculating ABCD Result and Stat Error Assuming MC ONLY"  << endl;
+    cout << "All input parameters that the user have inserted will be "
+	 << "ignored and recalculated from MC" << endl;
+    cout << "This option will not give you systematics estimation" << endl;
+    // recalculate the basic quantities
+    I = (a_sig + b_sig) / (a_sig + b_sig + c_sig + d_sig);
+    dI = sqrt(I*(1-I)/(a_sig + b_sig + c_sig + d_sig));
+    Fz = a_sig/b_sig;
+    double e =a_sig/(a_sig + b_sig);
+    double de = sqrt(e*(1-e)/(a_sig + b_sig));
+    double alpha = de/(2.*Fz-e);
+    dFz = alpha/(1-alpha);
+    FzP = d_sig/c_sig;
+    double ep =d_sig/(c_sig + d_sig);
+    double dep = sqrt(ep*(1-ep)/(c_sig + d_sig));
+    double alphap = dep/(2.*FzP-ep);
+    dFzP = alphap/(1-alphap);
+    //
+    // now everything is done from data + input
+    double A = (1.0-I)*(FzP-Fz);
+    double B = I*(FzP+1.0)*(FzP*(c_sig+c_qcd)-(d_sig+d_qcd)) + 
+      (1+Fz)*(1-I)*((a_sig+a_qcd)-dFzP*(b_sig+b_qcd));
+    double C = I*(1.+Fz)*(1.+FzP)*((d_sig+d_qcd)*(b_sig+b_qcd) - 
+				   (a_sig+a_qcd)*(c_sig+c_qcd));
+    //
+    // signal calculation:
+    double S = Trionym(A,B,C, a_sig+b_sig);
+
+    // the errors now:
+    // calculate the statistical error now:
+    double  ApI=0, ApFz=0, ApFzP=0, ApNa=0, ApNb=0, ApNc=0, ApNd=0;
+    double  BpI=0, BpFz=0, BpFzP=0, BpNa=0, BpNb=0, BpNc=0, BpNd=0;
+    double  CpI=0, CpFz=0, CpFzP=0, CpNa=0, CpNb=0, CpNc=0, CpNd=0;
+    double  SpI=0, SpFz=0, SpFzP=0, SpNa=0, SpNb=0, SpNc=0, SpNd=0;
+    //
+    double Na = a_sig+a_qcd+a_ewk, Nb = b_sig+b_qcd+b_ewk;
+    double Nc=c_sig+c_qcd+c_ewk,   Nd = d_sig+d_qcd+d_ewk;
+    double Ea = a_ewk, Eb = b_ewk, Ec=c_ewk, Ed = d_ewk;
+    if (A != 0) {
+      
+      ApI   = -(FzP-Fz);
+      ApFz  = -(1.0-I);
+      ApFzP = (1.0-I);
+      ApNa  = 0.0;
+      ApNb  = 0.0;
+      ApNc  = 0.0;
+      ApNd  = 0.0;
+      
+      BpI   = (FzP+1.0)*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0+Fz)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFz  = I*(FzP+1.0)*(Nc-Ec)+(1.0-I)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFzP = I*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0-I)*(1.0+Fz)*(Nb-Eb);
+      BpNa  =  (1.0-I)*(1.0+Fz);
+      BpNb  = -(1.0-I)*(1.0+Fz)*FzP;
+      BpNc  = I*(FzP+1.0)*Fz;
+      BpNd  = -I*(FzP+1.0);
+      
+      CpI   = (1.0+Fz)*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec)); 
+      CpFz  = I*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpFzP = I*(1.0+Fz)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpNa  = -I*(1.0+Fz)*(1.0+FzP)*(Nc-Ec);
+      CpNb  =  I*(1.0+Fz)*(1.0+FzP)*(Nd-Ed);
+      CpNc  = -I*(1.0+Fz)*(1.0+FzP)*(Na-Ea);
+      CpNd  =  I*(1.0+Fz)*(1.0+FzP)*(Nb-Eb);
+      
+      SpI   = (-BpI   + (B*BpI   -2.0*ApI*C   -2.0*A*CpI)  /fabs(2.0*A*S+B)- 2.0*ApI*S)  /(2.0*A);
+      SpFz  = (-BpFz  + (B*BpFz  -2.0*ApFz*C  -2.0*A*CpFz) /fabs(2.0*A*S+B)- 2.0*ApFz*S) /(2.0*A);
+      SpFzP = (-BpFzP + (B*BpFzP -2.0*ApFzP*C -2.0*A*CpFzP)/fabs(2.0*A*S+B)- 2.0*ApFzP*S)/(2.0*A);
+      SpNa  = (-BpNa  + (B*BpNa  -2.0*ApNa*C  -2.0*A*CpNa) /fabs(2.0*A*S+B)- 2.0*ApNa*S) /(2.0*A);
+      SpNb  = (-BpNb  + (B*BpNb  -2.0*ApNb*C  -2.0*A*CpNb) /fabs(2.0*A*S+B)- 2.0*ApNb*S) /(2.0*A);
+      SpNc  = (-BpNc  + (B*BpNc  -2.0*ApNc*C  -2.0*A*CpNc) /fabs(2.0*A*S+B)- 2.0*ApNc*S) /(2.0*A);
+      SpNd  = (-BpNd  + (B*BpNd  -2.0*ApNd*C  -2.0*A*CpNd) /fabs(2.0*A*S+B)- 2.0*ApNd*S) /(2.0*A);
+    }
+    else {
+      BpI   = (FzP+1.0)*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0+Fz)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFz  = I*(FzP+1.0)*(Nc-Ec)+(1.0-I)*((Na-Ea)-FzP*(Nb-Eb));
+      BpFzP = I*(Fz*(Nc-Ec)-(Nd-Ed))-(1.0-I)*(1.0+Fz)*(Nb-Eb);
+      BpNa  =  (1.0-I)*(1.0+Fz);
+      BpNb  = -(1.0-I)*(1.0+Fz)*FzP;
+      BpNc  = I*(FzP+1.0)*Fz;
+      BpNd  = -I*(FzP+1.0);
+      
+      CpI   = (1.0+Fz)*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec)); 
+      CpFz  = I*(1.0+FzP)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpFzP = I*(1.0+Fz)*((Nd-Ed)*(Nb-Eb)-(Na-Ea)*(Nc-Ec));
+      CpNa  = -I*(1.0+Fz)*(1.0+FzP)*(Nc-Ec);
+      CpNb  =  I*(1.0+Fz)*(1.0+FzP)*(Nd-Ed);
+      CpNc  = -I*(1.0+Fz)*(1.0+FzP)*(Na-Ea);
+      CpNd  =  I*(1.0+Fz)*(1.0+FzP)*(Nb-Eb);
+      
+      SpI   = -CpI/B+C*BpI/(B*B);
+      SpFz  = -CpFz/B+C*BpFz/(B*B);
+      SpFzP = -CpFzP/B+C*BpFzP/(B*B);
+      SpNa  = -CpNa/B+C*BpNa/(B*B);
+      SpNb  = -CpNb/B+C*BpNb/(B*B);
+      SpNc  = -CpNc/B+C*BpNc/(B*B);
+      SpNd  = -CpNd/B+C*BpNd/(B*B);
+    }
+    double  DS;
     DS = sqrt( SpI*dI*SpI*dI + SpFz*dFz*SpFz*dFz + SpFzP*dFzP*SpFzP*dFzP  +
 	       SpNa*SpNa*Na + SpNb*SpNb*Nb + SpNc*SpNc*Nc + SpNd*SpNd*Nd );
     // warning: S here denotes the method prediction ..........
+    cout << "********************************************************" << endl;
+    cout << "Signal Prediction: " << S << "+-" << DS << "(stat)" << endl;
+    cout << "********************************************************" << endl;
+    cout << "Parameters used in calculation: " << endl;
+    cout << "I=  " << I << "+-" << dI << endl;
+    cout << "Fz= " << Fz << "+-" << dFz << endl;
+    cout << "FzP=" << FzP << "+-" << dFzP << endl;
+    cout << endl;
     cout << "Statistical Error Summary: " << endl;
     cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
     cout << "due to FzP= "<< SpFzP*dFzP
@@ -566,7 +888,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight, do
 void plotMaker(TString histoName, TString wzsignal,
 	       vector<TString> file, vector<TString> type, 
 	       vector<double> weight, 
-	       TString xtitle, Int_t NBins, Double_t min, Double_t max)
+	       TString xtitle, Int_t NBins, double min, double max)
 {
   gROOT->Reset();
   gROOT->ProcessLine(".L tdrstyle.C"); 
@@ -708,20 +1030,41 @@ double searchABCDstring(TString abcdString, TString keyword)
 }
 
 
-Double_t Trionym(Double_t a, Double_t b, Double_t c, Double_t sum)
+double Trionym(double a, double b, double c, double sum)
 {
   if (a==0) {
     return -c/b;
   }
-  Double_t D2 = b*b - 4.*a*c;
+  double D2 = b*b - 4.*a*c;
   //return (-b + sqrt(D2)) / (2.*a);
   if (D2 > 0) {
-    Double_t s1 = (-b + sqrt(D2)) / (2.*a);
-    Double_t s2 = (-b - sqrt(D2)) / (2.*a);
-    Double_t solution =   fabs(s1-sum)<fabs(s2-sum)?s1:s2;
+    double s1 = (-b + sqrt(D2)) / (2.*a);
+    double s2 = (-b - sqrt(D2)) / (2.*a);
+    double solution =   fabs(s1-sum)<fabs(s2-sum)?s1:s2;
     return solution;
   }
   else  {
     return -1.;  
   }
+}
+
+//
+// the naming of the variables and the order is in this way for historical
+// reasons
+// your complains for different Nd_ and nd to G.Daskalakis :P
+//
+double CalcABCD
+(double I, double Fz, double FzP, double K, double ewk,
+ double Na_, double Nb_, double Nc_, double Nd_ ,
+ double Ea_, double Eb_, double Ec_, double Ed_)
+{
+  double A, B, C;
+  A = (1.0-I)*(FzP-K*Fz);
+  B = I*(FzP+1.0)*(K*Fz*(Nc_-ewk*Ec_)-(Nd_-ewk*Ed_))+
+    (1.0-I)*(1.0+Fz)*(K*(Na_-ewk*Ea_)-FzP*(Nb_-ewk*Eb_));
+  C = I*(1.0+Fz)*(1.0+FzP)*((Nd_-ewk*Ed_)*(Nb_-ewk*Eb_)-
+			    K*(Na_-ewk*Ea_)*(Nc_-ewk*Ec_));
+  //
+  return Trionym(A, B, C, Na_+Nb_-Ea_-Eb_);
+
 }
