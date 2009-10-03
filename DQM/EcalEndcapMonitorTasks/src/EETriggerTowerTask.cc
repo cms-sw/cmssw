@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/03 12:06:47 $
- * $Revision: 1.57 $
+ * $Date: 2009/10/03 12:31:40 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -344,6 +344,14 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
     Handle<TriggerResults> hltResults;
+
+    if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
+      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
+    }
+
+    if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
+      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
+    }
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
 

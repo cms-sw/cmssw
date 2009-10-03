@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/03 12:06:46 $
- * $Revision: 1.90 $
+ * $Date: 2009/10/03 12:31:40 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -293,6 +293,14 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
     Handle<TriggerResults> hltResults;
+
+    if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
+      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "HLT");
+    }
+
+    if ( !e.getByLabel(HLTResultsCollection_, hltResults) ) {
+      HLTResultsCollection_ = InputTag(HLTResultsCollection_.label(), HLTResultsCollection_.instance(), "FU");
+    }
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
 
