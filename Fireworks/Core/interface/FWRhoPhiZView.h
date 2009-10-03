@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.17 2009/03/11 21:16:21 amraktad Exp $
+// $Id: FWRhoPhiZView.h,v 1.18 2009/04/07 14:10:54 chrjones Exp $
 //
 
 // system include files
@@ -81,6 +81,8 @@ private:
    void updateCaloThresholds(TEveElement*);
    void updateCaloLines(TEveElement*);
    void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
+   void lineWidthChanged();
+   void lineSmoothnessChanged();
 
    FWRhoPhiZView(const FWRhoPhiZView&);    // stop default
 
@@ -100,12 +102,14 @@ private:
    // parameters
    FWDoubleParameter m_caloDistortion;
    FWDoubleParameter m_muonDistortion;
-   FWBoolParameter m_showProjectionAxes;
-   FWBoolParameter m_compressMuon;
+   FWBoolParameter   m_showProjectionAxes;
+   FWBoolParameter   m_compressMuon;
    FWDoubleParameter m_caloFixedScale;
-   FWBoolParameter m_caloAutoScale;
-   FWBoolParameter*   m_showHF;
-   FWBoolParameter*   m_showEndcaps;
+   FWBoolParameter   m_caloAutoScale;
+   FWDoubleParameter m_lineWidth;
+   FWBoolParameter   m_smoothLine;
+   FWBoolParameter*  m_showHF;
+   FWBoolParameter*  m_showEndcaps;
    //FWDoubleParameter  m_minEcalEnergy;
    //FWDoubleParameter  m_minHcalEnergy;
 

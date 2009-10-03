@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.39 2009/09/24 00:28:24 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.40 2009/09/24 20:19:07 amraktad Exp $
 //
 
 #define private public
@@ -110,6 +110,8 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_compressMuon(this,"Compress detectors",false),
    m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
    m_caloAutoScale(this,"Calo auto scale",false),
+   m_lineWidth(this,"Line width",1.0,1.0,10.0),
+   m_smoothLine(this,"Smooth line",false),
    m_showHF(0),
    m_showEndcaps(0),
    //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
@@ -156,6 +158,8 @@ FWRhoPhiZView::FWRhoPhiZView(TEveWindowSlot* iParent,const std::string& iName, c
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
    m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
+   m_lineWidth.changed_.connect(boost::bind(&FWRhoPhiZView::lineWidthChanged,this));
+   m_smoothLine.changed_.connect(boost::bind(&FWRhoPhiZView::lineSmoothnessChanged,this));
 
    TEveViewer* nv = new TEveViewer(iName.c_str());
    m_embeddedViewer =  nv->SpawnGLEmbeddedViewer();
@@ -508,6 +512,21 @@ void FWRhoPhiZView::showProjectionAxes( )
       m_axes->SetRnrState(kFALSE);
    gEve->Redraw3D();
 }
+
+void
+FWRhoPhiZView::lineWidthChanged()
+{
+  m_embeddedViewer->SetLineScale(m_lineWidth.value());
+  m_embeddedViewer->RequestDraw();
+}
+
+void
+FWRhoPhiZView::lineSmoothnessChanged()
+{
+  m_embeddedViewer->SetSmoothLines(m_smoothLine.value());
+  m_embeddedViewer->RequestDraw();
+}
+
 
 //
 // static member functions
