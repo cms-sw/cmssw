@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/08/31 10:48:20 $
- * $Revision: 1.55 $
+ * $Date: 2009/09/23 19:04:31 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -161,7 +161,7 @@ void EETriggerTowerTask::setup( const char* nameext,
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
 
-  if( emulated ) {
+  if ( emulated ) {
     meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
   }
@@ -170,7 +170,7 @@ void EETriggerTowerTask::setup( const char* nameext,
 
   char histo[200];
 
-  if(!emulated) {
+  if (!emulated) {
     sprintf(histo, "EETTT Et spectrum %s EE -", nameext);
     meEtSpectrumReal_[0] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
     meEtSpectrumReal_[0]->setAxisTitle("energy (ADC)", 1);
@@ -261,7 +261,7 @@ void EETriggerTowerTask::setup( const char* nameext,
     (*meEtMap)[i]->setAxisTitle("jy", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
 
-    if(!emulated) {
+    if (!emulated) {
 
       sprintf(histo, "EETTT EmulError %s", Numbers::sEE(i+1).c_str());
       meEmulError_[i] = dqmStore_->book2D(histo, histo,
@@ -299,7 +299,7 @@ void EETriggerTowerTask::cleanup(void) {
 
   if ( dqmStore_ ) {
 
-    if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
+    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
     dqmStore_->rmdir( prefixME_ + "/EETriggerTowerTask" );
 
@@ -382,7 +382,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
   }
 
   bool validCompDigis = false;
-  if( compDigis.isValid() ) validCompDigis = true;
+  if ( compDigis.isValid() ) validCompDigis = true;
 
   if ( validCompDigis ) {
 
@@ -453,12 +453,12 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     bool good = true;
     bool goodVeto = true;
     bool matchSample[6];
-    for(int j=0; j<6; j++) matchSample[j] = false;
+    for (int j=0; j<6; j++) matchSample[j] = false;
     bool matchedAny=false;
 
     int compDigiEt = -1;
 
-    if( validCompDigis ) {
+    if ( validCompDigis ) {
 
       if ( ismt >= 1 && ismt <= 9 ) {
         if ( meEtSpectrumEmul_[0] ) meEtSpectrumEmul_[0]->Fill( xvalEt );
@@ -466,7 +466,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         if ( meEtSpectrumEmul_[1] ) meEtSpectrumEmul_[1]->Fill( xvalEt );
       }
       float maxEt = 0;
-      for(int j=0; j<5; j++) {
+      for (int j=0; j<5; j++) {
         float EtTP = (*tpdigiItr)[j].compressedEt();
         if ( EtTP > maxEt ) maxEt = EtTP;
       }
@@ -477,7 +477,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       }
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
-      if( compDigiItr != compDigis->end() ) {
+      if ( compDigiItr != compDigis->end() ) {
         //        LogDebug("EETriggerTowerTask") << "found corresponding digi! "<< *compDigiItr;
         compDigiEt = compDigiItr->compressedEt();
         if ( ismt >= 1 && ismt <= 9 ) {
@@ -497,21 +497,21 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
           if ( compDigiItr->compressedEt() > 0 ) nTP[1]++;
 
         }
-        if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
+        if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
           //          LogDebug("EETriggerTowerTask") << "but it is different...";
           good = false;
         }
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
-        for(int j=0; j<5; j++) {
-          if((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
+        for (int j=0; j<5; j++) {
+          if ((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
             matchSample[j+1]=true;
             matchedAny=true;
           }
         }
-        if(!matchedAny) matchSample[0]=true;
-        if( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+        if (!matchedAny) matchSample[0]=true;
+        if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
           //          LogDebug("EETriggerTowerTask") << "but fine grain veto is different...";
           goodVeto = false;
         }
@@ -543,16 +543,16 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       if ( validCompDigis ) {
 
-        if(!good ) {
+        if (!good ) {
           if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
         }
-        if(!goodVeto) {
+        if (!goodVeto) {
           if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
         }
 
-        if(readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
-          for(int j=0; j<6; j++) {
-            if(matchSample[j]) {
+        if (readoutCrystalsInTower[itcc-1][itt-1]==crystalsInTower && compDigiEt > 0) {
+          for (int j=0; j<6; j++) {
+            if (matchSample[j]) {
 
               meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/08/31 06:53:58 $
- * $Revision: 1.88 $
+ * $Date: 2009/08/31 10:48:17 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -151,7 +151,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
   array1*  meEtMap = &meEtMapReal_;
   array1*  meVeto = &meVetoReal_;
 
-  if( emulated ) {
+  if ( emulated ) {
     meEtMap = &meEtMapEmul_;
     meVeto = &meVetoEmul_;
   }
@@ -160,7 +160,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
 
   char histo[200];
 
-  if(!emulated) {
+  if (!emulated) {
     sprintf(histo, "EBTTT Et spectrum %s", nameext);
     meEtSpectrumReal_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
     meEtSpectrumReal_->setAxisTitle("energy (ADC)", 1);
@@ -216,7 +216,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
     (*meEtMap)[i]->setAxisTitle("iphi'", 2);
     dqmStore_->tag((*meEtMap)[i], i+1);
 
-    if(!emulated) {
+    if (!emulated) {
 
       sprintf(histo, "EBTTT EmulError %s", Numbers::sEB(i+1).c_str());
       meEmulError_[i] = dqmStore_->book2D(histo, histo, nTTEta, 0., nTTEta, nTTPhi, 0., nTTPhi );
@@ -248,7 +248,7 @@ void EBTriggerTowerTask::cleanup(void) {
 
   if ( dqmStore_ ) {
 
-    if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
+    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
     dqmStore_->rmdir( prefixME_ + "/EBTriggerTowerTask" );
 
@@ -329,7 +329,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     for (int itt = 0; itt < 68; itt++) readoutCrystalsInTower[itcc][itt] = 0;
   }
 
-  if( compDigis.isValid() ) {
+  if ( compDigis.isValid() ) {
 
     Handle<EBDigiCollection> crystalDigis;
 
@@ -412,11 +412,11 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     float xvalVeto = 0.5 + tpdigiItr->fineGrain();
     if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xvalVeto);
 
-    if( compDigis.isValid() ) {
+    if ( compDigis.isValid() ) {
 
       if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Fill( xvalEt );
       float maxEt = 0;
-      for(int j=0; j<5; j++) {
+      for (int j=0; j<5; j++) {
         float EtTP = (*tpdigiItr)[j].compressedEt();
         if ( EtTP > maxEt ) maxEt = EtTP;
       }
@@ -426,7 +426,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
       bool goodVeto = true;
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
-      if( compDigiItr != compDigis->end() ) {
+      if ( compDigiItr != compDigis->end() ) {
 
         if ( compDigiItr->compressedEt() > 0 ) nTP++;
 
@@ -434,27 +434,27 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
         if ( meEtBxReal_ && compDigiItr->compressedEt() > 0 ) meEtBxReal_->Fill( bx, compDigiItr->compressedEt() );
 
-        if( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
+        if ( tpdigiItr->compressedEt() != compDigiItr->compressedEt() ) {
           good = false;
         }
 
         // compare the 5 TPs with different time-windows
         // sample 0 means no match, 1-5: sample of the TP that matches
         bool matchSample[6];
-        for(int j=0; j<6; j++) matchSample[j] = false;
+        for (int j=0; j<6; j++) matchSample[j] = false;
         bool matchedAny=false;
 
-        for(int j=0; j<5; j++) {
-          if((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
+        for (int j=0; j<5; j++) {
+          if ((*tpdigiItr)[j].compressedEt() == compDigiItr->compressedEt() ) {
             matchSample[j+1]=true;
             matchedAny=true;
           }
         }
-        if(!matchedAny) matchSample[0]=true;
+        if (!matchedAny) matchSample[0]=true;
 
-        if(readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
-          for(int j=0; j<6; j++) {
-            if(matchSample[j]) {
+        if (readoutCrystalsInTower[itcc-1][itt-1]==25 && compDigiItr->compressedEt()>0) {
+          for (int j=0; j<6; j++) {
+            if (matchSample[j]) {
 
               meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
               
@@ -468,7 +468,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
           }
         }
 
-        if( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
+        if ( tpdigiItr->fineGrain() != compDigiItr->fineGrain() ) {
           goodVeto = false;
         }
       }
@@ -476,10 +476,10 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         good = false;
         goodVeto = false;
       }
-      if(!good ) {
+      if (!good ) {
         if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
       }
-      if(!goodVeto) {
+      if (!goodVeto) {
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xiet, xipt);
       }
     }
