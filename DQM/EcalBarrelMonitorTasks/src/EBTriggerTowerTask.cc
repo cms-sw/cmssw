@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/08/31 10:48:17 $
- * $Revision: 1.89 $
+ * $Date: 2009/10/03 12:06:46 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -59,7 +59,7 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
   EBDigiCollection_ = ps.getParameter<InputTag>("EBDigiCollection");
   HLTResultsCollection_ = ps.getParameter<InputTag>("HLTResultsCollection");
-  
+
   HLTCaloHLTBit_ = ps.getUntrackedParameter<std::string>("HLTCaloHLTBit", "");
   HLTMuonHLTBit_ = ps.getUntrackedParameter<std::string>("HLTMuonHLTBit", "");
 
@@ -292,17 +292,17 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<edm::TriggerResults> hltResults;
+    Handle<TriggerResults> hltResults;
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
-      
+
       processDigis( e,
                     emulDigis,
                     meEtMapEmul_,
                     meVetoEmul_,
                     realDigis,
                     hltResults);
-      
+
     } else {
       LogWarning("EBTriggerTowerTask") << HLTResultsCollection_ << " not available";
     }
@@ -318,7 +318,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
                                   array1& meEtMap,
                                   array1& meVeto,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<edm::TriggerResults> & hltResults) {
+                                  const Handle<TriggerResults> & hltResults) {
 
   int bx = e.bunchCrossing();
   int nTP = 0;
@@ -361,7 +361,7 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int ntrigs = hltResults->size();
     if ( ntrigs!=0 ) {
 
-      edm::TriggerNames triggerNames;
+      TriggerNames triggerNames;
       triggerNames.init( *hltResults );
 
       for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
@@ -369,19 +369,17 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         bool accept = hltResults->accept(itrig);
 
         if ( trigName == HLTCaloHLTBit_ ) caloTrg = accept;
-        
+
         if ( trigName == HLTMuonHLTBit_ ) muonTrg = accept;
 
       }
-      
+
     } else {
       LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
-    } 
+    }
 
-  } else {
-    LogWarning("EBTriggerTowerTask") << " HLT results not available"; 
-  } 
-  
+  }
+
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalBarrel ) continue;
@@ -457,12 +455,12 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
             if (matchSample[j]) {
 
               meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
-              
+
               int index = ( j==0 ) ? -1 : j;
-              
+
               if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
-              
-              if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );              
+
+              if ( meTCCTimingMuon_ && muonTrg ) meTCCTimingMuon_->Fill( itcc, index+0.5 );
 
             }
           }

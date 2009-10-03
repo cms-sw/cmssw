@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/09/23 19:04:31 $
- * $Revision: 1.56 $
+ * $Date: 2009/10/03 12:06:47 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -343,7 +343,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
   if ( e.getByLabel(emulCollection_, emulDigis) ) {
 
-    Handle<edm::TriggerResults> hltResults;
+    Handle<TriggerResults> hltResults;
 
     if ( e.getByLabel(HLTResultsCollection_, hltResults) ) {
 
@@ -369,7 +369,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
                                   array1& meEtMap,
                                   array1& meVeto,
                                   const Handle<EcalTrigPrimDigiCollection>& compDigis,
-                                  const Handle<edm::TriggerResults> & hltResults ) {
+                                  const Handle<TriggerResults> & hltResults ) {
 
   int bx = e.bunchCrossing();
   int nTP[2];
@@ -418,7 +418,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
     int ntrigs = hltResults->size();
     if ( ntrigs!=0 ) {
 
-      edm::TriggerNames triggerNames;
+      TriggerNames triggerNames;
       triggerNames.init( *hltResults );
 
       for ( int itrig = 0; itrig != ntrigs; ++itrig ) {
@@ -426,18 +426,16 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         bool accept = hltResults->accept(itrig);
 
         if ( trigName == HLTCaloHLTBit_ ) caloTrg = accept;
-        
+
         if ( trigName == HLTMuonHLTBit_ ) muonTrg = accept;
 
       }
-      
+
     } else {
       LogWarning("EBTriggerTowerTask") << " zero size trigger names in input TriggerResults";
-    } 
+    }
 
-  } else {
-    LogWarning("EBTriggerTowerTask") << " HLT results not available"; 
-  } 
+  }
 
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
@@ -491,7 +489,7 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         } else {
 
           if ( meEtSpectrumReal_[1] ) meEtSpectrumReal_[1]->Fill( compDigiEt );
-          
+
           if ( meEtBxReal_[1] && compDigiItr->compressedEt() > 0 ) meEtBxReal_[1]->Fill( bx, compDigiItr->compressedEt() );
 
           if ( compDigiItr->compressedEt() > 0 ) nTP[1]++;
@@ -560,11 +558,11 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
               if ( ismt >= 1 && ismt <= 9 ) {
                 if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
-                
+
                 if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
               } else {
                 if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
-                
+
                 if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
               }
 
