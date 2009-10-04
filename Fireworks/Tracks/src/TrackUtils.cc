@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: prepareTrack.cc,v 1.6 2009/08/26 17:00:12 dmytro Exp $
+// $Id: TrackUtils.cc,v 1.1 2009/10/04 12:13:08 dmytro Exp $
 //
 
 // system include files
@@ -169,9 +169,9 @@ namespace fireworks {
       if (subdet == PixelSubdetector::PixelBarrel) {
          PXBDetId pxbDet = id;
          int A = pxbDet.layer();
-         int B = pxbDet.module();
+         // int B = pxbDet.module();
          int C = pxbDet.ladder();
-         std::cout << "-" << A << "-" << B << "-" << C;
+         // std::cout << "-" << A << "-" << B << "-" << C;
          nrows = 160;
          ncols = 416;
          switch (A) {
@@ -185,15 +185,15 @@ namespace fireworks {
                if (C==11 || C==12 || C==33 || C==34) nrows = 80;
                break;
             default:
-               std::cout << "pixelLocalXY wrong DetId" << std::endl;
+               //std::cout << "pixelLocalXY wrong DetId" << std::endl;
                return;
          }
       } else if (subdet == PixelSubdetector::PixelEndcap) {
          PXFDetId pxfDet = id;
-         int A = pxfDet.disk();
+         // int A = pxfDet.disk();
          int B = pxfDet.module();
          int C = pxfDet.panel();
-         std::cout << "-" << A << "-" << B << "-" << C;
+         // std::cout << "-" << A << "-" << B << "-" << C;
          if (B==1 && C==1) {
             nrows = 80;
             ncols = 104;
@@ -206,12 +206,12 @@ namespace fireworks {
          } else if (B==4 && C==1) {
             nrows = 80; ncols = 260;
          } else {
-            std::cout << "pixelLocalXY wrong DetId" << std::endl;
+            //std::cout << "pixelLocalXY wrong DetId" << std::endl;
             return;
          }
 
       } else {
-         std::cout << "pixelLocalXY wrong DetId" << std::endl;
+         // std::cout << "pixelLocalXY wrong DetId" << std::endl;
          return;
       }
       lpx = pixelLocalX(mpx, nrows);
@@ -242,17 +242,18 @@ namespace fireworks {
       } else if (binoffx>=0) {         // ROC 0
          binoffx=binoffx+0;
 
-      } else {   // too small
-         std::cout<<" very bad, binx "<< binoffx << std::endl;
-         std::cout<<mpx<<" "<<binoffx<<" " <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<std::endl;
       }
+      //else {   // too small
+      //std::cout<<" very bad, binx "<< binoffx << std::endl;
+      //   std::cout<<mpx<<" "<<binoffx<<" " <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<std::endl;
+      //}
 
       // The final position in local coordinates
       double lpX = double(binoffx*m_pitchx) + fractionX*local_pitchx + m_xoffset;
-      if ( lpX<m_xoffset || lpX>(-m_xoffset) ) {
-         std::cout<<" bad lp x "<<lpX<<std::endl;
-         std::cout<<mpx<<" "<<binoffx<<" "<<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<std::endl;
-      }
+      //if ( lpX<m_xoffset || lpX>(-m_xoffset) ) {
+      //std::cout<<" bad lp x "<<lpX<<std::endl;
+      //std::cout<<mpx<<" "<<binoffx<<" "<<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<std::endl;
+      //}
 
       return lpX;
    }
@@ -339,23 +340,24 @@ namespace fireworks {
       } else if (binoffy==0) {         // ROC 0
          binoffy=binoffy+0;
          local_pitchy = 2 * m_pitchy;
-      } else {   // too small
-         std::cout<<" very bad, biny "<<binoffy<<std::endl;
-         std::cout<<mpy<<" "<<binoffy<<" "<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<std::endl;
       }
+      //else {   // too small
+      //   std::cout<<" very bad, biny "<<binoffy<<std::endl;
+      //   std::cout<<mpy<<" "<<binoffy<<" "<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<std::endl;
+      //}
 
       // The final position in local coordinates
       double lpY = double(binoffy*m_pitchy) + fractionY*local_pitchy + m_yoffset;
-      if(lpY<m_yoffset || lpY>(-m_yoffset) ) {
-         std::cout<<" bad lp y "<<lpY<<std::endl;
-         std::cout<<mpy<<" "<<binoffy<<" "<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<std::endl;
-      }
+      //if(lpY<m_yoffset || lpY>(-m_yoffset) ) {
+      //   std::cout<<" bad lp y "<<lpY<<std::endl;
+      //   std::cout<<mpy<<" "<<binoffy<<" "<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<std::endl;
+      //}
       return lpY;
    }
 
 
    void
-   pushTrackerHits(std::vector<TVector3> &p, std::vector<TVector3> &ps, const FWModelId &id, const reco::Track &t) {
+   pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWModelId &id, const reco::Track &t) {
 
       /*
        * -- to do:
@@ -382,16 +384,16 @@ namespace fireworks {
 
       double tanTheta = tan(t.theta());
       double dz = t.dz();
-      double vz = t.vz();
-      double etaT = t.eta();
+      // double vz = t.vz();
+      // double etaT = t.eta();
 
-      std::cout << "Track eta: " << etaT << ", vz: " << vz << ", dz: " << dz;
-      std::cout << std::endl;
+      //std::cout << "Track eta: " << etaT << ", vz: " << vz << ", dz: " << dz;
+      //std::cout << std::endl;
 
       // -- vertex -- ???? using track vz
       double zv = dz;
 
-      int cnt=0;
+      // int cnt=0;
       for (trackingRecHit_iterator it = t.recHitsBegin(); it!=t.recHitsEnd(); it++) {
 
          TrackingRecHitRef rechitref = *it;
@@ -432,10 +434,10 @@ namespace fireworks {
          // -- in which detector are we?
 
          unsigned int subdet = (unsigned int)id.subdetId();
-         const std::string subdets[7] = {"UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
+         // const std::string subdets[7] = {"UNKNOWN", "PXB", "PXF", "TIB", "TID", "TOB", "TEC" };
 
-         std::cout << cnt++ << " -- ";
-         std::cout << subdets[subdet];
+         // std::cout << cnt++ << " -- ";
+         // std::cout << subdets[subdet];
 
          if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
             const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>(rh);
@@ -449,26 +451,27 @@ namespace fireworks {
             double lx = 0.;
             double ly = 0.;
             pixelLocalXY(row, col, id, lx, ly);
-            std::cout << ", row: " << row << ", col: " << col ;
-            std::cout << ", lx: " << lx << ", ly: " << ly ;
+            // std::cout << ", row: " << row << ", col: " << col ;
+            // std::cout << ", lx: " << lx << ", ly: " << ly ;
 
             local[0] = lx;
             local[1] = ly;
             local[2] = 0.;
             m->LocalToMaster(local, global);
-            TVector3 pb(global[0], global[1], global[2]-zv);
+            /// TVector3 pb(global[0], global[1], global[2]-zv);
+            TVector3 pb(global[0], global[1], global[2]);
             double rho = pb.Pt();
             double eta = pb.Eta();
             double phi = pb.Phi();
 
             point.SetPtEtaPhi(rho, eta, phi);
-            p.push_back(point);
+            monoPoints.push_back(point);
 
-            std::cout << " x: " << pb.X() << ", y: " << pb.Y() << " z: " << pb.Z()+zv;
-            std::cout << " eta: " << pb.Eta() << ", phi: " << pb.Phi() << " rho: " << pb.Pt();
+            // std::cout << " x: " << pb.X() << ", y: " << pb.Y() << " z: " << pb.Z()+zv;
+            // std::cout << " eta: " << pb.Eta() << ", phi: " << pb.Phi() << " rho: " << pb.Pt();
 
-            std::cout << " rhoDet: " << rhoDet;
-            std::cout << std::endl;
+            // std::cout << " rhoDet: " << rhoDet;
+            // std::cout << std::endl;
 
             continue;
          }
@@ -482,43 +485,42 @@ namespace fireworks {
             TIDDetId tidDet = id;
             rNumber = tidDet.ringNumber()-1;
             stereoDet = tidDet.isStereo();
-            std::cout << "-" << tidDet.isStereo() << "-" << tidDet.isRPhi() << "-" << tidDet.isBackRing() << "-" << rNumber << "-" << tidDet.moduleNumber() << "-" << tidDet.diskNumber();
+            // std::cout << "-" << tidDet.isStereo() << "-" << tidDet.isRPhi() << "-" << tidDet.isBackRing() << "-" << rNumber << "-" << tidDet.moduleNumber() << "-" << tidDet.diskNumber();
          }
          else if (subdet == SiStripDetId::TEC) {
             TECDetId tecDet = id;
             rNumber = tecDet.ringNumber()-1;
             stereoDet = tecDet.isStereo();
-            std::cout << "-" << tecDet.isStereo() << "-" << tecDet.isRPhi() << "-" << tecDet.isBackPetal() << "-" << rNumber << "-" << tecDet.moduleNumber() << "-" << tecDet.wheelNumber();
+            // std::cout << "-" << tecDet.isStereo() << "-" << tecDet.isRPhi() << "-" << tecDet.isBackPetal() << "-" << rNumber << "-" << tecDet.moduleNumber() << "-" << tecDet.wheelNumber();
          }
          else if (subdet == SiStripDetId::TIB) {
             TIBDetId tibDet = id;
             rNumber = tibDet.layerNumber()-1;
             stereoDet = tibDet.isStereo();
-            std::cout << "-" << tibDet.isStereo() << "-" << tibDet.isRPhi() << "-" << tibDet.isDoubleSide() << "-" << rNumber << "-" << tibDet.moduleNumber() << "-" << tibDet.stringNumber();
+            // std::cout << "-" << tibDet.isStereo() << "-" << tibDet.isRPhi() << "-" << tibDet.isDoubleSide() << "-" << rNumber << "-" << tibDet.moduleNumber() << "-" << tibDet.stringNumber();
          }
          else if (subdet == SiStripDetId::TOB) {
             TOBDetId tobDet = id;
             rNumber = tobDet.layerNumber()+3;
             stereoDet = tobDet.isStereo();
-            std::cout << "-" << tobDet.isStereo() << "-" << tobDet.isRPhi() << "-" << tobDet.isDoubleSide() << "-" << rNumber << "-" << tobDet.moduleNumber() << "-" << tobDet.rodNumber();
+            // std::cout << "-" << tobDet.isStereo() << "-" << tobDet.isRPhi() << "-" << tobDet.isDoubleSide() << "-" << rNumber << "-" << tobDet.moduleNumber() << "-" << tobDet.rodNumber();
          }
 
-         std::cout << " rhoDet: " << rhoDet << " zDet: " << zDet << " phiDet: " << phiDet << " dPhiDet: " << dPhiDet;
+         // std::cout << " rhoDet: " << rhoDet << " zDet: " << zDet << " phiDet: " << phiDet << " dPhiDet: " << dPhiDet;
 
          // -- get phi from SiStripHit
 
          const SiStripRecHit2D* single = dynamic_cast<const SiStripRecHit2D*>(rh);
          if (single)     {
-            std::cout << " single hit ";
+            // std::cout << " single hit ";
 
             const SiStripCluster* Cluster = 0;
             if (single->cluster().isNonnull())
                Cluster = single->cluster().get();
             else if (single->cluster_regional().isNonnull())
                Cluster = single->cluster_regional().get();
-            else {
-               std::cout << " no cluster found!";
-            }
+            // else std::cout << " no cluster found!";
+
             if (Cluster) {
                /*
                                  const RecHit2DLocalPos* rechit2D = dynamic_cast<const RecHit2DLocalPos*>(rh);
@@ -550,7 +552,7 @@ namespace fireworks {
                   double dPhi = bc*dpEStrips[rNumber] * dPhiDet;
                   phi = phiDet + dPhi;
 
-                  std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
+                  // std::cout << " bc: "<< bc << ", dPhi: " << dPhi;
 
                } else {
                   // -- barrel
@@ -571,9 +573,10 @@ namespace fireworks {
                   local[1] = 0.;
                   local[2] = 0.;
                   m->LocalToMaster(local, global);
-                  TVector3 pb(global[0], global[1], global[2]-zv);
+                  // TVector3 pb(global[0], global[1], global[2]-zv);
+                  TVector3 pb(global[0], global[1], global[2]);
                   phi = pb.Phi();
-                  std::cout << " bc: "<< bc  << ", dx: " << dx;
+                  // std::cout << " bc: "<< bc  << ", dx: " << dx;
 
                }
 
@@ -581,7 +584,7 @@ namespace fireworks {
          }
          else
          {
-            std::cout << " matched hit, can't draw" << std::endl;
+            // std::cout << " matched hit, can't draw" << std::endl;
             /*
                 const SiStripMatchedRecHit2D* matched = dynamic_cast<const SiStripMatchedRecHit2D*>(rechit);
                 if (matched) {
@@ -615,11 +618,11 @@ namespace fireworks {
          // -- save point
 
          if (!stereoDet)
-            p.push_back(point);
+            monoPoints.push_back(point);
          else
-            ps.push_back(point);
+            stereoPoints.push_back(point);
 
-         std::cout << std::endl;
+         // std::cout << std::endl;
 
       }
 
@@ -628,7 +631,7 @@ namespace fireworks {
    }
 
    void
-   addTrackerHits(std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size) {
+   addTrackerHitsEtaPhi(std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size) {
 
       // -- draw points for TrackHits
       int cnt = 0;
@@ -701,5 +704,17 @@ namespace fireworks {
 
          cnt++;
       }
+   }
+   void
+   addTrackerHits3D(std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size) {
+      TEvePointSet* pointSet = new TEvePointSet();
+      pointSet->SetMarkerSize(size);
+      pointSet->SetMarkerStyle(4);
+      pointSet->SetMarkerColor(color);
+
+      for(std::vector<TVector3>::const_iterator it = points.begin(); it != points.end(); ++it) {
+         pointSet->SetNextPoint(it->x(),it->y(),it->z());
+      }
+      tList->AddElement(pointSet);
    }
 }

@@ -52,9 +52,20 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    propagator->SetStepper(TEveTrackPropagator::kRungeKutta);
    propagator->SetMaxR(123);
    propagator->SetMaxZ(300);
-   TEveTrack* trk = fireworks::prepareTrack( *track, propagator, id.item()->defaultDisplayProperties().color() );
+   TEveTrack* trk = fireworks::prepareTrack( *track, propagator,
+                                             id.item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
    scene->AddElement(trk);
+
+   /*
+      std::vector<TVector3> monoPoints;
+      std::vector<TVector3> stereoPoints;
+      fireworks::pushTrackerHits(monoPoints, stereoPoints, id, *track);
+      TEveElementList* list = new TEveElementList("hits");
+      fireworks::addTrackerHits3D(monoPoints, list, id.item()->defaultDisplayProperties().color(), 1);
+      fireworks::addTrackerHits3D(stereoPoints, list, id.item()->defaultDisplayProperties().color(), 2);
+      scene->AddElement(list);
+    */
 
    scene->Repaint(true);
    viewer->GetGLViewer()->UpdateScene();

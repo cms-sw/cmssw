@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     TrackUtils
-// $Id: prepareTrack.h,v 1.4 2009/08/24 04:54:33 dmytro Exp $
+// $Id: TrackUtils.h,v 1.1 2009/10/04 12:13:07 dmytro Exp $
 //
 
 // system include files
@@ -67,10 +67,13 @@ public:
 
    double pixelLocalX(const double mpx, const int m_nrows);
    double pixelLocalY(const double mpy, const int m_ncols);
-   void pushTrackerHits(std::vector<TVector3> &p, std::vector<TVector3> &ps,
+   // monoPoints include pixels (why?)
+   void pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints,
                         const FWModelId &id, const reco::Track &t);
-   void addTrackerHits(std::vector<TVector3> &points, class TEveElementList *tList,
-                       Color_t color, int size);
+   void addTrackerHitsEtaPhi(std::vector<TVector3> &points, class TEveElementList *tList,
+                             Color_t color, int size);
+   void addTrackerHits3D(std::vector<TVector3> &points, class TEveElementList *tList,
+                         Color_t color, int size);
 
 
 
