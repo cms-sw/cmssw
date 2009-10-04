@@ -28,7 +28,7 @@ process.EWK_ElectronHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLev
 
 # Uncomment this to access 8E29 menu and filter on it
 process.EWK_ElectronHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
-process.EWK_ElectronHLTFilter.HLTPaths = ["HLT_Ele10_LW_L1R", "HLT_DoubleEle5_SW_L1R"]
+process.EWK_DiElectronHLTFilter.HLTPaths = ["HLT_Ele15_LW_L1R"]
 
 
 # Electron filter
@@ -47,6 +47,7 @@ process.EWK_ElectronSkimPath = cms.Path(
 
 # Output module configuration
 from Configuration.EventContent.EventContent_cff import *
+
 EWK_ElectronSkimEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
@@ -63,10 +64,10 @@ process.EWK_ElectronSkimOutputModule = cms.OutputModule("PoolOutputModule",
     EWK_ElectronSkimEventContent,
     EWK_ElectronSkimEventSelection,
     dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('EWKElectronSkim'),
+        filterName = cms.untracked.string('EWKSKIMESEL'),
         dataTier = cms.untracked.string('USER')
    ),
-   fileName = cms.untracked.string('testEWKElectronSkim.root')
+   fileName = cms.untracked.string('EWKElectronSkim.root')
 )
 
 process.outpath = cms.EndPath(process.EWK_ElectronSkimOutputModule)
