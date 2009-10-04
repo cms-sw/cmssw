@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.33 2009/09/06 12:46:00 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.34 2009/09/23 18:53:26 amraktad Exp $
 //
 
 // system include files
@@ -202,7 +202,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 
                m_lego->SetPalette(pal);
                m_lego->Set2DMode(TEveCaloLego::kValSize);
-               m_lego->SetPixelsPerBin(15);
+               m_lego->SetPixelsPerBin(10);
 	       m_lego->SetDrawNumberCellPixels(20);
                m_data->GetEtaBins()->SetTitleFont(120);
                m_data->GetEtaBins()->SetTitle("h");
