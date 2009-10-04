@@ -1,0 +1,6 @@
+<use name=CondTools/Luminosity>
+<library file=DummySource.cc name=CondToolsLuminosityDummySource>
+   <flags EDM_PLUGIN=1>
+</library>
+
+ 
