@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.73 2009/09/23 20:35:26 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.74 2009/09/29 19:26:32 dmytro Exp $
 //
 
 // system include files
@@ -86,7 +86,7 @@ class CmsShowModelPopup;
 class CmsShowViewPopup;
 class FWViewManagerManager;
 class FWColorManager;
-class CmsShowColorPopup;
+class CmsShowBrightnessPopup;
 class CmsShowHelpPopup;
 
 class FWGUIManager : public FWConfigurable
@@ -113,7 +113,7 @@ public:
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
 
-   void showColorPopup();
+   void showBrightnessPopup();
 
    void createModelPopup();
    void showModelPopup();
@@ -271,7 +271,7 @@ private:
    CmsShowEDI* m_ediFrame;
    CmsShowModelPopup* m_modelPopup;
    CmsShowViewPopup*  m_viewPopup;
-   CmsShowColorPopup* m_colorPopup;
+   CmsShowBrightnessPopup* m_brightnessPopup;
 
    // help
    CmsShowHelpPopup *m_helpPopup, *m_shortcutPopup;

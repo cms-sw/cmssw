@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.149 2009/09/24 00:43:53 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.150 2009/09/29 19:26:33 dmytro Exp $
 //
 
 // system include files
@@ -129,7 +129,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_ediFrame(0),
    m_modelPopup(0),
    m_viewPopup(0),
-   m_colorPopup(0),
+   m_brightnessPopup(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_tasks(new CmsShowTaskExecutor)
@@ -178,7 +178,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
-      getAction(cmsshow::sShowColorInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showColorPopup));
+      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*m_colorManager, &FWColorManager::switchBackground));
+      getAction(cmsshow::sShowBrightnessInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showBrightnessPopup));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -622,14 +623,14 @@ FWGUIManager::showEDIFrame(int iToShow)
 }
 
 void
-FWGUIManager::showColorPopup()
+FWGUIManager::showBrightnessPopup()
 {
-  if (! m_colorPopup)
+  if (! m_brightnessPopup)
   {
-      m_colorPopup = new CmsShowColorPopup(m_cmsShowMainFrame, 200, 200);
+      m_brightnessPopup = new CmsShowBrightnessPopup(m_cmsShowMainFrame, 200, 200);
   }
-  m_colorPopup->MapWindow();
-  m_colorPopup->setModel(m_colorManager);
+  m_brightnessPopup->MapWindow();
+  m_brightnessPopup->setModel(m_colorManager);
 }
 
 void

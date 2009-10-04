@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.62 2009/08/27 18:54:09 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.63 2009/09/29 19:26:33 dmytro Exp $
 //
 // hacks
 #define private public
@@ -93,7 +93,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
-   CSGAction *showColorInsp = new CSGAction(this, cmsshow::sShowColorInsp.c_str());
+   CSGAction *showBrightnessInsp = new CSGAction(this, cmsshow::sShowBrightnessInsp.c_str());
 
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
@@ -106,7 +106,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
-   new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   CSGAction *colorset = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
    m_goToFirst = goToFirst;
@@ -165,8 +165,12 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    paste->createShortcut(kKey_V, "CTRL", GetId());
 
    TGPopupMenu *viewMenu = new TGPopupMenu(gClient->GetRoot());
-   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   showColorInsp->createMenuEntry(viewMenu);
+   menuBar->AddPopup("View", viewMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));  
+
+   colorset->createMenuEntry(viewMenu);
+   colorset->createShortcut(kKey_B, "CTRL", GetId());
+ 
+   showBrightnessInsp->createMenuEntry(viewMenu);
 
    viewMenu->AddSeparator();
 
