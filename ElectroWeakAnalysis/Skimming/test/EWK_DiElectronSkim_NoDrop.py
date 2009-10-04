@@ -13,11 +13,11 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    'rfio:/tmp/ikesisog/B0E3F649-1B80-DE11-96AF-001D0967E048.root'
+    'rfio:/tmp/ikesisog/10A96AFC-E17C-DE11-A90E-001D0967D9CC.root'
     )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
 
@@ -105,10 +105,10 @@ process.EWK_DiElectronSkimOutputModule = cms.OutputModule("PoolOutputModule",
                                             EWK_DiElectronSkimEventContent,
                                             EWK_DiElectronSkimEventSelection,
                                             dataset = cms.untracked.PSet(
-                                                filterName = cms.untracked.string('EWKDiElectronSkim'),
+                                                filterName = cms.untracked.string('EWKSKIMEMET'),
                                                 dataTier = cms.untracked.string('USER')
                                             ),
-                                            fileName = cms.untracked.string('testEWKDiElectronSkim.root')
+                                            fileName = cms.untracked.string('EWKDiElectronSkim.root')
 )
 
 process.outpath = cms.EndPath(process.EWK_DiElectronSkimOutputModule)
