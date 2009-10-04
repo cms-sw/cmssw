@@ -59,9 +59,9 @@
      mc:   <THIS IS WHAT ONE NORMALLY USES> input mc samples, calculation of statistical
            and systematics as in CMS AN 2009/004, systematic and statistic error 
 	   calculation. This option also creates the plots of the variation of the
-           
-            
-
+           signal prediction vs the parameter variation. In order to set the limits of
+           the desired variation you have to edit the values in line 113 of this code
+           (they are hardwired in the code)
      TO DO:
      functionalities to plot more kind of plots, e.g. efficiencies
      
@@ -175,7 +175,8 @@ void PlotCombiner()
 	  types.push_back(ftype);
 	  double w = fw.Atof();
 	  weights.push_back(w);
-	  std::cout << fname << ", " << ftype << ", "<< w << std::endl;
+	  if (w>0)
+	    std::cout << fname << ", " << ftype << ", "<< w << std::endl;
 	}
       }
     }
@@ -220,14 +221,30 @@ void PlotCombiner()
     double mcOnly = searchABCDstring(typeOfplot, "mcOnly");
     // what is the ewk error?
     double ewkerror = searchABCDstring(typeOfplot, "ewkerror");
+    // sanity check:
+    if (METCut<0 || (data<-0.7 && mc<-0.7 && mcOnly<-0.7)) {
+      cout << "Error in your configurtion!" << endl;
+      if (METCut <0) cout << "Error in MET Cut" << endl;
+      else cout << "You need to specify one mc or data or mcOnly"
+		<< endl;
+      abort();
+    }
+    if (mc>-0.7 && mc <0 && ewkerror<0) {
+      cout << "You have specified mc option, but you have forgotten"
+	   << " to set the ewkerror!" << endl;
+      abort();
+    }
     //        ===============================
     // =====> ABCD METHOD FOR BKG SUBTRACTION
     //        ===============================
+    cout << "doing ABCD with input: " << typeOfplot << endl;
     abcd(files, types, weights, METCut, I, dI, Fz, dFz, FzP, dFzP,
 	 ewkerror, data, mc, mcOnly);
 
   }
-
+  // force the program to abort in order to clear the memory
+  // and avoid further use of the interpreter after
+  abort();
 
 }
 
@@ -253,6 +270,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
   int NBins = 0; double min = 0; double max = -1;
   for (int i=0; i<fmax; ++i) {
     if (weight[i]>0) {
+      //      cout << "Loading file " << file[i] << endl;
       TFile f(file[i]);
       TH1F *h = (TH1F*) f.Get(histoName_Ba);
       NBins = h->GetNbinsX();
@@ -266,6 +284,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
 	      << std::endl;
     abort();
   }
+  cout << "Histograms with "<< NBins <<" bins  and range " << min << "-" << max  << endl;
   //
   // Wenu Signal .......................................................
   TH1F h_wenu("h_wenu", "h_wenu", NBins, min, max);
@@ -327,13 +346,14 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
   //
   // this is calculated as a low edge bin of your input histogram
   // METCut = min + (max-min)*IMET/NBins
-  int IMET = int ((METCut - min)/(max-min) * double(NBins));
+  int IMET = 1 + int ((METCut - min)/(max-min) * double(NBins));
   // check whether it is indeed a low egde position
   double metCalc = min + (max-min)*double(IMET)/double(NBins);
   if (metCalc < METCut || metCalc > METCut) {
     std::cout << "PlotCombiner:abcd: your MET Cut is not in low egde bin position"
 	      << std::endl;
   }
+  cout << "MET Cut in " << METCut << "GeV corresponds to bin #" << IMET << endl;
   // Calculate the population in the ABCD Regions now
   // signal
   double a_sig = h_wenu.Integral(IMET,NBins+1);
@@ -351,6 +371,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
   double c_ewk = h_ewk_inv.Integral(0,IMET-1);
   double d_ewk = h_ewk_inv.Integral(IMET,NBins+1);
   ////////////////////////////////////////////////
+
   //
   // now the parameters of the method
   if (data < 0 && data >-0.75) {  // select value -0.5 that gives the
@@ -450,6 +471,16 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     cout << "Fz= " << Fz << "+-" << dFz << endl;
     cout << "FzP=" << FzP << "+-" << dFzP << endl;
     cout << endl;
+    cout << "ABCD Regions population:" << endl;
+    cout << "A:  N=" << Na << ", sig=" << a_sig << ", qcd=" << a_qcd
+         << ", ewk=" << a_ewk << endl;
+    cout << "B:  N=" << Nb << ", sig=" << b_sig << ", qcd=" << b_qcd
+         << ", ewk=" << b_ewk << endl;
+    cout << "C:  N=" << Nc << ", sig=" << c_sig << ", qcd=" << c_qcd
+         << ", ewk=" << c_ewk << endl;
+    cout << "D:  N=" << Nd << ", sig=" << d_sig << ", qcd=" << d_qcd
+         << ", ewk=" << d_ewk << endl;
+    cout << endl;
     //
     cout << "Statistical Error Summary: " << endl;
     cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
@@ -474,8 +505,8 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
   //  this is the main option of the algorithm: the one implemented in the 
   //  Analysis Note
   //
-  if (mc < 0 && mcOnly >-0.75) {  // select value -0.5 that gives the 
-                                  // string parser
+  if (mc < 0 && mc >-0.75) {  // select value -0.5 that gives the 
+                              // string parser
     
     //////// STATISTICAL ERROR CALCULATION /////////////////////////////
     double A = (1.0-I)*(FzP-Fz);
@@ -598,6 +629,11 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     // error in I
     double S_I = CalcABCD(I, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
     //
+    // sanity tets
+    //cout << "Smc=" << SMC<< ", " << CalcABCD(Imc, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed)
+    // << endl;
+    //abort();
+    //
     // ************ plots for the systematics calculation ****************
     // ewk plot
     int const POINTS = 10;
@@ -607,11 +643,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     TGraph g_fzp(allPOINTS);
     TGraph g_k(allPOINTS);
     TGraph g_i(allPOINTS);
-    //    double points_ewk[allPOINTS];
-    //    double points_k[allPOINTS];
-    //    double points_fz[allPOINTS];
-    //    double points_fzp[allPOINTS];
-    //    double points_i[allPOINTS];
+    //
     double ewk_syst_min = EWK_SYST_MIN; // because this is just fraction
     double i_syst_min = Imc*(1.-I_SYST_MIN);
     double fz_syst_min = Fzmc*(1.-FZ_SYST_MIN);
@@ -619,14 +651,14 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     double k_syst_min = KMC*(1.-K_SYST_MIN);
     //
     double ewk_syst_max = EWK_SYST_MAX; // because this is just fraction
-    double i_syst_max = Imc*(1.+I_SYST_MAX);
-    double fz_syst_max = Fzmc*(1.+FZ_SYST_MAX);
-    double fzp_syst_max = FzPmc*(1.+FZP_SYST_MAX);
-    double k_syst_max = KMC*(1.+K_SYST_MAX);
+    double i_syst_max = Imc*I_SYST_MAX;
+    double fz_syst_max = Fzmc*FZ_SYST_MAX;
+    double fzp_syst_max = FzPmc*FZP_SYST_MAX;
+    double k_syst_max = KMC*K_SYST_MAX;
     //
     // negative points
-    for (int i=0; i<=POINTS; ++i) {
-      double x_ewk = ewk_syst_min + (1.-ewk_syst_min)*i/POINTS;
+    for (int i=0; i<POINTS; ++i) {
+      double x_ewk = 1.-ewk_syst_min + (ewk_syst_min)*i/POINTS;
       double x_fz  = fz_syst_min + (Fzmc-fz_syst_min)*i/POINTS;
       double x_fzp = fzp_syst_min + (FzPmc-fzp_syst_min)*i/POINTS;
       double x_k   = k_syst_min + (KMC-k_syst_min)*i/POINTS;
@@ -638,21 +670,20 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
       double y_k  = CalcABCD(Imc, Fzmc, FzPmc, x_k, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
       double y_i  = CalcABCD(x_i, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
       //
-      g_ewk.SetPoint(i,x_ewk*100., 100.*fabs(y_ewk-SMC)/SMC);
+      g_ewk.SetPoint(i,(x_ewk-1.)*100., 100.*fabs(y_ewk-SMC)/SMC);
       g_fz.SetPoint(i,(x_fz-Fzmc)*100./Fzmc, 100.*fabs(y_fz-SMC)/SMC);
       g_fzp.SetPoint(i,(x_fzp-FzPmc)*100./FzPmc, 100.*fabs(y_fzp-SMC)/SMC);
       g_i.SetPoint(i,(x_i-Imc)*100./Imc, 100.*fabs(y_i-SMC)/SMC);
       g_k.SetPoint(i,(x_k-KMC)*100./KMC, 100.*fabs(y_k-SMC)/SMC);
-      //
     }
     //
     // positive points
     for (int i=0; i<=POINTS; ++i) {
-      double x_ewk = (ewk_syst_max-1.)*i/POINTS;
-      double x_fz  = (fz_syst_max-Fzmc)*i/POINTS;
-      double x_fzp = (fzp_syst_max-FzPmc)*i/POINTS;
-      double x_k   = (k_syst_max-KMC)*i/POINTS;
-      double x_i   = (i_syst_max-Imc)*i/POINTS;
+      double x_ewk = 1.+ewk_syst_max*i/POINTS; 
+      double x_fz  = Fzmc+fz_syst_max*i/POINTS;
+      double x_fzp = FzPmc+fzp_syst_max*i/POINTS;
+      double x_k   = KMC+k_syst_max*i/POINTS;
+      double x_i   = Imc+i_syst_max*i/POINTS;
       //
       double y_ewk= CalcABCD(Imc, Fzmc, FzPmc, KMC, x_ewk, Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
       double y_fz = CalcABCD(Imc, x_fz, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
@@ -660,25 +691,41 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
       double y_k  = CalcABCD(Imc, Fzmc, FzPmc, x_k, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
       double y_i  = CalcABCD(x_i, Fzmc, FzPmc, KMC, 1., Na, Nb, Nc, Nd, Ea,Eb,Ec,Ed);
       //
-      g_ewk.SetPoint(i+POINTS+1,x_ewk*100., 100.*fabs(y_ewk-SMC)/SMC);
-      g_fz.SetPoint(i+POINTS+1,(x_fz-Fzmc)*100./Fzmc, 100.*fabs(y_fz-SMC)/SMC);
-      g_fzp.SetPoint(i+POINTS+1,(x_fzp-FzPmc)*100./FzPmc, 100.*fabs(y_fzp-SMC)/SMC);
-      g_i.SetPoint(i+POINTS+1,(x_i-Imc)*100./Imc, 100.*fabs(y_i-SMC)/SMC);
-      g_k.SetPoint(i+POINTS+1,(x_k-KMC)*100./KMC, 100.*fabs(y_k-SMC)/SMC);
+      g_ewk.SetPoint(i+POINTS,(x_ewk-1.)*100., 100.*fabs(y_ewk-SMC)/SMC);
+      g_fz.SetPoint(i+POINTS,(x_fz-Fzmc)*100./Fzmc, 100.*fabs(y_fz-SMC)/SMC);
+      g_fzp.SetPoint(i+POINTS,(x_fzp-FzPmc)*100./FzPmc, 100.*fabs(y_fzp-SMC)/SMC);
+      g_i.SetPoint(i+POINTS,(x_i-Imc)*100./Imc, 100.*fabs(y_i-SMC)/SMC);
+      g_k.SetPoint(i+POINTS,(x_k-KMC)*100./KMC, 100.*fabs(y_k-SMC)/SMC);
     }
+    TString yaxis("(S-S_{mc})/S_{mc} (%)");
     TCanvas c;
+    g_ewk.SetLineWidth(2);
+    g_ewk.GetXaxis()->SetTitle("EWK Variation (%)");
+    g_ewk.GetYaxis()->SetTitle(yaxis);
     g_ewk.Draw("AL");
     c.Print("ewk_syst_variation.C");
     //
+    g_fz.SetLineWidth(2);
+    g_fz.GetXaxis()->SetTitle("F_{z} Variation (%)");
+    g_fz.GetYaxis()->SetTitle(yaxis);
     g_fz.Draw("AL");
     c.Print("fz_syst_variation.C");
     //
+    g_fzp.SetLineWidth(2);
+    g_fzp.GetXaxis()->SetTitle("F_{z}' Variation (%)");
+    g_fzp.GetYaxis()->SetTitle(yaxis);
     g_fzp.Draw("AL");
     c.Print("fzp_syst_variation.C");
     //
+    g_i.SetLineWidth(2);
+    g_i.GetXaxis()->SetTitle("I Variation (%)");
+    g_i.GetYaxis()->SetTitle(yaxis);
     g_i.Draw("AL");
     c.Print("i_syst_variation.C");
     //
+    g_k.SetLineWidth(2);
+    g_k.GetXaxis()->SetTitle("K Variation (%)");
+    g_k.GetYaxis()->SetTitle(yaxis);
     g_k.Draw("AL");
     c.Print("k_syst_variation.C");
     //
@@ -705,6 +752,17 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     cout << "I=  " << I << "+-" << dI << endl;
     cout << "Fz= " << Fz << "+-" << dFz << endl;
     cout << "FzP=" << FzP << "+-" << dFzP << endl;
+    cout << "EWK error assumed to be: " << ewkerror << endl;
+    cout << endl;
+    cout << "ABCD Regions population:" << endl;
+    cout << "A:  N=" << Na << ", sig=" << a_sig << ", qcd=" << a_qcd
+         << ", ewk=" << a_ewk << endl;
+    cout << "B:  N=" << Nb << ", sig=" << b_sig << ", qcd=" << b_qcd
+         << ", ewk=" << b_ewk << endl;
+    cout << "C:  N=" << Nc << ", sig=" << c_sig << ", qcd=" << c_qcd
+         << ", ewk=" << c_ewk << endl;
+    cout << "D:  N=" << Nd << ", sig=" << d_sig << ", qcd=" << d_qcd
+         << ", ewk=" << d_ewk << endl;
     cout << endl;
     cout << "Parameters from MC: " << endl;
     cout << "I=  " << Imc << "+-" << dImc << endl;
@@ -712,6 +770,7 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     cout << "FzP=" << FzPmc << "+-" << dFzPmc << endl;
     cout << endl;
     cout << "Real value of K=" << KMC << endl;
+    cout << "Real value of Signal=" << SMC << endl;
     cout << endl;
     cout << "Difference Measured - MC value (% wrt MC value except K=1): " 
 	 << endl;
@@ -742,11 +801,11 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     cout << "Stat Error percentages are wrt S prediction, not S mc" << endl;
     cout << endl;
     cout << "Systematic Error Summary:" << endl;
-    cout << "due to k   = " << err_k << " ( " << err_k*100./S  << ")" << endl;
-    cout << "due to Fz  = " << err_fz << " ( " << err_fz*100./S  << ")" << endl;
-    cout << "due to FzP = " << err_fzp << " ( " << err_fzp*100./S  << ")" << endl;
-    cout << "due to I   = " << err_i << " ( " << err_i*100./S  << ")" << endl;
-    cout << "due to EWK = " << err_ewk << " ( " << err_ewk*100./S  << ")" << endl;
+    cout << "due to k   = " << err_k << " ( " << err_k*100./S  << "%)" << endl;
+    cout << "due to Fz  = " << err_fz << " ( " << err_fz*100./S  << "%)" << endl;
+    cout << "due to FzP = " << err_fzp << " ( " << err_fzp*100./S  << "%)" << endl;
+    cout << "due to I   = " << err_i << " ( " << err_i*100./S  << "%)" << endl;
+    cout << "due to EWK = " << err_ewk << " ( " << err_ewk*100./S  << "%)" << endl;
 
     cout << "Syst Error percentages are wrt S prediction, not S mc" << endl;
   }
@@ -754,7 +813,9 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
   //
   if (mcOnly < 0 && mcOnly >-0.75) {  // select value -0.5 that gives the
                                       // string parser
+    cout << "=======================================================" << endl;
     cout << "Calculating ABCD Result and Stat Error Assuming MC ONLY"  << endl;
+    cout << "=======================================================" << endl;
     cout << "All input parameters that the user have inserted will be "
 	 << "ignored and recalculated from MC" << endl;
     cout << "This option will not give you systematics estimation" << endl;
@@ -771,6 +832,8 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     double dep = sqrt(ep*(1-ep)/(c_sig + d_sig));
     double alphap = dep/(2.*FzP-ep);
     dFzP = alphap/(1-alphap);
+    //
+    double KMC = (d_qcd/c_qcd)/(a_qcd/b_qcd);
     //
     // now everything is done from data + input
     double A = (1.0-I)*(FzP-Fz);
@@ -862,6 +925,17 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
     cout << "I=  " << I << "+-" << dI << endl;
     cout << "Fz= " << Fz << "+-" << dFz << endl;
     cout << "FzP=" << FzP << "+-" << dFzP << endl;
+    cout << endl;
+    cout << "ABCD Regions population:" << endl;
+    cout << "A:  N=" << Na << ", sig=" << a_sig << ", qcd=" << a_qcd
+	 << ", ewk=" << a_ewk << endl;
+    cout << "B:  N=" << Nb << ", sig=" << b_sig << ", qcd=" << b_qcd
+	 << ", ewk=" << b_ewk << endl;
+    cout << "C:  N=" << Nc << ", sig=" << c_sig << ", qcd=" << c_qcd
+	 << ", ewk=" << c_ewk << endl;
+    cout << "D:  N=" << Nd << ", sig=" << d_sig << ", qcd=" << d_qcd
+	 << ", ewk=" << d_ewk << endl;
+    cout << "K value from MC: " << KMC << endl;
     cout << endl;
     cout << "Statistical Error Summary: " << endl;
     cout << "due to Fz = "<< SpFz*dFz<< ", ("<<SpFz*dFz*100./S << "%)"<< endl;
@@ -1009,7 +1083,8 @@ double searchABCDstring(TString abcdString, TString keyword)
   //
   TString afterVal = abcdString(existsEntry+size-1);
   //std::cout << "afterVal=" << afterVal << std::endl;
-  if (afterVal !="=") return -0.5;
+  if (afterVal =="," || afterVal==")") return -0.5;
+  else if (afterVal != "=") return -1.;
   //
   // now find the comma or the parenthesis after the = sign
   int comma = abcdString.Index(",",existsEntry);
