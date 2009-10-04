@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DView.cc,v 1.17 2009/09/24 00:28:24 chrjones Exp $
+// $Id: FW3DView.cc,v 1.18 2009/09/24 20:19:07 amraktad Exp $
 //
 
 // system include files
@@ -514,7 +514,10 @@ FW3DView::setBackgroundColor(Color_t iColor)
    Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
    if ( iColor == FWColorManager::kBlackIndex && !dark ||
         iColor == FWColorManager::kWhiteIndex && dark)
+   {
       m_viewer->GetGLViewer()->SwitchColorSet();
+      m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   }
 }
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.40 2009/09/24 20:19:07 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.41 2009/10/03 17:13:51 dmytro Exp $
 //
 
 #define private public
@@ -271,7 +271,10 @@ FWRhoPhiZView::setBackgroundColor(Color_t iColor)
 
    if ( iColor == FWColorManager::kBlackIndex && !dark ||
         iColor == FWColorManager::kWhiteIndex && dark)
+   {
       m_viewer->GetGLViewer()->SwitchColorSet();
+      m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+   }
 }
 
 void
