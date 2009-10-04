@@ -20,7 +20,7 @@
 #include "Fireworks/Tracks/interface/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "Fireworks/Tracks/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/CmsMagField.h"
 
 FWTrackHitsDetailView::FWTrackHitsDetailView ()

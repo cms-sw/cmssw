@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWElectronRPZProxyBuilder.cc,v 1.7 2009/01/23 21:35:46 amraktad Exp $
+// $Id: FWElectronRPZProxyBuilder.cc,v 1.8 2009/08/24 04:54:33 dmytro Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Candidates/interface/prepareSimpleTrack.h"
-#include "Fireworks/Tracks/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 //#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Electrons/interface/makeSuperCluster.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"

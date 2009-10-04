@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWPFTauRPZProxyBuilder.cc,v 1.2 2009/08/21 16:57:50 dmytro Exp $
+// $Id: FWPFTauRPZProxyBuilder.cc,v 1.3 2009/08/24 04:54:33 dmytro Exp $
 //
 
 // include files
@@ -8,8 +8,7 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-//#include "Fireworks/Core/interface/prepareTrack.h"
-#include "Fireworks/Tracks/interface/prepareTrack.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Core/interface/FWEvePtr.h"
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
