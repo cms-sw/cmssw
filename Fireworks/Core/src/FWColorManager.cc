@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.14 2009/10/02 17:34:34 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.15 2009/10/04 13:15:52 amraktad Exp $
 //
 
 // system include files
@@ -142,15 +142,15 @@ static const float s_forBlack[][3] ={
 static const unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
 
 static const float s_geomForWhite[][3] ={
-{ 1.00, 0.33, 0.33 },
-{ 1.00, 0.33, 0.33 },
-{ 0.28, 0.54, 1.00 },
-{ 0.08, 0.23, 1.00 },
-{ 0.41, 1.00, 0.12 },
-{ 0.70, 0.70, 0.70 }, // calo3d grid
-{ 0.70, 0.70, 0.70 }, // lego grid
-{ 0.44, 0.44, 0.44 }, // lego boundrary
-{ 0.23, 0.23, 0.23 } // lego font
+{ 1.00, 0.30, 0.30 },
+{ 1.00, 0.30, 0.30 },
+{ 0.25, 0.51, 1.00 },
+{ 0.07, 0.20, 1.00 },
+{ 0.38, 1.00, 0.10 },
+{ 0.60, 0.60, 0.60 }, // calo3d grid
+{ 0.66, 0.66, 0.66 }, // lego grid
+{ 0.39, 0.39, 0.39 }, // lego boundrary
+{ 0.15, 0.15, 0.15 } // lego font
 };
 
 static const float s_geomForBlack[][3] ={
