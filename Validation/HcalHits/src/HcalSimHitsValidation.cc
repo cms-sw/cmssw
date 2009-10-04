@@ -129,6 +129,7 @@ void HcalSimHitsValidation::endJob() {
     if (ieta > 0) ibin = i + 1;
     else          ibin = i;
   
+    //Occupancy vs. iEta TH1Fs
     cnorm = occupancy_vs_ieta_HB1->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HB1->setBinContent(i, cnorm);
     cnorm = occupancy_vs_ieta_HB2->getBinContent(ibin) / (phi_factor * nevtot); 
@@ -148,6 +149,37 @@ void HcalSimHitsValidation::endJob() {
     occupancy_vs_ieta_HF1->setBinContent(i, cnorm);
     cnorm = occupancy_vs_ieta_HF2->getBinContent(ibin) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HF2->setBinContent(i, cnorm);
+
+    //Mean energy vs iEta TProfiles
+    cnorm = emean_vs_ieta_HB1->getBinContent(ibin); 
+    emean_vs_ieta_HB1->setBinContent(i, cnorm);
+    cnorm = emean_vs_ieta_HB2->getBinContent(ibin); 
+    emean_vs_ieta_HB2->setBinContent(i, cnorm);
+
+    cnorm = emean_vs_ieta_HE1->getBinContent(ibin); 
+    emean_vs_ieta_HE1->setBinContent(i, cnorm);
+    cnorm = emean_vs_ieta_HE2->getBinContent(ibin); 
+    emean_vs_ieta_HE2->setBinContent(i, cnorm);
+    cnorm = emean_vs_ieta_HE3->getBinContent(ibin); 
+    emean_vs_ieta_HE3->setBinContent(i, cnorm);
+
+    cnorm = emean_vs_ieta_HO->getBinContent(ibin); 
+    emean_vs_ieta_HO->setBinContent(i, cnorm);
+
+    cnorm = emean_vs_ieta_HF1->getBinContent(ibin); 
+    emean_vs_ieta_HF1->setBinContent(i, cnorm);
+    cnorm = emean_vs_ieta_HF2->getBinContent(ibin); 
+    emean_vs_ieta_HF2->setBinContent(i, cnorm);
+
+    //Energy in Cone
+    cnorm = meEnConeEtaProfile->getBinContent(ibin); 
+    meEnConeEtaProfile->setBinContent(i, cnorm);
+
+    cnorm = meEnConeEtaProfile_E->getBinContent(ibin); 
+    meEnConeEtaProfile_E->setBinContent(i, cnorm);
+
+    cnorm = meEnConeEtaProfile_EH->getBinContent(ibin); 
+    meEnConeEtaProfile_EH->setBinContent(i, cnorm);
   }
 
 
@@ -197,7 +229,8 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   //Approximate calibration constants
   const float calib_HB = 120.;
   const float calib_HE = 190.;
-  const float calib_HF = 3.;
+  const float calib_HF1 = 1.0/0.383;
+  const float calib_HF2 = 1.0/0.368;
   
   edm::Handle<PCaloHitContainer> hcalHits;
   ev.getByLabel("g4SimHits","HcalHits",hcalHits);
@@ -233,10 +266,11 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 	ietaMax = cell.ieta(); 
       }
       //Approximation of calibration
-      if      (sub == 1) HcalCone += en*calib_HB;
-      else if (sub == 2) HcalCone += en*calib_HE;
-      else if (sub == 4) HcalCone += en*calib_HF;
-      else               HcalCone += en;
+      if      (sub == 1)               HcalCone += en*calib_HB;
+      else if (sub == 2)               HcalCone += en*calib_HE;
+      else if (sub == 4 && depth == 1) HcalCone += en*calib_HF1;
+      else if (sub == 4 && depth == 2) HcalCone += en*calib_HF2;
+      else                             HcalCone += en;
     }
     
     //HB
