@@ -4,40 +4,43 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 exoticaDiMuonHLT = hltHighLevel.clone()
 #Define the HLT path to be used.
 exoticaDiMuonHLT.HLTPaths =['HLT_DoubleMu3']
+exoticaDiMuonHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29") 
 
 exoticaDiElectronHLT = hltHighLevel.clone()
-exoticaDiElectronHLT.HLTPaths =['HLT_Photon15_L1R']
+exoticaDiElectronHLT.HLTPaths =['HLT_Ele10_LW_L1R']
+exoticaDiElectronHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 
 exoticaEMuHLT = hltHighLevel.clone()
-exoticaEMuHLT.HLTPaths =['HLT_Photon15_L1R','HLT_DoubleMu3']
+exoticaEMuHLT.HLTPaths =['HLT_Ele10_LW_L1R','HLT_Mu5']
+exoticaEMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 
 #Define the HLT quality cut 
 from HLTrigger.HLTfilters.hltSummaryFilter_cfi import *
 
 exoticaHLTDiMuonFilter = hltSummaryFilter.clone(
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"), # trigger summary
-    member  = cms.InputTag("hltL3MuonCandidates","","HLT"),      # filter or collection
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL3MuonCandidates","","HLT8E29"),      # filter or collection
     cut     = cms.string("pt>10"),                     # cut on trigger object
     minN    = cms.int32(2)                  # min. # of passing objects needed
  )
                                
 exoticaHLTDiElectronFilter =hltSummaryFilter.clone(										  
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"), # trigger summary
-    member  = cms.InputTag("hltL1NonIsoRecoEcalCandidate","","HLT"),      # filter or collection
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","","HLT8E29"),      # filter or collection
     cut     = cms.string("pt>10"),                     # cut on trigger object
     minN    = cms.int32(2)                  # min. # of passing objects needed
 )
 
 exoticaHLTMuonFilter = hltSummaryFilter.clone(
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"), # trigger summary
-    member  = cms.InputTag("hltL3MuonCandidates","","HLT"),      # filter or collection
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL3MuonCandidates","","HLT8E29"),      # filter or collection
     cut     = cms.string("pt>10"),                     # cut on trigger object
     minN    = cms.int32(1)                  # min. # of passing objects needed
  )
    
 exoticaHLTElectronFilter =hltSummaryFilter.clone(										  
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"), # trigger summary
-    member  = cms.InputTag("hltL1NonIsoRecoEcalCandidate","","HLT"),      # filter or collection
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","","HLT8E29"),      # filter or collection
     cut     = cms.string("pt>10"),                     # cut on trigger object
     minN    = cms.int32(1)                  # min. # of passing objects needed
  )

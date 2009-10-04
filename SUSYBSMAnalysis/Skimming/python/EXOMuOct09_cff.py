@@ -4,11 +4,12 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 exoticaMuHLT = hltHighLevel
 #Define the HLT path to be used.
 exoticaMuHLT.HLTPaths =['HLT_Mu9']
+exoticaMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 
 #Define the HLT quality cut 
 exoticaHLTMuonFilter = cms.EDFilter("HLTSummaryFilter",
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"), # trigger summary
-    member  = cms.InputTag("hltL3MuonCandidates","","HLT"),      # filter or collection									
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"), # trigger summary
+    member  = cms.InputTag("hltL3MuonCandidates","","HLT8E29"),      # filter or collection									
     cut     = cms.string("pt>20"),                     # cut on trigger object
     minN    = cms.int32(1)                  # min. # of passing objects needed
  )

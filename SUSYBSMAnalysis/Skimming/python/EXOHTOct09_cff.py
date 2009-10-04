@@ -3,13 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 exoticaHTHLT = hltHighLevel
 #Define the HLT path to be used.
-exoticaHTHLT.HLTPaths =['HLT_HT200']
+exoticaHTHLT.HLTPaths =['HLT_HT100U']
+exoticaHTHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 
 #Define the HLT quality cut 
 
 exoticaHLTHTFilter = cms.EDFilter("HLTSummaryFilter",
-    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    member  = cms.InputTag("hltHT200","","HLT"),				
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"),
+    member  = cms.InputTag("hltJet15UHt","","HLT8E29"),				
     cut     = cms.string("pt>250"),                     
     minN    = cms.int32(1)                  
 )
