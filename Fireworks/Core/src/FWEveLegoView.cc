@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.56 2009/10/04 13:15:58 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.57 2009/10/04 17:53:30 amraktad Exp $
 //
 
 // system include files
@@ -171,18 +171,20 @@ FWEveLegoView::finishSetup()
 void
 FWEveLegoView::setBackgroundColor(Color_t iColor)
 {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
+   TGLViewer* v =  m_viewer->GetGLViewer();
+   if ( iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark() ||
+        iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark() )
+   { 
+      v->SwitchColorSet();
+      FWColorManager::setUserFeedBackColors(v->ColorSet(), iColor);
 
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-   {
-      m_viewer->GetGLViewer()->SwitchColorSet();
-      m_overlay->SetScaleColorTransparency(dark ? kGray + 3 : kWhite, 0);
-      m_overlay->SetFrameAttribs(dark ? kBlack : kWhite, 70, 90);
+      m_overlay->SetScaleColorTransparency(iColor==kWhite ? kGray + 3 : kWhite, 0);
+      m_overlay->SetFrameAttribs(iColor==kWhite ? kBlack : kWhite, 70, 90);
+
       m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
    }
-}
-
+ 
+} 
 void
 FWEveLegoView::setCameras()
 {

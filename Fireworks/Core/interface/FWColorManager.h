@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.12 2009/09/18 13:35:23 amraktad Exp $
+// $Id: FWColorManager.h,v 1.13 2009/10/04 13:15:52 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 
 // forward declarations
 class FWModelChangeManager;
+class TGLColorSet;
 
 enum FWGeomColorIndex {
    kFWMuonBarrelMainColorIndex,
@@ -69,6 +70,7 @@ public:
    BackgroundColorIndex backgroundColorIndex() const;
    // ---------- static member functions --------------------
    
+   static void setUserFeedBackColors(TGLColorSet&, Color_t);
    // ---------- member functions ---------------------------
    void defaultBrightness();
    void setBrightness(int);

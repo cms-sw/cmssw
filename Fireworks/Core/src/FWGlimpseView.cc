@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.29 2009/09/24 20:19:07 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.30 2009/10/04 13:15:58 amraktad Exp $
 //
 
 // system include files
@@ -268,13 +268,14 @@ FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 
 void
 FWGlimpseView::setBackgroundColor(Color_t iColor) {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-   {
-      m_viewer->GetGLViewer()->SwitchColorSet();
+  TGLViewer* v =  m_viewer->GetGLViewer();
+  if ( iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark() ||
+       iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark() )
+    { 
+      v->SwitchColorSet();
+      FWColorManager::setUserFeedBackColors(v->ColorSet(), iColor);
       m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
-   }
+    } 
 }
 //
 // const member functions

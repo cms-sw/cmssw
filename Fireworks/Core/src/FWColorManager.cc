@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.15 2009/10/04 13:15:52 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.16 2009/10/04 17:52:46 amraktad Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include <boost/shared_ptr.hpp>
 #include "TColor.h"
 #include "TROOT.h"
+#include "TGLUtil.h"
 #include "TObjArray.h"
 #include "TMath.h"
 
@@ -320,6 +321,21 @@ FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 {
    m_gammaOff = -b*0.1f;
    setBackgroundColorIndex(iIndex);
+}
+
+void 
+FWColorManager::setUserFeedBackColors(TGLColorSet& cs, Color_t idx)
+{
+   // Override default selection and highlight colors in light color-set
+
+   if (idx == kWhite)
+   {
+      cs.Selection(0).SetColor(0, 0, 0);
+      cs.Selection(1).SetColor(50, 50, 100); //selection
+      cs.Selection(2).SetColor(50, 50, 100);
+      cs.Selection(3).SetColor(100, 50, 50); // highlight
+      cs.Selection(4).SetColor(100, 50, 50);
+   }
 }
 
 //

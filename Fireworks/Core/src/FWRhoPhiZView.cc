@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.41 2009/10/03 17:13:51 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.42 2009/10/04 13:15:58 amraktad Exp $
 //
 
 #define private public
@@ -267,14 +267,15 @@ FWRhoPhiZView::doCompression(bool flag)
 void
 FWRhoPhiZView::setBackgroundColor(Color_t iColor)
 {
-   Bool_t dark = m_viewer->GetGLViewer()->IsColorSetDark();
+  TGLViewer* v =  m_viewer->GetGLViewer();
 
-   if ( iColor == FWColorManager::kBlackIndex && !dark ||
-        iColor == FWColorManager::kWhiteIndex && dark)
-   {
-      m_viewer->GetGLViewer()->SwitchColorSet();
+  if ( iColor == FWColorManager::kBlackIndex && !v->IsColorSetDark() ||
+       iColor == FWColorManager::kWhiteIndex && v->IsColorSetDark() )
+    { 
+      v->SwitchColorSet();
+      FWColorManager::setUserFeedBackColors(v->ColorSet(), iColor);
       m_viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
-   }
+    }
 }
 
 void
