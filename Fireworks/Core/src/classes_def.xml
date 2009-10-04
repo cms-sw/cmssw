@@ -9,7 +9,7 @@
   <class name="FWGUIManager"/>
   <class name="CmsShowEDI"/>
   <class name="FWGUIValidatingTextEntry"/>
-  <class name="CmsShowColorPopup"/>
+  <class name="CmsShowBrightnessPopup"/>
   <class name="CmsShowModelPopup"/>
   <class name="CmsShowViewPopup"/>
   <class name="FWGUISubviewArea"/>
