@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.16 2009/10/04 17:52:46 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.17 2009/10/04 19:26:29 amraktad Exp $
 //
 
 // system include files
@@ -330,11 +330,10 @@ FWColorManager::setUserFeedBackColors(TGLColorSet& cs, Color_t idx)
 
    if (idx == kWhite)
    {
-      cs.Selection(0).SetColor(0, 0, 0);
-      cs.Selection(1).SetColor(50, 50, 100); //selection
-      cs.Selection(2).SetColor(50, 50, 100);
-      cs.Selection(3).SetColor(100, 50, 50); // highlight
-      cs.Selection(4).SetColor(100, 50, 50);
+      cs.Selection(1).SetColor(50, 50, 50);
+      cs.Selection(2).SetColor(50, 50, 50);
+      cs.Selection(3).SetColor(50, 50, 50);
+      cs.Selection(4).SetColor(50, 50, 50);
    }
 }
 
