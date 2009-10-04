@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.13 2009/06/24 10:19:59 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.14 2009/10/02 17:34:34 amraktad Exp $
 //
 
 // system include files
@@ -261,7 +261,6 @@ FWColorManager::~FWColorManager()
 
 void FWColorManager::updateColors()
 {
-
    if(backgroundColorIndex() == kBlackIndex) {
       resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
       resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
@@ -293,6 +292,12 @@ FWColorManager::defaultBrightness()
 {
    m_gammaOff = 0;
    updateColors();
+}
+
+void 
+FWColorManager::switchBackground()
+{ 
+   setBackgroundColorIndex(isColorSetDark() ? kWhiteIndex : kBlackIndex);
 }
 
 void 

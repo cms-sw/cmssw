@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.11 2009/05/28 19:01:45 amraktad Exp $
+// $Id: FWColorManager.h,v 1.12 2009/09/18 13:35:23 amraktad Exp $
 //
 
 // system include files
@@ -50,7 +50,9 @@ public:
    // ---------- const member functions ---------------------
    Color_t background() const {return m_background;}
    Color_t foreground() const {return m_foreground;}
-   
+   Bool_t  isColorSetDark() const {return m_background == kBlack;}
+   Bool_t  isColorSetLight() const {return m_background == kWhite;}
+ 
    Color_t indexToColor(unsigned int) const;
    unsigned int numberOfIndicies() const;
    
@@ -72,8 +74,8 @@ public:
    void setBrightness(int);
    int  brightness ();
    void setBackgroundColorIndex(BackgroundColorIndex);
-
-  void setBackgroundAndBrightness(BackgroundColorIndex, int);
+   void setBackgroundAndBrightness(BackgroundColorIndex, int);
+   void switchBackground();
 
    mutable sigc::signal<void> colorsHaveChanged_;
    //called after all the slots attached to colorsHaveChanged_ are done
