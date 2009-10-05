@@ -47,7 +47,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
   apvtree->Branch("IsZMinusSide",            &iszminusside,            "IsZMinusSide/I");
   apvtree->Branch("RodStringPetal",          &rodstringpetal,          "RodStringPetal/I");
   apvtree->Branch("IsStereo",                &isstereo,                "IsStereo/I");
-  apvtree->Branch("ModulePosition",          &module_position,         "ModulePosition/I");
+  apvtree->Branch("ModuleNumber",            &module_number,           "ModuleNumber/I");
   apvtree->Branch("NumberOfStrips",          &number_strips,           "NumberOfStrips/I");
   apvtree->Branch("APVGlobalPositionX",      &global_position_x,       "APVGlobalPositionX/F");
   apvtree->Branch("APVGlobalPositionY",      &global_position_y,       "APVGlobalPositionY/F");
@@ -122,8 +122,9 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 	else                                       isexternalstring = 0;
 	if (TIBDetId(detrawid).isZMinusSide()) iszminusside = 1;
 	else                                   iszminusside = 0;
-	rodstringpetal  = TIBDetId(detrawid).stringNumber();
-	module_position = TIBDetId(detrawid).moduleNumber();
+	rodstringpetal     = TIBDetId(detrawid).stringNumber();
+	module_number      = TIBDetId(detrawid).moduleNumber();
+	APV.modulePosition = module_number;
 
 	if      (layer_ring == 1) medianValues_TIB_Layer1.push_back(APV);
 	else if (layer_ring == 2) medianValues_TIB_Layer2.push_back(APV);
@@ -138,9 +139,10 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 	else                                 isback = 0;
 	if (TIDDetId(detrawid).isZMinusSide()) iszminusside = 1;
 	else                                   iszminusside = 0;
-	isexternalstring = -1;
-	rodstringpetal   = -1;
-	module_position  = TIDDetId(detrawid).moduleNumber();
+	isexternalstring   = -1;
+	rodstringpetal     = -1;
+	module_number      = TIDDetId(detrawid).moduleNumber();
+	APV.modulePosition = layer_ring;
 
 	if (iszminusside==0)
 	  {
@@ -162,9 +164,10 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 	isback     = -1;
 	if (TOBDetId(detrawid).isZMinusSide()) iszminusside = 1;
 	else                                   iszminusside = 0;
-	isexternalstring = -1;
-	rodstringpetal   = TOBDetId(detrawid).rodNumber();
-	module_position  = TOBDetId(detrawid).moduleNumber();
+	isexternalstring   = -1;
+	rodstringpetal     = TOBDetId(detrawid).rodNumber();
+	module_number      = TOBDetId(detrawid).moduleNumber();
+	APV.modulePosition = module_number;
 
 	if      (layer_ring == 1) medianValues_TOB_Layer1.push_back(APV);
 	else if (layer_ring == 2) medianValues_TOB_Layer2.push_back(APV);
@@ -181,9 +184,10 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 	else                                  isback = 0;
 	if (TECDetId(detrawid).isZMinusSide()) iszminusside = 1;
 	else                                   iszminusside = 0;
-	isexternalstring = -1;
-	rodstringpetal   = TECDetId(detrawid).petalNumber();
-	module_position  = TECDetId(detrawid).moduleNumber();
+	isexternalstring   = -1;
+	rodstringpetal     = TECDetId(detrawid).petalNumber();
+	module_number      = TECDetId(detrawid).moduleNumber();
+	APV.modulePosition = layer_ring;
 
 	if (iszminusside==0)
 	  {
@@ -238,44 +242,44 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
   } // end loop on modules
 
   // Calculate Mean and RMS for each Layer
-  MeanAndRms_TIB_Layer1 = CalculateMeanAndRMS(medianValues_TIB_Layer1,numberiterations_);
-  MeanAndRms_TIB_Layer2 = CalculateMeanAndRMS(medianValues_TIB_Layer2,numberiterations_);
-  MeanAndRms_TIB_Layer3 = CalculateMeanAndRMS(medianValues_TIB_Layer3,numberiterations_);
-  MeanAndRms_TIB_Layer4 = CalculateMeanAndRMS(medianValues_TIB_Layer4,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIB_Layer1,MeanAndRms_TIB_Layer1,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIB_Layer2,MeanAndRms_TIB_Layer2,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIB_Layer3,MeanAndRms_TIB_Layer3,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIB_Layer4,MeanAndRms_TIB_Layer4,numberiterations_);
 
-  MeanAndRms_TOB_Layer1 = CalculateMeanAndRMS(medianValues_TOB_Layer1,numberiterations_);
-  MeanAndRms_TOB_Layer2 = CalculateMeanAndRMS(medianValues_TOB_Layer2,numberiterations_);
-  MeanAndRms_TOB_Layer3 = CalculateMeanAndRMS(medianValues_TOB_Layer3,numberiterations_);
-  MeanAndRms_TOB_Layer4 = CalculateMeanAndRMS(medianValues_TOB_Layer4,numberiterations_);
-  MeanAndRms_TOB_Layer5 = CalculateMeanAndRMS(medianValues_TOB_Layer5,numberiterations_);
-  MeanAndRms_TOB_Layer6 = CalculateMeanAndRMS(medianValues_TOB_Layer6,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TOB_Layer1,MeanAndRms_TOB_Layer1,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TOB_Layer2,MeanAndRms_TOB_Layer2,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TOB_Layer3,MeanAndRms_TOB_Layer3,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TOB_Layer4,MeanAndRms_TOB_Layer4,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TOB_Layer5,MeanAndRms_TOB_Layer5,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TOB_Layer6,MeanAndRms_TOB_Layer6,numberiterations_);
 
-  MeanAndRms_TIDPlus_Disc1  = CalculateMeanAndRMS(medianValues_TIDPlus_Disc1,numberiterations_);
-  MeanAndRms_TIDPlus_Disc2  = CalculateMeanAndRMS(medianValues_TIDPlus_Disc2,numberiterations_);
-  MeanAndRms_TIDPlus_Disc3  = CalculateMeanAndRMS(medianValues_TIDPlus_Disc3,numberiterations_);
-  MeanAndRms_TIDMinus_Disc1 = CalculateMeanAndRMS(medianValues_TIDMinus_Disc1,numberiterations_);
-  MeanAndRms_TIDMinus_Disc2 = CalculateMeanAndRMS(medianValues_TIDMinus_Disc2,numberiterations_);
-  MeanAndRms_TIDMinus_Disc3 = CalculateMeanAndRMS(medianValues_TIDMinus_Disc3,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIDPlus_Disc1,MeanAndRms_TIDPlus_Disc1,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIDPlus_Disc2,MeanAndRms_TIDPlus_Disc2,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIDPlus_Disc3,MeanAndRms_TIDPlus_Disc3,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIDMinus_Disc1,MeanAndRms_TIDMinus_Disc1,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIDMinus_Disc2,MeanAndRms_TIDMinus_Disc2,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TIDMinus_Disc3,MeanAndRms_TIDMinus_Disc3,numberiterations_);
 
-  MeanAndRms_TECPlus_Disc1 = CalculateMeanAndRMS(medianValues_TECPlus_Disc1,numberiterations_);
-  MeanAndRms_TECPlus_Disc2 = CalculateMeanAndRMS(medianValues_TECPlus_Disc2,numberiterations_);
-  MeanAndRms_TECPlus_Disc3 = CalculateMeanAndRMS(medianValues_TECPlus_Disc3,numberiterations_);
-  MeanAndRms_TECPlus_Disc4 = CalculateMeanAndRMS(medianValues_TECPlus_Disc4,numberiterations_);
-  MeanAndRms_TECPlus_Disc5 = CalculateMeanAndRMS(medianValues_TECPlus_Disc5,numberiterations_);
-  MeanAndRms_TECPlus_Disc6 = CalculateMeanAndRMS(medianValues_TECPlus_Disc6,numberiterations_);
-  MeanAndRms_TECPlus_Disc7 = CalculateMeanAndRMS(medianValues_TECPlus_Disc7,numberiterations_);
-  MeanAndRms_TECPlus_Disc8 = CalculateMeanAndRMS(medianValues_TECPlus_Disc8,numberiterations_);
-  MeanAndRms_TECPlus_Disc9 = CalculateMeanAndRMS(medianValues_TECPlus_Disc9,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc1,MeanAndRms_TECPlus_Disc1,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc2,MeanAndRms_TECPlus_Disc2,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc3,MeanAndRms_TECPlus_Disc3,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc4,MeanAndRms_TECPlus_Disc4,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc5,MeanAndRms_TECPlus_Disc5,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc6,MeanAndRms_TECPlus_Disc6,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc7,MeanAndRms_TECPlus_Disc7,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc8,MeanAndRms_TECPlus_Disc8,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECPlus_Disc9,MeanAndRms_TECPlus_Disc9,numberiterations_);
 
-  MeanAndRms_TECMinus_Disc1 = CalculateMeanAndRMS(medianValues_TECMinus_Disc1,numberiterations_);
-  MeanAndRms_TECMinus_Disc2 = CalculateMeanAndRMS(medianValues_TECMinus_Disc2,numberiterations_);
-  MeanAndRms_TECMinus_Disc3 = CalculateMeanAndRMS(medianValues_TECMinus_Disc3,numberiterations_);
-  MeanAndRms_TECMinus_Disc4 = CalculateMeanAndRMS(medianValues_TECMinus_Disc4,numberiterations_);
-  MeanAndRms_TECMinus_Disc5 = CalculateMeanAndRMS(medianValues_TECMinus_Disc5,numberiterations_);
-  MeanAndRms_TECMinus_Disc6 = CalculateMeanAndRMS(medianValues_TECMinus_Disc6,numberiterations_);
-  MeanAndRms_TECMinus_Disc7 = CalculateMeanAndRMS(medianValues_TECMinus_Disc7,numberiterations_);
-  MeanAndRms_TECMinus_Disc8 = CalculateMeanAndRMS(medianValues_TECMinus_Disc8,numberiterations_);
-  MeanAndRms_TECMinus_Disc9 = CalculateMeanAndRMS(medianValues_TECMinus_Disc9,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc1,MeanAndRms_TECMinus_Disc1,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc2,MeanAndRms_TECMinus_Disc2,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc3,MeanAndRms_TECMinus_Disc3,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc4,MeanAndRms_TECMinus_Disc4,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc5,MeanAndRms_TECMinus_Disc5,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc6,MeanAndRms_TECMinus_Disc6,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc7,MeanAndRms_TECMinus_Disc7,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc8,MeanAndRms_TECMinus_Disc8,numberiterations_);
+  CalculateMeanAndRMS(medianValues_TECMinus_Disc9,MeanAndRms_TECMinus_Disc9,numberiterations_);
 
   pQuality=siStripQuality;
   badStripList.clear();
@@ -332,56 +336,77 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 }
 
 
-std::pair<double,double> SiStripBadAPVAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(std::vector<Apv> a, int number_iterations)
+void SiStripBadAPVAlgorithmFromClusterOccupancy::CalculateMeanAndRMS(std::vector<Apv> a, std::pair<double,double>* MeanRMS, int number_iterations)
 {
-  Double_t tot, tot2;
-  Double_t n;
+  Double_t tot[7], tot2[7];
+  Double_t n[7];
 
-  Double_t Mean = 0;
-  Double_t Rms = 1000;
+  Double_t Mean[7] = {0};
+  Double_t Rms[7]  = {1000,1000,1000,1000,1000,1000,1000};
+
+  int Moduleposition;
 
   for (int i=0; i<number_iterations; i++)
     {
-      n    = 0;
-      tot  = 0;
-      tot2 = 0;
+      for (int j=0; j<7; j++)
+	{
+	  n[j]    = 0;
+	  tot[j]  = 0;
+	  tot2[j] = 0;
+	}
 
       for (uint32_t it=0; it<a.size(); it++)
 	{
+	  Moduleposition = (a[it].modulePosition)-1;
+
 	  for (int apv=0; apv<a[it].numberApvs; apv++)
 	    {
 	      if (i>0)
 		{
-		  if (a[it].apvMedian[apv]<(Mean-3*Rms) || (a[it].apvMedian[apv]>(Mean+5*Rms)))
+		  if (a[it].apvMedian[apv]<(Mean[Moduleposition]-3*Rms[Moduleposition]) || (a[it].apvMedian[apv]>(Mean[Moduleposition]+5*Rms[Moduleposition])))
 		    {
 		      continue;
 		    }
 		}
-	      tot  += a[it].apvMedian[apv];
-	      tot2 += (a[it].apvMedian[apv])*(a[it].apvMedian[apv]);
-	      n++;
+	      tot[Moduleposition]  += a[it].apvMedian[apv];
+	      tot2[Moduleposition] += (a[it].apvMedian[apv])*(a[it].apvMedian[apv]);
+	      n[Moduleposition]++;
 	    }
 	}
 
-      Mean = tot/n;
-      Rms  = TMath::Sqrt(TMath::Abs(tot2/n -Mean*Mean));
+      for (int j=0; j<7; j++)
+	{
+	  if (n[j]!=0)
+	    {
+	      Mean[j] = tot[j]/n[j];
+	      Rms[j]  = TMath::Sqrt(TMath::Abs(tot2[j]/n[j] -Mean[j]*Mean[j]));
+	    }
+	}
     }
 
-  return std::make_pair(Mean,Rms);
+  for (int j=0; j<7; j++)
+    {
+      MeanRMS[j] = std::make_pair(Mean[j],Rms[j]);
+    }
+
 }
 
-void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality* quality, std::vector<Apv>& medianValues, std::pair<double,double>& MeanAndRms, std::vector<unsigned int>& BadStripList)
+void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality* quality, std::vector<Apv>& medianValues, std::pair<double,double>* MeanAndRms, std::vector<unsigned int>& BadStripList)
 {
+  int Moduleposition;
+
   for (uint32_t it=0; it<medianValues.size(); it++)
     {
+      Moduleposition = (medianValues[it].modulePosition)-1;
+
       for (int apv=0; apv<medianValues[it].numberApvs; apv++)
 	{
 	  if (medianValues[it].apvMedian[apv] > minNevents_)
 	    {
-	      if ((medianValues[it].apvMedian[apv]>(MeanAndRms.first+highoccupancy_*MeanAndRms.second)) && (medianValues[it].apvMedian[apv]>absolutelow_))
+	      if ((medianValues[it].apvMedian[apv]>(MeanAndRms[Moduleposition].first+highoccupancy_*MeanAndRms[Moduleposition].second)) && (medianValues[it].apvMedian[apv]>absolutelow_))
 		BadStripList.push_back(pQuality->encode((apv*128),128,0));
 	    }
-	  else if (medianValues[it].apvMedian[apv]<(MeanAndRms.first-lowoccupancy_*MeanAndRms.second))
+	  else if (medianValues[it].apvMedian[apv]<(MeanAndRms[Moduleposition].first-lowoccupancy_*MeanAndRms[Moduleposition].second))
 	    BadStripList.push_back(pQuality->encode((apv*128),128,0));
 	}
       if (BadStripList.begin()!=BadStripList.end())

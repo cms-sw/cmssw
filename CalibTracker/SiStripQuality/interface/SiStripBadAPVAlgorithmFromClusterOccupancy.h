@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.2 2009/05/19 09:31:17 kaussen Exp $
+// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.3 2009/06/22 13:39:47 kaussen Exp $
 //
 //
 
@@ -61,14 +61,15 @@ public:
 
   struct Apv{   
 
-    uint32_t detrawId;    
+    uint32_t detrawId;
+    int modulePosition;
     int numberApvs;
     double apvMedian[6];
   };
 
-  std::pair<double,double> CalculateMeanAndRMS(std::vector<Apv>, int);
+  void CalculateMeanAndRMS(std::vector<Apv>, std::pair<double,double>*, int);
 
-  void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>&, std::vector<unsigned int>&);
+  void AnalyzeOccupancy(SiStripQuality*, std::vector<Apv>&, std::pair<double,double>*, std::vector<unsigned int>&);
 
   struct pHisto{   
 
@@ -95,45 +96,45 @@ public:
   double stripWeight[6][128];
   double apvabsoluteOccupancy[6];
 
-  std::vector<Apv> medianValues_TIB_Layer1; std::pair<double,double> MeanAndRms_TIB_Layer1;
-  std::vector<Apv> medianValues_TIB_Layer2; std::pair<double,double> MeanAndRms_TIB_Layer2;
-  std::vector<Apv> medianValues_TIB_Layer3; std::pair<double,double> MeanAndRms_TIB_Layer3;
-  std::vector<Apv> medianValues_TIB_Layer4; std::pair<double,double> MeanAndRms_TIB_Layer4;
+  std::vector<Apv> medianValues_TIB_Layer1; std::pair<double,double> MeanAndRms_TIB_Layer1[7];
+  std::vector<Apv> medianValues_TIB_Layer2; std::pair<double,double> MeanAndRms_TIB_Layer2[7];
+  std::vector<Apv> medianValues_TIB_Layer3; std::pair<double,double> MeanAndRms_TIB_Layer3[7];
+  std::vector<Apv> medianValues_TIB_Layer4; std::pair<double,double> MeanAndRms_TIB_Layer4[7];
 
-  std::vector<Apv> medianValues_TOB_Layer1; std::pair<double,double> MeanAndRms_TOB_Layer1;
-  std::vector<Apv> medianValues_TOB_Layer2; std::pair<double,double> MeanAndRms_TOB_Layer2;
-  std::vector<Apv> medianValues_TOB_Layer3; std::pair<double,double> MeanAndRms_TOB_Layer3;
-  std::vector<Apv> medianValues_TOB_Layer4; std::pair<double,double> MeanAndRms_TOB_Layer4;
-  std::vector<Apv> medianValues_TOB_Layer5; std::pair<double,double> MeanAndRms_TOB_Layer5;
-  std::vector<Apv> medianValues_TOB_Layer6; std::pair<double,double> MeanAndRms_TOB_Layer6;
+  std::vector<Apv> medianValues_TOB_Layer1; std::pair<double,double> MeanAndRms_TOB_Layer1[7];
+  std::vector<Apv> medianValues_TOB_Layer2; std::pair<double,double> MeanAndRms_TOB_Layer2[7];
+  std::vector<Apv> medianValues_TOB_Layer3; std::pair<double,double> MeanAndRms_TOB_Layer3[7];
+  std::vector<Apv> medianValues_TOB_Layer4; std::pair<double,double> MeanAndRms_TOB_Layer4[7];
+  std::vector<Apv> medianValues_TOB_Layer5; std::pair<double,double> MeanAndRms_TOB_Layer5[7];
+  std::vector<Apv> medianValues_TOB_Layer6; std::pair<double,double> MeanAndRms_TOB_Layer6[7];
 
-  std::vector<Apv> medianValues_TIDPlus_Disc1; std::pair<double,double> MeanAndRms_TIDPlus_Disc1;
-  std::vector<Apv> medianValues_TIDPlus_Disc2; std::pair<double,double> MeanAndRms_TIDPlus_Disc2;
-  std::vector<Apv> medianValues_TIDPlus_Disc3; std::pair<double,double> MeanAndRms_TIDPlus_Disc3;
+  std::vector<Apv> medianValues_TIDPlus_Disc1; std::pair<double,double> MeanAndRms_TIDPlus_Disc1[7];
+  std::vector<Apv> medianValues_TIDPlus_Disc2; std::pair<double,double> MeanAndRms_TIDPlus_Disc2[7];
+  std::vector<Apv> medianValues_TIDPlus_Disc3; std::pair<double,double> MeanAndRms_TIDPlus_Disc3[7];
 
-  std::vector<Apv> medianValues_TIDMinus_Disc1; std::pair<double,double> MeanAndRms_TIDMinus_Disc1;
-  std::vector<Apv> medianValues_TIDMinus_Disc2; std::pair<double,double> MeanAndRms_TIDMinus_Disc2;
-  std::vector<Apv> medianValues_TIDMinus_Disc3; std::pair<double,double> MeanAndRms_TIDMinus_Disc3;
+  std::vector<Apv> medianValues_TIDMinus_Disc1; std::pair<double,double> MeanAndRms_TIDMinus_Disc1[7];
+  std::vector<Apv> medianValues_TIDMinus_Disc2; std::pair<double,double> MeanAndRms_TIDMinus_Disc2[7];
+  std::vector<Apv> medianValues_TIDMinus_Disc3; std::pair<double,double> MeanAndRms_TIDMinus_Disc3[7];
 
-  std::vector<Apv> medianValues_TECPlus_Disc1; std::pair<double,double> MeanAndRms_TECPlus_Disc1;
-  std::vector<Apv> medianValues_TECPlus_Disc2; std::pair<double,double> MeanAndRms_TECPlus_Disc2;
-  std::vector<Apv> medianValues_TECPlus_Disc3; std::pair<double,double> MeanAndRms_TECPlus_Disc3;
-  std::vector<Apv> medianValues_TECPlus_Disc4; std::pair<double,double> MeanAndRms_TECPlus_Disc4;
-  std::vector<Apv> medianValues_TECPlus_Disc5; std::pair<double,double> MeanAndRms_TECPlus_Disc5;
-  std::vector<Apv> medianValues_TECPlus_Disc6; std::pair<double,double> MeanAndRms_TECPlus_Disc6;
-  std::vector<Apv> medianValues_TECPlus_Disc7; std::pair<double,double> MeanAndRms_TECPlus_Disc7;
-  std::vector<Apv> medianValues_TECPlus_Disc8; std::pair<double,double> MeanAndRms_TECPlus_Disc8;
-  std::vector<Apv> medianValues_TECPlus_Disc9; std::pair<double,double> MeanAndRms_TECPlus_Disc9;
+  std::vector<Apv> medianValues_TECPlus_Disc1; std::pair<double,double> MeanAndRms_TECPlus_Disc1[7];
+  std::vector<Apv> medianValues_TECPlus_Disc2; std::pair<double,double> MeanAndRms_TECPlus_Disc2[7];
+  std::vector<Apv> medianValues_TECPlus_Disc3; std::pair<double,double> MeanAndRms_TECPlus_Disc3[7];
+  std::vector<Apv> medianValues_TECPlus_Disc4; std::pair<double,double> MeanAndRms_TECPlus_Disc4[7];
+  std::vector<Apv> medianValues_TECPlus_Disc5; std::pair<double,double> MeanAndRms_TECPlus_Disc5[7];
+  std::vector<Apv> medianValues_TECPlus_Disc6; std::pair<double,double> MeanAndRms_TECPlus_Disc6[7];
+  std::vector<Apv> medianValues_TECPlus_Disc7; std::pair<double,double> MeanAndRms_TECPlus_Disc7[7];
+  std::vector<Apv> medianValues_TECPlus_Disc8; std::pair<double,double> MeanAndRms_TECPlus_Disc8[7];
+  std::vector<Apv> medianValues_TECPlus_Disc9; std::pair<double,double> MeanAndRms_TECPlus_Disc9[7];
 
-  std::vector<Apv> medianValues_TECMinus_Disc1; std::pair<double,double> MeanAndRms_TECMinus_Disc1;
-  std::vector<Apv> medianValues_TECMinus_Disc2; std::pair<double,double> MeanAndRms_TECMinus_Disc2;
-  std::vector<Apv> medianValues_TECMinus_Disc3; std::pair<double,double> MeanAndRms_TECMinus_Disc3;
-  std::vector<Apv> medianValues_TECMinus_Disc4; std::pair<double,double> MeanAndRms_TECMinus_Disc4;
-  std::vector<Apv> medianValues_TECMinus_Disc5; std::pair<double,double> MeanAndRms_TECMinus_Disc5;
-  std::vector<Apv> medianValues_TECMinus_Disc6; std::pair<double,double> MeanAndRms_TECMinus_Disc6;
-  std::vector<Apv> medianValues_TECMinus_Disc7; std::pair<double,double> MeanAndRms_TECMinus_Disc7;
-  std::vector<Apv> medianValues_TECMinus_Disc8; std::pair<double,double> MeanAndRms_TECMinus_Disc8;
-  std::vector<Apv> medianValues_TECMinus_Disc9; std::pair<double,double> MeanAndRms_TECMinus_Disc9;
+  std::vector<Apv> medianValues_TECMinus_Disc1; std::pair<double,double> MeanAndRms_TECMinus_Disc1[7];
+  std::vector<Apv> medianValues_TECMinus_Disc2; std::pair<double,double> MeanAndRms_TECMinus_Disc2[7];
+  std::vector<Apv> medianValues_TECMinus_Disc3; std::pair<double,double> MeanAndRms_TECMinus_Disc3[7];
+  std::vector<Apv> medianValues_TECMinus_Disc4; std::pair<double,double> MeanAndRms_TECMinus_Disc4[7];
+  std::vector<Apv> medianValues_TECMinus_Disc5; std::pair<double,double> MeanAndRms_TECMinus_Disc5[7];
+  std::vector<Apv> medianValues_TECMinus_Disc6; std::pair<double,double> MeanAndRms_TECMinus_Disc6[7];
+  std::vector<Apv> medianValues_TECMinus_Disc7; std::pair<double,double> MeanAndRms_TECMinus_Disc7[7];
+  std::vector<Apv> medianValues_TECMinus_Disc8; std::pair<double,double> MeanAndRms_TECMinus_Disc8[7];
+  std::vector<Apv> medianValues_TECMinus_Disc9; std::pair<double,double> MeanAndRms_TECMinus_Disc9[7];
 
 
   TFile* f;
@@ -148,7 +149,7 @@ public:
   int iszminusside;
   int rodstringpetal;
   int isstereo;
-  int module_position;
+  int module_number;
   int number_strips;
   int number_apvs;
   int apv_number;
