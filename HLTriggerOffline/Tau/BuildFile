@@ -1,7 +1,6 @@
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/TauReco>
 <use name=FWCore/ServiceRegistry>
-<use name=DQMServices/Core>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaCandidates>
@@ -25,6 +24,9 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/Records>
+
+<use name=DQMServices/Components>
+
 <use name=clhep>
 <use name=hepmc>
 <use name=rootcore>

@@ -24,6 +24,7 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
   produces<LorentzVectorCollection>("HadronicTauOneAndThreeProng");
   produces<LorentzVectorCollection>("TauOther");
   produces<LorentzVectorCollection>("Neutrina");
+  produces<std::vector<int> >("Mothers");
 
 }
 
@@ -41,6 +42,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   auto_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
+  auto_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
   
   edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByLabel(MC_, genParticles);
@@ -61,7 +63,8 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     // Check if the boson is one of interest and if there is a valid vertex
     if(  pdg_ok )
       {
-	
+	product_Mothers->push_back((*p).pdgId());
+
 	std::vector<GenParticle*> decayProducts;
 	
 	TLorentzVector Boson((*p).px(),(*p).py(),(*p).pz(),(*p).energy());	
@@ -225,6 +228,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   iEvent.put(product_OneAndThreeProng,"HadronicTauOneAndThreeProng");
   iEvent.put(product_Other, "TauOther");
   iEvent.put(product_Neutrina,"Neutrina"); 
+  iEvent.put(product_Mothers,"Mothers"); 
   
   						       
 }

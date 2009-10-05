@@ -63,7 +63,17 @@ hltTauValIdealMonitor = cms.EDFilter("HLTTauDQMOfflineSource",
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauRelVal/MC_1E31/L2'),
             L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
-            L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
+            L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated"),
+            L2RegionalJets         = cms.VInputTag(
+                                                   cms.InputTag("hltIconeTau1Regional"),
+                                                   cms.InputTag("hltIconeTau2Regional"),
+                                                   cms.InputTag("hltIconeTau3Regional"),
+                                                   cms.InputTag("hltIconeTau4Regional"),
+                                                   cms.InputTag("hltIconeCentral1Regional"),
+                                                   cms.InputTag("hltIconeCentral2Regional"),
+                                                   cms.InputTag("hltIconeCentral3Regional"),
+                                                   cms.InputTag("hltIconeCentral4Regional"))
+
         ),
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauRelVal/MC_1E31/L25'),
