@@ -59,3 +59,14 @@
   <use name=FWCore/ParameterSet>
   <flags EDM_PLUGIN=1>
 </library>
+
+<library name=sort_JetMETCorrectionsJetPlusTrackPlugins file=SortJetCollectionsByGenJetPt.cc>
+  <use name=DataFormats/CaloTowers>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/PatCandidates>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/MessageLogger>
+  <flags EDM_PLUGIN=1>
+</library>
