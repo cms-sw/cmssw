@@ -7,6 +7,20 @@
   <use name=DataFormats/HepMCCandidate>
 </library>
 
+
+<library file=TopSkimValidation.cc name=TopSkiValidation>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/MuonReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/HLTReco>
+  <use name=DataFormats/Math>
+  <use name=HLTrigger/HLTcore>
+  <use name=PhysicsTools/UtilAlgos>
+</library>
+
+
 <library file=TopLeptonTauFilter.cc>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
@@ -15,6 +29,7 @@
   <use name=DataFormats/TauReco>
   <use name=DataFormats/EgammaCandidates>
 </library>
+
 
 <library file=JetTagCountFilter.cc name=JetTagCountFilter>
   <use name=FWCore/Framework>
