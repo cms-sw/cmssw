@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.17 2009/10/04 19:26:29 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.18 2009/10/04 19:37:00 amraktad Exp $
 //
 
 // system include files
@@ -57,40 +57,50 @@ enum {
 };
 
 static const float s_forWhite[][3] ={
-{ 0.73, 0.73, 0.06 }, //yellow (made it a bit darker)
-{ 0.36, 0.00, 0.55 }, //purple
-{ 0.97, 0.62, 0.00 }, //yellowish-orange
-{ 0.10, 0.00, 0.49 }, //purplish-blue
-{ 0.97, 0.44, 0.00 }, //orange
-{ 0.00, 0.13, 1.00 }, //blue
-{ 0.98, 0.17, 0.00 }, //dark orange
-{ 0.00, 0.74, 0.71 }, //cyan
-{ 1.00, 0.02, 0.00 }, //red
-{ 0.23, 0.55, 0.08 }, //green
-{ 0.50, 0.03, 0.14 }, //burgundy
-{ 0.50, 0.88, 0.06 }, //lime
+{ 0.64, 0.64, 0.02 }, //yellow (made it a bit darker)
+{ 0.24, 0.00, 0.43 }, //purple
+{ 0.96, 0.51, 0.00 }, //yellowish-orange
+{ 0.04, 0.00, 0.37 }, //purplish-blue
+{ 0.96, 0.32, 0.00 }, //orange
+{ 0.00, 0.06, 1.00 }, //blue
+{ 0.97, 0.08, 0.00 }, //dark orange
+{ 0.00, 0.66, 0.62 }, //cyan
+{ 1.00, 0.00, 0.00 }, //red
+{ 0.13, 0.43, 0.03 }, //green
+{ 0.38, 0.01, 0.06 }, //burgundy
+{ 0.38, 0.84, 0.02 }, //lime
 /*
 { 1.00, 0.00, 0.00 }, //red
 { 0.00, 0.00, 1.00 }, //blue
 { 0.00, 1.00, 1.00 },  //cyan
 { 0.00, 1.00, 0.00 }, //green
 { 1.00, 0.00, 1.00 }, //magenta
-{ 1.00, 0.33, 0.00 }, //orange
+{ 1.00, 0.21, 0.00 }, //orange
 { 1.00, 1.00, 0.00 }, //yellow
-{ 0.33, 0.33, 0.33 }, //gray
+{ 0.21, 0.21, 0.21 }, //gray
 */
-{ 0.98, 1.00, 0.29 },
-{ 0.83, 0.64, 0.89 },
-{ 0.98, 0.84, 0.49 },
-{ 0.73, 0.64, 0.88 },
-{ 1.00, 0.77, 0.49 },
-{ 0.63, 0.73, 0.98 },
-{ 1.00, 0.74, 0.64 },
-{ 0.63, 0.97, 0.94 },
-{ 0.98, 0.67, 0.62 },
-{ 0.70, 0.82, 0.57 },
-{ 0.88, 0.67, 0.73 },
-{ 0.59, 0.94, 0.42 }
+{ 0.97, 1.00, 0.18 },
+{ 0.77, 0.54, 0.85 },
+{ 0.97, 0.78, 0.37 },
+{ 0.64, 0.54, 0.84 },
+{ 1.00, 0.69, 0.37 },
+{ 0.52, 0.64, 0.97 },
+{ 1.00, 0.66, 0.54 },
+{ 0.52, 0.96, 0.92 },
+{ 0.97, 0.57, 0.51 },
+{ 0.61, 0.76, 0.46 },
+{ 0.84, 0.57, 0.64 },
+{ 0.48, 0.92, 0.30 }
+/*
+{1.,0.3,0.3},
+{0.3,0.3,1.},
+{0.3,1.,1.},
+{0.3,1.,0.3},
+{1.,0.3,1.},
+{1.,0.7,0.0},
+{1.,1.,0.3},
+{0.7,0.7,0.7}
+ */
 };
 
 static const float s_forBlack[][3] ={
@@ -306,11 +316,11 @@ FWColorManager::setBackgroundColorIndex(BackgroundColorIndex iIndex)
 {
    if(backgroundColorIndex()!=iIndex) {
       if(backgroundColorIndex()==kBlackIndex) {
-         m_background=kWhite;
-         m_foreground=kBlack;
+         m_background=kWhiteIndex;
+         m_foreground=kBlackIndex;
       } else {
-         m_background=kBlack;
-         m_foreground=kWhite;
+         m_background=kBlackIndex;
+         m_foreground=kWhiteIndex;
       }
       updateColors();
    }
@@ -326,14 +336,13 @@ FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
 void 
 FWColorManager::setUserFeedBackColors(TGLColorSet& cs, Color_t idx)
 {
-   // Override default selection and highlight colors in light color-set
-
-   if (idx == kWhite)
+   if (idx == kWhiteIndex)
    {
-      cs.Selection(1).SetColor(50, 50, 50);
-      cs.Selection(2).SetColor(50, 50, 50);
-      cs.Selection(3).SetColor(50, 50, 50);
-      cs.Selection(4).SetColor(50, 50, 50);
+      cs.Background().SetColor(kWhiteIndex);
+      cs.Selection(1).SetColor(130, 80, 80);
+      cs.Selection(2).SetColor(130, 80, 80);
+      cs.Selection(3).SetColor(80, 80, 130);
+      cs.Selection(4).SetColor(80, 80, 130);
    }
 }
 
