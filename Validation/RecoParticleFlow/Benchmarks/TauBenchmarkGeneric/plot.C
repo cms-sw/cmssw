@@ -124,8 +124,8 @@ if (efficiencies ) {
 		   dir1.c_str(),
 		   file1,
 		   dir1.c_str() ); 
-  comp2.SetStyles(style1, style2);
-  comp2.Draw("EtSeen","EtGen", Comparator::EFF);
+  comp2.SetStyles(style1, style2,"num","denom");
+  comp2.Draw("EtSeen","EtGen", Comparator::RATIO);
   Styles::SavePlot("efficiency_vs_pT_pf", outdir.c_str() );
 
   TCanvas c5("c5", "Efficiency Calo");
@@ -135,8 +135,8 @@ if (efficiencies ) {
 		   dir2.c_str(),
 		   file1,
 		   dir2.c_str() ); 
-  comp3.SetStyles(style1, style2);
-  comp3.Draw("EtSeen","EtGen", Comparator::EFF);
+  comp3.SetStyles(style1, style2,"num","denom");
+  comp3.Draw("EtSeen","EtGen", Comparator::RATIO);
   Styles::SavePlot("efficiency_vs_pT_calo", outdir.c_str() );
 }
 
@@ -152,11 +152,6 @@ TCanvas c7("c7", "eta");
 Styles::FormatPad( &c7, false );
 comp.Draw("EtaGen", mode);
 Styles::SavePlot("etagen", outdir.c_str() );
-
-//   TCanvas c8("c8", "nGen");
-//   Styles::FormatPad( &c8, false );
-//   comp.Draw("NGen", mode);
-//   Styles::SavePlot("ngen", outdir.c_str() );
 
   
 }

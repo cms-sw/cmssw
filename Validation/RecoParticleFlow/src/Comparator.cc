@@ -502,11 +502,11 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
     h0_->Draw("E");
     h1_->Draw("Esame");
     break;
-  case EFF:
-    h1_->Divide( h0_ );
-    if(s1_)
-      Styles::FormatHisto( h1_ , s0_);
-    h1_->Draw();
+  case RATIO:
+    h0_->Divide( h1_ );
+    if(s0_)
+      Styles::FormatHisto( h0_ , s0_);
+    h0_->Draw();
   default:
     break;
   }

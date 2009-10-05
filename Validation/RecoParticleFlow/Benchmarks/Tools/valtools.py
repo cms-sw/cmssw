@@ -2,7 +2,7 @@
 # set of tools to create and submit validation webpages 
 # author: Colin
 
-import shutil, sys, os, re, glob
+import shutil, sys, os, re, glob, string 
 
 from optparse import OptionParser
 
@@ -156,7 +156,7 @@ class benchmark:
             self.benchmark_ = os.path.basename( os.getcwd() )
 
             # underscore are not allowed in extension names 
-            if arg.count('_'):
+            if arg!=None and arg.count('_'):
                 print 'sorry, as said many times, underscores are not allowed in the extension ;P'
                 sys.exit(5)
             

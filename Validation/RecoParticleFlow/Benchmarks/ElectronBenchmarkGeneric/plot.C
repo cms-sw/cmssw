@@ -123,7 +123,7 @@ ROOT::Cintex::Cintex::Enable();
 		     dir1.c_str() ); 
     comp2.SetStyles(style1, style2,"PFElectrons", "");
     comp2.SetAxis(rebin,0.,40.);
-    comp2.Draw("EtGen","EtSeen", Comparator::EFF);
+    comp2.Draw("EtGen","EtSeen", Comparator::RATIO);
     Styles::SavePlot("efficiency_vs_pT_low", outdir.c_str() );
 
     TCanvas c5("c5", "Efficiency PF vs Pt high");
@@ -131,7 +131,7 @@ ROOT::Cintex::Cintex::Enable();
 
     comp2.SetStyles(style1, style2,"PFElectrons","");
     comp2.SetAxis(rebin,0,100);
-    comp2.Draw("EtGen","EtSeen", Comparator::EFF);
+    comp2.Draw("EtGen","EtSeen", Comparator::RATIO);
     Styles::SavePlot("efficiency_vs_pT_high", outdir.c_str() );
 
     TCanvas c8("c8", "Efficiency PF vs eta");
@@ -139,7 +139,7 @@ ROOT::Cintex::Cintex::Enable();
     rebin = 2;
 
     comp2.SetAxis(rebin,-3,3);
-    comp2.Draw("EtaGen","EtaSeen", Comparator::EFF);
+    comp2.Draw("EtaGen","EtaSeen", Comparator::RATIO);
     Styles::SavePlot("efficiency_vs_Eta", outdir.c_str() );
 
     TCanvas c9("c9", "Efficiency PF vs phi");
@@ -147,7 +147,7 @@ ROOT::Cintex::Cintex::Enable();
     rebin = 4;
 
     comp2.SetAxis(rebin,-TMath::Pi(),TMath::Pi());
-    comp2.Draw("PhiGen","PhiSeen", Comparator::EFF);
+    comp2.Draw("PhiGen","PhiSeen", Comparator::RATIO);
     Styles::SavePlot("efficiency_vs_Phi", outdir.c_str() );
   }
 

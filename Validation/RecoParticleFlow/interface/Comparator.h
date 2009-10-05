@@ -22,7 +22,7 @@ public:
   enum Mode {
     NORMAL,
     SCALE,
-    EFF,
+    RATIO,
     GRAPH
   };
 
