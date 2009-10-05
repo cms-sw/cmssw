@@ -5,5 +5,8 @@
 <library file=DummySource.cc name=CondToolsLuminosityDummySource>
    <flags EDM_PLUGIN=1>
 </library>
-
+<library file=RootSource.cc name=CondToolsLuminosityRootSource>
+   <use name=rootcore>
+   <flags EDM_PLUGIN=1>
+</library>
  
