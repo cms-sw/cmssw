@@ -11,14 +11,14 @@ The DBS_* variables are configuration variables for dbs_discovery.py,
 which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
-<var name="DBS_RELEASE" value="CMSSW_3_3_0_pre3">
+<var name="DBS_RELEASE" value="CMSSW_3_3_0_pre5">
 <var name="DBS_TIER" value="-RECO">
 
 The VAL_* variables are configuration variables for newvalidation.csh,
 which compares the histograms from two releases. newvalidation.csh relies
 on the ROOT script newvalidation.C.
 
-<var name="VAL_NEW_RELEASE" value="330pre5beta1">
+<var name="VAL_NEW_RELEASE" value="330pre5">
 <var name="VAL_REF_RELEASE" value="330pre3">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, newvalidation.csh will
@@ -62,8 +62,8 @@ touch with changes in data catalog structure.
 <environment name="FullSimStdStats">
 
   <var name="DBS_COND" value="MC_31X_V8-v*">
-  <var name="DBS_RELEASE" value="LOCAL">
-  <var name="DBS_COND" value="">
+  <!--var name="DBS_RELEASE" value="LOCAL"-->
+  <!--var name="DBS_COND" value=""-->
 
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -91,7 +91,7 @@ touch with changes in data catalog structure.
   
   <environment name="FullZEEIdeal">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="DBS_COND" value="MC">
+    <!--var name="DBS_COND" value="MC"-->
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
@@ -101,7 +101,7 @@ touch with changes in data catalog structure.
   <environment name="FullZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="DBS_COND" value="STARTUP31X_V7-v*">
-    <var name="DBS_COND" value="STARTUP">
+    <!--var name="DBS_COND" value="STARTUP"-->
     <var name="VAL_ANALYZER" value="GsfElectronMCAnalyzer">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
