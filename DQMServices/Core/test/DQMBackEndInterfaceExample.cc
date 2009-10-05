@@ -185,11 +185,11 @@ void DQMStoreExample::integrityChecks()
 
   // contents of "C1/C2" (including subdirectories)
   contents.clear();
+  contents.push_back(f1); contents.push_back(h5);
+  contents.push_back(h6); contents.push_back(i1);
   contents.push_back(h1); contents.push_back(h2);
   contents.push_back(h7); contents.push_back(s1);
   contents.push_back(h64); contents.push_back(h8);
-  contents.push_back(f1); contents.push_back(h5);
-  contents.push_back(h6); contents.push_back(i1);
   dbe_ret = dbe->getAllContents("C1/C2");
   assert(dbe_ret == contents); 
   dbe_ret = dbe->getAllContents("C1/C2/"); // w/ or w/o a "slash" at the end
@@ -203,15 +203,14 @@ void DQMStoreExample::integrityChecks()
 
   // contents of "C1/C2": only histograms (including subdirectories)
   contents.clear();
+  contents.push_back(h5); contents.push_back(h6);
   contents.push_back(h1); contents.push_back(h2);
   contents.push_back(h7);
   contents.push_back(h64); contents.push_back(h8);
-  contents.push_back(h5);
-  contents.push_back(h6);
   dbe_ret = dbe->getMatchingContents("C1/C2/*histo*");
   assert(dbe_ret == contents);
 
-  contents.erase(contents.begin());
+  contents.erase(contents.begin()+2); // h1
   dbe_ret = dbe->getMatchingContents("C1/C2/*sto?");
   assert(dbe_ret == contents);
 }
