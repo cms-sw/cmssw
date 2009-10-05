@@ -26,8 +26,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-#process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
+#process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -45,9 +45,9 @@ process.aod2patFilter = cms.EDFilter('aod2patFilterZee',
 ## WARNING: you may want to modify this item:
 HLT_process_name = "HLT8E29"   # options: HLT or HLT8E29
 # trigger path selection
-HLT_path_name    = "HLT_Ele10_LW_L1R"
+HLT_path_name    = "HLT_Ele15_LW_L1R"
 # trigger filter name
-HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter"
+HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter"
 #
 process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
                                   # cuts
@@ -68,23 +68,25 @@ process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
 ####################################################################################
 ##
 ## the W selection that you prefer
+
 selection_a2 = cms.PSet (
-    trackIso_EB = cms.untracked.double(2.2),
-    ecalIso_EB = cms.untracked.double(4.2),
-    hcalIso_EB = cms.untracked.double(2.0),
-    sihih_EB = cms.untracked.double(0.0099),
-    dphi_EB = cms.untracked.double(0.025),
-    deta_EB = cms.untracked.double(0.0040),
-    hoe_EB = cms.untracked.double(0.1),
-    
-    trackIso_EE = cms.untracked.double(1.1),
-    ecalIso_EE = cms.untracked.double(3.4),
-    hcalIso_EE = cms.untracked.double(1.3),
+    trackIso_EB = cms.untracked.double(7.2),
+    ecalIso_EB = cms.untracked.double(5.7),
+    hcalIso_EB = cms.untracked.double(8.1),
+    sihih_EB = cms.untracked.double(0.01),
+    dphi_EB = cms.untracked.double(1000.),
+    deta_EB = cms.untracked.double(0.0071),
+    hoe_EB = cms.untracked.double(1000),
+
+    trackIso_EE = cms.untracked.double(5.1),
+    ecalIso_EE = cms.untracked.double(5.0),
+    hcalIso_EE = cms.untracked.double(3.4),
     sihih_EE = cms.untracked.double(0.028),
-    dphi_EE = cms.untracked.double(0.020),
+    dphi_EE = cms.untracked.double(1000.),
     deta_EE = cms.untracked.double(0.0066),
-    hoe_EE = cms.untracked.double(0.1)
+    hoe_EE = cms.untracked.double(1000.)
     )
+
 selection_test = cms.PSet (
     trackIso_EB = cms.untracked.double(10),
     ecalIso_EB = cms.untracked.double(10),
@@ -112,7 +114,7 @@ selection_inverse = cms.PSet (
 ##
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('ZeePlots',
-                                 selection_test,
+                                 selection_a2,
                                  selection_inverse,
                                  zeeCollectionTag = cms.untracked.InputTag(
     "zeeFilter","selectedZeeCandidates","PAT")
