@@ -133,12 +133,21 @@ ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //  dynamic_cast<const pat::MET*> (zee.daughter("met"));
 
   //double met = myMet->et();
-  math::XYZVector p1 =   myElec1->trackMomentumAtVtx();
-  math::XYZVector p2 =   myElec2->trackMomentumAtVtx();
+
+
   TLorentzVector e1;
   TLorentzVector e2;
-  e1.SetPxPyPzE(p1.X(), p1.Y(), p1.Z(), myElec1->caloEnergy());
-  e2.SetPxPyPzE(p2.X(), p2.Y(), p2.Z(), myElec2->caloEnergy());
+
+//  math::XYZVector p1 =   myElec1->trackMomentumAtVtx();
+//  math::XYZVector p2 =   myElec2->trackMomentumAtVtx();
+//  e1.SetPxPyPzE(p1.X(), p1.Y(), p1.Z(), myElec1->caloEnergy());
+//  e2.SetPxPyPzE(p2.X(), p2.Y(), p2.Z(), myElec2->caloEnergy());
+
+  // Use directly the et,eta,phi from pat::Electron; assume e mass = 0.0
+  e1.SetPtEtaPhiM(myElec1->et(),myElec1->eta(),myElec1->phi(),0.0);
+  e2.SetPtEtaPhiM(myElec2->et(),myElec2->eta(),myElec2->phi(),0.0);
+
+ 
   TLorentzVector Z = e1+e2;
   double mee = Z.M();
   // the selection plots:
