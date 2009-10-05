@@ -83,11 +83,11 @@ public:
   MonitorElement *		book1S       (const std::string &name, TH1S *h);
 
   MonitorElement *		book1DD       (const std::string &name,
-					      const std::string &title,
-					      int nchX, double lowX, double highX);
+					       const std::string &title,
+					       int nchX, double lowX, double highX);
   MonitorElement *		book1DD       (const std::string &name,
-					      const std::string &title,
-					      int nchX, float *xbinsize);
+					       const std::string &title,
+					       int nchX, float *xbinsize);
   MonitorElement *		book1DD       (const std::string &name, TH1D *h);
 
   MonitorElement *		book2D       (const std::string &name,
@@ -111,13 +111,13 @@ public:
   MonitorElement *		book2S       (const std::string &name, TH2S *h);
 
   MonitorElement *		book2DD       (const std::string &name,
-					      const std::string &title,
-					      int nchX, double lowX, double highX,
-					      int nchY, double lowY, double highY);
+					       const std::string &title,
+					       int nchX, double lowX, double highX,
+					       int nchY, double lowY, double highY);
   MonitorElement *		book2DD       (const std::string &name,
-					      const std::string &title,
-					      int nchX, float *xbinsize,
-					      int nchY, float *ybinsize);
+					       const std::string &title,
+					       int nchX, float *xbinsize,
+					       int nchY, float *ybinsize);
   MonitorElement *		book2DD       (const std::string &name, TH2D *h);
 
   MonitorElement *		book3D       (const std::string &name,
@@ -135,7 +135,7 @@ public:
   MonitorElement *		bookProfile  (const std::string &name,
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
-					                double lowY, double highY,
+					      double lowY, double highY,
 					      const char *option = "s");
   MonitorElement *		bookProfile  (const std::string &name,
 					      const std::string &title,
@@ -145,7 +145,7 @@ public:
   MonitorElement *		bookProfile  (const std::string &name,
 					      const std::string &title,
 					      int nchX, double *xbinsize,
-					                double lowY, double highY,
+					      double lowY, double highY,
 					      const char *option = "s");
   MonitorElement *		bookProfile  (const std::string &name, TProfile *h);
 
@@ -159,7 +159,7 @@ public:
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY,
-					                double lowZ, double highZ,
+					      double lowZ, double highZ,
 					      const char *option = "s");
   MonitorElement *		bookProfile2D(const std::string &name, TProfile2D *h);
 
@@ -229,17 +229,14 @@ private:
   bool				cdInto(const std::string &path) const;
 
   // ------------------- Reference ME -------------------------------
-  bool				makeReferenceME(MonitorElement *me);
-  bool				isReferenceME(MonitorElement *me) const;
   bool				isCollateME(MonitorElement *me) const;
-  MonitorElement *		getReferenceME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
   void				readFile(const std::string &filename,
-				     bool overwrite = false,
-				     const std::string &path ="",
-				     const std::string &prepend = "",
-				     OpenRunDirs stripdirs = StripRunDirs);
+					 bool overwrite = false,
+					 const std::string &path ="",
+					 const std::string &prepend = "",
+					 OpenRunDirs stripdirs = StripRunDirs);
   void				makeDirectory(const std::string &path);
   unsigned int			readDirectory(TFile *file,
 					      bool overwrite,
@@ -248,9 +245,7 @@ private:
 					      const std::string &curdir,
 					      OpenRunDirs stripdirs);
 
-  MonitorElement *		findObject(const std::string &dir,
-					   const std::string &name,
-					   std::string &path) const;
+  MonitorElement *		findObject(const std::string &dir, const std::string &name) const;
 
 public:
   void				getAllTags(std::vector<std::string> &into) const;
@@ -265,8 +260,9 @@ private:
 
   // ---------------------- Booking ------------------------------------
   MonitorElement *		initialise(MonitorElement *me, const std::string &path);
-  MonitorElement *		book(const std::string &dir, const std::string &name,
-				     std::string &path, const char *context);
+  MonitorElement *		book(const std::string &dir,
+				     const std::string &name,
+				     const char *context);
   template <class HISTO, class COLLATE>
   MonitorElement *		book(const std::string &dir, const std::string &name,
 				     const char *context, int kind,
@@ -309,9 +305,12 @@ private:
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
+  typedef bool (*MEOrder)(const MonitorElement &a, const MonitorElement &b);
+  static bool meOrder(const MonitorElement &a, const MonitorElement &b);
+
   typedef std::pair<lat::Regexp *, QCriterion *>			QTestSpec;
   typedef std::list<QTestSpec>						QTestSpecs;
-  typedef std::map<std::string, MonitorElement>				MEMap;
+  typedef std::set<MonitorElement, MEOrder>				MEMap;
   typedef std::map<std::string, QCriterion *>				QCMap;
   typedef std::map<std::string, QCriterion *(*)(const std::string &)>	QAMap;
  
@@ -325,7 +324,6 @@ private:
   std::string			pwd_;
   MEMap				data_;
   std::set<std::string>		dirs_;
-  std::vector<std::string>	removed_;
 
   QCMap				qtests_;
   QAMap				qalgos_;
