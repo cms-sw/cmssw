@@ -89,11 +89,14 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
   TPaveText title (0.3,0.85,0.95, 0.99, buf);
   title.SetFillColor(pv > 0.01 ? 3 : 2);
-  TText* t1 = title.AddText (fPrefix.c_str());
+  title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
-  TText* t2 = title.AddText (buf);
-  t1->SetTextSize(0.3);
-  t2->SetTextSize(0.3);
+  title.AddText (buf);
+  //TText* t1 = title.AddText (fPrefix.c_str());
+  //sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  //TText* t2 = title.AddText (buf);
+  //t1->SetTextSize(0.3);
+  //t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -136,11 +139,14 @@ double makeGifHists2 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
   TPaveText title (0.3,0.85,0.95, 0.99, buf);
   title.SetFillColor(pv > 0.01 ? 3 : 2);
-  TText* t1 = title.AddText (fPrefix.c_str());
+  title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
-  TText* t2 = title.AddText (buf);
-  t1->SetTextSize(0.3);
-  t2->SetTextSize(0.3);
+  title.AddText (buf);
+  //TText* t1 = title.AddText (fPrefix.c_str());
+  //sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  //TText* t2 = title.AddText (buf);
+  //t1->SetTextSize(0.3);
+  //t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -185,11 +191,14 @@ double makeGifHists3 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
   TPaveText title (0.3,0.85,0.95, 0.99, buf);
   title.SetFillColor(pv > 0.01 ? 3 : 2);
-  TText* t1 = title.AddText (fPrefix.c_str());
+  title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
-  TText* t2 = title.AddText (buf);
-  t1->SetTextSize(0.3);
-  t2->SetTextSize(0.3);
+  title.AddText (buf);
+  //TText* t1 = title.AddText (fPrefix.c_str());
+  //sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  //TText* t2 = title.AddText (buf);
+  //t1->SetTextSize(0.3);
+  //t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -233,11 +242,14 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
   TPaveText title (0.3,0.85,0.95, 0.99, buf);
   title.SetFillColor(pv > 0.01 ? 3 : 2);
-  TText* t1 = title.AddText (fPrefix.c_str());
+  title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
-  TText* t2 = title.AddText (buf);
-  t1->SetTextSize(0.3);
-  t2->SetTextSize(0.3);
+  title.AddText (buf);
+  //TText* t1 = title.AddText (fPrefix.c_str());
+  //sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
+  //TText* t2 = title.AddText (buf);
+  //t1->SetTextSize(0.3);
+  //t2->SetTextSize(0.3);
   title.Draw();
 
   pad.cd();
@@ -367,7 +379,7 @@ int main (int argn, char* argv []) {
 
   TDirectory* dirRef = 0;
   //  workDir = std::string ("DQMData/JetMET/RecoJetsV/CaloJetTask_") + refmoduleName; // new format
-  workDir = std::string ("DQMData/RecoJetsV/") + refmoduleName; // new format
+  workDir = std::string ("DQMData/JetMET/RecoJetsV/") + refmoduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
 
   if (!dirRef) {
