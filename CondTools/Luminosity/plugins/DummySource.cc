@@ -48,5 +48,5 @@ lumi::DummySource::fill(int runnumber,std::vector< std::pair<lumi::LumiSectionDa
   }
 }
 
-DEFINE_EDM_PLUGIN(lumi::LumiRetrieverFactory,lumi::DummySource,"dummyource");
+DEFINE_EDM_PLUGIN(lumi::LumiRetrieverFactory,lumi::DummySource,"dummysource");
  
