@@ -65,11 +65,19 @@ process.ecalTPConditions = cms.ESSource("PoolDBESSource",
         cms.PSet(
             record = cms.string('EcalTPGPhysicsConstRcd'),
             tag = cms.string('EcalTPGPhysicsConst_craft')
+        ),
+	cms.PSet(
+            record = cms.string('EcalTPGCrystalStatusRcd'),
+            tag = cms.string('EcalTPGCrystalStatus_craft')
+        ),
+	cms.PSet(
+            record = cms.string('EcalTPGTowerStatusRcd'),
+            tag = cms.string('EcalTPGTowerStatus_craft')
         )),
     messagelevel = cms.untracked.uint32(3),
     timetype = cms.string('runnumber'),
 #    connect = cms.string('oracle://ecalh4db/TEST02'),
-    connect = cms.string('sqlite_file:DB.db'),
+    connect = cms.string('sqlite_file:../../../CalibCalorimetry/EcalTPGTools/test/DB_craft.db'),
     authenticationMethod = cms.untracked.uint32(1),
     loadBlobStreamer = cms.untracked.bool(True)
 )
