@@ -229,15 +229,12 @@ void TrackingTruthProducer::associator(
 )
 {
     int index = 0;
-    EncodedEventIdToIndex vertexId;
     // Clear the association map
     association.clear();
     // Create a association from simvertexes to overall index in the mix collection
     for (MixCollection<SimVertex>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
-        if ( vertexId.find(iterator->eventId()) == vertexId.end() )
-            vertexId[iterator->eventId()] = 0;
-        EncodedTruthId objectId = EncodedTruthId(iterator->eventId(), vertexId[iterator->eventId()]++);
+        EncodedTruthId objectId = EncodedTruthId(iterator->eventId(), iterator->vertexId());
         association.insert( make_pair(objectId, index) );
     }
 }
