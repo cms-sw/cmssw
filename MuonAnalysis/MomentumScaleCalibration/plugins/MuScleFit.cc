@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/09/08 09:52:17 $
-//  $Revision: 1.56 $
+//  $Date: 2009/09/24 07:47:28 $
+//  $Revision: 1.57 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -91,10 +91,13 @@
 //    system. All functions in file MuScleFitUtils.cc have been suitably changed.
 //
 // ----------------------------------------------------------------------------------
-//    Modifications by M.De Mattia 13/3/2009
-//    --------------------------------------
+//    Modifications by M. De Mattia 13/3/2009
+//    ---------------------------------------
 //  - The histograms map was moved to a base class (MuScleFitBase) from which this one inherits.
 //
+//    Modifications by M. De Mattia 20/7/2009
+//    ---------------------------------------
+//  - Reworked background fit based on ranges. See comments in the code for more details.
 // ---------------------------------------------------------------------------------------------
 
 #include "MuScleFit.h"
@@ -237,6 +240,13 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
 
+  // Set the cuts on muons to be used in the fit
+  MuScleFitUtils::minMuonPt_ = pset.getUntrackedParameter<double>("MinMuonPt", 0.);
+  MuScleFitUtils::maxMuonEta_ = pset.getUntrackedParameter<double>("MaxMuonEta", 6.);
+
+  MuScleFitUtils::debugMassResol_ = pset.getUntrackedParameter<bool>("DebugMassResol", false);
+  // MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
+
   // Read the Probs file from database. If false it searches the root file in
   // MuonAnalysis/MomentumScaleCalibration/test of the active release.
   // readPdfFromDB = pset.getParameter<bool>("readPdfFromDB");
@@ -344,11 +354,6 @@ void MuScleFit::beginOfJob (const EventSetup& eventSetup) {
 // -----------------              
 void MuScleFit::endOfJob () {
   if (debug_>0) cout << "[MuScleFit]: endOfJob" << endl;
-
-  if( loopCounter == 0 ) {
-    plotter->writeHistoMap();
-    delete plotter;
-  }
 }
 
 // New loop
@@ -381,6 +386,12 @@ void MuScleFit::startingNewLoop (unsigned int iLoop) {
 // End of loop routine
 // -------------------
 edm::EDLooper::Status MuScleFit::endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop) {
+
+  if( loopCounter == 0 ) {
+    // plotter->writeHistoMap();
+    // The destructor will call the writeHistoMap after the cd to the output file
+    delete plotter;
+  }
 
   cout << "Ending loop # " << iLoop << endl;
 
@@ -693,18 +704,27 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       }
       if (prob>0) { 
 	deltalike = log(prob)*weight; // NB maximum likelihood --> deltalike is maximized
-	mapHisto_["hLikeVSMu"]->Fill (recMu1, deltalike);
-	mapHisto_["hLikeVSMu"]->Fill (recMu2, deltalike);
-	mapHisto_["hLikeVSMuMinus"]->Fill (recMu1, deltalike);
-	mapHisto_["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
+	mapHisto_["hLikeVSMu"]->Fill(recMu1, deltalike);
+	mapHisto_["hLikeVSMu"]->Fill(recMu2, deltalike);
+	mapHisto_["hLikeVSMuMinus"]->Fill(recMu1, deltalike);
+	mapHisto_["hLikeVSMuPlus"]->Fill(recMu2, deltalike);
 
         double recoMass = (recMu1+recMu2).mass();
         if( recoMass != 0 ) {
-          // IMPORTANT: massResol is a relative resolution
-          mapHisto_["hResolMassVSMu"]->Fill (recMu1, massResol, -1);
-          mapHisto_["hResolMassVSMu"]->Fill (recMu2, massResol, +1);
-          mapHisto_["hFunctionResolMassVSMu"]->Fill (recMu1, massResol/recoMass, -1);
-          mapHisto_["hFunctionResolMassVSMu"]->Fill (recMu2, massResol/recoMass, +1);
+          // IMPORTANT: massResol is not a relative resolution
+          mapHisto_["hResolMassVSMu"]->Fill(recMu1, massResol, -1);
+          mapHisto_["hResolMassVSMu"]->Fill(recMu2, massResol, +1);
+          mapHisto_["hFunctionResolMassVSMu"]->Fill(recMu1, massResol/recoMass, -1);
+          mapHisto_["hFunctionResolMassVSMu"]->Fill(recMu2, massResol/recoMass, +1);
+        }
+
+        if( MuScleFitUtils::debugMassResol_ ) {
+          mapHisto_["hdMdPt1"]->Fill(recMu1, MuScleFitUtils::massResolComponents.dmdpt1, -1);
+          mapHisto_["hdMdPt2"]->Fill(recMu2, MuScleFitUtils::massResolComponents.dmdpt2, +1);
+          mapHisto_["hdMdPhi1"]->Fill(recMu1, MuScleFitUtils::massResolComponents.dmdphi1, -1);
+          mapHisto_["hdMdPhi2"]->Fill(recMu2, MuScleFitUtils::massResolComponents.dmdphi2, +1);
+          mapHisto_["hdMdCotgTh1"]->Fill(recMu1, MuScleFitUtils::massResolComponents.dmdcotgth1, -1);
+          mapHisto_["hdMdCotgTh2"]->Fill(recMu2, MuScleFitUtils::massResolComponents.dmdcotgth2, +1);
         }
 
         if( !MuScleFitUtils::speedup ) {

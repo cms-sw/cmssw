@@ -42,14 +42,23 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   mapHisto_["hFunctionResolMassVSMu"] = new HResolutionVSPart( outputFile, "hFunctionResolMassVSMu", maxPt, 0, 0.1, 0, 0.1, true );
   mapHisto_["hResolPtGenVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtGenVSMu", maxPt );
   mapHisto_["hResolPtSimVSMu"]        = new HResolutionVSPart( outputFile, "hResolPtSimVSMu", maxPt );
-  mapHisto_["hResolEtaGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaGenVSMu", maxPt );
-  mapHisto_["hResolEtaSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaSimVSMu", maxPt );
-  mapHisto_["hResolThetaGenVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaGenVSMu", maxPt );
-  mapHisto_["hResolThetaSimVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaSimVSMu", maxPt );
-  mapHisto_["hResolCotgThetaGenVSMu"] = new HResolutionVSPart( outputFile, "hResolCotgThetaGenVSMu", maxPt );
-  mapHisto_["hResolCotgThetaSimVSMu"] = new HResolutionVSPart( outputFile, "hResolCotgThetaSimVSMu", maxPt );
-  mapHisto_["hResolPhiGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolPhiGenVSMu", maxPt );
-  mapHisto_["hResolPhiSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolPhiSimVSMu", maxPt );
+  mapHisto_["hResolEtaGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaGenVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolEtaSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolEtaSimVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolThetaGenVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaGenVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolThetaSimVSMu"]     = new HResolutionVSPart( outputFile, "hResolThetaSimVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolCotgThetaGenVSMu"] = new HResolutionVSPart( outputFile, "hResolCotgThetaGenVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolCotgThetaSimVSMu"] = new HResolutionVSPart( outputFile, "hResolCotgThetaSimVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolPhiGenVSMu"]       = new HResolutionVSPart( outputFile, "hResolPhiGenVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+  mapHisto_["hResolPhiSimVSMu"]       = new HResolutionVSPart( outputFile, "hResolPhiSimVSMu", maxPt, -0.02, 0.02, -0.02, 0.02 );
+
+  if( MuScleFitUtils::debugMassResol_ ) {
+    mapHisto_["hdMdPt1"] = new HResolutionVSPart( outputFile, "hdMdPt1", maxPt, 0, 100, -3.2, 3.2, true );
+    mapHisto_["hdMdPt2"] = new HResolutionVSPart( outputFile, "hdMdPt2", maxPt, 0, 100, -3.2, 3.2, true );
+    mapHisto_["hdMdPhi1"] = new HResolutionVSPart( outputFile, "hdMdPhi1", maxPt, 0, 100, -3.2, 3.2, true );
+    mapHisto_["hdMdPhi2"] = new HResolutionVSPart( outputFile, "hdMdPhi2", maxPt, 0, 100, -3.2, 3.2, true );
+    mapHisto_["hdMdCotgTh1"] = new HResolutionVSPart( outputFile, "hdMdCotgTh1", maxPt, 0, 100, -3.2, 3.2, true );
+    mapHisto_["hdMdCotgTh2"] = new HResolutionVSPart( outputFile, "hdMdCotgTh2", maxPt, 0, 100, -3.2, 3.2, true );
+  }
 
   HTH2D * recoGenHisto = new HTH2D(outputFile, "hPtRecoVsPtGen", "Pt reco vs Pt gen", 120, 0., 120., 120, 0, 120.);
   (*recoGenHisto)->SetXTitle("Pt gen (GeV)");
@@ -106,11 +115,23 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   TFile * ProbsFile;
   if ( theMuonType_!=2 ) {
     //edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_1000_CTEQ.root");
-    edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
-    ProbsFile = new TFile (file.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes
+    // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root");
+    edm::FileInPath file(probabilitiesFileInPath_.c_str());
+    // edm::FileInPath file("MuonAnalysis/MomentumScaleCalibration/test/Probs_merge.root");
+
+    if( probabilitiesFile_ != "" ) {
+      ProbsFile = new TFile (probabilitiesFile_.c_str()); 
+      cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFile_ << endl;
+    }
+    else {
+      ProbsFile = new TFile (file.fullPath().c_str());
+      cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << endl;
+    }
+
     // ProbsFile = new TFile ("Probs_new_1000_CTEQ.root"); // NNBB need to reset this if MuScleFitUtils::nbins changes
     //cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_1000_CTEQ.root file" << endl;
-    cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_Horace_CTEQ_1000.root file" << endl;
+    // cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_new_Horace_CTEQ_1000.root file" << endl;
+    // cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from Probs_merge.root file" << endl;
   } else {
     edm::FileInPath fileSM("MuonAnalysis/MomentumScaleCalibration/test/Probs_SM_1000.root");
     ProbsFile = new TFile (fileSM.fullPath().c_str()); // NNBB need to reset this if MuScleFitUtils::nbins changes

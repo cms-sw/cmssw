@@ -5,8 +5,8 @@
  *  
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2009/08/07 15:57:06 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/08/14 12:10:16 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -204,6 +204,21 @@ public:
   static bool sherpa_;
 
   static int iev_;
+
+  // Cuts on the muons to use in the fit
+  static double minMuonPt_;
+  static double maxMuonEta_;
+
+  static bool debugMassResol_;
+  static struct massResolComponentsStruct
+  {
+    double dmdpt1;
+    double dmdpt2;
+    double dmdphi1;
+    double dmdphi2;
+    double dmdcotgth1;
+    double dmdcotgth2;
+  } massResolComponents;
 
   /// Method to check if the mass value is within the mass window of the i-th resonance.
   static bool checkMassWindow( const double & mass, const int ires, const double & resMass, const double & leftFactor = 1., const double & rightFactor = 1. );

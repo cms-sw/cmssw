@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2009/08/14 12:05:22 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/09/08 09:56:33 $
+ *  $Revision: 1.18 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -162,10 +162,10 @@ double MuScleFitUtils::x[][10000];
 
 // Probability matrices and normalization values
 // ---------------------------------------------
-int MuScleFitUtils::nbins = 1000; 
-double MuScleFitUtils::GLZValue[][1001][1001];  
-double MuScleFitUtils::GLZNorm[][1001];         
-double MuScleFitUtils::GLValue[][1001][1001];  
+int MuScleFitUtils::nbins = 1000;
+double MuScleFitUtils::GLZValue[][1001][1001];
+double MuScleFitUtils::GLZNorm[][1001];
+double MuScleFitUtils::GLValue[][1001][1001];
 double MuScleFitUtils::GLNorm[][1001];
 double MuScleFitUtils::ResMaxSigma[];
 
@@ -179,7 +179,7 @@ double MuScleFitUtils::massWindowHalfWidth[][3];
 int MuScleFitUtils::MuonType;
 int MuScleFitUtils::MuonTypeForCheckMassWindow;
 
-double MuScleFitUtils::ResGamma[] = {2.4952, 0.0000934, 0.000337, 0.000054, 0.000032, 0.000020};
+double MuScleFitUtils::ResGamma[] = {2.4952, 0.000020, 0.000032, 0.000054, 0.000317, 0.0000932 };
 double MuScleFitUtils::ResMass[] = {91.1876, 10.3552, 10.0233, 9.4603, 3.68609, 3.0969};
 double MuScleFitUtils::ResMassForBackground[] = { MuScleFitUtils::ResMass[0],
                                                   (MuScleFitUtils::ResMass[1]+MuScleFitUtils::ResMass[2]+MuScleFitUtils::ResMass[3])/3,
@@ -202,6 +202,12 @@ const unsigned int MuScleFitUtils::motherPdgIdArray[] = {23, 200553, 100553, 553
 bool MuScleFitUtils::scaleFitNotDone_ = true;
 
 bool MuScleFitUtils::sherpa_ = false;
+
+double MuScleFitUtils::minMuonPt_ = 0.;
+double MuScleFitUtils::maxMuonEta_ = 6.;
+
+bool MuScleFitUtils::debugMassResol_;
+MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
 
 int MuScleFitUtils::iev_ = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,40 +293,40 @@ pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const vector<
       if (((*Muon1).charge()*(*Muon2).charge())>0) {
 	continue; // This also gets rid of Muon1==Muon2...
       }
-      // Accept combinations only if both muons have |eta|<2.4 and pt>3; NOT FOR JPSI!!
-      // --------------------------------------------------------------
-      // if ((*Muon1).p4().Pt()>3.0 && (*Muon2).p4().Pt()>3.0 &&
-      //  abs((*Muon1).p4().Eta())<2.4 && abs((*Muon2).p4().Eta())<2.4) {
-      double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-      double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
-      if (debug>1) {
-	cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<endl;
-	cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<endl;
-	cout<<"mcomb "<<mcomb<<endl;}
-      double massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
-      double prob;
-      for( int ires=0; ires<6; ires++ ) {
-	if( resfind[ires]>0 ) {
-	  prob = massProb( mcomb, Y, ires, massResol );
-	  if( prob>maxprob ) {
-	    if( (*Muon1).charge()<0 ) { // store first the mu minus and then the mu plus
-	      recMuFromBestRes.first = (*Muon1).p4();
-	      recMuFromBestRes.second = (*Muon2).p4();
-	    } else {
-	      recMuFromBestRes.first = (*Muon2).p4();
-	      recMuFromBestRes.second = (*Muon1).p4();
-	    }
-	    ResFound = true; // NNBB we accept "resonances" even outside mass bounds
-	    maxprob = prob;
-	  }
-	  double deltaMass = fabs(mcomb-ResMass[ires]);
-	  if( deltaMass<minDeltaMass ){
-	    bestMassMuons = make_pair((*Muon1),(*Muon2));
-	    minDeltaMass = deltaMass;
-	  }
-	}
+      // Accept combinations only if both muons have |eta|<maxMuonEta_ and pt>minMuonPt_
+      // -------------------------------------------------------------------------------
+      if( (*Muon1).p4().Pt() > minMuonPt_ && (*Muon2).p4().Pt() > minMuonPt_ &&
+          fabs((*Muon1).p4().Eta()) < maxMuonEta_ && fabs((*Muon2).p4().Eta()) < maxMuonEta_ ) {
+        double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
+        double Y = ((*Muon1).p4()+(*Muon2).p4()).Eta();
+        if (debug>1) {
+          cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<endl;
+          cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<endl;
+          cout<<"mcomb "<<mcomb<<endl;}
+        double massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
+        double prob;
+        for( int ires=0; ires<6; ires++ ) {
+          if( resfind[ires]>0 ) {
+            prob = massProb( mcomb, Y, ires, massResol );
+            if( prob>maxprob ) {
+              if( (*Muon1).charge()<0 ) { // store first the mu minus and then the mu plus
+                recMuFromBestRes.first = (*Muon1).p4();
+                recMuFromBestRes.second = (*Muon2).p4();
+              } else {
+                recMuFromBestRes.first = (*Muon2).p4();
+                recMuFromBestRes.second = (*Muon1).p4();
+              }
+              ResFound = true; // NNBB we accept "resonances" even outside mass bounds
+              maxprob = prob;
+            }
+            double deltaMass = fabs(mcomb-ResMass[ires]);
+            if( deltaMass<minDeltaMass ){
+              bestMassMuons = make_pair((*Muon1),(*Muon2));
+              minDeltaMass = deltaMass;
+            }
+          }
+        }
       }
-    // }
     }
   }
   //If outside mass window (maxprob==0) then take the two muons with best invariant mass
@@ -769,7 +775,16 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   double dmdcotgth2 = (pt2*pt2*cos(theta2)/sin(theta2)*
                        sqrt((pow(pt1/sin(theta1),2)+mMu2)/(pow(pt2/sin(theta2),2)+mMu2)) - 
 		       pt2*pt1*cos(theta1)/sin(theta1))/mass;
-  
+
+  if( debugMassResol_ ) {
+    massResolComponents.dmdpt1 = dmdpt1;
+    massResolComponents.dmdpt2 = dmdpt2;
+    massResolComponents.dmdphi1 = dmdphi1;
+    massResolComponents.dmdphi2 = dmdphi2;
+    massResolComponents.dmdcotgth1 = dmdcotgth1;
+    massResolComponents.dmdcotgth2 = dmdcotgth2;
+  }
+
   // Resolution parameters:
   // ----------------------
   double sigma_pt1 = resolutionFunction->sigmaPt( pt1,eta1,parval );
@@ -782,8 +797,10 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   // Sigma_Pt is defined as a relative sigmaPt/Pt for this reason we need to
   // multiply it by pt.
   double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2)+
- 			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
- 			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
+  			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
+  			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
+
+  // double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2));
 
   if (debug>19) { 
     cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2 
@@ -873,6 +890,10 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
                                     const double GLvalue[][1001][1001], const double GLnorm[][1001],
                                     const int iRes, const int iY )
 {
+  if( iRes == 0 && iY > 23 ) {
+    cout << "WARNING: rapidity bin selected = " << iY << " but there are only histograms for the first 24 bins" << endl;
+  }
+
   double PS = 0.;
   bool insideProbMassWindow = true;
   // Interpolate the four values of GLZValue[] in the 
@@ -1070,6 +1091,11 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   // NB max value of Z rapidity to be considered is 4. here
   // -------------------------------------------------------
 
+  // ATTENTION: it should be:
+  // ------------------------
+  // First check the Z, which is divided in 24 rapidity bins
+  // NB max value of Z rapidity to be considered is 2.4 here
+  // -------------------------------------------------------
 
 
 
@@ -1083,10 +1109,11 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 
 
 
+  // ATTENTION: cut on Z rapidity at 2.4 since we only have histograms up to that value
   pair<double, double> windowFactors = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], 0 );
   if( resfind[0]>0 && checkMassWindow( mass, 0,
                                        backgroundHandler->resMass( doBackgroundFit[loopCounter], 0 ),
-                                       windowFactors.first, windowFactors.second ) && fabs(rapidity)<4 ) {
+                                       windowFactors.first, windowFactors.second ) && fabs(rapidity)<2.4 ) {
     int iY = (int)(fabs(rapidity)*10.);
     resConsidered[0] = true;
     nres += 1;

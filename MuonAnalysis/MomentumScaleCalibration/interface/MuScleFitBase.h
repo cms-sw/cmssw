@@ -19,6 +19,8 @@ class MuScleFitBase
 {
 public:
   MuScleFitBase(const edm::ParameterSet& iConfig) :
+    probabilitiesFileInPath_( iConfig.getUntrackedParameter<string>( "ProbabilitiesFileInPath" , "MuonAnalysis/MomentumScaleCalibration/test/Probs_new_Horace_CTEQ_1000.root" ) ),
+    probabilitiesFile_( iConfig.getUntrackedParameter<string>( "ProbabilitiesFile" , "" ) ),
     theMuonType_( iConfig.getParameter<int>( "MuonType" ) ),
     theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
     theRootFileName_( iConfig.getUntrackedParameter<string>("OutputFileName") ),
@@ -45,6 +47,9 @@ protected:
   // void readProbabilityDistributions( const edm::EventSetup & eventSetup );
   /// Raed probability distributions from a local root file.
   void readProbabilityDistributionsFromFile();
+
+  string probabilitiesFileInPath_;
+  string probabilitiesFile_;
 
   int theMuonType_;
   edm::InputTag theMuonLabel_;

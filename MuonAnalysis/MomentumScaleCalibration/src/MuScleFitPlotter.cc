@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/06/04 16:05:03 $
-//  $Revision: 1.6 $
+//  $Date: 2009/09/08 09:56:33 $
+//  $Revision: 1.7 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -64,7 +64,9 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
         ( pdgId==23  || pdgId==443    || pdgId==100443 ||
           pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
       genRes = mcIter->p4();
-      mapHisto["hGenRes"]->Fill(genRes);
+      if( pdgId == 23 ) mapHisto["hGenResZ"]->Fill(genRes);
+      else if( pdgId == 443 ) mapHisto["hGenResJpsi"]->Fill(genRes);
+      else if( pdgId == 553 ) mapHisto["hGenResUpsilon1S"]->Fill(genRes);
     }
     //Check if it's a muon from a resonance
     if( status==1 && pdgId==13 ) {
@@ -85,9 +87,17 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
     cout<<"hgenmumu not found"<<endl;
   cout<<"genmumu "<<muFromRes.first+muFromRes.second<<endl;
 
-  mapHisto["hGenMuMu"]->Fill(muFromRes.first+muFromRes.second);
-  mapHisto["hGenResVSMu"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMu"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
+  mapHisto["hGenMuMuJPsi"]->Fill(muFromRes.first+muFromRes.second);
+  mapHisto["hGenMuMuUpsilon1S"]->Fill(muFromRes.first+muFromRes.second);
+
+  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.second,genRes, -1 );
+
   mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
 }
 
@@ -112,7 +122,12 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
           pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
       genRes = reco::Particle::LorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
                                              (*part)->momentum().pz(),(*part)->momentum().e());
-      mapHisto["hGenRes"]->Fill(genRes);
+      if( pdgId == 23 ) mapHisto["hGenResZ"]->Fill(genRes);
+      if( pdgId == 443 ) mapHisto["hGenResJPsi"]->Fill(genRes);
+      if( pdgId == 553 ) {
+        // cout << "genRes mass = " << CLHEP::HepLorentzVector(genRes.x(),genRes.y(),genRes.z(),genRes.t()).m() << endl;
+        mapHisto["hGenResUpsilon1S"]->Fill(genRes);
+      }
     }
     //Check if it's a muon from a resonance
     if (pdgId==13 && status==1) {      
@@ -140,9 +155,16 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
       }
     }
   }
-  mapHisto["hGenMuMu"]->Fill(muFromRes.first+muFromRes.second);
-  mapHisto["hGenResVSMu"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMu"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
+  mapHisto["hGenMuMuJPsi"]->Fill(muFromRes.first+muFromRes.second);
+  mapHisto["hGenMuMuUpsilon1S"]->Fill(muFromRes.first+muFromRes.second);
+
+  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.second,genRes, -1 );
+  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.first, genRes, 1 );
+  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.second,genRes, -1 );
   mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
 }
 
@@ -224,11 +246,19 @@ void MuScleFitPlotter::fillHistoMap() {
 
   // Generated Z and muons
   // ---------------------
-  mapHisto["hGenRes"]         = new HParticle   ("hGenRes",3.09685, 3.09695);
-  mapHisto["hGenMu"]        = new HParticle   ("hGenMu");
-  mapHisto["hGenMuVSEta"]        = new HPartVSEta   ("hGenMuVSEta");
-  mapHisto["hGenMuMu"]      = new HParticle   ("hGenMuMu",3.09685, 3.09695 );
-  mapHisto["hGenResVSMu"]   = new HMassVSPart ("hGenResVSMu",3.09685, 3.09695);
+  mapHisto["hGenResJPsi"]      = new HParticle   ("hGenResJPsi", 3.09685, 3.09695);
+  mapHisto["hGenResUpsilon1S"] = new HParticle   ("hGenResUpsilon1S", 9., 11.);
+  mapHisto["hGenResZ"]         = new HParticle   ("hGenResZ", 60., 120.);
+  mapHisto["hGenMu"]      = new HParticle  ("hGenMu");
+  mapHisto["hGenMuVSEta"] = new HPartVSEta ("hGenMuVSEta");
+
+  mapHisto["hGenMuMuJPsi"]      = new HParticle   ("hGenMuMuJPsi",3.09685, 3.09695 );
+  mapHisto["hGenResVSMuJPsi"]   = new HMassVSPart ("hGenResVSMuJPsi",3.09685, 3.09695);
+  mapHisto["hGenMuMuUpsilon1S"]      = new HParticle   ("hGenMuMuUpsilon1S", 9., 11.);
+  mapHisto["hGenResVSMuUpsilon1S"]   = new HMassVSPart ("hGenResVSMuUpsilon1S", 9., 11.);
+  mapHisto["hGenMuMuZ"]      = new HParticle   ("hGenMuMuZ", 60., 120.);
+  mapHisto["hGenResVSMuZ"]   = new HMassVSPart ("hGenResVSMuZ", 60., 120.);
+
   mapHisto["hGenResVsSelf"] = new HMassVSPart ("hGenResVsSelf");
 
   // Simulated resonance and muons
