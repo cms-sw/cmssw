@@ -151,10 +151,7 @@ protected:
   /// set status & message after test has run
   virtual void setMessage(void) 
   {
-    std::ostringstream message;
-    message << " Test " << this->qtname_ << " (" << this->algoName_
-	    << "): prob = " << this->prob_;
-    this->message_ = message.str();
+    message_.clear();
   }
 
   unsigned minEntries_;  //< minimum # of entries needed
@@ -197,9 +194,7 @@ protected:
   void setMessage(void) 
   {
     std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-	    << "): chi2/Ndof = " << chi2_ << "/" << Ndof_
-	    << " prob = " << prob_
+    message << "chi2/Ndof = " << chi2_ << "/" << Ndof_
 	    << ", minimum needed statistics = " << minEntries_
 	    << " warning threshold = " << this->warningProb_
 	    << " error threshold = " << this->errorProb_;
@@ -245,14 +240,6 @@ public:
   }
 
 protected: 
-  void setMessage(void) 
-  {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-            << "): Entry fraction within X range = " << prob_;
-    message_ = message.str();
-  }
-
   double xmin_;double xmax_;
   bool rangeInitialized_;
 };
@@ -278,14 +265,6 @@ public:
   }
 
 protected:
-
-  void setMessage(void) 
-  {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-	    << "): Bin fraction within Y range = " << prob_;
-    message_ = message.str();
-  }
   double ymin_; double ymax_;
   bool rangeInitialized_;
   unsigned int useEmptyBins_;
@@ -313,13 +292,6 @@ public:
   } /// ymin - threshold
 
 protected:
-  void setMessage(void) 
-  {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-	    << "): Alive channel fraction = " << prob_;
-    message_ = message.str();
-  }
   double ymin_;
   bool rangeInitialized_;
 };
@@ -362,15 +334,6 @@ public:
   }
 
 protected:
- 
-  void setMessage(void) 
-  {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-	    << "): Fraction of non-noisy channels = " << prob_;
-    message_ = message.str();
-  }
-
   /// get average for bin under consideration
   /// (see description of method setNumNeighbors)
   double getAverage(int bin, const TH1 *h) const;
@@ -414,15 +377,6 @@ public:
   }
 
 protected:
-
-  void setMessage(void) 
-  {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_
-	    << "): Entry fraction within range = " << prob_;
-    message_ = message.str();
-  }
-
   bool checkMean_;	    //< if true, check the mean value
   bool checkRMS_;           //< if true, check the RMS value
   bool checkMeanTolerance_; //< if true, check mean tolerance
@@ -451,25 +405,6 @@ public:
   void useRMS(void) ;
 
 protected:
-
-  void setMessage(void) 
-  {
-    std::ostringstream message;
-    message << " Test " << qtname_ << " (" << algoName_ << "): ";
-    if(useRange_)
-    {
-      message << "Mean within allowed range? ";
-      if(prob_)
-	message << "Yes";
-      else
-	message << "No";
-    }
-    else
-      message << "prob = " << prob_;
-
-    message_ = message.str();
-  }
-
   bool useRMS_;       //< if true, will use RMS of distribution
   bool useSigma_;     //< if true, will use expected_sigma
   bool useRange_;     //< if true, will use allowed range
