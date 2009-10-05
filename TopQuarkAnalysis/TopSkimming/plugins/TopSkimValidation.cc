@@ -13,7 +13,7 @@
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Thu Oct  1 17:22:48 PDT 2009
-// $Id$
+// $Id: TopSkimValidation.cc,v 1.1 2009/10/05 02:52:12 kalavase Exp $
 //
 //
 
@@ -160,7 +160,11 @@ void TopSkimValidation::beginJob() {
 void 
 TopSkimValidation::endJob() {
   
-  std::cout  << __FILE__ << " " << numPt << "  " << numPtHLTMatched << std::endl;
+  std::cout << "Number of RECO " << leptonFlavor_ << " with Pt > " << leptonPtcut_ 
+	    << " is: " << numPt << std::endl;
+  std::cout << "Number of HLT Objects with pt > " << HLTPtcut_ << " matched to a RECO " 
+	    << leptonFlavor_ << " with pt > " << leptonPtcut_ << " is: " 
+	    << numPtHLTMatched << std::endl;
   
 }
 
