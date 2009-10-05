@@ -12,28 +12,30 @@
 class CoreSimVertex 
 { 
 public:
-    /// constructors
-    CoreSimVertex() {}
-
-    CoreSimVertex( const math::XYZVectorD & v, float tof )
-    { theVertex.SetXYZT( v.x(), v.y(), v.z(), tof) ; }
+  /// constructors
+  CoreSimVertex(){}
+  
+  CoreSimVertex( const math::XYZVectorD & v, float tof){ 
+    theVertex.SetXYZT( v.x(), v.y(), v.z(), tof) ;
+  }
     
-    CoreSimVertex( const math::XYZTLorentzVectorD& v ) 
-    { theVertex.SetXYZT( v.x(), v.y(), v.z(), v.t() ) ; }
-
-
-     const math::XYZTLorentzVectorD& position() const { return theVertex; }
+  CoreSimVertex( const math::XYZTLorentzVectorD& v ){ 
+    theVertex.SetXYZT( v.x(), v.y(), v.z(), v.t() ) ; 
+  }
+  
+  const math::XYZTLorentzVectorD& position() const { return theVertex; }
     
-
-    void setEventId(EncodedEventId e) {eId=e;}
-    EncodedEventId eventId() const {return eId;}
-
-    void setTof(float tof){
-      theVertex.SetXYZT(theVertex.x(),theVertex.y(),theVertex.z(),tof);
-    }
-private:
-    EncodedEventId eId;
-    math::XYZTLorentzVectorD theVertex ;
+  void setEventId(EncodedEventId e) {eId=e;}
+  
+  EncodedEventId eventId() const {return eId;}
+  
+  void setTof(float tof){
+    theVertex.SetXYZT(theVertex.x(),theVertex.y(),theVertex.z(),tof);
+  }
+    
+ private:
+  EncodedEventId eId;
+  math::XYZTLorentzVectorD theVertex;
 };
 
 #include <iosfwd>

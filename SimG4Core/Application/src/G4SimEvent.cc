@@ -101,7 +101,7 @@ void G4SimEvent::load(edm::SimVertexContainer & c) const
 	// vv = position
 	// t  = global time
 	// iv = index of the parent in the SimEvent SimTrack container (-1 if no parent)
-	SimVertex v = SimVertex(v3,t,iv);
+	SimVertex v = SimVertex(v3,t,iv,i);
 	v.setEventId(EncodedEventId(0));
 	c.push_back(v);
     }
