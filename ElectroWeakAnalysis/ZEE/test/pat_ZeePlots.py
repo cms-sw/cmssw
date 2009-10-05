@@ -26,8 +26,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-#process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
+#process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -125,9 +125,9 @@ process.patDefaultSequence = cms.Sequence(process.allLayer1Objects * process.sel
 ## WARNING: you may want to modify this item:  T R I G G E R     S E L E C T I O N
 HLT_process_name = "HLT8E29"   # options: HLT or HLT8E29
 # trigger path selection
-HLT_path_name    = "HLT_Ele10_LW_L1R"
+HLT_path_name    = "HLT_Ele15_LW_L1R"
 # trigger filter name
-HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter"
+HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter"
 #
 process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
                                  # cuts
