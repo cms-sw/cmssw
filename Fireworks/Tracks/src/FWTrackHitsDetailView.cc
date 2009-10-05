@@ -55,17 +55,22 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    TEveTrack* trk = fireworks::prepareTrack( *track, propagator,
                                              id.item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
+   TEveTrackPropagator* prop = trk->GetPropagator();
+   prop->SetRnrDaughters(kTRUE);
+   prop->SetRnrDecay(kTRUE);
+   prop->SetRnrReferences(kTRUE);
+   prop->SetRnrDecay(kTRUE);
+   prop->SetRnrFV(kTRUE);
+
    scene->AddElement(trk);
 
-   /*
-      std::vector<TVector3> monoPoints;
-      std::vector<TVector3> stereoPoints;
-      fireworks::pushTrackerHits(monoPoints, stereoPoints, id, *track);
-      TEveElementList* list = new TEveElementList("hits");
-      fireworks::addTrackerHits3D(monoPoints, list, id.item()->defaultDisplayProperties().color(), 1);
-      fireworks::addTrackerHits3D(stereoPoints, list, id.item()->defaultDisplayProperties().color(), 2);
-      scene->AddElement(list);
-    */
+   std::vector<TVector3> monoPoints;
+   std::vector<TVector3> stereoPoints;
+   fireworks::pushTrackerHits(monoPoints, stereoPoints, id, *track);
+   TEveElementList* list = new TEveElementList("hits");
+   fireworks::addTrackerHits3D(monoPoints, list, kRed, 1);
+   fireworks::addTrackerHits3D(stereoPoints, list, kRed, 1);
+   scene->AddElement(list);
 
    scene->Repaint(true);
    viewer->GetGLViewer()->UpdateScene();
