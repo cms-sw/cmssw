@@ -841,17 +841,57 @@ PixelFEDCard::PixelFEDCard(string fileName):
         int checkword=0;
   fscanf(infile,"Params FED file check word:%d\n",
                            &checkword);
-        if(checkword!=90508) cout << __LINE__  << "]\t"                             << mthn 
+        if(checkword!=90508&&checkword!=91509) cout << __LINE__  << "]\t"                             << mthn 
 	                          << "FEDID: "                                      << fedNumber 
 				  << " Params FED File read error. Checkword read " << checkword
-				  <<" check word expected 090508"                   << endl;
-        assert(checkword==90508);
+				  <<" check word expected 090508 or 91509"          << endl;
+        assert((checkword==90508)|(checkword==91509));
 
         if(localDEBUG)
          cout << __LINE__  << "]\t" << mthn << "Params FED file check word: " << checkword << endl;
 
+      //These bits set the hit limit in fifo-1 for an event
 
+	if(checkword==91509){
+      //These bits set the hit limit in fifo-1 for an event
+  fscanf(infile,"N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&N_hitlimit);
+  if(localDEBUG)
+    printf("N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",N_hitlimit);    
+  fscanf(infile,"NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&NC_hitlimit);
+  if(localDEBUG)
+    printf("NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",NC_hitlimit);
+  fscanf(infile,"SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&SC_hitlimit);
+  if(localDEBUG)
+    printf("SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",SC_hitlimit);
+  fscanf(infile,"S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",&S_hitlimit);
+  if(localDEBUG)
+    printf("S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",S_hitlimit);
+      //These bits allow a ROC to be skipped (1/fpga)
+      
+  fscanf(infile,"Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&N_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",N_testreg);
+  fscanf(infile,"Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&NC_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",NC_testreg);
+  fscanf(infile,"Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&SC_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",SC_testreg);
+  fscanf(infile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",&S_testreg);
+  if(localDEBUG)
+    printf("Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",S_testreg);
+         } else {
+    
+    N_hitlimit=192;	
+    NC_hitlimit=192;
+    SC_hitlimit=192;
+    S_hitlimit=192;
 
+    N_testreg=0;
+    NC_testreg=0;
+    SC_testreg=0;
+    S_testreg=0;
+         }
    
   fclose(infile);
 
@@ -1143,10 +1183,40 @@ void PixelFEDCard::writeASCII(std::string dir) const{
   fprintf(outfile,"TTCrx Register 0 fine delay ClkDes1:%d\n",
           FineDes1Del);
 
-  int checkword=90508;
+  int checkword=91509;
 
   fprintf(outfile,"Params FED file check word:%d\n",
                            checkword);
+
+
+      //These bits set the hit limit in fifo-1 for an event
+    fprintf(outfile,"N fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
+    N_hitlimit); //ch 1-9
+       
+    fprintf(outfile,"NC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
+    NC_hitlimit); //ch 10-18
+    
+    fprintf(outfile,"SC fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
+    SC_hitlimit); //ch 19-27
+    
+    fprintf(outfile,"S fifo-1 hit limit (max 1023 (hard) 900 (soft):%d\n",
+    S_hitlimit); //ch 28-36
+    
+
+      //These bits allow a ROC to be skipped (1/fpga)      
+    fprintf(outfile,"Skip a ROC in ch 1-9, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
+    N_testreg);
+    
+    fprintf(outfile,"Skip a ROC in ch 10-18, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
+    NC_testreg);
+    
+    fprintf(outfile,"Skip a ROC in ch 19-27, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
+    SC_testreg);
+    
+    fprintf(outfile,"Skip a ROC in ch 28-36, bits 10-5 chnl, bits 0-4 ROC-1:%d\n",
+    S_testreg);
+    
+
 
   fclose(outfile);
 
