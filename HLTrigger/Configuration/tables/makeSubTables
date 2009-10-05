@@ -23,7 +23,7 @@ PWHASH="7a901914acb45efc107723c6d15c1bbf"
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB HEAD
+  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB B00-30-X
   [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml
 }
 

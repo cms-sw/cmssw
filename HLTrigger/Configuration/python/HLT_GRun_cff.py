@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/GRun/V1 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
+# /dev/CMSSW_3_3_0/GRun/V3 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_3_3_0/GRun/V3')
 )
 
 
@@ -4943,6 +4943,7 @@ hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
 )
 hltStoppedHSCP1CaloJetEnergy = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
+    saveTag = cms.untracked.bool( True ),
     MinE = cms.double( 20.0 ),
     MaxEta = cms.double( 3.0 ),
     MinN = cms.int32( 1 )
