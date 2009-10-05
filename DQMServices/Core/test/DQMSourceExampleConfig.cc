@@ -30,6 +30,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TRandom.h> // this is just the random number generator
@@ -109,10 +110,6 @@ DQMSourceExampleConfig::DQMSourceExampleConfig ( const edm::ParameterSet& iConfi
     //     get hold of back-end interface
        dbe = edm::Service<DQMStore>().operator->();
   
-    //   //We put this here for the moment since there is no better place 
-    edm::Service<MonitorDaemon> daemon;
-    daemon.operator->();
-
     XMIN = 0;
     XMAX = 50;
 
