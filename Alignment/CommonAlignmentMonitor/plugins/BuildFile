@@ -77,7 +77,7 @@
  <use name=Alignment/CommonAlignmentAlgorithm>
  <use name=Alignment/CommonAlignmentMonitor>
  <use name=Alignment/MuonAlignment>
- <use name=Alignment/TrackerAlignment>
+ #<use name=Alignment/TrackerAlignment>
  <use name=CondFormats/AlignmentRecord>
  <use name=CondFormats/Alignment>
  <use name=DataFormats/TrackReco>
@@ -120,3 +120,9 @@
  <use name=TrackingTools/TrackRefitter>
  <flags EDM_PLUGIN=1>
 </library>
+
+<library name="AlignmentStats" file="AlignmentStats.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <flags EDM_PLUGIN=1>
+</library>
+
