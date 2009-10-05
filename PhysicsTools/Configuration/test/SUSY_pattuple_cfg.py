@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.15 $'),
+    version = cms.untracked.string('$Revision: 1.16 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -252,7 +252,7 @@ for jetName in ( '', 'AK5', 'SC5', 'AK5PF', 'SC5PF', 'AK5JPT', 'SC5JPT', 'SC5Tra
 
 #-- Output module configuration -----------------------------------------------
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-process.out.fileName = 'file://./SUSYPAT.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+process.out.fileName = 'SUSYPAT.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
 
 # Custom settings
 process.out.splitLevel = cms.untracked.int32(99)  # Turn on split level (smaller files???)
