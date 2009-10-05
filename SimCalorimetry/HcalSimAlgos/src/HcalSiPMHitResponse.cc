@@ -89,17 +89,21 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(const PCaloHit & inHit,
   int pixels = theSiPM->hitCells(photons, integral);
   integral += pixels;
   signal = double(pixels);
-  double jitter = hit.time() - timeOfFlight(id);
-
-  const double tzero = pars.timePhase() - jitter -
-    BUNCHSPACE*(pars.binOfMaximum() - thePhaseShift_);
-  double binTime = tzero;
 
   CaloSamples result(makeBlankSignal(id));
 
-  for (int bin = 0; bin < result.size(); bin++) {
-    result[bin] += (*theShape)(binTime)*signal;
-    binTime += BUNCHSPACE;
+  if(pixels > 0)
+  {
+    double jitter = hit.time() - timeOfFlight(id);
+
+    const double tzero = pars.timePhase() - jitter -
+      BUNCHSPACE*(pars.binOfMaximum() - thePhaseShift_);
+    double binTime = tzero;
+
+    for (int bin = 0; bin < result.size(); bin++) {
+      result[bin] += (*theShape)(binTime)*signal;
+      binTime += BUNCHSPACE;
+    }
   }
 
   return result;
