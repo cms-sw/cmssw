@@ -17,12 +17,6 @@ struct MEInfo
   char		style;
 };
 
-static const char *s_kind[] = {
-  "INVALID", "INT", "REAL", "STRING",
-  "TH1F", "TH1S", "TH2F", "TH2S",
-  "TH3F", "TPROFILE", "TPROFILE2D"
-};
-
 static const int FATAL_OPTS = (lat::Signal::FATAL_DEFAULT
 			       & ~(lat::Signal::FATAL_ON_INT
 				   | lat::Signal::FATAL_ON_QUIT
@@ -37,6 +31,28 @@ onAssertFail(const char *message)
   std::cerr.flush(); fflush(stderr);
   std::cerr << message << "ABORTING\n";
   return 'a';
+}
+
+static const char *
+kindToName(MonitorElement::Kind kind)
+{
+  switch (kind)
+  {
+  case MonitorElement::DQM_KIND_INVALID:    return "INVALID";
+  case MonitorElement::DQM_KIND_INT:        return "INT";
+  case MonitorElement::DQM_KIND_REAL:       return "REAL";
+  case MonitorElement::DQM_KIND_STRING:     return "STRING";
+  case MonitorElement::DQM_KIND_TH1F:       return "TH1F";
+  case MonitorElement::DQM_KIND_TH1S:       return "TH1S";
+  case MonitorElement::DQM_KIND_TH1D:       return "TH1D";
+  case MonitorElement::DQM_KIND_TH2F:       return "TH2F";
+  case MonitorElement::DQM_KIND_TH2S:       return "TH2S";
+  case MonitorElement::DQM_KIND_TH2D:       return "TH2D";
+  case MonitorElement::DQM_KIND_TH3F:       return "TH3F";
+  case MonitorElement::DQM_KIND_TPROFILE:   return "TPROFILE";
+  case MonitorElement::DQM_KIND_TPROFILE2D: return "TPROFILE2D";
+  default:				    assert(false); return "INTERNAL_ERROR";
+  }
 }
 
 // -------------------------------------------------------------------
@@ -111,21 +127,6 @@ getMEInfo(DQMStore &store, MonitorElement &me, MEInfo &info)
 
   // Otherwise use the defaults but fill in the name.
   info.name = name;
-}
-
-static std::string
-tagString(const DQMNet::TagList &tags)
-{
-  std::ostringstream os;
-  os << '[';
-  for (size_t i = 0, e = tags.size(); i != e; ++i)
-  {
-    if (i > 0)
-      os << ',';
-    os << tags[i];
-  }
-  os << ']';
-  return os.str();
 }
 
 std::string
@@ -207,8 +208,8 @@ int main(int argc, char **argv)
 		  << "' STEP='" << step
 		  << "' SYSTEM='" << info.system
 		  << "' CATEGORY='" << info.category
-		  << "' KIND='" << s_kind[me.kind()]
-		  << "' TAGS=" << tagString(me.getTags())
+		  << "' KIND='" << kindToName(me.kind())
+		  << "' TAG=" << me.getTag()
 		  << " FLAGS=0x" << std::hex << me.flags() << std::dec
 		  << " NAME='" << info.name
 		  << "' DATA='" << hexlify(info.data)
