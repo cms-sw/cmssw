@@ -5,10 +5,14 @@
 #include "DummySource.h"
 #include <iostream>
 
+lumi::DummySource::DummySource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){
+  m_lumiversion=pset.getParameter<int>("lumiVersion");
+  m_runnumber=pset.getParameter<int>("runNumber");
+}
+
 void
-lumi::DummySource::fill(int runnumber,std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result, short lumiVersionNumber){
-  short lumiversion=lumiVersionNumber;
-  std::cout<<"lumiversion "<<lumiversion<<std::endl;
+lumi::DummySource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result){
+  std::cout<<"lumiversion "<<m_lumiversion<<std::endl;
   std::vector<lumi::TriggerInfo> triginfo;
   triginfo.reserve(192);
   for(size_t i=0;i<192;++i){
@@ -22,10 +26,10 @@ lumi::DummySource::fill(int runnumber,std::vector< std::pair<lumi::LumiSectionDa
     hltinfo.push_back(hltperpath);
   }
   for(size_t j=1; j<30; ++j){
-    edm::LuminosityBlockID lu(runnumber,j);
+    edm::LuminosityBlockID lu(m_runnumber,j);
     cond::Time_t current=(cond::Time_t)(lu.value());
     lumi::LumiSectionData* l=new lumi::LumiSectionData;
-    l->setLumiVersionNumber(lumiVersionNumber);
+    l->setLumiVersionNumber(m_lumiversion);
     l->setLumiSectionId(j);
     l->setLumiAverage(1.1);
     l->setLumiQuality(1);

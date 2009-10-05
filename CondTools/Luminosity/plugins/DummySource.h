@@ -9,9 +9,12 @@ namespace lumi{
   class LumiSectionData;
   class DummySource:public LumiRetrieverBase{
   public:
-    explicit DummySource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){}
+    explicit DummySource(const edm::ParameterSet& pset);
     virtual ~DummySource(){}
-    void fill(int runnumber, std::vector< std::pair< lumi::LumiSectionData*,cond::Time_t > >& result, short lumiversionid);
+    void fill(std::vector< std::pair< lumi::LumiSectionData*,cond::Time_t > >& result);
+  private:
+    size_t m_lumiversion;
+    size_t m_runnumber;
   };
 }//ns lumi
 #endif
