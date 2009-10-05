@@ -26,9 +26,7 @@ def processBenchmark( path, outputRootFile ):
 webpage = valtools.webpage()
 webpage.parser_.usage = "example: %prog CMSSW_3_1_0_pre7/TauBenchmarkGeneric_ZTT_FastSim_IDEAL CMSSW_3_1_0_pre7/TauBenchmarkGeneric_TEST\nThe list of benchmarks can be obtained using the listBenchmarks.py command."
 webpage.parser_.add_option("-m", "--macro", dest="macro",
-                           action="store_false",
-                           help="skip the root macro (use existing plots)",
-                           default=True)
+                           help="specify the ROOT macro to be used for comparison. If empty, skip the plotting stage", default="compare.C")
 webpage.parser_.add_option("-s", "--submit", dest="submit",
                            action="store_true",
                            help="submit the comparison to the web site",
@@ -46,7 +44,7 @@ if len(webpage.args_)!=2:
 
 website = valtools.website()
 
-macro = 'compare.C'
+macro = webpage.options_.macro
 templateFile = 'indexCompare.html'
 indexhtml = "%s/%s" % (webpage.templates_,templateFile)
 
@@ -62,7 +60,7 @@ benchmark2 = processBenchmark( webpage.args_[1],
 webpage.setOutputDir(benchmark2.fullName())
 
 # do the plots
-if webpage.options_.macro == True:
+if webpage.options_.macro != "":
     os.system('root -l ' + macro)
 
 valtools.testFileType(indexhtml, ".html")
@@ -84,7 +82,6 @@ macroName = os.path.basename(macro)
 
 comments = webpage.options_.comments
 username = os.environ['USER']
-
 
 ifile = open( indexhtml )
 indexTemplate = ifile.read()

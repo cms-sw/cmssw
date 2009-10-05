@@ -57,6 +57,11 @@ class webpage:
                 # : print a warning
                 shutil.copy(picfile, self.outputDir_) 
             except Exception:
+                print 'File %s does not exist. Did you generate the comparison plots?' % picfile
+                print 'Aborting the script.\n'
+                print 'Solution 1: run without the -m "" option, to run the compare.C macro'
+                print 'Solution 2: run with the -m "myMacro.C" option, to run another macro'
+                sys.exit(1)
                 raise
         return images
 
