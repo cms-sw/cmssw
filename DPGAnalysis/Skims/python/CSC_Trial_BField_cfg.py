@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CSC_Trial_BField_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT CSCSkim trial+BField skim')
 )
@@ -70,7 +70,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_31X_V5P::All' 
+process.GlobalTag.globaltag = 'CRAFT09_R_V4::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/ReconstructionCosmics_cff")
@@ -91,7 +91,7 @@ process.mySkim = cms.Path(process.cscSkim)
 process.outputSkim = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
-    fileName = cms.untracked.string("/tmp/malgeri/cscskimEvents.root"),
+    fileName = cms.untracked.string("cscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
       filterName = cms.untracked.string('CSCSkim_trial')
@@ -113,7 +113,7 @@ process.BfieldStudySkim = cms.Path(process.cscbfield)
 process.outputSkimBField = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
-    fileName = cms.untracked.string("/tmp/malgeri/CSCEvents_BFieldStudy.root"),
+    fileName = cms.untracked.string("CSCEvents_BFieldStudy.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
       filterName = cms.untracked.string('CSCSkim_BFieldStudies')
