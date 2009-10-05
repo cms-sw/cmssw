@@ -12,8 +12,7 @@ CastorShowerLibraryInfo::~CastorShowerLibraryInfo() {}
 
     
 void CastorShowerLibraryInfo::Clear() {
-   NEv = 0;
-   NEnBins = 0;
-   NEvPerBin = 0;
-   Energies.clear();
+   Energy.Clear();
+   Eta.Clear();
+   Phi.Clear();
 }

@@ -4,4 +4,5 @@
 
 #pragma link C++ class CastorShowerEvent+;
 #pragma link C++ class CastorShowerLibraryInfo+;
+#pragma link C++ class SLBin+;
 #endif
