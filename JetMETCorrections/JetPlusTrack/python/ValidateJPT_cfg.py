@@ -14,7 +14,7 @@ fileNames1 = cms.untracked.vstring()
 fileNames2 = cms.untracked.vstring()
 process.source = cms.Source(
     "PoolSource",
-    fileNames = fileNames1,
+    fileNames = fileNames2,
     )
 
 # Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_2_5 (replace with 33X when available!)
@@ -171,13 +171,21 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 process.load("JetMETCorrections.JetPlusTrack.PatJPTCorrections_cff")
 process.uncorrectedLayer1JetsIC5.JetCollection = cms.InputTag("allLayer1Jets")
 
-# -------------------- Paths --------------------
+# -------------------- Sequences and paths --------------------
 
 process.JTA = cms.Sequence(
     process.ZSPiterativeCone5JetTracksAssociatorAtVertex *
     process.ZSPiterativeCone5JetTracksAssociatorAtCaloFace *
     process.ZSPiterativeCone5JetExtender 
     )
+
+process.load("JetMETCorrections.JetPlusTrack.MatchAndSortJetCollections_cff")
+process.load("JetMETCorrections.JetPlusTrack.NtuplizeJetCollections_cff")
+process.ntuplize = cms.Sequence(
+    process.matchAndSortJetCollections *
+    process.ntuplizeJetCollections 
+    )
+
 
 process.p = cms.Path(
     process.ZSPJetCorJetIcone5 *      # ZSP corrections
@@ -186,6 +194,7 @@ process.p = cms.Path(
     process.JPTValidation *           # All flavours of JPT corrections from RECO
     process.patDefaultSequence *      # PAT sequence (slow!)
     process.PatJPTCorrectionsIC5      # JPT corrections from PAT
+    * process.ntuplize                # Match, sort and ntuplize jet collections
     )
 
 process.o = cms.OutputModule(
@@ -203,6 +212,8 @@ process.o = cms.OutputModule(
     )
 
 process.e = cms.EndPath( process.o )
+
+# -------------------- MessageLogger --------------------
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
@@ -246,7 +257,7 @@ process.MessageLogger = cms.Service(
     ),
     
     #@@ comment to suppress debug statements!
-    #debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('*'),
     
     # allows to suppress output from specific modules 
     suppressDebug = cms.untracked.vstring(),
