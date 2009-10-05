@@ -31,7 +31,7 @@ lumi::DummySource::fill(int runnumber,std::vector< std::pair<lumi::LumiSectionDa
     l->setLumiQuality(1);
     l->setDeadFraction(0.2);
     l->setLumiError(0.5);
-    l->setStartOrbit((j-1)*(2^20)+1); //assuming count from 1
+    l->setStartOrbit((j-1)*(unsigned long long)pow(2,20)+1); //assuming count from 1
     std::vector<lumi::BunchCrossingInfo> bxinfo;
     bxinfo.reserve(3564);
     for(int bxidx=1;bxidx<=3564;++bxidx){
