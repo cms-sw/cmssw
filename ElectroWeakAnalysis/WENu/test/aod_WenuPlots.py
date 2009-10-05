@@ -26,8 +26,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-#process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
-process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
+process.GlobalTag.globaltag = cms.string('MC_31X_V5::All')
+#process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -45,13 +45,13 @@ process.aod2patFilter = cms.EDFilter('aod2patFilterWenu',
 ## WARNING: you may want to modify this item:
 HLT_process_name = "HLT8E29"   # options: HLT or HLT8E29
 # trigger path selection
-HLT_path_name    = "HLT_Ele10_LW_L1R"
+HLT_path_name    = "HLT_Ele15_LW_L1R"
 # trigger filter name
-HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter"
+HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter"
 #
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   # cuts
-                                  ETCut = cms.untracked.double(20.),
+                                  ETCut = cms.untracked.double(30.),
                                   METCut = cms.untracked.double(0.),
                                   vetoSecondElectronEvents = cms.untracked.bool(False),
                                   ETCut2ndEle = cms.untracked.double(20.),
@@ -77,7 +77,7 @@ selection_a2 = cms.PSet (
     sihih_EB = cms.untracked.double(0.0099),
     dphi_EB = cms.untracked.double(0.025),
     deta_EB = cms.untracked.double(0.0040),
-    hoe_EB = cms.untracked.double(0.1),
+    hoe_EB = cms.untracked.double(1000.0),
     
     trackIso_EE = cms.untracked.double(1.1),
     ecalIso_EE = cms.untracked.double(3.4),
@@ -85,8 +85,9 @@ selection_a2 = cms.PSet (
     sihih_EE = cms.untracked.double(0.028),
     dphi_EE = cms.untracked.double(0.020),
     deta_EE = cms.untracked.double(0.0066),
-    hoe_EE = cms.untracked.double(0.1)
+    hoe_EE = cms.untracked.double(1000.0)
     )
+
 selection_test = cms.PSet (
     trackIso_EB = cms.untracked.double(10),
     ecalIso_EB = cms.untracked.double(10),
@@ -114,7 +115,7 @@ selection_inverse = cms.PSet (
 ##
 ## and the plot creator
 process.plotter = cms.EDAnalyzer('WenuPlots',
-                                 selection_test,
+                                 selection_a2,
                                  selection_inverse,
                                  wenuCollectionTag = cms.untracked.InputTag(
     "wenuFilter","selectedWenuCandidates","PAT")
