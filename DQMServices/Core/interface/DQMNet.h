@@ -14,13 +14,50 @@
 # include <string>
 # include <list>
 # include <map>
+# include <set>
 
-class TObject;
-class DQMStore;
+//class DQMStore;
 
 class DQMNet
 {
 public:
+  static const uint32_t DQM_PROP_TYPE_MASK	= 0x000000ff;
+  static const uint32_t DQM_PROP_TYPE_SCALAR	= 0x0000000f;
+  static const uint32_t DQM_PROP_TYPE_INVALID	= 0x00000000;
+  static const uint32_t DQM_PROP_TYPE_INT	= 0x00000001;
+  static const uint32_t DQM_PROP_TYPE_REAL	= 0x00000002;
+  static const uint32_t DQM_PROP_TYPE_STRING	= 0x00000003;
+  static const uint32_t DQM_PROP_TYPE_TH1F	= 0x00000010;
+  static const uint32_t DQM_PROP_TYPE_TH1S	= 0x00000011;
+  static const uint32_t DQM_PROP_TYPE_TH1D	= 0x00000012;
+  static const uint32_t DQM_PROP_TYPE_TH2F	= 0x00000020;
+  static const uint32_t DQM_PROP_TYPE_TH2S	= 0x00000021;
+  static const uint32_t DQM_PROP_TYPE_TH2D	= 0x00000022;
+  static const uint32_t DQM_PROP_TYPE_TH3F	= 0x00000030;
+  static const uint32_t DQM_PROP_TYPE_TH3S	= 0x00000031;
+  static const uint32_t DQM_PROP_TYPE_TH3D	= 0x00000032;
+  static const uint32_t DQM_PROP_TYPE_TPROF	= 0x00000040;
+  static const uint32_t DQM_PROP_TYPE_TPROF2D	= 0x00000041;
+  
+  static const uint32_t DQM_PROP_REPORT_MASK	= 0x00000f00;
+  static const uint32_t DQM_PROP_REPORT_CLEAR	= 0x00000000;
+  static const uint32_t DQM_PROP_REPORT_ERROR	= 0x00000100;
+  static const uint32_t DQM_PROP_REPORT_WARN	= 0x00000200;
+  static const uint32_t DQM_PROP_REPORT_OTHER	= 0x00000400;
+  static const uint32_t DQM_PROP_REPORT_ALARM	= (DQM_PROP_REPORT_ERROR
+						   | DQM_PROP_REPORT_WARN
+						   | DQM_PROP_REPORT_OTHER);
+
+  static const uint32_t DQM_PROP_HAS_REFERENCE	= 0x00001000;
+  static const uint32_t DQM_PROP_TAGGED		= 0x00002000;
+  static const uint32_t DQM_PROP_ACCUMULATE	= 0x00004000;
+  static const uint32_t DQM_PROP_RESET		= 0x00008000;
+
+  static const uint32_t DQM_PROP_NEW		= 0x00010000;
+  static const uint32_t DQM_PROP_RECEIVED	= 0x00020000;
+  static const uint32_t DQM_PROP_INTERESTING	= 0x00040000;
+  static const uint32_t DQM_PROP_DEAD		= 0x00080000;
+
   static const uint32_t DQM_MSG_HELLO		= 0;
   static const uint32_t DQM_MSG_UPDATE_ME	= 1;
   static const uint32_t DQM_MSG_LIST_OBJECTS	= 2;
@@ -31,16 +68,6 @@ public:
   static const uint32_t DQM_REPLY_NONE		= 103;
   static const uint32_t DQM_REPLY_OBJECT	= 104;
 
-  static const uint32_t DQM_FLAG_REPORT_ERROR	= 0x1;
-  static const uint32_t DQM_FLAG_REPORT_WARNING	= 0x2;
-  static const uint32_t DQM_FLAG_REPORT_OTHER	= 0x4;
-  static const uint32_t DQM_FLAG_SCALAR		= 0x8;
-  static const uint32_t DQM_FLAG_ZOMBIE		= 0x08000000;
-  static const uint32_t DQM_FLAG_TEXT		= 0x10000000;
-  static const uint32_t DQM_FLAG_RECEIVED	= 0x20000000;
-  static const uint32_t DQM_FLAG_NEW		= 0x40000000;
-  static const uint32_t DQM_FLAG_DEAD		= 0x80000000;
-
   static const uint32_t MAX_PEER_WAITREQS	= 128;
 
   struct Peer;
@@ -48,8 +75,8 @@ public:
   struct WaitObject;
 
   typedef std::vector<unsigned char>    DataBlob;
-  typedef std::vector<uint32_t>         TagList;
   typedef std::vector<QValue>		QReports;
+  typedef std::vector<uint32_t>		TagList; // DEPRECATED
   typedef std::list<WaitObject>		WaitList;
 
   struct QValue
@@ -63,19 +90,19 @@ public:
 
   struct CoreObject
   {
-    uint64_t		version;
-    std::string		name;
-    TagList 		tags;
-    TObject		*object;
-    TObject		*reference;
-    QReports		qreports;
     uint32_t		flags;
+    uint32_t 		tag;
+    uint64_t		version;
+    const std::string	*dirname;
+    std::string		objname;
+    QReports		qreports;
   };
   
   struct Object : CoreObject
   {
     DataBlob		rawdata;
-    lat::Time		lastreq;
+    std::string		scalar;
+    std::string		qdata;
   };
 
   struct Bucket
@@ -105,7 +132,6 @@ public:
     bool		source;
     bool		update;
     bool		updated;
-    bool		updatefull;
     size_t		updates;
     size_t		waiting;
     AutoPeer		*automatic;
@@ -118,7 +144,6 @@ public:
     std::string		host;
     int			port;
     bool		update;
-    bool		warned;
   };
 
   DQMNet(const std::string &appname = "");
@@ -126,8 +151,6 @@ public:
 
   void			debug(bool doit);
   void			delay(int delay);
-  void			sendScalarAsText(bool doit);
-  void			requestFullUpdates(bool doit);
   void			startLocalServer(int port);
   void			updateToCollector(const std::string &host, int port);
   void			listenToCollector(const std::string &host, int port);
@@ -138,53 +161,60 @@ public:
   void			start(void);
   void			run(void);
 
-  virtual int		receive(DQMStore *store);
   virtual void		updateLocalObject(Object &o);
-  virtual void		removeLocalObject(const std::string &name);
+  virtual bool		removeLocalExcept(const std::set<std::string> &known);
   void			sendLocalChanges(void);
+
+  typedef bool (*SetOrder)(const CoreObject &, const CoreObject &);
+  static bool setOrder(const CoreObject &a, const CoreObject &b)
+    {
+      int diff = a.dirname->compare(*b.dirname);
+      return (diff < 0 ? true
+	      : diff == 0 ? a.objname < b.objname
+	      : false);
+    }
+
+  static void		packQualityData(std::string &into, const QReports &qr);
+  static void		unpackQualityData(QReports &qr, uint32_t &flags, const char *from);
 
 protected:
   std::ostream &	logme(void);
   static void		copydata(Bucket *b, const void *data, size_t len);
-  bool			extractScalarData(DataBlob &objdata, Object &o);
-  void			sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
+  virtual void		sendObjectToPeer(Bucket *msg, Object &o, bool data);
 
   virtual bool		shouldStop(void);
   void			waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
   virtual void		releaseFromWait(Bucket *msg, WaitObject &w, Object *o);
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
-  bool			reconstructObject(Object &o);
-  bool			reinstateObject(DQMStore *store, Object &o);
+  // bool			reconstructObject(Object &o);
+  // bool			reinstateObject(DQMStore *store, Object &o);
   virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = 0) = 0;
   virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
-  virtual void		markObjectsZombies(Peer *p) = 0;
   virtual void		markObjectsDead(Peer *p) = 0;
-  virtual void		purgeDeadObjects(lat::Time oldobj, lat::Time deadobj) = 0;
+  virtual void		purgeDeadObjects(Peer *p) = 0;
 
   virtual Peer *	getPeer(lat::Socket *s) = 0;
   virtual Peer *	createPeer(lat::Socket *s) = 0;
   virtual void		removePeer(Peer *p, lat::Socket *s) = 0;
-  virtual void		sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear) = 0;
+  virtual void		sendObjectListToPeer(Bucket *msg, bool all, bool clear) = 0;
   virtual void		sendObjectListToPeers(bool all) = 0;
-  virtual void		requestFullUpdatesFromPeers(void) = 0;
 
   void			updateMask(Peer *p);
   virtual void		updatePeerMasks(void) = 0;
+  static void		discard(Bucket *&b);
 
   bool			debug_;
-  bool			sendScalarAsText_;
-  bool			requestFullUpdates_;
+  pthread_mutex_t	lock_;
 
 private:
-  static void		discard(Bucket *&b);
-  bool			losePeer(const char *reason,
+  void			losePeer(const char *reason,
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
 				 lat::Error *err = 0);
   void			requestObject(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
-  void			releaseWaiters(Object *o);
+  void			releaseWaiters(const std::string &name, Object *o);
 
   bool			onPeerData(lat::IOSelectEvent *ev, Peer *p);
   bool			onPeerConnect(lat::IOSelectEvent *ev);
@@ -202,7 +232,6 @@ private:
   AutoPeer		downstream_;
   WaitList		waiting_;
 
-  pthread_mutex_t	lock_;
   pthread_t		communicate_;
   sig_atomic_t		shutdown_;
 
@@ -219,11 +248,15 @@ class DQMImplNet : public DQMNet
 {
 public:
   struct ImplPeer;
-  typedef std::map<std::string, ObjType> ObjectMap;
+
+  typedef std::set<std::string> DirMap;
+  typedef std::set<ObjType, SetOrder> ObjectMap;
   typedef std::map<lat::Socket *, ImplPeer> PeerMap;
   struct ImplPeer : Peer
   {
+    ImplPeer(void) : objs(setOrder) {}
     ObjectMap objs;
+    DirMap dirs;
   };
 
   DQMImplNet(const std::string &appname = "")
@@ -231,24 +264,20 @@ public:
     {}
   
   ~DQMImplNet(void)
-    {
-      typename PeerMap::iterator pi, pe;
-      typename ObjectMap::iterator oi, oe;
-      for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
-	{
-	  ObjType &o = oi->second;
-	  delete o.object;
-	  delete o.reference;
-	  o.object = 0;
-	  o.reference = 0;
-	}
-    }
+    {}
 
 protected:
   virtual Object *
   findObject(Peer *p, const std::string &name, Peer **owner = 0)
     {
+      size_t slash = name.rfind('/');
+      size_t dirpos = (slash == std::string::npos ? 0 : slash);
+      size_t namepos = (slash == std::string::npos ? 0 : slash+1);
+      std::string path(name, 0, dirpos);
+      ObjType proto;
+      proto.dirname = &path;
+      proto.objname.append(name, namepos, std::string::npos);
+
       typename ObjectMap::iterator pos;
       typename PeerMap::iterator i, e;
       if (owner)
@@ -256,24 +285,24 @@ protected:
       if (p)
       {
 	ImplPeer *ip = static_cast<ImplPeer *>(p);
-	pos = ip->objs.find(name);
+	pos = ip->objs.find(proto);
 	if (pos == ip->objs.end())
 	  return 0;
 	else
 	{
 	  if (owner) *owner = ip;
-	  return &pos->second;
+	  return const_cast<ObjType *>(&*pos);
 	}
       }
       else
       {
 	for (i = peers_.begin(), e = peers_.end(); i != e; ++i)
 	{
-	  pos = i->second.objs.find(name);
+	  pos = i->second.objs.find(proto);
 	  if (pos != i->second.objs.end())
 	  {
 	    if (owner) *owner = &i->second;
-	    return &pos->second;
+	    return const_cast<ObjType *>(&*pos);
 	  }
 	}
 	return 0;
@@ -284,95 +313,52 @@ protected:
   makeObject(Peer *p, const std::string &name)
     {
       ImplPeer *ip = static_cast<ImplPeer *>(p);
-      ObjType *o = &ip->objs[name];
-      o->version = 0;
-      o->name = name;
-      o->object = 0;
-      o->reference = 0;
-      o->flags = 0;
-      o->lastreq = 0;
-      return o;
+      size_t slash = name.rfind('/');
+      size_t dirpos = (slash == std::string::npos ? 0 : slash);
+      size_t namepos = (slash == std::string::npos ? 0 : slash+1);
+      ObjType o;
+      o.flags = 0;
+      o.tag = 0;
+      o.version = 0;
+      o.dirname = &*ip->dirs.insert(name.substr(0, dirpos)).first;
+      o.objname.append(name, namepos, std::string::npos);
+      return const_cast<ObjType *>(&*ip->objs.insert(o).first);
     }
 
-  // Mark all the objects as zombies.  This is intended to be used
-  // when starting to process a complete list of objects, in order
-  // to flag the objects that need to be killed at the end.  After
+  // Mark all the objects dead.  This is intended to be used when
+  // starting to process a complete list of objects, in order to
+  // flag the objects that need to be killed at the end.  After
   // call to this method, revive all live objects by removing the
-  // DQM_FLAG_ZOMBIE flag, then call markObjectsDead() at the end
-  // to flag dead as all remaining zombies.
-  virtual void
-  markObjectsZombies(Peer *p)
-    {
-      ImplPeer *ip = static_cast<ImplPeer *>(p);
-      typename ObjectMap::iterator i, e;
-      for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
-	i->second.flags |= DQM_FLAG_ZOMBIE;
-    }
-
-  // Mark remaining zombie objects as dead.  See markObjectsZombies().
+  // DQM_PROP_DEAD flag, then call purgeDeadObjects() at the end
+  // to remove the dead ones.
   virtual void
   markObjectsDead(Peer *p)
     {
       ImplPeer *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
-	if (i->second.flags & DQM_FLAG_ZOMBIE)
-	  i->second.flags = (i->second.flags & ~DQM_FLAG_ZOMBIE) | DQM_FLAG_DEAD;
+	const_cast<ObjType &>(*i).flags |= DQM_PROP_DEAD;
     }
 
-  // Purge all old and dead objects.
+  // Mark remaining zombie objects as dead.  See markObjectsDead().
   virtual void
-  purgeDeadObjects(lat::Time oldobj, lat::Time deadobj)
+  purgeDeadObjects(Peer *p)
     {
-      typename PeerMap::iterator pi, pe;
-      typename ObjectMap::iterator oi, oe;
-      for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; )
-	{
-	  ObjType &o = oi->second;
-
-	  // Compact non-scalar objects that are unused.  We send scalar
-	  // objects to the web server so we keep them around.
-	  if (o.lastreq < oldobj && o.object && ! (o.flags & DQM_FLAG_SCALAR))
-	  {
-	    if (debug_)
-	      logme()
-		<< "DEBUG: compacting idle '" << o.name
-		<< "' from " << pi->second.peeraddr << std::endl;
-
-	    delete o.object;
-	    delete o.reference;
-	    o.object = 0;
-	    o.reference = 0;
-	    purgeDeadObject(o);
-	  }
-
-	  // Remove if dead, old and unused.
-	  if (o.lastreq < deadobj
-	      && o.version < deadobj
-	      && (o.flags & DQM_FLAG_DEAD))
-	  {
-	    if (debug_)
-	      logme()
-		<< "DEBUG: removing dead '" << o.name
-		<< "' from " << pi->second.peeraddr << std::endl;
-
-	    pi->second.objs.erase(oi++);
-	  }
-	  else
-	    ++oi;
-	}
+      ImplPeer *ip = static_cast<ImplPeer *>(p);
+      typename ObjectMap::iterator i, e;
+      for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
+	if (i->flags & DQM_PROP_DEAD)
+	  ip->objs.erase(i++);
+	else
+	  ++i;
     }
-
-  virtual void
-  purgeDeadObject(ObjType &o)
-    {}
 
   virtual Peer *
   getPeer(lat::Socket *s)
     {
       typename PeerMap::iterator pos = peers_.find(s);
-      return pos == peers_.end() ? 0 : &pos->second;
+      typename PeerMap::iterator end = peers_.end();
+      return pos == end ? 0 : &pos->second;
     }
 
   virtual Peer *
@@ -386,7 +372,6 @@ protected:
       ip->source = false;
       ip->update = false;
       ip->updated = false;
-      ip->updatefull = false;
       ip->updates = 0;
       ip->waiting = 0;
       ip->automatic = 0;
@@ -401,12 +386,7 @@ protected:
 
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
-      {
-	ObjType &o = i->second;
-	delete o.object;
-	delete o.reference;
 	ip->objs.erase(i++);
-      }
     
       peers_.erase(s);
 
@@ -418,7 +398,7 @@ protected:
 
   /// Send all objects to a peer and optionally mark sent objects old.
   virtual void
-  sendObjectListToPeer(Bucket *msg, bool data, bool all, bool clear)
+  sendObjectListToPeer(Bucket *msg, bool all, bool clear)
     {
       typename PeerMap::iterator pi, pe;
       typename ObjectMap::iterator oi, oe;
@@ -438,11 +418,11 @@ protected:
 
       for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
 	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
-	  if (all || (oi->second.flags & DQM_FLAG_NEW))
+	  if (all || (oi->flags & DQM_PROP_NEW))
 	  {
-	    sendObjectToPeer(msg, oi->second, data, sendScalarAsText_);
+	    sendObjectToPeer(msg, const_cast<ObjType &>(*oi), false);
 	    if (clear)
-	      oi->second.flags &= ~DQM_FLAG_NEW;
+	      const_cast<ObjType &>(*oi).flags &= ~DQM_PROP_NEW;
 	    ++nupdates;
 	  }
 
@@ -463,18 +443,17 @@ protected:
 
 	if (debug_)
 	  logme()
-	    << "DEBUG: notifying " << p.peeraddr
-	    << ", full = " << p.updatefull << std::endl;
+	    << "DEBUG: notifying " << p.peeraddr << std::endl;
 
 	Bucket msg;
         msg.next = 0;
-	sendObjectListToPeer(&msg, p.updatefull, !p.updated || all, true);
+	sendObjectListToPeer(&msg, !p.updated || all, true);
 
 	if (! msg.data.empty())
 	{
 	  Bucket **prev = &p.sendq;
 	  while (*prev)
-	     prev = &(*prev)->next;
+	    prev = &(*prev)->next;
 
 	  *prev = new Bucket;
 	  (*prev)->next = 0;
@@ -482,13 +461,6 @@ protected:
 	}
 	p.updated = true;
       }
-    }
-
-  virtual void
-  requestFullUpdatesFromPeers(void)
-    {
-      logme()
-	<< "ERROR: invalid request for full updates from peers.\n";
     }
 
   virtual void
@@ -509,12 +481,9 @@ class DQMBasicNet : public DQMImplNet<DQMNet::Object>
 public:
   DQMBasicNet(const std::string &appname = "");
 
-  virtual int		receive(DQMStore *store);
-
 protected:
   virtual void		updateLocalObject(Object &o);
-  virtual void		removeLocalObject(const std::string &name);
-  virtual void		requestFullUpdatesFromPeers(void);
+  virtual bool		removeLocalExcept(const std::set<std::string> &known);
 
 private:
   ImplPeer		*local_;
