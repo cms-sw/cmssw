@@ -82,6 +82,79 @@ Early10TeVCollisionVtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.0322),
     Z0 = cms.double(0.0)
 )
+# Test offset
+Early10TeVX322Y100VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(300.0),
+    Emittance = cms.double(7.03e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(0.0100),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+# Test offset
+Early10TeVX322Y250VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(300.0),
+    Emittance = cms.double(7.03e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(0.0250),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+# Test offset
+Early10TeVX322Y500VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(300.0),
+    Emittance = cms.double(7.03e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(0.0500),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+# Test offset
+Early10TeVX322Y1000VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(300.0),
+    Emittance = cms.double(7.03e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(0.1),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+# Test offset
+Early10TeVX322Y5000VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(300.0),
+    Emittance = cms.double(7.03e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(0.5),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+# Test offset
+Early10TeVX322Y1000VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(300.0),
+    Emittance = cms.double(7.03e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.8),
+    TimeOffset = cms.double(0.0),
+    Y0 = cms.double(1.0),
+    X0 = cms.double(0.0322),
+    Z0 = cms.double(0.0)
+)
+
 EarlyCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(200.0),
