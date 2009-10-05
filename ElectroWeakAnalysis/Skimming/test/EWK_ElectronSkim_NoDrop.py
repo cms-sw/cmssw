@@ -28,7 +28,7 @@ process.EWK_ElectronHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLev
 
 # Uncomment this to access 8E29 menu and filter on it
 process.EWK_ElectronHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
-process.EWK_DiElectronHLTFilter.HLTPaths = ["HLT_Ele15_LW_L1R"]
+process.EWK_ElectronHLTFilter.HLTPaths = ["HLT_Ele15_LW_L1R"]
 
 
 # Electron filter
