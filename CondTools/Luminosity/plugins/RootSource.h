@@ -15,7 +15,6 @@ namespace lumi{
     virtual ~RootSource(){}
     virtual void fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result);
   private:
-    std::string m_dirname;
     std::string m_filename;
     TFile* m_source;
   };
