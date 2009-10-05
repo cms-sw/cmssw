@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/06/04 14:17:38 $
- * $Revision: 1.2 $
+ * $Date: 2008/06/11 08:19:14 $
+ * $Revision: 1.3 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -33,7 +34,7 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) {
+HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset): m_cacheRecordId(0) {
 
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<string>("SALabel");
@@ -68,11 +69,14 @@ HLTMuonPointingFilter::~HLTMuonPointingFilter() {
 /* Operations */ 
 bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   bool accept = false;
-  if (!thePropagator){
+
+  const TrackingComponentsRecord & tkRec = eventSetup.get<TrackingComponentsRecord>();
+  if (not thePropagator or tkRec.cacheIdentifier() != m_cacheRecordId) {
     ESHandle<Propagator> prop;
-    eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
+    tkRec.get(thePropagatorName, prop);
     thePropagator = prop->clone();
     thePropagator->setPropagationDirection(anyDirection);
+    m_cacheRecordId = tkRec.cacheIdentifier();
   }
 
   ESHandle<MagneticField> theMGField;
