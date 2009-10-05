@@ -2,8 +2,8 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/09/29 19:39:18 $
- * $Revision: 1.22 $
+ * $Date: 2009/09/30 22:57:35 $
+ * $Revision: 1.23 $
  * $Author: ameyer $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
@@ -139,6 +139,7 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
     std::cout << "TAGS [" << i << "] = " << tags[i] << std::endl;
   */
 
+    dbe_->showDirStructure ();
 }
 
 //==================================================================//
@@ -237,5 +238,5 @@ void DQMSourceExample::endRun(const Run& r, const EventSetup& context) {
 //============================= endJob =============================//
 //==================================================================//
 void DQMSourceExample::endJob() {
- 
+  dbe_->save("test.root");  
 }
