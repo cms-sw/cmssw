@@ -61,6 +61,7 @@ class HLTTauDQML1Plotter  {
   MonitorElement* l1tauEta_;
   MonitorElement* l1tauPhi_;
 
+
   MonitorElement* l1jetEt_;
   MonitorElement* l1jetEta_;
   MonitorElement* l1jetPhi_;
@@ -96,34 +97,37 @@ class HLTTauDQML1Plotter  {
   MonitorElement* l1jetPhiEffNum_;
   MonitorElement* l1jetPhiEffDenom_;
 
-  MonitorElement* l1electronEtEffNum_;
-  MonitorElement* l1electronEtEffDenom_;
+/*   MonitorElement* l1electronEtEffNum_; */
+/*   MonitorElement* l1electronEtEffDenom_; */
 
-  MonitorElement* l1electronEtaEffNum_;
-  MonitorElement* l1electronEtaEffDenom_;
+/*   MonitorElement* l1electronEtaEffNum_; */
+/*   MonitorElement* l1electronEtaEffDenom_; */
 
-  MonitorElement* l1electronPhiEffNum_;
-  MonitorElement* l1electronPhiEffDenom_;
+/*   MonitorElement* l1electronPhiEffNum_; */
+/*   MonitorElement* l1electronPhiEffDenom_; */
 
-  MonitorElement* l1muonEtEffNum_;
-  MonitorElement* l1muonEtEffDenom_;
+/*   MonitorElement* l1muonEtEffNum_; */
+/*   MonitorElement* l1muonEtEffDenom_; */
 
-  MonitorElement* l1muonEtaEffNum_;
-  MonitorElement* l1muonEtaEffDenom_;
+/*   MonitorElement* l1muonEtaEffNum_; */
+/*   MonitorElement* l1muonEtaEffDenom_; */
 
-  MonitorElement* l1muonPhiEffNum_;
-  MonitorElement* l1muonPhiEffDenom_;
+/*   MonitorElement* l1muonPhiEffNum_; */
+/*   MonitorElement* l1muonPhiEffDenom_; */
 
   MonitorElement* l1doubleTauPath_;
   MonitorElement* l1electronTauPath_;
   MonitorElement* l1muonTauPath_;
+
+  MonitorElement* firstTauEt_;
+  MonitorElement* secondTauEt_;
 
 
 struct ComparePt
 {
   bool operator()(LV l1,LV l2)
   {
-    return l1.pt() > l1.pt() ;
+    return l1.pt() > l2.pt() ;
 
   }
 };  

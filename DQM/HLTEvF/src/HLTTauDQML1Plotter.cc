@@ -23,33 +23,86 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,int etbins,in
       store->setCurrentFolder(triggerTag_);
 
       l1tauEt_             = store->book1D("L1TauEt","L1 #tau E_{t}",binsEt_,0,maxEt_);
+      l1tauEt_->getTH1F()->GetXaxis()->SetTitle("L1 #tau E_{T}");
+      l1tauEt_->getTH1F()->GetYaxis()->SetTitle("entries");
+ 
       l1tauEta_            = store->book1D("L1TauEta","L1 #tau #eta",binsEta_,-2.5,2.5);
+      l1tauEta_->getTH1F()->GetXaxis()->SetTitle("L1 #tau #eta");
+      l1tauEta_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1tauPhi_            = store->book1D("L1TauPhi","L1 #tau #phi",binsPhi_,-3.2,3.2);
+      l1tauPhi_->getTH1F()->GetXaxis()->SetTitle("L1 #tau #phi");
+      l1tauPhi_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1jetEt_             = store->book1D("L1JetEt","L1 jet E_{t}",binsEt_,0,maxEt_);
+      l1jetEt_->getTH1F()->GetXaxis()->SetTitle("L1 Central Jet E_{T}");
+      l1jetEt_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1jetEta_            = store->book1D("L1JetEta","L1 jet #eta",binsEta_,-2.5,2.5);
+      l1jetEta_->getTH1F()->GetXaxis()->SetTitle("L1 Central Jet #eta");
+      l1jetEta_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1jetPhi_            = store->book1D("L1JetPhi","L1 jet #phi",binsPhi_,-3.2,3.2);
+      l1jetPhi_->getTH1F()->GetXaxis()->SetTitle("L1 Central Jet #phi");
+      l1jetPhi_->getTH1F()->GetYaxis()->SetTitle("entries");
 
 
       inputEvents_         = store->book1D("InputEvents","Events Read",2,0,2);
+      inputEvents_->getTH1F()->GetYaxis()->SetTitle("entries");
 
       l1electronEt_        = store->book1D("L1ElectronEt","L1 electron E_{t}",binsEt_,0,maxEt_);
+      l1electronEt_->getTH1F()->GetXaxis()->SetTitle("L1 e/#gamma  E_{T}");
+      l1electronEt_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1electronEta_       = store->book1D("L1ElectronEta","L1 electron #eta",binsEta_,-2.5,2.5);
+      l1electronEta_->getTH1F()->GetXaxis()->SetTitle("L1 e/#gamma  #eta");
+      l1electronEta_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1electronPhi_       = store->book1D("L1ElectronPhi","L1 electron #phi",binsPhi_,-3.2,3.2);
+      l1electronPhi_->getTH1F()->GetXaxis()->SetTitle("L1 e/#gamma  #phi");
+      l1electronPhi_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1muonEt_            = store->book1D("L1MuonEt","L1 muon p_{t}",binsEt_,0,maxEt_);
+      l1muonEt_->getTH1F()->GetXaxis()->SetTitle("L1 #mu  p_{T}");
+      l1muonEt_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1muonEta_           = store->book1D("L1MuonEta","L1 muon #eta",binsEta_,-2.5,2.5);
+      l1muonEta_->getTH1F()->GetXaxis()->SetTitle("L1 #mu  #eta");
+      l1muonEta_->getTH1F()->GetYaxis()->SetTitle("entries");
+
       l1muonPhi_           = store->book1D("L1MuonPhi","L1 muon #phi",binsPhi_,-3.2,3.2);
+      l1muonPhi_->getTH1F()->GetXaxis()->SetTitle("L1 #mu  #phi");
+      l1muonPhi_->getTH1F()->GetYaxis()->SetTitle("entries");
 
 
       l1doubleTauPath_     = store->book2D("L1DoubleTau","L1 Double Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
+      l1doubleTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #tau p_{T}");
+      l1doubleTauPath_->getTH2F()->GetYaxis()->SetTitle("second L1 #tau p_{T}");
+
       l1electronTauPath_   = store->book2D("L1MuonTau","L1 Muon Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
+      l1electronTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #tau p_{T}");
+      l1electronTauPath_->getTH2F()->GetYaxis()->SetTitle("first L1 #gamma p_{T}");
+
       l1muonTauPath_       = store->book2D("L1ElectronTau","L1 Electron Tau Path Et",binsEt_,0,maxEt_,binsEt_,0,maxEt_);
+      l1muonTauPath_->getTH2F()->GetXaxis()->SetTitle("first L1 #mu p_{T}");
+      l1muonTauPath_->getTH2F()->GetYaxis()->SetTitle("second L1 #mu p_{T}");
+
+      firstTauEt_   = store->book1D("L1LeadTauEt","L1 lead #tau ET",binsEt_,0,maxEt_);
+      firstTauEt_->getTH1F()->Sumw2();
+
+      secondTauEt_   = store->book1D("L1SecondTauEt","L1 second #tau ET",binsEt_,0,maxEt_);
+      secondTauEt_->getTH1F()->Sumw2();
       
       if(doRefAnalysis_)
 	{
 	  l1tauEtRes_      = store->book1D("L1TauEtResol","L1 #tau E_{t} resolution",40,-2,2);
-	  
-	  l1tauEtEffNum_   = store->book1D("L1TauEtEffNum","L1 #tau E_{t} Efficiency",binsEt_,0,maxEt_);
+	  l1tauEtRes_->getTH1F()->GetXaxis()->SetTitle("[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T}");
+	  l1tauEtRes_->getTH1F()->GetYaxis()->SetTitle("entries");
+
+	  store->setCurrentFolder(triggerTag_+"/EfficiencyHelpers");
+	  l1tauEtEffNum_   = store->book1D("L1TauEtEffNum","L1 #tau E_{t} Efficiency Numerator",binsEt_,0,maxEt_);
 	  l1tauEtEffNum_->getTH1F()->Sumw2();
+
 	  
 	  l1tauEtEffDenom_ = store->book1D("L1TauEtEffDenom","L1 #tau E_{t} Denominator",binsEt_,0,maxEt_);
 	  l1tauEtEffDenom_->getTH1F()->Sumw2();
@@ -84,42 +137,41 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps,int etbins,in
 	  l1jetPhiEffDenom_ = store->book1D("L1JetPhiEffDenom","L1 jet #phi Denominator",binsPhi_,-3.2,3.2);
 	  l1jetPhiEffDenom_->getTH1F()->Sumw2();
 
-
-	  l1electronEtEffNum_   = store->book1D("L1ElectronEtEffNum","L1 Electron p_t Efficiency",binsEt_,0,maxEt_);
-	  l1electronEtEffNum_->getTH1F()->Sumw2();
+// 	  l1electronEtEffNum_   = store->book1D("L1ElectronEtEffNum","L1 Electron p_t Efficiency",binsEt_,0,maxEt_);
+// 	  l1electronEtEffNum_->getTH1F()->Sumw2();
 	  
-	  l1electronEtEffDenom_ = store->book1D("L1ElectronEtEffDenom","L1 Electron p_{t} Denominator",binsEt_,0,maxEt_);
-	  l1electronEtEffDenom_->getTH1F()->Sumw2();
+// 	  l1electronEtEffDenom_ = store->book1D("L1ElectronEtEffDenom","L1 Electron p_{t} Denominator",binsEt_,0,maxEt_);
+// 	  l1electronEtEffDenom_->getTH1F()->Sumw2();
 	  
-	  l1electronEtaEffNum_   = store->book1D("L1ElectronEtaEffNum","L1 Electron #eta Efficiency",binsEta_,-2.5,2.5);
-	  l1electronEtaEffNum_->getTH1F()->Sumw2();
+// 	  l1electronEtaEffNum_   = store->book1D("L1ElectronEtaEffNum","L1 Electron #eta Efficiency",binsEta_,-2.5,2.5);
+// 	  l1electronEtaEffNum_->getTH1F()->Sumw2();
 
-	  l1electronEtaEffDenom_ = store->book1D("L1ElectronEtaEffDenom","L1 Electron #eta Denominator",binsEta_,-2.5,2.5);
-	  l1electronEtaEffDenom_->getTH1F()->Sumw2();
+// 	  l1electronEtaEffDenom_ = store->book1D("L1ElectronEtaEffDenom","L1 Electron #eta Denominator",binsEta_,-2.5,2.5);
+// 	  l1electronEtaEffDenom_->getTH1F()->Sumw2();
 	      
-	  l1electronPhiEffNum_   = store->book1D("L1ElectronPhiEffNum","L1 Electron #phi Efficiency",binsPhi_,-3.2,3.2);
-	  l1electronPhiEffNum_->getTH1F()->Sumw2();
+// 	  l1electronPhiEffNum_   = store->book1D("L1ElectronPhiEffNum","L1 Electron #phi Efficiency",binsPhi_,-3.2,3.2);
+// 	  l1electronPhiEffNum_->getTH1F()->Sumw2();
 	  
-	  l1electronPhiEffDenom_ = store->book1D("L1ElectronPhiEffDenom","L1 Electron #phi Denominator",binsPhi_,-3.2,3.2);
-	  l1electronPhiEffDenom_->getTH1F()->Sumw2();
+// 	  l1electronPhiEffDenom_ = store->book1D("L1ElectronPhiEffDenom","L1 Electron #phi Denominator",binsPhi_,-3.2,3.2);
+// 	  l1electronPhiEffDenom_->getTH1F()->Sumw2();
 	  
-	  l1muonEtEffNum_   = store->book1D("L1MuonEtEffNum","L1 Muon E_{t} Efficiency",binsEt_,0,maxEt_);
-	  l1muonEtEffNum_->getTH1F()->Sumw2();
+// 	  l1muonEtEffNum_   = store->book1D("L1MuonEtEffNum","L1 Muon E_{t} Efficiency",binsEt_,0,maxEt_);
+// 	  l1muonEtEffNum_->getTH1F()->Sumw2();
 	  
-	  l1muonEtEffDenom_ = store->book1D("L1MuonEtEffDenom","L1 Muon E_{t} Denominator",binsEt_,0,maxEt_);
-	  l1muonEtEffDenom_->getTH1F()->Sumw2();
+// 	  l1muonEtEffDenom_ = store->book1D("L1MuonEtEffDenom","L1 Muon E_{t} Denominator",binsEt_,0,maxEt_);
+// 	  l1muonEtEffDenom_->getTH1F()->Sumw2();
 
-	  l1muonEtaEffNum_   = store->book1D("L1MuonEtaEffNum","L1 Muon #eta Efficiency",binsEta_,-2.5,2.5);
-	  l1muonEtaEffNum_->getTH1F()->Sumw2();
+// 	  l1muonEtaEffNum_   = store->book1D("L1MuonEtaEffNum","L1 Muon #eta Efficiency",binsEta_,-2.5,2.5);
+// 	  l1muonEtaEffNum_->getTH1F()->Sumw2();
 
-	  l1muonEtaEffDenom_ = store->book1D("L1MuonEtaEffDenom","L1 Muon #eta Denominator",binsEta_,-2.5,2.5);
-	  l1muonEtaEffDenom_->getTH1F()->Sumw2();
+// 	  l1muonEtaEffDenom_ = store->book1D("L1MuonEtaEffDenom","L1 Muon #eta Denominator",binsEta_,-2.5,2.5);
+// 	  l1muonEtaEffDenom_->getTH1F()->Sumw2();
 
-	  l1muonPhiEffNum_   = store->book1D("L1MuonPhiEffNum","L1 Muon #phi Efficiency",binsPhi_,-3.2,3.2);
-	  l1muonPhiEffNum_->getTH1F()->Sumw2();
+// 	  l1muonPhiEffNum_   = store->book1D("L1MuonPhiEffNum","L1 Muon #phi Efficiency",binsPhi_,-3.2,3.2);
+// 	  l1muonPhiEffNum_->getTH1F()->Sumw2();
 
-	  l1muonPhiEffDenom_ = store->book1D("L1MuonPhiEffDenom","L1 Muon #phi Denominator",binsPhi_,-3.2,3.2);
-	  l1muonPhiEffDenom_->getTH1F()->Sumw2();
+// 	  l1muonPhiEffDenom_ = store->book1D("L1MuonPhiEffDenom","L1 Muon #phi Denominator",binsPhi_,-3.2,3.2);
+// 	  l1muonPhiEffDenom_->getTH1F()->Sumw2();
 	}
     }
 
@@ -137,15 +189,14 @@ HLTTauDQML1Plotter::~HLTTauDQML1Plotter()
 void
 HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,const std::vector<LVColl>& refC)
 {
+
   using namespace std;
   using namespace edm;
   using namespace reco;
   using namespace l1extra;
 
-
-
-
-  inputEvents_->Fill(0.5);
+  //  if(!doRefAnalysis)
+  //    inputEvents_->Fill(0.5);
 
   if(doRefAnalysis_)
     {
@@ -162,20 +213,20 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  l1jetPhiEffDenom_->Fill((refC[0])[j].phi());
 
 	}
-      if(refC.size()>1)
-	for(size_t j = 0;j<(refC)[1].size();++j)
-	  {
-	    l1electronEtEffDenom_->Fill((refC[1])[j].pt());
-	    l1electronEtaEffDenom_->Fill((refC[1])[j].eta());
-	    l1electronEtaEffDenom_->Fill((refC[1])[j].phi());
-	  }
-      if(refC.size()>2)
-	for(size_t j = 0;j<(refC)[2].size();++j)
-	  {
-	    l1muonEtEffDenom_->Fill((refC[2])[j].pt());
-	    l1muonEtaEffDenom_->Fill((refC[2])[j].eta());
-	    l1muonEtaEffDenom_->Fill((refC[2])[j].phi());
-	  }
+//       if(refC.size()>1)
+// 	for(size_t j = 0;j<(refC)[1].size();++j)
+// 	  {
+// 	    l1electronEtEffDenom_->Fill((refC[1])[j].pt());
+// 	    l1electronEtaEffDenom_->Fill((refC[1])[j].eta());
+// 	    l1electronEtaEffDenom_->Fill((refC[1])[j].phi());
+// 	  }
+//       if(refC.size()>2)
+// 	for(size_t j = 0;j<(refC)[2].size();++j)
+// 	  {
+// 	    l1muonEtEffDenom_->Fill((refC[2])[j].pt());
+// 	    l1muonEtaEffDenom_->Fill((refC[2])[j].eta());
+// 	    l1muonEtaEffDenom_->Fill((refC[2])[j].phi());
+// 	  }
 
     }
 
@@ -199,20 +250,32 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
 
+
+
   if(iEvent.getByLabel(l1ExtraTaus_,taus))
-     for(L1JetParticleCollection::const_iterator i = taus->begin();i!=taus->end();++i)
-       {
-	  l1taus.push_back(i->p4());
+    if(taus->size()>0)
+    {
 	  if(!doRefAnalysis_)
 	    {
-	      l1tauEt_->Fill(i->et());
-	      l1tauEta_->Fill(i->eta());
-	      l1tauPhi_->Fill(i->phi());
-	      pathTaus.push_back(i->p4());
+	      firstTauEt_->Fill((*taus)[0].pt());
+	      if(taus->size()>1)
+		secondTauEt_->Fill((*taus)[0].pt());
+
 	    }
+	  for(L1JetParticleCollection::const_iterator i = taus->begin();i!=taus->end();++i)
+	    {
+	      l1taus.push_back(i->p4());
+	      if(!doRefAnalysis_)
+		{
+		  l1tauEt_->Fill(i->et());
+		  l1tauEta_->Fill(i->eta());
+		  l1tauPhi_->Fill(i->phi());
+		  pathTaus.push_back(i->p4());
+		}
 
-       }
-
+	    }
+	    
+    }
   if(iEvent.getByLabel(l1ExtraJets_,jets))
     for(L1JetParticleCollection::const_iterator i = jets->begin();i!=jets->end();++i)
 	  {	
@@ -302,9 +365,9 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  l1electronEt_->Fill(m.second.pt());
 		  l1electronEta_->Fill(m.second.eta());
 		  l1electronPhi_->Fill(m.second.phi());
-		  l1electronEtEffNum_->Fill(i->pt());
-		  l1electronEtaEffNum_->Fill(i->eta());
-		  l1electronPhiEffNum_->Fill(i->phi());
+// 		  l1electronEtEffNum_->Fill(i->pt());
+// 		  l1electronEtaEffNum_->Fill(i->eta());
+// 		  l1electronPhiEffNum_->Fill(i->phi());
 		  pathElectrons.push_back(m.second);
 
 		}
@@ -319,9 +382,9 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  l1muonEt_->Fill(m.second.pt());
 		  l1muonEta_->Fill(m.second.eta());
 		  l1muonPhi_->Fill(m.second.phi());
-		  l1muonEtEffNum_->Fill(i->pt());
-		  l1muonEtaEffNum_->Fill(i->eta());
-		  l1muonPhiEffNum_->Fill(i->phi());
+// 		  l1muonEtEffNum_->Fill(i->pt());
+// 		  l1muonEtaEffNum_->Fill(i->eta());
+// 		  l1muonPhiEffNum_->Fill(i->phi());
 		  pathMuons.push_back(m.second);
 		}
 	    }
@@ -339,8 +402,20 @@ HLTTauDQML1Plotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     std::sort(pathMuons.begin(),pathMuons.end(),ptSort);
 
 
+  if(pathTaus.size()>0)
+    {
+      firstTauEt_->Fill(pathTaus[0].pt());
+      inputEvents_->Fill(0.5);
+    }
+  if(pathTaus.size()>1)
+    {
+      secondTauEt_->Fill(pathTaus[1].pt());
+      inputEvents_->Fill(1.5);
+    }
+
   if(pathTaus.size()>=2)
     {
+      
       l1doubleTauPath_->Fill(pathTaus[0].pt(),pathTaus[1].pt());
     }
   if(pathTaus.size()>=1&&pathElectrons.size()>=1)

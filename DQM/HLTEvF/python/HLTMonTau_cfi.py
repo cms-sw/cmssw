@@ -61,12 +61,21 @@ hltTauMonitor = cms.EDFilter("HLTTauDQMSource",
 
         cms.PSet(
             DQMFolder              = cms.string('HLT/TauOnline/Inclusive/L2'),
+            L2RegionalJets         = cms.VInputTag(
+                                                   cms.InputTag("hltIconeTau1Regional"),
+                                                   cms.InputTag("hltIconeTau2Regional"),
+                                                   cms.InputTag("hltIconeTau3Regional"),
+                                                   cms.InputTag("hltIconeTau4Regional"),
+                                                   cms.InputTag("hltIconeCentral1Regional"),
+                                                   cms.InputTag("hltIconeCentral2Regional"),
+                                                   cms.InputTag("hltIconeCentral3Regional"),
+                                                   cms.InputTag("hltIconeCentral4Regional")),
             L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         ),
 
         cms.PSet(
-            L1Dirs                  = cms.vstring(""),
+            L1Dirs                  = cms.vstring("HLT/TauOnline/Inclusive/L1"),
             caloDirs                = cms.vstring("HLT/TauOnline/Inclusive/L2"),
             trackDirs               = cms.vstring(""),
             pathDirs                = cms.vstring(""),
@@ -100,7 +109,7 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/DoubleTau'),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Photons/DoubleTau'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltL1sDoubleLooseIsoTau15","",hltTauDQMProcess), 
                                         cms.InputTag("hltFilterL2EtCutDoubleLooseIsoTau15","",hltTauDQMProcess),
@@ -115,7 +124,7 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
 
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/Summary'),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Photons/Summary'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltFilterL2EcalIsolationDoubleLooseIsoTau15","",hltTauDQMProcess),
                                         cms.InputTag("hltFilterL2EcalIsolationSingleLooseIsoTau20","",hltTauDQMProcess)
@@ -132,7 +141,7 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
         
         cms.PSet(
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauDQMProcess),
-            DQMFolder             = cms.untracked.string('HLT/TauOnline/Electrons/SingleTau'),
+            DQMFolder             = cms.untracked.string('HLT/TauOnline/Photons/SingleTau'),
             Filter                = cms.untracked.VInputTag(
                                         cms.InputTag("hltL1sSingleLooseIsoTau20","",hltTauDQMProcess), 
                                         cms.InputTag("hltFilterL2EtCutSingleLooseIsoTau20","",hltTauDQMProcess),
@@ -146,7 +155,7 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
 
         ),
         cms.PSet(
-            DQMFolder              = cms.string('HLT/TauOnline/Electrons/L1'),
+            DQMFolder              = cms.string('HLT/TauOnline/Photons/L1'),
             L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
             L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
             L1Electrons            = cms.InputTag("hltL1extraParticles","Isolated"),
@@ -154,16 +163,25 @@ hltTauElectronMonitor = cms.EDFilter("HLTTauDQMSource",
         ),
 
         cms.PSet(
-            DQMFolder              = cms.string('HLT/TauOnline/Electrons/L2'),
+            DQMFolder              = cms.string('HLT/TauOnline/Photons/L2'),
             L2InfoAssociationInput = cms.InputTag("hltL2TauNarrowConeIsolationProducer"),
+            L2RegionalJets         = cms.VInputTag(
+                                                   cms.InputTag("hltIconeTau1Regional"),
+                                                   cms.InputTag("hltIconeTau2Regional"),
+                                                   cms.InputTag("hltIconeTau3Regional"),
+                                                   cms.InputTag("hltIconeTau4Regional"),
+                                                   cms.InputTag("hltIconeCentral1Regional"),
+                                                   cms.InputTag("hltIconeCentral2Regional"),
+                                                   cms.InputTag("hltIconeCentral3Regional"),
+                                                   cms.InputTag("hltIconeCentral4Regional")),
             L2IsolatedJets         = cms.InputTag("hltL2TauRelaxingIsolationSelector","Isolated")
         ),
       cms.PSet(
-            L1Dirs                  = cms.vstring("HLT/TauOnline/Electrons/L1"),
-            caloDirs                = cms.vstring("HLT/TauOnline/Electrons/L2"),
+            L1Dirs                  = cms.vstring("HLT/TauOnline/Photons/L1"),
+            caloDirs                = cms.vstring("HLT/TauOnline/Photons/L2"),
             trackDirs               = cms.vstring(),
-            pathDirs                = cms.vstring("HLT/TauOnline/Electrons/DoubleTau","HLT/TauOnline/Electrons/SingleTau"),
-            pathSummaryDirs         = cms.vstring("HLT/TauOnline/Electrons/Summary")
+            pathDirs                = cms.vstring("HLT/TauOnline/Photons/DoubleTau","HLT/TauOnline/Photons/SingleTau"),
+            pathSummaryDirs         = cms.vstring("HLT/TauOnline/Photons/Summary")
         )
     ),
                                      

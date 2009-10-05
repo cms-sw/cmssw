@@ -148,8 +148,6 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       if (trigEv.isValid()) 
 	{
-
-
 	  //Loop through the filters
 	  for(size_t i=0;i<filter_.size();++i)
 	    {
@@ -210,7 +208,6 @@ HLTTauDQMLitePathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetu
 		}
 	    }
 	
-       
 
 
 	  //Do the object thing
@@ -290,7 +287,7 @@ HLTTauDQMLitePathPlotter::getObjectCollection(int id,const trigger::TriggerEvent
 
 	LVColl out;
 	for(unsigned int i=0;i<triggerObjects.size();++i)
-	  if(abs(triggerObjects[i].id()) == id)
+	  //	  if(abs(triggerObjects[i].id()) == id)
 	   {
 	     LV a(triggerObjects[i].px(),triggerObjects[i].py(),triggerObjects[i].pz(),triggerObjects[i].energy());
 	     out.push_back(a);
@@ -319,7 +316,6 @@ HLTTauDQMLitePathPlotter::getFilterCollection(size_t index,int id,const trigger:
 	    {
 	      const TriggerObject& TO(TOC[KEYS[i]]);
 	      LV a(TO.px(),TO.py(),TO.pz(),sqrt(TO.px()*TO.px()+TO.py()*TO.py()+TO.pz()*TO.pz()));
-	      if(abs(TO.id()) == id)
 		out.push_back(a);
 	    }
 	}

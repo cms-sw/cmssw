@@ -34,7 +34,7 @@ class HLTTauDQMSummaryPlotter
 
   void bookEfficiencyHisto(std::string,std::string,std::string,DQMStore*);
   void plotEfficiencyHisto(std::string,std::string,std::string ,std::string ,DQMStore*);
-
+  void plotIntegratedEffHisto(std::string,std::string,std::string,std::string,int ,DQMStore*);
   void bookTriggerBitEfficiencyHistos(std::string folder,std::string histo,DQMStore*dbe);
   void plotTriggerBitEfficiencyHistos(std::string folder,std::string histo,DQMStore*dbe);
 

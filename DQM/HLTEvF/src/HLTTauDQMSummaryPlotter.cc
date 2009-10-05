@@ -34,17 +34,16 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& iConfi
     for(size_t i=0;i<L1Folder_.size();++i)
     if(L1Folder_[i].size()>0)
       {
-	bookEfficiencyHisto(L1Folder_[i],"L1TauEtEff","L1TauEtEffNum",dbe);
-	bookEfficiencyHisto(L1Folder_[i],"L1TauEtaEff","L1TauEtaEffNum",dbe);
-	bookEfficiencyHisto(L1Folder_[i],"L1TauPhiEff","L1TauPhiEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum",dbe);
 
-	bookEfficiencyHisto(L1Folder_[i],"L1JetEtEff","L1JetEtEffNum",dbe);
-	bookEfficiencyHisto(L1Folder_[i],"L1JetEtaEff","L1JetEtaEffNum",dbe);
-	bookEfficiencyHisto(L1Folder_[i],"L1JetPhiEff","L1JetPhiEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum",dbe);
 
-	bookEfficiencyHisto(L1Folder_[i],"L1LeptonEtEff","L1LeptonEtEffNum",dbe);
-	bookEfficiencyHisto(L1Folder_[i],"L1LeptonEtaEff","L1LeptonEtaEffNum",dbe);
-	bookEfficiencyHisto(L1Folder_[i],"L1LeptonPhiEff","L1LeptonPhiEffNum",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1SingleTauEff","L1LeadTauEt",dbe);
+	bookEfficiencyHisto(L1Folder_[i],"L1DoubleTauEff","L1SecondTauEt",dbe);
 
       }
 
@@ -53,9 +52,13 @@ HLTTauDQMSummaryPlotter::HLTTauDQMSummaryPlotter(const edm::ParameterSet& iConfi
     for(size_t i=0;i<caloFolder_.size();++i)
     if(caloFolder_[i].size()>0)
       {
-	bookEfficiencyHisto(caloFolder_[i],"L2TauEtEff","L2TauEtEffNum",dbe);
-	bookEfficiencyHisto(caloFolder_[i],"L2TauEtaEff","L2TauEtaEffNum",dbe);
-	bookEfficiencyHisto(caloFolder_[i],"L2TauPhiEff","L2TauPhiEffNum",dbe);
+	bookEfficiencyHisto(caloFolder_[i],"L2RecoTauEtEff","EfficiencyHelpers/L2RecoTauEtEffNum",dbe);
+	bookEfficiencyHisto(caloFolder_[i],"L2RecoTauEtaEff","EfficiencyHelpers/L2RecoTauEtaEffNum",dbe);
+	bookEfficiencyHisto(caloFolder_[i],"L2RecoTauPhiEff","EfficiencyHelpers/L2RecoTauPhiEffNum",dbe);
+
+	bookEfficiencyHisto(caloFolder_[i],"L2IsoTauEtEff","EfficiencyHelpers/L2IsoTauEtEffNum",dbe);
+	bookEfficiencyHisto(caloFolder_[i],"L2IsoTauEtaEff","EfficiencyHelpers/L2IsoTauEtaEffNum",dbe);
+	bookEfficiencyHisto(caloFolder_[i],"L2IsoTauPhiEff","EfficiencyHelpers/L2IsoTauPhiEffNum",dbe);
       }
 
     //L25/3 Summary
@@ -104,31 +107,37 @@ HLTTauDQMSummaryPlotter::plot()
     for(size_t i=0;i<L1Folder_.size();++i)
     if(L1Folder_[i].size()>0)
       {
-	plotEfficiencyHisto(L1Folder_[i],"L1TauEtEff","L1TauEtEffNum","L1TauEtEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1TauEtaEff","L1TauEtaEffNum","L1TauEtaEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1TauPhiEff","L1TauPhiEffNum","L1TauPhiEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum","EfficiencyHelpers/L1TauEtEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum","EfficiencyHelpers/L1TauEtaEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum","EfficiencyHelpers/L1TauPhiEffDenom",dbe);
 
-	plotEfficiencyHisto(L1Folder_[i],"L1JetEtEff","L1JetEtEffNum","L1JetEtEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1JetEtaEff","L1JetEtaEffNum","L1JetEtaEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1JetPhiEff","L1JetPhiEffNum","L1JetPhiEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum","EfficiencyHelpers/L1JetEtEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum","EfficiencyHelpers/L1JetEtaEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum","EfficiencyHelpers/L1JetPhiEffDenom",dbe);
 
-	plotEfficiencyHisto(L1Folder_[i],"L1ElectronEtEff","L1ElectronEtEffNum","L1ElectronEtEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1ElectronEtaEff","L1ElectronEtaEffNum","L1ElectronEtaEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1ElectronPhiEff","L1ElectronPhiEffNum","L1ElectronPhiEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1ElectronEtEff","EfficiencyHelpers/L1ElectronEtEffNum","EfficiencyHelpers/L1ElectronEtEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1ElectronEtaEff","EfficiencyHelpers/L1ElectronEtaEffNum","EfficiencyHelpers/L1ElectronEtaEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1ElectronPhiEff","EfficiencyHelpers/L1ElectronPhiEffNum","EfficiencyHelpers/L1ElectronPhiEffDenom",dbe);
 
-	plotEfficiencyHisto(L1Folder_[i],"L1MuonEtEff","L1MuonEtEffNum","L1MuonEtEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1MuonEtaEff","L1MuonEtaEffNum","L1MuonEtaEffDenom",dbe);
-	plotEfficiencyHisto(L1Folder_[i],"L1MuonPhiEff","L1MuonPhiEffNum","L1MuonPhiEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1MuonEtEff","EfficiencyHelpers/L1MuonEtEffNum","EfficiencyHelpers/L1MuonEtEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1MuonEtaEff","EfficiencyHelpers/L1MuonEtaEffNum","EfficiencyHelpers/L1MuonEtaEffDenom",dbe);
+	plotEfficiencyHisto(L1Folder_[i],"L1MuonPhiEff","EfficiencyHelpers/L1MuonPhiEffNum","EfficiencyHelpers/L1MuonPhiEffDenom",dbe);
 
+	plotIntegratedEffHisto(L1Folder_[i],"L1SingleTauEff","L1LeadTauEt","InputEvents",1,dbe);
+	plotIntegratedEffHisto(L1Folder_[i],"L1DoubleTauEff","L1SecondTauEt","InputEvents",2,dbe);
       }
 
     //L2 Summary
     for(size_t i=0;i<caloFolder_.size();++i)
     if(caloFolder_[i].size()>0)
       {
-	plotEfficiencyHisto(caloFolder_[i],"L2TauEtEff","L2TauEtEffNum","L2TauEtEffDenom",dbe);
-	plotEfficiencyHisto(caloFolder_[i],"L2TauEtaEff","L2TauEtaEffNum","L2TauEtaEffDenom",dbe);
-	plotEfficiencyHisto(caloFolder_[i],"L2TauPhiEff","L2TauPhiEffNum","L2TauPhiEffDenom",dbe);
+	plotEfficiencyHisto(caloFolder_[i],"L2RecoTauEtEff","EfficiencyHelpers/L2RecoTauEtEffNum","EfficiencyHelpers/L2RecoTauEtEffDenom",dbe);
+	plotEfficiencyHisto(caloFolder_[i],"L2RecoTauEtaEff","EfficiencyHelpers/L2RecoTauEtaEffNum","EfficiencyHelpers/L2RecoTauEtaEffDenom",dbe);
+	plotEfficiencyHisto(caloFolder_[i],"L2RecoTauPhiEff","EfficiencyHelpers/L2RecoTauPhiEffNum","EfficiencyHelpers/L2RecoTauPhiEffDenom",dbe);
+
+	plotEfficiencyHisto(caloFolder_[i],"L2IsoTauEtEff","EfficiencyHelpers/L2IsoTauEtEffNum","EfficiencyHelpers/L2IsoTauEtEffDenom",dbe);
+	plotEfficiencyHisto(caloFolder_[i],"L2IsoTauEtaEff","EfficiencyHelpers/L2IsoTauEtaEffNum","EfficiencyHelpers/L2IsoTauEtaEffDenom",dbe);
+	plotEfficiencyHisto(caloFolder_[i],"L2IsoTauPhiEff","EfficiencyHelpers/L2IsoTauPhiEffNum","EfficiencyHelpers/L2IsoTauPhiEffDenom",dbe);
       }
 
 
@@ -155,14 +164,17 @@ HLTTauDQMSummaryPlotter::bookEfficiencyHisto(std::string folder,std::string name
   if(dbe->dirExists(folder))
   {
     MonitorElement * effnum = dbe->get(folder+"/"+hist1);
-
+    
     if(effnum)
       {
 	dbe->setCurrentFolder(folder);
-	dbe->book1D(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax());
+	MonitorElement *tmp = dbe->book1D(name,name,effnum->getTH1F()->GetNbinsX(),effnum->getTH1F()->GetXaxis()->GetXmin(),effnum->getTH1F()->GetXaxis()->GetXmax());
+	tmp->getTH1F()->GetYaxis()->SetRangeUser(0.,1.05);
       }
   }
 }
+
+
 
 
 void 
@@ -182,6 +194,45 @@ HLTTauDQMSummaryPlotter::plotEfficiencyHisto(std::string folder,std::string name
 
   }
 }
+
+
+void
+HLTTauDQMSummaryPlotter::plotIntegratedEffHisto(std::string folder,std::string name,std::string refHisto,std::string evCount,int bin,DQMStore * dbe)
+{
+  if(dbe->dirExists(folder))
+    {
+      MonitorElement * refH = dbe->get(folder+"/"+refHisto);
+      MonitorElement * evC  = dbe->get(folder+"/"+evCount);
+      MonitorElement * eff = dbe->get(folder+"/"+name);
+
+      if(refH && evC && eff)
+	{
+	  TH1F *histo = refH->getTH1F();
+	  float nGenerated = evC->getTH1F()->GetBinContent(bin);
+	  // Assuming that the histogram is incremented with weight=1 for each event
+	  // this function integrates the histogram contents above every bin and stores it
+	  // in that bin.  The result is plot of integral rate versus threshold plot.
+	  int nbins = histo->GetNbinsX();
+	  double integral = histo->GetBinContent(nbins+1);  // Initialize to overflow
+	  if (nGenerated<=0.0)  {
+	    nGenerated=1.0;
+	  }
+	  for(int i = nbins; i >= 1; i--)
+	    {
+	      double thisBin = histo->GetBinContent(i);
+	      integral += thisBin;
+	      double integralEff;
+	      double integralError;
+	      integralEff = (integral / nGenerated);
+	      eff->getTH1F()->SetBinContent(i, integralEff);
+	      // error
+	      integralError = (sqrt(integral) / nGenerated);
+	      eff->getTH1F()->SetBinError(i, integralError);
+	    }
+	}
+    }
+}
+
 
 
 void 

@@ -45,6 +45,7 @@ class HLTTauDQMCaloPlotter {
    private:
 
       //Parameters to read
+      std::vector<edm::InputTag> l2preJets_;
       edm::InputTag     l2TauInfoAssoc_; //Path to analyze
       edm::InputTag     met_;             //Handle to missing Et 
       bool              doRef_;           //DoReference Analysis
@@ -64,14 +65,20 @@ class HLTTauDQMCaloPlotter {
       DQMStore* store;
 
       //Monitor elements main
+      MonitorElement* preJetEt;
+      MonitorElement* preJetEta;
+      MonitorElement* preJetPhi;
+
       MonitorElement* jetEt;
       MonitorElement* jetEta;
       MonitorElement* jetPhi;
-      MonitorElement* jetEtRes;
 
       MonitorElement* isoJetEt;
       MonitorElement* isoJetEta;
       MonitorElement* isoJetPhi;
+
+      MonitorElement* jetEtRes;
+
 
       MonitorElement* ecalIsolEt;
       MonitorElement* hcalIsolEt;
@@ -91,12 +98,19 @@ class HLTTauDQMCaloPlotter {
 
 
 
-      MonitorElement* EtEffNum;
-      MonitorElement* EtEffDenom;
-      MonitorElement* EtaEffNum;
-      MonitorElement* EtaEffDenom;
-      MonitorElement* PhiEffNum;
-      MonitorElement* PhiEffDenom;
+      MonitorElement* recoEtEffNum;
+      MonitorElement* recoEtEffDenom;
+      MonitorElement* recoEtaEffNum;
+      MonitorElement* recoEtaEffDenom;
+      MonitorElement* recoPhiEffNum;
+      MonitorElement* recoPhiEffDenom;
+
+      MonitorElement* isoEtEffNum;
+      MonitorElement* isoEtEffDenom;
+      MonitorElement* isoEtaEffNum;
+      MonitorElement* isoEtaEffDenom;
+      MonitorElement* isoPhiEffNum;
+      MonitorElement* isoPhiEffDenom;
 
       bool matchJet(const reco::Jet&,const reco::CaloJetCollection&);//See if this Jet Is Matched
       std::pair<bool,LV> match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
