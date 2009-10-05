@@ -62,10 +62,6 @@ public:
   bool doPFTaus_;
   double ptMinPFTau_;
   
-  edm::InputTag CaloTaus_;
-  edm::InputTag CaloTauDis_;
-  bool doCaloTaus_;
-  double ptMinCaloTau_;
   
   edm::InputTag Electrons_;
   bool doElectrons_;
@@ -101,12 +97,11 @@ public:
   edm::InputTag Towers_;
   bool doTowers_;
   double ptMinTower_;
-
+  double towerIsol_;
 
   double etaMax;
 
   void doPFTaus(edm::Event&,const edm::EventSetup&);
-  void doCaloTaus(edm::Event&,const edm::EventSetup&);
   void doMuons(edm::Event&,const edm::EventSetup&);
   void doElectrons(edm::Event&,const edm::EventSetup&);
   void doElectronsFromZ(edm::Event&,const edm::EventSetup&,std::auto_ptr<LorentzVectorCollection>&);

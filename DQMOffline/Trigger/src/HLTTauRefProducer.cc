@@ -23,6 +23,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "Math/GenVector/VectorUtil.h"
 
 
 using namespace edm;
@@ -40,12 +41,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   PFTauDis_ = pfTau.getUntrackedParameter<std::vector<InputTag> >("PFTauDiscriminators");
   doPFTaus_ = pfTau.getUntrackedParameter<bool>("doPFTaus",false);
   ptMinPFTau_= pfTau.getUntrackedParameter<double>("ptMin",15.);
-
-  ParameterSet  caloTau = iConfig.getUntrackedParameter<edm::ParameterSet>("CaloTaus");
-  CaloTaus_ = caloTau.getUntrackedParameter<InputTag>("CaloTauProducer");
-  CaloTauDis_ = caloTau.getUntrackedParameter<InputTag>("CaloTauDiscriminator");
-  doCaloTaus_ = caloTau.getUntrackedParameter<bool>("doCaloTaus",false);
-  ptMinCaloTau_= caloTau.getUntrackedParameter<double>("ptMin",15.);
 
   ParameterSet  electrons = iConfig.getUntrackedParameter<edm::ParameterSet>("Electrons");
   Electrons_ = electrons.getUntrackedParameter<InputTag>("ElectronCollection");
@@ -75,6 +70,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   Towers_ = towers.getUntrackedParameter<InputTag>("TowerCollection");
   doTowers_ = towers.getUntrackedParameter<bool>("doTowers");
   ptMinTower_= towers.getUntrackedParameter<double>("etMin");
+  towerIsol_= towers.getUntrackedParameter<double>("towerIsolation");
 
   ParameterSet  photons = iConfig.getUntrackedParameter<edm::ParameterSet>("Photons");
   Photons_ = photons.getUntrackedParameter<InputTag>("PhotonCollection");
@@ -88,7 +84,6 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
 
   //recoCollections
   produces<LorentzVectorCollection>("PFTaus");
-  produces<LorentzVectorCollection>("CaloTaus");
   produces<LorentzVectorCollection>("Electrons");
   produces<LorentzVectorCollection>("Muons");
   produces<LorentzVectorCollection>("Jets");
@@ -103,8 +98,6 @@ void HLTTauRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
   if(doPFTaus_)
     doPFTaus(iEvent,iES);
-  if(doCaloTaus_)
-    doCaloTaus(iEvent,iES);
   if(doElectrons_)
     doElectrons(iEvent,iES);
   if(doMuons_)
@@ -125,54 +118,28 @@ HLTTauRefProducer::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       //Retrieve the collection
       edm::Handle<PFTauCollection> pftaus;
       if(iEvent.getByLabel(PFTaus_,pftaus))
-	for(unsigned int j=0;j<PFTauDis_.size();++j)
-	  {
-	    edm::Handle<PFTauDiscriminator> pftaudis;
-	    if(iEvent.getByLabel(PFTauDis_[j],pftaudis))
-	      for(size_t i = 0 ;i<pftaus->size();++i)
-		{
-		  
-		  if((*pftaudis)[i].second==1)
-		    if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
-		      {
-			
-			LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
-			product_PFTaus->push_back(vec);
-			
-		      }
-		}
-	  }
-      iEvent.put(product_PFTaus,"PFTaus");
-      
-}
-
-void 
-HLTTauRefProducer::doCaloTaus(edm::Event& iEvent,const edm::EventSetup& iES)
-{
-      auto_ptr<LorentzVectorCollection> product_CaloTaus(new LorentzVectorCollection);
-      //Retrieve the collection
-      edm::Handle<CaloTauCollection> calotaus;
-      if(iEvent.getByLabel(CaloTaus_,calotaus))
 	{
-	  edm::Handle<CaloTauDiscriminatorByIsolation> calotaudis;
-	  if(iEvent.getByLabel(CaloTauDis_,calotaudis))
-	    for(size_t i = 0 ;i<calotaus->size();++i)
+	  for(unsigned int i=0;i<pftaus->size();++i)
+	    if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
 	      {
-		if((*calotaudis)[i].second==1)
-		  if((*calotaus)[i].pt()>ptMinCaloTau_&&fabs((*calotaus)[i].eta())<etaMax)
+		reco::PFTauRef thePFTau(pftaus,i);
+		for(unsigned int j=0;j<PFTauDis_.size();++j)
+		{
+		  edm::Handle<PFTauDiscriminator> pftaudis;
+		  if(iEvent.getByLabel(PFTauDis_[j],pftaudis))
 		    {
-		      LorentzVector vec((*calotaus)[i].px(),(*calotaus)[i].py(),(*calotaus)[i].pz(),(*calotaus)[i].energy());
-		      product_CaloTaus->push_back(vec);
-	
+		      if((*pftaudis)[thePFTau]>0.5)
+			{
+			  LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
+			  product_PFTaus->push_back(vec);
+			}
 		    }
+		}
 	      }
-	
-
-
- iEvent.put(product_CaloTaus,"CaloTaus");
 	}
 
-     
+      iEvent.put(product_PFTaus,"PFTaus");
+      
 }
 
 
@@ -300,8 +267,19 @@ HLTTauRefProducer::doTowers(edm::Event& iEvent,const edm::EventSetup& iES)
 	{
 	     if((*towers)[i].pt()>ptMinTower_&&fabs((*towers)[i].eta())<etaMax)
 	      {
-		LorentzVector vec((*towers)[i].px(),(*towers)[i].py(),(*towers)[i].pz(),(*towers)[i].energy());
-		product_Towers->push_back(vec);
+		//calculate isolation
+		double isolET=0;
+		for(unsigned int j=0;j<towers->size();++j)
+		  {
+		    if(ROOT::Math::VectorUtil::DeltaR((*towers)[i].p4(),(*towers)[j].p4())<0.5)
+		      isolET+=(*towers)[j].pt();
+		  }
+		isolET-=(*towers)[i].pt();
+		if(isolET<towerIsol_)
+		  {
+		    LorentzVector vec((*towers)[i].px(),(*towers)[i].py(),(*towers)[i].pz(),(*towers)[i].energy());
+		    product_Towers->push_back(vec);
+		  }
 	      }
 	}
       iEvent.put(product_Towers,"Towers");
