@@ -587,7 +587,7 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
       int detId = roll->id().rawId();
       //iterate over strips
       
-      for (int strip = 0; strip< roll->nstrips(); ++strip){
+      for (int strip = 1; strip<= roll->nstrips(); ++strip){
 
           std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, 
                     L1RPCConeBuilder::TStripConVec::const_iterator> 
