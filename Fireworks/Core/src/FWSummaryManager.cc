@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.15 2009/09/18 12:52:34 amraktad Exp $
+// $Id: FWSummaryManager.cc,v 1.16 2009/09/23 20:34:38 chrjones Exp $
 //
 
 // system include files
@@ -160,16 +160,15 @@ FWSummaryManager::colorsChanged()
 {
    bool backgroundIsWhite = m_colorManager->backgroundColorIndex()==FWColorManager::kWhiteIndex;
    
-   if(backgroundIsWhite) {
-      const unsigned int backgroundColor=0xdfdfdf;
-      m_pack->SetBackgroundColor(backgroundColor);
+   if(m_colorManager->isColorSetLight()) {
+      m_pack->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    } else {
       const unsigned int backgroundColor=0x2f2f2f;
       m_pack->SetBackgroundColor(backgroundColor);
    }
    gClient->NeedRedraw(m_pack);
    for(std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(), 
-       itEnd = m_collectionWidgets.end();
+          itEnd = m_collectionWidgets.end();
        it != itEnd;
        ++it) {
       if(0!=*it) {
