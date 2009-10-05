@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2009/09/08 09:54:43 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/09/24 07:46:54 $
+ *  $Revision: 1.16 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -57,14 +57,15 @@ public:
 
   // Operations
   // ----------
-  virtual void Fill( const reco::Particle::LorentzVector & p4 ) {};
-  virtual void Fill( const CLHEP::HepLorentzVector & momentum ) {};
+  //   virtual void Fill( const reco::Particle::LorentzVector & p4 ) {};
+  //   virtual void Fill( const CLHEP::HepLorentzVector & momentum ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2 ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p1, const reco::Particle::LorentzVector & p2, const int charge, const double & weight = 1.) {};
   virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2 ) {};
   virtual void Fill( const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) {};
   virtual void Fill( const CLHEP::HepLorentzVector & p1, const reco::Particle::LorentzVector & p2 ) {};
-  virtual void Fill( const reco::Particle::LorentzVector & p4, const double & likeValue ) {};
+  virtual void Fill( const reco::Particle::LorentzVector & p4, const double & weight = 1. ) {};
+  // virtual void Fill( const reco::Particle::LorentzVector & p4, const double & likeValue ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & resValue, const int charge ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & genValue, const double recValue, const int charge ) {};
   virtual void Fill( const CLHEP::HepLorentzVector & p, const double & likeValue ) {};
@@ -448,16 +449,16 @@ class HPartVSEta : public Histograms
     delete hMassVSEta_prof_;
   }
 
-  virtual void Fill (const reco::Particle::LorentzVector & p4) {
-    Fill (CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()));
+  virtual void Fill (const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+    Fill (CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill (const CLHEP::HepLorentzVector & momentum) {
-    hPtVSEta_->Fill(momentum.eta(),momentum.perp());
-    hPtVSEta_prof_->Fill(momentum.eta(),momentum.perp());
+  virtual void Fill (const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) {
+    hPtVSEta_->Fill(momentum.eta(),momentum.perp(), weight);
+    hPtVSEta_prof_->Fill(momentum.eta(),momentum.perp(), weight);
 
-    hMassVSEta_->Fill(momentum.eta(),momentum.m());
-    hMassVSEta_prof_->Fill(momentum.eta(),momentum.m());
+    hMassVSEta_->Fill(momentum.eta(),momentum.m(), weight);
+    hMassVSEta_prof_->Fill(momentum.eta(),momentum.m(), weight);
   }
     
   virtual void Write() {
@@ -536,23 +537,23 @@ class HPartVSPhi : public Histograms
     delete hMassVSPhiF_;
   }
 
-  void Fill(const reco::Particle::LorentzVector & p4) {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()));
+  void Fill(const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  void Fill(const CLHEP::HepLorentzVector & momentum) {
-    hPtVSPhi_->Fill(momentum.phi(),momentum.perp());
-    hMassVSPhi_->Fill(momentum.phi(),momentum.m());
-    hMassVSPhi_prof_->Fill(momentum.phi(),momentum.m());
-    hPtVSPhi_prof_->Fill(momentum.phi(),momentum.perp());
+  void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) {
+    hPtVSPhi_->Fill(momentum.phi(),momentum.perp(), weight);
+    hMassVSPhi_->Fill(momentum.phi(),momentum.m(), weight);
+    hMassVSPhi_prof_->Fill(momentum.phi(),momentum.m(), weight);
+    hPtVSPhi_prof_->Fill(momentum.phi(),momentum.perp(), weight);
  
-    if (momentum.eta()<-1.2)                             hMassVSPhiB_->Fill(momentum.phi(),momentum.m());
-    else if (momentum.eta()<-0.8 && momentum.eta()>-1.2) hMassVSPhiWm2_->Fill(momentum.phi(),momentum.m());
-    else if (momentum.eta()<-0.3 && momentum.eta()>-0.8) hMassVSPhiWm1_->Fill(momentum.phi(),momentum.m());
-    else if ((fabs(momentum.eta())) < 0.3)               hMassVSPhiW0_->Fill(momentum.phi(),momentum.m());
-    else if (momentum.eta()>0.3 && momentum.eta()<0.8)   hMassVSPhiWp1_->Fill(momentum.phi(),momentum.m());
-    else if (momentum.eta()>0.8 && momentum.eta()<1.2)   hMassVSPhiWp2_->Fill(momentum.phi(),momentum.m());
-    else if (momentum.eta()>1.2)                         hMassVSPhiF_->Fill(momentum.phi(),momentum.m());
+    if (momentum.eta()<-1.2)                             hMassVSPhiB_->Fill(momentum.phi(),momentum.m(), weight);
+    else if (momentum.eta()<-0.8 && momentum.eta()>-1.2) hMassVSPhiWm2_->Fill(momentum.phi(),momentum.m(), weight);
+    else if (momentum.eta()<-0.3 && momentum.eta()>-0.8) hMassVSPhiWm1_->Fill(momentum.phi(),momentum.m(), weight);
+    else if ((fabs(momentum.eta())) < 0.3)               hMassVSPhiW0_->Fill(momentum.phi(),momentum.m(), weight);
+    else if (momentum.eta()>0.3 && momentum.eta()<0.8)   hMassVSPhiWp1_->Fill(momentum.phi(),momentum.m(), weight);
+    else if (momentum.eta()>0.8 && momentum.eta()<1.2)   hMassVSPhiWp2_->Fill(momentum.phi(),momentum.m(), weight);
+    else if (momentum.eta()>1.2)                         hMassVSPhiF_->Fill(momentum.phi(),momentum.m(), weight);
   }
 
   virtual void Write() {
@@ -652,13 +653,13 @@ class HPartVSPt : public Histograms
     delete hMassVSPt_prof_;
   }
 
-  virtual void Fill(const reco::Particle::LorentzVector & p4) {
-    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()));
+  virtual void Fill(const reco::Particle::LorentzVector & p4, const double & weight = 1.) {
+    Fill(CLHEP::HepLorentzVector(p4.x(),p4.y(),p4.z(),p4.t()), weight);
   }
 
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum) {
-    hMassVSPt_->Fill(momentum.eta(),momentum.m());
-    hMassVSPt_prof_->Fill(momentum.eta(),momentum.m());    
+  virtual void Fill(const CLHEP::HepLorentzVector & momentum, const double & weight = 1.) {
+    hMassVSPt_->Fill(momentum.eta(),momentum.m(), weight);
+    hMassVSPt_prof_->Fill(momentum.eta(),momentum.m(), weight);    
   }
     
   virtual void Write() {
