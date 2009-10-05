@@ -212,7 +212,7 @@ void popcon::EcalTPGLinConstHandler::getNewObjects()
 	  	      int z=ecid_xt.getID1();
 	  	      int x=ecid_xt.getID2();
 	  	      int y=ecid_xt.getID3();
-	  	      EEDetId eedetid(x,y,z,EEDetId::SCCRYSTALMODE);
+	  	      EEDetId eedetid(x,y,z,EEDetId::XYMODE);
 	  
 	  	      EcalTPGLinearizationConst::Item item;
 	  
