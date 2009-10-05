@@ -73,7 +73,7 @@ namespace egHLT {
   private:
     
   int (T::*cutCodeFunc_)(const Key&)const;   
-    const Key& key_;
+    const Key key_;
     int cutsNotToMask_;
     
   public:
@@ -86,7 +86,7 @@ namespace egHLT {
   };
   
   template<class T,class Key> bool EgHLTDQMUserVarCut<T,Key>::pass(const T& obj,const OffEvt& evt)const
-  {
+  { 
     if(((obj.*cutCodeFunc_)(key_) & cutsNotToMask_)==0) return true;
     else return false;
   }

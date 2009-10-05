@@ -19,8 +19,8 @@ void MonElemFuncs::initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& his
   addStdHist<OffEle,int>(histVec,baseName+"_charge",baseName+" Charge; charge",bins.charge,&OffEle::charge);
   
   addStdHist<OffEle,float>(histVec,baseName+"_hOverE",baseName+" H/E; H/E",bins.hOverE,&OffEle::hOverE);
-  addStdHist<OffEle,float>(histVec,baseName+"_dPhiIn",baseName+" #Delta #phi_{in}; #Delta #phi_{in}",bins.dEtaIn,&OffEle::dPhiIn);
-  addStdHist<OffEle,float>(histVec,baseName+"_dEtaIn",baseName+" #Delta #eta_{in}; #Delta #eta_{in}",bins.dPhiIn,&OffEle::dEtaIn);
+  addStdHist<OffEle,float>(histVec,baseName+"_dPhiIn",baseName+" #Delta #phi_{in}; #Delta #phi_{in}",bins.dPhiIn,&OffEle::dPhiIn);
+  addStdHist<OffEle,float>(histVec,baseName+"_dEtaIn",baseName+" #Delta #eta_{in}; #Delta #eta_{in}",bins.dEtaIn,&OffEle::dEtaIn);
   addStdHist<OffEle,float>(histVec,baseName+"_sigmaIEtaIEta",baseName+"#sigma_{i#etai#eta}; #sigma_{i#etai#eta}",bins.sigEtaEta,&OffEle::sigmaIEtaIEta);  
   addStdHist<OffEle,float>(histVec,baseName+"_epIn",baseName+"E/p_{in}; E/p_{in}",bins.eOverP,&OffEle::epIn);
   addStdHist<OffEle,float>(histVec,baseName+"_epOut",baseName+"E/p_{out}; E/p_{out}",bins.eOverP,&OffEle::epIn); 

@@ -43,12 +43,12 @@ egHLTOffEleEt15SWEleIdCuts.barrel.minEt = 15.
 egHLTOffEleEt15SWEleIdCuts.barrel.maxSigmaIEtaIEta = 0.015
 egHLTOffEleEt15SWEleIdCuts.barrel.maxDEtaIn = 0.008
 egHLTOffEleEt15SWEleIdCuts.barrel.maxDPhiIn = 0.1
-egHLTOffEleEt15SWEleIdCuts.barrel.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta"
+egHLTOffEleEt15SWEleIdCuts.barrel.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:ctfTrack"
 egHLTOffEleEt15SWEleIdCuts.endcap.minEt = 15.
 egHLTOffEleEt15SWEleIdCuts.endcap.maxSigmaIEtaIEta = 0.04
 egHLTOffEleEt15SWEleIdCuts.endcap.maxDEtaIn = 0.008
 egHLTOffEleEt15SWEleIdCuts.endcap.maxDPhiIn = 0.1
-egHLTOffEleEt15SWEleIdCuts.endcap.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta"
+egHLTOffEleEt15SWEleIdCuts.endcap.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:ctfTrack"
 
 #I am confused by this trigger, it claims to have an et cut of 25 but as far as I can tell its 15
 egHLTOffEleEt15SWEleIdLTICuts = cms.PSet(egHLTOffEleEt15SWEleIdCuts)
@@ -56,22 +56,22 @@ egHLTOffEleEt15SWEleIdLTICuts.trigName = "hltL1NonIsoHLTNonIsoSingleElectronEt15
 egHLTOffEleEt15SWEleIdLTICuts.barrel.minEt = 15.
 egHLTOffEleEt15SWEleIdLTICuts.barrel.maxHLTIsolTrksEleOverPt=0.5
 egHLTOffEleEt15SWEleIdLTICuts.barrel.maxHLTIsolTrksEle=8
-egHLTOffEleEt15SWEleIdLTICuts.barrel.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:hltIsolTrksEle"
+egHLTOffEleEt15SWEleIdLTICuts.barrel.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:hltIsolTrksEle:ctfTrack"
 egHLTOffEleEt15SWEleIdLTICuts.endcap.minEt = 15.
 egHLTOffEleEt15SWEleIdLTICuts.endcap.maxHLTIsolTrksEleOverPt=0.5
 egHLTOffEleEt15SWEleIdLTICuts.endcap.maxHLTIsolTrksEle=8
-egHLTOffEleEt15SWEleIdLTICuts.endcap.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:hltIsolTrksEle"
+egHLTOffEleEt15SWEleIdLTICuts.endcap.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:hltIsolTrksEle:ctfTrack"
 
 egHLTOffEleEt15SWLTICuts = cms.PSet(egHLTOffBaseEleTrigCuts)
 egHLTOffEleEt15SWLTICuts.trigName = "hltL1NonIsoHLTNonIsoSingleElectronEt15LTITrackIsolFilter"
 egHLTOffEleEt15SWLTICuts.barrel.minEt = 15.
 egHLTOffEleEt15SWLTICuts.barrel.maxHLTIsolTrksEleOverPt=0.5
 egHLTOffEleEt15SWLTICuts.barrel.maxHLTIsolTrksEle=8
-egHLTOffEleEt15SWLTICuts.barrel.cuts = "et:hltIsolTrksEle"
+egHLTOffEleEt15SWLTICuts.barrel.cuts = "et:hltIsolTrksEle:ctfTrack"
 egHLTOffEleEt15SWLTICuts.endcap.minEt = 15.
 egHLTOffEleEt15SWLTICuts.endcap.maxHLTIsolTrksEleOverPt=0.5
 egHLTOffEleEt15SWLTICuts.endcap.maxHLTIsolTrksEle=8
-egHLTOffEleEt15SWLTICuts.endcap.cuts = "et:hltIsolTrksEle"
+egHLTOffEleEt15SWLTICuts.endcap.cuts = "et:hltIsolTrksEle:ctfTrack"
 
 egHLTOffDoubleEleEt10SWCuts = cms.PSet(egHLTOffBaseEleTrigCuts)
 egHLTOffDoubleEleEt10SWCuts.trigName = "hltL1NonIsoHLTNonIsoDoubleElectronEt10PixelMatchFilter"

@@ -7,7 +7,7 @@ egHLTOffDQMBinData = cms.PSet (
     eta =cms.PSet(nr=cms.int32(30),min=cms.double(-3.),max=cms.double(3.)),
     phi =cms.PSet(nr=cms.int32(16),min=cms.double(-3.14),max=cms.double(3.14)),
     charge =cms.PSet(nr=cms.int32(2),min=cms.double(-1.5),max=cms.double(1.5)),
-    hOverE = cms.PSet(nr=cms.int32(30),min=cms.double(-0.05),max=cms.double(0.25)),
+    hOverE = cms.PSet(nr=cms.int32(30),min=cms.double(0.),max=cms.double(0.1)),
     dPhiIn = cms.PSet(nr=cms.int32(10),min=cms.double(-0.15),max=cms.double(0.15)),
     dEtaIn=cms.PSet(nr=cms.int32(10),min=cms.double(-0.02),max=cms.double(0.02)),
     sigEtaEta=cms.PSet(nr=cms.int32(30),min=cms.double(-0.01),max=cms.double(0.05)),

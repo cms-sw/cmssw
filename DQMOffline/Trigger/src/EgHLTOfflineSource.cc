@@ -90,20 +90,20 @@ void EgHLTOfflineSource::beginJob(const edm::EventSetup& iSetup)
  
   //efficiencies of one trigger path relative to another
   MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,
-					new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)); 
+					new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
   MonElemFuncs::initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
 
 
   MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,
-					new EgHLTDQMVarCut<OffPho>(~0x0,&OffPho::cutCode)); 
+					new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
   MonElemFuncs::initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
 
-
+  //di-object triggers
   MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,
 			
-		new EgDiEleCut(~0x0,&OffEle::cutCode));
+		new EgDiEleCut(cutMasks_.stdEle,&OffEle::cutCode));
   MonElemFuncs::initTightLooseTrigHists(phoMonElems_,diPhoTightLooseTrigNames_,binData_,
-					new EgDiPhoCut(~0x0,&OffPho::cutCode));
+					new EgDiPhoCut(cutMasks_.stdPho,&OffPho::cutCode));
 
   MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(eleMonElems_,diEleTightLooseTrigNames_,binData_);
   MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(phoMonElems_,diPhoTightLooseTrigNames_,binData_);
@@ -154,10 +154,7 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
     dqmErrsMonElem_->Fill(errCode);
     return;
   }
-  
-  
-  
- 
+
 
   for(size_t pathNr=0;pathNr<eleFilterMonHists_.size();pathNr++){
     eleFilterMonHists_[pathNr]->fill(offEvt_,weight);
