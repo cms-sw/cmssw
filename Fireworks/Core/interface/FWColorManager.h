@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.13 2009/10/04 13:15:52 amraktad Exp $
+// $Id: FWColorManager.h,v 1.14 2009/10/04 19:26:28 amraktad Exp $
 //
 
 // system include files
@@ -51,8 +51,8 @@ public:
    // ---------- const member functions ---------------------
    Color_t background() const {return m_background;}
    Color_t foreground() const {return m_foreground;}
-   Bool_t  isColorSetDark() const {return m_background == kBlack;}
-   Bool_t  isColorSetLight() const {return m_background == kWhite;}
+   Bool_t  isColorSetDark() const {return m_background == kBlackIndex;}
+   Bool_t  isColorSetLight() const {return m_background == kWhiteIndex;}
  
    Color_t indexToColor(unsigned int) const;
    unsigned int numberOfIndicies() const;
@@ -66,7 +66,7 @@ public:
    
    Color_t geomColor(FWGeomColorIndex) const;
    
-   enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
+   enum BackgroundColorIndex { kWhiteIndex = 19, kBlackIndex = kBlack };
    BackgroundColorIndex backgroundColorIndex() const;
    // ---------- static member functions --------------------
    
