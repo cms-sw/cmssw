@@ -52,16 +52,6 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
         edm::LogInfo("EcalTPGBadXTHandler") << "Started GetNewObjects!!!";
 
         
-        //check whats already inside of database
-	if (tagInfo().size){
-  	//check whats already inside of database
-    	std::cout << "got offlineInfo = " << std::endl;
-	std::cout << "tag name = " << tagInfo().name << std::endl;
-	std::cout << "size = " << tagInfo().size <<  std::endl;
-    	} else {
-    	std::cout << " First object for this tag " << std::endl;
-    	}
-
         int max_since=0;
         max_since=(int)tagInfo().lastInterval.first;
         edm::LogInfo("EcalTPGBadXTHandler") << "max_since : "  << max_since;
@@ -120,8 +110,26 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 
 	std::cout <<"number of runs is : "<< num_runs<< endl;
 
+	vector<EcalLogicID> my_EcalLogicId;
+	vector<EcalLogicID> my_EcalLogicId_EE;
+
 	unsigned long irun=0;
 	if(num_runs>0){
+
+
+	  my_EcalLogicId = econn->getEcalLogicIDSetOrdered( "ECAL_crystal_number_fedccuxt",
+							  610, 650,
+							  1, 100,
+							  0, 100, 
+							  "EB_crystal_number",123 );
+
+	  my_EcalLogicId_EE = econn->getEcalLogicIDSetOrdered( "ECAL_crystal_number_fedccuxt",
+							  600, 700,
+							  1, 100,
+							  0, 100, 
+							  "EE_crystal_number",123 );
+
+
 
 	  for(int kr=0; kr<run_vec.size(); kr++){
 	    cout << "here we are in run "<<kr<<endl;
@@ -175,7 +183,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
             // now get TPGBadXT
             int badxtId=fe_main_info.getBxtId();
 	    
-	    if( badxtId != m_i_badXT ) {
+	    if( badxtId != m_i_badXT && badxtId!=0) {
 	    
             FEConfigBadXTInfo fe_badXt_info;
             fe_badXt_info.setId(badxtId);
@@ -191,57 +199,93 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
             int icells=0;
 	
             for (CIfeped p = dataset_TpgBadXT.begin(); p != dataset_TpgBadXT.end(); p++) {
-            rd_badXt = *p;	  
-	    std::string ecid_name=ecid_xt.getName();
-	  
-	    // EB data	    
-	    if (ecid_name=="EB_crystal_number") {
+		rd_badXt = *p;
+		
+		int fed_id=rd_badXt.getFedId();
+		int tcc_id=rd_badXt.getTCCId();
+		int tt_id=rd_badXt.getTTId();
+		int xt_id=rd_badXt.getXTId();
+
+ 	    // EB data	    
+	    if (fed_id>=610 && fed_id<=645) {
+
+	      // logic id is 1011ssxxxx
 	      // get SM id
-	      int sm_num=rd_badXt.getTCCId();
+	      int sm_num=0;
+	      if(fed_id<=627 ) sm_num=fed_id-591-18; 
+	      if(fed_id>627  ) sm_num=fed_id-627; 
+	      
 	      // get crystal id
-	      int xt_num=rd_badXt.getXTId();
-	    
+	      int xt_num=0;
+	      
+	      for(int ixt=0; ixt<my_EcalLogicId.size(); ixt++){
+		
+		if(my_EcalLogicId[ixt].getID1()==fed_id && my_EcalLogicId[ixt].getID2()==tt_id 
+		   && my_EcalLogicId[ixt].getID3()==xt_id ) {
+		  
+		  int ecid= my_EcalLogicId[ixt].getLogicID();
+		  xt_num=(ecid)-(101100+sm_num)*1000;
+		  
+		}
+	      }
+
 	      EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
             	    
 	      badXt->setValue(ebdetid.rawId(),rd_badXt.getStatus());	
 	      ++icells;
-	    }
-	      else if (ecid_name=="EE_crystal_number"){
+	    } else {
 	      // EE data
-	      int z=ecid_xt.getID1();
-	      int x=ecid_xt.getID2();
-	      int y=ecid_xt.getID3();
-	      EEDetId eedetid(x,y,z,EEDetId::SCCRYSTALMODE);
-	   	
+
+
+	      int x=0;
+	      int y=0;
+	      int z=0; 
+
+	      for(int ixt=0; ixt<my_EcalLogicId_EE.size(); ixt++){
+		
+		if(my_EcalLogicId_EE[ixt].getID1()==fed_id && my_EcalLogicId_EE[ixt].getID2()==tt_id 
+		   && my_EcalLogicId_EE[ixt].getID3()==xt_id ) {
+		  
+		  int ecid= my_EcalLogicId[ixt].getLogicID();
+		  // logic_id 201Zxxxyyy Z=0 / 2 -> z= -1 / 1 , x -> 1 100,  y -> 1 100 
+		  y=ecid-( (int)(ecid/1000) ) *1000;
+		  x= ( ecid- y) /1000 ;
+		  x= x -( (int)(x/1000) ) *1000;
+		  z= (ecid-y-x*1000 )/1000000 -2010;
+		  if(z==0) z=-1;
+		  if(z==2) z= 1; 
+ 		}
+	      }
+
+	      EEDetId eedetid(x,y,z);
 	      badXt->setValue(eedetid.rawId(),rd_badXt.getStatus());	
-	    
 	      ++icells;
 	    }
           }//end for over data
 	  
-          edm::LogInfo("EcalTPGBadXTHandler") << "Finished badXT reading";
-	
-	  Time_t snc= (Time_t) irun ;                      
-	  m_to_transfer.push_back(std::make_pair((EcalTPGCrystalStatus*)badXt,snc));
-	  
-	  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-		  m_i_badXT=badxtId;
-		  
-		  writeFile("last_tpg_badXT_settings.txt");
-
-		} else {
-
-		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-
-		  writeFile("last_tpg_badXT_settings.txt");
-
-		  std::cout<< " even if the tag/version is not the same, the badXT id is the same -> no transfer needed "<< std::endl; 
-
-		}
+	    edm::LogInfo("EcalTPGBadXTHandler") << "Finished badXT reading";
+	    
+	    Time_t snc= (Time_t) irun ;                      
+	    m_to_transfer.push_back(std::make_pair((EcalTPGCrystalStatus*)badXt,snc));
+	    
+	    m_i_run_number=irun;
+	    m_i_tag=the_config_tag;
+	    m_i_version=the_config_version;
+	    m_i_badXT=badxtId;
+	    
+	    writeFile("last_tpg_badXT_settings.txt");
+	    
+	    } else {
+	      
+	      m_i_run_number=irun;
+	      m_i_tag=the_config_tag;
+	      m_i_version=the_config_version;
+	      
+	      writeFile("last_tpg_badXT_settings.txt");
+	      
+	      std::cout<< " even if the tag/version is not the same, the badXT id is the same -> no transfer needed "<< std::endl; 
+	      
+	    }
 
 	      }       
 	      
