@@ -1,3 +1,16 @@
+2009-10-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-01
+	* Send sentinel notifications via AlarmHandler instead of Notifier.
+	* Send notifications rather than alarms for single occurrences, i.e.
+	  for issues for which we do not need extended periods of visibility.
+	* Do not send a SATA disk-controller alarm if the sataUser is not
+	  configured.
+	* Add stateName to application info space to allow run control to
+	  display the current state after initialization.
+	* Split large implementation file for I2OChain into separate files
+	  for the internal ChainData classes.
+
 2009-09-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-02-00
