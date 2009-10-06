@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Tue Dec 18 09:44:41 EST 2007
-// $Id: HydjetAnalyzer.cc,v 1.17 2009/09/14 10:18:53 yilmaz Exp $
+// $Id: HydjetAnalyzer.cc,v 1.18 2009/09/21 09:36:57 loizides Exp $
 //
 //
 
@@ -126,6 +126,7 @@ class HydjetAnalyzer : public edm::EDAnalyzer {
    bool doVertex_;
    double etaMax_;
    double ptMin_;
+  edm::InputTag src_;
 
    edm::ESHandle < ParticleDataTable > pdt;
    edm::Service<TFileService> f;
@@ -154,10 +155,9 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet& iConfig)
    printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
    doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
    doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
-
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-
+   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
 }
 
 
@@ -247,11 +247,11 @@ HydjetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
       
    Handle<HepMCProduct> mc;
-   iEvent.getByLabel("generator",mc);
+   iEvent.getByLabel(src_,mc);
    evt = mc->GetEvent();
       
       Handle<HepMCProduct> mc2;
-      iEvent.getByLabel("generator",mc2);
+      iEvent.getByLabel(src_,mc2);
       evt2 = mc2->GetEvent();
    
    const HeavyIon* hi = evt->heavy_ion();
