@@ -28,16 +28,22 @@ if __name__ == "__main__":
     success1RE     = re.compile (r"{'eventsCompared':\s+(\d+),\s+'count_(\S+)':\s+(\d+)\s*}")
     success2RE     = re.compile (r"{'count_(\S+)':\s+(\d+),\s+'eventsCompared':\s+(\d+)\s*}")
     labelErrorRE   = re.compile (r"labelDict = GenObject._ntupleDict\[tupleName\]\['_label'\]")
+    missingLabelRE = re.compile (r'not able to get')
     terminatedRE   = re.compile (r'Terminated\s+\$EXE\s+\$@')
     cppExceptionRE = re.compile (r'\(C\+\+ exception\)')
     missingCfgRE   = re.compile (r"raise.+Can't open configuration")
     finishRE       = re.compile (r'finish')
     dummyRE        = re.compile (r'edm::Wrapper<dummyType>')
+    noEdmWrapperRE = re.compile (r"'ROOT' has no attribute 'edm::Wrapper")
+    uint32RE       = re.compile (r"Config file parser error 'operatoruint32_t")
     nonSpacesRE    = re.compile (r'\S')
-    problemDict = { 'label'        : labelErrorRE,
+    problemDict = { 'labelDict'    : labelErrorRE,
+                    'missingLabel' : missingLabelRE,
                     'terminate'    : terminatedRE,
+                    'uint32'       : uint32RE,
                     'cppException' : cppExceptionRE,
                     'missingCfg'   : missingCfgRE,
+                    'noEdmWrapper' : noEdmWrapperRE,
                     'dummy'        : dummyRE,
                     'finish'       : finishRE}
 
