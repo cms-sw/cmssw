@@ -6,10 +6,8 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0015/602FA642-089F-DE11-A825-001D09F24EE3.root', 
-        '/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0015/5C215805-059F-DE11-8E4B-001D09F24DA8.root', 
-        '/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0015/344D8640-069F-DE11-836A-001D09F29114.root', 
-        '/store/relval/CMSSW_3_3_0_pre3/RelValZEE/GEN-SIM-RECO/MC_31X_V8-v1/0014/86C594B6-029F-DE11-90F9-001D09F26C5C.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0_pre6/RelValSingleElectronPt35/GEN-SIM-RECO/MC_31X_V9-v1/0005/FCC28AD3-CFAF-DE11-8F1F-0019B9F72BAA.root', 
+        '/store/relval/CMSSW_3_3_0_pre6/RelValSingleElectronPt35/GEN-SIM-RECO/MC_31X_V9-v1/0005/64B71D31-F1AF-DE11-881A-000423D99A8E.root')
 )
 process.pfAllElectrons = cms.EDProducer("PdgIdPFCandidateSelector",
     pdgId = cms.vint32(11, -11),
@@ -20,8 +18,8 @@ process.pfAllElectrons = cms.EDProducer("PdgIdPFCandidateSelector",
 process.gensource = cms.EDProducer("GenParticlePruner",
     src = cms.InputTag("genParticles"),
     select = cms.vstring('drop *', 
-        'keep+ pdgId = 23', 
-        'drop pdgId !=11 && pdgId !=-11')
+        ' keep pdgId = {e-}', 
+        'keep pdgId = {e+}')
 )
 
 
@@ -179,7 +177,7 @@ process.HepPDTESSource = cms.ESSource("HepPDTESSource",
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5000)
 )
 
 

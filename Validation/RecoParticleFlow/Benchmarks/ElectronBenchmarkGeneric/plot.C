@@ -14,10 +14,27 @@ ROOT::Cintex::Cintex::Enable();
   // we don't do comparisons between two objects, only PF electrons are shown
   string dir1 = "DQMData/PFTask/Benchmarks/PFlowElectrons/Gen";
   string dir2 = "DQMData/PFTask/Benchmarks/PFlowElectrons/Gen";
-  const char* file1 = "benchmark.root";
-  const char* file2 = "benchmark.root";
+  const char *file1;
+  const char *file2;
 
+  bool comparisonMode=false;
+  if(TString(gSystem->Getenv("DBS_COMPARE_RELEASE"))!="") comparisonMode=true;
 
+  if(!comparisonMode)
+    {
+      file1 = "benchmark.root";
+      file2 = "benchmark.root";
+    }
+  else
+    {
+      file1 = "benchmark_0.root";
+      if(TString(gSystem->Getenv("COMPARE_FILE"))=="")
+	file2 = "benchmark_1.root";
+      else 
+	file2 = gSystem->Getenv("COMPARE_FILE");
+    }
+  cout << " Files " << file1 << " " << file2 << std::endl;
+  
   enum EtaModes {
     BARREL,
     ENDCAP,
@@ -33,18 +50,18 @@ ROOT::Cintex::Cintex::Enable();
   Styles styles;
   Style* style1 = styles.spred;
   Style* style2 = styles.spred;
+  if(comparisonMode) style2=styles.spblue;
   Comparator::Mode mode = Comparator::SCALE;
 
  int etamode = BARREL;
 //  int etamode = ENDCAP;
 
  string outdir = "Plots_BarrelAndEndcap";
+ if(comparisonMode) 
+   outdir="Comp_BarrelAndEndcap";
  
  // create directory if needed 
- TString release_name = gSystem->Getenv("DBS_RELEASE");
- gSystem->MakeDirectory(release_name);
- dir_name=release_name+"/"+TString(outdir);
- gSystem->MakeDirectory(dir_name); 
+ gSystem->MakeDirectory(TString(outdir)); 
 
 //  switch( etamode ) {
 //  case BARREL:
@@ -61,12 +78,18 @@ ROOT::Cintex::Cintex::Enable();
 //    break;
 //  }   
 
-  Comparator comp(file1,
-		  dir1.c_str(),
-		  file2,
-		  dir2.c_str());
-  comp.SetStyles(style1, style2, "Particle Flow Electrons", "");
+ TString leg1="PF Electrons "+TString(gSystem->Getenv("DBS_COMPARE_RELEASE"));
+ TString leg2="";
+ if(comparisonMode)
+   leg2="PF Electrons "+TString(gSystem->Getenv("DBS_RELEASE"));
+ 
 
+ Comparator comp(file1,
+		 dir1.c_str(),
+		 file2,
+		 dir2.c_str());
+ comp.SetStyles(style1, style2, leg1.Data(), leg2.Data());
+ 
 
   TCanvas c0("c0", "legend", 400, 200);
   Styles::FormatPad( &c0, false ); 
@@ -119,19 +142,25 @@ ROOT::Cintex::Cintex::Enable();
 
     Comparator comp2(file1,
 		     dir1.c_str(),
-		     file1,
-		     dir1.c_str() ); 
-    comp2.SetStyles(style1, style2,"PFElectrons", "");
+		     file2,
+		     dir2.c_str() ); 
+    comp2.SetStyles(style1, style2,leg1.Data(),leg2.Data());
     comp2.SetAxis(rebin,0.,40.);
-    comp2.Draw("EtGen","EtSeen", Comparator::RATIO);
+    comp2.Draw("EtSeen","EtGen", Comparator::EFF);
     Styles::SavePlot("efficiency_vs_pT_low", outdir.c_str() );
 
     TCanvas c5("c5", "Efficiency PF vs Pt high");
     Styles::FormatPad( &c5, false );
 
-    comp2.SetStyles(style1, style2,"PFElectrons","");
-    comp2.SetAxis(rebin,0,100);
-    comp2.Draw("EtGen","EtSeen", Comparator::RATIO);
+    Comparator comp3(file1,
+		     dir1.c_str(),
+		     file2,
+		     dir2.c_str() ); 
+    comp3.SetStyles(style1, style2,leg1.Data(),leg2.Data());
+
+    comp3.SetStyles(style1, style2,leg1.Data(),leg2.Data());
+    comp3.SetAxis(rebin,0,100.);
+    comp3.Draw("EtSeen","EtGen", Comparator::EFF);
     Styles::SavePlot("efficiency_vs_pT_high", outdir.c_str() );
 
     TCanvas c8("c8", "Efficiency PF vs eta");
@@ -139,7 +168,7 @@ ROOT::Cintex::Cintex::Enable();
     rebin = 2;
 
     comp2.SetAxis(rebin,-3,3);
-    comp2.Draw("EtaGen","EtaSeen", Comparator::RATIO);
+    comp2.Draw("EtaSeen","EtaGen", Comparator::EFF);
     Styles::SavePlot("efficiency_vs_Eta", outdir.c_str() );
 
     TCanvas c9("c9", "Efficiency PF vs phi");
@@ -147,7 +176,7 @@ ROOT::Cintex::Cintex::Enable();
     rebin = 4;
 
     comp2.SetAxis(rebin,-TMath::Pi(),TMath::Pi());
-    comp2.Draw("PhiGen","PhiSeen", Comparator::RATIO);
+    comp2.Draw("PhiSeen","PhiGen", Comparator::EFF);
     Styles::SavePlot("efficiency_vs_Phi", outdir.c_str() );
   }
 
