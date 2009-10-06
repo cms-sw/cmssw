@@ -159,7 +159,7 @@ if ValidationSequence=="harvesting":
             filter.outputFile=""
 
 
-process.harvesting= cms.Sequence(process.postValidation*process.EDMtoMEConverter*process.dqmSaver)
+process.harvesting= cms.Sequence(process.EDMtoMEConverter*process.postValidation*process.dqmSaver)
 
 
 
