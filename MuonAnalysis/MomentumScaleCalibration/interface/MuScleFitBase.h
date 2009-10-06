@@ -42,7 +42,7 @@ protected:
    * These are 2-D PDFs containing a grid of 1000x1000 values of the
    * integral of Lorentz * Gaussian as a function
    * of mass and resolution of a given measurement,
-   * for each of the six considered diLmuon resonances.
+   * for each of the six considered di-muon resonances.
    */
   // void readProbabilityDistributions( const edm::EventSetup & eventSetup );
   /// Raed probability distributions from a local root file.
@@ -59,6 +59,7 @@ protected:
   int debug_;
 
   unsigned int useType_;
+
 
   /// The files were the histograms are saved
   std::vector<TFile*> theFiles_;
