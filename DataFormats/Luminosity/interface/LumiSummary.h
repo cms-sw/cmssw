@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.7 2009/05/12 19:40:34 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.8 2009/10/06 17:15:42 xiezhen Exp $
  *
  ************************************************************/
  
@@ -25,6 +25,7 @@ class LumiSummary {
     L1():triggersource(""),ratecount(-99),scalingfactor(-99){}
     std::string triggersource;
     int ratecount;
+    int deadtimecount;
     int scalingfactor;
   };
   class HLT{
