@@ -79,8 +79,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
   TH1 * eff = (TH1*)num->Clone(effName.c_str());
   eff->SetTitle(effName.c_str());
   int dimensions = eff->GetDimension();
-  switch(dimensions){
-    case 1:
+  if(dimensions==1){
       numberOfCells = ((TH1F*)eff)->GetSize();
       effME = dqmStore->book1D(effName,(TH1F*)eff);
       delete eff;
@@ -90,8 +89,7 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
       eff->SetLineWidth(2);
       eff->GetYaxis()->SetRangeUser(-0.001,1.001);
       eff->SetStats(kFALSE);
-      break;
-    case 2:
+  }else if(dimensions==2){
       numberOfCells = ((TH2F*)eff)->GetSize();
       effME = dqmStore->book2D(effName,(TH2F*)eff);
       delete eff;
@@ -153,16 +151,13 @@ void HeavyFlavorHarvesting::calculateEfficiency(const ParameterSet& pset){
         effY->SetBinContent(i,e);
         effY->SetBinError( i, e-low>high-e ? e-low : high-e );
       }
-
-      break;
-    case 3:
-      numberOfCells = ((TH3F*)eff)->GetSize();
-      effME = dqmStore->book3D(effName,(TH3F*)eff);
-      delete eff;
-      eff = effME->getTH1();
-      break;
-    default:
-      return;
+/*  }else if(dimensions==3){
+    numberOfCells = ((TH3F*)eff)->GetSize();
+    effME = dqmStore->book3D(effName,(TH3F*)eff);
+    delete eff;
+    eff = effME->getTH1();*/
+  }else{
+    return;
   }
   for(int i=0;i<numberOfCells;i++){
     double e;
