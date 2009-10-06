@@ -1,2 +1,0 @@
-c_legend.png				"For the following plots"
-c_tauBenchmarkGeneric.png		"The tau benchmark! E_T(rec) - E_T(true). Comparison for PFTaus"
