@@ -28,7 +28,7 @@ EventWithHistoryFilter::EventWithHistoryFilter():
 
 EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig):
   _historyProduct(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"))),
-  _partition(iConfig.getUntrackedParameter<std::string>("partitionName","All")),
+  _partition(iConfig.getUntrackedParameter<std::string>("partitionName","Any")),
   _APVPhaseLabel(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")),
   _dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>())),
   _dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>())),
@@ -48,7 +48,7 @@ void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig) {
 
 
   _historyProduct = iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"));
-  _partition = iConfig.getUntrackedParameter<std::string>("partitionName","All");
+  _partition = iConfig.getUntrackedParameter<std::string>("partitionName","Any");
   _APVPhaseLabel = iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases");
   _dbxrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>());
   _dbxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>());
