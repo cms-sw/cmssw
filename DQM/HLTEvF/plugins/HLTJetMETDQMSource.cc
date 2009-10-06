@@ -686,7 +686,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     //	hltConfig_.dump("Triggers");
   }
 
-  hltConfig_.dump("Triggers");
+  //hltConfig_.dump("Triggers");
 
   DQMStore *dbe = 0;
   dbe = Service<DQMStore>().operator->();
@@ -900,7 +900,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::string l1pathname = "dummy";
       //for (unsigned int i=0; i!=n; ++i) 
       //{
-      cout << hltConfig_.triggerName(j) << endl;
+      //cout << hltConfig_.triggerName(j) << endl;
       std::string denompathname = custompathnamemu_ ;  
       int objectType = 0;
       int denomobjectType = 0;
@@ -996,7 +996,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
         
       TString pathfolder = dirname_ + foldernm + v->getPath();
       dbe_->setCurrentFolder(pathfolder.Data());
-      cout << "Booking Histos in Directory " << pathfolder.Data() << endl;
+      //cout << "Booking Histos in Directory " << pathfolder.Data() << endl;
       int nBins2D = 10;
 	 
       //pathfolder = dirname_ + TString("/wrtMuon/") + v->getPath();
