@@ -29,6 +29,7 @@
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
+#include "OnlineDB/EcalCondDB/interface/all_od_types.h"
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -53,8 +54,7 @@ namespace popcon
 {
 
 
-	class EcalTPGBadXTHandler : public
-	popcon::PopConSourceHandler<EcalTPGCrystalStatus>
+	class EcalTPGBadXTHandler : public popcon::PopConSourceHandler<EcalTPGCrystalStatus>
 	{
 
 		public:
@@ -75,8 +75,8 @@ namespace popcon
 	    		  std::ostringstream streamOut;
 	    		  streamOut << value;
 	    		  return streamOut.str();
-			}
-
+	  		}
+			
 			const EcalTPGCrystalStatus * mycrystalStat;
 
 			unsigned long m_firstRun ;
@@ -95,7 +95,6 @@ namespace popcon
 			int m_i_version;
 			int m_i_run_number;
 			int m_i_badXT;
-
 	};
 }
 #endif
