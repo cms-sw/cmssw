@@ -53,18 +53,6 @@ PF2PATStudiesEventContent = cms.PSet(
 
 prunedAODForPF2PATEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
-#    'drop *',
-    # the following is not necessary in real data, but is necessary now for PF2PAT, to get the true MET. this step has to be made optional
-#    'keep *_genParticles_*_*',
-#    'keep *_particleFlow_*_*',
-#    'keep *_gsfElectrons_*_*',
-#    'keep *_gsfElectronCores_*_*',
-    # why do we need both collections of prim vertices?
-#    'keep *_offlinePrimaryVertices_*_*',
-#    'keep *_offlinePrimaryVerticesWithBS_*_*',
-#    'keep *_generalTracks_*_*',
-#    'keep *_eid*_*_*', 
-#    'keep *_electronGsfTracks_*_*', 
         'drop recoCaloTau*_*_*_*',
         'drop recoPFTau*_*_*_*',
         'drop recoCaloJet*_*_*_*',
@@ -90,6 +78,19 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'drop *_towerMaker_*_*',
         'drop *_sisCone*_*_*',
         'drop *_PhotonIDProd_*_*',
-        'drop recoHFEMClusterShapes_*_*_*'
-    )
+        'drop recoHFEMClusterShapes_*_*_*', 
+        'drop recoCaloClustersToOnereco*_*_*_*',
+        'drop EcalRecHitsSorted_*_*_*',
+        'drop recoCaloClusters_*_*_*',
+# needed somewhere in PAT. and could be useful in the future. 
+#        'drop *_softPFElectrons_*_*',
+        'drop *_particleFlow_electrons_*',
+        'drop recoPreshowerClusterShapes_*_*_*',
+# needed in PAT by allLayer1Electrons - dunno why:
+#        'drop *_gsfElectronCores_*_*',
+        'drop *_hfRecoEcalCandidate_*_*',
+        'drop recoSuperClusters_*_*_*',
+        'keep *_pfElectronTranslator_*_*',
+        'keep recoSuperClusters_corrected*_*_*'
+        )
 )
