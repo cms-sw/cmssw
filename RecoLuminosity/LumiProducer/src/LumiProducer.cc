@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.9 2009/05/12 19:22:57 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.10 2009/05/29 13:11:54 dlange Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,10 +33,8 @@ from the configuration file, the DB is not implemented yet)
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/RunInfo/interface/LuminosityInfo.h"
-#include "CondFormats/DataRecord/interface/LuminosityInfoRcd.h"
-#include "CondFormats/RunInfo/interface/HLTScaler.h"
-#include "CondFormats/DataRecord/interface/HLTScalerRcd.h"
+#include "CondFormats/Luminosity/interface/LumiSectionData.h"
+#include "CondFormats/DataRecord/interface/LumiSectionDataRcd.h"
 #include <sstream>
 #include <string>
 #include <memory>
@@ -88,15 +86,15 @@ void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 }
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LuminosityInfoRcd"));
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LumiSectionDataRcd"));
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
-    std::cout <<"Record \"LuminosityInfoRcd"<<"\" does not exist "<<std::endl;
+    std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
   }
   
-  edm::ESHandle<lumi::LuminosityInfo> pLumi;
-  iSetup.get<LuminosityInfoRcd>().get(pLumi);
-  const lumi::LuminosityInfo* myLumi=pLumi.product();
+  edm::ESHandle<lumi::LumiSectionData> pLumi;
+  iSetup.get<LumiSectionDataRcd>().get(pLumi);
+  const lumi::LumiSectionData* myLumi=pLumi.product();
   if(!myLumi){
     //std::cout<<"no lumi data found"<<std::endl;
     std::string errmsg("NULL lumi object ");
@@ -111,37 +109,36 @@ void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Even
      lumisecqual: lumi section quality
      lsnumber: lumisection number
      deadfrac: deadtime normalization
-     
-     l1data, unavailable now
+     l1data
      hldata
   */
   float avginsdellumi=myLumi->lumiAverage();
   float avginsdellumierr=myLumi->lumiError();
-  int lumisecqual=myLumi->lumiquality();
+  short lumisecqual=myLumi->lumiquality();
   float deadfrac=myLumi->deadFraction();
   int lsnumber=myLumi->lumisectionID();
+  unsigned long long startOrbit=myLumi->startorbit();
   std::vector<LumiSummary::L1> l1data;
-  for(unsigned int i=0; i<128; ++i){
-    l1data.push_back( LumiSummary::L1() );
+  for(lumi::TriggerIterator it=myLumi->trgBegin(); it!=myLumi->trgEnd(); ++it){
+    LumiSummary::L1 l;
+    l.triggersource=it->name;
+    l.ratecount=it->triggercount;
+    l.deadtimecount=it->deadtimecount;
+    l.scalingfactor=it->prescale;
+    l1data.push_back( l );
   }
-  edm::ESHandle<lumi::HLTScaler> pHLT;
-  iSetup.get<HLTScalerRcd>().get(pHLT);
-  const lumi::HLTScaler* myHLT=pHLT.product();
-  if(!myHLT){
-    std::string errmsg("NULL HLTScaler object ");
-    throw cms::Exception(" LumiProducer",errmsg);
-  }
+  
   std::vector<LumiSummary::HLT> hltdata;
-  for(lumi::HLTIterator it=myHLT->hltBegin(); it!=myHLT->hltEnd();++it){
+  for(lumi::HLTIterator it=myLumi->hltBegin(); it!=myLumi->hltEnd();++it){
     LumiSummary::HLT h;
     h.pathname=it->pathname;
     h.ratecount=it->acceptcount;
     h.inputcount=it->inputcount;
-    h.scalingfactor=it->prescalefactor;
+    h.scalingfactor=it->prescale;
     hltdata.push_back(h);
   }
-  
-  LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata);
+
+  LumiSummary* pIn1=new LumiSummary(avginsdellumi,avginsdellumierr,lumisecqual,deadfrac,lsnumber,l1data,hltdata,startOrbit);
   std::auto_ptr<LumiSummary> pOut1(pIn1);
   iLBlock.put(pOut1);
   
