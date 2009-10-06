@@ -67,30 +67,31 @@ void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig) {
 
 const bool EventWithHistoryFilter::selected(const EventWithHistory& he, const edm::EventSetup& iSetup) const {
 
-  return is_selected(he,iSetup,-1);
+  const std::vector<int> dummy;
+  return is_selected(he,iSetup,dummy);
 
 }
 
 const bool EventWithHistoryFilter::selected(const EventWithHistory& he, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
-  const int apvphase = getAPVPhase(iEvent);
-  return is_selected(he,iSetup,apvphase);
+  const std::vector<int> apvphases = getAPVPhase(iEvent);
+  return is_selected(he,iSetup,apvphases);
 
 }
 
 const bool EventWithHistoryFilter::selected(const edm::Event& event, const edm::EventSetup& iSetup) const {
 
-  const int apvphase = getAPVPhase(event);
+  const std::vector<int> apvphases = getAPVPhase(event);
 
   edm::Handle<EventWithHistory> hEvent;
   event.getByLabel(_historyProduct,hEvent);
 
-  return is_selected(*hEvent,iSetup,apvphase);
+  return is_selected(*hEvent,iSetup,apvphases);
 
 }
 
 
-const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const int apvphase) const {
+const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const edm::EventSetup& iSetup, const std::vector<int> apvphases) const {
 
   const int latency = getAPVLatency(iSetup);
 
@@ -106,19 +107,38 @@ const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const
   selected = selected && (isCutInactive(_bxrangelat) || 
 			  isInRange((he.absoluteBX()-latency)%70,_bxrangelat,latency>=0));
 
-  selected = selected && (isCutInactive(_bxcyclerange) || 
-			  isInRange(he.absoluteBXinCycle(apvphase)%70,_bxcyclerange,apvphase>0));
+  // loop on all the phases and require that the cut is fulfilled for at least one of them
 
-  selected = selected && (isCutInactive(_bxcyclerangelat) || 
-			  isInRange((he.absoluteBXinCycle(apvphase)-latency)%70,_bxcyclerangelat,
-				    apvphase>=0 && latency>=0));
+  
+  bool phaseselected;
 
-  selected = selected && (isCutInactive(_dbxcyclerange) ||
-			  isInRange(he.deltaBXinCycle(apvphase),_dbxcyclerange,he.depth()!=0 && apvphase>=0));
-
-  selected = selected && (isCutInactive(_dbxcyclerangelat) ||
-			  isInRange(he.deltaBXinCycle(apvphase)-latency,_dbxcyclerangelat,
-				    he.depth()!=0 && apvphase>=0 && latency>=0));
+  phaseselected = isCutInactive(_bxcyclerange);
+  for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
+    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(*phase)%70,_bxcyclerange,*phase>0);
+  }
+  selected = selected && phaseselected;
+    
+  phaseselected = isCutInactive(_bxcyclerangelat);
+  for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
+    phaseselected = phaseselected || isInRange((he.absoluteBXinCycle(*phase)-latency)%70,_bxcyclerangelat,
+					       *phase>=0 && latency>=0);
+  }
+  selected = selected && phaseselected;
+    
+  phaseselected = isCutInactive(_dbxcyclerange);
+  for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
+    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase),_dbxcyclerange,he.depth()!=0 && *phase>=0);
+  }
+  selected = selected && phaseselected;
+    
+  phaseselected = isCutInactive(_dbxcyclerangelat);
+  for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
+    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase)-latency,_dbxcyclerangelat,
+					       he.depth()!=0 && *phase>=0 && latency>=0);
+  }
+  selected = selected && phaseselected;
+    
+  // end of phase-dependent cuts
 
   selected = selected && (isCutInactive(_dbxtrpltrange) ||
 			  isInRange(he.deltaBX(1,2),_dbxtrpltrange,he.depth()>1));
@@ -143,23 +163,24 @@ const int EventWithHistoryFilter::getAPVLatency(const edm::EventSetup& iSetup) c
 
 }
 
-const int EventWithHistoryFilter::getAPVPhase(const edm::Event& iEvent) const {
+const std::vector<int> EventWithHistoryFilter::getAPVPhase(const edm::Event& iEvent) const {
 
-  if(_noAPVPhase) return -1;
+  if(_noAPVPhase) {
+    const std::vector<int> dummy;
+    return dummy;
+  }
 
   edm::Handle<APVCyclePhaseCollection> apvPhases;
   iEvent.getByLabel(_APVPhaseLabel,apvPhases);
 
-  const int phase = apvPhases->getPhase(_partition.c_str());
+  const std::vector<int> phases = apvPhases->getPhases(_partition.c_str());
 
   if(!_noAPVPhase) {
-    if(phase == APVCyclePhaseCollection::nopartition) throw cms::Exception("NoPartitionAPVPhase") 
+    if(phases.size()==0) throw cms::Exception("NoPartitionAPVPhase") 
       << " No APV phase for partition " << _partition.c_str() << " : check if a proper partition has been chosen ";
-    if(phase == APVCyclePhaseCollection::multiphase) throw cms::Exception("MultiAPVPhase") 
-      << " Too many APV phases for partition " << _partition.c_str() << " : check if a proper partition has been chosen ";
   }
 
-  return phase;
+  return phases;
 }
 
 const bool EventWithHistoryFilter::isAPVLatencyNotNeeded() const {
