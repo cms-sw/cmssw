@@ -35,12 +35,8 @@ process.LumiESSource.BlobStreamerName = cms.untracked.string('TBufferBlobStreami
 process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
-      record = cms.string('LuminosityInfoRcd'),
+      record = cms.string('LumiSectionDataRcd'),
       tag = cms.string('lumitest')
-    ),
-    cms.PSet(
-      record = cms.string('HLTScalerRcd'),
-      tag = cms.string('hltscalertest')
     )
 )
 
