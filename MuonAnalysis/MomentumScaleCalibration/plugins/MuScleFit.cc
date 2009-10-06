@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/09/24 07:47:28 $
-//  $Revision: 1.57 $
+//  $Date: 2009/10/05 11:48:40 $
+//  $Revision: 1.58 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -236,6 +236,8 @@ MuScleFit::MuScleFit( const ParameterSet& pset ) : MuScleFitBase( pset ), totalE
   // Option to skip simTracks comparison
   compareToSimTracks_ = pset.getParameter<bool>("compareToSimTracks");
   simTracksCollection_ = pset.getUntrackedParameter<InputTag>("SimTracksCollection", InputTag("g4SimHits"));
+
+  PATmuons_ = pset.getUntrackedParameter<bool>("PATmuons", false);
 
   // This must be set to true if using events generated with Sherpa
   MuScleFitUtils::sherpa_ = pset.getUntrackedParameter<bool>("Sherpa", false);
@@ -499,28 +501,26 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     recMu1 = reco::Particle::LorentzVector(0,0,0,0);
     recMu2 = reco::Particle::LorentzVector(0,0,0,0);
+
     vector<reco::LeafCandidate> muons;
-    if (theMuonType_<4 || theMuonType_==10) { // Muons (glb,sta,trk)
-      Handle<reco::MuonCollection> allMuons;
-      event.getByLabel (theMuonLabel_, allMuons);
+    if( theMuonType_<4 || theMuonType_==10 ) { // Muons (glb,sta,trk)
       vector<reco::Track> tracks;
-
-      for (vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon){
-	// cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
-	//NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
-	// to avoid double counting of the same muon
-	if(muon->isGlobalMuon() && theMuonType_==1)
-	  tracks.push_back(*(muon->globalTrack()));
-	else if(muon->isGlobalMuon() && theMuonType_==10) //particular case!!
-	  tracks.push_back(*(muon->innerTrack()));
-	else if(muon->isStandAloneMuon() && theMuonType_==2)
-	  tracks.push_back(*(muon->outerTrack()));
-	else if(muon->isTrackerMuon() && theMuonType_==3)
-	  tracks.push_back(*(muon->innerTrack()));
+      if( PATmuons_ == true ) {
+        Handle<pat::MuonCollection> allMuons;
+        event.getByLabel( theMuonLabel_, allMuons );
+        for( vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+          takeSelectedMuonType(muon, tracks);
+        }
       }
-      muons = fillMuonCollection(tracks);
+      else {
+        Handle<reco::MuonCollection> allMuons;
+        event.getByLabel (theMuonLabel_, allMuons);
+        for( vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
+          takeSelectedMuonType(muon, tracks);
+        }
+        muons = fillMuonCollection(tracks);
+      }
     }
-
     else if(theMuonType_==4){  //CaloMuons
       Handle<reco::CaloMuonCollection> caloMuons;
       event.getByLabel (theMuonLabel_, caloMuons);
@@ -947,5 +947,3 @@ void MuScleFit::checkParameters() {
     abort();
   }
 }
-
-

@@ -350,6 +350,9 @@ process.looper = cms.Looper(
     # SimTracksCollection = cms.untracked.InputTag("famosSimHits"),
     # This must be set to true when using events generated with Sherpa
     # Sherpa = cms.untracked.bool(True),
+
+    # This line allows to switch to PAT muons. Default is false.
+    # PATmuons = cms.untracked.bool(True),
 )
 
 # Timing information

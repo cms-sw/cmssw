@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2009/07/30 13:06:02 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/08/07 11:46:06 $
+ *  $Revision: 1.21 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -30,6 +30,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include <CLHEP/Vector/LorentzVector.h>
+#include "DataFormats/PatCandidates/interface/Muon.h"
 
 namespace edm {
   class ParameterSet;
@@ -69,6 +70,9 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
  private:
 
  protected:
+  /// Template method used to fill the track collection starting from reco::muons or pat::muons
+  template<typename T>
+  void takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks);
 
   /// Check if two lorentzVector are near in deltaR
   bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
@@ -124,6 +128,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase {
 
   bool compareToSimTracks_;
   edm::InputTag simTracksCollection_;
+  bool PATmuons_;
 };
 
 template<typename T>
@@ -156,6 +161,22 @@ std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vecto
     muons.push_back (muon);
   }
   return muons;
+}
+
+template<typename T>
+void MuScleFit::takeSelectedMuonType(const T & muon, vector<reco::Track> & tracks)
+{
+  // cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<endl;
+  //NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
+  // to avoid double counting of the same muon
+  if(muon->isGlobalMuon() && theMuonType_==1)
+    tracks.push_back(*(muon->globalTrack()));
+  else if(muon->isGlobalMuon() && theMuonType_==10) //particular case!!
+    tracks.push_back(*(muon->innerTrack()));
+  else if(muon->isStandAloneMuon() && theMuonType_==2)
+    tracks.push_back(*(muon->outerTrack()));
+  else if(muon->isTrackerMuon() && theMuonType_==3)
+    tracks.push_back(*(muon->innerTrack()));
 }
 
 #endif
