@@ -130,7 +130,7 @@ def genObjectDef (mylist, tuple, alias, label, type, etaPhiFound):
         # is missing.
         genDef += "-equiv: index,0\n";
     else:
-        genDef += "-equiv: eta,0.1 phi,0.1\n";
+        genDef += "-equiv: eta,0.1 phi,0.1 index,100000\n";
     tupleDef = '[%s:%s:%s label=%s type=%s]\n' % \
                (genName, tuple, alias, label, type)
     
