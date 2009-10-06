@@ -2,6 +2,7 @@
 
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 
 #include <cfloat>
 
@@ -31,20 +32,35 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
   detRs.reserve(predictedComponents.size());
   std::vector<double> chi2s;
   chi2s.reserve(predictedComponents.size());
+
+  MatD5 H; 
+  VecD r, rMeas; 
+  SMatDD V, R;
+  AlgebraicVector5 x;
   //
   // calculate chi2 and determinant / component and find
   //   minimum / maximum of chi2
   //  
   double chi2Min(DBL_MAX);
   for ( unsigned int i=0; i<predictedComponents.size(); i++ ) {
-    MeasurementExtractor me(predictedComponents[i]);
-    // Residuals of aPredictedState w.r.t. aRecHit, 
-    //!!!     AlgebraicVector r(recHit.parameters(predictedComponents[i]) - me.measuredParameters(recHit));
-    VecD r = asSVector<D>(recHit.parameters()) - me.measuredParameters<D>(recHit);
-    // and covariance matrix of residuals
-    //!!!     AlgebraicSymMatrix V(recHit.parametersError(predictedComponents[i]));
-    SMatDD V = asSMatrix<D>(recHit.parametersError());
-    SMatDD R = V + me.measuredError<D>(recHit);
+//     MeasurementExtractor me(predictedComponents[i]);
+//     // Residuals of aPredictedState w.r.t. aRecHit, 
+//     //!!!     AlgebraicVector r(recHit.parameters(predictedComponents[i]) - me.measuredParameters(recHit));
+//     VecD r = asSVector<D>(recHit.parameters()) - me.measuredParameters<D>(recHit);
+//     // and covariance matrix of residuals
+//     //!!!     AlgebraicSymMatrix V(recHit.parametersError(predictedComponents[i]));
+//     SMatDD V = asSMatrix<D>(recHit.parametersError());
+//     SMatDD R = V + me.measuredError<D>(recHit);
+
+    KfComponentsHolder holder; 
+    x = predictedComponents[i].localParameters().vector();
+    holder.template setup<D>(&r, &V, &H, &rMeas, &R, 
+			     x, predictedComponents[i].localError().matrix());
+    recHit.getKfComponents(holder);
+
+    r -= rMeas;
+    R += V;
+    
     double detR;
     if (! R.Det2(detR) ) {
       edm::LogError("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: determinant failed";
