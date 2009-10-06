@@ -8,14 +8,22 @@
 // 
 /**\class HLTEcalPhiSymFilter HLTEcalPhiSymFilter.cc Calibration/EcalAlCaRecoProducers/src/HLTEcalPhiSymFilter.cc
 
- Description: Producer for EcalRecHits to be used for phi-symmetry ECAL calibration . Discard events in which no suitable rechit is available
+* Description: Producer for EcalRecHits to be used for phi-symmetry ECAL 
+* calibration . Discard events in which no suitable rechit is available.
+* Rechits are accepted if their energy is above a threshold, eCut_barl_ 
+* for the barrel and  eCut_endc_. However, if the status of the channel is 
+* marked bad at some level, given by statusThreshold_, then a higher 
+* threshold (e.g. eCut_barl_high_) is applied. If  parameter useRecoFlag_  
+* is true, statusThreshold_ acts on EcalRecHit::recoFlag(), while if it is 
+* false, it acts on the ChannelStatus record from the database.
 
 */
+
 //
 // Original Author:  David Futyan
 // HLT Port       :  Stefano Argiro
-//         Created:  $Date: 2008/01/07 14:55:06 $
-// $Id: HLTEcalPhiSymFilter.h,v 1.1 2008/01/07 14:55:06 argiro Exp $
+//         Created:  $Date: 2008/01/14 10:08:15 $
+// $Id: HLTEcalPhiSymFilter.h,v 1.2 2008/01/14 10:08:15 argiro Exp $
 //
 //
 
@@ -53,6 +61,10 @@ class HLTEcalPhiSymFilter : public HLTFilter {
  std::string phiSymEndcapHits_;
  double eCut_barl_;
  double eCut_endc_;  
+ double eCut_barl_high_;
+ double eCut_endc_high_; 
+ uint32_t statusThreshold_; ///< accept channels with up to this status
+ bool   useRecoFlag_;       ///< use recoflag instead of DB for bad channels
 };
 
 #endif
