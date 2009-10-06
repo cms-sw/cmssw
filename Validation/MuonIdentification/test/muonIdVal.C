@@ -27,7 +27,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
       if (f1->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
          d1 = (TDirectoryFile*)gDirectory;
    if (! d1)
-      if (f1->cd("/DQMData/Run 1/Muons/MuonIdentificationV/Run summary"))
+      if (f1->cd("/DQMData/Run 1/Muons/Run summary/MuonIdentificationV"))
          d1 = (TDirectoryFile*)gDirectory;
    if (! d1) {
       std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename1 << std::endl;
@@ -47,7 +47,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
          if (f2->cd("/DQMData/Run 1/MuonIdentificationV/Run summary"))
             d2 = (TDirectoryFile*)gDirectory;
       if (! d2)
-         if (f2->cd("/DQMData/Run 1/Muons/MuonIdentificationV/Run summary"))
+         if (f2->cd("/DQMData/Run 1/Muons/Run summary/MuonIdentificationV"))
             d2 = (TDirectoryFile*)gDirectory;
       if (! d2) {
          std::cout << "Error: MuonIdVal/MuonIdentificationV not found in " << filename2 << std::endl;
@@ -61,6 +61,7 @@ void muonIdVal(char* filename1, char* filename2 = 0, bool make2DPlots = true, bo
    TObject* obj1 = 0;
    TObject* obj2 = 0;
 
+   gROOT->ForceStyle();
    gROOT->SetStyle("Plain");
    gStyle->SetOptStat(111111);
    gStyle->SetOptFit(1);
