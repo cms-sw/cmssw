@@ -13,7 +13,7 @@ import string
 RefRelease='CMSSW_3_3_0_pre5'
 
 #Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_3_0_pre5'
+NewRelease='CMSSW_3_3_0_pre6'
 
 # FastSim flags:
 NewFastSim=True
@@ -34,7 +34,8 @@ startupsamples= []
 #This are the standard relvals (ideal)
 #idealsamples= ['RelValSingleMuPt1', 'RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSinglePiPt1', 'RelValSinglePiPt10', 'RelValSinglePiPt100', 'RelValSingleElectronPt35', 'RelValTTbar', 'RelValQCD_Pt_3000_3500','RelValMinBias']
 #idealsamples= ['RelValSinglePiPt1']  # FASTSIM
-idealsamples= ['RelValSinglePiPt1','RelValSingleMuPt10']
+#idealsamples= ['RelValSinglePiPt1','RelValSingleMuPt10']
+idealsamples= ['RelValSingleMuPt10']
 
 #This is pileup sample
 #idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
@@ -72,8 +73,8 @@ Sequence='comparison_only'
 
 
 # Ideal and Statup tags
-IdealTag='MC_31X_V8'
-StartupTag='STARTUP31X_V7'
+IdealTag='MC_31X_V9'
+StartupTag='STARTUP31X_V8'
 if (NewFastSim):
     IdealTag+='_FastSim'
     StartupTag+='FastSim'
@@ -191,11 +192,17 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-v1__'+NewFormat+'.root'
                 if(os.path.exists(harvestedfile)==False):
                     cpcmd='rfcp '+ castorHarvestedFilesDirectory+ NewRelease +'/' + harvestedfile + ' .'
-                    print ' rfcp command given : > '+cpcmd
                     returncode=os.system(cpcmd)
                     if (returncode!=0):
                         print 'copy of harvested file from castor for sample ' + sample + ' failed'
-                        continue
+                        print 'try backup repository...'
+                        NewCondition='MC'
+                        if (NewFastSim):
+                            NewCondition=NewCondition+'_FSIM'
+                        cpcmd='rfcp /castor/cern.ch/user/a/aperrott/ValidationRecoMuon/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root ./'+harvestedfile
+                        returncode=os.system(cpcmd)
+                        if (returncode!=0):
+                            continue
 
             print ' Harvested file : '+harvestedfile
             
