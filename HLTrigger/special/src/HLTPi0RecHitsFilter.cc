@@ -73,13 +73,19 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 
   clusEtaSize_ = iConfig.getParameter<int> ("clusEtaSize");
   clusPhiSize_ = iConfig.getParameter<int> ("clusPhiSize");
-  if ( clusPhiSize_ % 2 == 0 ||  clusEtaSize_ % 2 == 0)
-    edm::LogError("AlCaPi0RecHitsProducerError") << "Size of eta/phi for simple clustering should be odd numbers";
-
+  if ( clusPhiSize_ % 2 == 0 ||  clusEtaSize_ % 2 == 0) {
+    edm::LogError("AlCaPi0RecHitsProducerError") << "Size of eta/phi for simple clustering should be odd numbers, reset to be 3 ";
+    clusPhiSize_ = 3; 
+    clusEtaSize_ = 3; 
+  }
   
-  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
-  seleXtalMinEnergy_ = iConfig.getParameter<double>("seleXtalMinEnergy");
-  seleXtalMinEnergyEndCap_ = iConfig.getParameter<double>("seleXtalMinEnergyEndCap");
+  //  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
+  // seleXtalMinEnergy_ = iConfig.getParameter<double>("seleXtalMinEnergy");
+  // seleXtalMinEnergyEndCap_ = iConfig.getParameter<double>("seleXtalMinEnergyEndCap");
+  
+  flagLevelRecHitsToUse_ = iConfig.getParameter<int>("flagLevelRecHitsToUse"); 
+  nMinRecHitsSel1stCluster_ = iConfig.getParameter<int>("nMinRecHitsSel1stCluster");
+  nMinRecHitsSel2ndCluster_ = iConfig.getParameter<int>("nMinRecHitsSel2ndCluster");
   
   
   
@@ -225,8 +231,6 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
     gamma_        = iConfig.getParameter<double>("preshCalibGamma");
     mip_          = iConfig.getParameter<double>("preshCalibMIP");
 
-    addESEnergyToEECluster_ = iConfig.getParameter<bool> ("addESEnergyToEECluster");
-    
     // The debug level
     std::string debugString = iConfig.getParameter<std::string>("debugLevelES");
     if      (debugString == "DEBUG")   debugL = PreshowerClusterAlgo::pDEBUG;
@@ -256,61 +260,15 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
   
   
-  l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
-  l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
+  ///  l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
+  ///  l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
   //SB comment out, no usage in the following code
   //  l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
 
     
 
   debug_ = iConfig.getParameter<int> ("debugLevel");
-  ////  RegionalMatch should = true for old regional ecal unpacker( release <= 21X)
-  ///   RegionalMatch = false for EcalRawToRecHit unpacker 
-  RegionalMatch_ = iConfig.getUntrackedParameter<bool>("RegionalMatch",true);
-  
-
-  ptMinEMObj_ = iConfig.getParameter<double>("ptMinEMObj");
-  EMregionEtaMargin_ = iConfig.getParameter<double>("EMregionEtaMargin");
-  EMregionPhiMargin_ = iConfig.getParameter<double>("EMregionPhiMargin");
-
-  
-  
-  Jets_ = iConfig.getUntrackedParameter<bool>("Jets",false);
-
-  if( Jets_){
-    
-    JETSdoCentral_ = iConfig.getUntrackedParameter<bool>("JETSdoCentral",true);
-    JETSdoForward_ = iConfig.getUntrackedParameter<bool>("JETSdoForward",true);
-    JETSdoTau_ = iConfig.getUntrackedParameter<bool>("JETSdoTau",true);
-    
-    JETSregionEtaMargin_ = iConfig.getUntrackedParameter<double>("JETS_regionEtaMargin",1.0);
-    JETSregionPhiMargin_ = iConfig.getUntrackedParameter<double>("JETS_regionPhiMargin",1.0);
-
-    Ptmin_jets_ = iConfig.getUntrackedParameter<double>("Ptmin_jets",0.);
-    
-    
-    CentralSource_ = iConfig.getUntrackedParameter<edm::InputTag>("CentralSource");
-    ForwardSource_ = iConfig.getUntrackedParameter<edm::InputTag>("ForwardSource");
-    TauSource_ = iConfig.getUntrackedParameter<edm::InputTag>("TauSource");
-    
-    
-  }
-  
-  
-  ///for prescales
-  selected_endcapPi0_region1 = 0; 
-  selected_endcapPi0_region2 = 0; 
-  selected_endcapPi0_region3 = 0; 
-  
-  selected_endcapEta_region1 = 0; 
-  selected_endcapEta_region2 = 0; 
-  selected_endcapEta_region3 = 0; 
-  
-  
-  
-  TheMapping = new EcalElectronicsMapping();
-  first_ = true;
-  
+ 
   
  
   providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
@@ -370,7 +328,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 
 HLTPi0RecHitsFilter::~HLTPi0RecHitsFilter()
 {
-  delete TheMapping;
+ 
+  //delete TheMapping;
 
   
   if(storeRecHitES_){
@@ -387,22 +346,9 @@ HLTPi0RecHitsFilter::~HLTPi0RecHitsFilter()
 bool
 HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
-  
-  ///only needed when regionalMatch_ is true
-  if (first_ && RegionalMatch_) {
-    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-    iSetup.get< EcalMappingRcd >().get(ecalmapping);
-    const EcalElectronicsMapping* TheMapping_ = ecalmapping.product();
-    *TheMapping = *TheMapping_;
-    first_ = false;
-  }                 
-  
+    
   
   edm::ESHandle<CaloGeometry> geoHandle;
-  // changes in 210pre5 to move to alignable geometry
-  ///  iSetup.get<IdealGeometryRecord>().get(geoHandle);
-  
   iSetup.get<CaloGeometryRecord>().get(geoHandle); 
   const CaloSubdetectorGeometry *geometry_eb = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   const CaloSubdetectorGeometry *geometry_ee = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
@@ -421,195 +367,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   
-
+  
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
-    
-  //SB comment out: No usage in following code...  
-//   edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
-//   iEvent.getByLabel (l1SeedFilterTag_,L1SeedOutput);
 
-  edm::Handle< l1extra::L1EmParticleCollection > l1EGIso;
-  iEvent.getByLabel(l1IsolatedTag_, l1EGIso ) ;
-  edm::Handle< l1extra::L1EmParticleCollection > l1EGNonIso ;
-  iEvent.getByLabel(l1NonIsolatedTag_, l1EGNonIso ) ;
-      
-  
-  ///first get all the FEDs around EM objects with PT > defined value. 
-  
-  FEDListUsed.clear();
   vector<int>::iterator it; 
-  if( RegionalMatch_){
-
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGIso->begin();
-	 emItr != l1EGIso->end() ;++emItr ){
-    
-      float pt = emItr -> pt();
-
-
-      if (debug_ >= 1) std::cout << " here is a L1 Iso EG Seed  with (eta,phi) = " <<
-			 emItr->eta()<< " " << emItr->phi() << " and pt " << pt << std::endl;
-    
-
-      if( pt< ptMinEMObj_ ) continue; 
-
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
-      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
-    
-      std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
-      for (int n=0; n < (int)feds.size(); n++) {
-	int fed = feds[n];
-	it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	if( it == FEDListUsed.end()){
-	  FEDListUsed.push_back(fed);
-	}
-      }
-    }
-  
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGNonIso->begin();
-	 emItr != l1EGNonIso->end() ;++emItr ){
-    
-      float pt = emItr -> pt();
-    
-    
-      if (debug_ >= 1) std::cout << " here is a L1 NonIso EG Seed  with (eta,phi) = " <<
-			 emItr->eta()<< " " << emItr->phi() << " and pt " << pt << std::endl;
-    
-      if( pt< ptMinEMObj_ ) continue; 
-    
-
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
-      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
-    
-      std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
-      for (int n=0; n < (int)feds.size(); n++) {
-	int fed = feds[n];
-	it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	if( it == FEDListUsed.end()){
-	  FEDListUsed.push_back(fed);
-	}
-      }
-    }
-  
-
-    if( Jets_ ){
-    
-      double epsilon = 0.01;
-    
-      if (JETSdoCentral_) {
-      
-	edm::Handle<L1JetParticleCollection> jetColl;
-	iEvent.getByLabel(CentralSource_,jetColl);
-      
-	for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
-	
-	  double pt    =   jetItr-> pt();
-	  double eta   =   jetItr-> eta();
-	  double phi   =   jetItr-> phi();
-	
-	  if (debug_ >= 1) std::cout << " here is a L1 CentralJet Seed  with (eta,phi) = " <<
-			     eta << " " << phi << " and pt " << pt << std::endl;
-	  if (pt < Ptmin_jets_ ) continue;
-	
-	  std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
-	  for (int n=0; n < (int)feds.size(); n++) {
-	    int fed = feds[n];
-	    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	    if( it == FEDListUsed.end()){
-	      FEDListUsed.push_back(fed);
-	    }
-	  }
-	}
-      
-      }
-
-      if (JETSdoForward_) {
-
-	edm::Handle<L1JetParticleCollection> jetColl;
-	iEvent.getByLabel(ForwardSource_,jetColl);
-
-	for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
-
-	  double pt    =  jetItr -> pt();
-	  double eta   =  jetItr -> eta();
-	  double phi   =  jetItr -> phi();
-	  
-	  if (debug_ >= 1) std::cout << " here is a L1 ForwardJet Seed  with (eta,phi) = " <<
-			     eta << " " << phi << " and pt " << pt << std::endl;
-	  if (pt < Ptmin_jets_ ) continue;
-	  
-	  std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
-	  
-	  for (int n=0; n < (int)feds.size(); n++) {
-	    int fed = feds[n];
-	    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	    if( it == FEDListUsed.end()){
-	      FEDListUsed.push_back(fed);
-	    }
-	  }
-
-	}
-      }
-
-      if (JETSdoTau_) {
-
-	edm::Handle<L1JetParticleCollection> jetColl;
-	iEvent.getByLabel(TauSource_,jetColl);
-
-	for (L1JetParticleCollection::const_iterator jetItr=jetColl->begin(); jetItr != jetColl->end(); jetItr++) {
-
-	  double pt    =  jetItr -> pt();
-	  double eta   =  jetItr -> eta();
-	  double phi   =  jetItr -> phi();
-
-	  if (debug_ >= 1) std::cout << " here is a L1 TauJet Seed  with (eta,phi) = " <<
-			     eta << " " << phi << " and pt " << pt << std::endl;
-	  if (pt < Ptmin_jets_ ) continue;
-
-	  std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
-	  for (int n=0; n < (int)feds.size(); n++) {
-	    int fed = feds[n];
-	    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
-	    if( it == FEDListUsed.end()){
-	      FEDListUsed.push_back(fed);
-	    }
-	  }
-		
-	}
-      }
-    
-
-    }
-
-  } //// end of getting FED List if asked to do regional match ( for 21x ecalRawtoDigi. etc)
   
   
-  
-
-  //// end of getting FED List
-  ///separate into barrel and endcap to speed up when checking
-  FEDListUsedBarrel.clear();
-  FEDListUsedEndcap.clear();
-  for(  int j=0; j< int(FEDListUsed.size());j++){
-    int fed = FEDListUsed[j];
-    
-    if( fed >= 10 && fed <= 45){
-      FEDListUsedBarrel.push_back(fed);
-    }else FEDListUsedEndcap.push_back(fed);
-  }
-  
-  
-  
-
   ///==============Start to process barrel part==================///
     
   Handle<EBRecHitCollection> barrelRecHitsHandle;
@@ -638,39 +403,40 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   EBRecHitCollection::const_iterator itb;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
     double energy = itb->energy();
-    if( energy < seleXtalMinEnergy_) continue; 
 
-    EBDetId det = itb->id();
-
-
-    if (RegionalMatch_){
-      int fed = TheMapping->DCCid(det);
-      it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
-      if(it == FEDListUsedBarrel.end()) continue; 
+    //if( energy < seleXtalMinEnergy_) continue; 
+    int flag = itb->recoFlag();
+    if( flagLevelRecHitsToUse_ ==0){ ///good 
+      if( flag != 0) continue; 
+    }
+    else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+      if( flag !=0 && flag != 4 ) continue; 
+    }
+    else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+      if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
     }
     
+    
+    EBDetId det = itb->id();
     
     detIdEBRecHits.push_back(det);
     EBRecHits.push_back(*itb);
     
-
+    
     if (energy > clusSeedThr_) seeds.push_back(*itb);
-
+    
   }
   
   
   
-
+  
   
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > selEBRecHitCollection( new EBRecHitCollection );
   std::auto_ptr< EERecHitCollection > selEERecHitCollection( new EERecHitCollection );
   vector<DetId> selectedEBDetIds;
   vector<DetId> selectedEEDetIds; 
-  
- 
-  
-
+    
 
   int nClus;
   vector<float> eClus;
@@ -724,14 +490,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
       if(HitAlreadyUsed)continue;
       
-      ///once again. check FED of this det.
-      if (RegionalMatch_){
-	int fed = TheMapping->DCCid(EBdet);
-	it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
-	if(it == FEDListUsedBarrel.end()) continue; 
-      }
-      
-
       std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),EBdet);
       if(itdet == detIdEBRecHits.end()) continue; 
       
@@ -803,18 +561,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<DetId> clus_v5x5 = topology_eb->getWindow(seed_id,5,5);	
     for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
       EBDetId det = *idItr;
-      
-      ///once again. check FED of this det which might be inside another FED which are not unpacked.
-      if (RegionalMatch_){
-	int fed = TheMapping->DCCid(det);
-	it = find(FEDListUsedBarrel.begin(),FEDListUsedBarrel.end(),fed);
-	if(it == FEDListUsedBarrel.end()) continue; 
-      }
-
-      ///already clustered
-      //std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(),usedXtals.end(),det);
-      ///if(itdet0 != usedXtals.end()) continue; 
-      
       //inside collections
       std::vector<EBDetId>::iterator itdet = find( detIdEBRecHits.begin(),detIdEBRecHits.end(),det);
       if(itdet == detIdEBRecHits.end()) continue; 
@@ -848,9 +594,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
 
     nClus++;
-    if (nClus == MAXCLUS) return false; 
+    //if (nClus == MAXCLUS) return false; 
+
   }
-    
+  
 
   // Selection, based on Simple clustering
   //pi0 candidates
@@ -907,50 +654,53 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	    
 	    if(Iso/pt_pair<selePi0Iso_){
-
-	      int indtmp[2]={i,j};
-	      for(int jj =0; jj<2; jj++){
-		int ind = indtmp[jj];
-		it = find(indClusSelected.begin(),indClusSelected.end(),ind);
-		if( it == indClusSelected.end()){
-		  indClusSelected.push_back(ind);
-		  for(unsigned int Rec=0;Rec<RecHitsCluster[ind].size();Rec++) {
-		    selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec]);
-		    selectedEBDetIds.push_back(RecHitsCluster[ind][Rec].id());
-		  }
-		}
-	      }
-	    
-	      if( storeIsoClusRecHitPi0EB_){
-
-		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
-		  int ind = IsoClus[iii];
+	      ///additional check on # of rechits in the selcted clusters
+	      if( int(RecHitsCluster[i].size()) >= nMinRecHitsSel1stCluster_ && int(RecHitsCluster[j].size()) >= nMinRecHitsSel2ndCluster_ ){
+		
+		int indtmp[2]={i,j};
+		for(int jj =0; jj<2; jj++){
+		  int ind = indtmp[jj];
 		  it = find(indClusSelected.begin(),indClusSelected.end(),ind);
 		  if( it == indClusSelected.end()){
 		    indClusSelected.push_back(ind);
-		    for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++) {
-		      selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
-		      selectedEBDetIds.push_back(RecHitsCluster[ind][Rec3].id());
+		    for(unsigned int Rec=0;Rec<RecHitsCluster[ind].size();Rec++) {
+		      selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec]);
+		      selectedEBDetIds.push_back(RecHitsCluster[ind][Rec].id());
 		    }
 		  }
-		} 
-	      }
+		}
+		
+		if( storeIsoClusRecHitPi0EB_){
+		  
+		  for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		    int ind = IsoClus[iii];
+		    it = find(indClusSelected.begin(),indClusSelected.end(),ind);
+		    if( it == indClusSelected.end()){
+		      indClusSelected.push_back(ind);
+		      for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++) {
+			selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
+			selectedEBDetIds.push_back(RecHitsCluster[ind][Rec3].id());
+		    }
+		    }
+		  } 
+		}
+		
+		npi0_s++;
+	      } ///number of rechits passed
+	    } //isolation passed
 	    
-	      npi0_s++;
-	    }
-	  
-	    if(npi0_s == MAXPI0S) return false; 
-	  }
-	}
+	    ///	    if(npi0_s == MAXPI0S) return false; 
+	  } ///mass window passed
+	} /// PT and S4/S9 passed
       } // End of the "j" loop over Simple Clusters
     } // End of the "i" loop over Simple Clusters
-
-
+    
+    
     if(debug_>=1) cout<<"npi0seleb: "<<npi0_s<<endl;
     
     
     
-
+    
   }///end of selection on pi0->gg in in barrel
     
 
@@ -1044,52 +794,55 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	    
 	    if(Iso/pt_pair < seleEtaIso_){
-	      int indtmp[2]={i,j};
-	      for(int jj =0; jj<2; jj++){
-		int ind = indtmp[jj];
-		
-		///eta candidates
-		it = find(indEtaCand.begin(),indEtaCand.end(),ind);
-		if(it == indEtaCand.end()){
-		  indEtaCand.push_back(ind);
-		}
-		
-		it = find(indClusSelected.begin(),indClusSelected.end(),ind);
-		if( it == indClusSelected.end()){
-		  indClusSelected.push_back(ind);
-		  for(unsigned int Rec=0;Rec<RecHitsCluster[ind].size();Rec++) {
-		    selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec]);
-		    selectedEBDetIds.push_back(RecHitsCluster[ind][Rec].id());
-		  }
-		  
-		}
-	      }
 	      
-	      
-	      if( storeIsoClusRecHitEtaEB_){
-		for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
-		  int ind = IsoClus[iii];
-
-		  if(store5x5IsoClusRecHitEtaEB_){
-		    ///eta candidates isoClus.
-		    it = find(indEtaCand.begin(),indEtaCand.end(),ind);
-		    if(it == indEtaCand.end()){
-		      indEtaCand.push_back(ind);
-		    }
+	      if( int(RecHitsCluster[i].size()) >= nMinRecHitsSel1stCluster_ && int(RecHitsCluster[j].size()) >= nMinRecHitsSel2ndCluster_ ){
+		
+		int indtmp[2]={i,j};
+		for(int jj =0; jj<2; jj++){
+		  int ind = indtmp[jj];
+		
+		  ///eta candidates
+		  it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		  if(it == indEtaCand.end()){
+		    indEtaCand.push_back(ind);
 		  }
-
+		
 		  it = find(indClusSelected.begin(),indClusSelected.end(),ind);
 		  if( it == indClusSelected.end()){
 		    indClusSelected.push_back(ind);
-		    for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++)  {
-		      selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
-		      selectedEBDetIds.push_back(RecHitsCluster[ind][Rec3].id());
+		    for(unsigned int Rec=0;Rec<RecHitsCluster[ind].size();Rec++) {
+		      selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec]);
+		      selectedEBDetIds.push_back(RecHitsCluster[ind][Rec].id());
 		    }
-		    
+		  
 		  }
-		} 
-	      }
+		}
 	      
+	      
+		if( storeIsoClusRecHitEtaEB_){
+		  for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
+		    int ind = IsoClus[iii];
+
+		    if(store5x5IsoClusRecHitEtaEB_){
+		      ///eta candidates isoClus.
+		      it = find(indEtaCand.begin(),indEtaCand.end(),ind);
+		      if(it == indEtaCand.end()){
+			indEtaCand.push_back(ind);
+		      }
+		    }
+
+		    it = find(indClusSelected.begin(),indClusSelected.end(),ind);
+		    if( it == indClusSelected.end()){
+		      indClusSelected.push_back(ind);
+		      for(unsigned int Rec3=0;Rec3<RecHitsCluster[ind].size();Rec3++)  {
+			selEBRecHitCollection->push_back(RecHitsCluster[ind][Rec3]);
+			selectedEBDetIds.push_back(RecHitsCluster[ind][Rec3].id());
+		      }
+		    
+		    }
+		  } 
+		}
+	      } /// # of Rechits passed
 	    } /// Isolation passed
 	    
 	  } /// Inside Eta Mass window
@@ -1138,14 +891,15 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   const EcalRecHitCollection* hitCollection_es = esRecHitsHandle.product();
   // make a map of rechits:
-  std::map<DetId, EcalRecHit> esrechits_map;
+  //  std::map<DetId, EcalRecHit> esrechits_map;
+  esrechits_map.clear();
   EcalRecHitCollection::const_iterator iter;
   for (iter = esRecHitsHandle->begin(); iter != esRecHitsHandle->end(); iter++) {
     //Make the map of DetID, EcalRecHit pairs
     esrechits_map.insert(std::make_pair(iter->id(), *iter));   
   }
   // The set of used DetID's for a given event:
-  std::set<DetId> used_strips;
+  //  std::set<DetId> used_strips;
   used_strips.clear();
   std::auto_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection );
   
@@ -1172,31 +926,35 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   usedXtalsEndCap.clear();
   
   
-  
   ////make seeds. 
   EERecHitCollection::const_iterator ite;
   for (ite=endcapRecHitsHandle->begin(); ite!=endcapRecHitsHandle->end(); ite++) {
     double energy = ite->energy();
-    if( energy < seleXtalMinEnergyEndCap_) continue; 
+
+    //if( energy < seleXtalMinEnergyEndCap_) continue; 
+    int flag = ite->recoFlag();
     
-    EEDetId det = ite->id();
-    if (RegionalMatch_){
-      EcalElectronicsId elid = TheMapping->getElectronicsId(det);
-      int fed = elid.dccId();
-      it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
-      if(it == FEDListUsedEndcap.end()) continue; 
+    if( flagLevelRecHitsToUse_ ==0){ ///good 
+      if( flag != 0) continue; 
+    }
+    else if( flagLevelRecHitsToUse_ ==1){ ///good || PoorCalib 
+      if( flag !=0 && flag != 4 ) continue; 
+    }
+    else if( flagLevelRecHitsToUse_ ==2){ ///good || PoorCalib || LeadingEdgeRecovered || kNeighboursRecovered,
+      if( flag !=0 && flag != 4 && flag != 6 && flag != 7) continue; 
     }
     
+    EEDetId det = ite->id();
     detIdEERecHits.push_back(det);
     EERecHits.push_back(*ite);
     
-
+    
     if (energy > clusSeedThrEndCap_) seedsEndCap.push_back(*ite);
     
   }
   
   
-
+  
   
   int nClusEndCap;
   vector<float> eClusEndCap;
@@ -1266,13 +1024,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
       if(HitAlreadyUsed)continue;
       
-      ///once again. check FED of this det.
-      if (RegionalMatch_){
-	EcalElectronicsId elid = TheMapping->getElectronicsId(EEdet);
-	int fed = elid.dccId();
-	it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
-	if(it == FEDListUsedEndcap.end()) continue; 
-      }
       
       std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),EEdet);
       if(itdet == detIdEERecHits.end()) continue; 
@@ -1323,19 +1074,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<DetId> clus_v5x5 = topology_ee->getWindow(seed_id,5,5);	
     for( std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++){
       EEDetId det = *idItr;
-
-      ///once again. check FED of this det which could be in another FED which are not unpacked.
-      if (RegionalMatch_){
-	EcalElectronicsId elid = TheMapping->getElectronicsId(det);
-	int fed = elid.dccId();
-	it = find(FEDListUsedEndcap.begin(),FEDListUsedEndcap.end(),fed);
-	if(it == FEDListUsedEndcap.end()) continue; 
-      }
-      
-      ///already clustered
-      ///  std::vector<EEDetId>::iterator itdet0 = find(usedXtalsEndCap.begin(),usedXtalsEndCap.end(),det);
-      ///if( itdet0 != usedXtalsEndCap.end()) continue; 
-      
       //inside collections
       std::vector<EEDetId>::iterator itdet = find( detIdEERecHits.begin(),detIdEERecHits.end(),det);
       if(itdet == detIdEERecHits.end()) continue; 
@@ -1372,7 +1110,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     nClusEndCap++;
-    if (nClusEndCap == MAXCLUS) return false; 
+    ///    if (nClusEndCap == MAXCLUS) return false; 
   }
   
   
@@ -1438,6 +1176,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(Iso/pt_pair > selePi0IsoEndCap_) continue; 
 	
 	
+	if( int(RecHitsClusterEndCap[i].size()) < nMinRecHitsSel1stCluster_  || int(RecHitsClusterEndCap[j].size()) < nMinRecHitsSel2ndCluster_) continue; 
+	
+	
 	// 	///Now prescale pi0 selection 
 	// 	if(etapair <= region1_Pi0EndCap_){
 	// 	  selected_endcapPi0_region1 ++; 
@@ -1466,28 +1207,24 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 	    if(storeRecHitES_){
 	      
+	      if( debug_ >= 2){
+		cout<<"used_strips for cluster_ee: "<<ind<<" "<< etaClusEndCap[ind]<<" "<<phiClusEndCap[ind]<<" "<<int(used_strips.size())<<endl;
+	      }
 	      
-	      ///get assosicated ES clusters of this endcap cluster
-	      const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
-	      DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
-	      DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
-	      ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-	      ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
+	      
+	      //now call a common function to make ES cluster
 	      ///this is to get already done before this cluster
 	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
-	      std::set<DetId> used_strips_before = used_strips; 
-	      // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.      
-	      for (int i2=0; i2<preshNclust_; i2++) {
-		reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-		reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
-	      } // end of cycle over ES clusters
-	      
-	      
+	      std::set<DetId> used_strips_before = used_strips;  
+	      makeClusterES(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind],geometry_es,topology_es);
 	      std::set<DetId>::const_iterator ites = used_strips.begin();
 	      for(; ites != used_strips.end(); ++ ites ){
 		ESDetId d1 = ESDetId(*ites);
+		if( debug_ >= 2) { cout<<d1<<endl;}
+		
 		std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
 		if( (ites2 == used_strips_before.end()) ){
+		  if( debug_ >= 2) { cout<<d1<<" actually saved"<<endl;}
 		  std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
 		  selESRecHitCollection->push_back(itmap->second);
 		  
@@ -1515,28 +1252,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	      if(storeRecHitES_){
 		
-		///get assosicated ES clusters of this endcap cluster
-		const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
-		DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
-		DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
-		ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-		ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-		///this is to get already done before this cluster
-		////the used_strips is defined with set, so the order is re-shuffled each time. 
-		std::set<DetId> used_strips_before = used_strips; 
-	      
-		// Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
-		for (int i2=0; i2<preshNclust_; i2++) {
-		  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-		  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
-		} // end of cycle over ES clusters
-	      
-      
+		if( debug_ >= 2){
+		  cout<<"used_strips for cluster_ee_iso: "<<ind<<" "<< etaClusEndCap[ind]<<" "<<phiClusEndCap[ind]<<" "<<int(used_strips.size())<<endl;
+		}
+		
+		std::set<DetId> used_strips_before = used_strips;  
+		makeClusterES(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind],geometry_es,topology_es);
+		
 		std::set<DetId>::const_iterator ites = used_strips.begin();
 		for(; ites != used_strips.end(); ++ ites ){
 		  ESDetId d1 = ESDetId(*ites);
+		  if( debug_ >= 2) { cout<<d1<<endl;}
 		  std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
 		  if( (ites2 == used_strips_before.end())){
+		    if( debug_ >= 2) { cout<<d1<<" actually saved"<<endl;}
 		    std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
 		    selESRecHitCollection->push_back(itmap->second);
 		    
@@ -1555,11 +1284,11 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	} //if storeIsoClusRecHitPi0EE_
 	
 	npi0_se++;
-	if(npi0_se == MAXPI0S) return false; 
+	///	if(npi0_se == MAXPI0S) return false; 
 	
       } // End of the "j" loop over Simple Clusters
     } // End of the "i" loop over Simple Clusters
-        
+    
 
   } ///end of selection of pi0->gg endCap
   
@@ -1600,8 +1329,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}else{
 	  if(ptmin < selePtGammaEtaEndCap_region3_ || pt_pair < selePtEtaEndCap_region3_) continue;
 	}
-	
-	
+		
 	
 	//New Loop on cluster to measure isolation:
 	vector<int> IsoClus;
@@ -1623,7 +1351,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	if(Iso/pt_pair > seleEtaIsoEndCap_) continue; 
 	
+	if( int(RecHitsClusterEndCap[i].size()) < nMinRecHitsSel1stCluster_  || int(RecHitsClusterEndCap[j].size()) < nMinRecHitsSel2ndCluster_) continue; 
 	
+
 	// 	///Now prescale eta selection 
 	// 	if(etapair <= region1_EtaEndCap_){
 	// 	  selected_endcapEta_region1 ++; 
@@ -1658,29 +1388,19 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	    
 	    if(storeRecHitES_){
+	      if( debug_ >= 2){
+		cout<<"used_strips for cluster_ee_eta: "<<ind<<" "<< etaClusEndCap[ind]<<" "<<phiClusEndCap[ind]<<" "<<int(used_strips.size())<<endl;
+	      }
 	      
-	      ///get assosicated ES clusters of this endcap cluster
-	      const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
-	      DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
-	      DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
-	      ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-	      ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-	      ///this is to get already done before this cluster
-	      ////the used_strips is defined with set, so the order is re-shuffled each time. 
-	      std::set<DetId> used_strips_before = used_strips; 
-	      
-	      // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
-	      for (int i2=0; i2<preshNclust_; i2++) {
-		reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-		reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
-	      } // end of cycle over ES clusters
-	      
-	      
+	      std::set<DetId> used_strips_before = used_strips;  
+	      makeClusterES(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind],geometry_es,topology_es);
 	      std::set<DetId>::const_iterator ites = used_strips.begin();
 	      for(; ites != used_strips.end(); ++ ites ){
 		ESDetId d1 = ESDetId(*ites);
+		if( debug_ >= 2) { cout<<d1<<endl;}
 		std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
                 if( (ites2 == used_strips_before.end())){
+		  if( debug_ >= 2) { cout<<d1<<" actually saved"<<endl;}
 		  std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
 		  selESRecHitCollection->push_back(itmap->second);
 		  
@@ -1718,29 +1438,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	      }
 	      if(storeRecHitES_){
+		if( debug_ >= 2){
+		  cout<<"used_strips for cluster_eeiso_eta: "<<ind<<" "<< etaClusEndCap[ind]<<" "<<phiClusEndCap[ind]<<" "<<int(used_strips.size())<<endl;
+		}
 		
-		///get assosicated ES clusters of this endcap cluster
-		const GlobalPoint point(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind]);
-		DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
-		DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
-		ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
-		ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-		///this is to get already done before this cluster
-		////the used_strips is defined with set, so the order is re-shuffled each time. 
-		std::set<DetId> used_strips_before = used_strips; 
-		
-		// Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
-		for (int i2=0; i2<preshNclust_; i2++) {
-		  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
-		  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
-		} // end of cycle over ES clusters
-		
+		std::set<DetId> used_strips_before = used_strips;  
+		makeClusterES(xClusEndCap[ind],yClusEndCap[ind],zClusEndCap[ind],geometry_es,topology_es);
 		
 		std::set<DetId>::const_iterator ites = used_strips.begin();
 		for(; ites != used_strips.end(); ++ ites ){
 		  ESDetId d1 = ESDetId(*ites);
+		  if( debug_ >= 2) { cout<<d1<<endl;}
 		  std::set<DetId>::const_iterator ites2 = find(used_strips_before.begin(),used_strips_before.end(),d1);
 		  if( (ites2 == used_strips_before.end())){
+		    if( debug_ >= 2) { cout<<d1<<" actually saved"<<endl;}
 		    std::map<DetId, EcalRecHit>::iterator itmap = esrechits_map.find(d1);
 		    selESRecHitCollection->push_back(itmap->second);
 		    
@@ -1779,7 +1490,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
     }
-            
+    
   }///end of selections eta->gg endcap
   
   
@@ -1800,9 +1511,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ///no rechits selected.
   if( collsize < 2 && collsizeEndCap <2) return false; 
   
-  
   ///too many rechits.
-  if(collsize + collsizeEndCap > seleNRHMax_ ) return false; 
+  ///  if(collsize + collsizeEndCap > seleNRHMax_ ) return false; 
   
   
   
@@ -1828,87 +1538,107 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 }
 
+
+void HLTPi0RecHitsFilter::makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry*& geometry_es,
+					CaloSubdetectorTopology*& topology_es
+					){
   
+  
+  ///get assosicated ES clusters of this endcap cluster
+  const GlobalPoint point(x,y,z);
+  DetId tmp1 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 1);
+  DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_es))->getClosestCellInPlane(point, 2);
+  ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
+  ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
+  
+  // Get ES clusters (found by the PreshSeeded algorithm) associated with a given EE cluster.           
+  for (int i2=0; i2<preshNclust_; i2++) {
+    reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&esrechits_map,geometry_es,topology_es);   
+    reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&esrechits_map,geometry_es,topology_es); 
+  } // end of cycle over ES clusters
+    
+  
+}
 
 
+/////FED list this is obsolete 
+// std::vector<int> HLTPi0RecHitsFilter::ListOfFEDS(double etaLow, double etaHigh, double phiLow, 
+// 					 double phiHigh, double etamargin, double phimargin)
+// {
 
-/////FED list 
-std::vector<int> HLTPi0RecHitsFilter::ListOfFEDS(double etaLow, double etaHigh, double phiLow, 
-					 double phiHigh, double etamargin, double phimargin)
-{
+// 	std::vector<int> FEDs;
 
-	std::vector<int> FEDs;
-
-	if (phimargin > Geom::pi()) phimargin =  Geom::pi() ;
+// 	if (phimargin > Geom::pi()) phimargin =  Geom::pi() ;
 
 	
-	if (debug_>=2) std::cout << " etaLow etaHigh phiLow phiHigh " << etaLow << " " << 
-			etaHigh << " " << phiLow << " " << phiHigh << std::endl;
+// 	if (debug_>=2) std::cout << " etaLow etaHigh phiLow phiHigh " << etaLow << " " << 
+// 			etaHigh << " " << phiLow << " " << phiHigh << std::endl;
 
-        etaLow -= etamargin;
-        etaHigh += etamargin;
-        double phiMinus = phiLow - phimargin;
-        double phiPlus = phiHigh + phimargin;
+//         etaLow -= etamargin;
+//         etaHigh += etamargin;
+//         double phiMinus = phiLow - phimargin;
+//         double phiPlus = phiHigh + phimargin;
 
-        bool all = false;
-        double dd = fabs(phiPlus-phiMinus);
-	if (debug_>=2) std::cout << " dd = " << dd << std::endl;
-        if (dd > 2.*Geom::pi() ) all = true;
+//         bool all = false;
+//         double dd = fabs(phiPlus-phiMinus);
+// 	if (debug_>=2) std::cout << " dd = " << dd << std::endl;
+//         if (dd > 2.*Geom::pi() ) all = true;
 
-        while (phiPlus > Geom::pi()) { phiPlus -= 2.*Geom::pi() ; }
-        while (phiMinus < 0) { phiMinus += 2.*Geom::pi() ; }
-        if ( phiMinus > Geom::pi()) phiMinus -= 2.*Geom::pi() ;
+//         while (phiPlus > Geom::pi()) { phiPlus -= 2.*Geom::pi() ; }
+//         while (phiMinus < 0) { phiMinus += 2.*Geom::pi() ; }
+//         if ( phiMinus > Geom::pi()) phiMinus -= 2.*Geom::pi() ;
 
-        double dphi = phiPlus - phiMinus;
-        if (dphi < 0) dphi += 2.*Geom::pi() ;
-	if (debug_>=2) std::cout << "dphi = " << dphi << std::endl;
-        if (dphi > Geom::pi()) {
-                int fed_low1 = TheMapping -> GetFED(etaLow,phiMinus*180./Geom::pi());
-                int fed_low2 = TheMapping -> GetFED(etaLow,phiPlus*180./Geom::pi());
-		if (debug_>=2) std::cout << "fed_low1 fed_low2 " << fed_low1 << " " << fed_low2 << std::endl;
-                if (fed_low1 == fed_low2) all = true;
-                int fed_hi1 = TheMapping -> GetFED(etaHigh,phiMinus*180./Geom::pi());
-                int fed_hi2 = TheMapping -> GetFED(etaHigh,phiPlus*180./Geom::pi());
-		if (debug_>=2) std::cout << "fed_hi1 fed_hi2 " << fed_hi1 << " " << fed_hi2 << std::endl;
-                if (fed_hi1 == fed_hi2) all = true;
-        }
+//         double dphi = phiPlus - phiMinus;
+//         if (dphi < 0) dphi += 2.*Geom::pi() ;
+// 	if (debug_>=2) std::cout << "dphi = " << dphi << std::endl;
+//         if (dphi > Geom::pi()) {
+//                 int fed_low1 = TheMapping -> GetFED(etaLow,phiMinus*180./Geom::pi());
+//                 int fed_low2 = TheMapping -> GetFED(etaLow,phiPlus*180./Geom::pi());
+// 		if (debug_>=2) std::cout << "fed_low1 fed_low2 " << fed_low1 << " " << fed_low2 << std::endl;
+//                 if (fed_low1 == fed_low2) all = true;
+//                 int fed_hi1 = TheMapping -> GetFED(etaHigh,phiMinus*180./Geom::pi());
+//                 int fed_hi2 = TheMapping -> GetFED(etaHigh,phiPlus*180./Geom::pi());
+// 		if (debug_>=2) std::cout << "fed_hi1 fed_hi2 " << fed_hi1 << " " << fed_hi2 << std::endl;
+//                 if (fed_hi1 == fed_hi2) all = true;
+//         }
 
-	if (all) {
-		if (debug_>=2) std::cout << " unpack everything in phi ! " << std::endl;
-		phiMinus = -20 * Geom::pi() / 180.;  // -20 deg
-		phiPlus = -40 * Geom::pi() / 180.;  // -20 deg
-	}
+// 	if (all) {
+// 		if (debug_>=2) std::cout << " unpack everything in phi ! " << std::endl;
+// 		phiMinus = -20 * Geom::pi() / 180.;  // -20 deg
+// 		phiPlus = -40 * Geom::pi() / 180.;  // -20 deg
+// 	}
 
-        if (debug_>=2) std::cout << " with margins : " << etaLow << " " << etaHigh << " " << 
-			phiMinus << " " << phiPlus << std::endl;
+//         if (debug_>=2) std::cout << " with margins : " << etaLow << " " << etaHigh << " " << 
+// 			phiMinus << " " << phiPlus << std::endl;
 
 
-        const EcalEtaPhiRegion ecalregion(etaLow,etaHigh,phiMinus,phiPlus);
+//         const EcalEtaPhiRegion ecalregion(etaLow,etaHigh,phiMinus,phiPlus);
 
-        FEDs = TheMapping -> GetListofFEDs(ecalregion);
+//         FEDs = TheMapping -> GetListofFEDs(ecalregion);
 
-/*
-	if (debug_) {
-           int nn = (int)FEDs.size();
-           for (int ii=0; ii < nn; ii++) {
-                   std::cout << "unpack fed " << FEDs[ii] << std::endl;
-           }
-   	   }
-*/
+// /*
+// 	if (debug_) {
+//            int nn = (int)FEDs.size();
+//            for (int ii=0; ii < nn; ii++) {
+//                    std::cout << "unpack fed " << FEDs[ii] << std::endl;
+//            }
+//    	   }
+// */
 
-        return FEDs;
+//         return FEDs;
 
-}
+// }
 
 
 ////already existing , int EcalElectronicsMapping::DCCid(const EBDetId& id)
-int HLTPi0RecHitsFilter::convertSmToFedNumbBarrel(int ieta, int smId){
+///obsolete
+// int HLTPi0RecHitsFilter::convertSmToFedNumbBarrel(int ieta, int smId){
     
-  if( ieta<=-1) return smId - 9; 
-  else return smId + 27; 
+//   if( ieta<=-1) return smId - 9; 
+//   else return smId + 27; 
   
   
-}
+// }
 
 
 void HLTPi0RecHitsFilter::convxtalid(int &nphi,int &neta)

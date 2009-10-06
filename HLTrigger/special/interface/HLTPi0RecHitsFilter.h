@@ -84,8 +84,8 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       int diff_neta_s(int,int);
       int diff_nphi_s(int,int);
       
+      void makeClusterES(float x, float y, float z,const CaloSubdetectorGeometry*&iSubGeom,CaloSubdetectorTopology*& topology_p);
       
-
       std::vector<int> ListOfFEDS(double etaLow, double etaHigh, double phiLow,
                                     double phiHigh, double etamargin, double phimargin);
 	
@@ -304,10 +304,17 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double EMregionEtaMargin_;
       double EMregionPhiMargin_;
  
+      //parameter which decide which level of flags of EcalRecHit used for clustering.
+      int flagLevelRecHitsToUse_; 
+      //number of minimal rechits for selected clusters.
+      int nMinRecHitsSel1stCluster_; 
+      int nMinRecHitsSel2ndCluster_; 
+      
+      
  
       std::map<std::string,double> providedParameters;  
       
- 
+      
       
       std::vector<int> FEDListUsed; ///by regional objects.  ( em, jet, etc)
 
@@ -319,9 +326,9 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       
       double ptMinEMObj_ ; 
  
+      std::map<DetId, EcalRecHit> esrechits_map;
+      std::set<DetId> used_strips;
       
-
-
 
       EcalElectronicsMapping* TheMapping;
  
