@@ -179,7 +179,7 @@ void ElectronMcSignalValidator::beginJob()
   if (!store_)
    { edm::LogError("ElectronMcSignalValidator::beginJob")<<"No DQMStore found !" ; }
 
-  store_->setCurrentFolder("Egamma/ElectronMcSignalValidator/ByEvent");
+  store_->setCurrentFolder("EgammaV/ElectronMcSignalValidator/ByEvent");
 
   // mc truth
   h1_mcNum = bookH1withSumw2("h_mcNum","# mc particles",fhits_nbin,0.,fhits_max,"N_{gen}" );
@@ -1229,7 +1229,7 @@ ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::EventS
 
 void ElectronMcSignalValidator::endJob()
  {
-  store_->setCurrentFolder("Egamma/ElectronMcSignalValidator/ByJob");
+  store_->setCurrentFolder("EgammaV/ElectronMcSignalValidator/ByJob");
 
   std::cout << "[ElectronMcSignalValidator] efficiency calculation " << std::endl ;
   bookH1andDivide("h_ele_etaEff",h1_ele_simEta_matched,h1_simEta,"#eta","Efficiency","",true);

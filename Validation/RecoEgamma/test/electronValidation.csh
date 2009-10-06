@@ -157,8 +157,8 @@ echo "VAL_REF_FILE = ${VAL_REF_FILE}"
 
 if ( "${VAL_REF_FILE}" != "" && "${REF_ALREADY_STORED}" == "" ) then
 
-  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data ) then
-    mkdir $VAL_WEB/$VAL_NEW_RELEASE/vs${VAL_REF_RELEASE}/data
+  if ( ! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data ) then
+    mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
   endif
 
   cp -f $VAL_REF_FILE $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/data
@@ -192,7 +192,7 @@ if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_
   mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs
 endif
 
-#cp -f ${VAL_ORIGINAL_DIR}/eleValidation.C $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
+cp -f ${VAL_ORIGINAL_DIR}/electronValidation.C $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
 
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise

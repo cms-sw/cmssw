@@ -57,7 +57,7 @@ eleStyle->cd();
 
 gROOT->ForceStyle();
 
-TString internal_path("DQMData/EgammaV/ElectronMcSignalValidator/") ;
+TString internal_path("DQMData/Run 1/EgammaV/Run summary/ElectronMcSignalValidator/ByEvent/") ;
 
 TString val_ref_file_url ;
 TString file_ref_dir = internal_path ;
