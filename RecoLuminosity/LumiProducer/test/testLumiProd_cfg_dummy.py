@@ -18,9 +18,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource",
      numberEventsInRun = cms.untracked.uint32(1),
-     firstRun = cms.untracked.uint32(10),
+     firstRun = cms.untracked.uint32(1),
      numberEventsInLuminosityBlock = cms.untracked.uint32(1),
-     firstLuminosityBlock = cms.untracked.uint32(3)
+     firstLuminosityBlock = cms.untracked.uint32(1)
 )
 
 #process.source = cms.Source("EmptyIOVSource",
@@ -36,7 +36,7 @@ process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
       record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('lumitest')
+      tag = cms.string('testlumidummy')
     )
 )
 
