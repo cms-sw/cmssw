@@ -11,12 +11,4 @@
  <class name="std::vector<L1TriggerScaler::Lumi>"/>
  <class name="L1TriggerScaler" class_version="0"/>
  
- <class name="lumi::LuminosityInfo" class_version="0"/>
- <class name="lumi::BunchCrossingInfo"/>
- <class name="std::vector<lumi::BunchCrossingInfo>"/>
-
- <class name="lumi::HLTScaler"  class_version="0"/>
- <class name="lumi::HLTInfo"/>
- <class name="std::vector< lumi::HLTInfo >"/>
-
 </lcgdict>  
