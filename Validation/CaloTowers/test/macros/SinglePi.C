@@ -1,6 +1,6 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 
-void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
+void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"){
 
    TCanvas *myc = new TCanvas("myc","",800,600);
 
@@ -12,7 +12,7 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    
    // service variables
    //
-   const int Nprof   = 6;
+   const int Nprof   = 9;
 
    TProfile* f1_prof[Nprof];
    TProfile* f2_prof[Nprof];
@@ -25,6 +25,9 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    labelp[3] = &"RecHitsTask_emean_vs_ieta_E.gif";
    labelp[4] = &"RecHitsTask_emean_vs_ieta_H.gif";
    labelp[5] = &"RecHitsTask_emean_vs_ieta_EH.gif";
+   labelp[6] = &"SimHitsTask_emean_vs_ieta_E.gif";
+   labelp[7] = &"SimHitsTask_emean_vs_ieta_H.gif";
+   labelp[8] = &"SimHitsTask_emean_vs_ieta_EH.gif";
 
    f1.cd("DQMData/CaloTowersV/CaloTowersTask");
    gDirectory->pwd();
@@ -38,6 +41,11 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    f1_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f1_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
 
+   f1.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
+   f1_prof[6] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E;
+   f1_prof[7] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths;
+   f1_prof[8] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH;
+
    f2.cd("DQMData/CaloTowersV/CaloTowersTask");
    gDirectory->pwd();
    f2_prof[0] = emean_vs_ieta_E1;
@@ -49,6 +57,11 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    f2_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f2_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
 
+   f2.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
+   f2_prof[6] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E;
+   f2_prof[7] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths;
+   f2_prof[8] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_EH;
+
    //
    f1_prof[0]->GetXaxis()->SetTitle("CaloTowers eE (GeV) vs ieta 1 Tower");
    f1_prof[1]->GetXaxis()->SetTitle("CaloTowers hE (GeV) vs ieta 1 Tower");
@@ -56,6 +69,9 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    f1_prof[3]->GetXaxis()->SetTitle("RecHits eE (GeV) vs ieta R = 0.3 Cone");
    f1_prof[4]->GetXaxis()->SetTitle("RecHits hE (GeV) vs ieta R = 0.3 Cone");
    f1_prof[5]->GetXaxis()->SetTitle("RecHits eE+hE (GeV) vs ieta R = 0.3 Cone");
+   f1_prof[6]->GetXaxis()->SetTitle("SimHits eE (GeV) vs ieta R = 0.3 Cone");
+   f1_prof[7]->GetXaxis()->SetTitle("SimHits hE (GeV) vs ieta R = 0.3 Cone");
+   f1_prof[8]->GetXaxis()->SetTitle("SimHits eE+hE (GeV) vs ieta R = 0.3 Cone");
 
    //
    f1_prof[0]->SetMaximum(20.);
@@ -70,6 +86,9 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    f1_prof[3]->SetMinimum(0.);
    f1_prof[4]->SetMinimum(0.);
    f1_prof[5]->SetMinimum(0.);
+   f1_prof[6]->SetMinimum(0.);
+   f1_prof[7]->SetMinimum(0.);
+   f1_prof[8]->SetMinimum(0.);
 
    // f1_hist[2]->GetXaxis()->SetRangeUser(0.,1200.);
    // f1_hist[7]->GetXaxis()->SetRangeUser(0.,160.);
@@ -77,7 +96,7 @@ void SinglePi(const TString ref_vers="312", const TString val_vers="313"){
    // hist1->GetYaxis()->SetNdivisions(-1003);
 
 
-   //  Profiles
+  //  Profiles
   for (int i = 0; i < Nprof; i++){
 
     f1_prof[i]->SetStats(kFALSE);   
