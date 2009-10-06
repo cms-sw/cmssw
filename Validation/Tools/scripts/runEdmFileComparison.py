@@ -99,6 +99,8 @@ if __name__ == "__main__":
         filename2 = args[1]
     else:
         filename2 = filename1
+    if not os.path.exists (filename1) or not os.path.exists (filename2):
+        raise RuntimeError, "Can not find '%s' or '%s'" % (filename1, filename2)
     if options.verbose:
         print "files", filename1, filename2
     if options.verbose:
