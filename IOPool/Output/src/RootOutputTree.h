@@ -40,6 +40,7 @@ namespace edm {
       producedBranches_(),
       metaBranches_(),
       readBranches_(),
+      auxBranch_(),
       unclonedReadBranches_(),
       unclonedReadBranchNames_(),
       currentlyFastCloning_() {
@@ -54,11 +55,10 @@ namespace edm {
     template <typename T>
     void
     addAuxiliary(BranchType const& branchType, T const*& pAux, int bufSize) {
-      TBranch *auxBranch = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
-      readBranches_.push_back(auxBranch);
+      auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
     }
 
-    static void fastCloneTTree(TTree* in, TTree* out, std::string const& option);
+    void fastCloneTTree(TTree* in, std::string const& option);
 
     static TTree* makeTTree(TFile* filePtr, std::string const& name, int splitLevel);
 
@@ -117,6 +117,7 @@ namespace edm {
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> metaBranches_;
     std::vector<TBranch*> readBranches_;
+    TBranch* auxBranch_;
     std::vector<TBranch*> unclonedReadBranches_;
     std::set<std::string> unclonedReadBranchNames_;
     bool currentlyFastCloning_;

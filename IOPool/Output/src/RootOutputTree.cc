@@ -114,15 +114,34 @@ namespace edm {
   }
 
   void
-  RootOutputTree::fastCloneTTree(TTree* in, TTree* out, std::string const& option) {
+  RootOutputTree::fastCloneTTree(TTree* in, std::string const& option) {
     if(in->GetEntries() != 0) {
-      TTreeCloner cloner(in, out, option.c_str());
+
+      TObjArray* branches = tree_->GetListOfBranches();
+      Int_t auxIndex = -1;
+      if (auxBranch_) {
+        // Don't fast copy auxiliary branch. Remove it, and add it back after fast copying.
+        auxIndex = branches->IndexOf(auxBranch_);
+	assert (auxIndex >= 0);
+        branches->RemoveAt(auxIndex);
+        branches->Compress();
+      }
+      TTreeCloner cloner(in, tree_, option.c_str());
       if(!cloner.IsValid()) {
         throw edm::Exception(errors::FatalRootError)
           << "invalid TTreeCloner\n";
       }
-      out->SetEntries(out->GetEntries() + in->GetEntries());
+      tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       cloner.Exec();
+      if (auxBranch_) {
+        // Add the auxiliary branch back after fast copying the rest of the tree.
+        Int_t last = branches->GetLast();
+        branches->AddAtAndExpand(branches->At(last), last+1);
+        for(Int_t ind = last-1; ind >= auxIndex; --ind) {
+          branches->AddAt(branches->At(ind), ind+1);
+        };
+        branches->AddAt(auxBranch_, auxIndex);
+      }
     }
   }
  
@@ -152,7 +171,7 @@ namespace edm {
     unclonedReadBranchNames_.clear();
     currentlyFastCloning_ = canFastClone;
     if(currentlyFastCloning_) {
-      fastCloneTTree(tree, tree_, option);
+      fastCloneTTree(tree, option);
       for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
 	  it != itEnd; ++it) {
 	if((*it)->GetEntries() != tree_->GetEntries()) {
@@ -167,6 +186,7 @@ namespace edm {
   RootOutputTree::fillTree() const {
     fillTTree(metaTree_, metaBranches_);
     fillTTree(tree_, producedBranches_);
+    auxBranch_->Fill();
     if(currentlyFastCloning_) {
       fillTTree(tree_, unclonedReadBranches_);
     } else {
