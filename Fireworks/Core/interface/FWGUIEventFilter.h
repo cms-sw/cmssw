@@ -1,8 +1,9 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Fireworks/Core/interface/FWEventSelector.h";
-#include "Fireworks/Core/interface/FWHLTValidator.h";
+#include "Fireworks/Core/interface/FWEventSelector.h"
+#include "Fireworks/Core/interface/FWHLTValidator.h"
+
 class TGVerticalFrame;
 class TGFrame;
 class TGTransientFrame;
@@ -50,7 +51,6 @@ public:
   void DoExit()
   {
     UnmapWindow();
-    // DeleteWindow();
   }
 };
 
