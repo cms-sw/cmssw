@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.5 2009/01/12 16:47:28 tucker Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.6 2009/01/19 10:11:45 tucker Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -55,6 +55,19 @@ TrackRef tevOptimizedTMR(const Muon& muon, const TrackToTrackMap& fmsMap,
     return combinedTrack;
 }
 
+TrackRef sigmaSwitch(const Muon& muon, const double nSigma, const double ptThreshold) {
+  const TrackRef& combinedTrack = muon.globalTrack();
+  const TrackRef& trackerTrack  = muon.innerTrack();
+
+  if (combinedTrack->pt() < ptThreshold || trackerTrack->pt() < ptThreshold)
+    return trackerTrack;
+
+  double delta = fabs(trackerTrack->qoverp() - combinedTrack->qoverp());
+  double threshold = nSigma * trackerTrack->qoverpError();
+
+  return delta > threshold ? trackerTrack : combinedTrack;
+}
+
 class MuonsFromRefitTracksProducer : public EDProducer {
 public:
   explicit MuonsFromRefitTracksProducer(const ParameterSet&);
@@ -83,6 +96,12 @@ private:
   // looking at the tracker tracks of these muons.
   bool fromTrackerTrack;
 
+  // Allow building the muon from just the global track. This option
+  // is introduced since starting from CMSSW 3_1_0, the MuonIdProducer
+  // makes the p4() of the reco::Muon object be what we call the sigma
+  // switch above.
+  bool fromGlobalTrack;
+
   // If tevMuonTracks below is not "none", use the TeV refit track as
   // the combined track of the muon.
   bool fromTeVRefit;
@@ -104,6 +123,16 @@ private:
   // The cut value for TMR, read from the config file.
   double TMRcut;
 
+  // Whether to use Adam Everett's sigma-switch method, choosing
+  // between the global track and the tracker track.
+  bool fromSigmaSwitch;
+  
+  // The number of sigma to switch on in the above method.
+  double nSigmaSwitch;
+  
+  // The pT threshold to switch at in the above method.
+  double ptThreshold;
+
   // If we're not making cocktail muons, trackMap is the map that maps
   // global tracks to the desired TeV refit (e.g. from globalMuons to
   // tevMuons:picky).
@@ -118,10 +147,14 @@ private:
 MuonsFromRefitTracksProducer::MuonsFromRefitTracksProducer(const ParameterSet& cfg)
   : src(cfg.getParameter<InputTag>("src")),
     fromTrackerTrack(cfg.getParameter<bool>("fromTrackerTrack")),
+    fromGlobalTrack(cfg.getParameter<bool>("fromGlobalTrack")),
     tevMuonTracks(cfg.getParameter<string>("tevMuonTracks")),
     fromCocktail(cfg.getParameter<bool>("fromCocktail")),
     fromTMR(cfg.getParameter<bool>("fromTMR")),
-    TMRcut(cfg.getParameter<double>("TMRcut"))
+    TMRcut(cfg.getParameter<double>("TMRcut")),
+    fromSigmaSwitch(cfg.getParameter<bool>("fromSigmaSwitch")),
+    nSigmaSwitch(cfg.getParameter<double>("nSigmaSwitch")),
+    ptThreshold(cfg.getParameter<double>("ptThreshold"))
 {
   fromTeVRefit = tevMuonTracks != "none";
   produces<MuonCollection>();
@@ -190,9 +223,12 @@ void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetu
   if (ok) {
     View<Muon>::const_iterator muon;
     for (muon = muons->begin(); muon != muons->end(); muon++) {
+      // Filter out the so-called trackerMuons and stand-alone muons
+      // (and caloMuons, if they were ever to get into the input muons
+      // collection).
       if (!muon->isGlobalMuon()) continue;
 
-      if (fromTeVRefit) {
+      if (fromTeVRefit || fromSigmaSwitch) {
 	// Start out with a null TrackRef.
 	TrackRef tevTk;
       
@@ -204,6 +240,8 @@ void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetu
 	else if (fromCocktail)
 	  tevTk = muon::tevOptimized(*muon, *trackMapDefault, *trackMapFirstHit,
 				     *trackMapPicky);
+	else if (fromSigmaSwitch)
+	  tevTk = sigmaSwitch(*muon, nSigmaSwitch, ptThreshold);
 	else {
 	  TrackToTrackMap::const_iterator tevTkRef =
 	    trackMap->find(muon->combinedMuon());
@@ -211,14 +249,16 @@ void MuonsFromRefitTracksProducer::produce(Event& event, const EventSetup& eSetu
 	    tevTk = tevTkRef->val;
 	}
 	
-	// If the TrackRef is valid, make a new MuonTrackLinks that has
-	// the same tracker and stand-alone tracks, but has the refit
-	// track as its global track.
+	// If the TrackRef is valid, make a new Muon that has the same
+	// tracker and stand-alone tracks, but has the refit track as
+	// its global track.
 	if (tevTk.isNonnull())
 	  cands->push_back(*cloneAndSwitchTrack(*muon, tevTk));
       }
       else if (fromTrackerTrack)
 	cands->push_back(*cloneAndSwitchTrack(*muon, muon->innerTrack()));
+      else if (fromGlobalTrack)
+	cands->push_back(*cloneAndSwitchTrack(*muon, muon->globalTrack()));
       else {
 	cands->push_back(*muon->clone());
 
