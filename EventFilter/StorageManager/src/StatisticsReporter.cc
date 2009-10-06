@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.12 2009/08/28 16:41:26 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.13 2009/09/18 09:10:25 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -182,13 +182,15 @@ void StatisticsReporter::addRunInfoQuantitiesToApplicationInfoSpace()
   xdata::InfoSpace *infoSpace = _app->getApplicationInfoSpace();
 
   // bind the local xdata variables to the infospace
+  infoSpace->fireItemAvailable("stateName", &_stateName);
   infoSpace->fireItemAvailable("storedEvents", &_storedEvents);
   infoSpace->fireItemAvailable("closedFiles", &_closedFiles);
 
   // spacial handling for the monitoring values requested by the HLTSFM
   // we want to assure that the values are current when they are queried
-  infoSpace->addItemRetrieveListener("closedFiles", this);
+  infoSpace->addItemRetrieveListener("stateName", this);
   infoSpace->addItemRetrieveListener("storedEvents", this);
+  infoSpace->addItemRetrieveListener("closedFiles", this);
 }
 
 
@@ -358,6 +360,18 @@ void StatisticsReporter::actionPerformed(xdata::Event& ispaceEvent)
       catch(xdata::exception::Exception& e)
       {
         _storedEvents = 0;
+      }
+    } 
+    else if (item == "stateName")
+    {
+      _stateMachineMonCollection.updateInfoSpaceItems();
+      try
+      {
+        _stateName.setValue( *(_infoSpace->find("stateName")) );
+      }
+      catch(xdata::exception::Exception& e)
+      {
+        _stateName = "unknown";
       }
     } 
   }
