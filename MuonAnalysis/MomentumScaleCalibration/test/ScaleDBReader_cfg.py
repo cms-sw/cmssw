@@ -38,7 +38,7 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
     connect = cms.string('sqlite_file:dummyScale.db'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitDBobjectRcd'),
-        tag = cms.string('MuScleFitScale_2_1_12')
+        tag = cms.string('MuScleFitScale_3_2_2')
     ))
 )
 

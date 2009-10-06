@@ -38,7 +38,7 @@ process.PoolDBOutputService = cms.Service(
     connect = cms.string('sqlite_file:dummyScale.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('MuScleFitDBobjectRcd'),
-        tag = cms.string('MuScleFitScale_2_1_12')
+        tag = cms.string('MuScleFitScale_3_2_2')
     ))
 )
 
@@ -48,7 +48,7 @@ process.DBWriterModule = cms.EDAnalyzer(
     # Specify that we want to write the scale parameters. THIS MUST NOT BE CHANGED.
     Type = cms.untracked.string('scale'),
     # Specify the corrections to use
-    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromY_globalMuons_test')
+    CorrectionsIdentifier = cms.untracked.string('MCcorrDerivedFromSummer08Z_innerTrack')
 )
 
 process.p1 = cms.Path(process.DBWriterModule)
