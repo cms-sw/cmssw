@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalNZSFilter.cc,v 1.6 2009/08/27 13:33:47 gruen Exp $
+// $Id: HLTHcalNZSFilter.cc,v 1.7 2009/09/21 16:41:08 gruen Exp $
 //
 //
 
@@ -71,6 +71,9 @@ bool
 HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+
+  // MC treatment for this filter (NZS not fully emulated in HTR for MC)
+  if (!iEvent.isRealData()) return false ; 
   
   // MC treatment for this filter (MC is ZS - NZS not properly done in MC)
   if (!iEvent.isRealData()) return false;
@@ -78,7 +81,7 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByLabel(dataInputTag_,rawdata);
 
-  bool hcalIsZS = false ; int nFEDs = 0 ; 
+  int nFEDs = 0 ; int nNZSfed = 0 ; int nZSfed = 0 ; 
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
       if ( fedData.size() < 24 ) continue ; 
@@ -87,27 +90,37 @@ HLTHcalNZSFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Check for Zero-suppression
       HcalHTRData htr;
       const HcalDCCHeader* dccHeader = (const HcalDCCHeader*)(fedData.data()) ; 
-      int nZS = 0 ; bool isZS = false ; 
+      int nZS = 0 ; int nUS = 0 ; int nSpigot = 0 ; 
       for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
           if (!dccHeader->getSpigotPresent(spigot)) continue;
           
           // Load the given decoder with the pointer and length from this spigot.
           dccHeader->getSpigotData(spigot,htr, fedData.size()); 
-          
+          if ((htr.getFirmwareFlavor()&0xE0)==0x80) continue ; // This is TTP data
+
+          nSpigot++ ; 
           // check min length, correct wordcount, empty event, or total length if histo event.
-          if ( !htr.isUnsuppressed() ) { isZS = true ; hcalIsZS = true ; nZS++ ; }
+          if ( htr.isUnsuppressed() ) nUS++ ; 
+          else nZS++ ; 
       }
-      if ( hcalIsZS && !isZS )
-          LogWarning("HLTHcalNZSFilter") << "HCAL is ZS, but HCAL FED " << i << " is not" ; 
-      if ( isZS && nZS != HcalDCCHeader::SPIGOT_COUNT )
-          LogDebug("HLTHcalNZSFilter") << nZS << " out of "
-                                       << HcalDCCHeader::SPIGOT_COUNT << " HCAL HTRs for FED "
-                                       << i << " are zero-suppressed for this event" ;
+
+      if ( nUS == nSpigot ) nNZSfed++ ; 
+      else {
+          nZSfed++ ; 
+          if ( nUS > 0 ) LogWarning("HLTHcalNZSFilter") << "Mixture of ZS(" << nZS
+                                                        << ") and NZS(" << nUS
+                                                        << ") spigots in FED " << i ;
+      }
+  }
+  
+  if ( (nNZSfed == nFEDs) && (nFEDs > 0) ) { eventsNZS_++ ; return true ; }
+  else {
+      if ( nNZSfed > 0 ) LogWarning("HLTHcalNZSFilter") << "Mixture of ZS(" << nZSfed
+                                                        << ") and NZS(" << nNZSfed
+                                                        << ") FEDs in this event" ; 
+      return false ;
   }
 
-  if ( nFEDs == 0 ) return false ; // No HCAL 
-  if ( !hcalIsZS ) eventsNZS_++ ; 
-  return ( !hcalIsZS ) ; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
