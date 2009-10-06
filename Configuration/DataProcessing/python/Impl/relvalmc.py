@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_RelValMC_
+_relvalmc_
 
 Scenario supporting cosmic data taking
 
@@ -18,9 +18,9 @@ from Configuration.PyReleaseValidation.ConfigBuilder import installFilteredStrea
     
 
 
-class RelValMC(Scenario):
+class relvalmc(Scenario):
     """
-    _RelValMC_
+    _relvalmc_
 
     Implement configuration building for data processing for cosmic
     data taking
@@ -39,7 +39,7 @@ class RelValMC(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'RAW2DIGI,RECO,DQM'
+        options.step = 'RAW2DIGI,RECO,VALIDATION,DQM'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -98,16 +98,16 @@ class RelValMC(Scenario):
         """
         _expressProcessing_
 
-        Implement RelValMC Express processing
+        Implement relvalmc Express processing
 
         Based on/Edited from:
         
         ConfigBuilder.py
              step2
-             -s RAW2DIGI,RECO:reconstructionRelValMC,ALCA:MuAlCalIsolatedMu\
-             +RpcCalHLT+TkAlRelValMCHLT+TkAlRelValMC0T\
-             +MuAlStandAloneRelValMC+MuAlGlobalRelValMC\
-             +HcalCalHORelValMC
+             -s RAW2DIGI,RECO:reconstructionrelvalmc,ALCA:MuAlCalIsolatedMu\
+             +RpcCalHLT+TkAlrelvalmcHLT+TkAlrelvalmc0T\
+             +MuAlStandAlonerelvalmc+MuAlGlobalrelvalmc\
+             +HcalCalHOrelvalmc
              --datatier RECO
              --eventcontent RECO
              --conditions FrontierConditions_GlobalTag,CRAFT_30X::All
@@ -121,7 +121,7 @@ class RelValMC(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
         options.step = \
-          """RAW2DIGI,RECO:reconstructionRelValMC,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlRelValMCHLT+TkAlRelValMC0T+MuAlStandAloneRelValMC+MuAlGlobalRelValMC+HcalCalHORelValMC"""
+          """RAW2DIGI,RECO:reconstructionrelvalmc,ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlrelvalmcHLT+TkAlrelvalmc0T+MuAlStandAlonerelvalmc+MuAlGlobalrelvalmc+HcalCalHOrelvalmc"""
         options.isMC = False
         options.isData = True
         options.eventcontent = "RECO"
@@ -155,14 +155,14 @@ class RelValMC(Scenario):
         process.load('Configuration/StandardSequences/GeometryIdeal_cff')
         process.load('Configuration/StandardSequences/MagneticField_38T_cff')
         process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
-        process.load('Configuration/StandardSequences/ReconstructionRelValMC_cff')
+        process.load('Configuration/StandardSequences/Reconstructionrelvalmc_cff')
         process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
         process.load('Configuration/StandardSequences/EndOfProcess_cff')
         process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-        process.load('Configuration/EventContent/EventContentRelValMC_cff')
+        process.load('Configuration/EventContent/EventContentrelvalmc_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.11 $'),
+            version = cms.untracked.string('$Revision: 1.1 $'),
             annotation = cms.untracked.string('step2 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -180,19 +180,19 @@ class RelValMC(Scenario):
         # Other statements
         # Path and EndPath definitions
         process.raw2digi_step = cms.Path(process.RawToDigi)
-        process.reconstruction_step = cms.Path(process.reconstructionRelValMC)
-        process.pathALCARECOHcalCalHORelValMC = cms.Path(process.seqALCARECOHcalCalHORelValMC)
-        process.pathALCARECOMuAlStandAloneRelValMC = cms.Path(process.seqALCARECOMuAlStandAloneRelValMC*process.ALCARECOMuAlStandAloneRelValMCDQM)
+        process.reconstruction_step = cms.Path(process.reconstructionrelvalmc)
+        process.pathALCARECOHcalCalHOrelvalmc = cms.Path(process.seqALCARECOHcalCalHOrelvalmc)
+        process.pathALCARECOMuAlStandAlonerelvalmc = cms.Path(process.seqALCARECOMuAlStandAlonerelvalmc*process.ALCARECOMuAlStandAlonerelvalmcDQM)
         process.pathALCARECOTkAlZMuMu = cms.Path(process.seqALCARECOTkAlZMuMu*process.ALCARECOTkAlZMuMuDQM)
-        process.pathALCARECOTkAlRelValMCCTF0T = cms.Path(process.seqALCARECOTkAlRelValMCCTF0T*process.ALCARECOTkAlRelValMCCTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcCTF0T = cms.Path(process.seqALCARECOTkAlrelvalmcCTF0T*process.ALCARECOTkAlrelvalmcCTF0TDQM)
         process.pathALCARECOMuAlBeamHalo = cms.Path(process.seqALCARECOMuAlBeamHalo*process.ALCARECOMuAlBeamHaloDQM)
-        process.pathALCARECOTkAlRelValMCRS0THLT = cms.Path(process.seqALCARECOTkAlRelValMCRS0THLT*process.ALCARECOTkAlRelValMCRS0TDQM)
-        process.pathALCARECOTkAlRelValMCCTF = cms.Path(process.seqALCARECOTkAlRelValMCCTF*process.ALCARECOTkAlRelValMCCTFDQM)
+        process.pathALCARECOTkAlrelvalmcRS0THLT = cms.Path(process.seqALCARECOTkAlrelvalmcRS0THLT*process.ALCARECOTkAlrelvalmcRS0TDQM)
+        process.pathALCARECOTkAlrelvalmcCTF = cms.Path(process.seqALCARECOTkAlrelvalmcCTF*process.ALCARECOTkAlrelvalmcCTFDQM)
         process.pathALCARECOHcalCalIsoTrk = cms.Path(process.seqALCARECOHcalCalIsoTrk*process.ALCARECOHcalCalIsoTrackDQM)
         process.pathALCARECOHcalCalHO = cms.Path(process.seqALCARECOHcalCalHO*process.ALCARECOHcalCalHODQM)
-        process.pathALCARECOTkAlRelValMCCTFHLT = cms.Path(process.seqALCARECOTkAlRelValMCCTFHLT*process.ALCARECOTkAlRelValMCCTFDQM)
-        process.pathALCARECOTkAlRelValMCRS0T = cms.Path(process.seqALCARECOTkAlRelValMCRS0T*process.ALCARECOTkAlRelValMCRS0TDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTFHLT = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTFHLT*process.ALCARECOTkAlRelValMCCosmicTFDQM)
+        process.pathALCARECOTkAlrelvalmcCTFHLT = cms.Path(process.seqALCARECOTkAlrelvalmcCTFHLT*process.ALCARECOTkAlrelvalmcCTFDQM)
+        process.pathALCARECOTkAlrelvalmcRS0T = cms.Path(process.seqALCARECOTkAlrelvalmcRS0T*process.ALCARECOTkAlrelvalmcRS0TDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTFHLT = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTFHLT*process.ALCARECOTkAlrelvalmcCosmicTFDQM)
         process.pathALCARECOTkAlMuonIsolated = cms.Path(process.seqALCARECOTkAlMuonIsolated*process.ALCARECOTkAlMuonIsolatedDQM)
         process.pathALCARECOTkAlUpsilonMuMu = cms.Path(process.seqALCARECOTkAlUpsilonMuMu*process.ALCARECOTkAlUpsilonMuMuDQM)
         process.pathALCARECOHcalCalDijets = cms.Path(process.seqALCARECOHcalCalDijets*process.ALCARECOHcalCalDiJetsDQM)
@@ -200,30 +200,30 @@ class RelValMC(Scenario):
         process.pathALCARECOTkAlBeamHalo = cms.Path(process.seqALCARECOTkAlBeamHalo*process.ALCARECOTkAlBeamHaloDQM)
         process.pathALCARECOSiPixelLorentzAngle = cms.Path(process.seqALCARECOSiPixelLorentzAngle)
         process.pathALCARECOEcalCalElectron = cms.Path(process.seqALCARECOEcalCalElectron*process.ALCARECOEcalCalElectronCalibDQM)
-        process.pathALCARECOTkAlRelValMCCTF0THLT = cms.Path(process.seqALCARECOTkAlRelValMCCTF0THLT*process.ALCARECOTkAlRelValMCCTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcCTF0THLT = cms.Path(process.seqALCARECOTkAlrelvalmcCTF0THLT*process.ALCARECOTkAlrelvalmcCTF0TDQM)
         process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsolatedMu*process.ALCARECOMuAlCalIsolatedMuDQM*process.ALCARECODTCalibrationDQM)
         process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZeroBias*process.ALCARECOSiStripCalZeroBiasDQM)
-        process.pathALCARECOTkAlRelValMCRSHLT = cms.Path(process.seqALCARECOTkAlRelValMCRSHLT*process.ALCARECOTkAlRelValMCRSDQM)
+        process.pathALCARECOTkAlrelvalmcRSHLT = cms.Path(process.seqALCARECOTkAlrelvalmcRSHLT*process.ALCARECOTkAlrelvalmcRSDQM)
         process.pathALCARECOSiStripCalMinBias = cms.Path(process.seqALCARECOSiStripCalMinBias)
         process.pathALCARECODQM = cms.Path(process.MEtoEDMConverter)
         process.pathALCARECOTkAlLAS = cms.Path(process.seqALCARECOTkAlLAS*process.ALCARECOTkAlLASDQM)
         process.pathALCARECOTkAlMinBias = cms.Path(process.seqALCARECOTkAlMinBias*process.ALCARECOTkAlMinBiasDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTF0T = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTF0T*process.ALCARECOTkAlRelValMCCosmicTF0TDQM)
-        process.pathALCARECOTkAlRelValMCRS = cms.Path(process.seqALCARECOTkAlRelValMCRS*process.ALCARECOTkAlRelValMCRSDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTF0T = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTF0T*process.ALCARECOTkAlrelvalmcCosmicTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcRS = cms.Path(process.seqALCARECOTkAlrelvalmcRS*process.ALCARECOTkAlrelvalmcRSDQM)
         process.pathALCARECORpcCalHLT = cms.Path(process.seqALCARECORpcCalHLT)
         process.pathALCARECOHcalCalGammaJet = cms.Path(process.seqALCARECOHcalCalGammaJet)
         process.pathALCARECOMuAlBeamHaloOverlaps = cms.Path(process.seqALCARECOMuAlBeamHaloOverlaps*process.ALCARECOMuAlBeamHaloOverlapsDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTF0THLT = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTF0THLT*process.ALCARECOTkAlRelValMCCosmicTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTF0THLT = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTF0THLT*process.ALCARECOTkAlrelvalmcCosmicTF0TDQM)
         process.pathALCARECOHcalCalNoise = cms.Path(process.seqALCARECOHcalCalNoise)
         process.pathALCARECOMuAlOverlaps = cms.Path(process.seqALCARECOMuAlOverlaps*process.ALCARECOMuAlOverlapsDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTF = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTF*process.ALCARECOTkAlRelValMCCosmicTFDQM)
-        process.pathALCARECOMuAlGlobalRelValMC = cms.Path(process.seqALCARECOMuAlGlobalRelValMC*process.ALCARECOMuAlGlobalRelValMCDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTF = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTF*process.ALCARECOTkAlrelvalmcCosmicTFDQM)
+        process.pathALCARECOMuAlGlobalrelvalmc = cms.Path(process.seqALCARECOMuAlGlobalrelvalmc*process.ALCARECOMuAlGlobalrelvalmcDQM)
         process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
         process.endjob_step = cms.Path(process.endOfProcess)
         
         
         # Schedule definition
-        process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHORelValMC,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlRelValMCCTFHLT,process.pathALCARECOTkAlRelValMCCosmicTFHLT,process.pathALCARECOTkAlRelValMCRSHLT,process.pathALCARECOTkAlRelValMCCTF0T,process.pathALCARECOTkAlRelValMCCosmicTF0T,process.pathALCARECOTkAlRelValMCRS0T,process.pathALCARECOMuAlGlobalRelValMC,process.pathALCARECOMuAlStandAloneRelValMC,process.endjob_step)
+        process.schedule = cms.Schedule(process.raw2digi_step,process.reconstruction_step,process.pathALCARECORpcCalHLT,process.pathALCARECOHcalCalHOrelvalmc,process.pathALCARECOMuAlCalIsolatedMu,process.pathALCARECOTkAlrelvalmcCTFHLT,process.pathALCARECOTkAlrelvalmcCosmicTFHLT,process.pathALCARECOTkAlrelvalmcRSHLT,process.pathALCARECOTkAlrelvalmcCTF0T,process.pathALCARECOTkAlrelvalmcCosmicTF0T,process.pathALCARECOTkAlrelvalmcRS0T,process.pathALCARECOMuAlGlobalrelvalmc,process.pathALCARECOMuAlStandAlonerelvalmc,process.endjob_step)
         
         
         ##process.write_Express_StreamExpress_RAW = cms.OutputModule(
@@ -267,7 +267,7 @@ class RelValMC(Scenario):
         Revision: 1.120 
         ConfigBuilder.py 
           step3_V16
-          -s ALCA:MuAlStandAloneRelValMC+DQM
+          -s ALCA:MuAlStandAlonerelvalmc+DQM
           --scenario cosmics
           --conditions FrontierConditions_GlobalTag,CRAFT_V16P::All
           --no_exec --data
@@ -280,7 +280,7 @@ class RelValMC(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "cosmics"
-        options.step = 'ALCA:MuAlStandAloneRelValMC+DQM'
+        options.step = 'ALCA:MuAlStandAlonerelvalmc+DQM'
         options.isMC = False
         options.isData = True
         options.conditions = "FrontierConditions_GlobalTag,CRAFT_V16P::All" 
@@ -304,10 +304,10 @@ class RelValMC(Scenario):
         process.load('Configuration/StandardSequences/AlCaRecoStreams_cff')
         process.load('Configuration/StandardSequences/EndOfProcess_cff')
         process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-        process.load('Configuration/EventContent/EventContentRelValMC_cff')
+        process.load('Configuration/EventContent/EventContentrelvalmc_cff')
         
         process.configurationMetadata = cms.untracked.PSet(
-            version = cms.untracked.string('$Revision: 1.11 $'),
+            version = cms.untracked.string('$Revision: 1.1 $'),
             annotation = cms.untracked.string('step3_V16 nevts:1'),
             name = cms.untracked.string('PyReleaseValidation')
         )
@@ -324,12 +324,12 @@ class RelValMC(Scenario):
         )
         
         # Additional output definition
-        process.ALCARECOStreamMuAlStandAloneRelValMC = cms.OutputModule("PoolOutputModule",
+        process.ALCARECOStreamMuAlStandAlonerelvalmc = cms.OutputModule("PoolOutputModule",
             SelectEvents = cms.untracked.PSet(
-                SelectEvents = cms.vstring('pathALCARECOMuAlStandAloneRelValMC')
+                SelectEvents = cms.vstring('pathALCARECOMuAlStandAlonerelvalmc')
             ),
             outputCommands = cms.untracked.vstring('drop *', 
-                'keep *_ALCARECOMuAlStandAloneRelValMC_*_*', 
+                'keep *_ALCARECOMuAlStandAlonerelvalmc_*_*', 
                 'keep *_muonCSCDigis_*_*', 
                 'keep *_muonDTDigis_*_*', 
                 'keep *_muonRPCDigis_*_*', 
@@ -339,29 +339,29 @@ class RelValMC(Scenario):
                 'keep *_csc2DRecHits_*_*', 
                 'keep *_cscSegments_*_*', 
                 'keep *_rpcRecHits_*_*'),
-            fileName = cms.untracked.string('ALCARECOMuAlStandAloneRelValMC.root'),
+            fileName = cms.untracked.string('ALCARECOMuAlStandAlonerelvalmc.root'),
             dataset = cms.untracked.PSet(
-                filterName = cms.untracked.string('StreamALCARECOMuAlStandAloneRelValMC'),
+                filterName = cms.untracked.string('StreamALCARECOMuAlStandAlonerelvalmc'),
                 dataTier = cms.untracked.string('ALCARECO')
             )
         )
         
         
         # Path and EndPath definitions
-        process.pathALCARECOHcalCalHORelValMC = cms.Path(
-            process.seqALCARECOHcalCalHORelValMC)
-        process.pathALCARECOMuAlStandAloneRelValMC = cms.Path(
-            process.seqALCARECOMuAlStandAloneRelValMC*process.ALCARECOMuAlStandAloneRelValMCDQM)
+        process.pathALCARECOHcalCalHOrelvalmc = cms.Path(
+            process.seqALCARECOHcalCalHOrelvalmc)
+        process.pathALCARECOMuAlStandAlonerelvalmc = cms.Path(
+            process.seqALCARECOMuAlStandAlonerelvalmc*process.ALCARECOMuAlStandAlonerelvalmcDQM)
         process.pathALCARECOTkAlZMuMu = cms.Path(process.seqALCARECOTkAlZMuMu*process.ALCARECOTkAlZMuMuDQM)
-        process.pathALCARECOTkAlRelValMCCTF0T = cms.Path(process.seqALCARECOTkAlRelValMCCTF0T*process.ALCARECOTkAlRelValMCCTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcCTF0T = cms.Path(process.seqALCARECOTkAlrelvalmcCTF0T*process.ALCARECOTkAlrelvalmcCTF0TDQM)
         process.pathALCARECOMuAlBeamHalo = cms.Path(process.seqALCARECOMuAlBeamHalo*process.ALCARECOMuAlBeamHaloDQM)
-        process.pathALCARECOTkAlRelValMCRS0THLT = cms.Path(process.seqALCARECOTkAlRelValMCRS0THLT*process.ALCARECOTkAlRelValMCRS0TDQM)
-        process.pathALCARECOTkAlRelValMCCTF = cms.Path(process.seqALCARECOTkAlRelValMCCTF*process.ALCARECOTkAlRelValMCCTFDQM)
+        process.pathALCARECOTkAlrelvalmcRS0THLT = cms.Path(process.seqALCARECOTkAlrelvalmcRS0THLT*process.ALCARECOTkAlrelvalmcRS0TDQM)
+        process.pathALCARECOTkAlrelvalmcCTF = cms.Path(process.seqALCARECOTkAlrelvalmcCTF*process.ALCARECOTkAlrelvalmcCTFDQM)
         process.pathALCARECOHcalCalIsoTrk = cms.Path(process.seqALCARECOHcalCalIsoTrk*process.ALCARECOHcalCalIsoTrackDQM)
         process.pathALCARECOHcalCalHO = cms.Path(process.seqALCARECOHcalCalHO*process.ALCARECOHcalCalHODQM)
-        process.pathALCARECOTkAlRelValMCCTFHLT = cms.Path(process.seqALCARECOTkAlRelValMCCTFHLT*process.ALCARECOTkAlRelValMCCTFDQM)
-        process.pathALCARECOTkAlRelValMCRS0T = cms.Path(process.seqALCARECOTkAlRelValMCRS0T*process.ALCARECOTkAlRelValMCRS0TDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTFHLT = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTFHLT*process.ALCARECOTkAlRelValMCCosmicTFDQM)
+        process.pathALCARECOTkAlrelvalmcCTFHLT = cms.Path(process.seqALCARECOTkAlrelvalmcCTFHLT*process.ALCARECOTkAlrelvalmcCTFDQM)
+        process.pathALCARECOTkAlrelvalmcRS0T = cms.Path(process.seqALCARECOTkAlrelvalmcRS0T*process.ALCARECOTkAlrelvalmcRS0TDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTFHLT = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTFHLT*process.ALCARECOTkAlrelvalmcCosmicTFDQM)
         process.pathALCARECOTkAlMuonIsolated = cms.Path(process.seqALCARECOTkAlMuonIsolated*process.ALCARECOTkAlMuonIsolatedDQM)
         process.pathALCARECOTkAlUpsilonMuMu = cms.Path(process.seqALCARECOTkAlUpsilonMuMu*process.ALCARECOTkAlUpsilonMuMuDQM)
         process.pathALCARECOHcalCalDijets = cms.Path(process.seqALCARECOHcalCalDijets*process.ALCARECOHcalCalDiJetsDQM)
@@ -369,30 +369,30 @@ class RelValMC(Scenario):
         process.pathALCARECOTkAlBeamHalo = cms.Path(process.seqALCARECOTkAlBeamHalo*process.ALCARECOTkAlBeamHaloDQM)
         process.pathALCARECOSiPixelLorentzAngle = cms.Path(process.seqALCARECOSiPixelLorentzAngle)
         process.pathALCARECOEcalCalElectron = cms.Path(process.seqALCARECOEcalCalElectron*process.ALCARECOEcalCalElectronCalibDQM)
-        process.pathALCARECOTkAlRelValMCCTF0THLT = cms.Path(process.seqALCARECOTkAlRelValMCCTF0THLT*process.ALCARECOTkAlRelValMCCTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcCTF0THLT = cms.Path(process.seqALCARECOTkAlrelvalmcCTF0THLT*process.ALCARECOTkAlrelvalmcCTF0TDQM)
         process.pathALCARECOMuAlCalIsolatedMu = cms.Path(process.seqALCARECOMuAlCalIsolatedMu*process.ALCARECOMuAlCalIsolatedMuDQM*process.ALCARECODTCalibrationDQM)
         process.pathALCARECOSiStripCalZeroBias = cms.Path(process.seqALCARECOSiStripCalZeroBias*process.ALCARECOSiStripCalZeroBiasDQM)
-        process.pathALCARECOTkAlRelValMCRSHLT = cms.Path(process.seqALCARECOTkAlRelValMCRSHLT*process.ALCARECOTkAlRelValMCRSDQM)
+        process.pathALCARECOTkAlrelvalmcRSHLT = cms.Path(process.seqALCARECOTkAlrelvalmcRSHLT*process.ALCARECOTkAlrelvalmcRSDQM)
         process.pathALCARECOSiStripCalMinBias = cms.Path(process.seqALCARECOSiStripCalMinBias)
         process.pathALCARECODQM = cms.Path(process.MEtoEDMConverter)
         process.pathALCARECOTkAlLAS = cms.Path(process.seqALCARECOTkAlLAS*process.ALCARECOTkAlLASDQM)
         process.pathALCARECOTkAlMinBias = cms.Path(process.seqALCARECOTkAlMinBias*process.ALCARECOTkAlMinBiasDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTF0T = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTF0T*process.ALCARECOTkAlRelValMCCosmicTF0TDQM)
-        process.pathALCARECOTkAlRelValMCRS = cms.Path(process.seqALCARECOTkAlRelValMCRS*process.ALCARECOTkAlRelValMCRSDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTF0T = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTF0T*process.ALCARECOTkAlrelvalmcCosmicTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcRS = cms.Path(process.seqALCARECOTkAlrelvalmcRS*process.ALCARECOTkAlrelvalmcRSDQM)
         process.pathALCARECORpcCalHLT = cms.Path(process.seqALCARECORpcCalHLT)
         process.pathALCARECOHcalCalGammaJet = cms.Path(process.seqALCARECOHcalCalGammaJet)
         process.pathALCARECOMuAlBeamHaloOverlaps = cms.Path(process.seqALCARECOMuAlBeamHaloOverlaps*process.ALCARECOMuAlBeamHaloOverlapsDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTF0THLT = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTF0THLT*process.ALCARECOTkAlRelValMCCosmicTF0TDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTF0THLT = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTF0THLT*process.ALCARECOTkAlrelvalmcCosmicTF0TDQM)
         process.pathALCARECOHcalCalNoise = cms.Path(process.seqALCARECOHcalCalNoise)
         process.pathALCARECOMuAlOverlaps = cms.Path(process.seqALCARECOMuAlOverlaps*process.ALCARECOMuAlOverlapsDQM)
-        process.pathALCARECOTkAlRelValMCCosmicTF = cms.Path(process.seqALCARECOTkAlRelValMCCosmicTF*process.ALCARECOTkAlRelValMCCosmicTFDQM)
-        process.pathALCARECOMuAlGlobalRelValMC = cms.Path(process.seqALCARECOMuAlGlobalRelValMC*process.ALCARECOMuAlGlobalRelValMCDQM)
+        process.pathALCARECOTkAlrelvalmcCosmicTF = cms.Path(process.seqALCARECOTkAlrelvalmcCosmicTF*process.ALCARECOTkAlrelvalmcCosmicTFDQM)
+        process.pathALCARECOMuAlGlobalrelvalmc = cms.Path(process.seqALCARECOMuAlGlobalrelvalmc*process.ALCARECOMuAlGlobalrelvalmcDQM)
         process.pathALCARECOTkAlJpsiMuMu = cms.Path(process.seqALCARECOTkAlJpsiMuMu*process.ALCARECOTkAlJpsiMuMuDQM)
         process.endjob_step = cms.Path(process.endOfProcess)
-        process.ALCARECOStreamMuAlStandAloneRelValMCOutPath = cms.EndPath(process.ALCARECOStreamMuAlStandAloneRelValMC)
+        process.ALCARECOStreamMuAlStandAlonerelvalmcOutPath = cms.EndPath(process.ALCARECOStreamMuAlStandAlonerelvalmc)
         
         # Schedule definition
-        process.schedule = cms.Schedule(process.pathALCARECODQM,process.pathALCARECOMuAlStandAloneRelValMC,process.endjob_step,process.ALCARECOStreamMuAlStandAloneRelValMCOutPath)
+        process.schedule = cms.Schedule(process.pathALCARECODQM,process.pathALCARECOMuAlStandAlonerelvalmc,process.endjob_step,process.ALCARECOStreamMuAlStandAlonerelvalmcOutPath)
         
 
         #  //
@@ -434,9 +434,9 @@ class RelValMC(Scenario):
         """
         options = defaultOptions
         options.scenario = "cosmics"
-        options.step = "HARVESTING:dqmHarvesting"
-        options.isMC = False
-        options.isData = True
+        options.step = "HARVESTING:validationHarvesting+dqmHarvesting"
+        options.isMC = True
+        options.isData = False
         options.beamspot = None
         options.eventcontent = None
         options.name = "EDMtoMEConvert"
@@ -446,6 +446,7 @@ class RelValMC(Scenario):
         options.evt_type = ""
         options.filein = []
         options.gflash = False
+	options.himix = False
         options.customisation_file = ""
 
  
