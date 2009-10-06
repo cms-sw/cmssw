@@ -45,6 +45,7 @@ MuScleFitPlotter::MuScleFitPlotter(string theGenInfoRootFileName){
 MuScleFitPlotter::~MuScleFitPlotter(){
   outputFile->cd();
   writeHistoMap();
+  outputFile->Close();
 }
 
 // Find and store in histograms the generated resonance and muons
@@ -55,6 +56,8 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
   //Loop on generated particles
   pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes;
   reco::Particle::LorentzVector genRes;
+
+  int mothersFound[] = {0, 0, 0, 0, 0, 0};
 
   for( GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter!=genParticles->end(); ++mcIter ) {
     int status = mcIter->status();
@@ -73,6 +76,9 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
       int momPdgId = abs(mcIter->mother()->pdgId());
       if( momPdgId==23  || momPdgId==443    || momPdgId==100443 || 
           momPdgId==553 || momPdgId==100553 || momPdgId==200553 ) {
+        if( momPdgId == 23 ) mothersFound[0] = 1;
+        if( momPdgId == 443 ) mothersFound[3] = 1;
+        if( momPdgId == 553 ) mothersFound[5] = 1;
 	mapHisto["hGenMu"]->Fill(mcIter->p4());
 	cout<<"genmu "<<mcIter->p4()<<endl;
 	if(mcIter->charge()>0){
@@ -85,18 +91,22 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
   }
   if(!prova)
     cout<<"hgenmumu not found"<<endl;
-  cout<<"genmumu "<<muFromRes.first+muFromRes.second<<endl;
 
-  mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
-  mapHisto["hGenMuMuJPsi"]->Fill(muFromRes.first+muFromRes.second);
-  mapHisto["hGenMuMuUpsilon1S"]->Fill(muFromRes.first+muFromRes.second);
-
-  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.second,genRes, -1 );
-  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.second,genRes, -1 );
-  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.second,genRes, -1 );
+  if( mothersFound[0] == 1 ) {
+    mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
+    mapHisto["hGenResVSMuZ"]->Fill( muFromRes.first, genRes, 1 );
+    mapHisto["hGenResVSMuZ"]->Fill( muFromRes.second,genRes, -1 );
+  }
+  if( mothersFound[3] == 1 ) {
+    mapHisto["hGenMuMuUpsilon1S"]->Fill(muFromRes.first+muFromRes.second);
+    mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.first, genRes, 1 );
+    mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.second,genRes, -1 );
+  }
+  if( mothersFound[5] == 1 ) {
+    mapHisto["hGenMuMuJPsi"]->Fill(muFromRes.first+muFromRes.second);
+    mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.first, genRes, 1 );
+    mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.second,genRes, -1 );
+  }
 
   mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
 }
@@ -109,6 +119,8 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
   const HepMC::GenEvent* Evt = evtMC->GetEvent();
   pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> muFromRes; 
   reco::Particle::LorentzVector genRes;
+
+  int mothersFound[] = {0, 0, 0, 0, 0, 0};
 
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin(); 
        part!=Evt->particles_end(); part++) {
@@ -135,9 +147,13 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
       for (HepMC::GenVertex::particle_iterator mother = 
 	     (*part)->production_vertex()->particles_begin(HepMC::ancestors);
 	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-	if ((*mother)->pdg_id()==23  || (*mother)->pdg_id()==443    || (*mother)->pdg_id()==100443 || 
-	    (*mother)->pdg_id()==553 || (*mother)->pdg_id()==100553 || (*mother)->pdg_id()==200553) {
+        int motherPdgId = (*mother)->pdg_id();
+	if (motherPdgId==23  || motherPdgId==443    || motherPdgId==100443 || 
+	    motherPdgId==553 || motherPdgId==100553 || motherPdgId==200553) {
 	  fromRes=true;
+          if( motherPdgId == 23 ) mothersFound[0] = 1;
+          if( motherPdgId == 443 ) mothersFound[3] = 1;
+          if( motherPdgId == 553 ) mothersFound[5] = 1;
 	}
       }
 
@@ -155,16 +171,21 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC)
       }
     }
   }
-  mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
-  mapHisto["hGenMuMuJPsi"]->Fill(muFromRes.first+muFromRes.second);
-  mapHisto["hGenMuMuUpsilon1S"]->Fill(muFromRes.first+muFromRes.second);
-
-  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMuZ"]->Fill( muFromRes.second,genRes, -1 );
-  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.second,genRes, -1 );
-  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.first, genRes, 1 );
-  mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.second,genRes, -1 );
+  if( mothersFound[0] == 1 ) {
+    mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
+    mapHisto["hGenResVSMuZ"]->Fill( muFromRes.first, genRes, 1 );
+    mapHisto["hGenResVSMuZ"]->Fill( muFromRes.second,genRes, -1 );
+  }
+  if( mothersFound[3] == 1 ) {
+    mapHisto["hGenMuMuUpsilon1S"]->Fill(muFromRes.first+muFromRes.second);
+    mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.first, genRes, 1 );
+    mapHisto["hGenResVSMuUpsilon1S"]->Fill( muFromRes.second,genRes, -1 );
+  }
+  if( mothersFound[5] == 1 ) {
+    mapHisto["hGenMuMuJPsi"]->Fill(muFromRes.first+muFromRes.second);
+    mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.first, genRes, 1 );
+    mapHisto["hGenResVSMuJPsi"]->Fill( muFromRes.second,genRes, -1 );
+  }
   mapHisto["hGenResVsSelf"]->Fill( genRes, genRes, 1 );
 }
 
