@@ -1,4 +1,4 @@
-// $Id: ConsumerMonitorCollection.cc,v 1.7 2009/08/28 16:41:25 mommsen Exp $
+// $Id: ConsumerMonitorCollection.cc,v 1.8 2009/10/05 17:14:07 biery Exp $
 /// @file: ConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
@@ -77,15 +77,9 @@ bool ConsumerMonitorCollection::getValueFromMap( const QueueID& qid,
                                                  MonitoredQuantity::Stats& result,
                                                  const ConsStatMap& map )
 {
-  ConsStatMap::const_iterator pos = map.lower_bound(qid);
+  ConsStatMap::const_iterator pos = map.find(qid);
 
-  // 05-Oct-2009, KAB - added a test of whether qid appears before pos->first
-  // in the map sort order.  Since lower_bound can return a non-end iterator
-  // even when qid is not in the map, we need to complete the test of whether
-  // qid is in the map.  (Another way to look at this is we need to implement
-  // the full test described in the efficientAddOrUpdates pattern suggested
-  // by Item 24 of 'Effective STL' by Scott Meyers.)
-  if (pos == map.end() || (map.key_comp()(qid, pos->first))) return false;
+  if (pos == map.end()) return false;
 
   pos->second->getStats( result );
   return true;
