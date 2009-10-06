@@ -88,4 +88,9 @@
   <class name="TTUBoardSpecs::TTUBoardConfig"/>
   <class name="std::vector<TTUBoardSpecs::TTUBoardConfig>"/> 
 
+  <class name="RPCObUXC"/>
+  <class name="RPCObUXC::Item"/>
+  <class name="std::vector<RPCObUXC::Item>"/>
+
+
 </lcgdict>
