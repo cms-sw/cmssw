@@ -23,7 +23,8 @@ public:
     NORMAL,
     SCALE,
     RATIO,
-    GRAPH
+    GRAPH,
+    EFF
   };
 
   Comparator() : rebin_(-1), xMin_(0), xMax_(0), resetAxis_(false), 

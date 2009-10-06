@@ -361,11 +361,41 @@ void Comparator::Draw( const char* key, Mode mode) {
 
   
 void Comparator::Draw( const char* key0, const char* key1, Mode mode) {
-  TH1* h0 = Histo( key0, 0);
-  TH1* h1 = Histo( key1, 1);
-    
-  Draw( h0, h1, mode);
-}
+  TH1* h0=0;
+  TH1* h1=0;
+  if(mode!=EFF)
+    {
+      h0 = Histo( key0, 0);
+      h1 = Histo( key1, 1);
+    } 
+  else
+    {
+      h0 = Histo( key0, 0);
+      TH1 * h0b = Histo( key1, 0);
+      h1 = Histo( key0, 1);
+      TH1 * h1b = Histo( key1, 1);
+      if(rebin_>1) {
+	h0->Rebin( rebin_);
+	h1->Rebin( rebin_);
+	h0b->Rebin( rebin_);
+	h1b->Rebin( rebin_);
+      }
+      if(resetAxis_) {
+	h0->GetXaxis()->SetRangeUser( xMin_, xMax_);
+	h1->GetXaxis()->SetRangeUser( xMin_, xMax_);
+	h0b->GetXaxis()->SetRangeUser( xMin_, xMax_);
+	h1b->GetXaxis()->SetRangeUser( xMin_, xMax_);
+      }      
+
+      h0b->Sumw2();
+      h0->Sumw2();
+      h0->Divide(h0,h0b,1.,1.,"B");
+      h1b->Sumw2();
+      h1->Sumw2();
+      h1->Divide(h1,h1b,1.,1.,"B");
+    }
+  Draw( h0, h1, mode);}
+
 
 //   void Comparator::cd(const char* path ) {
 //     path_ = path;
@@ -412,14 +442,17 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
   //h0_->SetStats(1);
   //h1_->SetStats(1);
 
-  if(rebin_>1) {
-    h0_->Rebin( rebin_);
-    h1_->Rebin( rebin_);
-  }
-  if(resetAxis_) {
-    h0_->GetXaxis()->SetRangeUser( xMin_, xMax_);
-    h1_->GetXaxis()->SetRangeUser( xMin_, xMax_);
-  }
+  if(mode!=EFF)
+    {
+      if(rebin_>1) {
+	h0_->Rebin( rebin_);
+	h1_->Rebin( rebin_);
+      }
+      if(resetAxis_) {
+	h0_->GetXaxis()->SetRangeUser( xMin_, xMax_);
+	h1_->GetXaxis()->SetRangeUser( xMin_, xMax_);
+      }
+    }
 
   TPaveStats *ptstats = new TPaveStats(0.7385057,0.720339,
 				       0.9396552,0.8792373,"brNDC");
@@ -486,6 +519,7 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
     h1_->Draw("same");
 
     break;
+  case EFF:
   case GRAPH:
     if(s0_)
       Styles::FormatHisto( h0_ , s0_);
@@ -503,6 +537,8 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
     h1_->Draw("Esame");
     break;
   case RATIO:
+    h0_->Sumw2();
+    h1_->Sumw2();
     h0_->Divide( h1_ );
     if(s0_)
       Styles::FormatHisto( h0_ , s0_);
