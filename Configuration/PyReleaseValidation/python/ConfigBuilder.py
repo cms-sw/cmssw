@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.145 $"
+__version__ = "$Revision: 1.147.2.4 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -20,6 +20,13 @@ defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
+defaultOptions.gflash = False
+defaultOptions.number = 0
+defaultOptions.arguments = ""
+defaultOptions.name = "NO NAME GIVEN"
+defaultOptions.evt_type = ""
+defaultOptions.filein = []
+defaultOptions.customisation_file = ""
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 6.9,
@@ -55,13 +62,14 @@ class ConfigBuilder(object):
         """options taken from old cmsDriver and optparse """
  
         self._options = options
-	self.define_Configs()
 	self.with_output = with_output
 	self.with_input = with_input
 	if process == None:
             self.process = cms.Process(self._options.name)
         else:
             self.process = process 		
+        self.imports = []
+        self.define_Configs()
         self.schedule = list()
 	
         # we are doing three things here:
@@ -74,7 +82,6 @@ class ConfigBuilder(object):
         self.additionalObjects = []
         self.additionalOutputs = {}
         self.productionFilterSequence = None
-        self.imports = []
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
@@ -86,7 +93,10 @@ class ConfigBuilder(object):
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
-        pass        
+        self.additionalCommands.append(command)
+	if not command.startswith("#"): 
+            
+            exec(command.replace("process.","self.process."))
         
     def addCommon(self):
         if 'HARVESTING' in self._options.step:
@@ -201,7 +211,7 @@ class ConfigBuilder(object):
 
         # here we check if we have fastsim or fullsim
         if "FAST" in self._options.step:
-            self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
+            self.loadAndRemember('FastSimulation/Configuration/RandomServiceInitialization_cff')
 
             # pile up handling for fastsim
             # TODO - do we want a map config - number or actual values?             
@@ -211,8 +221,9 @@ class ConfigBuilder(object):
                     sys.exit(-1)
             else:
                     self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi")
-		    self.additionalCommands.append('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
-                    self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
+                    self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
+		    self.executeAndRemember('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
+                    self.executeAndRemember("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
 
         # no fast sim   
         else:
@@ -268,24 +279,24 @@ class ConfigBuilder(object):
             self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
             if "STARTUP" in conditions:
-                self.additionalCommands.append("# Apply ECAL/HCAL miscalibration")
-	        self.additionalCommands.append("process.ecalRecHit.doMiscalib = True")
-	        self.additionalCommands.append("process.hbhereco.doMiscalib = True")
-	        self.additionalCommands.append("process.horeco.doMiscalib = True")
-	        self.additionalCommands.append("process.hfreco.doMiscalib = True")
+                self.executeAndRemember("# Apply ECAL/HCAL miscalibration")
+	        self.executeAndRemember("process.ecalRecHit.doMiscalib = True")
+	        self.executeAndRemember("process.hbhereco.doMiscalib = True")
+	        self.executeAndRemember("process.horeco.doMiscalib = True")
+	        self.executeAndRemember("process.hfreco.doMiscalib = True")
 
             # Apply Tracker and Muon misalignment
-            self.additionalCommands.append("# Apply Tracker and Muon misalignment")
-            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-	    self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True\n")
-	    self.additionalCommands.append("process.misalignedDTGeometry.applyAlignment = True")
-	    self.additionalCommands.append("process.misalignedCSCGeometry.applyAlignment = True\n")
+            self.executeAndRemember("# Apply Tracker and Muon misalignment")
+            self.executeAndRemember("process.famosSimHits.ApplyAlignment = True")
+	    self.executeAndRemember("process.misalignedTrackerGeometry.applyAlignment = True\n")
+	    self.executeAndRemember("process.misalignedDTGeometry.applyAlignment = True")
+	    self.executeAndRemember("process.misalignedCSCGeometry.applyAlignment = True\n")
 	    
         else:
             self.loadAndRemember(self.ConditionsDefaultCFF)
 
         # set the global tag
-        self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditions)+"'")
+        self.executeAndRemember("process.GlobalTag.globaltag = '"+str(conditions)+"'")
         self.process.GlobalTag.globaltag = cms.string(str(conditions))
                         
     def addCustomise(self):
@@ -318,8 +329,8 @@ class ConfigBuilder(object):
 		print defaultOptions.scenarioOptions
 		sys.exit(-1)
 		
-        self.executeAndRemember('Configuration/StandardSequences/Services_cff')
-	self.executeAndRemember('FWCore/MessageService/MessageLogger_cfi')
+        self.loadAndRemember('Configuration/StandardSequences/Services_cff')
+	self.loadAndRemember('FWCore/MessageService/MessageLogger_cfi')
 
 	self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreams_cff"    
 	self.GENDefaultCFF="Configuration/StandardSequences/Generator_cff"
@@ -525,7 +536,7 @@ class ConfigBuilder(object):
                              self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
 
 	if self._options.magField=='0T':
-	    self.additionalCommands.append("process.g4SimHits.UseMagneticField = cms.bool(False)")
+	    self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
 				
         self.process.simulation_step = cms.Path( self.process.psim )
         self.schedule.append(self.process.simulation_step)
@@ -649,7 +660,7 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.validation_step)
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
-            self.additionalCommands.append("process.mix.playback = True")      
+            self.executeAndRemember("process.mix.playback = True")      
             self.process.mix.playback = True 
         return
 
@@ -728,16 +739,16 @@ class ConfigBuilder(object):
             self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
 
 #            self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
-            self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
-            self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
+            self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
+            self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
 
             # the settings have to be the same as for the generator to stay consistent  
             print '  Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
             print '  The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
-            self.additionalCommands.append('process.famosSimHits.ActivateDecays.comEnergy = 10000')
+            self.executeAndRemember('process.famosSimHits.ActivateDecays.comEnergy = 10000')
 	    
-            self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
-            self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
+            self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
+            self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
 
             # since we have HLT here, the process should be called HLT
             self._options.name = "HLT"
@@ -752,7 +763,7 @@ class ConfigBuilder(object):
             self.schedule.append(self.process.fastsim_step)
 
             # now the additional commands we need to make the config work
-            self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
+            self.executeAndRemember("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
         else:
              print "FastSim setting", sequence, "unknown."
              raise ValueError
@@ -767,15 +778,15 @@ class ConfigBuilder(object):
             beamspotType = 'BetaFunc'	      
         self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
 	beamspotName = 'process.%sVtxSmearingParameters' %(self.beamspot)
-        self.additionalCommands.append('\n# set correct vertex smearing') 
-        self.additionalCommands.append(beamspotName+'.type = cms.string("%s")'%(beamspotType)) 
-        self.additionalCommands.append('process.famosSimHits.VertexGenerator = '+beamspotName)
-	self.additionalCommands.append('process.famosPileUp.VertexGenerator = '+beamspotName)
+        self.executeAndRemember('\n# set correct vertex smearing') 
+        self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType)) 
+        self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
+	self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
         
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.145 $"),
+              (version=cms.untracked.string("$Revision: 1.147.2.4 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -864,7 +875,13 @@ class ConfigBuilder(object):
         result = "process.schedule = cms.Schedule("
 
         # handling of the schedule
-	self.process.schedule = cms.Schedule(*(self.schedule))  
+        self.process.schedule = cms.Schedule() 
+	for item in self.schedule:
+		if not isinstance(item, cms.Schedule):
+			self.process.schedule.append(item)
+                else:
+			self.process.schedule.extend(item) 
+
 	if hasattr(self.process,"HLTSchedule"):
    	    beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)] 
 	    afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
