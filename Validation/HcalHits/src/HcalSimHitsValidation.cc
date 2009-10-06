@@ -124,62 +124,27 @@ void HcalSimHitsValidation::endJob() {
     else                       phi_factor = 18.;
     
     float cnorm;
-    int ibin;
 
-    if (ieta > 0) ibin = i + 1;
-    else          ibin = i;
-  
     //Occupancy vs. iEta TH1Fs
-    cnorm = occupancy_vs_ieta_HB1->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HB1->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HB1->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HB2->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HB2->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HB2->setBinContent(i, cnorm);
 
-    cnorm = occupancy_vs_ieta_HE1->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HE1->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HE1->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HE2->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HE2->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HE2->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HE3->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HE3->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HE3->setBinContent(i, cnorm);
 
-    cnorm = occupancy_vs_ieta_HO->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HO->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HO->setBinContent(i, cnorm);
 
-    cnorm = occupancy_vs_ieta_HF1->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HF1->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HF1->setBinContent(i, cnorm);
-    cnorm = occupancy_vs_ieta_HF2->getBinContent(ibin) / (phi_factor * nevtot); 
+    cnorm = occupancy_vs_ieta_HF2->getBinContent(i) / (phi_factor * nevtot); 
     occupancy_vs_ieta_HF2->setBinContent(i, cnorm);
-
-    //Mean energy vs iEta TProfiles
-    cnorm = emean_vs_ieta_HB1->getBinContent(ibin); 
-    emean_vs_ieta_HB1->setBinContent(i, cnorm);
-    cnorm = emean_vs_ieta_HB2->getBinContent(ibin); 
-    emean_vs_ieta_HB2->setBinContent(i, cnorm);
-
-    cnorm = emean_vs_ieta_HE1->getBinContent(ibin); 
-    emean_vs_ieta_HE1->setBinContent(i, cnorm);
-    cnorm = emean_vs_ieta_HE2->getBinContent(ibin); 
-    emean_vs_ieta_HE2->setBinContent(i, cnorm);
-    cnorm = emean_vs_ieta_HE3->getBinContent(ibin); 
-    emean_vs_ieta_HE3->setBinContent(i, cnorm);
-
-    cnorm = emean_vs_ieta_HO->getBinContent(ibin); 
-    emean_vs_ieta_HO->setBinContent(i, cnorm);
-
-    cnorm = emean_vs_ieta_HF1->getBinContent(ibin); 
-    emean_vs_ieta_HF1->setBinContent(i, cnorm);
-    cnorm = emean_vs_ieta_HF2->getBinContent(ibin); 
-    emean_vs_ieta_HF2->setBinContent(i, cnorm);
-
-    //Energy in Cone
-    cnorm = meEnConeEtaProfile->getBinContent(ibin); 
-    meEnConeEtaProfile->setBinContent(i, cnorm);
-
-    cnorm = meEnConeEtaProfile_E->getBinContent(ibin); 
-    meEnConeEtaProfile_E->setBinContent(i, cnorm);
-
-    cnorm = meEnConeEtaProfile_EH->getBinContent(ibin); 
-    meEnConeEtaProfile_EH->setBinContent(i, cnorm);
   }
 
 
@@ -273,6 +238,9 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       else                             HcalCone += en;
     }
     
+    //Account for lack of ieta = 0
+    if (ieta > 0) ieta--;
+
     //HB
     if (sub == 1){
       meSimHitsEnergyHB->Fill(en);
@@ -366,6 +334,9 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       EcalCone += en;
     }
   }
+
+  //Account for lack of ieta = 0
+  if (ietaMax > 0) ietaMax--;
    
   meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
   meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
