@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 
 process.analyzer = cms.EDAnalyzer("ExhumeAnalyzer",
         GenParticleTag = cms.InputTag("genParticles"),
-        EBeam = cms.double(5000.)
+        EBeam = cms.double(7000.)
 )
 
 process.add_(cms.Service("TFileService",

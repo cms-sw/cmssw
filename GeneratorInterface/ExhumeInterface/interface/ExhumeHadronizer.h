@@ -11,20 +11,25 @@
 
 namespace lhef
 {
-class LHERunInfo;
-class LHEEvent;
+  class LHERunInfo;
+  class LHEEvent;
 }
 
 class LHEEventProduct;
 
 namespace HepMC
 {
-class GenEvent;
+  class GenEvent;
 }
 
 namespace Exhume{
-class Event;
-class CrossSection;
+  class Event;
+  class CrossSection;
+}
+
+namespace CLHEP
+{
+  class HepRandomEngine;
 }
 
 namespace gen
@@ -56,6 +61,8 @@ namespace gen
      
   private:
      Pythia6Service* pythia6Service_;
+
+     CLHEP::HepRandomEngine* randomEngine_;
 
      double comEnergy_;
                     
