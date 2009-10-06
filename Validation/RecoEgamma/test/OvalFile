@@ -62,39 +62,36 @@ touch with changes in data catalog structure.
 <environment name="FullSimStdStats">
 
   <var name="DBS_COND" value="MC_31X_V8-v*">
+  <var name="VAL_HISTOS" value="ElectronMcHistos.txt">
   <!--var name="DBS_RELEASE" value="LOCAL"-->
   <!--var name="DBS_COND" value=""-->
 
   <environment name="FullPt10">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="FullPt10 ${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullPt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="FullPt35 ${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullTTbar">
     <var name="DBS_SAMPLE" value="RelValTTbar">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="FullTTbar ${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullZEEIdeal">
     <var name="DBS_SAMPLE" value="RelValZEE">
     <!--var name="DBS_COND" value="MC"-->
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="FullZEEIdeal ${TEST_OUTPUT_FILE}">
   </environment>
   
@@ -102,17 +99,16 @@ touch with changes in data catalog structure.
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="DBS_COND" value="STARTUP31X_V7-v*">
     <!--var name="DBS_COND" value="STARTUP"-->
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="FullZEEStartup ${TEST_OUTPUT_FILE}">
   </environment>
   
   <environment name="FullQcdPt80-120">
     <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
+    <var name="VAL_HISTOS" value="ElectronFakeHistos.txt">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="FullQcdPt80-120 ${TEST_OUTPUT_FILE}">
   </environment>
   
@@ -126,9 +122,9 @@ touch with changes in data catalog structure.
 
   <environment name="HighFlatPt5To100">
     <var name="DBS_SAMPLE" value="RelValSingleElectronFlatPt5To100">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
+    <var name="VAL_HISTOS" value="ElectronMcHistos.txt">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <executable name="electronValidation.csh" args="HighFlatPt5To100 ${TEST_OUTPUT_FILE}">
   </environment>
 
@@ -265,9 +261,9 @@ This set of targets is made for the full/fast comparison.
 
   <environment name="FastTTbar">
     <var name="DBS_SAMPLE" value="RelValTTbar">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
+    <var name="VAL_HISTOS" value="ElectronMcHistos.txt">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <var name="VAL_NEW_FILE" value="cmsRun.FullTTbar.olog.${TEST_OUTPUT_FILE}">
     <var name="VAL_REF_FILE" value="cmsRun.FastTTbar.olog.${TEST_OUTPUT_FILE}">
     <executable name="electronValidation.csh" args="FastTTbar">
@@ -275,9 +271,9 @@ This set of targets is made for the full/fast comparison.
   
   <environment name="FastZEEIdeal">
     <var name="DBS_SAMPLE" value="RelValZEE">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
+    <var name="VAL_HISTOS" value="ElectronMcHistos.txt">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <var name="VAL_NEW_FILE" value="cmsRun.FullZEEIdeal.olog.${TEST_OUTPUT_FILE}">
     <var name="VAL_REF_FILE" value="cmsRun.FastZEEIdeal.olog.${TEST_OUTPUT_FILE}">
     <executable name="electronValidation.csh" args="FastZEEIdeal">
@@ -286,9 +282,9 @@ This set of targets is made for the full/fast comparison.
   <environment name="FastZEEStartup">
     <var name="DBS_SAMPLE" value="RelValZEE">
     <var name="DBS_COND" value="STARTUP*FastSim">
-    <var name="VAL_ANALYZER" value="ElectronMcValidator">
+    <var name="VAL_HISTOS" value="ElectronMcHistos.txt">
     <executable name="dbs_discovery.py">
-    <executable name="cmsRun" args="${VAL_ANALYZER}_cfg.py">
+    <executable name="cmsRun" args="ElectronValidation_cfg.py">
     <var name="VAL_NEW_FILE" value="cmsRun.FullZEEStartup.olog.${TEST_OUTPUT_FILE}">
     <var name="VAL_REF_FILE" value="cmsRun.FastZEEStartup.olog.${TEST_OUTPUT_FILE}">
     <executable name="electronValidation.csh" args="FastZEEStartup">

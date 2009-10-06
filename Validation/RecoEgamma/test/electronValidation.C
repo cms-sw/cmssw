@@ -6,7 +6,6 @@ TString val_ref_file_name = gSystem->Getenv("VAL_REF_FILE") ;
 TString val_new_file_name = gSystem->Getenv("VAL_NEW_FILE") ;
 TString val_ref_release = gSystem->Getenv("VAL_REF_RELEASE") ;
 TString val_new_release = gSystem->Getenv("VAL_NEW_RELEASE") ;
-TString val_analyzer = gSystem->Getenv("VAL_ANALYZER") ;
 
 TString val_web = gSystem->Getenv("VAL_WEB") ;
 TString val_web_sub_dir = gSystem->Getenv("VAL_WEB_SUB_DIR") ;
@@ -58,8 +57,7 @@ eleStyle->cd();
 
 gROOT->ForceStyle();
 
-TString internal_path("DQMData/EgammaV/") ;
-internal_path += val_analyzer+"/" ;
+TString internal_path("DQMData/EgammaV/ElectronMcSignalValidator/") ;
 
 TString val_ref_file_url ;
 TString file_ref_dir = internal_path ;
@@ -154,11 +152,11 @@ else
  }
 web_page
   <<" They were made using analyzer "
-  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/interface/"<<val_analyzer<<".h\">"
-  <<"Validation/RecoEgamma/interface/"<<val_analyzer<<".h"
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/interface/ElectronMcSignalValidator.h\">"
+  <<"Validation/RecoEgamma/interface/ElectronMcSignalValidator.h"
   <<"</a> and configuration "
-  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/"<<val_analyzer<<"_cfg.py\">"
-  <<"Validation/RecoEgamma/test/"<<val_analyzer<<"_cfg.py"
+  <<"<a href=\"http://cmslxr.fnal.gov/lxr/source/Validation/RecoEgamma/test/ElectronMcSignalValidator_cfg.py\">"
+  <<"Validation/RecoEgamma/test/ElectronMcSignalValidator_cfg.py"
   <<"</a>, with dataset "<<DBS_SAMPLE<<" as input." ;
 web_page
   <<" Some more details"

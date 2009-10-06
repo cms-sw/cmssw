@@ -1,24 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    RecoEgamma/Examples
-// Class:      ElectronMcValidator
-//
-/**\class ElectronMcValidator RecoEgamma/Examples/src/ElectronMcValidator.cc
-
- Description: GsfElectrons analyzer using MC truth
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Ursula Berthon
-//         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronMcValidator.cc,v 1.1 2009/09/29 18:17:41 chamont Exp $
-//
-//
 
 // user include files
-#include "Validation/RecoEgamma/interface/ElectronMcValidator.h"
+#include "Validation/RecoEgamma/interface/ElectronMcSignalValidator.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -55,7 +37,7 @@
 
 using namespace reco;
 
-ElectronMcValidator::ElectronMcValidator(const edm::ParameterSet& conf)
+ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet& conf)
  {
   outputFile_ = conf.getParameter<std::string>("outputFile");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
@@ -66,7 +48,7 @@ ElectronMcValidator::ElectronMcValidator(const edm::ParameterSet& conf)
   deltaR_ = conf.getParameter<double>("DeltaR");
   matchingIDs_ = conf.getParameter<std::vector<int> >("MatchingID");
   matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
-  edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("HistosConfigurationMC") ;
+  edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("histosCfg") ;
 
   eta_nbin=histosSet.getParameter<int>("Nbineta");
   eta2D_nbin=histosSet.getParameter<int>("Nbineta2D");
@@ -131,7 +113,7 @@ ElectronMcValidator::ElectronMcValidator(const edm::ParameterSet& conf)
   hoe_max=histosSet.getParameter<double>("Hoemax");
  }
 
-MonitorElement * ElectronMcValidator::bookH1
+MonitorElement * ElectronMcSignalValidator::bookH1
  ( const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    const std::string & titleX, const std::string & titleY )
@@ -142,7 +124,7 @@ MonitorElement * ElectronMcValidator::bookH1
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::bookH1withSumw2
+MonitorElement * ElectronMcSignalValidator::bookH1withSumw2
  ( const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    const std::string & titleX, const std::string & titleY )
@@ -154,7 +136,7 @@ MonitorElement * ElectronMcValidator::bookH1withSumw2
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::bookH2
+MonitorElement * ElectronMcSignalValidator::bookH2
  ( const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    int nchY, double lowY, double highY,
@@ -166,7 +148,7 @@ MonitorElement * ElectronMcValidator::bookH2
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::bookH2withSumw2
+MonitorElement * ElectronMcSignalValidator::bookH2withSumw2
  ( const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    int nchY, double lowY, double highY,
@@ -179,7 +161,7 @@ MonitorElement * ElectronMcValidator::bookH2withSumw2
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::bookP1
+MonitorElement * ElectronMcSignalValidator::bookP1
  ( const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
              double lowY, double highY,
@@ -191,12 +173,13 @@ MonitorElement * ElectronMcValidator::bookP1
   return me ;
  }
 
-void ElectronMcValidator::beginJob()
+void ElectronMcSignalValidator::beginJob()
  {
   store_ = edm::Service<DQMStore>().operator->() ;
   if (!store_)
-   { edm::LogError("ElectronMcValidator::beginJob")<<"No DQMStore found !" ; }
-  store_->setCurrentFolder("EgammaV/ElectronMcValidator/");
+   { edm::LogError("ElectronMcSignalValidator::beginJob")<<"No DQMStore found !" ; }
+
+  store_->setCurrentFolder("Egamma/ElectronMcSignalValidator/ByEvent");
 
   // mc truth
   h1_mcNum = bookH1withSumw2("h_mcNum","# mc particles",fhits_nbin,0.,fhits_max,"N_{gen}" );
@@ -571,7 +554,7 @@ void ElectronMcValidator::beginJob()
   h1_ele_provenance = bookH1withSumw2("h_ele_provenance","ele provenance",5,-2.,3.);
  }
 
-MonitorElement * ElectronMcValidator::bookH1andDivide
+MonitorElement * ElectronMcSignalValidator::bookH1andDivide
  ( const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title, bool print )
@@ -588,7 +571,7 @@ MonitorElement * ElectronMcValidator::bookH1andDivide
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::bookH2andDivide
+MonitorElement * ElectronMcSignalValidator::bookH2andDivide
  ( const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title, bool print )
@@ -605,7 +588,7 @@ MonitorElement * ElectronMcValidator::bookH2andDivide
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::profileX
+MonitorElement * ElectronMcSignalValidator::profileX
  ( const std::string & name, MonitorElement * me2d,
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
@@ -621,7 +604,7 @@ MonitorElement * ElectronMcValidator::profileX
   return me ;
  }
 
-MonitorElement * ElectronMcValidator::profileY
+MonitorElement * ElectronMcSignalValidator::profileY
  ( const std::string & name, MonitorElement * me2d,
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
@@ -637,96 +620,23 @@ MonitorElement * ElectronMcValidator::profileY
   return me ;
  }
 
-void ElectronMcValidator::endJob()
- {
-  std::cout << "[ElectronMcValidator] efficiency calculation " << std::endl ;
-  bookH1andDivide("h_ele_etaEff",h1_ele_simEta_matched,h1_simEta,"#eta","Efficiency","",true);
-  bookH1andDivide("h_ele_zEff",h1_ele_simZ_matched,h1_simZ,"z (cm)","Efficiency","",true);
-  bookH1andDivide("h_ele_absetaEff",h1_ele_simAbsEta_matched,h1_simAbsEta,"|#eta|","Efficiency");
-  bookH1andDivide("h_ele_ptEff",h1_ele_simPt_matched,h1_simPt,"p_{T} (GeV/c)","Efficiency");
-  bookH1andDivide("h_ele_phiEff",h1_ele_simPhi_matched,h1_simPhi,"#phi (rad)","Efficiency");
-  bookH2andDivide("h_ele_ptEtaEff",h2_ele_simPtEta_matched,h2_simPtEta,"#eta","p_{T} (GeV/c)");
-
-  std::cout << "[ElectronMcValidator] q-misid calculation " << std::endl;
-  bookH1andDivide("h_ele_etaQmisid",h1_ele_simEta_matched_qmisid,h1_simEta,"#eta","q misId","",true);
-  bookH1andDivide("h_ele_zQmisid",h1_ele_simZ_matched_qmisid,h1_simZ,"z (cm)","q misId","",true);
-  bookH1andDivide("h_ele_absetaQmisid",h1_ele_simAbsEta_matched_qmisid,h1_simAbsEta,"|#eta|","q misId");
-  bookH1andDivide("h_ele_ptQmisid",h1_ele_simPt_matched_qmisid,h1_simPt,"p_{T} (GeV/c)","q misId");
-
-  std::cout << "[ElectronMcValidator] all reco electrons " << std::endl ;
-  bookH1andDivide("h_ele_etaEff_all",h1_ele_vertexEta_all,h1_simEta,"#eta","N_{rec}/N_{gen}","",true);
-  bookH1andDivide("h_ele_ptEff_all",h1_ele_vertexPt_all,h1_simPt,"p_{T} (GeV/c)","N_{rec}/N_{gen}","",true);
-
-  std::cout << "[ElectronMcValidator] classes " << std::endl ;
-  bookH1andDivide("h_ele_eta_goldenFrac",h1_ele_eta_golden,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of golden electrons vs eta");
-  bookH1andDivide("h_ele_eta_bbremFrac" ,h1_ele_eta_bbrem ,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of big brem electrons vs eta");
-  bookH1andDivide("h_ele_eta_narrowFrac",h1_ele_eta_narrow,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of narrow electrons vs eta");
-  bookH1andDivide("h_ele_eta_showerFrac",h1_ele_eta_shower,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of showering electrons vs eta");
-
-  // fbrem
-  MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2("h_ele_xOverx0VsEta","mean X/X_0 vs eta",eta_nbin/2,0.0,2.5);
-  for (int ibin=1;ibin<p1_ele_fbremVsEta_mean->getNbinsX()+1;ibin++) {
-    double xOverX0 = 0.;
-    if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
-     { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
-    h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
-  }
-
-  // profiles from 2D histos
-  profileX("p_ele_PoPtrueVsEta",h2_ele_PoPtrueVsEta,"mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
-  profileX("p_ele_PoPtrueVsPhi",h2_ele_PoPtrueVsPhi,"mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
-  profileX("p_ele_EoEtruePfVsEg_x",h2_scl_EoEtruePfVsEg,"mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
-  profileY("p_ele_EoEtruePfVsEg_y",h2_scl_EoEtruePfVsEg,"mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
-  profileX("p_ele_EtaMnEtaTrueVsEta",h2_ele_EtaMnEtaTrueVsEta,"mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
-  profileX("p_ele_EtaMnEtaTrueVsPhi",h2_ele_EtaMnEtaTrueVsPhi,"mean ele eta - gen eta vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
-  profileX("p_ele_PhiMnPhiTrueVsEta",h2_ele_PhiMnPhiTrueVsEta,"mean ele phi - gen phi vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");
-  profileX("p_ele_PhiMnPhiTrueVsPhi",h2_ele_PhiMnPhiTrueVsPhi,"mean ele phi - gen phi vs phi","#phi (rad)","");
-  profileX("p_ele_vertexPtVsEta",h2_ele_vertexPtVsEta,"mean ele transverse momentum vs eta","#eta","<p_{T}> (GeV/c)");
-  profileX("p_ele_vertexPtVsPhi",h2_ele_vertexPtVsPhi,"mean ele transverse momentum vs phi","#phi (rad)","<p_{T}> (GeV/c)");
-  profileX("p_ele_EoPVsEta",h2_ele_EoPVsEta,"mean ele E/p vs eta","#eta","<E/P_{vertex}>");
-  profileX("p_ele_EoPVsPhi",h2_ele_EoPVsPhi,"mean ele E/p vs phi","#phi (rad)","<E/P_{vertex}>");
-  profileX("p_ele_EoPoutVsEta",h2_ele_EoPoutVsEta,"mean ele E/pout vs eta","#eta","<E_{seed}/P_{out}>");
-  profileX("p_ele_EoPoutVsPhi",h2_ele_EoPoutVsPhi,"mean ele E/pout vs phi","#phi (rad)","<E_{seed}/P_{out}>");
-  profileX("p_ele_EeleOPoutVsEta",h2_ele_EeleOPoutVsEta,"mean ele Eele/pout vs eta","#eta","<E_{ele}/P_{out}>");
-  profileX("p_ele_EeleOPoutVsPhi",h2_ele_EeleOPoutVsPhi,"mean ele Eele/pout vs phi","#phi (rad)","<E_{ele}/P_{out}>");
-  profileX("p_ele_HoEVsEta",h2_ele_HoEVsEta,"mean ele H/E vs eta","#eta","<H/E>");
-  profileX("p_ele_HoEVsPhi",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
-  profileX("p_ele_chi2VsEta",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
-  profileX("p_ele_chi2VsPhi",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
-  profileX("p_ele_foundHitsVsEta",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
-  profileX("p_ele_foundHitsVsPhi",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
-  profileX("p_ele_lostHitsVsEta",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
-  profileX("p_ele_lostHitsVsPhi",h2_ele_lostHitsVsPhi,"mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
-  profileX("p_ele_vertexTIPVsEta",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
-  profileX("p_ele_vertexTIPVsPhi",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
-  profileX("p_ele_vertexTIPVsPt",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
-  profileX("p_ele_seed_dphi2VsEta",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-  profileX("p_ele_seed_dphi2VsPt",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-  profileX("p_ele_seed_drz2VsEta",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-  profileX("p_ele_seed_drz2VsPt",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-
-  // final write
-  if (outputFile_!="")
-   { store_->save(outputFile_) ; }
- }
-
-ElectronMcValidator::~ElectronMcValidator()
+ElectronMcSignalValidator::~ElectronMcSignalValidator()
  {}
 
 
 //=========================================================================
-// Main method
+// Main methods
 //=========================================================================
 
 void
-ElectronMcValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
+ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup )
  {
   // get electrons
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByLabel(electronCollection_,gsfElectrons) ;
   edm::Handle<GenParticleCollection> genParticles ;
   iEvent.getByLabel(mcTruthCollection_, genParticles) ;
-  edm::LogInfo("ElectronMcValidator::analyze")
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating event "<<iEvent.id()
     <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
   h1_recEleNum_->Fill((*gsfElectrons).size()) ;
@@ -1315,6 +1225,81 @@ ElectronMcValidator::analyze( const edm::Event & iEvent, const edm::EventSetup &
   h1_mcNum->Fill(mcNum) ;
   h1_eleNum->Fill(eleNum) ;
 
+ }
+
+void ElectronMcSignalValidator::endJob()
+ {
+  store_->setCurrentFolder("Egamma/ElectronMcSignalValidator/ByJob");
+
+  std::cout << "[ElectronMcSignalValidator] efficiency calculation " << std::endl ;
+  bookH1andDivide("h_ele_etaEff",h1_ele_simEta_matched,h1_simEta,"#eta","Efficiency","",true);
+  bookH1andDivide("h_ele_zEff",h1_ele_simZ_matched,h1_simZ,"z (cm)","Efficiency","",true);
+  bookH1andDivide("h_ele_absetaEff",h1_ele_simAbsEta_matched,h1_simAbsEta,"|#eta|","Efficiency");
+  bookH1andDivide("h_ele_ptEff",h1_ele_simPt_matched,h1_simPt,"p_{T} (GeV/c)","Efficiency");
+  bookH1andDivide("h_ele_phiEff",h1_ele_simPhi_matched,h1_simPhi,"#phi (rad)","Efficiency");
+  bookH2andDivide("h_ele_ptEtaEff",h2_ele_simPtEta_matched,h2_simPtEta,"#eta","p_{T} (GeV/c)");
+
+  std::cout << "[ElectronMcSignalValidator] q-misid calculation " << std::endl;
+  bookH1andDivide("h_ele_etaQmisid",h1_ele_simEta_matched_qmisid,h1_simEta,"#eta","q misId","",true);
+  bookH1andDivide("h_ele_zQmisid",h1_ele_simZ_matched_qmisid,h1_simZ,"z (cm)","q misId","",true);
+  bookH1andDivide("h_ele_absetaQmisid",h1_ele_simAbsEta_matched_qmisid,h1_simAbsEta,"|#eta|","q misId");
+  bookH1andDivide("h_ele_ptQmisid",h1_ele_simPt_matched_qmisid,h1_simPt,"p_{T} (GeV/c)","q misId");
+
+  std::cout << "[ElectronMcSignalValidator] all reco electrons " << std::endl ;
+  bookH1andDivide("h_ele_etaEff_all",h1_ele_vertexEta_all,h1_simEta,"#eta","N_{rec}/N_{gen}","",true);
+  bookH1andDivide("h_ele_ptEff_all",h1_ele_vertexPt_all,h1_simPt,"p_{T} (GeV/c)","N_{rec}/N_{gen}","",true);
+
+  std::cout << "[ElectronMcSignalValidator] classes " << std::endl ;
+  bookH1andDivide("h_ele_eta_goldenFrac",h1_ele_eta_golden,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of golden electrons vs eta");
+  bookH1andDivide("h_ele_eta_bbremFrac" ,h1_ele_eta_bbrem ,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of big brem electrons vs eta");
+  bookH1andDivide("h_ele_eta_narrowFrac",h1_ele_eta_narrow,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of narrow electrons vs eta");
+  bookH1andDivide("h_ele_eta_showerFrac",h1_ele_eta_shower,h1_ele_eta,"|#eta|","Fraction of electrons","fraction of showering electrons vs eta");
+
+  // fbrem
+  MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2("h_ele_xOverx0VsEta","mean X/X_0 vs eta",eta_nbin/2,0.0,2.5);
+  for (int ibin=1;ibin<p1_ele_fbremVsEta_mean->getNbinsX()+1;ibin++) {
+    double xOverX0 = 0.;
+    if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
+     { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
+    h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
+  }
+
+  // profiles from 2D histos
+  profileX("p_ele_PoPtrueVsEta",h2_ele_PoPtrueVsEta,"mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
+  profileX("p_ele_PoPtrueVsPhi",h2_ele_PoPtrueVsPhi,"mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
+  profileX("p_ele_EoEtruePfVsEg_x",h2_scl_EoEtruePfVsEg,"mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
+  profileY("p_ele_EoEtruePfVsEg_y",h2_scl_EoEtruePfVsEg,"mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
+  profileX("p_ele_EtaMnEtaTrueVsEta",h2_ele_EtaMnEtaTrueVsEta,"mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
+  profileX("p_ele_EtaMnEtaTrueVsPhi",h2_ele_EtaMnEtaTrueVsPhi,"mean ele eta - gen eta vs phi","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
+  profileX("p_ele_PhiMnPhiTrueVsEta",h2_ele_PhiMnPhiTrueVsEta,"mean ele phi - gen phi vs eta","#eta","<#phi_{rec} - #phi_{gen}> (rad)");
+  profileX("p_ele_PhiMnPhiTrueVsPhi",h2_ele_PhiMnPhiTrueVsPhi,"mean ele phi - gen phi vs phi","#phi (rad)","");
+  profileX("p_ele_vertexPtVsEta",h2_ele_vertexPtVsEta,"mean ele transverse momentum vs eta","#eta","<p_{T}> (GeV/c)");
+  profileX("p_ele_vertexPtVsPhi",h2_ele_vertexPtVsPhi,"mean ele transverse momentum vs phi","#phi (rad)","<p_{T}> (GeV/c)");
+  profileX("p_ele_EoPVsEta",h2_ele_EoPVsEta,"mean ele E/p vs eta","#eta","<E/P_{vertex}>");
+  profileX("p_ele_EoPVsPhi",h2_ele_EoPVsPhi,"mean ele E/p vs phi","#phi (rad)","<E/P_{vertex}>");
+  profileX("p_ele_EoPoutVsEta",h2_ele_EoPoutVsEta,"mean ele E/pout vs eta","#eta","<E_{seed}/P_{out}>");
+  profileX("p_ele_EoPoutVsPhi",h2_ele_EoPoutVsPhi,"mean ele E/pout vs phi","#phi (rad)","<E_{seed}/P_{out}>");
+  profileX("p_ele_EeleOPoutVsEta",h2_ele_EeleOPoutVsEta,"mean ele Eele/pout vs eta","#eta","<E_{ele}/P_{out}>");
+  profileX("p_ele_EeleOPoutVsPhi",h2_ele_EeleOPoutVsPhi,"mean ele Eele/pout vs phi","#phi (rad)","<E_{ele}/P_{out}>");
+  profileX("p_ele_HoEVsEta",h2_ele_HoEVsEta,"mean ele H/E vs eta","#eta","<H/E>");
+  profileX("p_ele_HoEVsPhi",h2_ele_HoEVsPhi,"mean ele H/E vs phi","#phi (rad)","<H/E>");
+  profileX("p_ele_chi2VsEta",h2_ele_chi2VsEta,"mean ele track chi2 vs eta","#eta","<#Chi^{2}>");
+  profileX("p_ele_chi2VsPhi",h2_ele_chi2VsPhi,"mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
+  profileX("p_ele_foundHitsVsEta",h2_ele_foundHitsVsEta,"mean ele track # found hits vs eta","#eta","<N_{hits}>");
+  profileX("p_ele_foundHitsVsPhi",h2_ele_foundHitsVsPhi,"mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
+  profileX("p_ele_lostHitsVsEta",h2_ele_lostHitsVsEta,"mean ele track # lost hits vs eta","#eta","<N_{hits}>");
+  profileX("p_ele_lostHitsVsPhi",h2_ele_lostHitsVsPhi,"mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
+  profileX("p_ele_vertexTIPVsEta",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
+  profileX("p_ele_vertexTIPVsPhi",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
+  profileX("p_ele_vertexTIPVsPt",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
+  profileX("p_ele_seed_dphi2VsEta",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+  profileX("p_ele_seed_dphi2VsPt",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
+  profileX("p_ele_seed_drz2VsEta",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+  profileX("p_ele_seed_drz2VsPt",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
+
+  // final write
+  if (outputFile_!="")
+   { store_->save(outputFile_) ; }
  }
 
 

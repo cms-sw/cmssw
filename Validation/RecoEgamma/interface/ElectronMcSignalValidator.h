@@ -1,6 +1,6 @@
 
-#ifndef Validation_RecoEgamma_ElectronMcValidator_h
-#define Validation_RecoEgamma_ElectronMcValidator_h
+#ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h
+#define Validation_RecoEgamma_ElectronMcSignalValidator_h
 
 class DQMStore;
 class MonitorElement;
@@ -29,12 +29,12 @@ class TTree;
 #include <vector>
 
 
-class ElectronMcValidator : public edm::EDAnalyzer
+class ElectronMcSignalValidator : public edm::EDAnalyzer
  {
   public:
 
-    explicit ElectronMcValidator( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronMcValidator() ;
+    explicit ElectronMcSignalValidator( const edm::ParameterSet & conf ) ;
+    virtual ~ElectronMcSignalValidator() ;
 
     virtual void beginJob() ;
     virtual void endJob() ;
