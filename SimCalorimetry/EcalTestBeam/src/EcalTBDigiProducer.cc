@@ -64,9 +64,9 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
                                             samplingFactor, timePhase, readoutFrameSize, binOfMaximum,
                                             doPhotostatistics, syncPhase);
 
-  theEcalShape = new EcalShape(timePhase);
   
-  theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
+  theEBResponse = new CaloHitResponse(theParameterMap, &theEBShape);
+  theEEResponse = new CaloHitResponse(theParameterMap, &theEEShape);
 
   EcalCorrMatrix thisMatrix;
 
@@ -89,11 +89,11 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
 
 
-  theBarrelDigitizer = new EBDigitizer( theEcalResponse, 
+  theBarrelDigitizer = new EBDigitizer( theEBResponse, 
 					theElectronicsSim, 
 					addNoise           );
 
-  theEndcapDigitizer = new EEDigitizer( theEcalResponse, 
+  theEndcapDigitizer = new EEDigitizer( theEEResponse, 
 					theElectronicsSim, 
 					addNoise           );
 
@@ -134,8 +134,8 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
 EcalTBDigiProducer::~EcalTBDigiProducer() 
 {
   if (theParameterMap)  { delete theParameterMap; }
-  if (theEcalShape)     { delete theEcalShape; }
-  if (theEcalResponse)  { delete theEcalResponse; }
+  if (theEBResponse)  { delete theEBResponse; }
+  if (theEEResponse)  { delete theEEResponse; }
   if (theCorrNoise)     { delete theCorrNoise; }
   if (theNoiseMatrix)   { delete theNoiseMatrix; }
   if (theCoder)         { delete theCoder; }
@@ -152,7 +152,8 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
 //For TB ----------------
    edm::ESHandle<CaloGeometry>               hGeometry ;
    eventSetup.get<CaloGeometryRecord>().get( hGeometry ) ;
-   theEcalResponse->setGeometry(           &*hGeometry ) ;
+   theEBResponse->setGeometry(           &*hGeometry ) ;
+   theEEResponse->setGeometry(           &*hGeometry ) ;
 
    // takes no time because gives back const ref
    const std::vector<DetId>& theBarrelDets (
@@ -172,7 +173,7 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
    edm::Handle<CrossingFrame<PCaloHit> >      crossingFrame;
    MixCollection<PCaloHit>* EBHits ( 0 ) ;
 
-   try
+   try 
    {
       event.getByLabel( "mix", m_barrelHitsName, crossingFrame ) ;
 
@@ -181,6 +182,7 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
    catch(...)
    {
    }
+
    const bool isEB ( 0 != EBHits &&
 		     0 != EBHits->size() ) ;
 
@@ -189,7 +191,6 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
    try
    {
       event.getByLabel( "mix", m_endcapHitsName, crossingFrame ) ;
-
       EEHits = new MixCollection<PCaloHit>( crossingFrame.product() ) ;
    }
    catch(...)
@@ -377,7 +378,8 @@ void EcalTBDigiProducer::setPhaseShift(const DetId & detId) {
     if ( myDet == 1) {
       double passPhaseShift = thisPhaseShift+tunePhaseShift;
       if ( use2004OffsetConvention_ ) passPhaseShift = 1.-passPhaseShift;
-      theEcalResponse->setPhaseShift(passPhaseShift);
+      theEBResponse->setPhaseShift(passPhaseShift);
+      theEEResponse->setPhaseShift(passPhaseShift);
     }
     
   }
