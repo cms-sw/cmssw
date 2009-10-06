@@ -108,9 +108,9 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
 }
 
 #include "iostream"
-void TkHistoMap::fillFromAscii(std::string filename){
+void TkHistoMap::fillFromAscii(char* filename){
   ifstream file;
-  file.open(filename.c_str());
+  file.open(filename);
   float value;
   uint32_t detid;
   while (file.good()){
@@ -164,6 +164,11 @@ float TkHistoMap::getValue(uint32_t& detid){
   TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
   return tkHistoMap_[layer]->getTProfile2D()->GetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
 }
+float TkHistoMap::getEntries(uint32_t& detid){
+  int16_t layer=tkdetmap_->FindLayer(detid);
+  TkLayerMap::XYbin xybin = tkdetmap_->getXY(detid);
+  return tkHistoMap_[layer]->getTProfile2D()->GetBinEntries(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix,xybin.iy));
+}
 
 void TkHistoMap::dumpInTkMap(TrackerMap* tkmap){
   for(int layer=1;layer<HistoNumber;++layer){
@@ -171,7 +176,9 @@ void TkHistoMap::dumpInTkMap(TrackerMap* tkmap){
     tkdetmap_->getDetsForLayer(layer,dets);
     for(size_t i=0;i<dets.size();++i){
       if(dets[i]>0)
-	tkmap->fill(dets[i],getValue(dets[i]));
+	if(getEntries(dets[i])>0) {
+	  tkmap->fill(dets[i],getValue(dets[i]));
+	}
     }
   }
 }
