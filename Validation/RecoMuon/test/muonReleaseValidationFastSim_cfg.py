@@ -34,8 +34,9 @@ process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 if (FastSim):
     from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
-    mergedtruth.TrackerHitLabels = ['famosSimHitsTrackerHits']
+    mergedtruth.simHitCollections =  cms.PSet(tracker = cms.vstring("famosSimHitsTrackerHits"))
     mergedtruth.simHitLabel = 'famosSimHits'
+    mergedtruth.removeDeadModules = cms.bool(False)
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
