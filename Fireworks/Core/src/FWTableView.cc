@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.15 2009/09/23 20:30:58 chrjones Exp $
+// $Id: FWTableView.cc,v 1.16 2009/09/24 14:54:56 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,6 @@
 #include "TEveElement.h"
 #include "TEveCalo.h"
 #include "TEveElement.h"
-#include "TEveRGBAPalette.h"
 #include "TEveLegoEventHandler.h"
 #include "TGLWidget.h"
 #include "TGLScenePad.h"

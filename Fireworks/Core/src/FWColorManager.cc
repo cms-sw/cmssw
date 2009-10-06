@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.19 2009/10/05 08:08:06 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.20 2009/10/05 15:16:43 amraktad Exp $
 //
 
 // system include files
@@ -185,9 +185,9 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
       float blue = (*iColors)[2];
      
       // apply brightness
-      red     =  TMath::Power( red, (2.5 + gammaOff)/2.5);
-      green = TMath::Power(green, (2.5 + gammaOff)/2.5);
-      blue   = TMath::Power(blue, (2.5 + gammaOff)/2.5);
+      red     = TMath::Power(red,   (2.5 + gammaOff)/2.5);
+      green   = TMath::Power(green, (2.5 + gammaOff)/2.5);
+      blue    = TMath::Power(blue,  (2.5 + gammaOff)/2.5);
 
       c->SetRGB(red,green,blue);
    }
@@ -318,11 +318,10 @@ FWColorManager::setUserFeedBackColors(TGLColorSet& cs, Color_t idx)
 {
    if (idx == kWhiteIndex)
    {
-      cs.Background().SetColor(kWhiteIndex);
       cs.Selection(1).SetColor(130, 80, 80);
       cs.Selection(2).SetColor(130, 80, 80);
-      cs.Selection(3).SetColor(80, 80, 130);
-      cs.Selection(4).SetColor(80, 80, 130);
+      cs.Selection(3).SetColor(80,  80, 130);
+      cs.Selection(4).SetColor(80,  80, 130);
    }
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.30 2009/10/04 13:15:58 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.31 2009/10/04 19:26:29 amraktad Exp $
 //
 
 // system include files
@@ -46,7 +46,6 @@
 #include "TEveElement.h"
 #include "TEveCalo.h"
 #include "TEveElement.h"
-#include "TEveRGBAPalette.h"
 #include "TEveLegoEventHandler.h"
 #include "TGLWidget.h"
 #include "TGLScenePad.h"

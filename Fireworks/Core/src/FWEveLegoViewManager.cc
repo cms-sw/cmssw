@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.34 2009/09/23 18:53:26 amraktad Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.35 2009/10/04 10:37:12 amraktad Exp $
 //
 
 // system include files
@@ -31,7 +31,6 @@
 #include "TROOT.h"
 #include "TEveStraightLineSet.h"
 
-#include "TEveRGBAPalette.h"
 #include "TEveTrans.h"
 
 // user include files
@@ -193,14 +192,8 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             initData();
             if(!m_lego) {
                m_lego = new TEveCaloLego(m_data);
-               TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
-               pal->SetLimits(0, 100);
-               pal->SetDefaultColor((Color_t)1000);
-
                m_lego->InitMainTrans();
                m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
-
-               m_lego->SetPalette(pal);
                m_lego->Set2DMode(TEveCaloLego::kValSize);
                m_lego->SetPixelsPerBin(10);
 	       m_lego->SetDrawNumberCellPixels(20);
