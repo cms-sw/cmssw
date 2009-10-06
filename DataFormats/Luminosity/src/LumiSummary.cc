@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.5 2009/02/18 17:03:55 elmer Exp $
+// $Id: LumiSummary.cc,v 1.6 2009/05/12 19:40:35 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -16,7 +16,7 @@ float
 LumiSummary::avgInsDelLumiErr()const{ 
   return  avginsdellumierr_;
 }
-int
+short
 LumiSummary::lumiSecQual()const {
   return lumisecqual_; 
 }
@@ -31,6 +31,10 @@ LumiSummary::liveFrac() const {
 int 
 LumiSummary::lsNumber() const{
   return lsnumber_; 
+}
+unsigned long long
+LumiSummary::startOrbit() const{
+  return startorbit_; 
 }
 bool 
 LumiSummary::isValid() const {
@@ -98,6 +102,7 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "  deadFrac = " << lumiSummary.deadFrac() << "\n";
   s << "  liveFrac = " << lumiSummary.liveFrac() << "\n";
   s << "  lsNumber = " << lumiSummary.lsNumber() << "\n";
+  s << "  startOrbit = " << lumiSummary.startOrbit() <<"\n";
   s << "  avgInsRecLumi = " << lumiSummary.avgInsRecLumi() << "\n";
   s << "  avgInsRecLumiErr = " << lumiSummary.avgInsRecLumiErr() << "\n\n";
   s << setw(15) << "l1source";

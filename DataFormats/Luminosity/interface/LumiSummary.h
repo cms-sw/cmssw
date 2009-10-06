@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.6 2009/02/18 17:03:55 elmer Exp $
+ * $Id: LumiSummary.h,v 1.7 2009/05/12 19:40:34 xiezhen Exp $
  *
  ************************************************************/
  
@@ -51,14 +51,15 @@ class LumiSummary {
     
     /// set default constructor
     LumiSummary(float avginsdellumi, float avginsdellumierr,
-	        int lumisecqual,
+	        short lumisecqual,
                 float deadfrac, int lsnumber,
                 const std::vector<L1>& l1in,
-		const std::vector<HLT>& hltin):
+		const std::vector<HLT>& hltin,
+		unsigned long long startorbit):
       avginsdellumi_(avginsdellumi), avginsdellumierr_(avginsdellumierr), 
       lumisecqual_(lumisecqual),
       deadfrac_(deadfrac), lsnumber_(lsnumber),
-      hltdata_(hltin), l1data_(l1in)
+      hltdata_(hltin), l1data_(l1in),startorbit_(startorbit)
     { }
 
     /// destructor
@@ -66,10 +67,11 @@ class LumiSummary {
 	 
     float avgInsDelLumi() const;
     float avgInsDelLumiErr() const;
-    int   lumiSecQual() const ;
+    short   lumiSecQual() const ;
     float deadFrac() const ;
     float liveFrac() const;
     int lsNumber() const;
+    unsigned long long startOrbit() const;
     bool isValid() const;
 
     // other inline have to be made to return 
@@ -87,15 +89,20 @@ class LumiSummary {
     bool isProductEqual(LumiSummary const& next) const;
 
   private :
+    //instant lumi , selected from best algorithm
     float avginsdellumi_;
+    //instant lumierror
     float avginsdellumierr_;
-    int   lumisecqual_;
+    //detector quality flag use 7 bits PIXEL,STRIP,MUON,HCAL,ECAL,HF,HLX    
+    short   lumisecqual_;
     float deadfrac_;
     int   lsnumber_;
-    //contains about 100 hlt paths
+    //contains about 100 - 200 hlt paths
     std::vector<HLT> hltdata_;
-    //contains 128 triggers
+    //contains 128 + 64 triggers
     std::vector<L1> l1data_;
+    //first orbit number of this LS
+    unsigned long long startorbit_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary);
