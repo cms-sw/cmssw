@@ -61,8 +61,8 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
     ESHandle<RunInfo> sumFED;
     c.get<RunInfoRcd>().get(sumFED);    
     vector<int> FedsInIds= sumFED->m_fed_in;   
-    int f = 0;
-   bool flag = false;
+    unsigned  int f = 0;
+    bool flag = false;
     while(!flag && f < FedsInIds.size()) {
       int fedID=FedsInIds[f];
       //make sure fed id is in allowed range  
