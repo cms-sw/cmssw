@@ -1115,6 +1115,7 @@ class GenObject (object):
     def pairEquivalentObjects (vec1, vec2):
         """Finds the equivalent objects in the two vectors"""
         len1, len2 = len (vec1), len (vec2)
+        debug = GenObject._kitchenSinkDict.get ('debug', False)        
         if not len1 or not len2:
             # Nothing to see here folks.  Keep moving.
             if len1:
@@ -1125,6 +1126,7 @@ class GenObject (object):
                 noMatch2Set = set( xrange(len2) )
             else:
                 noMatch2Set = set ()
+            if debug: warn ("Nothing found", sapces=6)
             return set(), noMatch1Set, noMatch2Set
         objName = vec1[0]._objName
         equivList = GenObject._equivDict[objName]
@@ -1188,7 +1190,8 @@ class GenObject (object):
         # really matched.
         matchedSet = set()
         noMatch1Set = set()
-        for index1 in firstDict.keys():
+        firstDictKeys = sorted (firstDict.keys())
+        for index1 in firstDictKeys:
             list1 = firstDict[index1]
             # do I have a match?
             if not len (list1):
@@ -1203,6 +1206,7 @@ class GenObject (object):
             if len(list2) and list2[0][1] == index1:
                 matchedSet.add( (index1, index2) )
                 # get rid of the 2nd key hash
+                del firstDict[index1]
                 del secondDict[index2]
             else:
                 # no match
