@@ -143,7 +143,7 @@ Early10TeVX322Y5000VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 # Test offset
-Early10TeVX322Y1000VtxSmearingParameters = cms.PSet(
+Early10TeVX322Y10000VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(7.03e-08),
