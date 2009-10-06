@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2009/08/25 21:01:44 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/09/23 08:32:30 $
+ *  $Revision: 1.11 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -307,7 +307,7 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   // call the most generic efficiency function
   // works up to 3-d histograms
 
-  generic_eff (hSim, hReco, efficME);
+  generic_eff (hSim, hReco, efficME, type);
   
   //   const int nBin = efficME->getNbinsX();
   //   for(int bin = 0; bin <= nBin; ++bin) {
@@ -566,7 +566,7 @@ void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::str
 }
 
 
-void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist) {
+void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* efficiencyHist, const std::string & type) {
 
 
   
@@ -581,7 +581,14 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
         float numerVal = numer->GetBinContent(globalBinNum);
         float denomVal = denom->GetBinContent(globalBinNum);
 
-        float effVal = denomVal ? numerVal / denomVal : 0;
+        float effVal = 0;
+
+        // fake eff is in use
+        if (type == "fake") {          
+          effVal = denomVal ? (1 - numerVal / denomVal) : 0;
+        } else {
+          effVal = denomVal ? numerVal / denomVal : 0;
+        }
 
         float errVal = (denomVal && (effVal <=1)) ? sqrt(effVal*(1-effVal)/denomVal) : 0;
 
