@@ -187,7 +187,7 @@ if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_
   mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}/gifs
 endif
 
-#cp -f ${VAL_ORIGINAL_DIR}/newvalidation.C $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
+cp -f ${VAL_ORIGINAL_DIR}/electronValidation.C $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}/${VAL_WEB_SUB_DIR}
 
 #============== Prepare the list of histograms ==================
 # The second argument is 1 if the histogram is scaled, 0 otherwise

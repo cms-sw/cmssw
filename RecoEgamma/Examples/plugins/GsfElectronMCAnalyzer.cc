@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.40 2009/09/19 21:38:27 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.41 2009/09/20 10:06:48 charlot Exp $
 //
 //
 
@@ -228,7 +228,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_mee_os_gb->Sumw2();
   h_ele_mee_os_bb      = new TH1F( "h_ele_mee_os_bb", "ele pairs invariant mass, opp. sign, bad-bad", nbinmee, meemin, meemax );
   h_ele_mee_os_bb->Sumw2();
-  
+
   // duplicates
   h_ele_E2mnE1vsMee_all = new TH2F("h_ele_E2mnE1vsMee_all", "E2 - E1 vs ele pairs invariant mass, all electrons", nbinmee, meemin, meemax, 100, -50., 50. );
   h_ele_E2mnE1vsMee_egeg_all = new TH2F("h_ele_E2mnE1vsMee_egeg_all", "E2 - E1 vs ele pairs invariant mass, ecal driven pairs, all electrons", nbinmee, meemin, meemax, 100, -50., 50. );
@@ -246,7 +246,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_simPhi_matched_qmisid->Sumw2();
   h_ele_simZ_matched_qmisid      = new TH1F( "h_ele_z_matched_qmisid","charge misid vs gen z",nbinxyz, -25, 25 );
   h_ele_simZ_matched_qmisid->Sumw2();
-  
+
   // matched electrons
   h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);
   h_ele_charge->Sumw2();
@@ -708,8 +708,8 @@ void GsfElectronMCAnalyzer::beginJob(){
   histSclEoEtrueShowering_barrel->Sumw2();
   histSclEoEtrueShowering_endcaps = new TH1F("h_scl_EoEtrue_showering_endcaps","ele supercluster energy / gen energy, showering, endcaps",nbinpoptrue,poptruemin,poptruemax);
   histSclEoEtrueShowering_endcaps->Sumw2();
-    
-  // isolation  
+
+  // isolation
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.);
   h_ele_tkSumPt_dr03->Sumw2();
   h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.);
@@ -726,7 +726,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_hcalDepth1TowerSumEt_dr04->Sumw2();
   h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth2TowerSumEt_dr04->Sumw2();
-  
+
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode of GSF components",100,0.,1.);
   h_ele_fbrem->Sumw2();
@@ -735,14 +735,14 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean ele brem fraction vs eta, mode of GSF components",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean ele brem fraction vs eta, mean of GSF components",nbineta2D,etamin,etamax,0.,1.);
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva = new TH1F( "h_ele_mva","ele identification mva",100,-1.,1.);
   h_ele_mva->Sumw2();
   h_ele_mva_eg = new TH1F( "h_ele_mva_eg","ele identification mva, ecal driven",100,-1.,1.);
   h_ele_mva_eg->Sumw2();
   h_ele_provenance = new TH1F( "h_ele_provenance","ele provenance",5,-2.,3.);
   h_ele_provenance->Sumw2();
-  
+
   // histos titles
   h_mcNum              -> GetXaxis()-> SetTitle("N_{gen}");
   h_mcNum              -> GetYaxis()-> SetTitle("Events");
@@ -941,7 +941,7 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_vertexTIPVsPhi-> GetYaxis()-> SetTitle("TIP (cm)");
   h_ele_vertexTIPVsPhi-> GetXaxis()-> SetTitle("#phi (rad)");
   h_ele_vertexTIPVsPt-> GetYaxis()-> SetTitle("TIP (cm)");
-  h_ele_vertexTIPVsEta-> GetXaxis()-> SetTitle("p_{T} (GeV/c)");
+  h_ele_vertexTIPVsPt-> GetXaxis()-> SetTitle("p_{T} (GeV/c)");
   h_ele_dEtaSc_propVtx-> GetXaxis()-> SetTitle("#eta_{sc} - #eta_{tr}");
   h_ele_dEtaSc_propVtx-> GetYaxis()-> SetTitle("Events");
   h_ele_dEtaCl_propOut-> GetXaxis()-> SetTitle("#eta_{seedcl} - #eta_{tr}");
@@ -1000,8 +1000,8 @@ void GsfElectronMCAnalyzer::beginJob(){
   h_ele_EoverP_all-> GetYaxis()-> SetTitle("Events");
   h_ele_EseedOP_all-> GetXaxis()-> SetTitle("E_{seed}/P_{vertex}");
   h_ele_EseedOP_all-> GetYaxis()-> SetTitle("Events");
-  h_ele_EoPout_all -> GetXaxis()-> SetTitle("E_{seed}/P_{out}"); 
-  h_ele_EoPout_all-> GetYaxis()-> SetTitle("Events");  
+  h_ele_EoPout_all -> GetXaxis()-> SetTitle("E_{seed}/P_{out}");
+  h_ele_EoPout_all-> GetYaxis()-> SetTitle("Events");
   h_ele_EeleOPout_all-> GetXaxis()-> SetTitle("E_{ele}/P_{out}");
   h_ele_EeleOPout_all-> GetYaxis()-> SetTitle("Events");
   h_ele_dEtaSc_propVtx_all-> GetXaxis()-> SetTitle("#eta_{sc} - #eta_{tr}");
@@ -1323,16 +1323,16 @@ GsfElectronMCAnalyzer::endJob(){
   h_simZ->Write();
   h_simPhi->Write();
   h_simPtEta->Write();
-    
+
   // all electrons
   h_ele_EoverP_all->Write();
-  h_ele_EseedOP_all->Write(); 
-  h_ele_EoPout_all->Write();    
+  h_ele_EseedOP_all->Write();
+  h_ele_EoPout_all->Write();
   h_ele_EeleOPout_all ->Write();
-  h_ele_dEtaSc_propVtx_all->Write(); 
-  h_ele_dPhiSc_propVtx_all->Write(); 
+  h_ele_dEtaSc_propVtx_all->Write();
+  h_ele_dPhiSc_propVtx_all->Write();
   h_ele_dEtaCl_propOut_all ->Write();
-  h_ele_dPhiCl_propOut_all->Write(); 
+  h_ele_dPhiCl_propOut_all->Write();
   h_ele_HoE_all->Write();
   h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
@@ -1543,7 +1543,7 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_EeleOPout_eg_endcaps->Write();
   h_ele_EeleOPoutVsEta->Write();
   h_ele_EeleOPoutVsPhi->Write();
-  h_ele_EeleOPoutVsE ->Write(); 
+  h_ele_EeleOPoutVsE ->Write();
   h_ele_dEtaSc_propVtx->Write();
   h_ele_dEtaSc_propVtx_eg->Write();
   h_ele_dEtaSc_propVtx_barrel->Write();
@@ -1685,14 +1685,14 @@ GsfElectronMCAnalyzer::endJob(){
   h_ele_ptEtaEff->Write();
   h_ele_etaEff_all->Write();
   h_ele_ptEff_all->Write();
-  
+
   // q misid
   h_ele_etaQmisid->Write();
   h_ele_zQmisid->Write();
   h_ele_absetaQmisid->Write();
   h_ele_ptQmisid->Write();
-  
-  // e/g et pflow electrons 
+
+  // e/g et pflow electrons
   h_ele_mva->Write();
   h_ele_mva_eg->Write();
   h_ele_provenance->Write();
@@ -1764,10 +1764,10 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h_ele_EseedOP_all     -> Fill( gsfIter->eSeedClusterOverP() );
     h_ele_EoPout_all     -> Fill( gsfIter->eSeedClusterOverPout() );
     h_ele_EeleOPout_all     -> Fill( gsfIter->eEleClusterOverPout() );
-    h_ele_dEtaSc_propVtx_all -> Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());    
-    h_ele_dPhiSc_propVtx_all -> Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());    
-    h_ele_dEtaCl_propOut_all -> Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());    
-    h_ele_dPhiCl_propOut_all -> Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());    
+    h_ele_dEtaSc_propVtx_all -> Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
+    h_ele_dPhiSc_propVtx_all -> Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
+    h_ele_dEtaCl_propOut_all -> Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());
+    h_ele_dPhiCl_propOut_all -> Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());
     h_ele_HoE_all     -> Fill( gsfIter->hadronicOverEm() );
     double d = gsfIter->vertex().x()*gsfIter->vertex().x()+gsfIter->vertex().y()*gsfIter->vertex().y();
     h_ele_TIP_all     -> Fill( sqrt(d) );
@@ -1786,51 +1786,51 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (gsfIter->isEcalDriven() && gsfIter2->isEcalDriven()) h_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2),enrj2-enrj1);
 	if (gsfIter->charge()*gsfIter2->charge()<0.) {
 	  h_ele_mee_os -> Fill(sqrt(mee2));
-	  if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));	
-	  if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));	
-	  if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));	
-	  if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) || 
-	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) || 
-	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::NARROW) || 
-	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) || 
-	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) || 
-	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::NARROW) || 
-	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::GOLDEN) || 
-	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::BIGBREM) || 
-	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::NARROW)) 
-	   { h_ele_mee_os_gg -> Fill(sqrt(mee2));} 
+	  if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));
+	  if (gsfIter->isEB() && gsfIter2->isEE()) h_ele_mee_os_ebee -> Fill(sqrt(mee2));
+	  if (gsfIter->isEE() && gsfIter2->isEE()) h_ele_mee_os_eeee -> Fill(sqrt(mee2));
+	  if ((gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+	     (gsfIter->classification()==GsfElectron::GOLDEN && gsfIter2->classification()==GsfElectron::NARROW) ||
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+	     (gsfIter->classification()==GsfElectron::BIGBREM && gsfIter2->classification()==GsfElectron::NARROW) ||
+	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::GOLDEN) ||
+	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::BIGBREM) ||
+	     (gsfIter->classification()==GsfElectron::NARROW && gsfIter2->classification()==GsfElectron::NARROW))
+	   { h_ele_mee_os_gg -> Fill(sqrt(mee2));}
 	  else if (
-	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) || 
-	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->isGap()) || 
-	     (gsfIter->isGap() && gsfIter2->classification()==GsfElectron::SHOWERING) || 
-	     (gsfIter->isGap() && gsfIter2->isGap())) 
+	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->classification()==GsfElectron::SHOWERING) ||
+	     (gsfIter->classification()==GsfElectron::SHOWERING && gsfIter2->isGap()) ||
+	     (gsfIter->isGap() && gsfIter2->classification()==GsfElectron::SHOWERING) ||
+	     (gsfIter->isGap() && gsfIter2->isGap()))
 	   { h_ele_mee_os_bb -> Fill(sqrt(mee2));}
 	  else
-	   { h_ele_mee_os_gb -> Fill(sqrt(mee2));}  
-        }  
+	   { h_ele_mee_os_gb -> Fill(sqrt(mee2));}
+        }
     }
   }
-  
+
   int mcNum=0, gamNum=0, eleNum=0;
   bool matchingID, matchingMotherID;
-  
+
   // charge mis-ID
   for (reco::GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter != genParticles->end(); mcIter++ ) {
 
     // select requested matching gen particle
     matchingID=false;
-    for (unsigned int i=0; i<matchingIDs_.size(); i++) 
+    for (unsigned int i=0; i<matchingIDs_.size(); i++)
      if ( mcIter->pdgId() == matchingIDs_[i] ) matchingID=true;
-    
+
     if (matchingID) {
 
       // select requested mother matching gen particle
       // always include single particle with no mother
       const Candidate * mother = mcIter->mother();
       matchingMotherID=false;
-      for (unsigned int i=0; i<matchingMotherIDs_.size(); i++) 
+      for (unsigned int i=0; i<matchingMotherIDs_.size(); i++)
         if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
-      
+
       if (matchingMotherID) {
 
       if (mcIter->pt()> maxPt_ || fabs(mcIter->eta())> maxAbsEta_) continue;
@@ -1882,9 +1882,9 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
       }
     }
-   
-  }     
-  
+
+  }
+
   // association mc-reco
   for (reco::GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter != genParticles->end(); mcIter++ ) {
 
@@ -1896,18 +1896,18 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       // select requested matching gen particle
       matchingID=false;
-      for (unsigned int i=0; i<matchingIDs_.size(); i++) 
+      for (unsigned int i=0; i<matchingIDs_.size(); i++)
        if ( mcIter->pdgId() == matchingIDs_[i] ) matchingID=true;
 
       if (matchingID) {
-      
+
       // select requested mother matching gen particle
       // always include single particle with no mother
       const Candidate * mother = mcIter->mother();
       matchingMotherID=false;
-      for (unsigned int i=0; i<matchingMotherIDs_.size(); i++) 
+      for (unsigned int i=0; i<matchingMotherIDs_.size(); i++)
        if ((mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[i]) ) matchingMotherID=true;
-      
+
       if (matchingMotherID) {
 
       if (mcIter->pt()> maxPt_ || fabs(mcIter->eta())> maxAbsEta_) continue;
@@ -1929,7 +1929,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // looking for the best matching gsf electron
       bool okGsfFound = false;
       double gsfOkRatio = 999999.;
-      
+
       // find best matched electron
       reco::GsfElectron bestGsfElectron;
       for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
@@ -2077,7 +2077,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (!bestGsfElectron.superCluster().isNull()) egEnergy = bestGsfElectron.superCluster()->energy();
 	if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
 	histSclEoEtruePfVsEg->Fill(egEnergy/mcIter->p(),pfEnergy/mcIter->p());
-	 
+
 	// track related distributions
 	h_ele_ambiguousTracks     -> Fill( bestGsfElectron.ambiguousGsfTracksSize() );
 	h_ele_ambiguousTracksVsEta     -> Fill( bestGsfElectron.eta(), bestGsfElectron.ambiguousGsfTracksSize() );
@@ -2255,7 +2255,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
         if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
 
-	//fbrem	
+	//fbrem
 	double fbrem_mean=0.;
 	if (!readAOD_) // track extra does not exist in AOD
 	 fbrem_mean =  1. - bestGsfElectron.gsfTrack()->outerMomentum().R()/bestGsfElectron.gsfTrack()->innerMomentum().R();
@@ -2282,14 +2282,14 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           if (bestGsfElectron.classification() == GsfElectron::SHOWERING)
 	   h_ele_PtinVsPtoutShowering_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
         }
-	
+
         h_ele_mva->Fill(bestGsfElectron.mva());
         if (bestGsfElectron.isEcalDriven()) h_ele_mva_eg->Fill(bestGsfElectron.mva());
 	if (bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(1.);
 	if (bestGsfElectron.isTrackerDriven()) h_ele_provenance->Fill(-1.);
 	if (bestGsfElectron.isTrackerDriven()||bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(0.);
 	if (bestGsfElectron.isTrackerDriven()&&!bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(-2.);
-	if (!bestGsfElectron.isTrackerDriven()&&bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(2.);	
+	if (!bestGsfElectron.isTrackerDriven()&&bestGsfElectron.isEcalDriven()) h_ele_provenance->Fill(2.);
 
         h_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
         h_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
