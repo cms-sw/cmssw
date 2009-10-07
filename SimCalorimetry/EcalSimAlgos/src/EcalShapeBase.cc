@@ -22,6 +22,31 @@ EcalShapeBase::EcalShapeBase( bool   aSaveDerivative ) :
 {
 }
 
+double 
+EcalShapeBase::timeOfThr()  const 
+{
+   return m_firstTimeOverThreshold ;
+ }
+
+double 
+EcalShapeBase::timeOfMax()  const 
+{
+   return m_timeOfMax              ; 
+}
+
+double 
+EcalShapeBase::timeToRise() const 
+{
+   return timeOfMax() - timeOfThr() ;
+}
+
+unsigned int 
+EcalShapeBase::binOfMax() const 
+{
+   return 1 + (unsigned int) m_timeOfMax/kReadoutTimeInterval ; 
+}
+
+
 void
 EcalShapeBase::buildMe()
 {
@@ -29,10 +54,12 @@ EcalShapeBase::buildMe()
 
    fillShape( shapeArray ) ;
 
+/*
    for( unsigned int i ( 0 ) ; i != k1NSecBinsTotal ; ++i ) 
    {
       LogDebug("EcalShapeBase") << " time (ns) = " << (double)i << " tabulated ECAL pulse shape = " << shapeArray[i];
    }
+*/
 
    const double delta ( qNSecPerBin/2. ) ;
 
@@ -80,9 +107,9 @@ EcalShapeBase::buildMe()
 	 m_indexOfMax = j ;
       }
 
-      LogDebug("EcalShapeBase") << " time (ns) = " << ( j + 1.0 )*qNSecPerBin - delta 
-				<< " interpolated ECAL pulse shape = " << m_shape[ j ] 
-				<< " derivative = " << ( 0 != m_derivPtr ? (*m_derivPtr)[ j ] : 0 ) ;
+//      LogDebug("EcalShapeBase") << " time (ns) = " << ( j + 1.0 )*qNSecPerBin - delta 
+//				<< " interpolated ECAL pulse shape = " << m_shape[ j ] 
+//				<< " derivative = " << ( 0 != m_derivPtr ? (*m_derivPtr)[ j ] : 0 ) ;
    }
    m_timeOfMax = m_indexOfMax*qNSecPerBin ;
 }
@@ -96,7 +123,7 @@ EcalShapeBase::timeIndex( double aTime ) const
    const bool bad ( (int) m_firstIndexOverThreshold >  index || 
 		    (int) kNBinsStored              <= index    ) ;
 
-   if( bad )
+   if(		    (int) kNBinsStored              <= index    )
    {
       LogDebug("EcalShapeBase") << " ECAL MGPA shape requested for out of range time " << aTime ;
    }

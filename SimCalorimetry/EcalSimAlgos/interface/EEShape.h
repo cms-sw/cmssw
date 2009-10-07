@@ -10,10 +10,12 @@ class EEShape : public EcalShapeBase
       EEShape() ;
 
       virtual ~EEShape() ;
-  
-      virtual void fillShape( EcalShapeBase::DVec& aVec ) const ;
 
       virtual double threshold() const ;
+
+   protected:
+  
+      virtual void fillShape( EcalShapeBase::DVec& aVec ) const ;
 };
   
 

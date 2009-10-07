@@ -21,11 +21,11 @@ class EcalShapeBase : public CaloVShape
 
       double operator() ( double aTime ) const ;
 
-      double timeOfThr()  const { return m_firstTimeOverThreshold ; }
-      double timeOfMax()  const { return m_timeOfMax              ; }
-      double timeToRise() const { return timeOfMax() - timeOfThr(); }
+      double timeOfThr()  const ;
+      double timeOfMax()  const ;
+      double timeToRise() const ;
 
-      virtual void   fillShape( DVec& aVec ) const = 0 ;
+      unsigned int binOfMax() const ;
 
       virtual double threshold()             const = 0 ;
   
@@ -42,9 +42,11 @@ class EcalShapeBase : public CaloVShape
 
    protected:
 
+      unsigned int timeIndex( double aTime ) const ;
+
       void buildMe() ;
 
-      unsigned int timeIndex( double aTime ) const ;
+      virtual void   fillShape( DVec& aVec ) const = 0 ;
 
    private:
 

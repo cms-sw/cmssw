@@ -95,6 +95,10 @@ int main()
 		<< std::fixed    << std::setw(6)   
 		<< std::setprecision(2) << rT << std::endl;
 
+      std::cout << "\n Bin of maximum  = " 
+		<< std::fixed    << std::setw(6)   
+		<< theShape->binOfMax() << std::endl;
+
       // signal used with the nominal parameters and no jitter
 
       std::cout << "\n computed ECAL " << name 
