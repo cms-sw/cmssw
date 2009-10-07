@@ -180,21 +180,15 @@ process.JTA = cms.Sequence(
     )
 
 process.load("JetMETCorrections.JetPlusTrack.MatchAndSortJetCollections_cff")
-process.load("JetMETCorrections.JetPlusTrack.NtuplizeJetCollections_cff")
-process.ntuplize = cms.Sequence(
-    process.matchAndSortJetCollections *
-    process.ntuplizeJetCollections 
-    )
-
 
 process.p = cms.Path(
-    process.ZSPJetCorJetIcone5 *      # ZSP corrections
-    process.JTA *                     # Jet-tracks association
-    process.JPTCorJetIC5CaloDefault * # Default JPT corrections from RECO
-    process.JPTValidation *           # All flavours of JPT corrections from RECO
-    process.patDefaultSequence *      # PAT sequence (slow!)
-    process.PatJPTCorrectionsIC5      # JPT corrections from PAT
-    * process.ntuplize                # Match, sort and ntuplize jet collections
+    process.ZSPJetCorJetIcone5 *       # ZSP corrections
+    process.JTA *                      # Jet-tracks association
+    process.JPTCorJetIC5CaloDefault *  # Default JPT corrections from RECO
+    process.JPTValidation *            # All flavours of JPT corrections from RECO
+    #process.patDefaultSequence *       # PAT sequence (slow!)
+    #process.PatJPTCorrectionsIC5 *     # JPT corrections from PAT
+    process.matchAndSortJetCollections # Match, sort and ntuplize jet collections
     )
 
 process.o = cms.OutputModule(
@@ -205,7 +199,7 @@ process.o = cms.OutputModule(
     'keep recoGenJets_iterativeCone5GenJets_*_*',
     'keep recoGenJets_iterativeCone5GenJetsNoNuBSM_*_*',
     'keep recoCaloJets_iterativeCone5CaloJets_*_*',
-    'keep patJets_cleanLayer1JetsIC5_*_*',
+    'keep recoGenJets_*_*_TEST',
     'keep recoCaloJets_*_*_TEST',
     'keep patJets_*_*_TEST',
     )

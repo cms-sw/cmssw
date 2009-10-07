@@ -37,7 +37,7 @@ ntuplizeJetCollections = cms.EDFilter(
     # reco::GenJets
     RecoGenJet = cms.PSet(
     Class = cms.string('reco::GenJet'),
-    src = cms.InputTag('sortByGenJetPt:allLayer1Jets'),
+    src = cms.InputTag('sortByGenJetPt:selectedLayer1Jets'),
     leaves = cms.PSet(kine),
     ),
 
@@ -156,7 +156,7 @@ ntuplizeJetCollections = cms.EDFilter(
     # MC-corrected pat::Jets
     PatJetMC = cms.PSet(
     Class = cms.string('pat::Jet'),
-    src = cms.InputTag('sortByGenJetPt:allLayer1Jets'),
+    src = cms.InputTag('sortByGenJetPt:selectedLayer1Jets'),
     leaves = cms.PSet(kine),
     ),
 

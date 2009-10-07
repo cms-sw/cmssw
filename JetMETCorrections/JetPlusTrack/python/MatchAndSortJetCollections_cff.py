@@ -15,7 +15,8 @@ matchToGenJets = cms.EDFilter(
 
 sortByGenJetPt = cms.EDProducer(
     "SortJetCollectionsByGenJetPt",
-    genJets = cms.InputTag("allLayer1Jets"),
+    matchedCaloJets = cms.InputTag("iterativeCone5CaloJets"),
+    matchedGenJets = cms.InputTag("matchToGenJets"),
     caloJets = cms.VInputTag(
     "iterativeCone5CaloJets",
     "ZSPJetCorJetIcone5",
@@ -34,11 +35,11 @@ sortByGenJetPt = cms.EDProducer(
     "uncorrectedLayer1JetsIC5",
     "PatZSPCorJetIC5Calo",
     "PatJPTCorJetIC5Calo",
-    "allLayer1Jets",
+    "selectedLayer1Jets",
     ),
     )
 
 matchAndSortJetCollections = cms.Sequence(
-    #matchToGenJets *
+    matchToGenJets *
     sortByGenJetPt
     )
