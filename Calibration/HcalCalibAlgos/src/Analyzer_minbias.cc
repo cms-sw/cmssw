@@ -11,6 +11,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -244,11 +246,11 @@ void Analyzer_minbias::endJob()
             mom0_MB = theMBFillDetMapPl0[i][j][k][l];
             mom1_MB = theMBFillDetMapPl1[i][j][k][l];
             mom2_MB = theMBFillDetMapPl2[i][j][k][l];
-            mom4_MB = theMBFillDetMapPl2[i][j][k][l];
+            mom4_MB = theMBFillDetMapPl4[i][j][k][l];
             mom0_Noise = theNSFillDetMapPl0[i][j][k][l];
             mom1_Noise = theNSFillDetMapPl1[i][j][k][l];
             mom2_Noise = theNSFillDetMapPl2[i][j][k][l];
-            mom4_Noise = theNSFillDetMapPl2[i][j][k][l];
+            mom4_Noise = theNSFillDetMapPl4[i][j][k][l];
             mom0_Diff = theDFFillDetMapPl0[i][j][k][l];
             mom1_Diff = theDFFillDetMapPl1[i][j][k][l];
             mom2_Diff = theDFFillDetMapPl2[i][j][k][l];
@@ -261,17 +263,18 @@ void Analyzer_minbias::endJob()
             myTree->Fill();
             ii++;
 	   } // Pl > 0
+	
          
 	  if(theMBFillDetMapMin0[i][j][k][l] > 0)
 	  { 
             mom0_MB = theMBFillDetMapMin0[i][j][k][l];
             mom1_MB = theMBFillDetMapMin1[i][j][k][l];
             mom2_MB = theMBFillDetMapMin2[i][j][k][l];
-            mom4_MB = theMBFillDetMapMin2[i][j][k][l];
+            mom4_MB = theMBFillDetMapMin4[i][j][k][l];
             mom0_Noise = theNSFillDetMapMin0[i][j][k][l];
             mom1_Noise = theNSFillDetMapMin1[i][j][k][l];
             mom2_Noise = theNSFillDetMapMin2[i][j][k][l];
-            mom4_Noise = theNSFillDetMapMin2[i][j][k][l];
+            mom4_Noise = theNSFillDetMapMin4[i][j][k][l];
             mom0_Diff = theDFFillDetMapMin0[i][j][k][l];
             mom1_Diff = theDFFillDetMapMin1[i][j][k][l];
             mom2_Diff = theDFFillDetMapMin2[i][j][k][l];
@@ -343,6 +346,20 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 */
 
+   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
+   iEvent.getByLabel("gtDigis", gtRecord);
+   
+   if (!gtRecord.isValid()) {
+
+//     LogDebug("L1GlobalTriggerRecordProducer")
+//       << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag "
+//       << m_l1GtReadoutRecord
+//       << "\n Returning empty L1GlobalTriggerRecord.\n\n"
+//       << std::endl;
+      cout<<" No L1 trigger record "<<endl;
+//     return;
+   }
+
 
   const HcalRespCorrs* myRecalib=0;
   if( theRecalib ) {
@@ -376,6 +393,13 @@ Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      }  
     }
    }    
+   edm::Handle<HBHERecHitCollection> hbheNormal;
+   iEvent.getByLabel("hbhereco", hbheNormal);
+   if(!hbheNormal.isValid()){  
+     cout<<" hbheNormal failed "<<endl;
+   } else {
+       cout<<" The size of the normal collection "<<hbheNormal->size()<<endl;
+   } 
 
 
    edm::Handle<HBHERecHitCollection> hbheNS;

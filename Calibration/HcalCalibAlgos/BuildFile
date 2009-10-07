@@ -16,6 +16,7 @@
 <use name=DataFormats/HcalRecHit>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/HcalObjects>
+<use name=DataFormats/L1GlobalTrigger>
 <use name=Geometry/EcalAlgo>
 <use name=DataFormats/Math>
 <use name=DataFormats/JetReco>
