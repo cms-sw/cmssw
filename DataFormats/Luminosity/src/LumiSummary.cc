@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.6 2009/05/12 19:40:35 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.7 2009/10/06 17:15:42 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -104,10 +104,11 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   s << "  lsNumber = " << lumiSummary.lsNumber() << "\n";
   s << "  startOrbit = " << lumiSummary.startOrbit() <<"\n";
   s << "  avgInsRecLumi = " << lumiSummary.avgInsRecLumi() << "\n";
-  s << "  avgInsRecLumiErr = " << lumiSummary.avgInsRecLumiErr() << "\n\n";
-  s << setw(15) << "l1source";
-  s << setw(15) << "l1ratecounter";
-  s << setw(15) << "l1scaler";
+  s << "  avgInsRecLumiErr = "  << lumiSummary.avgInsRecLumiErr() << "\n\n";
+  s << setw(15) << "l1name";
+  s << setw(15) << "l1count";
+  s << setw(15) << "l1deadtime";
+  s << setw(15) << "l1prescale";
   s << "\n";
   size_t nTriggers=lumiSummary.nTriggerLine();
   size_t nHLTPath=lumiSummary.nHLTPath();
@@ -119,12 +120,15 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
     s << lumiSummary.l1info(i).ratecount;
 
     s << setw(15);
+    s << lumiSummary.l1info(i).deadtimecount;
+
+    s << setw(15);
     s << lumiSummary.l1info(i).scalingfactor;
     s<<"\n";
   }
   s << setw(15) << "hltpath";
-  s << setw(15) << "hltratecounter";
-  s << setw(15) << "hltscaler";
+  s << setw(15) << "hltcount";
+  s << setw(15) << "hltprescale";
   s << setw(15) << "hltinput";
   s << "\n";
   for(unsigned int i = 0; i < nHLTPath; ++i) {
