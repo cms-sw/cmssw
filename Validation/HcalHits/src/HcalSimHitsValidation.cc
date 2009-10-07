@@ -223,8 +223,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     //Energy in Cone 
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
     
-    if ( r < partR ){ // just energy in the small cone
-      // alternative: ietamax -> closest to MC eta  !!!
+    if (r < partR){      
       eta_diff = fabs(eta_MC - etaS);
       if(eta_diff < etaMax) {
 	etaMax  = eta_diff; 
@@ -235,7 +234,6 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       else if (sub == 2)               HcalCone += en*calib_HE;
       else if (sub == 4 && depth == 1) HcalCone += en*calib_HF1;
       else if (sub == 4 && depth == 2) HcalCone += en*calib_HF2;
-      else                             HcalCone += en;
     }
     
     //Account for lack of ieta = 0
@@ -306,11 +304,8 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double en   = SimHits->energy();    
   
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
-       
-    if ( r < partR ){ // just energy in the small cone
-      // alternative: ietamax -> closest to MC eta  !!!
-      EcalCone += en;
-    }
+    
+    if (r < partR) EcalCone += en;   
   }
 
   //Ecal EE SimHits
@@ -326,22 +321,19 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
     double en   = SimHits->energy();    
-  
+    
     double r  = dR(eta_MC, phi_MC, etaS, phiS);
-       
-    if ( r < partR ){ // just energy in the small cone
-      // alternative: ietamax -> closest to MC eta  !!!
-      EcalCone += en;
-    }
+    
+    if (r < partR) EcalCone += en;   
   }
 
-  //Account for lack of ieta = 0
-  if (ietaMax > 0) ietaMax--;
-   
-  meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
-  meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
-  meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
-
+  if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits 
+    if (ietaMax > 0) ietaMax--; //Account for lack of ieta = 0
+    
+    meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
+    meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
+    meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
+  }
   
   nevtot++;
 }
