@@ -36,9 +36,9 @@ process.source = cms.Source("PoolSource",
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQM.HLTEvF.hltMonBTag_8E29_cff")
 
-hltMonBTagIP_Jet50U_Source.storeROOT  = True
-hltMonBTagMu_Jet10U_Source.storeROOT  = True
-hltMonBTagIP_Jet50U_Client.storeROOT  = True
-hltMonBTagMu_Jet10U_Client.storeROOT  = True
+process.hltMonBTagIP_Jet50U_Source.storeROOT  = True
+process.hltMonBTagMu_Jet10U_Source.storeROOT  = True
+process.hltMonBTagIP_Jet50U_Client.storeROOT  = True
+process.hltMonBTagMu_Jet10U_Client.storeROOT  = True
 
 process.dqm = cms.Path( process.hltMonBTagSource_8E29 + process.hltMonBTagClient_8E29 )
