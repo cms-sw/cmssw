@@ -18,15 +18,15 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource",
      numberEventsInRun = cms.untracked.uint32(1),
-     firstRun = cms.untracked.uint32(1),
+     firstRun = cms.untracked.uint32(3),
      numberEventsInLuminosityBlock = cms.untracked.uint32(1),
      firstLuminosityBlock = cms.untracked.uint32(1)
 )
 
 #process.source = cms.Source("EmptyIOVSource",
 #    timetype = cms.string('lumiid'),
-#    firstValue = cms.uint64(42949672962),
-#    lastValue = cms.uint64(42949672964),
+#    firstValue = cms.uint64(8589934590),
+#    lastValue = cms.uint64(8589934599),
 #    interval = cms.uint64(1)
 #)
 
