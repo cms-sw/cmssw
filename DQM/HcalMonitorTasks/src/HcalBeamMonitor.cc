@@ -28,7 +28,7 @@ HcalBeamMonitor::HcalBeamMonitor():
   ETA_OFFSET_HO(15),
   ETA_OFFSET_HF(41),
   ETA_BOUND_HF(29)
-{occThresh_ = 1;}
+{occThresh_ = 0.0625;}
 
 HcalBeamMonitor::~HcalBeamMonitor() {}
 
@@ -60,9 +60,9 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
   if (m_dbe)
     {
+
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("BeamMonitor Event Number");
-    
       // Basic Problem Cells
       ProblemBeamCells=m_dbe->book2D(" ProblemBeamCells",
                                      " Problem Beam Cell Rate for all HCAL",
@@ -80,13 +80,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       setupDepthHists2D(ProblemBeamCellsByDepth, " Problem BeamMonitor Rate","");
 
       //jason's
-
-      // halo monitoring -- need to separate code that monitors HF lumi from that which monitors halo
-
-      m_dbe->setCurrentFolder(baseFolder_+"/HFlumi");
-      // add HFlumi plots here
-
-      m_dbe->setCurrentFolder(baseFolder_+"/halo");
+      m_dbe->setCurrentFolder(baseFolder_);
       CenterOfEnergyRadius = m_dbe->book1D("CenterOfEnergyRadius",
 					   "Center Of Energy radius",
 					   200,0,1);
@@ -109,7 +103,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       
       std::stringstream histname;
       std::stringstream histtitle;
-      m_dbe->setCurrentFolder(baseFolder_+"/halo/HB");
+      m_dbe->setCurrentFolder(baseFolder_+"/HB");
       HBCenterOfEnergyRadius = m_dbe->book1D("HBCenterOfEnergyRadius",
 					     "HB Center Of Energy radius",
 					     200,0,1);
@@ -131,7 +125,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 							  200,0,1);
 	    } // end of HB loop
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/halo/HE");
+      m_dbe->setCurrentFolder(baseFolder_+"/HE");
       HECenterOfEnergyRadius = m_dbe->book1D("HECenterOfEnergyRadius",
 					     "HE Center Of Energy radius",
 					     200,0,1);
@@ -139,6 +133,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 				       "HE Center of Energy",
 				       40,-1,1,
 				       40,-1,1);
+
       if (beammon_makeDiagnostics_)
 	{
 	  for (int i=-29;i<=29;++i)
@@ -153,7 +148,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 							  200,0,1);
 	    } // end of HE loop
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/halo/HO");
+      m_dbe->setCurrentFolder(baseFolder_+"/HO");
       HOCenterOfEnergyRadius = m_dbe->book1D("HOCenterOfEnergyRadius",
 					     "HO Center Of Energy radius",
 					     200,0,1);
@@ -175,7 +170,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 								     200,0,1);
 	    } // end of HO loop
 	}
-      m_dbe->setCurrentFolder(baseFolder_+"/halo/HF");
+      m_dbe->setCurrentFolder(baseFolder_+"/HF");
       HFCenterOfEnergyRadius = m_dbe->book1D("HFCenterOfEnergyRadius",
 					     "HF Center Of Energy radius",
 					     200,0,1);
@@ -198,8 +193,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 	    } // end of HF loop
 	}
       
-      // this had been stored in "Lumi" subdirectory.  Do we still want it in HFlumi?
-      m_dbe->setCurrentFolder(baseFolder_+"/HFlumi");
+      m_dbe->setCurrentFolder(baseFolder_+"/Lumi");
       // Wenhan's 
       // reducing bins from ",200,0,2000" to ",40,0,800"
       
@@ -223,8 +217,20 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       Etsum_map_S=m_dbe->book2D("EtSum 2D phi and eta Short Fiber","Et Sum 2D phi and eta Short Fiber",120,-6,6,80,-4,4);
       Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
-      Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",84,-42,42,72,0,72);
-      
+
+
+      // Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",84,-42,42,36,0.5,72.5);
+      Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",
+				    8,0,8,36, 0.5,72.5);
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(1,"-36");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(2,"-35");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(3,"-34");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(4,"-33");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(5,"33");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(6,"34");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(7,"35");
+      Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(8,"36");
+
       Occ_rphi_S=m_dbe->book2D("Occ 2D phi and radius Short Fiber","Occupancy 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Occ_rphi_L=m_dbe->book2D("Occ 2D phi and radius Long Fiber","Occupancy 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
       Occ_eta_S=m_dbe->bookProfile("Occ vs Eta Short Fiber","Occ per Bunch crossing vs Eta Short Fiber",120,-6,6,40,0,800);
@@ -247,8 +253,27 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2",36,1,37);
       HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2",36,1,37);
       
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+
+      HFlumi_Et_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 1)","HFlumi Et per channel vs lumi-block (RING 1)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Et_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 2)","HFlumi Et per channel vs lumi-block (RING 2)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+      HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 1) Below Threshold","HFlumi Et per channel vs lumi-block (RING 1) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 2) Below Threshold","HFlumi Et per channel vs lumi-block (RING 2) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+
+      HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 1) Above Upper Threshold","HFlumi Et per channel vs lumi-block (RING 1) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 2) Above Upper Threshold","HFlumi Et per channel vs lumi-block (RING 2) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
       
     } // if (m_dbe)
+
   return;
 
 } // void HcalBeamMonitor::setup()
@@ -298,6 +323,8 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
      
   float hitsp[13][36][2];
   float hitsm[13][36][2];
+  float hitsp_Et[13][36][2];
+  float hitsm_Et[13][36][2];
   
   for(int m=0;m<13;m++){
     for(int n=0;n<36;n++){
@@ -305,6 +332,11 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
       hitsp[m][n][1]=0; 
       hitsm[m][n][0]=0;
       hitsm[m][n][1]=0;
+
+      hitsp_Et[m][n][0]=0;
+      hitsp_Et[m][n][1]=0; 
+      hitsm_Et[m][n][0]=0;
+      hitsm_Et[m][n][1]=0;
     }
   }
   if (showTiming)
@@ -509,13 +541,16 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
             Etsum_phi_L->Fill(phi,et);
             Etsum_map_L->Fill(eta,phi,et);
             Etsum_rphi_L->Fill(r,phi,et);
-            hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();}
+            hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
+	    hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et;
+	    }
             if(HFiter->id().ieta()<0) {
             Etsum_eta_L->Fill(-eta,et);
             Etsum_phi_L->Fill(phi,et);
             Etsum_rphi_L->Fill(r,phi,et);
             Etsum_map_L->Fill(-eta,phi,et);
-            hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 	    
+            hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
+	    hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et; 
 	    }
 	  }
          
@@ -527,18 +562,54 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
               Etsum_rphi_S->Fill(r,phi,et); 
               Etsum_map_S->Fill(eta,phi,et);
               hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+	      hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
 	    }
 	    if(HFiter->id().ieta()<0)  {  Etsum_eta_S->Fill(-eta,et);
               Etsum_map_S->Fill(-eta,phi,et);
               Etsum_phi_S->Fill(phi,et);
               Etsum_rphi_S->Fill(r,phi,et); 
-	      hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();}
+	      hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+	      hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
+	    }
           
 	  }
 	  Energy_Occ->Fill(HFiter->energy()); 
             
 	  //HF: no non-threshold occupancy map is filled?
 	           
+	  if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
+	    if (HFiter->energy() < occThresh_){
+	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,1);
+	      HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,et);
+	    }
+	    if (HFiter->energy() > occThresh_ && HFiter->energy() < 50.){
+	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,1);
+	      HFlumi_Et_per_channel_vs_lumiblock_RING1->Fill(lumiblock,et);
+	    }
+	     if (HFiter->energy() > 50.){
+	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,1);
+	      HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,et);
+	    }
+	  }
+
+	  if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
+	    if (HFiter->energy() < occThresh_){
+	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,1);
+	      HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,et);
+	    }
+	    if (HFiter->energy() > occThresh_ && HFiter->energy() < 50.){
+	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,1);
+	      HFlumi_Et_per_channel_vs_lumiblock_RING2->Fill(lumiblock,et);
+	    }
+	     if (HFiter->energy() > 50.){
+	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,1);
+	      HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,et);
+	    }
+	  }
+
+
+	  
+
 	  if(HFiter->energy()>occThresh_){
 	    
             if (HFiter->id().depth()==1){
@@ -640,11 +711,15 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      
 	      if(hitsp[i][j][0]==hitsp[i][j][1]) continue;
 	      
-	      ratiop=(hitsp[i][j][0]-hitsp[i][j][1])/(hitsp[i][j][0]+hitsp[i][j][1]);
-          //cout<<ratiop<<endl;
-	      Etsum_ratio_p->Fill(ratiop);
-	      if(abs(ratiop>0.85))
-		Etsum_ratio_map->Fill(i+29,2*j+1); 
+	      if (hitsp[i][j][0] < 1.2 && hitsp[i][j][1] < 1.8) continue;
+	      //use only lumi rings
+	      if (((i+29) < 33) || ((i+29) > 36)) continue;
+	      ratiop=fabs((fabs(hitsp[i][j][0])-fabs(hitsp[i][j][1]))/(fabs(hitsp[i][j][0])+fabs(hitsp[i][j][1])));
+	      //cout<<ratiop<<endl;
+	      if ((hitsp_Et[i][j][0] > 5. && hitsp[i][j][1] < 1.8) || (hitsp_Et[i][j][1] > 5. &&  hitsp[i][j][0] < 1.2)){
+		Etsum_ratio_p->Fill(ratiop);
+		if(abs(ratiop>0.95)) Etsum_ratio_map->Fill(i,2*j+1); // i=4,5,6,7 for HFlumi rings 
+	      }
 	    }
 	  }
 	  
@@ -652,10 +727,16 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    for(int q=0;q<36;q++){
 	      
 	      if(hitsm[p][q][0]==hitsm[p][q][1]) continue;
-	      ratiom=(hitsm[p][q][0]-hitsm[p][q][1])/(hitsm[p][q][0]+hitsm[p][q][1]);         
-	      Etsum_ratio_m->Fill(ratiom);
-	      if(abs(ratiom>0.85))
-		Etsum_ratio_map->Fill(-p-29,2*q+1);
+
+	      if (hitsm[p][q][0] < 1.2 && hitsm[p][q][1] < 1.8) continue;
+	      //use only lumi rings
+	      if (((p+29) < 33) || ((p+29) > 36)) continue;
+	      ratiom=fabs((fabs(hitsm[p][q][0])-fabs(hitsm[p][q][1]))/(fabs(hitsm[p][q][0])+fabs(hitsm[p][q][1])));         
+	      if ((hitsm_Et[p][q][0] > 5. && hitsm[p][q][1] < 1.8) || (hitsm_Et[p][q][1] > 5. && hitsm[p][q][0] < 1.2)){
+		Etsum_ratio_m->Fill(ratiom);
+		if(abs(ratiom>0.95)) Etsum_ratio_map->Fill(7-p,2*q+1); // p=4,5,6,7 for HFlumi rings
+		//p=7:  ieta=-36; p=4:  ieta=-33
+	      }
 	    }
 	  } 
 	} // if (hfHits.size()>0)

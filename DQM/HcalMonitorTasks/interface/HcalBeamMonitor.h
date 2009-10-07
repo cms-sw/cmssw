@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/06/28 21:01:17 $
-  * $Revision: 1.4.2.2 $
+  * $Date: 2009/07/06 10:51:54 $
+  * $Revision: 1.6 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -91,6 +91,20 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   MonitorElement* HFlumi_Occupancy_above_thr_r2;
   MonitorElement* HFlumi_Occupancy_between_thrs_r2;
   MonitorElement* HFlumi_Occupancy_below_thr_r2;
+
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold;
+  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold;
+
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING1;
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING2;
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold;
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold;
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold;
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold;
 
   const int ETA_OFFSET_HB;
 
