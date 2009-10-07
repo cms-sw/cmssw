@@ -15,8 +15,6 @@ and receive as a result the corresponding list of input data files.
 <var name="VAL_ANALYZER" value="benchmark-oval">
 <var name="WEB_PUBLICATION" value="true">
 
-<var name="DBS_COMPARE_RELEASE" value="CMSSW_3_3_0_pre3">
-<!var name="COMPARE_FILE" value="/afs/cern.ch/cms/Physics/particleflow/Validation/cms-project-pfvalidation/Releases/CMSSW_3_3_0_pre3/ElectronBenchmarkGeneric_RelValTTbarefromb/benchmark.root">
 
 <environment name="Pt10">
   <var name="DBS_SAMPLE" value="RelValSingleElectronPt10">
@@ -79,8 +77,32 @@ and receive as a result the corresponding list of input data files.
   <executable name="publication.sh"> 
 </environment>
 
-<environment name=twiki>
+<environment name="twiki">
 <executable name="prepare-twiki.sh">
 </environment>
 
+<environment name="comparison">
+  <var name="DBS_COMPARE_RELEASE" value="CMSSW_3_3_0_pre3">
+     <environment name="Pt35">
+     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
+     <executable name="comparison.sh">	
+     </environment>
+ 
+     <environment name="ZEE">
+     <var name="DBS_SAMPLE" value="RelValZEE">
+     <var name="E_SELECTION" value="efromZ">
+     <executable name="comparison.sh">	
+     </environment>
 
+     <environment name="TTbarW">
+     <var name="DBS_SAMPLE" value="RelValTTbar">
+     <var name="E_SELECTION" value="efromW">
+     <executable name="comparison.sh">	
+     </environment>
+
+     <environment name="TTbarb">
+     <var name="DBS_SAMPLE" value="RelValTTbar">
+     <var name="E_SELECTION" value="efromb">
+     <executable name="comparison.sh">	
+     </environment>
+</environment>
