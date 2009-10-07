@@ -48,7 +48,18 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   dbe_ = NULL;
   dbe_ = Service < DQMStore > ().operator->();
   dbe_->setVerbose(0);
-  
+
+}
+
+
+HLTMonBitSummary::~HLTMonBitSummary(){}
+
+//
+// member functions
+//
+
+void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
+    
   //initialize the hlt configuration from the process name if not blank
   std::string processName = inputTag_.process();
   if (processName != ""){
@@ -57,7 +68,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
     hltConfig.init(processName);
   
     //run trigger selection
-    HLTriggerSelector trigSelect(iConfig);
+    HLTriggerSelector trigSelect(inputTag_,HLTPathsByName_);
     HLTPathsByName_.swap(trigSelect.theSelectTriggers);
     count_.resize(HLTPathsByName_.size());
     HLTPathsByIndex_.resize(HLTPathsByName_.size());
@@ -103,17 +114,7 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
     }//end for nValidTriggers_
   }//end if process
 
-}
 
-
-HLTMonBitSummary::~HLTMonBitSummary(){}
-
-//
-// member functions
-//
-
-void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &){
-  
   if(dbe_){
     if (directory_ != "" ) directory_ = directory_+"/" ;
 
@@ -332,9 +333,11 @@ void HLTMonBitSummary::endJob() {
   
   std::stringstream report;
   report <<" out of: "<<total_<<" events.\n";
-  for (uint i=0; i!=HLTPathsByName_.size();i++){
-    report<<HLTPathsByName_[i]<<" passed: "<<count_[i]<<" times.\n";
-    count_[i]=0;
+  if(!count_.empty()){
+    for (uint i=0; i!=HLTPathsByName_.size();i++){
+      report<<HLTPathsByName_[i]<<" passed: "<<count_[i]<<" times.\n";
+      count_[i]=0;
+    }
   }
   
   edm::LogInfo("HLTMonBitSummary|BitSummary")<<report.str();
