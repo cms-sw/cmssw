@@ -19,18 +19,68 @@
 #include <stdint.h>
 
 namespace lumi{
-
-  struct VDM_SCAN_DATA {
-    uint32_t runNumber;
+  struct RUN_SUMMARY {
+    char runSequenceName[128];
+    char HLTKeyDescriptor[128];
     uint32_t timestamp;
     uint32_t timestamp_micros;
+    uint32_t startOrbitNumber;
+    uint32_t endOrbitnumber;
+    uint32_t runNumber;
+    uint32_t fillNumber;
+    uint32_t numberCMSLumiSecions;  // number of lumi sections from the trigger
+    uint32_t numberLumiDAQLumiSections;
+  };
+  
+  struct RUN_QUALITY {
+    
+    int HLX;
+    int HFLumi;
+    int ECAL;
+    int HCAL;
+    int Tracker;
+    int RPC;
+    int DT;
+    int CSC;
+  };
+
+ struct VDM_SCAN_DATA {
 
     int MessageQuality;     
     bool VdmMode; //True when a scan at one of the IPs is imminent, false otherwise
     int IP;
     bool RecordDataFlag; // True while data for one of the scan points at one of the IPs is being taken, false otherwise   
-    float BeamSeparation; //separation in sigma for the scan point  
+    double BeamSeparation; //separation in sigma for the scan point  
     bool IsXaxis; //true if scanning xaxis, otherwise yaxis is being scanned 
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+  };
+
+  struct BRAN_DATA {
+
+    int MessageQuality;     
+    double MeanCrossingAngle;
+    int AcqMode; 
+    double MeanLuminosity;
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+  };
+
+  struct BRAN_BX_DATA {
+
+    int MessageQuality;
+    double bunchByBunchLuminosity[3564];
+    int AcqMode;
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
+  };
+
+  struct LHC_FILL_DATA {
+
+    int MessageQuality;
+    int FillNumber;
+    uint32_t timestamp;
+    uint32_t timestamp_micros;
   };
 
   struct RCMS_CONFIG {
@@ -72,7 +122,8 @@ namespace lumi{
 
 
   struct LUMI_SUMMARY {
-    float DeadtimeNormalization; 
+
+    float DeadTimeNormalization; 
     float LHCNormalization; // recieved from LHC 
 
     float InstantLumi;
@@ -93,6 +144,7 @@ namespace lumi{
   };
 
   struct LUMI_DETAIL {
+
     float LHCLumi[HCAL_HLX_MAX_BUNCHES]; // Sum of LHC.data over all HLX's
 
     float ETLumi[HCAL_HLX_MAX_BUNCHES];
@@ -118,7 +170,7 @@ namespace lumi{
 
   struct LEVEL1_TRIGGER {
     uint32_t runNumber;
-    uint32_t sectionNumber;
+    uint32_t sectionNumber; // Lumi section number recorded by the daq.
 
     char GTLumiInfoFormat[32];
    
@@ -129,7 +181,7 @@ namespace lumi{
     uint32_t GTPartition0DeadTime[10];
   };
 
-  struct HLTPath {  // only object that uses STL and is variable size.
+  struct HLT_PATH {  // only object that uses STL and is variable size.
     char PathName[128]; //This is the name of trigger path
     uint32_t L1Pass;      //Number of times the path was entered
     uint32_t PSPass;      //Number after prescaling
@@ -140,13 +192,11 @@ namespace lumi{
     uint32_t PSIndex;     //Index into the set of pre defined prescales
   };
 
-  struct HLTrigger {
+  struct HLTRIGGER {
     uint32_t runNumber;
     uint32_t sectionNumber;
 
-    char HLTConfigKey[32];
-
-    HLTPath HLTPaths[256];
+    HLT_PATH HLTPaths[256];
   };
 
   /***************** Internal use ****************/
@@ -187,10 +237,6 @@ namespace lumi{
     uint16_t data[HCAL_HLX_MAX_BUNCHES];
   };
 
-  struct RUN_SUMMARY {
-    uint32_t runNumber;
-    char runSequenceName[32];
-  };
 
   struct LUMI_SECTION_HEADER {
     uint32_t timestamp;

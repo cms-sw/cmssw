@@ -23,19 +23,6 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
 void
 lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result){
   m_source->ls();
-  /*TTree *runtree = (TTree*)m_source->Get("RunSummary");
-    if(runtree){
-    runtree->Print();
-    //std::cout<<"tot size bytes "<<runtree->GetTotBytes()<<std::endl;
-    lumi::RUN_SUMMARY* runsummarydata=0;
-    runtree->SetBranchAddress("RunSummary.",&runsummarydata);
-    size_t nentries=runtree->GetEntries();
-    for(size_t i=0;i<nentries;++i){
-    runtree->GetEntry(i);
-      runnumber=runsummarydata->runNumber;
-      }
-  }
-  */
 
   TTree *hlxtree = (TTree*)m_source->Get("HLXData");
   TTree *l1tree = (TTree*)m_source->Get("L1Trigger");
@@ -49,7 +36,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
     lumi::LUMI_SUMMARY* lumisummary=0;
     lumi::LUMI_DETAIL* lumidetail=0;
     lumi::LEVEL1_TRIGGER* l1data=0;
-    lumi::HLTrigger* hltdata=0;
+    lumi::HLTRIGGER* hltdata=0;
     hlttree->SetBranchAddress("HLTrigger.",&hltdata);
     hlxtree->SetBranchAddress("Header.",&lumiheader);
     hlxtree->SetBranchAddress("Summary.",&lumisummary);
@@ -75,17 +62,18 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l->setLumiAverage(lumisummary->InstantLumi);
       l->setLumiError(lumisummary->InstantLumiErr);      
       l->setLumiQuality(lumisummary->InstantLumiQlty);
-      l->setDeadFraction(lumisummary->DeadtimeNormalization);
-
-      size_t hltsize=sizeof(hltdata->HLTPaths)/sizeof(lumi::HLTPath);
+      l->setDeadFraction(lumisummary->DeadTimeNormalization);
+      
+      size_t hltsize=sizeof(hltdata->HLTPaths)/sizeof(lumi::HLT_PATH);
       std::cout<<"got "<<hltsize<<" hlt paths"<<std::endl;
       std::vector<lumi::HLTInfo> hltinfo;
       hltinfo.reserve(hltsize);
+      //
+      //fixme: missing hlt prescale from root, set to 1 for now
+      //
       for( size_t ihlt=0; ihlt<hltsize; ++ihlt){
-	//
-	//fixme: missing hlt prescale from root, set to 1 for now
-	//
 	lumi::HLTInfo hltperpath(std::string(hltdata->HLTPaths[ihlt].PathName),hltdata->HLTPaths[ihlt].L1Pass,hltdata->HLTPaths[ihlt].PAccept,1);
+	std::cout<<"hltpath name "<<std::string(hltdata->HLTPaths[ihlt].PathName)<<std::endl;
 	hltinfo.push_back(hltperpath);
       }
       
@@ -97,6 +85,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       size_t algotrgsize=sizeof(l1data->GTAlgo)/sizeof(lumi::LEVEL1_PATH);
       for( size_t itrg=0; itrg<algotrgsize; ++itrg ){
 	lumi::TriggerInfo trgbit(l1data->GTAlgo[itrg].pathName,l1data->GTAlgo[itrg].counts,12387,l1data->GTAlgo[itrg].prescale);
+	std::cout<<"l1path name "<<std::string(l1data->GTAlgo[itrg].pathName)<<std::endl;
 	triginfo.push_back(trgbit);
       }
       std::cout<<"got "<<algotrgsize<<" algo trigger"<<std::endl;
@@ -106,9 +95,11 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
 	triginfo.push_back(trgbit);
       }
       std::cout<<"got "<<techtrgsize<<" tech trigger"<<std::endl;
-      std::cout<<"bizzar cmsliveflag\t"<<(bool)lumiheader->bCMSLive<<std::endl;
+      std::cout<<"bizzare cmsliveflag\t"<<(bool)lumiheader->bCMSLive<<std::endl;
       l->setHLTData(hltinfo);
       l->setTriggerData(triginfo);
+
+      
       result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }

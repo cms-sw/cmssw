@@ -25,7 +25,8 @@ process.source = cms.Source("EmptyIOVSource",
 process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('rootsource'),
-      lumiFileName = cms.string('rfio:/castor/cern.ch/cms/store/lumi/200909/CMS_LUMI_RAW_20090930_001119981_0001_1.root')
+      #lumiFileName = cms.string('rfio:/castor/cern.ch/cms/store/lumi/200909/CMS_LUMI_RAW_20090930_001119981_0001_1.root')
+      lumiFileName = cms.string('/castor/cern.ch/cms/store/lumi/200910/CMS_LUMI_RAW_20091007_001119982_0001_1.root')
     ),
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),
