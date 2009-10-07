@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //       
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.10 2009/05/29 13:11:54 dlange Exp $
+// $Id: LumiProducer.cc,v 1.11 2009/10/06 19:36:42 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -86,11 +86,11 @@ void LumiProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 }
 
 void LumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::EventSetup const &iSetup) {
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LumiSectionDataRcd"));
-  if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
+  //edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("LumiSectionDataRcd"));
+  //if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     //record not found
-    std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
-  }
+    //std::cout <<"Record \"LumiSectionDataRcd"<<"\" does not exist "<<std::endl;
+  //}
   
   edm::ESHandle<lumi::LumiSectionData> pLumi;
   iSetup.get<LumiSectionDataRcd>().get(pLumi);
