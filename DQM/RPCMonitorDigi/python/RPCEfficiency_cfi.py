@@ -25,6 +25,6 @@ rpcEfficiency = cms.EDFilter("RPCEfficiency",
     EffSaveRootFileEventsInterval = cms.untracked.int32(100)
 )
 
-rpcSource = cms.Sequence(rpcEfficiency)
+rpcefficiency = cms.Sequence(rpcEfficiency)
 
 
