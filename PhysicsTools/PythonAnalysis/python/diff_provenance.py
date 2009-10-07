@@ -11,7 +11,7 @@ class difference :
                     if aList1[i][:(aList1[i].index('=')+1)] == aList2[j][:(aList2[j].index('=')+1)]:
                         if self.verbose==str(2) or self.verbose==str(1):
                             print  aList1[i][2:aList1[i].index('=')+1] + aList1[i][aList1[i].index('=')+1:]+'  ['+ string1+']'
-                            print  len(aList1[i][2:aList1[i].index('=')+1])*' '+aList2[j][aList2[j].index('=')+1:]+'['+string2+']'
+                            print  len(aList1[i][2:aList1[i].index('=')+1])*' '+aList2[j][aList2[j].index('=')+1:]+' ['+string2+']'
                             print ''
                         
                         
