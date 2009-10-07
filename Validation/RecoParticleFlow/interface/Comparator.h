@@ -61,37 +61,16 @@ public:
     rebin_ = rebin;
     resetAxis_ = false;
   }
-  
+
   // draws a Y projection of a slice along X
   void DrawSlice( const char* key, 
 		  int binxmin, int binxmax, 
 		  Mode mode );
 
   void DrawMeanSlice(const char* key, const int rebinFactor, Mode mode);
+  void DrawSigmaSlice(const char* key, const int rebinFactor, Mode mode);
+  void DrawGaussSigmaSlice(const char* key, const int rebinFactor, Mode mode);
 
-//  // create nbin slices between binxmin and binxmax. In each slice get the mean.
-//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
-//  void DrawMeanSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//                     const unsigned int nbin, const double Ymin, const double Ymax,
-//		     const std::string title, const std::string binning_option);
-//
-//
-//
-//  // create nbin slices between binxmin and binxmax. In each slice get the RMS.
-//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
-//  void DrawSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//		      const unsigned int nbin, const double Ymin, const double Ymax,
-//		      const std::string title, const std::string binning_option);
-//
-//
-//  // create nbin slices between binxmin and binxmax. In each slice get the RMS and sigma from of gaussian fit.
-//  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
-//  void DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
-//			   const unsigned int nbin, const double Ymin, const double Ymax,
-//			   const std::string title, const std::string binning_option, const unsigned int rebin,
-//			   const double fitmin, const double fitmax, const std::string epsname,
-//			   const bool doFit);
-//
 //  // create nbin slices between binxmin and binxmax. In each slice get the RMS/meanX and sigma/meanX from of gaussian fit.
 //  // binning_option = cst or var: constant binning or variable binning (approx. same number of events in each bin)
 //  void DrawGaussSigmaOverMeanXSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
@@ -104,22 +83,8 @@ public:
 //				   const unsigned int nbin, const double Ymin, const double Ymax,
 //				   const std::string title, const std::string binning_option, const unsigned int rebin,
 //				   const double fitmin, const double fitmax, const std::string epsname);
-//
-//  //COLIN mode is not used
-//  // loosing the possibility to pass options from TH1::Draw
-//  // remove, and use Comparator::Histo to access histograms from outside
-//  void Draw2D_file1( const char* key, Mode mode);
-//
-//  //COLIN mode is not used
-//  // loosing the possibility to pass options from TH1::Draw
-//  // remove, and use Comparator::Histo to access histograms from outside
-//  // btw: file1 and file2 should not be hardcoded in the name of the function
-//  // but provided as an integer as for the other functions of the class
-//  void Draw2D_file2( const char* key, Mode mode);
-
 
   void Draw( const char* key, Mode mode);
-
   
   void Draw( const char* key0, const char* key1, Mode mode);
 

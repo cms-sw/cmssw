@@ -85,19 +85,52 @@ void Comparator::DrawMeanSlice(const char* key, const int rebinFactor, Mode mode
   TDirectory* dir = dir1_;
   dir->cd();
   TH2D *h2 = (TH2D*) dir->Get(key);
-  TH2Analyzer TH2Ana(h2);
-  TH2Ana.Eval(rebinFactor);
+  TH2Analyzer TH2Ana(h2,rebinFactor);
   TH1D* ha=TH2Ana.Average();
 
   dir = dir0_;
   dir->cd();
   TH2D *h2b = (TH2D*) dir->Get(key);
-  TH2Analyzer TH2Anab(h2b);
-  TH2Anab.Eval(rebinFactor);
+  TH2Analyzer TH2Anab(h2b,rebinFactor);
   TH1D* hb=TH2Anab.Average();
 
   Draw(hb,ha,mode);
 }
+
+void Comparator::DrawSigmaSlice(const char* key, const int rebinFactor, Mode mode)
+{
+  TDirectory* dir = dir1_;
+  dir->cd();
+  TH2D *h2 = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Ana(h2,rebinFactor);
+  TH1D* ha=TH2Ana.RMS();
+
+  dir = dir0_;
+  dir->cd();
+  TH2D *h2b = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Anab(h2b,rebinFactor);
+  TH1D* hb=TH2Anab.RMS();
+
+  Draw(hb,ha,mode);
+}
+
+void Comparator::DrawGaussSigmaSlice(const char* key, const int rebinFactor, Mode mode)
+{
+  TDirectory* dir = dir1_;
+  dir->cd();
+  TH2D *h2 = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Ana(h2,rebinFactor);
+  TH1D* ha=TH2Ana.SigmaGauss();
+
+  dir = dir0_;
+  dir->cd();
+  TH2D *h2b = (TH2D*) dir->Get(key);
+  TH2Analyzer TH2Anab(h2b,rebinFactor);
+  TH1D* hb=TH2Anab.SigmaGauss();
+
+  Draw(hb,ha,mode);
+}
+
 
 //void Comparator::DrawGaussSigmaSlice(const char* key, const unsigned int binxmin, const unsigned int binxmax,
 //				     const unsigned int nbin, const double Ymin, const double Ymax,
@@ -454,53 +487,65 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
       }
     }
 
-  TPaveStats *ptstats = new TPaveStats(0.7385057,0.720339,
-				       0.9396552,0.8792373,"brNDC");
-  ptstats->SetName("stats");
-  ptstats->SetBorderSize(1);
-  ptstats->SetLineColor(2);
-  ptstats->SetFillColor(10);
-  ptstats->SetTextAlign(12);
-  ptstats->SetTextColor(2);
-  ptstats->SetOptStat(1111);
-  ptstats->SetOptFit(0);
-  ptstats->Draw();
-  h0_->GetListOfFunctions()->Add(ptstats);
-  ptstats->SetParent(h0_->GetListOfFunctions());
+  if (mode!=GRAPH)
+  {
 
-  //std::cout << "FL: h0_->GetMean() = " << h0_->GetMean() << std::endl;
-  //std::cout << "FL: h0_->GetRMS() = " << h0_->GetRMS() << std::endl;
-  //std::cout << "FL: h1_->GetMean() = " << h1_->GetMean() << std::endl;
-  //std::cout << "FL: h1_->GetRMS() = " << h1_->GetRMS() << std::endl;
-  //std::cout << "FL: test2" << std::endl;
-  TPaveStats *ptstats2 = new TPaveStats(0.7399425,0.529661,
-					0.941092,0.6885593,"brNDC");
-  ptstats2->SetName("stats");
-  ptstats2->SetBorderSize(1);
-  ptstats2->SetLineColor(4);
-  ptstats2->SetFillColor(10);
-  ptstats2->SetTextAlign(12);
-  ptstats2->SetTextColor(4);
-  TText *text = ptstats2->AddText("h1_");
-  text->SetTextSize(0.03654661);
-
-  std::ostringstream oss3;
-  oss3 << h1_->GetEntries();
-  const std::string txt_entries="Entries = "+oss3.str();
-  text = ptstats2->AddText(txt_entries.c_str());
-  std::ostringstream oss;
-  oss << h1_->GetMean();
-  const std::string txt_mean="Mean  = "+oss.str();
-  text = ptstats2->AddText(txt_mean.c_str());
-  std::ostringstream oss2;
-  oss2 << h1_->GetRMS();
-  const std::string txt_rms="RMS  = "+oss2.str();
-  text = ptstats2->AddText(txt_rms.c_str());
-  ptstats2->SetOptStat(1111);
-  ptstats2->SetOptFit(0);
-  ptstats2->Draw();
-  h1_->GetListOfFunctions()->Add(ptstats2);
-  ptstats2->SetParent(h1_->GetListOfFunctions());
+    TPaveStats *ptstats = new TPaveStats(0.7385057,0.720339,
+  				       0.9396552,0.8792373,"brNDC");
+    ptstats->SetName("stats");
+    ptstats->SetBorderSize(1);
+    ptstats->SetLineColor(2);
+    ptstats->SetFillColor(10);
+    ptstats->SetTextAlign(12);
+    ptstats->SetTextColor(2);
+    ptstats->SetOptStat(1111);
+    ptstats->SetOptFit(0);
+    ptstats->Draw();
+    h0_->GetListOfFunctions()->Add(ptstats);
+    ptstats->SetParent(h0_->GetListOfFunctions());
+  
+    //std::cout << "FL: h0_->GetMean() = " << h0_->GetMean() << std::endl;
+    //std::cout << "FL: h0_->GetRMS() = " << h0_->GetRMS() << std::endl;
+    //std::cout << "FL: h1_->GetMean() = " << h1_->GetMean() << std::endl;
+    //std::cout << "FL: h1_->GetRMS() = " << h1_->GetRMS() << std::endl;
+    //std::cout << "FL: test2" << std::endl;
+    TPaveStats *ptstats2 = new TPaveStats(0.7399425,0.529661,
+  					0.941092,0.6885593,"brNDC");
+    ptstats2->SetName("stats");
+    ptstats2->SetBorderSize(1);
+    ptstats2->SetLineColor(4);
+    ptstats2->SetFillColor(10);
+    ptstats2->SetTextAlign(12);
+    ptstats2->SetTextColor(4);
+    TText *text = ptstats2->AddText("h1_");
+    text->SetTextSize(0.03654661);
+  
+    std::ostringstream oss3;
+    oss3 << h1_->GetEntries();
+    const std::string txt_entries="Entries = "+oss3.str();
+    text = ptstats2->AddText(txt_entries.c_str());
+    std::ostringstream oss;
+    oss << h1_->GetMean();
+    const std::string txt_mean="Mean  = "+oss.str();
+    text = ptstats2->AddText(txt_mean.c_str());
+    std::ostringstream oss2;
+    oss2 << h1_->GetRMS();
+    const std::string txt_rms="RMS  = "+oss2.str();
+    text = ptstats2->AddText(txt_rms.c_str());
+    ptstats2->SetOptStat(1111);
+    ptstats2->SetOptFit(0);
+    ptstats2->Draw();
+    h1_->GetListOfFunctions()->Add(ptstats2);
+    ptstats2->SetParent(h1_->GetListOfFunctions());
+  }
+  else
+  {
+    TPaveStats *ptstats = new TPaveStats(0.0,0.0,
+					 0.0,0.0,"brNDC");
+    ptstats->Draw();
+    h0_->GetListOfFunctions()->Add(ptstats);
+    ptstats->SetParent(h0_->GetListOfFunctions());
+  }
 
   switch(mode) {
   case SCALE:

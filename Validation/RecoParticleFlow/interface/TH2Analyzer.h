@@ -16,7 +16,8 @@ class TH2Analyzer : public TObject {
     hist2D_(h), 
     rebinnedHist2D_(0),
     average_(0),
-    RMS_(0) {
+    RMS_(0),
+    sigmaGauss_(0) {
     Eval(rebin);
   } 
 
@@ -32,19 +33,19 @@ class TH2Analyzer : public TObject {
   
   TH1D* Average() { return average_; }
   TH1D* RMS() { return RMS_; }
+  TH1D* SigmaGauss() { return sigmaGauss_; }
 
 
  private:
 
   void ProcessSlices(  const TH2D* histo );
-  
-  void ProcessSlice( const TH1D* histo ) const;
+  void ProcessSlice(const int i, TH1D* histo ) const;
 
   const TH2* hist2D_;
-
   TH2D*      rebinnedHist2D_;
   TH1D*      average_;
   TH1D*      RMS_;
+  TH1D*      sigmaGauss_;
 
   std::vector< TH1D* > parameters_;
 
