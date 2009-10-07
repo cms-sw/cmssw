@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Oct  7 14:41:26 CDT 2009
-// $Id$
+// $Id: GetProductCheckerOutputModule.cc,v 1.1 2009/10/07 21:04:46 chrjones Exp $
 //
 
 // system include files
@@ -86,20 +86,20 @@ namespace edm {
           it != itEnd;
           ++it) {
          if(*it) {
-            BranchID branchID = (*it)->productDescription().branchID();
+            BranchID branchID = (*it)->branchDescription().branchID();
             OutputHandle const oh = p.getForOutput(branchID, false);
             
             if(0 != oh.desc() && oh.desc()->branchID() != branchID) {
                throw cms::Exception("BranchIDMissMatch")<<"While processing "<<id<< " request for BranchID "<<branchID<<" returned BranchID "<<oh.desc()->branchID()<<"\n";
             }
             
-            TypeID tid((*it)->productDescription().type().TypeInfo());
+            TypeID tid((*it)->branchDescription().type().TypeInfo());
             size_t temp=0;
             int tempCount=-1;
             BasicHandle bh = p.getByLabel(tid,
-            (*it)->productDescription().moduleLabel(),
-            (*it)->productDescription().productInstanceName(),
-            (*it)->productDescription().processName(),
+            (*it)->branchDescription().moduleLabel(),
+            (*it)->branchDescription().productInstanceName(),
+            (*it)->branchDescription().processName(),
             temp, tempCount);
             
             /*This doesn't appear to be an error, it just means the Product isn't available which can be legitimate
@@ -108,8 +108,8 @@ namespace edm {
                   <<" '"<<(*it)->productDescription().productInstanceName()<<"' "<<(*it)->productDescription().processName()<<" failed\n.";
             }*/
             if(0!=bh.provenance() && bh.provenance()->branchDescription().branchID() != branchID) {
-               throw cms::Exception("BranchIDMissMatch")<<"While processing "<<id<< " getByLabel request for "<<(*it)->productDescription().moduleLabel()
-                  <<" '"<<(*it)->productDescription().productInstanceName()<<"' "<<(*it)->productDescription().processName()
+               throw cms::Exception("BranchIDMissMatch")<<"While processing "<<id<< " getByLabel request for "<<(*it)->branchDescription().moduleLabel()
+                  <<" '"<<(*it)->branchDescription().productInstanceName()<<"' "<<(*it)->branchDescription().processName()
                   <<"\n should have returned BranchID "<<branchID<<" but returned BranchID "<<bh.provenance()->branchDescription().branchID()<<"\n";
             }
          }
