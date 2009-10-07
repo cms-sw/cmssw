@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.16 2009/09/24 14:54:56 chrjones Exp $
+// $Id: FWTriggerTableView.cc,v 1.1 2009/10/06 18:56:06 dmytro Exp $
 //
 
 // system include files
@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <boost/regex.hpp>
 
 // FIXME
 // need camera parameters
@@ -97,12 +98,14 @@ FWTriggerTableView::FWTriggerTableView (TEveWindowSlot* iParent, FWTriggerTableV
      m_tableManager(new FWTriggerTableViewTableManager(this)),
      m_tableWidget(0),
      m_currentColumn(-1),
-     m_event(0)
+     m_event(0),
+     m_regex(this,"Filter",std::string())
 {
    m_columns.push_back(Column("Filter Name"));
    m_columns.push_back(Column("Accept"));
    m_columns.push_back(Column("Average Accept"));
    m_eveWindow = iParent->MakeFrame(0);
+   m_regex.changed_.connect(boost::bind(&FWTriggerTableView::updateFilter,this));
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 
    m_vert = new TGVerticalFrame(frame);
@@ -159,14 +162,6 @@ FWTriggerTableView::typeName() const
 }
 
 void
-FWTriggerTableView::addTo(FWConfiguration& iTo) const {
-}
-
-void
-FWTriggerTableView::setFrom(const FWConfiguration& iFrom){
-}
-
-void
 FWTriggerTableView::saveImageTo(const std::string& iName) const {
 }
 
@@ -176,6 +171,7 @@ void FWTriggerTableView::dataChanged ()
    m_columns.at(0).values.clear();
    m_columns.at(1).values.clear();
    m_columns.at(2).values.clear();
+   boost::regex filter(m_regex.value());
    if ( !m_manager->items().empty() && m_manager->items().front() != 0) {
       if ( fwlite::Event* event = const_cast<fwlite::Event*>(m_manager->items().front()->getEvent()) ) {
          if ( event != m_event ) {
@@ -193,9 +189,10 @@ void FWTriggerTableView::dataChanged ()
             return;
          }
          for(unsigned int i=0; i<triggerNames->size(); ++i) {
-            m_columns.at(0).values.push_back(triggerNames->triggerName(i));
-            m_columns.at(1).values.push_back(Form("%d",hTriggerResults->accept(i)));
-            m_columns.at(2).values.push_back(Form("%6.1f%%",m_averageAccept.at(i)*100));
+	   if ( !boost::regex_search(triggerNames->triggerName(i),filter) ) continue;
+	   m_columns.at(0).values.push_back(triggerNames->triggerName(i));
+	   m_columns.at(1).values.push_back(Form("%d",hTriggerResults->accept(i)));
+	   m_columns.at(2).values.push_back(Form("%6.1f%%",m_averageAccept.at(i)*100));
          }
       }
    }
@@ -238,6 +235,11 @@ FWTriggerTableView::fillAverageAcceptFractions()
    for(std::vector<unsigned int>::const_iterator it = counts.begin();
        it != counts.end(); ++it)
       m_averageAccept.push_back(double(*it)/nEvents);
+}
+
+void 
+FWTriggerTableView::updateFilter(){
+  dataChanged();
 }
 
 //

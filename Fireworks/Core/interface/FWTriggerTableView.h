@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.7 2009/09/23 20:30:57 chrjones Exp $
+// $Id: FWTriggerTableView.h,v 1.1 2009/10/06 18:56:06 dmytro Exp $
 //
 
 // system include files
@@ -12,6 +12,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
+#include "Fireworks/Core/interface/FWStringParameter.h"
 
 // forward declarations
 class TGFrame;
@@ -57,19 +58,17 @@ public:
    // ---------- const member functions ---------------------
    TGFrame* frame() const;
    const std::string& typeName() const;
-   virtual void addTo(FWConfiguration&) const;
-
    virtual void saveImageTo(const std::string& iName) const;
 
    // ---------- static member functions --------------------
    static const std::string& staticTypeName();
 
    // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&);
    void setBackgroundColor(Color_t);
    void resetColors (const class FWColorManager &);
    void dataChanged ();
    void columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod);
+   void updateFilter();
 
 private:
    FWTriggerTableView(const FWTriggerTableView&);      // stop default
@@ -86,6 +85,7 @@ protected:
    std::vector<Column>             m_columns;
    fwlite::Event*                  m_event;
    std::vector<double>             m_averageAccept;
+   FWStringParameter               m_regex;
 };
 
 
