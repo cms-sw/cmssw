@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:40 CST 2008
-// $Id$
+// $Id: MuonAlignmentInputDB.h,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
    public:
       MuonAlignmentInputDB();
-      MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel);
+      MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
       virtual ~MuonAlignmentInputDB();
 
       // ---------- const member functions ---------------------
@@ -48,6 +48,7 @@ class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
       // ---------- member data --------------------------------
 
       std::string m_dtLabel, m_cscLabel;
+      bool m_getAPEs;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:46 CST 2008
-// $Id: MuonAlignmentInputDB.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
+// $Id: MuonAlignmentInputDB.cc,v 1.3 2008/03/26 22:21:00 pivarski Exp $
 //
 
 // system include files
@@ -38,8 +38,8 @@
 MuonAlignmentInputDB::MuonAlignmentInputDB()
    : m_dtLabel(""), m_cscLabel("") {}
 
-MuonAlignmentInputDB::MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel)
-   : m_dtLabel(dtLabel), m_cscLabel(cscLabel) {}
+MuonAlignmentInputDB::MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs)
+   : m_dtLabel(dtLabel), m_cscLabel(cscLabel), m_getAPEs(getAPEs) {}
 
 // MuonAlignmentInputDB::MuonAlignmentInputDB(const MuonAlignmentInputDB& rhs)
 // {
@@ -75,16 +75,39 @@ AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
    edm::ESHandle<Alignments> globalPositionRcd;
 
    iSetup.get<DTAlignmentRcd>().get(m_dtLabel, dtAlignments);
-   iSetup.get<DTAlignmentErrorRcd>().get(m_dtLabel, dtAlignmentErrors);
    iSetup.get<CSCAlignmentRcd>().get(m_cscLabel, cscAlignments);
-   iSetup.get<CSCAlignmentErrorRcd>().get(m_cscLabel, cscAlignmentErrors);
    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
 
-   GeometryAligner aligner;
-   aligner.applyAlignments<DTGeometry>(&(*dtGeometry), &(*dtAlignments), &(*dtAlignmentErrors),
-				       align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
-   aligner.applyAlignments<CSCGeometry>(&(*cscGeometry), &(*cscAlignments), &(*cscAlignmentErrors),
-					align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+   if (m_getAPEs) {
+      iSetup.get<DTAlignmentErrorRcd>().get(m_dtLabel, dtAlignmentErrors);
+      iSetup.get<CSCAlignmentErrorRcd>().get(m_cscLabel, cscAlignmentErrors);
+
+      GeometryAligner aligner;
+      aligner.applyAlignments<DTGeometry>(&(*dtGeometry), &(*dtAlignments), &(*dtAlignmentErrors),
+					  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+      aligner.applyAlignments<CSCGeometry>(&(*cscGeometry), &(*cscAlignments), &(*cscAlignmentErrors),
+					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+   }
+   else {
+      AlignmentErrors dtAlignmentErrors2, cscAlignmentErrors2;
+
+      for (std::vector<AlignTransform>::const_iterator i = dtAlignments->m_align.begin();  i != dtAlignments->m_align.end();  ++i) {
+	 CLHEP::HepSymMatrix empty_matrix(3, 0);
+	 AlignTransformError empty_error(empty_matrix, i->rawId());
+	 dtAlignmentErrors2.m_alignError.push_back(empty_error);
+      }
+      for (std::vector<AlignTransform>::const_iterator i = cscAlignments->m_align.begin();  i != cscAlignments->m_align.end();  ++i) {
+	 CLHEP::HepSymMatrix empty_matrix(3, 0);
+	 AlignTransformError empty_error(empty_matrix, i->rawId());
+	 cscAlignmentErrors2.m_alignError.push_back(empty_error);
+      }
+
+      GeometryAligner aligner;
+      aligner.applyAlignments<DTGeometry>(&(*dtGeometry), &(*dtAlignments), &(dtAlignmentErrors2),
+					  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+      aligner.applyAlignments<CSCGeometry>(&(*cscGeometry), &(*cscAlignments), &(cscAlignmentErrors2),
+					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+   }
 
    return new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 }

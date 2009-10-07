@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.11 2008/03/24 21:02:39 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.12 2008/04/08 22:53:21 pivarski Exp $
 //
 //
 
@@ -57,6 +57,7 @@ class MuonGeometryDBConverter : public edm::EDAnalyzer {
       std::string m_dtLabel, m_cscLabel;
       double m_shiftErr, m_angleErr;
       std::string m_fileName;
+      bool m_getAPEs;
 
       edm::ParameterSet m_misalignmentScenario;
       edm::ParameterSet m_outputXML;
@@ -93,6 +94,7 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
       m_cscLabel = iConfig.getParameter<std::string>("cscLabel");
       m_shiftErr = iConfig.getParameter<double>("shiftErr");
       m_angleErr = iConfig.getParameter<double>("angleErr");
+      m_getAPEs = iConfig.getParameter<bool>("getAPEs");
    }
 
    else if (m_input == std::string("surveydb")) {
@@ -146,9 +148,11 @@ MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup
       }
 
       else if (m_input == std::string("db")) {
-	 MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel);
+	 MuonAlignmentInputDB inputMethod(m_dtLabel, m_cscLabel, m_getAPEs);
 	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
-	 muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
+	 if (m_getAPEs) {
+	    muonAlignment->copyAlignmentToSurvey(m_shiftErr, m_angleErr);
+	 }
       }
 
       else if (m_input == std::string("surveydb")) {

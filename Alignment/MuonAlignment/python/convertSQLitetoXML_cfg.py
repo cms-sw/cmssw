@@ -26,6 +26,7 @@ process.MuonGeometryDBConverter = cms.EDAnalyzer("MuonGeometryDBConverter",
                                                  cscLabel = cms.string(""),
                                                  shiftErr = cms.double(1000.),
                                                  angleErr = cms.double(6.28),
+                                                 getAPEs = cms.bool(True),
 
                                                  output = cms.string("xml"),
                                                  outputXML = cms.PSet(fileName = cms.string("REPLACEME.xml"),
