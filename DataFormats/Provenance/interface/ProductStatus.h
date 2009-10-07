@@ -16,7 +16,12 @@ namespace edm {
   namespace productstatus {
     inline ProductStatus present() {return 0x0;} // Product was made successfully
     inline ProductStatus neverCreated() {return 0x1;} // Product was not made successfully, reason not known.
-    inline ProductStatus dropped() {return 0x2;} // Product was in a dropped branch.
+    // The dropped status is no longer used
+    // A product's status is not changed when it is dropped
+    // so it may be dropped and have status present or neverCreated or ...
+    // Can we delete dropped from this code or is there a backward
+    // compatibility issue???
+    inline ProductStatus dropped() {return 0x2;}
     inline ProductStatus producerNotRun() {return 0x3;} // Producer was never run
     inline ProductStatus producerNotCompleted() {return 0x4;} // Producer was run but did not finish (i.e. threw)
     inline ProductStatus producerDidNotPutProduct() {return 0x5;} // Producer did not put product
