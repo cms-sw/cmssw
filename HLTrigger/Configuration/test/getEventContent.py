@@ -23,7 +23,7 @@ def extractBlock(config, blocks, target):
 
 def extractBlocks(config):
   outputA    = ( 'hltOutputA', )
-  outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAPHISYMHCAL', 'hltOutputALCAP0', 'hltOutputRPCMON' )
+  outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputRPCMON' )
   outputMON  = ( 'hltOutputDQM', 'hltOutputHLTDQM', 'hltOutputHLTMON', 'hltOutput8E29', 'hltOutput1E31', 'hltOutputHIon' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
@@ -83,7 +83,6 @@ hltDebugWithAlCaOutputBlocks = (
   hltOutputMON_cff.block_hltOutputHIon.outputCommands,
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
-  hltOutputALCA_cff.block_hltOutputALCAPHISYMHCAL.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
   hltOutputALCA_cff.block_hltOutputRPCMON.outputCommands,
 )
