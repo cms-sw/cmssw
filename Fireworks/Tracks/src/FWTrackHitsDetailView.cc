@@ -3,10 +3,10 @@
 #include "TEvePointSet.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"
-#include "TGLViewer.h"
+#include "TGLEmbeddedViewer.h"
 #include "TEveManager.h"
-#include "TRootEmbeddedCanvas.h"
 #include "TEveTrack.h"
+#include "TGPack.h"
 
 // CMSSW includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -14,16 +14,18 @@
 
 // Fireworks includes
 #include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
+
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWDetailView.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/CSGAction.h"
+
 #include "Fireworks/Tracks/interface/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Tracks/interface/CmsMagField.h"
 
-FWTrackHitsDetailView::FWTrackHitsDetailView ()
+FWTrackHitsDetailView::FWTrackHitsDetailView ():
+m_viewer(0)
 {
 }
 
@@ -32,36 +34,58 @@ FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 }
 
 void
-FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* slot)
+FWTrackHitsDetailView::pickCameraCenter()
 {
-   TEveViewer*  viewer = new TEveViewer("Track hits detail view");
-   viewer->SpawnGLEmbeddedViewer();
-   slot->ReplaceWindow(viewer);
-   TEveScene* scene = gEve->SpawnNewScene("hits scene");
-   viewer->AddScene(scene);
-   viewer->SetShowTitleBar(kFALSE);
+   printf("Set camera center callback.\n");fflush(stdout);
+   m_viewer->PickCameraCenter();
+}
+
+void
+FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
+{
+   TEveWindowPack* wp = base->MakePack();
+   wp->SetShowTitleBar(kFALSE);
+   TGPack* pack = wp->GetPack();
+   pack->SetUseSplitters(kFALSE);
+
+   // GUI
+   TGCompositeFrame* guiFrame = new TGVerticalFrame(pack);
+   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),0.2);
+
+   CSGAction* actionRnr = new CSGAction(this, "pickCameraCenter");
+   actionRnr->createTextButton(guiFrame, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
+   //actionRnr->activated.connect( sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
+
+   // view
+   m_viewer = new TGLEmbeddedViewer(pack, 0, 0);
+   TEveViewer* eveViewer= new TEveViewer("DetailViewViewer");
+   eveViewer->SetGLViewer(m_viewer, m_viewer->GetFrame());
+   pack->AddFrameWithWeight(m_viewer->GetFrame(),0, 5);
+   TEveScene* scene = gEve->SpawnNewScene("Detailed view");
+   eveViewer->AddScene(scene);
+
+   pack->MapSubwindows();
+   pack->Layout();
+   pack->MapWindow();
 
    TracksRecHitsUtil::addHits(*track, id.item(), scene);
    CmsMagField* cmsMagField = new CmsMagField;
    cmsMagField->setReverseState( true );
    cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
 
-   TEveTrackPropagator* propagator = new TEveTrackPropagator;
-   propagator->SetMagFieldObj( cmsMagField );
-   propagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-   propagator->SetStepper(TEveTrackPropagator::kRungeKutta);
-   propagator->SetMaxR(123);
-   propagator->SetMaxZ(300);
-   TEveTrack* trk = fireworks::prepareTrack( *track, propagator,
+   TEveTrackPropagator* prop = new TEveTrackPropagator();
+   prop->SetMagFieldObj( cmsMagField );
+   prop->SetStepper(TEveTrackPropagator::kRungeKutta);
+   prop->SetMaxR(123);
+   prop->SetMaxZ(300);
+   TEveTrack* trk = fireworks::prepareTrack( *track, prop,
                                              id.item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
-   TEveTrackPropagator* prop = trk->GetPropagator();
    prop->SetRnrDaughters(kTRUE);
    prop->SetRnrDecay(kTRUE);
    prop->SetRnrReferences(kTRUE);
    prop->SetRnrDecay(kTRUE);
    prop->SetRnrFV(kTRUE);
-
    scene->AddElement(trk);
 
    std::vector<TVector3> monoPoints;
@@ -71,11 +95,10 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    fireworks::addTrackerHits3D(monoPoints, list, kRed, 1);
    fireworks::addTrackerHits3D(stereoPoints, list, kRed, 1);
    scene->AddElement(list);
-
    scene->Repaint(true);
-   viewer->GetGLViewer()->UpdateScene();
-   viewer->GetGLViewer()->CurrentCamera().Reset();
-   viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
-   gEve->Redraw3D();
+
+   m_viewer->UpdateScene();
+   m_viewer->CurrentCamera().Reset();
+   m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
+   m_viewer->SetStyle(TGLRnrCtx::kOutline);
 }
-REGISTER_FWDETAILVIEW(FWTrackHitsDetailView);
