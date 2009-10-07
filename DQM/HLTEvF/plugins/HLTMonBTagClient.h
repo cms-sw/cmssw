@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/05 17:32:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/10/07 12:30:35 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -43,10 +43,16 @@ protected:
 
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
 
+  void update(void);
+
 private:
   MonitorElement * book(const std::string & name, const std::string & title, int x_bins, double x_min, double x_max, const char * x_axis = 0);
   MonitorElement * book(const std::string & name, const std::string & title, int x_bins, double x_min, double x_max, int y_bins, double y_min, double y_max, const char * x_axis = 0, const char * y_axis = 0);
   void efficiency(MonitorElement * target, const MonitorElement * numerator, const MonitorElement * denominator);
+
+  bool m_runAtEndLumi;
+  bool m_runAtEndRun;
+  bool m_runAtEndJob;
 
   std::string m_pathName;
   std::string m_monitorName;

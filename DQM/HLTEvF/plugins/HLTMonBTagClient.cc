@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/05 17:32:38 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/09/05 18:33:08 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -22,6 +22,9 @@
 #include "HLTMonBTagClient.h"
 
 HLTMonBTagClient::HLTMonBTagClient(const edm::ParameterSet & config) :
+  m_runAtEndLumi(           config.getUntrackedParameter<bool>("updateLuminosityBlock", false) ),
+  m_runAtEndRun(            config.getUntrackedParameter<bool>("updateRun", false) ),
+  m_runAtEndJob(            config.getUntrackedParameter<bool>("updateJob", false) ),
   m_pathName(               config.getParameter<std::string>("pathName") ),
   m_monitorName(            config.getParameter<std::string>("monitorName" ) ),
   m_outputFile(             config.getUntrackedParameter<std::string>("outputFile", "HLTBJetDQM.root") ),
@@ -112,6 +115,9 @@ void HLTMonBTagClient::beginJob() {
 }
 
 void HLTMonBTagClient::endJob() {
+  if (m_runAtEndJob)
+    update();
+
   if (m_dbe.isAvailable() and m_storeROOT)
     m_dbe->save(m_outputFile);
 }
@@ -120,12 +126,19 @@ void HLTMonBTagClient::beginRun(const edm::Run & run, const edm::EventSetup & se
 }
 
 void HLTMonBTagClient::endRun(const edm::Run & run, const edm::EventSetup & setup) {
+  if (m_runAtEndRun)
+    update();
 }
 
 void HLTMonBTagClient::beginLuminosityBlock(const edm::LuminosityBlock & lumi, const edm::EventSetup & setup) {
 }
 
 void HLTMonBTagClient::endLuminosityBlock(const edm::LuminosityBlock & lumi, const edm::EventSetup & setup) {
+  if (m_runAtEndLumi)
+    update();
+}
+
+void HLTMonBTagClient::update(void) {
   if (not m_dbe.isAvailable())
     return;
 
