@@ -367,7 +367,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     }
 
     
-    bool const itemForIntegration = fHDQMInspectorConfig->computeIntegral(vlistItems_[i]);
+    bool const itemForIntegration = fHDQMInspectorConfig ? fHDQMInspectorConfig->computeIntegral(vlistItems_[i]) : false;
    
     int addShift=0;
     for(size_t j=0;j<vRun_.size();++j){
