@@ -130,17 +130,18 @@
   comp.SetAxis(1, 0.0,3000.);
   TCanvas c14("c14", "SET response");
   Styles::FormatPad( &c14, false );
-  comp.DrawMeanSlice("DeltaSetOverSetvsSet", 100, mode);
+  comp.DrawMeanSlice("DeltaSetOverSetvsSet", 300, mode);
   Styles::SavePlot("SET_Response", outdir.c_str() );
 
-//  TCanvas c15("c15", "sigmaDeltaMEX");
-//  Styles::FormatPad( &c15, false );
+  TCanvas c15("c15", "sigmaDeltaMEX");
+  Styles::FormatPad( &c15, false );
 //  comp.DrawGaussSigmaSlice("DeltaMexvsSet", 0, 3000, 15, 0.0, 65.0, "Sigma(DeltaMEX);trueSET", "cst", 5, -100.0,100.0,"SigmaDeltaMEX",false);
-//  Styles::SavePlot("sigmaDeltaMEX", outdir.c_str() );
+  comp.DrawGaussSigmaSlice("DeltaMexvsSet", 200, mode);
+  Styles::SavePlot("sigmaDeltaMEX", outdir.c_str() );
 
   TCanvas c16("c16", "<recoSet/TrueSet>");
   Styles::FormatPad( &c16, false );
-  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 100, mode);
+  comp.DrawMeanSlice("RecSetOverTrueSetvsTrueSet", 300, mode);
   Styles::SavePlot("recSetOverTrueSet", outdir.c_str() );
 
 //  TCanvas c17("c17", "sigmaDeltaMEX / <recoSet/TrueSet>");
