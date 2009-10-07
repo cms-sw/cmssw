@@ -8,7 +8,11 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       TrackerSignalConeMetric = cms.string('DR'), ## * 
       TrackerSignalConeSizeFormula = cms.string('0.07'), ## **   
       TrackerSignalConeSize_min = cms.double(0.0),
-      TrackerSignalConeSize_max = cms.double(0.6),
+
+      #Important: the four-vector energy for the PFTau is defined as the candidates
+      # within the maximum tracker signal cone size (TrackerSignalConeSize_max_).
+      # For fixed cone taus, this should be set to the fixed cone size.
+      TrackerSignalConeSize_max = cms.double(0.07),
 
       ECALSignalConeMetric = cms.string('DR'), ## * 
       ECALSignalConeSizeFormula = cms.string('0.15'), ## **
