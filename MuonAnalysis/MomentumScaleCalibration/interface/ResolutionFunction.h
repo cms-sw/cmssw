@@ -88,7 +88,7 @@ public:
     return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_);
   }
   /// Get the ith resolution function
-  resolutionFunctionBase<double * > * getFunction( const unsigned int i )
+  resolutionFunctionBase<double * > * function( const unsigned int i )
   {
     if( resolutionFunctionVec_.size() > i ) return resolutionFunction_[i];
     else return 0;
