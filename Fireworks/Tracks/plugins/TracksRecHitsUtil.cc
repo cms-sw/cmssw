@@ -88,8 +88,11 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
 		    break;
 		  case PixelSubdetector::PixelEndcap:
 		    name = "Pixel Endcap ";
+                  default:
+                    break;
 		  }
 		break;
+
 	      case DetId::Muon:
 		switch (detid.subdetId())
 		  {
@@ -103,8 +106,13 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
 		  case MuonSubdetId::RPC:
 		    name = "RPC";
 		    break;
+                  default:
+                    break;
 		  }
 		break;
+
+              default:
+                break;
 	      }
 	    if ( ! ids.insert(detid.rawId()).second ) continue;
             if (iItem->getGeom()) {
