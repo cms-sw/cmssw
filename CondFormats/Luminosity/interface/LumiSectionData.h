@@ -8,7 +8,7 @@
  * each event will occur at one of these BX. BX is defined to be the number of the
  * bunch crossing where this event occurred.
  *
- * $Id: LuminosityInfo.h,v 1.9 2009/05/27 16:48:48 xiezhen Exp $
+ * $Id: LumiSectionData.h,v 1.1 2009/10/06 18:08:31 xiezhen Exp $
  *
  ************************************************************/
  
@@ -65,7 +65,7 @@ namespace lumi{
     ///
     ///getter methods
     ///
-    short lumiVersionNumber()const;
+    std::string lumiVersion()const;
     int lumisectionID()const;
     size_t nBunchCrossing()const;
     //radom access to instant LumiAverage 
@@ -98,7 +98,7 @@ namespace lumi{
     ///setter methods. 
     ///
     void setLumiNull(); //set versionid number to -99, signal no lumi data written.
-    void setLumiVersionNumber(short versionid);
+    void setLumiVersion(const std::string& versionid);
     void setLumiSectionId(int sectionid);
     void setLumiAverage(float lumiavg);
     void setLumiQuality(int lumiquality);
@@ -114,7 +114,7 @@ namespace lumi{
   private:
     std::vector<BunchCrossingInfo> m_bx;//Lumi detail info sorted by algoright+BX number stored as blob
     int m_sectionid; //LS id counting from 1 as required by evt. Instead from 0
-    int m_versionid; //Lumi version
+    std::string m_versionid; //Lumi version
     float m_lumiavg; //instant lumi , selected from best algo
     float m_lumierror; //instant lumi err, 
     short m_quality; //use 7 bits PIXEL,STRIP,MUON,HCAL,ECAL,HF,HLX

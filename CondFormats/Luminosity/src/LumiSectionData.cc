@@ -1,10 +1,10 @@
 #include "CondFormats/Luminosity/interface/LumiSectionData.h"
 #include <iostream>
-lumi::LumiSectionData::LumiSectionData(): m_sectionid(0),m_versionid(-99){
+lumi::LumiSectionData::LumiSectionData(): m_sectionid(0),m_versionid("-1"){
   m_bx.reserve(lumi::BXMAX*LUMIALGOMAX);
 }
-short
-lumi::LumiSectionData::lumiVersionNumber()const{
+std::string
+lumi::LumiSectionData::lumiVersion()const{
   return m_versionid; 
 }
 int
@@ -93,7 +93,7 @@ lumi::LumiSectionData::setLumiNull(){
   m_versionid=-99;
 }
 void 
-lumi::LumiSectionData::setLumiVersionNumber(short versionid){
+lumi::LumiSectionData::setLumiVersion(const std::string& versionid){
   m_versionid=versionid;
 }
 void
