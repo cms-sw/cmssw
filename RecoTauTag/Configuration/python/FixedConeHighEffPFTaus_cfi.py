@@ -29,7 +29,7 @@ fixedConeHighEffPFTauProducer.TrackerSignalConeSizeFormula = cms.string('0.15') 
 #Important: the four-vector energy for the PFTau is defined as the candidates
 # within the maximum tracker signal cone size (TrackerSignalConeSize_max_).
 # For fixed cone taus, this should be set to the fixed cone size.
-fixedConePFTauProducer.TrackerSignalConeSize_max           = cms.double(0.15) 
+fixedConeHighEffPFTauProducer.TrackerSignalConeSize_max    = cms.double(0.15) 
 
 fixedConeHighEffPFTauProducer.ECALSignalConeSizeFormula    = cms.string('0.15') ## **
 fixedConeHighEffPFTauProducer.HCALSignalConeSizeFormula    = cms.string('0.15') ## **
