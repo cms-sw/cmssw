@@ -13,7 +13,7 @@ namespace lumi{
     virtual ~DummySource(){}
     void fill(std::vector< std::pair< lumi::LumiSectionData*,cond::Time_t > >& result);
   private:
-    size_t m_lumiversion;
+    std::string m_lumiversion;
     size_t m_runnumber;
   };
 }//ns lumi

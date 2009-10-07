@@ -17,6 +17,7 @@ namespace lumi{
   private:
     std::string m_filename;
     TFile* m_source;
+    std::string m_lumiversion;
   };
 }//ns lumi
 #endif

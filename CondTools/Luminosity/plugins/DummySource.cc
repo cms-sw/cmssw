@@ -6,7 +6,7 @@
 #include <iostream>
 
 lumi::DummySource::DummySource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){
-  m_lumiversion=pset.getParameter<int>("lumiVersion");
+  m_lumiversion=pset.getParameter<std::string>("lumiVersion");
   m_runnumber=pset.getParameter<int>("runNumber");
 }
 
@@ -29,7 +29,7 @@ lumi::DummySource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
     edm::LuminosityBlockID lu(m_runnumber,j);
     cond::Time_t current=(cond::Time_t)(lu.value());
     lumi::LumiSectionData* l=new lumi::LumiSectionData;
-    l->setLumiVersionNumber(m_lumiversion);
+    l->setLumiVersion(m_lumiversion);
     l->setLumiSectionId(j);
     l->setLumiAverage(1.1);
     l->setLumiQuality(1);

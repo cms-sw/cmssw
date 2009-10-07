@@ -26,7 +26,7 @@ process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('dummysource'),
       runNumber = cms.int32(11),
-      lumiVersion = cms.int32(1)
+      lumiVersion = cms.string('1')
     ),
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),

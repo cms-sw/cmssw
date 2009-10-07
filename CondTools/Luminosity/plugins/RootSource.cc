@@ -11,80 +11,75 @@
 lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(pset){
   m_filename=pset.getParameter<std::string>("lumiFileName");
   m_source=TFile::Open(m_filename.c_str(),"READ");
-  m_source->ls();
   m_source->GetListOfKeys()->Print();
+  std::string::size_type idx,pos;
+  idx=m_filename.rfind("_");
+  pos=m_filename.rfind(".");
+  if( idx == std::string::npos ){
+  }
+  m_lumiversion=m_filename.substr(idx+1,pos-idx-1);
+}
 
-  TTree *runtree = (TTree*)m_source->Get("RunSummary");
-  if(runtree){
+void
+lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result){
+  m_source->ls();
+  /*TTree *runtree = (TTree*)m_source->Get("RunSummary");
+    if(runtree){
     runtree->Print();
-    std::cout<<"tot size bytes "<<runtree->GetTotBytes()<<std::endl;
-    std::cout<<"n branches "<<runtree->GetNbranches()<<std::endl;
+    //std::cout<<"tot size bytes "<<runtree->GetTotBytes()<<std::endl;
     lumi::RUN_SUMMARY* runsummarydata=0;
     runtree->SetBranchAddress("RunSummary.",&runsummarydata);
     size_t nentries=runtree->GetEntries();
     for(size_t i=0;i<nentries;++i){
-      runtree->GetEntry(i);
-      std::cout<<runsummarydata->runNumber<<std::endl;
-    }
+    runtree->GetEntry(i);
+      runnumber=runsummarydata->runNumber;
+      }
   }
+  */
 
   TTree *hlxtree = (TTree*)m_source->Get("HLXData");
-  if(hlxtree){
+  TTree *l1tree = (TTree*)m_source->Get("L1Trigger");
+  TTree *hlttree = (TTree*)m_source->Get("HLTrigger");
+  unsigned int runnumber=0;
+  if(hlxtree && l1tree && hlttree){
     hlxtree->Print();
-    std::cout<<"tot size bytes "<<hlxtree->GetTotBytes()<<std::endl;
-    std::cout<<"n branches "<<hlxtree->GetNbranches()<<std::endl;
+    l1tree->Print();
+    hlttree->Print();
     lumi::LUMI_SECTION_HEADER* lumiheader=0;
     lumi::LUMI_SUMMARY* lumisummary=0;
     lumi::LUMI_DETAIL* lumidetail=0;
+    lumi::LEVEL1_TRIGGER* l1data=0;
+    lumi::HLTrigger* hltdata=0;
+    hlttree->SetBranchAddress("HLTrigger.",&hltdata);
     hlxtree->SetBranchAddress("Header.",&lumiheader);
     hlxtree->SetBranchAddress("Summary.",&lumisummary);
     hlxtree->SetBranchAddress("Detail.",&lumidetail);
+    l1tree->SetBranchAddress("L1Trigger.",&l1data);
+    
     size_t nentries=hlxtree->GetEntries();
-    std::cout<<"hlxdata entries "<<nentries<<std::endl;
+
+    std::cout<<"total lumi lumisec "<<nentries<<std::endl;
+    size_t lumisecid=0;
     for(size_t i=0;i<nentries;++i){
       hlxtree->GetEntry(i);
-      std::cout<<lumiheader->runNumber<<std::endl;
-      std::cout<<lumiheader->sectionNumber<<std::endl;
-      std::cout<<lumiheader->startOrbit<<std::endl;
-      std::cout<<lumisummary->InstantLumi<<std::endl;
-    }
-  }
-
-  TTree *l1tree = (TTree*)m_source->Get("L1Trigger");
-  if(l1tree){
-    l1tree->Print();
-    std::cout<<"tot size bytes "<<l1tree->GetTotBytes()<<std::endl;
-    std::cout<<"n branches "<<l1tree->GetNbranches()<<std::endl;
-    lumi::LEVEL1_TRIGGER* l1data=0;
-    l1tree->SetBranchAddress("L1Trigger.",&l1data);
-    size_t nentries=l1tree->GetEntries();
-    std::cout<<"l1tree entries "<<nentries<<std::endl;
-    for(size_t i=0;i<nentries;++i){
       l1tree->GetEntry(i);
-      std::cout<<l1data->runNumber<<std::endl;
-      std::cout<<l1data->sectionNumber<<std::endl;
-    }
-  }
-
-  TTree *hlttree = (TTree*)m_source->Get("HLTrigger");
-  if(hlttree){
-    hlttree->Print();
-    std::cout<<"tot size bytes "<<hlttree->GetTotBytes()<<std::endl;
-    std::cout<<"n branches "<<hlttree->GetNbranches()<<std::endl;
-    lumi::HLTrigger* hltdata=0;
-    hlttree->SetBranchAddress("HLTrigger.",&hltdata);
-    size_t nentries=hlttree->GetEntries();
-    std::cout<<"hlttree entries "<<nentries<<std::endl;
-    for(size_t i=0;i<nentries;++i){
       hlttree->GetEntry(i);
-      std::cout<<hltdata->runNumber<<std::endl;
-      std::cout<<hltdata->sectionNumber<<std::endl;
-      std::cout<<std::string(hltdata->HLTConfigKey)<<std::endl;
+
+      runnumber=lumiheader->runNumber;
+      lumisecid=lumiheader->sectionNumber;
+      edm::LuminosityBlockID lu(runnumber,lumisecid);
+      cond::Time_t current=(cond::Time_t)(lu.value());
+      lumi::LumiSectionData* l=new lumi::LumiSectionData;
+      l->setLumiVersion(m_lumiversion);
+      l->setStartOrbit((unsigned long long)lumiheader->startOrbit);
+      l->setLumiAverage(lumisummary->InstantLumi);
+      l->setLumiError(lumisummary->InstantLumiErr);      
+      l->setLumiQuality(lumisummary->InstantLumiQlty);
+      l->setDeadFraction(lumisummary->DeadtimeNormalization);
+      std::cout<<"bizzar cmsliveflag\t"<<(bool)lumiheader->bCMSLive<<std::endl;
+      result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }
-}
-void
-lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result){
 }
 
 DEFINE_EDM_PLUGIN(lumi::LumiRetrieverFactory,lumi::RootSource,"rootsource");
