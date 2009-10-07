@@ -36,7 +36,7 @@ fileNames2.extend( [
     'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/2098DAED-9DA6-DE11-B881-001D09F24637.root',
     ] );
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # -------------------- JPT from RECO --------------------
 
@@ -186,8 +186,8 @@ process.p = cms.Path(
     process.JTA *                      # Jet-tracks association
     process.JPTCorJetIC5CaloDefault *  # Default JPT corrections from RECO
     process.JPTValidation *            # All flavours of JPT corrections from RECO
-    #process.patDefaultSequence *       # PAT sequence (slow!)
-    #process.PatJPTCorrectionsIC5 *     # JPT corrections from PAT
+    process.patDefaultSequence *       # PAT sequence (slow!)
+    process.PatJPTCorrectionsIC5 *     # JPT corrections from PAT
     process.matchAndSortJetCollections # Match, sort and ntuplize jet collections
     )
 
@@ -200,6 +200,7 @@ process.o = cms.OutputModule(
     'keep recoGenJets_iterativeCone5GenJetsNoNuBSM_*_*',
     'keep recoCaloJets_iterativeCone5CaloJets_*_*',
     'keep recoGenJets_*_*_TEST',
+    'keep recoBasicJets_*_*_TEST',
     'keep recoCaloJets_*_*_TEST',
     'keep patJets_*_*_TEST',
     )
