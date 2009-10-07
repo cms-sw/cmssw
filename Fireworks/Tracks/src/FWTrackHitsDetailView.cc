@@ -36,7 +36,7 @@ FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 void
 FWTrackHitsDetailView::pickCameraCenter()
 {
-   printf("Set camera center callback.\n");fflush(stdout);
+   printf("Pick camera center.\n");fflush(stdout);
    m_viewer->PickCameraCenter();
 }
 
@@ -54,7 +54,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
 
    CSGAction* actionRnr = new CSGAction(this, "pickCameraCenter");
    actionRnr->createTextButton(guiFrame, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
-   //actionRnr->activated.connect( sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
+   actionRnr->activated.connect( sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
 
    // view
    m_viewer = new TGLEmbeddedViewer(pack, 0, 0);
@@ -101,4 +101,5 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    m_viewer->CurrentCamera().Reset();
    m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
    m_viewer->SetStyle(TGLRnrCtx::kOutline);
+   m_viewer->SetDrawCameraCenter(kTRUE);
 }
