@@ -38,7 +38,7 @@ ntuplizeJetCollections = cms.EDFilter(
 
     RecoGenJet = cms.PSet(
     Class = cms.string('reco::GenJet'),
-    src = cms.InputTag('sortByGenJetPt:selectedLayer1Jets'),
+    src = cms.InputTag('sortByGenJetPt:matchToGenJets'),
     leaves = cms.PSet(kine),
     ),
 

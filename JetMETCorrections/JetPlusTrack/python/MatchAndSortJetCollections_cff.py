@@ -8,7 +8,6 @@ matchToGenJets = cms.EDFilter(
     mcStatus = cms.vint32(), # Not used
     checkCharge = cms.bool(False),
     maxDeltaR = cms.double(0.4),
-    maxDPtRel = cms.double(3.0),
     resolveAmbiguities = cms.bool(True),     # True: Forbids two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(False), # False: just matches input in order (True: picks lowest deltaR pair first)
     )
