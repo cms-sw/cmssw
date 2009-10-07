@@ -4,7 +4,7 @@
 /** \class MuonTimingValidator
  *  Analyzer of the timing information in the reco::Muon object
  *
- *  $Date: 2006/12/13 20:22:40 $
+ *  $Date: 2009/09/18 09:54:43 $
  *  $Revision: 1.1 $
  *  \author P. Traczyk    CERN
  */
@@ -108,35 +108,49 @@ private:
 
   TH1F* hi_cmbtime_ibt;
   TH1F* hi_cmbtime_ibt_err;
+  TH1F* hi_cmbtime_ibt_pull;
   TH1F* hi_cmbtime_fib;
   TH1F* hi_cmbtime_fib_err;
+  TH1F* hi_cmbtime_fib_pull;
   TH1F* hi_cmbtime_vtx;
   TH1F* hi_cmbtime_vtx_err;
+  TH1F* hi_cmbtime_vtx_pull;
   TH1F* hi_cmbtime_vtxr;
   TH1F* hi_cmbtime_vtxr_err;
+  TH1F* hi_cmbtime_vtxr_pull;
   TH1F* hi_cmbtime_ndof;
 
   TH1F* hi_dttime_ibt;
   TH1F* hi_dttime_ibt_err;
+  TH1F* hi_dttime_ibt_pull;
   TH1F* hi_dttime_fib;
   TH1F* hi_dttime_fib_err;
+  TH1F* hi_dttime_fib_pull;
   TH1F* hi_dttime_vtx;
   TH1F* hi_dttime_vtx_err;
+  TH1F* hi_dttime_vtx_pull;
   TH1F* hi_dttime_vtxr;
   TH1F* hi_dttime_vtxr_err;
+  TH1F* hi_dttime_vtxr_pull;
   TH1F* hi_dttime_ndof;
 
   TH1F* hi_csctime_ibt;
   TH1F* hi_csctime_ibt_err;
+  TH1F* hi_csctime_ibt_pull;
   TH1F* hi_csctime_fib;
   TH1F* hi_csctime_fib_err;
+  TH1F* hi_csctime_fib_pull;
   TH1F* hi_csctime_vtx;
   TH1F* hi_csctime_vtx_err;
+  TH1F* hi_csctime_vtx_pull;
   TH1F* hi_csctime_vtxr;
   TH1F* hi_csctime_vtxr_err;
+  TH1F* hi_csctime_vtxr_pull;
   TH1F* hi_csctime_ndof;
 
   TH1F* hi_ecal_time;
+  TH1F* hi_ecal_time_err;
+  TH1F* hi_ecal_time_pull;
   TH1F* hi_ecal_time_ecut;
   TH1F* hi_ecal_energy;
 
