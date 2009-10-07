@@ -145,10 +145,10 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet,
     edm::LogVerbatim("JetPlusTrackCorrector") << ss.str();
   }
   
-  std::cout << " mScale= " << scale
- 	    << " NewResponse " << corrected.energy() 
- 	    << " Jet energy " << fJet.energy()
- 	    << " event " << event.id().event() << std::endl;
+//   std::cout << " mScale= " << scale
+//  	    << " NewResponse " << corrected.energy() 
+//  	    << " Jet energy " << fJet.energy()
+//  	    << " event " << event.id().event() << std::endl;
   
   // Return energy correction
   return scale;
