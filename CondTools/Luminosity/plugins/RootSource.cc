@@ -64,8 +64,26 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l->setLumiQuality(lumisummary->InstantLumiQlty);
       l->setDeadFraction(lumisummary->DeadTimeNormalization);
       
+      std::vector<lumi::BunchCrossingInfo> bxinfoET;
+      bxinfoET.reserve(3564);
+      for(size_t i=0;i<3564;++i){
+	bxinfoET.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->ETLumi[i],lumidetail->ETLumiErr[i],lumidetail->ETLumiQlty[i]));
+      }
+      l->setBunchCrossingData(bxinfoET,lumi::ET);
+
+      std::vector<lumi::BunchCrossingInfo> bxinfoOCC1;
+      std::vector<lumi::BunchCrossingInfo> bxinfoOCC2;
+      bxinfoOCC1.reserve(3564);
+      bxinfoOCC2.reserve(3564);
+      for(size_t i=0;i<3564;++i){
+	bxinfoOCC1.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[0][i],lumidetail->OccLumiErr[0][i],lumidetail->OccLumiQlty[0][i]));
+	bxinfoOCC2.push_back(lumi::BunchCrossingInfo(i+1,lumidetail->OccLumi[1][i],lumidetail->OccLumiErr[1][i],lumidetail->OccLumiQlty[1][i]));
+      }
+      l->setBunchCrossingData(bxinfoET,lumi::ET);
+      l->setBunchCrossingData(bxinfoOCC1,lumi::OCCD1);
+      l->setBunchCrossingData(bxinfoOCC2,lumi::OCCD2);
+
       size_t hltsize=sizeof(hltdata->HLTPaths)/sizeof(lumi::HLT_PATH);
-      std::cout<<"got "<<hltsize<<" hlt paths"<<std::endl;
       std::vector<lumi::HLTInfo> hltinfo;
       hltinfo.reserve(hltsize);
       //
@@ -73,7 +91,6 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       //
       for( size_t ihlt=0; ihlt<hltsize; ++ihlt){
 	lumi::HLTInfo hltperpath(std::string(hltdata->HLTPaths[ihlt].PathName),hltdata->HLTPaths[ihlt].L1Pass,hltdata->HLTPaths[ihlt].PAccept,1);
-	std::cout<<"hltpath name "<<std::string(hltdata->HLTPaths[ihlt].PathName)<<std::endl;
 	hltinfo.push_back(hltperpath);
       }
       
@@ -85,21 +102,17 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       size_t algotrgsize=sizeof(l1data->GTAlgo)/sizeof(lumi::LEVEL1_PATH);
       for( size_t itrg=0; itrg<algotrgsize; ++itrg ){
 	lumi::TriggerInfo trgbit(l1data->GTAlgo[itrg].pathName,l1data->GTAlgo[itrg].counts,12387,l1data->GTAlgo[itrg].prescale);
-	std::cout<<"l1path name "<<std::string(l1data->GTAlgo[itrg].pathName)<<std::endl;
 	triginfo.push_back(trgbit);
       }
-      std::cout<<"got "<<algotrgsize<<" algo trigger"<<std::endl;
       size_t techtrgsize=sizeof(l1data->GTTech)/sizeof(lumi::LEVEL1_PATH);
       for( size_t itrg=0; itrg<techtrgsize; ++itrg){
 	lumi::TriggerInfo trgbit(l1data->GTTech[itrg].pathName,l1data->GTTech[itrg].counts,12387,l1data->GTTech[itrg].prescale);
 	triginfo.push_back(trgbit);
       }
-      std::cout<<"got "<<techtrgsize<<" tech trigger"<<std::endl;
       std::cout<<"bizzare cmsliveflag\t"<<(bool)lumiheader->bCMSLive<<std::endl;
       l->setHLTData(hltinfo);
       l->setTriggerData(triginfo);
 
-      
       result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }
