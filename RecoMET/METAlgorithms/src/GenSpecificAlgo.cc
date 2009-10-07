@@ -93,7 +93,7 @@ reco::GenMET GenSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > particl
 	break;
       default : 
 	Et_unclassified += iParticle->et();
-	cout << "PdgId : "<< iParticle->pdgId() << "    " << iParticle->status() << "  does not fall into a category " << endl;
+	//	cout << "PdgId : "<< iParticle->pdgId() << "    " << iParticle->status() << "  does not fall into a category " << endl;
       }
     }
 
