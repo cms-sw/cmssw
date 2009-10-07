@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.cc,v 1.20 2009/10/07 14:15:29 amraktad Exp $
+// $Id: FWTrackDetailView.cc,v 1.21 2009/10/07 19:02:32 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -46,10 +46,6 @@ void FWTrackDetailView::build(const FWModelId &id, const reco::Track* iTrack, TE
 {
    if(0==iTrack) return;
    TEveWindowPack* eveWindow = base->MakePack();
-   TEveCompositeFrame* eveFrame = eveWindow->GetEveFrame();
-   TGMainFrame* parent  = (TGMainFrame*)eveFrame->GetParent();
-   parent->Resize(790, 450);
-   eveFrame->Layout();
    eveWindow->SetShowTitleBar(kFALSE);
    eveWindow->SetHorizontal();
    FWDetailViewBase::setEveWindow(eveWindow);
