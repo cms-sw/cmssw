@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/05 11:48:40 $
-//  $Revision: 1.58 $
+//  $Date: 2009/10/06 08:44:00 $
+//  $Revision: 1.59 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -649,20 +649,9 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       // double genmass = (genMu.first+genMu.second).mass();
       if(checkDeltaR(genMu.first,recMu1)) {
         fillComparisonHistograms( genMu.first, recMu1, "Gen", -1 );
-        // Fill also the resolution histogramsm using the resolution functions:
-        // the parameters are those from the last iteration, as the muons up to this point have also the
-        // corrections from the same iteration.
-        // Need to use a different array (ForVec), containing functors able to operate on vector<double>
-        mapHisto_["hFunctionResolPt"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
-        mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
-        mapHisto_["hFunctionResolPhi"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
       }
       if(checkDeltaR(genMu.second,recMu2)){
         fillComparisonHistograms( genMu.second, recMu2, "Gen", +1 );
-        // Fill also the resolution histogramsm using the resolution functions
-        mapHisto_["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
-        mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
-        mapHisto_["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
       }
       if( compareToSimTracks_ ) {
         pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
@@ -676,6 +665,17 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         }
       }
     }
+    // ATTENTION: this was done only when a matching was found. Moved it outside because, genInfo or not, we still want to see the resolution function
+    // Fill also the resolution histogramsm using the resolution functions:
+    // the parameters are those from the last iteration, as the muons up to this point have also the
+    // corrections from the same iteration.
+    // Need to use a different array (ForVec), containing functors able to operate on vector<double>
+    mapHisto_["hFunctionResolPt"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
+    mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
+    mapHisto_["hFunctionResolPhi"]->Fill( recMu1, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu1.Pt(), recMu1.Eta(), *parval ), -1 );
+    mapHisto_["hFunctionResolPt"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPt(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+    mapHisto_["hFunctionResolCotgTheta"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaCotgTh(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
+    mapHisto_["hFunctionResolPhi"]->Fill( recMu2, MuScleFitUtils::resolutionFunctionForVec->sigmaPhi(recMu2.Pt(), recMu2.Eta(), *parval ), +1 );
 
     // Compute likelihood histograms
     // -----------------------------
