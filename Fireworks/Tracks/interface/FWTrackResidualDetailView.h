@@ -39,7 +39,7 @@ class DetIdToMatrix;
 class FWModelId;
 class TEveWindowSlot;
 
-class FWTrackResidualDetailView: public FWDetailView<reco::Track>{
+class FWTrackResidualDetailView{
 public:
    FWTrackResidualDetailView();
    virtual ~FWTrackResidualDetailView();

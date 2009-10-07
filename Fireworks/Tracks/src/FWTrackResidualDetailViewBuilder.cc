@@ -358,5 +358,3 @@ FWTrackResidualDetailView::makeLegend()
    pos[1] = y; pos[3] = pos[1] + boxH;
    drawBox(pos, m_invalidCol, m_invalidFill);
 }
-
-REGISTER_FWDETAILVIEW(FWTrackResidualDetailView);
