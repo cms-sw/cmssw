@@ -10,8 +10,10 @@
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 class TGLEmbeddedViewer;
+class FWGUISubviewArea;
 
-class FWTrackHitsDetailView: public CSGActionSupervisor 
+class FWTrackHitsDetailView: public FWDetailView<reco::Track>, 
+                             public CSGActionSupervisor 
 {
 public:
    FWTrackHitsDetailView();

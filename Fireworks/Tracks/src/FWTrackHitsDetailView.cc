@@ -18,6 +18,7 @@
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 #include "Fireworks/Tracks/interface/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/plugins/TracksRecHitsUtil.h"
@@ -36,7 +37,6 @@ FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 void
 FWTrackHitsDetailView::pickCameraCenter()
 {
-   printf("Pick camera center.\n");fflush(stdout);
    m_viewer->PickCameraCenter();
 }
 
@@ -44,7 +44,9 @@ void
 FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
 {
    TEveWindowPack* wp = base->MakePack();
-   wp->SetShowTitleBar(kFALSE);
+   wp->SetElementName("Track Hits");
+   setEveWindow(wp);
+
    TGPack* pack = wp->GetPack();
    pack->SetUseSplitters(kFALSE);
 
@@ -53,7 +55,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),0.2);
 
    CSGAction* actionRnr = new CSGAction(this, "pickCameraCenter");
-   actionRnr->createTextButton(guiFrame, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
+   actionRnr->createTextButton(guiFrame);
    actionRnr->activated.connect( sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
 
    // view
@@ -103,3 +105,4 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    m_viewer->SetStyle(TGLRnrCtx::kOutline);
    m_viewer->SetDrawCameraCenter(kTRUE);
 }
+

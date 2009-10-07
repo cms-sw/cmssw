@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.h,v 1.1 2009/09/06 12:59:46 dmytro Exp $
+// $Id: FWTrackDetailView.h,v 1.2 2009/10/07 14:15:29 amraktad Exp $
 //
 
 // user include files
@@ -12,7 +12,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class FWTrackHitsDetailView;
-
+class FWGUISubViewArea;
 
 class FWTrackDetailView : public FWDetailView<reco::Track> {
 
@@ -20,6 +20,7 @@ public:
    FWTrackDetailView();
    virtual ~FWTrackDetailView();
 
+   void hideWindow(FWGUISubviewArea*);
    virtual void build (const FWModelId &id, const reco::Track*, TEveWindowSlot*);
 
 protected:

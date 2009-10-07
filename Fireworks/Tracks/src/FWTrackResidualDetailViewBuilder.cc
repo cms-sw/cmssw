@@ -102,8 +102,9 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track,
    prepareData(id, track);
 
    TRootEmbeddedCanvas* ec  = new TRootEmbeddedCanvas();
-   TEveWindowFrame* wf = slot->MakeFrame(ec);
-   wf->SetShowTitleBar(kFALSE);
+   TEveWindowFrame* wp = slot->MakeFrame(ec);
+   setEveWindow(wp);
+
    TCanvas* histCanvas = ec->GetCanvas();
    histCanvas->SetHighLightColor(-1);
 
@@ -358,3 +359,4 @@ FWTrackResidualDetailView::makeLegend()
    pos[1] = y; pos[3] = pos[1] + boxH;
    drawBox(pos, m_invalidCol, m_invalidFill);
 }
+
