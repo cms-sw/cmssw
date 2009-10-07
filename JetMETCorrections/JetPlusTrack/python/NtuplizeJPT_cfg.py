@@ -65,7 +65,7 @@ process.MessageLogger = cms.Service(
     ),
     
     #@@ comment to suppress debug statements!
-    debugModules = cms.untracked.vstring('*'),
+    #debugModules = cms.untracked.vstring('*'),
     
     # allows to suppress output from specific modules 
     suppressDebug = cms.untracked.vstring(),

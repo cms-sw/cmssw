@@ -14,7 +14,7 @@ fileNames1 = cms.untracked.vstring()
 fileNames2 = cms.untracked.vstring()
 process.source = cms.Source(
     "PoolSource",
-    fileNames = fileNames2,
+    fileNames = fileNames1,
     )
 
 # Input files: RelVal QCD 80-120 GeV, STARTUP conditions, 9000 events, from CMSSW_3_2_5 (replace with 33X when available!)
@@ -36,7 +36,7 @@ fileNames2.extend( [
     'file:/data2/bainbrid/data/RelValQCD_Pt_80_120/CMSSW_3_3_0_pre4/2098DAED-9DA6-DE11-B881-001D09F24637.root',
     ] );
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 # -------------------- JPT from RECO --------------------
 
@@ -252,7 +252,7 @@ process.MessageLogger = cms.Service(
     ),
     
     #@@ comment to suppress debug statements!
-    debugModules = cms.untracked.vstring('*'),
+    #debugModules = cms.untracked.vstring('*'),
     
     # allows to suppress output from specific modules 
     suppressDebug = cms.untracked.vstring(),
