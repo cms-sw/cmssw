@@ -26,8 +26,9 @@ MuonAlignmentFromReference = cms.PSet(
     twoBin = cms.bool(True),                        # must be the same as residuals-collection job!
     combineME11 = cms.bool(True),                   # must be the same as residuals-collection job!
 
-    residualsModel = cms.string("ROOTVoigt"),       # this and the following need not be the same
+    residualsModel = cms.string("ROOTVoigt"),       # this and the following need not be the same; you can make these decisions at the alignment stage
     minAlignmentHits = cms.int32(30),
+    weightAlignment = cms.bool(True),
 
     # where reporting will go
     reportFileName = cms.string("MuonAlignmentFromReference_report.py"),  # Python-formatted output

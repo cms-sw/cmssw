@@ -5,6 +5,7 @@
 static TMinuit *MuonResiduals5DOFFitter_TMinuit;
 static double MuonResiduals5DOFFitter_sum_of_weights;
 static double MuonResiduals5DOFFitter_number_of_hits;
+static bool MuonResiduals5DOFFitter_weightAlignment;
 
 void MuonResiduals5DOFFitter::inform(TMinuit *tMinuit) {
   MuonResiduals5DOFFitter_TMinuit = tMinuit;
@@ -57,7 +58,9 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
     double resslopepeak = MuonResiduals5DOFFitter_resslope(alignx, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY);
 
     double weight = (1./redchi2) * MuonResiduals5DOFFitter_number_of_hits / MuonResiduals5DOFFitter_sum_of_weights;
-    if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
+    if (!MuonResiduals5DOFFitter_weightAlignment) weight = 1.;
+
+    if (!MuonResiduals5DOFFitter_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -weight * MuonResidualsFitter_logPureGaussian(residual, residpeak, residsigma);
@@ -80,10 +83,17 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
 double MuonResiduals5DOFFitter::sumofweights() {
   MuonResiduals5DOFFitter_sum_of_weights = 0.;
   MuonResiduals5DOFFitter_number_of_hits = 0.;
+  MuonResiduals5DOFFitter_weightAlignment = m_weightAlignment;
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
-    if (TMath::Prob(redchi2*8, 8) < 0.99) {
-      MuonResiduals5DOFFitter_sum_of_weights += 1./redchi2;
+    if (m_weightAlignment) {
+       double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
+       if (TMath::Prob(redchi2*8, 8) < 0.99) {
+	  MuonResiduals5DOFFitter_sum_of_weights += 1./redchi2;
+	  MuonResiduals5DOFFitter_number_of_hits += 1.;
+       }
+    }
+    else {
+      MuonResiduals5DOFFitter_sum_of_weights += 1.;
       MuonResiduals5DOFFitter_number_of_hits += 1.;
     }
   }
@@ -114,8 +124,9 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
     const double resslope = (*resiter)[MuonResiduals5DOFFitter::kResSlope];
     const double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       if (fabs(residual) < 10.) {   // 10 cm
 	resid_sum += weight * residual;
 	resid_sum2 += weight * residual * residual;
@@ -164,8 +175,9 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali) {
     const double residual = (*resiter)[MuonResiduals5DOFFitter::kResid] - alpha_estimate * resslope;
     const double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       if (fabs(residual - resid_mean) < 2.5*resid_stdev) {
 	resid_sum += weight * residual;
 	resid_sum2 += weight * residual * residual;
@@ -366,8 +378,9 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double angleY = (*resiter)[MuonResiduals5DOFFitter::kAngleY];
     const double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       sum_resslope += weight * resslope;
       sum_trackx += weight * positionX;
       sum_tracky += weight * positionY;
@@ -431,8 +444,9 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double angleY = (*resiter)[MuonResiduals5DOFFitter::kAngleY];
     const double redchi2 = (*resiter)[MuonResiduals5DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       hist_alpha->Fill(1000.*resslope, 10.*resid);
 
       double geom_resid = MuonResiduals5DOFFitter_residual(value(kAlignX), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, value(kAlpha), resslope);

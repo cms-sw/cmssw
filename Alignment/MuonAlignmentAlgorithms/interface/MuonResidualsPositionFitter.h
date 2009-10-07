@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsPositionFitter_H
 
 /** \class MuonResidualsPositionFitter
- *  $Date: 2009/03/24 00:04:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/23 05:06:01 $
+ *  $Revision: 1.5 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -29,7 +29,7 @@ public:
     kNData
   };
 
-  MuonResidualsPositionFitter(int residualsModel, int minHits): MuonResidualsFitter(residualsModel, minHits) {};
+  MuonResidualsPositionFitter(int residualsModel, int minHits, bool weightAlignment): MuonResidualsFitter(residualsModel, minHits, weightAlignment) {};
 
   int type() const { return MuonResidualsFitter::kPositionFitter; };
 

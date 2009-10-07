@@ -86,6 +86,7 @@ private:
   int m_minAlignmentHits;
   bool m_twoBin;
   bool m_combineME11;
+  bool m_weightAlignment;
   std::string m_reportFileName;
 
   AlignableNavigator *m_alignableNavigator;
@@ -116,6 +117,7 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_minAlignmentHits(iConfig.getParameter<int>("minAlignmentHits"))
   , m_twoBin(iConfig.getParameter<bool>("twoBin"))
   , m_combineME11(iConfig.getParameter<bool>("combineME11"))
+  , m_weightAlignment(iConfig.getParameter<bool>("weightAlignment"))
   , m_reportFileName(iConfig.getParameter<std::string>("reportFileName"))
 {
   // alignment requires a TFile to provide plots to check the fit output
@@ -180,11 +182,11 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber) {
        DTChamberId id((*ali)->geomDetId().rawId());
        if (id.station() == 4) {
-	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits), new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits));
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment), new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment));
 	 made_fitter = true;
        }
        else {
-	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits), new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits));
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment), new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment));
 	 made_fitter = true;
        }
      }
@@ -205,7 +207,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        }
 
        if (thisali == *ali) {   // don't make fitters for ME1/4; they get taken care of in ME1/1
-	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry)), new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry)));
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, m_weightAlignment, &(*cscGeometry)), new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, m_weightAlignment, &(*cscGeometry)));
 	 made_fitter = true;
        }
      }

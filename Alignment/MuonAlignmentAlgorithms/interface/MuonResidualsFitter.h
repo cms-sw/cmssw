@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/03/27 17:10:46 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/23 05:06:01 $
+ *  $Revision: 1.7 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -41,8 +41,8 @@ public:
     kAngleBfieldFitter
   };
 
-  MuonResidualsFitter(int residualsModel, int minHits)
-    : m_residualsModel(residualsModel), m_minHits(minHits), m_printLevel(0), m_strategy(2), m_goodfit(false), m_loglikelihood(0.) {
+  MuonResidualsFitter(int residualsModel, int minHits, bool weightAlignment)
+    : m_residualsModel(residualsModel), m_minHits(minHits), m_weightAlignment(weightAlignment), m_printLevel(0), m_strategy(2), m_goodfit(false), m_loglikelihood(0.) {
     if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&  m_residualsModel != kROOTVoigt) throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
   };
 
@@ -110,6 +110,7 @@ protected:
 
   int m_residualsModel;
   int m_minHits;
+  bool m_weightAlignment;
   std::vector<bool> m_fixed;
   int m_printLevel, m_strategy;
 

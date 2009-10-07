@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsAngleFitter_H
 
 /** \class MuonResidualsAngleFitter
- *  $Date: 2009/03/24 00:04:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/23 05:06:01 $
+ *  $Revision: 1.7 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -27,7 +27,7 @@ public:
     kNData
   };
 
-  MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion): MuonResidualsFitter(residualsModel, minHitsPerRegion) {};
+  MuonResidualsAngleFitter(int residualsModel, int minHitsPerRegion, bool weightAlignment): MuonResidualsFitter(residualsModel, minHitsPerRegion, weightAlignment) {};
 
   int type() const { return MuonResidualsFitter::kAngleFitter; };
 

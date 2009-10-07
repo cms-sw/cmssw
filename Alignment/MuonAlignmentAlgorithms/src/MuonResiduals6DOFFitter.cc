@@ -6,6 +6,7 @@
 static TMinuit *MuonResiduals6DOFFitter_TMinuit;
 static double MuonResiduals6DOFFitter_sum_of_weights;
 static double MuonResiduals6DOFFitter_number_of_hits;
+static bool MuonResiduals6DOFFitter_weightAlignment;
 
 void MuonResiduals6DOFFitter::inform(TMinuit *tMinuit) {
   MuonResiduals6DOFFitter_TMinuit = tMinuit;
@@ -86,7 +87,9 @@ void MuonResiduals6DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
     double slopeYpeak = MuonResiduals6DOFFitter_dydz(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY);
 
     double weight = (1./redchi2) * MuonResiduals6DOFFitter_number_of_hits / MuonResiduals6DOFFitter_sum_of_weights;
-    if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
+    if (!MuonResiduals6DOFFitter_weightAlignment) weight = 1.;
+
+    if (!MuonResiduals6DOFFitter_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -weight * MuonResidualsFitter_logPureGaussian(residX, residXpeak, resXsigma);
@@ -115,11 +118,18 @@ void MuonResiduals6DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
 double MuonResiduals6DOFFitter::sumofweights() {
   MuonResiduals6DOFFitter_sum_of_weights = 0.;
   MuonResiduals6DOFFitter_number_of_hits = 0.;
+  MuonResiduals6DOFFitter_weightAlignment = m_weightAlignment;
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
-    if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
-      MuonResiduals6DOFFitter_sum_of_weights += 1./redchi2;
-      MuonResiduals6DOFFitter_number_of_hits += 1.;
+    if (m_weightAlignment) {
+       double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
+       if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
+	  MuonResiduals6DOFFitter_sum_of_weights += 1./redchi2;
+	  MuonResiduals6DOFFitter_number_of_hits += 1.;
+       }
+    }
+    else {
+       MuonResiduals6DOFFitter_sum_of_weights += 1.;
+       MuonResiduals6DOFFitter_number_of_hits += 1.;
     }
   }
   return MuonResiduals6DOFFitter_sum_of_weights;
@@ -162,8 +172,9 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali) {
     const double resslopeY = (*resiter)[MuonResiduals6DOFFitter::kResSlopeY];
     const double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
 
       if (fabs(residX) < 10.) {   // 10 cm
 	residx_sum += weight * residX;
@@ -247,8 +258,9 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali) {
     const double residY = (*resiter)[MuonResiduals6DOFFitter::kResidY] - alphay_estimate * resslopeY;
     const double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
       if (fabs(residX - residx_mean) < 2.5*residx_stdev) {
 	residx_sum += weight * residX;
 	residx_sum2 += weight * residX * residX;
@@ -625,8 +637,9 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double angleY = (*resiter)[MuonResiduals6DOFFitter::kAngleY];
     const double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
       sum_resslopex += weight * resslopeX;
       sum_resslopey += weight * resslopeY;
       sum_trackx += weight * positionX;
@@ -720,8 +733,9 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double angleY = (*resiter)[MuonResiduals6DOFFitter::kAngleY];
     const double redchi2 = (*resiter)[MuonResiduals6DOFFitter::kRedChi2];
     double weight = 1./redchi2;
+    if (!m_weightAlignment) weight = 1.;
 
-    if (TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
+    if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
 
       hist_alphax->Fill(1000.*resslopeX, 10.*residX);
       hist_alphay->Fill(1000.*resslopeY, 10.*residY);
