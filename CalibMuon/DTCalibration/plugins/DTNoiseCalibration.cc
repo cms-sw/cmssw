@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/10/01 13:05:46 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -62,6 +62,9 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& ps){
 
   // The trigger width (if noise run)
   TriggerWidth = ps.getUntrackedParameter<int>("TriggerWidth");
+
+  //get the offset to look for the noise
+  theOffset = ps.getUntrackedParameter<double>("theOffset",500.);
 
   // The root file which will contain the histos
   string rootFileName = ps.getUntrackedParameter<string>("rootFileName");
@@ -132,11 +135,11 @@ void DTNoiseCalibration::analyze(const edm::Event& e, const edm::EventSetup& con
       if ( parameters.getUntrackedParameter<bool>("readDB", true) ) {
 	tTrigMap->get( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS, kFactor, DTTimeUnits::counts );
 
-	upperLimit = tTrig-100;
+	upperLimit = tTrig - theOffset;
       }
       else { 
 	tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
-	upperLimit = tTrig-100;
+	upperLimit = tTrig - theOffset;
       }
 	
       if((cosmicRun && (*digiIt).countsTDC()<upperLimit) || (!cosmicRun) ){
@@ -276,7 +279,7 @@ void DTNoiseCalibration::endJob(){
 	tTrigMap->get( ((*lHisto).first).superlayerId(), tTrig, tTrigRMS, kFactor,
 		     DTTimeUnits::counts );
      else tTrig = parameters.getUntrackedParameter<int>("defaultTtrig", 4000);
-      double TriggerWidth_ns = ((tTrig-100)*25)/32;
+      double TriggerWidth_ns = ((tTrig-theOffset)*25)/32;
       TriggerWidth_s = TriggerWidth_ns/1e9;
     }
     if(!cosmicRun)

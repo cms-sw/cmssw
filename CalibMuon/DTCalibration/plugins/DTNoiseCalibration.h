@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2008/12/09 22:44:10 $
- * $Revision: 1.5 $
+ * $Date: 2009/10/01 13:05:50 $
+ * $Revision: 1.6 $
  * \author G. Mila - INFN Torino
  *
 */
@@ -69,6 +69,8 @@ private:
   float tTrig;
   float tTrigRMS;
   float kFactor;
+
+  double theOffset;
 
   // The label used to retrieve digis from the event
   std::string digiLabel;
