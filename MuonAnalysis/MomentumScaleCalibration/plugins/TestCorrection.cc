@@ -42,7 +42,7 @@ TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
 
   // Initialize the parameters of MuScleFitUtils from those saved in the functions.
   // MuScleFitUtils::parScale = corrector_.getFunction(0)->parameters();
-  MuScleFitUtils::resolutionFunction = resolution_->getFunction(0);
+  MuScleFitUtils::resolutionFunction = resolution_->function(0);
   MuScleFitUtils::resolutionFunctionForVec = resolutionFunctionVecService( resolution_->identifiers()[0] );
 
   MuScleFitUtils::parResol = resolution_->parameters();
