@@ -187,7 +187,6 @@ namespace edm {
         if (productstatus::uninitialized(provStatus) || productstatus::unknown(provStatus)) {
 	  theStatus_ = NeverCreated;
         } else {
-	  assert(productstatus::notPresent(provStatus));
 	  setStatus(provStatus);
         }
       }

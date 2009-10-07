@@ -569,16 +569,6 @@ namespace edm {
          << "The branch id is " << bid << "\n"
          << "Contact a framework developer.\n";
     }
-    if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
-	    g->branchDescription().present() &&
-	    g->branchDescription().branchType() == InEvent &&
-	    g->productProvenancePtr() &&
-            productstatus::present(g->productProvenancePtr()->productStatus())) {
-        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
-         << "A product with a status of 'present' is not actually present.\n"
-         << "The branch name is " << g->branchDescription().branchName() << "\n"
-         << "Contact a framework developer.\n";
-    }
     if (!g->product() && !g->productProvenancePtr()) {
       return OutputHandle();
     }
