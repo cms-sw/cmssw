@@ -1,0 +1,81 @@
+Event filtering information for 4 processing steps is available.
+The ParameterSets will be printed out, with the oldest printed first.
+ParameterSetID: 1258c9d7981c36123064b138d9233d2d
+{
+  SelectEvents: vstring tracked  = {'generation_step'}
+}{
+}{
+}
+     -------------------------
+ParameterSetID: 38559c871fba28d992ead51549367f83
+{
+}{
+}{
+}
+     -------------------------
+ParameterSetID: 38559c871fba28d992ead51549367f83
+{
+}{
+}{
+}
+     -------------------------
+ParameterSetID: b850a832c27d7cd97df0b911d2dfd8c6
+{
+  SelectEvents: vstring tracked  = {'p'}
+}{
+}{
+}
+     -------------------------
+Processing History:
+  RECO '' '"CMSSW_3_1_0"' [1]  (5aedc63b7bd9f78a8fde871a973adcd8)
+    PAT '' '"CMSSW_3_1_X_2009-07-21-0200"' [1]  (86cb1d3c7a6f4ea69b43963165fabeaa)
+  HLT2 '' '"CMSSW_3_1_0"' [2]  (a24b13ce88db704ead9c2031ba9ddb23)
+    RECO '' '"CMSSW_3_1_0"' [1]  (5aedc63b7bd9f78a8fde871a973adcd8)
+      PAT '' '"CMSSW_3_1_X_2009-07-21-0200"' [1]  (86cb1d3c7a6f4ea69b43963165fabeaa)
+---------Event---------
+Module: genCandidatesForMET HLT2
+ PSet id:b3d215eebed2e6ff54e7fee00fc2aec3
+ products: {
+  recoGenParticlesRefs_genCandidatesForMET__HLT.
+}
+ parameters: {
+  excludeResonances: bool tracked  = false
+  partonicFinalState: bool tracked  = false
+}{
+}{
+}
+
+Module: genMetCalo HLT2
+ PSet id:515a72a3b061b7c3d755cb7f4e051144
+ products: {
+  recoGenMETs_genMetCalo__HLT.
+}
+ parameters: {
+  @module_label: string tracked  = 'genMetCalo'
+  @module_type: string tracked  = 'METProducer'
+  InputType: string tracked  = 'CandidateCollection'
+  METType: string tracked  = 'GenMET'
+  alias: string tracked  = 'GenMETCalo'
+  globalThreshold: double tracked  = 0
+  noHF: bool tracked  = false
+  src: InputTag tracked  = genCandidatesForMET
+}{
+}{
+}
+
+Module: genParticlesForJets HLT2
+ PSet id:4af1e07a91aba7598ebf79563c6eb3e4
+ products: {
+  recoGenParticlesRefs_genParticlesForJets__HLT.
+}
+ parameters: {
+  @module_label: string tracked  = 'genParticlesForJets'
+  @module_type: string tracked  = 'InputGenJetsParticleSelector'
+  excludeFromResonancePids: vuint32 tracked  = {12,13,14,16}
+  excludeResonances: bool tracked  = true
+  partonicFinalState: bool tracked  = false
+  src: InputTag tracked  = genParticles
+  tausAsJets: bool tracked  = false
+}{
+}{
+}
