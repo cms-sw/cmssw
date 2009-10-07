@@ -260,7 +260,7 @@ vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(vector<RefCou
   (*tr)->replaceCurrentParticle(refParticle);
   
 //replacing the  vertex with its refitted version
-  GlobalPoint nvPos(param.vector()(1), param.vector()(2), param.vector()(3)); 
+  GlobalPoint nvPos(param.position()); 
   AlgebraicSymMatrix nvMatrix = asHepMatrix<7>(er.matrix()).sub(1,3);
   GlobalError nvError(nvMatrix);
   VertexState vState(nvPos, nvError, 1.0);
