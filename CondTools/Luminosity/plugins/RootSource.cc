@@ -2,7 +2,7 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Luminosity/interface/LumiSectionData.h"
 #include "CondTools/Luminosity/interface/LumiRetrieverFactory.h"
-#include "CondTools/Luminosity/interface/LumiStructures.hh"
+#include "CondTools/Luminosity/interface/LumiDataStructures.h"
 #include "RootSource.h"
 #include <iostream>
 #include "TFile.h"
@@ -19,7 +19,7 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
     runtree->Print();
     std::cout<<"tot size bytes "<<runtree->GetTotBytes()<<std::endl;
     std::cout<<"n branches "<<runtree->GetNbranches()<<std::endl;
-    HCAL_HLX::RUN_SUMMARY* runsummarydata=0;
+    lumi::RUN_SUMMARY* runsummarydata=0;
     runtree->SetBranchAddress("RunSummary.",&runsummarydata);
     size_t nentries=runtree->GetEntries();
     for(size_t i=0;i<nentries;++i){
@@ -33,10 +33,9 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
     hlxtree->Print();
     std::cout<<"tot size bytes "<<hlxtree->GetTotBytes()<<std::endl;
     std::cout<<"n branches "<<hlxtree->GetNbranches()<<std::endl;
-    //HCAL_HLX::LUMI_SECTION* hlxdata=0;
-    HCAL_HLX::LUMI_SECTION_HEADER* lumiheader=0;
-    HCAL_HLX::LUMI_SUMMARY* lumisummary=0;
-    HCAL_HLX::LUMI_DETAIL* lumidetail=0;
+    lumi::LUMI_SECTION_HEADER* lumiheader=0;
+    lumi::LUMI_SUMMARY* lumisummary=0;
+    lumi::LUMI_DETAIL* lumidetail=0;
     hlxtree->SetBranchAddress("Header.",&lumiheader);
     hlxtree->SetBranchAddress("Summary.",&lumisummary);
     hlxtree->SetBranchAddress("Detail.",&lumidetail);
@@ -56,7 +55,7 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
     l1tree->Print();
     std::cout<<"tot size bytes "<<l1tree->GetTotBytes()<<std::endl;
     std::cout<<"n branches "<<l1tree->GetNbranches()<<std::endl;
-    HCAL_HLX::LEVEL1_TRIGGER* l1data=0;
+    lumi::LEVEL1_TRIGGER* l1data=0;
     l1tree->SetBranchAddress("L1Trigger.",&l1data);
     size_t nentries=l1tree->GetEntries();
     std::cout<<"l1tree entries "<<nentries<<std::endl;
@@ -72,7 +71,7 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
     hlttree->Print();
     std::cout<<"tot size bytes "<<hlttree->GetTotBytes()<<std::endl;
     std::cout<<"n branches "<<hlttree->GetNbranches()<<std::endl;
-    HCAL_HLX::HLTrigger* hltdata=0;
+    lumi::HLTrigger* hltdata=0;
     hlttree->SetBranchAddress("HLTrigger.",&hltdata);
     size_t nentries=hlttree->GetEntries();
     std::cout<<"hlttree entries "<<nentries<<std::endl;
