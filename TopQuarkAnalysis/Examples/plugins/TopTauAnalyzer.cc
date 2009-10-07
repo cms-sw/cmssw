@@ -14,7 +14,7 @@ TopTauAnalyzer::TopTauAnalyzer(const edm::ParameterSet& cfg):
   ptTau_ = fs->make<TH1F>("ptTau",  "pt_{Taus}",    100,  0.,300.);
   enTau_ = fs->make<TH1F>("enTau",  "energy_{Taus}",100,  0.,300.);
   etaTau_= fs->make<TH1F>("etaTau", "eta_{Taus}",   100, -3.,  3.);
-  phiTau_= fs->make<TH1F>("phiTau", "phi_{Taus}",   100, -5.,  5.);
+  phiTau_= fs->make<TH1F>("phiTau", "phi_{Taus}",   100, -4.,  4.);
 }
 
 TopTauAnalyzer::~TopTauAnalyzer()
