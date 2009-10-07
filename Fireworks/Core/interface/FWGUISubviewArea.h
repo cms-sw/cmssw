@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.21 2009/06/24 13:16:20 amraktad Exp $
+// $Id: FWGUISubviewArea.h,v 1.22 2009/06/26 21:06:33 amraktad Exp $
 //
 
 #include "TGFrame.h"
@@ -24,7 +24,7 @@
 #include <string>
 
 // forward declarations
-class TGButton;
+class TGPictureButton;
 class TGLabel;
 class TEveCompositeFrame;
 class TEveWindow;
@@ -71,6 +71,8 @@ public:
 
    TEveWindow* getEveWindow();
    FWViewBase* getFWView();
+
+   static FWGUISubviewArea* getToolBarFromWindow(TEveWindow*);
 
 private:
    FWGUISubviewArea(const FWGUISubviewArea&);    // stop default

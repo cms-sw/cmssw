@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.74 2009/09/29 19:26:32 dmytro Exp $
+// $Id: FWGUIManager.h,v 1.75 2009/10/04 13:15:47 amraktad Exp $
 //
 
 // system include files
@@ -134,8 +134,6 @@ public:
 
    // ---------- static member functions --------------------
    static FWGUIManager* getGUIManager();
-
-   static FWGUISubviewArea* getGUISubviewArea(TEveWindow*);
 
    // ---------- member functions ---------------------------
    //have to use the portable syntax else the reflex code will not build

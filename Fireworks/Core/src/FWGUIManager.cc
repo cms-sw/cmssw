@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.150 2009/09/29 19:26:33 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.151 2009/10/04 13:15:48 amraktad Exp $
 //
 
 // system include files
@@ -494,7 +494,7 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
 
    for (std::vector<TEveWindow*>::iterator it = m_viewWindows.begin(); it != m_viewWindows.end(); it++)
    {
-      FWGUISubviewArea* ar = getGUISubviewArea(*it);
+      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(*it);
       ar->setSwapIcon(current != (*it));
       if (checkInfoBtn && selected)
          ar->setInfoButton(selected == (*it));
@@ -537,7 +537,8 @@ FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
    // release button on previously selected
    if (m_viewPopup && m_viewPopup->GetEveWindow())
    {
-      FWGUISubviewArea* ar = getGUISubviewArea(m_viewPopup->GetEveWindow());
+      FWGUISubviewArea* ar = 
+         FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->GetEveWindow());
       ar->setInfoButton(kFALSE);
    }
 
@@ -652,7 +653,7 @@ FWGUIManager::popupViewClosed()
 {
    if (m_viewPopup->GetEveWindow())
    {
-      FWGUISubviewArea* sa = getGUISubviewArea(m_viewPopup->GetEveWindow());
+      FWGUISubviewArea* sa = FWGUISubviewArea::getToolBarFromWindow(m_viewPopup->GetEveWindow());
       sa->setInfoButton(kFALSE);
    }
 }
@@ -720,18 +721,6 @@ FWGUIManager*
 FWGUIManager::getGUIManager()
 {
    return m_guiManager;
-}
-
-FWGUISubviewArea*
-FWGUIManager::getGUISubviewArea(TEveWindow* w)
-{
-   // horizontal frame
-   TGFrameElement *el = (TGFrameElement*) w->GetEveFrame()->GetList()->First();
-   TGCompositeFrame* hf = (TGCompositeFrame*)el->fFrame;
-   // subview last in the horizontal frame
-   el = (TGFrameElement*)hf->GetList()->Last();
-   FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
-   return ar;
 }
  
 void
