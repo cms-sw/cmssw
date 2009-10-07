@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/09/30 23:32:25 $
- *  $Revision: 1.20 $
+ *  $Date: 2009/10/07 17:01:12 $
+ *  $Revision: 1.21 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -29,6 +29,8 @@
 #include <memory>
 #include <map>
 #include <stdint.h>
+
+#define debug 0
 
 template <class T>
 class MEtoEDM
@@ -99,7 +101,9 @@ class MEtoEDM
      }
      if (j >= nOldObjects) {
        // this value is only in the new container, not the old one
+#if debug
        std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
        MEtoEdmObject.push_back(newMEtoEDMObject[i]);
      } else {
        // this value is also in the new container: add the two 
@@ -115,7 +119,7 @@ class MEtoEDM
          MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object);
        } else {
           std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits, '" << name << "' not merged" <<  std::endl;
-#if 0
+#if debug
           std::cout << MEtoEdmObject[j].name                         << " " << newMEtoEDMObject[i].name                         << std::endl;
           std::cout << MEtoEdmObject[j].object.GetNbinsX()           << " " << newMEtoEDMObject[i].object.GetNbinsX()           << std::endl;
           std::cout << MEtoEdmObject[j].object.GetXaxis()->GetXmin() << " " << newMEtoEDMObject[i].object.GetXaxis()->GetXmin() << std::endl;
@@ -170,7 +174,9 @@ MEtoEDM<double>::mergeProduct(const MEtoEDM<double> &newMEtoEDM)
     }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+#if debug
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
     }
   }
@@ -205,7 +211,9 @@ MEtoEDM<int>::mergeProduct(const MEtoEDM<int> &newMEtoEDM)
     }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+#if debug
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
     } else {
       // this value is also in the new container: add the two
@@ -251,7 +259,9 @@ MEtoEDM<int64_t>::mergeProduct(const MEtoEDM<int64_t> &newMEtoEDM)
     }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+#if debug
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
     } else {
       // this value is also in the new container: add the two
@@ -297,7 +307,9 @@ MEtoEDM<TString>::mergeProduct(const MEtoEDM<TString> &newMEtoEDM)
     }
     if (j >= nOldObjects) {
       // this value is only in the new container, not the old one
+#if debug
       std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
+#endif
       MEtoEdmObject.push_back(newMEtoEDMObject[i]);
     }
   }
