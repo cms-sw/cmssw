@@ -1465,7 +1465,7 @@ void DisplayManager::retrieveBadBrems()
 
        
           if (ecalElems.size()==0) {
-             std::cout<<" PfBlock Nb "<<ibl<<" -- brem elem  "<<(*iter).index()<<"-type "<<(*iter).type()<<" not drawn"<<std::flush<<std::endl;
+	    //             std::cout<<" PfBlock Nb "<<ibl<<" -- brem elem  "<<(*iter).index()<<"-type "<<(*iter).type()<<" not drawn"<<std::flush<<std::endl;
        	     const reco::PFBlockElementBrem * Brem =  dynamic_cast<const reco::PFBlockElementBrem*>(&(*iter)); 
 	     reco::GsfPFRecTrackRef trackref = Brem->GsftrackRefPF();
 	     unsigned ind=trackref.key()*40+Brem->indTrajPoint();
