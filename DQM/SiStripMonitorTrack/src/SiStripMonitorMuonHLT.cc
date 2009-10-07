@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.5 2009/10/05 13:03:38 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.1 2009/10/05 17:05:48 echabert Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -109,23 +109,19 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
     return;
   LogDebug ("SiStripMonitorHLTMuon") << " processing conterEvt_: " << counterEvt_ << endl;
 
-  cout<<"toto"<<endl;
 
   edm::ESHandle < TrackerGeometry > TG;
   iSetup.get < TrackerDigiGeometryRecord > ().get (TG);
   const TrackerGeometry *theTrackerGeometry = TG.product ();
   const TrackerGeometry & theTracker (*theTrackerGeometry);
-  cout<<"toto"<<endl;
 
   Handle < RecoChargedCandidateCollection > l3mucands;
   iEvent.getByLabel (l3collectionTag_, l3mucands);
   RecoChargedCandidateCollection::const_iterator cand;
-  cout<<"toto"<<endl;
 
   Handle < edm::LazyGetter < SiStripCluster > >clusters;
   iEvent.getByLabel (clusterCollectionTag_, clusters);
   edm::LazyGetter < SiStripCluster >::record_iterator clust;
-  cout<<"toto"<<endl;
 
   if (!clusters.failedToGet ())
     {
@@ -136,21 +132,16 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	  std::stringstream ss;
 	  int layer = tkdetmap_->FindLayer (detID);
 	  string label = tkdetmap_->getLayerName (layer);
-	  cout<<"access to detID "<<detID<<endl;
 	  const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 	  const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
 	  // get the cluster position in local coordinates (cm) 
 	  LocalPoint clustlp = topol->localPosition (clust->barycenter ());
 	  GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
-	  cout<<"label "<<label<<endl;
-	  cout<<"size LayerMEMap "<<LayerMEMap.size()<<endl;
 	  LayerMEMap[label.c_str ()].EtaDistribAllClustersMap->Fill (clustgp.eta ());
 	  LayerMEMap[label.c_str ()].PhiDistribAllClustersMap->Fill (clustgp.phi ());
 	  LayerMEMap[label.c_str ()].EtaPhiAllClustersMap->Fill (clustgp.eta (), clustgp.phi ());
-	  cout<<"here"<<endl;
 	}
     }
-  cout<<"toto"<<endl;
 
   if (!l3mucands.failedToGet ())
     {
@@ -283,7 +274,6 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	    }			//loop over RecHits
 	}			//loop over l3mucands
     }				//if l3seed
-  cout<<"toto"<<endl;
 }
 
 
@@ -298,12 +288,10 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
   const TrackerGeometry *theTrackerGeometry = TG.product ();
   const TrackerGeometry & theTracker (*theTrackerGeometry);
  
-  cout<<"pointer geom "<<theTrackerGeometry<<endl;
  
   //Get list of detectors from tracker
   
   std::vector<DetId> Dets = theTracker.detUnitIds();  
-  cout<<"Nof DetID "<<Dets.size()<<endl;
   std::map< string,std::vector<float> > mapTkModulesEta ;
   std::map< string,std::vector<float> > mapTkModulesPhi ;
   
@@ -471,10 +459,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       tkdetmap_->getSubDetLayerSide (layer, subDet, subdetlayer, side);
       folderOrg.getSubDetLayerFolderName (ss, subDet, subdetlayer, side);
       folder = ss.str ();
-      cout<<"monitorName_ "<<monitorName_<<endl;
-      cout<<"folder "<<folder<<endl;
       dbe_->setCurrentFolder (monitorName_ + folder);
-      cout<<"pwd "<<dbe_->pwd()<<endl;
 
       LayerMEs layerMEs;
 
@@ -635,10 +620,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       layerMEs.EtaPhiOnTrackClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
 
       LayerMEMap[labelHisto] = layerMEs;
-      cout<<"size LayerMEMap "<<LayerMEMap.size()<<endl;
 	
-      cout<<"pwd "<<dbe_->pwd()<<endl;
-      cout<<"nof plots "<<dbe_->getAllContents(dbe_->pwd()).size()<<endl;
     }				//end of loop over layers
 
   ////////////////////////////////////////////////////
