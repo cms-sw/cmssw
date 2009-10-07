@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/03 11:03:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/09/03 17:37:24 $
+ *  $Revision: 1.4 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -17,10 +17,6 @@
 
 class DQMStore;
 class MonitorElement;
-class edm::Event;
-class edm::EventSetup;
-class edm::LuminosityBlock;
-class edm::Run;
 
 //
 // class declaration
