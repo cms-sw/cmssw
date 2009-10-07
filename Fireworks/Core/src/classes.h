@@ -21,6 +21,8 @@
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/src/FWBoolParameterSetter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
+#include "Fireworks/Core/src/FWStringParameterSetter.h"
+#include "Fireworks/Core/interface/FWStringParameter.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
