@@ -4,4 +4,5 @@
 DEFINE_SEAL_MODULE();
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 DEFINE_ANOTHER_FWK_MODULE(RPCMonitorDigi);
-
+#include "DQM/RPCMonitorDigi/interface/RPCEfficiency.h"
+DEFINE_ANOTHER_FWK_MODULE(RPCEfficiency);
