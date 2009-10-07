@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2009/05/06 21:05:18 $
- * $Revision: 1.50 $
+ * $Date: 2009/06/07 16:27:47 $
+ * $Revision: 1.51 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -105,6 +105,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   actionExecutor_ = new SiStripActionExecutor(ps);
   condDataMon_    = new SiStripClassToMonitorCondData(ps);
   trackerFEDsFound_ = false;
+  endLumiAnalysisOn_ = false;
 }
 //
 // -- Destructor
@@ -202,10 +203,15 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 // -- End Luminosity Block
 //
 void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: End of LS transition, performing the DQM client operation";
 
   nLumiSecs_++;
+
+  if (!trackerFEDsFound_) {
+    actionExecutor_->fillDummyStatus();
+    return;
+  }   
+  endLumiAnalysisOn_ = true;
 
   //  sistripWebInterface_->setCabling(detCabling_);
  
@@ -220,7 +226,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->performAction();
   }
   // Fill Global Status
-  if (globalStatusFilling_ > 0 && trackerFEDsFound_) {
+  if (globalStatusFilling_ > 0) {
     actionExecutor_->fillStatus(dqmStore_);
   }
   // -- Create summary monitor elements according to the frequency
@@ -238,6 +244,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   //  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {
   //    actionExecutor_->createShiftReport(dqmStore_);
   //  }
+  endLumiAnalysisOn_ = false;
 }
 
 //
@@ -295,8 +302,13 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     *out << html_out_.str() << std::endl;
   }  else {
     // Handles all HTTP requests of the form
-    int iter = nEvents_/10;
-    sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter);
+    int iter = -1;
+    if (endLumiAnalysisOn_) {
+      sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter); 
+    } else {
+      iter = nEvents_/10;
+      sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter);
+    } 
   }
 }
 

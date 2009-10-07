@@ -79,24 +79,31 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
     string tag;
     int icol;
     SiStripUtility::getMEStatusColor(istat, icol, tag);
-
-    TH1* histo = me->getTH1();    
-    TH1F* tproject = 0;
-    if (dopt == "projection") {
-      getProjection(me, tproject);
-      if (tproject) tproject->Draw();
-      else histo->Draw();
-    } else {
-      dopt = ""; 
-      string name = histo->GetName();
-      if (name.find("Summary_Mean") != string::npos) {
-         histo->SetStats( kFALSE );
-      }	else if (name.find("TkHMap") != string::npos) {
-	dopt = "colzbox";
+    if (me->kind() == MonitorElement::DQM_KIND_TH1F ||
+	me->kind() == MonitorElement::DQM_KIND_TH2F ||
+	me->kind() == MonitorElement::DQM_KIND_TPROFILE ||
+        me->kind() == MonitorElement::DQM_KIND_TPROFILE2D ) {
+      TH1* histo = me->getTH1();
+      TH1F* tproject = 0;
+      if (dopt == "projection") {
+	getProjection(me, tproject);
+	if (tproject) tproject->Draw();
+	else histo->Draw();
       } else {
-	histo->SetFillColor(1);
+	dopt = ""; 
+	string name = histo->GetName();
+        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D ) {
+          dopt = "colz";
+          histo->SetStats( kFALSE );
+	} else {    
+	  if (name.find("Summary_Mean") != string::npos) {
+	    histo->SetStats( kFALSE );
+	  } else {
+	    histo->SetFillColor(1);
+	  }
+        }
+	histo->Draw(dopt.c_str());
       }
-      histo->Draw(dopt.c_str());
     }
     TText tTitle;
     tTitle.SetTextFont(64);

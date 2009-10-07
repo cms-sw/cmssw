@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.28 2009/09/09 08:20:56 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.29 2009/09/29 14:35:39 dutta Exp $
 //
 //
 
@@ -165,20 +165,16 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 
   edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
   // create Summary Plots
-  if (createSummary_)  actionExecutor_->createSummaryOffline(dqmStore_);
+  if (createSummary_ && trackerFEDsFound_)  actionExecutor_->createSummaryOffline(dqmStore_);
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
     actionExecutor_->createStatus(dqmStore_);
-    if (usedWithEDMtoMEConverter_) {
-      if (trackerFEDsFound_) actionExecutor_->fillStatus(dqmStore_);
-      else actionExecutor_->fillDummyStatus();
-    } else {
-      actionExecutor_->fillStatus(dqmStore_);
-    }
+    if (!trackerFEDsFound_) actionExecutor_->fillDummyStatus();
+    else actionExecutor_->fillStatus(dqmStore_);
   }
   bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
   // Create TrackerMap
-  if (!usedWithEDMtoMEConverter_ && create_tkmap) {
+  if (!usedWithEDMtoMEConverter_ && create_tkmap && trackerFEDsFound_) {
     edm::ParameterSet tkMapPSet = configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters");
 
     vector<string> tkMapOptions = configPar_.getUntrackedParameter< vector<string> >("TkMapOptions" );
