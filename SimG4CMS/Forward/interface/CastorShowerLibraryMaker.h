@@ -43,6 +43,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <set>
 #include <cmath>
 #include <memory>
 #include <vector>
@@ -138,6 +139,8 @@ private:
   ShowerLib            emSLHolder;
   ShowerLib            hadSLHolder;
   ShowerLib*           SLShowerptr; // pointer to the current shower collection (above)
+  std::map<int,std::set<int> > MapOfSecondaries; // map to hold all secondaries ID keyed by
+                                                 // the PDG code of the primary
 
 // private methods
   int FindEnergyBin(double e);

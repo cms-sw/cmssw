@@ -35,6 +35,7 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) :
                              NPGParticle(0),DoHadSL(false),DoEmSL(false),
                              emShower(NULL) , hadShower(NULL) {
 
+  MapOfSecondaries.clear();
   hadInfo = NULL;
   emInfo  = NULL;
   edm::ParameterSet p_SLM   = p.getParameter<edm::ParameterSet>("CastorShowerLibraryMaker");
@@ -223,12 +224,21 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
   stepIndex = 0;
 // reset the pointers to the shower objects
   SLShowerptr = NULL;
+  MapOfSecondaries.clear();
 //
   std::cout << "CastorShowerLibraryMaker: Processing Event Number: " << eventIndex << std::endl;
 }
 
 //=================================================================== per STEP
 void CastorShowerLibraryMaker::update(const G4Step * aStep) {
+   static int CurrentPrimary = 0;
+   G4Track *trk = aStep->GetTrack();
+   if (trk->GetCurrentStepNumber()==1) {
+      if (trk->GetParentID()==0) CurrentPrimary = trk->GetDynamicParticle()->GetPDGcode();
+      if (CurrentPrimary==0) 
+         SimG4Exception("CastorShowerLibraryMaker::update(G4Step) -> Primary particle undefined");
+      MapOfSecondaries[CurrentPrimary].insert((int)trk->GetTrackID());
+   }
 /*
   if(aStep->IsFirstStepInVolume()) { 
     edm::LogInfo("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::update(const G4Step * aStep):"
@@ -262,10 +272,6 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
      }
 // Check primary particle type
      int particleType = thePrim->GetPDGcode();
-     if (thePrim->GetDaughter()) 
-         std::cout << " Daughter particle : " << thePrim->GetDaughter()->GetPDGcode() <<" Track ID: " << thePrim->GetDaughter()->GetTrackID()<<std::endl;
-     if (thePrim->GetNext()) 
-         std::cout << " Next particle : " << thePrim->GetNext()->GetPDGcode() <<" Track ID: " << thePrim->GetNext()->GetTrackID()<<std::endl;
 
 // set the pointer to the shower collection
      std::string SLType("");
@@ -318,7 +324,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
      shower = &(SLShowerptr->SLCollection.at(ebin).at(etabin).at(phibin).at(cur_evt_idx));
 
 // Get Hit information
-     if (FillShowerEvent(allHC,shower,thePrim->GetTrackID())) { 
+     if (FillShowerEvent(allHC,shower,particleType)) { 
 //  Primary particle information
         shower->setPrimE(pInit);
         shower->setPrimEta(eta);
@@ -602,7 +608,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(G4HCofThisEvent* allHC, CastorSho
 
      unsigned int volumeID=0;
      double en_in_fi = 0.;
-     double totalEnergy = 0;
+     //double totalEnergy = 0;
 
      int nentries = theCAFI->entries();
      edm::LogInfo("CastorShowerLibraryMaker") << "Found "<<nentries << " hits in G4HitCollection";
@@ -612,12 +618,12 @@ bool CastorShowerLibraryMaker::FillShowerEvent(G4HCofThisEvent* allHC, CastorSho
      }
 
 // Compute Total Energy in CastorFI volume
-
+/*
      for(int ihit = 0; ihit < nentries; ihit++) {
        CaloG4Hit* aHit = (*theCAFI)[ihit];
        totalEnergy += aHit->getEnergyDeposit();
      }
-
+*/
      if (!shower) {
         edm::LogInfo("CastorShowerLibraryMaker") << "Error. NULL pointer to CastorShowerEvent";
         return false;
@@ -630,12 +636,11 @@ bool CastorShowerLibraryMaker::FillShowerEvent(G4HCofThisEvent* allHC, CastorSho
      nHits=0;
      for (int ihit = 0; ihit < nentries; ihit++) {
        CaloG4Hit* aHit  = (*theCAFI)[ihit];
-       edm::LogInfo("CastorShowerLibraryMaker") << " ipart " << ipart << " TrackID : " << aHit->getTrackID()<<" hitID = "<< aHit->getID();
-//       if (aHit->getTrackID()!=ipart) {
-//          /*if (verbosity)*/ edm::LogInfo("CastorShowerLibraryMaker") << "Skipping hit from trackID "
-//            << aHit->getTrackID()<<"(target track ID = "<< ipart<<") with hitID = "<< aHit->getID()<<".";
-//          continue;
-//       }
+       int hit_particleID = aHit->getTrackID();
+       if (MapOfSecondaries[ipart].find(hit_particleID)==MapOfSecondaries[ipart].end()) {
+          if (verbosity) edm::LogInfo("CastorShowerLibraryMaker") << "Skipping hit from trackID " << hit_particleID;
+          continue;
+       }
        volumeID         = aHit->getUnitID();
        double hitEnergy = aHit->getEnergyDeposit();
        en_in_fi        += aHit->getEnergyDeposit();

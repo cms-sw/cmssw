@@ -14,7 +14,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "SimG4CMS/Forward/interface/CastorTestAnalysis.h"
-#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
+//#include "SimG4CMS/Forward/interface/CastorNumberingScheme.h"
 
 #include "TFile.h"
 #include <cmath>
@@ -198,127 +198,48 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
   std::cout << "update(*evt) --> accessed all HC";
   
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  
-//  int CAFIid ;
-//  if(useShowerLibrary) {
-     //  Temporary solution as events are saved to the CastorPL TBranch when 
-     //  using shower library  (WC)
-//     CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorPL");
-//  } else {
-//     CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-//  }
-  
   int CAPLid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorPL");
-//  int CABUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTBU");
-//  int CATUid = G4SDManager::GetSDMpointer()->GetCollectionID("CASTTU");
+  int CABUid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorBU");
+  int CATUid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorTU");
     
   CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
   CaloG4HitCollection* theCAPL = (CaloG4HitCollection*) allHC->GetHC(CAPLid);
-//  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
-//  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
+  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
+  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
 
-  CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
+  theCastorNumScheme = new CastorNumberingScheme();
+  // CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
+/*
   unsigned int volumeID=0;
+  int det, zside, sector, zmodule;
   std::map<int,float,std::less<int> > themap;
+  double totalEnergy = 0;
+  double hitEnergy = 0;
   double en_in_fi = 0.;
-  float totalEnergy = 0;
   double en_in_pl = 0.;
+*/
 //  double en_in_bu = 0.;
 //  double en_in_tu = 0.;
 
   if (doNTcastorevent) {
     
-    int eventGlobalHit = 0 ;
+    eventGlobalHit = 0 ;
+    // int eventGlobalHit = 0 ;
     
     //  Check FI TBranch for Hits
-    int nentriesFI = theCAFI->entries();
+    if (theCAFI->entries() > 0) getCastorBranchData(theCAFI) ;
     
-    if (nentriesFI > 0) {
-      
-      for (int ihit = 0; ihit < nentriesFI; ihit++) {
-	CaloG4Hit* aHit = (*theCAFI)[ihit];
-	totalEnergy += aHit->getEnergyDeposit();
-      }
-    
-      for (int ihit = 0; ihit < nentriesFI; ihit++) {
-	CaloG4Hit* aHit = (*theCAFI)[ihit];
-	volumeID = aHit->getUnitID();
-	double hitEnergy = aHit->getEnergyDeposit();
-	en_in_fi += aHit->getEnergyDeposit();
-//	double enEm = aHit->getEM();
-//	double enHad = aHit->getHadr();
-	
-	themap[volumeID] += aHit->getEnergyDeposit();
-	int det, zside, sector, zmodule;
-	theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
-	
-	castoreventarray[ntcastore_evt] = (float)eventIndex;
-//	castoreventarray[ntcastore_ihit] = (float)ihit;
-	castoreventarray[ntcastore_ihit] = (float)eventGlobalHit;
-	castoreventarray[ntcastore_detector] = (float)det;
-	castoreventarray[ntcastore_sector] = (float)sector;
-	castoreventarray[ntcastore_module] = (float)zmodule;
-	castoreventarray[ntcastore_enem] = en_in_fi;
-	castoreventarray[ntcastore_enhad] = totalEnergy;
-	castoreventarray[ntcastore_hitenergy] = hitEnergy;
-	castoreventarray[ntcastore_x] = aHit->getEntry().x();
-	castoreventarray[ntcastore_y] = aHit->getEntry().y();
-	castoreventarray[ntcastore_z] = aHit->getEntry().z();
-	
-	castoreventntuple->Fill(castoreventarray);
-	
-	eventGlobalHit++ ;
-      }
-    } // nentriesFI > 0
-    
-    //  Temporary solution as events are saved to TBranch's other the CastorFI when 
+    //  Temporary solution as events are saved to TBranch's others than CastorFI when 
     //  using shower library  (WC)
     if(useShowerLibrary) {
-    
+       //  Check BU TBranch for Hits
+       if (theCABU->entries() > 0) getCastorBranchData(theCABU) ;
        //  Check PL TBranch for Hits
-       int nentriesPL = theCAPL->entries();
-    
-       if (nentriesPL > 0) {
-      
-         for (int ihit = 0; ihit < nentriesPL; ihit++) {
-	   CaloG4Hit* aHit = (*theCAPL)[ihit];
-	   totalEnergy += aHit->getEnergyDeposit();
-         }
-    
-         for (int ihit = 0; ihit < nentriesPL; ihit++) {
-	   CaloG4Hit* aHit = (*theCAPL)[ihit];
-	   volumeID = aHit->getUnitID();
-	   double hitEnergy = aHit->getEnergyDeposit();
-	   en_in_pl += aHit->getEnergyDeposit();
-//	   double enEm = aHit->getEM();
-//	   double enHad = aHit->getHadr();
-	
-	   themap[volumeID] += aHit->getEnergyDeposit();
-	   int det, zside, sector, zmodule;
-	   theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
-	
-	   castoreventarray[ntcastore_evt] = (float)eventIndex;
-//	   castoreventarray[ntcastore_ihit] = (float)ihit;
-	   castoreventarray[ntcastore_ihit] = (float)eventGlobalHit;
-	   castoreventarray[ntcastore_detector] = (float)det;
-	   castoreventarray[ntcastore_sector] = (float)sector;
-	   castoreventarray[ntcastore_module] = (float)zmodule;
-	   castoreventarray[ntcastore_enem] = en_in_fi;
-	   castoreventarray[ntcastore_enhad] = totalEnergy;
-	   castoreventarray[ntcastore_hitenergy] = hitEnergy;
-	   castoreventarray[ntcastore_x] = aHit->getEntry().x();
-	   castoreventarray[ntcastore_y] = aHit->getEntry().y();
-	   castoreventarray[ntcastore_z] = aHit->getEntry().z();
-	
-	   castoreventntuple->Fill(castoreventarray);
-	
-	   eventGlobalHit++ ;
-         }
-       } // nentriesPL > 0
-    
+       if (theCAPL->entries() > 0) getCastorBranchData(theCAPL) ;
+       //  Check TU TBranch for Hits
+       if (theCATU->entries() > 0) getCastorBranchData(theCATU) ;
     }
-
 
 // Find Primary info:
       int trackID = 0;
@@ -378,6 +299,64 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 }
 
 void CastorTestAnalysis::update(const EndOfRun * run) {;}
+  
+//=================================================================== 
+void CastorTestAnalysis::getCastorBranchData(const CaloG4HitCollection * hc) {
+
+    int nentries = hc->entries();
+    
+    if (nentries > 0) {
+      
+      unsigned int volumeID=0;
+      int det=0, zside, sector, zmodule;
+      std::map<int,float,std::less<int> > themap;
+      double totalEnergy = 0;
+      double hitEnergy = 0;
+      double en_in_sd = 0.;
+
+      for (int ihit = 0; ihit < nentries; ihit++) {
+	CaloG4Hit* aHit = (*hc)[ihit];
+	totalEnergy += aHit->getEnergyDeposit();
+      }
+    
+      for (int ihit = 0; ihit < nentries; ihit++) {
+	CaloG4Hit* aHit = (*hc)[ihit];
+	volumeID = aHit->getUnitID();
+	hitEnergy = aHit->getEnergyDeposit();
+	en_in_sd += aHit->getEnergyDeposit();
+//	double enEm = aHit->getEM();
+//	double enHad = aHit->getHadr();
+	
+	themap[volumeID] += aHit->getEnergyDeposit();
+	// int det, zside, sector, zmodule;
+	theCastorNumScheme->unpackIndex(volumeID, zside, sector,zmodule);
+
+	// det = 2 ;  //  det=2/3 for CAFI/CAPL
+	
+	castoreventarray[ntcastore_evt]       = (float)eventIndex;
+//	castoreventarray[ntcastore_ihit]      = (float)ihit;
+	castoreventarray[ntcastore_ihit]      = (float)eventGlobalHit;
+	castoreventarray[ntcastore_detector]  = (float)det;
+	castoreventarray[ntcastore_sector]    = (float)sector;
+	castoreventarray[ntcastore_module]    = (float)zmodule;
+	castoreventarray[ntcastore_enem]      = en_in_sd;
+	castoreventarray[ntcastore_enhad]     = totalEnergy;
+	castoreventarray[ntcastore_hitenergy] = hitEnergy;
+	castoreventarray[ntcastore_x]         = aHit->getPosition().x();
+	castoreventarray[ntcastore_y]         = aHit->getPosition().y();
+	castoreventarray[ntcastore_z]         = aHit->getPosition().z();
+//	castoreventarray[ntcastore_x]         = aHit->getEntry().x();
+//	castoreventarray[ntcastore_y]         = aHit->getEntry().y();
+//	castoreventarray[ntcastore_z]         = aHit->getEntry().z();
+	
+	castoreventntuple->Fill(castoreventarray);
+	
+	eventGlobalHit++ ;
+      }
+    } // nentries > 0
+}
+
+//=================================================================== 
 
 void CastorTestAnalysis::Finish() {
   if (doNTcastorstep) {
