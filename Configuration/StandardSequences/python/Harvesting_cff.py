@@ -9,6 +9,7 @@ from HLTriggerOffline.Common.HLTValidationHarvest_cff import *
 from FastSimulation.Configuration.Harvesting_cff import *
 
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
+dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
 
 validationHarvesting = cms.Path(postValidation*hltpostvalidation)
 
