@@ -16,7 +16,8 @@ DBReader::DBReader( const edm::ParameterSet& iConfig ) : type_(iConfig.getUntrac
 {
 }
 
-void DBReader::beginJob ( const edm::EventSetup& iSetup ) {
+void DBReader::beginJob ( const edm::EventSetup& iSetup )
+{
   edm::ESHandle<MuScleFitDBobject> dbObject;
   iSetup.get<MuScleFitDBobjectRcd>().get(dbObject);
   edm::LogInfo("DBReader") << "[DBReader::analyze] End Reading MuScleFitDBobjectRcd" << endl;
@@ -34,44 +35,18 @@ void DBReader::beginJob ( const edm::EventSetup& iSetup ) {
     exit(1);
   }
 
-  cout << "pointer = " << corrector_.get() << endl;
+  // cout << "pointer = " << corrector_.get() << endl;
 }
 
 //:  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)){}
 
 DBReader::~DBReader(){}
 
-void DBReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
-
-//   cout << "checking size consistency" << endl;
-//   if( corrector_->identifiers().size() != corrector_->parameters().size() ) {
-//     cout << "Error: size of parameters("<<corrector_->parameters().size()<<") and identifiers("<<corrector_->identifiers().size()<<") don't match" << endl;
-//     exit(1);
-//   }
-
-  // Looping directly on it does not work, because it is returned by value
-  // and the iterator gets invalidated on the next line. Save it to a temporary object
-  // and iterate on it.
-  vector<double> parVecVec(corrector_->parameters());
-  // vector<vector<double> >::const_iterator parVec = corrector_->parameters().begin();
-  vector<double>::const_iterator parVec = parVecVec.begin();
-  vector<int> functionId(corrector_->identifiers());
-  vector<int>::const_iterator id = functionId.begin();
-  cout << "total number of parameters read from database = parVecVec.size() = " << parVecVec.size() << endl;
-  int iFunc = 0;
-  for( ; id != functionId.end(); ++id, ++iFunc ) {
-    int parNum = corrector_->function(iFunc)->parNum();
-    cout << "For function id = " << *id << ", with "<<parNum<< " parameters: " << endl;
-    for( int par=0; par<parNum; ++par ) {
-      cout << "par["<<par<<"] = " << *parVec << endl;
-      ++parVec;
-    }
-//     vector<double>::const_iterator par = parVec->begin();
-//     int i=0;
-//     for( ; par != parVec->end(); ++par, ++i ) {
-//       cout << "par["<<i<<"] = " << *par << endl;
-//     }
-  }
+void DBReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup)
+{
+  if( type_ == "scale" ) printParameters(corrector_);
+  else if( type_ == "resolution" ) printParameters(resolution_);
+  else if( type_ == "background" ) printParameters(background_);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
