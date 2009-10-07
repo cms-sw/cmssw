@@ -23,6 +23,7 @@ popcon::EcalTPGPhysicsConstHandler::EcalTPGPhysicsConstHandler(const edm::Parame
         m_locationsource= ps.getParameter<std::string>("LocationSource");
         m_location=ps.getParameter<std::string>("Location");
         m_gentag=ps.getParameter<std::string>("GenTag");
+	m_runtype=ps.getParameter<std::string>("RunType");
 
         edm::LogInfo("EcalTPGPhysicsConstHandler")<< m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag;
 
@@ -120,7 +121,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" run= "<<irun<<std::endl;
-
+            
 	    // retrieve the data :
 	    map<EcalLogicID, RunTPGConfigDat> dataset;
 	    econn->fetchDataSet(&dataset, &run_vec[kr]);
@@ -161,83 +162,206 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		econn-> fetchConfigSet(&fe_main_info);
 		std::cout << " after fetch config set" << std::endl;	   
 	   
-            // now get TPGPhysicsConst
-            int linId=fe_main_info.getLinId();
-	    
-	    if( linId != m_i_physC ) {
-	    
-	    FEConfigLinInfo fe_phys_info;
-	    fe_phys_info.setId(linId);
-	    econn-> fetchConfigSet(&fe_phys_info);
-	    map<EcalLogicID, FEConfigParamDat> dataset_TpgPhysics;
-	    econn->fetchDataSet(&dataset_TpgPhysics, &fe_phys_info);
-
-	    EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
-            typedef map<EcalLogicID, FEConfigParamDat>::const_iterator CIfelin;
-	    EcalLogicID ecid_xt;
-	    FEConfigParamDat  rd_phys;
-	    int icells=0;
-	    for (CIfelin p = dataset_TpgPhysics.begin(); p != dataset_TpgPhysics.end(); p++) 
-	    {
-	      ecid_xt = p->first;
-	      rd_phys  = p->second;
-	  
-	      std::string ecid_name=ecid_xt.getName();    
-	      // Ecal barrel detector
-	      if(ecid_name=="EB") {
-	      //int sm_num=ecid_xt.getID1();
-	      //int xt_num=ecid_xt.getID2();
-	  
-	      // I am not sure, may be have to use EcalLogicId but it is empty (see in ..)
-	      DetId eb(DetId::Ecal, EcalBarrel);
-	  
-	      EcalTPGPhysicsConst::Item item;
-	      item.EtSat=rd_phys.getETSat();
-	      item.ttf_threshold_Low=rd_phys.getTTThreshlow();
-	      item.ttf_threshold_High=rd_phys.getTTThreshhigh();
-	      item.FG_lowThreshold=rd_phys.getFGlowthresh();
-	      item.FG_highThreshold=rd_phys.getFGhighthresh();
-	      item.FG_lowRatio=rd_phys.getFGlowratio();
-	      item.FG_highRatio= rd_phys.getFGhighratio();	  
-	  
-	      physC->setValue(eb.rawId(),item);
-	  
-	      ++icells;
-	    }
-	    else if (ecid_name=="EE") {
-	      // Ecan endcap detector
-	  
-	      //int sm_num=ecid_xt.getID1();
-	      //int xt_num=ecid_xt.getID2();
-	  
-	      // I am not sure, may be have to use EcalLogicId but it is empty (see in ..)
-	      DetId ee(DetId::Ecal, EcalEndcap);
-	  
-	      EcalTPGPhysicsConst::Item item;
-	      item.EtSat=rd_phys.getETSat();
-	      item.ttf_threshold_Low=rd_phys.getTTThreshlow();
-	      item.ttf_threshold_High=rd_phys.getTTThreshhigh();
-	      item.FG_lowThreshold=rd_phys.getFGlowthresh();
-	      item.FG_highThreshold=rd_phys.getFGhighthresh();
-	      // the last two is empty for the EE
-	      item.FG_lowRatio=rd_phys.getFGlowratio();
-	      item.FG_highRatio= rd_phys.getFGhighratio();	  
-	  
-	      physC->setValue(ee.rawId(),item);
 	   
-	      ++icells;	  
-	  }
-	}
+            	// now get TPGPhysicsConst
+            	int linId=fe_main_info.getLinId();
+	    	int fgrId=fe_main_info.getFgrId();
+	    	int lutId=fe_main_info.getLUTId();
 		
- 	      Time_t snc= (Time_t) irun ;
+		if ((linId != m_i_physClin) || (fgrId != m_i_physCfgr) || (lutId != m_i_physClut) ) {
+	          
+		  std::cout<<"one of the parameters: linId, LutId or fgrId is different from" <<endl;
+		  std::cout<<"last transferred run ..."<<endl;
+ 
+	          FEConfigLinInfo fe_physLin_info;
+	    	  FEConfigFgrInfo fe_physFgr_info;
+		  FEConfigLUTInfo fe_physLut_info;
+		  fe_physLin_info.setId(linId);
+	          fe_physFgr_info.setId(fgrId);
+		  fe_physLut_info.setId(lutId);
+		  
+		  econn-> fetchConfigSet(&fe_physLin_info);
+	          econn-> fetchConfigSet(&fe_physFgr_info);
+		  econn-> fetchConfigSet(&fe_physLut_info);
+	          map<EcalLogicID, FEConfigLinParamDat> dataset_TpgPhysicsLin;
+	          map<EcalLogicID, FEConfigLUTParamDat> dataset_TpgPhysicsLut;
+		  map<EcalLogicID, FEConfigFgrParamDat> dataset_TpgPhysicsFgr;
+		  
+		  econn->fetchDataSet(&dataset_TpgPhysicsLin, &fe_physLin_info);
+		  econn->fetchDataSet(&dataset_TpgPhysicsLut, &fe_physLut_info);
+		  econn->fetchDataSet(&dataset_TpgPhysicsFgr, &fe_physFgr_info);
+
+	          EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
+                  typedef map<EcalLogicID, FEConfigLinParamDat>::const_iterator CIfeLin;
+	          typedef map<EcalLogicID, FEConfigLUTParamDat>::const_iterator CIfeLUT;
+	          typedef map<EcalLogicID, FEConfigFgrParamDat>::const_iterator CIfeFgr;
+
+		  EcalLogicID ecidLin_xt;
+		  EcalLogicID ecidLut_xt;
+		  EcalLogicID ecidFgr_xt;
+	          FEConfigLinParamDat rd_physLin;
+		  FEConfigLUTParamDat rd_physLut;
+		  FEConfigFgrParamDat rd_physFgr;
+	    	  
+		  map<int,float> EtSatLinEB;
+		  map<int,float> EtSatLinEE;
+		  typedef map<int,float>::const_iterator itEtSat;
+		  
+		  map<int,EcalTPGPhysicsConst::Item> temporaryMapEB;
+		  map<int,EcalTPGPhysicsConst::Item> temporaryMapEE;
+		  typedef map<int,EcalTPGPhysicsConst::Item>::iterator iterEB;
+		  typedef map<int,EcalTPGPhysicsConst::Item>::iterator iterEE;
+		  
+                 
+		  for (CIfeLin p0 = dataset_TpgPhysicsLin.begin(); p0 != dataset_TpgPhysicsLin.end(); p0++) 
+	          { 
+	      	    ecidLin_xt = p0->first;
+	            rd_physLin = p0->second;
+	  
+	            std::string ecid_nameLin=ecidLin_xt.getName();
+
+		    if(ecid_nameLin=="EB") {
+		      DetId eb(DetId::Ecal, EcalBarrel);	      
+		      EtSatLinEB.insert(make_pair(eb.rawId(),rd_physLin.getETSat()));  
+		    }
+		    else if (ecid_nameLin=="EE"){
+		    DetId ee(DetId::Ecal, EcalEndcap);		      
+		      EtSatLinEE.insert(make_pair(ee.rawId(),rd_physLin.getETSat()));
+		    }
+		  }   
+
+				  
+		  int icells=0;
+	    	  for (CIfeLUT p1 = dataset_TpgPhysicsLut.begin(); p1 != dataset_TpgPhysicsLut.end(); p1++) 
+	          { 
+	      	    ecidLut_xt = p1->first;
+	            rd_physLut = p1->second;
+	  
+	            std::string ecid_nameLut=ecidLut_xt.getName(); 
+
+	      	    // Ecal barrel detector
+	            if(ecid_nameLut=="EB") {
+	            
+	      	      DetId eb(DetId::Ecal, EcalBarrel);
+		      
+		      for (itEtSat it1 = EtSatLinEB.begin() ; it1 != EtSatLinEB.end(); it1++){
+
+			if (it1->first == eb.rawId()){ 
+		          float ETSatLin = it1->second;
+		          
+	                  if (rd_physLut.getETSat() == ETSatLin) {
+			    EcalTPGPhysicsConst::Item item;
+	                    item.EtSat=rd_physLut.getETSat();
+	                    item.ttf_threshold_Low=rd_physLut.getTTThreshlow();
+	                    item.ttf_threshold_High=rd_physLut.getTTThreshhigh(); 
+		            temporaryMapEB.insert(make_pair(eb.rawId(),item));
+			  }
+			  else throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");
+		        }
+			
+		      }
+		      	      	      	              
+		       	
+	              ++icells;
+	            }
+	    	    else if (ecid_nameLut=="EE") {
+	      	      // Ecal endcap detector	  
+	              
+	      	      DetId ee(DetId::Ecal, EcalEndcap);
+	  
+	              for (itEtSat it2 = EtSatLinEE.begin(); it2 != EtSatLinEE.end(); it2++){
+
+			if (it2->first == ee.rawId()){ 
+		          float ETSatLin = it2->second;
+		       
+	                  if (rd_physLut.getETSat() == ETSatLin) {
+			    EcalTPGPhysicsConst::Item item;
+	      	      	    item.EtSat=rd_physLut.getETSat();
+	      	      	    item.ttf_threshold_Low=rd_physLut.getTTThreshlow();
+	      	      	    item.ttf_threshold_High=rd_physLut.getTTThreshhigh(); 
+	                    temporaryMapEE.insert( make_pair(ee.rawId(),item) );
+			  }
+			  else throw cms::Exception("The values of the ETSatLin and ETSatLut are different.");
+		        }
+			
+		      }
+		      		       	   
+	      	      ++icells;	  
+	  	    }
+	          }
+		  
+		  int icellsEB=0;
+		  int icellsEE=0;
+	          for (CIfeFgr p2 = dataset_TpgPhysicsFgr.begin(); p2 != dataset_TpgPhysicsFgr.end(); p2++) 
+	          { 
+		    ecidFgr_xt = p2->first;
+	            rd_physFgr  = p2->second;
+	  
+	      	    std::string ecid_nameFgr=ecidFgr_xt.getName();
+
+	      	    // Ecal barrel detector
+	            if(ecid_nameFgr=="EB") {
+		      
+	      	      DetId eb(DetId::Ecal, EcalBarrel);
+		      
+	  	      int count;
+		      for ( iterEB itt=temporaryMapEB.begin() ; itt != temporaryMapEB.end() ; itt++ ){
+                       			
+		        if (itt->first == eb.rawId()){ 
+
+			  (itt->second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
+	                  (itt->second).FG_highThreshold=rd_physFgr.getFGhighthresh();
+	                  (itt->second).FG_lowRatio=rd_physFgr.getFGlowratio();
+	                  (itt->second).FG_highRatio= rd_physFgr.getFGhighratio();
+						   
+			   physC->setValue(eb.rawId(),itt->second);
+			
+			}
+			
+			count++; 
+		      }	  
+	  
+	              ++icellsEB;
+		      
+	            }
+	    	    else if (ecid_nameFgr=="EE") {
+	      	      // Ecal endcap detector
+
+	      	      DetId ee(DetId::Ecal, EcalEndcap);
+		
+	              int countEE = 0;
+	  	      for ( iterEE itEE=temporaryMapEE.begin() ; itEE != temporaryMapEE.end() ; itEE++ ){                       
+
+		        if (itEE->first == ee.rawId()){ 
+			  
+			  (itEE->second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
+	                  (itEE->second).FG_highThreshold=rd_physFgr.getFGhighthresh();
+	                  // the last two is empty for the EE
+			  (itEE->second).FG_lowRatio=rd_physFgr.getFGlowratio();
+	                  (itEE->second).FG_highRatio= rd_physFgr.getFGhighratio();
+			   
+			   physC->setValue(ee.rawId(),itEE->second); 
+			}
+			
+			countEE++; 
+		      }
+	   
+	      	      ++icellsEE;	  
+	  	    }
+	          }
+		  
+
+ 	        Time_t snc= (Time_t) irun ;
 	      	      
- 	      m_to_transfer.push_back(std::make_pair((EcalTPGPhysicsConst*)physC,snc));
+ 	        m_to_transfer.push_back(std::make_pair((EcalTPGPhysicsConst*)physC,snc));
 	      
 	      
 	          m_i_run_number=irun;
 		  m_i_tag=the_config_tag;
 		  m_i_version=the_config_version;
-		  m_i_physC=linId;
+		  m_i_physClin=linId;
+		  m_i_physClut=lutId;
+		  m_i_physCfgr=fgrId;
 		  
 		  writeFile("last_tpg_physC_settings.txt");
 
@@ -293,8 +417,10 @@ void  popcon::EcalTPGPhysicsConstHandler::readFromFile(const char* inputFile) {
   m_i_tag="";
   m_i_version=0;
   m_i_run_number=0;
-  m_i_physC=0; 
-
+  m_i_physClin=0;
+  m_i_physClut=0;
+  m_i_physCfgr=0;
+		  
   FILE *inpFile; // input file
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
@@ -318,9 +444,16 @@ void  popcon::EcalTPGPhysicsConstHandler::readFromFile(const char* inputFile) {
   str << "run_number= " << m_i_run_number << endl ;  
 
   fgets(line,255,inpFile);
-  m_i_physC=atoi(line);
-  str << "physC_config= " << m_i_physC << endl ;  
+  m_i_physClin=atoi(line);
+  str << "physClin_config= " << m_i_physClin << endl ;  
 
+  fgets(line,255,inpFile);
+  m_i_physClut=atoi(line);
+  str << "physClut_config= " << m_i_physClut << endl ;  
+  
+  fgets(line,255,inpFile);
+  m_i_physCfgr=atoi(line);
+  str << "physCfgr_config= " << m_i_physCfgr << endl ;  
     
   fclose(inpFile);           // close inp. file
 
@@ -335,8 +468,11 @@ void  popcon::EcalTPGPhysicsConstHandler::writeFile(const char* inputFile) {
   myfile << m_i_tag <<endl;
   myfile << m_i_version <<endl;
   myfile << m_i_run_number <<endl;
-  myfile << m_i_physC <<endl;
+  myfile << m_i_physClin <<endl;
+  myfile << m_i_physClut <<endl;
+  myfile << m_i_physCfgr <<endl;
 
   myfile.close();
 
 }
+

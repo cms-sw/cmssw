@@ -95,8 +95,10 @@ namespace popcon
 			string m_i_tag;
 			int m_i_version;
 			int m_i_run_number;
-			int m_i_physC;
-
+			int m_i_physClin;
+			int m_i_physClut;
+			int m_i_physCfgr;
+			
 	};
 }
 #endif
