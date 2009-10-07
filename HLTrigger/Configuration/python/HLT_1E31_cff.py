@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_3_0/1E31/V5 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
+# /dev/CMSSW_3_4_0/pre1/1E31/V1 (CMSSW_3_3_X_2009-09-17-0100_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_3_0/1E31/V5')
+  tableName = cms.string('/dev/CMSSW_3_4_0/pre1/1E31/V1')
 )
 
 
@@ -823,7 +823,8 @@ hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
 hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 1 )
 )
-hltEventNumber = cms.EDFilter( "HLTEventNumberFilter",
+hltL1EventNumber = cms.EDFilter( "HLTL1NumberFilter",
+    rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 4096 ),
     invert = cms.bool( True )
 )
@@ -5368,7 +5369,7 @@ hltPixelVertices = cms.EDProducer( "PixelVertexProducer",
 hltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
       doClusterCheck = cms.bool( False )
     ),
     RegionFactoryPSet = cms.PSet( 
@@ -5467,7 +5468,7 @@ hltFilterL25LeadingTrackPtCutSingleIsoTau30Trk5 = cms.EDFilter( "HLT1Tau",
 hltL3TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
       doClusterCheck = cms.bool( False )
     ),
     RegionFactoryPSet = cms.PSet( 
@@ -5668,7 +5669,7 @@ hltBLifetimeL3JetsStartup = cms.EDProducer( "GetJetsFromHLTobject",
 hltBLifetimeRegionalPixelSeedGeneratorStartup = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
       doClusterCheck = cms.bool( False )
     ),
     RegionFactoryPSet = cms.PSet( 
@@ -6595,7 +6596,7 @@ hltIsolPixelTrackL2Filter1E31 = cms.EDFilter( "HLTPixelIsolTrackFilter",
 hltHITPixelPairSeedGenerator1E31 = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
       doClusterCheck = cms.bool( False )
     ),
     RegionFactoryPSet = cms.PSet( 
@@ -6636,7 +6637,7 @@ hltHITPixelPairSeedGenerator1E31 = cms.EDProducer( "SeedGeneratorFromRegionHitsE
 hltHITPixelTripletSeedGenerator1E31 = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     ClusterCheckPSet = cms.PSet( 
       MaxNumberOfCosmicClusters = cms.uint32( 50000 ),
-      ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
+      ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" ),
       doClusterCheck = cms.bool( False )
     ),
     RegionFactoryPSet = cms.PSet( 
@@ -6731,7 +6732,8 @@ hltIsolPixelTrackL3Filter1E31 = cms.EDFilter( "HLTPixelIsolTrackFilter",
     filterTrackEnergy = cms.bool( True ),
     MinEnergyTrack = cms.double( 10.0 )
 )
-hltEventNumberNZS = cms.EDFilter( "HLTEventNumberFilter",
+hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
+    rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 4096 ),
     invert = cms.bool( False )
 )
@@ -6745,15 +6747,6 @@ hltL1sAlCaHcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreAlCaHcalPhiSym = cms.EDFilter( "HLTPrescaler" )
-hltAlCaHcalFEDSelector = cms.EDProducer( "SubdetFEDSelector",
-    getECAL = cms.bool( False ),
-    getSiStrip = cms.bool( False ),
-    getSiPixel = cms.bool( False ),
-    getHCAL = cms.bool( True ),
-    getMuon = cms.bool( False ),
-    getTrigger = cms.bool( True ),
-    rawInputLabel = cms.InputTag( "rawDataCollector" )
-)
 hltL1sAlCaEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -7074,7 +7067,7 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
-HLTBeginSequence = cms.Sequence( hltTriggerType + hltEventNumber + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
+HLTBeginSequence = cms.Sequence( hltTriggerType + hltL1EventNumber + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
 HLTEndSequence = cms.Sequence( hltBoolEnd )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
 HLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + HLTDoLocalHcalSequence + hltTowerMakerForAll )
@@ -7141,7 +7134,7 @@ HLTEle10SWL1RTripleJet30EGSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequen
 HLTEle10LWL1RHT200EGSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + HLTL1NonIsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1NonIsoRecoEcalCandidate + hltEle10LWL1RHT200L1MatchFilterRegional + hltEle10LWL1RHT200EleEtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedElectronHcalIsol + hltL1NonIsolatedElectronHcalIsol + hltEle10LWL1RHT200EleHcalIsolFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltL1IsoLargeWindowElectronPixelSeeds + hltL1NonIsoLargeWindowElectronPixelSeeds + hltEle10LWL1RHT200ElePixelMatchFilter )
 HLTPixelTrackingForMinBiasSequence = cms.Sequence( hltPixelTracksForMinBias )
 HLTL2HcalIsolTrackSequence = cms.Sequence( HLTDoLocalPixelSequence + hltPixelTracks + hltPixelVertices )
-HLTBeginSequenceNZS = cms.Sequence( hltTriggerType + hltEventNumberNZS + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
+HLTBeginSequenceNZS = cms.Sequence( hltTriggerType + hltL1EventNumberNZS + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
 HLTDoRegionalPi0EtaSequence = cms.Sequence( hltESRawToRecHitFacility + hltEcalRawToRecHitFacility + hltEcalRegionalPi0EtaFEDs + hltESRegionalPi0EtaRecHit + hltEcalRegionalPi0EtaRecHit )
 
 HLTriggerFirstPath = cms.Path( hltGetRaw + HLTBeginSequence + hltPreFirstPath + hltBoolFirstPath )
@@ -7235,7 +7228,7 @@ HLT_BackwardBSC = cms.Path( HLTBeginSequence + hltL1sBackwardBSC + hltPreBackwar
 HLT_ForwardBSC = cms.Path( HLTBeginSequence + hltL1sForwardBSC + hltPreForwardBSC + HLTEndSequence )
 HLT_TrackerCosmics = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics + hltPreTrackerCosmics + HLTEndSequence )
 HLT_IsoTrack_1E31 = cms.Path( HLTBeginSequence + hltL1sIsoTrack1E31 + hltPreIsoTrack1E31 + HLTL2HcalIsolTrackSequence + hltIsolPixelTrackProd1E31 + hltIsolPixelTrackL2Filter1E31 + HLTDoLocalStripSequence + hltHITPixelPairSeedGenerator1E31 + hltHITPixelTripletSeedGenerator1E31 + hltHITSeedCombiner1E31 + hltHITCkfTrackCandidates1E31 + hltHITCtfWithMaterialTracks1E31 + hltHITIPTCorrector1E31 + hltIsolPixelTrackL3Filter1E31 + HLTEndSequence )
-AlCa_HcalPhiSym = cms.Path( HLTBeginSequenceNZS + hltL1sAlCaHcalPhiSym + hltPreAlCaHcalPhiSym + hltAlCaHcalFEDSelector + HLTEndSequence )
+AlCa_HcalPhiSym = cms.Path( HLTBeginSequenceNZS + hltL1sAlCaHcalPhiSym + hltPreAlCaHcalPhiSym + HLTEndSequence )
 AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPhiSym + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + HLTEndSequence )
 AlCa_EcalPi0_1E31 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalPi01E31 + HLTDoRegionalPi0EtaSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
 AlCa_EcalEta_1E31 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta1E31 + hltPreAlCaEcalEta1E31 + HLTDoRegionalPi0EtaSequence + hltAlCaEtaRegRecHits + HLTEndSequence )
