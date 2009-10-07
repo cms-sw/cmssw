@@ -63,6 +63,11 @@ ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet& conf)
 {
   inputCollection_=conf.getParameter<edm::InputTag>("inputCollection") ;
   histfile_ = new TFile("electronpixelseeds.root","RECREATE");
+}
+
+void ElectronSeedAnalyzer::beginJob()
+{
+  histfile_->cd();
   tree_ = new TTree("ElectronSeeds","ElectronSeed validation ntuple");
   tree_->Branch("mcEnergy",mcEnergy,"mcEnergy[10]/F");
   tree_->Branch("mcEta",mcEta,"mcEta[10]/F");
@@ -110,11 +115,17 @@ ElectronSeedAnalyzer::ElectronSeedAnalyzer(const edm::ParameterSet& conf)
   histnrseeds_ = new TH1I("ns","Nr of seeds if clusters",50,0.,25.);
 }
 
+void ElectronSeedAnalyzer::endJob()
+{
+  histfile_->cd();
+  tree_->Print();
+  tree_->Write();
+}
+
 ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
 {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  tree_->Print();
   histfile_->Write();
   histfile_->Close();
 }
@@ -122,6 +133,7 @@ ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
 void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& iSetup)
 {
 
+  std::cout << "Treating event "<<e.id()<< std::endl;
   edm::ESHandle<TrackerGeometry> pDD ;
   edm::ESHandle<MagneticField> theMagField ;
   iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
@@ -142,6 +154,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   edm::Handle<ElectronSeedCollection> elSeeds;
   e.getByLabel(inputCollection_,elSeeds);
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
+  std::cout << "Treating event "<<e.id()<< std::endl;
   int is=0;
 
   FTSFromVertexToPointFactory   myFTS;
@@ -411,7 +424,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   e.getByLabel("correctedHybridSuperClusters", clusters);
   histnbclus_->Fill(clusters.product()->size());
   if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
-
+  std::cout << "here1" << std::endl;
   // get MC information
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;
@@ -474,7 +487,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         if (fabs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
-	if ( deltaR < 0.05 ){
+	if ( deltaR < 0.15 ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
 	  double tmpSeedRatio = p/pAssSim.t();

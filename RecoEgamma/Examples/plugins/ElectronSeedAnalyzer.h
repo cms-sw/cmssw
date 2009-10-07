@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedAnalyzer.h,v 1.1 2009/01/12 17:10:30 chamont Exp $
+// $Id: ElectronSeedAnalyzer.h,v 1.2 2009/03/06 12:42:16 chamont Exp $
 //
 //
 
@@ -40,6 +40,8 @@ class ElectronSeedAnalyzer : public edm::EDAnalyzer
   explicit ElectronSeedAnalyzer( const edm::ParameterSet & conf );
   virtual ~ElectronSeedAnalyzer();
   virtual void analyze( const edm::Event &, const edm::EventSetup &);
+  virtual void beginJob();
+  virtual void endJob();
 
  private:
 

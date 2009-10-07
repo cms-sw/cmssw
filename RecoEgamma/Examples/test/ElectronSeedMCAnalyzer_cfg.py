@@ -12,11 +12,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 process.source = cms.Source ("PoolSource",
     fileNames = cms.untracked.vstring (
-        '/store/relval/CMSSW_3_1_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/F8A5EC4A-F64E-DE11-8160-001D09F23A20.root'
+    '/store/relval/CMSSW_3_1_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_31X_v1/0007/F8A5EC4A-F64E-DE11-8160-001D09F23A20.root'
     )
 )
 process.electronSeedAnalysis = cms.EDAnalyzer("ElectronSeedAnalyzer",
@@ -28,7 +28,8 @@ process.myglobalreco = cms.Sequence(process.offlineBeamSpot+process.recopixelver
 process.myelectronseeding = cms.Sequence(process.trackerDrivenElectronSeeds*process.ecalDrivenElectronSeeds*process.electronMergedSeeds)
 process.myelectrontracking = cms.Sequence(process.electronCkfTrackCandidates*process.electronGsfTracks)
 
-process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence)
+#process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.myelectrontracking*process.particleFlowReco*process.pfElectronTranslator*process.gsfElectronSequence*)
+process.p = cms.Path(process.RawToDigi*process.mylocalreco*process.myglobalreco*process.myelectronseeding*process.electronSeedAnalysis)
 
 
 process.GlobalTag.globaltag = 'MC_31X_V3::All'
