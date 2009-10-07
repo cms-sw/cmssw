@@ -112,6 +112,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    TString myName = myKey1->GetName();
    collname1 = myName;
    myKey2 = (TKey*)iter_s();
+   if (!myKey2) continue;
    collname2 = myKey2->GetName();
    if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
      bool goodAsWell = false;
@@ -123,9 +124,31 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
        if (collname1.Contains("MuonAssociation")==collname2.Contains("MuonAssociation"));
        goodAsWell = true;
      }
+     if (collname1.BeginsWith("hltL3TkFromL2") && collname2.BeginsWith("hltL3TkFromL2")) {
+       if (collname1.Contains("MuonAssociation")==collname2.Contains("MuonAssociation"));
+       goodAsWell = true;
+     }
+     TString isGood = (goodAsWell? "good": "NOT good");
+     //     cout << " -- The two collections: " << collname1 << " : " << collname2 << " -> " << isGood << endl;
      if (! goodAsWell) {
-       cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
-       continue;
+       if (collname1.Contains("MuonAssociation") || collname1.Contains("tevMuons")) {
+	 if (myKey1 = (TKey*)iter_r()) {
+	   collname1 = myKey1->GetName();
+	 }
+       }
+       else if (collname2.Contains("MuonAssociation") || collname2.Contains("tevMuons")) {
+	 if (myKey2 = (TKey*)iter_s()) {
+	   collname2 = myKey2->GetName();
+	 }
+       }
+       if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
+	 cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
+	 continue;
+       }
+       else {
+	 //	 cout << "    The NEW collections: " << collname1 << " : " << collname2 << endl;
+	 myName = myKey1->GetName();
+       }
      }
    }
 
