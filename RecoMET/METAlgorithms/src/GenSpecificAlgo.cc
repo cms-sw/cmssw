@@ -77,9 +77,18 @@ reco::GenMET GenSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > particl
       case 1000012 :  // LH ~e_nu  
       case 1000014 :  // LH ~mu_nu
       case 1000016 :  // LH ~tau_nu
+      case 2000012 :  // RH ~e_nu  
+      case 2000014 :  // RH ~mu_nu
+      case 2000016 :  // RH ~tau_nu
+      case 39 :       //  G
       case 1000039 :  // ~G
+      case 5100039 :  // KK G
       case 4000012 :  // excited e_nu
-      case 39 :  //  G
+      case 4000014 :  // excited mu_nu 
+      case 4000016 :  // excited tau_nu 
+      case 9900012 :  // Maj e_nu
+      case 9900014 :  // Maj mu_nu 
+      case 9900016 :  // Maj tau_nu 
 	specific.InvisibleEtFraction   += iParticle->et();
 	break;
       default : 
