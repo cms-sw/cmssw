@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.46 2009/08/22 17:10:13 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.47 2009/09/21 21:41:17 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -29,11 +29,11 @@
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
 
-class DetailViewFrame : public TGTransientFrame
+class DetailViewFrame : public TGMainFrame
 {
 public:
-   DetailViewFrame(const TGWindow *p):
-      TGTransientFrame(gClient->GetRoot(), p, 800, 600)
+   DetailViewFrame():
+      TGMainFrame(gClient->GetRoot(), 790, 450)
    {
    };
 
@@ -52,7 +52,7 @@ FWDetailViewManager::FWDetailViewManager(const TGWindow* cmsShowMainFrame):
    m_eveFrame(0),
    m_detailView(0)
 {
-   m_mainFrame = new DetailViewFrame(cmsShowMainFrame);
+   m_mainFrame = new DetailViewFrame();
    m_mainFrame->SetCleanup(kLocalCleanup);
 
    m_eveFrame = new TEveCompositeFrameInMainFrame(m_mainFrame, 0, m_mainFrame);
