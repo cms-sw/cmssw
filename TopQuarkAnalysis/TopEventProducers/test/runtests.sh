@@ -2,7 +2,7 @@
 
 function die { echo $1: status $2 ;  exit $2; }
 
-cmsRun ${LOCAL_TEST_DIR}/tqafFromAOD_full_cfg.py || die 'Failure using tqafFromAOD_full_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/tqaf_cfg.py || die 'Failure using tqaf_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/ttDecaySubset_cfg.py || die 'Failure using ttDecaySubset_cfg.py' $?
 
