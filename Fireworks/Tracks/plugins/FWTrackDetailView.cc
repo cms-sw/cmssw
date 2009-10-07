@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.cc,v 1.18 2009/09/21 21:42:32 amraktad Exp $
+// $Id: FWTrackDetailView.cc,v 1.19 2009/10/06 11:24:32 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -31,12 +31,14 @@
 //
 // constructors and destructor
 //
-FWTrackDetailView::FWTrackDetailView()
+FWTrackDetailView::FWTrackDetailView():
+m_hitsView(0)
 {
 }
 
 FWTrackDetailView::~FWTrackDetailView()
 {
+   delete m_hitsView;
 }
 
 //
@@ -67,9 +69,11 @@ void FWTrackDetailView::build(const FWModelId &id, const reco::Track* iTrack, TE
    ////////////////////////////////////////////////////////////////////////
    //                              Sub-view 2
    ///////////////////////////////////////////////////////////////////////
+   // this view has to  be on heap, since it has to live to 
+   // handle action signals
    slot = eveWindow->NewSlotWithWeight(60);
-   FWTrackHitsDetailView builder2;
-   builder2.build(id,iTrack,slot);
+   m_hitsView = new FWTrackHitsDetailView();
+   m_hitsView->build(id,iTrack,slot);
 }
 
 REGISTER_FWDETAILVIEW(FWTrackDetailView);
