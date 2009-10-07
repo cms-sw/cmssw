@@ -103,29 +103,69 @@ void HDQMInspector::accessDB()
 
 void  HDQMInspector::setBlackList(std::string const & ListItems)
 {
-   std::string::size_type oldloc = 0; 
-   std::string::size_type loc = ListItems.find( ",", oldloc );
-   
-   while( loc != std::string::npos ) {
-     blackList.push_back(atoi((ListItems.substr(oldloc,loc-oldloc)).c_str()));
-     oldloc=loc+1;
-     loc=ListItems.find( ",", oldloc );
-     }
-   
-   blackList.push_back(atoi((ListItems.substr(oldloc,loc-oldloc)).c_str()));
-   std::cout << std::endl; 
+
+  // Run over entire input string
+  for (std::string::const_iterator Pos = ListItems.begin(); Pos != ListItems.end(); ) {
+
+    // The rest of the string
+    std::string Remainder(Pos, ListItems.end());
+
+    // This entry will be from the beginning of the remainder to either a ","
+    // or the end of the string
+    std::string Entry = Remainder.substr(0, Remainder.find(","));
+
+    // If we find a "-" we know it's a blacklist range
+    if ( Entry.find("-") ) {
+
+      // Get the first and last runs from this range
+      int const FirstRun = atoi( Entry.substr(0, Entry.find("-")).c_str() );
+      int const LastRun  = atoi( Entry.substr(Entry.find("-")+1).c_str() );
+
+      // If you entered it stupidly we're going to stop here.
+      if (FirstRun > LastRun) {
+        std::cerr << "ERROR: FirstRun > LastRun in blackList" << std::endl;
+        exit(1);
+      }
+
+      // For now the simplest thing to do is fill in gaps including each end
+      for (int i = FirstRun; i <= LastRun; ++i) {
+        blackList.push_back(i);
+      }
+
+    } else {
+      // If we didn't see a "-" just add it to the list
+      blackList.push_back( atoi(Entry.c_str()) );
+    }
+
+    // This is to make sure we are in the correct position as we go on.
+    Pos += Entry.size();
+    if (Pos != ListItems.end()) {
+      Pos += 1;
+    }
+
+  }
+
+  // sort the list for faster searching later
+  std::sort(blackList.begin(), blackList.end());
+
+  return;
 }
 
 bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList)
 {
-   bool isListed = false;
-   for(unsigned int i=0; i<vList.size();i++){
-     if(run== vList.at(i)){ 
-      isListed = true;
-      if(iDebug) std::cout << "\n Run "<< run << " is black listed !!\n" << std::endl;
-     }
+  // This routine expectes a sorted list and returns true if the run is in the list,
+  // false otherwise
+
+  // Binary search is much faster, but you MUST give it a sorted list.
+  if (std::binary_search(vList.begin(), vList.end(), run)) {
+    if(iDebug) {
+      std::cout << "\n Run "<< run << " is black listed !!\n" << std::endl;
     }
-   return isListed;
+    return true;
+  }
+
+  return false;
+
 }
 
 
