@@ -19,6 +19,32 @@ CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 	lctProducer   = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker"));
 	trackProducer = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker"));
 	statusProducer= conf.getUntrackedParameter<edm::InputTag>("statusProducer",edm::InputTag("csctfunpacker"));
+	file = new TFile("qwe.root","RECREATE");
+	tree = new TTree("dy","QWE");
+	tree->Branch("dtPhi_1_plus",&dtPhi[0][0],"dtPhi_1_plus/I");
+	tree->Branch("dtPhi_2_plus",&dtPhi[1][0],"dtPhi_2_plus/I");
+	tree->Branch("dtPhi_3_plus",&dtPhi[2][0],"dtPhi_3_plus/I");
+	tree->Branch("dtPhi_4_plus",&dtPhi[3][0],"dtPhi_4_plus/I");
+	tree->Branch("dtPhi_5_plus",&dtPhi[4][0],"dtPhi_5_plus/I");
+	tree->Branch("dtPhi_6_plus",&dtPhi[5][0],"dtPhi_6_plus/I");
+	tree->Branch("dtPhi_7_plus",&dtPhi[6][0],"dtPhi_7_plus/I");
+	tree->Branch("dtPhi_8_plus",&dtPhi[7][0],"dtPhi_8_plus/I");
+	tree->Branch("dtPhi_9_plus",&dtPhi[8][0],"dtPhi_9_plus/I");
+	tree->Branch("dtPhi_10_plus",&dtPhi[9][0],"dtPhi_10_plus/I");
+	tree->Branch("dtPhi_11_plus",&dtPhi[10][0],"dtPhi_11_plus/I");
+	tree->Branch("dtPhi_12_plus",&dtPhi[11][0],"dtPhi_12_plus/I");
+	tree->Branch("dtPhi_1_minus",&dtPhi[0][1],"dtPhi_1_minus/I");
+	tree->Branch("dtPhi_2_minus",&dtPhi[1][1],"dtPhi_2_minus/I");
+	tree->Branch("dtPhi_3_minus",&dtPhi[2][1],"dtPhi_3_minus/I");
+	tree->Branch("dtPhi_4_minus",&dtPhi[3][1],"dtPhi_4_minus/I");
+	tree->Branch("dtPhi_5_minus",&dtPhi[4][1],"dtPhi_5_minus/I");
+	tree->Branch("dtPhi_6_minus",&dtPhi[5][1],"dtPhi_6_minus/I");
+	tree->Branch("dtPhi_7_minus",&dtPhi[6][1],"dtPhi_7_minus/I");
+	tree->Branch("dtPhi_8_minus",&dtPhi[7][1],"dtPhi_8_minus/I");
+	tree->Branch("dtPhi_9_minus",&dtPhi[8][1],"dtPhi_9_minus/I");
+	tree->Branch("dtPhi_10_minus",&dtPhi[9][1],"dtPhi_10_minus/I");
+	tree->Branch("dtPhi_11_minus",&dtPhi[10][1],"dtPhi_11_minus/I");
+	tree->Branch("dtPhi_12_minus",&dtPhi[11][1],"dtPhi_12_minus/I");
 }
 
 void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
@@ -42,22 +68,28 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 			edm::LogInfo("CSCTFAnalyzer") << "  Unpacking Errors: "<<status->first;
 			for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin();
 				stat!=status->second.end(); stat++){
-				edm::LogInfo("CSCTFAnalyzer") << "   Status: SP in slot "<<stat->slot()<<"  FMM: "<<stat->FMM()<<" SE: 0x"<<std::hex<<stat->SEs()<<" VP: 0x"<<stat->VPs()<<std::dec;
+				//edm::LogInfo("CSCTFAnalyzer") << "   Status: SP in slot "<<stat->slot()<<"  FMM: "<<stat->FMM()<<" SE: 0x"<<std::hex<<stat->SEs()<<" VP: 0x"<<stat->VPs()<<std::dec;
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid L1CSCStatusDigiCollection products found";
 	}
 
 	if( mbProducer.label() != "null" ){
+		bzero(dtPhi,sizeof(dtPhi));
 		edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs;
 		e.getByLabel(mbProducer.label(),mbProducer.instance(),dtStubs);
 		if( dtStubs.isValid() ){
 			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
 			for(std::vector<csctf::TrackStub>::const_iterator stub=vstubs.begin(); stub!=vstubs.end(); stub++){
-				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" CSC sector="<<stub->sector()<<" CSC subsector"<<stub->subsector()<<" station="<<stub->station()
-					<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid();
+				int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
+				int dtEndcap = stub->endcap()-1;
+				if( dtSector>=0 && dtSector<12 && dtEndcap>=0 && dtEndcap<2 ) dtPhi[dtSector][dtEndcap] = stub->phiPacked();
+				else { edm::LogInfo("CSCTFAnalyzer: CSC digi are out of range: ")<<" dtSector="<<dtSector<<" dtEndcap="<<dtEndcap;
+				edm::LogInfo("CSCTFAnalyzer")<<"   DT data: tbin="<<stub->BX()<<" CSC sector="<<stub->sector()<<" CSC subsector="<<stub->subsector()<<" station="<<stub->station()<<" endcap="<<stub->endcap()
+						<<" phi="<<stub->phiPacked()<<" phiBend="<<stub->getBend()<<" quality="<<stub->getQuality()<<" mb_bxn="<<stub->cscid(); }
 			}
 		}
 		else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCTriggerContainer<csctf::TrackStub> products found";
+		tree->Fill();
 	}
 
 	if( lctProducer.label() != "null" ){
@@ -79,8 +111,8 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 						edm::LogInfo("CSCTFAnalyzer: CSC digi are out of range: ");
 						continue;
 					}
-					edm::LogInfo("CSCTFAnalyzer")<<"   Front data   endcap: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
-						"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
+					//edm::LogInfo("CSCTFAnalyzer")<<"   Front data   endcap: "<<(*csc).first.endcap()<<"  station: "<<(station+1)<<"  sector: "<<(sector+1)<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<(cscId+1)<<"  fpga: "<<(fpga+1)<<" "<<
+					//	"LCT(vp="<<lct->isValid()<<",qual="<<lct->getQuality()<<",wg="<<lct->getKeyWG()<<",strip="<<lct->getStrip()<<")";
 				}
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid CSCCorrelatedLCTDigiCollection products found";
@@ -94,8 +126,8 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 			for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++,nTrk++){
 				int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;
 				int tbin   = trk->first.BX();
-				edm::LogInfo("CSCTFAnalyzer") << "   Track sector: "<<(sector+1)<<"  tbin: "<<tbin<<" "<<
-					"TRK(mode="<<((trk->first.ptLUTAddress()>>16)&0xF)<<",eta="<<trk->first.eta_packed()<<",phi="<<trk->first.localPhi()<<")";
+				//edm::LogInfo("CSCTFAnalyzer") << "   Track sector: "<<(sector+1)<<"  tbin: "<<tbin<<" "<<
+				//	"TRK(mode="<<((trk->first.ptLUTAddress()>>16)&0xF)<<",eta="<<trk->first.eta_packed()<<",phi="<<trk->first.localPhi()<<")";
 			}
 		} else edm::LogInfo("CSCTFAnalyzer")<<"  No valid L1CSCTrackCollection products found";
 	}
