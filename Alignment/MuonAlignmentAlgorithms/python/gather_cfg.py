@@ -79,6 +79,7 @@ if trackerconnect != "":
     process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
 
 process.looper.saveToDB = False
+process.looper.saveApeToDB = False
 del process.PoolDBOutputService
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("plotting%03d.root" % jobnumber))
