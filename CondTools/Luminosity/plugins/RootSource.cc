@@ -60,6 +60,11 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
     l1tree->SetBranchAddress("L1Trigger.",&l1data);
     size_t nentries=l1tree->GetEntries();
     std::cout<<"l1tree entries "<<nentries<<std::endl;
+    for(size_t i=0;i<nentries;++i){
+      l1tree->GetEntry(i);
+      std::cout<<l1data->runNumber<<std::endl;
+      std::cout<<l1data->sectionNumber<<std::endl;
+    }
   }
 
   TTree *hlttree = (TTree*)m_source->Get("HLTrigger");
@@ -71,6 +76,12 @@ lumi::RootSource::RootSource(const edm::ParameterSet& pset):LumiRetrieverBase(ps
     hlttree->SetBranchAddress("HLTrigger.",&hltdata);
     size_t nentries=hlttree->GetEntries();
     std::cout<<"hlttree entries "<<nentries<<std::endl;
+    for(size_t i=0;i<nentries;++i){
+      hlttree->GetEntry(i);
+      std::cout<<hltdata->runNumber<<std::endl;
+      std::cout<<hltdata->sectionNumber<<std::endl;
+      std::cout<<std::string(hltdata->HLTConfigKey)<<std::endl;
+    }
   }
 }
 void
