@@ -15,6 +15,7 @@
 #include "GsfElectronMCAnalyzer.h"
 #include "GsfElectronDataAnalyzer.h"
 #include "GsfElectronFakeAnalyzer.h"
+#include "GsfElectronMCFakeAnalyzer.h"
 #include "PatPhotonSimpleAnalyzer.h"
 DEFINE_SEAL_MODULE();
 
@@ -34,6 +35,7 @@ DEFINE_ANOTHER_FWK_MODULE(MCPizeroAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(GsfElectronMCAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(GsfElectronDataAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(GsfElectronFakeAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(GsfElectronMCFakeAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
