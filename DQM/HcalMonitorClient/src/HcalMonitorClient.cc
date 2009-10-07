@@ -31,7 +31,6 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( beam_client_)        delete beam_client_;
   if (dqm_db_)             delete dqm_db_;
   //if( dbe_ )               delete dbe_;
-  if( mui_ )               delete mui_;
   */
   if (debug_>1) std::cout <<"HcalMonitorClient: Finished destructor..."<<endl;
 }
@@ -75,9 +74,11 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
       else std::cout << "-->enableMonitorDaemon switch is OFF" << endl;
     }
 
-  mui_ = new DQMOldReceiver();
-  dbe_ = mui_->getBEInterface();
-
+  //mui_ = new DQMOldReceiver();
+  //dbe_ = mui_->getBEInterface();
+  // change to get rid of "DQMOldReceiver" call
+  dbe_ = Service<DQMStore>().operator->();
+  
   // DQM ROOT input
   inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
   if(inputFile_.size()!=0 && debug_>0) std::cout << "-->reading DQM input from " << inputFile_ << endl;
@@ -614,7 +615,7 @@ void HcalMonitorClient::analyze(){
   if(debug_>1) std::cout<<"\nHcal Monitor Client heartbeat...."<<endl;
   
   createTests();  
-  mui_->doMonitoring();
+  //mui_->doMonitoring();
   dbe_->runQTests();
 
   if (showTiming_) 

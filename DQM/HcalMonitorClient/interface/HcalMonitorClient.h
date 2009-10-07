@@ -14,7 +14,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -157,7 +156,7 @@ public:
   
   ///Connection to the DQM backend
   DQMStore* dbe_;  
-  DQMOldReceiver* mui_;
+  //DQMOldReceiver* mui_;
   
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;

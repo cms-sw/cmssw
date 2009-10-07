@@ -8,7 +8,6 @@
 #include <string>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/QReport.h"
 

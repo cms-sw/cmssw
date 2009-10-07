@@ -9,7 +9,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 

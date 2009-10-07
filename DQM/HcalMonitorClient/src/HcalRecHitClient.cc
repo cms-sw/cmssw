@@ -304,7 +304,7 @@ void HcalRecHitClient::getHistograms()
   if(!dbe_) return;
 
   ostringstream name;
-  name<<process_.c_str()<<"Hcal/RecHitMonitor_Hcal/RecHit Event Number";
+  name<<process_.c_str()<<rootFolder_"<</RecHitMonitor_Hcal/RecHit Task Event Number";
 
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) 

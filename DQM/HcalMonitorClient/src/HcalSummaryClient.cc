@@ -317,6 +317,8 @@ void HcalSummaryClient::cleanup(void)
   
   if ( ! enableCleanup_ ) return;
 
+  depthME.clear(); // make sure that depth histograms are removed at end of run
+
   MonitorElement* me;
 
   me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummary"); 

@@ -274,8 +274,8 @@ void HcalBeamClient::report()
   if ( debug_>1 ) cout << "HcalBeamClient: report" << endl;
   this->setup();
 
-  ostringstream name;
-  name<<process_.c_str()<<"Hcal/BeamMonitor_Hcal/BeamMonitor Event Number";
+  stringstream name;
+  name<<process_.c_str()<<rootFolder_.c_str()<<"/BeamMonitor_Hcal/BeamMonitor Event Number";
   MonitorElement* me = dbe_->get(name.str().c_str());
   if ( me ) 
     {
