@@ -116,18 +116,18 @@ namespace edm {
 
   void
   Group::mergeTheProduct(std::auto_ptr<EDProduct> edp) const {
-  if (product()->isMergeable()) {
-    product()->mergeProduct(edp.get());
-  } else if (product()->hasIsProductEqual()) {
-    if (!product()->isProductEqual(edp.get())) {
-      LogWarning("RunLumiMerging")
-            << "Group::mergeGroup\n"
-            << "Two run/lumi products for the same run/lumi which should be equal are not\n"
-            << "Using the first, ignoring the second\n"
-            << "className = " << branchDescription().className() << "\n"
-            << "moduleLabel = " << moduleLabel() << "\n"
-            << "instance = " << productInstanceName() << "\n"
-            << "process = " << processName() << "\n";
+    if (product()->isMergeable()) {
+      product()->mergeProduct(edp.get());
+    } else if (product()->hasIsProductEqual()) {
+      if (!product()->isProductEqual(edp.get())) {
+        LogError("RunLumiMerging")
+              << "Group::mergeGroup\n"
+              << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+              << "Using the first, ignoring the second\n"
+              << "className = " << branchDescription().className() << "\n"
+              << "moduleLabel = " << moduleLabel() << "\n"
+              << "instance = " << productInstanceName() << "\n"
+              << "process = " << processName() << "\n";
       }
     } else {
       LogWarning("RunLumiMerging")
