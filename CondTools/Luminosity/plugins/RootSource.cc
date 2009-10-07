@@ -64,7 +64,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
       hlttree->GetEntry(i);
-
+      
       runnumber=lumiheader->runNumber;
       lumisecid=lumiheader->sectionNumber;
       edm::LuminosityBlockID lu(runnumber,lumisecid);
@@ -76,7 +76,39 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l->setLumiError(lumisummary->InstantLumiErr);      
       l->setLumiQuality(lumisummary->InstantLumiQlty);
       l->setDeadFraction(lumisummary->DeadtimeNormalization);
+
+      size_t hltsize=sizeof(hltdata->HLTPaths)/sizeof(lumi::HLTPath);
+      std::cout<<"got "<<hltsize<<" hlt paths"<<std::endl;
+      std::vector<lumi::HLTInfo> hltinfo;
+      hltinfo.reserve(hltsize);
+      for( size_t ihlt=0; ihlt<hltsize; ++ihlt){
+	//
+	//fixme: missing hlt prescale from root, set to 1 for now
+	//
+	lumi::HLTInfo hltperpath(std::string(hltdata->HLTPaths[ihlt].PathName),hltdata->HLTPaths[ihlt].L1Pass,hltdata->HLTPaths[ihlt].PAccept,1);
+	hltinfo.push_back(hltperpath);
+      }
+      
+      //
+      //fixme: missing l1 deadtimecount from root, set to 12387 for now
+      //
+      std::vector<lumi::TriggerInfo> triginfo;
+      triginfo.reserve(192);
+      size_t algotrgsize=sizeof(l1data->GTAlgo)/sizeof(lumi::LEVEL1_PATH);
+      for( size_t itrg=0; itrg<algotrgsize; ++itrg ){
+	lumi::TriggerInfo trgbit(l1data->GTAlgo[itrg].pathName,l1data->GTAlgo[itrg].counts,12387,l1data->GTAlgo[itrg].prescale);
+	triginfo.push_back(trgbit);
+      }
+      std::cout<<"got "<<algotrgsize<<" algo trigger"<<std::endl;
+      size_t techtrgsize=sizeof(l1data->GTTech)/sizeof(lumi::LEVEL1_PATH);
+      for( size_t itrg=0; itrg<techtrgsize; ++itrg){
+	lumi::TriggerInfo trgbit(l1data->GTTech[itrg].pathName,l1data->GTTech[itrg].counts,12387,l1data->GTTech[itrg].prescale);
+	triginfo.push_back(trgbit);
+      }
+      std::cout<<"got "<<techtrgsize<<" tech trigger"<<std::endl;
       std::cout<<"bizzar cmsliveflag\t"<<(bool)lumiheader->bCMSLive<<std::endl;
+      l->setHLTData(hltinfo);
+      l->setTriggerData(triginfo);
       result.push_back(std::make_pair<lumi::LumiSectionData*,cond::Time_t>(l,current));
     }
   }
