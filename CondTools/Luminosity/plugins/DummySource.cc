@@ -25,7 +25,7 @@ lumi::DummySource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
     lumi::HLTInfo hltperpath("fake",2829345,1234,1);
     hltinfo.push_back(hltperpath);
   }
-  for(size_t j=1; j<30; ++j){
+  for(size_t j=1; j<300; ++j){
     edm::LuminosityBlockID lu(m_runnumber,j);
     cond::Time_t current=(cond::Time_t)(lu.value());
     lumi::LumiSectionData* l=new lumi::LumiSectionData;
