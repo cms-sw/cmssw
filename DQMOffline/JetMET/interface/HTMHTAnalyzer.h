@@ -6,7 +6,7 @@
  *
  *  DQM monitoring source for HTMHT
  *
- *  $Date: 2009/03/30 17:09:16 $
+ *  $Date: 2009/06/30 13:48:26 $
  *  $Revision: 1.1 $
  *  \author K. Hatakeyama, Rockefeller University
  */
@@ -45,8 +45,7 @@ class HTMHTAnalyzer : public JetAnalyzerBase {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 
-               const edm::TriggerResults&,
-	       const reco::CaloJetCollection& jetcoll);
+               const edm::TriggerResults&);
 
   int evtCounter;
 
@@ -55,26 +54,21 @@ class HTMHTAnalyzer : public JetAnalyzerBase {
   
   edm::ParameterSet parameters;
   // Switch for verbosity
+  int _verbose;
+  
   std::string metname;
 
-  /// number of Jet or MB HLT trigger paths 
-  unsigned int nHLTPathsJetMB_;
+  std::string _source;
+
+  edm::InputTag theJetCollectionForHTMHTLabel;
+
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
-  // list of Jet or MB HLT trigger index
-  std::vector<unsigned int> HLTPathsJetMBByIndex_;
+
+  int _trig_JetMB;
 
   // Pt threshold for Jets
   double _ptThreshold;
-
-  //histo binning parameters
-  int    phiBin;
-  double phiMin;
-  double phiMax;
-
-  int    ptBin;
-  double ptMin;
-  double ptMax;
 
   //the histos
   MonitorElement* jetME;
