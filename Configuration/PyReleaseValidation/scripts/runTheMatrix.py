@@ -523,12 +523,10 @@ def runSelected(testList, nThreads=4, show=False) :
     stdList = ['5.2', # SingleMu10 FastSim
                '7',   # Cosmics+RECOCOS+ALCACOS
                '8',   # BeamHalo+RECOCOS+ALCABH
-#              '24',  # TTbar+RECO1+ALCATT1 IDEAL
                '25',  # TTbar+RECO2+ALCATT2  STARTUP
                ]
     hiStatList = [
-#                 '15',  # SingleMuPt10
-#                 '119', # ZTT+RECO1
+                  '121',   # TTbar_Tauola
                   '123.3', # TTBar FastSim
                    ]
 
