@@ -647,10 +647,17 @@ void MuonAlignmentFromReference::terminate() {
     bool writeReport = (m_reportFileName != std::string(""));
     if (writeReport) {
       report.open(m_reportFileName.c_str());
+      report << "nan = None;  NAN = None" << std::endl;
       report << "reports = []" << std::endl;
       report << "class ValErr:" << std::endl
 	     << "    def __init__(self, value, error, antisym):" << std::endl
 	     << "        self.value, self.error, self.antisym = value, error, antisym" << std::endl
+	     << "" << std::endl
+	     << "    def __repr__(self):" << std::endl
+	     << "        if self.antisym == 0.:" << std::endl
+	     << "            return \"%g +- %g\" % (self.value, self.error)" << std::endl
+	     << "        else:" << std::endl
+	     << "            return \"%g +- %g ~ %g\" % (self.value, self.error, self.antisym)" << std::endl
 	     << "" << std::endl
 	     << "class Report:" << std::endl
 	     << "    def __init__(self, chamberId, postal_address, name):" << std::endl
@@ -662,8 +669,12 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.status = \"PASS\"" << std::endl
 	     << "        self.deltax, self.deltay, self.deltaz, self.deltaphix, self.deltaphiy, self.deltaphiz = deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz" << std::endl
 	     << "        self.loglikelihood, self.numsegments, self.sumofweights, self.redchi2 = loglikelihood, numsegments, sumofweights, redchi2" << std::endl
+	     << "" << std::endl
 	     << "    def add_stats(self, median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz):" << std::endl
 	     << "        self.median_x, self.median_y, self.median_dxdz, self.median_dydz, self.mean30_x, self.mean30_y, self.mean20_dxdz, self.mean50_dydz, self.mean15_x, self.mean15_y, self.mean10_dxdz, self.mean25_dydz, self.wmean30_x, self.wmean30_y, self.wmean20_dxdz, self.wmean50_dydz, self.wmean15_x, self.wmean15_y, self.wmean10_dxdz, self.wmean25_dydz, self.stdev30_x, self.stdev30_y, self.stdev20_dxdz, self.stdev50_dydz, self.stdev15_x, self.stdev15_y, self.stdev10_dxdz, self.stdev25_dydz = median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz" << std::endl
+	     << "" << std::endl
+	     << "    def __repr__(self):" << std::endl
+	     << "        return \"<Report %s %s %s>\" % (self.postal_address[0], " ".join(map(str, self.postal_address[1:])), self.status)" << std::endl
 	     << std::endl;
     }
 
@@ -862,7 +873,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << fitter->second->stdev(MuonResiduals5DOFFitter::kResid, 15.) << ", "
 		     << "None, "
 		     << fitter->second->stdev(MuonResiduals5DOFFitter::kResSlope, 10.) << ", "
-		     << "None)";
+		     << "None)" << std::endl;
 
 	      std::stringstream namesimple_x, namesimple_dxdz, nameweighted_x, nameweighted_dxdz;
 	      namesimple_x << name.str() << "_simple_x";
@@ -993,7 +1004,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResidX, 15.) << ", "
 		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResidY, 15.) << ", "
 		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeX, 10.) << ", "
-		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeY, 25.) << ")";
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeY, 25.) << ")" << std::endl;
 
 	      std::stringstream namesimple_x, namesimple_y, namesimple_dxdz, namesimple_dydz, nameweighted_x, nameweighted_y, nameweighted_dxdz, nameweighted_dydz;
 	      namesimple_x << name.str() << "_simple_x";
@@ -1113,7 +1124,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << fitter->second->stdev(MuonResiduals6DOFrphiFitter::kResid, 15.) << ", "
 		     << "None, "
 		     << fitter->second->stdev(MuonResiduals6DOFrphiFitter::kResSlope, 10.) << ", "
-		     << "None)";
+		     << "None)" << std::endl;
 
 	      std::stringstream namesimple_x, namesimple_dxdz, nameweighted_x, nameweighted_dxdz;
 	      namesimple_x << name.str() << "_simple_x";
