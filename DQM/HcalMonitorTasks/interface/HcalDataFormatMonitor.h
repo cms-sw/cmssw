@@ -15,15 +15,13 @@
 #define  NUMDCCS      32
 #define  NUMSPIGS     15
 #define  HTRCHANMAX   24
-//The four Data Integrity Plots & Arrays
-#define  RCDIX        55
-#define  RCDIY        22
-#define  HHDIX        97
-#define  HHDIY        61
-#define  CSDIX        97
-// CSDIY == HHDIY.
-#define  CIX          73
-#define  CIY          46
+//Dimensions of 'LED' plots, grouping bits by hardware space
+//  NUMBER_HDWARE = 1 + ((NUMBER +1)*(NUM_HRDWARE_PIECES))
+#define  TWO___FED    97
+#define  THREE_FED   129
+#define  TWO__SPGT    46
+#define  THREE_SPG    61
+#define  TWO_CHANN    73
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
@@ -35,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/08/18 21:16:25 $
- * $Revision: 1.47 $
+ * $Date: 2009/09/25 23:17:47 $
+ * $Revision: 1.09 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -56,7 +54,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
 
  public: //Electronics map -> geographic channel map
-  inline int hashup(uint32_t d=0, uint32_t s=0, uint32_t c=0) {
+  inline int hashup(uint32_t d=0, uint32_t s=0, uint32_t c=1) {
     return (int) ( (d*NUMSPIGS*HTRCHANMAX)+(s*HTRCHANMAX)+(c)); }
   void stashHDI(int thehash, HcalDetId thehcaldetid);
   //Protect against indexing past array.
@@ -87,20 +85,10 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   int dfmon_checkNevents;
 
   //Monitoring elements
-  MonitorElement* DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* DATAFORMAT_PROBLEM_ZOO;
-  MonitorElement* HB_DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* HBHE_DATAFORMAT_PROBLEM_ZOO;
-  MonitorElement* HE_DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* HF_DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* HF_DATAFORMAT_PROBLEM_ZOO;
-  MonitorElement* HO_DATAFORMAT_PROBLEM_MAP;
-  MonitorElement* HO_DATAFORMAT_PROBLEM_ZOO;
-
+  MonitorElement* meDCCVersion_;
   MonitorElement* meFEDRawDataSizes_;
   MonitorElement* meUSFractSpigs_;
-  MonitorElement* meUSEvtSizes2D_;// implement me!
-  MonitorElement* meUSEvtSizes1D_;// implement me!
+  MonitorElement* mefedEntries_;
   
   MonitorElement* me_HBHE_ZS_SlidingSum;
   MonitorElement* me_HF_ZS_SlidingSum;
@@ -109,23 +97,29 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* me_HF_ZS_SlidingSum_US;
   MonitorElement* me_HO_ZS_SlidingSum_US;
 
-  MonitorElement* fedEntries_;
-
   //Check that evt numbers are synchronized across all HTRs
-  MonitorElement* meEvtNumberSynch_;
-  MonitorElement* meBCNSynch_;
-  MonitorElement* meOrNSynch_;
-  MonitorElement* meBCNwhenOrNDiff_;
-  MonitorElement* meBCN_;
-  MonitorElement* medccBCN_;
+  MonitorElement* meBCN_;            // Bunch count number distributions
+  MonitorElement* medccBCN_;         // Bunch count number distributions
+  MonitorElement* meBCNCheck_;       // HTR BCN compared to DCC BCN
+  MonitorElement* meBCNSynch_;       // htr-htr disagreement location
 
-  MonitorElement* meDCC_DataIntegrityCheck_;
-  MonitorElement* meHalfHTR_DataIntegrityCheck_;
+  MonitorElement* meEvtNCheck_;      // HTR Evt # compared to DCC Evt #
+  MonitorElement* meEvtNumberSynch_; // htr-htr disagreement location
+
+  MonitorElement* meOrNCheck_;       // htr OrN compared to dcc OrN
+  MonitorElement* meOrNSynch_;       // htr-htr disagreement location
+  MonitorElement* meBCNwhenOrNDiff_; // BCN distribution (subset)
+
+  MonitorElement* meHalfHTRDataCorruptionIndicators_;
+  MonitorElement* meLRBDataCorruptionIndicators_;
   MonitorElement* meChannSumm_DataIntegrityCheck_;
-  float DCC_DataIntegrityCheck_      [RCDIX][RCDIY];	  
-  float HalfHTR_DataIntegrityCheck_  [HHDIX][HHDIY];  
-  float ChannSumm_DataIntegrityCheck_[CSDIX][HHDIY];
-  float Chann_DataIntegrityCheck_    [NUMDCCS][CIX][CIY];
+  MonitorElement* meDataFlowInd_;
+
+  float HalfHTRDataCorruptionIndicators_  [THREE_FED][THREE_SPG];  
+  float LRBDataCorruptionIndicators_      [THREE_FED][THREE_SPG];  
+  float ChannSumm_DataIntegrityCheck_     [TWO___FED][TWO__SPGT];
+  float Chann_DataIntegrityCheck_[NUMDCCS][TWO_CHANN][TWO__SPGT];
+  float DataFlowInd_                      [TWO___FED][THREE_SPG];
   void UpdateMEs ();  //Prescalable copy into MonitorElements
 
   //Histogram labelling functions
@@ -134,9 +128,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   void label_xChanns (MonitorElement* me_ptr,int xbins);
 
   MonitorElement* meInvHTRData_;
-  MonitorElement* meOrNCheck_; // htr OrN compared to dcc OrN
-  MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
-  MonitorElement* meEvtNCheck_; // htr Evt # compared to dcc Evt #
   MonitorElement* meFibBCN_;
 
   MonitorElement* meFWVersion_;
@@ -148,13 +139,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   // The following MEs map specific conditons from the EventFragment headers as specified in
   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/DCC/DCC_1Jul06.pdf
 
-  MonitorElement* meFEDId_;               //All of HCAL, as a stupidcheck.
   MonitorElement* meCDFErrorFound_;       //Summary histo of Common Data Format violations by FED ID
   MonitorElement* meDCCEventFormatError_; //Summary histo of DCC Event Format violations by FED ID 
-  //Summary histo for HTR Status bits, DCC Error&Warn Counters Flagged Nonzero
-  MonitorElement* meDCCErrorAndWarnConditions_;  
-  MonitorElement* meDCCStatusFlags_;
-  MonitorElement* meDCCSummariesOfHTRs_;  //Summary histo of HTR Summaries from DCC
+  MonitorElement* meDCCStatusBits_;  
 
   // The following MEs map specific conditons from the HTR/DCC headers as specified in
   //   http://cmsdoc.cern.ch/cms/HCAL/document/CountingHouse/HTR/design/Rev4MainFPGA.pdf
@@ -167,7 +154,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meCrate5HTRErr_;   //Map of HTR errors into Crate 5
   MonitorElement* meCrate6HTRErr_;   //Map of HTR errors into Crate 6
   MonitorElement* meCrate7HTRErr_;   //Map of HTR errors into Crate 7
-  MonitorElement* meCrate8HTRErr_;   //Map of HTR errors into Crate 8
   MonitorElement* meCrate9HTRErr_;   //Map of HTR errors into Crate 9
   MonitorElement* meCrate10HTRErr_;   //Map of HTR errors into Crate 10
   MonitorElement* meCrate11HTRErr_;   //Map of HTR errors into Crate 11
@@ -175,7 +161,6 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meCrate13HTRErr_;   //Map of HTR errors into Crate 13
   MonitorElement* meCrate14HTRErr_;   //Map of HTR errors into Crate 14
   MonitorElement* meCrate15HTRErr_;   //Map of HTR errors into Crate 15
-  MonitorElement* meCrate16HTRErr_;   //Map of HTR errors into Crate 16
   MonitorElement* meCrate17HTRErr_;   //Map of HTR errors into Crate 17
 
   MonitorElement* meCh_DataIntegrityFED00_;   //DataIntegrity for channels in FED 00
@@ -222,9 +207,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meFib7OrbMsgBCN_;  //BCN of Fiber 7 Orb Msg
   MonitorElement* meFib8OrbMsgBCN_;  //BCN of Fiber 8 Orb Msg
 
-  MonitorElement* DCC_ErrWd_HBHE;
-  MonitorElement* DCC_ErrWd_HF;
-  MonitorElement* DCC_ErrWd_HO;
+  MonitorElement* HTR_StatusWd_HBHE;
+  MonitorElement* HTR_StatusWd_HF;
+  MonitorElement* HTR_StatusWd_HO;
 
   int currFiberChan;
   void LabelChannInteg(MonitorElement* me_ptr);
