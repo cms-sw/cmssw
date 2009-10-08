@@ -10,6 +10,7 @@
 <use name="rootmath">
 <use name="rootphysics">
 <use name="rootrflx">
+<flags CXXFLAGS="-g -O0"> 
 <export>
   <use name="DQMServices/Core">
   <use name="DataFormats/Candidate">

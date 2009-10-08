@@ -19,6 +19,8 @@ class DQMStore; // CMSSW_2_X_X
 
 class BenchmarkTree;
 
+
+//COLIN: this class REALLY needs to be cleaned up and rationalized, on the model of PFCandidateBenchmark.
 class GenericBenchmark{
 
  public:
