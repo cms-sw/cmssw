@@ -359,14 +359,16 @@ namespace edm {
 
   void
   InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
-    time_t t = time(0);
-    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
-    LogVerbatim("FwkReport") << "Begin processing the " << readCount_
-			 << suffix(readCount_) << " record. Run " << eventID.run()
-			 << ", Event " << eventID.event()
-				   << ", LumiSection " << lumi<< " at " << ts;
-      // At some point we may want to initiate checkpointing here
+    if(edm::isInfoEnabled()) {
+      time_t t = time(0);
+      char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+      strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
+      LogVerbatim("FwkReport") << "Begin processing the " << readCount_
+                               << suffix(readCount_) << " record. Run " << eventID.run()
+                               << ", Event " << eventID.event()
+                               << ", LumiSection " << lumi<< " at " << ts;
+    }
+    // At some point we may want to initiate checkpointing here
   }
 
   EventPrincipal *
