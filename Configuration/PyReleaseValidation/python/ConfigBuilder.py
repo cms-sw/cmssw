@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 
-__version__ = "$Revision: 1.147.2.4 $"
+__version__ = "$Revision: 1.148 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -16,11 +16,13 @@ defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
 defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Extended'
+defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = 'Default'
 defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
+defaultOptions.himix = False
 defaultOptions.number = 0
 defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
@@ -94,8 +96,8 @@ class ConfigBuilder(object):
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
         self.additionalCommands.append(command)
-	if not command.startswith("#"): 
-            
+	if not command.strip().startswith("#"): 
+            # substitute: process.foo = process.bar -> self.process.foo = self.process.bar
             exec(command.replace("process.","self.process."))
         
     def addCommon(self):
@@ -124,7 +126,11 @@ class ConfigBuilder(object):
         if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
-
+            # if option himix is active, drop possibly duplicate DIGI-RAW info:	 
+            if self._options.himix==True:	 
+                self.process.source.inputCommands = cms.untracked.vstring('drop *','keep *_generator_*_*','keep *_g4SimHits_*_*')
+                self.process.source.dropDescendantsOfDroppedBranches=cms.untracked.bool(False)
+		
             evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
             if "/" in evt_type:
                 evt_type = evt_type.replace("python/","")
@@ -297,7 +303,6 @@ class ConfigBuilder(object):
 
         # set the global tag
         self.executeAndRemember("process.GlobalTag.globaltag = '"+str(conditions)+"'")
-        self.process.GlobalTag.globaltag = cms.string(str(conditions))
                         
     def addCustomise(self):
         """Include the customise code """
@@ -351,6 +356,10 @@ class ConfigBuilder(object):
 	self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
 	self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
 	
+        # synchronize the geometry configuration and the FullSimulation sequence to be used	 
+	if self._options.geometry not in defaultOptions.geometryExtendedOptions:	 
+            self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"	 
+
 	if "DATAMIX" in self._options.step:
 	    self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
 	    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
@@ -410,6 +419,7 @@ class ConfigBuilder(object):
 	    self.eventcontent='FEVT'
 
         if self._options.scenario=='HeavyIons':
+            self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
    	    self.RECODefaultSeq='reconstructionHeavyIons'
 
@@ -424,8 +434,10 @@ class ConfigBuilder(object):
         else:
                 self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
                 
-	if self._options.isMC==True:
+	if self._options.isMC==True and self._options.himix==False:
  	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
+        elif self._options.isMC==True and self._options.himix==True:	 
+            self.PileupCFF='Configuration/StandardSequences/HiEventMixing_cff'
         else:
 	    self.PileupCFF=''
 	    
@@ -507,8 +519,11 @@ class ConfigBuilder(object):
             print "VertexSmearing type or beamspot",self.beamspot, "unknown."
             raise
 
-          if self._options.scenario == 'HeavyIons' :
+          if self._options.scenario == 'HeavyIons' and self._options.himix==False:
 	      self.process.generation_step = cms.Path( self.process.pgen_hi )
+          elif self._options.himix==True:	 
+              self.process.generation_step = cms.Path( self.process.pgen_himix )	 
+              self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
           else:
 	      self.process.generation_step = cms.Path( self.process.pgen )
 
@@ -517,7 +532,7 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.generation_step)
 
         # is there a production filter sequence given?
-	if "ProductionFilterSequence" in self.additionalObjects and "generator" in self.additionalObjects and sequence == None:
+	if "ProductionFilterSequence" in self.additionalObjects and ("generator" in self.additionalObjects or 'hiSignal' in self.additionalObjects) and sequence == None:
             sequence = "ProductionFilterSequence"
 	elif "generator" in self.additionalObjects and sequence == None:
             sequence = "generator"
@@ -537,6 +552,12 @@ class ConfigBuilder(object):
 
 	if self._options.magField=='0T':
 	    self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
+
+        if self._options.himix==True:	 
+            if self._options.geometry in defaultOptions.geometryExtendedOptions:	 
+                self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")	 
+            else:	 
+                self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 				
         self.process.simulation_step = cms.Path( self.process.psim )
         self.schedule.append(self.process.simulation_step)
@@ -547,7 +568,10 @@ class ConfigBuilder(object):
 	self.loadAndRemember(self.DIGIDefaultCFF)
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
-                
+
+        if self._options.himix==True:	 
+            self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")	 
+       
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.schedule.append(self.process.digitisation_step)
         return
@@ -661,7 +685,6 @@ class ConfigBuilder(object):
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
             self.executeAndRemember("process.mix.playback = True")      
-            self.process.mix.playback = True 
         return
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
@@ -786,7 +809,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.147.2.4 $"),
+              (version=cms.untracked.string("$Revision: 1.148 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
