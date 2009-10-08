@@ -13,7 +13,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2009/09/16 18:32:50 $ 
+ **  $Date: 2009/09/16 19:29:15 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -680,27 +680,48 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   LogInfo("PhotonAnalyzer") << "PhotonAnalyzer Analyzing event number: " << e.id() << " Global Counter " << nEvt_ <<"\n";
  
   // Get the trigger results
+  bool validTriggerEvent=true;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  trigger::TriggerEvent triggerEvent;
   e.getByLabel(triggerEvent_,triggerEventHandle);
   if(!triggerEventHandle.isValid()) {
-    edm::LogInfo("PhotonProducer") << "Error! Can't get the product "<<triggerEvent_.label() << endl;
-    return;
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< triggerEvent_.label() << endl;
+    validTriggerEvent=false;
   }
-  const trigger::TriggerEvent *triggerEvent = triggerEventHandle.product();
+  if(validTriggerEvent) triggerEvent = *(triggerEventHandle.product());
 
   // Get the reconstructed photons
+  bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle; 
+  reco::PhotonCollection photonCollection;
   e.getByLabel(photonProducer_, photonCollection_ , photonHandle);
-  if ( !photonHandle.isValid()) return;
-  const reco::PhotonCollection photonCollection = *(photonHandle.product());
- 
+  if ( !photonHandle.isValid()) {
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< photonCollection_ << endl;
+    validPhotons=false;
+  }
+  if(validPhotons) photonCollection = *(photonHandle.product());
+
   // Get the PhotonId objects
+  bool validloosePhotonID=true;
   Handle<edm::ValueMap<bool> > loosePhotonFlag;
+  edm::ValueMap<bool> loosePhotonID;
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDLoose", loosePhotonFlag);
-  const edm::ValueMap<bool> *loosePhotonID = loosePhotonFlag.product();
+  if ( !loosePhotonFlag.isValid()) {
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< "PhotonCutBasedIDLoose" << endl;
+    validloosePhotonID=false;
+  }
+  if (validloosePhotonID) loosePhotonID = *(loosePhotonFlag.product());
+
+  bool validtightPhotonID=true;
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
+  edm::ValueMap<bool> tightPhotonID;
   e.getByLabel("PhotonIDProd", "PhotonCutBasedIDTight", tightPhotonFlag);
-  const edm::ValueMap<bool> *tightPhotonID = tightPhotonFlag.product();
+  if ( !tightPhotonFlag.isValid()) {
+    edm::LogInfo("PhotonAnalyzer") << "Error! Can't get the product "<< "PhotonCutBasedIDTight" << endl;
+    validtightPhotonID=false;
+  }
+  if (validtightPhotonID) tightPhotonID = *(tightPhotonFlag.product());
+
 
 
   // Create array to hold #photons/event information
@@ -744,9 +765,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   }
   
 
-  for(uint filterIndex=0;filterIndex<triggerEvent->sizeFilters();++filterIndex){  //loop over all trigger filters in event (i.e. filters passed)
+  for(uint filterIndex=0;filterIndex<triggerEvent.sizeFilters();++filterIndex){  //loop over all trigger filters in event (i.e. filters passed)
 
-    string label = triggerEvent->filterTag(filterIndex).label();
+    string label = triggerEvent.filterTag(filterIndex).label();
 
     if(label.find( "Photon" ) != std::string::npos ) {  //get photon-related filters and fill histo
      
@@ -755,8 +776,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       }
       
 
-      for(uint filterKeyIndex=0;filterKeyIndex<triggerEvent->filterKeys(filterIndex).size();++filterKeyIndex){  //loop over keys to objects passing this filter
-	Keys.push_back(triggerEvent->filterKeys(filterIndex)[filterKeyIndex]);  //add keys to a vector for later reference	
+      for(uint filterKeyIndex=0;filterKeyIndex<triggerEvent.filterKeys(filterIndex).size();++filterKeyIndex){  //loop over keys to objects passing this filter
+	Keys.push_back(triggerEvent.filterKeys(filterIndex)[filterKeyIndex]);  //add keys to a vector for later reference	
       }  
       
     }
@@ -792,7 +813,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     
     for (vector<int>::const_iterator objectKey=Keys.begin();objectKey!=Keys.end();objectKey++){  //loop over keys to objects that fired photon triggers
 
-      deltaR = reco::deltaR(triggerEvent->getObjects()[(*objectKey)].eta(),triggerEvent->getObjects()[(*objectKey)].phi(),(*iPho).superCluster()->eta(),(*iPho).superCluster()->phi());
+      deltaR = reco::deltaR(triggerEvent.getObjects()[(*objectKey)].eta(),triggerEvent.getObjects()[(*objectKey)].phi(),(*iPho).superCluster()->eta(),(*iPho).superCluster()->phi());
       if(deltaR < deltaRMin) deltaRMin = deltaR;
       
     }
@@ -809,8 +830,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
        
     edm::Ref<reco::PhotonCollection> photonref(photonHandle, photonCounter);
     photonCounter++;
-    bool  isLoosePhoton = (*loosePhotonID)[photonref];
-    bool  isTightPhoton = (*tightPhotonID)[photonref];
+    bool  isLoosePhoton = (loosePhotonID)[photonref];
+    bool  isTightPhoton = (tightPhotonID)[photonref];
 
 
     //find which part of the Ecal contains the photon
@@ -852,7 +873,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       // Get handle to rec hits ecal barrel 
       e.getByLabel(barrelRecHitProducer_, barrelRecHitCollection_, ecalRecHitHandle);
       if (!ecalRecHitHandle.isValid()) {
-	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelRecHitProducer_;
+	edm::LogError("PhotonAnalyzer") << "Error! Can't get the product "<<barrelRecHitProducer_;
 	validEcalRecHits=false; 
 	}
 
@@ -860,7 +881,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       // Get handle to rec hits ecal encap 
       e.getByLabel(endcapRecHitProducer_, endcapRecHitCollection_, ecalRecHitHandle);
       if (!ecalRecHitHandle.isValid()) {
-	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapRecHitProducer_;
+	edm::LogError("PhotonAnalyzer") << "Error! Can't get the product "<<endcapRecHitProducer_;
 	validEcalRecHits=false; 
       }
       
@@ -1183,8 +1204,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 	
 	edm::Ref<reco::PhotonCollection> photonref2(photonHandle, photonCounter); //note: correct to use photonCounter and not photonCounter+1 
-	bool  isTightPhoton2 = (*tightPhotonID)[photonref2];                      //since it has already been incremented earlier
-	bool  isLoosePhoton2 = (*loosePhotonID)[photonref2];
+	bool  isTightPhoton2 = (tightPhotonID)[photonref2];                      //since it has already been incremented earlier
+	bool  isLoosePhoton2 = (loosePhotonID)[photonref2];
 	
 	bool isIsolated2=false;
 	if ( isolationStrength_ == 0)  isIsolated2 = isLoosePhoton2;
