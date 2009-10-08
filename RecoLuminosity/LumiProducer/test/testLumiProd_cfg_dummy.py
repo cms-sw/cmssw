@@ -13,12 +13,12 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(20000)
+  input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("EmptySource",
-     numberEventsInRun = cms.untracked.uint32(1000),
-     firstRun = cms.untracked.uint32(2),
+     numberEventsInRun = cms.untracked.uint32(10),
+     firstRun = cms.untracked.uint32(1119983),
      numberEventsInLuminosityBlock = cms.untracked.uint32(50),
      firstLuminosityBlock = cms.untracked.uint32(1)
 )
@@ -36,7 +36,7 @@ process.LumiESSource.connect=cms.string('sqlite_file:offlinelumi.db')
 process.LumiESSource.toGet=cms.VPSet(
     cms.PSet(
       record = cms.string('LumiSectionDataRcd'),
-      tag = cms.string('testlumidummy')
+      tag = cms.string('testlumiroot')
     )
 )
 

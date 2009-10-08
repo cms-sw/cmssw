@@ -16,7 +16,7 @@ process.options = cms.untracked.PSet(
 #)
 process.source= cms.Source("PoolSource",
               fileNames=cms.untracked.vstring('file:testLumiProd.root'),
-              firstRun=cms.untracked.uint32(3),
+              firstRun=cms.untracked.uint32(1119985),
               firstLuminosityBlock = cms.untracked.uint32(1),                           
               firstEvent=cms.untracked.uint32(1),
              )
