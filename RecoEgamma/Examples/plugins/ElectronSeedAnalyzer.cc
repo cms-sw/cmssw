@@ -120,20 +120,37 @@ void ElectronSeedAnalyzer::endJob()
   histfile_->cd();
   tree_->Print();
   tree_->Write();
+  histeMC_->Write();
+  histp_->Write();
+  histeclu_->Write();
+  histpt_->Write();
+  histptMC_->Write();
+  histetclu_->Write();
+  histeffpt_->Write();
+  histeta_->Write();
+  histetaMC_->Write();
+  histetaclu_->Write();
+  histeffeta_->Write();
+  histq_->Write();
+  histeoverp_->Write();
+  histnbseeds_->Write();
+  histnbclus_->Write();
+  histnrseeds_->Write();
 }
 
 ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
 {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  //tree_->Print();
   histfile_->Write();
+  histeMC_->Write();
   histfile_->Close();
 }
 
 void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& iSetup)
 {
 
-  std::cout << "Treating event "<<e.id()<< std::endl;
   edm::ESHandle<TrackerGeometry> pDD ;
   edm::ESHandle<MagneticField> theMagField ;
   iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
@@ -154,7 +171,6 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   edm::Handle<ElectronSeedCollection> elSeeds;
   e.getByLabel(inputCollection_,elSeeds);
   edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of seeds "<<elSeeds.product()->size();
-  std::cout << "Treating event "<<e.id()<< std::endl;
   int is=0;
 
   FTSFromVertexToPointFactory   myFTS;
@@ -424,13 +440,13 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   e.getByLabel("correctedHybridSuperClusters", clusters);
   histnbclus_->Fill(clusters.product()->size());
   if (clusters.product()->size()>0) histnrseeds_->Fill(elSeeds.product()->size());
-  std::cout << "here1" << std::endl;
   // get MC information
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   // this one is empty branch in current test files
   //e.getByLabel("VtxSmeared", "", HepMCEvt);
-  e.getByLabel("source", "", HepMCEvt);
+  //e.getByLabel("source", "", HepMCEvt);
+  e.getByLabel("generator", "", HepMCEvt);
 
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   HepMC::GenParticle* genPc=0;
@@ -524,7 +540,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
   }
 
-  tree_->Fill();
+  //tree_->Fill();
 
 }
 
