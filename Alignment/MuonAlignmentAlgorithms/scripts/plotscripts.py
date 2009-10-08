@@ -1,6 +1,14 @@
-import ROOT
+import ROOT, array, os, re
 from math import *
-execfile("/home/jpivarski/bin/tdrstyle.py")
+
+#############################################################
+# Convenience functions (we'll add more)
+
+def wheelm2only(dt, wheel, station, sector): return dt == "DT" and wheel == -2
+def wheelm1only(dt, wheel, station, sector): return dt == "DT" and wheel == -1
+def wheel0only(dt, wheel, station, sector): return dt == "DT" and wheel == 0
+def wheelp1only(dt, wheel, station, sector): return dt == "DT" and wheel == 1
+def wheelp2only(dt, wheel, station, sector): return dt == "DT" and wheel == 2
 
 def mean(xlist):
   s, n = 0., 0.
@@ -24,11 +32,208 @@ def stdev(xlist):
     n += 1.
   return math.sqrt(s2/n - (s/n)**2)
 
-def wheelm2only(dt, wheel, station, sector): return dt == "DT" and wheel == -2
-def wheelm1only(dt, wheel, station, sector): return dt == "DT" and wheel == -1
-def wheel0only(dt, wheel, station, sector): return dt == "DT" and wheel == 0
-def wheelp1only(dt, wheel, station, sector): return dt == "DT" and wheel == 1
-def wheelp2only(dt, wheel, station, sector): return dt == "DT" and wheel == 2
+#############################################################
+
+tdrStyle = None
+def setTDRStyle():
+  global tdrStyle
+  tdrStyle = ROOT.TStyle("tdrStyle","Style for P-TDR")
+# For the canvas:
+  tdrStyle.SetCanvasBorderMode(0)
+  tdrStyle.SetCanvasColor(ROOT.kWhite)
+  tdrStyle.SetCanvasDefH(600) #Height of canvas
+  tdrStyle.SetCanvasDefW(600) #Width of canvas
+  tdrStyle.SetCanvasDefX(0)   #POsition on screen
+  tdrStyle.SetCanvasDefY(0)
+
+# For the Pad:
+  tdrStyle.SetPadBorderMode(0)
+  # tdrStyle.SetPadBorderSize(Width_t size = 1)
+  tdrStyle.SetPadColor(ROOT.kWhite)
+  tdrStyle.SetPadGridX(False)
+  tdrStyle.SetPadGridY(False)
+  tdrStyle.SetGridColor(0)
+  tdrStyle.SetGridStyle(3)
+  tdrStyle.SetGridWidth(1)
+
+# For the frame:
+  tdrStyle.SetFrameBorderMode(0)
+  tdrStyle.SetFrameBorderSize(1)
+  tdrStyle.SetFrameFillColor(0)
+  tdrStyle.SetFrameFillStyle(0)
+  tdrStyle.SetFrameLineColor(1)
+  tdrStyle.SetFrameLineStyle(1)
+  tdrStyle.SetFrameLineWidth(1)
+
+# For the histo:
+  # tdrStyle.SetHistFillColor(1)
+  # tdrStyle.SetHistFillStyle(0)
+  tdrStyle.SetHistLineColor(1)
+  tdrStyle.SetHistLineStyle(0)
+  tdrStyle.SetHistLineWidth(1)
+  # tdrStyle.SetLegoInnerR(Float_t rad = 0.5)
+  # tdrStyle.SetNumberContours(Int_t number = 20)
+
+  tdrStyle.SetEndErrorSize(2)
+#  tdrStyle.SetErrorMarker(20)
+  tdrStyle.SetErrorX(0.)
+
+  tdrStyle.SetMarkerStyle(20)
+
+#For the fit/function:
+  tdrStyle.SetOptFit(1)
+  tdrStyle.SetFitFormat("5.4g")
+  tdrStyle.SetFuncColor(2)
+  tdrStyle.SetFuncStyle(1)
+  tdrStyle.SetFuncWidth(1)
+
+#For the date:
+  tdrStyle.SetOptDate(0)
+  # tdrStyle.SetDateX(Float_t x = 0.01)
+  # tdrStyle.SetDateY(Float_t y = 0.01)
+
+# For the statistics box:
+  tdrStyle.SetOptFile(0)
+  tdrStyle.SetOptStat(0) # To display the mean and RMS:   SetOptStat("mr")
+  tdrStyle.SetStatColor(ROOT.kWhite)
+  tdrStyle.SetStatFont(42)
+  tdrStyle.SetStatFontSize(0.025)
+  tdrStyle.SetStatTextColor(1)
+  tdrStyle.SetStatFormat("6.4g")
+  tdrStyle.SetStatBorderSize(1)
+  tdrStyle.SetStatH(0.1)
+  tdrStyle.SetStatW(0.15)
+  # tdrStyle.SetStatStyle(Style_t style = 1001)
+  # tdrStyle.SetStatX(Float_t x = 0)
+  # tdrStyle.SetStatY(Float_t y = 0)
+
+# Margins:
+  tdrStyle.SetPadTopMargin(0.05)
+  tdrStyle.SetPadBottomMargin(0.13)
+  tdrStyle.SetPadLeftMargin(0.13)
+  tdrStyle.SetPadRightMargin(0.05)
+
+# For the Global title:
+  tdrStyle.SetOptTitle(0)
+  tdrStyle.SetTitleFont(42)
+  tdrStyle.SetTitleColor(1)
+  tdrStyle.SetTitleTextColor(1)
+  tdrStyle.SetTitleFillColor(10)
+  tdrStyle.SetTitleFontSize(0.05)
+  # tdrStyle.SetTitleH(0) # Set the height of the title box
+  # tdrStyle.SetTitleW(0) # Set the width of the title box
+  # tdrStyle.SetTitleX(0) # Set the position of the title box
+  # tdrStyle.SetTitleY(0.985) # Set the position of the title box
+  # tdrStyle.SetTitleStyle(Style_t style = 1001)
+  # tdrStyle.SetTitleBorderSize(2)
+
+# For the axis titles:
+  tdrStyle.SetTitleColor(1, "XYZ")
+  tdrStyle.SetTitleFont(42, "XYZ")
+  tdrStyle.SetTitleSize(0.06, "XYZ")
+  # tdrStyle.SetTitleXSize(Float_t size = 0.02) # Another way to set the size?
+  # tdrStyle.SetTitleYSize(Float_t size = 0.02)
+  tdrStyle.SetTitleXOffset(0.9)
+  tdrStyle.SetTitleYOffset(1.05)
+  # tdrStyle.SetTitleOffset(1.1, "Y") # Another way to set the Offset
+
+# For the axis labels:
+  tdrStyle.SetLabelColor(1, "XYZ")
+  tdrStyle.SetLabelFont(42, "XYZ")
+  tdrStyle.SetLabelOffset(0.007, "XYZ")
+  tdrStyle.SetLabelSize(0.05, "XYZ")
+
+# For the axis:
+  tdrStyle.SetAxisColor(1, "XYZ")
+  tdrStyle.SetStripDecimals(True)
+  tdrStyle.SetTickLength(0.03, "XYZ")
+  tdrStyle.SetNdivisions(510, "XYZ")
+  tdrStyle.SetPadTickX(1)  # To get tick marks on the opposite side of the frame
+  tdrStyle.SetPadTickY(1)
+
+# Change for log plots:
+  tdrStyle.SetOptLogx(0)
+  tdrStyle.SetOptLogy(0)
+  tdrStyle.SetOptLogz(0)
+
+# Postscript options:
+  tdrStyle.SetPaperSize(20.,20.)
+  # tdrStyle.SetLineScalePS(Float_t scale = 3)
+  # tdrStyle.SetLineStyleString(Int_t i, const char* text)
+  # tdrStyle.SetHeaderPS(const char* header)
+  # tdrStyle.SetTitlePS(const char* pstitle)
+
+  # tdrStyle.SetBarOffset(Float_t baroff = 0.5)
+  # tdrStyle.SetBarWidth(Float_t barwidth = 0.5)
+  # tdrStyle.SetPaintTextFormat(const char* format = "g")
+  # tdrStyle.SetPalette(Int_t ncolors = 0, Int_t* colors = 0)
+  # tdrStyle.SetTimeOffset(Double_t toffset)
+  # tdrStyle.SetHistMinimumZero(True)
+
+  tdrStyle.cd()
+
+setTDRStyle()
+
+def set_palette(name=None, ncontours=999):
+    """Set a color palette from a given RGB list
+    stops, red, green and blue should all be lists of the same length
+    see set_decent_colors for an example"""
+
+    if name == "halfgray":
+        stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+        red   = map(lambda x: 1. - (1.-x)/2., [1.00, 0.84, 0.61, 0.34, 0.00])
+        green = map(lambda x: 1. - (1.-x)/2., [1.00, 0.84, 0.61, 0.34, 0.00])
+        blue  = map(lambda x: 1. - (1.-x)/2., [1.00, 0.84, 0.61, 0.34, 0.00])
+    elif name == "gray":
+        stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+        red   = [1.00, 0.84, 0.61, 0.34, 0.00]
+        green = [1.00, 0.84, 0.61, 0.34, 0.00]
+        blue  = [1.00, 0.84, 0.61, 0.34, 0.00]
+    elif name == "blues":
+        stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+        red   = [1.00, 0.84, 0.61, 0.34, 0.00]
+        green = [1.00, 0.84, 0.61, 0.34, 0.00]
+        blue  = [1.00, 1.00, 1.00, 1.00, 1.00]
+    elif name == "reds":
+        stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+        red   = [1.00, 1.00, 1.00, 1.00, 1.00]
+        green = [1.00, 0.84, 0.61, 0.34, 0.00]
+        blue  = [1.00, 0.84, 0.61, 0.34, 0.00]
+    elif name == "antigray":
+        stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+        red   = [1.00, 0.84, 0.61, 0.34, 0.00]
+        green = [1.00, 0.84, 0.61, 0.34, 0.00]
+        blue  = [1.00, 0.84, 0.61, 0.34, 0.00]
+        red.reverse()
+        green.reverse()
+        blue.reverse()
+    elif name == "fire":
+        stops = [0.00, 0.20, 0.80, 1.00]
+        red   = [1.00, 1.00, 1.00, 0.50]
+        green = [1.00, 1.00, 0.00, 0.00]
+        blue  = [0.20, 0.00, 0.00, 0.00]
+    elif name == "antifire":
+        stops = [0.00, 0.20, 0.80, 1.00]
+        red   = [0.50, 1.00, 1.00, 1.00]
+        green = [0.00, 0.00, 1.00, 1.00]
+        blue  = [0.00, 0.00, 0.00, 0.20]
+    else:
+        # default palette, looks cool
+        stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+        red   = [0.00, 0.00, 0.87, 1.00, 0.51]
+        green = [0.00, 0.81, 1.00, 0.20, 0.00]
+        blue  = [0.51, 1.00, 0.12, 0.00, 0.00]
+
+    s = array.array('d', stops)
+    r = array.array('d', red)
+    g = array.array('d', green)
+    b = array.array('d', blue)
+
+    npoints = len(s)
+    ROOT.TColor.CreateGradientColorTable(npoints, s, r, g, b, ncontours)
+    ROOT.gStyle.SetNumberContours(ncontours)
+
+set_palette()
 
 signConventions = {
 ("DT", -2, 1, 1): (1, -1, -1, 432.946, 0.0904811, -533.35),
@@ -1126,6 +1331,123 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
 
 ######################################################################################################
 
+def plotmedians(reports1, reports2, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, r1text=" before", r2text=" after"):
+    hmedianx_before = ROOT.TH1F("hmedianx_before", "", binsx, -windowx, windowx)
+    hmediany_before = ROOT.TH1F("hmediany_before", "", binsy, -windowy, windowy)
+    hmediandxdz_before = ROOT.TH1F("hmediandxdz_before", "", binsdxdz, -windowdxdz, windowdxdz)
+    hmediandydz_before = ROOT.TH1F("hmediandydz_before", "", binsdydz, -windowdydz, windowdydz)
+    hmedianx_after = ROOT.TH1F("hmedianx_after", "", binsx, -windowx, windowx)
+    hmediany_after = ROOT.TH1F("hmediany_after", "", binsy, -windowy, windowy)
+    hmediandxdz_after = ROOT.TH1F("hmediandxdz_after", "", binsdxdz, -windowdxdz, windowdxdz)
+    hmediandydz_after = ROOT.TH1F("hmediandydz_after", "", binsdydz, -windowdydz, windowdydz)
+
+    for r1 in reports1:
+        found = False
+        for r2 in reports2:
+            if r1.postal_address == r2.postal_address:
+                found = True
+                break
+        if not found: continue
+
+        if r1.status == "PASS" and r2.status == "PASS":
+            hmedianx_before.Fill(10.*r1.median_x)
+            hmediandxdz_before.Fill(1000.*r1.median_dxdz)
+            hmedianx_after.Fill(10.*r2.median_x)
+            hmediandxdz_after.Fill(1000.*r2.median_dxdz)
+
+            if r1.median_y is not None:
+                hmediany_before.Fill(10.*r1.median_y)
+                hmediandydz_before.Fill(1000.*r1.median_dydz)
+                hmediany_after.Fill(10.*r2.median_y)
+                hmediandydz_after.Fill(1000.*r2.median_dydz)
+
+    hmedianx_beforecopy = hmedianx_before.Clone()
+    hmediany_beforecopy = hmediany_before.Clone()
+    hmediandxdz_beforecopy = hmediandxdz_before.Clone()
+    hmediandydz_beforecopy = hmediandydz_before.Clone()
+    hmedianx_beforecopy.SetLineStyle(2)
+    hmediany_beforecopy.SetLineStyle(2)
+    hmediandxdz_beforecopy.SetLineStyle(2)
+    hmediandydz_beforecopy.SetLineStyle(2)
+
+    hmedianx_before.SetFillColor(ROOT.kMagenta+2)
+    hmediany_before.SetFillColor(ROOT.kMagenta+2)
+    hmediandxdz_before.SetFillColor(ROOT.kMagenta+2)
+    hmediandydz_before.SetFillColor(ROOT.kMagenta+2)
+    hmedianx_after.SetFillColor(ROOT.kYellow)
+    hmediany_after.SetFillColor(ROOT.kYellow)
+    hmediandxdz_after.SetFillColor(ROOT.kYellow)
+    hmediandydz_after.SetFillColor(ROOT.kYellow)
+
+    hmedianx_aftercopy = hmedianx_after.Clone()
+    hmediany_aftercopy = hmediany_after.Clone()
+    hmediandxdz_aftercopy = hmediandxdz_after.Clone()
+    hmediandydz_aftercopy = hmediandydz_after.Clone()
+    hmedianx_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
+    hmediany_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
+    hmediandxdz_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
+    hmediandydz_aftercopy.GetXaxis().SetLabelColor(ROOT.kWhite)
+    hmedianx_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
+    hmediany_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
+    hmediandxdz_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
+    hmediandydz_aftercopy.GetYaxis().SetLabelColor(ROOT.kWhite)
+
+    hmedianx_after.SetXTitle("median(#Deltax) (mm)")
+    hmediany_after.SetXTitle("median(#Deltay) (mm)")
+    hmediandxdz_after.SetXTitle("median(#Deltadx/dz) (mrad)")
+    hmediandydz_after.SetXTitle("median(#Deltadydz) (mrad)")
+    hmedianx_after.GetXaxis().CenterTitle()
+    hmediany_after.GetXaxis().CenterTitle()
+    hmediandxdz_after.GetXaxis().CenterTitle()
+    hmediandydz_after.GetXaxis().CenterTitle()
+
+    if ceilingx is not None: hmedianx_aftercopy.SetAxisRange(0., ceilingx, "Y")
+    if ceilingy is not None: hmediany_aftercopy.SetAxisRange(0., ceilingy, "Y")
+    if ceilingdxdz is not None: hmediandxdz_aftercopy.SetAxisRange(0., ceilingdxdz, "Y")
+    if ceilingdydz is not None: hmediandydz_aftercopy.SetAxisRange(0., ceilingdydz, "Y")
+
+    c1.Clear()
+    c1.Divide(2, 2)
+
+    c1.GetPad(1).cd()
+    hmedianx_aftercopy.Draw()
+    hmedianx_before.Draw("same")
+    hmedianx_after.Draw("same")
+    hmedianx_beforecopy.Draw("same")
+    hmedianx_after.Draw("axissame")
+
+    tlegend = ROOT.TLegend(0.17, 0.75, 0.45, 0.9)
+    tlegend.SetFillColor(ROOT.kWhite)
+    tlegend.SetBorderSize(0)
+    tlegend.AddEntry(hmedianx_before, r1text, "f")
+    tlegend.AddEntry(hmedianx_after, r2text, "f")
+    tlegend.Draw()
+
+    c1.GetPad(2).cd()
+    hmediany_aftercopy.Draw()
+    hmediany_before.Draw("same")
+    hmediany_after.Draw("same")
+    hmediany_beforecopy.Draw("same")
+    hmediany_after.Draw("axissame")
+
+    c1.GetPad(3).cd()
+    hmediandxdz_aftercopy.Draw()
+    hmediandxdz_before.Draw("same")
+    hmediandxdz_after.Draw("same")
+    hmediandxdz_beforecopy.Draw("same")
+    hmediandxdz_after.Draw("axissame")
+
+    c1.GetPad(4).cd()
+    hmediandydz_aftercopy.Draw()
+    hmediandydz_before.Draw("same")
+    hmediandydz_after.Draw("same")
+    hmediandydz_beforecopy.Draw("same")
+    hmediandydz_after.Draw("axissame")
+
+    return hmedianx_before, hmediany_before, hmediandxdz_before, hmediandydz_before, hmedianx_after, hmediany_after, hmediandxdz_after, hmediandydz_after, tlegend
+
+######################################################################################################
+
 phiedges_me11 = [0.087266462599716474, 0.26179938550504211, 0.43633230751381297, 0.61086524309298951, 0.78539818789089832, 0.95993106410343132, 1.13446400890134, 1.3089969444805165, 1.4835298664892873, 1.6580627893946129, 1.8325957122999386, 2.0071286343087094, 2.1816615698878858, 2.3561945146857948, 2.5307273908983277, 2.7052603356962366, 2.8797932712754131, 3.0543261932841839, -3.0543261909900767, -2.8797932680847511, -2.7052603460759803, -2.5307274104968038, -2.3561944656988949, -2.181661589486362, -2.0071286446884531, -1.8325957091092766, -1.6580627871005058, -1.4835298641951802, -1.3089969412898546, -1.1344640192810838, -0.95993108370190716, -0.78539813890399834, -0.61086526269146535, -0.43633231789355653, -0.26179938231437999, -0.087266460305609153]
 phiedges_me12 = [0.087266462599716474, 0.26179938297741073, 0.43633231700542385, 0.61086526005981812, 0.78539815872971441, 0.95993109326461523, 1.1344639919345114, 1.3089969349889057, 1.4835298690169187, 1.6580627893946129, 1.8325957097723073, 2.0071286438003204, 2.1816615868547147, 2.3561944855246111, 2.5307274200595118, 2.7052603187294082, 2.879793261783802, 3.0543261958118153, -3.0543261909900767, -2.8797932706123825, -2.7052603365843693, -2.5307273935299754, -2.356194494860079, -2.1816615603251783, -2.0071286616552819, -1.8325957186008877, -1.6580627845728746, -1.4835298641951802, -1.308996943817486, -1.1344640097894729, -0.95993106673507855, -0.78539816806518226, -0.61086523353028144, -0.43633233486038514, -0.26179939180599088, -0.087266457777977771]
 phiedges_me13 = [0.087266462599716474, 0.26179938235213535, 0.43633230952414037, 0.61086523916470359, 0.78539817763669606, 0.95993107435763347, 1.1344640128296259, 1.3089969424701891, 1.4835298696421941, 1.6580627893946129, 1.832595709147032, 2.0071286363190368, 2.1816615659596001, 2.3561945044315924, 2.53072740115253, 2.7052603396245227, 2.8797932692650856, 3.0543261964370907, -3.0543261909900767, -2.8797932712376579, -2.7052603440656529, -2.53072741442509, -2.3561944759530973, -2.1816615792321596, -2.0071286407601674, -1.8325957111196041, -1.6580627839475992, -1.4835298641951802, -1.3089969444427614, -1.1344640172707563, -0.95993108763019308, -0.7853981491582005, -0.61086525243726308, -0.43633231396527061, -0.2617993843247074, -0.087266457152702412]
@@ -1185,11 +1507,11 @@ def rlines(disk, window, abscissa):
             rline_tlines[-1].SetLineStyle(2)
             rline_tlines[-1].Draw()
 
-def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", widebins=False, fitsine=False):
+def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", widebins=False, fitsine=False, reset_palette=True):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
     tdrStyle.SetOptFit(0)
-    set_palette("blues")
+    if reset_palette: set_palette("blues")
     global hist, hist2d, hist2dweight, tline1, tline2, tline3
     prof = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_prof" % (name, param)).Clone()
     profPos = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_profPos" % (name, param)).Clone()
@@ -1275,13 +1597,13 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     elif "vsz" in name: hist.SetXTitle("Global z position (cm)")
     elif "vsr" in name: hist.SetXTitle("Global R position (cm)")
     if "DT" in name:
-        if param == "x": hist.SetYTitle("Global x residual (mm)")
-        if param == "dxdz": hist.SetYTitle("Global dx/dz residual (mrad)")
-        if param == "y": hist.SetYTitle("Global y residual (mm)")
-        if param == "dydz": hist.SetYTitle("Global dy/dz residual (mm)")
+        if param == "x": hist.SetYTitle("x' residual (mm)")
+        if param == "dxdz": hist.SetYTitle("dx'/dz residual (mrad)")
+        if param == "y": hist.SetYTitle("y' residual (mm)")
+        if param == "dydz": hist.SetYTitle("dy'/dz residual (mm)")
     if "CSC" in name:
-        if param == "x": hist.SetYTitle("Global r#phi residual (mm)")
-        if param == "dxdz": hist.SetYTitle("Global d(r#phi)/dz residual (mrad)")
+        if param == "x": hist.SetYTitle("r#phi residual (mm)")
+        if param == "dxdz": hist.SetYTitle("d(r#phi)/dz residual (mrad)")
     hist.SetMarkerColor(ROOT.kBlack)
     hist.SetLineColor(ROOT.kBlack)
     hist.Draw()
@@ -1291,15 +1613,19 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     if fitsine: hist.GetFunction("f").Draw("same")
     if "vsphi" in name: 
         if ("mem11" in name or "mep11" in name) and not widebins: philines("me11", window, abscissa)
-        if ("mem12" in name or "mep12" in name) and not widebins: philines("me12", window, abscissa)
-        if ("mem13" in name or "mep13" in name) and not widebins: philines("me13", window, abscissa)
-        if ("mem14" in name or "mep14" in name) and not widebins: philines("me14", window, abscissa)
-        if ("mem21" in name or "mep21" in name) and not widebins: philines("me21", window, abscissa)
-        if ("mem22" in name or "mep22" in name) and not widebins: philines("me22", window, abscissa)
-        if ("mem31" in name or "mep31" in name) and not widebins: philines("me31", window, abscissa)
-        if ("mem32" in name or "mep32" in name) and not widebins: philines("me32", window, abscissa)
-        if ("mem41" in name or "mep41" in name) and not widebins: philines("me41", window, abscissa)
-        if ("mem42" in name or "mep42" in name) and not widebins: philines("me42", window, abscissa)
+        elif ("mem12" in name or "mep12" in name) and not widebins: philines("me12", window, abscissa)
+        elif ("mem13" in name or "mep13" in name) and not widebins: philines("me13", window, abscissa)
+        elif ("mem14" in name or "mep14" in name) and not widebins: philines("me14", window, abscissa)
+        elif ("mem21" in name or "mep21" in name) and not widebins: philines("me21", window, abscissa)
+        elif ("mem22" in name or "mep22" in name) and not widebins: philines("me22", window, abscissa)
+        elif ("mem31" in name or "mep31" in name) and not widebins: philines("me31", window, abscissa)
+        elif ("mem32" in name or "mep32" in name) and not widebins: philines("me32", window, abscissa)
+        elif ("mem41" in name or "mep41" in name) and not widebins: philines("me41", window, abscissa)
+        elif ("mem42" in name or "mep42" in name) and not widebins: philines("me42", window, abscissa)
+        elif ("st1" in name) and not widebins: philines(1, window, abscissa)
+        elif ("st2" in name) and not widebins: philines(2, window, abscissa)
+        elif ("st3" in name) and not widebins: philines(3, window, abscissa)
+        elif ("st4" in name) and not widebins: philines(4, window, abscissa)
         if abscissa is None:
             tline1 = ROOT.TLine(-pi, 0, pi, 0); tline1.Draw()
             tline2 = ROOT.TLine(-pi, -window, pi, -window); tline2.SetLineWidth(2); tline2.Draw()
@@ -1332,4 +1658,506 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
             tline2 = ROOT.TLine(abscissa[0], -window, abscissa[1], -window); tline2.SetLineWidth(2); tline2.Draw()
             tline3 = ROOT.TLine(abscissa[0], window, abscissa[1], window); tline3.Draw()
 
+def getname(r):
+    if r.postal_address[0] == "DT":
+        wheel, station, sector = r.postal_address[1:]
+        return "DT wheel %d, station %d, sector %d" % (wheel, station, sector)
+    elif r.postal_address[0] == "CSC":
+        endcap, station, ring, chamber = r.postal_address[1:]
+        if endcap != 1: station = -1 * abs(station)
+        return "CSC ME%d/%d chamber %d" % (station, ring, chamber)
 
+def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
+    plotDirectory = "MuonAlignmentFromReference"
+    tdrStyle.SetOptTitle(1)
+    tdrStyle.SetTitleBorderSize(1)
+    tdrStyle.SetTitleFontSize(0.1)
+
+    found = False
+    for r in reports:
+        if r.name == name:
+            found = True
+            break
+    if not found: raise Exception, "Not a valid name"
+    if r.status == "FAIL": raise Exception, "Fit failed"
+    
+    Pos = "Pos"; Neg = "Neg"
+    if not twobin:
+        Pos = ""; Neg = ""
+
+    chamber_x = tfile.Get("%s/%s%s_x" % (plotDirectory, name, Pos))
+    chamber_x_fit = tfile.Get("%s/%s%s_x_fit" % (plotDirectory, name, Pos))
+    chamber_y = tfile.Get("%s/%s%s_y" % (plotDirectory, name, Pos))
+    chamber_y_fit = tfile.Get("%s/%s%s_y_fit" % (plotDirectory, name, Pos))
+    chamber_dxdz = tfile.Get("%s/%s%s_dxdz" % (plotDirectory, name, Pos))
+    chamber_dxdz_fit = tfile.Get("%s/%s%s_dxdz_fit" % (plotDirectory, name, Pos))
+    chamber_dydz = tfile.Get("%s/%s%s_dydz" % (plotDirectory, name, Pos))
+    chamber_dydz_fit = tfile.Get("%s/%s%s_dydz_fit" % (plotDirectory, name, Pos))
+    chamber_alphax = tfile.Get("%s/%s%s_alphax" % (plotDirectory, name, Pos))
+    chamber_alphax_fit = tfile.Get("%s/%s%s_alphax_fit" % (plotDirectory, name, Pos))
+    chamber_alphay = tfile.Get("%s/%s%s_alphay" % (plotDirectory, name, Pos))
+    chamber_alphay_fit = tfile.Get("%s/%s%s_alphay_fit" % (plotDirectory, name, Pos))
+    chamber_x_fit2 = tfile.Get("%s/%s%s_x_fit" % (plotDirectory, name, Neg))
+    chamber_y_fit2 = tfile.Get("%s/%s%s_y_fit" % (plotDirectory, name, Neg))
+    chamber_dxdz_fit2 = tfile.Get("%s/%s%s_dxdz_fit" % (plotDirectory, name, Neg))
+    chamber_dydz_fit2 = tfile.Get("%s/%s%s_dydz_fit" % (plotDirectory, name, Neg))
+    chamber_alphax_fit2 = tfile.Get("%s/%s%s_alphax_fit" % (plotDirectory, name, Neg))
+    chamber_alphay_fit2 = tfile.Get("%s/%s%s_alphay_fit" % (plotDirectory, name, Neg))
+
+    if chamber_x is None:
+        chamber_x = tfile.Get("%s/%s%s_residual" % (plotDirectory, name, Pos))
+        chamber_x_fit = tfile.Get("%s/%s%s_residual_fit" % (plotDirectory, name, Pos))
+        chamber_dxdz = tfile.Get("%s/%s%s_resslope" % (plotDirectory, name, Pos))
+        chamber_dxdz_fit = tfile.Get("%s/%s%s_resslope_fit" % (plotDirectory, name, Pos))
+        chamber_alphax = tfile.Get("%s/%s%s_alpha" % (plotDirectory, name, Pos))
+        chamber_alphax_fit = tfile.Get("%s/%s%s_alpha_fit" % (plotDirectory, name, Pos))
+        chamber_x_fit2 = tfile.Get("%s/%s%s_residual_fit" % (plotDirectory, name, Neg))
+        chamber_dxdz_fit2 = tfile.Get("%s/%s%s_resslope_fit" % (plotDirectory, name, Neg))
+        chamber_alphax_fit2 = tfile.Get("%s/%s%s_alpha_fit" % (plotDirectory, name, Neg))
+
+    ####
+    chamber_x.SetAxisRange(-30., 30., "X")
+    chamber_dxdz.SetAxisRange(-50., 50., "X")
+    if chamber_y is not None:
+        chamber_y.SetAxisRange(-50., 50., "X")
+        chamber_dydz.SetAxisRange(-200., 200., "X")
+    ####
+
+    chamber_x.SetXTitle("Local x residual (mm)")
+    chamber_dxdz.SetXTitle("Local dx/dz residual (mrad)")
+    chamber_alphax.SetXTitle("Local dx/dz residual (mrad)")
+    chamber_alphax.SetYTitle("Local x residual (mm)")
+    if chamber_y is not None:
+        chamber_y.SetXTitle("Local y residual (mm)")
+        chamber_dydz.SetXTitle("Local dy/dz residual (mrad)")
+        chamber_alphay.SetXTitle("Local dy/dz residual (mrad)")
+        chamber_alphay.SetYTitle("Local y residual (mm)")
+    if name[0:2] == "ME":
+        chamber_x.SetXTitle("Local r#phi residual (mm)")
+        chamber_dxdz.SetXTitle("Local d(r#phi)/dz residual (mrad)")
+        chamber_alphax.SetXTitle("Local d(r#phi)/dz residual (mrad)")
+        chamber_alphax.SetYTitle("Local r#phi residual (mm)")
+
+    for h in chamber_x, chamber_dxdz, chamber_alphax, chamber_alphax, chamber_y, chamber_dydz, chamber_alphay, chamber_alphay:
+        if h is not None:
+            h.GetXaxis().CenterTitle()
+            h.GetYaxis().CenterTitle()
+            h.GetXaxis().SetLabelSize(0.05)
+            h.GetYaxis().SetLabelSize(0.05)
+            h.GetXaxis().SetTitleSize(0.07)
+            h.GetYaxis().SetTitleSize(0.07)
+            h.GetXaxis().SetTitleOffset(0.9)
+            h.GetYaxis().SetTitleOffset(0.9)
+
+    for f in chamber_x_fit2, chamber_y_fit2, chamber_dxdz_fit2, chamber_dydz_fit2, chamber_alphax_fit2, chamber_alphay_fit2:
+        if f is not None:
+            f.SetLineColor(4)
+
+    if chamber_y is not None:
+        c1.Clear()
+        c1.Divide(3, 2)
+        chamber_x.SetTitle(getname(r))
+        c1.GetPad(1).cd(); chamber_x.Draw(); (None if suppressblue else chamber_x_fit2.Draw("same")); chamber_x_fit.Draw("same")
+        c1.GetPad(2).cd(); chamber_dxdz.Draw(); (None if suppressblue else chamber_dxdz_fit2.Draw("same")); chamber_dxdz_fit.Draw("same")
+        c1.GetPad(3).cd(); chamber_alphax.Draw(); (None if suppressblue else chamber_alphax_fit2.Draw("same")); chamber_alphax_fit.Draw("same")
+        c1.GetPad(4).cd(); chamber_y.Draw(); (None if suppressblue else chamber_y_fit2.Draw("same")); chamber_y_fit.Draw("same")
+        c1.GetPad(5).cd(); chamber_dydz.Draw(); (None if suppressblue else chamber_dydz_fit2.Draw("same")); chamber_dydz_fit.Draw("same")
+        c1.GetPad(6).cd(); chamber_alphay.Draw(); (None if suppressblue else chamber_alphay_fit2.Draw("same")); chamber_alphay_fit.Draw("same")
+
+    else:
+        c1.Clear()
+        c1.Divide(3, 1)
+        chamber_x.SetTitle(getname(r))
+        c1.GetPad(1).cd(); chamber_x.Draw(); (None if suppressblue else chamber_x_fit2.Draw("same")); chamber_x_fit.Draw("same")
+        c1.GetPad(2).cd(); chamber_dxdz.Draw(); (None if suppressblue else chamber_dxdz_fit2.Draw("same")); chamber_dxdz_fit.Draw("same")
+        c1.GetPad(3).cd(); chamber_alphax.Draw(); (None if suppressblue else chamber_alphax_fit2.Draw("same")); chamber_alphax_fit.Draw("same")
+
+def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
+    global label1, label2, label3, label4, label5, label6, label7, label8, label9
+    plotDirectory = "MuonAlignmentFromReference"
+    tdrStyle.SetOptTitle(1)
+    tdrStyle.SetTitleBorderSize(1)
+    tdrStyle.SetTitleFontSize(0.1)
+
+    found = False
+    for r in reports:
+        if r.name == name:
+            found = True
+            break
+    if not found: raise Exception, "Not a valid name"
+    if r.status == "FAIL": raise Exception, "Fit failed"
+
+    Pos = "Pos"; Neg = "Neg"
+    if not twobin:
+        Pos = ""; Neg = ""
+
+    chamber_x_trackx = tfile.Get("%s/%s%s_x_trackx" % (plotDirectory, name, Pos))
+    chamber_x_trackx_fit = tfile.Get("%s/%s%s_x_trackx_fitline" % (plotDirectory, name, Pos))
+    chamber_y_trackx = tfile.Get("%s/%s%s_y_trackx" % (plotDirectory, name, Pos))
+    chamber_y_trackx_fit = tfile.Get("%s/%s%s_y_trackx_fitline" % (plotDirectory, name, Pos))
+    chamber_dxdz_trackx = tfile.Get("%s/%s%s_dxdz_trackx" % (plotDirectory, name, Pos))
+    chamber_dxdz_trackx_fit = tfile.Get("%s/%s%s_dxdz_trackx_fitline" % (plotDirectory, name, Pos))
+    chamber_dydz_trackx = tfile.Get("%s/%s%s_dydz_trackx" % (plotDirectory, name, Pos))
+    chamber_dydz_trackx_fit = tfile.Get("%s/%s%s_dydz_trackx_fitline" % (plotDirectory, name, Pos))
+    chamber_x_trackx_fit2 = tfile.Get("%s/%s%s_x_trackx_fitline" % (plotDirectory, name, Neg))
+    chamber_y_trackx_fit2 = tfile.Get("%s/%s%s_y_trackx_fitline" % (plotDirectory, name, Neg))
+    chamber_dxdz_trackx_fit2 = tfile.Get("%s/%s%s_dxdz_trackx_fitline" % (plotDirectory, name, Neg))
+    chamber_dydz_trackx_fit2 = tfile.Get("%s/%s%s_dydz_trackx_fitline" % (plotDirectory, name, Neg))
+
+    chamber_x_tracky = tfile.Get("%s/%s%s_x_tracky" % (plotDirectory, name, Pos))
+    chamber_x_tracky_fit = tfile.Get("%s/%s%s_x_tracky_fitline" % (plotDirectory, name, Pos))
+    chamber_y_tracky = tfile.Get("%s/%s%s_y_tracky" % (plotDirectory, name, Pos))
+    chamber_y_tracky_fit = tfile.Get("%s/%s%s_y_tracky_fitline" % (plotDirectory, name, Pos))
+    chamber_dxdz_tracky = tfile.Get("%s/%s%s_dxdz_tracky" % (plotDirectory, name, Pos))
+    chamber_dxdz_tracky_fit = tfile.Get("%s/%s%s_dxdz_tracky_fitline" % (plotDirectory, name, Pos))
+    chamber_dydz_tracky = tfile.Get("%s/%s%s_dydz_tracky" % (plotDirectory, name, Pos))
+    chamber_dydz_tracky_fit = tfile.Get("%s/%s%s_dydz_tracky_fitline" % (plotDirectory, name, Pos))
+    chamber_x_tracky_fit2 = tfile.Get("%s/%s%s_x_tracky_fitline" % (plotDirectory, name, Neg))
+    chamber_y_tracky_fit2 = tfile.Get("%s/%s%s_y_tracky_fitline" % (plotDirectory, name, Neg))
+    chamber_dxdz_tracky_fit2 = tfile.Get("%s/%s%s_dxdz_tracky_fitline" % (plotDirectory, name, Neg))
+    chamber_dydz_tracky_fit2 = tfile.Get("%s/%s%s_dydz_tracky_fitline" % (plotDirectory, name, Neg))
+
+    chamber_x_trackdxdz = tfile.Get("%s/%s%s_x_trackdxdz" % (plotDirectory, name, Pos))
+    chamber_x_trackdxdz_fit = tfile.Get("%s/%s%s_x_trackdxdz_fitline" % (plotDirectory, name, Pos))
+    chamber_y_trackdxdz = tfile.Get("%s/%s%s_y_trackdxdz" % (plotDirectory, name, Pos))
+    chamber_y_trackdxdz_fit = tfile.Get("%s/%s%s_y_trackdxdz_fitline" % (plotDirectory, name, Pos))
+    chamber_dxdz_trackdxdz = tfile.Get("%s/%s%s_dxdz_trackdxdz" % (plotDirectory, name, Pos))
+    chamber_dxdz_trackdxdz_fit = tfile.Get("%s/%s%s_dxdz_trackdxdz_fitline" % (plotDirectory, name, Pos))
+    chamber_dydz_trackdxdz = tfile.Get("%s/%s%s_dydz_trackdxdz" % (plotDirectory, name, Pos))
+    chamber_dydz_trackdxdz_fit = tfile.Get("%s/%s%s_dydz_trackdxdz_fitline" % (plotDirectory, name, Pos))
+    chamber_x_trackdxdz_fit2 = tfile.Get("%s/%s%s_x_trackdxdz_fitline" % (plotDirectory, name, Neg))
+    chamber_y_trackdxdz_fit2 = tfile.Get("%s/%s%s_y_trackdxdz_fitline" % (plotDirectory, name, Neg))
+    chamber_dxdz_trackdxdz_fit2 = tfile.Get("%s/%s%s_dxdz_trackdxdz_fitline" % (plotDirectory, name, Neg))
+    chamber_dydz_trackdxdz_fit2 = tfile.Get("%s/%s%s_dydz_trackdxdz_fitline" % (plotDirectory, name, Neg))
+
+    chamber_x_trackdydz = tfile.Get("%s/%s%s_x_trackdydz" % (plotDirectory, name, Pos))
+    chamber_x_trackdydz_fit = tfile.Get("%s/%s%s_x_trackdydz_fitline" % (plotDirectory, name, Pos))
+    chamber_y_trackdydz = tfile.Get("%s/%s%s_y_trackdydz" % (plotDirectory, name, Pos))
+    chamber_y_trackdydz_fit = tfile.Get("%s/%s%s_y_trackdydz_fitline" % (plotDirectory, name, Pos))
+    chamber_dxdz_trackdydz = tfile.Get("%s/%s%s_dxdz_trackdydz" % (plotDirectory, name, Pos))
+    chamber_dxdz_trackdydz_fit = tfile.Get("%s/%s%s_dxdz_trackdydz_fitline" % (plotDirectory, name, Pos))
+    chamber_dydz_trackdydz = tfile.Get("%s/%s%s_dydz_trackdydz" % (plotDirectory, name, Pos))
+    chamber_dydz_trackdydz_fit = tfile.Get("%s/%s%s_dydz_trackdydz_fitline" % (plotDirectory, name, Pos))
+    chamber_x_trackdydz_fit2 = tfile.Get("%s/%s%s_x_trackdydz_fitline" % (plotDirectory, name, Neg))
+    chamber_y_trackdydz_fit2 = tfile.Get("%s/%s%s_y_trackdydz_fitline" % (plotDirectory, name, Neg))
+    chamber_dxdz_trackdydz_fit2 = tfile.Get("%s/%s%s_dxdz_trackdydz_fitline" % (plotDirectory, name, Neg))
+    chamber_dydz_trackdydz_fit2 = tfile.Get("%s/%s%s_dydz_trackdydz_fitline" % (plotDirectory, name, Neg))
+
+    if chamber_x_trackx is None:
+        chamber_x_trackx = tfile.Get("%s/%s%s_residual_trackx" % (plotDirectory, name, Pos))
+        chamber_x_trackx_fit = tfile.Get("%s/%s%s_residual_trackx_fitline" % (plotDirectory, name, Pos))
+        chamber_dxdz_trackx = tfile.Get("%s/%s%s_resslope_trackx" % (plotDirectory, name, Pos))
+        chamber_dxdz_trackx_fit = tfile.Get("%s/%s%s_resslope_trackx_fitline" % (plotDirectory, name, Pos))
+        chamber_x_trackx_fit2 = tfile.Get("%s/%s%s_residual_trackx_fitline" % (plotDirectory, name, Neg))
+        chamber_dxdz_trackx_fit2 = tfile.Get("%s/%s%s_resslope_trackx_fitline" % (plotDirectory, name, Neg))
+
+        chamber_x_tracky = tfile.Get("%s/%s%s_residual_tracky" % (plotDirectory, name, Pos))
+        chamber_x_tracky_fit = tfile.Get("%s/%s%s_residual_tracky_fitline" % (plotDirectory, name, Pos))
+        chamber_dxdz_tracky = tfile.Get("%s/%s%s_resslope_tracky" % (plotDirectory, name, Pos))
+        chamber_dxdz_tracky_fit = tfile.Get("%s/%s%s_resslope_tracky_fitline" % (plotDirectory, name, Pos))
+        chamber_x_tracky_fit2 = tfile.Get("%s/%s%s_residual_tracky_fitline" % (plotDirectory, name, Neg))
+        chamber_dxdz_tracky_fit2 = tfile.Get("%s/%s%s_resslope_tracky_fitline" % (plotDirectory, name, Neg))
+
+        chamber_x_trackdxdz = tfile.Get("%s/%s%s_residual_trackdxdz" % (plotDirectory, name, Pos))
+        chamber_x_trackdxdz_fit = tfile.Get("%s/%s%s_residual_trackdxdz_fitline" % (plotDirectory, name, Pos))
+        chamber_dxdz_trackdxdz = tfile.Get("%s/%s%s_resslope_trackdxdz" % (plotDirectory, name, Pos))
+        chamber_dxdz_trackdxdz_fit = tfile.Get("%s/%s%s_resslope_trackdxdz_fitline" % (plotDirectory, name, Pos))
+        chamber_x_trackdxdz_fit2 = tfile.Get("%s/%s%s_residual_trackdxdz_fitline" % (plotDirectory, name, Neg))
+        chamber_dxdz_trackdxdz_fit2 = tfile.Get("%s/%s%s_resslope_trackdxdz_fitline" % (plotDirectory, name, Neg))
+
+        chamber_x_trackdydz = tfile.Get("%s/%s%s_residual_trackdydz" % (plotDirectory, name, Pos))
+        chamber_x_trackdydz_fit = tfile.Get("%s/%s%s_residual_trackdydz_fitline" % (plotDirectory, name, Pos))
+        chamber_dxdz_trackdydz = tfile.Get("%s/%s%s_resslope_trackdydz" % (plotDirectory, name, Pos))
+        chamber_dxdz_trackdydz_fit = tfile.Get("%s/%s%s_resslope_trackdydz_fitline" % (plotDirectory, name, Pos))
+        chamber_x_trackdydz_fit2 = tfile.Get("%s/%s%s_residual_trackdydz_fitline" % (plotDirectory, name, Neg))
+        chamber_dxdz_trackdydz_fit2 = tfile.Get("%s/%s%s_resslope_trackdydz_fitline" % (plotDirectory, name, Neg))
+
+    chamber_x_trackx = chamber_x_trackx.Clone()
+    chamber_dxdz_trackx = chamber_dxdz_trackx.Clone()
+    chamber_x_tracky = chamber_x_tracky.Clone()
+    chamber_dxdz_tracky = chamber_dxdz_tracky.Clone()
+    chamber_x_trackdxdz = chamber_x_trackdxdz.Clone()
+    chamber_dxdz_trackdxdz = chamber_dxdz_trackdxdz.Clone()
+    chamber_x_trackdydz = chamber_x_trackdydz.Clone()
+    chamber_dxdz_trackdydz = chamber_dxdz_trackdydz.Clone()
+
+    if chamber_y_trackx is not None:
+        chamber_y_trackx = chamber_y_trackx.Clone()
+        chamber_dydz_trackx = chamber_dydz_trackx.Clone()
+        chamber_y_tracky = chamber_y_tracky.Clone()
+        chamber_dydz_tracky = chamber_dydz_tracky.Clone()
+        chamber_y_trackdxdz = chamber_y_trackdxdz.Clone()
+        chamber_dydz_trackdxdz = chamber_dydz_trackdxdz.Clone()
+        chamber_y_trackdydz = chamber_y_trackdydz.Clone()
+        chamber_dydz_trackdydz = chamber_dydz_trackdydz.Clone()
+
+    if chamber_y_trackx is not None:
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_trackx" % (plotDirectory, name, Neg))); chamber_x_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_trackx" % (plotDirectory, name, Neg))); chamber_dxdz_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_tracky" % (plotDirectory, name, Neg))); chamber_x_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_tracky" % (plotDirectory, name, Neg))); chamber_dxdz_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_trackdxdz" % (plotDirectory, name, Neg))); chamber_x_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_trackdxdz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_x_trackdydz" % (plotDirectory, name, Neg))); chamber_x_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dxdz_trackdydz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_trackx" % (plotDirectory, name, Neg))); chamber_y_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_trackx" % (plotDirectory, name, Neg))); chamber_dydz_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_tracky" % (plotDirectory, name, Neg))); chamber_y_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_tracky" % (plotDirectory, name, Neg))); chamber_dydz_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_trackdxdz" % (plotDirectory, name, Neg))); chamber_y_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_trackdxdz" % (plotDirectory, name, Neg))); chamber_dydz_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_y_trackdydz" % (plotDirectory, name, Neg))); chamber_y_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_dydz_trackdydz" % (plotDirectory, name, Neg))); chamber_dydz_trackdydz.Merge(tlist)
+    else:
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_trackx" % (plotDirectory, name, Neg))); chamber_x_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_trackx" % (plotDirectory, name, Neg))); chamber_dxdz_trackx.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_tracky" % (plotDirectory, name, Neg))); chamber_x_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_tracky" % (plotDirectory, name, Neg))); chamber_dxdz_tracky.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_trackdxdz" % (plotDirectory, name, Neg))); chamber_x_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_trackdxdz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdxdz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_residual_trackdydz" % (plotDirectory, name, Neg))); chamber_x_trackdydz.Merge(tlist)
+        tlist = ROOT.TList(); tlist.Add(tfile.Get("%s/%s%s_resslope_trackdydz" % (plotDirectory, name, Neg))); chamber_dxdz_trackdydz.Merge(tlist)
+
+    chamber_x_trackx.SetAxisRange(-14.99, 14.99, "Y")
+    chamber_dxdz_trackx.SetAxisRange(-7.5, 7.5, "Y")
+    chamber_x_tracky.SetAxisRange(-14.99, 14.99, "Y")
+    chamber_dxdz_tracky.SetAxisRange(-7.5, 7.5, "Y")
+    chamber_x_trackdxdz.SetAxisRange(-14.99, 14.99, "Y")
+    chamber_dxdz_trackdxdz.SetAxisRange(-7.5, 7.5, "Y")
+    chamber_x_trackdydz.SetAxisRange(-14.99, 14.99, "Y")
+    chamber_dxdz_trackdydz.SetAxisRange(-7.5, 7.5, "Y")
+
+    if chamber_y_trackx is not None:
+        chamber_y_trackx.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_dydz_trackx.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_y_tracky.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_dydz_tracky.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_y_trackdxdz.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_dydz_trackdxdz.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_y_trackdydz.SetAxisRange(-24.99, 24.99, "Y")
+        chamber_dydz_trackdydz.SetAxisRange(-24.99, 24.99, "Y")
+
+    for h in chamber_x_trackx, chamber_y_trackx, chamber_dxdz_trackx, chamber_dydz_trackx, chamber_x_tracky, chamber_y_tracky, chamber_dxdz_tracky, chamber_dydz_tracky, chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz, chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
+        if h is not None:
+            h.SetMarkerStyle(20)
+            h.SetMarkerSize(0.5)
+            h.GetXaxis().SetLabelSize(0.13)
+            h.GetYaxis().SetLabelSize(0.13)
+            h.GetXaxis().SetNdivisions(505)
+            h.GetYaxis().SetNdivisions(505)
+            h.GetXaxis().SetLabelOffset(0.03)
+            h.GetYaxis().SetLabelOffset(0.03)
+
+    trackdxdz_minimum, trackdxdz_maximum = None, None
+    for h in chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz:
+        if h is not None:
+            for i in xrange(1, h.GetNbinsX()+1):
+                if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and h.GetBinContent(i) + h.GetBinError(i) > -10.:
+                    if trackdxdz_minimum is None or trackdxdz_minimum > h.GetBinCenter(i): trackdxdz_minimum = h.GetBinCenter(i)
+                    if trackdxdz_maximum < h.GetBinCenter(i): trackdxdz_maximum = h.GetBinCenter(i)
+    if trackdxdz_minimum is not None and trackdxdz_maximum is not None:
+        for h in chamber_x_trackdxdz, chamber_y_trackdxdz, chamber_dxdz_trackdxdz, chamber_dydz_trackdxdz:
+            if h is not None:
+                h.SetAxisRange(trackdxdz_minimum, trackdxdz_maximum, "X")
+
+    trackdydz_minimum, trackdydz_maximum = None, None
+    for h in chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
+        if h is not None:
+            for i in xrange(1, h.GetNbinsX()+1):
+                if h.GetBinError(i) > 0.01 and h.GetBinContent(i) - h.GetBinError(i) < 10. and h.GetBinContent(i) + h.GetBinError(i) > -10.:
+                    if trackdydz_minimum is None or trackdydz_minimum > h.GetBinCenter(i): trackdydz_minimum = h.GetBinCenter(i)
+                    if trackdydz_maximum < h.GetBinCenter(i): trackdydz_maximum = h.GetBinCenter(i)
+    if trackdydz_minimum is not None and trackdydz_maximum is not None:
+        for h in chamber_x_trackdydz, chamber_y_trackdydz, chamber_dxdz_trackdydz, chamber_dydz_trackdydz:
+            if h is not None:
+                h.SetAxisRange(trackdydz_minimum, trackdydz_maximum, "X")
+
+    for f in chamber_x_trackx_fit2, chamber_y_trackx_fit2, chamber_dxdz_trackx_fit2, chamber_dydz_trackx_fit2, chamber_x_tracky_fit2, chamber_y_tracky_fit2, chamber_dxdz_tracky_fit2, chamber_dydz_tracky_fit2, chamber_x_trackdxdz_fit2, chamber_y_trackdxdz_fit2, chamber_dxdz_trackdxdz_fit2, chamber_dydz_trackdxdz_fit2, chamber_x_trackdydz_fit2, chamber_y_trackdydz_fit2, chamber_dxdz_trackdydz_fit2, chamber_dydz_trackdydz_fit2:
+        if f is not None:
+            f.SetLineColor(4)
+
+    if chamber_y_trackx is not None:
+        c1.Clear()
+        c1.Divide(5, 5, 1e-5, 1e-5)
+
+        label1 = ROOT.TPaveLabel(0, 0, 1, 1, "x residuals (mm)")
+        label2 = ROOT.TPaveLabel(0, 0, 1, 1, "y residuals (mm)")
+        label3 = ROOT.TPaveLabel(0, 0, 1, 1, "dx/dz residuals (mrad)")
+        label4 = ROOT.TPaveLabel(0, 0, 1, 1, "dy/dz residuals (mrad)")
+        label5 = ROOT.TPaveLabel(0, 0.5, 1, 1, "x position (cm)")
+        label6 = ROOT.TPaveLabel(0, 0.5, 1, 1, "y position (cm)")
+        label7 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dx/dz angle (rad)")
+        label8 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dy/dz angle (rad)")
+        label9 = ROOT.TPaveLabel(0, 0, 1, 1, getname(r))
+
+        for l in label1, label2, label3, label4, label5, label6, label7, label8, label9:
+            l.SetBorderSize(0)
+            l.SetFillColor(ROOT.kWhite)
+
+        label9.SetTextAngle(30)
+
+        c1.GetPad(1).cd(); label1.Draw()
+        c1.GetPad(6).cd(); label2.Draw()
+        c1.GetPad(11).cd(); label3.Draw()
+        c1.GetPad(16).cd(); label4.Draw()
+        c1.GetPad(22).cd(); label5.Draw()
+        c1.GetPad(23).cd(); label6.Draw()
+        c1.GetPad(24).cd(); label7.Draw()
+        c1.GetPad(25).cd(); label8.Draw()
+        c1.GetPad(21).cd(); label9.Draw()
+
+        c1.GetPad(2).SetRightMargin(1e-5)
+        c1.GetPad(2).SetBottomMargin(1e-5)
+        c1.GetPad(3).SetLeftMargin(1e-5)
+        c1.GetPad(3).SetRightMargin(1e-5)
+        c1.GetPad(3).SetBottomMargin(1e-5)
+        c1.GetPad(4).SetLeftMargin(1e-5)
+        c1.GetPad(4).SetRightMargin(1e-5)
+        c1.GetPad(4).SetBottomMargin(1e-5)
+        c1.GetPad(5).SetLeftMargin(1e-5)
+        c1.GetPad(5).SetBottomMargin(1e-5)
+
+        c1.GetPad(7).SetRightMargin(1e-5)
+        c1.GetPad(7).SetBottomMargin(1e-5)
+        c1.GetPad(7).SetTopMargin(1e-5)
+        c1.GetPad(8).SetLeftMargin(1e-5)
+        c1.GetPad(8).SetRightMargin(1e-5)
+        c1.GetPad(8).SetBottomMargin(1e-5)
+        c1.GetPad(8).SetTopMargin(1e-5)
+        c1.GetPad(9).SetLeftMargin(1e-5)
+        c1.GetPad(9).SetRightMargin(1e-5)
+        c1.GetPad(9).SetBottomMargin(1e-5)
+        c1.GetPad(9).SetTopMargin(1e-5)
+        c1.GetPad(10).SetLeftMargin(1e-5)
+        c1.GetPad(10).SetBottomMargin(1e-5)
+        c1.GetPad(10).SetTopMargin(1e-5)
+
+        c1.GetPad(12).SetRightMargin(1e-5)
+        c1.GetPad(12).SetBottomMargin(1e-5)
+        c1.GetPad(12).SetTopMargin(1e-5)
+        c1.GetPad(13).SetLeftMargin(1e-5)
+        c1.GetPad(13).SetRightMargin(1e-5)
+        c1.GetPad(13).SetBottomMargin(1e-5)
+        c1.GetPad(13).SetTopMargin(1e-5)
+        c1.GetPad(14).SetLeftMargin(1e-5)
+        c1.GetPad(14).SetRightMargin(1e-5)
+        c1.GetPad(14).SetBottomMargin(1e-5)
+        c1.GetPad(14).SetTopMargin(1e-5)
+        c1.GetPad(15).SetLeftMargin(1e-5)
+        c1.GetPad(15).SetBottomMargin(1e-5)
+        c1.GetPad(15).SetTopMargin(1e-5)
+
+        c1.GetPad(17).SetRightMargin(1e-5)
+        c1.GetPad(17).SetTopMargin(1e-5)
+        c1.GetPad(18).SetLeftMargin(1e-5)
+        c1.GetPad(18).SetRightMargin(1e-5)
+        c1.GetPad(18).SetTopMargin(1e-5)
+        c1.GetPad(19).SetLeftMargin(1e-5)
+        c1.GetPad(19).SetRightMargin(1e-5)
+        c1.GetPad(19).SetTopMargin(1e-5)
+        c1.GetPad(20).SetLeftMargin(1e-5)
+        c1.GetPad(20).SetTopMargin(1e-5)
+        
+        chamber_x_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_y_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_y_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_y_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_y_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_dxdz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_dxdz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_dxdz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        # chamber_dydz_trackx
+        chamber_dydz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dydz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dydz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+
+        c1.GetPad(2).cd(); chamber_x_trackx.Draw("e1"); (None if suppressblue else chamber_x_trackx_fit2.Draw("samel")); chamber_x_trackx_fit.Draw("samel")
+        c1.GetPad(3).cd(); chamber_x_tracky.Draw("e1"); (None if suppressblue else chamber_x_tracky_fit2.Draw("samel")); chamber_x_tracky_fit.Draw("samel")
+        c1.GetPad(4).cd(); chamber_x_trackdxdz.Draw("e1"); (None if suppressblue else chamber_x_trackdxdz_fit2.Draw("samel")); chamber_x_trackdxdz_fit.Draw("samel")
+        c1.GetPad(5).cd(); chamber_x_trackdydz.Draw("e1"); (None if suppressblue else chamber_x_trackdydz_fit2.Draw("samel")); chamber_x_trackdydz_fit.Draw("samel")
+        c1.GetPad(7).cd(); chamber_y_trackx.Draw("e1"); (None if suppressblue else chamber_y_trackx_fit2.Draw("samel")); chamber_y_trackx_fit.Draw("samel")
+        c1.GetPad(8).cd(); chamber_y_tracky.Draw("e1"); (None if suppressblue else chamber_y_tracky_fit2.Draw("samel")); chamber_y_tracky_fit.Draw("samel")
+        c1.GetPad(9).cd(); chamber_y_trackdxdz.Draw("e1"); (None if suppressblue else chamber_y_trackdxdz_fit2.Draw("samel")); chamber_y_trackdxdz_fit.Draw("samel")
+        c1.GetPad(10).cd(); chamber_y_trackdydz.Draw("e1"); (None if suppressblue else chamber_y_trackdydz_fit2.Draw("samel")); chamber_y_trackdydz_fit.Draw("samel")
+        c1.GetPad(12).cd(); chamber_dxdz_trackx.Draw("e1"); (None if suppressblue else chamber_dxdz_trackx_fit2.Draw("samel")); chamber_dxdz_trackx_fit.Draw("samel")
+        c1.GetPad(13).cd(); chamber_dxdz_tracky.Draw("e1"); (None if suppressblue else chamber_dxdz_tracky_fit2.Draw("samel")); chamber_dxdz_tracky_fit.Draw("samel")
+        c1.GetPad(14).cd(); chamber_dxdz_trackdxdz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdxdz_fit2.Draw("samel")); chamber_dxdz_trackdxdz_fit.Draw("samel")
+        c1.GetPad(15).cd(); chamber_dxdz_trackdydz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdydz_fit2.Draw("samel")); chamber_dxdz_trackdydz_fit.Draw("samel")
+        c1.GetPad(17).cd(); chamber_dydz_trackx.Draw("e1"); (None if suppressblue else chamber_dydz_trackx_fit2.Draw("samel")); chamber_dydz_trackx_fit.Draw("samel")
+        c1.GetPad(18).cd(); chamber_dydz_tracky.Draw("e1"); (None if suppressblue else chamber_dydz_tracky_fit2.Draw("samel")); chamber_dydz_tracky_fit.Draw("samel")
+        c1.GetPad(19).cd(); chamber_dydz_trackdxdz.Draw("e1"); (None if suppressblue else chamber_dydz_trackdxdz_fit2.Draw("samel")); chamber_dydz_trackdxdz_fit.Draw("samel")
+        c1.GetPad(20).cd(); chamber_dydz_trackdydz.Draw("e1"); (None if suppressblue else chamber_dydz_trackdydz_fit2.Draw("samel")); chamber_dydz_trackdydz_fit.Draw("samel")
+
+    else:
+        c1.Clear()
+        c1.Divide(5, 3, 1e-5, 1e-5)
+
+        label1 = ROOT.TPaveLabel(0, 0, 1, 1, "x residuals (mm)")
+        label2 = ROOT.TPaveLabel(0, 0, 1, 1, "dx/dz residuals (mrad)")
+        label3 = ROOT.TPaveLabel(0, 0.5, 1, 1, "x position (cm)")
+        label4 = ROOT.TPaveLabel(0, 0.5, 1, 1, "y position (cm)")
+        label5 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dx/dz angle (rad)")
+        label6 = ROOT.TPaveLabel(0, 0.5, 1, 1, "dy/dz angle (rad)")
+        label9 = ROOT.TPaveLabel(0, 0.5, 1, 1, getname(r))
+
+        if name[0:2] == "ME":
+            label1 = ROOT.TPaveLabel(0, 0, 1, 1, "r#phi residuals (mm)")
+            label2 = ROOT.TPaveLabel(0, 0, 1, 1, "d(r#phi)/dz residuals (mrad)")
+
+        for l in label1, label2, label3, label4, label5, label6, label9:
+            l.SetBorderSize(0)
+            l.SetFillColor(ROOT.kWhite)
+
+        label9.SetTextAngle(30)
+
+        c1.GetPad(1).cd(); label1.Draw()
+        c1.GetPad(6).cd(); label2.Draw()
+        c1.GetPad(12).cd(); label3.Draw()
+        c1.GetPad(13).cd(); label4.Draw()
+        c1.GetPad(14).cd(); label5.Draw()
+        c1.GetPad(15).cd(); label6.Draw()
+        c1.GetPad(11).cd(); label9.Draw()
+
+        c1.GetPad(2).SetRightMargin(1e-5)
+        c1.GetPad(2).SetBottomMargin(1e-5)
+        c1.GetPad(3).SetLeftMargin(1e-5)
+        c1.GetPad(3).SetRightMargin(1e-5)
+        c1.GetPad(3).SetBottomMargin(1e-5)
+        c1.GetPad(4).SetLeftMargin(1e-5)
+        c1.GetPad(4).SetRightMargin(1e-5)
+        c1.GetPad(4).SetBottomMargin(1e-5)
+        c1.GetPad(5).SetLeftMargin(1e-5)
+        c1.GetPad(5).SetBottomMargin(1e-5)
+
+        c1.GetPad(7).SetRightMargin(1e-5)
+        c1.GetPad(7).SetTopMargin(1e-5)
+        c1.GetPad(8).SetLeftMargin(1e-5)
+        c1.GetPad(8).SetRightMargin(1e-5)
+        c1.GetPad(8).SetTopMargin(1e-5)
+        c1.GetPad(9).SetLeftMargin(1e-5)
+        c1.GetPad(9).SetRightMargin(1e-5)
+        c1.GetPad(9).SetTopMargin(1e-5)
+        c1.GetPad(10).SetLeftMargin(1e-5)
+        c1.GetPad(10).SetTopMargin(1e-5)
+
+        chamber_x_trackx.GetXaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_tracky.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdxdz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_x_trackdydz.GetXaxis().SetLabelColor(ROOT.kWhite); chamber_x_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        # chamber_dxdz_trackx
+        chamber_dxdz_tracky.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdxdz.GetYaxis().SetLabelColor(ROOT.kWhite)
+        chamber_dxdz_trackdydz.GetYaxis().SetLabelColor(ROOT.kWhite)
+
+        c1.GetPad(2).cd(); chamber_x_trackx.Draw("e1"); (None if suppressblue else chamber_x_trackx_fit2.Draw("samel")); chamber_x_trackx_fit.Draw("samel")
+        c1.GetPad(3).cd(); chamber_x_tracky.Draw("e1"); (None if suppressblue else chamber_x_tracky_fit2.Draw("samel")); chamber_x_tracky_fit.Draw("samel")
+        c1.GetPad(4).cd(); chamber_x_trackdxdz.Draw("e1"); (None if suppressblue else chamber_x_trackdxdz_fit2.Draw("samel")); chamber_x_trackdxdz_fit.Draw("samel")
+        c1.GetPad(5).cd(); chamber_x_trackdydz.Draw("e1"); (None if suppressblue else chamber_x_trackdydz_fit2.Draw("samel")); chamber_x_trackdydz_fit.Draw("samel")
+        c1.GetPad(7).cd(); chamber_dxdz_trackx.Draw("e1"); (None if suppressblue else chamber_dxdz_trackx_fit2.Draw("samel")); chamber_dxdz_trackx_fit.Draw("samel")
+        c1.GetPad(8).cd(); chamber_dxdz_tracky.Draw("e1"); (None if suppressblue else chamber_dxdz_tracky_fit2.Draw("samel")); chamber_dxdz_tracky_fit.Draw("samel")
+        c1.GetPad(9).cd(); chamber_dxdz_trackdxdz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdxdz_fit2.Draw("samel")); chamber_dxdz_trackdxdz_fit.Draw("samel")
+        c1.GetPad(10).cd(); chamber_dxdz_trackdydz.Draw("e1"); (None if suppressblue else chamber_dxdz_trackdydz_fit2.Draw("samel")); chamber_dxdz_trackdydz_fit.Draw("samel")
