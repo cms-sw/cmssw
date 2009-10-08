@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/27 09:44:37 $
- *  $Revision: 1.13 $
+ *  $Date: 2009/10/07 18:19:21 $
+ *  $Revision: 1.14 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -46,15 +46,13 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
   // trigger information
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-  nHLTPathsJetMB_=HLTPathsJetMBByName_.size();
-  HLTPathsJetMBByIndex_.resize(nHLTPathsJetMB_);
 
   _hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
   _hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
   _hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
   _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
-
-  processname_ = parameters.getParameter<std::string>("processname");
+  _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
+  _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
   // CaloMET information
   theCaloMETCollectionLabel       = parameters.getParameter<edm::InputTag>("CaloMETCollectionLabel");
@@ -72,13 +70,18 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   _allhist     = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
   _allSelection= parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
 
+  _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
+  _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold"); // Low Pt Jet threshold
+  _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
+  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
+
   // DQStore stuff
   LogTrace(metname)<<"[CaloMETAnalyzer] Parameters initialization";
   std::string DirName = "JetMET/MET/"+_source;
   dbe->setCurrentFolder(DirName);
 
-  jetME = dbe->book1D("metReco", "metReco", 4, 1, 5);
-  jetME->setBinLabel(1,"CaloMET",1);
+  metME = dbe->book1D("metReco", "metReco", 4, 1, 5);
+  metME->setBinLabel(1,"CaloMET",1);
 
   _dbe = dbe;
 
@@ -104,40 +107,43 @@ void CaloMETAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 }
 
 // ***********************************************************
-void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-  //
-  //--- htlConfig_
-  processname_="HLT";
-  hltConfig_.init(processname_);
-  if (!hltConfig_.init(processname_)) {
-    processname_ = "FU";
-    if (!hltConfig_.init(processname_)){
-      LogDebug("CaloMETAnalyzer") << "HLTConfigProvider failed to initialize.";
-    }
-  }
-
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighPtJet) << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowPtJet)  << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighMET)   << std::endl;
-  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowMET)    << std::endl;
-
-}
-
-// ***********************************************************
 void CaloMETAnalyzer::bookMESet(std::string DirName)
 {
 
   bool bLumiSecPlot=false;
   if (DirName.find("All")!=std::string::npos) bLumiSecPlot=true;
-  //std::cout << DirName.find("All") << " " << DirName << " " << DirName.size() << " " << std::string::npos << std::endl;
 
   bookMonitorElement(DirName,bLumiSecPlot);
-  if (_hlt_HighPtJet.size()) bookMonitorElement(DirName+"/"+_hlt_HighPtJet,false);
-  if (_hlt_LowPtJet.size())  bookMonitorElement(DirName+"/"+_hlt_LowPtJet,false);
-  if (_hlt_HighMET.size())   bookMonitorElement(DirName+"/"+_hlt_HighMET,false);
-  if (_hlt_LowMET.size())    bookMonitorElement(DirName+"/"+_hlt_LowMET,false);
+
+  if (_hlt_HighPtJet.size()){
+    bookMonitorElement(DirName+"/"+"HighPtJet",false);
+    meTriggerName_HighPtJet = _dbe->bookString("triggerName_HighPtJet", _hlt_HighPtJet);
+  }  
+
+  if (_hlt_LowPtJet.size()){
+    bookMonitorElement(DirName+"/"+"LowPtJet",false);
+    meTriggerName_LowPtJet = _dbe->bookString("triggerName_LowPtJet", _hlt_LowPtJet);
+  }
+
+  if (_hlt_HighMET.size()){
+    bookMonitorElement(DirName+"/"+"HighMET",false);
+    meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", _hlt_HighMET);
+  }
+
+  if (_hlt_LowMET.size()){
+    bookMonitorElement(DirName+"/"+"LowMET",false);
+    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
+  }
+
+  if (_hlt_Ele.size()){
+    bookMonitorElement(DirName+"/"+"Ele",false);
+    meTriggerName_Ele = _dbe->bookString("triggerName_Ele", _hlt_Ele);
+  }
+
+  if (_hlt_Muon.size()){
+    bookMonitorElement(DirName+"/"+"Muon",false);
+    meTriggerName_Muon = _dbe->bookString("triggerName_Muon", _hlt_Muon);
+  }
 
 }
 
@@ -147,7 +153,7 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
 
   if (_verbose) std::cout << "bookMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
-  
+ 
   meNevents                = _dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
   meCaloMEx                = _dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,500,-500,500);
   meCaloMEy                = _dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,500,-500,500);
@@ -192,6 +198,31 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
 }
 
 // ***********************************************************
+void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+
+  //
+  //--- htlConfig_
+  /*
+  hltConfig_.init(processname_);
+  if (!hltConfig_.init(processname_)) {
+    processname_ = "FU";
+    if (!hltConfig_.init(processname_)){
+      LogDebug("CaloMETAnalyzer") << "HLTConfigProvider failed to initialize.";
+    }
+  }
+
+  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighPtJet) << std::endl;
+  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowPtJet)  << std::endl;
+  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_HighMET)   << std::endl;
+  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_LowMET)    << std::endl;
+  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Ele)       << std::endl;
+  if (_verbose) std::cout << hltConfig_.triggerIndex(_hlt_Muon)      << std::endl;
+  */
+
+}
+
+// ***********************************************************
 void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
   
@@ -232,6 +263,8 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
       if (_hlt_LowPtJet.size())  makeRatePlot(DirName+"/"+_hlt_LowPtJet,totltime);
       if (_hlt_HighMET.size())   makeRatePlot(DirName+"/"+_hlt_HighMET,totltime);
       if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
+      if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
+      if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
 
     }
 
@@ -275,7 +308,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   LogTrace(metname)<<"[CaloMETAnalyzer] Analyze CaloMET";
 
-  jetME->Fill(1);
+  metME->Fill(1);
 
   // ==========================================================  
   // Trigger information 
@@ -297,50 +330,55 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     
     //
     //
-    // Fill HLTPathsJetMBByIndex_[i]
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
     edm::TriggerNames triggerNames; // TriggerNames class
     triggerNames.init(triggerResults);
-    unsigned int n(nHLTPathsJetMB_);
-    for (unsigned int i=0; i!=n; i++) {
-      HLTPathsJetMBByIndex_[i]=triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
-    }
     
     //
     //
-    // for empty input vectors (n==0), use all HLT trigger paths!
-    if (n==0) {
-      n=triggerResults.size();
-      HLTPathsJetMBByName_.resize(n);
-      HLTPathsJetMBByIndex_.resize(n);
-      for (unsigned int i=0; i!=n; i++) {
-	  HLTPathsJetMBByName_[i]=triggerNames.triggerName(i);
-	  HLTPathsJetMBByIndex_[i]=i;
-      }
-    }  
-
-    //
-    //
     // count number of requested Jet or MB HLT paths which have fired
-    for (unsigned int i=0; i!=n; i++) {
-      if (HLTPathsJetMBByIndex_[i]<triggerResults.size()) {
-	if (triggerResults.accept(HLTPathsJetMBByIndex_[i])) {
+    for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
+      unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
+      if (triggerIndex<triggerResults.size()) {
+	if (triggerResults.accept(triggerIndex)) {
 	  _trig_JetMB++;
 	}
       }
     }
-      
+    // for empty input vectors (n==0), take all HLT triggers!
+    if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
+
     //
-    if (triggerResults.accept(triggerNames.triggerIndex(_hlt_HighPtJet))) _trig_HighPtJet=1;
-    if (triggerResults.accept(triggerNames.triggerIndex(_hlt_LowPtJet)))  _trig_LowPtJet=1;
-    if (triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   _trig_HighMET=1;
-    if (triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
-    
+    if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
+    if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
+    if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
+    if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
+    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
+    if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
+    if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
+
+    if (triggerNames.triggerIndex(_hlt_HighPtJet) != triggerNames.size() &&
+	triggerResults.accept(triggerNames.triggerIndex(_hlt_HighPtJet))) _trig_HighPtJet=1;
+
+    if (triggerNames.triggerIndex(_hlt_LowPtJet)  != triggerNames.size() &&
+	triggerResults.accept(triggerNames.triggerIndex(_hlt_LowPtJet)))  _trig_LowPtJet=1;
+
+    if (triggerNames.triggerIndex(_hlt_HighMET)   != triggerNames.size() &&
+        triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   _trig_HighMET=1;
+
+    if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
+        triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
+
+    if (triggerNames.triggerIndex(_hlt_Ele)       != triggerNames.size() &&
+        triggerResults.accept(triggerNames.triggerIndex(_hlt_Ele)))       _trig_Ele=1;
+
+    if (triggerNames.triggerIndex(_hlt_Muon)      != triggerNames.size() &&
+        triggerResults.accept(triggerNames.triggerIndex(_hlt_Muon)))      _trig_Muon=1;
+
   } else {
 
     edm::LogInfo("CaloMetAnalyzer") << "TriggerResults::HLT not found, "
 	"automatically select events"; 
-    //return;
     //
     // TriggerResults object not found. Look at all events.    
     _trig_JetMB=1;
@@ -485,31 +523,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
   bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
 
-  //   double EMFractionMin = 0.1;
-  //   double nRBXhitsMax = 50;
-  //   double RBXhitThresh = 1.5;
-  
-  //   bool bHcalNoiseFilter=true;
-  
-  //   int HcalNoiseClass=-1;
-  
-  //   if (NoiseSummary.isValid()) {
-  //   //std::cout << "NoiseSummary: " << NoiseSummary->eventEMFraction() << std::endl;
-  //   if (NoiseSummary->eventEMFraction() < EMFractionMin) bHcalNoiseFilter = false;
-  
-  //   if (RBXCollection.isValid()) {
-
-  //   //std::cout << "Size of NoiseRBX collection:  " << RBXCollection->size() << std::endl;
-  //   for (HcalNoiseRBXCollection::const_iterator rbx = RBXCollection->begin();
-  //        rbx!=(RBXCollection->end()); rbx++) {
-  //     int nRBXhits=rbx->numRecHits(RBXhitThresh);
-  //     //std::cout << "\tNumber of RBX hits:     " << nRBXhits << std::endl;
-  //     if (nRBXhits > nRBXhitsMax ) bHcalNoiseFilter = false;
-  //   }
-  
-  //   } // RBX collection is valid
-  //   } // NoiseSummary is valid
-
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
@@ -526,8 +539,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *calomet);
     }
   }
-
-
 
 }
 
@@ -596,20 +607,40 @@ void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   bool bLumiSecPlot=false;
   if (DirName.find("All")) bLumiSecPlot=true;
 
-  if (_trig_JetMB) fillMonitorElement(iEvent,DirName, calomet, bLumiSecPlot);
-  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName+"/"+_hlt_HighPtJet,calomet,false);
-  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName+"/"+_hlt_LowPtJet,calomet,false);
-  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName+"/"+_hlt_HighMET,calomet,false);
-  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName+"/"+_hlt_LowMET,calomet,false);
+  if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",calomet, bLumiSecPlot);
+  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",calomet,false);
+  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",calomet,false);
+  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",calomet,false);
+  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",calomet,false);
+  if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",calomet,false);
+  if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",calomet,false);
 
 }
 
 // ***********************************************************
 void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName, 
+					 std::string TriggerTypeName, 
 					 const reco::CaloMET& calomet, bool bLumiSecPlot)
 {
 
-  _dbe->setCurrentFolder(DirName);
+  if (TriggerTypeName=="HighPtJet") {
+    if (!selectHighPtJetEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="LowPtJet") {
+    if (!selectLowPtJetEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="HighMET") {
+    if (calomet.pt()<_highMETThreshold) return;
+  }
+  else if (TriggerTypeName=="LowMET") {
+    if (calomet.pt()<_lowMETThreshold) return;
+  }
+  else if (TriggerTypeName=="Ele") {
+    if (!selectWElectronEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="Muon") {
+    if (!selectWMuonEvent(iEvent)) return;
+  }
 
   double caloSumET  = calomet.sumEt();
   double caloMETSig = calomet.mEtSig();
@@ -640,6 +671,8 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
   //  myLuminosityBlock = (evtCounter++)/1000;
   myLuminosityBlock = iEvent.luminosityBlock();
   //
+
+  if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
   if (caloMET>_etThreshold){
@@ -693,3 +726,76 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
   } // et threshold cut
 
 }
+
+// ***********************************************************
+bool CaloMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
+
+  bool return_value=false;
+
+  edm::Handle<reco::CaloJetCollection> caloJets;
+  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  if (!caloJets.isValid()) {
+    LogDebug("") << "CaloMETAnalyzer: Could not find jet product" << std::endl;
+    if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;
+  }
+
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+       cal!=caloJets->end(); ++cal){
+    if (cal->pt()>_highPtJetThreshold){
+      return_value=true;
+    }
+  }
+
+  return return_value;
+
+}
+
+// ***********************************************************
+bool CaloMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
+
+  bool return_value=false;
+
+  edm::Handle<reco::CaloJetCollection> caloJets;
+  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  if (!caloJets.isValid()) {
+    LogDebug("") << "CaloMETAnalyzer: Could not find jet product" << std::endl;
+    if (_verbose) std::cout << "CaloMETAnalyzer: Could not find jet product" << std::endl;
+  }
+
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+       cal!=caloJets->end(); ++cal){
+    if (cal->pt()>_lowPtJetThreshold){
+      return_value=true;
+    }
+  }
+
+  return return_value;
+
+}
+
+// ***********************************************************
+bool CaloMETAnalyzer::selectWElectronEvent(const edm::Event& iEvent){
+
+  bool return_value=false;
+
+  /*
+    W-electron event selection comes here
+   */
+
+  return return_value;
+
+}
+
+// ***********************************************************
+bool CaloMETAnalyzer::selectWMuonEvent(const edm::Event& iEvent){
+
+  bool return_value=false;
+
+  /*
+    W-muon event selection comes here
+   */
+
+  return return_value;
+
+}
+
