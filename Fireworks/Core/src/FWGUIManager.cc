@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.151 2009/10/04 13:15:48 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.152 2009/10/07 19:02:31 amraktad Exp $
 //
 
 // system include files
@@ -169,7 +169,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
-      m_detailViewManager = new FWDetailViewManager(m_cmsShowMainFrame);
+      m_detailViewManager = new FWDetailViewManager(m_colorManager);
       m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));

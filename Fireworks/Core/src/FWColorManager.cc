@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.20 2009/10/05 15:16:43 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.21 2009/10/06 11:26:22 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TGLUtil.h"
 #include "TObjArray.h"
 #include "TMath.h"
+#include "TGLViewer.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -313,16 +314,18 @@ FWColorManager::setBackgroundAndBrightness(BackgroundColorIndex iIndex, int b)
    setBackgroundColorIndex(iIndex);
 }
 
-void 
-FWColorManager::setUserFeedBackColors(TGLColorSet& cs, Color_t idx)
+Bool_t 
+FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
 {
-   if (idx == kWhiteIndex)
-   {
-      cs.Selection(1).SetColor(130, 80, 80);
-      cs.Selection(2).SetColor(130, 80, 80);
-      cs.Selection(3).SetColor(80,  80, 130);
-      cs.Selection(4).SetColor(80,  80, 130);
+   if ( iColor == kBlackIndex && !v->IsColorSetDark() ||
+        iColor == kWhiteIndex && v->IsColorSetDark() )
+   { 
+      v->SwitchColorSet();
+      v->RequestDraw(TGLRnrCtx::kLODHigh);
+
+      return kTRUE;
    }
+   return kFALSE;
 }
 
 //

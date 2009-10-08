@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.15 2009/10/05 08:08:56 amraktad Exp $
+// $Id: FWColorManager.h,v 1.16 2009/10/05 16:15:25 amraktad Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 
 // forward declarations
 class FWModelChangeManager;
-class TGLColorSet;
+class TGLViewer;
 
 enum FWGeomColorIndex {
    kFWMuonBarrelMainColorIndex,
@@ -70,7 +70,7 @@ public:
    BackgroundColorIndex backgroundColorIndex() const;
    // ---------- static member functions --------------------
    
-   static void setUserFeedBackColors(TGLColorSet&, Color_t);
+   static Bool_t setColorSetViewer(TGLViewer*, Color_t);
    // ---------- member functions ---------------------------
    void defaultBrightness();
    void setBrightness(int);
@@ -82,6 +82,7 @@ public:
    mutable sigc::signal<void> colorsHaveChanged_;
    //called after all the slots attached to colorsHaveChanged_ are done
    mutable sigc::signal<void> colorsHaveChangedFinished_;
+
 private:
    FWColorManager(const FWColorManager&); // stop default
    
