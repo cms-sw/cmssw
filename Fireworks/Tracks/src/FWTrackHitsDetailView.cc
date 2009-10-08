@@ -43,32 +43,25 @@ FWTrackHitsDetailView::pickCameraCenter()
 void
 FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
 {
-   TEveWindowPack* wp = base->MakePack();
-   wp->SetElementName("Track Hits");
-   setEveWindow(wp);
+   TEveViewer*  ev = new TEveViewer("Track hits detail view");
+   m_viewer = ev->SpawnGLEmbeddedViewer();
+   base->ReplaceWindow(ev);
+   TEveScene* scene = gEve->SpawnNewScene("hits scene");
+   ev->AddScene(scene);
+   setEveWindow(ev);
 
-   TGPack* pack = wp->GetPack();
-   pack->SetUseSplitters(kFALSE);
+   FWGUISubviewArea* toolBar = FWGUISubviewArea::getToolBarFromWindow(ev);
+   CSGAction* action = new CSGAction(this, "pickCameraCenter");
+   // layout hints kLeft does not work, have to do more complicated way
+   TGTextButton* textButton = new TGTextButton(toolBar, "pickCameraCenter");
+   TList* flist = toolBar->GetList();
+   TGFrameElement *nw = new TGFrameElement(textButton, new TGLayoutHints( kLHintsNormal));
+   flist->AddFirst(nw);
+   toolBar->MapSubwindows();
+   toolBar->Layout();
 
-   // GUI
-   TGCompositeFrame* guiFrame = new TGVerticalFrame(pack);
-   pack->AddFrameWithWeight(guiFrame, new TGLayoutHints(kLHintsNormal),0.2);
-
-   CSGAction* actionRnr = new CSGAction(this, "pickCameraCenter");
-   actionRnr->createTextButton(guiFrame);
-   actionRnr->activated.connect( sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
-
-   // view
-   m_viewer = new TGLEmbeddedViewer(pack, 0, 0);
-   TEveViewer* eveViewer= new TEveViewer("DetailViewViewer");
-   eveViewer->SetGLViewer(m_viewer, m_viewer->GetFrame());
-   pack->AddFrameWithWeight(m_viewer->GetFrame(),0, 5);
-   TEveScene* scene = gEve->SpawnNewScene("Detailed view");
-   eveViewer->AddScene(scene);
-
-   pack->MapSubwindows();
-   pack->Layout();
-   pack->MapWindow();
+   TQObject::Connect(textButton, "Clicked()", "CSGAction", action, "activate()");
+   action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
 
    TracksRecHitsUtil::addHits(*track, id.item(), scene);
    CmsMagField* cmsMagField = new CmsMagField;
