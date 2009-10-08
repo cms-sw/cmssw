@@ -658,32 +658,16 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.status = \"NOFIT\"" << std::endl
 	     << "        self.fittype = None" << std::endl
 	     << "" << std::endl
-	     << "    def add_parameters(self, deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz, loglikelihood, sumofweights, redchi2):" << std::endl
+	     << "    def add_parameters(self, deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz, loglikelihood, numsegments, sumofweights, redchi2):" << std::endl
 	     << "        self.status = \"PASS\"" << std::endl
 	     << "        self.deltax, self.deltay, self.deltaz, self.deltaphix, self.deltaphiy, self.deltaphiz = deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz" << std::endl
-	     << "        self.loglikelihood, self.sumofweights, self.redchi2 = loglikelihood, sumofweights, redchi2" << std::endl
+	     << "        self.loglikelihood, self.numsegments, self.sumofweights, self.redchi2 = loglikelihood, numsegments, sumofweights, redchi2" << std::endl
 	     << "    def add_stats(self, median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz):" << std::endl
 	     << "        self.median_x, self.median_y, self.median_dxdz, self.median_dydz, self.mean30_x, self.mean30_y, self.mean20_dxdz, self.mean50_dydz, self.mean15_x, self.mean15_y, self.mean10_dxdz, self.mean25_dydz, self.wmean30_x, self.wmean30_y, self.wmean20_dxdz, self.wmean50_dydz, self.wmean15_x, self.wmean15_y, self.wmean10_dxdz, self.wmean25_dydz, self.stdev30_x, self.stdev30_y, self.stdev20_dxdz, self.stdev50_dydz, self.stdev15_x, self.stdev15_y, self.stdev10_dxdz, self.stdev25_dydz = median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz" << std::endl
 	     << std::endl;
     }
 
     for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
-//       // begin HACK
-//       DetId HACKid = (*ali)->geomDetId();
-//       if (HACKid.subdetId() == MuonSubdetId::DT) {
-// 	//	continue;
-// 	DTChamberId id(HACKid.rawId());
-// 	if (id.wheel() >= 0  &&  id.sector() == 8) {}
-// 	else continue;
-//       }
-//       else {
-// 	//	continue;
-// 	CSCDetId id(HACKid.rawId());
-// 	if (id.endcap() == 1  &&  id.chamber() == 8) {}
-// 	else continue;
-//       }
-//       // end HACK
-
       std::vector<bool> selector = (*ali)->alignmentParameters()->selector();
       bool align_x = selector[0];
       bool align_y = selector[1];
@@ -790,6 +774,7 @@ void MuonAlignmentFromReference::terminate() {
 	if (fitter->second->fit(thisali)) {
 
 	  double loglikelihood = fitter->second->loglikelihood();
+	  double numsegments = fitter->second->numsegments();
 	  double sumofweights = fitter->second->sumofweights();
 	  double redchi2 = fitter->second->plot(name.str(), &rootDirectory, thisali);
 	  if (fitter->second->type() == MuonResidualsFitter::k5DOF) {
@@ -841,7 +826,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << "                           ValErr(" << deltaphix_value << ", " << deltaphix_error << ", " << deltaphix_antisym << "), \\" << std::endl
 		     << "                           ValErr(" << deltaphiy_value << ", " << deltaphiy_error << ", " << deltaphiy_antisym << "), \\" << std::endl
 		     << "                           ValErr(" << deltaphiz_value << ", " << deltaphiz_error << ", " << deltaphiz_antisym << "), \\" << std::endl
-		     << "                           " << loglikelihood << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
+		     << "                           " << loglikelihood << ", " << numsegments << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
 	      report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
 	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {
@@ -968,7 +953,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << "                           ValErr(" << deltaphix_value << ", " << deltaphix_error << ", " << deltaphix_antisym << "), \\" << std::endl
 		     << "                           ValErr(" << deltaphiy_value << ", " << deltaphiy_error << ", " << deltaphiy_antisym << "), \\" << std::endl
 		     << "                           ValErr(" << deltaphiz_value << ", " << deltaphiz_error << ", " << deltaphiz_antisym << "), \\" << std::endl
-		     << "                           " << loglikelihood << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
+		     << "                           " << loglikelihood << ", " << numsegments << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
 	      report << "reports[-1].sigmax = ValErr(" << sigmax_value << ", " << sigmax_error << ", " << sigmax_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmay = ValErr(" << sigmay_value << ", " << sigmay_error << ", " << sigmay_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmadxdz = ValErr(" << sigmadxdz_value << ", " << sigmadxdz_error << ", " << sigmadxdz_antisym << ")" << std::endl;
@@ -1092,7 +1077,7 @@ void MuonAlignmentFromReference::terminate() {
 		     << "                           ValErr(" << deltaphix_value << ", " << deltaphix_error << ", " << deltaphix_antisym << "), \\" << std::endl
 		     << "                           ValErr(" << deltaphiy_value << ", " << deltaphiy_error << ", " << deltaphiy_antisym << "), \\" << std::endl
 		     << "                           ValErr(" << deltaphiz_value << ", " << deltaphiz_error << ", " << deltaphiz_antisym << "), \\" << std::endl
-		     << "                           " << loglikelihood << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
+		     << "                           " << loglikelihood << ", " << numsegments << ", " << sumofweights << ", " << redchi2 << ")" << std::endl;
 	      report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
 	      report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
 	      if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian) {

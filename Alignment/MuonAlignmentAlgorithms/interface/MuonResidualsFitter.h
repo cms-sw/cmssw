@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/10/07 20:44:37 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/08 01:57:43 $
+ *  $Revision: 1.9 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -91,6 +91,13 @@ public:
   double value(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_value[parNum]; };
   double error(int parNum) { assert(m_goodfit  &&  0 <= parNum  &&  parNum < npar());  return m_error[parNum]; };
   double loglikelihood() { return m_loglikelihood; };
+  long numsegments() {
+    long num = 0;
+    for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
+      num++;
+    }
+    return num;
+  };
   virtual double sumofweights() = 0;
 
   // demonstration plots; return reduced chi**2

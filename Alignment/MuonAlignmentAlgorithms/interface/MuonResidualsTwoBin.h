@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/09/14 18:01:43 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/08 01:57:43 $
+ *  $Revision: 1.7 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -65,6 +65,9 @@ public:
   };
   double loglikelihood() {
     return (m_twoBin ? (m_pos->loglikelihood() + m_neg->loglikelihood()) : m_pos->loglikelihood());
+  };
+  double numsegments() {
+    return (m_twoBin ? (m_pos->numsegments() + m_neg->numsegments()) : m_pos->numsegments());
   };
   double sumofweights() {
     return (m_twoBin ? (m_pos->sumofweights() + m_neg->sumofweights()) : m_pos->sumofweights());
