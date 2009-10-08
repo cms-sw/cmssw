@@ -21,6 +21,8 @@ process.source = cms.Source("PoolSource",
 
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.dqmSaver.dirName = '/tmp/'
+#process.DQMStore.referenceFileName = '/tmp/DQM_V0001_R000000001__TProfile_3_1__CMSSW_X_Y_Z__RECO.root'
+#process.dqmSaver.referenceHandling = 'all'
 process.load('HLTriggerOffline/HeavyFlavor/heavyFlavorValidationHarvestingSequence_cff')
 
 process.path = cms.Path(process.EDMtoME * process.heavyFlavorValidationHarvestingSequence)
