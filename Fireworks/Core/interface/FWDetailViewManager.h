@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.18 2009/08/22 17:10:13 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.19 2009/09/23 20:26:27 chrjones Exp $
 //
 #include <map>
 #include <string>
 
+class FWColorManager;
 class TEveCompositeFrameInMainFrame;
 class FWDetailViewBase;
 class FWModelId;
@@ -29,10 +30,11 @@ class TEveWindow;
 class FWDetailViewManager
 {
 public:
-   FWDetailViewManager(const TGWindow*);
+   FWDetailViewManager(FWColorManager*);
    virtual ~FWDetailViewManager();
    bool haveDetailViewFor(const FWModelId&) const;
    void openDetailViewFor(const FWModelId& );
+   void colorsChanged();
 
 private:
    FWDetailViewManager(const FWDetailViewManager&);    // stop default
@@ -40,7 +42,8 @@ private:
    std::string findViewerFor(const std::string&) const;
 
 protected:
-   // const TGWindow* m_cmsShowMainFrame;
+   FWColorManager                *m_colorManager;
+
    TGMainFrame                   *m_mainFrame;
    TEveCompositeFrameInMainFrame *m_eveFrame; // cached
    FWDetailViewBase              *m_detailView;

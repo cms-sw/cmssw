@@ -43,6 +43,7 @@ public:
    TEveWindow*  getEveWindow() { return m_eveWindow; }
    void         setEveWindow(TEveWindow* w) { m_eveWindow = w;} 
 
+   virtual void setBackgroundColor(Color_t col) {}
 protected:
    FWDetailViewBase(const std::type_info&);
 

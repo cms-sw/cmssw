@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.47 2009/09/21 21:41:17 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.48 2009/10/07 19:18:01 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -22,6 +22,7 @@
 #include "TEveWindowManager.h"
 
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -47,11 +48,13 @@ public:
 //
 // constructors and destructor
 //
-FWDetailViewManager::FWDetailViewManager(const TGWindow* cmsShowMainFrame):
+FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
+   m_colorManager(colMng),
    m_mainFrame(0),
    m_eveFrame(0),
    m_detailView(0)
 {
+   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
    m_mainFrame = new DetailViewFrame();
    m_mainFrame->SetCleanup(kLocalCleanup);
 
@@ -98,11 +101,12 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 
    TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
    m_detailView->build(id, ws);
-
    m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
    m_mainFrame->MapSubwindows();
    m_mainFrame->Layout();
    m_mainFrame->MapWindow();
+
+   colorsChanged();
 }
 
 bool
@@ -153,4 +157,13 @@ FWDetailViewManager::findViewerFor(const std::string& iType) const
    }
    m_typeToViewers[iType]=returnValue;
    return returnValue;
+}
+
+
+void
+FWDetailViewManager::colorsChanged()
+{
+   if (m_detailView) { 
+      m_detailView->setBackgroundColor(m_colorManager->background());
+   }
 }
