@@ -34,13 +34,70 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("DQMServices.Core.DQM_cfg")
-process.load("DQM.HLTEvF.hltMonBTag_1E31_cff")
 
-process.hltMonBTagIP_Jet80_Source.storeROOT  = True
-process.hltMonBTagIP_Jet120_Source.storeROOT = True
-process.hltMonBTagMu_Jet20_Source.storeROOT  = True
-process.hltMonBTagIP_Jet80_Client.storeROOT  = True
-process.hltMonBTagIP_Jet120_Client.storeROOT = True
-process.hltMonBTagMu_Jet20_Client.storeROOT  = True
+import DQM.HLTEvF.hltMonBTagIPSource_cfi
+import DQM.HLTEvF.hltMonBTagMuSource_cfi
+import DQM.HLTEvF.hltMonBTagIPClient_cfi
+import DQM.HLTEvF.hltMonBTagMuClient_cfi
+
+# definition of the Sources for 1E31
+process.hltMonBTagIP_Jet80_Source = DQM.HLTEvF.hltMonBTagIPSource_cfi.hltMonBTagIPSource.clone()
+process.hltMonBTagIP_Jet80_Source.pathName    = 'HLT_BTagIP_Jet80'
+process.hltMonBTagIP_Jet80_Source.L1Filter    = 'hltL1sBTagIPJet80'
+process.hltMonBTagIP_Jet80_Source.L2Filter    = 'hltBJet80'
+process.hltMonBTagIP_Jet80_Source.L2Jets      = 'hltMCJetCorJetIcone5Regional'
+process.hltMonBTagIP_Jet80_Source.L25TagInfo  = 'hltBLifetimeL25TagInfosStartup'
+process.hltMonBTagIP_Jet80_Source.L25JetTags  = 'hltBLifetimeL25BJetTagsStartup'
+process.hltMonBTagIP_Jet80_Source.L25Filter   = 'hltBLifetimeL25FilterStartup'
+process.hltMonBTagIP_Jet80_Source.L3TagInfo   = 'hltBLifetimeL3TagInfosStartup'
+process.hltMonBTagIP_Jet80_Source.L3JetTags   = 'hltBLifetimeL3BJetTagsStartup'
+process.hltMonBTagIP_Jet80_Source.L3Filter    = 'hltBLifetimeL3FilterStartup'
+process.hltMonBTagIP_Jet80_Source.storeROOT   = True
+
+process.hltMonBTagIP_Jet120_Source = DQM.HLTEvF.hltMonBTagIPSource_cfi.hltMonBTagIPSource.clone()
+process.hltMonBTagIP_Jet120_Source.pathName   = 'HLT_BTagIP_Jet120'
+process.hltMonBTagIP_Jet120_Source.L1Filter   = 'hltL1sBTagIPJet120'
+process.hltMonBTagIP_Jet120_Source.L2Filter   = 'hltBJet120'
+process.hltMonBTagIP_Jet120_Source.L2Jets     = 'hltMCJetCorJetIcone5Regional'
+process.hltMonBTagIP_Jet120_Source.L25TagInfo = 'hltBLifetimeL25TagInfosStartup'
+process.hltMonBTagIP_Jet120_Source.L25JetTags = 'hltBLifetimeL25BJetTagsStartup'
+process.hltMonBTagIP_Jet120_Source.L25Filter  = 'hltBLifetimeL25FilterStartup'
+process.hltMonBTagIP_Jet120_Source.L3TagInfo  = 'hltBLifetimeL3TagInfosStartup'
+process.hltMonBTagIP_Jet120_Source.L3JetTags  = 'hltBLifetimeL3BJetTagsStartup'
+process.hltMonBTagIP_Jet120_Source.L3Filter   = 'hltBLifetimeL3FilterStartup'
+process.hltMonBTagIP_Jet120_Source.storeROOT  = True
+
+process.hltMonBTagMu_Jet20_Source = DQM.HLTEvF.hltMonBTagMuSource_cfi.hltMonBTagMuSource.clone()
+process.hltMonBTagMu_Jet20_Source.pathName    = 'HLT_BTagMu_Jet20'
+process.hltMonBTagMu_Jet20_Source.L1Filter    = 'hltL1sBTagMuJet20'
+process.hltMonBTagMu_Jet20_Source.L2Filter    = 'hltBJet20'
+process.hltMonBTagMu_Jet20_Source.L2Jets      = 'hltMCJetCorJetIcone5'
+process.hltMonBTagMu_Jet20_Source.L25TagInfo  = 'hltBSoftMuonL25TagInfos'
+process.hltMonBTagMu_Jet20_Source.L25JetTags  = 'hltBSoftMuonL25BJetTagsByDR'
+process.hltMonBTagMu_Jet20_Source.L25Filter   = 'hltBSoftMuonL25FilterByDR'
+process.hltMonBTagMu_Jet20_Source.L3TagInfo   = 'hltBSoftMuonL3TagInfos'
+process.hltMonBTagMu_Jet20_Source.L3JetTags   = 'hltBSoftMuonL3BJetTagsByDR'
+process.hltMonBTagMu_Jet20_Source.L3Filter    = 'hltBSoftMuonL3FilterByDR'
+process.hltMonBTagMu_Jet20_Source.storeROOT   = True
+
+process.hltMonBTagSource_1E31 = cms.Sequence( process.hltMonBTagIP_Jet80_Source + process.hltMonBTagMu_Jet20_Source + process.hltMonBTagIP_Jet120_Source )
+
+# definition of the Clients for 1E31
+process.hltMonBTagIP_Jet80_Client = DQM.HLTEvF.hltMonBTagIPClient_cfi.hltMonBTagIPClient.clone()
+process.hltMonBTagIP_Jet80_Client.pathName    = 'HLT_BTagIP_Jet80'
+process.hltMonBTagIP_Jet80_Client.updateRun   = True
+process.hltMonBTagIP_Jet80_Client.storeROOT   = True
+
+process.hltMonBTagIP_Jet120_Client = DQM.HLTEvF.hltMonBTagIPClient_cfi.hltMonBTagIPClient.clone()
+process.hltMonBTagIP_Jet120_Client.pathName   = 'HLT_BTagIP_Jet120'
+process.hltMonBTagIP_Jet120_Client.updateRun  = True
+process.hltMonBTagIP_Jet120_Client.storeROOT  = True
+
+process.hltMonBTagMu_Jet20_Client = DQM.HLTEvF.hltMonBTagMuClient_cfi.hltMonBTagMuClient.clone()
+process.hltMonBTagMu_Jet20_Client.pathName    = 'HLT_BTagMu_Jet20'
+process.hltMonBTagMu_Jet20_Client.updateRun   = True
+process.hltMonBTagMu_Jet20_Client.storeROOT   = True
+
+process.hltMonBTagClient_1E31 = cms.Sequence( process.hltMonBTagIP_Jet80_Client + process.hltMonBTagMu_Jet20_Client + process.hltMonBTagIP_Jet120_Client )
 
 process.dqm = cms.Path( process.hltMonBTagSource_1E31 + process.hltMonBTagClient_1E31 )

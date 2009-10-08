@@ -34,11 +34,30 @@ process.source = cms.Source("PoolSource",
 )
 
 process.load("DQMServices.Core.DQM_cfg")
-process.load("DQM.HLTEvF.hltMonBTag_8E29_cff")
 
-process.hltMonBTagIP_Jet50U_Source.storeROOT  = True
-process.hltMonBTagMu_Jet10U_Source.storeROOT  = True
-process.hltMonBTagIP_Jet50U_Client.storeROOT  = True
-process.hltMonBTagMu_Jet10U_Client.storeROOT  = True
+import DQM.HLTEvF.hltMonBTagIPSource_cfi
+import DQM.HLTEvF.hltMonBTagMuSource_cfi
+import DQM.HLTEvF.hltMonBTagIPClient_cfi
+import DQM.HLTEvF.hltMonBTagMuClient_cfi
+
+# definition of the Sources for 8E29
+process.hltMonBTagIP_Jet50U_Source = DQM.HLTEvF.hltMonBTagIPSource_cfi.hltMonBTagIPSource.clone()
+process.hltMonBTagIP_Jet50U_Source.storeROOT = True
+
+process.hltMonBTagMu_Jet10U_Source = DQM.HLTEvF.hltMonBTagMuSource_cfi.hltMonBTagMuSource.clone()
+process.hltMonBTagMu_Jet10U_Source.storeROOT = True
+
+process.hltMonBTagSource_8E29 = cms.Sequence( process.hltMonBTagIP_Jet50U_Source + process.hltMonBTagMu_Jet10U_Source )
+
+# definition of the Clients for 8E29
+process.hltMonBTagIP_Jet50U_Client = DQM.HLTEvF.hltMonBTagIPClient_cfi.hltMonBTagIPClient.clone()
+process.hltMonBTagIP_Jet50U_Client.updateRun = True
+process.hltMonBTagIP_Jet50U_Client.storeROOT = True
+
+process.hltMonBTagMu_Jet10U_Client = DQM.HLTEvF.hltMonBTagMuClient_cfi.hltMonBTagMuClient.clone()
+process.hltMonBTagMu_Jet10U_Client.updateRun = True
+process.hltMonBTagMu_Jet10U_Client.storeROOT = True
+
+process.hltMonBTagClient_8E29 = cms.Sequence( process.hltMonBTagIP_Jet50U_Client + process.hltMonBTagMu_Jet10U_Client )
 
 process.dqm = cms.Path( process.hltMonBTagSource_8E29 + process.hltMonBTagClient_8E29 )
