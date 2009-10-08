@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.23 2009/08/29 21:18:57 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.24 2009/09/23 20:28:17 chrjones Exp $
 //
 
 // system include files
@@ -400,8 +400,13 @@ FWGUIEventDataAdder::createWindow()
    vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
 
-   m_apply = new TGTextButton(vf,"Add Data");
-   vf->AddFrame(m_apply, new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
+   TGHorizontalFrame* buttonFrame = new TGHorizontalFrame(vf);
+   vf->AddFrame(buttonFrame,new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
+   TGTextButton* cancelButton = new TGTextButton(buttonFrame,"Cancel");
+   cancelButton->Connect("Clicked()","FWGUIEventDataAdder",this, "windowIsClosing()");
+   buttonFrame->AddFrame(cancelButton, new TGLayoutHints(kLHintsLeft,0,5,0,0));
+   m_apply = new TGTextButton(buttonFrame,"Add Data");
+   buttonFrame->AddFrame(m_apply, new TGLayoutHints(kLHintsRight,5,0,0,0));
    m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
    m_apply->SetEnabled(false);
 
