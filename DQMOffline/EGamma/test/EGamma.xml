@@ -1,0 +1,60 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="nPhoTest">    
+   <TYPE>ContentsXRange</TYPE>            <!--  NAME OF QUALITY TEST TO RUN  -->
+   <PARAM name="xmin">1</PARAM>         <!--  INPUT PARAMETERS FOR THE QUALITY TEST  -->
+   <PARAM name="xmax">4</PARAM>
+   <PARAM name="error">0.30</PARAM>
+   <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="*Egamma/PhotonAnalyzer/GoodCandidatePhotons/Et above 0 GeV/nPhoAllEcal">                         <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">nPhoTest</TestName>
+</LINK>
+
+
+<QTEST name="r9Test">    
+   <TYPE>ContentsXRange</TYPE>            <!--  NAME OF QUALITY TEST TO RUN  -->
+   <PARAM name="xmin">0.8</PARAM>         <!--  INPUT PARAMETERS FOR THE QUALITY TEST  -->
+   <PARAM name="xmax">1.1</PARAM>
+   <PARAM name="error">0.30</PARAM>
+   <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="*Egamma/PhotonAnalyzer/GoodCandidatePhotons/Et above 0 GeV/r9AllEcal">        <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">r9Test</TestName>
+</LINK>
+
+
+
+
+
+<QTEST name="SpikeTest">    
+   <TYPE>NoisyChannel</TYPE>            <!--  NAME OF QUALITY TEST TO RUN  -->
+   <PARAM name="tolerance">1</PARAM>
+   <PARAM name="neighbours">3</PARAM>
+   <PARAM name="error">0.30</PARAM>
+   <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<QTEST name="HoleTest">    
+   <TYPE>DeadChannel</TYPE>            <!--  NAME OF QUALITY TEST TO RUN  -->
+   <PARAM name="threshold">0</PARAM>
+   <PARAM name="error">0.30</PARAM>
+   <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<LINK name="*Egamma/PhotonAnalyzer/GoodCandidatePhotons/Et above 0 GeV/phoEta">                         <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">SpikeTest</TestName>
+   <TestName activate="true">HoleTest</TestName> 
+</LINK>
+
+<LINK name="*Egamma/PhotonAnalyzer/GoodCandidatePhotons/Et above 0 GeV/phoPhi">                         <!-- NAME OF HISTOGRAM  -->
+   <TestName activate="true">SpikeTest</TestName>
+   <TestName activate="true">HoleTest</TestName>
+</LINK>
+
+
+
+</TESTSCONFIGURATION>
