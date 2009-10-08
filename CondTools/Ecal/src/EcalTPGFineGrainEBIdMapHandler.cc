@@ -114,10 +114,10 @@ void popcon::EcalTPGFineGrainEBIdMapHandler::getNewObjects()
 	int max_run=(int)m_lastRun;
 	edm::LogInfo("EcalTPGFineGrainEBIdMapHandler") << "min_run= " << min_run << "max_run= " << max_run;
 
-	RunList my_list; 
-        //my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
-	my_list=econn->fetchRunList(my_runtag);
-      
+      	RunList my_list;
+        my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
+	printf ("after fetchRunList\n");fflush(stdout);
+
 	std::vector<RunIOV> run_vec=  my_list.getRuns();
 	int num_runs=run_vec.size();
 
