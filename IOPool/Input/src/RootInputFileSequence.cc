@@ -235,6 +235,7 @@ namespace edm {
     initFile(skipBadFiles_);
 
     if(primarySequence_ && rootFile_) {
+      size_t size = productRegistry()->size();
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -242,6 +243,9 @@ namespace edm {
 							    branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
+      }
+      if (productRegistry()->size() > size) {
+        cache.adjustIndexesAfterProductRegistryAddition();
       }
       cache.adjustEventToNewProductRegistry(productRegistry());
     }
@@ -261,6 +265,7 @@ namespace edm {
     initFile(false);
 
     if(primarySequence_ && rootFile_) {
+      size_t size = productRegistry()->size();
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -268,6 +273,9 @@ namespace edm {
 							    branchesMustMatch_);
       if(!mergeInfo.empty()) {
         throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
+      }
+      if (productRegistry()->size() > size) {
+        cache.adjustIndexesAfterProductRegistryAddition();
       }
       cache.adjustEventToNewProductRegistry(productRegistry());
     }

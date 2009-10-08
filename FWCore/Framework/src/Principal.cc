@@ -691,4 +691,33 @@ namespace edm {
     std::swap(branchMapperPtr_,iOther.branchMapperPtr_);
     std::swap(store_,iOther.store_);
   }
+
+  void
+  Principal::adjustIndexesAfterProductRegistryAddition() {
+    if (preg_->constProductList().size() > groups_.size()) {
+      GroupCollection newGroups(preg_->constProductList().size(), SharedGroupPtr());
+      for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+        ProductTransientIndex index = preg_->indexFrom((*i)->provenance()->branchID());
+        assert(index != ProductRegistry::kInvalidIndex);
+        newGroups[index] = *i;
+      }
+      groups_.swap(newGroups);
+      // Now we must add new groups for any new product registry entries.
+      ProductRegistry::ProductList const& prodsList = preg_->productList();
+      for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+          itProdInfoEnd = prodsList.end();
+          itProdInfo != itProdInfoEnd;
+          ++itProdInfo) {
+        if (itProdInfo->second.branchType() == branchType_) {
+          ProductTransientIndex index = preg_->indexFrom(itProdInfo->second.branchID());
+          if (index == ProductRegistry::kInvalidIndex) {
+	    // no group.  Must add one. The new entry must be an input group.
+	    assert(!itProdInfo->second.produced());
+            boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
+            addGroupInput(bd);
+          }
+        }
+      }
+    }
+  }
 }

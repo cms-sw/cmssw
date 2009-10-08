@@ -86,6 +86,8 @@ namespace edm {
 
     void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
 
+    void adjustIndexesAfterProductRegistryAddition();
+
   private:
 
     void changedRunPrincipal(boost::shared_ptr<RunPrincipal>);

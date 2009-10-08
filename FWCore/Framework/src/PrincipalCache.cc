@@ -264,4 +264,10 @@ namespace edm {
         itFound->second->setRunPrincipal(iPrincipal);
      }
   }
+
+  void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
+    for (ConstRunIterator it = runPrincipals_.begin(), itEnd = runPrincipals_.end(); it != itEnd; ++it) {
+      it->second->adjustIndexesAfterProductRegistryAddition();
+    }
+  }
 }
