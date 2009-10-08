@@ -8,10 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.8 2009/08/26 18:59:21 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.9 2009/09/06 19:35:43 amraktad Exp $
 //
 
 // system include files
+#include <boost/bind.hpp>
+
 #include "TGPack.h"
 #include "TCanvas.h"
 #include "TRootEmbeddedCanvas.h"
@@ -31,6 +33,8 @@ FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
    m_helper(iInfo)
 {
 }
+
+
 
 FWDetailViewBase::~FWDetailViewBase()
 {
