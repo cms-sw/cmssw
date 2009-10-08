@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/30 17:09:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/30 13:39:37 $
+ *  $Revision: 1.2 $
  *  \author K. Hatakeyama - Rockefeller University
  */
 
@@ -40,13 +40,17 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   evtCounter = 0;
   metname = "metAnalyzer";
 
+  // MET information
+  theTcMETCollectionLabel       = parameters.getParameter<edm::InputTag>("TcMETCollectionLabel");
+  _source                       = parameters.getParameter<std::string>("Source");
+
   LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("JetMET/MET/"+_source);
 
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-  nHLTPathsJetMB_=HLTPathsJetMBByName_.size();
-  HLTPathsJetMBByIndex_.resize(nHLTPathsJetMB_);
 
+  // misc
+  _verbose     = parameters.getParameter<int>("verbose");
   _etThreshold = parameters.getParameter<double>("etThreshold");
 
   jetME = dbe->book1D("metReco", "metReco", 4, 1, 5);
@@ -65,8 +69,7 @@ void METAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
 // ***********************************************************
 void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			      const edm::TriggerResults& triggerResults,
-			      const reco::MET& met) {
+			      const edm::TriggerResults& triggerResults) {
 
   LogTrace(metname)<<"[METAnalyzer] Analyze MET";
 
@@ -82,46 +85,30 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //
     //
     // Check how many HLT triggers are in triggerResults 
-    //int ntrigs = triggerResults.size();
-    //std::cout << "ntrigs=" << ntrigs << std::endl;
-
-    //
-    //
-    // Fill HLTPathsJetMBByIndex_[i]
-    // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    edm::TriggerNames triggerNames; // TriggerNames class
-    triggerNames.init(triggerResults);
-    unsigned int n(nHLTPathsJetMB_);
-    for (unsigned int i=0; i!=n; i++) {
-      HLTPathsJetMBByIndex_[i]=triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
-    }
+    int ntrigs = triggerResults.size();
+    if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
     
     //
     //
-    // for empty input vectors (n==0), use all HLT trigger paths!
-    if (n==0) {
-      n=triggerResults.size();
-      HLTPathsJetMBByName_.resize(n);
-      HLTPathsJetMBByIndex_.resize(n);
-      for (unsigned int i=0; i!=n; i++) {
-        HLTPathsJetMBByName_[i]=triggerNames.triggerName(i);
-        HLTPathsJetMBByIndex_[i]=i;
-      }
-    }  
-
+    // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
+    edm::TriggerNames triggerNames; // TriggerNames class
+    triggerNames.init(triggerResults);
+    
     //
     //
     // count number of requested Jet or MB HLT paths which have fired
-    unsigned int fired(0);
-    for (unsigned int i=0; i!=n; i++) {
-      if (HLTPathsJetMBByIndex_[i]<triggerResults.size()) {
-        if (triggerResults.accept(HLTPathsJetMBByIndex_[i])) {
-          fired++;
-        }
+    for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
+      unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
+      if (triggerIndex<triggerResults.size()) {
+	if (triggerResults.accept(triggerIndex)) {
+	  _trig_JetMB++;
+	}
       }
     }
+    // for empty input vectors (n==0), take all HLT triggers!
+    if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
 
-    if (fired==0) return;
+    if (_trig_JetMB==0) return;
 
   } else {
 
@@ -132,14 +119,28 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
    
   // ==========================================================
+
+    // **** Get the MET container  
+  edm::Handle<reco::METCollection> metcoll;
+  iEvent.getByLabel(theTcMETCollectionLabel, metcoll);
+  
+  if(!metcoll.isValid()) return;
+
+  const METCollection *metcol = metcoll.product();
+  const MET *met;
+  met = &(metcol->front());
+  
+  LogTrace(metname)<<"[JetMETAnalyzer] Call to the TcMET analyzer";
+
+  // ==========================================================
   // Reconstructed MET Information
-  double SumET  = met.sumEt();
-  double METSig = met.mEtSig();
-  double Ez     = met.e_longitudinal();
-  double MET    = met.pt();
-  double MEx    = met.px();
-  double MEy    = met.py();
-  double METPhi = met.phi();
+  double SumET  = met->sumEt();
+  double METSig = met->mEtSig();
+  double Ez     = met->e_longitudinal();
+  double MET    = met->pt();
+  double MEx    = met->px();
+  double MEy    = met->py();
+  double METPhi = met->phi();
 
   //std::cout << _source << " " << MET << std::endl;
 
