@@ -12,8 +12,6 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
-
 #include "TGPack.h"
 #include "TCanvas.h"
 #include "TRootEmbeddedCanvas.h"
@@ -33,8 +31,6 @@ FWDetailViewBase::FWDetailViewBase(const std::type_info& iInfo) :
    m_helper(iInfo)
 {
 }
-
-
 
 FWDetailViewBase::~FWDetailViewBase()
 {
