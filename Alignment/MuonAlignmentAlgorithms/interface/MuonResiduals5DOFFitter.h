@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals5DOFFitter
  *  $Date: Fri Apr 17 15:29:54 CDT 2009
- *  $Revision: 1.1 $ 
+ *  $Revision: 1.2 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -36,7 +36,7 @@ public:
     kNData
   };
 
-  MuonResiduals5DOFFitter(int residualsModel, int minHits, bool weightAlignment): MuonResidualsFitter(residualsModel, minHits, weightAlignment) {};
+  MuonResiduals5DOFFitter(int residualsModel, int minHits, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, weightAlignment) {};
 
   int type() const { return MuonResidualsFitter::k5DOF; };
 

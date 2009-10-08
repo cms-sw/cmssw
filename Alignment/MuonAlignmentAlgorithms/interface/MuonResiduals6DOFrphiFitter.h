@@ -3,7 +3,7 @@
 
 /** \class MuonResiduals6DOFrphiFitter
  *  $Date: Thu Apr 16 21:29:15 CDT 2009
- *  $Revision: 1.1 $ 
+ *  $Revision: 1.2 $ 
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -38,7 +38,7 @@ public:
     kNData
   };
 
-  MuonResiduals6DOFrphiFitter(int residualsModel, int minHits, bool weightAlignment, const CSCGeometry *cscGeometry): MuonResidualsFitter(residualsModel, minHits, weightAlignment), m_cscGeometry(cscGeometry) {};
+  MuonResiduals6DOFrphiFitter(int residualsModel, int minHits, const CSCGeometry *cscGeometry, bool weightAlignment=true): MuonResidualsFitter(residualsModel, minHits, weightAlignment), m_cscGeometry(cscGeometry) {};
 
   int type() const { return MuonResidualsFitter::k6DOFrphi; };
 

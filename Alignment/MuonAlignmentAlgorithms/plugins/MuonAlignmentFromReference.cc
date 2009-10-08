@@ -247,7 +247,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
        }
 
        if (thisali == *ali) {   // don't make fitters for ME1/4; they get taken care of in ME1/1
-	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, m_weightAlignment, &(*cscGeometry)), new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, m_weightAlignment, &(*cscGeometry)));
+	 m_fitters[*ali] = new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry), m_weightAlignment), new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry), m_weightAlignment));
 	 made_fitter = true;
        }
      }
