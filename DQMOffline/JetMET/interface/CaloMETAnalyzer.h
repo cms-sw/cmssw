@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/06/30 13:48:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/07/27 07:09:00 $
+ *  $Revision: 1.2 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -64,10 +64,15 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   // Fill MonitorElements
   void fillMESet(const edm::Event&, std::string, const reco::CaloMET&);
-  void fillMonitorElement(const edm::Event&, std::string, const reco::CaloMET&, bool);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, bool);
   void makeRatePlot(std::string, double);
 
   void validateMET(const reco::CaloMET&, edm::Handle<edm::View<Candidate> >);
+
+  bool selectHighPtJetEvent(const edm::Event&);
+  bool selectLowPtJetEvent(const edm::Event&);
+  bool selectWElectronEvent(const edm::Event&);
+  bool selectWMuonEvent(const edm::Event&);
 
   int evtCounter;
 
@@ -88,51 +93,38 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   edm::InputTag HcalNoiseRBXCollectionTag;
   edm::InputTag HcalNoiseSummaryTag;
 
-  /// number of Jet or MB HLT trigger paths 
-  unsigned int nHLTPathsJetMB_;
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
-  // list of Jet or MB HLT trigger index
-  std::vector<unsigned int> HLTPathsJetMBByIndex_;
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
   std::string _hlt_HighMET;
   std::string _hlt_LowMET;
+  std::string _hlt_Ele;
+  std::string _hlt_Muon;
   
   int _trig_JetMB;
   int _trig_HighPtJet;
   int _trig_LowPtJet;
   int _trig_HighMET;
   int _trig_LowMET;
+  int _trig_Ele;
+  int _trig_Muon;
 
-  HLTConfigProvider hltConfig_;
-  std::string processname_;
-  
+  double _highPtJetThreshold;
+  double _lowPtJetThreshold;
+  double _highMETThreshold;
+  double _lowMETThreshold;
+
   // Et threshold for MET plots
   double _etThreshold;
 
   // JetID helper
   reco::helper::JetID jetID;
 
-  // HCalNoise
-
   //
   bool _allhist;
   bool _allSelection;
-
-  //histo binning parameters
-  int    etaBin;
-  double etaMin;
-  double etaMax;
-
-  int    phiBin;
-  double phiMin;
-  double phiMax;
-
-  int    ptBin;
-  double ptMin;
-  double ptMax;
 
   //
   std::vector<std::string> _FolderNames;
@@ -141,7 +133,14 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   DQMStore *_dbe;
 
   //the histos
-  MonitorElement* jetME;
+  MonitorElement* metME;
+
+  MonitorElement* meTriggerName_HighPtJet;
+  MonitorElement* meTriggerName_LowPtJet;
+  MonitorElement* meTriggerName_HighMET;
+  MonitorElement* meTriggerName_LowMET;
+  MonitorElement* meTriggerName_Ele;
+  MonitorElement* meTriggerName_Muon;
 
   MonitorElement* meNevents;
   MonitorElement* meCaloMEx;
@@ -154,10 +153,22 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* meCaloMExLS;
   MonitorElement* meCaloMEyLS;
 
+  MonitorElement* meCaloMETIonFeedbck;
+  MonitorElement* meCaloMETHPDNoise;
+  MonitorElement* meCaloMETRBXNoise;
+
+  MonitorElement* meCaloMETPhi002;
+  MonitorElement* meCaloMETPhi010;
+  MonitorElement* meCaloMETPhi020;
+
   MonitorElement* meCaloMaxEtInEmTowers;
   MonitorElement* meCaloMaxEtInHadTowers;
   MonitorElement* meCaloEtFractionHadronic;
   MonitorElement* meCaloEmEtFraction;
+
+  MonitorElement* meCaloEmEtFraction002;
+  MonitorElement* meCaloEmEtFraction010;
+  MonitorElement* meCaloEmEtFraction020;
 
   MonitorElement* meCaloHadEtInHB;
   MonitorElement* meCaloHadEtInHO;
@@ -170,16 +181,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* meCaloEmEtInEB;
 
   MonitorElement* meCaloMETRate;
-
-  MonitorElement* meCaloMEx_cut1;
-  MonitorElement* meCaloMEy_cut1;
-  MonitorElement* meCaloEz_cut1;
-  MonitorElement* meCaloMETSig_cut1;
-  MonitorElement* meCaloMET_cut1;
-  MonitorElement* meCaloMETPhi_cut1;
-  MonitorElement* meCaloSumET_cut1;
-
-  MonitorElement* meCaloMETRate_cut1;
 
 };
 #endif
