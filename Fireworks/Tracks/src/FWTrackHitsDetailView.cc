@@ -15,7 +15,7 @@
 // Fireworks includes
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#include "Fireworks/Core/src/FWColorManager.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/CSGAction.h"
