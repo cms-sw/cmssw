@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/03/25 12:51:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/26 07:36:19 $
+ *  $Revision: 1.4 $
  *
  *  \author Jim Brooke
  *
@@ -81,7 +81,7 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    CaloJetCollection::const_iterator i ( jets->begin() );
    for (; i!=jets->end(); i++) {
      if ( i->energy() >= min_E_  &&
-	  i->eta() <= max_Eta_   ) {
+	  fabs(i->eta()) <= max_Eta_   ) {
        n++;
        ref=Ref<CaloJetCollection>(jets,distance(jets->begin(),i));
        filterobject->addObject(TriggerJet,ref);
