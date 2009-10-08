@@ -1,10 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
+
+################# Photon Certification #########################
 photonDataCertification = cms.EDAnalyzer("PhotonDataCertification",
-                              fileName       = cms.untracked.string("/afs/cern.ch/user/l/lantonel/public/DQM_V0001_R000000001__GlobalCruzet4-A__CMSSW_2_1_X-Testing__RECO.root"),
-                              refFileName    = cms.untracked.string("/afs/cern.ch/user/l/lantonel/public/DQM_V0001_R000000001__GlobalCruzet4-A__CMSSW_2_1_X-Testing__RECO.root"),
-                              outputFileName = cms.untracked.string("DataCertificationStandAloneOutput.root")
+                              verbose = cms.bool(False)
                                          )
 
 
-
+################# Photon Quality Tests  #########################
+qTesterPhoton = cms.EDFilter("QualityTester",
+     qtList = cms.untracked.FileInPath('DQMOffline/EGamma/test/EGamma.xml'),
+     prescaleFactor = cms.untracked.int32(1),
+     testInEventloop = cms.untracked.bool(False),
+     verboseQT =  cms.untracked.bool(False),
+                         
+ )

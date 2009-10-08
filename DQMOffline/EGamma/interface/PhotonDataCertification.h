@@ -66,7 +66,7 @@ class PhotonDataCertification : public edm::EDAnalyzer {
       DQMStore *dbe_;
       edm::ParameterSet parameters_;
 
-
+      bool verbose_;
 
  // ----------member data ---------------------------
 };
