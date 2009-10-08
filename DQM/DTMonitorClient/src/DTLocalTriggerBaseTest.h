@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/06/09 13:20:05 $
+ *  $Revision: 1.6 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -90,8 +90,11 @@ protected:
   /// Create fullname from histo partial name
   std::string fullName(std::string htype);
 
-  /// Get the ME name
+  /// Get the ME name (by chamber)
   std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId& chambid);
+
+ /// Get the ME name (by wheel)
+  std::string getMEName(std::string histoTag, std::string subfolder, int wh);
 
   /// Perform begin lumiblock operations
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

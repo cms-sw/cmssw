@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/07/29 11:10:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/08/03 16:10:27 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana - CIEMAT
  */
 
@@ -79,8 +79,8 @@ void DTTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
 	      }
 	    }
 	  }
-	  bookWheelHistos(wh,"","TrigEffPhi");  
-	  bookWheelHistos(wh,"","TrigEffCorrPhi");  
+	  bookWheelHistos(wh,"TrigEffPhi");  
+	  bookWheelHistos(wh,"TrigEffCorrPhi");  
 	}
       }
     }
@@ -106,8 +106,8 @@ void DTTriggerEfficiencyTest::runClientDiagnostic() {
 	if (TrigEffDenum && TrigEffNum && TrigEffCorrNum && TrigEffDenum->GetEntries()>1) {
 	  
 	  if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-	    bookWheelHistos(wh,"","TrigEffPhi");  
-	    bookWheelHistos(wh,"","TrigEffCorrPhi");  
+	    bookWheelHistos(wh,"TrigEffPhi");  
+	    bookWheelHistos(wh,"TrigEffCorrPhi");  
 	  }
 	  std::map<std::string,MonitorElement*> *innerME = &(whME[wh]);
 	  makeEfficiencyME2D(TrigEffNum,TrigEffDenum,innerME->find(fullName("TrigEffPhi"))->second);

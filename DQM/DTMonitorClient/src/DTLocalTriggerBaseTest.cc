@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/06/09 13:20:05 $
+ *  $Revision: 1.12 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -141,18 +141,29 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
 
-  bool isDCC = hwSource=="DCC"; 
-
-  string folderName = 
-    topFolder(isDCC) + "Wheel" +  wheel.str() +
-    "/Sector" + sector.str() +
-    "/Station" + station.str() + "/" + subfolder + "/";  
+  string folderName = topFolder(hwSource=="DCC") + "Wheel" +  wheel.str() +
+    "/Sector" + sector.str() + "/Station" + station.str() + "/" ; 
+  if (subfolder!="") { folderName += subfolder + "/"; }
 
   string histoname = sourceFolder + folderName 
     + fullName(histoTag) 
     + "_W" + wheel.str()  
     + "_Sec" + sector.str()
     + "_St" + station.str();
+  
+  return histoname;
+  
+}
+
+string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, int wh) {
+
+  stringstream wheel; wheel << wh;
+
+  string folderName =  topFolder(hwSource=="DCC") + "Wheel" + wheel.str() + "/";
+  if (subfolder!="") { folderName += subfolder + "/"; }  
+
+  string histoname = sourceFolder + folderName 
+    + fullName(histoTag) + "_W" + wheel.str();
   
   return histoname;
   
