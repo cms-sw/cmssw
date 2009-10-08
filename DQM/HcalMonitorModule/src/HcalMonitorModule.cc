@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/09/11 12:27:11 $
- * $Revision: 1.134 $
+ * $Date: 2009/09/25 21:43:54 $
+ * $Revision: 1.135 $
  * \author W Fisher
  * \author J Temple
  *
@@ -416,7 +416,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     
     // NULL if illegal; ignore
     if (!detid_.null()) {
-      if (detid_.det()!=4) continue;
+      if (detid_.det()!=4) continue; //not Hcal
       if (detid_.subdetId()!=HcalBarrel &&
 	  detid_.subdetId()!=HcalEndcap &&
 	  detid_.subdetId()!=HcalOuter  &&
