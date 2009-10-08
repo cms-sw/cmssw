@@ -105,6 +105,8 @@ void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string ef
     eff = new TProfile(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXbins()->GetArray());
   }
   eff->SetTitle(effName.c_str());
+  eff->SetXTitle( num->GetXaxis()->GetTitle() );
+  eff->SetYTitle("Efficiency");
   eff->SetOption("PE");
   eff->SetLineColor(2);
   eff->SetLineWidth(2);
@@ -137,6 +139,9 @@ void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string 
     eff = new TProfile2D(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXbins()->GetArray(),num->GetYaxis()->GetNbins(),num->GetYaxis()->GetXbins()->GetArray());
   }
   eff->SetTitle(effName.c_str());
+  eff->SetXTitle( num->GetXaxis()->GetTitle() );
+  eff->SetYTitle( num->GetYaxis()->GetTitle() );
+  eff->SetZTitle("Efficiency");
   eff->SetOption("colztexte");
   eff->GetZaxis()->SetRangeUser(-0.001,1.001);
   eff->SetStats(kFALSE);
