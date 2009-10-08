@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.28 2009/07/27 07:18:48 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.29 2009/07/27 09:44:37 hatake Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -104,10 +104,6 @@ DataCertificationJetMET::beginJob(const edm::EventSetup& c)
     // -- Current & Reference Run
     //---------------------------------------------
     dbe_->load(filename);
-    //dbe_->open(filename);
-    //dbe_->open(filename,false,"","Collate");
-    //dbe_->setCurrentFolder("/Collate");
-    //if (testType_>=1) dbe_->open(reffilename);
 
   }
 
@@ -156,20 +152,6 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
   if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
 
   if (verbose_) dbe_->showDirStructure();  
-
-  //
-  //-----
-  /*
-  MonitorElement * meMETPhi=0;
-  meMETPhi = new MonitorElement(*(dbe_->get("JetMET/MET/CaloMET/METTask_CaloMETPhi")));
-  const QReport * myQReport = meMETPhi->getQReport("phiQTest"); //get QReport associated to your ME  
-  if(myQReport) {
-    float qtresult = myQReport->getQTresult(); // get QT result value
-    int qtstatus   = myQReport->getStatus() ;  // get QT status value (see table below)
-    std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
-    if (verbose_) std::cout << "test" << qtmessage << " qtresult = " << qtresult << " qtstatus = " << qtstatus << std::endl;    
-  }
-  */
 
 }
 
@@ -338,7 +320,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   //
   // Number of lumi section bins
-  const int nLSBins=500;
+  //const int nLSBins=500;
 
   //-----------------------------
   // Jet DQM Data Certification
