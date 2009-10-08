@@ -661,7 +661,10 @@ void MuonAlignmentFromReference::terminate() {
 	     << "    def add_parameters(self, deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz, loglikelihood, sumofweights, redchi2):" << std::endl
 	     << "        self.status = \"PASS\"" << std::endl
 	     << "        self.deltax, self.deltay, self.deltaz, self.deltaphix, self.deltaphiy, self.deltaphiz = deltax, deltay, deltaz, deltaphix, deltaphiy, deltaphiz" << std::endl
-	     << "        self.loglikelihood, self.sumofweights, self.redchi2 = loglikelihood, sumofweights, redchi2" << std::endl << std::endl;
+	     << "        self.loglikelihood, self.sumofweights, self.redchi2 = loglikelihood, sumofweights, redchi2" << std::endl
+	     << "    def add_stats(self, median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz):" << std::endl
+	     << "        self.median_x, self.median_y, self.median_dxdz, self.median_dydz, self.mean30_x, self.mean30_y, self.mean20_dxdz, self.mean50_dydz, self.mean15_x, self.mean15_y, self.mean10_dxdz, self.mean25_dydz, self.wmean30_x, self.wmean30_y, self.wmean20_dxdz, self.wmean50_dydz, self.wmean15_x, self.wmean15_y, self.wmean10_dxdz, self.wmean25_dydz, self.stdev30_x, self.stdev30_y, self.stdev20_dxdz, self.stdev50_dydz, self.stdev15_x, self.stdev15_y, self.stdev10_dxdz, self.stdev25_dydz = median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz" << std::endl
+	     << std::endl;
     }
 
     for (std::vector<Alignable*>::const_iterator ali = m_alignables.begin();  ali != m_alignables.end();  ++ali) {
@@ -845,6 +848,48 @@ void MuonAlignmentFromReference::terminate() {
 		report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
 		report << "reports[-1].gammaresslope = ValErr(" << gammaresslope_value << ", " << gammaresslope_error << ", " << gammaresslope_antisym << ")" << std::endl;
 	      }
+
+	      report << "reports[-1].add_stats("
+		     << fitter->second->median(MuonResiduals5DOFFitter::kResid) << ", "
+		     << "None, "
+		     << fitter->second->median(MuonResiduals5DOFFitter::kResSlope) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals5DOFFitter::kResid, 30.) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals5DOFFitter::kResSlope, 20.) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals5DOFFitter::kResid, 15.) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals5DOFFitter::kResSlope, 10.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals5DOFFitter::kResid, MuonResiduals5DOFFitter::kRedChi2, 30.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals5DOFFitter::kResSlope, MuonResiduals5DOFFitter::kRedChi2, 20.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals5DOFFitter::kResid, MuonResiduals5DOFFitter::kRedChi2, 15.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals5DOFFitter::kResSlope, MuonResiduals5DOFFitter::kRedChi2, 10.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals5DOFFitter::kResid, 30.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals5DOFFitter::kResSlope, 20.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals5DOFFitter::kResid, 15.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals5DOFFitter::kResSlope, 10.) << ", "
+		     << "None)";
+
+	      std::stringstream namesimple_x, namesimple_dxdz, nameweighted_x, nameweighted_dxdz;
+	      namesimple_x << name.str() << "_simple_x";
+	      namesimple_dxdz << name.str() << "_simple_dxdz";
+	      nameweighted_x << name.str() << "_weighted_x";
+	      nameweighted_dxdz << name.str() << "_weighted_dxdz";
+
+	      fitter->second->plotsimple(namesimple_x.str(), &rootDirectory, MuonResiduals5DOFFitter::kResid, 10.);
+	      fitter->second->plotsimple(namesimple_dxdz.str(), &rootDirectory, MuonResiduals5DOFFitter::kResSlope, 1000.);
+
+	      fitter->second->plotweighted(nameweighted_x.str(), &rootDirectory, MuonResiduals5DOFFitter::kResid, MuonResiduals5DOFFitter::kRedChi2, 10.);
+	      fitter->second->plotweighted(nameweighted_dxdz.str(), &rootDirectory, MuonResiduals5DOFFitter::kResSlope, MuonResiduals5DOFFitter::kRedChi2, 1000.);
 	    }
 
 	    if (align_x)    params[paramIndex[0]] = deltax_value;
@@ -934,6 +979,56 @@ void MuonAlignmentFromReference::terminate() {
 		report << "reports[-1].gammadxdz = ValErr(" << gammadxdz_value << ", " << gammadxdz_error << ", " << gammadxdz_antisym << ")" << std::endl;
 		report << "reports[-1].gammadydz = ValErr(" << gammadydz_value << ", " << gammadydz_error << ", " << gammadydz_antisym << ")" << std::endl;
 	      }
+
+	      report << "reports[-1].add_stats("
+		     << fitter->second->median(MuonResiduals6DOFFitter::kResidX) << ", "
+		     << fitter->second->median(MuonResiduals6DOFFitter::kResidY) << ", "
+		     << fitter->second->median(MuonResiduals6DOFFitter::kResSlopeX) << ", "
+		     << fitter->second->median(MuonResiduals6DOFFitter::kResSlopeY) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResidX, 30.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResidY, 30.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResSlopeX, 20.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResSlopeY, 50.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResidX, 15.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResidY, 15.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResSlopeX, 10.) << ", "
+		     << fitter->second->mean(MuonResiduals6DOFFitter::kResSlopeY, 25.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResidX, MuonResiduals6DOFFitter::kRedChi2, 30.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResidY, MuonResiduals6DOFFitter::kRedChi2, 30.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResSlopeX, MuonResiduals6DOFFitter::kRedChi2, 20.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResSlopeY, MuonResiduals6DOFFitter::kRedChi2, 50.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResidX, MuonResiduals6DOFFitter::kRedChi2, 15.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResidY, MuonResiduals6DOFFitter::kRedChi2, 15.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResSlopeX, MuonResiduals6DOFFitter::kRedChi2, 10.) << ", "
+		     << fitter->second->wmean(MuonResiduals6DOFFitter::kResSlopeY, MuonResiduals6DOFFitter::kRedChi2, 25.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResidX, 30.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResidY, 30.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeX, 20.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeY, 50.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResidX, 15.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResidY, 15.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeX, 10.) << ", "
+		     << fitter->second->stdev(MuonResiduals6DOFFitter::kResSlopeY, 25.) << ")";
+
+	      std::stringstream namesimple_x, namesimple_y, namesimple_dxdz, namesimple_dydz, nameweighted_x, nameweighted_y, nameweighted_dxdz, nameweighted_dydz;
+	      namesimple_x << name.str() << "_simple_x";
+	      namesimple_y << name.str() << "_simple_y";
+	      namesimple_dxdz << name.str() << "_simple_dxdz";
+	      namesimple_dydz << name.str() << "_simple_dydz";
+	      nameweighted_x << name.str() << "_weighted_x";
+	      nameweighted_y << name.str() << "_weighted_y";
+	      nameweighted_dxdz << name.str() << "_weighted_dxdz";
+	      nameweighted_dydz << name.str() << "_weighted_dydz";
+
+	      fitter->second->plotsimple(namesimple_x.str(), &rootDirectory, MuonResiduals6DOFFitter::kResidX, 10.);
+	      fitter->second->plotsimple(namesimple_y.str(), &rootDirectory, MuonResiduals6DOFFitter::kResidY, 10.);
+	      fitter->second->plotsimple(namesimple_dxdz.str(), &rootDirectory, MuonResiduals6DOFFitter::kResSlopeX, 1000.);
+	      fitter->second->plotsimple(namesimple_dydz.str(), &rootDirectory, MuonResiduals6DOFFitter::kResSlopeY, 1000.);
+
+	      fitter->second->plotweighted(nameweighted_x.str(), &rootDirectory, MuonResiduals6DOFFitter::kResidX, MuonResiduals6DOFFitter::kRedChi2, 10.);
+	      fitter->second->plotweighted(nameweighted_y.str(), &rootDirectory, MuonResiduals6DOFFitter::kResidY, MuonResiduals6DOFFitter::kRedChi2, 10.);
+	      fitter->second->plotweighted(nameweighted_dxdz.str(), &rootDirectory, MuonResiduals6DOFFitter::kResSlopeX, MuonResiduals6DOFFitter::kRedChi2, 1000.);
+	      fitter->second->plotweighted(nameweighted_dydz.str(), &rootDirectory, MuonResiduals6DOFFitter::kResSlopeY, MuonResiduals6DOFFitter::kRedChi2, 1000.);
 	    }
 
 	    if (align_x)    params[paramIndex[0]] = deltax_value;
@@ -1004,6 +1099,48 @@ void MuonAlignmentFromReference::terminate() {
 		report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
 		report << "reports[-1].gammaresslope = ValErr(" << gammaresslope_value << ", " << gammaresslope_error << ", " << gammaresslope_antisym << ")" << std::endl;
 	      }
+
+	      report << "reports[-1].add_stats("
+		     << fitter->second->median(MuonResiduals6DOFrphiFitter::kResid) << ", "
+		     << "None, "
+		     << fitter->second->median(MuonResiduals6DOFrphiFitter::kResSlope) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals6DOFrphiFitter::kResid, 30.) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals6DOFrphiFitter::kResSlope, 20.) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals6DOFrphiFitter::kResid, 15.) << ", "
+		     << "None, "
+		     << fitter->second->mean(MuonResiduals6DOFrphiFitter::kResSlope, 10.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals6DOFrphiFitter::kResid, MuonResiduals6DOFrphiFitter::kRedChi2, 30.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals6DOFrphiFitter::kResSlope, MuonResiduals6DOFrphiFitter::kRedChi2, 20.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals6DOFrphiFitter::kResid, MuonResiduals6DOFrphiFitter::kRedChi2, 15.) << ", "
+		     << "None, "
+		     << fitter->second->wmean(MuonResiduals6DOFrphiFitter::kResSlope, MuonResiduals6DOFrphiFitter::kRedChi2, 10.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals6DOFrphiFitter::kResid, 30.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals6DOFrphiFitter::kResSlope, 20.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals6DOFrphiFitter::kResid, 15.) << ", "
+		     << "None, "
+		     << fitter->second->stdev(MuonResiduals6DOFrphiFitter::kResSlope, 10.) << ", "
+		     << "None)";
+
+	      std::stringstream namesimple_x, namesimple_dxdz, nameweighted_x, nameweighted_dxdz;
+	      namesimple_x << name.str() << "_simple_x";
+	      namesimple_dxdz << name.str() << "_simple_dxdz";
+	      nameweighted_x << name.str() << "_weighted_x";
+	      nameweighted_dxdz << name.str() << "_weighted_dxdz";
+
+	      fitter->second->plotsimple(namesimple_x.str(), &rootDirectory, MuonResiduals6DOFrphiFitter::kResid, 10.);
+	      fitter->second->plotsimple(namesimple_dxdz.str(), &rootDirectory, MuonResiduals6DOFrphiFitter::kResSlope, 1000.);
+
+	      fitter->second->plotweighted(nameweighted_x.str(), &rootDirectory, MuonResiduals6DOFrphiFitter::kResid, MuonResiduals6DOFrphiFitter::kRedChi2, 10.);
+	      fitter->second->plotweighted(nameweighted_dxdz.str(), &rootDirectory, MuonResiduals6DOFrphiFitter::kResSlope, MuonResiduals6DOFrphiFitter::kRedChi2, 1000.);
 	    }
 
 	    if (align_x)    params[paramIndex[0]] = deltax_value;

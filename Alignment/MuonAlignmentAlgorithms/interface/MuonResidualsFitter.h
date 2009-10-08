@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2009/04/23 05:06:01 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/07 20:44:37 $
+ *  $Revision: 1.8 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -17,6 +17,7 @@
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TF1.h"
+#include "TMath.h"
 
 #include <cstdio>
 #include <iostream>
@@ -102,6 +103,9 @@ public:
   // these are for the FCN to access what it needs to
   std::vector<double*>::const_iterator residuals_begin() const { return m_residuals.begin(); };
   std::vector<double*>::const_iterator residuals_end() const { return m_residuals.end(); };
+
+  void plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier);
+  void plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier);
 
 protected:
   void initialize_table();

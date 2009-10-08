@@ -336,3 +336,34 @@ void MuonResidualsFitter::read(FILE *file, int which) {
   delete [] likeAChecksum;
   delete [] likeAChecksum2;
 }
+
+void MuonResidualsFitter::plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier) {
+   double window = 100.;
+   if (which == 0) window = 2.*30.;
+   else if (which == 1) window = 2.*30.;
+   else if (which == 2) window = 2.*20.;
+   else if (which == 3) window = 2.*50.;
+
+   TH1F *hist = dir->make<TH1F>(name.c_str(), "", 200, -window, window);
+
+   for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r) {
+      hist->Fill(multiplier * (*r)[which]);
+   }
+}
+
+void MuonResidualsFitter::plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
+   double window = 100.;
+   if (which == 0) window = 2.*30.;
+   else if (which == 1) window = 2.*30.;
+   else if (which == 2) window = 2.*20.;
+   else if (which == 3) window = 2.*50.;
+
+   TH1F *hist = dir->make<TH1F>(name.c_str(), "", 200, -window, window);
+
+   for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r) {
+      double weight = 1./(*r)[whichredchi2];
+      if (TMath::Prob(1./weight*12, 12) < 0.99) {
+	 hist->Fill(multiplier * (*r)[which], weight);
+      }
+   }
+}

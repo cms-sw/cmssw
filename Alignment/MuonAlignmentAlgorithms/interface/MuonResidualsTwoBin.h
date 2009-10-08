@@ -2,14 +2,15 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/04/23 05:06:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/09/14 18:01:43 $
+ *  $Revision: 1.6 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "TMath.h"
 
 class MuonResidualsTwoBin {
 public:
@@ -101,6 +102,120 @@ public:
     }
     else {
       m_pos->read(file, which);
+    }
+  };
+
+  double median(int which) {
+    std::vector<double> residuals;
+    for (std::vector<double*>::const_iterator r = residualsPos_begin();  r != residualsPos_end();  ++r) {
+      residuals.push_back((*r)[which]);
+    }
+    if (m_twoBin) {
+      for (std::vector<double*>::const_iterator r = residualsNeg_begin();  r != residualsNeg_end();  ++r) {
+	residuals.push_back((*r)[which]);
+      }
+    }
+    std::sort(residuals.begin(), residuals.end());
+    int length = residuals.size();
+    return residuals[length/2];
+  };
+
+  double mean(int which, double truncate) {
+    double sum = 0.;
+    double n = 0.;
+    for (std::vector<double*>::const_iterator r = residualsPos_begin();  r != residualsPos_end();  ++r) {
+      double value = (*r)[which];
+      if (fabs(value) < truncate) {
+	sum += value;
+	n += 1.;
+      }
+    }
+    if (m_twoBin) {
+      for (std::vector<double*>::const_iterator r = residualsNeg_begin();  r != residualsNeg_end();  ++r) {
+	double value = (*r)[which];
+	if (fabs(value) < truncate) {
+	  sum += value;
+	  n += 1.;
+	}
+      }
+    }
+    return sum/n;
+  };
+
+  double wmean(int which, int whichredchi2, double truncate) {
+    double sum = 0.;
+    double n = 0.;
+    for (std::vector<double*>::const_iterator r = residualsPos_begin();  r != residualsPos_end();  ++r) {
+      double value = (*r)[which];
+      if (fabs(value) < truncate) {
+	double weight = 1./(*r)[whichredchi2];
+	if (TMath::Prob(1./weight*12, 12) < 0.99) {
+	  sum += weight*value;
+	  n += weight;
+	}
+      }
+    }
+    if (m_twoBin) {
+      for (std::vector<double*>::const_iterator r = residualsNeg_begin();  r != residualsNeg_end();  ++r) {
+	double value = (*r)[which];
+	if (fabs(value) < truncate) {
+	  double weight = 1./(*r)[whichredchi2];
+	  if (TMath::Prob(1./weight*12, 12) < 0.99) {
+	    sum += weight*value;
+	    n += weight;
+	  }
+	}
+      }
+    }
+    return sum/n;
+  };
+
+  double stdev(int which, double truncate) {
+    double sum2 = 0.;
+    double sum = 0.;
+    double n = 0.;
+    for (std::vector<double*>::const_iterator r = residualsPos_begin();  r != residualsPos_end();  ++r) {
+      double value = (*r)[which];
+      if (fabs(value) < truncate) {
+	sum2 += value*value;
+	sum += value;
+	n += 1.;
+      }
+    }
+    if (m_twoBin) {
+      for (std::vector<double*>::const_iterator r = residualsNeg_begin();  r != residualsNeg_end();  ++r) {
+	double value = (*r)[which];
+	if (fabs(value) < truncate) {
+	  sum2 += value*value;
+	  sum += value;
+	  n += 1.;
+	}
+      }
+    }
+    return sqrt(sum2/n - pow(sum/n, 2));
+  };
+
+  void plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier) {
+    if (m_twoBin) {
+      std::string namePos = name + std::string("Pos");
+      std::string nameNeg = name + std::string("Neg");
+      m_pos->plotsimple(namePos, dir, which, multiplier);
+      m_neg->plotsimple(nameNeg, dir, which, multiplier);
+    }
+    else {
+      m_pos->plotsimple(name, dir, which, multiplier);
+    }
+  };
+
+  void plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
+    if (m_twoBin) {
+      std::string namePos = name + std::string("Pos");
+      std::string nameNeg = name + std::string("Neg");
+      m_pos->plotweighted(namePos, dir, which, whichredchi2, multiplier);
+      m_neg->plotweighted(nameNeg, dir, which, whichredchi2, multiplier);
+    }
+    else {
+      m_pos->plotweighted(name, dir, which, whichredchi2, multiplier);
     }
   };
 
