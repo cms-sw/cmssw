@@ -225,8 +225,8 @@ cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
     file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
-process.PoolDBESSource.connect = \"sqlite_file:MuonAlignmentFromReference_outputdb.db\"
-process.MuonGeometryDBConverter.outputXML.fileName = \"MuonAlignmentFromReference_outputdb.xml\"
+process.PoolDBESSource.connect = \"sqlite_file:%(directory)s%(director)s.db\"
+process.MuonGeometryDBConverter.outputXML.fileName = \"%(directory)s%(director)s.xml\"
 process.MuonGeometryDBConverter.outputXML.relativeto = \"ideal\"
 process.MuonGeometryDBConverter.outputXML.suppressDTChambers = False
 process.MuonGeometryDBConverter.outputXML.suppressDTSuperLayers = True
@@ -241,30 +241,7 @@ process.PoolDBESSource.toGet = cms.VPSet(
     cms.PSet(record = cms.string(\"CSCAlignmentRcd\"), tag = cms.string(\"CSCAlignmentRcd\")),
     cms.PSet(record = cms.string(\"CSCAlignmentErrorRcd\"), tag = cms.string(\"CSCAlignmentErrorRcd\")),
       )
-""")
-#     file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
-# process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
-# process.GlobalTag.globaltag = cms.string(\"%s\")
-# del process.inertGlobalPositionRcd
-
-# process.PoolDBESSource.connect = \"sqlite_file:MuonAlignmentFromReference_outputdb.db\"
-# process.MuonGeometryDBConverter.outputXML.fileName = \"MuonAlignmentFromReference_outputdb.xml\"
-# process.MuonGeometryDBConverter.outputXML.relativeto = \"ideal\"
-# process.MuonGeometryDBConverter.outputXML.suppressDTChambers = False
-# process.MuonGeometryDBConverter.outputXML.suppressDTSuperLayers = True
-# process.MuonGeometryDBConverter.outputXML.suppressDTLayers = True
-# process.MuonGeometryDBConverter.outputXML.suppressCSCChambers = False
-# process.MuonGeometryDBConverter.outputXML.suppressCSCLayers = True
-
-# process.MuonGeometryDBConverter.getAPEs = True
-# process.PoolDBESSource.toGet = cms.VPSet(
-#     cms.PSet(record = cms.string(\"DTAlignmentRcd\"), tag = cms.string(\"DTAlignmentRcd\")),
-#     cms.PSet(record = cms.string(\"DTAlignmentErrorRcd\"), tag = cms.string(\"DTAlignmentErrorRcd\")),
-#     cms.PSet(record = cms.string(\"CSCAlignmentRcd\"), tag = cms.string(\"CSCAlignmentRcd\")),
-#     cms.PSet(record = cms.string(\"CSCAlignmentErrorRcd\"), tag = cms.string(\"CSCAlignmentErrorRcd\")),
-#       )
-# process.es_prefer = cms.ESPrefer(\"PoolDBESSource\")
-# """ % globalTag)
+""" % vars())
 
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
@@ -300,11 +277,12 @@ export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp`
 
 ls -l
 cmsRun align_cfg.py
-cmsRun convert-db-to-xml_cfg.py
 cp -f MuonAlignmentFromReference_report.py $ALIGNMENT_AFSDIR/%(directory)s%(director)s_report.py
 cp -f MuonAlignmentFromReference_outputdb.db $ALIGNMENT_AFSDIR/%(directory)s%(director)s.db
 cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(director)s.root
-cp -f MuonAlignmentFromReference_outputdb.xml $ALIGNMENT_AFSDIR/%(directory)s%(director)s.xml
+
+cd $ALIGNMENT_AFSDIR
+cmsRun %(directory)sconvert-db-to-xml_cfg.py
 """ % vars())
     os.system("chmod +x %salign.sh" % directory)
 
