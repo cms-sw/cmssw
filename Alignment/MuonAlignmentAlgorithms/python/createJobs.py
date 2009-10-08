@@ -112,10 +112,14 @@ parser.add_option("--twoBin",
                   help="Apply the two-bin method to control charge-antisymmetric errors",
                   action="store_true",
                   dest="twoBin")
+parser.add_option("--weightAlignment",
+                  help="Use segment chi^2 weights in alignment",
+                  action="store_true",
+                  dest="weightAlignment")
 parser.add_option("--minAlignmentHits",
                   help="Minimum number of hits required to align a chamber",
                   type="int",
-                  default=5,
+                  default=30,
                   dest="minAlignmentHits")
 
 options, args = parser.parse_args(sys.argv[5:])
@@ -134,6 +138,7 @@ minTrackerHits = str(options.minTrackerHits)
 maxTrackerRedChi2 = options.maxTrackerRedChi2
 allowTIDTEC = str(options.allowTIDTEC)
 twoBin = str(options.twoBin)
+weightAlignment = str(options.weightAlignment)
 minAlignmentHits = str(options.minAlignmentHits)
 
 execfile(INPUTFILES)
@@ -197,6 +202,7 @@ export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
 export ALIGNMENT_TWOBIN=%(twoBin)s
+export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 
 cp -f %(directory)sgather_cfg.py %(inputdbdir)s%(inputdb)s $ALIGNMENT_CAFDIR/
@@ -217,6 +223,26 @@ cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
             bsubfile.append("bsub -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
+
+    file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""
+from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
+process.PoolDBESSource.connect = \"sqlite_file:MuonAlignmentFromReference_outputdb.db\"
+process.MuonGeometryDBConverter.outputXML.fileName = \"MuonAlignmentFromReference_outputdb.xml\"
+process.MuonGeometryDBConverter.outputXML.relativeto = \"ideal\"
+process.MuonGeometryDBConverter.outputXML.suppressDTChambers = False
+process.MuonGeometryDBConverter.outputXML.suppressDTSuperLayers = True
+process.MuonGeometryDBConverter.outputXML.suppressDTLayers = True
+process.MuonGeometryDBConverter.outputXML.suppressCSCChambers = False
+process.MuonGeometryDBConverter.outputXML.suppressCSCLayers = True
+
+process.MuonGeometryDBConverter.getAPEs = True
+process.PoolDBESSource.toGet = cms.VPSet(
+    cms.PSet(record = cms.string(\"DTAlignmentRcd\"), tag = cms.string(\"DTAlignmentRcd\")),
+    cms.PSet(record = cms.string(\"DTAlignmentErrorRcd\"), tag = cms.string(\"DTAlignmentErrorRcd\")),
+    cms.PSet(record = cms.string(\"CSCAlignmentRcd\"), tag = cms.string(\"CSCAlignmentRcd\")),
+    cms.PSet(record = cms.string(\"CSCAlignmentErrorRcd\"), tag = cms.string(\"CSCAlignmentErrorRcd\")),
+      )
+""")
 
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
@@ -243,17 +269,20 @@ export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
 export ALIGNMENT_TWOBIN=%(twoBin)s
+export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
 export ALIGNMENT_MINALIGNMENTHITS=%(minAlignmentHits)s
 
-cp -f %(directory)salign_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp $ALIGNMENT_CAFDIR/
+cp -f %(directory)salign_cfg.py %(directory)sconvert-db-to-xml_cfg.py %(inputdbdir)s%(inputdb)s %(directory)s*.tmp $ALIGNMENT_CAFDIR/
 cd $ALIGNMENT_CAFDIR/
 export ALIGNMENT_ALIGNMENTTMP=`ls alignment*.tmp`
 
 ls -l
 cmsRun align_cfg.py
+cmsRun convert-db-to-xml_cfg.py
 cp -f MuonAlignmentFromReference_report.py $ALIGNMENT_AFSDIR/%(directory)s%(director)s_report.py
 cp -f MuonAlignmentFromReference_outputdb.db $ALIGNMENT_AFSDIR/%(directory)s%(director)s.db
 cp -f MuonAlignmentFromReference_plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(director)s.root
+cp -f MuonAlignmentFromReference_outputdb.xml $ALIGNMENT_AFSDIR/%(directory)s%(director)s.xml
 """ % vars())
     os.system("chmod +x %salign.sh" % directory)
 

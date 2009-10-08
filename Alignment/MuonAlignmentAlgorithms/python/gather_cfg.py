@@ -20,6 +20,7 @@ minTrackerHits = int(os.environ["ALIGNMENT_MINTRACKERHITS"])
 maxTrackerRedChi2 = float(os.environ["ALIGNMENT_MAXTRACKERREDCHI2"])
 allowTIDTEC = (os.environ["ALIGNMENT_ALLOWTIDTEC"] == "True")
 twoBin = (os.environ["ALIGNMENT_TWOBIN"] == "True")
+weightAlignment = (os.environ["ALIGNMENT_WEIGHTALIGNMENT"] == "True")
 minAlignmentHits = int(os.environ["ALIGNMENT_MINALIGNMENTHITS"])
 
 process = cms.Process("GATHER")
@@ -42,6 +43,7 @@ process.looper.algoConfig.minTrackerHits = minTrackerHits
 process.looper.algoConfig.maxTrackerRedChi2 = maxTrackerRedChi2
 process.looper.algoConfig.allowTIDTEC = allowTIDTEC
 process.looper.algoConfig.twoBin = twoBin
+process.looper.algoConfig.weightAlignment = weightAlignment
 process.looper.algoConfig.minAlignmentHits = minAlignmentHits
 
 if mapplots:
