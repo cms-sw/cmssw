@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2009/07/27 07:09:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/08 10:09:49 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -120,7 +120,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   double _etThreshold;
 
   // JetID helper
-  reco::helper::JetID jetID;
+  reco::helper::JetIDHelper jetID;
 
   //
   bool _allhist;
