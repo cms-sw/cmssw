@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.h,v 1.2 2009/10/07 14:15:29 amraktad Exp $
+// $Id: FWTrackDetailView.h,v 1.3 2009/10/07 19:02:32 amraktad Exp $
 //
 
 // user include files
@@ -22,6 +22,7 @@ public:
 
    void hideWindow(FWGUISubviewArea*);
    virtual void build (const FWModelId &id, const reco::Track*, TEveWindowSlot*);
+   virtual void setBackgroundColor(Color_t col);
 
 protected:
    FWTrackHitsDetailView* m_hitsView;

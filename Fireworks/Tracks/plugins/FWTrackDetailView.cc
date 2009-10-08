@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.cc,v 1.21 2009/10/07 19:02:32 amraktad Exp $
+// $Id: FWTrackDetailView.cc,v 1.22 2009/10/07 19:16:05 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -87,6 +87,12 @@ FWTrackDetailView::hideWindow(FWGUISubviewArea* sva)
    TEveWindowPack* wp = (TEveWindowPack*)getEveWindow();
    TGPack* pack = wp->GetPack();
    pack->HideFrame(w->GetEveFrame());
+}
+
+void
+FWTrackDetailView::setBackgroundColor(Color_t col)
+{
+   m_hitsView->setBackgroundColor(col);
 }
 
 REGISTER_FWDETAILVIEW(FWTrackDetailView);

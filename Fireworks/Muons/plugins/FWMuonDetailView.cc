@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.12 2009/09/16 21:56:05 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.13 2009/09/24 20:19:08 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -16,7 +16,7 @@
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TEveManager.h"
-#include "TCanvas.h" 
+#include "TCanvas.h"
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
 
@@ -25,11 +25,12 @@
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-
+#include "Fireworks/Core/interface/FWColorManager.h"
 //
 // constructors and destructor
 //
-FWMuonDetailView::FWMuonDetailView()
+FWMuonDetailView::FWMuonDetailView():
+m_viewer(0)
 {
 }
 
@@ -65,7 +66,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    // build ECAL objects
    double eta = iMuon->eta();
    double phi = iMuon->phi();
-   
+
    if ( iMuon->isEnergyValid() )
      {
 	eta = iMuon->calEnergy().ecal_position.eta();
@@ -82,7 +83,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    }
    TEveCaloLego* lego = builder.build();
    scene->AddElement(lego);
-   
+
    addInfo(iMuon, scene);
 
    // draw legend in latex
@@ -92,29 +93,29 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon, TEveW
    ediFrame->Layout();
    ec->GetCanvas()->SetBorderMode(0);
    makeLegend(iMuon, id, ec->GetCanvas());
-   
+
    // draw axis at the window corners
    // std::cout << "TEveViewer: " << viewer << std::endl;
-   TGLViewer* glv =  viewer->GetGLViewer();
+   m_viewer =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
    overlay->SetShowScales(0); // temporary
-   glv->AddOverlayElement(overlay);
+   m_viewer->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   TEveLegoEventHandler* eh = 
-      new TEveLegoEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv, lego);
-   glv->SetEventHandler(eh);
-   glv->UpdateScene();
-   glv->CurrentCamera().Reset();
+   m_viewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   TEveLegoEventHandler* eh =
+      new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
+   m_viewer->SetEventHandler(eh);
+   m_viewer->UpdateScene();
+   m_viewer->CurrentCamera().Reset();
 
    scene->Repaint(true);
    viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
    gEve->Redraw3D();
-   
+
    ////////////////////////////////////////////////////////////////////////
    //                              Sub-view 2
    ///////////////////////////////////////////////////////////////////////
@@ -139,23 +140,23 @@ FWMuonDetailView::makeLegend(const reco::Muon *muon,
    float_t x = 0.02;
    float   y = 0.95;
    float fontsize = latex->GetTextSize()*0.6;
-   
+
    latex->DrawLatex(x, y, id.item()->modelName(id.index()).c_str() );
    y -= fontsize;
    latex->SetTextSize(textsize);
    fontsize = latex->GetTextSize()*0.6;
 
-   latex->DrawLatex(x, y, Form(" p_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f", 
+   latex->DrawLatex(x, y, Form(" p_{T} = %.1f GeV, #eta = %0.2f, #varphi = %0.2f",
 			       muon->pt(), muon->eta(), muon->phi()) );
    y -= fontsize;
    // summary
    if (muon->charge() > 0)
      latex->DrawLatex(x, y, " charge = +1");
-   else 
+   else
      latex->DrawLatex(x, y, " charge = -1");
    y -= fontsize;
-   
-   if (! muon->isEnergyValid() ) return; 
+
+   if (! muon->isEnergyValid() ) return;
    // delta phi/eta in
    latex->DrawLatex(x, y, "ECAL energy in:");
    y -= fontsize;
@@ -173,10 +174,10 @@ void
 FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
 {
    // muon direction at vertex
-   
+
    bool barrel = fabs(i->eta())<1.5;
    if ( i->isEnergyValid() ) barrel = fabs(i->calEnergy().ecal_position.eta()) < 1.5;
-   
+
    TEvePointSet *direction = new TEvePointSet("muon direction");
    direction->SetTitle("Muon direction at vertex");
    direction->SetPickable(kTRUE);
@@ -185,16 +186,16 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
       direction->SetNextPoint(i->eta(), i->phi(), 0);
       direction->SetMarkerSize(0.01);
    }else{
-      direction->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()), 
+      direction->SetNextPoint(310*fabs(tan(i->theta()))*cos(i->phi()),
 			      310*fabs(tan(i->theta()))*sin(i->phi()),
 			      0);
       direction->SetMarkerSize(1);
    }
    direction->SetMarkerColor(kYellow);
    tList->AddElement(direction);
-   
+
    if (! i->isEnergyValid() ) return;
-   
+
    // ecal position
    Double_t x(0), y(0);
    TEvePointSet *ecalposition = new TEvePointSet("ecal position");
@@ -230,7 +231,7 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
    hcalposition->SetMarkerStyle(2);
    hcalposition->SetMarkerColor(kRed);
    tList->AddElement(hcalposition);
-   
+
    // draw a line connecting the two positions
    TEveStraightLineSet *lines = new TEveStraightLineSet("Muon trajectory in ECAL","Muon trajectory in ECAL");
    lines->SetPickable(kTRUE);
@@ -251,6 +252,13 @@ FWMuonDetailView::addInfo(const reco::Muon *i, TEveElementList* tList)
    }
    lines->SetLineColor(kRed);
    tList->AddElement(lines);
+}
+
+
+void
+FWMuonDetailView::setBackgroundColor(Color_t col)
+{
+   FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
 REGISTER_FWDETAILVIEW(FWMuonDetailView);

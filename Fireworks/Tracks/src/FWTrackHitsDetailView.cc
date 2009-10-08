@@ -15,6 +15,7 @@
 // Fireworks includes
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/src/FWColorManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -99,3 +100,8 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    m_viewer->SetDrawCameraCenter(kTRUE);
 }
 
+void
+FWTrackHitsDetailView::setBackgroundColor(Color_t col)
+{
+   FWColorManager::setColorSetViewer(m_viewer, col);
+}

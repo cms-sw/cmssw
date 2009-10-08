@@ -22,6 +22,8 @@ public:
    void build (const FWModelId &id, const reco::Track*, TEveWindowSlot*);
    void pickCameraCenter();
 
+   virtual void setBackgroundColor(Color_t);
+
 protected:
    TGLEmbeddedViewer* m_viewer;
 
