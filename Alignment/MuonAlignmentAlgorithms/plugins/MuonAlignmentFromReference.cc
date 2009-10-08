@@ -96,6 +96,26 @@ private:
   std::map<Alignable*,MuonResidualsTwoBin*> m_fitters;
   std::vector<unsigned int> m_indexes;
   std::map<unsigned int,MuonResidualsTwoBin*> m_fitterOrder;
+
+  long m_counter_events;
+  long m_counter_tracks;
+  long m_counter_trackpt;
+  long m_counter_trackerhits;
+  long m_counter_trackerchi2;
+  long m_counter_trackertidtec;
+  long m_counter_station123;
+  long m_counter_station123valid;
+  long m_counter_station123dt13hits;
+  long m_counter_station123dt2hits;
+  long m_counter_station123aligning;
+  long m_counter_station4;
+  long m_counter_station4valid;
+  long m_counter_station4hits;
+  long m_counter_station4aligning;
+  long m_counter_csc;
+  long m_counter_cscvalid;
+  long m_counter_cschits;
+  long m_counter_cscaligning;
 };
 
 MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &iConfig)
@@ -128,6 +148,26 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
     TFile &tfile = tfileService->file();
     tfile.ls();
   }
+
+  m_counter_events = 0;
+  m_counter_tracks = 0;
+  m_counter_trackpt = 0;
+  m_counter_trackerhits = 0;
+  m_counter_trackerchi2 = 0;
+  m_counter_trackertidtec = 0;
+  m_counter_station123 = 0;
+  m_counter_station123valid = 0;
+  m_counter_station123dt13hits = 0;
+  m_counter_station123dt2hits = 0;
+  m_counter_station123aligning = 0;
+  m_counter_station4 = 0;
+  m_counter_station4valid = 0;
+  m_counter_station4hits = 0;
+  m_counter_station4aligning = 0;
+  m_counter_csc = 0;
+  m_counter_cscvalid = 0;
+  m_counter_cschits = 0;
+  m_counter_cscaligning = 0;
 }
 
 MuonAlignmentFromReference::~MuonAlignmentFromReference() {
@@ -419,102 +459,158 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, Align
 void MuonAlignmentFromReference::startNewLoop() {}
 
 void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) {
+   m_counter_events++;
+
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
   const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_;
   for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack) {
+     m_counter_tracks++;
+
     const Trajectory* traj = (*trajtrack).first;
     const reco::Track* track = (*trajtrack).second;
 
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
+       m_counter_trackpt++;
+
       char charge = (track->charge() > 0 ? 1 : -1);
       // double qoverpt = track->charge() / track->pt();
       // double qoverpz = track->charge() / track->pz();
       MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, 1000.);
 
-      if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits  &&  muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2  &&  (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())) {
-	std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
+      if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits) {
+	 m_counter_trackerhits++;
+	 if (muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2) {
+	    m_counter_trackerchi2++;
+	    if (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC()) {
+	       m_counter_trackertidtec++;
 
-	for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId) {
+	       std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
 
-	  if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT  &&  DTChamberId(chamberId->rawId()).station() != 4) {
-	    MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
-	    MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
+	       for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId) {
+		  if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT  &&  DTChamberId(chamberId->rawId()).station() != 4) {
+		     MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+		     MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
 
-	    if (dt13 != NULL  &&  dt2 != NULL  &&  dt13->numHits() >= m_minDT13Hits  &&  dt2->numHits() >= m_minDT2Hits) {
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
-	      if (fitter != m_fitters.end()) {
-		double *residdata = new double[MuonResiduals6DOFFitter::kNData];
-		residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
-		residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
-		residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
-		residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
-		residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
-		residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
-		residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
-		residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
-		residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
-		fitter->second->fill(charge, residdata);
-		// the MuonResidualsFitter will delete the array when it is destroyed
-	      }
-	    }
-	  }
+		     m_counter_station123++;
+		     if (dt13 != NULL  &&  dt2 != NULL) {
+			m_counter_station123valid++;
+			if (dt13->numHits() >= m_minDT13Hits) {
+			   m_counter_station123dt13hits++;
+			   if (dt2->numHits() >= m_minDT2Hits) {
+			      m_counter_station123dt2hits++;
+			      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
+			      if (fitter != m_fitters.end()) {
+				 m_counter_station123aligning++;
 
-	  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT  &&  DTChamberId(chamberId->rawId()).station() == 4) {
-	    MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+				 double *residdata = new double[MuonResiduals6DOFFitter::kNData];
+				 residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
+				 residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
+				 residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
+				 residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
+				 residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
+				 residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
+				 residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
+				 residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
+				 residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
+				 fitter->second->fill(charge, residdata);
+				 // the MuonResidualsFitter will delete the array when it is destroyed
+			      }
+			   }}}
+		  }
 
-	    if (dt13 != NULL  &&  dt13->numHits() >= m_minDT13Hits) {
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
-	      if (fitter != m_fitters.end()) {
-		double *residdata = new double[MuonResiduals5DOFFitter::kNData];
-		residdata[MuonResiduals5DOFFitter::kResid] = dt13->residual();
-		residdata[MuonResiduals5DOFFitter::kResSlope] = dt13->resslope();
-		residdata[MuonResiduals5DOFFitter::kPositionX] = dt13->trackx();
-		residdata[MuonResiduals5DOFFitter::kPositionY] = dt13->tracky();
-		residdata[MuonResiduals5DOFFitter::kAngleX] = dt13->trackdxdz();
-		residdata[MuonResiduals5DOFFitter::kAngleY] = dt13->trackdydz();
-		residdata[MuonResiduals5DOFFitter::kRedChi2] = dt13->chi2() / double(dt13->ndof());
-		fitter->second->fill(charge, residdata);
-		// the MuonResidualsFitter will delete the array when it is destroyed
-	      }
-	    }
-	  }
+		  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::DT  &&  DTChamberId(chamberId->rawId()).station() == 4) {
+		     MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
 
-	  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::CSC) {
-	    MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
+		     m_counter_station4++;
+		     if (dt13 != NULL) {
+			m_counter_station4valid++;
+			if (dt13->numHits() >= m_minDT13Hits) {
+			   m_counter_station4hits++;
 
-	    if (csc != NULL  &&  csc->numHits() >= m_minCSCHits) {
-	      Alignable *ali = csc->chamberAlignable();
-	      CSCDetId id(ali->geomDetId().rawId());
-	      if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
-		ali = m_me11map[ali];
-	      }
+			   std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
+			   if (fitter != m_fitters.end()) {
+			      m_counter_station4aligning++;
 
-	      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
-	      if (fitter != m_fitters.end()) {
-		double *residdata = new double[MuonResiduals6DOFrphiFitter::kNData];
-		residdata[MuonResiduals6DOFrphiFitter::kResid] = csc->residual();
-		residdata[MuonResiduals6DOFrphiFitter::kResSlope] = csc->resslope();
-		residdata[MuonResiduals6DOFrphiFitter::kPositionX] = csc->trackx();
-		residdata[MuonResiduals6DOFrphiFitter::kPositionY] = csc->tracky();
-		residdata[MuonResiduals6DOFrphiFitter::kAngleX] = csc->trackdxdz();
-		residdata[MuonResiduals6DOFrphiFitter::kAngleY] = csc->trackdydz();
-		residdata[MuonResiduals6DOFrphiFitter::kRedChi2] = csc->chi2() / double(csc->ndof());
-		fitter->second->fill(charge, residdata);
-		// the MuonResidualsFitter will delete the array when it is destroyed
-	      }
-	    }
-	  }
-	  else { assert(false); }
+			      double *residdata = new double[MuonResiduals5DOFFitter::kNData];
+			      residdata[MuonResiduals5DOFFitter::kResid] = dt13->residual();
+			      residdata[MuonResiduals5DOFFitter::kResSlope] = dt13->resslope();
+			      residdata[MuonResiduals5DOFFitter::kPositionX] = dt13->trackx();
+			      residdata[MuonResiduals5DOFFitter::kPositionY] = dt13->tracky();
+			      residdata[MuonResiduals5DOFFitter::kAngleX] = dt13->trackdxdz();
+			      residdata[MuonResiduals5DOFFitter::kAngleY] = dt13->trackdydz();
+			      residdata[MuonResiduals5DOFFitter::kRedChi2] = dt13->chi2() / double(dt13->ndof());
+			      fitter->second->fill(charge, residdata);
+			      // the MuonResidualsFitter will delete the array when it is destroyed
+			   }
+			}}
+		  }
 
-	} // end loop over chamberIds
-      } // end if refit is okay
+		  else if (chamberId->det() == DetId::Muon  &&  chamberId->subdetId() == MuonSubdetId::CSC) {
+		     MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
+
+		     m_counter_csc++;
+		     if (csc != NULL) {
+			m_counter_cscvalid++;
+			if (csc->numHits() >= m_minCSCHits) {
+			   m_counter_cschits++;
+
+			   Alignable *ali = csc->chamberAlignable();
+			   CSCDetId id(ali->geomDetId().rawId());
+			   if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {
+			      ali = m_me11map[ali];
+			   }
+
+			   std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
+			   if (fitter != m_fitters.end()) {
+			      m_counter_cscaligning++;
+
+			      double *residdata = new double[MuonResiduals6DOFrphiFitter::kNData];
+			      residdata[MuonResiduals6DOFrphiFitter::kResid] = csc->residual();
+			      residdata[MuonResiduals6DOFrphiFitter::kResSlope] = csc->resslope();
+			      residdata[MuonResiduals6DOFrphiFitter::kPositionX] = csc->trackx();
+			      residdata[MuonResiduals6DOFrphiFitter::kPositionY] = csc->tracky();
+			      residdata[MuonResiduals6DOFrphiFitter::kAngleX] = csc->trackdxdz();
+			      residdata[MuonResiduals6DOFrphiFitter::kAngleY] = csc->trackdydz();
+			      residdata[MuonResiduals6DOFrphiFitter::kRedChi2] = csc->chi2() / double(csc->ndof());
+			      fitter->second->fill(charge, residdata);
+			      // the MuonResidualsFitter will delete the array when it is destroyed
+			   }
+			}}
+		  }
+		  else { assert(false); }
+
+	       } // end loop over chamberIds
+	    }}} // end if refit is okay
     } // end if track pT is within range
   } // end loop over tracks
 }
 
 void MuonAlignmentFromReference::terminate() {
+   // one-time print-out
+   std::cout << "Counters:" << std::endl
+	     << "COUNT{ events: " << m_counter_events << " }" << std::endl
+	     << "COUNT{   tracks: " << m_counter_tracks << " }" << std::endl
+	     << "COUNT{     trackpt: " << m_counter_trackpt << " }" << std::endl
+	     << "COUNT{       trackerhits: " << m_counter_trackerhits << " }" << std::endl
+	     << "COUNT{         trackerchi2: " << m_counter_trackerchi2 << " }" << std::endl
+	     << "COUNT{           trackertidtec: " << m_counter_trackertidtec << " }" << std::endl
+	     << "COUNT{             station123: " << m_counter_station123 << " }" << std::endl
+	     << "COUNT{               station123valid: " << m_counter_station123valid << " }" << std::endl
+	     << "COUNT{                 station123dt13hits: " << m_counter_station123dt13hits << " }" << std::endl
+	     << "COUNT{                   station123dt2hits: " << m_counter_station123dt2hits << " }" << std::endl
+	     << "COUNT{                     station123aligning: " << m_counter_station123aligning << " }" << std::endl
+	     << "COUNT{             station4: " << m_counter_station4 << " }" << std::endl
+	     << "COUNT{               station4valid: " << m_counter_station4valid << " }" << std::endl
+	     << "COUNT{                 station4hits: " << m_counter_station4hits << " }" << std::endl
+	     << "COUNT{                   station4aligning: " << m_counter_station4aligning << " }" << std::endl
+	     << "COUNT{             csc: " << m_counter_csc << " }" << std::endl
+	     << "COUNT{               cscvalid: " << m_counter_cscvalid << " }" << std::endl
+	     << "COUNT{                 cschits: " << m_counter_cschits << " }" << std::endl
+	     << "COUNT{                   cscaligning: " << m_counter_cscaligning << " }" << std::endl
+	     << "That's all!" << std::endl;
+
   // collect temporary files
   if (m_readTemporaryFiles.size() != 0) {
     for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();  fileName != m_readTemporaryFiles.end();  ++fileName) {
