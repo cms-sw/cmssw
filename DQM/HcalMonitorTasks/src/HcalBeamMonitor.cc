@@ -578,39 +578,36 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  //HF: no non-threshold occupancy map is filled?
 	           
 	  if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
-	    if (HFiter->energy() < occThresh_){
+	    if (et < occThresh_){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,1);
 	      HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,et);
 	    }
-	    if (HFiter->energy() > occThresh_ && HFiter->energy() < 50.){
+	    if (et > occThresh_ && et < 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,1);
 	      HFlumi_Et_per_channel_vs_lumiblock_RING1->Fill(lumiblock,et);
 	    }
-	     if (HFiter->energy() > 50.){
+	     if (et > 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,1);
 	      HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,et);
 	    }
 	  }
 
 	  if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
-	    if (HFiter->energy() < occThresh_){
+	    if (et < occThresh_){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,1);
 	      HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,et);
 	    }
-	    if (HFiter->energy() > occThresh_ && HFiter->energy() < 50.){
+	    if (et > occThresh_ && et < 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,1);
 	      HFlumi_Et_per_channel_vs_lumiblock_RING2->Fill(lumiblock,et);
 	    }
-	     if (HFiter->energy() > 50.){
+	     if (et > 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,1);
 	      HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,et);
 	    }
 	  }
 
-
-	  
-
-	  if(HFiter->energy()>occThresh_){
+	  if(et>occThresh_){
 	    
             if (HFiter->id().depth()==1){
 	      if(HFiter->id().ieta()>0)  
