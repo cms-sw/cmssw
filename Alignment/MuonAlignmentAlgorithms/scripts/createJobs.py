@@ -224,8 +224,7 @@ cp -f *.tmp %(copyplots)s $ALIGNMENT_AFSDIR/%(directory)s
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
-    file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""
-from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
+    file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
 process.PoolDBESSource.connect = \"sqlite_file:MuonAlignmentFromReference_outputdb.db\"
 process.MuonGeometryDBConverter.outputXML.fileName = \"MuonAlignmentFromReference_outputdb.xml\"
 process.MuonGeometryDBConverter.outputXML.relativeto = \"ideal\"
@@ -243,6 +242,29 @@ process.PoolDBESSource.toGet = cms.VPSet(
     cms.PSet(record = cms.string(\"CSCAlignmentErrorRcd\"), tag = cms.string(\"CSCAlignmentErrorRcd\")),
       )
 """)
+#     file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
+# process.load(\"Configuration.StandardSequences.FrontierConditions_GlobalTag_cff\")
+# process.GlobalTag.globaltag = cms.string(\"%s\")
+# del process.inertGlobalPositionRcd
+
+# process.PoolDBESSource.connect = \"sqlite_file:MuonAlignmentFromReference_outputdb.db\"
+# process.MuonGeometryDBConverter.outputXML.fileName = \"MuonAlignmentFromReference_outputdb.xml\"
+# process.MuonGeometryDBConverter.outputXML.relativeto = \"ideal\"
+# process.MuonGeometryDBConverter.outputXML.suppressDTChambers = False
+# process.MuonGeometryDBConverter.outputXML.suppressDTSuperLayers = True
+# process.MuonGeometryDBConverter.outputXML.suppressDTLayers = True
+# process.MuonGeometryDBConverter.outputXML.suppressCSCChambers = False
+# process.MuonGeometryDBConverter.outputXML.suppressCSCLayers = True
+
+# process.MuonGeometryDBConverter.getAPEs = True
+# process.PoolDBESSource.toGet = cms.VPSet(
+#     cms.PSet(record = cms.string(\"DTAlignmentRcd\"), tag = cms.string(\"DTAlignmentRcd\")),
+#     cms.PSet(record = cms.string(\"DTAlignmentErrorRcd\"), tag = cms.string(\"DTAlignmentErrorRcd\")),
+#     cms.PSet(record = cms.string(\"CSCAlignmentRcd\"), tag = cms.string(\"CSCAlignmentRcd\")),
+#     cms.PSet(record = cms.string(\"CSCAlignmentErrorRcd\"), tag = cms.string(\"CSCAlignmentErrorRcd\")),
+#       )
+# process.es_prefer = cms.ESPrefer(\"PoolDBESSource\")
+# """ % globalTag)
 
     file("%salign.sh" % directory, "w").write("""#!/bin/sh
 # %(commandline)s
