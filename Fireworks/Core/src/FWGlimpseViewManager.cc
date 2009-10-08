@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.16 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.17 2009/04/07 14:07:28 chrjones Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 #include <boost/bind.hpp>
 #include <algorithm>
 #include "TView.h"
-#include "TList.h"
 #include "TEveManager.h"
 #include "TClass.h"
 
@@ -28,7 +27,6 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
-#include "TEveSelection.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 
 #include "Fireworks/Core/interface/FWGlimpseDataProxyBuilderFactory.h"
@@ -52,7 +50,6 @@
 FWGlimpseViewManager::FWGlimpseViewManager(FWGUIManager* iGUIMgr) :
    FWViewManagerBase(),
    m_elements("Glimpse"),
-   m_eveSelection(0),
    m_selectionManager(0),
    m_scaler(1.0)
 {
@@ -197,53 +194,6 @@ FWGlimpseViewManager::colorsChanged()
    }
 }
 
-
-void
-FWGlimpseViewManager::selectionAdded(TEveElement* iElement)
-{
-   //std::cout <<"selection added"<<std::endl;
-   if(0!=iElement) {
-      void* userData=iElement->GetUserData();
-      //std::cout <<"  user data "<<userData<<std::endl;
-      if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( not id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   selecting"<<std::endl;
-
-            id->select();
-            m_eveSelection->BlockSignals(last);
-         }
-      }
-   }
-}
-
-void
-FWGlimpseViewManager::selectionRemoved(TEveElement* iElement)
-{
-   //std::cout <<"selection removed"<<std::endl;
-   if(0!=iElement) {
-      void* userData=iElement->GetUserData();
-      if(0 != userData) {
-         FWModelId* id = static_cast<FWModelId*>(userData);
-         if( id->item()->modelInfo(id->index()).isSelected() ) {
-            bool last = m_eveSelection->BlockSignals(kTRUE);
-            //std::cout <<"   removing"<<std::endl;
-            id->unselect();
-            m_eveSelection->BlockSignals(last);
-         }
-      }
-   }
-
-}
-
-void
-FWGlimpseViewManager::selectionCleared()
-{
-   if(0!= m_selectionManager) {
-      m_selectionManager->clearSelection();
-   }
-}
 
 FWTypeToRepresentations
 FWGlimpseViewManager::supportedTypesAndRepresentations() const
