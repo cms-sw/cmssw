@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWElectronDetailView
-// $Id: FWElectronDetailView.cc,v 1.38 2009/09/16 21:56:02 amraktad Exp $
+// $Id: FWElectronDetailView.cc,v 1.39 2009/09/24 20:19:07 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -27,13 +27,15 @@
 // Fireworks includes
 #include "Fireworks/Electrons/plugins/FWElectronDetailView.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 //
 // constructors and destructor
 //
-FWElectronDetailView::FWElectronDetailView()
+FWElectronDetailView::FWElectronDetailView():
+m_viewer(0)
 {
 }
 
@@ -90,24 +92,25 @@ void FWElectronDetailView::build(const FWModelId &id, const reco::GsfElectron* i
    
    // draw axis at the window corners
    // std::cout << "TEveViewer: " << viewer << std::endl;
-   TGLViewer* glv =  viewer->GetGLViewer();
+   m_viewer =  viewer->GetGLViewer();
    TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
    overlay->SetShowPlane(kFALSE);
    overlay->SetShowPerspective(kFALSE);
    overlay->SetCaloLego(lego);
    overlay->SetShowScales(1); // temporary
-   glv->AddOverlayElement(overlay);
+   m_viewer->AddOverlayElement(overlay);
 
    // set event handler and flip camera to top view at beginning
-   glv->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+   m_viewer->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    TEveLegoEventHandler* eh = 
-      new TEveLegoEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv, lego);
-   glv->SetEventHandler(eh);
-   glv->UpdateScene();
-   glv->CurrentCamera().Reset();
+      new TEveLegoEventHandler((TGWindow*)m_viewer->GetGLWidget(), (TObject*)m_viewer, lego);
+   m_viewer->SetEventHandler(eh);
+   m_viewer->UpdateScene();
+   m_viewer->CurrentCamera().Reset();
 
    scene->Repaint(true);
-   viewer->GetGLViewer()->RequestDraw(TGLRnrCtx::kLODHigh);
+
+   m_viewer->RequestDraw(TGLRnrCtx::kLODHigh);
    gEve->Redraw3D();
    
    ////////////////////////////////////////////////////////////////////////
@@ -455,6 +458,12 @@ FWElectronDetailView::addInfo(const reco::GsfElectron *i, TEveElementList* tList
 	eldirection->SetMarkerColor(kYellow);
 	tList->AddElement(eldirection);
      }
+}
+
+void
+FWElectronDetailView::setBackgroundColor(Color_t col)
+{
+   FWColorManager::setColorSetViewer(m_viewer, col);
 }
 
 REGISTER_FWDETAILVIEW(FWElectronDetailView);

@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.15 2009/09/16 21:56:04 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.16 2009/09/24 20:19:07 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -15,17 +15,20 @@
 #include "TEveCaloLegoOverlay.h"
 #include "TRootEmbeddedCanvas.h"
 #include "TEveLegoEventHandler.h"
+
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "Fireworks/Electrons/plugins/FWPhotonDetailView.h"
+
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-
+#include "Fireworks/Core/interface/FWColorManager.h"
 //
 // constructors and destructor
 //
-FWPhotonDetailView::FWPhotonDetailView()
+FWPhotonDetailView::FWPhotonDetailView():
+m_viewer(0)
 {
 }
 
@@ -173,5 +176,10 @@ FWPhotonDetailView::addInfo(const reco::Photon *i, TEveElementList* tList)
    tList->AddElement(seedposition);
 }
 
+void
+FWPhotonDetailView::setBackgroundColor(Color_t col)
+{
+   FWColorManager::setColorSetViewer(m_viewer, col);
+}
 
 REGISTER_FWDETAILVIEW(FWPhotonDetailView);
