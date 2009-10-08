@@ -3,13 +3,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondTools/Luminosity/interface/LumiRetrieverFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
-//#include <iostream>
-lumi::LumiSectionDataHandler::LumiSectionDataHandler(const edm::ParameterSet& pset):m_name(pset.getParameter<std::string>("lumiRetrieverName")){
-  m_to_transfer.reserve(100);
+lumi::LumiSectionDataHandler::LumiSectionDataHandler(const edm::ParameterSet& pset):m_name(pset.getParameter<std::string>("lumiRetrieverName")),m_asseed(pset.getParameter<bool>("allowForceFirstSince")){
+  m_to_transfer.reserve(300);
   m_datareader=lumi::LumiRetrieverFactory::get()->create( m_name,pset );
-  //m_datareaderPSet=edm::getParameterSet( m_datareader->parametersetId() );
-  //m_runnumber=retrieverPSet.getParameter<int>("RunNumber");
-  //m_lumiversionnumber=(short)retrieverPSet.getParameter<int>("lumiVersionNumber");
 }
 
 lumi::LumiSectionDataHandler::~LumiSectionDataHandler()
@@ -19,11 +15,17 @@ lumi::LumiSectionDataHandler::~LumiSectionDataHandler()
 
 void
 lumi::LumiSectionDataHandler::getNewObjects(){
-  std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> > result;
-  m_datareader->fill(result);
-  std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >::const_iterator iBeg=result.begin();
-  std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >::const_iterator iEnd=result.end();
-  std::copy(result.begin(),result.end(),std::back_inserter(m_to_transfer));
+  if(m_asseed){
+    if( tagInfo().size==0 ){
+      //if it is a new tag, force the *first* since to the begin of time
+     m_userTextLog = m_datareader->fill(m_to_transfer,true);
+     m_userTextLog += ";firstSince ajusted";
+    }else{
+      m_userTextLog = m_datareader->fill(m_to_transfer,false);
+    }
+  }else{
+    m_userTextLog = m_datareader->fill(m_to_transfer,false);
+  }
 }
 
 std::string 

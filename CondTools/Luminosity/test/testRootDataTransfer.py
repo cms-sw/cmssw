@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:testroot.db'
+process.CondDBCommon.connect = 'sqlite_file:offlinelumi.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
@@ -25,12 +25,13 @@ process.source = cms.Source("EmptyIOVSource",
 process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('rootsource'),
-      lumiFileName = cms.string('/castor/cern.ch/cms/store/lumi/200910/CMS_LUMI_RAW_20091007_001119982_0001_1.root')
-    ),
+      lumiFileName = cms.string('/castor/cern.ch/cms/store/lumi/200910/CMS_LUMI_RAW_20091008_001119983_0001_1.root'),
+      allowForceFirstSince = cms.bool(True)
+    ),                                          
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),
     record = cms.string('LumiSectionData'),                     
-    loggingOn = cms.untracked.bool(False),
+    loggingOn = cms.untracked.bool(True),
     debug = cms.bool(False)
 )
 

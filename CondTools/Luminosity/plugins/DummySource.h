@@ -11,7 +11,8 @@ namespace lumi{
   public:
     explicit DummySource(const edm::ParameterSet& pset);
     virtual ~DummySource(){}
-    void fill(std::vector< std::pair< lumi::LumiSectionData*,cond::Time_t > >& result);
+    //return a operation comment string to be injected in the log file 
+    const std::string fill(std::vector< std::pair< lumi::LumiSectionData*,cond::Time_t > >& result, bool allowForceFirstSince=false);
   private:
     std::string m_lumiversion;
     size_t m_runnumber;

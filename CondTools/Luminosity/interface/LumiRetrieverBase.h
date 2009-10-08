@@ -10,7 +10,8 @@ namespace lumi{
   public:
     explicit LumiRetrieverBase(const edm::ParameterSet& pset):m_pset(pset){}
     virtual ~LumiRetrieverBase(){}
-    virtual void fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t > >& result)=0;
+    virtual const std::string 
+      fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t > >& result,  bool allowForceFirstSince=false )=0;
     edm::ParameterSetID parametersetId() const;
   protected:
     const edm::ParameterSet& m_pset;

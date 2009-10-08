@@ -28,12 +28,12 @@ namespace lumi{
     uint32_t endOrbitnumber;
     uint32_t runNumber;
     uint32_t fillNumber;
-    uint32_t numberCMSLumiSecions;  // number of lumi sections from the trigger
+    uint32_t numberCMSLumiSections;  // number of lumi sections from the trigger
     uint32_t numberLumiDAQLumiSections;
   };
-  
+
   struct RUN_QUALITY {
-    
+
     int HLX;
     int HFLumi;
     int ECAL;
@@ -44,7 +44,7 @@ namespace lumi{
     int CSC;
   };
 
- struct VDM_SCAN_DATA {
+  struct VDM_SCAN_DATA {
 
     int MessageQuality;     
     bool VdmMode; //True when a scan at one of the IPs is imminent, false otherwise
@@ -166,6 +166,7 @@ namespace lumi{
     char pathName[128];
     uint64_t counts;
     uint64_t prescale;
+    uint64_t deadtimecount;
   };
 
   struct LEVEL1_TRIGGER {
@@ -190,6 +191,7 @@ namespace lumi{
     uint32_t PReject;     
     char PrescalerModule[64]; //Name of the prescale module in the path
     uint32_t PSIndex;     //Index into the set of pre defined prescales
+    uint32_t Prescale;
   };
 
   struct HLTRIGGER {
@@ -283,7 +285,6 @@ namespace lumi{
     OCCUPANCY_SECTION occupancy[HCAL_HLX_MAX_HLXS];
     LHC_SECTION lhc[HCAL_HLX_MAX_HLXS];
   };
-
 }//~namespace lumi
 
 #endif //~LUMIDATASTRUCTURES_H

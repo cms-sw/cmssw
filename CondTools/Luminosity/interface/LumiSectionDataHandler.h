@@ -18,9 +18,7 @@ namespace lumi{
   private:
     std::string m_name;
     LumiRetrieverBase* m_datareader;
-    //const edm::ParameterSet& m_datareaderPSet;
-    //int m_runnumber;
-    //short m_lumiversionnumber;
+    bool m_asseed;
   };
 }//ns lumi
 #endif

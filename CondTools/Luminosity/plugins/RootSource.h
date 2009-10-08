@@ -13,7 +13,8 @@ namespace lumi{
   public:
     explicit RootSource(const edm::ParameterSet& pset);
     virtual ~RootSource(){}
-    virtual void fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result);
+    virtual const std::string 
+      fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_t> >& result, bool allowForceFirstSince=false);
   private:
     std::string m_filename;
     TFile* m_source;

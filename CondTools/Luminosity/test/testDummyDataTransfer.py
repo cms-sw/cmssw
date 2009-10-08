@@ -25,13 +25,14 @@ process.source = cms.Source("EmptyIOVSource",
 process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('dummysource'),
-      runNumber = cms.int32(11),
-      lumiVersion = cms.string('1')
+      runNumber = cms.int32(31),
+      lumiVersion = cms.string('1'),
+      allowForceFirstSince = cms.bool(True)
     ),
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),
     record = cms.string('LumiSectionData'),                     
-    loggingOn = cms.untracked.bool(False),
+    loggingOn = cms.untracked.bool(True),
     debug = cms.bool(False)
 )
 
