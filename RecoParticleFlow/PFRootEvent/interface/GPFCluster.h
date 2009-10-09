@@ -6,7 +6,6 @@
   from physical object PFCluster
 */  
  
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h" 
 #include "TMarker.h"

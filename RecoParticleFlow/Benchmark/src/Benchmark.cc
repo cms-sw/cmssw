@@ -10,9 +10,20 @@
 using namespace std;
 
 
+Benchmark::~Benchmark() {
 
-Benchmark::~Benchmark() {}
+}
 
+
+void Benchmark::setFile(TFile* file) {
+  file_ = file;
+  DQM_ = 0; 
+} 
+
+void Benchmark::setDirectory(TDirectory* dir) {
+  dir_ = dir;
+  DQM_ = 0; 
+} 
 
 TH1F* Benchmark::book1D(const char* histname, const char* title, 
 			int nbins, float xmin, float xmax) {
@@ -21,9 +32,15 @@ TH1F* Benchmark::book1D(const char* histname, const char* title,
     cout<<"booking "<<histname<<endl;
     return DQM_->book1D(histname,title,nbins,xmin, xmax)->getTH1F();
   }
-  else {
-    return new TH1F(histname, title, nbins, xmin, xmax);
+  else if(dir_){
+    TDirectory *oldpwd = gDirectory; 
+    dir_->cd();
+    TH1F *hist =  new TH1F(histname, title, nbins, xmin, xmax);
+    cout<<"booking (ROOT mode) "<<histname<<" in "<<dir_->GetName()<<endl;
+    oldpwd->cd();
+    return hist;
   }
+  else assert(0);
 }
 
 TH2F* Benchmark::book2D(const char* histname, const char* title, 
@@ -31,19 +48,25 @@ TH2F* Benchmark::book2D(const char* histname, const char* title,
 			int nbinsy, float ymin, float ymax ) {
   // DQM_ has to be initialized in a child analyzer.
   if(DQM_) {
-    cout<<"booking "<<histname<<endl;
+    cout<<"booked "<<histname<<endl;
     return DQM_->book2D(histname,title,nbinsx,xmin, xmax, nbinsy, ymin, ymax)->getTH2F();
   }
-  else {
-    return new TH2F(histname, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
+  else if(dir_) {
+    TDirectory *oldpwd = gDirectory; 
+    dir_->cd();
+    TH2F *hist = new TH2F(histname, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax);
+    cout<<"booked (ROOT mode) "<<histname<<" in "<<dir_->GetName()<<endl;
+    oldpwd->cd();
+    return hist;
   }
+  else assert(0);
 }
 
 
-void Benchmark::write(std::string fileName) {
+void Benchmark::write() {
   //COLIN not sure about the root mode 
   if( file_ )
-    file_->Write();
+    dir_->Write();
 
   //COLIN remove old bullshit:
 //   if ( ame.size() != 0 && file_)

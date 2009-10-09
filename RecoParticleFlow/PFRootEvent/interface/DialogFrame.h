@@ -14,11 +14,11 @@
 #include <TGraph.h>
 #include <RQ_OBJECT.h>
 
-#include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 
 #include <string>
 
+class PFRootEventManager; 
+class DisplayManager; 
 
 class DialogFrame  : public TGMainFrame {
   RQ_OBJECT("DialogFrame")

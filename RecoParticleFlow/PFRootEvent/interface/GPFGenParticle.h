@@ -8,7 +8,6 @@
 
 #include <string> 
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h" 
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "TMarker.h"
 #include "TLatex.h"
 #include "TLine.h"

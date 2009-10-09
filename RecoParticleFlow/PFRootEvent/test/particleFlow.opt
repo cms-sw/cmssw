@@ -1,5 +1,5 @@
 
-root outfile tauBenchmark.root
+root outfile benchmark.root
 root outtree 1
 
 //colin	mode 1
@@ -496,6 +496,11 @@ pfmet_benchmark deltaphicut 3.8
 pfmet_benchmark trueMetIgnoreParticlesIDs 1 2 3 4 5 6 12 14 16 21 39 1000022
 pfmet_benchmark trueMetSpecificIdCut 13
 pfmet_benchmark trueMetSpecificEtaCut 2.4
+
+// PFCandidateBenchmark options   ------------------------------------------
+
+pfCandidate_benchmark on/off		1
+pfCandidate_benchmark subdirectory	Currently_not_used
 
 // FWLITE CMSSW Jet Algorithm options --------------------------------------
 

@@ -5,7 +5,6 @@
   class to create graphic  object
   from physical object PFRecHit
 */  
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h" 
 #include "TGraph.h"

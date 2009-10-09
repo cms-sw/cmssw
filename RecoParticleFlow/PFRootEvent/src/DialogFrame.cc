@@ -6,6 +6,9 @@
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
 
+#include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
+
 #include <TROOT.h>
 #include <TTree.h>
 #include "TLine.h"

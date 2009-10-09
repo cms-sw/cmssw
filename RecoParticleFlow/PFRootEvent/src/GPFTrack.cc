@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "TPad.h"
 #include "TObject.h"
 #include "TGraph.h"

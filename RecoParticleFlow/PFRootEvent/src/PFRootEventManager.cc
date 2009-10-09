@@ -164,7 +164,7 @@ void PFRootEventManager::readOptions(const char* file,
       // cout<<"don't do tree"<<endl;
     }
   }
-// PFJet benchmark options and output jetfile to be open before input file!!!--
+  // PFJet benchmark options and output jetfile to be open before input file!!!--
 
   doPFJetBenchmark_ = false;
   options_->GetOpt("pfjet_benchmark", "on/off", doPFJetBenchmark_);
@@ -201,7 +201,8 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("pfmet_benchmark", "on/off", doPFMETBenchmark_);
   
   if (doPFMETBenchmark_) {
-
+    //COLIN : looks like this benchmark is not written in the standard output file. Any particular reason for it? 
+    
     doMet_ = false;
     options_->GetOpt("MET", "on/off", doMet_);
 
@@ -230,6 +231,7 @@ void PFRootEventManager::readOptions(const char* file,
     DeltaPhicut = 0.8;
     options_->GetOpt("pfmet_benchmark", "deltaphicut", DeltaPhicut);
     
+
     std::vector<unsigned int> vIgnoreParticlesIDs;
     options_->GetOpt("pfmet_benchmark", "trueMetIgnoreParticlesIDs", vIgnoreParticlesIDs);
     //std::cout << "FL: vIgnoreParticlesIDs.size() = " << vIgnoreParticlesIDs.size() << std::endl;
@@ -243,6 +245,19 @@ void PFRootEventManager::readOptions(const char* file,
     if (trueMetSpecificIdCut.size()!=trueMetSpecificEtaCut.size()) std::cout << "Warning: PFRootEventManager: trueMetSpecificIdCut.size()!=trueMetSpecificEtaCut.size()" << std::endl;
     else metManager_->SetSpecificIdCut(&trueMetSpecificIdCut,&trueMetSpecificEtaCut);
 
+  }
+
+  doPFCandidateBenchmark_ = true;
+  options_->GetOpt("pfCandidate_benchmark", "on/off", doPFCandidateBenchmark_); 
+  if (doPFCandidateBenchmark_) {    
+    cout<<"+++ Setting PFCandidate benchmark"<<endl;
+    TDirectory* dir = outFile_->mkdir("DQMData");
+    dir = dir->mkdir("PFTask");    
+    dir = dir->mkdir("Benchmarks");
+    dir = dir->mkdir("particleFlow");
+    pfCandidateBenchmark_.setDirectory( dir );
+    pfCandidateBenchmark_.setup();
+    //COLIN need to set the subdirectory.  
   }
 
   // input root file --------------------------------------------
@@ -1473,15 +1488,17 @@ void PFRootEventManager::write() {
 
   if(doPFJetBenchmark_) PFJetBenchmark_.write();
   if(doPFMETBenchmark_) metManager_->write();
-
-  if(!outFile_) return;
-  else {
-    outFile_->cd(); 
-    // write histos here
-    cout<<"writing output to "<<outFile_->GetName()<<endl;
-    h_deltaETvisible_MCEHT_->Write();
-    h_deltaETvisible_MCPF_->Write();
-    if(outTree_) outTree_->Write();
+  
+  
+  if(outFile_) {
+    outFile_->Write();
+//     outFile_->cd(); 
+//     // write histos here
+//     cout<<"writing output to "<<outFile_->GetName()<<endl;
+//     h_deltaETvisible_MCEHT_->Write();
+//     h_deltaETvisible_MCPF_->Write();
+//     if(outTree_) outTree_->Write();
+//     if(doPFCandidateBenchmark_) pfCandidateBenchmark_.write();
   }
 }
 
@@ -1558,11 +1575,12 @@ bool PFRootEventManager::processEntry(int entry) {
   // call print() in verbose mode
   if( verbosity_ == VERBOSE ) print();
   
-  // evaluate PFJet Benchmark 
+  //COLIN the PFJet and PFMET benchmarks are very messy. 
+  //COLIN    compare with the filling of the PFCandidateBenchmark, which is one line. 
   
+  // evaluate PFJet Benchmark 
   if(doPFJetBenchmark_) { // start PFJet Benchmark
 
-          
     PFJetBenchmark_.process(pfJets_, genJets_);
     double resPt = PFJetBenchmark_.resPtMax();
     double resChargedHadEnergy = PFJetBenchmark_.resChargedHadEnergyMax();
@@ -1595,6 +1613,8 @@ bool PFRootEventManager::processEntry(int entry) {
     //   else return false;
   }// end PFJet Benchmark
 
+  //COLIN would  be nice to move this long code to a separate function. 
+  // is it necessary to re-set everything at each event?? 
   if(doPFMETBenchmark_) { // start PFMet Benchmark
 
     // Fill here the various met benchmarks
@@ -1624,6 +1644,10 @@ bool PFRootEventManager::processEntry(int entry) {
       metManager_->FillHisto("corrCalo");
     }
   }// end PFMET Benchmark
+
+  if( doPFCandidateBenchmark_ ) {
+    pfCandidateBenchmark_.fill( *pfCandidates_ );
+  }
     
   // evaluate tau Benchmark   
   if( goodevent && doTauBenchmark_) { // start tau Benchmark
@@ -2568,7 +2592,7 @@ PFRootEventManager::reconstructFWLiteJets(const reco::CandidatePtrVector& Candid
 
 
 
-
+///COLIN need to get rid of this mess. 
 double 
 PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates) {
   //std::cout << "building jets from MC particles," 
@@ -2618,7 +2642,7 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
     }
     
     if(!tauFound || tooManyTaus ) {
-      cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
+      // cerr<<"PFRootEventManager::tauBenchmark : not a single tau event"<<endl;
       return -9999;
     }
     

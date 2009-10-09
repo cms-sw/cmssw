@@ -6,6 +6,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 /// To plot specific PFCandidate quantities
+/// the name of the histograms corresponds to the name of the
+/// PFCandidate accessors. 
 class PFCandidateBenchmark : public CandidateBenchmark {
 
  public:

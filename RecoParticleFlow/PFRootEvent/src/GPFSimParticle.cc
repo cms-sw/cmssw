@@ -1,4 +1,5 @@
 #include "RecoParticleFlow/PFRootEvent/interface/GPFSimParticle.h"
+#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "TPad.h"
 #include "TObject.h"
 #include "TGraph.h"

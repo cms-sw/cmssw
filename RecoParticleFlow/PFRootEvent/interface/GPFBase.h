@@ -8,8 +8,8 @@
 #include <TAttLine.h>
 #include <TAttMarker.h>
  
-#include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 
+class DisplayManager;
 
 class GPFBase {
 

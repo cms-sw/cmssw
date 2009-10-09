@@ -11,6 +11,7 @@ class TH1F;
 class TH2;
 class TH2F;
 class TFile; 
+class TDirectory;
 
 class DQMStore; 
 
@@ -24,13 +25,15 @@ class Benchmark{
   virtual ~Benchmark();
 
 
-  void write(std::string Filename);
   
   /// call this function after construction to use the plain root mode
-  void setfile(TFile *file) {
-    file_ = file;
-    DQM_ = 0; 
-  }
+  ///COLIN this interface is in principle quite dangerous, as it allows to modify the TFile from inside the class. Any other possibility?
+  void setFile(TFile *file);
+
+  void setDirectory(TDirectory* dir);
+  
+  /// write to the TFile, in plain ROOT mode. No need to call this function in DQM mode
+  void write();
 
  protected:
 
@@ -45,6 +48,8 @@ class Benchmark{
 
   ///COLIN replace by shared_ptr
   TFile* file_;
+
+  TDirectory* dir_;
 
   /// must be initialized in child EDAnalyzers. Otherwise: plain root mode
   DQMStore *DQM_; 

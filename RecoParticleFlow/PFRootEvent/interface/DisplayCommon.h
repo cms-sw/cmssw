@@ -22,7 +22,7 @@ enum ObjType {
   GENPARTICLEID
 };   
 
-const uint SHIFTID=26;
+const unsigned int SHIFTID=26;
 const int HITTYPES=5;
              
 #endif
