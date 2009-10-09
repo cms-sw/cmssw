@@ -7,6 +7,48 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
 					 const SteppingHelixStateInfo* initialState
 					 ) const
 {
+   const std::vector<GlobalPoint>& points = getDetIdPoints(id);
+   // fast check
+   bool xLess(false), xIn(false), xMore(false);
+   bool yLess(false), yIn(false), yMore(false);
+   bool zLess(false), zIn(false), zMore(false);
+   double xMin(point1.x()), xMax(point2.x());
+   double yMin(point1.y()), yMax(point2.y());
+   double zMin(point1.z()), zMax(point2.z());
+   if ( xMin>xMax ) std::swap(xMin,xMax);
+   if ( yMin>yMax ) std::swap(yMin,yMax);
+   if ( zMin>zMax ) std::swap(zMin,zMax);
+   for ( std::vector<GlobalPoint>::const_iterator it = points.begin();
+	 it != points.end(); ++it ){
+     if ( it->x()<xMin ){
+       xLess = true;
+     } else {
+       if ( it->x()>xMax )
+	 xMore = true;
+       else
+	 xIn = true;
+     }
+     if ( it->y()<yMin ){
+       yLess = true;
+     } else {
+       if ( it->y()>yMax )
+	 yMore = true;
+       else
+	 yIn = true;
+     }
+     if ( it->z()<zMin ){
+       zLess = true;
+     } else {
+       if ( it->z()>zMax )
+	 zMore = true;
+       else
+	 zIn = true;
+     }
+   }
+   if ( ( (xLess && !xIn && !xMore) || (!xLess && !xIn && xMore) ) ||
+	( (yLess && !yIn && !yMore) || (!yLess && !yIn && yMore) ) ||
+	( (zLess && !zIn && !zMore) || (!zLess && !zIn && zMore) ) ) return false;
+
    // Define plane normal to the trajectory direction at the first point
    GlobalVector vector = (point2-point1).unit();
    float r21 = 0;
@@ -48,14 +90,13 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
    }
    
    // distance between the points.
-   double trajectorySegmentLength = vector.mag();
+   double trajectorySegmentLength = (point2-point1).mag();
 
    // we need to find the angle that covers all points. 
    // if it's bigger than 180 degree, we are inside
    // otherwise we are outside, i.e. the volume is not crossed
    bool allBehind = true;
    bool allTooFar = true;
-   const std::vector<GlobalPoint>& points = getDetIdPoints(id);
    std::vector<GlobalPoint>::const_iterator p = points.begin();
    if ( p == points.end() ) {
       edm::LogWarning("TrackAssociator") << "calo geometry for element " << id.rawId() << "is empty. Ignored"; 
