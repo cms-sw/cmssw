@@ -14,7 +14,7 @@
 <use name=FWCore/MessageLogger>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
-<use name=PhysicsTools/CandUtils>
+<use name=CommonTools/CandUtils>
 <use name=RecoVertex/AdaptiveVertexFit>
 <use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/VertexPrimitives>
@@ -36,7 +36,7 @@
   <use name=FWCore/MessageLogger>
   <use name=MagneticField/Records>
   <use name=MagneticField/VolumeBasedEngine>
-  <use name=PhysicsTools/CandUtils>
+  <use name=CommonTools/CandUtils>
   <use name=RecoVertex/AdaptiveVertexFit>
   <use name=RecoVertex/KalmanVertexFit>
   <use name=RecoVertex/VertexPrimitives>
