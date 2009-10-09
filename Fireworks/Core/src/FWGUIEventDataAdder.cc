@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.24 2009/09/23 20:28:17 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.25 2009/10/08 21:19:56 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include <sigc++/signal.h>
 #include <boost/bind.hpp>
+#include <algorithm>
 #include "TGFrame.h"
 #include "TGTextEntry.h"
 #include "TGLabel.h"
@@ -242,6 +243,16 @@ FWGUIEventDataAdder::FWGUIEventDataAdder(
 FWGUIEventDataAdder::~FWGUIEventDataAdder()
 {
    delete m_typeAndReps;
+
+   /*
+    // m_frame->Cleanup();
+    // delete m_frame;
+    m_frame=0;
+    // delete m_tableWidget;
+    m_tableWidget=0;
+    delete m_tableManager;
+    m_tableManager=0;
+    */
 }
 
 //
@@ -317,7 +328,6 @@ FWGUIEventDataAdder::show()
    // Map main frame
    if(0==m_frame) {
       createWindow();
-      //m_tableWidget->Reinit();
    }
    m_frame->MapWindow();
 }
@@ -335,15 +345,6 @@ FWGUIEventDataAdder::windowIsClosing()
    
    m_frame->UnmapWindow();
    m_frame->DontCallClose();
-   /*
-      // m_frame->Cleanup();
-      // delete m_frame;
-      m_frame=0;
-      // delete m_tableWidget;
-      m_tableWidget=0;
-      delete m_tableManager;
-      m_tableManager=0;
-    */
 }
 
 
@@ -351,8 +352,6 @@ void
 FWGUIEventDataAdder::createWindow()
 {
    m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
-   // m_frame->MapWindow();
-   //m_frame->SetCleanup(kDeepCleanup);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
@@ -368,22 +367,6 @@ FWGUIEventDataAdder::createWindow()
    m_doNotUseProcessName= new TGCheckButton(vf,"Do not use Process Name and instead only get this data from the most recent Process",1);
    m_doNotUseProcessName->SetState(kButtonDown);
    vf->AddFrame(m_doNotUseProcessName);
-   /*
-   hints[index]=addToFrame(vf, "Purpose:", m_purpose,widths[index]);
-   if(widths[index] > maxWidth) {maxWidth = widths[index];}
-   ++index;
-   hints[index]=addToFrame(vf,"C++ type:",m_type,widths[index]);
-   if(widths[index] > maxWidth) {maxWidth = widths[index];}
-   ++index;
-   hints[index]=addToFrame(vf,"Module label:",m_moduleLabel,widths[index]);
-   if(widths[index] > maxWidth) {maxWidth = widths[index];}
-   ++index;
-   hints[index]=addToFrame(vf,"Product instance label:",m_productInstanceLabel,widths[index]);
-   if(widths[index] > maxWidth) {maxWidth = widths[index];}
-   ++index;
-   hints[index]=addToFrame(vf,"Process name:",m_processName,widths[index]);
-   if(widths[index] > maxWidth) {maxWidth = widths[index];}
-    */
    std::vector<unsigned int>::iterator itW = widths.begin();
    for(std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
        itH != itEnd;
@@ -419,9 +402,6 @@ FWGUIEventDataAdder::createWindow()
    // Initialize the layout algorithm
    m_frame->Layout();
 
-   // Initialize the layout algorithm
-   //m_frame->Resize(m_frame->GetDefaultSize());
-
 }
 
 void
@@ -441,7 +421,8 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
    if(0!=m_presentEvent) {
       const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
       assert(0!=history.size());
-      m_lastProcessNameInFile = history.back();
+      std::copy(history.rbegin(),history.rend(),
+                std::back_inserter(m_processNamesInFile));
       
       static const std::string s_blank;
       const std::vector<edm::BranchDescription>& branches =
@@ -499,8 +480,6 @@ FWGUIEventDataAdder::fillData(const TFile* iFile)
       }
       m_tableManager->reset();
       m_tableManager->sort(0,true);
-      //m_tableWidget->dataChanged();
-      //m_tableWidget->Reinit();
    }
 }
 
@@ -519,14 +498,44 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
          m_name->SetText(m_moduleLabel.c_str());
       }
       m_apply->SetEnabled(true);
-      //if(m_lastProcessNameInFile == m_processName) {
-      //   m_doNotUseProcessName->SetEnabled(true);
-      //} else {
-      //   m_doNotUseProcessName->SetEnabled(false);
-      //}
-      //std::set<int> selectedRows;
-      //selectedRows.insert(m_tableManager->selectedRow());
-      //m_tableWidget->SelectRows(selectedRows);
+      
+      //Check to see if this is the last process, if it is then we can let the user decide
+      // to not use the process name when doing the lookup.  This makes a saved configuration
+      // more robust.  However, if the chose a collection not from the last process we need the
+      // process name in order to correct get the data they want
+      bool isMostRecentProcess =true;
+      int index = 0;
+      for(std::vector<Data>::iterator it = m_useableData.begin(), itEnd = m_useableData.end();
+          it != itEnd && isMostRecentProcess;
+          ++it,++index) {
+         if(index == iSelectedIndex) {continue;}
+         if(it->moduleLabel_ == m_moduleLabel &&
+            it->purpose_ == m_purpose &&
+            it->type_ == m_type &&
+            it->productInstanceLabel_ == m_productInstanceLabel) {
+            //see if this process is newer than the data requested
+            for(std::vector<std::string>::iterator itHist = m_processNamesInFile.begin(),itHistEnd = m_processNamesInFile.end();
+                itHist != itHistEnd;
+                ++itHist) {
+               if (m_processName == *itHist) {
+                  break;
+               }
+               if(it->processName_ == *itHist) {
+                  isMostRecentProcess = false;
+                  break;
+               }
+            }
+         }
+      }
+      if(isMostRecentProcess) {
+         if(!m_doNotUseProcessName->IsEnabled()) {
+            m_doNotUseProcessName->SetEnabled(true);
+         }
+      } else {
+         //NOTE: must remember state before we get here because 'enable' and 'on' are mutually
+         // exlcusive :(
+         m_doNotUseProcessName->SetEnabled(false);
+      }
    }
 }
 
