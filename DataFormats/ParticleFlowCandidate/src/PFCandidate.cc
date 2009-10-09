@@ -67,6 +67,7 @@ PFCandidate::PFCandidate( Charge charge,
   /*       ,elementIndices_(elementIndices)  */ 
 {
 
+  
   // proceed with various consistency checks
 
   // charged candidate: track ref and charge must be non null
@@ -89,7 +90,7 @@ PFCandidate::PFCandidate( Charge charge,
       throw cms::Exception("InconsistentValue",
 			   err.c_str() );
     } 
-  }
+  }  
   setPdgId( translateTypeToPdgId( particleId_ ) );
 }
 
@@ -109,11 +110,11 @@ void PFCandidate::addElementInBlock( const reco::PFBlockRef& blockref,
 int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
   
   int thecharge = charge();
-  
+
   switch( type ) {
   case h:     return thecharge*211; // pi+
-  case e:     return thecharge*11;
-  case mu:    return thecharge*13;
+  case e:     return thecharge*(-11);
+  case mu:    return thecharge*(-13);
   case gamma: return 22;
   case h0:    return 130; // K_L0
   case h_HF:         return 130; // dummy pdg code 
