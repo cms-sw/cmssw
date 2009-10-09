@@ -81,11 +81,11 @@ fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
 }
 
 float StripCPE::
-lateFrontPlane(SiStripDetId subdet) const {
-  return late[subdet.subDetector()-SiStripDetId::TIB].first;
+lateFrontPlane(SiStripDetId::SubDetector subdet) const {
+  return late[subdet-SiStripDetId::TIB].first;
 }
 
 float StripCPE::
-lateBackPlane(SiStripDetId subdet) const {
-  return late[subdet.subDetector()-SiStripDetId::TIB].second;
+lateBackPlane(SiStripDetId::SubDetector subdet) const {
+  return late[subdet-SiStripDetId::TIB].second;
 }

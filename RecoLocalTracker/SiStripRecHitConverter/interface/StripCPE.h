@@ -38,8 +38,8 @@ public:
     float coveredStrips(const LocalVector&, const LocalPoint&) const;
   };
   Param const & param(const uint32_t detid) const;
-  float lateFrontPlane(SiStripDetId) const;
-  float lateBackPlane(SiStripDetId) const;
+  float lateFrontPlane(SiStripDetId::SubDetector) const;
+  float lateBackPlane(SiStripDetId::SubDetector) const;
 
 private:
 
