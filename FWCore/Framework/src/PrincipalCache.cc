@@ -149,16 +149,8 @@ namespace edm {
       return false;
     }
     bool runOK = iter->second->adjustToNewProductRegistry(*reg);
-    if (runOK) {
-      iter->second->mergeAuxiliary(*aux);
-    } else {
-      boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(aux, reg, iter->second->processConfiguration()));
-      rp->fillFrom(*iter->second);
-      iter->second = rp;
-      runOK = iter->second->adjustToNewProductRegistry(*reg);
-      changedRunPrincipal(rp);
-      assert(runOK);
-    }
+    assert(runOK);
+    iter->second->mergeAuxiliary(*aux);
     currentRunPrincipal_ = iter->second;
     return true;
   }
@@ -172,19 +164,8 @@ namespace edm {
       return false;
     }
     bool lumiOK = iter->second->adjustToNewProductRegistry(*reg);
-    if (lumiOK) {
-      iter->second->mergeAuxiliary(*aux);
-    } else {
-      boost::shared_ptr<LuminosityBlockPrincipal> lbp(
-        new LuminosityBlockPrincipal(aux,
-				     reg,
-				     iter->second->processConfiguration(),
-				     currentRunPrincipal_));
-        lbp->fillFrom(*iter->second);
-        iter->second = lbp;
-        lumiOK = iter->second->adjustToNewProductRegistry(*reg);
-	assert(lumiOK);
-    }
+    assert(lumiOK);
+    iter->second->mergeAuxiliary(*aux);
     currentLumiPrincipal_ = iter->second;
     return true;
   }
@@ -242,29 +223,11 @@ namespace edm {
   }
 
   void PrincipalCache::adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
+    eventPrincipal_->adjustIndexesAfterProductRegistryAddition();
     bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
-    if (!eventOK) {
-      eventPrincipal_.reset(new EventPrincipal(reg, eventPrincipal_->processConfiguration()));
-    }
+    assert(eventOK);
   }
   
-  void PrincipalCache::changedRunPrincipal(boost::shared_ptr<RunPrincipal> iPrincipal)
-  {
-     //NOTE: if we were to have done a swap on the RunPrincipals then this would be unnecessary
-     int theRun = static_cast<int>(iPrincipal->run());
-     //find any luminosity blocks for this run and reset their RunPrincipal pointer
-     LumiIterator itFound = lumiPrincipals_.lower_bound(LumiKey(theRun,0) );
-     if(itFound == lumiPrincipals_.end() || itFound->first.run() != theRun) {
-        return;
-     }
-     for(LumiIterator itEnd = lumiPrincipals_.end(); itFound != itEnd; ++itFound) {
-        if(itFound->first.run() != theRun) {
-           break;
-        }
-        itFound->second->setRunPrincipal(iPrincipal);
-     }
-  }
-
   void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
     for (ConstRunIterator it = runPrincipals_.begin(), itEnd = runPrincipals_.end(); it != itEnd; ++it) {
       it->second->adjustIndexesAfterProductRegistryAddition();

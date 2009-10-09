@@ -90,7 +90,6 @@ namespace edm {
 
   private:
 
-    void changedRunPrincipal(boost::shared_ptr<RunPrincipal>);
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
     typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::iterator LumiIterator;

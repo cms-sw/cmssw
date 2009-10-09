@@ -710,7 +710,8 @@ namespace edm {
           ++itProdInfo) {
         if (itProdInfo->second.branchType() == branchType_) {
           ProductTransientIndex index = preg_->indexFrom(itProdInfo->second.branchID());
-          if (index == ProductRegistry::kInvalidIndex) {
+          assert(index != ProductRegistry::kInvalidIndex);
+          if (!groups_[index]) {
 	    // no group.  Must add one. The new entry must be an input group.
 	    assert(!itProdInfo->second.produced());
             boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));

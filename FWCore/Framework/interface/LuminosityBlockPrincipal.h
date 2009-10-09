@@ -41,8 +41,6 @@ namespace edm {
 	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
-    void fillFrom(LuminosityBlockPrincipal& lbp);
-
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
     }
@@ -93,8 +91,6 @@ namespace edm {
     void readImmediate() const;
 
     void swap(LuminosityBlockPrincipal&);
-
-    void setRunPrincipal(boost::shared_ptr<RunPrincipal>);
   private:
     virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
