@@ -305,12 +305,9 @@ private:
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
-  typedef bool (*MEOrder)(const MonitorElement &a, const MonitorElement &b);
-  static bool meOrder(const MonitorElement &a, const MonitorElement &b);
-
   typedef std::pair<lat::Regexp *, QCriterion *>			QTestSpec;
   typedef std::list<QTestSpec>						QTestSpecs;
-  typedef std::set<MonitorElement, MEOrder>				MEMap;
+  typedef std::set<MonitorElement>					MEMap;
   typedef std::map<std::string, QCriterion *>				QCMap;
   typedef std::map<std::string, QCriterion *(*)(const std::string &)>	QAMap;
  

@@ -81,6 +81,12 @@ public:
   MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
 
+  /// Compare monitor elements, for ordering in sets.
+  bool operator<(const MonitorElement &x) const
+    {
+      return DQMNet::setOrder(data_, x.data_);
+    }
+
   /// Get the type of the monitor element.
   Kind kind(void) const
     { return Kind(data_.flags & DQMNet::DQM_PROP_TYPE_MASK); }

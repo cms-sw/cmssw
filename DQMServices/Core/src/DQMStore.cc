@@ -116,14 +116,6 @@ void
 initQCriterion(std::map<std::string, QCriterion *(*)(const std::string &)> &m)
 { m[T::getAlgoName()] = &makeQCriterion<T>; }
 
-
-//////////////////////////////////////////////////////////////////////
-inline bool
-DQMStore::meOrder(const MonitorElement &a, const MonitorElement &b)
-{
-  return DQMNet::setOrder(a.data_, b.data_);
-}
-
 //////////////////////////////////////////////////////////////////////
 DQMStore *
 DQMStore::instance(void)
@@ -152,8 +144,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     collateHistograms_ (false),
     readSelectedDirectory_ (""),
     outputFileRecreate_ (true),
-    pwd_ (""),
-    data_(meOrder)
+    pwd_ ("")
 {
   assert(! s_instance);
   s_instance = this;
