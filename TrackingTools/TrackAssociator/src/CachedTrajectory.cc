@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.20 2009/09/06 16:32:46 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.21 2009/09/23 15:02:07 dmytro Exp $
 //
 //
 
@@ -433,7 +433,7 @@ void CachedTrajectory::findEcalTrajectory( const FiducialVolume& volume ) {
 
 void CachedTrajectory::findPreshowerTrajectory( const FiducialVolume& volume ) {
    LogTrace("TrackAssociator") << "getting trajectory in Preshower";
-   getTrajectory(preshowerTrajectory_, volume, 4 );
+   getTrajectory(preshowerTrajectory_, volume, 2 );
    LogTrace("TrackAssociator") << "# of points in Preshower trajectory:" << preshowerTrajectory_.size();
 }
 
