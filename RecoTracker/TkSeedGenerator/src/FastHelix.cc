@@ -3,22 +3,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-FastHelix::FastHelix(const GlobalPoint& outerHit,
-		     const GlobalPoint& middleHit,
-		     const GlobalPoint& aVertex,
-		     const edm::EventSetup& iSetup) : theOuterHit(outerHit),
-						      theMiddleHit(middleHit),
-						      theVertex(aVertex),
-						      theCircle(outerHit,
-								middleHit,
-								aVertex) {
-
-		       iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-		       tesla0=pSetup->inTesla(GlobalPoint(0,0,0));
-		     }
 
 FreeTrajectoryState FastHelix::stateAtVertex() const {
   
@@ -57,18 +41,29 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //with Q = rho^2 - (x-x0)^2
   // Check approximate slope to determine whether to use dydx or dxdy
   // Choose the one that goes to 0 rather than infinity.
-  if ( fabs( theCircle.n1()/theCircle.n2() ) < 1.0 ) {
+  double arg1 = rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0());
+  double arg2 = rho*rho - (v.y()-theCircle.y0())*(v.y()-theCircle.y0());
+  if (arg1<0.0 && arg2<0.0) {
+    if(fabs(theCircle.n2()) > 0.) {
+      dydx = -theCircle.n1()/theCircle.n2(); //else px = 0
+      px = pt/sqrt(1. + dydx*dydx);
+      py = px*dydx;
+    } else {
+      px = 0.;
+      py = pt;
+    }
+  } else if ( arg1>arg2 ) {
     if( v.y() > theCircle.y0() )
-      dydx = -(v.x() - theCircle.x0()) / sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
+      dydx = -(v.x() - theCircle.x0()) / sqrt(arg1);
     else
-      dydx = (v.x() - theCircle.x0()) / sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
+      dydx = (v.x() - theCircle.x0()) / sqrt(arg1);
     px = pt/sqrt(1. + dydx*dydx);
     py = px*dydx;
   } else {
     if( v.x() > theCircle.x0() )
-      dxdy = -(v.y() - theCircle.y0()) / sqrt(rho*rho - (v.y()-theCircle.y0())*(v.y()-theCircle.y0()));
+      dxdy = -(v.y() - theCircle.y0()) / sqrt(arg2);
     else
-      dxdy = (v.y() - theCircle.y0()) / sqrt(rho*rho - (v.y()-theCircle.y0())*(v.y()-theCircle.y0()));
+      dxdy = (v.y() - theCircle.y0()) / sqrt(arg2);
     py = pt/sqrt(1. + dxdy*dxdy);
     px = py*dxdy;
   }
@@ -85,13 +80,9 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   //pz = pT*(dz/d(R*phi)))
   
   FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
-  double z_0 = -flfit.c()/flfit.n2();
   double dzdrphi = -flfit.n1()/flfit.n2();
   double pz = pt*dzdrphi;
-
   //get sign of particle
-
-
 
   GlobalVector magvtx=pSetup->inTesla(v);
   TrackCharge q = 
@@ -101,15 +92,22 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   
   AlgebraicSymMatrix C(5,1);
   //MP
-  FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						GlobalVector(px, py, pz),
-						q,
-						&(*pSetup)),
-		     CurvilinearTrajectoryError(C));
-  
 
+  if ( useBasisVertex ) {
+    return FTS(GlobalTrajectoryParameters(basisVertex, 
+						  GlobalVector(px, py, pz),
+						  q, 
+						  &(*pSetup)), 
+		       CurvilinearTrajectoryError(C));
+  } else {
+    double z_0 = -flfit.c()/flfit.n2();
+    return FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(),v.y(),z_0), 
+						  GlobalVector(px, py, pz),
+						  q, 
+						  &(*pSetup)), 
+		       CurvilinearTrajectoryError(C));
+  }
   
-  return atVertex;
 }
 
 FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
@@ -143,18 +141,25 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
   //pz = p*cos(theta) = pt/tan(theta) 
 
   FastLine flfit(theOuterHit, theMiddleHit);
-  double z_0 = -flfit.c()/flfit.n2();
   double dzdr = -flfit.n1()/flfit.n2();
   double pz = pt*dzdr; 
   
   TrackCharge q = 1;
   AlgebraicSymMatrix66 C = AlgebraicMatrixID();
   //MP
-  FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+
+  if ( useBasisVertex ) {
+    return FTS(GlobalTrajectoryParameters(basisVertex, 
+						  GlobalVector(px, py, pz),
+						  q, 
+						  &(*pSetup)), 
+		       CartesianTrajectoryError(C));
+  } else {
+  double z_0 = -flfit.c()/flfit.n2();
+  return FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
 						GlobalVector(px, py, pz),
 						q,
 						&(*pSetup)),
 		     CartesianTrajectoryError());
-  
-  return atVertex;
+  }
 }

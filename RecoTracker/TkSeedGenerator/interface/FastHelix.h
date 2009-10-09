@@ -7,11 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-// You don't really want to know why the rest does not compile on Sun 
-// whthout this method, and why it compiles with it. 
-inline GlobalPoint sun_bullshit( const GlobalPoint point) {
-  return point;
-}
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 /**
    Generation of track parameters at a vertex using two hits and a vertex.
@@ -36,11 +32,39 @@ private:
 
 public:
 
-  FastHelix(const GlobalPoint& outerHit, 
-	    const GlobalPoint& middleHit,
-	    const GlobalPoint& aVertex,
-	    const edm::EventSetup& iSetup);
-  
+
+  //Original constructor (no basis vertex)
+   FastHelix(const GlobalPoint& outerHit,
+		const GlobalPoint& middleHit,
+		const GlobalPoint& aVertex,
+		const edm::EventSetup& iSetup) : theOuterHit(outerHit),
+						 theMiddleHit(middleHit),
+						 theVertex(aVertex),
+						 theCircle(outerHit,
+							   middleHit,
+							   aVertex) {
+		  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
+		  tesla0=pSetup->inTesla(GlobalPoint(0,0,0));
+		  useBasisVertex = false;
+		}
+
+  //New constructor (with basis vertex)
+  FastHelix(const GlobalPoint& outerHit,
+		const GlobalPoint& middleHit,
+		const GlobalPoint& aVertex,
+		const edm::EventSetup& iSetup,
+		const GlobalPoint& bVertex) : theOuterHit(outerHit),
+					      theMiddleHit(middleHit),
+					      theVertex(aVertex),
+					      basisVertex(bVertex),
+					      theCircle(outerHit,
+						        middleHit,
+							aVertex) {
+		  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
+		  tesla0=pSetup->inTesla(GlobalPoint(0,0,0));
+		  useBasisVertex = true;
+		}
+
   ~FastHelix() {}
   
   bool isValid() const {return theCircle.isValid();}
@@ -56,13 +80,12 @@ private:
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;
   GlobalPoint theVertex;
+  GlobalPoint basisVertex;
   FastCircle theCircle;
   edm::ESHandle<MagneticField> pSetup;
   GlobalVector tesla0;
+  bool useBasisVertex;
 };
 
 #endif //TR_FastHelix_H_
-
-
-
 
