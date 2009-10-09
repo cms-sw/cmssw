@@ -494,7 +494,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
              << ",(" << it->getStripFrom(4) << "," << to[4] << ")" // pl5
              << ",(" << it->getStripFrom(5) << "," << to[5] << ")" // pl6
              << ")"  // planes end
-             << ", " << it->getSign()
+             << ", " << sign
              << ", " << it->getCode()
              << ") -- " << globalPatNo++ << std::endl;
        
