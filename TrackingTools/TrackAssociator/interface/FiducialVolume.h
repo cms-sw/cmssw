@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: FiducialVolume.h,v 1.1 2007/03/26 05:29:21 dmytro Exp $
+// $Id: FiducialVolume.h,v 1.2 2007/06/06 22:27:16 dmytro Exp $
 //
 /// The detector active volume is determined estimated as a non-zero thickness 
 /// cylinder with outter dimensions maxZ and maxR. The inner dimensions are
@@ -25,7 +25,8 @@
 
 class FiducialVolume {
  public:
-   FiducialVolume(){ reset(); }
+   FiducialVolume(double tolerance = 1.0):
+     tolerance_(tolerance) { reset(); }
    /// finilize dimension calculations, fixes dimensions in a 
    /// case of missing barrel or endcap
    void determinInnerDimensions();
@@ -35,15 +36,39 @@ class FiducialVolume {
    void addActivePoint( const GlobalPoint& point );
    /// invalidate the volume
    void reset();
-   const double& minR() const { return minR_; }
-   const double& maxR() const { return maxR_; }
-   const double& minZ() const { return minZ_; }
-   const double& maxZ() const { return maxZ_; }
-	
+   double minR(bool withTolerance = true) const 
+     { 
+       if (withTolerance && minR_>tolerance_) 
+	 return minR_-tolerance_;
+       else
+	 return minR_;
+     }
+   double maxR(bool withTolerance = true) const 
+     { 
+       if (withTolerance) 
+	 return maxR_+tolerance_;
+       else
+	 return maxR_;
+     }
+   double minZ(bool withTolerance = true) const 
+     { 
+       if (withTolerance && minZ_>tolerance_)
+	 return minZ_-tolerance_; 
+       else
+	 return minZ_;
+     }
+   double maxZ(bool withTolerance = true) const 
+     { 
+       if (withTolerance)
+	 return maxZ_+tolerance_;
+       else
+	 return maxZ_; 
+     }
  private:
    double minR_;
    double maxR_;
    double minZ_;
    double maxZ_;
+   double tolerance_;
 };
 #endif
