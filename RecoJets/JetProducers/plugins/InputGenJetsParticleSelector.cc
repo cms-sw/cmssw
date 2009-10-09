@@ -35,7 +35,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include <iostream>
 #include <memory>
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
+#include "CommonTools/CandUtils/interface/pdgIdUtils.h"
 
 using namespace std;
 
