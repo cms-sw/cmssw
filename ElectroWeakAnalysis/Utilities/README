@@ -108,13 +108,13 @@ src/FSRWeightProducer.cc (IN PROGRESS)
 src/DistortedMuonProducer.cc
 ============================
 
-- Writes into the data structure a new reco::Muon collection and its associated 
-  reco::Track (innerTrack modified) collection after smearing and efficiency 
-  effects. This new collection can be easily used as a realistic Monte Carlo 
-  prediction for the latest steps of the analysis. One can provide the necessary 
-  distortions as a function of pseudorapidity via vectors in the configuration file. 
-  To include momentum distortions properly we require a previous matching between 
-  reconstructed and generated muons using standard CMSSW matching utilities.  
+- Writes into the data structure a new reco::Muon collection distorted by
+  smearing and efficiency effects. This new collection can be easily used as 
+  a realistic Monte Carlo prediction for the latest steps of the analysis. 
+  The input distortions are provided as a function of pseudorapidity via 
+  vectors in the configuration file. To include momentum distortions properly, 
+  we perform a previous matching between reconstructed and generated muons 
+  using standard CMSSW matching utilities.  
   Example of usage:
 
       process.genMatchMap = cms.EDFilter("MCTruthDeltaRMatcherNew",

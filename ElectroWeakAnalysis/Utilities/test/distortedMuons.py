@@ -10,7 +10,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
       debugVerbosity = cms.untracked.uint32(0),
       debugFlag = cms.untracked.bool(False),
-      fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3-v1_GEN-SIM-RECO/0009/76E35258-507F-DE11-9A21-0022192311C5.root")
+      #fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3-v1_GEN-SIM-RECO/0009/76E35258-507F-DE11-9A21-0022192311C5.root")
+      fileNames = cms.untracked.vstring("file:/data4/Wmunu_Summer09-MC_31X_V3_AODSIM-v1/0009/F82D4260-507F-DE11-B5D6-00093D128828.root")
 )
 
 # Debug/info printouts
@@ -36,9 +37,9 @@ process.distortedMuons = cms.EDFilter("DistortedMuonProducer",
       GenMatchTag = cms.untracked.InputTag("genMatchMap"),
       EtaBinEdges = cms.untracked.vdouble(-2.1,2.1), # one more entry than next vectors
       MomentumScaleShift = cms.untracked.vdouble(1.e-3),
-      UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-4), #in [1/GeV]
-      RelativeUncertaintyOnPt = cms.untracked.vdouble(1.e-3),
-      EfficiencyRatioOverMC = cms.untracked.vdouble(0.99)
+      UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-3), #in [1/GeV]
+      RelativeUncertaintyOnPt = cms.untracked.vdouble(5.e-3),
+      EfficiencyRatioOverMC = cms.untracked.vdouble(0.90)
 )
 
 ### NOTE: the following WMN selectors require the presence of
@@ -48,26 +49,9 @@ process.distortedMuons = cms.EDFilter("DistortedMuonProducer",
 #
 
 # WMN fast selector (use W candidates in this example)
-process.corMetWMuNus = cms.EDProducer("WMuNuProducer",
-      # Input collections ->
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-)
-
-process.wmnSelFilter = cms.EDFilter("WMuNuSelector",
-      # Fill Basic Histograms? ->
-      plotHistograms = cms.untracked.bool(False),
-
-      # Input collections ->
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus")
-)
+process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
+process.corMetWMuNus.MuonTag = cms.untracked.InputTag("distortedMuons")
+process.selcorMet.MuonTag = cms.untracked.InputTag("distortedMuons")
 
 # Output
 process.load("Configuration.EventContent.EventContent_cff")
@@ -85,8 +69,7 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 process.distortMuons = cms.Path(
        process.genMatchMap
       *process.distortedMuons
-      *process.corMetWMuNus
-      *process.wmnSelFilter
+      *process.selectCaloMetWMuNus
 )
 
 process.end = cms.EndPath(process.wmnOutput)

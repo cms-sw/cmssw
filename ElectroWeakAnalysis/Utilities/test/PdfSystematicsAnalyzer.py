@@ -52,26 +52,7 @@ process.pdfDenominatorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
 
 # Selector and parameters
 # WMN fast selector (use W candidates in this example)
-process.corMetWMuNus = cms.EDProducer("WMuNuProducer",
-      # Input collections ->
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-)
-
-process.wmnSelFilter = cms.EDFilter("WMuNuSelector",
-      # Fill Basic Histograms? ->
-      plotHistograms = cms.untracked.bool(False),
-
-      # Input collections ->
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus")
-)
+process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
 # Count PDF-weighted 'selected' events and collect uncertainties
 process.pdfNumeratorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
@@ -86,8 +67,7 @@ process.pdfNumeratorSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
 process.pdfana = cms.Path(
        process.pdfWeights
       *process.pdfDenominatorSystematics
-      *process.corMetWMuNus
-      *process.wmnSelFilter
+      *process.selectCaloMetWMuNus
       *process.pdfNumeratorSystematics
 )
 

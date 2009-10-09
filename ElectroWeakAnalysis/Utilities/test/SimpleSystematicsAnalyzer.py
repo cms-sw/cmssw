@@ -43,26 +43,7 @@ process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
 
 # Selector and parameters
 # WMN fast selector (use W candidates in this example)
-process.corMetWMuNus = cms.EDProducer("WMuNuProducer",
-      # Input collections ->
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-)
-
-process.wmnSelFilter = cms.EDFilter("WMuNuSelector",
-      # Fill Basic Histograms? ->
-      plotHistograms = cms.untracked.bool(False),
-
-      # Input collections ->
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus")
-)
+process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
 # Produce event weights according to generated boson Pt
 # Example corresponds to approximate weights to study
@@ -104,8 +85,7 @@ process.systematicsAnalyzer = cms.EDFilter("SimpleSystematicsAnalyzer",
 # Main path
 process.systAna = cms.Path(
        process.printGenParticles
-      *process.corMetWMuNus
-      *process.wmnSelFilter
+      *process.selectCaloMetWMuNus
       *process.isrWeight
       *process.fsrWeight
       *process.systematicsAnalyzer

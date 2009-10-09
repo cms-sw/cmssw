@@ -26,7 +26,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Selector and parameters
 process.distortedMET = cms.EDFilter("DistortedMETProducer",
       MetTag = cms.untracked.InputTag("met"),
-      MetScaleShift = cms.untracked.double(0.1)
+      MetScaleShift = cms.untracked.double(0.2)
 )
 
 ### NOTE: the following WMN selectors require the presence of
@@ -36,26 +36,7 @@ process.distortedMET = cms.EDFilter("DistortedMETProducer",
 #
 
 # WMN fast selector (use W candidates in this example)
-process.corMetWMuNus = cms.EDProducer("WMuNuProducer",
-      # Input collections ->
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-)
-
-process.wmnSelFilter = cms.EDFilter("WMuNuSelector",
-      # Fill Basic Histograms? ->
-      plotHistograms = cms.untracked.bool(False),
-
-      # Input collections ->
-      MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
-      JetTag = cms.untracked.InputTag("antikt5CaloJets"),
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus")
-)
+process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 
 # Output
 process.load("Configuration.EventContent.EventContent_cff")
@@ -72,7 +53,6 @@ process.wmnOutput = cms.OutputModule("PoolOutputModule",
 # Steering the process
 process.distortMET = cms.Path(
        process.distortedMET
-      *process.corMetWMuNus
-      *process.wmnSelFilter
+      *process.selectCaloMetWMuNus
 )
 process.end = cms.EndPath(process.wmnOutput)

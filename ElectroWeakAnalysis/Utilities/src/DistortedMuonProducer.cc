@@ -30,7 +30,6 @@ class DistortedMuonProducer : public edm::EDProducer {
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include <CLHEP/Random/RandFlat.h>
@@ -40,7 +39,6 @@ class DistortedMuonProducer : public edm::EDProducer {
 DistortedMuonProducer::DistortedMuonProducer(const edm::ParameterSet& pset) {
 
   // What is being produced
-      produces<std::vector<reco::Track> >();
       produces<std::vector<reco::Muon> >();
 
   // Input products
@@ -124,36 +122,33 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup&) {
       unsigned int muonCollectionSize = muonCollection->size();
 
       std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
-      std::auto_ptr<reco::TrackCollection> newtracks (new reco::TrackCollection);
-      reco::TrackRefProd trackRefProd = ev.getRefBeforePut<reco::TrackCollection>();
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             // With "View<Muon>": one can use a "RefToBase<Muon>" instead of a "MuonRef"
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
             // To get a a true "MuonRef" out of it:
             //    reco::MuonRef mu_trueref = mu.castTo<reco::MuonRef>(); 
-            if (mu->innerTrack().isNull()) continue;
-            reco::TrackRef tk = mu->innerTrack();
 
             double ptgen = mu->pt();
+            double etagen = mu->eta();
             reco::GenParticleRef gen = (*genMatchMap)[mu];
             if( !gen.isNull()) {
                   ptgen = gen->pt();
+                  etagen = gen->eta();
                   LogTrace("") << ">>> Muon-GenParticle match found; ptmu= " << mu->pt() << ", ptgen= " << ptgen;
             } else {
                   LogTrace("") << ">>> MUON-GENPARTICLE MATCH NOT FOUND!!!";
             }
 
             // Find out which eta bin should be used
-            double eta = mu->eta();
             double eff = 0.; // Reject any muon outside [mineta,maxeta]
             double shift = 0.;
             double sigma1 = 0.;
             double sigma2 = 0.;
             unsigned int nbins = etaBinEdges_.size()-1;
-            if (eta>etaBinEdges_[0] && eta<etaBinEdges_[nbins]) {
+            if (etagen>etaBinEdges_[0] && etagen<etaBinEdges_[nbins]) {
                   for (unsigned int j=1; j<=nbins; ++j) {
-                        if (eta>etaBinEdges_[j]) continue;
+                        if (etagen>etaBinEdges_[j]) continue;
                         eff = efficiencyRatioOverMC_[j-1];
                         shift = momentumScaleShift_[j-1];
                         sigma1 = uncertaintyOnOneOverPt_[j-1];
@@ -170,18 +165,6 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup&) {
             double rndg1 = CLHEP::RandGauss::shoot();
             double rndg2 = CLHEP::RandGauss::shoot();
             
-            // New track
-            double pttk = tk->pt();
-            pttk += ptgen * ( shift + sigma1*rndg1*ptgen + sigma2*rndg2);
-            double pxtk = pttk*tk->px()/tk->pt();
-            double pytk = pttk*tk->py()/tk->pt();
-            double pztk = tk->pz();
-            reco::TrackBase::Vector tkmom(pxtk,pytk,pztk);
-            reco::Track* newtk = new reco::Track(tk->chi2(), tk->ndof(), tk->referencePoint(), tkmom, tk->charge(), tk->covariance());
-            newtk->setExtra(tk->extra());
-            newtk->setHitPattern(tk->extra()->recHits());
-            newtracks->push_back(*newtk);
-
             // New muon
             double ptmu = mu->pt();
             ptmu += ptgen * ( shift + sigma1*rndg1*ptgen + sigma2*rndg2);
@@ -191,12 +174,10 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup&) {
                         ptmu, mu->eta(), mu->phi(), mu->mass()
                   )
             );
-            newmu->setInnerTrack(reco::TrackRef(trackRefProd,newtracks->size()-1));
             newmuons->push_back(*newmu);
 
       }
 
-      ev.put(newtracks);
       ev.put(newmuons);
 }
 
