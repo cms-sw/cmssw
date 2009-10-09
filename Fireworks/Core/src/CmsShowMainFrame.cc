@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.63 2009/09/29 19:26:33 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.64 2009/10/04 13:15:48 amraktad Exp $
 //
 // hacks
 #define private public
@@ -329,7 +329,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 200, 20);
    makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff);
    m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger);
-   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
+   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,2,0,0));
 
    runInfo->AddFrame(rRight, new TGLayoutHints(kLHintsRight));
 
@@ -346,14 +346,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterState->SetBackgroundColor(backgroundColor);
    m_filterState->SetTextColor(0xFFFFFF);
    m_filterState->SetToolTipText("Enable/disable event filtering");
-   lframe->AddFrame(m_filterState, new TGLayoutHints(kLHintsRight | kLHintsBottom));
-   filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsBottom,2,4,2,2));
+   lframe->AddFrame(m_filterState, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
+   filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));
 
    m_filterEditButton = new TGTextButton(filterFrame,"Event filtering is OFF");
    m_filterEditButton->SetBackgroundColor(backgroundColor);
    m_filterEditButton->SetTextColor(0xFFFFFF);
    m_filterEditButton->SetToolTipText("Edit event selection");
-   filterFrame->AddFrame(m_filterEditButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
+   filterFrame->AddFrame(m_filterEditButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
 
    texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
