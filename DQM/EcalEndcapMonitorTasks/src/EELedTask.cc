@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2009/08/23 20:59:52 $
- * $Revision: 1.51 $
+ * $Date: 2009/08/25 09:17:30 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  *
 */
@@ -461,7 +461,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
         if ( Numbers::RtHalf(id) == 0 || Numbers::RtHalf(id) == 1 ) {
 
           if ( waveLength[ism-1] == 0 ) meShapeMap = meShapeMapL1_[ism-1];
-          if ( waveLength[ism-1] == 1 ) meShapeMap = meShapeMapL2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) meShapeMap = meShapeMapL2_[ism-1];
 
         } else {
 
@@ -520,11 +520,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
         if ( pnItr->sample(i).gainId() == 0 ) {
           if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
-          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG01L2_[ism-1];
         }
         if ( pnItr->sample(i).gainId() == 1 ) {
           if ( waveLength[ism-1] == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
-          if ( waveLength[ism-1] == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
+          if ( waveLength[ism-1] == 2 ) mePNPed = mePnPedMapG16L2_[ism-1];
         }
 
         float xval = float(adc);
@@ -555,11 +555,11 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       if ( pnItr->sample(0).gainId() == 0 ) {
         if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
-        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG01L2_[ism-1];
       }
       if ( pnItr->sample(0).gainId() == 1 ) {
         if ( waveLength[ism-1] == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
-        if ( waveLength[ism-1] == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
+        if ( waveLength[ism-1] == 2 ) mePN = mePnAmplMapG16L2_[ism-1];
       }
 
       if ( mePN ) mePN->Fill(num - 0.5, xvalmax);
@@ -617,7 +617,7 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
           meTimeMap = meTimeMapL1_[ism-1];
           meAmplPNMap = meAmplPNMapL1_[ism-1];
         }
-        if ( waveLength[ism-1] == 1 ) {
+        if ( waveLength[ism-1] == 2 ) {
           meAmplMap = meAmplMapL2_[ism-1];
           meTimeMap = meTimeMapL2_[ism-1];
           meAmplPNMap = meAmplPNMapL2_[ism-1];
