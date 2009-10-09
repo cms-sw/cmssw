@@ -1,9 +1,7 @@
 
 import sys
 import os
-
 import dbs_discovery
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("readelectrons")

@@ -13,17 +13,13 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.27 2009/09/20 10:06:48 charlot Exp $
+// $Id: GsfElectronMCFakeAnalyzer.cc,v 1.1 2009/10/07 08:46:28 charlot Exp $
 //
 //
 
 // user include files
 #include "RecoEgamma/Examples/plugins/GsfElectronMCFakeAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -35,8 +31,13 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <iostream>
 #include "TMath.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -59,7 +60,7 @@ GsfElectronMCFakeAnalyzer::GsfElectronMCFakeAnalyzer(const edm::ParameterSet& co
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
-  
+
   edm::ParameterSet pset =
    conf.getParameter<edm::ParameterSet>("HistosConfigurationFake") ;
 
@@ -107,7 +108,7 @@ GsfElectronMCFakeAnalyzer::GsfElectronMCFakeAnalyzer(const edm::ParameterSet& co
   nbinhoe= pset.getParameter<int>("Nbinhoe");
   hoemin=pset.getParameter<double>("Hoemin");
   hoemax=pset.getParameter<double>("Hoemax");
-  
+
 }
 
 GsfElectronMCFakeAnalyzer::~GsfElectronMCFakeAnalyzer()
@@ -125,7 +126,7 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
 
 
   // matching object
-  std::string::size_type locJet = matchingObjectCollection_.label().find("iterativeCone5GenJets", 0 );
+  std::string::size_type locJet = matchingObjectCollection_.label().find("iterativeCone5GenJets",0) ;
   std::string type_;
   if ( locJet != std::string::npos ) {
     std::cout << "Matching objects are GenJets " << std::endl;
@@ -139,7 +140,6 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_matchingObjectNum              = new TH1F( hlabel.c_str(), htitle.c_str(),    nbinfhits,0.,fhitsmax );
 
   // rec event
-
   histNum_= new TH1F("h_recEleNum","# rec electrons",20, 0.,20.);
 
   // matching object distributions
@@ -165,12 +165,12 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_dPhiSc_propVtx_all = new TH1F( "h_ele_dPhiSc_propVtx_all", "ele #phi_{sc} - #phi_{tr}, prop from vertex, all reco electrons",      nbindphimatch,dphimatchmin,dphimatchmax);
   h_ele_dEtaCl_propOut_all = new TH1F( "h_ele_dEtaCl_propOut_all", "ele #eta_{cl} - #eta_{tr}, prop from outermost, all reco electrons",   nbindetamatch,detamatchmin,detamatchmax);
   h_ele_dPhiCl_propOut_all = new TH1F( "h_ele_dPhiCl_propOut_all", "ele #phi_{cl} - #phi_{tr}, prop from outermost, all reco electrons",   nbindphimatch,dphimatchmin,dphimatchmax);
+  h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "ele vertex transverse radius, all reco electrons",  100,0.,0.2);
   h_ele_HoE_all = new TH1F("h_ele_HoE_all", "ele hadronic energy / em energy, all reco electrons", nbinhoe, hoemin, hoemax) ;
-  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "ele p_{T}, all reco electrons",  nbinpteff,5.,ptmax);
-  h_ele_vertexPt_all->Sumw2();
   h_ele_vertexEta_all      = new TH1F( "h_ele_vertexEta_all",      "ele eta, all reco electrons",    nbineta,etamin,etamax);
   h_ele_vertexEta_all->Sumw2();
-  h_ele_TIP_all       = new TH1F( "h_ele_TIP_all",       "ele vertex transverse radius, all reco electrons",  100,0.,0.2);
+  h_ele_vertexPt_all       = new TH1F( "h_ele_vertexPt_all",       "ele p_{T}, all reco electrons",  nbinpteff,5.,ptmax);
+  h_ele_vertexPt_all->Sumw2();
   h_ele_mee_all      = new TH1F( "h_ele_mee_all", "ele pairs invariant mass, all reco electrons", nbinmee, meemin, meemax );
   h_ele_mee_os      = new TH1F( "h_ele_mee_os", "ele pairs invariant mass, opp. sign", nbinmee, meemin, meemax );
 
@@ -179,6 +179,18 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_E2mnE1vsMee_egeg_all = new TH2F("h_ele_E2mnE1vsMee_egeg_all", "E2 - E1 vs ele pairs invariant mass, ecal driven pairs, all electrons", nbinmee, meemin, meemax, 100, -50., 50. );
 
   // matched electrons
+
+  h_ele_matchingObjectPt_matched       = new TH1F( "h_ele_matchingObjectPt_matched",       "Efficiency vs matching jet p_{T}",  nbinpteff,5.,ptmax);
+  h_ele_matchingObjectPt_matched->Sumw2();
+  h_ele_matchingObjectAbsEta_matched      = new TH1F( "h_ele_matchingObjectAbsEta_matched",      "Efficiency vs matching jet |#eta|",    nbineta/2,0.,2.5);
+  h_ele_matchingObjectAbsEta_matched->Sumw2();
+  h_ele_matchingObjectEta_matched      = new TH1F( "h_ele_matchingObjectEta_matched",      "Efficiency vs matching jet #eta",    nbineta,etamin,etamax);
+  h_ele_matchingObjectEta_matched ->Sumw2();
+  h_ele_matchingObjectPhi_matched               = new TH1F( "h_ele_matchingObjectPhi_matched", "Efficiency vs matching jet phi",        nbinphi,phimin,phimax);
+  h_ele_matchingObjectPhi_matched->Sumw2();
+  h_ele_matchingObjectZ_matched      = new TH1F( "h_ele_matchingObjectZ_matched",      "Efficiency vs matching jet z",    nbinxyz,-25,25);
+  h_ele_matchingObjectZ_matched->Sumw2();
+
   h_ele_charge         = new TH1F( "h_ele_charge",         "ele charge",             5,-2.,2.);
   h_ele_chargeVsEta    = new TH2F( "h_ele_chargeVsEta",         "ele charge vs eta", nbineta2D,etamin,etamax,5,-2.,2.);
   h_ele_chargeVsPhi    = new TH2F( "h_ele_chargeVsPhi",         "ele charge vs phi", nbinphi2D,phimin,phimax,5,-2.,2.);
@@ -187,32 +199,24 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_vertexPt       = new TH1F( "h_ele_vertexPt",       "ele transverse momentum",  nbinpt,0.,ptmax);
   h_ele_vertexPtVsEta   = new TH2F( "h_ele_vertexPtVsEta",       "ele transverse momentum vs eta",nbineta2D,etamin,etamax,nbinpt2D,0.,ptmax);
   h_ele_vertexPtVsPhi   = new TH2F( "h_ele_vertexPtVsPhi",       "ele transverse momentum vs phi",nbinphi2D,phimin,phimax,nbinpt2D,0.,ptmax);
-  h_ele_matchingObjectPt_matched       = new TH1F( "h_ele_matchingObjectPt_matched",       "Efficiency vs matching jet p_{T}",  nbinpteff,5.,ptmax);
-  h_ele_matchingObjectPt_matched->Sumw2();
   h_ele_vertexEta      = new TH1F( "h_ele_vertexEta",      "ele momentum eta",    nbineta,etamin,etamax);
   h_ele_vertexEtaVsPhi  = new TH2F( "h_ele_vertexEtaVsPhi",      "ele momentum eta vs phi",nbineta2D,etamin,etamax,nbinphi2D,phimin,phimax );
-  h_ele_matchingObjectAbsEta_matched      = new TH1F( "h_ele_matchingObjectAbsEta_matched",      "Efficiency vs matching jet |#eta|",    nbineta/2,0.,2.5);
-  h_ele_matchingObjectAbsEta_matched->Sumw2();
-  h_ele_matchingObjectEta_matched      = new TH1F( "h_ele_matchingObjectEta_matched",      "Efficiency vs matching jet #eta",    nbineta,etamin,etamax);
-  h_ele_matchingObjectEta_matched ->Sumw2();
-  h_ele_matchingObjectPhi_matched               = new TH1F( "h_ele_matchingObjectPhi_matched", "Efficiency vs matching jet phi",        nbinphi,phimin,phimax);
-  h_ele_matchingObjectPhi_matched->Sumw2();
   h_ele_vertexPhi      = new TH1F( "h_ele_vertexPhi",      "ele  momentum #phi",    nbinphi,phimin,phimax);
   h_ele_vertexX      = new TH1F( "h_ele_vertexX",      "ele vertex x",    nbinxyz,-0.1,0.1 );
   h_ele_vertexY      = new TH1F( "h_ele_vertexY",      "ele vertex y",    nbinxyz,-0.1,0.1 );
   h_ele_vertexZ      = new TH1F( "h_ele_vertexZ",      "ele vertex z",    nbinxyz,-25, 25 );
-  h_ele_matchingObjectZ_matched      = new TH1F( "h_ele_matchingObjectZ_matched",      "Efficiency vs matching jet z",    nbinxyz,-25,25);
-  h_ele_matchingObjectZ_matched->Sumw2();
   h_ele_vertexTIP      = new TH1F( "h_ele_vertexTIP",      "ele transverse impact parameter (wrt bs)",    90,0.,0.15);
   h_ele_vertexTIPVsEta      = new TH2F( "h_ele_vertexTIPVsEta",      "ele transverse impact parameter (wrt bs) vs eta", nbineta2D,etamin,etamax,45,0.,0.15);
   h_ele_vertexTIPVsPhi      = new TH2F( "h_ele_vertexTIPVsPhi",      "ele transverse impact parameter (wrt bs) vs phi", nbinphi2D,phimin,phimax,45,0.,0.15);
   h_ele_vertexTIPVsPt      = new TH2F( "h_ele_vertexTIPVsPt",      "ele transverse impact parameter (wrt bs) vs Pt", nbinpt2D,0.,ptmax,45,0.,0.15);
+
   h_ele_PoPmatchingObject        = new TH1F( "h_ele_PoPmatchingObject",        "ele momentum / matching jet momentum", 75,0.,1.5);
   h_ele_PoPmatchingObjectVsEta   = new TH2F( "h_ele_PoPmatchingObjectVsEta",        "ele momentum / matching jet momentum vs eta", nbineta2D,etamin,etamax,50,0.,1.5);
   h_ele_PoPmatchingObjectVsPhi   = new TH2F( "h_ele_PoPmatchingObjectVsPhi",        "ele momentum / matching jet momentum vs phi", nbinphi2D,phimin,phimax,50,0.,1.5);
   h_ele_PoPmatchingObjectVsPt   = new TH2F( "h_ele_PoPmatchingObjectVsPt",        "ele momentum / matching jet momentum vs eta", nbinpt2D,0.,ptmax,50,0.,1.5);
   h_ele_PoPmatchingObject_barrel         = new TH1F( "h_ele_PoPmatchingObject_barrel",        "ele momentum / matching jet momentum, barrel",75,0.,1.5);
   h_ele_PoPmatchingObject_endcaps        = new TH1F( "h_ele_PoPmatchingObject_endcaps",        "ele momentum / matching jet momentum, endcaps",75,0.,1.5);
+
   h_ele_EtaMnEtamatchingObject   = new TH1F( "h_ele_EtaMnEtamatchingObject",   "ele momentum eta - matching jet eta",nbindeta,detamin,detamax);
   h_ele_EtaMnEtamatchingObjectVsEta   = new TH2F( "h_ele_EtaMnEtamatchingObjectVsEta",   "ele momentum eta - matching jet eta vs eta",nbineta2D,etamin,etamax,nbindeta/2,detamin,detamax);
   h_ele_EtaMnEtamatchingObjectVsPhi   = new TH2F( "h_ele_EtaMnEtamatchingObjectVsPhi",   "ele momentum eta - matching jet eta vs phi",nbinphi2D,phimin,phimax,nbindeta/2,detamin,detamax);
@@ -281,8 +285,7 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_outerPtVsPt_mode        = new TH2F( "h_ele_outerPtVsPt_mode", "ele track outer p_{T} vs pt, mode", nbinpt2D,0.,100.,nbinpt2D,0.,ptmax);
 
   // matched electrons,cluster-track  matching
-  h_ele_EoP            = new TH1F( "h_ele_EoP",            "ele E/P_{vertex}",        nbineop,0.,eopmax);
-  h_ele_EoP->Sumw2();
+  h_ele_EoP            = new TH1F( "h_ele_EoP",            "ele E/P_{vertex}",        nbineop,0.,eopmax); h_ele_EoP->Sumw2();
   h_ele_EoP_eg            = new TH1F( "h_ele_EoP_eg",            "ele E/P_{vertex}, ecal driven",        nbineop,0.,eopmax);
   h_ele_EoP_eg->Sumw2();
   h_ele_EoP_barrel            = new TH1F( "h_ele_EoP_barrel",            "ele E/P_{vertex} barrel",        nbineop,0.,eopmax);
@@ -477,7 +480,7 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   histSclEoEmatchingObjectShowering_barrel = new TH1F("h_scl_EoEmatchingObject showering, barrel","ele SC energy over matching jet energy, showering, barrel",100,0.2,1.2);
   histSclEoEmatchingObjectShowering_endcaps = new TH1F("h_scl_EoEmatchingObject showering, endcaps","ele SC energy over matching jet energy, showering, endcaps",100,0.2,1.2);
 
-  // isolation  
+  // isolation
   h_ele_tkSumPt_dr03 = new TH1F("h_ele_tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.);
   h_ele_ecalRecHitSumEt_dr03= new TH1F("h_ele_ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr03= new TH1F("h_ele_hcalDepth1TowerSumEt_dr03","hcal depth1 isolation sum, dR=0.3",100,0.0,20.);
@@ -486,16 +489,16 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_ecalRecHitSumEt_dr04= new TH1F("h_ele_ecalRecHitSumEt_dr04","ecal isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth1TowerSumEt_dr04= new TH1F("h_ele_hcalDepth1TowerSumEt_dr04","hcal depth1 isolation sum, dR=0.4",100,0.0,20.);
   h_ele_hcalDepth2TowerSumEt_dr04= new TH1F("h_ele_hcalDepth2TowerSumEt_dr04","hcal depth2 isolation sum, dR=0.4",100,0.0,20.);
-  
+
   // fbrem
   h_ele_fbrem = new TH1F( "h_ele_fbrem","ele brem fraction, mode",100,0.,1.);
   h_ele_fbremVsEta_mode = new TProfile( "h_ele_fbremvsEtamode","mean ele brem fraction vs eta, mode",nbineta2D,etamin,etamax,0.,1.);
   h_ele_fbremVsEta_mean = new TProfile( "h_ele_fbremvsEtamean","mean ele brem fraction vs eta, mean",nbineta2D,etamin,etamax,0.,1.);
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva = new TH1F( "h_ele_mva","ele mva",100,-1.,1.);
   h_ele_provenance = new TH1F( "h_ele_provenance","ele provenance",5,-2.,3.);
-  
+
   // histos titles
   h_matchingObjectNum              -> GetXaxis()-> SetTitle("N_{GenJet}");
   h_matchingObjectNum              -> GetYaxis()-> SetTitle("Events");
@@ -527,7 +530,7 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_PoPmatchingObject_barrel        -> GetYaxis()-> SetTitle("Events");
   h_ele_PoPmatchingObject_endcaps        -> GetXaxis()-> SetTitle("P/P_{gen jet}");
   h_ele_PoPmatchingObject_endcaps        -> GetYaxis()-> SetTitle("Events");
-  histSclSigIEtaIEta_-> GetXaxis()-> SetTitle("#sigma_{#eta #eta}") ;
+  histSclSigIEtaIEta_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
   histSclSigIEtaIEta_-> GetYaxis()-> SetTitle("Events") ;
   histSclSigIEtaIEta_barrel_-> GetXaxis()-> SetTitle("#sigma_{i#eta i#eta}") ;
   histSclSigIEtaIEta_barrel_-> GetYaxis()-> SetTitle("Events") ;
@@ -666,8 +669,8 @@ void GsfElectronMCFakeAnalyzer::beginJob(){
   h_ele_EoverP_all-> GetYaxis()-> SetTitle("Events");
   h_ele_EseedOP_all-> GetXaxis()-> SetTitle("E_{seed}/P_{vertex}");
   h_ele_EseedOP_all-> GetYaxis()-> SetTitle("Events");
-  h_ele_EoPout_all -> GetXaxis()-> SetTitle("E_{seed}/P_{out}"); 
-  h_ele_EoPout_all-> GetYaxis()-> SetTitle("Events");  
+  h_ele_EoPout_all -> GetXaxis()-> SetTitle("E_{seed}/P_{out}");
+  h_ele_EoPout_all-> GetYaxis()-> SetTitle("Events");
   h_ele_EeleOPout_all-> GetXaxis()-> SetTitle("E_{ele}/P_{out}");
   h_ele_EeleOPout_all-> GetYaxis()-> SetTitle("Events");
   h_ele_dEtaSc_propVtx_all-> GetXaxis()-> SetTitle("#eta_{sc} - #eta_{tr}");
@@ -744,6 +747,7 @@ GsfElectronMCFakeAnalyzer::endJob(){
   h_ele_etaEff_all->Print();
   h_ele_etaEff_all->GetXaxis()->SetTitle("#eta");
   h_ele_etaEff_all->GetYaxis()->SetTitle("N_{rec}/N_{matching jet}");
+
   TH1F *h_ele_ptEff_all = (TH1F*)h_ele_vertexPt_all->Clone("h_ele_ptEff_all");
   h_ele_ptEff_all->Reset();
   h_ele_ptEff_all->Divide(h_ele_vertexPt_all,h_matchingObjectPt,1,1,"b");
@@ -912,13 +916,13 @@ GsfElectronMCFakeAnalyzer::endJob(){
 
   // all electrons
   h_ele_EoverP_all->Write();
-  h_ele_EseedOP_all->Write(); 
-  h_ele_EoPout_all->Write();    
+  h_ele_EseedOP_all->Write();
+  h_ele_EoPout_all->Write();
   h_ele_EeleOPout_all ->Write();
-  h_ele_dEtaSc_propVtx_all->Write(); 
-  h_ele_dPhiSc_propVtx_all->Write(); 
+  h_ele_dEtaSc_propVtx_all->Write();
+  h_ele_dPhiSc_propVtx_all->Write();
   h_ele_dEtaCl_propOut_all ->Write();
-  h_ele_dPhiCl_propOut_all->Write(); 
+  h_ele_dPhiCl_propOut_all->Write();
   h_ele_HoE_all->Write();
   h_ele_TIP_all->Write();
   h_ele_vertexPt_all->Write();
@@ -1195,7 +1199,7 @@ GsfElectronMCFakeAnalyzer::endJob(){
   h_ele_eta_showerFrac->Write();
   h_ele_xOverX0VsEta->Write();
 
-  // e/g et pflow electrons 
+  // e/g et pflow electrons
   h_ele_mva->Write();
   h_ele_provenance->Write();
 
@@ -1257,10 +1261,10 @@ GsfElectronMCFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     h_ele_EseedOP_all     -> Fill( gsfIter->eSeedClusterOverP() );
     h_ele_EoPout_all     -> Fill( gsfIter->eSeedClusterOverPout() );
     h_ele_EeleOPout_all     -> Fill( gsfIter->eEleClusterOverPout() );
-    h_ele_dEtaSc_propVtx_all -> Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());    
-    h_ele_dPhiSc_propVtx_all -> Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());    
-    h_ele_dEtaCl_propOut_all -> Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());    
-    h_ele_dPhiCl_propOut_all -> Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());    
+    h_ele_dEtaSc_propVtx_all -> Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
+    h_ele_dPhiSc_propVtx_all -> Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
+    h_ele_dEtaCl_propOut_all -> Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());
+    h_ele_dPhiCl_propOut_all -> Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());
     h_ele_HoE_all     -> Fill( gsfIter->hadronicOverEm() );
     double d = gsfIter->vertex().x()*gsfIter->vertex().x()
                +gsfIter->vertex().y()*gsfIter->vertex().y();
@@ -1286,7 +1290,7 @@ GsfElectronMCFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   for (reco::GenJetCollection::const_iterator moIter = genJets->begin();
        moIter != genJets->end(); ++moIter) {
-    
+
     // number of matching objects
     matchingObjectNum++;
 
@@ -1456,7 +1460,7 @@ GsfElectronMCFakeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
           h_ele_seed_drz2VsEta_-> Fill(bestGsfElectron.eta(), elseed->dRz2());
           h_ele_seed_drz2VsPt_-> Fill(bestGsfElectron.pt(), elseed->dRz2());
           h_ele_seed_subdet2_-> Fill(elseed->subDet2());
-        } 
+        }
 	// match distributions
 	h_ele_EoP    -> Fill( bestGsfElectron.eSuperClusterOverP() );
 	if (bestGsfElectron.isEcalDriven()) h_ele_EoP_eg    -> Fill( bestGsfElectron.eSuperClusterOverP() );
