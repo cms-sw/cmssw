@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.45 2009/10/02 10:39:57 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.46 2009/10/02 20:22:25 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -286,8 +286,10 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
 
+  // Monitors
+  // ---------------
+
   // electron Monitor
-  // ------------
   objMonData<reco::GsfElectronCollection> eleMon;
   eleMon.setReco(gsfElectrons);
   eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_);
@@ -300,7 +302,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   eleMon.pushL1TriggerType(TriggerL1IsoEG);
 
   // muon Monitor
-  // ------------
   objMonData<reco::MuonCollection>  muoMon;
   muoMon.setReco(muonHandle);
   muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_);
@@ -311,7 +312,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   muoMon.pushL1TriggerType(TriggerL1Mu);
   
   // tau Monitor
-  // ------------
   objMonData<reco::CaloTauCollection>  tauMon;
   tauMon.setReco(tauHandle);
   tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_);
@@ -323,7 +323,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   tauMon.pushL1TriggerType(TriggerL1ForJet);
   
   // photon Monitor
-  // ------------
   objMonData<reco::PhotonCollection> phoMon;
   phoMon.setReco(photonHandle);
   phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_);
@@ -334,7 +333,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   phoMon.pushL1TriggerType(TriggerL1IsoEG);
 
   // jet Monitor - NOTICE: we use genJets for MC
-  // -------------------------------------------
   objMonData<reco::CaloJetCollection> jetMon;
   jetMon.setReco(jetHandle);
   jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_);
@@ -348,7 +346,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   jetMon.pushL1TriggerType(TriggerL1TauJet);
 
   // bjet Monitor - NOTICE: we use genJets for MC
-  // -------------------------------------------
   objMonData<reco::CaloJetCollection> btagIPMon; // CaloJet will not be used, this is only place holder
   //btagIPMon.setReco(jetHandle);
   btagIPMon.setRecoB(bTagIPHandle);
@@ -379,7 +376,6 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   objMonData<reco::CaloJetCollection> btagMon; // Generic btagMon
  
   // met Monitor
-  // ------------
   objMonData<reco::CaloMETCollection> metMon;
   metMon.setReco(metHandle);
   metMon.setLimits(metEtaMax_, metMin_, metDRMatch_);
@@ -388,6 +384,22 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   metMon.pushL1TriggerType(TriggerL1ETM);
 
+
+  // vector to hold monitors 
+  // interface is through virtual class BaseMonitor
+  std::vector<BaseMonitor*> monitors;
+
+  monitors.push_back(&muoMon);
+  monitors.push_back(&eleMon);
+  monitors.push_back(&tauMon);
+  monitors.push_back(&phoMon);
+  monitors.push_back(&jetMon);
+  monitors.push_back(&btagMon);
+  monitors.push_back(&metMon);
+
+
+  // Main loop over paths
+  // --------------------
   for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) { 
 
     LogTrace("FourVectorHLTOffline") << " path " << v->getPath() << endl;
@@ -411,82 +423,73 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    if (denompassed)
    {  
 
-      //LogTrace("FourVectorHLTOffline") << " denominator path " << v->getPath() << endl;
+     //LogTrace("FourVectorHLTOffline") << " denominator path " << v->getPath() << endl;
 
-      eleMon.clearSets();
-      muoMon.clearSets();
-      tauMon.clearSets();
-      phoMon.clearSets();
-      jetMon.clearSets();
-      btagMon.clearSets();
-      metMon.clearSets();
+     // loop over monitors
+     for(std::vector<BaseMonitor*>::iterator mit = monitors.begin(); mit!= monitors.end(); ++mit ) {
+       
+       (*mit)->clearSets();
 
-      //cout << " New hltPath  and denompassed" << endl;
-      // set to keep maps of DR matches of each L1 objects with each Off object
-      mmset eleL1OffDRMatchSet;
-      // set to keep maps of DR matches of each L1 objects with each MC object
-      mmset eleL1MCDRMatchSet;
+     }
 
-      int triggertype = 0;     
-      triggertype = v->getObjectType();
 
-      bool l1accept = false;
-      edm::InputTag l1testTag(v->getl1Path(),"",processname_);
-      const int l1index = triggerObj->filterIndex(l1testTag);
-      
-      /*
-      int  sizeFilters = triggerObj->sizeFilters();
+     int triggertype = 0;     
+     triggertype = v->getObjectType();
 
-       LogTrace("FourVectorHLTOffline") << "TestTag = " << l1testTag << endl;
-      
-      for (int i=0;i<sizeFilters; i++) {
-      
-       LogTrace("FourVectorHLTOffline") << "FilterTag = " << triggerObj->filterTag(i) << endl;
+     bool l1accept = false;
+     edm::InputTag l1testTag(v->getl1Path(),"",processname_);
+     const int l1index = triggerObj->filterIndex(l1testTag);
+     
+     /*
+     int  sizeFilters = triggerObj->sizeFilters();
 
-      }
-      */
-      if ( l1index >= triggerObj->sizeFilters() ) {
-        edm::LogInfo("FourVectorHLTOffline") << "no index "<< l1index << " of that name " << v->getl1Path() << "\t" << "\t" << l1testTag;
-        continue; // not in this event
-      }
+      LogTrace("FourVectorHLTOffline") << "TestTag = " << l1testTag << endl;
+     
+     for (int i=0;i<sizeFilters; i++) {
+     
+      LogTrace("FourVectorHLTOffline") << "FilterTag = " << triggerObj->filterTag(i) << endl;
 
-      const trigger::Vids & idtype = triggerObj->filterIds(l1index);
-      const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
-      l1accept = l1k.size() > 0;
-      //LogTrace("FourVectorHLTOffline") << " triggertype = " << triggertype << " TriggerMuon  " <<  TriggerMuon << "   l1accept = " << l1accept << endl;
-      //if (l1k.size() == 0) cout << v->getl1Path() << endl;
-      //l1accept = true;
+     }
+     */
 
-      eleMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-      muoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-      tauMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-      phoMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-      jetMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-      btagMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
-      metMon.monitorDenominator(v, l1accept, idtype, l1k, toc);
+     if ( l1index >= triggerObj->sizeFilters() ) {
 
-      eleMon.fillL1Match(this);
-      muoMon.fillL1Match(this);
-      tauMon.fillL1Match(this);
-      phoMon.fillL1Match(this);
-      jetMon.fillL1Match(this);
-      btagMon.fillL1Match(this);
-      metMon.fillL1Match(this);
+       edm::LogInfo("FourVectorHLTOffline") << "no index "<< l1index << " of that name " << v->getl1Path() << "\t" << "\t" << l1testTag;
+       continue; // not in this event
 
+     }
+
+     const trigger::Vids & idtype = triggerObj->filterIds(l1index);
+     const trigger::Keys & l1k = triggerObj->filterKeys(l1index);
+     l1accept = l1k.size() > 0;
+     //LogTrace("FourVectorHLTOffline") << " triggertype = " << triggertype << " TriggerMuon  " <<  TriggerMuon << "   l1accept = " << l1accept << endl;
+     //if (l1k.size() == 0) cout << v->getl1Path() << endl;
+     //l1accept = true;
+
+     // loop over menitors
+     for(std::vector<BaseMonitor*>::iterator mit = monitors.begin(); mit!= monitors.end(); ++mit ) {
+       
+       (*mit)->monitorDenominator(v, l1accept, idtype, l1k, toc);
+       (*mit)->fillL1Match(this);
+
+     }
 
     // did we pass the numerator path?
     bool numpassed = false;
+
     for(int i = 0; i < npath; ++i) {
+
       if (triggerNames.triggerName(i) == v->getPath() && triggerResults->accept(i)) numpassed = true;
+
     }
 
     if (numpassed)
     { 
 
-
- 
       if (!l1accept) {
+
             edm::LogInfo("FourVectorHLTOffline") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
+
       }
 
       // fill scaler histograms
@@ -535,51 +538,31 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       // Loop over HLT objects
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 
-        eleMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
-        muoMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
-        tauMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
-        phoMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
-        jetMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
-        btagMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
-        metMon.monitorOnline(idtype, l1k, ki, toc, NOnCount);
+        // loop over monitors
+        for(std::vector<BaseMonitor*>::iterator mit = monitors.begin(); mit!= monitors.end(); ++mit ) {
+          
+          (*mit)->monitorOnline(idtype, l1k, ki, toc, NOnCount);
+
+        }
 
       } //online object loop
 
-      eleMon.fillOnlineMatch(this, l1k, toc);
-      muoMon.fillOnlineMatch(this, l1k, toc);
-      tauMon.fillOnlineMatch(this, l1k, toc);
-      phoMon.fillOnlineMatch(this, l1k, toc);
-      jetMon.fillOnlineMatch(this, l1k, toc);
-      btagMon.fillOnlineMatch(this, l1k, toc);
-      metMon.fillOnlineMatch(this, l1k, toc);
+      // loop over monitors
+      for(std::vector<BaseMonitor*>::iterator mit = monitors.begin(); mit!= monitors.end(); ++mit ) {
+        
+        (*mit)->fillOnlineMatch(this, l1k, toc);
 
+        //(*mit)->monitorOffline(this);
+        //(*mit)->fillOffMatch(this);
 
-      /*
-      eleMon.monitorOffline(this);
-      muoMon.monitorOffline(this);
-      tauMon.monitorOffline(this);
-      phoMon.monitorOffline(this);
-      jetMon.monitorOffline(this);
-      btagMon.monitorOffline(this);
-
-
-      eleMon.fillOffMatch(this);
-      muoMon.fillOffMatch(this);
-      tauMon.fillOffMatch(this);
-      phoMon.fillOffMatch(this);
-      jetMon.fillOffMatch(this);
-      btagMon.fillOffMatch(this);
-      */
-
-
+      }
 
     } //numpassed
 
-    
 
-    } //denompassed
+   } //denompassed
 
-  } //pathinfo loop
+ } //pathinfo loop
 
 }
 
