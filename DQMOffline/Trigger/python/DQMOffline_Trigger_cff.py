@@ -24,8 +24,9 @@ from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 #from DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi import *
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
+from DQMOffline.Trigger.QuadJetAna_cfi import *
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 l1temumonitor = cms.Sequence(l1demon) 
 
-triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource )
+triggerOfflineDQMSource = cms.Sequence(l1temumonitor*l1tmonitor*hltResults*egHLTOffDQMSource*muonFullOfflineDQM*HLTTauDQMOffline*jetMETHLTOfflineSource*quadJetAna )
