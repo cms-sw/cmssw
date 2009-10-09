@@ -88,10 +88,12 @@ PlotPoint limitedFit (const TH1D& fHist, int fFirstBin, int fLastBin) {
   result.width = width;
   result.widtherror = widthError;
   result.valid = true;
-//   std::cout << "limitedFit-> " << fFirstBin << '/' << fLastBin
-// 	    << ", chi2: " << chi2 
-// 	    << ", result: " << result.y << '/' << result.meanerror << '/' 
-// 	    << result.width << '/' << result.widtherror << std::endl;
+  bool printout=false;
+  if (printout)
+  std::cout << "limitedFit-> " << fFirstBin << '/' << fLastBin
+	    << ", chi2: " << chi2 
+	    << ", result: " << result.y << '/' << result.meanerror << '/' 
+	    << result.width << '/' << result.widtherror << std::endl;
   return result;
 }
 

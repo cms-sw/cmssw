@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.25 2009/06/22 15:58:31 jribnik Exp $
+// $Id: Muon.h,v 1.26 2009/08/11 04:23:31 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.25 2009/06/22 15:58:31 jribnik Exp $
+  \version  $Id: Muon.h,v 1.26 2009/08/11 04:23:31 srappocc Exp $
 */
 
 
@@ -133,7 +133,7 @@ namespace pat {
       /// numberOfValidHits returns the number of valid hits on the global track.
       unsigned int numberOfValidHits() const;
       void setNumberOfValidHits(unsigned int numberOfValidHits ) 
-      { numberOfValidHits_ = numberOfValidHits; cachedNormChi2_ = true; }
+      { numberOfValidHits_ = numberOfValidHits; cachedNumberOfValidHits_ = true; }
 
       /// Norm chi2 gives the normalized chi2 of the global track. 
       double normChi2() const;

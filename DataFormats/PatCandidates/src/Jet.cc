@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.30 2009/03/26 20:04:10 rwolf Exp $
+// $Id: Jet.cc,v 1.32 2009/09/25 15:42:21 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -15,7 +15,17 @@ Jet::Jet() :
   embeddedCaloTowers_(false),
   partonFlavour_(0), 
   jetCharge_(0.)
-{
+{      
+  jetID_.fHPD = 0.;
+  jetID_.fRBX = 0.;
+  jetID_.n90Hits = 0;
+  jetID_.fSubDetector1 = 0.;
+  jetID_.fSubDetector2 = 0.;
+  jetID_.fSubDetector3 = 0.;
+  jetID_.fSubDetector4 = 0.;
+  jetID_.restrictedEMF = 0.;
+  jetID_.nHCALTowers = 0;
+  jetID_.nECALTowers = 0;  
 }
 
 /// constructor from a reco::Jet
@@ -25,6 +35,16 @@ Jet::Jet(const reco::Jet & aJet) :
   partonFlavour_(0), 
   jetCharge_(0.0)
 {
+  jetID_.fHPD = 0.;
+  jetID_.fRBX = 0.;
+  jetID_.n90Hits = 0;
+  jetID_.fSubDetector1 = 0.;
+  jetID_.fSubDetector2 = 0.;
+  jetID_.fSubDetector3 = 0.;
+  jetID_.fSubDetector4 = 0.;
+  jetID_.restrictedEMF = 0.;
+  jetID_.nHCALTowers = 0;
+  jetID_.nECALTowers = 0;
   tryImportSpecific(aJet);
 }
 
@@ -35,6 +55,16 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   partonFlavour_(0), 
   jetCharge_(0.0)
 {
+  jetID_.fHPD = 0.;
+  jetID_.fRBX = 0.;
+  jetID_.n90Hits = 0;
+  jetID_.fSubDetector1 = 0.;
+  jetID_.fSubDetector2 = 0.;
+  jetID_.fSubDetector3 = 0.;
+  jetID_.fSubDetector4 = 0.;
+  jetID_.restrictedEMF = 0.;
+  jetID_.nHCALTowers = 0;
+  jetID_.nECALTowers = 0;
   tryImportSpecific(*aJetRef);
 }
 
@@ -45,6 +75,16 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   partonFlavour_(0), 
   jetCharge_(0.0)
 {
+  jetID_.fHPD = 0.;
+  jetID_.fRBX = 0.;
+  jetID_.n90Hits = 0;
+  jetID_.fSubDetector1 = 0.;
+  jetID_.fSubDetector2 = 0.;
+  jetID_.fSubDetector3 = 0.;
+  jetID_.fSubDetector4 = 0.;
+  jetID_.restrictedEMF = 0.;
+  jetID_.nHCALTowers = 0;
+  jetID_.nECALTowers = 0;
   tryImportSpecific(*aJetRef);
 }
 

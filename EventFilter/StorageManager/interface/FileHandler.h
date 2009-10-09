@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
+// $Id: FileHandler.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -6,6 +6,7 @@
 
 #include <EventFilter/StorageManager/interface/Configuration.h>
 #include <EventFilter/StorageManager/interface/FilesMonitorCollection.h>
+#include <EventFilter/StorageManager/interface/I2OChain.h>
 #include <EventFilter/StorageManager/interface/Utils.h>
 #include <IOPool/Streamer/interface/MsgHeader.h>
 
@@ -16,14 +17,12 @@
 
 namespace stor {
 
-  class I2OChain;
-
   /**
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class FileHandler
@@ -34,7 +33,7 @@ namespace stor {
     (
       FilesMonitorCollection::FileRecordPtr,
       const DiskWritingParams&,
-      const long long& maxFileSize
+      const unsigned long long& maxFileSize
      );
     
     virtual ~FileHandler() {};
@@ -47,18 +46,13 @@ namespace stor {
     /**
      * Returns true if the file has not seen any recent events
      */
-    virtual bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime()) = 0;
-
-    /**
-     * Returns true if the file corresponds to the given lumi section
-     */
-    virtual bool isFromLumiSection(const uint32_t lumiSection) = 0;
+    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime()) = 0;
 
     /**
      * Returns true if the additional data size would push the file size
      * beyond maxFileSize.
      */
-    bool tooLarge(const unsigned long& dataSize);
+    const bool tooLarge(const unsigned long& dataSize);
 
         
     /////////////////////////////
@@ -79,27 +73,28 @@ namespace stor {
     /**
      * Return the number of events in the file
      */
-    int events() const;
+    const int events() const;
     
     /**
      * Return the luminosity section the file belongs to
      */
-    uint32 lumiSection() const
+    const uint32 lumiSection() const
     { return _fileRecord->lumiSection; }
     
     /**
      * Return the size of the file in bytes
      */
-    long long fileSize() const;
-
-    /**
-     * Close the file
-     */
-    virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&) = 0;
+    const unsigned long long fileSize() const;
 
 
   protected:
     
+    /**
+     * Close the file
+     */
+    virtual void closeFile() = 0;
+
+
     ////////////////////////////
     // File parameter setters //
     ////////////////////////////
@@ -141,11 +136,7 @@ namespace stor {
     /**
      * Move index and streamer file to "closed" directory
      */
-    void moveFileToClosed
-    (
-      const bool& useIndexFile,
-      const FilesMonitorCollection::FileRecord::ClosingReason&
-    );
+    void moveFileToClosed(const bool& useIndexFile);
 
 
   private:
@@ -180,12 +171,12 @@ namespace stor {
     /**
      * Return the name of the log file
      */
-    std::string logFile(const DiskWritingParams&) const;
+    const std::string logFile(const DiskWritingParams&) const;
 
     /**
      * Return the relative difference btw to file sizes
      */
-    double calcPctDiff(const double&, const double&) const;
+    const double calcPctDiff(const double&, const double&) const;
     
 
   private:
@@ -202,11 +193,13 @@ namespace stor {
     utils::time_point_t _firstEntry;                // time when first event was writen
     utils::time_point_t _lastEntry;                 // time when latest event was writen
 
+    FilesMonitorCollection::FileRecord::ClosingReason _closingReason;
+
     const DiskWritingParams& _diskWritingParams;
     
   private:
     
-    const long long    _maxFileSize;                // maximal file size in bytes
+    const unsigned long long _maxFileSize;          // maximal file size in bytes
     
     const std::string  _logPath;                    // log path
     const std::string  _logFile;                    // log file including path

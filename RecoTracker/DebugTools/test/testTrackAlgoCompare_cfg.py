@@ -11,16 +11,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ### input files
 process.source = cms.Source("PoolSource", 
-    #fileNames = cms.untracked.vstring('file:${HOME}/samples/ttbar.root') 
-    fileNames = cms.untracked.vstring('file:${HOME}/samples/ttbar2.root') 
+    fileNames = cms.untracked.vstring('file:/home/users/kelley/samples/reco_2110.root') 
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # Track Associators
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
-
-process.TrackAssociatorByHits.SimToRecoDenominator = 'reco'
 
 # Include MagneticField Record (note: you must have this module included for the association to work)
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -46,9 +43,9 @@ process.load("RecoTracker.DebugTools.TrackAlgoCompareUtil_cff")
 #process.trackAlgoCompareUtil.trackLabel_algoB = cms.InputTag("cutsRTAlgoB")
 #process.trackAlgoCompareUtil.trackingParticleLabel_effic = cms.InputTag("cutsTPEffic")
 #process.trackAlgoCompareUtil.trackingParticleLabel_fakes = cms.InputTag("cutsTPFake")
-process.trackAlgoCompareUtil.UseAssociators = cms.bool(True)
+process.trackAlgoCompareUtil.UseAssociators = cms.bool(False)
 process.trackAlgoCompareUtil.assocLabel_algoA = cms.untracked.string("TrackAssociationByHits"); 
-process.trackAlgoCompareUtil.assocLabel_algoB = cms.untracked.string("TrackAssociationByHits"); 
+process.trackAlgoCompareUtil.assocLabel_algoA = cms.untracked.string("TrackAssociationByChi2"); 
 
 process.out = cms.OutputModule("PoolOutputModule", 
     outputCommands = cms.untracked.vstring(

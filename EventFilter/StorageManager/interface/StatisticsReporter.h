@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.8 2009/08/24 14:31:11 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -10,8 +10,7 @@
 #include "xdata/InfoSpace.h"
 #include "xdata/UnsignedInteger32.h"
 
-#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
@@ -21,7 +20,6 @@
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/Utils.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
@@ -34,8 +32,6 @@
 
 namespace stor {
 
-  class AlarmHandler;
-
   /**
    * Singleton to keep track of all monitoring and statistics issues
    *
@@ -43,21 +39,19 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
   {
   public:
     
-    explicit StatisticsReporter
-    (
-      xdaq::Application*,
-      const utils::duration_t& monitoringSleepSec
-    );
+    explicit StatisticsReporter(xdaq::Application*);
     
     virtual ~StatisticsReporter();
+
+    typedef boost::shared_ptr<ConsumerMonitorCollection> CMCPtr;
 
     const RunMonitorCollection& getRunMonitorCollection() const
     { return _runMonCollection; }
@@ -115,19 +109,15 @@ namespace stor {
     { return _stateMachineMonCollection; }
 
 
-    const EventConsumerMonitorCollection& getEventConsumerMonitorCollection() const
-    { return _eventConsumerMonCollection; }
+    CMCPtr getEventConsumerMonitorCollection()
+    {
+      return _eventConsumerMonitorCollection;
+    }
 
-    EventConsumerMonitorCollection& getEventConsumerMonitorCollection()
-    { return _eventConsumerMonCollection; }
-
-
-    const DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection() const
-    { return _dqmConsumerMonCollection; }
-
-    DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection()
-    { return _dqmConsumerMonCollection; }
-
+    CMCPtr getDQMConsumerMonitorCollection()
+    {
+      return _dqmConsumerMonitorCollection;
+    }
 
     const ThroughputMonitorCollection& getThroughputMonitorCollection() const
     { return _throughputMonCollection; }
@@ -169,10 +159,6 @@ namespace stor {
     void updateInfoSpace();
 
     xdaq::Application* _app;
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
-    utils::duration_t _monitoringSleepSec;
-    utils::time_point_t _lastMonitorAction;
-
     RunMonitorCollection _runMonCollection;
     FragmentMonitorCollection _fragMonCollection;
     FilesMonitorCollection _filesMonCollection;
@@ -181,8 +167,8 @@ namespace stor {
     DQMEventMonitorCollection _dqmEventMonCollection;
     ResourceMonitorCollection _resourceMonCollection;
     StateMachineMonitorCollection _stateMachineMonCollection;
-    EventConsumerMonitorCollection _eventConsumerMonCollection;
-    DQMConsumerMonitorCollection _dqmConsumerMonCollection;
+    CMCPtr _eventConsumerMonitorCollection;
+    CMCPtr _dqmConsumerMonitorCollection;
     ThroughputMonitorCollection _throughputMonCollection;
     toolbox::task::WorkLoop* _monitorWL;      
     bool _doMonitoring;

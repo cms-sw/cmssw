@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.8 2009/09/17 11:03:49 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <vector>
 
-#include <boost/circular_buffer.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -20,11 +19,11 @@
 namespace stor {
 
   /**
-   * A collection of monitoring entities for open and closed files
+   * A collection of MonitoredQuantities of open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/09/17 11:03:49 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -37,22 +36,21 @@ namespace stor {
       {
         notClosed = 0,
         stop,
-        endOfLS,
+        Nminus2lumi,
         timeout,
-        size,
-        truncated
+        size
       };
 
-      uint32_t          entryCounter;       // file counter
-      uint32_t          runNumber;          // run number
-      uint32_t          lumiSection;        // luminosity section 
-      std::string       streamLabel;        // datastream label
-      std::string       baseFilePath;       // file path w/o the working directory
-      std::string       coreFileName;       // file name w/o instance & file ending
-      unsigned int      fileCounter;        // counter of number of coreFileNames used
-      ClosingReason     whyClosed;          // reason why the given file was closed
-      long long         fileSize;           // file size in bytes
-      uint32_t          eventCount;         // number of events
+      uint32_t           entryCounter;      // file counter
+      uint32_t           runNumber;         // run number
+      uint32_t           lumiSection;       // luminosity section 
+      std::string        streamLabel;       // datastream label
+      std::string        baseFilePath;      // file path w/o the working directory
+      std::string        coreFileName;      // file name w/o instance & file ending
+      unsigned int       fileCounter;       // counter of number of coreFileNames used
+      ClosingReason      whyClosed;         // reason why the given file was closed
+      unsigned long long fileSize;          // file size in bytes
+      uint32_t           eventCount;        // number of events
       std::string closingReason();          // reason why file was closed
       std::string filePath();               // complete file path
       std::string fileName();               // full file name w/o file ending
@@ -64,10 +62,10 @@ namespace stor {
     // We do not know how many files there will be.
     // Thus, we need a vector of them.
     typedef boost::shared_ptr<FileRecord> FileRecordPtr;
-    typedef boost::circular_buffer<FileRecordPtr> FileRecordList;
+    typedef std::vector<FileRecordPtr> FileRecordList;
 
 
-    explicit FilesMonitorCollection(const utils::duration_t& updateInterval);
+    FilesMonitorCollection();
 
     const FileRecordPtr getNewFileRecord();
 
@@ -92,9 +90,15 @@ namespace stor {
 
     const unsigned int _maxFileEntries; // maximum number of files to remember
     uint32_t _entryCounter;
+    uint32_t _numberOfErasedRecords;
 
     xdata::UnsignedInteger32 _closedFiles;                 // number of closed files
     xdata::UnsignedInteger32 _openFiles;                   // number of open files
+
+    // InfoSpace items which were defined in the old SM
+    // xdata::Vector<xdata::String> _fileList;                // list of file names
+    // xdata::Vector<xdata::UnsignedInteger32> _eventsInFile; // number of events in file N
+    // xdata::Vector<xdata::UnsignedInteger32> _fileSize;     // size in MB of file N
 
   };
   

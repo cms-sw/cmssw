@@ -16,11 +16,8 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistograms::FedCablingHistograms( const edm::ParameterSet& pset,
-                                            DQMOldReceiver* mui ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedCablingParameters"),
-                             mui,
-                             sistrip::FED_CABLING ),
+FedCablingHistograms::FedCablingHistograms( DQMOldReceiver* mui ) 
+  : CommissioningHistograms( mui, sistrip::FED_CABLING ),
     factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 
@@ -30,11 +27,8 @@ FedCablingHistograms::FedCablingHistograms( const edm::ParameterSet& pset,
 
 // -----------------------------------------------------------------------------
 /** */
-FedCablingHistograms::FedCablingHistograms( const edm::ParameterSet& pset,
-                                            DQMStore* bei ) 
-  : CommissioningHistograms( pset.getParameter<edm::ParameterSet>("FedCablingParameters"),
-                             bei,
-                             sistrip::FED_CABLING ),
+FedCablingHistograms::FedCablingHistograms( DQMStore* bei ) 
+  : CommissioningHistograms( bei, sistrip::FED_CABLING ),
     factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 
@@ -88,7 +82,7 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FedCablingAnalysis* anal = new FedCablingAnalysis( iter->first );
-    FedCablingAlgorithm algo( this->pset(), anal );
+    FedCablingAlgorithm algo( anal );
     algo.analysis( profs );
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }

@@ -1,13 +1,10 @@
-// $Id: Enabled.cc,v 1.7 2009/07/20 13:07:27 mommsen Exp $
+// $Id: Enabled.cc,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
 /// @file: Enabled.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
-#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
-#include "EventFilter/StorageManager/interface/TransitionRecord.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 

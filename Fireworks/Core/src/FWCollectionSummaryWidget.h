@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.4 2009/08/12 22:03:23 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.h,v 1.3 2009/05/27 15:40:48 chrjones Exp $
 //
 
 // system include files
@@ -44,8 +44,6 @@ class TGTextButton;
 namespace fireworks {
    class Context;
 }
-
-class FWCollectionSummaryWidgetConnectionHolder;
 
 class FWCollectionSummaryWidget : public TGCompositeFrame
 {
@@ -114,8 +112,6 @@ private:
    FWCollectionSummaryTableManager* m_tableManager;
    FWTableWidget* m_tableWidget;
    bool m_backgroundIsWhite;
-   
-   FWCollectionSummaryWidgetConnectionHolder* m_connectionHolder;
 };
 
 

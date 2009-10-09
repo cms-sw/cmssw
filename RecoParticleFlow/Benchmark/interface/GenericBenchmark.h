@@ -216,7 +216,7 @@ void GenericBenchmark::fill(const C *RecoCollection,
     hEyRec->Fill(rec_particle->py() );
 
     hEtRecvsEt->Fill(gen_particle->et(),rec_particle->et());
-    hEtRecOverTrueEtvsTrueEt->Fill(gen_particle->et(),rec_particle->et()/gen_particle->et());
+    if (gen_particle->et()!=0.0) hEtRecOverTrueEtvsTrueEt->Fill(gen_particle->et(),rec_particle->et()/gen_particle->et());
 
     if( startFromGen ) 
       fillHistos( gen_particle, rec_particle, deltaR_cut, PlotAgainstReco);

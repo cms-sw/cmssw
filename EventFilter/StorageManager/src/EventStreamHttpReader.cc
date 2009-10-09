@@ -126,7 +126,7 @@ namespace edm
   {
   }
 
-  std::auto_ptr<edm::EventPrincipal> EventStreamHttpReader::read()
+  edm::EventPrincipal* EventStreamHttpReader::read()
   {
     // repeat a http get every N seconds until we get an event
     // wait for Storage Manager event server buffer to not be empty
@@ -137,18 +137,18 @@ namespace edm
     // re-registration if the SM is halted or stopped
 
     bool gotEvent = false;
-    std::auto_ptr<EventPrincipal> result(0);
+    edm::EventPrincipal* result = 0;
     while ((!gotEvent) && (!runEnded_) && (!edm::shutdown_flag))
     {
        result = getOneEvent();
-       if(result.get() != NULL) gotEvent = true;
+       if(result != 0) gotEvent = true;
     }
     // need next line so we only return a null pointer once for each end of run
     if(runEnded_) runEnded_ = false;
     return result;
   }
 
-  std::auto_ptr<edm::EventPrincipal> EventStreamHttpReader::getOneEvent()
+  edm::EventPrincipal* EventStreamHttpReader::getOneEvent()
   {
     // repeat a http get every N seconds until we get an event
     // wait for Storage Manager event server buffer to not be empty
@@ -240,7 +240,7 @@ namespace edm
       }
     } while (data.d_.length() == 0 && !edm::shutdown_flag);
     if (edm::shutdown_flag) {
-	return std::auto_ptr<edm::EventPrincipal>();
+	return 0;
     }
 
     int len = data.d_.length();
@@ -271,7 +271,7 @@ namespace edm
         setEndRun();
         runEnded_ = true;
       }
-      return std::auto_ptr<edm::EventPrincipal>();
+      return 0;
     } else {
       // reset need-to-set-end-run flag when we get the first event (here any event)
       endRunAlreadyNotified_ = false;
@@ -280,7 +280,7 @@ namespace edm
       // 29-Jan-2008, KAB:  catch (and re-throw) any exceptions decoding
       // the event data so that we can display the returned HTML and
       // (hopefully) give the user a hint as to the cause of the problem.
-      std::auto_ptr<edm::EventPrincipal> evtPtr;
+      edm::EventPrincipal* evtPtr = 0;
       try {
         HeaderView hdrView(&buf_[0]);
         if (hdrView.code() != Header::EVENT) {

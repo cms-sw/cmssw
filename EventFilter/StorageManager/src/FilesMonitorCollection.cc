@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.8 2009/09/17 10:58:12 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -10,13 +10,14 @@
 
 using namespace stor;
 
-FilesMonitorCollection::FilesMonitorCollection(const utils::duration_t& updateInterval) :
-MonitorCollection(updateInterval),
+FilesMonitorCollection::FilesMonitorCollection() :
+MonitorCollection(),
 _maxFileEntries(250),
-_entryCounter(0)
+_entryCounter(0),
+_numberOfErasedRecords(0)
 {
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
-  _fileRecords.set_capacity(_maxFileEntries);
+  _fileRecords.reserve(_maxFileEntries);
 }
 
 
@@ -24,6 +25,12 @@ const FilesMonitorCollection::FileRecordPtr
 FilesMonitorCollection::getNewFileRecord()
 {
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
+
+  if (_fileRecords.size() >= _maxFileEntries)
+  {
+    ++_numberOfErasedRecords;
+    _fileRecords.erase(_fileRecords.begin());
+  }
 
   boost::shared_ptr<FileRecord> fileRecord(new FilesMonitorCollection::FileRecord());
   fileRecord->entryCounter = _entryCounter++;
@@ -45,6 +52,7 @@ void FilesMonitorCollection::do_reset()
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
   _fileRecords.clear();
   _entryCounter = 0;
+  _numberOfErasedRecords = 0;
 }
 
 
@@ -52,6 +60,11 @@ void FilesMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceIt
 {
   infoSpaceItems.push_back(std::make_pair("openFiles", &_openFiles));
   infoSpaceItems.push_back(std::make_pair("closedFiles", &_closedFiles));
+
+  // These infospace items were defined in the old SM
+  // infoSpaceItems.push_back(std::make_pair("fileList", &_fileList));
+  // infoSpaceItems.push_back(std::make_pair("eventsInFile", &_eventsInFile));
+  // infoSpaceItems.push_back(std::make_pair("fileSize", &_fileSize));
 }
 
 
@@ -60,6 +73,7 @@ void FilesMonitorCollection::do_updateInfoSpaceItems()
   boost::mutex::scoped_lock sl(_fileRecordsMutex);
 
   _openFiles = 0;
+  _closedFiles = _numberOfErasedRecords;
   
   for (
     FileRecordList::const_iterator it = _fileRecords.begin(),
@@ -70,9 +84,9 @@ void FilesMonitorCollection::do_updateInfoSpaceItems()
   {
     if ( (*it)->whyClosed == FileRecord::notClosed )
       ++_openFiles;
+    else
+      ++_closedFiles;
   }
-
-  _closedFiles = _entryCounter - _openFiles;
 }
 
 
@@ -82,10 +96,9 @@ std::string FilesMonitorCollection::FileRecord::closingReason()
   {
     case notClosed:   return "open";
     case stop:        return "run stopped";
-    case endOfLS:     return "LS ended";
+    case Nminus2lumi: return "LS changed";
     case timeout:     return "timeout";
     case size:        return "file size";
-    case truncated:   return "TRUNCATED";
     default:          return "unknown";
   }
 }

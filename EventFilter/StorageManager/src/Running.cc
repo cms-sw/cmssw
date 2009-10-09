@@ -1,15 +1,13 @@
-// $Id: Running.cc,v 1.6 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Running.cc,v 1.5 2009/07/10 11:41:03 dshpakov Exp $
 /// @file: Running.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
-#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/TransitionRecord.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 
 #include <iostream>
 #include <unistd.h>

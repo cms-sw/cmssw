@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.5 2009/08/18 08:55:12 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.3 2009/07/09 15:34:29 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -11,24 +11,25 @@
 using namespace stor;
 
 
-StreamsMonitorCollection::StreamsMonitorCollection(const utils::duration_t& updateInterval) :
-MonitorCollection(updateInterval),
-_updateInterval(updateInterval),
-_timeWindowForRecentResults(300),
-_allStreamsFileCount(updateInterval, _timeWindowForRecentResults),
-_allStreamsVolume(updateInterval, _timeWindowForRecentResults),
-_allStreamsBandwidth(updateInterval, _timeWindowForRecentResults)
-{}
+StreamsMonitorCollection::StreamsMonitorCollection() :
+MonitorCollection(),
+_timeWindowForRecentResults(300)
+{
+  _allStreamsFileCount.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
+  _allStreamsVolume.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
+  _allStreamsBandwidth.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
+}
 
 
 const StreamsMonitorCollection::StreamRecordPtr
 StreamsMonitorCollection::getNewStreamRecord()
 {
   boost::mutex::scoped_lock sl(_streamRecordsMutex);
-
-  StreamRecordPtr streamRecord(
-    new StreamRecord(this,_updateInterval,_timeWindowForRecentResults)
-  );
+  
+  boost::shared_ptr<StreamRecord> streamRecord(new StreamsMonitorCollection::StreamRecord(this));
+  streamRecord->fileCount.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
+  streamRecord->volume.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
+  streamRecord->bandwidth.setNewTimeWindowForRecentResults(_timeWindowForRecentResults);
   _streamRecords.push_back(streamRecord);
   return streamRecord;
 }
@@ -87,7 +88,10 @@ void StreamsMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpace
 {
   infoSpaceItems.push_back(std::make_pair("storedEvents",  &_storedEvents));
   infoSpaceItems.push_back(std::make_pair("storedVolume",  &_storedVolume));
-  infoSpaceItems.push_back(std::make_pair("bandwithToDisk",  &_bandwithToDisk));
+
+  // These infospace items were defined in the old SM
+  // infoSpaceItems.push_back(std::make_pair("namesOfStream", &_namesOfStream));
+  // infoSpaceItems.push_back(std::make_pair("storedEventsInStream", &_storedEventsInStream));
 }
 
 
@@ -109,7 +113,6 @@ void StreamsMonitorCollection::do_updateInfoSpaceItems()
   
   _storedEvents = static_cast<xdata::UnsignedInteger32>(allStreamsVolumeStats.getSampleCount());
   _storedVolume = static_cast<xdata::Double>(allStreamsVolumeStats.getValueSum());
-  _bandwithToDisk = static_cast<xdata::Double>(allStreamsVolumeStats.getValueRate(MonitoredQuantity::RECENT));
 }
 
 

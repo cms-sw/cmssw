@@ -33,11 +33,9 @@ namespace stor
     enum DataSetType { FULL = 0,      // the full data set (all samples)
                        RECENT = 1 };  // recent data only
 
-    explicit MonitoredQuantity
-    (
-      utils::duration_t expectedCalculationInterval,
-      utils::duration_t timeWindowForRecentResults
-    );
+    static utils::duration_t ExpectedCalculationInterval();
+
+    explicit MonitoredQuantity(double timeWindowForRecentResults = 10.0);
 
     /**
      * Adds the specified doubled valued sample value to the monitor instance.
@@ -55,11 +53,16 @@ namespace stor
     void addSample(const uint32_t value = 1);
 
     /**
+     * Adds the specified uint64_t valued sample value to the monitor instance.
+     */
+    void addSample(const uint64_t value = 1);
+
+    /**
      * Forces a calculation of the statistics for the monitored quantity.
      * The frequency of the updates to the statistics is driven by how
      * often this method is called.  It is expected that this method
      * will be called once per interval specified by
-     * expectedCalculationInterval
+     * EXPECTED_CALCULATION_INTERVAL.
      */
     void calculateStatistics(utils::time_point_t currentTime = 
                              utils::getCurrentTime());
@@ -82,15 +85,15 @@ namespace stor
     void disable();
 
     /**
-     * Tests whether the monitor is currently enabled.
-     */
-    bool isEnabled() const {return _enabled;}
-
-    /**
      * Specifies a new time interval to be used when calculating
      * "recent" statistics.
      */
     void setNewTimeWindowForRecentResults(utils::duration_t interval);
+
+    /**
+     * Tests whether the monitor is currently enabled.
+     */
+//     bool isEnabled() const {return _enabled;}
 
     /**
      * Returns the length of the time window that has been specified
@@ -100,14 +103,8 @@ namespace stor
      * a getDuration(RECENT) call to determine the actual recent
      * time window.)
      */
-    utils::duration_t getTimeWindowForRecentResults() const
-    {
+    utils::duration_t getTimeWindowForRecentResults() const {
       return _intervalForRecentStats;
-    }
-
-    utils::duration_t ExpectedCalculationInterval() const
-    {
-      return _expectedCalculationInterval;
     }
 
     /**
@@ -135,8 +132,8 @@ namespace stor
 
     mutable boost::mutex _accumulationMutex;
 
-    unsigned int _binCount;
-    unsigned int _workingBinId;
+    int _binCount;
+    int _workingBinId;
     std::vector<long long> _binSampleCount;
     std::vector<double> _binValueSum;
     std::vector<double> _binValueSumOfSquares;
@@ -172,7 +169,6 @@ namespace stor
 
     bool _enabled;
     utils::duration_t _intervalForRecentStats;  // seconds
-    const utils::duration_t _expectedCalculationInterval;  // seconds
   };
 
   struct MonitoredQuantity::Stats

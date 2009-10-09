@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.7 2009/09/18 09:10:52 mommsen Exp $
+// $Id: Exception.h,v 1.3 2009/07/01 13:48:49 dshpakov Exp $
 /// @file: Exception.h 
 
 #ifndef StorageManager_Exception_h
@@ -31,9 +31,9 @@ namespace stor {
   /**
      List of exceptions thrown by the StorageManager
 
-     $Author: mommsen $
-     $Revision: 1.7 $
-     $Date: 2009/09/18 09:10:52 $
+     $Author: dshpakov $
+     $Revision: 1.4 $
+     $Date: 2009/07/14 10:34:44 $
     
      @file: Exception.h
   */
@@ -121,11 +121,6 @@ XCEPT_DEFINE_EXCEPTION(stor, DQMEventProcessing)
 XCEPT_DEFINE_EXCEPTION(stor, DiskWriting)
 
 /**
- * Exception raised when an output file is truncated
- */
-XCEPT_DEFINE_EXCEPTION(stor, FileTruncation)
-
-/**
  * Exception when requested directory does not exist
  */
 XCEPT_DEFINE_EXCEPTION( stor, NoSuchDirectory )
@@ -141,40 +136,15 @@ XCEPT_DEFINE_EXCEPTION( stor, ConsumerRegistration )
 XCEPT_DEFINE_EXCEPTION( stor, DQMConsumerRegistration )
 
 /**
- * Exception for sentinel alarm for CopyWorkers count
- */
-XCEPT_DEFINE_EXCEPTION( stor, CopyWorkers )
-
-/**
- * Exception for sentinel alarm for InjectWorkers count
- */
-XCEPT_DEFINE_EXCEPTION( stor, InjectWorkers )
-
-/**
  * Exception for sentinel alarm if disk space fills up
  */
 XCEPT_DEFINE_EXCEPTION( stor, DiskSpaceAlarm )
 
-/**
- * Exception for sentinel alarm if problems with SATA beasts
- */
-XCEPT_DEFINE_EXCEPTION( stor, SataBeast )
 
 /**
  * State transition error
  */
 XCEPT_DEFINE_EXCEPTION( stor, StateTransition )
-
-/**
- * Exception for sentinel alarm if stale chains are found
- */
-XCEPT_DEFINE_EXCEPTION( stor, StaleChain )
-
-/**
- * Exception for sentinel alarm if discards are ignored
- */
-XCEPT_DEFINE_EXCEPTION( stor, IgnoredDiscard )
-
 
 #endif // StorageManager_Exception_h
 

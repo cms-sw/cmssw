@@ -19,7 +19,7 @@ process.prod = cms.EDAnalyzer("PerfectGeometryAnalyzer"
                               ,dumpSpecs = cms.untracked.bool(True)
                               ,dumpGeoHistory = cms.untracked.bool(True)
                               ,label = cms.untracked.string("") #actually defaults to blank and IS default Geometry.
-                              ,isMagField = cms.untracked.bool(False) 
+                              ,isMagField = cms.untracked.bool(False) #actually redundant, could use label="magfield"
                               ,outFileName = cms.untracked.string("GeoHistory") #GeoHistory is the default name
                               ,numNodesToDump = cms.untracked.uint32(0) #0 means ALL, you can limit the number of nodes dumped.
                               )
@@ -31,7 +31,7 @@ process.prodmag = cms.EDAnalyzer("PerfectGeometryAnalyzer"
                               ,dumpSpecs = cms.untracked.bool(True)
                               ,dumpGeoHistory = cms.untracked.bool(True)
                               ,label = cms.untracked.string("magfield") #actually defaults to blank and IS default Geometry.
-                              ,isMagField = cms.untracked.bool(True) 
+                              ,isMagField = cms.untracked.bool(True) #actually redundant, could use label="magfield"
                               ,outFileName = cms.untracked.string("MagF") #GeoHistory is the default name
                               ,numNodesToDump = cms.untracked.uint32(0) #0 means ALL, you can limit the number of nodes dumped.
                               )

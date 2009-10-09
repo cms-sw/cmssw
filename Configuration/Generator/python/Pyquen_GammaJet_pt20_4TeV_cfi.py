@@ -23,4 +23,3 @@ hiSignal = cms.EDFilter("PyquenGeneratorFilter",
                          )
 
 hiSignal.embeddingMode = True
-

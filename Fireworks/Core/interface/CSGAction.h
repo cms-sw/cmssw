@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id: CSGAction.h,v 1.14 2009/08/26 18:59:20 amraktad Exp $
+// $Id: CSGAction.h,v 1.12 2009/01/23 21:35:40 amraktad Exp $
 //
 
 // system include files
@@ -30,16 +30,17 @@
 // user include files
 
 // forward declarations
+class CmsShowMainFrame;
+class CSGConnector;
 class TGMenuBar;
 class TString;
-class CSGActionSupervisor;
-class CSGConnector;
+
 class FWCustomIconsButton;
 
 class CSGAction : public sigc::trackable {
 
 public:
-   CSGAction(CSGActionSupervisor *supervisor, const char *name);
+   CSGAction(CmsShowMainFrame *frame, const char *name);
    virtual ~CSGAction();
 
    // ---------- const member functions ---------------------
@@ -62,7 +63,6 @@ public:
    void setMenuLabel(const std::string& label);
    void setToolTip(const std::string& tip);
    void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
-   void createCheckButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Bool_t state = true, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), FontStruct_t font = TGTextButton::GetDefaultFontStruct());
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC() (), UInt_t option = kRaisedFrame|kDoubleBorder);
    FWCustomIconsButton* createCustomIconsButton(TGCompositeFrame* p,
                                                 const TGPicture* upPic,
@@ -72,8 +72,10 @@ public:
                                                 Int_t id = -1,
                                                 GContext_t norm = TGButton::GetDefaultGC() (),
                                                 UInt_t option = 0);
-   void createShortcut(UInt_t key, const char *mod, int windowID);
+   void createShortcut(UInt_t key, const char *mod);
    void createMenuEntry(TGPopupMenu *menu);
+   void createToolBarEntry(TGToolBar *toolbar, const char *filename);
+
    void enable();
    void disable();
 
@@ -96,7 +98,7 @@ private:
    void enableImp();
    void disableImp();
    // ---------- member data --------------------------------
-   CSGActionSupervisor *m_supervisor;
+   CmsShowMainFrame *m_frame;
    std::string m_name;
    std::string m_toolTip;
    TString m_scCombo;
@@ -107,10 +109,9 @@ private:
    int m_entry;
    TGToolBar *m_toolBar;
    ToolBarData_t *m_tools;
-   CSGConnector  *m_connector;
+   CSGConnector *m_connector;
    Bool_t m_enabled;
    Bool_t m_globalEnabled;
-   int m_windowID;
 };
 
 

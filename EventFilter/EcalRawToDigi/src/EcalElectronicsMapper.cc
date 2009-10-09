@@ -26,9 +26,9 @@ mappingBuilder_(0)
 	}
       }
       //Reset SC Det Ids
-      //scDetIds_[sm][fe]=0;
+      scDetIds_[sm][fe]=0;
       scEleIds_[sm][fe]=0;
-      //srFlags_[sm][fe]=0;
+      srFlags_[sm][fe]=0;
     }
   }
   
@@ -155,10 +155,12 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
         }
       }
 
-      // if(scDetIds_[sm][fe]){ 
-      //  delete scDetIds_[sm][fe];
-      //  delete scEleIds_[sm][fe];
-      for(size_t i = 0; i< srFlags_[sm][fe].size(); ++i) delete srFlags_[sm][fe][i];
+      if(scDetIds_[sm][fe]){ 
+        delete scDetIds_[sm][fe];
+        delete scEleIds_[sm][fe];
+        delete srFlags_[sm][fe];
+      }
+
     }
  
   }
@@ -424,11 +426,7 @@ void EcalElectronicsMapper::fillMaps(){
         }
 
         // Buil SRP Flag
-        srFlags_[smId-1][feChannel-1].push_back(new EBSrFlag(*ttDetId,0));
-
-	//only one element for barrel: 1-to-1 correspondance between
-	//DCC channels and EB trigger tower:
-	assert(srFlags_[smId-1][feChannel-1].size()==1);
+        srFlags_[smId-1][feChannel-1] = new EBSrFlag(*ttDetId,0);
  
         for(uint stripId =1; stripId<=5; stripId++){
 		    
@@ -480,6 +478,8 @@ void EcalElectronicsMapper::fillMaps(){
 	  }
         }
         
+
+        
         // creating arrays of pointers for digi objects
 	for(uint feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
 
@@ -488,21 +488,11 @@ void EcalElectronicsMapper::fillMaps(){
                (MIN_CCUID_JUMP <= feChannel && feChannel <=MAX_CCUID_JUMP )
                ) continue;
             
-	    vector<EcalScDetId> scDetIds = mappingBuilder_->getEcalScDetId(smId,feChannel);
-	    // scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
-	    scEleIds_[smId-1][feChannel-1] = new EcalElectronicsId(smId,feChannel,1,1);
+          EcalScDetId scDetId = mappingBuilder_->getEcalScDetId(smId,feChannel);
+          scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
+	  scEleIds_[smId-1][feChannel-1] = new EcalElectronicsId(smId,feChannel,1,1);
+          srFlags_[smId-1][feChannel-1]  = new EESrFlag( EcalScDetId( scDetId.rawId() ) , 0 ); 
 
-	    for(size_t i = 0; i < scDetIds.size(); ++i){
-	      // std::cout << __FILE__ << ":" << __LINE__ << ": "
-	      // 	   << "(DCC,RU) = (" <<  smId << "," << feChannel
-	      // 	   << ") -> " << scDetIds[i] << "\n";
-	      
-	      srFlags_[smId-1][feChannel-1].push_back(new EESrFlag( EcalScDetId( scDetIds[i].rawId() ) , 0 ));
-	    }
-	    //usually only one element 1 DCC channel <-> 1 SC
-	    //in few case two or three elements: partial SCs grouped. 
-	    assert(srFlags_[smId-1][feChannel-1].size()<=3);
-	    
           std::vector<DetId> ecalDetIds = mappingBuilder_->dccTowerConstituents(smId,feChannel);
           std::vector<DetId>::iterator it;
 				  
@@ -516,6 +506,7 @@ void EcalElectronicsMapper::fillMaps(){
 		 
           EEDetId * detId = new EEDetId((*it).rawId());
           xtalDetIds_[smId-1][feChannel-1][stripId-1][xtalId-1] = detId;
+          
 	}// close loop over tower constituents
 	  
 	}// close loop over  FE Channels		

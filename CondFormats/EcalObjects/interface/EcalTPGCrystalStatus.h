@@ -10,9 +10,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"
 
 typedef EcalCondObjectContainer<EcalTPGCrystalStatusCode> EcalTPGCrystalStatusMap;
-
-
-typedef EcalTPGCrystalStatusMap::const_iterator EcalTPGCrystalStatusMapIterator;
 typedef EcalTPGCrystalStatusMap EcalTPGCrystalStatus;
 
 #endif

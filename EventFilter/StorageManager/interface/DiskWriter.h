@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: DiskWriter.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -14,14 +14,13 @@
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/StreamHandler.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 
 namespace stor {
-
-  class I2OChain;
-  class StreamHandler;
 
   /**
    * Writes events to disk
@@ -29,9 +28,9 @@ namespace stor {
    * It gets the next event from the StreamQueue and writes it
    * to the appropriate stream file(s) on disk. 
    *
-   * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:21 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -74,30 +73,14 @@ namespace stor {
     void writeEventToStreams(const I2OChain&);
 
     /**
-     * Reconfigure streams if a request is pending
-     */    
-    void checkStreamChangeRequest();
-
-    /**
-     * Close old files if fileClosingTestInterval has passed
-     * or do it now if argument is true
-     */    
-    void checkForFileTimeOuts(const bool doItNow = false);
-
-    /**
-     * Close all files for expired lumi sections
-     */    
-    void closeFilesForOldLumiSections();
-
-    /**
-     * Close all files belonging to the given lumi section
-     */    
-    void closeFilesForLumiSection(const uint32_t lumiSection);
-
-    /**
      * Close all timed-out files
      */    
-    void closeTimedOutFiles(const utils::time_point_t);
+    void closeTimedOutFiles();
+
+    /**
+     * Returns true if the next check for timed-out files is due
+     */    
+    bool timeToCheckForFileTimeOut();
 
     /**
      * Configures the event streams to be written to disk

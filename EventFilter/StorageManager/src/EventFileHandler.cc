@@ -1,9 +1,7 @@
-// $Id: EventFileHandler.cc,v 1.6 2009/09/16 13:45:57 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.4 2009/07/20 13:07:27 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
-#include <EventFilter/StorageManager/interface/Exception.h>
-#include <EventFilter/StorageManager/interface/I2OChain.h>
 #include <IOPool/Streamer/interface/EventMessage.h>
 
 #include <iostream>
@@ -16,7 +14,7 @@ EventFileHandler::EventFileHandler
   InitMsgSharedPtr view,
   FilesMonitorCollection::FileRecordPtr fileRecord,
   const DiskWritingParams& dwParams,
-  const long long& maxFileSize
+  const unsigned long long& maxFileSize
 ) :
 FileHandler(fileRecord, dwParams, maxFileSize),
 _writer(
@@ -25,6 +23,12 @@ _writer(
 )
 {
   writeHeader(view);
+}
+
+
+EventFileHandler::~EventFileHandler()
+{
+  closeFile();
 }
 
 
@@ -63,12 +67,12 @@ void EventFileHandler::writeEvent(const I2OChain& event)
 }
 
 
-bool EventFileHandler::tooOld(const utils::time_point_t currentTime)
+const bool EventFileHandler::tooOld(utils::time_point_t currentTime)
 {
   if (_diskWritingParams._lumiSectionTimeOut > 0 && 
     (currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
   {
-    closeFile(FilesMonitorCollection::FileRecord::timeout);
+    _closingReason = FilesMonitorCollection::FileRecord::timeout;
     return true;
   }
   else
@@ -78,36 +82,12 @@ bool EventFileHandler::tooOld(const utils::time_point_t currentTime)
 }
 
 
-bool EventFileHandler::isFromLumiSection(const uint32_t lumiSection)
-{
-  if (lumiSection == _fileRecord->lumiSection)
-  {
-    closeFile(FilesMonitorCollection::FileRecord::endOfLS);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-
-void EventFileHandler::closeFile(const FilesMonitorCollection::FileRecord::ClosingReason& reason)
+void EventFileHandler::closeFile()
 {
   _writer.stop();
   _fileRecord->fileSize += _writer.getStreamEOFSize();
   setAdler(_writer.get_adler32_stream(), _writer.get_adler32_index());
-  try
-  {
-    moveFileToClosed(true, reason);
-  }
-  catch (stor::exception::DiskWriting& e)
-  {
-    _fileRecord->fileSize -= _writer.getStreamEOFSize();
-
-    XCEPT_RETHROW(stor::exception::DiskWriting, 
-      "Failed to close " + _fileRecord->completeFileName(), e);
-  }
+  moveFileToClosed(true);
   writeToSummaryCatalog();
   updateDatabase();
 }

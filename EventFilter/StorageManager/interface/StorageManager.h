@@ -1,4 +1,4 @@
-// $Id: StorageManager.h,v 1.54 2009/08/28 14:35:33 mommsen Exp $
+// $Id: StorageManager.h,v 1.51 2009/07/10 11:41:03 dshpakov Exp $
 /// @file: StorageManager.h 
 
 #ifndef StorageManager_StorageManager_h
@@ -6,6 +6,9 @@
 
 #include <string>
 
+#include "EventFilter/StorageManager/interface/DiskWriter.h"
+#include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
+#include "EventFilter/StorageManager/interface/FragmentProcessor.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/WebPageHelper.h"
 
@@ -27,17 +30,12 @@ namespace xgi {
 
 namespace stor {
 
-  class DiskWriter;
-  class DQMEventProcessor;
-  class FragmentProcessor;
-
-
   /**
    * Main class of the StorageManager XDAQ application
    *
-   * $Author: mommsen $
-   * $Revision: 1.54 $
-   * $Date: 2009/08/28 14:35:33 $
+   * $Author: dshpakov $
+   * $Revision: 1.51 $
+   * $Date: 2009/07/10 11:41:03 $
    */
 
   class StorageManager: public xdaq::Application

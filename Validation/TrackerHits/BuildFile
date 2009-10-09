@@ -1,7 +1,6 @@
 <use name="DQMServices/Core">
 <use name="DataFormats/Common">
 <use name="DataFormats/DetId">
-<use name="DataFormats/Math">
 <use name="DataFormats/Provenance">
 <use name="DataFormats/SiPixelDetId">
 <use name="DataFormats/SiStripDetId">
@@ -12,13 +11,8 @@
 <use name="Geometry/CommonDetUnit">
 <use name="Geometry/Records">
 <use name="Geometry/TrackerGeometryBuilder">
-<use name="SimDataFormats/CaloHit">
-<use name="SimDataFormats/EncodedEventId">
 <use name="SimDataFormats/GeneratorProducts">
-<use name="SimDataFormats/Track">
-<use name="SimDataFormats/TrackingHit">
 <use name="SimDataFormats/ValidationFormats">
-<use name="SimDataFormats/Vertex">
 <use name="clhep">
 <use name="rootcore">
 <flags EDM_PLUGIN="1">

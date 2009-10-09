@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.10 2009/09/16 16:59:09 biery Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.5 2009/07/09 15:34:44 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef StorageManager_DataSenderMonitorCollection_h
@@ -7,7 +7,6 @@
 #include <map>
 
 #include "xdata/UnsignedInteger32.h"
-#include "xdata/Integer32.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -18,16 +17,13 @@
 
 namespace stor {
 
-  class AlarmHandler;
-
-
   /**
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
-   * $Author: biery $
-   * $Revision: 1.10 $
-   * $Date: 2009/09/16 16:59:09 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -127,9 +123,6 @@ namespace stor {
       unsigned int initMsgSize;
       //MonitoredQuantity fragmentSize;
       MonitoredQuantity eventSize;
-      
-      OutputModuleRecord(const utils::duration_t& updateInterval) :
-        eventSize(updateInterval,10) {}
     };
     typedef boost::shared_ptr<OutputModuleRecord> OutModRecordPtr;
     typedef std::map<OutputModuleKey, OutModRecordPtr> OutputModuleRecordMap;
@@ -141,8 +134,7 @@ namespace stor {
     {
       FilterUnitKey key;
       OutputModuleRecordMap outputModuleMap;
-      MonitoredQuantity shortIntervalEventSize;
-      MonitoredQuantity mediumIntervalEventSize;
+      MonitoredQuantity eventSize;
       MonitoredQuantity dqmEventSize;
       MonitoredQuantity errorEventSize;
       MonitoredQuantity staleChainSize;
@@ -158,15 +150,8 @@ namespace stor {
       unsigned long long latchedDQMDiscardCount;
       unsigned long long latchedSkippedDiscardCount;
 
-      explicit FilterUnitRecord
-      (
-        FilterUnitKey fuKey,
-        const utils::duration_t& updateInterval
-      ) :
-        key(fuKey), shortIntervalEventSize(updateInterval,10),
-        mediumIntervalEventSize(updateInterval,300), dqmEventSize(updateInterval,10),
-        errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
-        initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+      explicit FilterUnitRecord(FilterUnitKey fuKey) :
+        key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
         workingDataDiscardCount(0), workingDQMDiscardCount(0),
         workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
         latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
@@ -203,14 +188,8 @@ namespace stor {
       unsigned long long latchedDQMDiscardCount;
       unsigned long long latchedSkippedDiscardCount;
 
-      explicit ResourceBrokerRecord
-      (
-        ResourceBrokerKey rbKey,
-        const utils::duration_t& updateInterval
-      ) :
-        key(rbKey), eventSize(updateInterval,10), dqmEventSize(updateInterval,10),
-        errorEventSize(updateInterval,10), staleChainSize(updateInterval,10),
-        initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
+      explicit ResourceBrokerRecord(ResourceBrokerKey rbKey) :
+        key(rbKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
         workingDataDiscardCount(0), workingDQMDiscardCount(0),
         workingSkippedDiscardCount(0), latchedDataDiscardCount(0),
         latchedDQMDiscardCount(0), latchedSkippedDiscardCount(0) {}
@@ -250,14 +229,11 @@ namespace stor {
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
       UniqueResourceBrokerID_t uniqueRBID;
-      int outstandingDataDiscardCount;
-      int outstandingDQMDiscardCount;
 
       explicit ResourceBrokerResult(ResourceBrokerKey const& rbKey):
         key(rbKey), filterUnitCount(0), initMsgCount(0),
         lastRunNumber(0), lastEventNumber(0), dataDiscardCount(0),
-        dqmDiscardCount(0), skippedDiscardCount(0), uniqueRBID(0),
-        outstandingDataDiscardCount(0), outstandingDQMDiscardCount(0) {}
+        dqmDiscardCount(0), skippedDiscardCount(0), uniqueRBID(0) {}
 
       bool operator<(ResourceBrokerResult const& other) const
       {
@@ -279,18 +255,14 @@ namespace stor {
       unsigned long long dataDiscardCount;
       unsigned long long dqmDiscardCount;
       unsigned long long skippedDiscardCount;
-      MonitoredQuantity::Stats shortIntervalEventStats;
-      MonitoredQuantity::Stats mediumIntervalEventStats;
+      MonitoredQuantity::Stats eventStats;
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats errorEventStats;
       MonitoredQuantity::Stats staleChainStats;
-      int outstandingDataDiscardCount;
-      int outstandingDQMDiscardCount;
 
       explicit FilterUnitResult(FilterUnitKey const& fuKey):
         key(fuKey), initMsgCount(0), lastRunNumber(0), lastEventNumber(0),
-        dataDiscardCount(0), dqmDiscardCount(0), skippedDiscardCount(0),
-        outstandingDataDiscardCount(0), outstandingDQMDiscardCount(0) {}
+        dataDiscardCount(0), dqmDiscardCount(0), skippedDiscardCount(0) {}
     };
     typedef boost::shared_ptr<FilterUnitResult> FUResultPtr;
     typedef std::vector<FUResultPtr> FilterUnitResultsList;
@@ -299,11 +271,7 @@ namespace stor {
     /**
      * Constructor.
      */
-    DataSenderMonitorCollection
-    (
-      const utils::duration_t& updateInterval,
-      boost::shared_ptr<AlarmHandler>
-    );
+    DataSenderMonitorCollection();
 
     /**
      * Adds the specified fragment to the monitor collection.
@@ -386,8 +354,6 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    void staleChainAlarm(const unsigned int&) const;
-    void ignoredDiscardAlarm(const unsigned int&) const;
 
     bool getAllNeededPointers(I2OChain const& i2oChain,
                               RBRecordPtr& rbRecordPtr,
@@ -420,20 +386,11 @@ namespace stor {
     mutable boost::mutex _collectionsMutex;
 
     xdata::UnsignedInteger32 _connectedRBs;
-    xdata::UnsignedInteger32 _connectedEPs;
-    xdata::UnsignedInteger32 _activeEPs;
-    xdata::Integer32 _outstandingDataDiscards;
-    xdata::Integer32 _outstandingDQMDiscards;
-    xdata::UnsignedInteger32 _staleChains;
-    xdata::UnsignedInteger32 _ignoredDiscards;
 
     OutputModuleRecordMap _outputModuleMap;
 
     std::map<ResourceBrokerKey, UniqueResourceBrokerID_t> _resourceBrokerIDs;
     std::map<UniqueResourceBrokerID_t, RBRecordPtr> _resourceBrokerMap;
-
-    const utils::duration_t _updateInterval;
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
 
   };
 

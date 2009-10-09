@@ -1,10 +1,8 @@
-// $Id: DQMEventMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: DQMEventMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
 /// @file: DQMEventMonitorCollection.h 
 
 #ifndef StorageManager_DQMEventMonitorCollection_h
 #define StorageManager_DQMEventMonitorCollection_h
-
-#include "xdata/Double.h"
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 
@@ -15,8 +13,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/09 15:34:44 $
    */
   
   class DQMEventMonitorCollection : public MonitorCollection
@@ -53,7 +51,7 @@ namespace stor {
       MonitoredQuantity::Stats numberOfWrittenGroupsStats; // number of groups written to disk
     };
 
-    explicit DQMEventMonitorCollection(const utils::duration_t& updateInterval);
+    DQMEventMonitorCollection();
 
     const MonitoredQuantity& getDQMEventSizeMQ() const {
       return _dqmEventSizes;
@@ -132,10 +130,6 @@ namespace stor {
 
     virtual void do_calculateStatistics();
     virtual void do_reset();
-    virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
-    virtual void do_updateInfoSpaceItems();
-
-    xdata::Double _dqmFoldersPerEP;
 
   };
   

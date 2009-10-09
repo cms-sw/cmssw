@@ -1,21 +1,13 @@
-// $Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $
+// $Id: StorageManager.cc,v 1.106 2009/07/13 07:11:17 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
-#include "EventFilter/StorageManager/interface/DiskWriter.h"
-#include "EventFilter/StorageManager/interface/DiskWriterResources.h"
-#include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
-#include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
-#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/FragmentProcessor.h"
-#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/SoapUtils.h"
 #include "EventFilter/StorageManager/interface/StorageManager.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
@@ -36,7 +28,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.114 2009/09/18 11:07:23 mommsen Exp $ $Name:  $")
+    "$Id: StorageManager.cc,v 1.106 2009/07/13 07:11:17 mommsen Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -46,29 +38,28 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   bindWebInterfaceCallbacks();
   bindConsumerCallbacks();
 
-  std::string errorMsg = "Exception in StorageManager constructor: ";
   try
-  {
-    // need the line below so that deserializeRegistry can run in
-    // order to compare two registries (cannot compare
-    // byte-for-byte) (if we keep this) need line below anyway in
-    // case we deserialize DQMEvents for collation
-    edm::RootAutoLibraryLoader::enable();
-    initializeSharedResources();
-  }
+    {
+      // need the line below so that deserializeRegistry can run in
+      // order to compare two registries (cannot compare
+      // byte-for-byte) (if we keep this) need line below anyway in
+      // case we deserialize DQMEvents for collation
+      edm::RootAutoLibraryLoader::enable();
+      initializeSharedResources();
+    }
   catch(std::exception &e)
-  {
-    errorMsg += e.what();
-    LOG4CPLUS_FATAL( getApplicationLogger(), e.what() );
-    XCEPT_RAISE( stor::exception::Exception, e.what() );
-  }
+    {
+      LOG4CPLUS_FATAL( getApplicationLogger(), e.what() );
+      XCEPT_RAISE( stor::exception::Exception, e.what() );
+    }
   catch(...)
   {
-    errorMsg += "unknown exception";
+    std::string errorMsg = "Unknown exception in StorageManager constructor";
     LOG4CPLUS_FATAL( getApplicationLogger(), errorMsg );
     XCEPT_RAISE( stor::exception::Exception, errorMsg );
   }
-  
+
+
   startWorkerThreads();
 }
 
@@ -126,7 +117,7 @@ void StorageManager::bindWebInterfaceCallbacks()
   xgi::bind(this,&StorageManager::dqmEventStatisticsWebPage,"dqmEventStatistics");
   xgi::bind(this,&StorageManager::consumerStatisticsPage,   "consumerStatistics" );
   xgi::bind(this,&StorageManager::consumerListWebPage,      "consumerList");
-  xgi::bind(this,&StorageManager::throughputWebPage,        "throughputStatistics");
+  xgi::bind(this,&StorageManager::throughputWebPage,"throughputStatistics");
 }
 
 
@@ -164,10 +155,7 @@ void StorageManager::initializeSharedResources()
   _sharedResources->_dqmEventQueue.
     reset(new DQMEventQueue(queueParams._dqmEventQueueSize));
 
-  _sharedResources->_statisticsReporter.reset(
-    new StatisticsReporter(this, _sharedResources->_configuration->
-      getWorkerThreadParams()._monitoringSleepSec)
-  );
+  _sharedResources->_statisticsReporter.reset(new StatisticsReporter(this));
   _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
   _sharedResources->_diskWriterResources.reset(new DiskWriterResources());
   _sharedResources->_dqmEventProcessorResources.reset(new DQMEventProcessorResources());
@@ -183,13 +171,11 @@ void StorageManager::initializeSharedResources()
                                              getDataSenderMonitorCollection()));
 
   _sharedResources->_registrationCollection.reset( new RegistrationCollection() );
-  EventConsumerMonitorCollection& ecmc = 
-    _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
-  _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
-
-  DQMConsumerMonitorCollection& dcmc = 
-    _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
-  _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
+  boost::shared_ptr<ConsumerMonitorCollection>
+    cmcptr( _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection() );
+  _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
+  cmcptr = _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
+  _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
 }
 
 
@@ -259,9 +245,9 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   I2OChain i2oChain(ref);
 
   // Set the I2O message pool pointer. Only done for init messages.
-  ThroughputMonitorCollection& throughputMonCollection =
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection();
-  throughputMonCollection.setMemoryPoolPointer( ref->getBuffer()->getPool() );
+  ResourceMonitorCollection& resourceMonCollection =
+    _sharedResources->_statisticsReporter->getResourceMonitorCollection();
+  resourceMonCollection.setMemoryPoolPointer( ref->getBuffer()->getPool() );
 
   FragmentMonitorCollection& fragMonCollection =
     _sharedResources->_statisticsReporter->getFragmentMonitorCollection();

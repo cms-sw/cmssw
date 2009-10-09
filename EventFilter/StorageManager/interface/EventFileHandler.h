@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
 /// @file: EventFileHandler.h 
 
 #ifndef StorageManager_EventFileHandler_h
@@ -11,16 +11,13 @@
 
 
 namespace stor {
-
-  class I2OChain;
-
   
   /**
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:10 $
    */
   
   class EventFileHandler : public FileHandler
@@ -31,32 +28,29 @@ namespace stor {
       InitMsgSharedPtr,
       FilesMonitorCollection::FileRecordPtr,
       const DiskWritingParams&,
-      const long long& maxFileSize
+      const unsigned long long& maxFileSize
     );
 
+    virtual ~EventFileHandler();
+        
     /**
      * Write the event contained in the I2OChain
      */
     virtual void writeEvent(const I2OChain&);
  
-    /**
+   /**
      *  Returns true if the file has not seen any recent events
      */
-    virtual bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime());
+    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
   
-    /**
-     * Returns true if the file corresponds to the given lumi section
-     */
-    virtual bool isFromLumiSection(const uint32_t lumiSection);
-
-    /**
-     * Close the file
-     */
-    virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&);
-
 
   private:
     
+    /**
+     * Close the file
+     */
+    virtual void closeFile();
+
     /**
      * Write the init message to the head of the file
      */

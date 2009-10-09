@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/04/23 05:06:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/04/07 03:12:37 $
+ *  $Revision: 1.4 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -51,22 +51,28 @@ public:
   };
 
   bool fit(Alignable *ali) {
-    return (m_twoBin ? (m_pos->fit(ali)  &&  m_neg->fit(ali)) : m_pos->fit(ali));
+    if (m_twoBin) return m_pos->fit(ali)  &&  m_neg->fit(ali);
+    else return m_pos->fit(ali);
   };
   double value(int parNum) {
-    return (m_twoBin ? ((m_pos->value(parNum) + m_neg->value(parNum)) / 2.) : m_pos->value(parNum));
+    if (m_twoBin) return (m_pos->value(parNum) + m_neg->value(parNum)) / 2.;
+    else return m_pos->value(parNum);
   };
   double error(int parNum) {
-    return (m_twoBin ? (sqrt(pow(m_pos->error(parNum), 2.) + pow(m_neg->error(parNum), 2.)) / 2.) : m_pos->error(parNum));
+    if (m_twoBin) return sqrt(pow(m_pos->error(parNum), 2.) + pow(m_neg->error(parNum), 2.)) / 2.;
+    else return m_pos->error(parNum);
   };
   double antisym(int parNum) {
-    return (m_twoBin ? ((m_pos->value(parNum) - m_neg->value(parNum)) / 2.) : 0.);
+    if (m_twoBin) return (m_pos->value(parNum) - m_neg->value(parNum)) / 2.;
+    else return 0.;
   };
   double loglikelihood() {
-    return (m_twoBin ? (m_pos->loglikelihood() + m_neg->loglikelihood()) : m_pos->loglikelihood());
+    if (m_twoBin) return m_pos->loglikelihood() + m_neg->loglikelihood();
+    else m_pos->loglikelihood();
   };
   double sumofweights() {
-    return (m_twoBin ? (m_pos->sumofweights() + m_neg->sumofweights()) : m_pos->sumofweights());
+    if (m_twoBin) return m_pos->sumofweights() + m_neg->sumofweights();
+    else m_pos->sumofweights();
   };
 
   // demonstration plots

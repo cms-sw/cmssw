@@ -3,12 +3,12 @@
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
-#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/EventQueueCollection.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
+#include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/test/MockApplication.h"
 
 #include "EventFilter/StorageManager/test/TestHelper.h"
@@ -47,8 +47,6 @@ class testEventQueueCollection : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testEventQueueCollection();
-
   void setUp();
   void tearDown();
 
@@ -60,16 +58,14 @@ public:
   void remove_all_queues();
 
 private:
-  stor::EventConsumerMonitorCollection _ecmc;
+  boost::shared_ptr<stor::ConsumerMonitorCollection> _cmcptr;
 };
-
-testEventQueueCollection::testEventQueueCollection() :
-_ecmc(1)
-{}
 
 void
 testEventQueueCollection::setUp()
 { 
+  _cmcptr.reset(new stor::ConsumerMonitorCollection());
+
   CPPUNIT_ASSERT(g_factory);
   CPPUNIT_ASSERT(g_alloc);
   CPPUNIT_ASSERT(g_pool);
@@ -83,7 +79,7 @@ void
 testEventQueueCollection::create_queues()
 {
   // Default collection should have no queues.
-  EventQueueCollection c(_ecmc);
+  EventQueueCollection c( _cmcptr );
   CPPUNIT_ASSERT(c.size() == 0);
 
   // Make sure that the different types of queue are both counted
@@ -130,7 +126,7 @@ testEventQueueCollection::pop_event_from_non_existing_queue()
 {
   // Attemping to pop and event from a non-existent queue should
   // result in an exception.
-  EventQueueCollection c(_ecmc);
+  EventQueueCollection c( _cmcptr );
   CPPUNIT_ASSERT(c.size() == 0);
   QueueID invalid_id;
   CPPUNIT_ASSERT(!invalid_id.isValid());
@@ -149,7 +145,7 @@ void
 testEventQueueCollection::add_and_pop()
 {
   using namespace boost;
-  shared_ptr<EventQueueCollection> pcoll(new EventQueueCollection(_ecmc));
+  shared_ptr<EventQueueCollection> pcoll(new EventQueueCollection( _cmcptr ));
 
   boost::thread t1(bind(add_and_pop_helper, pcoll));
   boost::thread t2(bind(create_queues_helper, pcoll));
@@ -259,7 +255,7 @@ void
 testEventQueueCollection::invalid_queueid()
 {
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
-  EventQueueCollection coll(_ecmc);
+  EventQueueCollection coll( _cmcptr );
   // Make sure none of the interface functions cause a failure. Many
   // do not return any status we can test; we just run the function
   // and observe that we do *not* crash or throw any exception.
@@ -307,7 +303,7 @@ void
 testEventQueueCollection::clear_all_queues()
 {
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
-  EventQueueCollection coll(_ecmc);
+  EventQueueCollection coll( _cmcptr );
   ConsumerID cid;
   QueueID q1 = coll.createQueue(++cid, DiscardNew);
   QueueID q2 = coll.createQueue(++cid, DiscardOld);
@@ -344,7 +340,7 @@ testEventQueueCollection::clear_all_queues()
 void
 testEventQueueCollection::remove_all_queues()
 {
-  EventQueueCollection coll(_ecmc);
+  EventQueueCollection coll( _cmcptr );
   ConsumerID cid;
   QueueID q1 = coll.createQueue(++cid, DiscardNew);
   QueueID q2 = coll.createQueue(++cid, DiscardOld);

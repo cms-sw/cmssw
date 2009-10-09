@@ -19,7 +19,6 @@ tests="\
  MemoryChainDuplicate_t\
  MonitoredQuantity_t\
  QueueID_t\
- ResourceMonitorCollection_t \
  Sleep_t \
  state_machine_t\
  workloop_t\

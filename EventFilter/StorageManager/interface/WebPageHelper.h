@@ -1,11 +1,10 @@
-// $Id: WebPageHelper.h,v 1.9 2009/08/28 14:35:33 mommsen Exp $
+// $Id: WebPageHelper.h,v 1.2 2009/06/10 08:15:24 dshpakov Exp $
 /// @file: WebPageHelper.h
 
 #ifndef StorageManager_WebPageHelper_h
 #define StorageManager_WebPageHelper_h
 
 #include <string>
-#include <map>
 
 #include "boost/thread/mutex.hpp"
 
@@ -15,28 +14,25 @@
 
 #include "EventFilter/Utilities/interface/Css.h"
 
+#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/FragmentMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/RunMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
 
-
 namespace stor {
-
-  class DQMEventMonitorCollection;
-  class FilesMonitorCollection;
-  class FragmentMonitorCollection;
-  class ResourceMonitorCollection;
-  class RunMonitorCollection;
-  class StreamsMonitorCollection;
-
 
   /**
    * Helper class to handle web page requests
    *
-   * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2009/08/28 14:35:33 $
+   * $Author: dshpakov $
+   * $Revision: 1.2 $
+   * $Date: 2009/06/10 08:15:24 $
    */
   
   class WebPageHelper
@@ -145,8 +141,7 @@ namespace stor {
     (
       XHTMLMaker&,
       XHTMLMaker::Node *parent,
-      ResourceMonitorCollection const&,
-      ThroughputMonitorCollection const&
+      ResourceMonitorCollection const&
     );
 
     /**
@@ -227,16 +222,6 @@ namespace stor {
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,
       ThroughputMonitorCollection const&
-    );
-
-    /**
-     * Add table row using the snapshot values
-     */
-    void addRowForThroughputStatistics
-    (
-      XHTMLMaker& maker,
-      XHTMLMaker::Node* table,
-      const ThroughputMonitorCollection::Stats::Snapshot&
     );
 
     /**
@@ -498,8 +483,7 @@ namespace stor {
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,
-      ResourceMonitorCollection::Stats const&,
-      MonitoredQuantity::Stats const&
+      ResourceMonitorCollection::Stats const&
     );
 
     /**
@@ -509,23 +493,13 @@ namespace stor {
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node *table,
-      MonitoredQuantity::Stats const&
+      ResourceMonitorCollection::Stats const&
     );
 
     /**
      * Add a table row for copy/inject workers
      */
     void addRowsForWorkers
-    (
-      XHTMLMaker& maker,
-      XHTMLMaker::Node *table,
-      ResourceMonitorCollection::Stats const&
-    );
-
-    /**
-     * Add a table row for SATA beast status
-     */
-    void addRowsForSataBeast
     (
       XHTMLMaker& maker,
       XHTMLMaker::Node *table,
@@ -540,6 +514,20 @@ namespace stor {
       XHTMLMaker& maker,
       XHTMLMaker::Node *parent,
       ResourceMonitorCollection::Stats const&
+    );
+
+    /**
+     * Smooth out binned idle times for the throughput display.
+     * Returns the index to be used for the next section to smooth.
+     * Note that this method works on the idleTimes and durations
+     * lists in *reverse* order.  So, the initial indices should be
+     * idleTimes.size()-1.
+     */
+    int smoothIdleTimes
+    (
+      std::vector<double>& idleTimes,
+      std::vector<utils::duration_t>& durations,
+      int firstIndex, int lastIndex
     );
 
 
@@ -560,8 +548,6 @@ namespace stor {
     XHTMLMaker::AttrMap _tableLabelAttr;
     XHTMLMaker::AttrMap _tableValueAttr;
     XHTMLMaker::AttrMap _specialRowAttr;
-
-    std::map<unsigned int, std::string> _alarmColors;
 
   };
 

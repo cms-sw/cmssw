@@ -49,10 +49,6 @@ namespace {
 
     HcalValidationCorrs myVcorrs;
     std::vector<HcalValidationCorr> myVcorrsVec;
-
-    HcalLutMetadata myLutMetadata;
-    std::vector<HcalLutMetadatum> myLutMetadatumVec;
-    HcalLutMetadata::NonChannelData myLutNonChannelMetadata;
   };
 }
 

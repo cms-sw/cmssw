@@ -197,7 +197,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==NULL)
       continue;
 
-    unsigned int detid;
+    unsigned int detid=0;
     char title[128];
     sprintf(title,"%s",me_name.c_str());
     char *ptr=strtok(title,"__");

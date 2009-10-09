@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
+// $Id: StreamHandler.h,v 1.4 2009/07/20 13:06:11 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
@@ -6,24 +6,21 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/FileHandler.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
-#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 
 namespace stor {
-
-  class FileHandler;
-  class I2OChain;
-
 
   /**
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.4 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class StreamHandler
@@ -32,7 +29,7 @@ namespace stor {
     
     explicit StreamHandler(SharedResourcesPtr);
 
-    virtual ~StreamHandler() {};
+    virtual ~StreamHandler();
 
 
     /**
@@ -45,11 +42,6 @@ namespace stor {
      */    
     void closeTimedOutFiles(utils::time_point_t currentTime =
                             utils::getCurrentTime());
-
-    /**
-     * Close all files which belong to the given lumi section
-     */    
-    void closeFilesForLumiSection(const uint32_t lumiSection);
 
     /**
      * Write the event to the stream file
@@ -84,7 +76,7 @@ namespace stor {
     /**
      * Return the maximum file size in bytes
      */
-    const long long getMaxFileSize() const;
+    const unsigned long long getMaxFileSize() const;
 
 
   private:

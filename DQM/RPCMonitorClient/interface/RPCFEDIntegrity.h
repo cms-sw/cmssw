@@ -44,8 +44,6 @@ public:
   
  private:
   
-  void labelBins( MonitorElement * myMe);
-
   void reset(void);
   void bookFEDMe(void);
 
@@ -58,7 +56,6 @@ public:
   int FATAL_LIMIT;
 
   enum fedHisto{Entries, Fatal, NonFatal};
-
 
 
   std::map< std::pair<int,int>, int > readoutErrors_;

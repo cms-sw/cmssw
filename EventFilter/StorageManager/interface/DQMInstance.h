@@ -1,4 +1,4 @@
-// $Id: DQMInstance.h,v 1.12 2009/09/16 11:04:22 mommsen Exp $
+// $Id: StateMachine.h,v 1.7 2009/07/14 10:34:44 dshpakov Exp $
 /// @file: DQMInstance.h 
 
 #ifndef StorageManager_DQMInstance_h
@@ -24,8 +24,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.10 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class DQMFolder
@@ -42,26 +42,27 @@ namespace stor
    * A collection of DQM Folders under the same top-level name.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.10 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class DQMGroup
   {
     public:
-      DQMGroup(int readyTime, int expectedUpdates);
+      DQMGroup(int readyTime);
      ~DQMGroup();
       std::map<std::string, DQMFolder *> dqmFolders_;
       int getNUpdates()             { return(nUpdates_);}
       int getReadyTime()            { return(readyTime_);}
       int getLastEvent()            { return(lastEvent_);}
-      void setLastEvent(int lastEvent);
+      void setLastEvent(int lastEvent) { lastEvent_=lastEvent;}
       TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
       TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
       TTimeStamp * getLastServed()  { return(lastServed_);}
       bool isReady(int currentTime);
       bool wasServedSinceUpdate()   { return(wasServedSinceUpdate_);}
-      void setServedSinceUpdate();
+      void setServedSinceUpdate()   { wasServedSinceUpdate_=true;}
+      void incrementUpdates();
       void setLastServed()          { lastServed_->Set();}
 
     protected:
@@ -70,7 +71,6 @@ namespace stor
       TTimeStamp            *lastServed_;
       int                    nUpdates_;
       int                    readyTime_;
-      int                    expectedUpdates_;
       int                    lastEvent_;
       bool                   wasServedSinceUpdate_;
   }; 
@@ -82,8 +82,8 @@ namespace stor
    * collated DQM groups
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2009/09/16 11:04:22 $
+   * $Revision: 1.10 $
+   * $Date: 2009/07/13 14:42:07 $
    */
 
   class DQMInstance
@@ -93,8 +93,7 @@ namespace stor
 		  int lumiSection, 
 		  int instance,
 		  int purgeTime,
-                  int readyTime,
-                  int expectedUpdates);
+		  int readyTime);
 
      ~DQMInstance();
 
@@ -129,7 +128,6 @@ namespace stor
       int                    nUpdates_;
       int                    purgeTime_;
       int                    readyTime_;
-      int                    expectedUpdates_;
   }; 
 
   class DQMGroupDescriptor

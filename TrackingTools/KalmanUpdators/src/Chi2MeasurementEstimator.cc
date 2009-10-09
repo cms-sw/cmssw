@@ -2,7 +2,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 std::pair<bool,double> 
 Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
@@ -33,7 +32,7 @@ Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   aRecHit.getKfComponents(holder);
  
   R += RMeas;
-  invertPosDefMatrix(R);
+  R.Invert();
   double est = ROOT::Math::Similarity(r - rMeas, R);
   return returnIt(est);
 }

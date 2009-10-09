@@ -53,14 +53,15 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
 
     if(unpackInternalData_){  
     
-      std::vector<EcalSrFlag*> srs = mapper_->getSrFlagPointer(theSRPi+1);
 
-      for(size_t i = 0; i < srs.size(); ++i){
-	srs[i]->setValue(srFlag); 
-	(*ebSrFlagsDigis_)->push_back(*((EBSrFlag*)srs[i]));
-      } 
-    }
-  } 
+      EBSrFlag * sr = (EBSrFlag*) mapper_->getSrFlagPointer(theSRPi+1);
+      sr->setValue(srFlag);
+      (*ebSrFlagsDigis_)->push_back(*sr);
+
+    } 
+  }
+
+
 }
 
 

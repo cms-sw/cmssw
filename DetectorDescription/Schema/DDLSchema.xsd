@@ -722,21 +722,21 @@
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
           </xsd:sequence>
-          <!--xsd:sequence>
+          <xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
-          </xsd:sequence-->
-          <!--xsd:sequence>
+          </xsd:sequence>
+          <xsd:sequence>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="1"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="1"/>
-          </xsd:sequence-->
-          <!--xsd:sequence>
+          </xsd:sequence>
+          <xsd:sequence>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
               <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
-          </xsd:sequence-->
+          </xsd:sequence>
          </xsd:choice>
          <xsd:attributeGroup ref="BooleanSolidAttributes"/>
       </xsd:extension>
@@ -859,14 +859,7 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
-  <xsd:complexType name="SphereType">
-    <xsd:complexContent>
-      <xsd:extension base="SolidType">
-        <xsd:attributeGroup ref="SphereAttributes"/>
-      </xsd:extension>
-    </xsd:complexContent>
-  </xsd:complexType>
- 
+  
   <!-- Elements -->
   
   <xsd:element name="Solid" type="SolidType" abstract="true"/>
@@ -888,7 +881,6 @@
   <xsd:element name="ZSection" type="ZSectionType"/>
   <xsd:element name="RZPoint" type="RZPointType"/>
   <xsd:element name="ReflectionSolid" type="ReflectionSolidType" substitutionGroup="Solid"/>
-  <xsd:element name="Sphere" type="SphereType" substitutionGroup="Solid"/>
 
   <!-- Groups (non-Attribute) -->
 
@@ -1019,14 +1011,6 @@
     <xsd:attribute name="z" use="optional" type="lengthT"/>
     <xsd:attribute name="rotation" use="optional" type="xsd:string"/>
  -->
-  </xsd:attributeGroup>
-  <xsd:attributeGroup name="SphereAttributes">
-    <xsd:attribute name="innerRadius" use="required" type="lengthT"/>
-    <xsd:attribute name="outerRadius" use="required" type="lengthT"/>
-    <xsd:attribute name="startPhi" use="optional" type="angleT"/>
-    <xsd:attribute name="deltaPhi" use="optional" type="angleT"/>
-    <xsd:attribute name="startTheta" use="optional" type="angleT"/>
-    <xsd:attribute name="deltaTheta" use="optional" type="angleT"/>
   </xsd:attributeGroup>
   <xsd:attributeGroup name="SolidAttributes">
     <xsd:attribute name="name" use="required" type="xsd:string"/>
@@ -1274,11 +1258,11 @@
     </xsd:annotation>
 
     <xsd:choice>
-      <!--xsd:sequence>
+      <xsd:sequence>
           <xsd:group ref="PCOptions"/>
           <xsd:group ref="RotationOptions" minOccurs="0" maxOccurs="1"/>
         <xsd:element ref="Translation" minOccurs="0" maxOccurs="1"/>
-      </xsd:sequence-->
+      </xsd:sequence>
 
       <xsd:sequence>
           <xsd:group ref="PCOptions"/>
@@ -1386,7 +1370,7 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
   </xsd:sequence>
-  <!--xsd:sequence>
+  <xsd:sequence>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
       <xsd:element ref="Parameter"/>
       <xsd:element ref="String"/>
@@ -1395,7 +1379,7 @@
       <xsd:element ref="Map"/>
     </xsd:choice>
     <xsd:element ref="PartSelector" minOccurs="1" maxOccurs="unbounded"/>
-  </xsd:sequence-->
+  </xsd:sequence>
   </xsd:choice>
   <xsd:attributeGroup ref="SpecParAttributes"/>
 </xsd:complexType>

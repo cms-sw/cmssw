@@ -962,10 +962,10 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
     double center = prof->GetBinCenter(bin);
 
     for (std::vector<double*>::const_iterator residiter = fitter->first->residualsPos_begin();  residiter != fitter->first->residualsPos_end();  ++residiter) {
-      prof->Fill(center, (*residiter)[MuonResidualsPositionFitter::kResidual] * 10.);
+      prof->Fill(center, (*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
     }
     for (std::vector<double*>::const_iterator residiter = fitter->first->residualsNeg_begin();  residiter != fitter->first->residualsNeg_end();  ++residiter) {
-      prof->Fill(center, (*residiter)[MuonResidualsPositionFitter::kResidual] * 10.);
+      prof->Fill(center, (*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
     }
   }
   for (std::map<MuonResidualsTwoBin*,std::pair<TProfile*,int> >::const_iterator fitter = m_slopeprofs.begin();  fitter != m_slopeprofs.end();  ++fitter) {
@@ -983,10 +983,10 @@ void AlignmentMonitorMuonSystemMap::afterAlignment(const edm::EventSetup &iSetup
   for (std::map<MuonResidualsTwoBin*,TH1F*>::const_iterator fitter = m_offsethists.begin();  fitter != m_offsethists.end();  ++fitter) {
     TH1F* hist = fitter->second;
     for (std::vector<double*>::const_iterator residiter = fitter->first->residualsPos_begin();  residiter != fitter->first->residualsPos_end();  ++residiter) {
-      hist->Fill((*residiter)[MuonResidualsPositionFitter::kResidual] * 10.);
+      hist->Fill((*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
     }
     for (std::vector<double*>::const_iterator residiter = fitter->first->residualsNeg_begin();  residiter != fitter->first->residualsNeg_end();  ++residiter) {
-      hist->Fill((*residiter)[MuonResidualsPositionFitter::kResidual] * 10.);
+      hist->Fill((*residiter)[MuonResidualsPositionFitter::kResidual]) * 10.;
     }
   }
   for (std::map<MuonResidualsTwoBin*,TH1F*>::const_iterator fitter = m_slopehists.begin();  fitter != m_slopehists.end();  ++fitter) {

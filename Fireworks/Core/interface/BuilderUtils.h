@@ -62,7 +62,6 @@ public:
    //    TEveElementList *getMuonCalTowers (double eta, double phi);
 
    std::string getTimeGMT( const fwlite::Event& event );
-   std::string getLocalTime( const fwlite::Event& event );
 }
 
 #endif

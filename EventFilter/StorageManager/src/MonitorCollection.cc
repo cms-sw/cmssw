@@ -1,4 +1,4 @@
-// $Id: MonitorCollection.cc,v 1.7 2009/08/26 08:50:31 mommsen Exp $
+// $Id: MonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
 /// @file: MonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
@@ -7,11 +7,12 @@
 using namespace stor;
 
 
-MonitorCollection::MonitorCollection(const utils::duration_t& updateInterval) :
-_updateInterval(updateInterval),
-_lastCalculateStatistics(0),
-_infoSpaceUpdateNeeded(false)
-{}
+void MonitorCollection::calculateStatistics()
+{
+  // do any operations that are common for all child classes
+
+  do_calculateStatistics();
+}
 
 
 void MonitorCollection::appendInfoSpaceItems(InfoSpaceItems& items)
@@ -22,35 +23,19 @@ void MonitorCollection::appendInfoSpaceItems(InfoSpaceItems& items)
 }
 
 
-void MonitorCollection::calculateStatistics(const utils::time_point_t& now)
-{
-  if (_lastCalculateStatistics + _updateInterval < now)
-  {
-    _lastCalculateStatistics = now;
-    do_calculateStatistics();
-    _infoSpaceUpdateNeeded = true;
-  }
-}
-
-
 void MonitorCollection::updateInfoSpaceItems()
 {
-  if (_infoSpaceUpdateNeeded)
-  {
-    do_updateInfoSpaceItems();
-    _infoSpaceUpdateNeeded = false;
-  }
+  // do any operations that are common for all child classes
+
+  do_updateInfoSpaceItems();
 }
 
 
-void MonitorCollection::reset(const utils::time_point_t& now)
+void MonitorCollection::reset()
 {
-  do_reset();
+  // do any operations that are common for all child classes
 
-  // Assure that the first update happens early.
-  // This is important for long update intervals.
-  _lastCalculateStatistics = now - _updateInterval + 1;
-  _infoSpaceUpdateNeeded = true;
+  do_reset();
 }
 
 

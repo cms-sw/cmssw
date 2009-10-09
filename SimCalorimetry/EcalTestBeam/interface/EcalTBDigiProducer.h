@@ -10,8 +10,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 //TB#include "SimCalorimetry/EcalSimAlgos/interface/ESShape.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -70,12 +69,10 @@ private:
 //TB  ESFastTDigitizer * theESDigitizerFast;
 
   const EcalSimParameterMap * theParameterMap;
-  const EBShape theEBShape;
-  const EEShape theEEShape;
+  const CaloVShape * theEcalShape;
 //TB  const ESShape * theESShape;
 
-  CaloHitResponse * theEBResponse;
-  CaloHitResponse * theEEResponse;
+  CaloHitResponse * theEcalResponse;
 //TB  CaloHitResponse * theESResponse;
 
   CorrelatedNoisifier<EcalCorrMatrix> * theCorrNoise;

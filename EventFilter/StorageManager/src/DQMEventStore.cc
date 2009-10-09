@@ -1,23 +1,17 @@
-// $Id: DQMEventStore.cc,v 1.5 2009/08/28 16:41:26 mommsen Exp $
+// $Id: DQMEventStore.cc,v 1.3 2009/06/19 14:11:17 mommsen Exp $
 /// @file: DQMEventStore.cc
 
 #include "TROOT.h"
 #include "TTimeStamp.h"
 
-#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventStore.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
-#include "EventFilter/StorageManager/interface/QueueID.h"
-#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 using namespace stor;
 
 
-DQMEventStore::DQMEventStore(SharedResourcesPtr sr) :
-_dqmEventMonColl(sr->_statisticsReporter->getDQMEventMonitorCollection()),
-_initMsgColl(sr->_initMsgCollection)
+DQMEventStore::DQMEventStore(DQMEventMonitorCollection& dqmEventMonColl) :
+_dqmEventMonColl(dqmEventMonColl)
 {
   gROOT->SetBatch(kTRUE);
 }
@@ -119,8 +113,7 @@ DQMEventRecordPtr
 DQMEventStore::makeDQMEventRecord(I2OChain const& dqmEvent)
 {
   DQMEventRecordPtr record(
-    new DQMEventRecord(dqmEvent.dqmKey(), _dqmParams, _dqmEventMonColl,
-      _initMsgColl->maxMsgCount()) 
+    new DQMEventRecord(dqmEvent.dqmKey(), _dqmParams, _dqmEventMonColl) 
   );
   record->setEventConsumerTags( dqmEvent.getDQMEventConsumerTags() );
   record->addDQMEventView( getDQMEventView(dqmEvent) );

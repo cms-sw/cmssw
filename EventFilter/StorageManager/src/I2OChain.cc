@@ -2,18 +2,15 @@
 /// @file: I2OChain.cc
 
 #include <algorithm>
-
-#include "EventFilter/StorageManager/interface/DQMKey.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
-#include "IOPool/Streamer/interface/DQMEventMessage.h"
-#include "IOPool/Streamer/interface/EventMessage.h"
-#include "IOPool/Streamer/interface/FRDEventMessage.h"
-#include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/DQMEventMessage.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
 
 namespace stor
 {
@@ -208,11 +205,13 @@ namespace stor
       // variable default value for one of the fragKey fields.
       if (pRef)
         {
-          _fragKey.secondaryId_ = (uint32) pRef->getDataLocation();
+          _fragKey.secondaryId_ = static_cast<uint32>(
+            (size_t)pRef->getDataLocation()
+          );
         }
       else
         {
-          _fragKey.secondaryId_ = (uint32) time(0);
+          _fragKey.secondaryId_ = static_cast<uint32>( time(0) );
         }
 
       if (pRef)

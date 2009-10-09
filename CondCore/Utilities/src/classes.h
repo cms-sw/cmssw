@@ -1,12 +1,9 @@
 #include "CondCore/Utilities/interface/CondBasicIter.h"
 #include <iostream>
 
-
-
-
-namespace { namespace {
-
-CondBasicIter dummy;
-
-}}
+namespace {
+  struct dictionary {
+    CondBasicIter dummy;
+  };
+}
 

@@ -46,13 +46,19 @@ namespace edm {
     aux_.reset(aux.release());
     luminosityBlockPrincipal_ = lbp;
     history_ = history;
+
     if (productRegistry().productProduced(InEvent)) {
       addToProcessHistory();
+    }
+
+    mapper->processHistoryID() = processHistoryID();
+    BranchIDListHelper::fixBranchListIndexes(history_->branchListIndexes());
+
+    if (productRegistry().productProduced(InEvent)) {
       // Add index into BranchIDListRegistry for products produced this process
       history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->extra().producedBranchListIndex());
     }
-    mapper->processHistoryID() = processHistoryID();
-    BranchIDListHelper::fixBranchListIndexes(history_->branchListIndexes());
+
     // Fill in helper map for Branch to ProductID mapping
     for (BranchListIndexes::const_iterator
 	 it = history->branchListIndexes().begin(),

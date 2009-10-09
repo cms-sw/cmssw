@@ -29,8 +29,7 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
                     edm::es::Label(p.getParameter<std::string>("@module_label")));
     findingRecord<IdealMagneticFieldRecord>();
   } else {
-    setWhatProduced(this, &XMLIdealGeometryESSource::produceGeom, 
-                    edm::es::Label(p.getParameter<std::string>("@module_label")));
+    setWhatProduced(this, &XMLIdealGeometryESSource::produceGeom);
     findingRecord<IdealGeometryRecord>();
   }
 }

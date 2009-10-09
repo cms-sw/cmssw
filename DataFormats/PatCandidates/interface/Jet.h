@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.37 2009/07/18 08:11:15 srappocc Exp $
+// $Id: Jet.h,v 1.38 2009/09/21 09:10:45 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.37 2009/07/18 08:11:15 srappocc Exp $
+  \version  $Id: Jet.h,v 1.38 2009/09/21 09:10:45 fronga Exp $
 */
 
 
@@ -34,6 +34,7 @@
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+#include "DataFormats/JetReco/interface/JetID.h"
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
@@ -187,16 +188,7 @@ namespace pat {
 
 
       /// methods for jet ID 
-      void setFHPD         (double   fHPD         ){fHPD_ =         fHPD;         }; 
-      void setFRBX         (double   fRBX         ){fRBX_ =         fRBX;         }; 
-      void setN90Hits      (int      n90Hits      ){n90Hits_ =      n90Hits;      }; 
-      void setFSubDetector1(double   fSubDetector1){fSubDetector1_ =fSubDetector1;}; 
-      void setFSubDetector2(double   fSubDetector2){fSubDetector2_ =fSubDetector2;}; 
-      void setFSubDetector3(double   fSubDetector3){fSubDetector3_ =fSubDetector3;}; 
-      void setFSubDetector4(double   fSubDetector4){fSubDetector4_ =fSubDetector4;}; 
-      void setRestrictedEMF(double   restrictedEMF){restrictedEMF_ =restrictedEMF;}; 
-      void setNHCALTowers  (int      nHCALTowers  ){nHCALTowers_ =  nHCALTowers;  }; 
-      void setNECALTowers  (int      nECALTowers  ){nECALTowers_ =  nECALTowers;  };      
+      void setJetID( reco::JetID const & id ) { jetID_ = id; }
 
       // ---- jet specific methods ----
 
@@ -307,16 +299,8 @@ namespace pat {
 
 
       /// accessing Jet ID information
-      double fHPD()          const   { return    fHPD_;         }           
-      double fRBX()          const   { return    fRBX_;         }           
-      int    n90Hits()       const   { return    n90Hits_;      }        
-      double fSubDetector1() const   { return    fSubDetector1_;}  
-      double fSubDetector2() const   { return    fSubDetector2_;}  
-      double fSubDetector3() const   { return    fSubDetector3_;}  
-      double fSubDetector4() const   { return    fSubDetector4_;}  
-      double restrictedEMF() const   { return    restrictedEMF_;}  
-      int    nHCALTowers()   const   { return    nHCALTowers_;  }    
-      int    nECALTowers()   const   { return    nECALTowers_;  }       
+      reco::JetID const & jetID () const { return jetID_; }
+      
 
     protected:
 
@@ -357,17 +341,8 @@ namespace pat {
       std::vector<PFSpecific>   specificPF_;
 
       // ---- id functions ----
-      // Mostly english, except for: "f"-fraction, "n"=number, "had"=hadronic, "EM"=electro-magnetic
-      double fHPD_;
-      double fRBX_;
-      int    n90Hits_;
-      double fSubDetector1_;
-      double fSubDetector2_;
-      double fSubDetector3_;
-      double fSubDetector4_;
-      double restrictedEMF_;
-      int    nHCALTowers_;
-      int    nECALTowers_;      
+      reco::JetID    jetID_;
+   
       
     private:
 
