@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.26 2009/03/24 16:13:54 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.27 2009/03/26 18:26:37 hauk Exp $
 //
 //
 
@@ -66,12 +66,14 @@
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
-
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+
 //
 // class declaration
 //
-
 class TrackerOfflineValidation : public edm::EDAnalyzer {
 public:
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
@@ -112,33 +114,83 @@ private:
     TH1* sumNormYResiduals_;
     TH1* summaryNormYResiduals_;
   };
+  
+  
+  struct DirectoryWrapper{
+    DirectoryWrapper(const DirectoryWrapper& upDir,const std::string& newDir,const std::string& basedir,bool useDqmMode):tfd(0),dqmMode(useDqmMode),theDbe(0){
+      if (newDir.length()!=0){
+        if(upDir.directoryString.length()!=0)directoryString=upDir.directoryString+"/"+newDir;
+	else directoryString = newDir;
+      }
+      else
+	directoryString=upDir.directoryString;
 
-
+      if (!dqmMode){
+	if (newDir.length()==0) tfd.reset(&(*upDir.tfd));
+	else
+	  tfd.reset(new TFileDirectory(upDir.tfd->mkdir(newDir)));
+      }
+      else {
+	theDbe=edm::Service<DQMStore>().operator->();
+      }
+    }
+    
+    DirectoryWrapper(const std::string& newDir,const std::string& basedir,bool useDqmMode):tfd(0),dqmMode(useDqmMode),theDbe(0){
+      if (!dqmMode){
+	edm::Service<TFileService> fs;
+	if (newDir.length()==0){
+	  tfd.reset(new TFileDirectory(static_cast<TFileDirectory&>(*fs)));
+	}
+	else {
+	  tfd.reset(new TFileDirectory(fs->mkdir(newDir)));
+	  directoryString=newDir;
+	}
+      }
+      else {
+	if (newDir.length()!=0){
+	  if(basedir.length()!=0)directoryString=basedir+"/"+newDir;
+	  else directoryString = newDir;
+	}
+	else directoryString=basedir;
+	theDbe=edm::Service<DQMStore>().operator->();
+      }
+    }
+    // Generalization of Histogram Booking; allows switch between TFileService and DQMStore
+    template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX);
+    template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,int nBinY,double minBinY,double maxBinY);
+    template <typename T> TH1* make(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,double minBinY,double maxBinY);  // at present not used
+    
+    std::auto_ptr<TFileDirectory> tfd;
+    std::string directoryString;
+    const bool dqmMode;
+    DQMStore* theDbe;
+  };
+  
+  
   // 
   // ------------- private member function -------------
   // 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  virtual void checkBookHists(const edm::EventSetup &setup);
+  
+  virtual void checkBookHists(const edm::EventSetup& setup);
 
-
-
-  void bookGlobalHists(TFileDirectory &tfd);
-  void bookDirHists(TFileDirectory &tfd, const Alignable& ali, const AlignableObjectId &aliobjid);
-  void bookHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, 
-		 const AlignableObjectId &aliobjid);
+  void bookGlobalHists(DirectoryWrapper& tfd);
+  void bookDirHists(DirectoryWrapper& tfd, const Alignable& ali, const AlignableObjectId& aliobjid);
+  void bookHists(DirectoryWrapper& tfd, const Alignable& ali, align::StructureType type, int i, 
+		 const AlignableObjectId& aliobjid);
  
-  void collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, 
-			    const AlignableObjectId &aliobjid, 
-			    std::vector<TrackerOfflineValidation::SummaryContainer > &v_levelProfiles);
+  void collateSummaryHists( DirectoryWrapper& tfd, const Alignable& ali, int i, 
+			    const AlignableObjectId& aliobjid, 
+			    std::vector<TrackerOfflineValidation::SummaryContainer>& vLevelProfiles);
   
-  void fillTree(TTree &tree, const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_, 
-		TkOffTreeVariables &treeMem, const TrackerGeometry &tkgeom );
+  void fillTree(TTree& tree, const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_, 
+		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom);
   
-  TrackerOfflineValidation::SummaryContainer bookSummaryHists(TFileDirectory &tfd, 
+  TrackerOfflineValidation::SummaryContainer bookSummaryHists(DirectoryWrapper& tfd, 
 							      const Alignable& ali, 
 							      align::StructureType type, int i, 
-							      const AlignableObjectId &aliobjid); 
+							      const AlignableObjectId& aliobjid); 
 
   ModuleHistos& getHistStructFromMap(const DetId& detid); 
 
@@ -147,35 +199,34 @@ private:
   bool isPixel(uint32_t subDetId);
   bool isDetOrDetUnit(align::StructureType type);
 
-  TH1* bookTH1F(bool isTransient, TFileDirectory& tfd, const char* histName, const char* histTitle, 
+  TH1* bookTH1F(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
 		int nBinsX, double lowX, double highX);
 
   void getBinning(uint32_t subDetId, TrackerOfflineValidation::HistogrammType residualtype, 
-		  int &nBinsX, double &lowerBoundX, double &upperBoundX);
+		  int& nBinsX, double& lowerBoundX, double& upperBoundX);
 
-  void summarizeBinInContainer(int bin, SummaryContainer &targetContainer, 
-			       SummaryContainer &sourceContainer);
+  void summarizeBinInContainer(int bin, SummaryContainer& targetContainer, 
+			       SummaryContainer& sourceContainer);
 
-  void summarizeBinInContainer(int bin, uint32_t subDetId, SummaryContainer &targetContainer, 
-			       ModuleHistos &sourceContainer);
+  void summarizeBinInContainer(int bin, uint32_t subDetId, SummaryContainer& targetContainer, 
+			       ModuleHistos& sourceContainer);
 
   void setSummaryBin(int bin, TH1* targetHist, TH1* sourceHist);
     
   float Fwhm(const TH1* hist) const;
-  std::pair<float,float> fitResiduals(TH1 *hist) const; //, float meantmp, float rmstmp);
-  float getMedian( const TH1 *hist) const; 
- // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
-  template <class OBJECT_TYPE>  
-  int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
-
+  std::pair<float,float> fitResiduals(TH1* hist) const; //, float meantmp, float rmstmp);
+  float getMedian( const TH1* hist) const; 
+  
+  // From MillePedeAlignmentMonitor: Get Index for Arbitary vector<class> by name
+  template <class OBJECT_TYPE> int GetIndex(const std::vector<OBJECT_TYPE*>& vec, const TString& name);
+  
+  
   // ---------- member data ---------------------------
 
-
-  const edm::ParameterSet parset_;
+  const edm::ParameterSet parSet_;
   edm::ESHandle<TrackerGeometry> tkGeom_;
   const TrackerGeometry *bareTkGeomPtr_; // ugly hack to book hists only once, but check 
 
-  
   // parameters from cfg to steer
   bool lCoorHistOn_;
   bool moduleLevelHistsTransient_;
@@ -184,15 +235,17 @@ private:
   bool useFwhm_;
   bool useFit_;
   bool useOverflowForRMS_;
-  std::map< std::pair<uint32_t, uint32_t >, TH1*> hOverlappResidual;
-
+  const bool dqmMode_;
+  const std::string moduleDirectory_;
+  
+  std::map< std::pair<uint32_t, uint32_t>, TH1*> hOverlappResidual;
+  
   // a vector to keep track which pointers should be deleted at the very end
   std::vector<TH1*> vDeleteObjects_;
 
-  // 
   std::vector<TH1*> vTrackHistos_;
-  std::vector<TProfile*> vTrackProfiles_;
-  std::vector<TH2*> vTrack2DHistos_;
+  std::vector<TH1*> vTrackProfiles_;
+  std::vector<TH1*> vTrack2DHistos_;
   
   std::map<int,TrackerOfflineValidation::ModuleHistos> mPxbResiduals_;
   std::map<int,TrackerOfflineValidation::ModuleHistos> mPxeResiduals_;
@@ -200,10 +253,8 @@ private:
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTidResiduals_;
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTobResiduals_;
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTecResiduals_;
-
-
-
 };
+
 
 //
 // constants, enums and typedefs
@@ -212,6 +263,7 @@ private:
 //
 // static data member definitions
 //
+
 template <class OBJECT_TYPE>  
 int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name)
 {
@@ -223,31 +275,64 @@ int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*> &vec, con
   edm::LogError("Alignment") << "@SUB=TrackerOfflineValidation::GetIndex" << " could not find " << name;
   return -1;
 }
+
+
+template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH1F>(const char* name,const char* title,int nBinX,double minBinX,double maxBinX){
+  if(dqmMode){theDbe->setCurrentFolder(directoryString); return theDbe->book1D(name,title,nBinX,minBinX,maxBinX)->getTH1();}
+  else{return tfd->make<TH1F>(name,title,nBinX,minBinX,maxBinX);}
+}
+
+template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(const char* name,const char* title,int nBinX,double minBinX,double maxBinX){
+  if(dqmMode){
+    theDbe->setCurrentFolder(directoryString);
+    //DQM profile requires y-bins for construction... using TProfile creator by hand...
+    TProfile *tmpProfile=new TProfile(name,title,nBinX,minBinX,maxBinX);
+    tmpProfile->SetDirectory(0);
+    return theDbe->bookProfile(name,tmpProfile)->getTH1();
+  }
+  else{return tfd->make<TProfile>(name,title,nBinX,minBinX,maxBinX);}
+}
+
+template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(const char* name ,const char* title,int nbinX,double minX ,double maxX,double minY,double maxY){
+  if(dqmMode){
+    theDbe->setCurrentFolder(directoryString);
+    int dummy(0); // DQMProfile wants Y channels... does not use them!
+    return (theDbe->bookProfile(name,title,nbinX,minX,maxX,dummy,minY,maxY)->getTH1());
+  }
+  else{
+    return tfd->make<TProfile>(name,title,nbinX,minX,maxX,minY,maxY);
+  }
+}
+
+template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH2F>(const char* name,const char* title,int nBinX,double minBinX,double maxBinX,int nBinY,double minBinY,double maxBinY){
+  if(dqmMode){theDbe->setCurrentFolder(directoryString); return theDbe->book2D(name,title,nBinX,minBinX,maxBinX,nBinY,minBinY,maxBinY)->getTH1();}
+  else{return tfd->make<TH2F>(name,title,nBinX,minBinX,maxBinX,nBinY,minBinY,maxBinY);}
+}
+
+
 //
 // constructors and destructor
 //
 TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iConfig)
-  : parset_(iConfig), bareTkGeomPtr_(0), lCoorHistOn_(parset_.getParameter<bool>("localCoorHistosOn")),
-    moduleLevelHistsTransient_(parset_.getParameter<bool>("moduleLevelHistsTransient")),
-    overlappOn_(parset_.getParameter<bool>("overlappOn")), 
-    stripYResiduals_(parset_.getParameter<bool>("stripYResiduals")), 
-    useFwhm_(parset_.getParameter<bool>("useFwhm")),
-    useFit_(parset_.getParameter<bool>("useFit")),
-    useOverflowForRMS_(parset_.getParameter<bool>("useOverflowForRMS"))
-  
+  : parSet_(iConfig), bareTkGeomPtr_(0), lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
+    moduleLevelHistsTransient_(parSet_.getParameter<bool>("moduleLevelHistsTransient")),
+    overlappOn_(parSet_.getParameter<bool>("overlappOn")), 
+    stripYResiduals_(parSet_.getParameter<bool>("stripYResiduals")), 
+    useFwhm_(parSet_.getParameter<bool>("useFwhm")),
+    useFit_(parSet_.getParameter<bool>("useFit")),
+    useOverflowForRMS_(parSet_.getParameter<bool>("useOverflowForRMS")),
+    dqmMode_(parSet_.getParameter<bool>("useInDqmMode")),
+    moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput"))
 {
-   //now do what ever initialization is needed
 }
 
 
 TrackerOfflineValidation::~TrackerOfflineValidation()
 {
- 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   for( std::vector<TH1*>::const_iterator it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); 
        it != itEnd; ++it) delete *it;
-    
 }
 
 
@@ -258,41 +343,42 @@ TrackerOfflineValidation::~TrackerOfflineValidation()
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-TrackerOfflineValidation::checkBookHists(const edm::EventSetup &es)
+TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
 {
   es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   const TrackerGeometry *newBareTkGeomPtr = &(*tkGeom_);
   if (newBareTkGeomPtr == bareTkGeomPtr_) return; // already booked hists, nothing changed
 
   if (!bareTkGeomPtr_) { // pointer not yet set: called the first time => book hists
-    edm::Service<TFileService> fs;    
     AlignableObjectId aliobjid;
     
     // construct alignable tracker to get access to alignable hierarchy 
     AlignableTracker aliTracker(&(*tkGeom_));
     
     edm::LogInfo("TrackerOfflineValidation") << "There are " << newBareTkGeomPtr->detIds().size()
-					     << " detUnits in the Geometry record";
+					     << " dets in the Geometry record.\n"
+					     << "Out of these "<<newBareTkGeomPtr->detUnitIds().size()
+					     <<" are detUnits";
     
-    //
     // Book Histogramms for global track quantities
-    TFileDirectory trackglobal = fs->mkdir("GlobalTrackVariables");  
+    std::string globDir("GlobalTrackVariables");
+    DirectoryWrapper trackglobal(globDir,moduleDirectory_,dqmMode_);
     this->bookGlobalHists(trackglobal);
     
     // recursively book histogramms on lowest level
-//     this->bookDirHists(static_cast<TFileDirectory&>(*fs), aliTracker, aliobjid);  
-    this->bookDirHists(*fs, aliTracker, aliobjid);  
-  } else { // histograms booked, but changed TrackerGeometry?
+    DirectoryWrapper tfdw("",moduleDirectory_,dqmMode_);
+    this->bookDirHists(tfdw, aliTracker, aliobjid);
+  }
+  else { // histograms booked, but changed TrackerGeometry?
     edm::LogWarning("GeometryChange") << "@SUB=checkBookHists"
 				      << "TrackerGeometry changed, but will not re-book hists!";
   }
-
   bareTkGeomPtr_ = newBareTkGeomPtr;
 }
 
 
 void 
-TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
+TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
 {
 
   vTrackHistos_.push_back(tfd.make<TH1F>("h_tracketa",
@@ -360,7 +446,6 @@ TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
 					       "#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",
 					       100, -3.15,3.15));
 
-
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_d0_vs_phi",
 					   "Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]",
 					   100, -3.15, 3.15, 100,-1.,1.) );
@@ -391,13 +476,11 @@ TrackerOfflineValidation::bookGlobalHists(TFileDirectory &tfd )
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_kappa_vs_eta",
 					   "#kappa vs. #eta;#eta_{Track};#kappa",
 					   100,-3.15,3.15, 100, .0,.05));
- 
-
 }
 
 
 void
-TrackerOfflineValidation::bookDirHists( TFileDirectory &tfd, const Alignable& ali, const AlignableObjectId &aliobjid)
+TrackerOfflineValidation::bookDirHists(DirectoryWrapper& tfd, const Alignable& ali, const AlignableObjectId& aliobjid)
 {
   std::vector<Alignable*> alivec(ali.components());
   for(int i=0, iEnd = ali.components().size();i < iEnd; ++i) {
@@ -408,13 +491,13 @@ TrackerOfflineValidation::bookDirHists( TFileDirectory &tfd, const Alignable& al
     // add no suffix counter to Strip and Pixel, just aesthetics
     if (structurename != "Strip" && structurename != "Pixel") dirname << "_" << i+1;
 
-    if (structurename.find("Endcap",0) != std::string::npos )   {
-      TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
+    if (structurename.find("Endcap",0) != std::string::npos ) {
+      DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
       bookHists(f, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
       bookDirHists( f, *(alivec)[i], aliobjid);
     } else if( !(this->isDetOrDetUnit( (alivec)[i]->alignableObjectId()) )
 	      || alivec[i]->components().size() > 1) {      
-      TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
+      DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
       bookHists(tfd, *(alivec)[i], ali.alignableObjectId() , i, aliobjid);
       bookDirHists( f, *(alivec)[i], aliobjid);
     } else {
@@ -424,12 +507,9 @@ TrackerOfflineValidation::bookDirHists( TFileDirectory &tfd, const Alignable& al
 }
 
 
-
-
 void 
-TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId &aliobjid)
+TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali, align::StructureType type, int i, const AlignableObjectId& aliobjid)
 {
-
   TrackerAlignableId aliid;
   const DetId id = ali.id();
 
@@ -456,14 +536,12 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
   else edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookHists" 
 						   << "Unknown subdetid: " <<  subdetandlayer.first;     
   
-  
   histoname << "h_residuals_subdet_" << subdetandlayer.first 
 	    << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   xprimehistoname << "h_xprime_residuals_subdet_" << subdetandlayer.first 
 		  << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   yprimehistoname << "h_yprime_residuals_subdet_" << subdetandlayer.first 
 		  << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
-
   normhistoname << "h_normresiduals_subdet_" << subdetandlayer.first 
 		<< wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
   normxprimehistoname << "h_normxprimeresiduals_subdet_" << subdetandlayer.first 
@@ -513,13 +591,11 @@ TrackerOfflineValidation::bookHists(TFileDirectory &tfd, const Alignable& ali, a
 						     normyprimehistoname.str().c_str(),normyprimehistotitle.str().c_str(),
 						     nbins, xmin, xmax);
     }
-
   }
-  
 }
 
 
-TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, TFileDirectory& tfd, const char* histName, const char* histTitle, 
+TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
 		int nBinsX, double lowX, double highX)
 {
   if(isTransient) {
@@ -528,8 +604,6 @@ TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, TFileDirectory& tfd, c
   }
   else
     return tfd.make<TH1F>(histName, histTitle, nBinsX, lowX, highX);
-
-
 }
 
 
@@ -538,8 +612,8 @@ bool TrackerOfflineValidation::isBarrel(uint32_t subDetId)
   return (subDetId == StripSubdetector::TIB ||
 	  subDetId == StripSubdetector::TOB ||
 	  subDetId == PixelSubdetector::PixelBarrel );
-
 }
+
 
 bool TrackerOfflineValidation::isEndCap(uint32_t subDetId)
 {
@@ -547,6 +621,7 @@ bool TrackerOfflineValidation::isEndCap(uint32_t subDetId)
 	   subDetId == StripSubdetector::TEC ||
 	   subDetId == PixelSubdetector::PixelEndcap);
 }
+
 
 bool TrackerOfflineValidation::isPixel(uint32_t subDetId)
 {
@@ -559,10 +634,11 @@ bool TrackerOfflineValidation::isDetOrDetUnit(align::StructureType type)
   return ( type == align::AlignableDet || type == align::AlignableDetUnit);
 }
 
+
 void 
 TrackerOfflineValidation::getBinning(uint32_t subDetId, 
 				     TrackerOfflineValidation::HistogrammType residualType, 
-				     int &nBinsX, double &lowerBoundX, double &upperBoundX)
+				     int& nBinsX, double& lowerBoundX, double& upperBoundX)
 {
   // determine if 
   const bool isPixel = this->isPixel(subDetId);
@@ -572,35 +648,35 @@ TrackerOfflineValidation::getBinning(uint32_t subDetId,
   switch(residualType) 
     {
     case XResidual :
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1XResPixelModules");                
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1XResStripModules");                
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1XResPixelModules");                
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1XResStripModules");                
       break;
     case NormXResidual : 
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1NormXResPixelModules");             
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1NormXResStripModules");                
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXResPixelModules");             
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXResStripModules");                
       break;
     case XprimeResidual :
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1XprimeResPixelModules");                
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1XprimeResStripModules");                
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1XprimeResPixelModules");                
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1XprimeResStripModules");                
       break;
     case NormXprimeResidual :
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules");
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules");
       break;
     case YprimeResidual :
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1YResPixelModules");                
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1YResStripModules");                
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1YResPixelModules");                
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1YResStripModules");                
       break; 
     case NormYprimeResidual :
-      if(isPixel) binningPSet = parset_.getParameter<edm::ParameterSet>("TH1NormYResPixelModules");             
-      else binningPSet        = parset_.getParameter<edm::ParameterSet>("TH1NormYResStripModules");  
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormYResPixelModules");             
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormYResStripModules");  
       break;
     }
   nBinsX      = binningPSet.getParameter<int32_t>("Nbinx");		       
   lowerBoundX = binningPSet.getParameter<double>("xmin");		       
   upperBoundX = binningPSet.getParameter<double>("xmax");     
-  
 }
+
 
 void 
 TrackerOfflineValidation::setSummaryBin(int bin, TH1* targetHist, TH1* sourceHist)
@@ -609,34 +685,29 @@ TrackerOfflineValidation::setSummaryBin(int bin, TH1* targetHist, TH1* sourceHis
     targetHist->SetBinContent(bin, sourceHist->GetMean(1));
     if(useFwhm_) targetHist->SetBinError(bin, Fwhm(sourceHist)/2.);
     else targetHist->SetBinError(bin, sourceHist->GetRMS(1) );
-  } else {
-    return;
   }
-
+  else return;
 }
 
 
 void 
-TrackerOfflineValidation::summarizeBinInContainer( int bin, SummaryContainer &targetContainer, 
-						   SummaryContainer &sourceContainer)
+TrackerOfflineValidation::summarizeBinInContainer( int bin, SummaryContainer& targetContainer, 
+						   SummaryContainer& sourceContainer)
 {
-  
-  
   this->setSummaryBin(bin, targetContainer.summaryXResiduals_, sourceContainer.sumXResiduals_);
   this->setSummaryBin(bin, targetContainer.summaryNormXResiduals_, sourceContainer.sumNormXResiduals_);
   // If no y-residual hists, just returns:
   this->setSummaryBin(bin, targetContainer.summaryYResiduals_, sourceContainer.sumYResiduals_);
   this->setSummaryBin(bin, targetContainer.summaryNormYResiduals_, sourceContainer.sumNormYResiduals_);
-
 }
+
 
 void 
 TrackerOfflineValidation::summarizeBinInContainer( int bin, uint32_t subDetId, 
-						   SummaryContainer &targetContainer, 
-						   ModuleHistos &sourceContainer)
+						   SummaryContainer& targetContainer, 
+						   ModuleHistos& sourceContainer)
 {
-
-  // takes two summary Containers and sets summaryBins for all histogramms
+  // takes two summary Containers and sets summaryBins for all histograms
   this->setSummaryBin(bin, targetContainer.summaryXResiduals_, sourceContainer.ResXprimeHisto);
   this->setSummaryBin(bin, targetContainer.summaryNormXResiduals_, sourceContainer.NormResXprimeHisto);
   if( this->isPixel(subDetId) || stripYResiduals_ ) {
@@ -646,13 +717,10 @@ TrackerOfflineValidation::summarizeBinInContainer( int bin, uint32_t subDetId,
 }
 
 
-
-
 TrackerOfflineValidation::ModuleHistos& 
 TrackerOfflineValidation::getHistStructFromMap(const DetId& detid)
 {
-
-  // get a struct with histogramms from the respective map
+  // get a struct with histograms from the respective map
   // if no object exist, the reference is automatically created by the map
   // throw exception if non-tracker id is passed
   uint subdetid = detid.subdetId();
@@ -674,7 +742,6 @@ TrackerOfflineValidation::getHistStructFromMap(const DetId& detid)
       << " from detector " << detid.det();
     return mPxbResiduals_[0];
   }
-  
 }
 
 
@@ -683,21 +750,18 @@ void
 TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if (useOverflowForRMS_)TH1::StatOverflows(kTRUE);
-  this->checkBookHists(iSetup); // check whether hists are are booked and do so if not yet done
+  this->checkBookHists(iSetup); // check whether hists are booked and do so if not yet done
   
-  //using namespace edm;
-  TrackerValidationVariables avalidator_(iSetup,parset_);
-  edm::Service<TFileService> fs;
+  TrackerValidationVariables avalidator_(iSetup,parSet_);
     
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
   avalidator_.fillTrackQuantities(iEvent,vTrackstruct);
-  std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;
-  avalidator_.fillHitQuantities(iEvent,v_hitstruct);
+  std::vector<TrackerValidationVariables::AVHitStruct> vHitstruct;
+  avalidator_.fillHitQuantities(iEvent,vHitstruct);
   
   
   for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator it = vTrackstruct.begin(),
 	 itEnd = vTrackstruct.end(); it != itEnd; ++it) {
-    
     // Fill 1D track histos
     static const int etaindex = this->GetIndex(vTrackHistos_,"h_tracketa");
     vTrackHistos_[etaindex]->Fill(it->eta);
@@ -771,8 +835,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 
   // hit quantities: residuals, normalized residuals
-  for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = v_hitstruct.begin(),
-  	 itEnd = v_hitstruct.end(); it != itEnd; ++it) {
+  for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator it = vHitstruct.begin(),
+  	 itEnd = vHitstruct.end(); it != itEnd; ++it) {
     DetId detid(it->rawDetId);
     ModuleHistos &histStruct = this->getHistStructFromMap(detid);
     
@@ -805,7 +869,8 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	} else if( hOverlappResidual[std::make_pair( it->overlapres.first, it->rawDetId) ]) {
 	  hOverlappResidual[std::make_pair( it->overlapres.first, it->rawDetId) ]->Fill(it->overlapres.second);
 	} else {
-	  TFileDirectory tfd = fs->mkdir("OverlappResiduals");
+	  std::string dirname("OverlappResiduals");
+	  DirectoryWrapper tfd(dirname.c_str(),moduleDirectory_,dqmMode_);
 	  hOverlappResidual[tmp_pair] = tfd.make<TH1F>(Form("hOverlappResidual_%d_%d",tmp_pair.first,tmp_pair.second),
 						       "Overlapp Residuals",100,-50,50);
 	  hOverlappResidual[tmp_pair]->Fill(it->overlapres.second);
@@ -818,15 +883,29 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 }
 
 
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TrackerOfflineValidation::endJob()
 {
   AlignableTracker aliTracker(&(*tkGeom_));
-  edm::Service<TFileService> fs;   
   AlignableObjectId aliobjid;
 
+  static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
+  vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],
+				     vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
+
+  // Collate Information for Subdetectors
+  // create summary histogramms recursively
+  std::vector<TrackerOfflineValidation::SummaryContainer> vTrackerprofiles;
+  DirectoryWrapper f("",moduleDirectory_,dqmMode_);
+  this->collateSummaryHists(f,(aliTracker), 0, aliobjid, vTrackerprofiles);
+  
+  if(dqmMode_)return;
+  // Should be excluded in dqmMode, since TTree is not usable
+  // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
+  
+  edm::Service<TFileService> fs;
+  
   TTree *tree = fs->make<TTree>("TkOffVal","TkOffVal");
   TkOffTreeVariables *treeMemPtr = new TkOffTreeVariables;
   // We create branches for all members of 'TkOffTreeVariables' (even if not needed).
@@ -842,31 +921,19 @@ TrackerOfflineValidation::endJob()
   this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_);
 
   delete treeMemPtr; treeMemPtr = 0;
-
-  static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
-  vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],
-				     vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_pos")],-1,1);
-
-  // Collate Information for Subdetectors
-  // create summary histogramms recursively
- 
-  std::vector<TrackerOfflineValidation::SummaryContainer > vTrackerprofiles;
-  this->collateSummaryHists((*fs),(aliTracker), 0, aliobjid, vTrackerprofiles);
-   
 }
 
 
 void
-TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Alignable& ali, int i, 
-					       const AlignableObjectId &aliobjid, 
-					       std::vector< TrackerOfflineValidation::SummaryContainer > &v_levelProfiles)
+TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alignable& ali, int i, 
+					       const AlignableObjectId& aliobjid, 
+					       std::vector<TrackerOfflineValidation::SummaryContainer>& vLevelProfiles)
 {
-  
   std::vector<Alignable*> alivec(ali.components());
   if( this->isDetOrDetUnit((alivec)[0]->alignableObjectId()) ) return;
 
   for(int iComp=0, iCompEnd = ali.components().size();iComp < iCompEnd; ++iComp) {
-    std::vector< TrackerOfflineValidation::SummaryContainer > v_profiles;        
+    std::vector< TrackerOfflineValidation::SummaryContainer > vProfiles;        
     std::string structurename  = aliobjid.typeToName((alivec)[iComp]->alignableObjectId());
  
     LogDebug("TrackerOfflineValidation") << "StructureName = " << structurename;
@@ -878,36 +945,36 @@ TrackerOfflineValidation::collateSummaryHists( TFileDirectory &tfd, const Aligna
     
     if(  !(this->isDetOrDetUnit( (alivec)[iComp]->alignableObjectId()) )
 	 || (alivec)[0]->components().size() > 1 ) {
-      TFileDirectory f = tfd.mkdir((dirname.str()).c_str());
-      this->collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, v_profiles);
-      v_levelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
-      TH1 *hY = v_levelProfiles[iComp].sumYResiduals_;
-      TH1 *hNormY = v_levelProfiles[iComp].sumNormYResiduals_;
-      for(uint n = 0; n < v_profiles.size(); ++n) {
-	this->summarizeBinInContainer(n+1, v_levelProfiles[iComp], v_profiles[n] );
-	v_levelProfiles[iComp].sumXResiduals_->Add(v_profiles[n].sumXResiduals_);
-	v_levelProfiles[iComp].sumNormXResiduals_->Add(v_profiles[n].sumNormXResiduals_);
-	if (hY)     hY->Add(v_profiles[n].sumYResiduals_);         // only if existing
-	if (hNormY) hNormY->Add(v_profiles[n].sumNormYResiduals_); // dito (pxl, stripYResiduals_)
+      DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
+      this->collateSummaryHists( f, *(alivec)[iComp], i, aliobjid, vProfiles);
+      vLevelProfiles.push_back(this->bookSummaryHists(tfd, *(alivec[iComp]), ali.alignableObjectId(), iComp, aliobjid));
+      TH1 *hY = vLevelProfiles[iComp].sumYResiduals_;
+      TH1 *hNormY = vLevelProfiles[iComp].sumNormYResiduals_;
+      for(uint n = 0; n < vProfiles.size(); ++n) {
+	this->summarizeBinInContainer(n+1, vLevelProfiles[iComp], vProfiles[n] );
+	vLevelProfiles[iComp].sumXResiduals_->Add(vProfiles[n].sumXResiduals_);
+	vLevelProfiles[iComp].sumNormXResiduals_->Add(vProfiles[n].sumNormXResiduals_);
+	if (hY)     hY->Add(vProfiles[n].sumYResiduals_);         // only if existing
+	if (hNormY) hNormY->Add(vProfiles[n].sumNormYResiduals_); // dito (pxl, stripYResiduals_)
       }
+      if(dqmMode_)continue;  // No fits in dqmMode
       //add fit values to stat box
-      this->fitResiduals(v_levelProfiles[iComp].sumXResiduals_);
-      this->fitResiduals(v_levelProfiles[iComp].sumNormXResiduals_);
+      this->fitResiduals(vLevelProfiles[iComp].sumXResiduals_);
+      this->fitResiduals(vLevelProfiles[iComp].sumNormXResiduals_);
       if (hY)     this->fitResiduals(hY);     // only if existing (pixel or stripYResiduals_)
       if (hNormY) this->fitResiduals(hNormY); // dito
     } else {
       // nothing to be done for det or detunits
       continue;
     }
-
   }
-
 }
 
+
 TrackerOfflineValidation::SummaryContainer 
-TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable& ali, 
+TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignable& ali, 
 					   align::StructureType type, int i, 
-					   const AlignableObjectId &aliobjid)
+					   const AlignableObjectId& aliobjid)
 {
   const uint aliSize = ali.components().size();
   const align::StructureType alitype = ali.alignableObjectId();
@@ -929,6 +996,7 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
   const uint subcompSize = ali.components()[0]->components().size();
   if (subtype != align::AlignableDet || subcompSize == 1) { // Det with 1 comp. should not exist anymore...
     const TString title(Form("Summary for substructures in %s %d;%s;",aliTypeName,i,aliSubtypeName));
+    
     sumContainer.summaryXResiduals_ = tfd.make<TH1F>(Form("h_summaryX%s_%d",aliTypeName,i), 
 						     title + "#LT #Delta x' #GT",
 						     aliSize, 0.5, aliSize+0.5);
@@ -947,13 +1015,14 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
     
   } else if (subtype == align::AlignableDet && subcompSize > 1) { // fixed: was aliSize before
     if (subcompSize != 2) { // strange... expect only 2 DetUnits in DS layers
-      // this 2 is hardcoded factor 2 in binning below and also assummed later on
+      // this 2 is hardcoded factor 2 in binning below and also assumed later on
       edm::LogError("Alignment") << "@SUB=bookSummaryHists"
 				 << "Det with " << subcompSize << " components";
     }
     // title contains x-title
     const TString title(Form("Summary for substructures in %s %d;%s;", aliTypeName, i,
 			     aliobjid.typeToName(ali.components()[0]->components()[0]->alignableObjectId()).c_str()));
+    
     sumContainer.summaryXResiduals_ 
       = tfd.make<TH1F>(Form("h_summaryX%s_%d", aliTypeName, i), 
 		       title + "#LT #Delta x' #GT", (2*aliSize), 0.5, 2*aliSize+0.5);
@@ -984,6 +1053,7 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
   const TString sumTitle(Form("Residual for %s %d in %s;", aliTypeName, i, typeName));
   const ModuleHistos &xTitHists = this->getHistStructFromMap(aliDetId); // for x-axis titles
   this->getBinning(aliDetId.subdetId(), XprimeResidual, nbins, xmin, xmax);
+  
   sumContainer.sumXResiduals_ = tfd.make<TH1F>(Form("h_Xprime_%s_%d", aliTypeName, i),
 					       sumTitle + xTitHists.ResXprimeHisto->GetXaxis()->GetTitle(),
 					       nbins, xmin, xmax);
@@ -1006,10 +1076,8 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
   
   // If we are at the lowest level, we already sum up and fill the summary.
 
-  // special case I: For DetUnits and Detwith  only one subcomponent start filling summary histos
-  if( (  subtype == align::AlignableDet && subcompSize == 1) || 
-      subtype  == align::AlignableDetUnit  
-      ) {
+  // special case I: For DetUnits and Dets with only one subcomponent start filling summary histos
+  if( ( subtype == align::AlignableDet && subcompSize == 1) || subtype  == align::AlignableDetUnit ) {
     for(uint k = 0; k < aliSize; ++k) {
       DetId detid = ali.components()[k]->id();
       ModuleHistos &histStruct = this->getHistStructFromMap(detid);
@@ -1037,7 +1105,6 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
       }
     }
   }
-  
   return sumContainer;
 }
 
@@ -1071,16 +1138,17 @@ TrackerOfflineValidation::Fwhm (const TH1* hist) const
   return hist->GetXaxis()->GetBinCenter(right) - hist->GetXaxis()->GetBinCenter(left);
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+
 void 
-TrackerOfflineValidation::fillTree(TTree &tree,
-				   const std::map<int, TrackerOfflineValidation::ModuleHistos> &moduleHist_,
-				   TkOffTreeVariables &treeMem, const TrackerGeometry &tkgeom)
+TrackerOfflineValidation::fillTree(TTree& tree,
+				   const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
+				   TkOffTreeVariables &treeMem, const TrackerGeometry& tkgeom)
 {
  
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(), 
 	itEnd= moduleHist_.end(); it != itEnd;++it ) { 
     treeMem.clear(); // make empty/default
+    
     //variables concerning the tracker components/hierarchy levels
     DetId detId_ = it->first;
     treeMem.moduleId = detId_;
@@ -1134,7 +1202,6 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     }
     
     //variables concerning the tracker geometry
-    
     const Surface::PositionType &gPModule = tkgeom.idToDet(detId_)->position();
     treeMem.posPhi = gPModule.phi();
     treeMem.posEta = gPModule.eta();
@@ -1171,14 +1238,13 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
     if(dZ>=0.)treeMem.zDirection = 1; else treeMem.zDirection = -1;
     
-    
     //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX = it->second.ResXprimeHisto->GetMean();
     treeMem.rmsX  = it->second.ResXprimeHisto->GetRMS();
     //treeMem.sigmaX = Fwhm(it->second.ResXprimeHisto)/2.355;
+    
     if (useFit_) {
-      
       //call fit function which returns mean and sigma from the fit
       //for absolute residuals
       std::pair<float,float> fitResult1 = this->fitResiduals(it->second.ResXprimeHisto);
@@ -1189,14 +1255,15 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       treeMem.fitMeanNormX = fitResult2.first;
       treeMem.fitSigmaNormX = fitResult2.second;
     }
+    
     //get median for absolute residuals
     treeMem.medianX   = this->getMedian(it->second.ResXprimeHisto);
-
 
     int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
     treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
     treeMem.numberOfOverflows = it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
     treeMem.numberOfOutliers =  it->second.ResXprimeHisto->GetBinContent(0)+it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
+    
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
     treeMem.meanNormX = it->second.NormResXprimeHisto->GetMean();
     treeMem.rmsNormX = it->second.NormResXprimeHisto->GetRMS();
@@ -1210,7 +1277,6 @@ TrackerOfflineValidation::fillTree(TTree &tree,
     treeMem.histNameX = it->second.ResXprimeHisto->GetName();
     treeMem.histNameNormX = it->second.NormResXprimeHisto->GetName();
     
-
     // fill tree variables in local coordinates if set in cfg
     if(lCoorHistOn_) {
       treeMem.meanLocalX = it->second.ResHisto->GetMean();
@@ -1234,6 +1300,7 @@ TrackerOfflineValidation::fillTree(TTree &tree,
 	treeMem.fitMeanY  = fitMeanSigma.first;
 	treeMem.fitSigmaY = fitMeanSigma.second;
       }
+      
       //get median for absolute residuals
       treeMem.medianY   = this->getMedian(h);
 
@@ -1253,13 +1320,13 @@ TrackerOfflineValidation::fillTree(TTree &tree,
       }
       treeMem.histNameNormY = h->GetName();
     }
-    
     tree.Fill();
   }
 }
 
+
 std::pair<float,float> 
-TrackerOfflineValidation::fitResiduals(TH1 *hist) const
+TrackerOfflineValidation::fitResiduals(TH1* hist) const
 {
   std::pair<float,float> fitResult(9999., 9999.);
   if (!hist || hist->GetEntries() < 20) return fitResult;
@@ -1291,17 +1358,16 @@ TrackerOfflineValidation::fitResiduals(TH1 *hist) const
 				 << "Caught this exception during ROOT fit: "
 				 << e.what();
   }
-  
   return fitResult;
 }
-float 
-TrackerOfflineValidation::getMedian(const TH1 *histo) const
-{
 
+
+float 
+TrackerOfflineValidation::getMedian(const TH1* histo) const
+{
   float median = 999;
   int nbins = histo->GetNbinsX();
 
- 
   //extract median from histogram
   double *x = new double[nbins];
   double *y = new double[nbins];
@@ -1311,7 +1377,6 @@ TrackerOfflineValidation::getMedian(const TH1 *histo) const
   }
   median = TMath::Median(nbins, x, y);
   
-
   delete[] x; x = 0;
   delete [] y; y = 0;  
 
