@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.10 2008/07/01 12:49:35 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.11 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
@@ -27,7 +27,10 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
   void update( SiStripConfigDb::DeviceDescriptionsRange );
   
   void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
-  
+
+  // parameters
+  bool skipGainUpdate_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H

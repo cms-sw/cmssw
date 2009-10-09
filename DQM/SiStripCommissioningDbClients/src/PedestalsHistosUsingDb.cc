@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.22 2009/05/29 13:28:21 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.23 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -29,7 +29,7 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( const edm::ParameterSet & pset,
     << " Constructing object...";
   highThreshold_ = this->pset().getParameter<double>("HighThreshold");
   lowThreshold_ = this->pset().getParameter<double>("LowThreshold");
-  edm::LogInfo(mlDqmClient_)
+  LogTrace(mlDqmClient_)
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Set FED zero suppression high/low threshold to "
     << highThreshold_ << "/" << lowThreshold_;
@@ -149,7 +149,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
 	  for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { 
-	    
+
 	    bool disable_strip = false;
 	    PedestalsAnalysis::VInt dead = anal->dead()[iapv];
 	    if ( find( dead.begin(), dead.end(), istr ) != dead.end() ) { disable_strip = true; }

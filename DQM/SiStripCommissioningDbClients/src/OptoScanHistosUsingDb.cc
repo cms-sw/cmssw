@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.18 2009/04/06 16:52:42 lowette Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.19 2009/06/18 20:52:37 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -26,6 +26,11 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( const edm::ParameterSet & pset,
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
+  skipGainUpdate_ = this->pset().getParameter<bool>("SkipGainUpdate");
+  if (skipGainUpdate_)
+    LogTrace(mlDqmClient_)
+      << "[OptoScanHistosUsingDb::" << __func__ << "]"
+      << " Skipping db update of gain parameters.";
 }
 
 // -----------------------------------------------------------------------------
@@ -143,8 +148,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
 	   << " from "
 	   << static_cast<uint16_t>( desc->getGain(ichan) ) << "/" 
 	   << static_cast<uint16_t>( desc->getBias(ichan) );
-	desc->setGain( ichan, gain );
-	desc->setBias( ichan, anal->bias()[gain] );
+        if (!skipGainUpdate_) desc->setGain( ichan, gain );
+        desc->setBias( ichan, anal->bias()[gain] );
 	updated++;
 	ss << " to "
 	   << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 

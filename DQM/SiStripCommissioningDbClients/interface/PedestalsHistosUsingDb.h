@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.9 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.10 2009/06/18 20:52:35 lowette Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
@@ -28,7 +28,7 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
 
   void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
 
-  // parameters - ideally these would be set on the anlaysis level
+  // parameters
   float highThreshold_;
   float lowThreshold_;
 
