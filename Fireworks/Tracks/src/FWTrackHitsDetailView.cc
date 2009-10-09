@@ -45,6 +45,7 @@ void
 FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
 {
    TEveViewer*  ev = new TEveViewer("Track hits detail view");
+     gEve->AddElement(ev, gEve->GetViewers());
    m_viewer = ev->SpawnGLEmbeddedViewer();
    base->ReplaceWindow(ev);
    TEveScene* scene = gEve->SpawnNewScene("hits scene");
@@ -54,12 +55,16 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    FWGUISubviewArea* toolBar = FWGUISubviewArea::getToolBarFromWindow(ev);
    CSGAction* action = new CSGAction(this, "pickCameraCenter");
    // layout hints kLeft does not work, have to do more complicated way
-   TGTextButton* textButton = new TGTextButton(toolBar, "pickCameraCenter");
+   TGTextButton* textButton = new TGTextButton(toolBar, "pC");
+   textButton->SetToolTipText("Pick camera center");
    TList* flist = toolBar->GetList();
    TGFrameElement *nw = new TGFrameElement(textButton, new TGLayoutHints( kLHintsNormal));
    flist->AddFirst(nw);
+   toolBar->SetWidth(toolBar->GetWidth()+30);
    toolBar->MapSubwindows();
-   toolBar->Layout();
+
+   TGFrame* frame = (TGFrame*)(toolBar->GetParent());
+   frame->Layout();
 
    TQObject::Connect(textButton, "Clicked()", "CSGAction", action, "activate()");
    action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
