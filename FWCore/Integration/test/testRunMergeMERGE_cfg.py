@@ -19,14 +19,19 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
-        'file:testRunMerge3.root',
+        'file:testRunMerge2extra.root', 
+        'file:testRunMerge3extra.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
     inputCommands = cms.untracked.vstring(
         'keep *', 
-        'drop *_C_*_*'
+        'drop *_C_*_*',
+        'drop *_makeThingToBeDropped1_beginRun_*',
+        'drop *_makeThingToBeDropped1_endRun_*',
+        'drop *_makeThingToBeDropped1_beginLumi_*',
+        'drop *_makeThingToBeDropped1_endLumi_*',
+        'drop *_*_*_EXTRA'
     )
     , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
 )
@@ -155,6 +160,8 @@ process.test = cms.EDFilter("TestMergeResults",
         1001,     2004,   1003    # * end run 1 lumi 1
     ),
 
+    expectedDroppedEvent1 = cms.untracked.vint32(13, -1, -1, -1, 13),
+
     expectedRespondToOpenInputFile = cms.untracked.int32(5),
     expectedRespondToCloseInputFile = cms.untracked.int32(5),
     expectedRespondToOpenOutputFiles = cms.untracked.int32(1),
@@ -162,8 +169,8 @@ process.test = cms.EDFilter("TestMergeResults",
 
     expectedInputFileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
-        'file:testRunMerge3.root',
+        'file:testRunMerge2extra.root', 
+        'file:testRunMerge3extra.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
@@ -184,5 +191,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
+process.checker = cms.OutputModule("GetProductCheckerOutputModule")
+
 process.path1 = cms.Path(process.thingWithMergeProducer + process.test)
-process.e = cms.EndPath(process.out)
+process.e = cms.EndPath(process.out * process.checker)

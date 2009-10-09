@@ -33,7 +33,19 @@ process.tryNoPut = cms.EDProducer("ThingWithMergeProducer",
     noPut = cms.untracked.bool(True)
 )
 
+# This one tests products dropped and then restored by secondary file
+# input
 process.makeThingToBeDropped = cms.EDProducer("ThingWithMergeProducer")
+
+# This product will be produced in configuration PROD1 and PROD5
+# In PROD2 it will be produced and dropped and there will be another
+# product whose provenance includes it as a parent. In PROD3 it will
+# be produced and dropped and there will not be a product that includes
+# it as a parent. In PROD4 it will never be produced at all.
+process.makeThingToBeDropped1 = cms.EDProducer("ThingWithMergeProducer")
+process.dependsOnThingToBeDropped1 = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('makeThingToBeDropped1')
+)
 
 process.test = cms.EDFilter("TestMergeResults",
 
@@ -138,7 +150,9 @@ process.p1 = cms.Path((process.m1 + process.m2 + process.m3) *
                      process.thingWithMergeProducer *
                      process.test *
                      process.tryNoPut *
-                     process.makeThingToBeDropped)
+                     process.makeThingToBeDropped *
+                     process.makeThingToBeDropped1 *
+                     process.dependsOnThingToBeDropped1)
 
 process.p2 = cms.Path(process.A *
                       process.B *

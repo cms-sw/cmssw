@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.15 2009/06/02 22:15:46 wmtan Exp $
+// $Id: TestMergeResults.cc,v 1.16 2009/09/21 22:33:30 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -91,6 +91,7 @@ namespace edmtest {
     std::vector<std::string> expectedParents_;
 
     std::vector<int> expectedDroppedEvent_;
+    std::vector<int> expectedDroppedEvent1_;
 
     int nRespondToOpenInputFile_;
     int nRespondToCloseInputFile_;
@@ -114,6 +115,7 @@ namespace edmtest {
     unsigned int index6_;
     unsigned int index7_;
     unsigned int parentIndex_;
+    unsigned int droppedIndex1_;
 
     edm::Handle<edmtest::Thing> h_thing;
     edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
@@ -138,6 +140,7 @@ namespace edmtest {
     expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
 
     expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
+    expectedDroppedEvent1_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent1", default_)),
 
     nRespondToOpenInputFile_(0),
     nRespondToCloseInputFile_(0),
@@ -160,7 +163,8 @@ namespace edmtest {
     index5_(0),
     index6_(0),
     index7_(0),
-    parentIndex_(0) {
+    parentIndex_(0),
+    droppedIndex1_(0) {
 
     std::auto_ptr<edmtest::Thing> ap_thing(new edmtest::Thing);
     edm::Wrapper<edmtest::Thing> w_thing(ap_thing);
@@ -222,6 +226,20 @@ namespace edmtest {
 
       e.getByLabel(tag, h_thingWithMerge);
       assert(h_thingWithMerge.isValid());
+    }
+
+    // This one is used to test the merging step when a specific product
+    // has been dropped or not created in some of the input files.
+    if (expectedDroppedEvent1_.size() > droppedIndex1_) {
+      edm::InputTag tag("makeThingToBeDropped1", "event", "PROD");
+      e.getByLabel(tag, h_thingWithIsEqual);
+      if (expectedDroppedEvent1_[droppedIndex1_] == -1) {
+        assert(!h_thingWithIsEqual.isValid());
+      }
+      else {
+        assert(h_thingWithIsEqual.isValid());
+        assert(h_thingWithIsEqual->a == expectedDroppedEvent1_[droppedIndex1_]);
+      }
     }
 
     // I'm not sure this test belongs in this module.  Originally it tested
@@ -392,6 +410,7 @@ namespace edmtest {
   void TestMergeResults::respondToCloseInputFile(edm::FileBlock const& fb) {
     if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseInputFile";
     ++nRespondToCloseInputFile_;
+    ++droppedIndex1_;
   }
 
   void TestMergeResults::respondToOpenOutputFiles(edm::FileBlock const& fb) {

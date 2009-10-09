@@ -11,8 +11,14 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}PROD2------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD2_cfg.py || die "cmsRun ${test}PROD2_cfg.py" $?
 
+  echo ${test}PROD2EXTRA------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD2EXTRA_cfg.py || die "cmsRun ${test}PROD2EXTRA_cfg.py" $?
+
   echo ${test}PROD3------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD3_cfg.py || die "cmsRun ${test}PROD3_cfg.py" $?
+
+  echo ${test}PROD3EXTRA------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD3EXTRA_cfg.py || die "cmsRun ${test}PROD3EXTRA_cfg.py" $?
 
   echo ${test}PROD4------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD4_cfg.py || die "cmsRun ${test}PROD4_cfg.py" $?
