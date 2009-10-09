@@ -51,7 +51,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
       hlttree->GetEntry(i);
-      if(i==0){
+      /*if(i==0){
 	std::cout<<"Time stamp : "<<lumiheader->timestamp<<"\n";
 	std::cout<<"Time stamp micro : "<<lumiheader->timestamp_micros<<"\n";
 	std::cout<<"Run number : "<<lumiheader->runNumber<<"\n";
@@ -63,6 +63,7 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
 	std::cout<<"CMS Live : "<<lumiheader->bCMSLive<<"\n";
 	std::cout<<"OC0 : "<<lumiheader->bOC0<<std::endl;
       }
+      */
       if(allowForceFirstSince && i==0){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
 	runnumber=1;
 	lumisecid=1;
