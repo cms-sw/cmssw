@@ -36,7 +36,10 @@ def format (objDict, label, spacing=9, firstOnly = False):
         formatString = '%%%d.%df' % (spacing, spacing - 5)
         retval = formatString % value
         if abs(diff) > epsilon:
-            retval += ' (' + formatString % (value + diff) + ')'
+            if options.delta:
+                retval += ' (' + formatString % (diff) + ')'
+            else:
+                retval += ' (' + formatString % (value + diff) + ')'
         elif not firstOnly:
             retval += ' ' * (spacing + 3)
         return retval
@@ -44,8 +47,8 @@ def format (objDict, label, spacing=9, firstOnly = False):
         formatString = '%%%ds' % spacing
         retval = formatString % value
         if diff:
-            if isinstance (value, str):
-                retval += ' (' + formatSting % diff + ')'
+            if isinstance (value, str) or options.delta:
+                retval += ' (' + formatString % diff + ')'
             else:
                 retval += ' (' + formatString % (value + diff) + ')'
         elif not firstOnly:
@@ -55,6 +58,9 @@ def format (objDict, label, spacing=9, firstOnly = False):
 
 if __name__ == "__main__":
     parser = optparse.OptionParser ("Usage: %prog bla.root lib.so var1 [var2]")
+    parser.add_option ("--delta", dest="delta",
+                       action="store_true", default=False,
+                       help="Show deltas when difference is large enough.")
     options, args = parser.parse_args()
     from Validation.Tools.GenObject import GenObject
     if len (args) <= 2:
