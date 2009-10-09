@@ -206,6 +206,7 @@ TrackerValidationVariables::fillHitQuantities(const edm::Event& iEvent,
 	//FIXME: at present only for det units residuals are calculated and filled in the hitStruct
 	// But in principle this method should also be useable for for the gluedDets (2D modules in TIB, TID, TOB, TEC)
 	// In this case, only orientation should be taken into account for primeResiduals, but not the radial topology
+	// At present, default values (999.F) are given out
       }
       
       hitStruct.resXprime = resXprime;
@@ -307,8 +308,8 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& iEvent,
     trackStruct.chi2 = RecoTrack->chi2();
     trackStruct.normchi2 = RecoTrack->normalizedChi2();
     GlobalPoint gPoint(RecoTrack->vx(), RecoTrack->vy(), RecoTrack->vz());
-    double theLocalMagField = magneticField_->inTesla(gPoint).z();
-    trackStruct.kappa = -RecoTrack->charge()*0.002998*theLocalMagField/RecoTrack->pt();
+    double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
+    trackStruct.kappa = -RecoTrack->charge()*theLocalMagFieldInInverseGeV/RecoTrack->pt();
     trackStruct.charge = RecoTrack->charge();
     trackStruct.d0 = RecoTrack->d0();
     trackStruct.dz = RecoTrack->dz();
