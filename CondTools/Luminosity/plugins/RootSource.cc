@@ -2,8 +2,9 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondFormats/Luminosity/interface/LumiSectionData.h"
 #include "CondTools/Luminosity/interface/LumiRetrieverFactory.h"
-#include "CondTools/Luminosity/interface/LumiDataStructures.h"
+#include "LumiDataStructures.h"
 #include "RootSource.h"
+#include <memory>
 #include <iostream>
 #include "TFile.h"
 #include "TTree.h"
@@ -28,14 +29,15 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
   TTree *hlttree = (TTree*)m_source->Get("HLTrigger");
   unsigned int runnumber=0;
   if(hlxtree && l1tree && hlttree){
-    //hlxtree->Print();
-    //l1tree->Print();
-    //hlttree->Print();
-    lumi::LUMI_SECTION_HEADER* lumiheader=0;
-    lumi::LUMI_SUMMARY* lumisummary=0;
-    lumi::LUMI_DETAIL* lumidetail=0;
-    lumi::LEVEL1_TRIGGER* l1data=0;
-    lumi::HLTRIGGER* hltdata=0;
+    hlxtree->Print();
+    l1tree->Print();
+    hlttree->Print();
+    std::auto_ptr<HCAL_HLX::LUMI_SECTION> localSection(new HCAL_HLX::LUMI_SECTION);
+    HCAL_HLX::LUMI_SECTION_HEADER* lumiheader = &(localSection->hdr);
+    HCAL_HLX::LUMI_SUMMARY* lumisummary = &(localSection->lumiSummary);
+    HCAL_HLX::LUMI_DETAIL* lumidetail = &(localSection->lumiDetail);
+    HCAL_HLX::LEVEL1_TRIGGER* l1data=0;
+    HCAL_HLX::HLTRIGGER* hltdata=0;
     hlttree->SetBranchAddress("HLTrigger.",&hltdata);
     hlxtree->SetBranchAddress("Header.",&lumiheader);
     hlxtree->SetBranchAddress("Summary.",&lumisummary);
@@ -49,6 +51,18 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       hlxtree->GetEntry(i);
       l1tree->GetEntry(i);
       hlttree->GetEntry(i);
+      if(i==0){
+	std::cout<<"Time stamp : "<<lumiheader->timestamp<<"\n";
+	std::cout<<"Time stamp micro : "<<lumiheader->timestamp_micros<<"\n";
+	std::cout<<"Run number : "<<lumiheader->runNumber<<"\n";
+	std::cout<<"Section number : "<<lumiheader->sectionNumber<<"\n";
+	std::cout<<"startOrbit : "<<lumiheader->startOrbit<<"\n";
+	std::cout<<"numOrbit : "<<lumiheader->numOrbits<<"\n";
+	std::cout<<"numBunches : "<<lumiheader->numBunches<<"\n";
+	std::cout<<"numHLXs : "<<lumiheader->numHLXs<<"\n";
+	std::cout<<"CMS Live : "<<lumiheader->bCMSLive<<"\n";
+	std::cout<<"OC0 : "<<lumiheader->bOC0<<std::endl;
+      }
       if(allowForceFirstSince && i==0){ //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
 	runnumber=1;
 	lumisecid=1;
@@ -84,8 +98,8 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       l->setBunchCrossingData(bxinfoET,lumi::ET);
       l->setBunchCrossingData(bxinfoOCC1,lumi::OCCD1);
       l->setBunchCrossingData(bxinfoOCC2,lumi::OCCD2);
-
-      size_t hltsize=sizeof(hltdata->HLTPaths)/sizeof(lumi::HLT_PATH);
+      
+      size_t hltsize=sizeof(hltdata->HLTPaths)/sizeof(HCAL_HLX::HLT_PATH);
       std::vector<lumi::HLTInfo> hltinfo;
       hltinfo.reserve(hltsize);
 
@@ -96,12 +110,12 @@ lumi::RootSource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time_
       
       std::vector<lumi::TriggerInfo> triginfo;
       triginfo.reserve(192);
-      size_t algotrgsize=sizeof(l1data->GTAlgo)/sizeof(lumi::LEVEL1_PATH);
+      size_t algotrgsize=sizeof(l1data->GTAlgo)/sizeof(HCAL_HLX::LEVEL1_PATH);
       for( size_t itrg=0; itrg<algotrgsize; ++itrg ){
 	lumi::TriggerInfo trgbit(l1data->GTAlgo[itrg].pathName,l1data->GTAlgo[itrg].counts,l1data->GTAlgo[itrg].deadtimecount,l1data->GTAlgo[itrg].prescale);
 	triginfo.push_back(trgbit);
       }
-      size_t techtrgsize=sizeof(l1data->GTTech)/sizeof(lumi::LEVEL1_PATH);
+      size_t techtrgsize=sizeof(l1data->GTTech)/sizeof(HCAL_HLX::LEVEL1_PATH);
       for( size_t itrg=0; itrg<techtrgsize; ++itrg){
 	lumi::TriggerInfo trgbit(l1data->GTTech[itrg].pathName,l1data->GTTech[itrg].counts,l1data->GTTech[itrg].deadtimecount,l1data->GTTech[itrg].prescale);
 	triginfo.push_back(trgbit);
