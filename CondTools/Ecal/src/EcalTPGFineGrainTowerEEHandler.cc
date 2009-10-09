@@ -157,52 +157,52 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 		econn-> fetchConfigSet(&fe_main_info);
 		std::cout << " after fetch config set" << std::endl;	    
 
-	    // now get TPGFineGrainTowerEE
-	    int fgrId=fe_main_info.getFgrId();
+	        // now get TPGFineGrainTowerEE
+	    	int fgrId=fe_main_info.getFgrId();
 	    
-	    if( fgrId != m_i_fgrTTEE ) {
+	    	if( fgrId != m_i_fgrTTEE ) {
 	    
-	    FEConfigFgrInfo fe_fgr_info;
-	    fe_fgr_info.setId(fgrId);
-	    econn-> fetchConfigSet(&fe_fgr_info);
-	    std::map<EcalLogicID, FEConfigFgrDat> dataset_TpgFineGrainEE;
-	    econn->fetchDataSet(&dataset_TpgFineGrainEE, &fe_fgr_info);
-	    EcalTPGFineGrainTowerEE *fgrMap = new EcalTPGFineGrainTowerEE;
+	    	  FEConfigFgrInfo fe_fgr_info;
+	    	  fe_fgr_info.setId(fgrId);
+	    	  econn-> fetchConfigSet(&fe_fgr_info);
+	    	  std::map<EcalLogicID, FEConfigFgrEETowerDat> dataset_TpgFineGrainEE;
+	    	  econn->fetchDataSet(&dataset_TpgFineGrainEE, &fe_fgr_info);
+	    	  EcalTPGFineGrainTowerEE *fgrMap = new EcalTPGFineGrainTowerEE;
 	    
-	    typedef std::map<EcalLogicID, FEConfigFgrDat>::const_iterator CIfefgr;
-	    EcalLogicID ecid_xt;
-	    FEConfigFgrDat  rd_fgr;
-	    int itowers=0;
+	    	  typedef std::map<EcalLogicID, FEConfigFgrEETowerDat>::const_iterator CIfefgr;
+	    	  EcalLogicID ecid_xt;
+	    	  FEConfigFgrEETowerDat  rd_fgr;
+	    	  int itowers=0;
 	    
-	    for (CIfefgr p = dataset_TpgFineGrainEE.begin(); p != dataset_TpgFineGrainEE.end(); p++) {
-	      ecid_xt = p->first;
-	      rd_fgr  = p->second;
+	    	  for (CIfefgr p = dataset_TpgFineGrainEE.begin(); p != dataset_TpgFineGrainEE.end(); p++) {
+	      	    ecid_xt = p->first;
+	      	    rd_fgr  = p->second;
 	      
-	      std::string ecid_name=ecid_xt.getName();
+	      	    std::string ecid_name=ecid_xt.getName();
 	      
-	      if (ecid_name=="EE_trigger_tower") {
-	        // SM number
-	        int smid=ecid_xt.getID1();
-	        // TT number
-	        int towerid=ecid_xt.getID2();
+	      	    if (ecid_name=="EE_trigger_tower") {
+	              // SM number
+	              int smid=ecid_xt.getID1();
+	              // TT number
+	              int towerid=ecid_xt.getID2();
                 
-		char identTT[10];
-		sprintf(identTT,"%d%d", smid, towerid);
+		      char identTT[10];
+		      sprintf(identTT,"%d%d", smid, towerid);
 	        
-		std::string S="";
-		S.insert(0,identTT);
+		      std::string S="";
+		      S.insert(0,identTT);
 		
-		unsigned int towerEEId = 0;
-		towerEEId = atoi(S.c_str());
+		      unsigned int towerEEId = 0;
+		      towerEEId = atoi(S.c_str());
 				
-                fgrMap->setValue(towerEEId, rd_fgr.getFgrGroupId());
-	        ++itowers;
-	      }
-	    }
+                      fgrMap->setValue(towerEEId, rd_fgr.getLUTValue());
+	              ++itowers;
+	      	    }
+	    	  }
 	    	
-	    Time_t snc= (Time_t) irun ;
+	    	  Time_t snc= (Time_t) irun ;
 	      	      
-	    m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainTowerEE *)fgrMap,snc));
+	    	  m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainTowerEE *)fgrMap,snc));
 
 		  m_i_run_number=irun;
 		  m_i_tag=the_config_tag;
@@ -223,9 +223,7 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects()
 
 		}
 
-	      }       
-	      
-	      catch (std::exception &e) { 
+	      }    catch (std::exception &e) { 
 		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
 			  <<" version="<<the_config_version<< std::endl;
 		cout << e.what() << endl;
