@@ -29,7 +29,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoTauTag/TauTagTools/interface/PFCandCommonVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include "CLHEP/Random/RandGauss.h"
 
