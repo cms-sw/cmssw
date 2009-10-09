@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.37.2.1 2009/07/01 10:04:17 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.39 2009/09/06 16:39:12 dmytro Exp $
 //
 //
 
@@ -170,7 +170,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
 {
    TrackDetMatchInfo info;
    if (! parameters.useEcal && ! parameters.useCalo && ! parameters.useHcal &&
-       ! parameters.useHO && ! parameters.useMuon )
+       ! parameters.useHO && ! parameters.useMuon && !parameters.usePreshower)
      throw cms::Exception("ConfigurationError") << 
      "Configuration error! No subdetector was selected for the track association.";
    // TimerStack timers;
