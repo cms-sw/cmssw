@@ -12,5 +12,6 @@ from DQMOffline.Trigger.JetMETHLTOfflineClient_cfi import *
 from DQMServices.Components.DQMEnvironment_cfi import *
 dqmEnv.subSystemFolder = 'HLT'
 
-#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*jetMETHLTOfflineClient*dqmEnv)
-hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*bPAGPostProcessor*jetMETHLTOfflineClient*dqmEnv)
+#hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*bPAGPostProcessor*jetMETHLTOfflineClient*dqmEnv)
+
+hltOfflineDQMClient = cms.Sequence(hltFourVectorSeqClient*egHLTOffDQMClient*hltEventInfoClient*hLTMuonPostVal*JpsiPostProcessor*jetMETHLTOfflineClient*dqmEnv)
