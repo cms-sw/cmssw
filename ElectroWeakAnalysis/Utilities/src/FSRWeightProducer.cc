@@ -10,8 +10,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/CandUtils/interface/Booster.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 
 //
@@ -134,7 +134,7 @@ double FSRWeightProducer::alphaRatio(double pt) {
       if (pt>mass_tau) pigaga += alphapi * (2*log(pt/mass_tau)/3.-5./9.);
 
       // Hadronic vaccum contribution
-      // Using simple effective parametrization from Physics Letters B 513 (2001) 46–52
+      // Using simple effective parametrization from Physics Letters B 513 (2001) 46â52
       // Top contribution neglected
       double A = 0.; 
       double B = 0.; 

@@ -1,13 +1,12 @@
-<use name=PhysicsTools/Utilities>
+<use name=CommonTools/Utils>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/PatCandidates>
-<use name=PhysicsTools/UtilAlgos>
-<use name=PhysicsTools/PatUtils>
-<use name=PhysicsTools/CandUtils>
+<use name=CommonTools/UtilAlgos>
+<use name=CommonTools/CandUtils>
 <use name=rootrflx>
 
 ##### CASE A: just as release default, for technical reasons ------->

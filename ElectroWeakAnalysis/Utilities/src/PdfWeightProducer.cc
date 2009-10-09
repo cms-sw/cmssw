@@ -10,8 +10,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
-#include "PhysicsTools/CandUtils/interface/Booster.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 
 //
