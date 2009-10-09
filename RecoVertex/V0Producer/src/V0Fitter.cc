@@ -13,12 +13,12 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.38 2009/02/05 00:38:10 drell Exp $
+// $Id: V0Fitter.cc,v 1.39 2009/06/09 23:28:49 drell Exp $
 //
 //
 
 #include "RecoVertex/V0Producer/interface/V0Fitter.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
