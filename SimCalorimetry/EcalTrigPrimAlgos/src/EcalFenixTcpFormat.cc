@@ -50,10 +50,19 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, i
   else {
     for (unsigned int i=0; i<Et.size();++i) {
       int myFgvb=fgvb[i];
-      myEt=Et[i]>>eTTotShift;
+      //myEt=Et[i]>>eTTotShift;
+      //if (myEt>0x3ff) myEt=0x3ff ;
+      //if (isInInnerRings) myEt = myEt /2 ;  
+
+      // bug fix 091009:
+      myEt=Et[i]; 
+      if (myEt>0xfff) 
+	myEt=0xfff ;
+      if (isInInnerRings) 
+	myEt = myEt /2 ;  
+      myEt >>= eTTotShift ;
       if (myEt>0x3ff) myEt=0x3ff ;
-      if (isInInnerRings) myEt = myEt /2 ;  
-         
+
 	int lut_out;
 	if (*badTTStatus_!=0){
 	  lut_out = 0;
