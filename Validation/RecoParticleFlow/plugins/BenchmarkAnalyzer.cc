@@ -1,4 +1,5 @@
 #include "Validation/RecoParticleFlow/plugins/BenchmarkAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
