@@ -57,6 +57,8 @@ if __name__ == "__main__":
     parser.add_option ("--noQueue", dest="noQueue",
                        action="store_true", default=False,
                        help="Do not use queue, but run jobs serially.")
+    parser.add_option ("--precision", dest="precision", type="string",
+                       help="Change precision use for floats")
     parser.add_option ("--prefix", dest="prefix", type="string",
                        help="Prefix to prepend to logfile name")
 
@@ -127,8 +129,11 @@ if __name__ == "__main__":
         describeCmd = "%s %s %s describeReflexForGenObject.py %s '--type=%s'" \
                   % (fullCommand, currentDir, logPrefix + prettyName, name,
                      GenObject.encodeNonAlphanumerics (key))
+        if options.precision:
+            describeCmd += " --precision=" + options.precision
         if options.verbose:
             print "describing %s" % name
+            print describeCmd,"\n"
         os.system (describeCmd)
         #print describeCmd, '\n'
 

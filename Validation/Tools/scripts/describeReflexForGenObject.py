@@ -6,11 +6,10 @@ import pprint
 import sys
 import inspect
 import optparse
-from Validation.Tools.GenObject import GenObject
 
 defsDict = {
     'int'    : '%-40s : form=%%%%8d     type=int',
-    'float'  : '%-40s : form=%%%%7.2f   prec=1e-5',
+    'float'  : '%-40s : form=%%%%7.2f   prec=',
     'str'    : '%-40s : form=%%%%20s    type=string',
     'long'   : '%-40s : form=%%%%10d    type=long',    
     }
@@ -148,27 +147,29 @@ if __name__ == "__main__":
     parser = optparse.OptionParser \
              ("usage: %prog [options]  objectName\n" \
               "Creates control file for GenObject.")
-    parser.add_option ('--output', dest='output', type='string',
-                       default = '',
-                       help="Output (Default 'objectName.txt')")
-    parser.add_option ('--alias', dest='alias', type='string',
-                       default = 'dummyAlias',
-                       help="Tell GO to set an alias")
-    parser.add_option ('--label', dest='label', type='string',
-                       default = 'dummyLabel',
-                       help="Tell GO to set an label")
-    parser.add_option ('--type', dest='type', type='string',
-                       default = 'dummyType',
-                       help="Tell GO to set an type")
     parser.add_option ('--goName', dest='goName', type='string',
                        default='',
                        help='GenObject name')
     parser.add_option ('--index', dest='index', action='store_true',
                        help='use index for matching')
+    parser.add_option ('--label', dest='label', type='string',
+                       default = 'dummyLabel',
+                       help="Tell GO to set an label")
+    parser.add_option ('--output', dest='output', type='string',
+                       default = '',
+                       help="Output (Default 'objectName.txt')")
+    parser.add_option ('--precision', dest='precision', type='string',
+                       default = '1e-5',
+                       help="precision to use for floats (default %default)")
     parser.add_option ('--tupleName', dest='tupleName', type='string',
                        default = 'reco',
                        help="Tuple name (default '%default')")
+    parser.add_option ('--type', dest='type', type='string',
+                       default = 'dummyType',
+                       help="Tell GO to set an type")
     options, args = parser.parse_args()
+    defsDict['float'] += options.precision
+    from Validation.Tools.GenObject import GenObject
     options.type = GenObject.decodeNonAlphanumerics (options.type)
     if len (args) < 1:
         raise RuntimeError, "Need to provide object name."
