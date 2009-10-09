@@ -2,7 +2,7 @@
 
 if __name__ == "__main__":
     import optparse
-    parser = optparse.OptionParser("usage: %prog [options]\nVisit https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison\nfor full documentation.")
+    parser = optparse.OptionParser("usage: %prog [options] config.txt file1.root [file2.root]\nVisit https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison\nfor full documentation.")
     modeGroup    = optparse.OptionGroup (parser, "Mode Conrols")
     tupleGroup   = optparse.OptionGroup (parser, "Tuple Controls")
     optionsGroup = optparse.OptionGroup (parser, "Options") 
@@ -88,8 +88,15 @@ if __name__ == "__main__":
     from Validation.Tools.GenObject import *
     ROOT.gROOT.SetBatch()
 
-    if len (args):
-        raise RuntimeError, "Do not understand: %s" % args
+    lenArgs = len (args)
+    if lenArgs >= 1:
+        options.config = args[0]
+    if lenArgs >= 2:
+        options.file1  = args[1]
+    if lenArgs == 3:
+        options.file2  = args[2]
+    if lenArgs > 3:
+        raise RuntimeError, "Too many arguments"
     
     # Here we go
     random.seed( os.getpid() )
