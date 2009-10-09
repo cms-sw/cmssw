@@ -674,7 +674,7 @@ void MuonAlignmentFromReference::terminate() {
 	     << "        self.median_x, self.median_y, self.median_dxdz, self.median_dydz, self.mean30_x, self.mean30_y, self.mean20_dxdz, self.mean50_dydz, self.mean15_x, self.mean15_y, self.mean10_dxdz, self.mean25_dydz, self.wmean30_x, self.wmean30_y, self.wmean20_dxdz, self.wmean50_dydz, self.wmean15_x, self.wmean15_y, self.wmean10_dxdz, self.wmean25_dydz, self.stdev30_x, self.stdev30_y, self.stdev20_dxdz, self.stdev50_dydz, self.stdev15_x, self.stdev15_y, self.stdev10_dxdz, self.stdev25_dydz = median_x, median_y, median_dxdz, median_dydz, mean30_x, mean30_y, mean20_dxdz, mean50_dydz, mean15_x, mean15_y, mean10_dxdz, mean25_dydz, wmean30_x, wmean30_y, wmean20_dxdz, wmean50_dydz, wmean15_x, wmean15_y, wmean10_dxdz, wmean25_dydz, stdev30_x, stdev30_y, stdev20_dxdz, stdev50_dydz, stdev15_x, stdev15_y, stdev10_dxdz, stdev25_dydz" << std::endl
 	     << "" << std::endl
 	     << "    def __repr__(self):" << std::endl
-	     << "        return \"<Report %s %s %s>\" % (self.postal_address[0], " ".join(map(str, self.postal_address[1:])), self.status)" << std::endl
+	     << "        return \"<Report %s %s %s>\" % (self.postal_address[0], \" \".join(map(str, self.postal_address[1:])), self.status)" << std::endl
 	     << std::endl;
     }
 
