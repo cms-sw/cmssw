@@ -5,7 +5,8 @@ iterativeFourthTracksWithPairs = RecoTracker.TrackProducer.CTFFinalFitWithMateri
 iterativeFourthTracks = cms.Sequence(iterativeFourthTracksWithPairs)
 iterativeFourthTracksWithPairs.src = 'iterativeFourthTrackCandidatesWithPairs'
 iterativeFourthTracksWithPairs.TTRHBuilder = 'WithoutRefit'
-iterativeFourthTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
+##iterativeFourthTracksWithPairs.Fitter = 'KFFittingSmootherWithOutlierRejection'
+iterativeFourthTracksWithPairs.Fitter = 'KFFittingSmootherFourth'
 iterativeFourthTracksWithPairs.Propagator = 'PropagatorWithMaterial'
 
 

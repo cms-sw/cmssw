@@ -577,6 +577,11 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       //  -> large initial errors
       AlgebraicSymMatrix errorMatrix(5,1);      
       // errorMatrix = errorMatrix * 10;
+
+      //this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
+      //for the future: probably the best thing is to use the mini-kalmanFilter
+      if(theSeedHits0.subDetId() !=1 || theSeedHits0.subDetId()==2) errorMatrix = errorMatrix * 0.000001;
+
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: SimTrack parameters " << std::endl;
       std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().Pt() << std::endl;
