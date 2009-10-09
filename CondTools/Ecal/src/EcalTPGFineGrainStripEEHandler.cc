@@ -144,11 +144,11 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
 	    
 	    int nr=0;
 	    for( it=dataset.begin(); it!=dataset.end(); it++ )
-	      {
-		++nr;
-		//EcalLogicID ecalid  = it->first;
-		RunTPGConfigDat  dat = it->second;
-		the_config_tag=dat.getConfigTag();
+	    {
+	      ++nr;
+	      //EcalLogicID ecalid  = it->first;
+              RunTPGConfigDat  dat = it->second;
+	      the_config_tag=dat.getConfigTag();
               the_config_version=dat.getVersion();
 	    }
 
@@ -173,70 +173,62 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
 		std::cout << " after fetch config set" << std::endl;	    
 
 
-	    // now get TPGFineGrainStripEE
-	    int fgrId=fe_main_info.getFgrId();
-	    
-	    if( fgrId != m_i_fgrStripEE ) {
-	    
-	    FEConfigFgrInfo fe_fgr_info;
-	    fe_fgr_info.setId(fgrId);
-	    econn-> fetchConfigSet(&fe_fgr_info);
-	    std::map<EcalLogicID, FEConfigFgrGroupDat> dataset_TpgFineGrainStripEE;
-	    econn->fetchDataSet(&dataset_TpgFineGrainStripEE, &fe_fgr_info);
+	        // now get TPGFineGrainStripEE
+	        int fgrId=fe_main_info.getFgrId();
 
-	    EcalTPGFineGrainStripEE * fgrStripEE = new EcalTPGFineGrainStripEE;
-	    typedef std::map<EcalLogicID, FEConfigFgrGroupDat>::const_iterator CIfefgr;
-	    EcalLogicID ecid_xt;
-	    FEConfigFgrGroupDat  rd_fgr;
+	        if( fgrId != m_i_fgrStripEE ) {
+	    
+	          FEConfigFgrInfo fe_fgr_info;
+	          fe_fgr_info.setId(fgrId);
+	          econn-> fetchConfigSet(&fe_fgr_info);
+	          std::map<EcalLogicID, FEConfigFgrEEStripDat> dataset_TpgFineGrainStripEE;
+	          econn->fetchDataSet(&dataset_TpgFineGrainStripEE, &fe_fgr_info);
 
-	    int icells=0;
+	          EcalTPGFineGrainStripEE * fgrStripEE = new EcalTPGFineGrainStripEE;
+	          typedef std::map<EcalLogicID, FEConfigFgrEEStripDat>::const_iterator CIfefgr;
+	          EcalLogicID ecid_xt;
+	          FEConfigFgrEEStripDat  rd_fgr;
+
+	          int icells=0;
 	    	    
-	    for (CIfefgr p = dataset_TpgFineGrainStripEE.begin(); p != dataset_TpgFineGrainStripEE.end(); p++) {
+	          for (CIfefgr p = dataset_TpgFineGrainStripEE.begin(); p != dataset_TpgFineGrainStripEE.end(); p++) {
 	      
-	      ecid_xt = p->first;
-	      rd_fgr  = p->second;
+	            ecid_xt = p->first;
+	            rd_fgr  = p->second;
 	      
-	      std::string ecid_name=ecid_xt.getName();
-	      
-	      // EE data
-	      if (ecid_name=="EE_trigger_strip"){
-	        
-		// EE data
-		// TCC
-		int id1=ecid_xt.getID1();
-	        // TT
-		int id2=ecid_xt.getID2();
-	        // Strip
-		int id3=ecid_xt.getID3();	
-			       	
-		char ch[10];
-		sprintf(ch,"%d%d%d", id1, id2, id3);
-		
-		std::string S ="";
-		S.insert(0,ch);
-		
-		// local strip identifier       
-		unsigned int stripEEId = atoi(S.c_str());		   
-		
-		EcalTPGFineGrainStripEE::Item item;
-		// check what data should be set into item
-		item.threshold = (unsigned int)rd_fgr.getThreshLow();
-	      	/*item.threshold? = (unsigned int)rd_fgr.getThreshHigh();
-	      	item.? = (unsigned int)rd_fgr.getRatioLow();
-	      	item.? = (unsigned int)rd_fgr.getRatioHigh();
-	      	*/
-		item.lut = (unsigned int)rd_fgr.getLUTValue();
-		
-	        fgrStripEE->setValue(stripEEId,item);
-	        ++icells;
-	       }
-	      }//for over the data
-	    
-	       
-	    edm::LogInfo("EcalTPGFineGrainStripEEHandler") << "found " << icells << "strips.";
+	            std::string ecid_name=ecid_xt.getName();
 
-	    Time_t snc= (Time_t) irun; 	      
-	    m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainStripEE*)fgrStripEE,snc));
+	            // EE data
+	            if (ecid_name=="ECAL_readout_strip"){
+		      // EE data
+		      // TCC
+		      int id1=ecid_xt.getID1();
+	              // TT
+		      int id2=ecid_xt.getID2();
+	              // Strip
+		      int id3=ecid_xt.getID3();	
+			       	
+		      char ch[10];
+		      sprintf(ch,"%d%d%d", id1, id2, id3);
+		
+		      std::string S ="";
+		      S.insert(0,ch);
+		
+		      // local strip identifier       
+		      unsigned int stripEEId = atoi(S.c_str());		   
+		
+		      EcalTPGFineGrainStripEE::Item item;
+		      item.threshold = (unsigned int)rd_fgr.getThreshold();
+		      item.lut = (unsigned int)rd_fgr.getLUTFgr();
+		      
+	              fgrStripEE->setValue(stripEEId,item);
+	              ++icells;
+	            }
+	          }
+	    
+
+	          Time_t snc= (Time_t) irun; 	      
+	          m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainStripEE*)fgrStripEE,snc));
 
 		  m_i_run_number=irun;
 		  m_i_tag=the_config_tag;
@@ -281,8 +273,8 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
 	      writeFile("last_tpg_fgrStripEE_settings.txt");
 	    }
 	    
-	  }//while over the runs
-	}//if
+	  }
+	}
 	  
 	delete econn;
 
