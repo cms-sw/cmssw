@@ -21,18 +21,18 @@ process.towerMakerWithHO.hbheInput = 'HitsReCalibration:DiJetsHBHEReRecHitCollec
 process.towerMakerWithHO.hoInput = 'HitsReCalibration:DiJetsHOReRecHitCollection'
 process.towerMakerWithHO.hfInput = 'HitsReCalibration:DiJetsHFReRecHitCollection'
 
-process.iterativeCone5CaloJets.correctInputToSignalVertex = cms.bool(False)
+process.load("RecoJets.JetProducers.ic5CaloJets_cfi")
 
-process.load("RecoJets.JetProducers.iterativeCone5CaloJets_cff")
-
-
+process.iterativeCone5CaloJets.doPVCorrection = cms.bool(False)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("PoolSource",
     fileNames = 
-cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre11/RelValQCD_Pt_50_80/ALCARECO/STARTUP31X_V1_StreamALCARECOHcalCalDijets-v1/0001/6ACE7BCE-0565-DE11-976B-001731AF66A7.root')
+cms.untracked.vstring(
+'/store/relval/CMSSW_3_3_0_pre5/RelValQCD_Pt_80_120/ALCARECO/STARTUP31X_V7_StreamHcalCalDijets-v1/0004/B421101A-6AAB-DE11-A988-001D09F2A465.root'
+)
 )
 
 process.es_ascii2 = cms.ESSource("HcalTextCalibrations",
