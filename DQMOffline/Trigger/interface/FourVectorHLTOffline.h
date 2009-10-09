@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.29 2009/10/02 10:37:48 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.30 2009/10/02 20:21:43 rekovic Exp $
 //
 //
 
@@ -505,8 +505,22 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
 };
 
+
+class BaseMonitor
+{
+  public:
+    virtual void clearSets( void ) = 0;
+    virtual void monitorDenominator(FourVectorHLTOffline::PathInfoCollection::iterator v, bool l1accept, const trigger::Vids & idtype, const trigger::Keys & l1k, const trigger::TriggerObjectCollection& toc) = 0;
+    virtual void fillL1Match(FourVectorHLTOffline* fv) = 0;
+    virtual void monitorOnline(const trigger::Vids & idtype, const trigger::Keys & l1k, trigger::Keys::const_iterator ki, const trigger::TriggerObjectCollection & toc, unsigned int & NOn) = 0;
+    virtual void fillOnlineMatch(FourVectorHLTOffline* fv, const trigger::Keys & l1k,  const trigger::TriggerObjectCollection & toc) = 0;
+
+    virtual ~BaseMonitor(){}
+
+};
+
 template <class T> 
-class objMonData {
+class objMonData:public BaseMonitor {
 public:
     objMonData() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; }
     void setLimits(float etaMax, float etMin, float drMatch) 
@@ -1140,6 +1154,7 @@ void objMonData<T>::clearSets()
    OffMCDRMatchSet.clear();
 
 }
+
 
 
 #endif
