@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/12/17 16:35:49 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/04/07 10:58:21 $
+ *  $Revision: 1.9 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -58,7 +58,7 @@ protected:
   void doResidualsTests(std::string type, std::string parameter, int bin);
   void doMuonIDTests();
   void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
-  void doMolteplicityTests();
+  void doMultiplicityTests();
   
 private:
 
@@ -89,16 +89,23 @@ private:
   double resSegmTrack_min;
   double resSegmTrack_max;
   double sigmaResSegmTrackExp;
-  double expMolteplicityGlb;
-  double expMolteplicityTk;
-  double expMolteplicitySta;
+  double expPeakEcalS9_min;
+  double expPeakEcalS9_max;
+  double expPeakHadS9_min;
+  double expPeakHadS9_max;
+  double expMultiplicityGlb_min;
+  double expMultiplicityTk_min;
+  double expMultiplicitySta_min;
+  double expMultiplicityGlb_max;
+  double expMultiplicityTk_max;
+  double expMultiplicitySta_max;
 
   // the report MEs
   MonitorElement* kinematicsSummaryMap;
   MonitorElement* residualsSummaryMap;
   MonitorElement* muonIdSummaryMap;
   MonitorElement* energySummaryMap;
-  MonitorElement* molteplicitySummaryMap;
+  MonitorElement* multiplicitySummaryMap;
   MonitorElement* summaryReport;
   MonitorElement*  summaryReportMap;
   std::vector<MonitorElement*>  theSummaryContents;

@@ -23,7 +23,14 @@ muonTestSummary = cms.EDFilter("MuonTestSummary",
                              matchesFractionCsc_max = cms.double(1.0),
                              resSegmTrack_min = cms.double(0.9),
                              resSegmTrack_max = cms.double(1.1),
-                             expMolteplicityGlb = cms.double(0.04),
-                             expMolteplicityTk = cms.double(0.02),
-                             expMolteplicitySta = cms.double(0.8)
+                             expPeakEcalS9_min= cms.double(0.1), 
+                             expPeakEcalS9_max= cms.double(0.3), 
+                             expPeakHadS9_min= cms.double(1.), 
+                             expPeakHadS9_max= cms.double(3.), 
+                             expMultiplicityGlb_min = cms.double(0.),
+                             expMultiplicityGlb_max = cms.double(0.1),
+                             expMultiplicityTk_min = cms.double(0.),
+                             expMultiplicityTk_max = cms.double(0.045),
+                             expMultiplicitySta_min = cms.double(0.75),
+                             expMultiplicitySta_max = cms.double(0.95)
                              )
