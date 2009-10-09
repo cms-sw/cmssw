@@ -1,4 +1,4 @@
-/* $Id: EcalDccWeightBuilder.cc,v 1.6 2009/04/01 12:41:00 pgras Exp $
+/* $Id: EcalDccWeightBuilder.cc,v 1.7 2009/10/09 14:23:48 pgras Exp $
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari (INFN/Roma)
  *          some code copied from CalibCalorimetry/EcalTPGTools code
@@ -146,7 +146,8 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
       it != detIds.end(); ++it){
     
     double phase = parameterMap.simParameters(*it).timePhase();
-
+    int binOfMax = parameterMap.simParameters(*it).binOfMaximum();
+    
 #if 0
     //for debugging...
     cout << __FILE__ << ":" << __LINE__ << ": ";
@@ -164,6 +165,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
         << "not ECAL endcap while looping on ECAL cell detIds\n";
     }
     cout << " -> phase: "  << phase << "\n";
+    cout << " -> binOfMax: " << binOfMax << "\n";
 #endif
     
     try{
@@ -185,7 +187,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
       if(phase!=prevPhase){
         if(imode_==COMPUTE_WEIGHTS){
 	  if(it->subdetId()==EcalBarrel){
-	    computeWeights(*pShape, phase,
+	    computeWeights(*pShape, binOfMax, phase, 
 			   dcc1stSample_-1, nDccWeights_, iSkip0_,
 			   baseWeights);
 	  } 
@@ -218,6 +220,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib){
 
 void
 EcalDccWeightBuilder::computeWeights(const EcalShapeBase& shape,
+				     int binOfMax,
 				     double timePhase,
 				     int iFirst,
 				     int nWeights, int iSkip,
@@ -228,8 +231,6 @@ EcalDccWeightBuilder::computeWeights(const EcalShapeBase& shape,
 
   int nActualWeights = 0;
 
-  //TO FIX:
-  const int binOfMax = 6;
   const double tzero = -(binOfMax-1)*25+timePhase;//ns
 
   for(int i=0; i<nWeights; ++i){

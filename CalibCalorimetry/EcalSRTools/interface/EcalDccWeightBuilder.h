@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDccWeightBuilder.h,v 1.4 2009/04/01 09:31:21 pgras Exp $
+ * $Id: EcalDccWeightBuilder.h,v 1.5 2009/10/09 14:23:47 pgras Exp $
  */
 
 #ifndef ECALDCCWEIGHTBUILDER_CC
@@ -53,6 +53,10 @@ private:
 
   /** Weight computation
    * @param shape signal shape to use for weight computation
+   * @param binOfMax time bin which shall contain the pulse peak
+   * @param timePhase signal phase. First sample corresponds to
+   *                  t = ((binOfMax-1)*25+timePhase) ns
+   * in the time reference of EcalShapeBase.
    * @param iFirst first sample the weights must be applied to
    * @param nWeights number of weights
    * @param iSkip0 if greater than 0, the corresponding sample will not be
@@ -61,7 +65,8 @@ private:
    * resized to the number of weights
    */
   void
-  computeWeights(const EcalShapeBase& shape, double timePhase,
+  computeWeights(const EcalShapeBase& shape,
+		 int binOfMax, double timePhase, 
 		 int iFirst0, int nWeights, int iSkip0,
                  std::vector<double>& result);
 
