@@ -15,6 +15,7 @@
 # include <list>
 # include <map>
 # include <set>
+# include <ext/hash_set>
 
 //class DQMStore;
 
@@ -38,6 +39,7 @@ public:
   static const uint32_t DQM_PROP_TYPE_TH3D	= 0x00000032;
   static const uint32_t DQM_PROP_TYPE_TPROF	= 0x00000040;
   static const uint32_t DQM_PROP_TYPE_TPROF2D	= 0x00000041;
+  static const uint32_t DQM_PROP_TYPE_DATABLOB	= 0x00000050;
   
   static const uint32_t DQM_PROP_REPORT_MASK	= 0x00000f00;
   static const uint32_t DQM_PROP_REPORT_CLEAR	= 0x00000000;
@@ -100,6 +102,7 @@ public:
   
   struct Object : CoreObject
   {
+    size_t		hash;
     DataBlob		rawdata;
     std::string		scalar;
     std::string		qdata;
@@ -165,13 +168,101 @@ public:
   virtual bool		removeLocalExcept(const std::set<std::string> &known);
   void			sendLocalChanges(void);
 
-  typedef bool (*SetOrder)(const CoreObject &, const CoreObject &);
   static bool setOrder(const CoreObject &a, const CoreObject &b)
     {
       int diff = a.dirname->compare(*b.dirname);
       return (diff < 0 ? true
 	      : diff == 0 ? a.objname < b.objname
 	      : false);
+    }
+
+  struct HashOp
+  {
+    bool operator()(const Object &a) const
+      {
+        return a.hash;
+      }
+  };
+
+  struct HashEqual
+  {
+    bool operator()(const Object &a, const Object &b) const
+      {
+        return a.hash == b.hash && *a.dirname == *b.dirname && a.objname == b.objname;
+      }
+  };
+
+  static size_t
+  dqmhash(const std::string &key)
+    {
+      // Reduced version of Bob Jenkins' hash function at:
+      //   http://www.burtleburtle.net/bob/c/lookup3.c
+#     define dqmhashrot(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
+#     define dqmhashmix(a,b,c) { \
+        a -= c; a ^= dqmhashrot(c, 4); c += b; \
+        b -= a; b ^= dqmhashrot(a, 6); a += c; \
+        c -= b; c ^= dqmhashrot(b, 8); b += a; \
+        a -= c; a ^= dqmhashrot(c,16); c += b; \
+        b -= a; b ^= dqmhashrot(a,19); a += c; \
+        c -= b; c ^= dqmhashrot(b, 4); b += a; }
+#     define dqmhashfinal(a,b,c) { \
+        c ^= b; c -= dqmhashrot(b,14); \
+        a ^= c; a -= dqmhashrot(c,11); \
+        b ^= a; b -= dqmhashrot(a,25); \
+        c ^= b; c -= dqmhashrot(b,16); \
+        a ^= c; a -= dqmhashrot(c,4);  \
+        b ^= a; b -= dqmhashrot(a,14); \
+        c ^= b; c -= dqmhashrot(b,24); }
+ 
+      uint32_t a, b, c;
+      uint32_t length = key.size();
+      a = b = c = 0xdeadbeef + length;
+      const unsigned char *k = (const unsigned char *) key.data();
+
+      // all but the last block: affect some bits of (a, b, c)
+      while (length > 12)
+      {
+        a += k[0];
+        a += ((uint32_t)k[1]) << 8;
+        a += ((uint32_t)k[2]) << 16;
+        a += ((uint32_t)k[3]) << 24;
+        b += k[4];
+        b += ((uint32_t)k[5]) << 8;
+        b += ((uint32_t)k[6]) << 16;
+        b += ((uint32_t)k[7]) << 24;
+        c += k[8];
+        c += ((uint32_t)k[9]) << 8;
+        c += ((uint32_t)k[10]) << 16;
+        c += ((uint32_t)k[11]) << 24;
+        dqmhashmix(a,b,c);
+        length -= 12;
+        k += 12;
+      }
+
+      // last block: affect all 32 bits of (c); all case statements fall through
+      switch(length)
+      {
+      case 12: c += ((uint32_t)k[11]) << 24;
+      case 11: c += ((uint32_t)k[10]) << 16;
+      case 10: c += ((uint32_t)k[9]) << 8;
+      case 9 : c += k[8];
+      case 8 : b += ((uint32_t)k[7]) << 24;
+      case 7 : b += ((uint32_t)k[6]) << 16;
+      case 6 : b += ((uint32_t)k[5]) << 8;
+      case 5 : b += k[4];
+      case 4 : a += ((uint32_t)k[3]) << 24;
+      case 3 : a += ((uint32_t)k[2]) << 16;
+      case 2 : a += ((uint32_t)k[1]) << 8;
+      case 1 : a += k[0];
+               break;
+      case 0 : return c;
+      }
+
+      dqmhashfinal(a, b, c);
+      return c;
+#     undef dqmhashrot
+#     undef dqmhashmix
+#     undef dqmhashfinal
     }
 
   static void		packQualityData(std::string &into, const QReports &qr);
@@ -212,7 +303,7 @@ private:
 				 Peer *peer,
 				 lat::IOSelectEvent *event,
 				 lat::Error *err = 0);
-  void			requestObject(Peer *p, const char *name, size_t len);
+  void			requestObjectData(Peer *p, const char *name, size_t len);
   void			releaseFromWait(WaitList::iterator i, Object *o);
   void			releaseWaiters(const std::string &name, Object *o);
 
@@ -250,11 +341,11 @@ public:
   struct ImplPeer;
 
   typedef std::set<std::string> DirMap;
-  typedef std::set<ObjType, SetOrder> ObjectMap;
+  typedef __gnu_cxx::hash_set<ObjType, HashOp, HashEqual> ObjectMap;
   typedef std::map<lat::Socket *, ImplPeer> PeerMap;
   struct ImplPeer : Peer
   {
-    ImplPeer(void) : objs(setOrder) {}
+    ImplPeer(void) {}
     ObjectMap objs;
     DirMap dirs;
   };
@@ -275,6 +366,7 @@ protected:
       size_t namepos = (slash == std::string::npos ? 0 : slash+1);
       std::string path(name, 0, dirpos);
       ObjType proto;
+      proto.hash = dqmhash(name);
       proto.dirname = &path;
       proto.objname.append(name, namepos, std::string::npos);
 
@@ -322,6 +414,7 @@ protected:
       o.version = 0;
       o.dirname = &*ip->dirs.insert(name.substr(0, dirpos)).first;
       o.objname.append(name, namepos, std::string::npos);
+      o.hash = dqmhash(name);
       return const_cast<ObjType *>(&*ip->objs.insert(o).first);
     }
 

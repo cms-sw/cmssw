@@ -112,8 +112,9 @@ DQMNet::losePeer(const char *reason,
 
 /// Queue an object request to the data server.
 void
-DQMNet::requestObject(Peer *p, const char *name, size_t len)
+DQMNet::requestObjectData(Peer *p, const char *name, size_t len)
 {
+  // Issue request to peer.
   Bucket **msg = &p->sendq;
   while (*msg)
     msg = &(*msg)->next;
@@ -138,7 +139,7 @@ DQMNet::waitForData(Peer *p, const std::string &name, const std::string &info, P
   // the other peer vanishes?  The current implementation stands a
   // chance for the waiter to wait indefinitely -- although we do
   // force terminate the wait after a while.
-  requestObject(owner, name.size() ? &name[0] : 0, name.size());
+  requestObjectData(owner, name.size() ? &name[0] : 0, name.size());
   WaitObject wo = { Time::current(), name, info, p };
   waiting_.push_back(wo);
   p->waiting++;
@@ -533,7 +534,8 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
       Object *o = findObject(0, name, &owner);
       if (o)
       {
-	if (o->rawdata.empty() && o->scalar.empty())
+	if (o->rawdata.empty()
+	    && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
 	  waitForData(p, name, "", owner);
 	else
 	  sendObjectToPeer(msg, *o, true);
@@ -679,8 +681,10 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 
       // If we had an object for this one already and this is a list
       // update without data, issue an immediate data get request.
-      if (interesting && ! datalen)
-	requestObject(p, (namelen ? &name[0] : 0), namelen);
+      if (interesting
+	  && ! datalen
+	  && (o->flags & DQM_PROP_TYPE_MASK) > DQM_PROP_TYPE_SCALAR)
+	requestObjectData(p, (namelen ? &name[0] : 0), namelen);
 
       // If we have the object data, release from wait.
       if (datalen)
