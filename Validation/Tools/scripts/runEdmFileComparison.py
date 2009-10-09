@@ -6,7 +6,6 @@ import pprint
 import re
 import os
 import sys
-from Validation.Tools.GenObject import GenObject
 
 piecesRE     = re.compile (r'(.+?)\s+"(\S+)"\s+"(\S*)"\s+"(\S+)\."')
 colonRE      = re.compile (r':+')
@@ -61,9 +60,8 @@ if __name__ == "__main__":
                        help="Change precision use for floats")
     parser.add_option ("--prefix", dest="prefix", type="string",
                        help="Prefix to prepend to logfile name")
-
-
     options, args = parser.parse_args()
+    from Validation.Tools.GenObject import GenObject
     if len (args) < 1 or len (args) > 2:
         raise RuntimeError, "You must provide 1 or 2 root files"
     # Make sure CMSSW is setup
@@ -133,7 +131,6 @@ if __name__ == "__main__":
             describeCmd += " --precision=" + options.precision
         if options.verbose:
             print "describing %s" % name
-            print describeCmd,"\n"
         os.system (describeCmd)
         #print describeCmd, '\n'
 
