@@ -304,8 +304,8 @@ particle_flow	on/off	1
 
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
-particle_flow DPtoverPt_Cut  1.0 1.0 0.8 0.5 0.5
-particle_flow NHit_Cut 3 3 3 6 6
+particle_flow DPtoverPt_Cut  -1. -1. -1. -1. -1. 
+particle_flow NHit_Cut 3 3 3 3 3
 
 // Treatment of muons : 
 // Expected energy in ECAL and HCAL, and RMS
@@ -314,7 +314,7 @@ particle_flow muon_ECAL 0.5 0.5
 
 // Treatment of potential fake tracks
 // Number of sigmas for fake track detection
-particle_flow   nsigma_TRACK  2.0
+particle_flow   nsigma_TRACK  1.0
 // Absolute pt error to detect fake tracks in the first three iterations
 particle_flow   pt_error 1.0
 // Factors to be applied in the four and fifth steps to the pt error
