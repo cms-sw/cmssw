@@ -22,14 +22,14 @@
 #include "G4FastTrack.hh"
 #include "G4ParticleTable.hh"
 
-
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
-
-#include "SimG4Core/GFlash/interface/GflashHistogram.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 #include <math.h>
 
@@ -40,20 +40,34 @@ HFGflash::HFGflash(edm::ParameterSet const & p) {
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFGflash");
   theBField               = m_HF.getUntrackedParameter<double>("BField", 3.8);
   theWatcherOn            = m_HF.getUntrackedParameter<bool>("WatcherOn",true);
-  edm::LogInfo("HFShower") << "HFShowerParam:: Set B-Field to " << theBField
-			   << " and WatcherOn to " << theWatcherOn;
-  
-  //death = false;
+  theFillHisto            = m_HF.getUntrackedParameter<bool>("FillHisto",true);
+  edm::LogInfo("HFShower") << "HFGFlash:: Set B-Field to " << theBField
+			   << ", WatcherOn to " << theWatcherOn
+			   << " and FillHisto to " << theFillHisto;
 
   theHelix = new GflashTrajectory;
   theGflashStep = new G4Step();
   theGflashNavigator = 0;
   theGflashTouchableHandle = new G4TouchableHistory();
 
-  theHistohf = GflashHistogram::instance();
-  theHistohf->setStoreFlag(true);
-  theHistohf->bookHistogram("hist_hf.root");
-
+  if (theFillHisto) {
+    edm::Service<TFileService> tfile;
+    if ( tfile.isAvailable() ) {
+      TFileDirectory showerDir = tfile->mkdir("GflashEMShowerProfile");
+      em_incE = showerDir.make<TH1F>("em_incE","Incoming energy (GeV)",500,0,500.);
+      em_ssp_rho    = showerDir.make<TH1F>("em_ssp_rho","Shower starting position;#rho (cm);Number of Events",100,100.0,200.0);
+      em_ssp_z      = showerDir.make<TH1F>("em_ssp_z","Shower starting position;z (cm);Number of Events",200,0.0,2000.0);
+      em_long       = showerDir.make<TH1F>("em_long","Longitudinal Profile;Radiation Length;Number of Spots",100,0.0,50.0);
+      em_lateral    = showerDir.make<TH2F>("em_lateral","Lateral Profile vs. Shower Depth;Radiation Length;Moliere Radius",100,0.0,50.0,100,0.0,3.0);
+      em_long_sd    = showerDir.make<TH1F>("em_long_sd","Longitudinal Profile in Sensitive Detector;Radiation Length;Number of Spots",100,0.0,50.0);
+      em_lateral_sd = showerDir.make<TH2F>("em_lateral_sd","Lateral Profile vs. Shower Depth in Sensitive Detector;Radiation Length;Moliere Radius",100,0.0,50.0,100,0.0,3.0);
+      em_nSpots_sd  = showerDir.make<TH1F>("em_nSpots_sd","Number of Gflash Spots in Sensitive Detector;Number of Spots;Number of Events",1000,0.0,100000);
+    } else {
+      theFillHisto = false;
+      edm::LogInfo("HFShower") << "HFGFlash::No file is available for saving"
+			       << " histos so the flag is set to false";
+    }
+  }
   jCalorimeter = Gflash::kNULL;
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -68,7 +82,6 @@ HFGflash::HFGflash(edm::ParameterSet const & p) {
 }
 
 HFGflash::~HFGflash() {
-  if (theHistohf) delete theHistohf;
   if (theHelix) delete theHelix;
   if (theRandGauss) delete theRandGauss;
   if (theGflashStep) delete theGflashStep;
@@ -100,7 +113,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
   G4double logY = std::log(y);
 
   G4double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876); // total number of spot
-  //G4double nSpots = 0.001 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876); // total number of spots
+
 
   //   // implementing magnetic field effects
   double charge = track.GetStep()->GetPreStepPoint()->GetCharge();
@@ -145,15 +158,18 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
   G4double spotAlpha= averageAlpha * (0.639 + .00334*Gflash::Z[jCalorimeter]);
   G4double spotBeta = (spotAlpha-1.0)/spotTmax;
 
-  if (!spotAlpha)	return hit;
-  if (!spotBeta)	return hit;
+  if (!spotAlpha)	   return hit;
+  if (!spotBeta)	   return hit;
   if (spotAlpha < 0.00001) return hit;
-  if (spotBeta < 0.00001) return hit;
+  if (spotBeta < 0.00001)  return hit;
 
-  if(theHistohf->getStoreFlag()) {
-    theHistohf->em_incE->Fill(incomingEnergy);
-    theHistohf->em_ssp_rho->Fill(showerStartingPosition.rho());
-    theHistohf->em_ssp_z->Fill(showerStartingPosition.z());
+#ifdef DebugLog  
+  LogDebug("HFShower") << "Incoming energy = " << incomingEnergy << " Position (rho,z) = (" << showerStartingPosition.rho() << ", " << showerStartingPosition.z() << ")";
+#endif
+  if(theFillHisto) {
+    em_incE->Fill(incomingEnergy);
+    em_ssp_rho->Fill(showerStartingPosition.rho());
+    em_ssp_z->Fill(std::abs(showerStartingPosition.z()));
   }
 
   //  parameters for lateral distribution and fluctuation
@@ -222,7 +238,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
 
   //   // loop for longitudinal integration
 
-  //std::cout << " Energy = " << energy << " Step Length Left = " << stepLengthLeft << "MUST BE POSITIVE " << std::endl;
+#ifdef DebugLog  
+  LogDebug("HFShower") << " Energy = " << energy << " Step Length Left = "  << stepLengthLeft;
+#endif
   while(energy > 0.0 && stepLengthLeft > 0.0) { 
     stepLengthLeftInX0 = stepLengthLeft / Gflash::radLength[jCalorimeter];
 
@@ -238,9 +256,12 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
     }
 
     zInX0 += deltaZInX0;
+    
     if (!zInX0) return hit;
     if (!spotBeta*zInX0) return hit;
-
+#ifdef DebugLog  
+    LogDebug("HFShower") << " zInX0 = " << zInX0 << " spotBeta*zInX0 = " << spotBeta*zInX0;
+#endif
     if (zInX0 < 0.01) return hit;
     if (spotBeta*zInX0 < 0.00001) return hit;
     
@@ -249,7 +270,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
 
     G4int nSpotsInStep = 0;
 
-    //std::cout << " Energy - Energy Cut off = " << energy - energyCutoff << " MUST BE POSITIVE " << std::endl; 
+#ifdef DebugLog  
+    LogDebug("HFShower") << " Energy - Energy Cut off = " << energy - energyCutoff;
+#endif
     if ( energy > energyCutoff  ) {
       preEnergyInGamma  = energyInGamma;
       gammaDist.a().setValue(alpha);  //alpha
@@ -278,16 +301,6 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
       if (nSpotsInStep < 1) nSpotsInStep = 1;
     }
 
-    // if ( spotCounter+nSpotsInStep > maxNumberOfSpots ) {
-    //       nSpotsInStep = maxNumberOfSpots - spotCounter;
-    //       if ( nSpotsInStep < 1 ) { // @@ check
-    // 	std::cout << "GflashEMShowerProfile::Parameterization : Too Many Spots " << std::endl;
-    // 	std::cout << "                       break to regenerate nSpotsInStep " << std::endl;
-    // 	nSpotsInStep = 1;
-    // 	//continue;
-    //       }
-    //     }
-
 
     //     // It begins with 0.5 of deltaZ and then icreases by 1 deltaZ
     deltaStep  += 0.5*deltaZ;
@@ -309,8 +322,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
     // Convert into MeV unit
     G4double emSpotEnergy = deltaEnergy / nSpotsInStep * e25Scale * GeV;
 
-    //std::cout << " nSpotsInStep = " << nSpotsInStep << std::endl;
-
+#ifdef DebugLog  
+    LogDebug("HFShower") << " nSpotsInStep = " << nSpotsInStep;
+#endif
     for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
       spotCounter++;
       G4double u1 = G4UniformRand();
@@ -374,8 +388,9 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
 
       G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/Gflash::radLength[jCalorimeter];
 
-      //std::cout <<  "zInX0_spot,emSpotEnergy/GeV =" << zInX0_spot << " , " << emSpotEnergy/GeV << std::endl;
-      //std::cout <<  "emSpotEnergy/GeV =" << emSpotEnergy/GeV << std::endl;
+#ifdef DebugLog  
+      LogDebug("HFShower") <<  "zInX0_spot,emSpotEnergy/GeV =" << zInX0_spot << " , " << emSpotEnergy/GeV <<  "emSpotEnergy/GeV =" << emSpotEnergy/GeV;
+#endif
 
       if ((!zInX0_spot) || (zInX0_spot < 0)) continue;
       if ((!emSpotEnergy/GeV) ||  (emSpotEnergy < 0)) continue;
@@ -387,43 +402,13 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
 
       oneHit.position = SpotPosition;
       oneHit.depth    = 1;
-      //if(hfpartname == "HFFiberL") oneHit.depth    = 1;
-      //if(hfpartname == "HFFiberS") oneHit.depth    = 2;
-      //if(hfpartname == "HVQX") oneHit.depth    = 3;
-      //if(hfpartname == "HFBox1") oneHit.depth    = 1;
-      //if(hfpartname == "HFBox2") oneHit.depth    = 2;
+
       //oneHit.pez      = zInX0;
       oneHit.pez      = SpotPosition.z();
       oneHit.time     = timeGlobal;
       oneHit.edep     = emSpotEnergy/GeV;
       hit.push_back(oneHit);
       //if(emSpotEnergy > 0) std::cout << " HF part = "  << hfpartname << " Em Spot Energy = " << emSpotEnergy << std::endl;
-
-      // if(theHistohf->getStoreFlag()) {
-      //       	theHistohf->em_lateral->Fill(SpotPosition.r(),rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
-      //       	if(oneHit.depth == 1) theHistohf->em_long->Fill(SpotPosition.z(),emSpotEnergy/GeV);
-      //       	if(oneHit.depth == 2) theHistohf->em_long2->Fill(SpotPosition.z(),emSpotEnergy/GeV);
-      //       	if(oneHit.depth == 3) theHistohf->em_long3->Fill(SpotPosition.z(),emSpotEnergy/GeV);
-      //       }
-
-
-
-      // theHistohf->em_long_hf->Fill(zInX0_spot,emSpotEnergy/GeV);
-      //       theHistohf->em_long_hf_noweight->Fill(zInX0_spot);
-      //em_lateral_hf->Fill(zInX0_spot,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
-
-      // Send G4Step information to Hit/Digi if the volume is sensitive
-      // Copied from G4SteppingManager.cc
-
-      // oneHit.position = SpotPosition;
-      //       oneHit.depth    = 3;
-      //       oneHit.pez      = zInX0;
-      //       oneHit.time     = timeGlobal;
-      //       oneHit.edep     = emSpotEnergy/GeV;
-      //       hit.push_back(oneHit);
-
-      //       //theHistohf->em_long->Fill(SpotPosition.z(),emSpotEnergy/GeV);
-      //       theHistohf->em_long->Fill(SpotPosition.z());
 
 
 
@@ -433,58 +418,21 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Track& track, do
 	if( aCurrentVolume == 0 ) continue;
 	std::cout << " Physical Volume " << theGflashStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << " at = " << SpotPosition.z() << std::endl;
       }
-      //       G4String hfpartname = theGflashStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-
-      //       //if(hfpartname != "HVQX") continue;
-      //       //if((hfpartname != "HVQX") && (hfpartname != "HFFibreL") && (hfpartname != "HFFibreS")) std::cout << " Hidden Name " << hfpartname << std::endl;
-
-
-      
-
-      //       //std::cout << " Physical Volume " << theGflashStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << std::endl;
-
-      //       //if(!aCurrentVolume) continue;
-
-      //       G4LogicalVolume* lv1 = aCurrentVolume->GetLogicalVolume();
-      //       //std::cout << " Current Volume = "  << lv1->GetRegion()->GetName() << std::endl;
-      //       //std::cout << " Current Volume = "  << lv1->GetName() << std::endl;
-      //       if(lv1->GetRegion()->GetName() != "GflashRegion") continue;
-
-      //       //if(lv1->GetName() != "HFPMT") continue;
-
-      //       theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
-      //       G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
-
-      //       //G4VSensitiveDetector* aSensitive = aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector();
-      
-      //       //std::cout << " Sensitive Detector = " << aSensitive->GetName() << std::endl;
-      
-      //       if( aSensitive == 0 ) continue;
-      //       //if(!aSensitive) continue;
-      //       //aSensitive->Hit(theGflashStep);
       
       nSpots_sd++;
 
       // for histogramming      
-      //if(theHistohf->getStoreFlag()) {
-      theHistohf->em_long_sd->Fill(zInX0_spot,emSpotEnergy/GeV);
-      theHistohf->em_lateral_sd->Fill(zInX0_spot,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
-      //}
-
-      //if(hfpartname == "HVQX") continue;
-
-      //if((oneHit.depth == 2) && (SpotPosition.z() < 11400)) continue;
-      //hit.push_back(oneHit);
-      //      theHistohf->em_long_hf->Fill(SpotPosition.z()/cm,emSpotEnergy/GeV);
-      //      theHistohf->em_long_hf_noweight->Fill(SpotPosition.z()/cm);
-      //std::cout << " HF Part Name = " << hfpartname << std::endl;
+      if (theFillHisto) {
+	em_long_sd->Fill(zInX0_spot,emSpotEnergy/GeV);
+	em_lateral_sd->Fill(zInX0_spot,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
+      }
 
     } // end of for spot iteration
 
   } // end of while for longitudinal integration
 
-  if(theHistohf->getStoreFlag()) {
-    theHistohf->em_nSpots_sd->Fill(nSpots_sd);
+  if (theFillHisto) {
+    em_nSpots_sd->Fill(nSpots_sd);
   }
   delete theGflashNavigator;
   //delete fastTrack;

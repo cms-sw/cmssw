@@ -27,7 +27,6 @@
 #include <TH2F.h>
 #include <TProfile.h>
 
-class GflashHistogram;
 class G4Step;
 
 class HFGflash {
@@ -50,7 +49,6 @@ public:
 
 private:    
 
-  GflashHistogram* theHistohf;
   GflashTrajectory* theHelix;
   G4Step *theGflashStep;
   G4Navigator *theGflashNavigator;
@@ -60,6 +58,7 @@ private:
   Gflash::CalorimeterNumber jCalorimeter;
 
   bool theWatcherOn;
+  bool theFillHisto;
   G4double theBField;
 
   G4int showerType ;
@@ -70,7 +69,8 @@ private:
   G4double lateralPar[4]; 
 
   CLHEP::RandGamma*  theRandGamma;
-
+  TH1F  *em_incE, *em_ssp_rho, *em_ssp_z, *em_long, *em_long_sd, *em_nSpots_sd;
+  TH2F  *em_lateral, *em_lateral_sd;
 };
 
 #endif // HFGflash_h

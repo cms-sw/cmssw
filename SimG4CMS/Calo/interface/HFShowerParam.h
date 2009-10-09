@@ -50,7 +50,7 @@ private:
   HFFibre*              fibre;
   HFGflash*             gflash;
   double                pePerGeV, edMin, ref_index;
-  bool                  trackEM, onlyLong;
+  bool                  trackEM, onlyLong, parametrizeLast;
   G4int                 emPDG, epPDG, gammaPDG;
   std::vector<double>   gpar;
 };

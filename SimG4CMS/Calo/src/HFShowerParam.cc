@@ -32,13 +32,17 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   edMin                   = m_HF.getParameter<double>("EminLibrary");
   onlyLong                = m_HF.getParameter<bool>("OnlyLong");
   ref_index               = m_HF.getParameter<double>("RefIndex");
+  parametrizeLast         = m_HF.getUntrackedParameter<bool>("ParametrizeLast",false);
   edm::LogInfo("HFShower") << "HFShowerParam::Use of shower library is set to "
 			   << useShowerLibrary << " Use of Gflash is set to "
 			   << useGflash << " P.E. per GeV " << pePerGeV
 			   << ", ref. index of fibre " << ref_index 
 			   << ", Track EM Flag " << trackEM << ", edMin "
-			   << edMin << " GeV and use of Short fibre info in"
-			   << " shower library set to " << !(onlyLong);
+			   << edMin << " GeV, use of Short fibre info in"
+			   << " shower library set to " << !(onlyLong)
+                           << ", use of parametrization for last part set to "
+                           << parametrizeLast;
+
   
   G4String attribute = "ReadOutName";
   G4String value     = name;
@@ -128,7 +132,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep) {
     // Leave out the last part
     double edep = 0.;
     bool   kill = false;
-    if ((!trackEM) && (zz < (gpar[1]-gpar[2])) && (!other)) {
+    if ((!trackEM) && ((zz<(gpar[1]-gpar[2])) || parametrizeLast) && (!other)){
       edep = pin;
       kill = true;
     } else if (track->GetDefinition()->GetPDGCharge() != 0 && 

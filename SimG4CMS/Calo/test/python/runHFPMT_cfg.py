@@ -16,9 +16,13 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
     debugModules = cms.untracked.vstring('*'),
+    categories = cms.untracked.vstring('CaloSim', 
+        'EcalSim', 'G4cerr', 'G4cout',
+        'HcalSim', 'HFShower'),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
+        threshold = cms.untracked.string('DEBUG'),
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
@@ -41,13 +45,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
         )
-    ),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalSim', 'G4Cerr', 'G4cout',
-        'HcalSim', 'HFShower'),
-    destinations = cms.untracked.vstring('cout')
+    )
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -62,7 +62,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("EmptySource")
@@ -98,7 +98,8 @@ process.g4SimHits.Physics.DefaultCutValue   = 0.1
 process.g4SimHits.HCalSD.UseShowerLibrary   = False
 process.g4SimHits.HCalSD.UseParametrize     = True
 process.g4SimHits.HCalSD.UsePMTHits         = True
-process.g4SimHits.HFShower.UseShowerLibrary = True
+process.g4SimHits.HFShower.UseShowerLibrary = False
+process.g4SimHits.HFShower.UseHFGflash      = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
