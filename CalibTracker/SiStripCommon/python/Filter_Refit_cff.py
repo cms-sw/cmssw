@@ -4,7 +4,8 @@ import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
 
-CalibrationTracksRefit = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone(src = cms.InputTag("CalibrationTracks"))
+#CalibrationTracksRefit = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone(src = cms.InputTag("CalibrationTracks"))
+CalibrationTracksRefit = RecoTracker.TrackProducer.TrackRefitterP5_cfi.TrackRefitterP5.clone(src = cms.InputTag("CalibrationTracks"))
 CalibrationTracks = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'ALCARECOTkAlCosmicsCTF0T',
     filter = True,
