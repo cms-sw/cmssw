@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2009/08/25 10:03:16 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/10/02 13:09:42 $
+ *  $Revision: 1.9 $
  */
 
 
@@ -25,7 +25,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // For storing calorimeter isolation info in the ntuple
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
@@ -71,10 +71,17 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
     
   
   theHltProcessName  = pset.getParameter<string>("HltProcessName");
+
+  LogTrace ("HLTMuonVal") << "HLTMuonMatchAndPlot: Constructor: Initializing HLTConfigProvider with HLT process name: " << theHltProcessName << endl;
+  HLTConfigProvider hltConfig;
+  hltConfig.init(theHltProcessName);
+
   theNumberOfObjects = ( TString(triggerName).Contains("Double") ) ? 2 : 1;
   theTriggerName     = triggerName;
     
-  useAod         = true;  
+  useAod         = true;
+
+  requireL1SeedForHLTPaths = pset.getUntrackedParameter<bool>("RequireRecoToMatchL1Seed", false);
 
   matchType = pset.getUntrackedParameter<string>("matchType");
 
@@ -130,12 +137,26 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot
   TPRegexp l2Regexp("L2.*Filtered");
 
   string theLastHltFilter = "";
+
+  theL1SeedModuleForHLTPath = "" ;
   
   for ( size_t i = 0; i < moduleNames.size(); i++ ) {
     string module = moduleNames[i];
 
-    LogTrace ("HLTMuonVal") << "Considering Module named "
-                            << module;
+    LogTrace ("HLTMuonVal") << "Considering Module named    "
+                            << module
+                            << "      which has type =    "
+                            << hltConfig.moduleType(module);
+
+    if ( hltConfig.moduleType(module) == "HLTLevel1GTSeed" ) {
+      LogTrace ("HLTMuonVal") << "Module = " << module
+                              <<  " is a HLTLevel1GTSeed!!"
+                              << endl
+                              << "Storing it as L1Seed"
+                              << endl;
+      theL1SeedModuleForHLTPath = module;
+    }
+
     
     if ( TString(module).Contains(l1Regexp) ) {
       // this will be used to look up info
@@ -673,6 +694,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
   edm::Handle<trigger::TriggerEvent>         aodTriggerEvent;
   vector<TriggerObject>                      l1Particles;
   vector<TriggerObject>                      l1RawParticles;
+  vector<TriggerObject>                      l1Seeds;
   //--  HLTParticles [0] is a vector of L2 matches
   //--  HLTParticles [1] is a vector of L1 matches
 
@@ -791,228 +813,57 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
     LogTrace ("HLTMuonVal") << "Trigger Name is " << theTriggerName;
     
     LogTrace ("HLTMuonVal") << "\n\n L1Collection tag is "
-                            << collectionTag
+                            << collectionTag << endl
                             << " and size filters is "
                             << aodTriggerEvent->sizeFilters()
-                            << " Dumping full list of collection tags";
+                            << "Looking up L1 information in trigSummaryAod";
 
-    LogTrace ("HLTMuonVal") << "\nL1LabelAodLabel = GREP_REMOVE"  << endl
-                            << "\nL2LabelAodLabel = GREP_REMOVE"  << endl
-                            << "\n\nLooping over L3 lables\n" ;
-
-
-    //////////////////////////////////////////////////////
-    //   Print everything
-    //   This can make the logfile huge
-    //   Useful for development
-    //   Keep this commented out for now 
-    /////////////////////////////////////////////////////
-
-    // vector<string>::const_iterator iHltColl;
-    //     int numHltColl = 0;
-    //     for (  iHltColl = theHltCollectionLabels.begin();
-    //            iHltColl != theHltCollectionLabels.end();
-    //            iHltColl++ ) {
-    //       LogTrace ("HLTMuonVal") << "Hlt label # "  << numHltColl
-    //                               << " = "
-    //                               << (*iHltColl);
-    //       numHltColl++;
-    //     }
-
-    //     // Print out each collection that this event has
-    //     vector<string> allAodCollTags = aodTriggerEvent->collectionTags();
-    //     vector<string>::const_iterator iCollTag;
-    //     int numColls = 0;
-    //     for ( iCollTag = allAodCollTags.begin();
-    //           iCollTag != allAodCollTags.end();
-    //           iCollTag++ ) {
-      
-    //       LogTrace ("HLTMuonVal") << "Tag  " << numColls << " = "
-    //                               << (*iCollTag) 
-    //                               << endl;
-
-    //       numColls++;
-    //     }
-
+    // this function call fills l1 particles with your matching trigger objects
+    getAodTriggerObjectsForModule ( collectionTag, aodTriggerEvent, objects, l1Particles, muonSelection);
     
-    //     for ( size_t iFilter = 0; iFilter < aodTriggerEvent->sizeFilters(); iFilter++) {
-    //       InputTag thisTag = aodTriggerEvent->filterTag(iFilter);
-    //       LogTrace("HLTMuonVal") << "Filter number " << iFilter << "  tag = "
-    //                              << thisTag << endl;
-    //     }
-    /////////////////////////////////////////////////////////////
-
-    
-    filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
-
-    LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
-                            << filterIndex;
-    
-    if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
-      const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
-
-      LogTrace ("HLTMuonVal") << "\n\nGot keys";
-      LogTrace ("HLTMuonVal") << "Key size is " << keys.size();
-                              
-      // The keys are apparently pointers into the trigger
-      // objects collections
-      // Use the key's to look up the particles for the
-      // filter module that you're using 
-      
-      for ( size_t j = 0; j < keys.size(); j++ ){
-        TriggerObject foundObject = objects[keys[j]];
-
-        // This is the trigger object. Apply your filter to it!
-        LogTrace ("HLTMuonVal") << "Testing to see if object in key passes selection"
-                                << endl ;
-        
-        if (muonSelection.hltMuonSelector(foundObject)){
-        
-          LogTrace ("HLTMuonVal") << "OBJECT FOUND!!! - Storing a trigger object with id = "              
-                                  << foundObject.id() 
-                                  << ", eta = " << foundObject.eta()
-                                  << ", pt = " << foundObject.pt()
-                                  << ", custom name = " << muonSelection.customLabel
-                                  << "\n\n" << endl;
-          //l1Particles.push_back( objects[keys[j]].particle().p4() );
-          l1Particles.push_back( foundObject );
-        }
-      }
-    } 
-    ///////////////////////////////////////////////////////////////
-    //     LogTrace ("HLTMuonVal") << "moving on to l2 collection";
-    //     collectionTag = InputTag( theAodL2Label, "", theHltProcessName );
-    //     filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
-
-    //     LogTrace ("HLTMuonVal") << "\n\n L2Collection tag is "
-    //                             << collectionTag
-    //                             << " and size filters is "
-    //                             << aodTriggerEvent->sizeFilters();
-
-    //     LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
-    //                             << filterIndex;
-    
-    //     if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
-      
-    //       const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
-
-    //       LogTrace ("HLTMuonVal") << "\n\nGot keys";
-    //       LogTrace ("HLTMuonVal") << "Key size is " << keys.size();
-
-    //       if (hltParticles.size() > 0) {
-        
-      
-    //         for ( size_t j = 0; j < keys.size(); j++ ) {
-    //           TriggerObject foundObject = objects[keys[j]];
-    //           LogTrace ("HLTMuonVal") << "Storing a trigger object with id = "
-    //                                 << foundObject.id() << "\n\n";
-
-    //           hltParticles[0].push_back( objects[keys[j]].particle().p4() );
-
-    //         }
-    //       } else { // you don't have any hltLabels
-    //         LogTrace ("HLTMuonVal") << "Oops, you don't have any hlt labels"
-    //                                 << "but you do have l2 objects for this filter";
-                                
-    //       }
-    //    } 
-    ///////////////////////////////////////////////////////////////
-    LogTrace ("HLTMuonVal") << "Moving onto L2 & L3";
-
-    
-    //if (theHltCollectionLabels.size() > 0) {
     int indexHltColl = 0;
     vector<string>::const_iterator iHltColl;
     for (iHltColl = theHltCollectionLabels.begin();
          iHltColl != theHltCollectionLabels.end();
          iHltColl++ ){
       collectionTag = InputTag((*iHltColl) , "", 
-                                theHltProcessName );
-      filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+                               theHltProcessName );
 
-      LogTrace ("HLTMuonVal") << "\n\n HLTCollection tag is "
-                              << collectionTag
-                              << " and size filters is "
-                              << aodTriggerEvent->sizeFilters();
-    
-      LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
-                              << filterIndex;
-
-    
-      if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
-        const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
-
-        LogTrace ("HLTMuonVal") << "==MULTI== Looked up keys for filter " << (*iHltColl)
-                                << ", index number " << filterIndex
-                                << ", and found " << keys.size() << " keys...   "
-                                << ((keys.size() > 2)? "MULTIMUON": "")
-                                << endl;
-          
-        for ( size_t j = 0; j < keys.size(); j++ ){
-          TriggerObject foundObject = objects[keys[j]];
-
-          LogTrace ("HLTMuonVal") << "Found and Hlt object, checking to "
-                                  << "see if passes custom selection ...";
-          
-          if (muonSelection.hltMuonSelector(foundObject)){
-        
-            LogTrace ("HLTMuonVal") << "HLT OBJECT FOUND!!! - Storing a trigger object with id = "              
-                                    << foundObject.id() 
-                                    << ", eta = " << foundObject.eta()
-                                    << ", pt = " << foundObject.pt()
-                                    << ", custom name = " << muonSelection.customLabel
-                                    << "\n\n" << endl;
-          
-          
-        
-         
-         
-
-            //hltParticles[indexHltColl].push_back( objects[keys[j]].particle().p4() );
-            hltParticles[indexHltColl].push_back( foundObject );
-          }
-        }
-      }
+      // this function call filles hltParticles with your hlt matches.
+      getAodTriggerObjectsForModule ( collectionTag, aodTriggerEvent, objects, hltParticles[indexHltColl] , muonSelection);
+      
 
       indexHltColl++;
     }
-    
-    // At this point, we should check whether the prescaled L1 and L2
-    // triggers actually fired, and exit if not.
-    
-  /////////////////////////////////////////////////////////////////////
 
-  int totalNumOfHltParticles = 0;
-  int tempIndexHltColl = 0;
-  for ( vector<string>::const_iterator iHltColl = theHltCollectionLabels.begin();
-        iHltColl != theHltCollectionLabels.end();
-        iHltColl++ ){
-    LogTrace ("HLTMuonVal") << "HLT label = " << (*iHltColl) 
-                            << ", Number of hlt particles (4-vectors from aod) = "
-                            << hltParticles[tempIndexHltColl].size()
-                            << "\n";
-    totalNumOfHltParticles += hltParticles[tempIndexHltColl].size();
 
-    LogTrace ("HLTMuonVal") << "    Number of hlt cands (hltdebug refs) = " 
-                            << hltCands[tempIndexHltColl].size()
-                            << "\n";
+    // more very verbose debug
+    // trying to restructure code 
+    LogTrace ("HLTMuonVal") << "At the end of parsing the L2/L3 filters, you have found "
+                            << "L2 = " <<  ((hltParticles.size() > 0) ? hltParticles[0].size() : 0)
+                            << "L3 = " <<  ((hltParticles.size() > 1) ? hltParticles[1].size() : 0)
+                            << endl;
+
+    ///////////////////////////////////////////
+    //
+    //  Look up the L1 seeds
+    //
+    ///////////////////////////////////////////
     
-    tempIndexHltColl++;
-  }
+    collectionTag = InputTag( theL1SeedModuleForHLTPath, "", theHltProcessName );
+
+    LogTrace ("HLTMuonVal") << "\n\n L1Seed colelction tag is "
+                            << collectionTag << endl
+                            << " and size filters is "
+                            << aodTriggerEvent->sizeFilters()
+                            << "Looking up L1 Seed information in trigSummaryAod";
+
+    // this function call fills l1 particles with your matching trigger objects
+    getAodTriggerObjectsForModule ( collectionTag, aodTriggerEvent, objects, l1Seeds, muonSelection);
+    
+    LogTrace ("HLTMuonVal") << "At the end of parsing the L1 filter, you have found "
+                            <<  l1Particles.size() << " objects: ";
   
-  LogTrace ("HLTMuonVal") << "\n\nEvent " << eventNumber
-                          << " has numL1Cands = " << l1Particles.size()
-                          << " and numHltCands = " << totalNumOfHltParticles
-                          << " now looking for matches\n\n" << endl;
-
-
-
-
-  
-  //hNumObjects->getTH1()->AddBinContent( 3, l1Particles.size() );
-
-  //for ( size_t i = 0; i < numHltLabels; i++ ) 
-    //hNumObjects->getTH1()->AddBinContent( i + 4, hltParticles[i].size() );
 
   //////////////////////////////////////////////////////////////////////////
   // Initialize MatchStructs
@@ -1028,6 +879,7 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
 
   for ( size_t i = 0; i < myRecMatches.size(); i++ ) {
     myRecMatches[i].l1Cand = nullTriggerObject;
+    myRecMatches[i].l1Seed = nullTriggerObject;
     myRecMatches[i].hltCands. assign( numHltLabels, nullTriggerObject );
     //myRecMatches[i].hltTracks.assign( numHltLabels, false );
     // new! raw matches too
@@ -1070,6 +922,39 @@ bool HLTMuonMatchAndPlot::selectAndMatchMuons (const Event & iEvent, vector<Matc
     }
 
   } // End loop over l1Particles
+
+  
+  //========================================
+  // Loop over L1 seeds and store matches
+  //========================================
+  
+  for ( size_t i = 0; i < l1Seeds.size(); i++ ) {
+
+    TriggerObject l1Cand = l1Seeds[i];
+    double eta           = l1Cand.eta();
+    double phi           = l1Cand.phi();
+    // L1 pt is taken from a lookup table
+    // double ptLUT      = l1Cand->pt();  
+
+    double maxDeltaR = theL1DrCut;
+    //numL1Cands++;
+
+
+    if ( useMuonFromReco ){
+      int match = findRecMatch( eta, phi, maxDeltaR, myRecMatches );
+      if ( match != -1 && myRecMatches[match].l1Seed.pt() < 0 ) {
+        myRecMatches[match].l1Seed = l1Cand;
+        LogTrace ("HLTMuonVal") << "Found a rec match to L1 particle (aod)  "
+                                << " rec pt = " << myRecMatches[match].recCand->pt()
+                                << ",  l1 pt  = " << myRecMatches[match].l1Seed.pt(); 
+      } else {
+        //hNumOrphansRec->getTH1F()->AddBinContent( 1 );
+      }
+    }
+
+  } // End loop over l1Seeds
+
+  
 
   ////////////////////////////////////////////////////////
   //   Loop over the L1 Candidates (RAW information)
@@ -1284,47 +1169,52 @@ void HLTMuonMatchAndPlot::fillPlots (vector<MatchStruct> & myRecMatches,
                            << endl;
 
 
+    if ((isL3Path || isL2Path) && requireL1SeedForHLTPaths) {
+
+      LogTrace ("HLTMuonVal") << "Checking to see if your RECO muon matched to an L1 seed"
+                              << endl;
+
+      if (myRecMatches[i].l1Seed.pt() < 0) {
+        LogTrace ("HLTMuonVal") << "No match to L1 seed, skipping this RECO muon" << endl;
+        continue;
+      }
+    }
+
+    
+
     double pt  = myRecMatches[i].recCand->pt();
     double eta = myRecMatches[i].recCand->eta();
     double phi = myRecMatches[i].recCand->phi();
     int recPdgId = myRecMatches[i].recCand->pdgId();
 
-    //allRecPts.push_back(pt);
-
-    // I think that these are measured w.r.t
-    // (0,0,0)... you need to use other
-    // functions to make them measured w.r.t
-    // other locations
-
-    // Must get track out of the muon itself
-    // how to unpack it all?
-    
-
     LogTrace ("HLTMuonVal") << "trying to get a global track for this muon" << endl;
-    
-    TrackRef theMuoGlobalTrack = myRecMatches[i].recCand->globalTrack();
 
-    double d0 = -999;
-    double z0 = -999;
-    int charge = -999;
-    int plottedCharge = -999;
+    // old way - breaks if no global track
+    //TrackRef theMuoGlobalTrack = myRecMatches[i].recCand->globalTrack();
 
-    double d0beam = -999;
-    double z0beam = -999;
+    TrackRef theMuonTrack = getCandTrackRef (mySelection, (*myRecMatches[i].recCand));
     
-    if (theMuoGlobalTrack.isNonnull() ) {
-      d0 = theMuoGlobalTrack->d0();
-      z0 = theMuoGlobalTrack->dz();
+    double d0 = -9e20;
+    double z0 = -9e20;
+    int charge = -99999;
+    int plottedCharge = -99999;
+
+    double d0beam = -9e20;
+    double z0beam = -9e20;
+    
+    if (theMuonTrack.isNonnull() ) {
+      d0 = theMuonTrack->d0();
+      z0 = theMuonTrack->dz();
       // comment:
       // does the charge function return the
       // same value as the abs(pdgId) ?    
-      charge = theMuoGlobalTrack->charge(); 
+      charge = theMuonTrack->charge(); 
       plottedCharge = getCharge (recPdgId);
       
     
       if (foundBeamSpot) {
-        d0beam = theMuoGlobalTrack->dxy(beamSpot.position());
-        z0beam = theMuoGlobalTrack->dz(beamSpot.position());
+        d0beam = theMuonTrack->dxy(beamSpot.position());
+        z0beam = theMuonTrack->dz(beamSpot.position());
         
         hBeamSpotZ0Rec[0]->Fill(beamSpot.z0());
       }
@@ -1510,7 +1400,7 @@ void HLTMuonMatchAndPlot::fillPlots (vector<MatchStruct> & myRecMatches,
           hPassExaclyOneMuonMaxPtRec[j+HLT_PLOT_OFFSET]->Fill(pt);
           hPassPtRecExactlyOne[j+HLT_PLOT_OFFSET]->Fill(pt);
         }
-      }      
+      } // end if found hlt match      
     }
 
     /////////////////////////////////////////////////
@@ -2300,7 +2190,8 @@ void HLTMuonMatchAndPlot::moveOverflow (MonitorElement * myElement) {
   // 2D/3D histos
   // Actually, this can't handle abitrary dimensions.
   int maxBin = myElement->getNbinsX();
-  
+
+  double originalEntries = myElement->getEntries();
   
   LogTrace ("HLTMuonVal") << "==MOVEOVERFLOW==  "
                                 << "maxBin = " << maxBin
@@ -2316,5 +2207,57 @@ void HLTMuonMatchAndPlot::moveOverflow (MonitorElement * myElement) {
   LogTrace ("HLTMuonVal") << "seting overflow to zero" << endl;
   myElement->setBinContent(maxBin+1,0.0);
 
+  myElement->setEntries(originalEntries);
 
+}
+
+
+void HLTMuonMatchAndPlot::getAodTriggerObjectsForModule (edm::InputTag collectionTag,
+                                                         edm::Handle<trigger::TriggerEvent> aodTriggerEvent,
+                                                         trigger::TriggerObjectCollection trigObjs,
+                                                         std::vector<TriggerObject> & foundObjects,
+                                                         MuonSelectionStruct muonSelection) {
+
+
+  //LogTrace ("HLTMuonVal") << "Getting trigger muons for module label = " << collectionTag << endl;
+  
+  size_t filterIndex   = aodTriggerEvent->filterIndex( collectionTag );
+    
+  LogTrace ("HLTMuonVal") << "\n\n filterIndex is "
+                          << filterIndex;
+    
+  if ( filterIndex < aodTriggerEvent->sizeFilters() ) {
+    const Keys &keys = aodTriggerEvent->filterKeys( filterIndex );
+
+    LogTrace ("HLTMuonVal") << "\n\nGot keys";
+    LogTrace ("HLTMuonVal") << "Key size is " << keys.size();
+                              
+    // The keys are apparently pointers into the trigger
+    // trigObjs collections
+    // Use the key's to look up the particles for the
+    // filter module that you're using 
+      
+    for ( size_t j = 0; j < keys.size(); j++ ){
+      TriggerObject foundObject = trigObjs[keys[j]];
+
+      // This is the trigger object. Apply your filter to it!
+      LogTrace ("HLTMuonVal") << "Testing to see if object in key passes selection"
+                              << endl ;
+        
+      if (muonSelection.hltMuonSelector(foundObject)){
+        
+        LogTrace ("HLTMuonVal") << "OBJECT FOUND!!! - Storing a trigger object with id = "              
+                                << foundObject.id() 
+                                << ", eta = " << foundObject.eta()
+                                << ", pt = " << foundObject.pt()
+                                << ", custom name = " << muonSelection.customLabel
+                                << "\n\n" << endl;
+        //l1Particles.push_back( trigObjs[keys[j]].particle().p4() );
+        foundObjects.push_back( foundObject );
+      }
+    }
+  }
+
+  
+  
 }

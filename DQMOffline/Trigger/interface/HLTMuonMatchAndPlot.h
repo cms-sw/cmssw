@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2009/08/25 10:03:25 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/02 13:09:51 $
+ *  $Revision: 1.8 $
  *  
  *  \author  J. Slaunwhite, based on code from Jeff Klukas
  */
@@ -30,6 +30,7 @@
 //#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -122,23 +123,35 @@ public:
   // Now we store Muons and TriggerObjects
   // instead of Tracks and 4-vectors
   struct MatchStruct {
-    
-    //const reco::GenParticle*   genCand;
+
+    // this is the reco muon
     const reco::Muon*         recCand;
-    // Can't understsand how to use these references
-    //l1extra::L1MuonParticleRef   l1Cand;
-    //l1extra::L1MuonParticleRef   l1RawCand;
-
+    
+    // this is the cand from the L1 filter
+    // in L1 passthru triggers
+    // that matches the reco muon
+    // (from trigger summary aod)
     trigger::TriggerObject l1Cand;
-    LorentzVector l1RawCand;
-    std::vector<trigger::TriggerObject> hltCands;
-    // Can't handle the raw objects
-    // just use 4-vector
-    std::vector<LorentzVector> hltRawCands;
-    //std::vector<const reco::RecoChargedCandidate*> hltTracks;
 
-    // Do we really want to store just the lorentz vectors
-    // for the trigger objects? No charge, d0 information
+    // this is the L1 seed candidate from
+    // HLT trigger paths
+
+    trigger::TriggerObject l1Seed;
+
+    // this is the raw candidate from
+    // the trigger summary with refs
+    // that matches the reco muon    
+    LorentzVector l1RawCand;
+
+    // these are the hlt candidates from
+    // trigger sum AOD that match
+    // the reco muon
+    std::vector<trigger::TriggerObject> hltCands;
+
+    // these are the hlt candidates from
+    // trigger sum w/ refs that match
+    // the reco muon
+    std::vector<LorentzVector> hltRawCands;
     
   };
 
@@ -203,6 +216,15 @@ protected:
   bool includeOverflow;
   void moveOverflow (MonitorElement * myElement);
 
+
+  // put the code for getting trigger objects into a single module
+  // fills up foundObjects with your matching trigger objects
+  void getAodTriggerObjectsForModule (edm::InputTag collectionTag,
+                                      edm::Handle<trigger::TriggerEvent> aodTriggerEvent,
+                                      trigger::TriggerObjectCollection trigObjs,
+                                      std::vector<trigger::TriggerObject> & foundObjects,
+                                      MuonSelectionStruct muonSelection);
+  
   // keep track of the ME's you've booked,
   // rebin them at job end.
   std::vector<MonitorElement*> booked1DMonitorElements;
@@ -250,6 +272,8 @@ protected:
   std::string  theAodL1Label;
   std::string  theAodL2Label;
 
+  bool requireL1SeedForHLTPaths;
+
 
   std::string matchType;
 
@@ -259,7 +283,8 @@ protected:
   edm::InputTag TriggerResultLabel;
 
   std::vector<std::string> selectedValidTriggers;
-  
+
+  std::string theL1SeedModuleForHLTPath;
   
   //StringCutObjectSelector<Muon> myMuonSelector;
   //std::string myCustomName;

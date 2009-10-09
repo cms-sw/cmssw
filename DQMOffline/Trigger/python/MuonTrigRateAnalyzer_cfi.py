@@ -25,7 +25,7 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
  	  collectionName = cms.untracked.string ("barrelMuons"),
  	  # The track collection is just a switch, not a true collection name
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),
+	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
 	  z0cut = cms.untracked.double(25.0),
 	  recoCuts = cms.untracked.string ("abs(eta) < 0.9"),
@@ -36,7 +36,7 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("endcapMuons"),
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),
+	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
 	  z0cut = cms.untracked.double(25.0), # 3 meters
 	  recoCuts = cms.untracked.string ("abs(eta) > 1.4 && abs(eta) < 2.0"),
@@ -46,7 +46,7 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	cms.untracked.PSet(
 	  collectionName = cms.untracked.string ("allMuons"),
 	  trackCollection = cms.untracked.string ("globalTrack"),
-	  requiredTriggers = cms.untracked.vstring("HLT_L1MuOpen"),
+	  requiredTriggers = cms.untracked.vstring(""),
 	  d0cut = cms.untracked.double(2.0),
 	  z0cut = cms.untracked.double(25.0),
 	  recoCuts = cms.untracked.string ("abs(eta) < 2.0"),
@@ -76,13 +76,15 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 									 125.0, 150.0, 175.0, 200.0,
 									 400.0),
 
-    Z0Parameters       = cms.untracked.vdouble(25, -25, 25),
-    D0Parameters       = cms.untracked.vdouble(25, -1, 1),									
+    Z0Parameters       = cms.untracked.vdouble(25, -15, 15),
+    D0Parameters       = cms.untracked.vdouble(25, -0.5, 0.5),									
 
 	# valid match types are dr and cosmic
 	# future update: make sure default is
 	# delta r matching
 	matchType = cms.untracked.string("dr"),
+
+    RequireRecoToMatchL1Seed = cms.untracked.bool(True),									
 
     # If you have cosmic matching
 	# you will ignore the delta R cuts								
