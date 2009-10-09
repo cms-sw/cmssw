@@ -141,6 +141,7 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       if (filter_ && filter_->search(fullpath) < 0)
 	continue;
 
+      o.hash = DQMNet::dqmhash(fullpath);
       o.flags = me.data_.flags;
       o.tag = me.data_.tag;
       o.version = version;
