@@ -50,6 +50,14 @@ if mapplots:
     process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonSystemMap1D_cfi")
     process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring("AlignmentMonitorMuonSystemMap1D"),
                                             AlignmentMonitorMuonSystemMap1D = process.AlignmentMonitorMuonSystemMap1D)
+    process.looper.monitorConfig.minTrackPt = minTrackPt
+    process.looper.monitorConfig.maxTrackPt = maxTrackPt
+    process.looper.monitorConfig.minTrackerHits = minTrackerHits
+    process.looper.monitorConfig.maxTrackerRedChi2 = maxTrackerRedChi2
+    process.looper.monitorConfig.allowTIDTEC = allowTIDTEC
+    process.looper.monitorConfig.minDT13Hits = process.looper.algoConfig.minDT13Hits
+    process.looper.monitorConfig.minDT2Hits = process.looper.algoConfig.minDT2Hits
+    process.looper.monitorConfig.minCSCHits = process.looper.algoConfig.minCSCHits
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string(globaltag)
