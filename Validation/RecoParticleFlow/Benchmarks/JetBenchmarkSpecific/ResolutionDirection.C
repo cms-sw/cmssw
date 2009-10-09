@@ -83,17 +83,23 @@ void ResolutionDirection(bool barrel, const char* input, const char* output, con
     }
     rmsEtaPF.push_back(etaPF[i]->GetRMS());    
     rmsPhiPF.push_back(phiPF[i]->GetRMS());    
-    
-    etaPF[i]->Fit( "gaus","Q0");
-    TF1* gausEtaPF = etaPF[i]->GetFunction( "gaus" );
-    phiPF[i]->Fit( "gaus","Q0");
-    TF1* gausPhiPF = phiPF[i]->GetFunction( "gaus" );
-    sigmaEtaPF.push_back(gausEtaPF->GetParameter(2));
-    sigmaPhiPF.push_back(gausPhiPF->GetParameter(2));  
-    
     cout << i << " " << etaPF[i]->GetRMS() << " " << rmsEtaPF.back() << endl;
-    cout << i << " " << gausEtaPF->GetParameter(2) << " " << sigmaEtaPF.back() << endl;
     
+    if ( etaPF[i]->GetRMS() == 0.0 &&
+	 phiPF[i]->GetRMS() == 0.0 ) { 
+      sigmaEtaPF.push_back(0);
+      sigmaPhiPF.push_back(0);  
+      continue;
+    } else {
+      
+      etaPF[i]->Fit( "gaus","Q0");
+      TF1* gausEtaPF = etaPF[i]->GetFunction( "gaus" );
+      phiPF[i]->Fit( "gaus","Q0");
+      TF1* gausPhiPF = phiPF[i]->GetFunction( "gaus" );
+      sigmaEtaPF.push_back(gausEtaPF->GetParameter(2));
+      sigmaPhiPF.push_back(gausPhiPF->GetParameter(2));  
+      cout << i << " " << gausEtaPF->GetParameter(2) << " " << sigmaEtaPF.back() << endl;
+    }
   }
   
   TGraph* grPF1 = new TGraph ( n, &pts[0], &sigmaEtaPF[0] );
