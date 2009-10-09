@@ -1,5 +1,5 @@
 /*
- * $Id: EcalDccWeightBuilder.h,v 1.3 2009/03/25 09:28:27 pgras Exp $
+ * $Id: EcalDccWeightBuilder.h,v 1.4 2009/04/01 09:31:21 pgras Exp $
  */
 
 #ifndef ECALDCCWEIGHTBUILDER_CC
@@ -7,7 +7,8 @@
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -60,7 +61,8 @@ private:
    * resized to the number of weights
    */
   void
-  computeWeights(const EcalShape& shape, int iFirst0, int nWeights, int iSkip0,
+  computeWeights(const EcalShapeBase& shape, double timePhase,
+		 int iFirst0, int nWeights, int iSkip0,
                  std::vector<double>& result);
 
   void computeAllWeights(bool withIntercalib);
