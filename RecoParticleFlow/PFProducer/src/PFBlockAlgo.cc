@@ -1391,9 +1391,10 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
  
   if (debug_) cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
 		   << Pt << " DPt = " << DPt << endl;
-  if ( DPt/Pt > DPtovPtCut_[Algo]*sigmaHad || 
-       NHit < NHitCut_[Algo] || 
-       (Algo >= 3 && LostHits != 0) ) {
+  if ( ( DPtovPtCut_[Algo] > 0. && 
+	 DPt/Pt > DPtovPtCut_[Algo]*sigmaHad ) || 
+       NHit < NHitCut_[Algo] ) { 
+    // (Algo >= 3 && LostHits != 0) ) {
     if (debug_) cout << " PFBlockAlgo: skip badly measured track"
 		     << ", P = " << P 
 		     << ", Pt = " << Pt 

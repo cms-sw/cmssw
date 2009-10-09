@@ -1603,7 +1603,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  totalChargedMomentum -= trackref->p()*(1.-corrFact);
 	  if ( debug_ ) 
 	    std::cout << "\tElement  " << elements[iTrack] 
-		      << " (algo = " << trackref->algo() 
+		      << " (DPt = " << -it->first 
+		      << " GeV/c, algo = " << trackref->algo() 
 		      << ") rescaled by " << corrFact << std::endl;
 	  break;
 	}
@@ -1635,6 +1636,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	case TrackBase::iter5:
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
+	  if ( debug_ ) 
+	    std::cout << "\tElement  " << elements[iTrack] 
+		      << " rejected (DPt = " << -it->first 
+		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
 	  break;
 	default:
 	  break;
