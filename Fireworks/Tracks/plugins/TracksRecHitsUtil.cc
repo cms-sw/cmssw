@@ -120,7 +120,6 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
                if(0!=shape) {
                   shape->SetMainTransparency(65);
                   shape->SetMainColor(iItem->defaultDisplayProperties().color());
-                  shape->SetPickable(kTRUE);
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
                } else {
