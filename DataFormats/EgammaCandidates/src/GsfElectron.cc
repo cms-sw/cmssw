@@ -29,7 +29,7 @@ GsfElectron::GsfElectron
   setP4(p4) ;
   setVertex(te.positionAtVtx) ;
   setPdgId(-11*charge) ;
-  /*if (isEcalDriven())*/ corrections_.ecalEnergy = superCluster()->energy() ;
+  /*if (ecalDrivenSeed())*/ corrections_.ecalEnergy = superCluster()->energy() ;
 }
 
 GsfElectron::GsfElectron

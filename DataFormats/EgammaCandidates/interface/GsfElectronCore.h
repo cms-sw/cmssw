@@ -25,13 +25,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectronCore.h,v 1.2 2009/03/24 17:26:27 charlot Exp $
+ * \version $Id: GsfElectronCore.h,v 1.3 2009/04/06 11:18:05 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectronCore.h,v $
+// Revision 1.3  2009/04/06 11:18:05  chamont
+// few changes, should not affect users
+//
 // Revision 1.2  2009/03/24 17:26:27  charlot
 // updated provenance and added comments in headers
 //
@@ -57,8 +60,10 @@ class GsfElectronCore {
     const GsfTrackRef & gsfTrack() const { return gsfTrack_ ; }
     const SuperClusterRef & superCluster() const
      { return (superCluster_.isNull()?pflowSuperCluster_:superCluster_) ; }
-    bool isEcalDriven() const { return isEcalDriven_ ; }
-    bool isTrackerDriven() const { return isTrackerDriven_ ; }
+    bool isEcalDriven() const { return ecalDrivenSeed() ; }
+    bool isTrackerDriven() const { return trackerDrivenSeed() ; }
+    bool ecalDrivenSeed() const { return ecalDrivenSeed_ ; }
+    bool trackerDrivenSeed() const { return trackerDrivenSeed_ ; }
 
     // setters, still useful to GsfElectronSelector.h ??
     void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
@@ -73,8 +78,8 @@ class GsfElectronCore {
     GsfTrackRef gsfTrack_ ;
     SuperClusterRef superCluster_ ;
     SuperClusterRef pflowSuperCluster_ ;
-    bool isEcalDriven_ ;
-    bool isTrackerDriven_ ;
+    bool ecalDrivenSeed_ ;
+    bool trackerDrivenSeed_ ;
 
  } ;
 

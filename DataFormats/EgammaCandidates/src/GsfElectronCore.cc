@@ -10,12 +10,12 @@ using namespace reco ;
 
 GsfElectronCore::GsfElectronCore
  ()
- : isEcalDriven_(false), isTrackerDriven_(false)
+ : ecalDrivenSeed_(false), trackerDrivenSeed_(false)
  {}
 
 GsfElectronCore::GsfElectronCore
  ( const GsfTrackRef & gsfTrack )
- : gsfTrack_(gsfTrack), isEcalDriven_(false), isTrackerDriven_(false)
+ : gsfTrack_(gsfTrack), ecalDrivenSeed_(false), trackerDrivenSeed_(false)
  {
   edm::RefToBase<TrajectorySeed> seed = gsfTrack_->extra()->seedRef() ;
   if (seed.isNull())
@@ -27,8 +27,8 @@ GsfElectronCore::GsfElectronCore
      { edm::LogError("GsfElectronCore")<<"The GsfTrack seed is not an ElectronSeed ?!" ; }
     else
      {
-      if (elseed->isEcalDriven()) isEcalDriven_ = true ; 
-      if (elseed->isTrackerDriven()) isTrackerDriven_ = true ; 
+      if (elseed->isEcalDriven()) ecalDrivenSeed_ = true ;
+      if (elseed->isTrackerDriven()) trackerDrivenSeed_ = true ;
      }
    }
  }
