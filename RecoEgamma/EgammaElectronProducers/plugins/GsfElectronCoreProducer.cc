@@ -39,7 +39,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
     //const GsfTrack & t=(*gsfTrackCollection)[i] ;
     const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH,i) ;
     GsfElectronCore * ele = new GsfElectronCore(gsfTrackRef) ;
-    if (ele->isEcalDriven())
+    if (ele->ecalDrivenSeed())
      {
       edm::RefToBase<TrajectorySeed> seed = gsfTrackRef->extra()->seedRef() ;
       ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
@@ -50,7 +50,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
       else
        { edm::LogWarning("GsfElectronCoreProducer")<<"Seed CaloCluster is not a SuperCluster, unexpected..." ; }
      }
-    //if (ele->isTrackerDriven())
+    //if (ele->trackerDrivenSeed())
     // {
     //  // eventual pflow super cluster.
     //  SuperClusterRef pfscRef = (*pfClusterTracksH)[gsfTrackRef];

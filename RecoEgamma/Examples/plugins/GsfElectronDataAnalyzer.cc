@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.30 2009/09/27 16:45:33 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.31 2009/09/28 15:08:13 charlot Exp $
 //
 //
 
@@ -1090,8 +1090,8 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (gsfIter->isEE() && isEB_) continue; 
 	if (gsfIter->isEBEEGap() && isNotEBEEGap_) continue; 
 
-	if (gsfIter->isEcalDriven() && isTrackerDriven_) continue; 
-	if (gsfIter->isTrackerDriven() && isEcalDriven_) continue; 
+	if (gsfIter->ecalDrivenSeed() && isTrackerDriven_) continue; 
+	if (gsfIter->trackerDrivenSeed() && isEcalDriven_) continue; 
 
 	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() < eOverPMinBarrel_) continue; 
 	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() > eOverPMaxBarrel_) continue; 
@@ -1152,7 +1152,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = gsfIter->superCluster();
-	if (!gsfIter->isEcalDriven()&&gsfIter->isTrackerDriven()) sclRef = gsfIter->pflowSuperCluster();
+	if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed()) sclRef = gsfIter->pflowSuperCluster();
         histSclEn_->Fill(sclRef->energy());
         double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
         double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
@@ -1313,11 +1313,11 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  h_ele_PtinVsPtoutShowering_mean ->  Fill(gsfIter->gsfTrack()->outerMomentum().Rho(), gsfIter->gsfTrack()->innerMomentum().Rho());
  
         h_ele_mva->Fill(gsfIter->mva());
-	if (gsfIter->isEcalDriven()) h_ele_provenance->Fill(1.);
-	if (gsfIter->isTrackerDriven()) h_ele_provenance->Fill(-1.);
-	if (gsfIter->isTrackerDriven()||gsfIter->isEcalDriven()) h_ele_provenance->Fill(0.);
-	if (gsfIter->isTrackerDriven()&&!gsfIter->isEcalDriven()) h_ele_provenance->Fill(-2.);
-	if (!gsfIter->isTrackerDriven()&&gsfIter->isEcalDriven()) h_ele_provenance->Fill(2.);
+	if (gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(1.);
+	if (gsfIter->trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
+	if (gsfIter->trackerDrivenSeed()||gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(0.);
+	if (gsfIter->trackerDrivenSeed()&&!gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(-2.);
+	if (!gsfIter->trackerDrivenSeed()&&gsfIter->ecalDrivenSeed()) h_ele_provenance->Fill(2.);
 
         h_ele_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
         h_ele_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
@@ -1338,7 +1338,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
             float enrj2=gsfIter2->superCluster()->energy();
 	    h_ele_mee_all -> Fill(sqrt(mee2));
             h_ele_E2mnE1vsMee_all->Fill(sqrt(mee2),enrj2-enrj1);
-            if (gsfIter->isEcalDriven() && gsfIter2->isEcalDriven()) h_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2),enrj2-enrj1);
+            if (gsfIter->ecalDrivenSeed() && gsfIter2->ecalDrivenSeed()) h_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2),enrj2-enrj1);
 	    if (gsfIter->charge()*gsfIter2->charge()<0.) {
 	      h_ele_mee_os -> Fill(sqrt(mee2));
 	      if (gsfIter->isEB() && gsfIter2->isEB()) h_ele_mee_os_ebeb -> Fill(sqrt(mee2));	

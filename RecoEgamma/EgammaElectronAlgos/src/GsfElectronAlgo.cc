@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.78 2009/08/21 12:43:09 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.79 2009/09/24 09:09:44 chamont Exp $
 //
 //
 
@@ -386,7 +386,7 @@ void GsfElectronAlgo::process(
     const GsfTrackRef gsfTrackRef = coreRef->gsfTrack() ; //edm::Ref<GsfTrackCollection>(gsfTracksH,i);
 
     // don't add pflow only electrons if one so wish
-    if (!coreRef->isEcalDriven() && !addPflowElectrons_) continue ;
+    if (!coreRef->ecalDrivenSeed() && !addPflowElectrons_) continue ;
 
     // Get the super cluster
     SuperClusterRef scRef = coreRef->superCluster() ;
@@ -395,7 +395,7 @@ void GsfElectronAlgo::process(
     // mva
     //const edm::ValueMap<float> & pfmvas = *pfMVAH.product() ;
     //float mva=std::numeric_limits<float>::infinity();
-    //if (coreRef->isTrackerDriven()) mva = pfmvas[gsfTrackRef];
+    //if (coreRef->trackerDrivenSeed()) mva = pfmvas[gsfTrackRef];
 
     double mvaInfinite = 9999 ;
     float mva = (*pfMVAH.product())[gsfTrackRef] ;
@@ -451,8 +451,8 @@ void GsfElectronAlgo::preselectElectrons( GsfElectronPtrCollection & inEle, GsfE
     LogDebug("")<<"========== preSelection "<<ei<<"/"<<emax<<"==========" ;
 
     // kind of construction algorithm
-    bool eg = (*e1)->core()->isEcalDriven();
-    bool pf = (*e1)->core()->isTrackerDriven() && !(*e1)->core()->isEcalDriven() ;
+    bool eg = (*e1)->core()->ecalDrivenSeed();
+    bool pf = (*e1)->core()->trackerDrivenSeed() && !(*e1)->core()->ecalDrivenSeed() ;
     if (eg&&pf) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be both egamma and purely pflow" ; }
     if ((!eg)&&(!pf)) { edm::LogError("GsfElectronAlgo")<<"An electron cannot be neither egamma nor purely pflow" ; }
 
@@ -734,7 +734,7 @@ void GsfElectronAlgo::createElectron
   ElectronClassification theClassifier;
   theClassifier.correct(*ele);
   // energy corrections only for ecalDriven electrons
-  if (ele->core()->isEcalDriven()) {
+  if (ele->core()->ecalDrivenSeed()) {
     ElectronEnergyCorrector theEnCorrector;
     theEnCorrector.correct(*ele, applyEtaCorrection_);
     ElectronMomentumCorrector theMomCorrector;
