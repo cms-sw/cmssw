@@ -32,13 +32,16 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.32 2009/09/03 13:56:15 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.33 2009/10/10 09:00:36 chamont Exp $
  *
  ****************************************************************************/
 
 //*****************************************************************************
 //
 // $Log: GsfElectron.h,v $
+// Revision 1.33  2009/10/10 09:00:36  chamont
+// Add ecalDrivenSeed() to isEcalDriven(), Add trackerDrivenSeed() to isTrackerDriven(), for classes GsfElectron and GsfElectronCore
+//
 // Revision 1.32  2009/09/03 13:56:15  chamont
 // fix an error in comments
 //
@@ -95,8 +98,8 @@ class GsfElectron : public RecoCandidate
   public :
 
     // some nested structures defined later on
-	struct ChargeInfo ;
-	struct TrackClusterMatching ;
+    struct ChargeInfo ;
+    struct TrackClusterMatching ;
     struct TrackExtrapolations ;
     struct ClosestCtfTrack ;
     struct FiducialFlags ;
@@ -143,24 +146,24 @@ class GsfElectron : public RecoCandidate
 
   public:
 
-	// Inherited from Candidate
-	// const LorentzVector & charge() const ;
-	// const LorentzVector & p4() const ;
+    // Inherited from Candidate
+    // const LorentzVector & charge() const ;
+    // const LorentzVector & p4() const ;
 
-	// Complementary struct
-	struct ChargeInfo
-	 {
-	  int scPixCharge ;
-	  bool isGsfCtfScPixConsistent ;
-	  bool isGsfScPixConsistent ;
-	  bool isGsfCtfConsistent ;
-	  ChargeInfo()
-	    : scPixCharge(0), isGsfCtfScPixConsistent(false),
-	      isGsfScPixConsistent(false), isGsfCtfConsistent(false)
-	    {}
-	 } ;
+    // Complementary struct
+    struct ChargeInfo
+     {
+      int scPixCharge ;
+      bool isGsfCtfScPixConsistent ;
+      bool isGsfScPixConsistent ;
+      bool isGsfCtfConsistent ;
+      ChargeInfo()
+        : scPixCharge(0), isGsfCtfScPixConsistent(false),
+          isGsfScPixConsistent(false), isGsfCtfConsistent(false)
+        {}
+     } ;
 
-	// Charge info accessors
+    // Charge info accessors
     // to get gsf track charge: gsfTrack()->charge()
     // to get ctf track charge, if closestCtfTrackRef().isNonnull(): closestCtfTrackRef()->charge()
     int scPixCharge() const { return chargeInfo_.scPixCharge ; }
@@ -169,14 +172,14 @@ class GsfElectron : public RecoCandidate
     bool isGsfCtfChargeConsistent() const { return chargeInfo_.isGsfCtfConsistent ; }
     const ChargeInfo & chargeInfo() const { return chargeInfo_ ; }
 
-	// Candidate redefined methods
+    // Candidate redefined methods
     virtual bool isElectron() const { return true ; }
     virtual bool overlap( const Candidate & ) const ;
 
   private:
 
     // Complementary attributes
-	ChargeInfo chargeInfo_ ;
+    ChargeInfo chargeInfo_ ;
 
 
   //=======================================================
@@ -195,8 +198,6 @@ class GsfElectron : public RecoCandidate
     // forward core methods
     SuperClusterRef superCluster() const { return core()->superCluster() ; }
     GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
-    bool isEcalDriven() const { return ecalDrivenSeed() ; }
-    bool isTrackerDriven() const { return trackerDrivenSeed() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
     SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
