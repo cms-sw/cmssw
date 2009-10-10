@@ -6,7 +6,7 @@ process.load('Configuration.StandardSequences.GeometryIdeal_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'DESIGN_31X_V4::All'
+process.GlobalTag.globaltag = 'DESIGN_31X_V7::All'
 process.simSiStripDigis.APVpeakmode = False
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
