@@ -28,7 +28,8 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         inFPIX = cms.int32(0),
         inTID = cms.int32(0),
         inBPIX = cms.int32(0),
-        inTIB = cms.int32(0)
+        inTIB = cms.int32(0),
+        inPIXEL=cms.int32(0)
     ),
     seedOnlyFrom = cms.int32(0),
 

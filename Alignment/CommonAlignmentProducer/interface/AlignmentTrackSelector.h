@@ -64,6 +64,7 @@ class AlignmentTrackSelector
   ComparePt ptComparator;
 
   const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
+  bool applyTakenHitsFilter_;
   const bool seedOnlyFromAbove_, applyIsolation_, chargeCheck_ ;
   const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
   const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
@@ -73,12 +74,13 @@ class AlignmentTrackSelector
   const edm::InputTag matchedrecHitsTag_;
   const bool countStereoHitAs2D_; // count hits on stereo components of GluedDet for nHitMin2D_?
   const unsigned int nHitMin2D_;
-  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
+  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_, minHitsinPIX_;
 
   const int minTakenHits_;
-  const edm::InputTag hitVMTag_;  // ValueMap containing associtaion cluster - flag
+  const edm::InputTag clusterValueMapTag_;  // ValueMap containing associtaion cluster - flag
 
   std::vector<std::string> trkQuality_;
+  std::vector<reco::TrackBase::TrackQuality> TrkQualities_;
 };
 
 #endif

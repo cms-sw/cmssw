@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.35 $
-///  last update: $Date: 2009/06/23 10:02:58 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.36 $
+///  last update: $Date: 2009/10/02 12:46:53 $
+///  by         : $Author: bonato $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -85,7 +85,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
   beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
   tkLasBeamTag_(iConfig.getParameter<edm::InputTag>("tkLasBeamTag")),
-  hitVMTag_(iConfig.getParameter<edm::InputTag>("HitPrescaleMap"))
+  clusterValueMapTag_(iConfig.getParameter<edm::InputTag>("HitPrescaleMap"))
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
@@ -400,10 +400,10 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     event.getByLabel(beamSpotTag_, beamSpot);
 
     // Run the alignment algorithm with its input
-    if(hitVMTag_.encode().size()){//check that the input tag is not empty
-      edm::Handle<AliClusterValueMap> hitVM;
-      event.getByLabel(hitVMTag_, hitVM);
-      const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot, &(*hitVM));
+    if(clusterValueMapTag_.encode().size()){//check that the input tag is not empty
+      edm::Handle<AliClusterValueMap> clusterValueMap;
+      event.getByLabel(clusterValueMapTag_, clusterValueMap);
+      const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot, &(*clusterValueMap));
       theAlignmentAlgo->run(setup, eventInfo   );
     }
     else{

@@ -59,8 +59,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinTEC_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTEC" ) ),
   minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
   minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) ),
+  minHitsinPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inPIXEL" ) ),
   trkQuality_(cfg.getParameter<std::vector<std::string> >("TrackQuality")),
-  hitVMTag_(cfg.getParameter<edm::InputTag>("HitPrescaleMap")),
+  clusterValueMapTag_(cfg.getParameter<edm::InputTag>("HitPrescaleMap")),
   minTakenHits_( cfg.getParameter<int>("minTakenHits"))
 {
   if (applyBasicCuts_){
@@ -86,9 +87,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  " ADC counts of total cluster charge"; 
       
       edm::LogInfo("AlignmentTrackSelector") 
-	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " 
+	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX/PIXEL = " 
 	<< minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
-	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_;
+	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_<<"/"<<minHitsinPIX_;
     }
   
   if (applyNHighestPt_)
@@ -100,6 +101,11 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
           << " on " << (multiplicityOnInput_ ? "input" : "output");
 
+  if(clusterValueMapTag_.encode().size() && minTakenHits_>0)applyTakenHitsFilter_=true;
+  else applyTakenHitsFilter_=false;
+
+  //convert track quality from string to enum
+  for (unsigned int i=0;i<trkQuality_.size();i++) TrkQualities_.push_back(reco::TrackBase::qualityByName(trkQuality_[i]));
 }
 
 // destructor -----------------------------------------------------------------
@@ -138,7 +144,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
   
   //check if there is a minimum of prescaled taken hits only if the two
   //parameters make sense
-  if(hitVMTag_.encode().size() && minTakenHits_>0){
+  if(applyTakenHitsFilter_){
     result = this->checkTakenHits(result, evt);
   }
 
@@ -148,7 +154,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
  ///returns if any of the Filters is used.
 bool AlignmentTrackSelector::useThisFilter()
 {
-  return applyMultiplicityFilter_  || applyBasicCuts_ || applyNHighestPt_ ;
+  return applyMultiplicityFilter_  || applyBasicCuts_ || applyNHighestPt_ || applyTakenHitsFilter_;
 }
 
 
@@ -179,7 +185,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && chi2n<chi2nMax_) {
       bool trkQualityOk=true;
       bool hitsCheckOk=this->detailedHitsCheck(trackp, evt);
-      if(trkQuality_.size()>0)this->isOkTrkQuality(trackp);
+      if(trkQuality_.size()>0)trkQualityOk=this->isOkTrkQuality(trackp);
  
       if (trkQualityOk && hitsCheckOk ) result.push_back(trackp);
     }
@@ -195,12 +201,12 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
-      || minHitsinFPIX_ || minHitsinBPIX_ || nHitMin2D_ || chargeCheck_
+      || minHitsinFPIX_ || minHitsinBPIX_ || minHitsinPIX_ || nHitMin2D_ || chargeCheck_
       || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
     // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
-    int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0;
+    int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0, nhitinPIXEL=0;
     unsigned int nHit2D = 0;
     unsigned int thishit = 0;
 
@@ -235,15 +241,16 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
       else if (SiStripDetId::TID == subdetId) ++nhitinTID;
       else if (SiStripDetId::TEC == subdetId) ++nhitinTEC;
-      else if (            kBPIX == subdetId) ++nhitinBPIX;
-      else if (            kFPIX == subdetId) ++nhitinFPIX;
+      else if (            kBPIX == subdetId) {++nhitinBPIX;++nhitinPIXEL;}
+      else if (            kFPIX == subdetId) {++nhitinFPIX;++nhitinPIXEL;}
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
 
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
-            && nhitinBPIX >= minHitsinBPIX_ && nhitinFPIX >= minHitsinFPIX_ 
+            && nhitinBPIX >= minHitsinBPIX_ 
+	    && nhitinFPIX >= minHitsinFPIX_ && nhitinPIXEL>=minHitsinPIX_ 
             && nHit2D >= nHitMin2D_);
   } else { // no cuts set, so we are just fine and can avoid loop on hits
     return true;
@@ -416,8 +423,8 @@ AlignmentTrackSelector::checkTakenHits(const Tracks& tracks, const edm::Event& e
 
   //take Cluster-Flag Assomap
   edm::Handle<AliClusterValueMap> fMap;
-  evt.getByLabel( hitVMTag_, fMap);
-  AliClusterValueMap FlagMap=*fMap;
+  evt.getByLabel( clusterValueMapTag_, fMap);
+  const AliClusterValueMap &flagMap=*fMap;
 
   //for each track loop on hits and count the number of taken hits
   for (Tracks::const_iterator ittrk=tracks.begin(); ittrk != tracks.end(); ++ittrk) {
@@ -432,25 +439,27 @@ AlignmentTrackSelector::checkTakenHits(const Tracks& tracks, const edm::Event& e
       int subDet = detid.subdetId();
       AlignmentClusterFlag flag;
 
-      if (subDet>2){
+      bool isPixelHit=(subDet == kFPIX || subDet == kBPIX);
+
+      if (!isPixelHit){
 	const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
 	if(striphit!=0){
 	  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
-	  flag = FlagMap[stripclust];
+	  flag = flagMap[stripclust];
 	  
 	}
 	else{
-	  std::cout<<"ERROR in <AlignmentTrackSelector::checkTakenHits>: Dynamic cast of Strip RecHit failed! "<< std::endl;
+	   edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkTakenHits>: Dynamic cast of Strip RecHit failed! ";
 	}
       }//end if hit in Strips
       else{
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
 	if(pixelhit!=0){
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
-	  flag = FlagMap[pixclust];
+	  flag = flagMap[pixclust];
 	}
 	else{
-	   std::cout<<"ERROR in <AlignmentTrackSelector::checkTakenHits>: Dynamic cast of Pixel RecHit failed!  "<< std::endl;
+	    edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkTakenHits>: Dynamic cast of Pixel RecHit failed!  ";
 	}
       }//end else hit is in Pixel
       
@@ -460,21 +469,23 @@ AlignmentTrackSelector::checkTakenHits(const Tracks& tracks, const edm::Event& e
     if(ntakenhits >= minTakenHits_)result.push_back(trackp);
   }//end loop on tracks
 
-
+  return result;
 }//end checkTakenHits
 
 //---------
 bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const{
 
   bool quality_ok = false;
-  std::vector<reco::TrackBase::TrackQuality> TrkQualities;
-  for (unsigned int i=0;i<trkQuality_.size();i++) TrkQualities.push_back(reco::TrackBase::qualityByName(trkQuality_[i]));
-
-  for (unsigned int i = 0; i<TrkQualities.size();++i) {
-    if (track->quality(TrkQualities[i])){
+ 
+  // std::cout<<"This track has Quality = "<<track->qualityMask() <<std::endl;
+  for (unsigned int i = 0; i<TrkQualities_.size();++i) {
+    //std::cout<<"Checking if the trk has quality "<<TrkQualities_[i]<<std::flush;
+    if (track->quality(TrkQualities_[i])){
       quality_ok = true;
+      //std::cout<<"  --> OK !"<<std::endl;
       break;          
     }
+    // std::cout<<std::endl;
   }
   return quality_ok;
 }//end check on track quality
