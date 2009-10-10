@@ -69,26 +69,48 @@ touch with changes in data catalog structure.
 This sequence of commands is meant to check if the automatic validation is working
 well. You can run it all with the command "oval run %Step%".
 
-  <environment name="Step1">
-    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1Raw.py --fileout=Step1Raw.root --mc --no_exec">
-    <executable name="cmsRun" args="Step1Raw.py">
+  <environment name="Step1Pt35">
+    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1Pt35Raw_cfg.py --fileout=Step1Pt35Raw.root --mc --no_exec">
+    <executable name="cmsRun" args="Step1Pt35Raw_cfg.py">
   </environment>
   
-  <environment name="Step2">
-    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:Step1Raw.root -n 3 --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step2Reco.py --fileout=Step2Reco.root --mc --no_exec">
-    <executable name="cmsRun" args="Step2Reco.py">
+  <environment name="Step2Pt35">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:Step1Pt35Raw.root -n 10 --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step2Pt35Reco_cfg.py --fileout=Step2Pt35Reco.root --mc --no_exec">
+    <executable name="cmsRun" args="Step2Pt35Reco_cfg.py">
   </environment>
 
-  <environment name="Step3">
-    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:Step2Reco.root --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step3Histos.py --mc --no_exec">
-    <executable name="cmsRun" args="Step3Histos.py">
+  <environment name="Step3Pt35">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:Step2Pt35Reco.root  --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step3Pt35Histos_cfg.py --mc --no_exec">
+    <executable name="cmsRun" args="Step3Pt35Histos_new_cfg.py">
   </environment>
 
-  <environment name="Step4">
-    <var name="VAL_NEW_FILE" value="DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root">
-    <var name="VAL_REF_FILE" value="DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root">
+  <environment name="Step4Pt35">
+    <var name="VAL_NEW_FILE" value="DQM_V0001_R000000001__Pt35__CMSSW_${TEST_RELEASE}__RECO.root">
+    <var name="VAL_REF_FILE" value="DQM_V0001_R000000001__Pt35__CMSSW_${TEST_RELEASE}__RECO.root">
     <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
-    <executable name="electronValidation.csh" args="Step4 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WorkflowCheck">
+    <executable name="electronValidation.csh" args="Step4 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WorkflowCheckPt35">
+  </environment>
+
+  <environment name="Step1Qcd">
+    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT -n 5 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step1QcdRaw_cfg.py --fileout=Step1QcdRaw.root --mc --no_exec">
+    <executable name="cmsRun" args="Step1QcdRaw_cfg.py">
+  </environment>
+  
+  <environment name="Step2Qcd">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:Step1QcdRaw.root -n 5 --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step2QcdReco_cfg.py --fileout=Step2QcdReco.root --mc --no_exec">
+    <executable name="cmsRun" args="Step2QcdReco_cfg.py">
+  </environment>
+
+  <environment name="Step3Qcd">
+    <executable name="cmsDriver.py" args="step3 -s HARVESTING:validationHarvesting --filein file:Step2QcdReco.root --harvesting AtJobEnd --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=Step3QcdHistos_cfg.py --mc --no_exec">
+    <executable name="cmsRun" args="Step3QcdHistos_new_cfg.py">
+  </environment>
+
+  <environment name="Step4Qcd">
+    <var name="VAL_NEW_FILE" value="DQM_V0001_R000000001__Qcd__CMSSW_${TEST_RELEASE}__RECO.root">
+    <var name="VAL_REF_FILE" value="DQM_V0001_R000000001__Qcd__CMSSW_${TEST_RELEASE}__RECO.root">
+    <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
+    <executable name="electronValidation.csh" args="Step4 DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root WorkflowCheckQcd">
   </environment>
 
 </environment>

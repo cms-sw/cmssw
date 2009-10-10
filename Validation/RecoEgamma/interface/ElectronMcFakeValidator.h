@@ -1,6 +1,6 @@
 
-#ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h
-#define Validation_RecoEgamma_ElectronMcSignalValidator_h
+#ifndef Validation_RecoEgamma_ElectronMcFakeValidator_h
+#define Validation_RecoEgamma_ElectronMcFakeValidator_h
 
 #include "Validation/RecoEgamma/interface/ElectronValidator.h"
 
@@ -12,12 +12,12 @@ class MagneticField;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-class ElectronMcSignalValidator : public ElectronValidator
+class ElectronMcFakeValidator : public ElectronValidator
  {
   public:
 
-    explicit ElectronMcSignalValidator( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronMcSignalValidator() ;
+    explicit ElectronMcFakeValidator( const edm::ParameterSet & conf ) ;
+    virtual ~ElectronMcFakeValidator() ;
 
     virtual void beginJob() ;
     virtual void endJob() ;
@@ -26,7 +26,7 @@ class ElectronMcSignalValidator : public ElectronValidator
   private:
 
     edm::InputTag electronCollection_;
-    edm::InputTag  mcTruthCollection_;
+    edm::InputTag  matchingObjectCollection_;
     bool readAOD_;
     std::string outputFile_ ;
 
@@ -41,8 +41,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     double maxPt_;
     double maxAbsEta_;
     double deltaR_;
-    std::vector<int> matchingIDs_;
-    std::vector<int> matchingMotherIDs_;
 
     // histos limits and binning
 
@@ -60,79 +58,43 @@ class ElectronMcSignalValidator : public ElectronValidator
     int eop_nbin ; int eop2D_nbin ; double eop_max ; double eopmaxsht ;
     int mee_nbin ; double mee_min ; double mee_max ;
     int hoe_nbin ; double hoe_min ; double hoe_max ;
-    int poptrue_nbin ; double poptrue_min ; double poptrue_max ;
+    int popmatching_nbin ; double popmatching_min ; double popmatching_max ;
 
     // histos
 
-    MonitorElement *h1_mcNum;
-    MonitorElement *h1_eleNum;
-    MonitorElement *h1_gamNum;
+    MonitorElement *h1_matchingObjectNum ;
+    MonitorElement *h1_recEleNum_;
 
-    MonitorElement *h1_simEta;
-    MonitorElement *h1_simAbsEta;
-    MonitorElement *h1_simP;
-    MonitorElement *h1_simPt;
-    MonitorElement *h1_simPhi;
-    MonitorElement *h1_simZ;
-    MonitorElement *h2_simPtEta;
-
-    MonitorElement *h1_ele_simEta_matched;
-    MonitorElement *h1_ele_simAbsEta_matched;
-    MonitorElement *h1_ele_simPt_matched;
-    MonitorElement *h1_ele_simPhi_matched;
-    MonitorElement *h1_ele_simZ_matched;
-    MonitorElement *h2_ele_simPtEta_matched;
-
-    MonitorElement *h1_ele_simEta_matched_qmisid;
-    MonitorElement *h1_ele_simAbsEta_matched_qmisid;
-    MonitorElement *h1_ele_simPt_matched_qmisid;
-    MonitorElement *h1_ele_simPhi_matched_qmisid;
-    MonitorElement *h1_ele_simZ_matched_qmisid;
+    MonitorElement *h1_matchingObjectEta;
+    MonitorElement *h1_matchingObjectAbsEta;
+    MonitorElement *h1_matchingObjectP;
+    MonitorElement *h1_matchingObjectPt;
+    MonitorElement *h1_matchingObjectPhi;
+    MonitorElement *h1_matchingObjectZ;
 
     MonitorElement *h1_ele_EoverP_all;
-    MonitorElement *h1_ele_EoverP_all_barrel;
-    MonitorElement *h1_ele_EoverP_all_endcaps;
     MonitorElement *h1_ele_EseedOP_all;
-    MonitorElement *h1_ele_EseedOP_all_barrel;
-    MonitorElement *h1_ele_EseedOP_all_endcaps;
     MonitorElement *h1_ele_EoPout_all;
-    MonitorElement *h1_ele_EoPout_all_barrel;
-    MonitorElement *h1_ele_EoPout_all_endcaps;
     MonitorElement *h1_ele_EeleOPout_all;
-    MonitorElement *h1_ele_EeleOPout_all_barrel;
-    MonitorElement *h1_ele_EeleOPout_all_endcaps;
     MonitorElement *h1_ele_dEtaSc_propVtx_all;
-    MonitorElement *h1_ele_dEtaSc_propVtx_all_barrel;
-    MonitorElement *h1_ele_dEtaSc_propVtx_all_endcaps;
     MonitorElement *h1_ele_dPhiSc_propVtx_all;
-    MonitorElement *h1_ele_dPhiSc_propVtx_all_barrel;
-    MonitorElement *h1_ele_dPhiSc_propVtx_all_endcaps;
     MonitorElement *h1_ele_dEtaCl_propOut_all;
-    MonitorElement *h1_ele_dEtaCl_propOut_all_barrel;
-    MonitorElement *h1_ele_dEtaCl_propOut_all_endcaps;
     MonitorElement *h1_ele_dPhiCl_propOut_all;
-    MonitorElement *h1_ele_dPhiCl_propOut_all_barrel;
-    MonitorElement *h1_ele_dPhiCl_propOut_all_endcaps;
     MonitorElement *h1_ele_TIP_all;
-    MonitorElement *h1_ele_TIP_all_barrel;
-    MonitorElement *h1_ele_TIP_all_endcaps;
     MonitorElement *h1_ele_HoE_all;
-    MonitorElement *h1_ele_HoE_all_barrel;
-    MonitorElement *h1_ele_HoE_all_endcaps;
     MonitorElement *h1_ele_vertexEta_all;
     MonitorElement *h1_ele_vertexPt_all;
-    MonitorElement *h1_ele_Et_all;
     MonitorElement *h1_ele_mee_all;
     MonitorElement *h1_ele_mee_os;
-    MonitorElement *h1_ele_mee_os_ebeb;
-    MonitorElement *h1_ele_mee_os_ebee;
-    MonitorElement *h1_ele_mee_os_eeee;
-    MonitorElement *h1_ele_mee_os_gg;
-    MonitorElement *h1_ele_mee_os_gb;
-    MonitorElement *h1_ele_mee_os_bb;
 
     MonitorElement *h2_ele_E2mnE1vsMee_all;
     MonitorElement *h2_ele_E2mnE1vsMee_egeg_all;
+
+    MonitorElement *h1_ele_matchingObjectEta_matched;
+    MonitorElement *h1_ele_matchingObjectAbsEta_matched;
+    MonitorElement *h1_ele_matchingObjectPt_matched;
+    MonitorElement *h1_ele_matchingObjectPhi_matched;
+    MonitorElement *h1_ele_matchingObjectZ_matched;
 
     MonitorElement *h1_ele_charge;
     MonitorElement *h2_ele_chargeVsEta;
@@ -140,10 +102,8 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_chargeVsPt;
     MonitorElement *h1_ele_vertexP;
     MonitorElement *h1_ele_vertexPt;
-    MonitorElement *h1_ele_Et;
     MonitorElement *h2_ele_vertexPtVsEta;
     MonitorElement *h2_ele_vertexPtVsPhi;
-    MonitorElement *h1_ele_vertexPt_5100;
     MonitorElement *h1_ele_vertexEta;
     MonitorElement *h2_ele_vertexEtaVsPhi;
     MonitorElement *h1_ele_vertexAbsEta;
@@ -156,27 +116,26 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_vertexTIPVsPhi;
     MonitorElement *h2_ele_vertexTIPVsPt;
 
-    MonitorElement *h1_recEleNum_;
+    MonitorElement *h1_ele_PoPmatchingObject;
+    MonitorElement *h2_ele_PoPmatchingObjectVsEta;
+    MonitorElement *h2_ele_PoPmatchingObjectVsPhi;
+    MonitorElement *h2_ele_PoPmatchingObjectVsPt;
+    MonitorElement *h1_ele_PoPmatchingObject_barrel;
+    MonitorElement *h1_ele_PoPmatchingObject_endcaps;
+
+    MonitorElement *h1_ele_EtaMnEtamatchingObject;
+    MonitorElement *h2_ele_EtaMnEtamatchingObjectVsEta;
+    MonitorElement *h2_ele_EtaMnEtamatchingObjectVsPhi;
+    MonitorElement *h2_ele_EtaMnEtamatchingObjectVsPt;
+    MonitorElement *h1_ele_PhiMnPhimatchingObject;
+    MonitorElement *h1_ele_PhiMnPhimatchingObject2;
+    MonitorElement *h2_ele_PhiMnPhimatchingObjectVsEta;
+    MonitorElement *h2_ele_PhiMnPhimatchingObjectVsPhi;
+    MonitorElement *h2_ele_PhiMnPhimatchingObjectVsPt;
 
     MonitorElement *h1_scl_En_ ;
-    MonitorElement *h1_scl_EoEtrue_barrel;
-    MonitorElement *h1_scl_EoEtrue_endcaps;
-    MonitorElement *h1_scl_EoEtrue_barrel_eg;
-    MonitorElement *h1_scl_EoEtrue_endcaps_eg;
-    MonitorElement *h1_scl_EoEtrue_barrel_etagap;
-    MonitorElement *h1_scl_EoEtrue_barrel_phigap;
-    MonitorElement *h1_scl_EoEtrue_ebeegap;
-    MonitorElement *h1_scl_EoEtrue_endcaps_deegap;
-    MonitorElement *h1_scl_EoEtrue_endcaps_ringgap;
-    MonitorElement *h1_scl_EoEtrue_barrel_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_new;
-    MonitorElement *h1_scl_EoEtrue_barrel_eg_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_eg_new;
-    MonitorElement *h1_scl_EoEtrue_barrel_etagap_new;
-    MonitorElement *h1_scl_EoEtrue_barrel_phigap_new;
-    MonitorElement *h1_scl_EoEtrue_ebeegap_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_deegap_new;
-    MonitorElement *h1_scl_EoEtrue_endcaps_ringgap_new;
+    MonitorElement *h1_scl_EoEmatchingObject_barrel;
+    MonitorElement *h1_scl_EoEmatchingObject_endcaps;
     MonitorElement *h1_scl_Et_ ;
     MonitorElement *h2_scl_EtVsEta_ ;
     MonitorElement *h2_scl_EtVsPhi_ ;
@@ -184,11 +143,9 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_scl_Eta_ ;
     MonitorElement *h1_scl_Phi_ ;
 
-    MonitorElement *h2_scl_EoEtruePfVsEg ;
-
-    MonitorElement *h1_scl_SigEtaEta_ ;
-    MonitorElement *h1_scl_SigEtaEta_barrel_ ;
-    MonitorElement *h1_scl_SigEtaEta_endcaps_ ;
+//    MonitorElement *h1_scl_SigEtaEta_ ;
+//    MonitorElement *h1_scl_SigEtaEta_barrel_ ;
+//    MonitorElement *h1_scl_SigEtaEta_endcaps_ ;
     MonitorElement *h1_scl_SigIEtaIEta_ ;
     MonitorElement *h1_scl_SigIEtaIEta_barrel_ ;
     MonitorElement *h1_scl_SigIEtaIEta_endcaps_ ;
@@ -201,21 +158,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_scl_E5x5_ ;
     MonitorElement *h1_scl_E5x5_barrel_ ;
     MonitorElement *h1_scl_E5x5_endcaps_ ;
-    MonitorElement *h1_scl_SigEtaEta_eg_ ;
-    MonitorElement *h1_scl_SigEtaEta_eg_barrel_ ;
-    MonitorElement *h1_scl_SigEtaEta_eg_endcaps_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_eg_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_eg_barrel_ ;
-    MonitorElement *h1_scl_SigIEtaIEta_eg_endcaps_ ;
-    MonitorElement *h1_scl_E1x5_eg_ ;
-    MonitorElement *h1_scl_E1x5_eg_barrel_ ;
-    MonitorElement *h1_scl_E1x5_eg_endcaps_ ;
-    MonitorElement *h1_scl_E2x5max_eg_;
-    MonitorElement *h1_scl_E2x5max_eg_barrel_;
-    MonitorElement *h1_scl_E2x5max_eg_endcaps_;
-    MonitorElement *h1_scl_E5x5_eg_ ;
-    MonitorElement *h1_scl_E5x5_eg_barrel_ ;
-    MonitorElement *h1_scl_E5x5_eg_endcaps_ ;
 
     MonitorElement *h1_ele_ambiguousTracks;
     MonitorElement *h2_ele_ambiguousTracksVsEta;
@@ -240,33 +182,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_chi2VsPhi;
     MonitorElement *h2_ele_chi2VsPt;
 
-    MonitorElement *h1_ele_PoPtrue;
-    MonitorElement *h1_ele_PtoPttrue;
-    MonitorElement *h2_ele_PoPtrueVsEta;
-    MonitorElement *h2_ele_PoPtrueVsPhi;
-    MonitorElement *h2_ele_PoPtrueVsPt;
-    MonitorElement *h1_ele_PoPtrue_barrel;
-    MonitorElement *h1_ele_PoPtrue_endcaps;
-    MonitorElement *h1_ele_PoPtrue_golden_barrel;
-    MonitorElement *h1_ele_PoPtrue_golden_endcaps;
-    MonitorElement *h1_ele_PoPtrue_showering_barrel;
-    MonitorElement *h1_ele_PoPtrue_showering_endcaps;
-    MonitorElement *h1_ele_PtoPttrue_barrel;
-    MonitorElement *h1_ele_PtoPttrue_endcaps;
-    MonitorElement *h1_ele_ChargeMnChargeTrue;
-    MonitorElement *h1_ele_EtaMnEtaTrue;
-    MonitorElement *h1_ele_EtaMnEtaTrue_barrel;
-    MonitorElement *h1_ele_EtaMnEtaTrue_endcaps;
-    MonitorElement *h2_ele_EtaMnEtaTrueVsEta;
-    MonitorElement *h2_ele_EtaMnEtaTrueVsPhi;
-    MonitorElement *h2_ele_EtaMnEtaTrueVsPt;
-    MonitorElement *h1_ele_PhiMnPhiTrue;
-    MonitorElement *h1_ele_PhiMnPhiTrue_barrel;
-    MonitorElement *h1_ele_PhiMnPhiTrue_endcaps;
-    MonitorElement *h1_ele_PhiMnPhiTrue2;
-    MonitorElement *h2_ele_PhiMnPhiTrueVsEta;
-    MonitorElement *h2_ele_PhiMnPhiTrueVsPhi;
-    MonitorElement *h2_ele_PhiMnPhiTrueVsPt;
     MonitorElement *h1_ele_PinMnPout;
     MonitorElement *h1_ele_PinMnPout_mode;
     MonitorElement *h2_ele_PinMnPoutVsEta_mode;
@@ -402,7 +317,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_HoEVsE;
 
     MonitorElement *h1_ele_fbrem;
-    MonitorElement *h1_ele_fbrem_eg;
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;
 
@@ -414,13 +328,12 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_PtinVsPtoutShowering_mode;
     MonitorElement *h2_ele_PtinVsPtoutGolden_mean;
     MonitorElement *h2_ele_PtinVsPtoutShowering_mean;
-    MonitorElement *h1_scl_EoEtrueGolden_barrel;
-    MonitorElement *h1_scl_EoEtrueGolden_endcaps;
-    MonitorElement *h1_scl_EoEtrueShowering_barrel;
-    MonitorElement *h1_scl_EoEtrueShowering_endcaps;
+    MonitorElement *h1_scl_EoEmatchingObjectGolden_barrel;
+    MonitorElement *h1_scl_EoEmatchingObjectGolden_endcaps;
+    MonitorElement *h1_scl_EoEmatchingObjectShowering_barrel;
+    MonitorElement *h1_scl_EoEmatchingObjectShowering_endcaps;
 
     MonitorElement *h1_ele_mva;
-    MonitorElement *h1_ele_mva_eg;
     MonitorElement *h1_ele_provenance;
 
     MonitorElement *h1_ele_tkSumPt_dr03;

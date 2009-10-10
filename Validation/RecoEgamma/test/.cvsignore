@@ -2,6 +2,6 @@
 *.oref
 *.root
 dbs_discovery.txt
-Step1Raw.py
-Step2Reco.py
-Step3Histos.py
+Step1*Raw_cfg.py
+Step2*Reco_cfg.py
+Step3*Histos_cfg.py

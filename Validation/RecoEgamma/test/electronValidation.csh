@@ -127,6 +127,13 @@ if ( ${?VAL_REF_FILE} == "0" ) setenv VAL_REF_FILE ""
 setenv REF_ALREADY_STORED ""
 
 if ( ${VAL_REF_FILE} == "" ) then
+  if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/${VAL_NEW_FILE:t}" ) then
+    setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/${VAL_NEW_FILE:t}
+    setenv REF_ALREADY_STORED "yes"
+  endif
+endif
+
+if ( ${VAL_REF_FILE} == "" ) then
   if ( -r "${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}" ) then
     setenv VAL_REF_FILE ${VAL_WEB}/${VAL_REF_RELEASE}/Electrons/data/cmsRun.${VAL_ENV}.olog.${VAL_OUTPUT_FILE}
     setenv REF_ALREADY_STORED "yes"

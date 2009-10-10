@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-electronMcSignalHistosCfg = cms.PSet(
+electronMcFakeHistosCfg = cms.PSet(
   Nbinxyz = cms.int32(50),
   Nbinp = cms.int32(50), Nbinp2D = cms.int32(50), Pmax = cms.double(300.0),
   Nbinpt = cms.int32(50), Nbinpt2D = cms.int32(50), Nbinpteff = cms.int32(19),Ptmax = cms.double(100.0),
@@ -16,21 +16,20 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbineop = cms.int32(50), Nbineop2D = cms.int32(30), Eopmax = cms.double(5.0), Eopmaxsht = cms.double(3.0),
   Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
-  Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5)
+  Nbinpopmatching = cms.int32(75), Popmatchingmin = cms.double(0.0), Popmatchingmax = cms.double(1.5)
 )
 
-electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
+electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   electronCollection = cms.InputTag("gsfElectrons"),
-  mcTruthCollection = cms.InputTag("genParticles"),
+  matchingObjectCollection = cms.InputTag("iterativeCone5GenJets"),
   readAOD = cms.bool(False),
   outputFile = cms.string(""),
   MaxPt = cms.double(100.0),
   DeltaR = cms.double(0.05),
   MaxAbsEta = cms.double(2.5),
-  MatchingID = cms.vint32(11,-11),
-  MatchingMotherID = cms.vint32(23,24,-24,32),
-  histosCfg = cms.PSet(electronMcSignalHistosCfg)
+  histosCfg = cms.PSet(electronMcFakeHistosCfg)
 )
+
 
 
 

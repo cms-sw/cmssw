@@ -130,11 +130,11 @@ h_ele_mee_os 1	0 1 0 0 0 1 1
 
 Reconstruction efficiency
 
-h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_CaloJet_abseta 1 0
-h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_CaloJet_eta 1 0
-h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_CaloJet_Pt 1 0
-h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_CaloJet_phi 1 0
-h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_CaloJet_z 1 0
-h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_CaloJet_eta 1 0
-h_ele_ptEff_all 0 0 1 1 h_ele_vertexPt_all h_CaloJet_Pt 1 0
+h_ele_absetaEff 0 0 1 1 h_ele_matchingObjectAbsEta_matched h_matchingObject_abseta 1 0
+h_ele_etaEff 0 0 1 1 h_ele_matchingObjectEta_matched h_matchingObject_eta 1 0
+h_ele_ptEff 0 0 1 1 h_ele_matchingObjectPt_matched h_matchingObject_Pt 1 0
+h_ele_phiEff 0 0 1 1 h_ele_matchingObjectPhi_matched h_matchingObject_phi 1 0
+h_ele_zEff 0 0 1 1 h_ele_matchingObjectZ_matched h_matchingObject_z 1 0
+h_ele_etaEff_all 0 0 1 1 h_ele_vertexEta_all h_matchingObject_eta 1 0
+h_ele_ptEff_all 0 0 1 1 h_ele_vertexPt_all h_matchingObject_Pt 1 0
 
