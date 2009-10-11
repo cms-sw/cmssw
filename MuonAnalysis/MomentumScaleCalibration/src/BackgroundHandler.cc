@@ -289,7 +289,7 @@ void BackgroundHandler::countEventsInBackgroundWindows(const vector<std::pair<re
     vector<double>::iterator regIt = regionWindowEvents_.begin();
     for( ; regIt != regionWindowEvents_.end(); ++regIt, ++iReg ) {
       // cout << "region = " << iReg << endl;
-      if( MuScleFitUtils::checkMassWindow( (it->first + it->second).mass(), regToResHW_[iReg], leftWindowFactors_[iReg], rightWindowFactors_[iReg] ) ) {
+      if( MuScleFitUtils::checkMassWindow( (it->first + it->second).mass(), regToResHW_[iReg], resMassForResonance_[regToResHW_[iReg]], leftWindowFactors_[iReg], rightWindowFactors_[iReg] ) ) {
         *regIt += weight;
         // cout << "background event counted" << endl;
       }
