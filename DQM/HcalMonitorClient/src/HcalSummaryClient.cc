@@ -97,7 +97,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   subdetCells_.insert(make_pair("HF",1728));
   subdetCells_.insert(make_pair("HO0",576));
   subdetCells_.insert(make_pair("HO12",1584));
-  subdetCells_.insert(make_pair("HFlumi",1728));
+  subdetCells_.insert(make_pair("HFlumi",288));  // 8 rings, 36 cells/ring
   // Assume subdetectors absent at start
   HBpresent_=0;
   HEpresent_=0;
@@ -452,6 +452,8 @@ void HcalSummaryClient::analyze(void)
 		 else if (isHF(eta,d+1)) 
 		   {
 		     ++status_HF_;
+		     if ((d==0 && (abs(eta)==33 || abs(eta)==34)) ||   // depth 1, rings 33,34
+			 (d==1 && (abs(eta)==35 || abs(eta)==36)))     // depth 2, rings 35,36
 		     ++status_HFlumi_; // for now, same as HF status; update later
 		   }
 	       }
@@ -623,15 +625,13 @@ void HcalSummaryClient::analyze(void)
       simpleMap->setBinContent(6,1,status_HO12_);
     }
 
-  /*
-    // Don't fill HF lumi yet; leave unknown
   me = dqmStore_->get(rootFolder_ + "/EventInfo/reportSummaryContents/Hcal_HFlumi");
   if (me)
     {
       me->Fill(status_HFlumi_);
       simpleMap->setBinContent(7,1,status_HFlumi_);
     }
-  */
+  
   dqmStore_->setCurrentFolder( rootFolder_);
 
  return;
