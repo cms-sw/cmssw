@@ -111,11 +111,11 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
   double vtime = version * 1e-9;
   if (vtime - lastFlush_ < publishFrequency_)
     return;
-  lastFlush_ = vtime;
 
   // OK, send an update.
   if (net_)
   {
+    DQMNet::Object o;
     std::set<std::string> seen;
     std::string fullpath;
 
@@ -124,8 +124,8 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
     bool updated = false;
 
     // Find updated contents and update the network cache.
-    DQMNet::Object o;
     DQMStore::MEMap::iterator i, e;
+    net_->reserveLocalSpace(store_->data_.size());
     for (i = store_->data_.begin(), e = store_->data_.end(); i != e; ++i)
     {
       const MonitorElement &me = *i;
@@ -194,6 +194,7 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
   }
 
   store_->reset();
+  lastFlush_ = lat::Time::current().ns() * 1e-9;
 }
 
 // Disengage the network service.

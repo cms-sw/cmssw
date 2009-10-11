@@ -6,7 +6,7 @@
 # include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 class DQMStore;
-class DQMNet;
+class DQMBasicNet;
 namespace lat { class Regexp; }
 
 /** A bridge to udpate the DQM network layer at the end of every event.  */
@@ -21,7 +21,7 @@ private:
   void shutdown(void);
 
   DQMStore	*store_;
-  DQMNet	*net_;
+  DQMBasicNet	*net_;
   lat::Regexp	*filter_;
   double	lastFlush_;
   double	publishFrequency_;
