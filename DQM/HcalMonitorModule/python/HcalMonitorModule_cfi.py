@@ -178,7 +178,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DigiMonitor_ADCsumThresh                       = cms.untracked.int32(-1),
                            DigMonitor_makeDiagnosticPlots                 = cms.untracked.bool(False), # doesn't do anything yet
                            DigiMonitor_DigisPerChannel                    = cms.untracked.bool(False), # not currently used
-                           DigiMonitor_ExpectedOrbitMessageTime           =cms.untracked.int32(6),
+                           DigiMonitor_ExpectedOrbitMessageTime           =cms.untracked.int32(-1),
 
                            # RECHIT MONITOR
                            RecHitMonitor                                  = cms.untracked.bool(True),

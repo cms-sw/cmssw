@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/09/25 21:43:54 $
- * $Revision: 1.135 $
+ * $Date: 2009/10/08 12:22:26 $
+ * $Revision: 1.136 $
  * \author W Fisher
  * \author J Temple
  *
@@ -909,7 +909,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       //if (debug_>0)
 	LogWarning("HcalMonitorModule")<< inputLabelRecHitHBHE_<<" not available"; 
     }
-  
+ 
   if (rechitOK_&&!hb_hits.isValid()) {
     rechitOK_ = false;
   }
@@ -1073,7 +1073,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
       // But is ZDC is okay, we'll make rec hit plots for that as well.
       if (zdchitOK_)
 	{
-	  if (debug_>1) std::cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
+	  //if (debug_>1) std::cout <<"PROCESSING ZDC!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
 	  //rhMon_->processZDC(*zdc_hits);
 	}
 
