@@ -172,6 +172,23 @@ void HcalTrigPrimClient::report()
 
   if ( debug_ >0) std::cout << "<HcalTrigPrimClient> report()" << std::endl;
    getHistograms();
+
+   stringstream name;
+   name<<process_.c_str()<<rootFolder_.c_str()<<"/TrigPrimMonitor/TrigPrim Total Events Processed";
+   MonitorElement* me = 0;
+   if(dbe_) me = dbe_->get(name.str().c_str());
+   if ( me ) 
+     {
+       string s = me->valueString();
+       ievt_ = -1;
+       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
+       if ( debug_ ) std::cout << "Found '" << name.str().c_str() << "'" << std::endl;
+     }
+   else
+     std::cout <<"Didn't find "<<name.str().c_str()<<endl;
+   name.str("");
+
+
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalTrigPrimClient REPORT -> "<<cpu_timer.cpuTime()<<std::endl;

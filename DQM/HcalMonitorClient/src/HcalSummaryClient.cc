@@ -38,6 +38,7 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   deadCellMon_.onoff=(ps.getUntrackedParameter<bool>("DeadCellClient",false));
   trigPrimMon_.onoff=(ps.getUntrackedParameter<bool>("TrigPrimClient",false));
   caloTowerMon_.onoff=(ps.getUntrackedParameter<bool>("CaloTowerClient",false));
+  beamMon_.onoff = (ps.getUntrackedParameter<bool>("BeamClient",false));
 
   if (dataFormatMon_.onoff)
     dataFormatMon_.Setup("DataFormatMonitor",  // directory where problem depth histograms stored
@@ -77,6 +78,13 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 		       "DeadCellMonitor_Hcal/ ProblemDeadCells",
 		       "DeadCell",
 		       ps.getUntrackedParameter<double>("DeadCellClient_minErrorFlag",0.05));
+
+  if (beamMon_.onoff)
+    beamMon_.Setup("BeamMonitor_Hcal/problem_beammonitor",
+		       " Problem BeamMonitor Rate",
+		       "BeamMonitor_Hcal/ ProblemBeamMonitor",
+		       "BeamMonitor",
+		       ps.getUntrackedParameter<double>("BeamClient_minErrorFlag",0.05));
 
   // All initial status floats set to -1 (unknown)
   // status floats give fraction of good cells in detector
@@ -233,7 +241,8 @@ void HcalSummaryClient::setup(void)
   myhist->SetBinContent(7,1,-1); // disable lumi for now?
   myhist->SetOption("textcolz");
   //myhist->SetOptStat(0);
-
+  myhist->SetMinimum(-1);
+  myhist->SetMaximum(1);
   // Set initial counters to -1 (unknown)
   status_global_=-1; 
   status_HB_=-1; 
@@ -304,6 +313,8 @@ void HcalSummaryClient::setup(void)
       std::cout <<"<HcalSummaryClient::setup> Could not get reportSummaryMap!"<<std::endl;
       return;
     }
+  reportMap->getTH2F()->SetMaximum(1);
+  reportMap->getTH2F()->SetMinimum(-1);
   for (int i=1;i<=5;++i)
     reportMap->setBinContent(i,1,-1);
 
@@ -355,6 +366,8 @@ void HcalSummaryClient::analyze(void)
       std::cout <<"<HcalSummaryClient::analyze> Could not get reportSummaryMap!"<<std::endl;
       return;
     }
+  simpleMap->getTH2F()->SetMinimum(-1);
+  simpleMap->getTH2F()->SetMaximum(1);
   for (int ix=1;ix<=7;++ix)
     simpleMap->setBinContent(ix,1,-1);
 
@@ -422,8 +435,10 @@ void HcalSummaryClient::analyze(void)
  if (ledMon_.IsOn()) analyze_subtask(ledMon_);
  if (hotCellMon_.IsOn()) analyze_subtask(hotCellMon_);
  if (deadCellMon_.IsOn()) analyze_subtask(deadCellMon_);
- if (trigPrimMon_.IsOn()) analyze_subtask(trigPrimMon_);
- if (caloTowerMon_.IsOn()) analyze_subtask(caloTowerMon_);
+ // TrigPrim, CaloTower not yet enabled for subtask analyzing
+ //if (trigPrimMon_.IsOn()) analyze_subtask(trigPrimMon_);
+ //if (caloTowerMon_.IsOn()) analyze_subtask(caloTowerMon_);
+ if (beamMon_.IsOn()) analyze_subtask(beamMon_);
 
  // Okay, we've got the individual tasks; now form the combined value
 
@@ -645,6 +660,8 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       return;
     }
 
+  if (debug_>0) 
+    cout <<"ANALYZING SUBTASK: "<<s.summaryName<<endl;
   int etabins=0;
   int ieta=-9999;
   int iphi=-9999;
@@ -684,13 +701,12 @@ void HcalSummaryClient::analyze_subtask(SubTaskSummaryStatus &s)
       for (int d=0;d<4;++d)
 	{
 	  name.str("");
-	  if (d==0) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 1 "<<s.problemName;
-	  else if (d==1) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HB HE HF Depth 2 "<<s.problemName;
-	  else if (d==2) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HE Depth 3 "<<s.problemName;
-	  else if (d==3) name<< rootFolder_<<"/"<<s.problemDir<<"/"<<"HO Depth 4 "<<s.problemName;
+	  if (d==0) name<< rootFolder_<<"/"<<s.problemDir<<"/HB HE HF Depth 1 "<<s.problemName;
+	  else if (d==1) name<< rootFolder_<<"/"<<s.problemDir<<"/HB HE HF Depth 2 "<<s.problemName;
+	  else if (d==2) name<< rootFolder_<<"/"<<s.problemDir<<"/HE Depth 3 "<<s.problemName;
+	  else if (d==3) name<< rootFolder_<<"/"<<s.problemDir<<"/HO Depth 4 "<<s.problemName;
 
 	  me=dqmStore_->get(name.str().c_str());
-	  name.str("");
 
 	  if (!me && debug_>0)  
 	    std::cout <<"<HcalSummaryClient::analyze_subtask> CAN'T FIND HISTOGRAM WITH NAME:  "<<name.str().c_str()<<std::endl;
