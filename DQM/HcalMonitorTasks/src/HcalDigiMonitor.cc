@@ -90,7 +90,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
 
   /******** Zero all counters *******/
-  
+  DigiMonitor_ExpectedOrbitMessageTime_=ps.getUntrackedParameter<int>("DigiMonitor_ExpectedOrbitMessageTime",-1); // -1 means that orbit mismatches won't be checked
   zeroCounters();
 
   /******* Set up all histograms  ********/
@@ -104,9 +104,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       meTOTALEVT_ = m_dbe->bookInt("Digi Task Total Events Processed");
       meTOTALEVT_->Fill(tevt_);
 
-      int DigiMonitor_ExpectedOrbitMessageTime=ps.getUntrackedParameter<int>("DigiMonitor_ExpectedOrbitMessageTime",6);
       MonitorElement* ExpectedOrbit = m_dbe->bookInt("ExpectedOrbitMessageTime");
-      ExpectedOrbit->Fill(DigiMonitor_ExpectedOrbitMessageTime);
+      ExpectedOrbit->Fill(DigiMonitor_ExpectedOrbitMessageTime_);
 
       MonitorElement* checkN = m_dbe->bookInt("DigiCheckNevents");
       checkN->Fill(digi_checkNevents_);
@@ -115,7 +114,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       MonitorElement* shapeT = m_dbe->bookInt("DigiShapeThresh");
       shapeT->Fill(shapeThresh_);
             
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/digi_occupancy");
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/bad_digi_occupancy");
       SetupEtaPhiHists(DigiErrorsByDepth,"Bad Digi Map","");
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/1D_digi_plots");
       ProblemsVsLB=m_dbe->bookProfile("BadDigisVsLB","# Bad Digis vs Luminosity block;Lumi block;# of Bad digis",
@@ -134,10 +133,23 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					 0,10000);
 
 
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badcapID");
-      SetupEtaPhiHists(DigiErrorsBadCapID," Digis with Bad Cap ID Rotation", "");
+      if (makeDiagnostics)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badcapID");
+	  SetupEtaPhiHists(DigiErrorsBadCapID," Digis with Bad Cap ID Rotation", "");
+	  m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/data_invalid_error");
+	  SetupEtaPhiHists(DigiErrorsDVErr," Digis with Data Invalid or Error Bit Set", "");
+	}
+
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/bad_reportUnpackerErrors");
+      SetupEtaPhiHists(DigiErrorsUnpacker,"Bad Unpacker Digis", "");
+
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/baddigisize");
       SetupEtaPhiHists(DigiErrorsBadDigiSize," Digis with Bad Size", "");
+
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badfibBCNoff");
+      SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
+
       DigiSize = m_dbe->book2D("Digi Size", "Digi Size",4,0,4,20,-0.5,19.5);
       DigiSize->setBinLabel(1,"HB",1);
       DigiSize->setBinLabel(2,"HE",1);
@@ -159,12 +171,6 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       HFocc_vs_LB=m_dbe->bookProfile("HFoccVsLB","HF digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
 				     Nlumiblocks_,0.5,Nlumiblocks_+0.5,
 				     0,1800);
-
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badfibBCNoff");
-      SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
-
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/data_invalid_error");
-      SetupEtaPhiHists(DigiErrorsDVErr," Digis with Data Invalid or Error Bit Set", "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/good_digis/digi_occupancy");
       SetupEtaPhiHists(DigiOccupancyByDepth," Digi Eta-Phi Occupancy Map","");
@@ -326,23 +332,32 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   // Bad digi quality detid info does not yet exist in report.bad_quality objects.
   // Need to look at raw data directly?
-  /*
 
+
+  //cout <<"TEST 1"<<endl;
   typedef std::vector<DetId> DetIdVector;
 
   DetIdVector::const_iterator dummy = report.bad_quality_begin();
   DetIdVector::const_iterator dumm2 = report.bad_quality_end();
-
-  //if (dummy!=NULL)
-  //cout <<"start = "<<dummy->det()<<endl;
 
   for ( DetIdVector::const_iterator baddigi_iter=report.bad_quality_begin(); 
 	baddigi_iter != report.bad_quality_end();
 	++baddigi_iter)
     {
       HcalDetId id(baddigi_iter->rawId());
+      int rDepth = id.depth();
+      int rPhi   = id.iphi();
+      int rEta   = id.ieta();
+      rEta = CalcEtaBin(id.subdet(), rEta, rDepth);
+      if (id.subdet()==HcalBarrel) ++hbHists.count_bad;
+      else if (id.subdet()==HcalEndcap) ++heHists.count_bad;
+      else if (id.subdet()==HcalForward) ++hoHists.count_bad;
+      else if (id.subdet()==HcalOuter) ++hfHists.count_bad;
+      ++badunpackerreport[rEta][rPhi-1][rDepth-1];
+      ++baddigis[rEta][rPhi-1][rDepth-1];  
     }
-  */
+
+  //cout <<"TEST2"<<endl;
 
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
@@ -363,7 +378,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   // Fill good digis vs lumi block; also fill bad errors?
   HBocc_vs_LB->Fill(lumiblock,hbHists.count_good);
   HEocc_vs_LB->Fill(lumiblock,heHists.count_good);
-  
 
   // Calculate number of bad quality cells and bad quality fraction
   if (hbHists.check && (hbHists.count_good>0 || hbHists.count_bad>0))
@@ -389,6 +403,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       cpu_timer.reset(); cpu_timer.start();
     }
 
+  //cout <<"TEST3"<<endl;
 
   //////////////////////////////////// Loop over HO collection
   if (hoHists.check)
@@ -416,6 +431,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       cpu_timer.reset(); cpu_timer.start();
     }
   
+  //cout <<"TEST4"<<endl;
+
   /////////////////////////////////////// Loop over HF collection
   if (hfHists.check)
     {
@@ -441,6 +458,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<std::endl;
     }
 
+  //cout <<"TEST5"<<endl;
 
   // This only counts digis that are present but bad somehow; it does not count digis that are missing
   int count_good=hbHists.count_good+heHists.count_good+hoHists.count_good+hfHists.count_good;
@@ -464,6 +482,17 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
   // Now update global (non-subdetector-specific) histograms
   DigiNum->update();
+  DigiErrorVME->update();
+  DigiErrorSpigot->update();
+  DigiBQ->update();
+  DigiBQFrac->update();
+  DigiUnpackerErrorCount->update();
+  DigiUnpackerErrorFrac->update();
+
+  //cout <<"TEST6"<<endl;
+  for (unsigned int zz=0;zz<DigiErrorOccupancyByDepth.depth.size();++zz)
+    DigiErrorOccupancyByDepth.depth[zz]->update();
+
   DigiOccupancyEta->update();
   DigiOccupancyPhi->update();
   DigiOccupancyVME->update();
@@ -477,6 +506,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ProblemsVsLB_HO->Fill(lumiblock,hoHists.count_bad);
   ProblemsVsLB_HF->Fill(lumiblock,hfHists.count_bad);
 
+  //cout <<"TEST7"<<endl;
   // Call fill method every checkNevents
   if (ievt_%digi_checkNevents_==0)
     fill_Nevents();
@@ -528,8 +558,11 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   int last=-1;
   
   int offset = digi.fiberIdleOffset();
-  //cout <<"OFFSET = "<<offset<<endl;
-  if (offset != -1000) 
+
+  // Only count BCN offset errors if ExpectedOrbitMessage Time is >-1
+  // For offline (and thus cfg default), this won't be checked, since
+  // we can't keep up to date with changes.
+  if (offset != -1000 && DigiMonitor_ExpectedOrbitMessageTime_>-1) 
     {
       // increment counters only for non-zero offsets?
       ++h.fibbcnoff[offset + 7];
@@ -545,23 +578,25 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   bool digi_error=false;
   for (int i=0;i<digi.size();++i)
     {
-      int thisCapid = digi.sample(i).capid();
-      if (thisCapid<4) ++h.capid[thisCapid];
-      if(bitUpset(last,thisCapid)) bitUp=true; // checking capID rotation
-      last = thisCapid;
-      // Check for digi error bits
-      if (digi_checkdverr_)
+      if (makeDiagnostics)
 	{
-	  if(digi.sample(i).er()) err=(err|0x2);
-	  if(!digi.sample(i).dv()) err=(err|0x2);
+	  int thisCapid = digi.sample(i).capid();
+	  if (thisCapid<4) ++h.capid[thisCapid];
+	  if(bitUpset(last,thisCapid)) bitUp=true; // checking capID rotation
+	  last = thisCapid;
+	  // Check for digi error bits
+	  if (digi_checkdverr_)
+	    {
+	      if(digi.sample(i).er()) err=(err|0x2);
+	      if(!digi.sample(i).dv()) err=(err|0x2);
+	    }
+	  if ((digi_error==false) && (digi.sample(i).er() || !digi.sample(i).dv()))
+	    {
+	      ++digierrorsdverr[calcEta][iPhi-1][iDepth-1];
+	      digi_error=true; // only count 1 error per digi in this plot
+	    }
+	  ++h.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
 	}
-      if ((digi_error==false) && (digi.sample(i).er() || !digi.sample(i).dv()))
-	{
-	  ++digierrorsdverr[calcEta][iPhi-1][iDepth-1];
-	  digi_error=true; // only count 1 error per digi in this plot
-	}
-      ++h.dverr[static_cast<int>(2*digi.sample(i).er()+digi.sample(i).dv())];
-
       ADCcount+=digi.sample(i).adc();
       if (digi.sample(i).adc()<200) ++h.adc[digi.sample(i).adc()];
       h.count_shape[i]+=digi.sample(i).adc();
@@ -584,7 +619,8 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       if (digi_checkcapid_) err=(err|0x4);
       ++badcapID[calcEta][iPhi-1][iDepth-1];
     }
-  
+
+  // These plots generally don't get filled, unless we turn off the suppression of bad digis
   if (err>0)
     {
       ++h.count_bad;
@@ -630,8 +666,6 @@ void HcalDigiMonitor::fill_Nevents()
   if (fVerbosity>0)
     std::cout <<"<HcalDigiMonitor> Calling fill_Nevents for event # "<<ievt_<<std::endl;
   int iPhi, iEta, iDepth;
-  double problemvalue=0;
-  double problemsum=0;
   bool valid=false;
 
   // Fill plots of sums of adjacent digi samples
@@ -782,7 +816,6 @@ void HcalDigiMonitor::fill_Nevents()
 	  iEta=eta-41;
 	  if (phi==0)
 	    DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
-	  problemsum=0;  
 	  valid=false;
 
 	  for (int d=0;d<4;++d)
@@ -800,14 +833,19 @@ void HcalDigiMonitor::fill_Nevents()
 		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
 						    occupancyEtaPhi[calcEta][phi][d]);
 		      
-		      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-						  badcapID[calcEta][phi][d]);
+		      if (makeDiagnostics)
+			{
+			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+							    badcapID[calcEta][phi][d]);
+			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+							 digierrorsdverr[calcEta][phi][d]);
+			}
 		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-						     baddigisize[calcEta][phi][d]);
-		      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-						     digierrorsdverr[calcEta][phi][d]);
+							   baddigisize[calcEta][phi][d]);
 		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
 							    badFibBCNOff[calcEta][phi][d]);
+		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+							badunpackerreport[calcEta][phi][d]);
 		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
 						       baddigis[calcEta][phi][d]);
 		      // Use this for testing purposes only
@@ -825,14 +863,19 @@ void HcalDigiMonitor::fill_Nevents()
 		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
 						    occupancyEtaPhi[calcEta][phi][d]);
 		      
-		      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							badcapID[calcEta][phi][d]);
+		      if (makeDiagnostics)
+			{
+			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+							    badcapID[calcEta][phi][d]);
+			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+							 digierrorsdverr[calcEta][phi][d]);
+			}
 		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
 							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-						     digierrorsdverr[calcEta][phi][d]);
 		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
 							    badFibBCNOff[calcEta][phi][d]);
+		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+							badunpackerreport[calcEta][phi][d]);
 		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
 						       baddigis[calcEta][phi][d]);
 		    } // if (heHists.check)
@@ -846,16 +889,19 @@ void HcalDigiMonitor::fill_Nevents()
                       int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
 		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
 							  occupancyEtaPhi[calcEta][phi][d]);
-		      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							badcapID[calcEta][phi][d]);
+		      if (makeDiagnostics)
+			{
+			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+							    badcapID[calcEta][phi][d]);
+			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+							 digierrorsdverr[calcEta][phi][d]);
+			}
 		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
 							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-						     digierrorsdverr[calcEta][phi][d]);
 		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
 							    badFibBCNOff[calcEta][phi][d]);
-		      problemsum+=baddigis[calcEta][phi][d];
-		      problemvalue=baddigis[calcEta][phi][d];
+		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+							badunpackerreport[calcEta][phi][d]);
 		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
 						       baddigis[calcEta][phi][d]);
 		    } // if (hoHists.check)
@@ -871,14 +917,19 @@ void HcalDigiMonitor::fill_Nevents()
 		      DigiOccupancyByDepth.depth[d]->Fill(iEta+zside, iPhi,
 						    occupancyEtaPhi[calcEta][phi][d]);
 		      
-		      DigiErrorsBadCapID.depth[d]->Fill(iEta+zside, iPhi,
-						  badcapID[calcEta][phi][d]);
+		      if (makeDiagnostics)
+			{
+			  DigiErrorsBadCapID.depth[d]->Fill(iEta+zside, iPhi,
+							    badcapID[calcEta][phi][d]);
+			  DigiErrorsDVErr.depth[d]->Fill(iEta+zside, iPhi,
+							 digierrorsdverr[calcEta][phi][d]);
+			}
 		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta+zside, iPhi,
 						     baddigisize[calcEta][phi][d]);
-		      DigiErrorsDVErr.depth[d]->Fill(iEta+zside, iPhi,
-						     digierrorsdverr[calcEta][phi][d]);
 		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
 							 badFibBCNOff[calcEta][phi][d]);
+		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+							badunpackerreport[calcEta][phi][d]);
 		      DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
 						       baddigis[calcEta][phi][d]);
 		    } // if (hfHists.check)
@@ -889,8 +940,11 @@ void HcalDigiMonitor::fill_Nevents()
 
   // Now fill all the unphysical cell values
   FillUnphysicalHEHFBins(DigiErrorsByDepth);
-  FillUnphysicalHEHFBins(DigiErrorsBadCapID);
-  FillUnphysicalHEHFBins(DigiErrorsDVErr);
+  if (makeDiagnostics)
+    {
+      FillUnphysicalHEHFBins(DigiErrorsBadCapID);
+      FillUnphysicalHEHFBins(DigiErrorsDVErr);
+    }
   FillUnphysicalHEHFBins(DigiErrorsBadDigiSize);
   FillUnphysicalHEHFBins(DigiOccupancyByDepth);
 
@@ -931,9 +985,9 @@ void HcalDigiMonitor::zeroCounters()
               baddigis[i][j][k]=0;
               badcapID[i][j][k]=0;
               baddigisize[i][j][k]=0;
-              //badADCsum[i][j][k]=0;
               occupancyEtaPhi[i][j][k]=0;
               digierrorsdverr[i][j][k]=0;
+	      badunpackerreport[i][j][k]=0;
             }
         } // for (int j=0;j<72;++i)
     } // for (int i=0;i<85;++i)

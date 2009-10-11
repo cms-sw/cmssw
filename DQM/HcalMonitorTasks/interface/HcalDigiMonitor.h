@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2009/08/26 16:31:45 $
-  * $Revision: 1.48 $
+  * $Date: 2009/08/30 17:15:02 $
+  * $Revision: 1.49 $
   * \author W. Fisher - FNAL
   * \author J. Temple - Univ. of Maryland
   */
@@ -92,6 +92,7 @@ private:  ///Methods, variables accessible only within class code
   bool digi_checkadcsum_;
   bool digi_checkdverr_;
 
+  int DigiMonitor_ExpectedOrbitMessageTime_;
   int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event
 
   const HcalQIEShape* shape_;
@@ -101,17 +102,18 @@ private:  ///Methods, variables accessible only within class code
 
   EtaPhiHists DigiErrorsByDepth;
   EtaPhiHists DigiErrorsBadCapID;
+  EtaPhiHists DigiErrorsDVErr;
   EtaPhiHists DigiErrorsBadDigiSize;
   EtaPhiHists DigiErrorsBadADCSum;
-  EtaPhiHists DigiErrorsDVErr;
+  EtaPhiHists DigiErrorsUnpacker;
   EtaPhiHists DigiErrorsBadFibBCNOff;
 
   MonitorElement* DigiSize;
   int baddigis[85][72][4]; // sum of individual digi problems
   int badcapID[85][72][4];
   int baddigisize[85][72][4];
-  int badADCsum[85][72][4];
   int badFibBCNOff[85][72][4];
+  int badunpackerreport[85][72][4];
   int digisize[20][4];
   int digierrorsdverr[85][72][4];
 
