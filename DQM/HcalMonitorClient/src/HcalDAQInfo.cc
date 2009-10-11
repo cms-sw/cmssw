@@ -186,7 +186,8 @@ HcalDAQInfo::endLuminosityBlock(const edm::LuminosityBlock& run, const edm::Even
     // FEDs share HO0, HO12
     HO0DaqFraction->Fill(hFEDEntries->Integral(25,32)/(8.*nevt));
     HO12DaqFraction->Fill(hFEDEntries->Integral(25,32)/(8.*nevt));
-    HFlumiDaqFraction->Fill(-1); // leave unknown for now
+    // HF lumi (ieta 33-36) spans all HF FEDs; use same integral
+    HFlumiDaqFraction->Fill(hFEDEntries->Integral(19,24)/(6.*nevt)); 
   }
   else {
     edm::LogInfo("HcalDAQInfo")<<"No DAQ info"<<std::endl;
