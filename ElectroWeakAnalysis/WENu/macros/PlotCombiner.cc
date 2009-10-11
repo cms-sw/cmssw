@@ -95,8 +95,7 @@
 
 void plotMaker(TString histoName, TString typeOfplot,
 	       vector<TString> file, vector<TString> type, 
-	       vector<double> weight, 
-	       TString xtitle, Int_t NBins, double min, double max);
+	       vector<double> weight,  TString xtitle);
 
 void abcd(vector<TString> file, vector<TString> type, vector<double> weight,
 	  double METCut, double I, double dI, double Fz, double dFz, 
@@ -193,14 +192,14 @@ void PlotCombiner()
     //        ====================
     // =====> WHICH HISTOS TO PLOT
     //        ====================
-    plotMaker("h_met", typeOfplot, files, types, weights, "MET (GeV)", 100,0,100);
+    plotMaker("h_met", typeOfplot, files, types, weights, "MET (GeV)");
   }
   else if (typeOfplot == "zee"){
     cout << "zee plot maker" << endl;
     //        ====================
     // =====> WHICH HISTOS TO PLOT
     //        ====================
-    plotMaker("h_mee", typeOfplot, files, types, weights, "M_{ee} (GeV)", 150,0,150);
+    plotMaker("h_mee", typeOfplot, files, types, weights, "M_{ee} (GeV)");
   }
   else if (typeOfplot(0,4) == "abcd") {
     // now read the parameters of the ABCD method
@@ -961,13 +960,29 @@ void abcd( vector<TString> file, vector<TString> type, vector<double> weight,
 
 void plotMaker(TString histoName, TString wzsignal,
 	       vector<TString> file, vector<TString> type, 
-	       vector<double> weight, 
-	       TString xtitle, Int_t NBins, double min, double max)
+	       vector<double> weight, TString xtitle)
 {
   gROOT->Reset();
   gROOT->ProcessLine(".L tdrstyle.C"); 
   gROOT->ProcessLine("setTDRStyle()");
-
+  // automatic recognition of histogram dimension
+  int NBins = 0; double min = 0; double max = -1;
+  for (int i=0; i< (int) file.size(); ++i) {
+    if (weight[i]>0) {
+      TFile f(file[i]);
+      TH1F *h = (TH1F*) f.Get(histoName);
+      NBins = h->GetNbinsX();
+      min = h->GetBinLowEdge(1);
+      max = h->GetBinLowEdge(NBins+1);
+      break;
+    }
+  }
+  if (NBins ==0 || (max<min)) {
+    std::cout << "PlotCombiner::abcd error: Could not find valid histograms in file"
+              << std::endl;
+    abort();
+  }
+  cout << "Histograms with "<< NBins <<" bins  and range " << min << "-" << max  << endl;
   // Wenu Signal .......................................................
   TH1F h_wenu("h_wenu", "h_wenu", NBins, min, max);
   int fmax = (int) file.size();
