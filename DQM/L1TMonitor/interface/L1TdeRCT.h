@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/11/07 15:54:03 $
- * $Revision: 1.8 $
+ * $Date: 2008/12/11 09:20:16 $
+ * $Revision: 1.9 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.8 2008/11/07 15:54:03 weinberg Exp $
+ * $Id: L1TdeRCT.h,v 1.9 2008/12/11 09:20:16 asavin Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.9  2008/12/11 09:20:16  asavin
+ * efficiency curves in L1TdeRCT
+ *
  * Revision 1.8  2008/11/07 15:54:03  weinberg
  * Changed fine grain bit to HF plus tau bit
  *
@@ -117,23 +120,29 @@ private:
   MonitorElement *rctRegMatchedOcc1D_;
   MonitorElement *rctRegUnmatchedDataOcc1D_;
   MonitorElement *rctRegUnmatchedEmulOcc1D_;
+  MonitorElement *rctRegSpEffOcc1D_;
+  MonitorElement *rctRegSpIneffOcc1D_;
 
   MonitorElement *rctRegEff1D_;
   MonitorElement *rctRegIneff1D_;
   MonitorElement *rctRegOvereff1D_;
+  MonitorElement *rctRegSpEff1D_;
+  MonitorElement *rctRegSpIneff1D_;
 
   MonitorElement *rctRegDataOcc2D_;
   MonitorElement *rctRegEmulOcc2D_;
   MonitorElement *rctRegMatchedOcc2D_;
   MonitorElement *rctRegUnmatchedDataOcc2D_;
   MonitorElement *rctRegUnmatchedEmulOcc2D_;
-  MonitorElement *rctRegDeltaEt2D_;
-  MonitorElement *rctRegDeltaEtOcc2D_;
+//  MonitorElement *rctRegDeltaEt2D_;
+  MonitorElement *rctRegSpEffOcc2D_;
+  MonitorElement *rctRegSpIneffOcc2D_;
 
   MonitorElement *rctRegEff2D_;
   MonitorElement *rctRegIneff2D_;
   MonitorElement *rctRegOvereff2D_;
   MonitorElement *rctRegSpEff2D_;
+  MonitorElement *rctRegSpIneff2D_;
 
   // end region information
 
@@ -182,17 +191,21 @@ private:
   // end bit information
 
   MonitorElement* rctInputTPGEcalOcc_ ;
+  MonitorElement* rctInputTPGEcalRank_ ;
   MonitorElement* rctInputTPGHcalOcc_ ;
+  MonitorElement* rctInputTPGHcalRank_ ;
   MonitorElement* rctInputTPGHcalSample_ ;
 
   MonitorElement* rctIsoEmDataOcc_ ;
   MonitorElement* rctIsoEmEmulOcc_ ;
   MonitorElement* rctIsoEmEff1Occ_ ;
   MonitorElement* rctIsoEmEff2Occ_ ;
+  MonitorElement* rctIsoEmIneff2Occ_ ;
   MonitorElement* rctIsoEmIneffOcc_ ;
   MonitorElement* rctIsoEmOvereffOcc_ ; 
   MonitorElement* rctIsoEmEff1_ ;
   MonitorElement* rctIsoEmEff2_ ;
+  MonitorElement* rctIsoEmIneff2_ ;
   MonitorElement* rctIsoEmIneff_ ;
   MonitorElement* rctIsoEmOvereff_ ;
 
@@ -200,10 +213,12 @@ private:
   MonitorElement* rctIsoEmEmulOcc1D_ ;
   MonitorElement* rctIsoEmEff1Occ1D_ ;
   MonitorElement* rctIsoEmEff2Occ1D_ ;
+  MonitorElement* rctIsoEmIneff2Occ1D_ ;
   MonitorElement* rctIsoEmIneffOcc1D_ ;
   MonitorElement* rctIsoEmOvereffOcc1D_ ; 
   MonitorElement* rctIsoEmEff1oneD_ ;
   MonitorElement* rctIsoEmEff2oneD_ ;
+  MonitorElement* rctIsoEmIneff2oneD_ ;
   MonitorElement* rctIsoEmIneff1D_ ;
   MonitorElement* rctIsoEmOvereff1D_ ;
 
@@ -211,10 +226,12 @@ private:
   MonitorElement* rctNisoEmEmulOcc_ ;
   MonitorElement* rctNisoEmEff1Occ_ ;
   MonitorElement* rctNisoEmEff2Occ_ ;
+  MonitorElement* rctNisoEmIneff2Occ_ ;
   MonitorElement* rctNisoEmIneffOcc_ ;
   MonitorElement* rctNisoEmOvereffOcc_ ;
   MonitorElement* rctNisoEmEff1_ ;
   MonitorElement* rctNisoEmEff2_ ;
+  MonitorElement* rctNisoEmIneff2_ ;
   MonitorElement* rctNisoEmIneff_ ;
   MonitorElement* rctNisoEmOvereff_ ;
 
@@ -222,10 +239,12 @@ private:
   MonitorElement* rctNisoEmEmulOcc1D_ ;
   MonitorElement* rctNisoEmEff1Occ1D_ ;
   MonitorElement* rctNisoEmEff2Occ1D_ ;
+  MonitorElement* rctNisoEmIneff2Occ1D_ ;
   MonitorElement* rctNisoEmIneffOcc1D_ ;
   MonitorElement* rctNisoEmOvereffOcc1D_ ;
   MonitorElement* rctNisoEmEff1oneD_ ;
   MonitorElement* rctNisoEmEff2oneD_ ;
+  MonitorElement* rctNisoEmIneff2oneD_ ;
   MonitorElement* rctNisoEmIneff1D_ ;
   MonitorElement* rctNisoEmOvereff1D_ ;
 
