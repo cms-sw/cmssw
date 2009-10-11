@@ -20,9 +20,14 @@
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 #include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
 
-
 #include "CondFormats/ESObjects/interface/ESADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/ESADCToGeVConstantRcd.h"
+
+#include "CondFormats/ESObjects/interface/ESThresholds.h"
+#include "CondFormats/DataRecord/interface/ESThresholdsRcd.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
@@ -33,5 +38,7 @@ REGISTER_PLUGIN(ESWeightStripGroupsRcd,ESWeightStripGroups);
 REGISTER_PLUGIN(ESTBWeightsRcd,ESTBWeights);
 REGISTER_PLUGIN(ESIntercalibConstantsRcd,ESFloatCondObjectContainer);
 REGISTER_PLUGIN(ESADCToGeVConstantRcd,ESADCToGeVConstant);
+REGISTER_PLUGIN(ESThresholdsRcd,ESThresholds);
+REGISTER_PLUGIN(ESEEIntercalibConstantsRcd,ESEEIntercalibConstants);
 REGISTER_PLUGIN(ESChannelStatusRcd,ESChannelStatus);
 
