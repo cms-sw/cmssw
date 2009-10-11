@@ -55,6 +55,10 @@ const unsigned int ELBINS = 64;
 const float ELMIN = -.5;
 const float ELMAX = 63.5;
 
+const unsigned int HCALBINS = 1024;
+const float HCALMIN = -.5;
+const float HCALMAX = 1023.5;
+
 const unsigned int PhiEtaMax = 396;
 const unsigned int CHNLBINS = 396;
 const float CHNLMIN = -0.5;
@@ -148,13 +152,19 @@ void L1TdeRCT::beginJob(const EventSetup & c)
   dbe->book2D("rctInputTPGEcalOcc", "rctInputTPGEcalOcc", TPGETABINS, TPGETAMIN,
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
 
+    rctInputTPGEcalRank_ =
+  dbe->book1D("rctInputTPGEcalRank", "rctInputTPGEcalRank", ELBINS, ELMIN, ELMAX) ;
+
     rctInputTPGHcalOcc_ =
   dbe->book2D("rctInputTPGHcalOcc", "rctInputTPGHcalOcc", TPGETABINS, TPGETAMIN,
         TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
 
     rctInputTPGHcalSample_ =
   dbe->book1D("rctInputTPGHcalSample", "rctInputTPGHcalSample", 10, -0.5, 9.5) ;
-       
+
+    rctInputTPGHcalRank_ =
+  dbe->book1D("rctInputTPGHcalRank", "rctInputTPGHcalRank", HCALBINS, HCALMIN, HCALMAX) ;
+
     dbe->setCurrentFolder(histFolder_+"EffCurves/NisoEm/");
 
     trigEffThresh_ = 
@@ -187,6 +197,15 @@ void L1TdeRCT::beginJob(const EventSetup & c)
     rctIsoEmEff2oneD_ =
   dbe->book1D("rctIsoEmEff2oneD", "rctIsoEmEff2oneD, energy matching required",
         CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctIsoEmIneff2_ =
+  dbe->book2D("rctIsoEmIneff2", "rctIsoEmIneff2, energy matching required", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctIsoEmIneff2oneD_ =
+  dbe->book1D("rctIsoEmIneff2oneD", "rctIsoEmIneff2oneD, energy matching required",
+        CHNLBINS, CHNLMIN, CHNLMAX);
+
 
     rctIsoEmIneff_ =
   dbe->book2D("rctIsoEmIneff", "rctIsoEmIneff", ETABINS, ETAMIN,
@@ -238,6 +257,14 @@ void L1TdeRCT::beginJob(const EventSetup & c)
   dbe->book1D("rctIsoEmEff2Occ1D", "rctIsoEmEff2Occ1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
+    rctIsoEmIneff2Occ_ =
+  dbe->book2D("rctIsoEmIneff2Occ", "rctIsoEmIneff2Occ", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctIsoEmIneff2Occ1D_ =
+  dbe->book1D("rctIsoEmIneff2Occ1D", "rctIsoEmIneff2Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctIsoEmIneffOcc_ =
   dbe->book2D("rctIsoEmIneffOcc", "rctIsoEmIneffOcc", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -271,6 +298,15 @@ void L1TdeRCT::beginJob(const EventSetup & c)
     rctNisoEmEff2oneD_ =
   dbe->book1D("rctNisoEmEff2oneD", "rctNisoEmEff2oneD, energy matching required",
                     CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctNisoEmIneff2_ =
+  dbe->book2D("rctNisoEmIneff2", "rctNisoEmIneff2, energy matching required", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmIneff2oneD_ =
+  dbe->book1D("rctNisoEmIneff2oneD", "rctNisoEmIneff2oneD, energy matching required",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
 
     rctNisoEmIneff_ =
   dbe->book2D("rctNisoEmIneff", "rctNisoEmIneff", ETABINS, ETAMIN,
@@ -322,6 +358,14 @@ void L1TdeRCT::beginJob(const EventSetup & c)
   dbe->book1D("rctNisoEmEff2Occ1D", "rctNisoEmEff2Occ1D",
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
+    rctNisoEmIneff2Occ_ =
+  dbe->book2D("rctNisoEmIneff2Occ", "rctNisoEmIneff2Occ", ETABINS, ETAMIN,
+        ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmIneff2Occ1D_ =
+  dbe->book1D("rctNisoEmIneff2Occ1D", "rctNisoEmIneff2Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctNisoEmIneffOcc_ =
   dbe->book2D("rctNisoEmIneffOcc", "rctNisoEmIneffOcc", ETABINS, ETAMIN,
         ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -353,6 +397,14 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       dbe->book1D("rctRegOvereff1D", "1D region overefficiency",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
+    rctRegSpEff1D_ =
+      dbe->book1D("rctRegSpEff1D", "1D region efficiency, energy matching required",
+      CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctRegSpIneff1D_ =
+      dbe->book1D("rctRegSpIneff1D", "1D region efficiency, energy matching required",
+      CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctRegEff2D_ =
       dbe->book2D("rctRegEff2D", "2D region efficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -367,6 +419,10 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
     rctRegSpEff2D_ =
       dbe->book2D("rctRegSpEff2D", "2D region efficiency, energy matching required",
+      ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctRegSpIneff2D_ =
+      dbe->book2D("rctRegSpIneff2D", "2D region inefficiency, energy matching required",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     dbe->setCurrentFolder(histFolder_+"RegionData/ServiceData");
@@ -391,6 +447,14 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       dbe->book1D("rctRegUnmatchedEmulOcc1D", "1D region occupancy for unmatched emulator hits",
       CHNLBINS, CHNLMIN, CHNLMAX);
 
+    rctRegSpEffOcc1D_ =
+      dbe->book1D("rctRegSpEffOcc1D", "1D region occupancy for \\Delta E_{T} efficiency",
+      CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctRegSpIneffOcc1D_ =
+      dbe->book1D("rctRegSpIneffOcc1D", "1D region occupancy for \\Delta E_{T} efficiency ",
+      CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctRegDataOcc2D_ =
       dbe->book2D("rctRegDataOcc2D", "2D region occupancy from hardware",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -411,12 +475,16 @@ void L1TdeRCT::beginJob(const EventSetup & c)
       dbe->book2D("rctRegUnmatchedEmulOcc2D", "2D region occupancy for unmatched emulator hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctRegDeltaEt2D_ =
-      dbe->book2D("rctRegDeltaEt2D", "2D region \\Delta E_{T}",
-      CHNLBINS, CHNLMIN, CHNLMAX, 100, -50., 50.);
+//    rctRegDeltaEt2D_ =
+//      dbe->book2D("rctRegDeltaEt2D", " \\Delta E_{T}  for each channel",
+//      CHNLBINS, CHNLMIN, CHNLMAX, 100, -50., 50.);
 
-    rctRegDeltaEtOcc2D_ =
-      dbe->book2D("rctRegDeltaEtOcc2D", "2D region occupancy for \\Delta E_{T}",
+    rctRegSpEffOcc2D_ =
+      dbe->book2D("rctRegSpEffOcc2D", "2D region occupancy for \\Delta E_{T} efficiency",
+      ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctRegSpIneffOcc2D_ =
+      dbe->book2D("rctRegSpIneffOcc2D", "2D region occupancy for \\Delta E_{T} inefficiency",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // bit information
@@ -710,27 +778,27 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     {
       effEGThresholdBitNumber = 46;
     }
-  if (gtEGAlgoName_ == "L1_SingleEG5_00001")
+  if (gtEGAlgoName_ == "L1_SingleEG5_0001")
     {
       effEGThresholdBitNumber = 47;
     }
-  if (gtEGAlgoName_ == "L1_SingleEG8_00001")
+  if (gtEGAlgoName_ == "L1_SingleEG8_0001")
     {
       effEGThresholdBitNumber = 48;
     }
-  if (gtEGAlgoName_ == "L1_SingleEG10_00001")
+  if (gtEGAlgoName_ == "L1_SingleEG10_0001")
     {
       effEGThresholdBitNumber = 49;
   }
-  if (gtEGAlgoName_ == "L1_SingleEG12_00001")
+  if (gtEGAlgoName_ == "L1_SingleEG12_0001")
     {
       effEGThresholdBitNumber = 50;
     }
-  if (gtEGAlgoName_ == "L1_SingleEG15_00001")
+  if (gtEGAlgoName_ == "L1_SingleEG15_0001")
     {
       effEGThresholdBitNumber = 51;
     }
-  if (gtEGAlgoName_ == "L1_SingleEG20_00001")
+  if (gtEGAlgoName_ == "L1_SingleEG20_0001")
     {
       effEGThresholdBitNumber = 52;
     }
@@ -798,6 +866,8 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     if(iEcalTp->compressedEt() > 0)
     {
 
+  rctInputTPGEcalRank_ -> Fill(1.*(iEcalTp->compressedEt())) ;
+
   if(iEcalTp->id().ieta() > 0)
   rctInputTPGEcalOcc_ -> Fill(1.*(iEcalTp->id().ieta())-0.5,iEcalTp->id().iphi()) ;
   else
@@ -851,7 +921,8 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
                   rctInputTPGHcalOcc_ -> Fill(1.*(iHcalTp->id().ieta())-0.5,iHcalTp->id().iphi()) ;
                   else
                   rctInputTPGHcalOcc_ -> Fill(1.*(iHcalTp->id().ieta())+0.5,iHcalTp->id().iphi()) ;
-                  rctInputTPGHcalSample_ -> Fill(highSample) ;
+                  rctInputTPGHcalSample_ -> Fill(highSample,highEt) ;
+                  rctInputTPGHcalRank_ -> Fill(highEt) ;
        }
 
     }
@@ -940,59 +1011,8 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   bool regionEmulQuiet    [PhiEtaMax] = {false};
   bool regionEmulHfPlusTau[PhiEtaMax] = {false};
 
-// just to fix a scale for the ratios //
 if(first)
 {
-//   rctIsoEmEmulOcc_->Fill(0.,0.) ;
-//   rctIsoEmDataOcc_->Fill(0.,0.) ;
-//   rctIsoEmEff1Occ_->Fill(0.,0.) ;
-//   rctIsoEmEff2Occ_->Fill(0.,0.) ;
-//   rctIsoEmIneffOcc_->Fill(0.,0.) ;
-//   rctIsoEmOvereffOcc_->Fill(0.,0.) ;
-//   rctNisoEmEmulOcc_->Fill(0.,0.) ;
-//   rctNisoEmDataOcc_->Fill(0.,0.) ;
-//   rctNisoEmEff1Occ_->Fill(0.,0.) ;
-//   rctNisoEmEff2Occ_->Fill(0.,0.) ;
-//   rctNisoEmIneffOcc_->Fill(0.,0.) ;
-//   rctNisoEmOvereffOcc_->Fill(0.,0.) ;
-// 
-//   rctRegDataOcc2D_->Fill(0.,0.) ;
-//   rctRegEmulOcc2D_->Fill(0.,0.) ;
-//   rctRegMatchedOcc2D_->Fill(0.,0.) ;
-//   rctRegUnmatchedDataOcc2D_->Fill(0.,0.) ;
-//   rctRegUnmatchedEmulOcc2D_->Fill(0.,0.) ;
-//   rctRegDeltaEtOcc2D_->Fill(0.,0.) ;
-// 
-//   rctBitDataOverFlow2D_->Fill(0.,0.) ;
-//   rctBitEmulOverFlow2D_->Fill(0.,0.) ;
-//   rctBitMatchedOverFlow2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedDataOverFlow2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedEmulOverFlow2D_->Fill(0.,0.) ;
-// 
-//   rctBitDataTauVeto2D_->Fill(0.,0.) ;
-//   rctBitEmulTauVeto2D_->Fill(0.,0.) ;
-//   rctBitMatchedTauVeto2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedDataTauVeto2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedEmulTauVeto2D_->Fill(0.,0.) ;
-// 
-//   rctBitDataMip2D_->Fill(0.,0.) ;
-//   rctBitEmulMip2D_->Fill(0.,0.) ;
-//   rctBitMatchedMip2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedDataMip2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedEmulMip2D_->Fill(0.,0.) ;
-// 
-//   rctBitDataQuiet2D_->Fill(0.,0.) ;
-//   rctBitEmulQuiet2D_->Fill(0.,0.) ;
-//   rctBitMatchedQuiet2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedDataQuiet2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedEmulQuiet2D_->Fill(0.,0.) ;
-// 
-//   rctBitDataHfPlusTau2D_->Fill(0.,0.) ;
-//   rctBitEmulHfPlusTau2D_->Fill(0.,0.) ;
-//   rctBitMatchedHfPlusTau2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedDataHfPlusTau2D_->Fill(0.,0.) ;
-//   rctBitUnmatchedEmulHfPlusTau2D_->Fill(0.,0.) ;
-
   first = false ;
 }
 
@@ -1203,12 +1223,16 @@ if(first)
  if(verbose_)
 {
   std::cout << "I found Data! Iso: " << nelectrIsoData << " Niso: " << nelectrNisoData <<  std::endl ;
+  for(int i=0; i<nelectrIsoData; i++)
+  std::cout << " Iso Energy " << electronDataRank[0][i] << " eta " << electronDataEta[0][i] << " phi " << electronDataPhi[0][i] << std::endl ;
   for(int i=0; i<nelectrNisoData; i++)
-  std::cout << " Energy " << electronDataRank[1][i] << " eta " << electronDataEta[1][i] << " phi " << electronDataPhi[1][i] << std::endl ;
+  std::cout << " Niso Energy " << electronDataRank[1][i] << " eta " << electronDataEta[1][i] << " phi " << electronDataPhi[1][i] << std::endl ;
 
   std::cout << "I found Emul! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
+  for(int i=0; i<nelectrIsoEmul; i++)
+  std::cout << " Iso Energy " << electronEmulRank[0][i] << " eta " << electronEmulEta[0][i] << " phi " << electronEmulPhi[0][i] << std::endl ;
   for(int i=0; i<nelectrNisoEmul; i++)
-  std::cout << " Energy " << electronEmulRank[1][i] << " eta " << electronEmulEta[1][i] << " phi " << electronEmulPhi[1][i] << std::endl ;
+  std::cout << " Niso Energy " << electronEmulRank[1][i] << " eta " << electronEmulEta[1][i] << " phi " << electronEmulPhi[1][i] << std::endl ;
 
   std::cout << "I found Data! Regions: " << PhiEtaMax <<  std::endl ;
   for(int i=0; i<(int)PhiEtaMax; i++)
@@ -1258,7 +1282,7 @@ if(first)
 	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
 //	    }
 	    if(triggered)
-	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001); }
+	      trigEffTriggThreshOcc_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98001); }
 	  }
       
 
@@ -1272,7 +1296,7 @@ if(first)
         {
           if(k==0)
           {
-            rctIsoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001);
+            rctIsoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98001);
             // Weight is for ROOT; when added to initial weight of 0.01, should just exceed 0.99
 
             int chnl;
@@ -1290,15 +1314,21 @@ if(first)
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctIsoEmEff2Occ1D_->Fill(chnl);
-              rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.990001);
+              rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99001);
               // Weight is for ROOT; should just exceed 0.99
               // NOTE: Weight is different for eff 2 because this isn't filled initially
+              rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
+            }
+            else
+            {
+              rctIsoEmIneff2Occ1D_->Fill(chnl);
+              rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99);
             }
           }
 
           else
           {
-            rctNisoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.980001);
+            rctNisoEmEff1Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.98001);
             // Weight is for ROOT; when added to initial weight of 0.01, should just exceed 0.99
 
             int chnl;
@@ -1316,9 +1346,15 @@ if(first)
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctNisoEmEff2Occ1D_->Fill(chnl);
-              rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.990001);
+              rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99001);
               // Weight is for ROOT; should just exceed 0.99
               // NOTE: Weight is different for eff 2 because this isn't filled initially
+              rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.01);
+            }
+            else
+            {
+              rctNisoEmIneff2Occ1D_->Fill(chnl);
+              rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.99);
             }
           }
 
@@ -1363,12 +1399,25 @@ if(first)
 
     DivideME1D(rctIsoEmEff1Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff1oneD_);
     DivideME2D(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_, rctIsoEmEff1_) ;
-    DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff2oneD_);
-    DivideME2D(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_, rctIsoEmEff2_) ;
+//    DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmEff2oneD_);
+//    DivideME2D(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_, rctIsoEmEff2_) ;
+    DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEff1Occ1D_, rctIsoEmEff2oneD_);
+    DivideME2D(rctIsoEmEff2Occ_, rctIsoEmEff1Occ_, rctIsoEmEff2_) ;
+//    DivideME1D(rctIsoEmIneff2Occ1D_, rctIsoEmEmulOcc1D_, rctIsoEmIneff2oneD_);
+//    DivideME2D(rctIsoEmIneff2Occ_, rctIsoEmEmulOcc_, rctIsoEmIneff2_) ;
+    DivideME1D(rctIsoEmIneff2Occ1D_, rctIsoEmEff1Occ1D_, rctIsoEmIneff2oneD_);
+    DivideME2D(rctIsoEmIneff2Occ_, rctIsoEmEff1Occ_, rctIsoEmIneff2_) ;
+
     DivideME1D(rctNisoEmEff1Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff1oneD_);
     DivideME2D(rctNisoEmEff1Occ_, rctNisoEmEmulOcc_, rctNisoEmEff1_);
-    DivideME1D(rctNisoEmEff2Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff2oneD_);
-    DivideME2D(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_, rctNisoEmEff2_);
+//    DivideME1D(rctNisoEmEff2Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmEff2oneD_);
+//    DivideME2D(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_, rctNisoEmEff2_);
+    DivideME1D(rctNisoEmEff2Occ1D_, rctNisoEmEff1Occ1D_, rctNisoEmEff2oneD_);
+    DivideME2D(rctNisoEmEff2Occ_, rctNisoEmEff1Occ_, rctNisoEmEff2_);
+//    DivideME1D(rctNisoEmIneff2Occ1D_, rctNisoEmEmulOcc1D_, rctNisoEmIneff2oneD_);
+//    DivideME2D(rctNisoEmIneff2Occ_, rctNisoEmEmulOcc_, rctNisoEmIneff2_);
+    DivideME1D(rctNisoEmIneff2Occ1D_, rctNisoEmEff1Occ1D_, rctNisoEmIneff2oneD_);
+    DivideME2D(rctNisoEmIneff2Occ_, rctNisoEmEff1Occ_, rctNisoEmIneff2_);
     
     DivideME1D(rctIsoEmIneffOcc1D_, rctIsoEmEmulOcc1D_, rctIsoEmIneff1D_);
     DivideME2D(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_, rctIsoEmIneff_);
@@ -1463,12 +1512,22 @@ if(first)
 
             chnl = PHIBINS*regionEmulEta[i] + regionEmulPhi[i];
             rctRegMatchedOcc1D_->Fill(chnl);
-            rctRegMatchedOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            rctRegMatchedOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98001);
             // Weight is for ROOT; when added to initial weight of 0.01, should just exceed 0.99
 
             if(singlechannelhistos_) rctRegEffChannel_[chnl]->Fill(regionEmulRank[i] - regionDataRank[i]);
 
-            if(regionEmulRank[i] == regionDataRank[i]) rctRegDeltaEtOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.990001);
+            if(regionEmulRank[i] == regionDataRank[i]) 
+             { 
+             rctRegSpEffOcc1D_->Fill(chnl);
+             rctRegSpEffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.99001);
+             rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.01);
+             }
+            else 
+             {
+             rctRegSpIneffOcc1D_->Fill(chnl);
+             rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.99);
+             }
             // Weight is for ROOT; should just exceed 0.99
             // NOTE: Weight is different for eff 2 because this isn't filled initially
 
@@ -1478,29 +1537,29 @@ if(first)
           if(regionEmulOverFlow[i] == true &&
              regionDataOverFlow[i] == true)
           {
-            rctBitMatchedOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            rctBitMatchedOverFlow2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98001);
             overFlowFound = kTRUE;
           }
 
           if(regionEmulTauVeto[i] == true &&
              regionDataTauVeto[i] == true)
           {
-            rctBitMatchedTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            rctBitMatchedTauVeto2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.98001);
             tauVetoFound = kTRUE;
           }
 
           if (regionEmulMip[i] == true && regionDataMip[i] == true) {
-            rctBitMatchedMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            rctBitMatchedMip2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98001);
             mipFound = kTRUE;
           }
 
           if (regionEmulQuiet[i] == true && regionDataQuiet[i] == true) {
-            rctBitMatchedQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            rctBitMatchedQuiet2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98001);
             quietFound = kTRUE;
           }
 
           if (regionEmulHfPlusTau[i] == true && regionDataHfPlusTau[i] == true) {
-            rctBitMatchedHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.980001);
+            rctBitMatchedHfPlusTau2D_->Fill (regionEmulEta[i], regionEmulPhi[i], 0.98001);
             hfPlusTauFound = kTRUE;
           }
 
@@ -1547,9 +1606,17 @@ if(first)
 
 }
 
+
       DivideME1D(rctRegMatchedOcc1D_, rctRegEmulOcc1D_, rctRegEff1D_);
       DivideME2D(rctRegMatchedOcc2D_, rctRegEmulOcc2D_, rctRegEff2D_);
-      DivideME2D(rctRegDeltaEtOcc2D_, rctRegEmulOcc2D_, rctRegSpEff2D_);
+//      DivideME1D(rctRegSpEffOcc1D_, rctRegEmulOcc1D_, rctRegSpEff1D_);
+//      DivideME2D(rctRegSpEffOcc2D_, rctRegEmulOcc2D_, rctRegSpEff2D_);
+      DivideME1D(rctRegSpEffOcc1D_, rctRegMatchedOcc1D_, rctRegSpEff1D_);
+      DivideME2D(rctRegSpEffOcc2D_, rctRegMatchedOcc2D_, rctRegSpEff2D_);
+//      DivideME1D(rctRegSpIneffOcc1D_, rctRegEmulOcc1D_, rctRegSpIneff1D_);
+//      DivideME2D(rctRegSpIneffOcc2D_, rctRegEmulOcc2D_, rctRegSpIneff2D_);
+      DivideME1D(rctRegSpIneffOcc1D_, rctRegMatchedOcc1D_, rctRegSpIneff1D_);
+      DivideME2D(rctRegSpIneffOcc2D_, rctRegMatchedOcc2D_, rctRegSpIneff2D_);
       DivideME2D(rctBitMatchedOverFlow2D_, rctBitEmulOverFlow2D_, rctBitOverFlowEff2D_);
       DivideME2D(rctBitMatchedTauVeto2D_, rctBitEmulTauVeto2D_, rctBitTauVetoEff2D_);
       DivideME2D (rctBitMatchedMip2D_, rctBitEmulMip2D_, rctBitMipEff2D_);
