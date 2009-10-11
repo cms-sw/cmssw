@@ -404,26 +404,12 @@ void HcalDigiClient::getProblemHistograms()
   name.str("");
   
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/good_digis/digi_occupancy/"," Digi Eta-Phi Occupancy Map",DigiOccupancyByDepth);
-  getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/digi_occupancy/","Bad Digi Map",BadDigisByDepth);
+  getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/","Bad Digi Map",BadDigisByDepth);
   
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/data_invalid_error/"," Digis with Data Invalid or Error Bit Set",DigiErrorsDVErr);
 
-  /*
-  for (unsigned int i =0; i < subdets_.size();++i)
-    {
-      name << process_.c_str()<<rootFolder_<<"/DigiMonitor_Hcal/good_digis/digi_occupancy/"<<subdets_[i].c_str()<< " Digi Eta-Phi Occupancy Map";
-      me = dbe_->get(name.str().c_str());
-      if (me!=0) DigiOccupancyByDepth[i]=me->getTH2F();
-      name.str("");
-
-      name << process_.c_str()<<rootFolder_<<"/DigiMonitor_Hcal/bad_digis/digi_occupancy/"<<subdets_[i].c_str()<< "Bad Digi Map";
-      me = dbe_->get(name.str().c_str());
-      if (me!=0) BadDigisByDepth[i]=me->getTH2F();
-      name.str("");
-    }
-  */
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiClient GETPROBLEMHISTOGRAMS  -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -602,10 +588,10 @@ void HcalDigiClient::getHistograms()
 
 
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi VME Error Map";   //DigiErrorVME
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/Digi VME Error Map";   //DigiErrorVME
   DigiErrorVME = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi Spigot Error Map";   //DigiErrorSpigot
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/Digi Spigot Error Map";   //DigiErrorSpigot
   DigiErrorSpigot = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
   name.str("");
   for (int i=0;i<9;++i)
@@ -637,7 +623,7 @@ void HcalDigiClient::getHistograms()
     } // for (int i=0;i<9;++i)
 
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/good_digis/digi_occupancy/"," Digi Eta-Phi Occupancy Map",DigiOccupancyByDepth);
-  getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/digi_occupancy/","Bad Digi Map",BadDigisByDepth);
+  getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/","Bad Digi Map",BadDigisByDepth);
 
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
@@ -745,16 +731,16 @@ void HcalDigiClient::resetAllME()
   name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Spigot Occupancy Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi VME Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/Digi VME Error Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi Spigot Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/Digi Spigot Error Map";
   resetME(name.str().c_str(),dbe_);
   name.str("");
 
   for (int i=0;i<4;++i)
     {
-      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/"<<subdets_[i]<<"Bad Digi Map";
+      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_digi_occupancy/"<<subdets_[i]<<"Bad Digi Map";
       resetME(name.str().c_str(),dbe_);
       name.str("");
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/badcapID/"<<subdets_[i]<<" Digis with Bad Cap ID Rotation";
@@ -1286,10 +1272,10 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   name<<process_.c_str()<<"DigiMonitor_Hcal/good_digis/digi_occupancy/Digi Spigot Occupancy Map";
   DigiOccupancySpigot = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Digi VME Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi VME Error Map";
   DigiErrorVME = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
-  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/Digi Spigot Error Map";
+  name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/digi_occupancy/Digi Spigot Error Map";
   DigiErrorSpigot = static_cast<TH2F*>(infile->Get(name.str().c_str()));
   name.str("");
 
@@ -1472,6 +1458,15 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		  continue;
 	      if (ProblemCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>0)
 		{
+		  if (depth<2)
+		    {
+                      if (isHB(eta,depth+1)) name <<"HB";
+                      else if (isHE(eta,depth+1)) name<<"HE";
+                      else if (isHF(eta,depth+1)) name<<"HF";
+                    }
+                  else if (depth==2) name <<"HE";
+                  else if (depth==3) name<<"HO";
+
 		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<depth+1<<")</td><td align=\"center\">"<<ProblemCellsByDepth.depth[depth]->getBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
 
 		  name.str("");
