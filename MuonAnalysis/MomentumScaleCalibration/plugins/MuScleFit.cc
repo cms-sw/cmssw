@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2009/10/06 08:44:00 $
-//  $Revision: 1.59 $
+//  $Date: 2009/10/07 13:13:51 $
+//  $Revision: 1.60 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -511,6 +511,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
         for( vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
           takeSelectedMuonType(muon, tracks);
         }
+        muons = fillMuonCollection(tracks);
       }
       else {
         Handle<reco::MuonCollection> allMuons;
