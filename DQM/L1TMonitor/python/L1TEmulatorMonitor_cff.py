@@ -27,19 +27,24 @@ from DQM.L1TMonitor.L1TdeGCT_cfi import *
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
+from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
+
+#Note by Nuno: use of edm filters in dqm are discouraged
+#-offline they are strictly forbidden
+#-online preliminarily allowed if not interferring w other systems
 
 #filter to select "real events"
 from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
 hltTriggerTypeFilter.SelectedTriggerType = 1
-
 
 p = cms.Path(
     cms.SequencePlaceholder("RawToDigi")
     *cms.SequencePlaceholder("L1HardwareValidation")
     *(l1demon
       +l1demonecal
-      +hltTriggerTypeFilter*l1tderct
       +l1demongct
+      #+l1decsctf
+      +hltTriggerTypeFilter*l1tderct
       )
     )
 
