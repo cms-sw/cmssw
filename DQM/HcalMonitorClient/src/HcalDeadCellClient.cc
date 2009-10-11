@@ -746,12 +746,11 @@ void HcalDeadCellClient::htmlExpertOutput(int runNo, string htmlDir, string html
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
-  int mydepth[4]={0,1,2,3};
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,(ProblemCellsByDepth.depth[mydepth[2*i]]->getTH2F()),"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,(ProblemCellsByDepth.depth[mydepth[2*i]+1]->getTH2F()),"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,(ProblemCellsByDepth.depth[2*i]->getTH2F()),"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,(ProblemCellsByDepth.depth[2*i+1]->getTH2F()),"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
 
@@ -782,8 +781,8 @@ void HcalDeadCellClient::htmlExpertOutput(int runNo, string htmlDir, string html
   for (int i=0;i<2;++i)
     {
       htmlFile << "<tr align=\"left\">" << std::endl;
-      htmlAnyHisto(runNo,DigiPresentByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,DigiPresentByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiPresentByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiPresentByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<std::endl;
     }
   htmlFile <<"</table>"<<std::endl;
@@ -801,8 +800,8 @@ void HcalDeadCellClient::htmlExpertOutput(int runNo, string htmlDir, string html
       for (int i=0;i<2;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << std::endl;
-	  htmlAnyHisto(runNo,UnoccupiedDeadCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo,UnoccupiedDeadCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,UnoccupiedDeadCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,UnoccupiedDeadCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<std::endl;
 	}
       htmlFile <<"</table>"<<std::endl;
@@ -821,8 +820,8 @@ void HcalDeadCellClient::htmlExpertOutput(int runNo, string htmlDir, string html
       for (int i=0;i<2;++i)
 	{
 	  htmlFile << "<tr align=\"left\">" << std::endl;
-	  htmlAnyHisto(runNo,BelowEnergyThresholdCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-	  htmlAnyHisto(runNo,BelowEnergyThresholdCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,BelowEnergyThresholdCellsByDepth[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+	  htmlAnyHisto(runNo,BelowEnergyThresholdCellsByDepth[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
 	  htmlFile <<"</tr>"<<std::endl;
 	}
 

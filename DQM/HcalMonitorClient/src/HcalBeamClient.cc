@@ -1,9 +1,9 @@
 #include <DQM/HcalMonitorClient/interface/HcalBeamClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <math.h>
 #include <iostream>
+#include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 
 HcalBeamClient::HcalBeamClient(){} // constructor
 
@@ -19,7 +19,7 @@ void HcalBeamClient::init(const ParameterSet& ps, DQMStore* dbe,string clientNam
   beamclient_makeDiagnostics_ = ps.getUntrackedParameter<bool>("BeamClient_makeDiagnosticPlots",false);
 
   // Set histograms to NULL
-  ProblemBeamCells=0;
+
   CenterOfEnergyRadius=0;
   CenterOfEnergy=0;
   COEradiusVSeta=0;
@@ -31,9 +31,6 @@ void HcalBeamClient::init(const ParameterSet& ps, DQMStore* dbe,string clientNam
   HOCenterOfEnergy=0;
   HFCenterOfEnergyRadius=0;
   HFCenterOfEnergy=0;
-
-  for (int i=0;i<6;++i)
-    ProblemBeamCellsByDepth[i]=0;
   
   Etsum_eta_L=0;
   Etsum_eta_S=0;
@@ -97,6 +94,33 @@ void HcalBeamClient::beginJob(){
   ievt_ = 0;
   jevt_ = 0;
   this->setup();
+
+  if (!dbe_) return;
+
+  // Set up problem cell histograms
+
+  stringstream mydir;
+  mydir<<rootFolder_<<"/BeamMonitor_Hcal";
+  dbe_->setCurrentFolder(mydir.str().c_str());
+  ProblemCells=dbe_->book2D(" ProblemBeamMonitor",
+				" Problem Beam Cell Rate for all HCAL;i#eta;i#phi",
+				85,-42.5,42.5,
+				72,0.5,72.5);
+  SetEtaPhiLabels(ProblemCells);
+  (ProblemCells->getTH2F())->SetMinimum(0);
+  (ProblemCells->getTH2F())->SetMaximum(1);
+  mydir<<"/problem_beammonitor";
+  dbe_->setCurrentFolder(mydir.str().c_str());
+
+  ProblemCellsByDepth.setup(dbe_," Problem BeamMonitor Rate");
+  for  (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
+    {
+      if (ProblemCellsByDepth.depth[d]!=0) 
+	{
+	  (ProblemCellsByDepth.depth[d]->getTH2F())->SetMinimum(0);
+	  (ProblemCellsByDepth.depth[d]->getTH2F())->SetMaximum(1);
+	}
+    }    
   return;
 } // void HcalBeamClient::beginJob(const EventSetup& eventSetup);
 
@@ -139,14 +163,6 @@ void HcalBeamClient::cleanup(void)
 {
   if(cloneME_)
     {
-      // delete individual histogram pointers
-      if (ProblemBeamCells) delete ProblemBeamCells;
-      
-      for (int i=0;i<6;++i)
-	{
-	  // delete pointers within arrays of histograms
-	  if (ProblemBeamCellsByDepth[i])   delete ProblemBeamCellsByDepth[i];
-	}
       if (beamclient_makeDiagnostics_)
 	{
 	  for (int i=0;i<83;++i)
@@ -203,7 +219,7 @@ void HcalBeamClient::cleanup(void)
     } // if (cloneME_)
 
   // Set individual pointer to NULL
-  ProblemBeamCells=0;
+  ProblemCells=0;
   CenterOfEnergyRadius=0;
   CenterOfEnergy=0;
   COEradiusVSeta=0;
@@ -216,8 +232,8 @@ void HcalBeamClient::cleanup(void)
   HFCenterOfEnergyRadius=0;
   HFCenterOfEnergy=0;
 
-  for (int i=0;i<6;++i)
-    ProblemBeamCellsByDepth[i]=0;
+  for (unsigned int i=0;i<ProblemCellsByDepth.depth.size();++i)
+    ProblemCellsByDepth.depth[i]=0;
   
   Etsum_eta_L=0;
   Etsum_eta_S=0;
@@ -295,13 +311,6 @@ void HcalBeamClient::getHistograms()
   if(!dbe_) return;
 
   ostringstream name;  
- 
-  name<<process_.c_str()<<"BeamMonitor_Hcal/ ProblemBeamCells";
-
-  ProblemBeamCells = getTH2F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
-  name.str("");
-
-  getSJ6histos("BeamMonitor_Hcal/problem_beammonitor/", " Problem BeamMonitor Rate", ProblemBeamCellsByDepth);
 
   name<<process_.c_str()<<"BeamMonitor_Hcal/CenterOfEnergyRadius";
   CenterOfEnergyRadius = getTH1F( name.str(), process_, rootFolder_, dbe_, debug_, cloneME_);
@@ -494,18 +503,16 @@ void HcalBeamClient::resetAllME()
   ostringstream name;
 
   // Reset individual histograms
-  name<<process_.c_str()<<"BeamMonitor_Hcal/ ProblemBeamCells";
-  resetME(name.str().c_str(),dbe_);
-  name.str("");
 
-  for (int i=0;i<6;++i)
+  if (ProblemCells!=0)
+    ProblemCells->Reset();
+  
+  for  (unsigned int d=0;d<ProblemCellsByDepth.depth.size();++d)
     {
-      // Reset arrays of histograms
-      name<<process_.c_str()<<"BeamMonitor_Hcal/problem_beammonitor/"<<subdets_[i]<<" Problem BeamMonitor Rate";
-      resetME(name.str().c_str(),dbe_);
-      name.str("");
+      if (ProblemCellsByDepth.depth[d]!=0) 
+	ProblemCellsByDepth.depth[d]->Reset();
     }
-
+  
   name<<process_.c_str()<<"BeamMonitor_Hcal/CenterOfEnergyRadius";
   resetME(name.str().c_str(),dbe_);
   name.str("");
@@ -713,7 +720,7 @@ void HcalBeamClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "cellpadding=\"10\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
-  htmlAnyHisto(runNo,ProblemBeamCells,"i#eta","i#phi", 92, htmlFile, htmlDir);
+  htmlAnyHisto(runNo,ProblemCells->getTH2F(),"i#eta","i#phi", 92, htmlFile, htmlDir);
   gStyle->SetPalette(1);
   htmlFile<<"</tr><tr align=\"center\" border=\"0\" cellspacing=\"0\" cellpadding=\"10\" >"<<endl;
   htmlAnyHisto(runNo,CenterOfEnergy,"normalized x coordinate","normalized y coordinate", 92, htmlFile, htmlDir);
@@ -737,44 +744,45 @@ void HcalBeamClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile <<"<td> Problem Beam Monitor Cells<br>(ieta, iphi, depth)</td><td align=\"center\"> Fraction of Events <br>in which cells are bad (%)</td></tr>"<<endl;
 
-  if (ProblemBeamCells==0)
+  if (ProblemCells==0)
     {
       if (debug_) cout <<"<HcalBeamClient::htmlOutput>  ERROR: can't find Problem Beam Monitor plot!"<<endl;
       return;
     }
-  int etabins  = ProblemBeamCells->GetNbinsX();
-  int phibins  = ProblemBeamCells->GetNbinsY();
-  float etaMin = ProblemBeamCells->GetXaxis()->GetXmin();
-  float phiMin = ProblemBeamCells->GetYaxis()->GetXmin();
 
-  int eta,phi;
+  int ieta,iphi;
 
   ostringstream name;
-  for (int depth=0;depth<6; ++depth)
+  int etabins=0, phibins=0;
+  for (unsigned int depth=0;depth<ProblemCellsByDepth.depth.size(); ++depth)
     {
-      for (int ieta=1;ieta<=etabins;++ieta)
+      for (int eta=0;eta<etabins;++eta)
         {
-          for (int iphi=1; iphi<=phibins;++iphi)
+	  ieta=CalcIeta(eta,depth+1);
+	  if (ieta==-9999) continue;
+	  for (int phi=0;phi<phibins;++phi)
             {
-              eta=ieta+int(etaMin)-1;
-              phi=iphi+int(phiMin)-1;
-	      int mydepth=depth+1;
-	      if (mydepth>4) mydepth-=4; // last two depth values are for HE depth 1,2
-	      if (ProblemBeamCellsByDepth[depth]==0)
-		{
+	      if (abs(eta)>20 && phi%2!=1) continue;
+	      if (abs(eta)>39 && phi%4!=3) continue;
+	      if (ProblemCellsByDepth.depth[depth]==0)
 		  continue;
-		}
-	      if (ProblemBeamCellsByDepth[depth]->GetBinContent(ieta,iphi)>minErrorFlag_)
+	      if (ProblemCellsByDepth.depth[depth]->getBinContent(ieta,iphi)>minErrorFlag_)
 		{
 		  if (depth<2)
-		    (fabs(eta)<29) ? name<<"HB" : name<<"HF";
-		  else if (depth==3)
-		    (fabs(eta)<42) ? name<<"HO" : name<<"ZDC";
-		  else name <<"HE";
-		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<mydepth<<")</td><td align=\"center\">"<<ProblemBeamCellsByDepth[depth]->GetBinContent(ieta,iphi)*100.<<"</td></tr>"<<endl;
+                    {
+                      if (isHB(eta,depth+1)) name <<"HB";
+                      else if (isHE(eta,depth+1)) name<<"HE";
+                      else if (isHF(eta,depth+1)) name<<"HF";
+                    }
+                  else if (depth==2) name <<"HE";
+                  else if (depth==3) name<<"HO";
 
-		  name.str("");
+		  htmlFile<<"<td>"<<name.str().c_str()<<" ("<<eta<<", "<<phi<<", "<<depth+1<<")</td><td align=\"center\">"<<ProblemCellsByDepth.depth[depth]->getBinContent(ieta,iphi)*100.<<"</td></tr>"<<std::endl;
+		  
+		  name.str("");	  name.str("");
+
 		}
+
 	    } // for (int iphi=1;...)
 	} // for (int ieta=1;...)
     } // for (int depth=0;...)
@@ -868,14 +876,11 @@ void HcalBeamClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "cellpadding=\"10\"> " << endl;
   gStyle->SetPalette(20,pcol_error_); // set palette to standard error color scheme
   
-  // Depths are stored as:  0:  HB/HF depth 1, 1:  HB/HF 2, 2:  HE 3, 3:  HO/ZDC, 4: HE 1, 5:  HE2
-  // remap so that HE depths are plotted consecutively
-  int mydepth[6]={0,1,4,5,2,3};
-  for (int i=0;i<3;++i)
+  for (unsigned int i=0;i<ProblemCellsByDepth.depth.size()/2;++i)
     {
       htmlFile << "<tr align=\"left\">" << endl;
-      htmlAnyHisto(runNo,ProblemBeamCellsByDepth[mydepth[2*i]],"i#eta","i#phi", 92, htmlFile, htmlDir);
-      htmlAnyHisto(runNo,ProblemBeamCellsByDepth[mydepth[2*i]+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemCellsByDepth.depth[2*i]->getTH2F(),"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,ProblemCellsByDepth.depth[2*i+1]->getTH2F(),"i#eta","i#phi", 92, htmlFile, htmlDir);
       htmlFile <<"</tr>"<<endl;
     }
   htmlFile <<"</table>"<<endl;
@@ -1077,17 +1082,7 @@ void HcalBeamClient::loadHistograms(TFile* infile)
 
   ostringstream name;
   // Grab individual histograms
-  name<<process_.c_str()<<"BeamMonitor_Hcal/ ProblemBeamCells";
-  ProblemBeamCells = (TH2F*)infile->Get(name.str().c_str());
-  name.str("");
-  
-  for (int i=0;i<6;++i)
-    {
-      // Grab arrays of histograms
-      name<<process_.c_str()<<"BeamMonitor_Hcal/problem_beammonitor/"<<subdets_[i]<<" Problem BeamMonitor Rate";
-      ProblemBeamCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-      name.str("");
-    }
+
   name<<process_.c_str()<<"BeamMonitor_Hcal/CenterOfEnergyRadius";
   CenterOfEnergyRadius =  (TH1F*)infile->Get(name.str().c_str());
   name.str("");
