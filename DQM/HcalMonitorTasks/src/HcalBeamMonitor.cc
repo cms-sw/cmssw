@@ -218,8 +218,6 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       Etsum_rphi_S=m_dbe->book2D("EtSum 2D phi and radius Short Fiber","Et Sum 2D phi and radius Short Fiber",12, radiusbins, 70, phibins);
       Etsum_rphi_L=m_dbe->book2D("EtSum 2D phi and radius Long Fiber","Et Sum 2D phi and radius Long Fiber",12, radiusbins, 70, phibins);
 
-
-      // Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",84,-42,42,36,0.5,72.5);
       Etsum_ratio_map=m_dbe->book2D("Abnormal fm","Abnormal fm",
 				    8,0,8,36, 0.5,72.5);
       Etsum_ratio_map->getTH2F()->GetXaxis()->SetBinLabel(1,"-36");
