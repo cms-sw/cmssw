@@ -11,6 +11,7 @@
 #include "TKey.h"
 #include "TClass.h"
 #include <iterator>
+#include <cerrno>
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
