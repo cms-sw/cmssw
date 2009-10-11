@@ -189,7 +189,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
 					  36,-0.5,35.5);
 
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/digi_occupancy");
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/bad_digi_occupancy");
 
       DigiErrorVME = m_dbe->book2D("Digi VME Error Map",
 				  "Digi VME Error Map",

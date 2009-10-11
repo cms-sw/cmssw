@@ -63,21 +63,6 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
 
       m_dbe->setCurrentFolder(baseFolder_);
       meEVT_ = m_dbe->bookInt("BeamMonitor Event Number");
-      // Basic Problem Cells
-      ProblemBeamCells=m_dbe->book2D(" ProblemBeamCells",
-                                     " Problem Beam Cell Rate for all HCAL",
-                                     etaBins_,etaMin_,etaMax_,
-                                     phiBins_,phiMin_,phiMax_);
-      ProblemBeamCells->setAxisTitle("i#eta",1);
-      ProblemBeamCells->setAxisTitle("i#phi",2);
-      // Only show problem cells that are above problem threshold
-      //(ProblemBeamCells->getTH2F())->SetMinimum(beammon_minErrorFlag_);
-      (ProblemBeamCells->getTH2F())->SetMinimum(0);
-      (ProblemBeamCells->getTH2F())->SetMaximum(1.);
-      
-      // Overall Problem plot appears in main directory; plots by depth appear \in subdirectory
-      m_dbe->setCurrentFolder(baseFolder_+"/problem_beammonitor");
-      setupDepthHists2D(ProblemBeamCellsByDepth, " Problem BeamMonitor Rate","");
 
       //jason's
       m_dbe->setCurrentFolder(baseFolder_);

@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/07/06 10:51:54 $
-  * $Revision: 1.6 $
+  * $Date: 2009/10/07 16:52:48 $
+  * $Revision: 1.7 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -44,10 +44,6 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   std::map<int,MonitorElement* > HE_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HF_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HO_CenterOfEnergyRadius;
-
-
-  MonitorElement* ProblemBeamCells;
-  std::vector<MonitorElement*> ProblemBeamCellsByDepth;
 
   MonitorElement* CenterOfEnergyRadius;
   MonitorElement* CenterOfEnergy;
