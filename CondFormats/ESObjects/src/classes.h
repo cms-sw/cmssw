@@ -13,6 +13,7 @@
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatusCode.h"
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
 
 namespace{
   struct dictionary {
@@ -38,5 +39,7 @@ namespace{
     ESChannelStatus channelStatus;
 
     ESThresholds threshold; 
+
+    ESGain gain;
   };
 }

@@ -23,6 +23,9 @@
 #include "CondFormats/ESObjects/interface/ESADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/ESADCToGeVConstantRcd.h"
 
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
+
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
 #include "CondFormats/DataRecord/interface/ESThresholdsRcd.h"
 

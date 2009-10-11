@@ -17,6 +17,8 @@
 
 <class name="ESThresholds"/>
 
+<class name="ESGain"/>
+
 <class name="ESIntercalibConstants"/>
 
 <class name="ESEEIntercalibConstants"/>
