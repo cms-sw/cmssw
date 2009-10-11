@@ -164,8 +164,6 @@ public:
   void			start(void);
   void			run(void);
 
-  virtual void		updateLocalObject(Object &o);
-  virtual bool		removeLocalExcept(const std::set<std::string> &known);
   void			sendLocalChanges(void);
 
   static bool setOrder(const CoreObject &a, const CoreObject &b)
@@ -178,7 +176,7 @@ public:
 
   struct HashOp
   {
-    bool operator()(const Object &a) const
+    uint32_t operator()(const Object &a) const
       {
         return a.hash;
       }
@@ -574,9 +572,9 @@ class DQMBasicNet : public DQMImplNet<DQMNet::Object>
 public:
   DQMBasicNet(const std::string &appname = "");
 
-protected:
-  virtual void		updateLocalObject(Object &o);
-  virtual bool		removeLocalExcept(const std::set<std::string> &known);
+  void			reserveLocalSpace(uint32_t size);
+  void			updateLocalObject(Object &o);
+  bool			removeLocalExcept(const std::set<std::string> &known);
 
 private:
   ImplPeer		*local_;

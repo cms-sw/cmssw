@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <iostream>
+#include <sstream>
 #include <cassert>
 #include <cfloat>
 #include <inttypes.h>
@@ -1333,19 +1334,6 @@ DQMNet::run(void)
   }
 }
 
-void
-DQMNet::updateLocalObject(Object &o)
-{
-  logme() << "ERROR: updateLocalObject() method is not supported.\n";
-}
-
-bool
-DQMNet::removeLocalExcept(const std::set<std::string> &known)
-{
-  logme() << "ERROR: removeLocalExcept() method is not supported.\n";
-  return false;
-}
-
 // Tell the network cache that there have been local changes that
 // should be advertised to the downstream listeners.
 void
@@ -1364,23 +1352,26 @@ DQMBasicNet::DQMBasicNet(const std::string &appname /* = "" */)
   local_ = static_cast<ImplPeer *>(createPeer((Socket *) -1));
 }
 
+/// Give a hint of how much capacity to allocate for local objects.
+void
+DQMBasicNet::reserveLocalSpace(uint32_t size)
+{
+  local_->objs.resize(size);
+}
+
 /// Update the network cache for an object.  The caller must call
 /// sendLocalChanges() later to push out the changes.
 void
 DQMBasicNet::updateLocalObject(Object &o)
 {
-  ObjectMap::iterator pos = local_->objs.find(o);
-  if (pos == local_->objs.end())
-  {
-    o.dirname = &*local_->dirs.insert(*o.dirname).first;
-    local_->objs.insert(o).first;
-  }
-  else
+  o.dirname = &*local_->dirs.insert(*o.dirname).first;
+  std::pair<ObjectMap::iterator, bool> info(local_->objs.insert(o));
+  if (! info.second)
   {
     // Somewhat hackish. Sets are supposedly immutable, but we
     // need to change the non-key parts of the object. Erasing
     // and re-inserting would produce too much memory churn.
-    Object &old = const_cast<Object &>(*pos);
+    Object &old = const_cast<Object &>(*info.first);
     std::swap(old.flags,     o.flags);
     std::swap(old.tag,       o.tag);
     std::swap(old.version,   o.version);
