@@ -255,7 +255,12 @@ void HcalBaseClient::getEtaPhiHists(std::string rootdir, std::string dir, std::s
   hname <<process_.c_str()<<rootdir<<"/"<<dir<<"HB HE HF Depth 1 "<<name;
   if (!units.empty()) hname<<" "<<units;
   me= dbe_->get(hname.str().c_str());
-  if (me!=0) h[0]=me->getTH2F();
+  if (me!=0) 
+    {
+      h[0]=me->getTH2F();
+      if (debug_>1) cout <<"Got EtaPhi Histogram "<<hname.str().c_str()<<endl;
+    }
+  else if (debug_>1) cout <<"SORRY, COULD NOT GET ETAPHI HIST "<<hname.str().c_str()<<endl;
   hname.str("");
 
   hname <<process_.c_str()<<rootdir<<"/"<<dir<<"HB HE HF Depth 2 "<<name;
