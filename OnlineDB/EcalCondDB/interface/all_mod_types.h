@@ -14,6 +14,7 @@
 #include "OnlineDB/EcalCondDB/interface/MODCCSTRDat.h"
 #include "OnlineDB/EcalCondDB/interface/MODCCSFEDat.h"
 #include "OnlineDB/EcalCondDB/interface/MODCCSHFDat.h"
+#include "OnlineDB/EcalCondDB/interface/MODDCCOperationDat.h"
 
 #endif
 
