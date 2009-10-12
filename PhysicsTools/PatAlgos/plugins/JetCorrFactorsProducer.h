@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.h,v 1.6 2009/04/09 15:22:29 rwolf Exp $
+// $Id: JetCorrFactorsProducer.h,v 1.7 2009/05/07 21:07:23 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_JetCorrFactorsProducer_h
@@ -18,7 +18,7 @@
    created in the PAT Layer-1.
 
   \author   Steven Lowette
-  \version  $Id: JetCorrFactorsProducer.h,v 1.6 2009/04/09 15:22:29 rwolf Exp $
+  \version  $Id: JetCorrFactorsProducer.h,v 1.7 2009/05/07 21:07:23 hegner Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -71,6 +71,7 @@ namespace pat {
       /// configurables
       bool useEMF_;
       edm::InputTag jetsSrc_;
+      std::string jetCorrSet_;
 
       /// constructor strings for 
       /// the CombinedJetCorrector
