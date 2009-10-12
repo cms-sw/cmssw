@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.18 2008/07/03 00:11:06 heltsley Exp $
+ *  $Id: EEDetId.h,v 1.20 2008/09/30 17:39:09 heltsley Exp $
  */
 
 
@@ -81,6 +81,11 @@ class EEDetId : public DetId {
       /// check if a valid index combination
       static bool validDetId( int i, int j, int iz ) ;
 
+      //return the distance in x units between two EEDetId
+      static int distanceX(const EEDetId& a,const EEDetId& b); 
+      //return the distance in y units between two EEDetId
+      static int distanceY(const EEDetId& a,const EEDetId& b); 
+      
       static const int IX_MIN =1;
       static const int IY_MIN =1;
       static const int IX_MAX =100;

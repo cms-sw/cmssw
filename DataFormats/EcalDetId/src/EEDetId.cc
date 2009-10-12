@@ -544,6 +544,16 @@ EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz)
    return valid;
 }
 
+int EEDetId::distanceX(const EEDetId& a,const EEDetId& b)
+{
+    return abs(a.ix()-b.ix());
+}
+
+int EEDetId::distanceY(const EEDetId& a,const EEDetId& b)
+{
+  return abs(a.iy() - b.iy()); 
+}
+
 std::ostream& operator<<(std::ostream& s,const EEDetId& id) 
 {
    return s << "(EE iz " << ((id.zside()>0)?("+ "):("- ")) 

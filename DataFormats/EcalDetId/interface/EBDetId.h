@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.23 2008/10/15 15:14:15 heltsley Exp $
+ *  $Id: EBDetId.h,v 1.24 2009/01/28 16:23:16 elmer Exp $
  */
 
 
@@ -91,6 +91,11 @@ class EBDetId : public DetId {
   static bool isNextToEtaBoundary(EBDetId id);
 
   static bool isNextToPhiBoundary(EBDetId id);
+
+  //return the distance in eta units between two EBDetId
+  static int distanceEta(const EBDetId& a,const EBDetId& b); 
+  //return the distance in phi units between two EBDetId
+  static int distancePhi(const EBDetId& a,const EBDetId& b); 
 
   /// range constants
   static const int MIN_IETA = 1;

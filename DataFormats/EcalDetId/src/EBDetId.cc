@@ -127,6 +127,21 @@ bool EBDetId::isNextToPhiBoundary(EBDetId id) {
         return iphi == 1 || iphi == 20;
 }
 
+int EBDetId::distanceEta(const EBDetId& a,const EBDetId& b)
+{
+  if (a.ieta() * b.ieta() > 0)
+    return abs(a.ieta()-b.ieta());
+  else
+    return abs(a.ieta()-b.ieta())-1;
+}
+
+int EBDetId::distancePhi(const EBDetId& a,const EBDetId& b)
+{
+  if (abs(a.iphi() -b.iphi()) > 180)
+    return abs(a.iphi() - b.iphi()) - 180;
+  else
+    return abs(a.iphi()-b.iphi());
+}
 
   
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
