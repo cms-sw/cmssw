@@ -171,9 +171,9 @@ if __name__ == "__main__":
                                 logPrefix + prettyName + '_' + prettyLabel,
                                 compareCmd)
             if options.relative:
-                fullCompareCommand += ' --relative'
+                fullCompareCmd += ' --relative'
             elif options.absolute:
-                fullCompareCommand += ' --absolute'
+                fullCompareCmd += ' --absolute'
             if options.verbose:
                 print "comparing EDProdct %s %s" % (name, obj.label())
             os.system (fullCompareCmd)
