@@ -1093,48 +1093,6 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
       "HcalMonitorClient: this histogram file is bad! " <<endl;
     return;
   }
-  /*
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/RUN NUMBER");
-  string s =tnd->GetTitle();
-  irun_ = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &irun_);
-  
-  tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/EVT NUMBER");
-  s =tnd->GetTitle();
-  mon_evt_ = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &mon_evt_);
-
-  tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/EVT MASK");
-  s =tnd->GetTitle();
-  int mask = -1;
-  sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &mask);
-  
-  if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM RUN";
-  if(mask&DO_HCAL_PED_CALIBMON){ runtype_ = "PEDESTAL RUN";
-    if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM AND PEDESTALS";
-  }
-  if(mask&DO_HCAL_LED_CALIBMON) runtype_ = "LED RUN";
-  if(mask&DO_HCAL_LASER_CALIBMON) runtype_ = "LASER RUN";
-  
-  status_="unknown";
-  tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/EVT MASK");
-  s = tnd->GetTitle();
-  status_ = "unknown";
-  if( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-  if( s.substr(2,1) == "1" ) status_ = "running";
-  if( s.substr(2,1) == "2" ) status_ = "end-of-run";
-  
-
-  if(hot_client_)          hot_client_->loadHistograms(infile);
-  if(dead_client_)         dead_client_->loadHistograms(infile);
-  if(dataformat_client_)   dataformat_client_->loadHistograms(infile);
-  if(rechit_client_)       rechit_client_->loadHistograms(infile);
-  if(digi_client_)         digi_client_->loadHistograms(infile);
-  if(pedestal_client_)     pedestal_client_->loadHistograms(infile);
-  if(led_client_)          led_client_->loadHistograms(infile);
-  if(laser_client_)        laser_client_->loadHistograms(infile);
-  if(beam_client_)         beam_client_->loadHistograms(infile);
- */
   return;
 
 }
@@ -1144,18 +1102,6 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
   
   hist1d.clear(); 
   hist2d.clear(); 
-
-  /*
-  if(hot_client_)        hot_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(dead_client_)       dead_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(dataformat_client)  dataformat_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(rechit_client_)     rechit_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(digi_client_)       digi_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(pedestal_client_)   pedestal_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(led_client_)        led_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(laser_client_)      laser_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(beam_client_)       beam_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  */
  return;
 }
 

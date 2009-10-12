@@ -849,76 +849,7 @@ void HcalDeadCellClient::htmlExpertOutput(int runNo, string htmlDir, string html
 
 void HcalDeadCellClient::loadHistograms(TFile* infile)
 {
-  stringstream name;
-  name<<"DQMData/"<<rootFolder_<<"/DeadCellMonitor_Hcal/Dead Cell Task Event Number";
-  TNamed* tnd = (TNamed*)infile->Get(name.str().c_str());
-  if(tnd)
-    {
-      string s =tnd->GetTitle();
-      ievt_ = -1;
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    }
-
-  name.str("");
-  
-  for (unsigned int i=0;i<4;++i)
-    {
-      // Grab arrays of histograms
-      name.str("");
-      name<<process_.c_str()<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_digi_never_present/"<<subdets_[i]<<"Digi Present At Least Once";
-      DigiPresentByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-      name.str("");
-
-      if (deadclient_test_occupancy_)
-	{
-	  name<<process_.c_str()<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_digi_often_missing/"<<subdets_[i]<<"Dead Cells with No Digis";
-	  UnoccupiedDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-	  name.str("");
-	}
-
-      if (deadclient_test_energy_)
-	{
-	  name<<process_.c_str()<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
-	  BelowEnergyThresholdCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-	  name.str("");
-	}
-
-    } //for (int i=0;i<4;++i)
-
-  NumberOfDeadCells= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/TotalDeadCells_HCAL_vs_LS").c_str());
-  NumberOfDeadCellsHB= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/Problem_DeadCells_HB_vs_LS").c_str());
-  NumberOfDeadCellsHE= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/Problem_DeadCells_HE_vs_LS").c_str());
-  NumberOfDeadCellsHO= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/Problem_DeadCells_HO_vs_LS").c_str());
-  NumberOfDeadCellsHF= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/Problem_DeadCells_HF_vs_LS").c_str());
-
-  NumberOfNeverPresentCells= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HCAL_vs_LS").c_str());
-  NumberOfNeverPresentCellsHB= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HB_vs_LS").c_str());
-  NumberOfNeverPresentCellsHE= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HE_vs_LS").c_str());
-  NumberOfNeverPresentCellsHO= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HO_vs_LS").c_str());
-  NumberOfNeverPresentCellsHF= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_never_present/Problem_NeverPresentCells_HF_vs_LS").c_str());
-
-  if (deadclient_test_occupancy_)
-    {
-      NumberOfUnoccupiedCells= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HCAL_vs_LS").c_str());
-      NumberOfUnoccupiedCellsHB= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HB_vs_LS").c_str());
-      NumberOfUnoccupiedCellsHE= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HE_vs_LS").c_str());
-      NumberOfUnoccupiedCellsHO= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HO_vs_LS").c_str());
-      NumberOfUnoccupiedCellsHF= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_digi_often_missing/Problem_UnoccupiedCells_HF_vs_LS").c_str());
-    }
-  if (deadclient_test_energy_)
-    {
-      NumberOfBelowEnergyCells= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HCAL_vs_LS").c_str());
-      NumberOfBelowEnergyCellsHB= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HB_vs_LS").c_str());
-      NumberOfBelowEnergyCellsHE= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HE_vs_LS").c_str());
-      NumberOfBelowEnergyCellsHO= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HO_vs_LS").c_str());
-      NumberOfBelowEnergyCellsHF= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energytest/Problem_BelowEnergyCells_HF_vs_LS").c_str());
-
-      NumberOfEnergyNeverPresentCells= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HCAL_vs_LS").c_str());
-      NumberOfEnergyNeverPresentCellsHB= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HB_vs_LS").c_str());
-      NumberOfEnergyNeverPresentCellsHE= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HE_vs_LS").c_str());
-      NumberOfEnergyNeverPresentCellsHO= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HO_vs_LS").c_str());
-      NumberOfEnergyNeverPresentCellsHF= (TProfile*)infile->Get((process_+rootFolder_+"/DeadCellMonitor_Hcal/dead_energy_neverpresent/Problem_EnergyNeverPresentCells_HF_vs_LS").c_str());
-    }
+  // deprecated function; no longer needed
   return;
 } // void HcalDeadCellClient::loadHistograms(...)
 

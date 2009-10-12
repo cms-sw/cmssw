@@ -711,48 +711,7 @@ ofstream htmlFile;
 
 void HcalPedestalClient::loadHistograms(TFile* infile)
 {
-  TNamed* tnd = (TNamed*)infile->Get("DQMData/Hcal/BaselineMonitor_Hcal/Pedestal Task Event Number");
-  if(tnd)
-    {
-      string s =tnd->GetTitle();
-      ievt_ = -1;
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
-    }
-
-   ostringstream name;
-  // Grab individual histograms
-  name<<process_.c_str()<<"BaselineMonitor_Hcal/ ProblemPedestals";
-  ProblemPedestals = (TH2F*)infile->Get(name.str().c_str());
-  name.str("");
-  
-  for (int i=0;i<4;++i)
-    {
-      // Grab arrays of histograms
-      name<<process_.c_str()<<"BaselineMonitor_Hcal/problem_pedestals/"<<subdets_[i]<<" Problem Pedestal Rate";
-      ProblemPedestalsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-      name.str("");
-
-      // Overall Pedestal Map Plots
-      name<<process_.c_str()<<"BaselineMonitor_Hcal/"<<subdets_[i]<<"Pedestal Mean Map ADC";
-      MeanMapByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-      name.str("");
-      
-      name<<process_.c_str()<<"BaselineMonitor_Hcal/"<<subdets_[i]<<"Pedestal RMS Map ADC";
-      RMSMapByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
-      name.str("");
-      
-      for( HistMap1D_t::iterator it = histMap1D.begin(); it != histMap1D.end(); ++it ){
-	name << process_.c_str() << it->second.file << subdets_[i] << it->second.name;
-	it->second.hist[i] = (TH1F*)infile->Get(name.str().c_str());
-	name.str("");
-      }
-      for( HistMap2D_t::iterator it = histMap2D.begin(); it != histMap2D.end(); ++it ){
-	name << process_.c_str() << it->second.file << subdets_[i] << it->second.name;
-	it->second.hist[i] = (TH2F*)infile->Get(name.str().c_str());
-	name.str("");
-      }
-
-    } //for (int i=0;i<4;++i)
+  // deprecated function; no longer used
   return;
 } // void HcalPedestalClient::loadHistograms(...)
 
