@@ -60,6 +60,11 @@ parser.add_option("--trackeralignment",
                   type="string",
                   default="Alignments",
                   dest="trackeralignment")
+parser.add_option("--trackerAPEconnect",
+                  help="Connect string for tracker alignment (frontier:// or sqlite_file:)",
+                  type="string",
+                  default="",
+                  dest="trackerAPEconnect")
 parser.add_option("--trackerAPE",
                   help="Name of TrackerAlignmentErrorRcd tag",
                   type="string",
@@ -127,6 +132,7 @@ mapplots = options.mapplots
 globaltag = options.globaltag
 trackerconnect = options.trackerconnect
 trackeralignment = options.trackeralignment
+trackerAPEconnect = options.trackerAPEconnect
 trackerAPE = options.trackerAPE
 iscosmics = str(options.iscosmics)
 station123params = options.station123params
@@ -191,6 +197,7 @@ export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
 export ALIGNMENT_TRACKERALIGNMENT=%(trackeralignment)s
+export ALIGNMENT_TRACKERAPECONNECT=%(trackerAPEconnect)s
 export ALIGNMENT_TRACKERAPE=%(trackerAPE)s
 export ALIGNMENT_ISCOSMICS=%(iscosmics)s
 export ALIGNMENT_STATION123PARAMS=%(station123params)s
@@ -257,6 +264,7 @@ export ALIGNMENT_GLOBALTAG=%(globaltag)s
 export ALIGNMENT_INPUTDB=%(inputdb)s
 export ALIGNMENT_TRACKERCONNECT=%(trackerconnect)s
 export ALIGNMENT_TRACKERALIGNMENT=%(trackeralignment)s
+export ALIGNMENT_TRACKERAPECONNECT=%(trackerAPEconnect)s
 export ALIGNMENT_TRACKERAPE=%(trackerAPE)s
 export ALIGNMENT_ISCOSMICS=%(iscosmics)s
 export ALIGNMENT_STATION123PARAMS=%(station123params)s

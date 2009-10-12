@@ -9,6 +9,7 @@ globaltag = os.environ["ALIGNMENT_GLOBALTAG"]
 inputdb = os.environ["ALIGNMENT_INPUTDB"]
 trackerconnect = os.environ["ALIGNMENT_TRACKERCONNECT"]
 trackeralignment = os.environ["ALIGNMENT_TRACKERALIGNMENT"]
+trackerAPEconnect = os.environ["ALIGNMENT_TRACKERAPECONNECT"]
 trackerAPE = os.environ["ALIGNMENT_TRACKERAPE"]
 iscosmics = (os.environ["ALIGNMENT_ISCOSMICS"] == "True")
 station123params = os.environ["ALIGNMENT_STATION123PARAMS"]
@@ -50,11 +51,11 @@ if mapplots:
     process.load("Alignment.CommonAlignmentMonitor.AlignmentMonitorMuonSystemMap1D_cfi")
     process.looper.monitorConfig = cms.PSet(monitors = cms.untracked.vstring("AlignmentMonitorMuonSystemMap1D"),
                                             AlignmentMonitorMuonSystemMap1D = process.AlignmentMonitorMuonSystemMap1D)
-    process.looper.monitorConfig.minTrackPt = minTrackPt
-    process.looper.monitorConfig.maxTrackPt = maxTrackPt
-    process.looper.monitorConfig.minTrackerHits = minTrackerHits
-    process.looper.monitorConfig.maxTrackerRedChi2 = maxTrackerRedChi2
-    process.looper.monitorConfig.allowTIDTEC = allowTIDTEC
+    process.looper.monitorConfig.minTrackPt = cms.double(minTrackPt)
+    process.looper.monitorConfig.maxTrackPt = cms.double(maxTrackPt)
+    process.looper.monitorConfig.minTrackerHits = cms.int32(minTrackerHits)
+    process.looper.monitorConfig.maxTrackerRedChi2 = cms.double(maxTrackerRedChi2)
+    process.looper.monitorConfig.allowTIDTEC = cms.bool(allowTIDTEC)
     process.looper.monitorConfig.minDT13Hits = process.looper.algoConfig.minDT13Hits
     process.looper.monitorConfig.minDT2Hits = process.looper.algoConfig.minDT2Hits
     process.looper.monitorConfig.minCSCHits = process.looper.algoConfig.minCSCHits
@@ -80,13 +81,16 @@ if trackerconnect != "":
     process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
                                                    CondDBSetup,
                                                    connect = cms.string(trackerconnect),
-                                                   toGet = cms.VPSet())
-    if trackeralignment != "":
-        process.TrackerAlignmentInputDB.toGet.append(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment)))
-    if trackerAPE != "":
-        process.TrackerAlignmentInputDB.toGet.append(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE))))
-
+                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment))))
     process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
+
+if trackerAPEconnect != "":
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    process.TrackerAlignmentErrorInputDB = cms.ESSource("PoolDBESSource",
+                                                   CondDBSetup,
+                                                   connect = cms.string(trackerAPEconnect),
+                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string(trackerAPE)))))
+    process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
 
 process.looper.saveToDB = False
 process.looper.saveApeToDB = False
