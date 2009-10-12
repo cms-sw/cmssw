@@ -161,7 +161,8 @@ void HcalBeamClient::setup(void)
 
 void HcalBeamClient::cleanup(void) 
 {
-  if(cloneME_)
+  // leave deletions to framework
+  if(1<0 && cloneME_)
     {
       if (beamclient_makeDiagnostics_)
 	{
