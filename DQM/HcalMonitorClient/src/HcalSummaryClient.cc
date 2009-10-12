@@ -1092,7 +1092,7 @@ void HcalSummaryClient::htmlStatusDumpText(std::string name, SubTaskSummaryStatu
 {
   htmlFile <<name<<" Status:";
   int totalcells=0;
-  int badcells=0;
+  double badcells=0;
   for (unsigned int i=0;i<4;++i)
     {
       if (i==0) htmlFile <<"  HB: ";
