@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/08 12:22:26 $
- * $Revision: 1.136 $
+ * $Date: 2009/10/11 16:15:28 $
+ * $Revision: 1.137 $
  * \author W Fisher
  * \author J Temple
  *
@@ -513,6 +513,10 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
   // to mark bad channels; we can simply call the 'fill_Nevents' method at the end of the run.
   if (digiMon_!=NULL) // try to fill at end of run
     digiMon_->fill_Nevents();
+
+  // Ditto for rechit monitor
+  if (rhMon_!=NULL)
+    rhMon_->fillNevents();
 
   /////////////////////////////////////////////////////
   if(detDiagLas_!=NULL) detDiagLas_->fillHistos();
