@@ -9,8 +9,10 @@ jetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
      ## tags for the jet correctors; when not available the
      ## string should be set to 'none'                                 
      L1Offset   = cms.string('none'),
-     L2Relative = cms.string('Summer09_L2Relative_AK5Calo'),
-     L3Absolute = cms.string('Summer09_L3Absolute_AK5Calo'),
+#    L2Relative = cms.string('Summer09_L2Relative_AK5Calo'),
+     L2Relative = cms.string('Summer09_7TeV_L2Relative_IC5Calo'), ## this is still IC to consistent with the CMSSW_3_1_4 plain
+#    L3Absolute = cms.string('Summer09_L3Absolute_AK5Calo'),
+     L3Absolute = cms.string('Summer09_7TeV_L3Absolute_IC5Calo'), ## this is still IC to consistent with the CMSSW_3_1_4 plain
      L4EMF      = cms.string('none'),
      L5Flavor   = cms.string('L5Flavor_IC5'),  # to be changed to L5Flavor   = cms.string('L5Flavor_AK5'),
      L6UE       = cms.string('none'),

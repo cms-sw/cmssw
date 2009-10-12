@@ -5,8 +5,10 @@ from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 
 # MET correction for JES
 from JetMETCorrections.Type1MET.MetType1Corrections_cff import *
-from JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff import *
-metJESCorAK5CaloJet.corrector = cms.string('L2L3JetCorrectorAK5Calo')
+#from JetMETCorrections.Configuration.L2L3Corrections_Summer09_cff import *
+#metJESCorAK5CaloJet.corrector = cms.string('L2L3JetCorrectorAK5Calo')
+from JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_cff import *
+metJESCorIC5CaloJet.corrector = cms.string('L2L3JetCorrectorIC5Calo') ## this is still IC to consistent with the CMSSW_3_1_4 plain
 patJetCorrections = cms.Sequence(jetCorrFactors)
 
 # MET correction for Muons
