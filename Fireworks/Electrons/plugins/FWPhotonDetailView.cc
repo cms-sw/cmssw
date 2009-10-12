@@ -1,7 +1,7 @@
 //
 // Package:     Calo
 // Class  :     FWPhotonDetailView
-// $Id: FWPhotonDetailView.cc,v 1.17 2009/10/08 18:23:14 amraktad Exp $
+// $Id: FWPhotonDetailView.cc,v 1.18 2009/10/12 14:36:26 amraktad Exp $
 
 #include "TLatex.h"
 #include "TEveCalo.h"
@@ -34,6 +34,7 @@ m_viewer(0)
 
 FWPhotonDetailView::~FWPhotonDetailView()
 {
+   getEveWindow()->DestroyWindow();
 }
 
 //

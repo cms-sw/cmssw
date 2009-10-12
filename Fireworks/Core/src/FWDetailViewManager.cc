@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.48 2009/10/07 19:18:01 amraktad Exp $
+// $Id: FWDetailViewManager.cc,v 1.49 2009/10/08 17:44:11 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -76,7 +76,7 @@ FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
 FWDetailViewManager::~FWDetailViewManager()
 {
    if (m_detailView != 0)
-      m_detailView->getEveWindow()->DestroyWindow();
+      delete m_detailView;
 }
 
 void
@@ -84,7 +84,6 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id)
 {
    if (m_detailView != 0)
    {
-      m_detailView->getEveWindow()->DestroyWindow();
       delete m_detailView;
    }
 

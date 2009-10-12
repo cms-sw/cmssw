@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.13 2009/09/24 20:19:08 amraktad Exp $
+// $Id: FWMuonDetailView.cc,v 1.14 2009/10/08 17:40:04 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -31,11 +31,13 @@
 //
 FWMuonDetailView::FWMuonDetailView():
 m_viewer(0)
-{
+{ 
+   getEveWindow()->DestroyWindow();
 }
 
 FWMuonDetailView::~FWMuonDetailView()
 {
+   getEveWindow()->DestroyWindow();
 }
 
 //

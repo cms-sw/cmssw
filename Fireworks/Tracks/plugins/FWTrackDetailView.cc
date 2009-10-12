@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWTrackDetailView
-// $Id: FWTrackDetailView.cc,v 1.22 2009/10/07 19:16:05 amraktad Exp $
+// $Id: FWTrackDetailView.cc,v 1.23 2009/10/08 17:39:57 amraktad Exp $
 //
 
 #include "TEveLegoEventHandler.h"
@@ -36,6 +36,7 @@ m_hitsView(0)
 
 FWTrackDetailView::~FWTrackDetailView()
 {
+   getEveWindow()->DestroyWindow();
    delete m_hitsView;
 }
 
