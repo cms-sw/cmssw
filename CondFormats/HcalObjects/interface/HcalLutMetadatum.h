@@ -18,7 +18,7 @@ class HcalLutMetadatum
       mId(fid), 
       mRCalib(rCalib),
       mLutGranularity(lutGranularity),
-      mOutputLutThreshold() {}
+      mOutputLutThreshold(outputLutThreshold) {}
 
   uint32_t rawId() const {return mId;}
 
