@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "MC_31X_V9::All"
+#process.prefer("GlobalTag")
+
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
-process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
@@ -17,19 +18,26 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
+process.ZeroGeom = cms.ESSource("PoolDBESSource",CondDBSetup,
+								connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
+								timetype = cms.string("runnumber"),
+								toGet = cms.VPSet(
+											cms.PSet(
+												record = cms.string('TrackerAlignmentRcd'),
+												tag = cms.string('TrackerIdealGeometry210_mc')
+								))
+							)
 process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-							   connect = cms.string('frontier://FrontierProd/CMS_COND_21X_ALIGNMENT'),
-							   timetype = cms.string("runnumber"),
-							   toGet = cms.VPSet(
-												 cms.PSet(
-														  record = cms.string('TrackerAlignmentRcd'),
-														  tag = cms.string('Tracker10pbScenario210_mc')
-														  ), 
-												 cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-														  tag = cms.string('Tracker10pbScenarioErrors210_mc')
-														  ))
-							   )
-
+								connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
+								timetype = cms.string("runnumber"),
+								toGet = cms.VPSet(
+											cms.PSet(
+												record = cms.string('TrackerAlignmentErrorRcd'),
+												tag = cms.string('TrackerIdealGeometryErrors210_mc')
+											))
+								)
+process.es_prefer_ZeroGeom = cms.ESPrefer("PoolDBESSource", "ZeroGeom")
+process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 
 process.source = cms.Source("EmptySource")
 
@@ -37,7 +45,7 @@ process.maxEvents = cms.untracked.PSet(
 									   input = cms.untracked.int32(0)
 )
 process.dump = cms.EDFilter("TrackerGeometryIntoNtuples",
-							outputFile = cms.untracked.string('outputTree.root'),
+							outputFile = cms.untracked.string('testInputGeometry.root'),
 							outputTreename = cms.untracked.string('alignTree')
 )
 
