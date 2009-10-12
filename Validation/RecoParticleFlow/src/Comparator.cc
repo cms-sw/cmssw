@@ -565,6 +565,31 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
 
     break;
   case EFF:
+    if(s0_)
+      Styles::FormatHisto( h0_ , s0_);
+    if(s1_)
+      Styles::FormatHisto( h1_ , s1_);
+
+    // rather arbitrary but useful
+    float max= h0_->GetMaximum();
+    if ( h1_->GetMaximum() > max )
+      max = h1_->GetMaximum();
+    if(max > 0.8) max = 1;
+    
+    max *= 1.1 ;
+
+    float min= h0_->GetMinimum();
+    if ( h1_->GetMinimum() < min )
+      min = h1_->GetMinimum();
+    if(min > 0.2) min = 0.;
+
+    min *= 0.8 ;
+    h0_->SetMaximum( max );
+    h0_->SetMinimum( min );
+
+    h0_->Draw("E");
+    h1_->Draw("Esame");
+    break;
   case GRAPH:
     if(s0_)
       Styles::FormatHisto( h0_ , s0_);
