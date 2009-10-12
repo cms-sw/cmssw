@@ -215,7 +215,7 @@ void SiStripCertificationInfo::fillTrackingCertificationMEs() {
     fillDummyTrackingCertification();
     return;
   }    
-  vector<MonitorElement*> all_mes = dqmStore_->getContents(tk_dir+"EventInfo/reportSummaryContents");
+  vector<MonitorElement*> all_mes = dqmStore_->getContents(tk_dir+"/EventInfo/reportSummaryContents");
   float fval = 1.0;
   for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
       it!= all_mes.end(); it++) {
