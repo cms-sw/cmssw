@@ -953,6 +953,8 @@ void HcalDigiMonitor::fill_Nevents()
     }
   FillUnphysicalHEHFBins(DigiErrorsBadDigiSize);
   FillUnphysicalHEHFBins(DigiOccupancyByDepth);
+  FillUnphysicalHEHFBins(DigiErrorsBadFibBCNOff);
+  FillUnphysicalHEHFBins(DigiErrorsUnpacker);
 
   zeroCounters(); // reset counters of good/bad digis
   if (showTiming)
