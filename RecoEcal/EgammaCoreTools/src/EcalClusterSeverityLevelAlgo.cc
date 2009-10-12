@@ -18,8 +18,7 @@ float EcalClusterSeverityLevelAlgo::goodFraction( const reco::CaloCluster & clus
                         edm::LogError("EcalClusterSeverityLevelAlgo") << "The cluster DetId " << id.rawId() << " is not in the recHit collection!!";
                         return -1;
                 }
-                uint32_t flag = (*jrh).recoFlag();
-                uint32_t sev = EcalSeverityLevelAlgo::severityLevel( flag, retrieveDBStatus(id,chStatus) );
+                uint32_t sev = EcalSeverityLevelAlgo::severityLevel((*jrh), chStatus );
 		//                if ( sev == EcalSeverityLevelAlgo::kBad ) ++recoveryFailed;
                 if ( sev == EcalSeverityLevelAlgo::kProblematic 
                      || sev == EcalSeverityLevelAlgo::kRecovered || sev == EcalSeverityLevelAlgo::kBad ) 
@@ -63,10 +62,6 @@ float EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( const reco
 	      return -1;
 	    }
 
-	  // 	  uint32_t flag = (*jrh).recoFlag();
-	  // 	  uint32_t sev = EcalSeverityLevelAlgo::severityLevel( flag, retrieveDBStatus(id,chStatus) );
-
-	  //	  std::cout << "Energy is " << (*jrh).energy() * (*it).second << std::endl;
 	  fraction += (*jrh).energy() * (*it).second  / cluster.energy();
 	}
     }
@@ -97,14 +92,13 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster &
       if ( jrh == recHits.end() ) 
 	continue;
       //Now checking rh flag
-      uint32_t flag = (*jrh).recoFlag();
-      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( flag, retrieveDBStatus(*it,chStatus) );
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel( (*jrh), chStatus );
       if (sev == EcalSeverityLevelAlgo::kGood)
 	continue;
       //      std::cout << "[closestProblematic] Found a problematic channel " << EBDetId(*it) << " " << flag << std::endl;
       //Find the closest DetId in eta,phi space (distance defined by deta^2 + dphi^2)
-      int deta=distanceEta(EBDetId(seed),EBDetId(*it));
-      int dphi=distancePhi(EBDetId(seed),EBDetId(*it));
+      int deta=EBDetId::distanceEta(EBDetId(seed),EBDetId(*it));
+      int dphi=EBDetId::distancePhi(EBDetId(seed),EBDetId(*it));
       if (sqrt(deta*deta + dphi*dphi) < minDist)
 	closestProb = *it;
     }
@@ -128,48 +122,14 @@ std::pair<int,int> EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblemati
   DetId closestProb = closestProblematic(cluster , recHits, chStatus, topology);
 
   if (! closestProb.null())
-    return std::pair<int,int>(distanceEta(EBDetId(seed),EBDetId(closestProb)),distancePhi(EBDetId(seed),EBDetId(closestProb)));
+    return std::pair<int,int>(EBDetId::distanceEta(EBDetId(seed),EBDetId(closestProb)),EBDetId::distancePhi(EBDetId(seed),EBDetId(closestProb)));
   else
     return std::pair<int,int>(-1,-1);
 } 
 
 
-int EcalClusterSeverityLevelAlgo::distanceEta(const EBDetId& a,const EBDetId& b)
-{
-  if (a.ieta() * b.ieta() > 0)
-    return abs(a.ieta()-b.ieta());
-  else
-    return abs(a.ieta()-b.ieta())-1;
-}
 
-int EcalClusterSeverityLevelAlgo::distancePhi(const EBDetId& a,const EBDetId& b)
-{
-  if (abs(a.iphi() -b.iphi()) > 180)
-    return abs(a.iphi() - b.iphi()) - 180;
-  else
-    return abs(a.iphi()-b.iphi());
-}
 
-int EcalClusterSeverityLevelAlgo::distanceX(const EEDetId& a,const EEDetId& b)
-{
-    return abs(a.ix()-b.ix());
-}
 
-int EcalClusterSeverityLevelAlgo::distanceY(const EEDetId& a,const EEDetId& b)
-{
-  return abs(a.iy() - b.iy()); 
-}
 
-uint16_t EcalClusterSeverityLevelAlgo::retrieveDBStatus( const DetId id, const EcalChannelStatus &chStatus ) 
-{
-        EcalChannelStatus::const_iterator chIt = chStatus.find( id );
-        uint16_t dbStatus = 0;
-        if ( chIt != chStatus.end() ) {
-                dbStatus = chIt->getStatusCode();
-        } else {
-                edm::LogError("EcalSeveritylevelError") << "No channel status found for xtal " 
-                        << id.rawId() 
-                        << "! something wrong with EcalChannelStatus in your DB? ";
-        }
-        return dbStatus;
-}
+

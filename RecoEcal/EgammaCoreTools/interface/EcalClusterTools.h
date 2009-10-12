@@ -116,7 +116,7 @@ class EcalClusterTools {
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
 
 		//Shower shape variables return vector <Roundness, Angle> of a photon
-		static std::vector<float> ShowerShapes( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits);
+		static std::vector<float> showerRoundness( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits);
         private:
                 struct EcalClusterEnergyDeposition
                 { 

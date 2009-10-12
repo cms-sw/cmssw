@@ -24,18 +24,6 @@ class EcalClusterSeverityLevelAlgo {
   // return -1,-1 if no crystal is found within a search region of 11 (eta) x 51 (phi)
   static std::pair<int,int> etaphiDistanceClosestProblematic( const reco::CaloCluster & , const EcalRecHitCollection &,  const EcalChannelStatus &, const CaloTopology* topology );
 
- private:
-
-  //return the distance in eta units between two EBDetId
-  static int distanceEta(const EBDetId& a,const EBDetId& b); 
-  //return the distance in phi units between two EBDetId
-  static int distancePhi(const EBDetId& a,const EBDetId& b); 
-  //return the distance in eta units between two EBDetId
-  static int distanceX(const EEDetId& a,const EEDetId& b); 
-  //return the distance in phi units between two EBDetId
-  static int distanceY(const EEDetId& a,const EEDetId& b); 
-  //return the chStatus as taken from the DB object
-  static uint16_t retrieveDBStatus( const DetId , const EcalChannelStatus &chStatus );
 
 };
 

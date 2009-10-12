@@ -878,7 +878,7 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
 
 //compute shower shapes: roundness and angle
 //description:
-std::vector<float> EcalClusterTools::ShowerShapes( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits){
+std::vector<float> EcalClusterTools::showerRoundness( const reco::SuperCluster &superCluster ,const EcalRecHitCollection *recHits){
 	
 	std::vector<float> shapes;
 	
@@ -1027,21 +1027,21 @@ gmake: *** [tmp/slc4_ia32_gcc345/src/RecoEcal/EgammaCoreTools/src/RecoEcalEgamma
 }
 //private function
 //adds entry to 2d inertia tensor, see wikipedia, for shower shapes function
-	void EcalClusterTools::ShowerShapesInertiaTensorAddHit(TMatrixD & myinertia,Float_t w,Float_t ieta,Float_t iphi){
-		Float_t weight = w;
-		Float_t I_ieta_ieta_i = 0; Float_t I_ieta_iphi_i = 0; Float_t I_iphi_ieta_i = 0; Float_t I_iphi_iphi_i = 0;
-		I_ieta_ieta_i = weight*(iphi*iphi);
-		I_iphi_iphi_i = weight*(ieta*ieta);
-		I_ieta_iphi_i = weight*(-1*ieta*iphi);
-		I_iphi_ieta_i = weight*(-1*iphi*ieta);
-		//tensor has [row][column]
-		// Iee  Iep
-		// Ipe  Ipp
-		myinertia[0][0]+=I_ieta_ieta_i;
-		myinertia[1][1]+=I_iphi_iphi_i;
-		myinertia[0][1]+=I_ieta_iphi_i;
-		myinertia[1][0]+=I_iphi_ieta_i;
-		
-		return;
-	}//add to inertia tensor
+void EcalClusterTools::ShowerShapesInertiaTensorAddHit(TMatrixD & myinertia,Float_t w,Float_t ieta,Float_t iphi){
+  Float_t weight = w;
+  Float_t I_ieta_ieta_i = 0; Float_t I_ieta_iphi_i = 0; Float_t I_iphi_ieta_i = 0; Float_t I_iphi_iphi_i = 0;
+  I_ieta_ieta_i = weight*(iphi*iphi);
+  I_iphi_iphi_i = weight*(ieta*ieta);
+  I_ieta_iphi_i = weight*(-1*ieta*iphi);
+  I_iphi_ieta_i = weight*(-1*iphi*ieta);
+  //tensor has [row][column]
+  // Iee  Iep
+  // Ipe  Ipp
+  myinertia[0][0]+=I_ieta_ieta_i;
+  myinertia[1][1]+=I_iphi_iphi_i;
+  myinertia[0][1]+=I_ieta_iphi_i;
+  myinertia[1][0]+=I_iphi_ieta_i;
+  
+  return;
+}//add to inertia tensor
 
