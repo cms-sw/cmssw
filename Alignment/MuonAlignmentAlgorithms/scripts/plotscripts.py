@@ -1,4 +1,4 @@
-import ROOT, array, os, re
+import ROOT, array, os, re, random
 from math import *
 
 #############################################################
@@ -1050,7 +1050,7 @@ def DBdiff(database1, database2, reports1, reports2, window=10., selection=None,
         if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
-                r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 0., 0., 0.)
+                r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 0., 0., 0., 0.)
             else:
                 found = False
                 for r2 in reports2:
@@ -1327,11 +1327,11 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
 
     bkgndhist.Draw()
     if tgraph.GetN() > 0: tgraph.Draw("p")
-    return bkgndhist, tgraph
+    return bkgndhist, tgraph, domain, values, errors
 
 ######################################################################################################
 
-def plotmedians(reports1, reports2, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, r1text=" before", r2text=" after"):
+def plotmedians(reports1, reports2, selection=None, binsx=50, windowx=3., ceilingx=None, binsy=50, windowy=3., ceilingy=None, binsdxdz=50, windowdxdz=3., ceilingdxdz=None, binsdydz=50, windowdydz=3., ceilingdydz=None, r1text=" before", r2text=" after", which="median"):
     hmedianx_before = ROOT.TH1F("hmedianx_before", "", binsx, -windowx, windowx)
     hmediany_before = ROOT.TH1F("hmediany_before", "", binsy, -windowy, windowy)
     hmediandxdz_before = ROOT.TH1F("hmediandxdz_before", "", binsdxdz, -windowdxdz, windowdxdz)
@@ -1341,25 +1341,61 @@ def plotmedians(reports1, reports2, binsx=50, windowx=3., ceilingx=None, binsy=5
     hmediandxdz_after = ROOT.TH1F("hmediandxdz_after", "", binsdxdz, -windowdxdz, windowdxdz)
     hmediandydz_after = ROOT.TH1F("hmediandydz_after", "", binsdydz, -windowdydz, windowdydz)
 
+    if which == "median":
+        whichx = whichy = whichdxdz = whichdydz = "median"
+    elif which == "bigmean":
+        whichx = "mean30"
+        whichy = "mean30"
+        whichdxdz = "mean20"
+        whichdydz = "mean50"
+    elif which == "mean":
+        whichx = "mean15"
+        whichy = "mean15"
+        whichdxdz = "mean10"
+        whichdydz = "mean25"
+    elif which == "bigwmean":
+        whichx = "wmean30"
+        whichy = "wmean30"
+        whichdxdz = "wmean20"
+        whichdydz = "wmean50"
+    elif which == "wmean":
+        whichx = "wmean15"
+        whichy = "wmean15"
+        whichdxdz = "wmean10"
+        whichdydz = "wmean25"
+    elif which == "bigstdev":
+        whichx = "stdev30"
+        whichy = "stdev30"
+        whichdxdz = "stdev20"
+        whichdydz = "stdev50"
+    elif which == "stdev":
+        whichx = "stdev15"
+        whichy = "stdev15"
+        whichdxdz = "stdev10"
+        whichdydz = "stdev25"
+    else:
+        raise Exception, which + " not recognized"
+
     for r1 in reports1:
-        found = False
-        for r2 in reports2:
-            if r1.postal_address == r2.postal_address:
-                found = True
-                break
-        if not found: continue
+        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+            found = False
+            for r2 in reports2:
+                if r1.postal_address == r2.postal_address:
+                    found = True
+                    break
+            if not found: continue
 
-        if r1.status == "PASS" and r2.status == "PASS":
-            hmedianx_before.Fill(10.*r1.median_x)
-            hmediandxdz_before.Fill(1000.*r1.median_dxdz)
-            hmedianx_after.Fill(10.*r2.median_x)
-            hmediandxdz_after.Fill(1000.*r2.median_dxdz)
+            if r1.status == "PASS" and r2.status == "PASS":
+                hmedianx_before.Fill(10.*eval("r1.%s_x" % whichx))
+                hmediandxdz_before.Fill(1000.*eval("r1.%s_dxdz" % whichdxdz))
+                hmedianx_after.Fill(10.*eval("r2.%s_x" % whichx))
+                hmediandxdz_after.Fill(1000.*eval("r2.%s_dxdz" % whichdxdz))
 
-            if r1.median_y is not None:
-                hmediany_before.Fill(10.*r1.median_y)
-                hmediandydz_before.Fill(1000.*r1.median_dydz)
-                hmediany_after.Fill(10.*r2.median_y)
-                hmediandydz_after.Fill(1000.*r2.median_dydz)
+                if r1.median_y is not None:
+                    hmediany_before.Fill(10.*eval("r1.%s_y" % whichy))
+                    hmediandydz_before.Fill(1000.*eval("r1.%s_dydz" % whichdydz))
+                    hmediany_after.Fill(10.*eval("r2.%s_y" % whichy))
+                    hmediandydz_after.Fill(1000.*eval("r2.%s_dydz" % whichdydz))
 
     hmedianx_beforecopy = hmedianx_before.Clone()
     hmediany_beforecopy = hmediany_before.Clone()
@@ -1510,7 +1546,11 @@ def rlines(disk, window, abscissa):
 def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title="", widebins=False, fitsine=False, reset_palette=True):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(0)
+    tdrStyle.SetOptStat(0)
     tdrStyle.SetOptFit(0)
+    tdrStyle.SetTitleFontSize(0.05)
+
+    c1.Clear()
     if reset_palette: set_palette("blues")
     global hist, hist2d, hist2dweight, tline1, tline2, tline3
     prof = tfiles[0].Get("AlignmentMonitorMuonSystemMap1D/iter1/%s_%s_prof" % (name, param)).Clone()
@@ -1574,14 +1614,14 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
 
     if fitsine:
         f = ROOT.TF1("f", "[0] + [1]*sin(x) + [2]*cos(x)", -pi, pi)
-        hist.Fit(f, "0")
-        hist.GetFunction("f").SetLineColor(ROOT.kRed)
+        hist2d.Fit(f, "0")
+        hist2d.GetFunction("f").SetLineColor(ROOT.kRed)
         global fitsine_const, fitsine_sin, fitsine_cos, fitsine_chi2, fitsine_ndf
-        fitsine_const = hist.GetFunction("f").GetParameter(0), hist.GetFunction("f").GetParError(0)
-        fitsine_sin = hist.GetFunction("f").GetParameter(1), hist.GetFunction("f").GetParError(1)
-        fitsine_cos = hist.GetFunction("f").GetParameter(2), hist.GetFunction("f").GetParError(2)
-        fitsine_chi2 = hist.GetFunction("f").GetChisquare()
-        fitsine_ndf = hist.GetFunction("f").GetNDF()
+        fitsine_const = hist2d.GetFunction("f").GetParameter(0), hist2d.GetFunction("f").GetParError(0)
+        fitsine_sin = hist2d.GetFunction("f").GetParameter(1), hist2d.GetFunction("f").GetParError(1)
+        fitsine_cos = hist2d.GetFunction("f").GetParameter(2), hist2d.GetFunction("f").GetParError(2)
+        fitsine_chi2 = hist2d.GetFunction("f").GetChisquare()
+        fitsine_ndf = hist2d.GetFunction("f").GetNDF()
 
     hist.SetAxisRange(-window, window, "Y")
     if abscissa is not None: hist.SetAxisRange(abscissa[0], abscissa[1], "X")
@@ -1610,7 +1650,7 @@ def mapplot(tfiles, name, param, mode="from2d", window=40., abscissa=None, title
     hist2d.Draw("colzsame")
     if widebins: hist.Draw("samee1")
     else: hist.Draw("same")
-    if fitsine: hist.GetFunction("f").Draw("same")
+    if fitsine: hist2d.GetFunction("f").Draw("same")
     if "vsphi" in name: 
         if ("mem11" in name or "mep11" in name) and not widebins: philines("me11", window, abscissa)
         elif ("mem12" in name or "mep12" in name) and not widebins: philines("me12", window, abscissa)
@@ -1672,6 +1712,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(1)
     tdrStyle.SetTitleFontSize(0.1)
+    tdrStyle.SetOptStat(0)
 
     found = False
     for r in reports:
@@ -1778,6 +1819,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
     tdrStyle.SetOptTitle(1)
     tdrStyle.SetTitleBorderSize(1)
     tdrStyle.SetTitleFontSize(0.1)
+    tdrStyle.SetOptStat(0)
 
     found = False
     for r in reports:
