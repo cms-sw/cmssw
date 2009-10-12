@@ -147,9 +147,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/baddigisize");
       SetupEtaPhiHists(DigiErrorsBadDigiSize," Digis with Bad Size", "");
 
-      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badfibBCNoff");
-      SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
-
+      m_dbe->setCurrentFolder(baseFolder_+"/digi_info");
       DigiSize = m_dbe->book2D("Digi Size", "Digi Size",4,0,4,20,-0.5,19.5);
       DigiSize->setBinLabel(1,"HB",1);
       DigiSize->setBinLabel(2,"HE",1);
@@ -157,6 +155,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
       DigiSize->setBinLabel(4,"HF",1);
       DigiSize->setAxisTitle("Subdetector",1);
       DigiSize->setAxisTitle("Digi Size",2);
+
+      m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/badfibBCNoff");
+      SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/good_digis/1D_digi_plots");
       HBocc_vs_LB=m_dbe->bookProfile("HBoccVsLB","HB digi occupancy vs Luminosity Block;Lumi block;# of Good digis",
@@ -319,22 +320,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       cpu_timer.reset(); cpu_timer.start();
     }
 
-  ///////////////////////////////////////// Loop over HBHE
+  // Check unpacker report for bad digis
 
-  int firsthbcap=-1;
-  int firsthecap=-1;
-  int firsthocap=-1;
-  int firsthfcap=-1;
-
-  //cout <<"BADvalue = "<<report.badQualityDigis()<<endl;
-  // Check report for bad digis
-  
-
-  // Bad digi quality detid info does not yet exist in report.bad_quality objects.
-  // Need to look at raw data directly?
-
-
-  //cout <<"TEST 1"<<endl;
   typedef std::vector<DetId> DetIdVector;
 
   DetIdVector::const_iterator dummy = report.bad_quality_begin();
@@ -351,13 +338,20 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       rEta = CalcEtaBin(id.subdet(), rEta, rDepth);
       if (id.subdet()==HcalBarrel) ++hbHists.count_bad;
       else if (id.subdet()==HcalEndcap) ++heHists.count_bad;
-      else if (id.subdet()==HcalForward) ++hoHists.count_bad;
-      else if (id.subdet()==HcalOuter) ++hfHists.count_bad;
+      else if (id.subdet()==HcalForward) ++hfHists.count_bad;
+      else if (id.subdet()==HcalOuter) ++hoHists.count_bad;
+      else 
+	continue; // skip anything that isn't HB, HE, HO, HF
       ++badunpackerreport[rEta][rPhi-1][rDepth-1];
       ++baddigis[rEta][rPhi-1][rDepth-1];  
     }
 
-  //cout <<"TEST2"<<endl;
+ ///////////////////////////////////////// Loop over HBHE
+
+  int firsthbcap=-1;
+  int firsthecap=-1;
+  int firsthocap=-1;
+  int firsthfcap=-1;
 
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
@@ -385,16 +379,16 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       int counter=hbHists.count_bad;
       if (counter<DIGI_SUBDET_NUM)
 	++hbHists.count_BQ[counter];
-      counter = static_cast<int>((hbHists.count_bad/(hbHists.count_bad+hbHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-      if (counter<DIGI_SUBDET_NUM) ++hbHists.count_BQFrac[counter];
+      float counter2 = (1.*hbHists.count_bad)/(hbHists.count_bad+hbHists.count_good)*(DIGI_BQ_FRAC_NBINS-1);
+      if (counter2<DIGI_SUBDET_NUM) ++hbHists.count_BQFrac[(int)counter2];
     }
   if (heHists.check && (heHists.count_good>0 || heHists.count_bad>0))
     {
       int counter=heHists.count_bad;
       if (counter<DIGI_SUBDET_NUM)
 	++heHists.count_BQ[counter];
-      counter = static_cast<int>((heHists.count_bad/(heHists.count_bad+heHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-      if (counter<DIGI_SUBDET_NUM) ++heHists.count_BQFrac[counter];
+      float counter2 = (1.*heHists.count_bad)/(heHists.count_bad+heHists.count_good)*(DIGI_BQ_FRAC_NBINS-1);
+      if (counter2<DIGI_SUBDET_NUM) ++heHists.count_BQFrac[int(counter2)];
     }
 
   if (showTiming)
@@ -402,8 +396,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HBHE -> "<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
     }
-
-  //cout <<"TEST3"<<endl;
 
   //////////////////////////////////// Loop over HO collection
   if (hoHists.check)
@@ -419,8 +411,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int counter=hoHists.count_bad;
 	  if (counter<DIGI_SUBDET_NUM)
 	    ++hoHists.count_BQ[counter];
-	  counter = static_cast<int>((hoHists.count_bad/(hoHists.count_bad+hoHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-	  if (counter<DIGI_SUBDET_NUM) ++hoHists.count_BQFrac[counter];
+
+	  float counter2 = (1.*hoHists.count_bad)/(hoHists.count_bad+hoHists.count_good)*(DIGI_BQ_FRAC_NBINS-1);
+	  if (counter2<DIGI_SUBDET_NUM) ++hoHists.count_BQFrac[int(counter2)];
 	}
       HOocc_vs_LB->Fill(lumiblock,hoHists.count_good);
     } // if (hoHists.check)
@@ -431,8 +424,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       cpu_timer.reset(); cpu_timer.start();
     }
   
-  //cout <<"TEST4"<<endl;
-
   /////////////////////////////////////// Loop over HF collection
   if (hfHists.check)
     {
@@ -447,8 +438,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  int counter=hfHists.count_bad;
 	  if (counter<DIGI_SUBDET_NUM)
 	    ++hfHists.count_BQ[counter];
-	  counter = static_cast<int>((hfHists.count_bad/(hfHists.count_bad+hfHists.count_good))*(DIGI_BQ_FRAC_NBINS-1));
-	  if (counter<DIGI_SUBDET_NUM) ++hfHists.count_BQFrac[counter];
+	  float counter2 = (1.*hfHists.count_bad)/(hfHists.count_bad+hfHists.count_good)*(DIGI_BQ_FRAC_NBINS-1);
+	  if (counter2<DIGI_SUBDET_NUM) ++hfHists.count_BQFrac[int(counter2)];
 	}
       HFocc_vs_LB->Fill(lumiblock,hfHists.count_good);
     } // if (hfHists.check)
@@ -457,8 +448,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<std::endl;
     }
-
-  //cout <<"TEST5"<<endl;
 
   // This only counts digis that are present but bad somehow; it does not count digis that are missing
   int count_good=hbHists.count_good+heHists.count_good+hoHists.count_good+hfHists.count_good;
@@ -489,9 +478,23 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   DigiUnpackerErrorCount->update();
   DigiUnpackerErrorFrac->update();
 
-  //cout <<"TEST6"<<endl;
+  // Update eta-phi hists
   for (unsigned int zz=0;zz<DigiErrorOccupancyByDepth.depth.size();++zz)
-    DigiErrorOccupancyByDepth.depth[zz]->update();
+      DigiErrorOccupancyByDepth.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsByDepth.depth.size();++zz)
+      DigiErrorsByDepth.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsBadCapID.depth.size();++zz)
+      DigiErrorsBadCapID.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsDVErr.depth.size();++zz)
+      DigiErrorsDVErr.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsBadDigiSize.depth.size();++zz)
+      DigiErrorsBadDigiSize.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsBadADCSum.depth.size();++zz)
+      DigiErrorsBadADCSum.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsUnpacker.depth.size();++zz)
+      DigiErrorsUnpacker.depth[zz]->update();
+  for (unsigned int zz=0;zz<DigiErrorsBadFibBCNOff.depth.size();++zz)
+    DigiErrorsBadFibBCNOff.depth[zz]->update();
 
   DigiOccupancyEta->update();
   DigiOccupancyPhi->update();
@@ -506,7 +509,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ProblemsVsLB_HO->Fill(lumiblock,hoHists.count_bad);
   ProblemsVsLB_HF->Fill(lumiblock,hfHists.count_bad);
 
-  //cout <<"TEST7"<<endl;
   // Call fill method every checkNevents
   if (ievt_%digi_checkNevents_==0)
     fill_Nevents();
@@ -738,10 +740,14 @@ void HcalDigiMonitor::fill_Nevents()
   // Fill plots of bad fraction of digis found
   for (int i=0;i<DIGI_BQ_FRAC_NBINS;++i)
     {
-      if (hbHists.count_BQFrac[i]>0) hbHists.BQFrac->Fill(i, hbHists.count_BQFrac[i]);
-      if (heHists.count_BQFrac[i]>0) heHists.BQFrac->Fill(i, heHists.count_BQFrac[i]);
-      if (hoHists.count_BQFrac[i]>0) hoHists.BQFrac->Fill(i, hoHists.count_BQFrac[i]);
-      if (hfHists.count_BQFrac[i]>0) hfHists.BQFrac->Fill(i, hfHists.count_BQFrac[i]);
+      if (DIGI_BQ_FRAC_NBINS==1) break;
+      if (hbHists.count_BQFrac[i]>0) hbHists.BQFrac->Fill(1.*i/(DIGI_BQ_FRAC_NBINS-1), hbHists.count_BQFrac[i]);
+      if (heHists.count_BQFrac[i]>0) heHists.BQFrac->Fill(1.*i/(DIGI_BQ_FRAC_NBINS-1), heHists.count_BQFrac[i]);
+      if (hoHists.count_BQFrac[i]>0) 
+	{
+	  hoHists.BQFrac->Fill(1.*i/(DIGI_BQ_FRAC_NBINS), hoHists.count_BQFrac[i]);
+	}
+      if (hfHists.count_BQFrac[i]>0) hfHists.BQFrac->Fill(1.*i/(DIGI_BQ_FRAC_NBINS-1), hfHists.count_BQFrac[i]);
     }//for (int i=0;i<DIGI_BQ_FRAC_NBINS;++i)
 
   // Fill presample plots
