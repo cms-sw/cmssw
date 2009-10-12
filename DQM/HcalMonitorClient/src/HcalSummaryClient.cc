@@ -47,12 +47,15 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
 			 "DataFormat", // shorthand name for the object
 			 0.0); // minimum threshold required to mark a cell as bad
   
+  // Some fraction of events show up with all digis reporting bad
+  // (All digis invalid/error?)
+  // Require digi fraction > 0.20 before this is considered an error by the summary client
   if (digiMon_.onoff)
     digiMon_.Setup("DigiMonitor_Hcal/problem_digis",
 		   " Problem Digi Rate",
 		   "DigiMonitor_Hcal/ ProblemDigis",
 		   "Digi",
-		   0.0);
+		   0.20);
   if (recHitMon_.onoff)
     recHitMon_.Setup("RecHitMonitor_Hcal/problem_rechits",
 		     " Problem RecHit Rate",
