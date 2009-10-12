@@ -160,7 +160,7 @@ if __name__ == "__main__":
             name = obj.name
             prettyName = colonRE.sub('', name)
             prettyLabel = commaRE.sub ('_', obj.label())
-            compareCmd = 'edmOneToOneComparison.py --config=%s --file1=%s --file2=%s --tuple=reco --compare --label=reco^%s^%s' \
+            compareCmd = 'edmOneToOneComparison.py %s %s %s --compare --label=reco^%s^%s' \
                           % (prettyName + '.txt',
                              filename1,
                              filename2,
