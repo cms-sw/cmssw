@@ -2,7 +2,6 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -191,7 +190,8 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
   double ChargedEMEt = 0.0;
   double ChargedHadEt = 0.0;
   double MuonEt = 0.0;
-
+  double type6Et = 0.0;
+  double type7Et = 0.0;
 
   for (unsigned int pfc=0;pfc<pfCandidates.size();++pfc) {
     double phi   = pfCandidates[pfc].phi();
@@ -208,27 +208,17 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
     //std::cout << "pfCandidates[pfc].hcalEnergy() = " << pfCandidates[pfc].hcalEnergy() << std::endl;
 
     // compute met specific data:
-    if (pfCandidates[pfc].charge()==0)
-    {
-      NeutralEMEt += pfCandidates[pfc].ecalEnergy()*sin(theta);
-      NeutralHadEt += pfCandidates[pfc].hcalEnergy()*sin(theta);
-    }
-    else
-    {
-      //std::cout << "pfCandidates[pfc].particleId() = " << pfCandidates[pfc].particleId() << std::endl;
-      if (pfCandidates[pfc].particleId() == PFCandidate::mu) // muon
-      {
-	MuonEt += pfCandidates[pfc].energy()*sin(theta);
-      }
-      else
-      {
-	ChargedEMEt += pfCandidates[pfc].ecalEnergy()*sin(theta);
-	ChargedHadEt += pfCandidates[pfc].hcalEnergy()*sin(theta);
-      }
-    }
+    if (pfCandidates[pfc].particleId() == 1) ChargedHadEt += et;
+    if (pfCandidates[pfc].particleId() == 2) ChargedEMEt += et;
+    if (pfCandidates[pfc].particleId() == 3) MuonEt += et;
+    if (pfCandidates[pfc].particleId() == 4) NeutralEMEt += et;
+    if (pfCandidates[pfc].particleId() == 5) NeutralHadEt += et;
+    if (pfCandidates[pfc].particleId() == 6) type6Et += et;
+    if (pfCandidates[pfc].particleId() == 7) type7Et += et;
+
   } // pfc
 
-  const double Et_total=NeutralEMEt+NeutralHadEt+ChargedEMEt+ChargedHadEt+MuonEt;
+  const double Et_total=NeutralEMEt+NeutralHadEt+ChargedEMEt+ChargedHadEt+MuonEt+type6Et+type7Et;
 
   double met = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
   const LorentzVector p4( -sum_ex, -sum_ey, 0.0, met);
@@ -240,8 +230,13 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
   specific.ChargedEMEtFraction = ChargedEMEt/Et_total;
   specific.ChargedHadEtFraction = ChargedHadEt/Et_total;
   specific.MuonEtFraction = MuonEt/Et_total;
+  specific.Type6EtFraction = type6Et/Et_total;
+  specific.Type7EtFraction = type7Et/Et_total;
 
   reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
+
+  //std::cout << "specificPFMET.NeutralEMEtFraction() = " << specificPFMET.NeutralEMEtFraction() << std::endl;
+
   return specificPFMET;
 }
 
