@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.30 2009/10/02 20:21:43 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.31 2009/10/09 22:47:39 rekovic Exp $
 //
 //
 
@@ -489,7 +489,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
 
      };
-        
+     
+
+   public:
+
      // simple collection - just 
      class PathInfoCollection: public std::vector<PathInfo> {
        public:
@@ -689,7 +692,6 @@ void objMonData<T>::fillOff()
   typedef typename T::const_iterator const_iterator;
   for( const_iterator iter = offColl_->begin(), iend = offColl_->end(); iter != iend; ++iter )
   {
-
 
    if (fabs(iter->eta()) <= EtaMax_ && iter->pt() >=  EtMin_ )
    {
