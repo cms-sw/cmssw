@@ -264,15 +264,6 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 void HcalRecHitMonitor::fillRecHitHistosAtEndRun()
 {
   // Fill histograms one last time at endRun call
-  
-  /*
-    I'm not sure I like this feature.  Suppose checkNevents=500, and the end run occurs at 501?
-    Then the occupancy plot would create errors for whichever digis were not found in a single event.
-    That's not desired behavior.
-    We could just exclude the occupancy test from running here, but I'm not sure that's the best solution either.
-    For now (28 Oct. 2008), just disable this functionality.  We'll come back to it if necessary.
-  */
-  return;
 
   fillNevents();
 }

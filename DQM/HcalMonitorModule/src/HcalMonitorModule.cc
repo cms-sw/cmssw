@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2009/10/11 16:15:28 $
- * $Revision: 1.137 $
+ * $Date: 2009/10/12 17:10:31 $
+ * $Revision: 1.138 $
  * \author W Fisher
  * \author J Temple
  *
@@ -516,7 +516,7 @@ void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context
 
   // Ditto for rechit monitor
   if (rhMon_!=NULL)
-    rhMon_->fillNevents();
+    rhMon_->fillRecHitHistosAtEndRun();
 
   /////////////////////////////////////////////////////
   if(detDiagLas_!=NULL) detDiagLas_->fillHistos();
