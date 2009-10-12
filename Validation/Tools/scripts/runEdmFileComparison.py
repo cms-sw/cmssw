@@ -80,14 +80,15 @@ if __name__ == "__main__":
     release_base = os.environ.get ('CMSSW_RELEASE_BASE')
     if not base or not release_base:
         raise RuntimeError, "You must have already setup a CMSSW release."
+    if options.queueCommand:
+        queueCommand = options.queueCommand
+        options.noQueue = False
+        if not re.match (r'%%s', queueCommand):
+            queueCommand += ' %s'
     if options.noQueue:
         command = 'src/Validation/Tools/scripts/runCommand.bash'
     else:
         command = 'src/Validation/Tools/scripts/runCMScommand.bash'
-    if options.queueCommand:
-        queueCommand = options.queueCommand
-        if not re.match (r'%%s', queueCommand):
-            queueCommand += ' %s'
     # find command
     found = False
     for directory in [base, release_base]:
