@@ -129,25 +129,24 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" run= "<<irun<<std::endl;
 	  
-		// retrieve the data :
-		map<EcalLogicID, RunTPGConfigDat> dataset;
-		econn->fetchDataSet(&dataset, &run_vec[kr]);
+	    // retrieve the data :
+	    map<EcalLogicID, RunTPGConfigDat> dataset;
+	    econn->fetchDataSet(&dataset, &run_vec[kr]);
 		
-		std::string the_config_tag="";
-		int the_config_version=0;
+	    std::string the_config_tag="";
+	    int the_config_version=0;
 		
+	    map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
 		
-		map< EcalLogicID,  RunTPGConfigDat>::const_iterator it;
-		
-		int nr=0;
-        	for( it=dataset.begin(); it!=dataset.end(); it++ )
-	  	{
-	      	  ++nr;
-	      	  //EcalLogicID ecalid  = it->first;
-	      	  RunTPGConfigDat  dat = it->second;
-	      	  the_config_tag=dat.getConfigTag();
-	      	  the_config_version=dat.getVersion();
-	        }
+	    int nr=0;
+            for( it=dataset.begin(); it!=dataset.end(); it++ )
+	    {
+	      ++nr;
+	      //EcalLogicID ecalid  = it->first;
+	      RunTPGConfigDat  dat = it->second;
+	      the_config_tag=dat.getConfigTag();
+	      the_config_version=dat.getVersion();
+	    }
 		  
 		  
 	    // it is all the same for all SM... get the last one 
@@ -176,32 +175,33 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 		
 		if( weightId != m_i_weightIdMap ) {
 		
-		FEConfigWeightInfo fe_weight_info;
-	 	fe_weight_info.setId(weightId);
-		econn-> fetchConfigSet(&fe_weight_info);
-       		map<EcalLogicID, FEConfigWeightGroupDat> dataset_TpgWeight;
-		econn->fetchDataSet(&dataset_TpgWeight, &fe_weight_info);
-		edm::LogInfo("EcalTPGWeightIdMapHandler") << "Got object!";
-		EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
-		typedef map<EcalLogicID, FEConfigWeightGroupDat>::const_iterator CIfeweight;
-		EcalLogicID ecid_xt;
-		FEConfigWeightGroupDat  rd_w;
+		  FEConfigWeightInfo fe_weight_info;
+	 	  fe_weight_info.setId(weightId);
+		  econn-> fetchConfigSet(&fe_weight_info);
+       		  map<EcalLogicID, FEConfigWeightGroupDat> dataset_TpgWeight;
+		  econn->fetchDataSet(&dataset_TpgWeight, &fe_weight_info);
+		  edm::LogInfo("EcalTPGWeightIdMapHandler") << "Got object!";
+		  EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
+		  typedef map<EcalLogicID, FEConfigWeightGroupDat>::const_iterator CIfeweight;
+		  EcalLogicID ecid_xt;
+		  FEConfigWeightGroupDat  rd_w;
 
-		int igroups=0;
-		for (CIfeweight p = dataset_TpgWeight.begin(); p != dataset_TpgWeight.end(); p++) {
-	
-	  	// EB and EE data 
-	  	EcalTPGWeights w;		
-	  	unsigned int weight0 = (unsigned int)rd_w.getWeight0();
-	  	unsigned int weight1 = (unsigned int)rd_w.getWeight1();
-	  	unsigned int weight2 = (unsigned int)rd_w.getWeight2();
-	  	unsigned int weight3 = (unsigned int)rd_w.getWeight3();
-	  	unsigned int weight4 = (unsigned int)rd_w.getWeight4();
+		  int igroups=0;
+		  for (CIfeweight p = dataset_TpgWeight.begin(); p != dataset_TpgWeight.end(); p++) {
+		
+		  rd_w =  p->second;
+	  	  // EB and EE data 
+	  	  EcalTPGWeights w;		
+	  	  unsigned int weight0 = (unsigned int)rd_w.getWeight4();
+	  	  unsigned int weight1 = (unsigned int)rd_w.getWeight3();
+	  	  unsigned int weight2 = (unsigned int)rd_w.getWeight2();
+	  	  unsigned int weight3 = (unsigned int)rd_w.getWeight1()- 0x80;
+	  	  unsigned int weight4 = (unsigned int)rd_w.getWeight0();
 	  
-        	w.setValues(weight0,weight1,weight2,weight3,weight4);
-        	weightMap->setValue(rd_w.getWeightGroupId(),w);
+        	  w.setValues(weight0,weight1,weight2,weight3,weight4);
+        	  weightMap->setValue(rd_w.getWeightGroupId(),w);
 	  
-	  	++igroups;
+	  	  ++igroups;
 		}
 	
 		edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
@@ -209,12 +209,12 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
  		Time_t snc= (Time_t) irun; 	      
  		m_to_transfer.push_back(std::make_pair((EcalTPGWeightIdMap*)weightMap,snc));
 	   		  
-		  m_i_run_number=irun;
-		  m_i_tag=the_config_tag;
-		  m_i_version=the_config_version;
-		  m_i_weightIdMap=weightId;
+		m_i_run_number=irun;
+		m_i_tag=the_config_tag;
+		m_i_version=the_config_version;
+		m_i_weightIdMap=weightId;
 		  
-		  writeFile("last_tpg_weightIdMap_settings.txt");
+		writeFile("last_tpg_weightIdMap_settings.txt");
 
 		} else {
 
@@ -228,9 +228,7 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects()
 
 		}
 
-	      }       
-	      
-	      catch (std::exception &e) { 
+	      }       catch (std::exception &e) { 
 		std::cout << "ERROR: THIS CONFIG DOES NOT EXIST: tag=" <<the_config_tag
 			  <<" version="<<the_config_version<< std::endl;
 		cout << e.what() << endl;
