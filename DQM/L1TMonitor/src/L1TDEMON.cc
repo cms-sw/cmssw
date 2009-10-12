@@ -447,8 +447,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
     if(sid==GCT) { 
       //GCTem, GCTjet, GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets, 
-      //skip jets for now
-      if(cid!=GCTisolaem && cid!=GCTnoisoem ) continue;
+      //if(cid!=GCTisolaem && cid!=GCTnoisoem ) continue;
     }      
     if(sid==DTP) {
       //tbd cols:th,ph; plots per wheel
@@ -460,7 +459,10 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //masking: gres -- I.Mikulec: mask bits 0,5,16,21,22,23
       //mask = (~(0x0e10021));
     }
-    if(sid==DTF || sid==RPC || sid==CTF || sid==RPC) { 
+    if(sid==DTF) {
+      if(cid!=DTtftrk) continue;
+    }
+    if(sid==RPC || sid==CTF || sid==RPC) { 
       //select mu regional cands only for dtf,ctf,rpc
       //if(cid!=MUrtf) continue;
       //masking: gres dttf only -- I.Mikulec: lowest 16 bits only
