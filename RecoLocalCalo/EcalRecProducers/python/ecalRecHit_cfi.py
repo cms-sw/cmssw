@@ -11,6 +11,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     # avoid propagation of dead channels other than after recovery
     killDeadChannels = cms.bool(True),
     algo = cms.string("EcalRecHitWorkerSimple"),
+    # apply laser corrections
+    laserCorrection = cms.bool(True),
     # reco flags association to DB flag
     # the vector index corresponds to the DB flag
     # the value correspond to the reco flag

@@ -18,6 +18,7 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         v_chstatus_ = ps.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
         v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
         killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
+        laserCorrection_ = ps.getParameter<bool>("laserCorrection");
 }
 
 
@@ -27,7 +28,7 @@ void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalADCToGeVConstantRcd>().get(agc);
         es.get<EcalChannelStatusRcd>().get(chStatus);
-        es.get<EcalLaserDbRecord>().get(laser);
+        if ( laserCorrection_ ) es.get<EcalLaserDbRecord>().get(laser);
 }
 
 
@@ -96,7 +97,8 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         }
 
         // get laser coefficient
-        float lasercalib = laser->getLaserCorrection( detid, evt.time());
+        float lasercalib = 1.;
+        if ( laserCorrection_ ) lasercalib = laser->getLaserCorrection( detid, evt.time());
 
         // get time calibration coefficient
         const EcalTimeCalibConstantMap & itimeMap = itime->getMap();  
