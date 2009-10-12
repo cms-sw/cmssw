@@ -152,6 +152,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
 	//	  << " pw = " << newClus.phiWidth() << "\n"
 	//	  << " ew = " << newClus.etaWidth() << std::endl;
 
+        newClus.rawEnergy();
 	corrClusters->push_back(newClus);
       }
     }
