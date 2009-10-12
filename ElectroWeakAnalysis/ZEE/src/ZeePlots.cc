@@ -247,8 +247,8 @@ double ZeePlots::ReturnCandVar(const pat::Electron *ele, int i) {
   else if (i==1) return ele->ecalIso();
   else if (i==2) return ele->hcalIso();
   else if (i==3) return ele->scSigmaIEtaIEta();
-  else if (i==4) return ele->deltaEtaSuperClusterTrackAtVtx();
-  else if (i==5) return ele->deltaPhiSuperClusterTrackAtVtx();
+  else if (i==4) return ele->deltaPhiSuperClusterTrackAtVtx();
+  else if (i==5) return ele->deltaEtaSuperClusterTrackAtVtx();
   else if (i==6) return ele->hadronicOverEm();
   std::cout << "Error in ZeePlots::ReturnCandVar" << std::endl;
   return -1.;
