@@ -2,7 +2,7 @@
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
   <PoolContainer name="LumiSectionData">
-   <Class table="LUMISECTIONDATA" id_columns="IOV_VALUE_ID" name="lumi::LumiSectionData" mapping_version="basic" >
+   <Class table="LUMISECTIONDATA" id_columns="IOV_VALUE_ID" name="lumi::LumiSectionData" mapping_version="LumiSectionData_basic" >
      <Blob column="BUNCHCXINFO" name="m_bx" />
      <Blob column="HLTINFO" name="m_hlt" />
      <Blob column="TRIGGERINFO" name="m_trigger" />
