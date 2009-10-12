@@ -64,8 +64,6 @@ private:
   int beamclient_checkNevents_;
 
   // Histograms
-  TH2F* ProblemBeamCells;
-  TH2F* ProblemBeamCellsByDepth[6];
   TH1F* HB_CenterOfEnergyRadius[83];
   TH1F* HE_CenterOfEnergyRadius[83];
   TH1F* HF_CenterOfEnergyRadius[83];

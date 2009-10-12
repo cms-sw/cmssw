@@ -92,14 +92,18 @@ private:
 
   // Histograms
 
+  // 2-D eta-phi occupancy histograms for each error type
   TH2F* BadDigisByDepth[4];
   TH2F* DigiErrorsBadCapID[4];
   TH2F* DigiErrorsBadDigiSize[4];
   TH2F* DigiErrorsBadADCSum[4];
   TH2F* DigiErrorsNoDigi[4];
   TH2F* DigiErrorsDVErr[4];
+  TH2F* DigiErrorsBadFibBCNOff[4];
   TH2F* DigiErrorsUnpacker[4];
   TH2F* DigiOccupancyByDepth[4];
+
+  // 2-D occupancy plots in VME, spigot, & eta-phi space
   TH2F* DigiOccupancyVME;
   TH2F* DigiOccupancySpigot;
   TH2F* DigiErrorEtaPhi;
