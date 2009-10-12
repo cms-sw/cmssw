@@ -22,7 +22,7 @@ PFCandidateBenchmark::~PFCandidateBenchmark() {}
 void PFCandidateBenchmark::setup() {
 
   CandidateBenchmark::setup();
-  particleId_ = book1D("particleId_", "particle ID", 15,0,15);
+  particleId_ = book1D("particleId_", "particle ID", 7,1,8);
   ecalEnergy_ = book1D("ecalEnergy_", "ECAL energy, corrected;E_{ECAL} (GeV)", 100, 0, 100);
   hcalEnergy_ = book1D("hcalEnergy_", "HCAL energy, corrected;E_{HCAL} (GeV)",100, 0, 100);
   mva_e_pi_ = book1D("mva_e_pi_", "e VS #pi MVA output;MVA", 500, -1, 1);

@@ -24,12 +24,12 @@ void CandidateBenchmark::setup() {
 
   pt_ = book1D("pt_", "pt_;p_{T} (GeV)", 100, 0, 100);
 
-  eta_ = book1D("eta_", "eta_", 100,-5,5);
+  eta_ = book1D("eta_", "eta_;#eta", 100,-5,5);
 
   // might want to increase the number of bins, to match the size of the ECAL crystals
-  phi_ = book1D("phi_", "phi_", 100,-3.2,3.2);
+  phi_ = book1D("phi_", "phi_;#phi", 100,-3.2,3.2);
 
-  charge_ = book1D("charge_", "charge_", 3,-1.5,1.5);
+  charge_ = book1D("charge_", "charge_;charge", 3,-1.5,1.5);
 }
 
 
