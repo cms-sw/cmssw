@@ -72,7 +72,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
   int RefCol, ValCol;
   TString HistName, HistName2;
   char xAxisTitle[200];
-  float xAxisRange, yAxisRange, xMin, yMin;
+  int nRebin;
+  float xAxisMin, xAxisMax, yAxisMin, yAxisMax;
   TString OutLabel;
   string xTitleCheck;
 
@@ -88,7 +89,8 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     recstr>>HistName>>DrawSwitch;
     if (DrawSwitch == 0) continue;
     
-    recstr>>OutLabel>>xAxisRange>>yAxisRange;
+    recstr>>OutLabel>>nRebin;
+    recstr>>xAxisMin>>xAxisMax>>yAxisMin>>yAxisMax;
     recstr>>DimSwitch>>StatSwitch>>Chi2Switch>>LogSwitch;
     recstr>>RefCol>>ValCol;
     recstr.getline(xAxisTitle,200);
@@ -118,28 +120,26 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
 
       //Rebin histograms -- has to be done first
-      if (Chi2Switch == "Chi2" && OutLabel[2] != 'X'){
-	ref_hist1[nh1]->Rebin(10);
-	val_hist1[nh1]->Rebin(10);
-      }
-      if (OutLabel == "RBX_energy_type3.gif"){
-	ref_hist1[nh1]->Rebin(5);
-	val_hist1[nh1]->Rebin(5);
+      if (nRebin != 1){
+ 	ref_hist1[nh1]->Rebin(nRebin);
+ 	val_hist1[nh1]->Rebin(nRebin);
       }
       
       //Set the colors, styles, titles, stat boxes and format axes for the histograms 
       if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetStats(kFALSE);   
-      
-      if (xAxisRange > 0){
-	xMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
-	ref_hist1[nh1]->GetXaxis()->SetRangeUser(xMin,xAxisRange);
-      }
-      if (yAxisRange > 0){
-	yMin = ref_hist1[nh1]->GetYaxis()->GetXmin();
-	if (yMin <= 0 && LogSwitch == "Log") yMin = 1E-5;
-	ref_hist1[nh1]->GetYaxis()->SetRangeUser(yMin,yAxisRange);
-      }
 
+      //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+      //xAxis
+      if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
+      if (xAxisMax <  0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
+
+      if (xAxisMax > 0 || xAxisMin != 0) ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin,xAxisMax);
+
+      //yAxis
+      if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);   
+      if (yAxisMax  > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);  
+
+      //Title
       if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
 
       //Different histo colors and styles
