@@ -217,7 +217,7 @@ void HaloTrigger::analyze(const Event& e, const EventSetup& es)
     e.getByLabel("g4SimHits",simtracks_handle);
     edm::SimTrackContainer const* simtracks = simtracks_handle.product();
 
-	float vtxArray[6];
+	float vtxArray[7];
 	vtxArray[1] = 0;
 	vtxArray[6] = 0;
     edm::SimTrackContainer::const_iterator isimtr;
