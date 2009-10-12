@@ -104,7 +104,7 @@ reco::MET METManager::computeGenMET(const reco::GenParticleCollection *genPartic
   double true_set  = 0.0;;
 
   //std::cout << "(*genParticleList).size() = " << (*genParticleList).size() << std::endl;
-  for( unsigned i = 0; i < (*genParticleList).size(); i++ ) {
+  for( unsigned i = 0; i < (*genParticleList).size(); ++i ) {
 
     //std::cout << "(*genParticleList)[i].eta() = " << (*genParticleList)[i].eta() << std::endl;
 
@@ -185,6 +185,14 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
+
+  double NeutralEMEt = 0.0;
+  double NeutralHadEt = 0.0;
+  double ChargedEMEt = 0.0;
+  double ChargedHadEt = 0.0;
+  double MuonEt = 0.0;
+
+
   for (unsigned int pfc=0;pfc<pfCandidates.size();++pfc) {
     double phi   = pfCandidates[pfc].phi();
     double theta = pfCandidates[pfc].theta();
@@ -194,19 +202,44 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
     sum_et += et;
     sum_ex += et*cos(phi);
     sum_ey += et*sin(phi);
-  }
+
+    //std::cout << "pfCandidates[pfc].charge() = " << pfCandidates[pfc].charge() << std::endl;
+    //std::cout << "pfCandidates[pfc].ecalEnergy() = " << pfCandidates[pfc].ecalEnergy() << std::endl;
+    //std::cout << "pfCandidates[pfc].hcalEnergy() = " << pfCandidates[pfc].hcalEnergy() << std::endl;
+
+    // compute met specific data:
+    if (pfCandidates[pfc].charge()==0)
+    {
+      NeutralEMEt += pfCandidates[pfc].ecalEnergy()*sin(theta);
+      NeutralHadEt += pfCandidates[pfc].hcalEnergy()*sin(theta);
+    }
+    else
+    {
+      //std::cout << "pfCandidates[pfc].particleId() = " << pfCandidates[pfc].particleId() << std::endl;
+      if (pfCandidates[pfc].particleId() == PFCandidate::mu) // muon
+      {
+	MuonEt += pfCandidates[pfc].energy()*sin(theta);
+      }
+      else
+      {
+	ChargedEMEt += pfCandidates[pfc].ecalEnergy()*sin(theta);
+	ChargedHadEt += pfCandidates[pfc].hcalEnergy()*sin(theta);
+      }
+    }
+  } // pfc
+
+  const double Et_total=NeutralEMEt+NeutralHadEt+ChargedEMEt+ChargedHadEt+MuonEt;
 
   double met = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
   const LorentzVector p4( -sum_ex, -sum_ey, 0.0, met);
   const Point vtx(0.0,0.0,0.0);
  
   SpecificPFMETData specific;
-  // Initialize the container
-  specific.NeutralEMEtFraction = 0.0;
-  specific.NeutralHadEtFraction = 0.0;
-  specific.ChargedEMEtFraction = 0.0;
-  specific.ChargedHadEtFraction = 0.0;
-  specific.MuonEtFraction = 0.0;
+  specific.NeutralEMEtFraction = NeutralEMEt/Et_total;
+  specific.NeutralHadEtFraction = NeutralHadEt/Et_total;
+  specific.ChargedEMEtFraction = ChargedEMEt/Et_total;
+  specific.ChargedHadEtFraction = ChargedHadEt/Et_total;
+  specific.MuonEtFraction = MuonEt/Et_total;
 
   reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
   return specificPFMET;
