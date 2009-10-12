@@ -187,13 +187,23 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meEvtNumberSynch_->setAxisTitle("Slot #",1);
     meEvtNumberSynch_->setAxisTitle("Crate #",2);
 
-    type="07 LRB Data Corruption Indicators";
+    //     ---------------- 
+    //     | E!P | UE | TR |                                           
+    // ----|  ND | OV | ID |					       
+    // | T | CRC | ST | ODD| 					       
+    // -------------------- 					       
+    type="07 LRB Data Corruption Indicators";  
     meLRBDataCorruptionIndicators_= m_dbe->book2D(type,type,
 						 THREE_FED,0,THREE_FED,
 						 THREE_SPG,0,THREE_SPG);
     label_xFEDs   (meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin per ch.
     label_ySpigots(meLRBDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
 
+    //     ---------------- 
+    //     | CT | BE | LW |
+    //     | HM | 15 | WW | (Wrong Wordcount)
+    //     | TM | CK | IW | (Illegal Wordcount)
+    //     ---------------- 
     type="08 Half-HTR Data Corruption Indicators";
     meHalfHTRDataCorruptionIndicators_= m_dbe->book2D(type,type,
 						 THREE_FED,0,THREE_FED,
@@ -201,7 +211,10 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     label_xFEDs   (meHalfHTRDataCorruptionIndicators_, 4); // 3 bins + 1 margin per ch.
     label_ySpigots(meHalfHTRDataCorruptionIndicators_, 4); // 3 bins + 1 margin each spgt
 
-
+    //    ------------
+    //    | !DV | Er  |
+    //    | NTS | Cap |
+    //    ------------
     type = "09 Channel Integrity Summarized by Spigot";
     meChannSumm_DataIntegrityCheck_= m_dbe->book2D(type,type,
 						   TWO___FED,0,TWO___FED,
@@ -209,7 +222,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     label_xFEDs   (meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per ch.
     label_ySpigots(meChannSumm_DataIntegrityCheck_, 3); // 2 bins + 1 margin per spgt
  
-    m_dbe->setCurrentFolder(baseFolder_ + "/Corruption/ Channel Data Integrity");
+    m_dbe->setCurrentFolder(baseFolder_ + "/Corruption/Channel Data Integrity");
     char label[10];
     for (int f=0; f<NUMDCCS; f++){      
       sprintf(label, "FED %03d Channel Integrity", f+700);
@@ -239,11 +252,18 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFEDRawDataSizes_->setAxisTitle("# of bytes",1);
     meFEDRawDataSizes_->setAxisTitle("# of Data Blocks",2);
 
-    type = "DCC Data Block Size";
-    meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
     type = "DCC Data Block Size Profile";
+    meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
+    type = "DCC Data Block Size Each FED";
     meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5, 240,0,12000);
 
+    //     ------------
+    //     | OW | OFW |    "Two Caps HTR; Three Caps FED."
+    //     | BZ | BSY |
+    //     | EE | RL  |
+    // ----------------
+    // | CE |            (corrected error, Hamming code)
+    // ------
     type = "01 Data Flow Indicators";
     meDataFlowInd_= m_dbe->book2D(type,type,
 				  TWO___FED,0,TWO___FED,
@@ -421,10 +441,10 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     // Firmware version
     type = "HTR Firmware Version";
     //  Maybe change to Profile histo eventually
-    //meFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
-    meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,180,75.5,255.5);
-    meFWVersion_->setAxisTitle("Crate #",1);
-    meFWVersion_->setAxisTitle("HTR Firmware Version",2);
+    //meHTRFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
+    meHTRFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,180,75.5,255.5);
+    meHTRFWVersion_->setAxisTitle("Crate #",1);
+    meHTRFWVersion_->setAxisTitle("HTR Firmware Version",2);
 
     type = "HTR Fiber 1 Orbit Message BCNs";
     meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
@@ -645,17 +665,24 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 			     (dccid,dccHeader->getDCCDataFormatVersion() ) );
     DCCEvtFormat_it = DCCEvtFormat_list.find(dccid);
   } // then check against it.
-  if (dccHeader->getDCCDataFormatVersion()!= DCCEvtFormat_it->second) 
+  if (dccHeader->getDCCDataFormatVersion()!= DCCEvtFormat_it->second) {
     meDCCEventFormatError_->Fill(dccid,1);
+    mapDCCproblem(dcc_);
+  }
   /* 2 */ //Check for ones where there should always be zeros
   if (false) //dccHeader->getByte1Zeroes() || dccHeader->getByte3Zeroes() || dccHeader->getByte567Zeroes()) 
+  {
     meDCCEventFormatError_->Fill(dccid,2);
+    mapDCCproblem(dcc_);
+  }
   /* 3 */ //Check that there are zeros following the HTR Status words.
   int SpigotPad = HcalDCCHeader::SPIGOT_COUNT;
   if (  (((uint64_t) dccHeader->getSpigotSummary(SpigotPad)  ) 
 	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+1)) 
-	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2)))  != 0)
+	 | ((uint64_t) dccHeader->getSpigotSummary(SpigotPad+2)))  != 0){
     meDCCEventFormatError_->Fill(dccid,3);
+    mapDCCproblem(dcc_);
+  }
   /* 4 */ //Check that there are zeros following the HTR Payloads, if needed.
   int nHTR32BitWords=0;
   // add up all the declared HTR Payload lengths
@@ -664,8 +691,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   // if it's an odd number, check for the padding zeroes
   if (( nHTR32BitWords % 2) == 1) {
     uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
-    if ((*lastDataWord>>32) != 0x00000000)
+    if ((*lastDataWord>>32) != 0x00000000){
       meDCCEventFormatError_->Fill(dccid, 4);
+      mapDCCproblem(dcc_);
+    }
   }
   
   if (TTS_state & 0x1)                  meDCCStatusBits_->Fill(dccid, 1);
@@ -690,7 +719,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   if (TTS_state & 0x8) /*RDY*/ 
     ;
   if (TTS_state & 0x2) /*SYN*/ 
-    mapDCCproblem(dccid);          // DCC lost data
+    mapDCCproblem(dcc_);          // DCC lost data
 
   //Histogram per-Spigot bits from the DCC Header
   int WholeErrorList=0; 
@@ -707,14 +736,14 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     WholeErrorList=dccHeader->getLRBErrorBits((unsigned int) spigot);
     if (WholeErrorList!=0) {
-      mapHTRproblem (dccid, spigot); //There was at least one error, this spigot.
+      mapHTRproblem(dcc_, spigot); //There was at least one error, this spigot.
       if ((WholeErrorList>>0)&0x01)  //HammingCode Corrected 
 	DataFlowInd_[fed2offset-1][spg3offset-1]++;
       if (((WholeErrorList>>1)&0x01)!=0)  //HammingCode Uncorrected Error
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+2]++;
       if (((WholeErrorList>>2)&0x01)!=0)  //Truncated data coming into LRB
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+2]++;
-      if (((WholeErrorList>>3)&0x01)==0)  //FIFO Overflow
+      if (((WholeErrorList>>3)&0x01)!=0)  //FIFO Overflow
 	LRBDataCorruptionIndicators_[fed3offset+1][spg3offset+1]++;
       if (((WholeErrorList>>4)&0x01)!=0)  //ID (EvN Mismatch), htr payload metadeta
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+1]++;
@@ -723,21 +752,27 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       if (((WholeErrorList>>6)&0x01)!=0)  //ODD 16-bit word count from HTR
 	LRBDataCorruptionIndicators_[fed3offset+2][spg3offset+0]++;
     }
-    if (!dccHeader->getSpigotPresent((unsigned int) spigot))
+    if (!dccHeader->getSpigotPresent((unsigned int) spigot)){
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+2]++;  //Enabled, but data not present!
-    else {
+      mapHTRproblem(dcc_, spigot);
+    } else {
       //?////I got the wrong sign on getBxMismatchWithDCC; 
       //?////It's a match, not a mismatch, when true. I'm sorry. 
       //?//if (!dccHeader->getBxMismatchWithDCC((unsigned int) spigot)) ;
       //?//if (!dccHeader->getSpigotValid((unsigned int) spigot)      ) ;//actually "EvN match" 
-      if ( dccHeader->getSpigotDataTruncated((unsigned int) spigot))
+      if ( dccHeader->getSpigotDataTruncated((unsigned int) spigot)) {
      	LRBDataCorruptionIndicators_[fed3offset-1][spg3offset+0]++;  // EventBuilder truncated babbling LRB
-      //?//if (!dccHeader->getSpigotValid((unsigned int) spigot)        );
-      if ( dccHeader->getSpigotCRCError     ((unsigned int) spigot))
-	LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+0]++;  //CRC Error
+	mapHTRproblem(dcc_, spigot);
+      }
+      if ( dccHeader->getSpigotCRCError((unsigned int) spigot)) {
+	LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+0]++; 
+	//Already mapped any HTR problem with this one.
+      }
     } //else spigot marked "Present"
-    if (dccHeader->getSpigotDataLength(spigot) <(unsigned long)10)
+    if (dccHeader->getSpigotDataLength(spigot) <(unsigned long)10) {
       LRBDataCorruptionIndicators_[fed3offset+0][spg3offset+1]++;  //Lost HTR Data for sure.
+      mapHTRproblem(dcc_, spigot);
+    }    
   }
 
   //Fake a problem with each DCC a unique number of times
@@ -759,7 +794,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     // check min length, correct wordcount, empty event, or total length if histo event.
     if (!htr.check()) {
       meInvHTRData_ -> Fill(spigot,dccid);
-      mapHTRproblem(dccid,spigot);
+      mapHTRproblem(dcc_,spigot);
     }
 
     unsigned short HTRwdcount = htr.getRawLength();
@@ -799,17 +834,20 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     if (( (htrOrN  == dccOrN ) &&
 	  (htrBCN  == (unsigned int) dccBCN) )  
-	!= (dccHeader->getBxMismatchWithDCC(spigot))  )
+	!= (dccHeader->getBxMismatchWithDCC(spigot))  ){
       meDCCEventFormatError_->Fill(dccid,5);
+      mapDCCproblem(dcc_);
+    }
     if ( (htrEvtN == dccEvtNum) != 
-	 dccHeader->getSpigotValid(spigot) )
+	 dccHeader->getSpigotValid(spigot) ) {
       meDCCEventFormatError_->Fill(dccid,5);
-
+      mapDCCproblem(dcc_);
+    }
     int cratenum = htr.readoutVMECrateId();
     float slotnum = htr.htrSlot() + 0.5*htr.htrTopBottom();
     if (prtlvl_ > 0) HTRPrint(htr,prtlvl_);
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
-    meFWVersion_->Fill(cratenum,htrFWVer);  
+    meHTRFWVersion_->Fill(cratenum,htrFWVer);  
 
     ///check that all HTRs have the same L1A number.
     if(lastEvtN_==-1) {
@@ -860,7 +898,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
 
     //Fake a problem with each HTR a unique number of times.
     //if ( (spigot+1) >= ievt_ ) 
-    //  mapHTRproblem(dccid,spigot); 
+    //  mapHTRproblem(dcc_,spigot); 
 
     //Fake a problem with each real calorimeter cell a unique number of times.
     //for (int htrchan=1; htrchan<=HTRCHANMAX; htrchan++) 
@@ -887,9 +925,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
       }
     }
    
-    int errWord = htr.getErrorsWord() & 0x1FFFF;
-    if (dccHeader->getSpigotErrorBits((unsigned int) spigot) != errWord )
-      meDCCEventFormatError_->Fill(dccid,6);//Miscopied into DCCHeader
+    int errWord = htr.getErrorsWord() & 0xFFFF;
+    if (  (((dccHeader->getSpigotSummary( spigot))>>24)&0x00FF)
+	  != (errWord&0x00FF) ){
+      meDCCEventFormatError_->Fill(dccid,6);//Low 8 bits miscopied into DCCHeader
+      mapDCCproblem(dcc_);                  //What other problems may lurk? Spooky.
+    }
     if(tmpErr!=NULL){
       for(int i=0; i<16; i++){
 	int errbit = errWord&(0x01<<i);
@@ -1191,28 +1232,28 @@ void HcalDataFormatMonitor::UpdateMEs (void ) {
   for (int x=0; x<THREE_FED; x++)
     for (int y=0; y<THREE_SPG; y++)
       if (LRBDataCorruptionIndicators_  [x][y])
-	meLRBDataCorruptionIndicators_->Fill(x,y,LRBDataCorruptionIndicators_[x][y]);
+	meLRBDataCorruptionIndicators_->setBinContent(x+1,y+1,LRBDataCorruptionIndicators_[x][y]);
   	 
   for (int x=0; x<THREE_FED; x++)
     for (int y=0; y<THREE_SPG; y++)
       if (HalfHTRDataCorruptionIndicators_  [x][y])
-	meHalfHTRDataCorruptionIndicators_->Fill(x,y,HalfHTRDataCorruptionIndicators_[x][y]);
+	meHalfHTRDataCorruptionIndicators_->setBinContent(x+1,y+1,HalfHTRDataCorruptionIndicators_[x][y]);
   	 
   for (int x=0; x<TWO___FED; x++)
     for (int y=0; y<TWO__SPGT; y++)
       if (ChannSumm_DataIntegrityCheck_[x][y])
-	meChannSumm_DataIntegrityCheck_->Fill(x,y,ChannSumm_DataIntegrityCheck_[x][y]);
+	meChannSumm_DataIntegrityCheck_->setBinContent(x+1,y+1,ChannSumm_DataIntegrityCheck_[x][y]);
 
   for (int f=0; f<NUMDCCS; f++)
     for (int x=0; x<TWO_CHANN; x++)
       for (int y=0; y<TWO__SPGT; y++)      
 	if (Chann_DataIntegrityCheck_[f][x][y])
-	  meChann_DataIntegrityCheck_[f]->Fill(x,y,Chann_DataIntegrityCheck_ [f][x][y]);
+	  meChann_DataIntegrityCheck_[f]->setBinContent(x+1,y+1,Chann_DataIntegrityCheck_ [f][x][y]);
 
   for (int x=0; x<TWO___FED; x++)
     for (int y=0; y<THREE_SPG; y++)      
       if (DataFlowInd_[x][y])
-	meDataFlowInd_->Fill(x,y,DataFlowInd_[x][y]);
+	meDataFlowInd_->setBinContent(x+1,y+1,DataFlowInd_[x][y]);
 
   uint64_t probfrac=0;
 

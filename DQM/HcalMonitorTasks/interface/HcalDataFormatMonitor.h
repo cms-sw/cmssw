@@ -33,8 +33,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2009/09/25 23:17:47 $
- * $Revision: 1.09 $
+ * $Date: 2009/10/08 12:21:10 $
+ * $Revision: 1.51 $
  * \author W. Fisher - FNAL
  * \author J. St. John - Boston University
  */
@@ -130,7 +130,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   MonitorElement* meInvHTRData_;
   MonitorElement* meFibBCN_;
 
-  MonitorElement* meFWVersion_;
+  MonitorElement* meHTRFWVersion_;
   MonitorElement* meEvFragSize_;
   MonitorElement* meEvFragSize2_;
 
