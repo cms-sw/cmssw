@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.26 2009/08/11 04:23:31 srappocc Exp $
+// $Id: Muon.h,v 1.27 2009/09/28 14:38:43 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.26 2009/08/11 04:23:31 srappocc Exp $
+  \version  $Id: Muon.h,v 1.27 2009/09/28 14:38:43 srappocc Exp $
 */
 
 
@@ -117,6 +117,13 @@ namespace pat {
       /// then the isMuonIDAvailable method will be defined
       //bool isMuonIDAvailable(const std::string& name) const;
 
+      // ---- overload of isolation functions ----
+      // Overload of pat::Lepton::trackIso()
+      float trackIso() const { return isolationR03().sumPt; }
+      // Overload of pat::Lepton::trackIso()
+      float ecalIso()  const { return isolationR03().emEt; }
+      // Overload of pat::Lepton::trackIso()
+      float hcalIso()  const { return isolationR03().hadEt; }
 
       /// Muon High Level Selection
       /// The user can choose to cache this info so they can drop the

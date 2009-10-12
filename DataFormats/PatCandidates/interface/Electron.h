@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.24 2009/07/08 08:46:38 salerno Exp $
+// $Id: Electron.h,v 1.25 2009/08/11 04:23:31 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.24 2009/07/08 08:46:38 salerno Exp $
+  \version  $Id: Electron.h,v 1.25 2009/08/11 04:23:31 srappocc Exp $
 */
 
 
@@ -90,6 +90,14 @@ namespace pat {
       /// The first one in the list becomes the 'default' electron id 
       void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
       
+      // ---- overload of isolation functions ----
+      // Overload of pat::Lepton::trackIso()
+      float trackIso() const { return dr04TkSumPt(); }
+      // Overload of pat::Lepton::trackIso()
+      float ecalIso()  const { return dr04EcalRecHitSumEt(); }
+      // Overload of pat::Lepton::trackIso()
+      float hcalIso()  const { return dr04HcalTowerSumEt(); }
+
       // ---- PF specific methods ----
       /// reference to the source PFCandidates
       /// null if this has been built from a standard electron
@@ -100,7 +108,6 @@ namespace pat {
       } 
       /// embed the PFCandidate pointed to by pfCandidateRef_
       void embedPFCandidate();
-
 
       /// dB gives the impact parameter wrt the beamline.
       /// If this is not cached it is not meaningful, since
@@ -133,10 +140,7 @@ namespace pat {
       // V+Jets group selection variables. 
       bool    cachedDB_;         // have these values been cached? 
       double  dB_;               // track->dxy( beamPoint ) 
-
   };
-
-
 }
 
 #endif
