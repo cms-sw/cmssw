@@ -21,7 +21,8 @@ namespace edm {
   // make secondary input source
   SecondaryProducer::SecondaryProducer(ParameterSet const& pset) :
 	secInput_(makeSecInput(pset)),
-	sequential_(pset.getUntrackedParameter<bool>("sequential", false)) {
+	sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
+	specified_(pset.getUntrackedParameter<bool>("specified", false)) {
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
   }
@@ -45,6 +46,11 @@ namespace edm {
         secInput_->rewind();
         secInput_->readManySequential(1, result, fileSequenceNumber);
       }
+    } else if (specified_) {
+      std::vector<EventID> events;
+      // Just for simplicity, we use the event ID from the primary to read the secondary.
+      events.push_back(e.id());
+      secInput_->readManySpecified(events, result);
     } else {
       secInput_->readManyRandom(1, result, fileSequenceNumber);
     }

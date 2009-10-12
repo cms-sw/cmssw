@@ -9,3 +9,5 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/PreSecondaryInputTest_cfg.py || die 'Fa
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/SecondaryInputTest_cfg.py || die 'Failure using SecondaryInputTest_cfg.py' $?
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/SecondarySeqInputTest_cfg.py || die 'Failure using SecondarySeqInputTest_cfg.py' $?
+
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/SecondarySpecInputTest_cfg.py || die 'Failure using SecondarySpecInputTest_cfg.py' $?

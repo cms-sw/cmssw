@@ -36,6 +36,8 @@ namespace edm {
     boost::shared_ptr<VectorInputSource> secInput_;
 
     bool sequential_;
+
+    bool specified_;
   };
 }//edm
 

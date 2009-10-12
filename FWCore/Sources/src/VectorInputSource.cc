@@ -30,6 +30,11 @@ namespace edm {
   }
 
   void
+  VectorInputSource::readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result) {
+    this->readManySpecified_(events, result);
+  }
+
+  void
   VectorInputSource::dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
     this->dropUnwantedBranches_(wantedBranches);
   }

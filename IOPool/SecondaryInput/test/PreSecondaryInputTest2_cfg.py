@@ -8,7 +8,7 @@ process = cms.Process("TEST")
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(50)
 )
 process.Thing = cms.EDProducer("ThingProducer",
     debugLevel = cms.untracked.int32(1)

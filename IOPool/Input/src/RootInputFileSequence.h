@@ -67,6 +67,7 @@ namespace edm {
     void readMany(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
+    void readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result); 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
   private:

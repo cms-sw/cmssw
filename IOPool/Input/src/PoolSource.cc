@@ -271,6 +271,12 @@ namespace edm {
   }
 
   void
+  PoolSource::readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result) {
+    assert (!secondaryFileSequence_);
+    primaryFileSequence_->readManySpecified(events, result);
+  }
+
+  void
   PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
     assert (!secondaryFileSequence_);
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);

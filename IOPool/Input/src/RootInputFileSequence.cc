@@ -468,10 +468,10 @@ namespace edm {
   RootInputFileSequence::skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact, bool record) {
     // Note: 'exact' argumet is ignored unless the item is an event.
     // Attempt to find item in currently open input file.
-    bool found = rootFile_->setEntryAtItem(run, lumi, event, exact);
+    bool found = rootFile_ && rootFile_->setEntryAtItem(run, lumi, event, exact);
     if(!found) {
       // If only one input file, give up now, to save time.
-      if(fileIndexes_.size() == 1) {
+      if(rootFile_ && fileIndexes_.size() == 1) {
 	return false;
       }
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
@@ -588,6 +588,7 @@ namespace edm {
 
   void
   RootInputFileSequence::readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    result.reserve(number);
     if (!flatDistribution_) {
       Service<RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine& engine = rng->getEngine();
@@ -626,6 +627,7 @@ namespace edm {
 
   void
   RootInputFileSequence::readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
+    result.reserve(number);
     skipBadFiles_ = false;
     if (fileIter_ == fileIterEnd_ || !rootFile_) {
       fileIter_ = fileIterBegin_;
@@ -654,6 +656,31 @@ namespace edm {
       result.push_back(ep);
       ++numberRead;
       rootFile_->nextEventEntry();
+    }
+  }
+
+  void
+  RootInputFileSequence::readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result) {
+    skipBadFiles_ = false;
+    result.reserve(events.size());
+    for (std::vector<EventID>::const_iterator it = events.begin(), itEnd = events.end(); it != itEnd; ++it) {
+      bool found = skipToItem(it->run(), it->luminosityBlock(), it->event(), true, false);
+      if (!found) {
+	throw edm::Exception(edm::errors::NotFound) <<
+	   "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
+	   fileIter_->fileName() <<
+           " does not contain specified event:\n" << *it << "\n";
+      }
+      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(rootFile_->productRegistry(), processConfiguration()));
+      EventPrincipal* ev = rootFile_->readCurrentEvent(*ep);
+      if (ev == 0) {
+	throw edm::Exception(edm::errors::EventCorruption) <<
+	   "RootInputFileSequence::readManySpecified_(): Secondary Input file " <<
+	   fileIter_->fileName() <<
+           " contains specified event " << *it << " that cannot be read.\n";
+      }
+      assert(ev == ep.get());
+      result.push_back(ep);
     }
   }
 
