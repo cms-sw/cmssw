@@ -181,19 +181,19 @@ L2L3CorJetIC5PF = cms.EDProducer("PFJetCorrectionProducer",
     correctors = cms.vstring('L2L3JetCorrectorIC5PF')
 )
 L2L3CorJetAK5Calo = cms.EDProducer("CaloJetCorrectionProducer",
-    src = cms.InputTag("antikt5CaloJets"),
+    src = cms.InputTag("ak5CaloJets"),
     correctors = cms.vstring('L2L3JetCorrectorAK5Calo')
 )
 L2L3CorJetAK5PF = cms.EDProducer("PFJetCorrectionProducer",
-    src = cms.InputTag("antikt5PFJets"),
+    src = cms.InputTag("ak5PFJets"),
     correctors = cms.vstring('L2L3JetCorrectorAK5PF')
 )
 L2L3CorJetAK7Calo = cms.EDProducer("CaloJetCorrectionProducer",
-    src = cms.InputTag("antikt7CaloJets"),
+    src = cms.InputTag("ak7CaloJets"),
     correctors = cms.vstring('L2L3JetCorrectorAK7Calo')
 )
 L2L3CorJetAK7PF = cms.EDProducer("PFJetCorrectionProducer",
-    src = cms.InputTag("antikt7PFJets"),
+    src = cms.InputTag("ak7PFJets"),
     correctors = cms.vstring('L2L3JetCorrectorAK7PF')
 )
 L2L3CorJetSC5Calo = cms.EDProducer("CaloJetCorrectionProducer",
