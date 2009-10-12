@@ -744,23 +744,25 @@ sub reset_var {
   $ZWIDGETS{'ROText2'}->insert('end',$workdir);
 
 # Read mps.db
-  read_db();
+  if (-e "mps.db") {
+    read_db();
 #
-  $pathmillescript_variable =$batchScript;
-  $pathcfg_variable         =$cfgTemplate;
-  $pathdata_variable        =$infiList;
-  $pathpedescript_variable  =$mergeScript;
-  $pathcastor_variable      =$mssDir;
-  if ($mssDirPool ne "") {
-    $pathcastor_variable    =$mssDirPool.":".$pathcastor_variable;
+    $pathmillescript_variable =$batchScript;
+    $pathcfg_variable         =$cfgTemplate;
+    $pathdata_variable        =$infiList;
+    $pathpedescript_variable  =$mergeScript;
+    $pathcastor_variable      =$mssDir;
+    if ($mssDirPool ne "") {
+      $pathcastor_variable    =$mssDirPool.":".$pathcastor_variable;
+    }
+    $jobname_variable         =$addFiles;
+    $njobs_variable           =$nJobs;
+#
+    $batchclass_variable =$class;
+    $milleclass_variable ="";
+    $pedeclass_variable  ="";
+    $pedemem_variable = $pedeMem;
   }
-  $jobname_variable         =$addFiles;
-  $njobs_variable           =$nJobs;
-#
-  $batchclass_variable =$class;
-  $milleclass_variable ="";
-  $pedeclass_variable  ="";
-  $pedemem_variable = $pedeMem;
 #
   $setuppedejob_variable    ="1"; #The default is "yes".
   $appendmillejob_variable  ="2"; #The default is "no".
