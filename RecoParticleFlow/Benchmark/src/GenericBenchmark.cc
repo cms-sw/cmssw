@@ -138,7 +138,9 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   BOOK1D(EtaSeen,"seen #eta",100,-5,5);
   BOOK1D(PhiSeen,"seen #phi",100,-3.5,3.5);
   BOOK1D(EtSeen,"seen E_{T}",nbinsEt, minEt, maxEt);
-  
+  BOOK2D(EtvsEtaSeen,"seen E_{T} vs eta",100,-5,5,200, 0, 200);
+  BOOK2D(EtvsPhiSeen,"seen E_{T} vs seen #phi",100,-3.5,3.5,200, 0, 200);  
+
   BOOK1D(PhiRec,"Rec #phi",100,-3.5,3.5);
   BOOK1D(EtRec,"Rec E_{T}",nbinsEt, minEt, maxEt);
   BOOK1D(ExRec,"Rec E_{X}",nbinsEt, -maxEt, maxEt);
@@ -154,7 +156,9 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   BOOK1D(EtaGen,"generated #eta",100,-5,5);
   BOOK1D(PhiGen,"generated #phi",100,-3.5,3.5);
   BOOK1D(EtGen,"generated E_{T}",nbinsEt, minEt, maxEt);
-  
+  BOOK2D(EtvsEtaGen,"generated E_{T} vs generated #eta",100,-5,5,200, 0, 200);  
+  BOOK2D(EtvsPhiGen,"generated E_{T} vs generated #phi",100,-3.5,3.5, 200, 0, 200);  
+
   BOOK1D(NGen,"Number of generated objects",20,0,20);
 
   if (doMetPlots)
@@ -218,6 +222,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   SETAXES(EtaSeen,"seen #eta","");
   SETAXES(PhiSeen,"seen #phi [rad]","");
   SETAXES(EtSeen,"seen E_{T} [GeV]","");
+  SETAXES(EtvsEtaSeen,"seen #eta","seen E_{T}");
+  SETAXES(EtvsPhiSeen,"seen #phi [rad]","seen E_{T}");
 
   SETAXES(PhiRec,"#phi [rad]","");
   SETAXES(EtRec,"E_{T} [GeV]","");
@@ -229,6 +235,8 @@ void GenericBenchmark::setup(DQMStore *DQM, bool PlotAgainstReco_, float minDelt
   SETAXES(EtaGen,"generated #eta","");
   SETAXES(PhiGen,"generated #phi [rad]","");
   SETAXES(EtGen,"generated E_{T} [GeV]","");
+  SETAXES(EtvsPhiGen,"generated #phi [rad]","generated E_{T} [GeV]");
+  SETAXES(EtvsEtaGen,"generated #eta","generated E_{T} [GeV]");
 
   SETAXES(NGen,"Number of Gen Objects","");
   
@@ -329,10 +337,8 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
   //std::cout << "FL :deltaR_cut = " << deltaR_cut << std::endl;
   //std::cout << "FL :deltaR = " << deltaR << std::endl;
 
-  //TODO implement variable Cut:
-  if (fabs(deltaR)>deltaR_cut and deltaR_cut != -1.)
-    return;
-
+  if (deltaR>deltaR_cut && deltaR_cut != -1.)
+    return;  
 
   hDeltaEt->Fill(deltaEt);
   hDeltaEx->Fill(recParticle->px()-genParticle->px());
