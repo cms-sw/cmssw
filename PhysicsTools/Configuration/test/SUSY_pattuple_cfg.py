@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.16 $'),
+    version = cms.untracked.string('$Revision: 1.17 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
@@ -303,6 +303,9 @@ from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger( process )
 process.patTriggerSequence.remove( process.patTriggerMatcher )
 process.patTriggerEvent.patTriggerMatches  = ()
+# Fix for secondary datasets: skimming based on 8E29 menu...
+process.patTrigger.processName = "HLT8E29"
+process.patTriggerEvent.processName = "HLT8E29"
 
 
 #-- Execution path ------------------------------------------------------------
