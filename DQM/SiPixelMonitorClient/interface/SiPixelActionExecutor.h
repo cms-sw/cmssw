@@ -109,6 +109,12 @@ private:
   MonitorElement * OccupancyMap;
   MonitorElement * PixelOccupancyMap;
   
+  TH2F * temp_H;
+  TH2F * temp_1x2;
+  TH2F * temp_1x5;
+  TH2F * temp_2x3;
+  TH2F * temp_2x4;
+  TH2F * temp_2x5;
   
 };
 #endif

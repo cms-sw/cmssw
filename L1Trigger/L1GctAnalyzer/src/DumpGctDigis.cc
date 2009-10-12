@@ -18,6 +18,7 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::string;
 using std::ios;
@@ -177,6 +178,7 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   Handle<L1GctJetCandCollection> cenJets;
   Handle<L1GctJetCandCollection> forJets;
   Handle<L1GctJetCandCollection> tauJets;
+  Handle<L1GctJetCounts> jetCounts;
   
   L1GctJetCandCollection::const_iterator cj;
   L1GctJetCandCollection::const_iterator fj;
@@ -187,6 +189,7 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   iEvent.getByLabel(labelStr,"cenJets",cenJets);
   iEvent.getByLabel(labelStr,"forJets",forJets);
   iEvent.getByLabel(labelStr,"tauJets",tauJets);
+  iEvent.getByLabel(label, jetCounts);
   
   outFile_ << "Central jets from : " << labelStr << endl;
   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
@@ -204,6 +207,10 @@ void DumpGctDigis::doJets(const edm::Event& iEvent, const edm::InputTag& label) 
   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
     outFile_ << (*tj) << endl;
   }
+  
+  outFile_ << "\nJet counts from : " << labelStr << endl; 
+  outFile_ << *(jetCounts.product()) << endl << endl;
+
 }
 
 

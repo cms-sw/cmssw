@@ -72,15 +72,17 @@ struct TriggerScalersRaw_v1
 
 struct TriggerScalersRaw_v3
 {
-  unsigned int collectionTimeGeneral_sec;
-  unsigned int collectionTimeGeneral_nsec;
+  unsigned int collectionTime_sec;
+  unsigned int collectionTime_nsec;
   unsigned int lumiSegmentNr;
   unsigned int lumiSegmentOrbits;
   unsigned int orbitNr;
-  unsigned int gtPartition0Resets;
+  unsigned int gtResets;
   unsigned int bunchCrossingErrors;
-  unsigned long long gtPartition0Triggers;
-  unsigned long long gtPartition0Events;
+  unsigned long long gtTriggers;
+  unsigned long long gtEvents;
+  float gtTriggersRate;
+  float gtEventsRate;
   int prescaleIndexAlgo;
   int prescaleIndexTech;
 

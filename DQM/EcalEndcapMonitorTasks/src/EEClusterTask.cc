@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2009/02/26 19:51:36 $
- * $Revision: 1.63 $
+ * $Date: 2009/03/30 18:28:01 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -856,12 +856,12 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
           edm::ESHandle<EcalADCToGeVConstant> pAgc;
           c.get<EcalADCToGeVConstantRcd>().get(pAgc);
           const EcalADCToGeVConstant* agc = pAgc.product();
-          
+
           if(pAgc.isValid()) {
             if(seedItr->energy() / agc->getEEValue() > 16) {
-              
+
               float time = seedItr->time() + 5.0;
-              
+
               meSCSeedTimingSummary_->Fill( time );
               meSCSeedTiming_[ism-1]->Fill( time );
               meSCSeedTimingMap_[eeSide]->Fill(xeex, xeey, time);

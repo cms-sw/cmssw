@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.23 2009/04/06 09:16:42 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.24 2009/05/29 10:33:35 dutta Exp $
 //
 
 #include <iostream>
@@ -47,6 +47,9 @@ SiStripFolderOrganizer::~SiStripFolderOrganizer()
 {
 }
 
+void SiStripFolderOrganizer::setSiStripFolderName(string name){
+  TopFolderName = name;
+}
 
 std::string SiStripFolderOrganizer::getSiStripFolder(){
    return TopFolderName;

@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2008/10/16 20:33:18 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/04/15 09:41:11 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -152,10 +152,14 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
     LogTrace(category_)<<"first hit is at det "<< hits.front()->det()->surface().position();
 
     currTsos = theUpdator->update(predTsos, *preciseHit);
+    if (!currTsos.isValid()){
+      edm::LogWarning(category_)
+	<<"an updated state is not valid. killing the trajectory.";
+      return vector<Trajectory>();
+    }
     myTraj.push(TrajectoryMeasurement(predTsos, currTsos, hits.front(),
                 theEstimator->estimate(predTsos, *hits.front()).second));
     if ( currTsos.isValid() )  LogTrace(category_)<< "first curr TSOS: "<<currTsos;
-
 
   } else {
 
@@ -208,6 +212,11 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
         myTraj.push(TrajectoryMeasurement(predTsos, *ihit));
       } else {
         currTsos = theUpdator->update(predTsos, *preciseHit);
+	if (!currTsos.isValid()){
+	  edm::LogWarning(category_)
+	    <<"an updated state is not valid. killing the trajectory.";
+	  return vector<Trajectory>();
+	}
         myTraj.push(TrajectoryMeasurement(predTsos, currTsos, preciseHit,
                        theEstimator->estimate(predTsos, *preciseHit).second));
       }
@@ -281,6 +290,11 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   // first smoothed TrajectoryMeasurement is last fitted
   if ( avtm.back().recHit()->isValid() ) {
     currTsos = theUpdator->update(predTsos, (*avtm.back().recHit()));
+    if (!currTsos.isValid()){
+      edm::LogWarning(category_)
+	<<"an updated state is not valid. killing the trajectory.";
+      return vector<Trajectory>();
+    }
     myTraj.push(TrajectoryMeasurement(avtm.back().forwardPredictedState(),
 		   predTsos,
 		   avtm.back().updatedState(),
@@ -330,6 +344,11 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
     } else if ( (*itm).recHit()->isValid() ) {
       //update
       currTsos = theUpdator->update(predTsos, (*(*itm).recHit()));
+      if (!currTsos.isValid()){
+	edm::LogWarning(category_)
+	  <<"an updated state is not valid. killing the trajectory.";
+	return vector<Trajectory>();
+      }
       TrajectoryStateOnSurface combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       if ( !combTsos.isValid() ) {
          LogTrace(category_)<< "Error: smooth: combining pred TSOS failed. ";

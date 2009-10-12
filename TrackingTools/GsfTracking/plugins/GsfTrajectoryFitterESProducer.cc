@@ -30,19 +30,19 @@ GsfTrajectoryFitterESProducer::GsfTrajectoryFitterESProducer(const edm::Paramete
 GsfTrajectoryFitterESProducer::~GsfTrajectoryFitterESProducer() {}
 
 boost::shared_ptr<TrajectoryFitter> 
-GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
+GsfTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord){ 
   //
   // material effects
   //
   std::string matName = pset_.getParameter<std::string>("MaterialEffectsUpdator");
   edm::ESHandle<GsfMaterialEffectsUpdator> matProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(matName,matProducer);
+  iRecord.get(matName,matProducer);
   //
   // propagator
   //
   std::string geomName = pset_.getParameter<std::string>("GeometricalPropagator");
   edm::ESHandle<Propagator> geomProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(geomName,geomProducer);
+  iRecord.get(geomName,geomProducer);
   GsfPropagatorWithMaterial propagator(*geomProducer.product(),*matProducer.product());
   //
   // merger
@@ -51,7 +51,7 @@ GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){
 //   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
 //   iRecord.get(mergerName,mergerProducer);
   edm::ESHandle< MultiGaussianStateMerger<5> > mergerProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName,mergerProducer);
+  iRecord.get(mergerName,mergerProducer);
   MultiTrajectoryStateMerger merger(*mergerProducer.product());
   //
   // estimator
@@ -59,16 +59,10 @@ GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){
   //   double chi2Cut = pset_.getParameter<double>("ChiSquarCut");
   double chi2Cut(100.);
   GsfChi2MeasurementEstimator estimator(chi2Cut);
-
-  // geometry
-  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
-  edm::ESHandle<DetLayerGeometry> geo;
-  iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
   //
   // create algorithm
   //
   return boost::shared_ptr<TrajectoryFitter>(new GsfTrajectoryFitter(propagator,
 								     GsfMultiStateUpdator(), 
-								     estimator,merger,
-								     geo.product()));
+								     estimator,merger));
 }

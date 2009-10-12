@@ -42,8 +42,6 @@
  </class>
  <class name="edm::Wrapper<TProfile3D>"/>
 
- <class name="std::vector<uint32_t>"/>
- <class name="std::vector<std::vector<uint32_t> >"/>
  <class name="MEtoEDM<TH1F>"/>
  <class name="MEtoEDM<TH1S>"/>
  <class name="MEtoEDM<TH2F>"/>

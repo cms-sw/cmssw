@@ -6,7 +6,7 @@ process = cms.Process("CSCDQMLIVE")
 # DQM Module Configuration
 #-------------------------------------------------
 
-process.load("DQM.CSCMonitorModule.test.csc_dqm_sourceclient_cfi")
+process.load("DQM.CSCMonitorModule.csc_dqm_sourceclient_cfi")
 
 #-------------------------------------------------
 # Offline DQM Module Configuration

@@ -17,9 +17,16 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
+#include "DataFormats/MuonReco/interface/MuonIsolation.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 class TH1F;
 class TH2F;
@@ -45,15 +52,43 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     edm::ParameterSet parameters_;
     DQMStore * dbe_;
 
-    edm::InputTag muons_;
-    double pT_cut_;
-    double eta_cut_;
     std::string moduleName_;
+    edm::InputTag triggerResults_;
+    std::vector<std::string> hltPaths_L3_;
+    std::vector<std::string> hltPaths_L3_mu_;
+    std::vector<std::string> hltPaths_L3_el_;
 
+    edm::InputTag muons_;
+    double muon_pT_cut_;
+    double muon_eta_cut_;
+
+    edm::InputTag elecs_;
+    double elec_pT_cut_;
+    double elec_eta_cut_;
+
+    MonitorElement * Trigs_;
+
+    MonitorElement * Muon_Trigs_;
     MonitorElement * Nmuons_;
     MonitorElement * pT_muons_;
     MonitorElement * eta_muons_;
     MonitorElement * phi_muons_;
+
+    MonitorElement * Elec_Trigs_;
+    MonitorElement * Nelecs_;
+    MonitorElement * pT_elecs_;
+    MonitorElement * eta_elecs_;
+    MonitorElement * phi_elecs_;
+
+    MonitorElement * MuIso_emEt03_;
+    MonitorElement * MuIso_hadEt03_;
+    MonitorElement * MuIso_hoEt03_;
+    MonitorElement * MuIso_nJets03_;
+    MonitorElement * MuIso_nTracks03_;
+    MonitorElement * MuIso_sumPt03_;
+
+    MonitorElement * ElecIso_cal_;
+    MonitorElement * ElecIso_trk_;
 
     MonitorElement * dimassRC_LOG_;
     MonitorElement * dimassWC_LOG_;

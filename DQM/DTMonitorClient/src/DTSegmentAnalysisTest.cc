@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/03/27 13:29:16 $
- *  $Revision: 1.27 $
+ *  $Date: 2009/08/07 10:16:49 $
+ *  $Revision: 1.29 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -53,7 +53,7 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis","false");
   normalizeHistoPlots  = parameters.getUntrackedParameter<bool>("normalizeHistoPlots",false);
   // top folder for the histograms in DQMStore
-  topHistoFolder = ps.getUntrackedParameter<bool>("topHistoFolder","DT/02-Segments");
+  topHistoFolder = ps.getUntrackedParameter<string>("topHistoFolder","DT/02-Segments");
   // hlt DQM mode
   hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode",false);
 }
@@ -323,8 +323,8 @@ void DTSegmentAnalysisTest::endRun(const Run& run, const EventSetup& eSetup) {
   if(normalizeHistoPlots) {
     LogTrace ("DTDQM|DTMonitorClient|DTSegmentAnalysisTest") << " Performing time-histo normalization" << endl;
     MonitorElement* hNevtPerLS = 0;
-    if(hltDQMMode) dbe->get(topHistoFolder + "/NevtPerLS");
-    else  dbe->get("DT/EventInfo/NevtPerLS");
+    if(hltDQMMode) hNevtPerLS = dbe->get(topHistoFolder + "/NevtPerLS");
+    else  hNevtPerLS = dbe->get("DT/EventInfo/NevtPerLS");
 
     if(hNevtPerLS != 0) {
       for(int wheel = -2; wheel != 3; ++wheel) { // loop over wheels

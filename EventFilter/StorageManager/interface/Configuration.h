@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.4 2009/07/03 11:07:43 mommsen Exp $
+// $Id: Configuration.h,v 1.9 2009/08/26 15:18:25 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -15,6 +15,7 @@
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Double.h"
 #include "xdata/Boolean.h"
+#include "xdata/Vector.h"
 
 #include "boost/thread/mutex.hpp"
 
@@ -39,6 +40,12 @@ namespace stor
     utils::duration_t _fileClosingTestInterval;
     bool _exactFileSizeTest;
     bool _useIndexFiles;  // not yet used
+    std::string _sataUser; // user name to log into SATA controller
+    int _nInjectWorkers; // expected number of inject workers running on the node
+    int _nCopyWorkers; // expected number of copy workers running on the node
+
+    typedef std::vector<std::string> OtherDiskPaths;
+    OtherDiskPaths _otherDiskPaths;
 
     // not mapped to infospace params
     std::string _smInstanceString;
@@ -102,10 +109,11 @@ namespace stor
    */
   struct WorkerThreadParams
   {
-    double _FPdeqWaitTime;
-    double _DWdeqWaitTime;
-    double _DQMEPdeqWaitTime;
-    double _staleFragmentTimeOut;
+    utils::duration_t _FPdeqWaitTime;
+    utils::duration_t _DWdeqWaitTime;
+    utils::duration_t _DQMEPdeqWaitTime;
+    utils::duration_t _staleFragmentTimeOut;
+    utils::duration_t _monitoringSleepSec;
   };
 
   /**
@@ -122,8 +130,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/03 11:07:43 $
+   * $Revision: 1.9 $
+   * $Date: 2009/08/26 15:18:25 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -278,6 +286,7 @@ namespace stor
     xdata::String _streamConfiguration;
     xdata::String _fileName;
     xdata::String _filePath;
+    xdata::Vector<xdata::String> _otherDiskPaths;
     xdata::String _fileCatalog;
     xdata::String _setupLabel;
     xdata::Integer _nLogicalDisk;
@@ -288,6 +297,9 @@ namespace stor
     xdata::Integer _fileClosingTestInterval;
     xdata::Boolean _exactFileSizeTest;
     xdata::Boolean _useIndexFiles;
+    xdata::String _sataUser;
+    xdata::Integer _nInjectWorkers;
+    xdata::Integer _nCopyWorkers;
 
     xdata::Boolean _pushmode2proxy;
     xdata::Double _maxESEventRate;  // hertz
@@ -321,6 +333,7 @@ namespace stor
     xdata::Double _DWdeqWaitTime;
     xdata::Double _DQMEPdeqWaitTime;
     xdata::Double _staleFragmentTimeOut;
+    xdata::Double _monitoringSleepSec;
 
     mutable boost::mutex _evtStrCfgMutex;
     mutable boost::mutex _errStrCfgMutex;
@@ -331,7 +344,8 @@ namespace stor
 
 }
 
-#endif
+#endif // EventFilter_StorageManager_Configuration_h
+
 
 /// emacs configuration
 /// Local Variables: -

@@ -21,8 +21,8 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
   // defaults are for HB
 
   HistLim ndigis(50, 0., 50.);
-  HistLim sime(200, 0., 1.0);
-  HistLim digiAmp(700, -100., 600.);
+  HistLim sime(120, 0., 0.6);
+  HistLim digiAmp(350, -100., 600.);
   HistLim ratio(250, 0., 2500.);
   HistLim sumAmp(100, -500., 1500.);
 
@@ -44,14 +44,14 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
 
   if(subdet_ == "HE")
     {
-      sime        = HistLim(200, 0., 1.0);
+      sime        = HistLim(100, 0., 0.4);
       digiAmp     = HistLim(250, -100., 400.);
     }
   else if(subdet_ == "HF")
     {
-      ndigis      = HistLim(500, 0., 500.);
-      sime        = HistLim(100, 0., 100.);
-      digiAmp     = HistLim(420, -100., 2000.);
+      ndigis      = HistLim(20, 0., 20.);
+      sime        = HistLim(30, 0., 30.);
+      digiAmp     = HistLim(550, -100., 1000.);
       ratio       = HistLim(120, 0., 120.);
       pedLim      = HistLim(100, 0., 20.); 
       pedWidthLim = HistLim(100, 0., 5.); 
@@ -59,7 +59,7 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
     }
   else if(subdet_ == "HO")
     {
-      sime    = HistLim(200, 0., 1.0);
+      sime    = HistLim(100, 0., 0.2);
       digiAmp = HistLim(200, 0., 200.);
       gainLim = HistLim(150, 0., 1.5); 
    }
@@ -79,50 +79,10 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
 
   if(noise_ == 0) {   
 
-    // maps of occupancies
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth1_%s", sub ) ;
-    meOccupancy_map_depth1 = book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth1_%s", sub ) ;
 
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth2_%s", sub ) ;
-    meOccupancy_map_depth2 = book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth2_%s", sub ) ;
-
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth3_%s", sub ) ;
-    meOccupancy_map_depth3 = book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth3_%s", sub ) ;
-
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub ) ;
-    meOccupancy_map_depth4 = book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub ) ;
-
-    // occupancies vs ieta
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub ) ;
-    meOccupancy_vs_ieta_depth1 = book1D(histo,  ietaLim);
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth1_%s", sub ) ;
-
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth2_%s", sub ) ;
-    meOccupancy_vs_ieta_depth2 = book1D(histo,  ietaLim);
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth2_%s", sub ) ;
-
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth3_%s", sub ) ;
-    meOccupancy_vs_ieta_depth3 = book1D(histo,  ietaLim);
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth3_%s", sub ) ;
-
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub ) ;
-    meOccupancy_vs_ieta_depth4 = book1D(histo,  ietaLim);
-    sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub ) ;
-
-
-    // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
-    sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth1_%s", sub ) ;
-    meAmplIetaIphi1= book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth2_%s", sub ) ;
-    meAmplIetaIphi2= book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth3_%s", sub ) ;
-    meAmplIetaIphi3= book2D(histo,  ietaLim, iphiLim);
-    sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth4_%s", sub ) ;
-    meAmplIetaIphi4= book2D(histo,  ietaLim, iphiLim);
+    // map of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
+    sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_%s", sub ) ;
+    meAmplIetaIphi= book2D(histo,  ietaLim, iphiLim);
     // just 1D of all cells' amplitudes 
     sprintf (histo, "HcalDigiTask_sum_all_amplitudes_%s", sub);
     meSumAmp = book1D(histo, sumAmp);

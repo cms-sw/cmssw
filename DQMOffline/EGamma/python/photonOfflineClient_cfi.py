@@ -22,6 +22,11 @@ photonOfflineClient = cms.EDAnalyzer("PhotonOfflineClient",
     etaBin = photonAnalysis.etaBin,
     etaMin = photonAnalysis.etaMin,
     etaMax = photonAnalysis.etaMax,
+
+    phiBin = photonAnalysis.phiBin,
+    phiMin = photonAnalysis.phiMin,
+    phiMax = photonAnalysis.phiMax,
+                                     
                                      
     InputFileName = cms.untracked.string("DQMOfflinePhotonsBatch.root"),
                                      

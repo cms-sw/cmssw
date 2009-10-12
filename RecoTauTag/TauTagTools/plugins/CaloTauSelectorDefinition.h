@@ -4,8 +4,6 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
-
 #include <iostream>
 
 struct CaloTauSelectorDefinition {
@@ -23,10 +21,7 @@ struct CaloTauSelectorDefinition {
   
   CaloTauSelectorDefinition ( const edm::ParameterSet & cfg ) {
     discriminators_ = cfg.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ); 
-    cut_ = ( cfg.exists("cut") ) ? new StringCutObjectSelector<reco::CaloTau>( cfg.getParameter<std::string>( "cut" ) ) : 0;
   }
-
-  ~CaloTauSelectorDefinition () { delete cut_; }    
   
   const_iterator begin() const { return selected_.begin(); }
 
@@ -59,6 +54,7 @@ struct CaloTauSelectorDefinition {
       discriminators.push_back(disc);
     }
       
+
     unsigned key=0;
     static bool passedAllCuts;
     for( collection::const_iterator calotau = hc->begin(); 
@@ -77,7 +73,6 @@ struct CaloTauSelectorDefinition {
           passedAllCuts = false;
       }
       
-      if ( cut_ ) passedAllCuts &= (*cut_)(*calotau);
          
       if(passedAllCuts)
         selected_.push_back( new reco::CaloTau(*calotau) );
@@ -86,10 +81,9 @@ struct CaloTauSelectorDefinition {
 
   size_t size() const { return selected_.size(); }
 
- private:
+private:
   container selected_;
   std::vector< edm::ParameterSet > discriminators_;
-  StringCutObjectSelector<reco::CaloTau>* cut_;
   
 };
 

@@ -53,8 +53,6 @@ namespace cond {
    cond::LogDBEntry lastLogEntry(std::string const & tag) const;
    cond::LogDBEntry lastLogEntryOK(std::string const & tag) const;
 
-   Connection * connection() { return me;}
-
  private:
    mutable Connection * me;
    boost::shared_ptr<cond::Logger> logger;
@@ -65,7 +63,7 @@ namespace cond {
   public:
     RDBMS();
     ~RDBMS();
-    explicit RDBMS(std::string const & authPath, bool debug=false);
+    explicit RDBMS(std::string const & authPath);
     RDBMS(std::string const & user,std::string const & pass);
     void setLogger(std::string const & connstr);
 

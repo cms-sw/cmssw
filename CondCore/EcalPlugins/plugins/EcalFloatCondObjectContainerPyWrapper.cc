@@ -1,18 +1,13 @@
 
-
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
-#include "TH2F.h"
-#include "TCanvas.h"
-#include "TStyle.h"
+
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
-#include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include <string>
-
 #include <fstream>
+
+
 #include <sstream>
 #include <algorithm>
 #include <numeric>
@@ -21,7 +16,6 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <algorithm>
 
 namespace {
   struct Printer {
@@ -53,22 +47,19 @@ namespace cond {
 
 
     void extractBarrel(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
-      result.resize(cont.barrelItems().size());
-      std::copy(cont.barrelItems().begin(),cont.barrelItems().end(),result.begin());
+      result.resize(1);
+      result[0] =  std::accumulate(cont.barrelItems().begin(),cont.barrelItems().end(),0.)/float(cont.barrelItems().size());
     }
-
     void extractEndcap(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
-      result.resize(cont.endcapItems().size());
-      std::copy(cont.endcapItems().begin(),cont.endcapItems().end(),result.begin());
+      result.resize(1);
+      result[0] =  std::accumulate(cont.endcapItems().begin(),cont.endcapItems().end(),0.)/float(cont.endcapItems().size());
     }
 
      void extractAll(Container const & cont, std::vector<int> const &,  std::vector<float> & result) {
-
-       // EcalCondObjectContainer does not have a real iterator ... 
-      result.resize(cont.barrelItems().size()+ cont.endcapItems().size());
-      
-      std::copy(cont.barrelItems().begin(),cont.barrelItems().end(),result.begin());
-      std::copy(cont.endcapItems().begin(),cont.endcapItems().end(),result.end());
+      result.resize(1);
+      result[0] =  (std::accumulate(cont.barrelItems().begin(),cont.barrelItems().end(),0.)
+		    +std::accumulate(cont.endcapItems().begin(),cont.endcapItems().end(),0.))
+		    /float(cont.barrelItems().size()+cont.endcapItems().size());
     }
     
     void extractSuperModules(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
@@ -77,7 +68,7 @@ namespace cond {
 
     void extractSingleChannel(Container const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       result.reserve(which.size());
-      for (unsigned int i=0; i<which.size();i++) {
+      for (int i=0; i<which.size();i++) {
 	  result.push_back(cont[which[i]]);
       }
     }
@@ -145,19 +136,13 @@ namespace cond {
   template<>
   std::string
   PayLoadInspector<EcalFloatCondObjectContainer>::dump() const {
-
-    std::stringstream ss;
-    EcalCondHeader header;
-    ss<<EcalFloatCondObjectContainerXMLTranslator::dumpXML(header,object());
-    return ss.str();
-
- //    Printer p;
-//     std::for_each(object().barrelItems().begin(),object().barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
-//     p.ss <<"\n";
-//     p.reset();
-//     std::for_each(object().endcapItems().begin(),object().endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
-//     p.ss << std::endl;
-//     return p.ss.str();
+    Printer p;
+    std::for_each(object().barrelItems().begin(),object().barrelItems().end(),boost::bind(&Printer::doB,boost::ref(p),_1));
+    p.ss <<"\n";
+    p.reset();
+    std::for_each(object().endcapItems().begin(),object().endcapItems().end(),boost::bind(&Printer::doE,boost::ref(p),_1));
+    p.ss << std::endl;
+    return p.ss.str();
   }
   
   template<>
@@ -171,81 +156,14 @@ namespace cond {
   }
   
 
-
   template<>
   std::string PayLoadInspector<EcalFloatCondObjectContainer>::plot(std::string const & filename,
 								   std::string const &, 
 								   std::vector<int> const&, 
 								   std::vector<float> const& ) const {
-
-    gStyle->SetPalette(1);
-    TCanvas canvas("CC map","CC map",840,280);
-    //canvas.Divide(3,1);
- 
-    TPad pad1("p1","p1", 0.0, 0.0, 0.2, 1.0);
-    TPad pad2("p2","p2", 0.2, 0.0, 0.8, 1.0);
-    TPad pad3("p3","p3", 0.8, 0.0, 1.0, 1.0);
-    pad1.Draw();
-    pad2.Draw();
-    pad3.Draw();
-
-    TH2F barrelmap("EB","EB",360,1,360, 171, -85,86);
-    TH2F endcmap_p("EE+","EE+",100,1,101,100,1,101);
-    TH2F endcmap_m("EE-","EE-",100,1,101,100,1,101);
-
-    const int kSides       = 2;
-    const int kBarlRings   = EBDetId::MAX_IETA;
-    const int kBarlWedges  = EBDetId::MAX_IPHI;
-    const int kEndcWedgesX = EEDetId::IX_MAX;
-    const int kEndcWedgesY = EEDetId::IY_MAX;
-
-
-    for (int sign=0; sign<kSides; sign++) {
-
-       int thesign = sign==1 ? 1:-1;
-
-       for (int ieta=0; ieta<kBarlRings; ieta++) {
-         for (int iphi=0; iphi<kBarlWedges; iphi++) {
-	   EBDetId id(ieta+1, iphi+1);
-	   barrelmap.Fill(iphi+1,ieta*thesign + thesign, object()[id.rawId()]);
-         }
-       }
-
-       for (int ix=0; ix<kEndcWedgesX; ix++) {
-	 for (int iy=0; iy<kEndcWedgesY; iy++) {
-	   if (! EEDetId::validDetId(ix+1,iy+1,thesign)) continue;
-	   EEDetId id(ix+1,iy+1,thesign);
-    
-	   if (thesign==1) {
-	     endcmap_p.Fill(ix+1,iy+1,object()[id.rawId()]);
-	   }
-	   else{ 
-	     endcmap_m.Fill(ix+1,iy+1,object()[id.rawId()]);
-	
-	   }
-	 }//iy
-       }//ix
-
-
-
-    }
-
-    
-    //canvas.cd(1);
-    pad1.cd();
-    endcmap_m.SetStats(0);
-    endcmap_m.Draw("colz");
-    //canvas.cd(2);
-    pad2.cd();
-    barrelmap.SetStats(0);
-    barrelmap.Draw("colz");
-    //canvas.cd(3);
-    pad3.cd();
-    endcmap_p.SetStats(0);
-    endcmap_p.Draw("colz");
-
-    canvas.SaveAs(filename.c_str());
-    return filename;
+    std::string fname = filename + ".png";
+    std::ofstream f(fname.c_str());
+    return fname;
   }
   
   
@@ -271,8 +189,6 @@ namespace condPython {
       ;
   }
 }
-
-
 
 
 PYTHON_WRAPPER(EcalFloatCondObjectContainer,EcalFloatCondObjectContainer);

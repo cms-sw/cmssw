@@ -63,8 +63,7 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #---
-#   fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee_310.root')
-#---
+    setRunNumber = cms.untracked.uint32(10),
     fileNames = cms.untracked.vstring('/store/user/dellaric/data/relval_zee_310.root', 
         '/store/user/dellaric/data/relval_zee_310.root', 
         '/store/user/dellaric/data/relval_zee_310.root', 

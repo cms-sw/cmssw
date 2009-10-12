@@ -163,7 +163,9 @@ bool FEDErrors::failUnpackerFEDCheck(const FEDRawData & fedData)
 
 bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData, 
 			      bool & aFullDebug,
-			      const unsigned int aPrintDebug
+			      const unsigned int aPrintDebug,
+			      unsigned int & aCounterMonitoring,
+			      unsigned int & aCounterUnpacker
 			      )
 {
   //try to construct the basic buffer object (do not check payload)
@@ -229,7 +231,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
     //channel checks
     fillChannelErrors(buffer.get(),
 		      aFullDebug,
-		      aPrintDebug
+		      aPrintDebug,
+		      aCounterMonitoring,
+		      aCounterUnpacker
 		      );
 
   }
@@ -321,7 +325,9 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
 
 bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer, 
 				  bool & aFullDebug,
-				  const unsigned int aPrintDebug
+				  const unsigned int aPrintDebug,
+				  unsigned int & aCounterMonitoring,
+				  unsigned int & aCounterUnpacker
 				  )
 {
   bool foundError = false;
@@ -411,21 +417,26 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     }
 
 
-    if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck && aPrintDebug) {
-      std::ostringstream debugStream;
-      debugStream << "[FEDErrors] ------ WARNING: FED " << fedID_ << ", channel " << iCh 
-		  << ", isConnected = " << connected_[iCh] << std::endl 
-	       << "[FEDErrors] --------- Monitoring Channel check " ;
-      if (lFailMonitoringChannelCheck) debugStream << "failed." << std::endl;
-      else debugStream << "passed." << std::endl ;
-      debugStream << "[FEDErrors] --------- Unpacker Channel check " ;
-      if (lFailUnpackerChannelCheck) debugStream << "failed." << std::endl;
-      else debugStream << "passed." << std::endl;
-      debugStream << "[FEDErrors] --------- fegood = " 
-		  << aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT)) 
-		  << std::endl
-		  << "[FEDErrors] --------- unpacker FED check = " << failUnpackerFEDCheck_ << std::endl;
-      edm::LogError("SiStripMonitorHardware") << debugStream.str();
+    if (lFailUnpackerChannelCheck != lFailMonitoringChannelCheck){
+      if (aPrintDebug>1) {
+	std::ostringstream debugStream;
+	debugStream << "[FEDErrors] ------ WARNING: FED " << fedID_ << ", channel " << iCh 
+		    << ", isConnected = " << connected_[iCh] << std::endl 
+		    << "[FEDErrors] --------- Monitoring Channel check " ;
+	if (lFailMonitoringChannelCheck) debugStream << "failed." << std::endl;
+	else debugStream << "passed." << std::endl ;
+	debugStream << "[FEDErrors] --------- Unpacker Channel check " ;
+	if (lFailUnpackerChannelCheck) debugStream << "failed." << std::endl;
+	else debugStream << "passed." << std::endl;
+	debugStream << "[FEDErrors] --------- fegood = " 
+		    << aBuffer->feGood(static_cast<unsigned int>(iCh/sistrip::FEDCH_PER_FEUNIT)) 
+		    << std::endl
+		    << "[FEDErrors] --------- unpacker FED check = " << failUnpackerFEDCheck_ << std::endl;
+	edm::LogError("SiStripMonitorHardware") << debugStream.str();
+      }
+
+      if (lFailMonitoringChannelCheck) aCounterMonitoring++;
+      if (lFailUnpackerChannelCheck) aCounterUnpacker++;
     }
 
   }//loop on channels

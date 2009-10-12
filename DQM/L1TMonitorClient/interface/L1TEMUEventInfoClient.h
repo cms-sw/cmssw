@@ -61,7 +61,8 @@ private:
   TProfile2D * get2DProfile(string meName, DQMStore * dbi);
   TProfile * get1DProfile(string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
-  
+  string StringToUpper(string strToConvert);
+
   DQMStore* dbe_;  
   std::string monitorDir_;
   bool verbose_;
@@ -71,13 +72,27 @@ private:
   int prescaleEvt_;    ///prescale on number of events
   int nChannels;
 
+  enum DataValue { data_empty, data_all, data_gt, data_muons, 
+		   data_jets, data_taujets, data_isoem, 
+		   data_nonisoem, data_met };
+  enum EmulValue { emul_empty, emul_all, emul_gt, emul_dtf, 
+		   emul_dtp, emul_ctf, emul_ctp, emul_rpc, 
+		   emul_gmt, emul_etp, emul_htp, emul_rct, 
+		   emul_gct, emul_glt };
+
+  std::map<std::string, DataValue> s_mapDataValues;
+  std::map<std::string, EmulValue> s_mapEmulValues;
+  std::map<int, int> emulatorMap;
+
   Float_t setSummary(MonitorElement*);
-  static const int nsys_=20;
+  static const int nsys_=18;
   static const int nsysmon_=11;
 
   Float_t reportSummary;
   Float_t summarySum;
   Float_t summaryContent[nsys_];
+  std::vector<string> dataMask;
+  std::vector<string> emulMask;
   std::string syslabel_   [nsysmon_];
   std::string syslabelext_[nsysmon_];
   bool sysmask_[nsysmon_];

@@ -354,11 +354,22 @@ RootAutoLibraryLoader::RootAutoLibraryLoader() :
 
 TClass *
 RootAutoLibraryLoader::GetClass(char const* classname, Bool_t load) {
-  if(classname == classNameAttemptingToLoad_) {
-    std::cerr << "WARNING: Reflex failed to create CINT dictionary for " << classname << std::endl;
-    return 0;
-  }
    TClass* returnValue = 0;
+   if(classname == classNameAttemptingToLoad_) {
+      // We can try to see if the class name contains "basic_string<char>".
+      // If so, we replace "basic_string<char>" with "string" and try again.
+      std::string className(classname);
+      std::string::size_type idx = className.find("basic_string<char>");
+      if (idx != std::string::npos) {
+         className.replace(idx, 18, std::string("string"));
+         classNameAttemptingToLoad_ = className.c_str();
+         returnValue = gROOT->GetClass(className.c_str(), kTRUE);
+         classNameAttemptingToLoad_ = classname;
+         return returnValue;
+      }
+      std::cerr << "WARNING: Reflex failed to create CINT dictionary for " << classname << std::endl;
+      return 0;
+   }
    //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;
    if (load) {
      //std::cout << " going to call loadLibraryForClass" << std::endl;

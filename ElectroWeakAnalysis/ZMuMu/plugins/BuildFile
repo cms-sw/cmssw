@@ -6,8 +6,6 @@
   <use name=DataFormats/MuonReco>
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/HepMCCandidate>
-  <use name=DataFormats/Candidate>
-  <use name=DataFormats/PatCandidates>
   <use name=root>
 </library>
 

@@ -163,21 +163,15 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
    if ( ! init_ ) this->setup();
 
    ievt_++;
-
    runNum_ = e.id().run();
-
-   Handle<ESRawDataCollection> dccs;
-   if ( e.getByLabel(dccCollections_, dccs) ) {
-   } else {
-      LogWarning("ESRawDataTask") << "Error! can't get ES raw data collection !" << std::endl;
-   }
 
    int gt_L1A = 0, gt_OrbitNumber = 0, gt_BX = 0;
    int esDCC_L1A_MostFreqCounts = 0;
    int esDCC_BX_MostFreqCounts = 0;
    int esDCC_OrbitNumber_MostFreqCounts = 0;
 
-   edm::Handle<FEDRawDataCollection> allFedRawData;
+   Handle<ESRawDataCollection> dccs;
+   Handle<FEDRawDataCollection> allFedRawData;
 
    int gtFedDataSize = 0;
    
@@ -201,68 +195,77 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c){
        map<int, int> esDCC_BX_FreqMap;
        map<int, int> esDCC_OrbitNumber_FreqMap;
 
-       for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-	 ESDCCHeaderBlock esdcc = (*dccItr);
-	 
-	 esDCC_L1A_FreqMap[esdcc.getLV1()]++;
-	 esDCC_BX_FreqMap[esdcc.getBX()]++;
-	 esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()]++;
-	 
-	 if (esDCC_L1A_FreqMap[esdcc.getLV1()] > esDCC_L1A_MostFreqCounts) {
-	   esDCC_L1A_MostFreqCounts = esDCC_L1A_FreqMap[esdcc.getLV1()];
-	   gt_L1A = esdcc.getLV1();
-	 } 
-
-	 if (esDCC_BX_FreqMap[esdcc.getBX()] > esDCC_BX_MostFreqCounts) {
-	   esDCC_BX_MostFreqCounts = esDCC_BX_FreqMap[esdcc.getBX()];
-	   gt_BX = esdcc.getBX();
-	 } 
-
-	 if (esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()] > esDCC_OrbitNumber_MostFreqCounts) {
-	   esDCC_OrbitNumber_MostFreqCounts = esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()];
-	   gt_OrbitNumber = esdcc.getOrbitNumber();
-	 } 
-
+       if ( e.getByLabel(dccCollections_, dccs) ) {
+	 for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+	   ESDCCHeaderBlock esdcc = (*dccItr);
+	   
+	   esDCC_L1A_FreqMap[esdcc.getLV1()]++;
+	   esDCC_BX_FreqMap[esdcc.getBX()]++;
+	   esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()]++;
+	   
+	   if (esDCC_L1A_FreqMap[esdcc.getLV1()] > esDCC_L1A_MostFreqCounts) {
+	     esDCC_L1A_MostFreqCounts = esDCC_L1A_FreqMap[esdcc.getLV1()];
+	     gt_L1A = esdcc.getLV1();
+	   } 
+	   
+	   if (esDCC_BX_FreqMap[esdcc.getBX()] > esDCC_BX_MostFreqCounts) {
+	     esDCC_BX_MostFreqCounts = esDCC_BX_FreqMap[esdcc.getBX()];
+	     gt_BX = esdcc.getBX();
+	   } 
+	   
+	   if (esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()] > esDCC_OrbitNumber_MostFreqCounts) {
+	     esDCC_OrbitNumber_MostFreqCounts = esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()];
+	     gt_OrbitNumber = esdcc.getOrbitNumber();
+	   } 
+	   
+	 }
+       } else {
+	 LogWarning("ESRawDataTask") << dccCollections_ << " not available";
        }
 
      }
+   } else {
+     LogWarning("ESRawDataTask") << FEDRawDataCollection_ << " not available";
    }
 
    // DCC 
    vector<int> fiberStatus;
-   for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-      ESDCCHeaderBlock dcc = (*dccItr);
-      
-      //if (dcc.getRunNumber() != runNum_) {
-      //meRunNumberErrors_->Fill(dcc.fedId());
-      //cout<<"Run # err : "<<dcc.getRunNumber()<<" "<<runNum_<<endl;
-      //}
-
-      if (dcc.getLV1() != gt_L1A) {
-	meL1ADCCErrors_->Fill(dcc.fedId());
-	//cout<<"L1A err : "<<dcc.getLV1()<<" "<<gt_L1A<<endl;
-	Float_t l1a_diff = dcc.getLV1() - gt_L1A;
-	if (l1a_diff > 100) l1a_diff = 100;
-	else if (l1a_diff < -100) l1a_diff = -100;
-	meL1ADiff_->Fill(l1a_diff);
-      }
-
-      if (dcc.getBX() != gt_BX) {
-	meBXDCCErrors_->Fill(dcc.fedId());
-	//cout<<"BX err : "<<dcc.getBX()<<" "<<gt_BX<<endl;
-	Float_t bx_diff = dcc.getBX() - gt_BX;
-	if (bx_diff > 100) bx_diff = 100;
-	else if (bx_diff < -100) bx_diff = -100;
-	meBXDiff_->Fill(bx_diff);
-      }
-      if (dcc.getOrbitNumber() != gt_OrbitNumber) {
-	meOrbitNumberDCCErrors_->Fill(dcc.fedId());
-	//cout<<"Orbit err : "<<dcc.getOrbitNumber()<<" "<<gt_OrbitNumber<<endl;
-	Float_t orbitnumber_diff = dcc.getOrbitNumber() - gt_OrbitNumber;
-	if (orbitnumber_diff > 100) orbitnumber_diff = 100;
-	else if (orbitnumber_diff < -100) orbitnumber_diff = -100;
-	meOrbitNumberDiff_->Fill(orbitnumber_diff);
-      }
+   if ( e.getByLabel(dccCollections_, dccs) ) {
+     
+     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+       ESDCCHeaderBlock dcc = (*dccItr);
+       
+       //if (dcc.getRunNumber() != runNum_) {
+       //meRunNumberErrors_->Fill(dcc.fedId());
+       //cout<<"Run # err : "<<dcc.getRunNumber()<<" "<<runNum_<<endl;
+       //}
+       
+       if (dcc.getLV1() != gt_L1A) {
+	 meL1ADCCErrors_->Fill(dcc.fedId());
+	 //cout<<"L1A err : "<<dcc.getLV1()<<" "<<gt_L1A<<endl;
+	 Float_t l1a_diff = dcc.getLV1() - gt_L1A;
+	 if (l1a_diff > 100) l1a_diff = 100;
+	 else if (l1a_diff < -100) l1a_diff = -100;
+	 meL1ADiff_->Fill(l1a_diff);
+       }
+       
+       if (dcc.getBX() != gt_BX) {
+	 meBXDCCErrors_->Fill(dcc.fedId());
+	 //cout<<"BX err : "<<dcc.getBX()<<" "<<gt_BX<<endl;
+	 Float_t bx_diff = dcc.getBX() - gt_BX;
+	 if (bx_diff > 100) bx_diff = 100;
+	 else if (bx_diff < -100) bx_diff = -100;
+	 meBXDiff_->Fill(bx_diff);
+       }
+       if (dcc.getOrbitNumber() != gt_OrbitNumber) {
+	 meOrbitNumberDCCErrors_->Fill(dcc.fedId());
+	 //cout<<"Orbit err : "<<dcc.getOrbitNumber()<<" "<<gt_OrbitNumber<<endl;
+	 Float_t orbitnumber_diff = dcc.getOrbitNumber() - gt_OrbitNumber;
+	 if (orbitnumber_diff > 100) orbitnumber_diff = 100;
+	 else if (orbitnumber_diff < -100) orbitnumber_diff = -100;
+	 meOrbitNumberDiff_->Fill(orbitnumber_diff);
+       }
+     }
    }
 
 }

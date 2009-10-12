@@ -92,103 +92,53 @@ ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps)
    }
 }
 
+ESPedestalTask::~ESPedestalTask() {
+}
 
-ESPedestalTask::~ESPedestalTask(){}
-
-
-void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
-{
+void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 
    runNum_ = e.id().run();
    eCount_++;
 
    Handle<ESDigiCollection> digis;
-   try {
-      e.getByLabel(digilabel_, digis);
-   } catch ( cms::Exception &e ) {
-      LogDebug("") << "Error! can't get digi collection !" << std::endl;
-   }
-   /*
-      Handle<ESRawDataCollection> dccs;
-      try {
-      e.getByLabel(digilabel_, dccs);
-      } catch ( cms::Exception &e ) {
-      LogDebug("") << "Error! can't get ES raw data collection !" << std::endl;
-      }
+   if ( e.getByLabel(digilabel_, digis) ) {
 
-      Handle<ESLocalRawDataCollection> kchips;
-      try {
-      e.getByLabel(digilabel_, kchips);
-      } catch ( cms::Exception &e ) {
-      LogDebug("") << "Error! can't get ES local raw data collection !" << std::endl;
-      }
-
-   // DCC 
-   vector<int> fiberStatus;
-   for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-   ESDCCHeaderBlock dcc = (*dccItr);
-
-   runtype_   = dcc.getRunType();
-   seqtype_   = dcc.getSeqType();
-   dac_       = dcc.getDAC();
-   gain_      = dcc.getGain();
-   precision_ = dcc.getPrecision();
-   }
-
-   if (runtype_ == 3) {
-   if (eCount_ == 1) {
-   firstDAC_ = dac_;
-   vDAC_[nDAC_] = dac_;
-   nDAC_++;
-   }
-   if (eCount_>100 && (eCount_%100)==1 && isPed_==1) { 
-   if (dac_ ==  firstDAC_) isPed_ = 0;
-   else {
-   vDAC_[nDAC_] = dac_;
-   nDAC_++;
-   }
-   }
-   }
-    */
-
-
-
-
-   runtype_ = 1; // Let runtype_ = 1
-
-   // Digis
-   int zside, plane, ix, iy, strip, iz;
-   for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
-
-      ESDataFrame dataframe = (*digiItr);
-      ESDetId id = dataframe.id();
-
-      zside = id.zside();
-      plane = id.plane();
-      ix    = id.six();
-      iy    = id.siy();
-      strip = id.strip();
-      iz = (zside==1) ? 0:1;
-
-      layer_ = plane;
-
-
-      if(hADC_[iz][plane-1][ix-1][iy-1][strip-1]){
+     runtype_ = 1; // Let runtype_ = 1
+     
+     // Digis
+     int zside, plane, ix, iy, strip, iz;
+     for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
+       
+       ESDataFrame dataframe = (*digiItr);
+       ESDetId id = dataframe.id();
+       
+       zside = id.zside();
+       plane = id.plane();
+       ix    = id.six();
+       iy    = id.siy();
+       strip = id.strip();
+       iz = (zside==1) ? 0:1;
+       
+       layer_ = plane;
+       
+       
+       if(hADC_[iz][plane-1][ix-1][iy-1][strip-1]){
 	 if(runtype_ == 1){		
-	    hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(0).adc());
-	    hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(1).adc());
-	    hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(2).adc());
+	   hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(0).adc());
+	   hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(1).adc());
+	   hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(2).adc());
 	 } else if(runtype_ == 3) {
-	    hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(1).adc());
+	   hADC_[iz][plane-1][ix-1][iy-1][strip-1]->Fill(dataframe.sample(1).adc());
 	 }
-      }	
-   }
+       }	
+     }
+   } else {
+     LogWarning("ESPedestalTask") << digilabel_ << " not available";
+   }     
 
 }
 
-
-void ESPedestalTask::beginJob(const edm::EventSetup & c)
-{
+void ESPedestalTask::beginJob(const edm::EventSetup & c) {
 }
 
 void ESPedestalTask::endJob() {

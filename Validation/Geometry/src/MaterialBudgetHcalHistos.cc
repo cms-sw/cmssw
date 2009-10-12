@@ -166,7 +166,9 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 			       << " Radiation Length " << radl << " mm;"
 			       << " Interaction Length " << intl << " mm\n"
 			       << "                          Position " 
-			       << aStep->GetPreStepPoint()->GetPosition() 
+			       << aStep->GetPreStepPoint()->GetPosition()
+			       << " Cylindrical R "
+			       <<aStep->GetPreStepPoint()->GetPosition().perp()
 			       << " Length (so far) " << stepLen << " L/X0 " 
 			       << step/radl << "/" << radLen << " L/Lambda " 
 			       << step/intl << "/" << intLen;

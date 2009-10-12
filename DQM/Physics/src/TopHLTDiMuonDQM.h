@@ -4,16 +4,19 @@
 /*
  *  DQM HLT Dimuon Test Client
  *
- *  $Date: 2009/07/13 10:11:07 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/16 16:43:28 $
+ *  $Revision: 1.2 $
  *  \author  M. Vander Donckt CERN
  *   
  */
 
 #include <memory>
+#include <string>
+#include <functional>
+
 #include <unistd.h>
 #include <stdlib.h>
-#include <functional>
+#include <string.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,6 +33,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -43,7 +47,7 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-
+#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 //
 // class declaration
@@ -69,26 +73,33 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
  private:
 
   edm::ParameterSet parameters_;
-  DQMStore* dbe_;  
+  DQMStore* dbe_;
   std::string monitorName_;
-  std::string outputFile_;
+  std::string level_;
 
-  int level_;
   int counterEvt_;
   int prescaleEvt_;
   double coneSize_;
 
-  edm::InputTag candCollectionTag_;
+  edm::InputTag triggerResults_;
+  edm::InputTag L1_Collection_;
+  edm::InputTag L2_Collection_;
+  edm::InputTag L3_Collection_;
+
+  std::vector<std::string> hltPaths_L1_;
+  std::vector<std::string> hltPaths_L3_;
 
   // ----------member data ---------------------------
 
   bool verbose_;
 
+  MonitorElement * Trigs;
   MonitorElement * NMuons;
   MonitorElement * PtMuons;
   MonitorElement * EtaMuons;
   MonitorElement * PhiMuons;
   MonitorElement * DiMuonMass;
+  MonitorElement * DiMuonMass_LOG;
   MonitorElement * DeltaEtaMuons;
   MonitorElement * DeltaPhiMuons;
 

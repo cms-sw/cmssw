@@ -20,7 +20,7 @@ debugModules = cms.untracked.vstring('*')
 
 process.maxEvents = cms.untracked.PSet(
      input = cms.untracked.int32(1))
-     
+
 process.source = cms.Source("EmptySource",
     timetype = cms.string("runnumber"),
     firstRun = cms.untracked.uint32(1),
@@ -66,7 +66,7 @@ record = cms.string("SiStripBadStripRcd"),
 loggingOn = cms.untracked.bool(True),
 SinceAppendMode = cms.bool(True),
 Source = cms.PSet(
-   since = cms.untracked.uint32(57620),
+   since = cms.untracked.uint32(105765),
    debug = cms.untracked.bool(False))
 ) 
 
@@ -76,10 +76,10 @@ Source = cms.PSet(
 ##########################
 
 process.SiStripBadComponentsDQMService = cms.Service("SiStripBadComponentsDQMService",
-                                                     RunNb = cms.uint32(57620),
+                                                     RunNb = cms.uint32(105765),
                                                      accessDQMFile = cms.bool(True),
-                                                     FILE_NAME = cms.untracked.string("Playback_V0001_SiStrip_R000067838.root"),
-                                                     ME_DIR = cms.untracked.string("Run 57620"),
+                                                     FILE_NAME = cms.untracked.string("DQM_full_V0001_SiStrip_R000105765_T00000341.root"),
+                                                     ME_DIR = cms.untracked.string("Run 105765"),
                                                      histoList = cms.VPSet()
                                                      )
 

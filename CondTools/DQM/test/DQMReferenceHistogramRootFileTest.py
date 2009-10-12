@@ -8,7 +8,8 @@ process.MessageLogger=cms.Service("MessageLogger",
                                   )
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string('sqlite_file:DQMReferenceHistogramTest.db')
+process.CondDBCommon.connect = cms.string('oracle://cms_orcoff_prep/CMS_COND_31X_DQM_SUMMARY')
+process.CondDBCommon.DBParameters.authenticationPath = cms.untracked.string('/build/diguida/conddb')
 process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
 process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(1) #3 for high verbosity
 
@@ -23,17 +24,17 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           timetype = cms.untracked.string('runnumber'),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('DQMReferenceHistogramRootFileRcd'),
-                                                                     tag = cms.string('ROOTFILE_DQM_Test') 
+                                                                     tag = cms.string('ROOTFILE_Test') 
                                                                      )
                                                             ),
-                                          logconnect = cms.untracked.string('sqlite_file:DQMReferenceHistogramTestLog.db')                                     
+                                          logconnect = cms.untracked.string('sqlite_file:RPCRootTestLog.db')                                     
                                           )
 
 process.dqmReferenceHistogramRootFileTest = cms.EDAnalyzer("DQMReferenceHistogramRootFilePopConAnalyzer",
                                            record = cms.string('DQMReferenceHistogramRootFileRcd'),
                                            loggingOn = cms.untracked.bool(True), #always True, needs to create the log db
                                            SinceAppendMode = cms.bool(True),
-                                           Source = cms.PSet(ROOTFile = cms.untracked.string("file.root"),
+                                           Source = cms.PSet(ROOTFile = cms.untracked.string("salvo.root"),
                                                              firstSince = cms.untracked.uint64(1), #1, 43434, 46335, 51493, 51500
                                                              debug = cms.untracked.bool(True)
                                                              )

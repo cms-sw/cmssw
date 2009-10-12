@@ -13,8 +13,11 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
                                      )
 
 process.MessageLogger = cms.Service("MessageLogger",
-                                    destinations = cms.untracked.vstring('cout'),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR'))
+                                    destinations = cms.untracked.vstring('cout','log4cplus'),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
+                                    log4cplus = cms.untracked.PSet(INFO = cms.untracked.PSet(reportEvery = cms.untracked.int32(250)),
+                                                                   threshold = cms.untracked.string('INFO')
+                                                                   )
                                     )
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")

@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/05/30 13:48:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/10/07 14:26:43 $
+ *  $Revision: 1.3 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -16,6 +16,7 @@
 #include "DQM/DTMonitorClient/src/DTLocalTriggerBaseTest.h"
 
 
+class DTTrigGeomUtils;
 
 class DTLocalTriggerEfficiencyTest: public DTLocalTriggerBaseTest{
 
@@ -49,6 +50,7 @@ protected:
  private:
 
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
+  DTTrigGeomUtils *trigGeomUtils;
 
 };
 

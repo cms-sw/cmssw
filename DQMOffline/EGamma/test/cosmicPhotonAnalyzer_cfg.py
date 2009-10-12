@@ -9,20 +9,29 @@ DQMStore = cms.Service("DQMStore")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5000)
+#    input = cms.untracked.int32(5000)
 )
 
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       "file:reco2.root"
+    '/store/relval/CMSSW_3_2_6/RelValCosmics/RECO/CRAFT09_R_V2-v2/0001/F8CD7049-C29B-DE11-86CB-000423D98920.root'
     )
 )
 
-process.FEVT = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
-    fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
-)
+#process.FEVT = cms.OutputModule("PoolOutputModule",
+#    outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
+#    fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
+#)
 
-process.p1 = cms.Path(process.cosmicPhotonAnalysis*process.MEtoEDMConverter)
-process.outPath = cms.EndPath(process.FEVT)
+
+from DQMOffline.EGamma.photonAnalyzer_cfi import *
+photonAnalysis.OutputMEsInRootFile = cms.bool(True)
+photonAnalysis.OutputFileName = cms.string('DQMOfflineCRAFT.root')
+photonAnalysis.standAlone = cms.bool(True)
+photonAnalysis.useTriggerFiltering = cms.bool(False)
+
+
+
+process.p1 = cms.Path(process.cosmicPhotonAnalysis)
+process.schedule = cms.Schedule(process.p1)

@@ -9,6 +9,8 @@ triggerLutTest = cms.EDAnalyzer("DTLocalTriggerLutTest",
     hwSources = cms.untracked.vstring('DCC','DDU'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),
+    # enable/disable correlation plot tests
+    doCorrelationStudy = cms.untracked.bool(False),
     # root folder for booking of histograms
     folderRoot = cms.untracked.string('')
 )

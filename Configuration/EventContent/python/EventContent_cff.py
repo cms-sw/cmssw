@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.18 2009/07/17 17:04:11 ghete Exp $
+#  $Id: EventContent_cff.py,v 1.20 2009/07/20 13:00:02 ghete Exp $
 #
 #
 #
@@ -251,6 +251,39 @@ HLTDEBUGEventContent = cms.PSet(
         'keep *_logErrorHarvester_*_*'),
     splitLevel = cms.untracked.int32(0)
 )
+
+#Special Event Content for MixingModule and DataMixer
+DATAMIXEREventContent = cms.PSet(
+        outputCommands = cms.untracked.vstring('drop *',
+                                               'keep CaloTowersSorted_calotoweroptmaker_*_*',
+                                               'keep CSCDetIdCSCALCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCALCTDigi_*',
+                                               'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCLCTDigi_*',
+                                               'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_MuonCSCComparatorDigi_*',
+                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_csctfDigis_*_*',
+                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_muonCSCDigis_MuonCSCCorrelatedLCTDigi_*',
+                                               'keep CSCDetIdCSCRPCDigiMuonDigiCollection_muonCSCDigis_MuonCSCRPCDigi_*',
+                                               'keep CSCDetIdCSCStripDigiMuonDigiCollection_muonCSCDigis_MuonCSCStripDigi_*',
+                                               'keep CSCDetIdCSCWireDigiMuonDigiCollection_muonCSCDigis_MuonCSCWireDigi_*',
+                                               'keep DTLayerIdDTDigiMuonDigiCollection_muonDTDigis_*_*',
+                                               'keep PixelDigiedmDetSetVector_siPixelDigis_*_*',
+                                               'keep StripDigiedmDetSetVector_siStripDigis_*_*',
+                                               'keep RPCDetIdRPCDigiMuonDigiCollection_muonRPCDigis_*_*',
+                                               'keep HBHEDataFramesSorted_hcalDigis_*_*',
+                                               'keep HFDataFramesSorted_hcalDigis_*_*',
+                                               'keep HODataFramesSorted_hcalDigis_*_*',
+                                               'keep EBDigiCollection_ecalDigis_*_*',
+                                               'keep EEDigiCollection_ecalDigis_*_*',
+                                               'keep ESDataFramesSorted_ecalPreshowerDigis_*_*'),
+        splitLevel = cms.untracked.int32(0)
+        )
+
+MIXINGMODULEEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_cfWriter_*_*'),
+    splitLevel = cms.untracked.int32(0)
+    )
+
+
 HLTDEBUGEventContent.outputCommands.extend(block_hltDebugOutput.outputCommands)
 
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)

@@ -16,8 +16,7 @@ public:
    *   valid    = valid hit
    *   missing  = detector is good, but no rec hit found
    *   inactive = detector is off, so there was no hope
-   *   bad      = there were many bad strips within the ellipse (in Tracker)
-   *            = hit is compatible with the trajectory, but chi2 is too large (in Muon System)
+   *   bad      = there were many bad strips within the ellipse 
    */
   enum Type { valid = 0, missing = 1, inactive = 2, bad = 3 };
   /// definition of equality via shared input
@@ -70,7 +69,6 @@ public:
 protected:
   // used by muon...
   void setId(id_type iid) { m_id=iid;}
-  inline void setType(Type ttype) { m_status=ttype;}
 
 private:
   

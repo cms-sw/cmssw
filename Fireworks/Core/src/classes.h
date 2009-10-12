@@ -15,12 +15,6 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
-#include "Fireworks/Core/src/FWListEventItem.h"
-#include "Fireworks/Core/src/FWListEventItemEditor.h"
-#include "Fireworks/Core/src/FWListModel.h"
-#include "Fireworks/Core/src/FWListModelEditor.h"
-#include "Fireworks/Core/src/FWListViewObject.h"
-#include "Fireworks/Core/src/FWListItemBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/src/FWDoubleParameterSetter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
@@ -34,6 +28,7 @@
 #include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/interface/FWTableView.h"
+#include "Fireworks/Core/interface/FWModelId.h"
 
 namespace {
    struct Fireworks_Core {

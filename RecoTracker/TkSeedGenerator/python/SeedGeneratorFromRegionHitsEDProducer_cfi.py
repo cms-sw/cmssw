@@ -18,9 +18,16 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
         ComponentName = cms.string('GlobalRegionProducer')
     ),
 # This works best ...
-    SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsCreator)
+    SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsCreator),
 # except for large impact parameter pixel-pair seeding, when this is better ...
 #   SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsStraightLineCreator)                                                       
 # and this one respectively for large-D0 triplets:
 #   SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsTripletOnlyCreator)
+
+##add a protection for too many clusters in the event.
+ClusterCheckPSet = cms.PSet(
+                 doClusterCheck = cms.bool(True),
+                 MaxNumberOfCosmicClusters = cms.uint32(50000),
+                 ClusterCollectionLabel = cms.InputTag("siStripClusters")
+                 ),
 )

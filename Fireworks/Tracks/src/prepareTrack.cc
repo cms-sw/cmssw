@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 19 19:14:22 EST 2008
-// $Id: prepareTrack.cc,v 1.1 2009/01/06 20:01:48 chrjones Exp $
+// $Id: prepareTrack.cc,v 1.2 2009/01/23 21:35:47 amraktad Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ namespace fireworks {
       // to decide where is the origin of the track.
 
       bool outsideIn = ( track.innerPosition().x()*track.innerMomentum().x()+
-                         track.innerPosition().y()*track.outerMomentum().y() < 0 );
+                         track.innerPosition().y()*track.innerMomentum().y() < 0 );
 
       TEveRecTrack t;
       t.fBeta = 1.;
@@ -88,7 +88,7 @@ namespace fireworks {
       }
 
       TEveTrack* trk = new TEveTrack(&t,propagator);
-      if ( outsideIn )
+      //if ( outsideIn )
          trk->SetBreakProjectedTracks(TEveTrack::kBPTAlways);
       trk->SetMainColor(color);
 

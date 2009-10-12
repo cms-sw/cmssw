@@ -152,9 +152,13 @@ class EtaPhiHists{
 	depth[id.depth()-1]->Fill(id.ieta(),id.iphi(),val);
     };
 
-  //******************************************************************************************
+  void Reset(void) 
+    {
+      for (unsigned int d=0;d<depth.size();d++)
+	if(depth[d]) depth[d]->Reset();
+    }; // void Reset(void)
 
-  // elements -- should we make a base Eta/Phi class that would contain a histo, nbinsx, nbinsy, etc.?
+  //******************************************************************************************
   std::vector<MonitorElement*> depth;
 
 };

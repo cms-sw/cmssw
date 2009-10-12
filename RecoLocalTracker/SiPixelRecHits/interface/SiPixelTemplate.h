@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v5.30)
+//  SiPixelTemplate.h (v6.00)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -35,6 +35,7 @@
 //  Fix DB pushfile version number checking bug.
 //  Remove assert from qbin method
 //  Replace asserts with exceptions in CMSSW
+//  Change calling sequence to interpolate method to handle cot(beta)<0 for FPix cosmics
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -168,7 +169,7 @@ struct SiPixelTemplateStore { //!< template storage structure
   SiPixelTemplateHeader head;
   SiPixelTemplateEntry entby[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px 
   SiPixelTemplateEntry entbx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices
-  SiPixelTemplateEntry entfy[16];     //!< 16 FPix y templates spanning cluster lengths from 0.0px to 6.0px 
+  SiPixelTemplateEntry entfy[28];     //!< 28 FPix y templates spanning cluster lengths from -6.0px to 6.0px 
   SiPixelTemplateEntry entfx[3][29];   //!< 29 FPix x templates spanning alpha angles from -1.14Rad to 1.14Rad in each of 3 slices
 } ;
 
@@ -205,7 +206,11 @@ class SiPixelTemplate {
   bool pushfile(const SiPixelTemplateDBObject& dbobject);     // load the private store with info from db
 #endif
   
-  // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
+	
+// Interpolate input alpha and beta angles to produce a working template for each individual hit. 
+  bool interpolate(int id, bool fpix, float cotalpha, float cotbeta, float locBz);
+	
+// overload for compatibility. 
   bool interpolate(int id, bool fpix, float cotalpha, float cotbeta);
   
   // retreive interpolated templates. 
@@ -230,7 +235,7 @@ class SiPixelTemplate {
   float xflcorr(int binq, float qflx);
   
   // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases. 
-  int qbin(int id, bool fpix, float cotalpha, float cotbeta, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+  int qbin(int id, bool fpix, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
            float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
   
   // Overload to keep legacy interface 

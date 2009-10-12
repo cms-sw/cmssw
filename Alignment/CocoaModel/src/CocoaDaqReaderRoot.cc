@@ -42,7 +42,7 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   theEvent = new CocoaDaqRootEvent();
 
   // link pointer to Tree branch
-   theTree->SetBranchAddress("Alignment_Cocoa", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
+   theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
   // theTree->SetBranchAddress("Alignment_Link", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
 
   CocoaDaqReader::SetDaqReader( this );

@@ -1,9 +1,10 @@
-#include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
 
 #include "RooAbsPdf.h"
-#include "RooRealProxy.h"
 #include "RooMath.h"
+#include "RooRealProxy.h"
 #include "RooAbsReal.h"
+#include "TFile.h"
+#include "PhysicsTools/TagAndProbe/interface/RooCMSShapePdf.h"
 
  RooCMSShapePdf::RooCMSShapePdf(const char *name, const char *title, 
                         RooAbsReal& _x,

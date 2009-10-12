@@ -144,7 +144,6 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     # Hot Cell
     client.HotCellClient                          = monitor.HotCellMonitor
     client.HotCellClient_test_persistent          = monitor.HotCellMonitor_test_persistent
-    client.HotCellClient_test_pedestal            = monitor.HotCellMonitor_test_pedestal
     client.HotCellClient_test_energy              = monitor.HotCellMonitor_test_energy
     client.HotCellClient_test_neighbor            = monitor.HotCellMonitor_test_neighbor
     #client.HotCellClient_minErrorFlag            = monitor.HotCellMonitor_minErrorFlag # want to keep these separate?

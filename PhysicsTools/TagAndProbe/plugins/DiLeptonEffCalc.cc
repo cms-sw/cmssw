@@ -81,6 +81,8 @@ class DiLepEffCalc : public edm::EDAnalyzer {
 };
 
 
+using namespace edm;
+using namespace std;
 typedef  std::map<dibin, float> dibinFloatMap;
 typedef  std::map<dibin, int> dibinIntMap;
 typedef  std::map<int, float> binMap;
@@ -115,22 +117,22 @@ typedef  std::map<int, float> binMap;
 
 DiLepEffCalc::DiLepEffCalc(const edm::ParameterSet& iConfig){
 
-  tablenames_   = iConfig.getParameter< std::vector<std::string> >("TableNames"); 
+  tablenames_   = iConfig.getParameter< vector<string> >("TableNames"); 
   tagProbeType_ = iConfig.getUntrackedParameter< int >("TagProbeType",0);
-  outTextName_  = iConfig.getUntrackedParameter< std::string >("OutputTextFileName", "Efficiency.txt");
+  outTextName_  = iConfig.getUntrackedParameter< string >("OutputTextFileName", "Efficiency.txt");
   ptMinCut_     = iConfig.getUntrackedParameter< double >("PtMinCut", 20.0);
   ptMaxCut_     = iConfig.getUntrackedParameter< double >("PtMaxCut", 100.0);
   etaMaxCut_    = iConfig.getUntrackedParameter< double >("EtaMaxCut", 2.5);
 
   if(tablenames_.size()==0) {
-     edm::LogError("DiLeptonEffCalc") <<
-      "Fatal Error: You must supply at least one efficiency table !";
+    std::cout << "DiLepEffCalc " << 
+      "Fatal Error: You must supply at least one efficiency table !" << std::endl;
     exit(1);
   }
 
   if(tagProbeType_<0 || tagProbeType_>4){
-    edm::LogError("DiLeptonEffCalc") <<
-      "Fatal Error: Tag-Probe Type can only be in the range 0--4 !";
+    std::cout << "DiLepEffCalc " <<
+      "Fatal Error: Tag-Probe Type can only be in the range 0--4 !" << std::endl;
     exit(1);
   }
   
@@ -175,16 +177,16 @@ void  DiLepEffCalc::analyze(const edm::Event& iEvent,
   //define handles
   //get values of Pt and eta.
 
-  edm::Handle< std::vector<float> > probe_pt;
+  Handle< vector<float> > probe_pt;
   iEvent.getByLabel("TPEdm","TPProbept", probe_pt);
 
-  edm::Handle< std::vector<float> > probe_eta;
+  Handle< vector<float> > probe_eta;
   iEvent.getByLabel("TPEdm","TPProbeeta", probe_eta);
 
-  edm::Handle< std::vector<float> > tag_pt;
+  Handle< vector<float> > tag_pt;
   iEvent.getByLabel("TPEdm","TPTagpt", tag_pt);
 
-  edm::Handle< std::vector<float> > tag_eta;
+  Handle< vector<float> > tag_eta;
   iEvent.getByLabel("TPEdm","TPTageta", tag_eta);
 
   if( (*tag_pt).size()==0 ||  (*tag_eta).size()==0 || 
@@ -221,7 +223,7 @@ void  DiLepEffCalc::analyze(const edm::Event& iEvent,
     effId_first = 1.0;
     errId_first = 0.0;
   }  
-  edm::LogInfo("DiLeptonEffCalc") << "electron-1 offline eff = " << effId_first << "  +/-  " << errId_first;
+  cout << "electron-1 offline eff = " << effId_first << "  +/-  " << errId_first << endl;
       
 
 
@@ -237,7 +239,7 @@ void  DiLepEffCalc::analyze(const edm::Event& iEvent,
     effTr_first =  1.0;
     errTr_first =  0.0;
   }
-  edm::LogInfo("DiLeptonEffCalc") << "electron-1 online eff = " << effTr_first << "  +/-  " << errTr_first;
+  cout << "electron-1 online eff = " << effTr_first << "  +/-  " << errTr_first << endl;
 
 
 
@@ -253,7 +255,7 @@ void  DiLepEffCalc::analyze(const edm::Event& iEvent,
     effId_seknd = 1.0;
     errId_seknd = 0.0;
   }
-  edm::LogInfo("DiLeptonEffCalc") << "electron-2 offline eff = " << effId_seknd << "  +/-  " << errId_seknd;
+  cout << "electron-2 offline eff = " << effId_seknd << "  +/-  " << errId_seknd << endl;
 
 
 
@@ -269,7 +271,7 @@ void  DiLepEffCalc::analyze(const edm::Event& iEvent,
     effTr_seknd = 1.0;
     errTr_seknd = 0.0;
   }
-   edm::LogInfo("DiLeptonEffCalc") << "electron-2 online eff = " << effTr_seknd << "  +/-  " << errTr_seknd;    
+   cout << "electron-2 online eff = " << effTr_seknd << "  +/-  " << errTr_seknd << endl;    
   
   
     
@@ -366,7 +368,7 @@ binMap DiLepEffCalc::calculateErrorCoff(binMap& EffMap1,
 					dibinIntMap& OccMap,
 					int flag){ 
 
-  edm::LogInfo("DiLeptonEffCalc") << "The Coefficient Calc Begins =======";
+  std::cout<<"The Coefficient Calc Begins ======="<<std::endl;
   binMap Ti;
   dibinIntMap Tri, Trij, Trijk, Trijkl;  
   binMap::iterator BnIter1, BnIter2, BnIter3, BnIter4;

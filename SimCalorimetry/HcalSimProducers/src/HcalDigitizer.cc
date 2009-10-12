@@ -1,5 +1,5 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
-#include "SimCalorimetry/HcalSimProducers/src/HcalTestHitGenerator.h"
+//#include "SimCalorimetry/HcalSimProducers/src/HcalTestHitGenerator.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
@@ -61,12 +61,17 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theZDCHitFilter(),
   theHitCorrection(0),
   theNoiseGenerator(0),
-  theNoiseHitGenerator(0),
+  //  theNoiseHitGenerator(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHFDigitizer(0),
   theZDCDigitizer(0),
-  doZDC(true)
+  isZDC(true),
+  isHCAL(true),
+  zdcgeo(true),
+  hbhegeo(true),
+  hogeo(true),
+  hfgeo(true)
 {
   theHBHEResponse->setHitFilter(&theHBHEHitFilter);
   theHOResponse->setHitFilter(&theHOHitFilter);
@@ -107,6 +112,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     theHBHEDigitizer->setNoiseSignalGenerator(theNoiseGenerator);
   }
 
+  /*
   if(ps.getParameter<bool>("injectTestHits") ){
     theNoiseHitGenerator = new HcalTestHitGenerator(ps);
     theHBHEDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
@@ -114,7 +120,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     theHFDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
-
+  */
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -218,21 +224,34 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
 
-  const std::string hcalHitsName(hitsProducer_+"HcalHits");
-  const std::string zdcHitsName(hitsProducer_+"ZDCHITS");
-
-  e.getByLabel("mix", hcalHitsName ,cf);
-  e.getByLabel("mix", zdcHitsName , zdccf);
-
   // test access to SimHits for HcalHits and ZDC hits
-  std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product()));
-  std::auto_ptr<MixCollection<PCaloHit> > colzdc(new MixCollection<PCaloHit>(zdccf.product()));
+  const std::string zdcHitsName(hitsProducer_+"ZDCHITS");
+  e.getByLabel("mix", zdcHitsName , zdccf);
+  MixCollection<PCaloHit> * colzdc = 0 ;
+  if(zdccf.isValid()){
+    colzdc = new MixCollection<PCaloHit>(zdccf.product());
+  }else{
+    edm::LogInfo("HcalDigitizer") << "We don't have ZDC hit collection available ";
+    isZDC = false;
+  }
+
+  const std::string hcalHitsName(hitsProducer_+"HcalHits");
+  e.getByLabel("mix", hcalHitsName ,cf);
+  MixCollection<PCaloHit> * col = 0 ;
+  if(cf.isValid()){
+    col = new MixCollection<PCaloHit>(cf.product());
+  }else{
+    edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
+    isHCAL = false;
+  }
 
   if(theHitCorrection != 0)
   {
     theHitCorrection->clear();
-    theHitCorrection->fillChargeSums(*col);
-    theHitCorrection->fillChargeSums(*colzdc);
+    if(isHCAL)
+      theHitCorrection->fillChargeSums(*col);
+    if(isZDC)
+      theHitCorrection->fillChargeSums(*colzdc);
   }
   // Step B: Create empty output
 
@@ -242,12 +261,15 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-  theHBHEDigitizer->run(*col, *hbheResult);
-  theHODigitizer->run(*col, *hoResult);
-  theHFDigitizer->run(*col, *hfResult);
-  if(doZDC) {
+  if(isHCAL&&hbhegeo)
+    theHBHEDigitizer->run(*col, *hbheResult);
+  if(isHCAL&&hogeo)
+    theHODigitizer->run(*col, *hoResult);
+  if(isHCAL&&hfgeo)
+    theHFDigitizer->run(*col, *hfResult);  
+  if(isZDC&&zdcgeo) 
     theZDCDigitizer->run(*colzdc, *zdcResult);
-  }
+  
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HO digis   : " << hoResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF digis   : " << hfResult->size();
@@ -278,7 +300,10 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   //const vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
   //const vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
   //std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
-  if(zdcCells.size()==0) doZDC = false;
+  if(zdcCells.size()==0) zdcgeo = false;
+  if(hbCells.size()==0&&heCells.size()==0) hbhegeo = false;
+  if(hoCells.size()==0) hogeo = false;
+  if(hfCells.size()==0) hfgeo = false;
   // combine HB & HE
 
 

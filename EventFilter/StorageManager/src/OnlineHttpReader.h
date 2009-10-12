@@ -5,7 +5,7 @@
 // the FUEventProcessor XDAQ application
 // TODO: create a common source for this and EventStreamHttpReader
 //       so we do not duplicate code, and make maintenance easier
-// $Id$
+// $Id: OnlineHttpReader.h,v 1.4 2009/09/01 23:47:34 wmtan Exp $
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"

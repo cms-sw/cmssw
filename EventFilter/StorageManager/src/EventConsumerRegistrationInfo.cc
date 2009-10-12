@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.2 2009/06/10 08:15:26 dshpakov Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.4 2009/09/16 09:53:24 dshpakov Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -19,16 +19,18 @@ namespace stor
     const unsigned int& connectRetryInterval, // seconds
     const string& consumerName,
     const FilterList& selEvents,
-    const string& selHLTOut,
+    const string& outputModuleLabel,
     const size_t& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
-    const utils::duration_t& secondsToStale ) :
-  _common( consumerName, queueSize, queuePolicy, secondsToStale ),
-  _maxConnectRetries( maxConnectRetries ),
-  _connectRetryInterval( connectRetryInterval ),
-  _selEvents( selEvents ),
-  _selHLTOut( selHLTOut ),
-  _stale( false )
+    const utils::duration_t& secondsToStale,
+    const std::string& remoteHost ) :
+    _common( consumerName, queueSize, queuePolicy, secondsToStale ),
+    _maxConnectRetries( maxConnectRetries ),
+    _connectRetryInterval( connectRetryInterval ),
+    _selEvents( selEvents ),
+    _outputModuleLabel( outputModuleLabel ),
+    _stale( false ),
+    _remoteHost( remoteHost )
   {
     if( consumerName == "SMProxyServer" ||
         ( consumerName.find( "urn" ) != std::string::npos &&
@@ -110,7 +112,7 @@ namespace stor
        << _maxConnectRetries
        << "\n Connection retry interval, seconds: "
        << _connectRetryInterval
-       << "\n HLT output: " << _selHLTOut
+       << "\n HLT output: " << _outputModuleLabel
        << "\n Event filters:\n";
 
     copy(_selEvents.begin(), 

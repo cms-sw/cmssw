@@ -77,6 +77,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
     cscdqm::Dispatcher       *dispatcher;
     DQMStore                 *dbe;
     edm::InputTag             inputTag;
+    bool                      prebookEffParams;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
@@ -99,7 +100,7 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
   protected:
 
     void beginJob(const edm::EventSetup& c) { }
-    void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
+    void beginRun(const edm::Run& r, const edm::EventSetup& c);
     void setup() { }
     void analyze(const edm::Event& e, const edm::EventSetup& c);
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }

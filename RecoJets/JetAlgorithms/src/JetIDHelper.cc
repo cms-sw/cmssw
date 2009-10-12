@@ -18,36 +18,29 @@ using namespace std;
 
 // ------------------------------ Implementation ---------------------------------------------------------
 
-reco::helper::JetIDHelper::JetIDHelper( edm::ParameterSet const & pset )
+reco::helper::JetID::JetID()
 {
-
-  hbheRecHitsColl_ = pset.getParameter<edm::InputTag>("hbheRecHitsColl");
-  hoRecHitsColl_   = pset.getParameter<edm::InputTag>("hoRecHitsColl");
-  hfRecHitsColl_   = pset.getParameter<edm::InputTag>("hfRecHitsColl");
-  ebRecHitsColl_   = pset.getParameter<edm::InputTag>("ebRecHitsColl");
-  eeRecHitsColl_   = pset.getParameter<edm::InputTag>("eeRecHitsColl");   
-  
-  fHPD_= 0.0;
-  fRBX_= 0.0;
-  n90Hits_ = 0;
-  fSubDetector1_= 0.0;
-  fSubDetector2_= 0.0;
-  fSubDetector3_= 0.0;
-  fSubDetector4_= 0.0;
-  restrictedEMF_= 0.0;
-  nHCALTowers_ = 0;
-  nECALTowers_ = 0;
+     fHPD_= 0.0;
+     fRBX_= 0.0;
+     n90Hits_ = 0;
+     fSubDetector1_= 0.0;
+     fSubDetector2_= 0.0;
+     fSubDetector3_= 0.0;
+     fSubDetector4_= 0.0;
+     restrictedEMF_= 0.0;
+     nHCALTowers_ = 0;
+     nECALTowers_ = 0;
 }
 
 
-int reco::helper::JetIDHelper::HBHE_oddness (int iEta, int depth)
+int reco::helper::JetID::HBHE_oddness (int iEta, int depth)
 {
  int ae = TMath::Abs (iEta);
  if (ae == 29 && depth == 1) ae += 1; // observed that: hits are at depths 1 & 2; 1 goes with the even pattern
  return ae & 0x1;
 }
 
-int reco::helper::JetIDHelper::HBHE_region (int iEta, int depth)
+int reco::helper::JetID::HBHE_region (int iEta, int depth)
 {
   // no error checking for HO indices (depth 2 & |ieta|<=14 or depth 3 & |ieta|=15)
   if( iEta <= -17 || ( depth == 3 && iEta == -16 ) ) return 0; // HE-
@@ -56,7 +49,7 @@ int reco::helper::JetIDHelper::HBHE_region (int iEta, int depth)
   return 2; // HB+
 }
 
-void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg )
+void reco::helper::JetID::calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg )
 {
   vector<double> energies, subdet_energies, Ecal_energies, Hcal_energies, HO_energies, HPD_energies, RBX_energies;
   unsigned int nHadTowers, nEMTowers;
@@ -115,7 +108,7 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
 }
 
 
-unsigned int reco::helper::JetIDHelper::nCarrying( double fraction, vector< double > descending_energies )
+unsigned int reco::helper::JetID::nCarrying( double fraction, vector< double > descending_energies )
 {
   double totalE = 0;
   for( unsigned int i = 0; i < descending_energies.size(); ++i ) totalE += descending_energies[ i ];
@@ -132,12 +125,12 @@ unsigned int reco::helper::JetIDHelper::nCarrying( double fraction, vector< doub
 }
 
   
-void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
-						       vector< double > &energies,      vector< double > &subdet_energies,
-						       vector< double > &Ecal_energies, vector< double > &Hcal_energies, 
-						       vector< double > &HO_energies,
-						       vector< double > &HPD_energies,  vector< double > &RBX_energies,
-						       unsigned int& nHadTowers, unsigned int& nEMTowers, int iDbg )
+void reco::helper::JetID::classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
+			      vector< double > &energies,      vector< double > &subdet_energies,
+			      vector< double > &Ecal_energies, vector< double > &Hcal_energies, 
+			      vector< double > &HO_energies,
+			      vector< double > &HPD_energies,  vector< double > &RBX_energies,
+			      unsigned int& nHadTowers, unsigned int& nEMTowers, int iDbg )
 {
   energies.clear(); subdet_energies.clear(); Ecal_energies.clear(); Hcal_energies.clear(); HO_energies.clear();
   HPD_energies.clear(); RBX_energies.clear();
@@ -158,15 +151,16 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   std::map< int, double > HPD_energy_map, RBX_energy_map, subdet_energy_map;
   // the jet only contains DetIds, so first read recHit collection
   edm::Handle<HBHERecHitCollection> HBHERecHits;
-  event.getByLabel( hbheRecHitsColl_, HBHERecHits );
-  edm::Handle<HORecHitCollection> HORecHits;
-  event.getByLabel( hoRecHitsColl_, HORecHits );
+  event.getByLabel( "hbhereco", HBHERecHits );
+  // not relevant to jets till further notice (Nov08)
+  // edm::Handle<HORecHitCollection> HORecHits;
+  // event.getByLabel( "horeco", HORecHits );
   edm::Handle<HFRecHitCollection> HFRecHits;
-  event.getByLabel( hfRecHitsColl_, HFRecHits );
+  event.getByLabel( "hfreco", HFRecHits );
   edm::Handle<EBRecHitCollection> EBRecHits;
-  event.getByLabel( ebRecHitsColl_, EBRecHits );
+  event.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
   edm::Handle<EERecHitCollection> EERecHits;
-  event.getByLabel( eeRecHitsColl_, EERecHits );
+  event.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
   double totHcalE = 0;
   if( iDbg > 2 ) cout<<"# of rechits found - HBHE: "<<HBHERecHits->size()
 		  /*<<", HO: "<<HORecHits->size()*/<<", HF: "<<HFRecHits->size()
@@ -189,11 +183,13 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 	HcalSubdetector HcalNum = HcalID.subdet();
 	double hitE = 0;
 	if( HcalNum == HcalOuter ) {
-	  HORecHitCollection::const_iterator theRecHit=HORecHits->find(HcalID);
-	  if (theRecHit == HORecHits->end()) {edm::LogWarning("UnexpectedEventContents")<<"Can't find the HO recHit"
-											<<" with ID: "<<HcalID; continue;}
-	  hitE = theRecHit->energy();
-	  HO_energies.push_back( hitE );
+	  // This code has not been debugged in ages - give error message instead...
+	  //HORecHitCollection::const_iterator theRecHit=HORecHits->find(HcalID);
+	  //if (theRecHit == HORecHits->end()) {cerr<<"Debug Error. Can't find HO recHit"<<endl; continue;}
+	  //hitE = theRecHit->energy();
+	  //HO_energies.push_back( hitE );
+	  LogDebug("NotImplemented")<<"Jet ID code analyzing HO hits is NYI! Ignoring hit.";
+	  continue;
 
 	} else if( HcalNum == HcalForward ) {
 

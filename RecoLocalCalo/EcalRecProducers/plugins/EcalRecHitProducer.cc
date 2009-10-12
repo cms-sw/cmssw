@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.5 2009/06/05 13:38:16 ferriff Exp $
- *  $Date: 2009/06/05 13:38:16 $
- *  $Revision: 1.5 $
+ *  $Id: EcalRecHitProducer.cc,v 1.6 2009/07/14 02:24:37 ferriff Exp $
+ *  $Date: 2009/07/14 02:24:37 $
+ *  $Revision: 1.6 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -151,7 +151,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                                                 << "! something wrong with EcalChannelStatus in your DB? ";
                                 }
                                 EcalUncalibratedRecHit urh;
-                                if ( chStatusCode.getStatusCode() == 12 ) { // dead VFE (from DB info)
+                                if ( (chStatusCode.getStatusCode() & 0x001F) == 12 ) { // dead VFE (from DB info)
                                         // uses the EcalUncalibratedRecHit to pass the DetId info
                                         urh = EcalUncalibratedRecHit( *it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_VFE );
                                         if ( recoverEBVFE_ || killDeadChannels_ ) workerRecover_->run( evt, urh, *ebRecHits );
@@ -192,7 +192,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                                                 << "! something wrong with EcalChannelStatus in your DB? ";
                                 }
                                 EcalUncalibratedRecHit urh;
-                                if ( chStatusCode.getStatusCode() == 12 ) { // dead VFE (from DB info)
+                                if ( (chStatusCode.getStatusCode() & 0x001F) == 12 ) { // dead VFE (from DB info)
                                         // uses the EcalUncalibratedRecHit to pass the DetId info
                                         urh = EcalUncalibratedRecHit( *it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_VFE );
                                         if ( recoverEEVFE_ || killDeadChannels_ ) workerRecover_->run( evt, urh, *eeRecHits );

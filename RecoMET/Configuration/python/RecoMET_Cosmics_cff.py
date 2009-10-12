@@ -16,6 +16,7 @@ from RecoMET.Configuration.RecoMET_cff import *
 
 #tcMetP5 = tcMet.clone(trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation')
 tcMet.trackInputTag = 'ctfWithMaterialTracksP5LHCNavigation'
+tcMet.isCosmics = True
 
 #hcalnoiseCosmics = hcalnoise.clone(fillTracks = False)
 hcalnoise.fillTracks = False
@@ -39,6 +40,7 @@ metrecoCosmics = cms.Sequence(
       muonMETValueMapProducer+
       corMetGlobalMuons+
       muonTCMETValueMapProducer+
+      tcMet+
       hcalnoise)
 
 metrecoCosmics_woHcalNoise = cms.Sequence(
@@ -58,7 +60,8 @@ metrecoCosmics_woHcalNoise = cms.Sequence(
     htMetIC5+
     muonMETValueMapProducer+
     corMetGlobalMuons+
-    muonTCMETValueMapProducer
+    muonTCMETValueMapProducer+
+    tcMet
 )
     
 

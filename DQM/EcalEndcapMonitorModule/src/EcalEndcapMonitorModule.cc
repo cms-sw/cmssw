@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2009/04/28 10:35:59 $
- * $Revision: 1.64 $
+ * $Date: 2009/08/05 12:02:46 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -205,6 +205,7 @@ void EcalEndcapMonitorModule::setup(void){
 
     meRunType_ = dqmStore_->bookInt("RUNTYPE");
     meEvtType_ = dqmStore_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
+    meEvtType_->setAxisTitle("number of events", 2);
     meEvtType_->setBinLabel(1, "UNKNOWN", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -389,13 +390,17 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int neec = 0;
 
-    int ndccs = dcchs->size();
-
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
       neec++;
+
+    }
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+      if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
 
       if ( meEEDCC_ ) meEEDCC_->Fill(Numbers::iSM( *dcchItr, EcalEndcap )+0.5);
 
@@ -411,7 +416,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
-      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./ndccs);
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./neec);
 
     }
 

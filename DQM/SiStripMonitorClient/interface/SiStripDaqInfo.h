@@ -68,21 +68,24 @@ class SiStripDaqInfo: public edm::EDAnalyzer {
 private:
   void readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling);
   void readSubdetFedFractions(std::vector<int>& fed_ids);
-
+  void bookStatus();
+  void fillDummyStatus();
 
   std::map<std::string,std::vector<unsigned short> > subDetFedMap;
 
   DQMStore* dqmStore_;
   MonitorElement * DaqFraction_;
-  MonitorElement * DaqFractionTIB_;
-  MonitorElement * DaqFractionTOB_;
-  MonitorElement * DaqFractionTIDF_;
-  MonitorElement * DaqFractionTIDB_;
-  MonitorElement * DaqFractionTECF_;
-  MonitorElement * DaqFractionTECB_;
+
+  struct SubDetMEs{
+    MonitorElement* DaqFractionME;
+    int TotalFed;
+    int ConnectedFeds;
+  };
+
+  std::map <std::string, SubDetMEs> SubDetMEsMap;
 
   unsigned long long m_cacheID_;
   int nFedTotal;
-
+  bool bookedStatus_;
 };
 #endif

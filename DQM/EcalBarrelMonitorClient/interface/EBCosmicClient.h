@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2008/06/25 15:08:17 $
- * $Revision: 1.57 $
+ * $Date: 2009/08/10 15:49:28 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,11 +61,8 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// SoftReset
-void softReset(bool flag);
-
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -92,12 +89,10 @@ DQMStore* dqmStore_;
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];
 MonitorElement* meh03_[36];
-MonitorElement* meh04_[36];
 
 TProfile2D* h01_[36];
-TProfile2D* h02_[36];
+TH1F* h02_[36];
 TH1F* h03_[36];
-TH1F* h04_[36];
 
 };
 

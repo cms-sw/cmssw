@@ -139,6 +139,12 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(42240)
   ),
+  TimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(False),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)
+  ),
   nTotalBadChannelsvsTimeHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
     NBins = cms.untracked.uint32(600),

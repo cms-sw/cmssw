@@ -6,8 +6,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-//#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 
 
 #include <iostream>
@@ -37,30 +35,35 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   HcalTopology theTopo;
   HcalDetId did;
 
-  
-edm::ESHandle<CaloTPGTranscoder> outTranscoder;
-iSetup.get<CaloTPGRecord>().get(outTranscoder);
-outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
-edm::ESHandle<CaloTPGTranscoderULUT> transcoder;
-transcoder.swap(outTranscoder);
-//Pass *transcoder to LUT HcalLutManager
-//Then you have same functionality for CaloTPGTranscoderULUT
-//HcalTrigTowerDetId id(8,18);
-//std::vector<unsigned char>  v = transcoder->getCompressionLUT(id);
 
-
-
-  HcalLutManager * manager = new HcalLutManager();
+  HcalLutManager manager;
   bool split_by_crate = true;
   //manager . createAllLutXmlFilesFromCoder( *inputCoder, _tag, split_by_crate );
   cout << " tag name: " << _tag << endl;
   cout << " HO master file: " << _lin_file << endl;
-  //manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, _lin_file, split_by_crate );
-  manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
-  delete manager;
+  manager . createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, _lin_file, split_by_crate );
 
-transcoder->releaseSetup();
+
+  // FIXME: compr LUTs off EventSetup - implement here
+  //edm::ESHandle<CaloTPGTranscoder> transcoder;
+  //iSetup.get<CaloTPGRecord>().get(transcoder);  
+  //edm::Handle<HcalTrigPrimDigiCollection> hcal;
+  //iEvent.getByLabel("hcalTriggerPrimitiveDigis",hcal);
+  //HcalTrigPrimDigiCollection hcalCollection = *hcal;
+  //HcalTrigTowerGeometry theTrigTowerGeometry;
    
+  // DEBUG: checking a lin LUT
+  /*
+  did=HcalDetId(HcalBarrel,1,1,1);
+  if (theTopo.valid(did)) {
+    std::vector<unsigned short> lut=inputCoder->getLinearizationLUT(HcalDetId(did));
+    for (std::vector<unsigned short>::const_iterator _i=lut.begin(); _i!=lut.end();_i++){
+      unsigned int _entry = (unsigned int)(*_i);
+      std::cout << "LUT" << "     " << _entry << std::endl;
+      
+    }
+  }
+  */
 }
 
 

@@ -1,12 +1,15 @@
-// $Id: Processing.cc,v 1.10 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Processing.cc,v 1.13 2009/08/28 16:41:26 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
 #include <sstream>
@@ -18,7 +21,7 @@ using namespace stor;
 
 Processing::Processing( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Processing::do_entryActionWork()
@@ -31,7 +34,7 @@ void Processing::do_entryActionWork()
 
 Processing::~Processing()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Processing::do_exitActionWork()
@@ -45,9 +48,9 @@ string Processing::do_stateName() const
   return string( "Processing" );
 }
 
-void Processing::do_moveToFailedState( const std::string& reason ) const
+void Processing::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void Processing::logEndRunRequest( const EndRun& request )
@@ -63,8 +66,9 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
   bool completed = outermost_context().getFragmentStore()->addFragment(frag);
   if ( completed )
   {
-    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
-
+    // The run number check has to be done before the event is added to the
+    // queues, as for some event types, e.g. error events, the run number
+    // match is enforced.
     try
     {
       uint32 runNumber = outermost_context().getSharedResources()->_configuration->getRunNumber();
@@ -72,10 +76,12 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
     }
     catch(stor::exception::RunNumberMismatch &e)
     {
-      outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
-      XCEPT_RETHROW(stor::exception::RunNumberMismatch, e.message(), e);
+      // Just raise an alarm, but continue to process the event
+      outermost_context().getSharedResources()->_statisticsReporter->
+        alarmHandler()->notifySentinel(AlarmHandler::ERROR, e);
     }
     outermost_context().getEventDistributor()->addEventToRelevantQueues(frag);
+    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
   }
   else
   {
@@ -88,6 +94,15 @@ Processing::do_processI2OFragment( I2OChain& frag ) const
       this->noFragmentToProcess();
     }
   }
+
+  // 12-Aug-2009, KAB - I put the sampling of the fragment store size
+  // *after* the code to add fragments to the store and move them from the
+  // fragment store to the relevant queues (when needed) so that the baseline
+  // number of events in the fragment store is zero.  For example, when
+  // disk writing is slow or stopped, the stream queue fills up, and there
+  // is backpressure within the SM, the true number of events in the fragment
+  // store is zero, and putting the sampling here reflects that.
+  outermost_context().getSharedResources()->_statisticsReporter->getThroughputMonitorCollection().setFragmentStoreSize(outermost_context().getFragmentStore()->size());
 }
 
 void

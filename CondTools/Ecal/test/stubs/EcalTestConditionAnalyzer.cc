@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.5 2009/06/30 16:15:15 argiro Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.2 2009/04/08 13:18:20 fra Exp $
    \date 05 Nov 2008
 */
 
@@ -12,6 +12,32 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
+
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
+
+#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+
+#include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalWeightSetXMLTranslator.h"
+
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
+
+#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
+#include "CondTools/Ecal/interface/EcalCondHeader.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
@@ -21,34 +47,9 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibErrorsRcd.h"
+#include <string>
 
-
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
-#include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
-#include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-#include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
-
-#include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalChannelStatusXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalGainRatiosXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
-#include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
-
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-
-
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.5 2009/06/30 16:15:15 argiro Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.2 2009/04/08 13:18:20 fra Exp $";
 
 /**
  *
@@ -123,7 +124,9 @@ void EcalTestConditionAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
    EcalChannelStatusXMLTranslator::writeXML(ChStatusfile,header,*chstatus);
    EcalGainRatiosXMLTranslator::writeXML(Grfile,header,*gainratios);
    EcalIntercalibConstantsXMLTranslator::writeXML(InterFile,header,
-						  *intercalib);
+						  *intercalib,*intercaliberr);
+   EcalIntercalibConstantsXMLTranslator::writeXML(InterMCFile,header,
+						 *intercalibmc,*intercaliberr);
    EcalTBWeightsXMLTranslator::writeXML(WFile,header,*tbweights);
    EcalWeightGroupXMLTranslator::writeXML(WGFile,header,*wgroup);
 

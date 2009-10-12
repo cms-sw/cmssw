@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/08/11 07:24:15 $
- * $Revision: 1.84 $
+ * $Date: 2009/08/21 11:52:29 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  *
 */
@@ -237,11 +237,9 @@ void EETimingClient::cleanup(void) {
 
 }
 
-bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -459,7 +457,7 @@ void EETimingClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+            int itt = Numbers::iSC(ism, EcalEndcap, ix, iy);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
@@ -474,10 +472,6 @@ void EETimingClient::analyze(void) {
     }
 
   }
-
-}
-
-void EETimingClient::softReset(bool flag) {
 
 }
 

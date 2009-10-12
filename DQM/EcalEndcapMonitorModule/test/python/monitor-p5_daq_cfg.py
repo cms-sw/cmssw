@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ECALDQM")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit2 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
@@ -114,52 +114,52 @@ process.MessageLogger = cms.Service("MessageLogger",
         EcalTBRawToDigiDccBlockSize = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDev = cms.untracked.PSet(
+        EcalRawToDigi = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevTriggerType = cms.untracked.PSet(
+        EcalRawToDigiTriggerType = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevTpg = cms.untracked.PSet(
+        EcalRawToDigiTpg = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevNumTowerBlocks = cms.untracked.PSet(
+        EcalRawToDigiNumTowerBlocks = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevTowerId = cms.untracked.PSet(
+        EcalRawToDigiTowerId = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevTowerSize = cms.untracked.PSet(
+        EcalRawToDigiTowerSize = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevChId = cms.untracked.PSet(
+        EcalRawToDigiChId = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevGainZero = cms.untracked.PSet(
+        EcalRawToDigiGainZero = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevGainSwitch = cms.untracked.PSet(
+        EcalRawToDigiGainSwitch = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevDccBlockSize = cms.untracked.PSet(
+        EcalRawToDigiDccBlockSize = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevMemBlock = cms.untracked.PSet(
+        EcalRawToDigiMemBlock = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevMemTowerId = cms.untracked.PSet(
+        EcalRawToDigiMemTowerId = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevMemChId = cms.untracked.PSet(
+        EcalRawToDigiMemChId = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevMemGain = cms.untracked.PSet(
+        EcalRawToDigiMemGain = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevTCC = cms.untracked.PSet(
+        EcalRawToDigiTCC = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
-        EcalRawToDigiDevSRP = cms.untracked.PSet(
+        EcalRawToDigiSRP = cms.untracked.PSet(
             limit = cms.untracked.int32(1000)
         ),
         EcalDCCHeaderRuntypeDecoder = cms.untracked.PSet(
@@ -179,22 +179,22 @@ process.MessageLogger = cms.Service("MessageLogger",
                                        'EcalTBRawToDigiGainZero', 
                                        'EcalTBRawToDigiGainSwitch', 
                                        'EcalTBRawToDigiDccBlockSize', 
-                                       'EcalRawToDigiDev', 
-                                       'EcalRawToDigiDevTriggerType', 
-                                       'EcalRawToDigiDevTpg', 
-                                       'EcalRawToDigiDevNumTowerBlocks', 
-                                       'EcalRawToDigiDevTowerId', 
-                                       'EcalRawToDigiDevTowerSize', 
-                                       'EcalRawToDigiDevChId', 
-                                       'EcalRawToDigiDevGainZero', 
-                                       'EcalRawToDigiDevGainSwitch', 
-                                       'EcalRawToDigiDevDccBlockSize', 
-                                       'EcalRawToDigiDevMemBlock', 
-                                       'EcalRawToDigiDevMemTowerId', 
-                                       'EcalRawToDigiDevMemChId', 
-                                       'EcalRawToDigiDevMemGain', 
-                                       'EcalRawToDigiDevTCC', 
-                                       'EcalRawToDigiDevSRP', 
+                                       'EcalRawToDigi', 
+                                       'EcalRawToDigiTriggerType', 
+                                       'EcalRawToDigiTpg', 
+                                       'EcalRawToDigiNumTowerBlocks', 
+                                       'EcalRawToDigiTowerId', 
+                                       'EcalRawToDigiTowerSize', 
+                                       'EcalRawToDigiChId', 
+                                       'EcalRawToDigiGainZero', 
+                                       'EcalRawToDigiGainSwitch', 
+                                       'EcalRawToDigiDccBlockSize', 
+                                       'EcalRawToDigiMemBlock', 
+                                       'EcalRawToDigiMemTowerId', 
+                                       'EcalRawToDigiMemChId', 
+                                       'EcalRawToDigiMemGain', 
+                                       'EcalRawToDigiTCC', 
+                                       'EcalRawToDigiSRP', 
                                        'EcalDCCHeaderRuntypeDecoder', 
                                        'EcalEndcapMonitorModule'),
     destinations = cms.untracked.vstring('cout')

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.cc,v 1.4 2009/05/07 16:04:43 gruen Exp $
+// $Id: HLTHcalCalibTypeFilter.cc,v 1.6 2009/08/06 09:05:46 bdahmes Exp $
 //
 //
 
@@ -77,7 +77,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 
-  std::vector<int> calibTypeCounter(8,0) ; 
+  std::vector<int> calibTypeCounter(8,0) ;
   for (int i=FEDNumbering::MINHCALFEDID;
        i<=FEDNumbering::MAXHCALFEDID; i++) {
       const FEDRawData& fedData = rawdata->FEDData(i) ; 
@@ -92,6 +92,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       if ( calibTypeCounter.at(i) > maxCount ) { calibType = i ; maxCount = calibTypeCounter.at(i) ; } 
       if ( maxCount == numberOfFEDIds ) break ;
   }
+  if ( calibType < 0 ) return false ; // No HCAL FEDs, thus no calibration type
   if ( maxCount != (numberOfFEDIds-numEmptyFEDs) )
       edm::LogWarning("HLTHcalCalibTypeFilter") << "Conflicting calibration types found.  Assigning type " 
                                              << calibType ; 
@@ -104,7 +105,7 @@ HLTHcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTHcalCalibTypeFilter::beginJob(const edm::EventSetup&)
+HLTHcalCalibTypeFilter::beginJob(void)
 {
   eventsByType.clear() ; 
   eventsByType.resize(8,0) ; 

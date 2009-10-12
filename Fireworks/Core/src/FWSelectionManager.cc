@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.8 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWSelectionManager.cc,v 1.9 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -73,6 +73,22 @@ FWSelectionManager::clearSelection()
        ++it) {
       //NOTE: this will cause
       it->unselect();
+   }
+   clearItemSelection();
+}
+
+void
+FWSelectionManager::clearItemSelection()
+{
+   //may need this in the future 
+   //FWChangeSentry sentry(*m_changeManager);
+   std::set<FWEventItem*> items;
+   items.swap(m_itemSelection);
+   for(std::set<FWEventItem*>::iterator it = items.begin(), itEnd = items.end();
+       it != itEnd;
+       ++it) {
+      //NOTE: this will cause
+      (*it)->unselectItem();
    }
 }
 
@@ -152,6 +168,18 @@ FWSelectionManager::itemChanged(const FWEventItem* iItem)
    m_itemConnectionCount[iItem->id()].first = 0;
 }
 
+void 
+FWSelectionManager::selectItem(FWEventItem* iItem)
+{
+   m_itemSelection.insert(iItem);
+   itemSelectionChanged_(*this);
+}
+void 
+FWSelectionManager::unselectItem(FWEventItem* iItem)
+{
+   m_itemSelection.erase(iItem);
+   itemSelectionChanged_(*this);
+}
 //
 // const member functions
 //
@@ -159,6 +187,12 @@ const std::set<FWModelId>&
 FWSelectionManager::selected() const
 {
    return m_selection;
+}
+
+const std::set<FWEventItem*>&
+FWSelectionManager::selectedItems() const
+{
+   return m_itemSelection;
 }
 
 //

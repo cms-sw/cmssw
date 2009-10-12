@@ -11,8 +11,7 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
 					     const MeasurementEstimator& aEstimator,
 					     const MultiTrajectoryStateMerger& aMerger,
 					     float errorRescaling,
-					     const bool materialBeforeUpdate,
-					     const DetLayerGeometry* detLayerGeometry) :
+					     const bool materialBeforeUpdate) :
   thePropagator(aPropagator.clone()),
   theGeomPropagator(0),
   theConvolutor(0),
@@ -20,15 +19,12 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
   theEstimator(aEstimator.clone()),
   theMerger(aMerger.clone()),
   theMatBeforeUpdate(materialBeforeUpdate),
-  theErrorRescaling(errorRescaling),
-  theGeometry(detLayerGeometry)
+  theErrorRescaling(errorRescaling)
 {
   if ( !theMatBeforeUpdate ) {
     theGeomPropagator = new GsfPropagatorAdapter(thePropagator->geometricalPropagator());
     theConvolutor = thePropagator->convolutionWithMaterial().clone();
   }
-
-  if(!theGeometry) theGeometry = &dummyGeometry;
 
   //   static SimpleConfigurable<bool> timeConf(false,"GsfTrajectorySmoother:activateTiming");
   //   theTiming = timeConf.value();
@@ -92,15 +88,12 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		   predTsos,
 		   avtm.back().updatedState(),
 		   avtm.back().recHit(),
-		   avtm.back().estimate(),
-		   theGeometry->idToLayer(avtm.back().recHit()->geographicalId()) ), 
+		   avtm.back().estimate()), 
 		avtm.back().estimate());
   } else {
     currTsos = predTsos;
     myTraj.push(TM(avtm.back().forwardPredictedState(),
-		   avtm.back().recHit(),
-		   0.,
-		   theGeometry->idToLayer(avtm.back().recHit()->geographicalId() )  ));
+		   avtm.back().recHit()));
   }
   
   TrajectoryStateCombiner combiner;
@@ -177,8 +170,7 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		     predTsos,
 		     smooTsos,
 		     (*itm).recHit(),
-		     estimator()->estimate(combTsos, *(*itm).recHit()).second,
-		     theGeometry->idToLayer((*itm).recHit()->geographicalId() ) ),
+		     estimator()->estimate(combTsos, *(*itm).recHit()).second),
 		  (*itm).estimate());
     } 
     else {
@@ -194,9 +186,7 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       myTraj.push(TM((*itm).forwardPredictedState(),
     		     predTsos,
     		     combTsos,
-    		     (*itm).recHit(),
-		     0.,
-		     theGeometry->idToLayer((*itm).recHit()->geographicalId()) ));
+    		     (*itm).recHit()));
     }
     if ( theMerger )  currTsos = theMerger->merge(currTsos);
   }
@@ -235,16 +225,13 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 		   predTsos,
 		   currTsos,
 		   avtm.front().recHit(),
-		   estimator()->estimate(predTsos, *avtm.front().recHit()).second,
-		   theGeometry->idToLayer(avtm.front().recHit()->geographicalId() )),
+		   estimator()->estimate(predTsos, *avtm.front().recHit()).second),
 		avtm.front().estimate());
     //estimator()->estimate(predTsos, avtm.front().recHit()));
   } 
   else {
     myTraj.push(TM(avtm.front().forwardPredictedState(),
-		   avtm.front().recHit(),
-		   0.,
-		   theGeometry->idToLayer(avtm.front().recHit()->geographicalId()) ));
+		   avtm.front().recHit()));
   }
 
   return std::vector<Trajectory>(1, myTraj); 

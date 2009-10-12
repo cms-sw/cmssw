@@ -63,8 +63,10 @@ void RPCMonitorDigi::beginJob(EventSetup const&){
   NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
   NumberOfClusters_for_EndcapPositive = dbe -> book1D("NumberOfClusters_for_EndcapPositive", "NumberOfClusters for Endcap Positive", 20, 0.5, 20.5);
   NumberOfClusters_for_EndcapNegative = dbe -> book1D("NumberOfClusters_for_EndcapNegative", "NumberOfClusters for Endcap Negative", 20, 0.5, 20.5);
-
-  BarrelNumberOfDigis = dbe -> book1D("Barrel_NumberOfDigi", "Number Of Digis in Barrel", 50, 0.5, 50.5);
+  
+  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "Number Of Digis in Barrel", 50, 0.5, 50.5);
+  NumberOfDigis_for_EndcapPositive = dbe -> book1D("NumberOfDigi_for_EndcapPositive", "Number Of Digis in EndCapPositive", 50, 0.5, 50.5);
+  NumberOfDigis_for_EndcapNegative= dbe -> book1D("NumberOfDigi_for_EndcapNegative", "Number Of Digis in EndCapNegative", 50, 0.5, 50.5);
   
   SameBxDigisMeBarrel_ = dbe->book1D("SameBXDigis_Barrel", "Digis with same bx", 20, 0.5, 20.5);  
   SameBxDigisMeEndcapPositive_ = dbe->book1D("SameBXDigis_EndcapPositive", "Digis with same bx", 20, 0.5, 20.5);  
@@ -173,7 +175,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     //get roll name
     RPCGeomServ RPCname(detId);
     string nameRoll = RPCname.name();
-    string YLabel = RPCname.shortname();
+    //string YLabel = RPCname.shortname(); // to be removed later!!!
     stringstream os;
 
     //get roll number
@@ -236,15 +238,13 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"1DOccupancy_"<<ringType<<"_"<<ring;
       string meId = os.str();
       if( meRingMap[meId]){
-      meRingMap[meId]->Fill(detId.sector());
-      os.str("");
-      os<<"Sec"<<detId.sector();
-      meRingMap[meId] ->setBinLabel(detId.sector(), os.str(), 1);
+	meRingMap[meId]->Fill(detId.sector());
+	// label
       }
 
       os.str("");
       os<<"BxDistribution_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
-      if(meRingMap[os.str()])
+      if(meMap[os.str()])
 	meMap[os.str()]->Fill(bx);
    
       os.str("");
@@ -263,7 +263,7 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       if(meMap[os.str()]){ 
 	meMap[os.str()]->Fill(strip, nr);
-	meMap[os.str()]->setBinLabel(nr,YLabel, 2);
+	//meMap[os.str()]->setBinLabel(nr,YLabel, 2); // to ne removed later!!!
 	}
 
       os.str("");
@@ -306,8 +306,10 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     os<<"NumberOfDigi_"<<nameRoll;
     if(meMap[os.str()])   meMap[os.str()]->Fill(numberOfDigi);   
     
-    BarrelNumberOfDigis -> Fill(numberOfDigi);
- 
+    if(detId.region()==0) NumberOfDigis_for_Barrel -> Fill(numberOfDigi);
+    else  if(detId.region()==-1) NumberOfDigis_for_EndcapPositive -> Fill(numberOfDigi);
+    else  if(detId.region()==1)  NumberOfDigis_for_EndcapNegative -> Fill(numberOfDigi);
+                                
     // Fill RecHit MEs   
     if(recHitCollection.first!=recHitCollection.second ){   
  

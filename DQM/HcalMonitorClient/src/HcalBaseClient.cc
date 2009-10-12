@@ -20,6 +20,35 @@ HcalBaseClient::HcalBaseClient()
 
 HcalBaseClient::~HcalBaseClient(){}
 
+// Mapping functions
+
+void HcalBaseClient::mapHist1D(std::string file, std::string name, TH1F *hist[]){
+  Hist1DContext *cont = new Hist1DContext();
+  cont->file = file;
+  cont->name = name;
+  cont->hist = hist;
+  pair<std::string, Hist1DContext> *newEntry = new pair<std::string, Hist1DContext>(name, *cont);
+  histMap1D.insert(*newEntry);
+}
+
+void HcalBaseClient::mapHist2D(std::string file, std::string name, TH2F *hist[]){
+  Hist2DContext *cont = new Hist2DContext();
+  cont->file = file;
+  cont->name = name;
+  cont->hist = hist;
+  pair<std::string, Hist2DContext> *newEntry = new pair<std::string, Hist2DContext>(name, *cont);
+  histMap2D.insert(*newEntry);
+}
+
+void HcalBaseClient::mapHistProfile(std::string file, std::string name, TProfile *hist[]){
+  HistProfileContext *cont = new HistProfileContext();
+  cont->file = file;
+  cont->name = name;
+  cont->hist = hist;
+  pair<std::string, HistProfileContext> *newEntry = new pair<std::string, HistProfileContext>(name, *cont);
+  histMapProfile.insert(*newEntry);
+}
+
 void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, 
 			  string clientName)
 {

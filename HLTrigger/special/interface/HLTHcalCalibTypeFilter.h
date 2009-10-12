@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTHcalCalibTypeFilter.h,v 1.1 2009/04/01 07:32:50 gruen Exp $
+// $Id: HLTHcalCalibTypeFilter.h,v 1.3 2009/05/04 13:46:39 fwyzard Exp $
 //
 //
 
@@ -38,9 +38,9 @@ public:
   virtual ~HLTHcalCalibTypeFilter();
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginJob(void);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob(void);
   
   // ----------member data ---------------------------
   

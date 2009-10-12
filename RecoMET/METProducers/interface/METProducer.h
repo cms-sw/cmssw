@@ -54,9 +54,9 @@ namespace cms
       double globalThreshold;
 
       //Temporary implementation of response function for Track Corrected MET
-      TH2D *responseFunction_;  
+      //TH2D *responseFunction_;  
+      TH2D responseFunction_;  
 
-      //CandidateCollection tempCol;
     };
 }
 

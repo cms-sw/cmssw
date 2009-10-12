@@ -16,13 +16,12 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.13 2009/01/08 14:07:13 amraktad Exp $
+// $Id: CmsShowNavigator.h,v 1.19 2009/08/13 19:11:17 amraktad Exp $
 //
 
 // system include files
 #include <string>
 #include <sigc++/sigc++.h>
-#include "TFile.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -31,6 +30,7 @@
 class TEventList;
 class CSGAction;
 class CmsShowMain;
+class TFile;
 
 namespace edm {
    class EventID;
@@ -38,17 +38,16 @@ namespace edm {
 
 class CmsShowNavigator
 {
-
 public:
    CmsShowNavigator(const CmsShowMain &);
    virtual ~CmsShowNavigator();
-   //      void startLoop();
+
    Int_t realEntry(Int_t rawEntry);
    Int_t realEntry(Int_t run, Int_t event);    // -1 means event not found
 
-   void loadFile(const std::string& fileName);
-   void nextEventChangeAlsoChangeFile(const std::string& fileName);
-   void checkPosition();
+   bool loadFile(const std::string& fileName);
+   void newRemoteFile(const std::string& fileName);
+   void checkPositionInGoTo();
    void nextEvent();
    void previousEvent();
    void firstEvent();
@@ -57,23 +56,14 @@ public:
    void goToRun(Int_t);
    void goToEvent(Int_t);
 
-   bool autoRewind() const {
-      return m_loopMode;
-   }
-   void setAutoRewind( bool mode ) {
-      m_loopMode = mode;
-   }
+   sigc::signal<void, const fwlite::Event&> newEvent_;
+   sigc::signal<void, const fwlite::Event&> oldEvent_;
+   sigc::signal<void, const TFile*> newFileLoaded_;
+   sigc::signal<void> atBeginning_;
+   sigc::signal<void> atEnd_;
 
-   //      void checkBefore();
-   //      void checkAfter();
-   //      sigc::signal<void, bool> notBegin;
-   //      sigc::signal<void, bool> notEnd;
-   sigc::signal<void, const fwlite::Event&> newEvent;
-   sigc::signal<void, const fwlite::Event&> oldEvent;
-   //      sigc::signal<void, int> newEventIndex; //To be replaced when we can get index from fwlite::Event
-   sigc::signal<void, const TFile*> newFileLoaded;
-   sigc::signal<void> atBeginning;
-   sigc::signal<void> atEnd;
+   sigc::signal<void> preFiltering_;
+   sigc::signal<void> postFiltering_;
 
 private:
    CmsShowNavigator(const CmsShowNavigator&);    // stop default
@@ -89,12 +79,10 @@ private:
    std::string m_selection;
    TEventList *m_eventList;
    int m_currentEntry;
-   int m_nEntries;
+   int m_lastEntry;
    int m_currentSelectedEntry;
    const CmsShowMain         &m_main;
-   bool m_loopMode;    // auto-rewind event loop
    std::string m_nextFile;
 };
-
 
 #endif

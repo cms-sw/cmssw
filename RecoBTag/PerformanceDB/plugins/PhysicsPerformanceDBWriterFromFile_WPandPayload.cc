@@ -9,14 +9,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondFormats/DataRecord/interface/BTagPerformancePayloadRecord.h"
-#include "CondFormats/BTauObjects/interface/BtagPerformancePayloadFromTableEtaJetEt.h"
-#include "CondFormats/BTauObjects/interface/BtagPerformancePayloadFromTableEtaJetEtOnlyBeff.h"
-#include "CondFormats/BTauObjects/interface/BtagPerformancePayloadFromTableEtaJetEtPhi.h"
-#include "CondFormats/BTauObjects/interface/BtagCorrectionPerformancePayloadFromTableEtaJetEt.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 
-#include "CondFormats/DataRecord/interface/BTagPerformanceWPRecord.h"
-#include "CondFormats/BTauObjects/interface/BtagWorkingPoint.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
 
 class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
@@ -52,8 +47,8 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   // - tagger name
   // - cut
   // - concrete class name
-  // - description
-  // - stride
+  // - how many results and how many binning
+  // - their values
   // - vector<float>
   //
 
@@ -76,17 +71,43 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   in >> concreteType;
   std::cout << "concrete Type is "<<concreteType<<std::endl;
 
-  in>>stride;
-  
-
-  std::cout << "Stride is "<<stride<<std::endl;
-  
-  in>> comment;
-
-  std::cout << "Comment is "<<comment<<std::endl;
   //  return ;
 
+  // read # of results
+
+  int nres, nbin;
+  in >> nres;
+  in >> nbin;
+  std::cout <<" Results: " << nres<<" Binning variables: "<<nbin<<std::endl;
+
+  stride = nres+nbin*2;
+  
   int number=0;
+  
+  std::vector<PerformanceResult::ResultType> res;
+  std::vector<BinningVariables::BinningVariablesType> bin;
+
+  while (number<nres && !in.eof()) {
+    int tmp;
+    in>> tmp;
+    res.push_back((PerformanceResult::ResultType)(tmp));
+    number++;
+  }
+  if (number != nres){
+    std::cout <<" Table not well formed"<<std::endl;
+  }
+  number=0;
+  while (number<nbin && !in.eof()) {
+    int tmp;
+    in>> tmp;
+    bin.push_back((BinningVariables::BinningVariablesType)(tmp));
+    number++;
+  }
+  if (number != nbin){
+    std::cout <<" Table not well formed"<<std::endl;
+  }
+
+  number=0;
   while (!in.eof()){
     float temp;
     in >> temp;
@@ -98,6 +119,9 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   //
   // CHECKS
   //
+  if (stride != nbin*2+nres){
+    std::cout <<" Table not well formed"<<std::endl;
+  }
   if ((number % stride) != 0){
     std::cout <<" Table not well formed"<<std::endl;
   }
@@ -116,18 +140,12 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
   // now create pl etc etc
   //
 
-  BtagWorkingPoint * wp = new BtagWorkingPoint(cut, tagger);
+  PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
 
-  BtagPerformancePayloadFromTable * btagpl = 0;
+  PerformancePayloadFromTable * btagpl = 0;
 
-  if (concreteType == "BtagCorrectionPerformancePayloadFromTableEtaJetEt"){
-    btagpl = new BtagCorrectionPerformancePayloadFromTableEtaJetEt(stride, comment, pl);
-  }else if (concreteType == "BtagPerformancePayloadFromTableEtaJetEt"){
-    btagpl = new BtagPerformancePayloadFromTableEtaJetEt(stride, comment, pl);
-  }else if (concreteType == "BtagPerformancePayloadFromTableEtaJetEtPhi") {
-    btagpl = new BtagPerformancePayloadFromTableEtaJetEtPhi(stride, comment, pl);
-  }else if (concreteType == "BtagPerformancePayloadFromTableEtaJetEtOnlyBeff") {
-    btagpl = new BtagPerformancePayloadFromTableEtaJetEtOnlyBeff(stride, comment, pl);
+  if (concreteType == "PerformancePayloadFromTable"){
+    btagpl = new PerformancePayloadFromTable(res, bin, stride, pl);
   }else{
     std::cout <<" Non existing request: " <<concreteType<<std::endl;
   }
@@ -139,7 +157,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
     {
       if (s->isNewTagRequest(rec1))
 	{
-	  s->createNewIOV<BtagPerformancePayload>(btagpl,
+	  s->createNewIOV<PerformancePayload>(btagpl,
 						  s->beginOfTime(),
 						  s->endOfTime(),
 						  rec1);
@@ -147,7 +165,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
       else
 	{
 	  
-	  s->appendSinceTime<BtagPerformancePayload>(btagpl,
+	  s->appendSinceTime<PerformancePayload>(btagpl,
 						     // JUST A STUPID PATCH
 						     111,
 						     rec1);
@@ -160,7 +178,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
     {
       if (s->isNewTagRequest(rec2))
 	{
-	  s->createNewIOV<BtagWorkingPoint>(wp,
+	  s->createNewIOV<PerformanceWorkingPoint>(wp,
 					    s->beginOfTime(),
 					    s->endOfTime(),
 					    rec2);
@@ -168,7 +186,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob(const edm::EventS
       else
 	{
 	  
-	  s->appendSinceTime<BtagWorkingPoint>(wp,
+	  s->appendSinceTime<PerformanceWorkingPoint>(wp,
 					       /// JUST A STUPID PATCH
 					       111,
 					       rec2);

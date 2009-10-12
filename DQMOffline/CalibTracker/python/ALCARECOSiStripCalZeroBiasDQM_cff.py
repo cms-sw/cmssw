@@ -1,38 +1,66 @@
 import FWCore.ParameterSet.Config as cms
 
+#------------------------
 # SiStripMonitorCluster #
-import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
+#------------------------
 
-ALCARECOSiStripCalZeroBiasDQM = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
+from DQM.SiStripMonitorCluster.SiStripMonitorClusterAlca_cfi import *
+SiStripCalZeroBiasMonitorCluster.TopFolderName = cms.string('AlCaReco/SiStrip')
 
-ALCARECOSiStripCalZeroBiasDQM.OutputMEsInRootFile                     = False 
-ALCARECOSiStripCalZeroBiasDQM.SelectAllDetectors                      = True 
-ALCARECOSiStripCalZeroBiasDQM.StripQualityLabel                       = 'unbiased'
+#---------------------------------------------
+# Filters to remove APV induced noisy events #
+#---------------------------------------------
 
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterDigiPos.moduleswitchon        = True
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterDigiPos.layerswitchon         = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterPos.moduleswitchon            = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterPos.layerswitchon             = False
-ALCARECOSiStripCalZeroBiasDQM.TH1nClusters.moduleswitchon             = False
-ALCARECOSiStripCalZeroBiasDQM.TH1nClusters.layerswitchon              = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterStoN.moduleswitchon           = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterStoN.layerswitchon            = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterStoNVsPos.moduleswitchon      = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterStoNVsPos.layerswitchon       = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterNoise.moduleswitchon          = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterNoise.layerswitchon           = False
-ALCARECOSiStripCalZeroBiasDQM.TH1NrOfClusterizedStrips.moduleswitchon = False
-ALCARECOSiStripCalZeroBiasDQM.TH1NrOfClusterizedStrips.layerswitchon  = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ModuleLocalOccupancy.moduleswitchon  = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ModuleLocalOccupancy.layerswitchon   = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterCharge.moduleswitchon         = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterCharge.layerswitchon          = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterWidth.moduleswitchon          = False
-ALCARECOSiStripCalZeroBiasDQM.TH1ClusterWidth.layerswitchon           = False
-ALCARECOSiStripCalZeroBiasDQM.TProfNumberOfCluster.moduleswitchon     = False
-ALCARECOSiStripCalZeroBiasDQM.TProfNumberOfCluster.layerswitchon      = False
-ALCARECOSiStripCalZeroBiasDQM.TProfClusterWidth.moduleswitchon        = False
-ALCARECOSiStripCalZeroBiasDQM.TProfClusterWidth.layerswitchon         = False
-ALCARECOSiStripCalZeroBiasDQM.TkHistoMap_On                           = False
-ALCARECOSiStripCalZeroBiasDQM.TH1TotalNumberOfClusters.subdetswitchon = True
-ALCARECOSiStripCalZeroBiasDQM.ClusterProducer                         = 'calZeroBiasClusters'
+import DPGAnalysis.SiStripTools.eventwithhistoryproducer_cfi
+ConsecutiveHEs = DPGAnalysis.SiStripTools.eventwithhistoryproducer_cfi.consecutiveHEs.clone()
+
+import DPGAnalysis.SiStripTools.configurableapvcyclephaseproducer_GR09_cfi
+apvPhases = DPGAnalysis.SiStripTools.configurableapvcyclephaseproducer_GR09_cfi.APVPhases.clone()
+apvPhases.defaultPhases = cms.vint32(30,30,30,30)
+
+from DPGAnalysis.SiStripTools.apvlatency.fakeapvlatencyessource_cff import *
+fakeapvlatency.APVLatency = cms.untracked.int32(143)
+
+import DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_cfi
+PotentialTIBTECHugeEvents = DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_cfi.potentialTIBTECHugeEvents.clone()
+PotentialTIBTECHugeEvents.partitionName              = cms.untracked.string("TM")
+PotentialTIBTECHugeEvents.absBXInCycleRangeLtcyAware = cms.untracked.vint32(8,11)
+PotentialTIBTECHugeEvents.historyProduct             = cms.untracked.InputTag("ConsecutiveHEs")
+PotentialTIBTECHugeEvents.APVPhaseLabel              = cms.untracked.string("apvPhases")
+
+import DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi
+PotentialTIBTECFrameHeaderEventsFPeak = DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi.potentialTIBTECFrameHeaderEventsFPeak.clone()
+PotentialTIBTECFrameHeaderEventsFPeak.partitionName              = cms.untracked.string("TM")
+PotentialTIBTECFrameHeaderEventsFPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(19,22)
+PotentialTIBTECFrameHeaderEventsFPeak.historyProduct             = cms.untracked.InputTag("ConsecutiveHEs")
+PotentialTIBTECFrameHeaderEventsFPeak.APVPhaseLabel              = cms.untracked.string("apvPhases")
+
+PotentialTIBTECFrameHeaderEventsAdditionalPeak = DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_FrameHeaderEvents_firstpeak_cfi.potentialTIBTECFrameHeaderEventsFPeak.clone()
+PotentialTIBTECFrameHeaderEventsAdditionalPeak.partitionName              = cms.untracked.string("TI")
+PotentialTIBTECFrameHeaderEventsAdditionalPeak.absBXInCycleRangeLtcyAware = cms.untracked.vint32(24,26)
+PotentialTIBTECFrameHeaderEventsAdditionalPeak.historyProduct             = cms.untracked.InputTag("ConsecutiveHEs")
+PotentialTIBTECFrameHeaderEventsAdditionalPeak.APVPhaseLabel              = cms.untracked.string("apvPhases")
+
+#--------------------------------------------
+# Filter to remove high multiplicity events #
+#--------------------------------------------
+
+import DPGAnalysis.SiStripTools.largesistripclusterevents_cfi
+LargeSiStripClusterEvents = DPGAnalysis.SiStripTools.largesistripclusterevents_cfi.largeSiStripClusterEvents.clone()
+LargeSiStripClusterEvents.collectionName = cms.InputTag("calZeroBiasClusters")
+
+#------------
+# Sequences #
+#------------
+
+seqAPVCycleFilter = cms.Sequence(apvPhases+
+                                 ConsecutiveHEs+
+                                 ~PotentialTIBTECHugeEvents*
+                                 ~PotentialTIBTECFrameHeaderEventsFPeak*
+                                 ~PotentialTIBTECFrameHeaderEventsAdditionalPeak)
+
+seqMultiplicityFilter = cms.Sequence(~LargeSiStripClusterEvents)
+
+ALCARECOSiStripCalZeroBiasDQM = cms.Sequence(seqAPVCycleFilter*
+                                             seqMultiplicityFilter*
+                                             SiStripCalZeroBiasMonitorCluster)

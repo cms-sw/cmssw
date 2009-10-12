@@ -3,7 +3,7 @@ from DQM.HcalMonitorModule.HcalMonitorModule_cfi import * # there's probably a b
 from DQM.HcalMonitorClient.HcalMonitorClient_cfi import * # ditto
 
 
-maxevents=1000
+maxevents=2000
 checkNevents=1000
 
 process = cms.Process("HCALDQM")
@@ -25,9 +25,24 @@ process.source = cms.Source("PoolSource",
                             
                             fileNames = cms.untracked.vstring
                             (
-    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/225B560C-BD4B-DE11-93C9-001D09F24448.root',
+    #'file:/tmp/temple/225B560C-BD4B-DE11-93C9-001D09F24448.root',
+    ##'/store/data/Commissioning09/Test/RAW/v1/000/097/742/225B560C-BD4B-DE11-93C9-001D09F24448.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/2ADB500C-BD4B-DE11-B3F9-001D09F23A61.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/3C16835B-BC4B-DE11-A17B-001D09F2B30B.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/4479FF5A-BC4B-DE11-A7CC-001D09F23174.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/60D38909-BD4B-DE11-B67E-001D09F24664.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/7EACF65A-BC4B-DE11-96AE-001D09F2906A.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/9A3435B8-BD4B-DE11-BFF0-001D09F251B8.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/9EE8FA0D-BD4B-DE11-B493-001D09F2543D.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/B2315105-BD4B-DE11-BE48-001D09F29849.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/C4BA5958-BC4B-DE11-9BF7-0019B9F6C674.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/E2515C5A-BC4B-DE11-ACE7-001D09F2432B.root',
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/E2BA0BB4-BD4B-DE11-8935-001D09F24691.root',
+
+    #'/store/data/Commissioning09/Test/RAW/v1/000/097/742/2ADB500C-BD4B-DE11-B3F9-001D09F23A61.root',
     # cosmics run with known hot cell in HF
     '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/006945C8-40A5-DD11-BD7E-001617DBD556.root',
+    '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/838/FEEE9F50-61A5-DD11-835E-000423D98DD4.root',
     # NON-ZERO-SUPPRESSED RUN
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/064/103/2A983512-E18F-DD11-BE84-001617E30CA4.root'
     #'/store/data/Commissioning08/Cosmics/RAW/v1/000/066/904/02944F1F-EB9E-DD11-8D88-001D09F2A465.root',
@@ -92,25 +107,67 @@ process.dqmSaver.saveByRun = 1
 #process.GlobalTag.connect = 'frontier://Frontier/CMS_COND_21X_GLOBALTAG'
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR09_31X_V2P::All"
+process.GlobalTag.globaltag = "GR09_31X_V6P::All" # should be V2p
+#process.GlobalTag.globaltag = "CRAFT0831X_V1::All" # crashes code?
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
-
 process.prefer("GlobalTag")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Tone down the logging messages, MessageLogger!
 process.MessageLogger.cerr.FwkReport.reportEvery = 50
 
+
+
+
 #-----------------------------
-# Hcal DQM Source, including SimpleReconstrctor
+# Hcal DQM Source, including HitReconstrctor
 #-----------------------------
 process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
+process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi")
+process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi")
+process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi")
+process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi")
+
+process.essourceSev =  cms.ESSource("EmptyESSource",
+                                               recordName = cms.string("HcalSeverityLevelComputerRcd"),
+                                               firstValid = cms.vuint32(1),
+                                               iovIsRunNotTime = cms.bool(True)
+                            )
+
+
+process.hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
+                                      SeverityLevels = cms.VPSet(
+    cms.PSet( Level = cms.int32(0),
+              RecHitFlags = cms.vstring(''),
+              ChannelStatus = cms.vstring('')
+              ),
+    cms.PSet( Level = cms.int32(5),
+              RecHitFlags = cms.vstring('HSCP_R1R2','HSCP_FracLeader','HSCP_OuterEnergy',
+                                        'HSCP_ExpFit','ADCSaturationBit'),
+              ChannelStatus = cms.vstring('')
+              ),
+    cms.PSet( Level = cms.int32(8),
+              RecHitFlags = cms.vstring('HBHEHpdHitMultiplicity', 'HBHEPulseShape', 'HOBit',
+                                        'HFDigiTime', 'HFLongShort', 'ZDCBit', 'CalibrationBit',
+                                        'TimingErrorBit'),
+              ChannelStatus = cms.vstring('')
+              ),
+    cms.PSet( Level = cms.int32(10),
+              RecHitFlags = cms.vstring(''),
+              ChannelStatus = cms.vstring('HcalCellHot')
+              ),
+    cms.PSet( Level = cms.int32(20),
+              RecHitFlags = cms.vstring(''),
+              ChannelStatus = cms.vstring('HcalCellOff', 'HcalCellDead')
+              )
+    ),
+                                      RecoveredRecHitBits = cms.vstring('TimingAddedBit','TimingSubtractedBit'),
+                                      DropChannelStatusBits = cms.vstring('HcalCellOff',) #'HcalCellDead' had also been present
+                                      )
+
+
+
 
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = 0
@@ -130,6 +187,7 @@ process.hcalMonitor.DeadCellMonitor     = True
 process.hcalMonitor.HotCellMonitor      = True
 process.hcalMonitor.BeamMonitor         = True
 process.hcalMonitor.PedestalMonitor     = True
+process.hcalMonitor.DetDiagNoiseMonitor = True
 process.hcalMonitor.LEDMonitor          = False
 process.hcalMonitor.CaloTowerMonitor    = False
 process.hcalMonitor.MTCCMonitor         = False
@@ -137,6 +195,10 @@ process.hcalMonitor.HcalAnalysis        = False
 
 # This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
 setHcalTaskValues(process.hcalMonitor)
+
+# values are normally 10000, 10
+process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
+process.hcalMonitor.DeadCellMonitor_neverpresent_prescale=1
 
 # Set individual Task values here (otherwise they will remain set to the values specified for the hcalMonitor.)
 
@@ -147,7 +209,7 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 
 # hcalClient configurable values ------------------------
 # suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
+process.hcalClient.baseHtmlDir = '/tmp/temple'  # set to '' to ignore html output
 
 # Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
 # Summary Client is also unaffected
@@ -172,15 +234,16 @@ process.p = cms.Path(process.hcalDigis
                      *process.hcalMonitor
                      *process.hcalClient
                      *process.dqmEnv
-                     *process.dqmSaver)
+                     *process.dqmSaver
+                     )
 
 #-----------------------------
 # Quality Tester 
 # will add switch to select histograms to be saved soon
 #-----------------------------
-process.qTester = cms.EDFilter("QualityTester",
-    prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQM/HcalMonitorClient/data/hcal_qualitytest_config.xml'),
-    getQualityTestsFromFile = cms.untracked.bool(True)
-)
+#process.qTester = cms.EDFilter("QualityTester",
+#    prescaleFactor = cms.untracked.int32(1),
+#    qtList = cms.untracked.FileInPath('DQM/HcalMonitorClient/data/hcal_qualitytest_config.xml'),
+#    getQualityTestsFromFile = cms.untracked.bool(True)
+#)
 

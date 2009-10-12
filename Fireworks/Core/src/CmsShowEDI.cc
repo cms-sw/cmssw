@@ -8,11 +8,12 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.25 2009/05/27 15:40:12 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.27 2009/08/12 18:17:21 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
+#include <sstream>
 #include <sigc++/sigc++.h>
 #include <boost/bind.hpp>
 #include "TClass.h"
@@ -36,7 +37,6 @@
 #include "Fireworks/Core/interface/CmsShowEDI.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
-#include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
@@ -68,6 +68,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectionManager = selMgr;
    SetCleanup(kDeepCleanup);
 
+   m_selectionManager->itemSelectionChanged_.connect(boost::bind(&CmsShowEDI::fillEDIFrame,this));
    TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
    m_objectLabel = new TGLabel(objectFrame, " ");
    TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_objectLabel->GetDefaultFontStruct());
@@ -221,6 +222,8 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    Resize(GetDefaultSize());
    MapSubwindows();
    Layout();
+   
+   fillEDIFrame();
 }
 
 // CmsShowEDI::CmsShowEDI(const CmsShowEDI& rhs)
@@ -264,8 +267,18 @@ CmsShowEDI::~CmsShowEDI()
 // member functions
 //
 void
-CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
-   if (iItem != m_item) {
+CmsShowEDI::fillEDIFrame() {
+   FWEventItem* iItem =0;
+   bool multipleCollections = false;
+   if(!m_selectionManager->selectedItems().empty()) {
+      if(m_selectionManager->selectedItems().size()==1) {
+         iItem=*(m_selectionManager->selectedItems().begin());
+      } else {
+         multipleCollections=true;
+      }
+   }
+   //m_item can be zero because we had 0 or many collections selected
+   if (0 == m_item || iItem != m_item) {
       disconnectAll();
       m_item = iItem;
       if(0 != m_item) {
@@ -296,7 +309,12 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
          m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
          //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
          m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
+      } else if(multipleCollections) {
+         std::ostringstream s;
+         s<<m_selectionManager->selectedItems().size()<<" Collections Selected";
+         m_objectLabel->SetText(s.str().c_str());
       }
+   
       Layout();
    }
 }
@@ -358,12 +376,12 @@ CmsShowEDI::updateFilter() {
 
 void
 CmsShowEDI::disconnectAll() {
+   m_objectLabel->SetText("No Collection Selected");
    if(0 != m_item) {
       m_displayChangedConn.disconnect();
       m_modelChangedConn.disconnect();
       m_destroyedConn.disconnect();
       m_item = 0;
-      m_objectLabel->SetText("No collection selected");
       m_colorSelectWidget->SetColorByIndex(0,kFALSE);
       m_isVisibleButton->SetDisabledAndSelected(kTRUE);
       m_filterExpressionEntry->SetText(0);

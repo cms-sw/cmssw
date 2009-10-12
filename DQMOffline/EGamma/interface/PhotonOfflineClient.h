@@ -39,7 +39,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/06/19 14:29:17 $ 
+ **  $Date: 2009/07/09 12:16:04 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -92,6 +92,13 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   std::vector<MonitorElement*> p_convFractionVsEt_isol_;
   std::vector<std::vector<MonitorElement*> > p_convFractionVsEt_;
 
+  std::vector<MonitorElement*> p_badChannelsFractionVsEta_isol_;
+  std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsEta_;
+  std::vector<MonitorElement*> p_badChannelsFractionVsPhi_isol_;
+  std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsPhi_;
+  std::vector<MonitorElement*> p_badChannelsFractionVsEt_isol_;
+  std::vector<std::vector<MonitorElement*> > p_badChannelsFractionVsEt_;
+
   MonitorElement* p_vertexReconstructionEfficiencyVsEta_;
 
 
@@ -113,6 +120,9 @@ class PhotonOfflineClient : public edm::EDAnalyzer
   double etaMin;
   double etaMax;
   int etaBin;
+  double phiMin;
+  double phiMax;
+  int phiBin;
   bool standAlone_;
   bool batch_;
   std::string outputFileName_;

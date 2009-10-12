@@ -58,3 +58,4 @@ process.out_step = cms.EndPath(process.output)
 
 process.schedule = cms.Schedule(process.mix_step, process.end_step, process.out_step)
 
+process.mix.input.fileNames = cms.untracked.vstring('file:MixedSources.root')

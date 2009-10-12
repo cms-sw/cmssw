@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/04/09 15:45:24 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/06/09 13:20:05 $
+ *  $Revision: 1.8 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -17,6 +17,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // Geometry
+#include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 
@@ -33,7 +34,7 @@ using namespace edm;
 using namespace std;
 
 
-DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps){
+DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterSet& ps) : trigGeomUtils(0) {
 
   setConfig(ps,"DTLocalTriggerEfficiency");
   baseFolderDCC = "DT/03-LocalTrigger-DCC/";
@@ -43,6 +44,10 @@ DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterS
 
 
 DTLocalTriggerEfficiencyTest::~DTLocalTriggerEfficiencyTest(){
+
+  if (trigGeomUtils) {
+    delete trigGeomUtils;
+  }
   
 }
 
@@ -50,7 +55,7 @@ DTLocalTriggerEfficiencyTest::~DTLocalTriggerEfficiencyTest(){
 void DTLocalTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
   
   DTLocalTriggerBaseTest::beginJob(c);
-
+  trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -75,12 +80,14 @@ void DTLocalTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
 	      bookChambHistos(chId,"TrigEffPosHHHLPhi");
 	      bookChambHistos(chId,"TrigEffAnglePhi");
 	      bookChambHistos(chId,"TrigEffAngleHHHLPhi");
-	      bookChambHistos(chId,"TrigEffPosvsAngleTheta");
-	      bookChambHistos(chId,"TrigEffPosvsAngleHTheta");
-	      bookChambHistos(chId,"TrigEffPosTheta");
-	      bookChambHistos(chId,"TrigEffPosHTheta");
-	      bookChambHistos(chId,"TrigEffAngleTheta");
-	      bookChambHistos(chId,"TrigEffAngleHTheta");
+	      if (stat<=3) {
+		bookChambHistos(chId,"TrigEffPosvsAngleTheta");
+		bookChambHistos(chId,"TrigEffPosvsAngleHTheta");
+		bookChambHistos(chId,"TrigEffPosTheta");
+		bookChambHistos(chId,"TrigEffPosHTheta");
+		bookChambHistos(chId,"TrigEffAngleTheta");
+		bookChambHistos(chId,"TrigEffAngleHTheta");
+	      }
 	    }
 	    bookSectorHistos(wh,sect,"TrigEffPhi");  
 	    bookSectorHistos(wh,sect,"TrigEffTheta");  
@@ -318,36 +325,52 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
     chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs angle of incidence (Theta)",16,-40.,40.);
   }
   else if (htype.find("TrigEffPosPhi") == 0 ){
-    pair<float,float> range = phiRange(chambId);
-    int nbins = int((range.second - range.first)/15);
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Phi)",nbins,range.first,range.second);
+    float min,max;
+    int nbins;
+    trigGeomUtils->phiRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Phi)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAnglePhi") == 0 ){
-    pair<float,float> range = phiRange(chambId);
-    int nbins = int((range.second - range.first)/15);
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency position vs angle (Phi)",16,-40.,40.,nbins,range.first,range.second);
+    float min,max;
+    int nbins;
+    trigGeomUtils->phiRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency position vs angle (Phi)",16,-40.,40.,nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAngleHHHLPhi") == 0 ){
-    pair<float,float> range = phiRange(chambId);
-    int nbins = int((range.second - range.first)/15);
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (HH/HL) pos vs angle (Phi)",16,-40.,40.,nbins,range.first,range.second);
+    float min,max;
+    int nbins;
+    trigGeomUtils->phiRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (HH/HL) pos vs angle (Phi)",16,-40.,40.,nbins,min,max);
   }
   else if (htype.find("TrigEffPosHHHLPhi") == 0 ){
-    pair<float,float> range = phiRange(chambId);
-    int nbins = int((range.second - range.first)/15);
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs position (Phi)",nbins,range.first,range.second);
+    float min,max;
+    int nbins;
+    trigGeomUtils->phiRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (HH/HL) vs position (Phi)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosTheta") == 0){
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Theta)",20,-117.5,117.5);
+    float min,max;
+    int nbins;
+    trigGeomUtils->thetaRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency vs position (Theta)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosHTheta") == 0){
-    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs position (Theta)",20,-117.5,117.5);
+    float min,max;
+    int nbins;
+    trigGeomUtils->thetaRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book1D(HistoName.c_str(),"Trigger efficiency (H) vs position (Theta)",nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAngleTheta") == 0 ){
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency pos vs angle (Theta)",16,-40.,40.,20,-117.5,117.5);
+    float min,max;
+    int nbins;
+    trigGeomUtils->thetaRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency pos vs angle (Theta)",16,-40.,40.,nbins,min,max);
   }
   else if (htype.find("TrigEffPosvsAngleHTheta") == 0 ){
-    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (H) pos vs angle (Theta)",16,-40.,40.,20,-117.5,117.5);
+    float min,max;
+    int nbins;
+    trigGeomUtils->thetaRange(chambId,min,max,nbins);
+    chambME[indexChId][fullType] = dbe->book2D(HistoName.c_str(),"Trigger efficiency (H) pos vs angle (Theta)",16,-40.,40.,nbins,min,max);
   }
 
 }

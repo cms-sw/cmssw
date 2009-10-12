@@ -169,21 +169,20 @@ std::vector<Trajectory> KFTrajectoryFitter::fit(const TrajectorySeed& aSeed,
       if (preciseHit->isValid() == false){
 	LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	currTsos = predTsos;
-	myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId()) ));
+	myTraj.push(TM(predTsos, *ihit ));//why no estimate? if the hit is valid it should contribute to chi2...
 
       }else{
 	LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	currTsos = updator()->update(predTsos, *preciseHit);
 	myTraj.push(TM(predTsos, currTsos, preciseHit,
-		       estimator()->estimate(predTsos, *preciseHit).second,
-		       theGeometry->idToLayer(preciseHit->geographicalId())  ));
+		       estimator()->estimate(predTsos, *preciseHit).second));
 
       }
     } else {
       //no update
       LogDebug("TrackFitters") << "THE HIT IS NOT VALID: using currTsos" << "\n";
       currTsos = predTsos;
-      myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
+      myTraj.push(TM(predTsos, *ihit));
     }
 
     LogTrace("TrackFitters")

@@ -16,7 +16,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
-// $Id: MultiChainEvent.h,v 1.3 2009/07/20 20:51:33 cplager Exp $
+// $Id: MultiChainEvent.h,v 1.1 2009/07/12 05:09:08 srappocc Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -25,7 +25,6 @@
 #include <boost/shared_ptr.hpp>
 
 // user include files
-#include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 
 // forward declarations
@@ -42,7 +41,7 @@ namespace fwlite {
     class MultiProductGetter;
   }
 
-class MultiChainEvent: public EventBase
+class MultiChainEvent
 {
 
    public:
@@ -59,18 +58,14 @@ class MultiChainEvent: public EventBase
       const MultiChainEvent & to(edm::EventID id);
       const MultiChainEvent & to(edm::RunNumber_t run, edm::EventNumber_t event);
 
-      // Go to the very first Event. 
+      /** Go to the very first Event*/
       const MultiChainEvent& toBegin();
       
       // ---------- const member functions ---------------------
-      virtual const std::string getBranchNameFor(const std::type_info&, 
-                                                 const char*, 
-                                                 const char*, 
-                                                 const char*) const;
+      const std::string getBranchNameFor(const std::type_info&, const char*, const char*, const char*) const;
 
       /** This function should only be called by fwlite::Handle<>*/
-      virtual bool getByLabel(const std::type_info&, const char*, 
-                              const char*, const char*, void*) const;
+      bool getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
@@ -104,7 +99,6 @@ class MultiChainEvent: public EventBase
       // ---------- member functions ---------------------------
 
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
-
 
    private:
 

@@ -37,8 +37,7 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   virtual void endJob() ;
 
  private:
-  double dR(double eta1, double phi1, double eta2, double phi2);
-   
+  
   DQMStore* dbe_;
   std::string outputFile_;
   std::string hcalselector_;
@@ -48,27 +47,9 @@ class CaloTowersValidation : public edm::EDAnalyzer {
   std::string theCaloTowerCollectionLabel;
 
   int isub;
-  int nevent;
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
   double etaMin[3];
-
-  // ieta scan
-  MonitorElement*  emean_vs_ieta_E;
-  MonitorElement*  emean_vs_ieta_H;
-  MonitorElement*  emean_vs_ieta_EH;
-
-  MonitorElement*  emean_vs_ieta_E1;
-  MonitorElement*  emean_vs_ieta_H1;
-  MonitorElement*  emean_vs_ieta_EH1;
-
-  MonitorElement* Ntowers_vs_ieta;
-
-  // Global maps
-  MonitorElement*  mapEnergy_E;
-  MonitorElement*  mapEnergy_H;
-  MonitorElement*  mapEnergy_EH;
-  MonitorElement*  mapEnergy_N;
 
   // HB
   MonitorElement* meEnergyHcalvsEcal_HB;

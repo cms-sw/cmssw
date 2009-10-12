@@ -1,83 +1,81 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
+//typedef std::pair<LocalPoint,LocalError>  LocalValues;
 #include <algorithm>
 #include<cmath>
 
-StripCPE::StripCPE( edm::ParameterSet & conf, 
-		    const MagneticField * mag, 
-		    const TrackerGeometry* geom, 
-		    const SiStripLorentzAngle* LorentzAngle)
-  : geom_(geom),
-    magfield_(mag),
-    LorentzAngleMap_(LorentzAngle) {}
 
-
-StripClusterParameterEstimator::LocalValues StripCPE::
-localParameters( const SiStripCluster& cluster) const {
-  StripCPE::Param const & p = param(DetId(cluster.geographicalId()));
-  const float strip = p.driftCorrected( cluster.barycenter() );
-  return std::make_pair( p.topology->localPosition(strip),
-			 p.topology->localError(strip, 1/12.) );
-}
-
-float StripCPE::Param::
-driftCorrected(const float& strip) const {
-  return driftCorrected(strip, topology->localPosition(strip));
-}
-
-float StripCPE::Param::
-driftCorrected(const float& strip, const LocalPoint& lpos) const {
-  return strip - 0.5*coveredStrips(drift, lpos);
-}
-
-
-float StripCPE::Param::
-coveredStrips(const LocalVector& lvec, const LocalPoint& lpos) const {  
-  return 
-    topology->measurementPosition(lpos + 0.5*lvec).x() 
-    - topology->measurementPosition(lpos - 0.5*lvec).x();
-}
-
-
-LocalVector StripCPE::
-driftDirection(const StripGeomDetUnit* det) const { 
-  LocalVector lbfield = (det->surface()).toLocal(magfield_->inTesla(det->surface().position()));  
+StripCPE::Param & StripCPE::fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {
   
-  float tanLorentzAnglePerTesla = LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
+  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+  p.topology=(StripTopology*)(&stripdet->topology());
   
-  float dir_x = -tanLorentzAnglePerTesla * lbfield.y();
-  float dir_y =  tanLorentzAnglePerTesla * lbfield.x();
-  float dir_z =  1.; // E field always in z direction
+  p.drift = driftDirection(stripdet);
+
+  p.thickness=stripdet->specificSurface().bounds().thickness();
+  p.drift*=p.thickness;
+
   
-  return LocalVector(dir_x,dir_y,dir_z);
+  //p.drift = driftDirection(stripdet);
+  //p.thickness=stripdet->surface().bounds().thickness();
+  
+  const Bounds& bounds = stripdet->surface().bounds();
+  
+  p.maxLength = std::sqrt( std::pow(bounds.length(),2)+std::pow(bounds.width(),2) );
+
+  //  p.maxLength = sqrt( bounds.length()*bounds.length()+bounds.width()*bounds.width());
+  // p.drift *= fabs(p.thickness/p.drift.z());       
+  
+  p.nstrips = p.topology->nstrips(); 
+  return p;
 }
+  
 
 
-
-StripCPE::Param const & StripCPE::
-param(DetId detId) const {
+StripCPE::Param const & StripCPE::param(DetId detId) const {
   Param & p = const_cast<StripCPE*>(this)->m_Params[detId.rawId()];
   if (p.topology) return p;
   else return const_cast<StripCPE*>(this)->fillParam(p, geom_->idToDetUnit(detId));
 }
 
-StripCPE::Param & StripCPE::
-fillParam(StripCPE::Param & p, const GeomDetUnit *  det) {  
-  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-  const Bounds& bounds = stripdet->specificSurface().bounds();
+
+
+StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom, const SiStripLorentzAngle* LorentzAngle)
+{
+  magfield_  = mag;
+  geom_ = geom;
+  LorentzAngleMap_=LorentzAngle;
+}
+
+StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiStripCluster & cl)const {
+  //
+  // get the det from the geometry
+  //
+
+  StripCPE::Param const & p = param(DetId(cl.geographicalId()));
+
+  const StripTopology &topol= *(p.topology);
+
+  LocalPoint position = topol.localPosition(cl.barycenter());
+  LocalError eresult = topol.localError(cl.barycenter(),1/12.);
+
+  LocalPoint  result=LocalPoint(position.x()-0.5*p.drift.x(),position.y()-0.5*p.drift.y(),0);
+  return std::make_pair(result,eresult);
+}
+
+LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
+ 
+  LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
   
-  p.maxLength = std::sqrt( std::pow(bounds.length(),2)+std::pow(bounds.width(),2) );
-  p.thickness = bounds.thickness();
-  p.drift = driftDirection(stripdet) * p.thickness;
-  p.topology=(StripTopology*)(&stripdet->topology());    
-  p.nstrips = p.topology->nstrips(); 
-  p.subdet = SiStripDetId(stripdet->geographicalId()).subDetector();
+  float tanLorentzAnglePerTesla=LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
   
-  const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>(p.topology);
-  p.pitch_rel_err2 = (rtop) 
-    ? pow( 0.5 * rtop->angularWidth() * rtop->stripLength()/rtop->localPitch(LocalPoint(0,0,0)), 2) / 12.
-    : 0;
   
-  return p;
+  float dir_x =-tanLorentzAnglePerTesla * lbfield.y();
+  float dir_y =tanLorentzAnglePerTesla * lbfield.x();
+  float dir_z = 1.; // E field always in z direction
+  
+  LocalVector theDrift = LocalVector(dir_x,dir_y,dir_z);
+ 
+  return theDrift;
+  
 }

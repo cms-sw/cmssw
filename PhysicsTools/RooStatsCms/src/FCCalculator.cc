@@ -1,4 +1,4 @@
-// @(#)root/hist:$Id: FCCalculator.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
+// @(#)root/hist:$Id: FCCalculator.cc,v 1.1.1.1 2009/04/15 08:40:01 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
@@ -14,24 +14,12 @@
 #include "RooMinuit.h"
 #include "RooAddPdf.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "LikelihoodCalculator.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/LikelihoodCalculator.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/LikelihoodCalculator.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "FCCalculator.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/FCCalculator.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/FCCalculator.h"
 
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(FCCalculator)
-#endif
 /*----------------------------------------------------------------------------*/
 
 FCCalculator::FCCalculator(const char* name,

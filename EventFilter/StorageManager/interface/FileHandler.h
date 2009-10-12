@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.3 2009/07/03 11:08:05 mommsen Exp $
+// $Id: FileHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
@@ -6,7 +6,6 @@
 
 #include <EventFilter/StorageManager/interface/Configuration.h>
 #include <EventFilter/StorageManager/interface/FilesMonitorCollection.h>
-#include <EventFilter/StorageManager/interface/I2OChain.h>
 #include <EventFilter/StorageManager/interface/Utils.h>
 #include <IOPool/Streamer/interface/MsgHeader.h>
 
@@ -17,12 +16,14 @@
 
 namespace stor {
 
+  class I2OChain;
+
   /**
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/03 11:08:05 $
+   * $Revision: 1.6 $
+   * $Date: 2009/09/16 13:30:47 $
    */
 
   class FileHandler
@@ -46,13 +47,18 @@ namespace stor {
     /**
      * Returns true if the file has not seen any recent events
      */
-    virtual const bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime()) = 0;
+    virtual bool tooOld(const utils::time_point_t currentTime = utils::getCurrentTime()) = 0;
+
+    /**
+     * Returns true if the file corresponds to the given lumi section
+     */
+    virtual bool isFromLumiSection(const uint32_t lumiSection) = 0;
 
     /**
      * Returns true if the additional data size would push the file size
      * beyond maxFileSize.
      */
-    const bool tooLarge(const unsigned long& dataSize);
+    bool tooLarge(const unsigned long& dataSize);
 
         
     /////////////////////////////
@@ -73,28 +79,27 @@ namespace stor {
     /**
      * Return the number of events in the file
      */
-    const int events() const;
+    int events() const;
     
     /**
      * Return the luminosity section the file belongs to
      */
-    const uint32 lumiSection() const
+    uint32 lumiSection() const
     { return _fileRecord->lumiSection; }
     
     /**
      * Return the size of the file in bytes
      */
-    const long long fileSize() const;
+    long long fileSize() const;
+
+    /**
+     * Close the file
+     */
+    virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&) = 0;
 
 
   protected:
     
-    /**
-     * Close the file
-     */
-    virtual void closeFile() = 0;
-
-
     ////////////////////////////
     // File parameter setters //
     ////////////////////////////
@@ -136,7 +141,11 @@ namespace stor {
     /**
      * Move index and streamer file to "closed" directory
      */
-    void moveFileToClosed(const bool& useIndexFile);
+    void moveFileToClosed
+    (
+      const bool& useIndexFile,
+      const FilesMonitorCollection::FileRecord::ClosingReason&
+    );
 
 
   private:
@@ -171,12 +180,12 @@ namespace stor {
     /**
      * Return the name of the log file
      */
-    const std::string logFile(const DiskWritingParams&) const;
+    std::string logFile(const DiskWritingParams&) const;
 
     /**
      * Return the relative difference btw to file sizes
      */
-    const double calcPctDiff(const double&, const double&) const;
+    double calcPctDiff(const double&, const double&) const;
     
 
   private:
@@ -192,8 +201,6 @@ namespace stor {
 
     utils::time_point_t _firstEntry;                // time when first event was writen
     utils::time_point_t _lastEntry;                 // time when latest event was writen
-
-    FilesMonitorCollection::FileRecord::ClosingReason _closingReason;
 
     const DiskWritingParams& _diskWritingParams;
     

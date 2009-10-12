@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.1 2009/03/27 01:36:44 fgolf Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.2 2009/03/27 20:25:05 fgolf Exp $
 //
 //
 
@@ -73,6 +73,8 @@ namespace cms {
     // get input collections
     muonInputTag_     = iConfig.getParameter<edm::InputTag>("muonInputTag"    );
     beamSpotInputTag_ = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
+
+    response_function = 0;
   }
 
   MuonTCMETValueMapProducer::~MuonTCMETValueMapProducer()

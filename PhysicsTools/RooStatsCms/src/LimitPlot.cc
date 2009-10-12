@@ -1,21 +1,13 @@
-// @(#)root/hist:$Id: LimitPlot.cc,v 1.4 2009/04/15 12:11:54 dpiparo Exp $
+// @(#)root/hist:$Id: LimitPlot.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
 #include <math.h>
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "LimitPlot.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/LimitPlot.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/LimitPlot.h"
 #include "TStyle.h"
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(LimitPlot)
-#endif
 /*----------------------------------------------------------------------------*/
 
 LimitPlot::LimitPlot(const char* name,

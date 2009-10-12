@@ -28,14 +28,13 @@ int main(){
         myobj->data.push_back(i+j);
       }
       cond::TypedRef<testPayloadObj> myobjRef(pooldb,myobj);
-      myobjRef.markWrite("testPayloadObj");
+      myobjRef.markWrite("testPayloadObjRcd");
       editor->append(i+10, myobjRef.token());
     }
     std::string iovtoken=editor->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     iovmanager.deleteAll(true);
     pooldb.commit();
-
     delete editor;
     pooldb.start(false);
     //same data, delete by tag this time
@@ -49,17 +48,15 @@ int main(){
         cid->data.push_back(i+j);
       }
       cond::TypedRef<testPayloadObj> cidRef(pooldb,cid);
-      cidRef.markWrite("testPayloadObj");
+      cidRef.markWrite("testPayloadObjRcd");
       std::cout<<"token"<<cidRef.token()<<std::endl;
       editorNew->append(i+10, cidRef.token());
     }
     std::cout<<"end of loop1"<<std::endl;
-
     iovtoken=editorNew->token();
     std::cout<<"iov token "<<iovtoken<<std::endl;
     pooldb.commit();
     delete editorNew;
-
     pooldb.start(false);
     cond::IOVEditor* editorNewNew=iovmanager.newIOVEditor();
     editorNewNew->create(cond::timestamp, 1);
@@ -70,7 +67,7 @@ int main(){
         abc->data.push_back(i+j);
       }
       cond::TypedRef<testPayloadObj> abcRef(pooldb,abc);
-      abcRef.markWrite("testPayloadObj");
+      abcRef.markWrite("testPayloadObjRcd");
       editorNewNew->append(i+10, abcRef.token());
     }
     iovtoken=editorNewNew->token();

@@ -46,7 +46,7 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig)
   
   dirName_=iConfig.getParameter<std::string>("DQMDirName");//"HLT/EgHLTOfflineSource_" + iConfig.getParameter<std::string>("@module_label");
 
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
+ 
   
 
 }
@@ -71,6 +71,9 @@ EgHLTOfflineSource::~EgHLTOfflineSource()
 
 void EgHLTOfflineSource::beginJob(const edm::EventSetup& iSetup)
 {
+  if(!dbe_) return;
+
+  dbe_->setCurrentFolder(dirName_);
   //the one monitor element the source fills directly
   dqmErrsMonElem_ =dbe_->book1D("dqmErrors","EgHLTOfflineSource Errors",101,-0.5,100.5);
   
@@ -128,9 +131,8 @@ void EgHLTOfflineSource::endRun(const edm::Run& run, const edm::EventSetup& c)
 
 void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
-  //debugging info, commented out for prod
-  //  int nrProducts = debug::listAllProducts<edm::ValueMap<double> >(iEvent,"EgHLTOfflineSource");
-  //edm::LogInfo("EgHLTOfflineSource")<<" HERE ";
+  if(!dbe_) return;
+ 
   
   const double weight=1.; //we have the ability to weight but its disabled for now
 

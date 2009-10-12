@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: EventConsumerRegistrationInfo.h,v 1.4 2009/09/16 09:53:23 dshpakov Exp $
 /// @file: EventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_EventConsumerRegistrationInfo_h
@@ -20,8 +20,8 @@ namespace stor
    * Holds the registration information from a event consumer.
    *
    * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:22 $
+   * $Revision: 1.4 $
+   * $Date: 2009/09/16 09:53:23 $
    */
 
   class EventConsumerRegistrationInfo: public RegistrationInfoBase
@@ -38,10 +38,11 @@ namespace stor
 				   const unsigned int& connectRetryInterval,// seconds
 				   const std::string& consumerName,
 				   const FilterList& selEvents,
-				   const std::string& selHLTOut,
+				   const std::string& outputModuleLabel,
                                    const size_t& queueSize,
                                    const enquing_policy::PolicyTag& queuePolicy,
-				   const utils::duration_t& secondsToStale );
+				   const utils::duration_t& secondsToStale,
+                                   const std::string& remoteHost );
 
     ~EventConsumerRegistrationInfo();
 
@@ -49,8 +50,9 @@ namespace stor
     unsigned int maxConnectRetries() const { return _maxConnectRetries; }
     unsigned int connectRetryInterval() const { return _connectRetryInterval; }
     const FilterList& selEvents() const { return _selEvents; }
-    const std::string& selHLTOut() const { return _selHLTOut; }
+    const std::string& outputModuleLabel() const { return _outputModuleLabel; }
     bool isProxyServer() const { return _isProxy; }
+    const std::string& remoteHost() const { return _remoteHost; }
 
     // Staleness:
     bool isStale() const { return _stale; }
@@ -77,9 +79,10 @@ namespace stor
     unsigned int _maxConnectRetries;
     unsigned int _connectRetryInterval;
     FilterList _selEvents;
-    std::string _selHLTOut;
+    std::string _outputModuleLabel;
     bool _isProxy;
     bool _stale;
+    std::string _remoteHost;
 
   };
 

@@ -1,4 +1,4 @@
-<use name=CondFormats/BTauObjects>
+<use name=CondFormats/PhysicsToolsObjects>
 <use name=RecoBTag/Records>
 <use name=RecoBTag/PerformanceDB>
 <use name=CondFormats/DataRecord>
@@ -17,7 +17,6 @@
 <use name=boost>
 
 <library file="*.cc" name=RecoBTagPerformanceDBplugins>
-<use name=FWCore/Framework>
         <flags EDM_PLUGIN=1>
 </library>
 

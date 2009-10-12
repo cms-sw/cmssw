@@ -17,7 +17,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.11 2009/04/01 15:01:50 dutta Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.12 2009/05/29 10:33:33 dutta Exp $
 
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -36,6 +36,7 @@ class SiStripFolderOrganizer
       virtual ~SiStripFolderOrganizer();
 
       // top folder
+      void setSiStripFolderName(std::string name);
       std::string getSiStripFolder();
       void setSiStripFolder();
 

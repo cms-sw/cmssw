@@ -1,15 +1,20 @@
-// $Id: Ready.cc,v 1.7 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Ready.cc,v 1.10 2009/09/23 13:53:30 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+
+#include "xcept/tools.h"
 
 #include <iostream>
 
@@ -18,7 +23,7 @@ using namespace stor;
 
 Ready::Ready( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Ready::do_entryActionWork()
@@ -34,16 +39,38 @@ void Ready::do_entryActionWork()
     outermost_context().getSharedResources();
 
   // update all configuration parameters
+  std::string errorMsg = "Failed to update configuration parameters in Ready state";
   try
     {
       sharedResources->_configuration->updateAllParams();
     }
+  // we don't have access to the sentinel here. Send an alarm instead.
+  catch(xcept::Exception &e)
+  {
+    XCEPT_DECLARE_NESTED(stor::exception::Configuration,
+      sentinelException, errorMsg, e);
+    sharedResources->moveToFailedState( sentinelException );
+    return;
+  }
+  catch( std::exception &e )
+  {
+    errorMsg.append(": ");
+    errorMsg.append( e.what() );
+
+    XCEPT_DECLARE(stor::exception::Configuration,
+      sentinelException, errorMsg);
+    sharedResources->moveToFailedState( sentinelException );
+    return;
+  }
   catch(...)
-    {
-      // To do: add logging:
-      sharedResources->moveToFailedState( "exception while updating parameters in Ready entry action" );
-      return;
-    }
+  {
+    errorMsg.append(": unknown exception");
+
+    XCEPT_DECLARE(stor::exception::Configuration,
+      sentinelException, errorMsg);
+    sharedResources->moveToFailedState( sentinelException );
+    return;
+  }
 
   // configure the various queue sizes
   QueueConfigurationParams queueParams =
@@ -80,7 +107,7 @@ void Ready::do_entryActionWork()
 
 Ready::~Ready()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void Ready::do_exitActionWork()
@@ -94,9 +121,9 @@ string Ready::do_stateName() const
   return string( "Ready" );
 }
 
-void Ready::do_moveToFailedState( const std::string& reason ) const
+void Ready::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 

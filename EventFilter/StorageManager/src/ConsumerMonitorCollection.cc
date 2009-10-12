@@ -1,64 +1,87 @@
-// $Id: ConsumerMonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
+// $Id: ConsumerMonitorCollection.cc,v 1.8 2009/10/05 17:14:07 biery Exp $
 /// @file: ConsumerMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 
 using namespace stor;
 
 
-ConsumerMonitorCollection::ConsumerMonitorCollection():
-  MonitorCollection()
+ConsumerMonitorCollection::ConsumerMonitorCollection(const utils::duration_t& updateInterval):
+MonitorCollection(updateInterval),
+_updateInterval(updateInterval)
 {}
 
 
-void ConsumerMonitorCollection::addQueuedEventSample( QueueID qid,
-						      unsigned int data_size )
+void ConsumerMonitorCollection::addQueuedEventSample( const QueueID& qid,
+						      const unsigned int& data_size )
 {
   boost::mutex::scoped_lock l( _mutex );
-  if( _qmap.find( qid ) != _qmap.end() )
-    {
-      _qmap[ qid ]->addSample( data_size );
-    }
-  else
-    {
-      _qmap[ qid ] = boost::shared_ptr<MonitoredQuantity>( new MonitoredQuantity() );
-      _qmap[ qid ]->addSample( data_size );
-    }
+  addEventSampleToMap(qid, data_size, _qmap);
 }
 
 
-void ConsumerMonitorCollection::addServedEventSample( QueueID qid,
-						      unsigned int data_size )
+void ConsumerMonitorCollection::addServedEventSample( const QueueID& qid,
+						      const unsigned int& data_size )
 {
   boost::mutex::scoped_lock l( _mutex );
-  if( _smap.find( qid ) != _smap.end() )
-    {
-      _smap[ qid ]->addSample( data_size );
-    }
-  else
-    {
-      _smap[ qid ] = boost::shared_ptr<MonitoredQuantity>( new MonitoredQuantity() );
-      _smap[ qid ]->addSample( data_size );
-    }
+  addEventSampleToMap(qid, data_size, _smap);
 }
 
 
-bool ConsumerMonitorCollection::getQueued( QueueID qid,
+void ConsumerMonitorCollection::addEventSampleToMap( const QueueID& qid,
+                                                     const unsigned int& data_size,
+                                                     ConsStatMap& map )
+{
+  ConsStatMap::iterator pos = map.lower_bound(qid);
+
+  // 05-Oct-2009, KAB - added a test of whether qid appears before pos->first
+  // in the map sort order.  Since lower_bound can return a non-end iterator
+  // even when qid is not in the map, we need to complete the test of whether
+  // qid is in the map.  (Another way to look at this is we need to implement
+  // the full test described in the efficientAddOrUpdates pattern suggested
+  // by Item 24 of 'Effective STL' by Scott Meyers.)
+  if (pos == map.end() || (map.key_comp()(qid, pos->first)))
+  {
+    // The key does not exist in the map, add it to the map
+    // Use pos as a hint to insert, so it can avoid another lookup
+    pos = map.insert(pos,
+      ConsStatMap::value_type(qid, 
+        boost::shared_ptr<MonitoredQuantity>(new MonitoredQuantity(_updateInterval,10))
+      )
+    );
+  }
+
+  pos->second->addSample( data_size );
+}
+
+
+bool ConsumerMonitorCollection::getQueued( const QueueID& qid,
 					   MonitoredQuantity::Stats& result )
 {
   boost::mutex::scoped_lock l( _mutex );
-  if( _qmap.find( qid ) == _qmap.end() ) return false;
-  _qmap[ qid ]->getStats( result );
-  return true;
+  return getValueFromMap( qid, result, _qmap );
 }
 
 
-bool ConsumerMonitorCollection::getServed( QueueID qid,
+bool ConsumerMonitorCollection::getServed( const QueueID& qid,
 					   MonitoredQuantity::Stats& result )
 {
   boost::mutex::scoped_lock l( _mutex );
-  if( _smap.find( qid ) == _smap.end() ) return false;
-  _smap[ qid ]->getStats( result );
+  return getValueFromMap( qid, result, _smap );
+}
+
+
+bool ConsumerMonitorCollection::getValueFromMap( const QueueID& qid,
+                                                 MonitoredQuantity::Stats& result,
+                                                 const ConsStatMap& map )
+{
+  ConsStatMap::const_iterator pos = map.find(qid);
+
+  if (pos == map.end()) return false;
+
+  pos->second->getStats( result );
   return true;
 }
 

@@ -1,5 +1,4 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileWriter.h"
-#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 #include <sstream>
 #include <typeinfo>
@@ -63,6 +62,12 @@ void HCAL_HLX::ROOTFileWriter::CreateTree(){
   if( !bEtSumOnly_ ){
     m_tree->Bronch("Summary.", "HCAL_HLX::LUMI_SUMMARY",        &Summary_, 1);
     m_tree->Bronch("Detail.",  "HCAL_HLX::LUMI_DETAIL",         &Detail_,  1);
+    
+    m_tree->Bronch("Threshold.",        "HCAL_HLX::LUMI_THRESHOLD",   &Threshold_, 1);
+    m_tree->Bronch("Level1_Trigger.",   "HCAL_HLX::LEVEL1_TRIGGER",   &L1Trigger_, 1);
+    m_tree->Bronch("HLT.",              "HCAL_HLX::HLT",              &HLT_,       1);
+    m_tree->Bronch("Trigger_Deadtime.", "HCAL_HLX::TRIGGER_DEADTIME", &TriggerDeadtime_, 1);
+    m_tree->Bronch("HF_Ring_Set.",      "HCAL_HLX::LUMI_HF_RING_SET", &RingSet_,1);
   }
 
   for( unsigned int iHLX = 0; iHLX < 36; ++iHLX ){
@@ -106,7 +111,35 @@ void HCAL_HLX::ROOTFileWriter::MakeBranch(const T &in, T **out, const int HLXNum
 void HCAL_HLX::ROOTFileWriter::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
 
   memcpy( lumiSection_, &localSection, sizeof(HCAL_HLX::LUMI_SECTION));
+
+  InsertInformation(); // To be modified later.
+
   m_tree->Fill();
+}
+
+void HCAL_HLX::ROOTFileWriter::InsertInformation(){
+
+  // This information will eventually come from the lms cell
+  Threshold_->OccThreshold1Set1 = 51;
+  Threshold_->OccThreshold2Set1 = 52;
+  Threshold_->OccThreshold1Set2 = 53;
+  Threshold_->OccThreshold2Set2 = 54;
+  Threshold_->ETSum             = 55;
+  
+  L1Trigger_->L1lineNumber  = 71;
+  L1Trigger_->L1Scaler      = 72;
+  L1Trigger_->L1RateCounter = 73;
+  
+  HLT_->TriggerPath    = 81;
+  HLT_->InputCount     = 82;
+  HLT_->AcceptCount    = 83;
+  HLT_->PrescaleFactor = 84;
+
+  TriggerDeadtime_->TriggerDeadtime = 91;
+
+  RingSet_->Set1Rings = "33L,34L";
+  RingSet_->Set2Rings = "35S,36S";
+  RingSet_->EtSumRings = "33L,34L,35S,36S";
 }
 
 bool HCAL_HLX::ROOTFileWriter::CloseFile(){

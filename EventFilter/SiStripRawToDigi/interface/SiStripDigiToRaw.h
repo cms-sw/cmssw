@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.h,v 1.19 2009/03/27 10:21:52 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.h,v 1.20 2009/03/27 19:48:42 nc302 Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
@@ -15,6 +15,7 @@
 class SiStripFedCabling;
 class FEDRawDataCollection;
 class SiStripDigi;
+class SiStripRawDigi;
 
 namespace sistrip {
 
@@ -38,11 +39,24 @@ namespace sistrip {
 			   edm::ESHandle<SiStripFedCabling>& cabling,
 			   edm::Handle< edm::DetSetVector<SiStripDigi> >& digis,
 			   std::auto_ptr<FEDRawDataCollection>& buffers );
+    void createFedBuffers( edm::Event&, 
+			   edm::ESHandle<SiStripFedCabling>& cabling,
+			   edm::Handle< edm::DetSetVector<SiStripRawDigi> >& digis,
+			   std::auto_ptr<FEDRawDataCollection>& buffers);
     
     inline void fedReadoutMode( std::string mode ) { readoutMode_ = mode; }
     inline void nAppendedBytes( uint16_t nbytes ) { nAppendedBytes_ = nbytes; }
-    
+
   private: // ----- private data members -----
+    
+    template<class Digi_t>
+    void createFedBuffers_( edm::Event&, 
+			    edm::ESHandle<SiStripFedCabling>& cabling,
+			    edm::Handle< edm::DetSetVector<Digi_t> >& digis,
+			    std::auto_ptr<FEDRawDataCollection>& buffers,
+			    bool zeroSuppressed);
+    const uint16_t& STRIP(const edm::DetSet<SiStripDigi>::const_iterator& it, const edm::DetSet<SiStripDigi>::const_iterator& begin) const;
+    uint16_t STRIP(const edm::DetSet<SiStripRawDigi>::const_iterator& it, const edm::DetSet<SiStripRawDigi>::const_iterator& begin) const;
     
     std::string readoutMode_;
     uint16_t nAppendedBytes_;

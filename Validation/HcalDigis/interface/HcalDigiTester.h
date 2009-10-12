@@ -20,12 +20,12 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;  
+  virtual void endJob() ;
+    
 
  private:
 
   double dR(double eta1, double phi1, double eta2, double phi2);
-  void eval_occupancy();
 
   // choose the correct subdet
   HcalSubdetDigiMonitor * monitor();
@@ -36,9 +36,7 @@ public:
   std::string outputFile_;
   std::string hcalselector_;
   std::string zside_;
-  std::string mode_;
-  int noise_;             
-// flag to distinguish between 
+  int noise_;             // flag to distinguish between 
                           // particular subdet only case and "global" noise one
 
   edm::ESHandle<CaloGeometry> geometry ;
@@ -48,7 +46,6 @@ public:
   int nevent2;
   int nevent3;
   int nevent4;
-  int nevtot;
   std::map<std::string, HcalSubdetDigiMonitor*> monitors_;
 
 };

@@ -12,8 +12,8 @@ TrackSplitMonitor = cms.EDFilter("TrackSplittingMonitor",
 
     FolderName = cms.string('TrackSplitMonitoring'),
 	
-	splitTrackCollection = cms.InputTag("splittedTracksP5","","RecoNhan"),
-	splitMuonCollection = cms.InputTag("splitMuons","","RecoNhan"),
+	splitTrackCollection = cms.InputTag("splittedTracksP5"),
+	splitMuonCollection = cms.InputTag("splitMuons"),
 	ifPlotMuons = cms.bool(True),
 	
 	pixelHitsPerLeg = cms.int32( 1 ),

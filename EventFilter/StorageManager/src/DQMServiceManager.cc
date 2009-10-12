@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id$
+// $Id: DQMServiceManager.cc,v 1.8 2009/06/10 08:15:25 dshpakov Exp $
 //
 // Note: this class is no longer used in the StorageManager, but is still
 // required by the SMProxyServer (Remi Mommsen, May 5, 2009)
@@ -14,6 +14,8 @@
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "TROOT.h"
+
+#include <limits>
 
 using namespace edm;
 using namespace std;
@@ -72,7 +74,8 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 			  msg.lumiSection(),
 			  msg.updateNumber(),
 			  purgeTime_,
-			  readyTime_);
+                          readyTime_,
+                          std::numeric_limits<unsigned int>::max());
     dqmInstances_.push_back(dqm);
     int preSize = dqmInstances_.size();
 

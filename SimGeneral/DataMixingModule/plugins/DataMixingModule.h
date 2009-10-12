@@ -139,6 +139,7 @@ namespace edm
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
       virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES);
       virtual void addPileups(const int bcr, edm::EventPrincipal*, unsigned int EventId,unsigned int worker,const edm::EventSetup& ES);
+      virtual void checkSignal(const edm::Event &e);
   
 
       // internally used information : subdetectors present in input

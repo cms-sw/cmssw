@@ -3,14 +3,13 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 
 /** GeometricSearchTracker implementation
  *  
  */
 
-class GeometricSearchTracker: public DetLayerGeometry {
+class GeometricSearchTracker {
  public:
 
   GeometricSearchTracker(const std::vector<BarrelDetLayer*>& pxlBar,
@@ -23,7 +22,7 @@ class GeometricSearchTracker: public DetLayerGeometry {
 			 const std::vector<ForwardDetLayer*>& posTid,
 			 const std::vector<ForwardDetLayer*>& posTec);
   
-  virtual ~GeometricSearchTracker();
+  ~GeometricSearchTracker();
 
   std::vector<DetLayer*> const & allLayers()     const {return theAllLayers;}  
 
@@ -45,12 +44,7 @@ class GeometricSearchTracker: public DetLayerGeometry {
   std::vector<ForwardDetLayer*> const &  posTidLayers() const {return thePosTidLayers;}
   std::vector<ForwardDetLayer*> const &  posTecLayers() const {return thePosTecLayers;}
 
-  
-  /// Give the DetId of a module, returns the pointer to the corresponding DetLayer
-  virtual const DetLayer* idToLayer(const DetId& detId) const;
-
-  /// obsolete method. Use idToLayer() instead.
-  const DetLayer*   detLayer( const DetId& id) const {return idToLayer(id);};
+  const DetLayer*          detLayer( const DetId& id) const;
 
  private:
   std::vector<DetLayer*>        theAllLayers;

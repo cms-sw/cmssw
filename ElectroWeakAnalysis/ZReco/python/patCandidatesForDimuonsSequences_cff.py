@@ -69,7 +69,7 @@ allLayer1Muons.isolation.tracker = cms.PSet(
     cut = cms.double(3.0),
     threshold = cms.double(1.5)
 )
-#allLayer1Muons.addTrigMatch = cms.bool(False)
+allLayer1Muons.addTrigMatch = cms.bool(False)
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
 selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
@@ -77,27 +77,12 @@ selectedLayer1Muons.cut = 'pt > 0. & abs(eta) < 100.0'
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 
-#muonTriggerMatchHLTMu15 = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
-#    src     = cms.InputTag( "selectedLayer1Muons" ),
-#    matched = cms.InputTag( "patTrigger" ),
-#    andOr          = cms.bool( False ),
-#    filterIdsEnum  = cms.vstring( '*' ),
-#    filterIds      = cms.vint32( 0 ),
-#    filterLabels   = cms.vstring( '*' ),
-#    pathNames      = cms.vstring( 'HLT_Mu15' ),
-#    collectionTags = cms.vstring( '*' ),
-#    maxDPtRel = cms.double( 1.0 ),
-#    maxDeltaR = cms.double( 0.5 ),
-#    resolveAmbiguities    = cms.bool( True ),
-#    resolveByMatchQuality = cms.bool( False )
-#)
-
 muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "selectedLayer1Muons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
-    filterIds      = cms.vint32( 83 ),
+    filterIds      = cms.vuint32( 0 ),
     filterLabels   = cms.vstring( '*' ),
     pathNames      = cms.vstring( '*' ),
     collectionTags = cms.vstring( '*' ),
@@ -108,25 +93,13 @@ muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
 )
 
 from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
-#patTriggerEvent.patTriggerMatches  = [ "muonTriggerMatchHLTMu15" ]
-patTriggerEvent.patTriggerMatches  = cms.VInputTag( "muonTriggerMatchHLTMuons" )
-#patTriggerEvent.patTriggerMatches  = cms.VInputTag( "muonTriggerMatchHLTMu15" )
+patTriggerEvent.patTriggerMatches  = [ "muonTriggerMatchHLTMuons" ]
 
 patTriggerSequence = cms.Sequence(
     patTrigger *
     muonTriggerMatchHLTMuons *
-#    muonTriggerMatchHLTMu15 *
     patTriggerEvent
 )
-
-#selectedLayer1MuonsTriggerMatch = cms.EDProducer( "PATTriggerMatchMuonEmbedder",
-#    src     = cms.InputTag( "selectedLayer1Muons" ),
-#    matches = cms.VInputTag( "muonTriggerMatchHLTMuons" )
-#)
-
-#muonTriggerMatchEmbedder = cms.Sequence(
-#    selectedLayer1MuonsTriggerMatch
-#)
 
 # pat sequences
 
@@ -156,7 +129,6 @@ patLayer1 = cms.Sequence(
 goodMuonRecoForDimuon = cms.Sequence(
     beforePatLayer1 *
     patLayer1 *
-    patTriggerSequence # *
-#    muonTriggerMatchEmbedder
+    patTriggerSequence
 )
 

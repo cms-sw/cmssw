@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.33 2009/03/04 16:53:41 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.36 2009/08/05 13:36:02 chrjones Exp $
 //
 
 // system include files
@@ -71,7 +71,9 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_interestingValueGetter(ROOT::Reflex::Type::ByTypeInfo(*(m_accessor->modelType()->GetTypeInfo())),
                             defaultMemberFunctionNames()),
    m_filter(iDesc.filterExpression(),""),
-   m_printedNoDataError(false)
+   m_printedNoDataError(false),
+   m_printedErrorThisEvent(false),
+   m_isSelected(false)
 {
    assert(m_type->GetTypeInfo());
    ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -119,6 +121,7 @@ void
 FWEventItem::setEvent(const fwlite::Event* iEvent)
 {
    if ( m_event != iEvent ) m_printedNoDataError = false;
+   m_printedErrorThisEvent = false;
    m_event = iEvent;
    m_accessor->reset();
    m_itemInfos.clear();
@@ -247,6 +250,9 @@ FWEventItem::select(int iIndex) const
       sel = true;
       FWModelId id(this,iIndex);
       selectionManager()->select(id);
+      //want to make it obvious what type of object was selected
+      // therefore we also select the item
+      const_cast<FWEventItem*>(this)->selectItem();
       changeManager()->changed(id);
    }
 }
@@ -409,9 +415,13 @@ FWEventItem::data(const std::type_info& iInfo) const
          static Type s_edproductType(Type::ByTypeInfo(typeid(edm::EDProduct)));
          Object edproductObj(wrapperObj.CastObject(s_edproductType));
          const edm::EDProduct* prod = reinterpret_cast<const edm::EDProduct*>(edproductObj.Address());
+
          if(not prod->isPresent()) {
             //not actually in this event
-            std::cerr <<"data unavailable for this event"<<std::endl;
+            if(!m_printedErrorThisEvent) {
+               std::cerr <<name()<<" is registered in the file but is unavailable for this event"<<std::endl;
+               m_printedErrorThisEvent = true;
+            }
             return 0;
          }
 
@@ -610,7 +620,44 @@ void
 FWEventItem::destroy() const
 {
    goingToBeDestroyed_(this);
+   const_cast<FWEventItem*>(this)->unselectItem();
    delete this;
+}
+
+
+void 
+FWEventItem::selectItem() 
+{
+   if(!m_isSelected) {
+      m_isSelected=true;
+      selectionManager()->selectItem(this);
+      defaultDisplayPropertiesChanged_(this);
+   }
+}
+void 
+FWEventItem::unselectItem()
+{
+   if(m_isSelected) {
+      m_isSelected=false;
+      selectionManager()->unselectItem(this);
+      defaultDisplayPropertiesChanged_(this);
+   }
+}
+void 
+FWEventItem::toggleSelectItem()
+{
+   m_isSelected = !m_isSelected;
+   if(m_isSelected) {
+      selectionManager()->selectItem(this);
+   }else {
+      selectionManager()->unselectItem(this);
+   }
+   defaultDisplayPropertiesChanged_(this);
+}
+bool 
+FWEventItem::itemIsSelected() const
+{
+   return m_isSelected;
 }
 
 //

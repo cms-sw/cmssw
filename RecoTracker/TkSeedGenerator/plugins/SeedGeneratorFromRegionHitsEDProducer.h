@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 namespace edm { class Event; class EventSetup; }
 
@@ -24,6 +25,7 @@ private:
   edm::ParameterSet theConfig;
   SeedGeneratorFromRegionHits * theGenerator; 
   TrackingRegionProducer* theRegionProducer;
+  ClusterChecker theClusterCheck;
 };
 
 #endif

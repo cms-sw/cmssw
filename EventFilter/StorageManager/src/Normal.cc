@@ -1,8 +1,8 @@
-// $Id: Normal.cc,v 1.5 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: Normal.cc,v 1.7 2009/08/28 16:41:26 mommsen Exp $
 /// @file: Normal.cc
 
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
 
@@ -17,7 +17,7 @@ void Normal::do_entryActionWork()
 
 Normal::Normal( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void Normal::do_exitActionWork()
@@ -28,7 +28,7 @@ void Normal::do_exitActionWork()
 
 Normal::~Normal()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 string Normal::do_stateName() const
@@ -36,9 +36,9 @@ string Normal::do_stateName() const
   return string( "Normal" );
 }
 
-void Normal::do_moveToFailedState( const std::string& reason ) const
+void Normal::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 /// emacs configuration

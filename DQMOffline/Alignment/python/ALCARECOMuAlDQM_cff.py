@@ -14,7 +14,7 @@ ALCARECOMuAlStandAloneCosmicsTrackingDQM = _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlStandAloneCosmics',
     AlgoName = 'ALCARECOMuAlStandAloneCosmics',
-    FolderName = 'MuAlStandAloneCosmics',
+    FolderName = 'AlCaReco/MuAlStandAloneCosmics',
     #sizes
     TkSizeBin = 5,
     TkSizeMin = 0,
@@ -26,7 +26,7 @@ ALCARECOMuAlStandAloneCosmicsTrackingDQM = _TrackMon.TrackMon.clone(
 
 ALCARECOMuAlStandAloneCosmicsMuAlDQM = _MuonAl.muonAlignment.clone(
     doSummary = True,
-    FolderName ='MuAlStandAloneCosmics',
+    FolderName ='AlCaReco/MuAlStandAloneCosmics',
     MuonCollection = 'ALCARECOMuAlStandAloneCosmics'
  )
 
@@ -39,7 +39,7 @@ ALCARECOMuAlGlobalCosmicsDQM = _TrackMon.TrackMon.clone(
     #names & designations    
     TrackProducer = 'ALCARECOMuAlGlobalCosmics:GlobalMuon',
     AlgoName = 'ALCARECOMuAlGlobalCosmics',
-    FolderName = 'MuAlGlobalCosmics',
+    FolderName = 'AlCaReco/MuAlGlobalCosmics',
     #sizes  
     TkSizeBin = 5,
     TkSizeMin = 0,
@@ -57,7 +57,7 @@ ALCARECOMuAlBeamHaloDQM = _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlBeamHalo',
     AlgoName = 'ALCARECOMuAlBeamHalo',
-    FolderName = 'MuAlBeamHalo',
+    FolderName = 'AlCaReco/MuAlBeamHalo',
     #sizes
     TkSizeBin = 5,
     TkSizeMin = 0,
@@ -74,7 +74,7 @@ ALCARECOMuAlBeamHaloOverlapsDQM = _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlBeamHaloOverlaps',
     AlgoName = 'ALCARECOMuAlBeamHaloOverlaps',
-    FolderName = 'MuAlBeamHaloOverlaps',
+    FolderName = 'AlCaReco/MuAlBeamHaloOverlaps',
     #sizes
     TkSizeBin = 70,
     TkSizeMin = 0,
@@ -91,7 +91,7 @@ ALCARECOMuAlCalIsolatedMuTrackingDQM = _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlCalIsolatedMu:StandAlone',
     AlgoName = 'ALCARECOMuAlCalIsolatedMu',
-    FolderName = 'MuAlCalIsolatedMu',
+    FolderName = 'AlCaReco/MuAlCalIsolatedMu',
     #sizes			    
     TkSizeBin = 5,
     TkSizeMin = 0,
@@ -103,7 +103,7 @@ ALCARECOMuAlCalIsolatedMuTrackingDQM = _TrackMon.TrackMon.clone(
 
 ALCARECOMuAlCalIsolatedMuMuAlDQM = _MuonAl.muonAlignment.clone(
     doSummary = True,
-    FolderName ='MuAlCalIsolatedMu',
+    FolderName ='AlCaReco/MuAlCalIsolatedMu',
     MuonCollection = 'ALCARECOMuAlCalIsolatedMu:StandAlone'
     )
 
@@ -116,7 +116,7 @@ ALCARECOMuAlOverlapsDQM = _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlOverlaps',
     AlgoName = 'ALCARECOMuAlOverlaps',
-    FolderName = 'MuAlOverlaps',
+    FolderName = 'AlCaReco/MuAlOverlaps',
     #sizes                      
     TkSizeBin = 70,
     TkSizeMin = 0,
@@ -133,7 +133,7 @@ ALCARECOMuAlZMuMuTrackingDQM= _TrackMon.TrackMon.clone(
     #names & designations  
     TrackProducer = 'ALCARECOMuAlZMuMu:StandAlone',
     AlgoName = 'ALCARECOMuAlZMuMu',
-    FolderName = 'MuAlZMuMu',
+    FolderName = 'AlCaReco/MuAlZMuMu',
     #sizes                      
     TkSizeBin = 5,
     TkSizeMin = 0,
@@ -145,7 +145,7 @@ ALCARECOMuAlZMuMuTrackingDQM= _TrackMon.TrackMon.clone(
 
 ALCARECOMuAlZMuMuMuAlDQM= _MuonAl.muonAlignment.clone(
     doSummary = True,
-    FolderName ='MuAlCaZMuMu',
+    FolderName ='AlCaReco/MuAlCaZMuMu',
     MuonCollection = 'ALCARECOMuAlZMuMu:StandAlone'
     )
 

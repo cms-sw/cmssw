@@ -376,12 +376,16 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   if (difsum1 > difprec && Int_t(ne1) != ncx1)
   {
     if (h->GetSumw2N() == 0)
+    {
       if (verbose_>0) 
         std::cout << "QTest:Comp2RefKolmogorov"
                   << " Weighted events and no Sumw2 for "
 	          << h->GetName() << "\n";
+    }
     else
+    {
       esum1 = sum1*sum1/w1;  //number of equivalent entries
+    }
   }
   // look at second histogram
   Double_t difsum2 = (ne2-tsum2)/tsum2;
@@ -389,12 +393,16 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
   if (difsum2 > difprec && Int_t(ne2) != ncx1)
   {
     if (ref_->GetSumw2N() == 0)
+    {
       if (verbose_>0) 
         std::cout << "QTest:Comp2RefKolmogorov"
                   << " Weighted events and no Sumw2 for "
 	          << ref_->GetName() << "\n";
+    }
     else
+    {
       esum2 = sum2*sum2/w2;  //number of equivalent entries
+    }
   }
 
   Double_t s1 = 1/tsum1; Double_t s2 = 1/tsum2;

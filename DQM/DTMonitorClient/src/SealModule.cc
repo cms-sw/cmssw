@@ -66,3 +66,8 @@ DEFINE_ANOTHER_FWK_MODULE(DTDCSSummary);
 
 #include <DQM/DTMonitorClient/src/DTCertificationSummary.h>
 DEFINE_ANOTHER_FWK_MODULE(DTCertificationSummary);
+
+#include "DQM/DTMonitorClient/src/DTTriggerEfficiencyTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTTriggerEfficiencyTest);
+
+

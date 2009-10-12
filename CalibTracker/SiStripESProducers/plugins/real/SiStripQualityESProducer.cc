@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityESProducer.cc,v 1.5 2009/03/30 16:47:00 demattia Exp $
+// $Id: SiStripQualityESProducer.cc,v 1.6 2009/07/27 16:53:32 demattia Exp $
 //
 //
 
@@ -54,9 +54,9 @@ boost::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStri
   bool doRunInfo = false;
 
   // Set the debug output level
-  if(pset_.getParameter<bool>("PrintDebugOutput")) {
-    quality->setPrintDebugOutput( true );
-  }
+  quality->setPrintDebugOutput( pset_.getParameter<bool>("PrintDebugOutput") );
+  // Set the protection against empty RunInfo objects
+  quality->setUseEmptyRunInfo( pset_.getParameter<bool>("UseEmptyRunInfo") );
 
   for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
     tagName = itToGet->getParameter<std::string>("tag");

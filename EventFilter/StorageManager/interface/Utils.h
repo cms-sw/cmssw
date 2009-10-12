@@ -1,19 +1,16 @@
-// $Id: Utils.h,v 1.3 2009/07/09 09:36:31 mommsen Exp $
+// $Id: Utils.h,v 1.6 2009/08/20 13:40:03 mommsen Exp $
 /// @file: Utils.h 
 
 #ifndef StorageManager_Utils_h
 #define StorageManager_Utils_h
 
 #include <string>
+#include <vector>
 
 #include "xcept/Exception.h"
-
-
-namespace xdaq
-{
-  class Application;
-  class ApplicationDescriptor;
-}
+#include "xdaq/ApplicationDescriptor.h"
+#include "xdata/String.h"
+#include "xdata/Vector.h"
 
 
 namespace stor {
@@ -24,8 +21,8 @@ namespace stor {
      * Collection of utility functions used in the storage manager
      *
      * $Author: mommsen $
-     * $Revision: 1.3 $
-     * $Date: 2009/07/09 09:36:31 $
+     * $Revision: 1.6 $
+     * $Date: 2009/08/20 13:40:03 $
      */
 
     /**
@@ -63,6 +60,12 @@ namespace stor {
     int sleep(duration_t interval);
 
     /**
+       Sleep until at least the given time_point_t. Uses internally
+       sleep(duration_t). See notes to this method.
+    */
+    int sleepUntil(time_point_t);
+
+    /**
        Converts a time_point_t into a string.
        Note: the string formatting is used by the file summary catalog and
        may or may not depend on the actual formatting
@@ -78,23 +81,12 @@ namespace stor {
        Throws a stor::exception::NoSuchDirectory when the directory does not exist
      */
     void checkDirectory(const std::string&);
-
-    /**
-       Raises a sentinel alarm
-    */
-    void raiseAlarm
-    (
-      const std::string name,
-      const std::string level,
-      xcept::Exception&,
-      xdaq::Application*
-    );
-
-    /**
-       Revokes s sentinel alarm
-    */
-    void revokeAlarm(const std::string name, xdaq::Application*);
  
+    /**
+       Conversions between std::vector<std::string> and xdata::Vector<xdata::String>
+    */
+    void getStdVector(xdata::Vector<xdata::String>&, std::vector<std::string>&);
+    void getXdataVector(const std::vector<std::string>&, xdata::Vector<xdata::String>&);
 
   } // namespace utils
   

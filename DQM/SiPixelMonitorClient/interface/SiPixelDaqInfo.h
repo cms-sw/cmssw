@@ -37,9 +37,9 @@ private:
   
   DQMStore *dbe_;  
   
-  MonitorElement*  DaqFraction_;
-  MonitorElement*  DaqFractionBarrel_;
-  MonitorElement*  DaqFractionEndcap_;
+  MonitorElement*  Fraction_;
+  MonitorElement*  FractionBarrel_;
+  MonitorElement*  FractionEndcap_;
 
   std::pair<int,int> FEDRange_;
 

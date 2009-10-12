@@ -7,10 +7,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     QualityReader = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('QualityReader.log')
+    destinations = cms.untracked.vstring('QualityReader')
 )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -66,6 +63,7 @@ process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
                               TkMapFileName = cms.untracked.string("")
                               )
 
+process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)
 
 

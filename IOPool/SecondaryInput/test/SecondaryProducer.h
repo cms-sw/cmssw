@@ -12,28 +12,30 @@
 #include "FWCore/Sources/interface/VectorInputSource.h"
 
 namespace edm {
-  class SecondaryProducer: public edm::EDProducer {
+  class SecondaryProducer: public EDProducer {
   public:
 
     /** standard constructor*/
-    explicit SecondaryProducer(const edm::ParameterSet& ps);
+    explicit SecondaryProducer(ParameterSet const& pset);
 
     /**Default destructor*/
     virtual ~SecondaryProducer();
 
     /**Cumulates the pileup events onto this event*/
-    virtual void produce(edm::Event& e1, const edm::EventSetup& c);
+    virtual void produce(Event& e1, EventSetup const& c);
 
 
   private:
 
-    virtual void put(edm::Event &) {}
+    virtual void put(Event &) {}
 
     virtual void endJob() {secInput_->doEndJob();}
 
     boost::shared_ptr<VectorInputSource> makeSecInput(ParameterSet const& ps);
 
     boost::shared_ptr<VectorInputSource> secInput_;
+
+    bool sequential_;
   };
 }//edm
 

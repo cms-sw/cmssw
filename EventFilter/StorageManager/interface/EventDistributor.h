@@ -1,25 +1,30 @@
-// $Id: EventDistributor.h,v 1.2 2009/06/10 08:15:22 dshpakov Exp $
+// $Id: EventDistributor.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: EventDistributor.h 
 
 #ifndef StorageManager_EventDistributor_h
 #define StorageManager_EventDistributor_h
 
-#include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
-#include "EventFilter/StorageManager/interface/ErrorStreamSelector.h"
 #include "EventFilter/StorageManager/interface/EventQueueCollection.h"
-#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
-#include "EventFilter/StorageManager/interface/EventConsumerSelector.h"
-#include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
-#include "EventFilter/StorageManager/interface/EventStreamSelector.h"
-#include "EventFilter/StorageManager/interface/DQMEventSelector.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
-#include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 
 #include "boost/shared_ptr.hpp"
 
 
 namespace stor {
+
+  class DataSenderMonitorCollection;
+  class DQMEventConsumerRegistrationInfo;
+  class DQMEventSelector;
+  class ErrorStreamConfigurationInfo;
+  class ErrorStreamSelector;
+  class EventConsumerRegistrationInfo;
+  class EventConsumerSelector;
+  class EventStreamConfigurationInfo;
+  class EventStreamSelector;
+  class I2OChain;
+  class QueueID;
+  class StatisticsReporter;
+
 
   /**
    * Distributes complete events to appropriate queues
@@ -29,9 +34,9 @@ namespace stor {
    * the I2O message type and the trigger bits in the event
    * header.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:22 $
+   * $Author: mommsen $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
 
   class EventDistributor
@@ -114,20 +119,21 @@ namespace stor {
 
     SharedResourcesPtr _sharedResources;
 
-    typedef std::vector<EventStreamSelector> EvtSelList;
+    typedef boost::shared_ptr<EventStreamSelector> EvtSelPtr;
+    typedef std::vector<EvtSelPtr> EvtSelList;
     EvtSelList _eventStreamSelectors;
 
-    typedef std::vector<DQMEventSelector> DQMEvtSelList;
+    typedef boost::shared_ptr<DQMEventSelector> DQMEvtSelPtr;
+    typedef std::vector<DQMEvtSelPtr> DQMEvtSelList;
     DQMEvtSelList _dqmEventSelectors;
 
-    typedef std::vector<ErrorStreamSelector> ErrSelList;
+    typedef boost::shared_ptr<ErrorStreamSelector> ErrSelPtr;
+    typedef std::vector<ErrSelPtr> ErrSelList;
     ErrSelList _errorStreamSelectors;
 
-    typedef std::vector<EventConsumerSelector> ConsSelList;
+    typedef boost::shared_ptr<EventConsumerSelector> ConsSelPtr;
+    typedef std::vector<ConsSelPtr> ConsSelList;
     ConsSelList _eventConsumerSelectors;
-
-    // temporary
-    std::vector<unsigned char> _tempEventArea;
 
   };
   

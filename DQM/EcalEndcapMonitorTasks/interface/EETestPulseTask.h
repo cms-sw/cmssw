@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseTask.h
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.11 $
+ * $Date: 2008/05/11 09:35:11 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -69,6 +69,8 @@ edm::InputTag EcalRawDataCollection_;
 edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
+std::vector<int> MGPAGains_;
+std::vector<int> MGPAGainsPN_;
 
 MonitorElement* meShapeMapG01_[18];
 MonitorElement* meShapeMapG06_[18];

@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2009/06/24 09:22:46 $
- *  $Revision: 1.79 $
+ *  $Date: 2009/06/24 08:06:50 $
+ *  $Revision: 1.78 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -16,7 +16,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
@@ -141,7 +140,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   std::map<unsigned int, unsigned int> tjTkMap;
   
   if(doSmoothing)
-    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
+    theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
   
   
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
@@ -438,7 +437,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   std::map<unsigned int, unsigned int> tjTkMap;
   
   if(doSmoothing)
-    theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,theSmoother);
+    theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
   
   
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();

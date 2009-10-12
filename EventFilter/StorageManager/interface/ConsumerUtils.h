@@ -1,15 +1,13 @@
-// $Id: ConsumerUtils.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: ConsumerUtils.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: ConsumerUtils.h 
 
 #ifndef StorageManager_ConsumerUtils_h
 #define StorageManager_ConsumerUtils_h
 
-#include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
@@ -24,14 +22,17 @@ namespace xgi
 
 namespace stor
 {
+  class ConsumerID;
+  class I2OChain;
+
 
   /**
      Free helper functions for handling consumer header and event
      requests and responses
 
-     $Author: dshpakov $
-     $Revision: 1.4 $
-     $Date: 2009/07/14 10:34:44 $
+     $Author: mommsen $
+     $Revision: 1.3 $
+     $Date: 2009/07/20 13:06:10 $
   */
 
   /**

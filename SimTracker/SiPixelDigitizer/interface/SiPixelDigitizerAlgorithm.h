@@ -238,9 +238,6 @@ class SiPixelDigitizerAlgorithm  {
     float theNoiseInElectrons;   // Noise (RMS) in units of electrons.
     float theReadoutNoise;       // Noise of the readount chain in elec,
                                  //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
-
-    float theSmearedChargeRMS;
-
     float thePixelThreshold;     // Pixel threshold in units of noise.
 
     float thePixelThresholdInE;  // Pixel noise in electrons.
@@ -263,7 +260,6 @@ class SiPixelDigitizerAlgorithm  {
 
     //-- add_noise
     bool addNoise;
-    bool addChargeVCALSmearing;
     bool addNoisyPixels;
     bool fluctuateCharge;
     bool addPixelInefficiency;
@@ -369,7 +365,6 @@ class SiPixelDigitizerAlgorithm  {
     CLHEP::RandGaussQ *smearedThreshold_FPix_;
     CLHEP::RandGaussQ *smearedThreshold_BPix_;
 
-    CLHEP::RandGaussQ *smearedChargeDistribution_ ;
 
   // the random generator
   CLHEP::RandGaussQ* theGaussianDistribution;

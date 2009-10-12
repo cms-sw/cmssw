@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/21 19:12:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/07/18 18:57:45 $
+ *  $Revision: 1.1 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -180,7 +180,7 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
   
   if (splitTracks->size() == 2){
     // check that there are 2 tracks in split track collection
-    std::cout << "split track size: " << splitTracks->size() << std::endl;
+    edm::LogInfo("TrackSplittingMonitor") << "Split Track size: " << splitTracks->size();
     
     // split tracks calculations
     reco::Track track1 = splitTracks->at(0);
@@ -236,7 +236,8 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
 	  if ( (norchi1 < norchiCut_)&&(norchi2 < norchiCut_) ){
 	    
 	    // passed all cuts...
-	    std::cout << "Did any pass all cuts?" << std::endl;
+	    edm::LogInfo("TrackSplittingMonitor") << " Setected after all cuts ?";
+
 	    double ddxyVal = d01 - d02;
 	    double ddzVal = dz1 - dz2;						
 	    double dphiVal = track1.phi() - track2.phi();

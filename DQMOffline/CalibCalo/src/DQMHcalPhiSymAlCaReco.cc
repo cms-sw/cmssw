@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/07/20 12:19:06 $
- * $Revision: 1.8 $
+ * $Date: 2009/07/21 11:41:40 $
+ * $Revision: 1.9 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -66,6 +66,10 @@ eventCounter_(0)
   hiDistr_x_nbin_= ps.getUntrackedParameter<int>("hiDistr_x_nbin",41);
   hiDistr_x_min_=  ps.getUntrackedParameter<double>("hiDistr_x_min",0.5);
   hiDistr_x_max_=  ps.getUntrackedParameter<double>("hiDistr_x_max",41.5);
+  // Check for NZS
+  hiDistr_r_nbin_ = ps.getUntrackedParameter<int>("hiDistr_r_nbin",100);
+  ihbhe_size_ = ps.getUntrackedParameter<double>("ihbhe_size_",5184.);
+  ihf_size_ = ps.getUntrackedParameter<double>("ihf_size_",1728.);
     
 }
 
@@ -79,6 +83,22 @@ void DQMHcalPhiSymAlCaReco::beginJob(const EventSetup& context){
   dbe_->setCurrentFolder(folderName_);
 
   // book some histograms 1D
+  double xmin = 0.1;
+  double xmax = 1.1;
+  hiDistrHBHEsize1D_ =
+    dbe_->book1D("DistrHBHEsize","Size of HBHE Collection",
+                  hiDistr_r_nbin_,
+                  xmin,
+                  xmax
+                );
+  hiDistrHFsize1D_ =
+    dbe_->book1D("DistrHFsize","Size of HF Collection",
+                  hiDistr_r_nbin_,
+                  xmin,
+                  xmax
+                );
+
+
   // First moment
   hiDistrMBPl2D_ = 
     dbe_->book2D("MBdepthPl1", "iphi- +ieta signal distribution at depth1",
@@ -280,6 +300,7 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
    
   const HBHERecHitCollection HithbheNS = *(hbheNS.product());
   
+  hiDistrHBHEsize1D_->Fill(HithbheNS.size()/ihbhe_size_);
 
      
   for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)
@@ -332,6 +353,8 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
      return ;
    }
   const HFRecHitCollection HithfNS = *(hfNS.product());
+
+  hiDistrHFsize1D_->Fill(HithfNS.size()/ihf_size_);
   
   for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++)
         {

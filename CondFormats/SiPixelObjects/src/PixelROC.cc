@@ -5,12 +5,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <sstream>
+#include <algorithm>
 using namespace std;
 using namespace sipixelobjects;
 
 PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
   : theDetUnit(du), theIdDU(idDU), theIdLk(idLk), theFrameConverter(0)
-{ }
+{}
 
 PixelROC::PixelROC(const PixelROC & o)
   : theDetUnit(o.theDetUnit), theIdDU(o.theIdDU), theIdLk(o.theIdLk),theFrameConverter(0)
@@ -21,6 +22,23 @@ PixelROC::PixelROC(const PixelROC & o)
 PixelROC::~PixelROC() 
 {
   delete theFrameConverter;
+}
+
+const PixelROC&
+PixelROC::operator=(const PixelROC& iRHS)
+{
+  PixelROC temp(iRHS);
+  this->swap(temp);
+  return *this;
+}
+
+void
+PixelROC::swap(PixelROC& iOther)
+{
+  std::swap(theDetUnit,iOther.theDetUnit);
+  std::swap(theIdDU,iOther.theIdDU);
+  std::swap(theIdLk,iOther.theIdLk);
+  std::swap(theFrameConverter,iOther.theFrameConverter);
 }
 
 GlobalPixel PixelROC::toGlobal(const LocalPixel & loc) const 

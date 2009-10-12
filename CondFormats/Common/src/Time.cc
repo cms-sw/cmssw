@@ -7,14 +7,14 @@
 namespace cond{
 
   const cond::TimeType timeTypeList[TIMETYPE_LIST_MAX]=
-    {runnumber,timestamp,lumiid,hash,userid};
+    {runnumber,timestamp,lumiid,userid};
   
   const cond::TimeType timeTypeValues[]=
-    {runnumber,timestamp,lumiid,hash,userid};
+    {runnumber,timestamp,lumiid,userid};
   
   std::string const & timeTypeNames(int i) {
     static const std::string local[]=
-      {"runnumber","timestamp","lumiid","hash","userid"};
+    {"runnumber","timestamp","lumiid","userid"};
     return local[i];
   }
 
@@ -23,8 +23,7 @@ namespace cond{
     TimeTypeTraits<runnumber>::specs(),
     TimeTypeTraits<timestamp>::specs(),
     TimeTypeTraits<lumiid>::specs(),
-    TimeTypeTraits<hash>::specs(),
-    TimeTypeTraits<userid>::specs()
+    TimeTypeTraits<userid>::specs(),
   };
   
   

@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DQMEventStore.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef StorageManager_DQMEventStore_h
@@ -12,30 +12,34 @@
 #include "IOPool/Streamer/interface/HLTInfo.h"
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
-#include "EventFilter/StorageManager/interface/DQMKey.h"
-#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventRecord.h"
-#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/DQMKey.h"
+#include "EventFilter/StorageManager/interface/SharedResources.h"
 
 
 namespace stor {
   
+  class DQMEventMonitorCollection;
+  class I2OChain;
+  class InitMsgCollection;
+
+
   /**
    * Stores and collates DQM events
    * Note that this code is not thread safe as it uses a
    * class wide temporary buffer to convert I2OChains
    * into DQMEventMsgViews.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
   
   class DQMEventStore
   {
   public:
     
-    explicit DQMEventStore(DQMEventMonitorCollection&);
+    explicit DQMEventStore(SharedResourcesPtr);
 
     ~DQMEventStore();
 
@@ -101,6 +105,7 @@ namespace stor {
 
     DQMProcessingParams _dqmParams;
     DQMEventMonitorCollection& _dqmEventMonColl;
+    boost::shared_ptr<InitMsgCollection> _initMsgColl;
 
     typedef std::map<DQMKey, DQMEventRecordPtr> DQMEventRecordMap;
     DQMEventRecordMap _store;

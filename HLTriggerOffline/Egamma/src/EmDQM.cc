@@ -55,7 +55,6 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   dirname_="HLT/HLTEgammaValidation/"+pset.getParameter<std::string>("@module_label");
   dbe->setCurrentFolder(dirname_);
 
-  triggerobjwithrefs = pset.getParameter<edm::InputTag>("triggerobject");
   // paramters for generator study 
   reqNum    = pset.getParameter<unsigned int>("reqNum");
   pdgGen    = pset.getParameter<int>("pdgGen");
@@ -298,9 +297,9 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   // fill L1 and HLT info
   // get objects possed by each filter
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByLabel(triggerobjwithrefs,triggerObj); 
+  event.getByLabel("hltTriggerSummaryRAW",triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("EmDQM") << "triggerobjwithrefs=" << triggerobjwithrefs;
+    edm::LogWarning("EmDQM") << "RAW-type HLT results not found, skipping event";
     return;
   }
 

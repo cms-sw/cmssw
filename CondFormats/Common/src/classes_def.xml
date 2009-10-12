@@ -3,47 +3,26 @@
  <class name="std::basic_string<char>"/>
  <class name="cond::IOVElement"/>
  <class name="cond::UpdateStamp"/>
- <class name="pool::PVector<cond::IOVElement>"/>
- <class name="std::vector<cond::IOVElement>"/>
+ <class name=" pool::PVector<cond::IOVElement>"/>
+ <class name=" std::vector<cond::IOVElement>"/>
  <class name="cond::IOVSequence" id="3F16F0A9-79D5-4881-CE0B-C301DD84A7F1" class_version="0">
   <field name="m_sorted" transient="true" />
  </class>
 
- <class name="pool::PolyPtr<cond::IOVProvenance>"/>
- <class name="pool::PolyPtr<cond::IOVDescription>"/>
- <class name="pool::PolyPtr<cond::IOVUserMetaData>"/>
- <class name="cond::IOVProvenance"/>
- <class name="cond::IOVDescription"/>
- <class name="cond::IOVUserMetaData"/>
-
-
-<class name="cond::SmallWORMDict"/>
-<class name="cond::IOVKeysDescription"/>
- 
-
  <class name="cond::PayloadWrapper"/>
  <class name="cond::Summary"/>
  <class name="pool::PolyPtr<cond::Summary>"/>
- <class name="cond::GenericSummary"/>
 
- <class name="cond::DataWrapper<cond::BaseKeyed>"/>
- <class name="pool::PolyPtr<cond::BaseKeyed>"/>
- <class name="cond::BaseKeyed"/>
 
 <class name="pool::PolyPtr<std::basic_string<char> >"/>
  
 <class name="std::vector<int>"/>
 <class name="std::vector<float>"/>
  <class name="std::vector<double>"/>
- <class name="std::vector<unsigned long long>"/>
  <class name="pool::PolyPtr<std::vector<int> >"/>
  <class name="cond::DataWrapper<std::vector<int> >"/>
  >
  <class name="pool::PolyPtr<std::vector<double> >"/>
  <class name="cond::DataWrapper<std::vector<double> >"/>
-
- <class name="pool::PolyPtr<std::vector<unsigned long long> >"/>
- <class name="cond::DataWrapper<std::vector<unsigned long long> >"/>
-
 
 </lcgdict>   

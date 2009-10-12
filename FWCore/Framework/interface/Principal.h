@@ -139,6 +139,8 @@ namespace edm {
 
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
+    void adjustIndexesAfterProductRegistryAddition();
+
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its

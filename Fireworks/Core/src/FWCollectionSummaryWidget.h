@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:30 CST 2009
-// $Id: FWCollectionSummaryWidget.h,v 1.2 2009/04/09 21:17:52 chrjones Exp $
+// $Id: FWCollectionSummaryWidget.h,v 1.3 2009/05/27 15:40:48 chrjones Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@ class FWColorPopup;
 class FWCollectionSummaryTableManager;
 class FWTableWidget;
 class TGGC;
-class TGLabel;
+class TGTextButton;
 
 namespace fireworks {
    class Context;
@@ -71,9 +71,11 @@ public:
    void requestForInfo(FWEventItem*); // *SIGNAL*
    void requestForFilter(FWEventItem*); // *SIGNAL*
    void requestForErrorInfo(FWEventItem*); // *SIGNAL*
+   void requestForController(FWEventItem*); // *SIGNAL*
    
    void infoClicked();
    void stateClicked();
+   void labelClicked();
    
    ClassDef(FWCollectionSummaryWidget,0);
    
@@ -99,7 +101,7 @@ private:
    FWColorBoxIcon* m_colorSelectBox;
    FWCustomIconsButton* m_stateButton;
    FWCustomIconsButton* m_infoButton;
-   TGLabel* m_label;
+   TGTextButton* m_label;
    TGFrame* m_holder;
    bool m_collectionShown;
    TGGC* m_graphicsContext;

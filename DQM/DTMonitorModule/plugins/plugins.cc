@@ -42,6 +42,8 @@ DEFINE_ANOTHER_FWK_MODULE(DTCalibValidation);
 #include "DQM/DTMonitorModule/src/DTROMonitorFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(DTROMonitorFilter);
 
+#include <DQM/DTMonitorModule/src/DTTriggerEfficiencyTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTTriggerEfficiencyTask);
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"

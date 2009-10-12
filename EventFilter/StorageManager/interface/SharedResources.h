@@ -1,4 +1,4 @@
-// $Id: SharedResources.h,v 1.3 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: SharedResources.h,v 1.5 2009/08/28 16:41:50 mommsen Exp $
 /// @file: SharedResources.h 
 
 #ifndef StorageManager_SharedResources_h
@@ -9,28 +9,32 @@
 #include "boost/shared_ptr.hpp"
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
-#include "EventFilter/StorageManager/interface/Configuration.h"
-#include "EventFilter/StorageManager/interface/DiscardManager.h"
-#include "EventFilter/StorageManager/interface/DiskWriterResources.h"
-#include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
 #include "EventFilter/StorageManager/interface/DQMEventQueue.h"
 #include "EventFilter/StorageManager/interface/DQMEventQueueCollection.h"
 #include "EventFilter/StorageManager/interface/EventQueueCollection.h"
 #include "EventFilter/StorageManager/interface/FragmentQueue.h"
-#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
-#include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 #include "EventFilter/StorageManager/interface/RegistrationQueue.h"
-#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/StreamQueue.h"
 
+
 namespace stor {
+
+  class Configuration;
+  class DiscardManager;
+  class DiskWriterResources;
+  class DQMEventProcessorResources;
+  class InitMsgCollection;
+  class RegistrationCollection;
+  class SharedResources;
+  class StatisticsReporter;
+
 
   /**
    * Container for shared resources.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/10 11:41:03 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/08/28 16:41:50 $
    */
 
   struct SharedResources
@@ -57,7 +61,13 @@ namespace stor {
     /**
      * Add a Failed state-machine event to the command queue
      */
-    void moveToFailedState( const std::string& reason );
+    void moveToFailedState( xcept::Exception& );
+
+    /**
+       Write message to a file in /tmp
+       (last resort when everything else fails)
+    */
+    void localDebug( const std::string& message ) const;
 
   };
 

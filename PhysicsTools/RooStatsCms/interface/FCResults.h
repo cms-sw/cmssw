@@ -2,8 +2,8 @@
 
 /**
 \class FCResults
-$Revision: 1.3 $
-$Date: 2009/04/15 11:10:45 $
+$Revision: 1.1.1.1 $
+$Date: 2009/04/15 08:40:01 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 In the following the procedure to collect the results of the FCCalculator and 
@@ -34,11 +34,7 @@ big advantages:
 #include "RooAbsPdf.h"
 #include "RooArgList.h"
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "StatisticalMethod.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/StatisticalMethod.h"
 
 #define MAX_SCAN_POINTS 100
 
@@ -108,10 +104,6 @@ class FCResults : public StatisticalMethod {
     /// Check if an alement is in a vector
     int contains(std::vector<double>& vec, double val);
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(FCResults,1)
-#endif
  };
 
 #endif

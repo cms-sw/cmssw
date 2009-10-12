@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2009/07/02 12:23:03 $
- * $Revision: 1.448 $
+ * $Date: 2009/08/27 18:08:35 $
+ * $Revision: 1.453 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -771,7 +771,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( subrun_ != -1 ) {
 
-    this->writeDb(true);
+    this->writeDb();
 
     this->endRunDb();
 
@@ -830,6 +830,8 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
     }
 
   }
+
+  this->softReset(false);
 
 }
 
@@ -1060,7 +1062,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::writeDb(bool flag) {
+void EcalBarrelMonitorClient::writeDb() {
 
   subrun_++;
 
@@ -1147,7 +1149,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
           }
         }
         bool status;
-        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status, flag) ) {
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status) ) {
           taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
           if ( status ) {
             tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
@@ -1167,7 +1169,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
   }
 
   bool status;
-  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status, flag);
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status);
 
   EcalLogicID ecid;
   MonRunDat md;
@@ -1388,13 +1390,14 @@ void EcalBarrelMonitorClient::analyze(void) {
     if ( ! mergeRuns_ && run_ != last_run_ ) forced_update_ = true;
   }
 
-  bool update = ( prescaleFactor_ != 1               ) ||
-                ( jevt_ <   10                       ) ||
-                ( jevt_ <  100 && jevt_ %    10 == 0 ) ||
-                ( jevt_ < 1000 && jevt_ %   100 == 0 ) ||
-                (                 jevt_ % 10000 == 0 );
+  bool update = ( forced_update_                    ) ||
+                ( prescaleFactor_ != 1              ) ||
+                ( jevt_ <   10                      ) ||
+                ( jevt_ <  100 && jevt_ %   10 == 0 ) ||
+                ( jevt_ < 1000 && jevt_ %  100 == 0 ) ||
+                (                 jevt_ % 1000 == 0 );
 
-  if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
+  if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
     if ( verbose_ ) {
       cout << " RUN status = \"" << status_ << "\"" << endl;
@@ -1440,9 +1443,14 @@ void EcalBarrelMonitorClient::analyze(void) {
 
     if ( begin_run_ && ! end_run_ ) {
 
-      bool update = ( prescaleFactor_ != 1 || jevt_ < 3 || jevt_ % 1000 == 0 );
+      bool update = ( forced_update_                      ) ||
+                    ( prescaleFactor_ != 1                ) ||
+                    ( jevt_ <     3                       ) ||
+                    ( jevt_ <  1000 && jevt_ %   100 == 0 ) ||
+                    ( jevt_ < 10000 && jevt_ %  1000 == 0 ) ||
+                    (                  jevt_ % 10000 == 0 );
 
-      if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 || forced_update_ ) {
+      if ( update || strcmp(status_.c_str(), "begin-of-run") == 0 || strcmp(status_.c_str(), "end-of-run") == 0 ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool done = false;
@@ -1468,7 +1476,8 @@ void EcalBarrelMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb(false);
+               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          this->softReset(true);
           last_time_db_ = current_time_;
         }
       }
@@ -1618,17 +1627,17 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 void EcalBarrelMonitorClient::softReset(bool flag) { 	 
 
-   for ( int i=0; i<int(clients_.size()); i++ ) {
-     bool done = false;
-     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
-       if ( runType_ != -1 && runType_ == (*j).second && !done ) {
-         done = true;
-         clients_[i]->softReset(flag);
-       }
-     }
-   }
- 
-   summaryClient_->softReset(flag);
+  vector<MonitorElement*> mes = dqmStore_->getAllContents("EcalBarrel");
+  vector<MonitorElement*>::const_iterator meitr;
+  for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
+    if ( !strncmp((*meitr)->getName().c_str(), "EB", 2) ) {
+      if ( flag ) {
+        dqmStore_->softReset(*meitr);
+      } else {
+        dqmStore_->disableSoftReset(*meitr);
+      }
+    }
+  }
 
 }
 

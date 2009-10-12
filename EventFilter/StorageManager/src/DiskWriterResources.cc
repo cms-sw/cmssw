@@ -1,4 +1,4 @@
-// $Id: DiskWriterResources.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: DiskWriterResources.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: DiskWriterResources.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
@@ -90,18 +90,21 @@ namespace stor
     _streamChangeInProgress = false;
   }
 
-  void DiskWriterResources::requestFileClosingTest()
+  void DiskWriterResources::requestLumiSectionClosure(const uint32_t lumiSection)
   {
-    boost::mutex::scoped_lock sl(_generalMutex);
-    _fileClosingTestIsNeeded = true;
+    boost::mutex::scoped_lock sl(_lumiSectionMutex);
+
+    lumiSectionsToClose.push_back(lumiSection);
   }
 
-  bool DiskWriterResources::fileClosingTestRequested()
+  bool DiskWriterResources::lumiSectionClosureRequested(uint32_t& lumiSection)
   {
-    boost::mutex::scoped_lock sl(_generalMutex);
+    boost::mutex::scoped_lock sl(_lumiSectionMutex);
 
-    if (! _fileClosingTestIsNeeded) {return false;}
-    _fileClosingTestIsNeeded = false;
+    if ( lumiSectionsToClose.empty() ) return false;
+
+    lumiSection = lumiSectionsToClose.front();
+    lumiSectionsToClose.pop_front();
     return true;
   }
 

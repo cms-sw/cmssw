@@ -1,12 +1,12 @@
-// $Id: StreamHandler.cc,v 1.5 2009/07/16 11:41:46 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.8 2009/09/16 13:46:00 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
 #include <iomanip>
 
+#include "EventFilter/StorageManager/interface/FileHandler.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/StreamHandler.h"
-#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
-#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 
 #include "boost/bind.hpp"
 
@@ -21,14 +21,10 @@ _diskWritingParams(sharedResources->_configuration->getDiskWritingParams())
 {}
 
 
-StreamHandler::~StreamHandler()
-{
-  closeAllFiles();
-}
-
-
 void StreamHandler::closeAllFiles()
 {
+  std::for_each(_fileHandlers.begin(), _fileHandlers.end(),
+    boost::bind(&FileHandler::closeFile, _1, FilesMonitorCollection::FileRecord::stop));
   _fileHandlers.clear();
 }
 
@@ -39,6 +35,16 @@ void StreamHandler::closeTimedOutFiles(utils::time_point_t currentTime)
                                      _fileHandlers.end(),
                                      boost::bind(&FileHandler::tooOld,
                                                  _1, currentTime)),
+                      _fileHandlers.end());
+}
+
+
+void StreamHandler::closeFilesForLumiSection(const uint32_t lumiSection)
+{
+  _fileHandlers.erase(std::remove_if(_fileHandlers.begin(),
+                                     _fileHandlers.end(),
+                                     boost::bind(&FileHandler::isFromLumiSection,
+                                                 _1, lumiSection)),
                       _fileHandlers.end());
 }
 

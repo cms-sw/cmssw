@@ -10,7 +10,8 @@ OutALCARECOHcalCalIsoTrk_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring( 
         'keep *_IsoProd_*_*',
-	'keep triggerTriggerEvent_*_*_*'
+	'keep triggerTriggerEvent_*_*_*',
+        'keep *_MEtoEDMConverter_*_*'
 )
 )
 

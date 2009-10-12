@@ -25,7 +25,11 @@ class SiStripBadComponentsDQMService : public SiStripCondObjBuilderBase<SiStripB
   explicit SiStripBadComponentsDQMService(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~SiStripBadComponentsDQMService();
   
-  void getMetaDataString(std::stringstream& ss){ss << "Run " << getRunNumber();};
+  /// Used to fill the logDB
+  void getMetaDataString(std::stringstream& ss);
+
+  /// Check is the transfer is needed
+  virtual bool checkForCompatibility(std::string ss);
 
   void getObj(SiStripBadStrip* & obj){readBadComponents(); obj=obj_;}
 
@@ -43,6 +47,7 @@ class SiStripBadComponentsDQMService : public SiStripCondObjBuilderBase<SiStripB
   edm::ParameterSet iConfig_;
   edm::FileInPath fp_;
   // SiStripQualityChecker*   qualityChecker_;
+  bool notAlreadyRead_;
 };
 
 #endif //DQMOffline_SiStripBadComponentsDQMService_SiStripBadComponentsDQMService_H

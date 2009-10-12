@@ -1,14 +1,12 @@
-// $Id: TTULogicUnit.h,v 1.3 2009/05/16 19:43:30 aosorio Exp $
+// $Id: $
 #ifndef TTULOGICUNIT_H 
 #define TTULOGICUNIT_H 1
 
 // Include files
-#include "L1Trigger/RPCTechnicalTrigger/interface/LogicTool.h"
+#include "L1Trigger/RPCTechnicalTrigger/src/LogicTool.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCLogicUnit.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTULogic.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUInput.h"
-
-#include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
 #include <bitset>
 
@@ -32,8 +30,6 @@ public:
   
   void setlogic( const char * );
   
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
-  
   void run( const TTUInput & );
   
   bool isTriggered() {
@@ -49,8 +45,6 @@ private:
   TTULogic             * m_logic;
   
   LogicTool<TTULogic>  * m_logtool;
-
-  bool m_debug;
-    
+  
 };
 #endif // TTUPAC_H

@@ -15,7 +15,6 @@ using namespace edm;
 using namespace reco;
 using namespace l1extra;
 
-
 //
 // constructors and destructor
 //
@@ -23,11 +22,18 @@ using namespace l1extra;
 TopHLTDiMuonDQM::TopHLTDiMuonDQM( const ParameterSet& parameters_ ) : counterEvt_( 0 )
 {
 
-  verbose_           = parameters_.getUntrackedParameter<bool>("verbose", false);
-  monitorName_       = parameters_.getUntrackedParameter<string>("monitorName", "Top/HLTDiMuons");
-  level_             = parameters_.getUntrackedParameter<int>("Level", 1);
-  prescaleEvt_       = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  candCollectionTag_ = parameters_.getUntrackedParameter<InputTag>("candCollection", edm::InputTag("hltL1extraParticles"));
+  verbose_        = parameters_.getUntrackedParameter<bool>("verbose", false);
+  monitorName_    = parameters_.getUntrackedParameter<string>("monitorName", "Top/HLTDiMuons");
+  prescaleEvt_    = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
+
+  level_          = parameters_.getUntrackedParameter<string>("Level", "L3");
+  triggerResults_ = parameters_.getParameter<InputTag>("TriggerResults");
+  hltPaths_L1_    = parameters_.getParameter<vector<string> >("hltPaths_L1");
+  hltPaths_L3_    = parameters_.getParameter<vector<string> >("hltPaths_L3");
+
+  L1_Collection_  = parameters_.getUntrackedParameter<InputTag>("L1_Collection", edm::InputTag("hltL1extraParticles"));
+  L2_Collection_  = parameters_.getUntrackedParameter<InputTag>("L2_Collection", edm::InputTag("hltL2MuonCandidates"));
+  L3_Collection_  = parameters_.getUntrackedParameter<InputTag>("L3_Collection", edm::InputTag("hltL3MuonCandidates"));
 
   dbe_ = Service<DQMStore>().operator->();
 
@@ -50,10 +56,10 @@ void TopHLTDiMuonDQM::beginJob(const EventSetup& context) {
     if( monitorName_ != "" )  monitorName_ = monitorName_+"/" ;
     if( verbose_ )  cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
 
-    char name[512];
+    dbe_->setCurrentFolder(monitorName_+level_);
 
-    sprintf(name,"Level%i",level_);
-    dbe_->setCurrentFolder(monitorName_+name);
+    Trigs = dbe_->book1D("HLTDimuon_Trigs", "Fired triggers", 10, 0., 10.);
+    Trigs->setAxisTitle("Fired triggers", 1);
 
     NMuons = dbe_->book1D("HLTDimuon_NMuons", "Number of muons", 10, 0., 10.);
     NMuons->setAxisTitle("Number of muons", 1);
@@ -69,6 +75,25 @@ void TopHLTDiMuonDQM::beginJob(const EventSetup& context) {
 
     DiMuonMass = dbe_->book1D("HLTDimuon_DiMuonMass","Invariant Dimuon Mass", 100, 0., 200.);
     DiMuonMass->setAxisTitle("Invariant #mu #mu mass  (GeV)", 1);
+
+    // define logarithmic bins for a histogram with 100 bins going from 10^0 to 10^3
+
+    const int nbins = 100;
+
+    double logmin = 0.;
+    double logmax = 3.;
+
+    float bins[nbins+1];
+
+    for (int i = 0; i <= nbins; i++) {
+
+      double log = logmin + (logmax-logmin)*i/nbins;
+      bins[i] = std::pow(10.0, log);
+
+    }
+
+    DiMuonMass_LOG = dbe_->book1D("HLTDimuon_DiMuonMass_LOG","Invariant Dimuon Mass", nbins, &bins[0]);
+    DiMuonMass_LOG->setAxisTitle("Invariant #mu #mu mass  (GeV)", 1);
 
     DeltaEtaMuons = dbe_->book1D("HLTDimuon_DeltaEta","#Delta #eta of muon pair", 100, -5., 5.);
     DeltaEtaMuons->setAxisTitle("#Delta #eta_{#mu #mu}", 1);
@@ -99,162 +124,52 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
   counterEvt_++;
 
-  Handle<L1MuonParticleCollection> mucands;
-  iEvent.getByLabel (candCollectionTag_, mucands);
+  // -------------------------
+  //  Analyze Trigger Results
+  // -------------------------
 
-  if( mucands.failedToGet() ) {
+  vector<string> hltPaths;
 
-    cout << endl << "-----------------------" << endl;
-    cout << "--- NO HLT MUONS !! ---" << endl;
-    cout << "-----------------------" << endl << endl;
+  if( level_ == "L1" )  hltPaths = hltPaths_L1_;
 
-    return;
+  if( level_ == "L3" )  hltPaths = hltPaths_L3_;
 
-  }
+  Handle<TriggerResults> trigResults;
+  iEvent.getByLabel(triggerResults_, trigResults);
 
-  NMuons->Fill(mucands->size());
+  if( trigResults.failedToGet() ) {
 
-  //  cout << endl << "--------------------" << endl;
-  //  cout << " Nmuons: " << mucands->size() << endl;
-  //  cout << "--------------------" << endl << endl;
-
-  if( mucands->size() > 1 ) {
-
-    L1MuonParticleCollection::const_reference mu1 = mucands->at(0);
-    L1MuonParticleCollection::const_reference mu2 = mucands->at(1);
-
-    DeltaEtaMuons->Fill( mu1.eta()-mu2.eta() );
-    DeltaPhiMuons->Fill( mu1.phi()-mu2.phi() );
-
-    double dilepMass = sqrt( (mu1.energy() + mu2.energy())*(mu1.energy() + mu2.energy())
-			     - (mu1.px() + mu2.px())*(mu1.px() + mu2.px())
-			     - (mu1.py() + mu2.py())*(mu1.py() + mu2.py())
-			     - (mu1.pz() + mu2.pz())*(mu1.pz() + mu2.pz()) );
-
-    DiMuonMass->Fill( dilepMass );
+    cout << endl << "-----------------------------" << endl;
+    cout << "--- NO TRIGGER RESULTS !! ---" << endl;
+    cout << "-----------------------------" << endl << endl;
 
   }
 
-  L1MuonParticleCollection::const_iterator cand, cand2;
+  const int n_TrigPaths = hltPaths.size();
 
-  if( !mucands.failedToGet() ) {
+  bool FiredTriggers[100] = {false};
 
-    for( cand = mucands->begin(); cand != mucands->end(); ++cand ) {
+  if( !trigResults.failedToGet() ) {
 
-      PtMuons->Fill(  cand->pt()  );
-      EtaMuons->Fill( cand->eta() );
-      PhiMuons->Fill( cand->phi() );
+    int n_Triggers = trigResults->size();
 
-    }
+    TriggerNames trigName;
+    trigName.init(*trigResults);
 
-  }
+    for( int i_Trig = 0; i_Trig < n_Triggers; ++i_Trig ) {
 
-  /*
+      if (trigResults.product()->accept(i_Trig)) {
 
-  if( !mucands.failedToGet() ) {
+	for( int i = 0; i < n_TrigPaths; i++ ) {
 
-    if( verbose_ )  cout << " filling Reco stuff " << endl;
+	  if ( trigName.triggerName(i_Trig)== hltPaths[i] ) {
 
-    NMuons->Fill(mucands->size());
+	    FiredTriggers[i] = true;
+	    Trigs->Fill(i);
 
-    for( cand=mucands->begin(); cand != mucands->end(); ++cand ) {
-
-      TrackRef tk = cand->get<TrackRef>();
-
-      // eta cut
-      hpt->Fill(tk->pt());
-      hcharge->Fill(tk->charge());
-
-      if( tk->charge() != 0 ) {
-
-	heta->Fill(tk->eta());
-	hphi->Fill(tk->phi());
-	hetaphi->Fill(tk->phi(), tk->eta());
-	hptphi->Fill(tk->pt(), tk->phi());
-	hpteta->Fill(tk->pt(), tk->eta());
-	hnhit->Fill(tk->numberOfValidHits());
-	hd0->Fill(tk->d0());
-
-	//        if( !recoBeamSpotHandle.failedToGet() ) {
-	//
-	//	  hdr->Fill(tk->dxy(beamSpot.position()));
-	//	  hdrphi->Fill(tk->phi(),tk->dxy(beamSpot.position()));
-	//
-	//	}
-
-	hd0phi->Fill(tk->phi(), tk->d0());
-	hdz->Fill(tk->dz());
-	hdzeta->Fill(tk->eta(), tk->dz());
-	herr0->Fill(tk->error(0));
-
-	cand2 = cand;
-	++cand2;
-
-	for( ; cand2!=mucands->end(); cand2++ ) {
-
-	  TrackRef tk2 = cand2->get<TrackRef>();
-
-	  if( tk->charge()*tk2->charge() == -1 ) {
-
-	    double mass = (cand->p4()+cand2->p4()).M();
-	    hdimumass->Fill(mass);
-
-	  }
-
-	}
-
-        if ( level_ == 3 ) {
-
-          TrackRef l2tk = tk->seedRef().castTo<Ref<L3MuonTrajectorySeedCollection>>()->l2Track();
-
-	  if( tk->pt()*l2tk->pt() != 0 )  hptres->Fill( 1/tk->pt()-1/l2tk->pt() );
-
-	  hetares->Fill( tk->eta()-l2tk->eta() );
-	  hetareseta->Fill( tk->eta(), tk->eta()-l2tk->eta() );
-	  hphires->Fill( tk->phi()-l2tk->phi() );
-
-	  double dphi = tk->phi()-l2tk->phi();
-
-	  if(      dphi >  TMath::TwoPi() )  dphi -= 2*TMath::TwoPi();
-	  else if( dphi < -TMath::TwoPi() )  dphi +=   TMath::TwoPi();
-
-	  hphiresphi->Fill( tk->phi(), dphi );
-
-	}
-
-	else {
-
-	  Handle<L2MuonTrajectorySeedCollection> museeds;
-	  iEvent.getByLabel(l2seedscollectionTag_, museeds);
-
-	  if( !museeds.failedToGet() ) {
-
-	    RefToBase<TrajectorySeed> seed = tk->seedRef();
-	    L1MuonParticleRef l1ref;
-
-	    for( uint iMuSeed=0; iMuSeed != museeds->size(); ++iMuSeed ) {
-
-	      Ref<L2MuonTrajectorySeedCollection> l2seed(museeds,iMuSeed);
-
-	      if( l2seed.id() == seed.id() && l2seed.key() == seed.key() ) {
-		l1ref = l2seed->l1Particle();
-		break;
-	      }
-
-	    }
-
-	    if( tk->pt()*l1ref->pt() != 0 )  hptres->Fill( 1/tk->pt()-1/l1ref->pt() );
-
-	    hetares->Fill( tk->eta()-l1ref->eta() );
-	    hetareseta->Fill( tk->eta(), tk->eta()-l1ref->eta() );
-	    hphires->Fill( tk->phi()-l1ref->phi() );
-
-	    double dphi = tk->phi() - l1ref->phi();
-
-	    if(      dphi >  TMath::TwoPi() )  dphi -= 2*TMath::TwoPi();
-	    else if( dphi < -TMath::TwoPi() )  dphi +=   TMath::TwoPi();
-
-	    hphiresphi->Fill( tk->phi(), dphi );
+	    //	    cout << "--------------------" << endl;
+	    //	    cout << "Trigger: " << hltPaths[i] << " FIRED!!!  " << endl;
+	    //	    cout << "-----------------------------" << endl << endl;
 
 	  }
 
@@ -262,12 +177,132 @@ void TopHLTDiMuonDQM::analyze(const Event& iEvent, const EventSetup& iSetup ) {
 
       }
 
-      else LogWarning("HLTMonMuon")<<"stop filling candidate with update@Vtx failure";
     }
 
   }
 
-  */
+  // -----------------------
+  //  Analyze Trigger Muons
+  // -----------------------
+
+  //  Handle<L1MuonParticleCollection> mucands_L1;
+  //  Handle<RecoChargedCandidateCollection> mucands_L3;
+
+  if( level_ == "L1" ) {
+
+    Handle<L1MuonParticleCollection> mucands;
+    iEvent.getByLabel(L1_Collection_, mucands);
+
+    if( mucands.failedToGet() ) {
+
+      cout << endl << "------------------------------" << endl;
+      cout << "--- NO L1 TRIGGER MUONS !! ---" << endl;
+      cout << "------------------------------" << endl << endl;
+
+    }
+
+    if( !mucands.failedToGet() ) {
+
+      NMuons->Fill(mucands->size());
+
+      cout << "--------------------" << endl;
+      cout << " Nmuons: " << mucands->size() << endl;
+      cout << "--------------------" << endl << endl;
+
+      L1MuonParticleCollection::const_iterator cand;
+
+      for( cand = mucands->begin(); cand != mucands->end(); ++cand ) {
+
+	PtMuons->Fill(  cand->pt()  );
+	EtaMuons->Fill( cand->eta() );
+	PhiMuons->Fill( cand->phi() );
+
+      }
+
+      if( mucands->size() > 1 ) {
+
+      L1MuonParticleCollection::const_reference mu1 = mucands->at(0);
+      L1MuonParticleCollection::const_reference mu2 = mucands->at(1);
+
+      //      cout << "-----------------------------" << endl;
+      //      cout << "Muon_1 Pt: " << mu1.pt() << endl;
+      //      cout << "Muon_2 Pt: " << mu2.pt() << endl;
+      //      cout << "-----------------------------" << endl << endl;
+
+      DeltaEtaMuons->Fill( mu1.eta()-mu2.eta() );
+      DeltaPhiMuons->Fill( mu1.phi()-mu2.phi() );
+
+      double dilepMass = sqrt( (mu1.energy() + mu2.energy())*(mu1.energy() + mu2.energy())
+			       - (mu1.px() + mu2.px())*(mu1.px() + mu2.px())
+			       - (mu1.py() + mu2.py())*(mu1.py() + mu2.py())
+			       - (mu1.pz() + mu2.pz())*(mu1.pz() + mu2.pz()) );
+
+      DiMuonMass_LOG->Fill( dilepMass );
+      DiMuonMass->Fill( dilepMass );
+
+      }
+
+    }
+
+  }
+
+  if( level_ == "L3" ) {
+
+    Handle<RecoChargedCandidateCollection> mucands;
+    iEvent.getByLabel(L3_Collection_, mucands);
+
+    if( mucands.failedToGet() ) {
+
+      cout << endl << "-----------------------------" << endl;
+      cout << "--- NO HLTRIGGER MUONS !! ---" << endl;
+      cout << "-----------------------------" << endl << endl;
+
+    }
+
+    if( !mucands.failedToGet() ) {
+
+      NMuons->Fill(mucands->size());
+
+      cout << "--------------------" << endl;
+      cout << " Nmuons: " << mucands->size() << endl;
+      cout << "--------------------" << endl << endl;
+
+      RecoChargedCandidateCollection::const_iterator cand;
+
+      for( cand = mucands->begin(); cand != mucands->end(); ++cand ) {
+
+	PtMuons->Fill(  cand->pt()  );
+	EtaMuons->Fill( cand->eta() );
+	PhiMuons->Fill( cand->phi() );
+
+      }
+
+      if( mucands->size() > 1 ) {
+
+      RecoChargedCandidateCollection::const_reference mu1 = mucands->at(0);
+      RecoChargedCandidateCollection::const_reference mu2 = mucands->at(1);
+
+      //      cout << "-----------------------------" << endl;
+      //      cout << "Muon_1 Pt: " << mu1.pt() << endl;
+      //      cout << "Muon_2 Pt: " << mu2.pt() << endl;
+      //      cout << "-----------------------------" << endl << endl;
+
+      DeltaEtaMuons->Fill( mu1.eta()-mu2.eta() );
+      DeltaPhiMuons->Fill( mu1.phi()-mu2.phi() );
+
+      double dilepMass = sqrt( (mu1.energy() + mu2.energy())*(mu1.energy() + mu2.energy())
+			       - (mu1.px() + mu2.px())*(mu1.px() + mu2.px())
+			       - (mu1.py() + mu2.py())*(mu1.py() + mu2.py())
+			       - (mu1.pz() + mu2.pz())*(mu1.pz() + mu2.pz()) );
+
+      DiMuonMass_LOG->Fill( dilepMass );
+      DiMuonMass->Fill( dilepMass );
+
+      }
+
+    }
+
+  }
 
 }
 
@@ -289,7 +324,7 @@ void TopHLTDiMuonDQM::endJob() {
 
   LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " events";
  
-  if( outputFile_.size() != 0 && dbe_ )  dbe_->save(outputFile_);
+  //  if( outputFile_.size() != 0 && dbe_ )  dbe_->save(outputFile_);
   return;
 
 }

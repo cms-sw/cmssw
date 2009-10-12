@@ -40,6 +40,10 @@ fuCfgFile="fu_twoOut.py"
 smCfgFile="sm_streams.py"
 consCfgFile="fuConsumer.py"
 
+fuProviderCfgFile="fu_playbackDataProvider.py"
+fuPassThruCfgFile="fu_hltPassThru.py"
+smpbCfgFile="sm_streamsForPlayback.py"
+
 for filename in `find -maxdepth 3 -name "*.base"`
 do
     finalFile="${filename/.base}"
@@ -87,6 +91,10 @@ do
 
         s/FU_CFG_FILE/$fuCfgFile/;
         s/SM_CFG_FILE/$smCfgFile/;
+
+        s/FUPB_PROVIDER_CFG_FILE/$fuProviderCfgFile/;
+        s/FUPB_PASSTHRU_CFG_FILE/$fuPassThruCfgFile/;
+        s/SMPB_CFG_FILE/$smpbCfgFile/;
 
         s/CONS_CFG_FILE/$consCfgFile/;
 

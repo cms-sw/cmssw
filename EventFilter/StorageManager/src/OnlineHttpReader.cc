@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: OnlineHttpReader.cc,v 1.6 2009/07/13 13:18:03 mommsen Exp $
+  $Id: OnlineHttpReader.cc,v 1.8 2009/09/01 23:47:34 wmtan Exp $
 /// @file: OnlineHttpReader.cc
 */
 

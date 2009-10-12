@@ -36,6 +36,7 @@ class EventWithHistoryFilter {
 
   edm::InputTag _historyProduct;
   std::string _partition;
+  std::string _APVPhaseLabel;
   std::vector<int> _dbxrange;
   std::vector<int> _dbxrangelat;
   std::vector<int> _bxrange;

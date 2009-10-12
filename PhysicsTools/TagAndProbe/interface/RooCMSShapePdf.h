@@ -12,10 +12,9 @@
 #ifndef ROOCMSSHAPEPDF
 #define ROOCMSSHAPEPDF
 
-#include <RooAbsPdf.h>
-
-class RooAbsReal;
-class RooRealProxy;
+#include "RooAbsPdf.h"
+#include "RooRealProxy.h"
+#include "RooAbsReal.h"
  
 class RooCMSShapePdf : public RooAbsPdf {
 public:

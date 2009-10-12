@@ -2,12 +2,18 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
+#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 #include "EventFilter/StorageManager/test/TestHelper.h"
 #include "EventFilter/StorageManager/test/MockApplication.h"
@@ -76,14 +82,14 @@ void testEventDistributor::initEventDistributor()
       _sharedResources->_initMsgCollection.reset(new InitMsgCollection());
       _sharedResources->_streamQueue.reset(new StreamQueue(1024));
       _sharedResources->_dqmEventQueue.reset(new DQMEventQueue(1024));
-      _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app));
+      _sharedResources->_statisticsReporter.reset(new StatisticsReporter(app,1));
       _eventDistributor.reset(new EventDistributor(_sharedResources));
-      boost::shared_ptr<ConsumerMonitorCollection>
-        cmcptr( _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection() );
-      _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( cmcptr ) );
-
-      cmcptr = _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
-      _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( cmcptr ) );
+      EventConsumerMonitorCollection& ecmc = 
+        _sharedResources->_statisticsReporter->getEventConsumerMonitorCollection();
+      _sharedResources->_eventConsumerQueueCollection.reset( new EventQueueCollection( ecmc ) );
+      DQMConsumerMonitorCollection& dcmc = 
+        _sharedResources->_statisticsReporter->getDQMConsumerMonitorCollection();
+      _sharedResources->_dqmEventConsumerQueueCollection.reset( new DQMEventQueueCollection( dcmc ) );
     }
 }
 
@@ -380,7 +386,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardOld, 1);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM",
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
 
     _eventDistributor->registerEventConsumer(&(*consInfo));
@@ -410,7 +416,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardNew, 2);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM", 
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost" ));
     consInfo->setQueueID( queueId );
 
     _eventDistributor->registerEventConsumer(&(*consInfo));
@@ -461,7 +467,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardOld, 3);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM",
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
     consInfo->registerMe(&(*_eventDistributor));
     
@@ -477,7 +483,7 @@ void testEventDistributor::testConsumerSelection()
     QueueID queueId(enquing_policy::DiscardNew, 4);
     consInfo.reset(new EventConsumerRegistrationInfo(
         5, 5, "Test Consumer", selections, "hltOutputDQM",
-        queueId.index(), queueId.policy(), 120));
+        queueId.index(), queueId.policy(), 120, "localhost"));
     consInfo->setQueueID( queueId );
 
     consInfo->registerMe(&(*_eventDistributor));
@@ -674,7 +680,7 @@ void testEventDistributor::testDQMMessages()
   QueueID qid1( policy, 1 );
   ri1.reset( new DQMEventConsumerRegistrationInfo( "DQM Consumer 1",
                                                    "HCAL",
-                                                   qid1.index(), qid1.policy(), 10 ) );
+                                                   qid1.index(), qid1.policy(), 10, "localhost" ) );
   _eventDistributor->registerDQMEventConsumer( &( *ri1 ) );
 
   // Consumer for ECAL:
@@ -682,7 +688,7 @@ void testEventDistributor::testDQMMessages()
   QueueID qid2( policy, 2 );
   ri2.reset( new DQMEventConsumerRegistrationInfo( "DQM Consumer 2",
                                                    "ECAL",
-                                                   qid2.index(), qid2.policy(), 10 ) );
+                                                   qid2.index(), qid2.policy(), 10, "localhost" ) );
   _eventDistributor->registerDQMEventConsumer( &( *ri2 ) );
 
   // HCAL event:
@@ -714,7 +720,7 @@ void testEventDistributor::testDQMMessages()
   QueueID qid3( policy, 3 );
   ri3.reset( new DQMEventConsumerRegistrationInfo( "DQM Consumer 3",
                                                    "*",
-                                                   qid3.index(), qid3.policy(), 10 ) );
+                                                   qid3.index(), qid3.policy(), 10, "localhost" ) );
 
   _eventDistributor->registerDQMEventConsumer( &( *ri3 ) );
 

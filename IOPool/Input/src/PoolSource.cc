@@ -220,7 +220,6 @@ namespace edm {
   void
   PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
     assert (!secondaryFileSequence_);
-    assert (!primary());
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
   }
 

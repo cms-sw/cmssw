@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.123 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: alCaRecoSplitting -s ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+SiStripCalZeroBias+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V2P::All -n -1 --no_exec
+# with command line options: alCaRecoSplitting -s ALCA:MuAlCalIsolatedMu+RpcCalHLT+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+HcalCalHOCosmics+DQM --datatier RECO --eventcontent RECO --conditions FrontierConditions_GlobalTag,GR09_31X_V4P::All -n -1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('ALCA')
@@ -10,10 +10,9 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.4 $'),
     annotation = cms.untracked.string('step3_RELVAL nevts:-1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -44,7 +43,8 @@ process.ALCARECOStreamMuAlStandAloneCosmics = cms.OutputModule("PoolOutputModule
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*'),
+        'keep *_rpcRecHits_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('MuAlStandAloneCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlStandAloneCosmics'),
@@ -56,7 +56,8 @@ process.ALCARECOStreamHcalCalHOCosmics = cms.OutputModule("PoolOutputModule",
         SelectEvents = cms.vstring('pathALCARECOHcalCalHOCosmics:RECO')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep HOCalibVariabless_*_*_*'),
+        'keep HOCalibVariabless_*_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('HcalCalHOCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('HcalCalHOCosmics'),
@@ -119,7 +120,8 @@ process.ALCARECOStreamMuAlGlobalCosmics = cms.OutputModule("PoolOutputModule",
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*'),
+        'keep *_rpcRecHits_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('MuAlGlobalCosmics.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlGlobalCosmics'),
@@ -140,37 +142,22 @@ process.ALCARECOStreamMuAlCalIsolatedMu = cms.OutputModule("PoolOutputModule",
         'keep *_dt4DSegments_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
-        'keep *_rpcRecHits_*_*'),
+        'keep *_rpcRecHits_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('MuAlCalIsolatedMu.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('MuAlCalIsolatedMu'),
         dataTier = cms.untracked.string('ALCARECO')
     )
 )
-process.ALCARECOStreamSiStripCalZeroBias = cms.OutputModule("PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOSiStripCalZeroBias:RECO')
-    ),
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOSiStripCalZeroBias_*_*', 
-        'keep *_calZeroBiasClusters_*_*', 
-        'keep *_MEtoEDMConverter_*_*'),
-    fileName = cms.untracked.string('SiStripCalZeroBias.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string('SiStripCalZeroBias'),
-        dataTier = cms.untracked.string('ALCARECO')
-    )
-)
 
 # Path and EndPath definitions
-process.endjob_step = cms.Path(process.endOfProcess)
 process.ALCARECOStreamMuAlStandAloneCosmicsOutPath = cms.EndPath(process.ALCARECOStreamMuAlStandAloneCosmics)
 process.ALCARECOStreamHcalCalHOCosmicsOutPath = cms.EndPath(process.ALCARECOStreamHcalCalHOCosmics)
 process.ALCARECOStreamTkAlCosmics0TOutPath = cms.EndPath(process.ALCARECOStreamTkAlCosmics0T)
 process.ALCARECOStreamRpcCalHLTOutPath = cms.EndPath(process.ALCARECOStreamRpcCalHLT)
 process.ALCARECOStreamMuAlGlobalCosmicsOutPath = cms.EndPath(process.ALCARECOStreamMuAlGlobalCosmics)
 process.ALCARECOStreamMuAlCalIsolatedMuOutPath = cms.EndPath(process.ALCARECOStreamMuAlCalIsolatedMu)
-process.ALCARECOStreamSiStripCalZeroBiasOutPath = cms.EndPath(process.ALCARECOStreamSiStripCalZeroBias)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamRpcCalHLTOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath,process.ALCARECOStreamSiStripCalZeroBiasOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamMuAlStandAloneCosmicsOutPath,process.ALCARECOStreamHcalCalHOCosmicsOutPath,process.ALCARECOStreamTkAlCosmics0TOutPath,process.ALCARECOStreamRpcCalHLTOutPath,process.ALCARECOStreamMuAlGlobalCosmicsOutPath,process.ALCARECOStreamMuAlCalIsolatedMuOutPath)

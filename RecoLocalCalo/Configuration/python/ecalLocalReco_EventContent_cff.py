@@ -10,13 +10,15 @@ import FWCore.ParameterSet.Config as cms
 
 #Full Event content 
 ecalLocalRecoFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_ecalWeightUncalibRecHit_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep *_ecalGlobalUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*')
 )
 #RECO content
 ecalLocalRecoRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_ecalPreshowerRecHit_*_*', 
+    outputCommands = cms.untracked.vstring(
+        'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*')
 )
 #AOD content

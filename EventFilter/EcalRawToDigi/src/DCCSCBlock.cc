@@ -203,6 +203,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     if (! isSaturation)
       {     
 	(*invalidGains_)->push_back(*pDetId_); 
+	(*digis_)->pop_back();
 	errorOnXtal = true;
 	
 	//return here, so to skip all the rest

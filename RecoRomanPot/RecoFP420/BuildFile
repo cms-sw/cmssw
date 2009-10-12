@@ -1,13 +1,25 @@
 <use name=FWCore/PluginManager>
+<use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/Math>
+<use name=SimDataFormats/TrackerDigiSimLink>
+<use name=SimDataFormats/CrossingFrame>
 <use name=DataFormats/FP420Digi>
 <use name=DataFormats/FP420Cluster>
 <use name=DataFormats/Common>
+<use name=SimGeneral/HepPDTRecord>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/Framework>
+<use name=SimG4Core/Watcher>
+<use name=SimG4Core/SensitiveDetector>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Application>
+<use name=SimG4CMS/Calo>
+<use name=SimRomanPot/SimFP420>
 <use name=SimG4CMS/FP420>
+<use name=SimDataFormats/SimHitMaker>
+<use name=SimDataFormats/CaloHit>
 <use name=Mixing/Base>
 <use name=DetectorDescription/Core>
+<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=hector>
 <use name=boost>
@@ -23,15 +35,27 @@
 <export>
  <lib name=RecoRomanPotRecoFP420>
  <use name=FWCore/PluginManager>
+ <use name=SimDataFormats/TrackingHit>
  <use name=DataFormats/Math>
+ <use name=SimDataFormats/TrackerDigiSimLink>
+ <use name=SimDataFormats/CrossingFrame>
  <use name=DataFormats/FP420Digi>
  <use name=DataFormats/FP420Cluster>
  <use name=DataFormats/Common>
+ <use name=SimGeneral/HepPDTRecord>
  <use name=FWCore/ParameterSet>
- <use name=FWCore/Framework>
+ <use name=SimG4Core/Watcher>
+ <use name=SimG4Core/SensitiveDetector>
+ <use name=SimG4Core/Notification>
+ <use name=SimG4Core/Application>
+ <use name=SimG4CMS/Calo>
+ <use name=SimRomanPot/SimFP420>
  <use name=SimG4CMS/FP420>
+ <use name=SimDataFormats/SimHitMaker>
+ <use name=SimDataFormats/CaloHit>
  <use name=Mixing/Base>
  <use name=DetectorDescription/Core>
+ <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=hector>
  <use name=boost>
@@ -42,4 +66,4 @@
  <use name=gsl>
  <use name=rootmath>
  <use name=rootrflx>
-</export> 
+</export>

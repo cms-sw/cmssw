@@ -77,11 +77,11 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
     // Number of digis
     hid = theHistogramId->setHistoId("ndigis",id_);
-    meNDigis_ = theDMBE->book1D(hid,"Number of Digis",50,0.,50.);
+    meNDigis_ = theDMBE->book1D(hid,"Number of Digis",25,0.,25.);
     meNDigis_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
     hid = theHistogramId->setHistoId("adc",id_);
-    meADC_ = theDMBE->book1D(hid,"Digi charge",256,0.,256.);
+    meADC_ = theDMBE->book1D(hid,"Digi charge",128,0.,256.);
     meADC_->setAxisTitle("ADC counts",1);
 	if(!reducedSet)
 	{
@@ -112,10 +112,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     if(isHalfModule) hid += "H";
     else hid += "F";
     // Number of digis
-    meNDigisLad_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
+    meNDigisLad_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisLad_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCLad_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
+    meADCLad_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCLad_->setAxisTitle("ADC counts",1);
 	if(!reducedSet)
 	{
@@ -139,10 +139,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     // Number of digis
-    meNDigisLay_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
+    meNDigisLay_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisLay_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCLay_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
+    meADCLay_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCLay_->setAxisTitle("ADC counts",1);
 	if(!reducedSet)
 	{
@@ -176,10 +176,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of digis
-    meNDigisPhi_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
+    meNDigisPhi_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisPhi_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCPhi_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
+    meADCPhi_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCPhi_->setAxisTitle("ADC counts",1);
 	if(!reducedSet)
 	{
@@ -214,10 +214,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
     // Number of digis
-    meNDigisBlade_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
+    meNDigisBlade_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisBlade_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCBlade_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
+    meADCBlade_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCBlade_->setAxisTitle("ADC counts",1);
   }
   if(type==5 && endcap){
@@ -226,10 +226,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
     // Number of digis
-    meNDigisDisk_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
+    meNDigisDisk_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisDisk_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCDisk_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
+    meADCDisk_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCDisk_->setAxisTitle("ADC counts",1);
   }
   if(type==6 && endcap){
@@ -238,10 +238,10 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
     // Number of digis
-    meNDigisRing_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",50,0.,50.);
+    meNDigisRing_ = theDMBE->book1D("ndigis_"+hid,"Number of Digis",25,0.,25.);
     meNDigisRing_->setAxisTitle("Number of digis",1);
     // Charge in ADC counts
-    meADCRing_ = theDMBE->book1D("adc_" + hid,"Digi charge",256,0.,256.);
+    meADCRing_ = theDMBE->book1D("adc_" + hid,"Digi charge",128,0.,256.);
     meADCRing_->setAxisTitle("ADC counts",1);
 	if(!reducedSet)
 	{

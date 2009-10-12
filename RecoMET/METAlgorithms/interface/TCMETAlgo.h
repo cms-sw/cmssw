@@ -82,6 +82,8 @@ class TCMETAlgo
   double  minhits_;
   double  maxd0_;
 
+  bool isCosmics_;
+
   const class MagneticField* bField;
 
   class TH2D* response_function;

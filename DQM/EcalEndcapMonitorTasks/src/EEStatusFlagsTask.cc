@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2009/06/23 06:41:51 $
- * $Revision: 1.21 $
+ * $Date: 2009/08/26 18:36:04 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -270,7 +270,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
             }
           }
 
-          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
           }
 
@@ -284,7 +284,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
             }
           }
 
-          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 ) ) {
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);
           }
 

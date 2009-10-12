@@ -36,7 +36,6 @@ public:
   ~HLTCountNumberOfObject(){};
   
 private:
-  virtual void beginJob(const edm::EventSetup&){};
   virtual bool filter(edm::Event& iEvent, const edm::EventSetup&)
   {
     // The filtered object. which is put empty.

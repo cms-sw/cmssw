@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.34 2009/07/13 13:18:03 mommsen Exp $
+  $Id: EventStreamHttpReader.cc,v 1.36 2009/09/01 23:47:34 wmtan Exp $
 /// @file: EventStreamHttpReader.cc
 */
 

@@ -144,12 +144,8 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
   int gtFedDataSize = 0;
 
   Handle<ESRawDataCollection> dccs;
-  if ( e.getByLabel(dccCollections_, dccs) ) {
-  } else {
-    LogWarning("ESRawDataTask") << "Error! can't get ES raw data collection !" << std::endl;
-  }
+  Handle<FEDRawDataCollection> allFedRawData;
 
-  edm::Handle<FEDRawDataCollection> allFedRawData;
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
     // ES FEDs
@@ -180,79 +176,86 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c){
       map<int, int> esDCC_BX_FreqMap;
       map<int, int> esDCC_OrbitNumber_FreqMap;
 
-      for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-	ESDCCHeaderBlock esdcc = (*dccItr);
-	 
-	esDCC_L1A_FreqMap[esdcc.getLV1()]++;
-	esDCC_BX_FreqMap[esdcc.getBX()]++;
-	esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()]++;
-	 
-	if (esDCC_L1A_FreqMap[esdcc.getLV1()] > esDCC_L1A_MostFreqCounts) {
-	  esDCC_L1A_MostFreqCounts = esDCC_L1A_FreqMap[esdcc.getLV1()];
-	  gt_L1A = esdcc.getLV1();
-	} 
-
-	if (esDCC_BX_FreqMap[esdcc.getBX()] > esDCC_BX_MostFreqCounts) {
-	  esDCC_BX_MostFreqCounts = esDCC_BX_FreqMap[esdcc.getBX()];
-	  gt_BX = esdcc.getBX();
-	} 
-
-	if (esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()] > esDCC_OrbitNumber_MostFreqCounts) {
-	  esDCC_OrbitNumber_MostFreqCounts = esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()];
-	  gt_OrbitNumber = esdcc.getOrbitNumber();
-	} 
-
+      if ( e.getByLabel(dccCollections_, dccs) ) {
+	
+	for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+	  ESDCCHeaderBlock esdcc = (*dccItr);
+	  
+	  esDCC_L1A_FreqMap[esdcc.getLV1()]++;
+	  esDCC_BX_FreqMap[esdcc.getBX()]++;
+	  esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()]++;
+	  
+	  if (esDCC_L1A_FreqMap[esdcc.getLV1()] > esDCC_L1A_MostFreqCounts) {
+	    esDCC_L1A_MostFreqCounts = esDCC_L1A_FreqMap[esdcc.getLV1()];
+	    gt_L1A = esdcc.getLV1();
+	  } 
+	  
+	  if (esDCC_BX_FreqMap[esdcc.getBX()] > esDCC_BX_MostFreqCounts) {
+	    esDCC_BX_MostFreqCounts = esDCC_BX_FreqMap[esdcc.getBX()];
+	    gt_BX = esdcc.getBX();
+	  } 
+	  
+	  if (esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()] > esDCC_OrbitNumber_MostFreqCounts) {
+	    esDCC_OrbitNumber_MostFreqCounts = esDCC_OrbitNumber_FreqMap[esdcc.getOrbitNumber()];
+	    gt_OrbitNumber = esdcc.getOrbitNumber();
+	  } 
+	  
+	}
+      } else {
+	LogWarning("ESFEDIntegrityTask") << dccCollections_ << " not available";
       }
 
     }
 
   } else {
-    LogWarning("ESIntegrityTask") << FEDRawDataCollection_ << " not available";
+    LogWarning("ESFEDIntegrityTask") << FEDRawDataCollection_ << " not available";
   }
 
   vector<int> fiberStatus;
-  for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-    ESDCCHeaderBlock dcc = (*dccItr);
-    
-    if (dcc.getDCCErrors() > 0) {
+  if ( e.getByLabel(dccCollections_, dccs) ) {
+    for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+      ESDCCHeaderBlock dcc = (*dccItr);
       
-      if ( meESFedsFatal_ ) meESFedsFatal_->Fill(dcc.fedId());
-      
-    }	else {
-      if (debug_) cout<<dcc.fedId()<<" "<<dcc.getOptoRX0()<<" "<<dcc.getOptoRX1()<<" "<<dcc.getOptoRX2()<<endl;
-      fiberStatus = dcc.getFEChannelStatus();
-      
-      if (dcc.getOptoRX0() == 128) {
-	meESFedsNonFatal_->Fill(dcc.fedId(), 1./3.);
-      } else if (dcc.getOptoRX0() == 129) {
-	for (unsigned int i=0; i<12; ++i) {
-	  if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
-	    if ( meESFedsNonFatal_ ) meESFedsNonFatal_->Fill(dcc.fedId(), 1./12.);
+      if (dcc.getDCCErrors() > 0) {
+	
+	if ( meESFedsFatal_ ) meESFedsFatal_->Fill(dcc.fedId());
+	
+      }	else {
+	if (debug_) cout<<dcc.fedId()<<" "<<dcc.getOptoRX0()<<" "<<dcc.getOptoRX1()<<" "<<dcc.getOptoRX2()<<endl;
+	fiberStatus = dcc.getFEChannelStatus();
+	
+	if (dcc.getOptoRX0() == 128) {
+	  meESFedsNonFatal_->Fill(dcc.fedId(), 1./3.);
+	} else if (dcc.getOptoRX0() == 129) {
+	  for (unsigned int i=0; i<12; ++i) {
+	    if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
+	      if ( meESFedsNonFatal_ ) meESFedsNonFatal_->Fill(dcc.fedId(), 1./12.);
+	  }
+	}
+	if (dcc.getOptoRX1() == 128) { 
+	  meESFedsNonFatal_->Fill(dcc.fedId(), 1./3.);
+	}	else if (dcc.getOptoRX1() == 129) {
+	  for (unsigned int i=12; i<24; ++i) {
+	    if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
+	      if ( meESFedsNonFatal_ ) meESFedsNonFatal_->Fill(dcc.fedId(), 1./12.);
+	  }
+	}
+	if (dcc.getOptoRX2() == 128) {
+	  meESFedsNonFatal_->Fill(dcc.fedId(), 1./3.);
+	} else if (dcc.getOptoRX2() == 129){
+	  for (unsigned int i=24; i<36; ++i) {
+	    if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
+	      if ( meESFedsNonFatal_ ) meESFedsNonFatal_->Fill(dcc.fedId(), 1./12.);
+	  }
 	}
       }
-      if (dcc.getOptoRX1() == 128) { 
-	meESFedsNonFatal_->Fill(dcc.fedId(), 1./3.);
-      }	else if (dcc.getOptoRX1() == 129) {
-	for (unsigned int i=12; i<24; ++i) {
-	  if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
-	    if ( meESFedsNonFatal_ ) meESFedsNonFatal_->Fill(dcc.fedId(), 1./12.);
-	}
-      }
-      if (dcc.getOptoRX2() == 128) {
-	meESFedsNonFatal_->Fill(dcc.fedId(), 1./3.);
-      } else if (dcc.getOptoRX2() == 129){
-	for (unsigned int i=24; i<36; ++i) {
-	  if (fiberStatus[i]==8 || fiberStatus[i]==10 || fiberStatus[i]==11 || fiberStatus[i]==12)
-	    if ( meESFedsNonFatal_ ) meESFedsNonFatal_->Fill(dcc.fedId(), 1./12.);
-	}
-      }
+      
+      if (dcc.getLV1() != gt_L1A) meESFedsNonFatal_->Fill(dcc.fedId());
+      //if (dcc.getBX() != gt_BX) meESFedsNonFatal_->Fill(dcc.fedId());
+      //if (dcc.getOrbitNumber() != gt_OrbitNumber) meESFedsNonFatal_->Fill(dcc.fedId());
     }
-    
-    if (dcc.getLV1() != gt_L1A) meESFedsNonFatal_->Fill(dcc.fedId());
-    //if (dcc.getBX() != gt_BX) meESFedsNonFatal_->Fill(dcc.fedId());
-    //if (dcc.getOrbitNumber() != gt_OrbitNumber) meESFedsNonFatal_->Fill(dcc.fedId());
   }
-  
+
   //for (ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
 
   //ESKCHIPBlock kchip = (*kItr);

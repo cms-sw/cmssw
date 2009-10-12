@@ -5,8 +5,7 @@ GsfTrajectorySmoother = cms.ESProducer("GsfTrajectorySmootherESProducer",
     ComponentName = cms.string('GsfTrajectorySmoother'),
     MaterialEffectsUpdator = cms.string('ElectronMaterialEffects'),
     ErrorRescaling = cms.double(100.0),
-    GeometricalPropagator = cms.string('bwdAnalyticalPropagator'),
-    RecoGeometry = cms.string('GlobalDetLayerGeometry')                                
+    GeometricalPropagator = cms.string('bwdAnalyticalPropagator')
 )
 
 

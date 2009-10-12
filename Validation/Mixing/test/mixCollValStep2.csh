@@ -1,7 +1,7 @@
 # Validation of the standard MM
 echo 'Start MixCollection validation in standard mode'
 
-cmsRun mixCollectionTest_cfg.py #configure mixLowL, produce histo file : histosMixCollStandardMM.root
+cmsRun mixCollectionTest_StandardMM_cfg.py #configure mixLowL, produce histo file : histosMixCollStandardMM.root
 
 # Extract histograms 
 echo 'Extract histograms for the Standard mode'

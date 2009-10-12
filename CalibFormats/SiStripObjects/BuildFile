@@ -4,6 +4,7 @@
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibTracker/SiStripCommon>
+<use name=CondTools/RunInfo>
 <use name=boost>
 
 <export>
@@ -14,6 +15,7 @@
 <use name=DataFormats/SiStripDetId>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibTracker/SiStripCommon>
+<use name=CondTools/RunInfo>
 <use name=boost>
 </export>
 

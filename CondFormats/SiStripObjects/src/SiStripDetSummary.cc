@@ -35,7 +35,7 @@ void SiStripDetSummary::add(const DetId & detid, const float & value)
     }
   case StripSubdetector::TID:
     {
-      TECDetId theTIDDetId(detid.rawId());
+      TIDDetId theTIDDetId(detid.rawId());
       // is this module in TID+ or TID-?
       layer = theTIDDetId.wheel();
       stereo = theTIDDetId.stereo();

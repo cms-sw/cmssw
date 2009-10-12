@@ -4,8 +4,8 @@
 /*
  * \file EELedClient.h
  *
- * $Date: 2009/06/18 12:27:01 $
- * $Revision: 1.30 $
+ * $Date: 2009/08/03 23:44:21 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -60,11 +60,8 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
-/// SoftReset
-void softReset(bool flag);
-
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -97,19 +94,8 @@ TProfile2D* h04_[18];
 TProfile2D* h09_[18];
 TProfile2D* h10_[18];
 
-TProfile2D* h13_[18];
-TProfile2D* h14_[18];
-TProfile2D* h15_[18];
-TProfile2D* h16_[18];
-
-TProfile2D* h21_[18];
-TProfile2D* h22_[18];
-
 TProfile2D* hs01_[18];
 TProfile2D* hs02_[18];
-
-TProfile2D* hs05_[18];
-TProfile2D* hs06_[18];
 
 MonitorElement* meg01_[18];
 MonitorElement* meg02_[18];
@@ -123,32 +109,17 @@ MonitorElement* meg10_[18];
 MonitorElement* mea01_[18];
 MonitorElement* mea02_[18];
 
-MonitorElement* mea05_[18];
-MonitorElement* mea06_[18];
-
 MonitorElement* met01_[18];
 MonitorElement* met02_[18];
-
-MonitorElement* met05_[18];
-MonitorElement* met06_[18];
 
 MonitorElement* metav01_[18];
 MonitorElement* metav02_[18];
 
-MonitorElement* metav05_[18];
-MonitorElement* metav06_[18];
-
 MonitorElement* metrms01_[18];
 MonitorElement* metrms02_[18];
 
-MonitorElement* metrms05_[18];
-MonitorElement* metrms06_[18];
-
 MonitorElement* meaopn01_[18];
 MonitorElement* meaopn02_[18];
-
-MonitorElement* meaopn05_[18];
-MonitorElement* meaopn06_[18];
 
 MonitorElement* mepnprms01_[18];
 MonitorElement* mepnprms02_[18];
@@ -158,9 +129,6 @@ MonitorElement* mepnprms06_[18];
 
 MonitorElement* me_hs01_[18];
 MonitorElement* me_hs02_[18];
-
-MonitorElement* me_hs05_[18];
-MonitorElement* me_hs06_[18];
 
 TProfile* i01_[18];
 TProfile* i02_[18];

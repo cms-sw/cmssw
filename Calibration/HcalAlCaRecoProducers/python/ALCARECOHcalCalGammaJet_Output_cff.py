@@ -8,7 +8,8 @@ OutALCARECOHcalCalGammaJet_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalGammaJet')
     ),
     outputCommands = cms.untracked.vstring( 
-        'keep *_GammaJetProd_*_*')
+        'keep *_GammaJetProd_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
 import copy

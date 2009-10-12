@@ -1,10 +1,10 @@
-// $Id: ConsumerUtils.cc,v 1.2 2009/06/10 08:15:25 dshpakov Exp $
+// $Id: ConsumerUtils.cc,v 1.4 2009/08/28 16:41:25 mommsen Exp $
 /// @file: ConsumerUtils.cc
 
+#include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/ConsumerUtils.h"
-#include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
-#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
 #include "IOPool/Streamer/interface/OtherMessage.h"
@@ -41,6 +41,8 @@ ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
 
   const std::string l_str = in->getenv( "CONTENT_LENGTH" );
   unsigned long l = std::atol( l_str.c_str() );
+
+  const std::string remote_host = in->getenv( "REMOTE_HOST" );
 
   if( l > 0 )
     {
@@ -130,7 +132,8 @@ ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
                                                     sel_hlt_out,
                                                     queueSize,
                                                     queuePolicy,
-                                                    secondsToStale ) );
+                                                    secondsToStale,
+                                                    remote_host ) );
   return cr;
 
 }
@@ -139,9 +142,9 @@ ConsRegPtr stor::parseEventConsumerRegistration( xgi::Input* in,
 //// Create DQM consumer registration info: ////
 ////////////////////////////////////////////////
 DQMEventConsRegPtr stor::parseDQMEventConsumerRegistration( xgi::Input* in,
-                                                       size_t queueSize,
-                                                       enquing_policy::PolicyTag queuePolicy,
-                                                       utils::duration_t secondsToStale )
+                                                            size_t queueSize,
+                                                            enquing_policy::PolicyTag queuePolicy,
+                                                            utils::duration_t secondsToStale )
 {
 
   if( in == 0 )
@@ -167,11 +170,14 @@ DQMEventConsRegPtr stor::parseDQMEventConsumerRegistration( xgi::Input* in,
     if (reqFolder.size() >= 1) consumerTopFolderName = reqFolder;
   }
 
+  const std::string remote_host = in->getenv( "REMOTE_HOST" );
+
   DQMEventConsRegPtr cr( new DQMEventConsumerRegistrationInfo( consumerName,
-                                                          consumerTopFolderName, 
-                                                          queueSize,
-                                                          queuePolicy,
-                                                          secondsToStale ) );
+                                                               consumerTopFolderName, 
+                                                               queueSize,
+                                                               queuePolicy,
+                                                               secondsToStale,
+                                                               remote_host ) );
   return cr;
 
 }

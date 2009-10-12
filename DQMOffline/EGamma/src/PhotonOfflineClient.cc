@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonOfflineClient
- **  $Date: 2009/06/19 14:30:10 $ 
+ **  $Date: 2009/07/28 13:48:13 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -39,6 +39,9 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
   etaMin = pset.getParameter<double>("etaMin");
   etaMax = pset.getParameter<double>("etaMax");
   etaBin = pset.getParameter<int>("etaBin");
+  phiMin = pset.getParameter<double>("phiMin");
+  phiMax = pset.getParameter<double>("phiMax");
+  phiBin = pset.getParameter<int>("phiBin");
 
   standAlone_ = pset.getParameter<bool>("standAlone");
   batch_ = pset.getParameter<bool>("batch");
@@ -122,9 +125,6 @@ void PhotonOfflineClient::runClient()
       p_convFractionVsEta_isol_.push_back(dbe_->book1D("convFractionVsEta","Fraction of Converted Photons  vs. Eta;#eta",etaBin,etaMin, etaMax));
       p_convFractionVsEt_isol_.push_back(dbe_->book1D("convFractionVsEt","Fraction of Converted Photons vs. Et;Et (GeV)",etBin,etMin, etMax));
 
-
-
-
     }
 
     p_convFractionVsEt_.push_back(p_convFractionVsEt_isol_);
@@ -135,13 +135,30 @@ void PhotonOfflineClient::runClient()
  
   }
 
+  //booking bad channels histograms
 
+  for(int cut = 0; cut != numberOfSteps_; ++cut){   //looping over Et cut values
+    for(uint type=0;type!=types.size();++type){ //looping over isolation type
+      
+      currentFolder_.str("");	
+      currentFolder_ << "Egamma/PhotonAnalyzer/" << types[type] << "Photons/Et above " << cut*cutStep_ << " GeV";
+      dbe_->setCurrentFolder(currentFolder_.str());
+      
+      p_badChannelsFractionVsEta_isol_.push_back(dbe_->book1D("badChannelsFractionVsEta","Fraction of Photons with at least one bad channel vs. Eta;#eta",etaBin,etaMin, etaMax));
+      p_badChannelsFractionVsEt_isol_.push_back(dbe_->book1D("badChannelsFractionVsEt","Fraction of Converted Photons with at least one bad channel vs. Et;Et (GeV)",etBin,etMin, etMax));
+      p_badChannelsFractionVsPhi_isol_.push_back(dbe_->book1D("badChannelsFractionVsPhi","Fraction of Photons with at least one bad channel vs. Phi;#phi",phiBin,phiMin, phiMax));
+
+    }
+
+    p_badChannelsFractionVsEt_.push_back(p_badChannelsFractionVsEt_isol_);
+    p_badChannelsFractionVsEt_isol_.clear();
+    p_badChannelsFractionVsEta_.push_back(p_badChannelsFractionVsEta_isol_);
+    p_badChannelsFractionVsEta_isol_.clear(); 
+    p_badChannelsFractionVsPhi_.push_back(p_badChannelsFractionVsPhi_isol_);
+    p_badChannelsFractionVsPhi_isol_.clear();    
  
-
-
-
-
-
+  }
+ 
 
 
 
@@ -189,9 +206,6 @@ void PhotonOfflineClient::runClient()
 
 
 
-
-
-
   for(uint type=0;type!=types.size();++type){
     
     for (int cut=0; cut !=numberOfSteps_; ++cut) {
@@ -204,11 +218,22 @@ void PhotonOfflineClient::runClient()
       dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEta"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEta"),dbe_->get(currentFolder_.str() + "phoEta"));
       dividePlots(dbe_->get(currentFolder_.str()+"Conversions/convFractionVsEt"),dbe_->get(currentFolder_.str() +  "Conversions/phoConvEtAllEcal"),dbe_->get(currentFolder_.str() + "phoEtAllEcal"));
 
+      dividePlots(dbe_->get(currentFolder_.str()+"badChannelsFractionVsEt"),dbe_->get(currentFolder_.str() +  "phoEtBadChannels"),dbe_->get(currentFolder_.str() +  "phoEtAllEcal"));
+      dividePlots(dbe_->get(currentFolder_.str()+"badChannelsFractionVsEta"),dbe_->get(currentFolder_.str() +  "phoEtaBadChannels"),dbe_->get(currentFolder_.str() +  "phoEta"));
+      dividePlots(dbe_->get(currentFolder_.str()+"badChannelsFractionVsPhi"),dbe_->get(currentFolder_.str() +  "phoPhiBadChannels"),dbe_->get(currentFolder_.str() +  "phoPhi"));
+
+
 
       //removing unneeded plots
       
       dbe_->setCurrentFolder(currentFolder_.str());
-      
+
+      dbe_->removeElement("phoEtBadChannels");
+      dbe_->removeElement("phoEtaBadChannels");
+      dbe_->removeElement("phoPhiBadChannels");
+
+
+
 //       dbe_->removeElement("nIsoTracksSolidVsEta2D");
 //       dbe_->removeElement("nIsoTracksHollowVsEta2D");
 //       dbe_->removeElement("isoPtSumSolidVsEta2D");

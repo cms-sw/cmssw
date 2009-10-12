@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2009/04/28 10:35:59 $
- * $Revision: 1.187 $
+ * $Date: 2009/08/05 12:02:46 $
+ * $Revision: 1.189 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -205,6 +205,7 @@ void EcalBarrelMonitorModule::setup(void){
 
     meRunType_ = dqmStore_->bookInt("RUNTYPE");
     meEvtType_ = dqmStore_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
+    meEvtType_->setAxisTitle("number of events", 2);
     meEvtType_->setBinLabel(1, "UNKNOWN", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -389,13 +390,17 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     int nebc = 0;
 
-    int ndccs = dcchs->size();
-
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
       nebc++;
+
+    }    
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+      if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
 
       if ( meEBDCC_ ) meEBDCC_->Fill(Numbers::iSM( *dcchItr, EcalBarrel )+0.5);
 
@@ -411,7 +416,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       }
 
       if ( evtType_ < 0 || evtType_ > 22 ) evtType_ = -1;
-      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./ndccs);
+      if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5, 1./nebc);
                 
     }
 

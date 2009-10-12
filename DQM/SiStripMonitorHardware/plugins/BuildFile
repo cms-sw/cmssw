@@ -13,5 +13,6 @@
   <use name=DQM/SiStripMonitorHardware>
   <use name=DQM/SiStripCommon>
   <use name=DPGAnalysis/SiStripTools>
+  <use name=CommonTools/TrackerMap>
   <flags EDM_PLUGIN=1>
 </library>

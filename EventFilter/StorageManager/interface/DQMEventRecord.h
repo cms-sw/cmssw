@@ -1,4 +1,4 @@
-// $Id: DQMEventRecord.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DQMEventRecord.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
 /// @file: DQMEventRecord.h 
 
 #ifndef StorageManager_DQMEventRecord_h
@@ -9,22 +9,24 @@
 #include "boost/shared_ptr.hpp"
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
-#include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMInstance.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
-#include "EventFilter/StorageManager/interface/QueueID.h"
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
 
 namespace stor {
 
+  class DQMEventMonitorCollection;
+  class QueueID;
+
+
   /**
    * Class holding information for one DQM event
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/28 16:41:49 $
    */
 
   class DQMEventRecord : public DQMInstance
@@ -81,7 +83,8 @@ namespace stor {
     (
       const DQMKey,
       const DQMProcessingParams,
-      DQMEventMonitorCollection&
+      DQMEventMonitorCollection&,
+      const unsigned int expectedUpdates
     );
 
     ~DQMEventRecord();

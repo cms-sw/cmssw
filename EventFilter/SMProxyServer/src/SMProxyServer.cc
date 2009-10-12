@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.30 2009/05/04 20:47:41 biery Exp $
+// $Id: SMProxyServer.cc,v 1.32 2009/08/18 09:45:41 mommsen Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -146,6 +146,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
   esSelectedHLTOutputModule_ = "hltOutputDQM";
   ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  esSelectedEventSelection_.clear();
+  ispace->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
   allowMissingSM_ = false;
   ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
 
@@ -1510,8 +1512,16 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         //}
         *out << "    <br/>" << std::endl;
         *out << "    Selected HLT output module is "
-             << eventServer->getHLTOutputSelection()
+             << esSelectedHLTOutputModule_.toString()
              << "." << std::endl;
+        if ( ! esSelectedEventSelection_.empty() )
+        {
+            *out << "    <br/>" << std::endl;
+            *out << "    Selected Event Selection is";
+            for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
+                *out << " " << esSelectedEventSelection_[i].toString();
+            *out << "." << std::endl;
+        }
         *out << "  </td>" << std::endl;
         *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
         if (autoUpdate) {
@@ -2945,6 +2955,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
   is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  is->fireItemAvailable("esSelectedEventSelection",&esSelectedEventSelection_);
   is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
@@ -2992,6 +3003,7 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
   is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
+  is->addItemRetrieveListener("esSelectedEventSelection",this);
   is->addItemRetrieveListener("allowMissingSM",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
@@ -3076,6 +3088,11 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
     try {
       dpm_.reset(new stor::DataProcessManager());
       dpm_->setHLTOutputModule(esSelectedHLTOutputModule_);
+      std::vector<std::string> tmpVector;
+      tmpVector.resize(esSelectedEventSelection_.elements());
+      for(unsigned int i = 0; i < esSelectedEventSelection_.elements(); ++i)
+          tmpVector[i] = static_cast<std::string>(esSelectedEventSelection_[i]);
+      dpm_->setEventSelection(tmpVector);
       dpm_->setAllowMissingSM(allowMissingSM_);
       
       boost::shared_ptr<EventServer>

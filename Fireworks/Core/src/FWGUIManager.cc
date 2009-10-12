@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.136 2009/07/02 19:09:00 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.142 2009/08/13 19:11:16 amraktad Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 #include "TGSlider.h"
 #include "TColor.h"
 #include "TVirtualX.h"
+#include "TFile.h"
 
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
@@ -60,11 +61,6 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/src/FWListEventItem.h"
-
-#include "Fireworks/Core/src/FWListViewObject.h"
-#include "Fireworks/Core/src/FWListModel.h"
-#include "Fireworks/Core/src/FWListMultipleModels.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -84,8 +80,6 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 #include "Fireworks/Core/interface/CmsShowHelpPopup.h"
-
-#include "Fireworks/Core/src/FWListWidget.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
@@ -126,7 +120,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
    m_waitForUserAction(true),
    m_code(0),
    m_editableSelected(0),
-   m_detailViewManager(new FWDetailViewManager),
+   m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
    m_dataAdder(0),
    m_ediFrame(0),
@@ -171,6 +165,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                                                 this);
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+
+      m_detailViewManager = new FWDetailViewManager(m_cmsShowMainFrame);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
@@ -302,6 +298,9 @@ void
 FWGUIManager::newFile(const TFile* iFile)
 {
    m_openFile = iFile;
+   char title[128];
+   snprintf(title,128,"cmsShow: %s", iFile->GetName());
+   m_cmsShowMainFrame->SetWindowName(title);
 }
 
 void
@@ -330,6 +329,12 @@ CSGContinuousAction*
 FWGUIManager::playEventsBackwardsAction()
 {
    return m_cmsShowMainFrame->playEventsBackwardsAction();
+}
+
+CSGContinuousAction*
+FWGUIManager::autoRewindAction()
+{
+   return m_cmsShowMainFrame->autoRewindAction();
 }
 
 void
@@ -600,12 +605,6 @@ FWGUIManager::createEDIFrame() {
 }
 
 void
-FWGUIManager::updateEDI(FWEventItem* iItem) {
-   createEDIFrame();
-   m_ediFrame->fillEDIFrame(iItem);
-}
-
-void
 FWGUIManager::showEDIFrame(int iToShow)
 {
    createEDIFrame();
@@ -717,51 +716,7 @@ FWGUIManager::getGUISubviewArea(TEveWindow* w)
    FWGUISubviewArea* ar = dynamic_cast<FWGUISubviewArea*>(el->fFrame);
    return ar;
 }
-
-void
-FWGUIManager::itemChecked(TObject* obj, Bool_t state)
-{
-}
-void
-FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x, Int_t y)
-{
-   TEveElement* el = static_cast<TEveElement*>(item->GetUserData());
-   FWListItemBase* lib = dynamic_cast<FWListItemBase*>(el);
-   //assert(0!=lib);
-   if(3==btn) {
-      //open the appropriate controller window
-   }
-   //NOTE: the return of doSelection is 'true' if this is a collection, else it returns false
-   if(1==btn || 3==btn) {
-      if(lib) {
-         bool isCollection =lib->doSelection(mask&kKeyControlMask);
-         if(3==btn) {
-            if(isCollection) {
-               showEDIFrame();
-            } else {
-               showModelPopup();
-            }
-         }
-         if(isCollection) {
-            gEve->GetSelection()->UserPickedElement(el,mask&kKeyControlMask);
-         }
-      }
-   }
-}
-void
-FWGUIManager::itemDblClicked(TGListTreeItem* item, Int_t btn)
-{
-}
-void
-FWGUIManager::itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask)
-{
-}
-
-void
-FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
-{
-}
-
+ 
 void
 FWGUIManager::promptForConfigurationFile()
 {

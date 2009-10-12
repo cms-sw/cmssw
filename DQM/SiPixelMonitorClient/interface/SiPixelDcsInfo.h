@@ -37,9 +37,9 @@ private:
   
   DQMStore *dbe_;  
   
-  MonitorElement*  DcsFraction_;
-  MonitorElement*  DcsFractionBarrel_;
-  MonitorElement*  DcsFractionEndcap_;
+  MonitorElement*  Fraction_;
+  MonitorElement*  FractionBarrel_;
+  MonitorElement*  FractionEndcap_;
 
   std::pair<int,int> DCSPixelRange_;
 

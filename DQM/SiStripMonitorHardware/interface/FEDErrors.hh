@@ -126,14 +126,18 @@ public:
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
-		     const unsigned int aPrintDebug
+		     const unsigned int aPrintDebug,
+		     unsigned int & aCounterMonitoring,
+		     unsigned int & aCounterUnpacker
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
 
   bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 			 bool & aFullDebug,
-			 const unsigned int aPrintDebug
+			 const unsigned int aPrintDebug,
+			 unsigned int & aCounterMonitoring,
+			 unsigned int & aCounterUnpacker
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer

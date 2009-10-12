@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: getwwpn.sh,v 1.3 2008/09/13 01:19:07 loizides Exp $
+# $Id: getwwpn.sh,v 1.4 2009/02/06 16:51:55 gbauer Exp $
 #
 # run this script to get a mapping between hostname and wwpn
 # the mapping has the syntax of a perl hash and can be put
@@ -12,9 +12,14 @@ if test -z $1; then
         nodes=`cat host_list.cfg`
     else
         nodes="";
-        for i in `seq 13 20`; do
+        for i in `seq 12 20`; do
+            nodes="$nodes srv-C2C06-$i"
+        done
+        for i in `seq 12 20`; do
             nodes="$nodes srv-C2C07-$i"
         done
+	nodes="$nodes dvsrv-C2f37-01"
+	nodes="$nodes dvsrv-C2f37-02"
     fi
 else
     nodes=`echo $nodes | tr c C`;
@@ -23,7 +28,7 @@ fi
 for i in $nodes; do
     ping -c1 -q -W3 $i > /dev/null
     if test "$?" = "0"; then
-        res=`ssh $i egrep "scsi-qla.-adapter-port" /proc/scsi/qla2xxx/* 2>/dev/null | cut -d= -f2 | cut -d\; -f1`;
+        res=`ssh $i egrep "scsi-qla.-adapter-port" /proc/scsi/qla2xxx/\* 2>/dev/null | cut -d= -f2 | cut -d\; -f1`;
         re2=`echo $res | tr 'a-z' 'A-Z'`;
         re2a=`echo $re2 | cut -d" " -f1`;
         re2b=`echo $re2 | cut -d" " -f2`;

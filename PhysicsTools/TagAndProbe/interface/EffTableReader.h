@@ -1,7 +1,7 @@
 //  Adapted From:
 //----------------
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: EffTableReader.h,v 1.2 2009/02/17 17:27:49 haupt Exp $
+// $Id: EffTableReader.h,v 1.1 2009/01/07 19:02:22 kalanand Exp $
 //-----------------------------------------------------------------------
 
 
@@ -41,7 +41,7 @@ class EffTableReader {
   EffTableReader (const std::string& fFile);
   
   /// total # of bands
-  size_t size () const {return mRecords.size();}
+  unsigned size () const {return mRecords.size();}
   /// get band index for eta and Et
   int bandIndex(float fEt, float fEta) const;
   /// get record for the band 

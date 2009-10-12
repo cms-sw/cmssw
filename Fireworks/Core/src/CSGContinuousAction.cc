@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 29 10:21:18 EDT 2008
-// $Id: CSGContinuousAction.cc,v 1.3 2008/11/06 22:05:24 amraktad Exp $
+// $Id: CSGContinuousAction.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
+#include "TGMenu.h"
 
 // user include files
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
@@ -109,6 +110,9 @@ CSGContinuousAction::switchMode()
          const TGPicture* tDown = m_runningDownPic;
          m_button->swapIcons(tUp,tDown,m_disabledPic);
       }
+      if(0!=getMenu()) {
+         getMenu()->CheckEntry(getMenuEntry());
+      }
       started_();
    } else {
       stop();
@@ -129,6 +133,10 @@ CSGContinuousAction::stop()
 
       m_button->swapIcons(tUp,tDown,m_disabledPic);
    }
+   if(0!=getMenu()) {
+      getMenu()->UnCheckEntry(getMenuEntry());
+   }
+   
 }
 
 

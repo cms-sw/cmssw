@@ -46,7 +46,7 @@ TrajectoryStateOnSurface
  
 // Propagate on surface:phidet
 
-  dfcalc = aCharge*0.006*abs(x.perp()-surface.radius())/p.perp();
+  dfcalc = aCharge*0.006*fabs(x.perp()-surface.radius())/p.perp();
   phnext = phiold+dfcalc;
 
   if(phnext>twopi) phnext = phnext-twopi;
@@ -124,7 +124,7 @@ TrajectoryStateOnSurface
  
 // Propagate on surface:phidet
 //
-  dfcalc = aCharge*0.006*abs(x.z()-surface.position().z())/abs(pz);
+  dfcalc = aCharge*0.006*fabs(x.z()-surface.position().z())/fabs(pz);
   phnext = phiold+dfcalc;
   
   if(phnext>twopi) phnext = phnext-twopi;

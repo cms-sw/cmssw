@@ -1,7 +1,8 @@
-// $Id: Configuration.cc,v 1.6 2009/07/03 11:07:35 mommsen Exp $
+// $Id: Configuration.cc,v 1.13 2009/08/26 15:22:01 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
@@ -149,6 +150,7 @@ namespace stor
     _diskWriteParamCopy._streamConfiguration = "";
     _diskWriteParamCopy._fileName = "storageManager";
     _diskWriteParamCopy._filePath = "/tmp";
+    _diskWriteParamCopy._otherDiskPaths.clear();
     _diskWriteParamCopy._fileCatalog = "summaryCatalog.txt";
     _diskWriteParamCopy._setupLabel = "mtcc";
     _diskWriteParamCopy._nLogicalDisk = 0;
@@ -159,6 +161,9 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = 5.0;
     _diskWriteParamCopy._exactFileSizeTest = false;
     _diskWriteParamCopy._useIndexFiles = true;
+    _diskWriteParamCopy._sataUser = "USER:mickey2mouse";
+    _diskWriteParamCopy._nInjectWorkers = -1;
+    _diskWriteParamCopy._nCopyWorkers = -1;
 
     _previousStreamCfg = _diskWriteParamCopy._streamConfiguration;
 
@@ -233,9 +238,10 @@ namespace stor
       ceil(_workerThreadParamCopy._DWdeqWaitTime);
     _workerThreadParamCopy._DQMEPdeqWaitTime =
       ceil(_workerThreadParamCopy._DQMEPdeqWaitTime);
-
+  
     _workerThreadParamCopy._staleFragmentTimeOut = 60;
-  }
+    _workerThreadParamCopy._monitoringSleepSec = 1;
+}
 
   void Configuration::
   setupDiskWritingInfoSpaceParams(xdata::InfoSpace* infoSpace)
@@ -255,11 +261,18 @@ namespace stor
       static_cast<int>(_diskWriteParamCopy._fileClosingTestInterval);
     _exactFileSizeTest = _diskWriteParamCopy._exactFileSizeTest;
     _useIndexFiles = _diskWriteParamCopy._useIndexFiles;
+    _sataUser = _diskWriteParamCopy._sataUser;
+    _nInjectWorkers = _diskWriteParamCopy._nInjectWorkers;
+    _nCopyWorkers = _diskWriteParamCopy._nCopyWorkers;
+
+    utils::getXdataVector(_diskWriteParamCopy._otherDiskPaths, _otherDiskPaths);
+
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("STparameterSet", &_streamConfiguration);
     infoSpace->fireItemAvailable("fileName", &_fileName);
     infoSpace->fireItemAvailable("filePath", &_filePath);
+    infoSpace->fireItemAvailable("otherDiskPaths", &_otherDiskPaths);
     infoSpace->fireItemAvailable("fileCatalog", &_fileCatalog);
     infoSpace->fireItemAvailable("setupLabel", &_setupLabel);
     infoSpace->fireItemAvailable("nLogicalDisk", &_nLogicalDisk);
@@ -271,6 +284,9 @@ namespace stor
                                  &_fileClosingTestInterval);
     infoSpace->fireItemAvailable("exactFileSizeTest", &_exactFileSizeTest);
     infoSpace->fireItemAvailable("useIndexFiles", &_useIndexFiles);
+    infoSpace->fireItemAvailable("sataUser", &_sataUser);
+    infoSpace->fireItemAvailable("nInjectWorkers", &_nInjectWorkers);
+    infoSpace->fireItemAvailable("nCopyWorkers", &_nCopyWorkers);
 
     // special handling for the stream configuration string (we
     // want to note when it changes to see if we need to reconfigure
@@ -372,12 +388,14 @@ namespace stor
     _DWdeqWaitTime = _workerThreadParamCopy._DWdeqWaitTime;
     _DQMEPdeqWaitTime = _workerThreadParamCopy._DQMEPdeqWaitTime;
     _staleFragmentTimeOut = _workerThreadParamCopy._staleFragmentTimeOut;
+    _monitoringSleepSec = _workerThreadParamCopy._monitoringSleepSec;
 
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("FPdeqWaitTime", &_FPdeqWaitTime);
     infoSpace->fireItemAvailable("DWdeqWaitTime", &_DWdeqWaitTime);
     infoSpace->fireItemAvailable("DQMEPdeqWaitTime", &_DQMEPdeqWaitTime);
     infoSpace->fireItemAvailable("staleFragmentTimeOut", &_staleFragmentTimeOut);
+    infoSpace->fireItemAvailable("monitoringSleepSec", &_monitoringSleepSec);
   }
 
   void Configuration::updateLocalDiskWritingData()
@@ -397,6 +415,12 @@ namespace stor
     _diskWriteParamCopy._fileClosingTestInterval = _fileClosingTestInterval;
     _diskWriteParamCopy._exactFileSizeTest = _exactFileSizeTest;
     _diskWriteParamCopy._useIndexFiles = _useIndexFiles;
+    _diskWriteParamCopy._sataUser = _sataUser;
+    _diskWriteParamCopy._nInjectWorkers = _nInjectWorkers;
+    _diskWriteParamCopy._nCopyWorkers = _nCopyWorkers;
+
+    utils::getStdVector(_otherDiskPaths, _diskWriteParamCopy._otherDiskPaths);
+
 
     _streamConfigurationChanged = false;
   }
@@ -480,6 +504,7 @@ namespace stor
       ceil(_workerThreadParamCopy._DQMEPdeqWaitTime);
 
     _workerThreadParamCopy._staleFragmentTimeOut = _staleFragmentTimeOut;
+    _workerThreadParamCopy._monitoringSleepSec = _monitoringSleepSec;
   }
 
   void Configuration::updateLocalRunNumber()

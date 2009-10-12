@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 hiProtoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 
-hiProtoTracks.RegionFactoryPSet.ComponentName = cms.string('HITrackingRegionProducer')
+hiProtoTracks.RegionFactoryPSet.ComponentName = cms.string('HITrackingRegionForPrimaryVtxProducer')
 regPSet = hiProtoTracks.RegionFactoryPSet.RegionPSet
 
 regPSet.directionXCoord = cms.double(1.0)

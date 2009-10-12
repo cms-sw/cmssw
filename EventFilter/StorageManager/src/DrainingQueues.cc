@@ -1,14 +1,17 @@
-// $Id: DrainingQueues.cc,v 1.6 2009/07/10 11:41:03 dshpakov Exp $
+// $Id: DrainingQueues.cc,v 1.8 2009/08/28 16:41:26 mommsen Exp $
 /// @file: DrainingQueues.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
+#include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
+#include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
 #include "EventFilter/StorageManager/interface/FragmentStore.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/Notifier.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StateMachine.h"
-#include "EventFilter/StorageManager/interface/Notifier.h"
+#include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -18,7 +21,7 @@ using namespace stor;
 
 DrainingQueues::DrainingQueues( my_context c ): my_base(c)
 {
-  safeEntryAction( outermost_context().getNotifier() );
+  safeEntryAction();
 }
 
 void DrainingQueues::do_entryActionWork()
@@ -29,7 +32,7 @@ void DrainingQueues::do_entryActionWork()
 
 DrainingQueues::~DrainingQueues()
 {
-  safeExitAction( outermost_context().getNotifier() );
+  safeExitAction();
 }
 
 void DrainingQueues::do_exitActionWork()
@@ -43,9 +46,9 @@ string DrainingQueues::do_stateName() const
   return string( "DrainingQueues" );
 }
 
-void DrainingQueues::do_moveToFailedState( const std::string& reason ) const
+void DrainingQueues::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( reason );
+  outermost_context().getSharedResources()->moveToFailedState( exception );
 }
 
 void DrainingQueues::logEndRunRequest( const EndRun& request )

@@ -12,6 +12,7 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TFile.h"
 
 /******************************************************************************

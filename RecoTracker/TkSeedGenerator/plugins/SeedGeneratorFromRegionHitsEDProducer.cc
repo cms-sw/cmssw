@@ -23,7 +23,7 @@
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theConfig(cfg), theGenerator(0), theRegionProducer(0)
+  : theConfig(cfg), theGenerator(0), theRegionProducer(0), theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"))
 {
     produces<TrajectorySeedCollection>();
 }
@@ -63,11 +63,20 @@ void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run &run, const edm::E
 
   theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
   
+  
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+
+  //protection for big ass events...
+  size_t clustsOrZero = theClusterCheck.tooManyClusters(ev);
+  if (clustsOrZero){
+    edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
+    ev.put(result);
+    return ;
+  }
 
   typedef std::vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;

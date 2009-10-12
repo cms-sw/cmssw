@@ -33,6 +33,7 @@ public:
     theSubDetId(0),
     theLayerNumber(0),
     theRingNumber(0), 
+    theCylinderNumber(0), 
     theLocalError(0.),
     theLargerError(0.),
     forward(false) {}
@@ -46,6 +47,7 @@ public:
     theSubDetId(other.subDetId()),
     theLayerNumber(other.layerNumber()),
     theRingNumber(other.ringNumber()), 
+    theCylinderNumber(other.cylinderNumber()), 
     theLocalError(0.),
     theLargerError(0.),
     forward(other.isForward()) {}

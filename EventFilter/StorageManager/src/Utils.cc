@@ -1,7 +1,5 @@
-/**
- * $Id: Utils.cc,v 1.4 2009/07/09 14:50:12 mommsen Exp $
+//$Id: Utils.cc,v 1.7 2009/08/20 13:45:05 mommsen Exp $
 /// @file: Utils.cc
- */
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
@@ -11,15 +9,6 @@
 
 #include <sys/time.h>
 #include <sys/stat.h>
-
-#include "xdata/InfoSpaceFactory.h"
-#include "xdaq/Application.h"
-#include "xdaq/ApplicationDescriptor.h"
-
-#include "sentinel/utils/version.h"
-#if SENTINELUTILS_VERSION_MAJOR>1
-#include "sentinel/utils/Alarm.h"
-#endif
 
 
 namespace stor
@@ -60,7 +49,13 @@ namespace stor
       rqtp.tv_nsec = static_cast<long>((interval-rqtp.tv_sec)*1000000);
       return nanosleep(&rqtp, 0);
     }
-    
+
+    int sleepUntil(time_point_t theTime)
+    {
+      time_point_t now = getCurrentTime();
+      duration_t interval = theTime - now;
+      return sleep(interval);
+    }
     
     std::string timeStamp(time_point_t theTime)
     {
@@ -102,60 +97,33 @@ namespace stor
     }
 
 
-    void raiseAlarm
-    (
-      const std::string name,
-      const std::string level,
-      xcept::Exception& exception,
-      xdaq::Application* app
-    )
+    void getStdVector(xdata::Vector<xdata::String>& x, std::vector<std::string>& s)
     {
-#if SENTINELUTILS_VERSION_MAJOR>1
-  
-      xdata::InfoSpace *is =
-        xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
-
-      sentinel::utils::Alarm *alarm =
-        new sentinel::utils::Alarm(level, exception, app);
-      try
+      s.clear();
+      s.reserve(x.elements());
+      for(xdata::Vector<xdata::String>::iterator it = x.begin(),
+            itEnd = x.end();
+          it != itEnd;
+          ++it)
       {
-        is->fireItemAvailable(name, alarm);
+        s.push_back( it->toString() );
       }
-      catch(xdata::exception::Exception)
-      {
-        // Alarm is already set
-        return;
-      }
-#endif
     }
 
 
-    void revokeAlarm
-    (
-      const std::string name,
-      xdaq::Application* app
-    )
+    void getXdataVector(const std::vector<std::string>& v, xdata::Vector<xdata::String>& x)
     {
-#if SENTINELUTILS_VERSION_MAJOR>1
-  
-      xdata::InfoSpace *is =
-        xdata::getInfoSpaceFactory()->get("urn:xdaq-sentinel:alarms");
-
-      sentinel::utils::Alarm *alarm;
-      try
+      x.clear();
+      x.reserve(v.size());
+      for(std::vector<std::string>::const_iterator it = v.begin(),
+            itEnd = v.end();
+          it != itEnd;
+          ++it)
       {
-        alarm = dynamic_cast<sentinel::utils::Alarm*>(is->find( name ));
+        x.push_back( static_cast<xdata::String>(*it) );
       }
-      catch(xdata::exception::Exception)
-      {
-        // Alarm has not been set
-        return;
-      }
-      
-      is->fireItemRevoked(name, app);
-      delete alarm;
-#endif
     }
+
 
   } // namespace utils
 

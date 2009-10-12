@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.63 2009/07/01 18:04:42 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.64 2009/07/18 18:37:13 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -109,6 +109,8 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
   clustertkhistomapon = conf_.getParameter<bool>("TkHistoMap_On");
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
+
+  topFolderName_ = conf_.getParameter<string>("TopFolderName");
 } 
 
 
@@ -148,10 +150,15 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     SiStripSubStructure substructure;
 
     SiStripFolderOrganizer folder_organizer;
+    folder_organizer.setSiStripFolderName(topFolderName_);
     folder_organizer.setSiStripFolder();
 
-    // Create TkHistoMap for Digi
-    if (clustertkhistomapon) tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","TkHMap_NumberOfCluster",0.,1);
+
+    // Create TkHistoMap for Cluster
+    if (clustertkhistomapon) {
+      if (topFolderName_ == "SiStrip") tkmapcluster = new TkHistoMap("SiStrip/TkHistoMap","TkHMap_NumberOfCluster",0.,1);
+      else tkmapcluster = new TkHistoMap(topFolderName_+"/TkHistoMap","TkHMap_NumberOfCluster",0.,0);
+    }    
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of activeDets:  "<<activeDets.size();
@@ -635,7 +642,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 
   if (subdetswitchtotclusterprofon){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfClusters");
-    dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/"+label);
     HistoName = "TotalNumberOfClusterProfile__" + label;
     subdetMEs.SubDetTotClusterProf = dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
@@ -651,7 +658,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
     // Number of Cluster vs APV cycle - Profile
     if(subdetswitchclusterapvprofon){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfClustersApvCycle");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+      dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/"+label);
       HistoName = "Cluster_vs_ApvCycle_" + label;
       subdetMEs.SubDetClusterApvProf=dqmStore_->bookProfile(HistoName,HistoName,
 					      Parameters.getParameter<int32_t>("Nbins"),
@@ -665,7 +672,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
     }
 
   if (subdetswitchtotclusterth1on){
-    dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+    dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/"+label);
     HistoName = "TotalNumberOfCluster__" + label;
     subdetMEs.SubDetTotClusterTH1 = bookME1D("TH1TotalNumberOfClusters",HistoName.c_str());
     subdetMEs.SubDetTotClusterTH1->setAxisTitle("Total number of clusters in subdetector");
@@ -674,7 +681,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
     // TH2 with number of Clusters vs Bx 
     if(subdetswitchapvcycleth2on){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ClustersApvCycle");
-      dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
+      dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/"+label);
       HistoName = "Cluster_vs_ApvCycle_2D_" + label;
       // Adjusting the scale for 2D histogram
       double h2ymax = 9999.0;     

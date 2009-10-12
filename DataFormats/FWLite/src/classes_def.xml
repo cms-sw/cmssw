@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="fwlite::EventBase"/>
   <class name="fwlite::Event"/>
   <class name="fwlite::ChainEvent"/>
   <class name="fwlite::MultiChainEvent"/>

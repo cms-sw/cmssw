@@ -1,18 +1,10 @@
-// @(#)root/hist:$Id: LimitResults.cc,v 1.6 2009/06/02 11:37:58 matze Exp $
+// @(#)root/hist:$Id: LimitResults.cc,v 1.3 2009/04/15 11:10:44 dpiparo Exp $
 // Author: Danilo.Piparo@cern.ch   01/06/2008
 
 #include "assert.h"
-#if (defined (STANDALONE) or defined (__CINT__) )
-   #include "LimitResults.h"
-#else
-   #include "PhysicsTools/RooStatsCms/interface/LimitResults.h"
-#endif
+#include "PhysicsTools/RooStatsCms/interface/LimitResults.h"
 
 
-//For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassImp(LimitResults)
-#endif
 /*----------------------------------------------------------------------------*/
 
 LimitResults::LimitResults(const char* name,
@@ -39,14 +31,6 @@ LimitResults::LimitResults(const char* name,
         }
 
     }
-/*----------------------------------------------------------------------------*/
-
-LimitResults::LimitResults(LimitResults& other) :
-    StatisticalMethod(other),
-    m_m2lnQ_data(other.getM2lnQValue_data()),
-    m_m2lnQ_sb(other.getM2lnQValues_sb()),
-    m_m2lnQ_b(other.getM2lnQValues_b()){}
-
 /*----------------------------------------------------------------------------*/
 
 LimitResults::LimitResults():

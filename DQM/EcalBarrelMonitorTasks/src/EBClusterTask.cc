@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2009/03/30 18:28:01 $
- * $Revision: 1.75 $
+ * $Date: 2009/03/30 18:42:00 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -99,10 +99,10 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   meSCSeedTimingMap_ = 0;
   for(int i=0;i<36;++i)
      meSCSeedTiming_[i] = 0;
-  
+
   mes1s9_  = 0;
   mes9s25_  = 0;
- 
+
   meInvMassPi0_ = 0;
   meInvMassJPsi_ = 0;
   meInvMassZ0_ = 0;
@@ -178,13 +178,13 @@ void EBClusterTask::reset(void) {
   if ( meSCCrystalSiz_ ) meSCCrystalSiz_->Reset();
 
   if ( meSCSeedEne_ ) meSCSeedEne_->Reset();
-  
+
   if ( meSCEne2_ ) meSCEne2_->Reset();
 
   if ( meSCEneVsEMax_ ) meSCEneVsEMax_->Reset();
 
   if ( meSCEneLowScale_ ) meSCEneLowScale_->Reset();
-  
+
   if ( meSCSeedMapOcc_ ) meSCSeedMapOcc_->Reset();
 
   if ( meSCMapSingleCrystal_ ) meSCMapSingleCrystal_->Reset();
@@ -656,7 +656,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 	  meSCEne2_->Fill(eMax+e2nd);
 	  meSCEneVsEMax_->Fill(eMax,sCluster->energy());
 	  meSCEneLowScale_->Fill(sCluster->energy());
-	  
+
 	  // Prepare to fill maps
 	  int ism = Numbers::iSM(seedId);
 	  int ebeta = seedId.ieta();
@@ -673,7 +673,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
           c.get<EcalADCToGeVConstantRcd>().get(pAgc);
           if(pAgc.isValid()) {
             const EcalADCToGeVConstant* agc = pAgc.product();
-            
+
             if(seedItr->energy() / agc->getEBValue() > 12) {
 
               meSCSeedTimingSummary_->Fill( time );

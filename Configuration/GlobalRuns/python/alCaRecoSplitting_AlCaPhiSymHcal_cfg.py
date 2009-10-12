@@ -10,7 +10,6 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.2 $'),
@@ -40,7 +39,8 @@ process.ALCARECOStreamHcalCalMinBias = cms.OutputModule("PoolOutputModule",
         'keep HFRecHitsSorted_hfrecoMB_*_*', 
         'keep HBHERecHitsSorted_hbherecoNoise_*_*', 
         'keep HORecHitsSorted_horecoNoise_*_*', 
-        'keep HFRecHitsSorted_hfrecoNoise_*_*'),
+        'keep HFRecHitsSorted_hfrecoNoise_*_*', 
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('ALCARECOHcalCalMinBias.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOHcalCalMinBias'),
@@ -49,8 +49,7 @@ process.ALCARECOStreamHcalCalMinBias = cms.OutputModule("PoolOutputModule",
 )
 
 # Path and EndPath definitions
-process.endjob_step = cms.Path(process.endOfProcess)
 process.ALCARECOStreamHcalCalMinBiasOutPath = cms.EndPath(process.ALCARECOStreamHcalCalMinBias)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamHcalCalMinBiasOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamHcalCalMinBiasOutPath)

@@ -7,6 +7,8 @@ ecalBarrelTestPulseTask = cms.EDAnalyzer("EBTestPulseTask",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
-    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
+    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
+    MGPAGains = cms.untracked.vint32(1, 6, 12),
+    MGPAGainsPN = cms.untracked.vint32(1, 16)
 )
 

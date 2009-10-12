@@ -481,7 +481,7 @@ void SiStripQualityChecker::getModuleStatus(vector<MonitorElement*>& layer_mes, 
       float frac = me->getEntries() *1.0/ h->GetBinEntries(h->GetBin(1, 1));
       ndet_me = static_cast<int> (frac);
       bad_channels_me = qreports[0]->getBadChannels();
-      lname = name.substr(name.find("TkHistoMap_")+11);
+      lname = name.substr(name.find("TkHMap_")+11);
       lname = lname.substr(lname.find_first_of("_")+1);
     }
     if (ndet_me > ndet)  ndet = ndet_me;

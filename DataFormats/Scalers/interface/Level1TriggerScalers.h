@@ -57,23 +57,23 @@ class Level1TriggerScalers
   unsigned int sourceID() const            { return(sourceID_);}
   unsigned int bunchNumber() const         { return(bunchNumber_);}
 
-  struct timespec collectionTimeGeneral() const
-  { return(collectionTimeGeneral_.get_timespec());}
+  struct timespec collectionTime() const
+  { return(collectionTime_.get_timespec());}
 
   unsigned int lumiSegmentNr() const        { return(lumiSegmentNr_);}
   unsigned int lumiSegmentOrbits() const    { return(lumiSegmentOrbits_);}
   unsigned int orbitNr() const              { return(orbitNr_);}
 
-  unsigned int gtPartition0Resets() const   { return(gtPartition0Resets_);}
+  unsigned int gtResets() const             { return(gtResets_);}
   unsigned int bunchCrossingErrors() const  { return(bunchCrossingErrors_);}
-  unsigned long long gtPartition0Triggers() const 
-  { return(gtPartition0Triggers_);}
-  unsigned long long gtPartition0Events() const   
-  { return(gtPartition0Events_);}
+  unsigned long long gtTriggers() const     { return(gtTriggers_);}
+  unsigned long long gtEvents() const       { return(gtEvents_);}
+  float gtTriggersRate() const              { return(gtTriggersRate_);}
+  float gtEventsRate() const                { return(gtEventsRate_);}
   int prescaleIndexAlgo() const             { return(prescaleIndexAlgo_);}
   int prescaleIndexTech() const             { return(prescaleIndexTech_);}
 
-  struct timespec collectionTimeLumiSeg() const 
+  struct timespec collectionTimeLumiSeg() const
   { return(collectionTimeLumiSeg_.get_timespec());}
 
   unsigned int lumiSegmentNrLumiSeg() const      
@@ -135,14 +135,16 @@ protected:
   unsigned int sourceID_;
   unsigned int bunchNumber_;
 
-  TimeSpec    collectionTimeGeneral_;
+  TimeSpec    collectionTime_;
   unsigned int lumiSegmentNr_;
   unsigned int lumiSegmentOrbits_;
   unsigned int orbitNr_;
-  unsigned int gtPartition0Resets_;
+  unsigned int gtResets_;
   unsigned int bunchCrossingErrors_;
-  unsigned long long gtPartition0Triggers_;
-  unsigned long long gtPartition0Events_;
+  unsigned long long gtTriggers_;
+  unsigned long long gtEvents_;
+  float gtTriggersRate_;
+  float gtEventsRate_;
   int prescaleIndexAlgo_;
   int prescaleIndexTech_;
 

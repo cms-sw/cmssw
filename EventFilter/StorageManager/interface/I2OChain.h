@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.4 2009/06/29 15:47:52 mommsen Exp $
+// $Id: I2OChain.h,v 1.5 2009/07/20 13:06:10 mommsen Exp $
 /// @file: I2OChain.h 
 
 #ifndef StorageManager_I2OChain_h
@@ -7,24 +7,18 @@
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
-
 #include "toolbox/mem/Reference.h"
 
 #include "IOPool/Streamer/interface/HLTInfo.h"
-#include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/StreamID.h"
-#include "EventFilter/StorageManager/interface/DQMKey.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
-namespace toolbox
-{
-  namespace mem
-  {
-    class Reference;
-  } // namespace mem
-} // namespace toolbox
 
 namespace stor {
+
+  class QueueID;
+  class DQMKey;
+
 
   /**
    * List of one or multiple I2O messages representing event fragments. 
@@ -34,8 +28,8 @@ namespace stor {
    * the last instance of I2OChain goes out of scope.
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/06/29 15:47:52 $
+   * $Revision: 1.5 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
 

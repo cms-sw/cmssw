@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/08/11 20:38:45 $
- * $Revision: 1.57 $
+ * $Date: 2009/02/27 13:54:08 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -187,11 +187,9 @@ void EEClusterClient::cleanup(void) {
 
 }
 
-bool EEClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EEClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   return true;
 
@@ -340,10 +338,6 @@ void EEClusterClient::analyze(void) {
   sprintf(histo, (prefixME_ + "/EEClusterTask/EECLT dicluster invariant mass Pi0").c_str());
   me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
-
-}
-
-void EEClusterClient::softReset(bool flag) {
 
 }
 

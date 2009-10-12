@@ -5,8 +5,8 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2009/03/13 17:30:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/24 15:31:11 $
+ *  $Revision: 1.2 $
  *  \author Stefano Argiro'
  *          Andrea Gozzelino - Universita  e INFN Torino
  *   
@@ -67,6 +67,10 @@ private:
   MonitorElement * hiDistrVarNoisePl2D_;
   MonitorElement * hiDistrVarMBMin2D_;
   MonitorElement * hiDistrVarNoiseMin2D_;
+
+  MonitorElement * hiDistrHBHEsize1D_;
+  MonitorElement * hiDistrHFsize1D_;
+
   
   int hiDistr_y_nbin_;
   int hiDistr_x_nbin_;
@@ -74,6 +78,10 @@ private:
   double  hiDistr_y_max_;
   double  hiDistr_x_min_;
   double  hiDistr_x_max_;
+
+  int hiDistr_r_nbin_;
+  double ihbhe_size_;
+  double ihf_size_;
 
 
   /// object to monitor

@@ -1,4 +1,4 @@
-// $Id: DQMEventConsumerRegistrationInfo.h,v 1.2 2009/06/10 08:15:21 dshpakov Exp $
+// $Id: DQMEventConsumerRegistrationInfo.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: DQMEventConsumerRegistrationInfo.h 
 
 #ifndef StorageManager_DQMEventConsumerRegistrationInfo_h
@@ -16,9 +16,9 @@ namespace stor
   /**
    * Holds the registration information for a DQM event consumer.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:21 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class DQMEventConsumerRegistrationInfo : public RegistrationInfoBase
@@ -32,7 +32,8 @@ namespace stor
                                       const std::string& topLevelFolderName,
                                       const size_t& queueSize,
                                       const enquing_policy::PolicyTag& policy,
-                                      const utils::duration_t& secondsToStale );
+                                      const utils::duration_t& secondsToStale,
+                                      const std::string& remoteHost );
 
     // Destructor:
     ~DQMEventConsumerRegistrationInfo();
@@ -40,6 +41,7 @@ namespace stor
     // Additional accessors:
     const std::string& topLevelFolderName() const { return _topLevelFolderName; }
     bool isProxyServer() const { return _isProxy; }
+    const std::string& remoteHost() const { return _remoteHost; }
 
     // Staleness:
     bool isStale() const { return _stale; }
@@ -67,6 +69,9 @@ namespace stor
     std::string _topLevelFolderName;
     bool _isProxy;
     bool _stale;
+
+    std::string _remoteHost;
+
   };
 
   typedef boost::shared_ptr<stor::DQMEventConsumerRegistrationInfo> DQMEventConsRegPtr;

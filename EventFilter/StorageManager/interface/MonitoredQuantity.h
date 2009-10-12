@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.2 2009/06/10 08:15:23 dshpakov Exp $
+// $Id: MonitoredQuantity.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -19,9 +19,9 @@ namespace stor
    * This class keeps track of statistics for a set of sample values 
    * and provides timing information on the samples.
    *
-   * $Author: dshpakov $
-   * $Revision: 1.2 $
-   * $Date: 2009/06/10 08:15:23 $
+   * $Author: mommsen $
+   * $Revision: 1.3 $
+   * $Date: 2009/07/20 13:06:10 $
    */
 
   class MonitoredQuantity
@@ -33,9 +33,11 @@ namespace stor
     enum DataSetType { FULL = 0,      // the full data set (all samples)
                        RECENT = 1 };  // recent data only
 
-    static utils::duration_t ExpectedCalculationInterval();
-
-    explicit MonitoredQuantity(double timeWindowForRecentResults = 10.0);
+    explicit MonitoredQuantity
+    (
+      utils::duration_t expectedCalculationInterval,
+      utils::duration_t timeWindowForRecentResults
+    );
 
     /**
      * Adds the specified doubled valued sample value to the monitor instance.
@@ -57,7 +59,7 @@ namespace stor
      * The frequency of the updates to the statistics is driven by how
      * often this method is called.  It is expected that this method
      * will be called once per interval specified by
-     * EXPECTED_CALCULATION_INTERVAL.
+     * expectedCalculationInterval
      */
     void calculateStatistics(utils::time_point_t currentTime = 
                              utils::getCurrentTime());
@@ -80,15 +82,15 @@ namespace stor
     void disable();
 
     /**
+     * Tests whether the monitor is currently enabled.
+     */
+    bool isEnabled() const {return _enabled;}
+
+    /**
      * Specifies a new time interval to be used when calculating
      * "recent" statistics.
      */
     void setNewTimeWindowForRecentResults(utils::duration_t interval);
-
-    /**
-     * Tests whether the monitor is currently enabled.
-     */
-//     bool isEnabled() const {return _enabled;}
 
     /**
      * Returns the length of the time window that has been specified
@@ -98,8 +100,14 @@ namespace stor
      * a getDuration(RECENT) call to determine the actual recent
      * time window.)
      */
-    utils::duration_t getTimeWindowForRecentResults() const {
+    utils::duration_t getTimeWindowForRecentResults() const
+    {
       return _intervalForRecentStats;
+    }
+
+    utils::duration_t ExpectedCalculationInterval() const
+    {
+      return _expectedCalculationInterval;
     }
 
     /**
@@ -127,8 +135,8 @@ namespace stor
 
     mutable boost::mutex _accumulationMutex;
 
-    int _binCount;
-    int _workingBinId;
+    unsigned int _binCount;
+    unsigned int _workingBinId;
     std::vector<long long> _binSampleCount;
     std::vector<double> _binValueSum;
     std::vector<double> _binValueSumOfSquares;
@@ -164,6 +172,7 @@ namespace stor
 
     bool _enabled;
     utils::duration_t _intervalForRecentStats;  // seconds
+    const utils::duration_t _expectedCalculationInterval;  // seconds
   };
 
   struct MonitoredQuantity::Stats

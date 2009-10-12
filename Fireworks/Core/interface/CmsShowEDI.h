@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.11 2009/05/20 16:33:39 amraktad Exp $
+// $Id: CmsShowEDI.h,v 1.12 2009/05/27 15:40:13 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions --------------------------
-   void fillEDIFrame(FWEventItem* iItem = 0);
+   void fillEDIFrame();
    void removeItem();
    //      void emptyEDIFrame();
    void updateDisplay();

@@ -5,8 +5,8 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2008/05/14 18:12:03 $
- * $Revision: 1.8 $
+ * $Date: 2008/09/16 12:06:29 $
+ * $Revision: 1.9 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
@@ -98,7 +98,7 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<MuonTrajectoryBuilder::TrackCand> cosTrackCands;
   for ( unsigned int position = 0; position != cosMuons->size(); ++position ) {
     reco::TrackRef cosTrackRef(cosMuons,position);
-    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand(0,cosTrackRef);
+    MuonTrajectoryBuilder::TrackCand cosCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),cosTrackRef);
     cosTrackCands.push_back(cosCand); 
   }
   theTrackFinder->reconstruct(cosTrackCands,iEvent);

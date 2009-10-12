@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.16 $ by $Author$
-#     $Date: 2009/01/23 17:01:51 $
+#     $Revision: 1.17 $ by $Author: flucke $
+#     $Date: 2009/06/24 10:12:17 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -112,6 +112,11 @@ for ($i=0; $i<@JOBID; ++$i) {
 	  $nEvent = $array[5];
 	}
 	if ($nEvent==0 && ($line =~ m/FwkReport            -i PostSource/) eq 1) {
+	  @array = split(' ',$line);
+	  $nEvent = $array[5];
+        }
+	if ($nEvent==0 && ($line =~ m/FwkReport            -i AfterSource/) eq 1) {
+# AP 31.07.2009 - To read number of events in CMSSW_3_2_2_patch2
 	  @array = split(' ',$line);
 	  $nEvent = $array[5];
         }

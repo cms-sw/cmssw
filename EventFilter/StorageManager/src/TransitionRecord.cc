@@ -1,9 +1,9 @@
-// $Id: TransitionRecord.cc,v 1.2 2009/06/10 08:15:28 dshpakov Exp $
+// $Id: TransitionRecord.cc,v 1.3 2009/07/20 13:07:28 mommsen Exp $
 /// @file: TransitionRecord.cc
 
 #include "EventFilter/StorageManager/interface/TransitionRecord.h"
 
-#include <iostream>
+#include <ostream>
 #include <sys/time.h>
 
 using namespace stor;

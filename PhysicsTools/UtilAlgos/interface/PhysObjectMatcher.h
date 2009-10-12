@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/UtilAlgos/interface/DeltaR.h"
 #include "PhysicsTools/UtilAlgos/interface/MasterCollectionHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"

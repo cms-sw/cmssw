@@ -78,7 +78,7 @@ GeometricSearchTracker::~GeometricSearchTracker(){
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 const DetLayer*          
-GeometricSearchTracker::idToLayer(const DetId& id) const
+GeometricSearchTracker::detLayer( const DetId& id) const
 {
   switch(id.subdetId()) {
   case StripSubdetector::TIB:

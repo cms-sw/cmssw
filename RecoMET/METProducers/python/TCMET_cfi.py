@@ -26,7 +26,9 @@ tcMet = cms.EDProducer("METProducer",
     eta_max = cms.double(2.4), 
     chi2_max = cms.double(4),
     nhits_min = cms.double(11),
-    d0_max = cms.double(0.1)      
+    d0_max = cms.double(0.1),
+    isCosmics = cms.bool(False)
+                       
 )
 
 

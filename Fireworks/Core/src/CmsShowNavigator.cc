@@ -8,10 +8,8 @@
 //
 // Original Author:
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.25 2009/05/21 18:38:06 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.33 2009/08/13 19:11:17 amraktad Exp $
 //
-
-// #define Fireworks_Core_CmsShowNavigator_WriteLeakInfo
 
 // hacks
 #define private public
@@ -22,6 +20,7 @@
 #include <string>
 #include <boost/regex.hpp>
 #include "TTree.h"
+#include "TFile.h"
 #include "TEventList.h"
 #include "TError.h"
 #include "TGTextEntry.h"
@@ -39,112 +38,40 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
-#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-#include  <TApplication.h>
-#include  <TSystem.h>
-#include  <TGraph.h>
-#include  <TObject.h>
-#include  <TDatime.h>
-
-namespace
-{
-   TDatime m_date;
-   TFile mg_memoryInfoFile("MemoryLeakInfo.root", "RECREATE");
-   std::vector<Float_t> mg_memoryResidentVec;
-   std::vector<Float_t> mg_memoryVirtualVec;
-
-   void writeLeak()
-   {
-      TDirectory* gd= gDirectory;
-      TFile* gf= gFile;
-      mg_memoryInfoFile.cd();
-
-      Int_t n = mg_memoryResidentVec.size();
-      TGraph gr(n);
-      TGraph gv(n);
-
-      for(Int_t i=0; i<n; i++)
-      {
-         gr.SetPoint(i, i, mg_memoryResidentVec[i]);
-         gv.SetPoint(i, i, mg_memoryVirtualVec[i]);
-      }
-      const char* date = Form("%d:%d:%d", m_date.GetDate(), m_date.GetHour(),m_date.GetMinute());
-      printf("Write graf %s_%d\n", date, gSystem->GetPid());
-      gr.Write(Form("Resident_%s_%d", date, gSystem->GetPid()), TObject::kOverwrite);
-      gv.Write(Form("Virtual_%s_%d", date, gSystem->GetPid()), TObject::kOverwrite);
-
-      gDirectory = gd;
-      gFile = gf;
-   }
-}
-#endif
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main)
-   : m_main(main),
-     m_loopMode(false)
+   : m_file(0),
+     m_event(0),
+     m_eventTree(0),
+     m_eventList(0),
+     m_currentEntry(0),
+     m_lastEntry(-1),
+     m_currentSelectedEntry(0),
+     m_main(main)
 {
-   m_file = 0;
-   m_eventTree = 0;
-   m_eventList = 0;
-   m_selection = "";
-   m_currentSelectedEntry = 0;
-
-#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-   mg_memoryResidentVec.reserve(100000);
-   mg_memoryVirtualVec.reserve(100000);
-#endif
-
 }
-
-// CmsShowNavigator::CmsShowNavigator(const CmsShowNavigator& rhs)
-// {
-//    // do actual copying here;
-// }
 
 CmsShowNavigator::~CmsShowNavigator()
 {
-#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-   mg_memoryInfoFile.Close();
-#endif
 }
-
-//
-// assignment operators
-//
-// const CmsShowNavigator& CmsShowNavigator::operator=(const CmsShowNavigator& rhs)
-// {
-//   //An exception safe implementation is
-//   CmsShowNavigator temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
 //
-void
+
+bool
 CmsShowNavigator::loadFile(const std::string& fileName)
 {
-   CmsShowMain::resetFieldEstimate();
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(fileName.c_str());
-   if (newFile == 0) {
-      // Throw an exception
-      printf("Invalid file\n");
-      return;
+   if (newFile == 0 || newFile->IsZombie() || !newFile->Get("Events")) {
+      printf("Invalid file. Ignored.\n");
+      return false;
    }
+   CmsShowMain::resetFieldEstimate();
    if (m_file != 0) {
       delete m_eventList;
       delete m_eventTree;
@@ -155,20 +82,15 @@ CmsShowNavigator::loadFile(const std::string& fileName)
 
    gErrorIgnoreLevel = -1;
    m_file = newFile;
-   newFileLoaded.emit(m_file);
+   newFileLoaded_.emit(m_file);
    m_event = new fwlite::Event(m_file);
    m_eventTree = dynamic_cast<TTree*> (m_file->Get("Events"));
    assert(m_eventTree!=0);
    m_eventList = new TEventList("list","");
    filterEventsAndReset(m_selection); // first event is loaded at the end
-}
 
-void
-CmsShowNavigator::nextEventChangeAlsoChangeFile(const std::string& fileName)
-{
-   m_nextFile = fileName;
+   return true;
 }
-
 
 Int_t
 CmsShowNavigator::realEntry(Int_t selectedEntry) {
@@ -189,46 +111,44 @@ CmsShowNavigator::realEntry(Int_t run, Int_t event) {
 }
 
 void
-CmsShowNavigator::checkPosition() {
+CmsShowNavigator::checkPositionInGoTo()
+{
    if ( m_event->id() == m_firstID )
-      atBeginning.emit();
+      atBeginning_.emit();
    if ( m_event->id() == m_lastID)
-      atEnd.emit();
+      atEnd_.emit();
+}
+
+void
+CmsShowNavigator::newRemoteFile(const std::string& fileName)
+{
+   m_nextFile = fileName;
 }
 
 void
 CmsShowNavigator::nextEvent()
 {
-
-#ifdef Fireworks_Core_CmsShowNavigator_WriteLeakInfo
-   ProcInfo_t pInf;
-   gSystem->GetProcInfo(&pInf);
-
-   mg_memoryResidentVec.push_back(pInf.fMemResident/1024.0);
-   mg_memoryVirtualVec.push_back(pInf.fMemVirtual/1024.0);
-   Int_t n = mg_memoryResidentVec.size();
-   printf("%d RESIDENT %f VIRTUAL %f\n", mg_memoryResidentVec.size(), mg_memoryResidentVec.back(), mg_memoryVirtualVec.back());
-   //   if (n%5 == 0) writeLeak();
-   writeLeak();
-#endif
-
    if( !m_nextFile.empty()) {
-      loadFile(m_nextFile);
+      bool loadedNewFile = loadFile(m_nextFile);
       m_nextFile.clear();
-      return;
+      if (loadedNewFile) return;
    }
-   if ( m_loopMode &&
-        m_currentSelectedEntry == m_nEntries-1 ) {
-      firstEvent();
-      return;
-   }
-   if (m_currentSelectedEntry < m_nEntries-1 &&
-       m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
-      ++m_currentSelectedEntry;
-      newEvent.emit(*m_event);
-      checkPosition();
-   } else {
-      oldEvent.emit(*m_event);
+
+   if (m_file)
+   {
+      if ( m_currentSelectedEntry == m_lastEntry ) {
+         firstEvent();
+         return;
+      }
+
+      if (m_currentSelectedEntry < m_lastEntry &&
+          m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
+         ++m_currentSelectedEntry;
+         newEvent_.emit(*m_event);
+         if (m_currentSelectedEntry == m_lastEntry)
+               atEnd_.emit();
+      }
+      else oldEvent_.emit(*m_event);
    }
 }
 
@@ -236,17 +156,27 @@ void
 CmsShowNavigator::previousEvent()
 {
    if( !m_nextFile.empty()) {
-      loadFile(m_nextFile);
+      bool loadedNewFile = loadFile(m_nextFile);
       m_nextFile.clear();
-      return;
+      if (loadedNewFile) return;
    }
-   if (m_currentSelectedEntry > 0 &&
-       m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
-      --m_currentSelectedEntry;
-      newEvent.emit(*m_event);
-      checkPosition();
+
+   if (m_file)
+   {
+      if ( m_currentSelectedEntry == 0 ) {
+         lastEvent();
+         return;
+      }
+
+      if (m_currentSelectedEntry > 0 &&
+          m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
+         --m_currentSelectedEntry;
+         newEvent_.emit(*m_event);
+         if (m_currentSelectedEntry == 0)
+            atBeginning_.emit();
+      }
+      else oldEvent_.emit(*m_event);
    }
-   else oldEvent.emit(*m_event);
 }
 
 void
@@ -254,17 +184,17 @@ CmsShowNavigator::firstEvent()
 {
    m_currentSelectedEntry = 0;
    m_event->to(realEntry(m_currentSelectedEntry));
-   newEvent.emit(*m_event);
-   atBeginning.emit();
+   newEvent_.emit(*m_event);
+   atBeginning_.emit();
 }
 
 void
 CmsShowNavigator::lastEvent()
 {
-   m_currentSelectedEntry = m_nEntries-1;
+   m_currentSelectedEntry = m_lastEntry;
    m_event->to(realEntry(m_currentSelectedEntry));
-   newEvent.emit(*m_event);
-   atEnd.emit();
+   newEvent_.emit(*m_event);
+   atEnd_.emit();
 }
 
 void
@@ -272,7 +202,7 @@ CmsShowNavigator::goToRun(Int_t run)
 {
    Int_t entry = realEntry(run, 0);
    if ( entry < 0 ) {
-      oldEvent.emit(*m_event);
+      oldEvent_.emit(*m_event);
       return;
    }
    Int_t index = entry;
@@ -282,10 +212,10 @@ CmsShowNavigator::goToRun(Int_t run)
          std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
       else
          m_currentSelectedEntry = index;
-      newEvent.emit(*m_event);
-      checkPosition();
+      newEvent_.emit(*m_event);
+      checkPositionInGoTo();
    }
-   else oldEvent.emit(*m_event);
+   else oldEvent_.emit(*m_event);
 }
 
 void
@@ -293,7 +223,7 @@ CmsShowNavigator::goToEvent(Int_t event)
 {
    Int_t entry = realEntry(m_event->id().run(), event);
    if ( entry < 0 ) {
-      oldEvent.emit(*m_event);
+      oldEvent_.emit(*m_event);
       return;
    }
    Int_t index = entry;
@@ -303,15 +233,16 @@ CmsShowNavigator::goToEvent(Int_t event)
          std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
       else
          m_currentSelectedEntry = index;
-      newEvent.emit(*m_event);
-      checkPosition();
+      newEvent_.emit(*m_event);
+      checkPositionInGoTo();
    }
-   else oldEvent.emit(*m_event);
+   else oldEvent_.emit(*m_event);
 }
 
 void
 CmsShowNavigator::filterEventsAndReset(std::string selection)
 {
+   preFiltering_();
    for (FWEventItemsManager::const_iterator i = m_main.m_eiManager->begin(),
                                             end = m_main.m_eiManager->end();
         i != end;
@@ -328,8 +259,8 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
 //               new_sel.c_str());
       selection.swap(new_sel);
    }
-   
-   
+
+
 //      std::string s = selection;
 //      for (boost::sregex_iterator i = boost::sregex_iterator(s.begin(), s.end(), re),
 //             end;
@@ -345,7 +276,7 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
       //since ROOT will leave any TBranches used in the filtering at the last event,
       // we need to be able to reset them to what fwlite::Event expects them to be
       // we do this by holding onto the old buffers and create temporary new ones
-      
+
       TObjArray* branches = m_eventTree->GetListOfBranches();
       std::vector<void*> previousBranchAddresses;
       previousBranchAddresses.reserve(branches->GetEntriesFast());
@@ -371,7 +302,7 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
             }
          }
       }
-      
+
       //        std::cout << "Selection requested: " << m_selection << std::endl;
       //NOTE: to be completely safe, we should disable the access to edm::Refs so that our
       // buffers do not get moved
@@ -389,33 +320,24 @@ CmsShowNavigator::filterEventsAndReset(std::string selection)
             }
             ++itAddress;
          }
-      }      
-   }
-   
-      
-   m_nEntries = m_event->size();
-   if ( m_eventTree->GetEventList() ){
-      m_nEntries = m_eventList->GetN();
-      if ( m_nEntries < 1 ) {
-         std::cout << "WARNING: No events passed selection: " << selection.c_str() << std::endl;
-         m_eventTree->SetEventList(0);
-         m_nEntries = m_event->size();
       }
    }
+
+
+   m_lastEntry = m_event->size() -1;
+   if ( m_eventTree->GetEventList() ){
+      m_lastEntry = m_eventList->GetN()-1;
+      if ( m_lastEntry < 0 ) {
+         std::cout << "WARNING: No events passed selection: " << selection.c_str() << std::endl;
+         m_eventTree->SetEventList(0);
+         m_lastEntry = m_event->size() -1;
+      }
+   }
+   postFiltering_();
+
    m_event->to(realEntry(0));
    m_firstID = m_event->id();
-   m_event->to(realEntry(m_nEntries - 1));
+   m_event->to(realEntry(m_lastEntry));
    m_lastID = m_event->id();
    firstEvent();
 }
-
-
-
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//

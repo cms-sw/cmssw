@@ -24,6 +24,12 @@ __triggerTable = {
         'L1TriggerConfig/L1GtConfigProducers/Luminosity/startup/L1Menu_Commissioning2009_v3_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff'
     ),
 
+    # L1 conditions and trigger table for the 2009 startup/8E29 menu v5
+    'L1Menu_Commissioning2009_v5:Unprescaled': (
+        'L1Trigger/Configuration/SimL1Emulator_cff',
+        'L1TriggerConfig.L1GtConfigProducers.Luminosity.startup.L1Menu_Commissioning2009_v5_L1T_Scales_20080926_startup_Imp0_Unprescaled_cff'
+    ),
+
     # L1 conditions and trigger table for the 2009 1E31 menu v0
     'L1Menu_MC2009_v0:Unprescaled': (
         'L1Trigger/Configuration/SimL1Emulator_cff',
@@ -40,6 +46,12 @@ __triggerTable = {
     'L1Menu_MC2009_v2:Unprescaled': (
         'L1Trigger/Configuration/SimL1Emulator_cff',
         'L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu_MC2009_v2_L1T_Scales_20090519_Imp0_Unprescaled_cff'
+    ),
+
+    # L1 conditions and trigger table for the 2009 1E31 menu v4 L1T_Scales_20090624
+    'L1Menu_MC2009_v4:Unprescaled': (
+        'L1Trigger/Configuration/SimL1Emulator_cff',
+        'L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1031.L1Menu_MC2009_v4_L1T_Scales_20090624_Imp0_Unprescaled_cff'
     ),
 
     # L1 conditions and trigger table for the 2008 1E30 menu

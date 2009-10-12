@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/08/11 07:24:13 $
- * $Revision: 1.90 $
+ * $Date: 2009/08/21 11:52:28 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  *
 */
@@ -228,11 +228,9 @@ void EBTimingClient::cleanup(void) {
 
 }
 
-bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
+bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
-
-  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -420,7 +418,7 @@ void EBTimingClient::analyze(void) {
 
             EcalLogicID ecid = m->first;
 
-            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+            int itt = Numbers::iSC(ism, EcalBarrel, ie, ip);
 
             if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
               if ( (m->second).getErrorBits() & bits01 ) {
@@ -435,10 +433,6 @@ void EBTimingClient::analyze(void) {
     }
 
   }
-
-}
-
-void EBTimingClient::softReset(bool flag) {
 
 }
 

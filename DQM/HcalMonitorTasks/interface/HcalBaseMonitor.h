@@ -37,8 +37,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/07/21 11:02:48 $
-  * $Revision: 1.29 $
+  * $Date: 2009/07/21 13:05:54 $
+  * $Revision: 1.30 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -98,6 +98,8 @@ public:
   void setMinMaxHists1D(std::vector<MonitorElement*> &hh, double min, double max);
   void FillUnphysicalHEHFBins(MonitorElement* hh);
   void FillUnphysicalHEHFBins(EtaPhiHists &hh);
+  void processEvent();
+  void LumiBlockUpdate(int lb);
 
 protected:
   
@@ -111,7 +113,8 @@ protected:
   int etaBins_, phiBins_;
   double minErrorFlag_;
   bool checkHB_, checkHE_, checkHO_, checkHF_, checkZDC_;
-  int periodicresetNevent_;
+  int resetNevents_;
+  int Nlumiblocks_;
 
   edm::CPUTimer cpu_timer; // 
     
@@ -130,7 +133,15 @@ protected:
   EtaPhiHists ProblemCellsByDepth;
 
   int ievt_;
-  int totalevt_;
+  int tevt_; // total # of events
+  MonitorElement* meEVT_;
+  MonitorElement* meTOTALEVT_;
+  int lumiblock;
+  int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadZDC;
+  
+  MonitorElement* ProblemsVsLB;
+  MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF, *ProblemsVsLB_ZDC;
+
 };
 
 #endif

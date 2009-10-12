@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+// $Id: DQMEventProcessor.cc,v 1.8 2009/09/16 11:07:15 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -6,6 +6,9 @@
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessor.h"
+#include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 using namespace stor;
 
@@ -14,7 +17,7 @@ DQMEventProcessor::DQMEventProcessor(xdaq::Application *app, SharedResourcesPtr 
 _app(app),
 _sharedResources(sr),
 _actionIsActive(true),
-_dqmEventStore( sr->_statisticsReporter->getDQMEventMonitorCollection() )
+_dqmEventStore(sr)
 {
   WorkerThreadParams workerParams =
     _sharedResources->_configuration->getWorkerThreadParams();
@@ -69,40 +72,23 @@ bool DQMEventProcessor::processDQMEvents(toolbox::task::WorkLoop*)
   }
   catch(xcept::Exception &e)
   {
-    LOG4CPLUS_FATAL( _app->getApplicationLogger(),
-                     errorMsg << xcept::stdformat_exception_history(e) );
-
     XCEPT_DECLARE_NESTED( stor::exception::DQMEventProcessing,
                           sentinelException, errorMsg, e );
-    _app->notifyQualified( "fatal", sentinelException );
-    
-    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
+    _sharedResources->moveToFailedState(sentinelException);
   }
   catch(std::exception &e)
   {
     errorMsg += e.what();
-    
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg);
-    
-    XCEPT_DECLARE(stor::exception::DQMEventProcessing,
-      sentinelException, errorMsg);
-    _app->notifyQualified("fatal", sentinelException);
-    
-    _sharedResources->moveToFailedState( errorMsg );
+    XCEPT_DECLARE( stor::exception::DQMEventProcessing,
+                   sentinelException, errorMsg );
+    _sharedResources->moveToFailedState(sentinelException);
   }
   catch(...)
   {
     errorMsg += "Unknown exception";
-    
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg);
-    
-    XCEPT_DECLARE(stor::exception::DQMEventProcessing,
-      sentinelException, errorMsg);
-    _app->notifyQualified("fatal", sentinelException);
-
-    _sharedResources->moveToFailedState( errorMsg );
+    XCEPT_DECLARE( stor::exception::DQMEventProcessing,
+                   sentinelException, errorMsg );
+    _sharedResources->moveToFailedState(sentinelException);
   }
 
   return _actionIsActive;

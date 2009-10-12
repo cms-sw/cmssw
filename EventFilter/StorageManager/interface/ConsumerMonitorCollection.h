@@ -1,12 +1,10 @@
 // -*- c++ -*-
-// $Id: ConsumerMonitorCollection.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.7 2009/08/24 15:08:18 mommsen Exp $
 /// @file: ConsumerMonitorCollection.h 
 
 #ifndef StorageManager_ConsumerMonitorCollection_h
 #define StorageManager_ConsumerMonitorCollection_h
 
-#include "EventFilter/StorageManager/interface/QueueID.h"
-#include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 
 #include <boost/thread/mutex.hpp>
@@ -16,12 +14,16 @@
 
 namespace stor {
 
+  class QueueID;
+  class MonitoredQuantity;
+
+
   /**
    * A collection of MonitoredQuantities to track consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Revision: 1.7 $
+   * $Date: 2009/08/24 15:08:18 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection
@@ -29,27 +31,27 @@ namespace stor {
 
   public:
 
-    ConsumerMonitorCollection();
+    explicit ConsumerMonitorCollection(const utils::duration_t& updateInterval);
 
     /**
        Add queued sample
     */
-    void addQueuedEventSample( QueueID qid, unsigned int data_size );
+    void addQueuedEventSample( const QueueID&, const unsigned int& data_size );
 
     /**
        Add served sample
     */
-    void addServedEventSample( QueueID qid, unsigned int data_size );
+    void addServedEventSample( const QueueID&, const unsigned int& data_size );
 
     /**
        Get queued data size. Return false if consumer ID not found.
     */
-    bool getQueued( QueueID qid, MonitoredQuantity::Stats& result );
+    bool getQueued( const QueueID& qid, MonitoredQuantity::Stats& result );
 
     /**
        Get served data size. Return false if consumer ID not found.
     */
-    bool getServed( QueueID qid, MonitoredQuantity::Stats& result );
+    bool getServed( const QueueID& qid, MonitoredQuantity::Stats& result );
 
     /**
        Reset sizes to zero leaving consumers in
@@ -62,10 +64,17 @@ namespace stor {
     ConsumerMonitorCollection( const ConsumerMonitorCollection& );
     ConsumerMonitorCollection& operator = ( const ConsumerMonitorCollection& );
 
+    typedef std::map< QueueID, boost::shared_ptr<MonitoredQuantity> > ConsStatMap;
+
+    void addEventSampleToMap( const QueueID&, const unsigned int& data_size, ConsStatMap& );
+    bool getValueFromMap( const QueueID&, MonitoredQuantity::Stats&, const ConsStatMap& );
+
     virtual void do_calculateStatistics();
     virtual void do_reset();
 
-    typedef std::map< QueueID, boost::shared_ptr<MonitoredQuantity> > ConsStatMap;
+    const utils::duration_t _updateInterval;
+
+  protected:
 
     ConsStatMap _qmap; // queued
     ConsStatMap _smap; // served

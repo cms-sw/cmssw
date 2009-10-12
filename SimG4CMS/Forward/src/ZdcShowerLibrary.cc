@@ -1,3 +1,4 @@
+
 ///////////////////////////////////////////////////////////////////////////////
 // File: ZdcShowerLibrary.cc
 // Description: Shower library for the Zero Degree Calorimeter
@@ -69,7 +70,9 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
   hits.clear();
  
   ok = false;
-  if (parCode == geantinoPDG)
+  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
+      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
     return hits;
   ok = true;
   
@@ -87,20 +90,21 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
   ZdcShowerLibrary::Hit oneHit;
   side = (hitPointOrig.z() > 0.) ?  true : false;  
   
-  float xWidthEM = fabs(theXChannelBoundaries[0] - theXChannelBoundaries[1]);
-  float zWidthEM = fabs(theZSectionBoundaries[0] - theZSectionBoundaries[1]); 
-  float zWidthHAD = fabs(theZHadChannelBoundaries[0] -theZHadChannelBoundaries[1]); 
+  float xWidthEM = fabs(theXChannelBoundaries[0] - theXChannelBoundaries[1])/10.;
+  float zWidthEM = fabs(theZSectionBoundaries[0] - theZSectionBoundaries[1])/10.; 
+  float zWidthHAD = fabs(theZHadChannelBoundaries[0] -theZHadChannelBoundaries[1])/10.; 
+
 
   for (int i = 0; i < npe; i++) {
     if(i < 5){
       section = HcalZDCDetId::EM;
       channel = i+1;
-      xxlocal = theXChannelBoundaries[i]+(xWidthEM/2.);
-      xx = xxlocal + X0; 
+      xxlocal = theXChannelBoundaries[i]/10.+(xWidthEM/2.);
+      xx = xxlocal + X0/10.; 
       yy = 0.0;
-      yylocal = yy + Y0;
-      zzlocal = theZSectionBoundaries[0]+(zWidthEM/2.);
-      zz = (hitPointOrig.z() > 0.) ? zzlocal + Z0 : zzlocal - Z0;
+      yylocal = yy + Y0/10.;
+      zzlocal = theZSectionBoundaries[0]/10.+(zWidthEM/2.);
+      zz = (hitPointOrig.z() > 0.) ? zzlocal + Z0/10. : zzlocal - Z0/10.;
       pos = G4ThreeVector(xx,yy,zz);
       posLocal = G4ThreeVector(xxlocal,yylocal,zzlocal);
 	}
@@ -108,12 +112,12 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
       section = HcalZDCDetId::HAD;
       channel = i - 4;
       xxlocal = 0.0;
-      xx = xxlocal + X0;  
+      xx = xxlocal + X0/10.;  
       yylocal = 0;
-      yy = yylocal + Y0;
+      yy = yylocal + Y0/10.;
       zzlocal = (hitPointOrig.z() > 0.) ? 
-        theZHadChannelBoundaries[i-5] + (zWidthHAD/2.) : theZHadChannelBoundaries[i-5] - (zWidthHAD/2.);
-      zz = (hitPointOrig.z() > 0.) ? zzlocal +  Z0 : zzlocal -  Z0; 
+        theZHadChannelBoundaries[i-5]/10. + (zWidthHAD/2.) : theZHadChannelBoundaries[i-5]/10. - (zWidthHAD/2.);
+      zz = (hitPointOrig.z() > 0.) ? zzlocal +  Z0/10. : zzlocal -  Z0/10.; 
       pos = G4ThreeVector(xx,yy,zz);
       posLocal = G4ThreeVector(xxlocal,yylocal,zzlocal);
     }
@@ -125,14 +129,14 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
     oneHit.detID    = HcalZDCDetId(section,side,channel);
 
 
-    // Note: coodinates of hit are relative to center of detector (X0,Y0,Z0) 
-    hitPoint.setX(hitPointOrig.x()-X0);
-    hitPoint.setY(hitPointOrig.y()-Y0);
-    double setZ= (hitPointOrig.z()> 0.) ? hitPointOrig.z()- Z0 : fabs(hitPointOrig.z()) - Z0;
+    // Note: coodinates of hit are relative to center of detector (X0,Y0,Z0)
+    hitPoint.setX(hitPointOrig.x()-X0/10.);
+    hitPoint.setY(hitPointOrig.y()-Y0/10.);
+    double setZ= (hitPointOrig.z()> 0.) ? hitPointOrig.z()- Z0/10. : fabs(hitPointOrig.z()) - Z0/10.;
     hitPoint.setZ(setZ);
 
     int dE = getEnergyFromLibrary(hitPoint,momDir,energy,parCode,section,side,channel);
-
+    
     int iparCode = encodePartID(parCode);
     if (iparCode == 0 ) {
       oneHit.DeEM  = dE; 
@@ -145,12 +149,12 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
     hits.push_back(oneHit);
     
     LogDebug("ZdcShower")
-      //std::cout
+      //  std::cout
       << "\nZdcShowerLibrary:Generated Hit " << nHit 
       <<" orig hit pos " << hitPointOrig
       <<" orig hit pos local coord" << hitPoint
       <<" new position " << (hits[nHit].position) 
-      <<" Channel " <<(hits[nHit].depth) 
+      <<" Depth " <<(hits[nHit].depth) 
       <<" side "<< side  
       <<" Time " <<(hits[nHit].time)
       <<" DetectorID " << (hits[nHit].detID)
@@ -165,108 +169,80 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
 
 int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector momDir, double energy,
 					   G4int parCode,HcalZDCDetId::Section section, bool side, int channel){
-  int nphotons = -1;
+  int nphotons = 0;
   
   energy =energy/GeV;
 
   LogDebug("ZdcShower") 
-  //std::cout
+    //std::cout
     <<"\n ZdcShowerLibrary::getEnergyFromLibrary input/output variables:"
     <<" phi: "<<59.2956*momDir.phi()
     <<" theta: "<<59.2956*momDir.theta()
     <<" xin : "<<hitPoint.x()
     <<" yin : "<<hitPoint.y()
     <<" zin : "<<hitPoint.z()
-    <<" track en: " <<energy<< "(GeV)"
+    <<" en: " <<energy<< "(GeV)"
     <<" section: "<<section
     <<" side: "<<side
     <<" channel: "<< channel
     <<" partID: "<<parCode;
-  //std::cout<<std::endl;
-    
-  // these varables are not used for now
+  
   //float phi   = 59.2956*momDir.phi();
   //float theta = 59.2956*momDir.theta();
+  float xin = hitPoint.x(); 
+  float yin = hitPoint.y();
   //float zin = hitPoint.z();
   //int isection = int(section);
-  //int iside = (side)? 1 : 2;
-     
+  //int iside = (side)? 1 : 2;     
   int iparCode  = encodePartID(parCode);
 
   double eav = 0.;
   double esig = 0.;
   double edis = 0.;
 
-  float xin = hitPoint.x(); 
-  float yin = hitPoint.y(); 
-  float fact = 0.;
 
-  if(section == 1 && iparCode !=0){
-    if(channel < 5 )
-      if(((theXChannelBoundaries[channel-1])< (xin + X0)) && ((xin + X0)<= theXChannelBoundaries[channel]))fact= 0.18;
-    if(channel ==5 )
-      if(theXChannelBoundaries[channel-1]< xin + X0)fact = 0.18;
-  }
-
-  if(section == 2 && iparCode !=0){    
-    if(channel == 1)fact = 0.34;
-    if(channel == 2)fact = 0.24;
-    if(channel == 3)fact = 0.17;
-    if(channel == 4)fact = 0.07;
-  }
-  if(section == 1 && iparCode ==0){							
-    if(channel < 5 )
-      if(((theXChannelBoundaries[channel-1])< (xin + X0)) && ((xin + X0)<= theXChannelBoundaries[channel]))fact= 1.;
-    if(channel ==5 )
-      if(theXChannelBoundaries[channel-1]< xin + X0)fact = 1.0;
-  }
-
-  //change to cm for parametrization
-  yin = yin/cm;
-  xin = xin/cm;
-
-  if (iparCode==0){          
-    eav = ((((((-0.0002*xin-2.0e-13)*xin+0.0022)*xin+1.0e-11)*xin-0.0217)*xin-3.0e-10)*xin+1.0028)*
-      (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1.0)*300.0*pow((energy/300.0),0.99); // EM
-    esig = ((((((0.0005*xin - 1.0e-12)*xin - 0.0052)*xin + 5.0e-11)*xin + 0.032)*xin - 
-	     2.0e-10)*xin + 1.0)*(((0.0006*yin + 0.0071)*yin - 0.031)*yin + 1.0)*30.0*pow((energy/300.0),0.54);// EM
+  if (iparCode==0){      
+    eav = ((((((-0.0002*xin-2.e-13)*xin+0.0022)*xin+1.e-11)*xin-0.0217)*xin-3.e-10)*xin+1.0028)*
+      (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1)*44.*pow(energy,0.99);       // EM
+    esig = ((((((0.0005*xin - 1.e-12)*xin - 0.0052)*xin + 5.e-11)*xin + 0.032)*xin - 
+	     2.e-10)*xin + 1)*(((0.0006*yin + 0.0071)*yin - 0.031)*yin + 1)*26.*pow(energy,0.54);  // EM
     edis = 1.0;
-  }else{
-  eav = ((((((-0.0002*xin-2.0e-13)*xin+0.0022)*xin+1.0e-11)*xin-0.0217)*xin-3.0e-10)*xin+1.0028)*
-    (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1.0)*300.0*pow((energy/300.0),1.12);// HD
-  esig = ((((((0.0005*xin - 1.0e-12)*xin - 0.0052)*xin + 5.0e-11)*xin + 0.032)*xin - 
-	   2.0e-10)*xin + 1.0)*(((0.0006*yin + 0.0071)*yin - 0.031)*yin + 1.0)*54.0*pow((energy/300.0),0.93); //HD
-  edis = 3.0;
+  }else{                     
+    eav = ((((((-0.0002*xin-2.e-13)*xin+0.0022)*xin+1.e-11)*xin-0.0217)*xin-3.e-10)*xin+1.0028)*
+      (((0.0001*yin + 0.0056)*yin + 0.0508)*yin + 1.)*2.3*pow(energy,1.12);      // Hadronic
+    esig = ((((((0.0005*xin - 1.e-12)*xin - 0.0052)*xin + 5.e-11)*xin + 0.032)*xin - 
+	     2.e-10)*xin + 1)*(((0.0006*yin + 0.0071)*yin - 0.031)*yin + 1)*1.2*pow(energy,0.93);
+    edis = 3.0;
   }
   
-  if(eav <0. || edis <0.){
-    LogDebug("ZdcShower") 
-      <<" Negative everage energy from parametrization \n" 
-      <<" xin: "<<xin<< "(cm)"
-      <<" yin: "<<yin<< "(cm)"
-      <<" track en: " <<energy<< "(GeV)"
-      <<" eaverage: "<<eav/GeV << " (GeV)"
-      <<" esigma: "<<esig/GeV << "  (GeV)"
-      <<" edist: "<<edis  << " (GeV)"
-     <<" dE hit: "<<nphotons/GeV<<  " (GeV)";
-    return 0;
+  float fact = 0;
+  if(section == 2){    
+    if(channel == 1)fact = 0.40;
+    if(channel == 2)fact = 0.28;
+    if(channel == 3)fact = 0.24;
+    if(channel == 4)fact = 0.08;
   }
-  
-  // Convert from GeV to MeV for the code
-  eav = eav*GeV;
-  esig= esig*GeV;
+  if(section == 1){
+    
+										
+    if(channel < 5 )
+      if(((theXChannelBoundaries[channel-1]/10.)< (xin + X0/10.)) && ((xin + X0/10.)<= theXChannelBoundaries[channel]/10.))fact= 1.;
+    if(channel ==5 )
+      if(theXChannelBoundaries[channel-1]< xin + X0/10.)fact = 1.0;
+  }
 
-  while(nphotons == -1 || nphotons > int(eav + 5.*esig))
-    nphotons = (int)(fact*photonFluctuation(eav, esig, edis));
+  // The energy functions seem to be off by a factor or 10; review later with calibrations
+  eav = eav*0.1;
+  esig= esig*0.1;
   
+  nphotons = (int)(fact*photonFluctuation(eav, esig, edis)*GeV);
+
   LogDebug("ZdcShower") 
     //std::cout
-    <<" track en: " <<energy<< "(GeV)"
-    <<" eaverage: "<<eav/GeV << " (GeV)"
-    <<" esigma: "<<esig/GeV << "  (GeV)"
-    <<" edist: "<<edis  << " (GeV)"
-    <<" dE hit: "<<nphotons/GeV<<  " (GeV)";
-  //std::cout<<std::endl;
+    <<" eaverage: "<<eav << " (GeV)"
+    <<" esigma: "<<esig << " (GeV)"
+    <<" edist: "<<edis
+    <<" dE hit: "<<nphotons<< " (MeV)";
   
   return nphotons; 
 }
@@ -274,19 +250,23 @@ int ZdcShowerLibrary::getEnergyFromLibrary(G4ThreeVector hitPoint, G4ThreeVector
 int ZdcShowerLibrary::photonFluctuation(double eav, double esig,double edis){
   int nphot=0;
   double efluct = 0.;
+
   if(edis == 1.0) efluct = eav+esig*CLHEP::RandGaussQ::shoot();
   if(edis == 3.0) efluct = eav+esig*CLHEP::RandLandau::shoot();
   nphot = int(efluct);
-  if(nphot<0)nphot = 0;
   return nphot;
 }
 
 int ZdcShowerLibrary::encodePartID(G4int parCode){
+
   G4int iparCode = 1;
+
   if (parCode == emPDG ||
       parCode == epPDG ||
       parCode == gammaPDG) {
     iparCode = 0;
   } else { return iparCode; }
+
   return iparCode;
+
 }

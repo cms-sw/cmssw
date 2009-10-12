@@ -10,7 +10,6 @@ process = cms.Process('ALCA')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.2 $'),
@@ -37,7 +36,9 @@ process.ALCARECOStreamEcalCalPi0Calib = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEB_*', 
         'keep *_ecalPi0Corrected_pi0EcalRecHitsEE_*', 
-        'keep *_hltAlCaPi0RegRecHits*_pi0EcalRecHitsES_*'),
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaPi0RegRecHits_pi0EcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('ALCARECOEcalCalPi0Calib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalPi0Calib'),
@@ -51,7 +52,9 @@ process.ALCARECOStreamEcalCalEtaCalib = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ecalEtaCorrected_etaEcalRecHitsEB_*', 
         'keep *_ecalEtaCorrected_etaEcalRecHitsEE_*', 
-        'keep *_hltAlCaEtaRegRecHits*_etaEcalRecHitsES_*'),
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_hltAlCaEtaRegRecHits_etaEcalRecHitsES_*',
+        'keep *_MEtoEDMConverter_*_*'),
     fileName = cms.untracked.string('ALCARECOEcalCalEtaCalib.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string('StreamALCARECOEcalCalEtaCalib'),
@@ -60,9 +63,8 @@ process.ALCARECOStreamEcalCalEtaCalib = cms.OutputModule("PoolOutputModule",
 )
 
 # Path and EndPath definitions
-process.endjob_step = cms.Path(process.endOfProcess)
 process.ALCARECOStreamEcalCalPi0CalibOutPath = cms.EndPath(process.ALCARECOStreamEcalCalPi0Calib)
 process.ALCARECOStreamEcalCalEtaCalibOutPath = cms.EndPath(process.ALCARECOStreamEcalCalEtaCalib)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.endjob_step,process.ALCARECOStreamEcalCalPi0CalibOutPath,process.ALCARECOStreamEcalCalEtaCalibOutPath)
+process.schedule = cms.Schedule(process.ALCARECOStreamEcalCalPi0CalibOutPath,process.ALCARECOStreamEcalCalEtaCalibOutPath)

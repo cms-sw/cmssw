@@ -30,12 +30,30 @@
 #include <vector>
 #include <string>
 
-
-
 // Don't like having these here in the header; can we move them to src?
 using namespace cms;
 using namespace edm;
 using namespace std;
+
+// Structs that will be the actual data mapped
+// Contain fileds for the array of histograms, the name of the histos,
+// and the file path within the ROOT file.
+typedef struct {
+  TH1F **hist;
+  string name;
+  string file;
+} Hist1DContext;
+typedef struct {
+  TH2F **hist;
+  string name;
+  string file;
+} Hist2DContext;
+typedef struct {
+  TProfile **hist;
+  string name;
+  string file;
+} HistProfileContext;
+
 
 class HcalBaseClient{
   
@@ -110,6 +128,20 @@ class HcalBaseClient{
   map<string, vector<QReport*> > dqmReportMapWarn_;
   map<string, vector<QReport*> > dqmReportMapOther_;
   map<string, string> dqmQtests_;
+
+  // Map type: use HistMap?D_t::iterator as the type for your iterator
+  typedef map<string, Hist1DContext> HistMap1D_t;
+  typedef map<string, Hist2DContext> HistMap2D_t;
+  typedef map<string, HistProfileContext> HistMapProfile_t;
+
+  HistMap1D_t histMap1D;
+  HistMap2D_t histMap2D;
+  HistMapProfile_t histMapProfile;
+
+  void mapHist1D(string, string, TH1F*[]);
+  void mapHist2D(string, string, TH2F*[]);
+  void mapHistProfile(string, string, TProfile*[]);
+
 };
 
 #endif

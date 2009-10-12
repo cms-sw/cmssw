@@ -8,6 +8,12 @@
 <use name=CondFormats/DataRecord>
 <use name=DQMServices/Core>
 
+<use name=rootgraphics>
+<use name=rootrflx>
+<use name=rootminuit>
+<use name=rootminuit2>
+<use name=rootcintex>
+
 <export>
   <lib name=DQMServicesDiagnostic>
 </export>

@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.15 2009/05/12 06:56:59 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.16 2009/07/21 15:10:40 loizides Exp $
 ################################################################################
 
 use strict;
@@ -48,7 +48,6 @@ if ($fields[3] eq "EcalCalibration" || $stream =~ '_EcalNFS$') {
     exit 0;
 }
 
-
 # copy one file per instance to look area 
 my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
@@ -59,6 +58,7 @@ if (defined $dola) {
     }
 }
 
+# delete if NoTransfer option is set
 if ($stream =~ '_NoTransfer$') {
     $filename =~ s/.dat$/.*/;
     my $RMCOMMAND = 'rm -f $SM_PATHNAME/'.$filename;

@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.3 2009/07/09 15:34:44 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.10 2009/09/22 14:54:50 dshpakov Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef StorageManager_StatisticsReporter_h
@@ -8,9 +8,11 @@
 #include "toolbox/task/WaitingWorkLoop.h"
 #include "xdaq/Application.h"
 #include "xdata/InfoSpace.h"
+#include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
 
-#include "EventFilter/StorageManager/interface/ConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMEventMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
@@ -20,6 +22,7 @@
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
@@ -32,26 +35,30 @@
 
 namespace stor {
 
+  class AlarmHandler;
+
   /**
    * Singleton to keep track of all monitoring and statistics issues
    *
    * This class also starts the monitoring workloop to update the 
    * statistics for all MonitorCollections.
    *
-   * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/09 15:34:44 $
+   * $Author: dshpakov $
+   * $Revision: 1.10 $
+   * $Date: 2009/09/22 14:54:50 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
   {
   public:
     
-    explicit StatisticsReporter(xdaq::Application*);
+    explicit StatisticsReporter
+    (
+      xdaq::Application*,
+      const utils::duration_t& monitoringSleepSec
+    );
     
     virtual ~StatisticsReporter();
-
-    typedef boost::shared_ptr<ConsumerMonitorCollection> CMCPtr;
 
     const RunMonitorCollection& getRunMonitorCollection() const
     { return _runMonCollection; }
@@ -109,15 +116,19 @@ namespace stor {
     { return _stateMachineMonCollection; }
 
 
-    CMCPtr getEventConsumerMonitorCollection()
-    {
-      return _eventConsumerMonitorCollection;
-    }
+    const EventConsumerMonitorCollection& getEventConsumerMonitorCollection() const
+    { return _eventConsumerMonCollection; }
 
-    CMCPtr getDQMConsumerMonitorCollection()
-    {
-      return _dqmConsumerMonitorCollection;
-    }
+    EventConsumerMonitorCollection& getEventConsumerMonitorCollection()
+    { return _eventConsumerMonCollection; }
+
+
+    const DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection() const
+    { return _dqmConsumerMonCollection; }
+
+    DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection()
+    { return _dqmConsumerMonCollection; }
+
 
     const ThroughputMonitorCollection& getThroughputMonitorCollection() const
     { return _throughputMonCollection; }
@@ -135,6 +146,12 @@ namespace stor {
      * Reset all monitored quantities
      */
     void reset();
+
+    /**
+     * Access alarm handler
+     */
+    typedef boost::shared_ptr<AlarmHandler> AlarmHandlerPtr;
+    AlarmHandlerPtr alarmHandler() { return _alarmHandler; }
 
     /**
      * Update the variables put into the application info space
@@ -159,6 +176,10 @@ namespace stor {
     void updateInfoSpace();
 
     xdaq::Application* _app;
+    AlarmHandlerPtr _alarmHandler;
+    utils::duration_t _monitoringSleepSec;
+    utils::time_point_t _lastMonitorAction;
+
     RunMonitorCollection _runMonCollection;
     FragmentMonitorCollection _fragMonCollection;
     FilesMonitorCollection _filesMonCollection;
@@ -167,8 +188,8 @@ namespace stor {
     DQMEventMonitorCollection _dqmEventMonCollection;
     ResourceMonitorCollection _resourceMonCollection;
     StateMachineMonitorCollection _stateMachineMonCollection;
-    CMCPtr _eventConsumerMonitorCollection;
-    CMCPtr _dqmConsumerMonitorCollection;
+    EventConsumerMonitorCollection _eventConsumerMonCollection;
+    DQMConsumerMonitorCollection _dqmConsumerMonCollection;
     ThroughputMonitorCollection _throughputMonCollection;
     toolbox::task::WorkLoop* _monitorWL;      
     bool _doMonitoring;
@@ -181,6 +202,7 @@ namespace stor {
     // the HLTSFM queries them from the application infospace at 
     // the end of the run to put them into the RunInfo DB. The HTLSFM
     // uses the application infospace, and not the monitoring infospace.
+    xdata::String _stateName;
     xdata::UnsignedInteger32 _storedEvents;
     xdata::UnsignedInteger32 _closedFiles;
 

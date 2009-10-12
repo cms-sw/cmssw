@@ -5,8 +5,8 @@
  *  Analysis on DT digis (TB + occupancy) before the calibration step
  *
  *
- *  $Date: 2009/03/24 10:00:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/25 09:18:27 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -59,6 +59,7 @@ private:
   int  maxTriggerWidth;
   bool saveFile;
   std::string outputFileName;
+  std::string folderName;
 
   // Time boxes map
   std::map<std::pair<int,int>, MonitorElement* > TimeBoxes;

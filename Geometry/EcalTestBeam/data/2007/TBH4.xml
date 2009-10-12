@@ -80,9 +80,9 @@
 
 <RotationSection label="TBH4.xml">
 <Rotation name="blRot"
-                        phiX="[tbrot:phi_X]"  thetaX="[tbrot:theta_X]"
-                        phiY="[tbrot:phi_Y]"  thetaY="[tbrot:theta_Y]"
-                        phiZ="[tbrot:phi]  "  thetaZ="[tbrot:theta]  "   />
+                        phiX="[tbrot:phi]"        thetaX="[tbrot:theta]+90*deg"
+                        phiY="[tbrot:phi]+90*deg" thetaY="              90*deg"
+                        phiZ="[tbrot:phi]"        thetaZ="[tbrot:theta]       "   />
 </RotationSection>
 
 <PosPartSection label="TBH4.xml">
@@ -98,7 +98,8 @@
  <PosPart copyNumber="1">
    <rParent name="TBH4:CMSSE"/>
    <rChild name="TBH4:CALO"/>
-   <Translation x="0*mm" y="0*mm" z="[eecon:EEzMagF]"/>
+   <Translation x="0*mm" y="0*mm" z="-[eecon:EEzMagF]"/>
+  <rRotation name="rotations:180D"/>
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="TBH4:CALO"/>
@@ -112,9 +113,9 @@
    <rParent name="TBH4:CMSSE"/>
    <rChild name="TBH4:TBH4BeamLine"/>
   <Translation
-   x="[ebcon:blShift]*sin([tbrot:theta])*cos([tbrot:phi]) + [tbrot:xtran]"
-   y="[ebcon:blShift]*sin([tbrot:theta])*sin([tbrot:phi]) + [tbrot:ytran]"
-   z="[ebcon:blShift]*cos([tbrot:theta])                  + [tbrot:ztran]" />
+   x="[ebcon:blShift]*sin([tbrot:theta])*cos([tbrot:phi])"
+   y="[ebcon:blShift]*sin([tbrot:theta])*sin([tbrot:phi])"
+   z="[ebcon:blShift]*cos([tbrot:theta])"                    />
   <rRotation name="TBH4:blRot"/>
  </PosPart>
 </PosPartSection>

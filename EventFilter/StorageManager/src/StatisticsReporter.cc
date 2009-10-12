@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.4 2009/07/09 15:34:29 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.13 2009/09/18 09:10:25 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -11,31 +11,39 @@
 #include "xdata/Event.h"
 #include "xdata/InfoSpaceFactory.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 using namespace stor;
 
 
-StatisticsReporter::StatisticsReporter(xdaq::Application *app) :
+StatisticsReporter::StatisticsReporter
+(
+  xdaq::Application *app,
+  const utils::duration_t& monitoringSleepSec
+) :
 _app(app),
-_runMonCollection(),
-_fragMonCollection(),
-_filesMonCollection(),
-_streamsMonCollection(),
-_dataSenderMonCollection(),
-_dqmEventMonCollection(),
-_resourceMonCollection(app),
-_stateMachineMonCollection(),
-_throughputMonCollection(),
+_alarmHandler(new AlarmHandler(app)),
+_monitoringSleepSec(monitoringSleepSec),
+_runMonCollection(_monitoringSleepSec),
+_fragMonCollection(_monitoringSleepSec),
+_filesMonCollection(5*_monitoringSleepSec),
+_streamsMonCollection(_monitoringSleepSec),
+_dataSenderMonCollection(_monitoringSleepSec, _alarmHandler),
+_dqmEventMonCollection(5*_monitoringSleepSec),
+_resourceMonCollection(900*_monitoringSleepSec, _alarmHandler),
+_stateMachineMonCollection(_monitoringSleepSec),
+_eventConsumerMonCollection(_monitoringSleepSec),
+_dqmConsumerMonCollection(_monitoringSleepSec),
+_throughputMonCollection(_monitoringSleepSec),
 _monitorWL(0),
-_doMonitoring(true)
+_doMonitoring(_monitoringSleepSec>0)
 {
-  _eventConsumerMonitorCollection.reset( new ConsumerMonitorCollection() );
-  _dqmConsumerMonitorCollection.reset( new ConsumerMonitorCollection() );
-
+  reset();
   createMonitoringInfoSpace();
   collectInfoSpaceItems();
   addRunInfoQuantitiesToApplicationInfoSpace();
@@ -44,6 +52,8 @@ _doMonitoring(true)
 
 void StatisticsReporter::startWorkLoop(std::string workloopName)
 {
+  if ( !_doMonitoring ) return;
+
   try
   {
     std::string identifier = utils::getIdentifier(_app->getApplicationDescriptor());
@@ -59,6 +69,7 @@ void StatisticsReporter::startWorkLoop(std::string workloopName)
           identifier + "MonitorAction");
       _monitorWL->submit(monitorAction);
 
+      _lastMonitorAction = utils::getCurrentTime();
       _monitorWL->activate();
     }
   }
@@ -129,8 +140,8 @@ void StatisticsReporter::collectInfoSpaceItems()
   _dqmEventMonCollection.appendInfoSpaceItems(infoSpaceItems);
   _resourceMonCollection.appendInfoSpaceItems(infoSpaceItems);
   _stateMachineMonCollection.appendInfoSpaceItems(infoSpaceItems);
-  _eventConsumerMonitorCollection->appendInfoSpaceItems(infoSpaceItems);
-  _dqmConsumerMonitorCollection->appendInfoSpaceItems(infoSpaceItems);
+  _eventConsumerMonCollection.appendInfoSpaceItems(infoSpaceItems);
+  _dqmConsumerMonCollection.appendInfoSpaceItems(infoSpaceItems);
   _throughputMonCollection.appendInfoSpaceItems(infoSpaceItems);
 
   putItemsIntoInfoSpace(infoSpaceItems);
@@ -171,19 +182,22 @@ void StatisticsReporter::addRunInfoQuantitiesToApplicationInfoSpace()
   xdata::InfoSpace *infoSpace = _app->getApplicationInfoSpace();
 
   // bind the local xdata variables to the infospace
+  infoSpace->fireItemAvailable("stateName", &_stateName);
   infoSpace->fireItemAvailable("storedEvents", &_storedEvents);
   infoSpace->fireItemAvailable("closedFiles", &_closedFiles);
 
   // spacial handling for the monitoring values requested by the HLTSFM
   // we want to assure that the values are current when they are queried
-  infoSpace->addItemRetrieveListener("closedFiles", this);
+  infoSpace->addItemRetrieveListener("stateName", this);
   infoSpace->addItemRetrieveListener("storedEvents", this);
+  infoSpace->addItemRetrieveListener("closedFiles", this);
 }
 
 
 bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
 {
-  utils::sleep(MonitoredQuantity::ExpectedCalculationInterval());
+  utils::sleepUntil(_lastMonitorAction + _monitoringSleepSec);
+  _lastMonitorAction = utils::getCurrentTime();
 
   std::string errorMsg = "Failed to update the monitoring information";
 
@@ -231,17 +245,19 @@ bool StatisticsReporter::monitorAction(toolbox::task::WorkLoop* wl)
 
 void StatisticsReporter::calculateStatistics()
 {
-  _runMonCollection.calculateStatistics();
-  _fragMonCollection.calculateStatistics();
-  _filesMonCollection.calculateStatistics();
-  _streamsMonCollection.calculateStatistics();
-  _dataSenderMonCollection.calculateStatistics();
-  _dqmEventMonCollection.calculateStatistics();
-  _resourceMonCollection.calculateStatistics();
-  _stateMachineMonCollection.calculateStatistics();
-  _eventConsumerMonitorCollection->calculateStatistics();
-  _dqmConsumerMonitorCollection->calculateStatistics();
-  _throughputMonCollection.calculateStatistics();
+  const utils::time_point_t now = utils::getCurrentTime();
+
+  _runMonCollection.calculateStatistics(now);
+  _fragMonCollection.calculateStatistics(now);
+  _filesMonCollection.calculateStatistics(now);
+  _streamsMonCollection.calculateStatistics(now);
+  _dataSenderMonCollection.calculateStatistics(now);
+  _dqmEventMonCollection.calculateStatistics(now);
+  _resourceMonCollection.calculateStatistics(now);
+  _stateMachineMonCollection.calculateStatistics(now);
+  _eventConsumerMonCollection.calculateStatistics(now);
+  _dqmConsumerMonCollection.calculateStatistics(now);
+  _throughputMonCollection.calculateStatistics(now);
 }
 
 
@@ -254,7 +270,7 @@ void StatisticsReporter::updateInfoSpace()
   try
   {
     _infoSpace->lock();
-    
+
     _runMonCollection.updateInfoSpaceItems();
     _fragMonCollection.updateInfoSpaceItems();
     _filesMonCollection.updateInfoSpaceItems();
@@ -263,8 +279,8 @@ void StatisticsReporter::updateInfoSpace()
     _dqmEventMonCollection.updateInfoSpaceItems();
     _resourceMonCollection.updateInfoSpaceItems();
     _stateMachineMonCollection.updateInfoSpaceItems();
-    _eventConsumerMonitorCollection->updateInfoSpaceItems();
-    _dqmConsumerMonitorCollection->updateInfoSpaceItems();
+    _eventConsumerMonCollection.updateInfoSpaceItems();
+    _dqmConsumerMonCollection.updateInfoSpaceItems();
     _throughputMonCollection.updateInfoSpaceItems();
 
     _infoSpace->unlock();
@@ -299,18 +315,20 @@ void StatisticsReporter::updateInfoSpace()
 
 void StatisticsReporter::reset()
 {
+  const utils::time_point_t now = utils::getCurrentTime();
+
   // do not reset the stateMachineMonCollection, as we want to
   // keep the state machine history
-  _runMonCollection.reset();
-  _fragMonCollection.reset();
-  _filesMonCollection.reset();
-  _streamsMonCollection.reset();
-  _dataSenderMonCollection.reset();
-  _dqmEventMonCollection.reset();
-  _resourceMonCollection.reset();
-  _eventConsumerMonitorCollection->reset();
-  _dqmConsumerMonitorCollection->reset();
-  _throughputMonCollection.reset();
+  _runMonCollection.reset(now);
+  _fragMonCollection.reset(now);
+  _filesMonCollection.reset(now);
+  _streamsMonCollection.reset(now);
+  _dataSenderMonCollection.reset(now);
+  _dqmEventMonCollection.reset(now);
+  _resourceMonCollection.reset(now);
+  _eventConsumerMonCollection.reset(now);
+  _dqmConsumerMonCollection.reset(now);
+  _throughputMonCollection.reset(now);
 }
 
 
@@ -342,6 +360,18 @@ void StatisticsReporter::actionPerformed(xdata::Event& ispaceEvent)
       catch(xdata::exception::Exception& e)
       {
         _storedEvents = 0;
+      }
+    } 
+    else if (item == "stateName")
+    {
+      _stateMachineMonCollection.updateInfoSpaceItems();
+      try
+      {
+        _stateName.setValue( *(_infoSpace->find("stateName")) );
+      }
+      catch(xdata::exception::Exception& e)
+      {
+        _stateName = "unknown";
       }
     } 
   }

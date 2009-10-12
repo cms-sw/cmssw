@@ -688,7 +688,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
       for ( vParameterSet::const_iterator plot = plots.begin(); 
 	    plot != plots.end(); ++plot ) {
 
-	if ( process == "" || plot->exists("process")) {
+	if ( process == "" ) {
 	  process = plot->getParameter<std::string>("process");
 	  //std::cout << "process (locally set) = " << process << std::endl;
 	}

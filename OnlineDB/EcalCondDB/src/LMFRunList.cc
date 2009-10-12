@@ -408,7 +408,7 @@ void LMFRunList::fetchLastNRuns( int max_run, int n_runs  )
 
 
 
-void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
+void LMFRunList::fetchRuns(uint64_t start_micro, int end_run)
   throw(runtime_error)
 {
 
@@ -454,16 +454,15 @@ void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
     start_time.dumpTm();
 
     string sqlstr;
-    sqlstr = "SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and lmf_run_iov.subrun_start> :min_time and run_iov.run_num > :min_run and run_iov.run_num < :max_run  " ;
+    sqlstr = "SELECT count(lmf_run_iov.lmf_iov_id) FROM lmf_run_iov, run_iov WHERE lmf_run_iov.run_iov_id= run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and lmf_run_iov.subrun_start> :min_run and run_iov.run_num < :max_run " ;
     if (tagID!=0) sqlstr = sqlstr +" AND run_iov.tag_id = :tag_id ";
 
     stmt0->setSQL(sqlstr );
     stmt0->setInt(1, lmftagID);
     stmt0->setDate(2, dh.tmToDate(start_time));
-    stmt0->setInt(3, min_run);
-    stmt0->setInt(4, end_run);
+    stmt0->setInt(3, end_run);
 
-    if(tagID!=0) stmt0->setInt(5, tagID);
+    if(tagID!=0) stmt0->setInt(4, tagID);
   
     ResultSet* rset0 = stmt0->executeQuery();
     if (rset0->next()) {
@@ -479,16 +478,15 @@ void LMFRunList::fetchRuns(uint64_t start_micro, int min_run, int end_run)
 
 
     string sqlstr2;
-    sqlstr2 = "SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and lmf_run_iov.subrun_start> :min_time and run_iov.run_num > :min_run and run_iov.run_num < :max_run  ";
+    sqlstr2 = "SELECT run_iov.run_num, run_iov.run_start, run_iov.run_end, lmf_run_iov.tag_id, lmf_run_iov.run_iov_id, lmf_run_iov.subrun_num, lmf_run_iov.subrun_start, lmf_run_iov.subrun_end, lmf_run_iov.lmf_iov_id, lmf_run_iov.subrun_type, lmf_run_iov.db_timestamp FROM run_iov, lmf_run_iov WHERE lmf_run_iov.run_iov_id=run_iov.iov_id and lmf_run_iov.tag_id=:lmftag_id and lmf_run_iov.subrun_start> :min_run and run_iov.run_num < :max_run ";
     if (tagID!=0) sqlstr2 = sqlstr2 +" AND run_iov.tag_id = :tag_id ";
     sqlstr2=sqlstr2+ " order by run_iov.run_num, lmf_run_iov.subrun_num ";
     
     stmt->setSQL(sqlstr2);
     stmt->setInt(1, lmftagID);
     stmt->setDate(2, dh.tmToDate(start_time));
-    stmt->setInt(3, min_run);
-    stmt->setInt(4, end_run);
-    if (tagID!=0) stmt->setInt(5, tagID);
+    stmt->setInt(3, end_run);
+    if (tagID!=0) stmt->setInt(4, tagID);
 
 
     DateHandler dh(m_env, m_conn);

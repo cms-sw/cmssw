@@ -7,10 +7,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     QualityReader = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO')
     ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),
-    destinations = cms.untracked.vstring('QualityReader.log')
+    destinations = cms.untracked.vstring('QualityReader')
 )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -46,7 +43,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-    ),
+        ),
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
@@ -67,6 +64,7 @@ process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
                               TkMapFileName = cms.untracked.string("")
                               )
 
+process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)
 
 

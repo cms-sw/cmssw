@@ -120,20 +120,6 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
    runNum_ = e.id().run();
    eCount_++;
 
-   Handle<ESRecHitCollection> ESRecHit;
-   try {
-      e.getByLabel(rechitlabel_, ESRecHit);
-   } catch ( cms::Exception &e ) {
-      LogDebug("") << "Error! can't get RecHit collection !" << std::endl;
-   }
-
-   Handle<ESDigiCollection> digis;
-   try {
-      e.getByLabel(digilabel_, digis);
-   } catch ( cms::Exception &e ) {
-      LogDebug("") << "Error! can't get digi collection !" << std::endl;
-   }
-
    // RecHits
    int zside, plane, ix, iy, strip;
    int sum_RecHits[2][2], sum_DigiHits[2][2];
@@ -147,48 +133,58 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
       }
    }
 
-   for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) 
-   {
-
-      ESDetId id = ESDetId(hitItr->id());
-
-      zside = id.zside();
-      plane = id.plane();
-      ix    = id.six();
-      iy    = id.siy();
-      strip = id.strip();
-
-      int i = (zside==1)? 0:1;
-      int j = plane-1;
-
-      sum_RecHits[i][j]++;
-      sum_Energy[i][j]+=hitItr->energy();
-      hRecOCC_[i][j]->Fill(ix, iy);
-      if(hitItr->energy() != 0) hEng_[i][j]->Fill(hitItr->energy());
-
+   Handle<ESRecHitCollection> ESRecHit;
+   if ( e.getByLabel(rechitlabel_, ESRecHit) ) {
+     
+     for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
+       
+       ESDetId id = ESDetId(hitItr->id());
+       
+       zside = id.zside();
+       plane = id.plane();
+       ix    = id.six();
+       iy    = id.siy();
+       strip = id.strip();
+       
+       int i = (zside==1)? 0:1;
+       int j = plane-1;
+       
+       sum_RecHits[i][j]++;
+       sum_Energy[i][j]+=hitItr->energy();
+       hRecOCC_[i][j]->Fill(ix, iy);
+       if(hitItr->energy() != 0) hEng_[i][j]->Fill(hitItr->energy());
+       
+     }
+   } else {
+     LogWarning("ESOccupancyTask") << rechitlabel_ << " not available";
    }
 
-   //DigiHits
-   for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) 
-   {
+   //Digis
+   Handle<ESDigiCollection> digis;
+   if ( e.getByLabel(digilabel_, digis) ) {
 
-      ESDataFrame dataframe = (*digiItr);
-      ESDetId id = dataframe.id();
-
-      zside = id.zside();
-      plane = id.plane();
-      ix    = id.six();
-      iy    = id.siy();
-      strip = id.strip();
-
-      int i = (zside==1)? 0:1;
-      int j = plane-1;
-
-      sum_DigiHits[i][j]++;
-      hDigiOCC_[i][j]->Fill(ix, iy, dataframe.sample(1).adc());
-
+     for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
+       
+       ESDataFrame dataframe = (*digiItr);
+       ESDetId id = dataframe.id();
+       
+       zside = id.zside();
+       plane = id.plane();
+       ix    = id.six();
+       iy    = id.siy();
+       strip = id.strip();
+       
+       int i = (zside==1)? 0:1;
+       int j = plane-1;
+       
+       sum_DigiHits[i][j]++;
+       hDigiOCC_[i][j]->Fill(ix, iy, dataframe.sample(1).adc());
+       
+     }
+   } else {
+     LogWarning("ESOccupancyTask") << digilabel_ << " not available";
    }
-
+     
    //Fill histograms after a event
 
    for( int i = 0; i < 2; i++){

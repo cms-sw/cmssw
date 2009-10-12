@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: makeall.sh,v 1.3 2008/06/12 13:29:17 loizides Exp $ 
+# $Id: makeall.sh,v 1.4 2008/09/05 09:40:32 gbauer Exp $ 
 
 ## *** added security feature: MUST give argument "makefilesys"
 ## or else file system will NOT be re-made ***
@@ -13,6 +13,8 @@ if [ $nofs = "makefilesys" ] ; then
 fi
 
 hname=`hostname | cut -d. -f1`
+hname=`echo $hname | tr 'a-z' 'A-Z'`;
+
 echo "Host I am running on: $hname"
 
 exec 10< ~smpro/configuration/script-generated/satamap.txt
@@ -25,6 +27,10 @@ while read LINE <&10; do
     vol=` echo $LINE | cut -d" " -f3 | cut -d"v" -f2`
     id=`  echo $LINE | cut -d" " -f4`
     host=`echo $LINE | cut -d" " -f5`
+
+
+ host=`echo $host | tr 'a-z' 'A-Z'`;
+
 
     if [ $host = $hname ] ; then
 	echo "Working on: "
@@ -40,6 +46,8 @@ while read LINE <&10; do
     fi
 done
 
+echo "RUNNING mkstore...."
 ./mkstore.sh
+echo "RUNNING setup_sm...."
 ./setup_sm.sh
 exec 10>&-

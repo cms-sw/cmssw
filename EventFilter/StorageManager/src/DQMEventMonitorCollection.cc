@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.3 2009/07/09 15:34:28 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.6 2009/08/24 14:31:50 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -10,19 +10,18 @@
 
 using namespace stor;
 
-DQMEventMonitorCollection::DQMEventMonitorCollection() :
-MonitorCollection()
-{
-  _dqmEventSizes.setNewTimeWindowForRecentResults(300);
-  _servedDQMEventSizes.setNewTimeWindowForRecentResults(300);
-  _writtenDQMEventSizes.setNewTimeWindowForRecentResults(300);
-  _dqmEventBandwidth.setNewTimeWindowForRecentResults(300);
-  _servedDQMEventBandwidth.setNewTimeWindowForRecentResults(300);
-  _writtenDQMEventBandwidth.setNewTimeWindowForRecentResults(300);
-  _numberOfGroups.setNewTimeWindowForRecentResults(300);
-  _numberOfUpdates.setNewTimeWindowForRecentResults(300);
-  _numberOfWrittenGroups.setNewTimeWindowForRecentResults(300);
-}
+DQMEventMonitorCollection::DQMEventMonitorCollection(const utils::duration_t& updateInterval) :
+MonitorCollection(updateInterval),
+_dqmEventSizes(updateInterval, 300),
+_servedDQMEventSizes(updateInterval, 300),
+_writtenDQMEventSizes(updateInterval, 300),
+_dqmEventBandwidth(updateInterval, 300),
+_servedDQMEventBandwidth(updateInterval, 300),
+_writtenDQMEventBandwidth(updateInterval, 300),
+_numberOfGroups(updateInterval, 300),
+_numberOfUpdates(updateInterval, 300),
+_numberOfWrittenGroups(updateInterval, 300)
+{}
 
 
 void DQMEventMonitorCollection::getStats(DQMEventStats& stats) const
@@ -88,6 +87,18 @@ void DQMEventMonitorCollection::do_reset()
 }
 
 
+void DQMEventMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
+{
+  infoSpaceItems.push_back(std::make_pair("dqmFoldersPerEP", &_dqmFoldersPerEP));
+}
+
+
+void DQMEventMonitorCollection::do_updateInfoSpaceItems()
+{
+  MonitoredQuantity::Stats stats;
+  getNumberOfUpdatesMQ().getStats(stats);
+  _dqmFoldersPerEP = static_cast<xdata::Double>(stats.getValueAverage(MonitoredQuantity::RECENT));
+}
 
 
 /// emacs configuration

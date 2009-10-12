@@ -1,4 +1,4 @@
-// $Id: FragmentProcessor.cc,v 1.10 2009/07/10 14:51:12 dshpakov Exp $
+// $Id: FragmentProcessor.cc,v 1.12 2009/08/28 16:41:26 mommsen Exp $
 /// @file: FragmentProcessor.cc
 
 #include <unistd.h>
@@ -8,6 +8,10 @@
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/FragmentProcessor.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
+#include "EventFilter/StorageManager/interface/StateMachine.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 
 using namespace stor;
 
@@ -81,48 +85,25 @@ bool FragmentProcessor::processMessages(toolbox::task::WorkLoop*)
     errorMsg = "Failed to process an event fragment: ";
     processOneFragmentIfPossible();
   }
-  catch(stor::exception::RunNumberMismatch &e)
-  {
-    LOG4CPLUS_ERROR(_app->getApplicationLogger(), e.message());
-
-    _app->notifyQualified("error", e);
-  }
   catch(xcept::Exception &e)
   {
-    LOG4CPLUS_FATAL( _app->getApplicationLogger(),
-                     errorMsg << xcept::stdformat_exception_history(e) );
-
     XCEPT_DECLARE_NESTED( stor::exception::FragmentProcessing,
                           sentinelException, errorMsg, e );
-    _app->notifyQualified( "fatal", sentinelException );
-
-    _sharedResources->moveToFailedState( errorMsg + xcept::stdformat_exception_history(e) );
+    _sharedResources->moveToFailedState(sentinelException);
   }
   catch(std::exception &e)
   {
     errorMsg += e.what();
-
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg);
-    
     XCEPT_DECLARE(stor::exception::FragmentProcessing,
       sentinelException, errorMsg);
-    _app->notifyQualified("fatal", sentinelException);
-
-    _sharedResources->moveToFailedState( errorMsg );
+    _sharedResources->moveToFailedState(sentinelException);
   }
   catch(...)
   {
     errorMsg += "Unknown exception";
-
-    LOG4CPLUS_FATAL(_app->getApplicationLogger(),
-      errorMsg);
-    
     XCEPT_DECLARE(stor::exception::FragmentProcessing,
       sentinelException, errorMsg);
-    _app->notifyQualified("fatal", sentinelException);
-
-    _sharedResources->moveToFailedState( errorMsg );
+    _sharedResources->moveToFailedState(sentinelException);
   }
 
   return _actionIsActive;

@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2008/11/12 09:40:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/02/23 09:55:34 $
+ *  $Revision: 1.5 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -117,6 +117,7 @@ class GlobalMuonRefitter {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
+    bool  theCosmicFlag;
 
     edm::InputTag theDTRecHitLabel;
     edm::InputTag theCSCRecHitLabel;
@@ -127,9 +128,6 @@ class GlobalMuonRefitter {
     int   theTrackerSkipSystem;
     int   theTrackerSkipSection;
 
-    unsigned long long theCacheId_TC;
-    unsigned long long theCacheId_GTG;
-    unsigned long long theCacheId_MG;
     unsigned long long theCacheId_TRH;        
 
     std::string thePropagatorName;

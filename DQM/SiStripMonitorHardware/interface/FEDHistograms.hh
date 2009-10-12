@@ -25,20 +25,13 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DQM/SiStripMonitorHardware/interface/HistogramBase.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
 
-class FEDHistograms {
+class FEDHistograms: public HistogramBase {
 
 public:
   
-  struct HistogramConfig {
-    bool enabled;
-    unsigned int nBins;
-    double min;
-    double max;
-  };
-  
-
   FEDHistograms();
 
   ~FEDHistograms();
@@ -47,12 +40,6 @@ public:
   void initialise(const edm::ParameterSet& iConfig,
 		  std::ostringstream* pDebugStream
 		  );
-
-  //fill a histogram if the pointer is not NULL (ie if it has been booked)
-  void fillHistogram(MonitorElement* histogram, 
-		     double value,
-		     double weight=1.
-		     );
 
   void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
 			      const FEDErrors::ChannelCounters & aChLevelCounters, 
@@ -78,12 +65,7 @@ public:
 
 
 
-  //fill tkHistoMap of percentage of bad channels per module
-  void fillTkHistoMap(uint32_t & detid,
-		      float value
-		      );
- 
-  //book the top level histograms
+   //book the top level histograms
   void bookTopLevelHistograms(DQMStore* dqm);
 
   //book individual FED histograms or book all FED level histograms at once
@@ -91,46 +73,15 @@ public:
 			 bool fullDebugMode = false
 			 );
 
-  bool isTkHistoMapEnabled();
-
   void bookAllFEDHistograms();
 
-  //load the config for a histogram from PSet called <configName>HistogramConfig (writes a debug message to stream if pointer is non-NULL)
-  void getConfigForHistogram(const std::string& configName, 
-			     const edm::ParameterSet& psetContainingConfigPSet,
-			     std::ostringstream* pDebugStream
-			     );
+  std::string tkHistoMapName(unsigned int aIndex=0);
 
-  //book an individual hiostogram if enabled in config
-  MonitorElement* bookHistogram(const std::string& configName,
-				const std::string& name, 
-				const std::string& title,
-                                const unsigned int nBins, 
-				const double min, 
-				const double max,
-                                const std::string& xAxisTitle
-				);
-
-  //same but using binning from config
-  MonitorElement* bookHistogram(const std::string& configName,
-				const std::string& name, 
-				const std::string& title, 
-				const std::string& xAxisTitle
-				);
-
-  MonitorElement* bookProfile(const std::string& configName,
-			      const std::string& name,
-			      const std::string& title
-			      );
+  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
 
 protected:
   
 private:
-
-  DQMStore* dqm_;
-
-  //config for histograms (enabled? bins)
-  std::map<std::string,HistogramConfig> histogramConfig_;
 
   //counting histograms (histogram of number of problems per event)
   MonitorElement *nFEDErrors_, 
@@ -199,9 +150,6 @@ private:
 
   std::string tkMapConfigName_;
   TkHistoMap *tkmapFED_;
-
-
-  double minAxis_;
 
 
 };//class

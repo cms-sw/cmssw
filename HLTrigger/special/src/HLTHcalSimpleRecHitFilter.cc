@@ -13,7 +13,7 @@
 //
 // Original Author:  Bryan DAHMES
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.1 2008/09/18 07:32:17 gruen Exp $
+// $Id: HLTHcalSimpleRecHitFilter.cc,v 1.2 2008/09/18 09:33:36 bdahmes Exp $
 //
 //
 
@@ -43,9 +43,7 @@ public:
     ~HLTHcalSimpleRecHitFilter();
     
 private:
-    virtual void beginJob(const edm::EventSetup&) ;
     virtual bool filter(edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
     
     // ----------member data ---------------------------
     edm::InputTag HcalRecHitCollection_;
@@ -115,16 +113,6 @@ HLTHcalSimpleRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
        }
     }
     return aboveThreshold ; 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HLTHcalSimpleRecHitFilter::beginJob(const edm::EventSetup&) {
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HLTHcalSimpleRecHitFilter::endJob() {
 }
 
 //define this as a plug-in

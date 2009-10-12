@@ -58,7 +58,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         // from a configurable vector
         // (see cfg file for the association)
         uint32_t recoFlag = 0;
-        uint16_t statusCode = chStatusCode.getStatusCode();
+        uint16_t statusCode = chStatusCode.getStatusCode() & 0x001F;
         if ( statusCode < v_DB_reco_flags_.size() ) {
                 // not very nice...
                 recoFlag = v_DB_reco_flags_[ statusCode ];

@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.15 2009/07/09 12:24:32 charlot Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.10 2009/06/10 15:22:00 charlot Exp $
 //
 //
 
@@ -93,26 +93,14 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_HoE_all;
   TH1F *h_ele_vertexEta_all;
   TH1F *h_ele_vertexPt_all;
-  TH1F *h_ele_Et_all;
   TH1F *h_ele_mee_all;
-  TH1F *h_ele_mee_os;
-  TH1F *h_ele_mee_os_ebeb;
-  TH1F *h_ele_mee_os_ebee;
-  TH1F *h_ele_mee_os_eeee;
-  TH1F *h_ele_mee_os_gg;
-  TH1F *h_ele_mee_os_gb;
-  TH1F *h_ele_mee_os_bb;
 
-  TH2F *h_ele_E2mnE1vsMee_all;
-  TH2F *h_ele_E2mnE1vsMee_egeg_all;
-  
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
   TH2F *h_ele_chargeVsPhi;
   TH2F *h_ele_chargeVsPt;
   TH1F *h_ele_vertexP;
   TH1F *h_ele_vertexPt;
-  TH1F *h_ele_Et;
   TH2F *h_ele_vertexPtVsEta;
   TH2F *h_ele_vertexPtVsPhi;
   TH1F *h_ele_vertexPt_5100;
@@ -140,15 +128,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *histSclEoEtrue_ebeegap;
   TH1F *histSclEoEtrue_endcaps_deegap;
   TH1F *histSclEoEtrue_endcaps_ringgap;
-  TH1F *histSclEoEtrue_barrel_new;
-  TH1F *histSclEoEtrue_endcaps_new;
-  TH1F *histSclEoEtrue_barrel_eg_new;
-  TH1F *histSclEoEtrue_endcaps_eg_new;
-  TH1F *histSclEoEtrue_barrel_etagap_new;
-  TH1F *histSclEoEtrue_barrel_phigap_new;
-  TH1F *histSclEoEtrue_ebeegap_new;
-  TH1F *histSclEoEtrue_endcaps_deegap_new;
-  TH1F *histSclEoEtrue_endcaps_ringgap_new;
   TH1F *histSclEt_ ;
   TH2F *histSclEtVsEta_ ;
   TH2F *histSclEtVsPhi_ ;
@@ -189,18 +168,11 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH2F *h_ele_chi2VsPt;
 
   TH1F *h_ele_PoPtrue;
-  TH1F *h_ele_PtoPttrue;
   TH2F *h_ele_PoPtrueVsEta;
   TH2F *h_ele_PoPtrueVsPhi;
   TH2F *h_ele_PoPtrueVsPt;
   TH1F *h_ele_PoPtrue_barrel;
   TH1F *h_ele_PoPtrue_endcaps;
-  TH1F *h_ele_PoPtrue_golden_barrel;
-  TH1F *h_ele_PoPtrue_golden_endcaps;
-  TH1F *h_ele_PoPtrue_showering_barrel;
-  TH1F *h_ele_PoPtrue_showering_endcaps;
-  TH1F *h_ele_PtoPttrue_barrel;
-  TH1F *h_ele_PtoPttrue_endcaps;
   TH1F *h_ele_ChargeMnChargeTrue;
   TH1F *h_ele_EtaMnEtaTrue;
   TH2F *h_ele_EtaMnEtaTrueVsEta;
@@ -359,12 +331,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   double dphimatchmax;
   double fhitsmax;
   double lhitsmax;
-  double poptruemin;
-  double poptruemax;
-  double meemin;
-  double meemax;
-  double hoemin;
-  double hoemax;
   int nbineta;
   int nbinp;
   int nbinpt;
@@ -385,9 +351,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   int nbindphimatch;
   int nbindetamatch2D;
   int nbindphimatch2D;
-  int nbinpoptrue;
-  int nbinmee;
-  int nbinhoe;
 
  };
 

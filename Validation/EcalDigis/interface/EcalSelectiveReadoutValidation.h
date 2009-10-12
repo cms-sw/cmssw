@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2009/02/17 13:53:04 $
- * $Revision: 1.7 $
+ * $Date: 2008/07/03 14:29:00 $
+ * $Revision: 1.5 $
  *
  */
 
@@ -34,7 +34,6 @@
 #include <string>
 #include <set>
 #include <utility>
-#include <fstream>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -104,13 +103,6 @@ private:
    * @param es event setup
    */
   void analyzeTP(const edm::Event& event, const edm::EventSetup& es); 
-
- /** Selective Readout decisions Validation
-   * @param event EDM event
-   * @param es event setup
-   */ 
-
-  void SRFlagValidation(const edm::Event& event, const edm::EventSetup& es);
 
   /** Energy reconstruction from ADC samples.
    * @param frame the ADC sample of an ECA channel
@@ -351,8 +343,6 @@ private:
   }
   //@}
 
-  void initAsciiFile();
-
 private:
   /** Used to store barrel crystal channel information
    */
@@ -423,9 +413,6 @@ private:
   ///Number of Trigger Towers along Phi
   static const int nTtPhi = 72;
 
-  ///Number of crystals per Readout Unit excepted partial SCs
-  static const int nXtalRU = 25;
-
   ///Conversion factor from radian to degree
   static const double rad2deg;
   
@@ -441,19 +428,6 @@ private:
   ///Switch for collection-not-found warning
   bool collNotFoundWarn_;
   
-
-  ///Output ascii file name for unconsistency on SR flags
-  std::string asciiOutputFileName_;
-
-  ///Output ascii file name for unconsistency between Xtals and RU Flags
-  std::string asciiRUOutputFileName_;
-
-  ///Output ascii file for unconsistency on SR flags
-  std::ofstream file; 
-
-  ///Output ascii file for unconsistency between Xtals and RU Flags
-  std::ofstream RUfile; 
-
   //@{
   /** The event product collections.
    */
@@ -463,8 +437,6 @@ private:
   CollHandle<EEDigiCollection>           eeNoZsDigis_;
   CollHandle<EBSrFlagCollection>         ebSrFlags_;
   CollHandle<EESrFlagCollection>         eeSrFlags_;
-  CollHandle<EBSrFlagCollection>         ebSrFlagsFromTT_;
-  CollHandle<EESrFlagCollection>         eeSrFlagsFromTT_;
   CollHandle<std::vector<PCaloHit> >     ebSimHits_;
   CollHandle<std::vector<PCaloHit> >     eeSimHits_;
   CollHandle<EcalTrigPrimDigiCollection> tps_;
@@ -526,14 +498,6 @@ private:
 
   MonitorElement* meEeLiZsFir_;
   MonitorElement* meEeHiZsFir_;
-
-  MonitorElement* meSRFlagsFromData_; 
-  MonitorElement* meSRFlagsComputed_; 
-  MonitorElement* meSRFlagsConsistency_;
-	
-  MonitorElement* meIncompleteFRO_;
-  MonitorElement* meDroppedFRO_;
-  MonitorElement* meCompleteZS_;
   
   //@}
 
@@ -611,27 +575,7 @@ private:
   bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
   bool eeRuActive_[nEndcaps][nEeX/scEdge][nEeY/scEdge];
   //@}
- 
-  /** Number of crystals read for Barrel Readout Units with high interest
-   * flag.
-   */
-  int EBNxtal_HIRU_[nTtEta][nTtPhi];
-
- /** Number of crystals read for Barrel Readout Units with low interest
-   * flag.
-   */
-  int EBNxtal_LIRU_[nTtEta][nTtPhi];
-
- /** Number of crystals read for Barrel Readout Units with high interest
-   * flag.
-   */
-  int EENxtal_HIRU_[nEeX/scEdge][nEeY/scEdge][nEndcaps];
-
- /** Number of crystals read for Barrel Readout Units with low interest
-   * flag.
-   */
-  int EENxtal_LIRU_[nEeX/scEdge][nEeY/scEdge][nEndcaps];
-
+  
   /** Event sequence number
    */
   int ievt_;
@@ -652,10 +596,6 @@ private:
    * system.
    */
   energiesEe_t eeEnergies[nEndcaps][nEeX][nEeY];
-
-  /** Permits to skip inner SC
-   */
-  bool SkipInnerSC_;
 
   /** List of enabled histograms. Special name "all" is used to indicate
    * all available histograms.
@@ -685,11 +625,6 @@ private:
    * (registered by the registerHist method), including disabled one.
    */
   void printAvailableHists();
-
-  /** Scaled histograms expressed in rate by 1/eventCount
-   * @param eventCount event count to use for normalization factor
-   */
-  void normalizeHists(double eventCount);
 
   /** Configure DCC ZS FIR weights. Heuristic is used to determine
    * if input weights are normalized weights or integer weights in

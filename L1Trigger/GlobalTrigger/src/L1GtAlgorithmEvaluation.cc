@@ -154,7 +154,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
                     // it should never be happen, all conditions are in the maps
                     throw cms::Exception("FailModule")
-                    << "\nCondition " << (itCond->first) << "not found in condition map"
+                    << "\nCondition " << (it->operand) << " not found in condition map"
                     << std::endl;
 
                 }

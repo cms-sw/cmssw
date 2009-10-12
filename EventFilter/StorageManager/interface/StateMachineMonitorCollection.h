@@ -1,4 +1,4 @@
-// $Id: StateMachineMonitorCollection.h,v 1.4 2009/07/10 09:19:17 dshpakov Exp $
+// $Id: StateMachineMonitorCollection.h,v 1.5 2009/07/20 13:06:11 mommsen Exp $
 /// @file: StateMachineMonitorCollection.h 
 
 #ifndef StorageManager_StateMachineMonitorCollection_h
@@ -18,9 +18,9 @@ namespace stor {
   /**
    * A collection of monitored quantities related to the state machine
    *
-   * $Author: dshpakov $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/10 09:19:17 $
+   * $Author: mommsen $
+   * $Revision: 1.5 $
+   * $Date: 2009/07/20 13:06:11 $
    */
   
   class StateMachineMonitorCollection : public MonitorCollection
@@ -28,7 +28,7 @@ namespace stor {
 
   public:
 
-    StateMachineMonitorCollection();
+    explicit StateMachineMonitorCollection(const utils::duration_t& updateInterval);
 
     /**
      * Add the TransitionRecord to the state machine history

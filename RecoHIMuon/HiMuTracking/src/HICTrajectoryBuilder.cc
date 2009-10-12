@@ -52,15 +52,14 @@ HICTrajectoryBuilder::
 		       const TransientTrackingRecHitBuilder* RecHitBuilder,
 		       const MeasurementTracker*             measurementTracker,
                        const TrajectoryFilter*               filter):
-
+    BaseCkfTrajectoryBuilder(conf,
+                             updator, propagatorAlong,propagatorOpposite,
+                             estimator, RecHitBuilder, measurementTracker,filter),
     theUpdator(updator),thePropagatorAlong(propagatorAlong),
     thePropagatorOpposite(propagatorOpposite),theEstimator(estimator),
     theTTRHBuilder(RecHitBuilder),theMeasurementTracker(measurementTracker),
     theLayerMeasurements(new LayerMeasurements(theMeasurementTracker)),
-    theForwardPropagator(0), theBackwardPropagator(0),
-    BaseCkfTrajectoryBuilder(conf,
-                             updator, propagatorAlong,propagatorOpposite,
-                             estimator, RecHitBuilder, measurementTracker,filter)
+    theForwardPropagator(0), theBackwardPropagator(0)
 {
   theMaxCand              = 1;
   theMaxLostHit           = 0;
@@ -82,8 +81,8 @@ HICTrajectoryBuilder::
 HICTrajectoryBuilder::~HICTrajectoryBuilder()
 {
   delete theLayerMeasurements;
-  delete theMinPtCondition;
-  delete theMaxHitsCondition;
+//  delete theMinPtCondition;
+//  delete theMaxHitsCondition;
 }
 
 void HICTrajectoryBuilder::setEvent(const edm::Event& event) const

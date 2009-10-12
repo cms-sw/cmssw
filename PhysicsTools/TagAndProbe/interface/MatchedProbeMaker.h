@@ -118,6 +118,7 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	reco::CandidateBaseRef refBaseRef( RefRef );
 	
 	if(overlap(*CandRef,*RefRef)) {
+	   //std::cout << " Candidate OVERLAP! " << std::endl;
 	   ppass = true; 
 	}
       }
@@ -127,6 +128,7 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }  
   }
   
+  //std::cout << " OverlapCandidates: " << outputCollection_matched->size() << std::endl;
   if( matched_ ) iEvent.put( outputCollection_matched );
   else           iEvent.put( outputCollection_unmatched );
   

@@ -46,6 +46,7 @@ muIsoDepositCalByAssociatorTowers.ExtractorPSet.CenterConeOnCalIntersection = Tr
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
 tevMuons.MuonCollectionLabel = "globalCosmicMuons"
+tevMuons.RefitterParameters.PropDirForCosmics = cms.bool(True)
 
 # all muons id
 allmuons = cms.Sequence(muons*tevMuons*muIsolation*calomuons)

@@ -78,7 +78,7 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   tracker=&(*estracker); 
 
   std::vector<uint32_t> activeDets;
-  edm::ESHandle<SiStripDetCabling> tkmechstruct=0;
+  edm::ESHandle<SiStripDetCabling> tkmechstruct(0);
   if (conf_.getParameter<bool>("UseStripCablingDB")){ 
     c.get<SiStripDetCablingRcd>().get(tkmechstruct);
     activeDets.clear();
@@ -92,7 +92,8 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
       activeDets.push_back(Iditer->rawId());
     }
   }
-   
+  
+  
   edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("Tracks");
   //Get Ids;
   double ModuleRangeMin=conf_.getParameter<double>("ModuleXMin");
@@ -107,16 +108,11 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
     
   hFile = new TFile (conf_.getUntrackedParameter<std::string>("treeName").c_str(), "RECREATE" );
   
-  Hit_Tree = hFile->mkdir("Hit_Tree");
-  Track_Tree = hFile->mkdir("Track_Tree");
-  Event_Tree = hFile->mkdir("Event_Tree");
-  
   HitsTree = new TTree("HitsTree", "HitsTree");
   
   HitsTree->Branch("RunNumber", &RunNumber, "RunNumber/I");
   HitsTree->Branch("EventNumber", &EventNumber, "EventNumber/I");
   HitsTree->Branch("TanTrackAngle", &TanTrackAngle, "TanTrackAngle/F");
-  HitsTree->Branch("TanTrackAngleParallel", &TanTrackAngleParallel, "TanTrackAngleParallel/F");
   HitsTree->Branch("ClSize", &ClSize, "ClSize/I");
   HitsTree->Branch("HitCharge", &HitCharge, "HitCharge/I");
   HitsTree->Branch("Hit_Std_Dev", &hit_std_dev, "hit_std_dev/F");
@@ -136,29 +132,9 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   HitsTree->Branch("pt", &pt, "pt/F");
   HitsTree->Branch("chi2norm", &chi2norm, "chi2norm/F");
   HitsTree->Branch("EtaTrack", &EtaTrack, "EtaTrack/F");
-  HitsTree->Branch("PhiTrack", &PhiTrack, "PhiTrack/F");
   HitsTree->Branch("TrajSize", &trajsize, "trajsize/I");
   HitsTree->Branch("HitNr", &HitNr, "HitNr/I");
   HitsTree->Branch("HitPerTrack", &HitPerTrack, "HitPerTrack/I");
-  HitsTree->Branch("id_detector", &id_detector, "id_detector/I");
-  HitsTree->Branch("thick_detector", &thick_detector, "thick_detector/F");
-  HitsTree->Branch("pitch_detector", &pitch_detector, "pitch_detector/F");  
-  HitsTree->Branch("Amplitudes", Amplitudes, "Amplitudes[ClSize]/I");
-  
-  HitsTree->SetDirectory(Hit_Tree);
-  
-  TrackTree = new TTree("TrackTree", "TrackTree");
-  
-  TrackTree->Branch("TrackCounter", &TrackCounter, "TrackCounter/I");
-  
-  TrackTree->SetDirectory(Track_Tree);
-  
-  EventTree = new TTree("EventTree", "EventTree");
-  
-  EventTree->Branch("EventCounter", &EventCounter, "EventCounter/I");
-  
-  EventTree->SetDirectory(Event_Tree);
-  
       
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
@@ -245,10 +221,8 @@ void SiStripLAProfileBooker::beginJob(const edm::EventSetup& c){
   worse_double_hit = 0;
   better_double_hit = 0;
   eventcounter = 0;
-  
-  EventCounter = 1;
-  TrackCounter = 1;
-  
+  trajcounter = 0;
+
 }
 
 SiStripLAProfileBooker::~SiStripLAProfileBooker() {  
@@ -267,8 +241,6 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   EventNumber = e.id().event();
   
   eventcounter++;
-  
-  EventTree->Fill();
   
   //Analysis of Trajectory-RecHits
         
@@ -295,11 +267,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
   
   TrajTrackAssociationCollection::const_iterator TrajTrackIter;
   
+  //std::vector<Trajectory>::const_iterator theTraj;
+  
   for(TrajTrackIter = TrajTrackMap->begin(); TrajTrackIter!= TrajTrackMap->end(); TrajTrackIter++){ //loop on trajectories
     
     if(TrajTrackIter->key->foundHits()>=5){
-      
-      TrackTree->Fill();
+    
+      trajcounter++;
     
       ParticleCharge = -99;
       Momentum = -99;
@@ -307,27 +281,20 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
       chi2norm = -99;
       HitPerTrack = -99;
       EtaTrack = -99;
-      PhiTrack = -99;
       
       ParticleCharge = TrajTrackIter->val->charge();
       pt = TrajTrackIter->val->pt();
       Momentum = TrajTrackIter->val->p();
       chi2norm = TrajTrackIter->val->normalizedChi2();
       EtaTrack = TrajTrackIter->val->eta();
-      PhiTrack = TrajTrackIter->val->phi();
       HitPerTrack = TrajTrackIter->key->foundHits();
           
       std::vector<TrajectoryMeasurement> TMeas=TrajTrackIter->key->measurements();
       std::vector<TrajectoryMeasurement>::iterator itm;
       
       for (itm=TMeas.begin();itm!=TMeas.end();itm++){ //loop on hits
-           
-      int i;
-      for(i=0;i<100;i++){
-      Amplitudes[i]=0;}
       
       TanTrackAngle = -99;
-      TanTrackAngleParallel=-99;
       ClSize = -99;
       HitCharge = 0;
       Type = -99;
@@ -344,9 +311,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
       barycenter = -99;
       hit_std_dev = -99;
       sumx = 0;
-      id_detector=-1;
-      thick_detector=-1;
-      pitch_detector=-1;       
+      nstrip = 0;
+      
       HitNr = 1;    
       
 	TrajectoryStateOnSurface tsos=itm->updatedState();
@@ -372,27 +338,25 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    const GeomDetUnit * monodet=gdet->monoDet();    
 	    const LocalPoint monoposition = monohit->localPosition();    
             StripSubdetector detid=(StripSubdetector)monohit->geographicalId();
-	    id_detector = detid.rawId();
-	    thick_detector=monodet->specificSurface().bounds().thickness();
-            const StripTopology& mtopol=(StripTopology&)monodet->topology();
-            pitch_detector = mtopol.localPitch(monoposition);
             const GlobalPoint monogposition = (monodet->surface()).toGlobal(monoposition);
 	    ClSize = (monocluster->amplitudes()).size();
 	    
 	    const std::vector<uint8_t> amplitudes = monocluster->amplitudes();
-	    
 	    barycenter = monocluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = monocluster->firstStrip();
 	    std::vector<uint8_t>::const_iterator idigi;
 	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
 	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
-	    Amplitudes[nstrip]=*idigi;
 	    sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
             HitCharge+=*idigi;
+	    //if(*idigi!=0){nstrip+=1;}
 	    }
+	    //if(nstrip!=1){
+	    //hit_std_dev = sqrt(sumx*nstrip/((nstrip-1)*HitCharge));
+	    //}else{
 	    hit_std_dev = sqrt(sumx/HitCharge);
-	  
+	    //}
 	    	    
             XGlobal = monogposition.x();
 	    YGlobal = monogposition.y();
@@ -430,7 +394,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	      
 	      // THE LOCAL ANGLE (MONO)
 	      float tanangle = monotkdir.x()/monotkdir.z();
-	      TanTrackAngleParallel = monotkdir.y()/monotkdir.z();	      
+	      
 	      TanTrackAngle = tanangle;
 	      detparmap::iterator TheDet=detmap.find(detid.rawId());
               LocalVector localmagdir;
@@ -464,28 +428,27 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    const GeomDetUnit * stereodet=gdet->stereoDet();
 	    const LocalPoint stereoposition = stereohit->localPosition();    
             StripSubdetector detid=(StripSubdetector)stereohit->geographicalId();
-	    id_detector = detid.rawId();
-	    thick_detector=stereodet->specificSurface().bounds().thickness();
-            const StripTopology& stopol=(StripTopology&)stereodet->topology();
-            pitch_detector = stopol.localPitch(stereoposition);
             const GlobalPoint stereogposition = (stereodet->surface()).toGlobal(stereoposition);
 	    
 	    ClSize = (stereocluster->amplitudes()).size();
 	    
 	    const std::vector<uint8_t> amplitudes = stereocluster->amplitudes();
-	    
 	    barycenter = stereocluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = stereocluster->firstStrip();
 	    std::vector<uint8_t>::const_iterator idigi;
 	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
 	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
-	    Amplitudes[nstrip]=*idigi;
 	    sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
             HitCharge+=*idigi;
+	    //if(*idigi!=0){nstrip+=1;}
 	    }
+	    //if(nstrip!=1){
+	    //hit_std_dev = sqrt(sumx*nstrip/((nstrip-1)*HitCharge));
+	    //}else{
 	    hit_std_dev = sqrt(sumx/HitCharge);
-	
+	    //}
+	    
             XGlobal = stereogposition.x();
 	    YGlobal = stereogposition.y();
 	    ZGlobal = stereogposition.z();
@@ -522,7 +485,6 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 		
 		// THE LOCAL ANGLE (STEREO)
 		float tanangle = stereotkdir.x()/stereotkdir.z();
-		TanTrackAngleParallel = stereotkdir.y()/stereotkdir.z();
 		TanTrackAngle = tanangle;
 		detparmap::iterator TheDet=detmap.find(detid.rawId());
                 LocalVector localmagdir;
@@ -534,7 +496,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 		if(signcorrection!=0)SignCorrection=1/signcorrection;}
 		
 		std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator alreadystored=hitangleassociation.find(stereohit);
-				
+		
+		
 		if(alreadystored != hitangleassociation.end()){//decide which hit take
 		if(itm->estimate() >  alreadystored->second.first){
 		worse_double_hit++;}
@@ -558,30 +521,29 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    
 	    const SiStripRecHit2D::ClusterRef & cluster=hit->cluster();
 	   
-	    GeomDetUnit * gdet=(GeomDetUnit *)tracker->idToDet(hit->geographicalId());
+	    GeomDet * gdet=(GeomDet *)tracker->idToDet(hit->geographicalId());
 	    const LocalPoint position = hit->localPosition();    
             StripSubdetector detid=(StripSubdetector)hit->geographicalId();
-	    id_detector = detid.rawId();
-	    thick_detector=gdet->specificSurface().bounds().thickness();
-            const StripTopology& topol=(StripTopology&)gdet->topology();
-            pitch_detector = topol.localPitch(position);
             const GlobalPoint gposition = (gdet->surface()).toGlobal(position);
 	    
 	    ClSize = (cluster->amplitudes()).size();
 	    
 	    const std::vector<uint8_t> amplitudes = cluster->amplitudes();
-	    
 	    barycenter = cluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = cluster->firstStrip();
 	    std::vector<uint8_t>::const_iterator idigi;
 	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
 	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
-	    Amplitudes[nstrip]=*idigi;
 	    sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
             HitCharge+=*idigi;
+	    //if(*idigi!=0){nstrip+=1;}
 	    }
+	    //if(nstrip!=1){
+	    //hit_std_dev = sqrt(sumx*nstrip/((nstrip-1)*HitCharge));
+	    //}else{
 	    hit_std_dev = sqrt(sumx/HitCharge);
+	    //}
 	    
             XGlobal = gposition.x();
 	    YGlobal = gposition.y();
@@ -616,7 +578,6 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    
 	      // THE LOCAL ANGLE 
 	      float tanangle = trackdirection.x()/trackdirection.z();
-	      TanTrackAngleParallel = trackdirection.y()/trackdirection.z();
 	      TanTrackAngle = tanangle;
               detparmap::iterator TheDet=detmap.find(detid.rawId());
               LocalVector localmagdir;
@@ -628,7 +589,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	      if(signcorrection!=0)SignCorrection=1/signcorrection;}
 		
 	      std::map<const SiStripRecHit2D *,std::pair<float,float>, DetIdLess>::iterator alreadystored=hitangleassociation.find(hit);
-	      	      
+	      
+	      
 	      if(alreadystored != hitangleassociation.end()){//decide which hit take
 	      if(itm->estimate() >  alreadystored->second.first){
 	      worse_double_hit++;}
@@ -704,6 +666,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
     histomap::iterator thesummaryhisto=summaryhisto.find(layerid);
     if(thesummaryhisto==summaryhisto.end())edm::LogError("SiStripLAProfileBooker::analyze")<<"Error: the profile associated to subdet "<<name<<"does not exist! ";   
     else thesummaryhisto->second->Fill(tangent,size);
+    
+    //}
     
   }
     

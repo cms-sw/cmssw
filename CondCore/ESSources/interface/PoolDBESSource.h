@@ -15,8 +15,6 @@
 #include <map>
 #include <set>
 // user include files
-#include "CondCore/DBCommon/interface/DBSession.h"
-
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondCore/DBCommon/interface/TagMetadata.h"
@@ -26,19 +24,37 @@ namespace edm{
   class ParameterSet;
 }
 namespace cond{
+  class DBSession;
+  class IOVService;
   class CoralTransaction;
   class Connection;
-  class BasePayloadProxy;
-  class DataProxyWrapperBase;
-}
+  struct IOVInfo{
+    std::string tag; 
+    std::string token;
+    std::string label;
+    std::string pfn;
+    cond::TimeType timetype;
+    std::size_t hashvalue()const{
+      boost::hash<std::string> hasher;
+      std::size_t result=hasher(token+label+pfn);
+      return result;
+    }
+    bool  operator == (const IOVInfo& toCompare ) const {
+      if(this->hashvalue()==toCompare.hashvalue()&&this->timetype==toCompare.timetype) return true;
+     return false;
+    }
+    bool operator != (const IOVInfo& toCompare ) const {
+      return !(*this==toCompare);
+    }
+    bool operator<(const IOVInfo& toCompare ) const {
+      return this->hashvalue()<toCompare.hashvalue();
+    }
+  };
 
+}
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
  public:
-  typedef boost::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
-  typedef std::map< std::string,  ProxyP> ProxyMap;
- 
-
   PoolDBESSource( const edm::ParameterSet& );
   ~PoolDBESSource();
   
@@ -46,38 +62,29 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
 			      const edm::IOVSyncValue& , 
 			      edm::ValidityInterval&) ;
-
   virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) ;
-
   virtual void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) ;    
  private:
-
   // ----------member data ---------------------------
-  cond::DBSession m_session;
- 
-  ProxyMap m_proxies;
-
+  typedef std::multimap< std::string, std::string > RecordToTypes;
+  RecordToTypes m_recordToTypes; 
+  typedef std::map< std::string, std::set<cond::IOVInfo> > ProxyToIOVInfo;
+  ProxyToIOVInfo m_proxyToIOVInfo;
   typedef std::set< cond::TagMetadata > TagCollection;
   TagCollection m_tagCollection;
-
-  struct Stats {
-    int nData;
-    int nSet;
-    int nRun;
-    int nRefresh;
-    int nActualRefresh;
-  };
-
-  Stats stats;
-
-  int lastRun;
-  bool doRefresh;
-
+  typedef std::map<std::string, std::string > DatumToToken;
+  DatumToToken m_datumToToken;
+  cond::DBSession* m_session;
+  std::map<std::string,cond::IOVService*> m_serviceReg;
  private:
-
+  void fillRecordToIOVInfo();
+  void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
+				const std::string& roottag );
    void fillTagCollectionFromDB( cond::CoralTransaction& coraldb,
 				const std::string& roottag,
 				std::map<std::string,cond::TagMetadata>& 
 				 replacement);
+  //std::string setupFrontier(const std::string& frontierconnect);
+  //unsigned int countslash(const std::string& input)const;
 };
 #endif

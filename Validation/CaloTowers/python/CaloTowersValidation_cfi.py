@@ -5,7 +5,7 @@ from Configuration.StandardSequences.Simulation_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
-GlobalTag.globaltag = 'MC_31X_V3::All'
+GlobalTag.globaltag = 'IDEAL_31X::All'
 
 from DQMServices.Core.DQM_cfg import *
 maxEvents = cms.untracked.PSet(
@@ -27,35 +27,25 @@ myanalyzer = cms.EDFilter("CaloTowersValidation",
 
 DQM.collectorHost = ''
 
-#--- DigiToRaw <-> RawToDigi
+#--- DigiToRaw
 from Configuration.StandardSequences.DigiToRaw_cff import *
+ecalPacker.Label = 'simEcalDigis'
+ecalPacker.InstanceEB = 'ebDigis'
+ecalPacker.InstanceEE = 'eeDigis'
+ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
+ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
+#--- RawToDigi
 from Configuration.StandardSequences.RawToDigi_cff  import *
-
-### Special - CaloOnly ---------------------------------------------------
-ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
-ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("ecalPreshowerDigis") 
-hbhereco.digiLabel = cms.InputTag("hcalDigis")
-horeco.digiLabel   = cms.InputTag("hcalDigis")
-hfreco.digiLabel   = cms.InputTag("hcalDigis")
-ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
-ecalRecHit.recoverEEIsolatedChannels = cms.bool(False)
-ecalRecHit.recoverEBFE = cms.bool(False)
-ecalRecHit.recoverEEFE = cms.bool(False)
-
+hcalDigis.InputLabel = 'hcalRawData'
+ecalDigis.InputLabel = 'ecalPacker'
 
 p = cms.Path(
  mix *
  calDigi *
- ecalPacker *
- esDigiToRaw *
- hcalRawData *
- rawDataCollector *
- ecalDigis *
- ecalPreshowerDigis *
- hcalDigis *
- calolocalreco *
+ ecalPacker * hcalRawData *
+ ecalDigis * hcalDigis *
+ ecalGlobalUncalibRecHit * ecalDetIdToBeRecovered * ecalRecHit *
+ hbhereco * horeco * hfreco *
  caloTowersRec *
- myanalyzer
-)
+ myanalyzer)
 

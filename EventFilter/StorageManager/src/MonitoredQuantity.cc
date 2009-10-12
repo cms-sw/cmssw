@@ -1,23 +1,21 @@
-// $Id: MonitoredQuantity.cc,v 1.2 2009/06/10 08:15:27 dshpakov Exp $
+// $Id: MonitoredQuantity.cc,v 1.4 2009/08/18 08:55:12 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 
+#include <algorithm>
 #include <math.h>
 
 using namespace stor;
 
-namespace {
-  const utils::duration_t EXPECTED_CALCULATION_INTERVAL = 1.0; // seconds
-}
 
-utils::duration_t MonitoredQuantity::ExpectedCalculationInterval()
-{
-  return EXPECTED_CALCULATION_INTERVAL;
-}
-
-MonitoredQuantity::MonitoredQuantity(utils::duration_t timeWindowForRecentResults):
-_enabled(true)
+MonitoredQuantity::MonitoredQuantity
+(
+  utils::duration_t expectedCalculationInterval,
+  utils::duration_t timeWindowForRecentResults
+):
+_enabled(true),
+_expectedCalculationInterval(expectedCalculationInterval)
 {
   setNewTimeWindowForRecentResults(timeWindowForRecentResults);
 }
@@ -52,10 +50,11 @@ void  MonitoredQuantity::addSample(const uint32_t value)
   addSample(static_cast<double>(value));
 }
 
-void MonitoredQuantity::calculateStatistics(double currentTime)
+void MonitoredQuantity::calculateStatistics(utils::time_point_t currentTime)
 {
   if (! _enabled) {return;}
   if (_lastCalculationTime <= 0.0) {return;}
+  if (currentTime - _lastCalculationTime < _expectedCalculationInterval) {return;}
 
   // create local copies of the working values to minimize the
   // time that we could block a thread trying to add a sample.
@@ -122,7 +121,7 @@ void MonitoredQuantity::calculateStatistics(double currentTime)
     _recentValueMax = -INFINITY;
     _recentDuration = 0.0;
 
-    for (int idx = 0; idx < _binCount; ++idx) {
+    for (unsigned int idx = 0; idx < _binCount; ++idx) {
       _recentSampleCount += _binSampleCount[idx];
       _recentValueSum += _binValueSum[idx];
       _recentValueSumOfSquares += _binValueSumOfSquares[idx];
@@ -201,7 +200,7 @@ void MonitoredQuantity::calculateStatistics(double currentTime)
 
 void MonitoredQuantity::_reset_accumulators()
 {
-  _lastCalculationTime = -1.0;
+  _lastCalculationTime = 0;
   _workingSampleCount = 0;
   _workingValueSum = 0.0;
   _workingValueSumOfSquares = 0.0;
@@ -213,7 +212,7 @@ void MonitoredQuantity::_reset_accumulators()
 void MonitoredQuantity::_reset_results()
 {
   _workingBinId = 0;
-  for (int idx = 0; idx < _binCount; ++idx) {
+  for (unsigned int idx = 0; idx < _binCount; ++idx) {
     _binSampleCount[idx] = 0;
     _binValueSum[idx] = 0.0;
     _binValueSumOfSquares[idx] = 0.0;
@@ -287,10 +286,13 @@ void MonitoredQuantity::setNewTimeWindowForRecentResults(utils::duration_t inter
     // determine how many bins we should use in our sliding window
     // by dividing the input time window by the expected calculation
     // interval and rounding to the nearest integer.
-    _binCount =
-      static_cast<int>((_intervalForRecentStats / 
-                        static_cast<double>(EXPECTED_CALCULATION_INTERVAL)) +
-                       0.5);
+    // In case that the calculation interval is larger then the 
+    // interval for recent stats, keep the last one.
+    _binCount = std::max(1U,
+      static_cast<unsigned int>(
+        (_intervalForRecentStats / _expectedCalculationInterval) + 0.5
+      )      
+    );
 
     // create the vectors for the binned quantities
     _binSampleCount.reserve(_binCount);
@@ -343,8 +345,8 @@ MonitoredQuantity::getStats(Stats& s) const
   s.recentBinnedSampleCounts.resize(_binCount);
   s.recentBinnedValueSums.resize(_binCount);
   s.recentBinnedDurations.resize(_binCount);
-  int sourceBinId = _workingBinId;
-  for (int idx = 0; idx < _binCount; ++idx) {
+  unsigned int sourceBinId = _workingBinId;
+  for (unsigned int idx = 0; idx < _binCount; ++idx) {
     if (sourceBinId >= _binCount) {sourceBinId = 0;}
     s.recentBinnedSampleCounts[idx] = _binSampleCount[sourceBinId];
     s.recentBinnedValueSums[idx] = _binValueSum[sourceBinId];

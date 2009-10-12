@@ -31,8 +31,6 @@ private:
 
    const FWTracksRecHitsRPZProxyBuilder& operator=(const FWTracksRecHitsRPZProxyBuilder&);    // stop default
 
-   void modelChanges(const FWModelIds& iIds, TEveElement* iElements);
-   void applyChangesToAllModels(TEveElement* iElements);
    // ---------- member data --------------------------------
 
 };
@@ -40,25 +38,6 @@ private:
 void FWTracksRecHitsRPZProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TracksRecHitsUtil::buildTracksRecHits(iItem, product);
-}
-
-void
-FWTracksRecHitsRPZProxyBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
-{
-   applyChangesToAllModels(iElements);
-}
-
-void
-FWTracksRecHitsRPZProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
-{
-   if(0!=iElements && item() && item()->size()) {
-      //make the bad assumption that everything is being changed indentically
-      const FWEventItem::ModelInfo info(item()->defaultDisplayProperties(),false);
-      changeElementAndChildren(iElements, info);
-      iElements->SetRnrSelf(info.displayProperties().isVisible());
-      iElements->SetRnrChildren(info.displayProperties().isVisible());
-      iElements->ElementChanged();
-   }
 }
 
 REGISTER_FWRPZDATAPROXYBUILDERBASE(FWTracksRecHitsRPZProxyBuilder,reco::TrackCollection,"TrackHits");

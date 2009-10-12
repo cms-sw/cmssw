@@ -72,7 +72,7 @@ namespace cms
       {
 	produces<METCollection>().setBranchAlias(alias.c_str());
 	TCMETAlgo ALGO;
-	responseFunction_ = ALGO.getResponseFunction();
+	responseFunction_ = (*ALGO.getResponseFunction());
       }
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
@@ -160,7 +160,7 @@ namespace cms
 	TCMETAlgo tcmetalgorithm;
 	std::auto_ptr<METCollection> tcmetcoll;
 	tcmetcoll.reset(new METCollection);
-	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_, responseFunction_) ) ;
+	tcmetcoll->push_back( tcmetalgorithm.CalculateTCMET(event, setup, conf_, &responseFunction_) ) ;
 	event.put( tcmetcoll );
       }
     //----------------------------------

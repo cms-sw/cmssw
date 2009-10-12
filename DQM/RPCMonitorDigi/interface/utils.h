@@ -165,7 +165,7 @@ namespace rpcdqm{
       ylabel[12] = "RB3+_B";
       ylabel[13] = "RB3+_F";
       ylabel[14] = "RB4,-,--_B";
-      ylabel[15] = "RB4,-,--,F";
+      ylabel[15] = "RB4,-,--_F";
       ylabel[16] = "RB4+,-+_B";
       ylabel[17] = "RB4+,-+_F";
       ylabel[18] = "RB4+-_B";

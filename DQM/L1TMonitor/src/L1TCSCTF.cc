@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/11/14 18:44:52 $
- * $Revision: 1.25 $
+ * $Date: 2008/12/15 15:58:35 $
+ * $Revision: 1.26 $
  * \author J. Berryhill
  *
  */
@@ -158,12 +158,23 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		haloDelEta23 = dbe->book1D("CSCTF_Halo_Eta23","Delta station 2 to station 3 Eta for Halo Muons", 40, -0.20,0.30);
 		
 		
-		csctfTrackQ = dbe->book1D("CSCTF_Track_Q","CSC Track Quality", 16, -0.5, 15.5);
+		csctfTrackQ = dbe->book1D("CSCTF_Track_Q","CSC Track Mode", 16, -0.5, 15.5);
 		csctfTrackQ->setAxisTitle("Track Type", 1);
+		csctfTrackQ->setBinLabel(1,"No Track",1);
+		csctfTrackQ->setBinLabel(2,"Bad Phi Road",1);
 		csctfTrackQ->setBinLabel(3,"ME1-2-3",1);
-		csctfTrackQ->setBinLabel(7,"ME1-2",1);
+		csctfTrackQ->setBinLabel(4,"ME1-2-4",1);
+		csctfTrackQ->setBinLabel(5,"ME1-3-4",1);
+		csctfTrackQ->setBinLabel(6,"ME2-3-4",1);
+		csctfTrackQ->setBinLabel(6,"ME1-2",1);
 		csctfTrackQ->setBinLabel(8,"ME1-3",1);
 		csctfTrackQ->setBinLabel(9,"ME2-3",1);
+		csctfTrackQ->setBinLabel(10,"ME2-4",1);
+		csctfTrackQ->setBinLabel(11,"ME3-4",1);
+		csctfTrackQ->setBinLabel(12,"Singles",1);
+		csctfTrackQ->setBinLabel(13,"ME1-2,MB1",1);
+		csctfTrackQ->setBinLabel(14,"ME1-4",1);
+		csctfTrackQ->setBinLabel(15,"ME2,MB1",1);
 		csctfTrackQ->setBinLabel(16,"Halo Trigger",1);
 		
   		csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
@@ -414,8 +425,11 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 			if( phiReal > (2 *(M_PI) ) ) phiReal -= (2*(M_PI));
 						
 			csctfoccupancies->Fill( etaReal, phiReal);
-			csctfTrackPhi->Fill(trk->first.phi_packed());
-			csctfTrackEta->Fill( trk->first.eta_packed() );
+			if(trigMode != 0xb)
+			{
+				csctfTrackPhi->Fill(trk->first.phi_packed());
+				csctfTrackEta->Fill( trk->first.eta_packed() );
+			}
 			//std::cout << "Eta, phi, trigger mode, sector: " << etaReal << ", " << phiReal << ", " << trigMode << ", " << trk->first.sector() <<  "." << std::endl;
 			
 			csctfTrackQ->Fill( trigMode );

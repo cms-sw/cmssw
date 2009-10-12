@@ -54,28 +54,26 @@ void HcalDetDiagPedestalClient::init(const ParameterSet& ps, DQMStore* dbe, stri
 
 void HcalDetDiagPedestalClient::getHistograms(){
   std::string folder="HcalDetDiagPedestalMonitor/Summary Plots/";
-  
   Pedestals2DRmsHBHEHF  =getHisto2(folder+"HBHEHF pedestal rms map",      process_, dbe_, debug_,cloneME_);
   Pedestals2DRmsHO      =getHisto2(folder+"HO pedestal rms map",          process_, dbe_, debug_,cloneME_);
   Pedestals2DHBHEHF     =getHisto2(folder+"HBHEHF pedestal mean map",     process_, dbe_, debug_,cloneME_);
   Pedestals2DHO         =getHisto2(folder+"HO pedestal mean map",         process_, dbe_, debug_,cloneME_);
   Pedestals2DErrorHBHEHF=getHisto2(folder+"HBHEHF pedestal problems map", process_, dbe_, debug_,cloneME_);
   Pedestals2DErrorHO    =getHisto2(folder+"HO pedestal problems map",     process_, dbe_, debug_,cloneME_);
-
-  PedestalsAve4HB  =new TH1F(*getHisto(folder+"HB Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsAve4HE  =new TH1F(*getHisto(folder+"HE Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsAve4HO  =new TH1F(*getHisto(folder+"HO Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsAve4HF  =new TH1F(*getHisto(folder+"HF Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsAve4Simp=new TH1F(*getHisto(folder+"SIPM Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsAve4ZDC =new TH1F(*getHisto(folder+"ZDC Pedestal Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
+  PedestalsAve4HB  =getHisto(folder+"HB Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4HE  =getHisto(folder+"HE Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4HO  =getHisto(folder+"HO Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4HF  =getHisto(folder+"HF Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4Simp=getHisto(folder+"SIPM Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4ZDC =getHisto(folder+"ZDC Pedestal Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
   
-  PedestalsRefAve4HB  =new TH1F(*getHisto(folder+"HB Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsRefAve4HE  =new TH1F(*getHisto(folder+"HE Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsRefAve4HO  =new TH1F(*getHisto(folder+"HO Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsRefAve4HF  =new TH1F(*getHisto(folder+"HF Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsRefAve4Simp=new TH1F(*getHisto(folder+"SIPM Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  PedestalsRefAve4ZDC =new TH1F(*getHisto(folder+"ZDC Pedestal Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_));
-  
+  PedestalsRefAve4HB  =getHisto(folder+"HB Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsRefAve4HE  =getHisto(folder+"HE Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsRefAve4HO  =getHisto(folder+"HO Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsRefAve4HF  =getHisto(folder+"HF Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsRefAve4Simp=getHisto(folder+"SIPM Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsRefAve4ZDC =getHisto(folder+"ZDC Pedestal Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+ 
   PedestalsRefAve4HB->SetLineColor(kGreen);
   PedestalsRefAve4HE->SetLineColor(kGreen);
   PedestalsRefAve4HO->SetLineColor(kGreen);
@@ -88,11 +86,11 @@ void HcalDetDiagPedestalClient::getHistograms(){
   PedestalsRefAve4HF->SetLineWidth(3);
   PedestalsRefAve4Simp->SetLineWidth(3);
   PedestalsRefAve4ZDC->SetLineWidth(3);
-  
-  PedestalsAve4HBref=getHisto(folder+"HB Pedestal-Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HEref=getHisto(folder+"HE Pedestal-Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HOref=getHisto(folder+"HO Pedestal-Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
-  PedestalsAve4HFref=getHisto(folder+"HF Pedestal-Reference Distribution (avarage over 4 caps)", process_, dbe_, debug_,cloneME_);
+ 
+  PedestalsAve4HBref=getHisto(folder+"HB Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4HEref=getHisto(folder+"HE Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4HOref=getHisto(folder+"HO Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
+  PedestalsAve4HFref=getHisto(folder+"HF Pedestal-Reference Distribution (average over 4 caps)", process_, dbe_, debug_,cloneME_);
   
   PedestalsRmsHB=getHisto(folder+"HB Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
   PedestalsRmsHE=getHisto(folder+"HE Pedestal RMS Distribution (individual cap)", process_, dbe_, debug_,cloneME_);
@@ -124,12 +122,12 @@ void HcalDetDiagPedestalClient::getHistograms(){
   PedestalsRmsHEref=getHisto(folder+"HE Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
   PedestalsRmsHOref=getHisto(folder+"HO Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
   PedestalsRmsHFref=getHisto(folder+"HF Pedestal_rms-Reference_rms Distribution", process_, dbe_, debug_,cloneME_);
-    
+   
   getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Missing Channels", ChannelStatusMissingChannels);
   getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Unstable Channels",ChannelStatusUnstableChannels);
   getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Pedestal Mean",    ChannelStatusBadPedestalMean);
   getSJ6histos("HcalDetDiagPedestalMonitor/channel status/","Channel Status Pedestal RMS",     ChannelStatusBadPedestalRMS);
- 
+
   MonitorElement* me = dbe_->get("Hcal/HcalDetDiagPedestalMonitor/HcalDetDiagPedestalMonitor Event Number");
   if ( me ) {
     string s = me->valueString();

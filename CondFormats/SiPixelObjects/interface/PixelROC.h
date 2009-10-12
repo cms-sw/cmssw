@@ -27,6 +27,9 @@ public:
   ~PixelROC();
 
   PixelROC(const PixelROC & o);
+  const PixelROC& operator=(const PixelROC&);
+
+  void swap(PixelROC&);
 
   /// ctor with DetUnit id, 
   /// ROC number in DU (given by token passage), 

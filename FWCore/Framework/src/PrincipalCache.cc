@@ -1,7 +1,4 @@
 
-
-// $Id: PrincipalCache.cc,v 1.3 2009/04/26 16:00:34 chrjones Exp $
-
 #include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -211,5 +208,11 @@ namespace edm {
 
   void PrincipalCache::deleteLumi(int run, int lumi) {
     lumiPrincipals_.erase(lumiPrincipals_.find(LumiKey(run, lumi)));
+  }
+
+  void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
+    for (ConstRunIterator it = runPrincipals_.begin(), itEnd = runPrincipals_.end(); it != itEnd; ++it) {
+      it->second->adjustIndexesAfterProductRegistryAddition();
+    }
   }
 }

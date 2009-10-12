@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.39 2009/07/20 19:31:07 loizides Exp $
+# $Id: setup_sm.sh,v 1.41 2009/08/17 13:30:08 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -51,9 +51,49 @@ if test -e "/opt/injectworker/inject/t0inject.sh"; then
     t0inject="/opt/injectworker/inject/t0inject.sh"
 fi
 
+# For xfs_admin
+PATH=$PATH:/usr/sbin
+
 #
 # functions
 #
+
+# Checks if a host is running the currently supported SLC version
+# to prevent starting up things if not, to avoid crashing the CopyManager
+checkSLCversion () {
+    slc_release=$(cat /etc/redhat-release)
+    case $slc_release in
+        *5.3*)
+            echo "This host is running $slc_release, which is NOT compatible with the current SLC4 CopyManager" >&2
+            echo "Therefore nothing will be started, but the disks will be mounted" >&2
+            exit
+            ;;
+        *4.4*)
+            ;;
+        *)
+            echo "This host is running $slc_release, which is UNKOWN" >&2
+            echo "Therefore nothing will be started, but the disks will be mounted" >&2
+            exit
+            ;;
+    esac
+}
+
+# Mounts a disk, looking for its label
+mountByLabel () {
+    sn=`basename $1`
+    if mount | grep -q $sn; then
+        device=''
+        for dev in /dev/mapper/mpath*; do
+            xfs_admin -l $dev | grep -q 'label = "'$sn'"' && device=$dev
+        done
+        if [ -b "$device" ]; then
+            echo "Attempting to mount $1 from $device"
+            mount $device $1
+        else
+            echo "Could not mount $1: no device in /dev/mapper/mpath* with label $sn"
+        fi
+    fi
+}
 
 modifykparams () {
 #    echo     5 > /proc/sys/vm/dirty_background_ratio
@@ -64,6 +104,7 @@ modifykparams () {
 }
 
 startcopyworker () {
+    checkSLCversion
     local local_file="/opt/copyworker/TransferSystem_Cessy.cfg"
     local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
 
@@ -88,6 +129,7 @@ startcopyworker () {
 }
 
 startinjectworker () {
+    checkSLCversion
     local local_file="/opt/injectworker/.db.conf"
     local reference_file="/nfshome0/smpro/configuration/db.conf"
 
@@ -121,11 +163,12 @@ startinjectworker () {
 }
 
 startcopymanager () {
+    checkSLCversion
     local local_file="/opt/copymanager/TransferSystem_Cessy.cfg"
     local reference_file="/nfshome0/smpro/configuration/TransferSystem_Cessy.cfg"
 
     if test "$hname" != "$cmhost"; then
-        echo "This host is not configured to by CopyManager: $hname != $cmhost"
+        echo "This host is not configured to be THE CopyManager: $hname != $cmhost"
         return;
     fi
 
@@ -160,13 +203,13 @@ start () {
         srv-C2D05-02)
             for i in $store/satacmsdisk*; do 
                 sn=`basename $i`
-                if test -z "`mount | grep $sn`"; then
+                if mount | grep -q $sn; then
                     echo "Attempting to mount $i"
                     mount -L $sn $i
                 fi
             done
             ;;
-        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
 
             if test -x "/sbin/multipath"; then
                 echo "Refresh multipath devices"
@@ -174,11 +217,7 @@ start () {
             fi
 
             for i in $store/sata*a*v*; do 
-                sn=`basename $i`
-                if test -z "`mount | grep $sn`"; then
-                    echo "Attempting to mount $i"
-                    mount -L $sn $i
-                fi
+                mountByLabel $i
             done
 
             if test -x "/sbin/multipath"; then
@@ -273,7 +312,7 @@ stop () {
                 fi
             done
             ;;
-        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
             stopworkers
             for i in $store/sata*a*v*; do 
                 sn=`basename $i`
@@ -329,7 +368,7 @@ status () {
                 printmstat $i $sn
             done
             ;;
-        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-*)
+        srv-c2c07-* | srv-C2C07-* | srv-c2c06-* | srv-C2C06-* | dvsrv-C2F37-*)
             for i in $store/sata*a*v*; do 
                 sn=`basename $i`
                 printmstat $i $sn
@@ -358,68 +397,68 @@ status () {
 # See how we were called.
 case "$1" in
     start)
-	start
-	RETVAL=$?
-	;;
+        start
+        RETVAL=$?
+        ;;
     stop)
-	stop
-	RETVAL=$?
-	;;
+        stop
+        RETVAL=$?
+        ;;
     status)
-	status
-	RETVAL=$?
-	;;
+        status
+        RETVAL=$?
+        ;;
     startall)
-	start
-	RETVAL=$?
-	;;
+        start
+        RETVAL=$?
+        ;;
     stopall)
-	stop
-	RETVAL=$?
-	;;
+        stop
+        RETVAL=$?
+        ;;
     statusall)
-	status
-	RETVAL=$?
-	;;
+        status
+        RETVAL=$?
+        ;;
     startinject)
-	startinjectworker
-	RETVAL=$?
-	;;
+        startinjectworker
+        RETVAL=$?
+        ;;
     stopinject)
-	stopinjectworker
-	RETVAL=$?
-	;;
+        stopinjectworker
+        RETVAL=$?
+        ;;
     statusinject)
         su - smpro -c "$t0inject status"
-	RETVAL=$?
-	;;
+        RETVAL=$?
+        ;;
     startcopy)
-	startcopyworker
-	RETVAL=$?
-	;;
+        startcopyworker
+        RETVAL=$?
+        ;;
     stopcopy)
-	stopcopyworker
-	RETVAL=$?
-	;;
+        stopcopyworker
+        RETVAL=$?
+        ;;
     statuscopy)
         su - cmsprod -c "$t0control status"
-	RETVAL=$?
-	;;
+        RETVAL=$?
+        ;;
     startmanager)
-	startcopymanager
-	RETVAL=$?
-	;;
+        startcopymanager
+        RETVAL=$?
+        ;;
     stopmanager)
-	stopcopymanager
-	RETVAL=$?
-	;;
+        stopcopymanager
+        RETVAL=$?
+        ;;
     statusmanager)
         su - cmsprod -c "$t0cmcontrol status"
-	RETVAL=$?
-	;;
+        RETVAL=$?
+        ;;
     *)
-	echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy}"
-	RETVAL=1
-	;;
+        echo $"Usage: $0 {start|stop|status|startinject|stopinject|statusinject|startcopy|stopcopy|statuscopy|startmanager|stopmanager|statusmanager}"
+        RETVAL=1
+        ;;
 esac
 exit $RETVAL

@@ -65,7 +65,7 @@ void ApvTimingAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void ApvTimingAnalysis::refTime( const float& time, const float& targetDelay ) { 
+void ApvTimingAnalysis::refTime( const float& time ) { 
 
   // Checks synchronization to reference time is done only once
   if ( synchronized_ ) { 
@@ -82,23 +82,13 @@ void ApvTimingAnalysis::refTime( const float& time, const float& targetDelay ) {
   if ( time_ > sistrip::valid_ ) { return; }
   
   // Calculate position of "sampling point" of last tick;
-  int32_t position;
-  if ( targetDelay == -1 ) {   // by default use latest tick
-    position = static_cast<int32_t>( rint( refTime_ + optimumSamplingPoint_ ) );
-  } else {
-    position = static_cast<int32_t>( rint( targetDelay + optimumSamplingPoint_ ) );
-  }
+  int32_t position = static_cast<int32_t>( rint( refTime_ + optimumSamplingPoint_ ) );
 
   // Calculate adjustment so that sampling point is multiple of 25 (ie, synched with FED sampling)
   float adjustment = 25 - position % 25;
 
   // Calculate delay required to synchronise with this adjusted sampling position
-  if ( targetDelay == -1 ) {   // by default align forward to the latest tick
-    delay_ = ( refTime_ + adjustment ) - time_;
-  } else {                     // otherwise use the supplied target delay
-    if ( adjustment > 25/2 ) adjustment -= 25; // go as close as possible to desired target
-    delay_ = ( targetDelay + adjustment ) - time_;
-  }
+  delay_ = ( refTime_ + adjustment ) - time_; 
 
   // Check reference time
   if ( refTime_ < 0. || refTime_ > sistrip::valid_ ) { 
@@ -107,7 +97,7 @@ void ApvTimingAnalysis::refTime( const float& time, const float& targetDelay ) {
   }
   
   // Check delay is valid
-  if ( delay_ < -sistrip::valid_ || delay_ > sistrip::valid_ ) { 
+  if ( delay_ < 0. || delay_ > sistrip::valid_ ) { 
     delay_ = sistrip::invalid_;
     addErrorCode(sistrip::invalidDelayTime_);
   }

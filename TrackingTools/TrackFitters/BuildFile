@@ -7,10 +7,8 @@
  <use name=TrackingTools/GeomPropagators>
  <use name=TrackingTools/MaterialEffects>
  <use name=FWCore/MessageLogger>
- <use name=TrackingTools/RecoGeometry>
 </export>
 
-<use name=TrackingTools/RecoGeometry>
 <use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/MaterialEffects>

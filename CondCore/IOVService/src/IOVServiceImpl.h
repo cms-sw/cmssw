@@ -50,8 +50,7 @@ namespace cond{
     cond::IOVSequence const & iovSeq(const std::string& iovToken) const;
 
     cond::PoolTransaction* m_pooldb;
-    typedef std::map< std::string,  pool::Ref<cond::IOVSequence> > Cache;
-    mutable Cache m_iovcache;
+    std::map< std::string, cond::IOVSequence const * > m_iovcache;
   };
 
 }//ns cond

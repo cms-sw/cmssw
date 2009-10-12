@@ -2,6 +2,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DPGAnalysis/SiStripTools/interface/APVShot.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <algorithm>
 
 APVShot::APVShot(): 
   _zs(true), _apv(-1), _nstrips(0), _median(-1), _detid() { }
@@ -39,8 +40,8 @@ void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& de
   
   // charge to be sorted in descending order
 
-  sort(charge.begin(),charge.end()); 
-  reverse(charge.begin(),charge.end());
+  std::sort(charge.begin(),charge.end()); 
+  std::reverse(charge.begin(),charge.end());
 
   if(charge.size()> 64) { _median = float(charge[63]+charge[64])/2.; }
 

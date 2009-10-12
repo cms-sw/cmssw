@@ -3,7 +3,6 @@
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 
@@ -35,15 +34,7 @@ public:
 
   virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
-		    PropagationDirection timeDirection) const {int counter =0; return compatibleLayers(fts,timeDirection,counter);};
-
-  virtual std::vector<const DetLayer*> 
-  compatibleLayers( const FreeTrajectoryState& fts, 
-		    PropagationDirection timeDirection,
-		    int& counter)const {
-    edm::LogWarning("DetLayers") << "compatibleLayers(fts,dir,counter) not implemented. returning empty vector";
-    return  std::vector<const DetLayer*>() ;
-  }
+		    PropagationDirection timeDirection) const = 0;
 
   virtual DetLayer* detLayer() const = 0;
   virtual void   setDetLayer( DetLayer* dl) = 0;

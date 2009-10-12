@@ -25,6 +25,7 @@ namespace sistrip {
       uint16_t length() const;
       const uint8_t* data() const;
       size_t offset() const;
+      uint16_t cmMedian(const uint8_t apvIndex) const;
     private:
       friend class FEDBuffer;
       //third byte of channel data for normal FED channels
@@ -369,7 +370,7 @@ namespace sistrip {
   
   inline bool FEDBufferBase::majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const
     {
-      return specialHeader_.majorityAddressErrorForFEUnit(internalFEUnitNum);
+      return (specialHeader_.majorityAddressErrorForFEUnit(internalFEUnitNum) && (specialHeader_.apveAddress() != 0x00));
     }
   
   inline bool FEDBufferBase::feEnabled(const uint8_t internalFEUnitNum) const
