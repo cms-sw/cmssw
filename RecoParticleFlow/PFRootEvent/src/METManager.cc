@@ -202,11 +202,11 @@ reco::MET METManager::recomputePFMET(const reco::PFCandidateCollection& pfCandid
  
   SpecificPFMETData specific;
   // Initialize the container
-  specific.NeutralEMFraction = 0.0;
-  specific.NeutralHadFraction = 0.0;
-  specific.ChargedEMFraction = 0.0;
-  specific.ChargedHadFraction = 0.0;
-  specific.MuonFraction = 0.0;
+  specific.NeutralEMEtFraction = 0.0;
+  specific.NeutralHadEtFraction = 0.0;
+  specific.ChargedEMEtFraction = 0.0;
+  specific.ChargedHadEtFraction = 0.0;
+  specific.MuonEtFraction = 0.0;
 
   reco::PFMET specificPFMET( specific, sum_et, p4, vtx );
   return specificPFMET;
