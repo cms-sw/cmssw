@@ -81,6 +81,7 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
       //DigiErrorsNoDigi[i]    =0;
       DigiErrorsDVErr[i]    =0;
       DigiOccupancyByDepth[i]    =0;
+      DigiErrorsUnpacker[i] = 0;
     } // for (int i=0;i<4;++i)
 
   for (int i=0;i<9;++i)
@@ -250,6 +251,7 @@ void HcalDigiClient::cleanup(void)
 	  if (DigiErrorsBadADCSum[i]) delete DigiErrorsBadADCSum[i];
 	  //if (DigiErrorsNoDigi[i]) delete DigiErrorsNoDigi[i];
 	  if (DigiErrorsDVErr[i]) delete DigiErrorsDVErr[i];
+	  if (DigiErrorsUnpacker[i]) delete DigiErrorsUnpacker[i];
 	  if (DigiOccupancyByDepth[i]) delete DigiOccupancyByDepth[i];
 	} // for (int i=0;i<4;++i)
       for (int i=0;i<9;++i)
@@ -409,7 +411,7 @@ void HcalDigiClient::getProblemHistograms()
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/data_invalid_error/"," Digis with Data Invalid or Error Bit Set",DigiErrorsDVErr);
-
+  getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/bad_reportUnpackerErrors", " Bad Unpacker Digis",DigiErrorsUnpacker);
   if (showTiming_)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalDigiClient GETPROBLEMHISTOGRAMS  -> "<<cpu_timer.cpuTime()<<std::endl;
@@ -628,6 +630,7 @@ void HcalDigiClient::getHistograms()
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/badcapID/"," Digis with Bad Cap ID Rotation",DigiErrorsBadCapID);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/baddigisize/"," Digis with Bad Size",DigiErrorsBadDigiSize);
   getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/data_invalid_error/"," Digis with Data Invalid or Error Bit Set",DigiErrorsDVErr);
+  getEtaPhiHists(rootFolder_,"DigiMonitor_Hcal/bad_digis/bad_reportUnpackerErrors", "Bad Unpacker Digis",DigiErrorsUnpacker);
 
   if (showTiming_)
     {
@@ -757,6 +760,10 @@ void HcalDigiClient::resetAllME()
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/data_invalid_error/"<<subdets_[i]<<" Digis with Data Invalid or Error Bit Set";
       resetME(name.str().c_str(),dbe_);
       name.str("");
+      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_reportUnpackerErrors/"<<subdets_[i]<<" Bad Unpacker Digis";
+      resetME(name.str().c_str(),dbe_);
+      name.str("");
+
     } // for (int i=0;i<4;++i)
   if (showTiming_)
     {
@@ -859,6 +866,7 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   htmlFile<<"<br><a href=\"#DIGIADCSUM\">Digi Bad ADC Sum Plots </a>"<<std::endl;
   htmlFile<<"<br><a href=\"#DIGIERRORBIT\">Digi Bad Error Bit Plots </a>"<<std::endl;
   //htmlFile<<"<br><a href=\"#NODIGI\">Missing Digi Plots </a>"<<std::endl;
+  htmlFile<<"<br><a href=\"#REPORTDIGI\">Bad Unpacker Report Digi Plots </a>"<<std::endl;
   htmlFile<<"</td></tr><tr><td align=\"center\">"<<std::endl;
   htmlFile<<"<br><a href=\"#HBDIGI\">HB Digi Plots </a>"<<std::endl;
   htmlFile<<"<br><a href=\"#HEDIGI\">HE Digi Plots </a>"<<std::endl;
@@ -1015,6 +1023,23 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     }
   htmlFile <<"</table>"<<std::endl;
   */
+  
+  // report unpacker errors
+  htmlFile << "<h2><strong><a name=\"REPORTDIGI\">Report Unpacker Error Plots</strong></h2>"<<std::endl;
+  htmlFile <<"This shows digis that are reported as bad by the unpacker (and thus aren't included in the base digi collection) <br>"<<std::endl;
+  htmlFile <<"<a href= \"#EXPERT_DIGI_TOP\" > Back to Top</a><br>"<<std::endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
+  htmlFile << "cellpadding=\"10\"> " << std::endl;
+  gStyle->SetPalette(1);
+  for (int i=0;i<2;++i)
+    {
+      htmlFile << "<tr align=\"left\">" << std::endl;
+      htmlAnyHisto(runNo,DigiErrorsUnpacker[2*i],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlAnyHisto(runNo,DigiErrorsUnpacker[2*i+1],"i#eta","i#phi", 92, htmlFile, htmlDir);
+      htmlFile <<"</tr>"<<std::endl;
+    }
+  htmlFile <<"</table>"<<std::endl;
+
 
   // HB Plots
   htmlFile << "<h2><strong><a name=\"HBDIGI\">HB digi Plots</strong></h2>"<<std::endl;
@@ -1300,6 +1325,11 @@ void HcalDigiClient::loadHistograms(TFile* infile){
       name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/data_invalid_error/"<<subdets_[i]<<" Digis with Data Invalid or Error Bit Set";
       DigiErrorsDVErr[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
       name.str("");
+
+      name<<process_.c_str()<<"DigiMonitor_Hcal/bad_digis/bad_reportUnpackerErrors/"<<subdets_[i]<<" Bad Unpacker Digis";
+      DigiErrorsDVErr[i] = static_cast<TH2F*>(infile->Get(name.str().c_str()));
+      name.str("");
+
     } // for (int i=0;i<4;++i)
 
 

@@ -865,20 +865,20 @@ void HcalDeadCellClient::loadHistograms(TFile* infile)
     {
       // Grab arrays of histograms
       name.str("");
-      name<<process_.c_str()<<rootFolder_<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_digi_never_present/"<<subdets_[i]<<"Digi Present At Least Once";
+      name<<process_.c_str()<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_digi_never_present/"<<subdets_[i]<<"Digi Present At Least Once";
       DigiPresentByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
       name.str("");
 
       if (deadclient_test_occupancy_)
 	{
-	  name<<process_.c_str()<<rootFolder_<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_digi_often_missing/"<<subdets_[i]<<"Dead Cells with No Digis";
+	  name<<process_.c_str()<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_digi_often_missing/"<<subdets_[i]<<"Dead Cells with No Digis";
 	  UnoccupiedDeadCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}
 
       if (deadclient_test_energy_)
 	{
-	  name<<process_.c_str()<<rootFolder_<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
+	  name<<process_.c_str()<<rootFolder_<<"/DeadCellMonitor_Hcal/dead_energytest"<<subdets_[i]<<"Dead Cells Failing Energy Threshold Test";
 	  BelowEnergyThresholdCellsByDepth[i] = (TH2F*)infile->Get(name.str().c_str());
 	  name.str("");
 	}

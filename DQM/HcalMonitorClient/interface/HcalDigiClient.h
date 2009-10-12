@@ -98,6 +98,7 @@ private:
   TH2F* DigiErrorsBadADCSum[4];
   TH2F* DigiErrorsNoDigi[4];
   TH2F* DigiErrorsDVErr[4];
+  TH2F* DigiErrorsUnpacker[4];
   TH2F* DigiOccupancyByDepth[4];
   TH2F* DigiOccupancyVME;
   TH2F* DigiOccupancySpigot;
