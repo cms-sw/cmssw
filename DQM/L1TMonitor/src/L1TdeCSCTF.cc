@@ -1,5 +1,5 @@
 /*
- * CSCTFDataToEmuComparator.cc v1.0
+ * L1TdeCSCTF.cc v1.0
  * written by J. Gartner
  */
  
@@ -28,7 +28,7 @@
 using namespace std;
 using namespace edm;
 
-CSCTFDataToEmuComparator::CSCTFDataToEmuComparator(edm::ParameterSet const& pset):edm::EDAnalyzer(){
+L1TdeCSCTF::L1TdeCSCTF(edm::ParameterSet const& pset):edm::EDAnalyzer(){
 	dataTrackProducer = pset.getUntrackedParameter<edm::InputTag>("dataTrackProducer",edm::InputTag("csctfDigis"));
 	emulTrackProducer = pset.getUntrackedParameter<edm::InputTag>("emulTrackProducer",edm::InputTag("simCsctfTrackDigis"));
 	lctProducer       = pset.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfDigis"));
@@ -38,46 +38,59 @@ CSCTFDataToEmuComparator::CSCTFDataToEmuComparator(edm::ParameterSet const& pset
 	
 	ptLUTset = pset.getParameter<edm::ParameterSet>("PTLUT");
 	
-	dbe = Service<DQMStore>().operator->();
-	dbe->setVerbose(0);
-	outFile = pset.getUntrackedParameter<string>("outFile");
+	dbe = NULL;
+	if(pset.getUntrackedParameter<bool>("DQMStore", false) )
+	{
+		dbe = Service<DQMStore>().operator->();
+		dbe->setVerbose(0);
+		dbe->setCurrentFolder("L1T/L1tdeCSCTF");
+	}
+	
+	outFile = pset.getUntrackedParameter<string>("outFile", "");
+	if( outFile.size() != 0 )
+	{
+		cout << "L1T Monitoring histograms will be saved to " << outFile.c_str() << endl;
+	}
+	
+	bool disable = pset. getUntrackedParameter<bool>("disableROOToutput", false);
+	if(disable){
+		outFile="";
+	}
 	
 	bzero(srLUTs_, sizeof(srLUTs_));
 	//int endcap =1, sector =1;
 	bool TMB07=true;
 	edm::ParameterSet srLUTset;
 	srLUTset.addUntrackedParameter<bool>("ReadLUTs", false);
-  srLUTset.addUntrackedParameter<bool>("Binary",   false);
-  srLUTset.addUntrackedParameter<std::string>("LUTPath", "./");
-  for(int endcapItr = CSCDetId::minEndcapId(); endcapItr <= CSCDetId::maxEndcapId(); endcapItr++)
-  {
-  	for(int sectorItr = CSCTriggerNumbering::minTriggerSectorId();sectorItr <= CSCTriggerNumbering::maxTriggerSectorId();sectorItr++)
-    {
-	  	for(int stationItr = 1; stationItr <= 4; stationItr++)
-      {
-	    	if(stationItr == 1)
-        {
+  	srLUTset.addUntrackedParameter<bool>("Binary",   false);
+  	srLUTset.addUntrackedParameter<std::string>("LUTPath", "./");
+  	for(int endcapItr = CSCDetId::minEndcapId(); endcapItr <= CSCDetId::maxEndcapId(); endcapItr++)
+  	{
+  		for(int sectorItr = CSCTriggerNumbering::minTriggerSectorId();sectorItr <= CSCTriggerNumbering::maxTriggerSectorId();sectorItr++)
+    	{
+	  		for(int stationItr = 1; stationItr <= 4; stationItr++)
+      		{
+	    		if(stationItr == 1)
+        		{
 					for(int subsectorItr = 0; subsectorItr < 2; subsectorItr++)
-   				{
-		      	srLUTs_[endcapItr-1][sectorItr-1][subsectorItr] = 
-							new CSCSectorReceiverLUT(endcapItr, sectorItr, subsectorItr+1, stationItr, srLUTset, TMB07); 
-        	}
-        } else {
-		  		srLUTs_[endcapItr-1][sectorItr-1][stationItr] = 
-						new CSCSectorReceiverLUT(endcapItr, sectorItr, 0, stationItr, srLUTset, TMB07); 
-       	} //if for station 1 or 234
-      } // stationItr loop
-   	} // sectorItr loop
-  } // endcapItr loop
+   					{
+		      			srLUTs_[endcapItr-1][sectorItr-1][subsectorItr] = new CSCSectorReceiverLUT(endcapItr, sectorItr, subsectorItr+1, stationItr, srLUTset, TMB07); 
+        			}
+        		} else {
+		  			srLUTs_[endcapItr-1][sectorItr-1][stationItr] = new CSCSectorReceiverLUT(endcapItr, sectorItr, 0, stationItr, srLUTset, TMB07); 
+       			} //if for station 1 or 234
+      		} // stationItr loop
+   		} // sectorItr loop
+  	} // endcapItr loop
 }
 
-void CSCTFDataToEmuComparator::beginJob(edm::EventSetup const& es)
+void L1TdeCSCTF::beginJob(edm::EventSetup const& es)
 {
 	edm::ESHandle< L1MuTriggerScales > scales ;
-  es.get< L1MuTriggerScalesRcd >().get( scales ) ;
-  edm::ESHandle< L1MuTriggerPtScale > ptScale ;
-  es.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
-  ptLUT_ = new CSCTFPtLUT(ptLUTset, scales.product(), ptScale.product() );
+	es.get< L1MuTriggerScalesRcd >().get( scales ) ;
+	edm::ESHandle< L1MuTriggerPtScale > ptScale ;
+	es.get< L1MuTriggerPtScaleRcd >().get( ptScale ) ;
+	ptLUT_ = new CSCTFPtLUT(ptLUTset, scales.product(), ptScale.product() );
 
 	/////////////////////////////
 	// DQM Directory Structure //
@@ -85,7 +98,7 @@ void CSCTFDataToEmuComparator::beginJob(edm::EventSetup const& es)
 	DQMStore * dbe = 0;
 	dbe = Service<DQMStore>().operator->();
 	if( dbe ){
-		dbe->setCurrentFolder("CSCTF/OfflineVOnlineComparator");
+		dbe->setCurrentFolder("L1T/L1tdeCSCTF");
 		/////////////////////////////
 		// Define Monitor Elements //
 		/////////////////////////////
@@ -182,15 +195,15 @@ void CSCTFDataToEmuComparator::beginJob(edm::EventSetup const& es)
 	
 }
 
-void CSCTFDataToEmuComparator::endJob(void){
+void L1TdeCSCTF::endJob(void){
 	
 	if(ptLUT_) delete ptLUT_;
 	
-	dbe->save(outFile);	
+	if ( outFile.size() != 0  && dbe ) dbe->save(outFile);	
 	return;
 }
 
-void CSCTFDataToEmuComparator::analyze(edm::Event const& e, edm::EventSetup const& es){
+void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 	// Get LCT information
 	//////////////////////
 	int lctArray[20][7];

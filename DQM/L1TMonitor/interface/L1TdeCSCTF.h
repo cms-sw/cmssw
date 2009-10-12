@@ -31,7 +31,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
-class CSCTFDataToEmuComparator : public edm::EDAnalyzer {
+class L1TdeCSCTF : public edm::EDAnalyzer {
 private:
 	edm::InputTag lctProducer, dataTrackProducer, emulTrackProducer;
 	int nDataMuons, nEmulMuons;
@@ -71,8 +71,8 @@ public:
 	void endJob(void);
 	void beginJob(edm::EventSetup const&);
 
-	explicit CSCTFDataToEmuComparator(edm::ParameterSet const& pset);
-	virtual ~CSCTFDataToEmuComparator() {}
+	explicit L1TdeCSCTF(edm::ParameterSet const& pset);
+	virtual ~L1TdeCSCTF() {}
 };
 
 #endif
