@@ -1,6 +1,6 @@
 #ifndef CondTools_Luminosity_LUMIDATASTRUCTURES_H
 #define CondTools_Luminosity_LUMIDATASTRUCTURES_H
-//Note: this header file corresponds to svn.cern.ch/reps/Luminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh - Revision 68
+//Note: this header file corresponds to svn.cern.ch/reps/Luminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh - Revision 68 LumiDAQ-release-2.0
 /*
   LumiNibble structure definitions
 */

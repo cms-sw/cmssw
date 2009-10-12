@@ -28,7 +28,7 @@ lumi::DummySource::fill(std::vector< std::pair<lumi::LumiSectionData*,cond::Time
   }
   size_t runnumber=0;
   size_t lumisecnumber=0;
-  for(size_t j=1; j<300; ++j){
+  for(size_t j=1; j<2; ++j){
     if(allowForceFirstSince && j==1){  //if allowForceFirstSince and this is the head of the iov, then set the head to the begin of time
       runnumber=1;
       lumisecnumber=1;

@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:offlinelumi.db'
+#process.CondDBCommon.connect = 'sqlite_file:offlinelumi.db'
+process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_RUN_INFO'
+process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/xiezhen/conddb'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
@@ -11,7 +13,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect = cms.untracked.string('sqlite_file:log.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('LumiSectionData'),
-        tag = cms.string('testlumidummy')
+        tag = cms.string('lhcscan_1')
     ))
 )
 
@@ -25,9 +27,9 @@ process.source = cms.Source("EmptyIOVSource",
 process.lumidatatransfer = cms.EDAnalyzer("LumiSectionDataPopCon",
     Source = cms.PSet(
       lumiRetrieverName = cms.string('dummysource'),
-      runNumber = cms.int32(31),
+      runNumber = cms.int32(1),
       lumiVersion = cms.string('1'),
-      allowForceFirstSince = cms.bool(True)
+      allowForceFirstSince = cms.bool(False)
     ),
     SinceAppendMode = cms.bool(True),
     name = cms.untracked.string('LumiSectionData'),
