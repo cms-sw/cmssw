@@ -37,6 +37,9 @@ try:
 except Exception,e:
     raise ImportError("Could not import PyQt4 : "+str(e))
 
+qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.5.2/plugins"))
+QCoreApplication.addLibraryPath(qt_plugins_path)
+
 setWebsiteUrl('http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideConfigBrowser')
 
 from Vispa.Main.Application import *
@@ -44,6 +47,7 @@ from Vispa.Plugins.ConfigBrowser.ConfigBrowserPlugin import *
 
 if __name__ == "__main__":
     app = Application(sys.argv)
+    #print app.applicationDirPath(),QLibraryInfo.location(QLibraryInfo.PrefixPath)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app.mainWindow().setWindowTitle("ConfigBrowser")
     app.run()
