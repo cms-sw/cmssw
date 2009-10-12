@@ -119,6 +119,7 @@ TracksRecHitsUtil::addHits(const reco::Track& track,
                TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
                if(0!=shape) {
                   shape->SetMainTransparency(65);
+                  shape->SetPickable(kTRUE);
                   shape->SetMainColor(iItem->defaultDisplayProperties().color());
                   shape->SetTitle(name + ULong_t(detid.rawId()));
                   trkList->AddElement(shape);
