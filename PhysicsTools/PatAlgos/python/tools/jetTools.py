@@ -20,63 +20,30 @@ def patchJetCorrFactors_(jetCorrFactors, newAlgo):
         print "NOTE TO USER: L7Parton is currently taken from SC5 instead of AK5 "
         print "              This is an intermediate solution for the time being."
         ## redirect the L7Parton correction in case of AK5 or AK7
-        setattr(jetCorrFactors, 'L7Parton', getattr(jetCorrFactors, 'L7Parton').value().replace(newAlgo,'SC5') )
+        corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
+        corrLevels.L7Parton = corrLevels.L7Parton.value().replace(newAlgo, 'SC5')
     if (newAlgo == "AK7"):
         ## voice a note to the user
         print "NOTE TO USER: L7Parton is currently taken from SC7 instead of AK7 "
         print "              This is an intermediate solution for the time being."
         ## redirect the L7Parton correction in case of AK5 or AK7        
-        setattr(jetCorrFactors, 'L7Parton', getattr(jetCorrFactors, 'L7Parton').value().replace(newAlgo,'SC7') )
+        corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
+        corrLevels.L7Parton = corrLevels.L7Parton.value().replace(newAlgo, 'SC7')
 
 
 def switchJECSet(process,
-                 newName,
-                 oldName
+                 newName
                  ):
     """
     ------------------------------------------------------------------
     replace tags in the JetCorrFactorsProducer for end-users:
 
     process : process
-    newName : new name of JEC module
-    oldName : old name of JEC module
+    newName : new correction sample
     ------------------------------------------------------------------    
     """
-    switchJECSet_(process.jetCorrFactors, newName, oldName)
-
-    
-def switchJECSet_(jetCorrFactors,
-                  newName,
-                  oldName,
-                  steps=['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L5Flavor', 'L6UE', 'L7Parton']
-                  ):
-    """
-    ------------------------------------------------------------------    
-    replace tags in the JetCorrFactorsProducer (inner implementation)
-
-    jetCorrFactors : jetCorrFactors module
-    newName        : new name of JEC module
-    oldName        : old name of JEC module
-    steps          : correction steps in the module
-    ------------------------------------------------------------------    
-    """
-    found = False
-    for k in steps:
-        ## loop jet correction steps
-        vv = getattr(jetCorrFactors, k).value();
-        if (vv.find(oldName) != -1):
-            found = True
-        if (vv != "none"):
-            ## replace if the correction steps is not 'none'
-            setattr(jetCorrFactors, k, vv.replace(oldName,newName))
-    if not found:
-        raise RuntimeError,"""
-        Can't replace jet energy correction step %s with %s.
-        The full configuration is %s""" % (oldName, newName, jetCorrFactors.dumpPython())
-    ##
-    ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
-    ##
-    patchJetCorrFactors_(jetCorrFactors, newAlgo)
+    jetCorrFactors = getattr(process, 'jetCorrFactors')
+    jetCorrFactors.corrSample = newName
 
 
 def switchJECParameters(jetCorrFactors,
@@ -95,17 +62,25 @@ def switchJECParameters(jetCorrFactors,
     oldAlgo        : label of old jet alog [AK5,  SC5,   KT6, ...]
     oldType        : label of old jet type [Calo, Pflow, Jpt, ...]
     ------------------------------------------------------------------    
-    """    
-    for k in ['L1Offset', 'L2Relative', 'L3Absolute', 'L4EMF', 'L6UE', 'L7Parton']:
-        ## loop jet correction steps; the L5Flavor step
-        ## is not in the list as it is said NOT to be
-        ## dependendent on the specific jet algorithm
-        vv = getattr(jetCorrFactors, k).value();
-        if (vv != "none"):
-            ## the first replace is for '*_AK5Calo'
-            ## types, the second for '*_AK5' types            
-            setattr(jetCorrFactors, k, vv.replace(oldAlgo+oldType,newAlgo+newType).replace(oldAlgo,newAlgo) )
+    """
+    ## check jet correction steps; the L5Flavor step
+    ## is not in the list as it is said NOT to be
+    ## dependendent on the specific jet algorithm
 
+    ## do the replacement, the first replacement is newAlgo and newType (as for 
+    ## L2 and L3) the second repleacement is for newAlgo only (as for L5 and L7)
+    def setCorrLevel(corrLevel):
+        if (corrLevel != "none"):
+            return corrLevel.value().replace(oldAlgo+oldType,newAlgo+newType).replace(oldAlgo,newAlgo)
+
+    ## get the parameters and change it's attributes for L1 to L7
+    corrLevels = getattr(jetCorrFactors, 'corrLevels').value()
+    corrLevels.L1Offset   = setCorrLevel(corrLevels.L1Offset  )
+    corrLevels.L2Relative = setCorrLevel(corrLevels.L2Relative)
+    corrLevels.L3Absolute = setCorrLevel(corrLevels.L3Absolute)
+    corrLevels.L4EMF      = setCorrLevel(corrLevels.L4EMF     )
+    corrLevels.L6UE       = setCorrLevel(corrLevels.L6UE      )
+    corrLevels.L7Parton   = setCorrLevel(corrLevels.L7Parton  )
     ##
     ## patch the jetCorrFactors untill the L7Parton corrections are not available yet
     ##
