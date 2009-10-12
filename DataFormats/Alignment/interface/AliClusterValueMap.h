@@ -6,6 +6,6 @@
 
 
 typedef edm::ValueMap<AlignmentClusterFlag >   AliClusterValueMap; 
-typedef edm::ValueMap<int >   AliTrackTakenClusterValueMap; 
+typedef edm::ValueMap<int >   AliTrackTakenClusterValueMap; // needed?
 
 #endif
