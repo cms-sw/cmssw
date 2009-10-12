@@ -8,7 +8,6 @@ from DQM.TrackingMonitor.MonitorTrackTKCosmicMuons_cfi import *
 from DQM.TrackingMonitor.MonitorTrackEfficiencySTACosmicMuons_cff import *
 from DQM.TrackingMonitor.MonitorTrackEfficiencyTkTracks_cff import *
 from DQMOffline.Muon.dtSegmTask_cfi import *
-from DQMOffline.Muon.rpcSource_cfi import *
 #dedicated analyzers for offline dqm
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from DQMOffline.Muon.muonCosmicAnalyzer_cfi import *
@@ -26,12 +25,12 @@ dqmInfoMuons = cms.EDFilter("DQMEventInfo",
 muonTrackCosmicAnalyzers = cms.Sequence(standAloneCosmicMuonsMonitors*MonitorTrackTKCosmicMuons*MonitorTrackGLBCosmicMuons*MonitorTrackEfficiencySTACosmicMuons*MonitorTrackEfficiencyTkTracks)
 muonTrackCosmicAnalyzersHLT = cms.Sequence(MonitorTrackSTACosmicMuonsHLTDT*MonitorTrackSTACosmicMuonsHLTCSC)
 
-muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*rpcSource*cscMonitor*muonCosmicAnalyzer*muonIdDQM*dqmInfoMuons)
+muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*cscMonitor*muonCosmicAnalyzer*muonIdDQM*dqmInfoMuons)
 ##muonCosmicMonitors = cms.Sequence(muonTrackCosmicAnalyzers*dtSegmentsMonitor*cscMonitor*muonCosmicAnalyzer)
 
-muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyzers")*dtSegmentsMonitor*rpcSource*muonCosmicMonitors)
+muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyzers")*dtSegmentsMonitor*muonCosmicMonitors)
 
-muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*dtSegmentsMonitor*cscMonitor*rpcSource*muonStandAloneCosmicAnalyzer)
+muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*dtSegmentsMonitor*cscMonitor*muonStandAloneCosmicAnalyzer)
 
 muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
 

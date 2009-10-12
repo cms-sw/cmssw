@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from DQM.TrackingMonitor.MonitorTrackSTAMuons_cfi import *
 from DQM.TrackingMonitor.MonitorTrackGLBMuons_cfi import *
 from DQMOffline.Muon.dtSegmTask_cfi import *
-from DQMOffline.Muon.rpcSource_cfi import *
 
 #dedicated analyzers for offline dqm 
 from DQMOffline.Muon.muonAnalyzer_cff import *
@@ -20,7 +19,7 @@ dqmInfoMuons = cms.EDFilter("DQMEventInfo",
 
 muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons)
 
-muonMonitors = cms.Sequence(rpcSource*muonTrackAnalyzers*dtSegmentsMonitor*cscMonitor*muonAnalyzer*muonIdDQM*dqmInfoMuons)
+muonMonitors = cms.Sequence(muonTrackAnalyzers*dtSegmentsMonitor*cscMonitor*muonAnalyzer*muonIdDQM*dqmInfoMuons)
 
 muonMonitorsAndQualityTests = cms.Sequence(muonMonitors*muonQualityTests)
 
