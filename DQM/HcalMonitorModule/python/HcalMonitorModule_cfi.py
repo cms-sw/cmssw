@@ -119,6 +119,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_ZDC_persistentThreshold          = cms.untracked.double(999.), # not yet implemented
 
                            HotCellMonitor_HO_SiPMscalefactor               = cms.untracked.double(1.), # scale factor to apply to energy threshold for SiPMs (when SiPMs weren't properly calibrated)
+                           HotCellMonitor_HFfwdScale                       = cms.untracked.double(2.), # scale factor to raise energy thresholds for HF cells at |ieta| = 40,41
                            
                            # Check for cells above their neighbors -- not currently in use
                            HotCellMonitor_neighbor_deltaIeta           = cms.untracked.int32(1),

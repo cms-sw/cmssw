@@ -14,8 +14,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2009/07/31 20:32:36 $
-  * $Revision: 1.31 $
+  * $Date: 2009/08/13 13:53:04 $
+  * $Revision: 1.32 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -83,6 +83,8 @@ class HcalHotCellMonitor: public HcalBaseMonitor {
 
   double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_, ZDCenergyThreshold_;
   double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_, ZDCpersistentThreshold_;
+
+  double HFfwdScale_;
 
   double hotmon_minErrorFlag_; // minimum error rate needed to dump out bad bin info 
   

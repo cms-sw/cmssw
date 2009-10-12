@@ -70,6 +70,8 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps,
   HFpersistentThreshold_     = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",persistentThreshold_);
   ZDCpersistentThreshold_    = ps.getUntrackedParameter<double>("HotCellMonitor_HF_persistentThreshold",-999);
 
+  HFfwdScale_                = ps.getUntrackedParameter<double>("HotCellMonitor_HFfwdScale",2.);
+
   SiPMscale_                 = ps.getUntrackedParameter<double>("HotCellMonitor_HO_SiPMscalefactor",1.); // default scale factor of 4?
 // neighboring-cell tests
   defaultNeighborParams_.DeltaIphi = ps.getUntrackedParameter<int>("HotCellMonitor_neighbor_deltaIphi", 1);
@@ -548,14 +550,22 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
  // loop over HF
  if (checkHF_)
    {
+     
      for (HFRecHitCollection::const_iterator HFiter=hfHits.begin(); HFiter!=hfHits.end(); ++HFiter) 
        { // loop over all hits
 	 float en = HFiter->energy();
-	 
+	 float threshold=HFenergyThreshold_;
+	 float threshold_pers = HFpersistentThreshold_;
 	 HcalDetId id(HFiter->detid().rawId());
 	 int ieta = id.ieta();
 	 int iphi = id.iphi();
 	 int depth = id.depth();
+
+	 if (abs(ieta)>39) // increase the thresholds in far-forward part of HF
+	   {
+	     threshold*=HFfwdScale_;
+	     threshold_pers*=HFfwdScale_;
+	   }
 
 	 if (hotmon_makeDiagnostics_)
 	   {
@@ -563,11 +573,11 @@ void HcalHotCellMonitor::processEvent_rechitenergy( const HBHERecHitCollection& 
 	     rechit_energy_sum[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1]=en;
 	   }
 	 if (hotmon_makeDiagnostics_) d_HFrechitenergy->Fill(en);
-	 if (en>=HFenergyThreshold_)
+	 if (en>=threshold)
 	   {
 	     ++aboveenergy[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	   }
-	 if (en>=HFpersistentThreshold_)
+	 if (en>=threshold_pers)
 	   ++abovepersistent[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
 	 if (hotmon_test_neighbor_) rechitEnergies_[id]=en;
        }

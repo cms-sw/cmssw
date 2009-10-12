@@ -142,7 +142,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	}
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/bad_reportUnpackerErrors");
-      SetupEtaPhiHists(DigiErrorsUnpacker,"Bad Unpacker Digis", "");
+      SetupEtaPhiHists(DigiErrorsUnpacker," Bad Unpacker Digis", "");
 
       m_dbe->setCurrentFolder(baseFolder_+"/bad_digis/baddigisize");
       SetupEtaPhiHists(DigiErrorsBadDigiSize," Digis with Bad Size", "");
