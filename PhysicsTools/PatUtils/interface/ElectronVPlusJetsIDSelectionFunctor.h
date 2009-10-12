@@ -12,11 +12,17 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
   enum Version_t { SUMMER08, N_VERSIONS };
 
- ElectronVPlusJetsIDSelectionFunctor( Version_t version ) :
+  ElectronVPlusJetsIDSelectionFunctor( Version_t version,
+				       double d0 = 0.2,
+				       double reliso = 0.1) :
   version_(version)
   {
-    push_back("D0",        0.2);
-    push_back("RelIso",    0.1);
+    push_back("D0",        d0);
+    push_back("RelIso",    reliso);
+    
+    // all on by default
+    set("D0");
+    set("RelIso");
   }
 
   // Allow for multiple definitions of the cuts. 
@@ -42,10 +48,10 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( fabs(corr_d0) <  cut("D0",     double()) || !(*this)["D0"]      ) passCut(ret, "D0"     );
-    if ( relIso        <  cut("RelIso", double()) || !(*this)["RelIso"]  ) passCut(ret, "RelIso" );
+    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")     ) passCut(ret, "D0"     );
+    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso") ) passCut(ret, "RelIso" );
 
-    return true;
+    return (bool)ret;
   }
   
  private: // member variables

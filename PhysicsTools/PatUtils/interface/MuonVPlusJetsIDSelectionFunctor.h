@@ -6,21 +6,36 @@
 
 #include "PhysicsTools/Utilities/interface/Selector.h"
 
+#include <iostream>
+
 class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
  public: // interface
 
   enum Version_t { SUMMER08, N_VERSIONS };
 
- MuonVPlusJetsIDSelectionFunctor( Version_t version ) :
+  MuonVPlusJetsIDSelectionFunctor( Version_t version,
+				   double chi2 = 10.0,
+				   double d0 = 0.2,
+				   int nhits = 11,
+				   double ecaliso = 4.0,
+				   double hcaliso = 6.0,
+				   double reliso = 0.05 ) :
   version_(version)
   {
-    push_back("Chi2",     10.0);
-    push_back("D0",        0.2);
-    push_back("NHits",      11);
-    push_back("ECalIso",   6.0);
-    push_back("HCalIso",   4.0);
-    push_back("RelIso",    0.1);
+    push_back("Chi2",      chi2   );
+    push_back("D0",        d0     );
+    push_back("NHits",     nhits  );
+    push_back("ECalVeto",   ecaliso);
+    push_back("HCalVeto",   hcaliso);
+    push_back("RelIso",    reliso );
+
+    set("Chi2");
+    set("D0");
+    set("NHits");
+    set("ECalVeto");
+    set("HCalVeto");
+    set("RelIso");
 
   }
 
@@ -39,7 +54,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   {
     double norm_chi2 = muon.normChi2();
     double corr_d0 = muon.dB();
-    unsigned int nhits = muon.numberOfValidHits();
+    int nhits = static_cast<int>( muon.numberOfValidHits() );
+    
+    double ecalVeto = muon.isolationR03().emVetoEt;
+    double hcalVeto = muon.isolationR03().hadVetoEt;
 	
     double hcalIso = muon.hcalIso();
     double ecalIso = muon.ecalIso();
@@ -48,14 +66,14 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double relIso = (ecalIso + hcalIso + trkIso) / pt;
 
-    if ( norm_chi2     <  cut("Chi2",   double()) || !(*this)["Chi2"]    ) passCut(ret, "Chi2"   );
-    if ( fabs(corr_d0) <  cut("D0",     double()) || !(*this)["D0"]      ) passCut(ret, "D0"     );
-    if ( nhits         >= cut("NHits",  int()   ) || !(*this)["NHits"]   ) passCut(ret, "NHits"  );
-    if ( hcalIso       <  cut("HCalIso",double()) || !(*this)["HCalIso"] ) passCut(ret, "HCalIso");
-    if ( ecalIso       <  cut("ECalIso",double()) || !(*this)["ECalIso"] ) passCut(ret, "ECalIso");
-    if ( relIso        <  cut("RelIso", double()) || !(*this)["RelIso"]  ) passCut(ret, "RelIso" );
+    if ( norm_chi2     <  cut("Chi2",   double()) || ignoreCut("Chi2")    ) passCut(ret, "Chi2"   );
+    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")      ) passCut(ret, "D0"     );
+    if ( nhits         >= cut("NHits",  int()   ) || ignoreCut("NHits")   ) passCut(ret, "NHits"  );
+    if ( hcalVeto      <  cut("HCalVeto",double())|| ignoreCut("HCalVeto")) passCut(ret, "HCalVeto");
+    if ( ecalVeto      <  cut("ECalVeto",double())|| ignoreCut("ECalVeto")) passCut(ret, "ECalVeto");
+    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
 
-    return true;
+    return (bool)ret;
   }
   
  private: // member variables
