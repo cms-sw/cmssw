@@ -15,6 +15,8 @@ HcalTrigPrimClient::HcalTrigPrimClient(){
 
   // TP Occupancy
   histo2d["TrigPrimMonitor/TP Map/TP Occupancy"] = 0;
+  histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsEta"] = 0;
+  histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsPhi"] = 0;
   histo2d["TrigPrimMonitor/TP Map/Non Zero TP"] = 0;
   histo2d["TrigPrimMonitor/TP Map/Matched TP"] = 0;
   histo2d["TrigPrimMonitor/TP Map/Mismatched Et"] = 0;
@@ -295,6 +297,11 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "<tr align=\"left\">" << std::endl;
   htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/TP Occupancy"],"ieta","iphi", 10, htmlFile,htmlDir);  
   htmlAnyHisto(runNo,histo2d["TrigPrimMonitor/TP Map/Non Zero TP"],"ieta","iphi", 10, htmlFile,htmlDir);  
+  htmlFile << "</tr>" << std::endl;
+
+  htmlFile << "<tr align=\"left\">" << std::endl;
+  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsEta"],"ieta","Triggers", 10, htmlFile,htmlDir);  
+  htmlAnyHisto(runNo,histo1d["TrigPrimMonitor/TP Map/TPOccupancyVsPhi"],"iphi", "Triggers",10, htmlFile,htmlDir);  
   htmlFile << "</tr>" << std::endl;
 
 htmlFile << "<tr align=\"left\">" << std::endl;

@@ -87,6 +87,8 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     type = "TP Occupancy";
     TPOccupancy_= m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     type = "Non Zero TP";
+    TPOccupancyEta_ = m_dbe->book1D("TPOccupancyVsEta","TP Occupancy Vs. Eta", etaBins_,etaMin_,etaMax_);
+    TPOccupancyPhi_ = m_dbe->book1D("TPOccupancyVsPhi","TP Occupancy Vs. Phi", phiBins_,phiMin_,phiMax_);
     NonZeroTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     type = "Matched TP";
     MatchedTP_ = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -181,7 +183,8 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
     int iphi = data->id().iphi();
 
     TPOccupancy_->Fill(ieta, iphi);
-
+    TPOccupancyEta_->Fill(ieta);
+    TPOccupancyPhi_->Fill(iphi);
     // Check missing from emulator
     HcalTrigPrimDigiCollection::const_iterator emul = emultpDigis.find(data->id());
     if (emul == emultpDigis.end()) {

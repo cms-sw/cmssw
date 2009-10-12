@@ -12,8 +12,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2009/01/21 14:59:54 $
-  * $Revision: 1.17 $
+  * $Date: 2009/08/24 11:22:14 $
+  * $Revision: 1.18 $
   * \author W. Fisher - FNAL
   */
 
@@ -74,6 +74,9 @@ private:
 
   // TP Occupancy
   MonitorElement* TPOccupancy_;
+  MonitorElement* TPOccupancyEta_;
+  MonitorElement* TPOccupancyPhi_;
+
   MonitorElement* NonZeroTP_;
   MonitorElement* MatchedTP_;
   MonitorElement* MismatchedEt_;
