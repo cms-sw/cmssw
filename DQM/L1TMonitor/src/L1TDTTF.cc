@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2008/07/29 14:18:27 $
- * $Revision: 1.19 $
+ * $Date: 2009/08/03 21:11:22 $
+ * $Revision: 1.20 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.20  2009/08/03 21:11:22  lorenzo
+ * added dttf phi and theta
+ *
  * Revision 1.19  2008/07/29 14:18:27  wteo
  * updated and added more MEs
  *
@@ -42,6 +45,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.20  2009/08/03 21:11:22  lorenzo
+ * added dttf phi and theta
+ *
  * Revision 1.19  2008/07/29 14:18:27  wteo
  * updated and added more MEs
  *
@@ -223,10 +229,10 @@ void L1TDTTF::beginJob(const EventSetup& c)
       dbe->setCurrentFolder(suberrfolder);
       dttpgphmap = dbe->book2D("DT_TPG_phi_map","Map of triggers per station",20,1,21,12,0,12);
       setMapPhLabel(dttpgphmap);
+      */
       
       string dttf_phi_folder = l1tsubsystemfolder+"/DTTF_PHI";
       string dttf_theta_folder = l1tsubsystemfolder+"/DTTF_THETA";
-      */
 
       string dttf_trk_folder = l1tsubsystemfolder+"/DTTF_TRACKS";
 
