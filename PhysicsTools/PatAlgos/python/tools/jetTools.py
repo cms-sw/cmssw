@@ -308,6 +308,9 @@ def switchJetCollection(process,
         process.allLayer1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
         process.allLayer1Jets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
     else:
+        ## remove b tagging from the std sequence
+        process.makeAllLayer1Jets.remove(process.secondaryVertexNegativeTagInfos)
+        process.makeAllLayer1Jets.remove(process.simpleSecondaryVertexNegativeBJetTags)
         ## switch embedding of b tagging for pat
         ## jet production to 'False'
         process.allLayer1Jets.addBTagInfo = False
