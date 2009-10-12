@@ -1045,23 +1045,23 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   htmlFile<<"Luminosity blocks: "<<minlumi<<" - "<<maxlumi <<"&nbsp;&nbsp;&nbsp;&nbsp";
   htmlFile <<"# of events: "<<ievt_<<"&nbsp;&nbsp;&nbsp;&nbsp<br>";
   if (dataFormatMon_.onoff)
-    htmlStatusDumpText("Data Format Status", dataFormatMon_, Ncells);
+    htmlStatusDumpText("Data Format", dataFormatMon_, Ncells);
   if (digiMon_.onoff)
-    htmlStatusDumpText("Digi Monitor Status", digiMon_, Ncells);
+    htmlStatusDumpText("Digi Monitor", digiMon_, Ncells);
   if (recHitMon_.onoff)
-    htmlStatusDumpText("RecHit Monitor Status", recHitMon_, Ncells);
+    htmlStatusDumpText("RecHit Monitor", recHitMon_, Ncells);
   if (pedestalMon_.onoff)
-    htmlStatusDumpText("Pedestal Monitor Status", pedestalMon_, Ncells);
+    htmlStatusDumpText("Pedestal Monitor", pedestalMon_, Ncells);
   if (ledMon_.onoff)
-    htmlStatusDumpText("LED Monitor Status", ledMon_, Ncells);
+    htmlStatusDumpText("LED Monitor", ledMon_, Ncells);
   if (hotCellMon_.onoff)
-    htmlStatusDumpText("Hot Cell Monitor Status", hotCellMon_, Ncells);
+    htmlStatusDumpText("Hot Cell Monitor", hotCellMon_, Ncells);
   if (deadCellMon_.onoff)
-    htmlStatusDumpText("Dead Cell Monitor Status", deadCellMon_, Ncells);
+    htmlStatusDumpText("Dead Cell Monitor", deadCellMon_, Ncells);
   if (trigPrimMon_.onoff)
-    htmlStatusDumpText("Trigger Primitive Monitor Status", trigPrimMon_, Ncells);
+    htmlStatusDumpText("Trigger Primitive Monitor", trigPrimMon_, Ncells);
   if (caloTowerMon_.onoff)
-    htmlStatusDumpText("CaloTower Monitor Status", caloTowerMon_, Ncells);
+    htmlStatusDumpText("CaloTower Monitor", caloTowerMon_, Ncells);
   htmlFile <<"  OVERALL STATUS:  "<<status_global_<<std::endl;
   htmlFile.close();
 } // void htmlOutput(...)
@@ -1092,7 +1092,8 @@ void HcalSummaryClient::htmlStatusDumpText(std::string name, SubTaskSummaryStatu
 {
   htmlFile <<name<<" Status:";
   int totalcells=0;
-  for (unsigned int i=0;i<=4;++i)
+  int badcells=0;
+  for (unsigned int i=0;i<4;++i)
     {
       if (i==0) htmlFile <<"  HB: ";
       else if (i==1) htmlFile <<"  HE: ";
@@ -1103,11 +1104,17 @@ void HcalSummaryClient::htmlStatusDumpText(std::string name, SubTaskSummaryStatu
       else if (Ncells[i]>0 && task.status[i]!=-1)
 	{
 	  totalcells+=Ncells[i];
+	  badcells+=task.status[i];
 	  htmlFile <<1-task.status[i]/Ncells[i];
 	}
       else
 	htmlFile <<"-1";
-    } // for (int i=0;i<=4;++i)
+    } // for (int i=0;i<4;++i)
+  // need to add overall summary value
+  if (totalcells>0)
+    htmlFile<<"  HCAL: "<<1-1.*badcells/totalcells;
+  else
+    htmlFile<<"  HCAL: -1";
   htmlFile <<std::endl<<"<br>"<<std::endl;
 }
 
