@@ -12,6 +12,12 @@
 # To RERUN the test, rm -rf workarea.
 echo "START - All messages in this script pertain to geometry data described in cmsIdealGeometryXML_cfi.py"
 cmsenv
+if ($#argv == 0) then
+setenv geometry "GeometryIdeal"
+else
+setenv geometry `echo ${1}`
+endif
+echo $geometry
 mkdir workarea
 cd workarea
 # validate current set of xmlfiles in IdealGeometry is correct.
