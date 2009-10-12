@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan  9 13:35:56 EST 2009
-// $Id: FWDetailViewBase.cc,v 1.9 2009/09/06 19:35:43 amraktad Exp $
+// $Id: FWDetailViewBase.cc,v 1.11 2009/10/08 19:28:11 amraktad Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ FWDetailViewBase::makePackViewer(TEveWindowSlot *&slot, TGVerticalFrame *&guiFra
    TGLEmbeddedViewer *egl = new TGLEmbeddedViewer(pack, 0, 0);
    eveViewer= new TEveViewer("DetailViewViewer");
    eveViewer->SetGLViewer(egl, egl->GetFrame());
+   gEve->GetViewers()->AddElement(eveViewer);
    pack->AddFrameWithWeight(egl->GetFrame(),0, 5);
    scene = gEve->SpawnNewScene("Detailed view");
    eveViewer->AddScene(scene);
