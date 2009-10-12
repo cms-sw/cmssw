@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.18 2009/03/24 10:47:55 ferriff Exp $
+ * \version $Id: SuperCluster.h,v 1.19 2009/03/25 16:09:47 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -103,7 +103,7 @@ namespace reco {
 
     double preshowerEnergy_;
 
-    mutable double rawEnergy_;
+    mutable Double32_t rawEnergy_;
     
     Double32_t phiWidth_;
     Double32_t etaWidth_;
