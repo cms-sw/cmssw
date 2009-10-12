@@ -75,33 +75,19 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       meTOTALEVT_ = m_dbe->bookInt("RecHit Task Total Events Processed");
 
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info");
-      SetupEtaPhiHists(EnergyByDepth,"RecHit Average Energy","GeV");
-      SetupEtaPhiHists(OccupancyByDepth,"RecHit Occupancy","");
-      SetupEtaPhiHists(TimeByDepth,"RecHit Average Time","nS");
+      SetupEtaPhiHists(OccupancyByDepth,"RecHit Occupancy","");;
 
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info/sumplots");
       SetupEtaPhiHists(SumEnergyByDepth,"RecHit Summed Energy","GeV");
+      SetupEtaPhiHists(SumEnergy2ByDepth,"RecHit Summed Energy2","GeV");
       SetupEtaPhiHists(SumTimeByDepth,"RecHit Summed Time","nS");
       
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold");
-      SetupEtaPhiHists(EnergyThreshByDepth,"Above Threshold RecHit Average Energy","GeV");
       SetupEtaPhiHists(OccupancyThreshByDepth,"Above Threshold RecHit Occupancy","");
-      SetupEtaPhiHists(TimeThreshByDepth,"Above Threshold RecHit Average Time","nS");
 
       m_dbe->setCurrentFolder(baseFolder_+"/rechit_info_threshold/sumplots");
       SetupEtaPhiHists(SumEnergyThreshByDepth,"Above Threshold RecHit Summed Energy","GeV");
       SetupEtaPhiHists(SumTimeThreshByDepth,"Above Threshold RecHit Summed Time","nS");
-
-      m_dbe->setCurrentFolder(baseFolder_+"/rechit_1D_plots");
-      h_HBEnergy_1D=m_dbe->book1D("HB_energy_1D","HB Average Energy Per RecHit;Energy (GeV)",400,-5,15);
-      h_HEEnergy_1D=m_dbe->book1D("HE_energy_1D","HE Average Energy Per RecHit;Energy (GeV)",400,-5,15);
-      h_HOEnergy_1D=m_dbe->book1D("HO_energy_1D","HO Average Energy Per RecHit;Energy (GeV)",600,-10,20);
-      h_HFEnergy_1D=m_dbe->book1D("HF_energy_1D","HF Average Energy Per RecHit;Energy (GeV)",400,-5,15);
-
-      h_HBEnergyRMS_1D=m_dbe->book1D("HB_energy_RMS_1D","HB Energy RMS Per RecHit;Energy (GeV)",500,0,5);
-      h_HEEnergyRMS_1D=m_dbe->book1D("HE_energy_RMS_1D","HE Energy RMS Per RecHit;Energy (GeV)",500,0,5);
-      h_HOEnergyRMS_1D=m_dbe->book1D("HO_energy_RMS_1D","HO Energy RMS Per RecHit;Energy (GeV)",500,0,5);
-      h_HFEnergyRMS_1D=m_dbe->book1D("HF_energy_RMS_1D","HF Energy RMS Per RecHit;Energy (GeV)",500,0,5);
 
       TH1F* tempflag;
       m_dbe->setCurrentFolder(baseFolder_+"/AnomalousCellFlags");// HB Flag Histograms
@@ -157,6 +143,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
       
       if (rechit_makeDiagnostics_)
 	{
+          // hb
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hb");
 	  h_HBEnergy=m_dbe->book1D("HB_energy","HB RecHit Energy",200,-5,5);
 	  h_HBThreshEnergy=m_dbe->book1D("HB_energy_thresh", "HB RecHit Energy Above Threshold",200,-5,5);
@@ -166,8 +153,8 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HBThreshTime=m_dbe->book1D("HB_time_thresh", "HB RecHit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
 	  h_HBOccupancy=m_dbe->book1D("HB_occupancy","HB RecHit Occupancy",2593,-0.5,2592.5);
 	  h_HBThreshOccupancy=m_dbe->book1D("HB_occupancy_thresh","HB RecHit Occupancy Above Threshold",2593,-0.5,2592.5);
-	  // hb
-
+          
+          //he
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/he");	
 	  h_HEEnergy=m_dbe->book1D("HE_energy","HE RecHit Energy",200,-5,5);
 	  h_HEThreshEnergy=m_dbe->book1D("HE_energy_thresh", "HE RecHit Energy Above Threshold",200,-5,5);
@@ -178,8 +165,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HEOccupancy=m_dbe->book1D("HE_occupancy","HE RecHit Occupancy",2593,-0.5,2592.5);
 	  h_HEThreshOccupancy=m_dbe->book1D("HE_occupancy_thresh","HE RecHit Occupancy Above Threshold",2593,-0.5,2592.5);
 
-	  //he
-
+          // ho
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/ho");	
 	  h_HOEnergy=m_dbe->book1D("HO_energy","HO RecHit Energy",200,-5,5);
 	  h_HOThreshEnergy=m_dbe->book1D("HO_energy_thresh", "HO RecHit Energy Above Threshold",200,-5,5);
@@ -190,9 +176,7 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HOOccupancy=m_dbe->book1D("HO_occupancy","HO RecHit Occupancy",2161,-0.5,2160.5);
 	  h_HOThreshOccupancy=m_dbe->book1D("HO_occupancy_thresh","HO RecHit Occupancy Above Threshold",2161,-0.5,2160.5);
 
-
-	  // ho
-
+          // hf
 	  m_dbe->setCurrentFolder(baseFolder_+"/diagnostics/hf");	
 	  h_HFEnergy=m_dbe->book1D("HF_energy","HF RecHit Energy",200,-5,5);
 	  h_HFThreshEnergy=m_dbe->book1D("HF_energy_thresh", "HF RecHit Energy Above Threshold",200,-5,5);
@@ -202,9 +186,6 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps,
 	  h_HFThreshTime=m_dbe->book1D("HF_time_thresh", "HF RecHit Time Above Threshold",int(TIME_MAX-TIME_MIN),TIME_MIN,TIME_MAX);
 	  h_HFOccupancy=m_dbe->book1D("HF_occupancy","HF RecHit Occupancy",1729,-0.5,1728.5);
 	  h_HFThreshOccupancy=m_dbe->book1D("HF_occupancy_thresh","HF RecHit Occupancy Above Threshold",1729,-0.5,1728.5);
-
-	  // hf
-	  
 	} // if (rechit_Diagnostics_)
     } // if (m_dbe)
 
@@ -323,27 +304,12 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   double  hbenergythresh=0;
   double  heenergythresh=0;
 
-
-  // Call 'update' on all histograms so that they update in online DQM 
-  h_HBEnergy_1D->update();
-  h_HEEnergy_1D->update();
-  h_HOEnergy_1D->update();
-  h_HFEnergy_1D->update();
-
-  h_HBEnergyRMS_1D->update();
-  h_HEEnergyRMS_1D->update();
-  h_HOEnergyRMS_1D->update();
-  h_HFEnergyRMS_1D->update();
-
   for (unsigned int i=0;i<4;++i)
     {
       OccupancyByDepth.depth[i]->update();
-      EnergyByDepth.depth[i]->update();
-      TimeByDepth.depth[i]->update();
       OccupancyThreshByDepth.depth[i]->update();
-      EnergyThreshByDepth.depth[i]->update();
-      TimeThreshByDepth.depth[i]->update();
       SumEnergyByDepth.depth[i]->update();
+      SumEnergy2ByDepth.depth[i]->update();
       SumTimeByDepth.depth[i]->update();
     }
     
@@ -665,19 +631,7 @@ void HcalRecHitMonitor::fillNevents(void)
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
-    }
-
-  // Clear contents of 1D plots -- can remove dummy fills of ievt_ here!
-  h_HBEnergy_1D->Reset();
-  h_HEEnergy_1D->Reset();
-  h_HOEnergy_1D->Reset();
-  h_HFEnergy_1D->Reset();
-  
-  h_HBEnergyRMS_1D->Reset();
-  h_HEEnergyRMS_1D->Reset();
-  h_HOEnergyRMS_1D->Reset();
-  h_HFEnergyRMS_1D->Reset();
- 
+    } 
 
   // looking at the contents of HbFlagcounters
   if (fVerbosity>0)
@@ -699,7 +653,7 @@ void HcalRecHitMonitor::fillNevents(void)
       HFflagcounter_[i]=0;
     }
 
-  // Fill Occupancy & Average Energy,Time plots
+  // Fill Occupancy & Sum Energy, Time plots
   if (ievt_>0)
     {
       for (int mydepth=0;mydepth<4;++mydepth)
@@ -711,54 +665,18 @@ void HcalRecHitMonitor::fillNevents(void)
 		  OccupancyByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_[eta][phi][mydepth]);
 		  OccupancyThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,occupancy_thresh_[eta][phi][mydepth]);
 		  SumEnergyByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,energy_[eta][phi][mydepth]);
+                  SumEnergy2ByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,sqrt(energy2_[eta][phi][mydepth]));
 		  SumEnergyThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,energy_thresh_[eta][phi][mydepth]);
 		  SumTimeByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,time_[eta][phi][mydepth]);
 		  SumTimeThreshByDepth.depth[mydepth]->setBinContent(eta+1,phi+1,time_thresh_[eta][phi][mydepth]);
-
-		  // This won't work with offline DQM, since tasks get split
-		  if (occupancy_[eta][phi][mydepth]>0)
-		    {
-		      if (isHB(eta,mydepth+1)) 
-                        {
-                          h_HBEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-                          h_HBEnergyRMS_1D->Fill(sqrt(energy2_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]-pow(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth],2)));
-                        }
-		      else if (isHE(eta,mydepth+1))
-                        {
-                          h_HEEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-                          h_HEEnergyRMS_1D->Fill(sqrt(energy2_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]-pow(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth],2)));
-                        }
-		      else if (isHO(eta,mydepth+1)) 
-                        {
-                          h_HOEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-                          h_HOEnergyRMS_1D->Fill(sqrt(energy2_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]-pow(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth],2)));
-                        }
-		      else if (isHF(eta,mydepth+1))
-                        {
-                           h_HFEnergy_1D->Fill(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-                           h_HFEnergyRMS_1D->Fill(sqrt(energy2_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]-pow(energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth],2)));
-                        }
-
-		      EnergyByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, energy_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-		      TimeByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, time_[eta][phi][mydepth]/occupancy_[eta][phi][mydepth]);
-		    }
-		  if (occupancy_thresh_[eta][phi][mydepth]>0)
-		    {
-		      EnergyThreshByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, energy_thresh_[eta][phi][mydepth]/occupancy_thresh_[eta][phi][mydepth]);
-		      TimeThreshByDepth.depth[mydepth]->setBinContent(eta+1, phi+1, time_thresh_[eta][phi][mydepth]/occupancy_thresh_[eta][phi][mydepth]);
-		    }
-
 		} // for (int phi=0;phi<72;++phi)
 	    } // for (int eta=0;eta<OccupancyByDepth...;++eta)
 	} // for (int mydepth=0;...)
 
       FillUnphysicalHEHFBins(OccupancyByDepth);
       FillUnphysicalHEHFBins(OccupancyThreshByDepth);
-      FillUnphysicalHEHFBins(EnergyByDepth);
-      FillUnphysicalHEHFBins(EnergyThreshByDepth);
-      FillUnphysicalHEHFBins(TimeByDepth);
-      FillUnphysicalHEHFBins(TimeThreshByDepth);
       FillUnphysicalHEHFBins(SumEnergyByDepth);
+      FillUnphysicalHEHFBins(SumEnergy2ByDepth);
       FillUnphysicalHEHFBins(SumEnergyThreshByDepth);
       FillUnphysicalHEHFBins(SumTimeByDepth);
       FillUnphysicalHEHFBins(SumTimeThreshByDepth);

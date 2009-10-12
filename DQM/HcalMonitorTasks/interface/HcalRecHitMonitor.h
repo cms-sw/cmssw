@@ -13,8 +13,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2009/07/31 20:32:36 $
-  * $Revision: 1.29 $
+  * $Date: 2009/08/09 12:46:35 $
+  * $Revision: 1.30 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -64,14 +64,9 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   // Basic Histograms
   EtaPhiHists OccupancyByDepth;
   EtaPhiHists OccupancyThreshByDepth;
-  EtaPhiHists EnergyByDepth;
-  EtaPhiHists EnergyThreshByDepth;
-  EtaPhiHists TimeByDepth;
-  EtaPhiHists TimeThreshByDepth;
-  
-  //EtaPhiHists SumOccupancyByDepth;
-  //EtaPhiHists SumOccupancyThreshByDepth;
+
   EtaPhiHists SumEnergyByDepth;
+  EtaPhiHists SumEnergy2ByDepth;
   EtaPhiHists SumEnergyThreshByDepth;
   EtaPhiHists SumTimeByDepth;
   EtaPhiHists SumTimeThreshByDepth;
@@ -127,7 +122,6 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   int HOflagcounter_[32];
   int HFflagcounter_[32];
 
-
   // Diagnostic plots
   MonitorElement* h_HBEnergy;
   MonitorElement* h_HBThreshEnergy;
@@ -165,21 +159,11 @@ class HcalRecHitMonitor: public HcalBaseMonitor {
   MonitorElement* h_HFOccupancy;
   MonitorElement* h_HFThreshOccupancy;
 
-  MonitorElement* h_HBEnergy_1D;
-  MonitorElement* h_HEEnergy_1D;
-  MonitorElement* h_HOEnergy_1D;
-  MonitorElement* h_HFEnergy_1D;
-
   MonitorElement* h_HBflagcounter;
   MonitorElement* h_HEflagcounter;
   MonitorElement* h_HOflagcounter;
   MonitorElement* h_HFflagcounter;
-
-  MonitorElement* h_HBEnergyRMS_1D;
-  MonitorElement* h_HEEnergyRMS_1D;
-  MonitorElement* h_HOEnergyRMS_1D;
-  MonitorElement* h_HFEnergyRMS_1D;
-
+  
   bool HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 };
 

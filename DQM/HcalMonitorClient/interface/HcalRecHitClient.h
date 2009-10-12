@@ -68,16 +68,27 @@ private:
 
   int rechitclient_checkNevents_;
   
+  // Monitor Elements
+  EtaPhiHists meEnergyByDepth;
+  EtaPhiHists meEnergyThreshByDepth;
+  EtaPhiHists meTimeByDepth;
+  EtaPhiHists meTimeThreshByDepth;
+  
+  MonitorElement* meHBEnergy_1D;
+  MonitorElement* meHEEnergy_1D;
+  MonitorElement* meHOEnergy_1D;
+  MonitorElement* meHFEnergy_1D;
+
+  MonitorElement* meHBEnergyRMS_1D;
+  MonitorElement* meHEEnergyRMS_1D;
+  MonitorElement* meHOEnergyRMS_1D;
+  MonitorElement* meHFEnergyRMS_1D;
+  
   // Histograms
-  TH2F* ProblemRecHits;
-  TH2F* ProblemRecHitsByDepth[4];
   TH2F* OccupancyByDepth[4];
   TH2F* OccupancyThreshByDepth[4];
-  TH2F* EnergyByDepth[4];
-  TH2F* EnergyThreshByDepth[4];
-  TH2F* TimeByDepth[4];
-  TH2F* TimeThreshByDepth[4];
   TH2F* SumEnergyByDepth[4];
+  TH2F* SumEnergy2ByDepth[4];
   TH2F* SumEnergyThreshByDepth[4];
   TH2F* SumTimeByDepth[4];
   TH2F* SumTimeThreshByDepth[4];
@@ -118,16 +129,6 @@ private:
   TH1F* d_HFThreshTotalEnergy;
   TH1F* d_HFThreshTime;
   TH1F* d_HFThreshOccupancy;
-
-  TH1F* h_HBEnergy_1D;
-  TH1F* h_HEEnergy_1D;
-  TH1F* h_HOEnergy_1D;
-  TH1F* h_HFEnergy_1D;
-
-  TH1F* h_HBEnergyRMS_1D;
-  TH1F* h_HEEnergyRMS_1D;
-  TH1F* h_HOEnergyRMS_1D;
-  TH1F* h_HFEnergyRMS_1D;
 };
 
 
