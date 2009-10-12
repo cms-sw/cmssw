@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.15 2009/09/02 12:01:57 veelken Exp $
+// $Id: Lepton.h,v 1.16 2009/09/02 13:21:15 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.15 2009/09/02 12:01:57 veelken Exp $
+  \version  $Id: Lepton.h,v 1.16 2009/09/02 13:21:15 veelken Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -47,7 +47,7 @@ namespace pat {
 
       //============ BEGIN ISOLATION BLOCK =====
       /// Returns the isolation variable for a specifc key (or pseudo-key like CaloIso), or -1.0 if not available
-      float isolation(IsolationKeys key) const { 
+      float userIso(IsolationKeys key) const { 
           if (key >= 0) {
               //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
               if (size_t(key) >= isolations_.size()) return -1.0;
@@ -80,26 +80,26 @@ namespace pat {
 
       // ---- specific getters ----
       /// Return the tracker isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float trackIso() const { return isolation(TrackerIso); }
+      float trackIso() const { return userIso(TrackerIso); }
       /// Return the sum of ecal and hcal isolation variable that were stored in this object when produced, or -1.0 if at least one is missing
-      float caloIso()  const { return isolation(CaloIso); }
+      float caloIso()  const { return userIso(CaloIso); }
       /// Return the ecal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float ecalIso()  const { return isolation(ECalIso); }
+      float ecalIso()  const { return userIso(ECalIso); }
       /// Return the hcal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float hcalIso()  const { return isolation(HCalIso); }
+      float hcalIso()  const { return userIso(HCalIso); }
 
       ///PARTICLE FLOW ISOLATION
       ///Return the isolation calculated with all the PFCandidates
-      float particleIso() const { return isolation(ParticleIso); }
+      float particleIso() const { return userIso(ParticleIso); }
       ///Return the isolation calculated with only the charged hadron PFCandidates
-      float chargedHadronIso() const { return isolation(ChargedHadronIso); }
+      float chargedHadronIso() const { return userIso(ChargedHadronIso); }
       ///Return the isolation calculated with only the neutral hadron PFCandidates      
-      float neutralHadronIso() const { return isolation(NeutralHadronIso); }	
+      float neutralHadronIso() const { return userIso(NeutralHadronIso); }	
       ///Return the isolation calculated with only the gamma PFCandidates  
-      float photonIso() const { return isolation(PhotonIso); }	
+      float photonIso() const { return userIso(PhotonIso); }	
 
       /// Return the user defined isolation variable #index that was stored in this object when produced, or -1.0 if there is none
-      float userIso(uint8_t index=0)  const { return isolation(IsolationKeys(UserBaseIso + index)); }
+      float userIso(uint8_t index=0)  const { return userIso(IsolationKeys(UserBaseIso + index)); }
 
       // ---- specific setters ----
       /// Sets tracker isolation variable
