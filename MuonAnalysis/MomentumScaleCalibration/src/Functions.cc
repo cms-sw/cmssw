@@ -21,6 +21,7 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
   case ( 15 ): return ( new scaleFunctionType15<double * > ); break;
   case ( 16 ): return ( new scaleFunctionType16<double * > ); break;
   case ( 17 ): return ( new scaleFunctionType17<double * > ); break;
+  case ( 18 ): return ( new scaleFunctionType18<double * > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
@@ -46,6 +47,7 @@ scaleFunctionBase<vector<double> > * scaleFunctionVecService( const int identifi
   case ( 15 ): return ( new scaleFunctionType15<vector<double> > ); break;
   case ( 16 ): return ( new scaleFunctionType16<vector<double> > ); break;
   case ( 17 ): return ( new scaleFunctionType17<vector<double> > ); break;
+  case ( 18 ): return ( new scaleFunctionType18<vector<double> > ); break;
   default: cout << "Error: wrong identifier = " << identifier << endl; exit(1);
   }
 }
@@ -80,6 +82,7 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
   case ( 11 ): return ( new resolutionFunctionType11<double *> ); break;
   case ( 12 ): return ( new resolutionFunctionType12<double *> ); break;
   case ( 13 ): return ( new resolutionFunctionType13<double *> ); break;
+  case ( 14 ): return ( new resolutionFunctionType14<double *> ); break;
   default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
   }
 }
@@ -101,6 +104,7 @@ resolutionFunctionBase<vector<double> > * resolutionFunctionVecService( const in
   case ( 11 ): return ( new resolutionFunctionType11<vector<double> > ); break;
   case ( 12 ): return ( new resolutionFunctionType12<vector<double> > ); break;
   case ( 13 ): return ( new resolutionFunctionType13<vector<double> > ); break;
+  case ( 14 ): return ( new resolutionFunctionType14<vector<double> > ); break;
   default: cout << "Error: undefined resolution type = " << identifier << endl; exit(1); break;
   }
 }

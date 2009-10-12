@@ -525,6 +525,41 @@ public:
     }
   }
 };
+template <class T>
+class scaleFunctionType18 : public scaleFunctionBase<T> {
+public:
+  scaleFunctionType18() { this->parNum_ = 4; }
+  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {
+
+    if(fabs(eta)<0.2)
+      return parScale[0]*pt;
+    else if(fabs(eta)>0.2 && fabs(eta)<1.1)
+      return parScale[1]*pt;
+    else if(fabs(eta)>1.1 && fabs(eta)<1.5)
+      return parScale[2]*pt;
+    else if(fabs(eta)>1.5)
+      return parScale[3]*pt;
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const vector<int> & parScaleOrder, const int muonType) {
+    double thisStep[] = {0.00000001, 0.000000001, 0.00000001, 0.00000001};
+    TString thisParName[] = {"etaCentr", "barrel", "overlap", "endcaps"};
+    if( muonType == 1 ) {
+      double thisMini[] = {30.,
+                           0.9, 0.9,
+                           -0.3};
+      double thisMaxi[] = {50.,
+                           1.1,  1.1,
+                           0.3};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMini[] = {0.9, 0.9, 0.9, 0.9};
+      double thisMaxi[] = {1.1,  1.1,   1.1, 1.1};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+};
+
 /// Service to build the scale functor corresponding to the passed identifier
 scaleFunctionBase<double * > * scaleFunctionService( const int identifier );
 
@@ -1271,6 +1306,42 @@ class resolutionFunctionType13 : public resolutionFunctionBase<T> {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
+};
+template <class T>
+class resolutionFunctionType14 : public resolutionFunctionBase<T> {
+ public:
+  resolutionFunctionType14() { this->parNum_ = 6; }
+  // linear in pt and by points in eta
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) {
+    double fabsEta = fabs(eta);
+    if(fabsEta<1.2)
+      return (parval[0] + parval[2]*fabsEta + parval[3]*eta*eta);
+    else 
+      return (parval[1]+ parval[4]*fabs((fabsEta-1.6)) + parval[5]*(fabsEta-1.6)*(fabsEta-1.6)); 
+   }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return( 0.004 );
+  }
+  // 1/pt in pt and quadratic in eta
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return( 0.001 );
+  }
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const vector<int> & parResolOrder, const int muonType) {
+
+    double thisStep[] = { 0.00001, 0.00001, 0.0000001, 0.00000001, 0.00000001, 0.00000001, 0.00000001 };
+    TString thisParName[] = { "offsetEtaCentral", "offsetEtaHigh", "linaerEtaCentral", "parabEtaCentral", "linaerEtaHigh", "parabEtaHigh" };
+    double thisMini[] = {           0.005,               0.012,            -0.01,               0.,                -0.05,     0.};
+    if( muonType == 1 ) {
+      double thisMaxi[] = { 1., 1., 1., 1., 1.,
+                            1.};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    } else {
+      double thisMaxi[] = {           0.01,                  0.02,             0.01,             0.05,           0.05,      0.1};
+      this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
+    }
+  }
+protected:
 };
 
 // ------------ ATTENTION ----------- //
