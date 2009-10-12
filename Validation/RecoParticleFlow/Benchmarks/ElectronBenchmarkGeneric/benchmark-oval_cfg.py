@@ -34,10 +34,16 @@ process.load("Validation.RecoParticleFlow.electronBenchmarkGeneric_cff")
 
 # Update the electron selection 
 process.gensource.select = elec_selection.selection()
-# Update the output file
 
+# Update the delta R matching criteria : 0.2 for electrons; 0.05 for pions
+process.pfElectronBenchmarkGeneric.deltaRMax = elec_selection.deltaR()
+
+# Update the output file
 #process.pfElectronBenchmarkGeneric.OutputFile = cms.untracked.string(os.environ['TEST_OUTPUT_FILE'])
+
 process.pfElectronBenchmarkGeneric.OutputFile = cms.untracked.string('benchmark.root')
+
+
 
 process.p =cms.Path(
         process.electronBenchmarkGeneric

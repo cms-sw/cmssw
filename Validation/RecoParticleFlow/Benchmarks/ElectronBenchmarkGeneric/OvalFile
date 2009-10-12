@@ -77,12 +77,35 @@ and receive as a result the corresponding list of input data files.
   <executable name="publication.sh"> 
 </environment>
 
+<environment name="QCDforPF">
+  <var name="DBS_SAMPLE" value="RelValQCD_FlatPt_15_3000">
+  <var name="E_SELECTION" value="pions">
+  <var name="TITLE" value="fake electrons matched with pions">
+  <var name="TEST_OUTPUT_FILE" value="TreeQCDIdeal.root">	
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py>benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh"> 
+</environment>
+
+<environment name="QCD80-120">
+  <var name="DBS_SAMPLE" value="RelValQCD_Pt_80_120">
+  <var name="E_SELECTION" value="pions">
+  <var name="TITLE" value="fake electrons matched with pions">
+  <var name="TEST_OUTPUT_FILE" value="TreeQCDIdeal.root">	
+  <executable name="edmConfigDump" args="${VAL_ANALYZER}_cfg.py>benchmark_cfg.py">
+  <executable name="cmsRun" args="benchmark_cfg.py">
+  <executable name="runroot.sh">
+  <executable name="publication.sh"> 
+</environment>
+
+
 <environment name="twiki">
 <executable name="prepare-twiki.sh">
 </environment>
 
 <environment name="comparison">
-  <var name="DBS_COMPARE_RELEASE" value="CMSSW_3_3_0_pre3">
+  <!var name="DBS_COMPARE_RELEASE" value="CMSSW_3_3_0_pre3">
      <environment name="Pt35">
      <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">
      <executable name="comparison.sh">	

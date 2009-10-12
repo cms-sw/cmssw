@@ -13,8 +13,10 @@ if [ -z "$?WEB_PUBLICATION" ] ; then
     exit
     else
     if [ "$WEB_PUBLICATION" = "true" ] ; then
+    echo "Publishing:     ../Tools/submit.py -f -e $DBS_SAMPLE$E_SELECTION "
     ../Tools/submit.py -f -e $DBS_SAMPLE$E_SELECTION 
+    echo "done"
     fi
 fi
-# Restore benchmark file
+# List benchmark file
 ../Tools/listBenchmarks.py "*$DBS_RELEASE*/*" -a -u 
