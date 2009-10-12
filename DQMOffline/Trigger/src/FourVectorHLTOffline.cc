@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.46 2009/10/02 20:22:25 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.47 2009/10/09 22:49:59 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -466,7 +466,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      //if (l1k.size() == 0) cout << v->getl1Path() << endl;
      //l1accept = true;
 
-     // loop over menitors
+     // loop over monitors
      for(std::vector<BaseMonitor*>::iterator mit = monitors.begin(); mit!= monitors.end(); ++mit ) {
        
        (*mit)->monitorDenominator(v, l1accept, idtype, l1k, toc);
