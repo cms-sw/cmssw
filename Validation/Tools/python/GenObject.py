@@ -1221,14 +1221,29 @@ class GenObject (object):
         on the two objects."""
         objName = item1._objName
         problems = {}
+        relative = GenObject._kitchenSinkDict.get ('relative', False)
         for varName in GenObject._objsDict[objName].keys():
             prec = item1.getVariableProperty (varName, 'prec')
             if prec:
                 # we want to check within a precision
-                value = abs( item1(varName) - item2(varName) )
-                if value > prec:
-                    # we've got a problem
-                    problems[varName] = value
+                if relative:
+                    val1 = item1(varName)
+                    val2 = item2(varName)
+                    numerator = 2 * abs (val1 - val2)
+                    denominator = abs(val1) + abs(val2)
+                    if not denominator:
+                        # both are exactly zero, so there's no
+                        # disagreement here.
+                        continue
+                    value = numerator / denominator
+                    if value > prec:
+                        # we've got a problem
+                        problems[varName] = value                    
+                else:
+                    value = abs( item1(varName) - item2(varName) )
+                    if value > prec:
+                        # we've got a problem
+                        problems[varName] = value
             else:
                 # we want to check equality
                 if item1(varName) != item2(varName):

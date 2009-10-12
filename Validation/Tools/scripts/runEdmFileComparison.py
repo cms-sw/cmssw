@@ -44,22 +44,33 @@ class EdmObject (object):
 if __name__ == "__main__":
 
     parser = optparse.OptionParser ("Usage: %prog edmFile.root")
-    parser.add_option ("--forceDescribe", dest="forceDescribe",
-                       action="store_true", default=False,
-                       help="Run description step even if file already exists.")
+    parser.add_option ('--absolute', dest='absolute',
+                       action='store_true', default=False,
+                       help='Precision is checked against absolute difference')
     parser.add_option ("--describeOnly", dest="describeOnly",
                        action="store_true", default=False,
                        help="Run description step only and stop.")
-    parser.add_option ("--verbose", dest="verbose",
+    parser.add_option ("--forceDescribe", dest="forceDescribe",
                        action="store_true", default=False,
-                       help="Verbose output.")
+                       help="Run description step even if file already exists.")
     parser.add_option ("--noQueue", dest="noQueue",
-                       action="store_true", default=False,
-                       help="Do not use queue, but run jobs serially.")
+                       action="store_true", default=True,
+                       help="Do not use queue, but run jobs serially (default).")
     parser.add_option ("--precision", dest="precision", type="string",
                        help="Change precision use for floats")
     parser.add_option ("--prefix", dest="prefix", type="string",
                        help="Prefix to prepend to logfile name")
+    parser.add_option ("--queue", dest="noQueue",
+                       action="store_false",
+                       help="Use queue.")
+    parser.add_option ("--queueCommand", dest="queueCommand", type="string",
+                       help="Command needed for queueing jobs")
+    parser.add_option ('--relative', dest='relative',
+                       action='store_true', default=False,
+                       help='Precision is checked against relative difference')
+    parser.add_option ("--verbose", dest="verbose",
+                       action="store_true", default=False,
+                       help="Verbose output.")
     options, args = parser.parse_args()
     from Validation.Tools.GenObject import GenObject
     if len (args) < 1 or len (args) > 2:
@@ -73,6 +84,10 @@ if __name__ == "__main__":
         command = 'src/Validation/Tools/scripts/runCommand.bash'
     else:
         command = 'src/Validation/Tools/scripts/runCMScommand.bash'
+    if options.queueCommand:
+        queueCommand = options.queueCommand
+        if not re.match (r'%%s', queueCommand):
+            queueCommand += ' %s'
     # find command
     found = False
     for directory in [base, release_base]:
@@ -154,6 +169,10 @@ if __name__ == "__main__":
                              % (fullCommand, currentDir,
                                 logPrefix + prettyName + '_' + prettyLabel,
                                 compareCmd)
+            if options.relative:
+                fullCompareCommand += ' --relative'
+            elif options.absolute:
+                fullCompareCommand += ' --absolute'
             if options.verbose:
                 print "comparing EDProdct %s %s" % (name, obj.label())
             os.system (fullCompareCmd)

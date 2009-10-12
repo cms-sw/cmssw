@@ -23,10 +23,10 @@ if __name__ == "__main__":
                            default='',
                            help="Tuple type of 1st and 2nd tuple")
     tupleGroup.add_option ('--tuple1', dest='tuple1', type='string',
-                           default='GenObject',
+                           default='reco',
                            help="Tuple type of 1st tuple")
     tupleGroup.add_option ('--tuple2', dest='tuple2', type='string',
-                           default='pat',
+                           default='reco',
                            help="Tuple type of 2nd tuple")
     tupleGroup.add_option ('--file', dest='file', type='string',
                            default="",
@@ -80,6 +80,12 @@ if __name__ == "__main__":
                              help="Write out root file for file comparisons")
     optionsGroup.add_option ('--debug', dest='debug', action='store_true',
                              help="Print debugging information")
+    optionsGroup.add_option ('--relative', dest='relative',
+                             action='store_true', default=True,
+                             help='Precision is checked against relative difference')
+    optionsGroup.add_option ('--absolute', dest='relative',
+                             action='store_false',
+                             help='Precision is checked against absolute difference')
     optionsGroup.add_option 
     parser.add_option_group (modeGroup)
     parser.add_option_group (tupleGroup)
@@ -137,13 +143,12 @@ if __name__ == "__main__":
             GenObject.changeLabel (*pieces)
     # We don't want to use options beyond the main code, so let thee
     # kitchen sink know what we want
-    if options.printEvent:
-        GenObject.setGlobalFlag ('printEvent', True)
+    GenObject.setGlobalFlag ('printEvent', options.printEvent)
+    GenObject.setGlobalFlag ('debug', options.debug)
+    GenObject.setGlobalFlag ('relative', options.relative)
     if options.blur:
         GenObject.setGlobalFlag ('blur', options.blur)
         GenObject.setGlobalFlag ('blurRate', options.blurRate)
-    if options.debug:
-        GenObject.setGlobalFlag ('debug', True)
     # take care of any 'double' options now
     if options.tuple:
         options.tuple1 = options.tuple2 = options.tuple
