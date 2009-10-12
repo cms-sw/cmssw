@@ -45,7 +45,7 @@ void
 FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEveWindowSlot* base)
 {
    TEveViewer*  ev = new TEveViewer("Track hits detail view");
-     gEve->AddElement(ev, gEve->GetViewers());
+   gEve->GetViewers()->AddElement(ev);
    m_viewer = ev->SpawnGLEmbeddedViewer();
    base->ReplaceWindow(ev);
    TEveScene* scene = gEve->SpawnNewScene("hits scene");
@@ -70,6 +70,12 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
 
    TracksRecHitsUtil::addHits(*track, id.item(), scene);
+   for (TEveElement::List_i i=scene->BeginChildren(); i!=scene->EndChildren(); ++i)
+   {
+      (*i)->SetMainColor(kBlue);
+      (*i)->SetMainTransparency(0);
+   }
+
    CmsMagField* cmsMagField = new CmsMagField;
    cmsMagField->setReverseState( true );
    cmsMagField->setMagnetState( CmsShowMain::getMagneticField() > 0 );
@@ -82,6 +88,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    TEveTrack* trk = fireworks::prepareTrack( *track, prop,
                                              id.item()->defaultDisplayProperties().color() );
    trk->MakeTrack();
+   trk->SetLineWidth(2);
    prop->SetRnrDaughters(kTRUE);
    prop->SetRnrDecay(kTRUE);
    prop->SetRnrReferences(kTRUE);
