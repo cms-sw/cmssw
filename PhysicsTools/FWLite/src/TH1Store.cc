@@ -114,14 +114,14 @@ TH1Store::write (TFile *filePtr,
    } // for iter
    // Write out command line arguments.  Save information in directory
    // called provenance.
-   _createDir ("args", filePtr);
+   TDirectory *dir = _createDir ("args", filePtr);
    if (argsVec.size())
    {
-      filePtr->WriteObject (&argsVec, "argsVec");
+      dir->WriteObject (&argsVec, "argsVec");
    }
    if (inputFilesVec.size())
    {
-      filePtr->WriteObject (&inputFilesVec, "inputFiles");
+      dir->WriteObject (&inputFilesVec, "inputFiles");
    }
    cout << "TH1Store::write(): Successfully written to '"
         << filePtr->GetName() << "'." << endl;
