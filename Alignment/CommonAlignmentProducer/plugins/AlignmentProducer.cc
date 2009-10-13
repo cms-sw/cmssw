@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.36 $
-///  last update: $Date: 2009/10/02 12:46:53 $
+///  Revision   : $Revision: 1.37 $
+///  last update: $Date: 2009/10/10 14:17:44 $
 ///  by         : $Author: bonato $
 
 #include "AlignmentProducer.h"
@@ -53,7 +53,8 @@
 
 // Tracking and LAS
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
+#include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
+// enough?! #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
 // Alignment
@@ -85,7 +86,7 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
   beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
   tkLasBeamTag_(iConfig.getParameter<edm::InputTag>("tkLasBeamTag")),
-  clusterValueMapTag_(iConfig.getParameter<edm::InputTag>("HitPrescaleMap"))
+  clusterValueMapTag_(iConfig.getParameter<edm::InputTag>("hitPrescaleMapTag"))
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";

@@ -40,9 +40,9 @@ looper = cms.Looper("AlignmentProducer",
                     # event input
                     tjTkAssociationMapTag = cms.InputTag("TrackRefitter"),
                     beamSpotTag           = cms.InputTag("offlineBeamSpot"),
+                    hitPrescaleMapTag     = cms.InputTag(""), # not used if empty
                     # run input
                     tkLasBeamTag          = cms.InputTag(""), # not used if empty
-                    HitPrescaleMap          = cms.InputTag(""), # not used if empty
                     
                     # Choose one algorithm with configuration, HIP is default
                     algoConfig = cms.PSet(HIPAlignmentAlgorithm), # why not by reference?
