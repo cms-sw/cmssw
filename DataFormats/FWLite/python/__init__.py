@@ -124,6 +124,13 @@ class Events:
         forceEvent  => Use fwlite::Event IF there is only one file
         maxEvents   => Maximum number of events to process
         """        
+        self._veryFirstTime      = True
+        self._event              = 0
+        self._eventCounts        = 0
+        self._maxEvents          = 0
+        self._forceEvent         = False
+        self._mode               = None
+        self._secondaryFilenames = None
         if isinstance (inputFiles, list):
             # it's a list
             self._filenames = inputFiles[:]
@@ -136,13 +143,6 @@ class Events:
         else:
             # it's probably a single string
             self._filenames = [inputFiles]
-        self._veryFirstTime      = True
-        self._event              = 0
-        self._eventCounts        = 0
-        self._maxEvents          = 0
-        self._forceEvent         = False
-        self._mode               = None
-        self._secondaryFilenames = None
         ##############################
         ## Parse optional arguments ##
         ##############################
