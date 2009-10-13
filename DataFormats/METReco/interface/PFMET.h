@@ -37,6 +37,12 @@ namespace reco
     double MuonEtFraction() const { return pf_data.MuonEtFraction; }
     double MuonEt() const { return pf_data.MuonEtFraction * sumEt(); }
     
+    double Type6EtFraction() const { return pf_data.Type6EtFraction; }
+    double Type6Et() const { return pf_data.Type6EtFraction * sumEt(); }
+
+    double Type7EtFraction() const { return pf_data.Type7EtFraction; }
+    double Type7Et() const { return pf_data.Type7EtFraction * sumEt(); }
+
     // block accessors
     SpecificPFMETData getSpecific() const {return pf_data;}
    
