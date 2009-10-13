@@ -16,6 +16,8 @@
 #include <map>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "CLHEP/Random/RandFlat.h"
+
 
 class NeutronWriter;
 
@@ -60,6 +62,7 @@ protected:
 
 private:
   NeutronWriter * theHitWriter;
+  CLHEP::RandFlat * theRandFlat;
   edm::InputTag theInputTag;
   double theNeutronTimeCut;
   double theTimeWindow;

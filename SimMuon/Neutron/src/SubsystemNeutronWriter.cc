@@ -1,10 +1,15 @@
 #include "SimMuon/Neutron/interface/SubsystemNeutronWriter.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "SimMuon/Neutron/src/AsciiNeutronWriter.h"
 #include "SimMuon/Neutron/src/RootNeutronWriter.h"
 #include "SimMuon/Neutron/src/NeutronWriter.h"
 #include "SimMuon/Neutron/src/EDMNeutronWriter.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 #include <algorithm>
 
 using namespace std;
@@ -18,7 +23,9 @@ public:
 
 
 SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset) 
-: theInputTag(pset.getParameter<edm::InputTag>("input")),
+: theHitWriter(0),
+  theRandFlat(0),
+  theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
   theTimeWindow(pset.getParameter<double>("timeWindow")),
   theNEvents(0),
@@ -41,6 +48,16 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
     theHitWriter = new EDMNeutronWriter();
     // write out the real DetId, not the local one
     useLocalDetId_ = false;
+    // smear the times
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( ! rng.isAvailable()) {
+     throw cms::Exception("Configuration")
+       << "SubsystemNeutronWriter requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+    }
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+    theRandFlat = new CLHEP::RandFlat(engine);
   }
   else 
   {
@@ -54,7 +71,9 @@ SubsystemNeutronWriter::~SubsystemNeutronWriter()
 {
   printStats();
   delete theHitWriter;
+  delete theRandFlat;
 }
+
 
 
 void SubsystemNeutronWriter::printStats() {
@@ -127,6 +146,11 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
           << " on detType " << chamberType;
       }
       // set the time to be 0 at start of event
+      float adjustment = -1.*startTime;
+      // see if smearing is needed
+      if(theRandFlat) {
+        adjustment += theRandFlat->fire(25.);
+      }
       adjust(hit, -1.*startTime);
       cluster.push_back( hit );
     }
