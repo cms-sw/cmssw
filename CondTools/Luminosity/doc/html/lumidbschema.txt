@@ -1,0 +1,103 @@
+Glossary: FK=Foreign Key, PK=Primary Key
+
+
+table 1:  RUNSUMMARY (insert one row per run)
+columns:  CMSRUNID(uint32, PK, represent uniqueness of runnumber ),
+          RUNNUM(uint32),
+          FILLNUM(uint32),
+          TOTALCMSLS(uint32),
+          TOTALLUMILS(uint32),
+          SEQUENCE(string),
+          HLTKEY(string),
+          TIMESTAMP(uint64),
+          STARTORBIT(uint64),
+          ENDORBIT(uint64),
+          RUNQUALITY(bool) // baseline run quality [HF&&HLX]
+ 
+=======
+table 2:  LUMISUMMARY (insert one row per run+ls+lumiversion, each lumi (re)reprocessing)
+columns:  CMSRUNID(uint32, FK, link to table 1),
+          LUMIID(unint32, PK, represent the uniqueness of runnumber+ls+lumiversion),
+          RUNNUM(uint32),
+          LUMIVERSION(string),
+          LSNUM(uint32),
+          DTNORM(float), //or int?
+          LUMINORM(float),//or int? 
+          INSTLUMI(float),
+          INSTLUMIERROR(float),
+          INSTLUMIQUALITY(short),
+          LIVEFLAG(bool)
+
+======
+table 3:  LUMIDETAIL (insert 3 rows per run+ls+lumiversion+algorithm, each lumi (re)processing)
+columns:  LUMIID(uint32, FK, link to table 2 when needed),
+          BXID(uint32, PK, represents uniqueness of runnumber+ls+lumiversion+algorithm),
+          RUNNUM(uint32),
+          LUMIVERSION(string),
+          LSNUM(uint32), //beg,mid,end of run, lumi section taken by lumidaq
+          BXNUM(uint32),
+          LUMIVALUE(float),
+          LUMIERROR(float),
+          LUMIQUALITY(uint16),
+          LUMINORM(float),
+          ALGONAME(string), //occ1,occ2,etsum,bran
+          
+ ======
+table 4:  L1SCALER (insert 128+64 rows per run+ls, unrelated to lumiversion)
+columns:  CMSRUNID(uint32,FK, link to table 1 when needed),
+          RUNNUM(uint32),
+          CMSLSNUM(uint32), //lumi section taken by cmsdaq
+          TRGBITNUM(uint32), //0-127 algo;128-192 tech
+          TRGNAME(string),
+          TRGCOUNT(uint64),
+          DEADTIMECOUNT(uint64),
+          PRESCALE(uint64)
+
+ ======
+table 5:  HLTSCALER (insert 100-200 rows per run+ls, unrelated to lumiversion)
+columns:  CMSRUNID(uint32,FK, link to table 1 when needed), 
+          HLTID(uint32,PK, represent uniqueness of runnumber+ls+hltpath)
+          RUNNUM(uint32),
+          CMSLSNUM(uint32), //lumi section taken by cmsdaq
+          PATHNAME(string),
+          INPUTCOUNT(uint32),
+          ACCEPTCOUNT(uint32),
+          PRESCALE(uint32)
+         
+ ======
+table 6:  RUNQUALITY (insert 1 row per run+ls)
+colums:   CMSRUNID(uint32,FK, link to table 1 when needed), 
+          RUNQUALITYID(uint32, represet uniqueness of runnumber+ls),
+          RUNNUM(uint32),
+          CMSLSNUM(uint32), //lumi section taken by cmsdaq
+          ECAL(bool),
+          HCAL(bool),
+          TRACKER(bool),
+          DT(bool),
+          CSC(bool),
+          RPC(bool),
+          HF(bool),
+          HLX(bool)
+
+ ======derived data in fact table (huge table)======
+table 7:  LUMIFACT (insert 1 row per combinatorial of run+lumiversion+hltpath)
+columns:  CMSRUNID(uint32, FK, link to table 1),
+          HLTID(uint32, FK, link to table 5),
+          RUNQUALITYID(uint32 FK, link to table 6),
+          LUMIID(uint32 FK, link to table 2),
+          RUNNUM(uint32),
+          LUMIVERSION(string),
+          HLTPATH(string), //null for total lumi,not null for sublumi 
+          TOTALDELIVEREDLUMI( float ), 
+          TOTALRECORDEDLUMI( float ), //total recordedlumi deadtimecorrected
+          SUBDELIVEREDLUMI( float ), //subrecordedlumi scalers DT corrected
+          SUBRECORDEDLUMI( float ),
+          SUBLUMIERROR( float )
+
+ ======
+table 8: IDTABLE (helper table keeping track of all the ids )
+         CMSRUNID
+         HLTID
+         LUMID
+         RUNQUALITYID
+ 
