@@ -9,22 +9,22 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 
 
-class CaloShapeIntegrator : public CaloVShape
+class CaloShapeIntegrator: public CaloVShape
 {
-public:
-  enum {BUNCHSPACE = 25};
+   public:
 
-  CaloShapeIntegrator(CaloVShape * shape) : theShape(shape) {}
-   /// doesn't delete pointer
-  virtual ~CaloShapeIntegrator() {}
+      enum {BUNCHSPACE = 25};
 
-  virtual double operator () (double startTime) const;
+      CaloShapeIntegrator( const CaloVShape* aShape ) ;
 
-  /// just dummy
-  virtual double derivative (double) const {return 0.;}
+      virtual ~CaloShapeIntegrator() ;
 
-private:
-  CaloVShape * theShape;
+      virtual double operator () ( double startTime ) const ;
+      virtual double timeToRise()                     const ;
+
+   private:
+
+      const CaloVShape* m_shape ;
 };
 
 #endif

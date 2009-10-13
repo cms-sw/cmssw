@@ -39,8 +39,8 @@ public:
   ~CaloTDigitizer() {}
 
   /// tell the digitizer which cells exist
-  std::vector<DetId>  detIds() const {return theDetIds;}
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
+  const std::vector<DetId>&  detIds() const {assert( 0 != theDetIds ) ; return *theDetIds;}
+  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
 
   void setNoiseHitGenerator(CaloVNoiseHitGenerator * generator) 
   {
@@ -60,7 +60,7 @@ public:
 
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
-    assert(theDetIds.size() != 0);
+    assert(theDetIds->size() != 0);
 
     if(theNoiseHitGenerator != 0) addNoiseHits();
     if(theNoiseSignalGenerator != 0) addNoiseSignals();
@@ -69,12 +69,12 @@ public:
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
-    int nDigisExpected = addNoise_ ? theDetIds.size() : theHitResponse->nSignals();
+    int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
 
     // make a raw digi for evey cell
-    for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
-        idItr != theDetIds.end(); ++idItr)
+    for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
+        idItr != theDetIds->end(); ++idItr)
     {
        Digi digi(*idItr);
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
@@ -127,7 +127,7 @@ private:
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
   CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   ElectronicsSim * theElectronicsSim;
-  std::vector<DetId> theDetIds;
+  const std::vector<DetId>* theDetIds;
   bool addNoise_;
 };
 

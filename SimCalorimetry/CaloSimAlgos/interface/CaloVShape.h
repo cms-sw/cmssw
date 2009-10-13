@@ -10,15 +10,17 @@
 
 class CaloVShape 
 {
-   public:
-      CaloVShape() {}
-      virtual ~CaloVShape() {}
+ public:
 
-      virtual double operator () (double) const=0;
+  CaloVShape() {}
+  virtual ~CaloVShape() {}
 
-   protected:
+  virtual double       operator () (double) const = 0 ;
+  virtual double       timeToRise()         const = 0 ;
 
-   private:
+ protected:
+
+ private:
 };
 
 #endif

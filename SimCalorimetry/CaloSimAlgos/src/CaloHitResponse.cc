@@ -118,8 +118,11 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
   double jitter = hit.time() - timeOfFlight(detId);
 
   // assume bins count from zero, go for center of bin
-  const double tzero = parameters.timePhase() -jitter -
-     BUNCHSPACE*(parameters.binOfMaximum()-thePhaseShift_);
+  const double tzero = ( theShape->timeToRise()
+			 + parameters.timePhase() 
+			 - jitter 
+			 - BUNCHSPACE*( parameters.binOfMaximum()
+					- thePhaseShift_          ) ) ;
   double binTime = tzero;
 
   CaloSamples result(makeBlankSignal(detId));
