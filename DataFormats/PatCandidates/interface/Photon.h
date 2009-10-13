@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.19 2008/11/28 19:02:15 lowette Exp $
+// $Id: Photon.h,v 1.20 2008/12/05 12:32:42 hegner Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.19 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: Photon.h,v 1.20 2008/12/05 12:32:42 hegner Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -86,32 +86,41 @@ namespace pat {
 
 
       // ---- methods for photon isolation ----
-      /// Returns the isolation variable for a specifc key (or pseudo-key like CaloIso), or -1.0 if not available
-      float isolation(IsolationKeys key) const { 
+      /// Returns the summed track pt in a cone of deltaR<0.4 
+      /// including the region of the reconstructed photon 
+      float trackIso() const { return trkSumPtSolidConeDR04(); }
+      /// Returns the summed Et in a cone of deltaR<0.4 
+      /// calculated from recHits
+      float ecalIso()  const { return ecalRecHitSumEtConeDR04(); }
+      /// Returns summed Et in a cone of deltaR<0.4 calculated 
+      /// from caloTowers
+      float hcalIso()  const { return hcalTowerSumEtConeDR04(); }
+      /// Returns the calorimeter isolation combined from ecal 
+      /// and hcal 
+      float caloIso()  const { return ecalIso()+hcalIso(); }
+      /// Returns a user defined isolation value
+      float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
+      /// Returns the isolation variable for a specifc key (or 
+      /// pseudo-key like CaloIso), or -1.0 if not available
+      float userIsolation(IsolationKeys key) const { 
           if (key >= 0) {
-              //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+	    //if (key >= isolations_.size()) throw cms::Excepton("Missing Data") 
+	    //<< "Isolation corresponding to key " << key 
+	    //<< " was not stored for this particle.";
               if (size_t(key) >= isolations_.size()) return -1.0;
               return isolations_[key];
           } else switch (key) {
               case CaloIso:  
-                  //if (isolations_.size() <= HCalIso) throw cms::Excepton("Missing Data") << "CalIsoo Isolation was not stored for this particle.";
+		//if (isolations_.size() <= HCalIso) throw cms::Excepton("Missing Data") 
+		//<< "CalIsoo Isolation was not stored for this particle.";
                   if (isolations_.size() <= HCalIso) return -1.0; 
                   return isolations_[ECalIso] + isolations_[HCalIso];
               default:
                   return -1.0;
-                  //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+                  //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " 
+		  //<< key << " was not stored for this particle.";
           }
       }
-      /// Return the tracker isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float trackIso() const { return isolation(TrackerIso); }
-      /// Return the sum of ecal and hcal isolation variable that were stored in this object when produced, or -1.0 if at least one is missing
-      float caloIso()  const { return isolation(CaloIso); }
-      /// Return the ecal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float ecalIso()  const { return isolation(ECalIso); }
-      /// Return the hcal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float hcalIso()  const { return isolation(HCalIso); }
-      /// Return the user defined isolation variable #index that was stored in this object when produced, or -1.0 if there is none
-      float userIso(uint8_t index=0)  const { return isolation(IsolationKeys(UserBaseIso + index)); }
       /// Sets the isolation variable for a specifc key.
       /// Note that you can't set isolation for a pseudo-key like CaloIso
       void setIsolation(IsolationKeys key, float value) {
