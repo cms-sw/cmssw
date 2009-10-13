@@ -157,7 +157,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // now make the basic object for one cell with HcalDetId myDetId containing the value myValue
       HcalRespCorr item ((*it).rawId(), cc);
-
+      mycorrections->addValues(item);
    }   
 
     HcalRespCorrs mycc = *mycorrections;
