@@ -1,11 +1,7 @@
 HLTriggerFirstPath
 HLT_MinBiasHcal
-HLT_HIJet50U
-HLT_HIJet75U
-HLT_HIJet90U
-HLT_HIPhoton10
-HLT_HIPhoton20
-HLT_HIPhoton30
+HLT_HIJet35U
+HLT_HIPhoton15
 HLT_HIDoubleMu
 HLTriggerFinalPath
 HLTAnalyzerEndpath
