@@ -1,4 +1,4 @@
-/* $Id: EcalDccWeightBuilder.cc,v 1.7 2009/10/09 14:23:48 pgras Exp $
+/* $Id: EcalDccWeightBuilder.cc,v 1.8 2009/10/09 15:55:35 pgras Exp $
  *
  * authors: Ph. Gras (CEA/Saclay), F. Cavallari (INFN/Roma)
  *          some code copied from CalibCalorimetry/EcalTPGTools code
@@ -231,7 +231,7 @@ EcalDccWeightBuilder::computeWeights(const EcalShapeBase& shape,
 
   int nActualWeights = 0;
 
-  const double tzero = -(binOfMax-1)*25+timePhase;//ns
+  const double tzero = -(binOfMax-1)*25+timePhase + shape.timeToRise();//ns
 
   for(int i=0; i<nWeights; ++i){
     double t_ns = tzero+(iFirst+i)*25;
