@@ -5,5 +5,6 @@ from Validation.EcalDigis.ecalDigisValidation_cfi import *
 from Validation.EcalDigis.ecalBarrelDigisValidation_cfi import *
 from Validation.EcalDigis.ecalEndcapDigisValidation_cfi import *
 from Validation.EcalDigis.ecalPreshowerDigisValidation_cfi import *
-ecalDigisValidationSequence = cms.Sequence(ecalDigisValidation*ecalBarrelDigisValidation*ecalEndcapDigisValidation*ecalPreshowerDigisValidation)
+from Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi import *
+ecalDigisValidationSequence = cms.Sequence(ecalDigisValidation*ecalBarrelDigisValidation*ecalEndcapDigisValidation*ecalPreshowerDigisValidation*ecalSelectiveReadoutValidation)
 
