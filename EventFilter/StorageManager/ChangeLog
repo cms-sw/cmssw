@@ -1,3 +1,9 @@
+2009-10-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-02-02
+	* Remove default setting for sataUser. This disables the check for
+	  the SATA controller.
+
 2009-10-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-02-01
