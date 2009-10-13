@@ -85,7 +85,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            DeadCellMonitor_test_occupancy               = cms.untracked.bool(True),
                            # This doesn't seem to do much yet
                            DeadCellMonitor_test_energy                  = cms.untracked.bool(False),
-                           DeadCellMonitor_checkNevents                 = cms.untracked.int32(10000),
+                           DeadCellMonitor_checkNevents                 = cms.untracked.int32(1000),
                            DeadCellMonitor_prescale                     = cms.untracked.int32(10),
                            # Checking for cells consistently below energy threshold
                            DeadCellMonitor_energyThreshold              = cms.untracked.double(-1.),
@@ -315,14 +315,9 @@ def setHcalTaskValues(process):
     checkNevents = deepcopy(process.checkNevents)
     process.BeamMonitor_checkNevents                      = checkNevents
     process.DataFormatMonitor_checkNevents                = checkNevents
-    # How do we convert from int32 to int, so that we can perform division on output?
-    #if (process.DeadCellMonitor_neverpresent_prescale>0):
-    #    process.DeadCellMonitor_checkNevents                  = checkNevents/process.DeadCellMonitor_neverpresent_prescale
-    #    
-    #    print process.DeadCellMonitor_neverpresent_prescale
-    #else:
-    # don't set checkNevents here; deadcellmonitor checkNevents works differently that other values
-    #process.DeadCellMonitor_checkNevents              = checkNevents
+
+    # Dead cells have additional prescale factor that are applied to default checkNevents
+    process.DeadCellMonitor_checkNevents                  = checkNevents
 
     process.DigiMonitor_checkNevents                      = checkNevents
     process.HotCellMonitor_checkNevents                   = checkNevents
