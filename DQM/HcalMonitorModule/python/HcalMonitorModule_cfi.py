@@ -201,7 +201,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            BeamMonitor_checkNevents                       = cms.untracked.int32(1000),
                            BeamMonitor_minErrorFlag                       = cms.untracked.double(0.),
                            BeamMonitor_makeDiagnosticPlots                = cms.untracked.bool(False),
-
+                           BeamMonitor_lumiprescale                       = cms.untracked.int32(1), # set number of bins in Lumi-section plots -- divide Nlumiblocks by this prescale
                            # DATA FORMAT MONITOR
                            DataFormatMonitor                              = cms.untracked.bool(True),
                            DataFormatMonitor_checkNevents                 = cms.untracked.int32(1000),

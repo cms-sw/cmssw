@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBeamMonitor.h"
+
 // define sizes of ieta arrays for each subdetector
 
 #define PI        3.1415926535897932
@@ -57,6 +58,7 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   // These two variables aren't yet in use
   beammon_checkNevents_    = ps.getUntrackedParameter<int>("BeamMonitor_checkNevents",checkNevents_);
   beammon_minErrorFlag_    = ps.getUntrackedParameter<double>("BeamMonitor_minErrorFlag",0.);
+  beammon_lumiprescale_   = ps.getUntrackedParameter<int>("BeamMonitor_lumiprescale",1);
 
   if (m_dbe)
     {
@@ -236,24 +238,17 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2",36,1,37);
       HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2",36,1,37);
       
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
 
-      HFlumi_Et_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 1)","HFlumi Et per channel vs lumi-block (RING 1)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Et_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 2)","HFlumi Et per channel vs lumi-block (RING 2)",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-
-      HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 1) Below Threshold","HFlumi Et per channel vs lumi-block (RING 1) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 2) Below Threshold","HFlumi Et per channel vs lumi-block (RING 2) Below Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-
-      HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 1) Above Upper Threshold","HFlumi Et per channel vs lumi-block (RING 1) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block (RING 2) Above Upper Threshold","HFlumi Et per channel vs lumi-block (RING 2) Above Upper Threshold",Nlumiblocks_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
       
     } // if (m_dbe)
 
@@ -561,32 +556,28 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  //HF: no non-threshold occupancy map is filled?
 	           
 	  if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
+	    HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 	    if (et < occThresh_){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,1);
-	      HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,et);
 	    }
 	    if (et > occThresh_ && et < 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,1);
-	      HFlumi_Et_per_channel_vs_lumiblock_RING1->Fill(lumiblock,et);
 	    }
 	     if (et > 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,1);
-	      HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,et);
 	    }
 	  }
 
 	  if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
+	    HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 	    if (et < occThresh_){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,1);
-	      HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,et);
 	    }
 	    if (et > occThresh_ && et < 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,1);
-	      HFlumi_Et_per_channel_vs_lumiblock_RING2->Fill(lumiblock,et);
 	    }
 	     if (et > 50.){
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,1);
-	      HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,et);
 	    }
 	  }
 

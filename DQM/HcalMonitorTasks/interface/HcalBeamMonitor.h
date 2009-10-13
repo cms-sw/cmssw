@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/10/07 16:52:48 $
-  * $Revision: 1.7 $
+  * $Date: 2009/10/11 18:52:58 $
+  * $Revision: 1.8 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -40,6 +40,8 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   bool     beammon_makeDiagnostics_;
   int      beammon_checkNevents_;
   double   beammon_minErrorFlag_;
+  int      beammon_lumiprescale_;
+
   std::map<int,MonitorElement* > HB_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HE_CenterOfEnergyRadius;
   std::map<int,MonitorElement* > HF_CenterOfEnergyRadius;
@@ -95,12 +97,7 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold;
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold;
 
-  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING1;
-  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING2;
-  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING1_Below_Threshold;
-  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING2_Below_Threshold;
-  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold;
-  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold;
+  MonitorElement* HFlumi_Et_per_channel_vs_lumiblock;
 
   const int ETA_OFFSET_HB;
 
