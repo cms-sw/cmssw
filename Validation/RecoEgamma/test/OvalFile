@@ -1,7 +1,7 @@
 The variables immediatly below are internal values for this test suite.
 
 <var name="TEST_OUTPUT_FILE" value="electronHistos.root">
-<var name="TEST_RELEASE" value="3_3_0_pre6">
+<var name="TEST_RELEASE" value="3_4_0_pre1">
 <var name="TEST_GLOBAL_TAG" value="MC_31X_V9">
 
 The difffile tag implies that after each run the eventual file electronHistos.root is automatically
@@ -23,8 +23,8 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="330pre6_new">
-<var name="VAL_REF_RELEASE" value="330pre6">
+<var name="VAL_NEW_RELEASE" value="340pre1_new">
+<var name="VAL_REF_RELEASE" value="340pre1">
 
 %IMPORTANT% If we do not set specific VAL_REF_File values below, electronValidation.csh will
 %IMPORTANT% compare the current histograms with the root files stored as ref in CVS. In such
