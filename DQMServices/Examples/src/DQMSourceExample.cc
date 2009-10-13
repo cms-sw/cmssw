@@ -2,9 +2,9 @@
  * \file DQMSourceExample.cc
  * \author C.Leonidopoulos
  * Last Update:
- * $Date: 2009/09/30 22:57:35 $
- * $Revision: 1.23 $
- * $Author: ameyer $
+ * $Date: 2009/10/05 14:49:08 $
+ * $Revision: 1.24 $
+ * $Author: lat $
  *
  * Description: Simple example showing how to create a DQM source creating and filling
  * monitoring elements
@@ -108,8 +108,8 @@ void DQMSourceExample::beginJob(const EventSetup& context) {
   s1        = dbe_->bookString("s1", "My string");
   h1        = dbe_->book1D("h1f", "Example TH1F 1D histogram.", NBINS2, XMIN, XMAX);
   h2        = dbe_->book1S("h1s", "Example TH1S histogram.", NBINS, XMIN, XMAX);
-  h3        = dbe_->book1DD("h1d", "Example TH1D histogram.", NBINS, XMIN, XMAX);
-  h4        = dbe_->book2DD("h2d", "Example TH2D histogram.", NBINS, XMIN, XMAX,NBINS, XMIN, XMAX);
+//  h3        = dbe_->book1DD("h1d", "Example TH1D histogram.", NBINS, XMIN, XMAX);
+//  h4        = dbe_->book2DD("h2d", "Example TH2D histogram.", NBINS, XMIN, XMAX,NBINS, XMIN, XMAX);
   p1        = dbe_->bookProfile(  "prof1", "My profile 1D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   p2        = dbe_->bookProfile2D("prof2", "My profile 2D", NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,NBINS,XMIN,XMAX,"");
   h1hist    = dbe_->book1D("history 1D","Example 1 1D history plot", 30, 0.,30.);
@@ -198,8 +198,8 @@ void DQMSourceExample::analyze(const Event& iEvent, const EventSetup& iSetup) {
   deadTrue->Fill(  gRandom->Gaus(20, 10), 2.);
   deadFalse->Fill( gRandom->Gaus(20,  4), 1.);
   h2->Fill(  gRandom->Gaus(20,  4), 1.);
-  h3->Fill(  XMIN, 0xffff00000000LL);
-  h4->Fill(  XMIN, XMIN, 0xffff00000000LL); 
+//  h3->Fill(  XMIN, 0xffff00000000LL);
+//  h4->Fill(  XMIN, XMIN, 0xffff00000000LL); 
   
   //h1hist->Print();
   //h1hist->Print();
@@ -238,5 +238,5 @@ void DQMSourceExample::endRun(const Run& r, const EventSetup& context) {
 //============================= endJob =============================//
 //==================================================================//
 void DQMSourceExample::endJob() {
-  dbe_->save("test.root");  
+   std::cout << "DQMSourceExample::endJob()" << std::endl;
 }

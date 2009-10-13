@@ -22,7 +22,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.dqmEnv.subSystemFolder = 'YourSubsystemName'
 
 ### optional parameters (defaults are different) ###
-
 ### Online environment
 process.dqmSaver.convention = 'Online'
 process.DQM.collectorHost = ''
@@ -40,9 +39,10 @@ process.dqmSaver.saveAtJobEnd = True
 ######################################################################################
 ### include your reference file
 process.DQMStore.referenceFileName = 'ref.root'
-### set 
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
+######################################################################################
+### set this in order to add up histograms that already exist
+#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ######################################################################################
 ### loading of root files into DQMStore (stripping out Run and RunSummary)
@@ -52,8 +52,6 @@ process.dqmFileReader.FileNames = cms.untracked.vstring (
        "file:ref.root",
        "file:ref.root"
        )
-### set collateHistograms to true if you want identical histograms added
-#process.DQMStore.collateHistograms = cms.untracked.bool(True)
 
 ######################################################################################
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
@@ -113,6 +111,6 @@ process.p = cms.Path(
                      process.qTester*
 		     process.dqmStoreStats*
 		     process.dqmClient*
-		     process.logErrorHarvester*process.logErrorDQM*
+#		     process.logErrorHarvester*process.logErrorDQM*
 		     process.dqmSaver
 		    )
