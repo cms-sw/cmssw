@@ -8,8 +8,8 @@ authors: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-  using namespace reco;
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+using namespace reco;
 using namespace std;
 
 //--------------------------------------------------------------------------------------
@@ -39,7 +39,19 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   //Insert code to retreive / calculate specific pf data here:  
   for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin() ; iParticle != (PFCandidates.product())->end() ; iParticle++ )
     {
-      
+      {
+        const Candidate* candidate = &(*iParticle);
+	if (candidate) {
+	  const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (candidate);
+	  if (pfCandidate)
+	    {
+	      cout << pfCandidate->et() << "     "
+		   << pfCandidate->hcalEnergy() << "    "
+		   << pfCandidate->ecalEnergy() << endl;
+	      
+	    }
+	}
+      }
     }
 
   const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
