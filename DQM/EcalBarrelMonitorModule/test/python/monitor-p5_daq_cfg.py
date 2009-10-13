@@ -242,6 +242,6 @@ process.ecalBarrelMonitorClient.superModules = [32]
 process.DQM.collectorHost = ''
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/DQMTEST.db"
-process.GlobalTag.globaltag = "DQMTEST::All"
 process.prefer("GlobalTag")
+process.GlobalTag.globaltag = "CRAFT09_R_V4::All"
+
