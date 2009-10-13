@@ -100,7 +100,7 @@ namespace pos{
       
       return msecTime ;
     }
-    
+/*    
     //---------------------------------------------------------------------------------
     static double timeDiff(std::string firstTime, std::string secondTime)
     {
@@ -131,7 +131,7 @@ namespace pos{
   
       return difftime(ft, st) ;
     }
-    
+*/    
     //=================================================================================
     
     private:

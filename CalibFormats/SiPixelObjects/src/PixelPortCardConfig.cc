@@ -226,7 +226,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     }
 
   portcardname_ = tableMat[1][colM["PORT_CARD"]] ;
-  //  cout << __LINE__ << mthn << "Loading PortCard " << portcardname_ << endl ;
+//  cout << __LINE__ << mthn << "Loading PortCard " << portcardname_ << endl ;
   if(portcardname_.find("FPix") != std::string::npos)
     {
       type_ = "fpix" ;
@@ -243,13 +243,13 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
   ccuAddress_	  = atoi(tableMat[1][colM["CCU_ADDR"]].c_str()     ) ;
   channelAddress_ = atoi(tableMat[1][colM["CHANNEL"]].c_str() ) ;
   i2cSpeed_       = atoi(tableMat[1][colM["I2C_SPEED"]].c_str()       ) ;
-
-//   cout << __LINE__ << "]\t" << mthn << 
-//     "ringAddress_\t"    << ringAddress_	    << endl <<
-//     "ccuAddress_\t"     << ccuAddress_	    << endl <<
-//     "channelAddress_\t" << channelAddress_  << endl <<
-//     "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
-  
+/*
+  cout << __LINE__ << "]\t" << mthn << 
+    "ringAddress_\t"    << ringAddress_	    << endl <<
+    "ccuAddress_\t"     << ccuAddress_	    << endl <<
+    "channelAddress_\t" << channelAddress_  << endl <<
+    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
+ */ 
   for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
     {
       std::string settingName;
@@ -318,20 +318,20 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 		 ) continue ;
 	      
 	      pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-
-// 	      cout << __LINE__ 
-// 	           << mthn << "Setting\t" 
-// 		   << "|"
-// 		   << settingName
-// 		   << "|->"
-// 		   << nameDBtoFileConversion_[settingName] 
-// 		   << "\twith pair:\t(" 
-// 		   << i2c_address
-// 		   << ","
-// 		   << i2c_values
-// 		   << ")"
-// 		   << endl ;
-
+/*
+	      cout << __LINE__ 
+	           << mthn << "Setting\t" 
+		   << "|"
+		   << settingName
+		   << "|->"
+		   << nameDBtoFileConversion_[settingName] 
+		   << "\twith pair:\t(" 
+		   << i2c_address
+		   << ","
+		   << i2c_values
+		   << ")"
+		   << endl ;
+*/
 	      device_.push_back(p);
 	    }
 	}
