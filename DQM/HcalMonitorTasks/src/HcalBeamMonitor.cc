@@ -242,7 +242,10 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
       HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      
+
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->getTProfile()->SetMarkerStyle(20);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->getTProfile()->SetMarkerStyle(20);
+      HFlumi_Et_per_channel_vs_lumiblock->getTProfile()->SetMarkerStyle(20);
     } // if (m_dbe)
 
   return;
@@ -556,13 +559,11 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	           
 	    if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
 	      HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
-	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,1);
-	    }
+		    }
 
 	    if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
 	      HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
-	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,1);
-
+	
 	    }
 
 	    if(et>occThresh_){
@@ -653,11 +654,11 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	double logvalue=0;
 	if (emptytowersRing1>0)
 	  logvalue=-1.*log(emptytowersRing1/144.);
-	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(logvalue);
+	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,logvalue);
 	
 	// Check Ring 2
 	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing1/144.) : logvalue = 0;
-	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(logvalue);
+	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,logvalue);
 
 	int hfeta=ETA_OFFSET_HF;
 	for (int i=-1*hfeta;i<=hfeta;++i)
