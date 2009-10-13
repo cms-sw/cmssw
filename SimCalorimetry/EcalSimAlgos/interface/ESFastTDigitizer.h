@@ -139,7 +139,7 @@ class ESFastTDigitizer
   
   
   /// tell the digitizer which cells exist
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = detIds;}
+  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
   
   void setNoiseHitGenerator(CaloVNoiseHitGenerator * generator) {
     theNoiseHitGenerator = generator;
@@ -148,7 +148,8 @@ class ESFastTDigitizer
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, ESDigiCollection & output) {
 
-    assert(theDetIds.size() != 0);
+    assert( 0 != theDetIds &&
+	    0 != theDetIds->size() );
     
     theHitResponse->run(input);
 
@@ -157,7 +158,7 @@ class ESFastTDigitizer
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect 
-    int nDigisExpected = addNoise_ ? theDetIds.size() : theHitResponse->nSignals();
+    int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
 
     // random generation of channel above threshold
@@ -166,8 +167,8 @@ class ESFastTDigitizer
 
     // make a raw digi for evey cell where we have noise
     int idxDetId=0;
-    for(std::vector<DetId>::const_iterator idItr = theDetIds.begin();
-        idItr != theDetIds.end(); ++idItr,++idxDetId) {
+    for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
+        idItr != theDetIds->end(); ++idItr,++idxDetId) {
 
       bool needToDeleteSignal = false;
       CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
@@ -218,7 +219,7 @@ class ESFastTDigitizer
   CaloHitResponse * theHitResponse;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;  
   ESElectronicsSimFast * theElectronicsSim;
-  std::vector<DetId> theDetIds;
+  const std::vector<DetId>* theDetIds;
   bool addNoise_;
   int numESdetId_;
   double zsThreshold_;

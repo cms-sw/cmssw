@@ -40,12 +40,6 @@ EcalShapeBase::timeToRise() const
    return timeOfMax() - timeOfThr() ;
 }
 
-unsigned int 
-EcalShapeBase::binOfMax() const 
-{
-   return 1 + (unsigned int) m_timeOfMax/kReadoutTimeInterval ; 
-}
-
 
 void
 EcalShapeBase::buildMe()

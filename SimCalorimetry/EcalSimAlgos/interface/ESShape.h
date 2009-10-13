@@ -24,7 +24,9 @@ class ESShape : public CaloVShape
   /// dtor
   ~ESShape(){}
   
-  double operator () (double time_) const;
+      virtual double operator () (double time) const;
+      virtual double timeToRise()              const ;
+
   void display () const {}
 
  private:

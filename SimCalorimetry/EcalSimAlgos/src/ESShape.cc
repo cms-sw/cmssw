@@ -37,6 +37,13 @@ double ESShape::operator () (double time_) const
     return 0.0;
   }
 }
+
+double
+ESShape::timeToRise() const
+{
+   return 0.0 ;
+}
+
 /*
 double ESShape::derivative (double time_) const
 {

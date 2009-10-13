@@ -21,11 +21,9 @@ class EcalShapeBase : public CaloVShape
 
       double operator() ( double aTime ) const ;
 
-      double timeOfThr()  const ;
-      double timeOfMax()  const ;
-      double timeToRise() const ;
-
-      unsigned int binOfMax() const ;
+      double         timeOfThr()  const ;
+      double         timeOfMax()  const ;
+      virtual double timeToRise() const ;
 
       virtual double threshold()             const = 0 ;
   
