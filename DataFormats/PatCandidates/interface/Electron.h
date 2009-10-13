@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.25 2009/08/11 04:23:31 srappocc Exp $
+// $Id: Electron.h,v 1.26 2009/10/12 22:18:50 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.25 2009/08/11 04:23:31 srappocc Exp $
+  \version  $Id: Electron.h,v 1.26 2009/10/12 22:18:50 rwolf Exp $
 */
 
 
@@ -91,12 +91,20 @@ namespace pat {
       void setElectronIDs(const std::vector<IdPair> & ids) { electronIDs_ = ids; }
       
       // ---- overload of isolation functions ----
-      // Overload of pat::Lepton::trackIso()
+      /// Overload of pat::Lepton::trackIso(); returns the value of
+      /// the summed track pt in a cone of deltaR<0.4
       float trackIso() const { return dr04TkSumPt(); }
-      // Overload of pat::Lepton::trackIso()
+      /// Overload of pat::Lepton::trackIso(); returns the value of 
+      /// the summed Et of all recHits in the ecal in a cone of 
+      /// deltaR<0.4
       float ecalIso()  const { return dr04EcalRecHitSumEt(); }
-      // Overload of pat::Lepton::trackIso()
+      /// Overload of pat::Lepton::trackIso(); returns the value of 
+      /// the summed Et of all caloTowers in the hcal in a cone of 
+      /// deltaR<0.4
       float hcalIso()  const { return dr04HcalTowerSumEt(); }
+      /// Overload of pat::Lepton::trackIso(); returns the sum of 
+      /// ecalIso() and hcalIso
+      float caloIso()  const { return ecalIso()+hcalIso(); }
 
       // ---- PF specific methods ----
       /// reference to the source PFCandidates

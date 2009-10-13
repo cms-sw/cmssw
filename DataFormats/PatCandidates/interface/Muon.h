@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.27 2009/09/28 14:38:43 srappocc Exp $
+// $Id: Muon.h,v 1.28 2009/10/12 22:18:51 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Muon.h,v 1.27 2009/09/28 14:38:43 srappocc Exp $
+  \version  $Id: Muon.h,v 1.28 2009/10/12 22:18:51 rwolf Exp $
 */
 
 
@@ -118,12 +118,20 @@ namespace pat {
       //bool isMuonIDAvailable(const std::string& name) const;
 
       // ---- overload of isolation functions ----
-      // Overload of pat::Lepton::trackIso()
+      /// Overload of pat::Lepton::trackIso(); returns the value of
+      /// the summed track pt in a cone of deltaR<0.3
       float trackIso() const { return isolationR03().sumPt; }
-      // Overload of pat::Lepton::trackIso()
+      /// Overload of pat::Lepton::trackIso(); returns the value of 
+      /// the summed Et of all recHits in the ecal in a cone of 
+      /// deltaR<0.3
       float ecalIso()  const { return isolationR03().emEt; }
-      // Overload of pat::Lepton::trackIso()
+      /// Overload of pat::Lepton::trackIso(); returns the value of 
+      /// the summed Et of all caloTowers in the hcal in a cone of 
+      /// deltaR<0.4
       float hcalIso()  const { return isolationR03().hadEt; }
+      /// Overload of pat::Lepton::trackIso(); returns the sum of 
+      /// ecalIso() and hcalIso
+      float caloIso()  const { return ecalIso()+hcalIso(); }
 
       /// Muon High Level Selection
       /// The user can choose to cache this info so they can drop the
