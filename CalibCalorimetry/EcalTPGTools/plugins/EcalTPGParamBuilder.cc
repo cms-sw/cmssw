@@ -22,6 +22,10 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
+#if (CMSSW_VERSION>=340)
+#include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#endif
 
 #include <iostream>
 #include <string>
@@ -836,11 +840,15 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Compute weights section //
   /////////////////////////////
 
+#if (CMSSW_VERSION>=340)
+  EBShape shape ;
+#else
   // loading reference signal representation
   EcalSimParameterMap parameterMap;  
   EBDetId   barrel(1,1);
   double    phase = parameterMap.simParameters(barrel).timePhase();
   EcalShape shape(phase); 
+#endif
   std::vector<unsigned int> weights = computeWeights(shape) ;
 
   if (weights.size() == 5) {
@@ -904,7 +912,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       // Insert the dataset
       ostringstream wtag;
-      wtag.str(""); wtag<<"SimShape_Phase"<<phase<<"_NGroups_"<<NWEIGROUPS;
+      wtag.str(""); wtag<<"Shape_NGroups_"<<NWEIGROUPS;
       std::string weight_tag=wtag.str();
       std::cout<< " weight tag "<<weight_tag<<endl; 
       if(m_write_wei==1) wei_conf_id_=db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
@@ -1420,10 +1428,18 @@ double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
   return weight ;
 }
 
+#if (CMSSW_VERSION>=340)
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape)
+#else
 std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
+#endif
 {
   std::cout<<"Computing Weights..."<<std::endl ;
+#if (CMSSW_VERSION>=340)
+  double timeMax = shape.timeOfMax() - shape.timeOfThr() ; // timeMax w.r.t begining of pulse
+#else
   double timeMax = shape.computeTimeOfMaximum() - shape.computeT0() ; // timeMax w.r.t begining of pulse
+#endif
   double max = shape(timeMax) ;
 
   double sumf = 0. ;
