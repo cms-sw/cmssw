@@ -12,8 +12,8 @@
 
 /** \class HcalBeamMonitor
   *
-  * $Date: 2009/10/11 18:52:58 $
-  * $Revision: 1.8 $
+  * $Date: 2009/10/13 17:15:46 $
+  * $Revision: 1.9 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -92,11 +92,6 @@ class HcalBeamMonitor:  public HcalBaseMonitor {
 
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1;
   MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2;
-  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold;
-  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold;
-  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold;
-  MonitorElement* HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold;
-
   MonitorElement* HFlumi_Et_per_channel_vs_lumiblock;
 
   const int ETA_OFFSET_HB;

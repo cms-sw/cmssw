@@ -238,15 +238,8 @@ void HcalBeamMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
       HFlumi_Occupancy_between_thrs_r2 = m_dbe->book1D("HF lumi Occupancy between thresholds ring2","HF lumi Occupancy between thresholds ring2",36,1,37);
       HFlumi_Occupancy_below_thr_r2 = m_dbe->book1D("HF lumi Occupancy below threshold ring2","HF lumi Occupancy below threshold ring2",36,1,37);
       
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Below Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Below Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 1) Above Upper Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold","HFlumi Occupancy per channel vs lumi-block (RING 2) Above Upper Threshold",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
-
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 1)","HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
+      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = m_dbe->bookProfile("HFlumi Occupancy per channel vs lumi-block (RING 2)","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
 
       HFlumi_Et_per_channel_vs_lumiblock = m_dbe->bookProfile("HFlumi Et per channel vs lumi-block","HFlumi Et per channel vs lumi-block",Nlumiblocks_/beammon_lumiprescale_,0.5,Nlumiblocks_+0.5,100,0,10000);
       
@@ -263,7 +256,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 				     // const ZDCRecHitCollection & zdcHits // include this once we see ZDC rec hits read out
 				   )
   
-{
+{ //processEvent loop
   if (!m_dbe)
     {
       if (fVerbosity) cout <<"HcalBeamMonitor::processEvent   DQMStore not instantiated!!!"<<endl;
@@ -323,99 +316,99 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
 
-  try
+
+  if(hbheHits.size()>0)
     {
-      if(hbheHits.size()>0)
-	{
-	  double HB_weightedX[HBETASIZE]={0.};
-	  double HB_weightedY[HBETASIZE]={0.};
-	  double HB_energy[HBETASIZE]={0.};
-
-	  double HE_weightedX[HEETASIZE]={0.};
-	  double HE_weightedY[HEETASIZE]={0.};
-	  double HE_energy[HEETASIZE]={0.};
-
-	  int ieta, iphi;
-
-	  for (HBHEiter=hbheHits.begin(); 
-	       HBHEiter!=hbheHits.end(); 
-	       ++HBHEiter) 
-	    { 
-
-	      // loop over all hits
-	      if (HBHEiter->energy()<0) continue; // don't consider negative-energy cells
-	      HcalDetId id(HBHEiter->detid().rawId());
-	      ieta=id.ieta();
-	      iphi=id.iphi();
-
-	      unsigned int index;
-	      if ((HcalSubdetector)(id.subdet())==HcalBarrel)
-		{
-		  HBtotalX+=HBHEiter->energy()*cos(2*PI*iphi/72);
-		  HBtotalY+=HBHEiter->energy()*sin(2*PI*iphi/72);
-		  HBtotalE+=HBHEiter->energy();
-
-		  index=ieta+ETA_OFFSET_HB;
-		  HB_weightedX[index]+=HBHEiter->energy()*cos(2.*PI*iphi/72);
-		  HB_weightedY[index]+=HBHEiter->energy()*sin(2.*PI*iphi/72);
-		  HB_energy[index]+=HBHEiter->energy();
-		} // if id.subdet()==HcalBarrel
-
-	      else
-		{
-		  HEtotalX+=HBHEiter->energy()*cos(2*PI*iphi/72);
-		  HEtotalY+=HBHEiter->energy()*sin(2*PI*iphi/72);
-		  HEtotalE+=HBHEiter->energy();
-
-		  index=ieta+ETA_OFFSET_HE;
-		  HE_weightedX[index]+=HBHEiter->energy()*cos(2.*PI*iphi/72);
-		  HE_weightedY[index]+=HBHEiter->energy()*sin(2.*PI*iphi/72);
-		  HE_energy[index]+=HBHEiter->energy();
-		}
-	    } // for (HBHEiter=hbheHits.begin()...
+      double HB_weightedX[HBETASIZE]={0.};
+      double HB_weightedY[HBETASIZE]={0.};
+      double HB_energy[HBETASIZE]={0.};
+      
+      double HE_weightedX[HEETASIZE]={0.};
+      double HE_weightedY[HEETASIZE]={0.};
+      double HE_energy[HEETASIZE]={0.};
+      
+      int ieta, iphi;
+      
+      for (HBHEiter=hbheHits.begin(); 
+	   HBHEiter!=hbheHits.end(); 
+	   ++HBHEiter) 
+	{ 
+	  
+	  // loop over all hits
+	  if (HBHEiter->energy()<0) continue; // don't consider negative-energy cells
+	  HcalDetId id(HBHEiter->detid().rawId());
+	  ieta=id.ieta();
+	  iphi=id.iphi();
+	  
+	  unsigned int index;
+	  if ((HcalSubdetector)(id.subdet())==HcalBarrel)
+	    {
+	      HBtotalX+=HBHEiter->energy()*cos(2*PI*iphi/72);
+	      HBtotalY+=HBHEiter->energy()*sin(2*PI*iphi/72);
+	      HBtotalE+=HBHEiter->energy();
+	      
+	      index=ieta+ETA_OFFSET_HB;
+	      if (index<0 || index> HBETASIZE) continue;
+	      HB_weightedX[index]+=HBHEiter->energy()*cos(2.*PI*iphi/72);
+	      HB_weightedY[index]+=HBHEiter->energy()*sin(2.*PI*iphi/72);
+	      HB_energy[index]+=HBHEiter->energy();
+	    } // if id.subdet()==HcalBarrel
+	  
+	  else
+	    {
+	      HEtotalX+=HBHEiter->energy()*cos(2*PI*iphi/72);
+	      HEtotalY+=HBHEiter->energy()*sin(2*PI*iphi/72);
+	      HEtotalE+=HBHEiter->energy();
+	      
+	      index=ieta+ETA_OFFSET_HE;
+	      if (index<0 || index> HEETASIZE) continue;
+	      HE_weightedX[index]+=HBHEiter->energy()*cos(2.*PI*iphi/72);
+	      HE_weightedY[index]+=HBHEiter->energy()*sin(2.*PI*iphi/72);
+	      HE_energy[index]+=HBHEiter->energy();
+	    }
+	} // for (HBHEiter=hbheHits.begin()...
 	  // Fill each histogram
-
-	  int hbeta=ETA_OFFSET_HB;
-	  for (int i=-1*hbeta;i<=hbeta;++i)
+      
+      int hbeta=ETA_OFFSET_HB;
+      for (int i=-1*hbeta;i<=hbeta;++i)
+	{
+	  if (i==0) continue;
+	  int index = i+ETA_OFFSET_HB;
+	  if (index<0 || index> HBETASIZE) continue;
+	  if (HB_energy[index]==0) continue;
+	  double moment=pow(HB_weightedX[index],2)+pow(HB_weightedY[index],2);
+	  //cout <<"index = "<<i<<"  X = "<<HB_weightedX[index]<<"  Y = "<<HB_weightedY[index]<<" Energy = "<<HB_energy[index]<<endl;
+	  moment=pow(moment,0.5);
+	  moment/=HB_energy[index];
+	  //cout <<"\tMOMENT = "<<moment<<endl;
+	  if (moment!=0)
 	    {
-	      if (i==0) continue;
-	      int index = i+ETA_OFFSET_HB;
-	      if (HB_energy[index]==0) continue;
-	      double moment=pow(HB_weightedX[index],2)+pow(HB_weightedY[index],2);
-	      //cout <<"index = "<<i<<"  X = "<<HB_weightedX[index]<<"  Y = "<<HB_weightedY[index]<<" Energy = "<<HB_energy[index]<<endl;
-	      moment=pow(moment,0.5);
-	      moment/=HB_energy[index];
-	      //cout <<"\tMOMENT = "<<moment<<endl;
-	      if (moment!=0)
-		{
-		  if (beammon_makeDiagnostics_) HB_CenterOfEnergyRadius[index]->Fill(moment);
-		  COEradiusVSeta->Fill(i,moment);
-		}
-	    } // for (int i=-1*hbeta;i<=hbeta;++i)
+	      if (beammon_makeDiagnostics_) HB_CenterOfEnergyRadius[index]->Fill(moment);
+	      COEradiusVSeta->Fill(i,moment);
+	    }
+	} // for (int i=-1*hbeta;i<=hbeta;++i)
 
-	  int heeta=ETA_OFFSET_HE;
-	  for (int i=-1*heeta;i<=heeta;++i)
+      int heeta=ETA_OFFSET_HE;
+      for (int i=-1*heeta;i<=heeta;++i)
+	{
+	  if (i==0) continue;
+	  if (i>-1*ETA_BOUND_HE && i <ETA_BOUND_HE) continue;
+	  int index = i + ETA_OFFSET_HE;
+	  if (index<0 || index> HEETASIZE) continue;
+	  if (HE_energy[index]==0) continue;
+	  double moment=pow(HE_weightedX[index],2)+pow(HE_weightedY[index],2);
+	  moment=pow(moment,0.5);
+	  moment/=HE_energy[index];
+	  if (moment!=0)
 	    {
-	      if (i==0) continue;
-	      if (i>-1*ETA_BOUND_HE && i <ETA_BOUND_HE) continue;
-	      int index = i + ETA_OFFSET_HE;
-	      if (HE_energy[index]==0) continue;
-	      double moment=pow(HE_weightedX[index],2)+pow(HE_weightedY[index],2);
-	      moment=pow(moment,0.5);
-	      moment/=HE_energy[index];
-	      if (moment!=0)
-		{
-		  if (beammon_makeDiagnostics_) HE_CenterOfEnergyRadius[index]->Fill(moment);
-		  COEradiusVSeta->Fill(i,moment);
-		}
-	    } // for (int i=-1*heeta;i<=heeta;++i)
+	      if (beammon_makeDiagnostics_) HE_CenterOfEnergyRadius[index]->Fill(moment);
+	      COEradiusVSeta->Fill(i,moment);
+	    }
+	} // for (int i=-1*heeta;i<=heeta;++i)
 
-	} // if (hbheHits.size()>0)
-    } // try
-  catch (...)
-    {
-      if (fVerbosity) cout <<"HcalBeamMonitor::processEvent   Error in HBHE RecHit loop"<<endl;
-    } // catch
+    } // if (hbheHits.size()>0)
+
+
   
   if (showTiming)
     {
@@ -423,61 +416,56 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
       cpu_timer.reset(); cpu_timer.start();
     } // if (showTiming)
   
-   // HO loop
-  try
+  // HO loop
+  if(hoHits.size()>0)
     {
-      if(hoHits.size()>0)
-	{
-	  double HO_weightedX[HOETASIZE]={0.};
-	  double HO_weightedY[HOETASIZE]={0.};
-	  double HO_energy[HOETASIZE]={0.};
-	  double offset;
+      double HO_weightedX[HOETASIZE]={0.};
+      double HO_weightedY[HOETASIZE]={0.};
+      double HO_energy[HOETASIZE]={0.};
+      double offset;
 
-	  int ieta, iphi;
-	  for (HOiter=hoHits.begin(); 
-	       HOiter!=hoHits.end(); 
-	       ++HOiter) 
-	    { 
-	      // loop over all cells
-	      if (HOiter->energy()<0) continue;  // don't include negative-energy cells?
-	      HcalDetId id(HOiter->detid().rawId());
-	      ieta=id.ieta();
-	      iphi=id.iphi();
+      int ieta, iphi;
+      for (HOiter=hoHits.begin(); 
+	   HOiter!=hoHits.end(); 
+	   ++HOiter) 
+	{ 
+	  // loop over all cells
+	  if (HOiter->energy()<0) continue;  // don't include negative-energy cells?
+	  HcalDetId id(HOiter->detid().rawId());
+	  ieta=id.ieta();
+	  iphi=id.iphi();
 
-	      HOtotalX+=HOiter->energy()*cos(2.*PI*iphi/72);
-	      HOtotalY+=HOiter->energy()*sin(2.*PI*iphi/72);
-	      HOtotalE+=HOiter->energy();
+	  HOtotalX+=HOiter->energy()*cos(2.*PI*iphi/72);
+	  HOtotalY+=HOiter->energy()*sin(2.*PI*iphi/72);
+	  HOtotalE+=HOiter->energy();
 
-	      unsigned int index;
-	      index=ieta+ETA_OFFSET_HO;
-	      HO_weightedX[index]+=HOiter->energy()*cos(2.*PI*iphi/72);
-	      HO_weightedY[index]+=HOiter->energy()*sin(2.*PI*iphi/72);
-	      HO_energy[index]+=HOiter->energy();
-	    } // for (HOiter=hoHits.begin();...)
+	  unsigned int index;
+	  index=ieta+ETA_OFFSET_HO;
+	  if (index<0 || index>HOETASIZE) continue;
+	  HO_weightedX[index]+=HOiter->energy()*cos(2.*PI*iphi/72);
+	  HO_weightedY[index]+=HOiter->energy()*sin(2.*PI*iphi/72);
+	  HO_energy[index]+=HOiter->energy();
+	} // for (HOiter=hoHits.begin();...)
 	  
-	  for (int i=-1*ETA_OFFSET_HO;i<=ETA_OFFSET_HO;++i)
+      for (int i=-1*ETA_OFFSET_HO;i<=ETA_OFFSET_HO;++i)
+	{
+	  if (i==0) continue;
+	  int index = i + ETA_OFFSET_HO;
+	  if (index < 0 || index> HOETASIZE) continue;
+	  if (HO_energy[index]==0) continue;
+	  double moment=pow(HO_weightedX[index],2)+pow(HO_weightedY[index],2);
+	  moment=pow(moment,0.5);
+	  moment/=HO_energy[index];
+	  // Shift HO values by 0.5 units in eta relative to HB
+	  offset = (i>0 ? 0.5: -0.5);
+	  if (moment!=0)
 	    {
-	      if (i==0) continue;
-	      int index = i + ETA_OFFSET_HO;
-	      if (HO_energy[index]==0) continue;
-	      double moment=pow(HO_weightedX[index],2)+pow(HO_weightedY[index],2);
-	      moment=pow(moment,0.5);
-	      moment/=HO_energy[index];
-	      // Shift HO values by 0.5 units in eta relative to HB
-	      offset = (i>0 ? 0.5: -0.5);
-	      if (moment!=0)
-		{
-		  if (beammon_makeDiagnostics_) HO_CenterOfEnergyRadius[index]->Fill(moment);
-		  COEradiusVSeta->Fill(i+offset,moment);
-		}
-	    } // for (int i=-1*hoeta;i<=hoeta;++i)
-	} // if (hoHits.size()>0)
-    } // try (HO loop)
-  catch (...)
-    {
-      if (fVerbosity) cout <<"HcalBeamMonitor::processEvent   Error in HO RecHit loop"<<endl;
-    } // catch
-  
+	      if (beammon_makeDiagnostics_) HO_CenterOfEnergyRadius[index]->Fill(moment);
+	      COEradiusVSeta->Fill(i+offset,moment);
+	    }
+	} // for (int i=-1*hoeta;i<=hoeta;++i)
+    } // if (hoHits.size()>0)
+    
   if (showTiming)
     {
       cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HO-> " << cpu_timer.cpuTime() << std::endl;
@@ -486,300 +474,309 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
   ///////////////////////////////////
   // HF loop
-  try
-    {
-      if(hfHits.size()>0)
-	{
-	  double HF_weightedX[HFETASIZE]={0.};
-	  double HF_weightedY[HFETASIZE]={0.};
-	  double HF_energy[HFETASIZE]={0.};
-	  double offset;
 
-	  int ieta, iphi;
-          float et,eta,phi,r;
-	  for (HFiter=hfHits.begin(); 
-	       HFiter!=hfHits.end(); 
-	       ++HFiter) 
-	    { 
-       	      if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
+  {
+    if(hfHits.size()>0)
+      {
+	double HF_weightedX[HFETASIZE]={0.};
+	double HF_weightedY[HFETASIZE]={0.};
+	double HF_energy[HFETASIZE]={0.};
+	double offset;
+	
+	// Assume ZS until shown otherwise
+	double emptytowersRing1 = 144;
+	double emptytowersRing2 = 144;
+	double ZStowersRing1 = 144;
+	double ZStowersRing2 = 144;
+	
+	int ieta, iphi;
+	float et,eta,phi,r;
+	for (HFiter=hfHits.begin(); 
+	     HFiter!=hfHits.end(); 
+	     ++HFiter) 
+	  {  // loop on hfHits
+	    // If hit present, don't count it as ZS any more
+	    (HFiter->id().depth()==1) ? --ZStowersRing1 : --ZStowersRing2;
 
-           eta=etaBounds[abs(HFiter->id().ieta())-29];
-           et=HFiter->energy()/cosh(eta)/area[abs(HFiter->id().ieta())-29];
-           r=radius[abs(HFiter->id().ieta())-29];
-           if(HFiter->id().iphi()<37)
-           phi=HFiter->id().iphi()*0.087266;
-           else phi=(HFiter->id().iphi()-72)*0.087266;
+	    if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
+
+	    eta=etaBounds[abs(HFiter->id().ieta())-29];
+	    et=HFiter->energy()/cosh(eta)/area[abs(HFiter->id().ieta())-29];
+	    if (et>=0.0625) // minimum ET threshold
+	      (HFiter->id().depth()==1) ? --emptytowersRing1 : --emptytowersRing2;
+	    r=radius[abs(HFiter->id().ieta())-29];
+	    if(HFiter->id().iphi()<37)
+	      phi=HFiter->id().iphi()*0.087266;
+	    else phi=(HFiter->id().iphi()-72)*0.087266;
            
-	  if (HFiter->id().depth()==1){
+	    if (HFiter->id().depth()==1){
             
             
-            if(HFiter->id().ieta()>0) {
+	      if(HFiter->id().ieta()>0) {
             
-	    Etsum_eta_L->Fill(eta,et);
-            Etsum_phi_L->Fill(phi,et);
-            Etsum_map_L->Fill(eta,phi,et);
-            Etsum_rphi_L->Fill(r,phi,et);
-            hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
-	    hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et;
+		Etsum_eta_L->Fill(eta,et);
+		Etsum_phi_L->Fill(phi,et);
+		Etsum_map_L->Fill(eta,phi,et);
+		Etsum_rphi_L->Fill(r,phi,et);
+		hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy();
+		hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et;
+	      }
+	      if(HFiter->id().ieta()<0) {
+		Etsum_eta_L->Fill(-eta,et);
+		Etsum_phi_L->Fill(phi,et);
+		Etsum_rphi_L->Fill(r,phi,et);
+		Etsum_map_L->Fill(-eta,phi,et);
+		hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
+		hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et; 
+	      }
 	    }
-            if(HFiter->id().ieta()<0) {
-            Etsum_eta_L->Fill(-eta,et);
-            Etsum_phi_L->Fill(phi,et);
-            Etsum_rphi_L->Fill(r,phi,et);
-            Etsum_map_L->Fill(-eta,phi,et);
-            hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=HFiter->energy(); 
-	    hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][0]=et; 
-	    }
-	  }
          
-          //Fill 3 histos for Short Fibers :
-	  if (HFiter->id().depth()==2){
-	    if(HFiter->id().ieta()>0)  {
-              Etsum_eta_S->Fill(eta,et);
-              Etsum_phi_S->Fill(phi,et);
-              Etsum_rphi_S->Fill(r,phi,et); 
-              Etsum_map_S->Fill(eta,phi,et);
-              hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
-	      hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
-	    }
-	    if(HFiter->id().ieta()<0)  {  Etsum_eta_S->Fill(-eta,et);
+	    //Fill 3 histos for Short Fibers :
+	    if (HFiter->id().depth()==2){
+	      if(HFiter->id().ieta()>0)  {
+		Etsum_eta_S->Fill(eta,et);
+		Etsum_phi_S->Fill(phi,et);
+		Etsum_rphi_S->Fill(r,phi,et); 
+		Etsum_map_S->Fill(eta,phi,et);
+		hitsp[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
+		hitsp_Et[HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
+	      }
+	      if(HFiter->id().ieta()<0)  {  Etsum_eta_S->Fill(-eta,et);
               Etsum_map_S->Fill(-eta,phi,et);
               Etsum_phi_S->Fill(phi,et);
               Etsum_rphi_S->Fill(r,phi,et); 
 	      hitsm[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=HFiter->energy();
 	      hitsm_Et[-HFiter->id().ieta()-29][(HFiter->id().iphi()-1)/2][1]=et;
-	    }
+	      }
           
-	  }
-	  Energy_Occ->Fill(HFiter->energy()); 
+	    } // depth()==2
+	    Energy_Occ->Fill(HFiter->energy()); 
             
-	  //HF: no non-threshold occupancy map is filled?
+	    //HF: no non-threshold occupancy map is filled?
 	           
-	  if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
-	    HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
-	    if (et < occThresh_){
-	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Below_Threshold->Fill(lumiblock,1);
-	    }
-	    if (et > occThresh_ && et < 50.){
+	    if ((abs(HFiter->id().ieta()) == 33 || abs(HFiter->id().ieta()) == 34) && HFiter->id().depth() == 1){ 
+	      HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,1);
 	    }
-	     if (et > 50.){
-	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING1_Above_Upper_Threshold->Fill(lumiblock,1);
-	    }
-	  }
 
-	  if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
-	    HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
-	    if (et < occThresh_){
-	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Below_Threshold->Fill(lumiblock,1);
-	    }
-	    if (et > occThresh_ && et < 50.){
+	    if ((abs(HFiter->id().ieta()) == 35 || abs(HFiter->id().ieta()) == 36) && HFiter->id().depth() == 2){ 
+	      HFlumi_Et_per_channel_vs_lumiblock->Fill(lumiblock,et);
 	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,1);
-	    }
-	     if (et > 50.){
-	      HFlumi_Occupancy_per_channel_vs_lumiblock_RING2_Above_Upper_Threshold->Fill(lumiblock,1);
-	    }
-	  }
 
-	  if(et>occThresh_){
+	    }
+
+	    if(et>occThresh_){
 	    
-            if (HFiter->id().depth()==1){
-	      if(HFiter->id().ieta()>0)  
-		{ Occ_eta_L->Fill(eta,1);
+	      if (HFiter->id().depth()==1){
+		if(HFiter->id().ieta()>0)  
+		  { Occ_eta_L->Fill(eta,1);
                   Occ_phi_L->Fill(phi,1);
                   Occ_map_L->Fill(eta,phi,1);
                   Occ_rphi_L->Fill(r,phi,1);
-		}
+		  }
 
-	      if(HFiter->id().ieta()<0)   { 
+		if(HFiter->id().ieta()<0)   { 
                   Occ_eta_L->Fill(-eta,1);
                   Occ_phi_L->Fill(phi,1);
                   Occ_map_L->Fill(-eta,phi,1);
-	         Occ_rphi_L->Fill(r,phi,1);
-	      }}
+		  Occ_rphi_L->Fill(r,phi,1);
+		}}
 
-            if (HFiter->id().depth()==2){
-	    if(HFiter->id().ieta()>0) { 
+	      if (HFiter->id().depth()==2){
+		if(HFiter->id().ieta()>0) { 
                   Occ_eta_S->Fill(eta,1);
                   Occ_phi_S->Fill(phi,1);
                   Occ_map_S->Fill(eta,phi,1);
                   Occ_rphi_S->Fill(r,phi,1);
-            }  
+		}  
             
-            if(HFiter->id().ieta()<0) { 
+		if(HFiter->id().ieta()<0) { 
                   Occ_eta_S->Fill(-eta,1);
                   Occ_map_S->Fill(-eta,phi,1);
                   Occ_phi_S->Fill(phi,1);
                   Occ_rphi_S->Fill(r,phi,1);
-	    }  
-	    }
+		}  
+	      }
    
-	  }
+	    }
            
-          else { if (HFiter->id().depth()==1){ 
+	    else { if (HFiter->id().depth()==1){ 
 	      if(HFiter->id().ieta()>0)  
 		{ Occ_eta_L->Fill(eta,0);
-                  Occ_map_L->Fill(eta,phi,0);
-                  Occ_phi_L->Fill(phi,0); 
-                  Occ_rphi_L->Fill(r,phi,0);}
+		Occ_map_L->Fill(eta,phi,0);
+		Occ_phi_L->Fill(phi,0); 
+		Occ_rphi_L->Fill(r,phi,0);}
 	      if(HFiter->id().ieta()<0)   { 
-                  Occ_eta_L->Fill(-eta,0);
-                  Occ_map_L->Fill(-eta,phi,0);
-                  Occ_phi_L->Fill(phi,0);
-                  Occ_rphi_L->Fill(r,phi,0);}
+		Occ_eta_L->Fill(-eta,0);
+		Occ_map_L->Fill(-eta,phi,0);
+		Occ_phi_L->Fill(phi,0);
+		Occ_rphi_L->Fill(r,phi,0);}
 	    }
 
             if (HFiter->id().depth()==2){
-	    if(HFiter->id().ieta()>0) { 
-                  Occ_eta_S->Fill(eta,0);
-                  Occ_map_S->Fill(eta,phi,0);
-                  Occ_phi_S->Fill(phi,0);
-                  Occ_rphi_S->Fill(r,phi,0);}  
+	      if(HFiter->id().ieta()>0) { 
+		Occ_eta_S->Fill(eta,0);
+		Occ_map_S->Fill(eta,phi,0);
+		Occ_phi_S->Fill(phi,0);
+		Occ_rphi_S->Fill(r,phi,0);}  
             
-            if(HFiter->id().ieta()<0) { 
-                  Occ_eta_S->Fill(-eta,0);
-                  Occ_map_S->Fill(-eta,phi,0);
-                  Occ_phi_S->Fill(phi,0);
-                  Occ_rphi_S->Fill(r,phi,0);}  
+	      if(HFiter->id().ieta()<0) { 
+		Occ_eta_S->Fill(-eta,0);
+		Occ_map_S->Fill(-eta,phi,0);
+		Occ_phi_S->Fill(phi,0);
+		Occ_rphi_S->Fill(r,phi,0);}  
 	    }
-	  }//else
-	      HcalDetId id(HFiter->detid().rawId());
-	      ieta=id.ieta();
-	      iphi=id.iphi();
+	    }//else
+	    HcalDetId id(HFiter->detid().rawId());
+	    ieta=id.ieta();
+	    iphi=id.iphi();
 
-	      HFtotalX+=HFiter->energy()*cos(2.*PI*iphi/72);
-	      HFtotalY+=HFiter->energy()*sin(2.*PI*iphi/72);
-	      HFtotalE+=HFiter->energy();
+	    HFtotalX+=HFiter->energy()*cos(2.*PI*iphi/72);
+	    HFtotalY+=HFiter->energy()*sin(2.*PI*iphi/72);
+	    HFtotalE+=HFiter->energy();
 
-	      unsigned int index;
-	      index=ieta+ETA_OFFSET_HF;
-	      HF_weightedX[index]+=HFiter->energy()*cos(2.*PI*iphi/72);
-	      HF_weightedY[index]+=HFiter->energy()*sin(2.*PI*iphi/72);
-	      HF_energy[index]+=HFiter->energy();
-	    } // for (HFiter=hfHits.begin();...)
+	    unsigned int index;
+	    index=ieta+ETA_OFFSET_HF;
+	    if (index<0 || index>HFETASIZE) continue;
+	    HF_weightedX[index]+=HFiter->energy()*cos(2.*PI*iphi/72);
+	    HF_weightedY[index]+=HFiter->energy()*sin(2.*PI*iphi/72);
+	    HF_energy[index]+=HFiter->energy();
 	  
-	  int hfeta=ETA_OFFSET_HF;
-	  for (int i=-1*hfeta;i<=hfeta;++i)
-	    {
-	      if (i==0) continue;
-	      if (i>-1*ETA_BOUND_HF && i <ETA_BOUND_HF) continue;
-	      int index = i + ETA_OFFSET_HF;
-	      if (HF_energy[index]==0) continue;
-	      double moment=pow(HF_weightedX[index],2)+pow(HF_weightedY[index],2);
-	      moment=pow(moment,0.5);
-	      moment/=HF_energy[index];
-	      offset = (i>0 ? 0.5: -0.5);
-	      if (moment!=0)
-		{
-		  if (beammon_makeDiagnostics_) HF_CenterOfEnergyRadius[index]->Fill(moment);
-		  COEradiusVSeta->Fill(i+offset,moment);
-		}
-	    } // for (int i=-1*hfeta;i<=hfeta;++i)
-	  float ratiom,ratiop;
-	  
-	  for(int i=0;i<13;i++){
-	    for(int j=0;j<36;j++){
-	      
-	      if(hitsp[i][j][0]==hitsp[i][j][1]) continue;
-	      
-	      if (hitsp[i][j][0] < 1.2 && hitsp[i][j][1] < 1.8) continue;
-	      //use only lumi rings
-	      if (((i+29) < 33) || ((i+29) > 36)) continue;
-	      ratiop=fabs((fabs(hitsp[i][j][0])-fabs(hitsp[i][j][1]))/(fabs(hitsp[i][j][0])+fabs(hitsp[i][j][1])));
-	      //cout<<ratiop<<endl;
-	      if ((hitsp_Et[i][j][0] > 5. && hitsp[i][j][1] < 1.8) || (hitsp_Et[i][j][1] > 5. &&  hitsp[i][j][0] < 1.2)){
-		Etsum_ratio_p->Fill(ratiop);
-		if(abs(ratiop>0.95)) Etsum_ratio_map->Fill(i,2*j+1); // i=4,5,6,7 for HFlumi rings 
+	  } // for (HFiter=hfHits.begin();...)
+	
+	// looped on all HF hits; calculate empty fraction
+	//  empty towers  = # of cells with ET < 0.0625 GeV, or cells missing because of ZS
+	//  Calculated as :  144 - (# of cells with ET >= 0.0625 GeV)
+	//  At some point, allow for calculations when channels are masked (and less than 144 channels expected)
+
+	// Check Ring 1
+	double logvalue=0;
+	if (emptytowersRing1>0)
+	  logvalue=-1.*log(emptytowersRing1/144.);
+	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(logvalue);
+	
+	// Check Ring 2
+	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing1/144.) : logvalue = 0;
+	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(logvalue);
+
+	int hfeta=ETA_OFFSET_HF;
+	for (int i=-1*hfeta;i<=hfeta;++i)
+	  {
+	    if (i==0) continue;
+	    if (i>-1*ETA_BOUND_HF && i <ETA_BOUND_HF) continue;
+	    int index = i + ETA_OFFSET_HF;
+	    if (index<0 || index>HFETASIZE) continue;
+	    if (HF_energy[index]==0) continue;
+	    double moment=pow(HF_weightedX[index],2)+pow(HF_weightedY[index],2);
+	    moment=pow(moment,0.5);
+	    moment/=HF_energy[index];
+	    offset = (i>0 ? 0.5: -0.5);
+	    if (moment!=0)
+	      {
+		if (beammon_makeDiagnostics_) HF_CenterOfEnergyRadius[index]->Fill(moment);
+		COEradiusVSeta->Fill(i+offset,moment);
 	      }
+	  } // for (int i=-1*hfeta;i<=hfeta;++i)
+	float ratiom,ratiop;
+	  
+	for(int i=0;i<13;i++){
+	  for(int j=0;j<36;j++){
+	      
+	    if(hitsp[i][j][0]==hitsp[i][j][1]) continue;
+	      
+	    if (hitsp[i][j][0] < 1.2 && hitsp[i][j][1] < 1.8) continue;
+	    //use only lumi rings
+	    if (((i+29) < 33) || ((i+29) > 36)) continue;
+	    ratiop=fabs((fabs(hitsp[i][j][0])-fabs(hitsp[i][j][1]))/(fabs(hitsp[i][j][0])+fabs(hitsp[i][j][1])));
+	    //cout<<ratiop<<endl;
+	    if ((hitsp_Et[i][j][0] > 5. && hitsp[i][j][1] < 1.8) || (hitsp_Et[i][j][1] > 5. &&  hitsp[i][j][0] < 1.2)){
+	      Etsum_ratio_p->Fill(ratiop);
+	      if(abs(ratiop>0.95)) Etsum_ratio_map->Fill(i,2*j+1); // i=4,5,6,7 for HFlumi rings 
 	    }
 	  }
+	}
 	  
-	  for(int p=0;p<13;p++){
-	    for(int q=0;q<36;q++){
+	for(int p=0;p<13;p++){
+	  for(int q=0;q<36;q++){
 	      
-	      if(hitsm[p][q][0]==hitsm[p][q][1]) continue;
+	    if(hitsm[p][q][0]==hitsm[p][q][1]) continue;
 
-	      if (hitsm[p][q][0] < 1.2 && hitsm[p][q][1] < 1.8) continue;
-	      //use only lumi rings
-	      if (((p+29) < 33) || ((p+29) > 36)) continue;
-	      ratiom=fabs((fabs(hitsm[p][q][0])-fabs(hitsm[p][q][1]))/(fabs(hitsm[p][q][0])+fabs(hitsm[p][q][1])));         
-	      if ((hitsm_Et[p][q][0] > 5. && hitsm[p][q][1] < 1.8) || (hitsm_Et[p][q][1] > 5. && hitsm[p][q][0] < 1.2)){
-		Etsum_ratio_m->Fill(ratiom);
-		if(abs(ratiom>0.95)) Etsum_ratio_map->Fill(7-p,2*q+1); // p=4,5,6,7 for HFlumi rings
-		//p=7:  ieta=-36; p=4:  ieta=-33
-	      }
+	    if (hitsm[p][q][0] < 1.2 && hitsm[p][q][1] < 1.8) continue;
+	    //use only lumi rings
+	    if (((p+29) < 33) || ((p+29) > 36)) continue;
+	    ratiom=fabs((fabs(hitsm[p][q][0])-fabs(hitsm[p][q][1]))/(fabs(hitsm[p][q][0])+fabs(hitsm[p][q][1])));         
+	    if ((hitsm_Et[p][q][0] > 5. && hitsm[p][q][1] < 1.8) || (hitsm_Et[p][q][1] > 5. && hitsm[p][q][0] < 1.2)){
+	      Etsum_ratio_m->Fill(ratiom);
+	      if(abs(ratiom>0.95)) Etsum_ratio_map->Fill(7-p,2*q+1); // p=4,5,6,7 for HFlumi rings
+	      //p=7:  ieta=-36; p=4:  ieta=-33
 	    }
-	  } 
-	} // if (hfHits.size()>0)
-    } // try (HF loop)
-  catch (...)
-    {
-      if (fVerbosity) cout <<"HcalBeamMonitor::processEvent   Error in HF RecHit loop"<<endl;
-    } // catch
+	  }
+	} 
+      } // if (hfHits.size()>0)
   
-  if (showTiming)
-    {
-      cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HF-> " << cpu_timer.cpuTime() << std::endl;
-    } // if (showTiming)
+    if (showTiming)
+      {
+	cpu_timer.stop(); std::cout << " TIMER::HcalBeamMonitor BEAMMON HF-> " << cpu_timer.cpuTime() << std::endl;
+      } // if (showTiming)
 
-  totalX=HBtotalX+HEtotalX+HOtotalX+HFtotalX;
-  totalY=HBtotalY+HEtotalY+HOtotalY+HFtotalY;
-  totalE=HBtotalE+HEtotalE+HOtotalE+HFtotalE;
+    totalX=HBtotalX+HEtotalX+HOtotalX+HFtotalX;
+    totalY=HBtotalY+HEtotalY+HOtotalY+HFtotalY;
+    totalE=HBtotalE+HEtotalE+HOtotalE+HFtotalE;
 
-  double moment;
-  if (HBtotalE>0)
-    {
-      moment=pow(HBtotalX*HBtotalX+HBtotalY*HBtotalY,0.5)/HBtotalE;
-      HBCenterOfEnergyRadius->Fill(moment);
-      HBCenterOfEnergy->Fill(HBtotalX/HBtotalE, HBtotalY/HBtotalE);
-    }
-  if (HEtotalE>0)
-    {
-      moment=pow(HEtotalX*HEtotalX+HEtotalY*HEtotalY,0.5)/HEtotalE;
-      HECenterOfEnergyRadius->Fill(moment);
-      HECenterOfEnergy->Fill(HEtotalX/HEtotalE, HEtotalY/HEtotalE);
-    }
-  if (HOtotalE>0)
-    {
-      moment=pow(HOtotalX*HOtotalX+HOtotalY*HOtotalY,0.5)/HOtotalE;
-      HOCenterOfEnergyRadius->Fill(moment);
-      HOCenterOfEnergy->Fill(HOtotalX/HOtotalE, HOtotalY/HOtotalE);
-    }
-  if (HFtotalE>0)
-    {
-      moment=pow(HFtotalX*HFtotalX+HFtotalY*HFtotalY,0.5)/HFtotalE;
-      HFCenterOfEnergyRadius->Fill(moment);
-      HFCenterOfEnergy->Fill(HFtotalX/HFtotalE, HFtotalY/HFtotalE);
-    }
-  if (totalE>0)
-    {
-      moment = pow(totalX*totalX+totalY*totalY,0.5)/totalE;
-      // cout <<"MOMENT = "<<moment<<endl;
-      CenterOfEnergyRadius->Fill(moment);
-      CenterOfEnergy->Fill(totalX/totalE, totalY/totalE);
-    }
+    double moment;
+    if (HBtotalE>0)
+      {
+	moment=pow(HBtotalX*HBtotalX+HBtotalY*HBtotalY,0.5)/HBtotalE;
+	HBCenterOfEnergyRadius->Fill(moment);
+	HBCenterOfEnergy->Fill(HBtotalX/HBtotalE, HBtotalY/HBtotalE);
+      }
+    if (HEtotalE>0)
+      {
+	moment=pow(HEtotalX*HEtotalX+HEtotalY*HEtotalY,0.5)/HEtotalE;
+	HECenterOfEnergyRadius->Fill(moment);
+	HECenterOfEnergy->Fill(HEtotalX/HEtotalE, HEtotalY/HEtotalE);
+      }
+    if (HOtotalE>0)
+      {
+	moment=pow(HOtotalX*HOtotalX+HOtotalY*HOtotalY,0.5)/HOtotalE;
+	HOCenterOfEnergyRadius->Fill(moment);
+	HOCenterOfEnergy->Fill(HOtotalX/HOtotalE, HOtotalY/HOtotalE);
+      }
+    if (HFtotalE>0)
+      {
+	moment=pow(HFtotalX*HFtotalX+HFtotalY*HFtotalY,0.5)/HFtotalE;
+	HFCenterOfEnergyRadius->Fill(moment);
+	HFCenterOfEnergy->Fill(HFtotalX/HFtotalE, HFtotalY/HFtotalE);
+      }
+    if (totalE>0)
+      {
+	moment = pow(totalX*totalX+totalY*totalY,0.5)/totalE;
+	// cout <<"MOMENT = "<<moment<<endl;
+	CenterOfEnergyRadius->Fill(moment);
+	CenterOfEnergy->Fill(totalX/totalE, totalY/totalE);
+      }
 
 
     
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);
-     //  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
-//       float en=0;
-//       float ts =0; float bs=0;
-//       int maxi=0; float maxa=0;
-//       for(int i=sigS0_; i<=sigS1_; i++){
-// 	if(digi.sample(i).adc()>maxa){maxa=digi.sample(i).adc(); maxi=i;}
-//       }
-//       for(int i=sigS0_; i<=sigS1_; i++){	  
-// 	float tmp1 =0;   
-//         int j1=digi.sample(i).adc();
-//         tmp1 = (LedMonAdc2fc[j1]+0.5);   	  
-// 	en += tmp1-calibs_.pedestal(digi.sample(i).capid());
-// 	if(i>=(maxi-1) && i<=maxi+1){
-// 	  ts += i*(tmp1-calibs_.pedestal(digi.sample(i).capid()));
-// 	  bs += tmp1-calibs_.pedestal(digi.sample(i).capid());
-// 	}
-//       }
+      //  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
+      //       float en=0;
+      //       float ts =0; float bs=0;
+      //       int maxi=0; float maxa=0;
+      //       for(int i=sigS0_; i<=sigS1_; i++){
+      // 	if(digi.sample(i).adc()>maxa){maxa=digi.sample(i).adc(); maxi=i;}
+      //       }
+      //       for(int i=sigS0_; i<=sigS1_; i++){	  
+      // 	float tmp1 =0;   
+      //         int j1=digi.sample(i).adc();
+      //         tmp1 = (LedMonAdc2fc[j1]+0.5);   	  
+      // 	en += tmp1-calibs_.pedestal(digi.sample(i).capid());
+      // 	if(i>=(maxi-1) && i<=maxi+1){
+      // 	  ts += i*(tmp1-calibs_.pedestal(digi.sample(i).capid()));
+      // 	  bs += tmp1-calibs_.pedestal(digi.sample(i).capid());
+      // 	}
+      //       }
 
       //---HFlumiplots
       int theTStobeused = 6;
@@ -869,8 +866,8 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	}//---endif TS=nr6
       } 
     }//------end loop over TS for lumi
-  return;
+    return;
+  }
 }
-
  // void HcalBeamMonitor::processEvent(const HBHERecHit Collection&hbheHits; ...)
 
