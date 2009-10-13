@@ -682,12 +682,12 @@ void HcalSummaryClient::analyze(void)
   StatusVsLS->setBinContent(LS_,6,status_HO12_);
   StatusVsLS->setBinContent(LS_,7,status_HFlumi_);
 
-  // If running online, fill in any missing LS values with old values
+  // If running online, fill in any missing LS values with most recent values
   if (Online_ && LS_!=oldLS_)
     {
       for (int subdet=1;subdet<=7;++subdet)
 	{
-	  float value=StatusVsLS->getBinContent(oldLS_,subdet);
+	  float value=StatusVsLS->getBinContent(LS_,subdet);
 	  for (int i=oldLS_+1;i<LS_;++i)
 	    StatusVsLS->setBinContent(i,subdet,value);
 	}
