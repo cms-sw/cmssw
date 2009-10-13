@@ -28,6 +28,7 @@ void DDPixBarStackLinearGap::initialize(const DDNumericArguments & nArgs,
 				 const DDStringVectorArguments &) {
 
   number      = int(nArgs["Number"]);
+  ringmodules = int(nArgs["RingModules"]);
   theta       = nArgs["Theta"];
   phi         = nArgs["Phi"];
   offset      = nArgs["Offset"];
@@ -43,7 +44,7 @@ void DDPixBarStackLinearGap::initialize(const DDNumericArguments & nArgs,
   DDName parentName = parent().name();
   LogDebug("TrackerGeom") << "DDPixBarStackLinearGap debug: Parent " << parentName 
 			  << "\tChild " << childName << " NameSpace " 
-			  << idNameSpace << "\tNumber " << number 
+                          << idNameSpace << "\tNumber " << number <<"\tEndRings "<<ringmodules
 			  << "\tAxis (theta/phi) " << theta/deg << ", "
 			  << phi/deg << "\t(Offset/Delta) " << offset << ", " 
 			  << delta << "\tCentre " << centre[0] << ", " 
@@ -65,8 +66,7 @@ void DDPixBarStackLinearGap::execute() {
     rot = DDRotation(DDName(rotstr, rotns));
   }
 
-  for (int i=21; i<(number/2); i++) {
-    //hard-wired for now...
+  for (int i=(number/2)-ringmodules; i<(number/2); i++) {
 
     if((stackoffset!=0.0)&&(i!=0)) {
       if(i%stackoffsetT==0) offset+=stackoffset;

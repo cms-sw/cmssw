@@ -26,6 +26,7 @@ private:
   std::string              idNameSpace; //Namespace of this and ALL sub-parts
   std::string              childName;   //Child name
   int                      number;      //Number of positioning
+  int                      ringmodules; //Number of modules in the rings at each end of layer
   double                   theta;       //Direction of translation
   double                   phi;         //  ......
   double                   offset;      //Offset    along (theta,phi) direction
