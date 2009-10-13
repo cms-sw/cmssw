@@ -59,9 +59,4 @@ double ZDCShape::operator () (double time) const
   else 
     return 0.0;
 }
-
-double ZDCShape::derivative (double time) const
-{
-  return 0.0;
-}
   

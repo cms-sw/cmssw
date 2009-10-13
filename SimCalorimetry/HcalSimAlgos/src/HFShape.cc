@@ -65,9 +65,4 @@ double HFShape::operator () (double time) const
   else 
     return 0.0;
 }
-
-double HFShape::derivative (double time) const
-{
-  return 0.0;
-}
   

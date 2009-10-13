@@ -25,8 +25,6 @@ public:
   virtual double operator () (double time) const;
   virtual double       timeToRise()         const  ;
   void display () const {}
-  double derivative (double time) const;
-  double getTpeak () const;
 
   void computeShape();
 

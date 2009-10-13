@@ -23,6 +23,7 @@ public:
   virtual ~ZDCShape(){}
   
   virtual double operator () (double time) const;
+  virtual double       timeToRise()         const  ;
 
 
  private:

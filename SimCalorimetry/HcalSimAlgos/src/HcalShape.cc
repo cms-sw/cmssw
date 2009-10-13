@@ -128,9 +128,4 @@ double HcalShape::operator () (double time_) const
 
 }
 
-double HcalShape::derivative (double time_) const
-{
-  return 0.0;
-}
-
 
