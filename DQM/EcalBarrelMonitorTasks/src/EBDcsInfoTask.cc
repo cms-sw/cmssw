@@ -64,7 +64,7 @@ void EBDcsInfoTask::beginJob(const EventSetup& c){
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
       meEBDcsActive_[i] = dqmStore_->bookFloat(histo);
-      meEBDcsActive_[i]->Fill(0.0);
+      meEBDcsActive_[i]->Fill(-1.0);
     }
 
   }
@@ -93,7 +93,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, 0.0 );
+      meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, -1.0 );
       int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
       // placeholder 
       if(1==1) {

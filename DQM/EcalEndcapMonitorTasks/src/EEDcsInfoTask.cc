@@ -66,7 +66,7 @@ void EEDcsInfoTask::beginJob(const EventSetup& c){
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
       meEEDcsActive_[i] = dqmStore_->bookFloat(histo);
-      meEEDcsActive_[i]->Fill(0.0);
+      meEEDcsActive_[i]->Fill(-1.0);
     }
 
   }
@@ -99,7 +99,7 @@ void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
         int jx = (iz==1) ? 100 + ix : ix;
         int jy = iy;
         if( EEDetId::validDetId(ix, iy, iz) ) {
-          meEEDcsActiveMap_->setBinContent( jx, jy, 0.0 );
+          meEEDcsActiveMap_->setBinContent( jx, jy, -1.0 );
 
           EEDetId id = EEDetId(ix, iy, iz, EEDetId::XYMODE);
           
