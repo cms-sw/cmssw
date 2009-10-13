@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.28 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.29 2009/07/02 12:31:58 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -29,7 +29,7 @@
 using namespace pat;
 
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
@@ -366,7 +366,7 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
-  iDesc.add("isolation", isolationPSet);
+  iDesc.add("userIsolation", isolationPSet);
 
 }
 

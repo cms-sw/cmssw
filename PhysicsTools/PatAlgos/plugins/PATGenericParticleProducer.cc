@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.9 2009/04/20 19:49:14 vadler Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.10 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -10,7 +10,7 @@
 using namespace pat;
 
 PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false),
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false),
   userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
 {
   // initialize the configurables

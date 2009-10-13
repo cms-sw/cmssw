@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.31 2009/09/23 10:09:26 hegner Exp $
+// $Id: PATMuonProducer.cc,v 1.32 2009/10/12 01:15:53 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -37,7 +37,7 @@ using namespace std;
 
 
 PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false),
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false),
   useUserData_(iConfig.exists("userData"))
 {
 
@@ -453,7 +453,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
-  iDesc.add("isolation", isolationPSet);
+  iDesc.add("userIsolation", isolationPSet);
 
   iDesc.add<bool>("embedHighLevelSelection", true)->setComment("embed high level selection");
   edm::ParameterSetDescription highLevelPSet;
