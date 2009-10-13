@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.27 2009/03/26 18:26:37 hauk Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.28 2009/10/09 12:57:56 hauk Exp $
 //
 //
 
@@ -1156,23 +1156,36 @@ TrackerOfflineValidation::fillTree(TTree& tree,
     treeMem.isDoubleSide =0;
 
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
-      PXBDetId pxbId(detId_); 
+      PXBDetId pxbId(detId_);
+      unsigned int whichHalfBarrel(1), rawId(detId_.rawId());  //DetId does not know about halfBarrels is PXB ...
+      if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
       treeMem.layer = pxbId.layer(); 
-      treeMem.rod = pxbId.ladder();
-  
+      treeMem.half = whichHalfBarrel;
+      treeMem.rod = pxbId.ladder();     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer!
+      treeMem.module = pxbId.module();
     } else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
       PXFDetId pxfId(detId_); 
+      unsigned int whichHalfCylinder(1), rawId(detId_.rawId());  //DetId does not kmow about halfCylinders in PXF
+      if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
       treeMem.layer = pxfId.disk(); 
       treeMem.side = pxfId.side();
+      treeMem.half = whichHalfCylinder;
       treeMem.blade = pxfId.blade(); 
       treeMem.panel = pxfId.panel();
-
+      treeMem.module = pxfId.module();
     } else if(treeMem.subDetId == StripSubdetector::TIB){
       TIBDetId tibId(detId_); 
+      unsigned int whichHalfShell(1), rawId(detId_.rawId());  //DetId does not kmow about halfShells in TIB
+       if ( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
+            (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
+	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
+	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
       treeMem.layer = tibId.layer(); 
       treeMem.side = tibId.string()[0];
+      treeMem.half = whichHalfShell;
       treeMem.rod = tibId.string()[2]; 
       treeMem.outerInner = tibId.string()[1]; 
+      treeMem.module = tibId.module();
       treeMem.isStereo = tibId.stereo();
       treeMem.isDoubleSide = tibId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TID){
@@ -1181,6 +1194,7 @@ TrackerOfflineValidation::fillTree(TTree& tree,
       treeMem.side = tidId.side();
       treeMem.ring = tidId.ring(); 
       treeMem.outerInner = tidId.module()[0]; 
+      treeMem.module = tidId.module()[1];
       treeMem.isStereo = tidId.stereo();
       treeMem.isDoubleSide = tidId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TOB){
@@ -1188,6 +1202,7 @@ TrackerOfflineValidation::fillTree(TTree& tree,
       treeMem.layer = tobId.layer(); 
       treeMem.side = tobId.rod()[0];
       treeMem.rod = tobId.rod()[1]; 
+      treeMem.module = tobId.module();
       treeMem.isStereo = tobId.stereo();
       treeMem.isDoubleSide = tobId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TEC) {
@@ -1197,6 +1212,7 @@ TrackerOfflineValidation::fillTree(TTree& tree,
       treeMem.ring  = tecId.ring(); 
       treeMem.petal = tecId.petal()[1]; 
       treeMem.outerInner = tecId.petal()[0];
+      treeMem.module = tecId.module();
       treeMem.isStereo = tecId.stereo();
       treeMem.isDoubleSide = tecId.isDoubleSide(); 
     }
