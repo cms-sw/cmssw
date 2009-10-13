@@ -674,22 +674,22 @@ void HcalSummaryClient::analyze(void)
     }
   
   // Now fill status map vs. LS
-  StatusVsLS->setBinContent(1+LS_,1,status_HB_);
-  StatusVsLS->setBinContent(1+LS_,2,status_HE_);
-  StatusVsLS->setBinContent(1+LS_,3,status_HO_);
-  StatusVsLS->setBinContent(1+LS_,4,status_HF_);
-  StatusVsLS->setBinContent(1+LS_,5,status_HO0_);
-  StatusVsLS->setBinContent(1+LS_,6,status_HO12_);
-  StatusVsLS->setBinContent(1+LS_,7,status_HFlumi_);
+  StatusVsLS->setBinContent(LS_,1,status_HB_);
+  StatusVsLS->setBinContent(LS_,2,status_HE_);
+  StatusVsLS->setBinContent(LS_,3,status_HO_);
+  StatusVsLS->setBinContent(LS_,4,status_HF_);
+  StatusVsLS->setBinContent(LS_,5,status_HO0_);
+  StatusVsLS->setBinContent(LS_,6,status_HO12_);
+  StatusVsLS->setBinContent(LS_,7,status_HFlumi_);
 
   // If running online, fill in any missing LS values with old values
   if (Online_ && LS_!=oldLS_)
     {
       for (int subdet=1;subdet<=7;++subdet)
 	{
-	  float value=StatusVsLS->getBinContent(1+oldLS_,subdet);
+	  float value=StatusVsLS->getBinContent(oldLS_,subdet);
 	  for (int i=oldLS_+1;i<LS_;++i)
-	    StatusVsLS->setBinContent(oldLS_+1,subdet,value);
+	    StatusVsLS->setBinContent(i,subdet,value);
 	}
       oldLS_ = LS_;
     }
