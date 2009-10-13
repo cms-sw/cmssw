@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.22 2009/09/29 07:59:43 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.23 2009/10/01 09:04:52 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <string>
@@ -422,7 +422,9 @@ bool ResourceMonitorCollection::checkSataDisks
   {
     std::ostringstream msg;
     msg << "Failed to connect to SATA controller "
-      << sataBeast << hostSuffix << ": " << content;
+      << sataBeast << hostSuffix 
+      << " with user name '" << _dwParams._sataUser
+      << "': " << content;
     XCEPT_DECLARE(stor::exception::SataBeast, ex, msg.str());
     _alarmHandler->notifySentinel(AlarmHandler::WARNING, ex);
 
