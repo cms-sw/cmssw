@@ -19,5 +19,7 @@ struct SpecificPFMETData
   double ChargedEMEtFraction ; 
   double ChargedHadEtFraction ;
   double MuonEtFraction ;
+  double Type6EtFraction;
+  double Type7EtFraction;
 }; //public : struct SpecificPFMETData
 #endif
