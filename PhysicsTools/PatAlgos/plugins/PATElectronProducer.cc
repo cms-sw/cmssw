@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.32 2009/08/26 08:34:05 cbern Exp $
+// $Id: PATElectronProducer.cc,v 1.33 2009/08/29 06:51:27 cbern Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -32,7 +32,7 @@ using namespace std;
 
 
 PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) ,
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), false) ,
   useUserData_(iConfig.exists("userData"))
 {
 

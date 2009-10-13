@@ -37,8 +37,17 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     embedSuperCluster = cms.bool(True),  ## embed in AOD externally stored supercluster
     embedPFCandidate  = cms.bool(True), ## embed in AOD externally stored particle flow candidate
                                     
-    # isolation
-    isolation = cms.PSet(
+    # embed IsoDeposits to recompute isolation
+    isoDeposits = cms.PSet(
+        tracker = cms.InputTag("eleIsoDepositTk"),
+        ecal    = cms.InputTag("eleIsoDepositEcalFromHits"),
+        hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
+    ),
+
+    # user defined isolation variables the variables defined here will be accessible
+    # via pat::Electron::userIsolation(IsolationKeys key) with the key as defined in
+    # DataFormats/PatCandidates/interface/Isolation.h
+    userIsolation = cms.PSet(
         tracker = cms.PSet(
             src = cms.InputTag("eleIsoFromDepsTk"),
         ),
@@ -49,12 +58,6 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
             src = cms.InputTag("eleIsoFromDepsHcalFromTowers"),
         ),
         user = cms.VPSet(),
-    ),
-    # embed IsoDeposits to recompute isolation
-    isoDeposits = cms.PSet(
-        tracker = cms.InputTag("eleIsoDepositTk"),
-        ecal    = cms.InputTag("eleIsoDepositEcalFromHits"),
-        hcal    = cms.InputTag("eleIsoDepositHcalFromTowers"),
     ),
 
     # electron ID
