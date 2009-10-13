@@ -15,6 +15,15 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.load("SimTransport.HectorProducer.HectorTransport_cfi")
 
+#process.LHCTransport.ZDCTransport = cms.bool(False) ## main flag to set transport for FP420
+
+#process.LHCTransport.Hector.smearEnergy = cms.bool(True)
+#process.LHCTransport.Hector.sigmaEnergy    = cms.double(0.001)## GeV
+
+#process.LHCTransport.Hector.smearAng    = cms.bool(True)
+#process.LHCTransport.Hector.sigmaSTX    = cms.double(0.01)## urad
+#process.LHCTransport.Hector.sigmaSTY    = cms.double(0.01)## urad
+
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 process.load("SimRomanPot.SimFP420.FP420Digi_cfi")
@@ -36,8 +45,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/z/zhokin/fff/FP420development/data/Exhume_Hbb.root')
-#   fileNames = cms.untracked.vstring('file:Exhume_Hbb.root')
+#    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/z/zhokin/fff/FP420development/data/Exhume_Hbb.root')
+   fileNames = cms.untracked.vstring('file:ExHuME_CEPHiggsTobb_14TeV_cff_py_GEN_20events.root')
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -50,7 +59,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
         'keep ClusterCollectionFP420_*_*_*', 
         'keep TrackCollectionFP420_*_*_*', 
         'keep RecoCollectionFP420_*_*_*'),
-    fileName = cms.untracked.string('HecExhume_Hbb.root')
+    fileName = cms.untracked.string('HecExhume_Hbb_14TeV_20ev.root')
 )
 
 process.Timing = cms.Service("Timing")
@@ -68,5 +77,16 @@ process.g4SimHits.Generator.HepMCProductLabel = cms.string('LHCTransport')
 process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(2000.0)
 process.g4SimHits.StackingAction.MaxTrackTime = cms.double(2000.0)
 process.FP420Digi.ApplyTofCut = cms.bool(False)
+##   for VtxSmearedGauss:
+#process.VtxSmeared.MeanX = 0.0
+#process.VtxSmeared.MeanY = 0.0
+#process.VtxSmeared.MeanZ = 0.0
+##   for VtxSmearedNoSmear:
+#process.VtxSmeared.MinX = -0.00000001
+#process.VtxSmeared.MaxX = 0.00000001
+#process.VtxSmeared.MinY = -0.00000001
+#process.VtxSmeared.MaxY = 0.00000001
+#process.VtxSmeared.MinZ = -0.00000001
+#process.VtxSmeared.MaxZ = 0.00000001
 
 
