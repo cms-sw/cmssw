@@ -6,6 +6,9 @@
 #include "TGLEmbeddedViewer.h"
 #include "TEveManager.h"
 #include "TEveTrack.h"
+#include "TEveTrans.h"
+#include "TEveText.h"
+#include "TGLFontManager.h"
 #include "TGPack.h"
 
 // CMSSW includes
@@ -74,6 +77,14 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    {
       (*i)->SetMainColor(kBlue);
       (*i)->SetMainTransparency(0);
+      (*i)->SetPickable(kFALSE);
+      TEveText* text = new TEveText((*i)->GetElementTitle());
+      text->PtrMainTrans()->SetFrom((*i)->RefMainTrans().Array());
+      text->SetFontMode(TGLFont::kPolygon);
+      text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
+      Float_t a = 0.05;
+      text->PtrMainTrans()->Scale(a, a, 1);
+      (*i)->AddElement(text); 
    }
 
    CmsMagField* cmsMagField = new CmsMagField;
