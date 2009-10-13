@@ -1449,13 +1449,27 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
     int crate_end = _f->rfind(".xml.dat");
     crate_number . push_back(getInt(_f->substr(crate_begin+1,crate_end-crate_begin-1)));
   }
+  //
+  //_____ fix due to the new convention: version/subversion combo must be unique for every payload
+  //
+  char _buf[128];
+  time_t _offset = time(NULL);
+  sprintf( _buf, "%d", (uint32_t)_offset );
+  conf.version.append(".");
+  conf.version.append(_buf);
+  CSconf.version = conf.version;
+  //
   for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
       //conf . trig_prim_lookuptbl_data_file += ".dat";
       conf . crate = crate_number[ _file - file_name . begin() ];
-      
-      char _buf[128];
+      //
+      //_____ fix due to the new convention: version/subversion combo must be unique for every payload
+      //
+      sprintf( _buf, "%.2d", conf.crate );
+      conf.subversion.clear();
+      conf.subversion.append(_buf);
       sprintf( _buf, "CRATE%.2d", conf . crate );
       string _namelabel;
       _namelabel . append( _buf );
