@@ -98,6 +98,14 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
     SOUTH_FIFO1_BZ_LVL  		      NOT NULL NUMBER(38)	     Sfifo1Bzlvl				
     FIFO3_WRN_LVL				       NUMBER(38)            fifo3Wrnlvl
     FED_MASTER_DELAY				       NUMBER(38)            FedTTCDelay
+    NO_HITLIMIT 			               NUMBER(38)	     N_hitlimit 
+    NC_HITLIMIT 			               NUMBER(38)	     NC_hitlimit
+    SC_HITLIMIT 			               NUMBER(38)	     SC_hitlimit
+    SO_HITLIMIT 			               NUMBER(38)	     S_hitlimit 
+    NO_TESTREG				               NUMBER(38)	     N_testreg  
+    NC_TESTREG				               NUMBER(38)	     NC_testreg 
+    SC_TESTREG				               NUMBER(38)	     SC_testreg 
+    SO_TESTREG				               NUMBER(38)	     S_testreg  
   */
   colNames.push_back("CONFIG_KEY" 	       );
   colNames.push_back("KEY_TYPE"   	       );
@@ -164,6 +172,14 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   colNames.push_back("SOUTH_FIFO1_BZ_LVL"      );
   colNames.push_back("FIFO3_WRN_LVL"	       );
   colNames.push_back("FED_MASTER_DELAY"        );
+  colNames.push_back("NO_HITLIMIT"	       );
+  colNames.push_back("NC_HITLIMIT"	       );
+  colNames.push_back("SC_HITLIMIT"	       );
+  colNames.push_back("SO_HITLIMIT"	       );
+  colNames.push_back("NO_TESTREG"	       );
+  colNames.push_back("NC_TESTREG"	       );
+  colNames.push_back("SC_TESTREG"	       );
+  colNames.push_back("SO_TESTREG"	       );
 
   for(unsigned int c = 0 ; c < ins.size() ; c++)
     {
@@ -282,6 +298,14 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       Sadcg  	   = atoi(tableMat[1][colM["B4_ADCGN"]].c_str() 		) ;
       fifo3Wrnlvl  = atoi(tableMat[1][colM["FIFO3_WRN_LVL"]].c_str()		) ;
       FedTTCDelay  = atoi(tableMat[1][colM["FED_MASTER_DELAY"]].c_str() 	) ;
+      N_hitlimit   = atoi(tableMat[1][colM["NO_HITLIMIT"]].c_str()	        ) ;
+      NC_hitlimit  = atoi(tableMat[1][colM["NC_HITLIMIT"]].c_str()	        ) ;
+      SC_hitlimit  = atoi(tableMat[1][colM["SC_HITLIMIT"]].c_str()	        ) ;
+      S_hitlimit   = atoi(tableMat[1][colM["SO_HITLIMIT"]].c_str()	        ) ;
+      N_testreg    = atoi(tableMat[1][colM["NO_TESTREG"]].c_str()	        ) ;
+      NC_testreg   = atoi(tableMat[1][colM["NC_TESTREG"]].c_str()	        ) ;
+      SC_testreg   = atoi(tableMat[1][colM["SC_TESTREG"]].c_str()	        ) ;
+      S_testreg    = atoi(tableMat[1][colM["SO_TESTREG"]].c_str()	        ) ;
 
     } // end of 'first' condition
   for(int r = 1 ; r < size[0] ; r++)    //Goes to every row of the FIRST Matrix (MUST BE 36, one for each FED channel)
@@ -1448,6 +1472,15 @@ void PixelFEDCard::writeXML( std::ofstream *out) const {
   *out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"                           	  << std::endl ;
   *out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"                                       	  << std::endl ;
   *out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "                                               	  << std::endl ;
+  *out << "   <FED_MASTER_DELAY>0</FED_MASTER_DELAY>"	  						  << std::endl ;
+  *out << "   <NO_HITLIMIT>0</NO_HITLIMIT>"		  						  << std::endl ;
+  *out << "   <NC_HITLIMIT>0</NC_HITLIMIT>"		  						  << std::endl ;
+  *out << "   <SC_HITLIMIT>0</SC_HITLIMIT>"		  						  << std::endl ;
+  *out << "   <SO_HITLIMIT>0</SO_HITLIMIT>"		  						  << std::endl ;
+  *out << "   <NO_TESTREG>0</NO_TESTREG>"		  						  << std::endl ;
+  *out << "   <NC_TESTREG>0</NC_TESTREG>"		  						  << std::endl ;
+  *out << "   <SC_TESTREG>0</SC_TESTREG>"		  						  << std::endl ;
+  *out << "   <SO_TESTREG>0</SO_TESTREG>"		  						  << std::endl ;
   *out << " "                                                                                     	  << std::endl ;
   *out << "  </DATA>"                                                                             	  << std::endl ;
   *out << " "                                                                                     	  << std::endl ;
@@ -1525,6 +1558,15 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
       *fedstream << "   <SOUTH_FIFO1_BZ_LVL>"       << Sfifo1Bzlvl  	   << "</SOUTH_FIFO1_BZ_LVL>"	    << std::endl ;
       *fedstream << "   <FIFO3_WRN_LVL>"            << fifo3Wrnlvl  	   << "</FIFO3_WRN_LVL>"	    << std::endl ;
       *fedstream << "   <FED_MASTER_DELAY>"         << FedTTCDelay  	   << "</FED_MASTER_DELAY>"	    << std::endl ;
+      *fedstream << "   <NO_HITLIMIT>"              << N_hitlimit 	   << "</NO_HITLIMIT>"	            << std::endl ;
+      *fedstream << "   <NC_HITLIMIT>"              << NC_hitlimit 	   << "</NC_HITLIMIT>"	            << std::endl ;
+      *fedstream << "   <SC_HITLIMIT>"              << SC_hitlimit 	   << "</SC_HITLIMIT>"	            << std::endl ;
+      *fedstream << "   <SO_HITLIMIT>"              << S_hitlimit 	   << "</SO_HITLIMIT>"	            << std::endl ;
+      *fedstream << "   <NO_TESTREG>"               << N_testreg 	   << "</NO_TESTREG>"	            << std::endl ;
+      *fedstream << "   <NC_TESTREG>"               << NC_testreg 	   << "</NC_TESTREG>"	            << std::endl ;
+      *fedstream << "   <SC_TESTREG>"               << SC_testreg 	   << "</SC_TESTREG>"	            << std::endl ;
+      *fedstream << "   <SO_TESTREG>"               << S_testreg 	   << "</SO_TESTREG>"	            << std::endl ;
+
       *fedstream << " "                                             	   				    << std::endl ;
       *fedstream << "  </DATA>"                                     	   				    << std::endl ;
       *fedstream << " "                                             	   				    << std::endl ;
@@ -1537,32 +1579,34 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
         {
           *rocstream << ""						      	  	             	    << std::endl ;
           *rocstream << "   <DATA>"						      	  	     	    << std::endl ;
-          *rocstream << "    <PIXEL_FED>"       << fedNumber    << "</PIXEL_FED>" 	  	     	    << std::endl ;
-          *rocstream << "    <FED_CHAN>"	  << i+1	  << "</FED_CHAN>"    	  	     	    << std::endl ;
-          *rocstream << "    <FED_ROC_NUM>"	  << j  	  << "</FED_ROC_NUM>" 	  	     	    << std::endl ;
-          *rocstream << "    <ROC_L0>"  	  << ROC_L0[i][j] << "</ROC_L0>"      	  	     	    << std::endl ;
-          *rocstream << "    <ROC_L1>"  	  << ROC_L1[i][j] << "</ROC_L1>"      	  	     	    << std::endl ;
-          *rocstream << "    <ROC_L2>"  	  << ROC_L2[i][j] << "</ROC_L2>"      	  	     	    << std::endl ;
-          *rocstream << "    <ROC_L3>"  	  << ROC_L3[i][j] << "</ROC_L3>"      	  	     	    << std::endl ;
-          *rocstream << "    <ROC_L4>"  	  << ROC_L4[i][j] << "</ROC_L4>"      	  	     	    << std::endl ;
-          *rocstream << "   </DATA>"				  << std::endl        	  	     	    << std::endl ;
+          *rocstream << "    <PIXEL_FED>"    	    << fedNumber    	   << "</PIXEL_FED>"	     	    << std::endl ;
+          *rocstream << "    <FED_CHAN>"     	    << i+1	    	   << "</FED_CHAN>"	     	    << std::endl ;
+          *rocstream << "    <FED_ROC_NUM>"  	    << j	    	   << "</FED_ROC_NUM>"       	    << std::endl ;
+          *rocstream << "    <ROC_L0>"       	    << ROC_L0[i][j] 	   << "</ROC_L0>"	     	    << std::endl ;
+          *rocstream << "    <ROC_L1>"       	    << ROC_L1[i][j] 	   << "</ROC_L1>"	     	    << std::endl ;
+          *rocstream << "    <ROC_L2>"       	    << ROC_L2[i][j] 	   << "</ROC_L2>"	     	    << std::endl ;
+          *rocstream << "    <ROC_L3>"       	    << ROC_L3[i][j] 	   << "</ROC_L3>"	     	    << std::endl ;
+          *rocstream << "    <ROC_L4>"       	    << ROC_L4[i][j] 	   << "</ROC_L4>"	     	    << std::endl ;
+          *rocstream << "   </DATA>"	     	    		    	   << std::endl 	     	    << std::endl ;
+          *rocstream << " "                                             	   			    << std::endl ;
         }
       
-      *tbmstream << ""						      	  	                     	    << std::endl ;
-      *tbmstream << "  <DATA>"  						   		     	    << std::endl ;
-      *tbmstream << "   <PIXEL_FED>"         << fedNumber << "</PIXEL_FED>"	   		     	    << std::endl ;
-      *tbmstream << "   <FED_CHAN>"	     << i+1	  << "</FED_CHAN>"	   		     	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L0>"      << TBM_L0[i] << "</TBMA_HEAD_L0>"     		     	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L1>"      << TBM_L1[i] << "</TBMA_HEAD_L1>"     		     	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L2>"      << TBM_L2[i] << "</TBMA_HEAD_L2>"     		     	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L3>"      << TBM_L3[i] << "</TBMA_HEAD_L3>"     		     	    << std::endl ;
-      *tbmstream << "   <TBMA_HEAD_L4>"      << TBM_L4[i] << "</TBMA_HEAD_L4>"     		     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L0>"     << TRL_L0[i] << "</TBMA_TRAIL_L0>"    		     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L1>"     << TRL_L1[i] << "</TBMA_TRAIL_L1>"    		     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L2>"     << TRL_L2[i] << "</TBMA_TRAIL_L2>"    		     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L3>"     << TRL_L3[i] << "</TBMA_TRAIL_L3>"    		     	    << std::endl ;
-      *tbmstream << "   <TBMA_TRAIL_L4>"     << TRL_L4[i] << "</TBMA_TRAIL_L4>"    		     	    << std::endl ;
-      *tbmstream << "  </DATA>" 			  << std::endl  	   		     	    << std::endl ;
+      *tbmstream << ""			     	    		    	   			     	    << std::endl ;
+      *tbmstream << "  <DATA>"  	     	    		    	   			     	    << std::endl ;
+      *tbmstream << "   <PIXEL_FED>"         	    << fedNumber    	   << "</PIXEL_FED>"	     	    << std::endl ;
+      *tbmstream << "   <FED_CHAN>"	     	    << i+1	    	   << "</FED_CHAN>"	     	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L0>"      	    << TBM_L0[i]    	   << "</TBMA_HEAD_L0>"      	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L1>"      	    << TBM_L1[i]    	   << "</TBMA_HEAD_L1>"      	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L2>"      	    << TBM_L2[i]    	   << "</TBMA_HEAD_L2>"      	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L3>"      	    << TBM_L3[i]    	   << "</TBMA_HEAD_L3>"      	    << std::endl ;
+      *tbmstream << "   <TBMA_HEAD_L4>"      	    << TBM_L4[i]    	   << "</TBMA_HEAD_L4>"      	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L0>"     	    << TRL_L0[i]    	   << "</TBMA_TRAIL_L0>"     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L1>"     	    << TRL_L1[i]    	   << "</TBMA_TRAIL_L1>"     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L2>"     	    << TRL_L2[i]    	   << "</TBMA_TRAIL_L2>"     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L3>"     	    << TRL_L3[i]    	   << "</TBMA_TRAIL_L3>"     	    << std::endl ;
+      *tbmstream << "   <TBMA_TRAIL_L4>"     	    << TRL_L4[i]    	   << "</TBMA_TRAIL_L4>"     	    << std::endl ;
+      *tbmstream << "  </DATA>" 	     	    		    	   << std::endl 	     	    << std::endl ;
+      *tbmstream << ""			     	    		    	   			     	    << std::endl ;
     }
 }
 
@@ -1704,6 +1748,15 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
   out << "   <SOUTHCENTER_FIFO1_BZ_LVL>900</SOUTHCENTER_FIFO1_BZ_LVL>"                           << std::endl ;
   out << "   <SOUTH_FIFO1_BZ_LVL>900</SOUTH_FIFO1_BZ_LVL>"                                       << std::endl ;
   out << "   <FIFO3_WRN_LVL>7680</FIFO3_WRN_LVL> "                                               << std::endl ;
+  out << "   <FED_MASTER_DELAY>0</FED_MASTER_DELAY>"						 << std::endl ;
+  out << "   <NO_HITLIMIT>0</NO_HITLIMIT>"							 << std::endl ;
+  out << "   <NC_HITLIMIT>0</NC_HITLIMIT>"							 << std::endl ;
+  out << "   <SC_HITLIMIT>0</SC_HITLIMIT>"							 << std::endl ;
+  out << "   <SO_HITLIMIT>0</SO_HITLIMIT>"							 << std::endl ;
+  out << "   <NO_TESTREG>0</NO_TESTREG>"							 << std::endl ;
+  out << "   <NC_TESTREG>0</NC_TESTREG>"							 << std::endl ;
+  out << "   <SC_TESTREG>0</SC_TESTREG>"							 << std::endl ;
+  out << "   <SO_TESTREG>0</SO_TESTREG>"							 << std::endl ;
   out << "  </DATA>"                                                                             << std::endl ;
 /*                                                                                              
   out<< "  <DATA>                                                                               
