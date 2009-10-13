@@ -16,6 +16,12 @@ ZDCShape::ZDCShape(const ZDCShape&d)
 {
 }
 
+double
+ZDCShape::timeToRise() const 
+{
+   return 0. ;
+}
+
   
 void ZDCShape::computeShapeZDC()
 {
@@ -52,5 +58,10 @@ double ZDCShape::operator () (double time) const
     return nt_[jtime];
   else 
     return 0.0;
+}
+
+double ZDCShape::derivative (double time) const
+{
+  return 0.0;
 }
   

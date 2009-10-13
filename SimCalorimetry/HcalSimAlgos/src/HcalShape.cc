@@ -15,6 +15,11 @@ HcalShape::HcalShape(const HcalShape&d):
 {
 }
 
+double
+HcalShape::timeToRise() const 
+{
+   return 0. ;
+}
 
 void HcalShape::computeShape()
 {
@@ -121,6 +126,11 @@ double HcalShape::operator () (double time_) const
     return 0.0;
   }
 
+}
+
+double HcalShape::derivative (double time_) const
+{
+  return 0.0;
 }
 
 

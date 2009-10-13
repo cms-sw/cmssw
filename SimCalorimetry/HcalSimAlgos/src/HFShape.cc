@@ -16,6 +16,11 @@ HFShape::HFShape(const HFShape&d)
 {
 }
 
+double
+HFShape::timeToRise() const 
+{
+   return 0. ;
+}
   
 void HFShape::computeShapeHF()
 {
@@ -59,5 +64,10 @@ double HFShape::operator () (double time) const
     return nt_[jtime];
   else 
     return 0.0;
+}
+
+double HFShape::derivative (double time) const
+{
+  return 0.0;
 }
   
