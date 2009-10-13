@@ -71,6 +71,8 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
             2.213, -17.29,
             -0.599,  8.874,
             0.09632, -1.457,
-            -0.7584,  10.29),
+            -0.7584,  10.29,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 0, 0, 0, 0, 0, 0, 0),
     produceEnergyCorrectionParameters = cms.untracked.bool(True)
 )
