@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2009/08/21 15:10:32 $
- * $Revision: 1.35 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.36 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
+#include <cassert>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

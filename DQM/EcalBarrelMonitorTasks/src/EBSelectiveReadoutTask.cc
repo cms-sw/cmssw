@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2009/08/21 15:45:38 $
- * $Revision: 1.38 $
+ * $Date: 2009/08/23 20:59:52 $
+ * $Revision: 1.39 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
+#include <cassert>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
