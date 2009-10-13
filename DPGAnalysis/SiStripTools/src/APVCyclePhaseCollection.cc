@@ -1,3 +1,4 @@
+#include <string.h>
 #include <set>
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
