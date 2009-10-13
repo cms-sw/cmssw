@@ -1244,7 +1244,26 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
   ProblemsVsLB_ZDC->Fill(lumiblock,NumBadZDC);
   ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
-  
+
+  if (Online_ && oldlumiblock<lumiblock)
+    {
+      for (int i=oldlumiblock+1;i<lumiblock;++i)
+	{
+	  if (ProblemsVsLB)
+	    ProblemsVsLB->Fill(i,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+	  if (ProblemsVsLB_HB)
+	    ProblemsVsLB_HB->Fill(i,NumBadHB);
+	  if (ProblemsVsLB_HE)
+	    ProblemsVsLB_HE->Fill(i,NumBadHE);
+	  if (ProblemsVsLB_HO)
+	    ProblemsVsLB_HO->Fill(i,NumBadHO);
+	  if (ProblemsVsLB_HF)
+	    ProblemsVsLB_HF->Fill(i,NumBadHF);
+	}
+    }
+  oldlumiblock=lumiblock; // oldlumiblock keeps track of last block in which plot filled
+
+
   if (showTiming)
     {
       cpu_timer.stop();  std::cout <<"TIMER:: HcalHotCellMonitor FILLNEVENTS_PROBLEMCELLS -> "<<cpu_timer.cpuTime()<<std::endl;

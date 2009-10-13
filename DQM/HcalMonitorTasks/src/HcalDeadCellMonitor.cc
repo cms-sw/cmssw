@@ -1005,7 +1005,24 @@ void HcalDeadCellMonitor::fillNevents_problemCells(int checkN)
       ProblemsVsLB_HO->Fill(lumiblock,NumBadHO);
       ProblemsVsLB_HF->Fill(lumiblock,NumBadHF);
       ProblemsVsLB->Fill(lumiblock,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
-      
+      if (Online_ && oldlumiblock<lumiblock)
+	{
+	  for (int i=oldlumiblock+1;i<lumiblock;++i)
+	    {
+	      if (ProblemsVsLB)
+		ProblemsVsLB->Fill(i,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+	      if (ProblemsVsLB_HB)
+		ProblemsVsLB_HB->Fill(i,NumBadHB);
+	      if (ProblemsVsLB_HE)
+		ProblemsVsLB_HE->Fill(i,NumBadHE);
+	      if (ProblemsVsLB_HO)
+		ProblemsVsLB_HO->Fill(i,NumBadHO);
+	      if (ProblemsVsLB_HF)
+		ProblemsVsLB_HF->Fill(i,NumBadHF);
+	    }
+	}
+      oldlumiblock=lumiblock; // oldlumiblock keeps track of last block in which plot filled
+
       if (deadmon_test_occupancy_)
 	{
 	  NumberOfUnoccupiedCellsHE->Fill(lumiblock,unoccupiedHB);
@@ -1121,3 +1138,6 @@ void HcalDeadCellMonitor::periodicReset()
   // okay, we are out of here.
   return;
 }
+
+
+

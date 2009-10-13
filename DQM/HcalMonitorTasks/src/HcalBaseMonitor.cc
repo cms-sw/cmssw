@@ -97,6 +97,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   ievt_=0;
   tevt_=0;
   lumiblock=0;
+  oldlumiblock=0;
   NumBadHB=0;
   NumBadHE=0;
   NumBadHO=0;

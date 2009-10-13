@@ -38,8 +38,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/08/19 19:27:43 $
-  * $Revision: 1.32 $
+  * $Date: 2009/10/13 11:13:55 $
+  * $Revision: 1.33 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -127,6 +127,7 @@ protected:
   MonitorElement* meEVT_;
   MonitorElement* meTOTALEVT_;
   int lumiblock;
+  int oldlumiblock;
   int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadZDC;
   
   MonitorElement* ProblemsVsLB;
