@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/08/19 19:23:52 $
- * $Revision: 1.22 $
+ * $Date: 2009/10/13 11:13:54 $
+ * $Revision: 1.23 $
  * \author Jeff Temple
  *
 */
@@ -139,9 +139,6 @@ class HcalSummaryClient : public HcalBaseClient {
   ofstream htmlFile;
 
   MonitorElement * StatusVsLS;
-
-  int LS_;
-  int oldLS_;
 
 }; // end of class declaration
 
