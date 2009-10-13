@@ -293,11 +293,21 @@ TLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,co
 	TLorentzVector p4photons(0,0,0,EcalClusterPhoton.R() - EcalCluster.R());
 
         if( eCaloOverTrack > etCaloOverTrackMin  && eCaloOverTrack < etCaloOverTrackMax ) {
-                p4.SetXYZT(momentum.X(),
-                           momentum.Y(),
-                           momentum.Z(),
-                           momentum.R());
-                p4 += p4photons;
+
+                double eHcalOverTrack = (HcalCluster.R()-momentum.R())/momentum.R();
+
+                if ( eHcalOverTrack  > etHcalOverTrackMin  && eHcalOverTrack  < etHcalOverTrackMax ) {
+                  p4.SetXYZT(EcalCluster.X()   + momentum.X(),
+                             EcalCluster.Y()   + momentum.Y(),
+                             EcalCluster.Z()   + momentum.Z(),
+                             EcalCluster.R()   + momentum.R());
+                  p4 += p4photons;
+                }else{
+	                p4.SetXYZT(momentum.X(),
+	                           momentum.Y(),
+        	                   momentum.Z(),
+                	           momentum.R());
+		}
         }
         if( eCaloOverTrack  > etCaloOverTrackMax ) {
                 double eHcalOverTrack = (HcalCluster.R()-momentum.R())/momentum.R();
