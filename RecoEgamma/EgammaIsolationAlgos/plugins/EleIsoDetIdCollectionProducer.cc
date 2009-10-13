@@ -92,7 +92,7 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                             caloGeom->getPosition(recIt->detid()).perp() / 
                             caloGeom->getPosition(recIt->detid()).mag();
 
-                if ( fabs(et) < energyCut_) continue;  //dont fill if below ET noise value
+                if ( fabs(et) < etCut_) continue;  //dont fill if below ET noise value
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
 		            detIdCollection->push_back(recIt->detid()); 
