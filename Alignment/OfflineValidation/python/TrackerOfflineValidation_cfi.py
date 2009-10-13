@@ -11,7 +11,7 @@ TrackerOfflineValidation = cms.EDFilter("TrackerOfflineValidation",
     stripYResiduals           = cms.bool(False),                                        
     overlappOn                = cms.bool(False),                                      
     useFwhm                   = cms.bool(True),
-    useFit                    = cms.bool(False),
+    useFit                    = cms.bool(False),  # Unused in DQM mode, where it has to be specified in TrackerOfflineValidationSummary
     useCombinedTrajectory     = cms.bool(False),
     useOverflowForRMS         = cms.bool(False),
     # Normalized X Residuals, normal local coordinates (Strip)
