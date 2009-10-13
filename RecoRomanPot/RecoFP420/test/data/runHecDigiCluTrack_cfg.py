@@ -13,6 +13,7 @@ process.load("Geometry.FP420CommonData.FP420GeometryXML_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
+#from SimG4Core.Application.hectorParameter_cfi import *
 process.load("SimTransport.HectorProducer.HectorTransport_cfi")
 
 #process.LHCTransport.ZDCTransport = cms.bool(False) ## main flag to set transport for FP420
@@ -23,6 +24,9 @@ process.load("SimTransport.HectorProducer.HectorTransport_cfi")
 #process.LHCTransport.Hector.smearAng    = cms.bool(True)
 #process.LHCTransport.Hector.sigmaSTX    = cms.double(0.01)## urad
 #process.LHCTransport.Hector.sigmaSTY    = cms.double(0.01)## urad
+## to be changed :
+##process.LHCTransport.Hector.Beam1 = cms.string('SimTransport/HectorProducer/data/LHCB1IR5_7TeV.tfs'),
+##process.LHCTransport.Hector.Beam2 = cms.string('SimTransport/HectorProducer/data/LHCB2IR5_7TeV.tfs'),
 
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
@@ -33,6 +37,9 @@ process.load("RecoRomanPot.RecoFP420.FP420Cluster_cfi")
 process.load("RecoRomanPot.RecoFP420.FP420Track_cfi")
 
 process.load("RecoRomanPot.RecoFP420.FP420Reco_cfi")
+## to be changed :
+##process.FP420Reco.Beam1 = cms.string('SimTransport/HectorProducer/data/LHCB1IR5_7TeV.tfs'),
+##process.FP420Reco.Beam2 = cms.string('SimTransport/HectorProducer/data/LHCB2IR5_7TeV.tfs'),
 
 process.load("Configuration.EventContent.EventContent_cff")
 
