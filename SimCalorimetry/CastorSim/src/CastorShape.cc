@@ -53,4 +53,9 @@ double CastorShape::operator () (double time) const
   else 
     return 0.0;
 }
-  
+
+double
+CastorShape::timeToRise() const
+{
+   return 0.0 ;
+}  

@@ -23,6 +23,7 @@ public:
   virtual ~CastorShape(){}
   
   virtual double operator () (double time) const;
+  virtual double timeToRise()              const ;
 
  private:
   void computeShapeCastor();
