@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/03 17:37:24 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/10/07 12:30:35 $
+ *  $Revision: 1.5 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -65,6 +65,7 @@ private:
   bool m_storeROOT;
   unsigned int m_size;
   edm::Service<DQMStore> m_dbe;
+  bool m_init;
 
   // tool to access the HLT confioguration
   unsigned int m_pathIndex;

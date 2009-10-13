@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/09/10 13:07:02 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/10/02 08:43:08 $
+ *  $Revision: 1.8 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -48,6 +48,7 @@ HLTMonBTagMuSource::HLTMonBTagMuSource(const edm::ParameterSet & config) :
   m_storeROOT(      config.getUntrackedParameter<bool>("storeROOT", false) ),
   m_size(           config.getParameter<unsigned int>("interestingJets") ),
   m_dbe(),
+  m_init(           false ),
   m_pathIndex(      (unsigned int) -1 ),
   m_L1FilterIndex(  (unsigned int) -1 ),
   m_L2FilterIndex(  (unsigned int) -1 ),
@@ -157,12 +158,22 @@ void HLTMonBTagMuSource::endJob() {
 
 void HLTMonBTagMuSource::beginRun(const edm::Run & run, const edm::EventSetup & setup) {
   HLTConfigProvider configProvider;
-  if (not configProvider.init(m_processName))
-    throw cms::Exception("ConfigurationError") << "process name \"" << m_processName << "\" is not valid.";
+  if (not configProvider.init(m_processName)) 
+  {
+    edm::LogWarning("ConfigurationError") << "process name \"" << m_processName << "\" is not valid.";
+    m_init = false;
+    return;
+  }
 
   m_pathIndex = configProvider.triggerIndex( m_pathName );
-  if (m_pathIndex == configProvider.size())
-    throw cms::Exception("ConfigurationError") << "trigger name \"" << m_pathName << "\" is not valid.";
+  if (m_pathIndex == configProvider.size()) 
+  {
+    edm::LogWarning("ConfigurationError") << "trigger name \"" << m_pathName << "\" is not valid.";
+    m_init = false;
+    return;
+  }
+
+  m_init = true;
 
   // if their call fails, these will be set to one after the last valid module for their path
   // so they will never be "passed"
@@ -198,6 +209,9 @@ void HLTMonBTagMuSource::analyze(const edm::Event & event, const edm::EventSetup
   if (not m_dbe.isAvailable())
     return;
   
+  if (not m_init)
+    return;
+
   edm::Handle<edm::TriggerResults>               h_triggerResults;
   edm::Handle<edm::View<reco::Jet> >             h_L2Jets;
   edm::Handle<reco::SoftLeptonTagInfoCollection> h_L25TagInfo;
