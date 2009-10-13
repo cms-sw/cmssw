@@ -404,8 +404,8 @@ PFRecHitProducerECAL::ecalNeighbArray(
   
   //std::cout << " Building the array of neighbours (barrel) " ;
 
-  const std::vector<DetId>& vec(barrelGeom.getValidDetIds(DetId::Ecal,
-							  EcalBarrel));
+  std::vector<DetId> vec(barrelGeom.getValidDetIds(DetId::Ecal,
+						   EcalBarrel));
   unsigned size=vec.size();    
   for(unsigned ic=0; ic<size; ++ic) 
     {
@@ -460,9 +460,9 @@ PFRecHitProducerECAL::ecalNeighbArray(
   //  std::cout << " done " << size << std::endl;
   //  std::cout << " Building the array of neighbours (endcap) " ;
 
-//  vec.clear();
-  const std::vector<DetId>& vecee=endcapGeom.getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vecee.size();    
+  vec.clear();
+  vec=endcapGeom.getValidDetIds(DetId::Ecal,EcalEndcap);
+  size=vec.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
   const unsigned nendcap=19960;
@@ -471,10 +471,10 @@ PFRecHitProducerECAL::ecalNeighbArray(
   for(unsigned ic=0; ic<size; ++ic) 
     {
       // We get the 9 cells in a square. 
-      std::vector<DetId> neighbours(endcapTopo.getWindow(vecee[ic],3,3));
+      std::vector<DetId> neighbours(endcapTopo.getWindow(vec[ic],3,3));
       unsigned nneighbours=neighbours.size();
       // remove the centre
-      unsigned hashedindex=EEDetId(vecee[ic]).hashedIndex();
+      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
       
       if(hashedindex>=nendcap)
         {
@@ -487,7 +487,7 @@ PFRecHitProducerECAL::ecalNeighbArray(
           for(unsigned in=0;in<nneighbours;++in)
             {     
               // remove the centre
-              if(neighbours[in]!=vecee[ic]) 
+              if(neighbours[in]!=vec[ic]) 
                 {
                   neighboursEE_[hashedindex].push_back(neighbours[in]);
                 }
@@ -495,7 +495,7 @@ PFRecHitProducerECAL::ecalNeighbArray(
         }
       else
         {
-          DetId central(vecee[ic]);
+          DetId central(vec[ic]);
           neighboursEE_[hashedindex].resize(8,DetId(0));
           for(unsigned idir=0;idir<8;++idir)
             {
