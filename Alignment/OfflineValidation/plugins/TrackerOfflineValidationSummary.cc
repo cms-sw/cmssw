@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id$
+// $Id: TrackerOfflineValidationSummary.cc,v 1.1 2009/10/09 14:07:29 hauk Exp $
 //
 //
 
@@ -86,9 +86,10 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event& evt, const edm::EventSetup&){};
       virtual void endJob() ;
       
-      void fillTree(TTree &tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos> &moduleHist, 
-		TkOffTreeVariables &treeMem, const TrackerGeometry &tkgeom );
+      void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
+		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom );
       
+      std::pair<float,float> fitResiduals(TH1* hist)const;
       float getMedian(const TH1* hist)const;
       
       void associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists);
@@ -99,10 +100,10 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       edm::ESHandle<TrackerGeometry> tkGeom_;
       
       // parameters from cfg to steer
-      std::string moduleDirectory_;
+      const std::string moduleDirectory_;
+      const bool useFit_;
       
       DQMStore* dbe_;
-      MonitorElement* test1_;
       
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mPxbResiduals_;
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mPxeResiduals_;
@@ -110,8 +111,6 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTidResiduals_;
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTobResiduals_;
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTecResiduals_;
-      
-      int counter1;
 };
 
 //
@@ -126,11 +125,11 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 // constructors and destructor
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig):
-parSet_(iConfig), moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")), dbe_(0)
+   parSet_(iConfig), moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
+   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0)
 {
   //now do what ever initialization is needed
   dbe_ = edm::Service<DQMStore>().operator->();
-  counter1 = 0;
 }
 
 
@@ -179,10 +178,6 @@ TrackerOfflineValidationSummary::beginJob(const edm::EventSetup& es)
       mPxbResiduals_[0];
     }
   }
-  
-  dbe_->setCurrentFolder("TesT1");
-  test1_=dbe_->book1D("test1","test1",10,0,10);
-  test1_->setBinContent(1,1);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -207,64 +202,26 @@ TrackerOfflineValidationSummary::endJob()
   this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_);
   this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_);
   
+  //dbe_->showDirStructure();
+  //dbe_->save("dqmOut.root");
   
-  
-  
-  
-//  dbe_->showDirStructure();
-//  dbe_->save("dqmOut.root");
-  
-/*  
-  if(dbe_->dirExists("GlobalTrackVariables"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 1 is found!!!\n\n";  // the correct use
-  else edm::LogError("BLABLA")<<"\n\n\tNo, folder 1 is not found!!!\n\n";
-  
-  if(dbe_->dirExists("Strip"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 2 is found!!!\n\n";
-  else edm::LogError("BLABLA")<<"\n\n\tNo, folder 2 is not found!!!\n\n";
-  
-  if(dbe_->dirExists("Pixel"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 3 is found!!!\n\n";
-  else edm::LogError("BLABLA")<<"\n\n\tNo, folder 3 is not found!!!\n\n";
-  
-  
-  if(dbe_->dirExists("/GlobalTrackVariables"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 7 is found!!!\n\n";  // the correct use
-  else edm::LogError("BLABLA")<<"\n\n\tNo, folder 7 is not found!!!\n\n";
-  
-  if(dbe_->dirExists("//////Strip"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 8 is found!!!\n\n";
-  else edm::LogError("BLABLA")<<"\n\n\tNo, folder 8 is not found!!!\n\n";
-  
-  if(dbe_->dirExists("//////Pixel"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 9 is found!!!\n\n";
-  else edm::LogError("BLABLA")<<"\n\n\tNo, folder 9 is not found!!!\n\n";
-  
-  std::string path("Strip/TOBBarrel_4/TOBHalfBarrel_1/TOBLayer_2/TOBRod_10/Det_3/");
-  std::string histName("h_normxprimeresiduals_subdet_5_layer_2_module_436244813");
-  MonitorElement* normXPrime = dbe_->get(path+histName);
-  if(normXPrime){
-    edm::LogError("BLABLA")<<"\n\n\tYes, it worked!!!\n\n";
-    Double_t mean = normXPrime->getMean();
-    test1_->setBinContent(1,mean);
-  }
-  else edm::LogError("BLABLA")<<"\n\n\tNo, it does not!!!\n\n";
-  
-*/  
+  // Put here the method for filling histograms which show summarized values (mean, rms, median ...)
+  // of the module-based histograms from TrackerOfflineValidation
   
   delete tree; tree = 0;
   delete treeMemPtr; treeMemPtr = 0;
-  
 }
 
 
 void 
-TrackerOfflineValidationSummary::fillTree(TTree &tree,
-				   std::map<int, TrackerOfflineValidationSummary::ModuleHistos> &moduleHist,
-				   TkOffTreeVariables &treeMem, const TrackerGeometry &tkgeom)
+TrackerOfflineValidationSummary::fillTree(TTree& tree,
+				   std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist,
+				   TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom)
 {
-  edm::LogError("test1")<<"\n\n\tBegin of Tree reached\n\n";
-  
-  ++counter1;
-//  if(counter1>100)return;
-  
   for(std::map<int, TrackerOfflineValidationSummary::ModuleHistos>::iterator it = moduleHist.begin(), 
 	itEnd= moduleHist.end(); it != itEnd;++it ) { 
     treeMem.clear(); // make empty/default
+    
     //variables concerning the tracker components/hierarchy levels
     DetId detId_ = it->first;
     treeMem.moduleId = detId_;
@@ -306,15 +263,8 @@ TrackerOfflineValidationSummary::fillTree(TTree &tree,
       treeMem.isDoubleSide = tibId.isDoubleSide();
     } else if(treeMem.subDetId == StripSubdetector::TID){
       TIDDetId tidId(detId_); 
-//      unsigned int whichHalfRing(1), rawId(detId_.rawId());
-//      if( (rawId>=402672260 && rawId<402672308) || (rawId>=402672772 && rawId<402672820) || (rawId>=402673284 && rawId<402673364) || (rawId>=402674308 && rawId<402674356) ||
-//          (rawId>=402674820 && rawId<402674868) || (rawId>=402675332 && rawId<402675412) || (rawId>=402676356 && rawId<402676404) || (rawId>=402676868 && rawId<402676916) ||
-//	  (rawId>=402677380 && rawId<402677460) || (rawId>=402664068 && rawId<402664116) || (rawId>=402664580 && rawId<402664628) || (rawId>=402665092 && rawId<402665172) ||
-//	  (rawId>=402666116 && rawId<402666164) || (rawId>=402666628 && rawId<402666676) || (rawId>=402667140 && rawId<402667220) || (rawId>=402668164 && rawId<402668212) ||
-//	  (rawId>=402668676 && rawId<402668724) || (rawId>=402669188 && rawId<402669268) )whichHalfRing=2;
       treeMem.layer = tidId.wheel(); 
       treeMem.side = tidId.side();
-//      treeMem.half = whichHalfRing;
       treeMem.ring = tidId.ring(); 
       treeMem.outerInner = tidId.module()[0]; 
       treeMem.module = tidId.module()[1];
@@ -379,34 +329,16 @@ TrackerOfflineValidationSummary::fillTree(TTree &tree,
     if(dZ>=0.)treeMem.zDirection = 1; else treeMem.zDirection = -1;
     
     
-//    edm::LogError("test2")<<"\n\n\tAssociation reached !!!\n\n";
-    
+    // Assign histos from first step (TrackerOfflineValidation) to the module's entry in the TTree for retrieving mean, rms, median ...
     associateModuleHistsWithTree(treeMem, it->second);
     
-/*    if(it->second.ResHisto)edm::LogError("Test")<<"\tThis one exists\n";
-    else edm::LogError("Test")<<"\tNO NO NO\n";
-    if(it->second.NormResHisto)edm::LogError("Test")<<"\tThis one exists\n";
-    else edm::LogError("Test")<<"\tNO NO NO\n";
-    if(it->second.ResXprimeHisto)edm::LogError("Test")<<"\tThis one exists\n";
-    else edm::LogError("Test")<<"\tNO NO NO\n";
-    if(it->second.NormResXprimeHisto)edm::LogError("Test")<<"\tThis one exists\n";
-    else edm::LogError("Test")<<"\tNO NO NO\n";
-    if(it->second.ResYprimeHisto)edm::LogError("Test")<<"\tThis one exists\n";
-    else edm::LogError("Test")<<"\tNO NO NO\n";
-    if(it->second.NormResYprimeHisto)edm::LogError("Test")<<"\tThis one exists\n";
-    else edm::LogError("Test")<<"\tNO NO NO\n";
-*/    
-//    if(!it->second.ResXprimeHisto)edm::LogError("Test")<<"\n\n\tHISTO IS MISSING\n\n";
-    
-/*    
     
     //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX = it->second.ResXprimeHisto->GetMean();
     treeMem.rmsX  = it->second.ResXprimeHisto->GetRMS();
-*/    //treeMem.sigmaX = Fwhm(it->second.ResXprimeHisto)/2.355;
-/*    if (useFit_) {
-      
+    //treeMem.sigmaX = Fwhm(it->second.ResXprimeHisto)/2.355;
+    if (useFit_) {
       //call fit function which returns mean and sigma from the fit
       //for absolute residuals
       std::pair<float,float> fitResult1 = this->fitResiduals(it->second.ResXprimeHisto);
@@ -417,9 +349,9 @@ TrackerOfflineValidationSummary::fillTree(TTree &tree,
       treeMem.fitMeanNormX = fitResult2.first;
       treeMem.fitSigmaNormX = fitResult2.second;
     }
-*/    //get median for absolute residuals
-/*    treeMem.medianX   = this->getMedian(it->second.ResXprimeHisto);
-
+    
+    //get median for absolute residuals
+    treeMem.medianX   = this->getMedian(it->second.ResXprimeHisto);
 
     int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
     treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
@@ -434,56 +366,55 @@ TrackerOfflineValidationSummary::fillTree(TTree &tree,
     // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
     if (stats[0]) treeMem.chi2PerDofX = stats[3]/stats[0];
     
-//    treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
+    //treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
     treeMem.histNameX = it->second.ResXprimeHisto->GetName();
     treeMem.histNameNormX = it->second.NormResXprimeHisto->GetName();
-*/    
+    
 
-    // fill tree variables in local coordinates if set in cfg
-/*    if(lCoorHistOn_) {
+    // fill tree variables in local coordinates if set in cfg of TrackerOfllineValidation
+    if(it->second.ResHisto && it->second.NormResHisto){ // if(lCoorHistOn_) {
       treeMem.meanLocalX = it->second.ResHisto->GetMean();
       treeMem.rmsLocalX = it->second.ResHisto->GetRMS();
       treeMem.meanNormLocalX = it->second.NormResHisto->GetMean();
       treeMem.rmsNormLocalX = it->second.NormResHisto->GetRMS();
-
       treeMem.histNameLocalX = it->second.ResHisto->GetName();
       treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
     }
-*/
+
     // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
     // might exist in pixel only
-/*    if (it->second.ResYprimeHisto) {//(stripYResiduals_){
+    if (it->second.ResYprimeHisto) { //(stripYResiduals_){
       TH1 *h = it->second.ResYprimeHisto;
       treeMem.meanY = h->GetMean();
       treeMem.rmsY  = h->GetRMS();
-*/      
-/*      if (useFit_) { // fit function which returns mean and sigma from the fit
+      
+      if (useFit_) { // fit function which returns mean and sigma from the fit
 	std::pair<float,float> fitMeanSigma = this->fitResiduals(h);
 	treeMem.fitMeanY  = fitMeanSigma.first;
 	treeMem.fitSigmaY = fitMeanSigma.second;
       }
-*/      //get median for absolute residuals
-/*      treeMem.medianY   = this->getMedian(h);
+      
+      //get median for absolute residuals
+      treeMem.medianY   = this->getMedian(h);
 
       treeMem.histNameY = h->GetName();
     }
+    
     if (it->second.NormResYprimeHisto) {
       TH1 *h = it->second.NormResYprimeHisto;
       treeMem.meanNormY = h->GetMean();
       treeMem.rmsNormY  = h->GetRMS();
       h->GetStats(stats); // stats buffer defined above
       if (stats[0]) treeMem.chi2PerDofY = stats[3]/stats[0];
-*/
-/*      if (useFit_) { // fit function which returns mean and sigma from the fit
+
+      if (useFit_) { // fit function which returns mean and sigma from the fit
 	std::pair<float,float> fitMeanSigma = this->fitResiduals(h);
 	treeMem.fitMeanNormY  = fitMeanSigma.first;
 	treeMem.fitSigmaNormY = fitMeanSigma.second;
       }
-*///      treeMem.histNameNormY = h->GetName();
-//    }
-    
+      treeMem.histNameNormY = h->GetName();
+    }
     tree.Fill();
-    
   }
 }
 
@@ -575,46 +506,72 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
    }
    std::stringstream histName;
    histName<<"residuals_subdet_"<<treeMem.subDetId<<wheelOrLayer<<treeMem.layer<<"_module_"<<treeMem.moduleId;
-/*   
-   if(dbe_->dirExists(histDir.str()))edm::LogError("BLABLA")<<"\n\n\tYes, folder 1 is found!!!\n\n";  // the correct use
-   else edm::LogError("BLABLA")<<"\n\n\tNo, folder 1 is not found!!!\n\n";
-   
-   if(dbe_->dirExists("Pixel/TPBBarrel_1/TPBHalfBarrel_1/TPBLayer_1/TPBLadder_1"))edm::LogError("BLABLA")<<"\n\n\tYes, folder 2 is found!!!\n\n";  // the correct use
-   else edm::LogError("BLABLA")<<"\n\n\tNo, folder 2 is not found!!!\n\n";
-   
-   edm::LogError("test")<<"\n\n\tThe dir is called "<<histDir.str()<<" and the hist "<<histName.str()<<"\n\n";
-*/   
    
    std::string fullPath;
-   fullPath = histDir.str()+"/h_"+histName.str();
-/*   edm::LogError("test")<<"\tThe full path is "<<fullPath<<"\n\n";
-   if(dbe_->get(fullPath)) edm::LogError("test")<<"\tWe got it !!!\n\n";
-   else edm::LogError("test")<<"\tNo we do not !!!\n\n";
-*/   if(dbe_->get(fullPath)) moduleHists.ResHisto = dbe_->get(fullPath)->getTH1();
-   fullPath = histDir.str()+"/h_norm"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.NormResHisto = dbe_->get(fullPath)->getTH1();
+   
+   
    fullPath = histDir.str()+"/h_xprime_"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.ResXprimeHisto = dbe_->get(fullPath)->getTH1();
-   
-   else edm::LogError("test")<<"\tHisto is "<<fullPath;
-   
+   else{edm::LogError("TrackerOfflineValidationSummary")<<"Problem with names in input file produced in TrackerOfflineValidation ...\n"
+                                                        <<"This histogram should exist in every configuration, "
+							<<"but no histogram with name "<<fullPath<<" is found!";
+     return;
+   }
    fullPath = histDir.str()+"/h_normxprime"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.NormResXprimeHisto = dbe_->get(fullPath)->getTH1();
    fullPath = histDir.str()+"/h_yprime_"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.ResYprimeHisto = dbe_->get(fullPath)->getTH1();
    fullPath = histDir.str()+"/h_normyprime"+histName.str();
    if(dbe_->get(fullPath)) moduleHists.NormResYprimeHisto = dbe_->get(fullPath)->getTH1();
-   
+   fullPath = histDir.str()+"/h_"+histName.str();
+   if(dbe_->get(fullPath)) moduleHists.ResHisto = dbe_->get(fullPath)->getTH1();
+   fullPath = histDir.str()+"/h_norm"+histName.str();
+   if(dbe_->get(fullPath)) moduleHists.NormResHisto = dbe_->get(fullPath)->getTH1();
+}
+
+
+std::pair<float,float> 
+TrackerOfflineValidationSummary::fitResiduals(TH1* hist) const
+{
+  std::pair<float,float> fitResult(9999., 9999.);
+  if (!hist || hist->GetEntries() < 20) return fitResult;
+
+  float mean  = hist->GetMean();
+  float sigma = hist->GetRMS();
+
+  try { // for < CMSSW_2_2_0 since ROOT warnings from fit are converted to exceptions
+    // Remove the try/catch for more recent CMSSW!
+    // first fit: two RMS around mean
+    TF1 func("tmp", "gaus", mean - 2.*sigma, mean + 2.*sigma); 
+    if (0 == hist->Fit(&func,"QNR")) { // N: do not blow up file by storing fit!
+      mean  = func.GetParameter(1);
+      sigma = func.GetParameter(2);
+      // second fit: three sigma of first fit around mean of first fit
+      func.SetRange(mean - 3.*sigma, mean + 3.*sigma);
+      // I: integral gives more correct results if binning is too wide
+      // L: Likelihood can treat empty bins correctly (if hist not weighted...)
+      if (0 == hist->Fit(&func, "Q0LR")) {
+	if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
+	  hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
+	}
+	fitResult.first = func.GetParameter(1);
+	fitResult.second = func.GetParameter(2);
+      }
+    }
+  } catch (cms::Exception const & e) {
+    edm::LogWarning("Alignment") << "@SUB=TrackerOfflineValidation::fitResiduals"
+				 << "Caught this exception during ROOT fit: "
+				 << e.what();
+  }
+  return fitResult;
 }
 
 
 float 
 TrackerOfflineValidationSummary::getMedian(const TH1 *histo) const
 {
-
   float median = 999;
   int nbins = histo->GetNbinsX();
-
  
   //extract median from histogram
   double *x = new double[nbins];
@@ -625,13 +582,11 @@ TrackerOfflineValidationSummary::getMedian(const TH1 *histo) const
   }
   median = TMath::Median(nbins, x, y);
   
-
   delete[] x; x = 0;
   delete [] y; y = 0;  
 
   return median;
 }
-
 
 
 //define this as a plug-in
