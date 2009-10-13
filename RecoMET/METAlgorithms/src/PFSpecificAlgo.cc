@@ -50,8 +50,8 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   {   
     const Candidate* candidate = &(*iParticle);
     if (candidate) {
-      const PFCandidate* pfCandidate = static_cast<const PFCandidate*> (candidate);
-      //const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (candidate);
+      //const PFCandidate* pfCandidate = static_cast<const PFCandidate*> (candidate);
+      const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (candidate);
       if (pfCandidate)
       {
 	//cout << pfCandidate->et() << "     "
