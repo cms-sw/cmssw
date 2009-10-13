@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2009/10/03 12:31:40 $
- * $Revision: 1.91 $
+ * $Date: 2009/10/03 12:50:31 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -46,6 +46,8 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   meOccupancyBxReal_ = 0;
   meTCCTimingCalo_ = 0;
   meTCCTimingMuon_ = 0;
+  meEmulMatchIndex1D_ = 0;
+  meEmulMatchMaxIndex1D_ = 0;
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -113,6 +115,8 @@ void EBTriggerTowerTask::reset(void) {
   if ( meOccupancyBxReal_ ) meOccupancyBxReal_->Reset();
   if ( meTCCTimingCalo_ ) meTCCTimingCalo_->Reset();
   if ( meTCCTimingMuon_ ) meTCCTimingMuon_->Reset();
+  if ( meEmulMatchIndex1D_ ) meEmulMatchIndex1D_->Reset();
+  if ( meEmulMatchMaxIndex1D_ ) meEmulMatchMaxIndex1D_->Reset();
 
   for (int i = 0; i < 36; i++) {
 
@@ -164,6 +168,14 @@ void EBTriggerTowerTask::setup( const char* nameext,
     sprintf(histo, "EBTTT Et spectrum %s", nameext);
     meEtSpectrumReal_ = dqmStore_->book1D(histo, histo, 256, 0., 256.);
     meEtSpectrumReal_->setAxisTitle("energy (ADC)", 1);
+
+    sprintf(histo, "EBTTT TP matching index");
+    meEmulMatchIndex1D_ = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    meEmulMatchIndex1D_->setAxisTitle("TP data matching emulator", 1);
+
+    sprintf(histo, "EBTTT max TP matching index");
+    meEmulMatchMaxIndex1D_ = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    meEmulMatchMaxIndex1D_->setAxisTitle("Max TP data matching emulator", 1);
 
     double xbins[51];
     for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
@@ -422,11 +434,16 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
 
       if ( meEtSpectrumEmul_ ) meEtSpectrumEmul_->Fill( xvalEt );
       float maxEt = 0;
+      int maxTPIndex = -1;
       for (int j=0; j<5; j++) {
         float EtTP = (*tpdigiItr)[j].compressedEt();
-        if ( EtTP > maxEt ) maxEt = EtTP;
+        if ( EtTP > maxEt ) {
+          maxEt = EtTP;
+          maxTPIndex = j+1;
+        }
       }
       if ( meEtSpectrumEmulMax_ ) meEtSpectrumEmulMax_->Fill( maxEt );
+      if ( meEmulMatchMaxIndex1D_ && maxEt > 0 ) meEmulMatchMaxIndex1D_->Fill( maxTPIndex );
 
       bool good = true;
       bool goodVeto = true;
@@ -465,6 +482,8 @@ EBTriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
               meEmulMatch_[ismt-1]->Fill(xiet, xipt, j+0.5);
 
               int index = ( j==0 ) ? -1 : j;
+
+              meEmulMatchIndex1D_->Fill(index+0.5);
 
               if ( meTCCTimingCalo_ && caloTrg ) meTCCTimingCalo_->Fill( itcc, index+0.5 );
 

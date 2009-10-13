@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2009/08/28 13:33:09 $
- * $Revision: 1.21 $
+ * $Date: 2009/08/31 10:48:19 $
+ * $Revision: 1.22 $
  *
 */
 
@@ -145,6 +145,10 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
+
+  /// 1D emulator match 1D
+  MonitorElement* meEmulMatchIndex1D_[2];
+  MonitorElement* meEmulMatchMaxIndex1D_[2];
 
   /// ET spectrums for the whole EE+/-
   MonitorElement* meEtSpectrumReal_[2];

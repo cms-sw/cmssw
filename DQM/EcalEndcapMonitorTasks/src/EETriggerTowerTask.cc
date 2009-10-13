@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/03 12:31:40 $
- * $Revision: 1.58 $
+ * $Date: 2009/10/03 12:50:31 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -54,6 +54,10 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   meTCCTimingCalo_[1] = 0;
   meTCCTimingMuon_[0] = 0;
   meTCCTimingMuon_[1] = 0;
+  meEmulMatchIndex1D_[0] = 0;
+  meEmulMatchIndex1D_[1] = 0;
+  meEmulMatchIndex1D_[0] = 0;
+  meEmulMatchMaxIndex1D_[1] = 0;
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -122,6 +126,8 @@ void EETriggerTowerTask::reset(void) {
     if ( meOccupancyBxReal_[iside] ) meOccupancyBxReal_[iside]->Reset();
     if ( meTCCTimingCalo_[iside] ) meTCCTimingCalo_[iside]->Reset();
     if ( meTCCTimingMuon_[iside] ) meTCCTimingMuon_[iside]->Reset();
+    if ( meEmulMatchIndex1D_[iside] ) meEmulMatchIndex1D_[iside]->Reset();
+    if ( meEmulMatchMaxIndex1D_[iside] ) meEmulMatchMaxIndex1D_[iside]->Reset();
   }
 
   for (int i = 0; i < 18; i++) {
@@ -178,6 +184,22 @@ void EETriggerTowerTask::setup( const char* nameext,
     sprintf(histo, "EETTT Et spectrum %s EE +", nameext);
     meEtSpectrumReal_[1] = dqmStore_->book1D(histo, histo, 256, 0., 256.);
     meEtSpectrumReal_[1]->setAxisTitle("energy (ADC)", 1);
+
+    sprintf(histo, "EETTT TP matching index EE -");
+    meEmulMatchIndex1D_[0] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    meEmulMatchIndex1D_[0]->setAxisTitle("TP data matching emulator", 1);
+
+    sprintf(histo, "EETTT TP matching index EE +");
+    meEmulMatchIndex1D_[1] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    meEmulMatchIndex1D_[1]->setAxisTitle("TP data matching emulator", 1);
+
+    sprintf(histo, "EETTT max TP matching index EE -");
+    meEmulMatchMaxIndex1D_[0] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    meEmulMatchMaxIndex1D_[0]->setAxisTitle("Max TP data matching emulator", 1);
+
+    sprintf(histo, "EETTT max TP matching index EE +");
+    meEmulMatchMaxIndex1D_[1] = dqmStore_->book1D(histo, histo, 7, -1., 6.);
+    meEmulMatchMaxIndex1D_[1]->setAxisTitle("Max TP data matching emulator", 1);
 
     double xbins[51];
     for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
@@ -472,14 +494,20 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
         if ( meEtSpectrumEmul_[1] ) meEtSpectrumEmul_[1]->Fill( xvalEt );
       }
       float maxEt = 0;
+      int maxTPIndex = -1;
       for (int j=0; j<5; j++) {
         float EtTP = (*tpdigiItr)[j].compressedEt();
-        if ( EtTP > maxEt ) maxEt = EtTP;
+        if ( EtTP > maxEt ) {
+          maxEt = EtTP;
+          maxTPIndex = j+1;
+        }
       }
       if ( ismt >= 1 && ismt <= 9 ) {
         if ( meEtSpectrumEmulMax_[0] ) meEtSpectrumEmulMax_[0]->Fill( maxEt );
+        if ( meEmulMatchMaxIndex1D_[0] && maxEt > 0 ) meEmulMatchMaxIndex1D_[0]->Fill( maxTPIndex );
       } else {
         if ( meEtSpectrumEmulMax_[1] ) meEtSpectrumEmulMax_[1]->Fill( maxEt );
+        if ( meEmulMatchMaxIndex1D_[1] && maxEt > 0 ) meEmulMatchMaxIndex1D_[1]->Fill( maxTPIndex );
       }
 
       EcalTrigPrimDigiCollection::const_iterator compDigiItr = compDigis->find( tpdigiItr->id().rawId() );
@@ -568,10 +596,14 @@ EETriggerTowerTask::processDigis( const Event& e, const Handle<EcalTrigPrimDigiC
                 if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
 
                 if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
+
+                meEmulMatchIndex1D_[0]->Fill(index+0.5);
               } else {
                 if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
 
                 if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
+
+                meEmulMatchIndex1D_[1]->Fill(index+0.5);
               }
 
             }

@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2009/08/28 13:33:07 $
- * $Revision: 1.25 $
+ * $Date: 2009/08/31 10:48:15 $
+ * $Revision: 1.26 $
  *
 */
 
@@ -145,6 +145,10 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
 
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
+
+  /// 1D emulator match 1D
+  MonitorElement* meEmulMatchIndex1D_;
+  MonitorElement* meEmulMatchMaxIndex1D_;
 
   /// ET spectrums for the whole EB
   MonitorElement* meEtSpectrumReal_;
