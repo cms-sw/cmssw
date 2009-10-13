@@ -8,8 +8,10 @@
 #include "TEveTrack.h"
 #include "TEveTrans.h"
 #include "TEveText.h"
+#include "TEveGeoShape.h"
 #include "TGLFontManager.h"
 #include "TGPack.h"
+#include "TGeoBBox.h"
 
 // CMSSW includes
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -75,16 +77,22 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track, TEv
    TracksRecHitsUtil::addHits(*track, id.item(), scene);
    for (TEveElement::List_i i=scene->BeginChildren(); i!=scene->EndChildren(); ++i)
    {
-      (*i)->SetMainColor(kBlue);
-      (*i)->SetMainTransparency(0);
-      (*i)->SetPickable(kFALSE);
-      TEveText* text = new TEveText((*i)->GetElementTitle());
-      text->PtrMainTrans()->SetFrom((*i)->RefMainTrans().Array());
+      TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
+      gs->SetMainColor(kBlue);
+      gs->SetMainTransparency(0);
+      gs->SetPickable(kFALSE);
+
+      TEveText* text = new TEveText(gs->GetElementTitle());
+      text->PtrMainTrans()->SetFrom(gs->RefMainTrans().Array());
       text->SetFontMode(TGLFont::kPolygon);
+
+      TGeoBBox* bb = (TGeoBBox*)gs->GetShape();
+      text->RefMainTrans().Move3LF(-bb->GetDX()*0.5, -bb->GetDY()*0.5, 2*bb->GetDZ());
       text->PtrMainTrans()->RotateLF(2, 1, TMath::PiOver2());
-      Float_t a = 0.05;
-      text->PtrMainTrans()->Scale(a, a, 1);
-      (*i)->AddElement(text); 
+      Double_t sx, sy, sz; text->PtrMainTrans()->GetScale(sx, sy, sz);
+      Float_t a = 0.1*bb->GetDX()/text->GetFontSize();
+      text->RefMainTrans().Scale(a, a, 1);
+      gs->AddElement(text); 
    }
 
    CmsMagField* cmsMagField = new CmsMagField;
