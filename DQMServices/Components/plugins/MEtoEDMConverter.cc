@@ -3,10 +3,12 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/09/30 23:31:47 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/10/13 07:45:31 $
+ *  $Revision: 1.26 $
  *  \author M. Strang SUNY-Buffalo
  */
+
+#include <cassert>
 
 #include "DQMServices/Components/plugins/MEtoEDMConverter.h"
 #include "classlib/utils/StringList.h"
@@ -61,6 +63,8 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   produces<MEtoEDM<TString>, edm::InRun>(fName);
 
   firstevent = true;
+
+  assert(sizeof(int64_t) == sizeof(long long));
 
 } // end constructor
 

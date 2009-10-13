@@ -2,10 +2,12 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2009/10/01 17:56:28 $
- *  $Revision: 1.24 $
+ *  $Date: 2009/10/13 07:45:29 $
+ *  $Revision: 1.25 $
  *  \author M. Strang SUNY-Buffalo
  */
+
+#include <cassert>
 
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
 
@@ -63,6 +65,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
   count.clear();
   countf = 0;
+
+  assert(sizeof(int64_t) == sizeof(long long));
 
 } // end constructor
 
