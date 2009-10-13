@@ -4,6 +4,8 @@ function die { echo $1: status $2 ;  exit $2; }
 
 cmsRun ${LOCAL_TEST_DIR}/tqaf_cfg.py || die 'Failure using tqaf_cfg.py' $?
 
+cmsRun ${LOCAL_TEST_DIR}/tqaf_woGeneratorInfo_cfg.py || die 'Failure using tqaf_woGeneratorInfo_cfg.py' $?
+
 cmsRun ${LOCAL_TEST_DIR}/ttDecaySubset_cfg.py || die 'Failure using ttDecaySubset_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/ttDecaySelection_cfg.py || die 'Failure using ttDecaySelection_cfg.py' $?
