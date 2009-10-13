@@ -6,6 +6,8 @@
 
 
 #include <sstream>
+#include <cstdlib>
+#include <cassert>
 
 #include "Validation/RecoParticleFlow/interface/Comparator.h"
 #include "Validation/RecoParticleFlow/interface/TH2Analyzer.h"
@@ -547,6 +549,8 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
     ptstats->SetParent(h0_->GetListOfFunctions());
   }
 
+  float min=-999.;
+  float max=+999.;
   switch(mode) {
   case SCALE:
     h1_->Scale( h0_->GetEntries()/h1_->GetEntries() );
@@ -571,14 +575,14 @@ void Comparator::Draw( TH1* h0, TH1* h1, Mode mode ) {
       Styles::FormatHisto( h1_ , s1_);
 
     // rather arbitrary but useful
-    float max= h0_->GetMaximum();
+    max= h0_->GetMaximum();
     if ( h1_->GetMaximum() > max )
       max = h1_->GetMaximum();
     if(max > 0.8) max = 1;
     
     max *= 1.1 ;
 
-    float min= h0_->GetMinimum();
+    min= h0_->GetMinimum();
     if ( h1_->GetMinimum() < min )
       min = h1_->GetMinimum();
     if(min > 0.2) min = 0.;

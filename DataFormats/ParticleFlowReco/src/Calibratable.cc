@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
+#include <algorithm>
 
 using namespace pftools;
 

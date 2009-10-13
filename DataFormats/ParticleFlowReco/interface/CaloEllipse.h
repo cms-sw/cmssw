@@ -54,12 +54,12 @@ public:
 
 	void reset();
 
-	friend std::ostream& operator<<(std::ostream& s, const CaloEllipse& em);
 
 private:
 	std::vector<Point> dataPoints_;
 
 };
+	std::ostream& operator<<(std::ostream& s, const CaloEllipse& em);
 }
 
 
