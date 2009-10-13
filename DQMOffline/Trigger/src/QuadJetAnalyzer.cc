@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: DQMOfflineMuonTrigAnalyzer.cc,v 1.10 2009/08/25 10:03:15 slaunwhj Exp $
+// $Id: QuadJetAnalyzer.cc,v 1.1 2009/10/09 12:49:43 slaunwhj Exp $
 //
 //
 
@@ -150,6 +150,16 @@ QuadJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
   edm::Handle<edm::TriggerResults> HLTR;
   iEvent.getByLabel(edm::InputTag("TriggerResults::HLT"), HLTR); 
+  if(!HLTR.isValid()) {
+
+    iEvent.getByLabel(edm::InputTag("TriggerResults::FU"), HLTR); 
+
+    if(!HLTR.isValid()) {
+      edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
+      "skipping event"; 
+      return;
+   }
+  }
 
   HLTConfigProvider hltConfig;
   hltConfig.init("HLT");
@@ -166,6 +176,14 @@ QuadJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
   edm::Handle<trigger::TriggerEvent> triggerEvent_;
   iEvent.getByLabel("hltTriggerSummaryAOD", triggerEvent_); 
+
+  if(!triggerEvent_.isValid()) {
+
+    edm::LogInfo("FourVectorHLTOffline") << "TriggerSummaryAOD not found, "
+      "skipping event"; 
+    return;
+
+  }
 
   testHist->Fill(1);
 
