@@ -135,22 +135,25 @@ void HcalBaseMonitor::LumiBlockUpdate(int lb)
     }
 
   // The following function would let us 'fill in' missing lumiblock sections.  
-  // I don't think we want that functionality yet.
+  // I think we only want this for Online running, since offline should fill each lumi block
+  // independently.  
+  // Should probably just do this in the individual tasks?
   /*
-  for (int i=lumiblock+1;i<=lb;++i)
+  if (Online_ && lumiblock<lb)
     {
-      if (ProblemsVsLB)
-	ProblemsVsLB->Fill(i,NumBadHB+NumBadHE+NumBadHO+NumBadHF+NumBadZDC);
-      if (ProblemsVsLB_HB)
-	ProblemsVsLB_HB->Fill(i,NumBadHB);
-      if (ProblemsVsLB_HE)
-	ProblemsVsLB_HE->Fill(i,NumBadHE);
-      if (ProblemsVsLB_HO)
-	ProblemsVsLB_HO->Fill(i,NumBadHO);
-      if (ProblemsVsLB_HF)
-	ProblemsVsLB_HF->Fill(i,NumBadHF);
-      if (ProblemsVsLB_ZDC)
-	ProblemsVsLB_ZDC->Fill(i,NumBadZDC);
+      for (int i=lumiblock+1;i<lb;++i)
+	{
+	  if (ProblemsVsLB)
+	    ProblemsVsLB->Fill(i,NumBadHB+NumBadHE+NumBadHO+NumBadHF);
+	  if (ProblemsVsLB_HB)
+	    ProblemsVsLB_HB->Fill(i,NumBadHB);
+	  if (ProblemsVsLB_HE)
+	    ProblemsVsLB_HE->Fill(i,NumBadHE);
+	  if (ProblemsVsLB_HO)
+	    ProblemsVsLB_HO->Fill(i,NumBadHO);
+	  if (ProblemsVsLB_HF)
+	    ProblemsVsLB_HF->Fill(i,NumBadHF);
+	}
     }
   */
   lumiblock=lb;
