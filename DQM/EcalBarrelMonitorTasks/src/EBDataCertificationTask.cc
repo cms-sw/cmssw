@@ -15,6 +15,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBDataCertificationTask.h"
 
@@ -25,6 +26,9 @@ using namespace std;
 EBDataCertificationTask::EBDataCertificationTask(const ParameterSet& ps) {
 
   dqmStore_ = Service<DQMStore>().operator->();
+
+  // cloneME switch
+  cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
@@ -37,6 +41,10 @@ EBDataCertificationTask::EBDataCertificationTask(const ParameterSet& ps) {
   for (int i = 0; i < 36; i++) {
     meEBDataCertification_[i] = 0;
   }
+
+  hDQM_ = 0;
+  hDAQ_ = 0;
+  hDCS_ = 0;
 
 }
 
@@ -81,45 +89,80 @@ void EBDataCertificationTask::endJob(void) {
 
 void EBDataCertificationTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
+}
+
+void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+
   this->reset();
 
-  int nErrors = 0;
-  int nErrorsEB[36];
+  char histo[200];
+  
+  MonitorElement* me;
+
+  sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
+  me = dqmStore_->get(histo);
+  hDQM_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDQM_ );
+
+  sprintf(histo, (prefixME_ + "/EventInfo/DAQSummaryMap").c_str());
+  me = dqmStore_->get(histo);
+  hDAQ_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDAQ_ );
+
+  sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
+  me = dqmStore_->get(histo);
+  hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
+
+  float sumCert = 0.;
+  float sumCertEB[36];
   int nValidChannels = 0;
   int nValidChannelsEB[36];
 
   for (int i = 0; i < 36; i++) {
-    nErrorsEB[i] = 0;
+    sumCertEB[i] = 0.;
     nValidChannelsEB[i] = 0;
   }
 
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      meEBDataCertificationSummaryMap_->setBinContent( iptt+1, iett+1, 1.0 );
-      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4;
-      // placeholder
-      if(1==1) {
-        nValidChannelsEB[ism]++;
-        nValidChannels++;
+
+      float xvalDQM, xvalDAQ, xvalDCS;
+      xvalDQM = xvalDAQ = xvalDCS = -1.;
+      float xcert = -1;
+
+      if ( hDQM_ ) xvalDQM = hDQM_->GetBinContent( iptt+1, iett+1 );
+      if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( iptt+1, iett+1 );
+      if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( iptt+1, iett+1 );
+
+      // all white means problems: DAQ and DCS not available and DQM empty
+      if ( xvalDQM == -1 && xvalDAQ == -1 && xvalDCS == -1) xcert = 0.0;
+      else {
+        // do not consider the white value of DAQ and DCS (problems with DB)
+        xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
       }
+
+      if ( meEBDataCertificationSummaryMap_ ) meEBDataCertificationSummaryMap_->setBinContent( iptt+1, iett+1, xcert );
+
+      int i = ( iett<17 ) ? iptt/4 : 18+iptt/4;
+
+      sumCertEB[i] += xcert;
+      nValidChannelsEB[i]++;
+
+      sumCert += xcert;
+      nValidChannels++;
+
     }
   }
 
   if( meEBDataCertificationSummary_ ) {
-    if( nValidChannels>0 ) meEBDataCertificationSummary_->Fill( 1.0 - nErrors/nValidChannels );
+    if( nValidChannels>0 ) meEBDataCertificationSummary_->Fill( sumCert/nValidChannels );
     else meEBDataCertificationSummary_->Fill( 0.0 );
   }
 
   for (int i = 0; i < 36; i++) {
     if( meEBDataCertification_[i] ) {
-      if( nValidChannelsEB[i]>0 ) meEBDataCertification_[i]->Fill( 1.0 - nErrorsEB[i]/nValidChannelsEB[i] );
+      if( nValidChannelsEB[i]>0 ) meEBDataCertification_[i]->Fill( sumCertEB[i]/nValidChannelsEB[i] );
       else meEBDataCertification_[i]->Fill( 0.0 );
     }
   }
-
-}
-
-void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 
 }
 

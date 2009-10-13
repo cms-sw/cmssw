@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TH2F.h"
+
 class EEDataCertificationTask: public edm::EDAnalyzer{
 
 public:
@@ -39,6 +41,8 @@ void reset(void);
 void cleanup(void);
   
 private:
+
+bool cloneME_;
   
 DQMStore* dqmStore_;
 
@@ -47,6 +51,10 @@ std::string prefixME_;
 bool enableCleanup_;
 
 bool mergeRuns_;
+
+TH2F *hDQM_;
+TH2F *hDAQ_;
+TH2F *hDCS_;
 
 MonitorElement* meEEDataCertificationSummary_;
 MonitorElement* meEEDataCertification_[18];
