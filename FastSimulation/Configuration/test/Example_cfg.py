@@ -32,7 +32,7 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 
 # Famos sequences (Frontier conditions)
 process.load("FastSimulation/Configuration/CommonInputs_cff")
-process.GlobalTag.globaltag = "MC_31X_V9::All"
+process.GlobalTag.globaltag = "MC_3XY_V10::All"
 process.load("FastSimulation/Configuration/FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
@@ -48,7 +48,9 @@ process.famosSimHits.SimulateTracking = True
 # process.famosSimHits.SimulateMuons = False
 
 # Produce Tracks and Clusters
-process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithCaloHits)
+#process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithCaloHits)
+process.source = cms.Source("EmptySource")
+process.simulation = cms.Sequence(process.generator*process.famosWithCaloHits)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(

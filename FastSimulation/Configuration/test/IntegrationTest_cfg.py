@@ -29,8 +29,7 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
 # Get frontier conditions    - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP31X_V8::All","MC_31X_V9::All"
-process.GlobalTag.globaltag = "STARTUP31X_V8::All"
+process.GlobalTag.globaltag = "STARTUP3XY_V9::All"
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True
@@ -50,7 +49,10 @@ process.misalignedCSCGeometry.applyAlignment = True
 #process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
 # Famos with everything !
-process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
+#process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
+process.source = cms.Source("EmptySource")
+process.p1 = cms.Path(process.generator*process.famosWithEverything)
+
 
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")

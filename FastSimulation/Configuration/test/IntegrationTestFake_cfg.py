@@ -28,7 +28,7 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 
 # Famos sequences (MC conditions, not Fake anymore!)
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.GlobalTag.globaltag = "MC_31X_V9::All"
+process.GlobalTag.globaltag = "MC_3XY_V10::All"
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
@@ -43,7 +43,9 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
 # Famos with everything !
-process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
+#process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
+process.source = cms.Source("EmptySource")
+process.simulation = cms.Sequence(process.generator*process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 process.o1 = cms.OutputModule(

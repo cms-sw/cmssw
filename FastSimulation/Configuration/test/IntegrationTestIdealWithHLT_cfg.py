@@ -63,7 +63,11 @@ process.dummy = cms.EDAnalyzer("DummyHepMCAnalyzer",
                                )
 
 # Simulation sequence
-process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
+#process.simulation = cms.Sequence(process.ProductionFilterSequence*process.simulationWithFamos)
+process.source = cms.Source("EmptySource")
+process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
+
+
 # You many not want to simulate everything
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
@@ -73,8 +77,7 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-# Values for globaltag are "STARTUP31X_V8::All","MC_31X_V9::All"
-process.GlobalTag.globaltag = "MC_31X_V9::All"
+process.GlobalTag.globaltag = "MC_3XY_V10::All"
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
