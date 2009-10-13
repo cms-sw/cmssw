@@ -8,11 +8,13 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/ParticleFlowCandidate>
 <export>
  <lib name=RecoMETMETAlgorithms>
  <use name=DataFormats/METReco>
  <use name=DataFormats/CaloTowers>
  <use name=DataFormats/Common>
  <use name=Geometry/CaloTopology>
+ <use name=DataFormats/ParticleFlowCandidate>
 </export>
 
