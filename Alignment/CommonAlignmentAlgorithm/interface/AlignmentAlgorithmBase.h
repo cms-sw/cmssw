@@ -14,11 +14,15 @@ class AlignableTracker;
 class AlignableMuon;
 class AlignmentParameterStore;
 class Trajectory;
-// class TkFittedLasBeamCollection; // Makes trouble since it's a typedef, so include...
-// class TsosVectorCollection;      // Dito.
-#include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
+// These data formats cannot be forward declared since they are typedef's,
+// so include the headers that define the typedef's
+// (no need to include in dependencies in BuildFile):
+// class TsosVectorCollection;
+// class TkFittedLasBeamCollection;
+// class AliClusterValueMap;
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
 
 namespace edm { class EventID; class RunID; class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
@@ -42,7 +46,7 @@ public:
     const edm::EventID                 &eventId_;
     const ConstTrajTrackPairCollection &trajTrackPairs_;
     const reco::BeamSpot               &beamSpot_;
-    const AliClusterValueMap            *hitVM_;//might be null!
+    const AliClusterValueMap           *hitVM_;///might be null!
   };
   
   /// define run information passed to algorithms (in endRun)
