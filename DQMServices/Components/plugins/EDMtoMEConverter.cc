@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2009/09/30 23:31:47 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/10/01 17:56:28 $
+ *  $Revision: 1.24 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -768,16 +768,16 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
     } // end Float creation
 
     if (classtypes[ii] == "Int64") {
-      edm::Handle<MEtoEDM<int64_t> > metoedm;
+      edm::Handle<MEtoEDM<long long> > metoedm;
       iRun.getByType(metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
-        //  << "MEtoEDM<int64_t> doesn't exist in run";
+        //  << "MEtoEDM<long long> doesn't exist in run";
         continue;
       }
 
-      std::vector<MEtoEDM<int64_t>::MEtoEDMObject> metoedmobject =
+      std::vector<MEtoEDM<long long>::MEtoEDMObject> metoedmobject =
         metoedm->getMEtoEdmObject();
 
       me7.resize(metoedmobject.size());
@@ -817,7 +817,7 @@ void EDMtoMEConverter::convert(const edm::Run& iRun, const bool endrun)
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
-          int64_t ival = 0;
+          long long ival = 0;
           if ( endrun ) {
             if (name.find("processedEvents") != std::string::npos) {
               if (MonitorElement* me = dbe->get(dir+"/"+name)) {
