@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.32 2009/09/25 15:42:21 srappocc Exp $
+// $Id: Jet.cc,v 1.33 2009/09/29 17:39:40 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -298,6 +298,14 @@ const std::vector<std::string> Jet::corrFactorSetLabels() const
 const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
    return pairDiscriVector_;
 }
+
+///returns uncertainty of currently applied jet-correction level 
+///for plus or minus 1 sigma defined by direction ("UP" or "DOWN")
+float Jet::relCorrUncert(const std::string& direction) const
+{
+   return corrFactors_()->uncertainty( jetEnergyCorrectionStep_, direction );
+}
+
 
 /// get b discriminant from label name
 float Jet::bDiscriminator(const std::string & aLabel) const {

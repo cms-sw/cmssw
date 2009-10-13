@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.38 2009/09/21 09:10:45 fronga Exp $
+// $Id: Jet.h,v 1.39 2009/09/29 16:37:49 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.38 2009/09/21 09:10:45 fronga Exp $
+  \version  $Id: Jet.h,v 1.39 2009/09/29 16:37:49 srappocc Exp $
 */
 
 
@@ -133,6 +133,11 @@ namespace pat {
       void setCorrFactors(const JetCorrFactors & jetCorrF);
       /// to be used by PATJetProducer: method to add more sets of energy scale correction factors
       void addCorrFactors(const JetCorrFactors & jetCorrF);
+
+      /// ---- methods for accessing jet uncertainty ----
+      ///relative jet correction factor uncertainty plus/minus 1 sigma
+      float relCorrUncert(const std::string& direction) const;
+
 
       /// ---- methods for accessing b-tagging info ----
 
