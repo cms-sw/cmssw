@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: QuadJetAnalyzer.cc,v 1.1 2009/10/09 12:49:43 slaunwhj Exp $
+// $Id: QuadJetAnalyzer.cc,v 1.2 2009/10/13 00:56:22 rekovic Exp $
 //
 //
 
@@ -155,7 +155,7 @@ QuadJetAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
     iEvent.getByLabel(edm::InputTag("TriggerResults::FU"), HLTR); 
 
     if(!HLTR.isValid()) {
-      edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
+      edm::LogInfo("QuadJetAnalyzer") << "TriggerResults not found, "
       "skipping event"; 
       return;
    }
