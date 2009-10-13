@@ -37,5 +37,6 @@ struct dictionary
     std::vector<PSimHit>::const_iterator hcIt1;
     std::vector<PSimHit>::iterator hcIt2;
 
+    edm::Wrapper<TrackingParticleRefVector> wrv1;
 };
 }

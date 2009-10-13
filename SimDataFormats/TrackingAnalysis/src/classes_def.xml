@@ -29,5 +29,7 @@
 
   <class name="std::vector<PSimHit>::const_iterator" />
   <class name="std::vector<PSimHit>::iterator" />
+ 
+  <class pattern="edm::Wrapper<edm::RefVector<std::vector<TrackingParticle>,*> >" />
 
 </lcgdict>
