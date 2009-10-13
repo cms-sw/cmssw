@@ -30,6 +30,7 @@ void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   m_dbe = NULL;
   if(dbe != NULL) m_dbe = dbe;
 
+  Online_   =  ps.getUntrackedParameter<bool>("Online",false);
   badCells_ =  ps.getUntrackedParameter<vector<string> >( "BadCells" );
   
   // Base folder for the contents of this job

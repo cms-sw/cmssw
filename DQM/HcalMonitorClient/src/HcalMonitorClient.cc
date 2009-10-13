@@ -538,6 +538,24 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
 void HcalMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) 
 {
   if( debug_>0 ) std::cout << "HcalMonitorClient: beginLuminosityBlock" << endl;
+  if( summary_client_)      summary_client_->SetLS(l.luminosityBlock());
+  if( hot_client_ )         hot_client_->SetLS(l.luminosityBlock());
+  if( dead_client_ )        dead_client_->SetLS(l.luminosityBlock()); 
+  if( dataformat_client_ )  dataformat_client_->SetLS(l.luminosityBlock());
+  if( digi_client_ )        digi_client_->SetLS(l.luminosityBlock());
+  if( rechit_client_ )      rechit_client_->SetLS(l.luminosityBlock());
+  if( pedestal_client_ )    pedestal_client_->SetLS(l.luminosityBlock());
+  if( led_client_ )         led_client_->SetLS(l.luminosityBlock());
+  if( laser_client_ )       laser_client_->SetLS(l.luminosityBlock());
+  if( tp_client_ )          tp_client_->SetLS(l.luminosityBlock());
+  if( ct_client_ )          ct_client_->SetLS(l.luminosityBlock());
+  if( beam_client_ )        beam_client_->SetLS(l.luminosityBlock());
+  /////////////////////////////////////////////////////////
+  if( detdiagped_client_ ) detdiagped_client_->SetLS(l.luminosityBlock());
+  if( detdiagled_client_ ) detdiagled_client_->SetLS(l.luminosityBlock());
+  if( detdiaglas_client_ ) detdiaglas_client_->SetLS(l.luminosityBlock());
+  /////////////////////////////////////////////////////////
+
   if(actonLS_ && !prescale()){
     // do scheduled tasks...
   }

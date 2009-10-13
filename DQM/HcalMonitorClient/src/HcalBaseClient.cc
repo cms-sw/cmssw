@@ -65,14 +65,19 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe,
   dbe_ = dbe;
   ievt_=0; jevt_=0;
   clientName_ = clientName;
-  
+  LS_=0; oldLS_=0;
+
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   
   // verbosity switch
   debug_ = ps.getUntrackedParameter<int>("debug", 0);
   if(debug_>0) std::cout << clientName_ <<" debugging switch is on"<<std::endl;
-  
+
+  // Online, offline switch
+  Online_ = ps.getUntrackedParameter<bool>("Online",false);
+  Nlumiblocks_ = ps.getUntrackedParameter<int>("Nlumiblocks",1000); 
+
   // timing switch
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false); 
 
@@ -132,7 +137,11 @@ bool HcalBaseClient::vetoCell(HcalDetId& id)
   return false;
 } // bool HcalBaseClient::vetoCell(HcalDetId id)
 
-
+void HcalBaseClient::SetLS(int ls)
+{
+  LS_ = ls;
+  return;
+}
 
 void HcalBaseClient::errorOutput(){
   

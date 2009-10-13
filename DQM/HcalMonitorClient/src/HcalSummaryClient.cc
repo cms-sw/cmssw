@@ -100,7 +100,10 @@ void HcalSummaryClient::init(const ParameterSet& ps, DQMStore* dbe, string clien
   status_HO12_=-1;
   status_HFlumi_=-1;
   status_global_=-1;
-  
+
+  LS_=0;
+  oldLS_=0;
+
   // set total number of cells in each subdetector
   subdetCells_.insert(make_pair("HB",2592));
   subdetCells_.insert(make_pair("HE",2592));
@@ -221,6 +224,22 @@ void HcalSummaryClient::setup(void)
 	    SummaryMapByDepth.depth[depth]->setBinContent(ieta+1,iphi+1,-1);
 	}
     }
+  
+
+  // Make histogram of status vs LS
+  StatusVsLS = dqmStore_->book2D("StatusVsLS","Status vs. Luminosity Section",
+				 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
+				 7,0,7);
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(1,"HB");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(2,"HE");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(3,"HO");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(4,"HF");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(5,"H00");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(6,"H012");
+  (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(7,"HFlumi");
+  (StatusVsLS->getTH2F())->GetXaxis()->SetTitle("Lumi Section");
+  (StatusVsLS->getTH2F())->SetMinimum(-1);
+  (StatusVsLS->getTH2F())->SetMaximum(1);
   
   // Make new simplified status histogram
   histo.str("");
@@ -650,6 +669,27 @@ void HcalSummaryClient::analyze(void)
       simpleMap->setBinContent(7,1,status_HFlumi_);
     }
   
+  // Now fill status map vs. LS
+  StatusVsLS->setBinContent(1+LS_,1,status_HB_);
+  StatusVsLS->setBinContent(1+LS_,2,status_HE_);
+  StatusVsLS->setBinContent(1+LS_,3,status_HO_);
+  StatusVsLS->setBinContent(1+LS_,4,status_HF_);
+  StatusVsLS->setBinContent(1+LS_,5,status_HO0_);
+  StatusVsLS->setBinContent(1+LS_,6,status_HO12_);
+  StatusVsLS->setBinContent(1+LS_,7,status_HFlumi_);
+
+  // If running online, fill in any missing LS values with old values
+  if (Online_ && LS_!=oldLS_)
+    {
+      for (int subdet=1;subdet<=7;++subdet)
+	{
+	  float value=StatusVsLS->getBinContent(1+oldLS_,subdet);
+	  for (int i=oldLS_+1;i<LS_;++i)
+	    StatusVsLS->setBinContent(oldLS_+1,subdet,value);
+	}
+      oldLS_ = LS_;
+    }
+
   dqmStore_->setCurrentFolder( rootFolder_);
 
  return;

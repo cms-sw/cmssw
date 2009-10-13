@@ -5,6 +5,9 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
 
                           # Variables for the Overall Client
                           runningStandalone         = cms.untracked.bool(False),
+                          Online                    = cms.untracked.bool(False), 
+                          # number of luminosity blocks to check
+                          Nlumiblocks = cms.untracked.int32(1000),
                           subSystemFolder           = cms.untracked.string('Hcal'),
                           processName               = cms.untracked.string(''),
                           inputfile                 = cms.untracked.string(''),
@@ -117,16 +120,11 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
 
     # This doesn't work, because monitor.checkNevents returns 'cms.untracked.bool(...)'
     #client.diagnosticPrescaleEvt                  = max(100,monitor.checkNevents) # combine checkNevents and diagnosticPrescaleEvt into one?
+
     checkN = deepcopy(client.diagnosticPrescaleEvt)
-
-    # Beam, RecHit checkNevents not used; we could get rid of them?
-    client.BeamClient_checkNevents                = checkN
-    client.RecHitClient_checkNevents              = checkN
-    # Hot and Dead cell values only used for labelling
-    client.DeadCellClient_checkNevents            = monitor.DeadCellMonitor_checkNevents
-    client.HotCellClient_checkNevents            = monitor.HotCellMonitor_checkNevents
     
-
+    client.Online                                 = monitor.Online
+    client.Nlumiblocks                            = monitor.Nlumiblocks
     client.fillUnphysicalIphi                     = monitor.fillUnphysicalIphi 
 
     
@@ -183,6 +181,8 @@ def setHcalClientValuesFromMonitor(client, origmonitor, debug=False):
     if (debug):
         print "HcalMonitorClient values from HcalMonitorModule: "
         print "Debug              = ", client.debug
+        print "Online             = ", client.Online
+        print "Nlumiblocks        = ", client.Nlumiblocks
         print "showTiming         = ", client.showTiming
         print "PrescaleEvt        = ", client.diagnosticPrescaleEvt
         print "Pedestal Client    = ", client.PedestalClient

@@ -38,8 +38,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2009/07/31 20:32:33 $
-  * $Revision: 1.31 $
+  * $Date: 2009/08/19 19:27:43 $
+  * $Revision: 1.32 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -111,6 +111,7 @@ protected:
   bool fillUnphysical_; // controls whether to fill unphysical iphi bins in eta-phi histograms
   
   DQMStore* m_dbe;
+  bool Online_; // tracks whether code is run online or offline 
   vector<string> badCells_; // keeps list of bad cells that should be ignored
   string rootFolder_;
   string baseFolder_;

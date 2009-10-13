@@ -6,7 +6,7 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            # GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different values can trigger different levels of messaging
                            AnalyzeOrbitGap = cms.untracked.bool(False),
-
+                           Online = cms.untracked.bool(False), # control online/offline differences in code
                            # eta runs from -43->+43  (-41 -> +41 for HCAL, plus ZDC, which we put at |eta|=43.
                            # add one empty bin beyond that for histogramming prettiness 
                            MaxEta = cms.untracked.double(44.5),
@@ -15,6 +15,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            MaxPhi = cms.untracked.double(73.5),
                            MinPhi = cms.untracked.double(-0.5),
 
+                           # number of luminosity blocks to check
+                           Nlumiblocks = cms.untracked.int32(1000),
+                           
                            # Determine whether or not to check individual subdetectors
                            checkHF = cms.untracked.bool(True),
                            checkHE = cms.untracked.bool(True),
@@ -108,18 +111,18 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
                            HotCellMonitor_HB_energyThreshold           = cms.untracked.double(10.),
                            HotCellMonitor_HE_energyThreshold           = cms.untracked.double(10.), 
                            HotCellMonitor_HO_energyThreshold           = cms.untracked.double(10.),
-                           HotCellMonitor_HF_energyThreshold           = cms.untracked.double(10.),
+                           HotCellMonitor_HF_energyThreshold           = cms.untracked.double(20.),
                            HotCellMonitor_ZDC_energyThreshold          = cms.untracked.double(999.), # not yet implemented
                            # Checking for cells consistently babove energy threshold
-                           HotCellMonitor_persistentThreshold              = cms.untracked.double(3.),
-                           HotCellMonitor_HB_persistentThreshold           = cms.untracked.double(3.),
-                           HotCellMonitor_HE_persistentThreshold           = cms.untracked.double(3.), 
+                           HotCellMonitor_persistentThreshold              = cms.untracked.double(6.),
+                           HotCellMonitor_HB_persistentThreshold           = cms.untracked.double(6.),
+                           HotCellMonitor_HE_persistentThreshold           = cms.untracked.double(6.), 
                            HotCellMonitor_HO_persistentThreshold           = cms.untracked.double(6.),
-                           HotCellMonitor_HF_persistentThreshold           = cms.untracked.double(6.),
+                           HotCellMonitor_HF_persistentThreshold           = cms.untracked.double(10.),
                            HotCellMonitor_ZDC_persistentThreshold          = cms.untracked.double(999.), # not yet implemented
 
                            HotCellMonitor_HO_SiPMscalefactor               = cms.untracked.double(1.), # scale factor to apply to energy threshold for SiPMs (when SiPMs weren't properly calibrated)
-                           HotCellMonitor_HFfwdScale                       = cms.untracked.double(2.), # scale factor to raise energy thresholds for HF cells at |ieta| = 40,41
+                           HotCellMonitor_HFfwdScale                       = cms.untracked.double(1.), # scale factor to raise energy thresholds for HF cells at |ieta| = 40,41
                            
                            # Check for cells above their neighbors -- not currently in use
                            HotCellMonitor_neighbor_deltaIeta           = cms.untracked.int32(1),

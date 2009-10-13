@@ -92,19 +92,20 @@ class HcalBaseClient{
   void getEtaPhiHists(std::string rootdir, std::string dir, std::string name, TH2F* h[4], std::string units="");
   void SetEtaPhiLabels(MonitorElement* x);
   
-  /*
-    int CalcIeta(int hist_eta, int depth);
-    bool isHB(int etabin, int depth);
-    bool isHE(int etabin, int depth);
-    bool isHO(int etabin, int depth);
-    bool isHF(int etabin, int depth);
-  */
-
+  // Set luminosity section to specified value
+  void SetLS(int ls);
+ 
  protected:
 
   int ievt_;
   int jevt_;
-  
+
+  bool Online_;
+  // keep track of luminosity information
+  int Nlumiblocks_;
+  int LS_;
+  int oldLS_;
+
   bool cloneME_;
   int debug_;
   std::string process_;

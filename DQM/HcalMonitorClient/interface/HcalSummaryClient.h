@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2009/07/14 16:34:16 $
- * $Revision: 1.21 $
+ * $Date: 2009/08/19 19:23:52 $
+ * $Revision: 1.22 $
  * \author Jeff Temple
  *
 */
@@ -134,9 +134,14 @@ class HcalSummaryClient : public HcalBaseClient {
   
   double status_global_;
 
-  std::vector<MonitorElement *> depthME;
+  std::vector<MonitorElement *> depthME; // needed to calculate overall summary problems
     
   ofstream htmlFile;
+
+  MonitorElement * StatusVsLS;
+
+  int LS_;
+  int oldLS_;
 
 }; // end of class declaration
 
