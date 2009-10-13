@@ -62,8 +62,9 @@ namespace fwlite
          // Regular Member Functions //
          //////////////////////////////
 
-         // adds a histogram pointer to the map
-         void add (TH1 *histPtr);
+         // adds a histogram pointer to the map.  You can specify a
+         // directory as well if you wish.
+         void add (TH1 *histPtr, const std::string &directory = "");
 
          // given a string, returns corresponding histogram pointer
          TH1* hist (const std::string &name);
