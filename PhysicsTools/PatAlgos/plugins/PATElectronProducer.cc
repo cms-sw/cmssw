@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.33 2009/08/29 06:51:27 cbern Exp $
+// $Id: PATElectronProducer.cc,v 1.34 2009/10/13 13:11:39 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -563,7 +563,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
 
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
-  iDesc.add("isolation", isolationPSet);
+  iDesc.add("userIsolation", isolationPSet);
 
   // Resolution configurables
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
