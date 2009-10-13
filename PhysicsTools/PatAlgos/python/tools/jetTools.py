@@ -293,13 +293,10 @@ def switchJetCollection(process,
     if ( doJetID) :
         jetIdLabelNew = jetIdLabel + 'JetID'
         print "Making new jet ID label with label " + jetIdLabel
-        ## replace jet id sequence
-        jetIdProducerFileLabel = "RecoJets.JetProducers." + jetIdLabel + "JetID_cfi"
-        process.load(jetIdProducerFileLabel)
-        process.makeAllLayer1Jets.replace( process.ak5JetID, getattr(process,jetIdLabelNew) )
+        process.load("RecoJets.JetProducers.ak5JetID_cfi")
+        setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetCollection))
         process.allLayer1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
     else :
-        process.makeAllLayer1Jets.remove(process.recoJetId)
         process.allLayer1Jets.addJetID = cms.bool(False)
 
 
@@ -478,10 +475,8 @@ def addJetCollection(process,
     if ( doJetID) :
         jetIdLabelNew = jetIdLabel + 'JetID'
         print "Making new jet ID label with label " + jetIdLabel
-        ## replace jet id sequence
-        jetIdProducerFileLabel = "RecoJets.JetProducers." + jetIdLabel + "JetID_cfi"
-        process.load(jetIdProducerFileLabel)
-        process.makeAllLayer1Jets.replace( process.jetPartonMatch, getattr(process,jetIdLabelNew) + process.jetPartonMatch )
+        process.load("RecoJets.JetProducers.ak5JetID_cfi")
+        setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetCollection))
         l1Jets.addJetID = cms.bool(True)
         l1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
     else :
@@ -540,3 +535,26 @@ def addJetCollection(process,
     else:
         ## switch jetCorrFactors off
         l1Jets.addJetCorrFactors = False
+
+
+
+
+def addJetID(process,
+             jetSrc,
+             jetIdTag
+             ):
+    """
+    ------------------------------------------------------------------
+    compute jet id for process
+
+    process : process
+    jetIdTag: Tag to append to jet id map
+    ------------------------------------------------------------------    
+    """
+    jetIdLabel = jetIdTag + 'JetID'
+    print "Making new jet ID label with label " + jetIdTag
+
+    ## replace jet id sequence
+    process.load("RecoJets.JetProducers.ak5JetID_cfi")
+    setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
+    process.makeAllLayer1Jets.replace( process.jetPartonMatch, getattr(process,jetIdLabel) + process.jetPartonMatch )
