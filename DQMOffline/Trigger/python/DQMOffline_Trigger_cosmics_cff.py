@@ -31,13 +31,14 @@ from DQM.HLTEvF.HLTMonMuonDQM_cfi import *
 from DQM.HLTEvF.HLTMonMuonBits_cfi import *
 #from DQM.HLTEvF.HLTMonPhotonBits_cfi import *
 from DQM.HLTEvF.HLTMonTau_cfi import *
-from DQM.HLTEvF.hltMonBTagIPSource_cfi import *
-from DQM.HLTEvF.hltMonBTagMuSource_cfi import *
+#from DQM.HLTEvF.hltMonBTagIPSource_cfi import *
+#from DQM.HLTEvF.hltMonBTagMuSource_cfi import *
 # hltMonjmDQM  bombs
 # hltMonMuDQM dumps names of all histograms in the directory
 # hltMonPhotonBits in later releases
 # *hltMonJetMET makes a log file, need to learn how to turn it off
-onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource)
+#onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource)
+onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco)
 
 
 from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
