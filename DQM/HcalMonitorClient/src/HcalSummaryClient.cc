@@ -230,6 +230,10 @@ void HcalSummaryClient::setup(void)
   StatusVsLS = dqmStore_->book2D("StatusVsLS","Status vs. Luminosity Section",
 				 Nlumiblocks_,0.5,Nlumiblocks_+0.5,
 				 7,0,7);
+  // Set all status values to -1 to begin
+  for (int i=1;i<=Nlumiblocks_;++i)
+    for (int j=1;j<=7;++j)
+      StatusVsLS->setBinContent(i,j,-1);
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(1,"HB");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(2,"HE");
   (StatusVsLS->getTH2F())->GetYaxis()->SetBinLabel(3,"HO");
