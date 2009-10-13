@@ -1,8 +1,10 @@
-// $Id: StreamHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
+// $Id: StreamHandler.h,v 1.7 2009/09/17 11:04:43 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef StorageManager_StreamHandler_h
 #define StorageManager_StreamHandler_h
+
+#include <stdint.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -22,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.7 $
+   * $Date: 2009/09/17 11:04:43 $
    */
   
   class StreamHandler
@@ -84,7 +86,7 @@ namespace stor {
     /**
      * Return the maximum file size in bytes
      */
-    const long long getMaxFileSize() const;
+    const unsigned long long getMaxFileSize() const;
 
 
   private:

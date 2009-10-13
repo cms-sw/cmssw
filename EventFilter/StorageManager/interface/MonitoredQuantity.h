@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: MonitoredQuantity.h,v 1.4 2009/08/18 08:54:13 mommsen Exp $
 /// @file: MonitoredQuantity.h 
 
 #ifndef StorageManager_MonitoredQuantity_h
@@ -6,8 +6,10 @@
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
-#include <vector>
+
 #include <math.h>
+#include <stdint.h>
+#include <vector>
 
 #include "EventFilter/StorageManager/interface/Utils.h"
 
@@ -20,8 +22,8 @@ namespace stor
    * and provides timing information on the samples.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4 $
+   * $Date: 2009/08/18 08:54:13 $
    */
 
   class MonitoredQuantity
@@ -53,6 +55,11 @@ namespace stor
      * Adds the specified uint32_t valued sample value to the monitor instance.
      */
     void addSample(const uint32_t value = 1);
+
+    /**
+     * Adds the specified uint64_t valued sample value to the monitor instance.
+     */
+    void addSample(const uint64_t value = 1);
 
     /**
      * Forces a calculation of the statistics for the monitored quantity.

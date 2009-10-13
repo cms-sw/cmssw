@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: ChainData.cc,v 1.1.2.2 2009/10/13 14:13:54 mommsen Exp $
 
 #include "toolbox/mem/Reference.h"
 
@@ -44,11 +44,13 @@ detail::ChainData::ChainData(toolbox::mem::Reference* pRef) :
   // variable default value for one of the fragKey fields.
   if (pRef)
     {
-      _fragKey.secondaryId_ = (uint32) pRef->getDataLocation();
+      _fragKey.secondaryId_ = static_cast<uint32>(
+        (uintptr_t)pRef->getDataLocation()
+      );
     }
   else
     {
-      _fragKey.secondaryId_ = (uint32) time(0);
+        _fragKey.secondaryId_ = static_cast<uint32>( time(0) );
     }
 
   if (pRef)

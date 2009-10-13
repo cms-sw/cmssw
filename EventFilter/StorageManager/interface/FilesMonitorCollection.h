@@ -1,11 +1,12 @@
-// $Id: FilesMonitorCollection.h,v 1.8 2009/09/17 11:03:49 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.9 2009/09/18 15:37:33 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef StorageManager_FilesMonitorCollection_h
 #define StorageManager_FilesMonitorCollection_h
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
+#include <stdint.h>
 #include <vector>
 
 #include <boost/circular_buffer.hpp>
@@ -23,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.8 $
-   * $Date: 2009/09/17 11:03:49 $
+   * $Revision: 1.9 $
+   * $Date: 2009/09/18 15:37:33 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -43,16 +44,16 @@ namespace stor {
         truncated
       };
 
-      uint32_t          entryCounter;       // file counter
-      uint32_t          runNumber;          // run number
-      uint32_t          lumiSection;        // luminosity section 
-      std::string       streamLabel;        // datastream label
-      std::string       baseFilePath;       // file path w/o the working directory
-      std::string       coreFileName;       // file name w/o instance & file ending
-      unsigned int      fileCounter;        // counter of number of coreFileNames used
-      ClosingReason     whyClosed;          // reason why the given file was closed
-      long long         fileSize;           // file size in bytes
-      uint32_t          eventCount;         // number of events
+      uint32_t           entryCounter;      // file counter
+      uint32_t           runNumber;         // run number
+      uint32_t           lumiSection;       // luminosity section 
+      std::string        streamLabel;       // datastream label
+      std::string        baseFilePath;      // file path w/o the working directory
+      std::string        coreFileName;      // file name w/o instance & file ending
+      unsigned int       fileCounter;       // counter of number of coreFileNames used
+      ClosingReason      whyClosed;         // reason why the given file was closed
+      unsigned long long fileSize;          // file size in bytes
+      uint32_t           eventCount;        // number of events
       std::string closingReason();          // reason why file was closed
       std::string filePath();               // complete file path
       std::string fileName();               // full file name w/o file ending

@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.4 2009/08/18 19:26:25 biery Exp $
+// $Id: EventConsumerSelector.cc,v 1.5 2009/09/23 13:06:41 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -31,7 +31,8 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
     " requesting output module ID" << _outputModuleId <<
     " with label " << _configInfo.outputModuleLabel() <<
     " and HLT trigger names";
-  std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << _1);
+  boost::lambda::placeholder1_type arg1;
+  std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << arg1);
   try
   {
     _eventSelector.reset( new edm::EventSelector( pset, tnames ) );

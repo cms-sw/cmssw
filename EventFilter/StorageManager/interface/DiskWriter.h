@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.4 2009/08/28 16:41:49 mommsen Exp $
+// $Id: DiskWriter.h,v 1.5 2009/09/16 13:30:47 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef StorageManager_DiskWriter_h
@@ -6,6 +6,7 @@
 
 #include "boost/shared_ptr.hpp"
 
+#include <stdint.h>
 #include <vector>
 
 #include "toolbox/lang/Class.h"
@@ -30,8 +31,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/08/28 16:41:49 $
+   * $Revision: 1.5 $
+   * $Date: 2009/09/16 13:30:47 $
    */
   
   class DiskWriter : public toolbox::lang::Class

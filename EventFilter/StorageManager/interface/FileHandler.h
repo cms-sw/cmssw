@@ -1,16 +1,17 @@
-// $Id: FileHandler.h,v 1.6 2009/09/16 13:30:47 mommsen Exp $
+// $Id: FileHandler.h,v 1.7 2009/09/17 11:04:29 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef StorageManager_FileHandler_h
 #define StorageManager_FileHandler_h
 
-#include <EventFilter/StorageManager/interface/Configuration.h>
-#include <EventFilter/StorageManager/interface/FilesMonitorCollection.h>
-#include <EventFilter/StorageManager/interface/Utils.h>
-#include <IOPool/Streamer/interface/MsgHeader.h>
+#include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/FilesMonitorCollection.h"
+#include "EventFilter/StorageManager/interface/Utils.h"
+#include "IOPool/Streamer/interface/MsgHeader.h"
 
-#include <boost/shared_ptr.hpp>
+#include "boost/shared_ptr.hpp"
 
+#include <stdint.h>
 #include <string>
 
 
@@ -22,8 +23,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/09/16 13:30:47 $
+   * $Revision: 1.7 $
+   * $Date: 2009/09/17 11:04:29 $
    */
 
   class FileHandler
@@ -34,7 +35,7 @@ namespace stor {
     (
       FilesMonitorCollection::FileRecordPtr,
       const DiskWritingParams&,
-      const long long& maxFileSize
+      const unsigned long long& maxFileSize
      );
     
     virtual ~FileHandler() {};
@@ -90,7 +91,7 @@ namespace stor {
     /**
      * Return the size of the file in bytes
      */
-    long long fileSize() const;
+    const unsigned long long fileSize() const;
 
     /**
      * Close the file
@@ -206,7 +207,7 @@ namespace stor {
     
   private:
     
-    const long long    _maxFileSize;                // maximal file size in bytes
+    const unsigned long long _maxFileSize;          // maximal file size in bytes
     
     const std::string  _logPath;                    // log path
     const std::string  _logFile;                    // log file including path
