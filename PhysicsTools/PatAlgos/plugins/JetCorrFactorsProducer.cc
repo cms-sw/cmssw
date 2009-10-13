@@ -1,5 +1,5 @@
 //
-// $Id: JetCorrFactorsProducer.cc,v 1.10 2009/09/04 11:47:03 srappocc Exp $
+// $Id: JetCorrFactorsProducer.cc,v 1.11 2009/10/12 19:43:32 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/JetCorrFactorsProducer.h"
@@ -105,12 +105,28 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& iConfig)
     jetCorrectorC_       = new CombinedJetCorrector(levels_, tags_, flavorTag(corr, type, kCharm ));
     jetCorrectorB_       = new CombinedJetCorrector(levels_, tags_, flavorTag(corr, type, kBeauty));
   }
+  
+  jtuncrtl1_ = new JetCorrectionUncertainty( moduleLabel_+"L1.txt" );
+  jtuncrtl2_ = new JetCorrectionUncertainty( moduleLabel_+"L2.txt" );
+  jtuncrtl3_ = new JetCorrectionUncertainty( moduleLabel_+"L3.txt" );
+  jtuncrtl4_ = new JetCorrectionUncertainty( moduleLabel_+"L4.txt" );
+  jtuncrtl5_ = new JetCorrectionUncertainty( moduleLabel_+"L5.txt" );
+  jtuncrtl6_ = new JetCorrectionUncertainty( moduleLabel_+"L6.txt" );
+  jtuncrtl7_ = new JetCorrectionUncertainty( moduleLabel_+"L7.txt" );
+  
   // produces valuemap of jet correction factors
   produces<JetCorrFactorsMap>();
 }
 
 JetCorrFactorsProducer::~JetCorrFactorsProducer() 
 {
+  delete jtuncrtl1_;
+  delete jtuncrtl2_;
+  delete jtuncrtl3_;
+  delete jtuncrtl4_;
+  delete jtuncrtl5_;
+  delete jtuncrtl6_;
+  delete jtuncrtl7_;
 }
 
 void 
@@ -289,8 +305,25 @@ JetCorrFactorsProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
       l7.c   = l6.c;
       l7.b   = l6.b;
     }
-    // create the actual object with scalefactos we want the valuemap to refer to
-    JetCorrFactors aJetCorr( moduleLabel_, l1, l2, l3, l4, l5, l6, l7 );
+    // jet correction uncertainties
+    std::vector<float> uncert(14);
+    uncert[ 0]=jtuncrtl1_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L1 + 1 sigma
+    uncert[ 1]=jtuncrtl1_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L1 - 1 sigma
+    uncert[ 2]=jtuncrtl2_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L2 + 1 sigma
+    uncert[ 3]=jtuncrtl2_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L2 - 1 sigma
+    uncert[ 4]=jtuncrtl3_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L3 + 1 sigma
+    uncert[ 5]=jtuncrtl3_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L3 - 1 sigma
+    uncert[ 6]=jtuncrtl4_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L4 + 1 sigma
+    uncert[ 7]=jtuncrtl4_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L4 - 1 sigma
+    uncert[ 8]=jtuncrtl5_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L5 + 1 sigma
+    uncert[ 9]=jtuncrtl5_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L5 - 1 sigma
+    uncert[10]=jtuncrtl6_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L6 + 1 sigma
+    uncert[11]=jtuncrtl6_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L6 - 1 sigma
+    uncert[12]=jtuncrtl7_->uncertaintyPtEta( jet->pt(), jet->eta(), "UP");   //L7 + 1 sigma
+    uncert[13]=jtuncrtl7_->uncertaintyPtEta( jet->pt(), jet->eta(), "DOWN"); //L7 - 1 sigma
+    
+    // create the actual object with scalefactors we want the valuemap to refer to
+    JetCorrFactors aJetCorr( moduleLabel_, l1, l2, l3, l4, l5, l6, l7, uncert );
     jetCorrs.push_back(aJetCorr);
   }
 
