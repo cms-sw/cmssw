@@ -27,10 +27,6 @@ process.source = cms.Source("PoolSource",
     inputCommands = cms.untracked.vstring(
         'keep *', 
         'drop *_C_*_*',
-        'drop *_makeThingToBeDropped1_beginRun_*',
-        'drop *_makeThingToBeDropped1_endRun_*',
-        'drop *_makeThingToBeDropped1_beginLumi_*',
-        'drop *_makeThingToBeDropped1_endLumi_*',
         'drop *_*_*_EXTRA'
     )
     , duplicateCheckMode = cms.untracked.string('checkEachRealDataFile')
