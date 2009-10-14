@@ -13,8 +13,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(500)
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(500)
+    #input = cms.untracked.int32(10)
 )
 process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('cosmic.root')
@@ -23,16 +23,17 @@ process.CMSCGEN_out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.CMSCGEN_out)
 process.generator.MinP = 3.
-#process.generator.MaxTheta = 89.
-process.generator.MinTheta = 91.
-process.generator.MaxTheta = 180.
-process.generator.MinEnu = 10.
-process.generator.MaxEnu = 100000.
+process.generator.MaxTheta = 89.
+#process.generator.MinTheta = 91.
+#process.generator.MaxTheta = 180.
+##process.generator.MinEnu = 10.
+##process.generator.MaxEnu = 100000.
 #Neutrino production altitude (in [mm])
 #process.generator.NuProdAlt = 7.5e6                       
-process.generator.NuProdAlt = 4.e7                       
+##process.generator.NuProdAlt = 4.e7                       
 
 # Plug z-position [mm] (default=-14000. = on Shaft)
+#process.generator.PlugVz = 5000.;
 #process.generator.PlugVz = -33000.;
 
 # z-position of centre of target cylinder [mm] (default=0.)
