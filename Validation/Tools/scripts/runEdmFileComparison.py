@@ -52,6 +52,7 @@ if __name__ == "__main__":
     describeGroup  = optparse.OptionGroup (parser, "Description Options")
     precisionGroup = optparse.OptionGroup (parser, "Precision Options")
     queueGroup     = optparse.OptionGroup (parser, "Queue Options")
+    summaryGroup   = optparse.OptionGroup (parser, "Summary Options")
     # general optionos
     parser.add_option ("--compRoot", dest="compRoot",
                        action="store_true", default=False,
@@ -61,9 +62,6 @@ if __name__ == "__main__":
     parser.add_option ("--regex", dest='regex', action="append",
                        type="string", default=[],
                        help="Only run on branches containing regex")
-    parser.add_option ("--summary", dest="summary",
-                       action="store_true", default=False,
-                       help="Print out summary information at end")
     parser.add_option ("--verbose", dest="verbose",
                        action="store_true", default=False,
                        help="Verbose output")
@@ -87,6 +85,13 @@ if __name__ == "__main__":
                                action='store_true', default=False,
                                help='Precision is checked against '\
                                'relative difference')
+    # summary options
+    summaryGroup.add_option ("--summary", dest="summary",
+                             action="store_true", default=False,
+                             help="Print out summary counts at end")
+    summaryGroup.add_option ("--summaryFull", dest="summaryFull",
+                             action="store_true", default=False,
+                             help="Print out full summary at end (VERY LONG)")
     # queue options
     queueGroup.add_option ("--noQueue", dest="noQueue",
                            action="store_true", default=True,
@@ -99,6 +104,7 @@ if __name__ == "__main__":
                            help="Use QUEUECOMMAND TO queue jobs")
     parser.add_option_group (describeGroup)
     parser.add_option_group (precisionGroup)
+    parser.add_option_group (summaryGroup)
     parser.add_option_group (queueGroup)
     options, args = parser.parse_args()
     # Because Root and PyRoot are _really annoying_, you have wait to
@@ -121,7 +127,7 @@ if __name__ == "__main__":
         command = 'src/Validation/Tools/scripts/runCMScommand.bash'
         # make sure we aren't trying to use options that should not be
         # used with the queueing system
-        if options.compRoot or options.summary:
+        if options.compRoot or options.summary or options.summaryFull:
             raise RuntimeError, "You can not use --compRoot or --summary "\
                   "in --queue mode"
 
@@ -238,11 +244,15 @@ if __name__ == "__main__":
     ##################################
     ## Print Summary (if requested) ##
     ##################################
-    if options.summary:
+    if options.summary or options.summaryFull:
         if options.prefix:
-            summaryOption = options.prefix + '_%_'
+            summaryMask = options.prefix + '_%_'
         else:
-            summaryOption = '%_'
-        summaryCmd = 'summarizeEdmComparisonLogfiles.py --counts %s logfiles' \
-                     % summaryOption
-        os.system (summaryCmd)
+            summaryMask = '%_'
+        if options.summaryFull:
+            summaryOptions = '--diffTree'
+        else:
+            summaryOptions = '--counts'
+        summaryCmd = 'summarizeEdmComparisonLogfiles.py %s %s logfiles' \
+                     % (summaryOptions, summaryMask)
+        print commands.getoutput (summaryCmd)

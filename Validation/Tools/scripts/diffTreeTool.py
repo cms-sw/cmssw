@@ -37,7 +37,7 @@ def format (objDict, label, spacing=9, firstOnly = False):
         retval = formatString % value
         if abs(diff) > epsilon:
             if options.delta:
-                retval += ' (' + formatString % (diff) + ')'
+                retval += ' [' + formatString % (diff) + ']'
             else:
                 retval += ' (' + formatString % (value + diff) + ')'
         elif not firstOnly:
@@ -47,8 +47,10 @@ def format (objDict, label, spacing=9, firstOnly = False):
         formatString = '%%%ds' % spacing
         retval = formatString % value
         if diff:
-            if isinstance (value, str) or options.delta:
+            if isinstance (value, str):
                 retval += ' (' + formatString % diff + ')'
+            elif options.delta:
+                retval += ' [' + formatString % diff + ']'
             else:
                 retval += ' (' + formatString % (value + diff) + ')'
         elif not firstOnly:
@@ -61,6 +63,9 @@ if __name__ == "__main__":
     parser.add_option ("--delta", dest="delta",
                        action="store_true", default=False,
                        help="Show deltas when difference is large enough.")
+    parser.add_option ("--skipUndefined", dest="skipUndefined",
+                       action="store_true", default=False,
+                       help="Skip undefined variables without warning.")
     options, args = parser.parse_args()
     from Validation.Tools.GenObject import GenObject
     if len (args) <= 2:
@@ -82,8 +87,8 @@ if __name__ == "__main__":
     # diffRE      = re.compile (r'^class goDiff_(\w+)')
     variableREDict = {}
     for var in variables:
-        variableREDict[var] = ( re.compile (r'\bdelta_%s' % var),
-                                re.compile (r'\bother_%s' % var) ) 
+        variableREDict[var] = ( re.compile (r'\bdelta_%s\b' % var),
+                                re.compile (r'\bother_%s\b' % var) ) 
     source = open (cFile, 'r')
     stringSet    = set()
     typeFoundSet = set()
@@ -107,9 +112,14 @@ if __name__ == "__main__":
                 stringSet.add   ( key )
     if not name:
         raise RuntimeError, "Didn't find any Diff Container"
+    working = []
     for var in variables:
         if var not in typeFoundSet:
-            raise RuntimeError, "Variable '%s' not found." % var
+            if not options.skipUndefined:
+                raise RuntimeError, "Variable '%s' not found." % var
+        else:
+            working.append (var)
+    variables = working
     import ROOT
     if ROOT.gSystem.Load (shlib):
         raise RuntimeError, "Can not load shilb '%s'." % shlib

@@ -5,7 +5,9 @@ import os
 from glob import glob
 import re
 import pprint
+import commands
 countRE = re.compile (r'^count_(\w+)')
+avoid = ['index', 'print']
 
 def summaryOK (summary):
     """returns a tuple.  First value is true if summary hasn't found
@@ -27,6 +29,10 @@ if __name__ == "__main__":
     startOutputRE  = re.compile (r'^problems$')
     success1RE     = re.compile (r"{'eventsCompared':\s+(\d+),\s+'count_(\S+)':\s+(\d+)\s*}")
     success2RE     = re.compile (r"{'count_(\S+)':\s+(\d+),\s+'eventsCompared':\s+(\d+)\s*}")
+    loadingSoRE    = re.compile (r'loading (genobjectrootlibs/\w+)')
+    compRootRE     = re.compile (r' --compRoot=(\S+)')
+    descriptionRE  = re.compile (r'^edmOneToOneComparison.py (\w+).txt')
+    # problem regexs
     labelErrorRE   = re.compile (r"labelDict = GenObject._ntupleDict\[tupleName\]\['_label'\]")
     missingLabelRE = re.compile (r'not able to get')
     terminatedRE   = re.compile (r'Terminated\s+\$EXE\s+\$@')
@@ -51,6 +57,9 @@ if __name__ == "__main__":
     parser.add_option ("--counts", dest="counts",
                        action="store_true", default=False,
                        help="Display counts only.")
+    parser.add_option ("--diffTree", dest="diffTree",
+                       action="store_true", default=False,
+                       help="Shows diffTree printout.")
     parser.add_option ("--problem", dest="problem", type='string',
                        help="Displays problems matching PROBLEM")
 
@@ -60,15 +69,28 @@ if __name__ == "__main__":
     logfilePrefix = percentRE.sub ('*', args[0])
     if logfilePrefix[-1] != '*':
         logfilePrefix += '*'
+    cwd = os.getcwd()
+    logdir = ''
     if len (args) == 2:
-        os.chdir (args[1])
-    files = glob (logfilePrefix)
-    totalFiles = len (files)
-    problems = {}
-    succeeded = 0
-    weird     = 0
+        logdir = args[1]
+        os.chdir (logdir)
+    files        = glob (logfilePrefix)
+    if logdir:
+        oldFiles = files
+        files = []
+        for filename in oldFiles:
+            files.append (logdir + '/' + filename)
+        os.chdir (cwd)
+    totalFiles   = len (files)
+    problems     = {}
+    succeeded    = 0
+    weird        = 0
     problemTypes = {}
-    successes = {}
+    successes    = {}
+    objectName   = ''
+    compRoot     = ''
+    soName       = ''
+    diffOutput   = {}
     for log in files:
         problemSet = set()
         source = open (log, 'r')
@@ -78,6 +100,16 @@ if __name__ == "__main__":
         summaryLines = ''
         for line in source:
             line = line.rstrip('\n')
+            if options.diffTree:
+                match = descriptionRE.search (line)
+                if match:
+                    objectName = match.group(1)
+                match = compRootRE.search (line)
+                if match:
+                    compRoot = match.group(1)
+                match = loadingSoRE.search (line)
+                if match:
+                    soName = match.group(1)
             if reading:
                 if not nonSpacesRE.search(line):
                     reading = False
@@ -123,6 +155,18 @@ if __name__ == "__main__":
             if not ok[0] and summary:
                 key = 'mismatch'
                 problems[log] = pprint.pformat (summary, indent=4)
+                if objectName and compRoot and soName:
+                    # do the diffTree magic
+                    varNames = summary.get(objectName, {}).\
+                               get('_var', {}).keys()
+                    variables = ['eta', 'phi']
+                    for var in sorted (varNames):
+                        if var not in variables and var not in avoid:
+                            variables.append (var)
+                    diffCmd = 'diffTreeTool.py --skipUndefined %s %s %s' \
+                              % (compRoot, soName, " ".join(variables))
+                    #print diffCmd
+                    diffOutput[log] = diffCmd
             else:
                 problems[log] = ['other','ran:%s' % ran,
                                   'success:%s' % success]
@@ -148,6 +192,9 @@ if __name__ == "__main__":
             if options.problem and problemList[0] != options.problem:
                 continue
             print "   %s:\n   %s\n" % (key, problemList)
+            diffCmd = diffOutput.get(key)
+            if diffCmd:                
+                print commands.getoutput (diffCmd)
         if not options.problem:
             print "\n", '='*78, '\n'
             print "Success list:"
