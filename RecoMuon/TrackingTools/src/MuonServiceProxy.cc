@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2009/04/07 09:56:50 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/04/14 12:12:35 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -135,7 +135,7 @@ ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) co
   
   if (prop == thePropagators.end()){
     LogError("Muon|RecoMuon|MuonServiceProxy") 
-      << "MuonServiceProxy: propagator not found! Please load it in the MuonServiceProxy.cff"; 
+      << "MuonServiceProxy: propagator with name: "<< propagatorName <<" not found! Please load it in the MuonServiceProxy.cff"; 
     return ESHandle<Propagator>(0);
   }
   
