@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.43 2009/10/04 19:26:29 amraktad Exp $
+// $Id: FWRhoPhiZView.cc,v 1.44 2009/10/08 17:44:40 amraktad Exp $
 //
 
 #define private public
@@ -85,6 +85,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
                                iFrom->GetElementTitle());
    new_re->SetRnrSelf     (iFrom->GetRnrSelf());
    new_re->SetRnrChildren(iFrom->GetRnrChildren());
+   new_re->SetPickable(iFrom->IsPickable());
    iParent->AddElement(new_re);
 
    for (TEveElement::List_i i=iFrom->BeginChildren(); i!=iFrom->EndChildren(); ++i)
