@@ -309,7 +309,8 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 # suppresses html output from HCalClient  
 process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
 process.hcalClient.subSystemFolder  = subsystem
-process.hcalClient.prefixME = subsystem
+#Unnecessary?
+#process.hcalClient.prefixME = cms.untracked.string(subsystem)
 
 # Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
 # Summary Client is also unaffected
