@@ -34,9 +34,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        #FwkJob = cms.untracked.PSet(
-        #    limit = cms.untracked.int32(0)
-        #),
         resolution = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
@@ -51,34 +48,34 @@ process.qTester = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/DTMonitorClient/test/QualityTests_ttrig.xml')
 )
 
-process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
-process.modulo1=process.resolutionTest.clone()
-process.modulo1.histoTag2D = 'hResDistVsDist_STEP1' 
-process.modulo1.histoTag  = 'hResDist_STEP1'
-process.modulo1.STEP = 'STEP1'
-process.modulo1.OutputMEsInRootFile = cms.bool(False)
-process.modulo1.readFile = cms.untracked.bool(True)
-process.modulo1.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
+#process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
+#process.modulo1=process.resolutionTest.clone()
+#process.modulo1.histoTag2D = 'hResDistVsDist_STEP1' 
+# process.modulo1.histoTag  = 'hResDist_STEP1'
+# process.modulo1.STEP = 'STEP1'
+# process.modulo1.OutputMEsInRootFile = cms.bool(False)
+# process.modulo1.readFile = cms.untracked.bool(True)
+# process.modulo1.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
+ 
+# process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
+# process.modulo2=process.resolutionTest.clone()
+# process.modulo2.histoTag2D = 'hResDistVsDist_STEP2' 
+# process.modulo2.histoTag  = 'hResDist_STEP2'
+# process.modulo2.STEP = 'STEP2'
+# process.modulo2.OutputMEsInRootFile = cms.bool(False)
+# process.modulo2.readFile = cms.untracked.bool(True)
+# process.modulo2.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
  
 process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
-process.modulo2=process.resolutionTest.clone()
-process.modulo2.histoTag2D = 'hResDistVsDist_STEP2' 
-process.modulo2.histoTag  = 'hResDist_STEP2'
-process.modulo2.STEP = 'STEP2'
-process.modulo2.OutputMEsInRootFile = cms.bool(False)
-process.modulo2.readFile = cms.untracked.bool(True)
-process.modulo2.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
- 
-process.load("DQM.DTMonitorClient.dtResolutionTest_cfi")
-process.modulo3=process.resolutionTest.clone()
-process.modulo3.histoTag2D = 'hResDistVsDist_STEP3' 
-process.modulo3.histoTag  = 'hResDist_STEP3'
-process.modulo3.STEP = 'STEP3'
-process.modulo3.OutputMEsInRootFile = cms.bool(True)
-process.modulo3.readFile = cms.untracked.bool(True)
-process.modulo3.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
-process.modulo3.OutputFileName = cms.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/SummaryResiduals_RUNNUMBERTEMPLATE.root')
+process.modulo=process.resolutionTest.clone()
+process.modulo.histoTag2D = 'hResDistVsDist_STEP3' 
+process.modulo.histoTag  = 'hResDist_STEP3'
+process.modulo.STEP = 'STEP3'
+process.modulo.OutputMEsInRootFile = cms.bool(True)
+process.modulo.readFile = cms.untracked.bool(True)
+process.modulo.inputFile = cms.untracked.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/DTkFactValidation_RUNNUMBERTEMPLATE.root')
+process.modulo.OutputFileName = cms.string('/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONCALIB/DTCALIB/RUNPERIODTEMPLATE/ttrig/SummaryResiduals_RUNNUMBERTEMPLATE.root')
 
-process.secondStep = cms.Sequence(process.modulo1*process.modulo2*process.modulo3*process.qTester)
+process.secondStep = cms.Sequence(process.modulo*process.qTester)
 process.p = cms.Path(process.secondStep)
 process.DQM.collectorHost = ''

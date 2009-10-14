@@ -11,9 +11,6 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        #FwkJob = cms.untracked.PSet(
-        #    limit = cms.untracked.int32(0)
-        #),
         resolution = cms.untracked.PSet(
             limit = cms.untracked.int32(10000000)
         ),
@@ -43,36 +40,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-#process.DTMapping = cms.ESSource("PoolDBESSource",
-#    DBParameters = cms.PSet(
-#        messageLevel = cms.untracked.int32(0),
-#        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#    ),
-#    timetype = cms.string('runnumber'),
-#    toGet = cms.VPSet(
-#        cms.PSet(
-#        record = cms.string('DTReadOutMappingRcd'),
-#        tag = cms.string('MAPTEMPLATE')
-#        ),
-#        cms.PSet(
-#            record = cms.string('DTT0Rcd'),
-#            tag = cms.string('TZEROTEMPLATE')
-#        ), 
-#        cms.PSet(
-#            record = cms.string('DTStatusFlagRcd'),
-#            tag = cms.string('NOISETEMPLATE')
-#        ),
-#         cms.PSet(
-#            record = cms.string('DTMtimeRcd'),
-#            tag = cms.string('VDRIFTTEMPLATE')       
-#
-#        )
-#     ),
-#     connect = cms.string('CMSCONDVSTEMPLATE'),
-#    siteLocalConfig = cms.untracked.bool(False)
-#)
-#process.es_prefer_DTMapping = cms.ESPrefer('PoolDBESSource','DTMapping')
-
 process.calibDB = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
     timetype = cms.string('runnumber'),
@@ -86,7 +53,7 @@ process.calibDB = cms.ESSource("PoolDBESSource",
 process.es_prefer_calibDB = cms.ESPrefer('PoolDBESSource','calibDB')
 
 # if read from RAW
-#process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
+process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
 
 process.eventInfoProvider = cms.EDFilter("EventCoordinatesSource",
     eventInfoFolder = cms.untracked.string('EventInfo/')
@@ -115,11 +82,9 @@ process.dummyProducer = cms.EDProducer("ThingWithMergeProducer")
 
 # if read from RAW
 #process.firstStep = cms.Sequence(process.muonDTDigis*process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation)
-#process.firstStep = cms.Sequence(process.dummyProducer + process.muonDTDigis*process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
+process.firstStep = cms.Sequence(process.dummyProducer + process.muonDTDigis*process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
 
-process.firstStep = cms.Sequence(process.dummyProducer + process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
+#process.firstStep = cms.Sequence(process.dummyProducer + process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments*process.DTkFactValidation*process.MEtoEDMConverter)
 process.p = cms.Path(process.firstStep)
 process.outpath = cms.EndPath(process.FEVT)
 process.DQM.collectorHost = ''
-
-
