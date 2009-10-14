@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.5 2009/07/27 12:42:57 flucke Exp $
+           $Id: TkLasBeamFitter.cc,v 1.6 2009/08/31 10:26:50 kaschube Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
@@ -38,8 +38,8 @@
 // for edm::InRun
 #include "DataFormats/Provenance/interface/BranchType.h"
 // laser data formats
-// #include "DataFormats/LaserAlignment/interface/TkLasBeam.h"
-#include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
+#include "DataFormats/Alignment/interface/TkLasBeam.h"
+#include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 
 // further includes
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -53,8 +53,6 @@
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TFile.h"
-#include "TCanvas.h"
 
 using namespace edm;
 using namespace std;

@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/06/11 13:33:13 $
- *  $Revision: 1.25 $
+ *  $Date: 2009/07/15 15:07:48 $
+ *  $Revision: 1.26 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -36,8 +36,8 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/LaserAlignment/interface/SiStripLaserRecHit2D.h"
-#include "DataFormats/LaserAlignment/interface/TkLasBeam.h"
+#include "DataFormats/Alignment/interface/SiStripLaserRecHit2D.h"
+#include "DataFormats/Alignment/interface/TkLasBeam.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
