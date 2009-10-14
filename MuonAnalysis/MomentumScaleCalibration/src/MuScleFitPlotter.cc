@@ -1,8 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2009/09/08 09:56:33 $
-//  $Revision: 1.7 $
+//  $Date: 2009/10/06 08:43:07 $
+//  $Revision: 1.9 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
           pdgId==553 || pdgId==100553 || pdgId==200553 ) ) {
       genRes = mcIter->p4();
       if( pdgId == 23 ) mapHisto["hGenResZ"]->Fill(genRes);
-      else if( pdgId == 443 ) mapHisto["hGenResJpsi"]->Fill(genRes);
+      else if( pdgId == 443 ) mapHisto["hGenResJPsi"]->Fill(genRes);
       else if( pdgId == 553 ) mapHisto["hGenResUpsilon1S"]->Fill(genRes);
     }
     //Check if it's a muon from a resonance
@@ -83,14 +83,14 @@ void MuScleFitPlotter::fillGen1(Handle<GenParticleCollection> genParticles)
 	cout<<"genmu "<<mcIter->p4()<<endl;
 	if(mcIter->charge()>0){
 	  muFromRes.first = mcIter->p4();
-	  prova = true;
+	  // prova = true;
 	}
 	else muFromRes.second = mcIter->p4();
       }
     }
   }
-  if(!prova)
-    cout<<"hgenmumu not found"<<endl;
+  //   if(!prova)
+  //     cout<<"hgenmumu not found"<<endl;
 
   if( mothersFound[0] == 1 ) {
     mapHisto["hGenMuMuZ"]->Fill(muFromRes.first+muFromRes.second);
