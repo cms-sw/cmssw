@@ -17,7 +17,6 @@ from Configuration.StandardSequences.RawToDigi_Data_cff import *
 
 #emulator/comparator
 from L1Trigger.HardwareValidation.L1HardwareValidation_cff import *
-from L1Trigger.Configuration.L1Config_cff import *
 l1compare.COMPARE_COLLS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1]
 
 #dqm
@@ -25,9 +24,11 @@ from DQM.L1TMonitor.L1TDEMON_cfi import *
 from DQM.L1TMonitor.L1TdeECAL_cfi import *
 from DQM.L1TMonitor.L1TdeGCT_cfi import *
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
+from DQM.L1TMonitor.l1GtHwValidation_cfi import *
+
 l1tderct.rctSourceData = 'gctDigis'
 l1tderct.rctSourceEmul = 'valRctDigis'
-from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
+#from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
 #Note by Nuno: use of edm filters in dqm are discouraged
 #-offline they are strictly forbidden
@@ -41,7 +42,7 @@ p = cms.Path(
     cms.SequencePlaceholder("RawToDigi")
     *cms.SequencePlaceholder("L1HardwareValidation")
     *(l1demon
-      +l1demonecal
+      +l1demonecal+l1GtHwValidation
       +l1demongct
       #+l1decsctf
       +hltTriggerTypeFilter*l1tderct
