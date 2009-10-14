@@ -43,8 +43,8 @@ class DQMHistoryCreateTrend
   inline void setSkip0s(bool const in) {
     inspector_->setSkip0s(in);
   }
-  inline void setSeperator(std::string const in) {
-    inspector_->setSeperator(in);
+  inline void setSeparator(std::string const in) {
+    inspector_->setSeparator(in);
   }
 
  protected:

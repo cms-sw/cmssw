@@ -92,7 +92,7 @@ class HDQMInspector
   }
   double findGraphMax(TGraphErrors*);
   double findGraphMin(TGraphErrors*);
-  void setSeperator(std::string const in) {
+  void setSeparator(std::string const in) {
     fSep = in;
     return;
   }
