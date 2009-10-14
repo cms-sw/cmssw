@@ -331,7 +331,7 @@ process.options = cms.untracked.PSet(
 #process.hcalDigis.FilterDataQuality=False
 
 # Set expected orbit time to 3563 (value should be 6 for run < 116401)
-process.hcalDigis.ExpectedOrbitMessageTime= 3563
+process.hcalDigis.ExpectedOrbitMessageTime= cms.untracked.int32(3563)
 # Set monitor value to -1 to skip check of IDLE BCN 
 process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3563
 
