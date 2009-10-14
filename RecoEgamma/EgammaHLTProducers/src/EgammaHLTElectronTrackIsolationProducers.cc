@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  * 
- * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.4 2008/10/10 14:05:21 covarell Exp $
+ * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.5 2009/09/08 12:50:07 covarell Exp $
  *
  */
 
@@ -89,7 +89,7 @@ EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm:
     } else {
       isol = test_->electronPtSum(&(*electrontrackref),electronHandle.product(),trackCollection);
     }
-    if(electronref->pt() != 0. ) isol = isol/electronref->pt();
+    if(electrontrackref->pt() != 0. ) isol = isol/electrontrackref->pt();
     
     isoMap.insert(electronref, isol);
       
