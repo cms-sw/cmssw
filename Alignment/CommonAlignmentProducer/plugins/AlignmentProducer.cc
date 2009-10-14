@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.37 $
-///  last update: $Date: 2009/10/10 14:17:44 $
-///  by         : $Author: bonato $
+///  Revision   : $Revision: 1.38 $
+///  last update: $Date: 2009/10/13 13:48:19 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -51,10 +51,10 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
-// Tracking and LAS
+// Tracking, LAS and cluster flag map (fwd is enough!) 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
-// enough?! #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
+#include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
 // Alignment
@@ -401,20 +401,18 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     event.getByLabel(beamSpotTag_, beamSpot);
 
     // Run the alignment algorithm with its input
+    const AliClusterValueMap *clusterValueMapPtr = 0;
     if(clusterValueMapTag_.encode().size()){//check that the input tag is not empty
       edm::Handle<AliClusterValueMap> clusterValueMap;
       event.getByLabel(clusterValueMapTag_, clusterValueMap);
-      const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot, &(*clusterValueMap));
-      theAlignmentAlgo->run(setup, eventInfo   );
-    }
-    else{
-      const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot, 0);
-      theAlignmentAlgo->run(setup, eventInfo  );
+      clusterValueMapPtr = &(*clusterValueMap);
     }
 
-    //    const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot);
-    //  theAlignmentAlgo->run(setup, eventInfo);
-    
+    const AlignmentAlgorithmBase::EventInfo eventInfo(event.id(), trajTracks, *beamSpot,
+						      clusterValueMapPtr);
+    theAlignmentAlgo->run(setup, eventInfo);
+
+
     for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
 	 monitor != theMonitors.end();  ++monitor) {
       (*monitor)->duringLoop(event, setup, trajTracks); // forward eventInfo?

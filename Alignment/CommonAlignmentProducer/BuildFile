@@ -18,7 +18,6 @@
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Alignment>
-<use name=DataFormats/LaserAlignment>
 <use name=rootcore>
 <use name=root>
 <export>
