@@ -1,9 +1,11 @@
 <use name=Alignment/CommonAlignment> 
 <use name=Alignment/CommonAlignmentAlgorithm>
 <use name=Alignment/CommonAlignmentParametrization>
+<use name=Alignment/LaserAlignment> #not strictly needed
 <use name=Alignment/MuonAlignment>
 <use name=Alignment/ReferenceTrajectories>
 <use name=Alignment/TrackerAlignment>
+<use name=DataFormats/LaserAlignment> #
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/GeometryVector>
