@@ -265,7 +265,7 @@ process.hcalMonitor.AnalyzeOrbitGap = False
 #--------------------------------------------
 # Turn on/off individual hcalMonitor modules
 #--------------------------------------------
-process.hcalMonitor.subSystemFolder = cms.untracked.string(subsystem)
+process.hcalMonitor.subSystemFolder = subsystem
 
 process.hcalMonitor.DataFormatMonitor   = True
 process.hcalMonitor.DataIntegrityTask   = True
@@ -308,8 +308,8 @@ process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 # hcalClient configurable values ------------------------
 # suppresses html output from HCalClient  
 process.hcalClient.baseHtmlDir = ''  # set to '' to ignore html output
-process.hcalClient.subSystemFolder  = cms.untracked.string(subsystem)
-process.hcalClient.prefixME = cms.untracked.string(subsystem)
+process.hcalClient.subSystemFolder  = subsystem
+process.hcalClient.prefixME = subsystem
 
 # Set client settings to the same as monitor.  At the moment, this doesn't affect client minErrorFlag
 # Summary Client is also unaffected
@@ -330,9 +330,9 @@ process.options = cms.untracked.PSet(
 #process.hcalDigis.FilterDataQuality=False
 
 # Set expected orbit time to 3563 (value should be 6 for run < 116401)
-process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(3563)
+process.hcalDigis.ExpectedOrbitMessageTime= 3563
 # Set monitor value to -1 to skip check of IDLE BCN 
-process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = cms.untracked.int32(3563)
+process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3563
 
 # ----------------------
 # Trigger Unpacker Stuff
