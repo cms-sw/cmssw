@@ -354,7 +354,7 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
     std::cout <<  "TkRegion " << vdetId_[i] << " " << vlistItems_[i] << std::endl;
 
     if(vlistItems_.at(i).find("Summary")!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find("Summary_"),8,"");
-    if(vlistItems_.at(i).find("@")!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find("@"),1,"_");
+    if(vlistItems_.at(i).find(fSep)!= std::string::npos) vlistItems_.at(i).replace(vlistItems_.at(i).find(fSep),1,"_");
     
  
     std::stringstream ss;
@@ -622,11 +622,11 @@ void HDQMInspector::unpackConditions( std::string& Conditions, std::vector<DetId
   sprintf(copyConditions,"%s",Conditions.c_str());
   pch = strtok (copyConditions,delimiters);
   while (pch != NULL){
-    if(strstr(pch,"@")!=NULL){
+    if(strstr(pch,fSep.c_str())!=NULL){
       DetIdItemList detiditemlist;
       std::string itemD(pch);
-      detiditemlist.detid=atol(itemD.substr(0,itemD.find("@")).c_str());
-      detiditemlist.items.push_back(itemD.substr(itemD.find("@")+1));
+      detiditemlist.detid=atol(itemD.substr(0,itemD.find(fSep)).c_str());
+      detiditemlist.items.push_back(itemD.substr(itemD.find(fSep)+1));
       if (iDebug) {
         std::cout << "Found a Condition " << detiditemlist.items.back() << " for detId " << detiditemlist.detid << std::endl;
       }
@@ -659,7 +659,7 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
       //scientific precision doesn't work in HDQMExpressionEvaluator...
       //sprintf(condCVal,"%g",vdetIdItemList[ic].values[jc]);
       sprintf(condCVal,"%f",vdetIdItemList[ic].values[jc]);
-      sprintf(singleCondition,"%d@%s",vdetIdItemList[ic].detid,vdetIdItemList[ic].items[jc].c_str());
+      sprintf(singleCondition,"%d%s%s",vdetIdItemList[ic].detid,fSep.c_str(),vdetIdItemList[ic].items[jc].c_str());
       char* fpos = strstr(cConditions,singleCondition);
       strncpy(fpos,condCVal,strlen(condCVal));
       memset(fpos+strlen(condCVal),' ',strlen(singleCondition)-strlen(condCVal));
@@ -695,9 +695,9 @@ bool HDQMInspector::ApplyConditions(std::string& Conditions, std::vector<DetIdIt
 void HDQMInspector::setItems(std::string itemD)
 {
   DetIdItemList detiditemlist;
-  detiditemlist.detid=atol(itemD.substr(0,itemD.find("@")).c_str());
+  detiditemlist.detid=atol(itemD.substr(0,itemD.find(fSep)).c_str());
 
-  std::string item=itemD.substr(itemD.find("@")+1);
+  std::string item=itemD.substr(itemD.find(fSep)+1);
   detiditemlist.items.push_back(item);
 
   if(iDebug)

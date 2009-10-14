@@ -43,6 +43,9 @@ class DQMHistoryCreateTrend
   inline void setSkip0s(bool const in) {
     inspector_->setSkip0s(in);
   }
+  inline void setSeperator(std::string const in) {
+    inspector_->setSeperator(in);
+  }
 
  protected:
   // Do not use auto_ptr if you want to use the object with stl algorithms.

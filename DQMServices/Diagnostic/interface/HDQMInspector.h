@@ -38,7 +38,8 @@ class HDQMInspector
     iDoStat(0),
     fSkip99s(false),
     fSkip0s(false),
-    fHDQMInspectorConfig(0x0)
+    fHDQMInspectorConfig(0x0),
+    fSep("@")
     {
     };
   
@@ -53,7 +54,8 @@ class HDQMInspector
     iDoStat(0),
     fSkip99s(false),
     fSkip0s(false),
-    fHDQMInspectorConfig(InConfig)
+    fHDQMInspectorConfig(InConfig),
+    fSep("@")
     {
     };
   
@@ -90,6 +92,10 @@ class HDQMInspector
   }
   double findGraphMax(TGraphErrors*);
   double findGraphMin(TGraphErrors*);
+  void setSeperator(std::string const in) {
+    fSep = in;
+    return;
+  }
 
   
   inline std::vector<unsigned int> getRuns() { return vRun_;}
@@ -131,6 +137,8 @@ private:
   bool fSkip0s;
 
   const HDQMInspectorConfigBase* fHDQMInspectorConfig;
+
+  std::string fSep;
 
 public:
   TFile *fOutFile;
