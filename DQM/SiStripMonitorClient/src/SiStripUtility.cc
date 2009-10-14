@@ -295,7 +295,7 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, string & message){
     if (((flag >> 1) & 0x1) > 0) message += " # of Digi : ";  
     if (((flag >> 2) & 0x1) > 0) message += " # of Clusters :";
     if (((flag >> 3) & 0x1) > 0) message += " Excluded FED Channel ";
-    if (((flag >> 3) & 0x1) > 0) message += " DCSError "; 
+    if (((flag >> 4) & 0x1) > 0) message += " DCSError "; 
   }
 }
 //
