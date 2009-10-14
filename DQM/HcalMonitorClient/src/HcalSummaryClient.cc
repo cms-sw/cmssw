@@ -493,8 +493,8 @@ void HcalSummaryClient::analyze(void)
 		 else if (isHF(eta,d+1)) 
 		   {
 		     ++status_HF_;
-		     if ((d==0 && (abs(eta)==33 || abs(eta)==34)) ||   // depth 1, rings 33,34
-			 (d==1 && (abs(eta)==35 || abs(eta)==36)))     // depth 2, rings 35,36
+		     if ((d==0 && (abs(ieta)==33 || abs(ieta)==34)) ||   // depth 1, rings 33,34
+			 (d==1 && (abs(ieta)==35 || abs(ieta)==36)))     // depth 2, rings 35,36
 		     ++status_HFlumi_; // for now, same as HF status; update later
 		   }
 	       }
