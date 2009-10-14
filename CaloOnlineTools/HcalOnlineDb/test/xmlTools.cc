@@ -829,6 +829,15 @@ int main( int argc, char **argv )
   //else
   if ( rbx )
     {
+      //
+      //_____ fix due to the new convention: version/subversion combo must be unique for every payload
+      //
+      char _buf[128];
+      time_t _offset = time(NULL);
+      sprintf( _buf, "%d", (uint32_t)_offset );
+      version.append(".");
+      version.append(_buf);
+
       cout << "type: " << rbx_type << endl;
       cout << "TAG_NAME: " << tag << endl;
       cout << "comment: " << comment << endl;
@@ -1002,8 +1011,19 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
 
   string _prefix = tag;
   string _comment = comment;
-  string _version = "GRuMM_test:1";
-  string _subversion = "1";
+
+  //
+  //_____ fix due to the new convention: version/subversion combo must be unique for every payload
+  //
+  char _buf[128];
+  time_t _offset = time(NULL);
+  sprintf( _buf, "%d", (uint32_t)_offset );
+  std::string _version;
+  _version.clear();
+  _version.append(tag);
+  _version.append(".");
+  _version.append(_buf);
+  int dataset_count = 0;
 
   baseConf . tag_name = _prefix;
   baseConf . comment_description = _comment;
@@ -1055,7 +1075,9 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
       
       conf . comment_description = _comment;
       conf . version = _version;
-      conf . subversion = _subversion;
+      sprintf( _buf, "%.2d", dataset_count );
+      conf.subversion.clear();
+      conf.subversion.append(_buf);
       conf . eta = eta_abs;
       conf . z = side;
       conf . phi = phi;
@@ -1090,6 +1112,7 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
       conf . zero_suppression = _zs;
 
       doc . addZS( &conf );
+      ++dataset_count;
     }
     //Always terminate statement
     _connection -> terminateStatement(stmt);
@@ -1247,7 +1270,7 @@ int createRBXLoader( string & type_, string & tag_, string & list_file, string &
 {
   string _prefix = "oracle_"; 
   string _tag = tag_;
-  string _subversion = "1";
+  int dataset_count = 0; // subversion-to-be, must be unique within the version
 
   std::vector<string> brickFileList;
   char filename[1024];
@@ -1298,13 +1321,20 @@ int createRBXLoader( string & type_, string & tag_, string & list_file, string &
       }
 
       _conf . version = _version;
-      _conf . subversion = _subversion;
+      //
+      //_____ making a unique substring within the version __________________
+      //
+      char _buf[128];
+      sprintf( _buf, "%.2d", dataset_count );
+      _conf.subversion.clear();
+      _conf.subversion.append(_buf);
       _conf . comment_description = _comment;
 
       XMLRBXPedestalsLoader p( &_baseConf );
 
       p . addRBXSlot( &_conf, (*_file), type_ );
       p . write( (*_file) + ".oracle.xml" );
+      ++dataset_count;
     }
 
   return 0;

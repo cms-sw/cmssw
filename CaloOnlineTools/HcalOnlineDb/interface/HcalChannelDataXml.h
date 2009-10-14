@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelDataXml.h,v 1.2 2009/07/16 16:29:34 kukartse Exp $
+// $Id: HcalChannelDataXml.h,v 1.3 2009/08/05 18:19:25 kukartse Exp $
 //
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
@@ -102,6 +102,7 @@ class HcalChannelDataXml : public XMLDOMBlock
   std::string dataset_comment;
 
   HcalAssistant hcal_ass;
+  int dataset_count;
 };
 
 
