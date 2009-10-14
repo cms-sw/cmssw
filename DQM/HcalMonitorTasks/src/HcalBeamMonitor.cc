@@ -657,7 +657,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(lumiblock,logvalue);
 	
 	// Check Ring 2
-	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing1/144.) : logvalue = 0;
+	emptytowersRing2>0 ? logvalue=-1.*log(emptytowersRing2/144.) : logvalue = 0;
 	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(lumiblock,logvalue);
 
 	int hfeta=ETA_OFFSET_HF;
