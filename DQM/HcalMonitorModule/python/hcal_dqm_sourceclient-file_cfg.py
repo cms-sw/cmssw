@@ -12,12 +12,13 @@ process = cms.Process("HCALDQM")
 maxevents=1000          # maximum number of events to process
 checkNevents=1000       # histograms are filled 'every checkNevents' events
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
-source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
-memcheck =False         # run memory check
+#source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
+source="NewEventStreamFileReader"
+memcheck=False
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Tone down the logging messages, MessageLogger!
-process.MessageLogger.cerr.FwkReport.reportEvery = 50
+process.MessageLogger.cerr.FwkReport.reportEvery = 500
 
 #----------------------------
 # Event Source
@@ -55,7 +56,10 @@ if source=="PoolSource":
 elif source=="NewEventStreamFileReader":
     #Case 2:  Run on raw .dat files
     process.source = cms.Source("NewEventStreamFileReader",
-                                fileNames = cms.untracked.vstring('/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat')
+                                fileNames = cms.untracked.vstring(
+        #'/store/data/GlobalCruzet3MW33/A/000/056/416/GlobalCruzet3MW33.00056416.0001.A.storageManager.0.0000.dat'
+        'file:/lookarea_SM/MWGR_40_2009.00116136.0036.A.storageManager.07.0000.dat',
+        )
                                 )
 
 
@@ -101,14 +105,17 @@ process.dqmSaver.saveByRun = 1
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
 
+# lxplus
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR09_31X_V6P::All" # tags listed at SWGuideFrontierConditions twiki
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 process.prefer("GlobalTag")
 
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-# Tone down the logging messages, MessageLogger!
-process.MessageLogger.cerr.FwkReport.reportEvery = 50
+# online testing
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
+#process.GlobalTag.globaltag = 'GR09_31X_V6H::All' # or any other appropriate
+#process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
 #----------------------
 # ValGrind/Igprof Memory Check
@@ -283,7 +290,7 @@ setHcalTaskValues(process.hcalMonitor)
 # ProblemCells evaluated every (DeadCellMonitor_checkNevents)
 # occupancy/energy tests performed every (DeadCellMonitor_checkNevents*prescale)
 process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
-process.hcalMonitor.DeadCellMonitor_prescale=10
+process.hcalMonitor.DeadCellMonitor_prescale = 10
 
 process.hcalMonitor.subSystemFolder = subsystem
 
@@ -325,7 +332,7 @@ process.options = cms.untracked.PSet(
 # Set expected orbit time to 3563 (value should be 6 for run < 116401)
 process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(3563)
 # Set monitor value to -1 to skip check of IDLE BCN 
-process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3563
+process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = cms.untracked.int32(3563)
 
 # ----------------------
 # Trigger Unpacker Stuff
