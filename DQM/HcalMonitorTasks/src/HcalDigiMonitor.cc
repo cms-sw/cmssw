@@ -342,8 +342,15 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       else if (id.subdet()==HcalOuter) ++hoHists.count_bad;
       else 
 	continue; // skip anything that isn't HB, HE, HO, HF
-      ++badunpackerreport[rEta][rPhi-1][rDepth-1];
-      ++baddigis[rEta][rPhi-1][rDepth-1];  
+      // extra protection against nonsensical values -- prevents occasional crashes
+      if (rEta < 85 && rEta > 0 
+	  && (rPhi-1) > 0 && (rPhi-1)<72 
+	  && (rDepth-1) > 0 && (rDepth-1)<4)
+	{
+	  ++badunpackerreport[rEta][rPhi-1][rDepth-1];
+	  ++baddigis[rEta][rPhi-1][rDepth-1];  
+	}
+
     }
 
  ///////////////////////////////////////// Loop over HBHE
