@@ -37,8 +37,10 @@ from DQM.HLTEvF.HLTMonTau_cfi import *
 # hltMonMuDQM dumps names of all histograms in the directory
 # hltMonPhotonBits in later releases
 # *hltMonJetMET makes a log file, need to learn how to turn it off
+# *hltMonEleBits causes SegmentFaults in HARVESTING(step3) in inlcuded in step2
+
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource)
-onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco)
+onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*hltMonTauReco)
 
 
 from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
@@ -52,4 +54,5 @@ offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*muonFullOfflineDQM*
 
 
 triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor*onlineHLTSource)
+#triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource*l1temumonitor*l1tmonitor)
 
