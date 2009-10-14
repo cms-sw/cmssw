@@ -86,10 +86,10 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         applyAcoplanarityFilter = cms.bool(False),
         applyMissingETFilter = cms.bool(False)
     ),
-    TrackQuality = cms.vstring(''),                                 
+    trackQualities = cms.vstring(''), # take all if empty
     #settings for filtering on the hits taken by the Skim&Prescale workflow
-    HitPrescaleMap = cms.InputTag(''),
-    minTakenHits = cms.int32(-1)                                  
+    hitPrescaleMapTag = cms.InputTag(''), # ignore prescale map if empty
+    minPrescaledHits = cms.int32(-1)                                  
 )
 
 

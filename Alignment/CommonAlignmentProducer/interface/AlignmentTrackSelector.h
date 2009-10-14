@@ -53,7 +53,7 @@ class AlignmentTrackSelector
   Tracks theNHighestPtTracks(const Tracks& tracks) const;
 
   //filter tracks that do not have a min # of hits taken by the Skim&Prescale workflow
-  Tracks checkTakenHits(const Tracks& tracks, const edm::Event& evt) const;
+  Tracks checkPrescaledHits(const Tracks& tracks, const edm::Event& evt) const;
 
   /// compare two tracks in pt (used by theNHighestPtTracks)
   struct ComparePt {
@@ -64,7 +64,6 @@ class AlignmentTrackSelector
   ComparePt ptComparator;
 
   const bool applyBasicCuts_, applyNHighestPt_, applyMultiplicityFilter_;
-  bool applyTakenHitsFilter_;
   const bool seedOnlyFromAbove_, applyIsolation_, chargeCheck_ ;
   const int nHighestPt_, minMultiplicity_, maxMultiplicity_;
   const bool multiplicityOnInput_; /// if true, cut min/maxMultiplicity on input instead of on final result
@@ -76,11 +75,11 @@ class AlignmentTrackSelector
   const unsigned int nHitMin2D_;
   const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_, minHitsinPIX_;
 
-  const int minTakenHits_;
-  const edm::InputTag clusterValueMapTag_;  // ValueMap containing associtaion cluster - flag
+  const edm::InputTag clusterValueMapTag_;  // ValueMap containing association cluster - flag
+  const int minPrescaledHits_;
+  const bool applyPrescaledHitsFilter_;
 
-  std::vector<std::string> trkQuality_;
-  std::vector<reco::TrackBase::TrackQuality> TrkQualities_;
+  std::vector<reco::TrackBase::TrackQuality> trkQualities_;
 };
 
 #endif

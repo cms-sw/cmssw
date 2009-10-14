@@ -60,10 +60,19 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
   minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) ),
   minHitsinPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inPIXEL" ) ),
-  trkQuality_(cfg.getParameter<std::vector<std::string> >("TrackQuality")),
-  clusterValueMapTag_(cfg.getParameter<edm::InputTag>("HitPrescaleMap")),
-  minTakenHits_( cfg.getParameter<int>("minTakenHits"))
+  clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
+  minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
+  applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
 {
+  //convert track quality from string to enum
+  std::vector<std::string> trkQualityStrings
+    (cfg.getParameter<std::vector<std::string> >("trackQualities"));
+  std::string qualities;
+  for (unsigned int i = 0; i < trkQualityStrings.size(); ++i) {
+    (qualities += trkQualityStrings[i]) += ", ";
+    trkQualities_.push_back(reco::TrackBase::qualityByName(trkQualityStrings[i]));
+  }
+
   if (applyBasicCuts_){
       edm::LogInfo("AlignmentTrackSelector") 
 	<< "applying basic track cuts ..."
@@ -90,6 +99,11 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX/PIXEL = " 
 	<< minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
 	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_<<"/"<<minHitsinPIX_;
+
+      if (trkQualityStrings.size()) {
+	edm::LogInfo("AlignmentTrackSelector")
+	  << "Select tracks with these qualities: " << qualities;
+      }
     }
   
   if (applyNHighestPt_)
@@ -101,11 +115,13 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
           << " on " << (multiplicityOnInput_ ? "input" : "output");
 
-  if(clusterValueMapTag_.encode().size() && minTakenHits_>0)applyTakenHitsFilter_=true;
-  else applyTakenHitsFilter_=false;
+  if (applyPrescaledHitsFilter_) {
+    edm::LogInfo("AlignmentTrackSelector") 
+      << "apply cut on number of prescaled hits N>= " << minPrescaledHits_
+      << " (prescale info from " << clusterValueMapTag_ << ")";
 
-  //convert track quality from string to enum
-  for (unsigned int i=0;i<trkQuality_.size();i++) TrkQualities_.push_back(reco::TrackBase::qualityByName(trkQuality_[i]));
+  }
+
 }
 
 // destructor -----------------------------------------------------------------
@@ -142,10 +158,8 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
     }
   }
   
-  //check if there is a minimum of prescaled taken hits only if the two
-  //parameters make sense
-  if(applyTakenHitsFilter_){
-    result = this->checkTakenHits(result, evt);
+  if(applyPrescaledHitsFilter_){
+    result = this->checkPrescaledHits(result, evt);
   }
 
   return result;
@@ -154,7 +168,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
  ///returns if any of the Filters is used.
 bool AlignmentTrackSelector::useThisFilter()
 {
-  return applyMultiplicityFilter_  || applyBasicCuts_ || applyNHighestPt_ || applyTakenHitsFilter_;
+  return applyMultiplicityFilter_ || applyBasicCuts_ || applyNHighestPt_ || applyPrescaledHitsFilter_;
 }
 
 
@@ -183,11 +197,10 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && phi>phiMin_ && phi<phiMax_ 
        && nhit>=nHitMin_ && nhit<=nHitMax_
        && chi2n<chi2nMax_) {
-      bool trkQualityOk=true;
+      bool trkQualityOk = this->isOkTrkQuality(trackp);
       bool hitsCheckOk=this->detailedHitsCheck(trackp, evt);
-      if(trkQuality_.size()>0)trkQualityOk=this->isOkTrkQuality(trackp);
  
-      if (trkQualityOk && hitsCheckOk ) result.push_back(trackp);
+      if (trkQualityOk && hitsCheckOk ) result.push_back(trackp); // make more efficient!
     }
   }
 
@@ -416,8 +429,9 @@ AlignmentTrackSelector::theNHighestPtTracks(const Tracks& tracks) const
   return result;
 }
 
+//-----------------------------------------------------------------------------
 AlignmentTrackSelector::Tracks 
-AlignmentTrackSelector::checkTakenHits(const Tracks& tracks, const edm::Event& evt) const 
+AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Event& evt) const 
 {
   Tracks result;
 
@@ -449,43 +463,38 @@ AlignmentTrackSelector::checkTakenHits(const Tracks& tracks, const edm::Event& e
 	  
 	}
 	else{
-	   edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkTakenHits>: Dynamic cast of Strip RecHit failed! ";
+	   edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkPrescaledHits>: Dynamic cast of Strip RecHit failed! ";
 	}
       }//end if hit in Strips
-      else{
+      else{ // test explicitely BPIX/FPIX
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
 	if(pixelhit!=0){
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
 	  flag = flagMap[pixclust];
 	}
 	else{
-	    edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkTakenHits>: Dynamic cast of Pixel RecHit failed!  ";
+	    edm::LogError("AlignmentTrackSelector")<<"ERROR in <AlignmentTrackSelector::checkPrescaledHits>: Dynamic cast of Pixel RecHit failed!  ";
 	}
       }//end else hit is in Pixel
       
       if(flag.isTaken())ntakenhits++;
 
     }//end loop on hits
-    if(ntakenhits >= minTakenHits_)result.push_back(trackp);
+    if(ntakenhits >= minPrescaledHits_)result.push_back(trackp);
   }//end loop on tracks
 
   return result;
-}//end checkTakenHits
+}//end checkPrescaledHits
 
 //---------
-bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const{
-
-  bool quality_ok = false;
- 
-  // std::cout<<"This track has Quality = "<<track->qualityMask() <<std::endl;
-  for (unsigned int i = 0; i<TrkQualities_.size();++i) {
-    //std::cout<<"Checking if the trk has quality "<<TrkQualities_[i]<<std::flush;
-    if (track->quality(TrkQualities_[i])){
-      quality_ok = true;
-      //std::cout<<"  --> OK !"<<std::endl;
-      break;          
+bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
+{
+  if (trkQualities_.size() == 0) return true; // nothing required
+  
+  for (unsigned int i = 0; i < trkQualities_.size(); ++i) {
+    if (track->quality(trkQualities_[i])) {
+      return true;
     }
-    // std::cout<<std::endl;
   }
-  return quality_ok;
+  return false;
 }//end check on track quality
