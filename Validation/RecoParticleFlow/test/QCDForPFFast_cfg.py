@@ -9,6 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #generation
+process.source = cms.Source("EmptySource")
 process.load("Configuration.Generator.QCDForPF_cfi")
 process.generator.comEnergy = 14000.
 
@@ -41,7 +42,7 @@ process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
 
 process.p1 = cms.Path(
-    process.ProductionFilterSequence +
+    process.generator +
     process.famosWithEverything +
     process.caloJetMetGen +
     process.particleFlowSimParticle

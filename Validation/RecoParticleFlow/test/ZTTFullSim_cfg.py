@@ -6,6 +6,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(300)
 )
 
+process.source = cms.Source("EmptySource")
 process.load("Configuration/Generator/ZTT_Tauola_All_hadronic_cfi")
 
 
@@ -26,7 +27,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_31X_V1::All"
+process.GlobalTag.globaltag = "MC_31X_V9::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 

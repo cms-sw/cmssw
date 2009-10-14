@@ -8,6 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 #generation
+process.source = cms.Source("EmptySource")
 process.load("Configuration.Generator.QCDForPF_cfi")
 process.generator.comEnergy = 14000.
 

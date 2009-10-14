@@ -3,31 +3,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(250)
+    input = cms.untracked.int32(300)
+#    input = cms.untracked.int32(2)
 )
 
-# ttbar events
-from Configuration.GenProduction.PythiaUESettings_cfi import *
-process.source = cms.Source("PythiaSource",
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaPylistVerbosity = cms.untracked.int32(1),
-    filterEfficiency = cms.untracked.double(1.0),
-    comEnergy = cms.untracked.double(14000.0),
-    crossSection = cms.untracked.double(78000000000.),
-    PythiaParameters = cms.PSet(
-        pythiaUESettingsBlock,
-        processParameters = cms.vstring('MSEL=0         ! User defined processes',
-            'MSUB(81)  = 1     ! qqbar to QQbar',
-            'MSUB(82)  = 1     ! gg to QQbar',
-            'MSTP(7)   = 6     ! flavor = top',
-            'PMAS(6,1) = 172.4  ! top quark mass'),
-        # This is a vector of ParameterSet names to be read, in this order
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters')
-    )
-)
-
+#generation
+process.source = cms.Source("EmptySource")
+process.load("FastSimulation.Configuration.ttbar_cfi")
+process.generator.comEnergy = 14000.
 
 # this example configuration offers some minimum 
 # annotation, to help users get through; please
@@ -47,7 +30,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_V9::All"
+process.GlobalTag.globaltag = "MC_31X_V9::All"
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -65,8 +48,8 @@ process.load("Configuration.StandardSequences.Generator_cff")
 #
 process.load("Configuration.StandardSequences.Simulation_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed= ==SEED==
-#process.RandomNumberGeneratorService.theSource.initialSeed= 1414
+process.RandomNumberGeneratorService.generator.initialSeed= ==SEED==
+
 
 # please note the IMPORTANT: 
 # in order to operate Digis, one needs to include Mixing module 
@@ -122,14 +105,26 @@ process.display = cms.OutputModule("PoolOutputModule",
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
-process.p0 = cms.Path(process.pgen)
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+process.PixelCPEGenericESProducer.LoadTemplatesFromDB = False
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi")
+process.templates.LoadTemplatesFromDB = False
+
+#process.electronChi2.MaxChi2 = 100000
+#process.electronChi2.nSigma = 3
+#process.pfTrackElec.ModeMomentum = True
+#process.pfTrackElec.AddGSFTkColl = False
+#process.particleFlowBlock.pf_chi2_ECAL_Track = 900
+
+process.p0 = cms.Path(process.generator+process.pgen)
 process.p1 = cms.Path(process.psim)
 process.p2 = cms.Path(process.pdigi)
 process.p3 = cms.Path(process.L1Emulator)
 process.p4 = cms.Path(process.DigiToRaw)
 process.p5= cms.Path(process.RawToDigi)
 process.p6= cms.Path(process.reconstruction+process.particleFlowSimParticle)
-process.outpath = cms.EndPath(process.aod)
+#process.outpath = cms.EndPath(process.aod+process.reco+process.display)
+process.outpath = cms.EndPath(process.aod+process.reco+process.display)
 process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.p3,process.p4,process.p5,process.p6,process.outpath)
 
 
