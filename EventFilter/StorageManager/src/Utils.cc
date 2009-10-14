@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.7 2009/08/20 13:45:05 mommsen Exp $
+//$Id: Utils.cc,v 1.8 2009/08/26 15:19:58 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -46,7 +46,7 @@ namespace stor
       if (interval < 0) return -1;
       timespec rqtp;
       rqtp.tv_sec = static_cast<time_t>(interval); // truncate
-      rqtp.tv_nsec = static_cast<long>((interval-rqtp.tv_sec)*1000000);
+      rqtp.tv_nsec = static_cast<long>((interval-rqtp.tv_sec)*1000*1000*1000);
       return nanosleep(&rqtp, 0);
     }
 
