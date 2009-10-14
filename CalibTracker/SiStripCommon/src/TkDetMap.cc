@@ -427,7 +427,7 @@ void TkLayerMap::initialize(int layer){
   for (size_t i=0;i<SingleExtString.size();i++)
     LogTrace("TkLayerMap") << "[initialize SingleExtString["<<i<<"] " << SingleExtString[i];
 
-  binToDet=(uint32_t*) malloc(nchX*nchY*sizeof(uint32_t));
+  binToDet= new uint32_t[nchX*nchY];
   for(size_t i=0;i<(size_t) nchX*nchY;++i)
     binToDet[i]=0;
 }
@@ -614,7 +614,7 @@ TkDetMap::TkDetMap()
 void TkDetMap::doMe(){
   LogTrace("TkDetMap") <<"TkDetMap::constructor ";
 
-  TkMap.resize(34);
+  TkMap.resize(35);
   //Create TkLayerMap for each layer declared in the TkLayerEnum
   for(int layer=1;layer<35;++layer){
     TkMap[layer]=new TkLayerMap(layer);

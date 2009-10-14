@@ -58,7 +58,9 @@ class TkLayerMap{
 
   
   TkLayerMap(int in);
-  ~TkLayerMap(){};
+  ~TkLayerMap(){
+    delete binToDet;
+  };
   
   const XYbin getXY(uint32_t& detid, int layerEnumNb=0);
 
