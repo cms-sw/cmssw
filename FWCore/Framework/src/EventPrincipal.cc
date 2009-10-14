@@ -111,13 +111,11 @@ namespace edm {
 
     assert(!bd.produced());
     branchMapperPtr()->insert(*productProvenance);
-    if (edp.get() != 0) {
-      Group *g = getExistingGroup(bd.branchID());
-      assert(g);
-      checkUniquenessAndType(edp, g);
-      // Group assumes ownership
-      g->putProduct(edp, productProvenance);
-    }
+    Group *g = getExistingGroup(bd.branchID());
+    assert(g);
+    checkUniquenessAndType(edp, g);
+    // Group assumes ownership
+    g->putProduct(edp, productProvenance);
   }
 
   void
@@ -139,10 +137,8 @@ namespace edm {
     std::auto_ptr<EDProduct> edp(store()->getProduct(bk, this));
 
     // Now fix up the Group
-    if (edp.get() != 0) {
-      checkUniquenessAndType(edp, &g);
-      g.putProduct(edp);
-    }
+    checkUniquenessAndType(edp, &g);
+    g.putProduct(edp);
   }
 
   void

@@ -33,7 +33,8 @@ namespace edm {
     assert(status() != Uninitialized);
     setProvenance(productProvenance);
     assert(productProvenancePtr());
-    setProduct(edp);
+    assert (!product());
+    groupData().product_.reset(edp.release());  // Group takes ownership
     status_() = Present;
   }
 
@@ -156,8 +157,11 @@ namespace edm {
   }
 
   void
-  Group::setProduct(std::auto_ptr<EDProduct> prod) const {
+  InputGroup::setProduct(std::auto_ptr<EDProduct> prod) const {
     assert (!product());
+    if (prod.get() == 0 || !prod->isPresent()) {
+      setProductUnavailable();
+    }
     groupData().product_.reset(prod.release());  // Group takes ownership
   }
 
@@ -200,14 +204,20 @@ namespace edm {
   // If it is not known if there is a real product, it returns false.
   bool
   InputGroup::productUnavailable_() const {
+    if (productIsUnavailable()) {
+      return true;
+    }
     // If there is a product, we know if it is real or a dummy.
     if (product()) {
       bool unavailable = !(product()->isPresent());
       assert (!productstatus::presenceUnknown(status()));
       assert(unavailable == productstatus::notPresent(status()));
+      if (unavailable) {
+	setProductUnavailable();
+      }
       return unavailable;
     }
-    return productstatus::notPresent(status());
+    return false;
   }
 
   // This routine returns true if it is known that currently there is no real product.
