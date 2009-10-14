@@ -16,6 +16,7 @@
 <use name=RecoEgamma/EgammaMCTools>
 <use name=RecoEgamma/EgammaTools>
 <use name=SimTracker/TrackAssociation>
+<use name=SimTracker/Records>
 <use name=SimTracker/TrackerHitAssociation>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/TrackingHit>
