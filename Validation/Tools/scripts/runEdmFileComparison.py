@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 print '%s exists.  Skipping' % descriptionName
             continue
         #print name, prettyName, key
-        describeCmd = "%s %s %s describeReflexForGenObject.py %s '--type=%s'" \
+        describeCmd = "%s %s %s useReflexToDescribeForGenObject.py %s '--type=%s'" \
                   % (fullCommand, currentDir, logPrefix + prettyName, name,
                      GenObject.encodeNonAlphanumerics (key))
         if options.precision:
