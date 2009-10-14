@@ -58,6 +58,7 @@ eleStyle->cd();
 
 gROOT->ForceStyle();
 
+std::cout<<"ref file: "<<val_ref_file_name<<std::endl ;
 TString val_ref_file_url ;
 TFile * file_old = 0 ;
 if ( val_ref_file_name != "" )
@@ -70,6 +71,9 @@ if ( val_ref_file_name != "" )
 	val_ref_file_url.Prepend(val_web_url) ;
    }
  }
+std::cout<<"ref url: "<<val_ref_file_url<<std::endl ;
+
+std::cout<<"new file: "<<val_new_file_name<<std::endl ;
 TString val_new_file_url ;
 TFile * file_new = 0 ;
 if ( val_new_file_name != "" )
@@ -82,11 +86,13 @@ if ( val_new_file_name != "" )
 	val_new_file_url.Prepend(val_web_url) ;
    }
  }
+std::cout<<"new url: "<<val_new_file_url<<std::endl ;
 
 TCanvas * canvas ;
 TH1 * histo_old, * histo_new ;
 Double_t nold, nnew ;
 
+std::cout<<"index path: "<<index_path<<std::endl ;
 std::ofstream web_page(index_path.c_str()) ;
 
 web_page
@@ -139,7 +145,10 @@ std::string num, denom, cat ;
 int eol ; // end of line
 int eoc ; // enf of category
 
+std::cout<<"histos path: "<<histos_path<<std::endl ;
 std::ifstream histo_file1(histos_path.c_str()) ;
+if (!histo_file1)
+ { std::cout<<"no histos file !"<<std::endl ; }
 web_page
   <<"<br><table border=\"1\" cellpadding=\"5\" width=\"100%\">"
   <<"<tr valign=\"top\"><td width=\"20%\">\n" ;
@@ -149,7 +158,7 @@ cat = "" ;
 do
  {
   std::getline(histo_file1,cat) ;
- } while (cat.empty()) ;
+ } while (cat.empty()&&histo_file1) ;
  
 web_page<<"<b>"<<cat<<"</b><br><br>" ;
 
