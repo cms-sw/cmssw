@@ -44,7 +44,7 @@ validation_preprod = cms.Sequence(
                           +muonIdValDQMSeq
                           +hltvalidation_preprod
                           )
-
+validation.remove(condDataValidation)
 validation_prod = cms.Sequence(
              basicGenTest_seq
             +hltvalidation_prod
