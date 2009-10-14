@@ -136,7 +136,7 @@ if (memcheck):
     process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
                                             ignoreTotal=cms.untracked.int32(1),
                                             oncePerEventMode=cms.untracked.bool(False)
-                                            )
+,                                            )
 
 
 #-----------------------------
@@ -248,6 +248,7 @@ process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 # hcalMonitor configurable values
 # ------- -----------------------
 process.hcalMonitor.debug = 0
+process.hcalMonitor.Online = True # set true for online/local running
 
 process.hcalMonitor.showTiming      = False
 process.hcalMonitor.checkNevents    = checkNevents
@@ -278,9 +279,11 @@ process.hcalMonitor.HcalAnalysis        = False
 # This takes the default cfg values from the hcalMonitor base class and applies them to the subtasks.
 setHcalTaskValues(process.hcalMonitor)
 
-# values are normally 10000, 10
+# values are normally 1000, 10
+# ProblemCells evaluated every (DeadCellMonitor_checkNevents)
+# occupancy/energy tests performed every (DeadCellMonitor_checkNevents*prescale)
 process.hcalMonitor.DeadCellMonitor_checkNevents = checkNevents
-process.hcalMonitor.DeadCellMonitor_prescale=1
+process.hcalMonitor.DeadCellMonitor_prescale=10
 
 process.hcalMonitor.subSystemFolder = subsystem
 
@@ -319,8 +322,10 @@ process.options = cms.untracked.PSet(
 # Allow even bad-quality digis
 #process.hcalDigis.FilterDataQuality=False
 
-# Set expected orbit time to 6
-process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(6)
+# Set expected orbit time to 3563 (value should be 6 for run < 116401)
+process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(3563)
+# Set monitor value to -1 to skip check of IDLE BCN 
+process.hcalMonitor.DigiMonitor_ExpectedOrbitMessageTime = 3563
 
 # ----------------------
 # Trigger Unpacker Stuff
