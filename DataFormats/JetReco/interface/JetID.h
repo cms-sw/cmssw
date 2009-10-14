@@ -29,7 +29,6 @@ namespace reco {
     int    hitsInN90;
   };
 
-  class reco::Jet;
   typedef edm::ValueMap<JetID>   JetIDValueMap;
 }
 
