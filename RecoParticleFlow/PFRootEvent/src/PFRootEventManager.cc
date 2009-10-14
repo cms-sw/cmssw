@@ -1513,8 +1513,8 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(verbosity_ == VERBOSE  || 
      // entry < 3000 ||
-     entry < 100 && entry%10 == 0 || 
-     entry < 1000 && entry%100 == 0 || 
+     (entry < 100 && entry%10 == 0) || 
+     (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
     cout<<"process entry "<< entry << endl;
   

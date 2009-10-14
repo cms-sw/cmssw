@@ -8,7 +8,10 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 #include "TMVA/Reader.h"
 #include <iostream>
-class reco::PFCandidate;
+
+namespace reco { 
+class PFCandidate;
+}
 
 class PFElectronAlgo {
  public:

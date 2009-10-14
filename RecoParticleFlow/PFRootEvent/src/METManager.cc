@@ -114,11 +114,14 @@ reco::MET METManager::computeGenMET(const reco::GenParticleCollection *genPartic
       if (vIgnoreParticlesIDs_.size()==0) std::cout << "Warning : METManager: vIgnoreParticlesIDs_.size()==0" << std::endl;
       for (unsigned int idc=0;idc<vIgnoreParticlesIDs_.size();++idc)
       {
-	if(abs((*genParticleList)[i].pdgId()) == vIgnoreParticlesIDs_[idc]) ignoreThisPart=true;
+	if(abs((*genParticleList)[i].pdgId()) == (int)vIgnoreParticlesIDs_[idc]) 
+	  ignoreThisPart=true;
       }
       for (unsigned int specificIdc=0;specificIdc<trueMetSpecificIdCut_.size();++specificIdc)
       {
-        if (abs((*genParticleList)[i].pdgId())==trueMetSpecificIdCut_[specificIdc] && fabs((*genParticleList)[i].eta()) > trueMetSpecificEtaCut_[specificIdc]) ignoreThisPart=true;
+        if (abs((*genParticleList)[i].pdgId())== (int)trueMetSpecificIdCut_[specificIdc] && 
+	    fabs((*genParticleList)[i].eta()) > trueMetSpecificEtaCut_[specificIdc]) 
+	  ignoreThisPart=true;
       }
 
       if (!ignoreThisPart) {

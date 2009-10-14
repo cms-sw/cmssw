@@ -345,7 +345,7 @@ PFClusterAlgo::buildTopoCluster( vector< unsigned >& cluster,
 			       static_cast<PFLayer::Layer>(layer) );
 
 
-  if( e < thresh ||  ptThresh > 0. && rh.pt2() < ptThresh*ptThresh ) {
+  if( e < thresh ||  (ptThresh > 0. && rh.pt2() < ptThresh*ptThresh) ) {
 #ifdef PFLOW_DEBUG
     if(debug_)
       cout<<"return : "<<e<<"<"<<thresh<<endl; 

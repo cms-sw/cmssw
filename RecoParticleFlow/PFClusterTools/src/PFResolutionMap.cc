@@ -244,9 +244,10 @@ double PFResolutionMap::getRes(double eta, double phi, double e, int MapEta){
 
   double res= GetBinContent(bin);
   if(MapEta>-1){
-    if((eta<1.48) && IsInAPhiCrack(phi,eta))
+    if((eta<1.48) && IsInAPhiCrack(phi,eta)) {
       if(MapEta==1) res *= 1.88;
       else res *= 1.65;
+    }
   }
   return res;
 }

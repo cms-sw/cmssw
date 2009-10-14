@@ -2354,7 +2354,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   }
 
   // nuclear
-  if( particleType != reco::PFCandidate::mu )
+  if( particleType != reco::PFCandidate::mu ) {
     if( eltTrack->trackType(reco::PFBlockElement::T_FROM_NUCL)) {
       pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_NUCLINT, true);
       pfCandidates_->back().setNuclearRef( eltTrack->nuclearRef() );
@@ -2363,6 +2363,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
       pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_NUCLINT, true);
       pfCandidates_->back().setNuclearRef( eltTrack->nuclearRef() );
     }
+  }
 
   // conversion...
   

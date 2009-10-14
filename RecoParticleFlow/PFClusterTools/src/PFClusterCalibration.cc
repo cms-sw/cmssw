@@ -42,8 +42,8 @@ void PFClusterCalibration::init() {
 	 * funcString("([0]*[5]*x*([1]-[5]*x)/pow(([2]+[5]*x),3)+[3]*pow([5]*x, 0.1))*([5]*x<[8] && [5]*x>[7])+[4]*([5]*x>[8])+([6]*[5]*x)*([5]*x<[7])");
 	 */
 
-	char
-			* funcString("([0]*[5]*x)*([5]*x<=[1])+([2]+[3]*exp([4]*[5]*x))*([5]*x>[1])");
+	const char*
+	  funcString("([0]*[5]*x)*([5]*x<=[1])+([2]+[3]*exp([4]*[5]*x))*([5]*x>[1])");
 
 	//Create functions for each sector
 	for (std::vector<std::string>::const_iterator cit = names_.begin(); cit

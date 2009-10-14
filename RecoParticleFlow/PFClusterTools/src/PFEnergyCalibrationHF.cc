@@ -116,7 +116,7 @@ std::ostream& operator<<(std::ostream& out,
   int ii = 0;
   for(std::vector<double>::const_iterator iteta =(calib.getcalibHF_eta_step()).begin(); 
       iteta !=(calib.getcalibHF_eta_step()).end() ;++iteta){
-    double currenteta = *iteta;
+    //double currenteta = *iteta;
     out<<" i "<<ii<<",";
     out<<"use "<<calib.getcalibHF_use()<<",";
     out<<"currenteta "<<calib.getcalibHF_eta_step()[ii]<<",";
