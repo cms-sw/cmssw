@@ -21,14 +21,13 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   // Instantiate the container to hold the PF specific information
   SpecificPFMETData specific;
   // Initialize the container
-  specific.NeutralEMEtFraction = 0.0;
-  specific.NeutralHadEtFraction = 0.0;
-  specific.ChargedEMEtFraction = 0.0;
-  specific.ChargedHadEtFraction = 0.0;
-  specific.MuonEtFraction = 0.0;
-  specific.Type6EtFraction = 0.0;
-  specific.Type7EtFraction = 0.0;
-
+  specific.NeutralEMFraction = 0.0;
+  specific.NeutralHadFraction = 0.0;
+  specific.ChargedEMFraction = 0.0;
+  specific.ChargedHadFraction = 0.0;
+  specific.MuonFraction = 0.0;
+  specific.Type6Fraction = 0.0;
+  specific.Type7Fraction = 0.0;
 
   if(!PFCandidates->size()) // if no Particle Flow candidates in the event
   {
@@ -76,15 +75,15 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
 
   if (Et_total!=0.0)
   {
-    specific.NeutralEMEtFraction = NeutralEMEt/Et_total;
-    specific.NeutralHadEtFraction = NeutralHadEt/Et_total;
-    specific.ChargedEMEtFraction = ChargedEMEt/Et_total;
-    specific.ChargedHadEtFraction = ChargedHadEt/Et_total;
-    specific.MuonEtFraction = MuonEt/Et_total;
-    specific.Type6EtFraction = type6Et/Et_total;
-    specific.Type7EtFraction = type7Et/Et_total;
+    specific.NeutralEMFraction = NeutralEMEt/Et_total;
+    specific.NeutralHadFraction = NeutralHadEt/Et_total;
+    specific.ChargedEMFraction = ChargedEMEt/Et_total;
+    specific.ChargedHadFraction = ChargedHadEt/Et_total;
+    specific.MuonFraction = MuonEt/Et_total;
+    specific.Type6Fraction = type6Et/Et_total;
+    specific.Type7Fraction = type7Et/Et_total;
   }
-
+  
   const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
   const Point vtx(0.0,0.0,0.0);
   PFMET specificPFMET( specific, met.sumet, p4, vtx );

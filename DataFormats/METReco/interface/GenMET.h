@@ -66,6 +66,16 @@ namespace reco
       double InvisibleEt()const { return gen_data.InvisibleEtFraction * sumEt() ; }
       
 
+      // Old Accessors (to be removed as soon as possible)
+      /** Returns energy of electromagnetic particles*/
+      double emEnergy() const {return gen_data.m_EmEnergy;};
+      /** Returns energy of hadronic particles*/
+      double hadEnergy() const {return gen_data.m_HadEnergy;};
+      /** Returns invisible energy*/
+      double invisibleEnergy() const {return gen_data.m_InvisibleEnergy;};
+      /** Returns other energy (undecayed Sigmas etc.)*/
+      double auxiliaryEnergy() const {return gen_data.m_AuxiliaryEnergy;};
+      // block accessors
 
 
       // block accessors
