@@ -1,8 +1,39 @@
-2009-02-13  pgras  <philippe.gars@cern.ch>
+V02-03-00
+---------
+	
+2009-06-19  author  <author@lxplus245.cern.ch>
+
+	* interface/EcalSelectiveReadoutProducer.h, python/ecalDigis_cfi.py, src/EcalSelectiveReadoutProducer.cc:
+	. added switch to disable suppressed digi production
+
+2009-06-18  author  <author@lxplus245.cern.ch>
+
+	* .admin/developers:
+	added Matthieu Marionneau in developer list for EcalSelectiveReadout*
+
+2009-06-07  author  <author@lxplus245.cern.ch>
+
+V02-02-00
+---------
+	
+	* interface/EcalSelectiveReadoutProducer.h, src/EcalSelectiveReadoutProducer.cc:
+	added grouping of partial SC readout
+
+2009-02-26  author  <author@lxplus245.cern.ch>
+
+	* ChangeLog: Log of code changes
+
+V02-01-02-01
+------------
+	
+2009-02-13  pgras  <philippe.gras@cern.ch>
 
 	tag V02-01-02-01: V02-01-07 (id. to HEAD) + .cfg/.cfi file of V02-01-02
 	                  published for CMSSW_2_2_X X>5
 
+V02-01-07 and earlier tags
+--------------------------
+	
 2009-02-13  author  <author@pcsaccms02.cern.ch>
 
 	* python/ecalDigis_craft_cfi.py: SR configuration for CRAFT condition
