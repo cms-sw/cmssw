@@ -46,8 +46,6 @@ public:
 	EcalRawToRecHitRoI(const edm::ParameterSet& pset);
 	virtual ~EcalRawToRecHitRoI();
 	void produce(edm::Event & e, const edm::EventSetup& c);
-	void beginJob(const edm::EventSetup& c);
-	void endJob(void);
 
  private:
 

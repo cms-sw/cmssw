@@ -138,11 +138,6 @@ EcalRawToRecHitRoI::~EcalRawToRecHitRoI() {
 }
 
 
-void EcalRawToRecHitRoI::beginJob(const edm::EventSetup& c){
-}
-
-void EcalRawToRecHitRoI::endJob(){
-}
 
 #include <sstream>
 std::string EcalRawToRecHitRoI::dumpFEDs(const std::vector<int> & FEDs){
