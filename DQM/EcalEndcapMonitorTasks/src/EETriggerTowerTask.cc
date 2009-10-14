@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2009/10/03 12:50:31 $
- * $Revision: 1.59 $
+ * $Date: 2009/10/13 17:00:26 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -56,7 +56,7 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   meTCCTimingMuon_[1] = 0;
   meEmulMatchIndex1D_[0] = 0;
   meEmulMatchIndex1D_[1] = 0;
-  meEmulMatchIndex1D_[0] = 0;
+  meEmulMatchMaxIndex1D_[0] = 0;
   meEmulMatchMaxIndex1D_[1] = 0;
 
   reserveArray(meEtMapReal_);
