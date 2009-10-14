@@ -1,6 +1,7 @@
 #!/bin/sh
 eval `scram ru -sh`
-for file in `../Tools/listBenchmarks.py "*$DBS_RELEASE*/*" -a -u | grep http `
+echo $DBS_RELEASE
+for file in `../Tools/listBenchmarks.py "$DBS_RELEASE/*" -a -u | grep http `
 do
 type=`echo $file | awk -v FS="_RelVal" '{print $2}'`
 
@@ -20,7 +21,11 @@ case $type in
     ZEEefromZ)
     Comment="Electrons from Z->ee events"
     ;;
+    QCD-Pt-80-120pions)
+    Comment="Electrons matched with generated pions in QCD 80-120 events"
+    ;;
     *)
+    echo "Undefined comment in prepare-twiki.sh "$type
     Comment="unknown"
     ;;
 esac

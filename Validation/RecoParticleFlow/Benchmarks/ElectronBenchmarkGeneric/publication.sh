@@ -5,6 +5,9 @@ echo $TITLE
 #copy back into the content into the local directory; not needed when everything is run sequentially
 #cp -r $DBS_RELEASE/$DBS_SAMPLE Plots_BarrelAndEndcap
 #cp $DBS_RELEASE/$DBS_SAMPLE/benchmark.root benchmark.root
+# change the underscores into -
+Extension=`echo $DBS_SAMPLE$E_SELECTION | tr '_' '-'`
+echo $Extension
 
 ../Tools/indexGen.py -f -c "$TITLE" -t "$TITLE"
 #publish
@@ -13,8 +16,8 @@ if [ -z "$?WEB_PUBLICATION" ] ; then
     exit
     else
     if [ "$WEB_PUBLICATION" = "true" ] ; then
-    echo "Publishing:     ../Tools/submit.py -f -e $DBS_SAMPLE$E_SELECTION "
-    ../Tools/submit.py -f -e $DBS_SAMPLE$E_SELECTION 
+    echo "Publishing:     ../Tools/submit.py -f -e $Extension "
+    ../Tools/submit.py -f -e $Extension 
     echo "done"
     fi
 fi
