@@ -15,6 +15,7 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 #from SimG4Core.Application.hectorParameter_cfi import *
 process.load("SimTransport.HectorProducer.HectorTransport_cfi")
+process.transport = cms.Path(process.LHCTransport)
 
 #process.LHCTransport.ZDCTransport = cms.bool(False) ## main flag to set transport for FP420
 
