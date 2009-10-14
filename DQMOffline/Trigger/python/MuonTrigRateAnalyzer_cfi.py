@@ -106,17 +106,24 @@ offlineDQMMuonTrig = cms.EDAnalyzer("OfflineDQMMuonTrigAnalyzer",
 	# list of triggers
     # any triggers not in the hlt configuraiton
     # will be ignored
+	# This list contains triggers from both 8E29, 1E31
+    # 									
 									
 	TriggerNames = cms.vstring(
         "HLT_L1Mu",
         "HLT_L1MuOpen",
 		"HLT_L1Mu20",
-        "HLT_L2Mu9",
+		"HLT_L1Mu20HQ",
+		"HLT_L1Mu30",		
+		"HLT_L2Mu9",
 		"HLT_L2Mu11",
-        "HLT_IsoMu3",        
+        "HLT_IsoMu3",
+		"HLT_IsoMu9",        
         "HLT_Mu3",
         "HLT_Mu5",
-        "HLT_Mu9",        
+        "HLT_Mu9",
+        "HLT_Mu11",
+		"HLT_Mu15",
         "HLT_DoubleMu3",
         "HLT_DoubleMu0",
 		"HLT_L1DoubleMuOpen"		

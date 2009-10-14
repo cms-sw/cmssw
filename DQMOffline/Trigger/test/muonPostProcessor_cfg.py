@@ -69,7 +69,7 @@ process.dqmSaver.dirName = options.outputDir
 
 
 
-process.path = cms.Path(process.EDMtoME*process.hLTMuonPostVal*process.bPAGPostProcessor*process.dqmStoreStats)
+process.path = cms.Path(process.EDMtoME*process.hLTMuonPostVal*process.JpsiPostProcessor*process.ZPostProcessor*process.dqmStoreStats)
 #process.path = cms.Path(process.EDMtoME*process.bPAGPostProcessor*process.dqmStoreStats)
 
 process.endpath = cms.EndPath(process.dqmSaver)
