@@ -11,7 +11,7 @@
 	<use name=CondCore/DBOutputService>
 	<use name=DataFormats/Common>
 	<use name=DataFormats/DetId>
-	<use name=DataFormats/LaserAlignment>
+	<use name=DataFormats/Alignment>
 	<use name=DataFormats/SiStripDetId>
 	<use name=DataFormats/SiStripDigi>
 	<use name=Geometry/CommonTopologies>
