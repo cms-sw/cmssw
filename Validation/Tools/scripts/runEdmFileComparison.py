@@ -12,6 +12,7 @@ colonRE      = re.compile (r':+')
 commaRE      = re.compile (r',')
 queueCommand = '/uscms/home/cplager/bin/clpQueue.pl addjob %s'
 logDir       = 'logfiles'
+compRootDir  = 'compRoot'
 # Containers
 vectorRE      = re.compile (r'^vector<(\S+)>')
 detSetVecRE   = re.compile (r'^edm::DetSetVector<(\S+)>')
@@ -43,43 +44,72 @@ class EdmObject (object):
 
 if __name__ == "__main__":
 
-    parser = optparse.OptionParser ("Usage: %prog edmFile.root")
-    parser.add_option ('--absolute', dest='absolute',
-                       action='store_true', default=False,
-                       help='Precision is checked against absolute difference')
-    parser.add_option ("--describeOnly", dest="describeOnly",
+    ###################
+    ## Setup Options ##
+    ###################
+    parser = optparse.OptionParser ("%prog [options] file1.root [file2.root]"\
+                                    "\nFor more details, see\nhttps://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsToolsEdmOneToOneComparison")
+    describeGroup  = optparse.OptionGroup (parser, "Description Options")
+    precisionGroup = optparse.OptionGroup (parser, "Precision Options")
+    queueGroup     = optparse.OptionGroup (parser, "Queue Options")
+    # general optionos
+    parser.add_option ("--compRoot", dest="compRoot",
                        action="store_true", default=False,
-                       help="Run description step only and stop.")
-    parser.add_option ("--forceDescribe", dest="forceDescribe",
-                       action="store_true", default=False,
-                       help="Run description step even if file already exists.")
-    parser.add_option ("--noQueue", dest="noQueue",
-                       action="store_true", default=True,
-                       help="Do not use queue, but run jobs serially (default).")
-    parser.add_option ("--precision", dest="precision", type="string",
-                       help="Change precision use for floats")
+                       help="Make compRoot files.")
     parser.add_option ("--prefix", dest="prefix", type="string",
                        help="Prefix to prepend to logfile name")
-    parser.add_option ("--queue", dest="noQueue",
-                       action="store_false",
-                       help="Use queue.")
-    parser.add_option ("--queueCommand", dest="queueCommand", type="string",
-                       help="Command needed for queueing jobs")
-    parser.add_option ('--relative', dest='relative',
-                       action='store_true', default=False,
-                       help='Precision is checked against relative difference')
+    parser.add_option ("--regex", dest='regex', action="append",
+                       type="string", default=[],
+                       help="Only run on branches containing regex")
+    parser.add_option ("--summary", dest="summary",
+                       action="store_true", default=False,
+                       help="Print out summary information at end")
     parser.add_option ("--verbose", dest="verbose",
                        action="store_true", default=False,
-                       help="Verbose output.")
+                       help="Verbose output")
+    # describe options
+    describeGroup.add_option ("--describeOnly", dest="describeOnly",
+                              action="store_true", default=False,
+                              help="Run description step only and stop.")
+    describeGroup.add_option ("--forceDescribe", dest="forceDescribe",
+                              action="store_true", default=False,
+                              help="Run description step even if "\
+                              "file already exists.")
+    # precision options
+    precisionGroup.add_option ("--precision", dest="precision", type="string",
+                               help="Change precision use for floating "\
+                               "point numbers")
+    precisionGroup.add_option ('--absolute', dest='absolute',
+                               action='store_true', default=False,
+                               help='Precision is checked against '\
+                               'absolute difference')
+    precisionGroup.add_option ('--relative', dest='relative',
+                               action='store_true', default=False,
+                               help='Precision is checked against '\
+                               'relative difference')
+    # queue options
+    queueGroup.add_option ("--noQueue", dest="noQueue",
+                           action="store_true", default=True,
+                           help="Do not use queue, but run "\
+                           "jobs serially (default).")
+    queueGroup.add_option ("--queue", dest="noQueue",
+                           action="store_false",
+                           help="Use defaultqueueing system.")
+    queueGroup.add_option ("--queueCommand", dest="queueCommand", type="string",
+                           help="Use QUEUECOMMAND TO queue jobs")
+    parser.add_option_group (describeGroup)
+    parser.add_option_group (precisionGroup)
+    parser.add_option_group (queueGroup)
     options, args = parser.parse_args()
+    # Because Root and PyRoot are _really annoying_, you have wait to
+    # import this until command line options are parsed.
     from Validation.Tools.GenObject import GenObject
     if len (args) < 1 or len (args) > 2:
         raise RuntimeError, "You must provide 1 or 2 root files"
-    # Make sure CMSSW is setup
-    base         = os.environ.get ('CMSSW_BASE')
-    release_base = os.environ.get ('CMSSW_RELEASE_BASE')
-    if not base or not release_base:
-        raise RuntimeError, "You must have already setup a CMSSW release."
+
+    ###########################
+    ## Check Queuing Options ##
+    ###########################
     if options.queueCommand:
         queueCommand = options.queueCommand
         options.noQueue = False
@@ -89,6 +119,19 @@ if __name__ == "__main__":
         command = 'src/Validation/Tools/scripts/runCommand.bash'
     else:
         command = 'src/Validation/Tools/scripts/runCMScommand.bash'
+        # make sure we aren't trying to use options that should not be
+        # used with the queueing system
+        if options.compRoot or options.summary:
+            raise RuntimeError, "You can not use --compRoot or --summary "\
+                  "in --queue mode"
+
+    ##############################
+    ## Make Sure CMSSW is Setup ##
+    ##############################
+    base         = os.environ.get ('CMSSW_BASE')
+    release_base = os.environ.get ('CMSSW_RELEASE_BASE')
+    if not base or not release_base:
+        raise RuntimeError, "You must have already setup a CMSSW environment."
     # find command
     found = False
     for directory in [base, release_base]:
@@ -104,12 +147,15 @@ if __name__ == "__main__":
         os.mkdir (logDir)
         if not os.path.isdir (logDir):
             raise RuntimeError, "Can't create %s directory" % logDir
-
-    logPrefix = logDir + '/'
+    if options.compRoot and not os.path.isdir (compRootDir):
+        os.mkdir (compRootDir)
+        if not os.path.isdir (compRootDir):
+            raise RuntimeError, "Can't create %s directory" % compRootDir
+    logPrefix      = logDir      + '/'
+    compRootPrefix = compRootDir + '/'
     if options.prefix:
         logPrefix += options.prefix + '_'
     currentDir = os.getcwd()
-    #filename = os.path.abspath( args[0] )
     filename1 = args[0]
     if len (args) == 2:
         filename2 = args[1]
@@ -119,11 +165,16 @@ if __name__ == "__main__":
         raise RuntimeError, "Can not find '%s' or '%s'" % (filename1, filename2)
     if options.verbose:
         print "files", filename1, filename2
-    if options.verbose:
-        print "Getting edmDump output"
-    output = commands.getoutput ("edmDumpEventContent %s" % filename1)\
-             .split("\n")
 
+    #############################
+    ## Run edmDumpEventContent ##
+    #############################
+    print "Getting edmDumpEventContent output"
+    regexLine = ""
+    for regex in options.regex:
+        regexLine += ' "--regex=%s"' % regex
+    dumpCommand = 'edmDumpEventContent %s %s' % (regexLine, filename1)
+    output = commands.getoutput (dumpCommand).split("\n")
     collection = {}
     for line in output:
         match = piecesRE.search(line)
@@ -149,10 +200,12 @@ if __name__ == "__main__":
             print "describing %s" % name
         os.system (describeCmd)
         #print describeCmd, '\n'
-
     if options.describeOnly:
         sys.exit()
 
+    ##################################
+    ## Run edmOneToOneComparison.py ##
+    ##################################
     for key, value in sorted (collection.iteritems()):
         #print "%-40s" % key,
         for obj in value:
@@ -174,6 +227,22 @@ if __name__ == "__main__":
                 fullCompareCmd += ' --relative'
             elif options.absolute:
                 fullCompareCmd += ' --absolute'
+            if options.compRoot:
+                compRootName = compRootPrefix + prettyName \
+                               + '_' + prettyLabel + '.root'
+                fullCompareCmd += ' --compRoot=%s' % compRootName
             if options.verbose:
-                print "comparing EDProdct %s %s" % (name, obj.label())
+                print "comparing branch %s %s" % (name, obj.label())
             os.system (fullCompareCmd)
+
+    ##################################
+    ## Print Summary (if requested) ##
+    ##################################
+    if options.summary:
+        if options.prefix:
+            summaryOption = options.prefix + '_%_'
+        else:
+            summaryOption = '%_'
+        summaryCmd = 'summarizeEdmComparisonLogfiles.py --counts %s logfiles' \
+                     % summaryOption
+        os.system (summaryCmd)
