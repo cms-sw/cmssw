@@ -15,14 +15,15 @@ process.load("Geometry.FP420CommonData.FP420GeometryXML_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.load("SimTransport.HectorProducer.HectorTransport_cfi")
-process.LHCTransport.ZDCTransport = cms.bool(False) ## main flag to set transport for FP420
+process.transport = cms.Path(process.LHCTransport)
+#process.LHCTransport.ZDCTransport = cms.bool(False) ## main flag to set transport for FP420
 
-process.LHCTransport.Hector.smearEnergy = cms.bool(True)
-process.LHCTransport.Hector.sigmaEnergy    = cms.double(0.1)## GeV
+#process.LHCTransport.Hector.smearEnergy = cms.bool(True)
+#process.LHCTransport.Hector.sigmaEnergy    = cms.double(0.1)## GeV
 
-process.LHCTransport.Hector.smearAng    = cms.bool(True)
-process.LHCTransport.Hector.sigmaSTX    = cms.double(0.1)## urad
-process.LHCTransport.Hector.sigmaSTY    = cms.double(0.1)## urad
+#process.LHCTransport.Hector.smearAng    = cms.bool(True)
+#process.LHCTransport.Hector.sigmaSTX    = cms.double(0.1)## urad
+#process.LHCTransport.Hector.sigmaSTY    = cms.double(0.1)## urad
 
 
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
