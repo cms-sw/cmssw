@@ -248,11 +248,34 @@ void OffHelper::fillClusShapeData(const reco::GsfElectron& ele,OffEle::ClusShape
   } 
 }
 
+//reco approximations of hlt quantities
 void OffHelper::fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltData)
 {
-  hltData.dEtaIn =0;
-  hltData.dPhiIn =0;
-  hltData.invEInvP = 0;
+  if(ele.closestCtfTrackRef().isNonnull() && 
+     ele.closestCtfTrackRef()->extra().isNonnull()){
+    reco::TrackRef ctfTrack = ele.closestCtfTrackRef();
+    reco::SuperClusterRef scClus = ele.superCluster();
+
+    //dEta
+    const reco::BeamSpot::Point& bsPos = beamSpot_->position();     
+    math::XYZPoint scPosWRTVtx(scClus->x()-bsPos.x(), scClus->y()-bsPos.y() , scClus->z()-ctfTrack->vz());
+    hltData.dEtaIn = fabs(scPosWRTVtx.eta()-ctfTrack->eta());
+
+    //dPhi: lifted straight from hlt code
+    float deltaPhi=fabs(ctfTrack->outerPosition().phi()-scClus->phi());
+    if(deltaPhi>6.283185308) deltaPhi -= 6.283185308;
+    if(deltaPhi>3.141592654) deltaPhi = 6.283185308-deltaPhi;
+    hltData.dPhiIn = deltaPhi;
+    
+    //invEInvP
+    if(ele.ecalEnergy()!=0 && ctfTrack->p()!=0) hltData.invEInvP= 1/ele.ecalEnergy() - 1/ctfTrack->p();
+    else hltData.invEInvP = 0;
+  }else{
+    hltData.dEtaIn =999;
+    hltData.dPhiIn =999;
+    hltData.invEInvP = 999;
+
+  }
 }
 
 //this function coverts Photons to a format which more useful to me

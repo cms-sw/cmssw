@@ -63,10 +63,18 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
  
   //cuts on CTF track, HLT tracking doesnt handle poor quaility tracks
   if(ele.validCTFTrack()){
-    if(!(ele.ctfTrkOuterRadius() >= cuts.minCTFTrkOuterRadius && //note I'm noting the result of the and
-       ele.ctfTrkInnerRadius() <= cuts.maxCTFTrkInnerRadius &&
-       ele.ctfTrkHitsFound() >= cuts.minNrCTFTrkHits && 
-	 ele.ctfTrkHitsLost() <= cuts.maxNrCTFTrkHitsLost)) cutCode |=EgCutCodes::CTFTRACK;
+    if(!(ele.ctfTrkOuterRadius() >= cuts.minCTFTrkOuterRadius && //note I'm NOTing the result of the AND
+	 ele.ctfTrkInnerRadius() <= cuts.maxCTFTrkInnerRadius &&
+	 
+	 ele.ctfTrkHitsFound() >= cuts.minNrCTFTrkHits && 
+	 ele.ctfTrkHitsLost() <= cuts.maxNrCTFTrkHitsLost)) cutCode |=EgCutCodes::CTFTRACK; //the next line can also set this bit
+    if(cuts.requirePixelHitsIfOuterInOuter){
+      DetId innerDetId(ele.ctfTrack()->extra()->innerDetId());
+      DetId outerDetId(ele.ctfTrack()->extra()->outerDetId());
+    
+      if(outerDetId.subdetId()>=5 && innerDetId.subdetId()>=3) cutCode |=EgCutCodes::CTFTRACK; //1,2 = pixel, 3,4,5,6 sistrip
+    }
+    // std::cout <<"eta "<<ele.detEta()<<" max inner "<<cuts.maxCTFTrkInnerRadius<<" inner "<<ele.ctfTrkInnerRadius()<<std::endl;
   }else cutCode |=EgCutCodes::CTFTRACK;
 
   if(fabs(ele.hltDEtaIn()) > cuts.maxHLTDEtaIn) cutCode |=EgCutCodes::HLTDETAIN;

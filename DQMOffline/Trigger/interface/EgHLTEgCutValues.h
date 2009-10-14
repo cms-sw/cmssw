@@ -59,6 +59,7 @@ namespace egHLT {
     double minNrCTFTrkHits;
     double maxNrCTFTrkHitsLost;
     double maxCTFTrkChi2NDof;
+    bool requirePixelHitsIfOuterInOuter;
     //hlt track variable cuts
     double maxHLTDEtaIn;
     double maxHLTDPhiIn;

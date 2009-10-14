@@ -37,11 +37,12 @@ egHLTOffEleBarrelCuts = cms.PSet (
     maxHLTIsolEmOverEt = cms.double(0),
     maxHLTIsolEmOverEt2 = cms.double(0),
 
-    minCTFTrkOuterRadius=cms.double(40.),
-    maxCTFTrkInnerRadius=cms.double(9.),
-    minNrCTFTrkHits=cms.int32(5),
-    maxNrCTFTrkHitsLost=cms.int32(0),
+    minCTFTrkOuterRadius=cms.double(0.),
+    maxCTFTrkInnerRadius=cms.double(99999),
+    minNrCTFTrkHits=cms.int32(7),
+    maxNrCTFTrkHitsLost=cms.int32(999),
     maxCTFTrkChi2NDof=cms.double(99999),
+    requirePixelHitsIfOuterInOuter=cms.bool(True),
 
     maxHLTDEtaIn=cms.double(0.1),
     maxHLTDPhiIn=cms.double(0.1),
@@ -85,12 +86,13 @@ egHLTOffEleEndcapCuts = cms.PSet (
     maxHLTIsolEmOverEt = cms.double(0),
     maxHLTIsolEmOverEt2 = cms.double(0),
 
-    minCTFTrkOuterRadius=cms.double(40.),
-    maxCTFTrkInnerRadius=cms.double(9.),
-    minNrCTFTrkHits=cms.int32(5),
-    maxNrCTFTrkHitsLost=cms.int32(0),
+    minCTFTrkOuterRadius=cms.double(0.),
+    maxCTFTrkInnerRadius=cms.double(9999.),
+    minNrCTFTrkHits=cms.int32(7),
+    maxNrCTFTrkHitsLost=cms.int32(999),
     maxCTFTrkChi2NDof=cms.double(99999),
-
+    requirePixelHitsIfOuterInOuter=cms.bool(True),
+    
     maxHLTDEtaIn=cms.double(0.1),
     maxHLTDPhiIn=cms.double(0.1),
     maxHLTInvEInvP=cms.double(0.1),

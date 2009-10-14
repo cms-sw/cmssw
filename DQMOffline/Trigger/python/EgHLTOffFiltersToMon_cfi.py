@@ -50,6 +50,7 @@ egHLTOffFiltersToMon = cms.PSet (
     "hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdTrackIsolFilterESet25LTI:hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdDphiFilter:hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronEt15LTITrackIsolFilter:hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter",
+    "hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdTrackIsolFilterESet25LTI:hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdDphiFilter",
     "hltL1NonIsoHLTNonIsoSingleElectronEt20PixelMatchFilter:hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter",
     #pho triggers
     "hltL1NonIsoHLTLEITISinglePhotonEt25TrackIsolFilter:hltL1NonIsoHLTNonIsoSinglePhotonEt25HcalIsolFilter",

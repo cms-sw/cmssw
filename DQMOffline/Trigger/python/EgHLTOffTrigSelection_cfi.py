@@ -50,14 +50,14 @@ egHLTOffEleEt15SWEleIdCuts.endcap.maxDEtaIn = 0.008
 egHLTOffEleEt15SWEleIdCuts.endcap.maxDPhiIn = 0.1
 egHLTOffEleEt15SWEleIdCuts.endcap.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:ctfTrack"
 
-#I am confused by this trigger, it claims to have an et cut of 25 but as far as I can tell its 15
+
 egHLTOffEleEt15SWEleIdLTICuts = cms.PSet(egHLTOffEleEt15SWEleIdCuts)
 egHLTOffEleEt15SWEleIdLTICuts.trigName = "hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdTrackIsolFilterESet25LTI"
-egHLTOffEleEt15SWEleIdLTICuts.barrel.minEt = 15.
+egHLTOffEleEt15SWEleIdLTICuts.barrel.minEt = 25.
 egHLTOffEleEt15SWEleIdLTICuts.barrel.maxHLTIsolTrksEleOverPt=0.5
 egHLTOffEleEt15SWEleIdLTICuts.barrel.maxHLTIsolTrksEle=8
 egHLTOffEleEt15SWEleIdLTICuts.barrel.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:hltIsolTrksEle:ctfTrack"
-egHLTOffEleEt15SWEleIdLTICuts.endcap.minEt = 15.
+egHLTOffEleEt15SWEleIdLTICuts.endcap.minEt = 25.
 egHLTOffEleEt15SWEleIdLTICuts.endcap.maxHLTIsolTrksEleOverPt=0.5
 egHLTOffEleEt15SWEleIdLTICuts.endcap.maxHLTIsolTrksEle=8
 egHLTOffEleEt15SWEleIdLTICuts.endcap.cuts = "et:dEtaIn:dPhiIn:sigmaIEtaIEta:hltIsolTrksEle:ctfTrack"

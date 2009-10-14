@@ -54,11 +54,12 @@ void EgCutValues::setup(const edm::ParameterSet& iConfig)
   maxHLTIsolEmOverEt2 = iConfig.getParameter<double>("maxHLTIsolEmOverEt2");  
 
   minCTFTrkOuterRadius = iConfig.getParameter<double>("minCTFTrkOuterRadius");
-  maxCTFTrkInnerRadius = iConfig.getParameter<double>("minCTFTrkOuterRadius");
+  maxCTFTrkInnerRadius = iConfig.getParameter<double>("maxCTFTrkInnerRadius");
   minNrCTFTrkHits = iConfig.getParameter<int>("minNrCTFTrkHits");
   maxNrCTFTrkHitsLost = iConfig.getParameter<int>("maxNrCTFTrkHitsLost");
   maxCTFTrkChi2NDof = iConfig.getParameter<double>("maxCTFTrkChi2NDof");
-
+  requirePixelHitsIfOuterInOuter = iConfig.getParameter<bool>("requirePixelHitsIfOuterInOuter");
+  
   maxHLTDEtaIn = iConfig.getParameter<double>("maxHLTDEtaIn");
   maxHLTDPhiIn = iConfig.getParameter<double>("maxHLTDPhiIn"); 
   maxHLTInvEInvP = iConfig.getParameter<double>("maxHLTInvEInvP");
