@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2009/08/12 14:54:11 $
- * by         : $Author: flucke $
+ * last update: $Date: 2009/09/15 16:21:55 $
+ * by         : $Author: ckleinw $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -83,7 +83,7 @@ protected:
    */
   virtual bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
 			 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
-			 AlgebraicMatrix &newCurvlinJacobian, double *nextStep,
+			 AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
 			 const PropagationDirection propDir, const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
@@ -118,16 +118,16 @@ protected:
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv);
 				     
-  /** internal methods to add material effects using broken lines
+  /** internal methods to add material effects using broken lines (exact version)
    */
-  // exact 
   virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allJacobians, 
 				     const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv,
 				     const std::vector<double> &allSteps);
-  // fast
+  /** internal methods to add material effects using broken lines (fast version)
+   */
   virtual void addMaterialEffectsBrl(const std::vector<AlgebraicMatrix> &allProjections,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
 				     const std::vector<AlgebraicMatrix> &allLocalToCurv,

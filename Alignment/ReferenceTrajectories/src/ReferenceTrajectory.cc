@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2009/08/12 14:54:12 $
-//  by         : $Author: flucke $
+//  last update: $Date: 2009/09/15 16:21:55 $
+//  by         : $Author: ckleinw $
 
 #include <memory>
 
@@ -135,11 +135,11 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     } else {
       AlgebraicMatrix nextJacobian;
       AlgebraicMatrix nextCurvlinJacobian;
-      double nextStep;
+      double nextStep = 0.;
       TrajectoryStateOnSurface nextTsos;
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
-			   nextJacobian, nextCurvlinJacobian, &nextStep, propDir, magField)) {
+			   nextJacobian, nextCurvlinJacobian, nextStep, propDir, magField)) {
 	return false; // stop if problem...// no delete aMaterialEffectsUpdator needed
       }
 
@@ -253,7 +253,7 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
 
 bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
 				    const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
-				    AlgebraicMatrix &newCurvlinJacobian, double *nextStep,
+				    AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
 				    const PropagationDirection propDir, const MagneticField *magField) const
 {
   // propagate to next layer
@@ -264,7 +264,7 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
   // stop if propagation wasn't successful
   if (!tsosWithPath.first.isValid())  return false;
 
-  *nextStep = tsosWithPath.second;
+  nextStep = tsosWithPath.second;
   // calculate derivative of reference-track parameters on the actual layer w.r.t. the ones
   // on the previous layer (both in global coordinates)
   const AnalyticalCurvilinearJacobian aJacobian(previousTsos.globalParameters(), 
