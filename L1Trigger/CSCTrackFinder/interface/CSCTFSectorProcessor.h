@@ -69,8 +69,9 @@ public:
   int m_mindeta13_accp, m_maxdeta13_accp, m_maxdphi13_accp;
   int m_mindeta112_accp, m_maxdeta112_accp, m_maxdphi112_accp;
   int m_mindeta113_accp, m_maxdeta113_accp, m_maxdphi113_accp;
-	int m_mindphip_halo, m_mindetap_halo;
+  int m_mindphip_halo, m_mindetap_halo;
   int m_straightp, m_curvedp;
+  int m_mbaPhiOff, m_mbbPhiOff;
   int m_widePhi;
   
   //  following parameters were moved here from the CSCTFTrackBuilder because they naturally belong here

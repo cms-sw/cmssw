@@ -66,6 +66,9 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_straightp=-1;
   m_curvedp=-1;
 
+  m_mbaPhiOff=-1;
+  m_mbbPhiOff=-1;
+
   kill_fiber = -1;
   QualityEnableME1a = -1;
   QualityEnableME1b = -1;
@@ -143,6 +146,8 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   if(m_mindetap<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_straightp<0) throw cms::Exception("CSCTFSectorProcessor")<<"straightp parameter left unitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_curvedp<0) throw cms::Exception("CSCTFSectorProcessor")<<"curvedp parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
+  if(m_mbaPhiOff<0) throw cms::Exception("CSCTFSectorProcessor")<<"mbaPhiOff parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
+  if(m_mbbPhiOff<0) throw cms::Exception("CSCTFSectorProcessor")<<"mbbPhiOff parameter left unitialized for endcap="<<m_endcap<<",sector="<<m_sector;
   if(m_mindeta12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"mindeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_maxdeta12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdeta_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_maxdphi12_accp<0) throw cms::Exception("CSCTFSectorProcessor")<<"maxdphi_accp12 parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -214,6 +219,8 @@ void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
 	  m_mindetap = pset.getParameter<unsigned>("mindetap");
 	  m_straightp = pset.getParameter<unsigned>("straightp");
 	  m_curvedp = pset.getParameter<unsigned>("curvedp");
+	  m_mbaPhiOff = pset.getParameter<unsigned>("mbaPhiOff");
+	  m_mbbPhiOff = pset.getParameter<unsigned>("mbbPhiOff");
 	  m_widePhi = pset.getParameter<unsigned>("widePhi");
       m_mindeta12_accp = pset.getParameter<unsigned>("mindeta12_accp");
       m_maxdeta12_accp = pset.getParameter<unsigned>("maxdeta12_accp");
@@ -406,6 +413,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 										m_mindeta113_accp,  m_maxdeta113_accp, m_maxdphi113_accp,
 										m_mindphip_halo, m_mindetap_halo,
 										m_straightp, m_curvedp,
+										m_mbaPhiOff, m_mbaPhiOff,
 										m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger, m_widePhi,
 										m_minBX, m_maxBX) )
       {

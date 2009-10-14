@@ -250,8 +250,9 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 			   const unsigned& maxdeta112_accp, const unsigned& maxdphi112_accp,
 			   const unsigned& mindeta113_accp,
 			   const unsigned& maxdeta113_accp, const unsigned& maxdphi113_accp,
-				 const unsigned& mindphip_halo, const unsigned& mindetap_halo,
+			   const unsigned& mindphip_halo, const unsigned& mindetap_halo,
 			   const unsigned& straightp, const unsigned& curvedp,
+			   const unsigned& mbaPhiOff, const unsigned& mbbPhiOff,
 			   const unsigned& m_extend_length,
 			   const unsigned& m_allowALCTonly, const unsigned& m_allowCLCTonly,
 			   const unsigned& m_preTrigger, const unsigned& m_widePhi,
@@ -305,30 +306,20 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 		io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM, io->mb2idM,
 	 		io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
 
-	 		// Adjustable registers in SP core
 	 		etamin1,etamin2,etamin3,etamin4,etamin5,etamin6,etamin7,etamin8,
 	 		etamax1,etamax2,etamax3,etamax4,etamax5,etamax6,etamax7,etamax8,
-	 		/*
-	 		11*2, 11*2, 7*2, 7*2, 7*2, 5*2,  5*2,  5*2,  // etamin
-	 		127,  127,  127, 127, 127, 12*2, 12*2, 12*2, // etamax */
-	 		//DEA: beam test settings:
-	 		//10,  10,  10, 10, 10, 10,              // etawindow
-	 		//10, 0, 0, 0,                           // eta offsets - NOTE bug in first offset for June04 beam test
-	 		// ORCA settings:
-	 		//Change #1
-	 		etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, etawin7, // eta windows, last 0 is etawn7p
-			//Change #2
+	 		etawin1, etawin2, etawin3, etawin4, etawin5, etawin6, etawin7, 
 			mindphip, mindetap,
-			//Change #3
+			
 			mindeta12_accp, maxdeta12_accp, maxdphi12_accp,
 			mindeta13_accp, maxdeta13_accp, maxdphi13_accp,
+			
 			mindeta112_accp, maxdeta112_accp, maxdphi112_accp,
 			mindeta113_accp, maxdeta113_accp, maxdphi113_accp,
-			//Change #4
-	 		mindphip_halo, mindetap_halo, // maxdeta_accp, maxdphi_accp,  these two commented out in favor of change 2 variables
-			//Change #5
-			straightp, curvedp,  //0,0,
-			//Control Word
+	 		mindphip_halo, mindetap_halo, 
+			
+			straightp, curvedp,
+			mbaPhiOff, mbbPhiOff,
 			(m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
 	 	);
 		

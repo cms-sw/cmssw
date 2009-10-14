@@ -7,9 +7,9 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
     SectorProcessor = cms.PSet(
         CSCCommonTrigger,
         
-				# LUT Setup
-				###########
-				SRLUT = cms.PSet(
+		# LUT Setup
+		###########
+		SRLUT = cms.PSet(
             Binary = cms.untracked.bool(False),
             ReadLUTs = cms.untracked.bool(False),
             LUTPath = cms.untracked.string('./'),
@@ -21,10 +21,10 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
             ReadPtLUT = cms.untracked.bool(False),
             PtMethod = cms.untracked.uint32(1)
         ),
-				
-				# Operational mode control
-				##########################
-				AllowALCTonly = cms.bool(False),
+		
+		# Operational mode control
+		##########################
+		AllowALCTonly = cms.bool(False),
         AllowCLCTonly = cms.bool(False),
         rescaleSinglesPhi  = cms.bool(False),
         run_core = cms.bool(True),
@@ -40,41 +40,43 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
         CoreLatency = cms.uint32(7),
         PreTrigger = cms.uint32(2),
         BXAdepth = cms.uint32(2),
-				widePhi = cms.uint32(1),
-				
-				# Control Registers to core,
-				# Reordered to match firmware interface
-				#######################################
-				mindetap = cms.uint32(8),
-				mindetap_halo = cms.uint32(8),
-				
-				EtaMin = cms.vuint32(22, 22, 14, 14, 14, 14, 10, 22),
-				
-				mindeta12_accp = cms.uint32(7),
-    		mindeta13_accp = cms.uint32(13),
-    		mindeta112_accp = cms.uint32(18),
-    		mindeta113_accp = cms.uint32(28),
+		widePhi = cms.uint32(1),
+		
+		# Control Registers to core,
+		# Reordered to match firmware interface
+		#######################################
+		mindetap = cms.uint32(8),
+		mindetap_halo = cms.uint32(8),
+		
+		EtaMin = cms.vuint32(22, 22, 14, 14, 14, 14, 10, 22),
+		
+		mindeta12_accp = cms.uint32(7),
+    	mindeta13_accp = cms.uint32(13),
+    	mindeta112_accp = cms.uint32(18),
+    	mindeta113_accp = cms.uint32(28),
         
-				EtaMax = cms.vuint32(127, 127, 127, 127, 127, 24, 24, 127),
-				
-				maxdeta12_accp = cms.uint32(16),
-				maxdeta13_accp = cms.uint32(27),
-				maxdeta112_accp = cms.uint32(25),
-				maxdeta113_accp = cms.uint32(30),
-				
+		EtaMax = cms.vuint32(127, 127, 127, 127, 127, 24, 24, 127),
+		
+		maxdeta12_accp = cms.uint32(16),
+		maxdeta13_accp = cms.uint32(27),
+		maxdeta112_accp = cms.uint32(25),
+		maxdeta113_accp = cms.uint32(30),
+		
         EtaWindows = cms.vuint32(6, 6, 6, 6, 6, 6, 6), 
-				
-				maxdphi12_accp = cms.uint32(64),
-				maxdphi13_accp = cms.uint32(64),
-				maxdphi112_accp = cms.uint32(64),
-				maxdphi113_accp = cms.uint32(64),
-				
+		
+		maxdphi12_accp = cms.uint32(64),
+		maxdphi13_accp = cms.uint32(64),
+		maxdphi112_accp = cms.uint32(64),
+		maxdphi113_accp = cms.uint32(64),
+		
         mindphip = cms.uint32(128),
-				mindphip_halo = cms.uint32(128),
-				
-				straightp = cms.uint32(60),
-				curvedp = cms.uint32(200),
-
+		mindphip_halo = cms.uint32(128),
+		
+		straightp = cms.uint32(60),
+		curvedp = cms.uint32(200),
+		
+		mbaPhiOff = cms.uint32(0),
+		mbbPhiOff = cms.uint32(0),
 
         kill_fiber         = cms.uint32(0),
         QualityEnableME1a  = cms.uint32(65535),
