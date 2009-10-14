@@ -46,7 +46,7 @@ class HcalDeadCellClient : public HcalBaseClient {
   /// HtmlOutput
   void htmlOutput(int run, string htmlDir, string htmlName);
   void htmlExpertOutput(int run, string htmlDir, string htmlName);
-  void getHistograms();
+  void getHistograms(bool getall=false);
   void loadHistograms(TFile* f);
   
   ///process report

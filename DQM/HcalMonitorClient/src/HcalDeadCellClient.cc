@@ -263,7 +263,7 @@ void HcalDeadCellClient::report()
 } // HcalDeadCellClient::report()
 
 
-void HcalDeadCellClient::getHistograms()
+void HcalDeadCellClient::getHistograms(bool getall)
 {
   if(!dbe_) return;
 
@@ -290,6 +290,10 @@ void HcalDeadCellClient::getHistograms()
 		     "RecHit Above Threshold At Least Once", RecHitsPresentByDepth);
     }
 
+
+  // Getting these histograms causes memory leak for some reason.  Hmm...
+  if (!getall)
+    return;
   // Summary of all dead cells
   NumberOfDeadCells=getTProfile("DeadCellMonitor_Hcal/TotalDeadCells_HCAL_vs_LS",
 				process_,rootFolder_,dbe_,debug_,cloneME_);
@@ -558,7 +562,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
     {
       cpu_timer.reset(); cpu_timer.start();
     }
-  getHistograms(); 
+  getHistograms(true); 
   if (debug_>1) std::cout << "Preparing HcalDeadCellClient html output ..." << std::endl;
 
   string client = "DeadCellMonitor";
