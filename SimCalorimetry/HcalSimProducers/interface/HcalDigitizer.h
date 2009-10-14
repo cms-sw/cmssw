@@ -8,6 +8,8 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HOHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitFilter.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCHitFilter.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class CaloVShape;
@@ -40,6 +42,8 @@ private:
   /// make sure the digitizer has the correct list of all cells that
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
+  const CaloGeometry * theGeometry;
+  void updateGeometry();
 
   void buildHOSiPMCells(const std::vector<DetId>& allCells);
 
@@ -98,6 +102,12 @@ private:
   HODigitizer* theHOSiPMDigitizer;
   HFDigitizer* theHFDigitizer;
   ZDCDigitizer* theZDCDigitizer;
+
+  // need to cache some DetIds for the digitizers,
+  // if they don't come straight from the geometry
+  std::vector<DetId> theHBHEDetIds;
+  std::vector<DetId> theHOHPDDetIds;
+  std::vector<DetId> theHOSiPMDetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
 

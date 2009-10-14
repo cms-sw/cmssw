@@ -22,7 +22,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -80,7 +79,8 @@ namespace HcalDigitizerImpl {
 
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) 
-: theParameterMap(new HcalSimParameterMap(ps)),
+: theGeometry(0),
+  theParameterMap(new HcalSimParameterMap(ps)),
   theHcalShape(0),
   theSiPMShape(0),
   theHFShape(new HFShape()),
@@ -118,6 +118,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOSiPMDigitizer(0),
   theHFDigitizer(0),
   theZDCDigitizer(0),
+  theHBHEDetIds(),
+  theHOHPDDetIds(),
+  theHOSiPMDetIds(),
   isZDC(true),
   isHCAL(true),
   zdcgeo(true),
@@ -407,18 +410,29 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
-  if(theHBHEResponse) theHBHEResponse->setGeometry(&*geometry);
-  if(theHBHESiPMResponse) theHBHESiPMResponse->setGeometry(&*geometry);
-  if(theHOResponse) theHOResponse->setGeometry(&*geometry);
-  if(theHOSiPMResponse) theHOSiPMResponse->setGeometry(&*geometry);
-  theHFResponse->setGeometry(&*geometry);
-  theZDCResponse->setGeometry(&*geometry);
+  // See if it's been updated
+  if(&*geometry != theGeometry)
+  {
+    theGeometry = &*geometry;
+    updateGeometry();
+  }
+}
 
-  const vector<DetId>& hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const vector<DetId>& heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const vector<DetId>& hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const vector<DetId>& hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
-  const vector<DetId>& zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+
+void  HcalDigitizer::updateGeometry()
+{
+  if(theHBHEResponse) theHBHEResponse->setGeometry(theGeometry);
+  if(theHBHESiPMResponse) theHBHESiPMResponse->setGeometry(theGeometry);
+  if(theHOResponse) theHOResponse->setGeometry(theGeometry);
+  if(theHOSiPMResponse) theHOSiPMResponse->setGeometry(theGeometry);
+  theHFResponse->setGeometry(theGeometry);
+  theZDCResponse->setGeometry(theGeometry);
+
+  const vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
   //const vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
   //const vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
   //std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
@@ -429,11 +443,10 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // combine HB & HE
 
 
+  theHBHEDetIds = hbCells;
+  theHBHEDetIds.insert(theHBHEDetIds.end(), heCells.begin(), heCells.end());
 
-  vector<DetId> hbheCells = hbCells;
-  hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
-
-  HcalDigitizerImpl::fillCells(hbheCells, theHBHEDigitizer, theHBHESiPMDigitizer);
+  HcalDigitizerImpl::fillCells(theHBHEDetIds, theHBHEDigitizer, theHBHESiPMDigitizer);
   //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
   buildHOSiPMCells(hoCells);
   theHFDigitizer->setDetIds(hfCells);
@@ -457,8 +470,6 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
   {
     std::vector<HcalDetId> zecotekDetIds;
     std::vector<HcalDetId> hamamatsuDetIds;
-    std::vector<DetId> siPMDetIds;
-    std::vector<DetId> hpdDetIds;
     for(std::vector<DetId>::const_iterator detItr = allCells.begin();
         detItr != allCells.end(); ++detItr)
     {
@@ -468,22 +479,22 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
       if ((ieta>=5 && ieta <= 10 )  && (iphi >=47 && iphi <=52))
       {
         zecotekDetIds.push_back(hcalId);
-        siPMDetIds.push_back(*detItr);
+        theHOSiPMDetIds.push_back(*detItr);
       } 
       else if(((ieta>=5 && ieta <= 10 ) && (iphi >=53 && iphi <=58))
            || ((ieta>=11 && ieta <= 15 )  && (iphi >=59 && iphi <=70))){
         hamamatsuDetIds.push_back(hcalId);
-        siPMDetIds.push_back(*detItr);
+        theHOSiPMDetIds.push_back(*detItr);
       }
       else {
-        hpdDetIds.push_back(*detItr);
+        theHOHPDDetIds.push_back(*detItr);
       }
     }
     assert(theHODigitizer);
     assert(theHOSiPMDigitizer);
-    theHODigitizer->setDetIds(hpdDetIds);
-    theHOSiPMDigitizer->setDetIds(siPMDetIds);
-    theHOSiPMHitFilter.setDetIds(siPMDetIds);
+    theHODigitizer->setDetIds(theHOHPDDetIds);
+    theHOSiPMDigitizer->setDetIds(theHOSiPMDetIds);
+    theHOSiPMHitFilter.setDetIds(theHOSiPMDetIds);
     // FIXME not applying a HitFilter to the HPDs, for now
     theParameterMap->setHOZecotekDetIds(zecotekDetIds);
     theParameterMap->setHOHamamatsuDetIds(hamamatsuDetIds);
