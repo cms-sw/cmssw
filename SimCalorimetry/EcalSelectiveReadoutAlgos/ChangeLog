@@ -1,6 +1,18 @@
+V02-02-01
+---------
+
+2009-10-14  author  <author@lxplus245.cern.ch>
+
+	* src/EcalSelectiveReadout.cc: remove dependency on printMacro.h
+
 V02-02-00
 ---------
 
+2009-10-14  author  <author@lxplus245.cern.ch>
+
+	* ChangeLog: Log of tags and code changes
+
+	
 2009-06-22  author  <author@lxplus245.cern.ch>
 
 	* interface/EcalSelectiveReadoutSuppressor.h:
