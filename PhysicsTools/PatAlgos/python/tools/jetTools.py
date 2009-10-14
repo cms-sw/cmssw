@@ -558,3 +558,35 @@ def addJetID(process,
     process.load("RecoJets.JetProducers.ak5JetID_cfi")
     setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
     process.makeAllLayer1Jets.replace( process.jetPartonMatch, getattr(process,jetIdLabel) + process.jetPartonMatch )
+
+
+
+
+def setTagInfos(process,
+                coll = "allLayer1Jets",
+                tagInfos = cms.vstring( )
+                ):
+    """
+    ------------------------------------------------------------------    
+    replace tag infos for collection jetSrc
+
+    process       : process
+    jetCollection : jet collection to set tag infos for
+    tagInfos      : tag infos to set
+    ------------------------------------------------------------------    
+    """
+    found = False
+    newTags = cms.VInputTag()
+    iNewTags = 0
+    for k in tagInfos :
+        for j in getattr( process, coll ).tagInfoSources :
+            vv = j.value();
+            if ( vv.find(k) != -1 ):
+                found = True
+                newTags.append( j )
+                
+    if not found:
+        raise RuntimeError,"""
+        Cannot replace tag infos in jet collection""" % (coll)
+    else :
+        getattr(process,coll).tagInfoSources = newTags
