@@ -1,7 +1,6 @@
 <use name=Alignment/TrackerAlignment>
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
-<use name=DataFormats/LaserAlignment>
 <use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/SiStripDigi>
@@ -36,7 +35,6 @@
   <use name=Alignment/TrackerAlignment>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
-  <use name=DataFormats/LaserAlignment>
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiStripDigi>
   <use name=DataFormats/TrackerRecHit2D>
