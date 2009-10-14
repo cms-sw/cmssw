@@ -1,5 +1,5 @@
 HLTriggerFirstPath
-HLT_MinBiasHcal
+HLT_HIMinBiasCalo
 HLT_HIJet35U
 HLT_HIPhoton15
 HLT_HIDoubleMu
