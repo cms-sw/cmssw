@@ -1,4 +1,4 @@
-# last update on $Date: 2008/09/15 19:37:58 $ by $Author: flucke $
+# last update on $Date: 2008/12/17 15:08:21 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,68 +9,51 @@ process.options = cms.untracked.PSet(
     )
 
 # initialize  MessageLogger
-# process.load("FWCore.MessageLogger.MessageLogger_cfi")
-# This whole mess does not really work - I do not get rid of FwkReport and TrackProducer info...
-process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('alignment'), ##, 'cout')
-
-    categories = cms.untracked.vstring('Alignment', 
-        'LogicError', 
-        'FwkReport', 
-        'TrackProducer'),
-    # FwkReport = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
-    # TrackProducer = cms.untracked.PSet( threshold = cms.untracked.string('WARNING') ),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        FwkReport = cms.untracked.PSet(
-            threshold = cms.untracked.string('ERROR')
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.alignment = cms.untracked.PSet(
+    DEBUG = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
         ),
-        TrackProducer = cms.untracked.PSet(
-            threshold = cms.untracked.string('ERROR')
+    INFO = cms.untracked.PSet(
+        #limit = cms.untracked.int32(5)
+        reportEvery = cms.untracked.int32(5),
+        ),
+    WARNING = cms.untracked.PSet(
+        limit = cms.untracked.int32(10)
+        ),
+    ERROR = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1)
+        ),
+    Alignment = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1),
+        reportEvery = cms.untracked.int32(1)
         )
-    ),
-    alignment = cms.untracked.PSet(
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(10)
-        ),
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(10)
-        ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        threshold = cms.untracked.string('DEBUG'),
-        LogicError = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        Alignment = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    destinations = cms.untracked.vstring('alignment') ## (, 'cout')
+    )
+process.MessageLogger.cerr = cms.untracked.PSet(
+    placeholder = cms.untracked.bool(True)
+    )
+process.MessageLogger.destinations = ['alignment']
+process.MessageLogger.statistics = ['alignment']
+process.MessageLogger.categories = ['Alignment']
 
-)
 
 # initialize magnetic field
+#process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 
-# ideal geometry and interface
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-# for Muon: process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+# geometry
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+#del process.CaloTopologyBuilder etc. to speed up...???
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_30X::All'  # take your favourite
+process.GlobalTag.globaltag = 'MC_31X_V9::All' #'IDEAL_30X::All'  # take your favourite
 #    # if alignment constants not from global tag, add this
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 #process.trackerAlignment = cms.ESSource(
 #    "PoolDBESSource",
 #    CondDBSetup,
-#    connect = cms.string("frontier://FrontierProd/CMS_COND_30X_ALIGNMENT"),
+#    connect = cms.string("frontier://FrontierProd/CMS_COND_31X_ALIGNMENT"),
 ##    connect = cms.string("frontier://FrontierPrep/CMS_COND_ALIGNMENT"),
 #    toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
 #                               tag = cms.string("TrackerIdealGeometry210_mc")
@@ -87,7 +70,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 # track selection for alignment
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'ALCARECOTkAlMinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
+process.AlignmentTrackSelector.src = 'ALCARECOTkAlZMuMu' #MinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
 process.AlignmentTrackSelector.ptMin = 2.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -188,9 +171,8 @@ process.AlignmentProducer.applyDbAlignment = False # neither globalTag nor track
 #                                                   AlignmentMonitorGeneric = cms.untracked.PSet()
 #                                                   )
 
-process.AlignmentProducer.algoConfig = cms.PSet(
-    process.MillePedeAlignmentAlgorithm
-)
+# assign by reference (i.e. could change MillePedeAlignmentAlgorithm as well):
+process.AlignmentProducer.algoConfig = process.MillePedeAlignmentAlgorithm
 
 #from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
 #process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
@@ -198,7 +180,9 @@ process.AlignmentProducer.algoConfig.mode = 'full' # 'mille' # 'pede' # 'pedeSte
 process.AlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 process.AlignmentProducer.algoConfig.monitorFile = cms.untracked.string("millePedeMonitor.root")
 process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat")
-#process.AlignmentProducer.algoConfig.TrajectoryFactory = process.BzeroReferenceTrajectoryFactory
+#process.AlignmentProducer.algoConfig.TrajectoryFactory = process.TwoBodyDecayTrajectoryFactory # BzeroReferenceTrajectoryFactory
+#process.AlignmentProducer.algoConfig.TrajectoryFactory.PropagationDirection = 'oppositeToMomentum'
+#process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'Combined', ## or "MultipleScattering" or "EnergyLoss" or "None"
 # ...OR TwoBodyDecayTrajectoryFactory OR ...
 #process.AlignmentProducer.algoConfig.max2Dcorrelation = 2. # to switch off
 #process.AlignmentProducer.algoConfig.fileDir = '/tmp/flucke'
@@ -215,14 +199,20 @@ process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_0_0_pre2/RelValTTbar/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMinBias_v2/0001/580E7A0F-1DB4-DD11-8AA8-001617DBD224.root'
-    # <== is a relval from CMSSW_3_0_0_pre2.
-    #"file:aFile.root" #"rfio:/castor/cern.ch/cms/store/..."
+        #'/store/relval/CMSSW_3_0_0_pre2/RelValTTbar/ALCARECO/STARTUP_V7_StreamALCARECOTkAlMinBias_v2/0001/580E7A0F-1DB4-DD11-8AA8-001617DBD224.root'
+        # <== is a relval from CMSSW_3_0_0_pre2.
+        #"file:aFile.root" #"rfio:/castor/cern.ch/cms/store/..."
+        #'/store/mc/Summer09/MinBias/ALCARECO/MC_31X_V3_StreamTkAlMinBias-v2/0005/C2F77DDA-0292-DE11-BD6B-001731A2870D.root'
+        # <== from /MinBias/Summer09-MC_31X_V3_StreamTkAlMinBias-v2/ALCARECO
+        '/store/mc/Summer09/Zmumu/ALCARECO/MC_31X_V3_7TeV_StreamTkAlZMuMu-v1/0000/FACBA5D7-B1A2-DE11-AE4A-001E4F3F28D8.root'
+        # <== /Zmumu/Summer09-MC_31X_V3_7TeV_StreamTkAlZMuMu-v1/ALCARECO
+        #'file:/tmp/flucke/Summer09_Zmumu_ALCARECO_MC_31X_V3_7TeV_StreamTkAlZMuMu-v1_0000_FACBA5D7-B1A2-DE11-AE4A-001E4F3F28D8.root'
+
     )
                             )
 #process.source = cms.Source("EmptySource")
 #process.maxEvents = cms.untracked.PSet(
-#    input = cms.untracked.int32(0)
+#    input = cms.untracked.int32(10000)
 #    )
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
