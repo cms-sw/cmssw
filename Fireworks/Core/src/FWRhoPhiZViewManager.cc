@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.49 2009/03/11 21:16:20 amraktad Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.50 2009/04/07 14:07:44 chrjones Exp $
 //
 
 // system include files
@@ -741,29 +741,30 @@ TEveGeoShape* FWRhoPhiZViewManager::makeShape( const char* name,
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
 {
    TEveElementList* list = new TEveElementList( "TrackerRhoZ" );
-   list->SetPickable(kFALSE);
+
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
-   list->AddElement(ref);
    ref->SetNextPoint(0.,0.,0.);
+   list->AddElement(ref);
+
    TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
    el->SetPickable(kFALSE);
-   list->AddElement(el);
    el->SetLineColor(colorManager().geomColor(kFWTrackerColorIndex));
    el->AddLine(0, 123,-300, 0, 123, 300);
    el->AddLine(0, 123, 300, 0,-123, 300);
    el->AddLine(0,-123, 300, 0,-123,-300);
    el->AddLine(0,-123,-300, 0, 123,-300);
+   list->AddElement(el);
+
+   m_eveStore->AddElement(list);
+
    float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
    m_rhoZGeomProjMgr->SetCurrentDepth(0.);
    m_rhoZGeomProjMgr->ImportElements( list );
-   m_rhoZGeomProjMgr->ImportElements( list ); // hack
    m_rhoZGeomProjMgr->SetCurrentDepth(layer);
-
-   m_eveStore->AddElement(list);
 }
 
 void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
@@ -776,20 +777,21 @@ void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
    for ( unsigned int i = 1; i <= nSegments; ++i )
       el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
                   r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
-   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+
    TEvePointSet* ref = new TEvePointSet("reference");
    ref->SetPickable(kTRUE);
    ref->SetTitle("(0,0,0)");
    ref->SetMarkerStyle(4);
    ref->SetMarkerColor(kWhite);
-   el->AddElement(ref);
    ref->SetNextPoint(0.,0.,0.);
-   m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
-   m_rhoPhiGeomProjMgr->ImportElements( el );
-   m_rhoPhiGeomProjMgr->ImportElements( el ); // hack
-   m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
+   el->AddElement(ref);
 
    m_eveStore->AddElement(el);
+
+   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
+   m_rhoPhiGeomProjMgr->ImportElements( el );
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
 }
 
 FWTypeToRepresentations
