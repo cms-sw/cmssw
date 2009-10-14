@@ -9,8 +9,8 @@ process = cms.Process("HCALDQM")
 #  variables used in multiple places
 #-----------------------------------                      
 
-maxevents=33          # maximum number of events to process
-checkNevents=33       # histograms are filled 'every checkNevents' events
+maxevents=1000          # maximum number of events to process
+checkNevents=1000       # histograms are filled 'every checkNevents' events
 subsystem="Hcal"        # specify subsystem name  (default is "Hcal")
 source = "PoolSource"   # specify source type (PoolSource, NewEventStreamFileReader, HcalTBSource)
 memcheck =False         # run memory check
