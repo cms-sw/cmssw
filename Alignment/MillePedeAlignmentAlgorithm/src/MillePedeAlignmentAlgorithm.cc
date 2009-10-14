@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.54 $
- *  $Date: 2009/09/15 16:22:34 $
- *  (last update by $Author: ckleinw $)
+ *  $Revision: 1.55 $
+ *  $Date: 2009/10/14 14:14:08 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -41,7 +41,7 @@
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/LaserAlignment/interface/TkFittedLasBeam.h"
+#include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
