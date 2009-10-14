@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2009/10/07 12:30:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/10/13 13:32:40 $
+ *  $Revision: 1.6 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -28,10 +28,6 @@ public:
   ~HLTMonBTagIPSource();
 
 protected:
-  void beginJob(const edm::EventSetup & setup) {
-    beginJob();
-  }
-
   void beginJob(void);
   void endJob(void);
 
