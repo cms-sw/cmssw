@@ -8,7 +8,7 @@ BaseDir=/home/cmstacuser/historyDQM/Cron/Scripts
 CMS_PATH=/afs/cern.ch/cms
 
 # Define the release version to use
-CMSSW_version=/home/cmstacuser/historyDQM/CMSSW_Releases/CMSSW_3_2_4
+CMSSW_version=/home/cmstacuser/historyDQM/CMSSW_Releases/CMSSW_3_2_5
 source /afs/cern.ch/cms/sw/cmsset_default.sh
 echo $CMSSW_version
 cd ${CMSSW_version}/src
@@ -40,8 +40,8 @@ do
     # The last run for which to populate the database (-1 = all runs)
     LastRun=-1
 
-    SubDets=(     "SiStrip" "SiPixel" "Tracking")
-    TagVersions=( "V3"      "V3"      "V1"      )
+    SubDets=(     "SiStrip" "SiPixel" "Tracking" "RPC")
+    TagVersions=( "V3"      "V3"      "V1"       "V1")
 
     # -------------------- #
     # -------------------- #
