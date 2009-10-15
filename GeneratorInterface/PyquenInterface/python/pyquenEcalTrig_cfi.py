@@ -20,17 +20,16 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                                                      kinematics = cms.vstring('CKIN(3) = 50','CKIN(4) = 80')
                                                      ),
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
+                         qgpNumQuarkFlavor = cms.int32(0), ## number of active quark flavors in qgp; allowed values: 0,1,2,3
                          # Center of mass energy
                          comEnergy = cms.double(4000.0),
-
-                         numQuarkFlavor = cms.int32(0), ## number of active quark flavors in qgp; allowed values: 0,1,2,3
                          cFlag = cms.int32(0), ## centrality flag
                          bMin = cms.double(0.0), ## min impact param (fm); valid only if cflag_!=0
                          bMax = cms.double(0.0), ## max impact param (fm); valid only if cflag_!=0
                          maxEventsToPrint = cms.untracked.int32(0), ## events to print if pythiaPylistVerbosit
                          aBeamTarget = cms.double(208.0), ## beam/target atomic number
                          doCollisionalEnLoss = cms.bool(True), ## if true, perform partonic collisional en loss
-                         embeddingMode = cms.bool(True),
+                         embeddingMode = cms.bool(False),
                          backgroundLabel = cms.InputTag("generator")
                          )
 

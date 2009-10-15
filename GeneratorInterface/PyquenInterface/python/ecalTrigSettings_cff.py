@@ -2,13 +2,13 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalTrigCommon = cms.PSet(filterType = cms.untracked.string("EcalGenEvtSelector"),
-                          etaMax = cms.untracked.double(3),
-                          partons = cms.untracked.vint32(1,2,3,4,5,6,21,22),
-                          partonStatus = cms.untracked.vint32(2,2,2,2,2,2,2,1),
-                          particleStatus = cms.untracked.vint32(2, 2, 2, 2, 2,
+                          etaMax = cms.double(3),
+                          partons = cms.vint32(1,2,3,4,5,6,21,22),
+                          partonStatus = cms.vint32(2,2,2,2,2,2,2,1),
+                          particleStatus = cms.vint32(2, 2, 2, 2, 2,
                                                                 2, 1, 1, 2, 2,
                                                                 1, 1, 1),
-                          particles = cms.untracked.vint32(221, -221, # eta
+                          particles = cms.vint32(221, -221, # eta
                                                            331, -331, # eta'
                                                            223, -223, # omega
                                                            211, -211, # pi
@@ -21,8 +21,8 @@ ecalTrigCommon = cms.PSet(filterType = cms.untracked.string("EcalGenEvtSelector"
                           )
 
 ecalTrigPt20 = cms.PSet(ecalTrigCommon,
-                        partonPt = cms.untracked.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
-                        particlePt = cms.untracked.vdouble(17.5, 17.5, # eta
+                        partonPt = cms.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
+                        particlePt = cms.vdouble(17.5, 17.5, # eta
                                                            16., 16., # eta'
                                                            18., 18., # omega
                                                            14.5, 14.5, # pi
@@ -35,8 +35,8 @@ ecalTrigPt20 = cms.PSet(ecalTrigCommon,
 
 
 ecalTrigPt40 = cms.PSet(ecalTrigCommon,
-                        partonPt = cms.untracked.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
-                        particlePt = cms.untracked.vdouble(17.5, 17.5, # eta
+                        partonPt = cms.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
+                        particlePt = cms.vdouble(17.5, 17.5, # eta
                                                            16., 16., # eta'
                                                            18., 18., # omega
                                                            14.5, 14.5, # pi
@@ -48,8 +48,8 @@ ecalTrigPt40 = cms.PSet(ecalTrigCommon,
                         )
 
 ecalTrigPt70 = cms.PSet(ecalTrigCommon,
-                        partonPt = cms.untracked.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
-                        particlePt = cms.untracked.vdouble(17.5, 17.5, # eta
+                        partonPt = cms.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
+                        particlePt = cms.vdouble(17.5, 17.5, # eta
                                                            16., 16., # eta'
                                                            18., 18., # omega
                                                            14.5, 14.5, # pi
@@ -63,8 +63,8 @@ ecalTrigPt70 = cms.PSet(ecalTrigCommon,
 
 
 ecalTrigPt100 = cms.PSet(ecalTrigCommon,
-                         partonPt = cms.untracked.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
-                         particlePt = cms.untracked.vdouble(36.125, 36.125, # eta
+                         partonPt = cms.vdouble(38.5,38.5,38.5,38.5,38.5,38.5,38.5,38.5),
+                         particlePt = cms.vdouble(36.125, 36.125, # eta
                                                             35.25, 35.25, # eta'
                                                             34.75, 34.75, # omega
                                                             32.25, 32.25, # pi
