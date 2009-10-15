@@ -2,17 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 generator = cms.EDFilter("Pythia6GeneratorFilter",
-    #untracked int32 maxEvents = 10
     pythiaPylistVerbosity = cms.untracked.int32(0),
-    filterEfficiency = cms.untracked.double(0.0154),
+    filterEfficiency = cms.untracked.double(0.138),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    crossSection = cms.untracked.double(354400000.0),
+    crossSection = cms.untracked.double(1256000.0),
     comEnergy = cms.double(10000.0),
     maxEventsToPrint = cms.untracked.int32(0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
-        processParameters = cms.vstring('MSEL=61          ! Quarkonia', 
-            'CKIN(3)=0.       ! Min pthard', 
+        processParameters = cms.vstring(
+            'MSEL=61          ! Quarkonia', 
+            'CKIN(3)=10.       ! Min pthard', 
             'CKIN(4)=-1.      ! Max pthard', 
             'MDME(858,1) = 0  ! 0.060200    e-    e+', 
             'MDME(859,1) = 1  ! 0.060100    mu-  mu+', 
@@ -48,7 +48,8 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
             'BRAT(1570)=0.000 ! psi(2S) ->J/psi pi+ pi-',
             'BRAT(1571)=0.000 ! psi(2S) ->J/psi pi0 pi0',
             'BRAT(1572)=0.000 ! psi(2S) ->J/psi eta',
-            'BRAT(1573)=0.000 ! psi(2S) ->J/psi pi0'),
+            'BRAT(1573)=0.000 ! psi(2S) ->J/psi pi0'
+        ),
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters', 
@@ -67,7 +68,8 @@ oniafilter = cms.EDFilter("PythiaFilter",
 
 mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     Status = cms.untracked.vint32(1, 1),
-    MinPt = cms.untracked.vdouble(2.5, 2.5),
+    MinPt = cms.untracked.vdouble(1.0, 1.0),
+    MinP = cms.untracked.vdouble(3.0, 3.0),
     MaxEta = cms.untracked.vdouble(2.5, 2.5),
     MinEta = cms.untracked.vdouble(-2.5, -2.5),
     ParticleCharge = cms.untracked.int32(-1),
@@ -75,4 +77,10 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 
-ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter)
+mugenfilter = cms.EDFilter("MCSingleParticleFilter",
+    Status = cms.untracked.vint32(1,1),
+    MinPt = cms.untracked.vdouble(10.0,10.0),
+    ParticleID = cms.untracked.vint32(13,-13),
+)
+
+ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter*~mugenfilter)
