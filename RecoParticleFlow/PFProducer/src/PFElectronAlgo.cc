@@ -56,7 +56,7 @@ void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
   // should be cleaned as often as often as possible
   elCandidate_.clear();
   allElCandidate_.clear();
-  photonCandidates_.clear();
+  electronConstituents_.clear();
   fifthStepKfTrack_.clear();
   // SetLinks finds all the elements (kf,ecal,ps,hcal,brems) 
   // associated to each gsf track
@@ -1380,52 +1380,56 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	  cout << "SetCandidates:: EcalCluster: EneNoCalib " << clust->clusterRef()->energy()  
 	       << " eta,phi " << ceta << "," << cphi << " Calib " <<  EE << " dE " <<  dE <<endl;
 
+	bool elecCluster=false;
 	if (FirstEcalGsf) {
 	  FirstEcalGsf = false;
+	  elecCluster=true;
 	  ecalGsf_index = assogsf_index[ielegsf];
 	  //	  std::cout << " PFElectronAlgo / Seed " << EE << std::endl;
 	  RawEene += EE;
 	}
-	else // in this case one should make a photon ! 
-	  {
-	      math::XYZTLorentzVector photonMomentum;
-	      math::XYZPoint direction=cl.position()/cl.position().R();
-	      photonMomentum.SetPxPyPzE(EE*direction.x(),
-					EE*direction.y(),
-					EE*direction.z(),
-					EE);
-	      reco::PFCandidate photon_Candidate(0,photonMomentum, reco::PFCandidate::gamma);
-	      
-	      photon_Candidate.setPs1Energy(ps1);
-	      photon_Candidate.setPs1Energy(ps2);
-	      photon_Candidate.setEcalEnergy(EE);
-	      //	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
-	      // yes, EE, we want the raw ecal energy of the daugther to have the same definition
-	      // as the GSF cluster
-	      photon_Candidate.setRawEcalEnergy(EE);
-	      photon_Candidate.setPositionAtECALEntrance(math::XYZPointF(cl.position()));
-	      photon_Candidate.addElementInBlock(blockRef,assogsf_index[ielegsf]);
-	      // store the photon candidate
-	      std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
-		photonCandidates_.find(cgsf);
-	      if(itcheck==photonCandidates_.end())
-		{		  
-		  // beurk
-		  std::vector<reco::PFCandidate> tmpVec;
-		  tmpVec.push_back(photon_Candidate);
-		  photonCandidates_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
-					   (cgsf,tmpVec));
-		}
-	      else
-		{
-		  itcheck->second.push_back(photon_Candidate);
-		}
-	      
+	
+	// create a photon/electron candadte
+	math::XYZTLorentzVector clusterMomentum;
+	math::XYZPoint direction=cl.position()/cl.position().R();
+	clusterMomentum.SetPxPyPzE(EE*direction.x(),
+				  EE*direction.y(),
+				  EE*direction.z(),
+				  EE);
+	reco::PFCandidate cluster_Candidate((elecCluster)?charge:0,
+					    clusterMomentum, 
+					    (elecCluster)? reco::PFCandidate::e : reco::PFCandidate::gamma);
+	
+	cluster_Candidate.setPs1Energy(ps1);
+	cluster_Candidate.setPs1Energy(ps2);
+	cluster_Candidate.setEcalEnergy(EE);
+	//	      std::cout << " PFElectronAlgo, adding Brem (1) " << EE << std::endl;
+	// yes, EE, we want the raw ecal energy of the daugther to have the same definition
+	// as the GSF cluster
+	cluster_Candidate.setRawEcalEnergy(EE);
+	cluster_Candidate.setPositionAtECALEntrance(math::XYZPointF(cl.position()));
+	cluster_Candidate.addElementInBlock(blockRef,assogsf_index[ielegsf]);
+	// store the photon candidate
+	std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
+	  electronConstituents_.find(cgsf);
+	if(itcheck==electronConstituents_.end())
+	  {		  
+	    // beurk
+	    std::vector<reco::PFCandidate> tmpVec;
+	    tmpVec.push_back(cluster_Candidate);
+	    electronConstituents_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
+					 (cgsf,tmpVec));
 	  }
-	Eene+=EE;
-	ps1TotEne+=ps1;
-	ps2TotEne+=ps2;
-	dene+=dE*dE;
+	else
+	  {
+	    itcheck->second.push_back(cluster_Candidate);
+	  }
+	
+	
+      Eene+=EE;
+      ps1TotEne+=ps1;
+      ps2TotEne+=ps2;
+      dene+=dE*dE;
       }
       
 
@@ -1515,13 +1519,13 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 
 	      // store the photon candidate
 	      std::map<unsigned int,std::vector<reco::PFCandidate> >::iterator itcheck=
-		photonCandidates_.find(cgsf);
-	      if(itcheck==photonCandidates_.end())
+		electronConstituents_.find(cgsf);
+	      if(itcheck==electronConstituents_.end())
 		{		  
 		  // beurk
 		  std::vector<reco::PFCandidate> tmpVec;
 		  tmpVec.push_back(photon_Candidate);
-		  photonCandidates_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
+		  electronConstituents_.insert(std::pair<unsigned int, std::vector<reco::PFCandidate> >
 					   (cgsf,tmpVec));
 		}
 	      else
@@ -1636,8 +1640,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	reco::PFCandidate extendedElCandidate(temp_Candidate);
 	// now add the photons to this candidate
 	std::map<unsigned int, std::vector<reco::PFCandidate> >::const_iterator itcluster=
-	  photonCandidates_.find(cgsf);
-	if(itcluster!=photonCandidates_.end())
+	  electronConstituents_.find(cgsf);
+	if(itcluster!=electronConstituents_.end())
 	  {
 	    const std::vector<reco::PFCandidate> & theClusters=itcluster->second;
 	    unsigned nclus=theClusters.size();

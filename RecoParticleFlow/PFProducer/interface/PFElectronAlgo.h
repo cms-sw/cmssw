@@ -76,7 +76,7 @@ class PFElectronAlgo {
   
   std::vector<reco::PFCandidate> elCandidate_;
   std::vector<reco::PFCandidate> allElCandidate_;
-  std::map<unsigned int,std::vector<reco::PFCandidate> > photonCandidates_;
+  std::map<unsigned int,std::vector<reco::PFCandidate> > electronConstituents_;
   std::vector<double> BDToutput_;
   std::vector<bool> lockExtraKf_;
   std::vector<bool> GsfTrackSingleEcal_;

@@ -24,7 +24,7 @@ PFElectronTranslator::PFElectronTranslator(const edm::ParameterSet & iConfig) {
   PFSuperClusterCollection_ = iConfig.getParameter<std::string>("PFSuperClusters");
   PFMVAValueMap_ = iConfig.getParameter<std::string>("ElectronMVA");
   PFSCValueMap_ = iConfig.getParameter<std::string>("ElectronSC");
-  MVACut_ = iConfig.getParameter<double>("MVACut");
+  MVACut_ = (iConfig.getParameter<edm::ParameterSet>("MVACutBlock")).getParameter<double>("MVACut");
 
   produces<reco::BasicClusterCollection>(PFBasicClusterCollection_); 
   produces<reco::PreshowerClusterCollection>(PFPreshowerClusterCollection_); 
