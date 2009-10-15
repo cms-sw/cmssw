@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.17 2009/10/12 23:01:05 rwolf Exp $
+// $Id: Lepton.h,v 1.18 2009/10/13 13:13:14 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Lepton.h,v 1.17 2009/10/12 23:01:05 rwolf Exp $
+  \version  $Id: Lepton.h,v 1.18 2009/10/13 13:13:14 rwolf Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -110,13 +110,13 @@ namespace pat {
       float particleIso() const { return userIsolation(ParticleIso); }
       /// Returns the isolation calculated with only the charged hadron 
       /// PFCandidates
-      float chargedHadronIso() const { return userIsolation(ChargedHadronIso); }
+      float chargedHadronIso() const { return userIsolation(ChargedParticleIso); }
       /// Returns the isolation calculated with only the neutral hadron 
       /// PFCandidates      
-      float neutralHadronIso() const { return userIsolation(NeutralHadronIso); }	
+      float neutralHadronIso() const { return userIsolation(NeutralParticleIso); }	
       /// Returns the isolation calculated with only the gamma 
       /// PFCandidates  
-      float photonIso() const { return userIsolation(PhotonIso); }	
+      float photonIso() const { return userIsolation(GammaParticleIso); }	
       /// Returns the user defined isolation variable #index that was 
       /// stored in this object when produced, or -1.0 if there is none
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
