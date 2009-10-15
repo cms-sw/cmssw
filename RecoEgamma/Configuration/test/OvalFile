@@ -10,11 +10,11 @@ Type "oval p".
 <environment name="SingleElectronPt35">
 
   <environment name="SingleElectronPt35Raw">
-    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root">
+    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root">
   </environment>
   
   <environment name="SingleElectronPt35Reco">
-    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:SingleElectronPt35Raw.root -n 10 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Reco.py --fileout=SingleElectronPt35Reco.root">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:SingleElectronPt35Raw.root -n 10 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Reco.py --fileout=SingleElectronPt35Reco.root">
   </environment>
   
   <environment name="SingleElectronPt35Harv">
@@ -27,11 +27,11 @@ Type "oval p".
 <environment name="QcdPt80-120">
 
   <environment name="QcdPt80-120Raw">
-    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUG --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80-120Raw.py --fileout=QcdPt80-120Raw.root">
+    <executable name="cmsDriver.py" args="QCD_Pt_80_120.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80-120Raw.py --fileout=QcdPt80-120Raw.root">
   </environment>
   
   <environment name="QcdPt80-120Reco">
-    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO --filein file:QcdPt80-120Raw.root -n 10 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80-120Reco.py --fileout=QcdPt80-120Reco.root">
+    <executable name="cmsDriver.py" args="step2 -s RAW2DIGI,RECO,VALIDATION --filein file:QcdPt80-120Raw.root -n 10 --datatier GEN-SIM-RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=QcdPt80-120Reco.py --fileout=QcdPt80-120Reco.root">
   </environment>
   
   <environment name="QcdPt80-120Harv">
