@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.5 2008/10/08 11:44:31 fronga Exp $
+// $Id: GenericParticle.h,v 1.6 2008/11/28 19:02:15 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.5 2008/10/08 11:44:31 fronga Exp $
+  \version  $Id: GenericParticle.h,v 1.6 2008/11/28 19:02:15 lowette Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -133,13 +133,13 @@ namespace pat {
               if (size_t(key) >= isolations_.size()) return -1.0;
               return isolations_[key];
           } else switch (key) {
-              case CaloIso:  
-                  //if (isolations_.size() <= HCalIso) throw cms::Excepton("Missing Data") << "CalIsoo Isolation was not stored for this particle.";
-                  if (isolations_.size() <= HCalIso) return -1.0; 
-                  return isolations_[ECalIso] + isolations_[HCalIso];
-              default:
-                  return -1.0;
-                  //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
+	  case pat::CaloIso:  
+	    //if (isolations_.size() <= pat::HcalIso) throw cms::Excepton("Missing Data") << "CalIsoo Isolation was not stored for this particle.";
+	    if (isolations_.size() <= pat::HcalIso) return -1.0; 
+	    return isolations_[pat::EcalIso] + isolations_[pat::HcalIso];
+	  default:
+	    return -1.0;
+	    //throw cms::Excepton("Missing Data") << "Isolation corresponding to key " << key << " was not stored for this particle.";
           }
       }
 
@@ -153,30 +153,30 @@ namespace pat {
               throw cms::Exception("Illegal Argument") << 
                   "The key for which you're setting isolation does not correspond " <<
                   "to an individual isolation but to the sum of more independent isolations " <<
-                  "(e.g. Calo = ECal + HCal), so you can't SET the value, just GET it.\n" <<
+                  "(e.g. Calo = Ecal + Hcal), so you can't SET the value, just GET it.\n" <<
                   "Please set up each component independly.\n";
           }
       }
 
       // ---- specific getters ----
       /// Return the tracker isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float trackIso() const { return isolation(TrackerIso); }
+      float trackIso() const { return isolation(pat::TrackIso); }
       /// Return the sum of ecal and hcal isolation variable that were stored in this object when produced, or -1.0 if at least one is missing
-      float caloIso()  const { return isolation(CaloIso); }
+      float caloIso()  const { return isolation(pat::CaloIso); }
       /// Return the ecal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float ecalIso()  const { return isolation(ECalIso); }
+      float ecalIso()  const { return isolation(pat::EcalIso); }
       /// Return the hcal isolation variable that was stored in this object when produced, or -1.0 if there is none
-      float hcalIso()  const { return isolation(HCalIso); }
+      float hcalIso()  const { return isolation(pat::HcalIso); }
       /// Return the user defined isolation variable #index that was stored in this object when produced, or -1.0 if there is none
       float userIso(uint8_t index=0)  const { return isolation(IsolationKeys(UserBaseIso + index)); }
 
       // ---- specific setters ----
       /// Sets tracker isolation variable
-      void setTrackIso(float trackIso) { setIsolation(TrackerIso, trackIso); }
+      void setTrackIso(float trackIso) { setIsolation(pat::TrackIso, trackIso); }
       /// Sets ecal isolation variable
-      void setECalIso(float caloIso)   { setIsolation(ECalIso, caloIso);  } 
+      void setEcalIso(float caloIso)   { setIsolation(pat::EcalIso, caloIso);  } 
       /// Sets hcal isolation variable
-      void setHCalIso(float caloIso)   { setIsolation(HCalIso, caloIso);  }
+      void setHcalIso(float caloIso)   { setIsolation(pat::HcalIso, caloIso);  }
       /// Sets user isolation variable #index
       void setUserIso(float value, uint8_t index=0)  { setIsolation(IsolationKeys(UserBaseIso + index), value); }
 
@@ -202,15 +202,15 @@ namespace pat {
       } 
 
       // ---- specific getters ----
-      const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(TrackerIso); }
-      const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(ECalIso); }
-      const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(HCalIso); }
+      const IsoDeposit * trackerIsoDeposit() const { return isoDeposit(pat::TrackIso); }
+      const IsoDeposit * ecalIsoDeposit()    const { return isoDeposit(pat::EcalIso ); }
+      const IsoDeposit * hcalIsoDeposit()    const { return isoDeposit(pat::HcalIso ); }
       const IsoDeposit * userIsoDeposit(uint8_t index=0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
 
       // ---- specific setters ----
-      void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(TrackerIso, dep); }
-      void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(ECalIso, dep); }
-      void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(HCalIso, dep); }
+      void trackerIsoDeposit(const IsoDeposit &dep) { setIsoDeposit(pat::TrackIso, dep); }
+      void ecalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::EcalIso,  dep); }
+      void hcalIsoDeposit(const IsoDeposit &dep)    { setIsoDeposit(pat::HcalIso,  dep); }
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
       /// Vertex association (or associations, if any). Return null pointer if none has been set

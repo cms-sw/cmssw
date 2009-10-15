@@ -6,8 +6,8 @@
 namespace pat {
     typedef reco::IsoDeposit IsoDeposit;
     /// Enum defining isolation keys
-    enum IsolationKeys { TrackerIso=0, ECalIso=1, HCalIso=2,
-			 ParticleIso=3,ChargedParticleIso=4, NeutralParticleIso=5, GammaParticleIso=6, 
+    enum IsolationKeys { TrackIso=0, EcalIso=1, HcalIso=2,
+			 PfAllParticleIso=3,PfChargedHadronIso=4, PfNeutralHadronIso=5, PfGammaIso=6, 
 			 User1Iso=7, User2Iso=8, User3Iso=9, User4Iso=10, User5Iso=11,
 			 UserBaseIso=7, // offset of the first user isolation
 			 CaloIso=-1     // keys which are not real indices are mapped to negative numbers.
