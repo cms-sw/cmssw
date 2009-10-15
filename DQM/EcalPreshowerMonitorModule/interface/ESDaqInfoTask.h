@@ -53,10 +53,14 @@ class ESDaqInfoTask: public edm::EDAnalyzer{
       MonitorElement* meESDaqActive_[56];
       MonitorElement* meESDaqActiveMap_;
 
+      MonitorElement* meESDaqError_;
+
       int ESFedRangeMin_;
       int ESFedRangeMax_;
 
       ESElectronicsMapper * es_mapping_;
+
+      bool ESOnFed_[56];
 
 };
 

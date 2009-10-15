@@ -83,7 +83,28 @@ void ESDaqInfoTask::beginJob(const EventSetup& c){
 	 sprintf(histo, "EcalPreshower_%d", ESFedRangeMin_+i);
 	 meESDaqActive_[i] = dqmStore_->bookFloat(histo);
 	 meESDaqActive_[i]->Fill(0.0);
+
+	 ESOnFed_[i] = false;
+	 for ( int x = 0; x < 80; x++ ) {
+	    for ( int y = 0; y < 80; y++ ) {
+	       int iz = (x<40)?  1:2;
+	       int ip = (y>=40)? 1:2;
+	       int ix = (x<40)? x:x-40;
+	       int iy = (y<40)?  y:y-40;
+	       int ifed = (*es_mapping_).getFED( iz, ip, ix, iy);
+	       if(ifed == ESFedRangeMin_+i){
+		  ESOnFed_[i] = true;
+		  break;
+	       }
+	    }
+	    if(ESOnFed_[i] == true) break;
+	 }
       }
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
+      sprintf(histo, "DAQError");
+      meESDaqFraction_ = dqmStore_->book1D(histo, histo, 56, ESFedRangeMin_-0.5, ESFedRangeMax_+0.5);
+      meESDaqFraction_->setAxisTitle("FedID", 1);
 
    }
 
@@ -106,9 +127,13 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 	 int ix = (x<40)? x:x-40;
 	 int iy = (y<40)?  y:y-40;
 	 int ifed = (*es_mapping_).getFED( iz, ip, ix, iy);
-	 if( ifed > 0 ) meESDaqActiveMap_->setBinContent( x, y, 0.0 );
-	 else meESDaqActiveMap_->setBinContent( x, y, -1.0 );
+	 if( ifed > 0 ) meESDaqActiveMap_->setBinContent( x+1, y+1, 0.0 );
+	 else meESDaqActiveMap_->setBinContent( x+1, y+1, -1.0 );
       }
+   }
+
+   for (int i = 0; i < 56; i++) {
+      meESDaqError_->setBinContent(i, 0.0);
    }
 
    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
@@ -128,7 +153,7 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
 	 if ( fedID >= ESFedRangeMin_ && fedID <= ESFedRangeMax_ ) {
 
-	    ESFedCount++;
+	    if( ESOnFed_[fedID - ESFedRangeMin_] ) ESFedCount++;
 
 	    if ( meESDaqActive_[fedID-ESFedRangeMin_] ) meESDaqActive_[fedID-ESFedRangeMin_]->Fill(1.0);
 
@@ -141,7 +166,7 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 		     int ix = (x<40) ?  x:x-40;
 		     int iy = (x<40) ?  y:y-40;
 		     int ifed = es_mapping_->getFED(iz, ip, ix, iy);
-		     if( fedID==ifed ) meESDaqActiveMap_->setBinContent( x, y, 1.0 );
+		     if( fedID==ifed ) meESDaqActiveMap_->setBinContent( x+1, y+1, 1.0 );
 		  }
 	       }
 
@@ -149,11 +174,18 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
 	    if( meESDaqFraction_ ) meESDaqFraction_->Fill( ESFedCount/40. );
 
+	    if( meESDaqError_ ){
+	       for( int i = 0; i < 56; i++){
+		  if( ESOnFed_[fedID-ESFedRangeMin_] ) meESDaqError_->setBinContent(i+1, 1.0);
+		  else meESDaqError_->setBinContent(i+1, 2.0);
+	       }
+	    }
+
 	 }
 
       }
 
-   } else {
+ } else {
 
       LogWarning("ESDaqInfoTask") << "Cannot find any RunInfoRcd" << endl;
 
@@ -175,6 +207,8 @@ void ESDaqInfoTask::reset(void) {
 
    if ( meESDaqActiveMap_ ) meESDaqActiveMap_->Reset();
 
+   if ( meESDaqError_ ) meESDaqError_->Reset();
+
 }
 
 
@@ -187,6 +221,8 @@ void ESDaqInfoTask::cleanup(void){
       if ( meESDaqFraction_ ) dqmStore_->removeElement( meESDaqFraction_->getName() );
 
       if ( meESDaqActiveMap_ ) dqmStore_->removeElement( meESDaqActiveMap_->getName() );
+
+      if ( meESDaqError_ ) dqmStore_->removeElement( meESDaqError_->getName() );
 
       dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
