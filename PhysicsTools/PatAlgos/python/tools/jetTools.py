@@ -290,13 +290,14 @@ def switchJetCollection(process,
         ## jet production to 'False'
         process.allLayer1Jets.addBTagInfo = False
 
-    if ( doJetID) :
+    if (doJetID):
         jetIdLabelNew = jetIdLabel + 'JetID'
         print "Making new jet ID label with label " + jetIdLabel
         process.load("RecoJets.JetProducers.ak5JetID_cfi")
         setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetCollection))
         process.allLayer1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
     else :
+        process.makeAllLayer1Jets.remove(process.recoJetId)
         process.allLayer1Jets.addJetID = cms.bool(False)
 
 
@@ -384,11 +385,11 @@ def addJetCollection(process,
     affect also the new jets
     ------------------------------------------------------------------                     
     """    
-    ## add module as process to the default sequence
+    ## add module as process to the makeAllLayer1Jets sequence
     def addAlso(label, value):
         existing = getattr(process, label)
         setattr( process, label+postfixLabel, value)
-        process.patDefaultSequence.replace( existing, existing*value )
+        process.makeAllLayer1Jets.replace( existing, existing*value )
 
     ## clone and add a module as process to the
     ## default sequence
@@ -427,16 +428,6 @@ def addJetCollection(process,
     fixInputTag(l1Jets.genPartonMatch)
     fixInputTag(l1Jets.JetPartonMapSource)
 
-    ## find potential triggers for trigMatch 
-    ##triggers = MassSearchParamVisitor('src', process.allLayer1Jets.jetSource)
-    ##process.patTrigMatch.visit(triggers)
-    ##for mod in triggers.modules():
-    ##    if (doTrigMatch):
-    ##        newmod = mod.clone(src = jetCollection)
-    ##        setattr( process, mod.label()+postfixLabel, newmod )
-    ##        process.patTrigMatch.replace( mod, mod * newmod )
-    ##for it in l1Jets.trigPrimMatch.value(): fixInputTag(it)
-
     ## make VInputTag from strings 
     def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
@@ -462,7 +453,6 @@ def addJetCollection(process,
         (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel)
         ## add b tagging sequence before running the allLayer1Jets modules
         process.makeAllLayer1Jets.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
-
         ## replace corresponding tags for pat jet production
         l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
         l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
@@ -471,12 +461,17 @@ def addJetCollection(process,
         ## switch general b tagging info switch off
         l1Jets.addBTagInfo = False
         
-
-    if ( doJetID) :
+    if (doJetID):
         jetIdLabelNew = jetIdLabel + 'JetID'
         print "Making new jet ID label with label " + jetIdLabel
-        process.load("RecoJets.JetProducers.ak5JetID_cfi")
-        setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetCollection))
+        ## add new jetID to the makeAllLayer1Jets sequence
+        ## this does not work simply with addClone as we
+        ## use prefixes insterad of postfixes, so we have
+        ## to do it by hand here. Note that it is hooked
+        ## to the ak5 default
+        jetIdModuleNew = getattr( process, "ak5JetID").clone(src = jetCollection)
+        setattr(process, jetIdLabelNew, jetIdModuleNew)
+        process.makeAllLayer1Jets.replace(process.ak5JetID, process.ak5JetID*jetIdModuleNew)        
         l1Jets.addJetID = cms.bool(True)
         l1Jets.jetIDMap = cms.InputTag( jetIdLabelNew )
     else :
