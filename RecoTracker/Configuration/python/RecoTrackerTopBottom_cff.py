@@ -20,8 +20,8 @@ from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import rsWithMateria
 
 siPixelRecHitsTop = siPixelRecHits.clone(src = cms.InputTag("siPixelClustersTop"))
 siPixelRecHitsBottom = siPixelRecHits.clone(src = cms.InputTag("siPixelClustersBottom"))
-siStripMatchedRecHitsTop = siStripMatchedRecHits.clone(ClusterProducer = cms.string('siStripClustersTop'))
-siStripMatchedRecHitsBottom = siStripMatchedRecHits.clone(ClusterProducer = cms.string('siStripClustersBottom'))
+siStripMatchedRecHitsTop = siStripMatchedRecHits.clone(ClusterProducer = cms.InputTag('siStripClustersTop'))
+siStripMatchedRecHitsBottom = siStripMatchedRecHits.clone(ClusterProducer = cms.InputTag('siStripClustersBottom'))
 
 from RecoLocalTracker.SubCollectionProducers.TopBottomClusterInfoProducer_cfi import topBottomClusterInfoProducer
 topBottomClusterInfoProducerTop = topBottomClusterInfoProducer.clone()
