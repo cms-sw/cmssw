@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoMuon.muonValidationHLT_cff import *
-from HLTriggerOffline.Muon.muonTriggerRateTimeAnalyzer_cfi import *
+from HLTriggerOffline.Muon.hltMuonValidator_cfi import *
 from Validation.RecoMuon.muonValidationHLTFastSim_cff import *
 
-print "Initializing muonBits"
 from DQM.HLTEvF.HLTMonMuonBits_cfi import *
 relvalMuonBits = hltMonMuBits.clone(
     directory = cms.untracked.string('HLT/Muon/'),
@@ -18,13 +17,12 @@ relvalMuonBits = hltMonMuBits.clone(
 
 HLTMuonVal = cms.Sequence(
     recoMuonValidationHLT_seq + 
-    muonTriggerRateTimeAnalyzer +
+    hltMuonValidator +
     relvalMuonBits
     )
 
 HLTMuonVal_FastSim = cms.Sequence(
     recoMuonValidationHLTFastSim_seq +
-    muonTriggerRateTimeAnalyzer +
-    relvalMuonBits
+    hltMuonValidator
     )
 
