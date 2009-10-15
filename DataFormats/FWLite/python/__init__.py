@@ -320,7 +320,7 @@ class Events:
         while not self._event.atEnd() :
             yield self
             self._eventCounts += 1
-            if self._maxEvents and self._eventCounts >= self._maxEvents:
+            if self._maxEvents > 0 and self._eventCounts >= self._maxEvents:
                 break
             # Have we been asked to go to the first event?
             if self._toBegin:
