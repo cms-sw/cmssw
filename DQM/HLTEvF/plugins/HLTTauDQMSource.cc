@@ -86,7 +86,7 @@ HLTTauDQMSource::~HLTTauDQMSource()
 
 //--------------------------------------------------------
 void 
-HLTTauDQMSource::beginJob(const EventSetup& context){
+HLTTauDQMSource::beginJob(){
 
 }
 

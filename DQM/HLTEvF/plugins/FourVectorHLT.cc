@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.9 2008/08/08 09:02:31 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.10 2008/08/22 21:49:54 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -190,7 +190,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // -- method called once each job just before starting event loop  --------
 void 
-FourVectorHLT::beginJob(const edm::EventSetup&)
+FourVectorHLT::beginJob()
 {
   nev_ = 0;
   DQMStore *dbe = 0;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  May 2008
-// $Id: FourVectorHLT.h,v 1.4 2008/05/23 16:46:17 wittich Exp $
+// $Id: FourVectorHLT.h,v 1.5 2008/05/24 13:23:14 wittich Exp $
 //
 //
 
@@ -54,7 +54,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

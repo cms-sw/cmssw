@@ -654,7 +654,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // -- method called once each job just before starting event loop  --------
 void 
-HLTJetMETDQMSource::beginJob(const edm::EventSetup&){
+HLTJetMETDQMSource::beginJob(){
   nev_ = 0;
   DQMStore *dbe = 0;
   dbe = Service<DQMStore>().operator->();

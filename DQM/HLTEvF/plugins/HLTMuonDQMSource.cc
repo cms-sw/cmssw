@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.28 2009/08/07 11:56:40 wteo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.30 2009/08/26 12:14:25 wteo Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -143,7 +143,7 @@ HLTMuonDQMSource::~HLTMuonDQMSource()
 
 
 //--------------------------------------------------------
-void HLTMuonDQMSource::beginJob(const EventSetup& context)
+void HLTMuonDQMSource::beginJob()
 {
   if (dbe_) {
     //dbe_->setCurrentFolder("monitorName_");

@@ -48,7 +48,7 @@ class HLTMonJetMETDQMSource : public edm::EDAnalyzer {
   explicit HLTMonJetMETDQMSource(const edm::ParameterSet&);
   ~HLTMonJetMETDQMSource();
  private:
-      virtual void beginJob(const edm::EventSetup&);
+      virtual void beginJob();
       virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
       
       virtual void analyze(const edm::Event&, const edm::EventSetup&);

@@ -134,7 +134,7 @@ HLTMonElectronConsumer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTMonElectronConsumer::beginJob(const edm::EventSetup&)
+HLTMonElectronConsumer::beginJob()
 {
   
   DQMStore *dbe = 0;

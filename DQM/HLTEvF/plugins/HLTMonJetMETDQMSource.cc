@@ -106,8 +106,7 @@ HLTMonJetMETDQMSource::~HLTMonJetMETDQMSource()
   
 }
 
-void HLTMonJetMETDQMSource::beginJob(const edm::EventSetup&)
-//HLTMonJetMETDQMSource::beginJob(const edm::EventSetup&)
+void HLTMonJetMETDQMSource::beginJob()
 {
   nev_ = 0;
   DQMStore *dbe = 0;

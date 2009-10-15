@@ -12,7 +12,7 @@
 // Adapted from HLTMonElectronConsumer.h
 // Adapted for JetMET by. J. Cammin
 //
-// $Id: HLTMonJetMETConsumer.h,v 1.1 2008/12/21 01:43:49 cammin Exp $
+// $Id: HLTMonJetMETConsumer.h,v 1.2 2009/04/21 09:13:53 lorenzo Exp $
 //
 //
 
@@ -50,7 +50,7 @@ class HLTMonJetMETConsumer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

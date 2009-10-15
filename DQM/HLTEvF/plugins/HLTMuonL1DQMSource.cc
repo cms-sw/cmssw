@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonL1DQMSource.cc,v 1.7 2008/03/05 13:24:44 muriel Exp $
+// $Id: HLTMuonL1DQMSource.cc,v 1.1 2008/06/25 10:46:57 muriel Exp $
 //
 //
 
@@ -90,7 +90,7 @@ HLTMuonL1DQMSource::~HLTMuonL1DQMSource()
 }
 
 //--------------------------------------------------------
-void HLTMuonL1DQMSource::beginJob(const EventSetup& context){
+void HLTMuonL1DQMSource::beginJob(){
 
  
    if (dbe_) {

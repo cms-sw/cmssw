@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOnline.h,v 1.18 2009/03/27 03:13:58 berryhil Exp $
+// $Id: FourVectorHLTOnline.h,v 1.3 2009/03/27 04:13:08 berryhil Exp $
 //
 //
 
@@ -53,7 +53,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

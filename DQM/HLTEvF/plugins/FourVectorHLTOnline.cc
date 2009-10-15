@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.5 2009/03/27 04:13:08 berryhil Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.6 2009/04/15 23:01:16 berryhil Exp $
 // See header file for information. 
 #include "TMath.h"
 
@@ -784,7 +784,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // -- method called once each job just before starting event loop  --------
 void 
-FourVectorHLTOnline::beginJob(const edm::EventSetup&)
+FourVectorHLTOnline::beginJob()
 {
   nev_ = 0;
   DQMStore *dbe = 0;

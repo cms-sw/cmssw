@@ -157,7 +157,7 @@ HLTAlCaMonPi0::~HLTAlCaMonPi0()
 
 
 //--------------------------------------------------------
-void HLTAlCaMonPi0::beginJob(const EventSetup& context){
+void HLTAlCaMonPi0::beginJob(){
 
 
   // create and cd into new folder

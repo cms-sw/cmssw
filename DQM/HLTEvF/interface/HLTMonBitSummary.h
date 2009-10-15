@@ -32,7 +32,7 @@ class HLTMonBitSummary : public edm::EDAnalyzer {
       ~HLTMonBitSummary();
 
 private:
-  virtual void beginJob(const edm::EventSetup&) {}
+  virtual void beginJob() {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   virtual void beginRun(const edm::Run  & r, const edm::EventSetup  &);

@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id: HLTMonElectronConsumer.h,v 1.4 2008/07/02 08:32:32 mmozer Exp $
+// $Id: HLTMonElectronConsumer.h,v 1.1 2008/08/01 13:13:30 mmozer Exp $
 //
 //
 
@@ -55,7 +55,7 @@ class HLTMonElectronConsumer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 

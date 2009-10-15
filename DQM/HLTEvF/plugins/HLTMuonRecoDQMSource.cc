@@ -12,7 +12,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonRecoDQMSource.cc,v 1.1 2008/06/25 10:46:57 muriel Exp $
+// $Id: HLTMuonRecoDQMSource.cc,v 1.2 2008/10/16 16:41:29 hdyoo Exp $
 //
 //
 
@@ -98,7 +98,7 @@ HLTMuonRecoDQMSource::~HLTMuonRecoDQMSource()
 
 
 //--------------------------------------------------------
-void HLTMuonRecoDQMSource::beginJob(const EventSetup& context){
+void HLTMuonRecoDQMSource::beginJob(){
  
    if (dbe_) {
      dbe_->setCurrentFolder("monitorName_");

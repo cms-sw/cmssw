@@ -172,7 +172,7 @@ HLTMonPhotonClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-HLTMonPhotonClient::beginJob(const edm::EventSetup&)
+HLTMonPhotonClient::beginJob()
 {
   
   DQMStore *dbe = 0;

@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/07/27 20:12:02 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/08/26 11:59:22 $
+ *  $Revision: 1.18 $
  *  \author  M. Vander Donckt CERN
  *   
  */
@@ -32,7 +32,7 @@ public:
 protected:
    
   /// BeginJob
-  void beginJob(const edm::EventSetup& c);
+  void beginJob();
 
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
