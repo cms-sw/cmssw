@@ -1,6 +1,7 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=GeneratorInterface/Core>
+<use name=GeneratorInterface/HiGenCommon>
 <use name=SimDataFormats/GeneratorProducts>
 <use name=SimDataFormats/HiGenData>
 <use name=clhep> 

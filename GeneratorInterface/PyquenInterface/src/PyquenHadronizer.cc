@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.8 2009/09/21 13:17:22 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.9 2009/10/01 18:53:17 loizides Exp $
 */
 
 #include <iostream>
@@ -15,14 +15,13 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "GeneratorInterface/PyquenInterface/interface/HiGenSkimmerFactory.h"
+#include "GeneratorInterface/HiGenCommon/interface/HiGenEvtSelectorFactory.h"
 
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/PythiaWrapper.h"
@@ -75,7 +74,7 @@ pythia6Service_(new Pythia6Service(pset))
      src_ = pset.getParameter<InputTag>("backgroundLabel");
   }
 
-  skimmer_ = HiGenSkimmerFactory::get(filterType_,pset);
+  selector_ = HiGenEvtSelectorFactory::get(filterType_,pset);
 }
 
 
@@ -169,7 +168,7 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
       
       // event information
       evt = hepevtio.read_next_event();
-      pass = skimmer_->filter(evt);
+      pass = selector_->filter(evt);
       counter++;
    }
 

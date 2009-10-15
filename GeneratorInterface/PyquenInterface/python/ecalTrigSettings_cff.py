@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-ecalTrigCommon = cms.PSet(filterType = cms.untracked.string("EcalCandidateSkimmer"),
+ecalTrigCommon = cms.PSet(filterType = cms.untracked.string("EcalGenEvtSelector"),
                           etaMax = cms.untracked.double(3),
                           partons = cms.untracked.vint32(1,2,3,4,5,6,21,22),
                           partonStatus = cms.untracked.vint32(2,2,2,2,2,2,2,1),
